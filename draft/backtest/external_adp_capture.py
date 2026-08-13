@@ -48,7 +48,7 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: from the rows, a field that stops being written simply stops existing and the
 #: population record cannot tell you it is gone — which is the failure mode, not a
 #: detail of it.
-SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count"]
+SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count", "source_note"]
 
 # The header the shipped client sends; FFC 403s Python's default. Kept in step
 # with `draft/adp.py` by test, not by trust.
@@ -56,7 +56,7 @@ USER_AGENT = "mfga-league-draft-tool/1.0"
 
 
 def append_snapshot(series: list, year, observed_at: str, rows: dict,
-                    total_drafts=None) -> list:
+                    total_drafts=None, source_note=None) -> list:
     """Add one day's board. Returns a NEW series; deduped by (year, date).
 
     NO TRUNCATION AND NO RETENTION WINDOW, deliberately — see the module note.
@@ -85,6 +85,22 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
         # accumulates — and a snapshot without it cannot be judged later.
         "total_drafts": total_drafts,
         "row_count": len(rows or {}),
+        # WHICH MARKET PRICED THESE PLAYERS. `fetch_mfl` has always built this
+        # string and it was always thrown away, so the archive held prices with no
+        # record of the format that produced them — the decode-key defect one layer
+        # up, and just as invisible.
+        #
+        # MEASURED, NOT HYPOTHETICAL: against FantasyPros on the same players, the
+        # median MFL/FPROS ADP ratio is 0.98 at TE and 1.01 at DEF — and 0.514 at
+        # QB, ranging 0.12 to 0.77 and varying with rank, because this pool includes
+        # superflex leagues. No scalar correction repairs that. A grader reading
+        # these snapshots as F5 evidence in 2027 would price quarterbacks off a
+        # superflex market with nothing in the file to say so.
+        #
+        # It also carries the players-export failure flag, so a day whose ids may be
+        # undecodable is marked in the archive rather than only in a CI log that
+        # expires.
+        "source_note": source_note,
     })
     keep.sort(key=lambda s: (s["year"], s["observed_at"]))
     return keep
@@ -634,7 +650,8 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "capture for %s on %s returned ZERO rows — refusing to write an empty "
             "snapshot, because a dated empty board is indistinguishable from a real "
             "one downstream (%s)" % (year, observed_at, note))
-    series = append_snapshot(load(path), year, observed_at, rows, total)
+    series = append_snapshot(load(path), year, observed_at, rows, total,
+                             source_note=note)
     save(series, path, players=players)
     rep = coverage(series, year)
     key = load_players(path)

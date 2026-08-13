@@ -9027,3 +9027,68 @@ something: team count and slot count against the imported config, the flex mappi
 all eight copies of it, the flex allocation against its own undistorted input, and the
 depths against two independent markets. **The only defect in the derivation is the one
 already reported — it counts starters and the league rosters benches.**
+
+---
+
+## 🔧 THE ARCHIVE RECORDED PRICES WITH NO RECORD OF THE MARKET THAT SET THEM (C, 2026-08-13)
+
+Found while trying to repair my own instrument. **`fetch_mfl` has always built
+`note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"`, handed it to `capture()` — and `capture()`
+used it only in an error message. It was never persisted.** A producer with no consumer, on
+the one fact that makes the prices interpretable. **Same defect class as the missing decode
+key, one layer up, and I built that fix without noticing this one.**
+
+### WHY IT IS NOT COSMETIC — MEASURED
+
+I tried to convert my superflex caveat into a calibration. **Same players, both markets:**
+
+```
+   median MFL ADP / FantasyPros ADP      TE 0.983   DEF 1.008   K 1.086
+                                         WR 1.108   RB 1.314
+                                         QB 0.514   <-- the outlier
+```
+
+Every position sits between 0.98 and 1.31 **except QB at 0.514** — MFL prices quarterbacks
+nearly twice as early. That is the superflex signature, isolated.
+
+**AND IT CANNOT BE CORRECTED BY A FACTOR, which is the useful negative:**
+
+```
+   Josh Allen      FPROS  21.7   MFL   2.6   ratio 0.122
+   early QBs (FPROS<=100)  n=11  median 0.381
+   late  QBs               n=28  median 0.580
+   overall n=39  median 0.514  IQR 0.447-0.696  stdev 0.216
+```
+
+**The distortion is strongest at the top and varies systematically with rank** — exactly what
+superflex does. **So no scalar repairs it, FantasyPros must be the QB reference, and the MFL
+archive's QB prices are not a 1-QB signal at any correction.** My decision to exclude the
+MFL QB number was right; this measures why, and the sensitivity sweep already showed the
+baseline conclusion holds for QB depth 10-23 regardless.
+
+**AND THAT IS PRECISELY WHY THE PROVENANCE MATTERS.** A grader reading these snapshots as F5
+evidence in 2027 would price quarterbacks off a superflex market **with nothing in the file
+to warn them.** The archive is built to outlive its source; it was not recording the one
+thing that makes it readable in context.
+
+### WHAT I CHANGED
+
+`source_note` is now stored **per snapshot**, declared in `SNAPSHOT_FIELDS` so its population
+is tracked, and it carries the players-export failure flag — so a day whose ids may be
+undecodable is marked **in the archive** rather than only in a CI log that expires.
+
+**Rehearsed against the real archive.** The two days captured before provenance existed are
+reported honestly rather than back-filled:
+
+```
+   2026-08-11  source_note = None        population: present 1, missing 2, 33.3%
+   2026-08-12  source_note = None        decode key preserved: 708 ids
+   2026-08-13  source_note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
+```
+
+**Absent is not zero, so they read as missing — not as clean.** 1481 Python tests green.
+
+**Still unfixed and stated plainly:** the capture itself remains superflex-contaminated for
+QB. MFL's documented ADP parameters (`TYPE, PERIOD, IS_PPR, IS_KEEPER, IS_MOCK, INJURED,
+CUTOFF, FCOUNT`) contain no starter-requirement filter, so I cannot exclude those leagues at
+the source. **The archive now says so on every row instead of leaving it to be rediscovered.**
