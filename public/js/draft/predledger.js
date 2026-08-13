@@ -18,6 +18,101 @@
   var seen = {};          // dedup keys for once-per-pick kinds
   var lastError = null;
 
+  /* ── A FAILED POST IS PARKED, NEVER DROPPED (2026-08-13, routed by B) ──────
+   *
+   * The previous behaviour was: post, retry once, log, RETURN NULL. The record
+   * was then gone. B put it plainly — every draft-night override was one network
+   * blip from being lost permanently — and an override is the single hardest
+   * record to reconstruct afterwards, because it is a JUDGEMENT and nothing in
+   * the artifact implies it. A lost recommendation can be rebuilt from the board;
+   * a lost "I took Cook over Bowers because of news" cannot be rebuilt from
+   * anything.
+   *
+   * The header already promised the failure would be "visible, not swallowed".
+   * It WAS visible. Visible and gone is still gone — surfacing a loss is not the
+   * same as preventing one, and the comment let that distinction pass.
+   *
+   * So: on final failure the body goes to localStorage, and every later success
+   * drains the queue oldest-first. Draft night is one machine, one tab, a few
+   * hours; localStorage is the right durability for exactly that and no more.
+   *
+   * FOUR THINGS THIS DELIBERATELY DOES NOT DO:
+   *   - It never blocks. Draft night has a clock; a flush is fire-and-forget.
+   *   - It never reorders. The queue drains in order and STOPS at the first
+   *     failure, so a replay cannot interleave a late record ahead of an
+   *     earlier one.
+   *   - It never silently discards to stay under quota. If the queue is full the
+   *     new record is refused and SAYS SO, because dropping the newest quietly
+   *     is the same defect one level down.
+   *   - It never pretends a replay happened at decision time. `client_at` keeps
+   *     the original instant and `payload.replayed_at` marks the delay, so the
+   *     server's authoritative stamp can be recognised as a REPLAY stamp rather
+   *     than mistaken for when the decision was made.
+   */
+  var QUEUE_KEY = 'predledger_pending_v1';
+  var QUEUE_MAX = 500;                    // ~30x a full draft's decision count
+  var flushing = false;
+
+  function store() {
+    try {
+      var s = global.localStorage;
+      if (!s) return null;
+      s.setItem('__pl_probe', '1'); s.removeItem('__pl_probe');   // private mode throws
+      return s;
+    } catch (e) { return null; }
+  }
+  function readQueue() {
+    var s = store();
+    if (!s) return [];
+    try {
+      var raw = s.getItem(QUEUE_KEY);
+      var q = raw ? JSON.parse(raw) : [];
+      return Array.isArray(q) ? q : [];
+    } catch (e) { return []; }            // corrupt queue must not break capture
+  }
+  function writeQueue(q) {
+    var s = store();
+    if (!s) return false;
+    try { s.setItem(QUEUE_KEY, JSON.stringify(q)); return true; } catch (e) { return false; }
+  }
+  function queueLength() { return readQueue().length; }
+  function enqueue(body) {
+    var q = readQueue();
+    if (q.length >= QUEUE_MAX) return false;
+    q.push({ body: body, queued_at: new Date().toISOString() });
+    return writeQueue(q);
+  }
+
+  /* Drain oldest-first, stopping at the first failure so ordering holds. */
+  function flush() {
+    if (flushing) return Promise.resolve(0);
+    var q = readQueue();
+    if (!q.length) return Promise.resolve(0);
+    flushing = true;
+    var sent = 0;
+    function step() {
+      var cur = readQueue();
+      if (!cur.length) return Promise.resolve();
+      var head = cur[0];
+      var body = head.body;
+      if (body && body.payload && typeof body.payload === 'object' && !body.payload.replayed_at) {
+        body.payload.replayed_at = new Date().toISOString();
+      }
+      return post(body).then(function () {
+        var after = readQueue();
+        after.shift();
+        writeQueue(after);
+        sent++;
+        return step();
+      }, function () { /* still down — leave the rest parked, in order */ });
+    }
+    return step().then(function () {
+      flushing = false;
+      if (sent && global.console) console.log('[predledger] replayed ' + sent + ' parked record(s)');
+      return sent;
+    }, function () { flushing = false; return sent; });
+  }
+
   function post(body) {
     if (typeof fetch !== 'function') return Promise.resolve(null);
     return fetch(ENDPOINT, {
@@ -95,11 +190,23 @@
       client_at: new Date().toISOString(),   // provenance only; server clock is authority
       payload: payload,
     };
-    return post(body).catch(function (e) {
-      // one retry, then make the loss loud
+    return post(body).then(function (r) {
+      /* A SUCCESS IS THE ONLY RELIABLE SIGNAL THAT THE NETWORK IS BACK. There is
+       * no timer and no retry loop: the next real capture drains whatever is
+       * parked. Draft night produces a decision every few minutes, so the queue
+       * is never parked for long, and nothing spins in the background. */
+      if (queueLength()) flush();
+      return r;
+    }).catch(function (e) {
+      // one retry, then PARK IT RATHER THAN DROP IT — see the queue notes above.
       return post(body).catch(function (e2) {
         lastError = String(e2 && e2.message || e2);
-        if (global.console) console.error('[predledger] capture failed:', lastError, body);
+        var parked = enqueue(body);
+        if (global.console) {
+          console.error('[predledger] post failed:', lastError,
+            parked ? '— PARKED for replay (' + queueLength() + ' pending)'
+                   : '— AND COULD NOT BE PARKED. THIS RECORD IS LOST.', body);
+        }
         if (typeof opts.onError === 'function') opts.onError(lastError);
         return null;
       });
@@ -150,7 +257,17 @@
     /* Generic passthrough. */
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },
-    _reset: function () { seen = {}; lastError = null; },   // tests only
+    /* HOW MANY RECORDS ARE PARKED RIGHT NOW. A status hook that shows only
+     * lastError would go quiet the moment one post succeeded, while records
+     * from the outage were still sitting unsent — which is the previous defect
+     * wearing a different hat. This is the number that must reach the screen. */
+    pending: function () { return queueLength(); },
+    /* Manual drain, for a status hook's "retry now" affordance. */
+    flush: function () { return flush(); },
+    _reset: function () {                                    // tests only
+      seen = {}; lastError = null; flushing = false;
+      var st = store(); if (st) { try { st.removeItem(QUEUE_KEY); } catch (e) {} }
+    }
   };
 
   global.PredLedger = PredLedger;
