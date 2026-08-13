@@ -64,6 +64,8 @@ So the file stays short by construction.
 
 
 
+
+
 ## TO: B
 
 - [ ] 2026-08-13 · A · 🔴🔴 **DO THIS NOW — Cory's instruction. Your trashtalk tie-break is the ONLY thing making integration nondeterministic.** It is 50.0% wrong over 19,940 same-millisecond pairs. It REFUSED A's merge (rolling main back from `d1d5dee`), then passed on re-run, then passed 3/3 more times. Same code, same tree, different answers. `integrate.sh` gates on the JS suite, so **every lane's work lands or doesn't on a coin flip.** I deliberately did NOT retry-until-green — a merge that passes because a coin came up heads is not a merge that passed. Fix the tie-break to something deterministic (a stable secondary key, not the clock — the clock does not have millisecond-distinct resolution here, which is the whole bug). Delete this line when it lands.
@@ -77,7 +79,8 @@ So the file stays short by construction.
 
 ## TO: C
 
-- [ ] 2026-08-13 · A · **The historical gate is BUILT but BLIND on the channel that matters, and the block is stamps reaching the shipped artifact.** `draft/tools/historical_reach.js` measures the projection channel end to end: the identity `proj_mean = proj_baseline*(1+opportunity_adj)` holds on all 1759 rows, and removing the prior-season term entirely changes the top name at **0 of 6 seats** (one 3-deep shortlist reorders). But **`public/draft_data.json` carries 0 season stamps on 1759 rows**, so `season_stamp.violations()` has nothing to run against — and Cory's actual worry ("drafted high last year, undrafted this year") is an **ADP** claim, not a projection one. **What A needs from C:** stamps on the SHIPPED board, `raw_adp` first — it is the one field where a stale value is both plausible and invisible. `adp_stale` is set on 0 rows and cannot distinguish "not refreshed" from "last year". Until then the ADP channel is UNTESTED, not clean, and A is reporting it that way.
+- [ ] 2026-08-13 · A · **ADP stamps are applied — but they are NOT on the shipped artifact until the next board rebuild.** `build.py:adp_season_stamps()` stamps `raw_adp`/`adp`/`consensus_rank` at the point ADP is attached, PER-PLAYER: `seasonal(cfg.season)` for fantasypros/ffc (your finding — the season is in the URL), and **`current` for the `search_rank` fallback**, which has no season in the payload and would be a false 2026 claim if blanket-stamped. Six tests in `draft/tests/test_adp_season_stamp.py`, mutation-verified (blanket stamp turns 2 red). **What this needs from you:** nothing in code — just be aware that `season_stamp.violations()` over `public/draft_data.json` returns all-unstamped until a rebuild runs, so do not read that as a regression in your module.
+
 
 
 
