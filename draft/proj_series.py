@@ -16,7 +16,26 @@ Pure functions here (unit-tested); the CI probe fetches FP and the build appends
 from __future__ import annotations
 
 MAX_SNAPS = 400          # bound the archive; plenty for weekly preseason snapshots across sources
-TOP_N = 400              # only the draftable region carries signal
+# 700, RAISED FROM 400 ON C's MEASUREMENT (2026-08-13). "Only the draftable
+# region carries signal" was the wrong reason for the wrong cut: 9 snapshots
+# across 08-09..08-13 all truncated to EXACTLY 400, against a board where 576
+# players carry proj_mean > 0 — so the cap was binding on every capture and
+# discarding 176 priced players.
+#
+# The discarded band is the one worth grading. C measured the deep bands as
+# where the projection is MOST WRONG (proj_rank 33+ runs ~2x high at QB and TE
+# against ~1.1-1.45 early), and a component grade needs the errors, not just the
+# comfortable head of the distribution.
+#
+# AND IT EXPIRES, which is why it is not deferred past the draft. A PRESEASON
+# projection is observable only before the season; a retroactive fetch leaks
+# (exp33). Grading against actuals first becomes possible in January 2027, off
+# this archive or not at all — so a band not captured now is not late, it is
+# gone.
+#
+# Cost is the whole argument against and it is small: 5.2 KB/snapshot today,
+# ~1.0 MB more at the MAX_SNAPS ceiling, which is 400 snapshot-days away.
+TOP_N = 700
 
 
 def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX_SNAPS,
