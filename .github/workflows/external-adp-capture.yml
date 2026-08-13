@@ -128,6 +128,57 @@ jobs:
               # where it is tested. Exactly one of them is zero in each case, so
               # a fixed template always printed a stray nought.
               fh.write("alarm=%s\n" % C.resume_alarm(cov["missing"], stale))
+
+          # ── PLAYERS LEAVING THE BOARD ─────────────────────────────────────
+          # Measured 2026-08-13: total_drafts ROSE 115 -> 119 -> 125 while
+          # row_count FELL 705 -> 708 -> 672. `min_rows`/`max_rows` reported
+          # both extremes truthfully and said nothing about 36 players
+          # vanishing in a day.
+          #
+          # It cost nothing — all 37 sat at ADP 169+, 19 of them IDP this
+          # league cannot roster — and the mechanism is MFL's CUTOFF=5 behaving
+          # as a PERCENTAGE of drafts: ceil(0.05*drafts) stepped 6 -> 6 -> 7,
+          # and the board GREW on the day it did not step. A percentage is a
+          # threshold on selection RATE, so marginal players wash out and the
+          # survivors stay. This is the source converging, not a defect.
+          #
+          # WHICH IS WHY THE COUNT MUST NOT BE THE ALARM. 36 deep IDP washing
+          # out and 3 draftable receivers vanishing nine days before a draft
+          # are the same integer, and the benign case is the daily one — an
+          # alarm keyed to the count gets muted before it ever matters. The
+          # count goes in the summary; only a loss INSIDE the draft escalates.
+          if cov.get("row_drop_note"):
+              print("**Board shrank:** %s" % cov["row_drop_note"])
+          print("`row_deltas` %s" % (cov.get("row_deltas"),))
+
+          # The boundary is DERIVED from the league config, twice, in the
+          # module where it is tested — not written here. `settings.draft_rounds`
+          # is 3 (it tracks max_keepers) while the draft is 15 rounds, so the
+          # obvious field would put the last pick at 30 and call every draftable
+          # loss from 31 to 150 clean.
+          lp = {"last_pick": None, "note": "no league settings file on disk"}
+          if os.path.exists("draft/data/sleeper_league_settings.json"):
+              lp = C.draft_last_pick(json.load(
+                  open("draft/data/sleeper_league_settings.json")))
+          drop = C.dropped_inside(C.load(),
+                                  "${{ github.event.inputs.year || '2026' }}",
+                                  last_pick=lp["last_pick"])
+          print("Draft boundary: **%s** — %s" % (lp["last_pick"], lp["note"]))
+          if drop["verdict"] == "draftable_loss":
+              print("**%s**" % drop["note"])
+          elif drop["verdict"] == "clean":
+              print("Board losses: %d, all outside pick %s — nothing draftable lost."
+                    % (drop["outside_n"], lp["last_pick"]))
+          else:
+              # NOT CHECKED IS NOT CLEAN (rule 13f). A missing config or two
+              # disagreeing sources silently stop this checking, and silence
+              # here looks exactly like a clean day.
+              print("**BOARD-LOSS CHECK DID NOT RUN (%s)** — %s. This is not a "
+                    "clean result; nothing was compared." % (drop["verdict"], drop["note"]))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("draftable_loss=%s\n"
+                       % ("1" if drop["verdict"] == "draftable_loss" else "0"))
+              fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
@@ -251,4 +302,23 @@ jobs:
           echo "::error::observable only while it is happening: no provider serves a board"
           echo "::error::as of a past date, so these days cannot be refetched by any means."
           echo "::error::Fix the schedule before more days go. See the step summary for dates."
+          exit 1
+
+      # ⚠ LAST, AND FOR THE REASON SPELLED OUT ABOVE THE STEP BEFORE IT: an alarm
+      # placed above the commit would discard the very snapshot it is alarming
+      # about. Both alarms run after the day has landed on main.
+      #
+      # `always()` because the step above exits 1 on a resumed gap, and a run can
+      # be both — resuming from an outage is exactly when a player is most likely
+      # to have left the board unnoticed.
+      - name: Escalate ONLY if a DRAFTABLE player left the board
+        if: always() && steps.cov.outputs.draftable_loss == '1'
+        run: |
+          echo "::error::A player priced INSIDE the draft left the board: ${{ steps.cov.outputs.lost_ids }}"
+          echo "::error::F5 reads the latest snapshot strictly before the draft, so these"
+          echo "::error::carry NO ADP into it. This is not the daily tail churn — MFL's"
+          echo "::error::percentage cutoff washing out marginal players is expected and is"
+          echo "::error::reported in the summary without failing. This reached the board."
+          echo "::error::Check the player is not simply retired/suspended before treating"
+          echo "::error::it as a capture defect. See the step summary."
           exit 1

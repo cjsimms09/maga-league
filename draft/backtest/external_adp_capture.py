@@ -298,6 +298,60 @@ def _gaps(days: list) -> dict:
     }
 
 
+def draft_last_pick(settings: dict) -> dict:
+    """The draft's last pick, DERIVED TWICE from the league config.
+
+    `dropped_inside` refuses to judge without a boundary, so something has to supply
+    one, and the two candidates for doing it are both wrong. Hardcoding 150 makes the
+    archive league-specific. Writing the arithmetic into the workflow YAML puts it
+    where no test can reach it — this file already carries the scar: the gap alarm
+    was written inline and shipped two defects nothing could catch, the runner's
+    local clock and a truncated list used as a membership test.
+
+    ⚠ `settings.draft_rounds` IS NOT THE DRAFT LENGTH. In our real config it is 3
+    while the draft is 15 rounds — it tracks `max_keepers: 3`. It is the name you
+    reach for, it holds a plausible integer, and reading it raises nothing. It would
+    put the boundary at pick 30 and make `dropped_inside` report `clean` for every
+    draftable loss between picks 31 and 150 — the recurring defect of this project in
+    one line: a consumer reading the field name its author believed in.
+
+    ⚠ AND `settings.num_teams` IS NOT THE TEAM COUNT EITHER — same trap, one field
+    over. I reached for it, and `test_settings_registry_truth` caught it: the registry
+    files it `ignored`, because it is a DECLARED TARGET and `sleeper_import` reads the
+    actual rosters instead. It is 10 today and it is 10 only while the two agree. So
+    the count comes from `len(owner_to_roster)`, which is a measurement of how many
+    rosters exist — the source the registry itself names.
+
+    So both numbers are derived from two independent places and a disagreement is
+    reported rather than resolved (rule 11):
+        teams  — len(owner_to_roster)        vs draft.settings.teams
+        rounds — draft.settings.rounds       vs len(roster_positions)
+    """
+    ds = ((settings or {}).get("draft") or {}).get("settings") or {}
+    slots = (settings or {}).get("roster_positions") or []
+    rosters = (settings or {}).get("owner_to_roster") or {}
+
+    def pair(a, b, name, src_a, src_b):
+        vals = [v for v in (a, b) if v is not None]
+        if not vals:
+            return None, "UNDERIVABLE — no %s in %s or %s" % (name, src_a, src_b)
+        if len(vals) == 2 and int(vals[0]) != int(vals[1]):
+            return None, ("%s DISAGREE — %s says %s, %s says %s. One is wrong and "
+                          "nothing here says which." % (name.upper(), src_a, vals[0],
+                                                        src_b, vals[1]))
+        return int(vals[0]), "%s=%s (%s, %s)" % (name, int(vals[0]), src_a, src_b)
+
+    teams, tnote = pair((len(rosters) or None), ds.get("teams"), "teams",
+                        "len(owner_to_roster)", "draft.settings.teams")
+    rounds, rnote = pair(ds.get("rounds"), (len(slots) or None), "rounds",
+                         "draft.settings.rounds", "len(roster_positions)")
+    note = "%s; %s" % (tnote, rnote)
+    if teams is None or rounds is None:
+        return {"last_pick": None, "teams": teams, "rounds": rounds, "note": note}
+    return {"last_pick": teams * rounds, "teams": teams, "rounds": rounds,
+            "note": note}
+
+
 def dropped_inside(series: list, year, last_pick=None) -> dict:
     """WHICH players left the board, judged against the last pick of the draft.
 

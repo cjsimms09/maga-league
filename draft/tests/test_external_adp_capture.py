@@ -1070,3 +1070,89 @@ def test_a_player_who_RETURNS_is_not_counted_as_lost_on_the_LATEST_board():
     d = C.dropped_inside(s, 2026, last_pick=150)
     assert d["inside_ids"] == [], "he is on the board we will draft off"
     assert d["churn_inside_n"] == 1, "but the round trip is still visible"
+
+
+# ── the draft's last pick, DERIVED, because dropped_inside refuses to guess ──
+
+def LS(teams=10, rounds=15, slots=15, draft_rounds=3, declared=None):
+    return {"settings": {"num_teams": declared if declared is not None else teams,
+                         "draft_rounds": draft_rounds},
+            "draft": {"settings": {"teams": teams, "rounds": rounds}},
+            "owner_to_roster": {str(i): i for i in range(teams)},
+            "roster_positions": ["BN"] * slots}
+
+
+def test_last_pick_is_teams_times_rounds_and_NAMES_ITS_SOURCES():
+    d = C.draft_last_pick(LS())
+    assert d["last_pick"] == 150
+    assert d["teams"] == 10 and d["rounds"] == 15
+    assert "roster_positions" in d["note"] and "draft.settings" in d["note"]
+    assert "owner_to_roster" in d["note"]
+
+
+def test_draft_rounds_IS_NOT_THE_DRAFT_LENGTH():
+    """THE FIELD-NAME TRAP, and it is live in our real config: `settings.draft_rounds`
+    is 3 while the draft is 15 rounds — it tracks `max_keepers: 3`. It is exactly the
+    name you reach for, it holds a plausible integer, and nothing about reading it
+    raises an error.
+
+    MUTATION: read `settings.draft_rounds` — last_pick becomes 30, and `dropped_inside`
+    then judges 120 picks of real draftable board as OUT of range. Every draftable
+    loss from pick 31 to 150 reports `clean`, in the instrument built to catch it."""
+    d = C.draft_last_pick(LS(rounds=15, draft_rounds=3))
+    assert d["last_pick"] == 150, "draft_rounds is the keeper count, not the length"
+
+
+def test_DISAGREEING_team_counts_REFUSE_rather_than_picking_one():
+    """Rule 11: two independent derivations, and a disagreement is a finding.
+    MUTATION: take the first source — one of the two is wrong and nothing says which,
+    so the boundary is quietly off by a whole round or more."""
+    ls = LS()                      # 10 actual rosters
+    ls["draft"]["settings"]["teams"] = 12
+    d = C.draft_last_pick(ls)
+    assert d["last_pick"] is None
+    assert "10" in d["note"] and "12" in d["note"], d["note"]
+
+
+def test_ROUNDS_disagreeing_with_the_roster_REFUSE_too():
+    """15 roster slots and 14 rounds cannot both be right. MUTATION: trust
+    draft.settings.rounds alone — the second derivation stops being a check."""
+    d = C.draft_last_pick(LS(rounds=14, slots=15))
+    assert d["last_pick"] is None
+    assert "14" in d["note"] and "15" in d["note"]
+
+
+def test_a_MISSING_config_yields_NO_BOUNDARY_not_a_default():
+    """MUTATION: fall back to 150 — the number is right for this league today and
+    would stay looking right for any league it is wrong for."""
+    d = C.draft_last_pick({})
+    assert d["last_pick"] is None
+    assert "UNDERIVABLE" in d["note"]
+
+
+def test_the_derived_boundary_FEEDS_dropped_inside():
+    """Rule 14 — the consumer exists the day the writer does, and the whole point of
+    deriving the boundary is that `dropped_inside` stops refusing to judge."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0, "p2": 149.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    lp = C.draft_last_pick(LS())["last_pick"]
+    assert C.dropped_inside(s, 2026, last_pick=lp)["inside_ids"] == ["p2"]
+
+
+def test_num_teams_IS_NOT_THE_TEAM_COUNT():
+    """THE SAME TRAP ONE FIELD OVER, and I walked into it — `test_settings_registry_truth`
+    caught me reading `settings.num_teams` and the registry explained why not: it is a
+    DECLARED TARGET, filed `ignored`, and `sleeper_import` reads the actual rosters
+    because a declared target can disagree with how many rosters exist.
+
+    A league sitting at 9 of a declared 10 would put the last pick at 150 when the
+    draft is 135 — and the 15 phantom picks are the DEEPEST ones, exactly where the
+    percentage cutoff drops players. `dropped_inside` would then report draftable
+    losses that are not draftable, and the alarm gets muted for being wrong.
+
+    MUTATION: read settings.num_teams — this passes on every league where the target
+    happens to be met, which is nearly all of them, right up until it is not."""
+    ls = LS(teams=9, declared=10)      # 9 rosters exist; the config still says 10
+    d = C.draft_last_pick(ls)
+    assert d["teams"] == 9, "count the rosters that exist, not the ones declared"
+    assert d["last_pick"] == 9 * 15
