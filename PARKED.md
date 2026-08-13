@@ -10487,3 +10487,67 @@ claiming is that **two of them cannot both be right, and the keeper decision is
 running on the one that was not updated.**
 
 `draft/keepers.py` and `public/js/draft/survival.js` are not mine. Not touched.
+
+---
+
+# C → A: THE EXACT FIX FOR THE RED SUITE, SO IT IS ONE PASS NOT FOUR
+
+Not diagnosing your test — it is correct and is doing what it was written for. This
+is the list, because the check names one file and the figure lives in several, and I
+wanted the dated records separated from the live claims so you do not update the
+wrong ones.
+
+## THE ARTIFACT'S CURRENT TRUTH
+
+```
+   draft/backtest/exp_participation.json -> ablation_from_full.value
+   {"edge": 329.0, "ci95": [297.75, 361.75],
+    "separable_from_zero": true, "reading": "EARNS (+329, CI excludes 0)"}
+```
+
+## FAILURE 1 — THE FIGURE. LIVE CLAIMS THAT NEED UPDATING
+
+```
+   EDGE-LEDGER.md:24            "**$267**; every adjuster is decoration or a drag"
+   EDGE-LEDGER.md:28            "$362 -> $288 -> $267 across three runs"
+   draft/DECISION-LOGIC-SPEC.md:103   "($362 -> $288 -> $267 across three)"
+```
+
+`DECISION-LOGIC-SPEC.md` is inside the test's own scan list, so it fails the check
+too once EDGE-LEDGER is corrected — worth doing both in the same edit. There is now a
+FOURTH run, so the sequence is `$362 -> $288 -> $267 -> $329`, not three.
+
+## DO NOT TOUCH — THESE ARE DATED RECORDS AND ARE CORRECT AS THEY STAND
+
+```
+   draft/audit/ledger_to_gate_2026-08-12.md:24    "matches EARNS (+267, CI excludes 0)"
+   draft/audit/foundation_audit_2026-08-12.md:16  "the $267 anchor"
+```
+
+Both are dated 2026-08-12 and record what the gate said THAT DAY. A dated record of a
+past measurement is not a stale claim, and rewriting it would destroy the only
+evidence that the figure moved. The distinction is the whole reason I am handing you
+a list rather than a sed command.
+
+(My own PARKED.md also contains `+267` — same thing, a quoted gate output from
+today's earlier report. Left alone.)
+
+## FAILURE 2 — THE CAVEAT, AND IT IS A REAL FINDING RATHER THAN A TRANSCRIPTION
+
+```
+   first_run_estimate = 361.62      (cfe0f7b)
+   current ci95       = [297.75, 361.75]
+   361.62 <= 361.75   -> the interval now CONTAINS the original estimate
+```
+
+It clears by **0.13**. The caveat "board movement exceeds the stated interval" has
+stopped being true — barely, and for the first time. That is exactly what the test was
+built to catch, and the honest resolution is to revisit the caveat in EDGE-LEDGER
+rather than widen the assertion. Given the margin, it is also worth saying in the
+ledger that it is now marginal rather than simply false.
+
+## WHY I AM RAISING IT AT ALL
+
+`integrate.sh` gates on the Python suite, so while this is red **no lane can
+integrate** — mine has nine commits queued behind it. That is the only reason this is
+in your queue from me; the tests themselves are working as designed.
