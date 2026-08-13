@@ -989,3 +989,84 @@ def test_a_SINGLE_snapshot_has_no_deltas_and_says_so():
     cov = C.coverage(s, 2026)
     assert cov["row_deltas"] == []
     assert cov["largest_drop"] is None
+
+
+# ── WHICH players left, not how many (rule 9) ───────────────────────────────
+#
+# `row_drop_note` is a dashboard reading: "36 players lost, go look." I went and
+# looked, by hand, and the answer was that all 37 sat at ADP 169+ and 19 of them
+# were IDP this league cannot roster at any price. That is the source CONVERGING
+# — MFL's CUTOFF is a percentage of drafts, so marginal players wash out as the
+# sample grows — and it costs us nothing.
+#
+# But the count cannot tell those two cases apart. Thirty-six deep IDP washing
+# out and three draftable WRs vanishing nine days before a draft produce the
+# SAME NUMBER, and only one of them costs a pick. So the instrument answers the
+# question instead of raising it.
+
+def test_a_drop_INSIDE_the_draftable_range_is_NAMED():
+    """THE CASE THIS EXISTS FOR. A player priced inside the last pick on Monday and
+    gone on Tuesday has no ADP for a draft that is nine days away, and F5 reads the
+    latest snapshot before the draft. MUTATION: report the count only — a draftable
+    loss and a tail loss are the same integer, and the tail case is the common one,
+    so the alarm gets ignored exactly when it starts being real."""
+    a = {"p1": 10.0, "p2": 140.0, "p3": 400.0}
+    s = C.append_snapshot([], 2026, "2026-08-12", a)
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == ["p2"], d
+    assert d["inside_n"] == 1
+    assert d["outside_n"] == 1, "the ADP-400 loss is the source converging, not a cost"
+
+
+def test_a_TAIL_ONLY_drop_is_reported_as_COSTING_NOTHING():
+    """The measured 2026-08-13 case. MUTATION: flag any drop — the instrument fires
+    every day the source converges and is therefore never read."""
+    a = {"p1": 10.0, "p2": 169.17, "p3": 400.0}
+    s = C.append_snapshot([], 2026, "2026-08-12", a)
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == []
+    assert d["inside_n"] == 0 and d["outside_n"] == 2
+    assert d["verdict"] == "clean"
+
+
+def test_WITHOUT_a_last_pick_it_REFUSES_TO_JUDGE_rather_than_guessing_150():
+    """The league's boundary is the CONSUMER's, not the archive's — the same line I
+    held in nflverse_weekly_store, where baking `last_scored_leg = 17` into the store
+    would have made the archive league-specific forever. 10 teams x 15 rounds is 150
+    TODAY; it is a config edit away from not being.
+
+    MUTATION: default last_pick=150 — the archive silently encodes one league's
+    settings and every verdict it gives a different league is wrong while looking
+    exactly as authoritative."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0, "p2": 400.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026)
+    assert d["verdict"] == "unjudged"
+    assert d["inside_ids"] is None, "no boundary means no verdict, not an empty one"
+    assert "last_pick" in d["note"]
+
+
+def test_ONE_SNAPSHOT_cannot_show_a_loss_and_says_so_rather_than_clean():
+    """Rule 13f, again, and it is the dangerous direction here: a capture that ran
+    once would report `clean` — a check that CANNOT fail reading as a check that
+    PASSED. MUTATION: return verdict 'clean' when there is nothing to compare."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["verdict"] == "unmeasured"
+    assert d["inside_n"] is None
+
+
+def test_a_player_who_RETURNS_is_not_counted_as_lost_on_the_LATEST_board():
+    """A player can drop out and come back as the sample grows — that is what a
+    percentage cutoff does at the margin. What matters for the draft is the LATEST
+    board, so a round trip is not a standing loss. MUTATION: accumulate every
+    pairwise disappearance — the count grows all preseason and never comes down,
+    and by draft day it describes churn rather than the board we will draft off."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"p1": 10.0, "p2": 140.0})
+    s = C.append_snapshot(s, 2026, "2026-08-12", {"p1": 10.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0, "p2": 141.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == [], "he is on the board we will draft off"
+    assert d["churn_inside_n"] == 1, "but the round trip is still visible"

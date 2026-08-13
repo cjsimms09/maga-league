@@ -298,6 +298,89 @@ def _gaps(days: list) -> dict:
     }
 
 
+def dropped_inside(series: list, year, last_pick=None) -> dict:
+    """WHICH players left the board, judged against the last pick of the draft.
+
+    `coverage.row_drop_note` says "the board LOST 36 players in a day". That is a
+    reading, not an answer, and I had to go diff two snapshots by hand to learn what
+    it meant: on 2026-08-13 all 37 losses sat at ADP 169+, and 19 of them were IDP
+    (DE/DT/LB/CB/S) that a QB/RB/WR/TE/K/DEF league cannot roster at any price.
+
+    That is the SOURCE CONVERGING, not a defect. MFL's CUTOFF=5 behaves as a
+    percentage of drafts — `ceil(0.05 * drafts)` stepped 6 -> 6 -> 7 across the three
+    captured days, and the board GREW on the day it did not step (705 -> 708) and
+    fell 36 on the day it did. A percentage is a threshold on a player's SELECTION
+    RATE, which is stable as the sample grows; it is not a ratchet that eats the
+    board. Marginal players wash out and the survivors stay.
+
+    So the count is the wrong instrument. Thirty-six deep IDP washing out and three
+    draftable receivers vanishing nine days before a draft are THE SAME INTEGER, and
+    the first case is the common one — an alarm keyed to the count gets ignored
+    exactly when it starts being real.
+
+    `last_pick` HAS NO DEFAULT, and that is deliberate. 10 teams x 15 rounds = 150 is
+    today's setting and a config edit away from not being. Baking it in here would
+    make this archive league-specific forever — the same line held in
+    `nflverse_weekly_store`, where the store keeps weeks 18-22 and lets the CONSUMER
+    cut at the league's scored boundary. Without a boundary this refuses to judge.
+
+    A player who drops out and RETURNS is not a standing loss. What we draft off is
+    the LATEST board; a round trip is churn and is reported as such, because a
+    pairwise-accumulating count would climb all preseason and never come down.
+    """
+    ser = [s for s in _series_of(series) if str(s.get("year")) == str(year)]
+    ser.sort(key=lambda s: s.get("observed_at") or "")
+    base = {"year": str(year), "snapshots": len(ser), "last_pick": last_pick,
+            "inside_ids": None, "inside_n": None, "outside_n": None,
+            "churn_inside_n": None, "verdict": None, "note": None}
+
+    if last_pick is None:
+        # NO BOUNDARY, NO VERDICT. Guessing one would make every answer look
+        # authoritative and be wrong for any league that is not this one.
+        return dict(base, verdict="unjudged",
+                    note="UNJUDGED — pass last_pick (teams x rounds); the draft's "
+                         "boundary belongs to the consumer, not to this archive")
+    if len(ser) < 2:
+        # Rule 13f, in its dangerous direction: a capture that ran once would
+        # otherwise report `clean` — a check that CANNOT fail reading as one that did.
+        return dict(base, verdict="unmeasured",
+                    note="UNMEASURED — a loss is a difference between two days and "
+                         "this year holds %d snapshot(s)" % len(ser))
+
+    latest = dict((ser[-1].get("rows") or {}))
+    seen_before, vanished_once = {}, set()
+    for s in ser[:-1]:
+        rows = s.get("rows") or {}
+        for pid in seen_before:
+            if pid not in rows:
+                vanished_once.add(pid)
+        seen_before.update(rows)
+
+    inside, outside, churn = [], [], []
+    for pid, adp in seen_before.items():
+        try:
+            in_range = float(adp) <= float(last_pick)
+        except (TypeError, ValueError):
+            continue  # an unparseable price is not a player inside the range
+        if pid in latest:
+            if in_range and pid in vanished_once:
+                churn.append(pid)
+            continue
+        (inside if in_range else outside).append(pid)
+
+    inside.sort()
+    return dict(base,
+                inside_ids=inside, inside_n=len(inside), outside_n=len(outside),
+                churn_inside_n=len(churn),
+                verdict=("draftable_loss" if inside else "clean"),
+                note=(None if not inside else
+                      "%d player(s) priced inside pick %s are ABSENT from the latest "
+                      "board (%s). F5 reads the latest snapshot before the draft, so "
+                      "these carry no ADP into it: %s"
+                      % (len(inside), last_pick, ser[-1].get("observed_at"),
+                         ", ".join(inside[:12]))))
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
