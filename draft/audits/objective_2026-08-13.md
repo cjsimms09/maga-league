@@ -240,6 +240,38 @@ are manufactured, so their contributions are not measured:
 five variance inputs to real data; two of five multipliers still cannot fire, so
 a measured ceiling weight will be **real but not parity**.
 
+#### ADDED 2026-08-13 (later): THE CEILING IS LOCKED ON *BOTH* BOARDS, BY TWO DIFFERENT ROUTES
+
+The list above is about the **backtest** board and it is correct there. The
+**production** board is different and *not better in the way that matters*.
+Measured across all 576 projected players, every position, no per-player
+variation beyond rounding:
+
+| board | `proj_sd` | `proj_ceiling` |
+|---|---|---|
+| backtest (`build_bundle.py`) | `0.25 × proj_mean` — synthetic | `1.35 × proj_mean` — **locked to the mean** |
+| production (`public/draft_data.json`) | `weekly_sd × sqrt(games)`, games 13.1–17, **real** (337 distinct ratios) | `proj_mean + 1.036 × proj_sd` — **locked to the sd** |
+
+`Φ(1.036) = 0.850` and `Φ(−0.674) = 0.250`, so production's floor and ceiling are
+simply the **p25 and p85 of the normal `proj_sd` already defines**. They carry
+**zero information** beyond mean and sd.
+
+**The consequence is about what can ever be concluded, not about data quality.**
+A ceiling weight is rank-identical to a *value* weight on the backtest board and
+rank-identical to a *variance* weight on the production board. There is no board
+on which the ceiling term is separately identifiable, so **"ceiling measured
+unsignable" was never evidence about ceilings** — it is what a collinear
+regressor looks like. Fixing the backtest board would not lift this; only a
+ceiling that is estimated independently of the mean and the sd would.
+
+This is a **ratio-lock**, the second pattern task #24's detector is specified to
+catch. It was found by hand, and found *only because a cross-check I expected to
+be free turned out to be vacuous* — the check compared `proj_sd` against
+floor/ceiling and **could not have failed**. That is the same shape as a vacuous
+`check(..., true)`: an assertion whose passing carries no information. It
+strengthens the case for the detector rather than substituting for it, because
+nothing systematic was looking here.
+
 ---
 
 ## 6. THE LEARNING REQUIREMENTS — FOUR, KEPT DISTINCT
