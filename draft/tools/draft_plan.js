@@ -70,10 +70,13 @@ Object.keys(STARTERS).forEach(pos => {
 const flexUsed = FLEX_POS.reduce((n, p) => n + Math.max(0, (held[p] || 0) - (STARTERS[p] || 0)), 0);
 for (let i = 0; i < Math.max(0, (STARTERS.FLEX || 0) - flexUsed); i++) open.push({ slot: 'FLEX', elig: FLEX_POS });
 
-console.log('THE FULL DRAFT PLAN — all ' + SCHED.length + ' picks priced\n');
-console.log('  keepers: ' + keep.map(k => k.name + ' (' + k.position + ')').join(', '));
-console.log('  waiver replacement level (best man unrostered after ' + ROSTERED + ' spots):');
-console.log('    ' + Object.keys(WAIVER).map(p => p + ' ' + WAIVER[p].toFixed(0)).join('   ') + '\n');
+const LOUD = (require.main === module);   /* silent when required as a library */
+if (LOUD) {
+  console.log('THE FULL DRAFT PLAN — all ' + SCHED.length + ' picks priced\n');
+  console.log('  keepers: ' + keep.map(k => k.name + ' (' + k.position + ')').join(', '));
+  console.log('  waiver replacement level (best man unrostered after ' + ROSTERED + ' spots):');
+  console.log('    ' + Object.keys(WAIVER).map(p => p + ' ' + WAIVER[p].toFixed(0)).join('   ') + '\n');
+}
 
 /* P(YOU NEED YOUR Nth BACKUP AT A POSITION) — AND IT COLLAPSES FAST.
  *
@@ -203,6 +206,13 @@ const seatAt = {};
 { let m = FULL;
   for (let i = N; i > 0; i--) { const s = pv[i][m]; if (s >= 0) { seatAt[i - 1] = s; m ^= (1 << s); } } }
 
+/* RANKED CANDIDATES ARE KEPT, NOT JUST THE WINNER.
+ * tiebreak_frontier.js needs the runners-up at each pick, and the ONE thing it
+ * must not do is re-derive them -- its first version ranked bench candidates by
+ * proj_mean instead of bench value and returned a quarterback at nine
+ * consecutive picks. Exporting the real ranking makes that class of drift
+ * impossible rather than merely unlikely. */
+const ranked = [];
 const plan = [];
 const taken = new Set(keep.map(k => String(k.player_id)));
 const heldPos = {};
@@ -210,22 +220,27 @@ keep.forEach(k => { heldPos[k.position] = (heldPos[k.position] || 0) + 1; });
 for (let i = 0; i < N; i++) {
   const s = seatAt[i];
   if (s != null) {
-    const b = avail[i].filter(x => open[s].elig.indexOf(x.position) >= 0
+    const cands = avail[i].filter(x => open[s].elig.indexOf(x.position) >= 0
       && !taken.has(String(x.player_id)))
-      .sort((m2, n2) => (n2.proj_mean || 0) - (m2.proj_mean || 0))[0];
+      .sort((m2, n2) => (n2.proj_mean || 0) - (m2.proj_mean || 0));
+    ranked.push({ pick: SCHED[i], role: open[s].slot, elig: open[s].elig.slice(),
+      list: cands.map(x => ({ p: x, v: x.proj_mean })) });
+    const b = cands[0];
     if (b) { taken.add(String(b.player_id)); heldPos[b.position] = (heldPos[b.position] || 0) + 1;
       if (open[s].slot === 'FLEX') flexOwner = b.position;
       plan.push({ pick: SCHED[i], slot: open[s].slot, p: b, v: b.proj_mean, bench: false }); continue; }
   }
-  let best = { v: -Infinity, p: null };
+  const priced = [];
   avail[i].forEach(x => {
     if (taken.has(String(x.player_id))) return;
     const starters = (STARTERS[x.position] || 0)
       + (flexOwner === x.position ? (STARTERS.FLEX || 0) : 0);
     const backups = Math.max(0, (heldPos[x.position] || 0) - starters);
-    const v = benchValue(x, backups);
-    if (v > best.v) best = { v, p: x };
+    priced.push({ p: x, v: benchValue(x, backups) });
   });
+  priced.sort((a, b) => b.v - a.v);
+  ranked.push({ pick: SCHED[i], role: 'bench', elig: null, list: priced });
+  const best = priced[0] || { v: -Infinity, p: null };
   /* A ZERO IS NOT A RECOMMENDATION. Once every remaining option prices at 0 the
    * model has nothing to say, and picking the arbitrary winner of that tie is
    * how a backup kicker ends up on the sheet. Say UNPRICED instead: these are
@@ -239,6 +254,9 @@ for (let i = 0; i < N; i++) {
   heldPos[best.p.position] = (heldPos[best.p.position] || 0) + 1;
   plan.push({ pick: SCHED[i], slot: 'bench', p: best.p, v: best.v, bench: true });
 }
+module.exports = { plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue };
+if (require.main !== module) return;
+
 console.log('  pick   role     take                        value');
 plan.forEach(x => console.log('  ' + String(x.pick).padStart(4) + '   ' + x.slot.padEnd(8)
   + ((x.p ? x.p.position + ' ' + x.p.name
