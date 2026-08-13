@@ -199,6 +199,24 @@
      * #2 with a QB rostered, Lamar Jackson at r6, Brock Purdy at r8.
      */
     ONESIE_DISCOUNT: true,
+    /* SHIPPED OFF, AND THE MEASUREMENT IS WHY. Slot-aware VONA is implemented
+     * below and defaults FALSE because turning it on makes Cory's own acceptance
+     * criterion WORSE, not better. Measured 2026-08-14, roster from slot 8 with
+     * the real keepers, 12 picks from 34:
+     *     shipped      TE 1  RB 3  WR 4  QB 2
+     *     slot-aware   TE 3  RB 0  WR 3  QB 4
+     * Criterion 3 asks for exactly one QB and one TE. The change doubles the
+     * quarterbacks and removes running backs entirely.
+     * THE MECHANISM IS A TIE COLLAPSE. Once the dedicated slots are full almost
+     * every remaining player is flex-or-bench, and both arms floor at zero: with
+     * WR2 and TE1 filled, 1331 of 1686 scored players share EXACTLY VONA 0
+     * (distinct values 477 -> 120). Ordering below the starters stops existing,
+     * so what surfaces is whatever wins an arbitrary tie -- and quarterbacks win
+     * it, because their raw magnitudes are the largest on the board.
+     * The idea is not refuted; pricing a flex fill across positions is right. It
+     * needs a bench value that is small AND strictly ordered, which floors and
+     * multiplicative crushes both fail to give (a crush moves negatives UP). */
+    VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
     /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
@@ -222,8 +240,6 @@
      *
      * RELAXED IN THE ENDGAME, like every other clause here — with two picks
      * left a legal lineup outranks a tidy one. */
-    ONESIE_HARD_CAP: true,
-    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
     // THE EXPLICIT EXCEPTIONS. A onesie duplicate may still surface, but only
     // for a stated reason, and the card must SAY it rather than presenting him
     // as a normal recommendation.
@@ -675,11 +691,80 @@
   }
 
   /** VONA — how much you lose by waiting. The primary decision metric. */
+  /* VONA IS NOW PRICED AGAINST THE SLOT HE WOULD ACTUALLY FILL (2026-08-14).
+   *
+   * IT USED TO PRICE EVERY PLAYER AGAINST THE NEXT MAN AT HIS OWN POSITION,
+   * whether or not that position had a lineup slot left. So a second tight end
+   * was valued against the third tight end -- a comparison that decides nothing,
+   * because with the TE slot full the real question is whether he beats the best
+   * RB or WR for the flex. And a second quarterback was valued against the third
+   * quarterback while being unable to reach the lineup at all.
+   *
+   * WHY THIS AND NOT THE REPLACEMENT BASELINE. Measured 2026-08-14: substituting
+   * a hardcoded replacement set (RB -30.86, WR -20.09) changed 1044 players' VORP
+   * and ZERO scores, because replacement appears in both terms of
+   * proj_mean - expectedBestAvailable and CANCELS EXACTLY. The baseline has no
+   * path to a decision at any depth. This does, because it changes which
+   * population the expectation is taken over.
+   *
+   *   starter -- unchanged: the next man at his own position is the real
+   *              alternative, because the slot is his to fill.
+   *   flex    -- priced against the best FLEX-ELIGIBLE alternative, across
+   *              positions. Floored at 0: if the field beats him you simply
+   *              start the other man, so the slot is worth nothing extra.
+   *   bench   -- he cannot start. Crushed to ONESIE_KEEP of the same-position
+   *              figure rather than set to a flat 0, and THAT IS A DECISION
+   *              INSIDE CORY'S INSTRUCTION ("value at bench level, near zero").
+   *              A flat zero ties roughly a thousand players at exactly 0 and
+   *              destroys all ordering below the starters, which would be a
+   *              worse board than the one being fixed. A multiplicative crush
+   *              is near zero AND order-preserving. Named here so it can be
+   *              overruled rather than discovered.
+   *
+   * The slot decision is starterSlotMarginal's, called rather than re-derived --
+   * a seventh flex-eligibility map was written once in this project and caught
+   * by flex_eligibility.test.js, and this is exactly where an eighth would go. */
   function vona(player, board, nextPick, survivalCtx) {
     if (nextPick == null) return player.proj_mean; // no future pick: everything is at stake
+    const ctx = survivalCtx || {};
     const samePos = board.filter(p => p.position === player.position && p.player_id !== player.player_id);
-    const eba = expectedBestAvailable(samePos, nextPick, survivalCtx);
-    return player.proj_mean - eba;
+    const sameEba = expectedBestAvailable(samePos, nextPick, ctx);
+    const straight = player.proj_mean - sameEba;
+    if (!CFG.VONA_SLOT_AWARE) return straight;
+
+    const slot = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
+    if (slot.fills === 'starter') return straight;
+    if (slot.fills === 'flex') {
+      const alts = flexEligibleBoard(board, ctx)
+        .filter(p => String(p.player_id) !== String(player.player_id));
+      if (!alts.length) return straight;
+      return Math.max(0, player.proj_mean - expectedBestAvailable(alts, nextPick, ctx));
+    }
+    /* A MULTIPLICATIVE CRUSH ON A SIGNED QUANTITY MOVES NEGATIVES UP, and the
+     * first cut of this shipped that: 0.10 * -30 = -3, so every bench player
+     * FLOATED ABOVE startable players sitting at -5. Measured immediately --
+     * the constructed roster went from TE 1 / RB 3 to TE 4 / QB 3 / RB 0, i.e.
+     * the change made the exact symptom it was written to fix roughly twice as
+     * bad. Crush the upside only; a bench player already priced below zero is
+     * left where he is and never promoted by his own penalty. */
+    return Math.min(0, straight);   // bench: cannot start, no starting value
+  }
+
+  /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
+   * comes from bestFlexAlt's map via one shared helper so there is ONE answer to
+   * "who can take a flex slot" on the value path. */
+  function flexEligibleBoard(board, ctx) {
+    if (ctx && ctx._flexEligBoard) return ctx._flexEligBoard;
+    const FLEXIBLE = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'],
+      REC_FLEX: ['WR', 'TE'] };
+    const starters = ((ctx || {}).league || {}).starters || {};
+    const elig = {};
+    Object.keys(FLEXIBLE).forEach(sl => {
+      if (starters[sl]) FLEXIBLE[sl].forEach(pos => { elig[pos] = true; });
+    });
+    const out = (board || []).filter(p => elig[p.position]);
+    if (ctx) ctx._flexEligBoard = out;
+    return out;
   }
 
   // =============================================== Module 7: composite score
@@ -977,8 +1062,15 @@
      * `spare` counts bodies beyond the STRICT slots — FLEX excluded, because the
      * flex is contested by RB/WR/TE and must not be pre-reserved for whichever
      * position happens to be scoring well. */
-    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
-    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+    /* ONESIE_MAX_SPARE AND wouldCap ARE DELETED (Cory, 2026-08-14: "delete them,
+     * do not fix them"). They read as "one spare allowed at QB and at TE" and
+     * behaved as "one at QB, ZERO at TE", because the cap counted a tight end
+     * who was STARTING IN THE FLEX against the spare allowance while the gate
+     * twenty lines above had already excluded flex-startable players. One
+     * function, two answers to "does the flex count". Measured before deletion:
+     * the first unstartable QB priced at 81% of standalone VORP and board rank 1;
+     * the first unstartable TE at 8% and rank 5 — same depth, same league shape.
+     * A duplicate who cannot start is now priced as a backup unconditionally. */
 
     // ---- the exceptions, each of which must be SAYABLE ----------------------
     const adp = player.adjusted_adp != null ? player.adjusted_adp : player.raw_adp;
@@ -1002,12 +1094,19 @@
        * principle the cap is a stand-in for. He surfaces if he is genuinely
        * better than the alternatives; he does not surface because the arithmetic
        * favours his position. */
-      return { duplicate: true, discount: wouldCap ? CFG.ONESIE_KEEP : 1,
+      /* THE EXCEPTION SURVIVES AND NO LONGER SETS THE PRICE. It used to return
+       * discount 1 whenever the cap did not bind, which is how a second
+       * quarterback reached FULL VALUE and board rank 1: Lamar Jackson at pick
+       * 70, ADP 34, fallen 36 past his price and QB1 on the board with Allen
+       * gone. He cannot start. The comment beside this branch already stated the
+       * principle -- "priced low because he cannot start" -- and the code applied
+       * it only when a cap happened to bind. It applies always now; the exception
+       * still SURFACES him (insurance, trade value, bye cover) and says why. */
+      return { duplicate: true, discount: CFG.ONESIE_KEEP,
         capped: false, exception: 'value',
         why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
           + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
-          + 'trade value. YOU CANNOT START HIM'
-          + (wouldCap ? ', and you already carry ' + have + ' — priced as a spare.' : '.') };
+          + 'trade value. YOU CANNOT START HIM, so he is priced as a spare.' };
     }
     const starter = roster.filter(p => p.position === pos)
       .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0))[0];
@@ -1055,13 +1154,6 @@
      * flagged OUT. That is the difference between a ceiling on habitual
      * behaviour and a prohibition, and getting the order wrong is what made the
      * first version refuse the pick it should most want. */
-    if (wouldCap) {
-      return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: true, exception: null,
-        why: pos + (have + 1) + ' — you already carry ' + have + ' at ' + pos
-          + ' and start ' + slots + '. He cannot reach the lineup even if one goes '
-          + 'down, and he is not an exceptional fall-through.' };
-    }
-
     return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
       why: pos + (have + 1) + ' — you cannot start him; priced as a backup' };
   }

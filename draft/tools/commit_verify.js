@@ -132,6 +132,46 @@ const CHECKS = {
   /* Item 20. ALREADY DONE — the queue card's title says what the queue IS
    * ("the short list you read first when it is your turn") rather than naming a
    * mechanism. Registered so the wording cannot drift back. */
+  /* THE PICK SCHEDULE IS ASSUMED UNTIL THE SLATE SAYS OTHERWISE.
+   *
+   * Two schedules were used this week and they disagree -- "12 picks from 34"
+   * and the slot-8 snake 33/48/53 -- producing different rosters (TE 1 vs TE 2).
+   * A one-pick offset moved the constructed roster more than a 30-point shift in
+   * RB replacement did, so every construction result is conditional on a fact
+   * nobody has.
+   *
+   * MET means a schedule file exists, names its SOURCE as the confirmed slate
+   * rather than an assumption, and carries a confirmation timestamp. It cannot be
+   * satisfied by writing down a guess: `source` must not be "assumed", and the
+   * pick list must be non-empty. Deliberately NOT satisfied by "somebody re-ran
+   * it" -- the artifact is what a later reader can check. */
+  'schedule-rerun-on-slate': () => {
+    const raw = readText('draft/data/pick_schedule.json');
+    if (raw === null) {
+      return { code: 1, why: 'no draft/data/pick_schedule.json — the schedule is '
+        + 'still assumed, and two mutually exclusive assumptions are in use' };
+    }
+    let doc;
+    try { doc = JSON.parse(raw); } catch (e) {
+      return { code: 2, why: 'pick_schedule.json is not JSON: ' + e.message };
+    }
+    const picks = Array.isArray(doc.picks) ? doc.picks : null;
+    const src = String(doc.source || 'assumed');
+    if (!picks || !picks.length) {
+      return { code: 1, why: 'pick_schedule.json carries no picks' };
+    }
+    if (/assumed|guess|derived/i.test(src)) {
+      return { code: 1, why: 'the schedule is present but its source is "' + src
+        + '" — an assumption written down is still an assumption' };
+    }
+    if (!doc.confirmed_at) {
+      return { code: 1, why: 'the schedule names a real source but carries no '
+        + 'confirmed_at, so nobody can tell when it stopped being a guess' };
+    }
+    return { code: 0, why: picks.length + ' picks from source "' + src
+      + '", confirmed ' + doc.confirmed_at };
+  },
+
   'queue-title': () => {
     const app = readText('public/js/draft/app.js');
     if (app === null) return { code: 2, why: 'app.js unreadable' };

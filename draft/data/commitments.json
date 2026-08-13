@@ -1,6 +1,6 @@
 {
   "version": "commitments/v1",
-  "why": "PART THREE CLOSES ON A DATE AND A CHECK THAT FIRES IF THE DATE PASSES. Every row here carries both. A row with a date and no mechanical verification is an intention with no trigger \u2014 the failure this program has now found in the January reconstruction, the enforcement table's empty cells, the grading cron that existed and never ran, and the standing check that could not fire inside the window it protected. The `verify` field is a COMMAND, not a claim: the check runs it and reads the exit code. Nobody can mark a row done by asserting it.",
+  "why": "PART THREE CLOSES ON A DATE AND A CHECK THAT FIRES IF THE DATE PASSES. Every row here carries both. A row with a date and no mechanical verification is an intention with no trigger — the failure this program has now found in the January reconstruction, the enforcement table's empty cells, the grading cron that existed and never ran, and the standing check that could not fire inside the window it protected. The `verify` field is a COMMAND, not a claim: the check runs it and reads the exit code. Nobody can mark a row done by asserting it.",
   "not_a_todo_list": "A commitment is something that becomes WRONG if the date passes unmet. Ordinary work goes in the task list. If a row here would be fine to slip, it does not belong here.",
   "commitments": [
     {
@@ -17,7 +17,7 @@
       "item": 16,
       "what": "The prediction ledger reaches the graduation gate: a ledger entry can change a gate verdict, and the path is exercised end to end rather than existing as two halves.",
       "due": "2026-09-22",
-      "why_that_date": "Same gate as component grading \u2014 the ledger is unobservable until graded weeks exist, and pairing the dates means one re-check rather than two.",
+      "why_that_date": "Same gate as component grading — the ledger is unobservable until graded weeks exist, and pairing the dates means one re-check rather than two.",
       "verify": "node draft/tools/commit_verify.js ledger-to-gate-path",
       "owner": "A"
     },
@@ -42,7 +42,7 @@
     {
       "id": "caveat-collapse",
       "item": 19,
-      "what": "The 29x-rendered caveat stays collapsed to one instance. ALREADY DONE \u2014 this row exists so a regression fires rather than being noticed in a mock.",
+      "what": "The 29x-rendered caveat stays collapsed to one instance. ALREADY DONE — this row exists so a regression fires rather than being noticed in a mock.",
       "due": "2026-08-22",
       "why_that_date": "Draft day. A caveat that re-multiplies between now and then is a war-room defect on the one day it cannot be fixed.",
       "verify": "node draft/tools/commit_verify.js caveat-collapse",
@@ -51,7 +51,7 @@
     {
       "id": "queue-title",
       "item": 20,
-      "what": "The queue card's title says what the queue IS. ALREADY DONE \u2014 registered so the wording cannot drift back.",
+      "what": "The queue card's title says what the queue IS. ALREADY DONE — registered so the wording cannot drift back.",
       "due": "2026-08-22",
       "why_that_date": "Draft day, same reasoning as the caveat.",
       "verify": "node draft/tools/commit_verify.js queue-title",
@@ -60,7 +60,7 @@
     {
       "id": "contract-unknown-role",
       "item": 21,
-      "what": "UNKNOWN has no role: the renderer must not be able to reach a role at all when resolution is UNKNOWN. ALREADY DONE \u2014 registered because it is a contract defect that a future refactor would silently reintroduce.",
+      "what": "UNKNOWN has no role: the renderer must not be able to reach a role at all when resolution is UNKNOWN. ALREADY DONE — registered because it is a contract defect that a future refactor would silently reintroduce.",
       "due": "2026-08-22",
       "why_that_date": "Draft day. The explanation surface is what Cory reads to decide whether to override.",
       "verify": "node draft/tools/commit_verify.js contract-unknown-role",
@@ -71,8 +71,17 @@
       "item": 32,
       "what": "analyzerClaims has a weekly caller. The rail exists and nothing invokes it; a claims rail with no caller is an intention with no trigger, and any week it does not emit produces nothing for that week, permanently.",
       "due": "2026-09-01",
-      "why_that_date": "Cory's stated in-season instrumentation deadline, and the first NFL Sunday is the first week that can be lost. This is the BUILD half of item 32 \u2014 the championship-probability claim surface is REJECTED (28 of 36 against a naive 27 of 36, CI spanning zero).",
+      "why_that_date": "Cory's stated in-season instrumentation deadline, and the first NFL Sunday is the first week that can be lost. This is the BUILD half of item 32 — the championship-probability claim surface is REJECTED (28 of 36 against a naive 27 of 36, CI spanning zero).",
       "verify": "node draft/tools/commit_verify.js analyzer-claims-caller",
+      "owner": "A"
+    },
+    {
+      "id": "schedule-rerun-on-slate",
+      "item": null,
+      "what": "Every roster-construction result produced this week is re-run against the REAL pick schedule once the slate confirms. Two schedules were used and they disagree: '12 picks from 34' (assumes only Cory's three keepers exist) and the slot-8 snake 33/48/53 (assumes none). They produce different rosters -- TE 1 under one, TE 2 under the other. NEITHER IS REAL. A one-pick offset changed the constructed roster more than a 30-point shift in RB replacement did, so nothing built on an assumed schedule can be graded until the true one is known.",
+      "due": "2026-08-20",
+      "why_that_date": "Keeper lock. The slate confirms which keepers cost which picks, which is the only thing that resolves the schedule, and it lands two days before the draft -- so this is the last date on which a wrong schedule is still correctable.",
+      "verify": "node draft/tools/commit_verify.js schedule-rerun-on-slate",
       "owner": "A"
     }
   ]
