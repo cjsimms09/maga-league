@@ -3360,8 +3360,28 @@
      * `mock` rides on every row, so a consumer that fails to filter is a visible
      * bug rather than a silent contamination of acceptance evidence.
      */
-    if (typeof PredLedger !== 'undefined' && out.scored && out.scored.length) {
+    /* ⚠️ THE CAPTURE MUST NEVER BE ABLE TO BLANK THE BOARD.
+     *
+     * This block sits inside renderRecommendations, and it was NOT guarded —
+     * while the renderRuleHeadline call one line above it is. That asymmetry was
+     * survivable until I added a call to `PredLedger.boardState`, a NEW export:
+     * a browser holding a cached predledger.js without it throws a TypeError
+     * here, inside the function that draws the board, AT THE TABLE. Losing the
+     * ledger row is a bad night; losing the recommendations is a lost draft.
+     *
+     * So two levels of degradation, in the order that preserves the most:
+     *   1. a missing boardState degrades to the OLD payload rather than losing
+     *      the row — a recommendation without board state still grades, and
+     *      evidence preservation outranks completeness;
+     *   2. anything else at all is caught, logged, and the board renders.
+     */
+    if (typeof PredLedger !== 'undefined' && out.scored && out.scored.length) try {
       var c = ledgerCtx();
+      /* INNER GUARD: the POST is the fallible half, and the LOCAL LOCK below is
+       * the half draft-night correctness actually depends on — reconcile reads
+       * it. So a ledger failure must not skip the lock, which is why the two are
+       * not in the same try. */
+      try {
       PredLedger.recommendation({ season: c.season, build_at: c.build_at, pick: c.pick,
         method: 'composite-v1',
         /* THE BOARD I DECIDED FROM rides with the recommendation. `state.board`
@@ -3370,7 +3390,9 @@
          * Canonicalised in PredLedger so this call site cannot drift into a
          * second format. */
         payload: Object.assign({ mock: !!state.mockMode },
-          PredLedger.boardState(state.drafted, (state.board || []).length), {
+          (typeof PredLedger.boardState === 'function'
+            ? PredLedger.boardState(state.drafted, (state.board || []).length)
+            : { taken_state: 'unavailable' }), {
           weights: state.weights,
           top: out.scored.slice(0, 10).map(function (s) {
             return { player_id: String(s.player.player_id), name: s.player.name,
@@ -3381,6 +3403,7 @@
           contested: !!(out.scored[0] && out.scored[0].contested),
           confidence: out.confidence ? out.confidence.level : null,
         }) });
+      } catch (e) { console.error('[ledger-capture]', e && e.message); }
 
       /* ⚠️ LOCK IT LOCALLY AT THE SAME MOMENT IT IS COMMITTED.
        *
@@ -3402,7 +3425,7 @@
           contested: !!_t0.contested,
         };
       }
-    }
+    } catch (e) { console.error('[rec-capture]', e && e.message); }
 
     // FORWARD PREDICTION — commit the model's timestamped claims about what has NOT
     // happened yet (who the room takes in R1, whether my targets survive to my next
