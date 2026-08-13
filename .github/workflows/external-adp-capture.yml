@@ -179,6 +179,65 @@ jobs:
               fh.write("draftable_loss=%s\n"
                        % ("1" if drop["verdict"] == "draftable_loss" else "0"))
               fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
+
+          # ── CAN WE DECODE WHAT WE CAN DRAFT ───────────────────────────────
+          # The third question about this archive, after "is it complete" and
+          # "did anyone leave the board". It holds MFL's player ids and every
+          # consumer reads ours, so an archive we cannot decode is a container.
+          #
+          # REPORTED, NOT ESCALATED, and the distinction is the point. A decode
+          # miss is a static property of the name matcher, not a perishable daily
+          # event — failing the run every morning over a known nickname variant
+          # is red-by-design, which is how a real alarm gets muted. The board-loss
+          # check above escalates because a vanished day cannot be refetched.
+          #
+          # THE RAW RATE IS THE MISLEADING ONE: 0.609 across 709 picks, because
+          # MFL's board carries DE/DT/LB/CB/S this league cannot roster and three
+          # of our own keepers. On the population we can actually draft it is
+          # 0.964 — and 99.3% inside pick 150. Reporting the raw figure here would
+          # reproduce the false alarm the classification was built to end.
+          try:
+              board = json.load(open("public/draft_data.json"))
+              ls = json.load(open("draft/data/sleeper_league_settings.json"))
+              # `C.SERIES`, NOT `C.load()`. The decode key lives on the archive
+              # DICT and `load()` returns the series LIST, for which `players_of`
+              # honestly returns {} — there is no key in a list. I wrote
+              # `players_of(load())` first and this step printed "Decode: 0.0%"
+              # rather than failing: an empty key decodes nothing, and nothing
+              # decoded is arithmetically indistinguishable from a total matcher
+              # failure. `ingest_run` already refuses an empty key by name for
+              # exactly this reason; this reporter now does too.
+              key = C.players_of(C.SERIES)
+              if not key:
+                  print("**DECODE UNMEASURED** — the archive carries no decode key, "
+                        "so 0% would be a statement about the key and not about the "
+                        "matcher. Not a clean result.")
+              else:
+                  xids, xrep = C.crosswalk_map(
+                      key, board["players"], kept=board.get("kept_players"),
+                      positions=C.rostered_positions(ls))
+                  # NO `or 0` ON A RATE. My first version wrote
+                  # `(rate_draftable or 0)`, which turns the module's honest None —
+                  # "nothing draftable to measure" — into a printed 0.0%, the exact
+                  # null-as-absence this project keeps hitting, in the line written
+                  # to report honestly.
+                  rd = xrep["crosswalk_rate_draftable"]
+                  print("Decode: **%s** of the draftable population (%.1f%% raw — the "
+                        "raw figure counts IDP this league cannot roster and our own "
+                        "keepers)"
+                        % ("UNMEASURED" if rd is None else "%.1f%%" % (100 * rd),
+                           100 * xrep["crosswalk_rate"]))
+                  print("`kept_not_draftable` %d · `position_not_rostered` %d · "
+                        "undecoded at a rostered position: **%d**"
+                        % (xrep["kept_not_draftable"], xrep["position_not_rostered"],
+                           xrep["no_sleeper_match_draftable"]))
+          except Exception as e:                      # noqa: BLE001
+              # A DECODE REPORT THAT DIES MUST NOT TAKE THE SNAPSHOT WITH IT.
+              # This step is `if: always()` and the commit below is gated on the
+              # CAPTURE's outcome, but an exception here still aborts the step and
+              # the day's board is the thing that cannot be refetched.
+              print("**DECODE CHECK DID NOT RUN** (%s: %s) — not a clean result."
+                    % (type(e).__name__, e))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
