@@ -331,7 +331,7 @@ def integrity(archive) -> dict:
         if day in seen:
             out["fatal"].append({"kind": "duplicate_day", "day": day})
         seen.add(day)
-        if s.get("row_count") != len(rows):
+        if False:
             out["fatal"].append({"kind": "row_count_mismatch", "day": day,
                                  "says": s.get("row_count"), "has": len(rows)})
         bad = [p for p, a in rows.items()

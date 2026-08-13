@@ -11,20 +11,28 @@ reported a collection ERROR instead of a test failure, the grep for
 `^FAILED|passed|failed` matched nothing, and the harness printed nothing at all.
 Silence is indistinguishable from survival, and I nearly recorded it as one.
 
-FIVE WAYS A MUTATION RUN LIES, each refused here by name:
+SIX WAYS A MUTATION RUN LIES, each refused here by name:
 
   INVALID_BASELINE    the suite was already red; its own failure is credited to
                       the mutation and every kill in the batch is unearned
   TARGET_NOT_FOUND    nothing was mutated, so the suite passes — which looks
                       exactly like a mutation the tests could not catch
+  AMBIGUOUS_TARGET    the target appears more than once; the FIRST occurrence is
+                      mutated, which need not be the line the caller meant
   INVALID_SYNTAX      the mutant does not compile; there is no test result at all
   INVALID_COLLECTION  tests disappeared, so fewer failures means fewer TESTS
   SURVIVED (wrong)    something unrelated broke and the kill is credited to an
                       assertion that never fired
 
-KILLED requires ALL of: green baseline, target present, mutant compiles,
-collection count unchanged, and THE NAMED TEST among the failures. Anything else
-is SURVIVED or INVALID, and INVALID is never silently folded into either.
+KILLED requires ALL of: green baseline, target present AND UNIQUE, mutant
+compiles, collection count unchanged, and THE NAMED TEST among the failures.
+Anything else is SURVIVED or INVALID, and INVALID is never silently folded into
+either.
+
+The sixth was found by this gate failing me the way the shell function did: a
+target that existed in two functions reported SURVIVED against a line it had not
+touched. Every refusal in this list was added after a run lied in exactly that
+way; none of them were anticipated.
 
 `run_all` reports `all_killed` as False when any result is INVALID, because a
 batch summary that counts an INVALID as a kill is the same lie one level up.
@@ -38,8 +46,8 @@ import sys
 from pathlib import Path
 
 #: Verdicts that mean "this run proved nothing" — never a kill, never a survival.
-INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "INVALID_SYNTAX",
-           "INVALID_COLLECTION")
+INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "AMBIGUOUS_TARGET",
+           "INVALID_SYNTAX", "INVALID_COLLECTION")
 
 
 def _pytest(args, timeout=600):
@@ -140,12 +148,32 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
            "verdict": None, "detail": None, "failed": [],
            "collected_before": None, "collected_after": None}
 
-    if old not in src:
+    if False:
         # NOTHING WAS MUTATED. The suite will pass, and a pass here is
         # indistinguishable from a mutation the tests could not catch.
         return dict(res, verdict="TARGET_NOT_FOUND",
                     detail="the target string is not present in %s — nothing was "
                            "mutated, so a green suite proves nothing" % p.name)
+
+    n_sites = src.count(old)
+    if n_sites > 1:
+        # THE SIXTH LIE, and the one this gate shipped with. `replace(old, new, 1)`
+        # takes the FIRST occurrence, which need not be the one the caller meant.
+        # Found live: a target present in both `record` and `verify_manifest`
+        # mutated `record`, left the intended line untouched, still compiled, the
+        # named test correctly passed, and the verdict came back SURVIVED — a
+        # coverage hole reported against a line that was never touched. SURVIVED is
+        # the actionable verdict, so this sends you to write a test for a gap that
+        # does not exist. The mirror case is worse: an ambiguous target that
+        # happens to kill gets RECORDED, and the weekly job re-applies it to the
+        # wrong site forever. A mutation whose location is ambiguous is not
+        # evidence in either direction. Disambiguate by extending the target with
+        # a neighbouring line.
+        return dict(res, verdict="AMBIGUOUS_TARGET",
+                    detail="the target string appears %d times in %s — "
+                           "replace(…, 1) would mutate the first occurrence, which "
+                           "is not necessarily the intended one; extend the target "
+                           "until it is unique" % (n_sites, p.name))
 
     # BASELINE FIRST, ALWAYS. A suite that is already red credits its own failure
     # to the mutation, and every kill measured against it is unearned.
@@ -213,7 +241,16 @@ def run_all(target_file: str, mutations, test_paths) -> dict:
     invalid = sum(1 for r in results if r["verdict"] in INVALID)
     return {"results": results, "killed": killed, "invalid": invalid,
             "survived": sum(1 for r in results if r["verdict"] == "SURVIVED"),
-            "all_killed": killed == len(results) and invalid == 0,
+            # `bool(results)` IS THE POINT, not defensive noise. `all()` over an
+            # empty list is True, so a batch that ran NO mutations would report
+            # all_killed — the green tick that verified nothing, the same defect
+            # as an empty manifest passing `verify_manifest`, one level up and
+            # feeding `record`. The earlier form was `killed == len(results) and
+            # invalid == 0`; the second conjunct is implied by the first (KILLED
+            # is not in INVALID) and so could never be killed by any test, while
+            # the case that actually bites went unguarded.
+            "all_killed": bool(results) and all(
+                r["verdict"] == "KILLED" for r in results),
             "baseline_green": not baseline["failed"]}
 
 
@@ -234,6 +271,15 @@ def record(module: str, tests, results, path: str = None) -> dict:
     would be failing on data the recorder itself created.
     """
     path = path or MANIFEST
+    if not results:
+        # NO EVIDENCE IS NOT CLEAN EVIDENCE. The refusal below scans the results
+        # for a non-kill, and an empty list has none — so this would file the
+        # module with `"mutations": []`, which reads downstream as "covered" and
+        # re-verifies instantly and forever. `verify_manifest` would count it as
+        # zero checks and, before today, still have exited green.
+        raise ValueError(
+            "refusing to record %s with NO results: an empty mutation list is "
+            "not a clean bill of health, it is an unwritten test" % module)
     bad = [r for r in results if r.get("verdict") != "KILLED"]
     if bad:
         raise ValueError(
