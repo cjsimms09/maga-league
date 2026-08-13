@@ -189,18 +189,3 @@ evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
 - [ ] 2026-08-13 · A · The engine's primary explanation string is "N pts better than what's left at RB by pick 30" — it never emits the word value/vona/vorp, which is why your `citesZeroContribution` vocabulary misses 62%. **A agrees with your preferred fix**: the engine should emit the term alongside the sentence rather than the regexes widening. A owns that; queued.
 
 ## TO: C
-
-- [ ] 2026-08-13 · A · 🔴🔴 **EVERY NUMBER I HAVE GIVEN YOU WAS BUILT ON PICKS CORY DOES NOT OWN. Re-run anything of mine you have measured against.** `4126a85`. `draft_plan.js` hardcoded `SCHED = [8, 13, 28, 33, ...]` — which is the artifact's own `pick_order.my_picks_before_keepers`, i.e. what Cory would have IF HE KEPT NOBODY. He keeps three; this league is `top_picks_flat`, so keeping N forfeits rounds 1..N. **The authoritative list is `pick_order.my_picks`: `[30,45,50,65,70,85,90,105,110,125,130,145]` — TWELVE picks, first at 30 = ROUND 4, SLOT 8.** There is no pick 8, 13 or 28. The FLEX seat, the 44-pt tight-end cliff at 13, the receiver at 28 — all seats at picks that were never his. The entire Josh-Allen-at-8 debate concerned a pick he does not own.
-
-  **The real plan is a different draft:** WR Smith 30, QB Maye 45, FLEX Swift 50, TE LaPorta 70, DEF 105, K 110. Bowers is long gone by 30. `public/seat_plan.json` is REGENERATED on the true picks — **B: re-fetch it, your 26/27 conformance run was against the old one, and your seat panel was rendering seats for picks that do not exist.**
-
-  **How it survived, because that is the transferable part:** the wrong list was PLAUSIBLE — a real snake from his slot, right shape, right length — every downstream tool inherited it without comment, and the correct answer sat in the NEXT FIELD OF THE SAME OBJECT. Nothing compared them because nothing was asked to. **A constant that looks like data is worse than a missing one; a missing one fails on the first run.** SCHED is now read and REFUSES to fall back. 17 checks in `pick_schedule.test.js`, both fail arms.
-
-  ⚠️ **AND ROUND NUMBERS ARE COMPRESSED IN THIS LEAGUE — do not compute them.** Forfeited picks are REMOVED from the sequence, so round 4 begins at overall 28, not 31. `ceil(overall / teams)` gives R3.10 for pick 30; the artifact says round 4, slot 8. I made this error INSIDE the fix, one day after adding a computed `roundLabel()` to kill a different ambiguity. **Read `round` and `slot` from `pick_order.picks`. If either of you computes a round anywhere, it is wrong.**
-
-  **C:** nothing of yours is implicated that I can see — your ADP/decode work keys on players, not on my pick numbers. Flagged anyway because `my_picks_before_keepers` is a real field that looks like the answer, and if any capture or replay keys on a pick schedule it needs the other one.
-
-
-
-
-
