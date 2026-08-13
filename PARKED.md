@@ -9355,3 +9355,70 @@ indistinguishable from as-shipped. **Absent is not a value.** One string on ever
 thing: **B measures TE share of a completed roster; I measure QB+TE share of the top-ten
 recommendation list.** Both can be true. **Neither is settled until the drives run on
 `my_picks`.**
+
+---
+
+## ⛔ DO NOT RECORD "REPLACEMENT IS HYGIENE, NOT A LEVER" YET — I MEASURED THE OPPOSITE (C, 2026-08-13)
+
+**Cory credited me with proving that replacement level cannot move a recommendation. I never
+made that measurement.** It is not mine — nor is "12 picks starting at 34" (I read **30**
+from `pick_order.my_picks`), running both schedules, the TE2-against-flex proposal, the
+eighteen-TEs-in-the-top-seventy count, or Burrow at VONA 0.5. **That is A's work or another
+session's, and I am not going to accept credit for a result I cannot reproduce — least of
+all one being written down for whoever comes back in a year.**
+
+**So I ran it. It comes out the other way.**
+
+### THE MEASUREMENT
+
+Real `engine.recommend()`, real board (576 projected players), one ctx held constant across
+arms, only `p.vorp` repriced:
+
+```
+   perturbation                    VORPs changed   TOP-25 POSITIONS CHANGED
+   off-by-one (n -> n+1)                535                 15
+   uniform +10 at every position        576                 16
+   full market depths                   576                 22
+```
+
+```
+   top 12, SHIPPED baselines   ... CeeDee Lamb, BROCK BOWERS, James Cook, JOSH ALLEN, ...
+   top 12, corrected baselines ... Chase Brown, Ashton Jeanty, Amon-Ra St. Brown, Achane, Barkley
+```
+
+**The TE and the QB leave the top twelve when the baselines are corrected** — the symptom's
+own direction, from the baseline alone.
+
+### WHY BOTH RESULTS CAN BE TRUE, WHICH IS THE USEFUL PART
+
+**VONA really is replacement-free** — `engine.js:545` is `return player.proj_mean - eba`,
+raw projections on both sides. **Replacement is not cancelled there; it was never there.**
+
+**But the score is not VONA.** `starterSlotMarginal` returns **`player.vorp` as the value
+itself** for a starter (`:589`) and for a flex fill (`:603`), and VORP reaches the score in
+at least six places — including `Math.max(0, player.vorp)` at `:609` and `:992`, **which is
+why even a UNIFORM shift moves the order: the clamp is not linear.** `bestFlexAlt` also
+sorts candidates by `.vorp` (`:572`).
+
+**And the engine never computes VORP or replacement — it reads `p.vorp` off the board**
+(verified: no such computation anywhere in `engine.js`). So repricing the board is the
+correct lever and my harness is testing the real path.
+
+**If A measured VONA, A is right about VONA and the conclusion does not follow. If A measured
+score and got zero, one of our two harnesses is wrong and that must be settled before it is
+written down.** My limits, stated: `roster: []`, `currentPick 30`, `nextPick 45`, identical
+in both arms — valid for a difference, not a live-draft ordering.
+
+### WHAT I ACCEPT WITHOUT RESERVATION
+
+* **The schedule.** Neither is real until the slate confirms on the 20th; state it on every
+  roster result. **My baseline work is roster-independent — no schedule, no draft state — so
+  it is unaffected either way, and I will label it as such rather than let it be compared to
+  a construction run.**
+* **The TE stack is a board-ranking phenomenon.** That is exactly what I measured and it is
+  the half I can speak to: **`overall_rank` is VORP-ordered**, and it puts K and DEF **117
+  picks** ahead of the market. **The board Cory reads while deciding is tilted whatever the
+  roster does** — and that is the surface my replacement finding acts on.
+* **The two-definitions cleanup**, with the honest label: it fixes a reporting distortion.
+* **The stack term.** Taken. I will flag it if it ever decides a pick, and the 6-point swing
+  on a half-point player is on my watch list now.
