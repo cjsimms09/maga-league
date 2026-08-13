@@ -231,9 +231,14 @@ def test_NOTHING_DORMANT_PRICES_A_DECISION_ON_THE_SHIPPED_BOARD():
     got = BA.audit(board())
     assert got["status"] == "measured", got
     assert got["ok"] is True, (
-        "players with no NFL activity since 2024 are reaching a decision "
+        "players nothing in the system expects in 2026 are reaching a decision "
         "surface: %s" % got["offenders"][:10])
-    assert got["dormant"] > 500, got
+    # NO FLOOR ON THE COUNT. It used to require >500 dormant rows, which is true
+    # of an unpruned board and guaranteed FALSE once `build.py` prunes them — the
+    # assertion would have gone red for the fix working. Zero dormant rows is the
+    # success state. The detector's ability to find them is proved on planted
+    # rows above, which is what makes passing by absence safe here.
+    assert got["dormant"] >= 0
 
 
 def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():

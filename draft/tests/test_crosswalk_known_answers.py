@@ -176,21 +176,59 @@ def _name_collisions(min_size=2):
     return {k: v for k, v in INDEX["by_name"].items() if len(v) >= min_size}
 
 
-def test_the_board_still_CONTAINS_a_same_name_same_position_collision():
-    """The premise of the next two tests. If this ever stops being true the cases
-    below are vacuous, so it fails LOUDLY and asks to be re-based rather than
-    passing on a board that no longer contains the hazard."""
+#: A board carrying the hazard, built rather than borrowed.
+#:
+#: ⚠ RE-BASED 2026-08-13. These cases used to run on whatever collision the live
+#: board happened to contain, and the board's ONLY same-name/same-position pair
+#: was Frank Gore Sr and Frank Gore Jr. Both are retired-or-inactive, so the
+#: moment `build.py` prunes players nobody expects in 2026 the board has ZERO
+#: name collisions of any kind — and these tests, which exist to prove the
+#: resolver handles the hazard, lose the hazard entirely.
+#:
+#: The premise test was right to fail loudly and ask to be re-based; this is the
+#: re-basing. The hazard is now PLANTED, so the cases prove the same property on
+#: a board that has been cleaned up and on one that has not.
+COLLIDING_BOARD = {"players": [
+    {"player_id": "c1", "name": "Frank Gore", "position": "RB", "team": "FA"},
+    {"player_id": "c2", "name": "Frank Gore", "position": "RB", "team": "BUF"},
+    {"player_id": "c3", "name": "Solo Player", "position": "WR", "team": "KC"},
+]}
+COLLIDING_INDEX = A.board_index(COLLIDING_BOARD)
+
+
+def _planted_collisions(min_size=2):
+    return {k: v for k, v in COLLIDING_INDEX["by_name"].items() if len(v) >= min_size}
+
+
+def test_the_PLANTED_BOARD_CARRIES_a_same_name_same_position_collision():
+    """The premise of the next two tests, and it is now GUARANTEED rather than
+    borrowed from whatever the live board happens to hold.
+
+    MUTATION: plant two players with different positions — the cases below stop
+    exercising the dangerous path, where only the team separates them, and pass
+    on the easy one."""
+    same_pos = [(k, v) for k, v in _planted_collisions().items()
+                if len({r["pos"] for r in v}) < len(v)]
+    assert same_pos, "the planted board no longer carries the hazard it exists for"
+
+
+def test_the_LIVE_BOARD_IS_REPORTED_but_no_longer_REQUIRED_to_carry_one():
+    """A board with no name collisions is GOOD NEWS, not a broken test.
+
+    This used to be an assertion and it would have gone red the night the prune
+    landed — for a board that had become unambiguous, which is the outcome we
+    want. It is kept as a report so the fact is still visible."""
     same_pos = [(k, v) for k, v in _name_collisions().items()
                 if len({r["pos"] for r in v}) < len(v)]
-    assert same_pos, ("no same-name/same-position collision on the current board — the "
-                      "wrong-player cases below now prove nothing and need re-basing")
+    print("live board same-name/same-position collisions: %d %s"
+          % (len(same_pos), [k for k, _ in same_pos[:4]]))
 
 
 def test_a_same_name_collision_resolves_to_the_candidate_MATCHING_TEAM():
     """The dangerous case, on real data: two players, one name, one position.
     Only the team separates them, and picking the wrong one yields a REAL player
     with a real id and no error anywhere."""
-    for _, cands in _name_collisions().items():
+    for _, cands in _planted_collisions().items():
         by_pos = {}
         for r in cands:
             by_pos.setdefault(r["pos"], []).append(r)
@@ -201,7 +239,8 @@ def test_a_same_name_collision_resolves_to_the_candidate_MATCHING_TEAM():
                 if not r.get("team"):
                     continue
                 got, method = A.match_player_shared(
-                    {"name": r["name"], "position": pos, "team": r["team"]}, INDEX)
+                    {"name": r["name"], "position": pos, "team": r["team"]},
+                    COLLIDING_INDEX)
                 assert got == r["id"], (
                     "%s %s/%s -> %s via %s, expected %s"
                     % (r["name"], pos, r["team"], got, method, r["id"]))
@@ -216,7 +255,7 @@ def test_a_same_name_same_position_collision_REFUSES_when_the_team_is_absent():
     coin flip that returns a real player is indistinguishable from a correct
     match everywhere downstream."""
     checked = 0
-    for _, cands in _name_collisions().items():
+    for _, cands in _planted_collisions().items():
         by_pos = {}
         for r in cands:
             by_pos.setdefault(r["pos"], []).append(r)
@@ -224,7 +263,8 @@ def test_a_same_name_same_position_collision_REFUSES_when_the_team_is_absent():
             if len(group) < 2:
                 continue
             got, method = A.match_player_shared(
-                {"name": group[0]["name"], "position": pos, "team": None}, INDEX)
+                {"name": group[0]["name"], "position": pos, "team": None},
+                COLLIDING_INDEX)
             assert got is None, (
                 "%s/%s is ambiguous with no team (%s) but matched %s via %s"
                 % (group[0]["name"], pos, [r["id"] for r in group], got, method))
