@@ -95,3 +95,76 @@ what would settle whether production's own error looks like this at all.
 
 What *is* claimed: the two `adp_sd` values covering 95% of the board carry no
 player-specific information, and that field drives survival, which drives VONA.
+
+---
+
+# ADDENDUM — `adp_sd` IS A FUNCTION OF `adp`, AND THIS SUPERSEDES THE COUNT ABOVE
+
+The two-value count is true and it is the wrong cut. Measured properly, the finding
+is both narrower and far stronger.
+
+## DECLARE THE SAMPLE FIRST
+
+"95% of the board on two values" counts all 1,759 players, and **1,418 of those are
+the `search_rank` fallback — players outside the draftable range entirely.** The
+question that matters is what the board carries where somebody might actually pick.
+So: **ADP ≤ 150, which is 145 players.**
+
+## WHAT IS THERE
+
+```
+   145 draftable players
+    50  at exactly 15.00        the clamp saturated (all adp 101.0-148.7)
+    92  match max(3.0, min(0.15*adp, 15.0)) EXACTLY   the formula, unsaturated
+     3  carry something else    Wease 13.80, Metchie 6.20, Pearsall 4.40
+```
+
+**142 of 145 — 98% — carry a computed number, not a measured one.** FFC's published
+standard deviation reaches exactly three players on the entire draftable board, all
+three `adp_source: ffc`, all three with an sd *below* what the formula would give.
+
+## WHY THIS IS THE STRONGER STATEMENT
+
+The two-value framing says the field is coarse. This says the field is **empty**:
+`adp_sd` is a deterministic function of `adp` for 98% of the players anyone will
+draft. It carries no independent information at all — not "little", none. Survival
+probability, which drives VONA, is therefore computed from a dispersion that is
+itself just `0.15 × adp`, so survival is a pure function of `(adp, pick)` and the
+uncertainty term adds nothing beyond what `adp` already said.
+
+And the clamp truncates exactly where dispersion is largest: real published values
+run 3.00–14.95 across ADP 1.3–131.2 and are still rising when the formula caps at
+15.00, which is every draftable player past pick 100.
+
+## WHAT IT COSTS, MEASURED THROUGH THE REAL FUNCTION
+
+`keepers.survival_probability` at a 20-pick gap:
+
+```
+   sd =  8.0    0.6% survival
+   sd = 15.0    9.1%
+   sd = 30.0   25.2%
+```
+
+**A factor of two in `adp_sd` moves survival about threefold**, and 40× across the
+range. Note also that at fixed sd the survival at a given gap is identical at every
+ADP — which is the clamp's harm stated exactly: it makes survival depend only on the
+gap, never on who the player is.
+
+## AND WHY NOBODY COULD SEE THIS FROM THE BOARD
+
+`adp_sd_source` is computed at `adp.py:362` and **not copied** by
+`apply_with_fallback` at `:609`, which takes only `(adp, adp_sd, adp_source)`.
+`draft/evidence/items.js:77` reads it and defaults to the string `'heuristic'`. So
+the one display that distinguishes a measured sd from a computed one says
+"heuristic" for every player, always — not because it measured that, but because the
+field never arrives. **The provenance that would have made this visible was computed
+and then dropped one function later.**
+
+## CORRECTION TO THE SECTION ABOVE
+
+I reported "worse than reported — 95% on two values" earlier today, amplifying a
+board-wide count. That number is correct and it overstates the severity where it
+counts, because four fifths of it is the undraftable tail. The draftable-range cut
+is the one to act on, and it happens to be a graver finding: not a coarse field, an
+uninformative one.
