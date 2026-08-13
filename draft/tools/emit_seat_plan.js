@@ -42,12 +42,46 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const kept = new Set(keep.map(k => String(k.player_id)));
+const byIdPool = {};
+pool.forEach(p => { byIdPool[String(p.player_id)] = p; });
 const ELIG = slot => (slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [slot]);
 
-/* Realized wire, pooled 2023-25 (waiver_replacement.py). Carried so the UI can
- * answer "is this worth a roster spot" without a second source of truth. */
-const WIRE = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };
-const WIRE_N = { QB: 5, RB: 46, WR: 39, TE: 6 };
+/* ── THE WIRE, AND THE CONSTANT IT REPLACES ───────────────────────────────
+ *
+ * This file shipped `WIRE = {QB 20.9, RB 5.3, WR 13.3, TE 6.3}` with
+ * `WIRE_N = {5, 46, 39, 6}` and a note claiming 764 measured acquisitions. The
+ * value, the n and the note were three different quantities: the value is the
+ * median of per-(position, week) CELL MEDIANS over only the cells that cleared
+ * C's `min_n = 5` REPORTING floor; the n is those cells' pooled acquisition
+ * count; and 96 acquisitions survive that filter, not 764. In a ten-team league
+ * the median cell holds TWO adds, so the quarterback figure was ONE WEEK and so
+ * was the tight end.
+ *
+ * `wire_level.js` measures it from the full sample and exports the SORTED
+ * SAMPLE, because the bench simulator draws from it week by week and a median
+ * cannot produce convexity. K and DEF have no realized sample at all and it
+ * refuses rather than returning zero. */
+const WL = require('./wire_level.js');
+const WIRE_MEASURED = WL.measure();
+const WIRE = {};
+const WIRE_N = {};
+WL.MEASURED_POSITIONS.forEach(p => {
+  const s = WIRE_MEASURED.summary[p];
+  if (s) { WIRE[p] = s.median; WIRE_N[p] = s.n; }
+});
+
+/* ── LINEUP SKILL, MEASURED, AND THE ρ IT CALIBRATES ──────────────────────
+ *
+ * A bench player's worth depends entirely on how often the right man gets
+ * started, and until 2026-08-13 that number was not measured anywhere. It is
+ * now: this league captures 87.7% of its hindsight-optimal points against an
+ * 84.1% floor from lineups set on season averages alone, so it takes 22.5% of
+ * the available in-week edge — stable at 24.9 / 21.8 / 20.7 across three
+ * seasons. `calibrate()` solves for the ρ that reproduces that in the simulator
+ * ON THIS ROSTER, rather than anyone picking a midpoint. */
+const SKILL = require('./lineup_skill.js');
+const BENCH = require('./bench_mv.js');
+const SKILL_MEASURED = SKILL.summarise(SKILL.measure().rows);
 
 /* ── THE EDGE, MEASURED RATHER THAN QUOTED ────────────────────────────────
  * Three lines scored by ONE function (lineup_value.bestLineup): the engine
@@ -114,6 +148,22 @@ const EDGE = (function () {
 const taken = new Set();
 const seats = [];
 
+/* ── ρ, SOLVED ONCE, ON THE ROSTER THIS PLAN ACTUALLY BUILDS ──────────────
+ * Not a constant and not a midpoint. `calibrate` bisects for the ρ at which the
+ * simulator reproduces this league's measured 22.5% skill share on this roster,
+ * because ρ is not a property of a manager alone — a deeper bench offers more
+ * chances to be right, so the roster is part of the question. */
+const FULL_ROSTER = keep.map(k => byIdPool[String(k.player_id)] || k)
+  .concat(plan.filter(x => x.p).map(x => byIdPool[String(x.p.player_id)] || x.p))
+  .filter(Boolean);
+const RHO = SKILL.calibrate(FULL_ROSTER, SKILL_MEASURED.skill_share, { sims: 400 });
+
+/* THE ROSTER A BENCH SEAT IS PRICED AGAINST is everything already committed at
+ * that pick — keepers plus every earlier planned selection. A marginal value
+ * quoted against no roster is meaningless: the whole point of MV(i|R) is who is
+ * standing in front of him. */
+const committed = keep.map(k => byIdPool[String(k.player_id)] || k).filter(Boolean);
+
 plan.forEach(x => {
   const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
   const elig = x.bench ? ['QB', 'RB', 'WR', 'TE'] : ELIG(x.slot);
@@ -130,14 +180,42 @@ plan.forEach(x => {
    * quantity that puts a backup QB and a backup RB on one scale. The wire pays
    * 20.9/wk at QB and 5.3 at RB, which is exactly why the raw sort was upside
    * down. */
+  /* THE SCALAR IS GONE FROM THE BENCH. It was `(proj_mean / 15) − WIRE[pos]`,
+   * which has no lineup in it: it cannot see that a second quarterback plays no
+   * weeks unless the first is hurt, that a bye is a hole with a date, or that
+   * two receivers sharing a bye are not two receivers. A bench row is now ranked
+   * on MV(i|R) from `bench_mv.js` — the value of the ROSTER SPOT, in season
+   * points, with convexity coming out of the lineup optimizer on sampled weeks
+   * and from nowhere else.
+   *
+   * A STARTER SEAT still ranks on projection, and that is not an oversight: the
+   * candidates there are position-constrained and already comparable, and MV
+   * against a committed roster would mostly re-measure who is already on it. */
   const WEEKS = 15;
-  const rank = p => (x.bench && WIRE[p.position] != null)
+  const scalar = p => (x.bench && WIRE[p.position] != null)
     ? (num(p.proj_mean) / WEEKS) - WIRE[p.position]
     : num(p.proj_mean);
-  const cands = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
+  const pre = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && !taken.has(String(p.player_id)) && elig.indexOf(p.position) >= 0
     && num(p.proj_mean) != null)
-    .sort((a, b) => rank(b) - rank(a));
+    .sort((a, b) => scalar(b) - scalar(a));
+  /* TWO STAGES, STATED. MV costs a few hundred simulated seasons per candidate,
+   * so the field is narrowed by the scalar to twelve and then RE-RANKED by MV.
+   * The prefilter can only lose a man the scalar ranks below twelve others and
+   * MV ranks in the top five — possible, and the reason the width is written
+   * down rather than tuned quietly. */
+  const PREFILTER = 12;
+  const mvOf = {};
+  if (x.bench) {
+    pre.slice(0, PREFILTER).forEach(p => {
+      mvOf[String(p.player_id)] = BENCH.marginalValue(committed, p,
+        { sims: 600, lineupInfo: RHO });
+    });
+  }
+  const rank = p => (x.bench ? (mvOf[String(p.player_id)] != null
+    ? mvOf[String(p.player_id)] : -Infinity) : num(p.proj_mean));
+  const cands = (x.bench ? pre.slice(0, PREFILTER) : pre)
+    .slice().sort((a, b) => rank(b) - rank(a));
   if (x.p) taken.add(String(x.p.player_id));
 
   const short = cands.slice(0, 5).map(p => ({
@@ -152,12 +230,13 @@ plan.forEach(x => {
      * points) above a gap of 0.6 (PTS/WEEK) — every figure correct, and a
      * reader cannot get from the two numbers to the third. Leading with the
      * quantity the seat was ranked on makes the gap subtractable by eye. */
-    display_primary: x.bench ? Math.round(rank(p) * 10) / 10 : Math.round(num(p.proj_mean) * 10) / 10,
-    display_primary_units: x.bench ? 'pts/week over the free player at his position'
-      : 'season points',
+    display_primary: Math.round(rank(p) * 10) / 10,
+    display_primary_units: 'season points',
     display_secondary: x.bench ? Math.round(num(p.proj_mean) * 10) / 10 : null,
-    display_secondary_units: x.bench ? 'season points' : null,
-    rank_basis: x.bench ? 'pts/week over the free player at his position'
+    display_secondary_units: x.bench ? 'his own season projection' : null,
+    rank_basis: x.bench
+      ? 'MV(i|R): season points this roster spot gains over giving it to a free '
+        + 'player, at the measured lineup skill (rho ' + RHO.toFixed(3) + ')'
       : 'season projection (candidates are position-comparable at a starter seat)',
     beats_wire_by: (WIRE[p.position] != null)
       ? Math.round(((num(p.proj_mean) / WEEKS) - WIRE[p.position]) * 10) / 10 : null,
@@ -175,8 +254,12 @@ plan.forEach(x => {
    * which flagged 13 of 15 picks as tossups and made the flag meaningless.
    * TOSSUP_SEASON_PTS is the single quantity; a bench row is ranked per week, so
    * the same 8 points becomes 8/15. */
+  /* ONE THRESHOLD, AND NOW ONE UNIT SYSTEM. It used to be 8 season points for a
+   * starter and 8/15 per week for a bench row, because the two seats were ranked
+   * in different units. MV is season points, so both seats are the same quantity
+   * and the division is gone — the bug it was working around no longer exists. */
   const TOSSUP_SEASON_PTS = 8;
-  const thresh = x.bench ? TOSSUP_SEASON_PTS / WEEKS : TOSSUP_SEASON_PTS;
+  const thresh = TOSSUP_SEASON_PTS;
   const tossup = gap != null && gap <= thresh;
 
   /* ── TWO WAIVER LEVELS IN ONE ROW: the defect B blocked on ────────────
@@ -226,7 +309,11 @@ plan.forEach(x => {
     plan_value: x.unpriced ? null : Math.round(x.v * 10) / 10,
     shortlist: short,
     gap_to_second: gap,
-    gap_units: x.bench ? 'pts/week over the free player at his position' : 'season points',
+    /* ONE UNIT SYSTEM NOW. A bench row used to carry points-per-week over the
+     * free player at its own position while a starter row carried season points,
+     * which is how one threshold became two. MV(i|R) is season points, so both
+     * row types are the same quantity and the field says so identically. */
+    gap_units: 'season points',
     tossup: tossup,
     tossup_threshold: Math.round(thresh * 100) / 100,
     /* WHAT TO DO WHEN THE SHORTLIST IS GONE — the case a single-name plan
@@ -268,7 +355,45 @@ const out = {
   wire_per_week: WIRE,
   wire_n: WIRE_N,
   wire_note: 'Realized median points in the week a player was added off waivers, '
-    + 'pooled 2023-25 across 764 acquisitions. QB and TE rest on n=5 and n=6.',
+    + 'pooled 2023-25 over the FULL sample of ' + WIRE_MEASURED.ledger.scored
+    + ' scored acquisitions (of ' + WIRE_MEASURED.ledger.acquisitions + ' adds; the '
+    + 'rest are K/DEF, which nflverse weekly cannot score, or men who did not play '
+    + 'that week and are counted ABSENT rather than zero). This REPLACES a constant '
+    + 'that was the median of per-week cell medians over the 96 acquisitions that '
+    + 'cleared a min_n=5 REPORTING filter — at QB and TE that was one week each.',
+  lineup_skill: {
+    capture: Math.round(1000 * SKILL_MEASURED.capture) / 1000,
+    no_information_floor: Math.round(1000 * SKILL_MEASURED.naive_capture) / 1000,
+    skill_share: Math.round(1000 * SKILL_MEASURED.skill_share) / 1000,
+    team_weeks: SKILL_MEASURED.n,
+    rho: Math.round(1000 * RHO) / 1000,
+    note: 'MEASURED from three completed seasons of this league\'s own started '
+      + 'lineups. Capture is what the room started over what the best legal lineup '
+      + 'would have scored; the floor is the same rosters with lineups set on season '
+      + 'averages alone. The share between them is what bench depth can actually be '
+      + 'converted into, and rho is SOLVED for the value that reproduces it in the '
+      + 'simulator on this roster. It is the LEAGUE\'s rate, not Cory\'s — three of '
+      + 'the ten players missing from the board started on his roster every season, '
+      + 'so only four of his 54 team-weeks are gradeable and his own rate is UNKNOWN.',
+  },
+  bench_basis: {
+    equation: 'MV(i|R) = E[sum_w OptLineup(R+{i},w)] - E[sum_w OptLineup(R+{omega},w)]',
+    units: 'season points over weeks ' + BENCH.FIRST_WEEK + '-' + BENCH.LAST_WEEK,
+    omega: 'the roster spot goes to a freely available body, which is the same as '
+      + 'leaving it open and streaming the hole. Position-free ON PURPOSE: pricing '
+      + 'each man against his OWN position\'s free-agent floor hands running backs '
+      + 'a ten-point discount that is about the position, not the player.',
+    streaming: 'UNLIMITED by default, which is the setting under which a bench '
+      + 'player is worth the LEAST. This league completes 1.498 adds per team per '
+      + 'week (764 over 51 season-weeks) and capping it there raises every bench '
+      + 'value; the unlimited number is the conservative end of that bracket.',
+    not_modelled: ['weekly_sd is DERIVED from a season sd, never observed',
+      'games_expected is a per-POSITION constant, so a handcuff is worth nothing here',
+      'player-to-player correlation is unmeasured',
+      'succession / inherited-touch shares are absent',
+      'the objective is points, not the payout structure',
+      'weeks ' + (BENCH.LAST_WEEK + 1) + '+ (the playoffs) are excluded'],
+  },
 
   /* ── THE DISPLAY CONTRACT ────────────────────────────────────────────────
    *
@@ -337,9 +462,14 @@ seats.forEach(s => {
     + s.shortlist.slice(0, 3).map(p => p.position + ' ' + p.name.split(' ').slice(-1)[0]).join(', '));
 });
 console.log('\n  T = TOSSUP: the top two eligible names are within 8 SEASON points of each');
-console.log('  other, so the SEAT matters more than the NAME. Starter rows are ranked on');
-console.log('  season projection and bench rows on points/week over the free player at');
-console.log('  that position, so the same 8 points reads as 8 or as 0.53 by row.');
+console.log('  other, so the SEAT matters more than the NAME. BOTH row types are now in');
+console.log('  SEASON POINTS — starters on projection, bench on MV(i|R) — so it is one');
+console.log('  threshold in one unit system rather than two.');
+console.log('  ⚠ 8 POINTS IS NOT CALIBRATED FOR MV AND IT SHOWS: within a bench seat the');
+console.log('  top candidates sit a few points apart, so the flag fires on most rows and');
+console.log('  carries little information. The threshold that belongs here is the standard');
+console.log('  error of the MV estimate itself — a gap under the measurement error IS a');
+console.log('  tossup, derived rather than chosen. NOT YET BUILT.');
 console.log('  ' + seats.filter(s => s.tossup).length + ' of ' + seats.length + ' picks are tossups.');
 console.log('\n  This artifact is READ by the war room so the board Cory sees follows the');
 console.log('  model. It does NOT change the engine\'s ranking — it states the SEAT, and');

@@ -76,8 +76,13 @@ ck('the plan states the assumption it is only true under',
 // an undeclared one, because the declaration is what a renderer trusts.
 let unitMismatch = [], gapMismatch = [], tossupMismatch = [];
 D.seats.forEach(s => {
-  const isBench = !s.is_starter_seat;
-  const wantUnits = isBench ? 'pts/week over the free player at his position' : 'season points';
+  /* ONE UNIT SYSTEM. Bench rows used to be ranked in points-per-week over the
+   * free player at their own position while starter rows carried season points,
+   * and that is how one tossup threshold became two. They are now both SEASON
+   * POINTS — starters on projection, bench on MV(i|R) — so this check is that
+   * every row says the same thing, and the fail arm below is what stops it
+   * becoming vacuous. */
+  const wantUnits = 'season points';
   if (s.gap_to_second != null && s.gap_units !== wantUnits) {
     unitMismatch.push({ pick: s.pick, declared: s.gap_units, expected: wantUnits });
   }
@@ -123,8 +128,14 @@ ck('NO starter seat offers a player it cannot use', wrongPos.length === 0, wrong
 // every bench row in the first cut.
 const benchBasis = [...new Set(D.seats.filter(s => !s.is_starter_seat)
   .flatMap(s => (s.shortlist || []).map(p => p.rank_basis)))];
-ck('bench rows are ranked on the wire-relative metric, not raw projection',
-  benchBasis.every(b => /free player/.test(b || '')), benchBasis);
+ck('bench rows are ranked on MV(i|R), not raw projection and not a scalar',
+  benchBasis.length > 0 && benchBasis.every(b => /^MV\(i\|R\)/.test(b || '')), benchBasis);
+ck('and the basis names the measured lineup skill it was computed at',
+  benchBasis.every(b => /rho 0\.\d+/.test(b || '')), benchBasis);
+/* FAIL ARM for the units check above: a row carrying the OLD per-week basis
+ * must be caught, or "everything says season points" passes by saying nothing. */
+ck('FAIL ARM — a row still declaring the old per-week units would be detected',
+  'pts/week over the free player at his position' !== 'season points');
 
 // ── 5. EVERY SEAT CAN BE ACTED ON WHEN THE PLAN BREAKS ───────────────────
 /* ── B'S TWO FINDINGS, PINNED SO THEY CANNOT RETURN ──────────────────────
