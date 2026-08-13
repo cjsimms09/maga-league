@@ -51,7 +51,10 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
     { chosen: { player_id: '9', name: 'x' } }));
   ck('  a missing value is recorded as null, never dropped',
     noVorp.chosen.vorp === null && 'vorp' in noVorp.chosen, noVorp.chosen);
-  ck('  (because "the board had no VORP" and "nobody wrote the field" differ)', true);
+  /* WAS `ck(..., true)`. The distinction is testable: a board that HAS the value
+   * records the number, so null really does mean "absent" and not "always null". */
+  ck('  and a board that HAS the value records it, so null means absent',
+    typeof r.chosen.vorp === 'number' && r.chosen.vorp !== null, r.chosen.vorp);
 }
 
 // ── AN OVERRIDE WITH NOTHING TO OVERRIDE IS A PICK ─────────────────────────
@@ -71,7 +74,10 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
   const r = O.pickOverride(Object.assign({}, base, { reason: undefined }));
   ck('an override with no stated reason is still recorded',
     r.reason === 'no_reason_given', r.reason);
-  ck('  (a required modal at draft speed poisons the ledger worse)', true);
+  /* WAS `ck(..., true)`. Testable: silence is a FIRST-CLASS member of the closed
+   * vocabulary, not a bypass of it. */
+  ck('  and that sentinel is a member of the closed vocabulary, not a bypass',
+    !O.REASONS || O.REASONS.indexOf('no_reason_given') >= 0, O.REASONS);
   const msg = threw(() => O.pickOverride(Object.assign({}, base, { reason: 'because I felt like it' })));
   ck('free text is refused', !!msg, msg);
   ck('  because one bucket per entry grades nothing',

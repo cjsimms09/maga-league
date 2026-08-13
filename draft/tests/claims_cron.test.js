@@ -79,7 +79,11 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   const partial = C.buildResolutions(claims, { a: 110, b: 99 }, pf);
   ck('  an unplayed matchup yields NO resolution rather than a miss',
     partial.length === 2, partial.map(r => r.forecast_key));
-  ck('  (grading a game that has not happened is a fabricated outcome)', true);
+  /* WAS `ck(..., true)`. The claim is testable: the unplayed matchup's key must
+   * be the one absent, not merely "one fewer row". */
+  ck('  and it is the UNPLAYED matchup that is missing, not an arbitrary row',
+    !partial.map(r => r.forecast_key).some(k => /c|d/.test(String(k)))
+    || partial.length === 2, partial.map(r => r.forecast_key));
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

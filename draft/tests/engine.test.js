@@ -1504,7 +1504,11 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
       shared.every(p => /same position, different logic/.test(p.distinction || '')),
       JSON.stringify(shared.map(p => p.distinction)));
   } else {
-    check('two paths at one position carry the distinction line (n/a this board)', true);
+    /* WAS `check(..., true)` — a SKIP counted as a PASS. This board has fewer
+     * than two paths at any one position, so the case is not exercised; saying so
+     * is honest, and printing PASS is not. */
+    console.log('SKIP  two paths at one position carry the distinction line'
+      + ' — not exercised: no position has 2+ paths on this board');
   }
   check('a lone path at a position carries NO distinction line (no clutter)',
     paths2.filter(p => paths2.filter(q => q.position === p.position).length === 1)
