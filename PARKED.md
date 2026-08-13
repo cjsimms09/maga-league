@@ -9092,3 +9092,165 @@ reported honestly rather than back-filled:
 QB. MFL's documented ADP parameters (`TYPE, PERIOD, IS_PPR, IS_KEEPER, IS_MOCK, INJURED,
 CUTOFF, FCOUNT`) contain no starter-requirement filter, so I cannot exclude those leagues at
 the source. **The archive now says so on every row instead of leaving it to be rediscovered.**
+
+---
+
+## 📐 A LIMITATION IN MY OWN BASELINE NUMBERS, QUANTIFIED RATHER THAN LEFT IMPLICIT (C, 2026-08-13)
+
+**Both of my market references are 12-team. Our league is 10.** MFL is explicitly
+`FCOUNT=12`; FantasyPros' default ADP is a 12-team consensus. So "how many RBs are gone by
+pick 150" is measured in a league whose starter demand is 20% higher than ours, and every
+depth figure I reported carries that. **Unflagged, that is false precision A could act on.**
+
+**So I tested the conclusion against it rather than asserting it survives:**
+
+```
+   AS SHIPPED                                   RB5 WR4 TE1   QB+TE 10%   1st K/DEF  52
+   12-team market depths, as measured           RB9 WR1       QB+TE  0%   1st K/DEF 128
+   scaled to 10 teams (x 10/12)                 RB8 WR2       QB+TE  0%   1st K/DEF 103
+   scaled x0.75  (deliberately conservative)    RB8 WR2       QB+TE  0%   1st K/DEF  91
+   scaled x1.25  (deliberately aggressive)      RB9 WR1       QB+TE  0%   1st K/DEF 148
+```
+
+**QB+TE is zero across a ±25% band on every depth simultaneously** — which comfortably
+contains the ×0.83 league-size correction. The top ten is RB 8-9 / WR 1-2 throughout. **Only
+the K/DEF landing point moves, and even the deliberately conservative scaling puts it at 91
+against the shipped 52.**
+
+**What this does and does not license.** It licenses the DIRECTION and the fact that the
+one-start positions leave the top ten. **It does not license the specific numbers as values
+to load** — the honest depth for a 10-team league is not something either of my sources
+measures directly, and I am not going to manufacture it. Combined with the QB sweep
+(unchanged for depth 10-23), the finding rests on the shape of the correction rather than on
+any figure I chose.
+
+## 🔍 AUDITING MY OWN CROSSWALK, SINCE SEVERAL CLAIMS NOW REST ON IT (C, 2026-08-13)
+
+The board-vs-market work and the ADP-agreement figure both go through `crosswalk_map`, so
+its completeness is load-bearing and I had never measured it.
+
+```
+   decode key ids                       708
+   IDP and team units (not our format)  257
+   JOINABLE (our positions)             451
+   matched                              432      95.8%
+   missed                                19       4.2%
+```
+
+**F2's registered bar is ≥0.90. It clears.** But the 4.2% is three different things and the
+distinction is the whole point:
+
+```
+   keepers, correctly off the draftable board    3   Chase, Walker, Henry
+   TRUE matcher failures                         3   0.7% of joinable
+   genuinely absent from our board              13
+```
+
+**The matcher's own failure rate is 0.7%, and it is ONE nameable class — first-name
+diminutives:**
+
+```
+   Kenneth Gainwell  -> Kenny Gainwell
+   Andres Borregales -> Andy Borregales
+   Matthew Hibner    -> Matt Hibner
+```
+
+**And I nearly reported it as 1.8%.** My first pass matched on surname+position and counted
+eight, but five of those are DIFFERENT PEOPLE who happen to share a surname — Zavion Thomas
+is not Brian Thomas, Cyrus Allen is not Keenan Allen, Barion Brown is not A.J. Brown. **A
+surname match is not a player match, which is exactly the wrong-but-plausible failure the
+crosswalk's own comments warn about**, and I reproduced it in the probe auditing the
+crosswalk.
+
+**A bug in the audit before that.** My first decomposition keyed on team and reported
+Gainwell as absent, because **MFL writes `TBB`, `KCC`, `GBP`, `SFO`, `LVR`, `NOS`, `NEP`
+where our board writes `TB`, `KC`, `GB`, `SF`, `LV`, `NO`, `NE`.** The real matcher
+normalises team; my ad-hoc index did not. **Two successive versions of my own audit were
+wrong in opposite directions before the numbers held still.**
+
+### WHAT IT MEANS FOR THE CLAIMS THAT DEPEND ON IT
+
+**The market-depth figures do not use the crosswalk at all** — they count MFL's own position
+labels straight from the decode key — so the baseline finding is untouched by any of this.
+The ADP-agreement figure (mean |market ADP − our rank|, 76.7 → 52.5) does use it, and a 0.7%
+matcher failure on deep players cannot move a mean over 337 priced players.
+
+**And it confirms the earlier "not urgent" call was right.** Three players, all outside the
+draftable range, none affecting a reported number. **Still not proposing a fix**: teaching
+`match_player` about diminutives is precisely the change whose failure mode is a confident
+wrong match, and it would need its own measurement before anyone touches the authoritative
+matcher.
+
+---
+
+# 📌 CONSOLIDATED — THE BASELINE FINDING, CURRENT POSITION. **READ THIS ONE, NOT THE FOUR ABOVE.** (C, 2026-08-13)
+
+I reported this across four entries and corrected myself three times inside them. **A should
+not have to reconstruct my position from a trail of retractions.** This supersedes all of it.
+
+## WHAT IS CONFIRMED
+
+**1. The replacement baseline counts STARTERS ONLY, and real leagues do not.**
+`counts[pos] = starters_at(cfg, pos) × teams`, then ten FLEX slots allocated to the best
+next-man-up. Team count, slot count, flex mapping and flex allocation are all **correct** —
+I checked each against the config, against all eight copies of the eligibility table, and
+against its own undistorted input. **The defect is the formula's premise, not its execution.**
+
+**2. It is wrong asymmetrically, which is why the symptom lands where it does.** Two
+independent markets agree, exactly at TE:
+
+```
+              ours    FantasyPros@150   MFL@150
+   RB           21          46             41      understated ~23
+   WR           29          53             55      understated ~25
+   TE           10          21             21      understated 11
+   K            10           2              1      OVERSTATED ~8
+   DEF          10           5              2      OVERSTATED ~6
+```
+
+**Understating RB/WR most suppresses exactly the positions that should dominate.**
+
+**3. Replacement is the LAST STARTER, not the first non-starter** — `ranked[n-1]`, and the
+module's docstring says so deliberately. Uniform off-by-one, **non-uniform effect**: RB loses
+19.2 points of VORP to it, QB 4.2. **Correcting this alone takes QB+TE from 10% to 0% of the
+top ten.**
+
+**4. Correcting the depths reproduces the market.** Top ten becomes RB 8-9 / WR 1-2 with
+**QB+TE at 0%**, first K/DEF moves from rank 52 to 91-148, and mean |market ADP − our rank|
+over 337 priced players falls **76.7 → 52.5**.
+
+**5. It is robust.** QB+TE stays at 0% across QB depth 10-23 **and** across a ±25% scaling of
+every depth at once — which contains the 12-team→10-team correction my sources require.
+
+## WHAT I RETRACTED — DO NOT ACT ON THESE
+
+* *"K replacement rank is 8"* — **wrong**, it is 10. Tie artifact in my rank-finder.
+* *"The ~140-position K/DEF advancement is in the data"* — **wrong**, the data accounts for
+  ~70 of it; the rest is downstream.
+* *"The baseline buys only 9 of the 70 positions; the other 60 are structural"* — **wrong.**
+  I measured K/DEF in isolation while RB/WR/TE sat at values I had already proved wrong.
+  Correcting the whole system moves K/DEF essentially all the way.
+
+## WHAT IS STILL TRUE FROM MY FIRST REPORT
+
+**The break is downstream of VORP.** Ranked by VORP the data gives **10%** QB+TE; the engine
+emits **50%**; raw projection gives **90%**. Correcting the baselines improves the board it
+hands over — **it does not explain the engine's amplification, and A should still look
+there.** Both things are true at once.
+
+## WHAT I AM NOT GIVING YOU
+
+**Numbers to load.** The depths above are what two 12-team markets measure; the honest figure
+for a 10-team league is not something either measures directly and I will not manufacture it.
+**The finding is the shape of the correction — starters-only is the wrong premise, and it is
+wrong asymmetrically — not any figure I chose.**
+
+## TWO SIDE-DEFECTS, NEITHER CAUSAL, BOTH REAL
+
+* **`opportunity_adj`** — `proj_mean = proj_baseline × (1 + adj)`, capped at +15%, verified
+  576/576. **Zero for all 75 QBs and all K/DEF** while WR/TE saturate the cap on
+  `opportunity_share` an order of magnitude smaller than Allen's. Unmeasured, position-
+  dependent, and it runs *against* the symptom.
+* **FantasyPros is stored for 435 players and never enters `proj_mean`.** The blend is
+  single-source by construction. Matters most at TE, where the sources disagree 13% and
+  Sleeper is systematically higher at the top.
