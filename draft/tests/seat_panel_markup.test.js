@@ -53,12 +53,28 @@ const $ = sel => (sel === '#seat-plan' ? host : null);
 const escapeHtml = s => String(s).replace(/[&<>"]/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+/* renderSeatPlan now shares ONE seat lookup with the path cards' against-case,
+ * so the stub set includes it. Extracted from the shipped source too — a
+ * hand-written stub here would let the two drift, which is the very thing
+ * sharing the lookup was meant to prevent. */
+const lookStart = SRC.indexOf('  function seatForCurrentPick() {');
+let lookSrc = '';
+if (lookStart > 0) {
+  let d2 = 0, e2 = -1;
+  for (let i = SRC.indexOf('{', lookStart); i < SRC.length; i++) {
+    if (SRC[i] === '{') d2++;
+    else if (SRC[i] === '}') { d2--; if (d2 === 0) { e2 = i + 1; break; } }
+  }
+  lookSrc = SRC.slice(lookStart, e2);
+}
+ck('the shared seat lookup was extracted too', lookSrc.length > 40);
+
 function runAtPick(pick) {
   captured = '';
   const pickCoordinate = () => ({ current: pick });
   // eslint-disable-next-line no-new-func
   const f = new Function('state', '$', 'escapeHtml', 'pickCoordinate',
-    fnSrc + '; return renderSeatPlan;');
+    lookSrc + '\n' + fnSrc + '; return renderSeatPlan;');
   f(state, $, escapeHtml, pickCoordinate)();
   return captured;
 }

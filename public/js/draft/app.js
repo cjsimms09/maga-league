@@ -809,15 +809,12 @@
     const host = $('#seat-plan');
     const d = state.seatPlan;
     if (!host || !d) return;
-    /* `.current`, not `.currentNumber` — pickCoordinate returns {current, mine,
-     * next, isMock, rawRoom, rawDiffers}. My first pass invented the field name,
-     * which would have made `cur` undefined, sent the lookup down the fallback
-     * branch, and pinned this panel to the FIRST seat for the whole draft while
-     * looking perfectly healthy. Fourth field-name guess this week; the first one
-     * I caught by reading the function instead of by a red test. */
-    const cur = (pickCoordinate() || {}).current;
-    const seat = d.seats.find(s => s.pick === cur)
-      || d.seats.find(s => s.pick >= (cur || 0)) || null;
+    /* ONE LOOKUP, SHARED WITH THE AGAINST-CASE. This function had its own copy
+     * of the seat lookup; the path cards then grew a second one, and two lookups
+     * is two chances to disagree about which seat is live — the panel and the
+     * card would then argue on the same screen, which is a defect this repo has
+     * already shipped once with "value" meaning two things. */
+    const seat = seatForCurrentPick();
     if (!seat) { host.innerHTML = ''; return; }
 
     const C = d.display_contract || {};
@@ -3046,6 +3043,74 @@
    * from the SAME scored board the ranked list uses (passed in, never re-scored),
    * so a path and the list beneath it can never disagree. Stores state.lastPaths
    * so a pick can be logged with the direction it came from. */
+  /* ── THE CASE AGAINST — a route with only a "for" is advocacy ─────────────
+   *
+   * Cory: *"contrast those routes (for and against and why)."* The engine emits
+   * six `when_right` strings and no counterweight, so every card argues for
+   * itself and the panel reads as six recommendations rather than one choice.
+   *
+   * BUILT HERE, NOT IN THE ENGINE, and that is deliberate. Everything below is
+   * derived from what computePaths ALREADY returns — `price`, the branch `plan`
+   * rows, `mechanism`, `fills`, `coin_flip_with` — so this is a presentation
+   * concern and needs no edit to a scoring-path file nine days from a draft. The
+   * gate on engine.js exists to make exactly this pause happen.
+   *
+   * THE STRONGEST AGAINST IS THE SEAT. If a route fills a slot the plan does not
+   * want at this pick, that is a concrete, measured objection rather than a
+   * hedge — and it is the one that makes the panel agree with the model instead
+   * of arguing with it.
+   */
+  function pathAgainst(p) {
+    const out = [];
+    const seat = seatForCurrentPick();
+    if (seat && seat.is_starter_seat) {
+      const elig = seat.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [seat.slot];
+      if (elig.indexOf(p.position) < 0) {
+        out.push('the plan wants ' + seat.slot + ' at this pick, and this fills '
+          + p.position + ' instead');
+      }
+    }
+    /* `price` is what this route costs against the best-priced one. 0 means it
+     * IS the best-priced, in which case saying "costs 0" would be noise. */
+    if (p.price > 0) out.push('prices ' + p.price + ' below the top route');
+    if (p.coin_flip_with) out.push('a genuine coin flip with the other top route — '
+      + 'the model cannot separate them, so believe one or take the cheaper');
+
+    /* The mechanism-specific objection: what has to be TRUE for this route to be
+     * wrong. Each is the negation of its own when_right, which is what makes it
+     * a contrast rather than a disclaimer. */
+    const loss = (p.plan && p.plan[0] && p.plan[0].loss != null) ? Math.round(p.plan[0].loss) : null;
+    if (p.mechanism === 'scarcity') {
+      out.push('you are paying for certainty — if the room does not run on '
+        + p.position + ', the cliff never arrives and you bought nothing');
+    } else if (p.mechanism === 'need') {
+      out.push(loss != null && loss <= 3
+        ? 'the seat is fillable later — waiting costs only ~' + loss + ' pts here'
+        : 'filling a seat early spends the pick on need rather than on the best player left');
+    } else if (p.mechanism === 'flex') {
+      out.push('a flex body is the most replaceable thing on a roster — the wire '
+        + 'refills this seat more cheaply than any other');
+    } else if (p.mechanism === 'value') {
+      out.push('value with no seat behind it is a bench player: he only scores if '
+        + 'somebody ahead of him stops playing');
+    }
+    if (p.fills === 'bench') {
+      out.push('this does not start for you today');
+    }
+    return out;
+  }
+
+  /* The seat the plan wants at the pick on the clock, or null. Shared by the
+   * seat panel and the against-case so the two can never disagree about which
+   * seat is live — two lookups is two chances to drift. */
+  function seatForCurrentPick() {
+    const d = state.seatPlan;
+    if (!d || !Array.isArray(d.seats)) return null;
+    const cur = (pickCoordinate() || {}).current;
+    return d.seats.find(s => s.pick === cur)
+      || d.seats.find(s => s.pick >= (cur || 0)) || null;
+  }
+
   function renderPaths(scored) {
     const host = $('#paths-panel');
     if (!host) return;
@@ -3137,7 +3202,15 @@
         (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         devHtml +
         (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
-        '<div class="path-when">' + escapeHtml(p.when_right) + '</div>' +
+        '<div class="path-when"><span class="path-lbl">FOR</span> '
+          + escapeHtml(p.when_right) + '</div>' +
+        (function () {
+          var ag = pathAgainst(p);
+          return ag.length
+            ? '<div class="path-against"><span class="path-lbl">AGAINST</span> '
+              + escapeHtml(ag.join('; ')) + '</div>'
+            : '';
+        })() +
         (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
         '<div class="path-actions">' +
           '<button class="btn small gold" data-draft-me="' + pl.player_id
