@@ -756,6 +756,29 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/tests/test_scoring_chain.py": {
+   "tests": [
+    "draft/tests/test_scoring_chain.py"
+   ],
+   "mutations": [
+    {
+     "old": "        for k in sorted(set(ref) | set(t)):",
+     "new": "        for k in sorted(set(ref) & set(t)):",
+     "must_fail": [
+      "test_the_COMPARISON_FIRES_on_a_planted_drift"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if (a is None) != (b is None) or (a is not None and a != b):",
+     "new": "            if False:",
+     "must_fail": [
+      "test_the_COMPARISON_FIRES_on_a_planted_drift"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
