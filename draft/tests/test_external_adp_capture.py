@@ -943,3 +943,49 @@ def test_dispersion_of_an_EMPTY_parse_is_empty_not_a_crash():
     keeps the day in that case. MUTATION: index [0] and the whole capture dies on
     the one path built to survive a partial fetch."""
     assert C.dispersion_of([]) == {}
+
+
+# ── THE BOARD CAN SHRINK SILENTLY, AND min/max DOES NOT SHOW IT ─────────────
+#
+# Observed 2026-08-13 on the real archive: total_drafts ROSE 115 -> 119 -> 125 while
+# row_count FELL 705 -> 708 -> 672. More drafts, 36 fewer players priced. `coverage()`
+# reported `complete: true` with `min_rows 672, max_rows 708` — both true, and neither
+# says "the board lost 5% of its players in a day".
+#
+# The likely mechanism is MFL's `CUTOFF=5`: if that is a PERCENTAGE of drafts rather
+# than a count, the bar rises as drafts accumulate and marginal players fall off. I
+# cannot reach MFL from here to confirm the semantics, so this does NOT assert a
+# defect — it makes the movement visible so the question can be asked.
+
+def test_coverage_REPORTS_day_over_day_row_movement():
+    """MUTATION: report min/max only. A board that shrinks 5% a day reads as
+    'complete' with a plausible min and max, and the shrink is invisible until
+    someone diffs two snapshots by hand."""
+    s = []
+    for day, n in (("2026-08-11", 705), ("2026-08-12", 708), ("2026-08-13", 672)):
+        s = C.append_snapshot(s, 2026, day, {str(i): 1.0 for i in range(n)})
+    cov = C.coverage(s, 2026)
+    assert cov["row_deltas"] == [3, -36], cov["row_deltas"]
+    assert cov["largest_drop"] == -36
+    assert cov["row_drop_note"], "a drop this size must carry a note, not just a number"
+    assert "36" in cov["row_drop_note"]
+
+
+def test_a_STABLE_series_carries_NO_drop_note():
+    """The other side: an instrument that always warns is not an instrument.
+    MUTATION: always emit the note — it stops meaning anything by the second day."""
+    s = []
+    for day, n in (("2026-08-11", 700), ("2026-08-12", 702), ("2026-08-13", 701)):
+        s = C.append_snapshot(s, 2026, day, {str(i): 1.0 for i in range(n)})
+    cov = C.coverage(s, 2026)
+    assert cov["largest_drop"] == -1
+    assert cov["row_drop_note"] is None
+
+
+def test_a_SINGLE_snapshot_has_no_deltas_and_says_so():
+    """Rule 13f: one day cannot show movement, and reporting 0 would read as
+    'measured, and stable'. MUTATION: return 0 for the largest drop."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 1.0})
+    cov = C.coverage(s, 2026)
+    assert cov["row_deltas"] == []
+    assert cov["largest_drop"] is None

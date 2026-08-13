@@ -48,6 +48,10 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: from the rows, a field that stops being written simply stops existing and the
 #: population record cannot tell you it is gone — which is the failure mode, not a
 #: detail of it.
+#: A day-over-day drop of at least this many players earns a note. Declared, not
+#: tuned: ~5% of a ~700-player board, the size of the drop that prompted this.
+ROW_DROP_FLOOR = 30
+
 SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
                    "source_note", "dispersion"]
 
@@ -327,11 +331,33 @@ def coverage(series: list, year) -> dict:
     ser = _series_of(series)
     days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
     counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
+    # Day-over-day row movement. One snapshot cannot show movement, so the largest
+    # drop is None rather than 0 — 0 would read as "measured, and stable" (rule 13f).
+    deltas = [counts[i] - counts[i - 1] for i in range(1, len(counts))]
+    worst = min(deltas) if deltas else None
+    drop_note = None
+    if worst is not None and worst <= -ROW_DROP_FLOOR:
+        drop_note = (
+            "the board LOST %d players in a day (%s). More drafts with fewer priced "
+            "players is not self-explanatory: check whether MFL's CUTOFF is a "
+            "percentage of drafts rather than a count, which would raise the bar as "
+            "drafts accumulate." % (abs(worst), " -> ".join(str(c) for c in counts)))
     out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
         "min_rows": min(counts) if counts else 0,
         "max_rows": max(counts) if counts else 0,
+        # DAY-OVER-DAY MOVEMENT, because min/max cannot show a shrinking board.
+        #
+        # Observed 2026-08-13: total_drafts rose 115 -> 119 -> 125 while row_count
+        # fell 705 -> 708 -> 672. `min_rows 672, max_rows 708` is true and says
+        # nothing about 36 players vanishing in a day. The likely mechanism is
+        # MFL's CUTOFF=5 behaving as a PERCENTAGE — a rising draft count raises the
+        # bar and marginal players fall off — but that is unconfirmed from here, so
+        # this SURFACES the movement rather than declaring a defect.
+        "row_deltas": deltas,
+        "largest_drop": (min(deltas) if deltas else None),
+        "row_drop_note": drop_note,
         # A DAY WITH ZERO ROWS IS NOT A DAY CAPTURED. It is a failed fetch wearing
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),
