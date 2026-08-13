@@ -59,8 +59,36 @@ git for-each-ref --sort=-committerdate --count=8 \
   refs/remotes/origin 2>/dev/null | grep -v "origin/HEAD" | cut -c1-118 || say "      (none)"
 
 # 3. THE ROUTED INBOX. Unacknowledged items addressed to this lane.
+# THE INBOX MUST BE READABLE BEFORE IT IS MERGED.
+#
+# ROUTES.md was written on A's branch and B could not see its own block at all —
+# the channel built to remove Cory as a relay was itself sitting somewhere the
+# other lanes had not fetched, which is the exact failure this script exists to
+# catch, one level up. Merging it is blocked on an unrelated trespass, and
+# "wait for the merge" is how a communication fix becomes a communication
+# outage.
+#
+# So: if ROUTES.md is not in your tree, read it from whichever remote branch has
+# it, newest first. Stated loudly, because reading a file from someone else's
+# branch is a WORKAROUND and should feel like one.
+ROUTES_SRC="ROUTES.md"
+ROUTES_TMP=""
+if [ ! -f ROUTES.md ]; then
+  for ref in $(git for-each-ref --sort=-committerdate --format='%(refname)' refs/remotes/origin 2>/dev/null); do
+    if git cat-file -e "$ref:ROUTES.md" 2>/dev/null; then
+      ROUTES_TMP="$(mktemp)"
+      git show "$ref:ROUTES.md" > "$ROUTES_TMP" 2>/dev/null && ROUTES_SRC="$ROUTES_TMP"
+      say ""
+      say "  ⚠ ROUTES.md is NOT in your tree — reading it from ${ref#refs/remotes/}"
+      say "    It has not merged to main yet. Your items are real; to CLOSE one you"
+      say "    need the file locally, so pull that branch or wait for the merge."
+      break
+    fi
+  done
+fi
+
 say ""
-if [ -f ROUTES.md ]; then
+if [ -f "$ROUTES_SRC" ]; then
   if [ -n "$LANE" ]; then
     # AN EMPTY RESULT MUST NOT READ AS "CHECKED AND CLEAN".
     # My first version matched "^## +TO:<lane>" and the file says "## TO: C" —
@@ -74,7 +102,7 @@ if [ -f ROUTES.md ]; then
       $0 ~ ("^## +TO: *" lane "[ \t]*$") { inblk = 1; seen = 1; next }
       inblk && /^- \[ \]/ { print "      " $0 }
       END { if (!seen) print "__NOBLOCK__" }
-    ' ROUTES.md)"
+    ' "$ROUTES_SRC")"
     if [ "$FOUND" = "__NOBLOCK__" ]; then
       say "  📬 ROUTES.md has NO \"## TO: $LANE\" block — not an empty inbox, an UNRECOGNISED lane."
     elif [ -n "$FOUND" ]; then
@@ -88,8 +116,9 @@ if [ -f ROUTES.md ]; then
     say "  📬 ROUTES.md present — pass your lane (A|B|C) to see your items"
   fi
 else
-  say "  📬 no ROUTES.md yet"
+  say "  📬 no ROUTES.md anywhere — not in your tree and on no remote branch"
 fi
+[ -n "$ROUTES_TMP" ] && rm -f "$ROUTES_TMP"
 
 # 3b. RECENTLY RESOLVED — the receipt, without anyone writing a "done" line.
 #
