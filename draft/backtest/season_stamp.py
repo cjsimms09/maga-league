@@ -400,6 +400,20 @@ BOARD_FIELD_PURPOSE = {
     "tier": DERIVED_PURPOSE, "tier_rank": DERIVED_PURPOSE,
     "tier_size": DERIVED_PURPOSE, "tier_drop": DERIVED_PURPOSE,
     "adp_stale": DERIVED_PURPOSE, "adp_velocity": DERIVED_PURPOSE,
+    # KEPT ROWS CARRY FOUR MORE FIELDS, and this map did not have them. The map
+    # was built from `players`, and `kept_players` is a different shape — so the
+    # three rows that are OFF the board entirely, the ones whose cost decides
+    # which picks exist, were the rows nothing classified. Read off
+    # draft/build.py:1034-1045 rather than inferred from the names:
+    #   team_slot      the league seat, from the keeper declaration
+    #   original_round the round the keeper was originally drafted in. A fact
+    #                  from a past draft, but a RECORDED one, declared this
+    #                  season and exact — not an estimate, so not a prior.
+    #   is_keeper      stamped True by the builder for membership in kept_ids
+    #   cost_round     keeper_cost_round(k, cfg) — arithmetic over the record and
+    #                  the league's cost model
+    "team_slot": LIVE_FEED, "original_round": LIVE_FEED,
+    "is_keeper": DERIVED_PURPOSE, "cost_round": DERIVED_PURPOSE,
 }
 
 

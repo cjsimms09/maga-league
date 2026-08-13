@@ -60,7 +60,8 @@
   },
   "draft/backtest/season_stamp.py": {
    "tests": [
-    "draft/tests/test_season_stamp.py"
+    "draft/tests/test_season_stamp.py",
+    "draft/tests/test_board_purpose.py"
    ],
    "mutations": [
     {
@@ -84,6 +85,30 @@
      "new": "    return []",
      "must_fail": [
       "test_EVERY_BOARD_FIELD_HAS_A_PURPOSE_and_an_unknown_one_is_a_violation"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    \"team_slot\": LIVE_FEED, \"original_round\": LIVE_FEED,",
+     "new": "    \"team_slot\": LIVE_FEED,",
+     "must_fail": [
+      "test_EVERY_FIELD_ON_THE_LIVE_BOARD_HAS_A_DECLARED_PURPOSE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    \"is_keeper\": DERIVED_PURPOSE, \"cost_round\": DERIVED_PURPOSE,",
+     "new": "    \"is_keeper\": DERIVED_PURPOSE,",
+     "must_fail": [
+      "test_EVERY_FIELD_ON_THE_LIVE_BOARD_HAS_A_DECLARED_PURPOSE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    \"opportunity_adj\": HISTORICAL_PRIOR, \"opportunity_share\": HISTORICAL_PRIOR,",
+     "new": "    \"opportunity_adj\": LIVE_FEED, \"opportunity_share\": LIVE_FEED,",
+     "must_fail": [
+      "test_THE_PRIORS_ARE_PRESENT_AND_NAMED_rather_than_absent"
      ],
      "verdict": "KILLED"
     }
