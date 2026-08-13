@@ -805,6 +805,83 @@
    * A caption read from the artifact cannot drift from the number beside it;
    * one retyped here would.
    */
+  /* ── EVERY DECISION PANEL SAYS WHAT IT IS AND HOW TO ACT ON IT ───────────
+   *
+   * Cory: *"all the tools should explain what they do and how to use, all the
+   * tools working together toward the best pick."*
+   *
+   * MEASURED BEFORE BUILDING: 55 render functions, 26 on the page, and FIVE
+   * explain themselves. The six panels that put a NUMBER or a JUDGEMENT in front
+   * of him emit twenty numeric figures between them and not one caption. On the
+   * clock that is the difference between a tool he uses and one he scrolls past.
+   *
+   * ── WHY A TABLE AND NOT SIX PROSE BLOCKS ─────────────────────────────────
+   *
+   * The same reasoning as `seat_plan.json`'s display contract, which is the one
+   * part of this page that already works: a declaration read from ONE place
+   * cannot drift and six inline strings will. This repo has shipped the drift
+   * version — "value" meaning a model estimate in one panel and a market price
+   * in another, on the same screen.
+   *
+   * ── `read` IS THE HALF THAT EARNS ITS SPACE ──────────────────────────────
+   *
+   * `what` says what the number is; anyone can guess that. `read` says WHAT
+   * WOULD CHANGE THE ANSWER, which is the only thing worth space with nine
+   * managers waiting. A caption that restates the label is wallpaper, so the
+   * test asserts the two differ and that `read` is the longer of the two.
+   *
+   * NOT A TOOLTIP. B owns the stylesheet, and a caption emitted and then hidden
+   * renders this green while doing nothing — I flagged that exact risk to them
+   * about the seat panel. It ships as a visible block with a stable hook so B
+   * can restyle, collapse or tier it deliberately rather than by default. */
+  const PANEL_GUIDE = {
+    recommendations: {
+      what: 'The engine\'s ranked picks for THIS seat, scored on your roster and '
+        + 'what the room has already taken.',
+      read: 'Take the top name unless the seat panel above disagrees — when they '
+        + 'disagree the seat panel is the plan and this is the greedy best-now. A '
+        + 'small gap between #1 and #2 means the SEAT matters more than the NAME.',
+    },
+    position_recs: {
+      what: 'The best available at each position, so a run at one is visible '
+        + 'without scanning the whole board.',
+      read: 'Compare the DROP to your next pick, not the raw score: a position '
+        + 'whose best name barely changes by then is one you can wait on.',
+    },
+    survival: {
+      what: 'The chance each player is still on the board when you next pick, '
+        + 'from ADP and its dispersion.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. It is a '
+        + 'market estimate, not a promise — a run at his position breaks it.',
+    },
+    threats: {
+      what: 'What the managers picking before your next turn have historically '
+        + 'reached for.',
+      read: 'Use it to break a tossup, never to start one. If two names are '
+        + 'already close, take the one the room is likelier to remove.',
+    },
+    lrm: {
+      what: 'The last recorded model state — what the board believed at your '
+        + 'previous pick.',
+      read: 'Read it when the board surprises you: if this disagrees with what is '
+        + 'on screen now, something changed between picks and the checklist says '
+        + 'what.',
+    },
+  };
+
+  /* ONE EMITTER, so every caption has the same shape and the same hook. Returns
+   * '' for an unknown key rather than throwing — a missing caption must never
+   * take the board down mid-draft — and `panel_guide.test.js` fails on any
+   * decision panel whose key is absent, so silence here is caught at build time
+   * rather than at the table. */
+  function explainPanel(key) {
+    const g = PANEL_GUIDE[key];
+    if (!g) return '';
+    return '<div class="panel-explain" data-panel="' + key + '">'
+      + '<span class="pe-what">' + escapeHtml(g.what) + '</span> '
+      + '<span class="pe-read">' + escapeHtml(g.read) + '</span></div>';
+  }
+
   function renderSeatPlan() {
     const host = $('#seat-plan');
     const d = state.seatPlan;
@@ -2471,7 +2548,7 @@
         + tells
         + '</div>';
     }).join('');
-    host.innerHTML = html;
+    host.innerHTML = explainPanel('threats') + html;
   }
 
   /* ── The queue, and the sheet you print from it ─────────────────────────── */
@@ -3090,7 +3167,7 @@
       return;
     }
     const next = ctx.nextPick;
-    host.innerHTML = '<ol style="margin:0; padding-left:1.1rem">' + scored.map(s => {
+    host.innerHTML = explainPanel('position_recs') + '<ol style="margin:0; padding-left:1.1rem">' + scored.map(s => {
       const p = s.player;
       const sv = s.survival_to_next;
       // Gone-by-next is the more useful direction: it is the risk, not the
@@ -4107,7 +4184,7 @@
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
-    host.innerHTML = head + decisiveLine + scored.map((s, i) => {
+    host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
@@ -4612,7 +4689,7 @@
         'vs picks', picksInWindow);
     })();
     $('#survival-head').textContent = 'Chance they last to your pick ' + next;
-    $('#survival').innerHTML = top.map(x =>
+    $('#survival').innerHTML = explainPanel('survival') + top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
       '<div class="surv-bar"><div style="width:' + Math.round(x.s * 100) + '%"></div></div>' +
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + survivalText(x.s) + '</b></div>').join('');
@@ -4753,7 +4830,7 @@
       return until + cost;
     };
     host.style.display = '';
-    host.innerHTML = '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
+    host.innerHTML = explainPanel('lrm') + '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
       var badge = '<span class="rec-pos ' + r.position + '">' + r.position + '</span> ';
       // A position with no real deadline gets ONE short line, not a fake one.
       if (r.no_deadline) {

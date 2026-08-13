@@ -41,8 +41,25 @@ ck('  and it renders into the recommendation host',
 
 // ── 3. READ-ONLY. A readout that reorders is a scoring term in disguise. ────
 {
+  /* ⚠️ THE END ANCHOR WAS A FULL SOURCE LINE AND IT BROKE ON AN UNRELATED EDIT.
+   *
+   * It read `APP.indexOf('host.innerHTML = head + decisiveLine')`. Adding a
+   * caption to the same statement — `explainPanel('recommendations') + head +
+   * decisiveLine` — made that lookup return -1, `slice(i, -1)` swallowed almost
+   * the whole file, and the sort-detector duly found sorts. THE FAILURE WAS
+   * REAL AND THE CAUSE WAS THE ANCHOR: a test that pins a whole line of source
+   * fails on any edit to that line, whatever the edit was for.
+   *
+   * Anchored on `decisiveLine` alone now — the identifier this section is
+   * actually about — and asserted to be a plausible span rather than trusted,
+   * because a -1 from either lookup is what turned a narrow check into a
+   * file-wide one without saying so. */
   const i = APP.indexOf('let decisiveLine');
-  const j = APP.indexOf('host.innerHTML = head + decisiveLine');
+  const j = APP.indexOf('decisiveLine + scored.map', i);
+  ck('the readout block is LOCATABLE — both anchors resolve', i > 0 && j > i,
+    { start: i, end: j });
+  ck('and it is a plausible span, not the rest of the file', j - i > 50 && j - i < 6000,
+    j - i);
   const block = APP.slice(i, j);
   ck('the readout SORTS nothing and mutates no score',
     !/\.sort\(|\.score\s*=|scored\[\d\]\s*=|\.splice\(/.test(block), block.length);
