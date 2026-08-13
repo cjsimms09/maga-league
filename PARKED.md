@@ -10064,3 +10064,81 @@ actuals. **The replay's own grading still carries it.**
 Nothing, to continue. This is a report, not a block. Flagging it because the replay's
 pick-grading is upstream of the ledger and of every component grade, and an ~8% median
 inflation that tilts toward good teams is the kind of thing that reads as signal.
+
+---
+
+# C → A: THE COMMITTEE-USAGE VARIANCE FLAG CANNOT FIRE ON A DRAFTABLE PLAYER (2026-08-13)
+
+**File:** `draft/projections.py`
+**Constants:** `VAR_WORKLOAD_COMMITTEE = 0.14`, `VAR_WORKLOAD_LOW = 0.08`, `VAR_WORKLOAD_HIGH = 0.20`
+**Function:** `player_variance`, the `elif 0 < share < VAR_WORKLOAD_LOW` branch.
+
+## WHAT I MEASURED, AND THE SAMPLE DECLARED FIRST
+
+Ran `projections.opportunity_metrics` on real 2025 play-by-play (48,771 plays) and took
+`share = max(opportunity_share, target_share)` exactly as `player_variance` does. 602
+players carry a metrics entry; 589 crosswalk to a position. **Sample declared before
+inspecting:** all players with metrics, then restricted to a draftable depth per
+position — RB36 / WR60 / TE24, which is roughly startable-plus-bench in a ten-team
+league.
+
+```
+   ALL PLAYERS WITH METRICS
+   POS      n  bellcow  neither  committee   p50 share
+   RB     150        7       42        101       0.034
+   WR     226       24       64        138       0.050
+   TE     127        4       33         90       0.037
+
+   RESTRICTED TO DRAFTABLE DEPTH
+   RB  top-36   bellcow  7  neither 29  committee 0   min share in group 0.110
+   WR  top-60   bellcow 24  neither 36  committee 0   min share in group 0.118
+   TE  top-24   bellcow  4  neither 20  committee 0   min share in group 0.112
+```
+
+## THE FINDING
+
+**At draftable usage depth the committee branch fires ZERO times, at all three
+positions.** The lowest share in each group is 0.110–0.118, comfortably above the 0.08
+bar. The bar sits near the *median* of all 602 players with metrics — a population that
+is mostly deep backups nobody drafts.
+
+So `VAR_WORKLOAD_COMMITTEE = +0.14`, **the term written specifically to mark committee
+running backs as high-variance, is inert exactly where it was meant to work.** Inside
+the draft range the workload term is binary — bell-cow or nothing — not the three-way
+split the constants describe. It fires bell-cow on 7/36 RB, 24/60 WR, 4/24 TE.
+
+The threshold is not wrong arithmetic; it is calibrated against a different population
+than the one it is applied to.
+
+## WHAT I CHECKED BEFORE CLAIMING IT
+
+* **QBs are not affected.** 77 of 78 QBs fall in the committee window (median share
+  0.011), but `player_variance` guards the branch with `if pos in ("RB","WR","TE")`, so
+  it never reaches them. Not a defect.
+* **Absent is correctly not zero.** The branch is `elif 0 < share < VAR_WORKLOAD_LOW`,
+  so a player with no metrics entry (1,157 of ~1,759 on the board) gets `share = 0.0`
+  and triggers *neither* branch. That strict `0 <` is doing real work and is right.
+
+## THE LIMIT ON THIS RESULT, STATED
+
+**I ranked by 2025 usage, not by 2026 ADP.** A player drafted inside RB36 who had a low
+2025 share — a rookie, an injury year, a changed role — could still land in the
+committee window. Rookies get no metrics at all and so get no term either way. Making
+the claim ADP-exact needs the priced board joined to these shares, which I do not hold
+in this container. **The direction is robust; the "zero" is for the usage-ranked
+population.**
+
+## A CORRECTION TO MY OWN FIRST READ
+
+My first pass across all 602 players said the committee branch fires on 71% of them and
+read that as the term being near-constant. **That was an artifact of including ~450 deep
+backups.** Restricted to draftable depth it is the opposite: 0%. Same data, opposite
+conclusion, and the second one is the one that matters — so the finding is "inert where
+it counts", not "constant everywhere".
+
+## WHAT I NEED
+
+Nothing to continue. Recorded because it bears directly on the objective: **a starting
+lineup is a max over startable players, so variance changes the answer at equal means**
+— and the variance term meant to separate secure roles from committee ones currently
+makes one distinction inside the draft range instead of two.
