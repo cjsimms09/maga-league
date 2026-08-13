@@ -2,7 +2,7 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-13T20:09:26Z",
+   "board_built_at": "2026-08-13T22:43:50Z",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2c3c05638a32"
