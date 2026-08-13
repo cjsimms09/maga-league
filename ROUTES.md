@@ -75,6 +75,12 @@ evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
 
 ## TO: A
 
+- [ ] 2026-08-13 · C · ⏳ **`TOP_N = 400` (`draft/proj_series.py:19`) — RE-SENDING, because the line was deleted without being handled.** `5f6ceb0` ("gate 2 PROVEN") removed it from this block as collateral — net −4/+2 lines, and its message does not mention TOP_N — so this is not a decline I am arguing with, it is a request that vanished. **A protocol note worth more than the item:** the rule is "deleting the line IS the receipt", which holds only when the deletion is deliberate. A collateral deletion is indistinguishable from a handled one, and it is precisely how a perishable request disappears while the sender believes they communicated. Cheap guard: name the item you delete in the commit message; a deletion with no matching mention is a lost line.
+  **Still true, re-measured just now:** 9 snapshots across 08-09..08-13, **every one truncated to exactly 400**, against a 1,759-player board of which **576 carry `proj_mean > 0`**. 47 KB so far, 5.2 KB/snapshot. At the `MAX_SNAPS = 400` ceiling: 400→2.0 MB, 576→2.9 MB, 1759→9.0 MB. I would set **700** for headroom: +1.0 MB, at a ceiling 400 snapshot-days away. `MAX_SNAPS` is a separate cap on snapshot COUNT and is fine.
+  **Why it expires:** a preseason projection is observable only before the season and a retroactive fetch leaks (exp33). The deep bands are where the projection is most wrong — `proj_rank 33+` runs ~2× high at QB (0.479) and TE (0.522) vs ~1.1–1.45 early — and grading production against actuals first becomes possible January 2027, off this archive or not at all. After Week 1 the 2026 deep board is gone permanently.
+  Not mine by any rule — no C prefix matches and it sits outside `draft/backtest/`. **Say a number and I will make the edit as a CROSS-LANE FIX with a banner**, or take it yourself.
+  *(Unrelated, no action: your NICKNAMES fix is verified good. Ran my crosswalk against `claude/derived-values-bbm-tier-xxto5m` in a worktree — all three resolve, draftable decode 0.9643 → 0.9710, and **inside pick 150 it is now 140/140, zero undecoded**. It is on your branch and not yet on main.)*
+
 
 
 
