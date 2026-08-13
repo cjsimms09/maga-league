@@ -160,11 +160,53 @@ def adjusted_adp(players: list[dict], order: TruePickOrder, cfg: dict,
     return out
 
 
+# ── ADP DISPERSION — ONE SET OF CONSTANTS, TWO LANGUAGES ────────────────────
+#
+# These MUST equal survival.js CFG.ADP_SD_{FLOOR,RATE,CAP}. They did not, and
+# routed by C on 2026-08-13 that cost the keeper decision directly.
+#
+# The rate was moved to 0.15 and capped at 15.0 ON THE JS SIDE ONLY, with the
+# reasoning written into survival.js: 0.22 at adp 100 gives sd 22, implying real
+# probability of that player going at pick 56 or pick 144, and mid-round
+# dispersion is roughly half that. This file kept 0.22 and no cap — ONE HALF OF A
+# TWO-PLACE CHANGE.
+#
+# Measured cost at a 20-pick gap, python vs the engine Cory actually drafts with:
+#     Ladd McConkey   adp  44.3    2.0%  vs  0.1%    15.3x
+#     Brian Thomas    adp  73.0   10.7%  vs  3.4%     3.1x
+#     Patrick Mahomes adp 101.0   18.4%  vs  9.1%     2.0x
+#     Brian Robinson  adp 141.7   26.1%  vs  9.1%     2.9x
+#
+# WHY IT WAS URGENT RATHER THAN UNTIDY: optimize_keepers prices a keeper as
+# surplus over what the forfeited pick returns, and survival decides whether you
+# would have got that player back anyway. OVERESTIMATING SURVIVAL MAKES A KEEPER
+# LOOK LESS VALUABLE -- "he would have lasted regardless" -- so the optimizer
+# systematically UNDERVALUED keepers, and that decision locks 2026-08-20.
+#
+# NOT CLAIMED: that 0.15 is right. C is explicit that 142 of 145 draftable
+# players carry a COMPUTED sd either way, so both formulas are guesses until
+# MFL's published dispersion accumulates. What is claimed is narrower and
+# sufficient: two of them cannot both be right, and the keeper decision was
+# running on the one that was never updated. Matching the engine is the choice
+# that makes the keeper optimizer agree with the board Cory will draft from.
+#
+# test_survival_parity.py pins these against survival.js by PARSING IT, so the
+# next one-sided edit fails a test instead of shipping.
+ADP_SD_FLOOR = 3.0
+ADP_SD_RATE = 0.15
+ADP_SD_CAP = 15.0
+
+
 def adp_sd_for(adp_mean: float, provided: float | None = None) -> float:
-    """Uncertainty grows with ADP: nobody is unsure about pick 1."""
+    """Uncertainty grows with ADP: nobody is unsure about pick 1.
+
+    A SOURCE-PROVIDED sd always wins; the formula is the fallback for players
+    the market has no read on. Callers that omit `provided` never consult the
+    board's own `adp_sd` field at all — see the note above; all four did.
+    """
     if provided:
         return float(provided)
-    return max(3.0, 0.22 * float(adp_mean))
+    return min(ADP_SD_CAP, max(ADP_SD_FLOOR, ADP_SD_RATE * float(adp_mean)))
 
 
 def survival_probability(adp_mean: float, pick: int, adp_sd: float | None = None) -> float:
@@ -323,7 +365,11 @@ def expected_best_available(pool_by_pos: dict, pick: int, position: str,
         return 0.0
     exp, gone = 0.0, 1.0
     for p in candidates:
-        surv = survival_probability(p.get("adjusted_adp") or p.get("raw_adp") or 9999, pick)
+        # PASS THE BOARD'S OWN adp_sd. Omitting it silently fell back to the
+        # formula for every player, so the market's published dispersion — the
+        # only real measurement in this field — was never consulted here.
+        surv = survival_probability(p.get("adjusted_adp") or p.get("raw_adp") or 9999,
+                                    pick, p.get("adp_sd"))
         exp += (p.get("vorp") or 0.0) * surv * gone
         gone *= (1 - surv)
         if gone < 0.01:

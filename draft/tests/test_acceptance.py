@@ -198,9 +198,29 @@ def test_survival_declines_monotonically():
 
 
 def test_survival_sd_grows_with_adp():
-    assert K.adp_sd_for(10) == pytest.approx(3.0)     # floor
-    assert K.adp_sd_for(100) == pytest.approx(22.0)   # 0.22 x adp
-    assert K.adp_sd_for(100, provided=8) == 8.0
+    """THIS TEST WAS PINNING THE DEFECT (2026-08-13, routed by C).
+
+    It asserted `adp_sd_for(100) == 22.0` — the old python-only rate — while
+    survival.js had moved to 0.15 with a cap. So the one test covering this
+    function was GUARDING the half of the two-place change that never happened,
+    and would have gone red on the fix rather than on the bug.
+
+    The literals are gone rather than updated. A hardcoded 15.0 here would just
+    be a THIRD place the constant lives, and the next edit would leave one of
+    the three behind exactly as before. The assertions are now on BEHAVIOUR —
+    floor, rate, cap, and provided-wins — with the values coming from the module
+    under test. Cross-language agreement is pinned separately, and properly, in
+    test_survival_parity.py, which reads survival.js rather than trusting a
+    number copied out of it.
+    """
+    assert K.adp_sd_for(10) == pytest.approx(K.ADP_SD_FLOOR)          # floor binds low
+    assert K.adp_sd_for(60) == pytest.approx(K.ADP_SD_RATE * 60)      # rate binds mid
+    assert K.adp_sd_for(1000) == pytest.approx(K.ADP_SD_CAP)          # cap binds high
+    assert K.adp_sd_for(100, provided=8) == 8.0                       # a real sd wins
+    # And the three regimes are genuinely distinct, so this cannot pass on a
+    # degenerate config where floor == cap and every branch returns the same
+    # number — which is how a three-branch assertion becomes a one-branch one.
+    assert K.ADP_SD_FLOOR < K.ADP_SD_RATE * 60 < K.ADP_SD_CAP
 
 
 # ----------------------------------------------------------------- VORP/tiers

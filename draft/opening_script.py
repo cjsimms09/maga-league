@@ -104,7 +104,7 @@ def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int],
             adp = p.get("adjusted_adp") or p.get("raw_adp")
             if adp is None:
                 continue
-            surv = survival_probability(float(adp), pick)
+            surv = survival_probability(float(adp), pick, p.get("adp_sd"))
             if surv < SURVIVAL_FLOOR:
                 continue
             cands.append({"player_id": str(p["player_id"]), "name": p.get("name"),
