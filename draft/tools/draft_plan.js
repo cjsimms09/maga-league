@@ -47,7 +47,41 @@ const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const keep = KEEP.keepersFrom(DATA);
 const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
 const INJURY = { QB: 0.14, RB: 0.28, WR: 0.20, TE: 0.22, K: 0.04, DEF: 0.02 };
-const ROSTERED = 180;                       // 10 teams x 18 spots
+/* HOW MANY PLAYERS ARE ACTUALLY GONE WHEN THE DRAFT ENDS — MEASURED, NOT ASSUMED.
+ *
+ * THIS WAS THE BUG BEHIND THE SIX-RUNNING-BACK ROSTER. It was hardcoded 180,
+ * commented "10 teams x 18 spots", reasoning from ROSTER CAPACITY. But capacity
+ * is not draft length: this league drafts FIFTEEN rounds, so 150 players leave
+ * the board, not 180. Confirmed in league_history for all three completed
+ * seasons -- 150 picks, 15 rounds, every year.
+ *
+ * The 30-player error lands almost entirely on running backs, because that is
+ * where the board is deepest:
+ *
+ *     waiver replacement    QB    RB    WR    TE     K   DEF
+ *     at 180 (assumed)     252    63   113   110   100   103
+ *     at 150 (measured)    268   130   143   132   104   103
+ *
+ * RB MORE THAN DOUBLES. Every bench running back was being priced against a
+ * replacement worth 63 points when the real one is worth 130, so each one looked
+ * ~67 points more valuable than he is. That is why the plan kept buying them.
+ *
+ * AND THE TRUE LEVEL IS HIGHER STILL, in the same direction. A bench player is
+ * insurance for WEEK 6, not for the minute the draft ends, and by then the wire
+ * has been restocked by everyone else's cuts. Measured churn in this league
+ * (final roster minus drafted, per team, 3 seasons): RB -0.37 and WR -0.27 —
+ * teams SHED backs and receivers in-season, and those men land back in the pool.
+ * So 150 is nearer the truth than 180 and still conservative. Both corrections
+ * push the same way: BENCH PLAYERS ARE WORTH LESS THAN THIS MODEL SAID. */
+/* Position cap for the shape experiment, e.g. PLAN_MAX_POS='{"QB":1,"TE":1}'.
+ * Counts DRAFTED players only -- keepers are not a choice this plan makes. */
+let MAXPOS = null;
+try { MAXPOS = process.env.PLAN_MAX_POS ? JSON.parse(process.env.PLAN_MAX_POS) : null; }
+catch (e) { console.log('PLAN_MAX_POS is not valid JSON: ' + e.message); process.exit(2); }
+
+const DRAFT_ROUNDS = 15;                    // measured: league_history, 150 picks / 15 rounds, 2023-2025
+const TEAMS = ((DATA.league || {}).teams) || 10;
+const ROSTERED = DRAFT_ROUNDS * TEAMS;
 
 /* WAIVER REPLACEMENT LEVEL: the best man still unrostered when the draft ends. */
 const drafted = new Set(byAdp.slice(0, ROSTERED).map(p => String(p.player_id)));
@@ -216,6 +250,7 @@ const ranked = [];
 const plan = [];
 const taken = new Set(keep.map(k => String(k.player_id)));
 const heldPos = {};
+const drawn = {};                 // DRAFTED count per position (keepers excluded)
 keep.forEach(k => { heldPos[k.position] = (heldPos[k.position] || 0) + 1; });
 for (let i = 0; i < N; i++) {
   const s = seatAt[i];
@@ -227,12 +262,20 @@ for (let i = 0; i < N; i++) {
       list: cands.map(x => ({ p: x, v: x.proj_mean })) });
     const b = cands[0];
     if (b) { taken.add(String(b.player_id)); heldPos[b.position] = (heldPos[b.position] || 0) + 1;
+      drawn[b.position] = (drawn[b.position] || 0) + 1;
       if (open[s].slot === 'FLEX') flexOwner = b.position;
       plan.push({ pick: SCHED[i], slot: open[s].slot, p: b, v: b.proj_mean, bench: false }); continue; }
   }
   const priced = [];
   avail[i].forEach(x => {
     if (taken.has(String(x.player_id))) return;
+    /* OPTIONAL POSITION CAP — used to PRICE a roster-shape constraint, not to
+     * impose one. Cory doubted QB2/TE2. The honest way to answer that is to make
+     * the model draft the shape he expects and report what it says that costs,
+     * rather than to argue about it. Off unless PLAN_MAX_POS is set, so the
+     * default plan is unchanged. */
+    if (MAXPOS && MAXPOS[x.position] != null
+      && (drawn[x.position] || 0) >= MAXPOS[x.position]) return;
     const starters = (STARTERS[x.position] || 0)
       + (flexOwner === x.position ? (STARTERS.FLEX || 0) : 0);
     const backups = Math.max(0, (heldPos[x.position] || 0) - starters);
@@ -252,9 +295,11 @@ for (let i = 0; i < N; i++) {
   }
   taken.add(String(best.p.player_id));
   heldPos[best.p.position] = (heldPos[best.p.position] || 0) + 1;
+  drawn[best.p.position] = (drawn[best.p.position] || 0) + 1;
   plan.push({ pick: SCHED[i], slot: 'bench', p: best.p, v: best.v, bench: true });
 }
-module.exports = { plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue };
+const TOTAL = plan.reduce((a, x) => a + x.v, 0);
+module.exports = { plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
 if (require.main !== module) return;
 
 console.log('  pick   role     take                        value');
