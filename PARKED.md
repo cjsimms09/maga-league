@@ -9276,3 +9276,82 @@ The first version of this table showed QB at −340 and RB at −227, which I ne
 player shows a huge negative gap by construction. **Restricting to the common range removes
 it — and the K/DEF figure is unchanged at ~117 either way**, which is what makes it a real
 inversion rather than a scaling effect.
+
+---
+
+## 🔴 AUDIT OF B's DRIVE LOG — THE INSTRUMENT IS SOUND AND IT CAUGHT ITS OWN DEFECT. THE DRIVES USE PICKS CORY DOES NOT HAVE. (C, 2026-08-13)
+
+**File:** `public/js/drivelog/draft-drive-log.ndjson` on `origin/claude/in-season-surface-fixes-6nyayc`
+(**not on main** — neither A nor I would find it where we would look). 91 rows, audited before
+citing, as Cory instructed.
+
+### WHAT PASSES, AND IT IS MOST OF IT
+
+* **Soundness is IN THE FILE, not asserted.** `board_caught_up` is false on exactly 3 rows —
+  all in `follow-2-killed`, all recommending an already-taken James Cook off a stale board.
+  **90 pick rows − 3 = B's 87. It reconciles exactly.**
+* **Both keeper bases ran against the SAME board artifact** — `built_at
+  2026-08-12T09:19:29Z` on all 90 rows — so the comparison is not confounded by a board
+  change. Two driver commits (`27ad63c` ×60, `6b07f18` ×30), which is expected.
+* `page_errors_so_far` is 0 on every row. Panels, alternatives, explanations, roster state
+  and the not-exposed list are all present on all 90.
+
+### ⛔ THE DEFECT, AND IT IS SEVERITY-1 FOR THE RESULT
+
+**Every drive made 15 picks. Cory has 12. And not one of the 15 is a pick he owns.**
+
+```
+   the drives used   [ 8, 13, 28, 33, 48, 53, 68, 73, 88, 93,108,113,128,133,148]
+   Cory's real picks [30, 45, 50, 65, 70, 85, 90,105,110,125,130,145]
+   overlap: ZERO
+```
+
+The logged sequence is **exactly `pick_order.my_picks_before_keepers`** — the pre-keeper
+schedule. His keepers forfeit rounds 1, 2 and 3 (Henry, Chase, Walker), so **his real draft
+starts at pick 30, not pick 8.** The drives handed him three extra picks, all in the rounds
+where the best players are.
+
+**So the positional shares are over the wrong denominator AND the wrong pick set.** "TE 4 of
+15 = 27%" against a market 13% is not a comparison Cory's draft can produce: he makes 12
+picks starting 22 selections later, and **TE timing is a scarcity phenomenon — starting at 8
+versus 30 changes exactly the thing being measured.**
+
+**The as-shipped vs TE-kept contrast is internally consistent** (same wrong schedule both
+times), so the *direction* of the keeper-base effect may well survive. **The 25-27% → 13%
+figures do not, and neither does the match to market.**
+
+### AND THE LOG CAUGHT IT — WHICH IS THE POINT OF THE LOG
+
+The evidence is **inside B's own rows.** On every row the page header disagrees with itself:
+
+```
+   round 1   hdr_pick "Pick 8"    hdr_next "Your next: 30, then 45"
+   round 5   hdr_pick "Pick 48"   hdr_next "Your next: 50, then 65"
+```
+
+**`hdr_pick` is drawn from the PRE-keeper sequence and `hdr_next` from the REAL one — two
+different pick orders on one header, on all 90 rows.** No engine-side or data-side harness
+could see that; it exists only where the surface is captured verbatim. **B built the
+instrument that found the flaw in B's own drive configuration**, which is precisely the
+argument for the log.
+
+**That header disagreement is also a live war-room defect in its own right** — Cory reads
+"Pick 8" on a board where his next pick is 30 — and it is the same pre/post-keeper family as
+the ROOM-SEAT severity-1 already recorded in `app.js`. **Routing it as a defect, not just as
+a confound.**
+
+### THE ONE INSTRUMENT FIX I WOULD ASK FOR
+
+**`keeper_base` is on 30 of 91 rows (33%).** The four as-shipped runs carry no such field, so
+that base is recorded **by omission**. B's message says "each carrying keeper_base"; the file
+does not. A reader joining on it gets 30 rows and the as-shipped runs vanish rather than
+grouping — and the next run that omits the field for a different reason becomes
+indistinguishable from as-shipped. **Absent is not a value.** One string on every row closes it.
+
+### WHAT THIS DOES NOT TOUCH
+
+**My baseline finding is roster-independent** — it ranks the board with no draft state at all
+— so none of the above bears on it. And B's TE result and mine were never measuring the same
+thing: **B measures TE share of a completed roster; I measure QB+TE share of the top-ten
+recommendation list.** Both can be true. **Neither is settled until the drives run on
+`my_picks`.**
