@@ -35,4 +35,15 @@ for f in "$DIR"/*.test.js; do
   fi
 done
 echo "scanned $total suites, $red red"
+
+# THE RECEIPT. scripts/scoring_path_gate.sh reads this to decide whether a
+# scoring-path commit has actually been scanned. It records the DIGEST OF THE
+# SCORING-PATH FILES AS THEY WERE WHEN THIS RAN, so a scan of a tree that has
+# since been edited cannot be mistaken for evidence about the current one.
+SCORING_FILES="public/js/draft/engine.js public/js/draft/survival.js
+               public/js/draft/needrule.js public/js/draft/value.js"
+_dg=$(cat $SCORING_FILES 2>/dev/null | sha256sum | cut -d' ' -f1)
+printf '{\n "scanned_at": "%s",\n "suites": %s,\n "red": %s,\n "scoring_digest": "%s"\n}\n' \
+  "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$total" "$red" "$_dg" > .scan_receipt.json
+
 [ "$red" = "0" ] || exit 1

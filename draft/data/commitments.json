@@ -92,6 +92,15 @@
       "why_that_date": "After the fantasy season ends, when realized points exist for a full year. Earlier and the sample is partial; later and the next board build has replaced the projections this was true of.",
       "verify": "node draft/tools/commit_verify.js grade-the-unprojected",
       "owner": "A"
+    },
+    {
+      "id": "constant-spike-detector",
+      "item": null,
+      "what": "A report-only diagnostic over the board artifact: (a) VALUE SPIKE — numeric fields where an implausible share of players carry one exact value (1181 sat at proj_mean 0, absence written as a number); (b) RATIO LOCK — field pairs whose ratio is constant across the population (proj_sd = 0.25*proj_mean and proj_ceiling = 1.35*proj_mean, the defect that made the ceiling term collinear with value and left two of eight weights UNMEASURED). It must REPORT AND NEVER DECIDE: replacement level, caps, floors and ONESIE_KEEP all produce legitimate identical values, so a cliff is a DETECTOR, NOT A DEFINITION.",
+      "due": "2026-09-15",
+      "why_that_date": "After the draft and before the in-season cadence hardens. Cory ruled it explicitly out of the pre-draft window on 2026-08-13: a data-quality diagnostic moves no recommendation, and the nine days before the draft belong to what the board does wrong.",
+      "verify": "node draft/tools/commit_verify.js constant-spike-detector",
+      "owner": "A"
     }
   ]
 }

@@ -208,6 +208,25 @@ const CHECKS = {
       + ' graded; ' + g.top24_count + ' finished top-24 at their position' };
   },
 
+  /* MET requires the tool AND a suite that proves it can fire. A detector nobody
+   * has seen fire is the failure class this whole program exists to catch, and a
+   * report-only tool is especially easy to ship inert. */
+  'constant-spike-detector': () => {
+    const tool = readText('draft/tools/constant_spike.js');
+    if (tool === null) return { code: 1, why: 'draft/tools/constant_spike.js does not exist' };
+    if (!/ratio/i.test(tool) || !/spike/i.test(tool)) {
+      return { code: 1, why: 'the tool exists but does not implement BOTH arms '
+        + '(value spike and ratio lock) — the ratio arm is the one that would have '
+        + 'caught proj_ceiling = 1.35 * proj_mean' };
+    }
+    const suite = readText('draft/tests/constant_spike.test.js');
+    if (suite === null) {
+      return { code: 1, why: 'no suite — a report-only detector that nobody has '
+        + 'watched fire is indistinguishable from one that reports nothing' };
+    }
+    return { code: 0, why: 'detector and suite both present' };
+  },
+
   'queue-title': () => {
     const app = readText('public/js/draft/app.js');
     if (app === null) return { code: 2, why: 'app.js unreadable' };
