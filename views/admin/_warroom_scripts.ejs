@@ -56,6 +56,7 @@
     is no ordering dependency to get wrong. script_load_order.test.js now asserts
     this line explicitly, because derivation cannot. %>
 <script src="/js/draft/decision_contract.js"></script>
+
 <script src="/js/draft/attribution.js"></script>
 <script src="/js/draft/shadows.js"></script>
 <script src="/js/draft/seat.js"></script>
@@ -93,3 +94,16 @@
     localStorage and never posts to the real ledger. Loaded before app.js. %>
 <script src="/js/draft/mock_calib.js"></script>
 <script src="/js/draft/app.js"></script>
+<%# module_check.js — DOES THE SERVED PAGE ACTUALLY HAVE THESE MODULES?
+    A reported DecisionContract undefined in a live browser on 2026-08-14, with
+    the script tag above present in the repo since ca034f3 and
+    script_load_order.test.js green the whole time. Both were true: the test asks
+    what the template says, the browser answers what the server served, and a
+    cached compiled template or an unrestarted process breaks that link without
+    touching the file the test reads.
+
+    So the page checks itself at runtime and puts a banner up naming anything
+    missing. It repairs nothing — the failure was not that a module was absent,
+    it was that the panel degraded silently and nothing said so. Loaded LAST so
+    every global it asks about has had its chance to define itself. %>
+<script src="/js/draft/module_check.js"></script>

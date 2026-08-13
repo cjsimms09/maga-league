@@ -73,11 +73,40 @@ ck('the loaded weight vector matches the frozen core',
    'frozen ' + JSON.stringify(frozen.engine_policy.MEASURED_WEIGHTS)
    + '\n           live   ' + JSON.stringify(live.engine_policy.MEASURED_WEIGHTS));
 
+/* STRUCTURAL COMPARISON, NOT ===.
+ *
+ * This compared with `===`, which is reference equality for anything that is not
+ * a scalar. It went red the moment RAIL_DEFAULT_POS_CAP ({QB:3,K:2,DEF:2,TE:3})
+ * was pinned on 2026-08-14 -- two structurally identical objects are never ===,
+ * so the check could ONLY fail for any structured value. Worse in the other
+ * direction: had the pin set always been scalars, this weakness would have sat
+ * here indefinitely, and the first structured constant anyone pinned would have
+ * been un-pinnable rather than un-checkable. Widening the pin is what surfaced
+ * it. */
 Object.keys(frozen.engine_policy.CFG).forEach(k => {
+  const f = frozen.engine_policy.CFG[k], l = live.engine_policy.CFG[k];
   ck('CFG.' + k + ' unchanged',
-     live.engine_policy.CFG[k] === frozen.engine_policy.CFG[k],
-     'frozen ' + frozen.engine_policy.CFG[k] + ', live ' + live.engine_policy.CFG[k]);
+     JSON.stringify(f) === JSON.stringify(l),
+     'frozen ' + JSON.stringify(f) + ', live ' + JSON.stringify(l));
 });
+
+/* SURVIVAL CARRIES ITS OWN CFG AND NOTHING WAS COMPARING IT. 31 keys, 23 of
+ * which exist nowhere in the engine's config, every one feeding the survival
+ * curve expectedBestAvailable integrates -- i.e. feeding vona. Frozen from v15;
+ * absent on older artifacts, which is reported rather than skipped. */
+if (frozen.engine_policy.SURVIVAL_CFG && typeof frozen.engine_policy.SURVIVAL_CFG === 'object') {
+  Object.keys(frozen.engine_policy.SURVIVAL_CFG).forEach(k => {
+    const f = frozen.engine_policy.SURVIVAL_CFG[k];
+    const l = (live.engine_policy.SURVIVAL_CFG || {})[k];
+    ck('SURVIVAL_CFG.' + k + ' unchanged',
+       JSON.stringify(f) === JSON.stringify(l),
+       'frozen ' + JSON.stringify(f) + ', live ' + JSON.stringify(l));
+  });
+} else {
+  ck('the frozen artifact carries survival config', false,
+     'this baseline predates SURVIVAL_CFG (v15). 31 survival constants that can '
+     + 'move vona are uncovered by it.');
+}
 
 ck('the anchor source is unchanged',
    live.anchor_source === frozen.anchor_source,

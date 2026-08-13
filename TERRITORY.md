@@ -94,7 +94,13 @@ remains the physical channel — but the ROUTING load has to drop too, not just 
 reporting load.
 
 - **These shared files are the PRIMARY channel** — this one, PARKED.md,
-  DECISIONS-NEEDED.md, the ledgers. Assume the other sessions read them at their
+  **ROUTES.md**, DECISIONS-NEEDED.md, the ledgers.
+- **ROUTES.md is the per-lane inbox and it is SHARED** — every lane writes to it,
+  and *the receiver deletes the line it has handled*. It was briefly A-owned by
+  accident (a new root file falls through to the default), which made its own
+  rule unenforceable: a receiving lane's deletions were refused by the guard and
+  reverted. `scripts/territory-check.test.sh` now pins it writable for A, B and C.
+  Read yours with `bash scripts/lane-start.sh <LANE>`. Assume the other sessions read them at their
   next boundary rather than assuming Cory will relay.
 - When something genuinely CANNOT WAIT for the other session's next read — a live
   defect in their lane, a blocker, a wrong number they are building on — put

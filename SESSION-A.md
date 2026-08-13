@@ -705,6 +705,73 @@ for one of them.** `market_snapshots` answered both "has the job died" (days, un
 have made it red every day on a finding needing no action — which is how a real alarm gets muted
 and then ignored. Split the row, not the schedule.
 
+**18. A COMPONENT IS NOT DELIVERED UNTIL SOMETHING DRIVES IT END TO END THROUGH THE PATH A
+HUMAN ACTUALLY TAKES.** A, 2026-08-14. **A green suite establishes that a component works. It
+establishes nothing about whether the component RUNS.** `decision_contract.js` was built, tested,
+had its UNKNOWN-role defect corrected, and was reported to Cory as "landed and unblocking B" —
+while the browser had never loaded it once. The tag was then added and `script_load_order.test.js`
+was extended to assert it, and both stayed green for two days while `window.DecisionContract` was
+STILL undefined in A's live browser, because the served page was older than the repo. **THE TEST
+ASKS WHAT THE TEMPLATE SAYS; THE BROWSER ANSWERS WHAT THE SERVER SERVED,** and a cached compiled
+template, an unrestarted process or a stale checkout breaks that link without touching the file
+the test reads.
+
+*So the closure condition for a component is a RUN THROUGH THE REAL SURFACE, not a passing test,*
+and where a real run is not available every time, the surface must report its own state:
+`module_check.js` checks the eight required globals in the browser and banners any that are
+missing. It repairs nothing on purpose — **the failure was never that a module was absent, it was
+that the panel degraded silently and nothing said so.** This is rule 17 applied one layer out: 17
+says the boundary must be tested rather than inferred; 18 says the DEPLOYED boundary is a
+different boundary from the source one, and a source-level assertion cannot reach it.
+
+**19. A SYMPTOM IS CLOSED BY A NAMED CAUSE, NOT BY ITS ABSENCE. A DEFECT THAT DISAPPEARS WITHOUT
+AN IDENTIFIED CAUSE IS DORMANT, NOT FIXED.** Cory, 2026-08-14, on item 13. The pick-41 NaN was
+observed once — 219 of 219 quarterbacks scoring NaN with a single QB rostered — and then would
+not reproduce across eight roster states and thirteen context variants. **NON-REPRODUCTION IS
+USEFUL INFORMATION AND IT IS NOT AN ANSWER.** Three explanations fit it and only one is safe:
+something changed and removed the state, the state is rarer than the sampling reaches, or the
+reproduction does not exercise the path. They are three different answers and they look identical
+from inside a clean run.
+
+*Two closures are acceptable and they are not equal:*
+- **NAME WHAT CHANGED.** For item 13 this meant sweeping every engine revision back to the report
+  (all clean) and diffing the board (byte-identical), which EXCLUDED the first explanation by
+  measurement, then reproducing the reported signature exactly — 219/219 QBs — from a roster
+  entry carrying no `proj_mean`.
+- **MAKE THE STATE IMPOSSIBLE.** Where the cause cannot be confirmed, a guard that refuses the
+  state with a NAMED failure converts "we cannot reproduce it" into "it cannot recur". This is
+  the WEAKER closure and it must be recorded as such: the ledger line reads *observed once, cause
+  reconstructed but not confirmed, not reproducible across N states, guarded so it cannot
+  propagate* — never *closed*.
+
+**A COUNT THAT INCLUDES A SILENTLY-CLOSED UNEXPLAINED DEFECT IS WORTH LESS THAN ONE THAT NAMES IT
+AS UNRESOLVED,** because the whole point of the count is that it is evidence rather than
+reassurance. Same family as 13f: absence of the symptom is not evidence of correctness, and a
+check that finds nothing is only meaningful if you know it could have found something.
+
+**20. DEFECTS CLUSTER. ON FINDING ONE, NAME ITS CLASS AND COUNT THE CLASS BEFORE MOVING ON —
+AND REPORT THE RESIDUAL AS A NUMBER.** A, 2026-08-14. Every single-instance fix this week turned
+out to be a member of a population, and the population was always larger than the instance:
+
+| the one found | the class, swept | residual |
+|---|---|---|
+| `PATHS_BAND` 12 over a derived 4 | floors overriding a measurement — 5 found, 2 binding | 0 |
+| `games_missed_3yr` read, never written | fields read that no board supplies — 3 | 0 |
+| harness supplies `sd` production lacks | Lab/production board divergence — 12 | 12, classified |
+| the VONA comment | constants whose comment states a derivation — 1 evaluable, a citation | 0 |
+| `TIE_THRESHOLD` looked inert | constants perturbed x0.01–x100 — 59 | 27 inert, 13 untested |
+| keepers looked up in `players` | copies of that lookup — 4 files, 3 behaviours | 0, one copy now |
+
+*The rule has a second half that costs more and matters more:* **the sweep is a measuring
+instrument, so rule 10 applies to it.** Six of my own measurements this week were artifacts of
+the instrument rather than facts about the engine — a sweep that could not catch its own
+exemplar, a control moved in the direction that could not change anything, a perturbation range
+that never reached the quantity, a swallowed exception reported as "no change", a signature that
+never called the surfaces it was scoring, and a walk that ran on an empty roster because
+`.filter(Boolean)` turned a total lookup failure into a smaller experiment. **EVERY ONE WAS
+CAUGHT BY RE-MEASURING AND NONE BY REVIEW.** A class count from an unbroken instrument is a
+number with no evidence behind it.
+
 **13. MERGED INTO RULE 11 AS ITS FIFTH REQUIREMENT (2026-08-11).** B's finding, which A's
 audit missed: **rule 13 was written about PROVIDERS and bites on FIXTURES.** All three of its
 firings on B's work were internal — a `fetched_at`/`failed_at` mixup, a probe where a 404 passed

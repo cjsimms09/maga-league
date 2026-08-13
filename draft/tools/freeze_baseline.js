@@ -36,6 +36,28 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
+
+const PINNED_ENGINE_KEYS = [
+        // decided by measurement: BINDS or FRAGILE
+        'COIN_FLIP_GAP', 'CLOSE_GAP', 'TIE_THRESHOLD', 'CONSERVE_SURVIVAL_ON',
+        'DOCTRINE_TILT_ON', 'FLEX_DISCOUNT', 'ONESIE_DISCOUNT',
+        'ONESIE_NEED_DISCOUNT', 'ONESIE_NEED_INSURANCE', 'CEILING_MAX_BONUS',
+        'CEILING_TIEBREAK', 'RAIL_DEFAULT_POS_CAP', 'RAIL_RUNAWAY_RATIO',
+        'STAGE2_CAP', 'VALUE_WEIGHT_FLOOR', 'VONA_SLOT_AWARE',
+        'AUTO_ANCHOR_ROUNDS', 'AUTO_BUILD_ROUNDS',
+        'SURVIVOR_CUTOFF', 'PATHS_CLIFF_URGENCY', 'RAIL_ADP_AHEAD',
+        'CEILING_SPREAD_SHARE', 'CEILING_LATE_FROM', 'RAIL_COMPONENT_RATIO',
+        'AUTO_FILL_ROUNDS',
+        // inert on this board, policy by content — pinned deliberately
+        'ONESIE_KEEP', 'ONESIE_ENDGAME_PICKS', 'ONESIE_EXTREME_ADP',
+        'ONESIE_ELITE_RANK', 'BENCH_CEILING_FLOOR', 'BENCH_RISK_FLOOR',
+        'BENCH_DISCOUNT', 'FLEX_ALT_WEIGHT', 'DOCTRINE_TILT',
+        'ADP_SD_FLOOR', 'ADP_SD_RATE', 'ADP_SD_CAP',
+        'RUN_WINDOW', 'RUN_DAMPING', 'RUN_MIN', 'RUN_MAX', 'RUN_BANNER_AT',
+        'STAGE2_CAP_T', 'RAIL_LATE_ROUNDS', 'AUTO_TIGHT_PICKS', 'THREAT_MIN_P',
+      ];
+
+
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
 
@@ -47,7 +69,7 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * still reads v6.json against the v5 board, and the suite goes green on a
  * comparison nobody intended. Both paths derive from this constant, and the
  * regression test imports it rather than repeating the literal. */
-const ACTIVE_VERSION = 'v14';
+const ACTIVE_VERSION = 'v15';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
@@ -364,14 +386,89 @@ function build() {
     frozen_at: null,          // stamped by --freeze; kept null in the pure build
     engine_policy: {
       MEASURED_WEIGHTS: E.MEASURED_WEIGHTS,
-      // The constants that actually shape a recommendation. Not all 66 — only the
-      // ones a change to would alter what the tool advises.
-      CFG: ['COIN_FLIP_GAP', 'CLOSE_GAP', 'TIE_THRESHOLD', 'BENCH_DISCOUNT',
-            'BENCH_SCORE_FLOOR', 'ONESIE_KEEP', 'DOCTRINE_TILT', 'DOCTRINE_TILT_ON',
-            'THREAT_MIN_P', 'WITHIN_POS_TAIL_P']
-        .reduce((o, k) => { if (E.CFG[k] !== undefined) o[k] = E.CFG[k]; return o; }, {}),
+      /* WHAT THIS PINS, AND WHAT IT USED TO PIN (reviewed 2026-08-14, Cory's ruling).
+       *
+       * THE OLD LIST NAMED TEN KEYS AND DELIVERED EIGHT LIVE ONES.
+       *   · WITHIN_POS_TAIL_P is not in the ENGINE's CFG at all — it lives in
+       *     survival.js's own CFG (0.01, read at survival.js:677). The
+       *     `!== undefined` guard below dropped it SILENTLY, so the baseline
+       *     believed it pinned that constant and never did.
+       *   · BENCH_SCORE_FLOOR is READ BY NOTHING. Its only two mentions in
+       *     engine.js are comments, one of which says "retained only as a
+       *     documented knob". Removed from the pin: a baseline that records
+       *     inert knobs beside live ones makes the live ones harder to trust,
+       *     and there is no way to tell them apart by looking. IT IS NOT GONE
+       *     BY ACCIDENT — that is what this paragraph is for.
+       *
+       * THE SPLIT IS POLICY vs IMPLEMENTATION DETAIL, not bind vs inert.
+       * cfg_sensitivity classified the 70 engine constants as 22 BINDS, 7
+       * FRAGILE, 27 INERT, 13 UNTESTED. Inert is NOT the same as "not policy":
+       * ONESIE_KEEP measures inert on this board and is the 90% backup discount;
+       * BENCH_CEILING_FLOOR measures inert and is the exact class of floor that
+       * silently re-enabled a zeroed weight. So the measurement is EVIDENCE and
+       * the criterion is decision content:
+       *   PINNED  — a silent change would alter which player is advised, or
+       *             mischaracterise the advice. Includes everything feeding
+       *             survival, because survival feeds expectedBestAvailable which
+       *             IS vona.
+       *   NOT PINNED — display depth and presentation counts (SHEET_*, PATHS_*,
+       *             WEIGHT_DIFF_DEPTH, DG_* dollar rendering) where a change is
+       *             visible on its face and cannot alter the ranking, and the
+       *             opponent-model TELL_ and THREAT_ family, which this harness
+       *             could not exercise (UNTESTED is not a finding either way and
+       *             pinning on no evidence is how a baseline becomes noise). */
+      CFG: PINNED_ENGINE_KEYS.reduce((o, k) => {
+        /* NO SILENT DROP. The old reduce skipped a missing key and the baseline
+         * looked complete; that is how WITHIN_POS_TAIL_P went unpinned for its
+         * whole life. A named key that does not resolve is recorded as absent. */
+        o[k] = E.CFG[k] !== undefined ? E.CFG[k] : '__ABSENT_FROM_CFG__';
+        return o;
+      }, {}),
+      /* SURVIVAL CARRIES ITS OWN CFG AND NOBODY WAS PINNING IT. 31 keys, 23 of
+       * which exist nowhere in the engine's config, all feeding the survival
+       * curve that expectedBestAvailable integrates. Pinned whole: every one of
+       * them can move vona, and none is a display value. */
+      SURVIVAL_CFG: (function () {
+        try {
+          const S = require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
+          return S && S.CFG ? JSON.parse(JSON.stringify(S.CFG)) : '__SURVIVAL_CFG_UNREADABLE__';
+        } catch (e) { return '__SURVIVAL_CFG_UNREADABLE__: ' + e.message; }
+      })(),
       preset_keys: (E.WEIGHT_PRESETS || []).map(p => p.key),
     },
+    /* WHAT FRACTION OF THE CONFIGURATION THIS BASELINE ACTUALLY COVERS.
+     *
+     * STATED ON THE ARTIFACT so a green from it is never read as meaning more
+     * than it does. Before 2026-08-14 the baseline pinned 8 live keys of 70 in
+     * the engine and 0 of 31 in survival, and REPORTED GREEN IDENTICALLY
+     * whether it covered eight or all of them — it could not detect a change to
+     * roughly 92% of the configuration a recommendation depends on. That is not
+     * a claim the unpinned values were wrong; it is a statement that the guard
+     * was coverage of a small minority and was being read as coverage. */
+    _coverage: (function () {
+      const eng = Object.keys(E.CFG).length;
+      let sur = 0;
+      try {
+        const S = require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
+        sur = S && S.CFG ? Object.keys(S.CFG).length : 0;
+      } catch (e) { sur = 0; }
+      return {
+        engine_cfg_total: eng,
+        engine_cfg_pinned: PINNED_ENGINE_KEYS.length,
+        survival_cfg_total: sur,
+        survival_cfg_pinned: sur,
+        weights_total: Object.keys(E.MEASURED_WEIGHTS).length,
+        weights_pinned: Object.keys(E.MEASURED_WEIGHTS).length,
+        not_pinned_and_why: 'display depth and presentation counts (SHEET_*, '
+          + 'PATHS_POOL/MAX, WEIGHT_DIFF_DEPTH, DG_*) where a change is visible '
+          + 'on its face and cannot alter the ranking; and the opponent-model '
+          + 'TELL_*/THREAT_* family, which cfg_sensitivity could not exercise. '
+          + 'UNTESTED is not evidence either way, and pinning on no evidence is '
+          + 'how a baseline becomes noise that gets re-frozen reflexively.',
+        removed_2026_08_14: { BENCH_SCORE_FLOOR: 'read by nothing — its only two '
+          + 'mentions in engine.js are comments. Removed deliberately, not dropped.' },
+      };
+    })(),
     anchor_source: ((art.provenance || {}).adp || {}).primary_source
       || (art.provenance || {}).primary_source || 'unknown',
     surfaces: states.map(s => surfaceFor(s, players, league, art)),

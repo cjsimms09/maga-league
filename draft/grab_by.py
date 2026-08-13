@@ -76,7 +76,7 @@ def expected_best_available(avail_sorted: list[dict], pick: int, thresh: float =
     """The highest-proj available player LIKELY (survival ≥ thresh) to still be there
     at `pick`. avail_sorted is proj-descending. None if nobody clears the bar."""
     for p in avail_sorted:
-        if survival_probability(_adp(p), pick) >= thresh:
+        if survival_probability(_adp(p), pick, p.get("adp_sd")) >= thresh:
             return p
     return None
 
@@ -147,7 +147,7 @@ def report(players: list[dict], drafted_ids: set[str], roster: list[dict],
         eb_next = expected_best_available(avail, second_pick) if second_pick else None
         best_next = eb_next.get("proj_mean", 0) if eb_next else (avail[-1].get("proj_mean", 0))
         evlw = round(best_now - best_next, 2)
-        survives_next = (second_pick is None) or (survival_probability(_adp(best), second_pick) >= SURVIVE_THRESH)
+        survives_next = (second_pick is None) or (survival_probability(_adp(best), second_pick, best.get("adp_sd")) >= SURVIVE_THRESH)
         gb = grab_by_pick(avail, my_remaining, best_now)
         rows.append({
             "position": pos, "need": need,

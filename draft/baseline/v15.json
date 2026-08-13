@@ -1,0 +1,425 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-13T02:36:23.374Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 1
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "CONSERVE_SURVIVAL_ON": true,
+      "DOCTRINE_TILT_ON": true,
+      "FLEX_DISCOUNT": true,
+      "ONESIE_DISCOUNT": true,
+      "ONESIE_NEED_DISCOUNT": true,
+      "ONESIE_NEED_INSURANCE": 0.5,
+      "CEILING_MAX_BONUS": 20,
+      "CEILING_TIEBREAK": true,
+      "RAIL_DEFAULT_POS_CAP": {
+        "QB": 3,
+        "K": 2,
+        "DEF": 2,
+        "TE": 3
+      },
+      "RAIL_RUNAWAY_RATIO": 3,
+      "STAGE2_CAP": false,
+      "VALUE_WEIGHT_FLOOR": 0.25,
+      "VONA_SLOT_AWARE": false,
+      "AUTO_ANCHOR_ROUNDS": 2,
+      "AUTO_BUILD_ROUNDS": 6,
+      "SURVIVOR_CUTOFF": 0.005,
+      "PATHS_CLIFF_URGENCY": 6,
+      "RAIL_ADP_AHEAD": 30,
+      "CEILING_SPREAD_SHARE": 0.15,
+      "CEILING_LATE_FROM": 0.6,
+      "RAIL_COMPONENT_RATIO": 1,
+      "AUTO_FILL_ROUNDS": 10,
+      "ONESIE_KEEP": 0.1,
+      "ONESIE_ENDGAME_PICKS": 2,
+      "ONESIE_EXTREME_ADP": 18,
+      "ONESIE_ELITE_RANK": 3,
+      "BENCH_CEILING_FLOOR": 0,
+      "BENCH_RISK_FLOOR": 0,
+      "BENCH_DISCOUNT": 0.35,
+      "FLEX_ALT_WEIGHT": 1,
+      "DOCTRINE_TILT": 2.5,
+      "ADP_SD_FLOOR": 3,
+      "ADP_SD_RATE": 0.15,
+      "ADP_SD_CAP": 15,
+      "RUN_WINDOW": 10,
+      "RUN_DAMPING": 0.5,
+      "RUN_MIN": 0.6,
+      "RUN_MAX": 1.8,
+      "RUN_BANNER_AT": 1.4,
+      "STAGE2_CAP_T": 4,
+      "RAIL_LATE_ROUNDS": 2,
+      "AUTO_TIGHT_PICKS": 4,
+      "THREAT_MIN_P": 0.01
+    },
+    "SURVIVAL_CFG": {
+      "DRIFT_MIN_PICKS": 15,
+      "DRIFT_DAMPING": 0.6,
+      "DRIFT_MAX_OFFSET": 12,
+      "DRIFT_MAX_SD_SCALE": 1.6,
+      "DRIFT_EXPECTED_MAD": 8,
+      "ADP_SD_FLOOR": 3,
+      "ADP_SD_RATE": 0.15,
+      "ADP_SD_CAP": 15,
+      "NEAR_HORIZON": 24,
+      "BLEND_DECAY": 12,
+      "WITHIN_POS_TEMP": 0.35,
+      "WITHIN_POS_CANDIDATES": 6,
+      "WITHIN_POS_TAIL_P": 0.01,
+      "DEFAULT_ALPHA_NEED": 1,
+      "DEFAULT_BETA_VALUE": 1,
+      "K_DST_FORCED_ROUNDS": 2,
+      "TENDENCY_STRENGTH": 0.35,
+      "TENDENCY_SIGMA": 1.5,
+      "TENDENCY_ERRATIC": 0.4,
+      "BUCKET_BLEND": 0.25,
+      "OPENING_BOOST": 0.5,
+      "RUN_FOLLOW_MARGIN": 0.1,
+      "RUN_FOLLOW_MAX": 0.5,
+      "AFFINITY": {
+        "2": 1.7,
+        "3": 2.4,
+        "4": 3
+      },
+      "RUN_WINDOW": 10,
+      "RUN_DAMPING": 0.5,
+      "RUN_MIN": 0.6,
+      "RUN_MAX": 1.8,
+      "RUN_BANNER_AT": 1.4,
+      "RUN_Z_MIN": 1.5,
+      "RUN_Z_FULL": 3
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "_coverage": {
+    "engine_cfg_total": 70,
+    "engine_cfg_pinned": 46,
+    "survival_cfg_total": 31,
+    "survival_cfg_pinned": 31,
+    "weights_total": 8,
+    "weights_pinned": 8,
+    "not_pinned_and_why": "display depth and presentation counts (SHEET_*, PATHS_POOL/MAX, WEIGHT_DIFF_DEPTH, DG_*) where a change is visible on its face and cannot alter the ranking; and the opponent-model TELL_*/THREAT_* family, which cfg_sensitivity could not exercise. UNTESTED is not evidence either way, and pinning on no evidence is how a baseline becomes noise that gets re-frozen reflexively.",
+    "removed_2026_08_14": {
+      "BENCH_SCORE_FLOOR": "read by nothing — its only two mentions in engine.js are comments. Removed deliberately, not dropped."
+    }
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 1726,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 14.888,
+          "survival_to_next": 0.7991
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 9.766,
+          "survival_to_next": 0.5477
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 7.818,
+          "survival_to_next": 0.5198
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 7.039,
+          "survival_to_next": 0.9314
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": 4.009,
+          "survival_to_next": 0.5771
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 3.046,
+          "survival_to_next": 0.9811
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 2.04,
+          "survival_to_next": 0.9768
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": -0.18,
+          "survival_to_next": 0.558
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "score": -1.911,
+          "survival_to_next": 0.9784
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": -2.893,
+          "survival_to_next": 0.983
+        }
+      ],
+      "rule_headline": {
+        "player_id": "9997",
+        "name": "Zay Flowers",
+        "position": "WR",
+        "reason": "earliest by MARKET PRICE within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 5.122,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 1686,
+      "top10": [
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 5.75,
+          "survival_to_next": 0.7494
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 5.401,
+          "survival_to_next": 0.6982
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 4.44,
+          "survival_to_next": 0.8222
+        },
+        {
+          "player_id": "5846",
+          "name": "DK Metcalf",
+          "position": "WR",
+          "score": 2.79,
+          "survival_to_next": 0.6229
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": -0.487,
+          "survival_to_next": 0.8412
+        },
+        {
+          "player_id": "11628",
+          "name": "Marvin Harrison",
+          "position": "WR",
+          "score": -2.669,
+          "survival_to_next": 0.6488
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -3.629,
+          "survival_to_next": 0.7862
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "score": -3.927,
+          "survival_to_next": 0.735
+        },
+        {
+          "player_id": "8142",
+          "name": "Alec Pierce",
+          "position": "WR",
+          "score": -4.403,
+          "survival_to_next": 0.66
+        },
+        {
+          "player_id": "5045",
+          "name": "Courtland Sutton",
+          "position": "WR",
+          "score": -4.904,
+          "survival_to_next": 0.6718
+        }
+      ],
+      "rule_headline": {
+        "player_id": "11628",
+        "name": "Marvin Harrison",
+        "position": "WR",
+        "reason": "earliest by MARKET PRICE within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 0.349,
+      "confidence_level": "coin-flip",
+      "firing_rates": {
+        "contested": 0.0006,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 1626,
+      "top10": [
+        {
+          "player_id": "10219",
+          "name": "Chris Rodriguez",
+          "position": "RB",
+          "score": 9.359,
+          "survival_to_next": 0.9941
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": 0.848,
+          "survival_to_next": 0.5263
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": 0.341,
+          "survival_to_next": 0.9926
+        },
+        {
+          "player_id": "8121",
+          "name": "Romeo Doubs",
+          "position": "WR",
+          "score": -4.568,
+          "survival_to_next": 0.9952
+        },
+        {
+          "player_id": "4943",
+          "name": "Sam Darnold",
+          "position": "QB",
+          "score": -5.253,
+          "survival_to_next": 0.9962
+        },
+        {
+          "player_id": "8134",
+          "name": "Khalil Shakir",
+          "position": "WR",
+          "score": -12.088,
+          "survival_to_next": 0.9958
+        },
+        {
+          "player_id": "9480",
+          "name": "Brenton Strange",
+          "position": "TE",
+          "score": -12.751,
+          "survival_to_next": 0.994
+        },
+        {
+          "player_id": "12501",
+          "name": "Matthew Golden",
+          "position": "WR",
+          "score": -13.78,
+          "survival_to_next": 0.9961
+        },
+        {
+          "player_id": "5844",
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "score": -16.582,
+          "survival_to_next": 0.995
+        },
+        {
+          "player_id": "12545",
+          "name": "Tyler Shough",
+          "position": "QB",
+          "score": -16.61,
+          "survival_to_next": 0.9961
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8161",
+        "name": "Malik Willis",
+        "position": "QB",
+        "reason": "earliest by MARKET PRICE within your remaining need (QB); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 8.511,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    }
+  ],
+  "_why": "Cory's ruling 2026-08-14: BENCH_SCORE_FLOOR removed from the pin (read by nothing — its only two engine.js mentions are comments); pin list widened from 8 live keys to 46 policy keys chosen on decision content with cfg_sensitivity as evidence; survival.CFG pinned whole (31 keys, previously zero, and 23 of them exist nowhere in the engine's config while all feed the survival curve expectedBestAvailable integrates); a named-but-missing key now records __ABSENT_FROM_CFG__ instead of being dropped silently (WITHIN_POS_TAIL_P was never actually pinned); and a _coverage block so a green cannot be read as covering more than it does. NO RECOMMENDATION BEHAVIOUR CHANGED: all 12 surface checks pass against v14 unchanged; the sole v14 failure was the deliberately removed key."
+}

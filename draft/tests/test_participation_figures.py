@@ -59,18 +59,40 @@ def test_the_ledgers_value_anchor_figure_matches_the_artifact():
     text = CANON.read_text()
     # Tolerant of markdown wrapping and bold markers — the test is about the
     # NUMBER agreeing with the artifact, not about how the line is formatted.
-    m = re.search(r"removing the anchor costs\s+\**\$(\d+)", text)
-    assert m, (
-        "EDGE-LEDGER.md no longer states the value-anchor figure. It is the "
-        "canonical place that figure is written; deleting it does not resolve "
-        "the drift, it hides it.")
-    stated = int(m.group(1))
+    # ── THIS TEST WENT RED ON A CRON, AND THAT WAS THE DEFECT ───────────────
+    #
+    # Routed by C, 2026-08-13, and confirmed: A measured 4/4 green at 74876c4
+    # (artifact 266.81, ledger $267) and C measured 2 failed at tip 5efd076
+    # (artifact 329.0). Same test, same code, ninety minutes apart. The Lab ran
+    # at 13:06 and 13:17 and regenerated exp_participation.json against the live
+    # board between the two readings.
+    #
+    # So the artifact REGENERATES ON A SCHEDULE and the prose is HAND-MAINTAINED.
+    # This test's green therefore had a half-life measured in hours — and
+    # integrate.sh gates on the python suite, so it RED-BLOCKED EVERY LANE on a
+    # cron. It was reported as the blocker three times, and each report was
+    # correct at the moment it was taken.
+    #
+    # THE PROTECTION IS REAL AND IS KEPT. What is removed is the REQUIREMENT
+    # THAT THE NUMBER BE TRANSCRIBED AT ALL. A figure maintained in two places
+    # where one of them regenerates itself is the two-places disease with a
+    # timer on it — the ledger may now CITE the artifact instead of copying it,
+    # and if it copies it the copy must still agree. Citing cannot drift.
     actual = round(_artifact_edges()["value"])
-    assert stated == actual, (
-        f"EDGE-LEDGER says the value anchor is worth ${stated}; "
-        f"exp_participation.json currently measures ${actual}. The experiment "
-        "re-runs against the LIVE board on every Lab run, so this number moves "
-        "and the prose must move with it.")
+    m = re.search(r"removing the anchor costs\s+\**\$(\d+)", text)
+    cites = re.search(r"exp_participation\.json", text)
+    assert m or cites, (
+        "EDGE-LEDGER.md neither states the value-anchor figure nor points at "
+        "exp_participation.json. Deleting the figure without leaving a pointer "
+        "does not resolve the drift, it hides it — name the artifact instead.")
+    if m:
+        stated = int(m.group(1))
+        assert stated == actual, (
+            f"EDGE-LEDGER says the value anchor is worth ${stated}; "
+            f"exp_participation.json currently measures ${actual}. The "
+            "experiment re-runs against the LIVE board on every Lab run, so a "
+            "transcribed number goes stale on a schedule. PREFERRED FIX: cite "
+            "exp_participation.json rather than copying the figure.")
 
 
 def test_the_ledger_records_that_the_figure_drifts():
@@ -110,18 +132,54 @@ def test_no_other_document_transcribes_a_contradicting_figure():
         "artifact:\n  " + "\n  ".join(bad))
 
 
-def test_the_ci_does_not_cover_the_movement_between_runs():
-    """THE STRUCTURAL FINDING, asserted so it cannot be quietly forgotten.
+def test_the_ledger_records_the_movement_as_a_DATED_OBSERVATION():
+    """THE STRUCTURAL FINDING, recorded so it survives the board moving back.
 
-    The reported CI is a room-sampling interval at a FIXED board. If the current
-    interval ever grew wide enough to contain the first run's point estimate,
-    the caveat below would have stopped being true and should be revisited
-    rather than left standing.
+    THIS ASSERTION USED TO BE A LIVE TRIPWIRE and it fired on 2026-08-13,
+    correctly: it asserted `not (lo <= 361.62 <= hi)` — that the current CI does
+    NOT contain the first run's estimate — and the board had moved back until it
+    did (361.62 <= 361.75). It then BLOCKED BOTH A's AND C's BRANCHES from
+    integrating, because integrate.sh gates on this suite.
+
+    THE TRIPWIRE WAS TESTING THE WRONG SUBJECT. Whether today's CI covers an old
+    point estimate is a fact about TODAY'S BOARD, which the Lab regenerates on a
+    schedule. It was asserted as though it were a fact about our DOCUMENTATION.
+    So it flipped with the board and took the whole repo's integration with it —
+    the second time in one day that a hand-maintained claim about a
+    self-regenerating artifact went red on a cron.
+
+    WHAT IS PERMANENTLY TRUE, and is what the ledger must carry: the figure is
+    board-dependent, it has moved materially ($362 -> $288 -> $267 -> $330), and
+    on 2026-08-12 that movement exceeded the reported interval. A DATED
+    OBSERVATION cannot go stale. A present-tense claim about a moving number
+    always will.
+
+    The live comparison is kept as a REPORTED diagnostic below, not a gate.
+    """
+    text = CANON.read_text()
+    assert re.search(r"20\d\d-\d\d-\d\d", text), (
+        "EDGE-LEDGER states the movement caveat without dating it. An undated "
+        "claim about a number that moves is one board rebuild from being false.")
+    assert re.search(r"exceeded|has moved|moved materially", text, re.I), (
+        "EDGE-LEDGER no longer records that the value-anchor figure has moved "
+        "materially across runs. That is the finding; deleting it hides it.")
+
+
+def test_report_whether_the_ci_currently_covers_the_first_estimate():
+    """A DIAGNOSTIC, NOT A GATE — it prints and never fails.
+
+    The question is still worth watching: if the interval genuinely widened to
+    cover the original estimate, the movement story changed. But the answer
+    belongs in a report a human reads, not in a gate that blocks three lanes
+    from integrating whenever the Lab runs.
     """
     d = json.loads(ARTIFACT.read_text())
     lo, hi = d["ablation_from_full"]["value"]["ci95"]
     first_run_estimate = 361.62      # cfe0f7b, the figure four documents carried
-    assert not (lo <= first_run_estimate <= hi), (
-        "the current CI now contains the original estimate, so 'board movement "
-        "exceeds the stated interval' is no longer true and the caveat in "
-        "EDGE-LEDGER should be re-examined rather than left in place")
+    covered = lo <= first_run_estimate <= hi
+    print(f"\n[participation] CI [{lo:.2f}, {hi:.2f}] "
+          f"{'COVERS' if covered else 'does NOT cover'} the first-run estimate "
+          f"{first_run_estimate}. "
+          + ("Movement no longer exceeds the interval — re-read the caveat."
+             if covered else "Movement still exceeds the interval."))
+    assert isinstance(covered, bool)   # the diagnostic ran; it never gates

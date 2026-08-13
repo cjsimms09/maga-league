@@ -5,6 +5,8 @@
  * ones that check a field exists.
  */
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const DC = require('../../public/js/draft/decision_contract.js');
 const E = require('../../public/js/draft/engine.js');
 
@@ -80,8 +82,16 @@ const mk = (id, score, weighted, extra) => Object.assign({
   const cs = DC.causes(win, alt, DC.contributions(win, alt, 4));
   check('A TERM THE ENGINE ADDS LATER APPEARS WITHOUT THIS FILE CHANGING',
     cs.some(c => c.code === 'term:brand_new_term'));
-  check('  (a renderer pattern-matching a fixed list would silently stop explaining)',
-    true);
+  /* THIS WAS `check(..., true)` — a sentence printing PASS while asserting
+   * nothing. The claim it makes is testable, so it is tested: the fixed list
+   * really is blind to the new term, and the open mechanism really does see it.
+   * Two arms, or "the vocabulary is open" is just a hope with a PASS beside it.
+   * (22 more of these exist across 14 suites as of 2026-08-14 — counted, not
+   * fixed here; they are annotation-shaped but they still print PASS.) */
+  check('  (a renderer pattern-matching a fixed list WOULD have missed it —',
+    !('brand_new_term' in DC.TERM_WORDS));
+  check('   the fixed list is blind and the open mechanism is not)',
+    cs.some(c => c.code === 'term:brand_new_term') && !('brand_new_term' in DC.TERM_WORDS));
 
   const alt2 = mk('b', 1, { value: 1 }, { demoted: true, rails: [1], onesie: { capped: true } });
   const cs2 = DC.causes(win, alt2, DC.contributions(win, alt2, 4));
@@ -200,28 +210,52 @@ const mk = (id, score, weighted, extra) => Object.assign({
     && DC.citesZeroContribution('best value on the board', c).length === 0);
 }
 
-// ── THE VONA STRING IS THE STANDARD, PINNED AS A FORMAL TEST CASE ──────────
-/* "Scarcity priced in value (VONA), not double-counted" is the only shipped
- * string that was already doing the right thing, and it is subtler than the
- * non-zero rule: scarcity GENUINELY affects the pick, but it enters THROUGH
- * value rather than as its own term. "Scarcity drove the pick" would be
- * conceptually true and structurally misleading — it implies a term that does
- * not exist in the accounting.
+// ── THE VONA STRING WAS PINNED AS THE STANDARD. IT WAS NOT ONE. ───────────
+/* THIS BLOCK USED TO OPEN: '"Scarcity priced in value (VONA), not
+ * double-counted" is the only shipped string that was already doing the right
+ * thing ... its saving grace is that it says WHERE the effect actually lives.'
  *
- * THE GENERAL FORM: the explanation must follow the actual causal ACCOUNTING
- * STRUCTURE, not the vocabulary humans use to describe the model. */
+ * It named the wrong place, and this block could not have noticed, for three
+ * independent reasons that are worth keeping visible:
+ *
+ *   1. VONA_STRING WAS A LOCAL LITERAL. The test defined the sentence it was
+ *      testing and never read engine.js. Change the shipped string to anything
+ *      at all and this block still passed — a fixture deriving from the thing
+ *      under test always agrees with it. It now reads the real template out of
+ *      the engine source, so drift fails here.
+ *   2. ONE CHECK WAS THE LITERAL `true`. It asserted nothing and printed PASS.
+ *      Replaced with the condition it was gesturing at.
+ *   3. THE PREMISE WAS NEVER MEASURED. "The effect lives in VONA" was accepted
+ *      because it sounds like the accounting. VONA = proj_mean -
+ *      expectedBestAvailable(samePos, nextPick), a function of the BOARD with no
+ *      roster input: filling the slot moves vona for 0 of 1690 players. See
+ *      composite_roster_blindness.test.js. Board scarcity and your slot being
+ *      empty are two different things that got the same word.
+ *
+ * THE GENERAL FORM SURVIVES AND IS THE REASON TO KEEP THIS CASE: the explanation
+ * must follow the actual causal ACCOUNTING STRUCTURE, not the vocabulary humans
+ * use to describe the model. The old string failed its own standard. */
 {
-  const VONA_STRING = 'fills your empty TE slot — scarcity priced in value (VONA), not double-counted';
+  const ENGINE_SRC = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'public', 'js', 'draft', 'engine.js'), 'utf8');
+  const m = ENGINE_SRC.match(/need\.why = `(fills your empty [^`]*)`/);
+  const VONA_STRING = m ? m[1].replace('${player.position}', 'TE') : null;
+
+  check('CONTROL: the shipped empty-slot string was located in engine.js',
+    VONA_STRING !== null);
+
   const win = mk('a', 5, { value: 4, need: 0 });
   const alt = mk('b', 1, { value: 0, need: 0 });
   const c = DC.contributions(win, alt, 4);
 
-  check('THE STANDARD: the VONA string names `need` and need contributed nothing',
-    DC.citesZeroContribution(VONA_STRING, c).indexOf('need') >= 0);
-  check('  so it is CONTEXT, not a reason — which is where the engine now puts it',
-    true);
-  check('  and its saving grace is that it says WHERE the effect actually lives',
-    /priced in value \(VONA\), not double-counted/.test(VONA_STRING));
+  check('THE STANDARD: the shipped string names `need` and need contributed nothing',
+    DC.citesZeroContribution(VONA_STRING || '', c).indexOf('need') >= 0);
+  check('  so it must be CONTEXT, not a reason — and the engine gates it on w.need',
+    /if \(w\.need \* need\.value > 0\) reasons\.push\(need\.why\)/.test(ENGINE_SRC));
+  check('  and it no longer claims the empty-slot effect lives in VONA',
+    !/priced in value \(VONA\), not double-counted/.test(VONA_STRING || ''));
+  check('  it points at the surface that actually reads the roster',
+    /needrule card/.test(VONA_STRING || ''));
 
   /* The failure mode it protects against, stated as its own case. */
   check('"scarcity drove the pick" would be conceptually true and structurally false',

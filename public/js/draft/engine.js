@@ -199,6 +199,51 @@
      * #2 with a QB rostered, Lamar Jackson at r6, Brock Purdy at r8.
      */
     ONESIE_DISCOUNT: true,
+    /* SHIPPED OFF, AND THE MEASUREMENT IS WHY. Slot-aware VONA is implemented
+     * below and defaults FALSE because turning it on makes Cory's own acceptance
+     * criterion WORSE, not better. Measured 2026-08-14, roster from slot 8 with
+     * the real keepers, 12 picks from 34:
+     *     shipped      TE 1  RB 3  WR 4  QB 2
+     *     slot-aware   TE 3  RB 0  WR 3  QB 4
+     * Criterion 3 asks for exactly one QB and one TE. The change doubles the
+     * quarterbacks and removes running backs entirely.
+     * THE MECHANISM IS A TIE COLLAPSE. Once the dedicated slots are full almost
+     * every remaining player is flex-or-bench, and both arms floor at zero: with
+     * WR2 and TE1 filled, 1331 of 1686 scored players share EXACTLY VONA 0
+     * (distinct values 477 -> 120). Ordering below the starters stops existing,
+     * so what surfaces is whatever wins an arbitrary tie -- and quarterbacks win
+     * it, because their raw magnitudes are the largest on the board.
+     * The idea is not refuted; pricing a flex fill across positions is right. It
+     * needs a bench value that is small AND strictly ordered, which floors and
+     * multiplicative crushes both fail to give (a crush moves negatives UP). */
+    VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
+     * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
+     * deleted the next day on my reading of Cory's "delete the cap" instruction.
+     * Driving the shipped engine end to end afterwards produced THREE
+     * QUARTERBACKS again — Goff at 108 scoring 0.8 and Love at 128 scoring 1.1,
+     * winning an arbitrary tie in a tail where everything sits near zero.
+     *
+     * The comment beside ONESIE_KEEP already said why a discount cannot do this
+     * job, and that comment survived the deletion of the thing it justified:
+     * ONESIE_KEEP is MULTIPLICATIVE, and a tenth of a small positive number is
+     * still positive when every alternative is ~0. A DISCOUNT CANNOT EXPRESS
+     * "NEVER".
+     *
+     * Cory's rule for restoring it: is this better for the model NOW OR IN THE
+     * LONG RUN? Now, yes — it is the only thing standing between the board and a
+     * third quarterback. Long run, it is the right SHAPE and the wrong
+     * IMPLEMENTATION: roster-awareness has to be a CONSTRAINT, not a weight,
+     * which is precisely why `need` measured as a drag and was zeroed — a
+     * weighted term competes with VONA and loses, a constraint cannot. The cap
+     * is a crude constraint; the seat assignment in draft_plan.js is the good
+     * one. So this is the first version of the correct mechanism, not a stopgap.
+     *
+     * WHAT IT DOES NOT FIX, stated so the next measurement is not a surprise:
+     * Josh Allen at pick 8. There `have (0) < slots (1)`, so no onesie rule
+     * applies at all — that is pure cross-position VONA and a separate defect. */
+    ONESIE_HARD_CAP: true,
+    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
     /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
@@ -222,8 +267,6 @@
      *
      * RELAXED IN THE ENDGAME, like every other clause here — with two picks
      * left a legal lineup outranks a tidy one. */
-    ONESIE_HARD_CAP: true,
-    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
     // THE EXPLICIT EXCEPTIONS. A onesie duplicate may still surface, but only
     // for a stated reason, and the card must SAY it rather than presenting him
     // as a normal recommendation.
@@ -366,8 +409,21 @@
    *   - need 0     : INERT by mask redundancy — the additive weight flips only ~5% of picks
    *                   at 0.5 and still 8% at 3.0, because the need signal is ~uniform inside
    *                   the startable-cap MASK (which IS the need mechanism). Not "untested" —
-   *                   unexplorable by this lever. Settled at 0 (the simpler number). The mask
-   *                   still carries all of need; participation-rate probe, Cory-confirmed.
+   *                   unexplorable by this lever. Settled at 0 (the simpler number).
+   *                   THE REDUNDANCY CLAIM IS TRUE OF ONE SURFACE AND WAS WRITTEN AS IF
+   *                   TRUE OF BOTH. This block used to end "the mask still carries all of
+   *                   need". The mask lives in needrule.js and governs the needrule CARD.
+   *                   recommend() never calls it — grep withinCap in this file and every
+   *                   hit is a comment. Measured 2026-08-14 (composite_roster_blindness.
+   *                   test.js): at pick 70, adding a QB and a TE to the roster drops the
+   *                   mask's admitted quarterbacks from 215 to ZERO and does not move the
+   *                   composite top 70 by one player (QB 14, TE 18 both ways). need is
+   *                   computed correctly for 533 of 1690 players and multiplied by this 0.
+   *                   SO: the composite has no positional-fill awareness in the mid-draft.
+   *                   applyRosterLegality is fill-aware but only fires in the endgame.
+   *                   The weight is unchanged — that is a separate decision resting on a
+   *                   separate measurement — but the REASON recorded for it now says which
+   *                   surface it covers. Participation-rate probe, Cory-confirmed.
    *   - ceiling 0     : SETTLED TO ZERO 2026-08-10 (Cory's call, reviewer-driven). The
    *                   ledger's de-confounded measurement is ceiling -4.8 [-26, +17] — a
    *                   sign we CANNOT distinguish from zero. Yet at 0.65 the flip diagnostic
@@ -411,8 +467,68 @@
    * The 0.5 finding is not discarded — it remains pre-registered for the
    * September quantile re-run, when a MEASURED correlation replaces the modelled
    * one and the install can be judged on the standard D10 asked for. */
+  /* ── TWO OF THESE ZEROS ARE NOT MEASUREMENTS (2026-08-14) ─────────────────
+   *
+   * Item 10's harness-vs-production sweep found that the Lab's board is not the
+   * board we ship. build_bundle.py writes twelve player fields; production
+   * writes forty-eight. Two weights were set from experiments that could not
+   * have produced any other answer:
+   *
+   *   risk: 0     UPDATED 2026-08-14, and the update is a partial repair rather
+   *               than a fix. ALL FIVE risk inputs were absent from a bundle
+   *               board and the term took exactly ONE distinct value (0.0)
+   *               across 400 candidates at four picks, against 11 in [-60, +6]
+   *               on production. build_bundle.py now emits `age` — which it had
+   *               computed correctly, with the as-of-season adjustment, since it
+   *               was written, and simply never wrote — taking the Lab term to
+   *               6 distinct values in [-25, 0]. PARTIAL, not restored.
+   *
+   *               THE OTHER THREE ARE PERMANENTLY UNAVAILABLE THERE, and that is
+   *               a limit rather than a to-do: injury_status and
+   *               depth_chart_order come from Sleeper's LIVE payload with no
+   *               historical archive, and opportunity_z is derived point-in-time.
+   *               Writing today's values into a 2023 replay would be LOOKAHEAD
+   *               CONTAMINATION, which is strictly worse than absence because
+   *               absence trips a guard and contamination does not. So any future
+   *               experiment grading risk is grading an AGE-ONLY risk term and
+   *               has to say so.
+   *
+   *   ceiling: 0  build_bundle.py writes proj_ceiling = 1.35 * proj_mean, so the
+   *               ceiling spread (engine.js: proj_ceiling - proj_mean) is
+   *               0.35 * proj_mean — rank-identical to the value term. Measured
+   *               (draft/tools/lab_ceiling_degeneracy.js): Spearman 1.0000 on a
+   *               harness board, 0.9848 on production. Raising the ceiling
+   *               weight was arithmetically the same as raising the value
+   *               weight, so THE -4.8 [-26,+17] RESULT WAS COLLINEAR, NOT WEAK.
+   *               It is not evidence that ceiling is worthless. It is not
+   *               evidence of anything.
+   *
+   * THE VALUES ARE UNCHANGED AND THAT IS DELIBERATE. A null measurement is not a
+   * licence to move a weight in the other direction — discovering that we do not
+   * know what risk is worth is not discovering that it is worth something. Zero
+   * stays until an experiment on a board carrying the real fields says otherwise.
+   * What changes is the LABEL: these are UNMEASURED settings sitting at a
+   * default, not measured ones, and the panel copy below no longer claims they
+   * "did nothing".
+   *
+   * The other six are unaffected: vona, tier_urgency, need, ceiling, keeper, bye
+   * and stack all vary on a bundle board (lab_term_degeneracy.js prints the
+   * spread for each), so their experiments had something to measure. */
   const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
+
+  /* Which zeros are measured and which are merely defaults, as data rather than
+   * as prose, so the panel and any future gate read the same answer. */
+  const WEIGHT_PROVENANCE = {
+    value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
+    tier: 'measured',
+    need: 'measured (redundant with the lineup mask ON THE NEEDRULE CARD ONLY — '
+      + 'the composite list never calls the mask and is blind to positional fill)',
+    bye: 'measured (null)',
+    risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
+      + '6 of production\'s 11 distinct values)',
+    ceiling: 'UNMEASURED — collinear with value on the backtest board',
+  };
 
   /* Named strategies, as weight sets.
    *
@@ -428,12 +544,26 @@
   const WEIGHT_PRESETS = [
     {
       key: 'measured', label: 'Live policy',
-      why: 'What the tool loads on, and what the Lab could actually MEASURE earning money: '
-        + 'rank off the board (value) and a stack tilt (the one adjuster that earned). Tier, '
-        + 'risk, need, bye AND ceiling are OFF — tier/risk measured as a drag, need is redundant '
-        + 'with the always-on lineup MASK, bye is a null, and ceiling could not be signed '
-        + '(-4.8 [-26,+17]) so it no longer decides late picks. This is the honest panel: the '
-        + 'sliders at zero are at zero because they did nothing.',
+      /* THIS SENTENCE USED TO END "the sliders at zero are at zero because they
+       * did nothing", and cited ceiling's -4.8 [-26,+17] as the reason it was
+       * off. Both claims were wrong for two of the five zeros: risk cannot vary
+       * at all on a backtest board (all five of its inputs are missing from it)
+       * and ceiling is rank-identical to value there, so neither experiment
+       * could have returned anything else. Rule 16 — the explanation is an
+       * evidence surface, and this one was showing Cory a measurement that was
+       * not one. The weights have NOT changed; the account of them has. */
+      why: 'What the tool loads on: rank off the board (value), keeper value, and a stack '
+        + 'tilt. Tier, need and bye were measured and are off — tier measured as a drag, '
+        + 'need is redundant with the lineup MASK on the needrule card, bye came back a '
+        + 'null. READ THE NEED ROW NARROWLY: this ranked list does not know your QB slot '
+        + 'is full. The mask that does know runs on the needrule card, not here — filling '
+        + 'QB and TE moves this top 70 by zero players. Cross-check the card before taking '
+        + 'a second one-start starter. '
+        + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
+        + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
+        + 'so both experiments were incapable of returning anything but zero. They stay at '
+        + 'zero as a default, not as a finding — a null measurement is no reason to turn '
+        + 'something on either.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares
@@ -588,11 +718,119 @@
   }
 
   /** VONA — how much you lose by waiting. The primary decision metric. */
+  /* VONA IS NOW PRICED AGAINST THE SLOT HE WOULD ACTUALLY FILL (2026-08-14).
+   *
+   * IT USED TO PRICE EVERY PLAYER AGAINST THE NEXT MAN AT HIS OWN POSITION,
+   * whether or not that position had a lineup slot left. So a second tight end
+   * was valued against the third tight end -- a comparison that decides nothing,
+   * because with the TE slot full the real question is whether he beats the best
+   * RB or WR for the flex. And a second quarterback was valued against the third
+   * quarterback while being unable to reach the lineup at all.
+   *
+   * WHY THIS AND NOT THE REPLACEMENT BASELINE. Measured 2026-08-14: substituting
+   * a hardcoded replacement set (RB -30.86, WR -20.09) changed 1044 players' VORP
+   * and ZERO scores, because replacement appears in both terms of
+   * proj_mean - expectedBestAvailable and CANCELS EXACTLY. The baseline has no
+   * path to a decision at any depth. This does, because it changes which
+   * population the expectation is taken over.
+   *
+   *   starter -- unchanged: the next man at his own position is the real
+   *              alternative, because the slot is his to fill.
+   *   flex    -- priced against the best FLEX-ELIGIBLE alternative, across
+   *              positions. Floored at 0: if the field beats him you simply
+   *              start the other man, so the slot is worth nothing extra.
+   *   bench   -- he cannot start. Crushed to ONESIE_KEEP of the same-position
+   *              figure rather than set to a flat 0, and THAT IS A DECISION
+   *              INSIDE CORY'S INSTRUCTION ("value at bench level, near zero").
+   *              A flat zero ties roughly a thousand players at exactly 0 and
+   *              destroys all ordering below the starters, which would be a
+   *              worse board than the one being fixed. A multiplicative crush
+   *              is near zero AND order-preserving. Named here so it can be
+   *              overruled rather than discovered.
+   *
+   * The slot decision is starterSlotMarginal's, called rather than re-derived --
+   * a seventh flex-eligibility map was written once in this project and caught
+   * by flex_eligibility.test.js, and this is exactly where an eighth would go. */
   function vona(player, board, nextPick, survivalCtx) {
     if (nextPick == null) return player.proj_mean; // no future pick: everything is at stake
+    const ctx = survivalCtx || {};
     const samePos = board.filter(p => p.position === player.position && p.player_id !== player.player_id);
-    const eba = expectedBestAvailable(samePos, nextPick, survivalCtx);
-    return player.proj_mean - eba;
+    const sameEba = expectedBestAvailable(samePos, nextPick, ctx);
+    const straight = player.proj_mean - sameEba;
+    if (!CFG.VONA_SLOT_AWARE) return straight;
+
+    const slot = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
+    if (slot.fills === 'starter') return straight;
+
+    /* FLEX — PRICED ACROSS POSITIONS, AND DELIBERATELY NOT FLOORED.
+     *
+     * A second tight end cannot be valued against the third tight end: with the
+     * TE slot full he is competing with the best RB or WR for one flex seat, and
+     * that is the comparison that decides the pick. THE FLOOR AT 0 IS WHAT
+     * COLLAPSED THE BOARD in the first attempt -- 1331 of 1686 players landed on
+     * exactly 0 and ordering below the starters stopped existing. A negative
+     * marginal is INFORMATION (he is worse than the field for that seat) and
+     * keeping the sign keeps the ranking. */
+    /* ONE BASELINE FOR BOTH ARMS. The first cut priced flex as a DIFFERENCE
+     * (proj minus the field) and bench as an ABSOLUTE (insurance value), which
+     * put them on incompatible scales: insurance is >= 0 and the flex marginal
+     * runs deeply negative, so a bench quarterback at 0 outranked a flex
+     * receiver at -20 -- a man who cannot start beating one who can. Measured:
+     * tight ends fell 4 -> 1 and the sim then spent rounds 9 and 10 on Josh
+     * Johnson and Joe Flacco. Both arms are now quoted against the SAME thing:
+     * what this pick would otherwise buy. */
+    const alts = flexEligibleBoard(board, ctx)
+      .filter(p => String(p.player_id) !== String(player.player_id));
+    const forgone = alts.length ? expectedBestAvailable(alts, nextPick, ctx) : 0;
+
+    if (slot.fills === 'flex') {
+      if (!alts.length) return straight;
+      return player.proj_mean - forgone;
+    }
+
+    /* BENCH — INSURANCE VALUE, WHICH IS WHAT A BENCH PLAYER ACTUALLY IS.
+     *
+     * He cannot start, so his starting value is zero and his real worth is the
+     * chance the man ahead of him stops playing. INJURY_RATE[pos] x his
+     * standalone value is small, STRICTLY ORDERED (it is a positive multiple of
+     * a quantity that already ranks him), and means something -- which is what
+     * both earlier attempts lacked:
+     *   · a flat 0 ties ~1300 players and destroys ordering below the starters;
+     *   · a multiplicative crush on the SIGNED straight value moves negatives UP
+     *     (0.10 x -30 = -3), floating bench players above startable ones at -5.
+     * Measured consequence of that second bug: the roster went from TE 1 / RB 3
+     * to TE 4 / QB 3 / RB 0 -- the change made the symptom it targeted worse.
+     *
+     * vorp is used rather than `straight` because it is non-negative for anyone
+     * worth insuring and does not carry the wait-cost sign, so the ordering here
+     * is "who is the best body at this position", which is the right question
+     * for a backup. */
+    /* SIGNED vorp, NOT max(0, vorp). The clamp zeroed every below-replacement
+     * player, so all of them tied at exactly -forgone and the tie was won by
+     * whatever the sort happened to favour -- quarterbacks. THIRD COLLAPSE OF
+     * THE SAME SHAPE in this function: a floor at 0, a crush that inverted
+     * negatives, and now a clamp that flattened the tail. Every one of them
+     * destroyed ordering among players who cannot start, and every one of them
+     * showed up as the board filling with one-start positions. */
+    const rate = INJURY_RATE[player.position] || 0.15;
+    return rate * (player.vorp || 0) - forgone;
+  }
+
+  /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
+   * comes from bestFlexAlt's map via one shared helper so there is ONE answer to
+   * "who can take a flex slot" on the value path. */
+  function flexEligibleBoard(board, ctx) {
+    if (ctx && ctx._flexEligBoard) return ctx._flexEligBoard;
+    const FLEXIBLE = { FLEX: ['RB', 'WR', 'TE'], SUPER_FLEX: ['QB', 'RB', 'WR', 'TE'],
+      REC_FLEX: ['WR', 'TE'] };
+    const starters = ((ctx || {}).league || {}).starters || {};
+    const elig = {};
+    Object.keys(FLEXIBLE).forEach(sl => {
+      if (starters[sl]) FLEXIBLE[sl].forEach(pos => { elig[pos] = true; });
+    });
+    const out = (board || []).filter(p => elig[p.position]);
+    if (ctx) ctx._flexEligBoard = out;
+    return out;
   }
 
   // =============================================== Module 7: composite score
@@ -860,6 +1098,12 @@
     const have = roster.filter(p => p.position === pos).length;
     if (have < slots) return none;                       // still filling the slot
 
+    /* PAST THIS MANY SPARES HE IS NOT PRICED LOW, HE IS SUNK. `capped` is read by
+     * demoteFlaggedOnesies, which is intact and still carries the reasoning —
+     * only the line that SET the flag was removed. */
+    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
+    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+
     // TE is a onesie only once the FLEX cannot take him either.
     if (pos === 'TE' || pos === 'RB' || pos === 'WR') {
       const flexEl = ['RB', 'WR', 'TE'];
@@ -890,8 +1134,15 @@
      * `spare` counts bodies beyond the STRICT slots — FLEX excluded, because the
      * flex is contested by RB/WR/TE and must not be pre-reserved for whichever
      * position happens to be scoring well. */
-    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
-    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+    /* ONESIE_MAX_SPARE AND wouldCap ARE DELETED (Cory, 2026-08-14: "delete them,
+     * do not fix them"). They read as "one spare allowed at QB and at TE" and
+     * behaved as "one at QB, ZERO at TE", because the cap counted a tight end
+     * who was STARTING IN THE FLEX against the spare allowance while the gate
+     * twenty lines above had already excluded flex-startable players. One
+     * function, two answers to "does the flex count". Measured before deletion:
+     * the first unstartable QB priced at 81% of standalone VORP and board rank 1;
+     * the first unstartable TE at 8% and rank 5 — same depth, same league shape.
+     * A duplicate who cannot start is now priced as a backup unconditionally. */
 
     // ---- the exceptions, each of which must be SAYABLE ----------------------
     const adp = player.adjusted_adp != null ? player.adjusted_adp : player.raw_adp;
@@ -915,12 +1166,23 @@
        * principle the cap is a stand-in for. He surfaces if he is genuinely
        * better than the alternatives; he does not surface because the arithmetic
        * favours his position. */
-      return { duplicate: true, discount: wouldCap ? CFG.ONESIE_KEEP : 1,
-        capped: false, exception: 'value',
+      /* THE EXCEPTION SURVIVES AND NO LONGER SETS THE PRICE. It used to return
+       * discount 1 whenever the cap did not bind, which is how a second
+       * quarterback reached FULL VALUE and board rank 1: Lamar Jackson at pick
+       * 70, ADP 34, fallen 36 past his price and QB1 on the board with Allen
+       * gone. He cannot start. The comment beside this branch already stated the
+       * principle -- "priced low because he cannot start" -- and the code applied
+       * it only when a cap happened to bind. It applies always now; the exception
+       * still SURFACES him (insurance, trade value, bye cover) and says why. */
+      /* THE EXCEPTION SURFACES A SPARE; IT DOES NOT SURFACE A THIRD ONE. An elite
+       * faller is worth seeing as QB2 (insurance, bye cover, trade value) and is
+       * not worth seeing as QB3 — at that point "you cannot start him" has been
+       * true twice over. So the cap still binds through the exception. */
+      return { duplicate: true, discount: CFG.ONESIE_KEEP,
+        capped: wouldCap, exception: 'value',
         why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
           + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
-          + 'trade value. YOU CANNOT START HIM'
-          + (wouldCap ? ', and you already carry ' + have + ' — priced as a spare.' : '.') };
+          + 'trade value. YOU CANNOT START HIM, so he is priced as a spare.' };
     }
     const starter = roster.filter(p => p.position === pos)
       .sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0))[0];
@@ -968,15 +1230,9 @@
      * flagged OUT. That is the difference between a ceiling on habitual
      * behaviour and a prohibition, and getting the order wrong is what made the
      * first version refuse the pick it should most want. */
-    if (wouldCap) {
-      return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: true, exception: null,
-        why: pos + (have + 1) + ' — you already carry ' + have + ' at ' + pos
-          + ' and start ' + slots + '. He cannot reach the lineup even if one goes '
-          + 'down, and he is not an exceptional fall-through.' };
-    }
-
-    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
-      why: pos + (have + 1) + ' — you cannot start him; priced as a backup' };
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: wouldCap, exception: null,
+      why: pos + (have + 1) + ' — you cannot start him; priced as a backup'
+        + (wouldCap ? ', and you already carry ' + have + ' — SUNK, not merely discounted' : '') };
   }
 
   /** Where he ranks at his own position on the CURRENT board. */
@@ -1095,6 +1351,82 @@
   }
 
   function scorePlayer(player, ctx) {
+    /* A PLAYER WITH NO PROJECTION CANNOT BE RANKED, AND RANKING HIM ANYWAY IS
+     * WORSE THAN REFUSING HIM.
+     *
+     * MEASURED 2026-08-13: 1181 of the board's 1759 players carry proj_mean 0,
+     * and vorp is then a POSITION CONSTANT -- every such WR is -172.7, every RB
+     * -188.5, every TE -150.7. They are not merely bad, THEY ARE INDISTINGUISH-
+     * ABLE: Josh Johnson, Trenton Irwin and Gunner Olszewski are the same number.
+     * That is 1181 players in one tie, and a tie is decided by whatever the sort
+     * happens to favour.
+     *
+     * IT IS NOT SAFELY BURIED EITHER. The first of them sits at board rank 161 at
+     * pick 8 and rank 150 at pick 148 -- inside a 150-pick draft -- and the man
+     * at that rank is Adam Vinatieri, who retired in 2019. Three separate
+     * attempts at slot-aware VONA promoted members of this block into the top
+     * ten the moment they disturbed ordering in the tail, which is why the board
+     * kept coughing up names like Joe Flacco. THE OLD VALUATION WAS HOLDING THEM
+     * DOWN BY ACCIDENT, NOT BY DESIGN.
+     *
+     * So they are REFUSED rather than scored: score null, sorted last by
+     * byScoreRefusedLast, and carrying a reason. Refused, NOT dropped -- Ricky
+     * Pearsall (ADP 107) is the one man inside the draftable range with no
+     * projection, and he must read as "we have no number for him" rather than
+     * silently disappear from a board where the market says he goes in round 11.
+     *
+     * The draftable range is unaffected: 149 players inside ADP 150, exactly one
+     * of them unprojected. */
+    const projected = Number(player && player.proj_mean);
+    if (!isFinite(projected) || projected <= 0) {
+      return {
+        player,
+        score: null,
+        score_error: {
+          reason: 'no projection — cannot be ranked',
+          proj_mean: player ? player.proj_mean : undefined,
+          consequence: 'vorp for an unprojected player is a position constant, so '
+            + 'every one of them ties. Ranking them puts an arbitrary member of a '
+            + '1181-player tie on the board.',
+          what_would_fix_it: 'a real projection from ingest, or removal from the '
+            + 'board if the player is not active',
+        },
+        onesie: null,
+        /* THE REFUSAL MUST CARRY THE SAME SHAPE AS A SCORE, OR IT CRASHES ITS
+         * CONSUMERS. The first cut returned `components: {}` and four suites
+         * went red -- two of them with stack traces, on `components.weighted.stack`.
+         * A refusal is a KIND OF ANSWER and has to be as well-formed as the
+         * answer it replaces; anything else turns "we cannot rank him" into
+         * "the tool fell over", which is strictly worse and reads as a bug in
+         * the caller. The existing non-finite refusal has the same latent gap
+         * and simply never fires on the states those suites build.
+         *
+         * Zeros here are SHAPE, NOT MEASUREMENT. score is null and scoreable()
+         * is false, so any consumer honouring the refusal never reads them; they
+         * exist so a consumer that forgets gets 0 rather than a TypeError. */
+        components: {
+          vona: null, tier_urgency: null, need: null, risk: null, ceiling: null,
+          keeper: null, bye: null, stack: null, need_fills: 'bench',
+          weighted: { value: 0, tier: 0, need: 0, risk: 0, ceiling: 0,
+                      keeper: 0, bye: 0, stack: 0, onesie: 0, doctrine: 0 },
+        },
+        /* SURVIVAL IS STILL PUBLISHED, AND MUST BE. It is a function of ADP and
+         * the pick window, NOT of the projection — so we know it perfectly well
+         * for a player we cannot score. Setting it null broke the conservation
+         * identity survival_honesty.test.js enforces (total survival mass must
+         * equal the number of opponent picks in the window): 1183 entries
+         * reporting null dropped the measured mass from 14 to 13.82.
+         *
+         * ONLY THE SCORE IS REFUSED. Discarding an honest number alongside a
+         * missing one is the same collapse this whole change exists to undo. */
+        survival_to_next: ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0,
+        rails: [], contested: null, gap_to_second: null,
+        legality: null, legality_warning: null, doctrine_report: null,
+        keeper_target: null,
+        reasons: ['SCORE REFUSED — no projection for this player. Not a recommendation.'],
+        context: [],
+      };
+    }
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
     // Pass the full context (not just run multipliers) so the A2 three-layer
     // model reaches VONA. Passing ctx.runMultipliers here silently reduced the
@@ -1123,7 +1455,16 @@
       const insurance = (INJURY_RATE[player.position] || 0.15)
         * Math.max(0, player.vorp || 0) * CFG.ONESIE_NEED_INSURANCE;
       need.value = insurance;
-      need.why = `fills your empty ${player.position} slot — scarcity priced in value (VONA), not double-counted`;
+      /* THIS SENTENCE USED TO END "scarcity priced in value (VONA), not
+       * double-counted", and it renders for ~7 of the top 70 at pick 70. It told
+       * Cory the empty-slot effect was already carried by VONA. IT IS NOT.
+       * VONA = proj_mean - expectedBestAvailable(samePos, nextPick): a function
+       * of the BOARD, with no roster input. Measured — filling QB and TE moves
+       * vona for 0 of 1690 players (composite_roster_blindness.test.js). What is
+       * priced in VONA is positional scarcity in the MARKET, which is true and is
+       * a different thing from your slot being empty. The two got named the same
+       * word and the sentence traded on the ambiguity. */
+      need.why = `fills your empty ${player.position} slot — VONA prices board scarcity but does not read your roster; the empty-slot effect lives on the needrule card, not in this ranking`;
     }
     // THE ONESIE DUPLICATION DISCOUNT — see CFG.ONESIE_DISCOUNT.
     const onesie = onesieState(player, ctx);
@@ -1356,11 +1697,18 @@
     } else if (tier > 5) {
       context.push(`Tier ${player.tier} ${player.position} is thinning — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);
     }
-    /* NEED — DEMOTED. `need.why` is factually true and its best form is the
-     * standard this whole rule is modelled on: "fills your empty TE slot —
-     * scarcity priced in value (VONA), not double-counted" is honest precisely
-     * because it says where the effect actually lives. It is context, not cause,
-     * whenever the need term itself is weighted to zero. */
+    /* NEED — DEMOTED. It is context, not cause, whenever the need term itself is
+     * weighted to zero.
+     *
+     * THIS COMMENT USED TO VOUCH FOR THE OLD STRING: it called `need.why`
+     * "factually true" and "honest precisely because it says where the effect
+     * actually lives". It named the wrong place. The old sentence said the
+     * effect lived in VONA; VONA has no roster input and does not move when the
+     * slot fills. So a comment asserting a string was honest sat directly above
+     * the line that rendered it, and neither was checked against the behaviour.
+     * That is the whole failure class in four lines of source. The string is
+     * corrected above; this note stays so the next reader knows the vouching
+     * comment was itself part of the defect and does not restore it. */
     if (need.value > 0) {
       if (w.need * need.value > 0) reasons.push(need.why);
       else context.push(need.why);
@@ -1386,6 +1734,67 @@
     // between a bug and a judgement call the human can overrule.
     if (onesie.duplicate && onesie.why) reasons.unshift(onesie.why);
     if (!reasons.length) reasons.push(`best value on the board at ${player.position}`);
+
+    /* ── A NON-FINITE SCORE IS REFUSED, NOT RANKED (item 13, 2026-08-14) ─────
+     *
+     * WHY THIS EXISTS. Commit 39f1a92 reported "EVERY PLAYER AT A FILLED
+     * POSITION SCORES NaN" — 219/219 QBs at pick 41 with one QB rostered — and
+     * it was never reproduced afterwards. Non-reproduction is not a fix: a
+     * defect that disappears without an identified cause is DORMANT.
+     *
+     * The cause is now identified (draft/tools/nan_provenance.js). It is not in
+     * the engine and never was: every engine revision back to 2026-08-11 is
+     * clean on those states, and the board is byte-identical to the one the
+     * report ran on. It is a ROSTER ENTRY WITHOUT A PROJECTION. starterSlot-
+     * Marginal computes `player.proj_mean - incumbent.proj_mean`; when the
+     * incumbent came from a hand-built object carrying only {name, position} —
+     * which is how the reporting session built its sample screens — that
+     * subtraction is `x - undefined` = NaN, and it reaches the score intact.
+     * Reproduced exactly: 219/219 QBs and 391/391 RBs, the reported shape.
+     *
+     * Note `proj_mean: null` does NOT produce it, because `x - null` is `x`.
+     * So a missing projection silently scores as replacement level and an
+     * undefined one poisons the board — two different wrong answers for the
+     * same missing fact, neither of them an error.
+     *
+     * WHY IT IS REFUSED RATHER THAN THROWN. Array.sort with NaN is undefined
+     * behaviour, so ONE poisoned entry makes the whole ordering arbitrary —
+     * that is what "I could not tell what the tool was recommending" was. But
+     * throwing on draft night takes the war room down at the one moment it
+     * cannot be down. So the entry survives with score null, carries a NAMED
+     * failure, and sorts last; the pick stays makeable and the failure is loud
+     * instead of silent. Same principle as module_check.js: convert a silent
+     * degradation into a visible one.
+     *
+     * THIS DOES NOT CLOSE ITEM 13. The cause above is consistent with every
+     * measurement I have and the reporting session's actual context was never
+     * captured, so it is a reconstruction, not a confession. What the guard
+     * closes is PROPAGATION: this state can no longer reach a ranking. */
+    const rawComponents = { vona: v, tier_urgency: tier, need: need.value,
+      risk: risk.value, ceiling: ceiling, keeper: kov.value, bye: -bye.value,
+      stack: stack.value };
+    if (!isFinite(Number(score))) {
+      const culprits = Object.keys(rawComponents)
+        .filter(k => !isFinite(Number(rawComponents[k])));
+      return {
+        player,
+        score: null,
+        score_error: {
+          reason: 'non-finite score refused',
+          terms: culprits,
+          likely_cause: 'a roster entry without a numeric proj_mean — '
+            + 'starterSlotMarginal subtracts the incumbent\'s projection',
+          roster_without_projection: (ctx.roster || [])
+            .filter(p => !isFinite(Number(p && p.proj_mean)))
+            .map(p => (p && p.name) || '<unnamed>'),
+        },
+        onesie: null,
+        components: rawComponents,
+        reasons: ['SCORE REFUSED — this player could not be scored ('
+          + (culprits.join(', ') || 'unknown term') + '). Not a recommendation.'],
+        context: [],
+      };
+    }
 
     return {
       player,
@@ -1624,13 +2033,23 @@
       // rather than scoring is the point — a multiplicative discount could not
       // express never, which is why the cap exists at all.
       || (s.onesie && s.onesie.capped && !s.forced);
-    let anySunk = false;
+    /* THREE BUCKETS, NOT TWO. `keep.concat(sink)` put demoted-but-SCOREABLE
+     * players after REFUSED ones, so the bottom of the list read
+     * [scoreable, refused, sunk] — measured, the refused block began at index
+     * 970 with 139 sunk entries beneath it. A sunk kicker is a real player the
+     * tool declined to recommend; a refused entry is a player it could not
+     * score at all. The second is strictly worse and must sit below the first,
+     * or "last" stops meaning anything. */
+    let anySunk = false, anyRefused = false;
     const keep = [];
     const sink = [];
+    const refused = [];
     scored.forEach(s => {
-      if (isFlaggedOnesie(s)) { s.demoted = true; sink.push(s); anySunk = true; } else { keep.push(s); }
+      if (!scoreable(s)) { refused.push(s); anyRefused = true; }
+      else if (isFlaggedOnesie(s)) { s.demoted = true; sink.push(s); anySunk = true; }
+      else keep.push(s);
     });
-    return anySunk ? keep.concat(sink) : scored;
+    return (anySunk || anyRefused) ? keep.concat(sink, refused) : scored;
   }
 
   /**
@@ -1712,6 +2131,13 @@
     for (let pass = 0; pass < 3; pass++) {
       let swapped = false;
       for (let i = 0; i < list.length - 1; i++) {
+        /* A REFUSED ENTRY IS NOT IN A TIE WITH ANYTHING. Without this test,
+         * `Math.abs(null - (-3))` is 3, which reads as a 3-point gap and passes
+         * the tie threshold, so refused entries bubbled up through the negative
+         * scores — measured: the first refusal climbed from index 1,109 to 970
+         * after the comparator was fixed, because this loop undid it. A guard
+         * at the sort is not a guard if the next pass re-orders around it. */
+        if (!scoreable(list[i]) || !scoreable(list[i + 1])) continue;
         const a = list[i].player, b = list[i + 1].player;
         if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
             && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
@@ -1724,11 +2150,42 @@
     return list;
   }
 
+  /* SCORE ORDER, WITH REFUSED ENTRIES LAST.
+   *
+   * `(a, b) => b.score - a.score` is wrong the moment a score can be null: JS
+   * coerces null to 0, so a REFUSED entry would sort as if it scored zero and
+   * outrank every player with a negative score — which late in a draft is most
+   * of the board. Refusing to rank a poisoned entry and then ranking it 40th is
+   * not a guard, it is a guard-shaped hole, and it is the same class as
+   * `undefined >= 8` silently never firing.
+   *
+   * So refusal is tested explicitly and sorts after everything scoreable,
+   * regardless of sign. */
+  /* `isFinite(Number(score))` IS THE WRONG TEST AND MY FIRST VERSION USED IT.
+   * Number(null) is 0 and isFinite(0) is true, so a REFUSED entry read as a
+   * finite score of zero and landed exactly where zero sorts: after the four
+   * positive scores and ahead of all 1,105 negative ones. Measured, not
+   * reasoned — the refused block sat at indices 4..613 with Mike Evans at
+   * -0.66 beneath it. The guard against a coercion defect, written with a
+   * coercion defect. `typeof x === 'number'` is the test that does not coerce;
+   * NaN still fails isFinite, so both refusal shapes sort last. */
+  function scoreable(e) {
+    return e != null && typeof e.score === 'number' && isFinite(e.score);
+  }
+
+  function byScoreRefusedLast(a, b) {
+    const aok = scoreable(a), bok = scoreable(b);
+    if (aok && bok) return b.score - a.score;
+    if (aok) return -1;
+    if (bok) return 1;
+    return 0;
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
     const all = ctx.board.map(p => scorePlayer(p, ctx));
-    all.sort((a, b) => b.score - a.score);
+    all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
     // legality/rails so those still apply to the anchored order.
@@ -1743,10 +2200,32 @@
     // Flag when the top candidates are close enough that Monte Carlo should break the tie.
     // Computed AFTER demotion so "contested" compares the two real players a
     // human would actually weigh, never a real player against a sunk kicker.
+    /* ── gap_to_second IS A PROPERTY OF THE LIST, NOT OF AN ENTRY ────────────
+     *
+     * A observed it live on 2026-08-14: populated on entry #1 (10.97 on Burrow),
+     * null on #2 and #3. That is the intended shape — it is the leader's margin
+     * over the runner-up, so only the leader can carry it — but the shape was
+     * never SAID anywhere, and the field name reads like a per-player attribute.
+     * A renderer iterating entries gets `undefined` on every row but the first
+     * and has nothing to distinguish "this pick has no gap" from "this field is
+     * not for you".
+     *
+     * So it is now DECLARED absent rather than merely missing, which is the same
+     * present/null/missing distinction field_population.py exists for: null on
+     * an entry means "asked and answered, not applicable here"; undefined meant
+     * "nobody knows". Consumers already guard (override_record.js:147,
+     * shadows.js:261, decision_contract.js:344) and are unaffected.
+     *
+     * NOT REPLACED WITH A PER-ENTRY DISTANCE. That would be a new quantity, and
+     * the entries below the leader are not competing with second — each one's
+     * meaningful distance is to the LEADER, which any renderer can compute from
+     * the scores it already has. Adding a field to say something the data
+     * already says is how the board got 48 fields for 28 reads. */
     if (scored.length > 1) {
       const gap = scored[0].score - scored[1].score;
       scored[0].contested = gap < CFG.TIE_THRESHOLD;
       scored[0].gap_to_second = gap;
+      for (let i = 1; i < scored.length; i++) scored[i].gap_to_second = null;
     }
     if (scored.length) {
       scored[0].legality = legality.forced || null;
@@ -2713,7 +3192,7 @@
       s.targeted = true;
       s.reasons = ['⭐ On your target list'].concat(s.reasons || []);
     }
-    kept.sort((a, b) => b.score - a.score);
+    kept.sort(byScoreRefusedLast);
     return kept;
   }
 
@@ -2928,6 +3407,11 @@
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,
     WEIGHT_PRESETS, matchPreset, rankDiff, autoWeights, MEASURED_WEIGHTS,
+    WEIGHT_PROVENANCE,
+    // Exported so its test sorts with the SHIPPED comparator. A test that
+    // reimplements the function it is checking always agrees with itself
+    // (rule 10d) — and this one would have agreed with the coercion bug.
+    byScoreRefusedLast, scoreable,
     formatDefaults, applyFormatDefaults,
     // A2/A3 surfaces, re-exported so callers need only one handle.
     survivalModel: S, compositeTerms: C,

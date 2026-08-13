@@ -284,6 +284,20 @@ c_owns() {
 shared() {
   case "$1" in
     STATUS.md|PARKED.md|DECISIONS-NEEDED.md|TASK-AUDIT.md|TERRITORY.md) return 0 ;;
+    # ROUTES.md — THE CROSS-LANE INBOX. Added 2026-08-13, and the reason is a
+    # defect in my own design that another lane found by trying to use it.
+    #
+    # ROUTES.md is a new ROOT file outside this list, so ownership fell through to
+    # the default and resolved to A. Its own Rule 2 says THE RECEIVER DELETES THE
+    # LINE — and the guard said only A may write the file. So a lane wrote its
+    # four deletions, territory-check refused, and the deletions were reverted.
+    # THE PROTOCOL WAS UNENFORCEABLE BY CONSTRUCTION: an inbox whose receiver
+    # cannot mark anything received.
+    #
+    # That is the same shape as everything else this week — a rule stated in prose
+    # and contradicted by a mechanism, where the mechanism wins silently. It
+    # belongs beside PARKED.md, which is shared for exactly this reason.
+    ROUTES.md) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     # ⚠️ SHARED-FILE EDIT BY C, 2026-08-12 — banner per Cory's three-session rule.
     # THE TESTS COME WITH THEM, and leaving them out was the same hole this file

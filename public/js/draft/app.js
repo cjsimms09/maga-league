@@ -3468,7 +3468,75 @@
       head = '<div class="forced-banner warn">\u26a0\ufe0f ' + escapeHtml(lw) + '</div>';
     }
 
-    host.innerHTML = head + scored.map((s, i) => {
+    /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
+     *
+     * decision_contract.js has been ON the war-room page and CALLED BY NOTHING.
+     * The script tag has been in _warroom_scripts.ejs since ca034f3,
+     * module_check.js verifies the global is defined at runtime, and `grep
+     * DecisionContract public/js/draft/app.js` returned zero hits -- a module
+     * loaded, checked for presence, and never read. Produced-and-unread, at the
+     * one surface that answers "why this player".
+     *
+     * WHY IT IS HERE NOW (Cory, 2026-08-14, on the stack term at weight 1.0):
+     * "if the stack term ever decides a pick I would not have made, I WANT TO
+     * SEE THE SWING BEFORE IT HAPPENS RATHER THAN AFTER."
+     *
+     * MEASURED BEFORE WIRING, so this is a signal rather than a line to learn to
+     * ignore. Over the twelve picks of a full construction from slot 8:
+     *     value   decisive 7/12, largest swing 10.9
+     *     onesie  decisive 4/12, largest swing  8.9
+     *     stack   decisive 3/12, swing EXACTLY 6.0 every time
+     *     keeper  decisive 3/12, largest swing  4.6
+     * At pick 74 stack carried +6.0 while value ran -4.1 -- the stack term
+     * overrode the anchor and chose the pick. And stack's swing is a CONSTANT,
+     * not a distribution: an on/off six-point thumb, which is not what a
+     * "weight of 1.0" reads like.
+     *
+     * IT REPORTS AND CHANGES NOTHING. No re-ordering, no score, no penalty --
+     * the list below is identical with this block deleted. */
+    let decisiveLine = '';
+  /* ── THE DECISIVE-TERM READOUT'S OWN STYLES, INLINE AND ON PURPOSE ────────
+   *
+   * These fourteen lines lived in public/css/style.css — B's file — added by
+   * A in 8d1d8e0. Purely additive, and the block's own comment noted the sheet
+   * is shared. It was still a TRESPASS: territory-check owns that file to B, so
+   * `integrate.sh` REFUSED A's entire branch over it, which blocked the
+   * cross-lane inbox from ever reaching main. A styling nicety was holding up
+   * the mechanism built to stop lanes talking past each other.
+   *
+   * The element is constructed HERE, in A's file, so the styles can be too.
+   * Inline is the cost: no cascade, no theming, and a longer line. That is a
+   * fair price for not owning someone else's stylesheet, and it is reversible
+   * the moment B says where an A-owned sheet should live.
+   */
+  const DECISIVE_CSS = 'font-size:.82rem;letter-spacing:.01em;padding:.35rem .6rem;'
+    + 'margin:0 0 .5rem;border-left:2px solid rgba(245,196,69,.55);'
+    + 'background:rgba(245,196,69,.05);border-radius:0 4px 4px 0;';
+
+    try {
+      if (typeof DecisionContract !== 'undefined' && scored.length > 1) {
+        const gap = scored[0].score - scored[1].score;
+        const sig = DecisionContract.contributions(scored[0], scored[1], gap)
+          .filter(c => c.decision_significant);
+        if (sig.length) {
+          decisiveLine = '<div class="rec-decisive" style="' + DECISIVE_CSS + '">'
+            + 'decides this pick: '
+            + sig.map(c => escapeHtml(c.term) + ' '
+                + (c.delta >= 0 ? '+' : '') + c.delta.toFixed(1)).join(' · ')
+            + '<span class="muted"> — removing any one of these alone flips it to '
+            + escapeHtml(scored[1].player.name) + '</span></div>';
+        }
+      }
+    } catch (e) {
+      /* NEVER BLOCK THE CLOCK FOR AN EXPLANATION. A throw here must not cost the
+       * recommendation list; it costs this one line, and says so out loud rather
+       * than rendering blank. */
+      console.error('[decisive]', e && e.message);
+      decisiveLine = '<div class="rec-decisive muted" style="' + DECISIVE_CSS + '">decisive-term readout '
+        + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
+    }
+
+    host.innerHTML = head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
