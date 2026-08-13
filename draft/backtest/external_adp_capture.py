@@ -847,6 +847,28 @@ def draft_last_pick(settings: dict) -> dict:
         teams  — len(owner_to_roster)        vs draft.settings.teams
         rounds — draft.settings.rounds       vs len(roster_positions)
     """
+    # ── READ IT IF IT EXISTS. A, 4126a85: "if either of you computes a round
+    # anywhere, it is wrong" — and this computed the LAST PICK, which is the same
+    # class one field over.
+    #
+    # This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
+    # forfeited picks are REMOVED from the sequence. `teams * rounds` therefore
+    # overstates by exactly the number of keepers — 150 against a real 147 — and
+    # it overstates PLAUSIBLY: right shape, right magnitude, wrong draft. The
+    # authoritative sequence is `pick_order.picks`, and reading it is not an
+    # optimisation, it is the difference between a boundary and a guess.
+    po = ((settings or {}).get("pick_order") or {})
+    picks = po.get("picks") or []
+    if picks:
+        overalls = [p.get("overall") for p in picks if p.get("overall") is not None]
+        if overalls:
+            return {"last_pick": max(overalls), "teams": None, "rounds": None,
+                    "basis": "pick_order.picks",
+                    "note": "READ from pick_order.picks (%d picks, last overall %d) "
+                            "— keeper forfeits are removed from the sequence, so "
+                            "teams x rounds would overstate this draft"
+                            % (len(picks), max(overalls))}
+
     ds = ((settings or {}).get("draft") or {}).get("settings") or {}
     slots = (settings or {}).get("roster_positions") or []
     rosters = (settings or {}).get("owner_to_roster") or {}
@@ -867,9 +889,16 @@ def draft_last_pick(settings: dict) -> dict:
                          "draft.settings.rounds", "len(roster_positions)")
     note = "%s; %s" % (tnote, rnote)
     if teams is None or rounds is None:
-        return {"last_pick": None, "teams": teams, "rounds": rounds, "note": note}
+        return {"last_pick": None, "teams": teams, "rounds": rounds,
+                "basis": "teams_x_rounds", "note": note}
+    # NO pick_order TO READ. teams x rounds is the best available and must not
+    # present as authoritative: in a keeper league that forfeits picks it is an
+    # UPPER BOUND, not the boundary.
     return {"last_pick": teams * rounds, "teams": teams, "rounds": rounds,
-            "note": note}
+            "basis": "teams_x_rounds",
+            "note": note + " — DERIVED, no pick_order.picks to read. If this "
+                           "league forfeits picks for keepers, the real draft is "
+                           "SHORTER than this and the number is an upper bound."}
 
 
 def dropped_inside(series: list, year, last_pick=None) -> dict:

@@ -2132,3 +2132,66 @@ def test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names():
     note = C.dispersion_diagnosis([], dispersion={})
     assert note and "no rows" in note.lower()
     assert "minPick" not in note
+
+
+# ── THE LAST PICK IS READ, NOT COMPUTED (A, 4126a85 — and it caught me too) ─
+#
+# A found `draft_plan.js` hardcoding `my_picks_before_keepers` — what Cory would
+# hold IF HE KEPT NOBODY — and warned: "if either of you computes a round
+# anywhere, it is wrong". A also wrote "C: nothing of yours is implicated that I
+# can see". I checked instead of accepting, and it was.
+#
+# `draft_last_pick` computed `teams * rounds = 10 * 15 = 150`. THE DRAFT HAS 147
+# PICKS. This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
+# forfeited picks are REMOVED from the sequence, so `pick_order.picks` ends at
+# overall 147, round 15, slot 10. Cory's three keepers are three picks that do
+# not exist.
+#
+# Same class of error as A's, one field over: a computation that produces a
+# PLAUSIBLE number — right shape, right magnitude, off by exactly the keepers —
+# while the authoritative list sits in the artifact. A constant that looks like
+# data is worse than a missing one; a missing one fails on the first run.
+
+def test_the_LAST_PICK_is_READ_from_pick_order_not_computed():
+    """MUTATION: keep `teams * rounds` — the boundary is 150 in a 147-pick draft
+    and `dropped_inside` judges three picks that were never dealt."""
+    d = C.draft_last_pick({
+        "settings": {"num_teams": 10},
+        "draft": {"settings": {"teams": 10, "rounds": 15}},
+        "owner_to_roster": {str(i): i for i in range(10)},
+        "roster_positions": ["BN"] * 15,
+        "pick_order": {"picks": [{"overall": n, "round": 1, "slot": 1}
+                                 for n in range(1, 148)]}})
+    assert d["last_pick"] == 147, d
+    assert d["basis"] == "pick_order.picks"
+    assert "forfeit" in d["note"].lower() or "read" in d["note"].lower()
+
+
+def test_a_COMPUTED_boundary_is_LABELLED_as_derived_when_the_list_is_absent():
+    """Without `pick_order` there is nothing to read, and teams x rounds is the
+    best available — but it must not present as authoritative.
+
+    MUTATION: report the same basis either way — a consumer cannot tell the
+    number it is trusting was inferred from a league that may forfeit picks."""
+    d = C.draft_last_pick({
+        "settings": {"num_teams": 10},
+        "draft": {"settings": {"teams": 10, "rounds": 15}},
+        "owner_to_roster": {str(i): i for i in range(10)},
+        "roster_positions": ["BN"] * 15})
+    assert d["last_pick"] == 150
+    assert d["basis"] == "teams_x_rounds"
+    assert "keeper" in d["note"].lower() or "forfeit" in d["note"].lower()
+
+
+def test_the_REAL_config_yields_the_REAL_147():
+    """Against the shipped artifact, because that is the number every cut of mine
+    uses. MUTATION: read `my_picks_before_keepers` — the 15-entry list that looks
+    like the answer and is what Cory would hold if he kept nobody."""
+    import json as _json
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    ls = _json.loads((root / "data" / "sleeper_league_settings.json").read_text())
+    board = _json.loads((root.parent / "public" / "draft_data.json").read_text())
+    d = C.draft_last_pick(dict(ls, pick_order=board.get("pick_order")))
+    assert d["last_pick"] == 147, (
+        "the shipped draft has 147 picks; %s says %s" % (d["basis"], d["last_pick"]))
