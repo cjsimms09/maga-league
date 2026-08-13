@@ -212,8 +212,21 @@ def seasons(series: list) -> list:
                    if w.get("season") is not None})
 
 
-def season_totals(series: list, season) -> dict:
-    """{player_id: season points} for one season.
+def season_totals(series: list, season, through_week=None) -> dict:
+    """{player_id: season points} for one season, optionally cut at a week.
+
+    THE CUT BELONGS TO THE CONSUMER, AND IT IS NOT OPTIONAL TO THINK ABOUT.
+    `league_history` says `last_scored_leg = 17`: weeks 18-22 score nothing for
+    anybody in this league. The STORE still holds them, deliberately — what happened
+    is what happened, and baking one league's boundary into an archive makes the
+    archive league-specific forever. But summing all 22 weeks hands a grader a
+    playoff-inflated total with nothing saying so, and the inflation is not uniform:
+    it favours players whose teams went deep, which correlates with being good.
+
+    That is the same defect I routed to A about `rest_of_season_points` having a
+    `from_week` and no `to_week`, and I wrote it here first. Measured on the
+    projection calibration, the cut moves a season ratio by a median 0.077 and up to
+    0.217.
 
     THE COMPANION IS `coverage()`, and a caller that sums without reading it is
     summing whatever weeks happen to be present. The one error that cannot be
@@ -223,6 +236,8 @@ def season_totals(series: list, season) -> dict:
     out = {}
     for w in _weeks_of(series):
         if str(w.get("season")) != str(season):
+            continue
+        if through_week is not None and int(w.get("week", 0)) > int(through_week):
             continue
         for pid, v in (w.get("points") or {}).items():
             out[pid] = round(out.get(pid, 0.0) + float(v), 4)

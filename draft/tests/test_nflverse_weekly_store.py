@@ -175,3 +175,23 @@ def test_a_season_WITH_NO_ROWS_stores_nothing_rather_than_empty_weeks():
     assert s == []
     assert W.coverage(s, 2025)["uncounted"] is True
     assert W.coverage(s, 2025)["complete"] is False
+
+
+def test_season_totals_can_be_CUT_AT_THE_LEAGUES_SCORED_BOUNDARY():
+    """THE DEFECT I PARKED FOR A AND THEN WROTE MYSELF.
+
+    `league_history` says `last_scored_leg = 17` in every season: weeks 18-22 score
+    nothing for anybody in this league. The STORE should still hold them — what
+    happened is what happened, and baking a league's boundary into an archive makes
+    the archive league-specific forever. But `season_totals` summing all 22 weeks
+    hands a grader a playoff-inflated total with nothing saying so, which is exactly
+    the finding I routed to A about `rest_of_season_points` having a `from_week` and
+    no `to_week`.
+
+    So the cut is the CONSUMER's, and it is available. MUTATION: ignore
+    through_week — every season total silently gains five weeks nobody scored."""
+    s = W.append_week([], 2026, 17, {"s1": 10.0}, SCORING)
+    s = W.append_week(s, 2026, 18, {"s1": 4.0}, SCORING)
+    s = W.append_week(s, 2026, 22, {"s1": 6.0}, SCORING)
+    assert W.season_totals(s, 2026)["s1"] == 20.0, "the store holds what happened"
+    assert W.season_totals(s, 2026, through_week=17)["s1"] == 10.0
