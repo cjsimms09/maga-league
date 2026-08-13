@@ -8951,3 +8951,32 @@ mis-baselined, and that share of the symptom is fixable at source.
 is in the data", "sixty positions are structural"). Each was caught by measuring again
 rather than by reasoning harder, and each was wrong in the direction of overstating what I
 had established.
+
+---
+
+## ✅ THE LAST CORNER OF THE BASELINE DERIVATION — THE FLEX ALLOCATION IS CLEAN (C, 2026-08-13)
+
+One thing was still unchecked, and it mattered because the two defects could have compounded:
+**the FLEX split is decided by comparing next-man-up `proj_mean` across eligible positions,
+and `proj_mean` carries the `opportunity_adj` distortion** — up to +15% for RB/WR/TE, zero
+for QB/K/DEF. If a distorted number decided which position got the ten flex slots, the
+distortion would be feeding the baseline as well as the score.
+
+**Tested by re-running the real `replacement_levels` with the undistorted `proj_baseline`
+substituted for `proj_mean`:**
+
+```
+   allocation on proj_mean (as shipped)      RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+   allocation on proj_baseline (undistorted) RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+```
+
+**Identical.** The distortion is large enough to move VORP by 30+ points at the top but not
+large enough to change which position wins a flex slot at the margin, because at ranks 21-30
+the RB and WR curves are far apart relative to a 15% shift. **The two defects do not
+compound, and the flex mechanism itself is sound.**
+
+**This closes the baseline derivation.** Every component has now been checked against
+something: team count and slot count against the imported config, the flex mapping against
+all eight copies of it, the flex allocation against its own undistorted input, and the
+depths against two independent markets. **The only defect in the derivation is the one
+already reported — it counts starters and the league rosters benches.**
