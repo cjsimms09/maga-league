@@ -148,6 +148,57 @@ const out = {
   wire_n: WIRE_N,
   wire_note: 'Realized median points in the week a player was added off waivers, '
     + 'pooled 2023-25 across 764 acquisitions. QB and TE rest on n=5 and n=6.',
+
+  /* ── THE DISPLAY CONTRACT ────────────────────────────────────────────────
+   *
+   * Cory: *"we need to ensure what B is showing is the correct interpretation
+   * of the data and model."* Reading the same file is not the same as reading
+   * it correctly, and the misreadings that actually happen are boring:
+   *
+   *   UNITS      a per-week number captioned as season points. I shipped this
+   *              exact bug in this exact file today — two tossup thresholds in
+   *              two unit systems.
+   *   DIRECTION  `beats_wire_by` rendered as a magnitude, so -2.4 (worse than
+   *              a free player) reads as a positive edge.
+   *   CAVEAT     "+59.6 pts" shown without "simulated room, not an observed
+   *              draft", which converts exploratory evidence into a promise.
+   *   DUPLICATE  a number recomputed in the renderer instead of read here, so
+   *              the two drift and the screen disagrees with itself. That has
+   *              already happened once: a card captioned "best flex-eligible
+   *              VALUE" was ranked by ADP, a market price, on the same screen
+   *              as a model estimate using the same word.
+   *
+   * So every displayable number declares its unit, its direction, and the
+   * caveat that must travel with it. A renderer that prints the number without
+   * the caption is then a VISIBLE defect rather than a judgement call, and
+   * `seat_plan_contract.test.js` fails if a field here loses its declaration. */
+  display_contract: {
+    'seats[].plan_value': { units: 'season points', higher_is_better: true,
+      label: 'plan value', caveat: null },
+    'seats[].gap_to_second': { units: 'SEE seats[].gap_units — it differs by row',
+      higher_is_better: true, label: 'gap to the next eligible name',
+      caveat: 'A starter row is season points and a bench row is points/week. '
+        + 'Never print this number without its row\'s gap_units.' },
+    'seats[].shortlist[].proj_mean': { units: 'season points', higher_is_better: true,
+      label: 'projection', caveat: null },
+    'seats[].shortlist[].rank_metric': { units: 'SEE seats[].shortlist[].rank_basis',
+      higher_is_better: true, label: 'what this seat is ranked on',
+      caveat: 'Starter seats rank on season projection; bench seats rank on '
+        + 'pts/week over the free player at that position. Comparing the two '
+        + 'across rows is the cross-position error this schedule exists to stop.' },
+    'seats[].shortlist[].beats_wire_by': { units: 'points per week',
+      higher_is_better: true, label: 'edge over a free player at his position',
+      caveat: 'SIGNED. Negative means the waiver wire is BETTER than him and the '
+        + 'roster spot is losing value. Render the sign, never the magnitude.' },
+    'measured_edge_vs_greedy': { units: 'season points', higher_is_better: true,
+      label: 'edge of this schedule over the engine\'s greedy line',
+      caveat: 'EXPLORATORY — one simulated room drafting near ADP, not an '
+        + 'observed draft. Must not be shown as a promise.' },
+    'wire_per_week': { units: 'points per week', higher_is_better: true,
+      label: 'what the waiver wire actually delivers',
+      caveat: 'Carry wire_n. QB rests on n=5 and TE on n=6; a median of five '
+        + 'reads exactly like a median of forty unless the count travels with it.' },
+  },
   seats: seats,
 };
 
