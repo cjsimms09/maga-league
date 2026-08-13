@@ -930,3 +930,54 @@ their module*, doing its job without a second list to drift.
 everything else. This moves one file whose content is the external replay harness — *"the
 first external forecast that can be graded end to end with no outcome data, no nflverse and
 no egress"* — and moves nothing else.
+
+## OVERRIDE #3 and #4 — C edited A's files, 2026-08-13, authorised by Cory
+
+**The count was at two. This makes it four, and the rule written at #1 says the
+answer at three is to REDRAW the split rather than keep overriding it.** Recorded
+here before anyone has to discover it in a diff.
+
+**What I edited and why it could not be parked.** Cory asked for "diagnosis and
+fix" on two board defects, then repeated it after I parked the first one and
+routed it. A repeated instruction from the person who owns the project is a
+decision, not an invitation to re-park.
+
+  * `draft/adp.py` (+ `draft/tests/test_adp.py`) — the team-bye fallback had
+    NEVER FIRED. `team_bye` was built from `p.get("bye")` at the top of
+    `apply_with_fallback`, before the FFC merge that supplies the only bye data
+    in the preseason, so it was built from an empty set. 35 rows inside the
+    top-225 carried no bye while their own team's bye sat on the same board.
+    Fixed by moving the map below the merge — same logic, same unanimity
+    refusal, only the position changed. 640 rows fill; the actionable gap goes
+    35 -> 0.
+  * `draft/build.py` — retired players in the pool. `p.get("active") is False`
+    passes a null, and Sleeper leaves `active` unset for much of what it lists.
+    Now prunes via `board_activity.dormant`, after projections attach so a market
+    price and a projection can exempt a row. 900 dropped, none of them actionable
+    by any of seven separate measures.
+
+**THE SHAPE IS THE SAME IN ALL FOUR, and A named it first at #2: a fact about the
+DRAFT living inside a file the data lane audits.** A's two were pick counts and
+board depth in C's test files. Mine are the inverse and the more telling half —
+DATA COMPLETENESS (a fill that never ran) and DATA COMPOSITION (who is in the
+pool at all) living inside A's build. Both lanes keep reaching across in the same
+place, which is the definition of a boundary drawn through the middle of one
+concern rather than between two.
+
+**THE REDRAW I WOULD PROPOSE, stated so the next ruling is made against a
+proposal rather than a memory.** Not "C owns build.py" — the valuation genuinely
+is A's. The line that keeps getting crossed is narrower than that:
+
+    Whoever owns the EVIDENCE for a field owns the code that FILLS it.
+
+Under that rule the bye derivation and the active-player filter are C's wherever
+they physically sit, because both are answered from ingest evidence (FFC's bye
+column, the nflverse weekly store) and neither is a valuation judgement. What
+stays A's is every decision about what a filled field MEANS — replacement level,
+tiers, VORP, the cost model.
+
+**I am NOT merging this to main myself.** `integrate.sh` refuses the branch, and
+correctly: it contains files from two lanes and neither side's check can pass it.
+Widening a guard to fit the work already done is how a boundary stops being one —
+the lesson recorded at #1. The branch is pushed and the merge is A's call or
+Cory's.
