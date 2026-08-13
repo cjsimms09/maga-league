@@ -119,6 +119,93 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/external_adp_capture.py": {
+   "tests": [
+    "draft/tests/test_external_adp_capture.py"
+   ],
+   "mutations": [
+    {
+     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}",
+     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    if False:\n        ig = {}",
+     "must_fail": [
+      "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not ig[\"ok\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if s.get(\"row_count\") != len(rows):",
+     "new": "        if False:",
+     "must_fail": [
+      "test_a_ROW_COUNT_THAT_DISAGREES_WITH_THE_ROWS_is_fatal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                out[\"reported\"].append({\"kind\": \"undecodable_id\", \"day\": day,",
+     "new": "                out[\"fatal\"].append({\"kind\": \"undecodable_id\", \"day\": day,",
+     "must_fail": [
+      "test_an_ID_THE_DECODE_KEY_CANNOT_RESOLVE_is_REPORTED_and_NOT_fatal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                             source_note=note, dispersion=dispersion)",
+     "new": "                             source_note=note)",
+     "must_fail": [
+      "test_capture_THREADS_DISPERSION_from_the_fetch_all_the_way_to_DISK"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    last_useful = dd - _timedelta(days=1)",
+     "new": "    last_useful = dd",
+     "must_fail": [
+      "test_a_snapshot_taken_ON_DRAFT_DAY_IS_NOT_THE_ONE_F5_USES"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                stale=(None if age is None else age > F5_STALE_DAYS),",
+     "new": "                stale=(lead > F5_STALE_DAYS),",
+     "must_fail": [
+      "test_STALENESS_IS_MEASURED_AGAINST_TODAY_not_against_the_draft"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "def dropped_inside(series: list, year, last_pick=None) -> dict:",
+     "new": "def dropped_inside(series: list, year, last_pick=150) -> dict:",
+     "must_fail": [
+      "test_WITHOUT_a_last_pick_it_REFUSES_TO_JUDGE_rather_than_guessing_150"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    sd = (float(hi) - float(lo)) / _expected_range(n)",
+     "new": "    sd = (float(hi) - float(lo)) / _expected_range(int(total_drafts or n))",
+     "must_fail": [
+      "test_n_IS_THE_SELECTION_COUNT_not_the_number_of_drafts_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    judged = [s for s in ser if (s.get(\"observed_at\") or \"\") >= DISPERSION_SINCE]",
+     "new": "    judged = list(ser)",
+     "must_fail": [
+      "test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

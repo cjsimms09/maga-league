@@ -177,3 +177,39 @@ def test_the_RECORDER_REFUSES_to_file_a_non_kill(tmp_path):
         assert "SURVIVED" in str(e)
     else:
         raise AssertionError("a non-KILLED verdict must not be recordable")
+
+
+# ── THE DEEP CHECK, WHICH IS THE ONLY ONE THAT CATCHES A HOLLOWED-OUT TEST ──
+#
+# The three checks above guard NAMES: a test deleted, a verdict that was never a
+# kill, a target that no longer exists. None of them catches the subtler
+# regression — a test kept at the same name whose assertions were weakened until
+# they no longer fail. That one needs the mutation actually re-applied, which is
+# far too slow for per-commit CI, so it runs on a schedule and the logic lives in
+# the module rather than in the workflow YAML.
+
+def test_verify_manifest_RE_RUNS_and_reports_per_mutation(tmp_path):
+    """MUTATION: report a pass/fail count without naming which mutation stopped
+    killing — a weekly job that says "21 of 22" sends the reader to diff 22
+    entries by hand, which is how a scheduled check stops being read."""
+    mod = tmp_path / "m.py"
+    mod.write_text("def f(x):\n    return x * 2\n")
+    t = tmp_path / "test_m.py"
+    t.write_text("import sys\nsys.path.insert(0, r'%s')\nimport m\n"
+                 "def test_doubles():\n    assert m.f(4) == 8\n" % str(tmp_path))
+    man = tmp_path / "man.json"
+    MG.record(str(mod), [str(t)],
+              [{"file": str(mod), "old_full": "return x * 2", "new": "return x * 3",
+                "must_fail": ["test_doubles"], "verdict": "KILLED"}], path=str(man))
+
+    ok = MG.verify_manifest(path=str(man), root=".")
+    assert ok["all_killed"] is True and ok["checked"] == 1
+
+    # hollow the test out but KEEP ITS NAME — the exact regression the cheap
+    # checks cannot see, because the name is still there and the target still is.
+    t.write_text("import sys\nsys.path.insert(0, r'%s')\nimport m\n"
+                 "def test_doubles():\n    assert True\n" % str(tmp_path))
+    bad = MG.verify_manifest(path=str(man), root=".")
+    assert bad["all_killed"] is False
+    assert bad["regressed"] and bad["regressed"][0]["must_fail"] == ["test_doubles"], bad
+    assert bad["regressed"][0]["verdict"] == "SURVIVED"

@@ -1,0 +1,81 @@
+# TERRITORY: C
+name: Mutation manifest — re-run the recorded kills
+
+# WHY THIS EXISTS ON A SCHEDULE RATHER THAN IN ci.yml.
+#
+# 127 commits in this repo claim mutation kills and nothing re-checked any of
+# them. The manifest fixed the record; three cheap checks in
+# draft/tests/test_mutation_manifest.py run on every CI pass and guard NAMES — a
+# test deleted, a verdict that was never a kill, a target refactored away.
+#
+# None of those sees the regression that matters most: a test kept at the same
+# name whose assertions were weakened until they no longer fail. Catching THAT
+# needs every mutation actually re-applied, and each one spawns pytest. Putting
+# it in ci.yml would add that cost to every push from every lane, on a repo where
+# a slow gate is a gate people route around.
+#
+# WEEKLY, and the cadence is set by the failure mode: a hollowed-out test is not
+# an emergency on the day it lands, it is a slow loss of coverage. A week is
+# short enough that the diff which caused it is still findable.
+#
+# IT NAMES WHAT REGRESSED. "21 of 22" would send the reader to diff 22 entries by
+# hand, and a scheduled check that costs an afternoon to read stops being read —
+# the same reason the D3 job restates its failure instead of pointing at a log.
+
+on:
+  schedule:
+    - cron: "40 5 * * 1"        # Mondays 05:40 UTC, off the hour so it does not
+                                # queue behind the other Monday jobs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install --quiet pytest pyyaml
+
+      # THE LOGIC IS IN THE MODULE, NOT HERE. external-adp-capture.yml carries
+      # that lesson in capitals: a condition written inline in YAML shipped two
+      # defects no test could reach. `verify_manifest` is tested — including
+      # against a test that is hollowed out while keeping its name, which is the
+      # case this whole workflow exists for.
+      - name: Re-run every recorded mutation
+        run: |
+          python3 - <<'PY' | tee /tmp/mm.txt
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          import mutation_gate as MG
+          r = MG.verify_manifest(root=".")
+          print(json.dumps(r, indent=1)[:4000])
+          PY
+          python3 - <<'PY'
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          import mutation_gate as MG
+          r = MG.verify_manifest(root=".")
+          with open("/tmp/summary.md", "w") as fh:
+              fh.write("## Mutation manifest\n\n")
+              fh.write("- re-ran **%d** recorded kills, **%d** still kill\n"
+                       % (r["checked"], r["killed"]))
+              if r["regressed"]:
+                  fh.write("\n**%d NO LONGER KILL** — the test still exists and no "
+                           "longer fails when its mutation is applied:\n\n"
+                           % len(r["regressed"]))
+                  for x in r["regressed"]:
+                      fh.write("- `%s` → **%s** — %s (%s)\n"
+                               % (", ".join(x["must_fail"]), x["verdict"],
+                                  x["detail"], x["module"]))
+              else:
+                  fh.write("\nAll recorded kills still kill.\n")
+          sys.exit(1 if r["regressed"] else 0)
+          PY
+
+      - name: Put it where it will be read
+        if: always()
+        run: cat /tmp/summary.md >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true

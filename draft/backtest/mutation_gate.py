@@ -254,3 +254,38 @@ def record(module: str, tests, results, path: str = None) -> dict:
                        "verdict": r["verdict"]} for r in results]}
     p.write_text(json.dumps(doc, indent=1))
     return doc
+
+
+def verify_manifest(path: str = None, root: str = None) -> dict:
+    """RE-RUN every recorded mutation. The only check that catches a hollowed test.
+
+    The cheap standing checks in `test_mutation_manifest.py` guard NAMES — a test
+    deleted, a verdict that was never a kill, a target that has been refactored
+    away. None of them sees the subtler regression: a test kept at the same name
+    whose assertions were weakened until they no longer fail. For that the
+    mutation has to actually be re-applied, which is too slow for per-commit CI
+    and is why this runs on a schedule.
+
+    It NAMES what regressed. A weekly job reporting "21 of 22" sends the reader to
+    diff 22 entries by hand, and a scheduled check that costs an afternoon to read
+    is a scheduled check that stops being read.
+    """
+    import os
+    p = Path(path or MANIFEST)
+    doc = json.loads(p.read_text())
+    base = Path(root) if root else Path(__file__).resolve().parent.parent.parent
+    out = {"checked": 0, "killed": 0, "regressed": [], "all_killed": None}
+    for mod, m in doc["modules"].items():
+        target = mod if os.path.isabs(mod) else str(base / mod)
+        tests = [t if os.path.isabs(t) else str(base / t) for t in m["tests"]]
+        for mut in m["mutations"]:
+            r = check(target, mut["old"], mut["new"], tests, mut["must_fail"])
+            out["checked"] += 1
+            if r["verdict"] == "KILLED":
+                out["killed"] += 1
+            else:
+                out["regressed"].append({"module": mod, "must_fail": mut["must_fail"],
+                                         "verdict": r["verdict"],
+                                         "detail": r["detail"]})
+    out["all_killed"] = out["checked"] > 0 and not out["regressed"]
+    return out
