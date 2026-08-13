@@ -2450,7 +2450,8 @@ Capture had been verified; the READ had not, which is this session's recurring s
 | daily capture actually running | **yes** — scheduled runs 08-11 and 08-12, both green |
 | archive accumulating | **yes** — 705 → 708 rows, 115 → 119 drafts |
 | population record in production | **clean** — `empty: []`, `partial: []` |
-| `board()` for draft **2026-08-22** | **708 rows**, and it is the **08-12** snapshot |
+| `board()` for draft **2026-08-22** | **ASK `f5_readiness`, do not read it here.** This row said "708 rows, the 08-12 snapshot" and was true the day it was written; the archive has since gained 08-13 with 672 rows, and the line went on reading as current. Rule 9 — a mechanism implemented as a note. `external_adp_capture.f5_readiness(archive, 2026, draft_date=...)` answers it live, and the D3 workflow prints it every morning. |
+| **last capture that can matter** | **2026-08-21**, not the 22nd — F5 is STRICTLY before, so the 11:20 UTC run on draft day is worth nothing to our own draft. A day earlier than the date this plan and everyone working from it had assumed. |
 | F5 boundary: draft **on** 08-12 | returns the **08-11** snapshot — **strictly before holds** |
 | draft before any snapshot | **raises `TimeTravelError`** — excluded under F4/F5, not silently empty |
 | id keying | 2.1% overlap with our board — **MFL-keyed as designed**, resolved by the crosswalk at replay |
