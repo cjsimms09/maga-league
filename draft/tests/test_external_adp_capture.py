@@ -803,3 +803,52 @@ def test_an_MFL_TEAM_UNIT_never_crosswalks_onto_our_team_DEFENCE():
     ids, report = C.crosswalk_map(p_map, board)
     assert ids == {}, "an MFL team unit matched our DEF on name — it is not a player"
     assert "team_unit_not_a_player" in str(report["unmatched_sample"])
+
+
+# ── PROVENANCE: the archive must record WHICH MARKET priced these players ───
+def test_a_snapshot_RECORDS_THE_MARKET_IT_CAME_FROM():
+    """MEASURED, AND THIS IS WHY IT MATTERS. `fetch_mfl` builds
+    `note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"`, hands it to `capture()` — and it
+    was thrown away. The archive stored PRICES WITH NO RECORD OF THE FORMAT THAT
+    PRODUCED THEM, which is the decode-key defect one layer up: bytes nobody can
+    interpret later.
+
+    It is not hypothetical. This pool is superflex-contaminated: against FantasyPros
+    on the same players, the median MFL/FPROS ADP ratio is 0.98 at TE, 1.01 at DEF —
+    and 0.514 at QB, ranging 0.12 to 0.77 and varying systematically with rank, so
+    no scalar correction repairs it. A grader reading this archive as F5 evidence in
+    2027 would price quarterbacks off a superflex market and have nothing in the
+    file to warn them.
+
+    MUTATION: drop the field. Every snapshot still looks complete — date, rows,
+    row_count, total_drafts all present — and the one fact that makes the prices
+    interpretable is gone."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 2.0}, total_drafts=119,
+                          source_note="mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12")
+    assert s[0]["source_note"] == "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
+    assert "source_note" in C.SNAPSHOT_FIELDS, (
+        "declared, not derived — a field that stops being written must show up as "
+        "empty in the population record rather than silently ceasing to exist")
+
+
+def test_a_run_whose_PLAYERS_EXPORT_FAILED_says_so_IN_THE_ARCHIVE():
+    """`fetch_mfl` deliberately keeps the day's ADP when the players export 403s,
+    because the curve is perishable and names are not. But that run produces a
+    snapshot whose ids may be undecodable, and until now the only trace was a line
+    in a CI log that expires. MUTATION: keep the ADP and record nothing — the
+    degraded day is indistinguishable from a clean one forever after."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 2.0},
+                          source_note="mfl PERIOD=DRAFT (players export FAILED this run)")
+    assert "FAILED" in s[0]["source_note"]
+
+
+def test_the_two_days_captured_BEFORE_provenance_read_as_ABSENT_not_clean():
+    """The archive is append-only, so the first two days genuinely have no note.
+    They must read as MISSING in the population record — not be back-filled with a
+    guess, and not be silently omitted from the count. Absent is not zero."""
+    old = C.append_snapshot([], 2026, "2026-08-11", {"1": 1.0}, total_drafts=115)
+    new = C.append_snapshot(old, 2026, "2026-08-13", {"1": 2.0}, total_drafts=119,
+                            source_note="mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12")
+    pop = __import__("field_population").of_records(new, fields=C.SNAPSHOT_FIELDS)
+    f = pop["fields"]["source_note"]
+    assert f["present"] == 1 and (f["missing"] + f["null"]) == 1, f
