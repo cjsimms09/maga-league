@@ -825,8 +825,13 @@
       const bw = pl.beats_wire_by;
       /* SIGNED, and captioned as such. Rendering |bw| here is the exact
        * misreading the contract exists to stop. */
+      /* `sp-pos` MEANT TWO THINGS — the position label and a positive wire edge.
+       * B made `.sp-wire.sp-pos` win on specificity so it renders correctly
+       * today and then said the right thing: two meanings on one hook bites
+       * whoever touches it next. Renamed at the source rather than defended in
+       * the stylesheet. */
       const wire = bw == null ? ''
-        : '<span class="sp-wire ' + (bw < 0 ? 'sp-neg' : 'sp-pos') + '">'
+        : '<span class="sp-wire ' + (bw < 0 ? 'sp-neg' : 'sp-wire-up') + '">'
           + sign(bw) + ' /wk vs free ' + pl.position + '</span>';
       return '<li class="sp-row' + (i === 0 ? ' sp-lead' : '') + '">'
         + '<span class="sp-pos">' + escapeHtml(pl.position) + '</span> '
@@ -6686,6 +6691,20 @@
       _rec = OverrideRecord.pickOverride({
         season: c.season, build_at: c.build_at, pick: c.pick,
         chosen: picked, recommended: overTop,
+        /* THE FLAG B ASKED FOR, and my claim to them was wrong: I said "mock
+         * rides every ledger row" when it rode the RECOMMENDATION payload only.
+         * B's override report was therefore filtering on a field that did not
+         * exist — 3 overrides became 4 with the filter removed, and the reported
+         * median gap moved 18.5 -> 4.0. A false statement from me corrupted a
+         * number in their report, which is worse than a missing field.
+         *
+         * IT IS ALWAYS FALSE HERE, and that is worth stating rather than
+         * hiding: this function returns early on `state.mockMode`, so an
+         * override row can never be a rehearsal. The value carries no
+         * information; its PRESENCE does. "0 excluded" and "the flag was never
+         * written" are the same integer and different facts, and a consumer
+         * cannot tell them apart from an absent field. */
+        mock: !!state.mockMode,
         reason: reason || 'no_reason_given', path: path == null ? null : path,
         reconciled_from_sync: !!reconciled,
         score_gap: opts_score_gap,

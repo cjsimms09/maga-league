@@ -280,5 +280,35 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
     && /tie resolves as NOT a success/.test(g.resolution_rule), g.resolution_rule);
 }
 
+// ── THE REHEARSAL FLAG REACHES THE PAYLOAD (2026-08-13, B) ────────────────
+// I told B "mock rides every ledger row". It rode the RECOMMENDATION payload
+// only. B's override report filtered on a field that did not exist: 3 overrides
+// became 4 with the filter removed and the reported median gap moved 18.5 ->
+// 4.0. A false statement from me corrupted a number in their report, which is
+// worse than a missing field — they had no way to know the absence was mine.
+//
+// And the builder returns a FIXED SHAPE that drops unknown keys, so adding the
+// flag at the call site alone would have added a field that never arrived. That
+// is the same defect one layer down, which is why this asserts on the BUILDER'S
+// OUTPUT rather than on the call site.
+{
+  const base = {
+    season: 2026, build_at: 'b', pick: 34, reconciled_from_sync: false, path: null,
+    chosen: { player_id: '1', name: 'A', position: 'RB', proj_mean: 100, vorp: 10, adp: 38.4, tier: 2 },
+    recommended: { player_id: '2', name: 'B', position: 'WR', proj_mean: 110, vorp: 12, adp: 30, tier: 1 },
+    reason: 'plan',
+  };
+  const asMock = O.pickOverride(Object.assign({}, base, { mock: true }));
+  const asReal = O.pickOverride(Object.assign({}, base));
+  ck('an override record carries a mock flag at all', 'mock' in asReal, Object.keys(asReal).length);
+  ck('  it is TRUE when the caller says rehearsal', asMock.mock === true, asMock.mock);
+  ck('  and FALSE — not undefined — when the caller says nothing',
+    asReal.mock === false, asReal.mock);
+  // The distinction that made B's number wrong: absent and false are different
+  // facts, and a consumer cannot tell them apart from a missing key.
+  ck('  so "not a rehearsal" is DISTINGUISHABLE from "nobody wrote the flag"',
+    typeof asReal.mock === 'boolean');
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

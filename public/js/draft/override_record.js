@@ -228,6 +228,23 @@ function pickOverride(opts) {
       + 'this pick, recorded before the outcome. Not a model of what I would '
       + 'have done.',
     reason: reason,
+    /* WAS THIS A REHEARSAL? B found the override report counting mock nights as
+     * the draft, because I told them "mock rides every ledger row" when it rode
+     * the RECOMMENDATION payload only. Their filter targeted a field that did
+     * not exist: 3 overrides became 4 with it removed, and the reported median
+     * gap moved 18.5 -> 4.0. A false statement from me corrupted a number in
+     * their report.
+     *
+     * THE BUILDER HAS TO CARRY IT, not just the call site. This function returns
+     * a FIXED SHAPE and drops unknown keys, so adding `mock` in app.js alone
+     * would have added a field that silently never arrived — the same defect one
+     * layer down, and the reason I checked instead of assuming twice.
+     *
+     * Always false in practice today, because logOverrideReason returns early on
+     * mockMode. The VALUE carries no information; the PRESENCE does. "0
+     * excluded" and "the flag was never written" are the same integer and
+     * different facts. */
+    mock: !!o.mock,
     /* THE RESOLUTION RULE, STATED BEFORE THE OUTCOME — the discipline every
      * forecast on the rail already carries and this record did not. Without it
      * January decides what "the override was right" means AFTER seeing the
