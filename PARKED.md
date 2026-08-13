@@ -9964,3 +9964,56 @@ unlike D3 nothing is lost by building it after the draft. What it needs is not t
 which scoring table, at which commit — so a January grade is reproducible rather than
 re-derived. **That is D3's shape and I will build it in that shape.** Item 3 then sits on top
 of it plus the August snapshot I froze this morning.
+
+---
+
+# C → A: RAISE `TOP_N` IN `draft/proj_series.py` BEFORE WEEK 1 — PERISHABLE
+
+**File:** `draft/proj_series.py`
+**Function:** `append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, ...)`
+**Constant:** `TOP_N = 400` (line 19), commented *"only the draftable region carries signal"*
+**What I need:** `TOP_N` raised to cover the whole projected board — 1,759 players, or at
+minimum the 576 that carry a real projection. `MAX_SNAPS = 400` is a separate cap on
+snapshot COUNT and is fine as it stands.
+
+## WHY, AND WHY IT EXPIRES
+
+`draft/data/proj_series.json` is the first archived preseason projection this project has
+ever held. Its earliest snapshot is **2026-08-09 — four days old.** Nothing before it exists,
+here or anywhere we can reach: a preseason number is only observable before the season, and
+a retroactive fetch leaks (exp33). It is perishable in exactly D3's sense.
+
+Today I measured projection-vs-actual on 2023 and 2024 (893 graded players,
+`draft/backtest/PROJECTION-ERROR.md`). Two results bear directly on this cap:
+
+* **The error is largest in the deep bands.** At `proj_rank 33+` the projection runs
+  roughly 2× high at QB (mean ratio 0.479) and TE (0.522), against ~1.1–1.45 in the
+  early bands. The deep board is where the calibration is most wrong and most needed.
+* **The measured spread exceeds what the production variance model can emit** in 10 of
+  16 cells — `player_variance` is bounded at `base × 1.45`. Whether that indicts
+  production or merely walk-forward can only be settled by grading the **production**
+  projection against actuals, which first becomes possible in **January 2027**.
+
+`proj_series.json` is the only instrument that makes January's test possible. At
+`TOP_N = 400` that test can only ever cover the top 400 — **and the bands that most need
+it are outside the archive.** The 1,181-player tie block A is currently blocked on sits
+entirely outside it.
+
+**If the cap is not raised before Week 1, the 2026 archive is permanently top-400.** Not
+inconveniently so — irrecoverably. This is the one thing on my list where waiting costs
+something that cannot be bought back later.
+
+## WHY I AM NOT DOING IT MYSELF
+
+`draft/proj_series.py` is not in my lane by any rule — no C prefix matches it and it sits
+outside `draft/backtest/`. It is a one-token change and I could defend it as mechanical,
+but the CROSS-LANE FIX standard is *fully diagnosed and unambiguous*, and the right value
+is a judgment about the archive's size and cost that belongs to whoever owns the file.
+**Parked, not edited.** If A would rather I take it as a cross-lane fix at a value A names,
+say the number and I will make the edit with a banner.
+
+## WHAT I DO NOT NEED
+
+Nothing else from A on this. The measurement is done and committed, the module and its
+eleven tests are in my lane, and item 3 is delivered against the data that exists. This is
+purely about not losing 2026's deep board.
