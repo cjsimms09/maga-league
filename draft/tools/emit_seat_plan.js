@@ -164,8 +164,43 @@ const RHO = SKILL.calibrate(FULL_ROSTER, SKILL_MEASURED.skill_share, { sims: 400
  * standing in front of him. */
 const committed = keep.map(k => byIdPool[String(k.player_id)] || k).filter(Boolean);
 
+/* ⚠️ WHO IS GONE IS A COUNT OF SELECTIONS, NOT A BOARD PICK NUMBER.
+ *
+ * This was `byAdp.slice(0, x.pick - 1)` — the top (pick-1) by ADP — and it
+ * OVER-REMOVES by exactly the number of keeper slots that precede the pick.
+ *
+ * A keeper slot takes no player out of `byAdp`, because a kept player is
+ * ALREADY excluded from `DATA.players`; the board simply never deals that pick.
+ * So at overall 33 there are 32 board slots behind me but only TWENTY-NINE
+ * selections, and three men the plan called gone are still sitting there:
+ * DeVonta Smith, Breece Hall, Cam Skattebo — the same names the survival panel
+ * puts at 58% and 52% likely to REACH this pick.
+ *
+ * I TOLD CORY THIS DIVERGENCE WAS ZERO AND IT WAS NOT. That measurement asked
+ * whether WITHHELD OPPONENT keepers move the pool — they do not, because they
+ * are still in it — and I stopped there. His OWN three keepers are out of the
+ * pool while their slots still count toward `pick - 1`, which is the case I did
+ * not ask about. A null that answers a narrower question than the one that
+ * matters reads exactly like a null that answers the right one.
+ *
+ * IT IS THE THIRD INSTANCE OF ONE SCALE CONFUSION IN A DAY — after the survival
+ * curve and the waiver depth — and the same rule settles all three: a count of
+ * SELECTIONS and a BOARD position are different quantities, and `pick_order`
+ * carries both under separate names precisely so they stop being swapped.
+ *
+ * Three players today. Seventeen once the confirmed slate lands, at every seat. */
+const liveBefore = (pick) => {
+  const rows = (DATA.pick_order || {}).picks || [];
+  if (!rows.length) {
+    throw new Error('emit_seat_plan: pick_order.picks is empty, so selections '
+      + 'before a pick cannot be counted. REFUSING to fall back to pick-1 — that '
+      + 'over-removes by the keeper count and is what this replaced.');
+  }
+  return rows.filter(r => r.overall < pick && !r.keeper_slot).length;
+};
+
 plan.forEach(x => {
-  const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, liveBefore(x.pick)).map(p => String(p.player_id)));
   const elig = x.bench ? ['QB', 'RB', 'WR', 'TE'] : ELIG(x.slot);
   /* RANKING A BENCH SHORTLIST BY RAW proj_mean IS THE JOSH-ALLEN DEFECT AGAIN,
    * and my first cut shipped it: every bench row came back three quarterbacks

@@ -241,6 +241,20 @@
           "beats_wire_by": 6.4
         },
         {
+          "player_id": "5892",
+          "name": "David Montgomery",
+          "position": "RB",
+          "proj_mean": 203.1,
+          "adp": 45.6,
+          "rank_metric": 203.1,
+          "display_primary": 203.1,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 5.7
+        },
+        {
           "player_id": "2216",
           "name": "Mike Evans",
           "position": "WR",
@@ -281,23 +295,9 @@
           "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 1.9
-        },
-        {
-          "player_id": "11620",
-          "name": "Rome Odunze",
-          "position": "WR",
-          "proj_mean": 193.8,
-          "adp": 61,
-          "rank_metric": 193.8,
-          "display_primary": 193.8,
-          "display_primary_units": "season points",
-          "display_secondary": null,
-          "display_secondary_units": null,
-          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
-          "beats_wire_by": 1.8
         }
       ],
-      "gap_to_second": 10.6,
+      "gap_to_second": 9.6,
       "gap_units": "season points",
       "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": false,
@@ -451,6 +451,20 @@
           "beats_wire_by": 3.1
         },
         {
+          "player_id": "8228",
+          "name": "Jaylen Warren",
+          "position": "RB",
+          "proj_mean": 169.7,
+          "adp": 65.5,
+          "rank_metric": 46.2,
+          "display_primary": 46.2,
+          "display_primary_units": "season points",
+          "display_secondary": 169.7,
+          "display_secondary_units": "his own season projection",
+          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
+          "beats_wire_by": 3.5
+        },
+        {
           "player_id": "5967",
           "name": "Tony Pollard",
           "position": "RB",
@@ -463,20 +477,6 @@
           "display_secondary_units": "his own season projection",
           "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
           "beats_wire_by": 3.4
-        },
-        {
-          "player_id": "6806",
-          "name": "J.K. Dobbins",
-          "position": "RB",
-          "proj_mean": 158,
-          "adp": 86.8,
-          "rank_metric": 43,
-          "display_primary": 43,
-          "display_primary_units": "season points",
-          "display_secondary": 158,
-          "display_secondary_units": "his own season projection",
-          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
-          "beats_wire_by": 2.7
         }
       ],
       "gap_to_second": 4.2,
@@ -528,6 +528,20 @@
           "beats_wire_by": 0
         },
         {
+          "player_id": "11560",
+          "name": "Caleb Williams",
+          "position": "QB",
+          "proj_mean": 345.3,
+          "adp": 70.8,
+          "rank_metric": 345.3,
+          "display_primary": 345.3,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": -0.4
+        },
+        {
           "player_id": "7523",
           "name": "Trevor Lawrence",
           "position": "QB",
@@ -554,20 +568,6 @@
           "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": -0.9
-        },
-        {
-          "player_id": "11563",
-          "name": "Bo Nix",
-          "position": "QB",
-          "proj_mean": 335.7,
-          "adp": 101.1,
-          "rank_metric": 335.7,
-          "display_primary": 335.7,
-          "display_primary_units": "season points",
-          "display_secondary": null,
-          "display_secondary_units": null,
-          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
-          "beats_wire_by": -1
         }
       ],
       "gap_to_second": 2.7,
@@ -582,14 +582,29 @@
       "slot": "BENCH",
       "is_starter_seat": false,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "10222",
         "name": "Jayden Reed",
-        "position": "WR"
+        "position": "WR",
+        "why": "draft_plan chose him on the PRESEASON best-undrafted waiver line. This shortlist ranks on the REALIZED wire (764 measured acquisitions), which is the line that makes the roster-spot rule computable and the one that changes answers. He is not in the list because the two lines genuinely disagree here."
       },
-      "superseded_plan_player": null,
       "plan_value": 12.4,
       "shortlist": [
+        {
+          "player_id": "6806",
+          "name": "J.K. Dobbins",
+          "position": "RB",
+          "proj_mean": 158,
+          "adp": 86.8,
+          "rank_metric": 43,
+          "display_primary": 43,
+          "display_primary_units": "season points",
+          "display_secondary": 158,
+          "display_secondary_units": "his own season projection",
+          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
+          "beats_wire_by": 2.7
+        },
         {
           "player_id": "8408",
           "name": "Jordan Mason",
@@ -619,18 +634,18 @@
           "beats_wire_by": 0
         },
         {
-          "player_id": "9756",
-          "name": "Jordan Addison",
+          "player_id": "8142",
+          "name": "Alec Pierce",
           "position": "WR",
-          "proj_mean": 158.3,
-          "adp": 106.3,
-          "rank_metric": 28,
-          "display_primary": 28,
+          "proj_mean": 168.8,
+          "adp": 85.3,
+          "rank_metric": 29.2,
+          "display_primary": 29.2,
           "display_primary_units": "season points",
-          "display_secondary": 158.3,
+          "display_secondary": 168.8,
           "display_secondary_units": "his own season projection",
           "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
-          "beats_wire_by": -0.5
+          "beats_wire_by": 0.2
         },
         {
           "player_id": "7567",
@@ -645,27 +660,13 @@
           "display_secondary_units": "his own season projection",
           "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
           "beats_wire_by": 1.2
-        },
-        {
-          "player_id": "10222",
-          "name": "Jayden Reed",
-          "position": "WR",
-          "proj_mean": 163.9,
-          "adp": 111.1,
-          "rank_metric": 27.3,
-          "display_primary": 27.3,
-          "display_primary_units": "season points",
-          "display_secondary": 163.9,
-          "display_secondary_units": "his own season projection",
-          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
-          "beats_wire_by": -0.2
         }
       ],
-      "gap_to_second": 0,
+      "gap_to_second": 5.6,
       "gap_units": "season points",
       "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
-      "tossup": true,
-      "tossup_threshold": 3.4,
+      "tossup": false,
+      "tossup_threshold": 1.4,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -710,20 +711,6 @@
           "beats_wire_by": 0
         },
         {
-          "player_id": "11563",
-          "name": "Bo Nix",
-          "position": "QB",
-          "proj_mean": 335.7,
-          "adp": 101.1,
-          "rank_metric": 29.3,
-          "display_primary": 29.3,
-          "display_primary_units": "season points",
-          "display_secondary": 335.7,
-          "display_secondary_units": "his own season projection",
-          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
-          "beats_wire_by": -1
-        },
-        {
           "player_id": "9756",
           "name": "Jordan Addison",
           "position": "WR",
@@ -750,6 +737,20 @@
           "display_secondary_units": "his own season projection",
           "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
           "beats_wire_by": 1.2
+        },
+        {
+          "player_id": "10219",
+          "name": "Chris Rodriguez",
+          "position": "RB",
+          "proj_mean": 129.9,
+          "adp": 155.6,
+          "rank_metric": 25.9,
+          "display_primary": 25.9,
+          "display_primary_units": "season points",
+          "display_secondary": 129.9,
+          "display_secondary_units": "his own season projection",
+          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
+          "beats_wire_by": 0.9
         }
       ],
       "gap_to_second": 0,
@@ -1060,6 +1061,20 @@
           "beats_wire_by": 0.9
         },
         {
+          "player_id": "12501",
+          "name": "Matthew Golden",
+          "position": "WR",
+          "proj_mean": 140.8,
+          "adp": 134.3,
+          "rank_metric": 20.7,
+          "display_primary": 20.7,
+          "display_primary_units": "season points",
+          "display_secondary": 140.8,
+          "display_secondary_units": "his own season projection",
+          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
+          "beats_wire_by": -1.7
+        },
+        {
           "player_id": "8121",
           "name": "Romeo Doubs",
           "position": "WR",
@@ -1088,20 +1103,6 @@
           "beats_wire_by": -2.4
         },
         {
-          "player_id": "5844",
-          "name": "T.J. Hockenson",
-          "position": "TE",
-          "proj_mean": 132.8,
-          "adp": 172,
-          "rank_metric": 17.3,
-          "display_primary": 17.3,
-          "display_primary_units": "season points",
-          "display_secondary": 132.8,
-          "display_secondary_units": "his own season projection",
-          "rank_basis": "MV(i|R): season points this roster spot gains over giving it to a free player, at the measured lineup skill (rho 0.412)",
-          "beats_wire_by": -2.7
-        },
-        {
           "player_id": "12484",
           "name": "Jayden Higgins",
           "position": "WR",
@@ -1116,11 +1117,11 @@
           "beats_wire_by": -1.8
         }
       ],
-      "gap_to_second": 8,
+      "gap_to_second": 5.2,
       "gap_units": "season points",
       "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
       "tossup": false,
-      "tossup_threshold": 2.6,
+      "tossup_threshold": 2.7,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
