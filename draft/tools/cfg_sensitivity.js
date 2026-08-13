@@ -38,6 +38,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const PLAN = require(require('path').join(__dirname, 'draft_plan.js'));
 const ROOT = path.join(__dirname, '..', '..');
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 const CFG = E.CFG;
@@ -76,7 +77,13 @@ const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 function signature() {
   const parts = [];
   MY_PICKS.forEach((pick, i) => {
-    const taken = new Set(byAdp.slice(0, pick - 1).map(p => String(p.player_id)));
+    /* SELECTIONS BEFORE THE PICK, NOT BOARD SLOTS — shared with draft_plan, because
+   * this was wrong in eight places at once. A keeper slot removes nobody from the
+   * pool (the kept player is already out of `players`), so `pick - 1` over-removes
+   * by the keeper count ahead of it: 32 slots behind overall 33, 29 selections.
+   * Every call site was correct while the numbering was compressed and broke the
+   * moment the pick numbers became Sleeper's own. */
+  const taken = new Set(byAdp.slice(0, PLAN.liveBefore(pick)).map(p => String(p.player_id)));
     keepers.forEach(k => taken.add(String(k.player_id)));
     const board = pool.filter(p => !taken.has(String(p.player_id)))
       .slice(0, BOARD_SLICE === Infinity ? undefined : BOARD_SLICE);

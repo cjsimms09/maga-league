@@ -77,7 +77,7 @@ seatRows.forEach(x => {
    * shortlist has to know that — FLEX and the RB/WR/TE seats overlap, and a
    * roster-blind ordering handing back a player you already own is the exact
    * failure this card warns about four lines below. */
-  const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(x.pick)).map(p => String(p.player_id)));
   const elig = x.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [x.slot];
   const short = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && !taken.has(String(p.player_id)) && elig.indexOf(p.position) >= 0)

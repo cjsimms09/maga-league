@@ -466,7 +466,37 @@ for (let i = 0; i < N; i++) {
   plan.push({ pick: SCHED[i], slot: 'bench', p: best.p, v: best.v, bench: true });
 }
 const TOTAL = plan.reduce((a, x) => a + x.v, 0);
-module.exports = { plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
+/* ── SELECTIONS BEFORE A PICK, NOT BOARD SLOTS ────────────────────────────
+ *
+ * SHARED, because it was got wrong in EIGHT PLACES AT ONCE and eight copies is
+ * eight chances to fix seven.
+ *
+ * `byAdp.slice(0, pick - 1)` is the natural way to ask "who is gone by my pick",
+ * and it OVER-REMOVES by exactly the number of keeper slots ahead of it. A
+ * keeper slot takes nobody out of the pool — the kept player is already excluded
+ * from `DATA.players` — so the board simply never deals that pick. At overall 33
+ * there are 32 slots behind Cory and TWENTY-NINE selections.
+ *
+ * EVERY CALL SITE WAS CORRECT UNTIL I FIXED THE NUMBERING. While
+ * `build_true_pick_order` renumbered survivors 1..N, `my_picks` was [30, 45, ...]
+ * — which IS the selection scale — so `pick - 1` and "selections before" were the
+ * same number and had been agreeing by accident. Correcting the pick numbers to
+ * Sleeper's own broke all eight simultaneously, which is the second time today a
+ * true fix has broken an accidental agreement (the first was the survival curve).
+ *
+ * It REFUSES rather than falling back: a plausible wrong denominator is exactly
+ * what this replaced, three times over. */
+function liveBefore(pick) {
+  const rows = ((DATA.pick_order || {}).picks) || [];
+  if (!rows.length) {
+    throw new Error('liveBefore: pick_order.picks is empty, so selections before a '
+      + 'pick cannot be counted. REFUSING to fall back to pick-1 — that over-removes '
+      + 'by the keeper count at every seat.');
+  }
+  return rows.filter(r => +r.overall < +pick && !r.keeper_slot).length;
+}
+
+module.exports = { liveBefore, plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
 if (require.main !== module) return;
 
 console.log('  pick   role     take                        value');

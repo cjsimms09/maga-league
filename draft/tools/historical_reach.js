@@ -113,7 +113,7 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
 const byAdp = PLAN.pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const kept = new Set((PLAN.keep || []).map(k => String(k.player_id)));
 const short = (x, scoreKey) => {
-  const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(x.pick)).map(p => String(p.player_id)));
   const elig = x.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [x.slot];
   return PLAN.pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && elig.indexOf(p.position) >= 0 && num(p[scoreKey]) != null)
@@ -146,7 +146,7 @@ if (flipped === 0) {
   const c8 = PLAN.plan.filter(x => !x.bench)[0];
   if (c8) {
     short(c8, 'proj_mean');
-    const gone = new Set(byAdp.slice(0, c8.pick - 1).map(p => String(p.player_id)));
+    const gone = new Set(byAdp.slice(0, PLAN.liveBefore(c8.pick)).map(p => String(p.player_id)));
     const elig = c8.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [c8.slot];
     PLAN.pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
       && elig.indexOf(p.position) >= 0 && num(p.proj_mean) != null)
@@ -212,7 +212,7 @@ if (reproBad > 0) {
      * it is a change to the artifact he actually drafts from. */
     let topCh = 0, listCh = 0, n = 0; const names = [];
     PLAN.plan.filter(x => !x.bench).forEach(x => {
-      const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
+      const gone = new Set(byAdp.slice(0, PLAN.liveBefore(x.pick)).map(p => String(p.player_id)));
       const elig = x.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [x.slot];
       const cands = PLAN.pool.filter(p => !gone.has(String(p.player_id))
         && !kept.has(String(p.player_id)) && elig.indexOf(p.position) >= 0

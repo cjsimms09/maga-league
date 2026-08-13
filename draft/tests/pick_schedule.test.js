@@ -207,6 +207,62 @@ ck('every row of the plan sits on a pick I actually own',
     + ' — it was QB this morning on a smaller board)');
 }
 
+// ── 4c. NOBODY SLICES THE POOL BY A BOARD PICK NUMBER ───────────────────
+// THE CLASS, SWEPT. `byAdp.slice(0, pick - 1)` is the natural way to ask "who is
+// gone by my pick" and it OVER-REMOVES by the keeper slots ahead of it — a
+// keeper slot takes nobody out of the pool, so 32 slots behind overall 33 are
+// only TWENTY-NINE selections.
+//
+// IT WAS IN NINE PLACES AT ONCE, one of them the draft-day card, and every one
+// was CORRECT until the numbering was fixed: while `my_picks` was [30, 45, ...]
+// that WAS the selection scale, so the two agreed by accident. Correcting the
+// pick numbers broke all eight simultaneously — the second time in a day a true
+// fix broke an accidental agreement.
+//
+// So the guard is on the SHAPE, not on the nine files: any new call site that
+// slices a pool by a pick number is caught at the commit that adds it.
+//
+// ⚠️ AND IT CAUGHT A NINTH THAT MY OWN GREP MISSED, on its first run. I swept
+// with `[a-zA-Z_.]*(pick|Pick|overall)` and `historical_reach.js:149` reads
+// `c8.pick` — a DIGIT in the variable name, which that character class does not
+// admit. A hand-rolled sweep is a detector too, and mine had a false negative in
+// exactly the place a hand-rolled sweep has them: the character class nobody
+// re-reads. That is the argument for the guard over the sweep in one line.
+{
+  const dirs = [path.join(ROOT, 'draft', 'tools'), path.join(ROOT, 'public', 'js', 'draft'),
+    path.join(ROOT, 'src')];
+  const walk = (d, out) => {
+    let e = [];
+    try { e = fs.readdirSync(d, { withFileTypes: true }); } catch (x) { return out; }
+    e.forEach(en => {
+      const q = path.join(d, en.name);
+      if (en.isDirectory()) { if (en.name !== 'node_modules') walk(q, out); }
+      else if (/\.js$/.test(en.name)) out.push(q);
+    });
+    return out;
+  };
+  const files = dirs.reduce((a, d) => walk(d, a), []);
+  ck('CONTROL — there are source files to sweep', files.length > 20, files.length);
+  /* COMMENTS ARE STRIPPED FIRST. Four of these files now EXPLAIN the defect in
+   * prose that contains the offending expression, and a detector that cannot
+   * tell an explanation from a call site reports its own documentation as the
+   * bug — which is how a detector gets switched off. */
+  const strip = t => t.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+  const BAD = /\.slice\(\s*0\s*,\s*[A-Za-z_$][\w.$]*(?:pick|Pick|overall|Overall)[\w.$]*\s*-\s*1\s*\)/;
+  const hits = files.filter(f => BAD.test(strip(fs.readFileSync(f, 'utf8'))))
+    .map(f => path.relative(ROOT, f));
+  ck('NO source file slices a pool by (pick - 1)', hits.length === 0, hits);
+  /* FAIL ARM — the detector must fire on the exact expression that shipped, and
+   * must NOT fire on the comment explaining it. */
+  ck('FAIL ARM — the offending expression IS detected',
+    BAD.test('const gone = byAdp.slice(0, x.pick - 1).map(p => p.id);'));
+  ck('and a COMMENT containing it is NOT, so the fix\'s own documentation does '
+    + 'not read as the defect',
+    !BAD.test(strip(' /* was byAdp.slice(0, x.pick - 1) and it over-removed */ ')));
+  ck('CONTROL — the corrected form passes the detector',
+    !BAD.test('const gone = byAdp.slice(0, PLAN.liveBefore(x.pick)).map(p => p.id);'));
+}
+
 // ── 5. THE SHIPPED SEAT PLAN AGREES ──────────────────────────────────────
 // The artifact B renders from. If it lags the fix, the war room shows seats at
 // picks that do not exist — which is what it did until today.

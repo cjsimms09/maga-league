@@ -165,7 +165,7 @@ console.log('     (WR on the roster: ' + wrHave + '. League average drafted: 5.2
 const hcIds = new Set(hcs.map(h => String(h.m.player_id)));
 const takenIds = new Set(plan.filter(x => x.p).map(x => String(x.p.player_id)));
 free.forEach(f => {
-  const gone = new Set(byAdp.slice(0, f.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(f.pick)).map(p => String(p.player_id)));
   const cands = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && !takenIds.has(String(p.player_id)) && num(p.proj_mean) != null
     && ['RB', 'WR', 'TE'].indexOf(p.position) >= 0);
@@ -212,7 +212,7 @@ console.log('\n     pick   best WR by projection      best WR by volatility     
 console.log('     ' + '-'.repeat(78));
 let moved = 0, tested = 0, totalCost = 0;
 free.forEach(f => {
-  const gone = new Set(byAdp.slice(0, f.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(f.pick)).map(p => String(p.player_id)));
   const cands = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && !takenIds.has(String(p.player_id)) && num(p.proj_mean) != null
     && num(p.proj_sd) != null && p.position === 'WR')

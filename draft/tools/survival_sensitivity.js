@@ -31,6 +31,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
+const PLAN = require(require('path').join(__dirname, 'draft_plan.js'));
 const ROOT = path.join(__dirname, '..', '..');
 global.window = global;
 /* MONKEYPATCHING DOES NOT REACH IT, AND THE CONTROL IS WHAT SAID SO.
@@ -120,7 +121,13 @@ const MY = [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145];
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 
 function stateAt(pick) {
-  const taken = new Set(byAdp.slice(0, pick - 1).map(p => String(p.player_id)));
+  /* SELECTIONS BEFORE THE PICK, NOT BOARD SLOTS — shared with draft_plan, because
+   * this was wrong in eight places at once. A keeper slot removes nobody from the
+   * pool (the kept player is already out of `players`), so `pick - 1` over-removes
+   * by the keeper count ahead of it: 32 slots behind overall 33, 29 selections.
+   * Every call site was correct while the numbering was compressed and broke the
+   * moment the pick numbers became Sleeper's own. */
+  const taken = new Set(byAdp.slice(0, PLAN.liveBefore(pick)).map(p => String(p.player_id)));
   K.forEach(k => taken.add(String(k.player_id)));
   const later = MY.filter(x => x > pick);
   return {
