@@ -50,8 +50,21 @@ const BYE_STARTS = { RB: 3, WR: 2, QB: 1, TE: 1 };   // bye_structure.js, exact
 console.log('═══ DRAFT CARD — 2026-08-22 ═══════════════════════════════════════════\n');
 console.log('  keepers: ' + keep.map(k => k.position + ' ' + k.name).join(', '));
 console.log('  THE RULE: the PLAN picks the seat. The ENGINE picks the player for it.');
-console.log('  Measured cost of letting the engine pick the seat too: 59.6 pts');
-console.log('  (greedy_vs_plan.js — it gains 34 at QB and pays 66 at FLEX and RB).\n');
+/* READ, NOT RESTATED. This line printed a hardcoded 59.6 — right when written
+ * and wrong the moment the pick schedule was corrected, because that figure was
+ * measured against fifteen picks Cory does not own. Same defect class as the
+ * hardcoded SCHED that caused it. The artifact derives the number on every
+ * emit; the card quotes the artifact. */
+{
+  const sp = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'seat_plan.json'), 'utf8'));
+  const d = sp.measured_edge_detail || {};
+  console.log('  Measured cost of letting the engine pick the seat too: '
+    + sp.measured_edge_vs_greedy + ' pts');
+  console.log('  (engine ' + (d.engine_greedy || 0).toFixed(1) + ' vs plan '
+    + (d.global_plan || 0).toFixed(1) + '; the engine already names the plan\'s own');
+  console.log('  player at ' + d.seats_where_engine_names_the_plans_player + ' of '
+    + d.seats + ' seats — EXPLORATORY, a simulated room.)\n');
+}
 
 /* ── THE SEAT SCHEDULE, WITH A SHORTLIST NOT A NAME ────────────────────────
  * A single name is brittle: one other manager takes him and the card is silent

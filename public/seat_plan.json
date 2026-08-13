@@ -33,8 +33,15 @@
     145
   ],
   "assumption": "The room drafts near ADP at every intervening pick. The SEAT ORDER held under ADP drift from -25% to +15%; the NAMES did not. Re-read the shortlist whenever the board has moved a lot.",
-  "measured_edge_vs_greedy": 59.6,
-  "measured_edge_note": "greedy_vs_plan.js: the engine's own #1 at every pick scores 2091.0 against this schedule's 2150.5. seat_hybrid.js: constraining the engine to these seats recovers all of it, because the engine already ranks the right player at 6 of 6 seats. This is EXPLORATORY evidence — a simulated room, not an observed draft.",
+  "measured_edge_vs_greedy": 34.5,
+  "measured_edge_detail": {
+    "engine_greedy": 1977.5100000000002,
+    "seat_constrained": 2012,
+    "global_plan": 2012,
+    "seats_where_engine_names_the_plans_player": 6,
+    "seats": 6
+  },
+  "measured_edge_note": "Derived on this emit, on Cory's ACTUAL picks. Driving the engine's own #1 at every pick scores 1977.5 against this schedule's 2012.0. Constraining the engine to these seats scores 2012.0, because it already names the plan's own player at 6 of 6 seats. EXPLORATORY — a simulated room drafting near ADP, not an observed draft.",
   "wire_per_week": {
     "QB": 20.9,
     "RB": 5.3,

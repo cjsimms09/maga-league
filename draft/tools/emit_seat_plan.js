@@ -49,6 +49,68 @@ const ELIG = slot => (slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [slot]);
 const WIRE = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };
 const WIRE_N = { QB: 5, RB: 46, WR: 39, TE: 6 };
 
+/* ── THE EDGE, MEASURED RATHER THAN QUOTED ────────────────────────────────
+ * Three lines scored by ONE function (lineup_value.bestLineup): the engine
+ * greedy, the engine constrained to these seats, and the global plan. Same
+ * driver parameterised by the chooser so they cannot diverge through the
+ * harness — the failure mode behind every engine_drive error. */
+const EDGE = (function () {
+  global.window = global;
+  global.document = { getElementById: () => null, querySelector: () => null,
+    addEventListener: () => {} };
+  const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const LV = require(path.join(ROOT, 'draft', 'tools', 'lineup_value.js'));
+  const full = DATA.players.filter(p => p.position && (p.proj_mean || 0) > 0);
+  const order = full.slice().sort((a, b) => adpOf(a) - adpOf(b));
+  const slotAt = {};
+  plan.forEach(x => { if (!x.bench && x.slot) slotAt[x.pick] = x.slot; });
+  function drive(choose) {
+    const took = new Set(keep.map(k => String(k.player_id)));
+    const roster = keep.map(k => Object.assign({}, k, { is_keeper: true }));
+    SCHED.forEach((pk, i) => {
+      let need = (pk - 1) - (took.size - keep.length);
+      for (let j = 0; j < order.length && need > 0; j++) {
+        const p = order[j];
+        if (took.has(String(p.player_id))) continue;
+        took.add(String(p.player_id)); need--;
+      }
+      const board = full.filter(p => !took.has(String(p.player_id)));
+      const out = E.recommend({ board, roster, nextPick: SCHED[i + 1] || null,
+        currentPick: pk, pick: pk, round: null, myPicksLeft: SCHED.length - i,
+        myPickIndex: i, totalMyPicks: SCHED.length, totalPicks: 150,
+        league: DATA.league, weights: E.MEASURED_WEIGHTS || E.DEFAULT_WEIGHTS,
+        currentKeepers: roster.filter(p => p.is_keeper), ceilingAllStages: false,
+        doctrine: null, drift: null, intervening: (SCHED[i + 1] || pk) - pk });
+      const list = Array.isArray(out) ? out : (out && out.scored) || [];
+      const top = choose(list, pk);
+      if (!top || !top.player) return;
+      took.add(String(top.player.player_id));
+      roster.push(Object.assign({}, top.player));
+    });
+    return roster;
+  }
+  const ELIG2 = sl => (sl === 'FLEX' ? ['RB', 'WR', 'TE'] : [sl]);
+  const eng = drive(l => l[0]);
+  const hyb = drive((l, pk) => {
+    const sl = slotAt[pk];
+    if (!sl) return l[0];
+    const ok = ELIG2(sl);
+    return l.find(r => r && r.player && ok.indexOf(r.player.position) >= 0) || l[0];
+  });
+  const planRoster = keep.map(k => Object.assign({}, k, { is_keeper: true }))
+    .concat(plan.filter(x => x.p).map(x => Object.assign({}, x.p)));
+  const sc = r => { const l = LV.bestLineup(r, DATA); return l && l.total != null ? l.total : 0; };
+  const seatPicks = Object.keys(slotAt).map(Number);
+  let coincide = 0;
+  seatPicks.forEach(pk => {
+    const pl = plan.find(x => x.pick === pk);
+    if (pl && pl.p && hyb.some(r => String(r.player_id) === String(pl.p.player_id))) coincide++;
+  });
+  const e = sc(eng), h = sc(hyb), p2 = sc(planRoster);
+  return { engine: e, hybrid: h, plan: p2,
+    gap: Math.round((p2 - e) * 10) / 10, coincide: coincide, seats: seatPicks.length };
+})();
+
 const taken = new Set();
 const seats = [];
 
@@ -185,12 +247,24 @@ const out = {
   assumption: 'The room drafts near ADP at every intervening pick. The SEAT ORDER '
     + 'held under ADP drift from -25% to +15%; the NAMES did not. Re-read the '
     + 'shortlist whenever the board has moved a lot.',
-  measured_edge_vs_greedy: 59.6,
-  measured_edge_note: 'greedy_vs_plan.js: the engine\'s own #1 at every pick scores '
-    + '2091.0 against this schedule\'s 2150.5. seat_hybrid.js: constraining the engine '
-    + 'to these seats recovers all of it, because the engine already ranks the right '
-    + 'player at 6 of 6 seats. This is EXPLORATORY evidence — a simulated room, not an '
-    + 'observed draft.',
+  /* MEASURED HERE, NOT RESTATED. This field held a hardcoded 59.6 — correct when
+   * written and WRONG the moment the pick schedule was fixed, because that
+   * number was computed against fifteen picks starting at R1.8 that Cory does
+   * not own. The true figure on his real twelve picks is smaller.
+   *
+   * That is the SCHED defect again, one field over: a constant that looks like
+   * data, plausible, inherited downstream, and stale without a symptom. So it is
+   * DERIVED on every emit. A number that recomputes cannot silently rot. */
+  measured_edge_vs_greedy: EDGE.gap,
+  measured_edge_detail: { engine_greedy: EDGE.engine, seat_constrained: EDGE.hybrid,
+    global_plan: EDGE.plan, seats_where_engine_names_the_plans_player: EDGE.coincide,
+    seats: EDGE.seats },
+  measured_edge_note: 'Derived on this emit, on Cory\'s ACTUAL picks. Driving the '
+    + 'engine\'s own #1 at every pick scores ' + EDGE.engine.toFixed(1) + ' against this '
+    + 'schedule\'s ' + EDGE.plan.toFixed(1) + '. Constraining the engine to these seats '
+    + 'scores ' + EDGE.hybrid.toFixed(1) + ', because it already names the plan\'s own '
+    + 'player at ' + EDGE.coincide + ' of ' + EDGE.seats + ' seats. EXPLORATORY — a '
+    + 'simulated room drafting near ADP, not an observed draft.',
   wire_per_week: WIRE,
   wire_n: WIRE_N,
   wire_note: 'Realized median points in the week a player was added off waivers, '
