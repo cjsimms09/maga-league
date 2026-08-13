@@ -8,14 +8,21 @@ Wednesday.
 
 WHAT THIS IS, STATED BEFORE ANY NUMBER. This is the REALIZED-ACQUISITION level —
 what a manager in this league actually added, and what that player then scored in
-that same week. **It is a LOWER bound.** The best available player is by definition at
-least as good as the one somebody chose to take, and managers add for need, for
-handcuffs and for hunches, not only for points.
+that same week.
 
-**So the two numbers bracket the truth from opposite sides.** Publishing this as "the"
-waiver replacement level would swap an overstatement for an understatement and throw
-away the bracket, which is the part worth having. Every cell carries `bound: "lower"`
-for that reason.
+IT IS NOT A BOUND ON best-undrafted, AND I CLAIMED IT WAS. The reasoning looked
+airtight: the best available player is at least as good as the one somebody chose, so
+realized must sit below. A measured it on 2026-08-13 and two positions go the other
+way — QB 1.17x and WR 1.40x as predicted, but RB 0.61x and TE 0.72x inverted.
+
+The reason is that they are not two estimates of one quantity. Best-undrafted prices
+a STATIC leftover set fixed at the draft; this prices a set that REFRESHES every week.
+A back who emerges in week 6 was never in the undrafted pool to be counted, and at RB
+and TE that churn is large enough to reverse the comparison outright.
+
+So the direction claim is deleted rather than softened, and what remains is what was
+measured. Pairing the two numbers is still the right instinct — they are just not a
+bracket.
 
 THE DATA. `league_history.seasons[].transactions` is a DICT KEYED BY WEEK, not a
 list — iterating it yields week strings, which is the same shape trap `_series_of`
@@ -164,7 +171,7 @@ def replacement(history, season, weekly_points: dict, positions: dict, *,
         if n < int(min_n):
             cells[key] = {"n": n, "status": "unmeasurable", "points": vals,
                           "median": None, "p75": None, "best": None,
-                          "bound": "lower",
+                          "basis_kind": "realized_acquisition",
                           "basis": "only %d acquisition(s); min_n is %d" % (n, min_n)}
             continue
         cells[key] = {
@@ -176,10 +183,20 @@ def replacement(history, season, weekly_points: dict, positions: dict, *,
             # interpolation method is a real choice and is written down.
             "p75": round(float(vals[_ceil_idx(0.75, n)]), 3),
             "best": round(float(vals[-1]), 3),
-            # THE LABEL IS PART OF THE MEASUREMENT. Without it a consumer cannot
-            # tell a floor from an estimate, and the bracket — which is the useful
-            # object — collapses back to a single number.
-            "bound": "lower",
+            # THE LABEL STATES WHAT THIS IS, NOT HOW IT COMPARES.
+            #
+            # It said `bound: "lower"` until A measured the comparison on
+            # 2026-08-13: realized-acquisition against best-undrafted is QB 1.17x
+            # and WR 1.40x — the direction I claimed — but RB 0.61x and TE 0.72x,
+            # the opposite. They do not bracket, because they are not two estimates
+            # of one quantity: best-undrafted is a preseason projection of a STATIC
+            # leftover set, and this is a realized pick from a set that REFRESHES
+            # every week of the season. A back who emerges in week 6 was never in
+            # the undrafted pool at all.
+            #
+            # So the direction claim is gone rather than relabelled. What survives
+            # is what was actually measured: this is the realized-acquisition level.
+            "basis_kind": "realized_acquisition",
             "basis": "%d realized acquisitions" % n,
         }
 
@@ -190,10 +207,14 @@ def replacement(history, season, weekly_points: dict, positions: dict, *,
         "cells": len(cells),
         "cells_measured": sum(1 for c in cells.values() if c["status"] == "measured"),
         "min_n": int(min_n),
-        "bound_note": "LOWER BOUND. This is what managers actually TOOK, not what "
-                      "was available. The best available player is at least as good "
-                      "as the one somebody chose, and adds are made for need and for "
-                      "handcuffs as well as for points. Pair it with the "
-                      "best-undrafted upper bound; neither is the answer alone.",
+        "basis_note": "REALIZED-ACQUISITION LEVEL: what managers actually took off "
+                      "the wire, and what that player then scored that week. It is "
+                      "NOT a bound on best-undrafted in either direction — measured "
+                      "2026-08-13, QB and WR run below it (1.17x, 1.40x) while RB "
+                      "and TE run above (0.61x, 0.72x). The two are not estimates of "
+                      "one quantity: best-undrafted prices a STATIC leftover set "
+                      "before the season, this prices a set that REFRESHES weekly, "
+                      "and a back who emerges in week 6 was never in the undrafted "
+                      "pool at all.",
     })
     return cells, rep
