@@ -124,6 +124,38 @@ function pNeedNth(pos, n) {
  * number left. Not because a backup kicker is good, but because the model had
  * nothing better to say and a tie was broken arbitrarily -- the same degenerate
  * ordering that put Joe Flacco on a board earlier today. */
+/* ── BENCH VALUE IS AN OPTION, NOT A DIFFERENCE ─────────────────────────────
+ *
+ * A bench player only helps you if he BECOMES STARTABLE. That is a threshold
+ * event, so the right quantity is not his mean over the waiver line but
+ *
+ *     E[max(0, X - waiver)]   with X ~ N(proj_mean, proj_sd)
+ *
+ * i.e. a call option struck at the waiver replacement level. My earlier
+ * max(0, proj - waiver) is the ZERO-VOLATILITY SPECIAL CASE of exactly this
+ * formula -- it discards the upside that is the whole reason to hold a bench
+ * player. proj_sd is REAL on this board (237 distinct sd/mean ratios), a fact I
+ * spent most of the day wrongly asserting the opposite of.
+ *
+ * AND IT PRICES YOUTH WITHOUT AN AGE TERM. Measured: correlation(age, sd/mean)
+ * = -0.318; median relative spread runs 0.420 at ages 20-24 against 0.354 at
+ * 31+. Young players carry more variance, so the option is worth more on them
+ * automatically. THAT MATTERS BECAUSE EVERY INTUITION-BASED TERM ADDED TO THIS
+ * MODEL HAS FAILED MEASUREMENT -- tier -235, risk -143, bye null, ceiling
+ * unsignable. Upside falls out of a quantity already on the board instead. */
+function normPdf(x) { return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI); }
+function normCdf(x) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(x));
+  const d = normPdf(x) * t * (0.319381530 + t * (-0.356563782 + t * (1.781477937
+    + t * (-1.821255978 + t * 1.330274429))));
+  return x >= 0 ? 1 - d : d;
+}
+function optionValue(mu, sd, K) {
+  if (!(sd > 0)) return Math.max(0, mu - K);
+  const d = (mu - K) / sd;
+  return (mu - K) * normCdf(d) + sd * normPdf(d);
+}
+
 const RENTED = { K: true, DEF: true };
 function benchValue(x, heldAtPos) {
   /* ANY rented position is worth zero in a BENCH seat -- the starter arrives via
@@ -133,7 +165,7 @@ function benchValue(x, heldAtPos) {
    * you hold the starter. A guard that cannot fire on the case it was written
    * for -- the fourth one of those today. */
   if (RENTED[x.position]) return 0;
-  const gap = Math.max(0, (x.proj_mean || 0) - (WAIVER[x.position] || 0));
+  const gap = optionValue(x.proj_mean || 0, x.proj_sd || 0, WAIVER[x.position] || 0);
   return pNeedNth(x.position, heldAtPos + 1) * gap;
 }
 
