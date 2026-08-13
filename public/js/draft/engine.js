@@ -1313,6 +1313,49 @@
   }
 
   function scorePlayer(player, ctx) {
+    /* A PLAYER WITH NO PROJECTION CANNOT BE RANKED, AND RANKING HIM ANYWAY IS
+     * WORSE THAN REFUSING HIM.
+     *
+     * MEASURED 2026-08-13: 1181 of the board's 1759 players carry proj_mean 0,
+     * and vorp is then a POSITION CONSTANT -- every such WR is -172.7, every RB
+     * -188.5, every TE -150.7. They are not merely bad, THEY ARE INDISTINGUISH-
+     * ABLE: Josh Johnson, Trenton Irwin and Gunner Olszewski are the same number.
+     * That is 1181 players in one tie, and a tie is decided by whatever the sort
+     * happens to favour.
+     *
+     * IT IS NOT SAFELY BURIED EITHER. The first of them sits at board rank 161 at
+     * pick 8 and rank 150 at pick 148 -- inside a 150-pick draft -- and the man
+     * at that rank is Adam Vinatieri, who retired in 2019. Three separate
+     * attempts at slot-aware VONA promoted members of this block into the top
+     * ten the moment they disturbed ordering in the tail, which is why the board
+     * kept coughing up names like Joe Flacco. THE OLD VALUATION WAS HOLDING THEM
+     * DOWN BY ACCIDENT, NOT BY DESIGN.
+     *
+     * So they are REFUSED rather than scored: score null, sorted last by
+     * byScoreRefusedLast, and carrying a reason. Refused, NOT dropped -- Ricky
+     * Pearsall (ADP 107) is the one man inside the draftable range with no
+     * projection, and he must read as "we have no number for him" rather than
+     * silently disappear from a board where the market says he goes in round 11.
+     *
+     * The draftable range is unaffected: 149 players inside ADP 150, exactly one
+     * of them unprojected. */
+    const projected = Number(player && player.proj_mean);
+    if (!isFinite(projected) || projected <= 0) {
+      return {
+        player,
+        score: null,
+        score_error: {
+          reason: 'no projection — cannot be ranked',
+          proj_mean: player ? player.proj_mean : undefined,
+          consequence: 'vorp for an unprojected player is a position constant, so '
+            + 'every one of them ties. Ranking them puts an arbitrary member of a '
+            + '1181-player tie on the board.',
+          what_would_fix_it: 'a real projection from ingest, or removal from the '
+            + 'board if the player is not active',
+        },
+        components: {}, reasons: [], context: [],
+      };
+    }
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
     // Pass the full context (not just run multipliers) so the A2 three-layer
     // model reaches VONA. Passing ctx.runMultipliers here silently reduced the

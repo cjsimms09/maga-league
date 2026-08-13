@@ -172,6 +172,42 @@ const CHECKS = {
       + '", confirmed ' + doc.confirmed_at };
   },
 
+  /* THE REFUSAL OF 1181 PLAYERS IS A DECISION, AND AN UNGRADED ONE.
+   * MET requires a grading artifact that joins the snapshot to realized points.
+   * A snapshot alone is NOT enough -- capturing the list is the cheap half, and
+   * a commitment satisfied by the easy half is the shape this file exists to
+   * prevent. */
+  'grade-the-unprojected': () => {
+    const snap = readText('draft/data/unprojected_snapshot.json');
+    if (snap === null) {
+      return { code: 1, why: 'no snapshot — the list was never captured, and it '
+        + 'cannot be reconstructed once the projections update' };
+    }
+    let doc;
+    try { doc = JSON.parse(snap); } catch (e) {
+      return { code: 2, why: 'snapshot is not JSON: ' + e.message };
+    }
+    if (!Array.isArray(doc.players) || !doc.players.length) {
+      return { code: 1, why: 'snapshot carries no players' };
+    }
+    const graded = readText('draft/data/unprojected_graded.json');
+    if (graded === null) {
+      return { code: 1, why: doc.players.length + ' players captured (board '
+        + String(doc.board_sha256 || '').slice(0, 12) + '), NOT YET GRADED — no '
+        + 'draft/data/unprojected_graded.json joining them to realized points' };
+    }
+    let g;
+    try { g = JSON.parse(graded); } catch (e) {
+      return { code: 2, why: 'grading file is not JSON: ' + e.message };
+    }
+    if (g.top24_count == null || !Array.isArray(g.rows) || !g.rows.length) {
+      return { code: 1, why: 'grading file exists but carries no counted result '
+        + '(needs top24_count and a non-empty rows array)' };
+    }
+    return { code: 0, why: g.rows.length + ' of ' + doc.players.length
+      + ' graded; ' + g.top24_count + ' finished top-24 at their position' };
+  },
+
   'queue-title': () => {
     const app = readText('public/js/draft/app.js');
     if (app === null) return { code: 2, why: 'app.js unreadable' };

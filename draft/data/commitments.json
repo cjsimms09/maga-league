@@ -83,6 +83,15 @@
       "why_that_date": "Keeper lock. The slate confirms which keepers cost which picks, which is the only thing that resolves the schedule, and it lands two days before the draft -- so this is the last date on which a wrong schedule is still correctable.",
       "verify": "node draft/tools/commit_verify.js schedule-rerun-on-slate",
       "owner": "A"
+    },
+    {
+      "id": "grade-the-unprojected",
+      "item": null,
+      "what": "Grade the pre-season unprojected snapshot. draft/data/unprojected_snapshot.json lists the 1181 players the board could not rank in August (proj_mean 0, vorp a position constant). The engine REFUSES them. That refusal is currently ungraded: nobody knows whether ignoring them cost real players. Join on player_id against realized season points and count how many finished top-24 at their position.",
+      "due": "2027-01-15",
+      "why_that_date": "After the fantasy season ends, when realized points exist for a full year. Earlier and the sample is partial; later and the next board build has replaced the projections this was true of.",
+      "verify": "node draft/tools/commit_verify.js grade-the-unprojected",
+      "owner": "A"
     }
   ]
 }
