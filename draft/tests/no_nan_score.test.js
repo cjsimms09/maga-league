@@ -60,14 +60,31 @@ const REAL = [byVorp.filter(p => p.position === 'QB')[0]]
   .concat(byVorp.filter(p => p.position === 'RB').slice(0, 3));
 const HANDBUILT = REAL.map(p => ({ name: p.name, position: p.position }));
 
+/* TWO KINDS OF REFUSAL NOW EXIST AND MUST NEVER BE CONFLATED. Only the
+ * non-finite one is a defect; the unprojected one is deliberate. Hoisted here
+ * because both blocks below need them. */
+const nonFinite = e => e.score_error && /non-finite/.test(e.score_error.reason || '');
+const unprojected = e => e.score_error && /no projection/.test(e.score_error.reason || '');
+
 // ── THE CONTROL ARM: a real roster must be completely unaffected ───────────
 {
   const r = rec(REAL);
-  ck('a roster of real board objects produces no refusals at all',
-    r.every(e => !e.score_error), r.filter(e => e.score_error).length);
-  ck('  and every score is finite',
-    r.every(e => isFinite(Number(e.score))),
-    r.filter(e => !isFinite(Number(e.score))).slice(0, 2).map(e => e.player.name));
+  /* SCOPED TO THE NON-FINITE REFUSAL ON 2026-08-13. A second, DELIBERATE
+   * refusal now exists: a player with no projection cannot be ranked, because
+   * vorp for such a player is a position constant and 1181 of them tie. Those
+   * refusals are expected on any real board and are not what this suite guards.
+   * What must still hold is the original claim -- a roster of real board objects
+   * NEVER POISONS THE SCORING PATH. */
+  ck('a roster of real board objects produces no NON-FINITE refusals',
+    !r.some(nonFinite), r.filter(nonFinite).length);
+  /* `isFinite(Number(null))` IS TRUE — the exact trap this codebase has already
+   * been bitten by. So a scored entry must carry a real NUMBER, and a refused one
+   * must carry null; "finite" alone would pass on every refusal. */
+  ck('  and every entry is either a real number or an explicit refusal',
+    r.every(e => (typeof e.score === 'number' && isFinite(e.score)) ||
+                 (e.score === null && !!e.score_error)),
+    r.filter(e => !((typeof e.score === 'number' && isFinite(e.score)) ||
+                    (e.score === null && !!e.score_error))).slice(0, 2).map(e => e.player.name));
   ck('  and the top recommendation is a real player with a real score',
     r.length && isFinite(Number(r[0].score)) && Number(r[0].player.proj_mean) > 0,
     r.length ? { name: r[0].player.name, score: r[0].score } : null);
@@ -80,16 +97,22 @@ const HANDBUILT = REAL.map(p => ({ name: p.name, position: p.position }));
   /* NON-VACUITY FIRST. If the hand-built roster stopped reaching the poisoned
    * path, every assertion below would pass while testing nothing. The refusals
    * must actually happen. */
-  const refused = r.filter(e => e.score_error);
+  const refused = r.filter(e => nonFinite(e));
   ck('CONTROL: the hand-built roster still reaches the poisoned path',
     refused.length > 100, refused.length);
+  /* THE NEW REFUSAL IS PRESENT TOO AND IS A DIFFERENT ANIMAL. Asserted here so
+   * the two are never conflated again: mixing them is what made this suite
+   * crash on `score_error.terms`, a field only the non-finite refusal carries. */
+  ck('  and the unprojected refusal is present and DISTINCT from it',
+    r.some(unprojected) && r.filter(unprojected).every(e => !nonFinite(e)),
+    { unprojected: r.filter(unprojected).length, non_finite: refused.length });
 
   ck('  NO entry carries a non-finite score — the board is never poisoned',
     r.every(e => e.score === null || isFinite(Number(e.score))),
     r.filter(e => e.score !== null && !isFinite(Number(e.score)))
       .slice(0, 3).map(e => e.player.name));
 
-  ck('  the refusal is POSITION-SELECTIVE, as reported (filled positions only)',
+  ck('  the NON-FINITE refusal is POSITION-SELECTIVE, as reported (filled positions only)',
     (function () {
       const hit = new Set(refused.map(e => e.player.position));
       const clean = new Set(r.filter(e => !e.score_error).map(e => e.player.position));

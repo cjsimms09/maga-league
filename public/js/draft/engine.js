@@ -1353,7 +1353,40 @@
           what_would_fix_it: 'a real projection from ingest, or removal from the '
             + 'board if the player is not active',
         },
-        components: {}, reasons: [], context: [],
+        onesie: null,
+        /* THE REFUSAL MUST CARRY THE SAME SHAPE AS A SCORE, OR IT CRASHES ITS
+         * CONSUMERS. The first cut returned `components: {}` and four suites
+         * went red -- two of them with stack traces, on `components.weighted.stack`.
+         * A refusal is a KIND OF ANSWER and has to be as well-formed as the
+         * answer it replaces; anything else turns "we cannot rank him" into
+         * "the tool fell over", which is strictly worse and reads as a bug in
+         * the caller. The existing non-finite refusal has the same latent gap
+         * and simply never fires on the states those suites build.
+         *
+         * Zeros here are SHAPE, NOT MEASUREMENT. score is null and scoreable()
+         * is false, so any consumer honouring the refusal never reads them; they
+         * exist so a consumer that forgets gets 0 rather than a TypeError. */
+        components: {
+          vona: null, tier_urgency: null, need: null, risk: null, ceiling: null,
+          keeper: null, bye: null, stack: null, need_fills: 'bench',
+          weighted: { value: 0, tier: 0, need: 0, risk: 0, ceiling: 0,
+                      keeper: 0, bye: 0, stack: 0, onesie: 0, doctrine: 0 },
+        },
+        /* SURVIVAL IS STILL PUBLISHED, AND MUST BE. It is a function of ADP and
+         * the pick window, NOT of the projection — so we know it perfectly well
+         * for a player we cannot score. Setting it null broke the conservation
+         * identity survival_honesty.test.js enforces (total survival mass must
+         * equal the number of opponent picks in the window): 1183 entries
+         * reporting null dropped the measured mass from 14 to 13.82.
+         *
+         * ONLY THE SCORE IS REFUSED. Discarding an honest number alongside a
+         * missing one is the same collapse this whole change exists to undo. */
+        survival_to_next: ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0,
+        rails: [], contested: null, gap_to_second: null,
+        legality: null, legality_warning: null, doctrine_report: null,
+        keeper_target: null,
+        reasons: ['SCORE REFUSED — no projection for this player. Not a recommendation.'],
+        context: [],
       };
     }
     const w = Object.assign({}, DEFAULT_WEIGHTS, ctx.weights || {});
