@@ -129,14 +129,35 @@
 
     const myOriginal = full.filter(function (p) { return p.team_slot === mySlot; })
       .map(function (p) { return p.overall; });
-    survivors.forEach(function (p, i) {
-      p.original_overall = p.overall;
-      p.overall = i + 1;
+
+    /* ⚠️ SLEEPER DOES NOT RENUMBER, AND THIS USED TO PRETEND IT DOES.
+     *
+     * `survivors.forEach(p, i => p.overall = i + 1)` deleted the forfeited picks
+     * and renumbered everything after them. Checked against this league's own
+     * draft log on 2026-08-13: 150 picks and round 4 beginning at overall 31 in
+     * 2023 (0 keepers), 2024 (23 keepers) and 2025 (20 keepers) alike. A keeper
+     * OCCUPIES his pick slot with `is_keeper: true`; the pick is not removed and
+     * nothing after it shifts up — so a team's own pick numbers do not depend on
+     * how many players anybody else keeps.
+     *
+     * Cory caught it from the seat arithmetic: slot 8, round 4 is EVEN so the
+     * snake reverses, slot 10 picks first, and he is the THIRD pick of the round
+     * — 31, 32, 33. The renumbering said 30.
+     *
+     * `live_index` carries the sequence position the renumbering used to
+     * provide, because `adjustedAdp` genuinely wants it: it lays the i-th best
+     * available player onto the i-th SELECTION, which is a different thing from
+     * the i-th board slot. Keeping them as two named fields is what stops them
+     * being conflated again. */
+    survivors.forEach(function (p, i) { p.live_index = i + 1; });
+    const board = full.map(function (p) {
+      return { overall: p.overall, round: p.round, slot: p.team_slot,
+               keeper_slot: !!forfeited[p.team_slot + ':' + p.round] };
     });
     const myPicks = survivors.filter(function (p) { return p.team_slot === mySlot; })
       .map(function (p) { return p.overall; });
 
-    return { picks: survivors, forfeited: forfeitDetail,
+    return { picks: survivors, forfeited: forfeitDetail, board: board,
              my_picks: myPicks, my_original_picks: myOriginal };
   }
 
@@ -163,7 +184,15 @@
       .sort(function (a, b) { return a - b; });
 
     return pool.map(function (p, i) {
-      const seqAdp = i < nPicks ? order.picks[i].overall : nPicks + (i - nPicks) + 1;
+      /* SEQUENCE POSITION, NOT BOARD POSITION, AND THE CHOICE IS DELIBERATE.
+       * `overall` is now the TRUE Sleeper number, so reading it here would move
+       * every adjusted ADP on the board — a real question (the j-th selection
+       * sits at a true overall past j once keeper slots are counted) but a
+       * DIFFERENT one, with its own blast radius and its own measurement.
+       * Before the numbering fix `overall` WAS `live_index`, so taking the index
+       * preserves this function's behaviour exactly. Bundling the two changes is
+       * how the first error happened. Mirrors keepers.py. */
+      const seqAdp = i < nPicks ? order.picks[i].live_index : nPicks + (i - nPicks) + 1;
       const raw = p.raw_adp;
       let blended;
       if (raw == null) {

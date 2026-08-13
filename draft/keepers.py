@@ -71,10 +71,20 @@ def keeper_cost_round(keeper: dict, cfg: dict) -> int | None:
 @dataclass
 class TruePickOrder:
     """The draft as it will actually run, once keepers eat their picks."""
-    picks: list[dict]                       # surviving picks, renumbered
+    # LIVE picks — the ones where somebody actively selects. Each keeps its TRUE
+    # Sleeper `overall` and carries `live_index` (1..N) for anything that wants
+    # sequence position rather than board position. These used to be RENUMBERED
+    # in place, which is the whole bug this dataclass now documents.
+    picks: list[dict]
     forfeited: list[dict] = field(default_factory=list)
-    my_picks: list[int] = field(default_factory=list)   # true overall numbers
+    # TRUE SLEEPER OVERALL NUMBERS. The comment here already said exactly this
+    # while the field carried renumbered ones — a label agreeing with the
+    # intention and disagreeing with the value, which is why nobody looked.
+    my_picks: list[int] = field(default_factory=list)
     my_original_picks: list[int] = field(default_factory=list)
+    # THE BOARD AS SLEEPER NUMBERS IT: every round x team slot, keeper-occupied
+    # picks FLAGGED rather than deleted. 150 rows in this league, always.
+    board: list[dict] = field(default_factory=list)
 
     def next_pick_after(self, overall: int) -> int | None:
         for p in self.my_picks:
@@ -117,13 +127,50 @@ def build_true_pick_order(cfg: dict, keepers_by_team: dict[int, list[dict]]) -> 
 
     survivors = [p for p in full if (p["team_slot"], p["round"]) not in forfeited]
     my_original = [p["overall"] for p in full if p["team_slot"] == my_slot]
+
+    # ⚠️ SLEEPER DOES NOT RENUMBER, AND THIS FUNCTION USED TO PRETEND IT DOES.
+    #
+    # It deleted forfeited picks and renumbered the survivors 1..N. Checked
+    # against this league's own draft log on 2026-08-13, all three completed
+    # seasons:
+    #
+    #     season   keepers on the board   total picks   round 4 begins at
+    #      2023            0                  150             31
+    #      2024           23                  150             31
+    #      2025           20                  150             31
+    #
+    # A keeper occupies his pick slot with `is_keeper: true`. The pick is not
+    # removed and NOTHING AFTER IT SHIFTS UP. 150 picks every year whatever the
+    # keeper count — so a team's own pick numbers do not depend on how many
+    # players OTHER teams keep, which is the invariant the old model denied.
+    #
+    # The renumbering moved Cory's first pick from 33 to 30 and told him so on
+    # every surface. He caught it from the seat arithmetic alone: slot 8, round 4
+    # is EVEN so the snake reverses, slot 10 picks first, and he is the THIRD
+    # pick of the round — 31, 32, 33.
+    #
+    # THE SNAPSHOT IS TAKEN BEFORE ANY MUTATION AND THAT IS NOT A STYLE CHOICE:
+    # `survivors` holds REFERENCES into `full`, so renumbering in place mutated
+    # the very rows a board would be built from. Reading it afterwards returned
+    # the compressed numbers wearing the uncompressed name.
+    board = [{"overall": p["overall"], "round": p["round"], "slot": p["team_slot"],
+              "keeper_slot": (p["team_slot"], p["round"]) in forfeited}
+             for p in full]
+
+    # THE TWO COUNTS ARE DIFFERENT QUANTITIES AND BOTH ARE REAL:
+    #   len(board)  = 150 — how many players leave the pool, keeper slots
+    #                 included. This is draft DEPTH and it is what a waiver
+    #                 replacement level must be taken at.
+    #   len(picks)  = 150 - n — how many SELECTIONS happen. This is what an ADP
+    #                 sequence is laid onto.
+    # Conflating them is how `ROSTERED` became 147 for a morning.
     for i, p in enumerate(survivors, start=1):
-        p["original_overall"] = p["overall"]
-        p["overall"] = i
+        p["live_index"] = i
     my_picks = [p["overall"] for p in survivors if p["team_slot"] == my_slot]
 
     return TruePickOrder(picks=survivors, forfeited=forfeit_detail,
-                         my_picks=my_picks, my_original_picks=my_original)
+                         my_picks=my_picks, my_original_picks=my_original,
+                         board=board)
 
 
 # --- ADP re-fit ---------------------------------------------------------------
@@ -148,7 +195,15 @@ def adjusted_adp(players: list[dict], order: TruePickOrder, cfg: dict,
 
     out = []
     for i, p in enumerate(pool):
-        seq_adp = order.picks[i]["overall"] if i < n_picks else n_picks + (i - n_picks) + 1
+        # SEQUENCE POSITION, NOT BOARD POSITION, AND THE CHOICE IS DELIBERATE.
+        # `overall` is now the TRUE Sleeper number, so reading it here would
+        # change every adjusted ADP on the board — a real question (the j-th live
+        # pick sits at a true overall past j once keeper slots are counted) but a
+        # DIFFERENT question, with its own blast radius and its own measurement.
+        # Before the numbering fix `overall` WAS `live_index`, so taking the
+        # index preserves this function's behaviour exactly. Bundling the two
+        # changes is how the first error happened.
+        seq_adp = order.picks[i]["live_index"] if i < n_picks else n_picks + (i - n_picks) + 1
         raw = p.get("raw_adp")
         if raw is None:
             blended = seq_adp
@@ -207,6 +262,40 @@ def adp_sd_for(adp_mean: float, provided: float | None = None) -> float:
     if provided:
         return float(provided)
     return min(ADP_SD_CAP, max(ADP_SD_FLOOR, ADP_SD_RATE * float(adp_mean)))
+
+
+def live_index_of(board_pick: int, board: list[dict]) -> int:
+    """Board pick number -> LIVE-SELECTION index. The two scales, reconciled.
+
+    ⚠️ `adjusted_adp` IS ON THE LIVE-SELECTION SCALE AND PICK NUMBERS ARE NOT.
+    Both halves of the blend in `adjusted_adp` are live-scale: `seq_adp` is the
+    live pick index, and the raw ADP is SHIFTED DOWN by the keepers ahead of the
+    player, which removes those men from the numbering too. So the output counts
+    SELECTIONS. `pick_order.my_picks` counts BOARD SLOTS, keeper slots included.
+
+    THIS AGREED BY ACCIDENT UNTIL 2026-08-13 and I broke the accident by fixing
+    the numbering. `build_true_pick_order` used to renumber survivors 1..N, so
+    `my_picks` was [30, 45, ...] — wrong as board numbers and RIGHT as live
+    indices. Correcting them to [33, 48, ...] left every survival calculation
+    comparing a live-scale ADP against a board-scale pick.
+
+    The bias has a direction and it is the bad one: a board pick is LARGER than
+    its live index, so the CDF is evaluated too far right, "taken" is
+    overstated, and survival is UNDERSTATED. The model believes players vanish
+    sooner than they will and reaches for them. Measured on the shipped board at
+    pick 33: Breece Hall 29% against 52%, +20 POINTS at the ADP range the first
+    pick actually lives in.
+
+    It is three slots today because only Cory's keepers are on the live board. It
+    is ~17 once the confirmed slate lands before 20 August, and the error grows
+    with it.
+    """
+    if not board:
+        raise ValueError(
+            "live_index_of: no board rows. REFUSING to fall back to the pick "
+            "number — that is exactly the scale confusion this exists to fix.")
+    return sum(1 for row in board if not row.get("keeper_slot")
+               and int(row.get("overall") or 0) <= int(board_pick))
 
 
 def survival_probability(adp_mean: float, pick: int, adp_sd: float | None = None) -> float:

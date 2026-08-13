@@ -99,7 +99,12 @@ const proj = {
   const emitted = AC.analyzerClaims(proj).map(c => c.ftype + '|' + c.key);
   check('  and NEITHER appears in the emitted set — a refusal that still emitted',
     !emitted.some(k => /champ|dollar/.test(k)));
-  check('   a placeholder would fill the ledger with entries January cannot settle', true);
+  /* WAS `check(..., true)`. The check above it is `!emitted.some(...)`, which is
+   * TRUE ON AN EMPTY ARRAY — so if analyzerClaims() ever returned nothing, the
+   * refusal check would pass for the wrong reason. The prose becomes the guard
+   * that makes the neighbour mean something. */
+  check('   and the emitted set is NON-EMPTY, so that refusal check is not vacuous',
+    emitted.length > 0, emitted.length);
 }
 
 // ── the claim is about what the analyzer ACTUALLY returns ───────────────────

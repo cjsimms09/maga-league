@@ -51,7 +51,10 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
     { chosen: { player_id: '9', name: 'x' } }));
   ck('  a missing value is recorded as null, never dropped',
     noVorp.chosen.vorp === null && 'vorp' in noVorp.chosen, noVorp.chosen);
-  ck('  (because "the board had no VORP" and "nobody wrote the field" differ)', true);
+  /* WAS `ck(..., true)`. The distinction is testable: a board that HAS the value
+   * records the number, so null really does mean "absent" and not "always null". */
+  ck('  and a board that HAS the value records it, so null means absent',
+    typeof r.chosen.vorp === 'number' && r.chosen.vorp !== null, r.chosen.vorp);
 }
 
 // ── AN OVERRIDE WITH NOTHING TO OVERRIDE IS A PICK ─────────────────────────
@@ -71,7 +74,10 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
   const r = O.pickOverride(Object.assign({}, base, { reason: undefined }));
   ck('an override with no stated reason is still recorded',
     r.reason === 'no_reason_given', r.reason);
-  ck('  (a required modal at draft speed poisons the ledger worse)', true);
+  /* WAS `ck(..., true)`. Testable: silence is a FIRST-CLASS member of the closed
+   * vocabulary, not a bypass of it. */
+  ck('  and that sentinel is a member of the closed vocabulary, not a bypass',
+    !O.REASONS || O.REASONS.indexOf('no_reason_given') >= 0, O.REASONS);
   const msg = threw(() => O.pickOverride(Object.assign({}, base, { reason: 'because I felt like it' })));
   ck('free text is refused', !!msg, msg);
   ck('  because one bucket per entry grades nothing',
@@ -272,6 +278,36 @@ const base = { season: '2026', build_at: '2026-08-22T23:00:00Z', pick: 34,
     && /rest of the season/.test(g.resolution_rule)
     && /never plays scores zero/.test(g.resolution_rule)
     && /tie resolves as NOT a success/.test(g.resolution_rule), g.resolution_rule);
+}
+
+// ── THE REHEARSAL FLAG REACHES THE PAYLOAD (2026-08-13, B) ────────────────
+// I told B "mock rides every ledger row". It rode the RECOMMENDATION payload
+// only. B's override report filtered on a field that did not exist: 3 overrides
+// became 4 with the filter removed and the reported median gap moved 18.5 ->
+// 4.0. A false statement from me corrupted a number in their report, which is
+// worse than a missing field — they had no way to know the absence was mine.
+//
+// And the builder returns a FIXED SHAPE that drops unknown keys, so adding the
+// flag at the call site alone would have added a field that never arrived. That
+// is the same defect one layer down, which is why this asserts on the BUILDER'S
+// OUTPUT rather than on the call site.
+{
+  const base = {
+    season: 2026, build_at: 'b', pick: 34, reconciled_from_sync: false, path: null,
+    chosen: { player_id: '1', name: 'A', position: 'RB', proj_mean: 100, vorp: 10, adp: 38.4, tier: 2 },
+    recommended: { player_id: '2', name: 'B', position: 'WR', proj_mean: 110, vorp: 12, adp: 30, tier: 1 },
+    reason: 'plan',
+  };
+  const asMock = O.pickOverride(Object.assign({}, base, { mock: true }));
+  const asReal = O.pickOverride(Object.assign({}, base));
+  ck('an override record carries a mock flag at all', 'mock' in asReal, Object.keys(asReal).length);
+  ck('  it is TRUE when the caller says rehearsal', asMock.mock === true, asMock.mock);
+  ck('  and FALSE — not undefined — when the caller says nothing',
+    asReal.mock === false, asReal.mock);
+  // The distinction that made B's number wrong: absent and false are different
+  // facts, and a consumer cannot tell them apart from a missing key.
+  ck('  so "not a rehearsal" is DISTINGUISHABLE from "nobody wrote the flag"',
+    typeof asReal.mock === 'boolean');
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

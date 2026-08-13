@@ -7,14 +7,24 @@ entirely normal, because a filter over a real board always returns something
 plausible. There is no error, no missing field, no red anything — just a
 schedule that is wrong by as many picks as there are keepers nobody applied.
 
-The eyeball check is one line of arithmetic. Under `top_picks_flat` every keeper
-forfeits a round in 1..3, so if I keep three my first pick is in round 4 and
-EVERY keeper in the league sits ahead of it:
+The eyeball check is one line of arithmetic, and on 2026-08-13 Cory did it and
+the model was wrong. Under `top_picks_flat` keeping N forfeits rounds 1..N, so my
+first pick is in round N+1 at my own slot — and SLEEPER DOES NOT RENUMBER:
 
-    my_first_pick == 3*teams + (teams+1-my_slot) - total_keepers
-    total_picks   == teams*rounds - total_keepers
+    my_first_pick == (N)*teams + (my_slot if N+1 is odd else teams+1-my_slot)
+    board_picks   == teams*rounds                    (keepers change NOTHING)
+    live_picks    == teams*rounds - total_keepers
 
-For a 10-team snake at slot 4 that is `first_pick + total_keepers == 37`.
+MY PICK NUMBERS DO NOT DEPEND ON WHAT ANYBODY ELSE KEEPS. That is the whole
+correction. The identity used to carry `- total_keepers` on both lines, because
+`build_true_pick_order` deleted forfeited picks and renumbered the survivors
+1..N. Sleeper's own log for this league says otherwise, three seasons running:
+150 picks and round 4 beginning at overall 31 in 2023 (0 keepers), 2024 (23) and
+2025 (20) alike. A keeper OCCUPIES his pick slot; the pick is not removed.
+
+For a 10-team snake at slot 4 keeping three: round 4 is EVEN so the snake
+reverses, slot 10 goes first, slot 4 is the 7th pick of the round, `first == 37`
+— and it stays 37 however many keepers the rest of the league declares.
 
 A check that only a human performs is a check that gets skipped on the one
 morning it matters, so it is here as well. Rule 11's requirement: the value and
@@ -97,38 +107,81 @@ def test_no_team_count_is_assumed():
     {1: 3, 2: 3, 3: 3, 5: 3, 6: 2},
     {1: 3, 2: 3, 3: 3, 5: 3, 6: 3, 7: 3, 8: 3, 9: 3, 10: 3},
 ])
-def test_first_pick_is_determined_by_the_TOTAL_alone(slot, opponents):
-    """first == 3*teams + (teams+1-slot) - total, whatever the distribution.
+def test_first_pick_depends_on_MY_keepers_and_NOTHING_ELSE(slot, opponents):
+    """first == 3*teams + (teams+1-slot), whatever anybody else keeps.
 
-    The distribution independence is the useful half: I do not need to know which
-    opponent sits in which seat to know my own schedule. Only the COUNT moves it.
+    THE INDEPENDENCE IS THE POINT AND IT USED TO BE DENIED. This test previously
+    subtracted `total` and asserted that the whole league's keeper count moved my
+    seat. It does not: Sleeper leaves a forfeited pick in place, occupied. I do
+    not merely not need to know WHICH opponent sits where — I do not need to know
+    HOW MANY they keep either.
     """
     cfg = _cfg(slot=slot)
     counts = {s: n for s, n in opponents.items() if s != slot}
     counts[slot] = 3
     order, total = _order(cfg, counts)
     teams = cfg["teams"]
-    expected = 3 * teams + (teams + 1 - slot) - total
+    # Round 4 is EVEN, so the snake reverses and slot `slot` is the
+    # (teams+1-slot)-th pick of that round.
+    expected = 3 * teams + (teams + 1 - slot)
     assert order.my_picks[0] == expected, (
-        "first pick %d != %d for slot %d with %d keepers"
+        "first pick %d != %d for slot %d with %d keepers in the league"
         % (order.my_picks[0], expected, slot, total))
+    # THE BOARD IS THE SAME DEPTH EVERY TIME. Keepers change who selects, never
+    # how many players leave the pool.
+    assert len(order.board) == teams * cfg["rounds"]
+    # LIVE selections are the other quantity, and it DOES move with the total.
     assert len(order.picks) == teams * cfg["rounds"] - total
+    # And every one of my picks keeps its true board number.
+    assert all(p["keeper_slot"] is False for p in order.board
+               if p["overall"] in set(order.my_picks))
 
 
-def test_the_identity_is_conditioned_on_keeping_three_and_says_so():
-    """NEGATIVE RESULT, recorded so the check is not trusted past its range.
+def test_the_identity_GENERALISES_now_that_nothing_renumbers():
+    """THE NEGATIVE RESULT THAT INVERTED, and it inverted for a reason.
 
-    Keeping 2 puts my first pick in ROUND 3, where keepers at higher slots fall
-    AFTER me — so the same total gives different answers and the identity fails.
-    This is asserted rather than mentioned: a caveat in a docstring is not a
-    caveat anyone meets.
+    This test used to assert the opposite — that keeping 2 puts my first pick in
+    round 3 where keepers at higher slots fall AFTER me, so the same total gave
+    different answers and the identity had to be conditioned on keeping exactly
+    three. That was true of the COMPRESSED model and of nothing else: it was an
+    artefact of renumbering, and the old docstring said in as many words that if
+    it ever passed the condition could be dropped.
+
+    It passes. WHERE the other keepers sit is irrelevant, and so is how many
+    there are. My first pick is my slot in round N+1, full stop.
     """
     cfg = _cfg(slot=4)
-    low, _ = _order(cfg, {4: 2, 1: 3, 2: 3})     # keepers ahead of me in round 3
-    high, _ = _order(cfg, {4: 2, 9: 3, 10: 3})   # keepers behind me in round 3
-    assert low.my_picks[0] != high.my_picks[0], (
-        "if this ever passes, the identity generalises past 3 keepers and the "
-        "condition on the eyeball check can be dropped")
+    teams = cfg["teams"]
+    low, _ = _order(cfg, {4: 2, 1: 3, 2: 3})     # keepers "ahead" of me in round 3
+    high, _ = _order(cfg, {4: 2, 9: 3, 10: 3})   # keepers "behind" me in round 3
+    assert low.my_picks[0] == high.my_picks[0]
+    # Keeping TWO forfeits rounds 1-2, so my first pick is round 3 — ODD, so the
+    # snake runs forward and slot 4 is the 4th pick of the round.
+    assert low.my_picks[0] == 2 * teams + 4 == 24
+    # CONTROL: the two arrangements really are different drafts, or the equality
+    # above is two names for one object.
+    assert low.forfeited != high.forfeited
+    assert {f["team_slot"] for f in low.forfeited} != {f["team_slot"] for f in high.forfeited}
+
+
+def test_a_keeper_slot_is_OCCUPIED_not_removed():
+    """The structural fact the whole correction rests on, asserted directly.
+
+    Sleeper's log for this league: 150 picks in 2023 (0 keepers), 2024 (23) and
+    2025 (20). If a forfeited pick were removed those would be 150, 127 and 130.
+    """
+    cfg = _cfg(slot=4)
+    teams, rounds = cfg["teams"], cfg["rounds"]
+    for counts in ({}, {1: 3}, {s: 3 for s in range(1, 11)}):
+        order, total = _order(cfg, counts)
+        assert len(order.board) == teams * rounds, (
+            "the board must be the same size whatever the keeper count")
+        assert sum(1 for p in order.board if p["keeper_slot"]) == total
+        assert len(order.picks) == teams * rounds - total
+        # Round 4 begins at the same overall every time — the invariant checked
+        # against three real Sleeper drafts.
+        r4 = sorted(p["overall"] for p in order.board if p["round"] == 4)
+        assert r4[0] == 3 * teams + 1
 
 
 # ── THE SHIPPED BOARD MUST AGREE WITH ITS OWN KEEPER SET ─────────────────────
@@ -149,12 +202,32 @@ def test_shipped_board_is_internally_consistent():
     """
     art = _artifact()
     lg = art["league"]
-    picks = art["pick_order"]["picks"]
-    forfeited = art["pick_order"]["forfeited"]
+    po = art["pick_order"]
+    picks = po["picks"]
+    forfeited = po["forfeited"]
     teams, rounds = int(lg["teams"]), int(lg["rounds"])
-    assert len(picks) == teams * rounds - len(forfeited), (
-        "the board has %d picks and %d forfeits — those cannot both be true"
-        % (len(picks), len(forfeited)))
+
+    # THE BOARD IS ALWAYS teams x rounds. This asserted `- len(forfeited)` until
+    # 2026-08-13, which is the compressed model: it required the artifact to
+    # DELETE a forfeited pick. Sleeper occupies it instead — 150 picks in 2023
+    # (0 keepers), 2024 (23) and 2025 (20) alike, per this league's own log.
+    assert len(picks) == teams * rounds, (
+        "the board has %d rows against %d x %d — a forfeited pick is OCCUPIED, "
+        "not deleted" % (len(picks), teams, rounds))
+
+    # The subtraction still exists; it just belongs to the OTHER quantity. Two
+    # named fields rather than one overloaded count is the whole repair.
+    assert po["live_picks"] == teams * rounds - len(forfeited), (
+        "live_picks %s does not reconcile with %d forfeits on a %d-row board"
+        % (po.get("live_picks"), len(forfeited), len(picks)))
+    flagged = [p for p in picks if p.get("keeper_slot")]
+    assert len(flagged) == len(forfeited), (
+        "%d keeper-flagged slots against %d forfeits — a PARTIAL application, "
+        "which is exactly what this guard exists to catch"
+        % (len(flagged), len(forfeited)))
+    # And each flagged slot must sit in a round somebody actually forfeited.
+    lost = {(int(f["team_slot"]), int(f["cost_round"])) for f in forfeited}
+    assert {(int(p["slot"]), int(p["round"])) for p in flagged} == lost
 
     kept = art.get("kept_player_ids") or []
     assert len(forfeited) == len(kept), (
