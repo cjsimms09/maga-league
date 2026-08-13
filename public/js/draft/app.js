@@ -3345,12 +3345,32 @@
     try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
-    // capture. Not on mocks. Deduped in PredLedger so re-renders don't flood.
-    if (typeof PredLedger !== 'undefined' && !state.mockMode && out.scored && out.scored.length) {
+    // capture. Deduped in PredLedger so re-renders don't flood.
+    /* MOCKS NOW WRITE, STAMPED AS MOCKS, and that is a deliberate reversal.
+     *
+     * The condition used to carry `&& !state.mockMode`, so a mock draft logged
+     * NOTHING. That makes the one available proof of decision-capture — run a
+     * full mock and show the board state survives and replays — structurally
+     * impossible: the only way to exercise this path end to end produced no rows
+     * to inspect.
+     *
+     * The two failure modes are not symmetric. Dropping mock rows destroys
+     * evidence permanently. Keeping them risks a mock row being mistaken for a
+     * deployed one, which is a LABELLING problem and is fixed by labelling:
+     * `mock` rides on every row, so a consumer that fails to filter is a visible
+     * bug rather than a silent contamination of acceptance evidence.
+     */
+    if (typeof PredLedger !== 'undefined' && out.scored && out.scored.length) {
       var c = ledgerCtx();
       PredLedger.recommendation({ season: c.season, build_at: c.build_at, pick: c.pick,
         method: 'composite-v1',
-        payload: {
+        /* THE BOARD I DECIDED FROM rides with the recommendation. `state.board`
+         * is exactly `data.players` minus `state.drafted`, so the taken set
+         * reconstructs the engine's input rather than summarising it.
+         * Canonicalised in PredLedger so this call site cannot drift into a
+         * second format. */
+        payload: Object.assign({ mock: !!state.mockMode },
+          PredLedger.boardState(state.drafted, (state.board || []).length), {
           weights: state.weights,
           top: out.scored.slice(0, 10).map(function (s) {
             return { player_id: String(s.player.player_id), name: s.player.name,
@@ -3360,7 +3380,7 @@
           }),
           contested: !!(out.scored[0] && out.scored[0].contested),
           confidence: out.confidence ? out.confidence.level : null,
-        } });
+        }) });
 
       /* ⚠️ LOCK IT LOCALLY AT THE SAME MOMENT IT IS COMMITTED.
        *

@@ -286,6 +286,73 @@
     return send(kind, info);
   }
 
+  /* THE BOARD STATE THAT PRODUCED THE RECOMMENDATION (2026-08-13).
+   *
+   * Until today the recommendation payload carried the TOP TEN NAMES AND THEIR
+   * SCORES and nothing else. That answers "what did the model say" and cannot
+   * answer "what could it have said", so no recommendation was replayable and
+   * none ever would have been: the board is gone the moment the draft ends.
+   * `taken_player_ids` did not appear anywhere in the repository.
+   *
+   * THIS IS EVIDENCE ARCHITECTURE, NOT LOGGING. The question it keeps
+   * answerable is the one every later valuation change depends on -- "would a
+   * different valuation have chosen differently ON THAT BOARD" -- and it is
+   * permanently unanswerable if the board is not captured at decision time.
+   *
+   * WHY THE TAKEN SET AND NOT THE AVAILABLE SET. The engine consumes `board`,
+   * the AVAILABLE players, so the available set is the literal input. But
+   * `board = data.players MINUS drafted`, and `build_at` in the join key already
+   * identifies which `data.players` universe was in play. So the taken set
+   * reconstructs the input exactly while being one to two orders of magnitude
+   * smaller -- ~150 ids at the last pick against ~1,700 available at the first.
+   * The complement is not a summary of the input; it IS the input, expressed
+   * against a universe the key already pins down.
+   *
+   * ORDER IS PRESERVED AND LABELLED RATHER THAN CLAIMED. A JS Set iterates in
+   * insertion order, which is draft order while the set is built incrementally
+   * and is NOT after a restore rebuilds it -- app.js has such a path. Ordering
+   * is not consumed by the engine, which scores and sorts, so it is carried for
+   * later learning only and `taken_order` says which of the two it is instead of
+   * letting a reader assume draft order.
+   *
+   * THE DIGEST IS THE POINT OF THE RECORD. It makes "the persisted state
+   * corresponds to the actual board" checkable rather than asserted: a replay
+   * rebuilds the board from these ids and recomputes it, and a mismatch is a
+   * loud failure instead of a silently wrong rescore. Taken over the SORTED ids,
+   * so it is invariant to the ordering question above.
+   */
+  function fnv1a(str) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+    }
+    return ('0000000' + h.toString(16)).slice(-8);
+  }
+
+  function boardState(taken, boardSize, ordered) {
+    var ids = [];
+    if (taken) {
+      /* Set, Array and array-like all arrive here; forEach covers Set and Array
+       * and is the only iteration this file's browser target guarantees. */
+      if (typeof taken.forEach === 'function') taken.forEach(function (v) { ids.push(String(v)); });
+      else for (var i = 0; i < taken.length; i++) ids.push(String(taken[i]));
+    }
+    var sorted = ids.slice().sort();
+    return {
+      taken_player_ids: ids,
+      taken_count: ids.length,
+      taken_order: ordered === false ? 'unordered' : 'insertion',
+      /* The complement's size, so a replay can assert
+       * board_size + taken_count === |universe| and catch a board that was
+       * filtered by something this record does not know about. Without it an
+       * unknown extra filter reproduces a WRONG board that still digests
+       * consistently with itself. */
+      board_size: boardSize == null ? null : boardSize,
+      taken_digest: fnv1a(sorted.join(',')),
+    };
+  }
+
   var PredLedger = {
     /* Once per (pick, build) — the board state I made a decision from. */
     recommendation: function (info) { return oncePer('recommendation', info); },
@@ -321,6 +388,10 @@
       return oncePer('forecast_resolution', info, (info.payload || {}).forecast_key);
     },
     /* Generic passthrough. */
+    /* The decision-time board, canonicalised. Exposed so the call site cannot
+     * invent its own representation, and so the representation is testable
+     * without a browser or a server. */
+    boardState: boardState,
     capture: function (kind, info) { return send(kind, info); },
     lastError: function () { return lastError; },
     /* HOW MANY RECORDS ARE PARKED RIGHT NOW. A status hook that shows only
