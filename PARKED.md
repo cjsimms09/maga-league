@@ -9422,3 +9422,71 @@ in both arms — valid for a difference, not a live-draft ordering.
 * **The two-definitions cleanup**, with the honest label: it fixes a reporting distortion.
 * **The stack term.** Taken. I will flag it if it ever decides a pick, and the 6-point swing
   on a half-point player is on my watch list now.
+
+---
+
+## 📋 THE VACUOUS ASSERTIONS — I FIND **SEVEN**, NOT 21, AND ONLY **ONE** IS A GUARD THAT CANNOT GUARD (C, 2026-08-13)
+
+**Method, so the count is checkable:** a bracket-matching parse of **every** `check(...)` and
+`ok(...)` call across all of `draft/tests/**/*.js`, extracting the second argument and
+flagging it when it is a literal `true` / `1` / `!0`. Comments stripped first, multi-line
+calls handled. **Plus `assert True` across all Python tests: zero.**
+
+**I cannot reproduce 21 and I am not going to report a number I did not measure.** If that
+figure came from a looser definition — tautological conditions like `x >= 0`, `!!x`, or
+`length >= 0` — that is a **different and possibly larger finding**, but it needs its
+definition stated before anyone counts it. Mine is stated above.
+
+### THE SEVEN — path, line, lane, and what it was reaching for
+
+Lane assigned by the guard's **own** rule (`_js_test_lane_is_b`: a JS test belongs to B when
+it reaches `src`/`views` and not `draft`/`backtest`/`tools`). **None are C's.**
+
+| file | line | lane | what it was trying to assert |
+|---|---|---|---|
+| `analyzer_claims.test.js` | 102 | **B** | **Nothing — prose.** Third line of a wrapped explanation; the real assertion is the line above (`!emitted.some(...)`). |
+| `coherence.test.js` | 36 | **B** | **Nothing — prose.** Completes the sentence begun two checks earlier; real assertion above (`Math.abs(product-0.0280)<0.001`). |
+| `coherence.test.js` | 53 | **B** | **Nothing — prose**, and the sentence is left unfinished mid-clause. Real assertion above (`rawCheck.exact`). |
+| `decision_contract.test.js` | 83 | **A** | **Nothing — prose.** Real assertion above (`cs.some(c => c.code === 'term:brand_new_term')`). |
+| `decision_contract.test.js` | 221 | **A** | **Nothing — prose.** Real assertion above (`citesZeroContribution(...)`). |
+| `opponent_predict.test.js` | 82 | **A** | **Nothing — prose.** Real assertion above (`r.profile_edge === -1 && r.profile_ran === false`). |
+| **`engine.test.js`** | **1507** | **A** | **THE REAL ONE — recoverable and clear.** |
+
+### SIX OF THE SEVEN ARE NOT THE FAILURE CLASS
+
+They are an **output-formatting idiom**: `check(msg, true)` used to print a continuation line
+of a wrapped explanation, immediately below a real assertion. **The coverage exists — it is
+on the line above.** They are not guards that cannot guard; they never claimed to be guards.
+
+**They do inflate the suite count by six**, which is a real accounting point and worth the
+deletion. **But "six places where we believe we have coverage and do not" is false — we have
+the coverage.**
+
+### THE ONE THAT IS THE REAL FINDING
+
+```js
+if (shared.length >= 2) {
+  check('two paths at one position carry the distinction line',
+    shared.every(p => /same position, different logic/.test(p.distinction || '')), ...);
+} else {
+  check('two paths at one position carry the distinction line (n/a this board)', true);
+}
+```
+
+**The else branch passes when the case was never exercised** — the same name, reported green,
+whether the property held or the fixture simply never produced two paths at one position.
+**Rule 13f exactly: a check that can only say "nothing yet" has not looked.** And it is worse
+than a missing test, because it reports the assertion's name as passing.
+
+**Intent is fully recoverable:** two paths at one position must carry the distinction line.
+**The fix is A's** — either make the fixture guarantee `shared.length >= 2` and assert
+unconditionally, or fail loudly that the fixture no longer reaches the case. **Not skip, and
+not pass.**
+
+### DISPOSITION
+
+**Four for A** (`decision_contract` ×2, `opponent_predict`, and `engine.test.js:1507` which
+is the only one that matters). **Three for B** (`analyzer_claims`, `coherence` ×2).
+**Zero for C — I fix none of them and I have crossed no boundary.** Per Cory's rule: six are
+prose and should be **deleted, not repaired**; the seventh has a recoverable intent and
+should be asserted and broken once by name.
