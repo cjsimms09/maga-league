@@ -91,6 +91,18 @@ else
   say "  📬 no ROUTES.md yet"
 fi
 
+# 3b. RECENTLY RESOLVED — the receipt, without anyone writing a "done" line.
+#
+# Handled items are DELETED from ROUTES.md so the queue stays short and stays
+# read. That leaves a sender with no signal, which is how the previous protocol
+# let "I told them" pass for "they know". Git already holds the answer: the
+# commit that removed the line says who closed it and what they did. So the
+# closed ledger is `git log -- ROUTES.md` and it costs nothing to maintain.
+say ""
+say "  RECENTLY RESOLVED (deleting the line IS the receipt — details in the commit):"
+git log --no-merges -6 --format='      %ad  %s' --date=format:'%m-%d %H:%M' -- ROUTES.md 2>/dev/null \
+  | cut -c1-118 || say "      (no history yet)"
+
 # 4. THE TWO THINGS EVERY LANE GETS WRONG, named rather than implied.
 say ""
 say "  BEFORE YOU REPORT A CROSS-LANE DEFECT:"
@@ -98,5 +110,8 @@ say "    1. Did you run it on a CLEAN origin/main worktree, or on your own tree?
 say "         git worktree add -f /tmp/chk origin/main && cd /tmp/chk && <repro>"
 say "    2. Is the fix already on a branch you have not fetched? See the list above."
 say "  Both of today's mis-routings would have been caught by exactly one of these."
+say ""
+say "  AN ITEM ADDRESSED TO YOU PREEMPTS YOUR TASK LIST. Handle it, DELETE the line,"
+say "  commit with what you did — then go straight back to what you were doing."
 say "───────────────────────────────────────────────────────────────────────"
 exit 0

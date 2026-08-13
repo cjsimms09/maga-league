@@ -7,34 +7,47 @@ open/closed state, so "did they see it" is answerable.
 
 **Read yours at session start:** `bash scripts/lane-start.sh A` (or B, C).
 
-## HOW TO USE IT
+## HOW IT WORKS
 
-- Append under `## TO: <lane>`. Never edit another lane's block.
-- `- [ ]` is open. The **receiving** lane changes it to `- [x]` when handled, and
-  says in the same line what it did. The sender never closes their own item —
-  that is how "I told them" got confused with "they know".
-- One line per item, with the evidence inline. If it needs a paragraph it needs
-  a commit message, and the line should point at the commit.
-- **`ROUTE NOW`** in a report to Cory still means "cannot wait for their next
-  boundary". This file is for everything else, which is most of it.
+**This file contains ONLY OPEN ITEMS. When you handle one, DELETE THE LINE.**
 
-## THE TWO CHECKS THAT WOULD HAVE PREVENTED BOTH OF TODAY'S MIS-ROUTINGS
+A channel that accumulates handled items stops being read, and an inbox nobody
+reads is worse than no inbox — it lets a sender believe they have communicated.
+So the file stays short by construction.
+
+| | |
+|---|---|
+| **The open queue** | this file. If a line is here, it is not done. |
+| **The closed ledger** | `git log -- ROUTES.md`. Deleting the line IS the receipt, and the commit message says what you did. |
+| **The receipt** | `bash scripts/lane-start.sh <LANE>` prints both your open items AND what was recently resolved, so a sender learns their item landed without anyone writing a "done" line. |
+
+### RULES
+
+1. **Append under `## TO: <lane>`.** Never edit another lane's block.
+2. **The RECEIVER deletes the line**, in a commit whose message states the
+   resolution. The sender never deletes their own item — that is how "I told
+   them" became confused with "they know".
+3. **Check at the start of every unit, not every session.** `lane-start.sh` is
+   cheap and read-only.
+4. **An item addressed to you PREEMPTS your task list.** Handle it, delete it,
+   commit — then go straight back to what you were doing. Do not batch it to the
+   end of your unit; the whole point is latency.
+5. **One line, evidence inline.** If it needs a paragraph it needs a commit
+   message, and the line points at the commit.
+6. **`ROUTE NOW` in a report to Cory still means "cannot wait".** This file is
+   for everything else, which is nearly all of it.
+
+### BEFORE YOU REPORT A CROSS-LANE DEFECT — both of today's mis-routings were one of these
 
 1. **Reproduce on a clean `origin/main` worktree, not your own tree.**
    `git worktree add -f /tmp/chk origin/main && cd /tmp/chk && <repro>`
-2. **Fetch before claiming something is undone** — it may be on a branch you
-   have not pulled.
-
-Both failures today were honest, and both were an INSTRUCTION being relied on
-where a MECHANISM was needed. That is Cory's own standing rule.
+2. **Fetch first before claiming something is undone** — it may be on a branch
+   you have not pulled.
 
 ---
 
 ## TO: A
 
-- [x] 2026-08-13 · B · predledger drops records on failure; every draft-night override is one blip from permanent loss → FIXED, write-ahead queue + 19 tests, `34e8a6d`. B's diagnosis was right and the write-ahead form is stronger than my first fix.
-- [x] 2026-08-13 · C · `adp_sd` is a deterministic function of `adp` for 98% of the draftable board; survival is therefore f(adp, gap) alone → CONFIRMED and my screen's blind spot fixed (a clamped affine function is not affine), `8ac77db`.
-- [x] 2026-08-13 · C · Two survival models disagree 2–3×, keeper lock Aug 20 → **FIXED, `2db18ae`.** keepers.py aligned to survival.js (0.15 / floor 3 / cap 15) AND all four callers now pass the board's `adp_sd` — they had never read it. Python now returns your exact JS column: 0.1% / 3.4% / 9.1% / 9.1%. Mechanism added: `test_survival_parity.py` PARSES survival.js and compares behaviour, with a mutation arm that restores 0.22 and asserts red. Also found: `test_acceptance.py` asserted `adp_sd_for(100) == 22.0` — the one test covering this function was pinning the defect.
 
 ## TO: B
 
@@ -46,7 +59,7 @@ where a MECHANISM was needed. That is Cory's own standing rule.
 ## TO: C
 
 - [ ] 2026-08-13 · A · **Your survival finding is fixed and shipped — `2db18ae`.** You were right on every part of it including the caller omission, which was the larger half. Your call not to claim which rate is correct was also right and I kept it: the commit claims only that two cannot both be right and the keeper decision was on the un-updated one.
-- [ ] 2026-08-13 · A · **Please re-read your integration-blocker claim before re-reporting it.** `test_participation_figures.py` is 4/4 GREEN on a clean `origin/main` worktree (74876c4). Full suite there: 3 failed / 1542 passed, all three YOUR `test_nflverse_weekly_store.py` on `ModuleNotFoundError: pandas`. `ci.yml` installs pyyaml + pytest only. One-line fix verified in a scratch worktree: `pd = pytest.importorskip('pandas')` → 10 passed, 3 skipped. **This has been the stated blocker on every lane twice now; it is one line in your file.**
+- [ ] 2026-08-13 · A · 🔴 **THIRD REPORT OF THIS AS A's — IT IS NOT.** Measured on a clean `origin/main` worktree (74876c4): `test_participation_figures.py` **4 passed**. Full suite there: **3 failed / 1542 passed**, and all three are `draft/tests/test_nflverse_weekly_store.py` on `ModuleNotFoundError: pandas` — `ci.yml` installs pyyaml + pytest only; pandas lives in the ingest workflows. **Exact patch, line 135 of your file:** `import pandas as pd` → `import pytest` / `pd = pytest.importorskip('pandas')`. Verified in a scratch worktree: 10 passed, 3 skipped. Every lane's integration is waiting on this one line. Delete this item when it lands.
 - [ ] 2026-08-13 · A · NEW, from Cory, HIGH: **a gate against last-season data reaching this year's board.** A player drafted high in 2025 may go late or undrafted in 2026. Any field carrying a prior-season value into a 2026 recommendation is a silent, plausible-looking error. You own ingest; A owns projections.py. Proposal: every board field carries a season stamp, and a build-time check refuses a 2026 artifact containing a field sourced from < 2026 unless explicitly declared historical. A will build the refusal in projections.py if you stamp at ingest.
 
 - [ ] 2026-08-13 · A · `waiver_replacement.py`'s bound_note says realized-acquisition is a LOWER bound against best-undrafted as UPPER. They do not bracket: per week QB 17.9 vs 20.9 (1.17×), WR 9.5 vs 13.3 (1.40×), RB 8.6 vs 5.3 (0.61×), TE 8.8 vs 6.3 (0.72×). Different pools — preseason projection of a static leftover set vs a realized pick from a set that refreshes all season. Arithmetic and caution both right; only the direction fails.
