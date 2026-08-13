@@ -1600,3 +1600,75 @@ def test_a_FAILING_REPORT_CANNOT_DESTROY_THE_DAY(tmp_path, monkeypatch, capsys):
     assert "REPORT FAILED" in capsys.readouterr().out, (
         "and it must SAY the report broke — silently swallowing it would hide a "
         "real shape change in what MFL returns")
+
+
+# ── DID THE SPREAD ARRIVE, AND IF NOT, WHOSE FAULT IS IT ────────────────────
+#
+# 2026-08-14 is the first capture that can carry dispersion. The keys —
+# `minPick`, `maxPick`, `draftSelPct` — are read from the SAME response dict as
+# `averagePick`, which provably works, so the shape is right. What is untested
+# is whether MFL publishes those fields on this endpoint at all. If it does not,
+# `dispersion_of` omits every player (it requires at least one bound), the run
+# goes GREEN, and the log says `dispersion_rows: 0`.
+#
+# A COUNT OF ZERO HAS TWO CAUSES AND THEY POINT IN OPPOSITE DIRECTIONS. Zero on
+# the first attempt is evidence about OUR PARSER. Zero after weeks of non-zero
+# is evidence about THE FEED. A check that cannot separate them tells you
+# nothing on the only morning it matters, and the spread is perishable exactly
+# like the mean.
+
+def test_ZERO_ON_THE_FIRST_ATTEMPT_blames_our_parser_by_name():
+    """MUTATION: report it as quiet or as `stopped` — the first failed run reads
+    like a success, or sends the reader to MFL's release notes instead of to the
+    four key names in `mfl_adp.parse` that have never once matched anything."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "never_captured"
+    assert "parse" in h["note"] and "minPick" in h["note"], h["note"]
+
+
+def test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us():
+    """The three snapshots we already hold have no dispersion because the parser
+    was discarding it, which is a fact about our history and not a failure to
+    diagnose. Judging them would make this alarm fire on its own first run, and
+    an alarm that is red on day one is muted by day two.
+
+    MUTATION: judge every snapshot — the check screams that the parser is broken
+    about days on which the parser provably could not have captured anything."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 4.5}, dispersion=None)
+    s = C.append_snapshot(s, 2026, "2026-08-12", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "unmeasured", h
+    assert h["judged_snapshots"] == 0
+    assert C.DISPERSION_SINCE in h["note"]
+
+
+def test_PRESENT_THEN_ABSENT_blames_the_feed_not_the_parser():
+    """The distinction that decides where to look. MUTATION: collapse it into
+    `never_captured` — the reader goes and re-reads a parser that has been working
+    for a fortnight."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 9}})
+    s = C.append_snapshot(s, 2026, "2026-08-15", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "stopped"
+    assert "MFL" in h["note"] and "2026-08-14" in h["note"], h["note"]
+
+
+def test_PARTIAL_coverage_is_a_FRACTION_not_a_boolean():
+    """5 players with a spread out of 672 is not "dispersion is working".
+    MUTATION: report present/absent — a near-total collapse in coverage reads
+    exactly like a healthy day, which is the `crosswalk_rate` mistake again."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5, "2": 9.0, "3": 12.0},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 9}})
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "present"
+    assert h["rows"] == 1 and h["adp_rows"] == 3
+    assert abs(h["coverage"] - 1 / 3) < 1e-9
+
+
+def test_NO_SNAPSHOTS_is_unmeasured_not_a_verdict_about_anything():
+    """Rule 13f. MUTATION: return `never_captured` for an empty archive — a check
+    that has looked at nothing reports a diagnosis about our code."""
+    h = C.dispersion_health([], 2026)
+    assert h["state"] == "unmeasured" and h["rows"] is None

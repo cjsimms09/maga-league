@@ -211,6 +211,69 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
+#: The first day a capture COULD carry a spread — the day the dispersion change
+#: landed. DECLARED, not derived, because it cannot be: a snapshot with no
+#: dispersion looks identical whether MFL published none or our parser was
+#: discarding it, and the three days captured before this date are the second case.
+#: Judging them would make this alarm red on its own first run, which is how a
+#: real alarm gets muted by its second.
+DISPERSION_SINCE = "2026-08-14"
+
+
+def dispersion_health(series: list, year) -> dict:
+    """Did the spread arrive — and if not, is that our parser or MFL's feed?
+
+    A COUNT OF ZERO HAS TWO CAUSES AND THEY POINT IN OPPOSITE DIRECTIONS. Zero on
+    the first attempt is evidence about `mfl_adp.parse`: `minPick`, `maxPick`,
+    `draftSelPct` are read from the same response dict as `averagePick`, which
+    provably works, so the shape is right and only the field names are unproven.
+    Zero after a fortnight of non-zero is evidence about the FEED. One number
+    cannot say which, and it is the only thing worth knowing on the morning it
+    breaks — so the state names the suspect.
+
+    `dispersion_rows: 0` already prints in the capture log. That is a dashboard
+    reading nobody diffs (rule 9). The spread is as perishable as the mean it sits
+    beside; a silent zero costs a day per morning nobody looks.
+    """
+    ser = sorted((s for s in _series_of(series) if str(s.get("year")) == str(year)),
+                 key=lambda s: s.get("observed_at") or "")
+    judged = [s for s in ser if (s.get("observed_at") or "") >= DISPERSION_SINCE]
+    base = {"year": str(year), "since": DISPERSION_SINCE,
+            "judged_snapshots": len(judged), "rows": None, "adp_rows": None,
+            "coverage": None, "state": None, "note": None}
+    if not judged:
+        return dict(base, state="unmeasured",
+                    note="UNMEASURED — no snapshot on or after %s, the first day a "
+                         "capture could carry a spread. The days before it have none "
+                         "because the parser was discarding it, which is our history "
+                         "rather than a fault to diagnose." % DISPERSION_SINCE)
+
+    def n_of(s):
+        return len(s.get("dispersion") or {})
+
+    latest = judged[-1]
+    rows, adp_rows = n_of(latest), int(latest.get("row_count") or 0)
+    out = dict(base, rows=rows, adp_rows=adp_rows,
+               coverage=(rows / adp_rows) if adp_rows else None)
+    if rows:
+        return dict(out, state="present")
+
+    earlier = [s for s in judged[:-1] if n_of(s)]
+    if earlier:
+        return dict(out, state="stopped",
+                    note="the spread STOPPED arriving. It was last present on %s, so "
+                         "the parser worked and something changed at MFL — look at the "
+                         "feed, not at `mfl_adp.parse`."
+                         % earlier[-1].get("observed_at"))
+    return dict(out, state="never_captured",
+                note="the spread has NEVER been captured in %d judged snapshot(s). "
+                     "The parser has therefore never matched, so suspect the field "
+                     "names in `mfl_adp.parse` — `minPick`, `maxPick`, `draftSelPct` "
+                     "— before suspecting MFL. They sit in the same response dict as "
+                     "`averagePick`, which works, so the shape is right and only the "
+                     "names are unproven." % len(judged))
+
+
 #: A qualifying board older than this is still F5-legal and still stale. Declared
 #: from the capture cadence — daily, so two missed days is a pattern, not a blip —
 #: and not tuned to what the archive currently shows.

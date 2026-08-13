@@ -184,6 +184,33 @@ jobs:
                        % ("1" if drop["verdict"] == "draftable_loss" else "0"))
               fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
 
+          # ── DID THE SPREAD ARRIVE, AND WHOSE FAULT IF NOT ─────────────────
+          # 2026-08-14 is the first capture that can carry dispersion. If MFL
+          # does not publish `minPick`/`maxPick` on this endpoint, `dispersion_of`
+          # omits every player, THE RUN GOES GREEN, and the log says
+          # `dispersion_rows: 0` — a dashboard reading nobody diffs. The spread
+          # is as perishable as the mean beside it.
+          #
+          # A ZERO HAS TWO CAUSES POINTING OPPOSITE WAYS: zero on the first
+          # attempt is about our parser (the field names have never matched);
+          # zero after a fortnight of non-zero is about the feed. The state
+          # names the suspect so the morning it breaks is not spent guessing.
+          dh = C.dispersion_health(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          if dh["state"] == "present":
+              print("Spread: **%d/%d** players carry a dispersion row (%.0f%%)."
+                    % (dh["rows"], dh["adp_rows"], 100 * dh["coverage"]))
+          else:
+              print("Spread: **%s** — %s" % (dh["state"], dh["note"]))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              # ESCALATE ONCE, ON THE RUN THAT FIRST LEARNS IT, then self-clear —
+              # the same shape as the resume alarm above and for the same reason
+              # argued there. A parser that never matches would otherwise make
+              # this job red every morning for ever, and red-by-design is how a
+              # real alarm gets muted. It stays in the summary every day.
+              fh.write("spread_missing=%s\n"
+                       % ("1" if (dh["state"] == "never_captured"
+                                  and dh["judged_snapshots"] == 1) else "0"))
+
           # ── WHICH SNAPSHOT OUR OWN DRAFT WILL USE ─────────────────────────
           # INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the
           # 08-12 snapshot, 708 rows". True when written; the archive has since
@@ -404,6 +431,20 @@ jobs:
       # `always()` because the step above exits 1 on a resumed gap, and a run can
       # be both — resuming from an outage is exactly when a player is most likely
       # to have left the board unnoticed.
+      # Fires once, on the run that first learns the spread never arrived, and
+      # self-clears — see the reasoning at the check itself. LAST, with the
+      # others, so no alarm can precede the commit that saves the day.
+      - name: Escalate if the spread never arrived on its FIRST judged run
+        if: always() && steps.cov.outputs.spread_missing == '1'
+        run: |
+          echo "::error::THE SPREAD DID NOT ARRIVE on the first capture that could carry it."
+          echo "::error::Suspect the field names in draft/backtest/mfl_adp.parse —"
+          echo "::error::minPick, maxPick, draftSelPct — BEFORE suspecting MFL. They are"
+          echo "::error::read from the same response dict as averagePick, which works, so"
+          echo "::error::the shape is right and only the names are unproven."
+          echo "::error::This fires ONCE and then self-clears; the summary carries it daily."
+          exit 1
+
       - name: Escalate ONLY if a DRAFTABLE player left the board
         if: always() && steps.cov.outputs.draftable_loss == '1'
         run: |
