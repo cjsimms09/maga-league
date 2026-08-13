@@ -211,7 +211,23 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
-def crosswalk_map(players: dict, board: list) -> tuple:
+def _draft_on_path():
+    """Put `draft/` on sys.path so `adp` and `mfl_adapter` import.
+
+    EXTRACTED BECAUSE `rostered_positions` WAS GREEN ONLY BY TEST ORDER. The path
+    insert lived inside `crosswalk_map`, so any function called on its own raised
+    ModuleNotFoundError — and the suite never saw it, because some earlier test
+    always called `crosswalk_map` first and sys.path is process-global. It failed
+    the moment it was used from a script, which is exactly where an ingest helper
+    gets used.
+    """
+    import sys as _sys
+    _draft = str(Path(__file__).resolve().parent.parent)
+    if _draft not in _sys.path:
+        _sys.path.insert(0, _draft)
+
+
+def crosswalk_map(players: dict, board: list, kept=None, positions=None) -> tuple:
     """The archive's own decode key -> our board's ids. Returns (ids, report).
 
     OFFLINE, AND THAT IS THE WHOLE POINT. The id map used to be obtainable only by
@@ -236,10 +252,7 @@ def crosswalk_map(players: dict, board: list) -> tuple:
     `board` may be our board's ROWS (a list) or an already-built matcher index, so
     a caller that has built one does not build a second that could disagree.
     """
-    import sys as _sys
-    _draft = str(Path(__file__).resolve().parent.parent)
-    if _draft not in _sys.path:
-        _sys.path.insert(0, _draft)
+    _draft_on_path()
     import mfl_adapter as A
     from adp import build_index
 
@@ -256,7 +269,142 @@ def crosswalk_map(players: dict, board: list) -> tuple:
     picks = [{"player": pid} for pid in sorted(players or {})]
     rows, report = A.crosswalk_picks(picks, players or {}, index)
     ids = {str(r["player"]): str(r["player_id"]) for r in rows}
+    if kept is not None or positions is not None:
+        report = _classify_undraftable(report, players or {}, ids, kept, positions)
     return ids, report
+
+
+#: Roster entries that are SLOTS rather than positions. No player carries them.
+NON_POSITIONS = frozenset({"FLEX", "SUPER_FLEX", "SUPERFLEX", "REC_FLEX", "WRRB_FLEX",
+                           "IDP_FLEX", "BN", "TAXI", "IR"})
+
+
+def rostered_positions(settings: dict) -> set:
+    """Which positions this league can actually roster, from its own config.
+
+    Slots are not positions: FLEX and BN match no player, and leaving them in makes
+    every later statement about the set false while looking harmless.
+    """
+    _draft_on_path()
+    from adp import _norm_pos
+    out = set()
+    for slot in ((settings or {}).get("roster_positions") or []):
+        s = str(slot).upper().strip()
+        if s in NON_POSITIONS:
+            continue
+        out.add(_norm_pos(s))
+    return out
+
+
+def position_is_rostered(pos, rostered: set) -> bool:
+    """Is a SOURCE-vocabulary position one this league rosters?
+
+    THROUGH `adp._norm_pos`, WHICH IS THE POINT. MFL says `PK` for a kicker and
+    `Def` for a team defense; our roster says `K` and `DEF`. Comparing raw strings
+    classifies every kicker and every team defense as unrosterable — which removes
+    them from the draftable denominator and RAISES the rate, so the instrument would
+    improve its own score by discarding the players it could not explain.
+
+    `TMPK` is NOT a kicker: it is MFL's team KICKING UNIT, which our board refuses
+    as a team unit and which no `K` slot can hold. It is deliberately absent from
+    the alias table and must stay unrostered.
+    """
+    _draft_on_path()
+    from adp import _norm_pos
+    return _norm_pos(pos) in (rostered or set())
+
+
+def _classify_undraftable(report: dict, players: dict, ids: dict,
+                          kept, positions=None) -> dict:
+    """Split `no_sleeper_match` into KEPT-so-undraftable and genuinely missing.
+
+    THE MISS THIS EXISTS FOR WAS MINE, and it very nearly went to A as a defect.
+    Measuring whether the D3 archive is usable, I found 31 of MFL's top 150
+    unresolved — among them Ja'Marr Chase at ADP 4.72, Derrick Henry at 54.91,
+    Kenneth Walker III at 39.51. Exhaustive search of the board's `players` list:
+    no name, no id. Reproduced on a clean origin/main worktree, checked both
+    active branches for a fix, and started writing the route.
+
+    They are KEEPERS. `kept_players` holds exactly those three. They are off the
+    draftable list because they CANNOT BE DRAFTED — the board being right.
+
+    The report could not say so. `by_why` explains only `team_unit_not_a_player`;
+    everything else is one undifferentiated `no_sleeper_match` in which "IDP this
+    league cannot roster", "kept" and "genuinely missing from the board" are the
+    same number. Two of those are correct behaviour and the third is an emergency,
+    and at the TOP of the board — where keepers are — the benign case dominates,
+    so the alarm is loudest exactly where it is least likely to be real.
+
+    MATCHED BY NAME, DELIBERATELY, and not by id. The archive holds MFL's ids and
+    `kept_players` holds ours; if the two could be joined directly there would have
+    been no crosswalk to fail in the first place.
+
+    AND BY `adp.normalize_name`, which is what `build_index` keys `by_name` on —
+    so a keeper is recognised on EXACTLY the terms the miss was recorded on. Not
+    `mfl_adp._norm_name`: that only reorders "Last, First" and leaves case and
+    punctuation alone, so "Ja'Marr Chase" would have to agree byte-for-byte with
+    the board's spelling. The apostrophe in that very name is the reason to use
+    the matcher's own normaliser instead of a second one that merely looks close.
+    """
+    _draft_on_path()
+    from adp import normalize_name
+
+    out = dict(report)
+    by_norm = {}
+    for k in (kept or []):
+        n = normalize_name(k.get("name") if isinstance(k, dict) else k)
+        if n:
+            by_norm[n] = k
+    unresolved = [(pid, meta) for pid, meta in (players or {}).items()
+                  if str(pid) not in ids]
+    hits = [{"mfl_id": str(pid),
+             "name": (meta or {}).get("name"),
+             "position": (meta or {}).get("position"),
+             "why": "kept_not_draftable"}
+            for pid, meta in unresolved
+            if normalize_name((meta or {}).get("name")) in by_norm]
+    out["kept_not_draftable"] = len(hits)
+    out["kept_rows"] = hits
+
+    # POSITIONS THIS LEAGUE CANNOT ROSTER. The dominant reason a miss is not a
+    # defect: MFL's board carries DE/DT/LB/CB/S and team-kicker units and this
+    # league rosters QB/RB/WR/TE/K/DEF. With keepers alone the "draftable" rate
+    # moved 0.6093 -> 0.6119, three players out of 709 — a name that promised to
+    # exclude the undraftable while excluding one of the two reasons for it.
+    unrostered = []
+    if positions:
+        unrostered = [{"mfl_id": str(pid),
+                       "name": (meta or {}).get("name"),
+                       "position": (meta or {}).get("position"),
+                       "why": "position_not_rostered"}
+                      for pid, meta in unresolved
+                      if not position_is_rostered((meta or {}).get("position"), positions)]
+    out["position_not_rostered"] = len(unrostered) if positions else 0
+
+    # ONE SET, NOT TWO COUNTS. A keeper at an unrostered position belongs to both
+    # lists, and subtracting both shrinks the denominator below the truth — which
+    # inflates the rate, and in the limit pushes it past 1.0, where it reads as
+    # better than perfect rather than as arithmetic that has gone wrong.
+    excluded = {h["mfl_id"] for h in hits} | {u["mfl_id"] for u in unrostered}
+    out["undraftable_excluded"] = len(excluded)
+
+    # NOT a redefinition of `no_sleeper_match`. A's `board_vs_market.py` reads that
+    # key; moving it would move A's numbers without A asking. The new figures sit
+    # BESIDE the old one under names that say what they exclude.
+    out["no_sleeper_match_excluding_kept"] = max(
+        0, int(report.get("no_sleeper_match") or 0) - len(hits))
+    out["no_sleeper_match_draftable"] = max(
+        0, int(report.get("no_sleeper_match") or 0) - len(excluded))
+
+    # THE RATE THAT ANSWERS THE QUESTION. `crosswalk_rate` is "how much of the
+    # source can we decode"; what decides whether the archive is usable is "how
+    # much of what we can actually DRAFT can we decode". A keeper is draftable by
+    # nobody and neither is a linebacker in a league with no IDP slot.
+    total = int(report.get("picks") or 0)
+    draftable = total - len(excluded)
+    out["crosswalk_rate_draftable"] = (
+        (int(report.get("crosswalked") or 0) / draftable) if draftable > 0 else None)
+    return out
 
 
 #: How many absent dates to NAME. The count is always exact; only the list is

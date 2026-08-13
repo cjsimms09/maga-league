@@ -1156,3 +1156,224 @@ def test_num_teams_IS_NOT_THE_TEAM_COUNT():
     d = C.draft_last_pick(ls)
     assert d["teams"] == 9, "count the rosters that exist, not the ones declared"
     assert d["last_pick"] == 9 * 15
+
+
+# ── A KEPT PLAYER IS NOT A CROSSWALK FAILURE ────────────────────────────────
+#
+# THIS COST ME AN HOUR AND VERY NEARLY A FALSE REPORT TO A. Measuring the
+# archive's usability I found 31 of MFL's top-150 unresolved, and among them
+# Ja'Marr Chase at ADP 4.72, Derrick Henry at 54.91, Kenneth Walker III at
+# 39.51. I searched the board's `players` list exhaustively — no name match, no
+# id — reproduced it on a clean origin/main worktree, checked both active
+# branches for a fix, and was assembling the route to A.
+#
+# They are KEEPERS. `kept_players` holds exactly those three. They are absent
+# from the draftable list because they CANNOT BE DRAFTED, which is the board
+# being right.
+#
+# The report could not tell me that. `unmatched_composition.by_why` explains
+# only `team_unit_not_a_player`; every other miss lands in an undifferentiated
+# `no_sleeper_match`, where "IDP this league cannot roster", "kept, so not
+# draftable" and "genuinely missing from the board" are one number. Two of those
+# three are correct behaviour and the third is an emergency, and at the TOP of
+# the board — where keepers live — the benign case dominates.
+#
+# Same shape as the row-drop count: an instrument that raises a question it has
+# the information to answer. It answers this one now.
+#
+# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` is A's and reads this
+# report; silently reclassifying misses would move A's numbers without A asking.
+# Passing no `kept` reproduces today's output exactly.
+
+KEPT = [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
+
+
+def _board(*rows):
+    return [dict(r) for r in rows]
+
+
+def test_a_KEPT_player_is_classified_KEPT_not_a_crosswalk_miss():
+    """MUTATION: leave him under `no_sleeper_match` — an elite keeper reads as a
+    crosswalk failure, and I can testify it sends the reader hunting a board gap
+    that does not exist."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    ids, rep = C.crosswalk_map(key, board, kept=KEPT)
+    assert rep["kept_not_draftable"] == 1, rep
+    assert [k["name"] for k in rep["kept_rows"]] == ["Ja'Marr Chase"]
+    assert rep["no_sleeper_match_excluding_kept"] == 0
+
+
+def test_a_GENUINE_miss_is_still_a_miss():
+    """The other side, and the one that keeps the classifier honest. MUTATION: treat
+    every miss as kept — the report can no longer find a real board gap at all, which
+    is the failure the whole measurement exists to catch."""
+    key = {"1": {"name": "Somebody Absent", "position": "WR", "team": "CIN"}}
+    ids, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        kept=KEPT)
+    assert rep["kept_not_draftable"] == 0
+    assert rep["no_sleeper_match_excluding_kept"] == 1
+
+
+def test_WITHOUT_kept_the_report_is_UNCHANGED():
+    """A's `board_vs_market.py` reads this report. MUTATION: classify anyway — A's
+    numbers move under them without A asking, which is the lane boundary breaking
+    quietly rather than loudly."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, plain = C.crosswalk_map(key, board)
+    _, withk = C.crosswalk_map(key, board, kept=KEPT)
+    assert "kept_not_draftable" not in plain, "no kept list, no new keys"
+    assert plain["crosswalk_rate"] == withk["crosswalk_rate"], (
+        "the ORIGINAL rate must not move — only a new one is added beside it")
+
+
+def test_the_DRAFTABLE_rate_excludes_kept_players_from_the_denominator():
+    """`crosswalk_rate` answers "how much of the source can we decode". The question
+    that decides whether the archive is usable is "how much of what we can actually
+    DRAFT can we decode", and a keeper is not draftable by anyone.
+
+    MUTATION: leave keepers in the denominator — the rate understates, and it
+    understates MOST at the top of the board, because that is where keepers are."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, kept=KEPT)
+    assert rep["crosswalk_rate"] == 0.5, "1 of 2 decoded, unchanged"
+    assert rep["crosswalk_rate_draftable"] == 1.0, "1 of 1 DRAFTABLE decoded"
+
+
+def test_an_EMPTY_kept_list_still_reports_the_new_keys():
+    """Rule 13f. A league with no keepers must say `kept_not_draftable: 0` — MEASURED
+    zero — rather than omitting the key, which reads identically to not having looked.
+    MUTATION: treat [] like None and skip the classification."""
+    key = {"1": {"name": "Somebody Absent", "position": "WR", "team": "CIN"}}
+    _, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        kept=[])
+    assert rep["kept_not_draftable"] == 0
+    assert rep["no_sleeper_match_excluding_kept"] == 1
+
+
+# ── AND A POSITION THIS LEAGUE CANNOT ROSTER IS NOT A MISS EITHER ───────────
+#
+# Adding the keeper class exposed an overclaim in my own naming. With keepers
+# excluded, `crosswalk_rate_draftable` came out 0.6119 against a raw 0.6093 —
+# three players out of 709. The name says "draftable" and handled ONE of the two
+# reasons a player is not draftable.
+#
+# The other reason dominates: MFL's board carries DE/DT/LB/CB/S and team-kicker
+# units, and this league rosters QB/RB/WR/TE/K/DEF. Inside pick 150 the
+# arithmetic is 170 priced - 3 kept - 28 unrosterable = 139, and 139 decode.
+# The number that decides whether the archive is usable is 100%, and my report
+# was about to say 61%.
+
+def RP(*extra):
+    return {"roster_positions": ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX",
+                                 "K", "DEF"] + ["BN"] * 6 + list(extra)}
+
+
+def test_rostered_positions_STRIPS_FLEX_AND_BN():
+    """FLEX and BN are slots, not positions — no player has position "BN".
+    MUTATION: return roster_positions verbatim; the set gains two members that
+    match nobody, which looks harmless and makes every later assertion about the
+    set false."""
+    assert C.rostered_positions(RP()) == {"QB", "RB", "WR", "TE", "K", "DEF"}
+
+
+def test_rostered_positions_SPEAKS_MFLS_VOCABULARY():
+    """THE ONE THAT WOULD HAVE BITTEN. MFL says `PK` for a kicker and `Def` for a
+    team defense; our roster says `K` and `DEF`. MUTATION: compare raw strings —
+    every kicker and every team defense on MFL's board is classified "not
+    rostered", which silently removes 19 kickers and 24 defenses from the
+    draftable population AND RAISES the rate, so the instrument improves its own
+    score by dropping the players it cannot explain."""
+    rp = C.rostered_positions(RP())
+    assert C.position_is_rostered("PK", rp) is True, "MFL's kicker is our K"
+    assert C.position_is_rostered("Def", rp) is True, "MFL's Def is our DEF"
+    assert C.position_is_rostered("LB", rp) is False
+    assert C.position_is_rostered("TMPK", rp) is False, "a team kicker unit is not our K"
+
+
+def test_an_UNROSTERED_position_is_classified_not_counted_as_a_miss():
+    """MUTATION: leave IDP in the miss bucket — the draftable rate reads 61% when
+    the answer is 100%, and that rate is what decides whether the archive is
+    usable at all."""
+    key = {"1": {"name": "Some Linebacker", "position": "LB", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, positions=C.rostered_positions(RP()))
+    assert rep["position_not_rostered"] == 1
+    assert rep["crosswalk_rate"] == 0.5, "the original rate does not move"
+    assert rep["crosswalk_rate_draftable"] == 1.0, "1 of 1 rosterable decoded"
+
+
+def test_a_ROSTERED_position_that_misses_is_STILL_A_MISS():
+    """The honesty check. MUTATION: classify every miss as unrostered — the report
+    can no longer find a genuine board gap, which is the emergency it exists for."""
+    key = {"1": {"name": "Absent Receiver", "position": "WR", "team": "CIN"}}
+    _, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        positions=C.rostered_positions(RP()))
+    assert rep["position_not_rostered"] == 0
+    assert rep["undraftable_excluded"] == 0
+    assert rep["crosswalk_rate_draftable"] == 0.0, "a real gap must show as a real gap"
+
+
+def test_kept_and_unrostered_are_counted_ONCE_not_twice():
+    """A player in BOTH lists must be subtracted once. A denominator smaller than
+    the truth inflates the rate, and in the limit pushes it past 1.0, where it reads
+    as better than perfect rather than as arithmetic that has gone wrong.
+
+    MY FIRST VERSION OF THIS TEST WAS VACUOUS AND THE MUTATION SURVIVED IT. The
+    fixture used a kept WR — rostered, so in one list only — and the overlap the
+    name promises was never constructed. Double-counting changed nothing and the
+    assertion passed. So the keeper here is a LINEBACKER: kept AND at a position
+    this league cannot roster, which is the only shape that can catch it."""
+    kept_lb = [{"player_id": "5", "name": "Kept Linebacker",
+                "position": "LB", "team": "CIN"}]
+    key = {"1": {"name": "Kept Linebacker", "position": "LB", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, kept=kept_lb,
+                             positions=C.rostered_positions(RP()))
+    assert rep["kept_not_draftable"] == 1 and rep["position_not_rostered"] == 1, (
+        "the fixture must put him in BOTH lists or this test proves nothing")
+    assert rep["undraftable_excluded"] == 1, "both lists, ONE exclusion"
+    assert rep["crosswalk_rate_draftable"] == 1.0
+
+
+def test_the_POSITION_HELPERS_work_without_crosswalk_map_running_first(tmp_path):
+    """GREEN BY TEST ORDER IS NOT GREEN. `rostered_positions` imports `adp`, which
+    lives in `draft/`, and the sys.path insert that makes that possible lived inside
+    `crosswalk_map`. Every test above passed because some earlier test had already
+    called `crosswalk_map` and sys.path is process-global — and the function raised
+    ModuleNotFoundError the first time it was called from a script, which is exactly
+    where an ingest helper gets called.
+
+    A SUBPROCESS, because the pollution cannot be undone inside this one: by the
+    time any assertion runs here, `draft/` is already on the path.
+
+    MUTATION: move the path insert back inside `crosswalk_map` — this fails and
+    nothing else does."""
+    import subprocess, sys, textwrap
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent          # draft/
+    src = textwrap.dedent('''
+        import sys
+        sys.path.insert(0, %r)
+        import external_adp_capture as E
+        print(sorted(E.rostered_positions({"roster_positions": ["QB", "FLEX", "K"]})))
+        print(E.position_is_rostered("PK", {"K"}))
+    ''') % str(root / "backtest")
+    r = subprocess.run([sys.executable, "-c", src], capture_output=True, text=True)
+    assert r.returncode == 0, (
+        "the helpers must import on their own:\n%s" % r.stderr[-600:])
+    assert r.stdout.split("\n")[0] == "['K', 'QB']"
+    assert r.stdout.split("\n")[1] == "True"
