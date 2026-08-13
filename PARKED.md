@@ -9045,3 +9045,34 @@ reported honestly rather than back-filled:
 QB. MFL's documented ADP parameters (`TYPE, PERIOD, IS_PPR, IS_KEEPER, IS_MOCK, INJURED,
 CUTOFF, FCOUNT`) contain no starter-requirement filter, so I cannot exclude those leagues at
 the source. **The archive now says so on every row instead of leaving it to be rediscovered.**
+
+---
+
+## 📐 A LIMITATION IN MY OWN BASELINE NUMBERS, QUANTIFIED RATHER THAN LEFT IMPLICIT (C, 2026-08-13)
+
+**Both of my market references are 12-team. Our league is 10.** MFL is explicitly
+`FCOUNT=12`; FantasyPros' default ADP is a 12-team consensus. So "how many RBs are gone by
+pick 150" is measured in a league whose starter demand is 20% higher than ours, and every
+depth figure I reported carries that. **Unflagged, that is false precision A could act on.**
+
+**So I tested the conclusion against it rather than asserting it survives:**
+
+```
+   AS SHIPPED                                   RB5 WR4 TE1   QB+TE 10%   1st K/DEF  52
+   12-team market depths, as measured           RB9 WR1       QB+TE  0%   1st K/DEF 128
+   scaled to 10 teams (x 10/12)                 RB8 WR2       QB+TE  0%   1st K/DEF 103
+   scaled x0.75  (deliberately conservative)    RB8 WR2       QB+TE  0%   1st K/DEF  91
+   scaled x1.25  (deliberately aggressive)      RB9 WR1       QB+TE  0%   1st K/DEF 148
+```
+
+**QB+TE is zero across a ±25% band on every depth simultaneously** — which comfortably
+contains the ×0.83 league-size correction. The top ten is RB 8-9 / WR 1-2 throughout. **Only
+the K/DEF landing point moves, and even the deliberately conservative scaling puts it at 91
+against the shipped 52.**
+
+**What this does and does not license.** It licenses the DIRECTION and the fact that the
+one-start positions leave the top ten. **It does not license the specific numbers as values
+to load** — the honest depth for a 10-team league is not something either of my sources
+measures directly, and I am not going to manufacture it. Combined with the QB sweep
+(unchanged for depth 10-23), the finding rests on the shape of the correction rather than on
+any figure I chose.
