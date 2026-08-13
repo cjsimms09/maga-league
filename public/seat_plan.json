@@ -1,0 +1,1083 @@
+{
+  "generated_from": "draft/tools/emit_seat_plan.js",
+  "source_board_players": 1759,
+  "keepers": [
+    {
+      "player_id": "7564",
+      "name": "Ja'Marr Chase",
+      "position": "WR"
+    },
+    {
+      "player_id": "3198",
+      "name": "Derrick Henry",
+      "position": "RB"
+    },
+    {
+      "player_id": "8151",
+      "name": "Kenneth Walker",
+      "position": "RB"
+    }
+  ],
+  "my_picks": [
+    8,
+    13,
+    28,
+    33,
+    48,
+    53,
+    68,
+    73,
+    88,
+    93,
+    108,
+    113,
+    128,
+    133,
+    148
+  ],
+  "assumption": "The room drafts near ADP at every intervening pick. The SEAT ORDER held under ADP drift from -25% to +15%; the NAMES did not. Re-read the shortlist whenever the board has moved a lot.",
+  "measured_edge_vs_greedy": 59.6,
+  "measured_edge_note": "greedy_vs_plan.js: the engine's own #1 at every pick scores 2091.0 against this schedule's 2150.5. seat_hybrid.js: constraining the engine to these seats recovers all of it, because the engine already ranks the right player at 6 of 6 seats. This is EXPLORATORY evidence — a simulated room, not an observed draft.",
+  "wire_per_week": {
+    "QB": 20.9,
+    "RB": 5.3,
+    "WR": 13.3,
+    "TE": 6.3
+  },
+  "wire_n": {
+    "QB": 5,
+    "RB": 46,
+    "WR": 39,
+    "TE": 6
+  },
+  "wire_note": "Realized median points in the week a player was added off waivers, pooled 2023-25 across 764 acquisitions. QB and TE rest on n=5 and n=6.",
+  "seats": [
+    {
+      "pick": 8,
+      "slot": "FLEX",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "8138",
+        "name": "James Cook",
+        "position": "RB"
+      },
+      "plan_value": 282.1,
+      "shortlist": [
+        {
+          "player_id": "8138",
+          "name": "James Cook",
+          "position": "RB",
+          "proj_mean": 282.1,
+          "adp": 8.1,
+          "rank_metric": 282.1,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 13.5
+        },
+        {
+          "player_id": "4866",
+          "name": "Saquon Barkley",
+          "position": "RB",
+          "proj_mean": 262.4,
+          "adp": 12.9,
+          "rank_metric": 262.4,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 12.2
+        },
+        {
+          "player_id": "12527",
+          "name": "Ashton Jeanty",
+          "position": "RB",
+          "proj_mean": 261.2,
+          "adp": 10.1,
+          "rank_metric": 261.2,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 12.1
+        },
+        {
+          "player_id": "9224",
+          "name": "Chase Brown",
+          "position": "RB",
+          "proj_mean": 259.8,
+          "adp": 14,
+          "rank_metric": 259.8,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 12
+        },
+        {
+          "player_id": "6786",
+          "name": "CeeDee Lamb",
+          "position": "WR",
+          "proj_mean": 251.3,
+          "adp": 10.9,
+          "rank_metric": 251.3,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 3.5
+        }
+      ],
+      "gap_to_second": 19.7,
+      "gap_units": "season points",
+      "tossup": false,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR FLEX, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 13,
+      "slot": "TE",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "11604",
+        "name": "Brock Bowers",
+        "position": "TE"
+      },
+      "plan_value": 232.9,
+      "shortlist": [
+        {
+          "player_id": "11604",
+          "name": "Brock Bowers",
+          "position": "TE",
+          "proj_mean": 232.9,
+          "adp": 18.2,
+          "rank_metric": 232.9,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 9.2
+        },
+        {
+          "player_id": "8130",
+          "name": "Trey McBride",
+          "position": "TE",
+          "proj_mean": 214.9,
+          "adp": 17.3,
+          "rank_metric": 214.9,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 8
+        },
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "proj_mean": 188.6,
+          "adp": 38.1,
+          "rank_metric": 188.6,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 6.3
+        },
+        {
+          "player_id": "12518",
+          "name": "Tyler Warren",
+          "position": "TE",
+          "proj_mean": 174.9,
+          "adp": 48.3,
+          "rank_metric": 174.9,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 5.4
+        },
+        {
+          "player_id": "10859",
+          "name": "Sam LaPorta",
+          "position": "TE",
+          "proj_mean": 168.5,
+          "adp": 72,
+          "rank_metric": 168.5,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 4.9
+        }
+      ],
+      "gap_to_second": 18,
+      "gap_units": "season points",
+      "tossup": false,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR TE, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 28,
+      "slot": "WR",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "7525",
+        "name": "DeVonta Smith",
+        "position": "WR"
+      },
+      "plan_value": 217.6,
+      "shortlist": [
+        {
+          "player_id": "7525",
+          "name": "DeVonta Smith",
+          "position": "WR",
+          "proj_mean": 217.6,
+          "adp": 31,
+          "rank_metric": 217.6,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 1.2
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "proj_mean": 215.9,
+          "adp": 35.2,
+          "rank_metric": 215.9,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 1.1
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "proj_mean": 210.5,
+          "adp": 41.8,
+          "rank_metric": 210.5,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 0.7
+        },
+        {
+          "player_id": "7526",
+          "name": "Jaylen Waddle",
+          "position": "WR",
+          "proj_mean": 208.2,
+          "adp": 44.4,
+          "rank_metric": 208.2,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 0.6
+        },
+        {
+          "player_id": "6801",
+          "name": "Tee Higgins",
+          "position": "WR",
+          "proj_mean": 206.1,
+          "adp": 34.5,
+          "rank_metric": 206.1,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 0.4
+        }
+      ],
+      "gap_to_second": 1.7,
+      "gap_units": "season points",
+      "tossup": true,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR WR, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 33,
+      "slot": "QB",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "4881",
+        "name": "Lamar Jackson",
+        "position": "QB"
+      },
+      "plan_value": 372,
+      "shortlist": [
+        {
+          "player_id": "4881",
+          "name": "Lamar Jackson",
+          "position": "QB",
+          "proj_mean": 372,
+          "adp": 33.6,
+          "rank_metric": 372,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 3.9
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "proj_mean": 367.8,
+          "adp": 51.4,
+          "rank_metric": 367.8,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 3.6
+        },
+        {
+          "player_id": "6770",
+          "name": "Joe Burrow",
+          "position": "QB",
+          "proj_mean": 362.1,
+          "adp": 46.5,
+          "rank_metric": 362.1,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 3.2
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "proj_mean": 352.9,
+          "adp": 78.6,
+          "rank_metric": 352.9,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 2.6
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "proj_mean": 350.2,
+          "adp": 97.8,
+          "rank_metric": 350.2,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": 2.4
+        }
+      ],
+      "gap_to_second": 4.2,
+      "gap_units": "season points",
+      "tossup": true,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR QB, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 48,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "6790",
+        "name": "D'Andre Swift",
+        "position": "RB"
+      },
+      "plan_value": 55.1,
+      "shortlist": [
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "proj_mean": 212.1,
+          "adp": 52.4,
+          "rank_metric": 8.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 8.8
+        },
+        {
+          "player_id": "5892",
+          "name": "David Montgomery",
+          "position": "RB",
+          "proj_mean": 202.6,
+          "adp": 49.7,
+          "rank_metric": 8.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 8.2
+        },
+        {
+          "player_id": "8228",
+          "name": "Jaylen Warren",
+          "position": "RB",
+          "proj_mean": 169.3,
+          "adp": 65.5,
+          "rank_metric": 6,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 6
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "proj_mean": 167.8,
+          "adp": 77.2,
+          "rank_metric": 5.9,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.9
+        },
+        {
+          "player_id": "7611",
+          "name": "Rhamondre Stevenson",
+          "position": "RB",
+          "proj_mean": 166.3,
+          "adp": 70,
+          "rank_metric": 5.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.8
+        }
+      ],
+      "gap_to_second": 0.6,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": false,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 53,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "2216",
+        "name": "Mike Evans",
+        "position": "WR"
+      },
+      "plan_value": 24,
+      "shortlist": [
+        {
+          "player_id": "8228",
+          "name": "Jaylen Warren",
+          "position": "RB",
+          "proj_mean": 169.3,
+          "adp": 65.5,
+          "rank_metric": 6,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 6
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "proj_mean": 167.8,
+          "adp": 77.2,
+          "rank_metric": 5.9,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.9
+        },
+        {
+          "player_id": "7611",
+          "name": "Rhamondre Stevenson",
+          "position": "RB",
+          "proj_mean": 166.3,
+          "adp": 70,
+          "rank_metric": 5.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.8
+        },
+        {
+          "player_id": "7594",
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "proj_mean": 163.4,
+          "adp": 74.3,
+          "rank_metric": 5.6,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.6
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "proj_mean": 162.2,
+          "adp": 75.3,
+          "rank_metric": 5.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.5
+        }
+      ],
+      "gap_to_second": 0.1,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 68,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "position": "QB"
+      },
+      "plan_value": 12.8,
+      "shortlist": [
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "proj_mean": 167.8,
+          "adp": 77.2,
+          "rank_metric": 5.9,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.9
+        },
+        {
+          "player_id": "7611",
+          "name": "Rhamondre Stevenson",
+          "position": "RB",
+          "proj_mean": 166.3,
+          "adp": 70,
+          "rank_metric": 5.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.8
+        },
+        {
+          "player_id": "7594",
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "proj_mean": 163.4,
+          "adp": 74.3,
+          "rank_metric": 5.6,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.6
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "proj_mean": 162.2,
+          "adp": 75.3,
+          "rank_metric": 5.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.5
+        },
+        {
+          "player_id": "6806",
+          "name": "J.K. Dobbins",
+          "position": "RB",
+          "proj_mean": 157.7,
+          "adp": 84.4,
+          "rank_metric": 5.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.2
+        }
+      ],
+      "gap_to_second": 0.1,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 73,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "5967",
+        "name": "Tony Pollard",
+        "position": "RB"
+      },
+      "plan_value": 9.2,
+      "shortlist": [
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "proj_mean": 167.8,
+          "adp": 77.2,
+          "rank_metric": 5.9,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.9
+        },
+        {
+          "player_id": "7594",
+          "name": "Chuba Hubbard",
+          "position": "RB",
+          "proj_mean": 163.4,
+          "adp": 74.3,
+          "rank_metric": 5.6,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.6
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "proj_mean": 162.2,
+          "adp": 75.3,
+          "rank_metric": 5.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.5
+        },
+        {
+          "player_id": "6806",
+          "name": "J.K. Dobbins",
+          "position": "RB",
+          "proj_mean": 157.7,
+          "adp": 84.4,
+          "rank_metric": 5.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.2
+        },
+        {
+          "player_id": "8408",
+          "name": "Jordan Mason",
+          "position": "RB",
+          "proj_mean": 156.7,
+          "adp": 106.3,
+          "rank_metric": 5.1,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.1
+        }
+      ],
+      "gap_to_second": 0.3,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 88,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "4217",
+        "name": "George Kittle",
+        "position": "TE"
+      },
+      "plan_value": 8.1,
+      "shortlist": [
+        {
+          "player_id": "8408",
+          "name": "Jordan Mason",
+          "position": "RB",
+          "proj_mean": 156.7,
+          "adp": 106.3,
+          "rank_metric": 5.1,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.1
+        },
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "proj_mean": 156.9,
+          "adp": 95.3,
+          "rank_metric": 4.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 4.2
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "proj_mean": 151.7,
+          "adp": 93.4,
+          "rank_metric": 3.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.8
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "proj_mean": 150.7,
+          "adp": 112.2,
+          "rank_metric": 3.7,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.7
+        },
+        {
+          "player_id": "7567",
+          "name": "Kenny Gainwell",
+          "position": "RB",
+          "proj_mean": 135.2,
+          "adp": 102.9,
+          "rank_metric": 3.7,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.7
+        }
+      ],
+      "gap_to_second": 0.9,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": false,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 93,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "10222",
+        "name": "Jayden Reed",
+        "position": "WR"
+      },
+      "plan_value": 1.4,
+      "shortlist": [
+        {
+          "player_id": "8408",
+          "name": "Jordan Mason",
+          "position": "RB",
+          "proj_mean": 156.7,
+          "adp": 106.3,
+          "rank_metric": 5.1,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 5.1
+        },
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "proj_mean": 156.9,
+          "adp": 95.3,
+          "rank_metric": 4.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 4.2
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "proj_mean": 150.7,
+          "adp": 112.2,
+          "rank_metric": 3.7,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.7
+        },
+        {
+          "player_id": "7567",
+          "name": "Kenny Gainwell",
+          "position": "RB",
+          "proj_mean": 135.2,
+          "adp": 102.9,
+          "rank_metric": 3.7,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.7
+        },
+        {
+          "player_id": "4199",
+          "name": "Aaron Jones",
+          "position": "RB",
+          "proj_mean": 131.4,
+          "adp": 114.1,
+          "rank_metric": 3.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.5
+        }
+      ],
+      "gap_to_second": 0.9,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": false,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 108,
+      "slot": "DEF",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "LAR",
+        "name": "Los Angeles Rams",
+        "position": "DEF"
+      },
+      "plan_value": 114,
+      "shortlist": [
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "proj_mean": 114,
+          "adp": 120.2,
+          "rank_metric": 114,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "HOU",
+          "name": "Houston Texans",
+          "position": "DEF",
+          "proj_mean": 112,
+          "adp": 119.4,
+          "rank_metric": 112,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "SEA",
+          "name": "Seattle Seahawks",
+          "position": "DEF",
+          "proj_mean": 111,
+          "adp": 127.9,
+          "rank_metric": 111,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "PHI",
+          "name": "Philadelphia Eagles",
+          "position": "DEF",
+          "proj_mean": 106,
+          "adp": 143.6,
+          "rank_metric": 106,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "DEN",
+          "name": "Denver Broncos",
+          "position": "DEF",
+          "proj_mean": 104,
+          "adp": 129.9,
+          "rank_metric": 104,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        }
+      ],
+      "gap_to_second": 2,
+      "gap_units": "season points",
+      "tossup": true,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR DEF, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 113,
+      "slot": "K",
+      "is_starter_seat": true,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "11533",
+        "name": "Brandon Aubrey",
+        "position": "K"
+      },
+      "plan_value": 107,
+      "shortlist": [
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "proj_mean": 107,
+          "adp": 121.9,
+          "rank_metric": 107,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "proj_mean": 104,
+          "adp": 173.5,
+          "rank_metric": 104,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "proj_mean": 103,
+          "adp": 154.8,
+          "rank_metric": 103,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "2747",
+          "name": "Jason Myers",
+          "position": "K",
+          "proj_mean": 102,
+          "adp": 159.8,
+          "rank_metric": 102,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        },
+        {
+          "player_id": "11792",
+          "name": "Will Reichard",
+          "position": "K",
+          "proj_mean": 100,
+          "adp": 238.2,
+          "rank_metric": 100,
+          "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
+          "beats_wire_by": null
+        }
+      ],
+      "gap_to_second": 3,
+      "gap_units": "season points",
+      "tossup": true,
+      "tossup_threshold": 8,
+      "fallback_rule": "Take the best remaining player ELIGIBLE FOR K, not the best player on the board — the board ordering is roster-blind."
+    },
+    {
+      "pick": 128,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": false,
+      "plan_player": {
+        "player_id": "10219",
+        "name": "Chris Rodriguez",
+        "position": "RB"
+      },
+      "plan_value": 0.5,
+      "shortlist": [
+        {
+          "player_id": "10219",
+          "name": "Chris Rodriguez",
+          "position": "RB",
+          "proj_mean": 129.6,
+          "adp": 157.2,
+          "rank_metric": 3.3,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.3
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "proj_mean": 142.9,
+          "adp": 138.2,
+          "rank_metric": 3.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.2
+        },
+        {
+          "player_id": "9480",
+          "name": "Brenton Strange",
+          "position": "TE",
+          "proj_mean": 136.7,
+          "adp": 141.3,
+          "rank_metric": 2.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2.8
+        },
+        {
+          "player_id": "5844",
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "proj_mean": 132,
+          "adp": 172.6,
+          "rank_metric": 2.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2.5
+        },
+        {
+          "player_id": "11655",
+          "name": "Tyrone Tracy",
+          "position": "RB",
+          "proj_mean": 109.9,
+          "adp": 139.4,
+          "rank_metric": 2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2
+        }
+      ],
+      "gap_to_second": 0.1,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 133,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": true,
+      "plan_player": null,
+      "plan_value": null,
+      "shortlist": [
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "proj_mean": 142.9,
+          "adp": 138.2,
+          "rank_metric": 3.2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 3.2
+        },
+        {
+          "player_id": "9480",
+          "name": "Brenton Strange",
+          "position": "TE",
+          "proj_mean": 136.7,
+          "adp": 141.3,
+          "rank_metric": 2.8,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2.8
+        },
+        {
+          "player_id": "5844",
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "proj_mean": 132,
+          "adp": 172.6,
+          "rank_metric": 2.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2.5
+        },
+        {
+          "player_id": "11655",
+          "name": "Tyrone Tracy",
+          "position": "RB",
+          "proj_mean": 109.9,
+          "adp": 139.4,
+          "rank_metric": 2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2
+        },
+        {
+          "player_id": "5001",
+          "name": "Dalton Schultz",
+          "position": "TE",
+          "proj_mean": 124.7,
+          "adp": 170,
+          "rank_metric": 2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2
+        }
+      ],
+      "gap_to_second": 0.4,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    },
+    {
+      "pick": 148,
+      "slot": "BENCH",
+      "is_starter_seat": false,
+      "unpriced": true,
+      "plan_player": null,
+      "plan_value": null,
+      "shortlist": [
+        {
+          "player_id": "5844",
+          "name": "T.J. Hockenson",
+          "position": "TE",
+          "proj_mean": 132,
+          "adp": 172.6,
+          "rank_metric": 2.5,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2.5
+        },
+        {
+          "player_id": "5001",
+          "name": "Dalton Schultz",
+          "position": "TE",
+          "proj_mean": 124.7,
+          "adp": 170,
+          "rank_metric": 2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2
+        },
+        {
+          "player_id": "8210",
+          "name": "Chig Okonkwo",
+          "position": "TE",
+          "proj_mean": 124.1,
+          "adp": 149.1,
+          "rank_metric": 2,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 2
+        },
+        {
+          "player_id": "11603",
+          "name": "AJ Barner",
+          "position": "TE",
+          "proj_mean": 119.4,
+          "adp": 175.1,
+          "rank_metric": 1.7,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 1.7
+        },
+        {
+          "player_id": "9508",
+          "name": "Tyjae Spears",
+          "position": "RB",
+          "proj_mean": 98.3,
+          "adp": 157.9,
+          "rank_metric": 1.3,
+          "rank_basis": "pts/week over the free player at his position",
+          "beats_wire_by": 1.3
+        }
+      ],
+      "gap_to_second": 0.5,
+      "gap_units": "pts/week over the free player at his position",
+      "tossup": true,
+      "tossup_threshold": 0.53,
+      "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
+    }
+  ]
+}
