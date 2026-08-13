@@ -1,0 +1,35 @@
+{
+ "_territory": "TERRITORY: C \u2014 draft/backtest/nflverse_pbp_census.py",
+ "_what": "Rows per season in nflverse's play-by-play release, read from each parquet's FOOTER over HTTP range requests \u2014 the row count is in the file metadata, so this costs ~120KB per season rather than 20MB.",
+ "_why": "draft/build.py asks nfl_data_py for pbp seasons [year-1, year-2] and records the RESULTING ROW COUNT in provenance.opportunity_detail, but never records WHICH SEASONS came back. nfl_data_py 404s on 2025 for weekly data in this environment, so 'the priors are built on the two most recent seasons' was an assumption. These counts are what makes it checkable: the season sums are distinct, so a pbp_rows total identifies its season set.",
+ "_method": "pyarrow.parquet metadata.num_rows via HTTP Range on the release asset",
+ "_caveat": "nflverse REVISES completed seasons occasionally. A changed count here means re-verify, not necessarily a defect in the board.",
+ "source": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_0.parquet",
+ "fetched_at": "2026-08-13",
+ "seasons": {
+  "2022": {
+   "rows": 49434,
+   "columns": 372,
+   "bytes": 20426548,
+   "status": "ok"
+  },
+  "2023": {
+   "rows": 49665,
+   "columns": 372,
+   "bytes": 20534088,
+   "status": "ok"
+  },
+  "2024": {
+   "rows": 49492,
+   "columns": 372,
+   "bytes": 20597560,
+   "status": "ok"
+  },
+  "2025": {
+   "rows": 48771,
+   "columns": 372,
+   "bytes": 20337029,
+   "status": "ok"
+  }
+ }
+}
