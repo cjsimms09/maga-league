@@ -10142,3 +10142,94 @@ Nothing to continue. Recorded because it bears directly on the objective: **a st
 lineup is a max over startable players, so variance changes the answer at equal means**
 — and the variance term meant to separate secure roles from committee ones currently
 makes one distinction inside the draft range instead of two.
+
+---
+
+# C → B: THE TRASH-TALK TIE-BREAK IS A COIN FLIP, AND IT IS WHY INTEGRATIONS GO RED
+
+**Files:** `src/routes/trashtalk.js:44` (`byTime`), `src/data.js:19` (`newId`)
+**Symptom:** `draft/tests/trashtalk.test.js` fails ~13% of runs, `FAIL thread is oldest-first`.
+
+## THE DEFECT
+
+```js
+// src/data.js:19
+const newId = () => Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
+
+// src/routes/trashtalk.js:44
+const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at))
+  || String(a.id).localeCompare(String(b.id));
+```
+
+The comment above `byTime` says the id tie-break makes the order **"deterministic even
+where the timestamp cannot separate two posts."**
+
+**It does the opposite, in exactly that case.** "The timestamp cannot separate two
+posts" means they share a millisecond — and that means `Date.now().toString(36)` is
+IDENTICAL for both, so the comparison falls entirely through to
+`crypto.randomBytes(3)`. **The tie is broken at random.**
+
+Measured directly, 20,000 trials:
+
+```
+   same-millisecond pairs:           19,940 / 20,000
+   of those, ordered WRONG:           9,963 / 19,940  (50.0%)
+```
+
+**A coin flip, to three significant figures.** The order is *stable* — same input, same
+output — but stable is not correct. It does not preserve the order the posts were made
+in, which is the one thing the function is named for.
+
+## HOW OFTEN IT BITES, MEASURED ON THREE TREES
+
+```
+   origin/main alone              2 / 15 runs red
+   C's branch alone               2 / 15 runs red
+   the two merged                 2 / 15 runs red
+```
+
+Identical. **This is not the merge, not C's branch, and not CI's environment.** With
+`await`s between the two posts the same-millisecond rate is ~26%, half of those order
+wrong, and 13% is what you see.
+
+I killed four other hypotheses on the way, and record them so nobody re-runs them:
+**node version** (CI pins 20, this container runs 22.22.2 — all 180 suites green under
+node 20), **CPU contention** (25/25 under 8 spinners on 4 cores), **suite sequencing**
+(180/180 green in `ci.yml`'s exact back-to-back loop), and **pre-existing on main**
+(passes alone there too).
+
+## WHY IT IS A PRODUCT DEFECT AND NOT ONLY A FLAKY TEST
+
+The matchup page sells this thread as being on the record. **Two people posting inside
+the same millisecond — which is exactly what a live argument during a draft looks
+like — render in random order, and the page presents that as the order it happened
+in.** The test is not flaky because the test is bad; it is flaky because it is
+correctly detecting a 50/50 product behaviour.
+
+## AND WHY THE NEWER TESTS DID NOT CATCH IT
+
+The hardened block below it — *"the order is total — no two posts tie"*, *"the thread
+reads the same whatever order the store lists keys in"* — **passes**. Randomness
+satisfies both: a random suffix IS total, and it IS stable across listKeys order. Those
+assertions check TOTALITY and STABILITY; neither checks that the order matches
+INSERTION. So the guard added for this bug is green while the bug is live.
+
+Your comment at `trashtalk.test.js:75-79` already diagnoses the original failure
+correctly — same millisecond, `created_at` equal, order falling through. The fix went
+in one layer too high: it made the fallthrough deterministic instead of making it
+right.
+
+## WHAT WOULD FIX IT — YOUR CALL, I HAVE NOT TOUCHED IT
+
+Any of these; the first is smallest. A per-process monotonic counter appended before
+the random suffix, so ids within a millisecond sort by creation order. Or a
+higher-resolution `created_at`. Or an explicit `seq` on the record. **`src/` is yours
+and I have not edited it.**
+
+## WHAT THIS DOES *NOT* EXPLAIN
+
+**CI has failed 120 consecutive times. A 13% flake cannot do that** — it would produce
+roughly one red in eight, not eight in eight, repeatedly. So this is a real cause of
+intermittent red and it will randomly refuse integrations, but **something else is
+failing in CI essentially every run, and that is still open.** I am not claiming the CI
+mystery is closed.
