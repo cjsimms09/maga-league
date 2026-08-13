@@ -9614,3 +9614,95 @@ is narrower than production's.** A measured ceiling weight will be real, and it 
 parity.
 
 **1,489 Python tests green. Territory clean.**
+
+---
+
+# 🚨 THE TWO DECISIONS — ANSWERED. **AND THE POPULATION IS WORSE THAN 576.** (C, 2026-08-13)
+
+## THE NUMBER THAT MATTERS: **402**, NOT 576
+
+`proj_mean > 0` is 576. **Only 402 of those are a projection.** The other 174 are
+`projections.py:_rank_fallback` — *"No projection anywhere: decay off ADP so the board still
+ranks sensibly"* — an ADP decay off a per-position constant (QB 320, RB 270, WR 260, TE 190,
+K 130, DEF 120).
+
+```
+   board                                     1,759
+     real Sleeper projection                   402   23%
+     _rank_fallback, no source at all          174   incl. ALL 41 K and ALL 32 DEF
+     no projection, the tie block            1,183   67%
+```
+
+**Every kicker and every defence on this board is a formula, not a projection.** Neither
+source publishes them. That compounds with yesterday's K/DEF finding: their VORP is a
+manufactured number, on a nearly flat curve, against a baseline that is also wrong —
+**formula on formula, and it ranks them 117 picks ahead of the market.**
+
+**And 33 players sit in the tie block at zero while carrying a real FantasyPros
+projection**, because `baseline` is built from Sleeper alone (`baseline_from_projections(si.fetch_projections(...))`)
+and FantasyPros is attached afterwards without ever feeding `proj_mean`. **Thirty-three
+players are rescuable from the tie block with a source we already fetch and already store.**
+
+## DECISION ONE — **CARRY THEM AS EXPLICITLY UNRANKABLE. DO NOT REMOVE THEM, AND DO NOT NULL THE VORP.**
+
+**Not exclusion.** The board must stay complete: `keeperui.js:374` searches the WHOLE list on
+purpose (*"a keeper is by definition off the board"*), and `app.js` rebuilds `state.board`
+from `state.data.players` on the override, resume and reconcile paths. **Removing 1,183
+players breaks keeper search and every rebuild path.**
+
+**And not a null VORP either — that is a trap.** The engine reads `p.vorp || 0` at
+`engine.js:572`, `:981`, `:992`. **`null || 0` is 0, which is ABOVE the −172.7 they carry
+now** — nulling would promote all 1,183 above every real negative-VORP player. **A null here
+is worse than the tie block.**
+
+**So: a distinct state the engine tests before it sorts** — `rankable: false`, or
+`vorp: null` **only** alongside a guard at every `|| 0` site. The field must be one the
+engine cannot coerce into a number by accident.
+
+### THE CONSEQUENCE, MEASURED RATHER THAN ASSUMED
+
+**Replacement moves by EXACTLY 0.0 at every position** when all 1,183 come off — re-measured
+on this larger set, not carried over from the 943:
+
+```
+   whole board (1759)   QB 341.72  RB 188.53  WR 172.67  TE 150.72  K 97.0  DEF 99.0
+   minus all 1,183      QB 341.72  RB 188.53  WR 172.67  TE 150.72  K 97.0  DEF 99.0
+   max movement 0.0
+```
+
+**And now the margin, which the earlier answer did not give:** every position has **22 to 166
+players of headroom** between its replacement rank and its projected count (QB 10 vs 75,
+RB 21 vs 132, WR 29 vs 195, TE 10 vs 101, K 10 vs 41, DEF 10 vs 32). **It would take losing
+65 projected QBs or 166 projected WRs before replacement moved.** Zero with a wide margin,
+not zero by luck.
+
+**Crosswalk coverage is unaffected** — the market-depth figures count MFL's own position
+labels from the decode key and never touch our board.
+
+## DECISION TWO — **576 IS NOT A LOSS FROM 633. BUT 633 IS UNAUDITED, AND THE ANSWER IS ALREADY IN A LOG NOBODY READS.**
+
+**Two independent sources bracket the same population**, which is the corroboration that
+matters: Sleeper **633** with points of 9,411 rows; FantasyPros **525 parsed, 480 matched, 7
+unmatched**. If Sleeper were dropping most projections, FantasyPros would publish far more.
+**It publishes fewer.** ~600 is roughly 32 teams × 20 fantasy-relevant players. **576 on the
+board is the expected order, not a shortfall.**
+
+**I cannot verify against the source from here** — egress is closed, verified not assumed
+(`api.sleeper.app` → proxy 403 policy denial). **But the check already runs.**
+`sleeper_import._best_payload` tries **three** URL shapes, scores each by rows-carrying-stats,
+and **prints `{path}: {size} rows, {n} with stats` for every one.** Its own comment names the
+hazard: *"the wrong one returns a well-formed payload with empty stat lines rather than an
+error. That is how a board of zeroes got built while the log cheerfully reported thousands of
+rows."*
+
+**So the decisive line exists on every build.** If a losing shape reports **more** than 633
+with stats, we are dropping projections. If all three report ≤633, the source publishes ~633
+and 576 is right. **Read the last build log — nobody has.**
+
+### THE REAL PROVENANCE GAP, AND IT IS MINE
+
+**Sleeper's projections have no match report.** FantasyPros records
+`fp_proj_matched: 480 / fp_proj_unmatched: 7`; Sleeper records only `rows` and `nonzero`.
+**So 633 nonzero → 402 on the board is 231 projections unaccounted for, and nothing in the
+artifact says whether they were filtered off the board or lost in the crosswalk.** That is
+one counter, in my lane, and I will add it unless told otherwise.
