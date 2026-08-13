@@ -9076,3 +9076,60 @@ to load** — the honest depth for a 10-team league is not something either of m
 measures directly, and I am not going to manufacture it. Combined with the QB sweep
 (unchanged for depth 10-23), the finding rests on the shape of the correction rather than on
 any figure I chose.
+
+## 🔍 AUDITING MY OWN CROSSWALK, SINCE SEVERAL CLAIMS NOW REST ON IT (C, 2026-08-13)
+
+The board-vs-market work and the ADP-agreement figure both go through `crosswalk_map`, so
+its completeness is load-bearing and I had never measured it.
+
+```
+   decode key ids                       708
+   IDP and team units (not our format)  257
+   JOINABLE (our positions)             451
+   matched                              432      95.8%
+   missed                                19       4.2%
+```
+
+**F2's registered bar is ≥0.90. It clears.** But the 4.2% is three different things and the
+distinction is the whole point:
+
+```
+   keepers, correctly off the draftable board    3   Chase, Walker, Henry
+   TRUE matcher failures                         3   0.7% of joinable
+   genuinely absent from our board              13
+```
+
+**The matcher's own failure rate is 0.7%, and it is ONE nameable class — first-name
+diminutives:**
+
+```
+   Kenneth Gainwell  -> Kenny Gainwell
+   Andres Borregales -> Andy Borregales
+   Matthew Hibner    -> Matt Hibner
+```
+
+**And I nearly reported it as 1.8%.** My first pass matched on surname+position and counted
+eight, but five of those are DIFFERENT PEOPLE who happen to share a surname — Zavion Thomas
+is not Brian Thomas, Cyrus Allen is not Keenan Allen, Barion Brown is not A.J. Brown. **A
+surname match is not a player match, which is exactly the wrong-but-plausible failure the
+crosswalk's own comments warn about**, and I reproduced it in the probe auditing the
+crosswalk.
+
+**A bug in the audit before that.** My first decomposition keyed on team and reported
+Gainwell as absent, because **MFL writes `TBB`, `KCC`, `GBP`, `SFO`, `LVR`, `NOS`, `NEP`
+where our board writes `TB`, `KC`, `GB`, `SF`, `LV`, `NO`, `NE`.** The real matcher
+normalises team; my ad-hoc index did not. **Two successive versions of my own audit were
+wrong in opposite directions before the numbers held still.**
+
+### WHAT IT MEANS FOR THE CLAIMS THAT DEPEND ON IT
+
+**The market-depth figures do not use the crosswalk at all** — they count MFL's own position
+labels straight from the decode key — so the baseline finding is untouched by any of this.
+The ADP-agreement figure (mean |market ADP − our rank|, 76.7 → 52.5) does use it, and a 0.7%
+matcher failure on deep players cannot move a mean over 337 priced players.
+
+**And it confirms the earlier "not urgent" call was right.** Three players, all outside the
+draftable range, none affecting a reported number. **Still not proposing a fix**: teaching
+`match_player` about diminutives is precisely the change whose failure mode is a confident
+wrong match, and it would need its own measurement before anyone touches the authoritative
+matcher.
