@@ -88,38 +88,3 @@ with B's h2h work; no 08-12 commit touches the h2h/rivalry/matchup path. The JS
 step deliberately runs every suite and collects failures rather than aborting, so
 **every other suite ran in CI and passed** — today's work was verified by the
 gate; one unrelated suite made the gate report red the whole time.
-
----
-
-## RESOLUTION, 2026-08-13 — half of it is done, and it is the half I own
-
-**(2) THE TEST NOW ESTABLISHES ITS OWN PRECONDITION. Done.** The arm blocks
-Sleeper's host for its duration and then ASSERTS the precondition held — that a
-refetch was attempted and refused, and that no live data came back. It no longer
-means "offline" on one machine and "online" on another.
-
-One correction worth recording, because the obvious assertion is wrong: **"no
-cache entry" is not the test.** On a failed fetch `src/sleeper.js` writes a
-NEGATIVE entry — `{fetched_at: 0, failed_at: <ts>, data: null}` — so it does not
-hammer the API on every request. That is correct behaviour, and it means an entry
-EXISTS while the path is genuinely offline. The precondition is that no live DATA
-came back, and that is what is now checked.
-
-**(1) ONE RESOLVER. Not done, not mine, and now REPRODUCIBLE WITHOUT THE
-NETWORK.** Fixing the arm above would have closed the only thing catching the
-production defect — which is precisely what "MAKING IT PASS IS NOT THE FIX"
-warned against. So a new arm (2b) constructs the condition deterministically: a
-live bundle carrying an id the archive KNOWS that belongs to somebody ELSE.
-
-    matchup: You leads 4–3      rivalry: Marian leads 4–1
-
-Same shape as the CI failure (`matchup 3–2` / `rivalry 4–1`), no network
-involved. Arm 1 could never catch this: its ids are ones the archive has never
-seen, so `/matchup` correctly declines them and both pages fall to the name map.
-The condition needs an id that is both archive-known and the wrong person, which
-a real Sleeper response supplies and a synthetic `u0..u9` bundle cannot.
-
-**THE SUITE STILL FAILS, DELIBERATELY, AND THAT IS AN IMPROVEMENT.** It was one
-assertion failing only in CI, invisible on the machine of whoever had to fix it.
-It is now one assertion failing everywhere, in one command, with the two source
-lines named. Nothing was loosened to make main green.
