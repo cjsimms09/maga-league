@@ -114,6 +114,25 @@ bash scripts/territory-check.sh A >/tmp/tc9.out 2>&1; ck $? 0 \
   "ci.yml stays shared — repo-wide, not one lane's feature"
 git checkout -q .github/workflows/ci.yml
 
+# ── ROUTES.md MUST BE WRITABLE BY EVERY LANE ────────────────────────────────
+# It is the cross-lane inbox and its own Rule 2 is "the receiver deletes the
+# line". As a new ROOT file it fell through to the default and resolved to A, so
+# a receiving lane's deletions were REFUSED and reverted — the protocol was
+# unenforceable by construction. Pinned for all three sides, because a shared
+# list with no test is a list one edit away from going short, which this guard's
+# own history already shows four times.
+echo "- [ ] test item" >> ROUTES.md
+for lane in A B C; do
+  bash scripts/territory-check.sh "$lane" >/tmp/tcR.out 2>&1; ck $? 0 \
+    "ROUTES.md is writable by lane $lane — the receiver must be able to close an item"
+done
+# The suite runs in a scratch repo (mktemp -d), so ROUTES.md is CREATED here
+# rather than modified — `git checkout` has nothing to restore and errors. The
+# guard treats untracked files as touched (verified), so the checks above are
+# real, but the cleanup has to match how the file got here.
+git checkout -q ROUTES.md 2>/dev/null || rm -f ROUTES.md
+git checkout -q .github/workflows/ci.yml
+
 
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]
