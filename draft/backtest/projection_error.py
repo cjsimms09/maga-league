@@ -41,7 +41,10 @@ clothes, and a consumer pricing off it proceeds confidently.
 """
 from __future__ import annotations
 
+from pathlib import Path
 from statistics import pstdev
+
+import field_population as FP
 
 #: Rank edges WITHIN a position, declared rather than tuned. They are round numbers
 #: chosen to match how a roster is actually filled — the starter, the flex-worthy
@@ -215,6 +218,70 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
                          "no archived ADP before 2026-08-09 and a retroactive fetch "
                          "leaks (exp33); a realized pick number cannot be known before "
                          "the draft it comes from."}
+
+
+#: Lives in draft/backtest/, NOT draft/data/ — draft/data is A's (config and seed
+#: data) and this is a measurement produced in this lane. Same home as the August
+#: unprojected snapshot, for the same reason.
+CALIBRATION = Path(__file__).resolve().parent / "projection_error_calibration.json"
+
+#: What a cell is SUPPOSED to carry, declared rather than derived — the same reason
+#: D3 declares SNAPSHOT_FIELDS. A statistic that stops being written must show up as
+#: empty rather than simply ceasing to exist.
+CELL_FIELDS = ["position", "band", "n", "status", "sd_ratio", "mean_ratio",
+               "p10_ratio", "p50_ratio", "p90_ratio", "basis"]
+
+#: The on-disk key separator. Cells are keyed by a TUPLE and JSON has no tuple, so
+#: the key is flattened explicitly rather than left to `json.dumps` — which would
+#: write `"('QB', '1-3')"` and silently match nothing on the way back in. Every band
+#: would then read `unmeasurable` and the board would fall back without a word.
+KEY_SEP = "|"
+
+
+def save(cal: dict, path=None) -> None:
+    """Write the calibration where another lane and another run can read it.
+
+    WITH ITS FIELD POPULATION, per Cory's standing rule: a `sd_ratio` column at 0%
+    sitting in the manifest is what makes a reader ask why before concluding the
+    method produces nothing.
+    """
+    import json
+
+    p = Path(path or CALIBRATION)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    rows = [dict(v, position=k[0], band=k[1]) for k, v in (cal.get("cells") or {}).items()]
+    rows.sort(key=lambda r: (str(r["position"]), str(r["band"])))
+    p.write_text(json.dumps({
+        "_territory": "TERRITORY: C — produced by draft/backtest/projection_error.py",
+        "_note": "Measured projection error by position and PROJECTION RANK BAND. "
+                 "Apply with projection_error.proj_sd_for / proj_ceiling_for — a band "
+                 "with status `unmeasurable` returns None, and None must stay None: a "
+                 "fallback constant is how 0.25 * proj_mean reached the board.",
+        "version": cal.get("version", CALIBRATION_VERSION),
+        "seasons": cal.get("seasons"), "min_n": cal.get("min_n"),
+        "graded": cal.get("graded"), "ungraded": cal.get("ungraded"),
+        "cells_measured": cal.get("cells_measured"),
+        "cells_unmeasurable": cal.get("cells_unmeasurable"),
+        "caveat": cal.get("caveat"), "band_note": cal.get("band_note"),
+        "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
+                  for k, v in (cal.get("cells") or {}).items()},
+        "population": FP.of_records(rows, fields=CELL_FIELDS),
+    }, indent=2) + "\n")
+
+
+def load(path=None) -> dict:
+    """Read a saved calibration back into the shape `proj_sd_for` consumes."""
+    import json
+
+    p = Path(path or CALIBRATION)
+    if not p.exists():
+        return {"version": CALIBRATION_VERSION, "cells": {}}
+    d = json.loads(p.read_text())
+    cells = {}
+    for k, v in (d.get("cells") or {}).items():
+        pos, _, band = str(k).partition(KEY_SEP)
+        cells[(pos, band)] = v
+    return dict(d, cells=cells)
 
 
 def _cell(cal, position, rank):

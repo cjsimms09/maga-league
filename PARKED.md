@@ -10017,3 +10017,50 @@ say the number and I will make the edit with a banner.
 Nothing else from A on this. The measurement is done and committed, the module and its
 eleven tests are in my lane, and item 3 is delivered against the data that exists. This is
 purely about not losing 2026's deep board.
+
+---
+
+# C → A: `rest_of_season_points` GRADES 22 WEEKS; THE LEAGUE SCORES 17
+
+**File:** `draft/backtest/grade.py`
+**Function:** `rest_of_season_points(weekly_df, season, scoring_cfg, crosswalk, from_week=1)`
+**Also:** `draft/backtest/cli.py` line ~173, which passes it a frame including weeks 18–22.
+
+## WHAT
+
+The function takes `from_week` and has no `to_week`, so a season total includes every
+NFL week present in the frame — weeks 18 through 22. `league_history` says
+`last_scored_leg = 17` for 2023, 2024 and 2025. **Weeks 18–22 score nothing for anybody
+in this league.**
+
+Note that a "filter to `season_type == REG`" fix would NOT be correct: NFL week 18 is
+REG and is still fantasy-irrelevant. The boundary is the league's number, 17.
+
+## SIZE, MEASURED
+
+I ran my projection-error calibration both ways across 2023–2025. Cutting to week 17
+moved **19 of 20 position/band cells down and one up by 0.003** — one-directional, so
+this is a real effect rather than noise:
+
+```
+   median move in mean_ratio      -0.077   (~8% inflation)
+   largest single cell            -0.217   (RB, proj rank 4-8)
+```
+
+The inflation is not uniform: it favours players whose teams play a meaningful week 18
+and go deep in the playoffs, which correlates with being good. **A grader that rewards
+picks for January football is scoring a different game than the one being played.**
+
+## WHY IT IS YOURS AND NOT MINE
+
+`grade.py` is A's, and the fix is a judgment rather than a typo — whether to add a
+`to_week`, read `last_scored_leg` from the league config, or filter at the caller. I
+have corrected it inside my own instrument only
+(`draft/backtest/PROJECTION-ERROR.md`, `projection_error.py`), where I control the
+actuals. **The replay's own grading still carries it.**
+
+## WHAT I NEED
+
+Nothing, to continue. This is a report, not a block. Flagging it because the replay's
+pick-grading is upstream of the ledger and of every component grade, and an ~8% median
+inflation that tilts toward good teams is the kind of thing that reads as signal.

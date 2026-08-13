@@ -1,0 +1,289 @@
+{
+  "_territory": "TERRITORY: C \u2014 produced by draft/backtest/projection_error.py",
+  "_note": "Measured projection error by position and PROJECTION RANK BAND. Apply with projection_error.proj_sd_for / proj_ceiling_for \u2014 a band with status `unmeasurable` returns None, and None must stay None: a fallback constant is how 0.25 * proj_mean reached the board.",
+  "version": "projection-error/v1",
+  "seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "min_n": 8,
+  "graded": 1304,
+  "ungraded": 827,
+  "cells_measured": 20,
+  "cells_unmeasurable": 0,
+  "caveat": "OPTIMISTIC BY AN UNMEASURED AMOUNT. Players with no weekly rows at all are excluded (a season that ended before week 1 leaves nothing to grade), while a player who broke down in week 1 is kept near zero. Every band here is therefore fitted on players who reached the field \u2014 survivorship, and it biases the spread tighter than reality. `ungraded` is the size of the excluded set.",
+  "band_note": "Bands are PROJECTION RANK WITHIN POSITION, not ADP. We hold no archived ADP before 2026-08-09 and a retroactive fetch leaks (exp33); a realized pick number cannot be known before the draft it comes from.",
+  "cells": {
+    "QB|17-32": {
+      "n": 42,
+      "status": "measured",
+      "sd_ratio": 0.572513,
+      "mean_ratio": 0.688564,
+      "p10_ratio": 0.007604,
+      "p50_ratio": 0.627163,
+      "p90_ratio": 1.484249,
+      "basis": "42 graded players"
+    },
+    "RB|33+": {
+      "n": 240,
+      "status": "measured",
+      "sd_ratio": 0.665823,
+      "mean_ratio": 0.572856,
+      "p10_ratio": 0.020686,
+      "p50_ratio": 0.344788,
+      "p90_ratio": 1.433724,
+      "basis": "240 graded players"
+    },
+    "WR|33+": {
+      "n": 403,
+      "status": "measured",
+      "sd_ratio": 0.509863,
+      "mean_ratio": 0.570796,
+      "p10_ratio": 0.048715,
+      "p50_ratio": 0.419185,
+      "p90_ratio": 1.317349,
+      "basis": "403 graded players"
+    },
+    "TE|33+": {
+      "n": 196,
+      "status": "measured",
+      "sd_ratio": 0.448705,
+      "mean_ratio": 0.472613,
+      "p10_ratio": 0.030173,
+      "p50_ratio": 0.336349,
+      "p90_ratio": 1.092067,
+      "basis": "196 graded players"
+    },
+    "WR|9-16": {
+      "n": 24,
+      "status": "measured",
+      "sd_ratio": 0.340846,
+      "mean_ratio": 0.978077,
+      "p10_ratio": 0.488407,
+      "p50_ratio": 0.988004,
+      "p90_ratio": 1.317503,
+      "basis": "24 graded players"
+    },
+    "TE|17-32": {
+      "n": 44,
+      "status": "measured",
+      "sd_ratio": 0.565361,
+      "mean_ratio": 1.009575,
+      "p10_ratio": 0.144795,
+      "p50_ratio": 1.114275,
+      "p90_ratio": 1.704001,
+      "basis": "44 graded players"
+    },
+    "QB|9-16": {
+      "n": 24,
+      "status": "measured",
+      "sd_ratio": 0.43182,
+      "mean_ratio": 0.937774,
+      "p10_ratio": 0.265682,
+      "p50_ratio": 1.040212,
+      "p90_ratio": 1.425624,
+      "basis": "24 graded players"
+    },
+    "TE|9-16": {
+      "n": 23,
+      "status": "measured",
+      "sd_ratio": 0.468689,
+      "mean_ratio": 0.962736,
+      "p10_ratio": 0.412223,
+      "p50_ratio": 0.883408,
+      "p90_ratio": 1.646979,
+      "basis": "23 graded players"
+    },
+    "QB|33+": {
+      "n": 96,
+      "status": "measured",
+      "sd_ratio": 0.616583,
+      "mean_ratio": 0.410585,
+      "p10_ratio": -0.001269,
+      "p50_ratio": 0.165142,
+      "p90_ratio": 1.093651,
+      "basis": "96 graded players"
+    },
+    "QB|4-8": {
+      "n": 15,
+      "status": "measured",
+      "sd_ratio": 0.356092,
+      "mean_ratio": 0.907396,
+      "p10_ratio": 0.459222,
+      "p50_ratio": 0.963592,
+      "p90_ratio": 1.316019,
+      "basis": "15 graded players"
+    },
+    "RB|17-32": {
+      "n": 48,
+      "status": "measured",
+      "sd_ratio": 0.615139,
+      "mean_ratio": 1.060844,
+      "p10_ratio": 0.234087,
+      "p50_ratio": 1.029789,
+      "p90_ratio": 1.890284,
+      "basis": "48 graded players"
+    },
+    "TE|4-8": {
+      "n": 14,
+      "status": "measured",
+      "sd_ratio": 0.338529,
+      "mean_ratio": 0.913002,
+      "p10_ratio": 0.597589,
+      "p50_ratio": 0.897685,
+      "p90_ratio": 1.309089,
+      "basis": "14 graded players"
+    },
+    "RB|1-3": {
+      "n": 9,
+      "status": "measured",
+      "sd_ratio": 0.491821,
+      "mean_ratio": 1.194291,
+      "p10_ratio": 0.692253,
+      "p50_ratio": 1.232863,
+      "p90_ratio": 1.720853,
+      "basis": "9 graded players"
+    },
+    "WR|17-32": {
+      "n": 46,
+      "status": "measured",
+      "sd_ratio": 0.412355,
+      "mean_ratio": 1.070108,
+      "p10_ratio": 0.401227,
+      "p50_ratio": 1.147488,
+      "p90_ratio": 1.506045,
+      "basis": "46 graded players"
+    },
+    "QB|1-3": {
+      "n": 9,
+      "status": "measured",
+      "sd_ratio": 0.272591,
+      "mean_ratio": 0.99186,
+      "p10_ratio": 0.596819,
+      "p50_ratio": 1.084766,
+      "p90_ratio": 1.230007,
+      "basis": "9 graded players"
+    },
+    "WR|4-8": {
+      "n": 15,
+      "status": "measured",
+      "sd_ratio": 0.446244,
+      "mean_ratio": 1.125111,
+      "p10_ratio": 0.654231,
+      "p50_ratio": 1.077055,
+      "p90_ratio": 1.740272,
+      "basis": "15 graded players"
+    },
+    "RB|9-16": {
+      "n": 23,
+      "status": "measured",
+      "sd_ratio": 0.476577,
+      "mean_ratio": 1.127635,
+      "p10_ratio": 0.514514,
+      "p50_ratio": 1.143829,
+      "p90_ratio": 1.639807,
+      "basis": "23 graded players"
+    },
+    "TE|1-3": {
+      "n": 9,
+      "status": "measured",
+      "sd_ratio": 0.366079,
+      "mean_ratio": 1.097177,
+      "p10_ratio": 0.773204,
+      "p50_ratio": 0.987089,
+      "p90_ratio": 1.462261,
+      "basis": "9 graded players"
+    },
+    "WR|1-3": {
+      "n": 9,
+      "status": "measured",
+      "sd_ratio": 0.231364,
+      "mean_ratio": 0.973889,
+      "p10_ratio": 0.673295,
+      "p50_ratio": 1.013375,
+      "p90_ratio": 1.295882,
+      "basis": "9 graded players"
+    },
+    "RB|4-8": {
+      "n": 15,
+      "status": "measured",
+      "sd_ratio": 0.354778,
+      "mean_ratio": 1.251492,
+      "p10_ratio": 0.770227,
+      "p50_ratio": 1.248174,
+      "p90_ratio": 1.634927,
+      "basis": "15 graded players"
+    }
+  },
+  "population": {
+    "version": "field-population/v1",
+    "rows": 20,
+    "fields": {
+      "position": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "band": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "n": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "status": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "sd_ratio": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "mean_ratio": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "p10_ratio": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "p50_ratio": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "p90_ratio": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      },
+      "basis": {
+        "present": 20,
+        "null": 0,
+        "missing": 0,
+        "pct": 100.0
+      }
+    },
+    "empty": [],
+    "partial": [],
+    "absent_fields": [],
+    "note": "Field population measured at write time from the bytes actually committed. `empty` fields are DECLARED BY THE PRODUCER AND NEVER DELIVERED \u2014 ask why before concluding the source has no such data."
+  }
+}

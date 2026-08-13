@@ -213,6 +213,31 @@ def test_calibrating_ON_a_season_and_applying_it_TO_that_season_is_REFUSED():
 
 
 # ── rule 14: the consumer ships with the producer ──────────────────────────
+def test_the_calibration_SURVIVES_A_ROUND_TRIP_with_its_own_population(tmp_path):
+    """A calibration that only exists in a process is a report. A's board build is in
+    another lane and another run, so the number has to land on disk — WITH its field
+    population beside it (Cory's standing rule) and its band keys intact.
+
+    THE TRAP THIS CLOSES: the cells are keyed by a TUPLE, and JSON has no tuple. A
+    naive dump stringifies the key and the reader gets `"('QB', '1-3')"`, which
+    silently matches nothing on lookup — every band reads unmeasurable and the board
+    quietly falls back. MUTATION: round-trip through plain json.dumps."""
+    bundles, actuals = seven_seasons_of_top_three_qbs(lambda s, k: 180.0 + 10 * s + k)
+    cal = PE.calibrate(bundles, actuals, min_n=5)
+    p = tmp_path / "cal.json"
+    PE.save(cal, path=str(p))
+
+    import json
+    d = json.loads(p.read_text())
+    assert set(d) >= {"cells", "population", "version"}
+    assert d["population"]["fields"]["sd_ratio"]["present"] >= 1
+
+    back = PE.load(str(p))
+    sd_a, st_a = PE.proj_sd_for(cal, "QB", 1, 300.0)
+    sd_b, st_b = PE.proj_sd_for(back, "QB", 1, 300.0)
+    assert (sd_a, st_a) == (sd_b, st_b) == (sd_b, "measured")
+
+
 def test_the_APPLIER_ships_with_the_calibration_and_returns_None_off_a_gap():
     """A calibration nothing applies is a table. And a band we never measured must
     yield None, not a fallback constant — a fallback is how `0.25 * proj_mean` got

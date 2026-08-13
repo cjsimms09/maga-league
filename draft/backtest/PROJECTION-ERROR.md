@@ -1,132 +1,174 @@
 <!-- TERRITORY: C -->
 # PROJECTION ERROR, MEASURED — items 1 and 3 of the ingest brief
 
-Measured 2026-08-13 by `draft/backtest/projection_error.py`, on 2023 and 2024,
-893 graded players. Run script: the driver is reproducible from the module plus
-`nfl_data_py`; Sleeper and FFC are proxy-sealed in this container, so `players_meta`
-and the ADP loader `backtest/cli.py` uses were replaced by nflverse's own
-`import_ids` (gsis→sleeper, position, birthdate). `walk_forward` — the real backtest
-projection — needs neither.
+Measured 2026-08-13 by `draft/backtest/projection_error.py` on **2023, 2024 and
+2025** — 1,304 graded players, 20 measurable cells, none unmeasurable. The numbers
+below supersede a first pass that used two seasons and the wrong season boundary; see
+**What changed** at the bottom.
+
+Sleeper and FFC are proxy-sealed in this container, so `players_meta` and the ADP
+loader `backtest/cli.py` uses were replaced by nflverse's own `import_ids`
+(gsis→sleeper, position, birthdate). `walk_forward` — the real backtest projection —
+needs neither. 2025 came through `grade.weekly_from_pbp`, because
+`import_weekly_data(2025)` 404s on a stale nfl_data_py URL.
+
+**Artifact:** `draft/backtest/projection_error_calibration.json`, with its own field
+population. **Appliers:** `projection_error.proj_sd_for` / `proj_ceiling_for`.
 
 ## What was measured
 
-For each of 2023 and 2024: `walk_forward` projections built from the two strictly
-prior seasons, against realized season totals scored under that season's own league
-config by our own scoring engine. Error is expressed as a **ratio**, `actual /
-projected`, because an sd fitted on 300-point QBs cannot be applied to a 90-point TE2.
+`walk_forward` projections built from the two strictly prior seasons, against realized
+totals scored under that season's own league config by our own engine. Error is a
+**ratio**, `actual / projected`, because an sd fitted on 300-point QBs cannot be
+applied to a 90-point TE2. `proj_sd` is then `proj_mean × sd_ratio` at application.
 
-Bands are **projection rank within position**, not ADP. We hold no archived ADP
-before 2026-08-09 and a retroactive fetch leaks (exp33); realized draft pick would
-fit but can never be applied, since a 2026 player has no pick number until he is
-picked. Rank-within-position is the only band that both fits historically and applies
-prospectively. It is named `proj_rank_band` for that reason.
+Bands are **projection rank within position**, not ADP: no archived ADP exists before
+2026-08-09, a retroactive fetch leaks (exp33), and a realized pick number cannot be
+known before the draft it comes from. Rank-within-position is the only band that both
+fits historically and applies prospectively.
 
-## Finding 1 — `proj_sd = 0.25 × mean` understates the spread about 2× everywhere
+**Both sides are cut at NFL week 17**, because `league_history` says
+`last_scored_leg = 17` in all three seasons. Weeks 18–22 score nothing for anybody in
+this league. A "filter to regular season" fix would still be wrong — NFL week 18 *is*
+`season_type == REG` and is fantasy-irrelevant. The cut is the league's number, not
+nflverse's label.
 
-`build_bundle.py` writes `proj_sd = 0.25 * proj_mean`.
+## The measured table
 
-| bound | cells measured | sd_ratio > 0.25 | median sd_ratio | vs shipped |
-|---|---|---|---|---|
-| EXCLUDED (lower) | 16 | **16 / 16** | 0.530 | 2.1× |
-| ZERO-FOLD (upper) | 16 | **16 / 16** | 0.538 | 2.2× |
+| pos | band | n | mean | sd | p50 | p90 |
+|---|---|---|---|---|---|---|
+| QB | 1-3 | 9 | 0.992 | **0.273** | 1.085 | 1.230 |
+| QB | 4-8 | 15 | 0.907 | 0.356 | 0.964 | 1.316 |
+| QB | 9-16 | 24 | 0.938 | 0.432 | 1.040 | 1.426 |
+| QB | 17-32 | 42 | 0.689 | 0.573 | 0.627 | 1.484 |
+| QB | 33+ | 96 | **0.411** | 0.617 | 0.165 | 1.094 |
+| RB | 1-3 | 9 | 1.194 | 0.492 | 1.233 | 1.721 |
+| RB | 4-8 | 15 | 1.251 | 0.355 | 1.248 | 1.635 |
+| RB | 9-16 | 23 | 1.128 | 0.477 | 1.144 | 1.640 |
+| RB | 17-32 | 48 | 1.061 | 0.615 | 1.030 | **1.890** |
+| RB | 33+ | 240 | 0.573 | **0.666** | 0.345 | 1.434 |
+| TE | 1-3 | 9 | 1.097 | 0.366 | 0.987 | 1.462 |
+| TE | 4-8 | 14 | 0.913 | 0.339 | 0.898 | 1.309 |
+| TE | 9-16 | 23 | 0.963 | 0.469 | 0.883 | 1.647 |
+| TE | 17-32 | 44 | 1.010 | 0.565 | 1.114 | 1.704 |
+| TE | 33+ | 196 | 0.473 | 0.449 | 0.336 | **1.092** |
+| WR | 1-3 | 9 | 0.974 | **0.231** | 1.013 | 1.296 |
+| WR | 4-8 | 15 | 1.125 | 0.446 | 1.077 | 1.740 |
+| WR | 9-16 | 24 | 0.978 | 0.341 | 0.988 | 1.318 |
+| WR | 17-32 | 46 | 1.070 | 0.412 | 1.147 | 1.506 |
+| WR | 33+ | 403 | 0.571 | 0.510 | 0.419 | 1.317 |
 
-Not a cell in either variant sits at or below the shipped constant, and the smallest
-measured value (0.396, WR 17-32) is already 1.6× it. The understatement is systematic
-and one-directional.
+## Finding 1 — `proj_sd = 0.25 × mean` understates the spread in 19 of 20 cells
 
-## Finding 2 — `proj_ceiling = 1.35 × mean` is below the measured p90 in most cells
+Median measured `sd_ratio` is **0.449 — 1.8× the shipped constant**. The single
+exception is WR 1-3 at 0.231: the elite receivers really are more predictable than the
+constant says, which is the same defect in the other direction.
 
-13 of 16 cells under the lower bound, 11 of 16 under the upper. Median measured p90
-is 1.684 (lower) / 1.611 (upper).
+The spread across cells is **0.231 to 0.666, a factor of 2.9.** One constant cannot be
+right at both ends, and it is currently wrong at nineteen of twenty.
 
-The deeper problem is not the value of the constant. **Any** constant makes
-`proj_ceiling` a monotone function of `proj_mean`, so ordering by ceiling and ordering
-by value are the same list — which is why `ceiling: 0` in MEASURED_WEIGHTS could not
-have come back any other way. The measured p90 ranges **1.171 (TE 33+) to 1.982
-(WR 4-8)**, a spread wide enough to invert pairs. That inversion is what makes the
-weight measurable at all, and it is pinned by test.
+What that looks like applied: a WR1 projected 320 gets `sd 74.0` against the shipped
+80.0, while a QB40 projected 150 gets `sd 92.5` against the shipped 37.5. **The board
+is confident where it should be uncertain and uncertain where it should be confident.**
 
-## Finding 3 — walk-forward is biased by band, monotonically
+## Finding 2 — `proj_ceiling = 1.35 × mean` is below the measured p90 in 12 of 20
 
-`mean_ratio` (1.0 = unbiased), lower bound:
+Median measured p90 is 1.462. But the value of the constant is not the defect. **Any**
+constant makes `proj_ceiling` a monotone function of `proj_mean`, so ordering by
+ceiling and ordering by value are the same list — which is why `ceiling: 0` in
+MEASURED_WEIGHTS could not have come back anything but zero. The measured p90 runs
+**1.092 (TE 33+) to 1.890 (RB 17-32)**, wide enough to invert pairs. That inversion is
+what makes the weight measurable, and it is pinned by test.
+
+## Finding 3 — walk-forward is well calibrated at the top and over-optimistic deep
+
+`mean_ratio` (1.0 = unbiased) by band:
 
 | band | QB | RB | WR | TE |
 |---|---|---|---|---|
-| 4-8 | 1.102 | **1.419** | **1.453** | 1.124 |
-| 9-16 | 0.962 | 1.252 | 1.196 | 1.098 |
-| 17-32 | 0.608 | 1.166 | 1.075 | 1.117 |
-| 33+ | **0.479** | 0.658 | 0.640 | **0.522** |
+| 1-3 | 0.992 | 1.194 | 0.974 | 1.097 |
+| 4-8 | 0.907 | 1.251 | 1.125 | 0.913 |
+| 9-16 | 0.938 | 1.128 | 0.978 | 0.963 |
+| 17-32 | 0.689 | 1.061 | 1.070 | 1.010 |
+| 33+ | **0.411** | 0.573 | 0.571 | **0.473** |
 
-The early bands are projected **low** by ~40% at RB and WR; the deep bands are
-projected **high** by roughly 2× at QB and TE. This is a diagnosis of `walk_forward`
-/ `REGRESSION_WEIGHT`, which is A's lane — recorded, not touched.
+The top of every position lands within ~10% of unbiased, and **WR 1-3 and QB 1-3 are
+within 3%.** The error is not at the top — it is in the tail, where projections run
+roughly **2× high** at QB and TE. RB is the exception, running 13–25% low through the
+middle bands, which is consistent with running backs' well-known games-missed rate.
 
-The survivorship exclusion cannot explain the deep-band half: excluding players who
-never played makes the tail look **better** than reality, and the tail already reads
-0.5. The direction is safe.
+This is a diagnosis of `walk_forward` / `REGRESSION_WEIGHT`. That is A's lane —
+recorded, not touched.
 
-## The bias this instrument cannot remove, only publish
+## The bias this instrument publishes rather than removes
 
 `rest_of_season_points` omits a player with no weekly rows rather than zeroing him.
 For grading a **policy** that is right and deliberate — `replay.grade()` drops the
-pick from N so a recommendation is not punished for a player who was never on a
-field. For calibrating **how wrong a projection is** it is backwards: "he never
-played" is the single most common way a preseason number turns out wrong.
+pick from N so a recommendation is not punished for a player who was never on a field.
+For calibrating **how wrong a projection is** it is backwards: "he never played" is
+the single most common way a preseason number turns out wrong.
 
-So both bounds are computed and labelled. 2023: 305 of 749 projected players dropped;
-at least 30 played a later season, 275 did not appear again. (The equivalent 2024
-split is **not reported** — every dropped player reads "never again" only because
-nfl_data_py 404s on 2025, which is an artifact of the fetch, not a fact about the
-players.) Since ~90% of the 2023 dropouts never returned, the EXCLUDED bound is much
-the closer of the two, and the headline findings hold under both regardless.
-
-## Finding 4 — the top band is not measurable, and that is the constraint to fix
-
-Ranks 1-3 at QB, RB, WR and TE all report `unmeasurable`: n = 6 each, two seasons ×
-three players, below `MIN_N = 8`. **The most valuable band on the board is the one two
-graded seasons cannot calibrate.**
-
-The cheapest fix is in this lane. `nfl_data_py.import_weekly_data(2025)` 404s on a
-stale URL — `backtest/cli.py` already documents this and falls back to
-`import_pbp_data` + `grade.weekly_from_pbp`. Recovering 2025 takes graded seasons
-from two to three and moves every 1-3 band to n = 9, over the bar. That is the next
-unit.
+So it is measured both ways. On the two-season run, EXCLUDED gave a median `sd_ratio`
+of 0.530 and ZERO-FOLD 0.538 — **every headline held under both**, so the conclusions
+do not depend on the choice. 827 of 2,131 projected players are ungraded here, and
+that count travels inside the artifact. In 2023 (the one year with a checkable
+follow-on season) at least 30 of 305 dropouts played again and 275 did not, so the
+excluded variant is much the closer of the two.
 
 ## What this does NOT say about the production board
 
 `draft/projections.py` does **not** use these constants. It computes `season_sd =
-proj_mean × player_variance(...)` per player, so the spread already varies by
-workload, depth chart, experience, injury and age. The `0.25` / `1.35` constants are
-the **backtest** board only, and Findings 1 and 2 are about that board.
+proj_mean × player_variance(...)` per player, varying with workload, depth chart,
+experience, injury and age. The `0.25` / `1.35` constants are the **backtest** board
+only, and Findings 1–2 are about that board.
 
-The measurement still bears on production, in one specific way. `player_variance` is
+The measurement still bears on production in one specific way. `player_variance` is
 bounded by construction — `base × [0.70, 1.45]` — so the largest `season_sd / mean`
-it can emit at any input is:
+it can emit at any input is QB 0.319, RB 0.493, WR 0.435, TE 0.522. Several measured
+cells sit above those ceilings (QB 17-32 at 0.573 and QB 33+ at 0.617 against a QB max
+of 0.319; RB 17-32 at 0.615 and RB 33+ at 0.666 against 0.493), **so at those bands the
+cap binds rather than the data.**
 
-| pos | production max | measured cells above it |
-|---|---|---|
-| QB | 0.319 | **4 of 4** |
-| RB | 0.493 | 3 of 4 |
-| TE | 0.522 | 2 of 4 |
-| WR | 0.435 | 1 of 4 |
-
-**10 of 16 cells sit above the highest value the production model can produce at any
-input**, so at those bands the cap binds rather than the data. That is suggestive, not
-conclusive: production projects from provider baselines and walk-forward projects from
-prior production, and the provider may simply be more accurate. Settling it needs
-projection-vs-actual on the **production** projection.
+That is suggestive, not conclusive: production projects from provider baselines and
+walk-forward from prior production, and the provider may simply be more accurate.
+Settling it needs projection-vs-actual on the **production** projection.
 
 ## Why that test cannot run before January, and what is perishable now
 
-The instrument for it is `draft/data/proj_series.json`, whose earliest snapshot is
-**2026-08-09 — four days old**. It is the first archived preseason projection this
-project has ever held. Production's own error becomes measurable for the first time in
-**January 2027**, and there is no way to make it measurable sooner: the preseason
-number is only observable before the season.
+Its instrument is `draft/data/proj_series.json`, whose earliest snapshot is
+**2026-08-09 — four days old.** It is the first archived preseason projection this
+project has ever held, and there is no way to make production's error measurable
+sooner: a preseason number is only observable before the season.
 
-Which makes one thing urgent and perishable, in D3's exact sense:
-`draft/proj_series.py` caps the archive at `TOP_N = 400`. The board carries 1,759
-players and the bands with the largest measured error are `33+`. **If that cap is not
-raised before Week 1, the 2026 archive is permanently top-400 and the deep bands can
-never be calibrated for this season.** That file is not mine — parked, not edited.
+Which makes one thing urgent. `draft/proj_series.py` caps the archive at
+`TOP_N = 400`, and the bands with the largest measured error are `33+`. **If that cap
+is not raised before Week 1 the 2026 archive is permanently top-400 and the deep bands
+can never be calibrated for this season.** That file is not mine — parked, not edited.
 See PARKED.md.
+
+## What changed from the first pass, and why
+
+The first version of this document (committed earlier today, `b6d3dd9`) used two
+seasons and graded **all 22 NFL weeks**. Two corrections:
+
+1. **The week-17 cut.** Grading 22 weeks against a ~16-game projection credits players
+   whose teams go deep in January. Cutting to the league's own `last_scored_leg = 17`
+   moved **19 of 20 cells down** and one up by 0.003 — one-directional, so the effect
+   is real rather than noise. The largest single move was RB 4-8, −0.217.
+
+2. **2025 added**, taking the 1-3 bands from n=6 (unmeasurable) to n=9.
+
+**Finding 3 was overstated in the first version.** It reported the early bands as
+projected "~40% low at RB and WR" from RB 4-8 = 1.419 and WR 4-8 = 1.453. Corrected,
+those are **1.251 and 1.125** — roughly half of that apparent bias was playoff weeks
+counted in the actual. The corrected picture is also a different shape: the bias is not
+a top-vs-bottom tilt, it is **good calibration at the top and over-optimism in the
+tail.**
+
+Findings 1 and 2 held in direction and weakened slightly in size: `sd_ratio` 2.1× →
+1.8× the shipped constant, `p90 > 1.35` in 13/16 → 12/20.
+
+**A consequence for A, parked separately:** `rest_of_season_points` has a `from_week`
+and no `to_week`, and `cli.py` passes it a frame including weeks 18–22. The replay's
+own grading therefore carries the same playoff inflation measured above — a median
+~0.077 on the ratio and up to 0.217 in one band.
