@@ -170,3 +170,96 @@ def report(rows: list, target_season, fields=()) -> dict:
             "note": "`current` is live state with no season in the payload and is "
                     "NEVER normalised to the target year — that distinction is the "
                     "only record of which fields were actually verified."}
+
+
+# ── THE BOARD FIELD MAP, traced from the ingest paths rather than guessed ───
+#
+# Each entry says WHERE the field comes from, so A's refusal has something to
+# declare against. Traced 2026-08-13 by reading the fetch sites, not by inferring
+# from field names.
+#
+#   seasonal    the year was in the request — a fact about the fetch
+#   current     live state, no season in the payload
+#   historical  a prior season, deliberately carried
+#   derived     computed from other board fields; inherits their stamps
+#   runtime     the kind DEPENDS ON A BRANCH TAKEN AT BUILD TIME (see below)
+BOARD_FIELD_SOURCES = {
+    # Sleeper's /players/nfl dump. No season anywhere in the payload — these
+    # describe the world today and are correct for 2026 by construction.
+    "player_id": "current", "name": "current", "position": "current",
+    "team": "current", "age": "current", "years_exp": "current",
+    "injury_status": "current", "depth_chart_order": "current",
+    "sleeper_rank": "current",
+
+    # FFC / FantasyPros, fetched with the year in the URL.
+    "adp": "seasonal", "raw_adp": "seasonal", "adjusted_adp": "seasonal",
+    "adp_source": "seasonal", "adp_sd": "seasonal", "consensus_rank": "seasonal",
+    "bye": "seasonal", "bye_source": "seasonal",
+    "proj_sleeper": "seasonal", "proj_fantasypros": "seasonal",
+
+    # nflfastR play-by-play for [season-1, season-2] — build.py:665. These ARE
+    # prior-season values on a 2026 board, and legitimately so: 2026 usage does
+    # not exist yet. They must be DECLARED historical, not blocked and not waved
+    # through. This is exactly Cory's "unless that data IS considered relevant to
+    # this year".
+    "target_share": "historical", "opportunity_share": "historical",
+    "wopr": "historical", "opportunity_z": "historical",
+    "opportunity_adj": "historical",
+
+    # Computed from the above; a derived field is only as current as its inputs,
+    # which is why A's refusal belongs where the derivation happens.
+    "proj_mean": "runtime", "proj_baseline": "runtime",
+    "proj_sd": "derived", "proj_ceiling": "derived", "proj_floor": "derived",
+    "variance": "derived", "variance_why": "derived", "weekly_sd": "derived",
+    "games_expected": "derived", "vorp": "derived", "replacement": "derived",
+    "tier": "derived", "tier_rank": "derived", "tier_size": "derived",
+    "tier_drop": "derived", "overall_rank": "derived", "pos_rank": "derived",
+    "pool_rank": "derived", "adp_stale": "derived", "adp_velocity": "derived",
+}
+
+#: `PROJECTION_PROVENANCE.source` values and what season they imply.
+PROJECTION_SOURCES = {
+    "sleeper_projections": "seasonal",
+    "fantasypros_projections": "seasonal",
+}
+
+
+def projection_source(provenance: dict, target_season):
+    """The projection field's TRUE kind, read from provenance at build time.
+
+    THIS IS THE FIELD CORY'S GATE EXISTS FOR. `build.py:340` falls back to the PRIOR
+    SEASON'S ACTUALS when fewer than `PROJECTION_MIN_NONZERO` of this year's
+    projections carry points — the August case, when the upcoming season has no
+    projections published yet. On that path every `proj_mean` on a 2026 board is a
+    2025 realized total, and the only thing that says so is
+    `PROJECTION_PROVENANCE.source` reading `sleeper_stats_2025`.
+
+    So this field cannot be declared statically. Declaring it `seasonal(2026)` would
+    stamp a board built on last season's actuals as this year's, and pass the gate
+    built to catch precisely that.
+
+    (Checked on the 2026-08-13 board: source is `sleeper_projections`, 633 rows with
+    points — the fallback did NOT fire. The path is live and currently unused.)
+    """
+    src = ((provenance or {}).get("projections") or {}).get("source")
+    if src in PROJECTION_SOURCES:
+        return seasonal(int(target_season))
+    if isinstance(src, str) and src.startswith("sleeper_stats_"):
+        return historical(int(src.rsplit("_", 1)[-1]))
+    raise ValueError(
+        "unrecognised projection source %r — refusing to guess. An unknown source "
+        "defaulted to this year's is the assumption this gate exists to remove; if "
+        "a new provider has landed, add it to PROJECTION_SOURCES deliberately." % src)
+
+
+def unclassified_fields(row: dict) -> list:
+    """Board fields with no declared provenance.
+
+    A MAP WITH A HOLE IS WORSE THAN NO MAP: the gate goes green on exactly the field
+    nobody thought about, which is always the one added last week by someone who did
+    not know the gate existed. So this is asserted by test against the real artifact
+    rather than maintained by hope.
+    """
+    return sorted(k for k in (row or {})
+                  if not k.endswith("_season") and not k.endswith("_historical")
+                  and k not in BOARD_FIELD_SOURCES)

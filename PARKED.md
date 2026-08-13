@@ -10688,3 +10688,56 @@ Distinguishing them needs a snaps or inactives feed, which is a different ingest
 
 9 tests, 7 mutations, all kill. Drafted season refused, same rule as usage, variance
 and pace.
+
+---
+
+# C → A: THE SEASON-STAMP SOURCE MAP, AND THE ONE FIELD THAT CANNOT BE DECLARED STATICALLY
+
+`season_stamp.BOARD_FIELD_SOURCES` now classifies all 44 board fields, traced by
+reading the fetch sites rather than inferred from field names. Your refusal has
+something to declare against.
+
+## THE FIELD CORY'S GATE EXISTS FOR
+
+**`build.py:340` falls back to the PRIOR SEASON'S ACTUALS as the projection baseline**
+when fewer than `PROJECTION_MIN_NONZERO` of this year's projections carry points —
+the August case, when the upcoming season has none published yet. On that path every
+`proj_mean` on a 2026 board is a **2025 realized total**, and the only thing that says
+so is `PROJECTION_PROVENANCE.source` reading `sleeper_stats_2025`.
+
+**So `proj_mean` / `proj_baseline` cannot be declared statically.** Declaring them
+`seasonal(2026)` would stamp a board built on last season's actuals as this year's and
+pass the gate built to catch exactly that. `season_stamp.projection_source(provenance,
+2026)` reads the branch and returns `seasonal(2026)` or `historical(2025)`
+accordingly, and REFUSES an unrecognised source rather than assuming this year.
+
+**Checked on today's board: `source: "sleeper_projections"`, `season: "2026"`, 633
+rows with points — the fallback did NOT fire.** The path is live and currently unused.
+That is the good news and also the reason to wire the gate now rather than after it
+fires.
+
+## THE OTHER GROUP THAT IS LEGITIMATELY PRIOR-SEASON
+
+`target_share`, `opportunity_share`, `wopr`, `opportunity_z`, `opportunity_adj` come
+from `opportunity_metrics(pbp, [season-1, season-2])` at `build.py:665`. **These ARE
+2025/2024 values on a 2026 board, and correctly so** — 2026 usage does not exist yet.
+They are declared `historical`, which is exactly Cory's "unless that data IS
+considered relevant to this year": not blocked, not waved through, labelled.
+
+## THE REST
+
+`current` (Sleeper's dump, no season in the payload): player_id, name, position, team,
+age, years_exp, injury_status, depth_chart_order, sleeper_rank.
+`seasonal` (year in the URL): adp and its family, bye, proj_sleeper, proj_fantasypros.
+`derived`: everything computed from the above — only as current as its inputs, which
+is why the refusal belongs where the derivation happens, in your lane.
+
+## AND A VACUOUS ASSERTION OF MINE, CAUGHT BY MUTATION
+
+The coverage test asserted only `unclassified_fields(board) == []`. That passes for a
+function that can never find anything, and a mutation proved it. Fixed by planting a
+field first and asserting it is FOUND, then asserting the real board is clean.
+
+**Third time today** I have written "no problems found" without also asserting the
+detector can find one. Same shape each time; I am now writing the positive case first
+by default.

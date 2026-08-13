@@ -117,3 +117,52 @@ def test_the_report_COUNTS_each_kind_so_a_gate_can_state_its_denominator():
     assert rep["by_kind"]["proven"] == 1
     assert rep["by_kind"]["current"] == 2
     assert rep["violations"] == 1 and rep["ok"] is False
+
+
+# ── the board field map, so A's refusal has something to declare against ────
+def test_EVERY_BOARD_FIELD_IS_CLASSIFIED_and_an_unknown_one_is_a_violation():
+    """A map with a hole is worse than no map: the gate goes green on exactly the
+    field nobody thought about, which is always the one added last week.
+    MUTATION: return `current` for anything unmapped — a new ingest field is exempt
+    on the day it lands, silently."""
+    import json
+    board = json.load(open("public/draft_data.json"))["players"]
+    # THE POSITIVE CASE FIRST, and its absence let a mutation live. Asserting only
+    # "no problems found" passes for a function that can never find one — the same
+    # vacuous shape this program keeps catching, here in my own test.
+    planted = SS.unclassified_fields(dict(board[0], a_field_nobody_declared=1))
+    assert planted == ["a_field_nobody_declared"], (
+        "the detector must be able to FIND an undeclared field, or the assertion "
+        "below is satisfied by a function that always returns []")
+
+    unknown = SS.unclassified_fields(board[0])
+    assert unknown == [], (
+        "board fields with no declared provenance: %s — classify them in "
+        "BOARD_FIELD_SOURCES or the gate cannot see them" % unknown)
+
+
+def test_the_PROJECTION_field_is_RUNTIME_DETERMINED_not_statically_2026():
+    """THE ONE THAT MATTERS FOR CORY'S GATE. `build.py:340` falls back to the PRIOR
+    SEASON'S ACTUALS as the projection baseline when fewer than
+    PROJECTION_MIN_NONZERO of this year's projections carry points. So `proj_baseline`
+    is 2026-seasonal or 2025-historical depending on a runtime branch, and only
+    `PROJECTION_PROVENANCE.source` says which.
+
+    MUTATION: declare it statically seasonal(2026) — a board running on last
+    season's actuals stamps itself 2026 and passes the gate built to catch exactly
+    that."""
+    live = {"projections": {"source": "sleeper_projections", "season": "2026"}}
+    fell_back = {"projections": {"source": "sleeper_stats_2025", "season": "2026"}}
+    assert SS.projection_source(live, 2026) == SS.seasonal(2026)
+    assert SS.projection_source(fell_back, 2026) == SS.historical(2025)
+
+
+def test_an_UNRECOGNISED_projection_source_REFUSES_rather_than_assuming_current():
+    """MUTATION: default to seasonal(target) — a source nobody has seen before is
+    treated as this year's, which is the assumption the whole gate exists to remove."""
+    try:
+        SS.projection_source({"projections": {"source": "something_new"}}, 2026)
+    except ValueError as e:
+        assert "something_new" in str(e)
+    else:
+        raise AssertionError("an unknown projection source must refuse")
