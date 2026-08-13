@@ -1,0 +1,124 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by draft/backtest/mutation_gate.record",
+ "_note": "Verified mutation kills. Each entry is a mutation that was APPLIED and whose NAMED test failed, with a green baseline and an unchanged collection count. draft/tests/test_mutation_manifest.py checks these cheaply on every run; re-running them for real is run_all().",
+ "version": 1,
+ "modules": {
+  "draft/backtest/evidence_check.py": {
+   "tests": [
+    "draft/tests/test_evidence_check.py"
+   ],
+   "mutations": [
+    {
+     "old": "    out[\"diverges\"] = bool(out[\"ratio\"] is None or out[\"ratio\"] >= DIVERGENCE_RATIO)",
+     "new": "    out[\"diverges\"] = True",
+     "must_fail": [
+      "test_an_AGREEING_cut_says_so_rather_than_warning_anyway"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not cut:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_an_EMPTY_cut_is_UNMEASURED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    out[\"ok\"] = out[\"rate\"] >= require",
+     "new": "    out[\"ok\"] = out[\"rate\"] >= 0.5",
+     "must_fail": [
+      "test_a_KEY_THAT_DISAGREES_with_its_independent_derivation_is_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not keys:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_NO_OVERLAP_is_UNVERIFIED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if any(value is a if a is None else value == a for a in ABSENT):",
+     "new": "    if not value:",
+     "must_fail": [
+      "test_a_MEASURED_ZERO_still_prints_as_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if any(value is a if a is None else value == a for a in ABSENT):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_NONE_formats_as_UNMEASURED_and_never_as_a_number"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/season_stamp.py": {
+   "tests": [
+    "draft/tests/test_season_stamp.py"
+   ],
+   "mutations": [
+    {
+     "old": "    return sorted(f for f in (row or {})\n                  if m.get(f, EXPERIMENT) not in allowed)",
+     "new": "    return sorted(f for f in (row or {})\n                  if m.get(f, LIVE_FEED) not in allowed)",
+     "must_fail": [
+      "test_an_UNMAPPED_field_is_a_VIOLATION_by_default_not_trusted_as_live"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "LIVE_ALLOWED = (LIVE_FEED, HISTORICAL_PRIOR, MODEL_CONSTANT, DERIVED_PURPOSE)",
+     "new": "LIVE_ALLOWED = (LIVE_FEED, HISTORICAL_PRIOR, MODEL_CONSTANT, DERIVED_PURPOSE, EXPERIMENT)",
+     "must_fail": [
+      "test_an_EXPERIMENT_purpose_field_on_a_LIVE_row_is_A_VIOLATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return sorted(f for f in (row or {}) if f not in BOARD_FIELD_PURPOSE)",
+     "new": "    return []",
+     "must_fail": [
+      "test_EVERY_BOARD_FIELD_HAS_A_PURPOSE_and_an_unknown_one_is_a_violation"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_durability.py": {
+   "tests": [
+    "draft/tests/test_nflverse_durability.py"
+   ],
+   "mutations": [
+    {
+     "old": "                blended = (n * raw + k * float(prior[pos])) / (n + k)",
+     "new": "                blended = raw",
+     "must_fail": [
+      "test_shrinkage_pulls_a_THIN_history_toward_the_position_prior"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                n, k = len(vals), float(shrink_k)",
+     "new": "                n, k = 1, float(shrink_k)",
+     "must_fail": [
+      "test_MORE_SEASONS_shrink_LESS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        rec[\"games\"][season] = int(n)",
+     "new": "        rec[\"games\"][season] = int(n)\n        rec[\"byes\"][season] = []; rec[\"missed\"][season] = []; rec[\"spells\"][season] = []",
+     "must_fail": [
+      "test_a_games_only_season_ADDS_GAMES_and_REFUSES_to_invent_spells"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  }
+ }
+}

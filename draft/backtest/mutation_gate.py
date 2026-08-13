@@ -31,6 +31,7 @@ batch summary that counts an INVALID as a kill is the same lie one level up.
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -134,7 +135,8 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
     p = Path(target_file)
     src = p.read_text(encoding="utf-8")
     must = [must_fail] if isinstance(must_fail, str) else list(must_fail)
-    res = {"file": str(p), "old": old[:80], "must_fail": must,
+    res = {"file": str(p), "old": old[:80], "old_full": old, "new": new,
+           "must_fail": must,
            "verdict": None, "detail": None, "failed": [],
            "collected_before": None, "collected_after": None}
 
@@ -213,3 +215,42 @@ def run_all(target_file: str, mutations, test_paths) -> dict:
             "survived": sum(1 for r in results if r["verdict"] == "SURVIVED"),
             "all_killed": killed == len(results) and invalid == 0,
             "baseline_green": not baseline["failed"]}
+
+
+#: Where verified kills are recorded. A kill claimed only in a commit message
+#: cannot be re-checked, so it does not become wrong loudly — it becomes wrong
+#: SILENTLY, the day somebody weakens the assertion it was credited to.
+MANIFEST = str(Path(__file__).resolve().parent / "mutation_manifest.json")
+
+
+def record(module: str, tests, results, path: str = None) -> dict:
+    """File verified kills against a module, replacing that module's entry.
+
+    REFUSES ANYTHING BUT A KILL. A SURVIVED is a coverage HOLE and an INVALID
+    proved nothing; either one sitting in the record as evidence is precisely the
+    lie this module was built to refuse, preserved in a file where it outlives the
+    session that produced it. The standing test asserts the same thing, but a
+    recorder that files whatever it is handed makes that test a formality — it
+    would be failing on data the recorder itself created.
+    """
+    path = path or MANIFEST
+    bad = [r for r in results if r.get("verdict") != "KILLED"]
+    if bad:
+        raise ValueError(
+            "refusing to record %d non-KILLED verdict(s) as evidence: %s"
+            % (len(bad), [(r.get("verdict"), r.get("must_fail")) for r in bad]))
+    p = Path(path)
+    doc = json.loads(p.read_text()) if p.exists() else {
+        "_territory": "TERRITORY: C — written by draft/backtest/mutation_gate.record",
+        "_note": ("Verified mutation kills. Each entry is a mutation that was APPLIED "
+                  "and whose NAMED test failed, with a green baseline and an unchanged "
+                  "collection count. draft/tests/test_mutation_manifest.py checks these "
+                  "cheaply on every run; re-running them for real is run_all()."),
+        "version": 1, "modules": {}}
+    doc["modules"][module] = {
+        "tests": list(tests),
+        "mutations": [{"old": r["old_full"] if "old_full" in r else r["old"],
+                       "new": r.get("new", ""), "must_fail": r["must_fail"],
+                       "verdict": r["verdict"]} for r in results]}
+    p.write_text(json.dumps(doc, indent=1))
+    return doc
