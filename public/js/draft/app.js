@@ -3100,10 +3100,18 @@
    * reach. Same number, opposite conclusion, and the only fix is to stop
    * printing a bare pick number. */
   function roundLabel(overall) {
-    const teams = ((state.data || {}).league || {}).teams || 10;
     if (!overall) return '';
-    const r = Math.ceil(overall / teams);
-    return 'R' + r + '.' + (overall - (r - 1) * teams);
+    /* READ, NEVER COMPUTED. `ceil(overall / teams)` is wrong in this league:
+     * three picks are FORFEITED for keepers and REMOVED from the sequence, so
+     * the overall numbering is compressed and round 4 begins at overall 28
+     * rather than 31. Computed, pick 30 renders "R3.10"; the artifact says
+     * round 4, slot 8. I added the computed version yesterday to KILL a
+     * round-numbering ambiguity and introduced a second one — a label that is
+     * confidently wrong is worse than the bare number it replaced. */
+    const rows = (((state.data || {}).pick_order || {}).picks) || [];
+    const row = rows.find(function (r) { return r.overall === overall; });
+    if (row && row.round != null && row.slot != null) return 'R' + row.round + '.' + row.slot;
+    return 'pick ' + overall;      // honest fallback: no invented round
   }
 
   function positionTiming(ctx, scored) {
@@ -3268,8 +3276,14 @@
           + ' PREFER THE SEAT unless you believe this specific cliff.';
       }
     }
+    /* `plan_seat` REPORTS ONLY A SEAT THE PLAN ACTUALLY ASSERTS. It used to
+     * return `seat.slot` for bench rows too, i.e. the literal string 'BENCH' —
+     * so a consumer comparing the lead position against it saw a mismatch on
+     * every bench pick and could not tell "the plan wants a tight end and you
+     * are taking a back" from "the plan asserts nothing here". A field that
+     * means two things is the defect `sp-pos` had, one layer up. */
     return { rows: out, lead: live[0] || null, anySeat: live.length > 0,
-      plan_seat: seat ? seat.slot : null };
+      plan_seat: (seat && seat.is_starter_seat) ? seat.slot : null };
   }
 
   /* ── THE CASE AGAINST — a route with only a "for" is advocacy ─────────────

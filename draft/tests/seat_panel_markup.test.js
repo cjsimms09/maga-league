@@ -48,7 +48,13 @@ ck('and it was extracted whole', end > start && /host\.innerHTML/.test(fnSrc));
 // Stubs: only what the function touches.
 let captured = '';
 const host = { set innerHTML(v) { captured = v; }, get innerHTML() { return captured; } };
-const state = { seatPlan: PLAN, data: { league: { teams: 10 } } };
+/* roundLabel now READS the round from `pick_order.picks` rather than computing
+ * it — forfeited picks are removed from the sequence, so `ceil(overall/teams)`
+ * is wrong in this league. The stub therefore needs the REAL pick order; a
+ * hand-made one would let the test agree with a label the artifact contradicts,
+ * which is the whole failure being guarded. */
+const BOARD = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+const state = { seatPlan: PLAN, data: { league: BOARD.league, pick_order: BOARD.pick_order } };
 const $ = sel => (sel === '#seat-plan' ? host : null);
 const escapeHtml = s => String(s).replace(/[&<>"]/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

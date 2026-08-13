@@ -45,7 +45,38 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const keep = KEEP.keepersFrom(DATA);
-const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+/* ⚠️ MY PICKS ARE READ FROM THE ARTIFACT. THEY WERE HARDCODED, AND WRONG.
+ *
+ * The list that used to sit here — [8, 13, 28, 33, ...], 15 picks starting at
+ * R1.8 — is the artifact's `pick_order.my_picks_before_keepers`. It is what
+ * Cory would have had IF HE KEPT NOBODY. He keeps three, and this league's
+ * cost model is `top_picks_flat`: keeping N forfeits rounds 1..N. Henry costs
+ * round 1, Chase round 2, Walker round 3.
+ *
+ * THE AUTHORITATIVE LIST IS `pick_order.my_picks`:
+ *   [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145] — TWELVE picks,
+ *   first at 30 (R3.10).
+ *
+ * So every seat schedule built on the old constant assigned seats at picks that
+ * DO NOT EXIST — a FLEX at 8, a tight-end cliff at 13, a receiver at 28 — and
+ * priced fifteen picks when there are twelve. The whole Josh-Allen-at-8 argument
+ * was about a pick Cory does not own. Cory's instinct that it was absurd was
+ * right for a reason neither of us had found.
+ *
+ * IT IS READ, NOT COPIED, and it FAILS LOUD rather than falling back to a
+ * constant. A default here is how the wrong list survived: the number looked
+ * plausible, every downstream tool inherited it, and nothing compared it to the
+ * artifact that had the right answer sitting in the next field. */
+const SCHED = (function () {
+  const po = (DATA.pick_order || {});
+  const mine = po.my_picks;
+  if (!Array.isArray(mine) || !mine.length) {
+    throw new Error('draft_plan: pick_order.my_picks is missing or empty. REFUSING to '
+      + 'guess a pick schedule — a plausible-looking wrong one is exactly the defect '
+      + 'this replaced. Rebuild the board.');
+  }
+  return mine.slice().sort((a, b) => a - b);
+})();
 const INJURY = { QB: 0.14, RB: 0.28, WR: 0.20, TE: 0.22, K: 0.04, DEF: 0.02 };
 /* HOW MANY PLAYERS ARE ACTUALLY GONE WHEN THE DRAFT ENDS — MEASURED, NOT ASSUMED.
  *
