@@ -673,21 +673,17 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     # refused rather than resolved by a mode — a WRONG bye manufactures a
     # conflict warning about a week the player actually plays, which is worse
     # than a missing one.
-    team_bye, team_conflict = {}, {}
-    for p in players:
-        t, b = p.get("team"), p.get("bye")
-        if not t or t == "FA" or b in (None, "", 0):
-            continue
-        prev = team_bye.get(t)
-        if prev is None:
-            team_bye[t] = int(b)
-        elif prev != int(b):
-            team_conflict[t] = True
-    for t in team_conflict:
-        team_bye.pop(t, None)
-    if team_conflict:
-        print(f"  ! {len(team_conflict)} team(s) report more than one bye week — "
-              f"REFUSED rather than guessed: {sorted(team_conflict)}")
+    # ⚠️ THE MAP IS BUILT BELOW, AFTER THE FFC MERGE, AND THAT ORDER IS THE
+    # WHOLE FIX. It used to be built HERE, from `p.get("bye")` — and at this
+    # point in the function no player has a bye at all, because Sleeper's
+    # metadata.bye_week is empty for all 1,737 (this file's own note, three
+    # paragraphs up) and the FFC values have not been merged yet. So the map was
+    # built from nothing, was empty, and the fill loop below had nothing to
+    # apply. Measured on the shipped board: `bye_source` is `ffc` (215) or absent
+    # (1,626) across all 1,841 rows and NOT ONE is `team-derived` — the fallback
+    # had never fired once, while 35 rows inside the top-225 carried no bye and
+    # their own team's bye sat on the same board. The comment above says "all 564
+    # gaps fill"; zero did.
 
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
@@ -719,6 +715,26 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
 
     # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
     # actually have a value and this only ever fills a hole neither could.
+    #
+    # BUILT HERE rather than at the top of the function, because only now do the
+    # players carry the FFC byes that are the sole source of bye data in the
+    # preseason. Same logic, same unanimity refusal — only the position moved.
+    team_bye, team_conflict = {}, {}
+    for p in players:
+        t, b = p.get("team"), p.get("bye")
+        if not t or t == "FA" or b in (None, "", 0):
+            continue
+        prev = team_bye.get(t)
+        if prev is None:
+            team_bye[t] = int(b)
+        elif prev != int(b):
+            team_conflict[t] = True
+    for t in team_conflict:
+        team_bye.pop(t, None)
+    if team_conflict:
+        print(f"  ! {len(team_conflict)} team(s) report more than one bye week — "
+              f"REFUSED rather than guessed: {sorted(team_conflict)}")
+
     filled = 0
     for q in players:
         if q.get("bye") in (None, "", 0):

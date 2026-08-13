@@ -11,10 +11,12 @@ reported a collection ERROR instead of a test failure, the grep for
 `^FAILED|passed|failed` matched nothing, and the harness printed nothing at all.
 Silence is indistinguishable from survival, and I nearly recorded it as one.
 
-SIX WAYS A MUTATION RUN LIES, each refused here by name:
+SEVEN WAYS A MUTATION RUN LIES, each refused here by name:
 
   INVALID_BASELINE    the suite was already red; its own failure is credited to
-                      the mutation and every kill in the batch is unearned
+                      the mutation and every kill in the batch is unearned — OR
+                      it could not be COLLECTED at all, which greps as green
+                      because pytest prints ERROR rather than FAILED
   TARGET_NOT_FOUND    nothing was mutated, so the suite passes — which looks
                       exactly like a mutation the tests could not catch
   AMBIGUOUS_TARGET    the target appears more than once; the FIRST occurrence is
@@ -29,10 +31,13 @@ compiles, collection count unchanged, and THE NAMED TEST among the failures.
 Anything else is SURVIVED or INVALID, and INVALID is never silently folded into
 either.
 
-The sixth was found by this gate failing me the way the shell function did: a
-target that existed in two functions reported SURVIVED against a line it had not
-touched. Every refusal in this list was added after a run lied in exactly that
-way; none of them were anticipated.
+The sixth and seventh were both found by this gate failing me the way the shell
+function did. A target that existed in two functions reported SURVIVED against a
+line it had not touched. Then a test file that could not be IMPORTED standalone —
+it needs the directory's conftest — gave an empty failure list, a green baseline,
+and three SURVIVED verdicts on a module whose tests all pass under CI. Every
+refusal in this list was added after a run lied in exactly that way; not one was
+anticipated.
 
 `run_all` reports `all_killed` as False when any result is INVALID, because a
 batch summary that counts an INVALID as a kill is the same lie one level up.
@@ -335,6 +340,27 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
         return dict(res, verdict="INVALID_BASELINE",
                     detail="the suite is ALREADY RED before mutating: %s"
                            % ", ".join(baseline["failed"][:6]))
+    # A SUITE THAT CANNOT BE COLLECTED IS NOT A GREEN SUITE, AND THIS GATE JUST
+    # FELL FOR IT. `_failed_names` greps for `^FAILED`; pytest prints `ERROR` for
+    # a collection failure and no FAILED line at all. So a test file that cannot
+    # even be IMPORTED — a missing sys.path entry, a conftest that only applies
+    # when the whole directory is run — produced an empty failure list, read as a
+    # green baseline, and then every mutation against it came back SURVIVED
+    # because nothing could fail. Three of mine did, on a real module, and
+    # SURVIVED is the actionable verdict: it sends you to write tests for
+    # coverage that already exists.
+    #
+    # `_collect_count` returns None when pytest never printed a count, which is
+    # exactly the collection-error case, so the count IS the signal. This is the
+    # same lesson as INVALID_SYNTAX one level out: silence is indistinguishable
+    # from survival, and the fix is to refuse silence rather than interpret it.
+    if baseline.get("collected") is None:
+        return dict(res, verdict="INVALID_BASELINE",
+                    detail="the tests could not be COLLECTED (pytest rc=%s) — an "
+                           "import error or a missing conftest, not a green "
+                           "suite. Nothing can fail here, so nothing can be "
+                           "proved; run the path the way CI runs it."
+                           % baseline.get("rc"))
 
     mutated = src.replace(old, new, 1)
     prev = _declare(p, src, mutated)     # journal + signal handlers FIRST

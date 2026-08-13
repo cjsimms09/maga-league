@@ -13,7 +13,7 @@ all. I read the silence as "the mutation survived" and nearly recorded it. A
 mutation that cannot even load is not evidence in either direction, and silence
 is indistinguishable from survival.
 
-SIX WAYS A MUTATION RUN CAN LIE, and this gate refuses each by name:
+SEVEN WAYS A MUTATION RUN CAN LIE, and this gate refuses each by name:
 
   1. THE BASELINE WAS ALREADY RED — a pre-existing failure is read as the kill.
   2. THE TARGET STRING WAS NOT THERE — nothing was mutated; the suite passes and
@@ -25,14 +25,19 @@ SIX WAYS A MUTATION RUN CAN LIE, and this gate refuses each by name:
      means fewer tests, not better code.
   6. THE WRONG TEST FAILED — something unrelated broke, and a kill is credited to
      an assertion that never fired.
+  7. THE SUITE COULD NOT BE COLLECTED — pytest prints ERROR, not FAILED, so an
+     unimportable test file greps as a GREEN baseline and everything measured
+     against it comes back SURVIVED.
 
 A verdict is KILLED only when the NAMED test failed, the baseline was green, the
 mutant compiled and was UNIQUELY LOCATED, and the collection count held.
 Everything else is INVALID or SURVIVED, and INVALID is never quietly treated as
 either.
 
-The sixth was found the same way the third was, by this gate failing me: a target
-that existed in two functions came back SURVIVED against a line it never touched.
+The sixth and seventh were found the same way the third was, by this gate failing
+me. A target that existed in two functions came back SURVIVED against a line it
+never touched. Then a test file needing its directory's conftest gave a green
+baseline and three SURVIVED verdicts on a module whose tests all pass in CI.
 Every refusal here was added after a run lied in that way — none anticipated.
 
 Run: python3 -m pytest draft/tests/test_mutation_gate.py -q
@@ -115,7 +120,7 @@ def test_it_restores_EVEN_WHEN_THE_RUN_BLOWS_UP(tmp_path):
     assert Path(src).read_text() == before
 
 
-# ── the six ways a run lies, refused one at a time ─────────────────────────
+# ── the seven ways a run lies, refused one at a time ───────────────────────
 def test_a_MUTANT_THAT_DOES_NOT_COMPILE_is_INVALID_not_survived(tmp_path):
     """THE ONE THAT LIED TO ME TODAY. An unbalanced paren makes pytest report a
     collection error; a harness grepping for FAILED sees nothing and prints
@@ -590,3 +595,27 @@ def test_verify_manifest_SORTS_NON_KILLS_BY_WHAT_THE_READER_MUST_DO(tmp_path):
     assert sorted(x["verdict"] for x in r["stale"]) == [
         "AMBIGUOUS_TARGET", "TARGET_NOT_FOUND"], r["stale"]
     assert r["all_killed"] is False
+
+
+def test_a_SUITE_THAT_CANNOT_BE_COLLECTED_is_INVALID_not_green(tmp_path):
+    """THE SEVENTH LIE, and it cost me three false SURVIVEDs on a real module.
+
+    `_failed_names` greps for `^FAILED`. pytest prints `ERROR` for a collection
+    failure and no FAILED line at all — so a test file that cannot even be
+    IMPORTED (a missing sys.path entry, a conftest that only applies when the
+    whole directory is run) yields an empty failure list. That reads as a GREEN
+    baseline, and then every mutation against it comes back SURVIVED, because
+    nothing is capable of failing. SURVIVED is the actionable verdict: it sends
+    you to write tests for coverage that already exists.
+
+    `_collect_count` returns None exactly in that case, so the count is the
+    signal. MUTATION: drop the guard — the verdict silently becomes SURVIVED."""
+    src, _ = scenario(tmp_path)
+    broken = tmp_path / "test_uncollectable.py"
+    broken.write_text("import a_module_that_does_not_exist\n"
+                      "def test_nothing():\n    assert True\n")
+    r = MG.check(src, "return x * 2", "return x * 3", [str(broken)],
+                 must_fail=["test_nothing"])
+    assert r["verdict"] == "INVALID_BASELINE", r
+    assert "COLLECTED" in r["detail"], r["detail"]
+    assert r["verdict"] in MG.INVALID, "it proved nothing in either direction"

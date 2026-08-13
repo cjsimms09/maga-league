@@ -5,9 +5,25 @@ Everything here runs offline against fixtures. The one thing these tests
 from `describe_payload()` in a real build log, which is exactly why that
 function exists and is printed.
 """
+import sys
+from pathlib import Path
+
 import pytest
 
-import adp
+# IMPORTABLE ON ITS OWN. `import adp` used to work only when the whole directory
+# was collected — some other test file happened to put `draft/` on the path
+# first, and pytest imports in alphabetical order. Run this file by itself and it
+# raised ModuleNotFoundError, which pytest reports as a collection ERROR rather
+# than a FAILED test.
+#
+# That is not a cosmetic difference. A harness grepping for `FAILED` sees an
+# empty list and reads the suite as GREEN — the mutation gate did exactly that
+# and returned three SURVIVED verdicts on a module whose tests all pass in CI.
+# The gate now refuses an uncollectable baseline, and this makes the file stand
+# on its own so the situation does not arise.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import adp  # noqa: E402
 
 
 # --- fixtures ---------------------------------------------------------------
@@ -243,3 +259,112 @@ def test_bye_fills_from_ffc_only_where_sleeper_left_a_hole():
     assert by_id["2"]["bye"] == 9, "Sleeper's bye must win over FFC's"
     assert "bye_source" not in by_id["2"]
     assert by_id["3"]["bye"] is None, "unknown must stay unknown, never guessed"
+
+
+# ── THE TEAM-BYE FALLBACK, WHICH HAD NEVER FIRED ───────────────────────────
+#
+# `bye_source` on the shipped 2026 board was `ffc` (215) or absent (1,626)
+# across all 1,841 rows and NOT ONCE `team-derived`, while 35 rows inside the
+# top-225 carried no bye and their own team's bye sat on the same board — 11 RB,
+# 9 TE, 8 QB, 5 WR, 2 DEF, 1 K.
+#
+# The cause was ORDER, not logic. The team map was built at the top of
+# `apply_with_fallback` from `p.get("bye")`, and at that point no player has a
+# bye at all: Sleeper's `metadata.bye_week` is empty for all 1,737 in the
+# preseason, and the FFC values are merged further down. The map was built from
+# nothing, so the fill loop had nothing to apply. Its own comment claimed "all
+# 564 gaps fill"; zero did.
+#
+# A missing bye is not a visible gap, it is SILENCE: `byeStack` warns when three
+# starters share a bye, and a null can never contribute to that count, so the
+# warning stays quiet — indistinguishable from one that looked and found nothing.
+
+def test_a_TEAMMATES_BYE_FILLS_A_HOLE_THAT_ONLY_FFC_COULD_HAVE_KNOWN(monkeypatch):
+    """THE REGRESSION TEST FOR THE ORDERING. The teammate's bye arrives with the
+    FFC merge, so this passes only if the team map is built AFTER it.
+
+    MUTATION: build the map before the merge (the original order) — `team_bye` is
+    empty, nothing fills, and `bye_source` is never `team-derived`."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10,
+                                year=2026)["adp"]
+    priced = next(iter(table))
+    table[priced]["bye"] = 9
+    board = [
+        {"player_id": priced, "team": "GB", "search_rank": 1},      # bye via FFC
+        {"player_id": "unpriced-1", "team": "GB", "search_rank": 700},
+    ]
+    adp.apply_with_fallback(board, table, teams=10)
+
+    assert board[0]["bye"] == 9 and board[0]["bye_source"] == "ffc"
+    assert board[1]["bye"] == 9, (
+        "a teammate's bye was on the board and this hole stayed empty — the team "
+        "map is being built before the merge that supplies the only bye data")
+    assert board[1]["bye_source"] == "team-derived"
+
+
+def test_the_TEAM_BYE_FILL_NEVER_TOUCHES_A_PLAYER_WHO_ALREADY_HAS_ONE(monkeypatch):
+    """Sleeper is the roster authority and FFC beats a derivation; this may only
+    ever fill a hole neither could.
+
+    ⚠ THE OBVIOUS FIXTURE CANNOT TEST THIS, and my first one did not. Giving the
+    teammate a DIFFERENT bye makes the team disagree with itself, so the
+    unanimity refusal drops it and there is nothing left to overwrite with —
+    the test passed because the guard never ran. The gate caught it: mutating
+    the guard to `if True` survived.
+
+    Any disagreement is a conflict by construction, so the only reachable case is
+    a player whose bye already AGREES with his team's. What the guard protects
+    there is not the number, it is the PROVENANCE: overwriting would relabel a
+    Sleeper-sourced bye as `team-derived`, and the artifact would then claim a
+    derivation for a value that was measured.
+
+    MUTATION: fill unconditionally — the value survives and `bye_source` lies."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10,
+                                year=2026)["adp"]
+    priced = next(iter(table))
+    table[priced]["bye"] = 9
+    board = [{"player_id": priced, "team": "GB", "search_rank": 1},
+             {"player_id": "u2", "team": "GB", "bye": 9, "bye_source": "sleeper",
+              "search_rank": 700}]
+    adp.apply_with_fallback(board, table, teams=10)
+    assert board[1]["bye"] == 9
+    assert board[1]["bye_source"] == "sleeper", (
+        "a measured bye was relabelled as derived — the value is right and the "
+        "provenance is now a lie")
+
+
+def test_a_TEAM_WHOSE_PLAYERS_DISAGREE_gets_no_derived_bye(monkeypatch):
+    """A wrong bye manufactures a conflict warning about a week the player
+    actually plays, which is worse than a missing one. Unanimity or nothing.
+
+    MUTATION: resolve by first-seen or by mode."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10,
+                                year=2026)["adp"]
+    board = [{"player_id": "a", "team": "ZZ", "bye": 5, "search_rank": 700},
+             {"player_id": "b", "team": "ZZ", "bye": 9, "search_rank": 701},
+             {"player_id": "c", "team": "ZZ", "search_rank": 702}]
+    adp.apply_with_fallback(board, table, teams=10)
+    assert board[2].get("bye") in (None, "", 0), board[2]
+
+
+def test_a_TEAM_WITH_NO_BYE_AT_ALL_does_not_get_a_derived_LABEL(monkeypatch):
+    """The inner guard, which the obvious mutation does not reach. If a player's
+    team has no bye anywhere, nothing is derivable — and writing
+    `bye_source: "team-derived"` beside a null bye would claim a derivation that
+    did not happen, which is worse than the blank it replaces.
+
+    (Tyreek Hill is the live case: team `FA`, no teammate, genuinely underivable.)
+
+    MUTATION: drop `if b is not None` — every unfilled player is stamped as
+    team-derived while still having no bye."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10,
+                                year=2026)["adp"]
+    board = [{"player_id": "lonely", "team": "FA", "search_rank": 700}]
+    adp.apply_with_fallback(board, table, teams=10)
+    assert board[0].get("bye") in (None, "", 0), board[0]
+    assert board[0].get("bye_source") != "team-derived", (
+        "claimed a derivation for a player with no teammate to derive from")
