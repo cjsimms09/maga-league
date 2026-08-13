@@ -27,6 +27,23 @@ This is closer to the actual thing being estimated.
 
 Everything below answers to this sentence and nothing else.
 
+### AND "EXPECTED" MUST BE OPERATIONALISED
+
+Otherwise the audit becomes a labelling exercise.
+
+> **EVERY QUANTITY CLAIMING TO BE AN OBJECTIVE TERM MUST HAVE A DEFENSIBLE PATH
+> TO ESTIMATING EXPECTED STARTING-LINEUP POINTS. IF IT CANNOT DESCRIBE THAT
+> PATH, IT IS NOT AN OBJECTIVE TERM REGARDLESS OF WHAT IT IS CALLED.**
+
+Every row in §3 that claims OBJECTIVE TERM therefore carries its path, and a row
+that cannot state one is reclassified on the spot rather than given the benefit
+of its name.
+
+**The path has a condition almost every candidate forgets: a player's points
+only reach the objective IF HE STARTS.** A quantity that estimates his
+production but not his probability of reaching the lineup has described half a
+path.
+
 ---
 
 ## 2. THE FOUR-WAY DECLARATION
@@ -40,10 +57,15 @@ Every quantity that can reach a ranking declares **exactly one** of:
 | **DIAGNOSTIC** | flags possible model failure. **NEVER ENTERS RANKING.** |
 | **UNDECLARED** | currently has no defensible declared role |
 
-**The value-versus-decision-state split is the one that matters.** ADP and
-reference-drafter information do not estimate player value. Their only
-defensible role is estimating future availability and opportunity cost — and
-**if that enters the score, the contribution must be explicitly declared.**
+**And where a quantity ENTERS THE SCORE, the declaration must say what it
+contributes to: VALUE, OPPORTUNITY COST, OR BOTH.**
+
+An availability estimate can legitimately affect a decision **without becoming
+player value**. ADP and reference-drafter information are the clearest case —
+their defensible role is opportunity cost, not value.
+
+> **CONFLATING THE TWO IS HOW THE CROSS-POSITION COMPARISON WENT WRONG IN THE
+> FIRST PLACE.**
 
 ---
 
@@ -51,12 +73,12 @@ defensible role is estimating future availability and opportunity cost — and
 
 ### OBJECTIVE TERMS (declared, and their status)
 
-| quantity | live? | declaration | status |
+| quantity | live? | value / opp-cost / both | PATH TO EXPECTED STARTING-LINEUP POINTS |
 |---|---|---|---|
-| `proj_mean` | yes | expected season points for the player | the root estimate; everything descends from it |
-| `vorp` | **not in score**, feeds board order + tiering | **CANDIDATE objective term: conceptual role defensible, implementation UNDER AUDIT** | see §4 |
-| `keeper` (w=1) | yes | value of a retained player under the keeper rules | declared; measured |
-| `vona` (w=1) | yes | **MISDECLARED — see Class One, §5** | it is the score, and it is not what its name says |
+| `proj_mean` | yes | value | his expected season points, which reach the objective **iff he starts**. The root estimate. |
+| `vorp` | **not in score**; feeds board order + tiering | value | his points minus the marginal starter's — i.e. the lineup gain over doing nothing at that position. Path defensible; implementation under audit (§4). |
+| `keeper` (w=1) | yes | both | lineup points of a retained player, net of the pick his retention costs. **The opp-cost half is not separately declared today.** |
+| `vona` (w=1) | yes | **UNRESOLVED — see §4b** | **cannot currently state a path to lineup points.** Under §1 that disqualifies it as an objective term until the path is demonstrated. |
 
 ### DECISION-STATE INPUTS
 
@@ -112,6 +134,16 @@ and whose implementation is under audit.** Not as correct.
 > THE EXPECTED PRODUCTION OF THE MARGINAL PLAYER AVAILABLE TO FILL THAT
 > POSITION'S STARTING DEMAND UNDER THIS LEAGUE'S ROSTER STRUCTURE.
 
+**THE CHAIN IS SIX LINKS, AND THE LAST TWO ARE WHERE THE FAILURE ACTUALLY LIVES:**
+
+> REPLACEMENT POPULATION → REPLACEMENT LEVEL → ARITHMETIC → CONSUMER →
+> **SCORE CONTRIBUTION → RANKING**
+
+VORP is computed correctly and then effectively removed from the score while
+still influencing ordering. **That is not a computation failure — it is a
+correctness failure at the consumer, and a chain ending at "arithmetic" would
+have declared it fine.** My first draft of this document ended at arithmetic.
+
 The chain, and where each link stands:
 
 | link | status |
@@ -119,7 +151,50 @@ The chain, and where each link stands:
 | **REPLACEMENT POPULATION** | **AUDITED 2026-08-13.** 1181 of 1759 board players carry `proj_mean` 0. Contaminated **in count** but **not at the cut point**: replacement is the Nth-ranked by `proj_mean` with N between 8 and 29, zeros sort last, so the marginal starter is never a zero at current depths. QB→Jayden Daniels 341.7, RB→Cam Skattebo 188.5, WR→Luther Burden 172.7, TE→Mark Andrews 150.7, K→Cameron Dicker 97.0, DEF→Jacksonville 99.0. **No zeros above N at any position.** |
 | **REPLACEMENT LEVEL** | depths QB10 RB21 WR29 TE10 K8 DEF10. WR29 and RB21 include an iterative flex allocation (9 of 10 flex slots to WR). Whether that matches the declaration above is **UNAUDITED**. |
 | **ARITHMETIC** | `vorp = proj_mean − replacement[pos]`. **No representation for "unknown"** — an absent projection becomes a position constant. See Class Three. |
-| **CONSUMER** | **DEFECTIVE — see Class Two, §5.** |
+| **CONSUMER** | **DEFECTIVE — see Class Two, §5.** VORP is read for board ordering and tiering. |
+| **SCORE CONTRIBUTION** | **ZERO. Measured:** substituting a hardcoded replacement set changed 1,044 players' VORP and **0 scores** — replacement appears in both terms of `proj_mean − expectedBestAvailable` and cancels exactly. |
+| **RANKING** | **NON-ZERO.** It still orders the board and assigns tiers. |
+
+---
+
+## 4b. VONA — NOT PREJUDGED
+
+My first draft called it "misdeclared" and listed it under Class One. **That
+reads as a verdict and it should be a question.** Cory's ruling:
+
+> **VONA IS CURRENTLY MISLABELLED AND MISAPPLIED. ITS LEGITIMATE ROLE, IF ANY,
+> MUST BE DEMONSTRATED AGAINST THE OBJECTIVE.**
+
+**Within-position drop-off may be a perfectly good estimate of something.** It is
+not an estimate of cross-position value, which is how it is being used. The audit
+establishes what it legitimately estimates — **it does not start from the
+assumption that the answer is nothing.**
+
+### The hypothesis worth testing first
+
+Under §2's value/opportunity-cost split, VONA looks less like a broken value
+estimate and more like **a correctly-computed OPPORTUNITY COST wearing a value
+label.**
+
+`proj_mean − expectedBestAvailable(samePos, nextPick)` answers: *how much worse
+is the man I get at this position if I wait?* That is a real and useful
+quantity — it is **the cost of deferring**, not the value of acquiring.
+
+Two consequences if that framing survives testing:
+
+1. **It explains the one-start tilt without anything being miscomputed.**
+   Deferring at a position with a steep top-end cliff and a high raw scale costs
+   more than deferring at a deep one. At pick 8: QB 33.6, RB 24.0, TE 20.6,
+   WR 12.7. Those are honest deferral costs. They are being summed as though
+   they were lineup points, and they are not.
+2. **Opportunity cost belongs in the decision, not in the value term.** You
+   choose the pick that maximises value **net of** what deferring costs. Adding
+   the two together is the arithmetic error, not the estimate.
+
+**This is a hypothesis, not a finding.** What would settle it: does ranking on
+(value − deferral cost) with the two kept separate produce a better estimate of
+expected starting-lineup points than ranking on their sum? That is a September
+question and it is the one the whole audit exists to make askable.
 
 ---
 
@@ -129,10 +204,11 @@ They are three different diagnoses and must not be collapsed.
 
 ### CLASS ONE — the name or treatment promises what the arithmetic does not deliver
 
-- **VONA is within-position drop treated as cross-position value.** At pick 8:
-  QB 33.6 (1 starting slot), RB 24.0 (2), TE 20.6 (1), WR 12.7 (2 + flex).
-  Board ranks 1–5: QB RB TE WR RB. The numbers are compared as one currency and
-  they are not.
+- **VONA is within-position drop used cross-position.** At pick 8: QB 33.6
+  (1 starting slot), RB 24.0 (2), TE 20.6 (1), WR 12.7 (2 + flex). Board ranks
+  1–5: QB RB TE WR RB. The numbers are compared as one currency and they are
+  not. **The quantity is mislabelled and misapplied; whether it is WRONG is
+  §4b's open question.**
 - **ONESIE is a ranking mover without being a declared weighted term.** Swings
   8.9, decisive in 4 of 12 picks, and structurally cannot appear in the weights
   panel Cory reviews.
@@ -170,7 +246,7 @@ a measured ceiling weight will be **real but not parity**.
 
 | requirement | status |
 |---|---|
-| **DECISION + STATE** | **MISSING.** B's log records the recommendation but the board as *counts* (`drafted`, `board_left`), never which players were taken. |
+| **DECISION + STATE** | **MISSING, and it is not abstract:** the recommendation row must preserve the **exact `taken_player_ids` at the moment the recommendation was generated** — not reconstructed afterward, not a board summary. B's log records `drafted` and `board_left` as *counts*. |
 | **OUTCOME** | **MISSING.** `component-grading-live` and `ledger-to-gate-path` both NOT MET. |
 | **PERSISTENT JOIN KEY** | present — `player_id` |
 | **PRIOR** | barely. **It matters because it lets us measure SURPRISE rather than merely ERROR** — "off by twelve points" and "off by twelve points on a player we were confident about" are different findings. |
@@ -202,6 +278,31 @@ And the observation underneath all four:
 
 `-S` dating against `-G`. A's sim against B's harness. Python against JS on the
 same log. The mutation that had to fail by name.
+
+---
+
+## 7b. AUDIT VERSUS ACCEPTANCE TEST — KEEP THESE SEPARATE
+
+**This document establishes the conceptual standard. B's six-run harness
+establishes whether the implementation meets it.** They are different questions
+and neither answers the other's.
+
+| | asks |
+|---|---|
+| **THE AUDIT** | what is this quantity supposed to mean, and does that meaning correspond to the objective? |
+| **THE HARNESS** | when we change the implementation, does the measured result improve under controlled board states? |
+
+> **A FIX THAT PASSES THE HARNESS WHILE FAILING THE AUDIT IS A COINCIDENCE
+> RATHER THAN A CORRECTION.**
+
+This is not hypothetical. Three slot-aware attempts moved the tight-end count —
+one of them to 1 — while none could state what quantity had become a better
+estimate of anything. Under harness-only grading, the first of those would have
+shipped.
+
+**And the converse holds.** A change that satisfies the audit and fails the
+harness is not automatically right either; it means the conceptual story is
+clean and the implementation is not, which is a different repair.
 
 ---
 
