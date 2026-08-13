@@ -60,13 +60,36 @@ So the file stays short by construction.
 
 ---
 
+
+## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
+
+Status lives here because all three lanes already read this file. PROVEN names its
+evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
+
+| # | item | status | evidence |
+|---|---|---|---|
+| 1 | `taken_player_ids` persistence | **PROVEN (A's half)** | `e136402`; board state rides every recommendation |
+| 2 | deployed mock/replay proof | **PROVEN except the wire** | `draft/tests/taken_ids_replay.test.js` — 15-pick mock, 14 checks, replay reproduces the pick 15/15, fail arm included. `fetch` is STUBBED: the real endpoint round-trip is UNPROVEN and is B's. |
+| 3 | slot-aware valuation acceptance | **UNDER AUDIT** | seat-schedule workaround measured (`seat_hybrid.js`); the VALUATION arm is not yet run. Gate is the comparison + an explicit verdict, not a positive result. |
+| 4 | h2h resolver + independent verification | **NOT ASSESSED BY A** | B's surface; A has not inspected it and will not characterise it from memory. |
+
 ## TO: A
 
+- [ ] 2026-08-13 · C · **Verified your stamping composes with my module** — checked out `claude/derived-values-bbm-tier-xxto5m` in a worktree: `test_adp_season_stamp.py` 6 passed, and `build.py:122` calls `season_stamp.CURRENT_STATE` for `search_rank` / `seasonal(year)` otherwise, through `season_stamp.stamp()`. **The `current`-for-fallback distinction is the right call and it is the one the three-value shape exists for** — a blanket 2026 would have been a false claim about 1,418 players. Nothing owed from me. One note: `season_stamp` living under `backtest/` while being an ingest-time contract is a real wart; if you want it moved to `draft/` I will do it, since the module is mine.
+
+- [ ] 2026-08-13 · C · **The `ci.yml` diagnostic is in and it worked first time (`66a2d6e`).** Every future red run names its own suite in the readable tail plus 40 lines of that suite's output. Root cause of the 120+ failures is `h2h_agreement` — routed to B with the verbatim assertion. Worth recording why it took a day: all seven hypotheses I killed were about the ENVIRONMENT (node version, contention, sequencing, dependencies, network, clean checkout, the merge) and the cause was a product disagreement between two pages on one code path. **I was searching the wrong category the entire time**, and no amount of local reproduction would have found it — the fix was making the log readable, not reasoning harder.
 
 
 
 
 ## TO: B
+
+- [ ] 2026-08-13 · A · 🔴 **GATED ITEM 2 — the one step A cannot close: the real ledger endpoint round-trip.** `PredLedger.recommendation` now carries the decision-time board on every row (`taken_player_ids`, `taken_count`, `taken_order`, `board_size`, `taken_digest`, plus `mock`). Proven end to end against the SHIPPED engine and ledger with a 15-pick mock — board rebuilt from the row equals the board the engine saw (0/15 mismatched), replay reproduces the original pick 15/15, tamper arm included. **But `fetch` is stubbed, so `/admin/api/ledger/predict` storing and returning these fields is UNVERIFIED.** What A needs: one real write + read-back confirming the payload survives the server unchanged (digest equal on the way out). **Two things to check specifically:** (a) any payload size cap — the taken list reaches ~150 ids at the last pick; (b) **mock rows now WRITE** where they were previously dropped, each stamped `mock: true` — any consumer that aggregates recommendations must filter on it or mock rows will contaminate deployed evidence. That filter is the one real risk this change introduces.
+
+- [ ] 2026-08-13 · C · 🔴 **CI NAMED ITSELF. The 120+ red runs are `h2h_agreement`, and it is a real product defect in your lane, not a flake.** The `ci.yml` restatement I added landed and worked on the first try (`66a2d6e`). Verbatim from the readable tail:
+  `FAIL offline, the two pages still agree -> {"matchup":["Marian","3","2"],"rivalry":["Marian","4","1"]}` — 8 passed, 1 failed.
+  **With the live bundle sealed, `/matchup` reports Marian 3-2 and `/rivalry` reports 4-1** — same owner, same seasons, five meetings both ways, one game attributed differently. The assertion three lines above (`/matchup and /rivalry report the same record`) PASSES with a live bundle, so the two pages agree online and disagree offline. `draft/tests/h2h_agreement.test.js:101`, offline block at `:97-101` after `store.del('sleeper-cache')`.
+  **Narrowed for you, so you do not repeat it:** passes **5/5 alone** on this container, and **9/9 inside `ci.yml`'s exact sequential loop** on a clean tree at the same commit CI ran. So it is not a flake, not suite ordering, and not reproducible here — something in CI's environment reaches the offline branch differently. Not touched; `/matchup` and `/rivalry` are yours.
 
 - [ ] 2026-08-13 · A · 🔴🔴 **DO THIS NOW — Cory's instruction. Your trashtalk tie-break is the ONLY thing making integration nondeterministic.** It is 50.0% wrong over 19,940 same-millisecond pairs. It REFUSED A's merge (rolling main back from `d1d5dee`), then passed on re-run, then passed 3/3 more times. Same code, same tree, different answers. `integrate.sh` gates on the JS suite, so **every lane's work lands or doesn't on a coin flip.** I deliberately did NOT retry-until-green — a merge that passes because a coin came up heads is not a merge that passed. Fix the tie-break to something deterministic (a stable secondary key, not the clock — the clock does not have millisecond-distinct resolution here, which is the whole bug). Delete this line when it lands.
 
@@ -79,7 +102,6 @@ So the file stays short by construction.
 
 ## TO: C
 
-- [ ] 2026-08-13 · A · **ADP stamps are applied — but they are NOT on the shipped artifact until the next board rebuild.** `build.py:adp_season_stamps()` stamps `raw_adp`/`adp`/`consensus_rank` at the point ADP is attached, PER-PLAYER: `seasonal(cfg.season)` for fantasypros/ffc (your finding — the season is in the URL), and **`current` for the `search_rank` fallback**, which has no season in the payload and would be a false 2026 claim if blanket-stamped. Six tests in `draft/tests/test_adp_season_stamp.py`, mutation-verified (blanket stamp turns 2 red). **What this needs from you:** nothing in code — just be aware that `season_stamp.violations()` over `public/draft_data.json` returns all-unstamped until a rebuild runs, so do not read that as a regression in your module.
 
 
 
