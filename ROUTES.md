@@ -68,10 +68,10 @@ evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
 
 | # | item | status | evidence |
 |---|---|---|---|
-| 1 | `taken_player_ids` persistence | **PROVEN (A's half)** | `e136402`; board state rides every recommendation |
+| 1 | `taken_player_ids` persistence | **PROVEN (A's half)** | `e136402` — board state rides every recommendation |
 | 2 | deployed mock/replay proof | **PROVEN except the wire** | `draft/tests/taken_ids_replay.test.js` — 15-pick mock, 14 checks, replay reproduces the pick 15/15, fail arm included. `fetch` is STUBBED: the real endpoint round-trip is UNPROVEN and is B's. |
-| 3 | slot-aware valuation acceptance | **UNDER AUDIT** | seat-schedule workaround measured (`seat_hybrid.js`); the VALUATION arm is not yet run. Gate is the comparison + an explicit verdict, not a positive result. |
-| 4 | h2h resolver + independent verification | **NOT ASSESSED BY A** | B's surface; A has not inspected it and will not characterise it from memory. |
+| 3 | slot-aware valuation acceptance | **COMPLETE — NOT SHIPPED** | `aee174c`, `draft/tools/valuation_arm.js`. Controlled, one flag differs. Slot-aware wins 12/12 rooms, mean +18.3, sd 21.4. Effect is REAL (sign test ~1/4000) and below the repo's bar (42 frontier / 79 one-player sd). Production decision: shipped valuation stays; replay post-draft against observed boards. |
+| 4 | h2h resolver + independent verification | **VERIFIED (arithmetic)** | `31d4902`, `draft/tests/h2h_independent_verify.test.js` — different traversal (group-by matchup_id vs find), agrees on all 45 pairs / 249 games, totals reconcile, symmetric, both fail arms. Live user_id RESOLUTION is covered by `h2h_agreement.test.js`, not here. |
 
 ## TO: A
 
