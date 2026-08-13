@@ -9,6 +9,8 @@ the damage only surfaces months later as a league quietly failing F5.
 Run: python3 -m pytest draft/tests/test_external_adp_capture.py -q
 """
 import json
+
+import pytest
 import re
 import sys
 from pathlib import Path
@@ -1947,3 +1949,99 @@ def test_a_CHECKER_THAT_THROWS_MUST_NOT_COST_THE_DAY(tmp_path, monkeypatch):
 
     assert p.exists(), "a checker bug must not cost an unrefetchable day"
     assert json.loads(p.read_text())["series"][0]["rows"] == {"1": 4.5}
+
+
+# ── THE STANDING INVARIANT: A GUARD MAY NEVER COST THE DAY ─────────────────
+#
+# THREE TIMES TODAY A GUARD I BUILT BECAME THE NEXT THING THAT COULD DESTROY
+# WHAT IT PROTECTS. The summary print could raise after `save()` and lose the day
+# to a `len(None)`. The integrity checker could raise before `save()` and lose it
+# to a bug in my own guard. Each was found by pointing the mechanism at itself,
+# which is a thing I have to remember — and remembering is not a mechanism.
+#
+# MY FIRST VERSION OF THIS TEST WAS TOO PERMISSIVE AND I CAUGHT IT BY CHECKING
+# WHICH PATH EACH CASE TOOK. It said "nothing but the write may stop the write"
+# and then accepted a lost day for four of five helpers as "loud loss is
+# acceptable" — which satisfied the claim trivially, because `save()` calls
+# `coverage`, `load_players` and `merge_players` INTERNALLY. Those are the write.
+# The invariant only has teeth once the two roles are separated:
+#
+#   WRITE PATH — failure legitimately aborts the capture. It must be LOUD and
+#     must not leave a partial file. Silent or partial loss is the refusal.
+#   GUARD / REPORT — failure must NOT cost the day. These sit between a good
+#     board and the disk and have no business stopping it.
+#
+# The classification is checked against `capture()`'s source, so a NEW helper
+# forces a decision instead of silently joining whichever set is convenient.
+
+WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
+GUARDS = ["integrity"]
+#: The SOURCE. Not a guard and not the write: if it fails there is no board at
+#: all, so aborting is the only honest outcome. Grouped with the write path for
+#: the loud-and-no-partial-file assertion because the requirement is identical.
+SOURCE = ["fetch_mfl"]
+
+
+@pytest.mark.parametrize("victim", GUARDS)
+def test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY(victim, tmp_path, monkeypatch):
+    """The case that has bitten three times. MUTATION: let it propagate — a bug in
+    a check silently destroys an unrefetchable board, which is how the last three
+    got in."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    C.capture(2026, "2026-08-14", path=str(p))
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert p.exists() and json.loads(p.read_text())["series"][0]["rows"] == {"1": 4.5}
+
+
+@pytest.mark.parametrize("victim", WRITE_PATH + SOURCE)
+def test_A_WRITE_PATH_FAILURE_IS_LOUD_AND_LEAVES_NO_PARTIAL_FILE(victim, tmp_path,
+                                                                 monkeypatch):
+    """These legitimately abort — `save()` calls them. What must never happen is a
+    HALF-WRITTEN archive, which is worse than either outcome because the standing
+    integrity check would then be judging a file nobody meant to create.
+
+    MUTATION: swallow the failure and carry on to `save()` — a snapshot gets
+    written from state that a broken helper produced."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    with pytest.raises(Exception):
+        C.capture(2026, "2026-08-14", path=str(p))
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert not p.exists(), "%s: aborted AND left a partial file" % victim
+
+
+def test_EVERY_HELPER_capture_CALLS_IS_CLASSIFIED_as_write_or_guard():
+    """The lists go stale the moment someone adds a helper, and a stale list
+    silently narrows the invariant to whatever it happened to cover. So the next
+    person is forced to decide which role their new call plays.
+
+    MUTATION: drop a name from either list — the parametrised tests keep passing
+    on a smaller set and the coverage quietly shrinks with nothing saying so."""
+    import inspect
+    import re as _re
+    body = inspect.getsource(C.capture)
+    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save", "capture"}
+    called = {m.group(1) for m in _re.finditer(r"\b([a-z_][a-z0-9_]*)\(", body)}
+    module_level = {n for n in called if hasattr(C, n) and n not in dir(__builtins__)}
+    missing = module_level - known
+    assert not missing, (
+        "capture() calls %s and neither list covers them — classify each as WRITE "
+        "PATH (may abort, must be loud and leave no partial file) or GUARD (must "
+        "never cost the day)" % sorted(missing))
