@@ -99,7 +99,44 @@ const SCHED = (function () {
   if (type !== 'snake') {
     throw new Error('draft_plan: this derivation is for a SNAKE. league.draft_type '
       + 'is ' + JSON.stringify(type) + ' — refusing rather than reversing the wrong '
-      + 'rounds. (Sleeper also carries `reversal_round`; it is 0 for 2026.)');
+      + 'rounds.');
+  }
+  /* ⚠️ `draft_type` CANNOT TELL A SNAKE FROM A THIRD-ROUND REVERSAL, so the
+   * check above is not enough on its own. Sleeper reports `draft.type: "snake"`
+   * in all four seasons of this league — including 2023, which ran with
+   * `draft.settings.reversal_round: 3` and whose picks show rounds 2 and 3 in
+   * the IDENTICAL order. A model reading `type` alone would have been wrong
+   * about every pick from round 3 on and nothing would have disagreed with it.
+   *
+   * `sleeper_import.py` had a mapping for this and read `league.settings`, where
+   * the field does not exist, so it never fired in four seasons. It is fixed
+   * there; the raw value is read HERE TOO because the board in front of us was
+   * built before that fix and a commissioner can flip the toggle up to draft
+   * day. Read from the captured draft object, which IS Sleeper's answer. */
+  const rev = (function () {
+    let h = null;
+    try {
+      h = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
+        'league_history.json'), 'utf8'));
+    } catch (e) { h = null; }
+    const season = String((DATA.league || {}).season || '');
+    const node = ((h || {}).seasons || []).find(x => String(x.season) === season);
+    if (!node) return null;
+    const d = Array.isArray(node.drafts) ? node.drafts[0] : node.drafts;
+    const v = ((d || {}).settings || {}).reversal_round;
+    return v == null ? null : +v;
+  })();
+  if (rev == null) {
+    throw new Error('draft_plan: cannot read reversal_round for this season from '
+      + 'league_history. REFUSING to assume a plain snake — `draft.type` reads '
+      + '"snake" under a third-round reversal too, which is how 2023 would have '
+      + 'been mis-ordered from round 3 on.');
+  }
+  if (rev !== 0) {
+    throw new Error('draft_plan: this draft has reversal_round=' + rev
+      + '. The snake below does not implement it. REFUSING rather than emitting a '
+      + 'plausible wrong schedule — every pick from round ' + rev + ' on would '
+      + 'move.');
   }
   /* The full snake, uncompressed, exactly as Sleeper numbers it. */
   const mineAll = [];
