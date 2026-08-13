@@ -1,6 +1,6 @@
 # OPENING SCRIPT — generated, never typed
 
-_board `2026-08-12T09:19:29Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$446/season vs control (CI [399.75, 492.88], 1.1 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$71)_
+_board `2026-08-13T09:20:18Z` · slot **8** (site-claimed — Sleeper draft order pending (regenerates on assignment)) · doctrine: **Early-QB Strike** (19b Cory-conditional race: +$438/season vs control (CI [390.25, 487.25], 1.0 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$96)_
 
 My live picks: **30, 45, 50, 65, 70, 85…**
 
@@ -9,7 +9,7 @@ _Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico (certain, 
 
 ### Pick 30
 - **TARGET**: DeVonta Smith (WR, VORP 44.9, 56% survives)
-- fallback 1: Zay Flowers (WR, VORP 43.2, 72% survives)
+- fallback 1: Zay Flowers (WR, VORP 43.2, 75% survives)
 - fallback 2: Colston Loveland (TE, VORP 37.9, 83% survives)
 - fallback 3: Ladd McConkey (WR, VORP 37.8, 90% survives)
 - fallback 4: Breece Hall (RB, VORP 36.0, 51% survives)
@@ -25,7 +25,7 @@ _Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico (certain, 
 - **TARGET**: Jaylen Waddle (WR, VORP 35.5, 28% survives)
 - fallback 1: Mike Evans (WR, VORP 28.8, 75% survives)
 - fallback 2: Jameson Williams (WR, VORP 26.3, 68% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 52% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 55% survives)
 - fallback 4: Tyler Warren (TE, VORP 24.2, 44% survives)
 
 ## CONTINGENCY — Bowers available (Marian keeps someone else)
@@ -33,7 +33,7 @@ _The elite-TE-anchor question returns: watch the TE room's panic — survival to
 
 ### Pick 30
 - **TARGET**: DeVonta Smith (WR, VORP 44.9, 56% survives)
-- fallback 1: Zay Flowers (WR, VORP 43.2, 72% survives)
+- fallback 1: Zay Flowers (WR, VORP 43.2, 75% survives)
 - fallback 2: Colston Loveland (TE, VORP 37.9, 83% survives)
 - fallback 3: Ladd McConkey (WR, VORP 37.8, 90% survives)
 - fallback 4: Breece Hall (RB, VORP 36.0, 51% survives)
@@ -49,7 +49,7 @@ _The elite-TE-anchor question returns: watch the TE room's panic — survival to
 - **TARGET**: Jaylen Waddle (WR, VORP 35.5, 28% survives)
 - fallback 1: Mike Evans (WR, VORP 28.8, 75% survives)
 - fallback 2: Jameson Williams (WR, VORP 26.3, 68% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 52% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 55% survives)
 - fallback 4: Tyler Warren (TE, VORP 24.2, 44% survives)
 
 _Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

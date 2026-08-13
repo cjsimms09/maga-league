@@ -2,7 +2,7 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-12T09:19:29Z",
+   "board_built_at": "2026-08-13T09:20:18Z",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "441f77aeb9ba"
@@ -10,7 +10,7 @@
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
    "enrolled": "Early-QB Strike",
-   "why": "19b Cory-conditional race: +$446/season vs control (CI [399.75, 492.88], 1.1 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$71"
+   "why": "19b Cory-conditional race: +$438/season vs control (CI [390.25, 487.25], 1.0 contested decisions/draft; v1 money proxy, Sept quantile re-run pre-registered); runner-up Elite-TE Anchor +$96"
   }
  },
  "my_picks": [
@@ -44,7 +44,7 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 43.2,
-      "survival": 0.72
+      "survival": 0.75
      },
      {
       "player_id": "12517",
@@ -138,7 +138,7 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.52
+      "survival": 0.55
      },
      {
       "player_id": "12518",
@@ -166,7 +166,7 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 43.2,
-      "survival": 0.72
+      "survival": 0.75
      },
      {
       "player_id": "12517",
@@ -260,7 +260,7 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.52
+      "survival": 0.55
      },
      {
       "player_id": "12518",

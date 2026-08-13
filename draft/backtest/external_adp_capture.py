@@ -48,7 +48,8 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: from the rows, a field that stops being written simply stops existing and the
 #: population record cannot tell you it is gone — which is the failure mode, not a
 #: detail of it.
-SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count"]
+SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
+                   "source_note", "dispersion"]
 
 # The header the shipped client sends; FFC 403s Python's default. Kept in step
 # with `draft/adp.py` by test, not by trust.
@@ -56,7 +57,7 @@ USER_AGENT = "mfga-league-draft-tool/1.0"
 
 
 def append_snapshot(series: list, year, observed_at: str, rows: dict,
-                    total_drafts=None) -> list:
+                    total_drafts=None, source_note=None, dispersion=None) -> list:
     """Add one day's board. Returns a NEW series; deduped by (year, date).
 
     NO TRUNCATION AND NO RETENTION WINDOW, deliberately — see the module note.
@@ -64,9 +65,16 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
     silently create two boards for one date and leave `board()` picking whichever
     sorted first.
 
-    `rows` is {provider_player_id: adp}. Names are NOT stored: MFL ids are stable
+    `rows` is {provider_player_id: adp}.
+
+    THIS DOCSTRING USED TO SAY NAMES ARE NOT STORED, because "MFL ids are stable
     and the players export resolves them at replay time, so storing a name here
-    would be a second copy of a fact that already has an owner.
+    would be a second copy of a fact that already has an owner." THAT REASONING IS
+    WHY THE ARCHIVE WAS UNREADABLE. It is true only while MFL is up and still
+    serving that season — which is precisely the window an archive of perishable
+    days exists to outlive. The decode key now lives beside the rows, unioned by
+    `merge_players` and written by `save`, and the "second copy" it costs is a few
+    kilobytes against the whole point of the archive.
     """
     keep = [s for s in (series or [])
             if not (str(s.get("year")) == str(year) and s.get("observed_at") == observed_at)]
@@ -77,7 +85,42 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
         # provider's own composition figure — the thing that showed the aggregate
         # accumulates — and a snapshot without it cannot be judged later.
         "total_drafts": total_drafts,
+        # DISPERSION, BESIDE THE MEAN AND NOT INSIDE IT.
+        #
+        # MFL publishes minPick/maxPick/draftSelPct per player. The board's
+        # `adp_sd` is a clamp that saturates in both directions — 15.00 for every
+        # player at adp >= 100, and exactly 30.00 for the whole search_rank
+        # fallback by construction — so it carries no player-specific information
+        # while driving survival, and therefore VONA.
+        #
+        # A spread is a fact about a DAY, exactly as perishable as the mean it
+        # sits next to, and it cannot be re-fetched afterwards. So it is captured
+        # now. It is a SIBLING of `rows` rather than folded into it, because
+        # `as_store_snapshots` and the replay both read `rows` as {id: adp} and
+        # would start sorting dicts.
+        #
+        # None, not {}, when there is none: the days archived before this landed
+        # (2026-08-11, -12) genuinely have no dispersion because the parser was
+        # discarding it, and that is absence, not a measurement of zero spread.
+        "dispersion": ({str(k): dict(v) for k, v in dispersion.items()}
+                       if dispersion else None),
         "row_count": len(rows or {}),
+        # WHICH MARKET PRICED THESE PLAYERS. `fetch_mfl` has always built this
+        # string and it was always thrown away, so the archive held prices with no
+        # record of the format that produced them — the decode-key defect one layer
+        # up, and just as invisible.
+        #
+        # MEASURED, NOT HYPOTHETICAL: against FantasyPros on the same players, the
+        # median MFL/FPROS ADP ratio is 0.98 at TE and 1.01 at DEF — and 0.514 at
+        # QB, ranging 0.12 to 0.77 and varying with rank, because this pool includes
+        # superflex leagues. No scalar correction repairs that. A grader reading
+        # these snapshots as F5 evidence in 2027 would price quarterbacks off a
+        # superflex market with nothing in the file to say so.
+        #
+        # It also carries the players-export failure flag, so a day whose ids may be
+        # undecodable is marked in the archive rather than only in a CI log that
+        # expires.
+        "source_note": source_note,
     })
     keep.sort(key=lambda s: (s["year"], s["observed_at"]))
     return keep
@@ -112,17 +155,104 @@ def _series_of(obj) -> list:
         "argument." % type(obj).__name__)
 
 
-def as_store_snapshots(series: list, year) -> list:
+def as_store_snapshots(series: list, year, ids) -> list:
     """The stored series -> `ExternalAsOfStore`'s input shape, for one season.
 
     THE READER, BUILT WITH THE WRITER (rule 14). It deliberately does NOT
     implement "latest strictly before the draft" — `ExternalAsOfStore.board()`
     owns that rule, and a second implementation here is how two derivation paths
     for one F5 decision would come to disagree.
+
+    `ids` MAPS THE SOURCE'S PLAYER ID TO OURS, AND IT IS REQUIRED. There is no
+    default and deliberately no pass-through, because the pass-through is the
+    defect this argument exists to end:
+
+    THE ARCHIVE STORES MFL'S OWN IDS — that is correct for an archive, which
+    should record what the source said and not what our crosswalk believed on the
+    day. But this function used to hand those ids over under the key `player_id`,
+    which every consumer downstream reads as OUR sleeper id. Nothing raised.
+    Measured on the real 2026-08-12 capture: 15 of 708 MFL ids collide numerically
+    with a board id and ALL FIFTEEN ARE FALSE MATCHES — MFL's #1 overall pick
+    resolves to a fourth-string college tight end.
+
+    The consequence is not a small board, it is a fictional one.
+    `external_replay_run.decision_contexts` fills `taken` from the PICKS (our ids)
+    and keys the board from here (MFL's), so `i not in taken` is always true and
+    THE AVAILABLE SET NEVER SHRINKS. Every drafted player stays draftable for the
+    whole replay and the baseline is graded against a draft in which nobody was
+    ever picked. Reproduced: available goes 80 -> 66 -> 51 across 30 picks when the
+    namespaces agree, and 80 -> 80 -> 80 when they do not.
+
+    An id with no entry in `ids` is DROPPED, because a row our board cannot read
+    is worse than an absent one. The count of those drops belongs to
+    `crosswalk_map`, which is where the misses are actually known and reported —
+    putting a number here would mean two places counting one thing.
     """
+    if ids is None:
+        raise ValueError(
+            "as_store_snapshots needs an id map: the archive holds the SOURCE's "
+            "player ids and every consumer reads `player_id` as OURS. Handing them "
+            "over untranslated does not fail loudly — it produces a replay where no "
+            "drafted player is ever removed from the board. Build one with "
+            "crosswalk_map(archive, sleeper_index).")
+    xw = dict(ids)
     return [{"observed_at": s["observed_at"],
-             "rows": [{"player_id": pid, "adp": adp} for pid, adp in (s.get("rows") or {}).items()]}
+             "rows": [{"player_id": xw[pid], "adp": adp}
+                      for pid, adp in (s.get("rows") or {}).items() if pid in xw]}
             for s in _series_of(series) if str(s.get("year")) == str(year)]
+
+
+#: How many unmatched names to NAME in the crosswalk report. Same rule as
+#: MISSING_DAYS_LISTED: the count is exact, only the list is capped.
+UNMATCHED_LISTED = 12
+
+
+def crosswalk_map(players: dict, board: list) -> tuple:
+    """The archive's own decode key -> our board's ids. Returns (ids, report).
+
+    OFFLINE, AND THAT IS THE WHOLE POINT. The id map used to be obtainable only by
+    fetching MFL's players export live (`mfl_live_probe`), which means the archive
+    decoded only while MFL was up and still serving that season — precisely the
+    window an archive exists to outlive. Everything here comes from bytes we hold.
+
+    NO NEW MATCHING LOGIC — AND THE FIRST CUT OF THIS FUNCTION BROKE THAT RULE AND
+    WOULD HAVE SHIPPED A KNOWN DEFECT. It called `adp.match_player` directly, which
+    skips the team-unit refusal `crosswalk_picks` performs first. MFL names a team
+    unit "Bills, Buffalo", `_norm_name` turns that into "Buffalo Bills", and our
+    Buffalo DEF carries the same full name — so the NAME MATCHES and the crosswalk
+    scores a success for something that is not a player. Measured on the real run:
+    TMQB -> DEF 65 times and TMPK -> DEF 38. Reaching for the authoritative matcher
+    was not enough; the authoritative CALLER is what holds the guard.
+
+    So this delegates the whole hop to `mfl_adapter.crosswalk_picks`, presenting the
+    decode key as the pick list. Its report comes back unchanged — including the
+    cross-source position disagreements, which are the signature of a plausible
+    wrong match and the one thing a bare match rate cannot show.
+
+    `board` may be our board's ROWS (a list) or an already-built matcher index, so
+    a caller that has built one does not build a second that could disagree.
+    """
+    import sys as _sys
+    _draft = str(Path(__file__).resolve().parent.parent)
+    if _draft not in _sys.path:
+        _sys.path.insert(0, _draft)
+    import mfl_adapter as A
+    from adp import build_index
+
+    if isinstance(board, dict) and ("by_name" in board or "by_initials" in board):
+        index = board
+    else:
+        index = build_index({
+            str(r.get("player_id")): {"full_name": r.get("name"),
+                                      "position": r.get("position"),
+                                      "team": r.get("team"),
+                                      "search_rank": r.get("sleeper_rank")}
+            for r in (board or []) if r.get("player_id") is not None})
+
+    picks = [{"player": pid} for pid in sorted(players or {})]
+    rows, report = A.crosswalk_picks(picks, players or {}, index)
+    ids = {str(r["player"]): str(r["player_id"]) for r in rows}
+    return ids, report
 
 
 #: How many absent dates to NAME. The count is always exact; only the list is
@@ -301,9 +431,74 @@ def load(path=None) -> list:
     return json.loads(p.read_text()).get("series") or []
 
 
-def save(series: list, path=None) -> None:
+#: What the decode key is SUPPOSED to carry, declared rather than derived, for the
+#: same reason `SNAPSHOT_FIELDS` is: a field that stops being written must show up
+#: as empty rather than simply ceasing to exist.
+PLAYER_FIELDS = ["name", "position", "team"]
+
+
+def load_players(path=None) -> dict:
+    """The stored id -> {name, position, team} map. `{}` when there is none."""
+    p = Path(path or SERIES)
+    if not p.exists():
+        return {}
+    return json.loads(p.read_text()).get("players") or {}
+
+
+def players_of(obj) -> dict:
+    """The decode key out of whatever an archive was handed over as.
+
+    Symmetric with `_series_of`, and for the same reason: callers legitimately
+    hold the series LIST, the archive DICT or the path to it, and a reader that
+    understands only one of the three silently returns nothing for the other two.
+    A missing key here does not raise — the two days captured before the key
+    existed genuinely have none, and that is a fact about those days.
+    """
+    if obj is None:
+        return {}
+    if isinstance(obj, (str, Path)):
+        return load_players(obj)
+    if isinstance(obj, dict):
+        return obj.get("players") or {}
+    return {}
+
+
+def merge_players(existing: dict, incoming: dict) -> dict:
+    """UNION the decode key, field by field. Never shrinks, never blanks.
+
+    THE ARCHIVE IS APPEND-ONLY BECAUSE THE DAYS ARE PERISHABLE, and the key that
+    decodes those days is perishable in exactly the same way. Two ways it would be
+    lost, both silent, both handled here:
+
+      A PLAYER FALLS OFF MFL'S ADP BOARD. Today's fetch does not mention him, so a
+      replace would take his name with him — and every earlier day that priced him
+      becomes a number against an id nothing can resolve. The union keeps him.
+
+      MFL SERVES A BLANK. One day of `name: ""` would, under last-writer-wins,
+      overwrite the archive's only copy of who an id is. `population` would go on
+      reporting the field 100% present, because the key is still there. Absent is
+      not zero and neither is empty, so an ABSENT incoming value never displaces a
+      value we already hold.
+    """
+    out = {str(k): dict(v or {}) for k, v in (existing or {}).items()}
+    for pid, rec in (incoming or {}).items():
+        pid = str(pid)
+        cur = out.setdefault(pid, {})
+        for f, v in (rec or {}).items():
+            if not FP._is_absent(v) or f not in cur:
+                cur[f] = v
+    return out
+
+
+def save(series: list, path=None, players=None) -> None:
     p = Path(path or SERIES)
     p.parent.mkdir(parents=True, exist_ok=True)
+    # THE DECODE KEY IS UNIONED WITH WHAT IS ALREADY ON DISK, NEVER TAKEN FROM THE
+    # ARGUMENTS ALONE. `save` has more than one caller and the first one that does
+    # not happen to hold the map would otherwise delete it for every day already
+    # archived — leaving a file that still looks complete, because the dates, the
+    # rows and the coverage are all still there.
+    merged = merge_players(load_players(p), players or {})
     p.write_text(json.dumps({
         "_note": "D3 external ADP archive. Daily, FULL board, append-only, no retention "
                  "window. Not draft/data/adp_series.json (that is the HOME staleness "
@@ -326,6 +521,16 @@ def save(series: list, path=None) -> None:
         # difference the dates themselves.
         "coverage": {y: coverage(series or [], y)
                      for y in sorted({str(s.get("year")) for s in (series or [])})},
+        # THE DECODE KEY, BESIDE THE THING IT DECODES. The archive stores MFL's own
+        # player ids, which is right — an archive records what the source said. But
+        # for two days it stored ONLY those ids, and an id is not evidence: nothing
+        # in this repo could resolve one without a live call to MFL, which is the
+        # exact dependency the archive exists to outlive. Its population is recorded
+        # for the same reason every other durable record here carries one.
+        "players": merged,
+        "players_population": FP.of_records(
+            [dict(v, mfl_id=k) for k, v in sorted(merged.items())],
+            fields=PLAYER_FIELDS),
         "series": series}, indent=1))
 
 
@@ -387,42 +592,92 @@ def with_retry(call, attempts=RETRY_ATTEMPTS, backoff=RETRY_BACKOFF_S,
     raise last                          # pragma: no cover  (loop always returns or raises)
 
 
-def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
-    """One day's MFL ADP board. Returns (rows, total_drafts, note)."""
+def _mfl_url(year, params) -> str:
     import urllib.parse
-    import urllib.request
-    params = {"TYPE": "adp", "PERIOD": "DRAFT", "IS_PPR": "1", "IS_KEEPER": "N",
+    return ("https://api.myfantasyleague.com/%s/export?" % year) + urllib.parse.urlencode(params)
+
+
+ADP_PARAMS = {"TYPE": "adp", "PERIOD": "DRAFT", "IS_PPR": "1", "IS_KEEPER": "N",
               "IS_MOCK": "-1", "INJURED": "-1", "CUTOFF": "5", "FCOUNT": "12", "JSON": "1"}
-    url = ("https://api.myfantasyleague.com/%s/export?" % year) + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+PLAYERS_PARAMS = {"TYPE": "players", "JSON": "1"}
 
-    def once():
-        with urllib.request.urlopen(req, timeout=60) as r:
-            return r.read().decode("utf-8", "replace")
 
-    payload = json.loads(with_retry(once, note=lambda m: print("fetch_mfl: " + m)))
-    node = (payload.get("adp") or {})
-    players = node.get("player") or []
-    if isinstance(players, dict):
-        players = [players]
-    rows = {}
-    for p in players:
-        pid, avg = p.get("id"), p.get("averagePick")
-        if pid is None or avg is None:
-            continue
-        try:
-            rows[str(pid)] = float(avg)
-        except (TypeError, ValueError):
-            continue
+def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
+    """One day's MFL ADP board AND the key that decodes it.
+
+    Returns `(rows, players, total_drafts, note, dispersion)` — `rows` is
+    {mfl_id: adp}, `players` is {mfl_id: {name, position, team}}, `dispersion` is
+    {mfl_id: {min_pick, max_pick, sel_pct, drafts}}.
+
+    DISPERSION IS PART OF THE PERISHABLE DAY. MFL publishes minPick, maxPick and
+    draftSelPct per player; `parse` discarded them until 2026-08-13, so the two
+    days already archived have the mean and nothing else. The board's `adp_sd` is
+    meanwhile a clamp saturating at 15.00 (any adp >= 100) and at exactly 30.00
+    for the whole search_rank fallback — no player-specific content at all, in a
+    field that drives survival and therefore VONA.
+
+    TWO ENDPOINTS, BECAUSE ONE OF THEM IS NOT EVIDENCE ON ITS OWN. This fetched
+    only TYPE=adp for its first two days and archived {mfl_id: adp}, which nothing
+    in this repo can resolve without asking MFL again — the exact dependency a
+    perishable-day archive exists to outlive.
+
+    THE ROW EXTRACTION IS NO LONGER WRITTEN HERE. `mfl_adp.parse` already joins
+    these two exports and is unit-tested; this file had a second, hand-rolled
+    version of the same read that silently differed by dropping the join. That is
+    the multi-derivation failure rule 11 governs, and a crosswalk is exactly where
+    it hides. Only `totalDrafts` is read directly, because it is a property of the
+    ADP report rather than of a row and `parse` does not surface it.
+
+    A FAILED PLAYERS FETCH DOES NOT COST THE DAY. The ADP curve is the perishable
+    thing; names are near-static and the archive's map is a union, so yesterday's
+    key still decodes almost every id. The run continues with an empty map and says
+    so loudly, rather than throwing away an observation that cannot be refetched.
+    """
+    import urllib.request
+    import mfl_adp as MFL
+
+    def get(params, what):
+        req = urllib.request.Request(_mfl_url(year, params),
+                                     headers={"User-Agent": USER_AGENT})
+
+        def once():
+            with urllib.request.urlopen(req, timeout=60) as r:
+                return r.read().decode("utf-8", "replace")
+        return with_retry(once, note=lambda m: print("fetch_mfl(%s): %s" % (what, m)))
+
+    adp_text = get(ADP_PARAMS, "adp")
+    note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
     try:
-        total = int(node.get("totalDrafts"))
+        players_text = get(PLAYERS_PARAMS, "players")
+    except Exception as e:                                       # noqa: BLE001
+        print("fetch_mfl: PLAYERS EXPORT FAILED (%s: %s) — capturing the day's ADP "
+              "anyway; the stored decode key keeps yesterday's names, and any id "
+              "first seen today will be unresolvable until the next good fetch"
+              % (type(e).__name__, e))
+        players_text, note = "{}", note + " (players export FAILED this run)"
+
+    parsed = MFL.parse(adp_text, players_text)
+    rows = {r["mfl_id"]: r["adp"] for r in parsed}
+    players = {r["mfl_id"]: {"name": r.get("name"), "position": r.get("position"),
+                             "team": r.get("team")}
+               for r in parsed}
+    # Only players the source actually gave a spread for. A row with every field
+    # None would be indistinguishable from a measured zero once it is on disk.
+    dispersion = {r["mfl_id"]: {"min_pick": r.get("min_pick"),
+                                "max_pick": r.get("max_pick"),
+                                "sel_pct": r.get("sel_pct"),
+                                "drafts": r.get("drafts")}
+                  for r in parsed
+                  if r.get("min_pick") is not None or r.get("max_pick") is not None}
+    try:
+        total = int(((json.loads(adp_text) or {}).get("adp") or {}).get("totalDrafts"))
     except (TypeError, ValueError):
         total = None
-    return rows, total, "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
+    return rows, players, total, note, dispersion
 
 
 def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only)
-    rows, total, note = fetch_mfl(year)
+    rows, players, total, note, dispersion = fetch_mfl(year)
     if not rows:
         # A FETCH THAT RETURNED NOTHING IS NOT A DAY WITH NO ADP. Writing an empty
         # snapshot would put a date in the archive with no board behind it, and
@@ -431,8 +686,22 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "capture for %s on %s returned ZERO rows — refusing to write an empty "
             "snapshot, because a dated empty board is indistinguishable from a real "
             "one downstream (%s)" % (year, observed_at, note))
-    series = append_snapshot(load(path), year, observed_at, rows, total)
-    save(series, path)
+    series = append_snapshot(load(path), year, observed_at, rows, total,
+                             source_note=note, dispersion=dispersion)
+    save(series, path, players=players)
     rep = coverage(series, year)
-    print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep}, indent=1))
+    key = load_players(path)
+    named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
+    print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
+                      # NAMED, because a dispersion count of zero after this landed
+                      # means MFL stopped publishing it — not that spreads are zero.
+                      "dispersion_rows": len(dispersion),
+                      # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
+                      # Printed beside the capture count because the two failed
+                      # independently for two days and only one of them was visible.
+                      "decode_key": {"ids_held": len(key), "named": named,
+                                     "todays_rows_resolvable":
+                                         sum(1 for pid in rows if not FP._is_absent(
+                                             (key.get(pid) or {}).get("name")))}},
+                     indent=1))
     return rep

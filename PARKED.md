@@ -7630,3 +7630,2739 @@ in that band is the modal outcome here rather than a surprise.
 **LIMIT, STATED:** twelve verdicts is a small n and the classification is mine, not the
 registry's — someone could file exp 21 as structural. **I am reporting the split I applied so
 it can be disagreed with**, not claiming the categories are given.
+
+---
+
+## ⛔ RETRACTION — MY ITEM 14 READ-ACROSS TODAY WAS A DUPLICATE, AND IT WAS WRONG (C, 2026-08-12)
+
+**Items 13 and 14 were BOTH already complete**, as DIRECTED PASS 1a and 1b, earlier today, by
+me. I redid 14 and reached a **worse answer that contradicts my own earlier one.** Retracting
+the whole thing rather than leaving two incompatible readings in the same file.
+
+### WHAT I CLAIMED TODAY (WITHDRAWN)
+
+> *"Nought for five on additive terms. One for three on structural ones. Additive terms fail;
+> structural rules do not."*
+
+**That is refuted by a counterexample I had already found and written down.**
+
+### WHAT DIRECTED PASS 1a ESTABLISHED, WHICH STANDS
+
+**"Additive vs structural" is the WRONG CUT.** The value term is `w.value * vorp`,
+`vorp = proj_mean − replacement` — **an additive weighted term, and it is half the edge.**
+Additivity does not predict failure. The cut that survives:
+
+    EARNS   the objective itself      value = w x vorp                half the edge
+            a hard constraint         keeper-need MASK                ~$443 vs no-mask
+            the input board           market read, MFL rho 0.40       every pick
+
+    FAILS   tier (heuristic tilt)     -235
+            risk (heuristic tilt)     -143
+            need-WEIGHT ramp          +4.9, CI [-13,+23]
+            ceiling                   -4.8, CI [-26,+17]
+            bye                       ~0
+            stack                     stood down under D10
+
+**Six of six adjusters fail on the clean core; two actively harm. Core $704 → core + all six
+adjusters $407.** Adding them cost $297.
+
+### AND THE EVIDENCE I OMITTED TODAY, WHICH IS THE STRONGEST IN THE WHOLE PASS
+
+**The same concept was implemented BOTH WAYS, in the same harness, on the same seasons:**
+
+    startable need as a MASK (constrains the candidate set)    ~$443
+    startable need as a WEIGHT ramp (tilts the score)          +4.9, CI [-13,+23]
+
+**One idea, two implementations, a ~90x gap.** That is a within-experiment control, not a
+comparison across experiments with different instruments — and it is why the objective /
+constraint / input **vs** heuristic-tilt cut is believable where my additive/structural cut is
+not. **I had this and did not use it.**
+
+### THE ERROR, NAMED ONCE
+
+I said I would check whether the item existed before building it. **I checked for a TOOL, and
+for a section inside `LAB-REGISTRY.md`. I did not check `PARKED.md` — the file I was appending
+to, containing my own pass from this morning.** Twice in one session I rebuilt something that
+existed; the second time I had explicitly resolved not to, and still scoped the check to where
+I expected the answer rather than where it was.
+
+**The correct disposition for items 13 and 14 is ALREADY DONE (DIRECTED PASS 1a and 1b).**
+Nothing about the objective correction changes: the operative base rate for A is **0 for 6 on
+heuristic tilts, two of them harmful** — which is a sharper warning than the one I gave an hour
+ago, and it was already on the record.
+
+---
+
+## 🔴 FOR A — ITEM 5, `ac64216` READ FOR SHAPE. THE RETIRED-PLAYER GUARD IS APPLIED AT 2 OF 7 SITES, AND THE OTHER 5 ARE THE LIVE-DRAFT PATHS (C, 2026-08-12)
+
+**The sign fix is correct. `Math.min(score, score * discount)` is right at every sign, and the
+`discount < 1` precondition closes the only case where `Math.min` could pick the wrong branch.
+I am not raising that. THE DEFECT IS IN THE OTHER HALF OF THE SAME COMMIT.**
+
+### THE FINDING
+
+`draftablePlayers()` is called at **two** of the **seven** places `state.board` is assigned:
+
+```
+app.js:470   state.board = draftablePlayers(data.players);        ← boot         FILTERED
+app.js:6830  state.board = draftablePlayers(state.data.players);  ← mock reset   FILTERED
+app.js:539   state.board = state.data.players.filter(…!drafted)   ← set/clear ONE override
+app.js:710   state.board = state.data.players.filter(…!drafted)   ← "Clear all" overrides
+app.js:1475  state.board = (data.players||[]).filter(…!drafted)   ← resumeDraftIfAny()
+app.js:4483  state.board = out.players.filter(…!drafted)          ← mock keeper reapply
+app.js:6356  state.board = out.players.filter(…!drafted, !kept)   ← reconcile vs Sleeper slate
+```
+
+The five unfiltered ones rebuild **from `state.data.players`**, which `draftablePlayers` never
+mutates — it returns a new array and leaves the source list at its full 1759.
+
+### MEASURED, ON `public/draft_data.json` AS DEPLOYED (`built_at 2026-08-12T09:19:29Z`)
+
+Your own filter expression, run verbatim in node against the real artifact:
+
+```
+boot board (470/6830):                  814 of 1759
+after an override / a resume (539/…):  1759
+UNPLAYABLE RESTORED:                    945
+```
+
+**All five men you named in the commit message as gone come back:**
+Marshawn Lynch, Larry Fitzgerald, Jason Witten, Marcedes Lewis, Frank Gore — every one
+`team=FA`, every one restored.
+
+**And the restored board is membership-identical to the pre-fix board** — 1759 players, no
+filter, exactly what `data.players.slice()` produced before this commit. So your own
+measurement carries over without my re-running anything: *Marcedes Lewis and Jason Witten at
+pick 105, Frank Gore at 110, Frank Gore and Larry Fitzgerald at 125, inside the ten players
+Cory reads.* That is the state of the board after any of the five actions below.
+
+### WHY THIS IS A DRAFT-NIGHT PROBLEM AND NOT A CORNER CASE
+
+Every one of the five is an ordinary mid-draft action, not an edge:
+
+| path | what Cory did |
+|---|---|
+| 539 | set or cleared **one manual value override** |
+| 710 | pressed **"Clear all"** on the override banner |
+| 1475 | **reloaded the page and resumed** — the ten-second recovery he asked for |
+| 4483 | mock keeper reapply |
+| 6356 | **reconcile against Sleeper's keeper slate** |
+
+The board is clean at boot and dirty from the first override onward. The recovery path is the
+worst of the five: it is the one reached when something has already gone wrong on the clock.
+
+### WHY NO TEST CAUGHT IT
+
+**`draftablePlayers` has no test.** `grep -rn draftablePlayers` across the repo returns only
+its definition and its two call sites — no assertion anywhere names it. Baseline v12 froze on
+the engine change; the board filter is not in its path. A guard with two call sites, five
+bypasses and zero tests cannot report its own gap. Rule 13f.
+
+### WHY I DID NOT FIX IT MYSELF
+
+It is not mechanical, so the cross-lane allowance does not cover it. The obvious one-line
+version — filter `state.data.players` once at boot so every rebuild inherits it — **breaks
+keeper search**, which reads `state.data.players` *deliberately* for the unfiltered list:
+
+> `keeperui.js:374` — *"Search the WHOLE player list, not the draftable board. A keeper is by
+> definition off the board, so searching the board would fail to find the very players this
+> screen exists to manage."*
+
+So the fix is a real decision: wrap the five rebuild sites, or introduce a filtered field
+beside the raw list and move the seven consumers deliberately. Two of the seven must keep the
+unfiltered list. That is yours, and app.js is yours, and you are actively in it.
+
+### ONE SMALLER THING, NOT WORTH A ROUND TRIP ON ITS OWN
+
+`engine.js:1189` publishes `onesie: { discounted: onesie.discount < 1, … }` from the *config*,
+independent of whether the discount did anything. After `Math.min`, a negative-score duplicate
+is labelled `discounted: true` while `components.onesie` is `0`. The arithmetic still sums —
+rule 16 is not broken — but the badge is now sometimes a claim with no delta behind it. Fold it
+in whenever you next touch that block.
+
+### ALSO: YOUR COMMENT AND YOUR CODE DISAGREE BY TWO
+
+`app.js` says *"943 of 1759 players (53.6%)"*; the filter as written removes **945**
+(1759 → 814, which your commit body states correctly). My original 943 came from a slightly
+different discriminator. The code is right; the comment's number is two low.
+
+**NOTHING ELSE IN `ac64216` SHOWS THE SHAPE.** No producer without a consumer, no verdict
+computed and never read, no null reading as absence — `Number(null)`, `Number(undefined)` and
+`Number("")` all fall to "no projection", which is the intended reading, and the 25% floor
+catches the case where that is wrong. The `console.error` on that floor is the one thing that
+can only speak to a console nobody has open during a draft, but it fails **open** (returns the
+full list), so it cannot silently empty the board.
+
+---
+
+## 📊 CORRECTION TO THE DISPOSITION LIST ABOVE (line 7428) — FOUR ENTRIES WERE WRONG (C, 2026-08-12)
+
+I wrote that list without checking my own audit trail in this file, and it is wrong about four
+items in the same direction: it calls DO IT / BUILD / RESEARCH FIRST on work **already
+finished**. The retraction at line 7636 covers 13 and 14; 6 and 9 have the same defect.
+
+| item | list said | actually |
+|---|---|---|
+| **6. Component grading + shape files** | *NOT LANDED. OPEN, waiting on A* | **ALREADY DONE** — DIRECTED PASS 2, **PARKED line 5650** |
+| **9. Positive-control scaffold** | *OPEN. DISPOSITION: BUILD* | **ALREADY DONE** — landed at `def0984`, `positive_control.py` + 5 tests. I destroyed both with `Write` acting on this list and restored them byte-identical |
+| **13. B's transactions / standings / money** | *OPEN. RESEARCH FIRST* | **ALREADY DONE** — DIRECTED PASS 1b, **PARKED line 5586** |
+| **14. A's Lab registry read-across** | *OPEN. DO IT* | **ALREADY DONE** — DIRECTED PASS 1a, **PARKED line 5492** |
+
+**The list itself was the hazard.** Twice it sent me to redo finished work, and once that cost
+two existing files. The cause is not carelessness about any one entry — it is that I compiled a
+status list from memory while the authoritative record was the file I was appending it to.
+
+**Standing correction: before starting any item from a list, grep this file for the item first.**
+Not for a tool, not for a section heading elsewhere — for the work, here.
+
+**Item 5 is closed by the entry above.** What remains genuinely open in my queue is item 7 (the
+11:20Z capture, which fires on its own) and the items routed outside my lane.
+
+---
+
+## 📋 PRE-DECLARATION — DOES THE DEPLOYED BOARD'S ADP AGREE WITH AN INDEPENDENT MARKET? (C, 2026-08-12)
+
+**Declared before inspecting the sample, per Cory's standing rule. Nothing below this heading
+was written after seeing a result.**
+
+### WHY THIS AND WHY NOW
+
+D3 has captured a **second, independent ADP source** — MFL, 708 players from **119 real 2026
+drafts**, observed 2026-08-12 — and it has never been compared to the board Cory actually
+drafts off. `mfl_live_probe.json` compared MFL to **FFC**, not to `public/draft_data.json`.
+Ten days from the draft, an unvalidated ADP is the input that decides every pick.
+
+### THE SAMPLE, FIXED NOW
+
+* **Market side:** the 708 rows of the `2026-08-12` snapshot in
+  `draft/data/external_adp_series.json` (`total_drafts: 119`). Not tomorrow's, not a blend.
+* **Board side:** `public/draft_data.json` as deployed, `built_at 2026-08-12T09:19:29Z`, all
+  1759 players — the same artifact the war room boots from.
+* **Join:** the existing crosswalk in `mfl_adapter.py`, unchanged. No new matching rules, no
+  loosening to raise coverage. Unmatched rows are reported as unmatched.
+
+### THE DRAFT RANGE, FIXED NOW
+
+**10 teams × 15 rounds = 150 picks.** That is the range Cory can actually reach. I will also
+report the top 200 as a shoulder, because keepers and forfeited rounds move the real edge.
+
+### THE MEASUREMENT
+
+For every crosswalked player whose **MFL ADP is inside the top 150**:
+
+1. What is the board's `adp` for him?
+2. Is the board's ADP a **real price or the `search_rank` fallback tail** — read from the
+   board's own `adp_source` field, not inferred by me from the magnitude.
+3. **The headline number: how many players does an independent market of 119 drafts take
+   inside 150 picks that our board has priced in the fallback tail** — i.e. invisible to Cory
+   at the moment the market is spending a real pick on them.
+
+### WHAT WOULD FALSIFY THE CONCERN
+
+If the fallback tail contains **no** player the market takes inside 150, the board's pricing is
+sound where it matters and I will say so plainly and stop. A handful of low-consequence names
+is also a real answer and gets reported as one — I am not going to grow this into a programme.
+
+### WHAT I WILL NOT DO
+
+Not touch the board, not touch `build.py`, not change the crosswalk, not relax a filter to
+reach a number. This is a measurement. If it finds something, it routes to A.
+## 🔴 C's OWN LANE, AND IT IS THE WORST THING I HAVE FOUND IN IT — THE ADP ARCHIVE'S IDS ARE NOT OUR IDS (C, 2026-08-12)
+
+**Not routed. Mine, found by me, fixed by me, and recorded here because the defect
+class is the one this whole week has been about and I wrote a textbook instance of it.**
+
+I went looking for the pre-declared measurement above — does the deployed board's ADP
+agree with an independent market — and could not even start it, because the join does
+not work. That is the finding.
+
+### WHAT THE ARCHIVE ACTUALLY CONTAINED
+
+`fetch_mfl` requested `TYPE=adp` only and stored `{mfl_id: averagePick}`. **No name, no
+position, no team, ever.** MFL's own internal ids and nothing else.
+
+`as_store_snapshots` — the function whose docstring claims rule 14, the reader built with
+the writer — then handed those ids to `ExternalAsOfStore` **under the key `player_id`**,
+which every consumer downstream reads as our sleeper id.
+
+Measured on the real 2026-08-12 capture against `public/draft_data.json`:
+
+```
+MFL rows                                      708
+join directly to a board player_id             15   (2.1%)
+of those 15, correct                            0
+```
+
+MFL's #1 overall pick (`13589`, ADP 2.57) resolves to a fourth-string college tight end.
+Every one of the fifteen is a numeric collision.
+
+### THE CONSEQUENCE, WHICH IS NOT A SMALL BOARD BUT A FICTIONAL ONE
+
+`external_replay_run.decision_contexts` fills `taken` from the PICKS — our ids, via the
+crosswalk — and keys the board from the snapshot — MFL's ids. So `i not in taken` is
+**always true and the available set never shrinks.** Reproduced on the real functions,
+30 picks over an 80-player board:
+
+```
+archive keyed by OUR ids (what the fixture builds)   available: 80 -> 66 -> 51   correct
+archive keyed by MFL ids (what fetch_mfl writes)     available: 80 -> 80 -> 80   FICTION
+```
+
+Every drafted player stays draftable for the whole replay. The baseline is graded against
+a draft in which nobody was ever picked. **Nothing raises, nothing empties, no filter
+fires** — `adp_baseline` sorts a full board, takes the top five, and forecasts.
+
+### WHY NO TEST CAUGHT IT — AND THIS IS THE PART WORTH KEEPING
+
+`test_survival_grade.py::test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`
+exists **for this exact class**. Its docstring says so: *"would have caught, in one run,
+all three of today's shape defects: picks carrying MFL's id where the replay reads ours…"*
+
+It built the crosswalk and the ADP snapshot from **the same `S%d` counter**:
+
+```python
+cw     = [dict(r, player_id="S%d" % r["overall"], ...) for r in rows]
+series = CAP.append_snapshot([], "2025", "2025-08-20", {"S%d" % i: float(i) ...})
+```
+
+The two namespaces were **identical by construction**. The one guard written to catch
+"whose id is this" could not see the same defect one seam over. **Rule 10d, on the test
+that was the answer to rule 10d.** The two seam tests were no better: one asserts the
+emitted KEY NAMES, the other asserts ids in == ids out. Neither asks what namespace the
+value is in.
+
+### AND THE ARCHIVE COULD NOT BE REPAIRED AFTER THE FACT
+
+The decode key was obtainable only from MFL's live `TYPE=players` export. So the archive
+decoded **only while MFL was up and still serving that season** — precisely the window an
+archive of perishable days exists to outlive. An archive whose keys can only be read by
+asking the source is not an archive of the source, it is a pointer to it.
+
+### WHAT I CHANGED
+
+| | |
+|---|---|
+| `fetch_mfl` | fetches **both** exports and parses with `mfl_adp.parse` — which already joins them and is unit-tested. My hand-rolled row extraction was a **second derivation of one read** (rule 11) and it differed by dropping the join. A failed players fetch no longer costs the day: the ADP is still captured, loudly noted. |
+| archive | now carries `players` — `{mfl_id: {name, position, team}}` — plus `players_population` beside it |
+| `merge_players` | UNION, field by field. A player who falls off MFL's board keeps his name; a day of `name: ""` never erases one we hold. Absent is not zero. |
+| `save` | unions the key with what is **on disk**. It has more than one caller and the first that did not hold the map would have deleted it for every archived day, leaving a file that still looked complete. |
+| `as_store_snapshots(series, year, ids)` | `ids` **required, no default, no pass-through**. The pass-through was the defect. |
+| `crosswalk_map(players, board)` | archive's own key -> our ids, **offline**, delegating to `mfl_adapter.crosswalk_picks` |
+| `ingest_run.adp_id_map` | archive key ∪ live export; **raises** if neither can decode, rather than translating to nothing and reporting every league `F4.no_pre_draft_adp` |
+| the whole-chain fixture | two **deliberately different** namespaces |
+
+### A DEFECT I WROTE AND CAUGHT INSIDE THE FIX, RECORDED BECAUSE IT IS THE SAME LESSON
+
+My first `crosswalk_map` called `adp.match_player` directly — reasoning that reusing the
+authoritative matcher was enough. **It is not.** The team-unit refusal lives in the
+authoritative CALLER. MFL prints a team unit as `"Bills, Buffalo"`, which normalises to
+`"Buffalo Bills"`, which is exactly what our Buffalo DEF is called — the name matches, a
+real board id comes back, nothing errors. Measured on the real run when that guard was
+missing: **TMQB → DEF 65 times, TMPK → DEF 38.** Reaching for the right function was not
+the same as reaching for the right caller. Now delegated whole, and pinned by a test.
+
+### STATE
+
+**1469 Python tests green.** Rehearsed end to end against a stubbed MFL over two days,
+including the case where a player falls off MFL's board on day two — his name survives in
+the archive and day one stays readable.
+
+**The two days already captured are fully recoverable.** Every one of 08-11's 705 ids is
+still present on 08-12, so the first capture carrying names decodes **705/705 and 708/708
+retroactively**. Nothing is lost, provided the fix lands before the board churns.
+
+**THE PRE-DECLARED MEASUREMENT ABOVE IS BLOCKED, HONESTLY.** Board-vs-market cannot be
+computed today: decoding the archive needs names, and names arrive with the next capture.
+It is not abandoned and it is not a negative result — it is a measurement whose input
+lands at 11:20Z tomorrow. I will run it exactly as declared.
+
+---
+
+## ⚠️ CROSS-LANE FIX — FOR A TO REVIEW: `draft/tests/test_survival_grade.py` (C, 2026-08-12)
+
+**File:** `draft/tests/test_survival_grade.py`, in
+`test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE`.
+**Reason, one line:** `as_store_snapshots` now requires an id map, so this call could not
+keep compiling; the fixture's two namespaces were identical by construction and that is
+why it missed the defect it was written to catch.
+
+**FORCED, NOT OPPORTUNISTIC.** The signature change is the fix — see the entry above. Any
+version of it breaks this call site, so there was no way to leave A's file untouched and
+also leave main green. Banner left at the edit point.
+
+**The one substantive choice, stated so A can reject exactly it:** I made the crosswalk's
+ids and the ADP snapshot's ids DIFFER (`S%d` vs `13000+i`) rather than passing an identity
+map. An identity map would compile and assert the same arithmetic while continuing to hide
+the class. The test's own docstring claims it catches "picks carrying MFL's id where the
+replay reads ours"; with one namespace it cannot.
+
+Nothing else in A's file was touched. 1469 Python tests green.
+
+---
+
+## 🔵 DECISION FOR A — WHO OWNS `survival_grade.py`? THE GUARD SAYS YOU; CONTENT AND HISTORY SAY ME (C, 2026-08-12)
+
+`scripts/territory-check.sh` refused my integration on
+`draft/tests/test_survival_grade.py`. Tracing it: the guard derives a test's owner from
+the module it tests (`test_survival_grade` → `draft/backtest/survival_grade.py`), and
+`survival_grade.py` matches none of C's named prefixes, so it falls to A.
+
+**The guard's own comment says this was deliberate** (lines 170-172): the `survival*`
+prefix was NOT given to C because `draft/tests/survival-memo.test.js` and
+`survival_honesty.test.js` are A's, and a prefix would have handed me two of your files.
+
+**But `survival_grade.py` reads as mine.** Its docstring: *"The first external forecast
+that can be graded end to end with no outcome data, no nflverse and no egress"* — the
+external replay harness, which is C's by TERRITORY.md. Its git history is mine, including
+`restore test_survival_grade.py — the territory guard caught a real deletion`.
+
+### WHAT I NEED, AND IT IS ONE OF TWO THINGS
+
+1. **Approve the cross-lane fix** declared above (one call site, banner in place), and I
+   integrate; **or**
+2. **Confirm `survival_grade.py` and `test_survival_grade.py` are C's** and widen the
+   guard **by exact filename, not by `survival*` prefix** — the prefix is the thing your
+   comment correctly refused, and it would still be wrong.
+
+**I have not edited the guard.** Widening my own territory in a shared file is
+self-serving even when I think I am right, and the JS files your comment names are exactly
+why a prefix here is a trap.
+
+**Until this is answered my branch does not land.** It is pushed, complete and green
+(1469 Python tests) at `claude/external-ingest-program-1xfinj`. **The perishable part is
+the capture:** the decode-key fix must be on `main` before 11:20Z tomorrow, or another day
+of the 2026 curve is archived as ids nothing can resolve. Ten days to the draft.
+
+---
+
+## 🔴 FOR A — TWO FINDINGS ON THE DEPLOYED BOARD, AND THE FIRST IS A CORRECTION TO WHAT I TOLD YOU (C, 2026-08-12)
+
+### 1. MY RETIRED-PLAYER DISCRIMINATOR WAS SAFE BUT INCOMPLETE, AND I ONLY MEASURED THE SAFE HALF
+
+I told you *"no team AND no projection isolates all 943 WITHOUT TOUCHING A SINGLE PRICED
+PLAYER"*, and you applied it verbatim. **That claim was true about what it REMOVES and I
+never measured what it LEAVES.** Rule 11: I checked validity and skipped completeness, on
+the exact finding I was asked to make decisive.
+
+**238 of the 814 players on the draftable board (29.2%) have ZERO projection.** They
+survive the filter purely by carrying a team. Among them, ordered by Sleeper rank:
+
+```
+Ben Roethlisberger   QB  PIT   age 39   yrs 18   proj 0.0   dc None
+Eric Ebron           TE  PIT   age 28   yrs  8   proj 0.0   dc None
+Jack Doyle           TE  IND   age 31   yrs  9   proj 0.0   dc None
+```
+
+Roethlisberger retired in 2022 and is on the board Cory drafts off tonight. His age is
+frozen at 39 — the same stale-age signature as Lynch at 35/15.
+
+**BUT THE 238 ARE A MIXED POPULATION AND MUST NOT ALL BE CUT.** `Ricky Pearsall` (WR SF,
+25), `Garrett Nussmeier` (QB KC, 24) and `Chris Brazzell` (WR CAR, 22) are real 2026
+players with a projection gap, not retirements.
+
+**THE SEPARATOR IS THE DEPTH CHART**, and it is clean on this board:
+
+```
+retired / stale   Roethlisberger, Ebron, Doyle, Smallwood, Thorson    dc = None
+real and current  Pearsall dc=9,  Nussmeier dc=4,  Brazzell dc=9      dc = a slot
+```
+
+**PROPOSED REFINEMENT — a team, ZERO projection, AND no depth-chart slot:**
+
+| control | result |
+|---|---|
+| removes | **83** |
+| priced players removed (`fantasypros`/`ffc`) | **0** |
+| players with a projection removed | **0** |
+| **collateral, stated** | **15 are real 2026 UDFA rookies** (Dae'Quan Wright, Lake McRee, Dan Villari …) |
+
+The 15 have no projection and no depth-chart slot, so nobody can evaluate them and nobody
+takes them inside 150 picks — but they are real people and the cut is yours to accept.
+
+**DO NOT GENERALISE `dc is None` TO "NOT ON A ROSTER".** I checked the field's population
+before trusting its nulls: **36 of 338 priced players (10.7%) and 76 of 576 projected ones
+have no depth-chart slot** (32 are DEF, which have none by nature). The null rate is real.
+**It is the CONJUNCTION that is safe** — anything priced or projected is already excluded
+by the other two conditions, which is why both controls come back at zero.
+
+### 2. `adp_source: "search_rank"` IS A FALSE LABEL. IT IS ONE CONSTANT FOR 1,419 PLAYERS.
+
+```
+players labelled adp_source = search_rank      1419
+distinct adp values among them                    1      <-- 916.0, for every one
+raw_adp among them                            916.0      for every one
+their sleeper_rank spans                     27 -> 2015
+```
+
+The field says these players are priced by Sleeper's search rank. **They are not ordered at
+all.** A player at `sleeper_rank 27` carries the same ADP as one at 2015. This is the
+defect class of the week once more — a name a consumer believes, describing something the
+producer never emitted — and it is in the ADP layer, which is mine.
+
+**WHAT IT COSTS ON THE 22nd: 239 draftable players have a REAL PROJECTION and this
+constant as their price.** They are mutually indistinguishable to anything that sorts,
+tiers or compares on ADP:
+
+```
+WR 84   TE 60   RB 40   QB 36   K 18   DEF 1
+Blake Grupe   K IND  proj 91.0  adp 916      Darren Waller  TE FA   proj 69.8  adp 916
+Jake Moody    K WAS  proj 84.0  adp 916      Cole Kmet      TE CHI  proj 65.4  adp 916
+Darius Slayton WR NYG proj 77.1 adp 916      Dawson Knox    TE BUF  proj 65.1  adp 916
+```
+
+**Every kicker with a real projection sits at 916**, which is the earlier "9 starting
+kickers at ADP 916" finding — now measured at 18, and it is not a kicker problem, it is
+239 players across every position.
+
+I am not proposing a fix to the board: pricing is yours and the honest repair needs a real
+ADP source for these players, which is the measurement I have pre-declared and which lands
+when the archive can be decoded. **What I am asking for is the label:** `adp_source` should
+not say `search_rank` for a value that is a single constant, because the next person to
+read that field will believe the tail is ordered. It is not.
+
+---
+
+## ✅ THE STALENESS GATING IS WORKING — Cory asked me to watch it, so here is the check (C, 2026-08-12)
+
+Cory: *"if the board's ADP or staleness gating misbehaves on a live sync, you are the one
+who would recognise it."* Checked, and it is **healthy on the population it can see**:
+
+```
+draft/data/adp_series.json   4 snapshots, 2026-08-09 -> 08-12, ZERO calendar gaps,
+                             300 players each, current through today (lag 0 days)
+```
+
+Ten players flagged, all with plausible real moves over the 3-day window — Deebo Samuel
++16 slots, Ja'Kobi Lane +31.5, Aiyuk −15.83, Marquise Brown −18. Not a stuck instrument
+and not a silent one.
+
+**Two bounds on its reach, neither a defect in it:**
+
+* It watches the series' **top 300**, and **338** board players have a real ADP — so **38
+  priced players cannot be flagged stale**. Small, bounded, and a consequence of the cap
+  that is correct for a staleness alarm.
+* **The other 1,419 cannot move by construction** — their ADP is the constant 916 (finding
+  2 above). A staleness alarm over a constant is not blind, there is genuinely nothing
+  there to see. The gap is in the pricing, not in the monitor.
+
+**One correction to myself:** my first probe read `observed_at` off this series and got
+`None` for every snapshot. **That was my error, not a defect** — the home series stamps
+`date`, consistently, and every one of its real consumers reads `date`. The external D3
+archive is the one that uses `observed_at`. No finding here; recorded because I nearly
+reported one.
+
+---
+
+## ✅ D3 REHEARSED AGAIN, BECAUSE MY CHANGES INVALIDATED THE LAST REHEARSAL (C, 2026-08-12)
+
+I hardened this capture and rehearsed it end to end days ago. **Today's decode-key change
+touches the capture path, so that rehearsal no longer covers what runs at 11:20Z.** Redone
+against the exact scenario tomorrow presents — **the NEW code updating an archive written
+by the OLD code**, which is the migration nobody tests until it breaks:
+
+```
+BEFORE  keys: _note, population, series          players key: ABSENT
+AFTER   keys: _note, coverage, players, players_population, population, series
+        the two existing days: BYTE-IDENTICAL
+        coverage: 3 snapshots, 0 missing, complete
+        escalation inputs: missed_yesterday False, days_since_last 0
+```
+
+Old days untouched, decode key added, coverage intact. **The migration is clean.**
+
+### TWO THINGS I CHECKED AND DID *NOT* REPORT, recorded so the checking is visible
+
+**`resume_alarm` fires on a healthy archive — when called outside its precondition.** My
+rehearsal called it with `missing=0, stale_days=0` and got *"D3 capture MISSED AT LEAST
+YESTERDAY"*. That is the function behaving correctly: it exists to be called only after
+`missed_yesterday` fires, and its no-parts branch says so. **The workflow honours that** —
+the escalation step is gated `if: always() && steps.cov.outputs.resumed == '1'`, so the
+sentence is computed unconditionally and printed only on a real resume. **No defect.**
+
+**The home ADP series' dates.** Covered above: I read `observed_at`, it stamps `date`. Mine.
+
+Two near-misses in one session. Both would have been confident, wrong reports about
+someone else's code, and both were caught by looking at the caller rather than the callee —
+which is the same lesson as the team-unit defect I wrote inside my own fix this morning.
+
+### THE BRANCH IS READY TO LAND THE MOMENT THE GUARD QUESTION IS ANSWERED
+
+Dry-run merge against `origin/main` (`cea9079`): **the only conflict is `PARKED.md`, which
+`integrate.sh` union-merges by design.** No code conflicts.
+
+### AND ONE EXPEDIENT I CONSIDERED AND REJECTED, so the choice is on the record
+
+I could unblock myself today without touching A's file: keep `as_store_snapshots(series,
+year)` alive as a pass-through for A's test, and put the required-`ids` version behind a
+new name that only production calls. Everything would land, including the perishable half.
+
+**I am not doing it.** The entire value of the fix is that **the obvious call cannot be
+wrong**. Leaving a function named `as_store_snapshots` that silently emits foreign ids
+under `player_id` re-arms the exact trap I spent today removing, and the next person to
+reach for the obvious name gets the defect back. A correct design waiting on one answer
+beats a shipped trap. **Holding.**
+
+---
+
+## 📏 A NAMED CHECK — READ THE CALLER BEFORE YOU REPORT THE CALLEE (Cory, 2026-08-12)
+
+**Cory's wording:** *before reporting that a function behaves wrongly, read what actually
+calls it. A function misbehaving outside its precondition, or a field absent under a name
+nothing uses, is not a defect — it is a report about your own reading.*
+
+**It fired three times in one day, and only one of the three was a real defect:**
+
+| what I saw | what the caller said | verdict |
+|---|---|---|
+| `resume_alarm` returns "MISSED AT LEAST YESTERDAY" on a healthy archive | the workflow gates escalation on `resumed == '1'`, so it never prints on a healthy day | **not a defect** |
+| the home ADP series has `observed_at: None` on every snapshot | it stamps `date`, and every real consumer reads `date` | **my error** |
+| `crosswalk_map` should just call `adp.match_player` — it is the authoritative matcher | the authoritative CALLER refuses MFL team units first; "Bills, Buffalo" normalises onto our Buffalo DEF and matches by name. Measured without that guard: **TMQB → DEF 65×, TMPK → DEF 38×** | **a real defect, in my own fix** |
+
+**The third is why the check matters more than the first two.** The first two would have
+been confident wrong reports about someone else's code — embarrassing, cheap to retract.
+The third was a defect I was actively writing, and reaching for the *authoritative function*
+felt like exactly the right instinct. It was not enough. **The guard lived in the caller.**
+
+**So the check is not "be careful before criticising others."** It is: *a function's
+contract includes its preconditions and its callers' guards, and neither is visible from
+the function body.* Reading the definition tells you what it does. Reading the call site
+tells you what it is FOR.
+
+---
+
+## 🔧 THE PRE-DECLARED MEASUREMENT IS BUILT AND WAITING ON ITS INPUT (C, 2026-08-12)
+
+`draft/backtest/board_vs_market.py` + 9 tests. It implements the sample registered above
+**before** it was inspected — 10×15 = 150 picks, the 200 shoulder beside it, `fantasypros`
+and `ffc` as the only real prices, the latest snapshot rather than a blend. It reports and
+stops: no board adjustment, no blend, no score anything consumes (rule 9).
+
+**EGRESS CONFIRMED CLOSED RATHER THAN ASSUMED.** I tested it instead of repeating what the
+routing note said: `api.myfantasyleague.com:443` returns *"gateway answered 403 to CONNECT
+(policy denial)"*, and the proxy's own status endpoint records the rejection. So the names
+arrive with the 11:20Z capture in CI, not from here.
+
+**RUN AGAINST TODAY'S REAL ARCHIVE, IT REFUSES CORRECTLY:**
+
+```
+controls: 2/2 passed || NO MARKET ROW INSIDE THE RANGE CROSSWALKED —
+this is a statement about the crosswalk, not about the board's pricing.
+```
+
+Which is the whole point: with no decode key it does **not** report a clean board.
+
+### TWO DEFECTS THE BREAK-FIRST TESTS CAUGHT IN MY OWN PROBE
+
+**1. A CONTROL THAT COULD PASS ON AN EMPTY SET.** The round-trip control expected
+`crosswalked == len(named)`. Handed a board with no usable names, it returned `0 == 0` and
+went **green** — so a dead crosswalk certified itself and the verdict read *"THE BOARD'S
+PRICING IS SOUND"*. That is the absent-is-not-zero failure one level below where
+`positive_control.run` already refuses it: it guards an empty control LIST, and this was an
+empty control INPUT. The control now refuses outright when there is nothing to check.
+
+**2. THE RANGE WAS A LIST SLICE, NOT A PICK NUMBER.** `ranked[:150]` takes the market's
+first 150 ROWS, so the comparison depended on how many players the provider returned that
+day rather than on the pick Cory can reach. The pre-declaration registered *"the market
+takes them inside 150 picks"* — an ADP threshold. **On a full board the two nearly
+coincide, which is exactly why it would have survived review.** Measured: 708 market rows,
+and **170** have ADP ≤ 150, not 150.
+
+### SCALE REHEARSED, AND THE NUMBER IT PRODUCED IS NOT A FINDING
+
+708 market ids × 1,759 board rows, **0.2s**, controls green, 708/708 crosswalked. The
+decode key was **SYNTHETIC** — our own board's names pinned to the real market ids in ADP
+order — so its verdict (*"prices every one"*) is an artifact of how I built the key and
+says nothing whatever about the board. Recorded as a performance and coherence check only.
+
+**It runs for real when the archive carries names.** Nothing else is needed from anyone.
+
+---
+
+## ▶️ THE ONE COMMAND, FOR WHOEVER IS RUNNING AFTER 11:20Z (C, 2026-08-12)
+
+```bash
+git fetch origin main && git checkout origin/main -- draft/data/external_adp_series.json
+python3 -c "import sys,json;sys.path.insert(0,'draft/backtest');sys.path.insert(0,'draft');\
+import board_vs_market as BM;from pathlib import Path;\
+r=BM.report(json.loads(Path('draft/data/external_adp_series.json').read_text()),'public/draft_data.json');\
+print(json.dumps(r,indent=1));print();print(BM.verdict(r))"
+```
+
+**CHECK THE ARCHIVE CARRIES `players` FIRST.** The capture can succeed while the players
+export 403s — `fetch_mfl` deliberately keeps the day's ADP in that case rather than losing
+an observation that cannot be refetched, and says so loudly in the step summary. **If the
+key is absent or a control fails, report THAT and do not report a board finding.** The
+probe already refuses correctly; the risk is a human reading past it.
+
+**The sample is registered and must not be widened to reach a number.** If the fallback
+tail holds nobody the market takes inside 150, the answer is *the board's pricing is sound
+where it matters* — say it and stop.
+
+*(I tried to schedule this as a self check-in; the scheduling tool needs an approval I did
+not want to spend Cory's attention on. Hence a command rather than a mechanism.)*
+
+## 🚫 AND ONE THING I DECIDED NOT TO BUILD
+
+`fetch_mfl` now hits two MFL endpoints daily instead of one. The obvious optimisation is to
+skip the players export when today's ADP contains no unknown ids — usually every day after
+the first.
+
+**I am not doing it, and the reason is the direction of the risk.** Names are not static in
+preseason: **players change teams, and `team` is one of the matcher's tiebreaks**
+(`name+pos+team` resolved 2 of the 5 ambiguous cases in the round-trip control). Caching the
+key would quietly hold a stale team and produce a wrong-but-plausible match — the failure
+mode this lane has spent the week removing. The cost avoided is ten requests to a public
+endpoint over the ten days that matter. **Ten requests is not a problem; a stale crosswalk
+is.** Recorded so it is not re-proposed as an obvious win.
+## 🔴 FOR A AND B — MAIN'S CI IS RED AND HAS BEEN FOR AT LEAST 30 CONSECUTIVE RUNS. PYTHON IS GREEN; THE JS STEP FAILS. (C, 2026-08-12)
+
+I have been ending every integration today with *"Suites green LOCALLY. NOT CI-VERIFIED."*
+because `integrate.sh` prints exactly that and tells you to go and check. **I finally
+checked. The answer is that CI has not passed on `main` once in the last 30 runs**, from
+`48bdaae6` at 18:09 through `6307487d` at 22:16 — spanning A's commits and mine equally.
+**Nobody introduced this today and nobody has been reading the warning, including me.**
+
+```
+step  8  JS suites          FAILURE
+step 10  Python suites      success
+step  9  Robot mock         success
+step 11  Baseline regression success      51/51
+step 13  Shell guards       success      13/13 deploy-gate, 11/11 territory
+```
+
+### IT DOES NOT REPRODUCE LOCALLY, AND I TRIED FOUR WAYS
+
+| hypothesis | test | result |
+|---|---|---|
+| Node version — CI pins `node-version: "20"`, my shell had v22 | installed Node 20.20.2 and re-ran the whole glob | **all pass** — refuted |
+| the untracked `data/` dir (gitignored, present here, absent in a fresh checkout; two suites reference `data/`) | moved it aside and re-ran | **all pass** — refuted |
+| Playwright — a devDependency, and `npm install` never downloads browsers | no suite imports it; `ci.yml` never mentions it | refuted |
+| stale `node_modules` vs CI's fresh install | **fresh clone + `npm install --no-audit --no-fund` + Node 20**, CI's loop verbatim | **all pass** — refuted |
+
+**THE REMAINING DIFFERENCE INVERTS THE USUAL DIRECTION: CI HAS NETWORK EGRESS AND THIS
+SANDBOX DOES NOT.** Every outbound call from here dies instantly on a proxy 403. In CI the
+same call reaches the internet and can hang, or succeed and fail an assertion against live
+data. **A suite that passes here because the network is unavailable would fail there** —
+and that is the one condition I cannot test from inside this container.
+
+### WHAT I COULD NOT GET, AND EXACTLY HOW TO GET IT IN ONE STEP
+
+The loop prints `FAILED SUITES:<names>` immediately before it exits 1. **That line names
+the culprit.** I could not reach it: the GitHub API's job-log endpoint returns a fixed
+~5,000-character tail that stops short of it, and the full-log ZIP download is blocked by
+this sandbox's proxy (`CONNECT tunnel failed, 403`).
+
+**Open the "JS suites" step of run `31646250669` in the browser and search for `FAILED
+SUITES:`.** One line, and it names every broken suite in that run — the collected-failure
+design in `ci.yml` was built for exactly this.
+
+### THE STRUCTURAL POINT, WHICH OUTLASTS WHICHEVER SUITE IT IS
+
+**`integrate.sh` certifies the merge by running the suites HERE, and the gate runs them
+THERE.** Today that gap swallowed seven merges: every one printed *"Suites green LOCALLY"*
+and every one landed on a red `main`. The script's own warning — *"local green and CI green
+are different claims: a test can pass here because of this machine's network, filesystem or
+clock"* — turned out to be precisely, literally true, and it is printed at the moment
+everybody has stopped reading.
+
+**A guard that can only be checked by remembering to check it is the failure this project
+keeps naming.** Two directions worth considering, both A's call since `integrate.sh` is
+A's: have it poll the CI conclusion for the SHA it just pushed and say so, or have it refuse
+to report OK while `main`'s last CI run is red. **I am not touching it.**
+
+**This is not my lane** — the JS suites are A's and B's, and I have no business guessing
+which one. What I can say is what is above: it is real, it is old, it is not Python, and it
+is not any of the four local causes I could think of.
+
+### ⚠️ AMENDING MY OWN HYPOTHESIS ABOVE, BEFORE ANYONE ACTS ON IT
+
+I led that entry with *"CI has network egress and this sandbox does not"* as the leading
+explanation. **I then checked what the suites actually do with the network, and it does not
+hold up.** Every external host any JS suite mentions:
+
+```
+sleeper.com / sleeper.app   string-parsing fixtures in sync.test.js — no fetch at all
+api.sleeper.app             sunday_cron.test.js:51, sunday_rehearsal.test.js:56, and both
+                            do:  throw new Error('Sleeper sealed off in test')
+venmo.com                   a link assertion
+```
+
+**The suites seal the network off deliberately.** So "CI can reach the internet and we
+cannot" is a much weaker explanation than I made it sound, and I am withdrawing it as the
+leading candidate rather than leaving A to chase it.
+
+**What remains, and I am not going to guess between them:**
+
+* **Environment.** CI sets variables this container does not. A suite that reads one — or
+  branches on its absence — behaves differently there.
+* **Runner speed.** The JS step took **167 seconds** in CI. My faithful reproduction is far
+  quicker on this machine. Any suite with a timing assumption fails on the slower box and
+  nowhere else.
+
+**This is exactly the check Cory named an hour ago** — *read the caller before you report
+the callee* — and I nearly shipped a confident wrong diagnosis into someone else's lane by
+reasoning about the environment instead of reading the tests. **The `FAILED SUITES:` line
+in run `31646250669` settles it in one look and no hypothesis of mine can.**
+
+### 📅 HOW LONG: **120 CONSECUTIVE RED CI RUNS ON `main`, AND NOT ONE GREEN IN OVER 24 HOURS**
+
+I said "at least 30". I paged back four times and stopped at the limit, not at a green:
+
+```
+page 1   2026-08-12 18:11 -> 22:51    30 runs   0 green
+page 2   2026-08-12 13:33 -> 18:09    30 runs   0 green
+page 3   2026-08-12 04:46 -> 13:24    30 runs   0 green
+page 4   2026-08-11 22:43 -> 04:36    30 runs   0 green
+                                     ───────────────────
+                                     120 runs   0 green
+```
+
+**THE LAST GREEN IS OLDER THAN 2026-08-11T22:43 AND I NEVER REACHED IT.**
+
+**This changes the triage.** It is not something today's merges did — it predates every
+commit in this session, A's included. **It has been red across the entire week of work that
+this project has spent building guards**, which makes it the exact failure those guards keep
+naming, at the top level: *red-by-design is how a real alarm gets muted, and then ignored.*
+Something turned red, and the response was to stop looking at it — including by me, seven
+times today, each time printing the warning and moving on.
+
+**The one number that matters for the fix is still the `FAILED SUITES:` line in run
+`31646250669`.** Everything above says how bad the neglect is; that line says what to fix.
+
+---
+
+## ✅ THE PRE-DECLARED MEASUREMENT, RUN AND ANSWERED: THE BOARD'S PRICING IS SOUND WHERE IT MATTERS (C, 2026-08-12)
+
+**And it ran tonight, not tomorrow.** I dispatched the D3 capture manually to test the new
+two-endpoint `fetch_mfl` against real MFL before it runs unattended at 11:20Z — it
+succeeded in 13 seconds and committed the decode key: **708 ids, name/position/team 100%
+populated.** So the archive is decodable and the measurement no longer had to wait.
+
+**It also proved the namespace defect with a real name.** MFL id `13589`, ADP 2.57, the #1
+overall pick, is **Josh Allen** — not the fourth-string college tight end our board's
+`player_id` 13589 points at. That was the false collision, named.
+
+### THE ANSWER, AS REGISTERED
+
+```
+controls                    2/2 passed
+market rows                 708      inside 150 picks: 170
+crosswalked inside 150      139
+  our board prices them     139
+  in our FALLBACK TAIL        0
+```
+
+**Zero. The falsification condition I declared before inspecting the sample is met**, so I
+report it plainly and stop: **of every player an independent market of 119 real drafts
+takes inside our 150 picks and that we can place, our board prices every single one.**
+Same at the 200 shoulder: 195 matched, 195 priced, none in the tail.
+
+### ONE DEVIATION FROM THE REGISTERED METHOD, DECLARED RATHER THAN QUIET
+
+**MFL's ADP is IDP-INCLUSIVE and my pre-declaration did not anticipate that.** 27 of the
+170 rows inside 150 are linebackers, ends and tackles — players our format never drafts —
+so MFL's "pick 150" is not our pick 150. I re-ran it **format-matched**: rank only the
+players our format drafts, take the top 150 of those.
+
+```
+priced by our board                145
+in our FALLBACK TAIL                 0
+Cory's keepers (correctly absent)    3
+name-variant or absent               2
+```
+
+**Both versions agree, so the deviation does not move the verdict** — which is the only
+reason it is reported as a refinement rather than a re-registration.
+
+### ⚠️ AND A SEVERITY-1 I ALMOST REPORTED THAT WAS THE SYSTEM WORKING CORRECTLY
+
+Three players the market takes early — **Ja'Marr Chase (4.7), Kenneth Walker III (40.0),
+Derrick Henry (55.7)** — are absent from `players` in the deployed artifact. I confirmed
+there was no spelling variant and was about to route it as *the board is missing a top-five
+pick ten days before the draft.*
+
+**They are Cory's keepers.** `kept_players` holds all three at `team_slot: 8`, with the
+forfeited rounds recorded. They are off the draftable board **because they cannot be
+drafted**, which is what the code says in a comment I read and quoted MYSELF today:
+
+> `app.js:1462` — *"kept_players is disjoint from players — keepers are off the draftable
+> board because they cannot be drafted."*
+
+**FIFTH FIRING OF THE CHECK CORY NAMED TODAY**, and the worst one: I read one field, drew a
+conclusion, and never read the field the codebase explicitly documents as its complement —
+having quoted that exact documentation hours earlier in my own item-5 audit. *A field
+absent under one name is not missing data until you have read what else holds it.*
+
+### THE ONE REAL DEFECT THE MEASUREMENT FOUND, AND IT IS MINE
+
+**The crosswalk misses FIRST-NAME VARIANTS.** `Kenneth Gainwell` (market ADP 135.1, inside
+the range) is on our board as **`Kenny Gainwell`**; `Matthew Hibner` is `Matt Hibner`.
+`adp.match_player` matches on the full name and these never meet. Small — 2 inside the
+format-matched 150 — and **not urgent for the 22nd**, because the board prices both players
+correctly; only the MFL join misses them. Recorded, not built: adding fuzzy first-name
+matching to the authoritative matcher is a change with a wrong-match failure mode, and this
+lane has spent the week removing exactly that. **It needs a measurement of its own before
+anyone touches `match_player`.**
+
+---
+
+## 📋 PRE-DECLARATION — THE QB/TE SYMPTOM, FROM THE DATA SIDE (C, 2026-08-12)
+
+**Written before inspecting a single value. Cory's assignment: investigate independently of
+A, do not read A's latest, diagnose rather than fix.** I have not looked at A's current
+work and will not until this is written.
+
+### THE SAMPLE, FIXED NOW
+
+* `public/draft_data.json` as deployed — the artifact the war room boots from — including
+  its `league` block (`scoring`, `roster_slots`, `starters`, `teams`) and every player's
+  `proj_mean`, `proj_baseline`, `proj_fantasypros`, `proj_sleeper`, `replacement`, `vorp`.
+* The importer that produces the scoring table, and `draft/build.py` where replacement and
+  VORP are computed. Read only — I touch neither.
+* **Outside the pipeline:** the 2026-08-12 MFL market (708 players, 119 drafts) already in
+  `draft/data/external_adp_series.json`, now decodable; and published NFL scoring
+  arithmetic, which I can compute by hand and is not ours.
+
+### WHAT I EXPECT TO FIND IF THE DATA IS RIGHT — STATED BEFORE LOOKING
+
+1. **Scoring applied ONCE.** Our format is 6-point passing TDs; public sources assume 4. A
+   QB throwing ~30 TDs should therefore sit **~60 points above** a 4-point-source number
+   (2 extra × 30). If I find ~120 points of gap, the table has been applied twice, or
+   applied to a source that had already scored them.
+2. **Replacement at the position's own startable depth.** 10 teams × 1 QB → replacement
+   near **QB10–13**. 1 TE → **TE10–13**. 2 RB + a share of FLEX → **RB25–30**. 2 WR + a
+   share → **WR25–30**. K and DEF at **10–12**.
+3. **VORP shape favouring RB/WR, by construction.** Cory's own published arithmetic: a QB
+   at 350 over a QB15 at 300 is **+50**; an RB at 280 over an RB25 at 120 is **+160**.
+   **Three times the value from the lower raw number.** If our numbers do not show that
+   shape, the boundary where it stops holding is the defect.
+4. **FLEX is RB/WR/TE only** — verified from the imported config, not from anyone's memory,
+   and represented identically by every consumer that reads it.
+5. **Single-source rate roughly flat across positions.** If QB and TE are markedly more (or
+   less) single-source than RB/WR, they are priced by a different mechanism than the
+   positions they are being ranked against.
+
+### WHAT WOULD FALSIFY THE WHOLE DATA HYPOTHESIS
+
+**If scoring is applied once, replacement sits at the expected rank at every position, the
+VORP shape holds, and roster capacity is represented correctly — then the data is not the
+defect and I will say exactly that.** Cory has asked for that answer explicitly if it is
+the true one, because it tells A where not to look. I will not manufacture a smaller
+finding to avoid a null.
+
+### METHOD
+
+**One QB and one RB walked by hand across every boundary** — raw source number, scored
+under our table, blended, adjusted, replacement, VORP, contribution, final rank — with the
+arithmetic stated at each step. **The first boundary where the expected relationship breaks
+is the answer.**
+
+### WHAT I WILL NOT DO
+
+Not touch the engine, `build.py`, or the config. Not re-run A's six dead hypotheses (bench
+floor, need re-enabling, the `expectedBestAvailable` tail, VORP-vs-market ranking, its
+reach-ratio headline, the VONA comment) — **but I do not assume its rulings are correct
+either, and if my evidence contradicts one I will say so.** And no folklore: "quarterbacks
+should go later" is not a finding. The question is whether OUR numbers are right for OUR
+league.
+
+---
+
+## 🎯 THE QB/TE SYMPTOM — THE DATA SIDE. **THE DEFECT IS NOT IN THE DATA.** (C, 2026-08-12)
+
+**Cory asked for this answer plainly if it is the true one, so: the projections are applied
+once, the replacement baselines are right at every position, the roster capacity and flex
+are represented correctly, and the VORP shape is the one his own arithmetic predicts. THE
+DATA HANDS THE ENGINE A CORRECT ORDERING.** Independent of A; I have not read its current
+work.
+
+### THE ONE MEASUREMENT THAT SETTLES IT
+
+Our own board, our own numbers, ranked three ways. Draftable pool, top ten:
+
+```
+ranked by VORP  (what the data says)          QB 0  TE 1   ->  QB+TE  10%
+the engine's output (Cory's measurement)                   ->  QB+TE  50%
+ranked by RAW proj_mean                       QB 9  TE 0   ->  QB+TE  90%
+```
+
+**The data produces a healthy board. Raw points produce the symptom in its pure form. The
+engine sits between them.** So the expected relationship survives every boundary up to and
+including VORP, and breaks after it. **That is the answer to "find the first boundary where
+it breaks": it is not in my lane, and it is downstream of VORP.**
+
+I tested whether a simple raw-points leak reproduces it — `score = VORP + α·proj_mean`
+across α ∈ [0,1]. **It does not**: QB+TE reaches only 4/10 even at α=1. So the engine is not
+merely adding raw points, and I am not going to guess further into A's mechanism.
+
+### THE HAND-WALK, EVERY BOUNDARY, ARITHMETIC STATED
+
+```
+JOSH ALLEN (QB)                          JAHMYR GIBBS (RB)
+  Sleeper          405.5                   Sleeper          299.9
+  FantasyPros      415.88  NOT USED        FantasyPros      301.68  NOT USED
+  proj_baseline    405.5                   proj_baseline    299.9
+  opportunity_adj    0.0                   opportunity_adj    0.15
+  proj_mean        405.5  = 405.5x1.00     proj_mean        344.9  = 299.9x1.15
+  replacement      341.72 (QB10)           replacement      188.53 (RB21)
+  VORP              63.78                  VORP             156.37
+```
+
+Both reconcile to the artifact exactly. **Cory's predicted shape — three times the value
+from the lower raw number — comes out at 2.45× (156.3 / 63.8). It holds.**
+
+### EACH PRE-DECLARED ITEM, ANSWERED
+
+1. **Scoring applied ONCE.** `pass_td: 6.0`, `rec: 0.5` confirmed in the imported config.
+   Allen at 405.5 is a 6-point number; applied twice he would be near 600, at 4 points near
+   345. **Not double-applied.**
+2. **Replacement at the right depth per position** — and this is the pre-registered
+   expectation, met: **QB 10, TE 10, RB 21, WR 29, K 8, DEF 10.** One QB slot × 10 teams
+   lands replacement on the 10th QB. `starters_at` reads the config directly; nothing treats
+   a one-start position as having more.
+3. **VORP shape favours RB/WR by construction.** Top VORP: RB 156.3, WR 125.2, TE 82.2,
+   QB 63.8. At the 5th-best: RB 93.6 against QB 11.2 — **eight to one.**
+4. **FLEX eligibility.** `FLEX: [RB,WR,TE]` — correct. **There are EIGHT separate copies of
+   that mapping** (`config_schema.py`, `engine.js` ×2, `value.js`, `valuation.js`,
+   `mcts.js`, `survival.js`, `app.js:3653`) and **all eight agree today**, so it is not the
+   cause. Eight copies of one fact is still eight chances to diverge silently.
+5. **Single-source is positional, and I found it** — see below.
+
+### TWO REAL DATA DEFECTS. **NEITHER CAUSES THE SYMPTOM, AND ONE RUNS AGAINST IT.**
+
+**(A) `opportunity_adj` IS BLIND TO THE FACT THAT ITS INPUT HAS A DIFFERENT SCALE PER
+POSITION.** `proj_mean = proj_baseline × (1 + opportunity_adj)` — verified **576 of 576** —
+with the multiplier capped at +15%.
+
+```
+              adj = 0   adj at cap   mean opportunity_share   max share
+  QB   75/75    ALL 75       0                0.021             0.085
+  WR            31/195      12                0.004             0.028
+  TE            19/101       5                0.002             0.035
+```
+
+**Josh Allen carries `opportunity_share` 0.085 and receives an adjustment of 0.0. Trey
+McBride carries 0.005 — seventeen times smaller — and receives the full 0.15 cap.** The
+adjustment is computed from a quantity that means different things at different positions
+and is not normalised for it. K and DEF are also flat zero.
+
+**Effect on top VORP: RB +35.7, WR +28.8, TE +16.1, QB +0.0.** So it inflates the positions
+Cory says are *under*-recommended and does nothing for the ones over-recommended. **It runs
+against the symptom.** It is still a silent, unmeasured, position-dependent ±15% on the
+central projection, and nobody has ever measured whether it earns its place.
+
+**(B) FANTASYPROS IS FETCHED, STORED FOR 435 PLAYERS, AND NEVER ENTERS `proj_mean`.**
+`proj_baseline == proj_sleeper` for **435 of 435**. The blend is single-source by
+construction — a producer with no consumer, on the number the whole tool ranks on.
+
+**And it is positional, exactly as Cory suspected.** Relative disagreement between the two
+sources: QB 3.6%, RB 7%, **WR 13%, TE 13%** — and at the top of TE the direction is
+consistent and large:
+
+```
+  Brock Bowers   sleeper 202.5   fantasypros 147.3   we publish 232.9  (+58% over fpros)
+  Travis Kelce   sleeper 136.4   fantasypros 106.9   we publish 156.9
+  Mark Andrews   sleeper 132.5   fantasypros 104.1   we publish 150.7
+```
+
+**We take the higher of two sources at the position where they disagree most, then multiply
+it by 1.15.** Bowers is published **33% above the two-source consensus**.
+
+**BUT IT STILL DOES NOT PRODUCE THE SYMPTOM, AND I CHECKED RATHER THAN ASSUMED.** Running
+the same replacement/VORP pipeline on a two-source consensus with no boost: Bowers' VORP
+falls 82.2 → 53.2, and **the top ten goes from 10% QB+TE to 20%** — the wrong direction,
+because a QB enters. **No variation of the projection inputs I can construct produces 50%.**
+
+### WHAT THIS RULES OUT FOR A
+
+Projections, scoring application, replacement level per position, VORP arithmetic, roster
+capacity, flex eligibility, and one-start slot counts. **The QB half of the symptom cannot
+come from the data at all** — the data ranks zero quarterbacks in its top ten. **Whatever
+turns a 10% board into a 50% one happens after VORP.**
+
+### WHERE I MIGHT BE WRONG
+
+FantasyPros is not ground truth either — I am reporting that we use one source, not that
+the other is right. And `opportunity_adj` may be deliberate and correct; what I can say is
+that it is position-dependent, uncapped in justification, and unmeasured.
+
+---
+
+## 🔴 THE ONE-START HYPOTHESIS — **CONFIRMED, WITH THE FRAMING CORRECTED.** THE BASELINE IS WRONG AND IT IS BASELINE-LEVEL. (C, 2026-08-12)
+
+**Cory's hypothesis survives the test. It is not "one-start positions are too shallow" — the
+mechanism is sharper than that, and it lands on the same four positions for two different
+reasons.** Numbers first.
+
+### THE ANSWER TO THE QUESTION AS ASKED: THE RANK, PER POSITION
+
+```
+              our replacement RANK      derived how
+   QB   TE            10                teams x starting_slots = 10 x 1
+   K    DEF           10                teams x starting_slots = 10 x 1
+   RB                 21                10x2 dedicated + 1 of 10 FLEX slots
+   WR                 29                10x2 dedicated + 9 of 10 FLEX slots
+```
+
+**Derivation, read from `draft/vorp.py`, not inferred:** `counts[pos] = starters_at(cfg,
+pos) × teams`, then the 10 FLEX slots are allocated one at a time to whichever eligible
+position has the best next-man-up. **Not hardcoded, not a percentile, not a threshold.**
+Team count and slot count are read from the imported config and are correct. **The flex
+share is NOT misallocated** — no share reaches QB, TE, K or DEF, and RB+WR receive all ten.
+*(Correcting myself: my previous report said K=8. That was a tie artifact in my own
+rank-finder. The real count is 10. The rank-finder was wrong, not the pipeline.)*
+
+### DEFECT 1 — REPLACEMENT IS THE **LAST STARTER**, NOT THE FIRST NON-STARTER
+
+`_replacement_from_counts` takes `ranked[n-1]` with `n = 10` at QB — **the 10th quarterback,
+who is a starter.** Cory's definition, and the standard one, is *the best player who will
+not start* — the 11th.
+
+**This is not a slip. The module's own docstring defines it that way:** *"Replacement level
+is the last-starter baseline: the worst player at a position who still starts somewhere in
+the league every week."* **A definitional choice nobody has measured.**
+
+**The off-by-one is uniform; ITS EFFECT IS NOT**, because it depends on the local slope of
+the projection curve where it lands:
+
+```
+   RB   188.53 -> 169.30    19.23 points of VORP suppressed
+   QB   341.72 -> 337.48     4.24
+   TE   150.72 -> 146.90     3.82
+   DEF   99.00 ->  96.00     3.00
+   WR   172.67 -> 172.60     0.07
+   K     97.00 ->  97.00     0.00
+```
+
+**RB loses 4.5× more than QB.** So a uniform off-by-one silently suppresses exactly the
+position that should dominate.
+
+**Correcting it alone — nothing else — empties the top ten of one-start positions:**
+
+```
+   as shipped                    RB 5  WR 4  TE 1        QB+TE 10%
+   first non-starter (fixed)     RB 8  WR 2              QB+TE  0%
+```
+
+### DEFECT 2 — K AND DEF, AND THIS IS THE ~140 POSITIONS
+
+`teams × starters` says the 10th kicker is replacement level. **Measured against a real
+market of 119 drafts (MFL, IDP excluded, format-matched): the first 150 picks contain ONE
+kicker and TWO defences.**
+
+```
+             our repl rank    market depth @150 picks
+   K              10                    1
+   DEF            10                    2
+```
+
+Because we treat K10/DEF10 as the baseline, the nine kickers above it all carry positive
+VORP. **On our own board, ranked by VORP alone, the best DEF sits at overall rank 52 and the
+best K at 59** — against a market that takes the first defence around 150 and the first
+kicker past 200. **That is the ~140-position advancement, and it is in the DATA, before the
+engine touches anything.** Repricing K/DEF at market depth moves the first one from **rank
+52 to rank 144.**
+
+**This is Cory's fourth guess — "K and DEF inheriting a default" — and it is nearly right.
+There is no default: it is the same `teams × starters` formula, correct for positions people
+draft and wrong for positions they stream.**
+
+### DEFECT 3 — BENCH ROSTERING IS NOT MODELLED AT ALL, AND IT IS ASYMMETRIC
+
+The count is starters-only; there is no bench term. Real depth at 150 picks:
+
+```
+        ours    market    understated by
+   RB     21      41          +20
+   WR     29      55          +26
+   TE     10      21          +11
+   QB     10      30          +20   <-- CONTAMINATED, see below
+```
+
+**Ignoring the bench understates RB and WR far more than TE**, because a real roster carries
+handcuffs and fliers at RB/WR and rarely a third TE. That suppresses RB/WR VORP relative to
+the one-start positions — **the same direction as defect 1, by a second route.**
+
+### ⚠️ AND A CAVEAT ON MY OWN EXTERNAL REFERENCE, BECAUSE IT WOULD MISLEAD
+
+**MFL's ADP pool is not format-matched for QB.** 30 quarterbacks inside 150 picks is a
+superflex/2QB signature — a 1-QB league takes 12-15. **`fetch_mfl` requests `IS_PPR=1` and
+`FCOUNT=12` and there is no superflex exclusion**, so QB market depth from this source is
+unusable and I am not using it. **That is a defect in MY capture parameters and I am
+recording it against myself.** K, DEF, RB, WR and TE depths are unaffected — superflex adds
+quarterbacks, not kickers.
+
+Substituting a defensible QB depth of 15 rather than the contaminated 30:
+
+```
+   market depth, QB de-contaminated    RB 9  WR 1     QB+TE 0%   first K/DEF at rank 102
+```
+
+### WHAT I AM NOT DOING
+
+**Not adjusting anything.** Cory's instruction is exact and I agree with it: a baseline
+tuned until the board looks sane is the same error as a QB penalty. The numbers above are
+what the baselines ARE and what an external market says they SHOULD be. **The fix is A's,
+and the right fix is the definitional one — first non-starter, plus a bench term, plus a
+K/DEF baseline that reflects that nobody drafts them — not a number chosen to make the top
+ten look right.**
+
+**And this does not overturn my earlier report, it locates it.** I said the data hands the
+engine a 10% QB+TE board while the engine emits 50%, so the break is downstream. **That
+still holds.** What I had wrong was calling the baselines correct: they are internally
+consistent and externally wrong, which is this project's whole failure mode, and I checked
+them against our own config instead of against a market. **The engine is still amplifying
+something — but it is being handed a board that already pulls K and DEF forward by 90 to 140
+positions.**
+
+---
+
+## 🔧 K AND DEF, FINISHED — AND A CORRECTION TO MY OWN NUMBER. **DEEPENING THE BASELINE MAKES IT WORSE.** (C, 2026-08-12)
+
+### ⚠️ FIRST, THE CORRECTION
+
+I wrote: *"That is the ~140-position advancement, and it is in the DATA, before the engine
+touches anything."* **That was overstated and I had not measured it against the board's own
+rank field.** The board carries two:
+
+```
+                       overall_rank   pool_rank    market ADP
+   Brandon Aubrey  K         59          121        127.0
+   LA Rams        DEF        52          120        124.0
+```
+
+**`overall_rank` IS the VORP ordering** (59/52, matching my independent computation exactly).
+**`pool_rank` tracks ADP** and is sane. So the data-side pull-forward is **68 positions for
+K and 72 for DEF — roughly HALF of the ~140 A measured on the surface, not all of it.**
+The rest is downstream. My earlier sentence claimed the whole thing.
+
+### TWO INDEPENDENT MARKETS AGREE, AND ON THE SAME PLAYER
+
+```
+                     MFL (119 drafts)   FantasyPros ADP    our overall_rank
+   first kicker      Aubrey   151.7     Aubrey   127.0           59
+   first defence     Houston  137.2     Houston  123.3           52
+```
+
+Different sources, different formats, **same player first in each.** The K/DEF finding does
+not rest on the MFL capture I flagged as superflex-contaminated — that contamination is
+QB-only, and FantasyPros corroborates independently.
+
+### WHY IT HAPPENS — TWO THINGS COMPOUNDING, BOTH ARITHMETIC
+
+**The kicker and defence curves are nearly flat.**
+
+```
+   proj_mean at position rank    1      5     10     15     20    spread 1->20
+                        K     107.0  100.0   97.0   92.0   87.0      20.0
+                        DEF   114.0  104.0   99.0   94.0   92.0      22.0
+                        RB    344.9  282.1  224.5  213.2  193.4     151.4
+```
+
+**Twenty points across twenty kickers, against 151 across twenty running backs.**
+
+**And only 82 players on the entire board have positive VORP.** So *any* positive VORP puts
+a player inside the top 82. Aubrey's +10.0 → 58 players exceed it → **rank 59.** The Rams'
++15.0 → 51 exceed it → **rank 52.** The arithmetic reproduces the artifact exactly.
+
+### THE PART THAT KILLS HALF OF CORY'S PROPOSED DIRECTION
+
+**For K and DEF, a DEEPER baseline makes it WORSE, not better:**
+
+```
+   K/DEF baseline = 10th (as shipped)        first K rank 59, VORP 10.0
+   K/DEF baseline = 11th (first non-starter) first K rank 59, VORP 10.0
+   K/DEF baseline = 15th (DEEPER)            first K rank 55, VORP 15.0   <-- worse
+   K/DEF baseline = best available (streamed) first K rank 68, VORP  0.0   <-- best
+```
+
+**The one-start hypothesis says these baselines are too shallow. For K and DEF the truth is
+the opposite** — they are too DEEP. Only one kicker goes in 150 market picks, so at any pick
+you can have a near-equivalent kicker: **replacement for a streamed position is the best
+player still available, not the tenth-best.** That is the correct baseline and it drives
+their VORP to zero.
+
+### AND THE PART THE BASELINE CANNOT FIX AT ALL
+
+**Even at the correct baseline, the first kicker still ranks 68 against a market of 127.**
+With VORP 0 he sorts immediately behind the last positive-VORP player. **The baseline can
+buy about nine of the seventy positions. The other sixty are structural:**
+
+**VORP CANNOT EXPRESS "REPLACEABLE AT ANY TIME."** A kicker at VORP 0 is not the 68th most
+valuable pick — he is a pick you should never make before the last round, because an
+equivalent kicker is there in round 15. That is a fact about *supply over time*, and nothing
+in a replacement-level calculation encodes it. **So K/DEF cannot be fixed by any choice of
+baseline, and A should not spend the effort trying.**
+
+### WHAT STANDS FOR THE ONE-START HYPOTHESIS
+
+**It splits.** QB and TE are suppressed by the last-starter off-by-one (RB loses 19.2 points
+of VORP to it, QB 4.2 — correcting it alone takes QB+TE from 10% to 0% of the top ten). **K
+and DEF are a different defect wearing the same clothes**: not a shallow baseline but a
+baseline that should not exist, on a position VORP was never able to rank.
+
+### ON B's LOG, WHEN IT LANDS
+
+I will audit before citing. Three checks first, all on the instrument: **does every row's
+board stamp match a commit that was actually deployed** (I can verify against git and
+against `built_at`); **are absent fields recorded as absent rather than omitted** —
+`field-population/v1` on the log itself, three-way present/null/missing; and **does the
+captured recommendation reconcile to the artifact** — pick a row, recompute VORP and
+`overall_rank` from `public/draft_data.json` at that stamp, and see whether the logged score
+and rank fall out. If they do not reconcile, the log is measuring something other than what
+rendered, and the positional distribution in it is not evidence.
+
+---
+
+## ✅ THE BASELINE INVESTIGATION, FINISHED — AND A SECOND CORRECTION TO MYSELF (C, 2026-08-12)
+
+### ⚠️ I WAS WRONG ABOUT THE STRUCTURAL CLAIM, AND THE REASON MATTERS
+
+Last entry I wrote: *"the baseline can buy about nine of the seventy positions. The other
+sixty are structural."* **Wrong.** I tested the K/DEF baseline **in isolation, holding RB,
+WR and TE at their known-wrong shallow values.** Rank is a RELATIVE quantity. Correct the
+whole system and K/DEF fall into place on their own:
+
+```
+   first K/DEF rank      as shipped   K/DEF fixed alone   ALL baselines fixed    market
+                             52              68               111 - 131         123 - 127
+```
+
+**Measuring a relative quantity while the rest of the system sits at values I had already
+proved wrong.** That is the same error class as the keepers — reading one field and
+concluding, when the answer was in its complement.
+
+### THE DEFECT, STATED ONCE
+
+`counts[pos] = starters_at(cfg, pos) × teams` counts **STARTERS ONLY**. Real leagues roster
+far more than they start at RB/WR/TE, and far fewer at K/DEF. **Two independent markets
+agree on the real depth, and on TE they agree exactly:**
+
+```
+              ours    FantasyPros@150   MFL@150   verdict
+   RB           21          46             41     understated by ~23
+   WR           29          53             55     understated by ~25
+   TE           10          21             21     understated by 11  (EXACT agreement)
+   K            10           2              1     OVERSTATED by ~8
+   DEF          10           5              2     OVERSTATED by ~6
+   QB           10          23             30     contaminated, see below
+```
+
+**Because the understatement is asymmetric, it suppresses RB and WR far more than the
+one-start positions — which is precisely the symptom.**
+
+### WHAT CORRECTING IT DOES
+
+```
+   AS SHIPPED                        top10  RB5 WR4 TE1     QB+TE 10%   1st K/DEF   52
+   MFL depths                        top10  RB9 WR1         QB+TE  0%   1st K/DEF  127
+   FantasyPros depths                top10  RB9 WR1         QB+TE  0%   1st K/DEF  111
+   both-source midpoint              top10  RB9 WR1         QB+TE  0%   1st K/DEF  128
+```
+
+**Identical under both markets independently.** And the agreement with the market improves
+across the whole board, not just at the top: **mean |market ADP − our rank| over the 337
+priced players falls from 76.7 to 52.5 positions — a 32% reduction.**
+
+### AND IT IS NOT SENSITIVE TO THE ONE NUMBER I HAD TO JUDGE
+
+QB is the only position the two markets disagree on (23 vs 30), because **MFL's ADP pool is
+superflex-contaminated — a defect in my own capture parameters.** So I swept it rather than
+choosing:
+
+```
+   QB depth      10     13     15     19     23     30
+   Allen rank    57     48     48     28     14      3      (market 21.7)
+   Lamar rank    85     75     74     52     29      7      (market 38.3)
+   mean|ADP-rank| 54.3  52.5   52.4   48.4   47.7   49.5
+   QB+TE top10    0%     0%     0%     0%     0%    30%
+```
+
+**QB+TE stays at ZERO for every defensible QB baseline from 10 through 23.** The symptom
+only returns at 30, which is the contaminated figure. **The result does not depend on my
+judgement call**, and depth 19–23 straddles both quarterbacks' actual market prices.
+
+### THE STANDING VERDICT
+
+**The baselines are wrong, they are wrong asymmetrically, and correcting them to measured
+rostered depth removes QB and TE from the top ten entirely while placing K and DEF within a
+few picks of two independent markets.** The derivation is the defect: starters-only, in a
+league where six of fifteen roster spots are bench.
+
+**I am not proposing numbers to load.** The table above is what two markets measure, not a
+tuning. **And it does not contradict my first report** — the data still hands the engine a
+board the engine then amplifies. It sharpens it: the board it hands over is *itself*
+mis-baselined, and that share of the symptom is fixable at source.
+
+**Three of my own claims have now needed correction in this investigation** (K=8 rank, "~140
+is in the data", "sixty positions are structural"). Each was caught by measuring again
+rather than by reasoning harder, and each was wrong in the direction of overstating what I
+had established.
+
+---
+
+## ✅ THE LAST CORNER OF THE BASELINE DERIVATION — THE FLEX ALLOCATION IS CLEAN (C, 2026-08-13)
+
+One thing was still unchecked, and it mattered because the two defects could have compounded:
+**the FLEX split is decided by comparing next-man-up `proj_mean` across eligible positions,
+and `proj_mean` carries the `opportunity_adj` distortion** — up to +15% for RB/WR/TE, zero
+for QB/K/DEF. If a distorted number decided which position got the ten flex slots, the
+distortion would be feeding the baseline as well as the score.
+
+**Tested by re-running the real `replacement_levels` with the undistorted `proj_baseline`
+substituted for `proj_mean`:**
+
+```
+   allocation on proj_mean (as shipped)      RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+   allocation on proj_baseline (undistorted) RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+```
+
+**Identical.** The distortion is large enough to move VORP by 30+ points at the top but not
+large enough to change which position wins a flex slot at the margin, because at ranks 21-30
+the RB and WR curves are far apart relative to a 15% shift. **The two defects do not
+compound, and the flex mechanism itself is sound.**
+
+**This closes the baseline derivation.** Every component has now been checked against
+something: team count and slot count against the imported config, the flex mapping against
+all eight copies of it, the flex allocation against its own undistorted input, and the
+depths against two independent markets. **The only defect in the derivation is the one
+already reported — it counts starters and the league rosters benches.**
+
+---
+
+## 🔧 THE ARCHIVE RECORDED PRICES WITH NO RECORD OF THE MARKET THAT SET THEM (C, 2026-08-13)
+
+Found while trying to repair my own instrument. **`fetch_mfl` has always built
+`note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"`, handed it to `capture()` — and `capture()`
+used it only in an error message. It was never persisted.** A producer with no consumer, on
+the one fact that makes the prices interpretable. **Same defect class as the missing decode
+key, one layer up, and I built that fix without noticing this one.**
+
+### WHY IT IS NOT COSMETIC — MEASURED
+
+I tried to convert my superflex caveat into a calibration. **Same players, both markets:**
+
+```
+   median MFL ADP / FantasyPros ADP      TE 0.983   DEF 1.008   K 1.086
+                                         WR 1.108   RB 1.314
+                                         QB 0.514   <-- the outlier
+```
+
+Every position sits between 0.98 and 1.31 **except QB at 0.514** — MFL prices quarterbacks
+nearly twice as early. That is the superflex signature, isolated.
+
+**AND IT CANNOT BE CORRECTED BY A FACTOR, which is the useful negative:**
+
+```
+   Josh Allen      FPROS  21.7   MFL   2.6   ratio 0.122
+   early QBs (FPROS<=100)  n=11  median 0.381
+   late  QBs               n=28  median 0.580
+   overall n=39  median 0.514  IQR 0.447-0.696  stdev 0.216
+```
+
+**The distortion is strongest at the top and varies systematically with rank** — exactly what
+superflex does. **So no scalar repairs it, FantasyPros must be the QB reference, and the MFL
+archive's QB prices are not a 1-QB signal at any correction.** My decision to exclude the
+MFL QB number was right; this measures why, and the sensitivity sweep already showed the
+baseline conclusion holds for QB depth 10-23 regardless.
+
+**AND THAT IS PRECISELY WHY THE PROVENANCE MATTERS.** A grader reading these snapshots as F5
+evidence in 2027 would price quarterbacks off a superflex market **with nothing in the file
+to warn them.** The archive is built to outlive its source; it was not recording the one
+thing that makes it readable in context.
+
+### WHAT I CHANGED
+
+`source_note` is now stored **per snapshot**, declared in `SNAPSHOT_FIELDS` so its population
+is tracked, and it carries the players-export failure flag — so a day whose ids may be
+undecodable is marked **in the archive** rather than only in a CI log that expires.
+
+**Rehearsed against the real archive.** The two days captured before provenance existed are
+reported honestly rather than back-filled:
+
+```
+   2026-08-11  source_note = None        population: present 1, missing 2, 33.3%
+   2026-08-12  source_note = None        decode key preserved: 708 ids
+   2026-08-13  source_note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
+```
+
+**Absent is not zero, so they read as missing — not as clean.** 1481 Python tests green.
+
+**Still unfixed and stated plainly:** the capture itself remains superflex-contaminated for
+QB. MFL's documented ADP parameters (`TYPE, PERIOD, IS_PPR, IS_KEEPER, IS_MOCK, INJURED,
+CUTOFF, FCOUNT`) contain no starter-requirement filter, so I cannot exclude those leagues at
+the source. **The archive now says so on every row instead of leaving it to be rediscovered.**
+
+---
+
+## 📐 A LIMITATION IN MY OWN BASELINE NUMBERS, QUANTIFIED RATHER THAN LEFT IMPLICIT (C, 2026-08-13)
+
+**Both of my market references are 12-team. Our league is 10.** MFL is explicitly
+`FCOUNT=12`; FantasyPros' default ADP is a 12-team consensus. So "how many RBs are gone by
+pick 150" is measured in a league whose starter demand is 20% higher than ours, and every
+depth figure I reported carries that. **Unflagged, that is false precision A could act on.**
+
+**So I tested the conclusion against it rather than asserting it survives:**
+
+```
+   AS SHIPPED                                   RB5 WR4 TE1   QB+TE 10%   1st K/DEF  52
+   12-team market depths, as measured           RB9 WR1       QB+TE  0%   1st K/DEF 128
+   scaled to 10 teams (x 10/12)                 RB8 WR2       QB+TE  0%   1st K/DEF 103
+   scaled x0.75  (deliberately conservative)    RB8 WR2       QB+TE  0%   1st K/DEF  91
+   scaled x1.25  (deliberately aggressive)      RB9 WR1       QB+TE  0%   1st K/DEF 148
+```
+
+**QB+TE is zero across a ±25% band on every depth simultaneously** — which comfortably
+contains the ×0.83 league-size correction. The top ten is RB 8-9 / WR 1-2 throughout. **Only
+the K/DEF landing point moves, and even the deliberately conservative scaling puts it at 91
+against the shipped 52.**
+
+**What this does and does not license.** It licenses the DIRECTION and the fact that the
+one-start positions leave the top ten. **It does not license the specific numbers as values
+to load** — the honest depth for a 10-team league is not something either of my sources
+measures directly, and I am not going to manufacture it. Combined with the QB sweep
+(unchanged for depth 10-23), the finding rests on the shape of the correction rather than on
+any figure I chose.
+
+## 🔍 AUDITING MY OWN CROSSWALK, SINCE SEVERAL CLAIMS NOW REST ON IT (C, 2026-08-13)
+
+The board-vs-market work and the ADP-agreement figure both go through `crosswalk_map`, so
+its completeness is load-bearing and I had never measured it.
+
+```
+   decode key ids                       708
+   IDP and team units (not our format)  257
+   JOINABLE (our positions)             451
+   matched                              432      95.8%
+   missed                                19       4.2%
+```
+
+**F2's registered bar is ≥0.90. It clears.** But the 4.2% is three different things and the
+distinction is the whole point:
+
+```
+   keepers, correctly off the draftable board    3   Chase, Walker, Henry
+   TRUE matcher failures                         3   0.7% of joinable
+   genuinely absent from our board              13
+```
+
+**The matcher's own failure rate is 0.7%, and it is ONE nameable class — first-name
+diminutives:**
+
+```
+   Kenneth Gainwell  -> Kenny Gainwell
+   Andres Borregales -> Andy Borregales
+   Matthew Hibner    -> Matt Hibner
+```
+
+**And I nearly reported it as 1.8%.** My first pass matched on surname+position and counted
+eight, but five of those are DIFFERENT PEOPLE who happen to share a surname — Zavion Thomas
+is not Brian Thomas, Cyrus Allen is not Keenan Allen, Barion Brown is not A.J. Brown. **A
+surname match is not a player match, which is exactly the wrong-but-plausible failure the
+crosswalk's own comments warn about**, and I reproduced it in the probe auditing the
+crosswalk.
+
+**A bug in the audit before that.** My first decomposition keyed on team and reported
+Gainwell as absent, because **MFL writes `TBB`, `KCC`, `GBP`, `SFO`, `LVR`, `NOS`, `NEP`
+where our board writes `TB`, `KC`, `GB`, `SF`, `LV`, `NO`, `NE`.** The real matcher
+normalises team; my ad-hoc index did not. **Two successive versions of my own audit were
+wrong in opposite directions before the numbers held still.**
+
+### WHAT IT MEANS FOR THE CLAIMS THAT DEPEND ON IT
+
+**The market-depth figures do not use the crosswalk at all** — they count MFL's own position
+labels straight from the decode key — so the baseline finding is untouched by any of this.
+The ADP-agreement figure (mean |market ADP − our rank|, 76.7 → 52.5) does use it, and a 0.7%
+matcher failure on deep players cannot move a mean over 337 priced players.
+
+**And it confirms the earlier "not urgent" call was right.** Three players, all outside the
+draftable range, none affecting a reported number. **Still not proposing a fix**: teaching
+`match_player` about diminutives is precisely the change whose failure mode is a confident
+wrong match, and it would need its own measurement before anyone touches the authoritative
+matcher.
+
+---
+
+# 📌 CONSOLIDATED — THE BASELINE FINDING, CURRENT POSITION. **READ THIS ONE, NOT THE FOUR ABOVE.** (C, 2026-08-13)
+
+I reported this across four entries and corrected myself three times inside them. **A should
+not have to reconstruct my position from a trail of retractions.** This supersedes all of it.
+
+## WHAT IS CONFIRMED
+
+**1. The replacement baseline counts STARTERS ONLY, and real leagues do not.**
+`counts[pos] = starters_at(cfg, pos) × teams`, then ten FLEX slots allocated to the best
+next-man-up. Team count, slot count, flex mapping and flex allocation are all **correct** —
+I checked each against the config, against all eight copies of the eligibility table, and
+against its own undistorted input. **The defect is the formula's premise, not its execution.**
+
+**2. It is wrong asymmetrically, which is why the symptom lands where it does.** Two
+independent markets agree, exactly at TE:
+
+```
+              ours    FantasyPros@150   MFL@150
+   RB           21          46             41      understated ~23
+   WR           29          53             55      understated ~25
+   TE           10          21             21      understated 11
+   K            10           2              1      OVERSTATED ~8
+   DEF          10           5              2      OVERSTATED ~6
+```
+
+**Understating RB/WR most suppresses exactly the positions that should dominate.**
+
+**3. Replacement is the LAST STARTER, not the first non-starter** — `ranked[n-1]`, and the
+module's docstring says so deliberately. Uniform off-by-one, **non-uniform effect**: RB loses
+19.2 points of VORP to it, QB 4.2. **Correcting this alone takes QB+TE from 10% to 0% of the
+top ten.**
+
+**4. Correcting the depths reproduces the market.** Top ten becomes RB 8-9 / WR 1-2 with
+**QB+TE at 0%**, first K/DEF moves from rank 52 to 91-148, and mean |market ADP − our rank|
+over 337 priced players falls **76.7 → 52.5**.
+
+**5. It is robust.** QB+TE stays at 0% across QB depth 10-23 **and** across a ±25% scaling of
+every depth at once — which contains the 12-team→10-team correction my sources require.
+
+## WHAT I RETRACTED — DO NOT ACT ON THESE
+
+* *"K replacement rank is 8"* — **wrong**, it is 10. Tie artifact in my rank-finder.
+* *"The ~140-position K/DEF advancement is in the data"* — **wrong**, the data accounts for
+  ~70 of it; the rest is downstream.
+* *"The baseline buys only 9 of the 70 positions; the other 60 are structural"* — **wrong.**
+  I measured K/DEF in isolation while RB/WR/TE sat at values I had already proved wrong.
+  Correcting the whole system moves K/DEF essentially all the way.
+
+## WHAT IS STILL TRUE FROM MY FIRST REPORT
+
+**The break is downstream of VORP.** Ranked by VORP the data gives **10%** QB+TE; the engine
+emits **50%**; raw projection gives **90%**. Correcting the baselines improves the board it
+hands over — **it does not explain the engine's amplification, and A should still look
+there.** Both things are true at once.
+
+## WHAT I AM NOT GIVING YOU
+
+**Numbers to load.** The depths above are what two 12-team markets measure; the honest figure
+for a 10-team league is not something either measures directly and I will not manufacture it.
+**The finding is the shape of the correction — starters-only is the wrong premise, and it is
+wrong asymmetrically — not any figure I chose.**
+
+## TWO SIDE-DEFECTS, NEITHER CAUSAL, BOTH REAL
+
+* **`opportunity_adj`** — `proj_mean = proj_baseline × (1 + adj)`, capped at +15%, verified
+  576/576. **Zero for all 75 QBs and all K/DEF** while WR/TE saturate the cap on
+  `opportunity_share` an order of magnitude smaller than Allen's. Unmeasured, position-
+  dependent, and it runs *against* the symptom.
+* **FantasyPros is stored for 435 players and never enters `proj_mean`.** The blend is
+  single-source by construction. Matters most at TE, where the sources disagree 13% and
+  Sleeper is systematically higher at the top.
+
+---
+
+## 🔴 THE INVERSE QUESTION I NEVER ASKED — WHERE OUR BOARD REACHES. AND A THIRD CORRECTION TO MY K/DEF NUMBER. (C, 2026-08-13)
+
+I had only ever asked whether the market takes players our board underprices. **The inverse
+— which players our board ranks far ahead of the market — is the one that describes the
+picks Cory would actually make**, and it reproduces A's measurement from the data side.
+
+### ⚠️ THE CORRECTION, AND IT IS THE THIRD TIME ON THIS NUMBER
+
+I reported the K/DEF data-side pull-forward as **~70 positions**. That was **Brandon Aubrey
+alone** — the single best kicker — presented as if it characterised the position. Across the
+whole population, restricted to the range where both orderings are meaningful (241 players,
+market ADP ≤ 200 or our rank ≤ 200):
+
+```
+   pos     n     median gap        range          (positive = we rank him EARLIER)
+   K      22       +115.7         67 .. 166
+   DEF    31       +117.0         68 .. 151
+   ---------------------------------------
+   K+DEF  53       +117.0
+   every other position          median  -24.3
+```
+
+**Our board ranks kickers and defences 117 picks EARLIER than the market, while ranking
+everyone else 24 picks later.** That is A's ~140 finding, present in `overall_rank` before
+the engine touches anything. **My 68 was the best case, not the number.** The lesson is the
+same one that has caught me repeatedly this week: **I reported a single row where the honest
+answer was a distribution.**
+
+The worst reaches are all one class — 54 of the 56 gaps over 50 positions are K or DEF:
+
+```
+   Tyler Bass        K    market 260.0   our rank  94   +166   vorp  -2.0
+   Cincinnati        DEF  market 279.0   our rank 128   +151   vorp -12.0
+   Detroit           DEF  market 225.0   our rank  81   +144   vorp  +1.0
+```
+
+**Players with NEGATIVE VORP are ranked inside the top 130**, because the board has so few
+positive-VORP players that the negative tail starts early.
+
+### AND THAT IS THE NEW FINDING — THE TOOL IS SILENT ABOUT THE BACK HALF OF THE DRAFT
+
+```
+   AS SHIPPED (starters only)          players with POSITIVE VORP:  82
+   market-measured depths                                          131
+   market depths scaled to 10 teams                                 110
+
+   a 10-team x 15-round draft takes                                150
+```
+
+**Cory drafts 150 players. Only 82 of them have positive VORP.** From roughly pick 82
+onward the board is ranking an undifferentiated negative tail — which is exactly where the
+kickers and defences sit, and exactly why mid-round running backs come out a median 89 picks
+later than the market. **The tool has nothing to say about the back half of his own draft,
+and that is the same defect, seen from a third angle.**
+
+Correcting the depths raises positive-VORP coverage from 82 to 110-131 — **not by making
+anything up, but because a correct replacement level is lower, so more real players clear
+it.**
+
+### WHAT I CHECKED BEFORE REPORTING ANY OF THIS
+
+The first version of this table showed QB at −340 and RB at −227, which I nearly published.
+**Artifact:** our board ranks all 1,759 players while ADP exists for 340, so any deep priced
+player shows a huge negative gap by construction. **Restricting to the common range removes
+it — and the K/DEF figure is unchanged at ~117 either way**, which is what makes it a real
+inversion rather than a scaling effect.
+
+---
+
+## 🔴 AUDIT OF B's DRIVE LOG — THE INSTRUMENT IS SOUND AND IT CAUGHT ITS OWN DEFECT. THE DRIVES USE PICKS CORY DOES NOT HAVE. (C, 2026-08-13)
+
+**File:** `public/js/drivelog/draft-drive-log.ndjson` on `origin/claude/in-season-surface-fixes-6nyayc`
+(**not on main** — neither A nor I would find it where we would look). 91 rows, audited before
+citing, as Cory instructed.
+
+### WHAT PASSES, AND IT IS MOST OF IT
+
+* **Soundness is IN THE FILE, not asserted.** `board_caught_up` is false on exactly 3 rows —
+  all in `follow-2-killed`, all recommending an already-taken James Cook off a stale board.
+  **90 pick rows − 3 = B's 87. It reconciles exactly.**
+* **Both keeper bases ran against the SAME board artifact** — `built_at
+  2026-08-12T09:19:29Z` on all 90 rows — so the comparison is not confounded by a board
+  change. Two driver commits (`27ad63c` ×60, `6b07f18` ×30), which is expected.
+* `page_errors_so_far` is 0 on every row. Panels, alternatives, explanations, roster state
+  and the not-exposed list are all present on all 90.
+
+### ⛔ THE DEFECT, AND IT IS SEVERITY-1 FOR THE RESULT
+
+**Every drive made 15 picks. Cory has 12. And not one of the 15 is a pick he owns.**
+
+```
+   the drives used   [ 8, 13, 28, 33, 48, 53, 68, 73, 88, 93,108,113,128,133,148]
+   Cory's real picks [30, 45, 50, 65, 70, 85, 90,105,110,125,130,145]
+   overlap: ZERO
+```
+
+The logged sequence is **exactly `pick_order.my_picks_before_keepers`** — the pre-keeper
+schedule. His keepers forfeit rounds 1, 2 and 3 (Henry, Chase, Walker), so **his real draft
+starts at pick 30, not pick 8.** The drives handed him three extra picks, all in the rounds
+where the best players are.
+
+**So the positional shares are over the wrong denominator AND the wrong pick set.** "TE 4 of
+15 = 27%" against a market 13% is not a comparison Cory's draft can produce: he makes 12
+picks starting 22 selections later, and **TE timing is a scarcity phenomenon — starting at 8
+versus 30 changes exactly the thing being measured.**
+
+**The as-shipped vs TE-kept contrast is internally consistent** (same wrong schedule both
+times), so the *direction* of the keeper-base effect may well survive. **The 25-27% → 13%
+figures do not, and neither does the match to market.**
+
+### AND THE LOG CAUGHT IT — WHICH IS THE POINT OF THE LOG
+
+The evidence is **inside B's own rows.** On every row the page header disagrees with itself:
+
+```
+   round 1   hdr_pick "Pick 8"    hdr_next "Your next: 30, then 45"
+   round 5   hdr_pick "Pick 48"   hdr_next "Your next: 50, then 65"
+```
+
+**`hdr_pick` is drawn from the PRE-keeper sequence and `hdr_next` from the REAL one — two
+different pick orders on one header, on all 90 rows.** No engine-side or data-side harness
+could see that; it exists only where the surface is captured verbatim. **B built the
+instrument that found the flaw in B's own drive configuration**, which is precisely the
+argument for the log.
+
+**That header disagreement is also a live war-room defect in its own right** — Cory reads
+"Pick 8" on a board where his next pick is 30 — and it is the same pre/post-keeper family as
+the ROOM-SEAT severity-1 already recorded in `app.js`. **Routing it as a defect, not just as
+a confound.**
+
+### THE ONE INSTRUMENT FIX I WOULD ASK FOR
+
+**`keeper_base` is on 30 of 91 rows (33%).** The four as-shipped runs carry no such field, so
+that base is recorded **by omission**. B's message says "each carrying keeper_base"; the file
+does not. A reader joining on it gets 30 rows and the as-shipped runs vanish rather than
+grouping — and the next run that omits the field for a different reason becomes
+indistinguishable from as-shipped. **Absent is not a value.** One string on every row closes it.
+
+### WHAT THIS DOES NOT TOUCH
+
+**My baseline finding is roster-independent** — it ranks the board with no draft state at all
+— so none of the above bears on it. And B's TE result and mine were never measuring the same
+thing: **B measures TE share of a completed roster; I measure QB+TE share of the top-ten
+recommendation list.** Both can be true. **Neither is settled until the drives run on
+`my_picks`.**
+
+---
+
+## ⛔ DO NOT RECORD "REPLACEMENT IS HYGIENE, NOT A LEVER" YET — I MEASURED THE OPPOSITE (C, 2026-08-13)
+
+**Cory credited me with proving that replacement level cannot move a recommendation. I never
+made that measurement.** It is not mine — nor is "12 picks starting at 34" (I read **30**
+from `pick_order.my_picks`), running both schedules, the TE2-against-flex proposal, the
+eighteen-TEs-in-the-top-seventy count, or Burrow at VONA 0.5. **That is A's work or another
+session's, and I am not going to accept credit for a result I cannot reproduce — least of
+all one being written down for whoever comes back in a year.**
+
+**So I ran it. It comes out the other way.**
+
+### THE MEASUREMENT
+
+Real `engine.recommend()`, real board (576 projected players), one ctx held constant across
+arms, only `p.vorp` repriced:
+
+```
+   perturbation                    VORPs changed   TOP-25 POSITIONS CHANGED
+   off-by-one (n -> n+1)                535                 15
+   uniform +10 at every position        576                 16
+   full market depths                   576                 22
+```
+
+```
+   top 12, SHIPPED baselines   ... CeeDee Lamb, BROCK BOWERS, James Cook, JOSH ALLEN, ...
+   top 12, corrected baselines ... Chase Brown, Ashton Jeanty, Amon-Ra St. Brown, Achane, Barkley
+```
+
+**The TE and the QB leave the top twelve when the baselines are corrected** — the symptom's
+own direction, from the baseline alone.
+
+### WHY BOTH RESULTS CAN BE TRUE, WHICH IS THE USEFUL PART
+
+**VONA really is replacement-free** — `engine.js:545` is `return player.proj_mean - eba`,
+raw projections on both sides. **Replacement is not cancelled there; it was never there.**
+
+**But the score is not VONA.** `starterSlotMarginal` returns **`player.vorp` as the value
+itself** for a starter (`:589`) and for a flex fill (`:603`), and VORP reaches the score in
+at least six places — including `Math.max(0, player.vorp)` at `:609` and `:992`, **which is
+why even a UNIFORM shift moves the order: the clamp is not linear.** `bestFlexAlt` also
+sorts candidates by `.vorp` (`:572`).
+
+**And the engine never computes VORP or replacement — it reads `p.vorp` off the board**
+(verified: no such computation anywhere in `engine.js`). So repricing the board is the
+correct lever and my harness is testing the real path.
+
+**If A measured VONA, A is right about VONA and the conclusion does not follow. If A measured
+score and got zero, one of our two harnesses is wrong and that must be settled before it is
+written down.** My limits, stated: `roster: []`, `currentPick 30`, `nextPick 45`, identical
+in both arms — valid for a difference, not a live-draft ordering.
+
+### WHAT I ACCEPT WITHOUT RESERVATION
+
+* **The schedule.** Neither is real until the slate confirms on the 20th; state it on every
+  roster result. **My baseline work is roster-independent — no schedule, no draft state — so
+  it is unaffected either way, and I will label it as such rather than let it be compared to
+  a construction run.**
+* **The TE stack is a board-ranking phenomenon.** That is exactly what I measured and it is
+  the half I can speak to: **`overall_rank` is VORP-ordered**, and it puts K and DEF **117
+  picks** ahead of the market. **The board Cory reads while deciding is tilted whatever the
+  roster does** — and that is the surface my replacement finding acts on.
+* **The two-definitions cleanup**, with the honest label: it fixes a reporting distortion.
+* **The stack term.** Taken. I will flag it if it ever decides a pick, and the 6-point swing
+  on a half-point player is on my watch list now.
+
+---
+
+## 📋 THE VACUOUS ASSERTIONS — I FIND **SEVEN**, NOT 21, AND ONLY **ONE** IS A GUARD THAT CANNOT GUARD (C, 2026-08-13)
+
+**Method, so the count is checkable:** a bracket-matching parse of **every** `check(...)` and
+`ok(...)` call across all of `draft/tests/**/*.js`, extracting the second argument and
+flagging it when it is a literal `true` / `1` / `!0`. Comments stripped first, multi-line
+calls handled. **Plus `assert True` across all Python tests: zero.**
+
+**I cannot reproduce 21 and I am not going to report a number I did not measure.** If that
+figure came from a looser definition — tautological conditions like `x >= 0`, `!!x`, or
+`length >= 0` — that is a **different and possibly larger finding**, but it needs its
+definition stated before anyone counts it. Mine is stated above.
+
+### THE SEVEN — path, line, lane, and what it was reaching for
+
+Lane assigned by the guard's **own** rule (`_js_test_lane_is_b`: a JS test belongs to B when
+it reaches `src`/`views` and not `draft`/`backtest`/`tools`). **None are C's.**
+
+| file | line | lane | what it was trying to assert |
+|---|---|---|---|
+| `analyzer_claims.test.js` | 102 | **B** | **Nothing — prose.** Third line of a wrapped explanation; the real assertion is the line above (`!emitted.some(...)`). |
+| `coherence.test.js` | 36 | **B** | **Nothing — prose.** Completes the sentence begun two checks earlier; real assertion above (`Math.abs(product-0.0280)<0.001`). |
+| `coherence.test.js` | 53 | **B** | **Nothing — prose**, and the sentence is left unfinished mid-clause. Real assertion above (`rawCheck.exact`). |
+| `decision_contract.test.js` | 83 | **A** | **Nothing — prose.** Real assertion above (`cs.some(c => c.code === 'term:brand_new_term')`). |
+| `decision_contract.test.js` | 221 | **A** | **Nothing — prose.** Real assertion above (`citesZeroContribution(...)`). |
+| `opponent_predict.test.js` | 82 | **A** | **Nothing — prose.** Real assertion above (`r.profile_edge === -1 && r.profile_ran === false`). |
+| **`engine.test.js`** | **1507** | **A** | **THE REAL ONE — recoverable and clear.** |
+
+### SIX OF THE SEVEN ARE NOT THE FAILURE CLASS
+
+They are an **output-formatting idiom**: `check(msg, true)` used to print a continuation line
+of a wrapped explanation, immediately below a real assertion. **The coverage exists — it is
+on the line above.** They are not guards that cannot guard; they never claimed to be guards.
+
+**They do inflate the suite count by six**, which is a real accounting point and worth the
+deletion. **But "six places where we believe we have coverage and do not" is false — we have
+the coverage.**
+
+### THE ONE THAT IS THE REAL FINDING
+
+```js
+if (shared.length >= 2) {
+  check('two paths at one position carry the distinction line',
+    shared.every(p => /same position, different logic/.test(p.distinction || '')), ...);
+} else {
+  check('two paths at one position carry the distinction line (n/a this board)', true);
+}
+```
+
+**The else branch passes when the case was never exercised** — the same name, reported green,
+whether the property held or the fixture simply never produced two paths at one position.
+**Rule 13f exactly: a check that can only say "nothing yet" has not looked.** And it is worse
+than a missing test, because it reports the assertion's name as passing.
+
+**Intent is fully recoverable:** two paths at one position must carry the distinction line.
+**The fix is A's** — either make the fixture guarantee `shared.length >= 2` and assert
+unconditionally, or fail loudly that the fixture no longer reaches the case. **Not skip, and
+not pass.**
+
+### DISPOSITION
+
+**Four for A** (`decision_contract` ×2, `opponent_predict`, and `engine.test.js:1507` which
+is the only one that matters). **Three for B** (`analyzer_claims`, `coherence` ×2).
+**Zero for C — I fix none of them and I have crossed no boundary.** Per Cory's rule: six are
+prose and should be **deleted, not repaired**; the seventh has a recoverable intent and
+should be asserted and broken once by name.
+
+---
+
+# 🎯 FOR A — THE TWO ASKS, ANSWERED (C, 2026-08-13)
+
+## 1. REAL `proj_sd` AND `proj_ceiling` — **THE BIGGEST INPUT IS ALREADY IN YOUR FUNCTION'S ARGUMENTS**
+
+**Production's real derivation** is `draft/projections.py:227-241`:
+`var, why = player_variance(p, metrics)` → `season_sd = mean_proj * var` → floor/ceiling =
+`mean ± Z·season_sd`. **Its own comment names your symptom:** *"Keeping this per-player is
+what stops ceiling − mean collapsing into a constant multiple of the mean, which is what made
+UpsideBonus inert."*
+
+Production carries genuine spread — **492 distinct `sd/mean` ratios and 534 distinct
+`ceiling/mean` ratios across 576 players** (sd 0.22–0.52, ceiling 1.23–1.54). Only the bundle
+is flat.
+
+**`player_variance` takes five inputs. Here is what each is worth on a BACKTEST board:**
+
+| input | recoverable? | how |
+|---|---|---|
+| `target_share` / `opportunity_share` | **YES — and you already have it** | `build()` receives **`weekly_df`** (nflverse weekly, already crosswalked, already iterated in `weekly_points_by_season`). Prior-season target and carry share computes right there. **No new ingest.** |
+| `years_exp` | **YES, exactly** | `exp_then = exp_now − (2026 − season)`, clamped at 0 |
+| `age` | **YES, exactly** | `age_then = age_now − (2026 − season)` |
+| `depth_chart_order` | **NO — LOOK-AHEAD LEAK** | current state only. Today's chart reflects how the season turned out; a player benched in week 9 would earn variance credit at a draft that had not happened |
+| `injury_status` | **NO — same leak, worse** | a snapshot of today, applied to a 2023 draft |
+
+**So three of five are honestly recoverable and the highest-weight one needs nothing from
+me** — the bell-cow/committee multiplier is the largest single term and it comes out of
+`weekly_df` you are already passing in. **`player_variance` tolerates the two missing inputs
+by construction: their multipliers simply do not fire.**
+
+**⚠️ TWO THINGS TO CHECK BEFORE YOU BUILD ON THIS.**
+**(a)** The `players.append(...)` block at `build_bundle.py:126-135` carries **no `age`
+field at all** — so "the Lab board carries age" is coming from somewhere else, and it is
+worth confirming which, because **if it is TODAY's age on a 2023 board the age-cliff term is
+firing on the wrong players.**
+**(b) Backtest variance will be systematically NARROWER than production's**, because two of
+five multipliers can never fire. **A ceiling weight measured on that board is measured on a
+narrower spread than the one you ship** — real, and a genuine improvement on a constant
+multiplier, but not parity. Say so when the weight comes back.
+
+## 2. THE SLATE ON THE 20th — MINE TO BUILD, **ONE QUESTION FIRST**
+
+`draft/data/pick_schedule.json` is **ABSENT**. What we hold today, in
+`draft/data/sleeper_league_settings.json`: `draft_id 1374848328474324992`, `status
+pre_draft`, **`start_time: null`**, type snake, plus `draft_order`, `slot_to_roster_id` and
+`traded_picks`. **The confirmed order does not exist yet — Sleeper has not published it.**
+
+**It needs egress, and this container has none** — I verified it rather than assumed:
+`api.sleeper.app` returns *"gateway answered 403 to CONNECT (policy denial)"* from the
+proxy, same as MFL. **So it must run in CI**, which is exactly the shape of my other daily
+captures.
+
+**I can build it** as a `external-*` workflow (my prefix, my lane): fetch
+`/v1/draft/<draft_id>` and the league's `traded_picks` on the 20th, derive the full pick
+order for slot 8, and write `pick_schedule.json` carrying **`source`, `confirmed_at`,
+`draft_id`, and the raw payload's own status** — with the same discipline as D3: refuse to
+write a schedule while `status` is still `pre_draft`, so a placeholder can never be mistaken
+for a confirmation.
+
+**THE ONE QUESTION:** our league's Sleeper import lives in `draft/sleeper_import.py` and
+`build.py`, **both A's**. My lane is external ingest. **If you want this in C, say so and I
+will build it today; if it belongs with the rest of the Sleeper import, it is yours and I
+will stay out.** I am not going to assume a boundary on the file that gates your dated
+commitment.
+
+## AND ON REPLACEMENT — COMPLYING, WITH ONE POINTER
+
+**Nothing of mine is pointed at the baseline any more.** One thing worth knowing rather than
+re-arguing: my measurement (15–22 of the top 25 reordering) ran on the **production** board.
+**If your 1,044-VORP / zero-score run used the Lab board, that board's `proj_sd` and
+`proj_ceiling` are the manufactured constants you are asking me to fix** — which is its own
+reason two arms could disagree. **Both results can stand until someone runs them on the same
+board.** Not my next move; recorded so it is not rediscovered.
+
+---
+
+## ✅ FOR A — THE VARIANCE INPUT IS BUILT AND TESTED. **ONE IMPORT, NO LANE CROSSED.** (C, 2026-08-13)
+
+`draft/backtest/nflverse_usage.py` + 8 tests. **`draft/backtest/nflverse*` is C's by exact
+prefix in the guard**, so this is mine to build and yours to call — **I have not touched
+`build_bundle.py` or `projections.py`.**
+
+```python
+from nflverse_usage import usage_shares
+shares, report = usage_shares(weekly_df, prior_season, crosswalk, before_season=season)
+# shares[our_id] -> {"target_share": float, "opportunity_share": float}
+# feed straight into projections.player_variance(p, metrics=shares.get(pid))
+```
+
+**It needs nothing you are not already holding.** `build()` receives `weekly_df` and already
+iterates it in `weekly_points_by_season`; this reads the same frame.
+
+**WHAT IT GUARDS, AND WHY EACH GUARD EXISTS** — every one mutation-verified to fail by name:
+
+* **A frame with no `targets`/`carries` column returns NOTHING and says so.** This is the one
+  that matters. **A 0.0 share is not neutral:** `player_variance` reads
+  `0 < share < VAR_WORKLOAD_LOW` as **committee usage** and RAISES variance. Handled
+  carelessly, a missing column does not lose the signal — **it inverts it for the entire
+  league at once.** A genuinely zero-target player is still kept as a real zero.
+* **The drafted season is refused** (`before_season`). A share taken from the season under
+  replay is an outcome, not a prior.
+* **Shares are season-total, not the mean of weekly shares** — otherwise a player who missed
+  ten games reads as a bell-cow off two big weeks.
+* **Both loaders' vocabularies** (`recent_team` / `team`). `nflverse_weekly_to_scoring`
+  already carries this scar: nfl_data_py's `interceptions` became nflreadpy's
+  `passing_interceptions`, and mapping one name silently zeroed every 2025 row.
+* **Unmatched ids stay in the team denominator and are counted.** Dropping them understates
+  every surviving team-mate's share with nothing to say why.
+
+**WHAT I DID NOT SUPPLY, DELIBERATELY.** `depth_chart_order` and `injury_status` are
+**current state only** — today's chart reflects how the season turned out, so applying it to
+a 2023 draft credits variance for information that did not exist at the pick. **A leak that
+would make the backtest look better.** `age` and `years_exp` need nothing from me: back-
+compute them as `now − (2026 − season)`.
+
+**So four of five inputs are now available to the Lab board, and variance stops being a
+constant multiple of the mean.** The caveat from this morning stands and should travel with
+whatever weight comes back: **two of five multipliers still cannot fire, so backtest variance
+is narrower than production's.** A measured ceiling weight will be real, and it will not be
+parity.
+
+**1,489 Python tests green. Territory clean.**
+
+---
+
+# 🚨 THE TWO DECISIONS — ANSWERED. **AND THE POPULATION IS WORSE THAN 576.** (C, 2026-08-13)
+
+## THE NUMBER THAT MATTERS: **402**, NOT 576
+
+`proj_mean > 0` is 576. **Only 402 of those are a projection.** The other 174 are
+`projections.py:_rank_fallback` — *"No projection anywhere: decay off ADP so the board still
+ranks sensibly"* — an ADP decay off a per-position constant (QB 320, RB 270, WR 260, TE 190,
+K 130, DEF 120).
+
+```
+   board                                     1,759
+     real Sleeper projection                   402   23%
+     _rank_fallback, no source at all          174   incl. ALL 41 K and ALL 32 DEF
+     no projection, the tie block            1,183   67%
+```
+
+**Every kicker and every defence on this board is a formula, not a projection.** Neither
+source publishes them. That compounds with yesterday's K/DEF finding: their VORP is a
+manufactured number, on a nearly flat curve, against a baseline that is also wrong —
+**formula on formula, and it ranks them 117 picks ahead of the market.**
+
+**And 33 players sit in the tie block at zero while carrying a real FantasyPros
+projection**, because `baseline` is built from Sleeper alone (`baseline_from_projections(si.fetch_projections(...))`)
+and FantasyPros is attached afterwards without ever feeding `proj_mean`. **Thirty-three
+players are rescuable from the tie block with a source we already fetch and already store.**
+
+## DECISION ONE — **CARRY THEM AS EXPLICITLY UNRANKABLE. DO NOT REMOVE THEM, AND DO NOT NULL THE VORP.**
+
+**Not exclusion.** The board must stay complete: `keeperui.js:374` searches the WHOLE list on
+purpose (*"a keeper is by definition off the board"*), and `app.js` rebuilds `state.board`
+from `state.data.players` on the override, resume and reconcile paths. **Removing 1,183
+players breaks keeper search and every rebuild path.**
+
+**And not a null VORP either — that is a trap.** The engine reads `p.vorp || 0` at
+`engine.js:572`, `:981`, `:992`. **`null || 0` is 0, which is ABOVE the −172.7 they carry
+now** — nulling would promote all 1,183 above every real negative-VORP player. **A null here
+is worse than the tie block.**
+
+**So: a distinct state the engine tests before it sorts** — `rankable: false`, or
+`vorp: null` **only** alongside a guard at every `|| 0` site. The field must be one the
+engine cannot coerce into a number by accident.
+
+### THE CONSEQUENCE, MEASURED RATHER THAN ASSUMED
+
+**Replacement moves by EXACTLY 0.0 at every position** when all 1,183 come off — re-measured
+on this larger set, not carried over from the 943:
+
+```
+   whole board (1759)   QB 341.72  RB 188.53  WR 172.67  TE 150.72  K 97.0  DEF 99.0
+   minus all 1,183      QB 341.72  RB 188.53  WR 172.67  TE 150.72  K 97.0  DEF 99.0
+   max movement 0.0
+```
+
+**And now the margin, which the earlier answer did not give:** every position has **22 to 166
+players of headroom** between its replacement rank and its projected count (QB 10 vs 75,
+RB 21 vs 132, WR 29 vs 195, TE 10 vs 101, K 10 vs 41, DEF 10 vs 32). **It would take losing
+65 projected QBs or 166 projected WRs before replacement moved.** Zero with a wide margin,
+not zero by luck.
+
+**Crosswalk coverage is unaffected** — the market-depth figures count MFL's own position
+labels from the decode key and never touch our board.
+
+## DECISION TWO — **576 IS NOT A LOSS FROM 633. BUT 633 IS UNAUDITED, AND THE ANSWER IS ALREADY IN A LOG NOBODY READS.**
+
+**Two independent sources bracket the same population**, which is the corroboration that
+matters: Sleeper **633** with points of 9,411 rows; FantasyPros **525 parsed, 480 matched, 7
+unmatched**. If Sleeper were dropping most projections, FantasyPros would publish far more.
+**It publishes fewer.** ~600 is roughly 32 teams × 20 fantasy-relevant players. **576 on the
+board is the expected order, not a shortfall.**
+
+**I cannot verify against the source from here** — egress is closed, verified not assumed
+(`api.sleeper.app` → proxy 403 policy denial). **But the check already runs.**
+`sleeper_import._best_payload` tries **three** URL shapes, scores each by rows-carrying-stats,
+and **prints `{path}: {size} rows, {n} with stats` for every one.** Its own comment names the
+hazard: *"the wrong one returns a well-formed payload with empty stat lines rather than an
+error. That is how a board of zeroes got built while the log cheerfully reported thousands of
+rows."*
+
+**So the decisive line exists on every build.** If a losing shape reports **more** than 633
+with stats, we are dropping projections. If all three report ≤633, the source publishes ~633
+and 576 is right. **Read the last build log — nobody has.**
+
+### THE REAL PROVENANCE GAP, AND IT IS MINE
+
+**Sleeper's projections have no match report.** FantasyPros records
+`fp_proj_matched: 480 / fp_proj_unmatched: 7`; Sleeper records only `rows` and `nonzero`.
+**So 633 nonzero → 402 on the board is 231 projections unaccounted for, and nothing in the
+artifact says whether they were filtered off the board or lost in the crosswalk.** That is
+one counter, in my lane, and I will add it unless told otherwise.
+
+---
+
+# 📐 THE THREE-PHASE FRAMING, RECORDED VERBATIM (A via Cory, 2026-08-13)
+
+> **THE AUGUST REFUSAL IS CONTAINMENT. SEPTEMBER FIXES THE DATA CONTRACT. JANUARY GRADES THE
+> POPULATION THAT CONTAINMENT EXPOSED.**
+>
+> Each phase has a different job and **none substitutes for another.** A's refusal stops the
+> bleeding; it is not the fix. The September contract is the fix; it does not tell us whether
+> ignoring those players was right. January answers that, and only January can.
+
+And the invariant, which is the cleanest statement of the week:
+
+> **A NUMBER MEANS A NUMBER. NULL MEANS THE THING NEEDED TO CALCULATE IT DOES NOT EXIST.
+> STATUS SAYS WHY.**
+
+## THE SEPTEMBER COMMITMENT — THREE CONDITIONS, EACH SEPARATELY FALSIFIABLE
+
+**Not "improve status handling". All three must hold, and a check must be able to fail on
+each one alone:**
+
+1. **INGEST EMITS `projected` / `absent` / `imputed` PER FIELD.** `field_population/v1`
+   already carries the present / null / missing split — this extends it from a *report about*
+   the data to a *property of* each field.
+2. **DERIVED VALUES ARE NULL WHEN AN INPUT IS ABSENT** — never a fabricated numeric.
+3. **THE ENGINE READS STATUS RATHER THAN INFERRING MISSINGNESS FROM VALUE.**
+
+**⚠️ AND ONE THING CONDITION 2 MUST NOT DO NAIVELY, MEASURED THIS MORNING.** The engine reads
+`p.vorp || 0` at `engine.js:572`, `:981`, `:992`. **`null || 0` is `0`, which is ABOVE the
+−172.7 these players carry today** — so a null VORP without condition 3 already in place
+would PROMOTE all 1,183 above every real negative-VORP player. **Conditions 2 and 3 must land
+together or the fix is worse than the defect.** That is exactly why it is September work and
+not a patch now.
+
+**Blast radius, recorded because it is the reason this is architecture:** the same pattern is
+in `vorp = proj_mean − replacement`, `proj_sd = 0.25 × proj_mean`,
+`proj_ceiling = 1.35 × proj_mean`, and the absent risk inputs — therefore in every downstream
+VONA, value and board number. **The danger is not the missing input. It is that missingness
+is converted into a plausible value, after which every downstream layer has permission to
+believe it.**
+
+---
+
+# 🔎 PEARSALL — ALL FOUR ANSWERED, AND IT IS **NOT** AN INGESTION DEFECT (C, 2026-08-13)
+
+## 1. THE COUNT, CONFIRMED INDEPENDENTLY
+
+Counted from the deployed board myself, not from A's surface:
+
+```
+   adp <= 150   priced 145   no projection: 1   Pearsall
+   adp <= 250   priced 269   no projection: 1   Pearsall
+   adp <= 340   priced 340   no projection: 3   Pearsall, Joe Mixon (FA), Alexander Mattison (FA)
+```
+
+**A's "one inside ADP 250" is correct.** And the fuller number is stronger than A had it: of
+**340 priced players, only THREE lack a projection, and two of the three are free agents** —
+no team, so no projection is the source behaving sensibly.
+
+## 2. PEARSALL'S CAUSE — **`injury_status: 'IR'`**
+
+```
+   Ricky Pearsall  WR SF  adp 110.2 (ffc)  depth_chart_order 9  injury_status 'IR'
+   proj_mean 0.0   vorp -172.67   variance_why ['behind on the depth chart', 'carrying IR']
+```
+
+**Sleeper returns a row for him with an empty stat line rather than omitting him.** So
+`baseline.get(pid)` is `0.0`, not `None` — and `projections.py:222` only reaches
+`_rank_fallback` when the value **is** `None`. **The fallback built for exactly this case
+could not fire, because the source said "zero" instead of saying nothing.**
+
+**That is A's conflation, live, in one player.** The truth is *"no projection published, he is
+on IR"* — a **status**. It was stored as a **value** of zero, and −172.67 followed.
+
+**And the board already knows why** — it is in `variance_why` and `injury_status`. **The
+reason was captured and then discarded at the one seam where it mattered.**
+
+## 3. THE OTHERS AT THE BOUNDARY
+
+Mixon and Mattison, both `team: FA`, ADP 282/286 — the market prices a possible signing; the
+projection source cannot project a player with no team. **Legitimate, and a different cause
+from Pearsall's.** 11 of the board's 14 IR players are unprojected, so IR is a coherent
+sub-cause, not a one-off.
+
+## 4. CLUSTERED OR SCATTERED — **SCATTERED. GENUINE SOURCE COVERAGE.**
+
+```
+   missing-projection rate by NFL team:  mean 30.3%  stdev 8.0%  min 12% (TEN)  max 45% (NYG)
+```
+
+**A mapping or ingestion defect would put one or two teams near 100% and the rest near zero.**
+This is a smooth spread with no outlier. And the decisive one:
+
+**Of 1,183 unprojected players, exactly 3 have a real ADP.** Missing-projection and
+missing-ADP are the same population. **Two independent sources — Sleeper's projections and
+FantasyPros' ADP — stop at the same boundary**, which is what genuine coverage looks like and
+not what a defect looks like.
+
+---
+
+# 📸 THE AUGUST SNAPSHOT — CAPTURED, AND IT DOES **NOT** SATISFY THE COMMITMENT
+
+`draft/backtest/external_unprojected_snapshot_2026.json` — **1,183 players**, stamped with
+`built_at 2026-08-12T09:19:29Z` and board **sha256 `dfbfa7e31ea8535e…`**, carrying the fields
+January needs to grade them, plus `field_population/v1` on the snapshot itself.
+
+**It records a BELIEF AT A MOMENT. It is not the answer**, and the verifier refusing to
+accept it alone is right — capturing the list is the cheap half. **The January question is
+written into the file:** how many finished **top-24 at their position**? A non-trivial number
+means the fix is ingest coverage rather than the engine; near zero means the exclusion was
+legitimate. **Both verdicts are useful and neither is available until January.**
+
+**The criterion's own flaw is recorded inside the artifact**, so the January grade knows what
+it selected on: `proj_mean <= 0` conflates *projected at zero* with *no projection*, and
+Pearsall is the proof that they are not the same thing.
+
+**Captured now because it is perishable** — after week one the projections update and nobody
+can reconstruct who was unprojected in August.
+
+---
+
+# 🎯 ITEM 1 DELIVERED — **REAL WEEKLY VARIANCE, MEASURED, WITH STATUS.** (C, 2026-08-13)
+
+`draft/backtest/nflverse_variance.py` + 8 tests. **`nflverse*` is C's by exact prefix**, so
+this is mine to build and A's to call. **I have not touched `build_bundle.py` or
+`projections.py`.**
+
+```python
+from nflverse_variance import weekly_variance
+sd, report = weekly_variance(weekly_df, prior_seasons, cfg["scoring"], crosswalk,
+                             before_season=season, position_prior=..., games_expected=...)
+# sd[our_id] -> {weekly_sd, season_sd, mean_points, games, status, basis}
+```
+
+**PRODUCTION DERIVES THIS BACKWARDS AND THAT IS THE WHOLE FIX.** `projections.py` computes
+`weekly_sd = season_sd / sqrt(games)` where `season_sd = mean x a heuristic` — so the "weekly
+spread" is a restatement of the mean. **This inverts it: measure the weekly spread from
+realized scoring, then `season_sd = weekly_sd * sqrt(games)`.** Same bridge, run the correct
+way round.
+
+**It needs nothing new.** `build()` already receives `weekly_df` and already scores it in
+`weekly_points_by_season`; this reuses `grade.nflverse_weekly_to_scoring` and
+`scoring.score_stat_line` rather than deriving a second time — **so it scores with OUR table,
+never a provider's `fantasy_points`, which encode a different league's rules.**
+
+## AND IT ANSWERS ITEM 4 AT THE SAME TIME — STATUS PER PLAYER
+
+```
+   measured       enough games for a real spread          weekly_sd, season_sd: numbers
+   imputed        too few games; a POSITION PRIOR, named  weekly_sd, season_sd: numbers
+   unmeasurable   no basis at all                         weekly_sd, season_sd: None
+```
+
+**`None`, never 0.0, and this is the guard that matters most.** A variance of zero does not
+mean "no information" — **it means PERFECTLY CERTAIN.** A player with one game, written as
+`sd 0.0`, gets a ceiling equal to his mean and a risk term of nothing, and reads as **the
+safest pick on the board.** That is the 1,183-at-−172.7 defect wearing a different coat:
+absence rendered as a confident number. **A consumer pricing off `None` raises and notices;
+one pricing off `0.0` proceeds.**
+
+**Both guards mutation-verified to fail by name:** emitting `0.0 / "measured"` for a one-game
+player fails `test_ONE_GAME_is_UNMEASURABLE_not_zero_variance`; scaling by `games` instead of
+its root fails `test_season_sd_scales_the_weekly_sd_BY_ROOT_GAMES`.
+
+## WHY THIS UNBLOCKS THE TWO DEAD WEIGHTS
+
+The fixture that proves it: **two players, identical season totals, different week-to-week
+spread.** Under `0.25 x mean` they are the same number and no experiment can separate them —
+which is why `ceiling: 0` is UNMEASURED rather than measured. Under this, one has
+`weekly_sd 0` and the other `> 5`. **The ceiling term becomes separable from value, and risk
+stops being PARTIAL for want of a spread.**
+
+And it is the field the objective actually needs: **a starting lineup is a MAX over startable
+players, so variance changes the answer at equal means.** With a synthetic sd the model was
+not estimating its own objective.
+
+## WHERE THE REST OF THE BRIEF STANDS
+
+* **Item 2, weekly realized points** — the same `weekly_df` already carries them, scored by
+  our table. What is missing is not the data but a *stored, stamped* series; that is D3's
+  shape and it is next.
+* **Item 3, projection-vs-actual by position and ADP band** — needs item 2's store plus the
+  August board. **The August snapshot I captured this morning is exactly the frozen belief
+  that grade compares against**, so the two fit together.
+* **Item 5, Pearsall** — cause found and reported: `injury_status: 'IR'`, Sleeper returning a
+  zero row rather than omitting him, so `_rank_fallback` could not fire. **Not an ingest
+  defect**, and the honest number for an IR stash is a *status*, not a projection.
+* **Item 6, byes** — `bye` is already on every player; nothing structural consumes it. That
+  is a consumer-side gap, and the join key it needs is the one already there.
+
+**1,497 Python tests green. Territory clean.**
+
+---
+
+# 🔴 ITEM 6 — **THE BYE IS MISSING ON 564 ROSTERED PLAYERS, AND ALL 564 ARE RECOVERABLE BY A JOIN WE CAN ALREADY DO** (C, 2026-08-13)
+
+A: *"We carry `bye` but nothing uses it structurally."* **It is worse than that — for most of
+the board we do not carry it at all.**
+
+```
+   players on a real NFL team          773
+     with a bye                        209    27%
+     WITHOUT a bye                     564    73%
+```
+
+**And the bye is a property of the TEAM, not the player.** Derived from the board's own rows:
+**all 32 teams have a known bye, with ZERO conflicting values.** So every one of the 564 is
+recoverable by a team join — **no new source, no fetch, no egress.**
+
+```json
+{"ARI":14,"ATL":11,"BAL":13,"BUF":7,"CAR":5,"CHI":10,"CIN":6,"CLE":11,"DAL":14,"DEN":10,
+ "DET":6,"GB":11,"HOU":8,"IND":13,"JAX":7,"KC":5,"LAC":7,"LAR":11,"LV":13,"MIA":6,"MIN":6,
+ "NE":11,"NO":8,"NYG":8,"NYJ":13,"PHI":10,"PIT":9,"SEA":11,"SF":8,"TB":10,"TEN":9,"WAS":7}
+```
+*(2 teams on week 5, 4 on 6, 4 on 7, 4 on 8, 2 on 9, 4 on 10, 6 on 11, 4 on 13, 2 on 14 — 32
+total, a coherent NFL bye calendar.)*
+
+## THE CAUSE, AND IT IS A ONE-LINE SHAPE
+
+`bye_source` is **`'ffc'` for all 209 that have one, and `None` for all 564 that do not.**
+**The bye rides in on the FantasyPros ADP row, so only players FantasyPros priced ever got
+one.** A player without an ADP has no bye — not because his team's bye is unknown, but
+because nothing ever attached it.
+
+## WHY IT BITES EXACTLY WHERE IT HURTS
+
+```
+   projected players on a team                535
+     missing a bye                            327    61%
+   of the TOP 100 by projection, missing       5     5%
+```
+
+**The top of the board is nearly fine; the mid and late board is 61% blind.** That is
+precisely where bye conflicts decide a pick — you stack backups and handcuffs in rounds 8-15,
+and that is where the warning cannot fire. **A weekly-lineup objective cannot see 61% of its
+own bye exposure.**
+
+## LANE
+
+The attachment happens in the board build (`adp.py` / `build.py`), **which is A's**. **I am
+not touching it.** The map above is derived from the artifact itself and needs no module from
+me — it is a dict and a join, and wrapping it in a C file would be ceremony. **If A would
+rather it arrive as a function I will add one; otherwise this is the whole deliverable.**
+
+**One caution worth stating:** the map is derived from *this build's* 209 priced players. It
+is self-consistent and complete, **but it is our own artifact validating our own artifact.**
+The bye calendar is a published fact — **worth one glance against any external schedule
+before it is trusted structurally**, which is the same standard I have been holding all week.
+
+## AND WHERE ITEM 2 STANDS
+
+**Weekly realized points is next, and it is NOT perishable** — nflverse keeps history, so
+unlike D3 nothing is lost by building it after the draft. What it needs is not the data
+(already in `weekly_df`) but **a stamped, append-only store**: which weeks, scored under
+which scoring table, at which commit — so a January grade is reproducible rather than
+re-derived. **That is D3's shape and I will build it in that shape.** Item 3 then sits on top
+of it plus the August snapshot I froze this morning.
+
+---
+
+# C → A: RAISE `TOP_N` IN `draft/proj_series.py` BEFORE WEEK 1 — PERISHABLE
+
+**File:** `draft/proj_series.py`
+**Function:** `append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, ...)`
+**Constant:** `TOP_N = 400` (line 19), commented *"only the draftable region carries signal"*
+**What I need:** `TOP_N` raised to cover the whole projected board — 1,759 players, or at
+minimum the 576 that carry a real projection. `MAX_SNAPS = 400` is a separate cap on
+snapshot COUNT and is fine as it stands.
+
+## WHY, AND WHY IT EXPIRES
+
+`draft/data/proj_series.json` is the first archived preseason projection this project has
+ever held. Its earliest snapshot is **2026-08-09 — four days old.** Nothing before it exists,
+here or anywhere we can reach: a preseason number is only observable before the season, and
+a retroactive fetch leaks (exp33). It is perishable in exactly D3's sense.
+
+Today I measured projection-vs-actual on 2023 and 2024 (893 graded players,
+`draft/backtest/PROJECTION-ERROR.md`). Two results bear directly on this cap:
+
+* **The error is largest in the deep bands.** At `proj_rank 33+` the projection runs
+  roughly 2× high at QB (mean ratio 0.479) and TE (0.522), against ~1.1–1.45 in the
+  early bands. The deep board is where the calibration is most wrong and most needed.
+* **The measured spread exceeds what the production variance model can emit** in 10 of
+  16 cells — `player_variance` is bounded at `base × 1.45`. Whether that indicts
+  production or merely walk-forward can only be settled by grading the **production**
+  projection against actuals, which first becomes possible in **January 2027**.
+
+`proj_series.json` is the only instrument that makes January's test possible. At
+`TOP_N = 400` that test can only ever cover the top 400 — **and the bands that most need
+it are outside the archive.** The 1,181-player tie block A is currently blocked on sits
+entirely outside it.
+
+**If the cap is not raised before Week 1, the 2026 archive is permanently top-400.** Not
+inconveniently so — irrecoverably. This is the one thing on my list where waiting costs
+something that cannot be bought back later.
+
+## WHY I AM NOT DOING IT MYSELF
+
+`draft/proj_series.py` is not in my lane by any rule — no C prefix matches it and it sits
+outside `draft/backtest/`. It is a one-token change and I could defend it as mechanical,
+but the CROSS-LANE FIX standard is *fully diagnosed and unambiguous*, and the right value
+is a judgment about the archive's size and cost that belongs to whoever owns the file.
+**Parked, not edited.** If A would rather I take it as a cross-lane fix at a value A names,
+say the number and I will make the edit with a banner.
+
+## WHAT I DO NOT NEED
+
+Nothing else from A on this. The measurement is done and committed, the module and its
+eleven tests are in my lane, and item 3 is delivered against the data that exists. This is
+purely about not losing 2026's deep board.
+
+---
+
+# C → A: `rest_of_season_points` GRADES 22 WEEKS; THE LEAGUE SCORES 17
+
+**File:** `draft/backtest/grade.py`
+**Function:** `rest_of_season_points(weekly_df, season, scoring_cfg, crosswalk, from_week=1)`
+**Also:** `draft/backtest/cli.py` line ~173, which passes it a frame including weeks 18–22.
+
+## WHAT
+
+The function takes `from_week` and has no `to_week`, so a season total includes every
+NFL week present in the frame — weeks 18 through 22. `league_history` says
+`last_scored_leg = 17` for 2023, 2024 and 2025. **Weeks 18–22 score nothing for anybody
+in this league.**
+
+Note that a "filter to `season_type == REG`" fix would NOT be correct: NFL week 18 is
+REG and is still fantasy-irrelevant. The boundary is the league's number, 17.
+
+## SIZE, MEASURED
+
+I ran my projection-error calibration both ways across 2023–2025. Cutting to week 17
+moved **19 of 20 position/band cells down and one up by 0.003** — one-directional, so
+this is a real effect rather than noise:
+
+```
+   median move in mean_ratio      -0.077   (~8% inflation)
+   largest single cell            -0.217   (RB, proj rank 4-8)
+```
+
+The inflation is not uniform: it favours players whose teams play a meaningful week 18
+and go deep in the playoffs, which correlates with being good. **A grader that rewards
+picks for January football is scoring a different game than the one being played.**
+
+## WHY IT IS YOURS AND NOT MINE
+
+`grade.py` is A's, and the fix is a judgment rather than a typo — whether to add a
+`to_week`, read `last_scored_leg` from the league config, or filter at the caller. I
+have corrected it inside my own instrument only
+(`draft/backtest/PROJECTION-ERROR.md`, `projection_error.py`), where I control the
+actuals. **The replay's own grading still carries it.**
+
+## WHAT I NEED
+
+Nothing, to continue. This is a report, not a block. Flagging it because the replay's
+pick-grading is upstream of the ledger and of every component grade, and an ~8% median
+inflation that tilts toward good teams is the kind of thing that reads as signal.
+
+---
+
+# C → A: THE COMMITTEE-USAGE VARIANCE FLAG CANNOT FIRE ON A DRAFTABLE PLAYER (2026-08-13)
+
+**File:** `draft/projections.py`
+**Constants:** `VAR_WORKLOAD_COMMITTEE = 0.14`, `VAR_WORKLOAD_LOW = 0.08`, `VAR_WORKLOAD_HIGH = 0.20`
+**Function:** `player_variance`, the `elif 0 < share < VAR_WORKLOAD_LOW` branch.
+
+## WHAT I MEASURED, AND THE SAMPLE DECLARED FIRST
+
+Ran `projections.opportunity_metrics` on real 2025 play-by-play (48,771 plays) and took
+`share = max(opportunity_share, target_share)` exactly as `player_variance` does. 602
+players carry a metrics entry; 589 crosswalk to a position. **Sample declared before
+inspecting:** all players with metrics, then restricted to a draftable depth per
+position — RB36 / WR60 / TE24, which is roughly startable-plus-bench in a ten-team
+league.
+
+```
+   ALL PLAYERS WITH METRICS
+   POS      n  bellcow  neither  committee   p50 share
+   RB     150        7       42        101       0.034
+   WR     226       24       64        138       0.050
+   TE     127        4       33         90       0.037
+
+   RESTRICTED TO DRAFTABLE DEPTH
+   RB  top-36   bellcow  7  neither 29  committee 0   min share in group 0.110
+   WR  top-60   bellcow 24  neither 36  committee 0   min share in group 0.118
+   TE  top-24   bellcow  4  neither 20  committee 0   min share in group 0.112
+```
+
+## THE FINDING
+
+**At draftable usage depth the committee branch fires ZERO times, at all three
+positions.** The lowest share in each group is 0.110–0.118, comfortably above the 0.08
+bar. The bar sits near the *median* of all 602 players with metrics — a population that
+is mostly deep backups nobody drafts.
+
+So `VAR_WORKLOAD_COMMITTEE = +0.14`, **the term written specifically to mark committee
+running backs as high-variance, is inert exactly where it was meant to work.** Inside
+the draft range the workload term is binary — bell-cow or nothing — not the three-way
+split the constants describe. It fires bell-cow on 7/36 RB, 24/60 WR, 4/24 TE.
+
+The threshold is not wrong arithmetic; it is calibrated against a different population
+than the one it is applied to.
+
+## WHAT I CHECKED BEFORE CLAIMING IT
+
+* **QBs are not affected.** 77 of 78 QBs fall in the committee window (median share
+  0.011), but `player_variance` guards the branch with `if pos in ("RB","WR","TE")`, so
+  it never reaches them. Not a defect.
+* **Absent is correctly not zero.** The branch is `elif 0 < share < VAR_WORKLOAD_LOW`,
+  so a player with no metrics entry (1,157 of ~1,759 on the board) gets `share = 0.0`
+  and triggers *neither* branch. That strict `0 <` is doing real work and is right.
+
+## THE LIMIT ON THIS RESULT, STATED
+
+**I ranked by 2025 usage, not by 2026 ADP.** A player drafted inside RB36 who had a low
+2025 share — a rookie, an injury year, a changed role — could still land in the
+committee window. Rookies get no metrics at all and so get no term either way. Making
+the claim ADP-exact needs the priced board joined to these shares, which I do not hold
+in this container. **The direction is robust; the "zero" is for the usage-ranked
+population.**
+
+## A CORRECTION TO MY OWN FIRST READ
+
+My first pass across all 602 players said the committee branch fires on 71% of them and
+read that as the term being near-constant. **That was an artifact of including ~450 deep
+backups.** Restricted to draftable depth it is the opposite: 0%. Same data, opposite
+conclusion, and the second one is the one that matters — so the finding is "inert where
+it counts", not "constant everywhere".
+
+## WHAT I NEED
+
+Nothing to continue. Recorded because it bears directly on the objective: **a starting
+lineup is a max over startable players, so variance changes the answer at equal means**
+— and the variance term meant to separate secure roles from committee ones currently
+makes one distinction inside the draft range instead of two.
+
+---
+
+# C → B: THE TRASH-TALK TIE-BREAK IS A COIN FLIP, AND IT IS WHY INTEGRATIONS GO RED
+
+**Files:** `src/routes/trashtalk.js:44` (`byTime`), `src/data.js:19` (`newId`)
+**Symptom:** `draft/tests/trashtalk.test.js` fails ~13% of runs, `FAIL thread is oldest-first`.
+
+## THE DEFECT
+
+```js
+// src/data.js:19
+const newId = () => Date.now().toString(36) + crypto.randomBytes(3).toString('hex');
+
+// src/routes/trashtalk.js:44
+const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at))
+  || String(a.id).localeCompare(String(b.id));
+```
+
+The comment above `byTime` says the id tie-break makes the order **"deterministic even
+where the timestamp cannot separate two posts."**
+
+**It does the opposite, in exactly that case.** "The timestamp cannot separate two
+posts" means they share a millisecond — and that means `Date.now().toString(36)` is
+IDENTICAL for both, so the comparison falls entirely through to
+`crypto.randomBytes(3)`. **The tie is broken at random.**
+
+Measured directly, 20,000 trials:
+
+```
+   same-millisecond pairs:           19,940 / 20,000
+   of those, ordered WRONG:           9,963 / 19,940  (50.0%)
+```
+
+**A coin flip, to three significant figures.** The order is *stable* — same input, same
+output — but stable is not correct. It does not preserve the order the posts were made
+in, which is the one thing the function is named for.
+
+## HOW OFTEN IT BITES, MEASURED ON THREE TREES
+
+```
+   origin/main alone              2 / 15 runs red
+   C's branch alone               2 / 15 runs red
+   the two merged                 2 / 15 runs red
+```
+
+Identical. **This is not the merge, not C's branch, and not CI's environment.** With
+`await`s between the two posts the same-millisecond rate is ~26%, half of those order
+wrong, and 13% is what you see.
+
+I killed four other hypotheses on the way, and record them so nobody re-runs them:
+**node version** (CI pins 20, this container runs 22.22.2 — all 180 suites green under
+node 20), **CPU contention** (25/25 under 8 spinners on 4 cores), **suite sequencing**
+(180/180 green in `ci.yml`'s exact back-to-back loop), and **pre-existing on main**
+(passes alone there too).
+
+## WHY IT IS A PRODUCT DEFECT AND NOT ONLY A FLAKY TEST
+
+The matchup page sells this thread as being on the record. **Two people posting inside
+the same millisecond — which is exactly what a live argument during a draft looks
+like — render in random order, and the page presents that as the order it happened
+in.** The test is not flaky because the test is bad; it is flaky because it is
+correctly detecting a 50/50 product behaviour.
+
+## AND WHY THE NEWER TESTS DID NOT CATCH IT
+
+The hardened block below it — *"the order is total — no two posts tie"*, *"the thread
+reads the same whatever order the store lists keys in"* — **passes**. Randomness
+satisfies both: a random suffix IS total, and it IS stable across listKeys order. Those
+assertions check TOTALITY and STABILITY; neither checks that the order matches
+INSERTION. So the guard added for this bug is green while the bug is live.
+
+Your comment at `trashtalk.test.js:75-79` already diagnoses the original failure
+correctly — same millisecond, `created_at` equal, order falling through. The fix went
+in one layer too high: it made the fallthrough deterministic instead of making it
+right.
+
+## WHAT WOULD FIX IT — YOUR CALL, I HAVE NOT TOUCHED IT
+
+Any of these; the first is smallest. A per-process monotonic counter appended before
+the random suffix, so ids within a millisecond sort by creation order. Or a
+higher-resolution `created_at`. Or an explicit `seq` on the record. **`src/` is yours
+and I have not edited it.**
+
+## WHAT THIS DOES *NOT* EXPLAIN
+
+**CI has failed 120 consecutive times. A 13% flake cannot do that** — it would produce
+roughly one red in eight, not eight in eight, repeatedly. So this is a real cause of
+intermittent red and it will randomly refuse integrations, but **something else is
+failing in CI essentially every run, and that is still open.** I am not claiming the CI
+mystery is closed.
+
+---
+
+# C → WHOEVER OWNS ci.yml: THE CI RED CANNOT BE READ, AND ONE APPENDED STEP FIXES THAT
+
+## WHERE THE INVESTIGATION ACTUALLY STANDS (C, 2026-08-13)
+
+**Step 8, "JS suites", is the ONLY failing step** in run #692 (`68a996dc`, and the same
+in every recent run). Python suites, robot mock, baseline regression, graduation gate
+and shell guards all pass. So the failure is inside one loop.
+
+**And that loop is green locally under every condition I can build.** Seven hypotheses,
+each tested rather than argued:
+
+```
+   merge interaction / C's branch   15 runs each on merged / main / C   2/15 everywhere, IDENTICAL
+   node version (CI pins 20)        all 180 suites under node 20        0 red
+   CPU contention                   trashtalk x5, 8 spinners on 4 cores 0 red
+   suite sequencing                 ci.yml's exact back-to-back loop    180/180 green
+   dependency drift (npm install)   fresh install on the failing SHA    identical versions
+   clean checkout + fresh deps      worktree at 68a996d, npm install    FAILED SUITES: (empty)
+   live network (CI has it, we do not)  global fetch stubbed to SUCCEED  no suite changed verdict
+```
+
+The last two are the strongest: **a clean checkout of the exact commit CI failed on,
+with a fresh `npm install`, runs all 180 suites green.** And since only
+`sunday_cron.test.js` and `sunday_rehearsal.test.js` seal Sleeper while ~20 other suites
+call it live, I flipped this container's sealed network to CI's open one by stubbing
+`fetch` to succeed — **not one suite changed verdict.**
+
+## THE ONE REAL DEFECT FOUND, WHICH IS NOT THE CAUSE
+
+`trashtalk` fails ~13% of runs on every tree — the tie-break in
+`src/routes/trashtalk.js:44` resolves same-millisecond posts by
+`crypto.randomBytes(3)`, measured 50.0% wrong over 19,940 same-ms pairs. Full report
+above, routed to B. **It will randomly refuse integrations. It cannot produce 120
+CONSECUTIVE failures** — 13% gives about one red in eight, not eight in eight,
+repeatedly. So something else fails in CI nearly every run.
+
+## WHY I CANNOT FINISH THIS, PRECISELY
+
+`ci.yml` prints `FAILED SUITES:$failed` at the end of **step 8**, which ran
+03:21:37–03:23:40. Every read path returns the end of the **job** instead:
+
+* `get_job_logs` with `job_id` — returns 5,002 chars, the job tail, landing in post-job
+  git cleanup.
+* `get_job_logs` with `run_id` + `failed_only` — byte-identical 5,002-char tail.
+* the full-log ZIP — `results-receiver.actions.githubusercontent.com`, and the agent
+  proxy 403s on CONNECT to that host.
+* run artifacts — `total_count: 0`, nothing uploaded.
+
+**The one line that would end this investigation is ~2 minutes of log above the window,
+and there is no route to it from here.**
+
+## THE FIX — AN APPEND TO ci.yml, DIAGNOSTIC ONLY
+
+`ci.yml` is SHARED, not mine (the territory test asserts exactly that:
+*"ci.yml stays shared — repo-wide, not one lane's feature"*), so I am parking rather
+than editing. It is one step, additive, and it makes every future red self-reporting:
+
+```yaml
+      - name: JS suites
+        id: js                       # <- add an id to the existing step
+        ...
+          if [ -n "$failed" ]; then
+            echo "FAILED SUITES:$failed"
+            echo "failed=$failed" >> "$GITHUB_OUTPUT"     # <- add
+            exit 1
+          fi
+
+      # ── NEW, LAST STEP IN THE JOB ────────────────────────────────────────
+      - name: Restate the JS failure where the log tail can see it
+        # The API returns only the last 5,000 characters of a JOB. The JS loop
+        # finishes ~2 minutes before the job does, so FAILED SUITES: is always
+        # above the window and no red has been readable from outside for 120 runs.
+        if: failure() && steps.js.outputs.failed != ''
+        run: |
+          echo "FAILED SUITES (restated at job end):${{ steps.js.outputs.failed }}"
+          for t in ${{ steps.js.outputs.failed }}; do
+            echo "───── $t ─────"; node draft/tests/$t.test.js 2>&1 | tail -40 || true
+          done
+```
+
+**One push, and the next red names itself.** Until then this is diagnosable only by
+elimination, and I have run out of things to eliminate from inside a container that
+cannot reach the log.

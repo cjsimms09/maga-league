@@ -240,10 +240,18 @@ def test_the_ENTIRE_PATH_produces_a_graded_observation_with_nothing_HAND_MADE():
     rows, _ = A.draft_picks(draft)
     cw = [dict(r, player_id="S%d" % r["overall"], matched_by="name") for r in rows]
 
+    # THE TWO NAMESPACES ARE DELIBERATELY DIFFERENT, and that is the whole point of
+    # this fixture now. It used to generate the crosswalk and the ADP snapshot from
+    # the same `S%d` counter, so picks and board shared a keyspace BY CONSTRUCTION —
+    # and the one test written to catch "picks carrying MFL's id where the replay
+    # reads ours" could not see the same defect one seam over, on the ADP side,
+    # where it had actually shipped. Rule 10d: a derived fixture stops exercising
+    # its case. The archive is keyed as MFL keys it and is translated on the way in.
     series = CAP.append_snapshot([], "2025", "2025-08-20",
-                                 {"S%d" % i: float(i) for i in range(1, 81)},
+                                 {str(13000 + i): float(i) for i in range(1, 81)},
                                  total_drafts=500)
-    snaps = CAP.as_store_snapshots(series, "2025")
+    snaps = CAP.as_store_snapshots(series, "2025",
+                                   {str(13000 + i): "S%d" % i for i in range(1, 81)})
     draft_at = A.to_league_record(league, rules, draft, league_id="L1")["draft_at"]
     store = ExternalAsOfStore("L1", draft_at, snaps, policy_fingerprint())
 

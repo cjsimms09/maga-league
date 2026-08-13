@@ -21,6 +21,18 @@ import external_adp_capture as C  # noqa: E402
 import external_replay as X  # noqa: E402
 
 
+def SAME_NAMESPACE(series):
+    """An identity id map, written out at every call site that wants one.
+
+    There is deliberately no default inside `as_store_snapshots`. These fixtures
+    key their snapshots with OUR ids, which is a real and legitimate case — but it
+    is an ASSUMPTION, and it was the assumption that hid the shipped defect for two
+    days. Naming it here means a reader sees the claim being made instead of
+    inheriting it from a default.
+    """
+    return {pid: pid for s in series for pid in (s.get("rows") or {})}
+
+
 def rows(n=5, base=1.0):
     return {str(100 + i): base + i for i in range(n)}
 
@@ -77,7 +89,8 @@ def test_the_series_feeds_ExternalAsOfStore_DIRECTLY():
     empty board without erroring."""
     s = C.append_snapshot([], 2026, "2026-08-09", {"100": 1.0, "101": 2.0})
     s = C.append_snapshot(s, 2026, "2026-08-10", {"100": 1.5, "101": 2.5})
-    store = X.ExternalAsOfStore("L1", "2026-08-12", C.as_store_snapshots(s, 2026), "fp")
+    store = X.ExternalAsOfStore("L1", "2026-08-12",
+                                C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s)), "fp")
     board = store.board()
     assert {r["player_id"] for r in board} == {"100", "101"}
     assert store.snapshot_date().isoformat() == "2026-08-10"
@@ -106,14 +119,16 @@ def test_F5s_strictly_before_rule_is_NOT_reimplemented_here():
         "is ExternalAsOfStore's job and would be a second implementation of F5")
     s = C.append_snapshot([], 2026, "2026-08-09", rows(2))
     s = C.append_snapshot(s, 2026, "2026-08-20", rows(2))
-    assert len(C.as_store_snapshots(s, 2026)) == 2, "the store must see BOTH and pick"
+    assert len(C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s))) == 2, (
+        "the store must see BOTH and pick")
 
 
 def test_a_snapshot_ON_the_draft_date_is_still_refused_downstream():
     """The capture must not weaken F5 by handing over a same-day board. The store
     refuses it; this asserts the pair actually behaves that way end to end."""
     s = C.append_snapshot([], 2026, "2026-08-12", rows(2))
-    store = X.ExternalAsOfStore("L1", "2026-08-12", C.as_store_snapshots(s, 2026), "fp")
+    store = X.ExternalAsOfStore("L1", "2026-08-12",
+                                C.as_store_snapshots(s, 2026, SAME_NAMESPACE(s)), "fp")
     from asof import TimeTravelError
     try:
         store.board()
@@ -371,7 +386,8 @@ def test_the_readers_accept_the_ARCHIVE_FILE_as_written_to_disk():
     the shape the live path does not have."""
     ser = C.append_snapshot([], "2026", "2026-08-11", {"1": 2.5, "2": 3.0}, total_drafts=115)
     archive = {"_note": "whatever this file says about itself", "series": ser}
-    assert C.as_store_snapshots(archive, "2026") == C.as_store_snapshots(ser, "2026")
+    assert (C.as_store_snapshots(archive, "2026", SAME_NAMESPACE(ser))
+            == C.as_store_snapshots(ser, "2026", SAME_NAMESPACE(ser)))
     assert C.coverage(archive, "2026") == C.coverage(ser, "2026")
     assert C.coverage(archive, "2026")["snapshots"] == 1
 
@@ -382,12 +398,12 @@ def test_a_shape_the_reader_does_not_understand_RAISES_rather_than_reading_EMPTY
     one about the archive, and nothing anywhere would contradict it."""
     import pytest
     with pytest.raises(TypeError) as e:
-        C.as_store_snapshots("draft/data/external_adp_series.json", "2026")
+        C.as_store_snapshots("draft/data/external_adp_series.json", "2026", {})
     assert "statement about the leagues" in str(e.value)
 
 
 def test_None_is_still_an_empty_series_because_that_is_a_real_caller():
-    assert C.as_store_snapshots(None, "2026") == []
+    assert C.as_store_snapshots(None, "2026", {}) == []
     assert C.coverage(None, "2026")["snapshots"] == 0
 
 
@@ -655,3 +671,225 @@ def test_an_UNCOUNTABLE_archive_says_so_rather_than_inventing_a_figure():
     alarm built to announce the opposite."""
     m = C.resume_alarm(None, None)
     assert "cannot say how many days" in m and "0" not in m
+
+
+# ── THE NAMESPACE SEAM: whose id is under `player_id`? ──────────────────────
+# These two exist because the archive shipped for two days emitting MFL's OWN
+# player ids under the key `player_id`, which every consumer downstream reads as
+# OUR sleeper id. Measured on the real 2026-08-12 capture: 15 of 708 ids collide
+# numerically with a board id and ALL FIFTEEN are false matches (MFL's #1 overall
+# resolves to a fourth-string college tight end). The two tests above could not
+# see it — one asserts the emitted KEY NAMES, the other asserts ids in == ids
+# out. Neither asks what namespace the value is in.
+def test_as_store_snapshots_REFUSES_to_label_a_foreign_id_as_OUR_player_id():
+    """MUTATION: let `ids` default to a pass-through. That is exactly the shipped
+    defect — the source's key travels under our field name, every downstream join
+    silently misses, and nothing raises because a dict lookup that finds nothing
+    is a normal dict lookup."""
+    s = C.append_snapshot([], 2026, "2026-08-09", {"13589": 2.6, "16161": 3.8})
+    try:
+        C.as_store_snapshots(s, 2026)
+    except TypeError:
+        pass                      # the signature itself refuses — acceptable
+    except ValueError as e:
+        assert "id" in str(e).lower()
+    else:
+        raise AssertionError(
+            "as_store_snapshots handed over rows without being told whose ids they "
+            "are — the shipped defect, and it cannot be caught downstream because "
+            "a miss looks identical to a player who was simply never drafted")
+
+
+def test_a_DRAFTED_player_is_actually_REMOVED_from_the_replay_board():
+    """THE CONSEQUENCE, asserted where it bites rather than at the seam.
+
+    MUTATION: give the archive ids from a different namespace than the picks —
+    which is what the live path did. `taken` fills with OUR ids while the board is
+    keyed by MFL's, so `i not in taken` is ALWAYS true and the available set NEVER
+    SHRINKS. Every player stays draftable for the whole replay and the baseline is
+    graded against a board where nobody was ever picked. It does not raise, it does
+    not empty, it just quietly grades a fiction.
+
+    The whole-chain test in test_survival_grade.py cannot catch this: it builds the
+    crosswalk and the snapshot from the same `S%d` generator, so the two namespaces
+    are identical BY CONSTRUCTION. Rule 10d, on the one guard written for this class.
+    """
+    import external_replay_run as RR
+    picks = [{"overall": i, "round": (i - 1) // 10 + 1, "team": "T%d" % ((i - 1) % 10 + 1),
+              "player_id": "S%d" % i, "timestamp": 1756141200 + i * 600}
+             for i in range(1, 31)]
+    rec = {"league_id": "L1", "draft_at": "2025-08-25", "draft": {"picks": picks}}
+    src = {str(13000 + i): float(i) for i in range(1, 81)}        # MFL's ids
+    ours = {str(13000 + i): "S%d" % i for i in range(1, 81)}      # the decode key
+    s = C.append_snapshot([], 2025, "2025-08-20", src, total_drafts=500)
+    store = X.ExternalAsOfStore("L1", "2025-08-25", C.as_store_snapshots(s, 2025, ours), "fp")
+    board = store.board()
+    ctx = RR.decision_contexts(rec, board)
+    avail = [len(c["context"]["available"]) for c in (ctx[0], ctx[14], ctx[29])]
+    assert avail == [80, 66, 51], (
+        "the available set must shrink by one per pick; got %s. If it is flat at "
+        "the board size, the board's ids and the picks' ids are in different "
+        "namespaces and nobody is ever removed." % avail)
+
+
+# ── THE DECODE KEY: an archive of ids nobody can resolve is not evidence ────
+def test_the_players_map_KEEPS_an_id_that_todays_fetch_no_longer_returns():
+    """The archive is append-only because the days are perishable; the DECODE KEY
+    for those days is perishable in exactly the same way and was not being kept at
+    all. MUTATION: let today's fetch replace the map. A player who falls off MFL's
+    ADP board takes his own name with him, and every earlier day that priced him
+    becomes a number against an id nothing can resolve."""
+    old = {"13589": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    new = {"16161": {"name": "Bijan Robinson", "position": "RB", "team": "ATL"}}
+    m = C.merge_players(old, new)
+    assert set(m) == {"13589", "16161"}
+    assert m["13589"]["name"] == "Ja'Marr Chase"
+
+
+def test_a_BLANK_incoming_row_does_not_ERASE_a_name_we_already_hold():
+    """MUTATION: let the incoming record win unconditionally. One day of MFL
+    serving `name: ""` blanks the archive's only copy of who these ids are, and
+    `population` would still report the field 100% PRESENT because the key is
+    there. Absent is not zero, and neither is empty."""
+    old = {"1": {"name": "Bijan Robinson", "position": "RB", "team": "ATL"}}
+    new = {"1": {"name": "", "position": None, "team": "ATL"}}
+    m = C.merge_players(old, new)
+    assert m["1"]["name"] == "Bijan Robinson"
+    assert m["1"]["position"] == "RB"
+    assert m["1"]["team"] == "ATL"
+
+
+def test_save_WITHOUT_a_players_map_does_not_wipe_the_one_on_disk(tmp_path):
+    """MUTATION: write the file from the arguments alone. `save(series)` is called
+    from more than one place, and the first caller that does not happen to hold the
+    decode key silently deletes it for every day already archived. The file still
+    looks complete — dates, rows, coverage all present."""
+    p = tmp_path / "a.json"
+    C.save(C.append_snapshot([], 2026, "2026-08-11", {"13589": 2.6}),
+           path=str(p), players={"13589": {"name": "Ja'Marr Chase",
+                                           "position": "WR", "team": "CIN"}})
+    C.save(C.append_snapshot(C.load(str(p)), 2026, "2026-08-12", {"13589": 2.5}),
+           path=str(p))                       # no players argument at all
+    d = json.loads(p.read_text())
+    assert d["players"]["13589"]["name"] == "Ja'Marr Chase", (
+        "the decode key was dropped by a save that simply did not mention it")
+    assert len(d["series"]) == 2
+
+
+def test_the_archive_can_be_CROSSWALKED_without_asking_the_source_again():
+    """THE POINT OF STORING NAMES AT ALL. MUTATION: build the id map from a live
+    fetch instead of from the archive. The archive then decodes only while MFL is
+    up and still serving 2026 — which is precisely the window the archive exists
+    to outlive."""
+    p_map = {"13589": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+             "99999": {"name": "Nobody At All", "position": "WR", "team": "FA"}}
+    board = [{"player_id": "4034", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
+    ids, report = C.crosswalk_map(p_map, board)
+    assert ids == {"13589": "4034"}
+    assert report["crosswalked"] == 1 and report["no_sleeper_match"] == 1
+    assert "Nobody At All" in str(report["unmatched_sample"])
+
+
+def test_an_MFL_TEAM_UNIT_never_crosswalks_onto_our_team_DEFENCE():
+    """MUTATION — AND I WROTE IT BEFORE I CAUGHT IT. The first cut of
+    `crosswalk_map` called `adp.match_player` directly, reasoning that reusing the
+    authoritative matcher was enough. It is not: the team-unit refusal lives in the
+    authoritative CALLER. MFL prints a team unit as "Bills, Buffalo", which
+    normalizes to "Buffalo Bills", which is exactly what our Buffalo DEF is called —
+    so the name matches, a real board id comes back, and nothing errors. Measured on
+    the real run before this guard existed: TMQB -> DEF 65 times, TMPK -> DEF 38."""
+    p_map = {"0518": {"name": "Bills, Buffalo", "position": "TMQB", "team": "BUF"}}
+    board = [{"player_id": "BUF", "name": "Buffalo Bills", "position": "DEF", "team": "BUF"}]
+    ids, report = C.crosswalk_map(p_map, board)
+    assert ids == {}, "an MFL team unit matched our DEF on name — it is not a player"
+    assert "team_unit_not_a_player" in str(report["unmatched_sample"])
+
+
+# ── PROVENANCE: the archive must record WHICH MARKET priced these players ───
+def test_a_snapshot_RECORDS_THE_MARKET_IT_CAME_FROM():
+    """MEASURED, AND THIS IS WHY IT MATTERS. `fetch_mfl` builds
+    `note = "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"`, hands it to `capture()` — and it
+    was thrown away. The archive stored PRICES WITH NO RECORD OF THE FORMAT THAT
+    PRODUCED THEM, which is the decode-key defect one layer up: bytes nobody can
+    interpret later.
+
+    It is not hypothetical. This pool is superflex-contaminated: against FantasyPros
+    on the same players, the median MFL/FPROS ADP ratio is 0.98 at TE, 1.01 at DEF —
+    and 0.514 at QB, ranging 0.12 to 0.77 and varying systematically with rank, so
+    no scalar correction repairs it. A grader reading this archive as F5 evidence in
+    2027 would price quarterbacks off a superflex market and have nothing in the
+    file to warn them.
+
+    MUTATION: drop the field. Every snapshot still looks complete — date, rows,
+    row_count, total_drafts all present — and the one fact that makes the prices
+    interpretable is gone."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 2.0}, total_drafts=119,
+                          source_note="mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12")
+    assert s[0]["source_note"] == "mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12"
+    assert "source_note" in C.SNAPSHOT_FIELDS, (
+        "declared, not derived — a field that stops being written must show up as "
+        "empty in the population record rather than silently ceasing to exist")
+
+
+def test_a_run_whose_PLAYERS_EXPORT_FAILED_says_so_IN_THE_ARCHIVE():
+    """`fetch_mfl` deliberately keeps the day's ADP when the players export 403s,
+    because the curve is perishable and names are not. But that run produces a
+    snapshot whose ids may be undecodable, and until now the only trace was a line
+    in a CI log that expires. MUTATION: keep the ADP and record nothing — the
+    degraded day is indistinguishable from a clean one forever after."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 2.0},
+                          source_note="mfl PERIOD=DRAFT (players export FAILED this run)")
+    assert "FAILED" in s[0]["source_note"]
+
+
+def test_the_two_days_captured_BEFORE_provenance_read_as_ABSENT_not_clean():
+    """The archive is append-only, so the first two days genuinely have no note.
+    They must read as MISSING in the population record — not be back-filled with a
+    guess, and not be silently omitted from the count. Absent is not zero."""
+    old = C.append_snapshot([], 2026, "2026-08-11", {"1": 1.0}, total_drafts=115)
+    new = C.append_snapshot(old, 2026, "2026-08-13", {"1": 2.0}, total_drafts=119,
+                            source_note="mfl PERIOD=DRAFT IS_PPR=1 FCOUNT=12")
+    pop = __import__("field_population").of_records(new, fields=C.SNAPSHOT_FIELDS)
+    f = pop["fields"]["source_note"]
+    assert f["present"] == 1 and (f["missing"] + f["null"]) == 1, f
+
+
+# ── DISPERSION TRAVELS WITH THE DAY (A, 2026-08-13) ─────────────────────────
+#
+# 83% of the priced board carries one of two adp_sd values, because `adp.fitted_sd`
+# saturates at 15.00 for every player at adp >= 100 and the search_rank fallback
+# yields exactly 30.00 for its whole population by construction. A clamp that
+# saturates in both directions carries no player-specific information, and adp_sd
+# drives survival, which drives VONA.
+#
+# MFL publishes minPick/maxPick/draftSelPct. `mfl_adp.parse` now keeps them; this
+# is the other half — the archive has to STORE them, or the fix survives one
+# process and dies. A spread is a fact about a day, exactly as perishable as the
+# mean beside it.
+
+def test_a_snapshot_CARRIES_dispersion_beside_the_mean():
+    """MUTATION: store rows only. The clamp stays the only available sd forever,
+    because a day's spread cannot be re-fetched once the day has passed."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 10.5, "2": 20.0},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 40, "sel_pct": 70.0}})
+    assert s[0]["rows"]["1"] == 10.5
+    assert s[0]["dispersion"]["1"]["min_pick"] == 2
+    assert s[0]["dispersion"]["1"]["max_pick"] == 40
+
+
+def test_a_snapshot_with_NO_dispersion_says_so_rather_than_faking_it():
+    """The two days already archived (2026-08-11, -12) genuinely have none — the
+    parser was discarding it. They must read as ABSENT, not as zero spread.
+    MUTATION: default to {} silently and let a reader treat the gap as measured."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 10.5})
+    assert s[0]["dispersion"] is None, "absent, not an empty measurement"
+
+
+def test_dispersion_does_not_disturb_the_row_shape_consumers_read():
+    """`as_store_snapshots` and the replay read `rows` as {id: adp}. MUTATION:
+    fold dispersion into rows — every consumer starts sorting on a dict."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 10.5},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 40}})
+    assert s[0]["rows"] == {"1": 10.5}
+    out = C.as_store_snapshots(s, 2026, {"1": "sleeper1"})
+    assert out[0]["rows"] == [{"player_id": "sleeper1", "adp": 10.5}]

@@ -192,6 +192,25 @@ c_owns() {
     # or ownership derives from a declaration inside the file. Recorded in
     # TERRITORY.md rather than solved here.
     draft/backtest/within_pool_adp*) return 0 ;;
+    # ── A DELIBERATE BOUNDARY REDRAW, NOT A FIFTH SHORT-LIST PATCH ──────────
+    #
+    # Cory, 2026-08-12, authorising BY EXACT FILENAME: `survival_grade.py` is C's.
+    # This SUPERSEDES the 2026-08-11 ruling recorded in TERRITORY.md, which put it
+    # in A's lane on the reasoning that grading is "deciding what the data means".
+    # That ruling also said: if a correctly-firing guard is overridden repeatedly,
+    # the split is drawn in the wrong place and the answer is to REDRAW it
+    # deliberately. This is that redraw, taken instead of spending override #2 of
+    # the three the ruling allows — the count stays at ONE.
+    #
+    # NOT `survival*`, AND THE GUARD'S OWN COMMENT BELOW SAYS WHY: two of A's JS
+    # tests are `survival-memo.test.js` and `survival_honesty.test.js`, so a prefix
+    # here would silently hand C files in A's lane. A prefix rule that catches the
+    # wrong lane is the same defect class this file keeps finding — a name that
+    # looks like ownership and is not. Exact filename, one line, no reach.
+    #
+    # `test_survival_grade.py` needs NO entry: the derivation below asks who owns
+    # `survival_grade.py` and now answers C. Derived, not listed.
+    draft/backtest/survival_grade.py) return 0 ;;
     # ── A TEST FILE FOLLOWS ITS MODULE ──────────────────────────────────────
     #
     # Cory's ruling, 2026-08-11, after `draft/tests/test_external_outcomes.py`
