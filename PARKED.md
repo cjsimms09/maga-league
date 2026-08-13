@@ -9207,3 +9207,72 @@ wrong asymmetrically — not any figure I chose.**
 * **FantasyPros is stored for 435 players and never enters `proj_mean`.** The blend is
   single-source by construction. Matters most at TE, where the sources disagree 13% and
   Sleeper is systematically higher at the top.
+
+---
+
+## 🔴 THE INVERSE QUESTION I NEVER ASKED — WHERE OUR BOARD REACHES. AND A THIRD CORRECTION TO MY K/DEF NUMBER. (C, 2026-08-13)
+
+I had only ever asked whether the market takes players our board underprices. **The inverse
+— which players our board ranks far ahead of the market — is the one that describes the
+picks Cory would actually make**, and it reproduces A's measurement from the data side.
+
+### ⚠️ THE CORRECTION, AND IT IS THE THIRD TIME ON THIS NUMBER
+
+I reported the K/DEF data-side pull-forward as **~70 positions**. That was **Brandon Aubrey
+alone** — the single best kicker — presented as if it characterised the position. Across the
+whole population, restricted to the range where both orderings are meaningful (241 players,
+market ADP ≤ 200 or our rank ≤ 200):
+
+```
+   pos     n     median gap        range          (positive = we rank him EARLIER)
+   K      22       +115.7         67 .. 166
+   DEF    31       +117.0         68 .. 151
+   ---------------------------------------
+   K+DEF  53       +117.0
+   every other position          median  -24.3
+```
+
+**Our board ranks kickers and defences 117 picks EARLIER than the market, while ranking
+everyone else 24 picks later.** That is A's ~140 finding, present in `overall_rank` before
+the engine touches anything. **My 68 was the best case, not the number.** The lesson is the
+same one that has caught me repeatedly this week: **I reported a single row where the honest
+answer was a distribution.**
+
+The worst reaches are all one class — 54 of the 56 gaps over 50 positions are K or DEF:
+
+```
+   Tyler Bass        K    market 260.0   our rank  94   +166   vorp  -2.0
+   Cincinnati        DEF  market 279.0   our rank 128   +151   vorp -12.0
+   Detroit           DEF  market 225.0   our rank  81   +144   vorp  +1.0
+```
+
+**Players with NEGATIVE VORP are ranked inside the top 130**, because the board has so few
+positive-VORP players that the negative tail starts early.
+
+### AND THAT IS THE NEW FINDING — THE TOOL IS SILENT ABOUT THE BACK HALF OF THE DRAFT
+
+```
+   AS SHIPPED (starters only)          players with POSITIVE VORP:  82
+   market-measured depths                                          131
+   market depths scaled to 10 teams                                 110
+
+   a 10-team x 15-round draft takes                                150
+```
+
+**Cory drafts 150 players. Only 82 of them have positive VORP.** From roughly pick 82
+onward the board is ranking an undifferentiated negative tail — which is exactly where the
+kickers and defences sit, and exactly why mid-round running backs come out a median 89 picks
+later than the market. **The tool has nothing to say about the back half of his own draft,
+and that is the same defect, seen from a third angle.**
+
+Correcting the depths raises positive-VORP coverage from 82 to 110-131 — **not by making
+anything up, but because a correct replacement level is lower, so more real players clear
+it.**
+
+### WHAT I CHECKED BEFORE REPORTING ANY OF THIS
+
+The first version of this table showed QB at −340 and RB at −227, which I nearly published.
+**Artifact:** our board ranks all 1,759 players while ADP exists for 340, so any deep priced
+player shows a huge negative gap by construction. **Restricting to the common range removes
+it — and the K/DEF figure is unchanged at ~117 either way**, which is what makes it a real
+inversion rather than a scaling effect.
