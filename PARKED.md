@@ -9825,3 +9825,76 @@ Pearsall is the proof that they are not the same thing.
 
 **Captured now because it is perishable** — after week one the projections update and nobody
 can reconstruct who was unprojected in August.
+
+---
+
+# 🎯 ITEM 1 DELIVERED — **REAL WEEKLY VARIANCE, MEASURED, WITH STATUS.** (C, 2026-08-13)
+
+`draft/backtest/nflverse_variance.py` + 8 tests. **`nflverse*` is C's by exact prefix**, so
+this is mine to build and A's to call. **I have not touched `build_bundle.py` or
+`projections.py`.**
+
+```python
+from nflverse_variance import weekly_variance
+sd, report = weekly_variance(weekly_df, prior_seasons, cfg["scoring"], crosswalk,
+                             before_season=season, position_prior=..., games_expected=...)
+# sd[our_id] -> {weekly_sd, season_sd, mean_points, games, status, basis}
+```
+
+**PRODUCTION DERIVES THIS BACKWARDS AND THAT IS THE WHOLE FIX.** `projections.py` computes
+`weekly_sd = season_sd / sqrt(games)` where `season_sd = mean x a heuristic` — so the "weekly
+spread" is a restatement of the mean. **This inverts it: measure the weekly spread from
+realized scoring, then `season_sd = weekly_sd * sqrt(games)`.** Same bridge, run the correct
+way round.
+
+**It needs nothing new.** `build()` already receives `weekly_df` and already scores it in
+`weekly_points_by_season`; this reuses `grade.nflverse_weekly_to_scoring` and
+`scoring.score_stat_line` rather than deriving a second time — **so it scores with OUR table,
+never a provider's `fantasy_points`, which encode a different league's rules.**
+
+## AND IT ANSWERS ITEM 4 AT THE SAME TIME — STATUS PER PLAYER
+
+```
+   measured       enough games for a real spread          weekly_sd, season_sd: numbers
+   imputed        too few games; a POSITION PRIOR, named  weekly_sd, season_sd: numbers
+   unmeasurable   no basis at all                         weekly_sd, season_sd: None
+```
+
+**`None`, never 0.0, and this is the guard that matters most.** A variance of zero does not
+mean "no information" — **it means PERFECTLY CERTAIN.** A player with one game, written as
+`sd 0.0`, gets a ceiling equal to his mean and a risk term of nothing, and reads as **the
+safest pick on the board.** That is the 1,183-at-−172.7 defect wearing a different coat:
+absence rendered as a confident number. **A consumer pricing off `None` raises and notices;
+one pricing off `0.0` proceeds.**
+
+**Both guards mutation-verified to fail by name:** emitting `0.0 / "measured"` for a one-game
+player fails `test_ONE_GAME_is_UNMEASURABLE_not_zero_variance`; scaling by `games` instead of
+its root fails `test_season_sd_scales_the_weekly_sd_BY_ROOT_GAMES`.
+
+## WHY THIS UNBLOCKS THE TWO DEAD WEIGHTS
+
+The fixture that proves it: **two players, identical season totals, different week-to-week
+spread.** Under `0.25 x mean` they are the same number and no experiment can separate them —
+which is why `ceiling: 0` is UNMEASURED rather than measured. Under this, one has
+`weekly_sd 0` and the other `> 5`. **The ceiling term becomes separable from value, and risk
+stops being PARTIAL for want of a spread.**
+
+And it is the field the objective actually needs: **a starting lineup is a MAX over startable
+players, so variance changes the answer at equal means.** With a synthetic sd the model was
+not estimating its own objective.
+
+## WHERE THE REST OF THE BRIEF STANDS
+
+* **Item 2, weekly realized points** — the same `weekly_df` already carries them, scored by
+  our table. What is missing is not the data but a *stored, stamped* series; that is D3's
+  shape and it is next.
+* **Item 3, projection-vs-actual by position and ADP band** — needs item 2's store plus the
+  August board. **The August snapshot I captured this morning is exactly the frozen belief
+  that grade compares against**, so the two fit together.
+* **Item 5, Pearsall** — cause found and reported: `injury_status: 'IR'`, Sleeper returning a
+  zero row rather than omitting him, so `_rank_fallback` could not fire. **Not an ingest
+  defect**, and the honest number for an IR stash is a *status*, not a projection.
+* **Item 6, byes** — `bye` is already on every player; nothing structural consumes it. That
+  is a consumer-side gap, and the join key it needs is the one already there.
+
+**1,497 Python tests green. Territory clean.**
