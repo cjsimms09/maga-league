@@ -120,6 +120,45 @@ def _standings(rosters: list) -> list:
     return rows
 
 
+def _slot_map(fetched, picks):
+    """`(map, basis)` — the seat map, READ if Sleeper served one and DERIVED if not.
+
+    ROUND ONE IS THE SEAT MAP: before a snake turns, pick N of round 1 is seat N.
+    C verified that on all four stored drafts rather than assuming it — each has
+    exactly ten round-1 picks over TEN DISTINCT rosters, and roster 1 lands at
+    seat 5 / 6 / 5 / 4 across 2023-main, 2024, 2023-keeper and 2025, matching an
+    independent derivation. Agreement between two routes is why this is trusted;
+    a single route that merely looked plausible would not be.
+
+    TWO THINGS THIS REFUSES TO DO, both C's conditions and both right.
+
+    IT LABELS THE BASIS. A fetched map and a reconstructed one are different
+    evidence and this artifact is read years later, so the caller stores which
+    one it got. A derived map that reads as a fetched one is the same defect as a
+    predicted keeper rendered as a confirmed one.
+
+    IT RETURNS `{}` RATHER THAN A PARTIAL MAP when round 1 repeats a roster. A
+    repeat means pick order is NOT seat order in that draft — a traded pick, an
+    odd format — and a map built from it binds manager profiles to the WRONG
+    chairs while looking complete. Wrong-and-complete is worse than absent, and
+    absent now carries a reason instead of an empty dict.
+    """
+    if fetched:
+        return dict(fetched), "sleeper"
+    r1 = [p for p in (picks or []) if p.get("round") == 1
+          and p.get("pick_no") is not None and p.get("roster_id") is not None]
+    if not r1:
+        return {}, "unavailable: no round-1 picks to derive a seat map from"
+    rosters = [p["roster_id"] for p in r1]
+    if len(set(rosters)) != len(rosters):
+        return {}, ("unavailable: round 1 repeats a roster (%d picks, %d distinct) "
+                    "— pick order is not seat order in this draft"
+                    % (len(r1), len(set(rosters))))
+    return ({str(p["pick_no"]): p["roster_id"]
+             for p in sorted(r1, key=lambda q: q["pick_no"])},
+            "derived: round-1 pick order (Sleeper served none for this draft)")
+
+
 def export_season(lg: dict, *, gaps: list) -> dict:
     """One season, fully hydrated. Appends to `gaps` rather than raising."""
     league_id = lg["league_id"]
@@ -189,12 +228,27 @@ def export_season(lg: dict, *, gaps: list) -> dict:
             "status": d.get("status"),
             "type": d.get("type"),
             "settings": d.get("settings") or {},
-            # slot_to_roster_id is how a manager profile gets bound to a seat.
-            "slot_to_roster_id": d.get("slot_to_roster_id") or {},
+            # ⚠️ `slot_to_roster_id` IS `{}` FOR EVERY COMPLETED DRAFT, and this
+            # line is where that became invisible. C found it: Sleeper serves the
+            # map on a LIVE draft object and returns nothing once the draft is
+            # done, so `or {}` turned "Sleeper had none" into "this league has no
+            # seats" — for 2023 (both drafts), 2024 and 2025, i.e. every season
+            # anyone would ever analyse. A manager profile binds a seat with this
+            # field, and an empty map reads exactly like a league without chairs.
+            **dict(zip(("slot_to_roster_id", "slot_to_roster_id_basis"),
+                       _slot_map(d.get("slot_to_roster_id"), picks))),
             "picks": [{
                 "round": p.get("round"), "pick_no": p.get("pick_no"),
                 "roster_id": p.get("roster_id"), "player_id": p.get("player_id"),
                 "is_keeper": p.get("is_keeper"),
+                # AND `draft_slot` IS KEPT FROM NOW ON, which is the half C could
+                # not see from their side: Sleeper puts the SEAT on every pick and
+                # this projection was dropping it, which is the only reason the
+                # map has to be derived at all. Kept, the seat is READ. The
+                # derivation below stays anyway — it is what recovers the four
+                # drafts already captured without it, and re-capturing them is not
+                # possible for a completed draft.
+                "draft_slot": p.get("draft_slot"),
             } for p in picks],
         })
 
