@@ -9706,3 +9706,122 @@ and 576 is right. **Read the last build log — nobody has.**
 **So 633 nonzero → 402 on the board is 231 projections unaccounted for, and nothing in the
 artifact says whether they were filtered off the board or lost in the crosswalk.** That is
 one counter, in my lane, and I will add it unless told otherwise.
+
+---
+
+# 📐 THE THREE-PHASE FRAMING, RECORDED VERBATIM (A via Cory, 2026-08-13)
+
+> **THE AUGUST REFUSAL IS CONTAINMENT. SEPTEMBER FIXES THE DATA CONTRACT. JANUARY GRADES THE
+> POPULATION THAT CONTAINMENT EXPOSED.**
+>
+> Each phase has a different job and **none substitutes for another.** A's refusal stops the
+> bleeding; it is not the fix. The September contract is the fix; it does not tell us whether
+> ignoring those players was right. January answers that, and only January can.
+
+And the invariant, which is the cleanest statement of the week:
+
+> **A NUMBER MEANS A NUMBER. NULL MEANS THE THING NEEDED TO CALCULATE IT DOES NOT EXIST.
+> STATUS SAYS WHY.**
+
+## THE SEPTEMBER COMMITMENT — THREE CONDITIONS, EACH SEPARATELY FALSIFIABLE
+
+**Not "improve status handling". All three must hold, and a check must be able to fail on
+each one alone:**
+
+1. **INGEST EMITS `projected` / `absent` / `imputed` PER FIELD.** `field_population/v1`
+   already carries the present / null / missing split — this extends it from a *report about*
+   the data to a *property of* each field.
+2. **DERIVED VALUES ARE NULL WHEN AN INPUT IS ABSENT** — never a fabricated numeric.
+3. **THE ENGINE READS STATUS RATHER THAN INFERRING MISSINGNESS FROM VALUE.**
+
+**⚠️ AND ONE THING CONDITION 2 MUST NOT DO NAIVELY, MEASURED THIS MORNING.** The engine reads
+`p.vorp || 0` at `engine.js:572`, `:981`, `:992`. **`null || 0` is `0`, which is ABOVE the
+−172.7 these players carry today** — so a null VORP without condition 3 already in place
+would PROMOTE all 1,183 above every real negative-VORP player. **Conditions 2 and 3 must land
+together or the fix is worse than the defect.** That is exactly why it is September work and
+not a patch now.
+
+**Blast radius, recorded because it is the reason this is architecture:** the same pattern is
+in `vorp = proj_mean − replacement`, `proj_sd = 0.25 × proj_mean`,
+`proj_ceiling = 1.35 × proj_mean`, and the absent risk inputs — therefore in every downstream
+VONA, value and board number. **The danger is not the missing input. It is that missingness
+is converted into a plausible value, after which every downstream layer has permission to
+believe it.**
+
+---
+
+# 🔎 PEARSALL — ALL FOUR ANSWERED, AND IT IS **NOT** AN INGESTION DEFECT (C, 2026-08-13)
+
+## 1. THE COUNT, CONFIRMED INDEPENDENTLY
+
+Counted from the deployed board myself, not from A's surface:
+
+```
+   adp <= 150   priced 145   no projection: 1   Pearsall
+   adp <= 250   priced 269   no projection: 1   Pearsall
+   adp <= 340   priced 340   no projection: 3   Pearsall, Joe Mixon (FA), Alexander Mattison (FA)
+```
+
+**A's "one inside ADP 250" is correct.** And the fuller number is stronger than A had it: of
+**340 priced players, only THREE lack a projection, and two of the three are free agents** —
+no team, so no projection is the source behaving sensibly.
+
+## 2. PEARSALL'S CAUSE — **`injury_status: 'IR'`**
+
+```
+   Ricky Pearsall  WR SF  adp 110.2 (ffc)  depth_chart_order 9  injury_status 'IR'
+   proj_mean 0.0   vorp -172.67   variance_why ['behind on the depth chart', 'carrying IR']
+```
+
+**Sleeper returns a row for him with an empty stat line rather than omitting him.** So
+`baseline.get(pid)` is `0.0`, not `None` — and `projections.py:222` only reaches
+`_rank_fallback` when the value **is** `None`. **The fallback built for exactly this case
+could not fire, because the source said "zero" instead of saying nothing.**
+
+**That is A's conflation, live, in one player.** The truth is *"no projection published, he is
+on IR"* — a **status**. It was stored as a **value** of zero, and −172.67 followed.
+
+**And the board already knows why** — it is in `variance_why` and `injury_status`. **The
+reason was captured and then discarded at the one seam where it mattered.**
+
+## 3. THE OTHERS AT THE BOUNDARY
+
+Mixon and Mattison, both `team: FA`, ADP 282/286 — the market prices a possible signing; the
+projection source cannot project a player with no team. **Legitimate, and a different cause
+from Pearsall's.** 11 of the board's 14 IR players are unprojected, so IR is a coherent
+sub-cause, not a one-off.
+
+## 4. CLUSTERED OR SCATTERED — **SCATTERED. GENUINE SOURCE COVERAGE.**
+
+```
+   missing-projection rate by NFL team:  mean 30.3%  stdev 8.0%  min 12% (TEN)  max 45% (NYG)
+```
+
+**A mapping or ingestion defect would put one or two teams near 100% and the rest near zero.**
+This is a smooth spread with no outlier. And the decisive one:
+
+**Of 1,183 unprojected players, exactly 3 have a real ADP.** Missing-projection and
+missing-ADP are the same population. **Two independent sources — Sleeper's projections and
+FantasyPros' ADP — stop at the same boundary**, which is what genuine coverage looks like and
+not what a defect looks like.
+
+---
+
+# 📸 THE AUGUST SNAPSHOT — CAPTURED, AND IT DOES **NOT** SATISFY THE COMMITMENT
+
+`draft/backtest/external_unprojected_snapshot_2026.json` — **1,183 players**, stamped with
+`built_at 2026-08-12T09:19:29Z` and board **sha256 `dfbfa7e31ea8535e…`**, carrying the fields
+January needs to grade them, plus `field_population/v1` on the snapshot itself.
+
+**It records a BELIEF AT A MOMENT. It is not the answer**, and the verifier refusing to
+accept it alone is right — capturing the list is the cheap half. **The January question is
+written into the file:** how many finished **top-24 at their position**? A non-trivial number
+means the fix is ingest coverage rather than the engine; near zero means the exclusion was
+legitimate. **Both verdicts are useful and neither is available until January.**
+
+**The criterion's own flaw is recorded inside the artifact**, so the January grade knows what
+it selected on: `proj_mean <= 0` conflates *projected at zero* with *no projection*, and
+Pearsall is the proof that they are not the same thing.
+
+**Captured now because it is perishable** — after week one the projections update and nobody
+can reconstruct who was unprojected in August.
