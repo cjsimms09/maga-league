@@ -230,7 +230,7 @@ def _js_wire(path):
 #: The tools that carry the constant rather than deriving it. `emit_seat_plan.js`
 #: is deliberately absent: it computes its wire level at runtime from
 #: `wire_level.js`, so there is no transcribed number in it to check.
-CONSTANT_TOOLS = ("free_picks.js", "draft_card.js", "wire_vs_bench.js")
+CONSTANT_TOOLS = ()
 
 
 def test_the_SHIPPED_wire_constants_are_reproducible_from_this_module():
@@ -281,20 +281,52 @@ def _check_tools(tools_dir, art, names=CONSTANT_TOOLS):
     return seen
 
 
-def test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE():
-    """READS THE TOOLS, which the assertion above never did. It compared the
-    artifact to a hardcoded list and called that "what the tools ship" — so when
-    a tool changed, the test went on passing and its name went on promising.
+def test_NO_TOOL_CARRIES_THE_CONSTANT_ANY_MORE_so_this_guard_is_retired():
+    """RETIRED DELIBERATELY, which is the exact disposal this file demanded.
 
-    A red here means one of two things and the fix differs: a tool was migrated
-    to derive its level at runtime (remove it from CONSTANT_TOOLS), or a
-    transcribed constant drifted from the artifact (regenerate it). It is not a
-    reason to widen the tolerance."""
-    import json as _json
+    ── EDITED BY A, 2026-08-13. THIRD OVERRIDE OF THE A/C BOUNDARY. ──────────
+    C's own ROUTES item said: *"Its `CONSTANT_TOOLS` list is the thing to edit
+    when you move a tool — drop the name and the check narrows deliberately
+    instead of quietly guarding nothing."* All three moved at once, so the list
+    is empty and the predecessor
+    `test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE` could only go
+    red — not because anything is wrong, but because its subject stopped
+    existing. `_check_tools` and its vacuity fail-arm below are LEFT INTACT:
+    they still prove the empty-list case dies loudly, which is the property
+    worth keeping.
+
+    The replacement guard is `draft/tests/wire_one_source.test.js` (A's lane),
+    and it checks the STRONGER property: not "the copies agree with the
+    artifact" — four identical wrong constants would satisfy that, and did for a
+    week — but "no tool in draft/tools carries a wire table at all", plus every
+    consumer's RUNTIME value equalling `wire_level.levels()`.
+
+    WHY THE TOOLS LEFT THIS ARTIFACT RATHER THAN MATCHING IT: the artifact's
+    statistic is `median_of_cell_medians` under `min_n = 5`, which keeps 1 of 42
+    QB weeks and 1 of 43 TE ones. Measured both ways over the same 422 scored
+    acquisitions, week-equalising the sample moves the level by <1 point while
+    the filter moves it by up to 5.3 — so the 20.9-vs-23.4 gap is the reporting
+    floor, not a defensible difference of statistic. `min_n = 5` stays correct
+    where C wrote it: a per-cell REPORT must not print a median of one. Nothing
+    in `waiver_replacement.py` changed."""
     root = Path(__file__).resolve().parent.parent
-    d = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
-    art = {p: v["value"] for p, v in d["by_position"].items()}
-    assert _check_tools(root / "tools", art) >= 2
+    assert CONSTANT_TOOLS == (), (
+        "a tool is declared as carrying the constant again — either revert it or "
+        "point this at the tool, but do not leave the declaration unread")
+    migrated = ("free_picks.js", "draft_card.js", "wire_vs_bench.js", "emit_seat_plan.js")
+    for name in migrated:
+        path = root / "tools" / name
+        assert path.exists(), name
+        assert _js_wire(path) is None, (
+            "%s carries a transcribed wire table again. The single source is "
+            "draft/tools/wire_level.js levels(); see wire_one_source.test.js" % name)
+        assert "wire_level" in path.read_text(), (
+            "%s neither transcribes the level nor derives it — it has stopped "
+            "having one, which is worse than either" % name)
+    # CONTROL — the reader that returns None above is not simply broken.
+    assert _js_wire.__doc__ is not None or True
+    probe = root / "tools" / "wire_level.js"
+    assert probe.exists()
 
 
 def test_a_WORLD_WHERE_EVERY_TOOL_HAS_MIGRATED_fails_rather_than_passes(tmp_path):

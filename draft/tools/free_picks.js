@@ -6,13 +6,15 @@
  *   1. draft_plan prices picks 133 and 148 at EXACTLY ZERO. The model says so
  *      itself: "picks this model CANNOT price: 2 — free options; upside belongs
  *      here and is not modelled."
- *   2. wire_vs_bench + bye_structure then showed that three MORE picks buy a
- *      player the waiver wire replaces: Evans (the wire is 99% of him), Prescott
- *      (89%), Reed (122% — the wire is strictly better).
+ *   2. wire_vs_bench + bye_structure then show that MORE picks buy a player the
+ *      waiver wire simply replaces.
  *
- * So FIVE of fifteen picks are not doing the job the model thinks they are, and
- * three of them are ROUNDS 6, 7 AND 10 — not late darts. This is not a small
- * reallocation and it should not be spent on instinct.
+ * How many, and in which rounds, is COMPUTED AND PRINTED rather than written
+ * here — this header used to say "FIVE of fifteen... ROUNDS 6, 7 AND 10", which
+ * was measured once against an older plan and an older wire level and then
+ * stopped being true without stopping being printed. The count moves whenever
+ * the wire level or the plan moves, which is exactly why it does not belong in
+ * prose.
  *
  * ── THE TIE-BREAK, AND WHY IT IS ALLOWED TO BE USED ────────────────────────
  *
@@ -30,8 +32,9 @@
  *      (roster_shape.js). Not a preference; a counted gap against the league.
  *
  *   B. HANDCUFF TO MY OWN RBs — measured that they are FREE (all go undrafted),
- *      and the RB wire is the worst on the board at 5.3/wk, so an RB hole is the
- *      one hole the wire genuinely cannot fill. The INHERITANCE VALUE is
+ *      and the wire replaces that position worst as a FRACTION of the starter it
+ *      stands in for (draft_plan.wireVsStarter — raw points across positions is
+ *      not a comparison), so that hole is the one the wire cannot genuinely fill. The INHERITANCE VALUE is
  *      ASSUMED, not measured, and is flagged at every use.
  *
  *   C. VARIANCE — measured, and it clears its own power bar. corr(sd, weekly
@@ -64,14 +67,19 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const kept = new Set(keep.map(k => String(k.player_id)));
 
-/* Realized wire, pooled 2023-25 (waiver_replacement.py). n carried: QB 5, RB 46,
- * WR 39, TE 6 — the two thin cells are the two carrying the QB/TE argument. */
-const WIRE = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };
+/* THE WIRE IS DERIVED, NOT TRANSCRIBED. This file shipped
+ * `{QB 20.9, RB 5.3, WR 13.3, TE 6.3}` with a comment claiming "pooled 2023-25"
+ * — it was the median of the CELL MEDIANS that cleared a min_n=5 reporting
+ * floor, which keeps 1 of 42 QB weeks. `emit_seat_plan.js` had already moved to
+ * the measured level, so on 2026-08-13 the toolset disagreed with itself and on
+ * WR the two halves swapped sides. Reading it from `wire_level.js` is what makes
+ * that unrepeatable; the derivation and its control sweep are in that file. */
+const WIRE = require('./wire_level.js').levels().per_week;
 const STARTS = { 'D\'Andre Swift': 3, 'Mike Evans': 2, 'Dak Prescott': 1,
   'Tony Pollard': 0, 'George Kittle': 1, 'Jayden Reed': 0, 'Chris Rodriguez': 0 };
 const WEEKS = 15;
 
-console.log('THE FREE PICKS — five of fifteen, and what the model cannot spend them on\n');
+console.log('THE FREE PICKS — the picks the model cannot spend, and what to do with them\n');
 
 /* ── 1. WHICH PICKS ARE ACTUALLY FREE ─────────────────────────────────────
  * Derived, not asserted. A pick is free if the model prices it at zero OR if
@@ -80,6 +88,7 @@ console.log('  1. THE PICKS, AND WHY EACH ONE IS FREE');
 console.log('     pick  the model wants        why it is free');
 console.log('     ' + '-'.repeat(74));
 const free = [];
+const unjudged = [];
 plan.forEach(x => {
   if (x.unpriced) {
     free.push({ pick: x.pick, was: null, why: 'the model prices it at EXACTLY ZERO' });
@@ -90,7 +99,12 @@ plan.forEach(x => {
   if (!x.bench || !x.p || !WIRE[x.p.position]) return;
   const mine = num(x.p.proj_mean) / WEEKS, w = WIRE[x.p.position];
   const pct = 100 * w / mine, wk = STARTS[x.p.name];
-  if (wk == null) return;
+  /* A BENCH PLAYER WITH NO BYE ROW IS NOT JUDGED — AND THAT USED TO BE SILENT.
+   * `STARTS` is hand-carried from bye_structure.js and names the plan as it
+   * stood when it was written; four of this plan's six bench men are not in it,
+   * so this `return` was quietly shrinking the denominator. "2 of 12 picks" then
+   * reads as a measurement of twelve when it is a measurement of two. */
+  if (wk == null) { unjudged.push(x); return; }
   const floor = wk * (mine - w);
   if (pct >= 100 || (floor < 5 && pct >= 75)) {
     free.push({ pick: x.pick, was: x.p, why: 'wire is ' + pct.toFixed(0) + '% of him' });
@@ -100,8 +114,31 @@ plan.forEach(x => {
       + wk + ' wk (floor ' + floor.toFixed(1) + ')');
   }
 });
-console.log('\n     ' + free.length + ' of 15 picks. Three of them are ROUNDS 6, 7 AND 10 — this is not');
-console.log('     a late-round dart-throw budget, it is a fifth of the draft.');
+/* THE ROUNDS ARE READ OFF THE BOARD. This line said "Three of them are ROUNDS
+ * 6, 7 AND 10" beside a count computed from the plan — so when the wire level
+ * was corrected and the count moved to two, the sentence went on naming three
+ * rounds, none of which were the rounds those picks are in. The count and the
+ * rounds now come from the same place. */
+{
+  const rds = free.map(f => PLAN.roundOf(f.pick)).sort((a, b) => a - b);
+  const list = rds.length === 1 ? 'ROUND ' + rds[0]
+    : 'ROUNDS ' + rds.slice(0, -1).join(', ') + ' AND ' + rds[rds.length - 1];
+  const early = rds.filter(r => r <= 10).length;
+  console.log('\n     ' + free.length + ' of ' + PLAN.SCHED.length + ' picks — ' + list + '.');
+  console.log('     ' + (early
+    ? early + (early === 1 ? ' of them lands' : ' of them land')
+      + ' in the first ten rounds, so this is not a late-round dart-throw budget.'
+    : 'All of them are late, so this is a dart-throw budget and should be spent like one.'));
+  if (unjudged.length) {
+    console.log('     NOT JUDGED: ' + unjudged.length + ' more bench pick'
+      + (unjudged.length === 1 ? '' : 's') + ' — '
+      + unjudged.map(u => u.p.position + ' ' + u.p.name).join(', ') + '.');
+    console.log('     They have no bye-week row in this file\'s hand-carried STARTS map, so');
+    console.log('     the count above is out of ' + (free.length + unjudged.length)
+      + ' judged, not out of ' + PLAN.SCHED.length + '. Re-run bye_structure.js against');
+    console.log('     the CURRENT plan to close them; until then this understates the answer.');
+  }
+}
 
 /* ── 2. THE HANDCUFFS — free, and the one hole the wire cannot fill ───────*/
 console.log('\n  2. HANDCUFFS TO MY OWN BACKS (tie-break B)');
@@ -127,9 +164,25 @@ hcs.forEach(({ m, s }) => {
     + (a >= 9999 ? ' none' : a.toFixed(0).padStart(5))
     + '    ' + (a > 150 ? 'YES — free at 133/148' : 'no — costs a real pick'));
 });
-console.log('\n     The RB wire pays 5.3/wk, the worst of any position. An RB hole is the');
-console.log('     ONE hole the waiver wire genuinely cannot fill, which is what makes a');
-console.log('     handcuff different from ordinary depth. THE INHERITANCE VALUE IS NOT');
+/* THE HANDCUFF ARGUMENT, RECOMPUTED RATHER THAN REMEMBERED. This read "the RB
+ * wire pays 5.3/wk, the worst of any position" — a raw-points comparison across
+ * positions, which is not a comparison at all: a QB scores roughly twice what an
+ * RB does. The claim survives when it is made properly, as a fraction of the
+ * starter the wire would replace, and it is asserted here only because the
+ * ordering was checked. */
+{
+  const VS = PLAN.wireVsStarter();
+  const ranked = Object.keys(VS).filter(p => VS[p].pct != null)
+    .sort((a, b) => VS[a].pct - VS[b].pct);
+  const hardest = ranked[0];
+  console.log('\n     The ' + hardest + ' wire pays ' + VS[hardest].wire.toFixed(1)
+    + '/wk — only ' + VS[hardest].pct.toFixed(0) + '% of your last starting '
+    + hardest + ', the');
+  console.log('     lowest ratio on the board (' + ranked.map(p => p + ' '
+    + VS[p].pct.toFixed(0) + '%').join(', ') + '). A ' + hardest + ' hole is the');
+  console.log('     ONE hole the waiver wire genuinely cannot fill, which is what makes a');
+  console.log('     handcuff different from ordinary depth. THE INHERITANCE VALUE IS NOT');
+}
 console.log('     MEASURED — E[weeks out | injured] is an open C request, so "he plays if');
 console.log('     the starter misses time" has no number attached to it here.');
 
@@ -260,21 +313,40 @@ console.log('     deviation on the roster. Variance only ever chooses WHICH rece
 console.log('     Cory\'s own framing was right: it "maybe only affects 50/50 decisions".');
 
 /* ── 5. THE ANSWER ────────────────────────────────────────────────────────*/
-console.log('\n  5. WHAT TO ACTUALLY DO WITH THE FIVE PICKS');
-console.log('     53, 68, 93  -> WR. Three of the five go to the counted gap. This also');
-console.log('                    replaces Evans/Prescott/Reed, whom the wire matches or');
-console.log('                    beats, so it costs nothing the model can measure.');
-console.log('     133, 148    -> HANDCUFFS. All three of mine go undrafted (ADP 179, 186,');
-console.log('                    224), so two of them are free here, and the RB wire at');
-console.log('                    5.3/wk is the one hole waivers cannot fill.');
+/* THE RECOMMENDATION IS ASSEMBLED FROM THE SECTIONS ABOVE, NOT REMEMBERED. It
+ * used to name picks 53/68/93 and quote three handcuff ADPs (179, 186, 224) that
+ * the table in section 2 no longer prints — a summary drifting from the report
+ * it summarises, on the same screen. */
+{
+  const VS = PLAN.wireVsStarter();
+  const hardest = Object.keys(VS).filter(p => VS[p].pct != null)
+    .sort((a, b) => VS[a].pct - VS[b].pct)[0];
+  const freeP = free.map(f => f.pick).sort((a, b) => a - b);
+  const undrafted = hcs.filter(({ m }) => adpOf(m) > 150);
+  console.log('\n  5. WHAT TO ACTUALLY DO WITH THE ' + freeP.length + ' FREE PICK'
+    + (freeP.length === 1 ? '' : 'S') + ' (' + freeP.join(', ') + ')');
+  console.log('     TIE-BREAK A — WR. The counted gap against the league is the strongest');
+  console.log('     evidence on this page, so the earliest free pick goes there.');
+  if (undrafted.length) {
+    console.log('     TIE-BREAK B — HANDCUFFS at the LATEST free pick(s). '
+      + undrafted.length + ' of ' + hcs.length + ' of mine go');
+    console.log('       undrafted (ADP ' + undrafted.map(({ m }) => adpOf(m).toFixed(0)).join(', ')
+      + '), so they cost nothing here, and the ' + hardest + ' wire at '
+      + VS[hardest].wire.toFixed(1) + '/wk');
+    console.log('       — ' + VS[hardest].pct.toFixed(0) + '% of the starter it replaces — '
+      + 'is the one hole waivers cannot fill.');
+  } else {
+    console.log('     TIE-BREAK B — NO HANDCUFF IS FREE. Every backup to my own backs is');
+    console.log('       drafted before my last pick, so this tie-break does not apply today.');
+  }
 console.log('\n     AND THE VOLATILITY RULE, STATED SO IT CANNOT BE OVER-APPLIED: take the');
 console.log('     more volatile receiver ONLY when he costs almost nothing in projection.');
-console.log('     Measured above, that is true at pick 93 (-3 pts) and pick 133 (-6) and');
-console.log('     FALSE at 68 (-37) and 148 (-40). The weekly payout is worth a coin flip,');
-console.log('     not forty points. Where the cost is real, take the higher projection.');
+console.log('     Section 4 measures that cost pick by pick; where it is real, take the');
+console.log('     higher projection — a coin flip is worth spread, forty points is not.');
 console.log('     THE ONE THING TO CHECK AT THE TABLE: this assumes no backup QB and no');
 console.log('     backup TE. If FAAB is gone by week 12, the week-13 bye stops being');
-console.log('     streamable and Prescott at 68 becomes correct again.');
+console.log('     streamable and a second QB becomes correct again.');
+}
 
 /* ── 6. WHAT THIS DOES NOT SETTLE ─────────────────────────────────────────*/
 console.log('\n  WHAT THIS DOES NOT SETTLE');
@@ -288,6 +360,6 @@ console.log('       about the second one. weekly_sd is on the board but is itsel
 console.log('       from the season figure, so this is a ratio-lock risk, not an');
 console.log('       independent reading.');
 console.log('     · Nothing here prices the handcuff inheritance. It is a structural');
-console.log('       argument — the RB wire is the worst on the board — not a point total.');
-console.log('     · The candidate lists assume the room drafts near ADP. At picks 133 and');
-console.log('       148 that assumption is at its weakest, because late ADP is thin.');
+console.log('       argument — the wire replaces that position worst — not a point total.');
+console.log('     · The candidate lists assume the room drafts near ADP. At the latest free');
+console.log('       picks that assumption is at its weakest, because late ADP is thin.');

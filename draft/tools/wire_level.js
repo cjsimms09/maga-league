@@ -220,6 +220,72 @@ function measure() {
  * a missing position that defaults — that is the whole lesson of `SCHED`. */
 const MEASURED_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
 
+/* ── THE ONE PLACE THAT DECIDES WHICH STATISTIC IS "THE WIRE LEVEL" ────────
+ *
+ * The sample above is what the SIMULATOR draws from. But three draft-day tools
+ * do a scalar comparison — "is my bench man worth more per week than the wire"
+ * — and a scalar needs a summary. Until 2026-08-13 that summary was TRANSCRIBED
+ * into four files, and on 08-13 C measured that three of them had drifted apart
+ * from the fourth:
+ *
+ *     tool                     QB     RB     WR     TE
+ *     free_picks.js          20.9    5.3   13.3    6.3
+ *     draft_card.js          20.9    5.3   13.3    6.3     <- the Aug 22 card
+ *     wire_vs_bench.js       20.9    5.3   13.3    6.3
+ *     emit_seat_plan.js     23.38   7.80  11.10  11.60     <- derived from here
+ *
+ * Not a uniform shift: TE moves 1.84x one way and WR 0.83x THE OTHER. So the two
+ * halves of the toolset SWAP SIDES on a marginal WR and on a marginal TE, and no
+ * reader holding both numbers can reconcile them in his head at a draft table.
+ *
+ * ── AND THE OLD NUMBER IS NOT A DIFFERENT-BUT-DEFENSIBLE STATISTIC ────────
+ *
+ * The obvious defence of 20.9/5.3/13.3/6.3 is that median-of-cell-medians
+ * weights every WEEK equally while pooling over-weights CHURN weeks — and a
+ * churn week is exactly when the wire is unusually rich, so pooling would be
+ * optimistic. That is a real argument and it is worth more than an opinion, so
+ * it was measured rather than asserted (2026-08-13, both statistics over the
+ * same 422 scored acquisitions, cells pooled across the three seasons so a cell
+ * is a WEEK rather than a season-week):
+ *
+ *     pos   pooled median   week-equalised cell median   with min_n=5
+ *     QB       23.38                23.08                   23.21
+ *     RB        7.80                 7.80                    7.50
+ *     WR       11.10                11.03                    9.80
+ *     TE       11.60                12.45                    9.52
+ *
+ * WEEK-EQUALISING MOVES NOTHING — 0.30, 0.00, 0.07 and 0.85 points. The whole
+ * 20.9-vs-23.4 gap is the `min_n = 5` REPORTING FLOOR applied to season-week
+ * cells, which keeps 1 of 42 QB cells and 1 of 43 TE cells, and it selects on
+ * the thing being measured. So there is no live choice between two defensible
+ * summaries here; there is one measurement and one artefact of a filter.
+ *
+ * `min_n = 5` remains correct where C wrote it — a per-cell REPORT must not
+ * print a median of one. Nothing in `waiver_replacement.py` changes.
+ *
+ * This function exists so the statistic is chosen ONCE. A tool that wants the
+ * level asks for it; a tool that disagrees changes it here, for everyone. */
+function levels() {
+  const M = module.exports.measured || (module.exports.measured = measure());
+  const per_week = {}, n = {};
+  MEASURED_POSITIONS.forEach(p => {
+    const s = M.summary[p];
+    if (s) { per_week[p] = s.median; n[p] = s.n; }
+  });
+  return {
+    per_week: per_week,
+    n: n,
+    statistic: 'pooled_sample_median',
+    scored: M.ledger.scored,
+    acquisitions: M.ledger.acquisitions,
+    /* One sentence a tool can print verbatim, so the provenance travels with the
+     * number instead of being re-typed per tool and drifting there too. */
+    provenance: 'realized wire: median of every scored acquisition-week, 2023-25, '
+      + 'n=' + M.ledger.scored + ' of ' + M.ledger.acquisitions + ' acquisitions '
+      + '(unfiltered — the min_n=5 reporting floor kept 1 of 42 QB weeks)',
+  };
+}
+
 function requireSample(pos) {
   const M = module.exports.measured || (module.exports.measured = measure());
   const s = M.sample[pos];
@@ -232,7 +298,7 @@ function requireSample(pos) {
   return s;
 }
 
-module.exports = { measure, acquisitions, weeklyPoints, requireSample,
+module.exports = { measure, levels, acquisitions, weeklyPoints, requireSample,
   MEASURED_POSITIONS, ACQUIRING, SEASONS };
 
 if (require.main === module) {

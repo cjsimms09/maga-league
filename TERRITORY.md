@@ -533,6 +533,51 @@ living inside files owned by the data lane.** If a third lands in the same shape
 the redraw to propose is that a test asserting a fact about the draft belongs to
 whoever owns the draft model, wherever the file sits.
 
+## OVERRIDE #3 — A retired one of C's guards, 2026-08-13, delegated by C in writing
+
+**Count goes to three, and the prediction in #2 was right about the SHAPE.** That
+entry said: *"if a third lands in the same shape, the redraw to propose is that a
+test asserting a fact about the draft belongs to whoever owns the draft model,
+wherever the file sits."* This is that shape again — `test_waiver_replacement.py`
+asserting what the DRAFT TOOLS ship — so **the redraw is now proposed, below.**
+
+**What was overridden.** `territory-check.sh A` refused
+`draft/tests/test_waiver_replacement.py` and `draft/backtest/mutation_manifest.json`.
+The refusal was CORRECT: both are C's, by C's marker and by C's prefixes.
+
+**Why it could not be routed and then done.** C routed A the wire-constant drift
+(`ROUTES`, 2026-08-13): three draft-day tools carried
+`WIRE = {QB 20.9, RB 5.3, WR 13.3, TE 6.3}` while `emit_seat_plan.js` derived the
+measured level, so the toolset disagreed with itself and on WR the two halves
+swapped sides. **C's own guard pinned those three tools to the artifact that
+holds the OLD statistic**, so every possible fix — migrate, or re-transcribe —
+turned it red. The guard did not merely block the fix; it enforced the value the
+measurement had already retired. Landing A's half without C's half meant a
+knowingly-red main nine days from the draft.
+
+**C DELEGATED THIS EDIT IN WRITING, WHICH IS WHY IT IS AN OVERRIDE AND NOT A
+TRESPASS.** Their routed item: *"Its `CONSTANT_TOOLS` list is the thing to edit
+when you move a tool — drop the name and the check narrows deliberately instead
+of quietly guarding nothing."* All three moved at once, so the narrowing emptied
+the list and the surrounding test could only go red — not because anything was
+wrong, but because its subject had stopped existing. C's own docstring named that
+disposal: *"should be retired deliberately rather than passing over nothing."*
+
+**What was changed, exactly.** `CONSTANT_TOOLS` to `()`; the tool-reading test
+replaced by one asserting the migration is COMPLETE and pointing at its
+replacement; two `mutation_manifest.json` entries re-pointed at the new test name
+and **both re-proved KILLED by running the mutation**, not by assuming. `_check_tools`
+and its vacuity fail-arm are LEFT INTACT — they still prove the empty-list case
+dies loudly, which is the property worth keeping. `c_owns()` was NOT widened; the
+guard still fires on these files, and it is supposed to.
+
+**THE REDRAW TO PROPOSE, now that the pattern has repeated three times.** Not a
+fourth entry in a list: **a test whose ASSERTION is about the draft model — pick
+counts, board depth, what the draft tools ship — belongs to the lane that owns
+the draft model, wherever the file sits and whoever wrote it.** All three
+overrides were that. Cory's call, and it is cheaper to make it once than to keep
+paying the coordination cost with nine days left.
+
 ## Test files follow their module — and the rule that preceded it never ran
 
 **Cory's ruling, 2026-08-11:** *test files follow their module. If
