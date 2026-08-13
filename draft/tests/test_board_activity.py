@@ -77,21 +77,45 @@ def _synthetic(rows, relevant_board=225):
 
 
 # ── the detector, proved before it is believed ─────────────────────────────
-def test_the_DETECTOR_FINDS_the_retired_players_by_name():
-    """Named rather than counted. A count can drift to zero through a bug in the
-    reader and still look like a healthy board; these eight cannot be on an NFL
-    field in 2026 and their presence is the whole reason this file exists."""
-    d = BA.dormant(board())
+#: Cannot be on an NFL field in 2026. Named rather than counted, because a count
+#: can drift to zero through a bug in the reader and still look like a healthy
+#: board.
+RETIRED = ("Tom Brady", "Drew Brees", "Rob Gronkowski", "Julian Edelman",
+           "Antonio Brown", "Larry Fitzgerald", "Todd Gurley", "Marshawn Lynch")
+
+
+def test_NO_RETIRED_PLAYER_IS_ON_THE_BOARD_AND_UNFLAGGED():
+    """THE INVARIANT THAT SURVIVES THE FIX, which the first version did not.
+
+    I originally asserted these eight ARE flagged as dormant — true of the board
+    as it stood, and guaranteed to fail the moment `build.py` started pruning
+    them, because a pruned board has none to flag. The nightly rebuild at 08:00
+    UTC would have turned main red for a fix working exactly as intended.
+
+    The property that holds in BOTH worlds is the one worth asserting: a retired
+    player is either absent from the board, or present and flagged. Never present
+    and unflagged. Before the prune lands this passes by flagging them; after,
+    by their absence — and it still fails if one reappears unflagged."""
+    b = board()
+    d = BA.dormant(b)
     assert d["status"] == "measured", d
-    got = {p["name"] for p in d["rows"]}
-    for who in ("Tom Brady", "Drew Brees", "Rob Gronkowski", "Julian Edelman",
-                "Antonio Brown", "Larry Fitzgerald", "Todd Gurley",
-                "Marshawn Lynch"):
-        assert who in got, (
-            "%s is on the board and the detector did not flag him — the check "
-            "has stopped seeing what it was built for" % who)
-    assert d["n"] > 500, ("only %d dormant rows; that is not the board this was "
-                          "measured against" % d["n"])
+    flagged = {p["name"] for p in d["rows"]}
+    on_board = {p.get("name") for p in b["players"]}
+    for who in RETIRED:
+        assert who not in (on_board - flagged), (
+            "%s is on the board and NOT flagged as dormant — the detector has "
+            "stopped seeing what it was built for" % who)
+
+
+def test_THE_DETECTOR_STILL_WORKS_after_the_board_is_pruned():
+    """The other half. Once the prune lands there is nothing left to flag, and
+    "found nothing" then looks identical to "the detector broke".
+
+    So its ability is proved against a PLANTED retiree rather than against the
+    board happening to contain one — which is what makes the assertion above safe
+    to pass by absence."""
+    planted = _synthetic([_row(player_id="ret", name="A Retired Great")])
+    assert [p["name"] for p in BA.dormant(planted)["rows"]] == ["A Retired Great"]
 
 
 def test_a_PROJECTION_IS_WHAT_SPARES_A_KICKER_not_his_position():
@@ -226,7 +250,9 @@ def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
     here names exactly which one went."""
     b = board()
     rows = BA.dormant(b)["rows"]
-    assert rows, "nothing dormant at all — the detector has stopped seeing"
+    if not rows:
+        pytest.skip("the board is already pruned — nothing dormant left to drop, "
+                    "which is the success state, not a broken detector")
     drop = {str(p.get("player_id")) for p in rows}
     gone = [p for p in b["players"] if str(p.get("player_id")) in drop]
 

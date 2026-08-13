@@ -610,48 +610,47 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
+    # ── THE INACTIVE PRUNE IS WRITTEN AND HELD, NOT ABANDONED ───────────────
     #
-    # Tom Brady, Drew Brees, Gronkowski, Edelman, Antonio Brown, Fitzgerald,
-    # Todd Gurley and Marshawn Lynch were all on the 2026 board. The filter in
-    # `load_players` gates on `p.get("active") is False`, and Sleeper leaves
-    # `active` UNSET for much of what it lists — `None is False` is False, so a
-    # null sails through. The only other gate is `search_rank`, which Sleeper
-    # never retires; Brady's is 74, so no rank ceiling would have caught him
-    # either.
+    # `board_activity.dormant` identifies 1,158 rows nobody in the system expects
+    # to play in 2026 — Tom Brady, Brees, Gronkowski, Zeke, Thielen, three
+    # retired kickers. Dropping them here is correct and was verified not to move
+    # anything actionable: 0 ranked inside 150, 0 with positive VORP, 0 inside the
+    # relevant board, 0 market-priced, 0 projected, 0 rookies, 0 DEF.
     #
-    # HERE, NOT IN `load_players`, because this is the first point where both a
-    # market ADP and a projection exist — and those are the two exemptions that
-    # stop this deleting somebody real. Run it earlier and 7 rows FFC actually
-    # prices would go with it.
+    # WHAT I VERIFIED WAS DECISIONS, NOT DEPENDENTS, and that gap is why it is
+    # held. Simulating the pruned board against the suite turned FIVE tests red:
+    # the crosswalk cases lose their same-name/same-position hazard entirely
+    # (Frank Gore Sr and Jr are both dormant, and no collision survives),
+    # waiver_replacement's cells move with the board size, and two of my own
+    # assertions require dormant rows to still exist.
     #
-    # The evidence is `nflverse_weekly_points_*.json`: did this player score in a
-    # real NFL game in 2024 or 2025. That is a MEASUREMENT, where `active` is
-    # metadata that can be left unset — and it cannot go stale in the same way.
-    # `board_activity` owns the conditions and every exemption in it (positions
-    # the store cannot see, rookies, anyone the market prices, anyone carrying a
-    # projection); it is imported rather than reimplemented so there is one
-    # definition of dormant, not two that drift.
+    # Every one of those is a fixture depending on the board containing what the
+    # prune removes, and each needs re-basing onto a planted hazard rather than a
+    # live one. That is the work, and shipping the prune before it is done would
+    # turn main red at the 08:00 rebuild for a change working exactly as intended.
     #
-    # It REFUSES rather than pruning when the stores cannot be read: an absence
-    # of evidence must never read as evidence of absence, and a build that
-    # quietly dropped half the board because an artifact moved would be far worse
-    # than one that carries eight retired players.
-    # ── THE HISTORICAL POSITION RECORD, WRITTEN BEFORE ANYTHING IS DROPPED ──
+    # The guarantee stands either way and is NOT held: `test_board_activity`
+    # asserts no dormant row reaches a rank, a VORP or the relevant board, which
+    # is the property that matters whether or not they are pruned.
+
+    # ── THE POSITION RECORD IS **NOT** HELD, AND THAT IS DELIBERATE ─────────
     #
-    # `wire_level.js` measures what the waiver wire PAID in 2023-2025 and read
-    # its positions off the LIVE board. The filter below is correct and it broke
-    # that measurement the first time it ran: a player added off the wire in 2023
-    # who has since retired is dropped here, so his acquisition falls out of a
-    # sample about 2023. Scored acquisitions went 422 -> 417 and the RB wire
-    # 7.80 -> 7.95, in the direction that flatters the wire — a waiver add who
-    # washes out is exactly the one who scored badly — and it would have kept
-    # drifting on every nightly rebuild with nothing going red.
+    # The prune above is off the build path. This stays on it, because it is not
+    # part of the prune — it is what makes the prune SAFE TO TURN BACK ON, and it
+    # has to have been running BEFORE that day to be any use.
     #
-    # So the map is written HERE, from the board BEFORE the filter, and MERGED
-    # rather than overwritten: a historical record may only grow. A position
-    # CORRECTION still reaches the measurement, because the reader overlays the
-    # live board on top of this.
+    # When the filter ran once (CI 31750835657) it silently shrank a measurement
+    # about 2023: `wire_level.js` sourced its positions from the LIVE board, so a
+    # man added off the wire in 2023 who has since retired fell out of a sample
+    # ABOUT 2023. Scored acquisitions 422 -> 417; the RB wire 7.80 -> 7.95, in the
+    # flattering direction, because a waiver add who washes out of the league is
+    # exactly the one who scored badly. Nothing would have gone red — a shrinking
+    # denominator reads as a smaller league rather than as a bug.
+    #
+    # Written from the board BEFORE any filter and MERGED rather than
+    # overwritten: a historical record may only grow. A position CORRECTION still
+    # reaches the measurement, because the reader overlays the live board on top.
     try:
         _pp = HERE / "data" / "player_positions.json"
         _prev = json.loads(_pp.read_text())if _pp.exists() else {}
@@ -676,21 +675,6 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     except Exception as _px:  # noqa: BLE001 — never a build dependency
         print(f"  ! position history NOT updated ({type(_px).__name__}: {_px}); "
               f"wire_level will fall back to the live board and its sample may shrink")
-
-    try:
-        _act = board_activity.dormant({"players": board})
-        if _act["status"] == "measured" and _act["n"]:
-            _drop = {str(p.get("player_id")) for p in _act["rows"]}
-            before = len(board)
-            board = [p for p in board if str(p.get("player_id")) not in _drop]
-            print(f"  inactive: dropped {before - len(board)} player(s) with no "
-                  f"scored week in {_act['seasons_read']} — not rookies, not "
-                  f"market-priced, not projected ({len(board)} remain)")
-        elif _act["status"] != "measured":
-            print(f"  ! inactive filter NOT APPLIED — {_act['note']}")
-    except Exception as _ax:  # noqa: BLE001 — a hygiene filter is never a build dependency
-        print(f"  ! inactive filter skipped ({type(_ax).__name__}: {_ax}); "
-              f"the board keeps every row it had")
     return board
 
 
