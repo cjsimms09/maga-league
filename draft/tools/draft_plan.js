@@ -45,41 +45,89 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const keep = KEEP.keepersFrom(DATA);
-/* ⚠️ MY PICKS ARE READ FROM THE ARTIFACT. THEY WERE HARDCODED, AND WRONG.
+/* ⚠️ MY PICKS ARE DERIVED FROM THE SNAKE, NOT READ FROM `pick_order.my_picks`.
  *
- * The list that used to sit here — [8, 13, 28, 33, ...], 15 picks starting at
- * R1.8 — is the artifact's `pick_order.my_picks_before_keepers`. It is what
- * Cory would have had IF HE KEPT NOBODY. He keeps three, and this league's
- * cost model is `top_picks_flat`: keeping N forfeits rounds 1..N. Henry costs
- * round 1, Chase round 2, Walker round 3.
+ * THE ARTIFACT IS WRONG AND CORY CAUGHT IT FROM THE SEAT ARITHMETIC ALONE.
+ * `pick_order.my_picks` says [30, 45, 50, ...]. His words: "I am in slot 8...
+ * since my first pick is in round 4 I am the 3rd pick in that round since it
+ * snakes back." Round 4 is EVEN, the snake reverses, slot 10 picks first — so
+ * he is overall 31, 32, THIRTY-THREE.
  *
- * THE AUTHORITATIVE LIST IS `pick_order.my_picks`:
- *   [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145] — TWELVE picks,
- *   first at overall 30, which the artifact resolves to ROUND 4, SLOT 8.
- *   (I first wrote "R3.10" here from ceil(30/10). That is wrong for the same
- *   reason ROSTERED below was wrong: forfeited picks are REMOVED, so the
- *   overall numbering is COMPRESSED and round 4 begins at 28. Every round
- *   label anywhere must be READ from `pick_order.picks`, never computed.)
+ * ── VERIFIED AGAINST SLEEPER'S OWN LOG, WHICH IS THE ONLY AUTHORITY ───────
  *
- * So every seat schedule built on the old constant assigned seats at picks that
- * DO NOT EXIST — a FLEX at 8, a tight-end cliff at 13, a receiver at 28 — and
- * priced fifteen picks when there are twelve. The whole Josh-Allen-at-8 argument
- * was about a pick Cory does not own. Cory's instinct that it was absurd was
- * right for a reason neither of us had found.
+ * `league_history.seasons[].drafts[].picks`, this league, three completed
+ * seasons:
  *
- * IT IS READ, NOT COPIED, and it FAILS LOUD rather than falling back to a
- * constant. A default here is how the wrong list survived: the number looked
- * plausible, every downstream tool inherited it, and nothing compared it to the
- * artifact that had the right answer sitting in the next field. */
+ *     season   keepers on the board   total picks   round 4 begins at
+ *      2023            0                  150             31
+ *      2024           23                  150             31
+ *      2025           20                  150             31
+ *
+ * SLEEPER DOES NOT COMPRESS. A keeper occupies his pick slot with
+ * `is_keeper: true`; the pick is not removed and nothing after it shifts up.
+ * 150 picks every year no matter how many keepers exist.
+ *
+ * `keepers.build_true_pick_order` deletes forfeited picks and renumbers the
+ * survivors 1..N, which produced 147 rows, round 4 at 28, and a first pick of
+ * 30. That model is not this draft. Fixing it at source means rewriting ten
+ * Python tests across six files whose NAMES assert the compressed model —
+ * "shifts my picks", "first pick is determined by the TOTAL alone", "removing a
+ * keeper shifts every downstream pick" — all of which are false here, because
+ * under real Sleeper numbering Cory's picks do not depend on other teams'
+ * keepers at all. That rewrite is scoped and is not this commit.
+ *
+ * SO THE SCHEDULE IS DERIVED HERE, FROM THE SNAKE, and cross-checked against the
+ * artifact's OWN pre-keeper list — which turns out to be the correct
+ * uncompressed sequence. `my_picks_before_keepers` minus the forfeited rounds IS
+ * the answer, and I had the two fields exactly backwards for a day.
+ *
+ * WHY DERIVED RATHER THAN READ, given everything else here is read: because the
+ * thing being read is wrong, and "read it from the artifact" is a rule that
+ * serves accuracy, not the other way round. It refuses loudly if the derivation
+ * and the pre-keeper list disagree. */
 const SCHED = (function () {
   const po = (DATA.pick_order || {});
-  const mine = po.my_picks;
-  if (!Array.isArray(mine) || !mine.length) {
-    throw new Error('draft_plan: pick_order.my_picks is missing or empty. REFUSING to '
-      + 'guess a pick schedule — a plausible-looking wrong one is exactly the defect '
-      + 'this replaced. Rebuild the board.');
+  const L = DATA.league || {};
+  const teams = +L.teams, rounds = +L.rounds, mySlot = +L.my_draft_slot;
+  const type = L.draft_type || 'snake';
+  if (!(teams > 0 && rounds > 0 && mySlot > 0)) {
+    throw new Error('draft_plan: league.teams / rounds / my_draft_slot missing. '
+      + 'REFUSING to guess a pick schedule.');
   }
-  return mine.slice().sort((a, b) => a - b);
+  if (type !== 'snake') {
+    throw new Error('draft_plan: this derivation is for a SNAKE. league.draft_type '
+      + 'is ' + JSON.stringify(type) + ' — refusing rather than reversing the wrong '
+      + 'rounds. (Sleeper also carries `reversal_round`; it is 0 for 2026.)');
+  }
+  /* The full snake, uncompressed, exactly as Sleeper numbers it. */
+  const mineAll = [];
+  let overall = 0;
+  for (let rnd = 1; rnd <= rounds; rnd++) {
+    for (let k = 1; k <= teams; k++) {
+      const slot = (rnd % 2 === 1) ? k : (teams - k + 1);
+      overall++;
+      if (slot === mySlot) mineAll.push({ overall: overall, round: rnd });
+    }
+  }
+  /* CROSS-CHECK. `my_picks_before_keepers` is the artifact's own pre-keeper
+   * sequence and must equal the derivation exactly. If it does not, one of the
+   * two is wrong about the room and neither should be trusted. */
+  const before = (po.my_picks_before_keepers || []).slice().sort((a, b) => a - b);
+  const derived = mineAll.map(p => p.overall);
+  if (before.length && (before.length !== derived.length
+      || before.some((v, i) => v !== derived[i]))) {
+    throw new Error('draft_plan: my derived snake ' + JSON.stringify(derived)
+      + ' disagrees with pick_order.my_picks_before_keepers '
+      + JSON.stringify(before) + '. REFUSING — one of them is wrong about the room.');
+  }
+  /* Keepers forfeit SPECIFIC ROUNDS (top_picks_flat: keeping N costs rounds
+   * 1..N). Drop those rounds; every surviving pick keeps its TRUE overall. */
+  const lost = new Set((po.forfeited || []).map(f => +f.cost_round));
+  const mine = mineAll.filter(p => !lost.has(p.round)).map(p => p.overall);
+  if (!mine.length) {
+    throw new Error('draft_plan: derived an empty pick schedule. REFUSING.');
+  }
+  return mine;
 })();
 const INJURY = { QB: 0.14, RB: 0.28, WR: 0.20, TE: 0.22, K: 0.04, DEF: 0.02 };
 /* HOW MANY PLAYERS ARE ACTUALLY GONE WHEN THE DRAFT ENDS — MEASURED, NOT ASSUMED.
@@ -114,31 +162,53 @@ let MAXPOS = null;
 try { MAXPOS = process.env.PLAN_MAX_POS ? JSON.parse(process.env.PLAN_MAX_POS) : null; }
 catch (e) { console.log('PLAN_MAX_POS is not valid JSON: ' + e.message); process.exit(2); }
 
-/* ⚠️ HOW MANY PLAYERS ACTUALLY COME OFF THE BOARD — COUNTED, NOT MULTIPLIED.
+/* ⚠️ HOW MANY PLAYERS COME OFF THE BOARD — 150, AND I BROKE THIS THIS MORNING.
  *
- * This was `DRAFT_ROUNDS * TEAMS` = 150. The draft has 147 picks: keepers
- * FORFEIT picks under `top_picks_flat`, and a forfeited pick is not a pick
- * somebody else makes — it is removed from the sequence. `pick_order.picks`
- * has 147 rows and says so.
+ * It was `DRAFT_ROUNDS * TEAMS` = 150. I "fixed" it to count
+ * `pick_order.picks` (147 rows), wrote a long commit about a 34.5-point
+ * quarterback error, and was WRONG: the artifact compresses and Sleeper does
+ * not. Its own log for this league says 150 picks in 2023 (0 keepers), 2024
+ * (23 keepers) and 2025 (20 keepers). Keepers occupy slots; they do not shrink
+ * the draft.
  *
- * THE ERROR WAS 34.5 POINTS AND IT WAS ALL AT QUARTERBACK. Taking replacement
- * three players deeper moves the best available QB a full tier — 268.2 against
- * a true 302.7 — while RB, WR, TE, K and DEF are untouched at this depth. A
- * waiver level set too LOW makes every rostered player look better than he is,
- * so this inflated the case for carrying a quarterback specifically, which is
- * the exact question the bench work is about.
+ * THE FAILURE WAS NOT ARITHMETIC. I found a constant disagreeing with an
+ * artifact and assumed the artifact was authoritative, because the constant
+ * looked like the defect class I had just spent two hours on. The draft log
+ * that settles it was in a file I had already opened that day. A rule that says
+ * "prefer the artifact to the constant" is not a rule about truth — it is a
+ * heuristic, and this is what it costs when it is applied without checking
+ * which one is downstream of the real source.
  *
- * This is the third constant-shaped-like-data found today, after the hardcoded
- * SCHED and the hardcoded 59.6. The pattern each time: a number that is
- * arithmetically reasonable, agrees with a previous season, and has an
- * authoritative source sitting unread nearby. COUNT THE ROWS. */
+ * So: derived from the league's own declared shape, and CROSS-CHECKED against
+ * every completed draft in the log. If a real draft ever ran a different length
+ * this refuses instead of averaging them. */
 const TEAMS = ((DATA.league || {}).teams) || 10;
 const ROSTERED = (function () {
-  const rows = ((DATA.pick_order || {}).picks) || [];
-  if (rows.length) return rows.length;
-  throw new Error('draft_plan: pick_order.picks is empty. REFUSING to fall back to '
-    + 'rounds x teams — that product is 150 against a real 147, and a plausible '
-    + 'wrong denominator is what this replaced.');
+  const L = DATA.league || {};
+  const product = (+L.rounds || 0) * (+L.teams || 0);
+  if (!product) {
+    throw new Error('draft_plan: league.rounds x league.teams is not available. '
+      + 'REFUSING to guess how deep the board goes.');
+  }
+  let hist = null;
+  try {
+    hist = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
+      'league_history.json'), 'utf8'));
+  } catch (e) { hist = null; }
+  const lengths = [];
+  ((hist || {}).seasons || []).forEach(s => {
+    const d = Array.isArray(s.drafts) ? s.drafts[0] : s.drafts;
+    const picks = (d || {}).picks;
+    if (Array.isArray(picks) && picks.length) lengths.push(picks.length);
+  });
+  const odd = lengths.filter(n => n !== product);
+  if (odd.length) {
+    throw new Error('draft_plan: completed drafts in league_history ran '
+      + JSON.stringify(lengths) + ' picks but rounds x teams is ' + product
+      + '. REFUSING — the room does not match its own settings and a bench '
+      + 'valuation built on the wrong depth is what this replaced.');
+  }
+  return product;
 })();
 
 /* WAIVER REPLACEMENT LEVEL: the best man still unrostered when the draft ends. */

@@ -1,5 +1,5 @@
 // TERRITORY: A
-// MY PICKS COME FROM THE ARTIFACT. THEY WERE HARDCODED, AND WRONG.
+// MY PICKS ARE THE SNAKE. THE ARTIFACT COMPRESSES AND SLEEPER DOES NOT.
 //
 // The worst defect of the build, found on 2026-08-13 while checking a claim in
 // Cory's research message. `draft_plan.js` carried
@@ -49,85 +49,105 @@ ck('the artifact declares my picks', Array.isArray(po.my_picks) && po.my_picks.l
 ck('and declares what they would have been WITHOUT keepers',
   Array.isArray(po.my_picks_before_keepers), po.my_picks_before_keepers);
 
-// ── 1. THE PLAN USES THE AUTHORITATIVE LIST ──────────────────────────────
+// ── 1. THE SCHEDULE IS THE SNAKE, AND SLEEPER'S LOG IS THE AUTHORITY ─────
+// Cory, 2026-08-13: "I am in slot 8 ... since my first pick is in round 4 I am
+// the 3rd pick in that round since it snakes back." Round 4 is EVEN, the snake
+// reverses, slot 10 goes first: 31, 32, THIRTY-THREE.
 const PLAN = require(path.join(ROOT, 'draft', 'tools', 'draft_plan.js'));
-const want = (po.my_picks || []).slice().sort((a, b) => a - b);
-ck('draft_plan.SCHED EQUALS pick_order.my_picks, exactly',
-  PLAN.SCHED.length === want.length && PLAN.SCHED.every((v, i) => v === want[i]),
-  { plan: PLAN.SCHED, artifact: want });
+const L = DATA.league || {};
 
-// ── 2. AND IS NOT THE PRE-KEEPER LIST ────────────────────────────────────
-// The specific wrong answer, named. A generic "matches the artifact" check
-// would pass if someone pointed it at the other field.
-const before = (po.my_picks_before_keepers || []).slice().sort((a, b) => a - b);
-ck('CONTROL — the two lists genuinely DIFFER (or this test proves nothing)',
-  before.length !== want.length || before.some((v, i) => v !== want[i]),
-  { before: before.length, after: want.length });
-ck('draft_plan.SCHED is NOT my_picks_before_keepers',
-  !(PLAN.SCHED.length === before.length && PLAN.SCHED.every((v, i) => v === before[i])),
+// Sleeper's own completed drafts for this league — the only authority on how
+// this room numbers picks. Every one is rounds x teams, keepers or not.
+const HIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data',
+  'league_history.json'), 'utf8'));
+const drafts = (HIST.seasons || []).map(s => {
+  const d = Array.isArray(s.drafts) ? s.drafts[0] : s.drafts;
+  const picks = ((d || {}).picks) || [];
+  if (!picks.length) return null;
+  const r4 = picks.filter(p => p.round === 4).map(p => p.pick_no).sort((a, b) => a - b);
+  return { season: String(s.season), n: picks.length, r4_start: r4[0],
+    keepers: picks.filter(p => p.is_keeper).length };
+}).filter(Boolean);
+ck('CONTROL — there are completed Sleeper drafts to check against',
+  drafts.length === 3, drafts);
+ck('SLEEPER DOES NOT COMPRESS — every completed draft is rounds x teams, '
+  + 'whatever the keeper count',
+  drafts.every(d => d.n === (+L.rounds) * (+L.teams)),
+  drafts.map(d => d.season + ': ' + d.n + ' picks, ' + d.keepers + ' keepers'));
+ck('and round 4 begins at the same overall every year, keepers or not',
+  new Set(drafts.map(d => d.r4_start)).size === 1
+  && drafts[0].r4_start === 3 * (+L.teams) + 1,
+  drafts.map(d => d.season + ': R4 starts ' + d.r4_start));
+ck('FAIL ARM — the keeper counts genuinely DIFFER across those seasons, so the '
+  + 'invariance above is not three copies of one case',
+  new Set(drafts.map(d => d.keepers)).size >= 2, drafts.map(d => d.keepers));
+
+// ── 2. THE DERIVED SCHEDULE MATCHES THE ARITHMETIC CORY DID BY HAND ──────
+const teams = +L.teams, mySlot = +L.my_draft_slot;
+const forfeited = po.forfeited || [];
+const firstLiveRound = forfeited.length + 1;
+// Round r, slot s: odd rounds run 1..teams, even rounds run teams..1.
+const overallOf = (r, s) => (r - 1) * teams
+  + ((r % 2 === 1) ? s : (teams - s + 1));
+ck('my first live round is the one after the last forfeited',
+  firstLiveRound === 4, { forfeited: forfeited.length, first: firstLiveRound });
+ck('in an EVEN round the snake reverses, so slot ' + mySlot + ' is pick '
+  + (teams - mySlot + 1) + ' of the round',
+  (teams - mySlot + 1) === 3, { slot: mySlot, nth: teams - mySlot + 1 });
+ck('so my first pick is overall 33, not 30',
+  PLAN.SCHED[0] === overallOf(firstLiveRound, mySlot) && PLAN.SCHED[0] === 33,
+  { plan: PLAN.SCHED[0], derived: overallOf(firstLiveRound, mySlot) });
+ck('and every pick I own is my slot in a round I did not forfeit',
+  PLAN.SCHED.length === (+L.rounds) - forfeited.length
+  && PLAN.SCHED.every((v, i) => v === overallOf(firstLiveRound + i, mySlot)),
   PLAN.SCHED);
 
-// ── 3. THE FORFEIT ARITHMETIC RECONCILES ─────────────────────────────────
-// Keeping N forfeits rounds 1..N, so the counts and the missing rounds must
-// agree with the keeper list. Three facts that can each be wrong separately.
-const forfeited = po.forfeited || [];
-const keeperCount = ((DATA.league || {}).keeper_rules || {}).count;
+// ── 3. AND IT IS NOT THE COMPRESSED LIST THE ARTIFACT STILL CARRIES ──────
+// The specific wrong answer, named. `pick_order.my_picks` is produced by
+// `keepers.build_true_pick_order`, which deletes forfeited picks and renumbers
+// the survivors 1..N. That is not what Sleeper does and the check above is what
+// proves it. Named here so the fix cannot silently regress to reading it.
+const compressed = (po.my_picks || []).slice().sort((a, b) => a - b);
+ck('CONTROL — the artifact really does still carry a different list',
+  compressed.length > 0 && compressed[0] !== PLAN.SCHED[0],
+  { artifact: compressed[0], truth: PLAN.SCHED[0] });
+ck('draft_plan does NOT use pick_order.my_picks',
+  !(PLAN.SCHED.length === compressed.length
+    && PLAN.SCHED.every((v, i) => v === compressed[i])), PLAN.SCHED);
+ck('the shortfall against the compressed list is exactly the forfeited count, '
+  + 'which is what made it look right', PLAN.SCHED[0] - compressed[0] === forfeited.length,
+  { truth: PLAN.SCHED[0], artifact: compressed[0], forfeited: forfeited.length });
+
+// ── 3b. THE PRE-KEEPER LIST WAS RIGHT ALL ALONG ──────────────────────────
+// `my_picks_before_keepers` is the uncompressed snake. My picks are that list
+// with the forfeited rounds removed — I had the two fields exactly backwards.
+const before = (po.my_picks_before_keepers || []).slice().sort((a, b) => a - b);
+ck('the pre-keeper list is the full uncompressed snake for my slot',
+  before.length === (+L.rounds)
+  && before.every((v, i) => v === overallOf(i + 1, mySlot)), before);
+ck('and my schedule is its TAIL, after the forfeited rounds',
+  PLAN.SCHED.every((v, i) => v === before[forfeited.length + i]),
+  { mine: PLAN.SCHED, tail: before.slice(forfeited.length) });
+
+// ── 4. THE FORFEIT ARITHMETIC RECONCILES ─────────────────────────────────
 ck('the number of forfeited picks equals the number of keepers',
   forfeited.length === (PLAN.keep || []).length,
   { forfeited: forfeited.length, keepers: (PLAN.keep || []).length });
-ck('and equals my pick shortfall against the pre-keeper list',
-  before.length - want.length === forfeited.length,
-  { shortfall: before.length - want.length, forfeited: forfeited.length });
 ck('the forfeited rounds are the TOP N, as top_picks_flat requires',
-  forfeited.map(f => f.cost_round).sort((a, b) => a - b)
-    .every((r, i) => r === i + 1),
+  forfeited.map(f => f.cost_round).sort((a, b) => a - b).every((r, i) => r === i + 1),
   forfeited.map(f => f.name + ':R' + f.cost_round));
 ck('and the league declares that cost model, rather than it being assumed',
   ((DATA.league || {}).keeper_rules || {}).cost_model === 'top_picks_flat',
   (DATA.league || {}).keeper_rules);
+const mine = new Set(PLAN.SCHED);
+ck('every row of the plan sits on a pick I actually own',
+  PLAN.plan.filter(x => !mine.has(x.pick)).length === 0,
+  PLAN.plan.filter(x => !mine.has(x.pick)).map(x => x.pick));
 
-// ── 4. NO PICK I DO NOT OWN APPEARS ANYWHERE DOWNSTREAM ─────────────────
-const mine = new Set(want);
-const bogus = PLAN.plan.filter(x => !mine.has(x.pick)).map(x => x.pick);
-ck('every row of the plan sits on a pick I actually own', bogus.length === 0, bogus);
-/* ROUND IS READ, NOT COMPUTED. `ceil(overall / teams)` is WRONG here and my
- * first version of this check failed because of it: three forfeited picks are
- * REMOVED from the sequence, so the overall numbering is COMPRESSED and round 4
- * starts at overall 28, not 31. Computed, pick 30 reads "R3.10"; the artifact
- * says round 4, slot 8 — which is the truth and also confirms the forfeit rule.
- * Every round label anywhere must come from `pick_order.picks`. */
-const rowOf = n => (po.picks || []).find(r => r.overall === n) || null;
-const lab = n => { const r = rowOf(n); return r ? 'R' + r.round + '.' + r.slot : '?'; };
-ck('every one of my picks resolves to a row with a round and slot',
-  want.every(n => rowOf(n) && rowOf(n).round && rowOf(n).slot),
-  want.filter(n => !rowOf(n)));
-ck('my first pick is in the round AFTER the last forfeited one',
-  rowOf(want[0]) && rowOf(want[0]).round === forfeited.length + 1,
-  { first: want[0] + ' = ' + lab(want[0]), forfeited: forfeited.length });
-ck('and all of my picks are at ONE slot, as a snake requires',
-  new Set(want.map(n => (rowOf(n) || {}).slot)).size === 1,
-  [...new Set(want.map(n => (rowOf(n) || {}).slot))]);
-
-// ── 4b. THE DRAFT'S DEPTH IS COUNTED, NOT MULTIPLIED ─────────────────────
-// The third constant-shaped-like-data found on 2026-08-13. `ROSTERED` was
-// `DRAFT_ROUNDS * TEAMS` = 150 against a real 147: a forfeited pick is REMOVED
-// from the sequence, not reassigned. The error was 34.5 points and ALL OF IT
-// was at quarterback — three players deeper moves the best available QB a full
-// tier (268.2 against a true 302.7) while every other position is untouched at
-// that depth. A waiver level set too LOW makes every rostered player look better
-// than he is, which inflated the case for carrying a QB specifically.
-const rowCount = (po.picks || []).length;
-ck('the artifact says how many picks actually happen', rowCount > 0, rowCount);
-ck('CONTROL — that count DIFFERS from rounds x teams (or this proves nothing)',
-  rowCount !== (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)),
-  { counted: rowCount, product: ((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0) });
-ck('and the shortfall is exactly the forfeited picks',
-  (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)) - rowCount
-    === forfeited.length,
-  { shortfall: (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)) - rowCount,
-    forfeited: forfeited.length });
-// The waiver level must be taken at the counted depth. Recomputed here from the
-// same pool, so this checks the NUMBER rather than the intention.
+// ── 4b. THE BOARD IS 150 DEEP, AND I BROKE THAT THIS MORNING ────────────
+// `ROSTERED` was rounds x teams. I changed it to count `pick_order.picks` (147)
+// and wrote a commit claiming a 34.5-point quarterback error. The artifact
+// compresses; Sleeper does not; 150 was right. The check is against the LOG.
 {
   const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
     : (p.raw_adp != null ? +p.raw_adp : 9999));
@@ -139,12 +159,14 @@ ck('and the shortfall is exactly the forfeited picks',
       .sort((a, b) => b.proj_mean - a.proj_mean)[0];
     return best ? Math.round(best.proj_mean * 10) / 10 : 0;
   };
-  ck('the QB waiver level matches the COUNTED depth, not the product',
-    Math.abs(PLAN.WAIVER.QB - at(rowCount)) < 0.6,
-    { plan: PLAN.WAIVER.QB, at_counted: at(rowCount), at_product: at(150) });
-  ck('FAIL ARM — the two depths give genuinely different answers at QB',
-    Math.abs(at(rowCount) - at(150)) > 1,
-    { counted: at(rowCount), product: at(150) });
+  const depth = drafts[0].n;
+  ck('the waiver level is taken at the depth Sleeper actually drafts',
+    Math.abs(PLAN.WAIVER.QB - at(depth)) < 0.6,
+    { plan: PLAN.WAIVER.QB, at_log: at(depth), at_artifact_rows: at((po.picks || []).length) });
+  ck('FAIL ARM — the artifact\'s row count gives a genuinely different answer, '
+    + 'which is the 34.5 points I got wrong',
+    Math.abs(at(depth) - at((po.picks || []).length)) > 1,
+    { log: at(depth), artifact: at((po.picks || []).length) });
 }
 
 // ── 5. THE SHIPPED SEAT PLAN AGREES ──────────────────────────────────────
@@ -154,9 +176,9 @@ const spPath = path.join(ROOT, 'public', 'seat_plan.json');
 if (fs.existsSync(spPath)) {
   const SP = JSON.parse(fs.readFileSync(spPath, 'utf8'));
   ck('seat_plan.json is built on the SAME picks',
-    Array.isArray(SP.my_picks) && SP.my_picks.length === want.length
-    && SP.my_picks.every((v, i) => v === want[i]),
-    { seat_plan: SP.my_picks, artifact: want });
+    Array.isArray(SP.my_picks) && SP.my_picks.length === PLAN.SCHED.length
+    && SP.my_picks.every((v, i) => v === PLAN.SCHED[i]),
+    { seat_plan: SP.my_picks, artifact: PLAN.SCHED });
   ck('and every seat row sits on a pick I own',
     (SP.seats || []).every(s => mine.has(s.pick)),
     (SP.seats || []).filter(s => !mine.has(s.pick)).map(s => s.pick));
@@ -166,13 +188,14 @@ if (fs.existsSync(spPath)) {
 {
   const fake = before;                       // the exact wrong list
   ck('FAIL ARM — the pre-keeper list would be REJECTED by check 1',
-    !(fake.length === want.length && fake.every((v, i) => v === want[i])));
+    !(fake.length === PLAN.SCHED.length && fake.every((v, i) => v === PLAN.SCHED[i])));
   ck('FAIL ARM — and a plausible hand-rolled snake would be too',
-    !([30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 146].every((v, i) => v === want[i])));
+    !([30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 146].every((v, i) => v === PLAN.SCHED[i])));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (I own '
-  + want.length + ' picks, first ' + want[0] + ' = ' + lab(want[0]) + ')');
+  + PLAN.SCHED.length + ' picks, first ' + PLAN.SCHED[0] + ' = round '
+  + (forfeited.length + 1) + ', pick ' + (teams - mySlot + 1) + ' of that round)');
 if (fail) { console.log('\nFAILED — the plan is built on picks that are not mine.'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the pick schedule is READ from the artifact, is not the');
 console.log('pre-keeper list, reconciles with the forfeit rules, and nothing downstream');
