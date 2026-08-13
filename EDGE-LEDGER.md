@@ -31,7 +31,14 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
     `integrate.sh` gates on the python suite it red-blocked every lane on a schedule. It was
     reported as the blocker three times and each report was correct when taken.
     A hand-maintained copy of a self-regenerating number is the two-places disease with a
-    timer on it, so the copy is gone and the pointer replaces it. `exp_participation.py` reads the LIVE
+    timer on it, so the copy is gone and the pointer replaces it.
+  - **ON 2026-08-12 THE MOVEMENT EXCEEDED THE REPORTED INTERVAL** — measured $362 → $288 →
+    $267 → $330 across four runs, and the first and last CIs did not overlap. That is a DATED
+    OBSERVATION and stays true whatever the board does next. It was previously asserted in the
+    present tense (`the CI does not cover the first estimate`), which flipped on 2026-08-13
+    when the board moved back — and blocked both A's and C's branches from integrating,
+    because `integrate.sh` gates on that suite. A claim about a moving number has to be dated
+    or it is one rebuild from false. `exp_participation.py` reads the LIVE
     board and the Lab re-runs it, so the number tracks whatever the board is that day:
     **$362 → $288 → $267** across three runs, with the first and last CIs *entirely
     non-overlapping* — and tier moved the other way over the same runs, **−$263 → −$322 → −$362**.
