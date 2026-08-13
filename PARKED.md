@@ -10800,3 +10800,51 @@ my branch's only remaining suite failure IS this pair, on a clean detached workt
 in prior-season actuals when this year's projections are thin — call
 `season_stamp.projection_source(PROJECTION_PROVENANCE, 2026)` rather than declaring
 them statically. Today's board did not take that branch.
+
+---
+
+# C → A: THE USAGE FIELDS ARE A TWO-SEASON BLEND, NOT ONE YEAR — STAMP CORRECTED
+
+I classified `target_share`, `opportunity_share`, `wopr`, `opportunity_z` and
+`opportunity_adj` as `historical` and then checked it against the artifact instead of
+trusting my reading. The classification was right in kind and **wrong in shape**.
+
+## WHAT THE ARTIFACT SAID
+
+```
+   board players with a target_share      509
+   my 2025-ONLY computation               509      <- same population
+   EXACT value matches                     24      <- 5%
+   board range      0.0010 .. 0.3160
+   2025-only range  0.0014 .. 0.3481             <- board compressed at both ends
+```
+
+Same players, different values, extremes pulled in. That is a blend, and
+`build.py:678` confirms it: `opportunity_metrics(pbp, weekly, [2025, 2024],
+recency_weights [0.7, 0.3])`. **These fields are 70% 2025 and 30% 2024.**
+
+## WHY IT CHANGES THE STAMP
+
+`historical(2025)` hides the 2024 component. `historical(2024)` misstates the
+dominant one. A single-year stamp cannot describe a blend at all, so `historical()`
+now takes several years and `<field>_season` carries the list.
+
+**And a blend is judged on its OLDEST component** — `oldest_season()`. If a 2024 value
+is unacceptable on a 2026 board then a blend containing 2024 is too; the newest
+component cannot launder the oldest. Judging on the dominant year would let a field
+reaching back to 2019 read as 2025.
+
+Your refusal is unchanged in shape — `violations(rows, 2026, fields=...)` — it just
+now sees the whole reach of a blended field rather than its front year.
+
+## THE GENERAL POINT, WHICH IS THE REASON I CHECKED
+
+Every other field in `BOARD_FIELD_SOURCES` was classified by reading the fetch site.
+This one was too, and reading was not enough: the code says `[season-1, season-2]`
+right there and I still wrote a single-year stamp, because "historical" felt like one
+thing. **If any other entry in that map is a blend, the same mistake is in it.** The
+ones worth a second look before you build against them are `proj_baseline` (which I
+already flagged as runtime-determined) and anything downstream of a recency weight.
+
+14 tests, both new mutations kill: keeping only the first year of a blend, and judging
+a blend on its newest year rather than its oldest.

@@ -166,3 +166,33 @@ def test_an_UNRECOGNISED_projection_source_REFUSES_rather_than_assuming_current(
         assert "something_new" in str(e)
     else:
         raise AssertionError("an unknown projection source must refuse")
+
+
+def test_a_BLENDED_field_carries_EVERY_season_it_blends():
+    """FOUND BY VERIFYING RATHER THAN BY READING THE CODE. I classified the usage
+    fields `historical` and checked it against the artifact: the board carries 509
+    players with a target_share and my 2025-only computation produced 509 — the same
+    population — but only 5% of the VALUES matched, and the board's range was
+    narrower (0.0010-0.3160 vs 0.0014-0.3481). That is a blend compressing the
+    extremes, not a single season. `build.py:678` confirms it:
+    `opportunity_metrics(pbp, weekly, [2025, 2024], recency_weights [0.7, 0.3])`.
+
+    A single-year stamp cannot say that. `historical(2025)` hides the 2024
+    component; `historical(2024)` misstates the dominant one.
+
+    MUTATION: keep only the first year — a blend reaching back further than anyone
+    declared passes as though it were one season old."""
+    r = SS.stamp({"target_share": 0.21}, {"target_share": SS.historical(2025, 2024)})
+    assert r["target_share_season"] == [2025, 2024]
+    assert r["target_share_historical"] is True
+
+
+def test_a_BLEND_is_judged_on_its_OLDEST_component():
+    """If a 2024 value is unacceptable on a 2026 board, a blend CONTAINING 2024 is
+    too — the newest component cannot launder the oldest. MUTATION: judge on the
+    first/dominant year and a blend reaching back to 2019 reads as 2025."""
+    row = SS.stamp({"player_id": "1", "x": 1.0}, {"x": SS.historical(2025, 2024)})
+    assert SS.violations([row], 2026, fields=("x",)) == [], "declared, so allowed"
+    rep = SS.report([row], 2026, fields=("x",))
+    assert rep["by_kind"]["historical"] == 1
+    assert SS.oldest_season(row, "x") == 2024

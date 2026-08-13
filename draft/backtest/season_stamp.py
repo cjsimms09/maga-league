@@ -56,9 +56,25 @@ def seasonal(year):
     return {"kind": "seasonal", "season": int(year)}
 
 
-def historical(year):
-    """A prior-season value, deliberately carried. Must declare itself."""
-    return {"kind": "historical", "season": int(year)}
+def historical(*years):
+    """A prior-season value, deliberately carried. Must declare itself.
+
+    ACCEPTS SEVERAL YEARS, because the board's usage fields are a BLEND.
+    `build.py:678` runs `opportunity_metrics(pbp, weekly, [2025, 2024],
+    recency_weights [0.7, 0.3])`, so `target_share` and its siblings are 70% 2025
+    and 30% 2024. A single-year stamp cannot say that: `historical(2025)` hides the
+    2024 component and `historical(2024)` misstates the dominant one.
+
+    Found by verifying the classification against the artifact rather than trusting
+    my reading of the code — the board and a 2025-only computation produced the same
+    509 players but only 5% matching values, with the board's range compressed at
+    both ends, which is what a blend looks like.
+    """
+    ys = [int(y) for y in years]
+    if not ys:
+        raise ValueError("historical() needs at least one season")
+    return {"kind": "historical", "season": ys[0] if len(ys) == 1 else ys,
+            "seasons": ys}
 
 
 def stamp(record: dict, sources: dict) -> dict:
@@ -75,7 +91,7 @@ def stamp(record: dict, sources: dict) -> dict:
         if kind == "current":
             out[field + "_season"] = CURRENT
         elif kind == "historical":
-            out[field + "_season"] = int(src["season"])
+            out[field + "_season"] = src["season"]
             out[field + "_historical"] = True
         elif kind == "seasonal":
             out[field + "_season"] = int(src["season"])
@@ -86,6 +102,21 @@ def stamp(record: dict, sources: dict) -> dict:
                 "guessing here is the defect this module exists to prevent"
                 % (kind, field))
     return out
+
+
+def oldest_season(row: dict, field: str):
+    """The OLDEST season a field draws on — a blend is only as current as its
+    furthest-back component. The newest component cannot launder the oldest: if a
+    2024 value is unacceptable on a 2026 board, a blend containing 2024 is too."""
+    s = (row or {}).get(field + "_season")
+    if isinstance(s, (list, tuple)):
+        return min(int(x) for x in s) if s else None
+    if s == CURRENT or s is None:
+        return s
+    try:
+        return int(s)
+    except (TypeError, ValueError):
+        return None
 
 
 def violations(rows: list, target_season, fields=()) -> list:
@@ -114,8 +145,9 @@ def violations(rows: list, target_season, fields=()) -> list:
             s = r[key]
             if s == CURRENT:
                 continue
+            yr = oldest_season(r, f)          # a blend is judged on its oldest year
             try:
-                yr = int(s)
+                yr = int(yr)
             except (TypeError, ValueError):
                 out.append({"player_id": r.get("player_id"), "field": f,
                             "why": "season stamp %r is neither a year nor %r"
@@ -159,7 +191,7 @@ def report(rows: list, target_season, fields=()) -> dict:
                 kinds["current"] += 1
             elif r.get(f + "_historical"):
                 kinds["historical"] += 1
-            elif str(r[key]) == str(target_season):
+            elif str(oldest_season(r, f)) == str(target_season):
                 kinds["proven"] += 1
             else:
                 kinds["other"] += 1
@@ -202,6 +234,7 @@ BOARD_FIELD_SOURCES = {
     # not exist yet. They must be DECLARED historical, not blocked and not waved
     # through. This is exactly Cory's "unless that data IS considered relevant to
     # this year".
+    # A BLEND of [season-1, season-2] at recency_weights [0.7, 0.3], NOT one year.
     "target_share": "historical", "opportunity_share": "historical",
     "wopr": "historical", "opportunity_z": "historical",
     "opportunity_adj": "historical",
