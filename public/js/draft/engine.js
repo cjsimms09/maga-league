@@ -366,8 +366,21 @@
    *   - need 0     : INERT by mask redundancy — the additive weight flips only ~5% of picks
    *                   at 0.5 and still 8% at 3.0, because the need signal is ~uniform inside
    *                   the startable-cap MASK (which IS the need mechanism). Not "untested" —
-   *                   unexplorable by this lever. Settled at 0 (the simpler number). The mask
-   *                   still carries all of need; participation-rate probe, Cory-confirmed.
+   *                   unexplorable by this lever. Settled at 0 (the simpler number).
+   *                   THE REDUNDANCY CLAIM IS TRUE OF ONE SURFACE AND WAS WRITTEN AS IF
+   *                   TRUE OF BOTH. This block used to end "the mask still carries all of
+   *                   need". The mask lives in needrule.js and governs the needrule CARD.
+   *                   recommend() never calls it — grep withinCap in this file and every
+   *                   hit is a comment. Measured 2026-08-14 (composite_roster_blindness.
+   *                   test.js): at pick 70, adding a QB and a TE to the roster drops the
+   *                   mask's admitted quarterbacks from 215 to ZERO and does not move the
+   *                   composite top 70 by one player (QB 14, TE 18 both ways). need is
+   *                   computed correctly for 533 of 1690 players and multiplied by this 0.
+   *                   SO: the composite has no positional-fill awareness in the mid-draft.
+   *                   applyRosterLegality is fill-aware but only fires in the endgame.
+   *                   The weight is unchanged — that is a separate decision resting on a
+   *                   separate measurement — but the REASON recorded for it now says which
+   *                   surface it covers. Participation-rate probe, Cory-confirmed.
    *   - ceiling 0     : SETTLED TO ZERO 2026-08-10 (Cory's call, reviewer-driven). The
    *                   ledger's de-confounded measurement is ceiling -4.8 [-26, +17] — a
    *                   sign we CANNOT distinguish from zero. Yet at 0.65 the flip diagnostic
@@ -465,7 +478,9 @@
    * as prose, so the panel and any future gate read the same answer. */
   const WEIGHT_PROVENANCE = {
     value: 'measured', keeper: 'measured', stack: 'measured (D10 ruling)',
-    tier: 'measured', need: 'measured (redundant with the lineup mask)',
+    tier: 'measured',
+    need: 'measured (redundant with the lineup mask ON THE NEEDRULE CARD ONLY — '
+      + 'the composite list never calls the mask and is blind to positional fill)',
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
@@ -496,7 +511,11 @@
        * not one. The weights have NOT changed; the account of them has. */
       why: 'What the tool loads on: rank off the board (value), keeper value, and a stack '
         + 'tilt. Tier, need and bye were measured and are off — tier measured as a drag, '
-        + 'need is redundant with the always-on lineup MASK, bye came back a null. '
+        + 'need is redundant with the lineup MASK on the needrule card, bye came back a '
+        + 'null. READ THE NEED ROW NARROWLY: this ranked list does not know your QB slot '
+        + 'is full. The mask that does know runs on the needrule card, not here — filling '
+        + 'QB and TE moves this top 70 by zero players. Cross-check the card before taking '
+        + 'a second one-start starter. '
         + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
         + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
         + 'so both experiments were incapable of returning anything but zero. They stay at '
@@ -1191,7 +1210,16 @@
       const insurance = (INJURY_RATE[player.position] || 0.15)
         * Math.max(0, player.vorp || 0) * CFG.ONESIE_NEED_INSURANCE;
       need.value = insurance;
-      need.why = `fills your empty ${player.position} slot — scarcity priced in value (VONA), not double-counted`;
+      /* THIS SENTENCE USED TO END "scarcity priced in value (VONA), not
+       * double-counted", and it renders for ~7 of the top 70 at pick 70. It told
+       * Cory the empty-slot effect was already carried by VONA. IT IS NOT.
+       * VONA = proj_mean - expectedBestAvailable(samePos, nextPick): a function
+       * of the BOARD, with no roster input. Measured — filling QB and TE moves
+       * vona for 0 of 1690 players (composite_roster_blindness.test.js). What is
+       * priced in VONA is positional scarcity in the MARKET, which is true and is
+       * a different thing from your slot being empty. The two got named the same
+       * word and the sentence traded on the ambiguity. */
+      need.why = `fills your empty ${player.position} slot — VONA prices board scarcity but does not read your roster; the empty-slot effect lives on the needrule card, not in this ranking`;
     }
     // THE ONESIE DUPLICATION DISCOUNT — see CFG.ONESIE_DISCOUNT.
     const onesie = onesieState(player, ctx);
@@ -1424,11 +1452,18 @@
     } else if (tier > 5) {
       context.push(`Tier ${player.tier} ${player.position} is thinning — ${Math.round((1 - survivalToNext) * 100)}% gone by your next pick`);
     }
-    /* NEED — DEMOTED. `need.why` is factually true and its best form is the
-     * standard this whole rule is modelled on: "fills your empty TE slot —
-     * scarcity priced in value (VONA), not double-counted" is honest precisely
-     * because it says where the effect actually lives. It is context, not cause,
-     * whenever the need term itself is weighted to zero. */
+    /* NEED — DEMOTED. It is context, not cause, whenever the need term itself is
+     * weighted to zero.
+     *
+     * THIS COMMENT USED TO VOUCH FOR THE OLD STRING: it called `need.why`
+     * "factually true" and "honest precisely because it says where the effect
+     * actually lives". It named the wrong place. The old sentence said the
+     * effect lived in VONA; VONA has no roster input and does not move when the
+     * slot fills. So a comment asserting a string was honest sat directly above
+     * the line that rendered it, and neither was checked against the behaviour.
+     * That is the whole failure class in four lines of source. The string is
+     * corrected above; this note stays so the next reader knows the vouching
+     * comment was itself part of the defect and does not restore it. */
     if (need.value > 0) {
       if (w.need * need.value > 0) reasons.push(need.why);
       else context.push(need.why);
