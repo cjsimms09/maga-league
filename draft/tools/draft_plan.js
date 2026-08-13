@@ -45,13 +45,19 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const keep = KEEP.keepersFrom(DATA);
-/* ⚠️ MY PICKS ARE DERIVED FROM THE SNAKE, NOT READ FROM `pick_order.my_picks`.
+/* ⚠️ MY PICKS ARE DERIVED FROM THE SNAKE, AND CROSS-CHECKED AGAINST THE ARTIFACT.
  *
- * THE ARTIFACT IS WRONG AND CORY CAUGHT IT FROM THE SEAT ARITHMETIC ALONE.
- * `pick_order.my_picks` says [30, 45, 50, ...]. His words: "I am in slot 8...
+ * THE ARTIFACT WAS WRONG AND CORY CAUGHT IT FROM THE SEAT ARITHMETIC ALONE.
+ * `pick_order.my_picks` said [30, 45, 50, ...]. His words: "I am in slot 8...
  * since my first pick is in round 4 I am the 3rd pick in that round since it
  * snakes back." Round 4 is EVEN, the snake reverses, slot 10 picks first — so
  * he is overall 31, 32, THIRTY-THREE.
+ *
+ * IT IS FIXED AT SOURCE NOW and the artifact agrees; `pick_schedule.test.js`
+ * asserts the match rather than the divergence it asserted for a day. The
+ * derivation stays anyway, and not from distrust: it is a SECOND independent
+ * route to the same number, and the only reason this was ever caught is that
+ * two routes existed to disagree. It throws if they part again.
  *
  * ── VERIFIED AGAINST SLEEPER'S OWN LOG, WHICH IS THE ONLY AUTHORITY ───────
  *
@@ -67,24 +73,20 @@ const keep = KEEP.keepersFrom(DATA);
  * `is_keeper: true`; the pick is not removed and nothing after it shifts up.
  * 150 picks every year no matter how many keepers exist.
  *
- * `keepers.build_true_pick_order` deletes forfeited picks and renumbers the
- * survivors 1..N, which produced 147 rows, round 4 at 28, and a first pick of
- * 30. That model is not this draft. Fixing it at source means rewriting ten
- * Python tests across six files whose NAMES assert the compressed model —
- * "shifts my picks", "first pick is determined by the TOTAL alone", "removing a
- * keeper shifts every downstream pick" — all of which are false here, because
- * under real Sleeper numbering Cory's picks do not depend on other teams'
- * keepers at all. That rewrite is scoped and is not this commit.
+ * `keepers.build_true_pick_order` USED TO delete forfeited picks and renumber
+ * the survivors 1..N, which produced 147 rows, round 4 at 28, and a first pick
+ * of 30. Both it and its JS twin now leave the numbering alone. Fixing it meant
+ * rewriting ten test functions across six files whose NAMES asserted the
+ * compressed model — "shifts my picks", "first pick is determined by the TOTAL
+ * alone", "removing a keeper shifts every downstream pick" — every one false
+ * here, because under real Sleeper numbering Cory's picks do not depend on other
+ * teams' keepers at all.
  *
- * SO THE SCHEDULE IS DERIVED HERE, FROM THE SNAKE, and cross-checked against the
- * artifact's OWN pre-keeper list — which turns out to be the correct
- * uncompressed sequence. `my_picks_before_keepers` minus the forfeited rounds IS
- * the answer, and I had the two fields exactly backwards for a day.
- *
- * WHY DERIVED RATHER THAN READ, given everything else here is read: because the
- * thing being read is wrong, and "read it from the artifact" is a rule that
- * serves accuracy, not the other way round. It refuses loudly if the derivation
- * and the pre-keeper list disagree. */
+ * THE SCHEDULE IS DERIVED FROM THE SNAKE and cross-checked against the artifact's
+ * OWN pre-keeper list — which was the correct uncompressed sequence all along.
+ * `my_picks_before_keepers` minus the forfeited rounds IS the answer, and I had
+ * the two fields exactly backwards for a day. It refuses loudly if the
+ * derivation and the pre-keeper list disagree. */
 const SCHED = (function () {
   const po = (DATA.pick_order || {});
   const L = DATA.league || {};
