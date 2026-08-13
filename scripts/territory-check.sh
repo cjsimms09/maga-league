@@ -555,3 +555,38 @@ if [ "$trespass" -gt 0 ]; then
   exit 1
 fi
 echo "OK: side $SIDE stayed in its territory"
+
+# ── FRESHNESS, REPORTED WHERE IT IS ACTUALLY ACTIONABLE ─────────────────────
+#
+# A stale clone cost real work on 2026-08-13: A edited two files against a tree
+# six commits behind, and only noticed when a file it expected had been moved by
+# another lane. The signal already existed in lane-start.sh. The gap was that
+# lane-start runs at SESSION START and the damage happens mid-session.
+#
+# So it is reported HERE, in the check every lane already runs before every
+# commit — the last moment before work becomes history, and the first moment it
+# is cheap to fix. No new command to remember, no interval to keep.
+#
+# AND IT REPORTS OVERLAP, NOT JUST A COUNT. "25 behind" is not actionable: 25
+# commits of another lane's ingest work while you edit the engine is harmless,
+# and ONE commit touching a file you have open is urgent. The count alone would
+# train everyone to ignore it, which is worse than silence.
+#
+# NEVER FAILS THE CHECK. A freshness note that blocks a commit gets bypassed, and
+# a bypassed guard is a guard nobody has. It informs; the lane decides.
+if git fetch --quiet origin main 2>/dev/null; then
+  _behind="$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)"
+  if [ "${_behind:-0}" -gt 0 ]; then
+    _incoming="$(git diff --name-only HEAD...origin/main 2>/dev/null || true)"
+    _mine="$(git diff --name-only HEAD 2>/dev/null; git diff --cached --name-only 2>/dev/null)"
+    _overlap="$(printf '%s\n' "$_incoming" | grep -Fxf <(printf '%s\n' "$_mine" | sort -u) 2>/dev/null | sort -u | grep -v '^$' || true)"
+    if [ -n "$_overlap" ]; then
+      echo "🔴 STALE ON FILES YOU ARE EDITING — $_behind commit(s) behind origin/main:"
+      printf '%s\n' "$_overlap" | sed 's/^/     /'
+      echo "     COMMIT FIRST, then merge origin/main. Merging with these edits"
+      echo "     uncommitted is how a rollback or a stash eats work nobody has seen."
+    else
+      echo "note: $_behind commit(s) behind origin/main — none touch files you are editing"
+    fi
+  fi
+fi
