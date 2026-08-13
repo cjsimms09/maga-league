@@ -8864,3 +8864,90 @@ captured recommendation reconcile to the artifact** — pick a row, recompute VO
 `overall_rank` from `public/draft_data.json` at that stamp, and see whether the logged score
 and rank fall out. If they do not reconcile, the log is measuring something other than what
 rendered, and the positional distribution in it is not evidence.
+
+---
+
+## ✅ THE BASELINE INVESTIGATION, FINISHED — AND A SECOND CORRECTION TO MYSELF (C, 2026-08-12)
+
+### ⚠️ I WAS WRONG ABOUT THE STRUCTURAL CLAIM, AND THE REASON MATTERS
+
+Last entry I wrote: *"the baseline can buy about nine of the seventy positions. The other
+sixty are structural."* **Wrong.** I tested the K/DEF baseline **in isolation, holding RB,
+WR and TE at their known-wrong shallow values.** Rank is a RELATIVE quantity. Correct the
+whole system and K/DEF fall into place on their own:
+
+```
+   first K/DEF rank      as shipped   K/DEF fixed alone   ALL baselines fixed    market
+                             52              68               111 - 131         123 - 127
+```
+
+**Measuring a relative quantity while the rest of the system sits at values I had already
+proved wrong.** That is the same error class as the keepers — reading one field and
+concluding, when the answer was in its complement.
+
+### THE DEFECT, STATED ONCE
+
+`counts[pos] = starters_at(cfg, pos) × teams` counts **STARTERS ONLY**. Real leagues roster
+far more than they start at RB/WR/TE, and far fewer at K/DEF. **Two independent markets
+agree on the real depth, and on TE they agree exactly:**
+
+```
+              ours    FantasyPros@150   MFL@150   verdict
+   RB           21          46             41     understated by ~23
+   WR           29          53             55     understated by ~25
+   TE           10          21             21     understated by 11  (EXACT agreement)
+   K            10           2              1     OVERSTATED by ~8
+   DEF          10           5              2     OVERSTATED by ~6
+   QB           10          23             30     contaminated, see below
+```
+
+**Because the understatement is asymmetric, it suppresses RB and WR far more than the
+one-start positions — which is precisely the symptom.**
+
+### WHAT CORRECTING IT DOES
+
+```
+   AS SHIPPED                        top10  RB5 WR4 TE1     QB+TE 10%   1st K/DEF   52
+   MFL depths                        top10  RB9 WR1         QB+TE  0%   1st K/DEF  127
+   FantasyPros depths                top10  RB9 WR1         QB+TE  0%   1st K/DEF  111
+   both-source midpoint              top10  RB9 WR1         QB+TE  0%   1st K/DEF  128
+```
+
+**Identical under both markets independently.** And the agreement with the market improves
+across the whole board, not just at the top: **mean |market ADP − our rank| over the 337
+priced players falls from 76.7 to 52.5 positions — a 32% reduction.**
+
+### AND IT IS NOT SENSITIVE TO THE ONE NUMBER I HAD TO JUDGE
+
+QB is the only position the two markets disagree on (23 vs 30), because **MFL's ADP pool is
+superflex-contaminated — a defect in my own capture parameters.** So I swept it rather than
+choosing:
+
+```
+   QB depth      10     13     15     19     23     30
+   Allen rank    57     48     48     28     14      3      (market 21.7)
+   Lamar rank    85     75     74     52     29      7      (market 38.3)
+   mean|ADP-rank| 54.3  52.5   52.4   48.4   47.7   49.5
+   QB+TE top10    0%     0%     0%     0%     0%    30%
+```
+
+**QB+TE stays at ZERO for every defensible QB baseline from 10 through 23.** The symptom
+only returns at 30, which is the contaminated figure. **The result does not depend on my
+judgement call**, and depth 19–23 straddles both quarterbacks' actual market prices.
+
+### THE STANDING VERDICT
+
+**The baselines are wrong, they are wrong asymmetrically, and correcting them to measured
+rostered depth removes QB and TE from the top ten entirely while placing K and DEF within a
+few picks of two independent markets.** The derivation is the defect: starters-only, in a
+league where six of fifteen roster spots are bench.
+
+**I am not proposing numbers to load.** The table above is what two markets measure, not a
+tuning. **And it does not contradict my first report** — the data still hands the engine a
+board the engine then amplifies. It sharpens it: the board it hands over is *itself*
+mis-baselined, and that share of the symptom is fixable at source.
+
+**Three of my own claims have now needed correction in this investigation** (K=8 rank, "~140
+is in the data", "sixty positions are structural"). Each was caught by measuring again
+rather than by reasoning harder, and each was wrong in the direction of overstating what I
+had established.
