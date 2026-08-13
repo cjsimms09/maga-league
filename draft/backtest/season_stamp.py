@@ -341,3 +341,101 @@ def unclassified_fields(row: dict) -> list:
     return sorted(k for k in (row or {})
                   if not k.endswith("_season") and not k.endswith("_historical")
                   and k not in BOARD_FIELD_SOURCES)
+
+
+# ── PURPOSE, THE SECOND AXIS ────────────────────────────────────────────────
+#
+# The season axis above answers WHICH YEAR a field describes. This one answers
+# WHAT IT WAS PRODUCED FOR, which is a different question and the one Cory raised:
+# data made to decide whether something works must not price a live
+# recommendation, and a PRIOR estimated from past seasons must not be read as a
+# measurement of this one.
+#
+# THE AUDIT THAT MOTIVATED IT found the runtime paths clean. No live surface
+# reads a backtest or experiment file — `src/routes/*`, `netlify/functions/*` and
+# `public/js/*` load only the board, `league_history.json`, `identity_map.json`
+# and `payouts.json`. The one set of experiment-derived constants in the draft app
+# (`deviation.js` MARKET_EFFICIENCY, from `exp36.json`) agrees 11/11 with its
+# artifact and is used in the direction its own comment describes.
+#
+# WHAT WAS NOT COVERED IS THE BOARD, where a historical prior and a live feed sit
+# in adjacent fields with nothing distinguishing them. `target_share: 0.295` is
+# 2024-25 usage; printed beside `injury_status`, which really is current, it reads
+# as this season's number and nothing in the row says otherwise.
+
+LIVE_FEED = "live_feed"                # fetched this season, describes now
+HISTORICAL_PRIOR = "historical_prior"  # estimated from prior seasons; legitimate, must be NAMED
+MODEL_CONSTANT = "model_constant"      # a declared constant or config value
+DERIVED_PURPOSE = "derived"            # computed from other board fields
+EXPERIMENT = "experiment"              # output of a study — NEVER prices a recommendation
+
+#: Purposes a LIVE surface may act on. `experiment` is absent deliberately: an
+#: experiment is selected, pre-registered and often adversarial by design, and its
+#: output answers "does this work", never "what is this player worth".
+LIVE_ALLOWED = (LIVE_FEED, HISTORICAL_PRIOR, MODEL_CONSTANT, DERIVED_PURPOSE)
+
+BOARD_FIELD_PURPOSE = {
+    # measured this season, about this season
+    "player_id": LIVE_FEED, "name": LIVE_FEED, "position": LIVE_FEED,
+    "team": LIVE_FEED, "age": LIVE_FEED, "years_exp": LIVE_FEED,
+    "injury_status": LIVE_FEED, "depth_chart_order": LIVE_FEED,
+    "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
+    "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
+    "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
+    "proj_fantasypros": LIVE_FEED, "proj_sleeper": LIVE_FEED,
+    # ESTIMATED FROM PRIOR SEASONS. Allowed — this is how anything gets priced —
+    # and named, because the failure is a prior read as a current measurement.
+    "opportunity_adj": HISTORICAL_PRIOR, "opportunity_share": HISTORICAL_PRIOR,
+    "opportunity_z": HISTORICAL_PRIOR, "target_share": HISTORICAL_PRIOR,
+    "wopr": HISTORICAL_PRIOR, "games_expected": HISTORICAL_PRIOR,
+    # declared in config or code rather than measured from a feed
+    "variance": MODEL_CONSTANT, "variance_why": MODEL_CONSTANT,
+    "replacement": MODEL_CONSTANT,
+    # arithmetic over the rows above
+    "proj_baseline": DERIVED_PURPOSE, "proj_mean": DERIVED_PURPOSE,
+    "proj_floor": DERIVED_PURPOSE, "proj_ceiling": DERIVED_PURPOSE,
+    "proj_sd": DERIVED_PURPOSE, "weekly_sd": DERIVED_PURPOSE,
+    "vorp": DERIVED_PURPOSE, "overall_rank": DERIVED_PURPOSE,
+    "pos_rank": DERIVED_PURPOSE, "pool_rank": DERIVED_PURPOSE,
+    "tier": DERIVED_PURPOSE, "tier_rank": DERIVED_PURPOSE,
+    "tier_size": DERIVED_PURPOSE, "tier_drop": DERIVED_PURPOSE,
+    "adp_stale": DERIVED_PURPOSE, "adp_velocity": DERIVED_PURPOSE,
+}
+
+
+def unpurposed_fields(row: dict) -> list:
+    """Board fields with no declared PURPOSE — a hole in the map, not a pass.
+
+    Same guard as `unclassified_fields` and for the same reason: the field nobody
+    thought about is the one added last week, and defaulting it to `live_feed`
+    would trust a brand-new ingest field as a current measurement on the day it
+    lands. That is the most dangerous default available here.
+    """
+    return sorted(f for f in (row or {}) if f not in BOARD_FIELD_PURPOSE)
+
+
+def purpose_violations(row: dict, purposes: dict = None, allowed=LIVE_ALLOWED) -> list:
+    """Fields on a LIVE row whose purpose is not one a live surface may act on.
+
+    An unmapped field is a violation too — see `unpurposed_fields`.
+    """
+    m = dict(BOARD_FIELD_PURPOSE, **(purposes or {}))
+    return sorted(f for f in (row or {})
+                  if m.get(f, EXPERIMENT) not in allowed)
+
+
+def purpose_report(row: dict, purposes: dict = None) -> dict:
+    """Which fields are live measurements, which are priors, which are violations.
+
+    `priors_present` is the number worth surfacing: a row carrying priors is not
+    wrong, it is a row where some values describe LAST season and a reader cannot
+    tell from the row alone.
+    """
+    m = dict(BOARD_FIELD_PURPOSE, **(purposes or {}))
+    by = {}
+    for f in sorted(row or {}):
+        by.setdefault(m.get(f, EXPERIMENT), []).append(f)
+    return {"by_purpose": {k: v for k, v in by.items()},
+            "violations": purpose_violations(row, purposes),
+            "unpurposed": unpurposed_fields(row),
+            "priors_present": bool(by.get(HISTORICAL_PRIOR))}
