@@ -943,3 +943,660 @@ def test_dispersion_of_an_EMPTY_parse_is_empty_not_a_crash():
     keeps the day in that case. MUTATION: index [0] and the whole capture dies on
     the one path built to survive a partial fetch."""
     assert C.dispersion_of([]) == {}
+
+
+# ── THE BOARD CAN SHRINK SILENTLY, AND min/max DOES NOT SHOW IT ─────────────
+#
+# Observed 2026-08-13 on the real archive: total_drafts ROSE 115 -> 119 -> 125 while
+# row_count FELL 705 -> 708 -> 672. More drafts, 36 fewer players priced. `coverage()`
+# reported `complete: true` with `min_rows 672, max_rows 708` — both true, and neither
+# says "the board lost 5% of its players in a day".
+#
+# The likely mechanism is MFL's `CUTOFF=5`: if that is a PERCENTAGE of drafts rather
+# than a count, the bar rises as drafts accumulate and marginal players fall off. I
+# cannot reach MFL from here to confirm the semantics, so this does NOT assert a
+# defect — it makes the movement visible so the question can be asked.
+
+def test_coverage_REPORTS_day_over_day_row_movement():
+    """MUTATION: report min/max only. A board that shrinks 5% a day reads as
+    'complete' with a plausible min and max, and the shrink is invisible until
+    someone diffs two snapshots by hand."""
+    s = []
+    for day, n in (("2026-08-11", 705), ("2026-08-12", 708), ("2026-08-13", 672)):
+        s = C.append_snapshot(s, 2026, day, {str(i): 1.0 for i in range(n)})
+    cov = C.coverage(s, 2026)
+    assert cov["row_deltas"] == [3, -36], cov["row_deltas"]
+    assert cov["largest_drop"] == -36
+    assert cov["row_drop_note"], "a drop this size must carry a note, not just a number"
+    assert "36" in cov["row_drop_note"]
+
+
+def test_a_STABLE_series_carries_NO_drop_note():
+    """The other side: an instrument that always warns is not an instrument.
+    MUTATION: always emit the note — it stops meaning anything by the second day."""
+    s = []
+    for day, n in (("2026-08-11", 700), ("2026-08-12", 702), ("2026-08-13", 701)):
+        s = C.append_snapshot(s, 2026, day, {str(i): 1.0 for i in range(n)})
+    cov = C.coverage(s, 2026)
+    assert cov["largest_drop"] == -1
+    assert cov["row_drop_note"] is None
+
+
+def test_a_SINGLE_snapshot_has_no_deltas_and_says_so():
+    """Rule 13f: one day cannot show movement, and reporting 0 would read as
+    'measured, and stable'. MUTATION: return 0 for the largest drop."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 1.0})
+    cov = C.coverage(s, 2026)
+    assert cov["row_deltas"] == []
+    assert cov["largest_drop"] is None
+
+
+# ── WHICH players left, not how many (rule 9) ───────────────────────────────
+#
+# `row_drop_note` is a dashboard reading: "36 players lost, go look." I went and
+# looked, by hand, and the answer was that all 37 sat at ADP 169+ and 19 of them
+# were IDP this league cannot roster at any price. That is the source CONVERGING
+# — MFL's CUTOFF is a percentage of drafts, so marginal players wash out as the
+# sample grows — and it costs us nothing.
+#
+# But the count cannot tell those two cases apart. Thirty-six deep IDP washing
+# out and three draftable WRs vanishing nine days before a draft produce the
+# SAME NUMBER, and only one of them costs a pick. So the instrument answers the
+# question instead of raising it.
+
+def test_a_drop_INSIDE_the_draftable_range_is_NAMED():
+    """THE CASE THIS EXISTS FOR. A player priced inside the last pick on Monday and
+    gone on Tuesday has no ADP for a draft that is nine days away, and F5 reads the
+    latest snapshot before the draft. MUTATION: report the count only — a draftable
+    loss and a tail loss are the same integer, and the tail case is the common one,
+    so the alarm gets ignored exactly when it starts being real."""
+    a = {"p1": 10.0, "p2": 140.0, "p3": 400.0}
+    s = C.append_snapshot([], 2026, "2026-08-12", a)
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == ["p2"], d
+    assert d["inside_n"] == 1
+    assert d["outside_n"] == 1, "the ADP-400 loss is the source converging, not a cost"
+
+
+def test_a_TAIL_ONLY_drop_is_reported_as_COSTING_NOTHING():
+    """The measured 2026-08-13 case. MUTATION: flag any drop — the instrument fires
+    every day the source converges and is therefore never read."""
+    a = {"p1": 10.0, "p2": 169.17, "p3": 400.0}
+    s = C.append_snapshot([], 2026, "2026-08-12", a)
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == []
+    assert d["inside_n"] == 0 and d["outside_n"] == 2
+    assert d["verdict"] == "clean"
+
+
+def test_WITHOUT_a_last_pick_it_REFUSES_TO_JUDGE_rather_than_guessing_150():
+    """The league's boundary is the CONSUMER's, not the archive's — the same line I
+    held in nflverse_weekly_store, where baking `last_scored_leg = 17` into the store
+    would have made the archive league-specific forever. 10 teams x 15 rounds is 150
+    TODAY; it is a config edit away from not being.
+
+    MUTATION: default last_pick=150 — the archive silently encodes one league's
+    settings and every verdict it gives a different league is wrong while looking
+    exactly as authoritative."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0, "p2": 400.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026)
+    assert d["verdict"] == "unjudged"
+    assert d["inside_ids"] is None, "no boundary means no verdict, not an empty one"
+    assert "last_pick" in d["note"]
+
+
+def test_ONE_SNAPSHOT_cannot_show_a_loss_and_says_so_rather_than_clean():
+    """Rule 13f, again, and it is the dangerous direction here: a capture that ran
+    once would report `clean` — a check that CANNOT fail reading as a check that
+    PASSED. MUTATION: return verdict 'clean' when there is nothing to compare."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["verdict"] == "unmeasured"
+    assert d["inside_n"] is None
+
+
+def test_a_player_who_RETURNS_is_not_counted_as_lost_on_the_LATEST_board():
+    """A player can drop out and come back as the sample grows — that is what a
+    percentage cutoff does at the margin. What matters for the draft is the LATEST
+    board, so a round trip is not a standing loss. MUTATION: accumulate every
+    pairwise disappearance — the count grows all preseason and never comes down,
+    and by draft day it describes churn rather than the board we will draft off."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"p1": 10.0, "p2": 140.0})
+    s = C.append_snapshot(s, 2026, "2026-08-12", {"p1": 10.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0, "p2": 141.0})
+    d = C.dropped_inside(s, 2026, last_pick=150)
+    assert d["inside_ids"] == [], "he is on the board we will draft off"
+    assert d["churn_inside_n"] == 1, "but the round trip is still visible"
+
+
+# ── the draft's last pick, DERIVED, because dropped_inside refuses to guess ──
+
+def LS(teams=10, rounds=15, slots=15, draft_rounds=3, declared=None):
+    return {"settings": {"num_teams": declared if declared is not None else teams,
+                         "draft_rounds": draft_rounds},
+            "draft": {"settings": {"teams": teams, "rounds": rounds}},
+            "owner_to_roster": {str(i): i for i in range(teams)},
+            "roster_positions": ["BN"] * slots}
+
+
+def test_last_pick_is_teams_times_rounds_and_NAMES_ITS_SOURCES():
+    d = C.draft_last_pick(LS())
+    assert d["last_pick"] == 150
+    assert d["teams"] == 10 and d["rounds"] == 15
+    assert "roster_positions" in d["note"] and "draft.settings" in d["note"]
+    assert "owner_to_roster" in d["note"]
+
+
+def test_draft_rounds_IS_NOT_THE_DRAFT_LENGTH():
+    """THE FIELD-NAME TRAP, and it is live in our real config: `settings.draft_rounds`
+    is 3 while the draft is 15 rounds — it tracks `max_keepers: 3`. It is exactly the
+    name you reach for, it holds a plausible integer, and nothing about reading it
+    raises an error.
+
+    MUTATION: read `settings.draft_rounds` — last_pick becomes 30, and `dropped_inside`
+    then judges 120 picks of real draftable board as OUT of range. Every draftable
+    loss from pick 31 to 150 reports `clean`, in the instrument built to catch it."""
+    d = C.draft_last_pick(LS(rounds=15, draft_rounds=3))
+    assert d["last_pick"] == 150, "draft_rounds is the keeper count, not the length"
+
+
+def test_DISAGREEING_team_counts_REFUSE_rather_than_picking_one():
+    """Rule 11: two independent derivations, and a disagreement is a finding.
+    MUTATION: take the first source — one of the two is wrong and nothing says which,
+    so the boundary is quietly off by a whole round or more."""
+    ls = LS()                      # 10 actual rosters
+    ls["draft"]["settings"]["teams"] = 12
+    d = C.draft_last_pick(ls)
+    assert d["last_pick"] is None
+    assert "10" in d["note"] and "12" in d["note"], d["note"]
+
+
+def test_ROUNDS_disagreeing_with_the_roster_REFUSE_too():
+    """15 roster slots and 14 rounds cannot both be right. MUTATION: trust
+    draft.settings.rounds alone — the second derivation stops being a check."""
+    d = C.draft_last_pick(LS(rounds=14, slots=15))
+    assert d["last_pick"] is None
+    assert "14" in d["note"] and "15" in d["note"]
+
+
+def test_a_MISSING_config_yields_NO_BOUNDARY_not_a_default():
+    """MUTATION: fall back to 150 — the number is right for this league today and
+    would stay looking right for any league it is wrong for."""
+    d = C.draft_last_pick({})
+    assert d["last_pick"] is None
+    assert "UNDERIVABLE" in d["note"]
+
+
+def test_the_derived_boundary_FEEDS_dropped_inside():
+    """Rule 14 — the consumer exists the day the writer does, and the whole point of
+    deriving the boundary is that `dropped_inside` stops refusing to judge."""
+    s = C.append_snapshot([], 2026, "2026-08-12", {"p1": 10.0, "p2": 149.0})
+    s = C.append_snapshot(s, 2026, "2026-08-13", {"p1": 10.0})
+    lp = C.draft_last_pick(LS())["last_pick"]
+    assert C.dropped_inside(s, 2026, last_pick=lp)["inside_ids"] == ["p2"]
+
+
+def test_num_teams_IS_NOT_THE_TEAM_COUNT():
+    """THE SAME TRAP ONE FIELD OVER, and I walked into it — `test_settings_registry_truth`
+    caught me reading `settings.num_teams` and the registry explained why not: it is a
+    DECLARED TARGET, filed `ignored`, and `sleeper_import` reads the actual rosters
+    because a declared target can disagree with how many rosters exist.
+
+    A league sitting at 9 of a declared 10 would put the last pick at 150 when the
+    draft is 135 — and the 15 phantom picks are the DEEPEST ones, exactly where the
+    percentage cutoff drops players. `dropped_inside` would then report draftable
+    losses that are not draftable, and the alarm gets muted for being wrong.
+
+    MUTATION: read settings.num_teams — this passes on every league where the target
+    happens to be met, which is nearly all of them, right up until it is not."""
+    ls = LS(teams=9, declared=10)      # 9 rosters exist; the config still says 10
+    d = C.draft_last_pick(ls)
+    assert d["teams"] == 9, "count the rosters that exist, not the ones declared"
+    assert d["last_pick"] == 9 * 15
+
+
+# ── A KEPT PLAYER IS NOT A CROSSWALK FAILURE ────────────────────────────────
+#
+# THIS COST ME AN HOUR AND VERY NEARLY A FALSE REPORT TO A. Measuring the
+# archive's usability I found 31 of MFL's top-150 unresolved, and among them
+# Ja'Marr Chase at ADP 4.72, Derrick Henry at 54.91, Kenneth Walker III at
+# 39.51. I searched the board's `players` list exhaustively — no name match, no
+# id — reproduced it on a clean origin/main worktree, checked both active
+# branches for a fix, and was assembling the route to A.
+#
+# They are KEEPERS. `kept_players` holds exactly those three. They are absent
+# from the draftable list because they CANNOT BE DRAFTED, which is the board
+# being right.
+#
+# The report could not tell me that. `unmatched_composition.by_why` explains
+# only `team_unit_not_a_player`; every other miss lands in an undifferentiated
+# `no_sleeper_match`, where "IDP this league cannot roster", "kept, so not
+# draftable" and "genuinely missing from the board" are one number. Two of those
+# three are correct behaviour and the third is an emergency, and at the TOP of
+# the board — where keepers live — the benign case dominates.
+#
+# Same shape as the row-drop count: an instrument that raises a question it has
+# the information to answer. It answers this one now.
+#
+# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` is A's and reads this
+# report; silently reclassifying misses would move A's numbers without A asking.
+# Passing no `kept` reproduces today's output exactly.
+
+KEPT = [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
+
+
+def _board(*rows):
+    return [dict(r) for r in rows]
+
+
+def test_a_KEPT_player_is_classified_KEPT_not_a_crosswalk_miss():
+    """MUTATION: leave him under `no_sleeper_match` — an elite keeper reads as a
+    crosswalk failure, and I can testify it sends the reader hunting a board gap
+    that does not exist."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    ids, rep = C.crosswalk_map(key, board, kept=KEPT)
+    assert rep["kept_not_draftable"] == 1, rep
+    assert [k["name"] for k in rep["kept_rows"]] == ["Ja'Marr Chase"]
+    assert rep["no_sleeper_match_excluding_kept"] == 0
+
+
+def test_a_GENUINE_miss_is_still_a_miss():
+    """The other side, and the one that keeps the classifier honest. MUTATION: treat
+    every miss as kept — the report can no longer find a real board gap at all, which
+    is the failure the whole measurement exists to catch."""
+    key = {"1": {"name": "Somebody Absent", "position": "WR", "team": "CIN"}}
+    ids, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        kept=KEPT)
+    assert rep["kept_not_draftable"] == 0
+    assert rep["no_sleeper_match_excluding_kept"] == 1
+
+
+def test_WITHOUT_kept_the_report_is_UNCHANGED():
+    """A's `board_vs_market.py` reads this report. MUTATION: classify anyway — A's
+    numbers move under them without A asking, which is the lane boundary breaking
+    quietly rather than loudly."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, plain = C.crosswalk_map(key, board)
+    _, withk = C.crosswalk_map(key, board, kept=KEPT)
+    assert "kept_not_draftable" not in plain, "no kept list, no new keys"
+    assert plain["crosswalk_rate"] == withk["crosswalk_rate"], (
+        "the ORIGINAL rate must not move — only a new one is added beside it")
+
+
+def test_the_DRAFTABLE_rate_excludes_kept_players_from_the_denominator():
+    """`crosswalk_rate` answers "how much of the source can we decode". The question
+    that decides whether the archive is usable is "how much of what we can actually
+    DRAFT can we decode", and a keeper is not draftable by anyone.
+
+    MUTATION: leave keepers in the denominator — the rate understates, and it
+    understates MOST at the top of the board, because that is where keepers are."""
+    key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, kept=KEPT)
+    assert rep["crosswalk_rate"] == 0.5, "1 of 2 decoded, unchanged"
+    assert rep["crosswalk_rate_draftable"] == 1.0, "1 of 1 DRAFTABLE decoded"
+
+
+def test_an_EMPTY_kept_list_still_reports_the_new_keys():
+    """Rule 13f. A league with no keepers must say `kept_not_draftable: 0` — MEASURED
+    zero — rather than omitting the key, which reads identically to not having looked.
+    MUTATION: treat [] like None and skip the classification."""
+    key = {"1": {"name": "Somebody Absent", "position": "WR", "team": "CIN"}}
+    _, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        kept=[])
+    assert rep["kept_not_draftable"] == 0
+    assert rep["no_sleeper_match_excluding_kept"] == 1
+
+
+# ── AND A POSITION THIS LEAGUE CANNOT ROSTER IS NOT A MISS EITHER ───────────
+#
+# Adding the keeper class exposed an overclaim in my own naming. With keepers
+# excluded, `crosswalk_rate_draftable` came out 0.6119 against a raw 0.6093 —
+# three players out of 709. The name says "draftable" and handled ONE of the two
+# reasons a player is not draftable.
+#
+# The other reason dominates: MFL's board carries DE/DT/LB/CB/S and team-kicker
+# units, and this league rosters QB/RB/WR/TE/K/DEF. Inside pick 150 the
+# arithmetic is 170 priced - 3 kept - 28 unrosterable = 139, and 139 decode.
+# The number that decides whether the archive is usable is 100%, and my report
+# was about to say 61%.
+
+def RP(*extra):
+    return {"roster_positions": ["QB", "RB", "RB", "WR", "WR", "TE", "FLEX",
+                                 "K", "DEF"] + ["BN"] * 6 + list(extra)}
+
+
+def test_rostered_positions_STRIPS_FLEX_AND_BN():
+    """FLEX and BN are slots, not positions — no player has position "BN".
+    MUTATION: return roster_positions verbatim; the set gains two members that
+    match nobody, which looks harmless and makes every later assertion about the
+    set false."""
+    assert C.rostered_positions(RP()) == {"QB", "RB", "WR", "TE", "K", "DEF"}
+
+
+def test_rostered_positions_SPEAKS_MFLS_VOCABULARY():
+    """THE ONE THAT WOULD HAVE BITTEN. MFL says `PK` for a kicker and `Def` for a
+    team defense; our roster says `K` and `DEF`. MUTATION: compare raw strings —
+    every kicker and every team defense on MFL's board is classified "not
+    rostered", which silently removes 19 kickers and 24 defenses from the
+    draftable population AND RAISES the rate, so the instrument improves its own
+    score by dropping the players it cannot explain."""
+    rp = C.rostered_positions(RP())
+    assert C.position_is_rostered("PK", rp) is True, "MFL's kicker is our K"
+    assert C.position_is_rostered("Def", rp) is True, "MFL's Def is our DEF"
+    assert C.position_is_rostered("LB", rp) is False
+    assert C.position_is_rostered("TMPK", rp) is False, "a team kicker unit is not our K"
+
+
+def test_an_UNROSTERED_position_is_classified_not_counted_as_a_miss():
+    """MUTATION: leave IDP in the miss bucket — the draftable rate reads 61% when
+    the answer is 100%, and that rate is what decides whether the archive is
+    usable at all."""
+    key = {"1": {"name": "Some Linebacker", "position": "LB", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, positions=C.rostered_positions(RP()))
+    assert rep["position_not_rostered"] == 1
+    assert rep["crosswalk_rate"] == 0.5, "the original rate does not move"
+    assert rep["crosswalk_rate_draftable"] == 1.0, "1 of 1 rosterable decoded"
+
+
+def test_a_ROSTERED_position_that_misses_is_STILL_A_MISS():
+    """The honesty check. MUTATION: classify every miss as unrostered — the report
+    can no longer find a genuine board gap, which is the emergency it exists for."""
+    key = {"1": {"name": "Absent Receiver", "position": "WR", "team": "CIN"}}
+    _, rep = C.crosswalk_map(key, _board(
+        {"player_id": "99", "name": "Chase Brown", "position": "RB", "team": "CIN"}),
+        positions=C.rostered_positions(RP()))
+    assert rep["position_not_rostered"] == 0
+    assert rep["undraftable_excluded"] == 0
+    assert rep["crosswalk_rate_draftable"] == 0.0, "a real gap must show as a real gap"
+
+
+def test_kept_and_unrostered_are_counted_ONCE_not_twice():
+    """A player in BOTH lists must be subtracted once. A denominator smaller than
+    the truth inflates the rate, and in the limit pushes it past 1.0, where it reads
+    as better than perfect rather than as arithmetic that has gone wrong.
+
+    MY FIRST VERSION OF THIS TEST WAS VACUOUS AND THE MUTATION SURVIVED IT. The
+    fixture used a kept WR — rostered, so in one list only — and the overlap the
+    name promises was never constructed. Double-counting changed nothing and the
+    assertion passed. So the keeper here is a LINEBACKER: kept AND at a position
+    this league cannot roster, which is the only shape that can catch it."""
+    kept_lb = [{"player_id": "5", "name": "Kept Linebacker",
+                "position": "LB", "team": "CIN"}]
+    key = {"1": {"name": "Kept Linebacker", "position": "LB", "team": "CIN"},
+           "2": {"name": "Chase Brown", "position": "RB", "team": "CIN"}}
+    board = _board({"player_id": "99", "name": "Chase Brown",
+                    "position": "RB", "team": "CIN"})
+    _, rep = C.crosswalk_map(key, board, kept=kept_lb,
+                             positions=C.rostered_positions(RP()))
+    assert rep["kept_not_draftable"] == 1 and rep["position_not_rostered"] == 1, (
+        "the fixture must put him in BOTH lists or this test proves nothing")
+    assert rep["undraftable_excluded"] == 1, "both lists, ONE exclusion"
+    assert rep["crosswalk_rate_draftable"] == 1.0
+
+
+def test_the_POSITION_HELPERS_work_without_crosswalk_map_running_first(tmp_path):
+    """GREEN BY TEST ORDER IS NOT GREEN. `rostered_positions` imports `adp`, which
+    lives in `draft/`, and the sys.path insert that makes that possible lived inside
+    `crosswalk_map`. Every test above passed because some earlier test had already
+    called `crosswalk_map` and sys.path is process-global — and the function raised
+    ModuleNotFoundError the first time it was called from a script, which is exactly
+    where an ingest helper gets called.
+
+    A SUBPROCESS, because the pollution cannot be undone inside this one: by the
+    time any assertion runs here, `draft/` is already on the path.
+
+    MUTATION: move the path insert back inside `crosswalk_map` — this fails and
+    nothing else does."""
+    import subprocess, sys, textwrap
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent          # draft/
+    src = textwrap.dedent('''
+        import sys
+        sys.path.insert(0, %r)
+        import external_adp_capture as E
+        print(sorted(E.rostered_positions({"roster_positions": ["QB", "FLEX", "K"]})))
+        print(E.position_is_rostered("PK", {"K"}))
+    ''') % str(root / "backtest")
+    r = subprocess.run([sys.executable, "-c", src], capture_output=True, text=True)
+    assert r.returncode == 0, (
+        "the helpers must import on their own:\n%s" % r.stderr[-600:])
+    assert r.stdout.split("\n")[0] == "['K', 'QB']"
+    assert r.stdout.split("\n")[1] == "True"
+
+
+# ── WHICH SNAPSHOT WILL OUR OWN DRAFT ACTUALLY USE ──────────────────────────
+#
+# INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the 08-12
+# snapshot, 708 rows". It was true when written and it is wrong now — the
+# archive has since gained 08-13, and 08-13 has 672 rows. A fact copied into
+# prose goes stale silently; rule 9 says that is a mechanism implemented as a
+# note.
+#
+# AND IT SURFACES A DEADLINE NOBODY HAS STATED. F5 takes the latest snapshot
+# STRICTLY BEFORE the draft, so a capture taken on draft morning is worth
+# nothing to it. The last capture that can still matter is 2026-08-21 — one day
+# earlier than everyone has been assuming, on an archive where a lost day cannot
+# be refetched.
+#
+# THE SELECTION IS NOT RE-DERIVED HERE. `ExternalAsOfStore.snapshot_date()`
+# already implements strictly-before and this module's own header says the rule
+# stays in ONE place. A second `<` written here is the multi-derivation defect
+# that has bitten this project repeatedly — and it would drift silently, because
+# both copies would keep returning valid-looking dates.
+
+def _series3():
+    s = C.append_snapshot([], 2026, "2026-08-20", {"p": 1.0})
+    s = C.append_snapshot(s, 2026, "2026-08-21", {"p": 1.0, "q": 2.0})
+    return C.append_snapshot(s, 2026, "2026-08-22", {"p": 1.0, "q": 2.0, "r": 3.0})
+
+
+def test_a_snapshot_taken_ON_DRAFT_DAY_IS_NOT_THE_ONE_F5_USES():
+    """THE DEADLINE THIS EXISTS TO SURFACE. Strictly before, not `<=`: a board
+    stamped the morning of the draft may have seen picks already in.
+
+    MUTATION: use `<=` — the check reports ready off a snapshot F5 will refuse,
+    and the one day that actually mattered is spent believing it is covered."""
+    r = C.f5_readiness(_series3(), 2026, draft_date="2026-08-22")
+    assert r["snapshot_date"] == "2026-08-21", r
+    assert r["rows"] == 2, "and it is that snapshot's board, not draft morning's"
+    assert r["last_useful_capture"] == "2026-08-21"
+
+
+def test_it_says_HOW_MANY_DAYS_ARE_LEFT_to_capture_something_that_matters():
+    """MUTATION: count to the draft date — every statement of the remaining window
+    is one day too generous, on days that cannot be bought back."""
+    r = C.f5_readiness(_series3(), 2026, draft_date="2026-08-22",
+                       today="2026-08-13")
+    assert r["days_until_last_useful"] == 8, "08-13 -> 08-21, not 9 to the draft"
+    assert r["days_until_draft"] == 9
+
+
+def test_NO_QUALIFYING_SNAPSHOT_is_EXCLUDED_not_ready():
+    """F4/F5 attrition, and it must not read as readiness. MUTATION: return the
+    nearest snapshot anyway — the replay silently uses a board from after the
+    draft it is predicting, which is the leak this whole archive is shaped to
+    prevent."""
+    s = C.append_snapshot([], 2026, "2026-08-25", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22")
+    assert r["verdict"] == "excluded"
+    assert r["snapshot_date"] is None
+    assert "strictly before" in r["note"].lower()
+
+
+def test_the_LEAD_is_reported_so_a_stale_board_cannot_pass_as_a_fresh_one():
+    """A qualifying snapshot four days old still qualifies. It is also four days
+    of market movement we did not capture, and `verdict: ready` alone hides that.
+    MUTATION: report readiness without the lead — a capture that died a week
+    before the draft reports exactly like one that ran this morning.
+
+    `today` IS PASSED, and that is the correction rather than a detail. This test
+    first asserted `stale is True` with no clock, which the implementation then
+    satisfied by keying staleness off the draft — and that made the flag fire every
+    day of a perfectly healthy capture. Staleness needs a clock; without one the
+    honest answer is None, and the test that demanded otherwise was the reason the
+    implementation was wrong."""
+    s = C.append_snapshot([], 2026, "2026-08-17", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-22")
+    assert r["verdict"] == "ready"
+    assert r["lead_days"] == 5, "08-17 board used for an 08-22 draft"
+    assert r["age_days"] == 5 and r["stale"] is True
+
+
+def test_WITHOUT_a_draft_date_it_REFUSES_to_judge():
+    """Same line held for `last_pick`: the draft's date belongs to the league, not
+    to the archive, and `draft.start_time` is null in our own Sleeper config today.
+    MUTATION: default to 2026-08-22 — the archive hardcodes one league's calendar
+    and every answer it gives another one is wrong while looking authoritative."""
+    r = C.f5_readiness(_series3(), 2026, draft_date=None)
+    assert r["verdict"] == "unjudged"
+    assert r["snapshot_date"] is None and "draft_date" in r["note"]
+
+
+def test_STALENESS_IS_MEASURED_AGAINST_TODAY_not_against_the_draft():
+    """AN ALARM THAT IS ON BY DEFAULT IS OFF, and my first cut of `f5_readiness`
+    was one. It set `stale` from `lead_days` — draft minus snapshot — so on
+    2026-08-13, with a snapshot captured THAT MORNING and nine days of captures
+    still to come, it reported `stale: True`. It would have said so every day
+    until the week of the draft and then gone quiet, which is precisely backwards.
+
+    `lead_days` is a projection until the draft arrives: what F5 would see if the
+    draft were held on today's archive. Whether we are CAPTURING is a question
+    about today.
+
+    MUTATION: key `stale` off lead_days — a healthy daily capture reports stale
+    for eight consecutive days and the flag is worthless by the time it is true."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-13")
+    assert r["lead_days"] == 9, "at the draft, this board would be 9 days old"
+    assert r["age_days"] == 0, "but it was captured today"
+    assert r["stale"] is False, "a capture that ran this morning is not stale"
+
+
+def test_a_capture_that_DIED_is_stale_even_with_the_draft_far_off():
+    """The other side. MUTATION: never flag it — the archive quietly stops and the
+    only signal is a number nobody is diffing day to day."""
+    s = C.append_snapshot([], 2026, "2026-08-08", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-13")
+    assert r["age_days"] == 5 and r["stale"] is True
+    assert "5 day" in r["note"]
+
+
+def test_with_NO_today_staleness_is_UNKNOWN_rather_than_False():
+    """Rule 13f. Without a clock the question cannot be asked, and `False` would
+    read as "checked, and fresh". MUTATION: default stale to False."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22")
+    assert r["age_days"] is None and r["stale"] is None
+
+
+# ── THE WIRING SEAM, which is the one place a day's SPREAD can vanish ───────
+#
+# `dispersion_of` is pure and tested. `fetch_mfl` needs egress and is honestly
+# `pragma: no cover`. `capture()` is the GLUE between them and was uncovered for
+# the same reason — which puts the untested part exactly where the two tested
+# parts meet.
+#
+# That matters tomorrow specifically. The dispersion change landed today, so
+# 2026-08-14 is the FIRST capture that can carry a spread; the three snapshots
+# we hold have none because the parser was discarding it. If `capture` drops the
+# argument, the run still goes green, the row count is still right, the archive
+# still grows — and the spread is silently gone for another perishable day.
+#
+# The fetch is INJECTED rather than mocked away wholesale: everything downstream
+# of it is the real code path, so this exercises append_snapshot, save and load
+# as they will actually run at 11:20 UTC.
+
+def test_capture_THREADS_DISPERSION_from_the_fetch_all_the_way_to_DISK(tmp_path,
+                                                                       monkeypatch):
+    """MUTATION: drop `dispersion=dispersion` from the append_snapshot call. The
+    run stays green, the row count stays right, the archive still grows by a day —
+    and the spread is gone, on a day that cannot be refetched."""
+    p = tmp_path / "arch.json"
+    disp = {"1": {"min_pick": 2.0, "max_pick": 9.0, "sel_pct": 88.0, "drafts": 120}}
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      120, "mfl adp", disp))
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    got = json.loads(p.read_text())
+    snap = [s for s in got["series"] if s["observed_at"] == "2026-08-14"][0]
+    assert snap["dispersion"] == {"1": {"min_pick": 2.0, "max_pick": 9.0,
+                                        "sel_pct": 88.0, "drafts": 120}}, snap
+
+
+def test_a_day_MFL_PUBLISHES_NO_SPREAD_stores_None_not_an_empty_measurement():
+    """`None`, not `{}`. The two days captured before this landed genuinely have no
+    dispersion because the parser was discarding it, and that is ABSENCE — an empty
+    dict on disk reads as "we looked and every player had no spread".
+
+    MUTATION: store `{}` — `dispersion_rows: 0` then means the same thing whether
+    MFL stopped publishing spreads or we stopped reading them."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion=None)
+    assert s[0]["dispersion"] is None
+    s2 = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion={})
+    assert s2[0]["dispersion"] is None, "empty is absence here, not a measurement"
+
+
+def test_capture_REFUSES_a_zero_row_day_before_it_can_reach_the_archive(tmp_path,
+                                                                       monkeypatch):
+    """Already the documented behaviour; pinned because the injection now makes it
+    reachable. MUTATION: write it anyway — a dated empty board is indistinguishable
+    from a real one downstream, and `board()` hands a replay an empty market and
+    calls it frozen."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl", lambda year: ({}, {}, 0, "mfl down", {}))
+    try:
+        C.capture(2026, "2026-08-14", path=str(p))
+    except RuntimeError as e:
+        assert "zero rows" in str(e).lower()
+    else:
+        raise AssertionError("an empty fetch must not reach the archive")
+    assert not p.exists(), "and it must not have written a file either"
+
+
+def test_a_FAILING_REPORT_CANNOT_DESTROY_THE_DAY(tmp_path, monkeypatch, capsys):
+    """THE LESSON THIS FILE ALREADY LEARNED, ONE LAYER DOWN.
+
+    `external-adp-capture.yml` carries it in capitals at the board-pin step: THE
+    PIN MUST NOT BE ABLE TO KILL THE SNAPSHOT — a failure in the recoverable thing
+    was destroying the unrecoverable one. Inside `capture()` the same shape was
+    live and unnoticed: `save()` runs, then a summary line prints
+    `len(dispersion)`. Hand that a None and it raises AFTER the archive is written
+    but BEFORE the function returns, so the step fails — and the commit step is
+    gated on `steps.cap.outcome == 'success'`, so the day sits on the runner's
+    disk and never reaches git. A cosmetic print, deleting a perishable day.
+
+    Not reachable today: `dispersion_of` always returns a dict. It is one edit to
+    `fetch_mfl` away from being reachable, and `fetch_mfl` is `pragma: no cover`,
+    so that edit would be made where nothing is watching.
+
+    MUTATION: report before saving, or let the report raise — the archive loses
+    the day and the run is red for a reason that has nothing to do with the data."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}},
+                                      120, "mfl adp", None))   # None, not {}
+    rep = C.capture(2026, "2026-08-14", path=str(p))
+
+    assert p.exists(), "the day must be on disk whatever the report did"
+    got = json.loads(p.read_text())
+    assert [s["observed_at"] for s in got["series"]] == ["2026-08-14"]
+    assert rep["snapshots"] == 1, "and coverage must still come back"
+    assert "REPORT FAILED" in capsys.readouterr().out, (
+        "and it must SAY the report broke — silently swallowing it would hide a "
+        "real shape change in what MFL returns")

@@ -77,6 +77,10 @@ jobs:
           import sys, json, os, datetime
           sys.path.insert(0, 'draft/backtest')
           import external_adp_capture as C
+          # OUR draft, stated in one place. It lives only in prose today —
+          # `draft.start_time` is null in the Sleeper config — so it is
+          # named here rather than guessed inside the module.
+          DRAFT_DATE = "2026-08-22"
           cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
           print("```")
           print(json.dumps(cov, indent=1))
@@ -128,6 +132,146 @@ jobs:
               # where it is tested. Exactly one of them is zero in each case, so
               # a fixed template always printed a stray nought.
               fh.write("alarm=%s\n" % C.resume_alarm(cov["missing"], stale))
+
+          # ── PLAYERS LEAVING THE BOARD ─────────────────────────────────────
+          # Measured 2026-08-13: total_drafts ROSE 115 -> 119 -> 125 while
+          # row_count FELL 705 -> 708 -> 672. `min_rows`/`max_rows` reported
+          # both extremes truthfully and said nothing about 36 players
+          # vanishing in a day.
+          #
+          # It cost nothing — all 37 sat at ADP 169+, 19 of them IDP this
+          # league cannot roster — and the mechanism is MFL's CUTOFF=5 behaving
+          # as a PERCENTAGE of drafts: ceil(0.05*drafts) stepped 6 -> 6 -> 7,
+          # and the board GREW on the day it did not step. A percentage is a
+          # threshold on selection RATE, so marginal players wash out and the
+          # survivors stay. This is the source converging, not a defect.
+          #
+          # WHICH IS WHY THE COUNT MUST NOT BE THE ALARM. 36 deep IDP washing
+          # out and 3 draftable receivers vanishing nine days before a draft
+          # are the same integer, and the benign case is the daily one — an
+          # alarm keyed to the count gets muted before it ever matters. The
+          # count goes in the summary; only a loss INSIDE the draft escalates.
+          if cov.get("row_drop_note"):
+              print("**Board shrank:** %s" % cov["row_drop_note"])
+          print("`row_deltas` %s" % (cov.get("row_deltas"),))
+
+          # The boundary is DERIVED from the league config, twice, in the
+          # module where it is tested — not written here. `settings.draft_rounds`
+          # is 3 (it tracks max_keepers) while the draft is 15 rounds, so the
+          # obvious field would put the last pick at 30 and call every draftable
+          # loss from 31 to 150 clean.
+          lp = {"last_pick": None, "note": "no league settings file on disk"}
+          if os.path.exists("draft/data/sleeper_league_settings.json"):
+              lp = C.draft_last_pick(json.load(
+                  open("draft/data/sleeper_league_settings.json")))
+          drop = C.dropped_inside(C.load(),
+                                  "${{ github.event.inputs.year || '2026' }}",
+                                  last_pick=lp["last_pick"])
+          print("Draft boundary: **%s** — %s" % (lp["last_pick"], lp["note"]))
+          if drop["verdict"] == "draftable_loss":
+              print("**%s**" % drop["note"])
+          elif drop["verdict"] == "clean":
+              print("Board losses: %d, all outside pick %s — nothing draftable lost."
+                    % (drop["outside_n"], lp["last_pick"]))
+          else:
+              # NOT CHECKED IS NOT CLEAN (rule 13f). A missing config or two
+              # disagreeing sources silently stop this checking, and silence
+              # here looks exactly like a clean day.
+              print("**BOARD-LOSS CHECK DID NOT RUN (%s)** — %s. This is not a "
+                    "clean result; nothing was compared." % (drop["verdict"], drop["note"]))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("draftable_loss=%s\n"
+                       % ("1" if drop["verdict"] == "draftable_loss" else "0"))
+              fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
+
+          # ── WHICH SNAPSHOT OUR OWN DRAFT WILL USE ─────────────────────────
+          # INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the
+          # 08-12 snapshot, 708 rows". True when written; the archive has since
+          # gained 08-13 with 672 rows. A fact copied into prose goes stale in
+          # silence, which is rule 9 — a mechanism implemented as a note.
+          #
+          # AND IT STATES A DEADLINE NOBODY HAD: F5 takes the latest snapshot
+          # STRICTLY BEFORE the draft, so a board captured on draft morning is
+          # worth nothing to it. THE LAST CAPTURE THAT CAN MATTER IS 2026-08-21,
+          # a day earlier than the date everyone has been working to.
+          #
+          # The date is passed in, not derived — `draft.start_time` is null in
+          # our Sleeper config, so there is nothing to derive it from, and the
+          # archive must not hardcode one league's calendar.
+          try:
+              rd = C.f5_readiness(C.load(), "${{ github.event.inputs.year || '2026' }}",
+                                  draft_date=DRAFT_DATE, today=today.isoformat())
+              if rd["verdict"] == "ready":
+                  print("F5 would use **%s** (%s rows), %s day(s) to the last capture "
+                        "that can matter (%s)."
+                        % (rd["snapshot_date"], rd["rows"],
+                           rd["days_until_last_useful"], rd["last_useful_capture"]))
+              if rd["note"]:
+                  print("**%s**" % rd["note"])
+              with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+                  fh.write("f5_stale=%s\n" % ("1" if rd["stale"] else "0"))
+          except Exception as e:                      # noqa: BLE001
+              print("**F5 READINESS DID NOT RUN** (%s: %s) — not a clean result."
+                    % (type(e).__name__, e))
+
+          # ── CAN WE DECODE WHAT WE CAN DRAFT ───────────────────────────────
+          # The third question about this archive, after "is it complete" and
+          # "did anyone leave the board". It holds MFL's player ids and every
+          # consumer reads ours, so an archive we cannot decode is a container.
+          #
+          # REPORTED, NOT ESCALATED, and the distinction is the point. A decode
+          # miss is a static property of the name matcher, not a perishable daily
+          # event — failing the run every morning over a known nickname variant
+          # is red-by-design, which is how a real alarm gets muted. The board-loss
+          # check above escalates because a vanished day cannot be refetched.
+          #
+          # THE RAW RATE IS THE MISLEADING ONE: 0.609 across 709 picks, because
+          # MFL's board carries DE/DT/LB/CB/S this league cannot roster and three
+          # of our own keepers. On the population we can actually draft it is
+          # 0.964 — and 99.3% inside pick 150. Reporting the raw figure here would
+          # reproduce the false alarm the classification was built to end.
+          try:
+              board = json.load(open("public/draft_data.json"))
+              ls = json.load(open("draft/data/sleeper_league_settings.json"))
+              # `C.SERIES`, NOT `C.load()`. The decode key lives on the archive
+              # DICT and `load()` returns the series LIST, for which `players_of`
+              # honestly returns {} — there is no key in a list. I wrote
+              # `players_of(load())` first and this step printed "Decode: 0.0%"
+              # rather than failing: an empty key decodes nothing, and nothing
+              # decoded is arithmetically indistinguishable from a total matcher
+              # failure. `ingest_run` already refuses an empty key by name for
+              # exactly this reason; this reporter now does too.
+              key = C.players_of(C.SERIES)
+              if not key:
+                  print("**DECODE UNMEASURED** — the archive carries no decode key, "
+                        "so 0% would be a statement about the key and not about the "
+                        "matcher. Not a clean result.")
+              else:
+                  xids, xrep = C.crosswalk_map(
+                      key, board["players"], kept=board.get("kept_players"),
+                      positions=C.rostered_positions(ls))
+                  # NO `or 0` ON A RATE. My first version wrote
+                  # `(rate_draftable or 0)`, which turns the module's honest None —
+                  # "nothing draftable to measure" — into a printed 0.0%, the exact
+                  # null-as-absence this project keeps hitting, in the line written
+                  # to report honestly.
+                  rd = xrep["crosswalk_rate_draftable"]
+                  print("Decode: **%s** of the draftable population (%.1f%% raw — the "
+                        "raw figure counts IDP this league cannot roster and our own "
+                        "keepers)"
+                        % ("UNMEASURED" if rd is None else "%.1f%%" % (100 * rd),
+                           100 * xrep["crosswalk_rate"]))
+                  print("`kept_not_draftable` %d · `position_not_rostered` %d · "
+                        "undecoded at a rostered position: **%d**"
+                        % (xrep["kept_not_draftable"], xrep["position_not_rostered"],
+                           xrep["no_sleeper_match_draftable"]))
+          except Exception as e:                      # noqa: BLE001
+              # A DECODE REPORT THAT DIES MUST NOT TAKE THE SNAPSHOT WITH IT.
+              # This step is `if: always()` and the commit below is gated on the
+              # CAPTURE's outcome, but an exception here still aborts the step and
+              # the day's board is the thing that cannot be refetched.
+              print("**DECODE CHECK DID NOT RUN** (%s: %s) — not a clean result."
+                    % (type(e).__name__, e))
           PY
             else
               echo "NO ARCHIVE FILE — nothing has been captured yet. This is a statement"
@@ -251,4 +395,23 @@ jobs:
           echo "::error::observable only while it is happening: no provider serves a board"
           echo "::error::as of a past date, so these days cannot be refetched by any means."
           echo "::error::Fix the schedule before more days go. See the step summary for dates."
+          exit 1
+
+      # ⚠ LAST, AND FOR THE REASON SPELLED OUT ABOVE THE STEP BEFORE IT: an alarm
+      # placed above the commit would discard the very snapshot it is alarming
+      # about. Both alarms run after the day has landed on main.
+      #
+      # `always()` because the step above exits 1 on a resumed gap, and a run can
+      # be both — resuming from an outage is exactly when a player is most likely
+      # to have left the board unnoticed.
+      - name: Escalate ONLY if a DRAFTABLE player left the board
+        if: always() && steps.cov.outputs.draftable_loss == '1'
+        run: |
+          echo "::error::A player priced INSIDE the draft left the board: ${{ steps.cov.outputs.lost_ids }}"
+          echo "::error::F5 reads the latest snapshot strictly before the draft, so these"
+          echo "::error::carry NO ADP into it. This is not the daily tail churn — MFL's"
+          echo "::error::percentage cutoff washing out marginal players is expected and is"
+          echo "::error::reported in the summary without failing. This reached the board."
+          echo "::error::Check the player is not simply retired/suspended before treating"
+          echo "::error::it as a capture defect. See the step summary."
           exit 1

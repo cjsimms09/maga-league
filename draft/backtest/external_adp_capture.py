@@ -48,6 +48,10 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: from the rows, a field that stops being written simply stops existing and the
 #: population record cannot tell you it is gone — which is the failure mode, not a
 #: detail of it.
+#: A day-over-day drop of at least this many players earns a note. Declared, not
+#: tuned: ~5% of a ~700-player board, the size of the drop that prompted this.
+ROW_DROP_FLOOR = 30
+
 SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
                    "source_note", "dispersion"]
 
@@ -207,7 +211,118 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
-def crosswalk_map(players: dict, board: list) -> tuple:
+#: A qualifying board older than this is still F5-legal and still stale. Declared
+#: from the capture cadence — daily, so two missed days is a pattern, not a blip —
+#: and not tuned to what the archive currently shows.
+F5_STALE_DAYS = 3
+
+
+def f5_readiness(series: list, year, draft_date=None, today=None) -> dict:
+    """Which snapshot OUR draft will actually use, and how long is left to feed it.
+
+    `INGEST-PLAN.md:2453` records "board() for draft 2026-08-22 -> the 08-12
+    snapshot, 708 rows". True when written, wrong now: the archive has since gained
+    08-13 and that snapshot holds 672 rows. A fact copied into prose goes stale in
+    silence — rule 9, a mechanism implemented as a note.
+
+    AND IT SURFACES A DEADLINE NOBODY HAS STATED. F5 takes the latest snapshot
+    STRICTLY BEFORE the draft, so a board captured on draft morning is worth nothing
+    to it. **The last capture that can still matter is the day before the draft** —
+    one day earlier than the date everyone has been working to, on an archive whose
+    lost days cannot be refetched by any means.
+
+    THE SELECTION IS NOT RE-DERIVED HERE. `ExternalAsOfStore.snapshot_date()`
+    already implements strictly-before, and this module's header says that rule
+    stays in ONE place. A second `<` written here is the multi-derivation defect
+    this project keeps hitting, and the worst kind: both copies would go on
+    returning valid-looking dates while disagreeing.
+
+    The store is built, asked, and dropped — it never escapes. It is constructed
+    from DATES for a DATE question; `board()` is deliberately not called, because
+    the archive's rows are {id: adp} in the SOURCE's ids and `board()` expects the
+    translated shape `as_store_snapshots` produces.
+
+    `draft_date` has no default, for the same reason `last_pick` has none: the
+    league's calendar is the consumer's, and our own Sleeper config has
+    `draft.start_time: null` today, so there is nothing here to derive it from.
+    """
+    _draft_on_path()
+    from backtest.external_replay import ExternalAsOfStore, TimeTravelError
+
+    ser = [s for s in _series_of(series) if str(s.get("year")) == str(year)]
+    base = {"year": str(year), "draft_date": draft_date, "snapshot_date": None,
+            "rows": None, "lead_days": None, "age_days": None, "stale": None,
+            "last_useful_capture": None, "days_until_last_useful": None,
+            "days_until_draft": None, "verdict": None, "note": None}
+    if not draft_date:
+        return dict(base, verdict="unjudged",
+                    note="UNJUDGED — pass draft_date; the league's calendar belongs "
+                         "to the consumer and draft.start_time is null in our config")
+
+    dd = _date.fromisoformat(str(draft_date))
+    last_useful = dd - _timedelta(days=1)
+    out = dict(base, last_useful_capture=last_useful.isoformat())
+    if today:
+        t = _date.fromisoformat(str(today))
+        out["days_until_draft"] = (dd - t).days
+        # TO THE LAST USEFUL CAPTURE, NOT TO THE DRAFT. Counting to the draft
+        # overstates the remaining window by exactly one day, and it is the last
+        # day — the one nobody can buy back.
+        out["days_until_last_useful"] = (last_useful - t).days
+
+    store = ExternalAsOfStore("ours", dd,
+                              [{"observed_at": s["observed_at"], "rows": []}
+                               for s in ser], "f5-readiness")
+    try:
+        picked = store.snapshot_date()
+    except TimeTravelError:
+        return dict(out, verdict="excluded",
+                    note="NO SNAPSHOT STRICTLY BEFORE %s — this draft is excluded "
+                         "under F4/F5. A later snapshot is not a substitute: it has "
+                         "seen the draft it would be used to predict." % dd)
+
+    by_day = {s["observed_at"]: s for s in ser}
+    lead = (dd - picked).days
+    # AGE IS AGAINST TODAY; LEAD IS AGAINST THE DRAFT, and conflating them makes an
+    # alarm that is on by default. The first cut set `stale` from `lead`, so on
+    # 2026-08-13 — snapshot captured that morning, nine days of captures still to
+    # come — it reported stale, and would have every day until the week of the
+    # draft. `lead` is a PROJECTION until the draft arrives: what F5 would see if
+    # the draft were held on today's archive. Whether we are still CAPTURING is a
+    # question about today, and it is the one worth an alarm now.
+    age = None if not today else (_date.fromisoformat(str(today)) - picked).days
+    note = None
+    if age is not None and age > F5_STALE_DAYS:
+        note = ("the newest qualifying board is %d day(s) old. The capture may have "
+                "stopped, and a day not captured cannot be refetched." % age)
+    elif age is None and lead > F5_STALE_DAYS:
+        note = ("the qualifying board would be %d days old at the draft. Pass "
+                "`today` to say whether that is a dead capture or simply a draft "
+                "that has not arrived yet." % lead)
+    return dict(out, snapshot_date=picked.isoformat(),
+                rows=(by_day.get(picked.isoformat()) or {}).get("row_count"),
+                lead_days=lead, age_days=age,
+                stale=(None if age is None else age > F5_STALE_DAYS),
+                verdict="ready", note=note)
+
+
+def _draft_on_path():
+    """Put `draft/` on sys.path so `adp` and `mfl_adapter` import.
+
+    EXTRACTED BECAUSE `rostered_positions` WAS GREEN ONLY BY TEST ORDER. The path
+    insert lived inside `crosswalk_map`, so any function called on its own raised
+    ModuleNotFoundError — and the suite never saw it, because some earlier test
+    always called `crosswalk_map` first and sys.path is process-global. It failed
+    the moment it was used from a script, which is exactly where an ingest helper
+    gets used.
+    """
+    import sys as _sys
+    _draft = str(Path(__file__).resolve().parent.parent)
+    if _draft not in _sys.path:
+        _sys.path.insert(0, _draft)
+
+
+def crosswalk_map(players: dict, board: list, kept=None, positions=None) -> tuple:
     """The archive's own decode key -> our board's ids. Returns (ids, report).
 
     OFFLINE, AND THAT IS THE WHOLE POINT. The id map used to be obtainable only by
@@ -232,10 +347,7 @@ def crosswalk_map(players: dict, board: list) -> tuple:
     `board` may be our board's ROWS (a list) or an already-built matcher index, so
     a caller that has built one does not build a second that could disagree.
     """
-    import sys as _sys
-    _draft = str(Path(__file__).resolve().parent.parent)
-    if _draft not in _sys.path:
-        _sys.path.insert(0, _draft)
+    _draft_on_path()
     import mfl_adapter as A
     from adp import build_index
 
@@ -252,7 +364,142 @@ def crosswalk_map(players: dict, board: list) -> tuple:
     picks = [{"player": pid} for pid in sorted(players or {})]
     rows, report = A.crosswalk_picks(picks, players or {}, index)
     ids = {str(r["player"]): str(r["player_id"]) for r in rows}
+    if kept is not None or positions is not None:
+        report = _classify_undraftable(report, players or {}, ids, kept, positions)
     return ids, report
+
+
+#: Roster entries that are SLOTS rather than positions. No player carries them.
+NON_POSITIONS = frozenset({"FLEX", "SUPER_FLEX", "SUPERFLEX", "REC_FLEX", "WRRB_FLEX",
+                           "IDP_FLEX", "BN", "TAXI", "IR"})
+
+
+def rostered_positions(settings: dict) -> set:
+    """Which positions this league can actually roster, from its own config.
+
+    Slots are not positions: FLEX and BN match no player, and leaving them in makes
+    every later statement about the set false while looking harmless.
+    """
+    _draft_on_path()
+    from adp import _norm_pos
+    out = set()
+    for slot in ((settings or {}).get("roster_positions") or []):
+        s = str(slot).upper().strip()
+        if s in NON_POSITIONS:
+            continue
+        out.add(_norm_pos(s))
+    return out
+
+
+def position_is_rostered(pos, rostered: set) -> bool:
+    """Is a SOURCE-vocabulary position one this league rosters?
+
+    THROUGH `adp._norm_pos`, WHICH IS THE POINT. MFL says `PK` for a kicker and
+    `Def` for a team defense; our roster says `K` and `DEF`. Comparing raw strings
+    classifies every kicker and every team defense as unrosterable — which removes
+    them from the draftable denominator and RAISES the rate, so the instrument would
+    improve its own score by discarding the players it could not explain.
+
+    `TMPK` is NOT a kicker: it is MFL's team KICKING UNIT, which our board refuses
+    as a team unit and which no `K` slot can hold. It is deliberately absent from
+    the alias table and must stay unrostered.
+    """
+    _draft_on_path()
+    from adp import _norm_pos
+    return _norm_pos(pos) in (rostered or set())
+
+
+def _classify_undraftable(report: dict, players: dict, ids: dict,
+                          kept, positions=None) -> dict:
+    """Split `no_sleeper_match` into KEPT-so-undraftable and genuinely missing.
+
+    THE MISS THIS EXISTS FOR WAS MINE, and it very nearly went to A as a defect.
+    Measuring whether the D3 archive is usable, I found 31 of MFL's top 150
+    unresolved — among them Ja'Marr Chase at ADP 4.72, Derrick Henry at 54.91,
+    Kenneth Walker III at 39.51. Exhaustive search of the board's `players` list:
+    no name, no id. Reproduced on a clean origin/main worktree, checked both
+    active branches for a fix, and started writing the route.
+
+    They are KEEPERS. `kept_players` holds exactly those three. They are off the
+    draftable list because they CANNOT BE DRAFTED — the board being right.
+
+    The report could not say so. `by_why` explains only `team_unit_not_a_player`;
+    everything else is one undifferentiated `no_sleeper_match` in which "IDP this
+    league cannot roster", "kept" and "genuinely missing from the board" are the
+    same number. Two of those are correct behaviour and the third is an emergency,
+    and at the TOP of the board — where keepers are — the benign case dominates,
+    so the alarm is loudest exactly where it is least likely to be real.
+
+    MATCHED BY NAME, DELIBERATELY, and not by id. The archive holds MFL's ids and
+    `kept_players` holds ours; if the two could be joined directly there would have
+    been no crosswalk to fail in the first place.
+
+    AND BY `adp.normalize_name`, which is what `build_index` keys `by_name` on —
+    so a keeper is recognised on EXACTLY the terms the miss was recorded on. Not
+    `mfl_adp._norm_name`: that only reorders "Last, First" and leaves case and
+    punctuation alone, so "Ja'Marr Chase" would have to agree byte-for-byte with
+    the board's spelling. The apostrophe in that very name is the reason to use
+    the matcher's own normaliser instead of a second one that merely looks close.
+    """
+    _draft_on_path()
+    from adp import normalize_name
+
+    out = dict(report)
+    by_norm = {}
+    for k in (kept or []):
+        n = normalize_name(k.get("name") if isinstance(k, dict) else k)
+        if n:
+            by_norm[n] = k
+    unresolved = [(pid, meta) for pid, meta in (players or {}).items()
+                  if str(pid) not in ids]
+    hits = [{"mfl_id": str(pid),
+             "name": (meta or {}).get("name"),
+             "position": (meta or {}).get("position"),
+             "why": "kept_not_draftable"}
+            for pid, meta in unresolved
+            if normalize_name((meta or {}).get("name")) in by_norm]
+    out["kept_not_draftable"] = len(hits)
+    out["kept_rows"] = hits
+
+    # POSITIONS THIS LEAGUE CANNOT ROSTER. The dominant reason a miss is not a
+    # defect: MFL's board carries DE/DT/LB/CB/S and team-kicker units and this
+    # league rosters QB/RB/WR/TE/K/DEF. With keepers alone the "draftable" rate
+    # moved 0.6093 -> 0.6119, three players out of 709 — a name that promised to
+    # exclude the undraftable while excluding one of the two reasons for it.
+    unrostered = []
+    if positions:
+        unrostered = [{"mfl_id": str(pid),
+                       "name": (meta or {}).get("name"),
+                       "position": (meta or {}).get("position"),
+                       "why": "position_not_rostered"}
+                      for pid, meta in unresolved
+                      if not position_is_rostered((meta or {}).get("position"), positions)]
+    out["position_not_rostered"] = len(unrostered) if positions else 0
+
+    # ONE SET, NOT TWO COUNTS. A keeper at an unrostered position belongs to both
+    # lists, and subtracting both shrinks the denominator below the truth — which
+    # inflates the rate, and in the limit pushes it past 1.0, where it reads as
+    # better than perfect rather than as arithmetic that has gone wrong.
+    excluded = {h["mfl_id"] for h in hits} | {u["mfl_id"] for u in unrostered}
+    out["undraftable_excluded"] = len(excluded)
+
+    # NOT a redefinition of `no_sleeper_match`. A's `board_vs_market.py` reads that
+    # key; moving it would move A's numbers without A asking. The new figures sit
+    # BESIDE the old one under names that say what they exclude.
+    out["no_sleeper_match_excluding_kept"] = max(
+        0, int(report.get("no_sleeper_match") or 0) - len(hits))
+    out["no_sleeper_match_draftable"] = max(
+        0, int(report.get("no_sleeper_match") or 0) - len(excluded))
+
+    # THE RATE THAT ANSWERS THE QUESTION. `crosswalk_rate` is "how much of the
+    # source can we decode"; what decides whether the archive is usable is "how
+    # much of what we can actually DRAFT can we decode". A keeper is draftable by
+    # nobody and neither is a linebacker in a league with no IDP slot.
+    total = int(report.get("picks") or 0)
+    draftable = total - len(excluded)
+    out["crosswalk_rate_draftable"] = (
+        (int(report.get("crosswalked") or 0) / draftable) if draftable > 0 else None)
+    return out
 
 
 #: How many absent dates to NAME. The count is always exact; only the list is
@@ -294,6 +541,143 @@ def _gaps(days: list) -> dict:
     }
 
 
+def draft_last_pick(settings: dict) -> dict:
+    """The draft's last pick, DERIVED TWICE from the league config.
+
+    `dropped_inside` refuses to judge without a boundary, so something has to supply
+    one, and the two candidates for doing it are both wrong. Hardcoding 150 makes the
+    archive league-specific. Writing the arithmetic into the workflow YAML puts it
+    where no test can reach it — this file already carries the scar: the gap alarm
+    was written inline and shipped two defects nothing could catch, the runner's
+    local clock and a truncated list used as a membership test.
+
+    ⚠ `settings.draft_rounds` IS NOT THE DRAFT LENGTH. In our real config it is 3
+    while the draft is 15 rounds — it tracks `max_keepers: 3`. It is the name you
+    reach for, it holds a plausible integer, and reading it raises nothing. It would
+    put the boundary at pick 30 and make `dropped_inside` report `clean` for every
+    draftable loss between picks 31 and 150 — the recurring defect of this project in
+    one line: a consumer reading the field name its author believed in.
+
+    ⚠ AND `settings.num_teams` IS NOT THE TEAM COUNT EITHER — same trap, one field
+    over. I reached for it, and `test_settings_registry_truth` caught it: the registry
+    files it `ignored`, because it is a DECLARED TARGET and `sleeper_import` reads the
+    actual rosters instead. It is 10 today and it is 10 only while the two agree. So
+    the count comes from `len(owner_to_roster)`, which is a measurement of how many
+    rosters exist — the source the registry itself names.
+
+    So both numbers are derived from two independent places and a disagreement is
+    reported rather than resolved (rule 11):
+        teams  — len(owner_to_roster)        vs draft.settings.teams
+        rounds — draft.settings.rounds       vs len(roster_positions)
+    """
+    ds = ((settings or {}).get("draft") or {}).get("settings") or {}
+    slots = (settings or {}).get("roster_positions") or []
+    rosters = (settings or {}).get("owner_to_roster") or {}
+
+    def pair(a, b, name, src_a, src_b):
+        vals = [v for v in (a, b) if v is not None]
+        if not vals:
+            return None, "UNDERIVABLE — no %s in %s or %s" % (name, src_a, src_b)
+        if len(vals) == 2 and int(vals[0]) != int(vals[1]):
+            return None, ("%s DISAGREE — %s says %s, %s says %s. One is wrong and "
+                          "nothing here says which." % (name.upper(), src_a, vals[0],
+                                                        src_b, vals[1]))
+        return int(vals[0]), "%s=%s (%s, %s)" % (name, int(vals[0]), src_a, src_b)
+
+    teams, tnote = pair((len(rosters) or None), ds.get("teams"), "teams",
+                        "len(owner_to_roster)", "draft.settings.teams")
+    rounds, rnote = pair(ds.get("rounds"), (len(slots) or None), "rounds",
+                         "draft.settings.rounds", "len(roster_positions)")
+    note = "%s; %s" % (tnote, rnote)
+    if teams is None or rounds is None:
+        return {"last_pick": None, "teams": teams, "rounds": rounds, "note": note}
+    return {"last_pick": teams * rounds, "teams": teams, "rounds": rounds,
+            "note": note}
+
+
+def dropped_inside(series: list, year, last_pick=None) -> dict:
+    """WHICH players left the board, judged against the last pick of the draft.
+
+    `coverage.row_drop_note` says "the board LOST 36 players in a day". That is a
+    reading, not an answer, and I had to go diff two snapshots by hand to learn what
+    it meant: on 2026-08-13 all 37 losses sat at ADP 169+, and 19 of them were IDP
+    (DE/DT/LB/CB/S) that a QB/RB/WR/TE/K/DEF league cannot roster at any price.
+
+    That is the SOURCE CONVERGING, not a defect. MFL's CUTOFF=5 behaves as a
+    percentage of drafts — `ceil(0.05 * drafts)` stepped 6 -> 6 -> 7 across the three
+    captured days, and the board GREW on the day it did not step (705 -> 708) and
+    fell 36 on the day it did. A percentage is a threshold on a player's SELECTION
+    RATE, which is stable as the sample grows; it is not a ratchet that eats the
+    board. Marginal players wash out and the survivors stay.
+
+    So the count is the wrong instrument. Thirty-six deep IDP washing out and three
+    draftable receivers vanishing nine days before a draft are THE SAME INTEGER, and
+    the first case is the common one — an alarm keyed to the count gets ignored
+    exactly when it starts being real.
+
+    `last_pick` HAS NO DEFAULT, and that is deliberate. 10 teams x 15 rounds = 150 is
+    today's setting and a config edit away from not being. Baking it in here would
+    make this archive league-specific forever — the same line held in
+    `nflverse_weekly_store`, where the store keeps weeks 18-22 and lets the CONSUMER
+    cut at the league's scored boundary. Without a boundary this refuses to judge.
+
+    A player who drops out and RETURNS is not a standing loss. What we draft off is
+    the LATEST board; a round trip is churn and is reported as such, because a
+    pairwise-accumulating count would climb all preseason and never come down.
+    """
+    ser = [s for s in _series_of(series) if str(s.get("year")) == str(year)]
+    ser.sort(key=lambda s: s.get("observed_at") or "")
+    base = {"year": str(year), "snapshots": len(ser), "last_pick": last_pick,
+            "inside_ids": None, "inside_n": None, "outside_n": None,
+            "churn_inside_n": None, "verdict": None, "note": None}
+
+    if last_pick is None:
+        # NO BOUNDARY, NO VERDICT. Guessing one would make every answer look
+        # authoritative and be wrong for any league that is not this one.
+        return dict(base, verdict="unjudged",
+                    note="UNJUDGED — pass last_pick (teams x rounds); the draft's "
+                         "boundary belongs to the consumer, not to this archive")
+    if len(ser) < 2:
+        # Rule 13f, in its dangerous direction: a capture that ran once would
+        # otherwise report `clean` — a check that CANNOT fail reading as one that did.
+        return dict(base, verdict="unmeasured",
+                    note="UNMEASURED — a loss is a difference between two days and "
+                         "this year holds %d snapshot(s)" % len(ser))
+
+    latest = dict((ser[-1].get("rows") or {}))
+    seen_before, vanished_once = {}, set()
+    for s in ser[:-1]:
+        rows = s.get("rows") or {}
+        for pid in seen_before:
+            if pid not in rows:
+                vanished_once.add(pid)
+        seen_before.update(rows)
+
+    inside, outside, churn = [], [], []
+    for pid, adp in seen_before.items():
+        try:
+            in_range = float(adp) <= float(last_pick)
+        except (TypeError, ValueError):
+            continue  # an unparseable price is not a player inside the range
+        if pid in latest:
+            if in_range and pid in vanished_once:
+                churn.append(pid)
+            continue
+        (inside if in_range else outside).append(pid)
+
+    inside.sort()
+    return dict(base,
+                inside_ids=inside, inside_n=len(inside), outside_n=len(outside),
+                churn_inside_n=len(churn),
+                verdict=("draftable_loss" if inside else "clean"),
+                note=(None if not inside else
+                      "%d player(s) priced inside pick %s are ABSENT from the latest "
+                      "board (%s). F5 reads the latest snapshot before the draft, so "
+                      "these carry no ADP into it: %s"
+                      % (len(inside), last_pick, ser[-1].get("observed_at"),
+                         ", ".join(inside[:12]))))
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
@@ -327,11 +711,33 @@ def coverage(series: list, year) -> dict:
     ser = _series_of(series)
     days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
     counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
+    # Day-over-day row movement. One snapshot cannot show movement, so the largest
+    # drop is None rather than 0 — 0 would read as "measured, and stable" (rule 13f).
+    deltas = [counts[i] - counts[i - 1] for i in range(1, len(counts))]
+    worst = min(deltas) if deltas else None
+    drop_note = None
+    if worst is not None and worst <= -ROW_DROP_FLOOR:
+        drop_note = (
+            "the board LOST %d players in a day (%s). More drafts with fewer priced "
+            "players is not self-explanatory: check whether MFL's CUTOFF is a "
+            "percentage of drafts rather than a count, which would raise the bar as "
+            "drafts accumulate." % (abs(worst), " -> ".join(str(c) for c in counts)))
     out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
         "min_rows": min(counts) if counts else 0,
         "max_rows": max(counts) if counts else 0,
+        # DAY-OVER-DAY MOVEMENT, because min/max cannot show a shrinking board.
+        #
+        # Observed 2026-08-13: total_drafts rose 115 -> 119 -> 125 while row_count
+        # fell 705 -> 708 -> 672. `min_rows 672, max_rows 708` is true and says
+        # nothing about 36 players vanishing in a day. The likely mechanism is
+        # MFL's CUTOFF=5 behaving as a PERCENTAGE — a rising draft count raises the
+        # bar and marginal players fall off — but that is unconfirmed from here, so
+        # this SURFACES the movement rather than declaring a defect.
+        "row_deltas": deltas,
+        "largest_drop": (min(deltas) if deltas else None),
+        "row_drop_note": drop_note,
         # A DAY WITH ZERO ROWS IS NOT A DAY CAPTURED. It is a failed fetch wearing
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),
@@ -722,19 +1128,50 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
     save(series, path, players=players)
-    rep = coverage(series, year)
-    key = load_players(path)
-    named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
-    print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
-                      # NAMED, because a dispersion count of zero after this landed
-                      # means MFL stopped publishing it — not that spreads are zero.
-                      "dispersion_rows": len(dispersion),
-                      # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
-                      # Printed beside the capture count because the two failed
-                      # independently for two days and only one of them was visible.
-                      "decode_key": {"ids_held": len(key), "named": named,
-                                     "todays_rows_resolvable":
-                                         sum(1 for pid in rows if not FP._is_absent(
-                                             (key.get(pid) or {}).get("name")))}},
-                     indent=1))
-    return rep
+
+    # ── THE DAY IS SAFE FROM HERE. EVERYTHING BELOW IS REPORTING. ───────────
+    #
+    # THE LESSON THIS FILE'S WORKFLOW ALREADY CARRIES IN CAPITALS, one layer down.
+    # `external-adp-capture.yml` says at the board-pin step: THE PIN MUST NOT BE
+    # ABLE TO KILL THE SNAPSHOT — a failure in the recoverable artifact was
+    # destroying the unrecoverable one. The same shape was live right here and
+    # unnoticed: `save()` runs, then a summary line evaluates `len(dispersion)`.
+    # Hand that a None and it raises AFTER the archive is written but BEFORE the
+    # function returns, so the step fails; the commit step is gated on
+    # `steps.cap.outcome == 'success'`; and the day sits on the runner's disk and
+    # never reaches git. A cosmetic print, deleting a perishable day.
+    #
+    # Not reachable today — `dispersion_of` always returns a dict — and one edit
+    # to `fetch_mfl` away from being reachable, in a function that is
+    # `pragma: no cover` precisely because nothing watches it.
+    #
+    # LOUD, NOT SILENT. The failure is printed rather than swallowed: a report
+    # that suddenly cannot read what MFL returned is itself a finding about the
+    # shape of the feed, and it must not become quiet just because it is no
+    # longer fatal.
+    rep = None
+    try:
+        rep = coverage(series, year)
+        key = load_players(path)
+        named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
+        print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
+                          # NAMED, because a dispersion count of zero after this landed
+                          # means MFL stopped publishing it — not that spreads are zero.
+                          "dispersion_rows": len(dispersion),
+                          # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
+                          # Printed beside the capture count because the two failed
+                          # independently for two days and only one of them was visible.
+                          "decode_key": {"ids_held": len(key), "named": named,
+                                         "todays_rows_resolvable":
+                                             sum(1 for pid in rows if not FP._is_absent(
+                                                 (key.get(pid) or {}).get("name")))}},
+                         indent=1))
+    except Exception as e:                          # noqa: BLE001
+        print("REPORT FAILED (%s: %s) — THE SNAPSHOT IS SAVED AND INTACT. This is "
+              "a reporting failure, not a capture failure, and the day must not be "
+              "discarded for it." % (type(e).__name__, e))
+    # `uncounted`, matching this module's convention elsewhere: a coverage figure
+    # that could not be computed is not a coverage figure of zero.
+    return rep if rep is not None else {"year": str(year), "uncounted": True,
+                                        "note": "coverage not computed — see "
+                                                "REPORT FAILED above"}
