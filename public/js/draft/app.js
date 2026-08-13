@@ -769,9 +769,100 @@
     };
   }
 
+  /* ── THE SEAT PLAN — the board follows the model, or it is a different tool ──
+   *
+   * Cory: "make sure the draft board I see matches your model." Measured: the
+   * engine's greedy line scores 2091.0 against the global seat assignment's
+   * 2150.5, and constraining the engine to the plan's SEAT recovers all 59.6,
+   * because the engine already ranks the right player at 6 of 6 seats. It is
+   * never asked the right question.
+   *
+   * LOADED SEPARATELY AND FAILING SOFT. The plan is an enhancement to the board,
+   * not a dependency of it: if this fetch dies the war room must still draft.
+   * That is the same rule as the ledger capture — losing the seat line is a
+   * worse board, losing the board is a lost draft.
+   */
+  function loadSeatPlan() {
+    fetch('/seat_plan.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.seats)) return;
+        state.seatPlan = d;
+        try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
+      })
+      .catch(e => console.warn('[seat-plan] unavailable:', e && e.message));
+  }
+
+  /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
+   *
+   * `display_contract` names each displayable field's units, direction and the
+   * caveat that must travel with it, precisely so this function cannot invent a
+   * meaning. The three that have actually been got wrong before:
+   *   · beats_wire_by is SIGNED — negative means the wire is BETTER than him;
+   *   · gap_to_second is season points on a starter row and points/week on a
+   *     bench row, so it is never printed without that row's gap_units;
+   *   · measured_edge_vs_greedy is EXPLORATORY and is never shown as a promise.
+   * A caption read from the artifact cannot drift from the number beside it;
+   * one retyped here would.
+   */
+  function renderSeatPlan() {
+    const host = $('#seat-plan');
+    const d = state.seatPlan;
+    if (!host || !d) return;
+    /* `.current`, not `.currentNumber` — pickCoordinate returns {current, mine,
+     * next, isMock, rawRoom, rawDiffers}. My first pass invented the field name,
+     * which would have made `cur` undefined, sent the lookup down the fallback
+     * branch, and pinned this panel to the FIRST seat for the whole draft while
+     * looking perfectly healthy. Fourth field-name guess this week; the first one
+     * I caught by reading the function instead of by a red test. */
+    const cur = (pickCoordinate() || {}).current;
+    const seat = d.seats.find(s => s.pick === cur)
+      || d.seats.find(s => s.pick >= (cur || 0)) || null;
+    if (!seat) { host.innerHTML = ''; return; }
+
+    const C = d.display_contract || {};
+    const capt = k => (C[k] || {});
+    const sign = n => (n > 0 ? '+' : '') + n;
+
+    const rows = (seat.shortlist || []).map(function (pl, i) {
+      const bw = pl.beats_wire_by;
+      /* SIGNED, and captioned as such. Rendering |bw| here is the exact
+       * misreading the contract exists to stop. */
+      const wire = bw == null ? ''
+        : '<span class="sp-wire ' + (bw < 0 ? 'sp-neg' : 'sp-pos') + '">'
+          + sign(bw) + ' /wk vs free ' + pl.position + '</span>';
+      return '<li class="sp-row' + (i === 0 ? ' sp-lead' : '') + '">'
+        + '<span class="sp-pos">' + escapeHtml(pl.position) + '</span> '
+        + '<span class="sp-name">' + escapeHtml(pl.name) + '</span> '
+        + '<span class="sp-proj">' + pl.proj_mean + ' ' + escapeHtml(capt('seats[].shortlist[].proj_mean').units || '') + '</span> '
+        + wire + '</li>';
+    }).join('');
+
+    const gapU = seat.gap_units || '';
+    const gapLine = seat.gap_to_second == null ? ''
+      : '<div class="sp-gap">gap to the next eligible name: <b>' + seat.gap_to_second
+        + '</b> ' + escapeHtml(gapU)
+        + (seat.tossup
+          ? ' — <b>TOSSUP</b>: inside ' + seat.tossup_threshold + ' ' + escapeHtml(gapU)
+            + ', so the SEAT matters more than the NAME'
+          : '') + '</div>';
+
+    host.innerHTML =
+      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at pick '
+        + seat.pick + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
+      + '<ol class="sp-list">' + rows + '</ol>'
+      + gapLine
+      + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
+      + '<div class="sp-caveat">' + escapeHtml(d.assumption) + '</div>'
+      + '<div class="sp-caveat">edge over the greedy board: ' + d.measured_edge_vs_greedy
+        + ' ' + escapeHtml(capt('measured_edge_vs_greedy').units || '')
+        + ' — ' + escapeHtml(capt('measured_edge_vs_greedy').caveat || '') + '</div>';
+  }
+
   function init() {
     loadWeights();
     loadFrozenBaseline();
+    loadSeatPlan();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1509,6 +1600,10 @@
   }
 
   function renderAll() {
+    /* The seat panel must follow the clock. Loaded once, re-rendered on every
+     * board update — otherwise it is a screenshot of the first pick and it would
+     * be WRONG rather than merely stale, since the seat changes with the pick. */
+    try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
