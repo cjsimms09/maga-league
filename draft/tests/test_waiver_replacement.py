@@ -161,3 +161,102 @@ def test_a_DEFENCE_is_RESOLVED_as_DEF_rather_than_counted_as_unpositioned():
     assert rep["unpositioned"] == 0, rep
     assert rep["def_adds"] == 1
     assert rep["def_unscorable"] == 1, "counted, and named as a source gap"
+
+
+# ── THE ARTIFACT, SO A COPIED NUMBER CAN BE CHECKED IN ONE STEP ─────────────
+#
+# `draft/tools/free_picks.js`, `draft_card.js`, `emit_seat_plan.js` and
+# `wire_vs_bench.js` carry `WIRE = {QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3}` as a
+# hand-copied constant citing this module. The copies are FAITHFUL — verified
+# 4/4 — but verifying them took three attempts and two wrong statistics, because
+# this module committed no artifact to check against.
+#
+# `projection_error` commits its calibration; `exp36` commits its surface; the
+# deviation card's constants were checkable against exp36.json in one step and
+# came back 11/11. This one was not, and a number that reaches a draft-day
+# decision with no reproducible source is unverifiable by construction — which is
+# a worse property than being wrong, because being wrong is discoverable.
+#
+# THE STATISTIC IS NOT THE OBVIOUS ONE, which is exactly why it needs recording.
+# Pooling every acquisition's points by position gives QB 23.38 / RB 7.80 /
+# WR 11.30 / TE 11.75 — none of the shipped numbers. The shipped statistic is the
+# MEDIAN OF THE CELL MEDIANS over (season, position, week) cells that pass MIN_N.
+# Both are defensible; only one is what the tools quote.
+
+def test_the_SHIPPED_wire_constants_are_reproducible_from_this_module():
+    """MUTATION: pool the raw points instead of taking the median of cell medians
+    — every value moves (QB 20.9 -> 23.4, TE 6.3 -> 11.8) and the tools' numbers
+    become unreproducible, which is the state this test exists to end."""
+    import json as _json, statistics as _st
+    from pathlib import Path
+    art = Path(__file__).resolve().parent.parent / "backtest" / "waiver_replacement.json"
+    assert art.exists(), (
+        "no artifact: a constant copied into a draft-day tool must have a file to "
+        "check against, or verifying it is guesswork")
+    d = _json.loads(art.read_text())
+    assert d["statistic"] == "median_of_cell_medians", d["statistic"]
+    shipped = {"QB": 20.9, "RB": 5.3, "WR": 13.3, "TE": 6.3}
+    for pos, want in shipped.items():
+        got = d["by_position"][pos]["value"]
+        assert abs(got - want) < 0.05, (
+            "%s: artifact says %s, draft/tools ships %s" % (pos, got, want))
+
+
+def test_the_artifact_CARRIES_ITS_OWN_THINNESS():
+    """QB rests on ONE cell of five player-weeks and TE on ONE cell of six. The
+    tools' comment already discloses that; the artifact must too, or a later
+    reader takes four position numbers as four equally-supported measurements.
+
+    MUTATION: report the value without n and cells — the two thin cells become
+    indistinguishable from the two supported ones."""
+    import json as _json
+    from pathlib import Path
+    d = _json.loads((Path(__file__).resolve().parent.parent / "backtest"
+                     / "waiver_replacement.json").read_text())
+    assert d["by_position"]["QB"]["cells"] == 1 and d["by_position"]["QB"]["n"] == 5
+    assert d["by_position"]["TE"]["cells"] == 1 and d["by_position"]["TE"]["n"] == 6
+    assert d["by_position"]["RB"]["cells"] > 1
+    assert "thin" in _json.dumps(d["by_position"]["QB"]).lower()
+
+
+def test_the_ARTIFACT_IS_REGENERATED_AND_COMPARED_not_merely_pinned():
+    """A committed artifact is itself a copy, and copies drift. The two tests above
+    pin it against the numbers the tools ship — which catches the artifact being
+    edited, and NOT the module changing underneath it. So this regenerates from
+    the module and requires agreement.
+
+    MUTATION: change how the shelf is computed and leave the artifact alone —
+    without this, the file keeps asserting a number the code no longer produces,
+    and every downstream copy inherits it."""
+    import json as _json, statistics as _st, sys as _sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    _sys.path.insert(0, str(root / "backtest"))
+    import waiver_replacement as WR
+    import evidence_check as EC
+
+    art = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
+    hist = _json.loads((root / "data" / "league_history.json").read_text())
+    board = _json.loads((root.parent / "public" / "draft_data.json").read_text())["players"]
+    positions = {p["player_id"]: p.get("position") for p in board}
+
+    cells = {}
+    for s in art["seasons"]:
+        store = _json.loads((root / "backtest" /
+                             ("nflverse_weekly_points_%s.json" % s)).read_text())
+        wp = {int(w["week"]): {k: float(v) for k, v in (w.get("points") or {}).items()}
+              for w in store["weeks"]}
+        c, _ = WR.replacement(hist, s, wp, positions)
+        for k, v in c.items():
+            cells[(s,) + k] = v
+    bypos = {}
+    for k, v in cells.items():
+        if v.get("status") == "measured" or v.get("n", 0) >= WR.MIN_N:
+            bypos.setdefault(k[1], []).append(v)
+    fresh = {p: round(_st.median([c["median"] for c in cs if c.get("median") is not None]), 2)
+             for p, cs in bypos.items()}
+    stored = {p: r["value"] for p, r in art["by_position"].items()}
+
+    r = EC.agreement(fresh, stored, name="regenerated shelf vs committed artifact")
+    assert r["compared"] >= 4, "nothing was compared — an empty overlap is a wrong key"
+    assert r["ok"] is True, r["note"]
