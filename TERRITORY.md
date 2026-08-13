@@ -495,6 +495,44 @@ then is to REDRAW it deliberately, not to keep overriding it case by case. The
 count starts at one, here, so the next ruling is made against a record rather
 than a memory.
 
+## OVERRIDE #2 — A edited three of C's files, 2026-08-13, authorised by Cory
+
+**The count was at one and this makes it two.** Recorded here, against the record
+the first ruling asked for, rather than in a memory.
+
+**What was overridden.** `territory-check.sh A` refused four files:
+`draft/tests/test_external_adp_capture.py`, `draft/tests/test_season_stamp.py`,
+`draft/backtest/season_stamp.py`, `draft/tests/test_waiver_replacement.py`.
+**The refusal was CORRECT in every case.** They are C's files by C's prefixes and
+by C's own `TERRITORY: C` markers.
+
+**Why it was taken rather than routed.** All four went red ONLY when A's branch
+met main — each is green on main alone — and all four broke because of A's
+change. Two of them encode a premise A SUPPLIED AND WAS WRONG ABOUT: that
+Sleeper removes a forfeited keeper pick from the sequence. It does not. Routing
+them to C would have handed C a chore A created, hours before a nightly rebuild
+that would have re-emitted the wrong pick numbers.
+
+**`c_owns()` WAS NOT WIDENED, and that is the whole point.** Widening the lane to
+fit the files already in it is how a boundary stops being a boundary — the guard
+would go green and the rule would quietly become "whatever A touched last." The
+guard still fires on these files. It is supposed to.
+
+**The full change is declared in ROUTES.md under TO: C**, per-file, including the
+one thing A changed in a test that was PASSING (a pinned `n == 6` that was really
+a board-size assertion) and the one thing A deliberately LEFT ALONE because it
+was passing (`test_the_ARTIFACT_MATCHES_WHAT_THE_TOOLS_SHIP`, whose name now
+promises more than it checks). C reviews a done thing, not a to-do.
+
+**ONE MORE AND THE SPLIT GETS REDRAWN.** The first ruling said: if a
+correctly-firing guard is overridden twice more, the split itself is drawn in the
+wrong place and the answer is a deliberate redraw. That was written when the
+count was one; it is now two, and the pattern in this one is already legible —
+**both premise errors were about the DRAFT MODEL (pick counts, board depth)
+living inside files owned by the data lane.** If a third lands in the same shape,
+the redraw to propose is that a test asserting a fact about the draft belongs to
+whoever owns the draft model, wherever the file sits.
+
 ## Test files follow their module — and the rule that preceded it never ran
 
 **Cory's ruling, 2026-08-11:** *test files follow their module. If
