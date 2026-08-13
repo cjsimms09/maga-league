@@ -135,10 +135,29 @@ def test_EVERY_BOARD_FIELD_IS_CLASSIFIED_and_an_unknown_one_is_a_violation():
         "the detector must be able to FIND an undeclared field, or the assertion "
         "below is satisfied by a function that always returns []")
 
-    unknown = SS.unclassified_fields(board[0])
+    # AND IT SCANS EVERY PLAYER, not board[0]. A field that appears on SOME rows —
+    # only on keepers, only on players with a bye, only where a fetch succeeded — is
+    # invisible to a one-row sample, and partial population is the normal shape of
+    # this board rather than an edge case. Same sample-cut error I made twice today
+    # in the ingest work, so the plant goes on a LATE row: a board[0]-only scan
+    # cannot find it and the assertion below would pass while checking one row.
+    # AND THE PLANT GOES THROUGH THE SCAN, not past it. My first version called
+    # `unclassified_fields` on a late row DIRECTLY, which proves the DETECTOR works
+    # and says nothing about the SCAN's reach — I then mutated the scan back to
+    # `board[0]` and the test still passed. Every field happens to be present on
+    # every row today, so a one-row scan is right by luck, and a test that is right
+    # by luck reports nothing on the day the luck changes.
+    scan = lambda rows: sorted({f for r in rows for f in SS.unclassified_fields(r)})
+    probe = list(board[:-1]) + [dict(board[-1], only_on_one_late_row=1)]
+    assert scan(probe) == ["only_on_one_late_row"], (
+        "the SCAN must reach the LAST row — board[0] alone cannot see a field that "
+        "only some players carry, which is the normal shape of this board")
+
+    unknown = scan(board)
     assert unknown == [], (
         "board fields with no declared provenance: %s — classify them in "
         "BOARD_FIELD_SOURCES or the gate cannot see them" % unknown)
+    assert len(board) > 1, "a one-row board makes the scan above vacuous"
 
 
 def test_the_PROJECTION_field_is_RUNTIME_DETERMINED_not_statically_2026():
