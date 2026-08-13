@@ -1502,3 +1502,101 @@ def test_with_NO_today_staleness_is_UNKNOWN_rather_than_False():
     s = C.append_snapshot([], 2026, "2026-08-13", {"p": 1.0})
     r = C.f5_readiness(s, 2026, draft_date="2026-08-22")
     assert r["age_days"] is None and r["stale"] is None
+
+
+# ── THE WIRING SEAM, which is the one place a day's SPREAD can vanish ───────
+#
+# `dispersion_of` is pure and tested. `fetch_mfl` needs egress and is honestly
+# `pragma: no cover`. `capture()` is the GLUE between them and was uncovered for
+# the same reason — which puts the untested part exactly where the two tested
+# parts meet.
+#
+# That matters tomorrow specifically. The dispersion change landed today, so
+# 2026-08-14 is the FIRST capture that can carry a spread; the three snapshots
+# we hold have none because the parser was discarding it. If `capture` drops the
+# argument, the run still goes green, the row count is still right, the archive
+# still grows — and the spread is silently gone for another perishable day.
+#
+# The fetch is INJECTED rather than mocked away wholesale: everything downstream
+# of it is the real code path, so this exercises append_snapshot, save and load
+# as they will actually run at 11:20 UTC.
+
+def test_capture_THREADS_DISPERSION_from_the_fetch_all_the_way_to_DISK(tmp_path,
+                                                                       monkeypatch):
+    """MUTATION: drop `dispersion=dispersion` from the append_snapshot call. The
+    run stays green, the row count stays right, the archive still grows by a day —
+    and the spread is gone, on a day that cannot be refetched."""
+    p = tmp_path / "arch.json"
+    disp = {"1": {"min_pick": 2.0, "max_pick": 9.0, "sel_pct": 88.0, "drafts": 120}}
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      120, "mfl adp", disp))
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    got = json.loads(p.read_text())
+    snap = [s for s in got["series"] if s["observed_at"] == "2026-08-14"][0]
+    assert snap["dispersion"] == {"1": {"min_pick": 2.0, "max_pick": 9.0,
+                                        "sel_pct": 88.0, "drafts": 120}}, snap
+
+
+def test_a_day_MFL_PUBLISHES_NO_SPREAD_stores_None_not_an_empty_measurement():
+    """`None`, not `{}`. The two days captured before this landed genuinely have no
+    dispersion because the parser was discarding it, and that is ABSENCE — an empty
+    dict on disk reads as "we looked and every player had no spread".
+
+    MUTATION: store `{}` — `dispersion_rows: 0` then means the same thing whether
+    MFL stopped publishing spreads or we stopped reading them."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion=None)
+    assert s[0]["dispersion"] is None
+    s2 = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion={})
+    assert s2[0]["dispersion"] is None, "empty is absence here, not a measurement"
+
+
+def test_capture_REFUSES_a_zero_row_day_before_it_can_reach_the_archive(tmp_path,
+                                                                       monkeypatch):
+    """Already the documented behaviour; pinned because the injection now makes it
+    reachable. MUTATION: write it anyway — a dated empty board is indistinguishable
+    from a real one downstream, and `board()` hands a replay an empty market and
+    calls it frozen."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl", lambda year: ({}, {}, 0, "mfl down", {}))
+    try:
+        C.capture(2026, "2026-08-14", path=str(p))
+    except RuntimeError as e:
+        assert "zero rows" in str(e).lower()
+    else:
+        raise AssertionError("an empty fetch must not reach the archive")
+    assert not p.exists(), "and it must not have written a file either"
+
+
+def test_a_FAILING_REPORT_CANNOT_DESTROY_THE_DAY(tmp_path, monkeypatch, capsys):
+    """THE LESSON THIS FILE ALREADY LEARNED, ONE LAYER DOWN.
+
+    `external-adp-capture.yml` carries it in capitals at the board-pin step: THE
+    PIN MUST NOT BE ABLE TO KILL THE SNAPSHOT — a failure in the recoverable thing
+    was destroying the unrecoverable one. Inside `capture()` the same shape was
+    live and unnoticed: `save()` runs, then a summary line prints
+    `len(dispersion)`. Hand that a None and it raises AFTER the archive is written
+    but BEFORE the function returns, so the step fails — and the commit step is
+    gated on `steps.cap.outcome == 'success'`, so the day sits on the runner's
+    disk and never reaches git. A cosmetic print, deleting a perishable day.
+
+    Not reachable today: `dispersion_of` always returns a dict. It is one edit to
+    `fetch_mfl` away from being reachable, and `fetch_mfl` is `pragma: no cover`,
+    so that edit would be made where nothing is watching.
+
+    MUTATION: report before saving, or let the report raise — the archive loses
+    the day and the run is red for a reason that has nothing to do with the data."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}},
+                                      120, "mfl adp", None))   # None, not {}
+    rep = C.capture(2026, "2026-08-14", path=str(p))
+
+    assert p.exists(), "the day must be on disk whatever the report did"
+    got = json.loads(p.read_text())
+    assert [s["observed_at"] for s in got["series"]] == ["2026-08-14"]
+    assert rep["snapshots"] == 1, "and coverage must still come back"
+    assert "REPORT FAILED" in capsys.readouterr().out, (
+        "and it must SAY the report broke — silently swallowing it would hide a "
+        "real shape change in what MFL returns")

@@ -1128,19 +1128,50 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
     save(series, path, players=players)
-    rep = coverage(series, year)
-    key = load_players(path)
-    named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
-    print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
-                      # NAMED, because a dispersion count of zero after this landed
-                      # means MFL stopped publishing it — not that spreads are zero.
-                      "dispersion_rows": len(dispersion),
-                      # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
-                      # Printed beside the capture count because the two failed
-                      # independently for two days and only one of them was visible.
-                      "decode_key": {"ids_held": len(key), "named": named,
-                                     "todays_rows_resolvable":
-                                         sum(1 for pid in rows if not FP._is_absent(
-                                             (key.get(pid) or {}).get("name")))}},
-                     indent=1))
-    return rep
+
+    # ── THE DAY IS SAFE FROM HERE. EVERYTHING BELOW IS REPORTING. ───────────
+    #
+    # THE LESSON THIS FILE'S WORKFLOW ALREADY CARRIES IN CAPITALS, one layer down.
+    # `external-adp-capture.yml` says at the board-pin step: THE PIN MUST NOT BE
+    # ABLE TO KILL THE SNAPSHOT — a failure in the recoverable artifact was
+    # destroying the unrecoverable one. The same shape was live right here and
+    # unnoticed: `save()` runs, then a summary line evaluates `len(dispersion)`.
+    # Hand that a None and it raises AFTER the archive is written but BEFORE the
+    # function returns, so the step fails; the commit step is gated on
+    # `steps.cap.outcome == 'success'`; and the day sits on the runner's disk and
+    # never reaches git. A cosmetic print, deleting a perishable day.
+    #
+    # Not reachable today — `dispersion_of` always returns a dict — and one edit
+    # to `fetch_mfl` away from being reachable, in a function that is
+    # `pragma: no cover` precisely because nothing watches it.
+    #
+    # LOUD, NOT SILENT. The failure is printed rather than swallowed: a report
+    # that suddenly cannot read what MFL returned is itself a finding about the
+    # shape of the feed, and it must not become quiet just because it is no
+    # longer fatal.
+    rep = None
+    try:
+        rep = coverage(series, year)
+        key = load_players(path)
+        named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
+        print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
+                          # NAMED, because a dispersion count of zero after this landed
+                          # means MFL stopped publishing it — not that spreads are zero.
+                          "dispersion_rows": len(dispersion),
+                          # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
+                          # Printed beside the capture count because the two failed
+                          # independently for two days and only one of them was visible.
+                          "decode_key": {"ids_held": len(key), "named": named,
+                                         "todays_rows_resolvable":
+                                             sum(1 for pid in rows if not FP._is_absent(
+                                                 (key.get(pid) or {}).get("name")))}},
+                         indent=1))
+    except Exception as e:                          # noqa: BLE001
+        print("REPORT FAILED (%s: %s) — THE SNAPSHOT IS SAVED AND INTACT. This is "
+              "a reporting failure, not a capture failure, and the day must not be "
+              "discarded for it." % (type(e).__name__, e))
+    # `uncounted`, matching this module's convention elsewhere: a coverage figure
+    # that could not be computed is not a coverage figure of zero.
+    return rep if rep is not None else {"year": str(year), "uncounted": True,
+                                        "note": "coverage not computed — see "
+                                                "REPORT FAILED above"}
