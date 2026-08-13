@@ -224,13 +224,83 @@ def test_unpriced_players_sort_behind_every_ffc_player(monkeypatch):
     assert min(unpriced) > max(priced)
 
 
-def test_unpriced_players_keep_their_relative_order(monkeypatch):
+def test_unpriced_players_are_ordered_by_the_only_value_quantity_we_HOLD(monkeypatch):
+    """THE PREDECESSOR PROVED THE ORDERING WITH A FIELD THE REAL BOARD LACKS.
+
+    It built `[{"player_id": "9999", "search_rank": 40}, ...]` and asserted the
+    lower rank got the lower ADP. That passed forever. **The production board
+    carries `search_rank` on ZERO of its rows** — C found this — so in every real
+    build `p.get("search_rank")` was None, `rank` was 9999, `min(rank, 600)` was
+    600 for everybody, and all 603 fallback players received the IDENTICAL price.
+    `raw_adp` on the shipped board takes exactly one distinct value across them.
+
+    A fixture that supplies a field production does not have does not test
+    production; it tests the fixture. So the CONTROL below asserts the real board
+    is missing the field, and the ordering is asserted on `proj_mean`, which the
+    board does carry — and which is a value quantity, where `search_rank` is a
+    popularity rank and would have replaced an honest tie with a confident wrong
+    ordering.
+    """
     monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
     table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10, year=2026)["adp"]
-    board = [{"player_id": "9999", "search_rank": 40},
-             {"player_id": "8888", "search_rank": 10}]
+    board = [
+        {"player_id": "9999", "proj_mean": 40.0},
+        {"player_id": "8888", "proj_mean": 120.0},
+        {"player_id": "7777", "proj_mean": 80.0},
+        {"player_id": "6666"},                      # nothing to rank him by
+        {"player_id": "5555", "proj_mean": 0},      # a zero is not a projection
+    ]
     adp.apply_with_fallback(board, table, teams=10)
-    assert board[1]["adp"] < board[0]["adp"]
+    by_id = {p["player_id"]: p for p in board}
+    assert by_id["8888"]["adp"] < by_id["7777"]["adp"] < by_id["9999"]["adp"], (
+        "the deep pool must be ordered best-projection-first")
+    assert by_id["8888"]["adp_unordered"] is False
+    # THE TIE IS DELIBERATE AND DECLARED. Two players with nothing to separate
+    # them get the same price and say so, rather than a spread that reads as
+    # information.
+    assert by_id["6666"]["adp"] == by_id["5555"]["adp"], (
+        "players with no projection cannot be separated and must not be pretend-ranked")
+    assert by_id["6666"]["adp_unordered"] is True and by_id["5555"]["adp_unordered"] is True
+    assert by_id["6666"]["adp"] > by_id["9999"]["adp"], (
+        "the unrankable cohort sits BEHIND everyone we could rank")
+
+
+def test_the_FALLBACK_cannot_outrank_a_player_the_market_actually_priced(monkeypatch):
+    """The ordering is INTERNAL to the deep pool. If it started anywhere but
+    after the last real ADP, a projection-happy deep player would jump the
+    market — which is the failure the fallback exists to avoid, not to cause."""
+    monkeypatch.setattr(adp, "fetch_adp", lambda *a, **k: PAYLOAD)
+    table = adp.build_adp_table(SLEEPER_PLAYERS, fmt="half-ppr", teams=10, year=2026)["adp"]
+    priced = max(v["adp"] for v in table.values())
+    board = [{"player_id": "9999", "proj_mean": 9_999.0}]
+    adp.apply_with_fallback(board, table, teams=10)
+    assert board[0]["adp"] > priced, (
+        "a fallback price must start after the last real ADP no matter how good "
+        "the projection is")
+
+
+def test_the_REAL_BOARD_does_not_carry_search_rank_which_is_why_this_hid():
+    """CONTROL for the two tests above, and the whole reason the defect lived.
+
+    Not a style point: if a future board DID start carrying `search_rank`, the
+    old fixture would have been legitimate and this comment would be wrong. It
+    is asserted against the shipped artifact so the claim stays checked.
+    """
+    import json as _json
+    board = _json.loads(
+        (Path(__file__).resolve().parent.parent.parent / "public" / "draft_data.json")
+        .read_text())["players"]
+    assert board, "no board to check"
+    carrying = [p for p in board if "search_rank" in p]
+    assert not carrying, (
+        "the board now carries search_rank on %d rows — the fallback's original "
+        "ordering premise has become true and this test's reasoning needs "
+        "re-reading, not deleting" % len(carrying))
+    # AND THE FALLBACK IS NOT VACUOUS — there are players it prices.
+    fb = [p for p in board if p.get("adp_source") == "search_rank"]
+    assert len(fb) > 50, (
+        "only %d fallback players — if the market now prices everything, this "
+        "whole path is dead code and should be retired deliberately" % len(fb))
 
 
 def test_bye_fills_from_ffc_only_where_sleeper_left_a_hole():

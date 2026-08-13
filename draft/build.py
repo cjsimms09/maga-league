@@ -637,6 +637,46 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # of evidence must never read as evidence of absence, and a build that
     # quietly dropped half the board because an artifact moved would be far worse
     # than one that carries eight retired players.
+    # ── THE HISTORICAL POSITION RECORD, WRITTEN BEFORE ANYTHING IS DROPPED ──
+    #
+    # `wire_level.js` measures what the waiver wire PAID in 2023-2025 and read
+    # its positions off the LIVE board. The filter below is correct and it broke
+    # that measurement the first time it ran: a player added off the wire in 2023
+    # who has since retired is dropped here, so his acquisition falls out of a
+    # sample about 2023. Scored acquisitions went 422 -> 417 and the RB wire
+    # 7.80 -> 7.95, in the direction that flatters the wire — a waiver add who
+    # washes out is exactly the one who scored badly — and it would have kept
+    # drifting on every nightly rebuild with nothing going red.
+    #
+    # So the map is written HERE, from the board BEFORE the filter, and MERGED
+    # rather than overwritten: a historical record may only grow. A position
+    # CORRECTION still reaches the measurement, because the reader overlays the
+    # live board on top of this.
+    try:
+        _pp = HERE / "data" / "player_positions.json"
+        _prev = json.loads(_pp.read_text())if _pp.exists() else {}
+        _pos = dict(_prev.get("positions") or {})
+        _added = 0
+        for _p in board:
+            _q = _p.get("position")
+            if _q and str(_p.get("player_id")) not in _pos:
+                _pos[str(_p["player_id"])] = _q
+                _added += 1
+        _prev["_territory"] = _prev.get("_territory", "A")
+        _prev["_note"] = _prev.get("_note") or (
+            "HISTORICAL POSITIONS — id -> position, UNION OVER BUILDS, never "
+            "pruned. Written from the board BEFORE the activity filter, because "
+            "the realized-wire measurement is about 2023-2025 and must not shrink "
+            "when the 2026 board is cleaned.")
+        _prev["positions"] = dict(sorted(
+            _pos.items(), key=lambda kv: int(kv[0]) if kv[0].isdigit() else 0))
+        _pp.write_text(json.dumps(_prev, indent=1))
+        print(f"  position history: {len(_pos)} ids on file (+{_added} new) — "
+              f"written BEFORE the activity filter so the wire sample cannot shrink")
+    except Exception as _px:  # noqa: BLE001 — never a build dependency
+        print(f"  ! position history NOT updated ({type(_px).__name__}: {_px}); "
+              f"wire_level will fall back to the live board and its sample may shrink")
+
     try:
         _act = board_activity.dormant({"players": board})
         if _act["status"] == "measured" and _act["n"]:

@@ -91,14 +91,51 @@ const ACQUIRING = ['waiver', 'free_agent'];
 
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 
-/* POSITIONS COME FROM THE BOARD, and a non-numeric add id is a defence.
- * Sleeper keys a defence by TEAM ABBREVIATION (`{"GB": 6}`) where every other
- * add carries a numeric id. Requiring a numeric id silently deletes the busiest
- * waiver position in the league. */
+/* A NON-NUMERIC ADD ID IS A DEFENCE. Sleeper keys a defence by TEAM
+ * ABBREVIATION (`{"GB": 6}`) where every other add carries a numeric id.
+ * Requiring a numeric id silently deletes the busiest waiver position.
+ *
+ * ⚠️ AND POSITIONS COME FROM A HISTORICAL RECORD FIRST, AND THE LIVE BOARD SECOND.
+ *
+ * This read the 2026 board alone, and on 2026-08-13 that turned into a silent
+ * drift. C's activity filter began dropping players with no scored week in 2024
+ * or 2025 — correct, and it removed Tom Brady from a draft board. But THE WIRE
+ * IS A MEASUREMENT OF 2023-2025, and a man who was added off the wire in 2023
+ * had a position then whether or not he is on the 2026 board now. Dropping him
+ * from the board dropped his acquisition out of the sample:
+ *
+ *     scored acquisitions   422 -> 417        RB level  7.80 -> 7.95
+ *     unpositioned           10 ->  15        RB n       143 -> 140
+ *
+ * THE DIRECTION IS KNOWABLE AND IT IS THE WRONG ONE. A waiver add who washes
+ * out of the league is exactly the kind who scored badly, so pruning them lifts
+ * the realized wire — and it would have kept lifting on every nightly rebuild,
+ * with nothing going red, because a shrinking denominator looks like a smaller
+ * league rather than like a bug. That is the same shape as the `min_n = 5`
+ * filter this file was written to remove, arriving through a different door.
+ *
+ * `draft/data/player_positions.json` is the union over builds, written by
+ * `build.py` from the board BEFORE the filter runs. The live board is still
+ * overlaid on top so a position CORRECTION reaches this measurement, and the
+ * ledger reports which source answered so the coupling cannot come back
+ * silently a third time. */
 function positionMap() {
-  const board = readJson(path.join(ROOT, 'public', 'draft_data.json'));
   const m = {};
-  (board.players || []).forEach(p => { m[String(p.player_id)] = p.position; });
+  const hist = path.join(ROOT, 'draft', 'data', 'player_positions.json');
+  let fromHistory = 0;
+  if (fs.existsSync(hist)) {
+    const h = readJson(hist).positions || {};
+    Object.keys(h).forEach(id => { m[id] = h[id]; fromHistory++; });
+  }
+  const board = readJson(path.join(ROOT, 'public', 'draft_data.json'));
+  let fromBoard = 0;
+  (board.players || []).forEach(p => {
+    if (p.position) { m[String(p.player_id)] = p.position; fromBoard++; }
+  });
+  Object.defineProperty(m, '__sources', {
+    value: { history: fromHistory, board: fromBoard, history_file: fs.existsSync(hist) },
+    enumerable: false,
+  });
   return m;
 }
 
@@ -157,9 +194,15 @@ const med = s => (s.length ? (s.length % 2 ? s[(s.length - 1) / 2]
 function measure() {
   const history = readJson(path.join(ROOT, 'draft', 'data', 'league_history.json'));
   const POS = positionMap();
+  const POS_SOURCE = POS.__sources || { history: 0, board: 0, history_file: false };
   const sample = {}, byWeek = {}, ledger = {
     acquisitions: 0, scored: 0, unpositioned: 0, def_or_k_unscorable: 0,
     no_row_that_week: 0, seasons: [], missing_store: [],
+    /* WHERE THE POSITIONS CAME FROM, reported rather than assumed. If the
+     * historical file goes missing this measurement quietly reverts to being
+     * coupled to the live board, and a coverage number that hides its source is
+     * how that stayed invisible the first time. */
+    position_source: POS_SOURCE,
   };
 
   SEASONS.forEach(season => {
