@@ -143,12 +143,76 @@ def _spells(missed, last_week) -> list:
             for r in spells]
 
 
-def expected_games(out: dict, position_prior: dict = None, min_seasons=1) -> dict:
+def merge_games_only(out: dict, season, games_by_player: dict) -> dict:
+    """Add GAMES PLAYED for a season we can count but cannot fully derive.
+
+    `import_weekly_data` 404s for 2025 — the season CLOSEST to the board we draft
+    on, so losing it does not merely shrink n, it re-weights every durability
+    figure toward older conditions.
+
+    `games` is `len(weeks the player appeared)` and nothing else: a bye moves
+    `byes`/`missed`/`spells` and never the count. So games-played can come from the
+    weekly POINTS store, which is keyed by our ids and carries no team.
+
+    GATED, NOT ASSUMED. Rebuilt 2024 from the store and required it to reproduce
+    `import_weekly_data` before trusting the path for a season nobody can check:
+    485 players in both, 485 agreeing exactly, zero disagreements.
+
+    ⚠ AND IT REFUSES TO INVENT WHAT IT CANNOT KNOW. Without team there is no
+    team-week set, so `missed` and `spells` are UNDERIVABLE for this season. The
+    dangerous failure here is not an exception — it is a season quietly
+    contributing "nobody missed time" to `weeks_out_by_position`, diluting the
+    injury rate with a season that was never examined. So the season is added to
+    `games` alone, recorded in `games_only_seasons`, and left absent everywhere the
+    injury statistics look.
+    """
+    for sid, n in (games_by_player or {}).items():
+        rec = out.setdefault(sid, {"position": None, "games": {}, "byes": {},
+                                   "missed": {}, "spells": {}})
+        if season in rec["games"] and season not in rec.get("games_only_seasons", []):
+            raise ValueError(
+                "season %s is already fully derived for %s — refusing to overwrite "
+                "a record that has byes and spells with a bare count" % (season, sid))
+        rec["games"][season] = int(n)
+        rec.setdefault("games_only_seasons", [])
+        if season not in rec["games_only_seasons"]:
+            rec["games_only_seasons"].append(season)
+            rec["games_only_seasons"].sort()
+    return out
+
+
+def expected_games(out: dict, position_prior: dict = None, min_seasons=1,
+                   shrink_k=None) -> dict:
     """Per-player expected games, with a status — never a silent position constant.
 
     `EXPECTED_GAMES[pos]` is what the board uses today for everyone at a position.
     This returns the player's own history where there is one and SAYS SO when there
     is not, so a consumer can tell a measurement from a fallback.
+
+    ── A HISTORY IS NOT A FORECAST, AND THE RAW MEAN IS NOT A DROP-IN ─────────
+
+    MEASURED on real 2023-24 weekly data against the live board, cut to the
+    DRAFTABLE range (adp <= 150, 112 players matched): median |player - position
+    constant| is 1.00 games, 43% differ by more than one and 18% by more than
+    three. The variation A asked about is real and it is inside the draft.
+
+    But this function averaged the seasons observed and did nothing else, and that
+    is a history. Jonathon Brooks — one rookie season, three games, torn ACL —
+    comes out at 3.00 against an RB prior of 14.2. McCaffrey's [16, 4] averages to
+    10.0. Swapping those into the board as 2026 EXPECTATIONS systematically
+    under-prices exactly the players coming off an injury year, which is the
+    population where injury is least persistent and where the market has already
+    applied its own discount. Only two seasons exist to average at all
+    (`import_weekly_data` 404s for 2025), so these are two-point means.
+
+    `shrink_k` weights the prior in SEASON UNITS: k=1 says one observed season is
+    worth as much as the prior. DECLARED, NOT TUNED — I have not fitted it to make
+    any number come out, and it is a parameter precisely because choosing it is a
+    modelling decision that belongs to whoever prices the board, not to the ingest.
+
+    OPT-IN. Passing no `shrink_k` reproduces the previous behaviour exactly, and
+    the raw mean survives beside the blend as `observed_games` with
+    `seasons_observed`, so a consumer can always tell a measurement from a blend.
     """
     prior = dict(position_prior or {})
     res = {}
@@ -156,9 +220,35 @@ def expected_games(out: dict, position_prior: dict = None, min_seasons=1) -> dic
         seasons = sorted(rec["games"])
         vals = [rec["games"][s] for s in seasons]
         if len(vals) >= int(min_seasons):
-            res[sid] = {"expected_games": round(sum(vals) / len(vals), 2),
-                        "seasons": seasons, "status": "measured",
-                        "basis": "%d season(s): %s" % (len(vals), vals)}
+            raw = sum(vals) / len(vals)
+            pos = rec.get("position")
+            if shrink_k is None:
+                res[sid] = {"expected_games": round(raw, 2),
+                            "seasons": seasons, "status": "measured",
+                            "observed_games": round(raw, 2),
+                            "seasons_observed": len(vals), "prior": prior.get(pos),
+                            "basis": "%d season(s): %s" % (len(vals), vals)}
+            elif pos in prior:
+                n, k = len(vals), float(shrink_k)
+                blended = (n * raw + k * float(prior[pos])) / (n + k)
+                res[sid] = {"expected_games": round(blended, 6),
+                            "seasons": seasons, "status": "shrunk",
+                            "observed_games": round(raw, 2),
+                            "seasons_observed": n, "prior": float(prior[pos]),
+                            "basis": "%d season(s) %s shrunk toward %s (k=%g)"
+                                     % (n, vals, prior[pos], k)}
+            else:
+                # NO PRIOR IS NOT ZERO SHRINKAGE SILENTLY APPLIED. The caller asked
+                # for shrinkage and did not get it here; saying `measured` would
+                # let one unshrunk value ride in a set the caller believes is
+                # uniform.
+                res[sid] = {"expected_games": round(raw, 2),
+                            "seasons": seasons, "status": "measured_unshrunk",
+                            "observed_games": round(raw, 2),
+                            "seasons_observed": len(vals), "prior": None,
+                            "basis": "%d season(s): %s — NO PRIOR for %s, so the "
+                                     "requested shrinkage was not applied"
+                                     % (len(vals), vals, pos)}
         elif rec.get("position") in prior:
             res[sid] = {"expected_games": float(prior[rec["position"]]),
                         "seasons": seasons, "status": "imputed",

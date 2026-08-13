@@ -1,0 +1,430 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by draft/backtest/mutation_gate.record",
+ "_note": "Verified mutation kills. Each entry is a mutation that was APPLIED and whose NAMED test failed, with a green baseline and an unchanged collection count. draft/tests/test_mutation_manifest.py checks these cheaply on every run; re-running them for real is run_all().",
+ "version": 1,
+ "modules": {
+  "draft/backtest/evidence_check.py": {
+   "tests": [
+    "draft/tests/test_evidence_check.py"
+   ],
+   "mutations": [
+    {
+     "old": "    out[\"diverges\"] = bool(out[\"ratio\"] is None or out[\"ratio\"] >= DIVERGENCE_RATIO)",
+     "new": "    out[\"diverges\"] = True",
+     "must_fail": [
+      "test_an_AGREEING_cut_says_so_rather_than_warning_anyway"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not cut:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_an_EMPTY_cut_is_UNMEASURED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    out[\"ok\"] = out[\"rate\"] >= require",
+     "new": "    out[\"ok\"] = out[\"rate\"] >= 0.5",
+     "must_fail": [
+      "test_a_KEY_THAT_DISAGREES_with_its_independent_derivation_is_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not keys:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_NO_OVERLAP_is_UNVERIFIED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if any(value is a if a is None else value == a for a in ABSENT):",
+     "new": "    if not value:",
+     "must_fail": [
+      "test_a_MEASURED_ZERO_still_prints_as_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if any(value is a if a is None else value == a for a in ABSENT):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_NONE_formats_as_UNMEASURED_and_never_as_a_number"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/season_stamp.py": {
+   "tests": [
+    "draft/tests/test_season_stamp.py"
+   ],
+   "mutations": [
+    {
+     "old": "    return sorted(f for f in (row or {})\n                  if m.get(f, EXPERIMENT) not in allowed)",
+     "new": "    return sorted(f for f in (row or {})\n                  if m.get(f, LIVE_FEED) not in allowed)",
+     "must_fail": [
+      "test_an_UNMAPPED_field_is_a_VIOLATION_by_default_not_trusted_as_live"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "LIVE_ALLOWED = (LIVE_FEED, HISTORICAL_PRIOR, MODEL_CONSTANT, DERIVED_PURPOSE)",
+     "new": "LIVE_ALLOWED = (LIVE_FEED, HISTORICAL_PRIOR, MODEL_CONSTANT, DERIVED_PURPOSE, EXPERIMENT)",
+     "must_fail": [
+      "test_an_EXPERIMENT_purpose_field_on_a_LIVE_row_is_A_VIOLATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return sorted(f for f in (row or {}) if f not in BOARD_FIELD_PURPOSE)",
+     "new": "    return []",
+     "must_fail": [
+      "test_EVERY_BOARD_FIELD_HAS_A_PURPOSE_and_an_unknown_one_is_a_violation"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_durability.py": {
+   "tests": [
+    "draft/tests/test_nflverse_durability.py"
+   ],
+   "mutations": [
+    {
+     "old": "                blended = (n * raw + k * float(prior[pos])) / (n + k)",
+     "new": "                blended = raw",
+     "must_fail": [
+      "test_shrinkage_pulls_a_THIN_history_toward_the_position_prior"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                n, k = len(vals), float(shrink_k)",
+     "new": "                n, k = 1, float(shrink_k)",
+     "must_fail": [
+      "test_MORE_SEASONS_shrink_LESS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        rec[\"games\"][season] = int(n)",
+     "new": "        rec[\"games\"][season] = int(n)\n        rec[\"byes\"][season] = []; rec[\"missed\"][season] = []; rec[\"spells\"][season] = []",
+     "must_fail": [
+      "test_a_games_only_season_ADDS_GAMES_and_REFUSES_to_invent_spells"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_adp_capture.py": {
+   "tests": [
+    "draft/tests/test_external_adp_capture.py"
+   ],
+   "mutations": [
+    {
+     "old": "    if dispersion:\n        return None",
+     "new": "    if True:\n        return None",
+     "must_fail": [
+      "test_a_MISSING_SPREAD_records_the_keys_MFL_ACTUALLY_SENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    seen = sorted({k for r in rows if isinstance(r, dict) for k in r})",
+     "new": "    seen = sorted(rows[0] if isinstance(rows[0], dict) else [])",
+     "must_fail": [
+      "test_it_reports_keys_from_MORE_THAN_THE_FIRST_ROW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return (\"NO SPREAD: the response carried no rows at all",
+     "new": "    if False:\n        return (\"NO SPREAD: the response carried no rows at all",
+     "must_fail": [
+      "test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if dispersion:\n        return None",
+     "new": "    if False:\n        return None",
+     "must_fail": [
+      "test_a_SUCCESSFUL_spread_adds_NO_note"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}",
+     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    if False:\n        ig = {}",
+     "must_fail": [
+      "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not ig[\"ok\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if s.get(\"row_count\") != len(rows):",
+     "new": "        if False:",
+     "must_fail": [
+      "test_a_ROW_COUNT_THAT_DISAGREES_WITH_THE_ROWS_is_fatal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                out[\"reported\"].append({\"kind\": \"undecodable_id\", \"day\": day,",
+     "new": "                out[\"fatal\"].append({\"kind\": \"undecodable_id\", \"day\": day,",
+     "must_fail": [
+      "test_an_ID_THE_DECODE_KEY_CANNOT_RESOLVE_is_REPORTED_and_NOT_fatal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                             source_note=note, dispersion=dispersion)",
+     "new": "                             source_note=note)",
+     "must_fail": [
+      "test_capture_THREADS_DISPERSION_from_the_fetch_all_the_way_to_DISK"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    last_useful = dd - _timedelta(days=1)",
+     "new": "    last_useful = dd",
+     "must_fail": [
+      "test_a_snapshot_taken_ON_DRAFT_DAY_IS_NOT_THE_ONE_F5_USES"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                stale=(None if age is None else age > F5_STALE_DAYS),",
+     "new": "                stale=(lead > F5_STALE_DAYS),",
+     "must_fail": [
+      "test_STALENESS_IS_MEASURED_AGAINST_TODAY_not_against_the_draft"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "def dropped_inside(series: list, year, last_pick=None) -> dict:",
+     "new": "def dropped_inside(series: list, year, last_pick=150) -> dict:",
+     "must_fail": [
+      "test_WITHOUT_a_last_pick_it_REFUSES_TO_JUDGE_rather_than_guessing_150"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    sd = (float(hi) - float(lo)) / _expected_range(n)",
+     "new": "    sd = (float(hi) - float(lo)) / _expected_range(int(total_drafts or n))",
+     "must_fail": [
+      "test_n_IS_THE_SELECTION_COUNT_not_the_number_of_drafts_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    judged = [s for s in ser if (s.get(\"observed_at\") or \"\") >= DISPERSION_SINCE]",
+     "new": "    judged = list(ser)",
+     "must_fail": [
+      "test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/projection_error.py": {
+   "tests": [
+    "draft/tests/test_projection_error.py"
+   ],
+   "mutations": [
+    {
+     "old": "BAND_EDGES = (3, 8, 16, 32)",
+     "new": "BAND_EDGES = (3, 8, 16, 64)",
+     "must_fail": [
+      "test_BAND_EDGES_produce_the_boundaries_the_calibration_is_reported_in"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "MIN_N = 8",
+     "new": "MIN_N = 1",
+     "must_fail": [
+      "test_the_DEFAULT_min_n_is_the_declared_one_and_actually_bites"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/mutation_gate.py": {
+   "tests": [
+    "draft/tests/test_mutation_gate.py"
+   ],
+   "mutations": [
+    {
+     "old": "    n_sites = src.count(old)\n    if n_sites > 1:",
+     "new": "    n_sites = src.count(old)\n    if False:",
+     "must_fail": [
+      "test_an_AMBIGUOUS_TARGET_is_refused_rather_than_mutating_the_first_hit",
+      "test_an_AMBIGUOUS_TARGET_cannot_be_RECORDED_as_a_kill"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "INVALID = (\"INVALID_BASELINE\", \"TARGET_NOT_FOUND\", \"AMBIGUOUS_TARGET\",",
+     "new": "INVALID = (\"INVALID_BASELINE\", \"TARGET_NOT_FOUND\",",
+     "must_fail": [
+      "test_an_AMBIGUOUS_TARGET_cannot_be_RECORDED_as_a_kill"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "out[\"all_killed\"] = out[\"checked\"] > 0 and out[\"killed\"] == out[\"checked\"]",
+     "new": "out[\"all_killed\"] = out[\"killed\"] == out[\"checked\"]",
+     "must_fail": [
+      "test_an_EMPTY_MANIFEST_is_not_all_killed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            bucket = (\"stale\" if r[\"verdict\"] in stale_verdicts\n                      else \"unverifiable\" if r[\"verdict\"] in INVALID\n                      else \"regressed\")",
+     "new": "            bucket = \"regressed\"",
+     "must_fail": [
+      "test_verify_manifest_SORTS_NON_KILLS_BY_WHAT_THE_READER_MUST_DO"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    doc = json.loads(p.read_text())\n    base = Path(root) if root else",
+     "new": "    doc = json.loads(p.read_text()) if p.exists() else {\"modules\": {}}\n    base = Path(root) if root else",
+     "must_fail": [
+      "test_a_MISSING_MANIFEST_RAISES_rather_than_reporting_a_clean_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        ok, why = _compiles(str(p))\n        if not ok:",
+     "new": "        ok, why = _compiles(str(p))\n        if False:",
+     "must_fail": [
+      "test_a_MUTANT_THAT_DOES_NOT_COMPILE_is_INVALID_not_survived"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if old not in src:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_TARGET_THAT_IS_NOT_THERE_is_INVALID_not_survived"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if baseline.get(\"failed\"):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_RED_BASELINE_is_refused_before_anything_is_mutated"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                and res[\"collected_after\"] != res[\"collected_before\"]):",
+     "new": "                and False):",
+     "must_fail": [
+      "test_TESTS_THAT_VANISH_are_INVALID_not_a_pass"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        hit = [t for t in must if t in res[\"failed\"]]",
+     "new": "        hit = list(res[\"failed\"])",
+     "must_fail": [
+      "test_THE_WRONG_TEST_FAILING_is_not_a_kill"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        p.write_text(src, encoding=\"utf-8\")\n        _purge_pycache(str(p))",
+     "new": "        pass",
+     "must_fail": [
+      "test_the_FILE_IS_RESTORED_afterwards",
+      "test_it_restores_EVEN_WHEN_THE_RUN_BLOWS_UP"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"all_killed\": bool(results) and all(",
+     "new": "            \"all_killed\": True and all(",
+     "must_fail": [
+      "test_an_EMPTY_BATCH_is_not_all_killed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                r[\"verdict\"] == \"KILLED\" for r in results),",
+     "new": "                r[\"verdict\"] != \"SURVIVED\" for r in results),",
+     "must_fail": [
+      "test_a_multi_mutation_RUN_reports_every_verdict_and_a_summary"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not results:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_RECORDING_AN_EMPTY_RESULT_LIST_is_refused"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    fixed = repair()\n    if fixed[\"status\"] == \"in_flight\":",
+     "new": "    fixed = {\"status\": \"clean\"}\n    if fixed[\"status\"] == \"in_flight\":",
+     "must_fail": [
+      "test_a_MUTANT_ABANDONED_BY_A_KILLED_RUN_is_repaired_before_it_is_read",
+      "test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if _pid_alive(rec.get(\"pid\", -1)):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if now != rec[\"mutated\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    prev = _declare(p, src, mutated)     # journal + signal handlers FIRST",
+     "new": "    prev = {}",
+     "must_fail": [
+      "test_SIGTERM_MID_MUTATION_restores_the_file",
+      "test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs",
+      "test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        prev[sig] = signal.signal(sig, _restore_and_die)",
+     "new": "        prev[sig] = signal.getsignal(sig)",
+     "must_fail": [
+      "test_SIGTERM_MID_MUTATION_restores_the_file"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  }
+ }
+}

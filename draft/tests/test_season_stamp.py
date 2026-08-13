@@ -248,3 +248,105 @@ def test_derive_of_only_CURRENT_inputs_stays_current():
     row = SS.stamp({"player_id": "1", "x": 1.0}, {"x": src})
     assert row["x_season"] == SS.CURRENT
     assert SS.violations([row], 2026, fields=("x",)) == []
+
+
+# ── PURPOSE, NOT JUST SEASON ────────────────────────────────────────────────
+#
+# The season axis answers WHICH YEAR. Cory's concern is WHAT FOR: data produced
+# to decide whether something works (experiments, backtests, calibrations) must
+# not price a live recommendation, and a PRIOR estimated from past seasons must
+# not be read as a measurement of this one.
+#
+# The audit that motivated this found the runtime paths clean — no live surface
+# reads a backtest or experiment file, and the one set of experiment-derived
+# constants in the draft app (`deviation.js` MARKET_EFFICIENCY) agrees 11/11 with
+# `exp36.json` and is used in the direction its own comment describes. What is
+# NOT covered is the board, where a historical prior and a live feed sit in
+# adjacent fields with nothing distinguishing them.
+#
+# `target_share: 0.295` is the sharp case. It is 2024-25 usage. A surface that
+# prints it beside `injury_status` — genuinely current — invites reading it as
+# this season's number, and nothing in the row says otherwise.
+
+def test_EVERY_BOARD_FIELD_HAS_A_PURPOSE_and_an_unknown_one_is_a_violation():
+    """Same hole-guard as the season map, and the same reason: the gate goes green
+    on exactly the field nobody thought about. MUTATION: default an unmapped field
+    to `live_feed` — a new ingest field is trusted as current on the day it lands,
+    which is the most dangerous default available."""
+    import json
+    board = json.load(open("public/draft_data.json"))["players"]
+    scan = lambda rows: sorted({f for r in rows for f in SS.unpurposed_fields(r)})
+    probe = list(board[:-1]) + [dict(board[-1], a_field_nobody_purposed=1)]
+    assert scan(probe) == ["a_field_nobody_purposed"], (
+        "the detector must reach the LAST row, or the assertion below is satisfied "
+        "by a scan of board[0]")
+    assert scan(board) == [], (
+        "board fields with no declared PURPOSE: %s" % scan(board))
+
+
+def test_an_EXPERIMENT_purpose_field_on_a_LIVE_row_is_A_VIOLATION():
+    """THE ONE THIS EXISTS FOR. An experiment exists to decide whether something
+    works; it is selected, pre-registered and often deliberately adversarial. It
+    must never price a recommendation.
+
+    MUTATION: warn instead of refusing — the distinction between "we measured
+    this to decide" and "we are pricing on this" disappears at exactly the moment
+    it matters."""
+    row = {"name": "X", "position": "RB", "exp36_efficiency": 0.4}
+    v = SS.purpose_violations(row, purposes={"exp36_efficiency": "experiment"})
+    assert v == ["exp36_efficiency"], v
+    assert SS.purpose_violations({"name": "X", "position": "RB"}) == []
+
+
+def test_a_HISTORICAL_PRIOR_is_ALLOWED_but_NAMED():
+    """Priors are how you price anything — refusing them would be wrong. The
+    danger is a prior READ AS a measurement of this season, so it is reported
+    rather than blocked.
+
+    MUTATION: fold priors in with live feeds — `target_share: 0.295` then reads
+    exactly like `injury_status`, which really is current, and nothing anywhere
+    says it is 2024-25 usage."""
+    rep = SS.purpose_report({"target_share": 0.3, "injury_status": None,
+                             "proj_mean": 200.0})
+    assert rep["by_purpose"]["historical_prior"] == ["target_share"]
+    assert "injury_status" in rep["by_purpose"]["live_feed"]
+    assert rep["violations"] == []
+    assert rep["priors_present"] is True
+
+
+def test_the_LIVE_BOARD_carries_NO_experiment_data():
+    """The standing assertion, run against the shipped artifact rather than
+    argued. If an experiment output is ever wired into the board, this fails on
+    the build that does it. MUTATION: check only the first row."""
+    import json
+    board = json.load(open("public/draft_data.json"))["players"]
+
+    # PLANT FIRST, on a REAL row, and on the LAST one so a board[0] scan cannot
+    # satisfy it. The gate proved this test vacuous without it.
+    probe = list(board[:-1]) + [dict(board[-1], exp36_efficiency=0.4)]
+    planted = sorted({f for r in probe for f in SS.purpose_violations(r)})
+    assert planted == ["exp36_efficiency"], (
+        "the detector cannot FIND an experiment field on a real board row")
+
+    bad = sorted({f for r in board for f in SS.purpose_violations(r)})
+    assert bad == [], "EXPERIMENT-PURPOSE FIELDS ON THE LIVE BOARD: %s" % bad
+    assert len(board) > 1
+
+
+def test_an_UNMAPPED_field_is_a_VIOLATION_by_default_not_trusted_as_live():
+    """THE GATE FOUND THIS HOLE, and it is the exact default the docstring warns
+    about. `purpose_violations` treats an unmapped field as `experiment` — refuse
+    it — and nothing tested that: mutating the default to `live_feed` survived,
+    because the only test near it exercises `unpurposed_fields` instead.
+
+    A field nobody classified is the one added last week. Trusting it as a current
+    measurement on the day it lands is the most dangerous default available, and
+    it is the one a careless reading of "sensible default" would pick.
+
+    MUTATION: default to LIVE_FEED — an unclassified ingest field silently prices
+    recommendations."""
+    assert SS.purpose_violations({"name": "X", "a_brand_new_field": 1}) == \
+        ["a_brand_new_field"]
+    rep = SS.purpose_report({"name": "X", "a_brand_new_field": 1})
+    assert rep["violations"] == ["a_brand_new_field"]
+    assert rep["unpurposed"] == ["a_brand_new_field"]

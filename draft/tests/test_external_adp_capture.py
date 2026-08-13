@@ -9,6 +9,8 @@ the damage only surfaces months later as a league quietly failing F5.
 Run: python3 -m pytest draft/tests/test_external_adp_capture.py -q
 """
 import json
+
+import pytest
 import re
 import sys
 from pathlib import Path
@@ -1600,3 +1602,596 @@ def test_a_FAILING_REPORT_CANNOT_DESTROY_THE_DAY(tmp_path, monkeypatch, capsys):
     assert "REPORT FAILED" in capsys.readouterr().out, (
         "and it must SAY the report broke — silently swallowing it would hide a "
         "real shape change in what MFL returns")
+
+
+# ── DID THE SPREAD ARRIVE, AND IF NOT, WHOSE FAULT IS IT ────────────────────
+#
+# 2026-08-14 is the first capture that can carry dispersion. The keys —
+# `minPick`, `maxPick`, `draftSelPct` — are read from the SAME response dict as
+# `averagePick`, which provably works, so the shape is right. What is untested
+# is whether MFL publishes those fields on this endpoint at all. If it does not,
+# `dispersion_of` omits every player (it requires at least one bound), the run
+# goes GREEN, and the log says `dispersion_rows: 0`.
+#
+# A COUNT OF ZERO HAS TWO CAUSES AND THEY POINT IN OPPOSITE DIRECTIONS. Zero on
+# the first attempt is evidence about OUR PARSER. Zero after weeks of non-zero
+# is evidence about THE FEED. A check that cannot separate them tells you
+# nothing on the only morning it matters, and the spread is perishable exactly
+# like the mean.
+
+def test_ZERO_ON_THE_FIRST_ATTEMPT_blames_our_parser_by_name():
+    """MUTATION: report it as quiet or as `stopped` — the first failed run reads
+    like a success, or sends the reader to MFL's release notes instead of to the
+    four key names in `mfl_adp.parse` that have never once matched anything."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "never_captured"
+    assert "parse" in h["note"] and "minPick" in h["note"], h["note"]
+
+
+def test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us():
+    """The three snapshots we already hold have no dispersion because the parser
+    was discarding it, which is a fact about our history and not a failure to
+    diagnose. Judging them would make this alarm fire on its own first run, and
+    an alarm that is red on day one is muted by day two.
+
+    MUTATION: judge every snapshot — the check screams that the parser is broken
+    about days on which the parser provably could not have captured anything."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 4.5}, dispersion=None)
+    s = C.append_snapshot(s, 2026, "2026-08-12", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "unmeasured", h
+    assert h["judged_snapshots"] == 0
+    assert C.DISPERSION_SINCE in h["note"]
+
+
+def test_PRESENT_THEN_ABSENT_blames_the_feed_not_the_parser():
+    """The distinction that decides where to look. MUTATION: collapse it into
+    `never_captured` — the reader goes and re-reads a parser that has been working
+    for a fortnight."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 9}})
+    s = C.append_snapshot(s, 2026, "2026-08-15", {"1": 4.5}, dispersion=None)
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "stopped"
+    assert "MFL" in h["note"] and "2026-08-14" in h["note"], h["note"]
+
+
+def test_PARTIAL_coverage_is_a_FRACTION_not_a_boolean():
+    """5 players with a spread out of 672 is not "dispersion is working".
+    MUTATION: report present/absent — a near-total collapse in coverage reads
+    exactly like a healthy day, which is the `crosswalk_rate` mistake again."""
+    s = C.append_snapshot([], 2026, "2026-08-14", {"1": 4.5, "2": 9.0, "3": 12.0},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 9}})
+    h = C.dispersion_health(s, 2026)
+    assert h["state"] == "present"
+    assert h["rows"] == 1 and h["adp_rows"] == 3
+    assert abs(h["coverage"] - 1 / 3) < 1e-9
+
+
+def test_NO_SNAPSHOTS_is_unmeasured_not_a_verdict_about_anything():
+    """Rule 13f. MUTATION: return `never_captured` for an empty archive — a check
+    that has looked at nothing reports a diagnosis about our code."""
+    h = C.dispersion_health([], 2026)
+    assert h["state"] == "unmeasured" and h["rows"] is None
+
+
+# ── TURNING MFL's min/max INTO A SPREAD — the reader for tomorrow's data ────
+#
+# A's item #1: 94.6% of the board's `adp_sd` sits on two values — 1,418 players
+# at exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759
+# players. My answer was to capture MFL's real dispersion. CAPTURING IS NOT
+# FIXING: the spread lands tomorrow and nothing reads it, which is rule 14 on my
+# own newest work.
+#
+# The estimator is the range one — sd ~= (max - min) / d_n, d_n the expected
+# range of n standard normals — because min/max is what MFL publishes. It is
+# crude and its weaknesses are stated in the module rather than buried: a single
+# outlier drives it entirely, and for a rarely-selected player the observed
+# range is truncated by the draft ending, so the estimate is a LOWER bound.
+
+def test_the_spread_is_estimated_from_the_RANGE_and_the_SELECTION_COUNT():
+    """n = 5 selections, picks spanning 10..20. d_5 = 2.326, so sd ~= 10/2.326."""
+    r = C.spread_from_dispersion({"min_pick": 10, "max_pick": 20,
+                                  "sel_pct": 100.0, "drafts": 5})
+    assert r["status"] == "measured"
+    assert abs(r["sd"] - 10 / 2.326) < 0.05, r
+    assert r["n"] == 5
+
+
+def test_n_IS_THE_SELECTION_COUNT_not_the_number_of_drafts_run():
+    """THE ONE THAT WOULD QUIETLY RUIN IT. MFL's min/max are over the drafts the
+    player was SELECTED in, not over every draft in the pool. A player taken in 7
+    of 125 drafts has a range over SEVEN observations; charging him d_125 instead
+    of d_7 divides by 5.1 rather than 2.7 and halves every deep player's spread —
+    reintroducing exactly the flatness this exists to cure, while looking measured.
+
+    MUTATION: take n from total_drafts."""
+    row = {"min_pick": 100, "max_pick": 160, "sel_pct": 5.6, "drafts": 7}
+    r = C.spread_from_dispersion(row, total_drafts=125)
+    assert r["n"] == 7, "seven selections, not 125 drafts"
+    assert abs(r["sd"] - 60 / 2.704) < 0.1, r
+
+
+def test_a_SINGLE_selection_has_no_spread_and_says_so():
+    """Range is 0 with one observation. Returning sd 0.0 would assert the market is
+    CERTAIN about a player it has seen once — the most confident number on the
+    board attached to the least evidence. Rule 13f.
+
+    MUTATION: return 0.0 — and the flat board gains a third spike, at zero."""
+    r = C.spread_from_dispersion({"min_pick": 44, "max_pick": 44,
+                                  "sel_pct": 0.8, "drafts": 1})
+    assert r["sd"] is None
+    assert r["status"] == "unmeasurable" and "one" in r["note"].lower()
+
+
+def test_MISSING_BOUNDS_are_absent_not_zero():
+    """MUTATION: treat a missing bound as 0 — the range becomes the ADP itself and
+    every player MFL declined to describe gets a huge, invented spread."""
+    r = C.spread_from_dispersion({"min_pick": None, "max_pick": None,
+                                  "sel_pct": 3.0, "drafts": 4})
+    assert r["sd"] is None and r["status"] == "absent"
+
+
+def test_a_RARELY_SELECTED_player_carries_a_TRUNCATION_caveat():
+    """He is observed only where he was picked; the drafts that would have taken him
+    later simply ended. So the observed range is cut and the sd is a LOWER bound —
+    and it must say so, or a small number reads as market agreement.
+
+    MUTATION: drop the caveat — the deepest, least-known players report the
+    tightest spreads, which is the inversion this whole exercise is about."""
+    r = C.spread_from_dispersion({"min_pick": 150, "max_pick": 170,
+                                  "sel_pct": 4.0, "drafts": 5})
+    assert r["status"] == "measured"
+    assert r["truncated"] is True
+    assert "lower bound" in r["note"].lower()
+    full = C.spread_from_dispersion({"min_pick": 10, "max_pick": 30,
+                                     "sel_pct": 96.0, "drafts": 120})
+    assert full["truncated"] is False and full["note"] is None
+
+
+def test_THE_WHOLE_POINT_distinct_players_get_DISTINCT_spreads():
+    """The board today: 1,418 players at exactly 30.0, 246 at exactly 15.0, 71
+    distinct values over 1,759 players. An estimator that collapses is no better
+    than the clamp it replaces.
+
+    MUTATION: return a constant, or round to the nearest 5 — the assertion above
+    still passes on any single row and the flatness comes straight back."""
+    rows = [{"min_pick": 1, "max_pick": 3, "sel_pct": 100.0, "drafts": 120},
+            {"min_pick": 8, "max_pick": 30, "sel_pct": 98.0, "drafts": 118},
+            {"min_pick": 40, "max_pick": 95, "sel_pct": 70.0, "drafts": 88},
+            {"min_pick": 100, "max_pick": 190, "sel_pct": 30.0, "drafts": 38},
+            {"min_pick": 150, "max_pick": 165, "sel_pct": 6.0, "drafts": 8}]
+    sds = [C.spread_from_dispersion(r)["sd"] for r in rows]
+    assert all(s is not None for s in sds)
+    assert len(set(round(s, 6) for s in sds)) == 5, sds
+    assert sds == sorted(sds)[:0] + sds, "no ordering claim, just distinctness"
+
+
+def test_spread_summary_ANSWERS_THE_FLATNESS_QUESTION_on_a_whole_day():
+    """The claim this exists to test is "does a real spread beat the clamp", and
+    that is a question about a DAY, not a player. The board today has 71 distinct
+    `adp_sd` values across 1,759 players with 94.6% on two of them; a summary that
+    cannot count distinct values cannot say whether tomorrow is any better.
+
+    MUTATION: report only a mean — a distribution collapsed onto one value has a
+    perfectly healthy mean, which is how the clamp survived this long."""
+    disp = {"a": {"min_pick": 1, "max_pick": 3, "sel_pct": 100.0, "drafts": 120},
+            "b": {"min_pick": 8, "max_pick": 30, "sel_pct": 98.0, "drafts": 118},
+            "c": {"min_pick": 150, "max_pick": 165, "sel_pct": 6.0, "drafts": 8},
+            "d": {"min_pick": 44, "max_pick": 44, "sel_pct": 0.8, "drafts": 1},
+            "e": {"min_pick": None, "max_pick": None, "sel_pct": 2.0, "drafts": 4}}
+    s = C.spread_summary(disp)
+    assert s["measured"] == 3 and s["unmeasurable"] == 1 and s["absent"] == 1
+    assert s["distinct"] == 3, "three measured players, three different spreads"
+    assert s["truncated"] == 1, "only the 6%-selected one is a lower bound"
+    assert s["median_sd"] is not None
+
+
+def test_spread_summary_of_NOTHING_is_unmeasured_not_a_flat_verdict():
+    """Rule 13f, and the case that arrives if MFL publishes no bounds at all:
+    zero measured players is not "the spread is flat". MUTATION: report
+    distinct 0 with no status — which reads as a measured collapse."""
+    s = C.spread_summary({})
+    assert s["measured"] == 0 and s["distinct"] is None and s["median_sd"] is None
+    assert s["status"] == "unmeasured"
+
+
+# ── INTEGRITY, CHECKED BEFORE THE WRITE ────────────────────────────────────
+#
+# The archive is APPEND-ONLY and its days are UNREFETCHABLE. A corrupt snapshot
+# is therefore permanent: there is no provider to re-ask, so "notice it later and
+# fix it" is not available the way it is for a regenerable artifact.
+#
+# I audited the three days we hold by hand and they are consistent. That is worth
+# exactly nothing tomorrow — a check run by hand is a check that stops being run
+# (rule 9). So it runs at WRITE TIME and refuses, the same shape as the existing
+# zero-row refusal, and again in CI against the committed file.
+
+def _snap(day, rows, **kw):
+    s = {"year": "2026", "observed_at": day, "rows": rows,
+         "row_count": len(rows), "total_drafts": 100}
+    s.update(kw)
+    return s
+
+
+def test_a_ROW_COUNT_THAT_DISAGREES_WITH_THE_ROWS_is_fatal():
+    """Not cosmetic: `coverage`, `dropped_inside` and the daily row-delta alarm all
+    read `row_count`, so a disagreement makes every one of them describe a board
+    that was never captured. MUTATION: compare nothing — the archive keeps a
+    permanent record whose own summary contradicts its contents."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0}, row_count=99)], "players": {"1": {}}}
+    r = C.integrity(a)
+    assert r["ok"] is False
+    assert any(f["kind"] == "row_count_mismatch" for f in r["fatal"]), r
+
+
+def test_a_DUPLICATE_DAY_is_fatal():
+    """Two boards for one date and `board()` silently takes whichever sorts first.
+    MUTATION: allow it — F5 picks a snapshot by date and would have two to choose
+    from, deterministically wrong rather than loudly wrong."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0}), _snap("2026-08-14", {"1": 5.0})],
+         "players": {"1": {}}}
+    assert any(f["kind"] == "duplicate_day" for f in C.integrity(a)["fatal"])
+
+
+def test_a_NON_NUMERIC_OR_NEGATIVE_adp_is_fatal():
+    """A pick number is positive by construction. MUTATION: accept it — the value
+    flows into every band cut and every spread, and nothing downstream type-checks
+    a number it was promised."""
+    a = {"series": [_snap("2026-08-14", {"1": 0.0, "2": -3.0})], "players": {"1": {}, "2": {}}}
+    kinds = [f["kind"] for f in C.integrity(a)["fatal"]]
+    assert "bad_adp" in kinds
+
+
+def test_a_DISPERSION_ROW_FOR_A_PLAYER_NOT_ON_THE_BOARD_is_fatal():
+    """A spread for a player the day did not price is a join that went wrong.
+    MUTATION: ignore it — the spread summary counts players the board never had."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0},
+                          dispersion={"9": {"min_pick": 1, "max_pick": 2}})],
+         "players": {"1": {}}}
+    assert any(f["kind"] == "dispersion_orphan" for f in C.integrity(a)["fatal"])
+
+
+def test_an_ID_THE_DECODE_KEY_CANNOT_RESOLVE_is_REPORTED_and_NOT_fatal():
+    """The one that must NOT be fatal. MFL can price a player its own players
+    export omits; that is a fact about the feed, and refusing the day would throw
+    away a whole board — unrefetchable — over one unresolvable row.
+
+    MUTATION: make it fatal — the capture starts discarding real days to protect a
+    lookup, which is the alarm destroying what it watches, again."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0, "2": 9.0})], "players": {"1": {}}}
+    r = C.integrity(a)
+    assert r["ok"] is True, "an unresolvable id must not fail the archive"
+    assert any(f["kind"] == "undecodable_id" for f in r["reported"])
+
+
+def test_an_EMPTY_ARCHIVE_is_UNMEASURED_not_ok():
+    """Rule 13f. MUTATION: return ok=True for an empty archive — 'nothing to check'
+    reports as 'checked and clean', on the exact run where the file failed to load."""
+    r = C.integrity({"series": [], "players": {}})
+    assert r["ok"] is None and r["status"] == "unmeasured"
+
+
+def test_the_COMMITTED_ARCHIVE_IS_CLEAN():
+    """Standing check against the real file, so corruption fails CI rather than
+    waiting for someone to look. MUTATION: check series[0] only."""
+    import copy as _copy
+    import json as _json
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
+    real = _json.loads(p.read_text())
+
+    # PLANT FIRST. Asserting only that the real archive is clean passes for a
+    # checker that can never find anything — the gate proved exactly that against
+    # this test, twice, before this plant existed.
+    # ONE PLANT PER FATAL KIND. My first plant only broke `row_count`, so
+    # disabling the `bad_adp` detector still passed — the test proved ONE of four
+    # detectors fires and read as though it proved the checker. Each kind is
+    # planted into a real archive shape and required to be found by name.
+    def _sick(fn):
+        d = _copy.deepcopy(real)
+        fn(d["series"][0])
+        return {f["kind"] for f in C.integrity(d)["fatal"]}
+
+    def _dup(d):
+        d["series"].insert(0, _copy.deepcopy(d["series"][0]))
+
+    assert "row_count_mismatch" in _sick(
+        lambda s: s.__setitem__("row_count", 999999))
+    assert "bad_adp" in _sick(
+        lambda s: s["rows"].__setitem__(next(iter(s["rows"])), -1.0))
+    assert "dispersion_orphan" in _sick(
+        lambda s: s.__setitem__("dispersion", {"no_such_player": {"min_pick": 1}}))
+    planted = _copy.deepcopy(real)
+    _dup(planted)
+    assert "duplicate_day" in {f["kind"] for f in C.integrity(planted)["fatal"]}, (
+        "integrity cannot FIND a duplicated day in a real archive shape, so the "
+        "assertion below is satisfied by a check that never fires")
+
+    r = C.integrity(real)
+    assert r["ok"] is True, r["fatal"]
+    assert r["snapshots"] >= 3, "and it must actually have looked at every day"
+
+
+def test_capture_REFUSES_TO_WRITE_a_corrupt_archive(tmp_path, monkeypatch):
+    """The refusal has to be at the WRITE, not in a report afterwards. The days are
+    unrefetchable, so an archive that has already been written corrupt is
+    permanently corrupt — there is no second chance to be careful.
+
+    MUTATION: check integrity after `save()` — the corrupt day is on disk and in
+    git before anyone sees the complaint, which is the whole difference."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": -4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    try:
+        C.capture(2026, "2026-08-14", path=str(p))
+    except RuntimeError as e:
+        assert "integrity" in str(e).lower() and "bad_adp" in str(e)
+    else:
+        raise AssertionError("a corrupt snapshot must not reach the archive")
+    assert not p.exists(), "and it must not have written the file either"
+
+
+def test_capture_still_writes_when_an_id_is_merely_UNDECODABLE(tmp_path, monkeypatch):
+    """The other side, and the one that matters more: a day must NOT be discarded
+    over a feed quirk. MUTATION: make undecodable ids fatal — the capture starts
+    throwing away real unrefetchable boards to protect a lookup."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      10, "n", {}))
+    C.capture(2026, "2026-08-14", path=str(p))
+    assert p.exists()
+    assert len(json.loads(p.read_text())["series"][0]["rows"]) == 2
+
+
+def test_a_CHECKER_THAT_THROWS_MUST_NOT_COST_THE_DAY(tmp_path, monkeypatch):
+    """I INTRODUCED THIS AN HOUR AGO AND IT IS THE SAME LESSON A THIRD TIME.
+
+    The integrity refusal is deliberate for CORRUPTION. But it also stands between
+    a good board and the disk, so a BUG IN THE CHECKER — an exception rather than
+    a fatal finding — silently costs a day that no provider will serve again.
+    `external-adp-capture.yml` carries the rule in capitals for the board pin, and
+    `capture()` learned it once already for its own summary print. This is the
+    third place, and I wrote it myself while fixing the second.
+
+    WHICH ERROR IS WORSE decides the direction, and here it is not close. Writing
+    a possibly-corrupt day is recoverable: the standing CI test runs `integrity`
+    against the committed archive and would catch it, and the file can be
+    corrected. Losing a good day is PERMANENT — no provider serves a board as of a
+    past date, which is the finding this archive exists because of.
+
+    So a checker that cannot run reports LOUDLY and does not block. A checker that
+    RUNS and finds corruption still refuses; that path is unchanged and the test
+    above pins it.
+
+    MUTATION: let the exception propagate — a bug in my own guard destroys the
+    thing the guard exists to protect."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    def boom(_):
+        raise KeyError("a bug in the checker, not in the data")
+    monkeypatch.setattr(C, "integrity", boom)
+
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    assert p.exists(), "a checker bug must not cost an unrefetchable day"
+    assert json.loads(p.read_text())["series"][0]["rows"] == {"1": 4.5}
+
+
+# ── THE STANDING INVARIANT: A GUARD MAY NEVER COST THE DAY ─────────────────
+#
+# THREE TIMES TODAY A GUARD I BUILT BECAME THE NEXT THING THAT COULD DESTROY
+# WHAT IT PROTECTS. The summary print could raise after `save()` and lose the day
+# to a `len(None)`. The integrity checker could raise before `save()` and lose it
+# to a bug in my own guard. Each was found by pointing the mechanism at itself,
+# which is a thing I have to remember — and remembering is not a mechanism.
+#
+# MY FIRST VERSION OF THIS TEST WAS TOO PERMISSIVE AND I CAUGHT IT BY CHECKING
+# WHICH PATH EACH CASE TOOK. It said "nothing but the write may stop the write"
+# and then accepted a lost day for four of five helpers as "loud loss is
+# acceptable" — which satisfied the claim trivially, because `save()` calls
+# `coverage`, `load_players` and `merge_players` INTERNALLY. Those are the write.
+# The invariant only has teeth once the two roles are separated:
+#
+#   WRITE PATH — failure legitimately aborts the capture. It must be LOUD and
+#     must not leave a partial file. Silent or partial loss is the refusal.
+#   GUARD / REPORT — failure must NOT cost the day. These sit between a good
+#     board and the disk and have no business stopping it.
+#
+# The classification is checked against `capture()`'s source, so a NEW helper
+# forces a decision instead of silently joining whichever set is convenient.
+
+WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
+GUARDS = ["integrity"]
+#: The SOURCE. Not a guard and not the write: if it fails there is no board at
+#: all, so aborting is the only honest outcome. Grouped with the write path for
+#: the loud-and-no-partial-file assertion because the requirement is identical.
+SOURCE = ["fetch_mfl"]
+
+
+@pytest.mark.parametrize("victim", GUARDS)
+def test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY(victim, tmp_path, monkeypatch):
+    """The case that has bitten three times. MUTATION: let it propagate — a bug in
+    a check silently destroys an unrefetchable board, which is how the last three
+    got in."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    C.capture(2026, "2026-08-14", path=str(p))
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert p.exists() and json.loads(p.read_text())["series"][0]["rows"] == {"1": 4.5}
+
+
+@pytest.mark.parametrize("victim", WRITE_PATH + SOURCE)
+def test_A_WRITE_PATH_FAILURE_IS_LOUD_AND_LEAVES_NO_PARTIAL_FILE(victim, tmp_path,
+                                                                 monkeypatch):
+    """These legitimately abort — `save()` calls them. What must never happen is a
+    HALF-WRITTEN archive, which is worse than either outcome because the standing
+    integrity check would then be judging a file nobody meant to create.
+
+    MUTATION: swallow the failure and carry on to `save()` — a snapshot gets
+    written from state that a broken helper produced."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    with pytest.raises(Exception):
+        C.capture(2026, "2026-08-14", path=str(p))
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert not p.exists(), "%s: aborted AND left a partial file" % victim
+
+
+def test_EVERY_HELPER_capture_CALLS_IS_CLASSIFIED_as_write_or_guard():
+    """The lists go stale the moment someone adds a helper, and a stale list
+    silently narrows the invariant to whatever it happened to cover. So the next
+    person is forced to decide which role their new call plays.
+
+    MUTATION: drop a name from either list — the parametrised tests keep passing
+    on a smaller set and the coverage quietly shrinks with nothing saying so."""
+    import inspect
+    import re as _re
+    body = inspect.getsource(C.capture)
+    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save", "capture"}
+    called = {m.group(1) for m in _re.finditer(r"\b([a-z_][a-z0-9_]*)\(", body)}
+    module_level = {n for n in called if hasattr(C, n) and n not in dir(__builtins__)}
+    missing = module_level - known
+    assert not missing, (
+        "capture() calls %s and neither list covers them — classify each as WRITE "
+        "PATH (may abort, must be loud and leave no partial file) or GUARD (must "
+        "never cost the day)" % sorted(missing))
+
+
+# ── WHEN THE SPREAD DOES NOT ARRIVE, SAY WHY IN THE SAME BREATH ────────────
+#
+# MFL IS UNREACHABLE FROM HERE — verified, not assumed: the agent proxy reports
+# `connect_rejected`, "gateway answered 403 to CONNECT", for
+# api.myfantasyleague.com:443. nflverse over GitHub is allowed; MFL is not. So
+# tomorrow's scheduled run is the FIRST contact between `minPick`/`maxPick`/
+# `draftSelPct` and whatever MFL actually sends, and I cannot test it first.
+#
+# `dispersion_health` already fires once if nothing arrives. That tells us the
+# parser never matched; it does NOT tell us what to change. On a feed whose days
+# cannot be refetched, the difference between "we lost a day" and "we lost a day
+# AND still have to guess" is another day.
+#
+# So a run that finds no bounds records the keys MFL ACTUALLY SENT. The fix
+# becomes a diff instead of an investigation.
+
+def test_a_MISSING_SPREAD_records_the_keys_MFL_ACTUALLY_SENT():
+    """MUTATION: return a generic 'no dispersion' note — tomorrow we learn the
+    parser failed and still have to spend a second unrefetchable day discovering
+    that the field is called something else."""
+    raw = [{"id": "1", "averagePick": "4.5", "minPickNo": "2", "maxPickNo": "9"},
+           {"id": "2", "averagePick": "9.0", "minPickNo": "5", "maxPickNo": "14"}]
+    note = C.dispersion_diagnosis(raw, dispersion={})
+    assert note, "a missing spread must explain itself"
+    assert "minPickNo" in note and "maxPickNo" in note, note
+    assert "minPick" in note, "and name what we looked for, so it is a diff"
+
+
+def test_a_SUCCESSFUL_spread_adds_NO_note():
+    """An instrument that always speaks is not an instrument. MUTATION: always
+    return the note — every healthy day carries a failure diagnosis."""
+    raw = [{"id": "1", "averagePick": "4.5", "minPick": "2", "maxPick": "9"}]
+    assert C.dispersion_diagnosis(raw, dispersion={"1": {"min_pick": 2}}) is None
+
+
+def test_it_reports_keys_from_MORE_THAN_THE_FIRST_ROW():
+    """MFL need not send the same keys for every player — a kicker row and a
+    quarterback row can differ. MUTATION: read raw[0] only, and the one row that
+    would have explained it is the one not sampled."""
+    raw = [{"id": "1", "averagePick": "4.5"},
+           {"id": "2", "averagePick": "9.0", "selPctOfDrafts": "88"}]
+    note = C.dispersion_diagnosis(raw, dispersion={})
+    assert "selPctOfDrafts" in note, note
+
+
+def test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names():
+    """A fetch that returned nothing is a different failure from a fetch whose
+    fields we misread, and sending the reader to `mfl_adp.parse` for an empty
+    response wastes the day this exists to save.
+
+    MUTATION: emit the field-name note regardless — the diagnosis points at the
+    parser when the problem was the feed."""
+    note = C.dispersion_diagnosis([], dispersion={})
+    assert note and "no rows" in note.lower()
+    assert "minPick" not in note
+
+
+# ── THE LAST PICK IS READ, NOT COMPUTED (A, 4126a85 — and it caught me too) ─
+#
+# A found `draft_plan.js` hardcoding `my_picks_before_keepers` — what Cory would
+# hold IF HE KEPT NOBODY — and warned: "if either of you computes a round
+# anywhere, it is wrong". A also wrote "C: nothing of yours is implicated that I
+# can see". I checked instead of accepting, and it was.
+#
+# `draft_last_pick` computed `teams * rounds = 10 * 15 = 150`. THE DRAFT HAS 147
+# PICKS. This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
+# forfeited picks are REMOVED from the sequence, so `pick_order.picks` ends at
+# overall 147, round 15, slot 10. Cory's three keepers are three picks that do
+# not exist.
+#
+# Same class of error as A's, one field over: a computation that produces a
+# PLAUSIBLE number — right shape, right magnitude, off by exactly the keepers —
+# while the authoritative list sits in the artifact. A constant that looks like
+# data is worse than a missing one; a missing one fails on the first run.
+
+def test_the_LAST_PICK_is_READ_from_pick_order_not_computed():
+    """MUTATION: keep `teams * rounds` — the boundary is 150 in a 147-pick draft
+    and `dropped_inside` judges three picks that were never dealt."""
+    d = C.draft_last_pick({
+        "settings": {"num_teams": 10},
+        "draft": {"settings": {"teams": 10, "rounds": 15}},
+        "owner_to_roster": {str(i): i for i in range(10)},
+        "roster_positions": ["BN"] * 15,
+        "pick_order": {"picks": [{"overall": n, "round": 1, "slot": 1}
+                                 for n in range(1, 148)]}})
+    assert d["last_pick"] == 147, d
+    assert d["basis"] == "pick_order.picks"
+    assert "forfeit" in d["note"].lower() or "read" in d["note"].lower()
+
+
+def test_a_COMPUTED_boundary_is_LABELLED_as_derived_when_the_list_is_absent():
+    """Without `pick_order` there is nothing to read, and teams x rounds is the
+    best available — but it must not present as authoritative.
+
+    MUTATION: report the same basis either way — a consumer cannot tell the
+    number it is trusting was inferred from a league that may forfeit picks."""
+    d = C.draft_last_pick({
+        "settings": {"num_teams": 10},
+        "draft": {"settings": {"teams": 10, "rounds": 15}},
+        "owner_to_roster": {str(i): i for i in range(10)},
+        "roster_positions": ["BN"] * 15})
+    assert d["last_pick"] == 150
+    assert d["basis"] == "teams_x_rounds"
+    assert "keeper" in d["note"].lower() or "forfeit" in d["note"].lower()
+
+
+def test_the_REAL_config_yields_the_REAL_147():
+    """Against the shipped artifact, because that is the number every cut of mine
+    uses. MUTATION: read `my_picks_before_keepers` — the 15-entry list that looks
+    like the answer and is what Cory would hold if he kept nobody."""
+    import json as _json
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    ls = _json.loads((root / "data" / "sleeper_league_settings.json").read_text())
+    board = _json.loads((root.parent / "public" / "draft_data.json").read_text())
+    d = C.draft_last_pick(dict(ls, pick_order=board.get("pick_order")))
+    assert d["last_pick"] == 147, (
+        "the shipped draft has 147 picks; %s says %s" % (d["basis"], d["last_pick"]))

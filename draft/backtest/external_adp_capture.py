@@ -211,6 +211,283 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
+#: Expected range of n iid standard normals, d_n. Exact table where the sample is
+#: thinnest and the Blom approximation is worst; the approximation above it.
+_D_N = {2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847,
+        9: 2.970, 10: 3.078}
+
+#: Below this selection rate the observed min/max is cut by drafts simply ENDING
+#: before the player was taken, so the range understates. Declared from the shape
+#: of the thing rather than tuned: at 50% the median draft did not take him.
+TRUNCATION_SEL_PCT = 50.0
+
+
+def _expected_range(n: int) -> float:
+    """d_n — Blom's approximation above the exact table: 2 * Phi^-1((n-0.375)/(n+0.25)).
+
+    Checked against the published table where both exist: n=10 gives 3.094 vs
+    3.078, n=30 gives 4.081 vs 4.086. It is used only above n=10 for that reason.
+    """
+    if n in _D_N:
+        return _D_N[n]
+    from statistics import NormalDist
+    return 2.0 * NormalDist().inv_cdf((n - 0.375) / (n + 0.25))
+
+
+def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
+    """MFL's published min/max pick -> an estimated sd of that player's pick, or None.
+
+    THE READER FOR TOMORROW'S DATA, and rule 14 on my own newest work. A's item #1
+    is that 94.6% of the board's `adp_sd` sits on two values — 1,418 players at
+    exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759 players.
+    My answer was to capture MFL's real dispersion. CAPTURING IS NOT FIXING: the
+    spread lands tomorrow and nothing reads it.
+
+    THE ESTIMATOR IS THE RANGE ONE — sd ~= (max - min) / d_n — because min/max is
+    what MFL publishes. Its weaknesses are real and are stated rather than buried:
+
+      * IT IS DRIVEN ENTIRELY BY TWO OBSERVATIONS. One manager reaching four rounds
+        early moves it as much as the other n-1 picks combined. It is the crudest
+        defensible estimator, chosen because the alternative is the clamp.
+      * n IS THE SELECTION COUNT, NOT THE DRAFT COUNT. MFL's bounds are over the
+        drafts the player was SELECTED in. A player taken in 7 of 125 drafts has a
+        range over SEVEN observations; charging him d_125 would divide by 5.1
+        instead of 2.7 and halve every deep player's spread — reintroducing the
+        flatness this exists to cure, while looking measured.
+      * IT IS A LOWER BOUND FOR A RARELY-SELECTED PLAYER. He is observed only where
+        he was picked; the drafts that would have taken him later simply ended, so
+        the range is truncated. Without saying so, the deepest and least-known
+        players would report the TIGHTEST spreads — the exact inversion this is
+        meant to correct.
+
+    A NUMBER MEANS A NUMBER; NULL MEANS THE THING NEEDED TO CALCULATE IT DOES NOT
+    EXIST; STATUS SAYS WHY (A's invariant). One selection gives a range of zero,
+    and returning 0.0 would assert the market is CERTAIN about a player it has seen
+    once — the most confident number on the board resting on the least evidence.
+    """
+    lo, hi = row.get("min_pick"), row.get("max_pick")
+    n = row.get("drafts")
+    base = {"sd": None, "n": None, "basis": "range/d_n", "truncated": None,
+            "status": None, "note": None}
+    if lo is None or hi is None:
+        return dict(base, status="absent",
+                    note="MFL published no min/max for this player — absent, not zero")
+    try:
+        n = int(n) if n is not None else None
+    except (TypeError, ValueError):
+        n = None
+    if not n or n < 2:
+        return dict(base, n=n, status="unmeasurable",
+                    note="selected in one draft or fewer — a range needs two "
+                         "observations, and 0.0 would claim certainty from the "
+                         "thinnest evidence on the board")
+
+    sd = (float(hi) - float(lo)) / _expected_range(n)
+    sel = row.get("sel_pct")
+    truncated = sel is not None and float(sel) < TRUNCATION_SEL_PCT
+    return dict(base, sd=sd, n=n, truncated=truncated, status="measured",
+                note=("selected in %.1f%% of drafts, so the observed range is cut by "
+                      "drafts ENDING before he was taken — this sd is a LOWER bound"
+                      % float(sel)) if truncated else None)
+
+
+def integrity(archive) -> dict:
+    """Is this archive internally consistent? Checked BEFORE a write, not after.
+
+    THE ARCHIVE IS APPEND-ONLY AND ITS DAYS ARE UNREFETCHABLE, so a corrupt
+    snapshot is permanent — there is no provider to re-ask, and "notice it later
+    and fix it" is not available the way it is for a regenerable artifact. That is
+    why this runs at write time and refuses, rather than reporting afterwards.
+
+    FATAL vs REPORTED is the whole design, and getting it wrong in either
+    direction is worse than not checking:
+
+      FATAL — a code bug or corruption, and the day is wrong whatever we do with
+        it. `row_count` disagreeing with `rows` (every instrument reads that
+        count, so they would all describe a board nobody captured); two boards for
+        one date (`board()` silently takes whichever sorts first); a pick number
+        that is not a positive number; a spread for a player the day did not
+        price, which is a join that went wrong.
+
+      REPORTED — a fact about the FEED, not about us. MFL can price a player its
+        own players export omits. Refusing the day over one unresolvable row would
+        discard a whole unrefetchable board to protect a lookup: the alarm
+        destroying what it watches, which this file has already learned once at
+        the board-pin step.
+    """
+    ser = _series_of(archive)
+    players = players_of(archive) if isinstance(archive, dict) else {}
+    out = {"snapshots": len(ser), "fatal": [], "reported": [],
+           "ok": None, "status": None}
+    if not ser:
+        # NOTHING TO CHECK IS NOT CLEAN. `ok: True` here would report a healthy
+        # archive on the exact run where the file failed to load.
+        return dict(out, status="unmeasured")
+
+    seen = set()
+    for s in ser:
+        day = (str(s.get("year")), s.get("observed_at"))
+        rows = s.get("rows") or {}
+        if day in seen:
+            out["fatal"].append({"kind": "duplicate_day", "day": day})
+        seen.add(day)
+        if s.get("row_count") != len(rows):
+            out["fatal"].append({"kind": "row_count_mismatch", "day": day,
+                                 "says": s.get("row_count"), "has": len(rows)})
+        bad = [p for p, a in rows.items()
+               if not isinstance(a, (int, float)) or isinstance(a, bool) or a <= 0]
+        if bad:
+            out["fatal"].append({"kind": "bad_adp", "day": day, "n": len(bad),
+                                 "sample": sorted(bad)[:5]})
+        orphan = [p for p in (s.get("dispersion") or {}) if p not in rows]
+        if orphan:
+            out["fatal"].append({"kind": "dispersion_orphan", "day": day,
+                                 "n": len(orphan), "sample": sorted(orphan)[:5]})
+        if players:
+            unknown = [p for p in rows if p not in players]
+            if unknown:
+                out["reported"].append({"kind": "undecodable_id", "day": day,
+                                        "n": len(unknown),
+                                        "sample": sorted(unknown)[:5]})
+    out["ok"] = not out["fatal"]
+    out["status"] = "clean" if out["ok"] else "corrupt"
+    return out
+
+
+#: What `mfl_adp.parse` looks for when it extracts a spread. Named here so a
+#: failure can be reported as a DIFF against what arrived, rather than as a
+#: request to go and read the parser.
+DISPERSION_SOURCE_KEYS = ("minPick", "maxPick", "draftSelPct", "draftsSelectedIn")
+
+
+def dispersion_diagnosis(raw_rows, dispersion: dict):
+    """No spread? Say which keys MFL actually sent. Returns None when it worked.
+
+    MFL IS UNREACHABLE FROM THE DEV ENVIRONMENT — verified via the agent proxy,
+    which reports `connect_rejected` / "gateway answered 403 to CONNECT" for
+    api.myfantasyleague.com:443, while nflverse over GitHub is allowed. So the
+    first contact between our field names and MFL's actual response happens in
+    the scheduled run, and cannot be rehearsed.
+
+    `dispersion_health` already fires once when nothing arrives. That says the
+    parser never matched; it does not say what to change. On a feed whose days
+    cannot be refetched, the gap between "we lost a day" and "we lost a day AND
+    still have to guess" is another day — so the keys that DID arrive are
+    recorded beside the ones we looked for, and the fix becomes a diff.
+
+    An empty fetch is reported as an empty fetch. Pointing the reader at the
+    parser when the response was blank wastes exactly the day this exists to save.
+    """
+    if dispersion:
+        return None
+    rows = list(raw_rows or [])
+    if not rows:
+        return ("NO SPREAD: the response carried no rows at all — this is a fetch "
+                "failure, not a field-name mismatch; do not start in mfl_adp.parse")
+    # EVERY ROW, NOT THE FIRST. MFL need not send identical keys for a kicker and
+    # a quarterback, and the row that explains it may not be the one sampled.
+    seen = sorted({k for r in rows if isinstance(r, dict) for k in r})
+    return ("NO SPREAD from %d row(s). LOOKED FOR %s. MFL SENT %s. If the names "
+            "differ, that is the whole fix — update mfl_adp.parse and the next "
+            "capture carries it."
+            % (len(rows), ", ".join(DISPERSION_SOURCE_KEYS), ", ".join(seen[:24])))
+
+
+def spread_summary(dispersion: dict) -> dict:
+    """A whole day's spreads — because the claim under test is about a DAY.
+
+    "Does a real spread beat the clamp" is not answerable one player at a time. The
+    board today carries 71 distinct `adp_sd` values across 1,759 players with 94.6%
+    on two of them, so the number that decides whether tomorrow is any better is
+    DISTINCT VALUES — not a mean, which a fully collapsed distribution reports
+    perfectly healthily, and which is how the clamp survived this long.
+
+    UNTIL TOMORROW THE ESTIMATOR IS UNVALIDATED AGAINST REAL DATA, and there is no
+    stored feed carrying both a published sd and min/max to check it against. This
+    is what makes the first real capture the validation instead of a hope.
+    """
+    rows = [spread_from_dispersion(v) for v in (dispersion or {}).values()]
+    got = [r for r in rows if r["status"] == "measured"]
+    out = {"players": len(rows),
+           "measured": len(got),
+           "unmeasurable": sum(1 for r in rows if r["status"] == "unmeasurable"),
+           "absent": sum(1 for r in rows if r["status"] == "absent"),
+           "truncated": sum(1 for r in got if r["truncated"]),
+           "distinct": None, "median_sd": None, "status": None}
+    if not got:
+        # ZERO MEASURED IS NOT A FLAT SPREAD. It is nothing to measure, and
+        # `distinct: 0` would read as a collapse we had observed.
+        return dict(out, status="unmeasured")
+    from statistics import median
+    sds = [r["sd"] for r in got]
+    return dict(out, status="measured",
+                distinct=len({round(s, 6) for s in sds}),
+                median_sd=median(sds))
+
+
+#: The first day a capture COULD carry a spread — the day the dispersion change
+#: landed. DECLARED, not derived, because it cannot be: a snapshot with no
+#: dispersion looks identical whether MFL published none or our parser was
+#: discarding it, and the three days captured before this date are the second case.
+#: Judging them would make this alarm red on its own first run, which is how a
+#: real alarm gets muted by its second.
+DISPERSION_SINCE = "2026-08-14"
+
+
+def dispersion_health(series: list, year) -> dict:
+    """Did the spread arrive — and if not, is that our parser or MFL's feed?
+
+    A COUNT OF ZERO HAS TWO CAUSES AND THEY POINT IN OPPOSITE DIRECTIONS. Zero on
+    the first attempt is evidence about `mfl_adp.parse`: `minPick`, `maxPick`,
+    `draftSelPct` are read from the same response dict as `averagePick`, which
+    provably works, so the shape is right and only the field names are unproven.
+    Zero after a fortnight of non-zero is evidence about the FEED. One number
+    cannot say which, and it is the only thing worth knowing on the morning it
+    breaks — so the state names the suspect.
+
+    `dispersion_rows: 0` already prints in the capture log. That is a dashboard
+    reading nobody diffs (rule 9). The spread is as perishable as the mean it sits
+    beside; a silent zero costs a day per morning nobody looks.
+    """
+    ser = sorted((s for s in _series_of(series) if str(s.get("year")) == str(year)),
+                 key=lambda s: s.get("observed_at") or "")
+    judged = [s for s in ser if (s.get("observed_at") or "") >= DISPERSION_SINCE]
+    base = {"year": str(year), "since": DISPERSION_SINCE,
+            "judged_snapshots": len(judged), "rows": None, "adp_rows": None,
+            "coverage": None, "state": None, "note": None}
+    if not judged:
+        return dict(base, state="unmeasured",
+                    note="UNMEASURED — no snapshot on or after %s, the first day a "
+                         "capture could carry a spread. The days before it have none "
+                         "because the parser was discarding it, which is our history "
+                         "rather than a fault to diagnose." % DISPERSION_SINCE)
+
+    def n_of(s):
+        return len(s.get("dispersion") or {})
+
+    latest = judged[-1]
+    rows, adp_rows = n_of(latest), int(latest.get("row_count") or 0)
+    out = dict(base, rows=rows, adp_rows=adp_rows,
+               coverage=(rows / adp_rows) if adp_rows else None)
+    if rows:
+        return dict(out, state="present")
+
+    earlier = [s for s in judged[:-1] if n_of(s)]
+    if earlier:
+        return dict(out, state="stopped",
+                    note="the spread STOPPED arriving. It was last present on %s, so "
+                         "the parser worked and something changed at MFL — look at the "
+                         "feed, not at `mfl_adp.parse`."
+                         % earlier[-1].get("observed_at"))
+    return dict(out, state="never_captured",
+                note="the spread has NEVER been captured in %d judged snapshot(s). "
+                     "The parser has therefore never matched, so suspect the field "
+                     "names in `mfl_adp.parse` — `minPick`, `maxPick`, `draftSelPct` "
+                     "— before suspecting MFL. They sit in the same response dict as "
+                     "`averagePick`, which works, so the shape is right and only the "
+                     "names are unproven." % len(judged))
+
+
 #: A qualifying board older than this is still F5-legal and still stale. Declared
 #: from the capture cadence — daily, so two missed days is a pattern, not a blip —
 #: and not tuned to what the archive currently shows.
@@ -570,6 +847,28 @@ def draft_last_pick(settings: dict) -> dict:
         teams  — len(owner_to_roster)        vs draft.settings.teams
         rounds — draft.settings.rounds       vs len(roster_positions)
     """
+    # ── READ IT IF IT EXISTS. A, 4126a85: "if either of you computes a round
+    # anywhere, it is wrong" — and this computed the LAST PICK, which is the same
+    # class one field over.
+    #
+    # This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
+    # forfeited picks are REMOVED from the sequence. `teams * rounds` therefore
+    # overstates by exactly the number of keepers — 150 against a real 147 — and
+    # it overstates PLAUSIBLY: right shape, right magnitude, wrong draft. The
+    # authoritative sequence is `pick_order.picks`, and reading it is not an
+    # optimisation, it is the difference between a boundary and a guess.
+    po = ((settings or {}).get("pick_order") or {})
+    picks = po.get("picks") or []
+    if picks:
+        overalls = [p.get("overall") for p in picks if p.get("overall") is not None]
+        if overalls:
+            return {"last_pick": max(overalls), "teams": None, "rounds": None,
+                    "basis": "pick_order.picks",
+                    "note": "READ from pick_order.picks (%d picks, last overall %d) "
+                            "— keeper forfeits are removed from the sequence, so "
+                            "teams x rounds would overstate this draft"
+                            % (len(picks), max(overalls))}
+
     ds = ((settings or {}).get("draft") or {}).get("settings") or {}
     slots = (settings or {}).get("roster_positions") or []
     rosters = (settings or {}).get("owner_to_roster") or {}
@@ -590,9 +889,16 @@ def draft_last_pick(settings: dict) -> dict:
                          "draft.settings.rounds", "len(roster_positions)")
     note = "%s; %s" % (tnote, rnote)
     if teams is None or rounds is None:
-        return {"last_pick": None, "teams": teams, "rounds": rounds, "note": note}
+        return {"last_pick": None, "teams": teams, "rounds": rounds,
+                "basis": "teams_x_rounds", "note": note}
+    # NO pick_order TO READ. teams x rounds is the best available and must not
+    # present as authoritative: in a keeper league that forfeits picks it is an
+    # UPPER BOUND, not the boundary.
     return {"last_pick": teams * rounds, "teams": teams, "rounds": rounds,
-            "note": note}
+            "basis": "teams_x_rounds",
+            "note": note + " — DERIVED, no pick_order.picks to read. If this "
+                           "league forfeits picks for keepers, the real draft is "
+                           "SHORTER than this and the number is an upper bound."}
 
 
 def dropped_inside(series: list, year, last_pick=None) -> dict:
@@ -1108,6 +1414,23 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     # Only players the source actually gave a spread for. A row with every field
     # None would be indistinguishable from a measured zero once it is on disk.
     dispersion = dispersion_of(parsed)
+    # IF THE SPREAD DID NOT ARRIVE, SAY WHY IN THE SAME BREATH. MFL cannot be
+    # reached from the dev environment (the agent proxy 403s CONNECT to
+    # api.myfantasyleague.com:443), so the scheduled run is the first contact
+    # between our field names and MFL's real response and cannot be rehearsed.
+    # `dispersion_health` reports that nothing arrived; this reports WHAT DID, so
+    # the fix is a diff rather than a second unrefetchable day of guessing.
+    try:
+        raw_node = ((json.loads(adp_text) or {}).get("adp") or {}).get("player") or []
+        if isinstance(raw_node, dict):
+            raw_node = [raw_node]
+        diag = dispersion_diagnosis(raw_node, dispersion)
+    except Exception as e:                          # noqa: BLE001
+        # The DIAGNOSIS must never cost the capture — same rule as everything
+        # else after the fetch in this file.
+        diag = "dispersion diagnosis itself failed (%s)" % type(e).__name__
+    if diag:
+        note = note + " | " + diag
     try:
         total = int(((json.loads(adp_text) or {}).get("adp") or {}).get("totalDrafts"))
     except (TypeError, ValueError):
@@ -1127,6 +1450,43 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "one downstream (%s)" % (year, observed_at, note))
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
+
+    # INTEGRITY BEFORE THE WRITE, NOT AFTER IT. The days are unrefetchable, so an
+    # archive already written corrupt is permanently corrupt — there is no second
+    # chance to be careful. Checking after `save()` would put the bad day on disk
+    # and in git before anyone saw the complaint.
+    #
+    # This refuses only FATAL findings (see `integrity`): a code bug or corruption.
+    # An id the decode key cannot resolve is REPORTED and written, because
+    # discarding a whole board to protect a lookup is the alarm destroying what it
+    # watches — the lesson this file already carries at the board-pin step.
+    # ⚠ AND THE CHECKER MUST NOT BE ABLE TO KILL THE DAY EITHER. The refusal below
+    # is deliberate for CORRUPTION — but this guard also stands between a good
+    # board and the disk, so a BUG IN THE CHECKER would silently cost a day no
+    # provider will serve again. That is the board-pin lesson for the third time in
+    # this file, and I introduced this instance myself while fixing the second.
+    #
+    # WHICH ERROR IS WORSE is not close. A possibly-corrupt day is RECOVERABLE: the
+    # standing CI test runs `integrity` against the committed archive and would
+    # catch it, and the file can be corrected. A lost day is PERMANENT. So a
+    # checker that cannot RUN reports loudly and does not block; a checker that
+    # runs and finds corruption still refuses.
+    try:
+        ig = integrity({"series": series, "players": merge_players(
+            load_players(path), players or {})})
+    except Exception as e:                          # noqa: BLE001
+        ig = {"ok": True, "fatal": [], "reported": [], "status": "check_failed"}
+        print("INTEGRITY CHECK ITSELF FAILED (%s: %s) — WRITING THE DAY ANYWAY. A "
+              "bug in the guard is not evidence the data is bad, and the day cannot "
+              "be refetched. The standing check on the committed archive still runs."
+              % (type(e).__name__, e))
+    if not ig["ok"]:
+        raise RuntimeError(
+            "REFUSING TO WRITE — integrity check failed for %s on %s: %s. The "
+            "archive is append-only and its days cannot be refetched, so a corrupt "
+            "snapshot would be permanent."
+            % (year, observed_at, json.dumps(ig["fatal"])[:400]))
+
     save(series, path, players=players)
 
     # ── THE DAY IS SAFE FROM HERE. EVERYTHING BELOW IS REPORTING. ───────────

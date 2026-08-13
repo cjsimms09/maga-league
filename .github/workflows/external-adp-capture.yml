@@ -15,9 +15,29 @@ name: D3 — daily external ADP snapshot (the 2026 curve is perishable)
 # retention window, append-only, deduped by date. NOT draft/data/adp_series.json,
 # which is A's home staleness instrument capped at 300 players / 60 days.
 #
-# IT IS INERT UNTIL A MERGES IT. `schedule:` only fires from the default branch,
-# so merging is the enabling action — this cannot start writing to main on its
-# own from a feature branch.
+# `schedule:` only fires from the DEFAULT BRANCH, so merging was the enabling
+# action and a feature branch cannot start writing to main on its own. That is
+# still true and still the reason a change here is inert until it reaches main —
+# TOP_N=700 is sitting on a branch right now for exactly this reason.
+#
+# ── VERIFIED FIRING, 2026-08-13, so nobody has to re-derive it ──────────────
+#
+# Three scheduled runs, three successes, three snapshots written:
+#   2026-08-11 12:01:44Z -> 705 rows / 115 drafts
+#   2026-08-12 12:03:33Z -> 708 rows / 119 drafts
+#   2026-08-13 12:03:33Z -> 672 rows / 125 drafts
+#
+# ⚠ THE CRON SAYS 11:20 AND THE RUNS START AT ~12:02. That is GitHub queuing
+# scheduled workflows under load, not a fault, and it is consistent to within two
+# minutes across all three days. Do not "fix" the cron to 12:00 — the delay is
+# not ours to control and moving the declared time just moves the queue.
+#
+# ONE CONSEQUENCE, RECORDED BECAUSE IT IS NOT OBVIOUS: standing-check.yml runs at
+# 12:00 UTC and therefore evaluates this archive ~2 minutes BEFORE the day's
+# capture lands, every day. Its liveness bar is 3 days, so a one-day lag is well
+# inside tolerance and this is not a defect — but it does mean the check never
+# observes a same-day success, and anyone reading `days_since_last == 1` on a
+# healthy morning should know that is the expected reading, not a near-miss.
 
 on:
   schedule:
@@ -161,9 +181,17 @@ jobs:
           # obvious field would put the last pick at 30 and call every draftable
           # loss from 31 to 150 clean.
           lp = {"last_pick": None, "note": "no league settings file on disk"}
+          # THE PICK LIST LIVES ON THE BOARD, NOT IN THE LEAGUE SETTINGS, and
+          # passing only the settings is how this line kept reporting 150 for a
+          # 147-pick draft after the module was already fixed to read
+          # `pick_order.picks`. Fixing a module and leaving its caller is the
+          # same defect one layer out: the code was right and the answer was not.
           if os.path.exists("draft/data/sleeper_league_settings.json"):
-              lp = C.draft_last_pick(json.load(
-                  open("draft/data/sleeper_league_settings.json")))
+              _ls = json.load(open("draft/data/sleeper_league_settings.json"))
+              if os.path.exists("public/draft_data.json"):
+                  _ls = dict(_ls, pick_order=json.load(
+                      open("public/draft_data.json")).get("pick_order"))
+              lp = C.draft_last_pick(_ls)
           drop = C.dropped_inside(C.load(),
                                   "${{ github.event.inputs.year || '2026' }}",
                                   last_pick=lp["last_pick"])
@@ -183,6 +211,54 @@ jobs:
               fh.write("draftable_loss=%s\n"
                        % ("1" if drop["verdict"] == "draftable_loss" else "0"))
               fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
+
+          # ── DID THE SPREAD ARRIVE, AND WHOSE FAULT IF NOT ─────────────────
+          # 2026-08-14 is the first capture that can carry dispersion. If MFL
+          # does not publish `minPick`/`maxPick` on this endpoint, `dispersion_of`
+          # omits every player, THE RUN GOES GREEN, and the log says
+          # `dispersion_rows: 0` — a dashboard reading nobody diffs. The spread
+          # is as perishable as the mean beside it.
+          #
+          # A ZERO HAS TWO CAUSES POINTING OPPOSITE WAYS: zero on the first
+          # attempt is about our parser (the field names have never matched);
+          # zero after a fortnight of non-zero is about the feed. The state
+          # names the suspect so the morning it breaks is not spent guessing.
+          dh = C.dispersion_health(C.load(), "${{ github.event.inputs.year || '2026' }}")
+          if dh["state"] == "present":
+              print("Spread: **%d/%d** players carry a dispersion row (%.0f%%)."
+                    % (dh["rows"], dh["adp_rows"], 100 * dh["coverage"]))
+              # DOES IT BEAT THE CLAMP? The question the capture exists to answer,
+              # and it is about a DAY rather than a player. Today's board carries
+              # 71 distinct `adp_sd` values across 1,759 players with 94.6% on two
+              # of them (1,418 at exactly 30.0, 246 at 15.0). DISTINCT VALUES is
+              # the number that decides it — a mean is reported perfectly
+              # healthily by a fully collapsed distribution, which is how the
+              # clamp survived this long. The estimator is unvalidated against
+              # real data until this line runs, so this IS the validation.
+              latest = [s for s in C.load()
+                        if str(s.get("year")) == "${{ github.event.inputs.year || '2026' }}"][-1]
+              sp = C.spread_summary(latest.get("dispersion") or {})
+              if sp["status"] == "measured":
+                  print("  → **%d distinct** spreads over %d measured players "
+                        "(median sd %.1f picks; %d unmeasurable, %d no bounds, "
+                        "%d truncated lower bounds). Board today: **71 distinct** "
+                        "over 1,759, 94.6%% on two values."
+                        % (sp["distinct"], sp["measured"], sp["median_sd"],
+                           sp["unmeasurable"], sp["absent"], sp["truncated"]))
+              else:
+                  print("  → spread summary **unmeasured** — dispersion rows exist "
+                        "but none yielded an sd. Not a flat result; nothing measured.")
+          else:
+              print("Spread: **%s** — %s" % (dh["state"], dh["note"]))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              # ESCALATE ONCE, ON THE RUN THAT FIRST LEARNS IT, then self-clear —
+              # the same shape as the resume alarm above and for the same reason
+              # argued there. A parser that never matches would otherwise make
+              # this job red every morning for ever, and red-by-design is how a
+              # real alarm gets muted. It stays in the summary every day.
+              fh.write("spread_missing=%s\n"
+                       % ("1" if (dh["state"] == "never_captured"
+                                  and dh["judged_snapshots"] == 1) else "0"))
 
           # ── WHICH SNAPSHOT OUR OWN DRAFT WILL USE ─────────────────────────
           # INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the
@@ -404,6 +480,20 @@ jobs:
       # `always()` because the step above exits 1 on a resumed gap, and a run can
       # be both — resuming from an outage is exactly when a player is most likely
       # to have left the board unnoticed.
+      # Fires once, on the run that first learns the spread never arrived, and
+      # self-clears — see the reasoning at the check itself. LAST, with the
+      # others, so no alarm can precede the commit that saves the day.
+      - name: Escalate if the spread never arrived on its FIRST judged run
+        if: always() && steps.cov.outputs.spread_missing == '1'
+        run: |
+          echo "::error::THE SPREAD DID NOT ARRIVE on the first capture that could carry it."
+          echo "::error::Suspect the field names in draft/backtest/mfl_adp.parse —"
+          echo "::error::minPick, maxPick, draftSelPct — BEFORE suspecting MFL. They are"
+          echo "::error::read from the same response dict as averagePick, which works, so"
+          echo "::error::the shape is right and only the names are unproven."
+          echo "::error::This fires ONCE and then self-clears; the summary carries it daily."
+          exit 1
+
       - name: Escalate ONLY if a DRAFTABLE player left the board
         if: always() && steps.cov.outputs.draftable_loss == '1'
         run: |

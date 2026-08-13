@@ -136,3 +136,149 @@ def test_THE_DRAFTED_SEASON_IS_REFUSED():
         assert "before" in str(e).lower() or "prior" in str(e).lower()
     else:
         raise AssertionError("the drafted season must be refused")
+
+
+# ── A HISTORY IS NOT A FORECAST ─────────────────────────────────────────────
+#
+# MEASURED ON REAL 2023-24 DATA, 112 draftable players (adp <= 150) matched:
+# median |player - position constant| is 1.00 games, 43% differ by more than one
+# and 18% by more than three. The variation A asked about is real.
+#
+# AND THE RAW MEAN IS NOT A DROP-IN REPLACEMENT, which is the part that would
+# have hurt. `expected_games` averages the seasons observed and nothing else, so
+# Jonathon Brooks — one rookie season, three games, torn ACL — comes out at 3.00
+# against an RB prior of 14.2, and McCaffrey's [16, 4] averages to 10.0. Those
+# are HISTORIES. Using them as 2026 expectations systematically under-prices
+# exactly the players coming off an injury year, which is the population where
+# injury is least persistent and the market has already applied its own discount.
+#
+# Only two seasons are available at all (import_weekly_data 404s for 2025), so
+# these are two-point means. The thinner the evidence the harder it must be
+# pulled toward the prior, and that is what shrinkage is.
+
+def test_shrinkage_pulls_a_THIN_history_toward_the_position_prior():
+    """One season of 4 games against a 14.2 prior, k=1: (1*4 + 1*14.2)/2 = 9.1.
+    MUTATION: return the raw mean — a rookie's torn-ACL season becomes his 2026
+    expectation, and the board under-prices every post-injury player at once."""
+    out = {"s1": {"games": {2024: 4}, "position": "RB",
+                  "byes": {2024: []}, "missed": {2024: []}, "spells": {2024: []}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert abs(eg["s1"]["expected_games"] - 9.1) < 1e-6, eg
+    assert eg["s1"]["status"] == "shrunk"
+
+
+def test_MORE_SEASONS_shrink_LESS():
+    """The whole point of weighting by evidence. Four seasons averaging 4 games is a
+    player who is genuinely unavailable; one season of 4 is a player we barely saw.
+    MUTATION: shrink by a constant — a four-season history is discounted as hard as
+    a one-season one and the term stops carrying information."""
+    mk = lambda gs: {"games": gs, "position": "RB", "byes": {}, "missed": {}, "spells": {}}
+    thin  = D.expected_games({"s": mk({2024: 4})}, {"RB": 14.2}, shrink_k=1.0)
+    thick = D.expected_games({"s": mk({2021: 4, 2022: 4, 2023: 4, 2024: 4})},
+                             {"RB": 14.2}, shrink_k=1.0)
+    assert thick["s"]["expected_games"] < thin["s"]["expected_games"]
+    assert abs(thick["s"]["expected_games"] - (4 * 4 + 14.2) / 5) < 1e-6
+
+
+def test_the_RAW_MEAN_SURVIVES_beside_the_shrunk_one():
+    """A consumer must be able to tell a measurement from a blend — that distinction
+    is the reason this module reports statuses at all. MUTATION: overwrite the raw
+    value; the blend then looks exactly like an observation."""
+    out = {"s": {"games": {2024: 4}, "position": "RB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert eg["s"]["observed_games"] == 4.0
+    assert eg["s"]["seasons_observed"] == 1
+    assert eg["s"]["prior"] == 14.2
+
+
+def test_NO_PRIOR_for_the_position_means_NO_SHRINKAGE_and_it_says_so():
+    """Rule 13f. MUTATION: fall through to the raw mean silently — the caller
+    believes every value was shrunk and one quietly was not."""
+    out = {"s": {"games": {2024: 4}, "position": "FB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert eg["s"]["status"] == "measured_unshrunk"
+    assert eg["s"]["expected_games"] == 4.0
+    assert "no prior" in eg["s"]["basis"].lower()
+
+
+def test_WITHOUT_shrink_k_the_behaviour_is_UNCHANGED():
+    """Additive, like every other option I have added this session: the existing
+    raw-mean contract is preserved so nothing downstream moves without asking.
+    MUTATION: shrink by default — a caller's numbers change under them."""
+    out = {"s": {"games": {2024: 4}, "position": "RB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2})
+    assert eg["s"]["expected_games"] == 4.0 and eg["s"]["status"] == "measured"
+
+
+# ── RECOVERING A SEASON THE LIBRARY WILL NOT SERVE, WITHOUT PRETENDING ──────
+#
+# `import_weekly_data` 404s for 2025 — the season CLOSEST to the board we draft
+# on, so losing it does not merely shrink n, it re-weights every durability
+# figure toward older conditions.
+#
+# `games` is `len(weeks the player appeared)` and NOTHING ELSE — a bye changes
+# `byes`/`missed`/`spells` and never the count. So games-played for 2025 can come
+# from the weekly POINTS store, which is keyed by our ids and needs no team.
+#
+# GATED, not assumed: rebuilt 2024 from the store and required it to reproduce
+# the library exactly before trusting the path for a season that cannot be
+# checked. 485 players in both, 485 agree, zero disagreements.
+#
+# WHAT IT CANNOT GIVE IS BYES, and that is the whole reason this is a separate
+# function instead of a fabricated frame. Without team there is no team-week set,
+# so `missed` and `spells` are UNDERIVABLE for that season — and the dangerous
+# failure is not an error, it is a season silently contributing "nobody missed
+# time" to the injury statistics.
+
+def test_a_games_only_season_ADDS_GAMES_and_REFUSES_to_invent_spells():
+    """MUTATION: fabricate empty byes/missed/spells for the merged season — then
+    `weeks_out_by_position` counts a season nobody examined as a season in which
+    nobody was hurt, and the injury rate is diluted by construction."""
+    out = {"s1": {"position": "RB", "games": {2024: 15}, "byes": {2024: [7]},
+                  "missed": {2024: [3]}, "spells": {2024: [{"weeks": 1, "censored": False}]}}}
+    D.merge_games_only(out, 2025, {"s1": 11})
+    assert out["s1"]["games"] == {2024: 15, 2025: 11}
+    assert 2025 not in out["s1"]["spells"], "a season with no team has no spells"
+    assert 2025 not in out["s1"]["missed"] and 2025 not in out["s1"]["byes"]
+    assert out["s1"]["games_only_seasons"] == [2025]
+
+
+def test_the_injury_statistics_IGNORE_a_games_only_season():
+    """The consequence the marker exists for, asserted at the consumer.
+    MUTATION: let the merged season through — one spell becomes one spell across
+    two seasons and E[weeks out] halves without anything saying so."""
+    out = {"s1": {"position": "RB", "games": {2024: 15}, "byes": {2024: []},
+                  "missed": {2024: [3]},
+                  "spells": {2024: [{"weeks": 2, "censored": False}]}}}
+    before = D.weeks_out_by_position(out, min_n=1)["RB"]
+    D.merge_games_only(out, 2025, {"s1": 11})
+    after = D.weeks_out_by_position(out, min_n=1)["RB"]
+    assert before["completed_n"] == after["completed_n"] == 1
+    assert before["mean_completed"] == after["mean_completed"] == 2.0
+
+
+def test_merging_REFUSES_to_overwrite_a_season_that_was_fully_derived():
+    """MUTATION: overwrite — a real record with byes and spells is silently
+    replaced by a count, and the loss is invisible afterwards."""
+    out = {"s1": {"position": "RB", "games": {2024: 15}, "byes": {2024: [7]},
+                  "missed": {2024: [3]}, "spells": {2024: []}}}
+    try:
+        D.merge_games_only(out, 2024, {"s1": 9})
+    except ValueError as e:
+        assert "2024" in str(e) and "already" in str(e).lower()
+    else:
+        raise AssertionError("overwriting a fully derived season must be refused")
+
+
+def test_a_player_the_merge_has_never_seen_is_ADDED_with_no_history_claimed():
+    """He played in the recovered season and nowhere else we hold. MUTATION: skip
+    him — the recovered season silently covers only players who already existed,
+    which is exactly the population least likely to need recovering."""
+    out = {}
+    D.merge_games_only(out, 2025, {"newguy": 12})
+    assert out["newguy"]["games"] == {2025: 12}
+    assert out["newguy"]["spells"] == {} and out["newguy"]["position"] is None
+    assert out["newguy"]["games_only_seasons"] == [2025]
