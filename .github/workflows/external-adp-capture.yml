@@ -77,6 +77,10 @@ jobs:
           import sys, json, os, datetime
           sys.path.insert(0, 'draft/backtest')
           import external_adp_capture as C
+          # OUR draft, stated in one place. It lives only in prose today —
+          # `draft.start_time` is null in the Sleeper config — so it is
+          # named here rather than guessed inside the module.
+          DRAFT_DATE = "2026-08-22"
           cov = C.coverage(C.load(), "${{ github.event.inputs.year || '2026' }}")
           print("```")
           print(json.dumps(cov, indent=1))
@@ -179,6 +183,36 @@ jobs:
               fh.write("draftable_loss=%s\n"
                        % ("1" if drop["verdict"] == "draftable_loss" else "0"))
               fh.write("lost_ids=%s\n" % ",".join((drop["inside_ids"] or [])[:12]))
+
+          # ── WHICH SNAPSHOT OUR OWN DRAFT WILL USE ─────────────────────────
+          # INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the
+          # 08-12 snapshot, 708 rows". True when written; the archive has since
+          # gained 08-13 with 672 rows. A fact copied into prose goes stale in
+          # silence, which is rule 9 — a mechanism implemented as a note.
+          #
+          # AND IT STATES A DEADLINE NOBODY HAD: F5 takes the latest snapshot
+          # STRICTLY BEFORE the draft, so a board captured on draft morning is
+          # worth nothing to it. THE LAST CAPTURE THAT CAN MATTER IS 2026-08-21,
+          # a day earlier than the date everyone has been working to.
+          #
+          # The date is passed in, not derived — `draft.start_time` is null in
+          # our Sleeper config, so there is nothing to derive it from, and the
+          # archive must not hardcode one league's calendar.
+          try:
+              rd = C.f5_readiness(C.load(), "${{ github.event.inputs.year || '2026' }}",
+                                  draft_date=DRAFT_DATE, today=today.isoformat())
+              if rd["verdict"] == "ready":
+                  print("F5 would use **%s** (%s rows), %s day(s) to the last capture "
+                        "that can matter (%s)."
+                        % (rd["snapshot_date"], rd["rows"],
+                           rd["days_until_last_useful"], rd["last_useful_capture"]))
+              if rd["note"]:
+                  print("**%s**" % rd["note"])
+              with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+                  fh.write("f5_stale=%s\n" % ("1" if rd["stale"] else "0"))
+          except Exception as e:                      # noqa: BLE001
+              print("**F5 READINESS DID NOT RUN** (%s: %s) — not a clean result."
+                    % (type(e).__name__, e))
 
           # ── CAN WE DECODE WHAT WE CAN DRAFT ───────────────────────────────
           # The third question about this archive, after "is it complete" and

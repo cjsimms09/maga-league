@@ -211,6 +211,101 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
+#: A qualifying board older than this is still F5-legal and still stale. Declared
+#: from the capture cadence — daily, so two missed days is a pattern, not a blip —
+#: and not tuned to what the archive currently shows.
+F5_STALE_DAYS = 3
+
+
+def f5_readiness(series: list, year, draft_date=None, today=None) -> dict:
+    """Which snapshot OUR draft will actually use, and how long is left to feed it.
+
+    `INGEST-PLAN.md:2453` records "board() for draft 2026-08-22 -> the 08-12
+    snapshot, 708 rows". True when written, wrong now: the archive has since gained
+    08-13 and that snapshot holds 672 rows. A fact copied into prose goes stale in
+    silence — rule 9, a mechanism implemented as a note.
+
+    AND IT SURFACES A DEADLINE NOBODY HAS STATED. F5 takes the latest snapshot
+    STRICTLY BEFORE the draft, so a board captured on draft morning is worth nothing
+    to it. **The last capture that can still matter is the day before the draft** —
+    one day earlier than the date everyone has been working to, on an archive whose
+    lost days cannot be refetched by any means.
+
+    THE SELECTION IS NOT RE-DERIVED HERE. `ExternalAsOfStore.snapshot_date()`
+    already implements strictly-before, and this module's header says that rule
+    stays in ONE place. A second `<` written here is the multi-derivation defect
+    this project keeps hitting, and the worst kind: both copies would go on
+    returning valid-looking dates while disagreeing.
+
+    The store is built, asked, and dropped — it never escapes. It is constructed
+    from DATES for a DATE question; `board()` is deliberately not called, because
+    the archive's rows are {id: adp} in the SOURCE's ids and `board()` expects the
+    translated shape `as_store_snapshots` produces.
+
+    `draft_date` has no default, for the same reason `last_pick` has none: the
+    league's calendar is the consumer's, and our own Sleeper config has
+    `draft.start_time: null` today, so there is nothing here to derive it from.
+    """
+    _draft_on_path()
+    from backtest.external_replay import ExternalAsOfStore, TimeTravelError
+
+    ser = [s for s in _series_of(series) if str(s.get("year")) == str(year)]
+    base = {"year": str(year), "draft_date": draft_date, "snapshot_date": None,
+            "rows": None, "lead_days": None, "age_days": None, "stale": None,
+            "last_useful_capture": None, "days_until_last_useful": None,
+            "days_until_draft": None, "verdict": None, "note": None}
+    if not draft_date:
+        return dict(base, verdict="unjudged",
+                    note="UNJUDGED — pass draft_date; the league's calendar belongs "
+                         "to the consumer and draft.start_time is null in our config")
+
+    dd = _date.fromisoformat(str(draft_date))
+    last_useful = dd - _timedelta(days=1)
+    out = dict(base, last_useful_capture=last_useful.isoformat())
+    if today:
+        t = _date.fromisoformat(str(today))
+        out["days_until_draft"] = (dd - t).days
+        # TO THE LAST USEFUL CAPTURE, NOT TO THE DRAFT. Counting to the draft
+        # overstates the remaining window by exactly one day, and it is the last
+        # day — the one nobody can buy back.
+        out["days_until_last_useful"] = (last_useful - t).days
+
+    store = ExternalAsOfStore("ours", dd,
+                              [{"observed_at": s["observed_at"], "rows": []}
+                               for s in ser], "f5-readiness")
+    try:
+        picked = store.snapshot_date()
+    except TimeTravelError:
+        return dict(out, verdict="excluded",
+                    note="NO SNAPSHOT STRICTLY BEFORE %s — this draft is excluded "
+                         "under F4/F5. A later snapshot is not a substitute: it has "
+                         "seen the draft it would be used to predict." % dd)
+
+    by_day = {s["observed_at"]: s for s in ser}
+    lead = (dd - picked).days
+    # AGE IS AGAINST TODAY; LEAD IS AGAINST THE DRAFT, and conflating them makes an
+    # alarm that is on by default. The first cut set `stale` from `lead`, so on
+    # 2026-08-13 — snapshot captured that morning, nine days of captures still to
+    # come — it reported stale, and would have every day until the week of the
+    # draft. `lead` is a PROJECTION until the draft arrives: what F5 would see if
+    # the draft were held on today's archive. Whether we are still CAPTURING is a
+    # question about today, and it is the one worth an alarm now.
+    age = None if not today else (_date.fromisoformat(str(today)) - picked).days
+    note = None
+    if age is not None and age > F5_STALE_DAYS:
+        note = ("the newest qualifying board is %d day(s) old. The capture may have "
+                "stopped, and a day not captured cannot be refetched." % age)
+    elif age is None and lead > F5_STALE_DAYS:
+        note = ("the qualifying board would be %d days old at the draft. Pass "
+                "`today` to say whether that is a dead capture or simply a draft "
+                "that has not arrived yet." % lead)
+    return dict(out, snapshot_date=picked.isoformat(),
+                rows=(by_day.get(picked.isoformat()) or {}).get("row_count"),
+                lead_days=lead, age_days=age,
+                stale=(None if age is None else age > F5_STALE_DAYS),
+                verdict="ready", note=note)
+
+
 def _draft_on_path():
     """Put `draft/` on sys.path so `adp` and `mfl_adapter` import.
 

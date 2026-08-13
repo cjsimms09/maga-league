@@ -1377,3 +1377,128 @@ def test_the_POSITION_HELPERS_work_without_crosswalk_map_running_first(tmp_path)
         "the helpers must import on their own:\n%s" % r.stderr[-600:])
     assert r.stdout.split("\n")[0] == "['K', 'QB']"
     assert r.stdout.split("\n")[1] == "True"
+
+
+# ── WHICH SNAPSHOT WILL OUR OWN DRAFT ACTUALLY USE ──────────────────────────
+#
+# INGEST-PLAN.md:2453 records "board() for draft 2026-08-22 -> the 08-12
+# snapshot, 708 rows". It was true when written and it is wrong now — the
+# archive has since gained 08-13, and 08-13 has 672 rows. A fact copied into
+# prose goes stale silently; rule 9 says that is a mechanism implemented as a
+# note.
+#
+# AND IT SURFACES A DEADLINE NOBODY HAS STATED. F5 takes the latest snapshot
+# STRICTLY BEFORE the draft, so a capture taken on draft morning is worth
+# nothing to it. The last capture that can still matter is 2026-08-21 — one day
+# earlier than everyone has been assuming, on an archive where a lost day cannot
+# be refetched.
+#
+# THE SELECTION IS NOT RE-DERIVED HERE. `ExternalAsOfStore.snapshot_date()`
+# already implements strictly-before and this module's own header says the rule
+# stays in ONE place. A second `<` written here is the multi-derivation defect
+# that has bitten this project repeatedly — and it would drift silently, because
+# both copies would keep returning valid-looking dates.
+
+def _series3():
+    s = C.append_snapshot([], 2026, "2026-08-20", {"p": 1.0})
+    s = C.append_snapshot(s, 2026, "2026-08-21", {"p": 1.0, "q": 2.0})
+    return C.append_snapshot(s, 2026, "2026-08-22", {"p": 1.0, "q": 2.0, "r": 3.0})
+
+
+def test_a_snapshot_taken_ON_DRAFT_DAY_IS_NOT_THE_ONE_F5_USES():
+    """THE DEADLINE THIS EXISTS TO SURFACE. Strictly before, not `<=`: a board
+    stamped the morning of the draft may have seen picks already in.
+
+    MUTATION: use `<=` — the check reports ready off a snapshot F5 will refuse,
+    and the one day that actually mattered is spent believing it is covered."""
+    r = C.f5_readiness(_series3(), 2026, draft_date="2026-08-22")
+    assert r["snapshot_date"] == "2026-08-21", r
+    assert r["rows"] == 2, "and it is that snapshot's board, not draft morning's"
+    assert r["last_useful_capture"] == "2026-08-21"
+
+
+def test_it_says_HOW_MANY_DAYS_ARE_LEFT_to_capture_something_that_matters():
+    """MUTATION: count to the draft date — every statement of the remaining window
+    is one day too generous, on days that cannot be bought back."""
+    r = C.f5_readiness(_series3(), 2026, draft_date="2026-08-22",
+                       today="2026-08-13")
+    assert r["days_until_last_useful"] == 8, "08-13 -> 08-21, not 9 to the draft"
+    assert r["days_until_draft"] == 9
+
+
+def test_NO_QUALIFYING_SNAPSHOT_is_EXCLUDED_not_ready():
+    """F4/F5 attrition, and it must not read as readiness. MUTATION: return the
+    nearest snapshot anyway — the replay silently uses a board from after the
+    draft it is predicting, which is the leak this whole archive is shaped to
+    prevent."""
+    s = C.append_snapshot([], 2026, "2026-08-25", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22")
+    assert r["verdict"] == "excluded"
+    assert r["snapshot_date"] is None
+    assert "strictly before" in r["note"].lower()
+
+
+def test_the_LEAD_is_reported_so_a_stale_board_cannot_pass_as_a_fresh_one():
+    """A qualifying snapshot four days old still qualifies. It is also four days
+    of market movement we did not capture, and `verdict: ready` alone hides that.
+    MUTATION: report readiness without the lead — a capture that died a week
+    before the draft reports exactly like one that ran this morning.
+
+    `today` IS PASSED, and that is the correction rather than a detail. This test
+    first asserted `stale is True` with no clock, which the implementation then
+    satisfied by keying staleness off the draft — and that made the flag fire every
+    day of a perfectly healthy capture. Staleness needs a clock; without one the
+    honest answer is None, and the test that demanded otherwise was the reason the
+    implementation was wrong."""
+    s = C.append_snapshot([], 2026, "2026-08-17", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-22")
+    assert r["verdict"] == "ready"
+    assert r["lead_days"] == 5, "08-17 board used for an 08-22 draft"
+    assert r["age_days"] == 5 and r["stale"] is True
+
+
+def test_WITHOUT_a_draft_date_it_REFUSES_to_judge():
+    """Same line held for `last_pick`: the draft's date belongs to the league, not
+    to the archive, and `draft.start_time` is null in our own Sleeper config today.
+    MUTATION: default to 2026-08-22 — the archive hardcodes one league's calendar
+    and every answer it gives another one is wrong while looking authoritative."""
+    r = C.f5_readiness(_series3(), 2026, draft_date=None)
+    assert r["verdict"] == "unjudged"
+    assert r["snapshot_date"] is None and "draft_date" in r["note"]
+
+
+def test_STALENESS_IS_MEASURED_AGAINST_TODAY_not_against_the_draft():
+    """AN ALARM THAT IS ON BY DEFAULT IS OFF, and my first cut of `f5_readiness`
+    was one. It set `stale` from `lead_days` — draft minus snapshot — so on
+    2026-08-13, with a snapshot captured THAT MORNING and nine days of captures
+    still to come, it reported `stale: True`. It would have said so every day
+    until the week of the draft and then gone quiet, which is precisely backwards.
+
+    `lead_days` is a projection until the draft arrives: what F5 would see if the
+    draft were held on today's archive. Whether we are CAPTURING is a question
+    about today.
+
+    MUTATION: key `stale` off lead_days — a healthy daily capture reports stale
+    for eight consecutive days and the flag is worthless by the time it is true."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-13")
+    assert r["lead_days"] == 9, "at the draft, this board would be 9 days old"
+    assert r["age_days"] == 0, "but it was captured today"
+    assert r["stale"] is False, "a capture that ran this morning is not stale"
+
+
+def test_a_capture_that_DIED_is_stale_even_with_the_draft_far_off():
+    """The other side. MUTATION: never flag it — the archive quietly stops and the
+    only signal is a number nobody is diffing day to day."""
+    s = C.append_snapshot([], 2026, "2026-08-08", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22", today="2026-08-13")
+    assert r["age_days"] == 5 and r["stale"] is True
+    assert "5 day" in r["note"]
+
+
+def test_with_NO_today_staleness_is_UNKNOWN_rather_than_False():
+    """Rule 13f. Without a clock the question cannot be asked, and `False` would
+    read as "checked, and fresh". MUTATION: default stale to False."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"p": 1.0})
+    r = C.f5_readiness(s, 2026, draft_date="2026-08-22")
+    assert r["age_days"] is None and r["stale"] is None
