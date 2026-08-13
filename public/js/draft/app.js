@@ -5399,12 +5399,48 @@
    * that is supposed to mean "the user deliberately touched this" is poisoned
    * before the user has touched anything. `programmatic` is the guard: the only
    * toggles that count as a decision are the ones we did not cause. */
-  var layerProgrammatic = false;
+  /* ── THE GUARD WAS TIME-SCOPED AND `toggle` IS NOT (2026-08-13, B) ────────
+   *
+   * The paragraph above states the intent correctly and the implementation did
+   * not honour it, which is the worst combination: a comment that reads right
+   * over a flag that is already false by the time it is consulted.
+   *
+   * `toggle` on <details> fires at RENDERING TIME — after the current task and
+   * after timers. `layerProgrammatic = false` ran on the next line, so every
+   * listener saw false and stamped `userOpened` on OUR OWN programmatic open.
+   * B instrumented it rather than reasoning about it and captured the whole
+   * chain: renderSystemStrip -> layerDepthForMode('MANUAL') -> setLayer(l3,
+   * true) -> toggle {prog:false, open:true} -> userOpened=1, with no user click
+   * anywhere in the run. Then `layerDepthForMode` returns early forever on
+   * `userOpened`, the close rule never runs once sync comes up, and the page
+   * stays at 23.6 SCREENS for the entire draft. Closed it is 5.6 — a 76% cut
+   * with no layout work at all.
+   *
+   * B also established that the obvious fix FAILS: setTimeout(..., 0) still
+   * measures prog:false, because timers run before rendering. THE GUARD HAS TO
+   * BE ELEMENT-SCOPED, NOT TIME-SCOPED — it must survive on the element until
+   * the event for that element actually arrives, whenever that is.
+   *
+   * A COUNTER, not a boolean: two programmatic sets before either toggle
+   * arrives would leave a boolean cleared by the first and the second counted
+   * as a user decision. */
   function setLayer(el, open) {
     if (!el || el.open === open) return;
-    layerProgrammatic = true;
+    el.dataset.progToggle = String((+el.dataset.progToggle || 0) + 1);
     el.open = open;
-    layerProgrammatic = false;
+  }
+
+  /* One listener body for both layers, so they cannot drift — l2 and l3 had
+   * separate copies of the same three lines and would have had to be fixed
+   * twice. */
+  function onLayerToggle(el) {
+    const pending = +el.dataset.progToggle || 0;
+    if (pending > 0) {
+      if (pending > 1) el.dataset.progToggle = String(pending - 1);
+      else delete el.dataset.progToggle;
+      return;                      // we caused this one; it is not a decision
+    }
+    el.dataset.userOpened = '1';
   }
 
   function initLayers() {
@@ -5412,13 +5448,9 @@
     if (!l2 || l2.dataset.wired) return;
     l2.dataset.wired = '1';
     if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) setLayer(l2, false);
-    l2.addEventListener('toggle', function () {
-      if (!layerProgrammatic) l2.dataset.userOpened = '1';
-    });
+    l2.addEventListener('toggle', function () { onLayerToggle(l2); });
     const l3 = document.getElementById('layer-3');
-    if (l3) l3.addEventListener('toggle', function () {
-      if (!layerProgrammatic) l3.dataset.userOpened = '1';
-    });
+    if (l3) l3.addEventListener('toggle', function () { onLayerToggle(l3); });
   }
 
   /* THE BOARD IS A REFERENCE IN LIVE MODE AND AN INPUT DEVICE IN MANUAL MODE.
