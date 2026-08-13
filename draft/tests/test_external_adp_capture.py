@@ -852,3 +852,44 @@ def test_the_two_days_captured_BEFORE_provenance_read_as_ABSENT_not_clean():
     pop = __import__("field_population").of_records(new, fields=C.SNAPSHOT_FIELDS)
     f = pop["fields"]["source_note"]
     assert f["present"] == 1 and (f["missing"] + f["null"]) == 1, f
+
+
+# ── DISPERSION TRAVELS WITH THE DAY (A, 2026-08-13) ─────────────────────────
+#
+# 83% of the priced board carries one of two adp_sd values, because `adp.fitted_sd`
+# saturates at 15.00 for every player at adp >= 100 and the search_rank fallback
+# yields exactly 30.00 for its whole population by construction. A clamp that
+# saturates in both directions carries no player-specific information, and adp_sd
+# drives survival, which drives VONA.
+#
+# MFL publishes minPick/maxPick/draftSelPct. `mfl_adp.parse` now keeps them; this
+# is the other half — the archive has to STORE them, or the fix survives one
+# process and dies. A spread is a fact about a day, exactly as perishable as the
+# mean beside it.
+
+def test_a_snapshot_CARRIES_dispersion_beside_the_mean():
+    """MUTATION: store rows only. The clamp stays the only available sd forever,
+    because a day's spread cannot be re-fetched once the day has passed."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 10.5, "2": 20.0},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 40, "sel_pct": 70.0}})
+    assert s[0]["rows"]["1"] == 10.5
+    assert s[0]["dispersion"]["1"]["min_pick"] == 2
+    assert s[0]["dispersion"]["1"]["max_pick"] == 40
+
+
+def test_a_snapshot_with_NO_dispersion_says_so_rather_than_faking_it():
+    """The two days already archived (2026-08-11, -12) genuinely have none — the
+    parser was discarding it. They must read as ABSENT, not as zero spread.
+    MUTATION: default to {} silently and let a reader treat the gap as measured."""
+    s = C.append_snapshot([], 2026, "2026-08-11", {"1": 10.5})
+    assert s[0]["dispersion"] is None, "absent, not an empty measurement"
+
+
+def test_dispersion_does_not_disturb_the_row_shape_consumers_read():
+    """`as_store_snapshots` and the replay read `rows` as {id: adp}. MUTATION:
+    fold dispersion into rows — every consumer starts sorting on a dict."""
+    s = C.append_snapshot([], 2026, "2026-08-13", {"1": 10.5},
+                          dispersion={"1": {"min_pick": 2, "max_pick": 40}})
+    assert s[0]["rows"] == {"1": 10.5}
+    out = C.as_store_snapshots(s, 2026, {"1": "sleeper1"})
+    assert out[0]["rows"] == [{"player_id": "sleeper1", "adp": 10.5}]

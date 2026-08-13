@@ -72,10 +72,26 @@ def parse(adp_json, players_json):
         except (TypeError, ValueError):
             continue
         meta = idx.get(pid) or {}
+        # DISPERSION, KEPT RATHER THAN DISCARDED.
+        #
+        # This parser read `averagePick` and `draftsSelectedIn` and dropped the
+        # rest, so every daily snapshot since 2026-08-11 lost the only
+        # player-specific spread any source gives us. Meanwhile the board's
+        # `adp_sd` is a clamp that saturates in both directions — 15.00 for
+        # every player at adp >= 100, 30.00 for the entire search_rank fallback
+        # by construction — and it drives survival, which drives VONA.
+        #
+        # A mean is a fact about a day; so is a spread, and it is just as
+        # perishable. Capturing is cheap and cannot be done retroactively;
+        # DERIVING an sd from these is a separate question and is deliberately
+        # not attempted here (see the module docstring).
         rows.append({"mfl_id": pid, "name": meta.get("name"),
                      "position": meta.get("position"), "team": meta.get("team"),
                      "adp": adp,
-                     "drafts": _to_int(p.get("draftsSelectedIn"))})
+                     "drafts": _to_int(p.get("draftsSelectedIn")),
+                     "min_pick": _to_int(p.get("minPick")),
+                     "max_pick": _to_int(p.get("maxPick")),
+                     "sel_pct": _to_float(p.get("draftSelPct"))})
     rows.sort(key=lambda r: r["adp"])
     return rows
 
@@ -83,6 +99,16 @@ def parse(adp_json, players_json):
 def _to_int(x):
     try:
         return int(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def _to_float(x):
+    """ABSENT STAYS ABSENT. A field the source did not publish is None, never 0.0
+    — a dispersion of zero is the most confident possible claim (taken at exactly
+    the same pick in every draft), and it is the opposite of what silence means."""
+    try:
+        return float(x)
     except (TypeError, ValueError):
         return None
 

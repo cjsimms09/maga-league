@@ -48,7 +48,8 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: from the rows, a field that stops being written simply stops existing and the
 #: population record cannot tell you it is gone — which is the failure mode, not a
 #: detail of it.
-SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count", "source_note"]
+SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
+                   "source_note", "dispersion"]
 
 # The header the shipped client sends; FFC 403s Python's default. Kept in step
 # with `draft/adp.py` by test, not by trust.
@@ -56,7 +57,7 @@ USER_AGENT = "mfga-league-draft-tool/1.0"
 
 
 def append_snapshot(series: list, year, observed_at: str, rows: dict,
-                    total_drafts=None, source_note=None) -> list:
+                    total_drafts=None, source_note=None, dispersion=None) -> list:
     """Add one day's board. Returns a NEW series; deduped by (year, date).
 
     NO TRUNCATION AND NO RETENTION WINDOW, deliberately — see the module note.
@@ -84,6 +85,25 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
         # provider's own composition figure — the thing that showed the aggregate
         # accumulates — and a snapshot without it cannot be judged later.
         "total_drafts": total_drafts,
+        # DISPERSION, BESIDE THE MEAN AND NOT INSIDE IT.
+        #
+        # MFL publishes minPick/maxPick/draftSelPct per player. The board's
+        # `adp_sd` is a clamp that saturates in both directions — 15.00 for every
+        # player at adp >= 100, and exactly 30.00 for the whole search_rank
+        # fallback by construction — so it carries no player-specific information
+        # while driving survival, and therefore VONA.
+        #
+        # A spread is a fact about a DAY, exactly as perishable as the mean it
+        # sits next to, and it cannot be re-fetched afterwards. So it is captured
+        # now. It is a SIBLING of `rows` rather than folded into it, because
+        # `as_store_snapshots` and the replay both read `rows` as {id: adp} and
+        # would start sorting dicts.
+        #
+        # None, not {}, when there is none: the days archived before this landed
+        # (2026-08-11, -12) genuinely have no dispersion because the parser was
+        # discarding it, and that is absence, not a measurement of zero spread.
+        "dispersion": ({str(k): dict(v) for k, v in dispersion.items()}
+                       if dispersion else None),
         "row_count": len(rows or {}),
         # WHICH MARKET PRICED THESE PLAYERS. `fetch_mfl` has always built this
         # string and it was always thrown away, so the archive held prices with no
@@ -585,8 +605,16 @@ PLAYERS_PARAMS = {"TYPE": "players", "JSON": "1"}
 def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     """One day's MFL ADP board AND the key that decodes it.
 
-    Returns `(rows, players, total_drafts, note)` — `rows` is {mfl_id: adp},
-    `players` is {mfl_id: {name, position, team}}.
+    Returns `(rows, players, total_drafts, note, dispersion)` — `rows` is
+    {mfl_id: adp}, `players` is {mfl_id: {name, position, team}}, `dispersion` is
+    {mfl_id: {min_pick, max_pick, sel_pct, drafts}}.
+
+    DISPERSION IS PART OF THE PERISHABLE DAY. MFL publishes minPick, maxPick and
+    draftSelPct per player; `parse` discarded them until 2026-08-13, so the two
+    days already archived have the mean and nothing else. The board's `adp_sd` is
+    meanwhile a clamp saturating at 15.00 (any adp >= 100) and at exactly 30.00
+    for the whole search_rank fallback — no player-specific content at all, in a
+    field that drives survival and therefore VONA.
 
     TWO ENDPOINTS, BECAUSE ONE OF THEM IS NOT EVIDENCE ON ITS OWN. This fetched
     only TYPE=adp for its first two days and archived {mfl_id: adp}, which nothing
@@ -633,15 +661,23 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     players = {r["mfl_id"]: {"name": r.get("name"), "position": r.get("position"),
                              "team": r.get("team")}
                for r in parsed}
+    # Only players the source actually gave a spread for. A row with every field
+    # None would be indistinguishable from a measured zero once it is on disk.
+    dispersion = {r["mfl_id"]: {"min_pick": r.get("min_pick"),
+                                "max_pick": r.get("max_pick"),
+                                "sel_pct": r.get("sel_pct"),
+                                "drafts": r.get("drafts")}
+                  for r in parsed
+                  if r.get("min_pick") is not None or r.get("max_pick") is not None}
     try:
         total = int(((json.loads(adp_text) or {}).get("adp") or {}).get("totalDrafts"))
     except (TypeError, ValueError):
         total = None
-    return rows, players, total, note
+    return rows, players, total, note, dispersion
 
 
 def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only)
-    rows, players, total, note = fetch_mfl(year)
+    rows, players, total, note, dispersion = fetch_mfl(year)
     if not rows:
         # A FETCH THAT RETURNED NOTHING IS NOT A DAY WITH NO ADP. Writing an empty
         # snapshot would put a date in the archive with no board behind it, and
@@ -651,12 +687,15 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "snapshot, because a dated empty board is indistinguishable from a real "
             "one downstream (%s)" % (year, observed_at, note))
     series = append_snapshot(load(path), year, observed_at, rows, total,
-                             source_note=note)
+                             source_note=note, dispersion=dispersion)
     save(series, path, players=players)
     rep = coverage(series, year)
     key = load_players(path)
     named = sum(1 for v in key.values() if not FP._is_absent((v or {}).get("name")))
     print(json.dumps({"captured": len(rows), "total_drafts": total, "coverage": rep,
+                      # NAMED, because a dispersion count of zero after this landed
+                      # means MFL stopped publishing it — not that spreads are zero.
+                      "dispersion_rows": len(dispersion),
                       # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
                       # Printed beside the capture count because the two failed
                       # independently for two days and only one of them was visible.

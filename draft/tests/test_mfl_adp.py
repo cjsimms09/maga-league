@@ -53,3 +53,58 @@ def test_missing_adp_value_is_skipped():
     adp = {"adp": {"player": [{"id": "1"}, {"id": "2", "averagePick": "3.0"}]}}
     rows = M.parse(adp, PLAYERS)
     assert len(rows) == 1 and rows[0]["mfl_id"] == "2"
+
+
+# ── DISPERSION, WHICH THE SOURCE PUBLISHES AND WE HAVE BEEN THROWING AWAY ────
+#
+# A's finding, 2026-08-13: 83% of the priced board carries one of two adp_sd
+# values. `adp.fitted_sd` is `max(3.0, min(0.15*adp, 15.0))`, so every player at
+# adp >= 100 gets EXACTLY 15.00; the search_rank fallback is
+# `max(8.0, min(0.25*adp, 30.0))` over `adp = ffc_max + rank`, which is always
+# >= 120, so that whole population gets EXACTLY 30.00 by construction. A clamp
+# saturating in both directions carries no player-specific information, and it
+# drives survival, which drives VONA.
+#
+# MFL publishes the dispersion. The recorded probe payload
+# (draft/data/adp_sources_probe.json) is:
+#   {"draftsSelectedIn":"3510","rank":"1","minPick":"1","id":"14836",
+#    "draftSelPct":"70","averagePick":"3.04","maxPick":"200"}
+# `parse` kept averagePick and draftsSelectedIn and dropped the rest. Every daily
+# snapshot since 2026-08-11 has lost it, and it is perishable in exactly the way
+# the ADP mean is.
+
+def _adp_payload(**over):
+    row = {"id": "1", "averagePick": "10.5", "draftsSelectedIn": "3510",
+           "minPick": "2", "maxPick": "40", "draftSelPct": "70", "rank": "1"}
+    row.update(over)
+    return {"adp": {"totalDrafts": "5011", "player": [row]}}
+
+
+def test_parse_KEEPS_the_dispersion_fields_the_source_publishes():
+    """MUTATION: keep averagePick only — the board is left with a clamp, and no
+    later code can recover a number the ingest already threw away."""
+    rows = M.parse(_adp_payload(), {})
+    r = rows[0]
+    assert r["min_pick"] == 2 and r["max_pick"] == 40
+    assert r["drafts"] == 3510
+    assert r["sel_pct"] == 70.0
+
+
+def test_a_missing_dispersion_field_is_NONE_not_zero():
+    """A player MFL reports without minPick has unknown dispersion, not zero
+    dispersion — zero would read as 'taken at exactly the same pick every time',
+    the most confident possible claim. MUTATION: default to 0."""
+    p = _adp_payload()
+    del p["adp"]["player"][0]["minPick"]
+    del p["adp"]["player"][0]["draftSelPct"]
+    r = M.parse(p, {})[0]
+    assert r["min_pick"] is None and r["sel_pct"] is None
+    assert r["max_pick"] == 40, "the field that IS published still arrives"
+
+
+def test_a_row_with_dispersion_but_no_adp_is_still_SKIPPED():
+    """The mean is the load-bearing field; dispersion does not rescue a row
+    without one. MUTATION: emit the row with adp None and let a consumer sort on it."""
+    p = _adp_payload()
+    del p["adp"]["player"][0]["averagePick"]
+    assert M.parse(p, {}) == []
