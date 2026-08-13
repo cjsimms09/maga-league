@@ -254,15 +254,22 @@ def test_unpriced_players_are_ordered_by_the_only_value_quantity_we_HOLD(monkeyp
     by_id = {p["player_id"]: p for p in board}
     assert by_id["8888"]["adp"] < by_id["7777"]["adp"] < by_id["9999"]["adp"], (
         "the deep pool must be ordered best-projection-first")
-    assert by_id["8888"]["adp_unordered"] is False
+    # The distinction is reported in PROVENANCE, not as a row field: adding one
+    # to every player would need a season-stamp registry entry in C's file for a
+    # flag no live consumer reads. Same information, countable, no new field.
     # THE TIE IS DELIBERATE AND DECLARED. Two players with nothing to separate
     # them get the same price and say so, rather than a spread that reads as
     # information.
     assert by_id["6666"]["adp"] == by_id["5555"]["adp"], (
         "players with no projection cannot be separated and must not be pretend-ranked")
-    assert by_id["6666"]["adp_unordered"] is True and by_id["5555"]["adp_unordered"] is True
     assert by_id["6666"]["adp"] > by_id["9999"]["adp"], (
         "the unrankable cohort sits BEHIND everyone we could rank")
+    rep = adp.apply_with_fallback(
+        [dict(p) for p in ({"player_id": "1", "proj_mean": 5.0}, {"player_id": "2"})],
+        table, teams=10)
+    assert rep["fallback_ordered_by_projection"] == 1, rep
+    assert rep["fallback_unordered_tied"] == 1, rep
+    assert "NOT search_rank" in rep["fallback_ordering_basis"], rep
 
 
 def test_the_FALLBACK_cannot_outrank_a_player_the_market_actually_priced(monkeypatch):

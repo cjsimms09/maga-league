@@ -7383,6 +7383,44 @@
     const nPicks = (picks || []).length;
     if (state._syncedPickCount === nPicks) return;
     state._syncedPickCount = nPicks;
+
+    /* ⚠️ RETIRE ANY TYPED PLACEHOLDER THE ROOM HAS NOW REPORTED FOR REAL.
+     *
+     * This loop is ADDITIVE — it adds on first sight and never removes — so
+     * excluding a superseded row from `allPicks()` is not enough on its own: the
+     * board's OWN surfaces (`state.drafted`, the seat roster, my roster, the
+     * recent-picks strip) still hold the placeholder from when it was typed.
+     * B measured exactly that: drafted 15 -> 16 (typed) -> 17 (Sleeper reports
+     * the SAME pick), with seat 3 holding both spellings.
+     *
+     * The purge runs BEFORE the add loop so the real pick lands into a seat that
+     * has already given up its stand-in, and the seat count never transiently
+     * reads one too high. `sync.supersededManual()` owns the decision — a typed
+     * row retires when its seat has more real picks than it had at entry — and
+     * this side only carries it out. */
+    if (state.sync && typeof state.sync.supersededManual === 'function') {
+      let retired = 0;
+      state.sync.supersededManual().forEach(id => {
+        if (!state.drafted.has(id)) return;
+        state.drafted.delete(id);
+        Object.keys(state.rosters || {}).forEach(sl => {
+          state.rosters[sl] = (state.rosters[sl] || [])
+            .filter(x => String(x.player_id) !== String(id));
+        });
+        state.myRoster = (state.myRoster || [])
+          .filter(x => String(x.player_id) !== String(id));
+        state.recentPicks = (state.recentPicks || [])
+          .filter(x => String(x.player_id) !== String(id));
+        retired++;
+      });
+      /* SAID OUT LOUD, because a pick silently vanishing off his board mid-draft
+       * is its own kind of alarming — and this is the one case where a row
+       * disappearing is correct. */
+      if (retired) {
+        console.info('[manual] ' + retired + ' typed pick(s) retired — the room '
+          + 'reported them for real');
+      }
+    }
     picks.forEach(pick => {
       const id = String(pick.player_id);
       // draft_slot is the seat; roster_id is the team. A MOCK draft has no

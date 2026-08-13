@@ -656,6 +656,7 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     used_fallback = []
 
     ordered_by_proj = []
+    unordered = []
     # ── THE TEAM FALLBACK, BECAUSE A BYE IS A PROPERTY OF THE TEAM ──────────
     #
     # Sleeper leaves bye_week empty in the preseason and FFC only publishes it
@@ -733,6 +734,16 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         # information. A consumer can now tell "ranked 41st of the deep pool"
         # from "one of 329 we cannot separate".
         #
+        # THE DISTINCTION IS REPORTED IN PROVENANCE, NOT AS A ROW FIELD. A per-
+        # player `adp_unordered` was the obvious shape and it is the wrong one:
+        # `season_stamp` requires every board field to be declared with a season
+        # classification and a purpose (default-is-violation, and it caught this
+        # immediately, which is the guard working). That registry is C's file,
+        # and a flag NO LIVE CONSUMER READS is not worth an override — every
+        # fallback price starts past the relevant board, so nothing downstream
+        # can reach one. The counts below carry the same information to anyone
+        # who needs it, in the block that already describes how ADP was sourced.
+        #
         # NOTHING HERE REACHES A DECISION TODAY, which is why this is a
         # correctness fix and not an urgent one: every fallback price starts at
         # `ffc_max + 1` by construction and the relevant board is 225 deep, so
@@ -746,7 +757,7 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
             p["adp"] = ffc_max + 600.0
             p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
             p["adp_source"] = "search_rank"
-            p["adp_unordered"] = True
+            unordered.append(p.get("player_id"))
         used_fallback.append(p.get("player_id"))
 
     # THE DEEP POOL, RANKED AMONG ITSELF. Best projection first, one slot apart,
@@ -760,7 +771,6 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         _p["adp"] = ffc_max + 1.0 + i
         _p["adp_sd"] = max(8.0, min(0.25 * _p["adp"], 30.0))
         _p["adp_source"] = "search_rank"
-        _p["adp_unordered"] = False
 
     # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
     # actually have a value and this only ever fills a hole neither could.
@@ -808,6 +818,17 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     prov = {
         "adp_source": "ffc",
         "fallback_count": len(used_fallback),
+        # HOW MUCH OF THE FALLBACK IS AN ORDERING AND HOW MUCH IS A TIE. Before
+        # 2026-08-13 all of it was a tie and none of it said so: `search_rank` is
+        # absent from every board row, so `min(rank, 600.0)` gave all 603 the
+        # identical price while a comment claimed they were "ordered relative to
+        # each other". Split here so the claim is countable rather than asserted.
+        "fallback_ordered_by_projection": len(ordered_by_proj),
+        "fallback_unordered_tied": len(unordered),
+        "fallback_ordering_basis": (
+            "proj_mean where present; the remainder share one price because "
+            "nothing on the board separates them. NOT search_rank — the board "
+            "does not carry it, and it is a popularity rank rather than a value"),
         "fallback_count_in_play": len(fb_in_play),
         "relevant_board": len(in_play),
         "fallback_rate": round(rate, 4),
