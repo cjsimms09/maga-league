@@ -181,9 +181,17 @@ jobs:
           # obvious field would put the last pick at 30 and call every draftable
           # loss from 31 to 150 clean.
           lp = {"last_pick": None, "note": "no league settings file on disk"}
+          # THE PICK LIST LIVES ON THE BOARD, NOT IN THE LEAGUE SETTINGS, and
+          # passing only the settings is how this line kept reporting 150 for a
+          # 147-pick draft after the module was already fixed to read
+          # `pick_order.picks`. Fixing a module and leaving its caller is the
+          # same defect one layer out: the code was right and the answer was not.
           if os.path.exists("draft/data/sleeper_league_settings.json"):
-              lp = C.draft_last_pick(json.load(
-                  open("draft/data/sleeper_league_settings.json")))
+              _ls = json.load(open("draft/data/sleeper_league_settings.json"))
+              if os.path.exists("public/draft_data.json"):
+                  _ls = dict(_ls, pick_order=json.load(
+                      open("public/draft_data.json")).get("pick_order"))
+              lp = C.draft_last_pick(_ls)
           drop = C.dropped_inside(C.load(),
                                   "${{ github.event.inputs.year || '2026' }}",
                                   last_pick=lp["last_pick"])
