@@ -602,6 +602,44 @@ ADP_PARAMS = {"TYPE": "adp", "PERIOD": "DRAFT", "IS_PPR": "1", "IS_KEEPER": "N",
 PLAYERS_PARAMS = {"TYPE": "players", "JSON": "1"}
 
 
+#: Which of MFL's per-player fields describe the SPREAD rather than the mean.
+DISPERSION_FIELDS = ("min_pick", "max_pick", "sel_pct", "drafts")
+
+#: A player is kept only if the source published at least one BOUND. `drafts` and
+#: `sel_pct` alone do not describe a spread, and a row of all-None on disk is
+#: indistinguishable from a measured zero.
+DISPERSION_BOUNDS = ("min_pick", "max_pick")
+
+
+def dispersion_of(parsed: list) -> dict:
+    """`mfl_adp.parse` rows -> {mfl_id: {min_pick, max_pick, sel_pct, drafts}}.
+
+    PURE, AND SPLIT OUT ON PURPOSE. This used to live inside `fetch_mfl`, which is
+    `pragma: no cover` because it needs egress — so the one transformation that
+    decides whether a day's spread survives ran once a day, in CI, untested. A bug
+    there would not fail loudly: it would capture the mean and silently drop the
+    spread again, which is precisely the defect the capture change was made to end,
+    reintroduced where nothing is looking.
+
+    Same split this file already made for the row extraction, and for the same
+    reason: the fetch goes on one side, the transformation on the other.
+
+    A player the source gave NO bound for is OMITTED rather than stored as a row of
+    nulls. Nulls on disk read as a measurement of nothing, and they would inflate
+    `dispersion_rows` until it stopped being a coverage figure and became a copy of
+    `row_count`. One bound is enough to keep him — partial is not absent.
+    """
+    out = {}
+    for r in (parsed or []):
+        pid = r.get("mfl_id")
+        if pid is None:
+            continue
+        if all(r.get(k) is None for k in DISPERSION_BOUNDS):
+            continue
+        out[str(pid)] = {k: r.get(k) for k in DISPERSION_FIELDS}
+    return out
+
+
 def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     """One day's MFL ADP board AND the key that decodes it.
 
@@ -663,12 +701,7 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
                for r in parsed}
     # Only players the source actually gave a spread for. A row with every field
     # None would be indistinguishable from a measured zero once it is on disk.
-    dispersion = {r["mfl_id"]: {"min_pick": r.get("min_pick"),
-                                "max_pick": r.get("max_pick"),
-                                "sel_pct": r.get("sel_pct"),
-                                "drafts": r.get("drafts")}
-                  for r in parsed
-                  if r.get("min_pick") is not None or r.get("max_pick") is not None}
+    dispersion = dispersion_of(parsed)
     try:
         total = int(((json.loads(adp_text) or {}).get("adp") or {}).get("totalDrafts"))
     except (TypeError, ValueError):
