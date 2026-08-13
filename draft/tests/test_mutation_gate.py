@@ -439,9 +439,32 @@ def test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after(tmp_path):
 
 
 # ── the two kills, for real: one catchable, one not ────────────────────────
-def _run_until_mutated(tmp_path, hold=25):
+def _reap(pgid):
+    """Kill the runner AND the pytest it spawned, as one group.
+
+    CI FOUND THIS, not the test. The job log ended with four `Terminate orphan
+    process: pid (…) (python3)` lines. Killing the runner leaves the pytest it
+    started still sleeping — it is a child of a dead parent, not of the test — so
+    every re-run of these two mutations leaked a process that outlived the run
+    that made it. Harmless here because the hold is short and the runner is
+    ephemeral, but a test that litters is a test that will one day exhaust
+    something at the worst moment, and "the runner cleaned up after me" is not a
+    property to depend on.
+
+    The group id is captured at spawn rather than looked up at kill time: once
+    the leader is reaped, `getpgid` fails and the survivors are unreachable."""
+    import os
+    import signal
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        pass
+
+
+def _run_until_mutated(tmp_path, hold=15):
     """Start a real `check` in a subprocess and return once the subject file is
     actually mutated on disk — the window a kill has to land in."""
+    import os
     import subprocess
     import time
     src, _ = scenario(tmp_path)
@@ -459,15 +482,20 @@ def _run_until_mutated(tmp_path, hold=25):
         # mutated, and these two tests would cost a minute to learn nothing extra.
         "         baseline={'failed': [], 'collected': 1, 'rc': 0})\n"
         % (str(HERE.parent / "backtest"), src, str(slow)))
+    # OWN SESSION, so the runner and the pytest it spawns form one group that can
+    # be reaped together. Without this the inner pytest survives the runner.
     proc = subprocess.Popen([sys.executable, "-B", str(runner)],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            start_new_session=True)
+    pgid = os.getpgid(proc.pid)
     for _ in range(600):
         if "return x * 3" in Path(src).read_text():
-            return proc, src
+            return proc, src, pgid
         if proc.poll() is not None:
+            _reap(pgid)
             raise AssertionError("the run exited before it mutated anything")
         time.sleep(0.1)
-    proc.kill()
+    _reap(pgid)
     raise AssertionError("the subject was never mutated — the window never opened")
 
 
@@ -483,7 +511,7 @@ def test_SIGTERM_MID_MUTATION_restores_the_file(tmp_path):
     the SIGTERM handler, and the tree is corrupt the first time a run is slow."""
     import signal
     import time
-    proc, src = _run_until_mutated(tmp_path)
+    proc, src, pgid = _run_until_mutated(tmp_path)
     try:
         proc.send_signal(signal.SIGTERM)
         proc.wait(timeout=30)
@@ -495,7 +523,7 @@ def test_SIGTERM_MID_MUTATION_restores_the_file(tmp_path):
             "SIGTERM left a mutant on disk: %r" % Path(src).read_text())
         assert not Path(MG.JOURNAL).exists(), "the journal outlived the mutation"
     finally:
-        proc.kill()
+        _reap(pgid)
         Path(MG.JOURNAL).unlink(missing_ok=True)
 
 
@@ -509,9 +537,10 @@ def test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs(tmp_path):
     MUTATION: skip the journal write, and a SIGKILLed run is unrecoverable —
     nothing on disk records what the original bytes were."""
     import signal
-    proc, src = _run_until_mutated(tmp_path)
+    proc, src, pgid = _run_until_mutated(tmp_path)
     proc.send_signal(signal.SIGKILL)
     proc.wait(timeout=30)
+    _reap(pgid)          # the pytest it spawned outlives it otherwise
 
     assert "return x * 3" in Path(src).read_text(), "SIGKILL should leave the mutant"
     assert Path(MG.JOURNAL).exists(), "nothing on disk declares the corruption"

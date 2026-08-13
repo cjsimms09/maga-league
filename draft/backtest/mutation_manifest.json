@@ -450,6 +450,45 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/tests/test_cited_constants.py": {
+   "tests": [
+    "draft/tests/test_cited_constants.py"
+   ],
+   "mutations": [
+    {
+     "old": "            if a is None or b is None or round(a, PLACES) != round(b, PLACES):",
+     "new": "            if False:",
+     "must_fail": [
+      "test_the_COMPARISON_FIRES_on_a_planted_mismatch"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return {band: {pos: c[\"efficiency\"] for pos, c in byp.items() if c.get(\"ranked\")}",
+     "new": "    return {band: {} ",
+     "must_fail": [
+      "test_MARKET_EFFICIENCY_still_matches_exp36"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return json.loads(body)",
+     "new": "    return {}",
+     "must_fail": [
+      "test_the_parser_FINDS_the_block_and_reads_real_numbers"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    m = re.search(r\"var\\s+%s\\s*=\\s*\\{\" % re.escape(name), src)\n    assert m,",
+     "new": "    m = re.search(r\"var\\s+%s\\s*=\\s*\\{\" % re.escape(name), src)\n    assert True or m,",
+     "must_fail": [
+      "test_a_BLOCK_THAT_HAS_BEEN_RENAMED_fails_loudly"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
