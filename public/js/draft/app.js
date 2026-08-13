@@ -831,7 +831,15 @@
       return '<li class="sp-row' + (i === 0 ? ' sp-lead' : '') + '">'
         + '<span class="sp-pos">' + escapeHtml(pl.position) + '</span> '
         + '<span class="sp-name">' + escapeHtml(pl.name) + '</span> '
-        + '<span class="sp-proj">' + pl.proj_mean + ' ' + escapeHtml(capt('seats[].shortlist[].proj_mean').units || '') + '</span> '
+        /* LEAD WITH THE QUANTITY THE SEAT WAS RANKED ON, so the gap printed
+         * below is derivable from the two numbers above it. B caught a bench row
+         * showing 212.1 and 202.6 (season) above a gap of 0.6 (pts/week) — every
+         * figure correct and the arithmetic invisible. */
+        + '<span class="sp-proj">' + pl.display_primary + ' '
+          + escapeHtml(pl.display_primary_units || '') + '</span> '
+        + (pl.display_secondary != null
+          ? '<span class="sp-proj2">' + pl.display_secondary + ' '
+            + escapeHtml(pl.display_secondary_units || '') + '</span> ' : '')
         + wire + '</li>';
     }).join('');
 
@@ -844,11 +852,19 @@
             + ', so the SEAT matters more than the NAME'
           : '') + '</div>';
 
+    /* The plan's superseded name is SHOWN, not silently dropped — "the plan named
+     * nobody" and "the plan named someone on a line since superseded" are
+     * different facts, and hiding the second would make the artifact look
+     * cleaner than the evidence is. */
+    const sup = seat.superseded_plan_player;
+    const supLine = sup ? '<div class="sp-superseded">draft_plan named '
+      + escapeHtml(sup.position + ' ' + sup.name) + ' here — ' + escapeHtml(sup.why) + '</div>' : '';
     host.innerHTML =
       '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + '<ol class="sp-list">' + rows + '</ol>'
       + gapLine
+      + supLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
       + '<div class="sp-caveat">' + escapeHtml(d.assumption) + '</div>'
       + '<div class="sp-caveat">edge over the greedy board: ' + d.measured_edge_vs_greedy

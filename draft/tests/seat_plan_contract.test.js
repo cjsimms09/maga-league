@@ -127,6 +127,32 @@ ck('bench rows are ranked on the wire-relative metric, not raw projection',
   benchBasis.every(b => /free player/.test(b || '')), benchBasis);
 
 // ── 5. EVERY SEAT CAN BE ACTED ON WHEN THE PLAN BREAKS ───────────────────
+/* ── B'S TWO FINDINGS, PINNED SO THEY CANNOT RETURN ──────────────────────
+ * Both were real and both were mine: a row naming a player its own list does
+ * not contain, and a gap a reader cannot derive from the numbers printed above
+ * it. B blocked styling on the first, correctly. */
+const orphan = D.seats.filter(s => s.plan_player
+  && !(s.shortlist || []).some(p => p.player_id === s.plan_player.player_id));
+ck('NO seat names a plan_player its own shortlist does not contain',
+  orphan.length === 0, orphan.map(s => s.pick + ':' + s.plan_player.name));
+/* CONTROL: the superseded names must still be CARRIED. Solving the orphan by
+ * deleting the information would pass the check above and lose the fact. */
+const sup = D.seats.filter(s => s.superseded_plan_player);
+ck('CONTROL — a superseded plan name is kept and explains itself, not dropped',
+  sup.length === 0 || sup.every(s => /realized wire/i.test(s.superseded_plan_player.why || '')),
+  sup.map(s => s.pick));
+const underivable = D.seats.filter(s => {
+  if (s.gap_to_second == null || (s.shortlist || []).length < 2) return false;
+  const d = Math.round((s.shortlist[0].display_primary - s.shortlist[1].display_primary) * 10) / 10;
+  return Math.abs(d - s.gap_to_second) > 0.051;
+});
+ck('the gap is DERIVABLE from the two numbers a row leads with',
+  underivable.length === 0,
+  underivable.map(s => ({ pick: s.pick, gap: s.gap_to_second,
+    from_display: s.shortlist[0].display_primary - s.shortlist[1].display_primary })));
+ck('and the leading number declares its own units',
+  D.seats.every(s => (s.shortlist || []).every(p => !!p.display_primary_units)));
+
 ck('every seat carries a fallback rule for when the shortlist is gone',
   D.seats.every(s => typeof s.fallback_rule === 'string' && s.fallback_rule.length > 20));
 

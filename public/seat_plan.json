@@ -106,6 +106,7 @@
         "name": "James Cook",
         "position": "RB"
       },
+      "superseded_plan_player": null,
       "plan_value": 282.1,
       "shortlist": [
         {
@@ -115,6 +116,10 @@
           "proj_mean": 282.1,
           "adp": 8.1,
           "rank_metric": 282.1,
+          "display_primary": 282.1,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 13.5
         },
@@ -125,6 +130,10 @@
           "proj_mean": 262.4,
           "adp": 12.9,
           "rank_metric": 262.4,
+          "display_primary": 262.4,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 12.2
         },
@@ -135,6 +144,10 @@
           "proj_mean": 261.2,
           "adp": 10.1,
           "rank_metric": 261.2,
+          "display_primary": 261.2,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 12.1
         },
@@ -145,6 +158,10 @@
           "proj_mean": 259.8,
           "adp": 14,
           "rank_metric": 259.8,
+          "display_primary": 259.8,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 12
         },
@@ -155,6 +172,10 @@
           "proj_mean": 251.3,
           "adp": 10.9,
           "rank_metric": 251.3,
+          "display_primary": 251.3,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 3.5
         }
@@ -175,6 +196,7 @@
         "name": "Brock Bowers",
         "position": "TE"
       },
+      "superseded_plan_player": null,
       "plan_value": 232.9,
       "shortlist": [
         {
@@ -184,6 +206,10 @@
           "proj_mean": 232.9,
           "adp": 18.2,
           "rank_metric": 232.9,
+          "display_primary": 232.9,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 9.2
         },
@@ -194,6 +220,10 @@
           "proj_mean": 214.9,
           "adp": 17.3,
           "rank_metric": 214.9,
+          "display_primary": 214.9,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 8
         },
@@ -204,6 +234,10 @@
           "proj_mean": 188.6,
           "adp": 38.1,
           "rank_metric": 188.6,
+          "display_primary": 188.6,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 6.3
         },
@@ -214,6 +248,10 @@
           "proj_mean": 174.9,
           "adp": 48.3,
           "rank_metric": 174.9,
+          "display_primary": 174.9,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 5.4
         },
@@ -224,6 +262,10 @@
           "proj_mean": 168.5,
           "adp": 72,
           "rank_metric": 168.5,
+          "display_primary": 168.5,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 4.9
         }
@@ -244,6 +286,7 @@
         "name": "DeVonta Smith",
         "position": "WR"
       },
+      "superseded_plan_player": null,
       "plan_value": 217.6,
       "shortlist": [
         {
@@ -253,6 +296,10 @@
           "proj_mean": 217.6,
           "adp": 31,
           "rank_metric": 217.6,
+          "display_primary": 217.6,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 1.2
         },
@@ -263,6 +310,10 @@
           "proj_mean": 215.9,
           "adp": 35.2,
           "rank_metric": 215.9,
+          "display_primary": 215.9,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 1.1
         },
@@ -273,6 +324,10 @@
           "proj_mean": 210.5,
           "adp": 41.8,
           "rank_metric": 210.5,
+          "display_primary": 210.5,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 0.7
         },
@@ -283,6 +338,10 @@
           "proj_mean": 208.2,
           "adp": 44.4,
           "rank_metric": 208.2,
+          "display_primary": 208.2,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 0.6
         },
@@ -293,6 +352,10 @@
           "proj_mean": 206.1,
           "adp": 34.5,
           "rank_metric": 206.1,
+          "display_primary": 206.1,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 0.4
         }
@@ -313,6 +376,7 @@
         "name": "Lamar Jackson",
         "position": "QB"
       },
+      "superseded_plan_player": null,
       "plan_value": 372,
       "shortlist": [
         {
@@ -322,6 +386,10 @@
           "proj_mean": 372,
           "adp": 33.6,
           "rank_metric": 372,
+          "display_primary": 372,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 3.9
         },
@@ -332,6 +400,10 @@
           "proj_mean": 367.8,
           "adp": 51.4,
           "rank_metric": 367.8,
+          "display_primary": 367.8,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 3.6
         },
@@ -342,6 +414,10 @@
           "proj_mean": 362.1,
           "adp": 46.5,
           "rank_metric": 362.1,
+          "display_primary": 362.1,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 3.2
         },
@@ -352,6 +428,10 @@
           "proj_mean": 352.9,
           "adp": 78.6,
           "rank_metric": 352.9,
+          "display_primary": 352.9,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 2.6
         },
@@ -362,6 +442,10 @@
           "proj_mean": 350.2,
           "adp": 97.8,
           "rank_metric": 350.2,
+          "display_primary": 350.2,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": 2.4
         }
@@ -382,6 +466,7 @@
         "name": "D'Andre Swift",
         "position": "RB"
       },
+      "superseded_plan_player": null,
       "plan_value": 55.1,
       "shortlist": [
         {
@@ -391,6 +476,10 @@
           "proj_mean": 212.1,
           "adp": 52.4,
           "rank_metric": 8.8,
+          "display_primary": 8.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 212.1,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 8.8
         },
@@ -401,6 +490,10 @@
           "proj_mean": 202.6,
           "adp": 49.7,
           "rank_metric": 8.2,
+          "display_primary": 8.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 202.6,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 8.2
         },
@@ -411,6 +504,10 @@
           "proj_mean": 169.3,
           "adp": 65.5,
           "rank_metric": 6,
+          "display_primary": 6,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 169.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 6
         },
@@ -421,6 +518,10 @@
           "proj_mean": 167.8,
           "adp": 77.2,
           "rank_metric": 5.9,
+          "display_primary": 5.9,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 167.8,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.9
         },
@@ -431,6 +532,10 @@
           "proj_mean": 166.3,
           "adp": 70,
           "rank_metric": 5.8,
+          "display_primary": 5.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 166.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.8
         }
@@ -446,10 +551,12 @@
       "slot": "BENCH",
       "is_starter_seat": false,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "2216",
         "name": "Mike Evans",
-        "position": "WR"
+        "position": "WR",
+        "why": "draft_plan chose him on the PRESEASON best-undrafted waiver line. This shortlist ranks on the REALIZED wire (764 measured acquisitions), which is the line that makes the roster-spot rule computable and the one that changes answers. He is not in the list because the two lines genuinely disagree here."
       },
       "plan_value": 24,
       "shortlist": [
@@ -460,6 +567,10 @@
           "proj_mean": 169.3,
           "adp": 65.5,
           "rank_metric": 6,
+          "display_primary": 6,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 169.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 6
         },
@@ -470,6 +581,10 @@
           "proj_mean": 167.8,
           "adp": 77.2,
           "rank_metric": 5.9,
+          "display_primary": 5.9,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 167.8,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.9
         },
@@ -480,6 +595,10 @@
           "proj_mean": 166.3,
           "adp": 70,
           "rank_metric": 5.8,
+          "display_primary": 5.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 166.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.8
         },
@@ -490,6 +609,10 @@
           "proj_mean": 163.4,
           "adp": 74.3,
           "rank_metric": 5.6,
+          "display_primary": 5.6,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 163.4,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.6
         },
@@ -500,6 +623,10 @@
           "proj_mean": 162.2,
           "adp": 75.3,
           "rank_metric": 5.5,
+          "display_primary": 5.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 162.2,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.5
         }
@@ -515,10 +642,12 @@
       "slot": "BENCH",
       "is_starter_seat": false,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "3294",
         "name": "Dak Prescott",
-        "position": "QB"
+        "position": "QB",
+        "why": "draft_plan chose him on the PRESEASON best-undrafted waiver line. This shortlist ranks on the REALIZED wire (764 measured acquisitions), which is the line that makes the roster-spot rule computable and the one that changes answers. He is not in the list because the two lines genuinely disagree here."
       },
       "plan_value": 12.8,
       "shortlist": [
@@ -529,6 +658,10 @@
           "proj_mean": 167.8,
           "adp": 77.2,
           "rank_metric": 5.9,
+          "display_primary": 5.9,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 167.8,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.9
         },
@@ -539,6 +672,10 @@
           "proj_mean": 166.3,
           "adp": 70,
           "rank_metric": 5.8,
+          "display_primary": 5.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 166.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.8
         },
@@ -549,6 +686,10 @@
           "proj_mean": 163.4,
           "adp": 74.3,
           "rank_metric": 5.6,
+          "display_primary": 5.6,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 163.4,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.6
         },
@@ -559,6 +700,10 @@
           "proj_mean": 162.2,
           "adp": 75.3,
           "rank_metric": 5.5,
+          "display_primary": 5.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 162.2,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.5
         },
@@ -569,6 +714,10 @@
           "proj_mean": 157.7,
           "adp": 84.4,
           "rank_metric": 5.2,
+          "display_primary": 5.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 157.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.2
         }
@@ -589,6 +738,7 @@
         "name": "Tony Pollard",
         "position": "RB"
       },
+      "superseded_plan_player": null,
       "plan_value": 9.2,
       "shortlist": [
         {
@@ -598,6 +748,10 @@
           "proj_mean": 167.8,
           "adp": 77.2,
           "rank_metric": 5.9,
+          "display_primary": 5.9,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 167.8,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.9
         },
@@ -608,6 +762,10 @@
           "proj_mean": 163.4,
           "adp": 74.3,
           "rank_metric": 5.6,
+          "display_primary": 5.6,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 163.4,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.6
         },
@@ -618,6 +776,10 @@
           "proj_mean": 162.2,
           "adp": 75.3,
           "rank_metric": 5.5,
+          "display_primary": 5.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 162.2,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.5
         },
@@ -628,6 +790,10 @@
           "proj_mean": 157.7,
           "adp": 84.4,
           "rank_metric": 5.2,
+          "display_primary": 5.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 157.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.2
         },
@@ -638,6 +804,10 @@
           "proj_mean": 156.7,
           "adp": 106.3,
           "rank_metric": 5.1,
+          "display_primary": 5.1,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 156.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.1
         }
@@ -658,6 +828,7 @@
         "name": "George Kittle",
         "position": "TE"
       },
+      "superseded_plan_player": null,
       "plan_value": 8.1,
       "shortlist": [
         {
@@ -667,6 +838,10 @@
           "proj_mean": 156.7,
           "adp": 106.3,
           "rank_metric": 5.1,
+          "display_primary": 5.1,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 156.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.1
         },
@@ -677,6 +852,10 @@
           "proj_mean": 156.9,
           "adp": 95.3,
           "rank_metric": 4.2,
+          "display_primary": 4.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 156.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 4.2
         },
@@ -687,6 +866,10 @@
           "proj_mean": 151.7,
           "adp": 93.4,
           "rank_metric": 3.8,
+          "display_primary": 3.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 151.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.8
         },
@@ -697,6 +880,10 @@
           "proj_mean": 150.7,
           "adp": 112.2,
           "rank_metric": 3.7,
+          "display_primary": 3.7,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 150.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.7
         },
@@ -707,6 +894,10 @@
           "proj_mean": 135.2,
           "adp": 102.9,
           "rank_metric": 3.7,
+          "display_primary": 3.7,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 135.2,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.7
         }
@@ -722,10 +913,12 @@
       "slot": "BENCH",
       "is_starter_seat": false,
       "unpriced": false,
-      "plan_player": {
+      "plan_player": null,
+      "superseded_plan_player": {
         "player_id": "10222",
         "name": "Jayden Reed",
-        "position": "WR"
+        "position": "WR",
+        "why": "draft_plan chose him on the PRESEASON best-undrafted waiver line. This shortlist ranks on the REALIZED wire (764 measured acquisitions), which is the line that makes the roster-spot rule computable and the one that changes answers. He is not in the list because the two lines genuinely disagree here."
       },
       "plan_value": 1.4,
       "shortlist": [
@@ -736,6 +929,10 @@
           "proj_mean": 156.7,
           "adp": 106.3,
           "rank_metric": 5.1,
+          "display_primary": 5.1,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 156.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 5.1
         },
@@ -746,6 +943,10 @@
           "proj_mean": 156.9,
           "adp": 95.3,
           "rank_metric": 4.2,
+          "display_primary": 4.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 156.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 4.2
         },
@@ -756,6 +957,10 @@
           "proj_mean": 150.7,
           "adp": 112.2,
           "rank_metric": 3.7,
+          "display_primary": 3.7,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 150.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.7
         },
@@ -766,6 +971,10 @@
           "proj_mean": 135.2,
           "adp": 102.9,
           "rank_metric": 3.7,
+          "display_primary": 3.7,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 135.2,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.7
         },
@@ -776,6 +985,10 @@
           "proj_mean": 131.4,
           "adp": 114.1,
           "rank_metric": 3.5,
+          "display_primary": 3.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 131.4,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.5
         }
@@ -796,6 +1009,7 @@
         "name": "Los Angeles Rams",
         "position": "DEF"
       },
+      "superseded_plan_player": null,
       "plan_value": 114,
       "shortlist": [
         {
@@ -805,6 +1019,10 @@
           "proj_mean": 114,
           "adp": 120.2,
           "rank_metric": 114,
+          "display_primary": 114,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -815,6 +1033,10 @@
           "proj_mean": 112,
           "adp": 119.4,
           "rank_metric": 112,
+          "display_primary": 112,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -825,6 +1047,10 @@
           "proj_mean": 111,
           "adp": 127.9,
           "rank_metric": 111,
+          "display_primary": 111,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -835,6 +1061,10 @@
           "proj_mean": 106,
           "adp": 143.6,
           "rank_metric": 106,
+          "display_primary": 106,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -845,6 +1075,10 @@
           "proj_mean": 104,
           "adp": 129.9,
           "rank_metric": 104,
+          "display_primary": 104,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         }
@@ -865,6 +1099,7 @@
         "name": "Brandon Aubrey",
         "position": "K"
       },
+      "superseded_plan_player": null,
       "plan_value": 107,
       "shortlist": [
         {
@@ -874,6 +1109,10 @@
           "proj_mean": 107,
           "adp": 121.9,
           "rank_metric": 107,
+          "display_primary": 107,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -884,6 +1123,10 @@
           "proj_mean": 104,
           "adp": 173.5,
           "rank_metric": 104,
+          "display_primary": 104,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -894,6 +1137,10 @@
           "proj_mean": 103,
           "adp": 154.8,
           "rank_metric": 103,
+          "display_primary": 103,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -904,6 +1151,10 @@
           "proj_mean": 102,
           "adp": 159.8,
           "rank_metric": 102,
+          "display_primary": 102,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         },
@@ -914,6 +1165,10 @@
           "proj_mean": 100,
           "adp": 238.2,
           "rank_metric": 100,
+          "display_primary": 100,
+          "display_primary_units": "season points",
+          "display_secondary": null,
+          "display_secondary_units": null,
           "rank_basis": "season projection (candidates are position-comparable at a starter seat)",
           "beats_wire_by": null
         }
@@ -934,6 +1189,7 @@
         "name": "Chris Rodriguez",
         "position": "RB"
       },
+      "superseded_plan_player": null,
       "plan_value": 0.5,
       "shortlist": [
         {
@@ -943,6 +1199,10 @@
           "proj_mean": 129.6,
           "adp": 157.2,
           "rank_metric": 3.3,
+          "display_primary": 3.3,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 129.6,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.3
         },
@@ -953,6 +1213,10 @@
           "proj_mean": 142.9,
           "adp": 138.2,
           "rank_metric": 3.2,
+          "display_primary": 3.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 142.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.2
         },
@@ -963,6 +1227,10 @@
           "proj_mean": 136.7,
           "adp": 141.3,
           "rank_metric": 2.8,
+          "display_primary": 2.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 136.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2.8
         },
@@ -973,6 +1241,10 @@
           "proj_mean": 132,
           "adp": 172.6,
           "rank_metric": 2.5,
+          "display_primary": 2.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 132,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2.5
         },
@@ -983,6 +1255,10 @@
           "proj_mean": 109.9,
           "adp": 139.4,
           "rank_metric": 2,
+          "display_primary": 2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 109.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2
         }
@@ -999,6 +1275,7 @@
       "is_starter_seat": false,
       "unpriced": true,
       "plan_player": null,
+      "superseded_plan_player": null,
       "plan_value": null,
       "shortlist": [
         {
@@ -1008,6 +1285,10 @@
           "proj_mean": 142.9,
           "adp": 138.2,
           "rank_metric": 3.2,
+          "display_primary": 3.2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 142.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 3.2
         },
@@ -1018,6 +1299,10 @@
           "proj_mean": 136.7,
           "adp": 141.3,
           "rank_metric": 2.8,
+          "display_primary": 2.8,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 136.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2.8
         },
@@ -1028,6 +1313,10 @@
           "proj_mean": 132,
           "adp": 172.6,
           "rank_metric": 2.5,
+          "display_primary": 2.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 132,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2.5
         },
@@ -1038,6 +1327,10 @@
           "proj_mean": 109.9,
           "adp": 139.4,
           "rank_metric": 2,
+          "display_primary": 2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 109.9,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2
         },
@@ -1048,6 +1341,10 @@
           "proj_mean": 124.7,
           "adp": 170,
           "rank_metric": 2,
+          "display_primary": 2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 124.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2
         }
@@ -1064,6 +1361,7 @@
       "is_starter_seat": false,
       "unpriced": true,
       "plan_player": null,
+      "superseded_plan_player": null,
       "plan_value": null,
       "shortlist": [
         {
@@ -1073,6 +1371,10 @@
           "proj_mean": 132,
           "adp": 172.6,
           "rank_metric": 2.5,
+          "display_primary": 2.5,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 132,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2.5
         },
@@ -1083,6 +1385,10 @@
           "proj_mean": 124.7,
           "adp": 170,
           "rank_metric": 2,
+          "display_primary": 2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 124.7,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2
         },
@@ -1093,6 +1399,10 @@
           "proj_mean": 124.1,
           "adp": 149.1,
           "rank_metric": 2,
+          "display_primary": 2,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 124.1,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 2
         },
@@ -1103,6 +1413,10 @@
           "proj_mean": 119.4,
           "adp": 175.1,
           "rank_metric": 1.7,
+          "display_primary": 1.7,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 119.4,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 1.7
         },
@@ -1113,6 +1427,10 @@
           "proj_mean": 98.3,
           "adp": 157.9,
           "rank_metric": 1.3,
+          "display_primary": 1.3,
+          "display_primary_units": "pts/week over the free player at his position",
+          "display_secondary": 98.3,
+          "display_secondary_units": "season points",
           "rank_basis": "pts/week over the free player at his position",
           "beats_wire_by": 1.3
         }

@@ -85,6 +85,16 @@ plan.forEach(x => {
     /* The number the seat is actually ranked on, so the UI can show WHY this
      * order and never has to re-derive it. */
     rank_metric: Math.round(rank(p) * 10) / 10,
+    /* THE NUMBER THE ROW SHOULD LEAD WITH, so the gap beneath it is derivable
+     * from what is on screen. B: a bench row printed 212.1 and 202.6 (SEASON
+     * points) above a gap of 0.6 (PTS/WEEK) — every figure correct, and a
+     * reader cannot get from the two numbers to the third. Leading with the
+     * quantity the seat was ranked on makes the gap subtractable by eye. */
+    display_primary: x.bench ? Math.round(rank(p) * 10) / 10 : Math.round(num(p.proj_mean) * 10) / 10,
+    display_primary_units: x.bench ? 'pts/week over the free player at his position'
+      : 'season points',
+    display_secondary: x.bench ? Math.round(num(p.proj_mean) * 10) / 10 : null,
+    display_secondary_units: x.bench ? 'season points' : null,
     rank_basis: x.bench ? 'pts/week over the free player at his position'
       : 'season projection (candidates are position-comparable at a starter seat)',
     beats_wire_by: (WIRE[p.position] != null)
@@ -107,13 +117,50 @@ plan.forEach(x => {
   const thresh = x.bench ? TOSSUP_SEASON_PTS / WEEKS : TOSSUP_SEASON_PTS;
   const tossup = gap != null && gap <= thresh;
 
+  /* ── TWO WAIVER LEVELS IN ONE ROW: the defect B blocked on ────────────
+   *
+   * B found `plan_player` absent from its own shortlist at three bench seats and
+   * was right to stop. The cause is not a display slip — it is two incompatible
+   * valuations of the same seat presented as one view:
+   *
+   *   draft_plan ranks bench by option value against the PRESEASON
+   *   BEST-UNDRAFTED line. This shortlist ranks by the REALIZED WIRE — what 764
+   *   actual waiver adds delivered in the week they were added.
+   *
+   * `wire_vs_bench.js` already established those are different quantities that
+   * do not bracket: at QB and WR the "lower bound" EXCEEDS the "upper bound",
+   * because best-undrafted is a preseason projection of a STATIC leftover pool
+   * while a realized acquisition comes from a pool that refreshes all season. I
+   * measured that, wrote it down, and then shipped both numbers into one row.
+   *
+   * THE REALIZED WIRE WINS, and not by preference. It is the line that made
+   * Cory's roster-spot rule computable, and it is the one that changes answers:
+   * against best-undrafted only Chris Rodriguez failed the rule; against the
+   * realized wire, Evans is 99% and Reed is 122% of a free player. Those three
+   * seats are exactly where the two lines disagree, which is why they are the
+   * three B caught.
+   *
+   * So on a bench row the plan's NAME is demoted to a labelled footnote rather
+   * than presented as the recommendation, and the shortlist stands. A row that
+   * shows a name its own list does not contain is not a disagreement a reader
+   * can resolve — it is the screen contradicting itself. */
+  const planInList = x.p && short.some(q => q.player_id === String(x.p.player_id));
   seats.push({
     pick: x.pick,
     slot: x.bench ? 'BENCH' : x.slot,
     is_starter_seat: !x.bench,
     unpriced: !!x.unpriced,
-    plan_player: x.p ? { player_id: String(x.p.player_id), name: x.p.name,
-      position: x.p.position } : null,
+    plan_player: (x.p && (!x.bench || planInList))
+      ? { player_id: String(x.p.player_id), name: x.p.name, position: x.p.position } : null,
+    /* Kept, never dropped: "the plan named nobody" and "the plan named someone
+     * on a line since superseded" are different facts. */
+    superseded_plan_player: (x.p && x.bench && !planInList)
+      ? { player_id: String(x.p.player_id), name: x.p.name, position: x.p.position,
+          why: 'draft_plan chose him on the PRESEASON best-undrafted waiver line. '
+            + 'This shortlist ranks on the REALIZED wire (764 measured acquisitions), '
+            + 'which is the line that makes the roster-spot rule computable and the '
+            + 'one that changes answers. He is not in the list because the two lines '
+            + 'genuinely disagree here.' } : null,
     plan_value: x.unpriced ? null : Math.round(x.v * 10) / 10,
     shortlist: short,
     gap_to_second: gap,
