@@ -186,13 +186,14 @@ console.log('   model\'s 19.8-point preference for QB2/TE2 does not survive the 
 /* ── THE FREE PICKS, AND WHAT TO SPEND THEM ON ─────────────────────────── */
 {
   const unp = plan.filter(x => x.unpriced).length;
-  console.log('\n  ── THE PICKS THE MODEL CANNOT PRICE ────────────────────────────────');
-  console.log('   ' + unp + ' pick(s) price at exactly zero, and 2 more collapse to ~0 once the');
-  console.log('   waiver line is allowed to move (bench_rule.js). Call it 4 of 15 free.');
+  console.log('\n  ── THE FIVE FREE PICKS — 53, 68, 93, 133, 148 ──────────────────────');
+  console.log('   ' + unp + ' price at EXACTLY ZERO (133, 148). Three more — 53, 68, 93 — buy');
+  console.log('   Evans, Prescott and Reed, whom the wire matches or beats. So a THIRD of');
+  console.log('   the draft is free, and rounds 6, 7 and 10 are in it. (free_picks.js)');
   console.log('   The model is PROVABLY INDIFFERENT there, so spend them on what it');
   console.log('   cannot see:');
-  console.log('     · WR — our drafted shape is 3 against a league average of 5.23,');
-  console.log('       the largest deviation on the roster.');
+  console.log('     · WR at 53, 68, 93 — our drafted shape is 3 against a league average');
+  console.log('       of 5.23, the largest deviation on the roster.');
   const myRb = keep.filter(k => k.position === 'RB');
   const hc = myRb.map(s => {
     const m = pool.filter(p => p.team === s.team && p.position === 'RB'
@@ -201,11 +202,11 @@ console.log('   model\'s 19.8-point preference for QB2/TE2 does not survive the 
     return m ? m.name + ' (' + s.name.split(' ').slice(-1)[0] + ', ADP '
       + Math.round(adpOf(m)) + ')' : null;
   }).filter(Boolean);
-  console.log('     · HANDCUFFS — all go undrafted, so they are free at 133/148:');
+  console.log('     · HANDCUFFS at 133/148 — all go undrafted, so they are free:');
   console.log('       ' + hc.join('; '));
-  console.log('       Worth ~19 pts each on inherited workload vs Dak\'s 12.8 — at a');
-  console.log('       fraction of the cost. The inheritance figure is ASSUMED, not');
-  console.log('       measured; the ordering does not depend on it being exact.');
+  console.log('       The argument is STRUCTURAL, not a point total: the RB wire pays');
+  console.log('       5.3/wk, the worst of any position, so an RB hole is the one hole');
+  console.log('       waivers cannot fill. Inheritance value is ASSUMED, not measured.');
 }
 
 /* ── WHAT THIS CARD IS NOT ─────────────────────────────────────────────── */
@@ -222,4 +223,9 @@ console.log('   · Every bench price is overstated: P(need) is multiplied by a F
 console.log('     SEASON advantage, so a one-week bye and a season-ending tear cost');
 console.log('     the same. Direction is right, magnitude is high.');
 console.log('   · The weekly high-score payout is 37.5% of the pot and NONE of the');
-console.log('     above prices it. At a genuine coin flip, lean to the volatile player.');
+console.log('     above prices it. THE RULE IS NARROWER THAN "LEAN VOLATILE": taking');
+console.log('     the more volatile receiver costs 21 pts a pick on average, because');
+console.log('     cv = sd/mean falls as mean rises, so "most volatile" is partly just');
+console.log('     "lowest projected". Lean volatile ONLY where it is nearly free —');
+console.log('     measured, that is pick 93 (-3 pts) and 133 (-6), NOT 68 (-37) or');
+console.log('     148 (-40). A coin flip is worth it; forty points is not.');
