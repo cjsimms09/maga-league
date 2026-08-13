@@ -63,19 +63,36 @@ V.cases.forEach(c => {
 
 // --- behaviours the vectors alone would not pin down ------------------------
 
-// Removing one keeper must shift EVERY downstream pick, not just that team's.
+/* REMOVING ANOTHER TEAM'S KEEPER MUST NOT MOVE MY PICKS — AND THIS BLOCK
+ * ASSERTED THE OPPOSITE UNTIL 2026-08-13.
+ *
+ * Its comment read "Removing one keeper must shift EVERY downstream pick, not
+ * just that team's", and `buildTruePickOrder` renumbered the survivors 1..N to
+ * make that true. Sleeper's own log for this league says otherwise: 150 picks
+ * and round 4 beginning at overall 31 in 2023 (0 keepers), 2024 (23) and 2025
+ * (20) alike. A keeper OCCUPIES his pick; dropping him converts a keeper slot
+ * into a live selection and moves no board number at all. */
 {
   const c = V.cases[0];
   const before = K.buildTruePickOrder(c.cfg, c.keepers);
   const trimmed = JSON.parse(JSON.stringify(c.keepers));
   trimmed['1'] = trimmed['1'].slice(1);          // team 1 keeps one fewer
   const after = K.buildTruePickOrder(c.cfg, trimmed);
-  check('removing one keeper adds a pick to the draft',
+  check('removing one keeper adds a SELECTION to the draft',
     after.picks.length === before.picks.length + 1,
     `${before.picks.length} -> ${after.picks.length}`);
-  check('removing another team\'s keeper still moves MY pick numbers',
-    JSON.stringify(after.my_picks) !== JSON.stringify(before.my_picks),
-    `${before.my_picks} vs ${after.my_picks}`);
+  check('but the BOARD is the same size — a forfeited pick is occupied, not deleted',
+    after.board.length === before.board.length
+    && after.board.length === c.cfg.teams * c.cfg.rounds,
+    `${before.board.length} -> ${after.board.length}`);
+  check('one fewer slot is flagged as keeper-occupied',
+    after.board.filter(p => p.keeper_slot).length
+    === before.board.filter(p => p.keeper_slot).length - 1);
+  check('and removing ANOTHER team\'s keeper leaves MY pick numbers alone',
+    JSON.stringify(after.my_picks) === JSON.stringify(before.my_picks),
+    `${before.my_picks.slice(0, 5)} vs ${after.my_picks.slice(0, 5)}`);
+  check('CONTROL — team 1 is not me, so the change really did land elsewhere',
+    Number(c.cfg.my_draft_slot) !== 1, c.cfg.my_draft_slot);
 }
 
 // The roll-forward rule for two keepers costing the same round is easy to lose

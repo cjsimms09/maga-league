@@ -268,6 +268,21 @@ BOARD_FIELD_SOURCES = {
     # FFC / FantasyPros, fetched with the year in the URL.
     "adp": "seasonal", "raw_adp": "seasonal", "adjusted_adp": "seasonal",
     "adp_source": "seasonal", "adp_sd": "seasonal", "consensus_rank": "seasonal",
+    # ⚠️ ADDED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
+    # THE A/C BOUNDARY. These three are A's per-player ADP season stamps
+    # (`build.adp_season_stamps`), C's own gate implemented in A's lane. They
+    # landed on A's branch, so this table — written against main — did not know
+    # them, and the DEFAULT-IS-VIOLATION design correctly refused them the moment
+    # the branches met. The design worked; it just had nobody to answer it.
+    #
+    # "derived", not "seasonal", and the distinction is the point of this axis:
+    # `adp` IS the seasonal value, while `adp_season` is a STAMP SAYING WHICH
+    # SEASON THAT VALUE IS FOR. It is computed at build time from the source's
+    # own URL/response, so it is neither fetched nor carried over from a prior
+    # year. Marking it "seasonal" would claim the stamp itself goes stale, which
+    # is the confusion the stamp exists to remove.
+    "raw_adp_season": "derived", "adp_season": "derived",
+    "consensus_rank_season": "derived",
     "bye": "seasonal", "bye_source": "seasonal",
     "proj_sleeper": "seasonal", "proj_fantasypros": "seasonal",
 
@@ -382,6 +397,12 @@ BOARD_FIELD_PURPOSE = {
     "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
     "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
     "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
+    # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
+    # LIVE_FEED: nothing fetches them, the build computes them from the source it
+    # already has. They are provenance about a number, never an input to one, so
+    # no ranking may read them and none does.
+    "raw_adp_season": DERIVED_PURPOSE, "adp_season": DERIVED_PURPOSE,
+    "consensus_rank_season": DERIVED_PURPOSE,
     "proj_fantasypros": LIVE_FEED, "proj_sleeper": LIVE_FEED,
     # ESTIMATED FROM PRIOR SEASONS. Allowed — this is how anything gets priced —
     # and named, because the failure is a prior read as a current measurement.

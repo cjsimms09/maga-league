@@ -33,7 +33,10 @@ function threw(fn) { try { fn(); return false; } catch (e) { return true; } }
     product < 0.03 && expWins > 4);
   check('  (a 60%-a-week team products to 2.8% and expects 4.2 wins — implementing',
     Math.abs(product - 0.0280) < 0.001);
-  check('   the spec verbatim would flag a healthy pair as a screaming divergence)', true);
+  // Prose, printed but NOT counted — it closes the sentence above and asserts
+  // nothing. It was `check(..., true)`, which inflated the pass total with a
+  // claim no code could contradict.
+  console.log('        the spec verbatim would flag a healthy pair as a screaming divergence)');
 }
 
 // ── CHECK 1: THE HARD IDENTITY ──────────────────────────────────────────────

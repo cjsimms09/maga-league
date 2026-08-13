@@ -2141,28 +2141,46 @@ def test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names():
 # anywhere, it is wrong". A also wrote "C: nothing of yours is implicated that I
 # can see". I checked instead of accepting, and it was.
 #
-# `draft_last_pick` computed `teams * rounds = 10 * 15 = 150`. THE DRAFT HAS 147
-# PICKS. This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
-# forfeited picks are REMOVED from the sequence, so `pick_order.picks` ends at
-# overall 147, round 15, slot 10. Cory's three keepers are three picks that do
-# not exist.
+# `draft_last_pick` computed `teams * rounds = 10 * 15 = 150`, and READING the
+# list instead of computing it is right and stays. What was wrong was the number
+# C was told to expect.
 #
-# Same class of error as A's, one field over: a computation that produces a
-# PLAUSIBLE number — right shape, right magnitude, off by exactly the keepers —
-# while the authoritative list sits in the artifact. A constant that looks like
-# data is worse than a missing one; a missing one fails on the first run.
+# ⚠️ EDITED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF THE
+# A/C BOUNDARY. C acted in good faith on a premise A supplied and A was wrong.
+#
+# A CLAIMED forfeited picks are REMOVED from the sequence. THEY ARE NOT. Sleeper
+# OCCUPIES a keeper's pick with `is_keeper: true` and nothing after it shifts up
+# — verified against this league's own draft log across 450 real picks: 150
+# picks and round 4 beginning at overall 31 in 2023 (0 keepers), 2024 (23) and
+# 2025 (20) ALIKE. See `draft/tests/draft_shape.test.js`.
+#
+# So `pick_order.picks` is now the BOARD — 150 rows, keeper slots FLAGGED — and
+# `pick_order.live_picks` is 147, how many SELECTIONS happen. 147 was never the
+# draft's length; it was the live count wearing the wrong name. The reading
+# discipline C built here was right; only the expected value moves.
+#
+# The class C named still stands and is worth keeping in the record: a
+# computation producing a PLAUSIBLE number — right shape, right magnitude, off
+# by exactly the keepers — while an authoritative list sits in the artifact.
+# That was true of `teams * rounds` and it was equally true of A's 147.
 
 def test_the_LAST_PICK_is_READ_from_pick_order_not_computed():
-    """MUTATION: keep `teams * rounds` — the boundary is 150 in a 147-pick draft
-    and `dropped_inside` judges three picks that were never dealt."""
+    """The READING discipline, which is the part that was always right.
+
+    MUTATION: compute `teams * rounds` instead. It happens to agree on this
+    league TODAY — the board is 150 and so is the product — so the fixture below
+    is deliberately 149 rows, a length no product of the settings can produce.
+    A test whose fixture agrees with the wrong method proves nothing.
+    """
     d = C.draft_last_pick({
         "settings": {"num_teams": 10},
         "draft": {"settings": {"teams": 10, "rounds": 15}},
         "owner_to_roster": {str(i): i for i in range(10)},
         "roster_positions": ["BN"] * 15,
         "pick_order": {"picks": [{"overall": n, "round": 1, "slot": 1}
-                                 for n in range(1, 148)]}})
-    assert d["last_pick"] == 147, d
+                                 for n in range(1, 150)]}})
+    assert d["last_pick"] == 149, d
+    assert d["last_pick"] != 10 * 15, "the fixture must not agree with the product"
     assert d["basis"] == "pick_order.picks"
     assert "forfeit" in d["note"].lower() or "read" in d["note"].lower()
 
@@ -2183,15 +2201,27 @@ def test_a_COMPUTED_boundary_is_LABELLED_as_derived_when_the_list_is_absent():
     assert "keeper" in d["note"].lower() or "forfeit" in d["note"].lower()
 
 
-def test_the_REAL_config_yields_the_REAL_147():
+def test_the_REAL_config_yields_the_REAL_BOARD_DEPTH():
     """Against the shipped artifact, because that is the number every cut of mine
     uses. MUTATION: read `my_picks_before_keepers` — the 15-entry list that looks
-    like the answer and is what Cory would hold if he kept nobody."""
+    like the answer and is what Cory would hold if he kept nobody.
+
+    THE EXPECTED VALUE MOVED 147 -> 150 (A, with Cory's authorisation). A keeper
+    OCCUPIES his pick; the draft is 150 deep whatever the keeper count. `147` is
+    `pick_order.live_picks`, a different quantity, and both are asserted here so
+    the two can never be confused again in this file."""
     import json as _json
     from pathlib import Path
     root = Path(__file__).resolve().parent.parent
     ls = _json.loads((root / "data" / "sleeper_league_settings.json").read_text())
     board = _json.loads((root.parent / "public" / "draft_data.json").read_text())
-    d = C.draft_last_pick(dict(ls, pick_order=board.get("pick_order")))
-    assert d["last_pick"] == 147, (
-        "the shipped draft has 147 picks; %s says %s" % (d["basis"], d["last_pick"]))
+    po = board.get("pick_order") or {}
+    d = C.draft_last_pick(dict(ls, pick_order=po))
+    teams = int(board["league"]["teams"]); rounds = int(board["league"]["rounds"])
+    assert d["last_pick"] == teams * rounds == 150, (
+        "the board is %d x %d deep; %s says %s"
+        % (teams, rounds, d["basis"], d["last_pick"]))
+    # AND THE OTHER QUANTITY, NAMED, so a future reader cannot mistake one for
+    # the other. 147 is how many SELECTIONS happen, not how deep the draft is.
+    assert po["live_picks"] == 147
+    assert po["live_picks"] == d["last_pick"] - len(po["forfeited"])

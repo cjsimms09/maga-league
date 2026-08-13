@@ -213,8 +213,27 @@ def test_the_artifact_CARRIES_ITS_OWN_THINNESS():
     from pathlib import Path
     d = _json.loads((Path(__file__).resolve().parent.parent / "backtest"
                      / "waiver_replacement.json").read_text())
-    assert d["by_position"]["QB"]["cells"] == 1 and d["by_position"]["QB"]["n"] == 5
-    assert d["by_position"]["TE"]["cells"] == 1 and d["by_position"]["TE"]["n"] == 6
+    # ⚠️ EDITED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
+    # THE A/C BOUNDARY. The exact `n` was pinned and the exact `n` IS BOARD-
+    # DEPENDENT: a CI rebuild took the board from 1,759 players to 1,841, a
+    # seventh tight-end acquisition became scorable, and TE went 6 -> 7 with its
+    # median 6.35 -> 6.30. Nothing about the shelf changed; the crosswalk got
+    # deeper.
+    #
+    # THE CLAIM THIS TEST MAKES IS "ONE CELL", NOT "SIX ROWS", so it now asserts
+    # the property and prints the count rather than pinning it. A pinned n turns
+    # every board refresh into a red test that says nothing about the thing being
+    # guarded — and a test that goes red for a reason nobody cares about is a
+    # test somebody switches off.
+    #
+    # C's regenerate-and-compare test is what CAUGHT the drift, working exactly
+    # as designed, and it is untouched.
+    assert d["by_position"]["QB"]["cells"] == 1, d["by_position"]["QB"]
+    assert d["by_position"]["TE"]["cells"] == 1, d["by_position"]["TE"]
+    # Still THIN in the sense that matters — a single position-week each, well
+    # under the sample the two supported positions rest on.
+    assert d["by_position"]["QB"]["n"] < d["by_position"]["RB"]["n"] / 4
+    assert d["by_position"]["TE"]["n"] < d["by_position"]["WR"]["n"] / 4
     assert d["by_position"]["RB"]["cells"] > 1
     assert "thin" in _json.dumps(d["by_position"]["QB"]).lower()
 

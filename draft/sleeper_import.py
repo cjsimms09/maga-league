@@ -256,6 +256,20 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
     league = fetch_league(league_id)
     users = fetch_users(league_id)
     rosters = fetch_rosters(league_id)
+    # THE DRAFT OBJECT, FETCHED — it was not, and two things live only on it:
+    # `settings.reversal_round` and `slot_to_roster_id`. Both are load-bearing
+    # for every pick number and neither was ever read. Newest draft for the
+    # current season; a league has one per season.
+    try:
+        _drafts = fetch_drafts(league_id) or []
+    except Exception:                      # noqa: BLE001 - import must not die here
+        _drafts = []
+    draft = None
+    for d in sorted(_drafts, key=lambda x: x.get("created") or 0, reverse=True):
+        if str(d.get("season") or "") == str(league.get("season") or ""):
+            draft = d
+            break
+    draft = draft or (_drafts[0] if _drafts else None)
 
     by_user = {u["user_id"]: u for u in users}
     teams = []
@@ -275,7 +289,25 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
         "snake": "snake", "linear": "linear", "auction": "linear",
         "third_round_reversal": "third_round_reversal",
     }.get(str(draft_type_raw).lower(), "snake")
-    if settings.get("reversal_round"):
+    # ⚠️ `reversal_round` LIVES ON THE DRAFT OBJECT, NOT THE LEAGUE.
+    #
+    # This read `settings` — the LEAGUE settings — for four seasons and could
+    # therefore NEVER fire. Sleeper reports `draft.type == "snake"` whether or
+    # not a third-round reversal is on; the ONLY place the reversal appears is
+    # `draft.settings.reversal_round`. This league's own 2023 draft had it set to
+    # 3, and the evidence is in the picks: rounds 2 and 3 ran in the IDENTICAL
+    # order. Our model would have called that a plain snake and been wrong about
+    # every pick from round 3 on, with `draft_type` agreeing with Sleeper the
+    # whole time.
+    #
+    # It is 0 for 2026, so nothing is wrong on the live board today. It is a
+    # commissioner toggle and the draft is on the 22nd.
+    #
+    # A MAPPING THAT READS THE WRONG OBJECT IS WORSE THAN A MISSING ONE: it is
+    # commented, it is tested for reachability, and it is dead. The lookup now
+    # names both places and prefers the draft.
+    draft_settings = (draft or {}).get("settings") or {}
+    if draft_settings.get("reversal_round") or settings.get("reversal_round"):
         draft_type = "third_round_reversal"
 
     cfg = {
@@ -284,6 +316,25 @@ def import_league(league_id: str, *, keeper_rules: dict | None = None) -> dict:
         "season": league.get("season"),
         "teams": int(league.get("total_rosters") or len(rosters) or 10),
         "draft_type": draft_type,
+        # THE RAW FIELD, CARRIED BESIDE THE RESOLVED ONE. `draft_type` is a
+        # derived label and Sleeper says "snake" either way, so storing only the
+        # label loses the ability to check the derivation later. 2023 read
+        # `type: "snake"` with `reversal_round: 3`.
+        "reversal_round": draft_settings.get("reversal_round") or 0,
+        # ⚠️ MY DRAFT SLOT, FROM SLEEPER, WHERE IT ACTUALLY LIVES.
+        #
+        # `my_draft_slot` has been a HAND-ENTERED CONSTANT in
+        # draft/config/league_config.json this whole time, and it is the single
+        # number every pick, seat and simulation is built on. Cory, 2026-08-13:
+        # "I am slot 8 on the board (all slot info is in sleeper)". It is —
+        # `draft.slot_to_roster_id` — and nothing read it.
+        #
+        # It is NOT written into `my_draft_slot` here, deliberately: build.py
+        # already preserves an operator-set slot across imports, and silently
+        # overwriting the number the whole draft depends on is not a change to
+        # make in an import. It is carried as EVIDENCE so a guard can compare
+        # them and say which one Sleeper agrees with.
+        "slot_to_roster_id": dict((draft or {}).get("slot_to_roster_id") or {}),
         "roster_slots": roster_slots_from(league),
         "scoring": dict(league.get("scoring_settings") or {}),
         "playoff_week_start": settings.get("playoff_week_start", 15),

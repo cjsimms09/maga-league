@@ -48,7 +48,10 @@ const P = (over) => Object.assign(
   const q = F.weekly(P({ injury_status: 'Questionable' }), { week: 3 });
   ck('  but QUESTIONABLE is NOT zeroed — a game-time decision still has an expectation',
     q.proj > 0, q);
-  ck('  (zeroing him would make the feed set the lineup)', true);
+  /* WAS `ck(..., true)`. Testable: QUESTIONABLE must not merely be non-zero, it
+   * must be UNPENALISED — otherwise the feed is still quietly setting lineups. */
+  ck('  and he is not quietly discounted either — same as a healthy player',
+    q.proj === F.weekly(P({}), { week: 3 }).proj, { q: q.proj });
 }
 
 // ── ABSENT IS NOT ZERO ─────────────────────────────────────────────────────
@@ -56,7 +59,8 @@ const P = (over) => Object.assign(
   const a = F.weekly(P({ proj_mean: null }), { week: 3 });
   ck('a player the board has no projection for reads null, never 0',
     a.proj === null && a.basis === 'absent', a);
-  ck('  (0 would seat everyone else ahead of him for a reason never stated)', true);
+  // Prose, printed but NOT counted (was `ck(..., true)`).
+  console.log('        (0 would seat everyone else ahead of him for a reason never stated)');
 }
 
 // ── COVERAGE IS FIRST-CLASS ────────────────────────────────────────────────
@@ -68,7 +72,8 @@ const P = (over) => Object.assign(
   ck('  and reports its own coverage rather than logging it',
     feed.coverage.priced === 1 && feed.coverage.zeroed === 1
     && feed.coverage.absent === 1, feed.coverage);
-  ck('  (a feed that prices 40 of 1760 is well-formed and useless)', true);
+  // Prose, printed but NOT counted (was `ck(..., true)`).
+  console.log('        (a feed that prices 40 of 1760 is well-formed and useless)');
 }
 
 // ── THE JOIN REPORTS ITS MISSES ────────────────────────────────────────────

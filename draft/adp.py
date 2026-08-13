@@ -123,6 +123,20 @@ NICKNAMES = {
     "josh palmer": "joshua palmer",
     "cam akers": "cameron akers",
     "scotty miller": "scott miller",
+    # FIRST-NAME DIMINUTIVES, routed by C 2026-08-13 with the decode measurement.
+    # MFL carries the formal first name and the board carries the short one, so
+    # these three never joined: Gainwell is INSIDE pick 150 (adp 135 on MFL, 108
+    # on the board), the other two are deep. Nothing on the draft board was wrong
+    # — FantasyPros prices Gainwell either way — what failed was the MFL/D3 join,
+    # which is the market comparison and the 2027 replay.
+    #
+    # Fixed as table entries rather than by letting `_initials_key` win, which
+    # would also have matched all three: the whitelist changes three names and
+    # the key-precedence change changes every name. Nine days from a draft, the
+    # narrow fix is the right one, and the broad one has no measurement behind it.
+    "kenny gainwell": "kenneth gainwell",
+    "andy borregales": "andres borregales",
+    "matt hibner": "matthew hibner",
 }
 
 

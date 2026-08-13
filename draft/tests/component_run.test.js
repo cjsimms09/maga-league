@@ -25,7 +25,10 @@ const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647
   const missing = Object.keys(S.SPECS).filter(n => !R.BUILDERS[n]);
   ck('every declared component has a pair builder',
     missing.length === 0, missing);
-  ck('  (a declared component with no builder is worse than an undeclared one)', true);
+  /* WAS `ck(..., true)`. `missing.length === 0` is TRUE when SPECS IS EMPTY, so
+   * the check above passes hardest exactly when nothing is declared at all. */
+  ck('  and there ARE declared components, so the check above is not vacuous',
+    Object.keys(S.SPECS).length > 0, Object.keys(S.SPECS).length);
 }
 
 // ── EMPTY INPUT REPORTS no_data PER ROW, NEVER SILENCE ─────────────────────
@@ -89,7 +92,8 @@ const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647
   ck('  and if it is detected at all, it is below the materiality bar',
     row.verdict !== 'real_but_immaterial' || Math.abs(row.effect) < 1.0,
     { effect: row.effect });
-  ck('  so the writer is not simply reporting whatever it is handed', true);
+  // Prose, printed but NOT counted (was `ck(..., true)`).
+  console.log('        so the writer is not simply reporting whatever it is handed');
 }
 
 // ── THE DECLARED MINIMUM IS ENFORCED, NOT TRUSTED ──────────────────────────

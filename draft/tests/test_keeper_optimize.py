@@ -70,4 +70,9 @@ def test_top_picks_flat_forfeits_the_top_rounds_in_the_pick_order():
     tpo = K2.build_true_pick_order(cfg, kbt)
     mine = sorted(d["cost_round"] for d in tpo.forfeited if d["team_slot"] == 4)
     assert mine == [1, 2, 3], mine
-    assert tpo.my_picks[0] == 34, ("first pick should be round 4 pick 34, got", tpo.my_picks[0])
+    # ROUND 4 AT MY SLOT, ON SLEEPER'S OWN NUMBERING: round 4 is EVEN so the
+    # snake reverses and slot 4 is the 7th pick of the round — 3*10 + 7 = 37.
+    # This read 34 until 2026-08-13: the value after three forfeited picks were
+    # DELETED and everything renumbered, which is not how Sleeper has run any of
+    # the three keeper drafts already in this league's log.
+    assert tpo.my_picks[0] == 37, ("first pick should be round 4 at my slot = 37, got", tpo.my_picks[0])

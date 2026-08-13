@@ -769,9 +769,118 @@
     };
   }
 
+  /* ── THE SEAT PLAN — the board follows the model, or it is a different tool ──
+   *
+   * Cory: "make sure the draft board I see matches your model." Measured: the
+   * engine's greedy line scores 2091.0 against the global seat assignment's
+   * 2150.5, and constraining the engine to the plan's SEAT recovers all 59.6,
+   * because the engine already ranks the right player at 6 of 6 seats. It is
+   * never asked the right question.
+   *
+   * LOADED SEPARATELY AND FAILING SOFT. The plan is an enhancement to the board,
+   * not a dependency of it: if this fetch dies the war room must still draft.
+   * That is the same rule as the ledger capture — losing the seat line is a
+   * worse board, losing the board is a lost draft.
+   */
+  function loadSeatPlan() {
+    fetch('/seat_plan.json', { cache: 'no-cache' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!d || !Array.isArray(d.seats)) return;
+        state.seatPlan = d;
+        try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
+      })
+      .catch(e => console.warn('[seat-plan] unavailable:', e && e.message));
+  }
+
+  /* EVERY NUMBER IS PRINTED WITH THE CAPTION THE ARTIFACT DECLARES FOR IT.
+   *
+   * `display_contract` names each displayable field's units, direction and the
+   * caveat that must travel with it, precisely so this function cannot invent a
+   * meaning. The three that have actually been got wrong before:
+   *   · beats_wire_by is SIGNED — negative means the wire is BETTER than him;
+   *   · gap_to_second is season points on a starter row and points/week on a
+   *     bench row, so it is never printed without that row's gap_units;
+   *   · measured_edge_vs_greedy is EXPLORATORY and is never shown as a promise.
+   * A caption read from the artifact cannot drift from the number beside it;
+   * one retyped here would.
+   */
+  function renderSeatPlan() {
+    const host = $('#seat-plan');
+    const d = state.seatPlan;
+    if (!host || !d) return;
+    /* ONE LOOKUP, SHARED WITH THE AGAINST-CASE. This function had its own copy
+     * of the seat lookup; the path cards then grew a second one, and two lookups
+     * is two chances to disagree about which seat is live — the panel and the
+     * card would then argue on the same screen, which is a defect this repo has
+     * already shipped once with "value" meaning two things. */
+    const seat = seatForCurrentPick();
+    if (!seat) { host.innerHTML = ''; return; }
+
+    const C = d.display_contract || {};
+    const capt = k => (C[k] || {});
+    const sign = n => (n > 0 ? '+' : '') + n;
+
+    const rows = (seat.shortlist || []).map(function (pl, i) {
+      const bw = pl.beats_wire_by;
+      /* SIGNED, and captioned as such. Rendering |bw| here is the exact
+       * misreading the contract exists to stop. */
+      /* `sp-pos` MEANT TWO THINGS — the position label and a positive wire edge.
+       * B made `.sp-wire.sp-pos` win on specificity so it renders correctly
+       * today and then said the right thing: two meanings on one hook bites
+       * whoever touches it next. Renamed at the source rather than defended in
+       * the stylesheet. */
+      const wire = bw == null ? ''
+        : '<span class="sp-wire ' + (bw < 0 ? 'sp-neg' : 'sp-wire-up') + '">'
+          + sign(bw) + ' /wk vs free ' + pl.position + '</span>';
+      return '<li class="sp-row' + (i === 0 ? ' sp-lead' : '') + '">'
+        + '<span class="sp-pos">' + escapeHtml(pl.position) + '</span> '
+        + '<span class="sp-name">' + escapeHtml(pl.name) + '</span> '
+        /* LEAD WITH THE QUANTITY THE SEAT WAS RANKED ON, so the gap printed
+         * below is derivable from the two numbers above it. B caught a bench row
+         * showing 212.1 and 202.6 (season) above a gap of 0.6 (pts/week) — every
+         * figure correct and the arithmetic invisible. */
+        + '<span class="sp-proj">' + pl.display_primary + ' '
+          + escapeHtml(pl.display_primary_units || '') + '</span> '
+        + (pl.display_secondary != null
+          ? '<span class="sp-proj2">' + pl.display_secondary + ' '
+            + escapeHtml(pl.display_secondary_units || '') + '</span> ' : '')
+        + wire + '</li>';
+    }).join('');
+
+    const gapU = seat.gap_units || '';
+    const gapLine = seat.gap_to_second == null ? ''
+      : '<div class="sp-gap">gap to the next eligible name: <b>' + seat.gap_to_second
+        + '</b> ' + escapeHtml(gapU)
+        + (seat.tossup
+          ? ' — <b>TOSSUP</b>: inside ' + seat.tossup_threshold + ' ' + escapeHtml(gapU)
+            + ', so the SEAT matters more than the NAME'
+          : '') + '</div>';
+
+    /* The plan's superseded name is SHOWN, not silently dropped — "the plan named
+     * nobody" and "the plan named someone on a line since superseded" are
+     * different facts, and hiding the second would make the artifact look
+     * cleaner than the evidence is. */
+    const sup = seat.superseded_plan_player;
+    const supLine = sup ? '<div class="sp-superseded">draft_plan named '
+      + escapeHtml(sup.position + ' ' + sup.name) + ' here — ' + escapeHtml(sup.why) + '</div>' : '';
+    host.innerHTML =
+      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
+        + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
+      + '<ol class="sp-list">' + rows + '</ol>'
+      + gapLine
+      + supLine
+      + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
+      + '<div class="sp-caveat">' + escapeHtml(d.assumption) + '</div>'
+      + '<div class="sp-caveat">edge over the greedy board: ' + d.measured_edge_vs_greedy
+        + ' ' + escapeHtml(capt('measured_edge_vs_greedy').units || '')
+        + ' — ' + escapeHtml(capt('measured_edge_vs_greedy').caveat || '') + '</div>';
+  }
+
   function init() {
     loadWeights();
     loadFrozenBaseline();
+    loadSeatPlan();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1509,6 +1618,10 @@
   }
 
   function renderAll() {
+    /* The seat panel must follow the clock. Loaded once, re-rendered on every
+     * board update — otherwise it is a screenshot of the first pick and it would
+     * be WRONG rather than merely stale, since the seat changes with the pick. */
+    try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
@@ -2951,6 +3064,331 @@
    * from the SAME scored board the ranked list uses (passed in, never re-scored),
    * so a path and the list beneath it can never disagree. Stores state.lastPaths
    * so a pick can be logged with the direction it came from. */
+  /* ── WHAT THE MODEL IS THINKING ABOUT TIMING ──────────────────────────────
+   *
+   * Cory: *"something that says what the model's thinking — don't take QB here
+   * because blank, or snag QB here because blank, or QBs being drafted above
+   * value, wait."*
+   *
+   * The model HAS a view on this and has been keeping it to itself. The view is:
+   *
+   *     D_p  = best available at p now  -  E[best available at p at my next pick]
+   *
+   * what waiting costs at a position. And the correction that matters, because
+   * it is the whole 59.6 and the reason the engine wants Josh Allen at pick 8:
+   *
+   *     D*_p = D_p if he fills an EMPTY starting slot or the flex, else 0
+   *
+   * A second quarterback in a one-QB league has a large D and no seat: a real
+   * drop you never collect.
+   *
+   * COMPUTED WITH THE ENGINE'S OWN expectedBestAvailable, not a local estimate.
+   * A second opinion about survival would let this panel and the engine's VONA
+   * disagree on the same screen about the same quantity — the "value" defect
+   * this repo already shipped once, where two cards used one word for a market
+   * price and a model estimate.
+   *
+   * THE MARKET LEG is separate and is Cory's third case. A position can have a
+   * real drop AND be a bad buy, if the room is paying above our board for it.
+   * ADP rank against our own rank at the position is that signal.
+   */
+  /* ROUND NOTATION. "pick 8" is ambiguous at a table — it reads as round 8 and
+   * it means OVERALL pick 8, which in a ten-team league is R1.8. Cory read it
+   * the other way and was right to object on the merits: a quarterback of
+   * Allen's calibre in round 8 would be absurd. The claim was R1.8, where his
+   * ADP of 19 means he is still on the board and taking him is an 11-pick
+   * reach. Same number, opposite conclusion, and the only fix is to stop
+   * printing a bare pick number. */
+  function roundLabel(overall) {
+    if (!overall) return '';
+    /* READ, NEVER COMPUTED. `ceil(overall / teams)` is wrong in this league:
+     * three picks are FORFEITED for keepers and REMOVED from the sequence, so
+     * the overall numbering is compressed and round 4 begins at overall 28
+     * rather than 31. Computed, pick 30 renders "R3.10"; the artifact says
+     * round 4, slot 8. I added the computed version yesterday to KILL a
+     * round-numbering ambiguity and introduced a second one — a label that is
+     * confidently wrong is worse than the bare number it replaced. */
+    const rows = (((state.data || {}).pick_order || {}).picks) || [];
+    const row = rows.find(function (r) { return r.overall === overall; });
+    if (row && row.round != null && row.slot != null) return 'R' + row.round + '.' + row.slot;
+    return 'pick ' + overall;      // honest fallback: no invented round
+  }
+
+  function positionTiming(ctx, scored) {
+    /* K AND DEF ARE IN THE COMPARISON NOW, because leaving them out is what
+     * makes a tool silently forget them until it is too late. They are governed
+     * by a different rule and the panel says which rule is in force. */
+    const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+    const board = (ctx && ctx.board) || [];
+    const nextPick = ctx && ctx.nextPick;
+    const roster = (ctx && ctx.roster) || [];
+    const starters = ((state.data || {}).league || {}).starters || {};
+    const held = {};
+    roster.forEach(p => { held[p.position] = (held[p.position] || 0) + 1; });
+    const FLEX = (starters.FLEX || 0) + (starters['W/R/T'] || 0) + (starters.WRT || 0);
+    const flexSurplus = ['RB', 'WR', 'TE'].reduce((n, q) =>
+      n + Math.max(0, (held[q] || 0) - (starters[q] || 0)), 0);
+
+    const out = [];
+    POS.forEach(pos => {
+      const at = board.filter(p => p.position === pos && (p.proj_mean || 0) > 0)
+        .sort((a, b) => b.proj_mean - a.proj_mean);
+      if (!at.length) return;
+      const bestNow = at[0].proj_mean;
+      const eba = (nextPick == null) ? bestNow
+        : E.expectedBestAvailable(at.slice(1), nextPick, ctx);
+      const D = Math.max(0, bestNow - eba);
+      const dedicatedOpen = (held[pos] || 0) < (starters[pos] || 0);
+      const flexOpen = FLEX > 0 && ['RB', 'WR', 'TE'].indexOf(pos) >= 0 && flexSurplus < FLEX;
+      const seat = dedicatedOpen ? pos : (flexOpen ? 'FLEX' : null);
+      const Dstar = seat ? D : 0;
+
+      /* MARKET: is the room paying above our board here? Compare the top
+       * available player's ADP against where OUR ranking puts him. A negative
+       * premium means the market takes him earlier than we would. */
+      const adp = at[0].adjusted_adp != null ? +at[0].adjusted_adp
+        : (at[0].raw_adp != null ? +at[0].raw_adp : null);
+      const myRankAll = (scored || []).findIndex(x => x.player
+        && String(x.player.player_id) === String(at[0].player_id));
+      const cur = (ctx && ctx.currentPick) || null;
+      const premium = (adp != null && cur != null) ? Math.round(cur - adp) : null;
+
+      out.push({ position: pos, best: at[0], D: Math.round(D), Dstar: Math.round(Dstar),
+        seat: seat, adp: adp, premium: premium,
+        my_rank: myRankAll >= 0 ? myRankAll + 1 : null });
+    });
+
+    /* ── THE ROSTER GUARANTEE OVERRIDES EVERYTHING ────────────────────────
+     *
+     * Cory: "in the last 2 picks the roster guarantee should override
+     * everything, because we HAVE to have a K and DEF — at that point just take
+     * the best available."
+     *
+     * Stated as a rule rather than a countdown: if the number of picks I have
+     * LEFT equals the number of mandatory slots I have not FILLED, every
+     * remaining pick is spoken for and there is nothing to optimise. Written as
+     * "the last two rounds" it would silently break the moment the room forces a
+     * different shape on me — which is exactly the dynamism Cory asked for.
+     *
+     * MEASURED, THIS COSTS ALMOST NOTHING TO DEFER. Best kicker to replacement
+     * is 10 points across a SEASON (0.67/wk) and ranks 8-12 are identical at 97;
+     * best defence to replacement is 18 (1.2/wk). Against ~79 for one running
+     * back's projection sd and 42 for the whole-draft tiebreak frontier, the
+     * entire kicker decision is inside the noise. So the exception Cory allowed
+     * — take one early if it is truly worth it — has a bar, and on this board
+     * nothing clears it. */
+    const MANDATORY = ['K', 'DEF'];
+    const picksLeft = (ctx && ctx.myPicksLeft != null) ? ctx.myPicksLeft : null;
+    const unfilled = MANDATORY.filter(m => (held[m] || 0) < (starters[m] || 0));
+    const forced = picksLeft != null && unfilled.length > 0 && picksLeft <= unfilled.length;
+
+    /* THE VERDICT. Ranked on D*, because the drop you cannot collect is not a
+     * reason to spend a pick. A field of zeros is NOT a recommendation — that is
+     * the tie that sank the third slot-aware attempt, where 1331 players shared
+     * VONA 0 and quarterbacks won on array order. */
+    const live = out.filter(r => r.Dstar > 0 && (!forced || MANDATORY.indexOf(r.position) >= 0))
+      .sort((a, b) => b.Dstar - a.Dstar);
+    /* The frontier is the bar the exception has to clear: 42 points is what the
+     * WHOLE draft's tie-breaking is worth, so a single onesie pick claiming more
+     * than a fraction of it needs to be extraordinary. Quoted from the measured
+     * quantity rather than picked, so the reason is auditable. */
+    const ONESIE_BAR = 20;
+    out.forEach(r => {
+      const isOnesie = MANDATORY.indexOf(r.position) >= 0;
+      if (forced && isOnesie && unfilled.indexOf(r.position) >= 0) {
+        r.verdict = 'FORCED';
+        r.why = 'you have ' + picksLeft + ' pick(s) left and ' + unfilled.length
+          + ' mandatory slot(s) unfilled (' + unfilled.join(', ') + ') — every remaining '
+          + 'pick is spoken for. Take the best available ' + r.position + '; there is '
+          + 'nothing left to optimise.';
+        return;
+      }
+      if (forced && !isOnesie) {
+        r.verdict = 'LOCKED OUT';
+        r.why = 'the roster guarantee has claimed your last ' + picksLeft
+          + ' pick(s) for ' + unfilled.join(' and ') + ' — a ' + r.position
+          + ' here leaves you unable to field a legal lineup';
+        return;
+      }
+      if (isOnesie && !forced) {
+        /* The early-onesie exception, with its bar shown so the reasoning can be
+         * checked rather than trusted. */
+        r.verdict = r.Dstar >= ONESIE_BAR ? 'WORTH IT EARLY' : 'WAIT';
+        r.why = r.Dstar >= ONESIE_BAR
+          ? 'unusually large for a ' + r.position + ': ' + r.Dstar + ' pts, over the '
+            + ONESIE_BAR + '-pt bar — this is the rare one worth taking before the end'
+          : 'only ' + r.Dstar + ' pts, under the ' + ONESIE_BAR + '-pt bar. Best-to-'
+            + 'replacement across the whole position is 10 pts at K and 18 at DEF, '
+            + 'both inside the noise on a single skill player (~79). Take one at the end.';
+        return;
+      }
+      if (!r.seat) {
+        r.verdict = 'NO SEAT';
+        r.why = 'every ' + r.position + ' slot you start is already filled, so his '
+          + r.D + '-pt drop is one you never collect';
+      } else if (live.length && live[0].position === r.position) {
+        r.verdict = 'TAKE NOW';
+        r.why = 'biggest drop you can actually collect — waiting costs ' + r.Dstar
+          + ' pts at ' + r.position + (live[1] ? ', against ' + live[1].Dstar
+            + ' at ' + live[1].position : '');
+      } else if (r.Dstar <= 3) {
+        r.verdict = 'WAIT';
+        r.why = 'the drop to your next pick is only ' + r.Dstar
+          + ' pts — this seat is fillable later at almost no cost';
+      } else {
+        r.verdict = 'BEHIND';
+        r.why = r.Dstar + ' pts of drop, but ' + (live[0] ? live[0].position + ' is losing '
+          + live[0].Dstar : 'another position is losing more') + ' and fills a seat too';
+      }
+      /* The market leg only ever ADDS a caution. It never overrides the drop,
+       * because "expensive" and "scarce" are different facts and a position can
+       * be both — collapsing them would hide the one that matters. */
+      if (r.premium != null && r.premium < -8 && r.verdict !== 'NO SEAT') {
+        r.market = 'the room is taking ' + r.position + 's about '
+          + Math.abs(r.premium) + ' picks ahead of our board — you would be paying above value';
+      }
+    });
+
+    /* ── WHERE THIS VIEW AND THE PLAN DISAGREE, SAY SO ────────────────────
+     *
+     * D is the drop to my NEXT pick. That is the right question for a seat I
+     * must fill now and the WRONG one for a seat I can fill any time: the
+     * quarterback slot can be filled at pick 33 for almost nothing, so measuring
+     * its drop over picks 8->13 overstates the urgency. Measured, that gap is
+     * the entire 59.6 between the greedy line and the global assignment, and it
+     * is why this panel can say TAKE QB at pick 8 while the plan says FLEX.
+     *
+     * I am NOT inventing a horizon rule days before a draft to resolve it — that
+     * is the fourth attempt at slot-aware VONA, and the third one died on
+     * exactly this kind of change. What the panel owes Cory instead is the
+     * disagreement, stated: here is the greedy view, here is the global one,
+     * here is which is which. A tool that hides a known conflict between two of
+     * its own components is worse than one that has the conflict. */
+    const seat = seatForCurrentPick();
+    if (seat && seat.is_starter_seat && live.length) {
+      const want = seat.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [seat.slot];
+      if (want.indexOf(live[0].position) < 0) {
+        live[0].plan_conflict = 'the SEASON-LONG plan wants ' + seat.slot
+          + ' at this pick, not ' + live[0].position
+          + '. This line measures the drop to your NEXT pick only, so it over-rates a'
+          + ' position whose seat you could still fill much later — that gap is the'
+          + ' measured 59.6 between the greedy board and the full-draft plan.'
+          + ' PREFER THE SEAT unless you believe this specific cliff.';
+      }
+    }
+    /* `plan_seat` REPORTS ONLY A SEAT THE PLAN ACTUALLY ASSERTS. It used to
+     * return `seat.slot` for bench rows too, i.e. the literal string 'BENCH' —
+     * so a consumer comparing the lead position against it saw a mismatch on
+     * every bench pick and could not tell "the plan wants a tight end and you
+     * are taking a back" from "the plan asserts nothing here". A field that
+     * means two things is the defect `sp-pos` had, one layer up. */
+    return { rows: out, lead: live[0] || null, anySeat: live.length > 0,
+      plan_seat: (seat && seat.is_starter_seat) ? seat.slot : null };
+  }
+
+  /* ── THE CASE AGAINST — a route with only a "for" is advocacy ─────────────
+   *
+   * Cory: *"contrast those routes (for and against and why)."* The engine emits
+   * six `when_right` strings and no counterweight, so every card argues for
+   * itself and the panel reads as six recommendations rather than one choice.
+   *
+   * BUILT HERE, NOT IN THE ENGINE, and that is deliberate. Everything below is
+   * derived from what computePaths ALREADY returns — `price`, the branch `plan`
+   * rows, `mechanism`, `fills`, `coin_flip_with` — so this is a presentation
+   * concern and needs no edit to a scoring-path file nine days from a draft. The
+   * gate on engine.js exists to make exactly this pause happen.
+   *
+   * THE STRONGEST AGAINST IS THE SEAT. If a route fills a slot the plan does not
+   * want at this pick, that is a concrete, measured objection rather than a
+   * hedge — and it is the one that makes the panel agree with the model instead
+   * of arguing with it.
+   */
+  function pathAgainst(p) {
+    const out = [];
+    const seat = seatForCurrentPick();
+    if (seat && seat.is_starter_seat) {
+      const elig = seat.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [seat.slot];
+      if (elig.indexOf(p.position) < 0) {
+        out.push('the plan wants ' + seat.slot + ' at this pick, and this fills '
+          + p.position + ' instead');
+      }
+    }
+    /* `price` is what this route costs against the best-priced one. 0 means it
+     * IS the best-priced, in which case saying "costs 0" would be noise. */
+    if (p.price > 0) out.push('prices ' + p.price + ' below the top route');
+    if (p.coin_flip_with) out.push('a genuine coin flip with the other top route — '
+      + 'the model cannot separate them, so believe one or take the cheaper');
+
+    /* The mechanism-specific objection: what has to be TRUE for this route to be
+     * wrong. Each is the negation of its own when_right, which is what makes it
+     * a contrast rather than a disclaimer. */
+    const loss = (p.plan && p.plan[0] && p.plan[0].loss != null) ? Math.round(p.plan[0].loss) : null;
+    if (p.mechanism === 'scarcity') {
+      out.push('you are paying for certainty — if the room does not run on '
+        + p.position + ', the cliff never arrives and you bought nothing');
+    } else if (p.mechanism === 'need') {
+      out.push(loss != null && loss <= 3
+        ? 'the seat is fillable later — waiting costs only ~' + loss + ' pts here'
+        : 'filling a seat early spends the pick on need rather than on the best player left');
+    } else if (p.mechanism === 'flex') {
+      out.push('a flex body is the most replaceable thing on a roster — the wire '
+        + 'refills this seat more cheaply than any other');
+    } else if (p.mechanism === 'value') {
+      out.push('value with no seat behind it is a bench player: he only scores if '
+        + 'somebody ahead of him stops playing');
+    }
+    if (p.fills === 'bench') {
+      out.push('this does not start for you today');
+    }
+    return out;
+  }
+
+  /* THE THINKING PANEL — one line per position, and the reason attached.
+   *
+   * Deliberately NOT a single verdict. Cory asked what the model is thinking,
+   * and a lone "TAKE QB" hides the comparison that produced it — the whole
+   * decision is which position is losing most among those that can still take a
+   * seat, so all four are shown with their numbers and the loser positions are
+   * as informative as the winner. */
+  function renderTiming(scored) {
+    const host = $('#timing-panel');
+    if (!host) return;
+    const t = positionTiming(context(), scored);
+    state.lastTiming = t;
+    if (!t.rows.length) { host.innerHTML = ''; return; }
+    const cls = v => (v === 'TAKE NOW' ? 'tm-take' : v === 'WAIT' ? 'tm-wait'
+      : v === 'NO SEAT' ? 'tm-noseat' : 'tm-behind');
+    const cur = (pickCoordinate() || {}).current;
+    host.innerHTML = '<div class="tm-head">WHAT THE MODEL IS THINKING at '
+      + escapeHtml(roundLabel(cur)) + (cur ? ' (overall ' + cur + ')' : '')
+      + ' — what WAITING costs at each position, and whether you could collect it</div>'
+      + '<ul class="tm-list">' + t.rows.map(function (r) {
+        return '<li class="tm-row ' + cls(r.verdict) + '">'
+          + '<span class="tm-pos">' + escapeHtml(r.position) + '</span>'
+          + '<span class="tm-verdict">' + escapeHtml(r.verdict) + '</span>'
+          + '<span class="tm-num">' + r.Dstar + ' <span class="tm-unit">pts you can collect</span>'
+          + (r.D !== r.Dstar ? ' <span class="tm-raw">(' + r.D + ' raw)</span>' : '') + '</span>'
+          + '<span class="tm-why">' + escapeHtml(r.why) + '</span>'
+          + (r.market ? '<span class="tm-market">' + escapeHtml(r.market) + '</span>' : '')
+          + (r.plan_conflict ? '<span class="tm-conflict">⚠ ' + escapeHtml(r.plan_conflict) + '</span>' : '')
+          + '</li>';
+      }).join('') + '</ul>'
+      + (t.anySeat ? '' : '<div class="tm-noseat-all">Every starting slot is filled — '
+        + 'drop-off cannot rank this pick. It is a bench pick: judge it on what the '
+        + 'player beats on the waiver wire at his position.</div>');
+  }
+
+  /* The seat the plan wants at the pick on the clock, or null. Shared by the
+   * seat panel and the against-case so the two can never disagree about which
+   * seat is live — two lookups is two chances to drift. */
+  function seatForCurrentPick() {
+    const d = state.seatPlan;
+    if (!d || !Array.isArray(d.seats)) return null;
+    const cur = (pickCoordinate() || {}).current;
+    return d.seats.find(s => s.pick === cur)
+      || d.seats.find(s => s.pick >= (cur || 0)) || null;
+  }
+
   function renderPaths(scored) {
     const host = $('#paths-panel');
     if (!host) return;
@@ -3042,7 +3480,15 @@
         (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         devHtml +
         (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
-        '<div class="path-when">' + escapeHtml(p.when_right) + '</div>' +
+        '<div class="path-when"><span class="path-lbl">FOR</span> '
+          + escapeHtml(p.when_right) + '</div>' +
+        (function () {
+          var ag = pathAgainst(p);
+          return ag.length
+            ? '<div class="path-against"><span class="path-lbl">AGAINST</span> '
+              + escapeHtml(ag.join('; ')) + '</div>'
+            : '';
+        })() +
         (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
         '<div class="path-actions">' +
           '<button class="btn small gold" data-draft-me="' + pl.player_id
@@ -3345,12 +3791,54 @@
     try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
-    // capture. Not on mocks. Deduped in PredLedger so re-renders don't flood.
-    if (typeof PredLedger !== 'undefined' && !state.mockMode && out.scored && out.scored.length) {
+    // capture. Deduped in PredLedger so re-renders don't flood.
+    /* MOCKS NOW WRITE, STAMPED AS MOCKS, and that is a deliberate reversal.
+     *
+     * The condition used to carry `&& !state.mockMode`, so a mock draft logged
+     * NOTHING. That makes the one available proof of decision-capture — run a
+     * full mock and show the board state survives and replays — structurally
+     * impossible: the only way to exercise this path end to end produced no rows
+     * to inspect.
+     *
+     * The two failure modes are not symmetric. Dropping mock rows destroys
+     * evidence permanently. Keeping them risks a mock row being mistaken for a
+     * deployed one, which is a LABELLING problem and is fixed by labelling:
+     * `mock` rides on every row, so a consumer that fails to filter is a visible
+     * bug rather than a silent contamination of acceptance evidence.
+     */
+    /* ⚠️ THE CAPTURE MUST NEVER BE ABLE TO BLANK THE BOARD.
+     *
+     * This block sits inside renderRecommendations, and it was NOT guarded —
+     * while the renderRuleHeadline call one line above it is. That asymmetry was
+     * survivable until I added a call to `PredLedger.boardState`, a NEW export:
+     * a browser holding a cached predledger.js without it throws a TypeError
+     * here, inside the function that draws the board, AT THE TABLE. Losing the
+     * ledger row is a bad night; losing the recommendations is a lost draft.
+     *
+     * So two levels of degradation, in the order that preserves the most:
+     *   1. a missing boardState degrades to the OLD payload rather than losing
+     *      the row — a recommendation without board state still grades, and
+     *      evidence preservation outranks completeness;
+     *   2. anything else at all is caught, logged, and the board renders.
+     */
+    if (typeof PredLedger !== 'undefined' && out.scored && out.scored.length) try {
       var c = ledgerCtx();
+      /* INNER GUARD: the POST is the fallible half, and the LOCAL LOCK below is
+       * the half draft-night correctness actually depends on — reconcile reads
+       * it. So a ledger failure must not skip the lock, which is why the two are
+       * not in the same try. */
+      try {
       PredLedger.recommendation({ season: c.season, build_at: c.build_at, pick: c.pick,
         method: 'composite-v1',
-        payload: {
+        /* THE BOARD I DECIDED FROM rides with the recommendation. `state.board`
+         * is exactly `data.players` minus `state.drafted`, so the taken set
+         * reconstructs the engine's input rather than summarising it.
+         * Canonicalised in PredLedger so this call site cannot drift into a
+         * second format. */
+        payload: Object.assign({ mock: !!state.mockMode },
+          (typeof PredLedger.boardState === 'function'
+            ? PredLedger.boardState(state.drafted, (state.board || []).length)
+            : { taken_state: 'unavailable' }), {
           weights: state.weights,
           top: out.scored.slice(0, 10).map(function (s) {
             return { player_id: String(s.player.player_id), name: s.player.name,
@@ -3360,7 +3848,37 @@
           }),
           contested: !!(out.scored[0] && out.scored[0].contested),
           confidence: out.confidence ? out.confidence.level : null,
-        } });
+          /* WHAT THE MODEL WAS THINKING, NOT ONLY WHAT IT PICKED.
+           *
+           * Cory: "record these thoughts also so that we can test and continue
+           * improving." The recommendation says WHO; this says WHY THAT
+           * POSITION, and the second is the part a later grade can argue with.
+           * Without it January can ask "was Bowers a good pick" and cannot ask
+           * "was taking a tight end AT ALL right at 13" — the question that
+           * would actually improve the model.
+           *
+           * COMPUTED HERE FROM `out.scored`, NOT READ FROM state.lastTiming.
+           * My first cut did the latter and it was wrong twice over: it assigned
+           * to the ledger CONTEXT rather than the payload, so it was recorded
+           * nowhere; and the render that populates state.lastTiming runs LATER
+           * in the cycle, so it would have stored the PREVIOUS pick's reasoning
+           * against this pick's board — a stale thought filed as a fresh one,
+           * which is worse than no thought at all.
+           *
+           * Rides on the recommendation row so it shares the decision key and
+           * the `taken_player_ids` board state already captured there. */
+          timing: (function () {
+            try {
+              var t = positionTiming(context(), out.scored);
+              return (t.rows || []).map(function (r) {
+                return { position: r.position, verdict: r.verdict, d: r.D,
+                  d_star: r.Dstar, seat: r.seat, premium: r.premium,
+                  best_id: r.best ? String(r.best.player_id) : null };
+              });
+            } catch (e) { return null; }
+          })(),
+        }) });
+      } catch (e) { console.error('[ledger-capture]', e && e.message); }
 
       /* ⚠️ LOCK IT LOCALLY AT THE SAME MOMENT IT IS COMMITTED.
        *
@@ -3382,7 +3900,7 @@
           contested: !!_t0.contested,
         };
       }
-    }
+    } catch (e) { console.error('[rec-capture]', e && e.message); }
 
     // FORWARD PREDICTION — commit the model's timestamped claims about what has NOT
     // happened yet (who the room takes in R1, whether my targets survive to my next
@@ -3428,6 +3946,9 @@
     try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
     // Paths panel derives from the same scored board the list uses.
     renderPaths(out.scored);
+    /* Same scored board as the paths panel, so the thinking and the routes can
+     * never be computed from two different boards. */
+    try { renderTiming(out.scored); } catch (e) { console.error('[timing]', e && e.message); }
     // THE MVS RIDES THE SAME RENDER, never a second computation — a surface
     // that recomputes its own numbers is a surface that can disagree with the
     // panel beneath it.
@@ -4897,12 +5418,48 @@
    * that is supposed to mean "the user deliberately touched this" is poisoned
    * before the user has touched anything. `programmatic` is the guard: the only
    * toggles that count as a decision are the ones we did not cause. */
-  var layerProgrammatic = false;
+  /* ── THE GUARD WAS TIME-SCOPED AND `toggle` IS NOT (2026-08-13, B) ────────
+   *
+   * The paragraph above states the intent correctly and the implementation did
+   * not honour it, which is the worst combination: a comment that reads right
+   * over a flag that is already false by the time it is consulted.
+   *
+   * `toggle` on <details> fires at RENDERING TIME — after the current task and
+   * after timers. `layerProgrammatic = false` ran on the next line, so every
+   * listener saw false and stamped `userOpened` on OUR OWN programmatic open.
+   * B instrumented it rather than reasoning about it and captured the whole
+   * chain: renderSystemStrip -> layerDepthForMode('MANUAL') -> setLayer(l3,
+   * true) -> toggle {prog:false, open:true} -> userOpened=1, with no user click
+   * anywhere in the run. Then `layerDepthForMode` returns early forever on
+   * `userOpened`, the close rule never runs once sync comes up, and the page
+   * stays at 23.6 SCREENS for the entire draft. Closed it is 5.6 — a 76% cut
+   * with no layout work at all.
+   *
+   * B also established that the obvious fix FAILS: setTimeout(..., 0) still
+   * measures prog:false, because timers run before rendering. THE GUARD HAS TO
+   * BE ELEMENT-SCOPED, NOT TIME-SCOPED — it must survive on the element until
+   * the event for that element actually arrives, whenever that is.
+   *
+   * A COUNTER, not a boolean: two programmatic sets before either toggle
+   * arrives would leave a boolean cleared by the first and the second counted
+   * as a user decision. */
   function setLayer(el, open) {
     if (!el || el.open === open) return;
-    layerProgrammatic = true;
+    el.dataset.progToggle = String((+el.dataset.progToggle || 0) + 1);
     el.open = open;
-    layerProgrammatic = false;
+  }
+
+  /* One listener body for both layers, so they cannot drift — l2 and l3 had
+   * separate copies of the same three lines and would have had to be fixed
+   * twice. */
+  function onLayerToggle(el) {
+    const pending = +el.dataset.progToggle || 0;
+    if (pending > 0) {
+      if (pending > 1) el.dataset.progToggle = String(pending - 1);
+      else delete el.dataset.progToggle;
+      return;                      // we caused this one; it is not a decision
+    }
+    el.dataset.userOpened = '1';
   }
 
   function initLayers() {
@@ -4910,13 +5467,9 @@
     if (!l2 || l2.dataset.wired) return;
     l2.dataset.wired = '1';
     if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) setLayer(l2, false);
-    l2.addEventListener('toggle', function () {
-      if (!layerProgrammatic) l2.dataset.userOpened = '1';
-    });
+    l2.addEventListener('toggle', function () { onLayerToggle(l2); });
     const l3 = document.getElementById('layer-3');
-    if (l3) l3.addEventListener('toggle', function () {
-      if (!layerProgrammatic) l3.dataset.userOpened = '1';
-    });
+    if (l3) l3.addEventListener('toggle', function () { onLayerToggle(l3); });
   }
 
   /* THE BOARD IS A REFERENCE IN LIVE MODE AND AN INPUT DEVICE IN MANUAL MODE.
@@ -6152,6 +6705,20 @@
       _rec = OverrideRecord.pickOverride({
         season: c.season, build_at: c.build_at, pick: c.pick,
         chosen: picked, recommended: overTop,
+        /* THE FLAG B ASKED FOR, and my claim to them was wrong: I said "mock
+         * rides every ledger row" when it rode the RECOMMENDATION payload only.
+         * B's override report was therefore filtering on a field that did not
+         * exist — 3 overrides became 4 with the filter removed, and the reported
+         * median gap moved 18.5 -> 4.0. A false statement from me corrupted a
+         * number in their report, which is worse than a missing field.
+         *
+         * IT IS ALWAYS FALSE HERE, and that is worth stating rather than
+         * hiding: this function returns early on `state.mockMode`, so an
+         * override row can never be a rehearsal. The value carries no
+         * information; its PRESENCE does. "0 excluded" and "the flag was never
+         * written" are the same integer and different facts, and a consumer
+         * cannot tell them apart from an absent field. */
+        mock: !!state.mockMode,
         reason: reason || 'no_reason_given', path: path == null ? null : path,
         reconciled_from_sync: !!reconciled,
         score_gap: opts_score_gap,

@@ -17,8 +17,13 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
+# season_stamp lives under backtest/ but is an INGEST-TIME contract, not an
+# analysis helper — the board is stamped where each value is attached, which is
+# here. There is no package __init__, so the directory joins the path directly.
+sys.path.insert(0, str(HERE / "backtest"))
 
 import adp as adp_mod  # noqa: E402
+import season_stamp  # noqa: E402
 import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
@@ -87,6 +92,37 @@ IDENTITY_PATH = HERE / "config" / "identity_map.json"
 # Sleeper handle <-> owner_id lives (money_history already keys on it), so this
 # reads it rather than introducing a second copy.
 MY_REAL_NAME = "Cory"
+
+
+def adp_season_stamps(adp_source: str | None, year: int) -> dict:
+    """Season stamps for the ADP columns, chosen by WHERE THE VALUE CAME FROM.
+
+    Module-level and named rather than inline in the build loop, so the test suite
+    can exercise THE RULE ITSELF. A test that re-implements this branch in its own
+    helper passes just as happily when the branch here is wrong, which makes it a
+    description of intent rather than a guard on behaviour.
+
+    Two provenances, and a single blanket stamp would have to lie about one:
+
+      real ADP (fantasypros / ffc)
+          The season is IN THE REQUEST URL, and `adp.py` derives the cache key
+          from that url, so even a cache hit cannot be a different season. The
+          year is a fact about the fetch -> `seasonal`.
+
+      search_rank (the fallback branch)
+          Sleeper POPULARITY rank. No season anywhere in the payload. Stamping it
+          with the target year would be an assertion wearing a measurement's
+          clothes -- the exact defect the gate exists to stop -> `current`.
+
+    `current` is deliberately not normalised to `year`: doing so would destroy the
+    record of which fields were actually verified, and the gate could never be
+    tightened later because nothing would distinguish a proven year from an
+    assumed one.
+    """
+    src = (season_stamp.CURRENT_STATE if adp_source == "search_rank"
+           else season_stamp.seasonal(year))
+    return season_stamp.stamp({}, {"raw_adp": src, "adp": src,
+                                   "consensus_rank": src})
 
 
 def _my_owner_id() -> str | None:
@@ -510,9 +546,30 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
 
     # raw_adp is what the rest of the pipeline keys on; point it at the real
     # thing now that we have one.
+    #
+    # AND STAMP ITS SEASON HERE, at the point the value is attached, because this
+    # is the only place that still knows WHERE IT CAME FROM. Cory, HIGH: a player
+    # drafted high in 2025 may go late or undrafted in 2026, so a prior-season ADP
+    # reaching this board is a silent, plausible-looking error.
+    #
+    # THE STAMP IS PER-PLAYER AND NOT A BLANKET seasonal(2026), because the two
+    # branches above have genuinely different provenance and a single stamp would
+    # have to lie about one of them:
+    #
+    #   fantasypros / ffc  -> the season is IN THE REQUEST URL (C verified: the
+    #       fp_url carries /nfl/2026/consensus-rankings, and adp.py:136 derives the
+    #       cache key FROM that url, so even a cache hit cannot be another season).
+    #       That is `seasonal` — a fact about the fetch, not an assumption.
+    #
+    #   search_rank        -> Sleeper POPULARITY rank from the fallback branch. It
+    #       is live state with no season anywhere in the payload. Stamping it 2026
+    #       would be an assertion wearing a measurement's clothes, which is the
+    #       exact defect this gate exists to stop, so it is `current`.
+    adp_year = int(cfg.get("season") or time.gmtime().tm_year)
     for p in players:
         p["raw_adp"] = p.get("adp", p["raw_adp"])
         p["consensus_rank"] = p["raw_adp"]
+        p.update(adp_season_stamps(p.get("adp_source"), adp_year))
 
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
     board = proj_mod.blend(players, baseline, opportunity, cfg)
@@ -772,15 +829,26 @@ def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
     full 3-keeper slate of my own my first pick sits in round 4 and EVERY keeper in
     the league is ahead of it:
 
-        my_first_pick == 3*teams + (teams+1-my_slot) - total_keepers
-        (a 10-team snake at slot 4: 41 - 4 - total = 37 - total)
-        total_picks   == teams * rounds - total_keepers
+        my_first_pick == N*teams + (my_slot if N+1 odd else teams+1-my_slot)
+        board_picks   == teams * rounds        (keepers change NOTHING)
+        live_picks    == teams * rounds - total_keepers
 
-    Verified across slots 1/4/7/10 and totals 3..30, and invariant to WHICH slots
-    hold the keepers — only the count moves my numbers. The identity holds only
-    while I keep 3 (at 2 or fewer my first pick lands in round 3, where keepers at
-    higher slots fall after me and the distribution starts to matter), so it is
-    stamped with the condition attached rather than as an unconditional law.
+    where N is MY OWN keeper count. NOTHING ANOTHER TEAM KEEPS MOVES MY NUMBERS.
+
+    THIS CARRIED `- total_keepers` ON BOTH LINES UNTIL 2026-08-13 and it was the
+    compressed model: it required a forfeited pick to be DELETED and everything
+    after it renumbered. Sleeper occupies the pick instead — 150 picks and round
+    4 beginning at overall 31 in 2023 (0 keepers), 2024 (23) and 2025 (20) alike,
+    from this league's own draft log.
+
+    Cory caught it from the seat arithmetic: slot 8, round 4 is EVEN so the snake
+    reverses, slot 10 picks first, and he is THIRD — 33, not 30.
+
+    The old identity also carried a CONDITION ("holds only while I keep 3"),
+    which was itself an artefact of renumbering: at 2 keepers the first pick
+    landed in round 3 where other teams' keepers fell after me and the
+    distribution mattered. Nothing renumbers now, so the identity generalises and
+    the condition is gone.
     """
     out = dict(slate)
     total_keepers = sum(len(v) for v in keeper_map.values())
@@ -817,12 +885,22 @@ def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
     mine = len(keeper_map.get(my_slot) or keeper_map.get(str(my_slot)) or [])
     first = (order.my_picks or [None])[0]
     check = None
-    if my_slot and first is not None and mine == 3:
-        expected = (3 * teams + (teams + 1 - int(my_slot))) - total_keepers
+    if my_slot and first is not None and mine >= 0:
+        # Round N+1 at my slot, on Sleeper's own numbering. Odd rounds run
+        # forward, even rounds reverse — so the nth pick of the round is my slot
+        # or its mirror. No keeper count enters, mine or anybody's.
+        rnd = mine + 1
+        nth = int(my_slot) if rnd % 2 == 1 else teams + 1 - int(my_slot)
+        expected = (rnd - 1) * teams + nth
         check = {"my_first_pick": first, "expected": expected,
                  "holds": first == expected,
-                 "rule": "my_first_pick == (3*teams + (teams+1-my_slot)) - total_keepers",
-                 "condition": "holds only while I keep 3 (first pick in round 4)"}
+                 "my_keepers": mine, "first_round": rnd, "nth_pick_of_round": nth,
+                 "rule": "my_first_pick == (N*teams) + (my_slot if N+1 odd else "
+                         "teams+1-my_slot), N = MY keeper count",
+                 "independent_of": "how many players any other team keeps",
+                 "board_picks": teams * int(cfg.get("rounds") or 15),
+                 "live_picks": len(order.picks),
+                 "total_keepers_in_map": total_keepers}
     out["arithmetic_check"] = check
     return out
 
@@ -1074,8 +1152,26 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "season": cfg.get("season"),
             "teams": cfg["teams"],
             "draft_type": cfg["draft_type"],
+            # THE RAW SHAPE FIELD, CARRIED. `draft_type` is derived and Sleeper
+            # reports "snake" under a third-round reversal too — 2023 ran with
+            # reversal_round 3 and type "snake". Emitting only the label means
+            # nothing downstream can check the derivation.
+            "reversal_round": cfg.get("reversal_round", 0),
             "rounds": cfg.get("rounds"),
             "my_draft_slot": cfg.get("my_draft_slot"),
+            # ⚠️ SLEEPER'S OWN SLOT MAP, AND WHY IT IS USUALLY EMPTY.
+            #
+            # `my_draft_slot` is operator-set. Cory: "I am slot 8 on the board
+            # (all slot info is in sleeper)". It is — `draft.slot_to_roster_id` —
+            # but for a draft in `pre_draft` status Sleeper has NOT DRAWN THE
+            # ORDER YET and returns {}. Confirmed against the live API on
+            # 2026-08-13: empty at the source, not lost in our ingest.
+            #
+            # So it is carried as evidence rather than used: while it is empty
+            # the slot is UNVERIFIED and the guard says so; the moment Sleeper
+            # publishes an order the nightly picks it up and the guard compares
+            # them. That closes by itself rather than by anybody remembering.
+            "slot_to_roster_id": cfg.get("slot_to_roster_id") or {},
             # MY OWN Sleeper owner_id, from the identity table. The client needs it
             # to drop me from the "room" it mixes opponent tendencies over (D6):
             # my profile is in manager_profiles but I never pick against myself, so
@@ -1088,7 +1184,23 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "keeper_rules": cfg["keepers"],
         },
         "pick_order": {
-            "picks": [{"overall": p["overall"], "round": p["round"], "slot": p["team_slot"]} for p in order.picks],
+            # THE BOARD AS SLEEPER WILL NUMBER IT — every round x slot, with
+            # keeper-occupied picks FLAGGED, not removed. This used to emit the
+            # renumbered survivor list: 147 rows, round 4 starting at 28, Cory's
+            # first pick at 30. Sleeper's own log for this league says 150 rows
+            # and round 4 at 31 in all three completed seasons, keepers or not.
+            "numbering": "sleeper_uncompressed",
+            "numbering_note": (
+                "A keeper occupies his pick slot; the pick is not removed and "
+                "nothing after it shifts up. Verified against seasons "
+                "2023/2024/2025 in league_history: 150 picks and round 4 at "
+                "overall 31 every year, with 0, 23 and 20 keepers respectively. "
+                "`picks` is the BOARD (depth: how many players leave the pool). "
+                "`live_picks` is how many SELECTIONS happen. They differ by the "
+                "keeper count and conflating them is a real defect this carries "
+                "both to prevent."),
+            "picks": order.board,
+            "live_picks": len(order.picks),
             "my_picks": order.my_picks,
             "my_picks_before_keepers": order.my_original_picks,
             "forfeited": order.forfeited,

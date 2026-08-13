@@ -72,7 +72,11 @@ const rec = w => E.recommend(Object.assign({}, baseCtx, { weights: w }));
   ck('with every starter filled, the skill players left still read BENCH or FLEX',
     fills.every(f => f === 'bench' || f === 'flex'),
     fills.filter(f => f !== 'bench' && f !== 'flex').slice(0, 3));
-  ck('  (if this ever passes vacuously the rest of the file proves nothing)', true);
+  /* WAS `ck(..., true)` — a line warning about vacuity while being vacuous, above
+   * a `fills.every(...)` that is TRUE ON AN EMPTY ARRAY. Now it checks the thing
+   * it was warning about. */
+  ck('  and there were skill players left to classify, so `every` is not vacuous',
+    fills.length > 0, fills.length);
 }
 
 // ── THE DEFECT IS GONE ─────────────────────────────────────────────────────

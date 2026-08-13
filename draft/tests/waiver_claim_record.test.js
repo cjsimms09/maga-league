@@ -96,7 +96,14 @@ const base = {
     stopping: noGain }));
   ck('  a downgrade records act:false rather than being dropped',
     r2.recommended.act === false && r2.net_points === -3, r2.recommended);
-  ck('  (a claim the tool declined is still a decision worth grading)', true);
+  /* WAS `ck(..., true)`. Testable: a declined claim is only gradeable if it still
+   * carries what a later outcome joins on. My first attempt asserted a single
+   * `key` field — a shape I had not read. There isn't one: the record joins on
+   * WEEK + OWNER + the claim id, which is the composite the ledger actually
+   * keys waivers by. The prose was right and the check was guessing. */
+  ck('  and the declined claim still carries what an outcome joins on',
+    r2.week != null && r2.owner_id != null && r2.recommended.claim != null,
+    { week: r2.week, owner_id: r2.owner_id, claim: r2.recommended.claim });
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
