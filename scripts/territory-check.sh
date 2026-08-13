@@ -31,6 +31,50 @@ case "$SIDE" in
   *) echo "usage: territory-check.sh A|B|C"; exit 2 ;;
 esac
 
+# ⚠️ SHARED-FILE EDIT BY C, 2026-08-13 — banner per Cory's three-session rule.
+#
+# IT ACCEPTED AN ARGUMENT IT NEVER READ, AND ANSWERED A QUESTION NOBODY ASKED.
+#
+# This checks the WORKING TREE. It does not take a path, and it never did — but
+# `$2` was silently ignored, so `territory-check.sh C draft/tests/foo.test.js`
+# printed "OK: side C stayed in its territory" while looking at something else
+# entirely. I ran exactly that, on a file that turned out to be B's, read the OK
+# as clearance for that file, and edited it. `integrate.sh` refused the merge and
+# was right to; the work had to be reverted and handed over as a patch.
+#
+# The mistaken invocation is the OBVIOUS one to try — you have a file, you want
+# to know whose it is — and the tool's answer to it was a confident green. That
+# is the same defect this whole guard exists to prevent, one level up: a consumer
+# reading a name its author believed in. Silence would have been better; a false
+# OK is worse than no answer, because it is evidence.
+#
+# So an UNRECOGNISED argument is now a REFUSAL that says what the tool does check
+# and points at the thing that does answer "whose file is this".
+#
+# ⚠️ AND THE REFUSAL HAS TO KNOW THE REAL CONTRACT, WHICH IS NOT "one argument".
+# My first version refused ANY second argument and broke `integrate.sh`, which
+# legitimately calls `--range BASE REF` — twice. I added a guard without reading
+# its callers, one commit after writing that reading the caller is the rule. The
+# grep takes ten seconds and I did not do it. So: `--range` is accepted, a bare
+# path is refused, and the two are told apart rather than counted.
+if [ "$#" -gt 1 ] && [ "${2:-}" != "--range" ]; then
+  shift
+  cat >&2 <<EOF
+REFUSING: territory-check.sh got an argument it does not read: $*
+
+  usage: territory-check.sh A|B|C                  (the WORKING TREE)
+         territory-check.sh A|B|C --range BASE REF (what a branch changed)
+
+It does NOT take a file path. Passing one used to be IGNORED, so this printed
+"OK: side <X> stayed in its territory" about a file it had never looked at.
+
+  whose file is this?    grep the path in TERRITORY.md, or make the edit and run
+                         this with the file actually changed in your tree
+  will my branch merge?  bash scripts/integrate.sh <branch> <side>
+EOF
+  exit 2
+fi
+
 # ── A JS TEST FOLLOWS WHAT IT REACHES INTO (2026-08-11) ─────────────────────
 #
 # Cory's "a test follows its module" ruling was implemented for `test_*.py` by

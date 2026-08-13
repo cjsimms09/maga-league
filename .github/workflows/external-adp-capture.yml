@@ -181,11 +181,22 @@ jobs:
           # obvious field would put the last pick at 30 and call every draftable
           # loss from 31 to 150 clean.
           lp = {"last_pick": None, "note": "no league settings file on disk"}
-          # THE PICK LIST LIVES ON THE BOARD, NOT IN THE LEAGUE SETTINGS, and
-          # passing only the settings is how this line kept reporting 150 for a
-          # 147-pick draft after the module was already fixed to read
-          # `pick_order.picks`. Fixing a module and leaving its caller is the
-          # same defect one layer out: the code was right and the answer was not.
+          # THE PICK LIST LIVES ON THE BOARD, NOT IN THE LEAGUE SETTINGS, so the
+          # settings alone cannot be read — only derived from. Fixing a module
+          # and leaving its caller is the same defect one layer out.
+          #
+          # ⚠️ THE NUMBER THIS ONCE CLAIMED TO FIX WAS ITSELF WRONG. This comment
+          # used to say the caller "kept reporting 150 for a 147-pick draft". The
+          # draft is 150. Keeper forfeits are OCCUPIED, not removed — verified
+          # against league_history, where 2023 (0 keepers), 2024 (23) and 2025
+          # (20) are all 150 picks with round 4 opening at overall 31. 147 is
+          # `pick_order.live_picks`, how many SELECTIONS happen; the boundary this
+          # job wants is DEPTH, how many players leave the pool.
+          #
+          # Passing `pick_order` is still right, and for the reason that survived
+          # the premise being wrong: reading the authoritative list beats deriving
+          # from config whichever way the keeper question goes. The read returned
+          # the correct number while I had the mechanism backwards.
           if os.path.exists("draft/data/sleeper_league_settings.json"):
               _ls = json.load(open("draft/data/sleeper_league_settings.json"))
               if os.path.exists("public/draft_data.json"):

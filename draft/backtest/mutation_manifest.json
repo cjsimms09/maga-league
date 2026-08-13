@@ -575,6 +575,140 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/board_activity.py": {
+   "tests": [
+    "draft/tests/test_board_activity.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if p.get(\"position\") not in COVERED_POSITIONS:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_REFUSES_positions_its_evidence_cannot_see"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"years_exp\")) or 0) == 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if p.get(\"adp_source\") not in (None, \"search_rank\"):\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"proj_mean\")) or 0) > 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if (_num(p.get(\"vorp\")) or 0) > 0:\n        hit.append(\"vorp > 0\")",
+     "new": "    if False:\n        hit.append(\"vorp > 0\")",
+     "must_fail": [
+      "test_the_AUDIT_CATCHES_a_dormant_player_that_reaches_a_decision"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if relevant_board and (_num(p.get(\"adp\")) or 10 ** 9) <= relevant_board:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_the_AUDIT_CATCHES_a_dormant_player_that_reaches_a_decision"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"ok\": None, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
+     "new": "        return {\"ok\": True, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
+     "must_fail": [
+      "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not sc[\"seasons_read\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/actionable_board.py": {
+   "tests": [
+    "draft/tests/test_actionable_board.py"
+   ],
+   "mutations": [
+    {
+     "old": "    derivable = [p for p in missing if byteam.get(p.get(\"team\")) is not None]",
+     "new": "    derivable = list(missing)",
+     "must_fail": [
+      "test_a_MISSING_BYE_ON_A_TEAM_NOBODY_KNOWS_is_NOT_blamed_on_the_fill"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if t in byteam and byteam[t] != int(b):\n            conflict.add(t)",
+     "new": "        if False:\n            conflict.add(t)",
+     "must_fail": [
+      "test_a_TEAM_WITH_TWO_BYES_is_REFUSED_rather_than_resolved"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if all(s is None for s in sources) and (_num(p.get(\"proj_mean\")) or 0) <= 0:",
+     "new": "        if (_num(p.get(\"proj_mean\")) or 0) <= 0:",
+     "must_fail": [
+      "test_an_ABSENT_PROJECTION_READ_AS_ZERO_is_found_and_a_real_zero_is_not"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if depth is None:\n        return []",
+     "new": "    depth = depth if depth is not None else 225\n    if False:\n        return []",
+     "must_fail": [
+      "test_the_REGION_IS_READ_from_the_board_not_assumed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"no_adp_sd\": [p for p in rows if _num(p.get(\"adp_sd\")) is None],",
+     "new": "        \"no_adp_sd\": [],",
+     "must_fail": [
+      "test_the_FIELD_DETECTORS_FIRE_on_planted_gaps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"unrostered_position\": [p for p in rows if p.get(\"position\") not in ROSTERED],",
+     "new": "        \"unrostered_position\": [],",
+     "must_fail": [
+      "test_the_FIELD_DETECTORS_FIRE_on_planted_gaps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"no_team\": [p for p in rows if not p.get(\"team\")],",
+     "new": "        \"no_team\": [],",
+     "must_fail": [
+      "test_the_FIELD_DETECTORS_FIRE_on_planted_gaps"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
