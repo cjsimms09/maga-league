@@ -857,6 +857,55 @@
             + ', so the SEAT matters more than the NAME'
           : '') + '</div>';
 
+    /* ── WHAT A STALE ROOM ACTUALLY COSTS, AS A NUMBER ──────────────────────
+     *
+     * `renderSystemStrip` already says "SYNC STALE 62s — picks may be missing"
+     * and `renderSyncAge` adds "verify against Sleeper before you draft". Its own
+     * comment states the problem exactly: *"the board still confidently
+     * recommends players who are already gone."* Both are INSTRUCTIONS. Cory's
+     * standing rule is mechanism, not instruction — and an instruction is at its
+     * weakest exactly here: on the clock, with a room watching.
+     *
+     * THE MECHANISM IS THE NUMBER ALREADY IN THE ARTIFACT. Staleness matters only
+     * insofar as the top name might be gone, and what THAT costs is
+     * `gap_to_second` — already computed, already in the seat's own units, already
+     * with a measured tossup band beside it. So the panel stops telling him to go
+     * and check, and tells him what checking is worth:
+     *
+     *   gap inside the band  -> the next name is as good; take it and move on
+     *   gap outside the band -> this is what you lose if #1 is gone; worth the
+     *                           ten seconds it costs to look
+     *
+     * IT CANNOT PREDICT HOW MANY PICKS WERE MISSED and does not pretend to. Our
+     * capture strips per-pick timestamps and this draft has `pick_timer: 0` — no
+     * timer at all — so there is no honest picks-per-second to divide by. Rather
+     * than invent a rate, this prices the ONE thing that is actually knowable:
+     * the cost of the top name being wrong. A fabricated "≈2 picks missed" would
+     * be a plausible number with nothing behind it, which is the defect class
+     * this file has spent the week removing.
+     *
+     * The whole shortlist is already on screen, so the recovery is visible
+     * without a fetch: if #1 is gone, #2 is the line below it. */
+    const staleLine = (function () {
+      if (!state.sync || typeof state.sync.syncAgeMs !== 'function') return '';
+      const age = state.sync.syncAgeMs();
+      if (age == null || age < SYNC_AGE_WARN_MS) return '';
+      const secs = Math.round(age / 1000);
+      const cheap = seat.gap_to_second != null && seat.tossup_threshold != null
+        && seat.gap_to_second <= seat.tossup_threshold;
+      const cost = seat.gap_to_second == null ? null : seat.gap_to_second;
+      return '<div class="sp-stale' + (age >= SYNC_AGE_BAD_MS ? ' sp-stale-bad' : '') + '">'
+        + 'SYNC ' + secs + 's OLD — the top name may already be gone. '
+        + (cost == null
+          ? 'No second name priced at this seat, so there is nothing to fall back to on the board.'
+          : (cheap
+            ? 'Costs <b>' + cost + '</b> ' + escapeHtml(gapU) + ' to take the next name '
+              + 'instead — inside this seat\'s own tossup band, so do not stop the clock for it.'
+            : 'Costs <b>' + cost + '</b> ' + escapeHtml(gapU) + ' to fall to the next name '
+              + '— outside the tossup band, so this one is worth checking against Sleeper.'))
+        + '</div>';
+    })();
+
     /* The plan's superseded name is SHOWN, not silently dropped — "the plan named
      * nobody" and "the plan named someone on a line since superseded" are
      * different facts, and hiding the second would make the artifact look
@@ -868,6 +917,7 @@
       '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + '<ol class="sp-list">' + rows + '</ol>'
+      + staleLine
       + gapLine
       + supLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'

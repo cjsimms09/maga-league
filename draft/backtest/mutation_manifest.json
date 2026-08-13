@@ -544,6 +544,37 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/tests/test_waiver_replacement.py": {
+   "tests": [
+    "draft/tests/test_waiver_replacement.py"
+   ],
+   "mutations": [
+    {
+     "old": "    return out or None",
+     "new": "    return {}",
+     "must_fail": [
+      "test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    assert seen >= 2, (",
+     "new": "    assert seen >= 0, (",
+     "must_fail": [
+      "test_a_WORLD_WHERE_EVERY_TOOL_HAS_MIGRATED_fails_rather_than_passes"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "CONSTANT_TOOLS = (\"free_picks.js\", \"draft_card.js\", \"wire_vs_bench.js\")",
+     "new": "CONSTANT_TOOLS = (\"free_picks.js\", \"draft_card.js\", \"wire_vs_bench.js\", \"emit_seat_plan.js\")",
+     "must_fail": [
+      "test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

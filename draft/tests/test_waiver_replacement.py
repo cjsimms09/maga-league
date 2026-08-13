@@ -165,30 +165,79 @@ def test_a_DEFENCE_is_RESOLVED_as_DEF_rather_than_counted_as_unpositioned():
 
 # ── THE ARTIFACT, SO A COPIED NUMBER CAN BE CHECKED IN ONE STEP ─────────────
 #
-# `draft/tools/free_picks.js`, `draft_card.js`, `emit_seat_plan.js` and
-# `wire_vs_bench.js` carry `WIRE = {QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3}` as a
-# hand-copied constant citing this module. The copies are FAITHFUL — verified
-# 4/4 — but verifying them took three attempts and two wrong statistics, because
-# this module committed no artifact to check against.
+# `draft/tools/free_picks.js`, `draft_card.js` and `wire_vs_bench.js` carry
+# `WIRE = {QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3}` as a hand-copied constant
+# citing this module, and each uses it to decide whether a bench player beats
+# what the wire would have given. The copies are FAITHFUL — but verifying them
+# took three attempts and two wrong statistics, because this module committed no
+# artifact to check against.
 #
 # `projection_error` commits its calibration; `exp36` commits its surface; the
-# deviation card's constants were checkable against exp36.json in one step and
-# came back 11/11. This one was not, and a number that reaches a draft-day
-# decision with no reproducible source is unverifiable by construction — which is
-# a worse property than being wrong, because being wrong is discoverable.
+# deviation card's constants were checkable against exp36.json in one step. This
+# one was not, and a number that reaches a draft-day decision with no
+# reproducible source is unverifiable by construction — a worse property than
+# being wrong, because being wrong is discoverable.
 #
 # THE STATISTIC IS NOT THE OBVIOUS ONE, which is exactly why it needs recording.
 # Pooling every acquisition's points by position gives QB 23.38 / RB 7.80 /
-# WR 11.30 / TE 11.75 — none of the shipped numbers. The shipped statistic is the
-# MEDIAN OF THE CELL MEDIANS over (season, position, week) cells that pass MIN_N.
-# Both are defensible; only one is what the tools quote.
+# WR 11.10 / TE 11.60 — none of the constants above. The recorded statistic is
+# the MEDIAN OF THE CELL MEDIANS over (season, position, week) cells passing
+# MIN_N. Both are defensible; the artifact says which one it is.
+#
+# ⚠ A FOURTH TOOL HAS MOVED AND THE THREE ABOVE HAVE NOT. `emit_seat_plan.js`
+# now derives its wire level at runtime from `draft/tools/wire_level.js` — the
+# POOLED statistic — so as of 2026-08-13 the tools disagree with each other about
+# replacement level, by 1.84x on TE and 1.47x on RB, and in the OPPOSITE
+# direction on WR (0.83x). That divergence is in A's lane and is routed, not
+# fixed here. What this file is responsible for is that the three constants still
+# have a reproducible source, and that the claim about WHICH tools carry them is
+# true — the earlier version of this comment said "four tools" and by then it was
+# three.
+
+def _js_wire(path):
+    """The `WIRE = {...}` literal out of a tool, values only.
+
+    Two shapes exist in the wild: `{QB: 20.9}` and `{QB: {v: 20.9, n: 5}}`. Both
+    are read, because a reader that understands one silently returns nothing for
+    the other — and returning nothing is how this check would pass while seeing
+    no tool at all.
+    """
+    import re
+    src = Path(path).read_text()
+    m = re.search(r"const WIRE\s*=\s*\{", src)
+    if not m:
+        return None
+    i = m.end() - 1
+    depth = 0
+    for j in range(i, len(src)):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                body = src[i:j + 1]
+                break
+    else:
+        return None
+    out = {}
+    for pos, rest in re.findall(r"(QB|RB|WR|TE)\s*:\s*([^,}]+|\{[^}]*\})", body):
+        num = re.search(r"-?\d+(?:\.\d+)?", rest)
+        if num:
+            out[pos] = float(num.group(0))
+    return out or None
+
+
+#: The tools that carry the constant rather than deriving it. `emit_seat_plan.js`
+#: is deliberately absent: it computes its wire level at runtime from
+#: `wire_level.js`, so there is no transcribed number in it to check.
+CONSTANT_TOOLS = ("free_picks.js", "draft_card.js", "wire_vs_bench.js")
+
 
 def test_the_SHIPPED_wire_constants_are_reproducible_from_this_module():
     """MUTATION: pool the raw points instead of taking the median of cell medians
-    — every value moves (QB 20.9 -> 23.4, TE 6.3 -> 11.8) and the tools' numbers
+    — every value moves (QB 20.9 -> 23.4, TE 6.3 -> 11.6) and the tools' numbers
     become unreproducible, which is the state this test exists to end."""
-    import json as _json, statistics as _st
-    from pathlib import Path
+    import json as _json
     art = Path(__file__).resolve().parent.parent / "backtest" / "waiver_replacement.json"
     assert art.exists(), (
         "no artifact: a constant copied into a draft-day tool must have a file to "
@@ -200,6 +249,66 @@ def test_the_SHIPPED_wire_constants_are_reproducible_from_this_module():
         got = d["by_position"][pos]["value"]
         assert abs(got - want) < 0.05, (
             "%s: artifact says %s, draft/tools ships %s" % (pos, got, want))
+
+
+def _check_tools(tools_dir, art, names=CONSTANT_TOOLS):
+    """Factored so the NOTHING-LEFT-TO-CHECK arm can be reached by a test.
+
+    Left inline, that arm only fires in a future where every tool has migrated —
+    i.e. never, today — so it could not be proved to work, and an unprovable
+    guard against vacuity is itself the vacuity it guards against."""
+    seen = 0
+    for name in names:
+        path = Path(tools_dir) / name
+        if not path.exists():
+            continue
+        wire = _js_wire(path)
+        assert wire, (
+            "%s has no readable `const WIRE = {...}` — either it was migrated to "
+            "derive its level (drop it from CONSTANT_TOOLS and say so) or the "
+            "reader has stopped seeing it, which would make this check silent"
+            % name)
+        seen += 1
+        for pos, got in wire.items():
+            assert abs(got - art[pos]) < 0.05, (
+                "%s ships %s=%s; the artifact says %s. The artifact is the source "
+                "of truth — regenerate the constant, do not adjust the artifact."
+                % (name, pos, got, art[pos]))
+    assert seen >= 2, (
+        "read the wire constant out of only %d tools — if they have all migrated, "
+        "this check has nothing left to guard and should be retired deliberately "
+        "rather than passing over nothing" % seen)
+    return seen
+
+
+def test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE():
+    """READS THE TOOLS, which the assertion above never did. It compared the
+    artifact to a hardcoded list and called that "what the tools ship" — so when
+    a tool changed, the test went on passing and its name went on promising.
+
+    A red here means one of two things and the fix differs: a tool was migrated
+    to derive its level at runtime (remove it from CONSTANT_TOOLS), or a
+    transcribed constant drifted from the artifact (regenerate it). It is not a
+    reason to widen the tolerance."""
+    import json as _json
+    root = Path(__file__).resolve().parent.parent
+    d = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
+    art = {p: v["value"] for p, v in d["by_position"].items()}
+    assert _check_tools(root / "tools", art) >= 2
+
+
+def test_a_WORLD_WHERE_EVERY_TOOL_HAS_MIGRATED_fails_rather_than_passes(tmp_path):
+    """The arm that decides whether this check dies loudly or silently. If every
+    tool moves to deriving its level, there is no transcribed constant left to
+    guard — and the check must SAY so and be retired deliberately, not keep
+    reporting green over an empty loop. That is the exact shape of the defect
+    this whole file exists to record.
+
+    MUTATION: `seen >= 0` — which passes over nothing at all."""
+    import pytest as _pytest
+    with _pytest.raises(AssertionError) as e:
+        _check_tools(tmp_path, {"QB": 1, "RB": 1, "WR": 1, "TE": 1})
+    assert "nothing left to guard" in str(e.value)
 
 
 def test_the_artifact_CARRIES_ITS_OWN_THINNESS():

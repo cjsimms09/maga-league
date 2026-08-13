@@ -2185,6 +2185,44 @@ def test_the_LAST_PICK_is_READ_from_pick_order_not_computed():
     assert "forfeit" in d["note"].lower() or "read" in d["note"].lower()
 
 
+def test_the_READ_boundary_CARRIES_BOTH_QUANTITIES_and_says_which_is_which():
+    """DEPTH and SELECTIONS are different numbers and they are 3 apart, which is
+    small enough to look like a rounding difference and large enough to be wrong.
+
+    A consumer that wants selections and finds only `last_pick` will use
+    `last_pick` — nobody stops to wonder whether the field they were handed is
+    the one they meant. So the read path returns both, and the note names which
+    is which rather than leaving the reader to infer it from a number.
+
+    MUTATION: return `last_pick` alone. Every existing assertion still passes and
+    the two quantities silently become one again — which is the state this file
+    was in this morning, when 147 was reported as the draft's length."""
+    d = C.draft_last_pick({
+        "pick_order": {
+            "picks": [dict({"overall": n, "round": 1, "slot": 1},
+                           **({"keeper_slot": True} if n in (2, 5) else {}))
+                      for n in range(1, 151)],
+            "live_picks": 148}})
+    assert d["last_pick"] == 150, d
+    assert d["live_picks"] == 148, "the SELECTION count must survive the call"
+    assert d["keeper_slots"] == 2, d
+    assert "DEPTH" in d["note"] and "SELECTIONS" in d["note"], d["note"]
+
+
+def test_a_MISSING_live_picks_is_reported_as_absent_not_as_the_board():
+    """The null-as-absence trap, in the one place it would be most expensive: a
+    board whose `live_picks` never got written must not leave a consumer reading
+    150 as the selection count.
+
+    MUTATION: default `live_picks` to `last_pick` — every caller then silently
+    counts 150 selections in a 147-selection draft and nothing anywhere says so."""
+    d = C.draft_last_pick({
+        "pick_order": {"picks": [{"overall": n} for n in range(1, 151)]}})
+    assert d["last_pick"] == 150
+    assert d["live_picks"] is None, "absent must stay absent, never become depth"
+    assert "live_picks is absent" in d["note"], d["note"]
+
+
 def test_a_COMPUTED_boundary_is_LABELLED_as_derived_when_the_list_is_absent():
     """Without `pick_order` there is nothing to read, and teams x rounds is the
     best available — but it must not present as authoritative.

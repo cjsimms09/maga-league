@@ -892,12 +892,52 @@ def _keeper_slate_reconciled(slate: dict, keeper_map: dict, order, cfg: dict,
         rnd = mine + 1
         nth = int(my_slot) if rnd % 2 == 1 else teams + 1 - int(my_slot)
         expected = (rnd - 1) * teams + nth
+        # ⚠️ THE CONDITION IS EMITTED AGAIN, AND DROPPING IT WAS A REAL DEFECT.
+        #
+        # The old string read "holds only while I keep 3 (first pick in round
+        # 4)". I deleted it with the compressed identity because the RULE now
+        # generalises to any keeper count — which is true, and beside the point.
+        # THE RULE GENERALISES; THE NUMBER DOES NOT. The sheet prints "#33", and
+        # #33 is true only while Cory keeps exactly three.
+        #
+        # `admin.js` maps this field to `keeperNote.pickRule` and prints it inside
+        # `if (pickRule)`, so a missing field printed NOTHING: the sheet went from
+        # "#33, and here is when that is true" to a bare "#33 — provisional", with
+        # no error anywhere. A number and a number whose provenance was lost read
+        # identically and are not the same claim.
+        #
+        # SO IT COMES BACK STRONGER THAN A CAVEAT. `my_picks_before_keepers` is
+        # the full pre-keeper snake, and the first pick under N keepers is simply
+        # its (N+1)th entry — keep 0 -> 8, 1 -> 13, 2 -> 28, 3 -> 33. Emitting the
+        # whole map means the sheet can show what the number BECOMES rather than
+        # warning that it might, and it is derived from the artifact's own list
+        # rather than restated.
+        snake = list(getattr(order, "my_original_picks", None) or [])
+        alts = {}
+        for k in range(0, int(((cfg.get("keepers") or {}).get("count")) or 3) + 1):
+            if k < len(snake):
+                alts[str(k)] = snake[k]
         check = {"my_first_pick": first, "expected": expected,
                  "holds": first == expected,
                  "my_keepers": mine, "first_round": rnd, "nth_pick_of_round": nth,
                  "rule": "my_first_pick == (N*teams) + (my_slot if N+1 odd else "
                          "teams+1-my_slot), N = MY keeper count",
                  "independent_of": "how many players any other team keeps",
+                 # THE CONDITION IS ALWAYS EMITTED. Losing it is the defect this
+                 # replaces, so an absent pre-keeper snake degrades the MAP and
+                 # never the sentence — and it says the map is missing rather
+                 # than shipping an empty one that reads like "no alternatives".
+                 "condition": (
+                     "TRUE ONLY WHILE I KEEP EXACTLY %d. The RULE holds for any "
+                     "keeper count; the NUMBER moves with mine. %s"
+                     % (mine,
+                        ("First pick is the (N+1)th entry of the pre-keeper snake: %s."
+                         % ", ".join("keep %s -> %s" % (k, v)
+                                     for k, v in sorted(alts.items())))
+                        if alts else
+                        "The pre-keeper snake is UNAVAILABLE in this build, so the "
+                        "alternatives are not priced here.")),
+                 "first_pick_by_my_keeper_count": alts,
                  "board_picks": teams * int(cfg.get("rounds") or 15),
                  "live_picks": len(order.picks),
                  "total_keepers_in_map": total_keepers}
