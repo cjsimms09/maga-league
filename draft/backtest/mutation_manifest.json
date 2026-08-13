@@ -285,10 +285,18 @@
      "verdict": "KILLED"
     },
     {
-     "old": "out[\"all_killed\"] = out[\"checked\"] > 0 and not out[\"regressed\"]",
-     "new": "out[\"all_killed\"] = not out[\"regressed\"]",
+     "old": "out[\"all_killed\"] = out[\"checked\"] > 0 and out[\"killed\"] == out[\"checked\"]",
+     "new": "out[\"all_killed\"] = out[\"killed\"] == out[\"checked\"]",
      "must_fail": [
       "test_an_EMPTY_MANIFEST_is_not_all_killed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            bucket = (\"stale\" if r[\"verdict\"] in stale_verdicts\n                      else \"unverifiable\" if r[\"verdict\"] in INVALID\n                      else \"regressed\")",
+     "new": "            bucket = \"regressed\"",
+     "must_fail": [
+      "test_verify_manifest_SORTS_NON_KILLS_BY_WHAT_THE_READER_MUST_DO"
      ],
      "verdict": "KILLED"
     },

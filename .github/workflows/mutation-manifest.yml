@@ -50,41 +50,73 @@ jobs:
       # mutations TWICE, 40 seconds each, and the two runs could in principle
       # disagree with nothing noticing which was reported.
       - name: Re-run every recorded mutation
+        # Generous, but bounded. The run re-applies every recorded mutation and
+        # each one spawns pytest, so it is minutes rather than seconds and grows
+        # with the manifest. A cancelled job is safe: the gate journals the
+        # in-flight mutation and restores on SIGTERM, and the checkout is thrown
+        # away regardless.
+        timeout-minutes: 30
         run: |
           python3 - <<'PY'
           import json, sys
           sys.path.insert(0, "draft/backtest")
           import mutation_gate as MG
           r = MG.verify_manifest(root=".")
-          print(json.dumps({k: v for k, v in r.items() if k != "regressed"}, indent=1))
+          print(json.dumps({k: v for k, v in r.items()
+                            if k not in ("regressed", "stale", "unverifiable")},
+                           indent=1))
+
+          # THREE BUCKETS, THREE DIFFERENT FIXES. They used to share one list and
+          # one sentence — "the test no longer fails when its mutation is
+          # applied" — which is the wrong instruction for two of them, and sends
+          # the reader hunting a weakened assertion that does not exist.
+          BUCKETS = [
+              ("regressed", "NO LONGER KILL",
+               "the test still exists and no longer fails when its mutation is "
+               "applied. THIS IS THE FAILURE THIS JOB EXISTS FOR — the assertion "
+               "was weakened while keeping its name. Restore the assertion."),
+              ("stale", "NO LONGER APPLY",
+               "the recorded target no longer names exactly one line of the "
+               "current source, or no longer applies cleanly to it. Nothing is "
+               "wrong with the test. Re-run the gate and update the manifest."),
+              ("unverifiable", "COULD NOT BE MEASURED",
+               "the tree was already red, or tests vanished during the run. "
+               "EVERY other verdict in this run is suspect. Fix the tree first, "
+               "then re-run."),
+          ]
 
           with open("/tmp/summary.md", "w") as fh:
               fh.write("## Mutation manifest\n\n")
               fh.write("- re-ran **%d** recorded kills, **%d** still kill\n"
                        % (r["checked"], r["killed"]))
-              if r["regressed"]:
-                  fh.write("\n**%d NO LONGER KILL** — the test still exists and no "
-                           "longer fails when its mutation is applied:\n\n"
-                           % len(r["regressed"]))
-                  for x in r["regressed"]:
+              wrote = False
+              for key, head, why in BUCKETS:
+                  if not r.get(key):
+                      continue
+                  wrote = True
+                  fh.write("\n**%d %s** — %s\n\n" % (len(r[key]), head, why))
+                  for x in r[key]:
                       fh.write("- `%s` → **%s** — %s (%s)\n"
                                % (", ".join(x["must_fail"]), x["verdict"],
                                   x["detail"], x["module"]))
-              elif not r["checked"]:
+              if not r["checked"]:
                   fh.write("\n**NOTHING WAS CHECKED** — the manifest was empty or "
                            "unreadable. This is not a pass.\n")
-              else:
+              elif not wrote:
                   fh.write("\nAll recorded kills still kill.\n")
 
-          # EXIT ON `all_killed`, NOT ON `regressed`. Found by reading the first
-          # dispatched run's log rather than trusting its green tick: with
-          # `checked == 0` — manifest missing, renamed, or unreadable — the
-          # regression list is EMPTY and the job would have gone green while
-          # verifying nothing. `all_killed` is `checked > 0 and not regressed`,
-          # so it refuses that case by construction. A weekly job that passes
-          # when it cannot find its own input is worse than no weekly job.
-          for x in r["regressed"]:
-              print("REGRESSED: %s -> %s" % (", ".join(x["must_fail"]), x["verdict"]))
+          # EXIT ON `all_killed`, NOT ON A BUCKET BEING EMPTY. Found by reading
+          # the first dispatched run's log rather than trusting its green tick:
+          # with `checked == 0` — manifest missing, renamed, or unreadable —
+          # every bucket is empty and the job would have gone green while
+          # verifying nothing. `all_killed` is `checked > 0 and killed ==
+          # checked`, so it refuses that case by construction. A weekly job that
+          # passes when it cannot find its own input is worse than no weekly job,
+          # because the green tick is evidence to whoever reads it.
+          for key, head, _ in BUCKETS:
+              for x in r.get(key, []):
+                  print("%s: %s -> %s" % (head, ", ".join(x["must_fail"]),
+                                          x["verdict"]))
           if not r["checked"]:
               print("NOTHING CHECKED — the manifest was empty or unreadable.")
           sys.exit(0 if r["all_killed"] else 1)

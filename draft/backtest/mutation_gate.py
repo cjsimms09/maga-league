@@ -473,12 +473,32 @@ def verify_manifest(path: str = None, root: str = None) -> dict:
     It NAMES what regressed. A weekly job reporting "21 of 22" sends the reader to
     diff 22 entries by hand, and a scheduled check that costs an afternoon to read
     is a scheduled check that stops being read.
+
+    AND IT SORTS THEM BY WHAT THE READER HAS TO DO. Every non-kill used to land in
+    one list called `regressed`, under one sentence — "the test no longer fails
+    when its mutation is applied". That is true of exactly one of the three
+    things that can happen, and it is the wrong instruction for the other two:
+
+      regressed     SURVIVED. The assertion was weakened while keeping its name.
+                    THE FAILURE THIS JOB EXISTS FOR. Fix: restore the assertion.
+      stale         TARGET_NOT_FOUND / AMBIGUOUS_TARGET / INVALID_SYNTAX. The
+                    entry no longer names exactly one line of the current source,
+                    or no longer applies cleanly to it. Nothing is wrong with the
+                    test. Fix: re-run the gate and update the manifest.
+      unverifiable  INVALID_BASELINE / INVALID_COLLECTION. Nothing could be
+                    measured at all — the tree was red, or tests vanished. Every
+                    other verdict in the same run is suspect. Fix the tree first.
+
+    All three fail the job. Telling them apart is what stops a reader hunting a
+    weakened assertion that does not exist.
     """
     import os
+    stale_verdicts = ("TARGET_NOT_FOUND", "AMBIGUOUS_TARGET", "INVALID_SYNTAX")
     p = Path(path or MANIFEST)
     doc = json.loads(p.read_text())
     base = Path(root) if root else Path(__file__).resolve().parent.parent.parent
-    out = {"checked": 0, "killed": 0, "regressed": [], "all_killed": None}
+    out = {"checked": 0, "killed": 0, "regressed": [], "stale": [],
+           "unverifiable": [], "all_killed": None}
     for mod, m in doc["modules"].items():
         target = mod if os.path.isabs(mod) else str(base / mod)
         tests = [t if os.path.isabs(t) else str(base / t) for t in m["tests"]]
@@ -487,9 +507,15 @@ def verify_manifest(path: str = None, root: str = None) -> dict:
             out["checked"] += 1
             if r["verdict"] == "KILLED":
                 out["killed"] += 1
-            else:
-                out["regressed"].append({"module": mod, "must_fail": mut["must_fail"],
-                                         "verdict": r["verdict"],
-                                         "detail": r["detail"]})
-    out["all_killed"] = out["checked"] > 0 and not out["regressed"]
+                continue
+            entry = {"module": mod, "must_fail": mut["must_fail"],
+                     "verdict": r["verdict"], "detail": r["detail"]}
+            bucket = ("stale" if r["verdict"] in stale_verdicts
+                      else "unverifiable" if r["verdict"] in INVALID
+                      else "regressed")
+            out[bucket].append(entry)
+    # `checked > 0` refuses the manifest that could not be read: an empty run has
+    # nothing in any bucket, and without this the job goes green having verified
+    # nothing. That exact exit condition shipped once.
+    out["all_killed"] = out["checked"] > 0 and out["killed"] == out["checked"]
     return out

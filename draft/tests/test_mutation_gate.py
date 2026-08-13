@@ -522,3 +522,42 @@ def test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs(tmp_path):
     assert out["status"] == "repaired", out
     assert Path(src).read_text() == MODULE
     assert not Path(MG.JOURNAL).exists()
+
+
+def test_verify_manifest_SORTS_NON_KILLS_BY_WHAT_THE_READER_MUST_DO(tmp_path):
+    """One list called `regressed` under one sentence — "the test no longer fails
+    when its mutation is applied" — was true of one of the three things that can
+    happen and the wrong instruction for the other two. A stale entry sends the
+    reader hunting a weakened assertion that does not exist; an unverifiable run
+    makes every other verdict in the same batch suspect and needs the tree fixed
+    before anything else is believed.
+
+    MUTATION: put every non-kill back in `regressed`."""
+    mod = tmp_path / "m.py"
+    mod.write_text("def f(x):\n    return x * 2\n\ndef g(x):\n    return x + 1\n")
+    t = tmp_path / "test_m.py"
+    t.write_text("import sys\nsys.path.insert(0, r'%s')\nimport m\n"
+                 "def test_doubles():\n    assert m.f(4) == 8\n" % str(tmp_path))
+    man = tmp_path / "man.json"
+    MG.record(str(mod), [str(t)], [
+        {"file": str(mod), "old_full": "return x * 2", "new": "return x * 3",
+         "must_fail": ["test_doubles"], "verdict": "KILLED"},
+        {"file": str(mod), "old_full": "return x + 1", "new": "return x + 2",
+         "must_fail": ["test_doubles"], "verdict": "KILLED"},
+        {"file": str(mod), "old_full": "a line no module contains",
+         "new": "z", "must_fail": ["test_doubles"], "verdict": "KILLED"},
+        {"file": str(mod), "old_full": "return x", "new": "return (x",
+         "must_fail": ["test_doubles"], "verdict": "KILLED"},
+    ], path=str(man))
+
+    r = MG.verify_manifest(path=str(man), root=".")
+    assert r["checked"] == 4 and r["killed"] == 1, r
+
+    # g() is not covered by any assertion — a genuine hole, and the only entry
+    # that belongs under "the test stopped failing".
+    assert [x["verdict"] for x in r["regressed"]] == ["SURVIVED"], r["regressed"]
+    # the missing target and the duplicated one are entries that no longer name a
+    # line of this source; nothing is wrong with the test.
+    assert sorted(x["verdict"] for x in r["stale"]) == [
+        "AMBIGUOUS_TARGET", "TARGET_NOT_FOUND"], r["stale"]
+    assert r["all_killed"] is False
