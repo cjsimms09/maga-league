@@ -575,6 +575,77 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/board_activity.py": {
+   "tests": [
+    "draft/tests/test_board_activity.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if p.get(\"position\") not in COVERED_POSITIONS:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_REFUSES_positions_its_evidence_cannot_see"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"years_exp\")) or 0) == 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if p.get(\"adp_source\") not in (None, \"search_rank\"):\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"proj_mean\")) or 0) > 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if (_num(p.get(\"vorp\")) or 0) > 0:\n        hit.append(\"vorp > 0\")",
+     "new": "    if False:\n        hit.append(\"vorp > 0\")",
+     "must_fail": [
+      "test_the_AUDIT_CATCHES_a_dormant_player_that_reaches_a_decision"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if relevant_board and (_num(p.get(\"adp\")) or 10 ** 9) <= relevant_board:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_the_AUDIT_CATCHES_a_dormant_player_that_reaches_a_decision"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"ok\": None, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
+     "new": "        return {\"ok\": True, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
+     "must_fail": [
+      "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not sc[\"seasons_read\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
