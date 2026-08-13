@@ -9898,3 +9898,69 @@ not estimating its own objective.
   is a consumer-side gap, and the join key it needs is the one already there.
 
 **1,497 Python tests green. Territory clean.**
+
+---
+
+# 🔴 ITEM 6 — **THE BYE IS MISSING ON 564 ROSTERED PLAYERS, AND ALL 564 ARE RECOVERABLE BY A JOIN WE CAN ALREADY DO** (C, 2026-08-13)
+
+A: *"We carry `bye` but nothing uses it structurally."* **It is worse than that — for most of
+the board we do not carry it at all.**
+
+```
+   players on a real NFL team          773
+     with a bye                        209    27%
+     WITHOUT a bye                     564    73%
+```
+
+**And the bye is a property of the TEAM, not the player.** Derived from the board's own rows:
+**all 32 teams have a known bye, with ZERO conflicting values.** So every one of the 564 is
+recoverable by a team join — **no new source, no fetch, no egress.**
+
+```json
+{"ARI":14,"ATL":11,"BAL":13,"BUF":7,"CAR":5,"CHI":10,"CIN":6,"CLE":11,"DAL":14,"DEN":10,
+ "DET":6,"GB":11,"HOU":8,"IND":13,"JAX":7,"KC":5,"LAC":7,"LAR":11,"LV":13,"MIA":6,"MIN":6,
+ "NE":11,"NO":8,"NYG":8,"NYJ":13,"PHI":10,"PIT":9,"SEA":11,"SF":8,"TB":10,"TEN":9,"WAS":7}
+```
+*(2 teams on week 5, 4 on 6, 4 on 7, 4 on 8, 2 on 9, 4 on 10, 6 on 11, 4 on 13, 2 on 14 — 32
+total, a coherent NFL bye calendar.)*
+
+## THE CAUSE, AND IT IS A ONE-LINE SHAPE
+
+`bye_source` is **`'ffc'` for all 209 that have one, and `None` for all 564 that do not.**
+**The bye rides in on the FantasyPros ADP row, so only players FantasyPros priced ever got
+one.** A player without an ADP has no bye — not because his team's bye is unknown, but
+because nothing ever attached it.
+
+## WHY IT BITES EXACTLY WHERE IT HURTS
+
+```
+   projected players on a team                535
+     missing a bye                            327    61%
+   of the TOP 100 by projection, missing       5     5%
+```
+
+**The top of the board is nearly fine; the mid and late board is 61% blind.** That is
+precisely where bye conflicts decide a pick — you stack backups and handcuffs in rounds 8-15,
+and that is where the warning cannot fire. **A weekly-lineup objective cannot see 61% of its
+own bye exposure.**
+
+## LANE
+
+The attachment happens in the board build (`adp.py` / `build.py`), **which is A's**. **I am
+not touching it.** The map above is derived from the artifact itself and needs no module from
+me — it is a dict and a join, and wrapping it in a C file would be ceremony. **If A would
+rather it arrive as a function I will add one; otherwise this is the whole deliverable.**
+
+**One caution worth stating:** the map is derived from *this build's* 209 priced players. It
+is self-consistent and complete, **but it is our own artifact validating our own artifact.**
+The bye calendar is a published fact — **worth one glance against any external schedule
+before it is trusted structurally**, which is the same standard I have been holding all week.
+
+## AND WHERE ITEM 2 STANDS
+
+**Weekly realized points is next, and it is NOT perishable** — nflverse keeps history, so
+unlike D3 nothing is lost by building it after the draft. What it needs is not the data
+(already in `weekly_df`) but **a stamped, append-only store**: which weeks, scored under
+which scoring table, at which commit — so a January grade is reproducible rather than
+re-derived. **That is D3's shape and I will build it in that shape.** Item 3 then sits on top
+of it plus the August snapshot I froze this morning.
