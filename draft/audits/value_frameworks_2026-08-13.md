@@ -158,17 +158,82 @@ target_share       428/576   R² 0.305                        INDEPENDENT
 opportunity_share  428/576   R² 0.282                        INDEPENDENT
 ```
 
-**Nothing in the scoring path reads them.** The tiebreaker signal Cory asked for
-was already delivered and is sitting unused. That is the highest-value,
-lowest-cost item on this whole page.
+> ### CORRECTION — 2026-08-13, same day, before anything was built on it
+>
+> I first wrote here, and in commit `98487b6`, that **"nothing in the scoring
+> path reads them."** **That is false.** `draft/projections.py` reads all three,
+> in two places, and the effect is not decorative:
+>
+> 1. **`composite_z` → `opportunity_adj` → `proj_mean`.** `wopr` (WR/TE) or
+>    `opportunity_share × 10 + rz_share` (RB) is z-scored within position, then
+>    `adj = clamp(±0.15, (z/2) × 0.15)` and `proj_mean = baseline × (1 + adj)`.
+>    **MEASURED: 359 of 576 players carry a non-zero adjustment. Median move 1.5
+>    points, p90 20.8, max 45.0.**
+> 2. **`player_variance` → `proj_sd`**, via bell-cow / committee thresholds on
+>    the same shares.
+>
+> The usage signal is **already inside the projection.** I read the board's field
+> list, saw no consumer in the JS scoring path, and inferred non-use without
+> reading the Python producer. **That is the same error class this whole document
+> is about: concluding from an absence I had not actually looked for.** It is
+> also, precisely, the constitutional rule firing — the claim that flattered the
+> finding was the one I checked least.
 
-**Also present and unused: `proj_sleeper` and `proj_fantasypros`** on 402
-players — two independent projection sources. See §4.
+**WHAT SURVIVES THE CORRECTION** (all MEASURED, and it is narrower but real):
 
-**Still genuinely absent:** team pace, plays per game, and rushing usage
-(`wopr`/`target_share` are receiving-side; they cover RBs only through the
-passing game). Those remain a C request — now with the precise neutral-situation
-definition above rather than "get pace".
+- The adjustment is **capped at ±15% and clipped at |z| = 2**, and the cap binds
+  **asymmetrically**: observed range `−0.073` to `+0.150`, with **26 players
+  pinned at the upper cap.** Past that cap, additional `wopr` does **nothing**.
+  That clipping is where the residual independent variation the screen detected
+  actually lives.
+- So the open question is **not** "should we use usage" — we do — but **"is ±15%
+  the right cap, and should usage break ties *directly* as well as through the
+  mean?"** Those are different channels: a tie in `proj_mean` is a tie that
+  already has the usage adjustment baked in. A direct tiebreak would be reading
+  the same signal a second time, and whether that is double-counting or a
+  legitimate second channel is an empirical question, not an obvious one.
+
+> ### CORRECTION TWO — THE SAME MISTAKE AGAIN, TEN MINUTES LATER
+>
+> Immediately after writing Correction One, I wrote that `proj_sleeper` and
+> `proj_fantasypros` were *"written by the ingest and consumed by nothing — I
+> have checked the producer this time."* **Also false.**
+> `public/js/draft/consensus.js:45-46` reads both. I checked the producer and
+> again did not check the consumers. **Twice in one document, ten minutes apart,
+> asserting non-use without grepping for readers.**
+>
+> That is worth more than the finding it corrupted. **Claiming a thing is unused
+> is a claim about EVERY file, and it cannot be established by reading one.**
+> The only sound form is a repo-wide search, and both times the search took
+> seconds and both times I skipped it because the conclusion was convenient.
+
+**WHAT `consensus.js` ACTUALLY DOES** (READ, in full, this time):
+
+- **Averages** the per-source projections into a displayed raw-consensus number
+  (contract C3), labelled honestly by source count.
+- Flags the **disagreement moment** — a same-position candidate projecting higher
+  than the recommended player — so both numbers are on screen when the machinery
+  is either finding something or broken.
+- **Neither field enters the score.**
+
+**So the narrowed finding, which does survive:** the **magnitude** of
+`|sleeper − fantasypros|` is used nowhere. It is displayed as an average and as a
+binary "someone projects higher" flag, never as a *size-of-disagreement* signal.
+That magnitude is the Chen-tier analogue, and it remains unread (§4).
+
+> **AND A STALE DESCRIPTION FOUND ON THE WAY (MEASURED).** `consensus.js`'s
+> header states: *"TODAY IT IS SLEEPER ONLY — … FantasyPros projections are a CI
+> fetch not yet populated. So this renders 'Sleeper proj', not 'consensus'."*
+> **Both sources are now populated on exactly 402 players**, and the artifact's
+> own provenance records `consensus_sources: 2`, `fantasypros_attached: 437`,
+> `fp_proj_rows_parsed: 525`. The code branches on the data and so is correct;
+> **the comment describing it is false.** Same class as the four false
+> descriptions corrected in `engine.js` — a comment that was true when written
+> and became a lie when the data landed. Recorded, not edited: it is B's file.
+
+**Still genuinely absent:** team pace, plays per game, and rushing usage beyond
+`opportunity_share`. Those remain a C request — now with the precise
+neutral-situation definition above rather than "get pace".
 
 ---
 
@@ -249,6 +314,28 @@ bye      null          "bye weeks do not matter"
 
 - `proj_ceiling = proj_mean + 1.036 × proj_sd` — every player, every position.
   **A ceiling weight is a relabelled mix of the value and variance weights.**
+
+  > **FRAMING CORRECTION.** I described this as a lock *discovered* because
+  > "nothing systematic was looking". That overstates it. `draft/projections.py`
+  > lines 19–20 declare `FLOOR_Z = -0.674  # 25th percentile` and
+  > `CEILING_Z = 1.036  # 85th percentile` as named, commented constants, and
+  > line 240 applies them. **The construction was never hidden.** What was
+  > missed is the *consequence*: that a quantity built this way cannot be
+  > measured as a separate weight, so the "ceiling unsignable" result was
+  > preordained by line 240 and not by football. **The lock was in plain sight
+  > and the inference from it was never drawn** — which is a different failure
+  > from a hidden defect, and arguably a worse one.
+  >
+  > **AND THE COMMENT AT LINE 232 DEFENDS THE WRONG FAILURE MODE.** It reads:
+  > *"Keeping this per-player is what stops ceiling − mean collapsing into a
+  > constant multiple of the mean, which is what made UpsideBonus inert."*
+  > Since `season_sd = proj_mean × variance`, we have
+  > `ceiling − mean = 1.036 × proj_mean × variance`. It **is** a multiple of the
+  > mean; the multiple is `1.036 × variance`, which takes **10–24 distinct
+  > values per position (MEASURED)**. So the comment is right that it is not a
+  > *constant* multiple — and **being non-constant does not make the ceiling
+  > identifiable**, because it remains an exact function of `(mean, sd)`. The
+  > fix works against the failure it names and not against the one that matters.
 - `tier` is monotone in `proj_mean` rank within every position. **A tier weight
   is a coarsening of the ordering it is added to.**
 - `games_expected` is one value per position, so points-per-game is `proj_mean`
@@ -293,8 +380,8 @@ code**, which is why nothing we own caught it.
 
 | # | item | cost | status |
 |---|---|---|---|
-| 1 | **Read `wopr` / `target_share` / `opportunity_share`** — already on the board, already independent, currently unused | low | **A, actionable now** |
-| 2 | **Source-disagreement signal** from `proj_sleeper` vs `proj_fantasypros` — the real Chen-tier analogue, nearly independent of level and variance | low | **A, actionable now** |
+| 1 | **Test the ±15% usage cap.** Usage is already in `proj_mean`; 26 players are pinned at the upper cap and get no credit past it. The question is the cap, not the signal | low | **A, actionable now** |
+| 2 | **Source-disagreement MAGNITUDE** from `proj_sleeper` vs `proj_fantasypros` — displayed as an average and a binary flag, never as a size-of-disagreement signal. The real Chen-tier analogue | low | **A, actionable now** |
 | 3 | **Player-level expected games / durability** — unblocks the per-game correction and a durability tiebreaker | needs data | **C — the biggest gap** |
 | 4 | **Neutral-situation pace + plays per game + rushing usage** — spec is now precise (Q1–Q3, within 7, >2 min left) | needs data | **C** |
 | 5 | **Test the split variance preference** — starters variance-averse, bench variance-loving | medium | A, post-draft |
