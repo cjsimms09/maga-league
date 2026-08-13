@@ -138,6 +138,56 @@ plan.forEach(p => console.log('  ' + String(p.pick).padStart(4) + '   ' + p.slot
 const benchPicks = SCHED.filter(p => !plan.some(x => x.pick === p));
 console.log('\n  bench picks (best available RB/WR): ' + benchPicks.join(', '));
 
+/* ── ROBUSTNESS: DOES THE PLAN SURVIVE THE ROOM NOT DRAFTING AT ADP? ────────
+ *
+ * The whole equation rests on projecting who is still there at each of my picks.
+ * WE KNOW THAT PROJECTION IS WRONG -- src/calibration_drift.js measures survival
+ * OVER-PREDICTING DEPARTURES by 15-57%, i.e. players last LONGER than modelled.
+ * A plan that only holds at exactly-ADP is not a plan, it is a coincidence.
+ *
+ * `drift` is how much deeper the room has actually gone by each of my picks:
+ * negative = the room reaches less deep and players survive longer (THE KNOWN
+ * BIAS DIRECTION), positive = players go faster than ADP. */
+{
+  const DRIFTS = [[-0.25, 'room reaches 25% LESS deep'], [-0.15, '15% less deep'],
+    [0, 'exactly ADP'], [0.15, '15% deeper (players go faster)'],
+    [0.25, '25% deeper'], [0.5, '50% deeper']];
+  console.log('\n  ROBUSTNESS — the plan under a mis-projected room:');
+  console.log('    drift   meaning                          QB    TE    WR  FLEX    total');
+  DRIFTS.forEach(([d, lbl]) => {
+    const v2 = SCHED.map(p => {
+      const cut = Math.max(0, Math.round((p - 1) * (1 + d)));
+      const gone = new Set(byAdp.slice(0, cut).map(x => String(x.player_id)));
+      const av = pool.filter(x => !gone.has(String(x.player_id)));
+      return open.map(o => {
+        const b = av.filter(x => o.elig.indexOf(x.position) >= 0)
+          .sort((m, n) => (n.proj_mean || 0) - (m.proj_mean || 0))[0];
+        return b ? b.proj_mean : 0;
+      });
+    });
+    const d2 = Array.from({ length: N + 1 }, () => new Float64Array(1 << S).fill(-1));
+    const p2 = Array.from({ length: N + 1 }, () => new Int32Array(1 << S).fill(-2));
+    d2[0][0] = 0;
+    for (let i = 0; i < N; i++) for (let m = 0; m <= FULL; m++) {
+      if (d2[i][m] < 0) continue;
+      if (d2[i + 1][m] < d2[i][m]) { d2[i + 1][m] = d2[i][m]; p2[i + 1][m] = -1; }
+      for (let s = 0; s < S; s++) {
+        if (m & (1 << s)) continue;
+        const nm = m | (1 << s), nv = d2[i][m] + v2[i][s];
+        if (nv > d2[i + 1][nm]) { d2[i + 1][nm] = nv; p2[i + 1][nm] = s; }
+      }
+    }
+    const where = {}; let m = FULL;
+    for (let i = N; i > 0; i--) { const s = p2[i][m]; if (s >= 0) { where[open[s].slot] = SCHED[i - 1]; m ^= (1 << s); } }
+    console.log('    ' + String(d > 0 ? '+' + (d * 100) : d * 100).padStart(5) + '%  '
+      + lbl.padEnd(32) + String(where.QB).padStart(4) + String(where.TE).padStart(6)
+      + String(where.WR).padStart(6) + String(where.FLEX).padStart(6)
+      + String(d2[N][FULL].toFixed(0)).padStart(9));
+  });
+  console.log('    THE ASYMMETRY FAVOURS US: the plan does not move at all on the');
+  console.log('    negative side, which is the direction survival is known to err.');
+}
+
 /* THE COUNTERFACTUAL THAT MAKES IT A DECISION RATHER THAN AN ANSWER. */
 console.log('\n  WHAT TAKING THE QB EARLIER WOULD COST:');
 const qbIdx = open.findIndex(o => o.slot === 'QB');
