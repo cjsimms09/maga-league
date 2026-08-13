@@ -172,3 +172,49 @@ Findings 1 and 2 held in direction and weakened slightly in size: `sd_ratio` 2.1
 and no `to_week`, and `cli.py` passes it a frame including weeks 18–22. The replay's
 own grading therefore carries the same playoff inflation measured above — a median
 ~0.077 on the ratio and up to 0.217 in one band.
+
+---
+
+## 2026-08-13 — the production board's `proj_sd` against the measured spread
+
+`proj_sd` is not manufactured — A corrected me on that and was right. `projections.py:241`
+sets `season_sd = mean_proj * var` from `player_variance`, and `weekly_sd` is DERIVED from
+it (`season_sd / sqrt(games)`), not its source. So the board's `proj_sd / proj_mean` is
+exactly the `variance` field, per player.
+
+**It is real, and it is systematically lower than what 2023–2025 actually did.**
+
+Basis confirmed rather than assumed: the calibration bands on a WITHIN-POSITION projection
+rank. The board has no `proj_rank`, and my first cut fed `band_of` the OVERALL
+`consensus_rank`, which dumped nearly every player into `33+` and produced a table with 1–7
+players in the top bands. Recomputing the rank from `proj_mean` descending agrees with the
+board's own `pos_rank` on **576/576** players.
+
+| | cells | median gap (measured ÷ board) |
+|---|---|---|
+| all comparable cells | 20 | 1.29× |
+| board BELOW measured | 17 of 20 | |
+| **where the walk-forward model was itself well calibrated** (\|mean_ratio − 1\| ≤ 0.25) | **14** | **1.28×** |
+| where it was biased | 6 | 1.40× |
+
+**THE CONFOUND, STATED BECAUSE IT CUTS AGAINST THE FINDING.** The walk-forward projections
+behind the calibration are themselves ~2× high in the deep bands (QB33+ `mean_ratio` 0.411,
+TE33+ 0.473). Part of any measured spread is that model's own badness rather than
+irreducible outcome uncertainty, so the raw `sd_ratio` is an UPPER bound on what production
+should carry. The headline gaps — QB17-32 at 2.45×, QB33+ at 2.30× — sit exactly in the
+cells where the model was worst, and they are contaminated.
+
+Splitting on that is the whole analysis. **In the 14 cells where the historical model was
+well calibrated, the gap is still 1.28×**, so the confound explains 1.40 → 1.28 and no more.
+Three cells run the other way (TE33+ 0.96×, TE4-8 0.94×, WR1-3 0.94×), so it is a tendency
+rather than a uniform offset.
+
+**Assumption worth naming:** `sd_ratio` is the dispersion of actual/projected ACROSS players
+in a cell, and `proj_sd/proj_mean` is the intended per-player CV. With one observation per
+player-season, the former is the standard estimator of the latter — but they are the same
+quantity only if the cell is homogeneous.
+
+**Not an ask, and deliberately not one eight days from a draft.** ~28% is material for a term
+that drives survival and therefore VONA, and recalibrating `player_variance` is neither
+mechanical nor mine. Recorded so the decision is A's and the number is on the record before
+the draft rather than after it.
