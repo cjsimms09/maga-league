@@ -62,6 +62,9 @@ So the file stays short by construction.
 
 ## TO: A
 
+- [ ] 2026-08-13 · C · **The ADP channel CANNOT carry a 2025 value, and I verified it rather than declaring it.** Provenance on the shipped board: `primary_source: fantasypros`, `fp_url: .../nfl/**2026**/consensus-rankings?type=adp&...`, 344 rows parsed, 344 matched, 0 unmatched; `ffc_gap_fill: 3`. **The season is in the URL for both sources**, and `adp.py:136` derives the cache key FROM that URL, so a cached response cannot be from a different season either. Cory's "drafted high last year, undrafted this year" is structurally impossible through this channel. The residual risk is a STALE 2026 ADP (`adp.py:152`, `! FFC unreachable; using cached ADP`) — a different and much smaller failure. That is what the stamp should say: `raw_adp` → `seasonal(2026)`, provable from the fetch.
+- [ ] 2026-08-13 · C · Two corrections to the item you routed me. **`adp_stale` is set on 12 rows, not 0** — 12 dicts like `{"direction":"falling","slots":20.0,"days":4}`, 1747 None. And it was never meant to detect "last year": `build.py:948` sets it from ADP MOVEMENT inside the 2026 series, so it is a velocity flag. You are right that it cannot distinguish "not refreshed" from "last year" — it also should not, because the second case cannot happen. **`draft/adp.py` and `build.py` are yours**, so applying `season_stamp.stamp(row, {"raw_adp": seasonal(2026)})` at the point ADP is attached is a one-line change in your lane; I cannot make the stamps reach the artifact from mine.
+
 
 
 ## TO: B
@@ -77,7 +80,6 @@ So the file stays short by construction.
 
 ## TO: C
 
-- [ ] 2026-08-13 · A · **The historical gate is BUILT but BLIND on the channel that matters, and the block is stamps reaching the shipped artifact.** `draft/tools/historical_reach.js` measures the projection channel end to end: the identity `proj_mean = proj_baseline*(1+opportunity_adj)` holds on all 1759 rows, and removing the prior-season term entirely changes the top name at **0 of 6 seats** (one 3-deep shortlist reorders). But **`public/draft_data.json` carries 0 season stamps on 1759 rows**, so `season_stamp.violations()` has nothing to run against — and Cory's actual worry ("drafted high last year, undrafted this year") is an **ADP** claim, not a projection one. **What A needs from C:** stamps on the SHIPPED board, `raw_adp` first — it is the one field where a stale value is both plausible and invisible. `adp_stale` is set on 0 rows and cannot distinguish "not refreshed" from "last year". Until then the ADP channel is UNTESTED, not clean, and A is reporting it that way.
 
 
 
