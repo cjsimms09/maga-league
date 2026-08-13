@@ -17,13 +17,13 @@
 // while the draft engine had supported both slot types the whole time.
 //
 // This test does two things a consolidation could not: it fails when the six
-// DISAGREE, and it fails when a SEVENTH appears that nobody told it about.
+// DISAGREE, and it fails when a NEW one appears that nobody told it about.
 const fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, console.log('FAIL ' + n + (d !== undefined ? ' -> ' + JSON.stringify(d).slice(0, 240) : ''))); };
 
-// The six known definitions. `flexOnly` records that a file legitimately covers
+// The known definitions. `flexOnly` records that a file legitimately covers
 // only the FLEX case — that is a scope statement, and the test holds it to it.
 const SITES = [
   { file: 'src/routes/lineup.js', name: 'FLEX_SLOTS', flexOnly: false, lane: 'B' },
@@ -32,6 +32,12 @@ const SITES = [
   { file: 'public/js/draft/valuation.js', name: 'FLEX_ELIGIBLE', flexOnly: false, lane: 'A' },
   { file: 'public/js/draft/grabby.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
   { file: 'draft/tests/sanity-sweep.test.js', name: 'FLEX_ELIGIBLE', flexOnly: true, lane: 'A' },
+  /* SEVENTH, added 2026-08-13. draft/tools/lineup_value.js declared its own
+   * FLEX_ELIGIBLE and this test caught it the same day — which is the entire
+   * reason check 3 exists. REGISTERED SO IT IS COMPARED, not exempted: adding it
+   * to an ignore list would have silenced the alarm and left the copy free to
+   * drift, which is the failure the file is named after. */
+  { file: 'draft/tools/lineup_value.js', name: 'FLEX_ELIGIBLE', flexOnly: false, lane: 'A' },
 ];
 
 // Pull the literal out of the source and evaluate it. Reading the SOURCE rather
@@ -105,7 +111,7 @@ for (const slot of ['SUPER_FLEX', 'REC_FLEX']) {
     .filter(f => f !== 'draft/tests/flex_eligibility.test.js');
   const known = new Set(SITES.map(s => s.file));
   const unknown = rel.filter(f => !known.has(f));
-  ck('no SEVENTH definition has appeared that this test does not compare',
+  ck('no UNREGISTERED definition has appeared that this test does not compare',
     unknown.length === 0, unknown);
   ck('  and every known definition still exists', SITES.every(s => rel.includes(s.file)),
     SITES.map(s => s.file).filter(f => !rel.includes(f)));

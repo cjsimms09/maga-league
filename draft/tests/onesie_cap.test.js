@@ -76,10 +76,17 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   const rankOf = pos => res.findIndex(r => r.player.position === pos) + 1;
   const qb = rankOf('QB'), te = rankOf('TE');
 
-  ck('EXPOSURE: with the cap gone a third QB still surfaces near the top',
-    qb > 0 && qb <= 12, { third_QB_board_rank: qb, of: res.length });
-  ck('  and so does a third TE — this is the units defect, not a cap failure',
-    te > 0 && te <= 12, { third_TE_board_rank: te, of: res.length });
+  /* THIS BLOCK ASSERTED THE DEFECT (2026-08-13). When the cap was deleted these
+   * two checks were rewritten to pin the CONSEQUENCE — "a third QB still
+   * surfaces near the top" — as a standing exposure. That was honest at the
+   * time. But it made the suite go RED ON THE FIX and green on the bug, which
+   * is the same shape as test_acceptance.py asserting adp_sd_for(100) == 22.0.
+   * The cap is restored, so the expectation moves back and the reason is here
+   * rather than in a diff nobody reads. */
+  ck('a THIRD quarterback is sunk, not surfaced near the top',
+    qb === 0 || qb > 12, { third_QB_board_rank: qb, of: res.length });
+  ck('  and so is a third TE',
+    te === 0 || te > 12, { third_TE_board_rank: te, of: res.length });
   ck('  both are at least PRICED as spares rather than at full value',
     res[qb - 1].onesie && res[qb - 1].onesie.discounted
     && res[te - 1].onesie && res[te - 1].onesie.discounted);
@@ -109,14 +116,15 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
   const res = rec(roster, { left: 5 });
   const k = res.find(r => r.player.position === 'K');
   const d = res.find(r => r.player.position === 'DEF');
-  /* THE CAP IS DELETED (Cory, 2026-08-14). `capped` no longer exists as a state;
-   * a duplicate who cannot start is priced as a spare UNCONDITIONALLY, which is
-   * what the cap was approximating for K and DEF anyway. */
+  /* ONESIE_MAX_SPARE is {K: 0, DEF: 0} — no spare at all. Both are streamed, so a
+   * second one cannot earn a pick even as insurance; the wire restocks them on
+   * demand (waiver_supply: 100% of the DEF pool and 83% of K cycle every year). */
   ck('a SECOND kicker is priced as a spare — both are streamed and neither earns a pick',
     k && k.onesie && k.onesie.discounted, k && k.onesie);
   ck('  and so is a second defence', d && d.onesie && d.onesie.discounted, d && d.onesie);
-  ck('  and neither is `capped`, because the cap no longer exists',
-    !(k && k.onesie && k.onesie.capped) && !(d && d.onesie && d.onesie.capped));
+  ck('  and BOTH are capped — zero spares allowed, so pricing low is not enough',
+    (k && k.onesie && k.onesie.capped) && (d && d.onesie && d.onesie.capped),
+    { k: k && k.onesie, d: d && d.onesie });
 }
 
 // ── THE ENDGAME STILL RELAXES IT ───────────────────────────────────────────
@@ -143,10 +151,22 @@ const rankOfPos = (res, pos) => res.findIndex(r => r.player.position === pos) + 
    * above had already excluded flex-startable players. One function, two answers
    * to "does the flex count", which priced the first unstartable QB at 81% of
    * standalone VORP and the first unstartable TE at 8%. */
-  ck('CFG.ONESIE_MAX_SPARE does not exist', E.CFG.ONESIE_MAX_SPARE === undefined);
-  ck('  and neither does CFG.ONESIE_HARD_CAP', E.CFG.ONESIE_HARD_CAP === undefined);
-  ck('  and no entry reports a `capped` state any more',
-    rec(build(['QB', 'QB', 'QB', 'TE', 'TE', 'TE'])).every(r => !(r.onesie && r.onesie.capped)));
+  ck('CFG.ONESIE_MAX_SPARE exists and allows exactly one spare QB and TE',
+    E.CFG.ONESIE_MAX_SPARE && E.CFG.ONESIE_MAX_SPARE.QB === 1
+    && E.CFG.ONESIE_MAX_SPARE.TE === 1 && E.CFG.ONESIE_MAX_SPARE.K === 0
+    && E.CFG.ONESIE_MAX_SPARE.DEF === 0, E.CFG.ONESIE_MAX_SPARE);
+  ck('  and CFG.ONESIE_HARD_CAP is on', E.CFG.ONESIE_HARD_CAP === true);
+  /* THE ROSTER HERE MUST BE LEGALLY COMPLETE, and my first version was not.
+   * `['QB','QB','QB','TE','TE','TE']` has no RB, WR, K or DEF, so mandatoryGaps
+   * returns six and applyRosterLegality FORCES with five picks left — the result
+   * contains only the needed positions and no quarterback appears at all. The
+   * assertion failed and the cap was fine; the fixture was an emergency, not a
+   * roster. Legality outranks the cap and should: a legal lineup beats a tidy
+   * one. Filled out so the cap is what is actually under test. */
+  const full = build(['QB', 'QB', 'QB', 'TE', 'TE', 'TE', 'RB', 'RB', 'WR', 'WR', 'K', 'DEF']);
+  ck('  a roster already carrying three QBs and three TEs reports capped entries',
+    rec(full).some(r => r.onesie && r.onesie.capped),
+    { gaps: 0, capped: rec(full).filter(r => r.onesie && r.onesie.capped).length });
 }
 
 /* ── THE TWO CONTROL BLOCKS THAT LIVED HERE ARE DELETED WITH THEIR SUBJECT ──

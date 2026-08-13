@@ -217,6 +217,33 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
+     * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
+     * deleted the next day on my reading of Cory's "delete the cap" instruction.
+     * Driving the shipped engine end to end afterwards produced THREE
+     * QUARTERBACKS again — Goff at 108 scoring 0.8 and Love at 128 scoring 1.1,
+     * winning an arbitrary tie in a tail where everything sits near zero.
+     *
+     * The comment beside ONESIE_KEEP already said why a discount cannot do this
+     * job, and that comment survived the deletion of the thing it justified:
+     * ONESIE_KEEP is MULTIPLICATIVE, and a tenth of a small positive number is
+     * still positive when every alternative is ~0. A DISCOUNT CANNOT EXPRESS
+     * "NEVER".
+     *
+     * Cory's rule for restoring it: is this better for the model NOW OR IN THE
+     * LONG RUN? Now, yes — it is the only thing standing between the board and a
+     * third quarterback. Long run, it is the right SHAPE and the wrong
+     * IMPLEMENTATION: roster-awareness has to be a CONSTRAINT, not a weight,
+     * which is precisely why `need` measured as a drag and was zeroed — a
+     * weighted term competes with VONA and loses, a constraint cannot. The cap
+     * is a crude constraint; the seat assignment in draft_plan.js is the good
+     * one. So this is the first version of the correct mechanism, not a stopgap.
+     *
+     * WHAT IT DOES NOT FIX, stated so the next measurement is not a surprise:
+     * Josh Allen at pick 8. There `have (0) < slots (1)`, so no onesie rule
+     * applies at all — that is pure cross-position VONA and a separate defect. */
+    ONESIE_HARD_CAP: true,
+    ONESIE_MAX_SPARE: { QB: 1, TE: 1, K: 0, DEF: 0 },
     ONESIE_KEEP: 0.10,            // fraction of standalone value a backup retains
     ONESIE_ENDGAME_PICKS: 2,      // last N picks: nothing else matters, rule relaxes
     /* THE STRUCTURAL CAP, added 2026-08-12 after the roster-construction run.
@@ -1071,6 +1098,12 @@
     const have = roster.filter(p => p.position === pos).length;
     if (have < slots) return none;                       // still filling the slot
 
+    /* PAST THIS MANY SPARES HE IS NOT PRICED LOW, HE IS SUNK. `capped` is read by
+     * demoteFlaggedOnesies, which is intact and still carries the reasoning —
+     * only the line that SET the flag was removed. */
+    const capAllowed = CFG.ONESIE_HARD_CAP ? (CFG.ONESIE_MAX_SPARE || {})[pos] : null;
+    const wouldCap = capAllowed != null && (have - slots) >= capAllowed;
+
     // TE is a onesie only once the FLEX cannot take him either.
     if (pos === 'TE' || pos === 'RB' || pos === 'WR') {
       const flexEl = ['RB', 'WR', 'TE'];
@@ -1141,8 +1174,12 @@
        * principle -- "priced low because he cannot start" -- and the code applied
        * it only when a cap happened to bind. It applies always now; the exception
        * still SURFACES him (insurance, trade value, bye cover) and says why. */
+      /* THE EXCEPTION SURFACES A SPARE; IT DOES NOT SURFACE A THIRD ONE. An elite
+       * faller is worth seeing as QB2 (insurance, bye cover, trade value) and is
+       * not worth seeing as QB3 — at that point "you cannot start him" has been
+       * true twice over. So the cap still binds through the exception. */
       return { duplicate: true, discount: CFG.ONESIE_KEEP,
-        capped: false, exception: 'value',
+        capped: wouldCap, exception: 'value',
         why: pos + (have + 1) + ' — ' + (player.name || 'he') + ' at +' + Math.round(fell)
           + ' vs ADP, top-' + CFG.ONESIE_ELITE_RANK + ' at the position; insurance and '
           + 'trade value. YOU CANNOT START HIM, so he is priced as a spare.' };
@@ -1193,8 +1230,9 @@
      * flagged OUT. That is the difference between a ceiling on habitual
      * behaviour and a prohibition, and getting the order wrong is what made the
      * first version refuse the pick it should most want. */
-    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: false, exception: null,
-      why: pos + (have + 1) + ' — you cannot start him; priced as a backup' };
+    return { duplicate: true, discount: CFG.ONESIE_KEEP, capped: wouldCap, exception: null,
+      why: pos + (have + 1) + ' — you cannot start him; priced as a backup'
+        + (wouldCap ? ', and you already carry ' + have + ' — SUNK, not merely discounted' : '') };
   }
 
   /** Where he ranks at his own position on the CURRENT board. */
