@@ -748,6 +748,20 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .recs-details { margin-top: .3rem; }
 .recs-details > summary { cursor: pointer; color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
 
+/* THE DECISIVE-TERM READOUT. A caption above the list, not a card in it —
+   it describes the ranking rather than joining it, and must never look like a
+   sixth recommendation. Additive: no existing rule is modified, because this
+   stylesheet is shared with the in-season surface. */
+.rec-decisive {
+  font-size: .82rem;
+  letter-spacing: .01em;
+  padding: .35rem .6rem;
+  margin: 0 0 .5rem;
+  border-left: 2px solid rgba(245, 196, 69, .55);
+  background: rgba(245, 196, 69, .05);
+  border-radius: 0 4px 4px 0;
+}
+
 .rec-card {
   display: flex; gap: .8rem; align-items: center;
   padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 12px;
