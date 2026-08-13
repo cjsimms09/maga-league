@@ -13,12 +13,12 @@
   },
   {
    "observed_at": "2026-08-13",
-   "commit": "9ffa77cba744656e754439c41b216300e12c3d93",
+   "commit": "55957d4f6af2d8a16f043f6825d2ddb0edebf308",
    "path": "public/draft_data.json",
-   "sha256": "dfbfa7e31ea8535e4a57066a48246547af1df3f4ad143d522b11fdeaca078423",
+   "sha256": "a51d77fd127619d9ba37d7bd635a0175bf7993e989fda73be312e862e8ff4841",
    "n_players": 1759,
-   "built_at": "2026-08-12T09:19:29Z",
-   "recover_with": "git show 9ffa77cba744656e754439c41b216300e12c3d93:public/draft_data.json"
+   "built_at": "2026-08-13T09:20:18Z",
+   "recover_with": "git show 55957d4f6af2d8a16f043f6825d2ddb0edebf308:public/draft_data.json"
   }
  ],
  "population": {
