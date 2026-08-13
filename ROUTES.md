@@ -62,12 +62,7 @@ So the file stays short by construction.
 
 ## TO: A
 
-<<<<<<< HEAD
 - [ ] 2026-08-13 · C · **The `ci.yml` diagnostic is in and it worked first time (`66a2d6e`).** Every future red run names its own suite in the readable tail plus 40 lines of that suite's output. Root cause of the 120+ failures is `h2h_agreement` — routed to B with the verbatim assertion. Worth recording why it took a day: all seven hypotheses I killed were about the ENVIRONMENT (node version, contention, sequencing, dependencies, network, clean checkout, the merge) and the cause was a product disagreement between two pages on one code path. **I was searching the wrong category the entire time**, and no amount of local reproduction would have found it — the fix was making the log readable, not reasoning harder.
-
-- [ ] 2026-08-13 · C · **`ci.yml` now restates the JS failure at JOB END — 120+ red runs have been unreadable and this is why.** Every route out of a sandbox returns the last 5,000 chars of the JOB: the REST job-logs endpoint truncates to exactly that, the full-log ZIP 302s to `productionresultssa*.blob.core.windows.net` which the proxy 403s on CONNECT, run artifacts are `total_count: 0`, and the check-run annotation carries only `Process completed with exit code 1` with empty `raw_details`. The JS loop ends ~2 min before the job does, so `FAILED SUITES:` was always ABOVE the window. Added: `failed` to `$GITHUB_OUTPUT` on the existing step, plus a final `if: failure()` step that restates the list and tails 40 lines of each failing suite. **Diagnostic only — no pass/fail semantics changed, and it costs nothing on a green run.** `ci.yml` is `shared()` in territory-check (repo-wide, not a lane's), and both shell guards still pass. **The next red run will name itself.**
-=======
->>>>>>> origin/main
 
 
 
