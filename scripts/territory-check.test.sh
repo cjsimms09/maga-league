@@ -148,10 +148,17 @@ for lane in A B C; do
   grep -q "REFUSING" /tmp/tcX.out; ck $? 0 \
     "lane $lane: and it says so in those words"
 done
-# AND THE ONE-ARGUMENT FORM STILL WORKS — the refusal above must not have been
-# bought by breaking the only invocation anybody should use.
+# AND BOTH REAL FORMS STILL WORK — the refusal above must not have been bought by
+# breaking a caller. My first version refused ANY second argument and broke
+# `integrate.sh`, which legitimately calls `--range BASE REF` twice. A guard
+# written without reading its callers is a guard that breaks them, and this pins
+# the contract so the next person tightening this cannot repeat it.
 bash scripts/territory-check.sh C >/tmp/tcY.out 2>&1; ck $? 0 \
   "the correct one-argument invocation still passes on a clean tree"
+bash scripts/territory-check.sh C --range HEAD HEAD >/tmp/tcZ.out 2>&1; ck $? 0 \
+  "--range BASE REF is accepted — integrate.sh depends on it"
+grep -q "REFUSING" /tmp/tcZ.out; ck $? 1 \
+  "  and is not mistaken for the bad form"
 
 echo ""; echo "$pass passed, $fail failed"
 [ "$fail" -eq 0 ]

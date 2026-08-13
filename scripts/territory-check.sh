@@ -48,19 +48,28 @@ esac
 # reading a name its author believed in. Silence would have been better; a false
 # OK is worse than no answer, because it is evidence.
 #
-# So an unexpected argument is now a REFUSAL that says what the tool does check
+# So an UNRECOGNISED argument is now a REFUSAL that says what the tool does check
 # and points at the thing that does answer "whose file is this".
-if [ "$#" -gt 1 ]; then
+#
+# ⚠️ AND THE REFUSAL HAS TO KNOW THE REAL CONTRACT, WHICH IS NOT "one argument".
+# My first version refused ANY second argument and broke `integrate.sh`, which
+# legitimately calls `--range BASE REF` — twice. I added a guard without reading
+# its callers, one commit after writing that reading the caller is the rule. The
+# grep takes ten seconds and I did not do it. So: `--range` is accepted, a bare
+# path is refused, and the two are told apart rather than counted.
+if [ "$#" -gt 1 ] && [ "${2:-}" != "--range" ]; then
   shift
   cat >&2 <<EOF
-REFUSING: territory-check.sh takes ONE argument (the side) and got extra: $*
+REFUSING: territory-check.sh got an argument it does not read: $*
 
-It checks the WORKING TREE — every uncommitted change — against the split. It
-does NOT take a file path, and passing one used to be IGNORED, which made this
-print OK about a file it had never looked at.
+  usage: territory-check.sh A|B|C                  (the WORKING TREE)
+         territory-check.sh A|B|C --range BASE REF (what a branch changed)
 
-  whose file is this?   grep the path in TERRITORY.md, or run this with the file
-                        actually edited in your tree
+It does NOT take a file path. Passing one used to be IGNORED, so this printed
+"OK: side <X> stayed in its territory" about a file it had never looked at.
+
+  whose file is this?    grep the path in TERRITORY.md, or make the edit and run
+                         this with the file actually changed in your tree
   will my branch merge?  bash scripts/integrate.sh <branch> <side>
 EOF
   exit 2
