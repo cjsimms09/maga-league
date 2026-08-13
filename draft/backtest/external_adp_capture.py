@@ -291,6 +291,69 @@ def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
                       % float(sel)) if truncated else None)
 
 
+def integrity(archive) -> dict:
+    """Is this archive internally consistent? Checked BEFORE a write, not after.
+
+    THE ARCHIVE IS APPEND-ONLY AND ITS DAYS ARE UNREFETCHABLE, so a corrupt
+    snapshot is permanent — there is no provider to re-ask, and "notice it later
+    and fix it" is not available the way it is for a regenerable artifact. That is
+    why this runs at write time and refuses, rather than reporting afterwards.
+
+    FATAL vs REPORTED is the whole design, and getting it wrong in either
+    direction is worse than not checking:
+
+      FATAL — a code bug or corruption, and the day is wrong whatever we do with
+        it. `row_count` disagreeing with `rows` (every instrument reads that
+        count, so they would all describe a board nobody captured); two boards for
+        one date (`board()` silently takes whichever sorts first); a pick number
+        that is not a positive number; a spread for a player the day did not
+        price, which is a join that went wrong.
+
+      REPORTED — a fact about the FEED, not about us. MFL can price a player its
+        own players export omits. Refusing the day over one unresolvable row would
+        discard a whole unrefetchable board to protect a lookup: the alarm
+        destroying what it watches, which this file has already learned once at
+        the board-pin step.
+    """
+    ser = _series_of(archive)
+    players = players_of(archive) if isinstance(archive, dict) else {}
+    out = {"snapshots": len(ser), "fatal": [], "reported": [],
+           "ok": None, "status": None}
+    if not ser:
+        # NOTHING TO CHECK IS NOT CLEAN. `ok: True` here would report a healthy
+        # archive on the exact run where the file failed to load.
+        return dict(out, status="unmeasured")
+
+    seen = set()
+    for s in ser:
+        day = (str(s.get("year")), s.get("observed_at"))
+        rows = s.get("rows") or {}
+        if day in seen:
+            out["fatal"].append({"kind": "duplicate_day", "day": day})
+        seen.add(day)
+        if s.get("row_count") != len(rows):
+            out["fatal"].append({"kind": "row_count_mismatch", "day": day,
+                                 "says": s.get("row_count"), "has": len(rows)})
+        bad = [p for p, a in rows.items()
+               if not isinstance(a, (int, float)) or isinstance(a, bool) or a <= 0]
+        if bad:
+            out["fatal"].append({"kind": "bad_adp", "day": day, "n": len(bad),
+                                 "sample": sorted(bad)[:5]})
+        orphan = [p for p in (s.get("dispersion") or {}) if p not in rows]
+        if orphan:
+            out["fatal"].append({"kind": "dispersion_orphan", "day": day,
+                                 "n": len(orphan), "sample": sorted(orphan)[:5]})
+        if players:
+            unknown = [p for p in rows if p not in players]
+            if unknown:
+                out["reported"].append({"kind": "undecodable_id", "day": day,
+                                        "n": len(unknown),
+                                        "sample": sorted(unknown)[:5]})
+    out["ok"] = not out["fatal"]
+    out["status"] = "clean" if out["ok"] else "corrupt"
+    return out
+
+
 def spread_summary(dispersion: dict) -> dict:
     """A whole day's spreads — because the claim under test is about a DAY.
 
@@ -1302,6 +1365,25 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "one downstream (%s)" % (year, observed_at, note))
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
+
+    # INTEGRITY BEFORE THE WRITE, NOT AFTER IT. The days are unrefetchable, so an
+    # archive already written corrupt is permanently corrupt — there is no second
+    # chance to be careful. Checking after `save()` would put the bad day on disk
+    # and in git before anyone saw the complaint.
+    #
+    # This refuses only FATAL findings (see `integrity`): a code bug or corruption.
+    # An id the decode key cannot resolve is REPORTED and written, because
+    # discarding a whole board to protect a lookup is the alarm destroying what it
+    # watches — the lesson this file already carries at the board-pin step.
+    ig = integrity({"series": series, "players": merge_players(
+        load_players(path), players or {})})
+    if not ig["ok"]:
+        raise RuntimeError(
+            "REFUSING TO WRITE — integrity check failed for %s on %s: %s. The "
+            "archive is append-only and its days cannot be refetched, so a corrupt "
+            "snapshot would be permanent."
+            % (year, observed_at, json.dumps(ig["fatal"])[:400]))
+
     save(series, path, players=players)
 
     # ── THE DAY IS SAFE FROM HERE. EVERYTHING BELOW IS REPORTING. ───────────

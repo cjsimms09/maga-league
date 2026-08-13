@@ -1793,3 +1793,122 @@ def test_spread_summary_of_NOTHING_is_unmeasured_not_a_flat_verdict():
     s = C.spread_summary({})
     assert s["measured"] == 0 and s["distinct"] is None and s["median_sd"] is None
     assert s["status"] == "unmeasured"
+
+
+# ── INTEGRITY, CHECKED BEFORE THE WRITE ────────────────────────────────────
+#
+# The archive is APPEND-ONLY and its days are UNREFETCHABLE. A corrupt snapshot
+# is therefore permanent: there is no provider to re-ask, so "notice it later and
+# fix it" is not available the way it is for a regenerable artifact.
+#
+# I audited the three days we hold by hand and they are consistent. That is worth
+# exactly nothing tomorrow — a check run by hand is a check that stops being run
+# (rule 9). So it runs at WRITE TIME and refuses, the same shape as the existing
+# zero-row refusal, and again in CI against the committed file.
+
+def _snap(day, rows, **kw):
+    s = {"year": "2026", "observed_at": day, "rows": rows,
+         "row_count": len(rows), "total_drafts": 100}
+    s.update(kw)
+    return s
+
+
+def test_a_ROW_COUNT_THAT_DISAGREES_WITH_THE_ROWS_is_fatal():
+    """Not cosmetic: `coverage`, `dropped_inside` and the daily row-delta alarm all
+    read `row_count`, so a disagreement makes every one of them describe a board
+    that was never captured. MUTATION: compare nothing — the archive keeps a
+    permanent record whose own summary contradicts its contents."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0}, row_count=99)], "players": {"1": {}}}
+    r = C.integrity(a)
+    assert r["ok"] is False
+    assert any(f["kind"] == "row_count_mismatch" for f in r["fatal"]), r
+
+
+def test_a_DUPLICATE_DAY_is_fatal():
+    """Two boards for one date and `board()` silently takes whichever sorts first.
+    MUTATION: allow it — F5 picks a snapshot by date and would have two to choose
+    from, deterministically wrong rather than loudly wrong."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0}), _snap("2026-08-14", {"1": 5.0})],
+         "players": {"1": {}}}
+    assert any(f["kind"] == "duplicate_day" for f in C.integrity(a)["fatal"])
+
+
+def test_a_NON_NUMERIC_OR_NEGATIVE_adp_is_fatal():
+    """A pick number is positive by construction. MUTATION: accept it — the value
+    flows into every band cut and every spread, and nothing downstream type-checks
+    a number it was promised."""
+    a = {"series": [_snap("2026-08-14", {"1": 0.0, "2": -3.0})], "players": {"1": {}, "2": {}}}
+    kinds = [f["kind"] for f in C.integrity(a)["fatal"]]
+    assert "bad_adp" in kinds
+
+
+def test_a_DISPERSION_ROW_FOR_A_PLAYER_NOT_ON_THE_BOARD_is_fatal():
+    """A spread for a player the day did not price is a join that went wrong.
+    MUTATION: ignore it — the spread summary counts players the board never had."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0},
+                          dispersion={"9": {"min_pick": 1, "max_pick": 2}})],
+         "players": {"1": {}}}
+    assert any(f["kind"] == "dispersion_orphan" for f in C.integrity(a)["fatal"])
+
+
+def test_an_ID_THE_DECODE_KEY_CANNOT_RESOLVE_is_REPORTED_and_NOT_fatal():
+    """The one that must NOT be fatal. MFL can price a player its own players
+    export omits; that is a fact about the feed, and refusing the day would throw
+    away a whole board — unrefetchable — over one unresolvable row.
+
+    MUTATION: make it fatal — the capture starts discarding real days to protect a
+    lookup, which is the alarm destroying what it watches, again."""
+    a = {"series": [_snap("2026-08-14", {"1": 4.0, "2": 9.0})], "players": {"1": {}}}
+    r = C.integrity(a)
+    assert r["ok"] is True, "an unresolvable id must not fail the archive"
+    assert any(f["kind"] == "undecodable_id" for f in r["reported"])
+
+
+def test_an_EMPTY_ARCHIVE_is_UNMEASURED_not_ok():
+    """Rule 13f. MUTATION: return ok=True for an empty archive — 'nothing to check'
+    reports as 'checked and clean', on the exact run where the file failed to load."""
+    r = C.integrity({"series": [], "players": {}})
+    assert r["ok"] is None and r["status"] == "unmeasured"
+
+
+def test_the_COMMITTED_ARCHIVE_IS_CLEAN():
+    """Standing check against the real file, so corruption fails CI rather than
+    waiting for someone to look. MUTATION: check series[0] only."""
+    import json as _json
+    from pathlib import Path
+    p = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
+    r = C.integrity(_json.loads(p.read_text()))
+    assert r["ok"] is True, r["fatal"]
+    assert r["snapshots"] >= 3, "and it must actually have looked at every day"
+
+
+def test_capture_REFUSES_TO_WRITE_a_corrupt_archive(tmp_path, monkeypatch):
+    """The refusal has to be at the WRITE, not in a report afterwards. The days are
+    unrefetchable, so an archive that has already been written corrupt is
+    permanently corrupt — there is no second chance to be careful.
+
+    MUTATION: check integrity after `save()` — the corrupt day is on disk and in
+    git before anyone sees the complaint, which is the whole difference."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": -4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    try:
+        C.capture(2026, "2026-08-14", path=str(p))
+    except RuntimeError as e:
+        assert "integrity" in str(e).lower() and "bad_adp" in str(e)
+    else:
+        raise AssertionError("a corrupt snapshot must not reach the archive")
+    assert not p.exists(), "and it must not have written the file either"
+
+
+def test_capture_still_writes_when_an_id_is_merely_UNDECODABLE(tmp_path, monkeypatch):
+    """The other side, and the one that matters more: a day must NOT be discarded
+    over a feed quirk. MUTATION: make undecodable ids fatal — the capture starts
+    throwing away real unrefetchable boards to protect a lookup."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      10, "n", {}))
+    C.capture(2026, "2026-08-14", path=str(p))
+    assert p.exists()
+    assert len(json.loads(p.read_text())["series"][0]["rows"]) == 2
