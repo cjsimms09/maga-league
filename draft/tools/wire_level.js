@@ -308,6 +308,80 @@ const MEASURED_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
  *
  * This function exists so the statistic is chosen ONCE. A tool that wants the
  * level asks for it; a tool that disagrees changes it here, for everyone. */
+/* ⚠️ THE WIRE PAYS TWO DIFFERENT NUMBERS AND THEY ANSWER DIFFERENT QUESTIONS.
+ *
+ * Measured 2026-08-13, after shipping the add-week median as THE level. The
+ * score in the week a player is acquired is not what he pays over the weeks you
+ * then hold him — it is systematically higher, at every position, than his own
+ * production in the three weeks BEFORE and the three weeks AFTER:
+ *
+ *     pos   prev-3      ADD WEEK     next-3
+ *     QB    19.71        23.38       19.34
+ *     RB     4.60         7.80        6.25
+ *     WR     8.75        11.10        7.60
+ *     TE     6.20        11.60        6.75
+ *
+ * ELEVATED RELATIVE TO BOTH SIDES, so it is not a manager buying last week's
+ * points — it is the week the player inherits a role, and the role does not
+ * hold. And splitting by claim type says where it lives:
+ *
+ *     TE    waiver 14.10 -> 5.60 next        free agent 4.70 -> 7.75 next
+ *
+ * ALL OF THE SPIKE IS IN WAIVER CLAIMS and none of it is in free-agent adds.
+ * That is the opposite of an after-the-fact-selection story (a free agent can be
+ * added AFTER games, a waiver claim cannot) and it is consistent with the
+ * obvious mechanism: managers spend a claim on the man who just took over a job.
+ *
+ * ── WHICH NUMBER THE BENCH DECISION NEEDS, AND WHY IT IS NOT SETTLED ──────
+ *
+ * `per_week` is what the wire pays for ONE WEEK of streaming. `ongoing` is what
+ * it pays while you HOLD the replacement. Which applies depends on how long the
+ * hole lasts — a bye is one week, an injury is `E[weeks out | injured]`, which
+ * this repo has never measured and which is an open request to C.
+ *
+ * SO NEITHER IS PROMOTED OVER THE OTHER AND PRODUCTION IS UNCHANGED.
+ * `per_week` stays the shipped level; `ongoing` is published beside it so a
+ * consumer can show the band and say which side of it a verdict sits on. Five of
+ * the six bench verdicts on the current plan differ between the two, which is
+ * exactly why picking one silently would be the wrong move eight days out.
+ */
+function ongoingLevels() {
+  const M = module.exports.measured || (module.exports.measured = measure());
+  const POS = positionMap();
+  const out = {}, n = {};
+  MEASURED_POSITIONS.forEach(p => { out[p] = []; });
+  SEASONS.forEach(season => {
+    const wp = weeklyPoints(season);
+    if (!wp) return;
+    const history = readJson(path.join(ROOT, 'draft', 'data', 'league_history.json'));
+    acquisitions(history, season).forEach(a => {
+      const pos = POS[a.player_id];
+      if (MEASURED_POSITIONS.indexOf(pos) < 0) return;
+      /* THE WEEK OF ACQUISITION IS DELIBERATELY EXCLUDED. Including it is what
+       * makes this the same statistic as `per_week` rather than a second one. */
+      for (let k = 1; k <= 3; k++) {
+        const row = wp[a.week + k] || {};
+        if (Object.prototype.hasOwnProperty.call(row, a.player_id)) out[pos].push(row[a.player_id]);
+      }
+    });
+  });
+  const level = {};
+  MEASURED_POSITIONS.forEach(p => {
+    const s = out[p].slice().sort((x, y) => x - y);
+    n[p] = s.length;
+    level[p] = s.length ? +med(s).toFixed(2) : null;
+  });
+  return {
+    per_week: level, n: n, window_weeks: 3,
+    statistic: 'median_of_the_three_weeks_AFTER_acquisition',
+    /* SURVIVORSHIP, NAMED. A player who gets hurt has no row and drops out, so
+     * this is if anything OPTIMISTIC about what a held replacement delivers —
+     * the direction that makes the gap below a floor rather than a ceiling. */
+    caveat: 'excludes weeks a player did not play, so it slightly OVERSTATES '
+      + 'what a held wire add delivers; the gap to per_week is a floor',
+  };
+}
+
 function levels() {
   const M = module.exports.measured || (module.exports.measured = measure());
   const per_week = {}, n = {};
@@ -323,6 +397,8 @@ function levels() {
     acquisitions: M.ledger.acquisitions,
     /* One sentence a tool can print verbatim, so the provenance travels with the
      * number instead of being re-typed per tool and drifting there too. */
+    /* Published beside the shipped level, never instead of it. */
+    ongoing: ongoingLevels(),
     provenance: 'realized wire: median of every scored acquisition-week, 2023-25, '
       + 'n=' + M.ledger.scored + ' of ' + M.ledger.acquisitions + ' acquisitions '
       + '(unfiltered — the min_n=5 reporting floor kept 1 of 42 QB weeks)',
@@ -341,7 +417,7 @@ function requireSample(pos) {
   return s;
 }
 
-module.exports = { measure, levels, acquisitions, weeklyPoints, requireSample,
+module.exports = { measure, levels, ongoingLevels, acquisitions, weeklyPoints, requireSample,
   MEASURED_POSITIONS, ACQUIRING, SEASONS };
 
 if (require.main === module) {

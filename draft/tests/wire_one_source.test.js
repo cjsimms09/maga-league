@@ -160,6 +160,38 @@ ck('and on the {v, n} shape wire_vs_bench used, which a naive reader would miss'
     WL.MEASURED_POSITIONS.map(p => p + ' n=' + LV.n[p] + ' wk=' + M.summary[p].weeks_covered));
 }
 
+// ── 4b. THE LEVEL IS A BAND, AND THE CARD MUST NOT PRINT IT AS A POINT ──
+// Measured 2026-08-13, AFTER shipping the add-week median as THE level. The
+// score in the week a player is claimed is elevated relative to his own
+// production on BOTH sides of it, so it is not a manager buying last week's
+// points — it is the week he inherits a role, and the role does not hold.
+{
+  const OG = LV.ongoing || {};
+  ck('both levels are published, and the shipped one is UNCHANGED — production '
+    + 'behaviour is preserved while the evidence is added',
+    OG && OG.per_week && LV.per_week.TE === 11.6, { shipped: LV.per_week, ongoing: OG.per_week });
+  ck('they are genuinely different statistics, named apart',
+    LV.statistic !== OG.statistic && /AFTER_acquisition/.test(OG.statistic || ''), OG.statistic);
+  ck('the ongoing level EXCLUDES the acquisition week, or it is the same number',
+    WL.MEASURED_POSITIONS.every(p => OG.per_week[p] !== LV.per_week[p]),
+    { a: LV.per_week, b: OG.per_week });
+  ck('the claim week pays MORE than the weeks you then hold him, at every '
+    + 'position — which is the finding',
+    WL.MEASURED_POSITIONS.every(p => LV.per_week[p] > OG.per_week[p]),
+    WL.MEASURED_POSITIONS.map(p => p + ' ' + LV.per_week[p] + ' vs ' + OG.per_week[p]));
+  ck('and the ongoing sample is LARGER, not a thin tail — three weeks per add',
+    WL.MEASURED_POSITIONS.every(p => OG.n[p] > LV.n[p]), OG.n);
+  ck('its survivorship is NAMED, and in the direction that makes the gap a '
+    + 'floor rather than a ceiling', /OVERSTATES/.test(OG.caveat || ''), OG.caveat);
+  /* THE CARD'S HALF. A verdict that flips inside the band is not a verdict, and
+   * printing it as one is what this whole correction was undertaken to stop. */
+  const card = fs.readFileSync(path.join(TOOLS, 'draft_card.js'), 'utf8');
+  ck('the Aug 22 card reads the ongoing level and says which verdicts depend '
+    + 'on it', /ongoing/.test(card) && /DEPEND ON HOW LONG THE HOLE LASTS/.test(card));
+  ck('and it names the unmeasured quantity that decides between them rather '
+    + 'than picking one', /weeks out \| injured/.test(card));
+}
+
 // ── 5. FAIL ARM ─────────────────────────────────────────────────────────
 {
   const tmp = path.join(require('os').tmpdir(), 'wire_probe_' + process.pid + '.js');

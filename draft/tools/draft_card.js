@@ -190,6 +190,47 @@ const HARDEST = RANKED[0], EASIEST = RANKED[RANKED.length - 1];
         : 'injury insurance ONLY — but free is just ' + pct.toFixed(0) + '% of him')
       + (N[x.p.position] < 20 ? '  (n=' + N[x.p.position] + ')' : ''));
   });
+  /* ⚠️ THE VERDICT ABOVE USES THE ONE-WEEK WIRE, AND FIVE OF SIX ROWS SIT ON
+   * THE WRONG SIDE OF THE BAND. The shipped level is the score in the week a
+   * player is ACQUIRED; measured 2026-08-13, the same players pay far less over
+   * the three weeks you then hold them (TE 11.60 -> 6.8, WR 11.10 -> 7.3), and
+   * all of that spike lives in WAIVER claims rather than free-agent adds.
+   *
+   * Which number applies depends on HOW LONG THE HOLE LASTS — one week for a
+   * bye, `E[weeks out | injured]` for an injury, which nobody has measured. So
+   * the card does not pick; it says which verdicts survive both readings and
+   * which are an artefact of the shorter one. A verdict that flips inside the
+   * band is not a verdict, and printing it as one is what the whole wire
+   * correction was undertaken to stop. */
+  {
+    const OG = (WIRE_LEVEL.ongoing || {}).per_week || {};
+    const flips = [];
+    plan.filter(x => x.bench && x.p && WIRE[x.p.position] != null && OG[x.p.position] != null)
+      .forEach(x => {
+        const mine = x.p.proj_mean / WEEKS;
+        const a = 100 * WIRE[x.p.position] / mine, b = 100 * OG[x.p.position] / mine;
+        const cut = v => v >= 100;
+        if (cut(a) !== cut(b)) flips.push({ x: x, a: a, b: b });
+      });
+    if (flips.length) {
+      console.log('\n     ⚠️ ' + flips.length + ' OF THESE VERDICTS DEPEND ON HOW LONG THE HOLE LASTS.');
+      console.log('     The wire number above is the score in the week a player is CLAIMED.');
+      console.log('     Over the next three weeks the same adds pay much less, and the whole');
+      console.log('     spike is in waiver claims, not free-agent pickups:');
+      flips.forEach(f => {
+        console.log('       ' + (f.x.p.position + ' ' + f.x.p.name).padEnd(22)
+          + 'one week: ' + f.a.toFixed(0) + '% (' + (f.a >= 100 ? 'CUT' : 'hold')
+          + ')   held 3wk: ' + f.b.toFixed(0) + '% (' + (f.b >= 100 ? 'CUT' : 'hold') + ')');
+      });
+      console.log('     READ IT THIS WAY: cut them if you will STREAM the position week to');
+      console.log('     week. Keep them if you need somebody to hold a job while a starter');
+      console.log('     is out. E[weeks out | injured] is what decides it and is unmeasured.');
+    } else {
+      console.log('\n     Every verdict above survives BOTH wire readings — the one-week');
+      console.log('     claim level and the three-week held level — so none of them is an');
+      console.log('     artefact of which one the card happens to quote.');
+    }
+  }
   console.log('\n     FLOOR = weeks he actually starts x his edge over a free player. It is a');
   console.log('     FLOOR, not a forecast: injury weeks sit on top of it and are genuinely');
   console.log('     unknown (E[weeks out | injured] is an open C request). Read it as the');
