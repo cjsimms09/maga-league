@@ -24,7 +24,7 @@
               "QB": {
                 "n": 68,
                 "mae": 125.53,
-                "rank_corr": 0.541,
+                "rank_corr": 0.54,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -44,7 +44,7 @@
               "WR": {
                 "n": 172,
                 "mae": 46.73,
-                "rank_corr": 0.671,
+                "rank_corr": 0.67,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.619,
+                "rank_corr": 0.618,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -97,7 +97,7 @@
               "QB": {
                 "n": 68,
                 "mae": 91.05,
-                "rank_corr": 0.616,
+                "rank_corr": 0.615,
                 "top_decile": {
                   "n": 68,
                   "k": 7,
@@ -117,7 +117,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.738,
+                "rank_corr": 0.739,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.683,
+                "rank_corr": 0.682,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -368,7 +368,7 @@
               "RB": {
                 "n": 111,
                 "mae": 59.84,
-                "rank_corr": 0.543,
+                "rank_corr": 0.542,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -378,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.96,
-                "rank_corr": 0.755,
+                "rank_corr": 0.754,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -388,7 +388,7 @@
               "TE": {
                 "n": 92,
                 "mae": 33.65,
-                "rank_corr": 0.642,
+                "rank_corr": 0.641,
                 "top_decile": {
                   "n": 92,
                   "k": 9,
