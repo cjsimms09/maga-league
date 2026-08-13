@@ -849,25 +849,47 @@ def draft_last_pick(settings: dict) -> dict:
     """
     # ── READ IT IF IT EXISTS. A, 4126a85: "if either of you computes a round
     # anywhere, it is wrong" — and this computed the LAST PICK, which is the same
-    # class one field over.
+    # class one field over. Reading the authoritative sequence stays right no
+    # matter which way the keeper question goes, which is the whole argument for
+    # reading rather than deriving: I got the MECHANISM wrong below and the READ
+    # still returned the correct number.
     #
-    # This league is `top_picks_flat`: keeping N forfeits rounds 1..N and the
-    # forfeited picks are REMOVED from the sequence. `teams * rounds` therefore
-    # overstates by exactly the number of keepers — 150 against a real 147 — and
-    # it overstates PLAUSIBLY: right shape, right magnitude, wrong draft. The
-    # authoritative sequence is `pick_order.picks`, and reading it is not an
-    # optimisation, it is the difference between a boundary and a guess.
+    # ⚠ TWO QUANTITIES, TWO NAMES, AND I CONFLATED THEM. I claimed keeper
+    # forfeits are REMOVED from the sequence, so that a 3-keeper draft ran 147
+    # picks. That was wrong — A's premise, checked into my lane by me, and
+    # reversed after A replayed the league's own drafts. SLEEPER OCCUPIES A
+    # FORFEITED PICK; IT DOES NOT REMOVE IT. Verified independently against
+    # league_history: 2023 (0 keepers), 2024 (23) and 2025 (20) are ALL 150 picks
+    # with round 4 opening at overall 31. A keeper sits in his slot flagged and
+    # nothing after him shifts up.
+    #
+    #   pick_order.picks       150 — the BOARD. How many players leave the pool.
+    #                          This is DEPTH, and it is what a boundary means
+    #                          here: "was this player inside the draftable range".
+    #   pick_order.live_picks  147 — how many SELECTIONS happen. 147 was never
+    #                          the draft's length; it was the live count wearing
+    #                          the wrong name.
+    #
+    # This function answers DEPTH, so it returns the board and reports the live
+    # count beside it. Callers counting selections must ask for `live_picks`
+    # explicitly rather than inheriting a number that happens to be close.
     po = ((settings or {}).get("pick_order") or {})
     picks = po.get("picks") or []
     if picks:
         overalls = [p.get("overall") for p in picks if p.get("overall") is not None]
         if overalls:
+            live = po.get("live_picks")
+            kept = sum(1 for p in picks if p.get("keeper_slot"))
             return {"last_pick": max(overalls), "teams": None, "rounds": None,
-                    "basis": "pick_order.picks",
-                    "note": "READ from pick_order.picks (%d picks, last overall %d) "
-                            "— keeper forfeits are removed from the sequence, so "
-                            "teams x rounds would overstate this draft"
-                            % (len(picks), max(overalls))}
+                    "basis": "pick_order.picks", "live_picks": live,
+                    "keeper_slots": kept,
+                    "note": "READ from pick_order.picks (%d rows, last overall %d)"
+                            " — the BOARD, keeper slots occupied not removed"
+                            "%s. This is DEPTH; %s counts SELECTIONS."
+                            % (len(picks), max(overalls),
+                               " (%d flagged)" % kept if kept else "",
+                               "live_picks=%s" % live if live is not None
+                               else "live_picks is absent, so nothing here")}
 
     ds = ((settings or {}).get("draft") or {}).get("settings") or {}
     slots = (settings or {}).get("roster_positions") or []
@@ -891,14 +913,25 @@ def draft_last_pick(settings: dict) -> dict:
     if teams is None or rounds is None:
         return {"last_pick": None, "teams": teams, "rounds": rounds,
                 "basis": "teams_x_rounds", "note": note}
-    # NO pick_order TO READ. teams x rounds is the best available and must not
-    # present as authoritative: in a keeper league that forfeits picks it is an
-    # UPPER BOUND, not the boundary.
+    # NO pick_order TO READ. teams x rounds is the best available, and against
+    # THIS league's four drafts it is exactly right: 10 x 15 = 150, and 2023,
+    # 2024 and 2025 each ran 150 picks regardless of carrying 0, 23 and 20
+    # keepers. I previously labelled this an UPPER BOUND on the premise that
+    # forfeited picks are removed from the sequence; that premise was false and
+    # the label was a warning about a thing that does not happen.
+    #
+    # It stays DERIVED rather than authoritative for a different and real reason:
+    # it assumes every seat picks in every round, which a league with traded or
+    # genuinely voided picks would break — and this function cannot tell those
+    # apart from a config alone. So it says what it assumed instead of what it
+    # feared.
     return {"last_pick": teams * rounds, "teams": teams, "rounds": rounds,
             "basis": "teams_x_rounds",
-            "note": note + " — DERIVED, no pick_order.picks to read. If this "
-                           "league forfeits picks for keepers, the real draft is "
-                           "SHORTER than this and the number is an upper bound."}
+            "note": note + " — DERIVED, no pick_order.picks to read. Assumes "
+                           "every seat picks in every round; a keeper OCCUPIES "
+                           "his slot rather than removing it, so keepers alone do "
+                           "not shorten a draft. Traded or voided picks would, "
+                           "and nothing in a config shows them."}
 
 
 def dropped_inside(series: list, year, last_pick=None) -> dict:
