@@ -8,13 +8,11 @@ gone by Wednesday.
 
 WHAT THIS MEASURES, AND WHAT IT DOES NOT. This is the REALIZED-ACQUISITION level:
 what a manager in this league actually added off waivers, and what that player then
-scored that week. That is a LOWER bound on what was gettable — the best available
-player is by definition at least as good as the one somebody chose to take, and
-managers add for need and for hunches, not only for points.
-
-**So the two numbers bracket the truth from opposite sides**, and neither is the
-answer alone. Reporting this as "the" waiver replacement level would replace an
-overstatement with an understatement and lose the bracket, which is the useful part.
+scored that week. IT IS NOT A BOUND ON best-undrafted, and the first version of this file said it was.
+A measured the comparison on 2026-08-13: QB 1.17x and WR 1.40x run the way I claimed,
+RB 0.61x and TE 0.72x run the opposite way. They are different pools — best-undrafted
+prices a STATIC leftover set fixed at the draft, this prices one that REFRESHES every
+week, and a back who emerges in week 6 was never in the undrafted pool at all.
 
 Run: python3 -m pytest draft/tests/test_waiver_replacement.py -q
 """
@@ -140,8 +138,15 @@ def test_the_BRACKET_is_reported_rather_than_a_single_number():
     assert cell["status"] == "measured"
     assert cell["median"] == 6.0
     assert cell["p75"] == 9.0 and cell["best"] == 20.0
-    assert cell["bound"] == "lower", (
-        "this is what was TAKEN, not what was available — the label has to say so")
+    assert cell["basis_kind"] == "realized_acquisition", (
+        "the label states WHAT THIS IS, not how it compares to some other estimate")
+    assert "bound" not in cell, (
+        "A measured 2026-08-13 that realized-acquisition and best-undrafted do NOT "
+        "bracket: QB 1.17x and WR 1.40x hold, but RB 0.61x and TE 0.72x go the other "
+        "way. They are different pools — a preseason projection of a STATIC leftover "
+        "set against a realized pick from a set that REFRESHES all season. The "
+        "arithmetic was right and the caution was right; the DIRECTION was a claim I "
+        "could not support, so the field is gone rather than relabelled.")
 
 
 def test_a_DEFENCE_is_RESOLVED_as_DEF_rather_than_counted_as_unpositioned():

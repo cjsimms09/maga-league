@@ -893,3 +893,53 @@ def test_dispersion_does_not_disturb_the_row_shape_consumers_read():
     assert s[0]["rows"] == {"1": 10.5}
     out = C.as_store_snapshots(s, 2026, {"1": "sleeper1"})
     assert out[0]["rows"] == [{"player_id": "sleeper1", "adp": 10.5}]
+
+
+# ── THE SEAM THAT RUNS ONLY IN CI, AND ONLY ONCE A DAY ──────────────────────
+#
+# `fetch_mfl` is `pragma: no cover` because it needs egress, so the dispersion dict
+# built inside it was shipped untested. That is the worst possible place for an
+# untested line: it runs once a day, in CI, against a day that cannot be refetched.
+# A bug there does not fail loudly tomorrow — it captures the mean and silently
+# drops the spread again, which is the exact defect the change was made to end.
+#
+# So the transformation is a pure function with the fetch on one side of it, the
+# same split this file already made for the row extraction ("THE ROW EXTRACTION IS
+# NO LONGER WRITTEN HERE").
+
+def _parsed(**over):
+    row = {"mfl_id": "1", "adp": 10.5, "drafts": 3510,
+           "min_pick": 2, "max_pick": 40, "sel_pct": 70.0}
+    row.update(over)
+    return [row]
+
+
+def test_dispersion_of_carries_every_published_field():
+    """MUTATION: keep min/max and drop sel_pct — draftSelPct is how often he was
+    taken AT ALL, which is the difference between a consensus pick and a flier, and
+    it is the one field that distinguishes them at equal ADP."""
+    d = C.dispersion_of(_parsed())
+    assert d["1"] == {"min_pick": 2, "max_pick": 40, "sel_pct": 70.0, "drafts": 3510}
+
+
+def test_a_player_the_source_gave_NO_spread_for_is_OMITTED_not_stored_as_nulls():
+    """A row of all-None is indistinguishable from a measured zero once it is on
+    disk, and it inflates the dispersion count so a later reader thinks coverage is
+    complete. MUTATION: emit every player — `dispersion_rows` stops being a
+    coverage figure and becomes a copy of `row_count`."""
+    d = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None))
+    assert d == {}
+
+
+def test_ONE_published_bound_is_enough_to_keep_him():
+    """Partial is not absent. MUTATION: require both — every player MFL gives only
+    a minPick for vanishes, and the loss is invisible because the rest look fine."""
+    d = C.dispersion_of(_parsed(max_pick=None))
+    assert list(d) == ["1"] and d["1"]["max_pick"] is None
+
+
+def test_dispersion_of_an_EMPTY_parse_is_empty_not_a_crash():
+    """The players export can fail while the ADP export succeeds — the file already
+    keeps the day in that case. MUTATION: index [0] and the whole capture dies on
+    the one path built to survive a partial fetch."""
+    assert C.dispersion_of([]) == {}
