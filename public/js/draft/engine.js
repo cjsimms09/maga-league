@@ -734,20 +734,59 @@
 
     const slot = starterSlotMarginal(player, ctx.roster || [], ctx.league || {});
     if (slot.fills === 'starter') return straight;
+
+    /* FLEX — PRICED ACROSS POSITIONS, AND DELIBERATELY NOT FLOORED.
+     *
+     * A second tight end cannot be valued against the third tight end: with the
+     * TE slot full he is competing with the best RB or WR for one flex seat, and
+     * that is the comparison that decides the pick. THE FLOOR AT 0 IS WHAT
+     * COLLAPSED THE BOARD in the first attempt -- 1331 of 1686 players landed on
+     * exactly 0 and ordering below the starters stopped existing. A negative
+     * marginal is INFORMATION (he is worse than the field for that seat) and
+     * keeping the sign keeps the ranking. */
+    /* ONE BASELINE FOR BOTH ARMS. The first cut priced flex as a DIFFERENCE
+     * (proj minus the field) and bench as an ABSOLUTE (insurance value), which
+     * put them on incompatible scales: insurance is >= 0 and the flex marginal
+     * runs deeply negative, so a bench quarterback at 0 outranked a flex
+     * receiver at -20 -- a man who cannot start beating one who can. Measured:
+     * tight ends fell 4 -> 1 and the sim then spent rounds 9 and 10 on Josh
+     * Johnson and Joe Flacco. Both arms are now quoted against the SAME thing:
+     * what this pick would otherwise buy. */
+    const alts = flexEligibleBoard(board, ctx)
+      .filter(p => String(p.player_id) !== String(player.player_id));
+    const forgone = alts.length ? expectedBestAvailable(alts, nextPick, ctx) : 0;
+
     if (slot.fills === 'flex') {
-      const alts = flexEligibleBoard(board, ctx)
-        .filter(p => String(p.player_id) !== String(player.player_id));
       if (!alts.length) return straight;
-      return Math.max(0, player.proj_mean - expectedBestAvailable(alts, nextPick, ctx));
+      return player.proj_mean - forgone;
     }
-    /* A MULTIPLICATIVE CRUSH ON A SIGNED QUANTITY MOVES NEGATIVES UP, and the
-     * first cut of this shipped that: 0.10 * -30 = -3, so every bench player
-     * FLOATED ABOVE startable players sitting at -5. Measured immediately --
-     * the constructed roster went from TE 1 / RB 3 to TE 4 / QB 3 / RB 0, i.e.
-     * the change made the exact symptom it was written to fix roughly twice as
-     * bad. Crush the upside only; a bench player already priced below zero is
-     * left where he is and never promoted by his own penalty. */
-    return Math.min(0, straight);   // bench: cannot start, no starting value
+
+    /* BENCH — INSURANCE VALUE, WHICH IS WHAT A BENCH PLAYER ACTUALLY IS.
+     *
+     * He cannot start, so his starting value is zero and his real worth is the
+     * chance the man ahead of him stops playing. INJURY_RATE[pos] x his
+     * standalone value is small, STRICTLY ORDERED (it is a positive multiple of
+     * a quantity that already ranks him), and means something -- which is what
+     * both earlier attempts lacked:
+     *   · a flat 0 ties ~1300 players and destroys ordering below the starters;
+     *   · a multiplicative crush on the SIGNED straight value moves negatives UP
+     *     (0.10 x -30 = -3), floating bench players above startable ones at -5.
+     * Measured consequence of that second bug: the roster went from TE 1 / RB 3
+     * to TE 4 / QB 3 / RB 0 -- the change made the symptom it targeted worse.
+     *
+     * vorp is used rather than `straight` because it is non-negative for anyone
+     * worth insuring and does not carry the wait-cost sign, so the ordering here
+     * is "who is the best body at this position", which is the right question
+     * for a backup. */
+    /* SIGNED vorp, NOT max(0, vorp). The clamp zeroed every below-replacement
+     * player, so all of them tied at exactly -forgone and the tie was won by
+     * whatever the sort happened to favour -- quarterbacks. THIRD COLLAPSE OF
+     * THE SAME SHAPE in this function: a floor at 0, a crush that inverted
+     * negatives, and now a clamp that flattened the tail. Every one of them
+     * destroyed ordering among players who cannot start, and every one of them
+     * showed up as the board filling with one-start positions. */
+    const rate = INJURY_RATE[player.position] || 0.15;
+    return rate * (player.vorp || 0) - forgone;
   }
 
   /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
