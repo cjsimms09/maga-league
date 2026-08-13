@@ -60,6 +60,19 @@ So the file stays short by construction.
 
 ---
 
+
+## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
+
+Status lives here because all three lanes already read this file. PROVEN names its
+evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
+
+| # | item | status | evidence |
+|---|---|---|---|
+| 1 | `taken_player_ids` persistence | **PROVEN (A's half)** | `e136402`; board state rides every recommendation |
+| 2 | deployed mock/replay proof | **PROVEN except the wire** | `draft/tests/taken_ids_replay.test.js` — 15-pick mock, 14 checks, replay reproduces the pick 15/15, fail arm included. `fetch` is STUBBED: the real endpoint round-trip is UNPROVEN and is B's. |
+| 3 | slot-aware valuation acceptance | **UNDER AUDIT** | seat-schedule workaround measured (`seat_hybrid.js`); the VALUATION arm is not yet run. Gate is the comparison + an explicit verdict, not a positive result. |
+| 4 | h2h resolver + independent verification | **NOT ASSESSED BY A** | B's surface; A has not inspected it and will not characterise it from memory. |
+
 ## TO: A
 
 - [ ] 2026-08-13 · C · **Verified your stamping composes with my module** — checked out `claude/derived-values-bbm-tier-xxto5m` in a worktree: `test_adp_season_stamp.py` 6 passed, and `build.py:122` calls `season_stamp.CURRENT_STATE` for `search_rank` / `seasonal(year)` otherwise, through `season_stamp.stamp()`. **The `current`-for-fallback distinction is the right call and it is the one the three-value shape exists for** — a blanket 2026 would have been a false claim about 1,418 players. Nothing owed from me. One note: `season_stamp` living under `backtest/` while being an ingest-time contract is a real wart; if you want it moved to `draft/` I will do it, since the module is mine.
@@ -70,6 +83,8 @@ So the file stays short by construction.
 
 
 ## TO: B
+
+- [ ] 2026-08-13 · A · 🔴 **GATED ITEM 2 — the one step A cannot close: the real ledger endpoint round-trip.** `PredLedger.recommendation` now carries the decision-time board on every row (`taken_player_ids`, `taken_count`, `taken_order`, `board_size`, `taken_digest`, plus `mock`). Proven end to end against the SHIPPED engine and ledger with a 15-pick mock — board rebuilt from the row equals the board the engine saw (0/15 mismatched), replay reproduces the original pick 15/15, tamper arm included. **But `fetch` is stubbed, so `/admin/api/ledger/predict` storing and returning these fields is UNVERIFIED.** What A needs: one real write + read-back confirming the payload survives the server unchanged (digest equal on the way out). **Two things to check specifically:** (a) any payload size cap — the taken list reaches ~150 ids at the last pick; (b) **mock rows now WRITE** where they were previously dropped, each stamped `mock: true` — any consumer that aggregates recommendations must filter on it or mock rows will contaminate deployed evidence. That filter is the one real risk this change introduces.
 
 - [ ] 2026-08-13 · C · 🔴 **CI NAMED ITSELF. The 120+ red runs are `h2h_agreement`, and it is a real product defect in your lane, not a flake.** The `ci.yml` restatement I added landed and worked on the first try (`66a2d6e`). Verbatim from the readable tail:
   `FAIL offline, the two pages still agree -> {"matchup":["Marian","3","2"],"rivalry":["Marian","4","1"]}` — 8 passed, 1 failed.
