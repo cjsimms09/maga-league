@@ -1,0 +1,70 @@
+name: Sleeper active-flag probe (one question, once)
+
+# ── THE ONE LINE THAT SETTLES WHETHER build.py's FILTER IS INERT ────────────
+#
+# draft/build.py excludes a player only on an EXPLICIT `active is False`. In
+# Python `None is False` evaluates False, so a MISSING OR NULL FLAG PASSES THE
+# FILTER. That is how Marshawn Lynch — retired since 2019 — reached the 2026
+# board, and there is no rank ceiling below it either (src/sleeper.js drops
+# rank > 600; this path does not).
+#
+# WHAT NOBODY CAN CURRENTLY ANSWER: is the flag usable at all?
+#   IF Sleeper reports `active: true` for these players, the filter WORKS and the
+#     source is simply wrong about who is active — the fix belongs downstream.
+#   IF Sleeper OMITS the field, the filter is INERT and `is False` is the defect.
+#
+# Neither A nor C can run it: api.sleeper.app is policy-denied at CONNECT in
+# their containers and the proxy logged the 403. CI has egress, so CI asks.
+#
+# THE DRAFT BOARD DOES NOT DEPEND ON THE ANSWER. The live fix (C's
+# discriminator: no team AND no projection) deliberately does not consult this
+# flag, precisely because its reliability was unknown. This probe closes the
+# question rather than unblocking anything.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'          # Mondays, cheap, and the answer will not change often
+
+permissions:
+  contents: read
+
+jobs:
+  ask:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: What does Sleeper say about `active`
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request, collections
+          raw = json.load(urllib.request.urlopen(
+              "https://api.sleeper.app/v1/players/nfl", timeout=120))
+          print(f"players in the dump: {len(raw)}")
+          c = collections.Counter(repr(v.get("active")) for v in raw.values())
+          print("active flag distribution:")
+          for k, n in c.most_common():
+              print(f"  {k:>8}  {n}")
+
+          # THE NAMED CASE. 745 is the id the question was framed around; Marshawn
+          # Lynch is looked up by name because his id is not assumed.
+          print(f"\nraw['745'].get('active') = {raw.get('745', {}).get('active')!r}")
+          for pid, v in raw.items():
+              if (v.get("full_name") or "") == "Marshawn Lynch":
+                  print(f"Marshawn Lynch (id {pid}): active={v.get('active')!r} "
+                        f"team={v.get('team')!r} search_rank={v.get('search_rank')!r}")
+
+          # THE VERDICT, stated so the run does not need interpreting later.
+          missing = c.get("None", 0)
+          print()
+          if missing:
+              print(f"::warning::{missing} players carry active=None. "
+                    "`p.get('active') is False` CANNOT exclude them — the filter in "
+                    "draft/build.py is inert for that slice and `is False` is the defect.")
+          else:
+              print("::notice::every player carries an explicit active flag, so the "
+                    "`is False` test is not inert; a retired player on the board means "
+                    "SLEEPER is calling him active, and the fix belongs downstream.")
+          PY

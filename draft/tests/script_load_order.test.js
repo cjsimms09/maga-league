@@ -124,5 +124,45 @@ ck('  and app.js calls it unguarded, so loading it is not optional',
     || ejs.indexOf('/js/draft/app.js') === -1);
 }
 
+// ── MODULES BUILT FOR ANOTHER LANE, WHICH DERIVATION STRUCTURALLY MISSES ───
+{
+  /* THE DEFECT, 2026-08-13. decision_contract.js was written, tested, corrected,
+   * and reported as "landed and unblocking B" — and was NEVER ON THE PAGE.
+   * `DecisionContract` was undefined in the browser for its entire life.
+   *
+   * THIS SUITE COULD NOT HAVE CAUGHT IT, and that is the interesting part. Its
+   * requirement is DERIVED from globals app.js calls; the contract's consumer is
+   * B's renderer, in another lane, so app.js calls nothing and there is nothing
+   * to derive from. A module whose caller lives outside the file we scan falls
+   * straight through — silently, and looking exactly like a module with no
+   * unguarded references.
+   *
+   * So cross-lane modules get an EXPLICIT tag assertion. The list is short and
+   * deliberately manual: each entry is a promise to another session that a
+   * global will exist, and a promise nothing in this repo can derive. */
+  const ejs = fs.readFileSync(path.join(ROOT, 'views', 'admin', '_warroom_scripts.ejs'), 'utf8');
+  const CROSS_LANE = [
+    ['decision_contract.js', 'B\'s explanation renderer reads DecisionContract'],
+    ['opponent_predict.js', 'the shadow prediction arm, emitted from app.js'],
+    // GUARDED, THEREFORE OPTIONAL TO THE DERIVATION, THEREFORE ASSERTED HERE.
+    // app.js calls DraftSession behind `typeof DraftSession === 'undefined'`,
+    // which is correct defensively and dangerous alone: if the tag goes missing
+    // the draft silently stops being persisted and the ONE event that cannot be
+    // replayed is unrecoverable again, with no error anywhere. Same reasoning as
+    // override_record.js below.
+    ['draft_session.js', 'draft state persistence — a missing tag silently '
+      + 'restores nothing after a reset'],
+  ];
+  CROSS_LANE.forEach(([file, why]) => {
+    ck(file + ' is loaded in the war room (' + why + ')',
+      new RegExp('src="/js/draft/' + file.replace('.', '\\.') + '"').test(ejs),
+      'built for a consumer outside app.js, so no derivation requires it — if the '
+      + 'tag is missing the global is simply undefined in production');
+  });
+  ck('  the contract loads BEFORE app.js',
+    ejs.indexOf('decision_contract.js') < ejs.indexOf('/js/draft/app.js')
+    || ejs.indexOf('/js/draft/app.js') === -1);
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

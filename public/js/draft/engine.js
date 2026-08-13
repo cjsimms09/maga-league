@@ -48,13 +48,33 @@
     // one pick it got loudly wrong.
     COIN_FLIP_GAP: 1.0,
     CLOSE_GAP: 3.5,
-    // --- Paths panel (Part 2 §1) ---
-    // How many top candidates the path clustering considers, how far below the
-    // top score a direction may sit and still count as "solid" (the qualifying
-    // band; default max(12, COIN_FLIP_GAP*4) = 12), and the hard 2–4 cap on how
-    // many directions render (more than four is a ranking, not a decision).
+    /* --- Paths panel (Part 2 §1) ---
+     * How many top candidates the path clustering considers, how far below the
+     * top score a direction may sit and still count as "solid", and the hard
+     * 2-4 cap on how many directions render (more than four is a ranking, not a
+     * decision).
+     *
+     * ── THE BAND WAS A FLOOR OVERRIDING ITS OWN DERIVATION (2026-08-13) ──────
+     *
+     * It read `PATHS_BAND: 12.0` and the comment described the design as
+     * "max(12, COIN_FLIP_GAP*4) = 12". COIN_FLIP_GAP is 1.0, so the intended
+     * derivation is 4.0 and A HARDCODED 12 SILENTLY DOMINATED IT — the third
+     * instance of this exact pattern, after BENCH_CEILING_FLOOR overriding a
+     * measured ceiling weight of 0 and VALUE_WEIGHT_FLOOR over w.value.
+     *
+     * IT MATTERS BECAUSE THE COMPOSITE'S SPREAD IS NOT CONSTANT. Measured over
+     * Cory's twelve picks, the top-ten spread runs from 7.7 points to 40.8 — so
+     * a fixed 12 admits nearly everything late and almost nothing early. At pick
+     * 110 it rendered four directions whose leaders sat 0.0, 0.5, 0.7 and 3.6
+     * behind the top: four options at equal visual weight, separated by less
+     * than a point. That is the menu Cory could not read.
+     *
+     * Deriving it from COIN_FLIP_GAP is not a tuned constant — it says a
+     * direction is an ALTERNATIVE only if choosing it costs about what the board
+     * already calls indistinguishable, which is the one place this engine
+     * defines "close". */
     PATHS_POOL: 10,
-    PATHS_BAND: 12.0,
+    get PATHS_BAND() { return (this.COIN_FLIP_GAP == null ? 1 : this.COIN_FLIP_GAP) * 4; },
     PATHS_MAX: 4,
     // Tier-urgency at/above this makes a path a "cliff — take it now" direction
     // rather than a "value" one; it drives both the name and the when-it's-right.
@@ -106,8 +126,38 @@
      * about it. RISK is floored too, as the safety net: it is what silently
      * kept DEFAULT_WEIGHTS from reaching (-42.00 on the worst offender), and it
      * was doing that job by accident rather than by design. */
-    BENCH_CEILING_FLOOR: 0.25,
-    BENCH_RISK_FLOOR: 0.25,
+    /* ── BOTH FLOORS RETIRED TO ZERO, 2026-08-14 ────────────────────────────
+     *
+     * These read 0.25 and were applied as `Math.max(FLOOR, w.ceiling)` and
+     * `Math.max(FLOOR, w.risk)`, over a MEASURED_WEIGHTS.ceiling and .risk of
+     * ZERO. The ceiling effect measured -4.8 with a [-26,+17] interval and could
+     * not be signed; risk measured as a drag. Both were deliberately switched
+     * off — AND A CONSTANT SWITCHED THEM BACK ON for every bench pick, which
+     * after the starters fill is every pick. THE WEIGHT VECTOR IS THE SYSTEM'S
+     * DESCRIPTION OF WHAT IT BELIEVES; A FLOOR IS THE BEHAVIOUR. They disagreed,
+     * and the description lost silently.
+     *
+     * THEY COULD NOT BE REMOVED BEFORE. Tested on 2026-08-13, setting the
+     * ceiling floor to 0 made the QB/TE symptom WORSE (33% -> 50%), because the
+     * bench branch had nothing else in it — VONA had been discarded there on the
+     * strength of a comment mischaracterising it. With VONA restored and the
+     * onesie sign defect fixed, the branch ranks on a term that has an
+     * out-of-sample dollar measurement behind it, and the floors are no longer
+     * load-bearing for anything.
+     *
+     * MEASURED, full twelve-pick walk, floors 0.25 -> 0:
+     *   roster shape   QB2 RB5 WR2 TE1 DEF1 K1  ->  QB1 RB6 WR2 TE1 DEF1 K1
+     *   QB now MATCHES the market reference exactly (1 against 1)
+     *   reach median / p90 / max   11.0 / 26.0 / 36.0   IDENTICAL
+     *   replacement-level players in the top ten   0  ->  0
+     *
+     * Kept as named zeros rather than deleted: `Math.max(0, w)` still guards a
+     * negative weight from a slider, and bench_branch_anchor.test.js drives
+     * these to prove the branch refuses junk WITHOUT them. A knob at zero that a
+     * test exercises is honest; a knob at 0.25 overriding a measurement was not.
+     */
+    BENCH_CEILING_FLOOR: 0,
+    BENCH_RISK_FLOOR: 0,
     // D3 flex-discount (approved 2026-08-08). A player who only "starts in your
     // flex" is priced at his MARGINAL value over the best flex-eligible
     // alternative realistically available — never full VORP. FLEX_ALT_WEIGHT is
@@ -632,7 +682,27 @@
       risk -= 12;
       reasons.push(`listed ${player.injury_status}`);
     }
-    if (player.games_missed_3yr >= 8) {
+    /* ── DECLARED OPTIONAL, BECAUSE NOTHING WRITES IT ──────────────────────
+     *
+     * `games_missed_3yr` is read here and WRITTEN BY NOTHING — not the board
+     * builder, not any harness, not any fixture. It was tested bare
+     * (`player.games_missed_3yr >= 8`), and `undefined >= 8` is false, so this
+     * durability clause has never fired for any player in any run. Three risk
+     * clauses fire and the fourth silently does not.
+     *
+     * That is the self-description class: the code reads as though it prices
+     * durability. It does not, and nothing said so.
+     *
+     * NOT DELETED — the signal is real and wanted, and deleting it would lose
+     * the record of what this term is supposed to do. Instead it is now guarded
+     * and declared the way `playoff_sos` and `proj_ffc` already are: an explicit
+     * null test, so the code says out loud that the field is optional and the
+     * clause is inert without it. Supplying it needs a new data source, which is
+     * a build change and not a scoring one.
+     *
+     * orphan_field_sweep.js pins this: every board field read by these modules
+     * that the board does not supply must sit behind an explicit `!= null`. */
+    if (player.games_missed_3yr != null && player.games_missed_3yr >= 8) {
       risk -= 8;
       reasons.push(`${player.games_missed_3yr} games missed in 3 seasons`);
     }
@@ -648,6 +718,39 @@
       reasons.push('opportunity metrics behind consensus');
     }
     return { value: risk, reasons };
+  }
+
+  /* Per-position typical ceiling spread, recomputed from the LIVE board at the
+   * top of every recommend(). Derived from the board rather than hardcoded so it
+   * tracks the actual projection source: a hardcoded table would be a second
+   * derivation of the projections, free to go stale against them. */
+  let _ceilingScales = null;
+  function computeCeilingScales(board) {
+    /* THE NORMALISER IS REPLACEMENT LEVEL, NOT THE SPREAD DISTRIBUTION.
+     *
+     * The first version of this divided by each position's MEDIAN SPREAD and was
+     * wrong in the amplifying direction: QB's median spread is the SMALLEST on
+     * the board (9.7 against WR's 22.8), because the QB pool is mostly backups
+     * with tiny projections. Dividing by it would have handed quarterbacks a
+     * 2.35x boost — the exact defect, inverted and made worse. The p90 of 66.5
+     * that names the problem and the median of 9.7 are the same distribution,
+     * heavily right-skewed, and picking the wrong statistic flips the fix.
+     *
+     * The defect is that A QUARTERBACK SCORES 350-400 A SEASON AND A TIGHT END
+     * 150, so the normaliser has to be the position's SCORING MAGNITUDE.
+     * Replacement level already is exactly that and is already on every row
+     * (QB 341.7, RB 188.5, WR 172.7, TE 150.7). Dividing by it turns a spread
+     * into a FRACTION OF WHAT THE POSITION SCORES: QB 66.5/341.7 = 0.195 and
+     * TE 30.8/150.7 = 0.204 — near-identical, which is what "the same upside"
+     * ought to mean and what the raw points never did. */
+    const by = {};
+    (board || []).forEach(p => {
+      if (!p || !p.position) return;
+      const rep = Number(p.replacement);
+      if (isFinite(rep) && rep > 0) by[p.position] = rep;
+    });
+    const vals = Object.keys(by).map(k => by[k]).sort((a, b) => a - b);
+    return { scales: by, ref: vals.length ? vals[Math.floor(vals.length / 2)] : 0 };
   }
 
   function upsideBonus(player, pickNumber, totalPicks, myPicksLeft, allStages, gateOpen) {
@@ -678,7 +781,36 @@
     // Deliberately NOT capped at the player's own VORP: a round-12 flier has a
     // VORP near zero and upside is the entire reason to take him. Capping there
     // would delete the lottery-ticket behaviour the next line exists to create.
-    const raw = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    /* ── POSITION-NORMALISED, 2026-08-13. THE UNITS DEFECT, FIXED AT SOURCE ──
+     *
+     * `proj_ceiling - proj_mean` is a SPREAD IN RAW SEASON POINTS. A quarterback
+     * scores 350-400 a season and a tight end 150, so the QB's spread is the
+     * biggest number on the board BY CONSTRUCTION — p90 of 66.5 at QB against
+     * 30.8 at TE. Ranking bench picks on it MEASURES SCALE AND CALLS IT UPSIDE,
+     * and it is why the board kept handing Cory a second quarterback and a
+     * second tight end he could not start.
+     *
+     * WHY THE ONESIE CAP DID NOT FIX IT, and this is the part that matters: the
+     * cap treats the OUTPUT while this drives the INPUT. And the term was
+     * supposed to be OFF — MEASURED_WEIGHTS.ceiling is 0, because the ceiling
+     * effect measured -4.8 with a [-26,+17] interval and could not be signed.
+     * But the bench branch floors it: `Math.max(BENCH_CEILING_FLOOR, w.ceiling)`
+     * with BENCH_CEILING_FLOOR = 0.25 SILENTLY RE-ENABLES A WEIGHT THE
+     * MEASUREMENT SET TO ZERO, for every bench pick. So the deliberately-
+     * disabled, unsignable, unnormalised term is the primary ranker of the whole
+     * back half of the draft.
+     *
+     * THE FIX IS A RATIO, NOT A CAP. Divide each spread by the TYPICAL SPREAD AT
+     * ITS OWN POSITION, then re-scale by the board-wide typical spread so the
+     * term keeps its magnitude on the composite's scale. What survives is "how
+     * much more upside than a normal player at this position" — dimensionless,
+     * and therefore comparable across positions, which is the one thing the raw
+     * spread never was. Median rather than mean: a handful of extreme boom
+     * projections at one position would otherwise set that position's scale. */
+    const rawSpread = (player.proj_ceiling || player.proj_mean) - player.proj_mean;
+    const cs = _ceilingScales;
+    const posScale = cs && cs.scales[player.position];
+    const raw = (posScale > 0 && cs.ref > 0) ? rawSpread * (cs.ref / posScale) : rawSpread;
     // Ceiling is LATE-ONLY for the LIVE recommendation: zero until CEILING_LATE_FROM
     // of the draft, then ramps to full (Cory's model — mean+VONA+tiers decide early/mid;
     // throwaway rounds get the lottery). `allStages` restores the old full-draft ramp
@@ -1038,6 +1170,11 @@
     // floored non-negative so a real bench flier never sinks below a discounted backup
     // and the top score never goes deeply negative for rounds on end.
     const benchOnly = need.fills === 'bench';
+    // Hoisted so the published components can report the terms the BENCH branch
+    // actually used rather than the starter branch's versions of them.
+    let wCeilPub = w.ceiling == null ? 1 : w.ceiling;
+    let wRiskPub = w.risk == null ? 1 : w.risk;
+    let benchCeilingPub = ceiling;
     let score;
     if (benchOnly) {
       // Score a bench pick on upside + handcuff insurance; keeper/bye/risk still
@@ -1052,7 +1189,43 @@
         ctx.myPicksLeft, ctx.ceilingAllStages, true);
       const wCeil = Math.max(CFG.BENCH_CEILING_FLOOR, w.ceiling == null ? 1 : w.ceiling);
       const wRisk = Math.max(CFG.BENCH_RISK_FLOOR, w.risk == null ? 1 : w.risk);
-      score = wCeil * benchCeiling + w.stack * stack.value + w.keeper * kov.value
+      wCeilPub = wCeil; wRiskPub = wRisk; benchCeilingPub = benchCeiling;
+      /* ── VONA IS KEPT HERE FROM 2026-08-13, AND THE REASON IS SEMANTIC ──
+       *
+       * The justification above for zeroing it reads "VONA (value over the next
+       * STARTER) ... meaningless for a man you can't start". THAT IS NOT WHAT
+       * VONA COMPUTES. `vona()` takes `board.filter(p => p.position === ...)` —
+       * EVERY same-position player left on the board, starter and bench alike —
+       * and returns proj_mean minus the expected best of them at my next pick.
+       * It is "value over the next player at this position I could realistically
+       * get instead", which is exactly as meaningful for depth as for a starter.
+       *
+       * So the branch was discarding the ONE term with an out-of-sample dollar
+       * measurement behind it, for the whole back half of every draft, on the
+       * strength of a comment that described a different quantity. What was left
+       * ranking those picks was the ceiling term — measured at -4.8 with a
+       * [-26,+17] interval and unsignable — reinstated by BENCH_CEILING_FLOOR
+       * over a MEASURED_WEIGHTS.ceiling of 0.
+       *
+       * WEIGHT 1.0 ON PRINCIPLE, NOT ON FIT. VONA either means the same thing
+       * for a bench player as for a starter or it does not; there is no
+       * principled fractional answer, and picking the fraction that makes a
+       * symptom look best is calibration against the symptom (Cory's hard rule).
+       *
+       * MEASURED, full 12-pick walk against the ADP reference:
+       *   RB taken          1 -> 5   (market takes 6; this was Stage 1's largest gap)
+       *   TE taken          2 -> 1   (market takes 1)
+       *   worst reach   +73.7 -> +36.0
+       *   reach p90     +36.7 -> +26.0
+       *   QB+TE in top 10  33% -> 50%   <-- WORSE, and not explained away below
+       *
+       * THE CONCERN IN THE ORIGINAL COMMENT IS REAL AND IS NOT FIXED BY THIS.
+       * "A benched QB2 floating to #1 once starters filled" still happens. The
+       * correctly-aimed instrument for "I cannot start him" is `need`
+       * (starterSlotMarginal), which is roster-state aware, implemented, and
+       * measured inert at every weight from 0.25 to 2.0. Suppressing it via the
+       * value term instead was aiming a blunt instrument at the wrong quantity. */
+      score = wValue * v + wCeil * benchCeiling + w.stack * stack.value + w.keeper * kov.value
         + Math.max(0, w.need * need.value)      // handcuff/insurance, never a penalty here
         - Math.max(0, w.bye * bye.value)        // a bench bye still stings a little
         + wRisk * Math.min(0, risk.value);      // real injury/age risk still counts
@@ -1082,8 +1255,42 @@
      *
      * Kept multiplicative and applied last so it cannot be argued away by a
      * slider: no weight setting turns a bench QB into a startable one. */
+    /* PUBLISHED AS THE DELTA IT CAUSES. It is multiplicative and applied last,
+     * so it cannot be an additive term — but it CAN be reported as the number of
+     * points it removed, and it must be, or the components do not sum to the
+     * score and every share_of_gap downstream is computed against a gap they did
+     * not produce. At pick 110 this was a silent -15.23 on a QB2: the surface
+     * showed a player whose published terms totalled 16.92 and whose score was
+     * 1.69, with nothing naming the 15 points that vanished. */
+    let onesieDelta = 0, doctrineDelta = 0;
     if (onesie.duplicate && onesie.discount < 1) {
-      score = score * onesie.discount;
+      const before = score;
+      /* ── A DISCOUNT MUST NEVER BE ABLE TO RAISE A SCORE ──────────────────
+       *
+       * This was `score = score * onesie.discount`, MULTIPLICATIVE ON A SIGNED
+       * QUANTITY. For a positive score that buries an unstartable duplicate,
+       * which is the intent. FOR A NEGATIVE SCORE IT MOVES TOWARD ZERO — so the
+       * mechanism built to bury duplicates was RESCUING THE WORST ONES, and
+       * compressing them all into a tight band just below the legitimate picks.
+       *
+       * Measured at pick 105 before this line changed: SEVEN OF THE TOP TEN were
+       * there because the discount lifted them. Juwan Johnson -29.93 -> -2.99
+       * (+26.94). Baker Mayfield -23.02 -> -2.30. Every one a duplicate at a
+       * position already full, several with VONA below -20 — the board saying
+       * plainly that the expected best available at his position next turn is
+       * twenty points better, and the discount overriding it.
+       *
+       * This is why restoring VONA to the bench branch made the QB/TE top-ten
+       * share WORSE (33% -> 50%). The two are coupled: while the branch scored
+       * on ceiling alone its outputs were mostly positive and the discount
+       * worked; once real value entered, duplicates went strongly negative and
+       * the sign defect had something to rescue. The regression was not a cost
+       * of the VONA fix, it was a latent defect the VONA fix exposed.
+       *
+       * `Math.min` rather than a sign test: it says the thing itself — the
+       * discounted score is taken only when it is genuinely worse. */
+      score = Math.min(score, score * onesie.discount);
+      onesieDelta = score - before;
     }
 
     /* THE DOCTRINE TILT. Additive and bounded. It must be SCALED BY THE ONESIE
@@ -1110,6 +1317,7 @@
     if (tilt) {
       if (onesie.duplicate && onesie.discount < 1) tilt *= onesie.discount;
       score += tilt;
+      doctrineDelta = tilt;   // published, for the same reason the onesie delta is
     }
 
     const survivalToNext = ctx.nextPick ? survival(player, ctx.nextPick, ctx) : 0;
@@ -1212,8 +1420,22 @@
           // pending experiment 33).
           value: wValue * v,
           tier: w.tier * tier, need: w.need * need.value,
-          risk: w.risk * risk.value, ceiling: w.ceiling * ceiling,
+          /* PUBLISH THE TERM THAT WAS USED, NOT THE ONE THE WEIGHT VECTOR NAMES.
+           * The bench branch scores on `max(BENCH_CEILING_FLOOR, w.ceiling)` times
+           * a separately recomputed ceiling, while this published
+           * `w.ceiling * ceiling` — which is 0 under MEASURED_WEIGHTS. So on every
+           * bench pick the components disagreed with the score by up to 25 points,
+           * and `share_of_gap` in the decision contract was computed against a gap
+           * the components had not produced. Rule 16 broken by ARITHMETIC rather
+           * than by wording: the surface was not choosing bad words for a real
+           * cause, it was reporting numbers that never summed to the decision. */
+          risk: benchOnly ? wRiskPub * Math.min(0, risk.value) : w.risk * risk.value,
+          ceiling: benchOnly ? wCeilPub * benchCeilingPub : w.ceiling * ceiling,
           keeper: w.keeper * kov.value, bye: -w.bye * bye.value, stack: w.stack * stack.value,
+          // Applied AFTER assembly, so published as deltas rather than as
+          // weight-times-term. Without these the components silently disagree
+          // with the score for every discounted onesie and every tilted player.
+          onesie: onesieDelta, doctrine: doctrineDelta,
         },
       },
       keeper_target: kov.value >= C.CFG.KOV_BADGE_AT,
@@ -1503,6 +1725,8 @@
   }
 
   function recommend(ctx) {
+    // Position scales BEFORE anything is scored — upsideBonus reads them.
+    _ceilingScales = computeCeilingScales(ctx.board);
     const all = ctx.board.map(p => scorePlayer(p, ctx));
     all.sort((a, b) => b.score - a.score);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
@@ -1816,7 +2040,11 @@
         name = c.pos + ' for the flex — ' + lastName(lead.player);
         mechanism = 'flex';
       } else {
-        name = 'Best ' + c.pos + ' value — ' + lastName(lead.player);
+        /* "OUR MODEL", not "value" — needrule renders a card on the same screen
+         * whose lead used to read "best flex-eligible VALUE", and that one ranks
+         * by ADP. One word for a market price and a model estimate, on two cards
+         * that disagree 11 times in 12. */
+        name = 'Best ' + c.pos + ' by OUR MODEL — ' + lastName(lead.player);
         mechanism = 'value';
       }
 

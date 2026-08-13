@@ -85,7 +85,15 @@ _Last updated 2026-08-09 (all-terms participation test + FP SSR discovery)._
 - **⚠️ BUT THE LINEUP-DEVIATION MECHANISM IS A NEAR-NULL (2026-08-10, measured, stated
   plainly per Cory).** The dual-objective optimizer — the thing described as the heart of
   the in-season edge, deviating from "start your highest projections" to chase the $100 —
-  **deviates only 10.9% of team-weeks and is worth ~$9/season** (draft/backtest/
+  **deviates only 10.9% of team-weeks and is worth ~$9/season** — ***AND EVEN THAT
+  OVERSTATES IT: those figures were measured on a configuration that has never shipped
+  (2026-08-12, B's finding, mechanically confirmed). The harness supplies a per-player
+  `sd`; production's `rosterView` has never built that field, so every live player gets
+  the position-typical sigma and the expected-dollars optimum collapses onto the
+  expected-points optimum. Same 450 team-weeks with `sd` stripped and nothing else
+  changed: 0.0% and $0.00. THE MECHANISM HAS NEVER FIRED IN PRODUCTION. B is wiring
+  measured SD; when it lands these numbers must be RE-MEASURED, not inherited —
+  draft/audits/boundary_completeness_2026-08-12.md.*** (draft/backtest/
   lineup_deviation.js, 450 real team-weeks 2023-25, matchupValue $110). For ~9 weeks in 10
   the right lineup is simply the highest projections. **The sophistication is not earning.**
   Two follow-ons: (1) the deviations that fire are *mildly* concentrated in near-certain

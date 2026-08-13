@@ -343,8 +343,21 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
     sd_field = desc["stdev_field"]
     index = build_index(sleeper_players)
 
+    # ── THE SAME SILENT-OVERWRITE THE FP TABLE HAD, ON THE PRIMARY CROSSWALK ──
+    #
+    # `rows[pid] = ...` keyed by Sleeper id. Two FFC entries crosswalking to one
+    # id overwrite silently while `matched` counts the SURVIVORS, so the report
+    # says success on a table that lost a row. The FP builder was hardened for
+    # exactly this on 2026-08-12 and THIS ONE — the primary anchor, the table
+    # that carries every bye week — was left without it.
+    #
+    # BOTH CLAIMANTS ARE DROPPED, not arbitrated: a collision means the crosswalk
+    # cannot say whose ADP this is, and keeping either is a guess written into
+    # the anchor. Counted as their own bucket so the identity below is exact.
+    entries = payload.get("players") or []
     rows, unmatched = {}, []
-    for i, entry in enumerate(payload.get("players") or []):
+    claims: dict = {}
+    for i, entry in enumerate(entries):
         rank = int(entry.get("adp_rank") or entry.get("rank") or (i + 1))
         pid, method = match_player(entry, index)
         if not pid:
@@ -356,6 +369,7 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
                 "adp": entry.get("adp"),
             })
             continue
+        claims.setdefault(pid, []).append(str(entry.get("name") or f"rank {rank}"))
         adp = float(entry.get("adp") or rank)
         sd, sd_src = fitted_sd(adp, entry.get(sd_field) if sd_field else None)
         rows[pid] = {
@@ -368,6 +382,25 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
             "bye": entry.get("bye"),
         }
 
+    contested = {pid: names for pid, names in claims.items() if len(names) > 1}
+    dropped = 0
+    for pid, names in contested.items():
+        rows.pop(pid, None)
+        dropped += len(names)
+
+    # THE ACCOUNTING IDENTITY, ASSERTED RATHER THAN REPORTED. Every parsed entry
+    # now lands in exactly one bucket, so a row that goes missing between the
+    # payload and the table cannot hide in the difference. Clean today is not the
+    # point — uncheckable tomorrow is.
+    accounted = len(rows) + len(unmatched) + dropped
+    if accounted != len(entries):
+        raise SystemExit(
+            f"REFUSING the ADP anchor: the crosswalk does not account for its own "
+            f"rows. {len(rows)} matched + {len(unmatched)} unmatched + {dropped} "
+            f"collided = {accounted}, but {len(entries)} were parsed. A row went "
+            f"missing between the payload and the table; a board built on a table "
+            f"that cannot count itself is worse than no board.")
+
     report = {
         "format": fmt, "teams": teams, "year": year,
         "payload": {k: desc[k] for k in ("meta_keys", "player_fields", "player_count", "stdev_field")},
@@ -375,6 +408,10 @@ def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
         "unmatched": unmatched,
         "unmatched_count": len(unmatched),
         "unmatched_in_top_n": [u for u in unmatched if u["rank"] <= strict_top_n],
+        "parsed": len(entries),
+        "collisions": len(contested),
+        "dropped_to_collision": dropped,
+        "collision_names": {p: n for p, n in list(contested.items())[:10]},
     }
     _print_report(report, strict_top_n)
 
@@ -603,6 +640,41 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     ffc_max = max((r["adp"] for r in adp_table.values()), default=0.0)
 
     used_fallback = []
+    # ── THE TEAM FALLBACK, BECAUSE A BYE IS A PROPERTY OF THE TEAM ──────────
+    #
+    # Sleeper leaves bye_week empty in the preseason and FFC only publishes it
+    # for players it prices. Everyone else kept bye=None — 564 players carrying a
+    # TEAM and no bye, including 37% of the top-225 tight ends.
+    #
+    # THE DANGER IS THE SILENCE, NOT THE GAP. `byeStack` warns when three
+    # starters share a bye; a null bye can never contribute to that count, so the
+    # warning stays quiet, and a quiet warning is indistinguishable from one that
+    # looked and found no conflict.
+    #
+    # A bye is a property of the TEAM, so it is fully derivable from any teammate
+    # who has one. Measured on the 2026 board: all 32 teams show EXACTLY ONE bye
+    # value among their known players and ZERO conflicts, and all 564 gaps fill.
+    #
+    # UNANIMITY IS REQUIRED RATHER THAN ASSUMED. A team showing two byes is
+    # refused rather than resolved by a mode — a WRONG bye manufactures a
+    # conflict warning about a week the player actually plays, which is worse
+    # than a missing one.
+    team_bye, team_conflict = {}, {}
+    for p in players:
+        t, b = p.get("team"), p.get("bye")
+        if not t or t == "FA" or b in (None, "", 0):
+            continue
+        prev = team_bye.get(t)
+        if prev is None:
+            team_bye[t] = int(b)
+        elif prev != int(b):
+            team_conflict[t] = True
+    for t in team_conflict:
+        team_bye.pop(t, None)
+    if team_conflict:
+        print(f"  ! {len(team_conflict)} team(s) report more than one bye week — "
+              f"REFUSED rather than guessed: {sorted(team_conflict)}")
+
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
         if row:
@@ -630,6 +702,20 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
         p["adp_source"] = "search_rank"
         used_fallback.append(p.get("player_id"))
+
+    # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
+    # actually have a value and this only ever fills a hole neither could.
+    filled = 0
+    for q in players:
+        if q.get("bye") in (None, "", 0):
+            b = team_bye.get(q.get("team"))
+            if b is not None:
+                q["bye"] = b
+                q["bye_source"] = "team-derived"
+                filled += 1
+    if filled:
+        print(f"  bye: filled {filled} from the player's own team "
+              f"({len(team_bye)} teams with a unanimous bye)")
 
     # Rank by the ADP we just assigned and judge only the part of the board that
     # is genuinely in play. A deep-bench tight end with no FFC entry is not a

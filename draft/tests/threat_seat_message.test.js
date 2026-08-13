@@ -79,9 +79,20 @@ if (threats && strip) {
   // words to be adjacent in the SOURCE — only in what the page renders.
   ck('  and it says what unblocks it',
     /cannot be assigned to draft seats until[\s\S]{0,40}the draft order is available/i.test(threats));
+  // "above" was a SPATIAL reference and it was correct while the sentence sat
+  // directly under the position mix. The caveat now lives in a collapsed
+  // tooltip (B measured 29 copies of it down one column), so "above" points at
+  // nothing. The INVARIANT is unchanged and is what this checks: the message
+  // must name the POSITION MIX specifically, never the panel in general.
   ck('  and it names the POSITION MIX, not the panel in general',
-    /position mix above is league-average/.test(threats),
+    /position mix (above|shown) is league-average/.test(threats),
     'the names on this panel ARE room-modelled; only the mix is league-average');
+  ck('  and the caveat is COLLAPSED, not repeated once per threat row',
+    /caveatOnce\('seats_unassigned'/.test(threats),
+    'B measured 29 copies of this sentence in one column — one warning, not 29');
+  ck('  ...while the row still SAYS something in place of the full sentence',
+    /seat mapping unavailable/.test(threats),
+    'a bare superscript in a row of numbers explains nothing on its own');
 
   // ── WITHOUT LOSING THE GENUINE NO-HISTORY CASE ────────────────────────────
   ck('a manager who really has no history still reads that way',

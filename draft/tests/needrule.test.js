@@ -32,7 +32,12 @@ const KEEPERS = [P('WR', 3, { name: 'Chase' }), P('RB', 1, { name: 'Henry' }), P
   const rec = NR.recommend(board, roster);
   check('value-depth: best flex WR is taken ahead of filling a weak TE', rec.pick.position === 'WR',
     JSON.stringify(rec.pick));
-  check('...and the reason states it in the rule\'s terms', /flex-eligible value/.test(rec.reason), rec.reason);
+  /* The rule ranks by ADP and computed no "value" of any kind; the composite
+   * renders "Best TE value" on the same screen from a different quantity. Each
+   * label now names what it actually is. */
+  check('...and the reason states it in the rule\'s terms — MARKET PRICE, not "value"',
+    /flex-eligible by MARKET PRICE/.test(rec.reason) && !/\bvalue\b/.test(rec.reason),
+    rec.reason);
 }
 
 // --- QB deferral is stated when passing an empty QB for better value ----------
@@ -99,6 +104,41 @@ const KEEPERS = [P('WR', 3, { name: 'Chase' }), P('RB', 1, { name: 'Henry' }), P
     /past the rule.s measured region/.test(rec.reason), rec.reason);
   check('...confidence flags it as the human\'s call, not a masked rec',
     /PAST THE MEASURED REGION/.test(rec.confidence));
+}
+
+/* ── A BYE WARNING THAT CANNOT FIRE MUST NOT LOOK LIKE ONE THAT FOUND NOTHING ─
+ *
+ * byeStack returned a bare `null` in two different situations: the starters
+ * genuinely do not stack, and THE DATA CANNOT ANSWER. A null bye can never
+ * contribute to the count, so a roster with unknown byes returned exactly what a
+ * clean roster returns. 564 players carried a team and no bye — 37% of the
+ * top-225 tight ends — so this was the common case, not a corner.
+ */
+{
+  const mk = (id, pos, adp, bye) => ({ player_id: id, name: id, position: pos,
+    adp: adp, proj_mean: 150, bye: bye });
+  const roster = [mk('a', 'RB', 10, 7), mk('b', 'WR', 11, 7)];
+
+  // A pick with NO bye: the tool cannot rule out a conflict and must say so.
+  const blind = NR.recommend([mk('x', 'WR', 20, null)], roster);
+  check('a pick with no bye reports BLINDNESS, not silence',
+    blind.bye_stack && blind.bye_stack.blind > 0 && blind.bye_stack.week === null,
+    JSON.stringify(blind.bye_stack));
+  check('  and it says why, in words a person can act on',
+    /not the same as/.test((blind.bye_stack || {}).why || ''),
+    (blind.bye_stack || {}).why);
+
+  // THE CONTROL: a fully-known roster with no stack must still be silent, or
+  // the warning becomes noise on every pick and gets ignored.
+  const clean = NR.recommend([mk('y', 'WR', 20, 11)], [mk('a', 'RB', 10, 7), mk('b', 'WR', 11, 9)]);
+  check('a fully-known roster with no stack stays SILENT',
+    clean.bye_stack === null, JSON.stringify(clean.bye_stack));
+
+  // And a real stack still fires, with the count.
+  const stack = NR.recommend([mk('z', 'WR', 20, 7)], roster);
+  check('a real three-way stack still fires with its week and count',
+    stack.bye_stack && stack.bye_stack.week === 7 && stack.bye_stack.count >= 3,
+    JSON.stringify(stack.bye_stack));
 }
 
 console.log(`\n${pass}/${pass + fail} needrule checks passed`);

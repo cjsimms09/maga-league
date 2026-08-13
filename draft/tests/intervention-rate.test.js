@@ -146,9 +146,45 @@ check('mean deviation magnitude is pinned (frozen pool)',
 // and deadness genuinely meant something.
 const ZERO_WEIGHTED = Object.keys(E_MEASURED).filter(k => !E_MEASURED[k]).sort();
 const deadSet = r.dead.slice().sort();
-check('every zero-weighted term is dead (arithmetic, stated so it is not read as a finding)',
-  ZERO_WEIGHTED.every(t => deadSet.indexOf(t) !== -1),
-  'zero-weighted=' + JSON.stringify(ZERO_WEIGHTED) + ' dead=' + JSON.stringify(deadSet));
+/* ── THE FLOORS ARE NAMED HERE RATHER THAN RATIONALISED IN A COMMENT ────────
+ *
+ * This assertion used to read "every zero-weighted term is dead" and pass, with
+ * a comment above it acknowledging that BENCH_CEILING_FLOOR "gives it 0.25 there
+ * regardless of the slider" and arguing the perturbation never reached a bench
+ * decision on this pool. That argument was doing the work a check should do.
+ *
+ * It stopped being true on 2026-08-13 for a reason worth keeping: the published
+ * components now report the term the BENCH BRANCH ACTUALLY USED rather than
+ * `w.ceiling * ceiling`, so a floor-reinstated term is now visible as alive
+ * instead of reading as zero. THE BEHAVIOUR DID NOT CHANGE — the reporting
+ * stopped hiding it.
+ *
+ * So the honest statement is: a zero-weighted term is dead UNLESS A NAMED FLOOR
+ * REINSTATES IT, and the floors are enumerated so that adding a third one to the
+ * engine fails here rather than quietly widening the exception. */
+/* EMPTY SINCE 2026-08-14, AND THE CONVERSE CHECK BELOW IS WHY. This map held
+ * ceiling and risk, reinstated by BENCH_CEILING_FLOOR and BENCH_RISK_FLOOR over
+ * measured weights of zero. Both floors are now zero, so both terms are dead
+ * again — and the converse assertion fired exactly as written: "delete the
+ * exception or delete the floor". The floor was deleted, so the exception goes.
+ * An empty map means every zero-weighted term is genuinely dead, which is the
+ * state this file always claimed and could not honestly assert. */
+const FLOOR_REINSTATED = {};
+const unexplainedAlive = ZERO_WEIGHTED
+  .filter(t => deadSet.indexOf(t) === -1)
+  .filter(t => !FLOOR_REINSTATED[t]);
+check('every zero-weighted term is dead, EXCEPT the ones a named floor reinstates',
+  unexplainedAlive.length === 0,
+  'alive with no floor to explain it: ' + JSON.stringify(unexplainedAlive)
+  + '  (zero-weighted=' + JSON.stringify(ZERO_WEIGHTED) + ' dead=' + JSON.stringify(deadSet) + ')');
+/* And the converse, so the exception list cannot rot into a mute: a floor that
+ * no longer reinstates anything is a floor that should be deleted, not carried. */
+const inertFloors = Object.keys(FLOOR_REINSTATED)
+  .filter(t => ZERO_WEIGHTED.indexOf(t) !== -1 && deadSet.indexOf(t) !== -1);
+check('  and every declared floor is actually reinstating its term',
+  inertFloors.length === 0,
+  'declared as floor-reinstated but measured dead: ' + JSON.stringify(inertFloors)
+  + ' — delete the exception or delete the floor');
 
 // THIS is the real one: survival carries no weight of its own — it lives inside
 // VONA, which ships at 1.0 — so it is ACTIVE and still not differentiating any

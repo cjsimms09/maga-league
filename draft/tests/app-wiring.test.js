@@ -237,6 +237,37 @@ check('board freshness: no surface hardcodes a 48h age threshold anymore',
   !/ageH\s*[<>]=?\s*48/.test(appSrc) && !/hours\s*>\s*18/.test(appSrc),
   'age comparisons must go through boardFreshness(), not raw 48/18h literals');
 
+// ── REPEATED CAVEATS: ONE WARNING, NOT TWENTY-NINE (B, 2026-08-12) ─────────
+//
+// The seat-mapping caveat rendered IN FULL once per threat row — twenty-nine
+// copies of the same sentence down a column, on the surface Cory reads under
+// time pressure. `caveatOnce` already existed four hundred lines above the
+// string and it simply never went through it. A caveat repeated twenty-nine
+// times is one warning and twenty-eight lines of noise burying the numbers the
+// rows exist to show.
+//
+// SCOPE, stated because rule 11e bites here: this is a SOURCE check. It can
+// prove the string is routed through caveatOnce; it CANNOT prove the rendered
+// page shows one line. B holds the DOM half (every data-caveat resolving to a
+// single findable explanation). The runtime-testable fix is to lift caveatOnce
+// into its own module the way override_record.js was lifted — deliberately NOT
+// done inside the freeze window, and worth doing after the 22nd.
+check('the seat-mapping caveat is routed through caveatOnce, not repeated per row',
+  /caveatOnce\('seats_unassigned'/.test(appSrc)
+  && !/\+ 'manager profiles exist, but cannot be assigned to draft seats until '\s*\n\s*\+ 'the draft order is available — the position mix above/.test(appSrc),
+  'the full sentence must not be inlined into the row template');
+
+// ── NO TIMER FICTION, INCLUDING IN ATTRIBUTES ──────────────────────────────
+//
+// The draft is UNTIMED. "On the clock" was retired from the visible copy and
+// the same fiction was still sitting in two hundred `title` attributes, where
+// a page-TEXT scan structurally cannot see it — the same blindness as the
+// visibility-hidden elements that read as unlabelled buttons. Anything
+// auditing rendered output has channels it cannot reach.
+check('no rendered attribute implies a draft clock or countdown',
+  !/title="[^"]*(clock is at|\d+ seconds|countdown|timer)/i.test(appSrc),
+  'a title= attribute implies a timer the draft does not have');
+
 // ── HONEST LIMIT, asserted so nobody mistakes this for more than it is ──────
 check('this suite knows what it cannot check (limitation is documented)',
   /catches "the app never mentions it", not "the app mentions it but computes it wrong"/

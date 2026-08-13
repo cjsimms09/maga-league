@@ -1,5 +1,26 @@
 /* HOW OFTEN DOES THE DUAL OBJECTIVE DEVIATE FROM PROJECTION-MAX?  (lineup audit)
  *
+ * ⚠️ THIS HARNESS MEASURES A CONFIGURATION THAT HAS NEVER SHIPPED (2026-08-12).
+ *
+ * Read this before quoting any number below. The per-player `sd` this file
+ * supplies (line ~83) is THE ENTIRE MECHANISM: production's `member.js` passes
+ * `sd: r.sd` off a `rosterView` row, and rosterView HAS NEVER BUILT THAT FIELD.
+ * So every live player falls to the position-typical sigma, no same-position
+ * swap can change variance, and the expected-dollars optimum collapses onto the
+ * expected-points optimum.
+ *
+ * MEASURED, same 450 team-weeks, same $110, only `sd` stripped at the
+ * optimize() boundary — which is exactly and only what production does:
+ *
+ *     with per-player sd :  10.9% of team-weeks deviate,  $8.94/season
+ *     WITHOUT it (live)  :   0.0% of team-weeks deviate,  $0.00/season
+ *
+ * The mechanism does not fire at all without it. B is fixing the production
+ * half with measured SD, structural provenance and a missing-data regression
+ * test; WHEN THAT LANDS THESE NUMBERS MUST BE RE-MEASURED, NOT INHERITED. They
+ * are not "confirmed pending wiring" — they are unmeasured for the system as it
+ * will actually run. See draft/audits/boundary_completeness_2026-08-12.md.
+ *
  * Cory asked, and it is the honest test of whether the lineup tool's dual
  * objective (win the matchup + clear the weekly high) actually earns its
  * complexity: across every real historical team-week, how often does the
@@ -124,6 +145,13 @@ function sweep(matchupValue) {
 
 function main() {
   console.log('DUAL-OBJECTIVE DEVIATION FROM PROJECTION-MAX — real 2023-25 team-weeks\n');
+  // THE CAVEAT RIDES WITH THE OUTPUT, not just the source. A number printed to
+  // a terminal gets pasted into a doc; a header comment does not travel with it.
+  console.log('  ⚠️  MEASURED ON A CONFIGURATION THAT HAS NEVER SHIPPED. This harness supplies');
+  console.log('      a per-player sd; production\'s rosterView never builds that field, so every');
+  console.log('      live player gets the position-typical sigma. Stripping sd here and changing');
+  console.log('      NOTHING else takes these same 450 team-weeks to 0.0% and $0.00. Do not quote');
+  console.log('      the figures below as the live tool\'s value.\n');
   const derived = sweep(110);   // the corrected, derived playoff-equity value
   const old = sweep(25);        // the old side-bet guess, for contrast
 

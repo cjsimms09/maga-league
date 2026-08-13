@@ -7820,6 +7820,53 @@ Not for a tool, not for a section heading elsewhere — for the work, here.
 
 ---
 
+## 📋 PRE-DECLARATION — DOES THE DEPLOYED BOARD'S ADP AGREE WITH AN INDEPENDENT MARKET? (C, 2026-08-12)
+
+**Declared before inspecting the sample, per Cory's standing rule. Nothing below this heading
+was written after seeing a result.**
+
+### WHY THIS AND WHY NOW
+
+D3 has captured a **second, independent ADP source** — MFL, 708 players from **119 real 2026
+drafts**, observed 2026-08-12 — and it has never been compared to the board Cory actually
+drafts off. `mfl_live_probe.json` compared MFL to **FFC**, not to `public/draft_data.json`.
+Ten days from the draft, an unvalidated ADP is the input that decides every pick.
+
+### THE SAMPLE, FIXED NOW
+
+* **Market side:** the 708 rows of the `2026-08-12` snapshot in
+  `draft/data/external_adp_series.json` (`total_drafts: 119`). Not tomorrow's, not a blend.
+* **Board side:** `public/draft_data.json` as deployed, `built_at 2026-08-12T09:19:29Z`, all
+  1759 players — the same artifact the war room boots from.
+* **Join:** the existing crosswalk in `mfl_adapter.py`, unchanged. No new matching rules, no
+  loosening to raise coverage. Unmatched rows are reported as unmatched.
+
+### THE DRAFT RANGE, FIXED NOW
+
+**10 teams × 15 rounds = 150 picks.** That is the range Cory can actually reach. I will also
+report the top 200 as a shoulder, because keepers and forfeited rounds move the real edge.
+
+### THE MEASUREMENT
+
+For every crosswalked player whose **MFL ADP is inside the top 150**:
+
+1. What is the board's `adp` for him?
+2. Is the board's ADP a **real price or the `search_rank` fallback tail** — read from the
+   board's own `adp_source` field, not inferred by me from the magnitude.
+3. **The headline number: how many players does an independent market of 119 drafts take
+   inside 150 picks that our board has priced in the fallback tail** — i.e. invisible to Cory
+   at the moment the market is spending a real pick on them.
+
+### WHAT WOULD FALSIFY THE CONCERN
+
+If the fallback tail contains **no** player the market takes inside 150, the board's pricing is
+sound where it matters and I will say so plainly and stop. A handful of low-consequence names
+is also a real answer and gets reported as one — I am not going to grow this into a programme.
+
+### WHAT I WILL NOT DO
+
+Not touch the board, not touch `build.py`, not change the crosswalk, not relax a filter to
+reach a number. This is a measurement. If it finds something, it routes to A.
 ## 🔴 C's OWN LANE, AND IT IS THE WORST THING I HAVE FOUND IN IT — THE ADP ARCHIVE'S IDS ARE NOT OUR IDS (C, 2026-08-12)
 
 **Not routed. Mine, found by me, fixed by me, and recorded here because the defect

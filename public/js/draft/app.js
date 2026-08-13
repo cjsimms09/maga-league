@@ -333,6 +333,100 @@
     } catch (e) { return null; }
   }
 
+  /* ── UNPLAYABLE PLAYERS DO NOT BELONG ON A DRAFT BOARD ──────────────────
+   *
+   * Cory found Marshawn Lynch — retired since 2019 — in the pool during a mock.
+   * 943 of 1759 players (53.6%) carry the full signature: NO 2026 TEAM, NO
+   * PROJECTION, and an ADP that is Sleeper's `search_rank` fallback rather than
+   * a real one. draft/build.py admits them because its filter excludes only an
+   * explicit `active === false` and applies no rank ceiling.
+   *
+   * C measured that REPLACEMENT LEVEL MOVES BY EXACTLY ZERO when they are
+   * removed — replacement is the Nth-ranked player BY PROJECTION and they all
+   * project 0.0, so they sort into the tail and cannot reach a cut of 10-29.
+   * VORP is not contaminated and never was.
+   *
+   * BUT THEY REACH THE TOP TEN IN THE LATE ROUNDS. Measured on the mock walk:
+   * Marcedes Lewis and Jason Witten at pick 105, Frank Gore at 110, Frank Gore
+   * and Larry Fitzgerald at 125 — inside the ten players Cory reads when
+   * deciding what to take. So it is not a valuation defect and it is not
+   * cosmetic either; it is the recommendation surface offering men who retired
+   * half a decade ago.
+   *
+   * C's DISCRIMINATOR, used verbatim because it was verified against this exact
+   * board: no team AND no projection isolates all 943 WITHOUT TOUCHING A SINGLE
+   * PRICED PLAYER. It does not depend on Sleeper's `active` flag being reliable,
+   * which is the thing nobody can currently check.
+   *
+   * APPLIED HERE RATHER THAN ONLY IN build.py because the board is rebuilt
+   * nightly behind an egress path this session cannot reach, and Cory drafts off
+   * whatever is deployed. build.py needs the same guard at source; this one
+   * means the surface is right tonight regardless. */
+  function draftablePlayers(players) {
+    const all = players || [];
+    const playable = all.filter(p => (p.team || 'FA') !== 'FA' || Number(p.proj_mean) > 0);
+    // FAIL LOUD RATHER THAN SILENTLY EMPTY. A discriminator that matched
+    // everything would leave an empty board and no error — the exact shape of
+    // defect this file keeps finding.
+    if (all.length && playable.length < all.length * 0.25) {
+      console.error('[board] draftable filter removed ' + (all.length - playable.length)
+        + ' of ' + all.length + ' — refusing, this cannot be right');
+      return all;
+    }
+    return playable;
+  }
+
+  /* ── A BYE THAT CANNOT FIRE LOOKS EXACTLY LIKE A BYE THAT FOUND NOTHING ──
+   *
+   * 564 players carry a TEAM and no bye week — 37% of the top-225 tight ends,
+   * 19% of the quarterbacks, 17% of the running backs. Sleeper populates
+   * `metadata.bye_week` sparsely, so build.py derives a team->bye map from
+   * whichever players happen to carry one, and everyone it misses gets null.
+   *
+   * THE DANGER IS NOT THE MISSING NUMBER, IT IS THE SILENCE. `byeStack` warns
+   * when three starters share a bye. A player with a null bye can never
+   * contribute to that count, so the warning stays quiet — and a quiet warning
+   * is indistinguishable from one that looked and found no conflict. Cory would
+   * read that on the 22nd as "no bye problem".
+   *
+   * A BYE IS A PROPERTY OF THE TEAM, so it is fully derivable: measured on this
+   * board, all 32 teams show EXACTLY ONE bye value among their known players and
+   * ZERO conflicts, and all 564 gaps fill from the player's own team.
+   *
+   * UNANIMITY IS ASSERTED RATHER THAN ASSUMED. If a team ever shows two byes the
+   * map refuses that team instead of picking a mode — a wrong bye is worse than
+   * a missing one, because it manufactures a conflict warning about a week the
+   * player actually plays. */
+  function fillTeamByes(players) {
+    const seen = {};
+    (players || []).forEach(p => {
+      const t = p && p.team;
+      if (!t || t === 'FA' || p.bye == null) return;
+      (seen[t] = seen[t] || {})[Number(p.bye)] = true;
+    });
+    const map = {}, conflicted = [];
+    Object.keys(seen).forEach(t => {
+      const vals = Object.keys(seen[t]);
+      if (vals.length === 1) map[t] = Number(vals[0]);
+      else conflicted.push(t + '(' + vals.join('/') + ')');
+    });
+    let filled = 0, stillBlind = 0;
+    const out = (players || []).map(p => {
+      if (!p || p.bye != null) return p;
+      const b = p.team && p.team !== 'FA' ? map[p.team] : undefined;
+      if (b == null) { stillBlind++; return p; }
+      filled++;
+      return Object.assign({}, p, { bye: b, bye_source: 'team-derived' });
+    });
+    if (conflicted.length) {
+      console.error('[bye] teams reporting more than one bye week, REFUSED rather than '
+        + 'guessed: ' + conflicted.join(', '));
+    }
+    state.byeCoverage = { filled: filled, stillBlind: stillBlind,
+      conflicted: conflicted, teams: Object.keys(map).length };
+    return out;
+  }
+
   function bootFrom(data) {
     state.data = data;
     // Confirmation-screen overrides win over the imported config, so a
@@ -372,9 +466,14 @@
       league: JSON.parse(JSON.stringify(data.league || {})),
       pick_order: JSON.parse(JSON.stringify(data.pick_order || {})),
     };
-    state.board = data.players.slice();
+    data.players = fillTeamByes(data.players);
+    state.board = draftablePlayers(data.players);
     populateKeepers(data);
     applyOverrides();
+    // AFTER populateKeepers/applyOverrides so a restored roster lands on the
+    // finished board, and BEFORE renderAll so the first paint is the restored
+    // draft rather than an empty one Cory has to watch being replaced.
+    resumeDraftIfAny(data);
     renderAll();
     wireControls();
     $('#loading').style.display = 'none';
@@ -1334,10 +1433,86 @@
   }
 
   // ------------------------------------------------------------------ render
+  /* THE DRAFT SURVIVES THE PAGE (Cory, 2026-08-13, lost a mock at pick ~80).
+   *
+   * ONE CALL SITE, IN renderAll, DELIBERATELY. Six separate places mutate
+   * `drafted`/`rosters`/`myRoster`, and instrumenting six is six chances to
+   * forget the seventh — which is exactly how the picks ended up being the ONE
+   * thing not persisted while weights, lists, rail acks, the pinned board and
+   * even the mock calibration all were. Every pick path already ends in
+   * renderAll, so saving here cannot be bypassed by a new pick path.
+   *
+   * Cost is a JSON.stringify of ~100 ids on each render, which is far below the
+   * render itself. It never throws: DraftSession.save reports instead, because
+   * a lost recovery point is bad and an exception on the clock is worse. */
+  function saveDraftSession() {
+    if (typeof DraftSession === 'undefined') return;
+    DraftSession.save(state, { built_at: (state.data || {}).built_at || null,
+      mySlot: mySlot() });
+  }
+
+  /* COMING BACK FROM A DEAD PAGE.
+   *
+   * Auto-resume rather than a confirmation dialog: Cory asked for "a recovery
+   * path I can reach in ten seconds", and a modal on the clock is a decision to
+   * make while a room waits. The banner says what was restored and offers the
+   * discard, so the reversible action is the one that needs a tap.
+   *
+   * The keeper pool is passed EXPLICITLY. kept_players is disjoint from
+   * players — keepers are off the draftable board because they cannot be
+   * drafted — so a restore that looks only at the board comes back three
+   * players short and then scores need and stack against that short roster.
+   * Caught by draft_session.test.js, not by review. */
+  function resumeDraftIfAny(data) {
+    if (typeof DraftSession === 'undefined') return;
+    var saved = DraftSession.load();
+    if (!DraftSession.isResumable(saved)) return;
+    var r = DraftSession.restore(saved, data.players || [], {
+      built_at: data.built_at || null, alsoLookIn: data.kept_players || [] });
+    if (!r.ok) { showResumeBanner(null, [r.reason]); return; }
+    Object.keys(r.state).forEach(function (k) { state[k] = r.state[k]; });
+    if (r.mySlot != null && Number(r.mySlot) !== mySlot()) setSlot(r.mySlot, 'resumed');
+    state.board = (data.players || []).filter(function (p) {
+      return !state.drafted.has(String(p.player_id));
+    });
+    showResumeBanner(r.stats, r.warnings);
+  }
+
+  function showResumeBanner(stats, warnings) {
+    var host = document.getElementById('resume-banner')
+      || (function () {
+        var d = document.createElement('div');
+        d.id = 'resume-banner';
+        var anchor = document.querySelector('.wrap') || document.body;
+        anchor.insertBefore(d, anchor.firstChild);
+        return d;
+      })();
+    if (!stats) {
+      host.innerHTML = '<div class="resume-note"><b>Could not restore the saved draft.</b> '
+        + escapeHtml((warnings || []).join(' ')) + '</div>';
+      return;
+    }
+    host.innerHTML = '<div class="resume-note"><b>Resumed your draft.</b> '
+      + stats.drafted + ' players off the board, ' + stats.myRoster
+      + ' on your roster, saved ' + escapeHtml(String(stats.savedAt || '')) + '.'
+      + (warnings && warnings.length
+        ? ' <span class="resume-warn">' + escapeHtml(warnings.join(' ')) + '</span>' : '')
+      + ' <button class="btn small ghost" id="resume-discard">Start over</button></div>';
+    var b = document.getElementById('resume-discard');
+    if (b) b.addEventListener('click', function () {
+      // A DELIBERATE discard clears the record. An accidental one cannot: this
+      // is the only path that erases it, and it is a tap the user chose.
+      DraftSession.clear();
+      host.innerHTML = '';
+      location.reload();
+    });
+  }
+
   function renderAll() {
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
+    saveDraftSession();
     checkKeeperLock();
     renderHeader();
     renderRecommendations();
@@ -2114,8 +2289,17 @@
             ? 'nothing in ' + r.sample_size + ' draft' + (r.sample_size === 1 ? '' : 's')
               + ' stands out — he drafts near league average'
             : (seatsUnassigned && haveDossier
-                ? 'manager profiles exist, but cannot be assigned to draft seats until '
-                  + 'the draft order is available — the position mix above is league-average'
+                // THE 29x REPEAT B MEASURED. This sentence rendered once PER
+                // THREAT ROW — the same caveat, in full, down a whole column,
+                // on the surface Cory reads under time pressure. The mechanism
+                // to collapse it already existed four hundred lines above and
+                // this string simply never went through it. A caveat repeated
+                // twenty-nine times is not twenty-nine warnings, it is one
+                // warning and twenty-eight lines of noise burying the numbers
+                // the rows exist to show.
+                ? 'seat mapping unavailable' + caveatOnce('seats_unassigned', '²',
+                    'manager profiles exist, but cannot be assigned to draft seats until '
+                    + 'the draft order is available — the position mix shown is league-average')
                 : 'no draft history on Sleeper — modelled as league average')) + '</div>';
       return '<div class="threat-row">'
         + '<div class="threat-head"><span class="threat-pick">' + r.pick_no + '</span>'
@@ -3026,10 +3210,24 @@
         + '</div>';
     }
     // BYE STACK — the one thing the rule does NOT price, made visible (Cory #3).
-    if (rec.bye_stack) {
+    /* THREE STATES, NOT TWO. byeStack used to return a bare null both when the
+     * starters do not stack AND when it could not tell — a null bye can never
+     * contribute to the count, so a roster with three unknown byes returned
+     * exactly what a clean one returns. It now reports blindness, and this is
+     * the consumer: a warning the tool COULD NOT MAKE must not render as a
+     * warning it declined to make. */
+    if (rec.bye_stack && rec.bye_stack.week != null && rec.bye_stack.count >= 3) {
       html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#e6b800">'
         + '⚠ bye stack: this would put ' + rec.bye_stack.count + ' starters on week '
-        + rec.bye_stack.week + ' — the rule does not price byes; your call.</div>';
+        + rec.bye_stack.week + ' — the rule does not price byes; your call.'
+        + (rec.bye_stack.blind ? ' (' + rec.bye_stack.blind + ' more starter'
+            + (rec.bye_stack.blind === 1 ? '' : 's') + ' have no bye on the board, '
+            + 'so this count is a floor.)' : '')
+        + '</div>';
+    } else if (rec.bye_stack && rec.bye_stack.blind) {
+      html += '<div class="rh-bye" style="font-size:.78rem;margin-top:.35rem;color:#8a8a8a">'
+        + '◦ bye check incomplete: ' + escapeHtml(rec.bye_stack.why || '')
+        + '</div>';
     }
     // GUARD — if the composite wants a player the rule has CAPPED (e.g. a 4th RB),
     // say so plainly rather than letting two tools disagree silently (Cory #1).
@@ -3415,7 +3613,14 @@
         '</td>' +
         '<td class="num" style="white-space:nowrap">' +
           '<button class="btn small ' + (state.lists.queue.indexOf(p.player_id) >= 0 ? 'navy' : 'ghost')
-            + '" data-queue="' + p.player_id + '" title="Queue — the list you read when the clock is at 8 seconds">'
+            // THE SAME FICTION WE RETIRED FROM THE VISIBLE COPY, sitting in two
+            // hundred title attributes. The draft is UNTIMED; there is no clock
+            // and no eight seconds. B found it because a page-text scan CANNOT
+            // SEE ATTRIBUTES — the same structural blindness as the twenty
+            // visibility-hidden elements that read as unlabelled buttons.
+            // Anything auditing rendered output has channels it cannot reach,
+            // so "the scan came back clean" is a statement about the scan.
+            + '" data-queue="' + p.player_id + '" title="Queue — the short list you read first when it is your turn">'
             + (state.lists.queue.indexOf(p.player_id) >= 0 ? '✓' : '➕') + '</button>' +
           '<button class="btn small ' + (state.lists.targets.indexOf(p.player_id) >= 0 ? 'gold' : 'ghost')
             + '" data-list="targets" data-id="' + p.player_id + '" title="Target — nudge him up a close call">\u2b50</button>' +
@@ -6599,6 +6804,9 @@
     state.sync = null;
     state.mode = 'pre';
     state.mockMode = null;
+    // ENDING THE DRAFT IS THE ONE CLEAR THAT IS NOT A LOSS. Without this the
+    // next page load would resume the draft that was just deliberately ended.
+    if (typeof DraftSession !== 'undefined') DraftSession.clear();
     state.drafted = new Set();
     state.myRoster = [];
     state.rosters = {};
@@ -6619,7 +6827,7 @@
       state.format = E.applyFormatDefaults(state.data.league);
       state.profiles = indexProfilesBySlot(state.data);
     }
-    state.board = (state.data.players || []).slice();
+    state.board = draftablePlayers(state.data.players);
     applyOverrides();          // news overrides are prep, so they go back on
 
     ['#mock-note', '#reconcile-note', '#run-banner'].forEach(sel => {
