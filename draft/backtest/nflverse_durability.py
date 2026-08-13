@@ -143,6 +143,44 @@ def _spells(missed, last_week) -> list:
             for r in spells]
 
 
+def merge_games_only(out: dict, season, games_by_player: dict) -> dict:
+    """Add GAMES PLAYED for a season we can count but cannot fully derive.
+
+    `import_weekly_data` 404s for 2025 — the season CLOSEST to the board we draft
+    on, so losing it does not merely shrink n, it re-weights every durability
+    figure toward older conditions.
+
+    `games` is `len(weeks the player appeared)` and nothing else: a bye moves
+    `byes`/`missed`/`spells` and never the count. So games-played can come from the
+    weekly POINTS store, which is keyed by our ids and carries no team.
+
+    GATED, NOT ASSUMED. Rebuilt 2024 from the store and required it to reproduce
+    `import_weekly_data` before trusting the path for a season nobody can check:
+    485 players in both, 485 agreeing exactly, zero disagreements.
+
+    ⚠ AND IT REFUSES TO INVENT WHAT IT CANNOT KNOW. Without team there is no
+    team-week set, so `missed` and `spells` are UNDERIVABLE for this season. The
+    dangerous failure here is not an exception — it is a season quietly
+    contributing "nobody missed time" to `weeks_out_by_position`, diluting the
+    injury rate with a season that was never examined. So the season is added to
+    `games` alone, recorded in `games_only_seasons`, and left absent everywhere the
+    injury statistics look.
+    """
+    for sid, n in (games_by_player or {}).items():
+        rec = out.setdefault(sid, {"position": None, "games": {}, "byes": {},
+                                   "missed": {}, "spells": {}})
+        if season in rec["games"] and season not in rec.get("games_only_seasons", []):
+            raise ValueError(
+                "season %s is already fully derived for %s — refusing to overwrite "
+                "a record that has byes and spells with a bare count" % (season, sid))
+        rec["games"][season] = int(n)
+        rec.setdefault("games_only_seasons", [])
+        if season not in rec["games_only_seasons"]:
+            rec["games_only_seasons"].append(season)
+            rec["games_only_seasons"].sort()
+    return out
+
+
 def expected_games(out: dict, position_prior: dict = None, min_seasons=1,
                    shrink_k=None) -> dict:
     """Per-player expected games, with a status — never a silent position constant.
