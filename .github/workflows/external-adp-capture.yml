@@ -15,9 +15,29 @@ name: D3 — daily external ADP snapshot (the 2026 curve is perishable)
 # retention window, append-only, deduped by date. NOT draft/data/adp_series.json,
 # which is A's home staleness instrument capped at 300 players / 60 days.
 #
-# IT IS INERT UNTIL A MERGES IT. `schedule:` only fires from the default branch,
-# so merging is the enabling action — this cannot start writing to main on its
-# own from a feature branch.
+# `schedule:` only fires from the DEFAULT BRANCH, so merging was the enabling
+# action and a feature branch cannot start writing to main on its own. That is
+# still true and still the reason a change here is inert until it reaches main —
+# TOP_N=700 is sitting on a branch right now for exactly this reason.
+#
+# ── VERIFIED FIRING, 2026-08-13, so nobody has to re-derive it ──────────────
+#
+# Three scheduled runs, three successes, three snapshots written:
+#   2026-08-11 12:01:44Z -> 705 rows / 115 drafts
+#   2026-08-12 12:03:33Z -> 708 rows / 119 drafts
+#   2026-08-13 12:03:33Z -> 672 rows / 125 drafts
+#
+# ⚠ THE CRON SAYS 11:20 AND THE RUNS START AT ~12:02. That is GitHub queuing
+# scheduled workflows under load, not a fault, and it is consistent to within two
+# minutes across all three days. Do not "fix" the cron to 12:00 — the delay is
+# not ours to control and moving the declared time just moves the queue.
+#
+# ONE CONSEQUENCE, RECORDED BECAUSE IT IS NOT OBVIOUS: standing-check.yml runs at
+# 12:00 UTC and therefore evaluates this archive ~2 minutes BEFORE the day's
+# capture lands, every day. Its liveness bar is 3 days, so a one-day lag is well
+# inside tolerance and this is not a defect — but it does mean the check never
+# observes a same-day success, and anyone reading `days_since_last == 1` on a
+# healthy morning should know that is the expected reading, not a near-miss.
 
 on:
   schedule:
