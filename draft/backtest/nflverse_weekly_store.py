@@ -45,7 +45,11 @@ from pathlib import Path
 
 import field_population as FP
 
-STORE = Path(__file__).resolve().parent.parent / "data" / "nflverse_weekly_points.json"
+#: Lives in draft/backtest/, NOT draft/data/ — draft/data is A's (config and seed
+#: data) and this is a measurement produced in this lane. The first default pointed
+#: at draft/data and would have written into another lane the first time it ran;
+#: caught before it ever did, same as the projection-error calibration.
+STORE = Path(__file__).resolve().parent / "nflverse_weekly_points.json"
 
 #: The fields a stored week is SUPPOSED to carry, declared rather than derived — for
 #: the same reason `SNAPSHOT_FIELDS` is declared in D3: a field that stops being
@@ -273,6 +277,7 @@ def save(series: list, path=None) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
     fps = sorted({w.get("scoring_fingerprint") for w in weeks if w.get("scoring_fingerprint")})
     p.write_text(json.dumps({
+        "_territory": "TERRITORY: C — produced by draft/backtest/nflverse_weekly_store.py",
         "_note": "Realized weekly fantasy points, scored with OUR table at capture "
                  "time and stamped with that table's fingerprint. Append-only, "
                  "deduped by (season, week). `coverage.missing` names holes INSIDE "
