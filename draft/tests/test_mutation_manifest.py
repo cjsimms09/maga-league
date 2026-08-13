@@ -75,11 +75,26 @@ def _non_kills(doc):
 
 
 def _stale_targets(doc, root):
+    """Targets that no longer name EXACTLY ONE line of their module.
+
+    Zero and two are different diseases with the same cure. Zero means the code
+    was refactored out from under the evidence. TWO means a later edit duplicated
+    the line, and the gate applies `replace(old, new, 1)` — so the entry now
+    mutates whichever copy comes first, which need not be the one the kill was
+    recorded against. The verdict stays KILLED and stops meaning what it says.
+
+    The gate refuses that case as AMBIGUOUS_TARGET, but only when it actually
+    re-runs, which is weekly. This is the cheap check that says so on the commit
+    that introduces it.
+    """
     out = []
     for mod, m in doc["modules"].items():
         src = (root / mod).read_text()
-        out += [(mod, mut["must_fail"]) for mut in m["mutations"]
-                if mut["old"] not in src]
+        for mut in m["mutations"]:
+            n = src.count(mut["old"])
+            if n != 1:
+                out.append((mod, mut["must_fail"],
+                            "missing" if n == 0 else "appears %d times" % n))
     return out
 
 
@@ -151,11 +166,24 @@ def test_EVERY_MUTATION_TARGET_IS_STILL_PRESENT_IN_ITS_MODULE():
         "the detector cannot FIND a target that is gone, so the assertion below "
         "is satisfied by a check that never fires")
 
+    # AND THE OTHER DIRECTION, which the first version of this check could not
+    # see. A target duplicated by a later edit still passes `old in src`, and the
+    # entry silently starts mutating a different line than the one it was
+    # recorded against — `replace(old, new, 1)` takes the first. Planted with a
+    # string that genuinely occurs many times in every Python file.
+    dup, mod2 = _planted(d, old="\n")
+    hits = [h for h in _stale_targets(dup, ROOT.parent) if "times" in h[2]]
+    assert hits, (
+        "the detector cannot FIND a target that matches more than one line, so a "
+        "refactor that duplicates a mutated line goes unreported for a week")
+
     stale = _stale_targets(d, ROOT.parent)
     assert not stale, (
-        "these mutation targets no longer exist in their module: %s. The code was "
-        "refactored and the evidence did not follow. Re-run the gate on the new "
-        "source and update draft/backtest/mutation_manifest.json." % stale)
+        "these mutation targets no longer name exactly one line of their module: "
+        "%s. Either the code was refactored and the evidence did not follow, or a "
+        "later edit duplicated the line and the entry no longer says which copy "
+        "it mutates. Re-run the gate on the new source and update "
+        "draft/backtest/mutation_manifest.json." % stale)
 
 
 def test_the_RECORDER_REFUSES_to_file_a_non_kill(tmp_path):

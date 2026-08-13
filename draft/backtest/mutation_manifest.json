@@ -372,6 +372,49 @@
       "test_RECORDING_AN_EMPTY_RESULT_LIST_is_refused"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    fixed = repair()\n    if fixed[\"status\"] == \"in_flight\":",
+     "new": "    fixed = {\"status\": \"clean\"}\n    if fixed[\"status\"] == \"in_flight\":",
+     "must_fail": [
+      "test_a_MUTANT_ABANDONED_BY_A_KILLED_RUN_is_repaired_before_it_is_read",
+      "test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if _pid_alive(rec.get(\"pid\", -1)):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if now != rec[\"mutated\"]:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    prev = _declare(p, src, mutated)     # journal + signal handlers FIRST",
+     "new": "    prev = {}",
+     "must_fail": [
+      "test_SIGTERM_MID_MUTATION_restores_the_file",
+      "test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs",
+      "test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        prev[sig] = signal.signal(sig, _restore_and_die)",
+     "new": "        prev[sig] = signal.getsignal(sig)",
+     "must_fail": [
+      "test_SIGTERM_MID_MUTATION_restores_the_file"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }

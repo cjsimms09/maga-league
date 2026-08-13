@@ -37,13 +37,20 @@ Every refusal here was added after a run lied in that way — none anticipated.
 
 Run: python3 -m pytest draft/tests/test_mutation_gate.py -q
 """
+import json
 import sys
 from pathlib import Path
+
+import pytest
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
 
 import mutation_gate as MG  # noqa: E402
+
+#: A pid that cannot be running. Signals to `repair` that the declaring process
+#: is gone — the abandoned-mutant case, as opposed to a concurrent run.
+_DEAD_PID = 2 ** 22 + 7
 
 MODULE = '''
 def double(x):
@@ -304,3 +311,214 @@ def test_RECORDING_AN_EMPTY_RESULT_LIST_is_refused(tmp_path):
         MG.record("draft/backtest/whatever.py", ["t.py"], [], path=str(p))
     assert "empty" in str(e.value).lower() or "no results" in str(e.value).lower()
     assert not p.exists(), "nothing may be written on the refusal path"
+
+
+# ── the mutant a KILLED run leaves behind ──────────────────────────────────
+def test_a_MUTANT_ABANDONED_BY_A_KILLED_RUN_is_repaired_before_it_is_read(tmp_path):
+    """THE ONE THAT COST ME A COMMIT. A verification run was killed by a timeout.
+    SIGTERM stops the interpreter without unwinding, so the `finally` restore
+    never ran and a FATAL integrity check in the ADP module stayed on disk as
+    `if False:`. What made it permanent rather than obvious was the NEXT run:
+    `check` read the mutant as the original and, at the end, faithfully restored
+    to it. After that no run could tell corrupt source from real source.
+
+    So the repair must happen BEFORE the file is read, and this asserts the
+    ordering, not just the repair. MUTATION: call `repair()` after `src =
+    p.read_text(...)` — the mutant becomes the original and the test fails on the
+    restored content."""
+    src, tests = scenario(tmp_path)
+    original = Path(src).read_text()
+    mutant = original.replace("return x * 2", "return x * 999")
+    Path(src).write_text(mutant)
+    Path(MG.JOURNAL).write_text(json.dumps(
+        {"pid": _DEAD_PID, "file": src, "original": original, "mutated": mutant}))
+
+    r = MG.check(src, "return x * 2", "return x * 3", [tests],
+                 must_fail=["test_double_doubles"])
+    assert r["verdict"] == "KILLED", r
+    assert Path(src).read_text() == original, (
+        "the abandoned mutant was adopted as the original — this is how a "
+        "temporary corruption becomes a permanent one")
+    assert not Path(MG.JOURNAL).exists()
+
+
+def test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE(tmp_path):
+    """The other half of the same incident: two gate runs mutating one tree
+    overwrite each other's restores, and the loser's mutant is permanent. A
+    concurrent run is not repairable — the pid is alive and the file is supposed
+    to be mutated right now — so the only safe move is to refuse.
+
+    MUTATION: treat a live pid as abandoned; the second run 'repairs' a file the
+    first is still using, and both verdicts become fiction."""
+    import os
+    src, tests = scenario(tmp_path)
+    original = Path(src).read_text()
+    Path(MG.JOURNAL).write_text(json.dumps(
+        {"pid": os.getpid(), "file": src,        # alive by construction
+         "original": original, "mutated": original.replace("2", "9")}))
+    try:
+        with pytest.raises(RuntimeError) as e:
+            MG.check(src, "return x * 2", "return x * 3", [tests],
+                     must_fail=["test_double_doubles"])
+        assert "REFUSING TO START" in str(e.value)
+        assert str(os.getpid()) in str(e.value), "name the process that holds it"
+    finally:
+        Path(MG.JOURNAL).unlink(missing_ok=True)
+
+
+def test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten(tmp_path):
+    """PRESERVE BEFORE YOU ALARM. If the file is neither the mutant nor the
+    original, somebody edited it after the run died — and an automatic 'restore'
+    would discard their work with no record. Refuse, keep the journal (it holds
+    the original), and name the file.
+
+    MUTATION: restore unconditionally once the pid is dead."""
+    src, tests = scenario(tmp_path)
+    original = Path(src).read_text()
+    mutant = original.replace("return x * 2", "return x * 999")
+    edited = original.replace("return x * 2", "return x * 2  # somebody's work")
+    Path(src).write_text(edited)
+    Path(MG.JOURNAL).write_text(json.dumps(
+        {"pid": _DEAD_PID, "file": src, "original": original, "mutated": mutant}))
+    try:
+        with pytest.raises(RuntimeError) as e:
+            MG.check(src, "return x * 2", "return x * 3", [tests],
+                     must_fail=["test_double_doubles"])
+        assert "REFUSING TO START" in str(e.value)
+        assert Path(src).read_text() == edited, "their edit must survive"
+        assert Path(MG.JOURNAL).exists(), "the journal still holds the original"
+    finally:
+        Path(MG.JOURNAL).unlink(missing_ok=True)
+
+
+def test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after(tmp_path):
+    """The window this closes is small and is exactly where the kill landed: if
+    the journal were written after the file, a process killed in between would
+    leave a mutant that nothing on disk declares, and no later run could repair
+    it. So the journal must describe the bytes that are on disk AT THE TIME they
+    are on disk.
+
+    Observed from inside the mutated window, by a probe test the gate itself runs
+    while the subject is mutated. The probe RECORDS what it saw rather than
+    asserting, because it also runs during the baseline — when no journal exists
+    and no assertion is possible. Reading the record back is what keeps this from
+    passing vacuously: a probe that silently never compared anything would leave
+    `saw_journal` False.
+
+    MUTATION: journal after the write — `saw_journal` is True and `matched` is
+    False, because the file on disk is the mutant while the journal is not yet
+    there or still describes nothing."""
+    src, tests = scenario(tmp_path)
+    seen = tmp_path / "seen.json"
+    probe = tmp_path / "test_probe.py"
+    probe.write_text(
+        "import json\n"
+        "from pathlib import Path\n"
+        "J, SRC, SEEN = Path(r'%s'), Path(r'%s'), Path(r'%s')\n"
+        "def test_probe_records_the_journal_against_the_file():\n"
+        "    rec = json.loads(J.read_text()) if J.exists() else None\n"
+        "    SEEN.write_text(json.dumps({\n"
+        "        'saw_journal': rec is not None,\n"
+        "        'matched': bool(rec) and rec['mutated'] == SRC.read_text(),\n"
+        "        'differs': bool(rec) and rec['original'] != rec['mutated'],\n"
+        "        'names_the_file': bool(rec) and rec['file'] == str(SRC)}))\n"
+        % (str(MG.JOURNAL), src, str(seen)))
+
+    r = MG.check(src, "return x * 2", "return x * 3", [str(probe)],
+                 must_fail=["test_probe_records_the_journal_against_the_file"])
+    assert r["verdict"] == "SURVIVED" and r["failed"] == [], r
+
+    got = json.loads(seen.read_text())
+    assert got["saw_journal"], (
+        "no journal existed while the file was mutated — a kill in that window "
+        "leaves a mutant nothing on disk declares")
+    assert got["matched"], (
+        "the journal did not describe the bytes actually on disk, so `repair` "
+        "would refuse it as foreign and the mutant would stay", got)
+    assert got["differs"] and got["names_the_file"], got
+
+
+# ── the two kills, for real: one catchable, one not ────────────────────────
+def _run_until_mutated(tmp_path, hold=25):
+    """Start a real `check` in a subprocess and return once the subject file is
+    actually mutated on disk — the window a kill has to land in."""
+    import subprocess
+    import time
+    src, _ = scenario(tmp_path)
+    slow = tmp_path / "test_slow.py"
+    slow.write_text("import time\ndef test_slow():\n    time.sleep(%d)\n" % hold)
+    runner = tmp_path / "runner.py"
+    runner.write_text(
+        "import sys\n"
+        "sys.path.insert(0, r'%s')\n"
+        "import mutation_gate as MG\n"
+        "MG.check(r'%s', 'return x * 2', 'return x * 3', [r'%s'],\n"
+        "         must_fail=['test_slow'],\n"
+        # A PRECOMPUTED BASELINE, only so the window opens at once: the baseline
+        # run would otherwise sit through the whole hold before anything is
+        # mutated, and these two tests would cost a minute to learn nothing extra.
+        "         baseline={'failed': [], 'collected': 1, 'rc': 0})\n"
+        % (str(HERE.parent / "backtest"), src, str(slow)))
+    proc = subprocess.Popen([sys.executable, "-B", str(runner)],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(600):
+        if "return x * 3" in Path(src).read_text():
+            return proc, src
+        if proc.poll() is not None:
+            raise AssertionError("the run exited before it mutated anything")
+        time.sleep(0.1)
+    proc.kill()
+    raise AssertionError("the subject was never mutated — the window never opened")
+
+
+def test_SIGTERM_MID_MUTATION_restores_the_file(tmp_path):
+    """THE EXACT INCIDENT. A two-minute timeout killed a verification run with
+    SIGTERM. The interpreter stops without unwinding, `finally` never runs, and
+    `if s.get("row_count") != len(rows):` was left on disk as `if False:` — a
+    FATAL integrity check disabled in the module that guards the ADP archive,
+    which I then committed with a `git add -A` from another shell.
+
+    A timeout is not an exceptional event here: the full manifest takes minutes,
+    and every harness and CI runner that runs it has a timeout. MUTATION: drop
+    the SIGTERM handler, and the tree is corrupt the first time a run is slow."""
+    import signal
+    import time
+    proc, src = _run_until_mutated(tmp_path)
+    try:
+        proc.send_signal(signal.SIGTERM)
+        proc.wait(timeout=30)
+        for _ in range(50):                      # the handler restores, then dies
+            if "return x * 2" in Path(src).read_text():
+                break
+            time.sleep(0.1)
+        assert Path(src).read_text() == MODULE, (
+            "SIGTERM left a mutant on disk: %r" % Path(src).read_text())
+        assert not Path(MG.JOURNAL).exists(), "the journal outlived the mutation"
+    finally:
+        proc.kill()
+        Path(MG.JOURNAL).unlink(missing_ok=True)
+
+
+def test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs(tmp_path):
+    """SIGKILL cannot be caught by anything, so the handler above is no defence —
+    a container reclaimed, an OOM, `kill -9`. What survives is the journal, and
+    the requirement is that the NEXT run finds it and puts the file back before
+    reading it. Without that the second run adopts the mutant as the original and
+    the corruption is permanent, which is what actually happened.
+
+    MUTATION: skip the journal write, and a SIGKILLed run is unrecoverable —
+    nothing on disk records what the original bytes were."""
+    import signal
+    proc, src = _run_until_mutated(tmp_path)
+    proc.send_signal(signal.SIGKILL)
+    proc.wait(timeout=30)
+
+    assert "return x * 3" in Path(src).read_text(), "SIGKILL should leave the mutant"
+    assert Path(MG.JOURNAL).exists(), "nothing on disk declares the corruption"
+    rec = json.loads(Path(MG.JOURNAL).read_text())
+    assert rec["file"] == src and rec["original"] == MODULE
+
+    out = MG.repair()
+    assert out["status"] == "repaired", out
+    assert Path(src).read_text() == MODULE
+    assert not Path(MG.JOURNAL).exists()
