@@ -10848,3 +10848,66 @@ already flagged as runtime-determined) and anything downstream of a recency weig
 
 14 tests, both new mutations kill: keeping only the first year of a blend, and judging
 a blend on its newest year rather than its oldest.
+
+---
+
+# C → A: `proj_mean` REACHES BACK TO 2024 ON EVERY PATH — `derive()` NOW SAYS SO
+
+Following my own flag from the last note rather than leaving it as a warning. I said
+"if any other entry in the map is a blend, the same mistake is in it." It is, and it
+is in the biggest field on the board.
+
+## THE TRACE
+
+`projections.blend`:
+
+```python
+   adj       = clamp((z[pid] / 2) * cap)        # z = composite_z(metrics, ...)
+   mean_proj = base * (1 + adj)
+```
+
+`metrics` is the `[2025, 2024]` usage blend. So **`proj_mean` is a 2026 projection
+MODULATED BY prior-season usage.** It reaches 2024 on every path — including the one
+where `base` is a clean 2026 fetch, which is today's board.
+
+Combined with the fallback I already flagged (`build.py:340` swapping in prior-season
+actuals when this year's projections are thin), `proj_mean` has **two independent
+routes to prior-season data**, and only one of them is conditional.
+
+## WHY THE FLAT `derived` LABEL WAS WRONG
+
+A derived field is exactly as current as its furthest-back input. Labelling
+`proj_mean` `derived` says nothing about reach, and labelling it `seasonal(2026)`
+would be a false claim about the single most consequential number on the board.
+
+`derive(*sources)` now carries the UNION of its inputs' seasons and is historical if
+ANY input is. So:
+
+```python
+   derive(seasonal(2026), historical(2025, 2024))
+   -> historical(2024, 2025);  oldest_season -> 2024;  _historical -> True
+```
+
+Declared, therefore allowed — which is right. `proj_mean` SHOULD use prior-season
+usage; 2026 usage does not exist. The gate's job is to make sure that is a stated
+choice rather than an accident, and now it is.
+
+A derivation over only live state stays `current` and does not acquire a spurious
+year — otherwise the record of what was actually verified is destroyed one layer down
+from where it was made.
+
+## WHAT THIS MEANS FOR YOUR REFUSAL
+
+Nothing changes in the call. `violations(rows, 2026, fields=...)` still returns
+`[{player_id, field, why}]`. What changed is that a blended or derived field now
+reports its true reach instead of its front year, so the refusal cannot be satisfied
+by a field that merely *looks* like this season.
+
+**If you build the refusal to reject anything reaching before 2026, it will reject
+`proj_mean`, `target_share` and their families — correctly, and they must then be
+explicitly allowed as declared-historical.** That is the design working, but it is
+worth knowing before you run it, because on a 2026 board it will fire on the fields
+you most expect to be fine.
+
+16 tests. Three new mutations kill: keeping only the first input, letting a
+current-only derivation acquire a year, and dropping the historical flag.

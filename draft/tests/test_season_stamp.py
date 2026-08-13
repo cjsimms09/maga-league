@@ -196,3 +196,36 @@ def test_a_BLEND_is_judged_on_its_OLDEST_component():
     rep = SS.report([row], 2026, fields=("x",))
     assert rep["by_kind"]["historical"] == 1
     assert SS.oldest_season(row, "x") == 2024
+
+
+def test_a_DERIVED_field_INHERITS_the_reach_of_every_input():
+    """FOLLOWING MY OWN FLAG. I warned that other entries in the map might be blends
+    and then checked, and the biggest field on the board is one.
+
+    `projections.blend`: `mean_proj = base * (1 + adj)`, where `adj` is a function of
+    `composite_z(metrics, ...)` and `metrics` is the [2025, 2024] usage blend. So
+    proj_mean is a 2026 projection MODULATED BY prior-season usage — it reaches back
+    to 2024 on every path, including the one where the base is a clean 2026 fetch.
+
+    `derived` cannot say that. A derived field is exactly as current as its
+    furthest-back input, and the stamp has to carry the union.
+
+    MUTATION: keep only the first input's seasons — proj_mean reads as clean 2026 and
+    the gate passes the single most consequential field on the board."""
+    src = SS.derive(SS.seasonal(2026), SS.historical(2025, 2024))
+    row = SS.stamp({"player_id": "1", "proj_mean": 210.0}, {"proj_mean": src})
+    assert SS.oldest_season(row, "proj_mean") == 2024
+    assert row["proj_mean_historical"] is True, (
+        "it draws on prior seasons, so it must declare itself historical or the "
+        "gate treats a blended field as a proven one")
+    assert SS.violations([row], 2026, fields=("proj_mean",)) == [], "declared"
+
+
+def test_derive_of_only_CURRENT_inputs_stays_current():
+    """A derivation over live state is still live state — it must not acquire a
+    spurious year. MUTATION: collapse current to the target season and the record of
+    what was verified is destroyed one layer down."""
+    src = SS.derive(SS.CURRENT_STATE, SS.CURRENT_STATE)
+    row = SS.stamp({"player_id": "1", "x": 1.0}, {"x": src})
+    assert row["x_season"] == SS.CURRENT
+    assert SS.violations([row], 2026, fields=("x",)) == []

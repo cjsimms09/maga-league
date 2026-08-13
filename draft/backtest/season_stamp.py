@@ -77,6 +77,48 @@ def historical(*years):
             "seasons": ys}
 
 
+def derive(*sources):
+    """A field computed from others — as current as its FURTHEST-BACK input.
+
+    THE FIELD THIS EXISTS FOR IS `proj_mean`. `projections.blend` computes
+    `mean_proj = base * (1 + adj)` where `adj` is a function of
+    `composite_z(metrics, ...)` and `metrics` is the [2025, 2024] usage blend. So the
+    board's single most consequential number is a 2026 projection MODULATED BY
+    prior-season usage, and it reaches back to 2024 on every path — including the one
+    where the base is a clean 2026 fetch.
+
+    A flat `derived` label cannot say that, and `seasonal(2026)` would be a false
+    claim about the most important field there is. So a derivation carries the UNION
+    of its inputs' seasons, and is historical if ANY input is.
+
+    A derivation over only live state stays `current` — it must not acquire a
+    spurious year, or the record of what was actually verified is destroyed one layer
+    down from where it was made.
+    """
+    if not sources:
+        raise ValueError("derive() needs at least one input source")
+    years, any_hist, all_current = [], False, True
+    for src in sources:
+        kind = (src or {}).get("kind")
+        if kind == "current":
+            continue
+        all_current = False
+        if kind == "historical":
+            any_hist = True
+            years.extend(src.get("seasons") or [src.get("season")])
+        elif kind == "seasonal":
+            years.append(src.get("season"))
+        else:
+            raise ValueError("derive() got an undeclared input kind %r" % kind)
+    if all_current:
+        return CURRENT_STATE
+    ys = sorted({int(y) for y in years if y is not None})
+    if any_hist:
+        return historical(*ys)
+    return {"kind": "seasonal", "season": ys[0] if len(ys) == 1 else ys,
+            "seasons": ys}
+
+
 def stamp(record: dict, sources: dict) -> dict:
     """Return a copy of `record` with `<field>_season` beside each declared field.
 
@@ -94,7 +136,7 @@ def stamp(record: dict, sources: dict) -> dict:
             out[field + "_season"] = src["season"]
             out[field + "_historical"] = True
         elif kind == "seasonal":
-            out[field + "_season"] = int(src["season"])
+            out[field + "_season"] = src["season"]
         else:
             raise ValueError(
                 "unknown source kind %r for field %r — a field whose provenance is "
@@ -241,6 +283,9 @@ BOARD_FIELD_SOURCES = {
 
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
+    # RUNTIME on the base (build.py:340 can swap in prior-season actuals) AND
+    # always blended with [season-1, season-2] usage through opportunity_adj —
+    # projections.blend does `base * (1 + adj)`. Reaches 2024 on every path.
     "proj_mean": "runtime", "proj_baseline": "runtime",
     "proj_sd": "derived", "proj_ceiling": "derived", "proj_floor": "derived",
     "variance": "derived", "variance_why": "derived", "weekly_sd": "derived",
