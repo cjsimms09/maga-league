@@ -3,13 +3,13 @@
   "rooms": 300,
   "baseline": "mask_only (startable-cap, VORP-greedy)",
   "need_scale": 30.0,
-  "baseline_mean_dollars": 803.7,
+  "baseline_mean_dollars": 796.6,
   "power_note": "n=300; min reliably detectable ~$25-35; |edge|<that with CI spanning 0 = underpowered, not zero.",
   "mask_value_vs_no_mask": {
-    "edge": -677.33,
+    "edge": -673.5,
     "ci95": [
-      -717.92,
-      -638.0
+      -712.17,
+      -635.33
     ],
     "beats": false,
     "separable_from_zero": true
@@ -27,50 +27,50 @@
     },
     {
       "w": 0.5,
-      "edge": -19.25,
+      "edge": -14.58,
       "ci95": [
-        -35.33,
-        -3.17
+        -30.92,
+        -0.08
       ],
       "beats": false,
       "separable_from_zero": true
     },
     {
       "w": 1.0,
-      "edge": -44.17,
+      "edge": -35.67,
       "ci95": [
-        -66.75,
-        -21.0
+        -58.0,
+        -12.25
       ],
       "beats": false,
       "separable_from_zero": true
     },
     {
       "w": 1.5,
-      "edge": -44.17,
+      "edge": -35.67,
       "ci95": [
-        -66.75,
-        -21.0
+        -58.0,
+        -12.25
       ],
       "beats": false,
       "separable_from_zero": true
     },
     {
       "w": 2.0,
-      "edge": -44.17,
+      "edge": -35.67,
       "ci95": [
-        -66.75,
-        -21.0
+        -58.0,
+        -12.25
       ],
       "beats": false,
       "separable_from_zero": true
     },
     {
       "w": 3.0,
-      "edge": -44.17,
+      "edge": -35.67,
       "ci95": [
-        -66.75,
-        -21.0
+        -58.0,
+        -12.25
       ],
       "beats": false,
       "separable_from_zero": true
@@ -78,28 +78,28 @@
   ],
   "schedules_vs_mask": {
     "auto_ramp": {
-      "edge": -30.33,
+      "edge": -26.08,
       "ci95": [
-        -50.58,
-        -10.33
+        -48.0,
+        -3.42
       ],
       "beats": false,
       "separable_from_zero": true
     },
     "early_heavy": {
-      "edge": -43.5,
+      "edge": -35.67,
       "ci95": [
-        -66.33,
-        -20.0
+        -58.0,
+        -12.25
       ],
       "beats": false,
       "separable_from_zero": true
     },
     "late_heavy": {
-      "edge": -19.92,
+      "edge": -23.42,
       "ci95": [
-        -36.5,
-        -2.75
+        -40.83,
+        -6.33
       ],
       "beats": false,
       "separable_from_zero": true
@@ -115,7 +115,7 @@
     "beats": false,
     "separable_from_zero": false
   },
-  "ramp_minus_best_flat": -30.33,
+  "ramp_minus_best_flat": -26.08,
   "small_flat_earns": false,
   "heavy_flat_earns": false,
   "auto_ramp_earns": false,
