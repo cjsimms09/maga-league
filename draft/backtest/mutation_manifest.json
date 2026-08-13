@@ -126,6 +126,38 @@
    ],
    "mutations": [
     {
+     "old": "    if dispersion:\n        return None",
+     "new": "    if True:\n        return None",
+     "must_fail": [
+      "test_a_MISSING_SPREAD_records_the_keys_MFL_ACTUALLY_SENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    seen = sorted({k for r in rows if isinstance(r, dict) for k in r})",
+     "new": "    seen = sorted(rows[0] if isinstance(rows[0], dict) else [])",
+     "must_fail": [
+      "test_it_reports_keys_from_MORE_THAN_THE_FIRST_ROW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return (\"NO SPREAD: the response carried no rows at all",
+     "new": "    if False:\n        return (\"NO SPREAD: the response carried no rows at all",
+     "must_fail": [
+      "test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if dispersion:\n        return None",
+     "new": "    if False:\n        return None",
+     "must_fail": [
+      "test_a_SUCCESSFUL_spread_adds_NO_note"
+     ],
+     "verdict": "KILLED"
+    },
+    {
      "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}",
      "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    if False:\n        ig = {}",
      "must_fail": [

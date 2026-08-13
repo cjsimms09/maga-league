@@ -2045,3 +2045,60 @@ def test_EVERY_HELPER_capture_CALLS_IS_CLASSIFIED_as_write_or_guard():
         "capture() calls %s and neither list covers them — classify each as WRITE "
         "PATH (may abort, must be loud and leave no partial file) or GUARD (must "
         "never cost the day)" % sorted(missing))
+
+
+# ── WHEN THE SPREAD DOES NOT ARRIVE, SAY WHY IN THE SAME BREATH ────────────
+#
+# MFL IS UNREACHABLE FROM HERE — verified, not assumed: the agent proxy reports
+# `connect_rejected`, "gateway answered 403 to CONNECT", for
+# api.myfantasyleague.com:443. nflverse over GitHub is allowed; MFL is not. So
+# tomorrow's scheduled run is the FIRST contact between `minPick`/`maxPick`/
+# `draftSelPct` and whatever MFL actually sends, and I cannot test it first.
+#
+# `dispersion_health` already fires once if nothing arrives. That tells us the
+# parser never matched; it does NOT tell us what to change. On a feed whose days
+# cannot be refetched, the difference between "we lost a day" and "we lost a day
+# AND still have to guess" is another day.
+#
+# So a run that finds no bounds records the keys MFL ACTUALLY SENT. The fix
+# becomes a diff instead of an investigation.
+
+def test_a_MISSING_SPREAD_records_the_keys_MFL_ACTUALLY_SENT():
+    """MUTATION: return a generic 'no dispersion' note — tomorrow we learn the
+    parser failed and still have to spend a second unrefetchable day discovering
+    that the field is called something else."""
+    raw = [{"id": "1", "averagePick": "4.5", "minPickNo": "2", "maxPickNo": "9"},
+           {"id": "2", "averagePick": "9.0", "minPickNo": "5", "maxPickNo": "14"}]
+    note = C.dispersion_diagnosis(raw, dispersion={})
+    assert note, "a missing spread must explain itself"
+    assert "minPickNo" in note and "maxPickNo" in note, note
+    assert "minPick" in note, "and name what we looked for, so it is a diff"
+
+
+def test_a_SUCCESSFUL_spread_adds_NO_note():
+    """An instrument that always speaks is not an instrument. MUTATION: always
+    return the note — every healthy day carries a failure diagnosis."""
+    raw = [{"id": "1", "averagePick": "4.5", "minPick": "2", "maxPick": "9"}]
+    assert C.dispersion_diagnosis(raw, dispersion={"1": {"min_pick": 2}}) is None
+
+
+def test_it_reports_keys_from_MORE_THAN_THE_FIRST_ROW():
+    """MFL need not send the same keys for every player — a kicker row and a
+    quarterback row can differ. MUTATION: read raw[0] only, and the one row that
+    would have explained it is the one not sampled."""
+    raw = [{"id": "1", "averagePick": "4.5"},
+           {"id": "2", "averagePick": "9.0", "selPctOfDrafts": "88"}]
+    note = C.dispersion_diagnosis(raw, dispersion={})
+    assert "selPctOfDrafts" in note, note
+
+
+def test_NO_RAW_ROWS_AT_ALL_says_that_instead_of_blaming_the_field_names():
+    """A fetch that returned nothing is a different failure from a fetch whose
+    fields we misread, and sending the reader to `mfl_adp.parse` for an empty
+    response wastes the day this exists to save.
+
+    MUTATION: emit the field-name note regardless — the diagnosis points at the
+    parser when the problem was the feed."""
+    note = C.dispersion_diagnosis([], dispersion={})
+    assert note and "no rows" in note.lower()
+    assert "minPick" not in note

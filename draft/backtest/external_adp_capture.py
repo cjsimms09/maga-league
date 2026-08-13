@@ -354,6 +354,45 @@ def integrity(archive) -> dict:
     return out
 
 
+#: What `mfl_adp.parse` looks for when it extracts a spread. Named here so a
+#: failure can be reported as a DIFF against what arrived, rather than as a
+#: request to go and read the parser.
+DISPERSION_SOURCE_KEYS = ("minPick", "maxPick", "draftSelPct", "draftsSelectedIn")
+
+
+def dispersion_diagnosis(raw_rows, dispersion: dict):
+    """No spread? Say which keys MFL actually sent. Returns None when it worked.
+
+    MFL IS UNREACHABLE FROM THE DEV ENVIRONMENT — verified via the agent proxy,
+    which reports `connect_rejected` / "gateway answered 403 to CONNECT" for
+    api.myfantasyleague.com:443, while nflverse over GitHub is allowed. So the
+    first contact between our field names and MFL's actual response happens in
+    the scheduled run, and cannot be rehearsed.
+
+    `dispersion_health` already fires once when nothing arrives. That says the
+    parser never matched; it does not say what to change. On a feed whose days
+    cannot be refetched, the gap between "we lost a day" and "we lost a day AND
+    still have to guess" is another day — so the keys that DID arrive are
+    recorded beside the ones we looked for, and the fix becomes a diff.
+
+    An empty fetch is reported as an empty fetch. Pointing the reader at the
+    parser when the response was blank wastes exactly the day this exists to save.
+    """
+    if dispersion:
+        return None
+    rows = list(raw_rows or [])
+    if not rows:
+        return ("NO SPREAD: the response carried no rows at all — this is a fetch "
+                "failure, not a field-name mismatch; do not start in mfl_adp.parse")
+    # EVERY ROW, NOT THE FIRST. MFL need not send identical keys for a kicker and
+    # a quarterback, and the row that explains it may not be the one sampled.
+    seen = sorted({k for r in rows if isinstance(r, dict) for k in r})
+    return ("NO SPREAD from %d row(s). LOOKED FOR %s. MFL SENT %s. If the names "
+            "differ, that is the whole fix — update mfl_adp.parse and the next "
+            "capture carries it."
+            % (len(rows), ", ".join(DISPERSION_SOURCE_KEYS), ", ".join(seen[:24])))
+
+
 def spread_summary(dispersion: dict) -> dict:
     """A whole day's spreads — because the claim under test is about a DAY.
 
@@ -1346,6 +1385,23 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     # Only players the source actually gave a spread for. A row with every field
     # None would be indistinguishable from a measured zero once it is on disk.
     dispersion = dispersion_of(parsed)
+    # IF THE SPREAD DID NOT ARRIVE, SAY WHY IN THE SAME BREATH. MFL cannot be
+    # reached from the dev environment (the agent proxy 403s CONNECT to
+    # api.myfantasyleague.com:443), so the scheduled run is the first contact
+    # between our field names and MFL's real response and cannot be rehearsed.
+    # `dispersion_health` reports that nothing arrived; this reports WHAT DID, so
+    # the fix is a diff rather than a second unrefetchable day of guessing.
+    try:
+        raw_node = ((json.loads(adp_text) or {}).get("adp") or {}).get("player") or []
+        if isinstance(raw_node, dict):
+            raw_node = [raw_node]
+        diag = dispersion_diagnosis(raw_node, dispersion)
+    except Exception as e:                          # noqa: BLE001
+        # The DIAGNOSIS must never cost the capture — same rule as everything
+        # else after the fetch in this file.
+        diag = "dispersion diagnosis itself failed (%s)" % type(e).__name__
+    if diag:
+        note = note + " | " + diag
     try:
         total = int(((json.loads(adp_text) or {}).get("adp") or {}).get("totalDrafts"))
     except (TypeError, ValueError):
