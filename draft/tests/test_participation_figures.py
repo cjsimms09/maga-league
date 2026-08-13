@@ -59,18 +59,40 @@ def test_the_ledgers_value_anchor_figure_matches_the_artifact():
     text = CANON.read_text()
     # Tolerant of markdown wrapping and bold markers — the test is about the
     # NUMBER agreeing with the artifact, not about how the line is formatted.
-    m = re.search(r"removing the anchor costs\s+\**\$(\d+)", text)
-    assert m, (
-        "EDGE-LEDGER.md no longer states the value-anchor figure. It is the "
-        "canonical place that figure is written; deleting it does not resolve "
-        "the drift, it hides it.")
-    stated = int(m.group(1))
+    # ── THIS TEST WENT RED ON A CRON, AND THAT WAS THE DEFECT ───────────────
+    #
+    # Routed by C, 2026-08-13, and confirmed: A measured 4/4 green at 74876c4
+    # (artifact 266.81, ledger $267) and C measured 2 failed at tip 5efd076
+    # (artifact 329.0). Same test, same code, ninety minutes apart. The Lab ran
+    # at 13:06 and 13:17 and regenerated exp_participation.json against the live
+    # board between the two readings.
+    #
+    # So the artifact REGENERATES ON A SCHEDULE and the prose is HAND-MAINTAINED.
+    # This test's green therefore had a half-life measured in hours — and
+    # integrate.sh gates on the python suite, so it RED-BLOCKED EVERY LANE on a
+    # cron. It was reported as the blocker three times, and each report was
+    # correct at the moment it was taken.
+    #
+    # THE PROTECTION IS REAL AND IS KEPT. What is removed is the REQUIREMENT
+    # THAT THE NUMBER BE TRANSCRIBED AT ALL. A figure maintained in two places
+    # where one of them regenerates itself is the two-places disease with a
+    # timer on it — the ledger may now CITE the artifact instead of copying it,
+    # and if it copies it the copy must still agree. Citing cannot drift.
     actual = round(_artifact_edges()["value"])
-    assert stated == actual, (
-        f"EDGE-LEDGER says the value anchor is worth ${stated}; "
-        f"exp_participation.json currently measures ${actual}. The experiment "
-        "re-runs against the LIVE board on every Lab run, so this number moves "
-        "and the prose must move with it.")
+    m = re.search(r"removing the anchor costs\s+\**\$(\d+)", text)
+    cites = re.search(r"exp_participation\.json", text)
+    assert m or cites, (
+        "EDGE-LEDGER.md neither states the value-anchor figure nor points at "
+        "exp_participation.json. Deleting the figure without leaving a pointer "
+        "does not resolve the drift, it hides it — name the artifact instead.")
+    if m:
+        stated = int(m.group(1))
+        assert stated == actual, (
+            f"EDGE-LEDGER says the value anchor is worth ${stated}; "
+            f"exp_participation.json currently measures ${actual}. The "
+            "experiment re-runs against the LIVE board on every Lab run, so a "
+            "transcribed number goes stale on a schedule. PREFERRED FIX: cite "
+            "exp_participation.json rather than copying the figure.")
 
 
 def test_the_ledger_records_that_the_figure_drifts():
