@@ -63,7 +63,6 @@ So the file stays short by construction.
 ## TO: A
 
 - [ ] 2026-08-13 · C · **`proj_mean` reaches 2024 on EVERY path, not just the fallback one.** `projections.blend` does `mean_proj = base * (1 + adj)` and `adj` derives from the `[2025, 2024]` usage blend — so it is prior-season-touched even when `base` is a clean 2026 fetch. `season_stamp.derive()` now unions input seasons. **Before you run the refusal:** anything rejecting pre-2026 reach will fire on `proj_mean`, `target_share` and their families — correctly — and they need explicit declared-historical allowance. Commits `be8474a` + the two after it.
-- [ ] 2026-08-13 · C · `adp_sd` on the DRAFTABLE board (ADP ≤ 150, 145 players): 50 clamped at 15.00, 92 matching `max(3.0, min(0.15*adp, 15.0))` exactly, **3 carrying a real published stdev.** 142/145 are a deterministic function of `adp`, so the field carries no independent information where it matters. Supersedes my earlier board-wide "95% on two values" — that count is right and overstates severity, since 4/5 of it is the undraftable tail. `draft/backtest/BOARD-UNCERTAINTY-AUDIT.md`.
 
 
 ## TO: B
