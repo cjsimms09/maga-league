@@ -582,10 +582,10 @@
    ],
    "mutations": [
     {
-     "old": "        if p.get(\"position\") not in COVERED_POSITIONS:\n            continue",
-     "new": "        if False:\n            continue",
+     "old": "    if not health[\"ok\"]:",
+     "new": "    if False:",
      "must_fail": [
-      "test_the_DETECTOR_REFUSES_positions_its_evidence_cannot_see"
+      "test_a_BROKEN_PROJECTION_FETCH_REFUSES_rather_than_deleting_the_board"
      ],
      "verdict": "KILLED"
     },
@@ -598,7 +598,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if p.get(\"adp_source\") not in (None, \"search_rank\"):\n            continue",
+     "old": "        if _priced(p):\n            continue",
      "new": "        if False:\n            continue",
      "must_fail": [
       "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
@@ -609,7 +609,7 @@
      "old": "        if (_num(p.get(\"proj_mean\")) or 0) > 0:\n            continue",
      "new": "        if False:\n            continue",
      "must_fail": [
-      "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
+      "test_a_PROJECTION_IS_WHAT_SPARES_A_KICKER_not_his_position"
      ],
      "verdict": "KILLED"
     },
@@ -630,16 +630,16 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        return {\"ok\": None, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
-     "new": "        return {\"ok\": True, \"dormant\": 0, \"offenders\": [], \"status\": d[\"status\"],",
+     "old": "    return {\"ok\": rate >= PROJECTION_HEALTH_FLOOR, \"priced\": len(priced),",
+     "new": "    return {\"ok\": True, \"priced\": len(priced),",
      "must_fail": [
-      "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
+      "test_a_BROKEN_PROJECTION_FETCH_REFUSES_rather_than_deleting_the_board"
      ],
      "verdict": "KILLED"
     },
     {
-     "old": "    if not sc[\"seasons_read\"]:",
-     "new": "    if False:",
+     "old": "        rows.append(dict(p, scored_recently=(\n            str(p.get(\"player_id\")) in sc[\"ids\"] if sc[\"seasons_read\"] else None)))",
+     "new": "        rows.append(dict(p, scored_recently=False))",
      "must_fail": [
       "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
      ],
@@ -665,14 +665,6 @@
      "new": "        if False:\n            conflict.add(t)",
      "must_fail": [
       "test_a_TEAM_WITH_TWO_BYES_is_REFUSED_rather_than_resolved"
-     ],
-     "verdict": "KILLED"
-    },
-    {
-     "old": "        if all(s is None for s in sources) and (_num(p.get(\"proj_mean\")) or 0) <= 0:",
-     "new": "        if (_num(p.get(\"proj_mean\")) or 0) <= 0:",
-     "must_fail": [
-      "test_an_ABSENT_PROJECTION_READ_AS_ZERO_is_found_and_a_real_zero_is_not"
      ],
      "verdict": "KILLED"
     },
@@ -705,6 +697,22 @@
      "new": "        \"no_team\": [],",
      "must_fail": [
       "test_the_FIELD_DETECTORS_FIRE_on_planted_gaps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return [p for p in actionable(board) if _num(p.get(\"proj_baseline\")) == 0.0]",
+     "new": "    return []",
+     "must_fail": [
+      "test_THE_MARKET_AND_OUR_PROJECTION_CANNOT_BOTH_BE_RIGHT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    zero = [p for p in rows if _num(p.get(\"proj_baseline\")) == 0.0]",
+     "new": "    zero = [p for p in rows if _num(p.get(\"proj_mean\")) == 0.0]",
+     "must_fail": [
+      "test_the_RANK_FALLBACK_IS_REPORTED_AS_UNREACHABLE"
      ],
      "verdict": "KILLED"
     }

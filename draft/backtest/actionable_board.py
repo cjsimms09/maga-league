@@ -104,20 +104,58 @@ def bye_gap(board: dict) -> dict:
     }
 
 
-def absent_projection_read_as_zero(board: dict) -> list:
-    """Rows the market prices whose projection is ZERO with no source behind it.
+def market_prices_what_we_zero(board: dict) -> list:
+    """Rows the MARKET pays for and our projection puts at exactly zero.
 
-    Zero is a claim ("he will not score"); absent is the refusal to make one. A
-    board that writes the first when it means the second hands every consumer a
-    number, and VORP, tiering and best-available all act on it — this row lands
-    at rank 823 while the market drafts him in the eleventh round.
+    Two sources disagreeing about a player is ordinary. These two disagreeing
+    absolutely is not: FFC has real drafters taking Ricky Pearsall at pick 111,
+    and the board says he scores 0.00 with a standard deviation of 0.00 — a claim
+    of CERTAINTY about a player on IR whom the market is uncertain enough to
+    spend an eleventh-round pick on. `season_sd = mean * variance`, so a zero
+    mean forces a zero spread: the variance model ran, produced 0.384, and named
+    its reasons ("behind on the depth chart", "carrying IR") — and then the
+    multiplication erased them.
+
+    ⚠ I FIRST WROTE THIS AS "an absent projection read as a zero" AND THAT WAS
+    WRONG, in the exact way this file exists to catch. I tested
+    `proj_fantasypros is None and proj_sleeper is None`, believing that meant no
+    source had an opinion. `proj_sleeper` is only ever SET inside the FantasyPros
+    block, so its absence means FP had nothing — it says nothing about Sleeper. I
+    read a field name and believed what it sounded like.
+
+    What actually happens: Sleeper PUBLISHES 8,778 explicit zeros in 9,411 rows,
+    so `baseline.get(pid)` returns 0.0 rather than None. The zero is a real value
+    faithfully read. `proj_baseline == 0` is therefore the honest test, and it
+    happens to find the same single row — by luck, not by rigour.
     """
-    out = []
-    for p in actionable(board):
-        sources = (p.get("proj_fantasypros"), p.get("proj_sleeper"))
-        if all(s is None for s in sources) and (_num(p.get("proj_mean")) or 0) <= 0:
-            out.append(p)
-    return out
+    return [p for p in actionable(board) if _num(p.get("proj_baseline")) == 0.0]
+
+
+def rank_fallback_reachable(board: dict) -> dict:
+    """Can `projections._rank_fallback` ever fire on this board?
+
+    It is documented as "No projection anywhere: decay off ADP so the board still
+    ranks sensibly", and it is guarded by `if base is None`. Sleeper publishes an
+    explicit 0 instead of omitting a player, so `base` is 0.0 and never None, and
+    the fallback CANNOT RUN. Same shape as the `search_rank` orphan: a branch
+    whose trigger condition the upstream source never produces, because the
+    author assumed a missing key where the source sends a zero.
+
+    The consequence is the thing the fallback was written to prevent. Every
+    zero-baseline row collapses to `vorp = 0 - replacement`, one value per
+    position, so 1,240 rows carry FIVE distinct VORPs between them and their
+    order is settled by a tiebreak rather than by any judgement about the player.
+    """
+    rows = ((board or {}).get("players") or [])
+    zero = [p for p in rows if _num(p.get("proj_baseline")) == 0.0]
+    vorps = {round(_num(p.get("vorp")) or 0, 4) for p in zero}
+    return {"zero_baseline": len(zero), "of": len(rows),
+            "distinct_vorp": len(vorps),
+            "reachable": len(zero) == 0,
+            "note": "%d of %d rows carry proj_baseline 0.0, so `base is None` is "
+                    "never true for them and the ADP-decay fallback cannot fire; "
+                    "they share %d distinct VORP values"
+                    % (len(zero), len(rows), len(vorps))}
 
 
 def field_gaps(board: dict) -> dict:
@@ -138,14 +176,15 @@ def field_gaps(board: dict) -> dict:
 def audit(board: dict) -> dict:
     """Everything above, as one answer, with `n` so a caller can act on counts."""
     bg = bye_gap(board)
-    zeros = absent_projection_read_as_zero(board)
+    zeros = market_prices_what_we_zero(board)
     gaps = field_gaps(board)
     return {
         "actionable": len(actionable(board)),
         "relevant_board": relevant_board(board),
         "bye_derivable_but_missing": len(bg["derivable"]),
         "bye_unknowable": len(bg["unknowable"]),
-        "absent_projection_as_zero": len(zeros),
+        "market_prices_what_we_zero": len(zeros),
+        "rank_fallback": rank_fallback_reachable(board),
         "field_gaps": {k: len(v) for k, v in gaps.items()},
         "detail": {"bye": bg, "zero_projection": zeros, "fields": gaps},
     }

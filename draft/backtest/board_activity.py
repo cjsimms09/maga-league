@@ -54,8 +54,21 @@ HERE = Path(__file__).resolve().parent
 COVERED_POSITIONS = ("QB", "RB", "WR", "TE")
 
 #: Seasons that count as recent activity. Two, so a player who missed one whole
-#: season through injury is not called dormant on that alone.
+#: season through injury is not called dormant on that alone. Reported as
+#: EVIDENCE beside each row rather than used as the test — see `dormant`.
 RECENT_SEASONS = (2024, 2025)
+
+#: How much of the MARKET-PRICED set must carry a projection before "no
+#: projection" is trusted as a signal at all.
+#:
+#: This is the catastrophic-failure guard and it is not arbitrary. The rule below
+#: treats an unprojected player as one nobody expects in 2026 — which is only
+#: true while projections actually loaded. If the projection fetch fails, every
+#: row becomes unprojected and the rule would delete the entire board. The
+#: market-priced set is the population we KNOW should be projected: 96.2% of it
+#: is today, and it goes to zero the moment projections break. Half is far below
+#: anything healthy and far above anything broken.
+PROJECTION_HEALTH_FLOOR = 0.5
 
 #: How deep the draft goes — the board, not the selection count. Keeper slots are
 #: occupied rather than removed, so 10 x 15 = 150 rows leave the pool.
@@ -91,37 +104,84 @@ def _num(v):
     return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
 
-def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
-    """Rows with no recent NFL activity that nothing else vouches for.
+def _priced(p):
+    """Does the MARKET price him — as opposed to the search_rank fallback?"""
+    return p.get("adp_source") not in (None, "search_rank")
 
-    Every exemption below exists because it is a way this could accuse a player
-    who is genuinely on a 2026 roster. Being wrong in that direction is worse
-    than missing a retiree: it would delete somebody real from a draft board.
+
+def projection_health(board: dict) -> dict:
+    """What fraction of the market-priced rows carry a projection.
+
+    The gate on everything below. `no projection` means "nobody expects him in
+    2026" only while projections loaded at all; if the fetch failed, every row
+    looks unprojected and the rule would delete the board.
     """
-    sc = scored_ids(seasons, root)
-    if not sc["seasons_read"]:
-        return {"status": "unmeasured", "rows": [], "n": 0,
-                "note": "no weekly points store for %s — an absence of evidence "
-                        "here is not evidence of absence" % list(seasons)}
+    priced = [p for p in ((board or {}).get("players") or []) if _priced(p)]
+    if not priced:
+        return {"ok": False, "priced": 0, "projected": 0, "rate": None,
+                "note": "no market-priced rows at all — the ADP join failed, and "
+                        "nothing here can be judged"}
+    projected = [p for p in priced if (_num(p.get("proj_mean")) or 0) > 0]
+    rate = len(projected) / float(len(priced))
+    return {"ok": rate >= PROJECTION_HEALTH_FLOOR, "priced": len(priced),
+            "projected": len(projected), "rate": round(rate, 4),
+            "note": ("%.1f%% of market-priced rows carry a projection (floor %.0f%%)"
+                     % (100 * rate, 100 * PROJECTION_HEALTH_FLOOR))}
 
+
+def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
+    """Rows nothing in the system expects to play in 2026.
+
+    THE TEST IS "WHO VOUCHES FOR HIM", NOT "WHEN DID HE LAST PLAY", and that
+    changed after the first version shipped. Recent activity cannot see a player
+    who played in 2024 and is finished: Ezekiel Elliott and Adam Thielen both
+    scored in 2024 and both carry a 2026 projection of zero. It cannot see
+    kickers at all — the weekly store scores none, so Gostkowski, Tucker and Dan
+    Bailey were structurally invisible to it.
+
+    Three sources can vouch for a player and any ONE of them spares him:
+
+      the market      a real ADP from FFC or FantasyPros — somebody is drafting
+                      him, and no absence of mine outranks that
+      a projection    either source putting a number on his 2026, which is a
+                      positive claim that he exists
+      being a rookie  no NFL history is the correct history
+
+    When none of the three does, nobody in the system expects him to play. That
+    catches the retired greats, the 2024 leftovers and the retired kickers alike,
+    without needing to know which is which.
+
+    RECENT ACTIVITY IS NOW EVIDENCE, NOT THE TEST. It is attached to each row as
+    `scored_recently` because it is the human-legible reason — "and he has not
+    scored since 2023" — but nothing is judged on it, so its blind spots (K, DEF,
+    a 2024-only season) no longer create blind spots here.
+
+    IT REFUSES when projections are not healthy. That is the failure that would
+    matter: a build whose projection fetch died makes every row unprojected, and
+    an unguarded rule would delete the whole board rather than eight retirees.
+    """
+    health = projection_health(board)
+    if not health["ok"]:
+        return {"status": "unmeasured", "rows": [], "n": 0, "health": health,
+                "note": "REFUSING to judge — %s. Treating that as 'nobody is "
+                        "projected' would drop the board." % health["note"]}
+
+    sc = scored_ids(seasons, root)
     rows = []
     for p in (board or {}).get("players") or []:
-        if p.get("position") not in COVERED_POSITIONS:
-            continue                                  # outside the store's reach
         if (_num(p.get("years_exp")) or 0) == 0:
             continue                                  # a rookie's blank is correct
-        if str(p.get("player_id")) in sc["ids"]:
-            continue                                  # played recently
-        if p.get("adp_source") not in (None, "search_rank"):
+        if _priced(p):
             continue                                  # the market prices him
         if (_num(p.get("proj_mean")) or 0) > 0:
             continue                                  # somebody projects him
-        rows.append(p)
-    return {"status": "measured", "rows": rows, "n": len(rows),
+        rows.append(dict(p, scored_recently=(
+            str(p.get("player_id")) in sc["ids"] if sc["seasons_read"] else None)))
+    return {"status": "measured", "rows": rows, "n": len(rows), "health": health,
             "seasons_read": sc["seasons_read"],
             "seasons_missing": sc["seasons_missing"],
-            "note": "no scored week in %s; not a rookie; no market ADP; no "
-                    "projection" % sc["seasons_read"]}
+            "note": "not a rookie, not market-priced, and carrying no projection "
+                    "— nothing in the system expects them in 2026"}
 
 
 #: The surfaces a dormant row must never reach. Each is a place a number becomes

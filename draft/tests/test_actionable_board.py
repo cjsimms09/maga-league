@@ -106,21 +106,44 @@ def test_a_TEAM_WITH_TWO_BYES_is_REFUSED_rather_than_resolved():
     assert "ZZ" not in got, got
 
 
-def test_an_ABSENT_PROJECTION_READ_AS_ZERO_is_found_and_a_real_zero_is_not():
-    """Zero is a claim that he will not score. Absent is the refusal to make one.
-    The board writes the same bytes for both and every consumer acts on the
-    number — VORP, tiering, best-available.
+def test_THE_MARKET_AND_OUR_PROJECTION_CANNOT_BOTH_BE_RIGHT():
+    """The market pays for him; we say he scores 0.00 with sd 0.00. Two sources
+    disagreeing is ordinary — disagreeing ABSOLUTELY is a defect.
 
-    MUTATION: flag any proj_mean of 0 — a genuine zero from a real source
-    becomes a false finding, and the true one is lost in the noise."""
-    rows = [_p(player_id="a", name="No Source", proj_fantasypros=None,
-               proj_sleeper=None, proj_mean=0.0),
-            _p(player_id="b", name="Real Zero", proj_fantasypros=0.0,
-               proj_sleeper=None, proj_mean=0.0),
-            _p(player_id="c", name="No Source But Projected", proj_fantasypros=None,
-               proj_sleeper=None, proj_mean=42.0)]
-    got = [p["name"] for p in AB.absent_projection_read_as_zero(_b(rows))]
-    assert got == ["No Source"], got
+    ⚠ THE FIRST VERSION OF THIS TEST WAS WRONG IN THE WAY THIS FILE HUNTS. It
+    keyed on `proj_fantasypros is None and proj_sleeper is None`, believing that
+    meant no source had an opinion. `proj_sleeper` is only SET inside the
+    FantasyPros block, so its absence means FP had nothing and says nothing about
+    Sleeper. Sleeper publishes 8,778 explicit zeros in 9,411 rows, so the zero is
+    a real value faithfully read and `proj_baseline` is the honest field.
+
+    `proj_baseline` is the field tested because it is the SOURCE value — what
+    the projection provider actually said. Keying on `proj_mean` would find the
+    identical rows (`mean = base * (1 + adj)`, so a zero baseline forces a zero
+    mean) and the gate correctly reports that swap as unkillable. It is recorded
+    here rather than dressed up as a mutation: the two are equivalent for zeros,
+    and only one of them names the thing being asserted."""
+    rows = [_p(player_id="a", name="Zeroed", proj_baseline=0.0, proj_mean=0.0),
+            _p(player_id="b", name="Projected", proj_baseline=88.0, proj_mean=90.0)]
+    got = [p["name"] for p in AB.market_prices_what_we_zero(_b(rows))]
+    assert got == ["Zeroed"], got
+
+
+def test_the_RANK_FALLBACK_IS_REPORTED_AS_UNREACHABLE():
+    """`projections._rank_fallback` is guarded by `if base is None` and exists to
+    "decay off ADP so the board still ranks sensibly". Sleeper publishes an
+    explicit 0 rather than omitting a player, so `base` is never None and the
+    branch cannot run — the same shape as the `search_rank` orphan.
+
+    MUTATION: count rows whose proj_mean is 0 rather than proj_baseline — the
+    opportunity adjustment hides some of them and the count stops being exact."""
+    rows = [_p(player_id="a", proj_baseline=0.0, vorp=-173.17),
+            _p(player_id="b", proj_baseline=0.0, vorp=-173.17),
+            _p(player_id="c", proj_baseline=50.0, vorp=10.0)]
+    got = AB.rank_fallback_reachable(_b(rows))
+    assert got["zero_baseline"] == 2, got
+    assert got["reachable"] is False
+    assert got["distinct_vorp"] == 1, got
 
 
 def test_the_REGION_IS_READ_from_the_board_not_assumed():
@@ -182,11 +205,10 @@ def test_NO_MORE_ACTIONABLE_ROWS_LOSE_A_DERIVABLE_BYE():
         "and worse finding" % d["teams_with_a_bye"])
 
 
-def test_NO_MORE_ABSENT_PROJECTIONS_ARE_WRITTEN_AS_ZERO():
-    """RATCHET on the second open defect. One row today: Ricky Pearsall, priced
-    by the market at 111.5, ranked 823 by us because an absence was written as a
-    number."""
-    rows = AB.absent_projection_read_as_zero(board())
+def test_NO_MORE_ROWS_ARE_PRICED_BY_THE_MARKET_AND_ZEROED_BY_US():
+    """RATCHET on the second open defect. One row today: Ricky Pearsall, taken by
+    real drafters at 111.5 and given 0.00 ± 0.00 by us."""
+    rows = AB.market_prices_what_we_zero(board())
     assert len(rows) <= KNOWN_ZERO_PROJ, (
         "absent-projection-as-zero grew to %d from a known %d: %s"
         % (len(rows), KNOWN_ZERO_PROJ, [p.get("name") for p in rows[:10]]))
