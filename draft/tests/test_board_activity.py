@@ -7,12 +7,17 @@ Marshawn Lynch are all on the 2026 board. `build.py:448` gates on
 lists, so a null sails through; the only other gate is `search_rank`, which
 Sleeper never retires, and this path puts no ceiling on it.
 
-REMOVING THEM IS `build.py` AND A'S LANE. This file owns the property that
-matters either way: they must not reach anything that turns into advice. Measured
-on the shipped board, 900 rows qualify as dormant and ZERO of them reach a
-decision surface — so today the pool is a superset of what is actionable, not a
-contaminated version of it. The day that stops being true, this fails, instead of
-being discovered by somebody reading a draft board and seeing Tom Brady.
+THEY ARE NOW PRUNED, in `build.py`, which imports `dormant()` from here rather
+than reimplementing it — one definition, not two that drift. The prune runs after
+projections attach, because that is the first point where both a market ADP and a
+projection exist, and those are the two exemptions that stop it deleting somebody
+real.
+
+THIS FILE STILL OWNS THE PROPERTY, and that is deliberate: the prune could be
+reverted, skipped by its own exception guard, or refused because the stores could
+not be read, and in every one of those cases the dormant rows are back on the
+board. The guarantee has to hold whether or not the pruning happened — they must
+not reach anything that turns into advice.
 
 THE DETECTOR'S EXEMPTIONS ARE THE DESIGN. Each one is a way this could accuse a
 player genuinely on a 2026 roster, and being wrong in that direction would delete
@@ -153,3 +158,45 @@ def test_NOTHING_DORMANT_PRICES_A_DECISION_ON_THE_SHIPPED_BOARD():
         "players with no NFL activity since 2024 are reaching a decision "
         "surface: %s" % got["offenders"][:10])
     assert got["dormant"] > 500, got
+
+
+def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
+    """The EFFECT of the prune build.py now performs, checked against the real
+    artifact rather than a fixture — because the artifact is the exact input it
+    receives.
+
+    Every exemption is asserted separately. A single count would pass while any
+    one of them had quietly stopped applying, and each is a different way to
+    delete a player somebody is drafting: a market price, a projection, a
+    rookie's blank history, or a position the evidence cannot see at all.
+
+    MUTATION: remove any exemption from `dormant` — the corresponding assertion
+    here names exactly which one went."""
+    b = board()
+    rows = BA.dormant(b)["rows"]
+    assert rows, "nothing dormant at all — the detector has stopped seeing"
+    drop = {str(p.get("player_id")) for p in rows}
+    gone = [p for p in b["players"] if str(p.get("player_id")) in drop]
+
+    def num(v):
+        return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
+
+    relevant = (((b.get("provenance") or {}).get("adp") or {})).get("relevant_board")
+    for label, bad in (
+        ("ranked inside the draft's depth",
+         [p for p in gone if (num(p.get("overall_rank")) or 10 ** 9) <= BA.DEPTH]),
+        ("carrying positive VORP",
+         [p for p in gone if (num(p.get("vorp")) or 0) > 0]),
+        ("inside the relevant board",
+         [p for p in gone if relevant and (num(p.get("adp")) or 10 ** 9) <= relevant]),
+        ("priced by the market",
+         [p for p in gone if p.get("adp_source") not in (None, "search_rank")]),
+        ("carrying a projection",
+         [p for p in gone if (num(p.get("proj_mean")) or 0) > 0]),
+        ("a rookie",
+         [p for p in gone if (num(p.get("years_exp")) or 0) == 0]),
+        ("a kicker or defense",
+         [p for p in gone if p.get("position") in ("K", "DEF")]),
+    ):
+        assert not bad, "the prune would drop %d player(s) %s: %s" % (
+            len(bad), label, [p.get("name") for p in bad[:6]])

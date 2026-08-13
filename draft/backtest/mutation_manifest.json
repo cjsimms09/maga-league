@@ -709,6 +709,45 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/adp.py": {
+   "tests": [
+    "draft/tests/test_adp.py"
+   ],
+   "mutations": [
+    {
+     "old": "    team_bye, team_conflict = {}, {}\n    for p in players:\n        t, b = p.get(\"team\"), p.get(\"bye\")",
+     "new": "    team_bye, team_conflict = {}, {}\n    for p in []:\n        t, b = p.get(\"team\"), p.get(\"bye\")",
+     "must_fail": [
+      "test_a_TEAMMATES_BYE_FILLS_A_HOLE_THAT_ONLY_FFC_COULD_HAVE_KNOWN"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if q.get(\"bye\") in (None, \"\", 0):\n            b = team_bye.get(q.get(\"team\"))",
+     "new": "        if True:\n            b = team_bye.get(q.get(\"team\"))",
+     "must_fail": [
+      "test_the_TEAM_BYE_FILL_NEVER_TOUCHES_A_PLAYER_WHO_ALREADY_HAS_ONE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if b is not None:\n                q[\"bye\"] = b",
+     "new": "            if True:\n                q[\"bye\"] = b",
+     "must_fail": [
+      "test_a_TEAM_WITH_NO_BYE_AT_ALL_does_not_get_a_derived_LABEL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        elif prev != int(b):\n            team_conflict[t] = True",
+     "new": "        elif False:\n            team_conflict[t] = True",
+     "must_fail": [
+      "test_a_TEAM_WHOSE_PLAYERS_DISAGREE_gets_no_derived_bye"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

@@ -1,0 +1,21 @@
+{
+ "_territory": "TERRITORY: C",
+ "_what": "Board POSITION verified against nflverse's 2025 roster release, joined on `sleeper_id` \u2014 a direct key, so no name matching and no fuzzy join.",
+ "_why": "Position decides which lineup slot a player can fill and which replacement baseline prices him, so a single mislabel distorts VORP for TWO positions at once. Nothing in the build checks it against an outside source; every internal field (pos_rank, tier, replacement) is derived FROM position, so internal consistency cannot detect it.",
+ "verified_on": "2026-08-13",
+ "source": "https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_2025.parquet",
+ "region": "actionable \u2014 provenance.adp.relevant_board (225) plus keepers",
+ "actionable_rows": 243,
+ "joined": 206,
+ "position_mismatches": 0,
+ "unjoined": 37,
+ "unjoined_all_rookies": true,
+ "unjoined_by_position": {
+  "RB": 7,
+  "DEF": 17,
+  "WR": 11,
+  "TE": 1,
+  "QB": 1
+ },
+ "_note": "37 unjoined rows are ALL rookies (years_exp 0), which have no 2025 roster row by definition \u2014 an explained absence, not a gap in the check. 17 of them are team DEF units, which carry no sleeper_id."
+}

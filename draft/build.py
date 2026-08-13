@@ -24,6 +24,7 @@ sys.path.insert(0, str(HERE / "backtest"))
 
 import adp as adp_mod  # noqa: E402
 import season_stamp  # noqa: E402
+import board_activity  # noqa: E402
 import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
@@ -608,6 +609,48 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["fantasypros"] = {"error": f"{type(fppx).__name__}: {fppx}"}
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
+
+    # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
+    #
+    # Tom Brady, Drew Brees, Gronkowski, Edelman, Antonio Brown, Fitzgerald,
+    # Todd Gurley and Marshawn Lynch were all on the 2026 board. The filter in
+    # `load_players` gates on `p.get("active") is False`, and Sleeper leaves
+    # `active` UNSET for much of what it lists — `None is False` is False, so a
+    # null sails through. The only other gate is `search_rank`, which Sleeper
+    # never retires; Brady's is 74, so no rank ceiling would have caught him
+    # either.
+    #
+    # HERE, NOT IN `load_players`, because this is the first point where both a
+    # market ADP and a projection exist — and those are the two exemptions that
+    # stop this deleting somebody real. Run it earlier and 7 rows FFC actually
+    # prices would go with it.
+    #
+    # The evidence is `nflverse_weekly_points_*.json`: did this player score in a
+    # real NFL game in 2024 or 2025. That is a MEASUREMENT, where `active` is
+    # metadata that can be left unset — and it cannot go stale in the same way.
+    # `board_activity` owns the conditions and every exemption in it (positions
+    # the store cannot see, rookies, anyone the market prices, anyone carrying a
+    # projection); it is imported rather than reimplemented so there is one
+    # definition of dormant, not two that drift.
+    #
+    # It REFUSES rather than pruning when the stores cannot be read: an absence
+    # of evidence must never read as evidence of absence, and a build that
+    # quietly dropped half the board because an artifact moved would be far worse
+    # than one that carries eight retired players.
+    try:
+        _act = board_activity.dormant({"players": board})
+        if _act["status"] == "measured" and _act["n"]:
+            _drop = {str(p.get("player_id")) for p in _act["rows"]}
+            before = len(board)
+            board = [p for p in board if str(p.get("player_id")) not in _drop]
+            print(f"  inactive: dropped {before - len(board)} player(s) with no "
+                  f"scored week in {_act['seasons_read']} — not rookies, not "
+                  f"market-priced, not projected ({len(board)} remain)")
+        elif _act["status"] != "measured":
+            print(f"  ! inactive filter NOT APPLIED — {_act['note']}")
+    except Exception as _ax:  # noqa: BLE001 — a hygiene filter is never a build dependency
+        print(f"  ! inactive filter skipped ({type(_ax).__name__}: {_ax}); "
+              f"the board keeps every row it had")
     return board
 
 
