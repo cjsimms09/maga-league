@@ -8,7 +8,7 @@ _anchor: **FANTASYPROS** (MFL live: False) · flat-cost keeper model · 200 pair
 |---|---|---|---|---|---|
 | Chase | WR | 295.1 | 122.42 | 3.0 | 5 |
 | Henry | RB | 274.2 | 85.63 | 21.7 | 10 |
-| Walker | RB | 255.8 | 67.23 | 18.7 | 4 |
+| Walker | RB | 255.8 | 67.23 | 18.3 | 4 |
 | Nabers | WR | 199.6 | 26.97 | 28.8 | 2 |
 
 ## (A) Raw surplus — every slate, ranked
@@ -37,10 +37,10 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | slate | E[$] | vs current (95% CI) | RB kept | RB drafted (mean, VORP) |
 |---|---|---|---|---|
-| Chase+Henry+Walker | 748 | — (control) | 2 | 1.91 @ -38.3 |
-| Chase+Henry+Nabers | 626 | -121.9 [-149.88, -94.38] | 1 | 2.91 @ -38.2 |
-| Chase+Nabers+Walker | 601 | -146.9 [-177.38, -115.88] | 1 | 2.91 @ -38.7 |
-| Chase+Henry | 574 | -173.9 [-214.0, -134.88] | 1 | 2.69 @ -36.8 |
+| Chase+Henry+Walker | 750 | — (control) | 2 | 1.92 @ -38.4 |
+| Chase+Henry+Nabers | 621 | -128.6 [-162.12, -99.38] | 1 | 2.92 @ -37.0 |
+| Chase+Nabers+Walker | 579 | -170.4 [-206.38, -137.75] | 1 | 2.92 @ -37.4 |
+| Chase+Henry | 563 | -186.2 [-227.25, -147.25] | 1 | 2.71 @ -37.1 |
 
 ## The bias flag (Cory's hypothesis, applied to THIS decision)
 
@@ -52,9 +52,9 @@ _surplus = Σ keeper VORP − Σ cost of the first k picks (103.91+62.08+36.2)_
 
 | experience | n | VORP rank − ADP rank (+ = we rank below market) |
 |---|---|---|
-| rookie(0) | 49 | +35.2 |
-| 2nd-yr(1) | 60 | +44.1 |
-| 3rd-yr(2) | 52 | +42.4 |
-| vet(3+) | 236 | +21.7 |
+| rookie(0) | 50 | +31.4 |
+| 2nd-yr(1) | 60 | +42.9 |
+| 3rd-yr(2) | 53 | +40.9 |
+| vet(3+) | 235 | +22.3 |
 
 **Caveats:** anchor = FANTASYPROS; MFL not live yet, so ranked by FFC (source grade prefers MFL directionally — flagged, not yet wired to the live board) · surplus is flat-cost (top_picks_flat): keeping k forfeits your first k picks · MC dollars are the v1 proxy (proj-normal weeks + weekly-high + regular-season); rankings travel, absolute $ are harness-dependent · bias probe is model-vs-MARKET cross-sectional; a bias SHARED by model+market needs realized outcomes (Lab test #1) and BBM at scale (test #3)
