@@ -70,6 +70,38 @@ const STRATEGIES = {
       .filter(x => E.scoreable(x));
     return recs.length ? recs[0].player : null;
   },
+  /* VONA WITH THE PLAYER LEFT IN HIS OWN REPLACEMENT POOL.
+   *
+   * The shipped vona() builds its comparison set as
+   *   board.filter(p => p.position === player.position && p.player_id !== player.player_id)
+   * -- it EXCLUDES the man himself. So "what do I lose by waiting on Allen" is
+   * priced against the best quarterback who ISN'T Allen, while the survival model
+   * simultaneously says Allen is 96% likely to be the man still sitting there.
+   * Those two statements cannot both inform the same decision.
+   *
+   * Measured at pick 8: Allen 33.6 -> 1.3, Bowers 20.6 -> 1.3, Cook 24.0 -> 17.5.
+   * The correction is proportional to survival, which is what a wait-cost should
+   * be. IMPLEMENTED HERE AS A STRATEGY ARM, NOT AS AN ENGINE CHANGE -- the
+   * scoring path is frozen until Aug 22 and this is measurement. */
+  VONA_FIXED: (board, roster, pick, i) => {
+    const ctx = { board, roster, league: L, currentPick: pick,
+      nextPick: SCHED[i + 1] || pick + 5, totalPicks: 150,
+      myPicksLeft: SCHED.length - i, roundsLeft: SCHED.length - i,
+      runMultipliers: {}, intervening: [], weights: E.MEASURED_WEIGHTS };
+    const next = SCHED[i + 1] || pick + 5;
+    const byPos = {};
+    board.forEach(p => { (byPos[p.position] = byPos[p.position] || []).push(p); });
+    let best = null, bestV = -Infinity;
+    Object.keys(byPos).forEach(pos => {
+      const list = byPos[pos];
+      const eba = E.expectedBestAvailable(list, next, ctx);   // player INCLUDED
+      list.forEach(p => {
+        const v = (p.proj_mean || 0) - eba;
+        if (v > bestV) { bestV = v; best = p; }
+      });
+    });
+    return best;
+  },
   MARKET: board => board.slice().sort((a, b) => adpOf(a) - adpOf(b))[0] || null,
   VORP: board => board.slice().sort((a, b) => (b.vorp || 0) - (a.vorp || 0))[0] || null,
   NEEDRULE: (board, roster) => {
