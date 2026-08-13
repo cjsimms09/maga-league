@@ -94,13 +94,116 @@ const metOf = t => (t.match(/(\d+) meetings?, (\d{4})–(\d{4})/) || (t.match(/(
 
   // ── 2) WITHOUT a live bundle the name map was always used, and that path was
   // never broken. It has to keep giving the same answer.
+  //
+  // THIS ARM WAS THE ONLY PLACE IN THE SUITE THAT WAS ACTUALLY ONLINE, and it
+  // was the one named "offline". `store.del('sleeper-cache')` removes the CACHE;
+  // it does not stop a REFETCH. In a sandbox the refetch 403s and the path
+  // really is offline, so it passed locally for everyone. In CI the refetch
+  // SUCCEEDS, so this arm ran against real Sleeper ids and had been red for
+  // 30+ consecutive runs — asserting a precondition it never established.
+  //
+  // So the precondition is now ESTABLISHED and then PROVEN: Sleeper's host is
+  // blocked for the duration, and the arm asserts both that a refetch was
+  // attempted-and-refused and that no bundle came back. Only the Sleeper host
+  // is blocked — the suite talks to its own server over the same `fetch`, and a
+  // blanket block would break the test rather than the network.
   {
-    await store.del('sleeper-cache');
-    const m = await get('/matchup?opp=' + marian.id);
-    const r = await get('/rivalry?a=Cory&b=Marian');
-    ck('offline, the two pages still agree',
-      recOf(m).length === 3 && recOf(m).join('-') === recOf(r).join('-'),
-      { matchup: recOf(m), rivalry: recOf(r) });
+    const realFetch = global.fetch;
+    let blocked = 0;
+    global.fetch = async (u, o) => {
+      if (String((u && u.url) || u).includes('sleeper.app')) {
+        blocked++;
+        throw new Error('network disabled: this is the OFFLINE arm');
+      }
+      return realFetch(u, o);
+    };
+    try {
+      await store.del('sleeper-cache');
+      const m = await get('/matchup?opp=' + marian.id);
+      const r = await get('/rivalry?a=Cory&b=Marian');
+
+      // THE PRECONDITION, ASSERTED RATHER THAN ASSUMED. Without this the arm
+      // means "offline" on one machine and "online" on another, which is how it
+      // came to be red in exactly one place for a month.
+      //
+      // "No cache entry" is the WRONG test and my first version used it. On a
+      // failed fetch `src/sleeper.js` writes a NEGATIVE entry —
+      // `{fetched_at: 0, failed_at: <ts>, data: null}` — so it does not hammer
+      // the API on every request. That is correct behaviour and it means an
+      // entry EXISTS while the path is genuinely offline. What offline actually
+      // means here is that no live DATA came back, so that is what is checked.
+      const after = await store.get('sleeper-cache');
+      ck('  the offline arm is ACTUALLY offline (refetch refused, no live data)',
+        blocked > 0 && (after == null || after.data == null),
+        { sleeper_fetches_blocked: blocked,
+          cached_data: after == null ? '(no entry)'
+            : (after.data == null ? null : 'LIVE DATA PRESENT — not offline') });
+
+      ck('offline, the two pages still agree',
+        recOf(m).length === 3 && recOf(m).join('-') === recOf(r).join('-'),
+        { matchup: recOf(m), rivalry: recOf(r) });
+    } finally {
+      global.fetch = realFetch;
+    }
+  }
+
+  // ── 2b) THE DEFECT THE CI FAILURE WAS ACTUALLY EXPOSING, REPRODUCED WITHOUT
+  // THE NETWORK.
+  //
+  // Fixing arm 2 above closes the environment difference. It does NOT close what
+  // arm 2 was accidentally catching: with a live bundle whose ids the archive
+  // DOES know, the two pages resolve an owner by different rules and can report
+  // different records for the same pair. `/matchup` prefers the live id when the
+  // archive knows it; `/rivalry` reads the name map only — no live id, no alias,
+  // no fallback (`src/routes/member.js:1101` against `:2069`).
+  //
+  // Arm 1 cannot catch it, because its live ids are ones the archive has never
+  // seen, so `/matchup` correctly declines them and both pages land on the name
+  // map. The condition needs a live id that is BOTH archive-known AND the wrong
+  // person — which is exactly what a real Sleeper response supplies and a
+  // synthetic `u0..u9` bundle never can.
+  //
+  // ⚠ THIS ARM IS EXPECTED TO FAIL UNTIL THE TWO PAGES SHARE ONE RESOLVER. That
+  // is B's lane (`src/routes/member.js`) and is routed, not worked around here.
+  // It is deliberate that it fails LOCALLY: the old failure only appeared in CI,
+  // so the person who has to fix it could not see it.
+  {
+    const idCory = H2H.userIdForName('Cory');
+    const idMarian = H2H.userIdForName('Marian');
+    const mine = H2H.headToHead(idCory, idMarian);
+    // An archive-known id belonging to SOMEBODY ELSE, whose record against Cory
+    // differs from Marian's — searched rather than hardcoded, so the fixture
+    // cannot quietly stop being adversarial when the archive grows.
+    const decoy = [...archiveIds].find(id => {
+      if (!id || id === idCory || id === idMarian) return false;
+      const h = H2H.headToHead(idCory, id);
+      return h && (h.played !== mine.played || h.wins !== mine.wins);
+    });
+    ck('fixture check: an archive-known id exists that is the WRONG person',
+      decoy != null, { decoy, marian: idMarian });
+
+    if (decoy) {
+      await store.set('sleeper-cache', {
+        league_id: lid, fetched_at: Date.now(),
+        data: { state: { week: 7, season: SEASON },
+          league: { name: 'MFGA', season: SEASON, total_rosters: 10 },
+          // Marian's seat carries an id the archive KNOWS and that is not his.
+          users: active.map((o, i) => ({
+            user_id: o.id === marian.id ? decoy : 'u' + i, display_name: o.name })),
+          rosters: active.map((o, i) => ({
+            roster_id: i + 1, owner_id: o.id === marian.id ? decoy : 'u' + i,
+            settings: { wins: 4, losses: 3, fpts: 700 + i * 11 } })),
+          matchups: active.map((o, i) => ({
+            roster_id: i + 1, matchup_id: Math.floor(i / 2) + 1, points: 100 })),
+          week: 7 } });
+
+      const m = await get('/matchup?opp=' + marian.id);
+      const r = await get('/rivalry?a=Cory&b=Marian');
+      ck('an archive-known live id for the WRONG person does not split the pages',
+        recOf(m).length === 3 && recOf(m).join('-') === recOf(r).join('-'),
+        { matchup: recOf(m), rivalry: recOf(r),
+          why: 'the two pages resolve the same owner by different rules' });
+    }
   }
 
   // ── 3) AN OWNER THE ARCHIVE CANNOT PLACE AT ALL. Neither the live id nor the
