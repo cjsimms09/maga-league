@@ -1672,3 +1672,124 @@ def test_NO_SNAPSHOTS_is_unmeasured_not_a_verdict_about_anything():
     that has looked at nothing reports a diagnosis about our code."""
     h = C.dispersion_health([], 2026)
     assert h["state"] == "unmeasured" and h["rows"] is None
+
+
+# ── TURNING MFL's min/max INTO A SPREAD — the reader for tomorrow's data ────
+#
+# A's item #1: 94.6% of the board's `adp_sd` sits on two values — 1,418 players
+# at exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759
+# players. My answer was to capture MFL's real dispersion. CAPTURING IS NOT
+# FIXING: the spread lands tomorrow and nothing reads it, which is rule 14 on my
+# own newest work.
+#
+# The estimator is the range one — sd ~= (max - min) / d_n, d_n the expected
+# range of n standard normals — because min/max is what MFL publishes. It is
+# crude and its weaknesses are stated in the module rather than buried: a single
+# outlier drives it entirely, and for a rarely-selected player the observed
+# range is truncated by the draft ending, so the estimate is a LOWER bound.
+
+def test_the_spread_is_estimated_from_the_RANGE_and_the_SELECTION_COUNT():
+    """n = 5 selections, picks spanning 10..20. d_5 = 2.326, so sd ~= 10/2.326."""
+    r = C.spread_from_dispersion({"min_pick": 10, "max_pick": 20,
+                                  "sel_pct": 100.0, "drafts": 5})
+    assert r["status"] == "measured"
+    assert abs(r["sd"] - 10 / 2.326) < 0.05, r
+    assert r["n"] == 5
+
+
+def test_n_IS_THE_SELECTION_COUNT_not_the_number_of_drafts_run():
+    """THE ONE THAT WOULD QUIETLY RUIN IT. MFL's min/max are over the drafts the
+    player was SELECTED in, not over every draft in the pool. A player taken in 7
+    of 125 drafts has a range over SEVEN observations; charging him d_125 instead
+    of d_7 divides by 5.1 rather than 2.7 and halves every deep player's spread —
+    reintroducing exactly the flatness this exists to cure, while looking measured.
+
+    MUTATION: take n from total_drafts."""
+    row = {"min_pick": 100, "max_pick": 160, "sel_pct": 5.6, "drafts": 7}
+    r = C.spread_from_dispersion(row, total_drafts=125)
+    assert r["n"] == 7, "seven selections, not 125 drafts"
+    assert abs(r["sd"] - 60 / 2.704) < 0.1, r
+
+
+def test_a_SINGLE_selection_has_no_spread_and_says_so():
+    """Range is 0 with one observation. Returning sd 0.0 would assert the market is
+    CERTAIN about a player it has seen once — the most confident number on the
+    board attached to the least evidence. Rule 13f.
+
+    MUTATION: return 0.0 — and the flat board gains a third spike, at zero."""
+    r = C.spread_from_dispersion({"min_pick": 44, "max_pick": 44,
+                                  "sel_pct": 0.8, "drafts": 1})
+    assert r["sd"] is None
+    assert r["status"] == "unmeasurable" and "one" in r["note"].lower()
+
+
+def test_MISSING_BOUNDS_are_absent_not_zero():
+    """MUTATION: treat a missing bound as 0 — the range becomes the ADP itself and
+    every player MFL declined to describe gets a huge, invented spread."""
+    r = C.spread_from_dispersion({"min_pick": None, "max_pick": None,
+                                  "sel_pct": 3.0, "drafts": 4})
+    assert r["sd"] is None and r["status"] == "absent"
+
+
+def test_a_RARELY_SELECTED_player_carries_a_TRUNCATION_caveat():
+    """He is observed only where he was picked; the drafts that would have taken him
+    later simply ended. So the observed range is cut and the sd is a LOWER bound —
+    and it must say so, or a small number reads as market agreement.
+
+    MUTATION: drop the caveat — the deepest, least-known players report the
+    tightest spreads, which is the inversion this whole exercise is about."""
+    r = C.spread_from_dispersion({"min_pick": 150, "max_pick": 170,
+                                  "sel_pct": 4.0, "drafts": 5})
+    assert r["status"] == "measured"
+    assert r["truncated"] is True
+    assert "lower bound" in r["note"].lower()
+    full = C.spread_from_dispersion({"min_pick": 10, "max_pick": 30,
+                                     "sel_pct": 96.0, "drafts": 120})
+    assert full["truncated"] is False and full["note"] is None
+
+
+def test_THE_WHOLE_POINT_distinct_players_get_DISTINCT_spreads():
+    """The board today: 1,418 players at exactly 30.0, 246 at exactly 15.0, 71
+    distinct values over 1,759 players. An estimator that collapses is no better
+    than the clamp it replaces.
+
+    MUTATION: return a constant, or round to the nearest 5 — the assertion above
+    still passes on any single row and the flatness comes straight back."""
+    rows = [{"min_pick": 1, "max_pick": 3, "sel_pct": 100.0, "drafts": 120},
+            {"min_pick": 8, "max_pick": 30, "sel_pct": 98.0, "drafts": 118},
+            {"min_pick": 40, "max_pick": 95, "sel_pct": 70.0, "drafts": 88},
+            {"min_pick": 100, "max_pick": 190, "sel_pct": 30.0, "drafts": 38},
+            {"min_pick": 150, "max_pick": 165, "sel_pct": 6.0, "drafts": 8}]
+    sds = [C.spread_from_dispersion(r)["sd"] for r in rows]
+    assert all(s is not None for s in sds)
+    assert len(set(round(s, 6) for s in sds)) == 5, sds
+    assert sds == sorted(sds)[:0] + sds, "no ordering claim, just distinctness"
+
+
+def test_spread_summary_ANSWERS_THE_FLATNESS_QUESTION_on_a_whole_day():
+    """The claim this exists to test is "does a real spread beat the clamp", and
+    that is a question about a DAY, not a player. The board today has 71 distinct
+    `adp_sd` values across 1,759 players with 94.6% on two of them; a summary that
+    cannot count distinct values cannot say whether tomorrow is any better.
+
+    MUTATION: report only a mean — a distribution collapsed onto one value has a
+    perfectly healthy mean, which is how the clamp survived this long."""
+    disp = {"a": {"min_pick": 1, "max_pick": 3, "sel_pct": 100.0, "drafts": 120},
+            "b": {"min_pick": 8, "max_pick": 30, "sel_pct": 98.0, "drafts": 118},
+            "c": {"min_pick": 150, "max_pick": 165, "sel_pct": 6.0, "drafts": 8},
+            "d": {"min_pick": 44, "max_pick": 44, "sel_pct": 0.8, "drafts": 1},
+            "e": {"min_pick": None, "max_pick": None, "sel_pct": 2.0, "drafts": 4}}
+    s = C.spread_summary(disp)
+    assert s["measured"] == 3 and s["unmeasurable"] == 1 and s["absent"] == 1
+    assert s["distinct"] == 3, "three measured players, three different spreads"
+    assert s["truncated"] == 1, "only the 6%-selected one is a lower bound"
+    assert s["median_sd"] is not None
+
+
+def test_spread_summary_of_NOTHING_is_unmeasured_not_a_flat_verdict():
+    """Rule 13f, and the case that arrives if MFL publishes no bounds at all:
+    zero measured players is not "the spread is flat". MUTATION: report
+    distinct 0 with no status — which reads as a measured collapse."""
+    s = C.spread_summary({})
+    assert s["measured"] == 0 and s["distinct"] is None and s["median_sd"] is None
+    assert s["status"] == "unmeasured"
