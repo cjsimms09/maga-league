@@ -669,14 +669,6 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if all(s is None for s in sources) and (_num(p.get(\"proj_mean\")) or 0) <= 0:",
-     "new": "        if (_num(p.get(\"proj_mean\")) or 0) <= 0:",
-     "must_fail": [
-      "test_an_ABSENT_PROJECTION_READ_AS_ZERO_is_found_and_a_real_zero_is_not"
-     ],
-     "verdict": "KILLED"
-    },
-    {
      "old": "    if depth is None:\n        return []",
      "new": "    depth = depth if depth is not None else 225\n    if False:\n        return []",
      "must_fail": [
@@ -705,6 +697,22 @@
      "new": "        \"no_team\": [],",
      "must_fail": [
       "test_the_FIELD_DETECTORS_FIRE_on_planted_gaps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return [p for p in actionable(board) if _num(p.get(\"proj_baseline\")) == 0.0]",
+     "new": "    return []",
+     "must_fail": [
+      "test_THE_MARKET_AND_OUR_PROJECTION_CANNOT_BOTH_BE_RIGHT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    zero = [p for p in rows if _num(p.get(\"proj_baseline\")) == 0.0]",
+     "new": "    zero = [p for p in rows if _num(p.get(\"proj_mean\")) == 0.0]",
+     "must_fail": [
+      "test_the_RANK_FALLBACK_IS_REPORTED_AS_UNREACHABLE"
      ],
      "verdict": "KILLED"
     }
