@@ -8503,3 +8503,527 @@ correctly; only the MFL join misses them. Recorded, not built: adding fuzzy firs
 matching to the authoritative matcher is a change with a wrong-match failure mode, and this
 lane has spent the week removing exactly that. **It needs a measurement of its own before
 anyone touches `match_player`.**
+
+---
+
+## 📋 PRE-DECLARATION — THE QB/TE SYMPTOM, FROM THE DATA SIDE (C, 2026-08-12)
+
+**Written before inspecting a single value. Cory's assignment: investigate independently of
+A, do not read A's latest, diagnose rather than fix.** I have not looked at A's current
+work and will not until this is written.
+
+### THE SAMPLE, FIXED NOW
+
+* `public/draft_data.json` as deployed — the artifact the war room boots from — including
+  its `league` block (`scoring`, `roster_slots`, `starters`, `teams`) and every player's
+  `proj_mean`, `proj_baseline`, `proj_fantasypros`, `proj_sleeper`, `replacement`, `vorp`.
+* The importer that produces the scoring table, and `draft/build.py` where replacement and
+  VORP are computed. Read only — I touch neither.
+* **Outside the pipeline:** the 2026-08-12 MFL market (708 players, 119 drafts) already in
+  `draft/data/external_adp_series.json`, now decodable; and published NFL scoring
+  arithmetic, which I can compute by hand and is not ours.
+
+### WHAT I EXPECT TO FIND IF THE DATA IS RIGHT — STATED BEFORE LOOKING
+
+1. **Scoring applied ONCE.** Our format is 6-point passing TDs; public sources assume 4. A
+   QB throwing ~30 TDs should therefore sit **~60 points above** a 4-point-source number
+   (2 extra × 30). If I find ~120 points of gap, the table has been applied twice, or
+   applied to a source that had already scored them.
+2. **Replacement at the position's own startable depth.** 10 teams × 1 QB → replacement
+   near **QB10–13**. 1 TE → **TE10–13**. 2 RB + a share of FLEX → **RB25–30**. 2 WR + a
+   share → **WR25–30**. K and DEF at **10–12**.
+3. **VORP shape favouring RB/WR, by construction.** Cory's own published arithmetic: a QB
+   at 350 over a QB15 at 300 is **+50**; an RB at 280 over an RB25 at 120 is **+160**.
+   **Three times the value from the lower raw number.** If our numbers do not show that
+   shape, the boundary where it stops holding is the defect.
+4. **FLEX is RB/WR/TE only** — verified from the imported config, not from anyone's memory,
+   and represented identically by every consumer that reads it.
+5. **Single-source rate roughly flat across positions.** If QB and TE are markedly more (or
+   less) single-source than RB/WR, they are priced by a different mechanism than the
+   positions they are being ranked against.
+
+### WHAT WOULD FALSIFY THE WHOLE DATA HYPOTHESIS
+
+**If scoring is applied once, replacement sits at the expected rank at every position, the
+VORP shape holds, and roster capacity is represented correctly — then the data is not the
+defect and I will say exactly that.** Cory has asked for that answer explicitly if it is
+the true one, because it tells A where not to look. I will not manufacture a smaller
+finding to avoid a null.
+
+### METHOD
+
+**One QB and one RB walked by hand across every boundary** — raw source number, scored
+under our table, blended, adjusted, replacement, VORP, contribution, final rank — with the
+arithmetic stated at each step. **The first boundary where the expected relationship breaks
+is the answer.**
+
+### WHAT I WILL NOT DO
+
+Not touch the engine, `build.py`, or the config. Not re-run A's six dead hypotheses (bench
+floor, need re-enabling, the `expectedBestAvailable` tail, VORP-vs-market ranking, its
+reach-ratio headline, the VONA comment) — **but I do not assume its rulings are correct
+either, and if my evidence contradicts one I will say so.** And no folklore: "quarterbacks
+should go later" is not a finding. The question is whether OUR numbers are right for OUR
+league.
+
+---
+
+## 🎯 THE QB/TE SYMPTOM — THE DATA SIDE. **THE DEFECT IS NOT IN THE DATA.** (C, 2026-08-12)
+
+**Cory asked for this answer plainly if it is the true one, so: the projections are applied
+once, the replacement baselines are right at every position, the roster capacity and flex
+are represented correctly, and the VORP shape is the one his own arithmetic predicts. THE
+DATA HANDS THE ENGINE A CORRECT ORDERING.** Independent of A; I have not read its current
+work.
+
+### THE ONE MEASUREMENT THAT SETTLES IT
+
+Our own board, our own numbers, ranked three ways. Draftable pool, top ten:
+
+```
+ranked by VORP  (what the data says)          QB 0  TE 1   ->  QB+TE  10%
+the engine's output (Cory's measurement)                   ->  QB+TE  50%
+ranked by RAW proj_mean                       QB 9  TE 0   ->  QB+TE  90%
+```
+
+**The data produces a healthy board. Raw points produce the symptom in its pure form. The
+engine sits between them.** So the expected relationship survives every boundary up to and
+including VORP, and breaks after it. **That is the answer to "find the first boundary where
+it breaks": it is not in my lane, and it is downstream of VORP.**
+
+I tested whether a simple raw-points leak reproduces it — `score = VORP + α·proj_mean`
+across α ∈ [0,1]. **It does not**: QB+TE reaches only 4/10 even at α=1. So the engine is not
+merely adding raw points, and I am not going to guess further into A's mechanism.
+
+### THE HAND-WALK, EVERY BOUNDARY, ARITHMETIC STATED
+
+```
+JOSH ALLEN (QB)                          JAHMYR GIBBS (RB)
+  Sleeper          405.5                   Sleeper          299.9
+  FantasyPros      415.88  NOT USED        FantasyPros      301.68  NOT USED
+  proj_baseline    405.5                   proj_baseline    299.9
+  opportunity_adj    0.0                   opportunity_adj    0.15
+  proj_mean        405.5  = 405.5x1.00     proj_mean        344.9  = 299.9x1.15
+  replacement      341.72 (QB10)           replacement      188.53 (RB21)
+  VORP              63.78                  VORP             156.37
+```
+
+Both reconcile to the artifact exactly. **Cory's predicted shape — three times the value
+from the lower raw number — comes out at 2.45× (156.3 / 63.8). It holds.**
+
+### EACH PRE-DECLARED ITEM, ANSWERED
+
+1. **Scoring applied ONCE.** `pass_td: 6.0`, `rec: 0.5` confirmed in the imported config.
+   Allen at 405.5 is a 6-point number; applied twice he would be near 600, at 4 points near
+   345. **Not double-applied.**
+2. **Replacement at the right depth per position** — and this is the pre-registered
+   expectation, met: **QB 10, TE 10, RB 21, WR 29, K 8, DEF 10.** One QB slot × 10 teams
+   lands replacement on the 10th QB. `starters_at` reads the config directly; nothing treats
+   a one-start position as having more.
+3. **VORP shape favours RB/WR by construction.** Top VORP: RB 156.3, WR 125.2, TE 82.2,
+   QB 63.8. At the 5th-best: RB 93.6 against QB 11.2 — **eight to one.**
+4. **FLEX eligibility.** `FLEX: [RB,WR,TE]` — correct. **There are EIGHT separate copies of
+   that mapping** (`config_schema.py`, `engine.js` ×2, `value.js`, `valuation.js`,
+   `mcts.js`, `survival.js`, `app.js:3653`) and **all eight agree today**, so it is not the
+   cause. Eight copies of one fact is still eight chances to diverge silently.
+5. **Single-source is positional, and I found it** — see below.
+
+### TWO REAL DATA DEFECTS. **NEITHER CAUSES THE SYMPTOM, AND ONE RUNS AGAINST IT.**
+
+**(A) `opportunity_adj` IS BLIND TO THE FACT THAT ITS INPUT HAS A DIFFERENT SCALE PER
+POSITION.** `proj_mean = proj_baseline × (1 + opportunity_adj)` — verified **576 of 576** —
+with the multiplier capped at +15%.
+
+```
+              adj = 0   adj at cap   mean opportunity_share   max share
+  QB   75/75    ALL 75       0                0.021             0.085
+  WR            31/195      12                0.004             0.028
+  TE            19/101       5                0.002             0.035
+```
+
+**Josh Allen carries `opportunity_share` 0.085 and receives an adjustment of 0.0. Trey
+McBride carries 0.005 — seventeen times smaller — and receives the full 0.15 cap.** The
+adjustment is computed from a quantity that means different things at different positions
+and is not normalised for it. K and DEF are also flat zero.
+
+**Effect on top VORP: RB +35.7, WR +28.8, TE +16.1, QB +0.0.** So it inflates the positions
+Cory says are *under*-recommended and does nothing for the ones over-recommended. **It runs
+against the symptom.** It is still a silent, unmeasured, position-dependent ±15% on the
+central projection, and nobody has ever measured whether it earns its place.
+
+**(B) FANTASYPROS IS FETCHED, STORED FOR 435 PLAYERS, AND NEVER ENTERS `proj_mean`.**
+`proj_baseline == proj_sleeper` for **435 of 435**. The blend is single-source by
+construction — a producer with no consumer, on the number the whole tool ranks on.
+
+**And it is positional, exactly as Cory suspected.** Relative disagreement between the two
+sources: QB 3.6%, RB 7%, **WR 13%, TE 13%** — and at the top of TE the direction is
+consistent and large:
+
+```
+  Brock Bowers   sleeper 202.5   fantasypros 147.3   we publish 232.9  (+58% over fpros)
+  Travis Kelce   sleeper 136.4   fantasypros 106.9   we publish 156.9
+  Mark Andrews   sleeper 132.5   fantasypros 104.1   we publish 150.7
+```
+
+**We take the higher of two sources at the position where they disagree most, then multiply
+it by 1.15.** Bowers is published **33% above the two-source consensus**.
+
+**BUT IT STILL DOES NOT PRODUCE THE SYMPTOM, AND I CHECKED RATHER THAN ASSUMED.** Running
+the same replacement/VORP pipeline on a two-source consensus with no boost: Bowers' VORP
+falls 82.2 → 53.2, and **the top ten goes from 10% QB+TE to 20%** — the wrong direction,
+because a QB enters. **No variation of the projection inputs I can construct produces 50%.**
+
+### WHAT THIS RULES OUT FOR A
+
+Projections, scoring application, replacement level per position, VORP arithmetic, roster
+capacity, flex eligibility, and one-start slot counts. **The QB half of the symptom cannot
+come from the data at all** — the data ranks zero quarterbacks in its top ten. **Whatever
+turns a 10% board into a 50% one happens after VORP.**
+
+### WHERE I MIGHT BE WRONG
+
+FantasyPros is not ground truth either — I am reporting that we use one source, not that
+the other is right. And `opportunity_adj` may be deliberate and correct; what I can say is
+that it is position-dependent, uncapped in justification, and unmeasured.
+
+---
+
+## 🔴 THE ONE-START HYPOTHESIS — **CONFIRMED, WITH THE FRAMING CORRECTED.** THE BASELINE IS WRONG AND IT IS BASELINE-LEVEL. (C, 2026-08-12)
+
+**Cory's hypothesis survives the test. It is not "one-start positions are too shallow" — the
+mechanism is sharper than that, and it lands on the same four positions for two different
+reasons.** Numbers first.
+
+### THE ANSWER TO THE QUESTION AS ASKED: THE RANK, PER POSITION
+
+```
+              our replacement RANK      derived how
+   QB   TE            10                teams x starting_slots = 10 x 1
+   K    DEF           10                teams x starting_slots = 10 x 1
+   RB                 21                10x2 dedicated + 1 of 10 FLEX slots
+   WR                 29                10x2 dedicated + 9 of 10 FLEX slots
+```
+
+**Derivation, read from `draft/vorp.py`, not inferred:** `counts[pos] = starters_at(cfg,
+pos) × teams`, then the 10 FLEX slots are allocated one at a time to whichever eligible
+position has the best next-man-up. **Not hardcoded, not a percentile, not a threshold.**
+Team count and slot count are read from the imported config and are correct. **The flex
+share is NOT misallocated** — no share reaches QB, TE, K or DEF, and RB+WR receive all ten.
+*(Correcting myself: my previous report said K=8. That was a tie artifact in my own
+rank-finder. The real count is 10. The rank-finder was wrong, not the pipeline.)*
+
+### DEFECT 1 — REPLACEMENT IS THE **LAST STARTER**, NOT THE FIRST NON-STARTER
+
+`_replacement_from_counts` takes `ranked[n-1]` with `n = 10` at QB — **the 10th quarterback,
+who is a starter.** Cory's definition, and the standard one, is *the best player who will
+not start* — the 11th.
+
+**This is not a slip. The module's own docstring defines it that way:** *"Replacement level
+is the last-starter baseline: the worst player at a position who still starts somewhere in
+the league every week."* **A definitional choice nobody has measured.**
+
+**The off-by-one is uniform; ITS EFFECT IS NOT**, because it depends on the local slope of
+the projection curve where it lands:
+
+```
+   RB   188.53 -> 169.30    19.23 points of VORP suppressed
+   QB   341.72 -> 337.48     4.24
+   TE   150.72 -> 146.90     3.82
+   DEF   99.00 ->  96.00     3.00
+   WR   172.67 -> 172.60     0.07
+   K     97.00 ->  97.00     0.00
+```
+
+**RB loses 4.5× more than QB.** So a uniform off-by-one silently suppresses exactly the
+position that should dominate.
+
+**Correcting it alone — nothing else — empties the top ten of one-start positions:**
+
+```
+   as shipped                    RB 5  WR 4  TE 1        QB+TE 10%
+   first non-starter (fixed)     RB 8  WR 2              QB+TE  0%
+```
+
+### DEFECT 2 — K AND DEF, AND THIS IS THE ~140 POSITIONS
+
+`teams × starters` says the 10th kicker is replacement level. **Measured against a real
+market of 119 drafts (MFL, IDP excluded, format-matched): the first 150 picks contain ONE
+kicker and TWO defences.**
+
+```
+             our repl rank    market depth @150 picks
+   K              10                    1
+   DEF            10                    2
+```
+
+Because we treat K10/DEF10 as the baseline, the nine kickers above it all carry positive
+VORP. **On our own board, ranked by VORP alone, the best DEF sits at overall rank 52 and the
+best K at 59** — against a market that takes the first defence around 150 and the first
+kicker past 200. **That is the ~140-position advancement, and it is in the DATA, before the
+engine touches anything.** Repricing K/DEF at market depth moves the first one from **rank
+52 to rank 144.**
+
+**This is Cory's fourth guess — "K and DEF inheriting a default" — and it is nearly right.
+There is no default: it is the same `teams × starters` formula, correct for positions people
+draft and wrong for positions they stream.**
+
+### DEFECT 3 — BENCH ROSTERING IS NOT MODELLED AT ALL, AND IT IS ASYMMETRIC
+
+The count is starters-only; there is no bench term. Real depth at 150 picks:
+
+```
+        ours    market    understated by
+   RB     21      41          +20
+   WR     29      55          +26
+   TE     10      21          +11
+   QB     10      30          +20   <-- CONTAMINATED, see below
+```
+
+**Ignoring the bench understates RB and WR far more than TE**, because a real roster carries
+handcuffs and fliers at RB/WR and rarely a third TE. That suppresses RB/WR VORP relative to
+the one-start positions — **the same direction as defect 1, by a second route.**
+
+### ⚠️ AND A CAVEAT ON MY OWN EXTERNAL REFERENCE, BECAUSE IT WOULD MISLEAD
+
+**MFL's ADP pool is not format-matched for QB.** 30 quarterbacks inside 150 picks is a
+superflex/2QB signature — a 1-QB league takes 12-15. **`fetch_mfl` requests `IS_PPR=1` and
+`FCOUNT=12` and there is no superflex exclusion**, so QB market depth from this source is
+unusable and I am not using it. **That is a defect in MY capture parameters and I am
+recording it against myself.** K, DEF, RB, WR and TE depths are unaffected — superflex adds
+quarterbacks, not kickers.
+
+Substituting a defensible QB depth of 15 rather than the contaminated 30:
+
+```
+   market depth, QB de-contaminated    RB 9  WR 1     QB+TE 0%   first K/DEF at rank 102
+```
+
+### WHAT I AM NOT DOING
+
+**Not adjusting anything.** Cory's instruction is exact and I agree with it: a baseline
+tuned until the board looks sane is the same error as a QB penalty. The numbers above are
+what the baselines ARE and what an external market says they SHOULD be. **The fix is A's,
+and the right fix is the definitional one — first non-starter, plus a bench term, plus a
+K/DEF baseline that reflects that nobody drafts them — not a number chosen to make the top
+ten look right.**
+
+**And this does not overturn my earlier report, it locates it.** I said the data hands the
+engine a 10% QB+TE board while the engine emits 50%, so the break is downstream. **That
+still holds.** What I had wrong was calling the baselines correct: they are internally
+consistent and externally wrong, which is this project's whole failure mode, and I checked
+them against our own config instead of against a market. **The engine is still amplifying
+something — but it is being handed a board that already pulls K and DEF forward by 90 to 140
+positions.**
+
+---
+
+## 🔧 K AND DEF, FINISHED — AND A CORRECTION TO MY OWN NUMBER. **DEEPENING THE BASELINE MAKES IT WORSE.** (C, 2026-08-12)
+
+### ⚠️ FIRST, THE CORRECTION
+
+I wrote: *"That is the ~140-position advancement, and it is in the DATA, before the engine
+touches anything."* **That was overstated and I had not measured it against the board's own
+rank field.** The board carries two:
+
+```
+                       overall_rank   pool_rank    market ADP
+   Brandon Aubrey  K         59          121        127.0
+   LA Rams        DEF        52          120        124.0
+```
+
+**`overall_rank` IS the VORP ordering** (59/52, matching my independent computation exactly).
+**`pool_rank` tracks ADP** and is sane. So the data-side pull-forward is **68 positions for
+K and 72 for DEF — roughly HALF of the ~140 A measured on the surface, not all of it.**
+The rest is downstream. My earlier sentence claimed the whole thing.
+
+### TWO INDEPENDENT MARKETS AGREE, AND ON THE SAME PLAYER
+
+```
+                     MFL (119 drafts)   FantasyPros ADP    our overall_rank
+   first kicker      Aubrey   151.7     Aubrey   127.0           59
+   first defence     Houston  137.2     Houston  123.3           52
+```
+
+Different sources, different formats, **same player first in each.** The K/DEF finding does
+not rest on the MFL capture I flagged as superflex-contaminated — that contamination is
+QB-only, and FantasyPros corroborates independently.
+
+### WHY IT HAPPENS — TWO THINGS COMPOUNDING, BOTH ARITHMETIC
+
+**The kicker and defence curves are nearly flat.**
+
+```
+   proj_mean at position rank    1      5     10     15     20    spread 1->20
+                        K     107.0  100.0   97.0   92.0   87.0      20.0
+                        DEF   114.0  104.0   99.0   94.0   92.0      22.0
+                        RB    344.9  282.1  224.5  213.2  193.4     151.4
+```
+
+**Twenty points across twenty kickers, against 151 across twenty running backs.**
+
+**And only 82 players on the entire board have positive VORP.** So *any* positive VORP puts
+a player inside the top 82. Aubrey's +10.0 → 58 players exceed it → **rank 59.** The Rams'
++15.0 → 51 exceed it → **rank 52.** The arithmetic reproduces the artifact exactly.
+
+### THE PART THAT KILLS HALF OF CORY'S PROPOSED DIRECTION
+
+**For K and DEF, a DEEPER baseline makes it WORSE, not better:**
+
+```
+   K/DEF baseline = 10th (as shipped)        first K rank 59, VORP 10.0
+   K/DEF baseline = 11th (first non-starter) first K rank 59, VORP 10.0
+   K/DEF baseline = 15th (DEEPER)            first K rank 55, VORP 15.0   <-- worse
+   K/DEF baseline = best available (streamed) first K rank 68, VORP  0.0   <-- best
+```
+
+**The one-start hypothesis says these baselines are too shallow. For K and DEF the truth is
+the opposite** — they are too DEEP. Only one kicker goes in 150 market picks, so at any pick
+you can have a near-equivalent kicker: **replacement for a streamed position is the best
+player still available, not the tenth-best.** That is the correct baseline and it drives
+their VORP to zero.
+
+### AND THE PART THE BASELINE CANNOT FIX AT ALL
+
+**Even at the correct baseline, the first kicker still ranks 68 against a market of 127.**
+With VORP 0 he sorts immediately behind the last positive-VORP player. **The baseline can
+buy about nine of the seventy positions. The other sixty are structural:**
+
+**VORP CANNOT EXPRESS "REPLACEABLE AT ANY TIME."** A kicker at VORP 0 is not the 68th most
+valuable pick — he is a pick you should never make before the last round, because an
+equivalent kicker is there in round 15. That is a fact about *supply over time*, and nothing
+in a replacement-level calculation encodes it. **So K/DEF cannot be fixed by any choice of
+baseline, and A should not spend the effort trying.**
+
+### WHAT STANDS FOR THE ONE-START HYPOTHESIS
+
+**It splits.** QB and TE are suppressed by the last-starter off-by-one (RB loses 19.2 points
+of VORP to it, QB 4.2 — correcting it alone takes QB+TE from 10% to 0% of the top ten). **K
+and DEF are a different defect wearing the same clothes**: not a shallow baseline but a
+baseline that should not exist, on a position VORP was never able to rank.
+
+### ON B's LOG, WHEN IT LANDS
+
+I will audit before citing. Three checks first, all on the instrument: **does every row's
+board stamp match a commit that was actually deployed** (I can verify against git and
+against `built_at`); **are absent fields recorded as absent rather than omitted** —
+`field-population/v1` on the log itself, three-way present/null/missing; and **does the
+captured recommendation reconcile to the artifact** — pick a row, recompute VORP and
+`overall_rank` from `public/draft_data.json` at that stamp, and see whether the logged score
+and rank fall out. If they do not reconcile, the log is measuring something other than what
+rendered, and the positional distribution in it is not evidence.
+
+---
+
+## ✅ THE BASELINE INVESTIGATION, FINISHED — AND A SECOND CORRECTION TO MYSELF (C, 2026-08-12)
+
+### ⚠️ I WAS WRONG ABOUT THE STRUCTURAL CLAIM, AND THE REASON MATTERS
+
+Last entry I wrote: *"the baseline can buy about nine of the seventy positions. The other
+sixty are structural."* **Wrong.** I tested the K/DEF baseline **in isolation, holding RB,
+WR and TE at their known-wrong shallow values.** Rank is a RELATIVE quantity. Correct the
+whole system and K/DEF fall into place on their own:
+
+```
+   first K/DEF rank      as shipped   K/DEF fixed alone   ALL baselines fixed    market
+                             52              68               111 - 131         123 - 127
+```
+
+**Measuring a relative quantity while the rest of the system sits at values I had already
+proved wrong.** That is the same error class as the keepers — reading one field and
+concluding, when the answer was in its complement.
+
+### THE DEFECT, STATED ONCE
+
+`counts[pos] = starters_at(cfg, pos) × teams` counts **STARTERS ONLY**. Real leagues roster
+far more than they start at RB/WR/TE, and far fewer at K/DEF. **Two independent markets
+agree on the real depth, and on TE they agree exactly:**
+
+```
+              ours    FantasyPros@150   MFL@150   verdict
+   RB           21          46             41     understated by ~23
+   WR           29          53             55     understated by ~25
+   TE           10          21             21     understated by 11  (EXACT agreement)
+   K            10           2              1     OVERSTATED by ~8
+   DEF          10           5              2     OVERSTATED by ~6
+   QB           10          23             30     contaminated, see below
+```
+
+**Because the understatement is asymmetric, it suppresses RB and WR far more than the
+one-start positions — which is precisely the symptom.**
+
+### WHAT CORRECTING IT DOES
+
+```
+   AS SHIPPED                        top10  RB5 WR4 TE1     QB+TE 10%   1st K/DEF   52
+   MFL depths                        top10  RB9 WR1         QB+TE  0%   1st K/DEF  127
+   FantasyPros depths                top10  RB9 WR1         QB+TE  0%   1st K/DEF  111
+   both-source midpoint              top10  RB9 WR1         QB+TE  0%   1st K/DEF  128
+```
+
+**Identical under both markets independently.** And the agreement with the market improves
+across the whole board, not just at the top: **mean |market ADP − our rank| over the 337
+priced players falls from 76.7 to 52.5 positions — a 32% reduction.**
+
+### AND IT IS NOT SENSITIVE TO THE ONE NUMBER I HAD TO JUDGE
+
+QB is the only position the two markets disagree on (23 vs 30), because **MFL's ADP pool is
+superflex-contaminated — a defect in my own capture parameters.** So I swept it rather than
+choosing:
+
+```
+   QB depth      10     13     15     19     23     30
+   Allen rank    57     48     48     28     14      3      (market 21.7)
+   Lamar rank    85     75     74     52     29      7      (market 38.3)
+   mean|ADP-rank| 54.3  52.5   52.4   48.4   47.7   49.5
+   QB+TE top10    0%     0%     0%     0%     0%    30%
+```
+
+**QB+TE stays at ZERO for every defensible QB baseline from 10 through 23.** The symptom
+only returns at 30, which is the contaminated figure. **The result does not depend on my
+judgement call**, and depth 19–23 straddles both quarterbacks' actual market prices.
+
+### THE STANDING VERDICT
+
+**The baselines are wrong, they are wrong asymmetrically, and correcting them to measured
+rostered depth removes QB and TE from the top ten entirely while placing K and DEF within a
+few picks of two independent markets.** The derivation is the defect: starters-only, in a
+league where six of fifteen roster spots are bench.
+
+**I am not proposing numbers to load.** The table above is what two markets measure, not a
+tuning. **And it does not contradict my first report** — the data still hands the engine a
+board the engine then amplifies. It sharpens it: the board it hands over is *itself*
+mis-baselined, and that share of the symptom is fixable at source.
+
+**Three of my own claims have now needed correction in this investigation** (K=8 rank, "~140
+is in the data", "sixty positions are structural"). Each was caught by measuring again
+rather than by reasoning harder, and each was wrong in the direction of overstating what I
+had established.
+
+---
+
+## ✅ THE LAST CORNER OF THE BASELINE DERIVATION — THE FLEX ALLOCATION IS CLEAN (C, 2026-08-13)
+
+One thing was still unchecked, and it mattered because the two defects could have compounded:
+**the FLEX split is decided by comparing next-man-up `proj_mean` across eligible positions,
+and `proj_mean` carries the `opportunity_adj` distortion** — up to +15% for RB/WR/TE, zero
+for QB/K/DEF. If a distorted number decided which position got the ten flex slots, the
+distortion would be feeding the baseline as well as the score.
+
+**Tested by re-running the real `replacement_levels` with the undistorted `proj_baseline`
+substituted for `proj_mean`:**
+
+```
+   allocation on proj_mean (as shipped)      RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+   allocation on proj_baseline (undistorted) RB 21  WR 29  TE 10    flex split  RB 1 / WR 9 / TE 0
+```
+
+**Identical.** The distortion is large enough to move VORP by 30+ points at the top but not
+large enough to change which position wins a flex slot at the margin, because at ranks 21-30
+the RB and WR curves are far apart relative to a 15% shift. **The two defects do not
+compound, and the flex mechanism itself is sound.**
+
+**This closes the baseline derivation.** Every component has now been checked against
+something: team count and slot count against the imported config, the flex mapping against
+all eight copies of it, the flex allocation against its own undistorted input, and the
+depths against two independent markets. **The only defect in the derivation is the one
+already reported — it counts starters and the league rosters benches.**
