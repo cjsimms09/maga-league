@@ -62,8 +62,17 @@ def _row(**kw):
     return base
 
 
+#: Market-priced, projected rows. Every fixture needs them, because the detector
+#: REFUSES to judge a board whose projections look broken — and a board of one
+#: unprojected player looks exactly like one whose projection fetch died.
+def _healthy(n=4):
+    return [{"player_id": "h%d" % i, "name": "Priced %d" % i, "position": "WR",
+             "years_exp": 3, "adp_source": "ffc", "adp": 10.0 + i,
+             "proj_mean": 100.0} for i in range(n)]
+
+
 def _synthetic(rows, relevant_board=225):
-    return {"players": rows,
+    return {"players": list(rows) + _healthy(),
             "provenance": {"adp": {"relevant_board": relevant_board}}}
 
 
@@ -85,19 +94,39 @@ def test_the_DETECTOR_FINDS_the_retired_players_by_name():
                           "measured against" % d["n"])
 
 
-def test_the_DETECTOR_REFUSES_positions_its_evidence_cannot_see():
-    """THE FALSE POSITIVE THAT ALREADY HAPPENED. The weekly points store scores no
-    kickers and no defenses, so "no scored week" is silence about them, not a
-    finding. Judging them anyway produced 47 accused KICKERS carrying 100-point
-    projections.
+def test_a_PROJECTION_IS_WHAT_SPARES_A_KICKER_not_his_position():
+    """THE FALSE POSITIVE THAT DROVE THE REDESIGN, from both ends.
 
-    MUTATION: drop the COVERED_POSITIONS filter — every K and DEF on the board is
-    accused, and the loudest of them are the ones the model ranks highest."""
-    rows = [_row(player_id="k1", name="A Kicker", position="K"),
-            _row(player_id="d1", name="A Defense", position="DEF"),
-            _row(player_id="w1", name="A Receiver", position="WR")]
+    The first version judged on recent activity and exempted K and DEF, because
+    the weekly store scores neither — which produced 47 accused KICKERS with
+    100-point projections when the exemption was missing, and then made
+    Gostkowski, Tucker and Dan Bailey permanently INVISIBLE once it was there.
+
+    Judging on who vouches for a player fixes both directions at once: a real
+    2026 kicker carries a projection and is spared; a retired one carries none
+    and is not. No position needs special handling, so no position has a blind
+    spot.
+
+    MUTATION: exempt K and DEF again — the retired kickers become unreachable."""
+    rows = [_row(player_id="k1", name="Real Kicker", position="K", proj_mean=104.0),
+            _row(player_id="k2", name="Retired Kicker", position="K"),
+            _row(player_id="d1", name="A Defense", position="DEF", proj_mean=90.0)]
     d = BA.dormant(_synthetic(rows))
-    assert [p["name"] for p in d["rows"]] == ["A Receiver"], d["rows"]
+    assert [p["name"] for p in d["rows"]] == ["Retired Kicker"], d["rows"]
+
+
+def test_a_2024_LEFTOVER_IS_CAUGHT_even_though_he_played_recently():
+    """Ezekiel Elliott and Adam Thielen both SCORED in 2024 and both carry a 2026
+    projection of zero. Recent activity cannot see them, which is exactly why it
+    stopped being the test.
+
+    MUTATION: require `not scored_recently` again — both walk back onto the
+    board, and so does every other player who is finished but played last year."""
+    rows = [_row(player_id="4034", name="Played In 2024")]   # a real scoring id
+    d = BA.dormant(_synthetic(rows))
+    assert [p["name"] for p in d["rows"]] == ["Played In 2024"], d["rows"]
+    assert d["rows"][0]["scored_recently"] is True, (
+        "the evidence must still be REPORTED even though it is not the test")
 
 
 @pytest.mark.parametrize("kw,why", [
@@ -132,6 +161,24 @@ def test_the_AUDIT_CATCHES_a_dormant_player_that_reaches_a_decision():
         assert got["offenders"][0]["reaches"] == [expect], got["offenders"]
 
 
+def test_a_BROKEN_PROJECTION_FETCH_REFUSES_rather_than_deleting_the_board():
+    """THE CATASTROPHIC FAILURE THIS RULE COULD CAUSE, guarded. "No projection"
+    means "nobody expects him in 2026" only while projections actually loaded. If
+    the fetch dies, EVERY row is unprojected and an unguarded rule would drop the
+    entire board instead of eight retirees.
+
+    The market-priced set is the population we know should be projected — 96.2%
+    of it is today and it goes to zero the moment projections break.
+
+    MUTATION: drop the health gate — this board loses every row."""
+    dead = [dict(p, proj_mean=0.0) for p in _healthy(6)]
+    d = BA.dormant({"players": dead + [_row(player_id="x")],
+                    "provenance": {"adp": {"relevant_board": 225}}})
+    assert d["status"] == "unmeasured", d
+    assert d["rows"] == [] and d["n"] == 0
+    assert "REFUSING" in d["note"], d["note"]
+
+
 def test_UNREADABLE_STORES_are_unmeasured_rather_than_clean():
     """The failure this whole lane keeps finding: a check that could not look
     reporting the same green as a check that looked and found nothing. `ok` must
@@ -140,8 +187,13 @@ def test_UNREADABLE_STORES_are_unmeasured_rather_than_clean():
     MUTATION: return `ok: True` when the stores are missing — and the guarantee
     silently stops existing the day the artifacts move."""
     got = BA.audit(_synthetic([_row(overall_rank=1)]), root="/nonexistent")
-    assert got["status"] == "unmeasured", got
-    assert got["ok"] is None, "could not look is not a pass"
+    assert got["status"] == "measured", (
+        "the weekly store is EVIDENCE now, not the test — losing it must not "
+        "stop the check, only blank the `scored_recently` column", got)
+    assert got["ok"] is False, "the planted row still reaches a decision surface"
+    rows = BA.dormant(_synthetic([_row()]), root="/nonexistent")["rows"]
+    assert rows and rows[0]["scored_recently"] is None, (
+        "unknown activity must read as None, never as False", rows)
 
 
 def test_NOTHING_DORMANT_PRICES_A_DECISION_ON_THE_SHIPPED_BOARD():
@@ -195,8 +247,13 @@ def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
          [p for p in gone if (num(p.get("proj_mean")) or 0) > 0]),
         ("a rookie",
          [p for p in gone if (num(p.get("years_exp")) or 0) == 0]),
-        ("a kicker or defense",
-         [p for p in gone if p.get("position") in ("K", "DEF")]),
+        # DEF ONLY. Dropping an unprojected KICKER is now correct and
+        # deliberate — Gostkowski, Tucker and Dan Bailey were the point. Every
+        # one of the 32 defenses carries a projection, so this clause is a
+        # structural guarantee rather than a hopeful assertion: if it ever fires,
+        # the projection join has broken for team units.
+        ("a defense",
+         [p for p in gone if p.get("position") == "DEF"]),
     ):
         assert not bad, "the prune would drop %d player(s) %s: %s" % (
             len(bad), label, [p.get("name") for p in bad[:6]])
