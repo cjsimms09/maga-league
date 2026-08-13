@@ -166,3 +166,66 @@ def test_an_UNRECOGNISED_projection_source_REFUSES_rather_than_assuming_current(
         assert "something_new" in str(e)
     else:
         raise AssertionError("an unknown projection source must refuse")
+
+
+def test_a_BLENDED_field_carries_EVERY_season_it_blends():
+    """FOUND BY VERIFYING RATHER THAN BY READING THE CODE. I classified the usage
+    fields `historical` and checked it against the artifact: the board carries 509
+    players with a target_share and my 2025-only computation produced 509 — the same
+    population — but only 5% of the VALUES matched, and the board's range was
+    narrower (0.0010-0.3160 vs 0.0014-0.3481). That is a blend compressing the
+    extremes, not a single season. `build.py:678` confirms it:
+    `opportunity_metrics(pbp, weekly, [2025, 2024], recency_weights [0.7, 0.3])`.
+
+    A single-year stamp cannot say that. `historical(2025)` hides the 2024
+    component; `historical(2024)` misstates the dominant one.
+
+    MUTATION: keep only the first year — a blend reaching back further than anyone
+    declared passes as though it were one season old."""
+    r = SS.stamp({"target_share": 0.21}, {"target_share": SS.historical(2025, 2024)})
+    assert r["target_share_season"] == [2025, 2024]
+    assert r["target_share_historical"] is True
+
+
+def test_a_BLEND_is_judged_on_its_OLDEST_component():
+    """If a 2024 value is unacceptable on a 2026 board, a blend CONTAINING 2024 is
+    too — the newest component cannot launder the oldest. MUTATION: judge on the
+    first/dominant year and a blend reaching back to 2019 reads as 2025."""
+    row = SS.stamp({"player_id": "1", "x": 1.0}, {"x": SS.historical(2025, 2024)})
+    assert SS.violations([row], 2026, fields=("x",)) == [], "declared, so allowed"
+    rep = SS.report([row], 2026, fields=("x",))
+    assert rep["by_kind"]["historical"] == 1
+    assert SS.oldest_season(row, "x") == 2024
+
+
+def test_a_DERIVED_field_INHERITS_the_reach_of_every_input():
+    """FOLLOWING MY OWN FLAG. I warned that other entries in the map might be blends
+    and then checked, and the biggest field on the board is one.
+
+    `projections.blend`: `mean_proj = base * (1 + adj)`, where `adj` is a function of
+    `composite_z(metrics, ...)` and `metrics` is the [2025, 2024] usage blend. So
+    proj_mean is a 2026 projection MODULATED BY prior-season usage — it reaches back
+    to 2024 on every path, including the one where the base is a clean 2026 fetch.
+
+    `derived` cannot say that. A derived field is exactly as current as its
+    furthest-back input, and the stamp has to carry the union.
+
+    MUTATION: keep only the first input's seasons — proj_mean reads as clean 2026 and
+    the gate passes the single most consequential field on the board."""
+    src = SS.derive(SS.seasonal(2026), SS.historical(2025, 2024))
+    row = SS.stamp({"player_id": "1", "proj_mean": 210.0}, {"proj_mean": src})
+    assert SS.oldest_season(row, "proj_mean") == 2024
+    assert row["proj_mean_historical"] is True, (
+        "it draws on prior seasons, so it must declare itself historical or the "
+        "gate treats a blended field as a proven one")
+    assert SS.violations([row], 2026, fields=("proj_mean",)) == [], "declared"
+
+
+def test_derive_of_only_CURRENT_inputs_stays_current():
+    """A derivation over live state is still live state — it must not acquire a
+    spurious year. MUTATION: collapse current to the target season and the record of
+    what was verified is destroyed one layer down."""
+    src = SS.derive(SS.CURRENT_STATE, SS.CURRENT_STATE)
+    row = SS.stamp({"player_id": "1", "x": 1.0}, {"x": src})
+    assert row["x_season"] == SS.CURRENT
+    assert SS.violations([row], 2026, fields=("x",)) == []
