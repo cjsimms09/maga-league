@@ -96,8 +96,20 @@ SCHED.forEach((pk, i) => {
 
 ck('it produced a view at every pick', seen.length === SCHED.length && seen.every(s => s.t && s.t.rows),
   seen.length);
-ck('and it covers the four skill positions while the board has them',
-  seen[0].t.rows.length === 4, seen[0].t.rows.map(r => r.position));
+ck('and it covers all six draftable positions, onesies included',
+  seen[0].t.rows.length === 6, seen[0].t.rows.map(r => r.position));
+
+// ── 0b. K AND DEF ARE GOVERNED BY THE ROSTER RULE, NOT BY DROP-OFF ───────
+// Measured: best-to-replacement is 10 pts at K (ranks 8-12 are IDENTICAL at 97)
+// and 18 at DEF, both inside the noise on one skill player (~79). So on this
+// board they must never out-rank a real position.
+const onesieRows = seen.flatMap(s => s.t.rows.filter(r => ['K', 'DEF'].indexOf(r.position) >= 0));
+ck('K and DEF never say TAKE NOW on this board', !onesieRows.some(r => r.verdict === 'TAKE NOW'),
+  onesieRows.filter(r => r.verdict === 'TAKE NOW').map(r => r.position));
+ck('and their verdicts quote the bar they failed to clear',
+  onesieRows.filter(r => r.verdict === 'WAIT').every(r => /bar/.test(r.why || '')));
+ck('CONTROL — their drops really are tiny, so the rule is not hiding a real signal',
+  onesieRows.every(r => r.Dstar <= 8), onesieRows.map(r => r.position + ':' + r.Dstar).slice(0, 6));
 
 // ── 1. A DROP YOU CANNOT COLLECT IS NEVER A REASON ───────────────────────
 let collectViolations = [], starViolations = [];
@@ -193,19 +205,45 @@ ck('a TAKE NOW that fights the seat plan is FLAGGED, not printed as agreement',
 ck('and the flag names the 59.6 rather than hand-waving at "the plan"',
   seen.every(s => s.t.rows.every(r => !r.plan_conflict || /59\.6/.test(r.plan_conflict))));
 
-// ── 7. FAIL ARM ──────────────────────────────────────────────────────────
+// ── 7. THE ROSTER GUARANTEE — the case the real plan never reaches ───────
+// The plan fills K and DEF at 108/113, so FORCED never fires in the simulation
+// above. That is the plan's choice, not evidence the rule works, and an
+// untriggered rule is an untested one.
 {
-  // A roster with every slot filled must produce no TAKE NOW anywhere.
-  const full = [];
+  const skill = [];
   ['QB', 'RB', 'RB', 'WR', 'WR', 'TE', 'RB'].forEach(p =>
-    full.push({ position: p, proj_mean: 200, player_id: 'x' + full.length }));
-  const board = pool.slice(0, 200);
-  CURRENT_PICK = 148;
-  const t = positionTiming({ board: board, roster: full, nextPick: 999, currentPick: 100,
-    league: DATA.league }, []);
-  ck('FAIL ARM — a fully-filled roster yields no TAKE NOW at all',
-    !t.rows.some(r => r.verdict === 'TAKE NOW') && t.anySeat === false,
+    skill.push({ position: p, proj_mean: 200, player_id: 'x' + skill.length }));
+  const board = pool.slice(0, 400);
+  CURRENT_PICK = 133;
+  // TWO picks left, K and DEF both unfilled: every remaining pick is spoken for.
+  const t = positionTiming({ board: board, roster: skill, nextPick: 148, currentPick: 133,
+    league: DATA.league, myPicksLeft: 2 }, []);
+  const k = t.rows.find(r => r.position === 'K'), d = t.rows.find(r => r.position === 'DEF');
+  ck('ROSTER GUARANTEE — with 2 picks left and K+DEF unfilled, both are FORCED',
+    k && d && k.verdict === 'FORCED' && d.verdict === 'FORCED',
     t.rows.map(r => r.position + ':' + r.verdict));
+  ck('and every other position is LOCKED OUT, not merely ranked lower',
+    t.rows.filter(r => ['K', 'DEF'].indexOf(r.position) < 0)
+      .every(r => r.verdict === 'LOCKED OUT'),
+    t.rows.map(r => r.position + ':' + r.verdict));
+  ck('the FORCED reason states the arithmetic rather than "it is late"',
+    /2 pick\(s\) left and 2 mandatory/.test(k.why || ''), k && k.why);
+
+  // AND IT MUST NOT FIRE EARLY. One more pick of slack and optimisation resumes.
+  const t3 = positionTiming({ board: board, roster: skill, nextPick: 148, currentPick: 128,
+    league: DATA.league, myPicksLeft: 3 }, []);
+  ck('CONTROL — with 3 picks left and 2 slots it does NOT force',
+    !t3.rows.some(r => r.verdict === 'FORCED' || r.verdict === 'LOCKED OUT'),
+    t3.rows.map(r => r.position + ':' + r.verdict));
+
+  // And with the onesies already filled it must never force at all.
+  const done = skill.concat([{ position: 'K', proj_mean: 100, player_id: 'k1' },
+    { position: 'DEF', proj_mean: 100, player_id: 'd1' }]);
+  const t4 = positionTiming({ board: board, roster: done, nextPick: 148, currentPick: 133,
+    league: DATA.league, myPicksLeft: 1 }, []);
+  ck('CONTROL — with the mandatory slots already filled, nothing is forced',
+    !t4.rows.some(r => r.verdict === 'FORCED' || r.verdict === 'LOCKED OUT'),
+    t4.rows.map(r => r.position + ':' + r.verdict));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (' + seen.length + ' picks simulated)');

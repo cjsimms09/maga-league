@@ -845,8 +845,8 @@
           : '') + '</div>';
 
     host.innerHTML =
-      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at pick '
-        + seat.pick + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
+      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
+        + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + '<ol class="sp-list">' + rows + '</ol>'
       + gapLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
@@ -3071,8 +3071,25 @@
    * real drop AND be a bad buy, if the room is paying above our board for it.
    * ADP rank against our own rank at the position is that signal.
    */
+  /* ROUND NOTATION. "pick 8" is ambiguous at a table — it reads as round 8 and
+   * it means OVERALL pick 8, which in a ten-team league is R1.8. Cory read it
+   * the other way and was right to object on the merits: a quarterback of
+   * Allen's calibre in round 8 would be absurd. The claim was R1.8, where his
+   * ADP of 19 means he is still on the board and taking him is an 11-pick
+   * reach. Same number, opposite conclusion, and the only fix is to stop
+   * printing a bare pick number. */
+  function roundLabel(overall) {
+    const teams = ((state.data || {}).league || {}).teams || 10;
+    if (!overall) return '';
+    const r = Math.ceil(overall / teams);
+    return 'R' + r + '.' + (overall - (r - 1) * teams);
+  }
+
   function positionTiming(ctx, scored) {
-    const POS = ['QB', 'RB', 'WR', 'TE'];
+    /* K AND DEF ARE IN THE COMPARISON NOW, because leaving them out is what
+     * makes a tool silently forget them until it is too late. They are governed
+     * by a different rule and the panel says which rule is in force. */
+    const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
     const board = (ctx && ctx.board) || [];
     const nextPick = ctx && ctx.nextPick;
     const roster = (ctx && ctx.roster) || [];
@@ -3112,12 +3129,70 @@
         my_rank: myRankAll >= 0 ? myRankAll + 1 : null });
     });
 
+    /* ── THE ROSTER GUARANTEE OVERRIDES EVERYTHING ────────────────────────
+     *
+     * Cory: "in the last 2 picks the roster guarantee should override
+     * everything, because we HAVE to have a K and DEF — at that point just take
+     * the best available."
+     *
+     * Stated as a rule rather than a countdown: if the number of picks I have
+     * LEFT equals the number of mandatory slots I have not FILLED, every
+     * remaining pick is spoken for and there is nothing to optimise. Written as
+     * "the last two rounds" it would silently break the moment the room forces a
+     * different shape on me — which is exactly the dynamism Cory asked for.
+     *
+     * MEASURED, THIS COSTS ALMOST NOTHING TO DEFER. Best kicker to replacement
+     * is 10 points across a SEASON (0.67/wk) and ranks 8-12 are identical at 97;
+     * best defence to replacement is 18 (1.2/wk). Against ~79 for one running
+     * back's projection sd and 42 for the whole-draft tiebreak frontier, the
+     * entire kicker decision is inside the noise. So the exception Cory allowed
+     * — take one early if it is truly worth it — has a bar, and on this board
+     * nothing clears it. */
+    const MANDATORY = ['K', 'DEF'];
+    const picksLeft = (ctx && ctx.myPicksLeft != null) ? ctx.myPicksLeft : null;
+    const unfilled = MANDATORY.filter(m => (held[m] || 0) < (starters[m] || 0));
+    const forced = picksLeft != null && unfilled.length > 0 && picksLeft <= unfilled.length;
+
     /* THE VERDICT. Ranked on D*, because the drop you cannot collect is not a
      * reason to spend a pick. A field of zeros is NOT a recommendation — that is
      * the tie that sank the third slot-aware attempt, where 1331 players shared
      * VONA 0 and quarterbacks won on array order. */
-    const live = out.filter(r => r.Dstar > 0).sort((a, b) => b.Dstar - a.Dstar);
+    const live = out.filter(r => r.Dstar > 0 && (!forced || MANDATORY.indexOf(r.position) >= 0))
+      .sort((a, b) => b.Dstar - a.Dstar);
+    /* The frontier is the bar the exception has to clear: 42 points is what the
+     * WHOLE draft's tie-breaking is worth, so a single onesie pick claiming more
+     * than a fraction of it needs to be extraordinary. Quoted from the measured
+     * quantity rather than picked, so the reason is auditable. */
+    const ONESIE_BAR = 20;
     out.forEach(r => {
+      const isOnesie = MANDATORY.indexOf(r.position) >= 0;
+      if (forced && isOnesie && unfilled.indexOf(r.position) >= 0) {
+        r.verdict = 'FORCED';
+        r.why = 'you have ' + picksLeft + ' pick(s) left and ' + unfilled.length
+          + ' mandatory slot(s) unfilled (' + unfilled.join(', ') + ') — every remaining '
+          + 'pick is spoken for. Take the best available ' + r.position + '; there is '
+          + 'nothing left to optimise.';
+        return;
+      }
+      if (forced && !isOnesie) {
+        r.verdict = 'LOCKED OUT';
+        r.why = 'the roster guarantee has claimed your last ' + picksLeft
+          + ' pick(s) for ' + unfilled.join(' and ') + ' — a ' + r.position
+          + ' here leaves you unable to field a legal lineup';
+        return;
+      }
+      if (isOnesie && !forced) {
+        /* The early-onesie exception, with its bar shown so the reasoning can be
+         * checked rather than trusted. */
+        r.verdict = r.Dstar >= ONESIE_BAR ? 'WORTH IT EARLY' : 'WAIT';
+        r.why = r.Dstar >= ONESIE_BAR
+          ? 'unusually large for a ' + r.position + ': ' + r.Dstar + ' pts, over the '
+            + ONESIE_BAR + '-pt bar — this is the rare one worth taking before the end'
+          : 'only ' + r.Dstar + ' pts, under the ' + ONESIE_BAR + '-pt bar. Best-to-'
+            + 'replacement across the whole position is 10 pts at K and 18 at DEF, '
+            + 'both inside the noise on a single skill player (~79). Take one at the end.';
+        return;
+      }
       if (!r.seat) {
         r.verdict = 'NO SEAT';
         r.why = 'every ' + r.position + ' slot you start is already filled, so his '
@@ -3248,8 +3323,10 @@
     if (!t.rows.length) { host.innerHTML = ''; return; }
     const cls = v => (v === 'TAKE NOW' ? 'tm-take' : v === 'WAIT' ? 'tm-wait'
       : v === 'NO SEAT' ? 'tm-noseat' : 'tm-behind');
-    host.innerHTML = '<div class="tm-head">WHAT THE MODEL IS THINKING — what WAITING costs'
-      + ' at each position, and whether you could collect it</div>'
+    const cur = (pickCoordinate() || {}).current;
+    host.innerHTML = '<div class="tm-head">WHAT THE MODEL IS THINKING at '
+      + escapeHtml(roundLabel(cur)) + (cur ? ' (overall ' + cur + ')' : '')
+      + ' — what WAITING costs at each position, and whether you could collect it</div>'
       + '<ul class="tm-list">' + t.rows.map(function (r) {
         return '<li class="tm-row ' + cls(r.verdict) + '">'
           + '<span class="tm-pos">' + escapeHtml(r.position) + '</span>'

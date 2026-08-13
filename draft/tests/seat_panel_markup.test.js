@@ -48,26 +48,33 @@ ck('and it was extracted whole', end > start && /host\.innerHTML/.test(fnSrc));
 // Stubs: only what the function touches.
 let captured = '';
 const host = { set innerHTML(v) { captured = v; }, get innerHTML() { return captured; } };
-const state = { seatPlan: PLAN };
+const state = { seatPlan: PLAN, data: { league: { teams: 10 } } };
 const $ = sel => (sel === '#seat-plan' ? host : null);
 const escapeHtml = s => String(s).replace(/[&<>"]/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/* renderSeatPlan now shares ONE seat lookup with the path cards' against-case,
- * so the stub set includes it. Extracted from the shipped source too — a
- * hand-written stub here would let the two drift, which is the very thing
- * sharing the lookup was meant to prevent. */
-const lookStart = SRC.indexOf('  function seatForCurrentPick() {');
-let lookSrc = '';
-if (lookStart > 0) {
-  let d2 = 0, e2 = -1;
-  for (let i = SRC.indexOf('{', lookStart); i < SRC.length; i++) {
-    if (SRC[i] === '{') d2++;
-    else if (SRC[i] === '}') { d2--; if (d2 === 0) { e2 = i + 1; break; } }
+/* renderSeatPlan leans on shared helpers — the seat lookup it shares with the
+ * path cards, and the round label that kills the "pick 8 vs round 8" ambiguity.
+ * ALL OF THEM ARE EXTRACTED FROM THE SHIPPED SOURCE rather than stubbed: a
+ * hand-written stub would let the test's copy drift from the real one, which is
+ * exactly what sharing the lookup was meant to prevent. Extracted BY LIST
+ * because this is the third helper to arrive and doing it one at a time is how
+ * the next one gets forgotten. */
+function extractFn(sig) {
+  const st = SRC.indexOf(sig);
+  if (st < 0) return '';
+  let d = 0;
+  for (let i = SRC.indexOf('{', st); i < SRC.length; i++) {
+    if (SRC[i] === '{') d++;
+    else if (SRC[i] === '}') { d--; if (d === 0) return SRC.slice(st, i + 1); }
   }
-  lookSrc = SRC.slice(lookStart, e2);
+  return '';
 }
-ck('the shared seat lookup was extracted too', lookSrc.length > 40);
+const HELPERS = ['  function seatForCurrentPick() {', '  function roundLabel(overall) {'];
+const helperSrc = HELPERS.map(extractFn);
+ck('every shared helper renderSeatPlan needs was extracted',
+  helperSrc.every(x => x.length > 30), HELPERS.filter((h, i) => helperSrc[i].length <= 30));
+const lookSrc = helperSrc.join('\n');
 
 function runAtPick(pick) {
   captured = '';
@@ -93,8 +100,14 @@ ck('it lists the eligible shortlist', (seat0.shortlist || []).every(p => html0.i
 const later = PLAN.seats[PLAN.seats.length - 1];
 const htmlL = runAtPick(later.pick);
 ck('a DIFFERENT pick renders a DIFFERENT seat (the panel follows the clock)',
-  htmlL !== html0 && htmlL.indexOf('pick ' + later.pick) >= 0,
+  htmlL !== html0 && htmlL.indexOf('overall ' + later.pick) >= 0,
   'first=' + seat0.pick + ' last=' + later.pick);
+/* THE AMBIGUITY THAT PROMPTED THE LABEL: "pick 8" reads as round 8 and means
+ * R1.8. Cory read it the other way and objected on the merits — a quarterback
+ * of Allen's calibre in round 8 would be absurd — when the claim was R1.8, where
+ * his ADP of 19 leaves him on the board and taking him is an 11-pick reach. */
+ck('the seat is labelled by ROUND, not by a bare pick number',
+  /R\d+\.\d+/.test(html0), html0.slice(0, 90));
 
 // ── 2. EVERY NUMBER CARRIES THE CAPTION THE CONTRACT DECLARES ────────────
 const C = PLAN.display_contract || {};
