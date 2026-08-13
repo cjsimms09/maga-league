@@ -97,7 +97,13 @@ jobs:
             echo "== $t =="
             if ! node draft/tests/$t.test.js; then failed="$failed $t"; fi
           done
-          if [ -n "$failed" ]; then echo "FAILED SUITES:$failed"; exit 1; fi
+          if [ -n "$failed" ]; then
+            echo "FAILED SUITES:$failed"
+            # ALSO to the step output, so the LAST step can restate it at job end.
+            # See "Restate the JS failure" below for why the echo above is not enough.
+            echo "failed=$failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
           echo "all JS suites passed"
       # ── 28 PER-SUITE STEPS DELETED HERE (2026-08-10) ──────────────────────────
       # Each was `node draft/tests/<x>.test.js` for a file the GLOB above already
@@ -225,3 +231,26 @@ jobs:
             fi
           done
           [ "$bad" = "0" ] || { echo "a critical suite was skipped rather than run — failing loudly"; exit 1; }
+
+      - name: Restate the JS failure where the log tail can actually see it
+        # WHY THIS EXISTS, AND IT IS NOT COSMETIC. CI has been red on the JS step for
+        # 120+ consecutive runs and NOBODY HAS EVER READ WHY. Every route out of a
+        # sandbox returns the last 5,000 characters of the JOB: the REST job-logs
+        # endpoint truncates to exactly that, the full-log ZIP 302s to
+        # productionresultssa*.blob.core.windows.net which agent proxies 403 on
+        # CONNECT, and run artifacts are total_count 0. The JS loop finishes ~2
+        # minutes before the job does, so `FAILED SUITES:` is always ABOVE the
+        # window. The check-run annotation carries only "Process completed with exit
+        # code 1" and an empty raw_details.
+        #
+        # So the failure is restated HERE, as the final step, inside the tail that is
+        # readable — plus a bounded replay of each failing suite's own output.
+        # Diagnostic only: it changes no pass/fail semantics, and `if: failure()`
+        # means it costs nothing on a green run.
+        if: failure() && steps.js.outputs.failed != ''
+        run: |
+          echo "FAILED SUITES (restated at job end):${{ steps.js.outputs.failed }}"
+          for t in ${{ steps.js.outputs.failed }}; do
+            echo "───────── $t ─────────"
+            node draft/tests/$t.test.js 2>&1 | tail -40 || true
+          done
