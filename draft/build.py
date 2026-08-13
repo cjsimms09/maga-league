@@ -1145,7 +1145,23 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             "keeper_rules": cfg["keepers"],
         },
         "pick_order": {
-            "picks": [{"overall": p["overall"], "round": p["round"], "slot": p["team_slot"]} for p in order.picks],
+            # THE BOARD AS SLEEPER WILL NUMBER IT — every round x slot, with
+            # keeper-occupied picks FLAGGED, not removed. This used to emit the
+            # renumbered survivor list: 147 rows, round 4 starting at 28, Cory's
+            # first pick at 30. Sleeper's own log for this league says 150 rows
+            # and round 4 at 31 in all three completed seasons, keepers or not.
+            "numbering": "sleeper_uncompressed",
+            "numbering_note": (
+                "A keeper occupies his pick slot; the pick is not removed and "
+                "nothing after it shifts up. Verified against seasons "
+                "2023/2024/2025 in league_history: 150 picks and round 4 at "
+                "overall 31 every year, with 0, 23 and 20 keepers respectively. "
+                "`picks` is the BOARD (depth: how many players leave the pool). "
+                "`live_picks` is how many SELECTIONS happen. They differ by the "
+                "keeper count and conflating them is a real defect this carries "
+                "both to prevent."),
+            "picks": order.board,
+            "live_picks": len(order.picks),
             "my_picks": order.my_picks,
             "my_picks_before_keepers": order.my_original_picks,
             "forfeited": order.forfeited,

@@ -84,6 +84,7 @@ ck('FAIL ARM — the keeper counts genuinely DIFFER across those seasons, so the
 
 // ── 2. THE DERIVED SCHEDULE MATCHES THE ARITHMETIC CORY DID BY HAND ──────
 const teams = +L.teams, mySlot = +L.my_draft_slot;
+const forfeitedCount = () => (po.forfeited || []).length;
 const forfeited = po.forfeited || [];
 const firstLiveRound = forfeited.length + 1;
 // Round r, slot s: odd rounds run 1..teams, even rounds run teams..1.
@@ -102,21 +103,42 @@ ck('and every pick I own is my slot in a round I did not forfeit',
   && PLAN.SCHED.every((v, i) => v === overallOf(firstLiveRound + i, mySlot)),
   PLAN.SCHED);
 
-// ── 3. AND IT IS NOT THE COMPRESSED LIST THE ARTIFACT STILL CARRIES ──────
-// The specific wrong answer, named. `pick_order.my_picks` is produced by
-// `keepers.build_true_pick_order`, which deletes forfeited picks and renumbers
-// the survivors 1..N. That is not what Sleeper does and the check above is what
-// proves it. Named here so the fix cannot silently regress to reading it.
-const compressed = (po.my_picks || []).slice().sort((a, b) => a - b);
-ck('CONTROL — the artifact really does still carry a different list',
-  compressed.length > 0 && compressed[0] !== PLAN.SCHED[0],
-  { artifact: compressed[0], truth: PLAN.SCHED[0] });
-ck('draft_plan does NOT use pick_order.my_picks',
-  !(PLAN.SCHED.length === compressed.length
-    && PLAN.SCHED.every((v, i) => v === compressed[i])), PLAN.SCHED);
-ck('the shortfall against the compressed list is exactly the forfeited count, '
-  + 'which is what made it look right', PLAN.SCHED[0] - compressed[0] === forfeited.length,
-  { truth: PLAN.SCHED[0], artifact: compressed[0], forfeited: forfeited.length });
+// ── 3. AND THE ARTIFACT NOW AGREES, HAVING BEEN FIXED AT SOURCE ─────────
+// `keepers.build_true_pick_order` deleted forfeited picks and renumbered the
+// survivors 1..N; `pick_order.my_picks` was [30, 45, 50, ...] and this file
+// asserted the artifact was KNOWN-DIVERGENT. Both implementations (Python and
+// the JS twin in public/js/draft/keepers.js) now leave the numbering alone, so
+// the derivation and the artifact must MATCH — and if they ever part again, the
+// derivation is the one to trust and this goes red.
+const artifactPicks = (po.my_picks || []).slice().sort((a, b) => a - b);
+ck('pick_order.my_picks matches the snake derivation exactly',
+  artifactPicks.length === PLAN.SCHED.length
+  && artifactPicks.every((v, i) => v === PLAN.SCHED[i]),
+  { artifact: artifactPicks, derived: PLAN.SCHED });
+ck('the artifact declares which numbering it uses, rather than leaving it to be '
+  + 'inferred', po.numbering === 'sleeper_uncompressed', po.numbering);
+ck('and it carries the BOARD and the LIVE-SELECTION count as two named fields, '
+  + 'because conflating them is what made ROSTERED 147',
+  (po.picks || []).length === (+L.rounds) * (+L.teams)
+  && po.live_picks === (po.picks || []).length - forfeitedCount(),
+  { board: (po.picks || []).length, live: po.live_picks });
+ck('every keeper-occupied slot on the board is FLAGGED, not deleted',
+  (po.picks || []).filter(p => p.keeper_slot).length === forfeitedCount(),
+  (po.picks || []).filter(p => p.keeper_slot).map(p => p.overall));
+ck('and none of my own picks sits on a keeper slot',
+  (po.picks || []).filter(p => p.keeper_slot)
+    .every(p => PLAN.SCHED.indexOf(p.overall) < 0));
+/* FAIL ARM — the specific wrong answer, still named. A future edit that
+ * reintroduces renumbering produces exactly this and must be caught. */
+{
+  const compressed = PLAN.SCHED.map(v => v - forfeitedCount());
+  ck('FAIL ARM — the compressed list would be REJECTED by the check above',
+    !(compressed.length === PLAN.SCHED.length
+      && compressed.every((v, i) => v === PLAN.SCHED[i])),
+    compressed);
+  ck('and it is exactly the old shipped value, so the arm targets the real bug',
+    compressed[0] === 30, compressed[0]);
+}
 
 // ── 3b. THE PRE-KEEPER LIST WAS RIGHT ALL ALONG ──────────────────────────
 // `my_picks_before_keepers` is the uncompressed snake. My picks are that list
@@ -159,14 +181,17 @@ ck('every row of the plan sits on a pick I actually own',
       .sort((a, b) => b.proj_mean - a.proj_mean)[0];
     return best ? Math.round(best.proj_mean * 10) / 10 : 0;
   };
-  const depth = drafts[0].n;
-  ck('the waiver level is taken at the depth Sleeper actually drafts',
+  const depth = drafts[0].n;                       // 150, from Sleeper's own log
+  const live = po.live_picks;                      // 147 — SELECTIONS, not depth
+  ck('the waiver level is taken at the BOARD depth Sleeper actually drafts',
     Math.abs(PLAN.WAIVER.QB - at(depth)) < 0.6,
-    { plan: PLAN.WAIVER.QB, at_log: at(depth), at_artifact_rows: at((po.picks || []).length) });
-  ck('FAIL ARM — the artifact\'s row count gives a genuinely different answer, '
-    + 'which is the 34.5 points I got wrong',
-    Math.abs(at(depth) - at((po.picks || []).length)) > 1,
-    { log: at(depth), artifact: at((po.picks || []).length) });
+    { plan: PLAN.WAIVER.QB, at_board: at(depth), at_live: at(live) });
+  ck('CONTROL — the two counts genuinely differ, by exactly the keeper slots',
+    depth - live === forfeitedCount() && depth !== live,
+    { board: depth, live: live, keepers: forfeitedCount() });
+  ck('FAIL ARM — taking it at the LIVE-SELECTION count gives a different answer, '
+    + 'which is the 34.5 points I got wrong this morning',
+    Math.abs(at(depth) - at(live)) > 1, { board: at(depth), live: at(live) });
 }
 
 // ── 5. THE SHIPPED SEAT PLAN AGREES ──────────────────────────────────────

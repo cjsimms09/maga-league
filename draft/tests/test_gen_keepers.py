@@ -141,7 +141,11 @@ def test_the_generated_slate_drives_the_expected_pick_numbers():
     """End to end: designations -> keepers.json shape -> pick order -> my first pick.
 
     This is the link the old code broke silently. It is asserted against the same
-    identity Cory checks by eye: first_pick + total_keepers == 37 at slot 4.
+    identity Cory checks by eye — and the identity itself was wrong until
+    2026-08-13: at slot 4 keeping three, `first_pick == 37`, FULL STOP. It used
+    to read `first_pick + total_keepers == 37`, which is the compressed model.
+    Sleeper leaves a forfeited pick in place, occupied, so nothing another team
+    keeps can move my seat.
     """
     import keepers as KP
     rosters = ([_roster(MINE, ["1", "2", "3"])]
@@ -156,6 +160,11 @@ def test_the_generated_slate_drives_the_expected_pick_numbers():
            "keepers": {"cost_model": "top_picks_flat", "count": 3}}
     by_team = {t["draft_slot"]: t["keepers"] for t in out["teams"]}
     order = KP.build_true_pick_order(cfg, by_team)
+    # LIVE selections drop with the keeper count; the BOARD does not.
     assert len(order.picks) == 150 - total == 133
-    assert order.my_picks[0] == 37 - total == 20, (
+    assert len(order.board) == 150
+    assert order.my_picks[0] == 37, (
         "the generated slate does not produce the pick numbers the arithmetic predicts")
+    # CONTROL — a slate this large genuinely would have moved the old number, so
+    # the assertion above is not passing because `total` happens to be small.
+    assert total >= 10

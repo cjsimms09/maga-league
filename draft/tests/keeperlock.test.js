@@ -176,8 +176,20 @@ const slateOf = (...entries) => {
 
 // --- and the thing this is all for: the recompute is real -------------------
 {
-  // Work order, Part 5 new tests: removing ONE keeper from ONE team must shift
-  // every downstream pick number, not just that team's.
+  /* REMOVING ANOTHER TEAM'S KEEPER MUST NOT MOVE MY PICKS.
+   *
+   * This block used to say the opposite — "removing ONE keeper from ONE team
+   * must shift every downstream pick number, not just that team's" — and
+   * `buildTruePickOrder` renumbered survivors 1..N to make it true. Sleeper's
+   * own log for this league says otherwise: 150 picks and round 4 at overall 31
+   * in 2023 (0 keepers), 2024 (23) and 2025 (20) alike. A forfeited pick is
+   * OCCUPIED, not deleted.
+   *
+   * The consequence line has to follow the same truth, and this is where it
+   * matters most: `keeperlock` exists so a slate edit STATES what it did. Under
+   * the old model it told Cory his picks had moved when another owner declared a
+   * keeper. They had not, and acting on that is a real cost — it is the number
+   * he plans the whole draft around. */
   const cfg = { teams: 10, rounds: 5, draft_type: 'snake', my_draft_slot: 4,
                 adp_blend_weight: 0.7,
                 keepers: { count: 3, cost_model: 'original_round', undrafted_round: 10 } };
@@ -194,9 +206,11 @@ const slateOf = (...entries) => {
   check('removing one keeper gives everyone one more pick',
     b.order.picks.length === a.order.picks.length + 1,
     a.order.picks.length + ' -> ' + b.order.picks.length);
-  check('and it moves MY pick numbers even though the keeper was another team\'s',
-    a.order.my_picks.join(',') !== b.order.my_picks.join(','),
+  check('but it does NOT move MY pick numbers — the keeper was another team\'s',
+    a.order.my_picks.join(',') === b.order.my_picks.join(','),
     a.order.my_picks + ' vs ' + b.order.my_picks);
+  check('CONTROL — the removed keeper really did belong to another team',
+    Number(cfg.my_draft_slot) !== 7, cfg.my_draft_slot);
   check('the removed keeper is back in the pool',
     a.kept_ids.indexOf('20') >= 0 && b.kept_ids.indexOf('20') < 0);
 
@@ -214,8 +228,25 @@ const slateOf = (...entries) => {
   const c = K.consequence(
     { myPicks: a.order.my_picks, poolSize: players.length - a.kept_ids.length },
     { myPicks: b.order.my_picks, poolSize: players.length - b.kept_ids.length });
-  check('the recompute produces a readable consequence, not just new numbers',
-    c.length >= 1 && /picks change/i.test(c[0]), JSON.stringify(c));
+  check('the consequence names the POOL change and does not claim my picks moved',
+    c.length >= 1 && /draft pool/i.test(c.join(' ')) && !/picks change/i.test(c.join(' ')),
+    JSON.stringify(c));
+
+  /* THE CONTROL THAT KEEPS THE CHECK ABOVE HONEST. "Does not say picks changed"
+   * would also pass if `consequence` could never say it. Dropping one of MY OWN
+   * keepers gives me back an earlier round, and it must say so. */
+  const mineFull = { '4': [kp(1, 1, 4), kp(2, 2, 4)], '7': [kp(20, 2, 7)] };
+  const mineFewer = { '4': [kp(1, 1, 4)], '7': [kp(20, 2, 7)] };
+  const m1 = DK.reapply(players, cfg, mineFull);
+  const m2 = DK.reapply(players, cfg, mineFewer);
+  check('CONTROL — dropping one of MY keepers DOES move my picks',
+    m1.order.my_picks.join(',') !== m2.order.my_picks.join(','),
+    m1.order.my_picks + ' vs ' + m2.order.my_picks);
+  const cMine = K.consequence(
+    { myPicks: m1.order.my_picks, poolSize: players.length - m1.kept_ids.length },
+    { myPicks: m2.order.my_picks, poolSize: players.length - m2.kept_ids.length });
+  check('and the consequence says so in words', /picks change/i.test(cMine.join(' ')),
+    JSON.stringify(cMine));
 }
 
 

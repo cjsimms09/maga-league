@@ -52,18 +52,39 @@ function rebuild(slot) {
 const filterOnly = slot =>
   (DATA.pick_order.picks || []).filter(p => Number(p.slot) === slot).map(p => p.overall);
 
-// ── The premise: the shipped board really is seat-specific ──────────────────
-ck('the shipped board is baked for one seat (fewer picks than teams x rounds)',
-  (DATA.pick_order.picks || []).length === TEAMS * ROUNDS - KCOUNT,
-  `${(DATA.pick_order.picks || []).length} picks vs ${TEAMS}x${ROUNDS}-${KCOUNT}`);
-
-ck('exactly one seat carries the keeper forfeits on the shipped board',
-  (() => {
+// ── The premise, RESTATED after the numbering fix ───────────────────────────
+// The board used to be baked SHORT: 147 rows, with seat 8's three forfeited
+// picks deleted and everything renumbered. It is now the full 150 with
+// keeper-occupied slots FLAGGED — because that is what Sleeper does, verified
+// against three completed drafts of this league.
+//
+// THE HAZARD IS UNCHANGED AND IS ARGUABLY WORSE. A filter over `pick_order.picks`
+// still returns something plausible at every seat; it now returns FIFTEEN picks
+// at my own seat, three of which are keepers I do not get to make. And the
+// keeper flags on this board are MINE ALONE — the rest of the league's slate is
+// withheld until it is confirmed — so filtering looks correct at the other nine
+// seats today and will be wrong at all ten the moment the slate lands on 20
+// August. `setSlot` must REBUILD.
+const boardRows = (DATA.pick_order.picks || []);
+ck('the shipped board is the FULL board — teams x rounds, nothing deleted',
+  boardRows.length === TEAMS * ROUNDS,
+  `${boardRows.length} rows vs ${TEAMS}x${ROUNDS}`);
+ck('it declares its numbering rather than leaving it to be inferred',
+  (DATA.pick_order || {}).numbering === 'sleeper_uncompressed',
+  String((DATA.pick_order || {}).numbering));
+ck('keeper-occupied slots are FLAGGED, and there are exactly as many as forfeits',
+  boardRows.filter(p => p.keeper_slot).length === KCOUNT,
+  `${boardRows.filter(p => p.keeper_slot).length} flagged vs ${KCOUNT} forfeits`);
+ck('and they all sit at ONE seat — the slate is mine only, not the league\'s',
+  new Set(boardRows.filter(p => p.keeper_slot).map(p => Number(p.slot))).size === 1,
+  JSON.stringify([...new Set(boardRows.filter(p => p.keeper_slot).map(p => p.slot))]));
+ck('every seat now has the same number of ROWS, which is why a naive filter '
+  + 'looks right', (() => {
     const c = {};
-    (DATA.pick_order.picks || []).forEach(p => { c[p.slot] = (c[p.slot] || 0) + 1; });
-    const short = Object.keys(c).filter(s => c[s] < ROUNDS);
-    return short.length === 1 && c[short[0]] === ROUNDS - KCOUNT;
-  })(), 'only the baked seat should be short');
+    boardRows.forEach(p => { c[p.slot] = (c[p.slot] || 0) + 1; });
+    return Object.keys(c).length === TEAMS
+      && Object.keys(c).every(k => c[k] === ROUNDS);
+  })());
 
 // ── The truth, for EVERY seat ───────────────────────────────────────────────
 for (let slot = 1; slot <= TEAMS; slot++) {
@@ -79,22 +100,37 @@ for (let slot = 1; slot <= TEAMS; slot++) {
 
 // ── The regression itself: filter vs rebuild ────────────────────────────────
 {
-  const baked = (() => {
-    const c = {};
-    (DATA.pick_order.picks || []).forEach(p => { c[p.slot] = (c[p.slot] || 0) + 1; });
-    return Number(Object.keys(c).find(s => c[s] < ROUNDS));
-  })();
-  ck('the baked seat is the ONLY one where filtering happens to be right',
-    JSON.stringify(filterOnly(baked)) === JSON.stringify(rebuild(baked).my_picks),
-    `seat ${baked}`);
-
-  let wrong = 0;
+  const baked = Number((boardRows.find(p => p.keeper_slot) || {}).slot);
+  ck('CONTROL — the board names which seat carries the forfeits',
+    Number.isFinite(baked) && baked > 0, String(baked));
+  ck('a naive filter is WRONG at MY seat — it hands back the three keeper slots '
+    + 'as if they were picks I get to make',
+    JSON.stringify(filterOnly(baked)) !== JSON.stringify(rebuild(baked).my_picks),
+    `filter ${filterOnly(baked).length} picks vs rebuild ${rebuild(baked).my_picks.length}`);
+  ck('and the difference is exactly the keeper slots',
+    filterOnly(baked).length - rebuild(baked).my_picks.length === KCOUNT);
+  /* AND THE TRAP FOR 20 AUGUST, PINNED WHILE IT IS STILL HARMLESS. At the other
+   * nine seats the filter agrees with a rebuild TODAY — not because filtering is
+   * sound, but because this board carries only my keepers. Once the confirmed
+   * slate lands, every seat carries flags and the filter is wrong everywhere.
+   * A check that only fires after the slate arrives is a check that fires too
+   * late, so the mechanism is asserted now: a rebuild AT ANOTHER SEAT WITH THAT
+   * SEAT'S KEEPERS disagrees with the filter already. */
+  let agreesToday = 0, wrongUnderAFullSlate = 0;
   for (let slot = 1; slot <= TEAMS; slot++) {
     if (slot === baked) continue;
-    if (JSON.stringify(filterOnly(slot)) !== JSON.stringify(rebuild(slot).my_picks)) wrong++;
+    if (JSON.stringify(filterOnly(slot)) === JSON.stringify(rebuild(slot).my_picks.concat(
+      rebuild(slot).board.filter(p => p.keeper_slot && Number(p.slot) === slot)
+        .map(p => p.overall)).sort((a, b) => a - b))) agreesToday++;
+    if (JSON.stringify(filterOnly(slot)) !== JSON.stringify(rebuild(slot).my_picks)) {
+      wrongUnderAFullSlate++;
+    }
   }
-  ck('filtering is WRONG at every other seat (this is the bug, pinned)',
-    wrong === TEAMS - 1, `${wrong} of ${TEAMS - 1} seats disagree`);
+  ck('the filter matches the raw seat rows today, which is why nothing looks broken',
+    agreesToday === TEAMS - 1, `${agreesToday} of ${TEAMS - 1}`);
+  ck('but it disagrees with a REBUILD at every one of those seats once that seat '
+    + 'has keepers — the bug, pinned before 20 August makes it live',
+    wrongUnderAFullSlate === TEAMS - 1, `${wrongUnderAFullSlate} of ${TEAMS - 1}`);
 }
 
 // ── The source guard: setSlot must rebuild, not filter ──────────────────────

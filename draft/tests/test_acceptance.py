@@ -140,14 +140,30 @@ def test_full_keeper_slate_shifts_my_picks_and_removes_kept_players():
     assert all(p["round"] >= 4 for p in order.picks)
     assert len(order.picks) == len(K.draft_order(cfg["teams"], cfg["rounds"], "snake")) - 36
 
-    # My pick numbers shift. Rounds 1-3 are gone, so the draft opens on round 4,
-    # which snakes backward (12->1), putting slot 4 ninth. Before keepers I was
-    # picking 4th overall; now my first selection is overall 9 of the real draft
-    # — the exact shift the tool exists to compute.
+    # MY PICK NUMBERS DO NOT SHIFT, AND THIS BLOCK USED TO SAY THEY DID.
+    #
+    # It asserted `my_picks[0] == 9` — round 4 opens the real draft, snakes
+    # backward 12->1, slot 4 is ninth — and called that "the exact shift the tool
+    # exists to compute". The shift is not real. Sleeper leaves a forfeited pick
+    # in place, occupied by the keeper, and nothing after it moves up: this
+    # league's own log shows 150 picks and round 4 beginning at overall 31 in
+    # 2023 (0 keepers), 2024 (23) and 2025 (20) alike.
+    #
+    # So my first live pick is round 4 at my slot on the ORIGINAL board: round 4
+    # is EVEN, the snake reverses, slot 4 is the (teams+1-4)-th pick of the
+    # round. With 12 teams that is 3*12 + 9 = 45.
+    teams = cfg["teams"]
     assert order.my_original_picks[0] == 4
-    assert order.my_picks[0] == 9
-    assert order.picks[order.my_picks[0] - 1]["round"] == 4
-    assert order.picks[order.my_picks[0] - 1]["team_slot"] == cfg["my_draft_slot"]
+    assert order.my_picks[0] == 3 * teams + (teams + 1 - cfg["my_draft_slot"]) == 45
+    # The BOARD keeps every slot; only the LIVE list is shorter.
+    assert len(order.board) == len(K.draft_order(cfg["teams"], cfg["rounds"], "snake"))
+    board_row = next(p for p in order.board if p["overall"] == order.my_picks[0])
+    assert board_row["round"] == 4
+    assert board_row["slot"] == cfg["my_draft_slot"]
+    assert board_row["keeper_slot"] is False
+    # CONTROL — 36 keepers is a large enough slate that the old renumbering
+    # really would have moved this, so the equality above is not trivially true.
+    assert order.my_picks[0] - 36 == 9
     # One pick per surviving round, and the gap between them snakes.
     assert len(order.my_picks) == cfg["rounds"] - 3
 
