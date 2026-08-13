@@ -136,3 +136,78 @@ def test_THE_DRAFTED_SEASON_IS_REFUSED():
         assert "before" in str(e).lower() or "prior" in str(e).lower()
     else:
         raise AssertionError("the drafted season must be refused")
+
+
+# ── A HISTORY IS NOT A FORECAST ─────────────────────────────────────────────
+#
+# MEASURED ON REAL 2023-24 DATA, 112 draftable players (adp <= 150) matched:
+# median |player - position constant| is 1.00 games, 43% differ by more than one
+# and 18% by more than three. The variation A asked about is real.
+#
+# AND THE RAW MEAN IS NOT A DROP-IN REPLACEMENT, which is the part that would
+# have hurt. `expected_games` averages the seasons observed and nothing else, so
+# Jonathon Brooks — one rookie season, three games, torn ACL — comes out at 3.00
+# against an RB prior of 14.2, and McCaffrey's [16, 4] averages to 10.0. Those
+# are HISTORIES. Using them as 2026 expectations systematically under-prices
+# exactly the players coming off an injury year, which is the population where
+# injury is least persistent and the market has already applied its own discount.
+#
+# Only two seasons are available at all (import_weekly_data 404s for 2025), so
+# these are two-point means. The thinner the evidence the harder it must be
+# pulled toward the prior, and that is what shrinkage is.
+
+def test_shrinkage_pulls_a_THIN_history_toward_the_position_prior():
+    """One season of 4 games against a 14.2 prior, k=1: (1*4 + 1*14.2)/2 = 9.1.
+    MUTATION: return the raw mean — a rookie's torn-ACL season becomes his 2026
+    expectation, and the board under-prices every post-injury player at once."""
+    out = {"s1": {"games": {2024: 4}, "position": "RB",
+                  "byes": {2024: []}, "missed": {2024: []}, "spells": {2024: []}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert abs(eg["s1"]["expected_games"] - 9.1) < 1e-6, eg
+    assert eg["s1"]["status"] == "shrunk"
+
+
+def test_MORE_SEASONS_shrink_LESS():
+    """The whole point of weighting by evidence. Four seasons averaging 4 games is a
+    player who is genuinely unavailable; one season of 4 is a player we barely saw.
+    MUTATION: shrink by a constant — a four-season history is discounted as hard as
+    a one-season one and the term stops carrying information."""
+    mk = lambda gs: {"games": gs, "position": "RB", "byes": {}, "missed": {}, "spells": {}}
+    thin  = D.expected_games({"s": mk({2024: 4})}, {"RB": 14.2}, shrink_k=1.0)
+    thick = D.expected_games({"s": mk({2021: 4, 2022: 4, 2023: 4, 2024: 4})},
+                             {"RB": 14.2}, shrink_k=1.0)
+    assert thick["s"]["expected_games"] < thin["s"]["expected_games"]
+    assert abs(thick["s"]["expected_games"] - (4 * 4 + 14.2) / 5) < 1e-6
+
+
+def test_the_RAW_MEAN_SURVIVES_beside_the_shrunk_one():
+    """A consumer must be able to tell a measurement from a blend — that distinction
+    is the reason this module reports statuses at all. MUTATION: overwrite the raw
+    value; the blend then looks exactly like an observation."""
+    out = {"s": {"games": {2024: 4}, "position": "RB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert eg["s"]["observed_games"] == 4.0
+    assert eg["s"]["seasons_observed"] == 1
+    assert eg["s"]["prior"] == 14.2
+
+
+def test_NO_PRIOR_for_the_position_means_NO_SHRINKAGE_and_it_says_so():
+    """Rule 13f. MUTATION: fall through to the raw mean silently — the caller
+    believes every value was shrunk and one quietly was not."""
+    out = {"s": {"games": {2024: 4}, "position": "FB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2}, shrink_k=1.0)
+    assert eg["s"]["status"] == "measured_unshrunk"
+    assert eg["s"]["expected_games"] == 4.0
+    assert "no prior" in eg["s"]["basis"].lower()
+
+
+def test_WITHOUT_shrink_k_the_behaviour_is_UNCHANGED():
+    """Additive, like every other option I have added this session: the existing
+    raw-mean contract is preserved so nothing downstream moves without asking.
+    MUTATION: shrink by default — a caller's numbers change under them."""
+    out = {"s": {"games": {2024: 4}, "position": "RB",
+                 "byes": {}, "missed": {}, "spells": {}}}
+    eg = D.expected_games(out, position_prior={"RB": 14.2})
+    assert eg["s"]["expected_games"] == 4.0 and eg["s"]["status"] == "measured"
