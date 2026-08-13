@@ -1375,8 +1375,26 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     # An id the decode key cannot resolve is REPORTED and written, because
     # discarding a whole board to protect a lookup is the alarm destroying what it
     # watches — the lesson this file already carries at the board-pin step.
-    ig = integrity({"series": series, "players": merge_players(
-        load_players(path), players or {})})
+    # ⚠ AND THE CHECKER MUST NOT BE ABLE TO KILL THE DAY EITHER. The refusal below
+    # is deliberate for CORRUPTION — but this guard also stands between a good
+    # board and the disk, so a BUG IN THE CHECKER would silently cost a day no
+    # provider will serve again. That is the board-pin lesson for the third time in
+    # this file, and I introduced this instance myself while fixing the second.
+    #
+    # WHICH ERROR IS WORSE is not close. A possibly-corrupt day is RECOVERABLE: the
+    # standing CI test runs `integrity` against the committed archive and would
+    # catch it, and the file can be corrected. A lost day is PERMANENT. So a
+    # checker that cannot RUN reports loudly and does not block; a checker that
+    # runs and finds corruption still refuses.
+    try:
+        ig = integrity({"series": series, "players": merge_players(
+            load_players(path), players or {})})
+    except Exception as e:                          # noqa: BLE001
+        ig = {"ok": True, "fatal": [], "reported": [], "status": "check_failed"}
+        print("INTEGRITY CHECK ITSELF FAILED (%s: %s) — WRITING THE DAY ANYWAY. A "
+              "bug in the guard is not evidence the data is bad, and the day cannot "
+              "be refetched. The standing check on the committed archive still runs."
+              % (type(e).__name__, e))
     if not ig["ok"]:
         raise RuntimeError(
             "REFUSING TO WRITE — integrity check failed for %s on %s: %s. The "

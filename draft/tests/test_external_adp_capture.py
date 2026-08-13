@@ -1912,3 +1912,38 @@ def test_capture_still_writes_when_an_id_is_merely_UNDECODABLE(tmp_path, monkeyp
     C.capture(2026, "2026-08-14", path=str(p))
     assert p.exists()
     assert len(json.loads(p.read_text())["series"][0]["rows"]) == 2
+
+
+def test_a_CHECKER_THAT_THROWS_MUST_NOT_COST_THE_DAY(tmp_path, monkeypatch):
+    """I INTRODUCED THIS AN HOUR AGO AND IT IS THE SAME LESSON A THIRD TIME.
+
+    The integrity refusal is deliberate for CORRUPTION. But it also stands between
+    a good board and the disk, so a BUG IN THE CHECKER — an exception rather than
+    a fatal finding — silently costs a day that no provider will serve again.
+    `external-adp-capture.yml` carries the rule in capitals for the board pin, and
+    `capture()` learned it once already for its own summary print. This is the
+    third place, and I wrote it myself while fixing the second.
+
+    WHICH ERROR IS WORSE decides the direction, and here it is not close. Writing
+    a possibly-corrupt day is recoverable: the standing CI test runs `integrity`
+    against the committed archive and would catch it, and the file can be
+    corrected. Losing a good day is PERMANENT — no provider serves a board as of a
+    past date, which is the finding this archive exists because of.
+
+    So a checker that cannot run reports LOUDLY and does not block. A checker that
+    RUNS and finds corruption still refuses; that path is unchanged and the test
+    above pins it.
+
+    MUTATION: let the exception propagate — a bug in my own guard destroys the
+    thing the guard exists to protect."""
+    p = tmp_path / "arch.json"
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    def boom(_):
+        raise KeyError("a bug in the checker, not in the data")
+    monkeypatch.setattr(C, "integrity", boom)
+
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    assert p.exists(), "a checker bug must not cost an unrefetchable day"
+    assert json.loads(p.read_text())["series"][0]["rows"] == {"1": 4.5}
