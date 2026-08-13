@@ -3495,13 +3495,31 @@
      * IT REPORTS AND CHANGES NOTHING. No re-ordering, no score, no penalty --
      * the list below is identical with this block deleted. */
     let decisiveLine = '';
+  /* ── THE DECISIVE-TERM READOUT'S OWN STYLES, INLINE AND ON PURPOSE ────────
+   *
+   * These fourteen lines lived in public/css/style.css — B's file — added by
+   * A in 8d1d8e0. Purely additive, and the block's own comment noted the sheet
+   * is shared. It was still a TRESPASS: territory-check owns that file to B, so
+   * `integrate.sh` REFUSED A's entire branch over it, which blocked the
+   * cross-lane inbox from ever reaching main. A styling nicety was holding up
+   * the mechanism built to stop lanes talking past each other.
+   *
+   * The element is constructed HERE, in A's file, so the styles can be too.
+   * Inline is the cost: no cascade, no theming, and a longer line. That is a
+   * fair price for not owning someone else's stylesheet, and it is reversible
+   * the moment B says where an A-owned sheet should live.
+   */
+  const DECISIVE_CSS = 'font-size:.82rem;letter-spacing:.01em;padding:.35rem .6rem;'
+    + 'margin:0 0 .5rem;border-left:2px solid rgba(245,196,69,.55);'
+    + 'background:rgba(245,196,69,.05);border-radius:0 4px 4px 0;';
+
     try {
       if (typeof DecisionContract !== 'undefined' && scored.length > 1) {
         const gap = scored[0].score - scored[1].score;
         const sig = DecisionContract.contributions(scored[0], scored[1], gap)
           .filter(c => c.decision_significant);
         if (sig.length) {
-          decisiveLine = '<div class="rec-decisive">'
+          decisiveLine = '<div class="rec-decisive" style="' + DECISIVE_CSS + '">'
             + 'decides this pick: '
             + sig.map(c => escapeHtml(c.term) + ' '
                 + (c.delta >= 0 ? '+' : '') + c.delta.toFixed(1)).join(' · ')
@@ -3514,7 +3532,7 @@
        * recommendation list; it costs this one line, and says so out loud rather
        * than rendering blank. */
       console.error('[decisive]', e && e.message);
-      decisiveLine = '<div class="rec-decisive muted">decisive-term readout '
+      decisiveLine = '<div class="rec-decisive muted" style="' + DECISIVE_CSS + '">decisive-term readout '
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
