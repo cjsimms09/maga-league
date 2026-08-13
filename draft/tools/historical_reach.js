@@ -245,16 +245,36 @@ if (reproBad > 0) {
 /* ── 4. THE FAILURE THIS GATE CANNOT SEE ──────────────────────────────────
  * Naming the hole is the point of the section. A gate that reports only what it
  * can measure reads as complete coverage. */
-console.log('\n  4. WHAT THIS GATE STILL CANNOT SEE — the failure Cory actually described');
+console.log('\n  4. THE ADP CHANNEL — where Cory\'s actual worry lives');
 const stamped = board.filter(p => Object.keys(p).some(k => k.endsWith('_season'))).length;
-console.log('     board rows carrying ANY season stamp: ' + stamped + ' of ' + board.length);
-console.log('     "A player drafted high last year may go late or undrafted this year" is');
-console.log('     a claim about ADP, not about projection. It would show up as a stale');
-console.log('     raw_adp — and with ' + stamped + ' stamped rows there is nothing to test it');
-console.log('     against. THE HEADLINE FINDING ABOVE IS ABOUT THE PROJECTION CHANNEL ONLY.');
-console.log('     The ADP channel is UNTESTED, not clean. It closes when C\'s stamps reach');
-console.log('     the shipped artifact; the detector is `season_stamp.violations()` and it');
-console.log('     is already written, so this is a wiring gap and not a research one.');
-const stale = board.filter(p => p.adp_stale === true || p.adp_stale === 1).length;
-console.log('     (`adp_stale` is set on ' + stale + ' rows — a freshness flag, not a season');
-console.log('     stamp, and it cannot distinguish "not updated recently" from "last year".)');
+console.log('     board rows carrying a season stamp: ' + stamped + ' of ' + board.length);
+console.log('\n     "Drafted high last year, undrafted this year" is a claim about ADP, not');
+console.log('     projection, so the headline above does not speak to it. I reported this');
+console.log('     as UNTESTED. C then tested it, and the answer is stronger than a stamp:');
+console.log('\n       THE ADP CHANNEL CANNOT STRUCTURALLY CARRY A PRIOR-SEASON VALUE.');
+console.log('       The season is in the REQUEST URL for both sources (fp_url carries');
+console.log('       /nfl/2026/consensus-rankings), and adp.py derives the cache key FROM');
+console.log('       that url — so even a cache hit cannot be another season. 344 rows');
+console.log('       parsed, 344 matched, 0 unmatched, ffc_gap_fill 3.');
+console.log('\n     The residual risk is a STALE 2026 ADP — adp.py\'s "FFC unreachable; using');
+console.log('     cached ADP" path. That is a different and much smaller failure than the');
+console.log('     one Cory described, and it is a freshness question, not a season one.');
+if (stamped === 0) {
+  console.log('\n     THE STAMPS ARE NOT ON THIS ARTIFACT YET. build.py now applies them at');
+  console.log('     the point ADP is attached (adp_season_stamps), so they appear on the');
+  console.log('     NEXT BOARD REBUILD. Until that runs, this section rests on C\'s reading');
+  console.log('     of the fetch rather than on a field this tool can check — which is');
+  console.log('     weaker evidence than a stamp, and is labelled as such rather than');
+  console.log('     counted as coverage.');
+} else {
+  console.log('\n     Stamps are present, so this is now machine-checkable rather than a');
+  console.log('     reading of the fetch code. Run season_stamp.violations() against them.');
+}
+/* adp_stale holds DICTS ({"direction","slots","days"}), not booleans. Testing it
+ * with `=== true || === 1` reported 0 rows against an actual 12 — the same class
+ * as isFinite(null) counting nulls as zeros: a type assumption that fails
+ * silently and reads as a clean result. Caught by C. */
+const stale = board.filter(p => p.adp_stale != null && p.adp_stale !== false).length;
+console.log('\n     (`adp_stale` is set on ' + stale + ' rows and holds a MOVEMENT record —');
+console.log('     {direction, slots, days} — set from ADP velocity inside the 2026 series.');
+console.log('     It is not a season flag and was never meant to be one.)');

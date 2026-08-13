@@ -17,8 +17,13 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 sys.path.insert(0, str(HERE))
+# season_stamp lives under backtest/ but is an INGEST-TIME contract, not an
+# analysis helper — the board is stamped where each value is attached, which is
+# here. There is no package __init__, so the directory joins the path directly.
+sys.path.insert(0, str(HERE / "backtest"))
 
 import adp as adp_mod  # noqa: E402
+import season_stamp  # noqa: E402
 import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
@@ -87,6 +92,37 @@ IDENTITY_PATH = HERE / "config" / "identity_map.json"
 # Sleeper handle <-> owner_id lives (money_history already keys on it), so this
 # reads it rather than introducing a second copy.
 MY_REAL_NAME = "Cory"
+
+
+def adp_season_stamps(adp_source: str | None, year: int) -> dict:
+    """Season stamps for the ADP columns, chosen by WHERE THE VALUE CAME FROM.
+
+    Module-level and named rather than inline in the build loop, so the test suite
+    can exercise THE RULE ITSELF. A test that re-implements this branch in its own
+    helper passes just as happily when the branch here is wrong, which makes it a
+    description of intent rather than a guard on behaviour.
+
+    Two provenances, and a single blanket stamp would have to lie about one:
+
+      real ADP (fantasypros / ffc)
+          The season is IN THE REQUEST URL, and `adp.py` derives the cache key
+          from that url, so even a cache hit cannot be a different season. The
+          year is a fact about the fetch -> `seasonal`.
+
+      search_rank (the fallback branch)
+          Sleeper POPULARITY rank. No season anywhere in the payload. Stamping it
+          with the target year would be an assertion wearing a measurement's
+          clothes -- the exact defect the gate exists to stop -> `current`.
+
+    `current` is deliberately not normalised to `year`: doing so would destroy the
+    record of which fields were actually verified, and the gate could never be
+    tightened later because nothing would distinguish a proven year from an
+    assumed one.
+    """
+    src = (season_stamp.CURRENT_STATE if adp_source == "search_rank"
+           else season_stamp.seasonal(year))
+    return season_stamp.stamp({}, {"raw_adp": src, "adp": src,
+                                   "consensus_rank": src})
 
 
 def _my_owner_id() -> str | None:
@@ -510,9 +546,30 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
 
     # raw_adp is what the rest of the pipeline keys on; point it at the real
     # thing now that we have one.
+    #
+    # AND STAMP ITS SEASON HERE, at the point the value is attached, because this
+    # is the only place that still knows WHERE IT CAME FROM. Cory, HIGH: a player
+    # drafted high in 2025 may go late or undrafted in 2026, so a prior-season ADP
+    # reaching this board is a silent, plausible-looking error.
+    #
+    # THE STAMP IS PER-PLAYER AND NOT A BLANKET seasonal(2026), because the two
+    # branches above have genuinely different provenance and a single stamp would
+    # have to lie about one of them:
+    #
+    #   fantasypros / ffc  -> the season is IN THE REQUEST URL (C verified: the
+    #       fp_url carries /nfl/2026/consensus-rankings, and adp.py:136 derives the
+    #       cache key FROM that url, so even a cache hit cannot be another season).
+    #       That is `seasonal` — a fact about the fetch, not an assumption.
+    #
+    #   search_rank        -> Sleeper POPULARITY rank from the fallback branch. It
+    #       is live state with no season anywhere in the payload. Stamping it 2026
+    #       would be an assertion wearing a measurement's clothes, which is the
+    #       exact defect this gate exists to stop, so it is `current`.
+    adp_year = int(cfg.get("season") or time.gmtime().tm_year)
     for p in players:
         p["raw_adp"] = p.get("adp", p["raw_adp"])
         p["consensus_rank"] = p["raw_adp"]
+        p.update(adp_season_stamps(p.get("adp_source"), adp_year))
 
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
     board = proj_mod.blend(players, baseline, opportunity, cfg)
