@@ -175,23 +175,36 @@ ck('every row of the plan sits on a pick I actually own',
     : (p.raw_adp != null ? +p.raw_adp : 9999));
   const pool = PLAN.pool.filter(p => +p.proj_mean > 0);
   const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
-  const at = n => {
+  const at = (n, pos) => {
     const gone = new Set(byAdp.slice(0, n).map(p => String(p.player_id)));
-    const best = pool.filter(p => !gone.has(String(p.player_id)) && p.position === 'QB')
+    const best = pool.filter(p => !gone.has(String(p.player_id)) && p.position === pos)
       .sort((a, b) => b.proj_mean - a.proj_mean)[0];
     return best ? Math.round(best.proj_mean * 10) / 10 : 0;
   };
   const depth = drafts[0].n;                       // 150, from Sleeper's own log
   const live = po.live_picks;                      // 147 — SELECTIONS, not depth
-  ck('the waiver level is taken at the BOARD depth Sleeper actually drafts',
-    Math.abs(PLAN.WAIVER.QB - at(depth)) < 0.6,
-    { plan: PLAN.WAIVER.QB, at_board: at(depth), at_live: at(live) });
+  const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
+  POS.forEach(pos => {
+    ck('the ' + pos + ' waiver level is taken at the BOARD depth Sleeper drafts',
+      Math.abs(PLAN.WAIVER[pos] - at(depth, pos)) < 0.6,
+      { plan: PLAN.WAIVER[pos], at_board: at(depth, pos), at_live: at(live, pos) });
+  });
   ck('CONTROL — the two counts genuinely differ, by exactly the keeper slots',
     depth - live === forfeitedCount() && depth !== live,
     { board: depth, live: live, keepers: forfeitedCount() });
-  ck('FAIL ARM — taking it at the LIVE-SELECTION count gives a different answer, '
-    + 'which is the 34.5 points I got wrong this morning',
-    Math.abs(at(depth) - at(live)) > 1, { board: at(depth), live: at(live) });
+  /* FAIL ARM — WHICH POSITION THE CONFUSION BITES IS BOARD-DEPENDENT, so the arm
+   * asks whether it bites ANYWHERE rather than naming one. It cost 34.5 points
+   * at QUARTERBACK on the 1,759-player board this morning; on today's 1,841-player
+   * rebuild QB is flat across those three slots and it lands on TIGHT END
+   * instead. Pinning the arm to QB would have gone quietly vacuous — passing
+   * while proving nothing — which is the class of defect this suite exists for. */
+  const differ = POS.filter(pos => Math.abs(at(depth, pos) - at(live, pos)) > 1);
+  ck('FAIL ARM — taking it at the LIVE-SELECTION count changes the answer at some '
+    + 'position, so the two depths are genuinely distinguishable',
+    differ.length > 0,
+    POS.map(pos => pos + ' ' + at(depth, pos) + '/' + at(live, pos)).join('  '));
+  console.log('      (the depth error currently bites at: ' + differ.join(', ')
+    + ' — it was QB this morning on a smaller board)');
 }
 
 // ── 5. THE SHIPPED SEAT PLAN AGREES ──────────────────────────────────────

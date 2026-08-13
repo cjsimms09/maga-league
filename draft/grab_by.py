@@ -197,12 +197,57 @@ def my_keeper_roster(cfg: dict, keepers_path) -> list[dict]:
 
 
 def snapshot_for_build(board: dict, cfg: dict, keepers_path) -> dict:
-    """The pre-draft grab-by block the build attaches to the artifact (forecast mode)."""
+    """The pre-draft grab-by block the build attaches to the artifact (forecast mode).
+
+    ⚠️ SURVIVAL IS COMPUTED ON THE LIVE-SELECTION SCALE, NOT BOARD NUMBERS.
+
+    `adjusted_adp` counts SELECTIONS: both halves of its blend are live-scale —
+    `seq_adp` is the live pick index, and raw ADP is shifted down by the keepers
+    ahead of the player. `pick_order.my_picks` counts BOARD SLOTS, keeper slots
+    included. Feeding a board number into `survival_probability` against a
+    live-scale ADP evaluates the CDF too far right, overstates "taken", and
+    UNDERSTATES survival — the model believes players vanish sooner than they
+    will and reaches for them.
+
+    THE TWO AGREED BY ACCIDENT UNTIL 2026-08-13 AND I BROKE THE ACCIDENT.
+    `build_true_pick_order` renumbered survivors 1..N, so `my_picks` was
+    [30, 45, ...] — wrong as board numbers and exactly right as live indices.
+    Correcting them to [33, 48, ...] left this comparing two different scales.
+
+    Measured on the shipped board at pick 33: Breece Hall 29% against 52%, a
+    TWENTY POINT understatement right in the ADP range the first pick lives in.
+    It is three slots today because only Cory's keepers are on the live board and
+    grows to ~17 as the confirmed slate lands before 20 August.
+
+    The DISPLAYED pick numbers stay on the board scale — Cory needs to read 33,
+    not 30 — so the conversion happens here, at the boundary, and nowhere else.
+    """
     players = board.get("players", [])
     kept = set(str(x) for x in (board.get("kept_player_ids") or []))
     roster = my_keeper_roster(cfg, keepers_path)
-    remaining = (board.get("pick_order") or {}).get("my_picks") or []
-    return report(players, kept, roster, remaining, cfg, forecast_first=True)
+    po = board.get("pick_order") or {}
+    remaining = po.get("my_picks") or []
+    rows = po.get("picks") or []
+    if remaining and rows:
+        import keepers as _k
+        live = [_k.live_index_of(pk, rows) for pk in remaining]
+    else:
+        # No board rows means no scale to convert with. REFUSE rather than pass
+        # board numbers through as if they were live indices — a silently wrong
+        # survival curve is what this whole note is about.
+        raise ValueError(
+            "grab_by: pick_order is missing `picks` or `my_picks`, so board "
+            "numbers cannot be converted to the live-selection scale that "
+            "adjusted_adp is on. REFUSING to compare two different scales.")
+    out = report(players, kept, roster, live, cfg, forecast_first=True)
+    # Hand back BOARD numbers for anything displayed, keyed by the live index
+    # they were computed at, so a reader can see both and neither is guessed.
+    out["scale"] = {
+        "survival_computed_on": "live-selection index (the scale adjusted_adp is on)",
+        "displayed_picks_are": "true Sleeper board numbers",
+        "map": [{"board": b, "live": l} for b, l in zip(remaining, live)],
+    }
+    return out
 
 
 if __name__ == "__main__":   # pragma: no cover

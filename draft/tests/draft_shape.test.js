@@ -151,25 +151,53 @@ ck('every later pick is the same slot, round by round',
     return v === (r - 1) * TEAMS + (r % 2 === 1 ? mySlot : TEAMS + 1 - mySlot);
   }), po.my_picks);
 
-// ── 6. THE TWO INPUTS THAT ARE STILL NOT FROM SLEEPER ───────────────────
-// Reported rather than asserted away. Both are hand-entered constants that the
-// live draft depends on, which is the class that has bitten this repo three
-// times, and neither can be resolved from here: api.sleeper.app is denied by
-// this environment's network policy.
-ck('the board declares which draft shape it was built for',
-  L.draft_type === 'snake', L.draft_type);
+// ── 6. THE SHAPE AND THE SLOT, BOTH NOW CARRIED FROM SLEEPER ────────────
+ck('the board carries the RAW shape field, not just the derived label',
+  L.reversal_round === 0, L.reversal_round);
+ck('and the derived label agrees with it', L.draft_type === 'snake', L.draft_type);
+
+/* ── MY DRAFT SLOT: UNVERIFIED, AND THE GUARD CLOSES ITSELF ──────────────
+ *
+ * `my_draft_slot` is operator-set. Cory: "I am slot 8 on the board (all slot
+ * info is in sleeper)". It is — `draft.slot_to_roster_id` — and I reported that
+ * our ingest was dropping it. THAT WAS WRONG and the live API settled it: for a
+ * draft in `pre_draft` status Sleeper HAS NOT DRAWN THE ORDER YET and returns
+ * {}. Empty at the source. Fetched 2026-08-13 through CI, which has real network
+ * access; this session's egress policy denies api.sleeper.app.
+ *
+ * So the check is CONDITIONAL rather than skipped: while the map is empty the
+ * slot is UNVERIFIED and says so; the moment Sleeper publishes an order the
+ * nightly rebuild carries it and this compares them. Nobody has to remember. */
 {
-  const s2r = seasons.map(s => Object.keys((s.draft.slot_to_roster_id) || {}).length);
-  ck('KNOWN GAP — slot_to_roster_id is captured EMPTY for every season, so '
-    + '`my_draft_slot` is a hand-entered constant Sleeper has never confirmed',
-    s2r.every(n => n === 0), s2r);
-  // It is RECOVERABLE for completed drafts, and that is worth proving, because
-  // it turns the gap from "unknowable" into "not yet wired".
+  const s2r = L.slot_to_roster_id || {};
+  const entries = Object.keys(s2r).length;
+  ck('the board carries Sleeper\'s slot map, present or empty', !!L.slot_to_roster_id,
+    s2r);
+  if (!entries) {
+    ck('UNVERIFIED — Sleeper has not drawn the 2026 order yet, so slot '
+      + mySlot + ' rests on Cory\'s word. This closes on its own when it does.',
+      true);
+  } else {
+    const mine = Object.keys(s2r).find(k => String(s2r[k]) === '1');
+    ck('Sleeper has published an order, and it AGREES with my_draft_slot',
+      Number(mine) === mySlot, { sleeper: mine, config: mySlot });
+  }
+  /* FAIL ARM — the comparison must be able to fail, or the branch above is a
+   * placeholder that will pass on the day it matters most. */
+  const fake = { 3: 1, 8: 5 };
+  const fakeMine = Object.keys(fake).find(k => String(fake[k]) === '1');
+  ck('FAIL ARM — a slot map that disagrees with the config IS detected',
+    Number(fakeMine) !== mySlot, { sleeper: fakeMine, config: mySlot });
+}
+
+/* Historical slots remain derivable from round 1 of any completed draft, which
+ * is what makes the gap "not yet drawn" rather than "unknowable". */
+{
   const derived = completed.map(s => {
     const r1 = roundOrder(s, 1, TEAMS);
     return { season: s.season, slotOfRoster1: r1.indexOf(1) + 1 };
   });
-  ck('CONTROL — but it IS derivable from round 1 of any completed draft',
+  ck('CONTROL — a completed draft reveals its own slot map from round 1',
     derived.every(d => d.slotOfRoster1 >= 1 && d.slotOfRoster1 <= TEAMS), derived);
   ck('and the slot is re-drawn every year, so last year cannot stand in for it',
     new Set(derived.map(d => d.slotOfRoster1)).size > 1, derived);

@@ -264,6 +264,40 @@ def adp_sd_for(adp_mean: float, provided: float | None = None) -> float:
     return min(ADP_SD_CAP, max(ADP_SD_FLOOR, ADP_SD_RATE * float(adp_mean)))
 
 
+def live_index_of(board_pick: int, board: list[dict]) -> int:
+    """Board pick number -> LIVE-SELECTION index. The two scales, reconciled.
+
+    ⚠️ `adjusted_adp` IS ON THE LIVE-SELECTION SCALE AND PICK NUMBERS ARE NOT.
+    Both halves of the blend in `adjusted_adp` are live-scale: `seq_adp` is the
+    live pick index, and the raw ADP is SHIFTED DOWN by the keepers ahead of the
+    player, which removes those men from the numbering too. So the output counts
+    SELECTIONS. `pick_order.my_picks` counts BOARD SLOTS, keeper slots included.
+
+    THIS AGREED BY ACCIDENT UNTIL 2026-08-13 and I broke the accident by fixing
+    the numbering. `build_true_pick_order` used to renumber survivors 1..N, so
+    `my_picks` was [30, 45, ...] — wrong as board numbers and RIGHT as live
+    indices. Correcting them to [33, 48, ...] left every survival calculation
+    comparing a live-scale ADP against a board-scale pick.
+
+    The bias has a direction and it is the bad one: a board pick is LARGER than
+    its live index, so the CDF is evaluated too far right, "taken" is
+    overstated, and survival is UNDERSTATED. The model believes players vanish
+    sooner than they will and reaches for them. Measured on the shipped board at
+    pick 33: Breece Hall 29% against 52%, +20 POINTS at the ADP range the first
+    pick actually lives in.
+
+    It is three slots today because only Cory's keepers are on the live board. It
+    is ~17 once the confirmed slate lands before 20 August, and the error grows
+    with it.
+    """
+    if not board:
+        raise ValueError(
+            "live_index_of: no board rows. REFUSING to fall back to the pick "
+            "number — that is exactly the scale confusion this exists to fix.")
+    return sum(1 for row in board if not row.get("keeper_slot")
+               and int(row.get("overall") or 0) <= int(board_pick))
+
+
 def survival_probability(adp_mean: float, pick: int, adp_sd: float | None = None) -> float:
     """P(player is still on the board at `pick`)."""
     sd = adp_sd_for(adp_mean, adp_sd)
