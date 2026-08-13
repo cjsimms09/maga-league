@@ -42,11 +42,32 @@ def test_our_league_is_15_rounds_12_live_picks():
 
     # READ THE ROUND OFF THE PICK, DO NOT RE-DERIVE IT FROM THE OVERALL NUMBER.
     #
-    # This was `(p - 1) // teams + 1`, which assumes an UNCOMPRESSED board. Keeper
-    # forfeits remove picks, so the board is 147 long, and dividing an overall
-    # number by 10 stops naming the round. It agreed at slot 4 by coincidence and
-    # broke the moment the seat moved to 8 — a second derivation of a value the
-    # pick order already carries, which is the two-places defect in miniature.
+    # This was `(p - 1) // teams + 1` — a SECOND derivation of a value the pick
+    # order already carries, which is the two-places defect in miniature. It
+    # agreed at slot 4 by coincidence and broke the moment the seat moved to 8.
+    #
+    # ⚠️ THE REASON WRITTEN HERE WAS BACKWARDS, AND THE FALSE VERSION TRAVELLED.
+    #
+    # It said "keeper forfeits remove picks, so the board is 147 long". SLEEPER
+    # DOES NOT COMPRESS. A keeper OCCUPIES his slot with `is_keeper: true`; the
+    # pick is not removed and nothing after it shifts up. Verified against this
+    # league's own draft log for three completed seasons — 150 picks every year,
+    # round 4 beginning at overall 31, with 0, 23 and 20 keepers on the board.
+    # `order.picks` is 147 because it lists the LIVE SELECTIONS; `order.board` is
+    # 150 because that is the draft's DEPTH. Two quantities, and conflating them
+    # is what produced a first pick of 30 instead of 33.
+    #
+    # C READ THIS SENTENCE AND PROPAGATED IT into a module, a workflow comment
+    # and a test expectation before catching it. That is what makes a false
+    # mechanism beside a correct assertion the most durable kind: the test passes
+    # forever, so nobody re-reads the prose, and the next person to need the
+    # number takes it from here. The assertions below were always right — only
+    # this paragraph was wrong, and being right about the code is not the same as
+    # being right about why.
+    #
+    # `test_draft_length_never_depends_on_keeper_count`, two functions down, is
+    # the correct general property and is well named. It was reading as this
+    # paragraph's justification.
     my_rounds = sorted({p["round"] for p in order.picks
                         if p["team_slot"] == my_slot})
     assert my_rounds == list(range(4, 16)), my_rounds   # rounds 4..15 inclusive
