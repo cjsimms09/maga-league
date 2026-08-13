@@ -55,7 +55,11 @@ const keep = KEEP.keepersFrom(DATA);
  *
  * THE AUTHORITATIVE LIST IS `pick_order.my_picks`:
  *   [30, 45, 50, 65, 70, 85, 90, 105, 110, 125, 130, 145] — TWELVE picks,
- *   first at 30 (R3.10).
+ *   first at overall 30, which the artifact resolves to ROUND 4, SLOT 8.
+ *   (I first wrote "R3.10" here from ceil(30/10). That is wrong for the same
+ *   reason ROSTERED below was wrong: forfeited picks are REMOVED, so the
+ *   overall numbering is COMPRESSED and round 4 begins at 28. Every round
+ *   label anywhere must be READ from `pick_order.picks`, never computed.)
  *
  * So every seat schedule built on the old constant assigned seats at picks that
  * DO NOT EXIST — a FLEX at 8, a tight-end cliff at 13, a receiver at 28 — and
@@ -110,9 +114,32 @@ let MAXPOS = null;
 try { MAXPOS = process.env.PLAN_MAX_POS ? JSON.parse(process.env.PLAN_MAX_POS) : null; }
 catch (e) { console.log('PLAN_MAX_POS is not valid JSON: ' + e.message); process.exit(2); }
 
-const DRAFT_ROUNDS = 15;                    // measured: league_history, 150 picks / 15 rounds, 2023-2025
+/* ⚠️ HOW MANY PLAYERS ACTUALLY COME OFF THE BOARD — COUNTED, NOT MULTIPLIED.
+ *
+ * This was `DRAFT_ROUNDS * TEAMS` = 150. The draft has 147 picks: keepers
+ * FORFEIT picks under `top_picks_flat`, and a forfeited pick is not a pick
+ * somebody else makes — it is removed from the sequence. `pick_order.picks`
+ * has 147 rows and says so.
+ *
+ * THE ERROR WAS 34.5 POINTS AND IT WAS ALL AT QUARTERBACK. Taking replacement
+ * three players deeper moves the best available QB a full tier — 268.2 against
+ * a true 302.7 — while RB, WR, TE, K and DEF are untouched at this depth. A
+ * waiver level set too LOW makes every rostered player look better than he is,
+ * so this inflated the case for carrying a quarterback specifically, which is
+ * the exact question the bench work is about.
+ *
+ * This is the third constant-shaped-like-data found today, after the hardcoded
+ * SCHED and the hardcoded 59.6. The pattern each time: a number that is
+ * arithmetically reasonable, agrees with a previous season, and has an
+ * authoritative source sitting unread nearby. COUNT THE ROWS. */
 const TEAMS = ((DATA.league || {}).teams) || 10;
-const ROSTERED = DRAFT_ROUNDS * TEAMS;
+const ROSTERED = (function () {
+  const rows = ((DATA.pick_order || {}).picks) || [];
+  if (rows.length) return rows.length;
+  throw new Error('draft_plan: pick_order.picks is empty. REFUSING to fall back to '
+    + 'rounds x teams — that product is 150 against a real 147, and a plausible '
+    + 'wrong denominator is what this replaced.');
+})();
 
 /* WAIVER REPLACEMENT LEVEL: the best man still unrostered when the draft ends. */
 const drafted = new Set(byAdp.slice(0, ROSTERED).map(p => String(p.player_id)));

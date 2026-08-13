@@ -108,6 +108,45 @@ ck('and all of my picks are at ONE slot, as a snake requires',
   new Set(want.map(n => (rowOf(n) || {}).slot)).size === 1,
   [...new Set(want.map(n => (rowOf(n) || {}).slot))]);
 
+// ── 4b. THE DRAFT'S DEPTH IS COUNTED, NOT MULTIPLIED ─────────────────────
+// The third constant-shaped-like-data found on 2026-08-13. `ROSTERED` was
+// `DRAFT_ROUNDS * TEAMS` = 150 against a real 147: a forfeited pick is REMOVED
+// from the sequence, not reassigned. The error was 34.5 points and ALL OF IT
+// was at quarterback — three players deeper moves the best available QB a full
+// tier (268.2 against a true 302.7) while every other position is untouched at
+// that depth. A waiver level set too LOW makes every rostered player look better
+// than he is, which inflated the case for carrying a QB specifically.
+const rowCount = (po.picks || []).length;
+ck('the artifact says how many picks actually happen', rowCount > 0, rowCount);
+ck('CONTROL — that count DIFFERS from rounds x teams (or this proves nothing)',
+  rowCount !== (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)),
+  { counted: rowCount, product: ((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0) });
+ck('and the shortfall is exactly the forfeited picks',
+  (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)) - rowCount
+    === forfeited.length,
+  { shortfall: (((DATA.league || {}).rounds || 0) * ((DATA.league || {}).teams || 0)) - rowCount,
+    forfeited: forfeited.length });
+// The waiver level must be taken at the counted depth. Recomputed here from the
+// same pool, so this checks the NUMBER rather than the intention.
+{
+  const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
+    : (p.raw_adp != null ? +p.raw_adp : 9999));
+  const pool = PLAN.pool.filter(p => +p.proj_mean > 0);
+  const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
+  const at = n => {
+    const gone = new Set(byAdp.slice(0, n).map(p => String(p.player_id)));
+    const best = pool.filter(p => !gone.has(String(p.player_id)) && p.position === 'QB')
+      .sort((a, b) => b.proj_mean - a.proj_mean)[0];
+    return best ? Math.round(best.proj_mean * 10) / 10 : 0;
+  };
+  ck('the QB waiver level matches the COUNTED depth, not the product',
+    Math.abs(PLAN.WAIVER.QB - at(rowCount)) < 0.6,
+    { plan: PLAN.WAIVER.QB, at_counted: at(rowCount), at_product: at(150) });
+  ck('FAIL ARM — the two depths give genuinely different answers at QB',
+    Math.abs(at(rowCount) - at(150)) > 1,
+    { counted: at(rowCount), product: at(150) });
+}
+
 // ── 5. THE SHIPPED SEAT PLAN AGREES ──────────────────────────────────────
 // The artifact B renders from. If it lags the fix, the war room shows seats at
 // picks that do not exist — which is what it did until today.
