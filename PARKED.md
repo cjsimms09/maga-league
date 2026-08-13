@@ -10233,3 +10233,89 @@ roughly one red in eight, not eight in eight, repeatedly. So this is a real caus
 intermittent red and it will randomly refuse integrations, but **something else is
 failing in CI essentially every run, and that is still open.** I am not claiming the CI
 mystery is closed.
+
+---
+
+# C → WHOEVER OWNS ci.yml: THE CI RED CANNOT BE READ, AND ONE APPENDED STEP FIXES THAT
+
+## WHERE THE INVESTIGATION ACTUALLY STANDS (C, 2026-08-13)
+
+**Step 8, "JS suites", is the ONLY failing step** in run #692 (`68a996dc`, and the same
+in every recent run). Python suites, robot mock, baseline regression, graduation gate
+and shell guards all pass. So the failure is inside one loop.
+
+**And that loop is green locally under every condition I can build.** Seven hypotheses,
+each tested rather than argued:
+
+```
+   merge interaction / C's branch   15 runs each on merged / main / C   2/15 everywhere, IDENTICAL
+   node version (CI pins 20)        all 180 suites under node 20        0 red
+   CPU contention                   trashtalk x5, 8 spinners on 4 cores 0 red
+   suite sequencing                 ci.yml's exact back-to-back loop    180/180 green
+   dependency drift (npm install)   fresh install on the failing SHA    identical versions
+   clean checkout + fresh deps      worktree at 68a996d, npm install    FAILED SUITES: (empty)
+   live network (CI has it, we do not)  global fetch stubbed to SUCCEED  no suite changed verdict
+```
+
+The last two are the strongest: **a clean checkout of the exact commit CI failed on,
+with a fresh `npm install`, runs all 180 suites green.** And since only
+`sunday_cron.test.js` and `sunday_rehearsal.test.js` seal Sleeper while ~20 other suites
+call it live, I flipped this container's sealed network to CI's open one by stubbing
+`fetch` to succeed — **not one suite changed verdict.**
+
+## THE ONE REAL DEFECT FOUND, WHICH IS NOT THE CAUSE
+
+`trashtalk` fails ~13% of runs on every tree — the tie-break in
+`src/routes/trashtalk.js:44` resolves same-millisecond posts by
+`crypto.randomBytes(3)`, measured 50.0% wrong over 19,940 same-ms pairs. Full report
+above, routed to B. **It will randomly refuse integrations. It cannot produce 120
+CONSECUTIVE failures** — 13% gives about one red in eight, not eight in eight,
+repeatedly. So something else fails in CI nearly every run.
+
+## WHY I CANNOT FINISH THIS, PRECISELY
+
+`ci.yml` prints `FAILED SUITES:$failed` at the end of **step 8**, which ran
+03:21:37–03:23:40. Every read path returns the end of the **job** instead:
+
+* `get_job_logs` with `job_id` — returns 5,002 chars, the job tail, landing in post-job
+  git cleanup.
+* `get_job_logs` with `run_id` + `failed_only` — byte-identical 5,002-char tail.
+* the full-log ZIP — `results-receiver.actions.githubusercontent.com`, and the agent
+  proxy 403s on CONNECT to that host.
+* run artifacts — `total_count: 0`, nothing uploaded.
+
+**The one line that would end this investigation is ~2 minutes of log above the window,
+and there is no route to it from here.**
+
+## THE FIX — AN APPEND TO ci.yml, DIAGNOSTIC ONLY
+
+`ci.yml` is SHARED, not mine (the territory test asserts exactly that:
+*"ci.yml stays shared — repo-wide, not one lane's feature"*), so I am parking rather
+than editing. It is one step, additive, and it makes every future red self-reporting:
+
+```yaml
+      - name: JS suites
+        id: js                       # <- add an id to the existing step
+        ...
+          if [ -n "$failed" ]; then
+            echo "FAILED SUITES:$failed"
+            echo "failed=$failed" >> "$GITHUB_OUTPUT"     # <- add
+            exit 1
+          fi
+
+      # ── NEW, LAST STEP IN THE JOB ────────────────────────────────────────
+      - name: Restate the JS failure where the log tail can see it
+        # The API returns only the last 5,000 characters of a JOB. The JS loop
+        # finishes ~2 minutes before the job does, so FAILED SUITES: is always
+        # above the window and no red has been readable from outside for 120 runs.
+        if: failure() && steps.js.outputs.failed != ''
+        run: |
+          echo "FAILED SUITES (restated at job end):${{ steps.js.outputs.failed }}"
+          for t in ${{ steps.js.outputs.failed }}; do
+            echo "───── $t ─────"; node draft/tests/$t.test.js 2>&1 | tail -40 || true
+          done
+```
+
+**One push, and the next red names itself.** Until then this is diagnosable only by
+elimination, and I have run out of things to eliminate from inside a container that
+cannot reach the log.
