@@ -5903,7 +5903,32 @@
           : '<span class="ss-rmode">keepers locked · rounds 1–' + kn + ' skipped</span>');
     const age = ageH == null ? 'never built'
       : ageH < 1 ? 'board fresh' : 'board ' + Math.round(ageH) + 'h';
-    const issues = red.concat(amber);
+    /* WHICH RED GOES FIRST — ordered by HOW SOON it makes a recommendation
+     * wrong, not by the order the checks happen to run in.
+     *
+     * A stale sync is wrong at the NEXT PICK: the shortlist may name a man who
+     * went four picks ago. An unknown seat is wrong for every seat-dependent
+     * panel, which are already suppressed. A board built 19 hours ago is wrong
+     * SLOWLY. The old strip showed whichever check ran first, which is not an
+     * ordering at all — it is an artefact of the source layout. */
+    const RED_RANK = [
+      /^SYNC/,                    // the picture of the room is old — wrong now
+      /^PICK STATE/,              // our own accounting disagrees with itself
+      /^keeper slate/,            // the roster we are drafting around is wrong
+      /^SEAT UNKNOWN/,            // seat-dependent panels already suppressed
+      /^ADP is fixture/,          // the ordering is a fixture, not the market
+      /^thin projections/,        // values exist but rest on little
+      /^board /,                  // wrong slowly
+    ];
+    const redOrdered = red.slice().sort(function (a, b) {
+      const ra = RED_RANK.findIndex(function (r) { return r.test(a); });
+      const rb = RED_RANK.findIndex(function (r) { return r.test(b); });
+      /* AN UNRECOGNISED RED SORTS FIRST, NOT LAST. A new check nobody has ranked
+       * yet is the one most likely to be the thing that just broke, and burying
+       * it under the known ones is how a strip stops reporting new failures. */
+      return (ra < 0 ? -1 : ra) - (rb < 0 ? -1 : rb);
+    });
+    const issues = redOrdered.concat(amber);
 
     host.style.display = 'flex';
     host.className = 'system-strip ' + tone;
@@ -5912,9 +5937,35 @@
       + rehearsalTag
       + '<span class="ss-seat">' + escapeHtml(seat ? DraftSeat.describe(seat) : 'seat —') + '</span>'
       + '<span class="ss-age">' + escapeHtml(age) + '</span>'
+      /* ⚠️ THIS RENDERED `issues[0]` AND HID THE REST BEHIND `title=`.
+       *
+       * Another session drove a 44-second outage and reported what the
+       * always-visible strip actually said: nothing about sync. From second 12
+       * the board KNEW it was "sync 15s old" and from second 40 "SYNC STALE —
+       * picks may be missing"; both went into `issues` behind an earlier entry
+       * and surfaced as "+2". The full list lived in a `title` attribute — a
+       * HOVER TOOLTIP, on a phone, at a table. There is no hover on a phone.
+       *
+       * TWO CHANGES, AND THE FIRST IS THE ONE THAT MATTERS.
+       *
+       * 1. EVERY RED IS RENDERED, not just the first. Red means "a
+       *    recommendation cannot be trusted" — it is supposed to be rare, so
+       *    collapsing it to save a line is trading the whole point of the
+       *    channel for width. Ambers still collapse to `+N`; there are routinely
+       *    several and none of them invalidates the board.
+       * 2. REDS ARE ORDERED BY WHAT INVALIDATES THE BOARD SOONEST. A stale sync
+       *    means the shortlist on screen may name a player who went four picks
+       *    ago — worse, right now, than a board built 19 hours ago, because the
+       *    second is wrong slowly and the first is wrong at the next pick.
+       *
+       * The `title` stays as a completeness fallback. It is no longer where the
+       * thing he needs to see lives. */
       + '<span class="ss-dot" title="' + escapeHtml(issues.join(' · ') || 'all clear') + '">'
-      + dot + (issues.length ? ' <span class="ss-issues">' + escapeHtml(issues[0])
-        + (issues.length > 1 ? ' +' + (issues.length - 1) : '') + '</span>' : '') + '</span>';
+      + dot + (issues.length ? ' <span class="ss-issues">'
+        + escapeHtml(redOrdered.join(' · ') || amber[0])
+        + (redOrdered.length && amber.length ? ' +' + amber.length
+          : (!redOrdered.length && amber.length > 1) ? ' +' + (amber.length - 1) : '')
+        + '</span>' : '') + '</span>';
 
     // A red state force-opens the detail ONCE. Re-collapsing is the user's
     // call after that — a panel that refuses to close is its own problem.
@@ -7830,6 +7881,22 @@
       // say so instantly rather than looking like an outage for eight seconds.
       const parsed = window.DraftSync.normalizeDraftId(typed);
       if (parsed.error) { setStatus({ state: 'error', message: parsed.error }); return; }
+      /* ⚠️ A SECOND POLLER IS WORSE THAN NO POLLER, and this button can now be
+       * pressed while one is already running — the wedge no longer tears the
+       * first one down. Two DraftSync objects on the same draft double the
+       * request rate and interleave their `onPicks`, so the board's picture of
+       * the room would flip between two fetches mid-render.
+       *
+       * On an existing sync this is a KICK, not a connect: reset the failure
+       * count so the backoff drops from its 30s cap back to 4s, and poll now. */
+      if (state.sync && state.sync.running && state.sync.draftId === parsed.id) {
+        state.sync.failures = 0;
+        if (state.sync.timer) clearTimeout(state.sync.timer);
+        setStatus({ state: 'warn', message: 'Retrying now — the board keeps polling on '
+          + 'its own either way, so you never have to press this.' });
+        state.sync.poll();
+        return;
+      }
       // Show them what we actually understood, so a URL paste is visibly fixed
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
@@ -7881,14 +7948,37 @@
       setStatus({ state: now === 'wedged' ? 'error' : now === 'stalled' ? 'warn' : 'live',
                   message: d.text });
       if (now === 'wedged') {
-        // AUTO-FALLBACK. Stop polling, unlink, and say so loudly. The manual
-        // path is the draft-night fallback anyway, so exercising it is free.
-        try { if (state.sync && state.sync.stop) state.sync.stop(); } catch (e) { /* expected */ }
-        state.sync = null;
+        /* ⚠️ WEDGED IS A DEGRADED STATE, NOT A TERMINUS. IT USED TO UNLINK.
+         *
+         * This block used to call `state.sync.stop()`, null the sync, kill this
+         * watch and relabel the button "Retry connect". Nothing was lost — manual
+         * entry is a first-class path — and the reasoning was sound as far as it
+         * went: a spinner that hangs forever is worse than an honest surrender.
+         *
+         * IT ASSUMED SOMEONE IS LOOKING AT THE SCREEN. On 08-22 Cory is watching
+         * the room and the clock, and the one thing he asked for is to get back
+         * to an accurate board as fast as possible. Auto-surrender costs the
+         * whole outage plus however long it takes him to notice a button changed.
+         *
+         * AND IT FIRED BY CONSTRUCTION, NOT BY TUNING. Another session drove a
+         * real 44-second outage: the poll backoff caps at 30s (`sync.js`
+         * BACKOFF_MAX) while the patience budget is fixed at 45s
+         * (`session.js` WEDGE_AFTER), so ANY outage past ~45 seconds wedges no
+         * matter how healthy the connection is either side of it. A phone in a
+         * pocket at a draft table clears 45 seconds without trying.
+         *
+         * THE ASYMMETRY DECIDES IT. Retrying costs one request per 30 seconds
+         * against an endpoint we already poll every 4. Surrendering costs a
+         * board that silently stops updating while it goes on recommending
+         * players who are already gone — the exact failure the staleness work
+         * exists to prevent, reintroduced by the thing meant to handle it.
+         *
+         * So the sync KEEPS RUNNING at its capped interval and `sawResponse`
+         * carries the session straight back to `live` the moment the room
+         * answers — no tap required. The button stays as a KICK (skip the
+         * backoff and poll now), not as the only road back. */
         const connect = document.getElementById('start-sync');
-        if (connect) { connect.disabled = false; connect.textContent = 'Retry connect'; }
-        clearInterval(state.sessionWatch);
-        state.sessionWatch = null;
+        if (connect) { connect.disabled = false; connect.textContent = 'Reconnect now'; }
         renderAll();
       }
     }, 1000);

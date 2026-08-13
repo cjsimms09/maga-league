@@ -140,9 +140,26 @@
           ? ' — connected in ' + (s.timings.connectMs / 1000).toFixed(1) + 's' : ''), tone: 'ok' };
       case 'stalled':
         return { text: 'Sync quiet — still polling. Manual entry works meanwhile.', tone: 'warn' };
+      /* ⚠️ THIS USED TO SAY "SYNC GAVE UP — switched to manual", AND IT WAS
+       * TRUE: `app.js` stopped the poller and unlinked. It no longer does, so
+       * the sentence would now be a false statement about the tool's own state
+       * — the worst kind, because a user who reads it starts hand-entering
+       * picks the board is about to receive anyway and then sees them twice.
+       *
+       * WHAT IS STILL TRUE is the part worth saying: we are past the patience
+       * budget, the board's picture of the room is old, and manual entry is
+       * available. What is NEW is that recovery needs nothing from him. */
+      /* NO AGE IN SECONDS HERE, THOUGH IT IS TEMPTING. Every other function in
+       * this module takes `now` as an argument and `describe` does not, so the
+       * only way to date this line is `Date.now()` — which makes the module
+       * impure and made its own test print a 56-year-old sync, because the test
+       * quite correctly drives it with synthetic timestamps. `renderSyncAge` in
+       * app.js already ticks a real age from the real clock; the number belongs
+       * there and the state belongs here. */
       case 'wedged':
-        return { text: 'SYNC GAVE UP — switched to manual. Mark picks yourself; '
-          + 'nothing is lost. Check the draft ID, or Reset and reconnect.', tone: 'bad' };
+        return { text: 'SYNC DOWN — still retrying on its own; it will come back by itself. '
+          + 'Picks made while dark arrive when it does. Enter picks by hand if you '
+          + 'want them on screen now — duplicates are merged.', tone: 'bad' };
       case 'ended':
         return { text: 'Draft ended. Board is back to full.', tone: 'ok' };
       default:

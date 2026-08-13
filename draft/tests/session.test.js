@@ -36,9 +36,27 @@ const T0 = 1000000;
   check('a first response that never arrives WEDGES rather than spinning forever',
     s.state === 'wedged', s.state);
   const d = S.describe(s);
-  check('the wedged message says what happened, what still works, and what to do',
-    /GAVE UP/.test(d.text) && /manual/i.test(d.text) && /draft ID|Reset/.test(d.text)
-    && d.tone === 'bad', d.text);
+  /* THIS PINNED "GAVE UP", AND "GAVE UP" WAS TRUE UNTIL 2026-08-13: `app.js`
+   * stopped the poller, nulled it and relabelled the button. It no longer does
+   * — a 45-second outage on a phone in a pocket wedges BY CONSTRUCTION (poll
+   * backoff caps at 30s, the patience budget is a fixed 45s), and surrendering
+   * assumed someone was watching the strip at a draft table.
+   *
+   * SO THE CHECK MOVES WITH THE BEHAVIOUR, AND GETS STRICTER RATHER THAN
+   * LOOSER. The line must still name the state and still point at manual entry;
+   * it must ALSO promise unattended recovery, and it must NOT claim the tool
+   * has stopped trying — a false statement about the tool's own state is worse
+   * than a vague one, because a user who believes it hand-enters picks the
+   * board is about to receive anyway. */
+  check('the wedged message names the state and still points at manual entry',
+    /SYNC DOWN/.test(d.text) && /hand|manual/i.test(d.text) && d.tone === 'bad', d.text);
+  check('and promises recovery WITHOUT a tap, which is the behaviour change',
+    /retrying/i.test(d.text) && /on its own|by itself/i.test(d.text), d.text);
+  check('and does NOT claim the tool has given up, because it has not',
+    !/GAVE UP|gave up|switched to manual|stopped/i.test(d.text), d.text);
+  check('CONTROL — the OLD text would fail the check above, so it is not '
+    + 'passing for the wrong reason',
+    /GAVE UP/.test('SYNC GAVE UP — switched to manual. Mark picks yourself.'));
   check('the hang duration is RECORDED — the number mock #1 could not report',
     S.report(s).wedged_at === T0 + S.CONNECT_TIMEOUT
     && S.report(s).log.some(l => /no first response/.test(l.note || '')),
