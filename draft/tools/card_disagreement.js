@@ -151,3 +151,41 @@ console.log('    A median summarises this badly whichever way it is computed.');
 console.log('\n  NOT MEASURED HERE: the ' + out.length + ' off-list rows have NO gap, because');
 console.log('  the log cannot say where the rule\'s pick ranked. The magnitudes above');
 console.log('  are the rows where the cards NEARLY agree.');
+
+/* ── 4. ROSTER COMPOSITION BY KEEPER BASE ──────────────────────────────────
+ *
+ * Added 2026-08-14 when B appended two alternate keeper bases and reported that
+ * the tight-end share fell from 25-27% to "exactly 13%, matching market" the
+ * moment a TE is kept — "the 2x was the empty slot, not the engine".
+ *
+ * THAT COMPARISON COUNTS ONLY DRAFTED PLAYERS. When the keeper IS a tight end,
+ * the kept TE is in the roster and out of the numerator, so keeping one
+ * mechanically removes one from the count. The denominator has to be the whole
+ * roster or the two bases are not measuring the same thing. Both are printed
+ * here, side by side, so the choice is visible rather than implicit.
+ *
+ * The one-start block is the apples-to-apples version: the original
+ * "market 13 vs composite 32 of 70" reconciliation was about QB+TE+K+DEF
+ * together, not tight ends alone, and a TE-only share cannot be compared to it. */
+const runs = {};
+all.forEach(r => { (runs[r.run] = runs[r.run] || []).push(r); });
+const ONE_START_POS = ['QB', 'TE', 'K', 'DEF'];
+const count = arr => arr.reduce((m, p) => (m[p] = (m[p] || 0) + 1, m), {});
+console.log('\n  ROSTER COMPOSITION BY KEEPER BASE');
+console.log('    run              base        TE drafted   TE whole    1-start whole');
+console.log('    ' + '-'.repeat(68));
+Object.keys(runs).forEach(name => {
+  const rs = runs[name].slice().sort((a, b) => (a.my_pick_index || 0) - (b.my_pick_index || 0));
+  const keep = (rs[0].roster_before || []).map(p => p.pos);
+  const took = rs.map(r => (r.action || {}).took_pos).filter(Boolean);
+  const d = count(took), t = count(took.concat(keep));
+  const nd = took.length, nt = took.length + keep.length;
+  const one = ONE_START_POS.reduce((n, p) => n + (t[p] || 0), 0);
+  console.log('    ' + name.padEnd(17) + String(rs[0].keeper_base).padEnd(12)
+    + ((d.TE || 0) + '/' + nd + ' = ' + Math.round(100 * (d.TE || 0) / nd) + '%').padEnd(13)
+    + ((t.TE || 0) + '/' + nt + ' = ' + Math.round(100 * (t.TE || 0) / nt) + '%').padEnd(12)
+    + one + '/' + nt + ' = ' + Math.round(100 * one / nt) + '%');
+});
+console.log('\n    READ THE WHOLE-ROSTER COLUMNS. The drafted-only column moves because a');
+console.log('    kept TE is excluded from its own count; the whole-roster column is the');
+console.log('    quantity a roster-construction claim is about.');
