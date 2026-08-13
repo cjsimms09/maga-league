@@ -199,6 +199,27 @@ jobs:
           if dh["state"] == "present":
               print("Spread: **%d/%d** players carry a dispersion row (%.0f%%)."
                     % (dh["rows"], dh["adp_rows"], 100 * dh["coverage"]))
+              # DOES IT BEAT THE CLAMP? The question the capture exists to answer,
+              # and it is about a DAY rather than a player. Today's board carries
+              # 71 distinct `adp_sd` values across 1,759 players with 94.6% on two
+              # of them (1,418 at exactly 30.0, 246 at 15.0). DISTINCT VALUES is
+              # the number that decides it — a mean is reported perfectly
+              # healthily by a fully collapsed distribution, which is how the
+              # clamp survived this long. The estimator is unvalidated against
+              # real data until this line runs, so this IS the validation.
+              latest = [s for s in C.load()
+                        if str(s.get("year")) == "${{ github.event.inputs.year || '2026' }}"][-1]
+              sp = C.spread_summary(latest.get("dispersion") or {})
+              if sp["status"] == "measured":
+                  print("  → **%d distinct** spreads over %d measured players "
+                        "(median sd %.1f picks; %d unmeasurable, %d no bounds, "
+                        "%d truncated lower bounds). Board today: **71 distinct** "
+                        "over 1,759, 94.6%% on two values."
+                        % (sp["distinct"], sp["measured"], sp["median_sd"],
+                           sp["unmeasurable"], sp["absent"], sp["truncated"]))
+              else:
+                  print("  → spread summary **unmeasured** — dispersion rows exist "
+                        "but none yielded an sd. Not a flat result; nothing measured.")
           else:
               print("Spread: **%s** — %s" % (dh["state"], dh["note"]))
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:

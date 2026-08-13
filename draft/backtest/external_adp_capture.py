@@ -211,6 +211,118 @@ def as_store_snapshots(series: list, year, ids) -> list:
 UNMATCHED_LISTED = 12
 
 
+#: Expected range of n iid standard normals, d_n. Exact table where the sample is
+#: thinnest and the Blom approximation is worst; the approximation above it.
+_D_N = {2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847,
+        9: 2.970, 10: 3.078}
+
+#: Below this selection rate the observed min/max is cut by drafts simply ENDING
+#: before the player was taken, so the range understates. Declared from the shape
+#: of the thing rather than tuned: at 50% the median draft did not take him.
+TRUNCATION_SEL_PCT = 50.0
+
+
+def _expected_range(n: int) -> float:
+    """d_n — Blom's approximation above the exact table: 2 * Phi^-1((n-0.375)/(n+0.25)).
+
+    Checked against the published table where both exist: n=10 gives 3.094 vs
+    3.078, n=30 gives 4.081 vs 4.086. It is used only above n=10 for that reason.
+    """
+    if n in _D_N:
+        return _D_N[n]
+    from statistics import NormalDist
+    return 2.0 * NormalDist().inv_cdf((n - 0.375) / (n + 0.25))
+
+
+def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
+    """MFL's published min/max pick -> an estimated sd of that player's pick, or None.
+
+    THE READER FOR TOMORROW'S DATA, and rule 14 on my own newest work. A's item #1
+    is that 94.6% of the board's `adp_sd` sits on two values — 1,418 players at
+    exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759 players.
+    My answer was to capture MFL's real dispersion. CAPTURING IS NOT FIXING: the
+    spread lands tomorrow and nothing reads it.
+
+    THE ESTIMATOR IS THE RANGE ONE — sd ~= (max - min) / d_n — because min/max is
+    what MFL publishes. Its weaknesses are real and are stated rather than buried:
+
+      * IT IS DRIVEN ENTIRELY BY TWO OBSERVATIONS. One manager reaching four rounds
+        early moves it as much as the other n-1 picks combined. It is the crudest
+        defensible estimator, chosen because the alternative is the clamp.
+      * n IS THE SELECTION COUNT, NOT THE DRAFT COUNT. MFL's bounds are over the
+        drafts the player was SELECTED in. A player taken in 7 of 125 drafts has a
+        range over SEVEN observations; charging him d_125 would divide by 5.1
+        instead of 2.7 and halve every deep player's spread — reintroducing the
+        flatness this exists to cure, while looking measured.
+      * IT IS A LOWER BOUND FOR A RARELY-SELECTED PLAYER. He is observed only where
+        he was picked; the drafts that would have taken him later simply ended, so
+        the range is truncated. Without saying so, the deepest and least-known
+        players would report the TIGHTEST spreads — the exact inversion this is
+        meant to correct.
+
+    A NUMBER MEANS A NUMBER; NULL MEANS THE THING NEEDED TO CALCULATE IT DOES NOT
+    EXIST; STATUS SAYS WHY (A's invariant). One selection gives a range of zero,
+    and returning 0.0 would assert the market is CERTAIN about a player it has seen
+    once — the most confident number on the board resting on the least evidence.
+    """
+    lo, hi = row.get("min_pick"), row.get("max_pick")
+    n = row.get("drafts")
+    base = {"sd": None, "n": None, "basis": "range/d_n", "truncated": None,
+            "status": None, "note": None}
+    if lo is None or hi is None:
+        return dict(base, status="absent",
+                    note="MFL published no min/max for this player — absent, not zero")
+    try:
+        n = int(n) if n is not None else None
+    except (TypeError, ValueError):
+        n = None
+    if not n or n < 2:
+        return dict(base, n=n, status="unmeasurable",
+                    note="selected in one draft or fewer — a range needs two "
+                         "observations, and 0.0 would claim certainty from the "
+                         "thinnest evidence on the board")
+
+    sd = (float(hi) - float(lo)) / _expected_range(n)
+    sel = row.get("sel_pct")
+    truncated = sel is not None and float(sel) < TRUNCATION_SEL_PCT
+    return dict(base, sd=sd, n=n, truncated=truncated, status="measured",
+                note=("selected in %.1f%% of drafts, so the observed range is cut by "
+                      "drafts ENDING before he was taken — this sd is a LOWER bound"
+                      % float(sel)) if truncated else None)
+
+
+def spread_summary(dispersion: dict) -> dict:
+    """A whole day's spreads — because the claim under test is about a DAY.
+
+    "Does a real spread beat the clamp" is not answerable one player at a time. The
+    board today carries 71 distinct `adp_sd` values across 1,759 players with 94.6%
+    on two of them, so the number that decides whether tomorrow is any better is
+    DISTINCT VALUES — not a mean, which a fully collapsed distribution reports
+    perfectly healthily, and which is how the clamp survived this long.
+
+    UNTIL TOMORROW THE ESTIMATOR IS UNVALIDATED AGAINST REAL DATA, and there is no
+    stored feed carrying both a published sd and min/max to check it against. This
+    is what makes the first real capture the validation instead of a hope.
+    """
+    rows = [spread_from_dispersion(v) for v in (dispersion or {}).values()]
+    got = [r for r in rows if r["status"] == "measured"]
+    out = {"players": len(rows),
+           "measured": len(got),
+           "unmeasurable": sum(1 for r in rows if r["status"] == "unmeasurable"),
+           "absent": sum(1 for r in rows if r["status"] == "absent"),
+           "truncated": sum(1 for r in got if r["truncated"]),
+           "distinct": None, "median_sd": None, "status": None}
+    if not got:
+        # ZERO MEASURED IS NOT A FLAT SPREAD. It is nothing to measure, and
+        # `distinct: 0` would read as a collapse we had observed.
+        return dict(out, status="unmeasured")
+    from statistics import median
+    sds = [r["sd"] for r in got]
+    return dict(out, status="measured",
+                distinct=len({round(s, 6) for s in sds}),
+                median_sd=median(sds))
+
+
 #: The first day a capture COULD carry a spread — the day the dispersion change
 #: landed. DECLARED, not derived, because it cannot be: a snapshot with no
 #: dispersion looks identical whether MFL published none or our parser was
