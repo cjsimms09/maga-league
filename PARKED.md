@@ -10413,3 +10413,77 @@ I ran the suite and committed in the same chained command, so the commit landed
 despite the red. The red was pre-existing and not mine, but I did not check before
 committing, and the ordering made it possible not to notice. Recorded rather than
 quietly fixed.
+
+---
+
+# C → A: TWO SURVIVAL MODELS DISAGREE 2-3x, AND THE KEEPER LOCK IS ~7 DAYS OUT
+
+**Files:** `draft/keepers.py:163` (`adp_sd_for`) vs `public/js/draft/survival.js:41-43`
+**Callers affected:** `keepers.py:326`, `grab_by.py:79`, `grab_by.py:150`,
+`opening_script.py:107` — **every one of them omits the `adp_sd` argument.**
+
+## THE DIVERGENCE, AND IT LOOKS LIKE A HALF-APPLIED CHANGE
+
+```
+   survival.js    ADP_SD_RATE: 0.15,   // was 0.22 — see above
+                  ADP_SD_CAP:  15.0
+   keepers.py     return max(3.0, 0.22 * float(adp_mean))     # no cap
+```
+
+**The JS comment says `was 0.22`.** The rate was deliberately moved to 0.15 and
+capped on the JS side; `keepers.py` still carries the original 0.22 with no cap. One
+half of a two-place change.
+
+## WHAT IT COSTS, MEASURED ON REAL PLAYERS
+
+Same player, same pick, 20-pick gap. `py surv` is what the keeper optimizer, the
+opening script and grab-by compute; `js surv` is what the engine that runs the live
+draft computes:
+
+```
+   player               adp    py sd   js sd   py surv   js surv   ratio
+   Ladd McConkey       44.3     9.75    6.65      2.0%      0.1%   15.3x
+   Brian Thomas        73.0    16.06   10.95     10.7%      3.4%    3.1x
+   Patrick Mahomes    101.0    22.22   15.00     18.4%      9.1%    2.0x
+   Brian Robinson     141.7    31.17   15.00     26.1%      9.1%    2.9x
+```
+
+**The Python side is consistently 2-3x more optimistic about a player lasting** than
+the engine you will actually draft with.
+
+## WHY IT MATTERS FOR KEEPERS SPECIFICALLY, AND WHY IT IS URGENT
+
+`keepers.py:326` prices a keeper as surplus over what the forfeited pick would
+return, and survival decides whether you would have got that player back anyway.
+Overestimating survival by 2-3x makes a keeper look LESS valuable — "he would have
+lasted to my pick regardless". **So the keeper optimizer systematically undervalues
+keepers relative to what the draft engine believes**, and the keeper decision locks
+around 2026-08-20.
+
+## AND A THIRD TREATMENT OF THE SAME FIELD
+
+`public/js/draft/deviation.js:248` already guards this correctly and says why:
+
+> "`adp_sd` exists on every player, but it is a real crowd spread only for the ~205
+> with matched FFC ADP; the deep pool carries a fallback around 30 that would render
+> as 'wildly contested' when it means 'we have no market read'."
+
+It returns `null` for non-`ffc` players. **`survival.js` makes no such distinction** —
+`adpSd` returns `provided` whenever it is positive, so the 1,418 fallback players at
+exactly 30.00 are treated as a measured crowd spread.
+
+So the same field is read three ways in one codebase: ignored (Python), trusted for
+everyone (survival.js), trusted only where it is real (deviation.js). That is rule
+11's multi-derivation defect, live, on the field you called worth more than any
+additional ADP source.
+
+## WHAT I AM NOT CLAIMING
+
+Which rate is right. `0.15` capped at 15 is the newer decision and is presumably the
+intended one, but I have no measurement that settles it — and per the addendum in
+BOARD-UNCERTAINTY-AUDIT.md, 142 of 145 draftable players carry a computed sd anyway,
+so both formulas are guesses until MFL's published dispersion accumulates. What I am
+claiming is that **two of them cannot both be right, and the keeper decision is
+running on the one that was not updated.**
+
+`draft/keepers.py` and `public/js/draft/survival.js` are not mine. Not touched.
