@@ -205,11 +205,13 @@ plan.forEach(x => {
    * MV ranks in the top five — possible, and the reason the width is written
    * down rather than tuned quietly. */
   const PREFILTER = 12;
-  const mvOf = {};
+  const mvOf = {}, mvDetail = {};
   if (x.bench) {
     pre.slice(0, PREFILTER).forEach(p => {
-      mvOf[String(p.player_id)] = BENCH.marginalValue(committed, p,
-        { sims: 600, lineupInfo: RHO });
+      const d = BENCH.marginalValue(committed, p,
+        { sims: 600, lineupInfo: RHO, detail: true });
+      mvOf[String(p.player_id)] = d.mv;
+      mvDetail[String(p.player_id)] = d;
     });
   }
   const rank = p => (x.bench ? (mvOf[String(p.player_id)] != null
@@ -254,12 +256,42 @@ plan.forEach(x => {
    * which flagged 13 of 15 picks as tossups and made the flag meaningless.
    * TOSSUP_SEASON_PTS is the single quantity; a bench row is ranked per week, so
    * the same 8 points becomes 8/15. */
-  /* ONE THRESHOLD, AND NOW ONE UNIT SYSTEM. It used to be 8 season points for a
-   * starter and 8/15 per week for a bench row, because the two seats were ranked
-   * in different units. MV is season points, so both seats are the same quantity
-   * and the division is gone — the bug it was working around no longer exists. */
+  /* ── THE TOSSUP THRESHOLD IS NOW MEASURED ON A BENCH ROW ────────────────
+   *
+   * It was 8 season points everywhere, and on MV that fired on 9 of 12 rows —
+   * a flag carrying no information, which is the "a tie is not a recommendation"
+   * failure in a new place. The number that belongs here is not a preference: a
+   * gap smaller than the noise in the estimate IS a tossup, and the simulation
+   * can report its own noise.
+   *
+   * Under common random numbers each candidate's MV comes from a per-sim series
+   * against the same base arm, so the top two subtract term by term and the
+   * PAIRED standard error of their gap follows. Two SEs is the band inside which
+   * the ordering is not distinguishable from a coin flip. Pairing matters: on
+   * the first bench seat the paired SE is 0.93 against 1.53 added in quadrature,
+   * and using the larger one would call real gaps tossups by a more respectable
+   * route than picking 8.
+   *
+   * A STARTER ROW KEEPS THE 8 AND IT IS A STATED JUDGEMENT, NOT A MEASUREMENT.
+   * Those candidates are ranked on a projection, which carries no sampling error
+   * for a measurement-error band to be built from — the real question there is
+   * whether the gap is inside PROJECTION error, which nothing here measures. Two
+   * thresholds again, in the same units, but now for two different reasons and
+   * each labelled with which kind it is. */
   const TOSSUP_SEASON_PTS = 8;
-  const thresh = TOSSUP_SEASON_PTS;
+  let thresh = TOSSUP_SEASON_PTS;
+  let threshBasis = 'stated judgement: 8 season points of projection';
+  if (x.bench && short.length >= 2) {
+    const dA = mvDetail[short[0].player_id], dB = mvDetail[short[1].player_id];
+    if (dA && dB) {
+      const se = BENCH.gapStandardError(dA, dB);
+      if (se != null && Number.isFinite(se)) {
+        thresh = Math.round(2 * se * 10) / 10;
+        threshBasis = 'MEASURED: two paired standard errors of this seat\'s own '
+          + 'top-two gap over ' + dA.sims + ' simulated seasons';
+      }
+    }
+  }
   const tossup = gap != null && gap <= thresh;
 
   /* ── TWO WAIVER LEVELS IN ONE ROW: the defect B blocked on ────────────
@@ -314,6 +346,7 @@ plan.forEach(x => {
      * which is how one threshold became two. MV(i|R) is season points, so both
      * row types are the same quantity and the field says so identically. */
     gap_units: 'season points',
+    tossup_basis: threshBasis,
     tossup: tossup,
     tossup_threshold: Math.round(thresh * 100) / 100,
     /* WHAT TO DO WHEN THE SHORTLIST IS GONE — the case a single-name plan
@@ -461,15 +494,16 @@ seats.forEach(s => {
     + (s.tossup ? ' T' : '  ') + '  '
     + s.shortlist.slice(0, 3).map(p => p.position + ' ' + p.name.split(' ').slice(-1)[0]).join(', '));
 });
-console.log('\n  T = TOSSUP: the top two eligible names are within 8 SEASON points of each');
-console.log('  other, so the SEAT matters more than the NAME. BOTH row types are now in');
-console.log('  SEASON POINTS — starters on projection, bench on MV(i|R) — so it is one');
-console.log('  threshold in one unit system rather than two.');
-console.log('  ⚠ 8 POINTS IS NOT CALIBRATED FOR MV AND IT SHOWS: within a bench seat the');
-console.log('  top candidates sit a few points apart, so the flag fires on most rows and');
-console.log('  carries little information. The threshold that belongs here is the standard');
-console.log('  error of the MV estimate itself — a gap under the measurement error IS a');
-console.log('  tossup, derived rather than chosen. NOT YET BUILT.');
+console.log('\n  T = TOSSUP: the top two eligible names are close enough that the SEAT');
+console.log('  matters more than the NAME. Both row types are in SEASON POINTS — starters');
+console.log('  on projection, bench on MV(i|R) — so the numbers are comparable even where');
+console.log('  the thresholds are derived differently.');
+console.log('  A BENCH ROW\'S THRESHOLD IS MEASURED, NOT CHOSEN: two PAIRED standard');
+console.log('  errors of that seat\'s own top-two gap, from the same common-random-number');
+console.log('  series the MVs come from. A gap inside it is not distinguishable from a');
+console.log('  coin flip. A STARTER row keeps 8 points as a stated judgement — those');
+console.log('  candidates are ranked on a projection, which carries no sampling error to');
+console.log('  build a band from. Each row says which kind it got, in tossup_basis.');
 console.log('  ' + seats.filter(s => s.tossup).length + ' of ' + seats.length + ' picks are tossups.');
 console.log('\n  This artifact is READ by the war room so the board Cory sees follows the');
 console.log('  model. It does NOT change the engine\'s ranking — it states the SEAT, and');

@@ -106,11 +106,44 @@ ck('gap_units matches how the row was actually ranked', unitMismatch.length === 
 ck('gap_to_second RECOMPUTES from the shortlist it summarises', gapMismatch.length === 0, gapMismatch);
 ck('the tossup flag follows from its own gap and threshold',
   tossupMismatch.length === 0, tossupMismatch);
-// ONE THRESHOLD, TWO UNIT SYSTEMS — the bug I shipped this morning.
-const threshes = [...new Set(D.seats.filter(s => s.tossup_threshold != null)
-  .map(s => (s.is_starter_seat ? 'starter:' : 'bench:') + s.tossup_threshold))];
-ck('there is exactly one threshold per unit system, not per row',
-  threshes.length <= 2, threshes);
+/* ── EVERY THRESHOLD SAYS WHICH KIND IT IS ──────────────────────────────
+ * The first cut had two thresholds in two UNIT SYSTEMS, which is incoherent.
+ * The second had one number, 8, applied to MV — where it fired on 9 of 12 rows
+ * and meant nothing. Now a bench row's band is MEASURED from its own top-two
+ * gap (two paired standard errors of the common-random-number series) and a
+ * starter row keeps a STATED 8, because a projection carries no sampling error
+ * to build a band from. Two thresholds again, in ONE unit system, for two
+ * different reasons — and the row has to name which it got. */
+ck('every seat declares the BASIS of its tossup threshold',
+  D.seats.every(s => typeof s.tossup_basis === 'string' && s.tossup_basis.length > 10),
+  D.seats.filter(s => !s.tossup_basis).map(s => s.pick));
+ck('a bench row\'s threshold is MEASURED from its own simulation',
+  D.seats.filter(s => !s.is_starter_seat)
+    .every(s => /MEASURED/.test(s.tossup_basis || '')),
+  D.seats.filter(s => !s.is_starter_seat).map(s => s.pick + ': ' + s.tossup_basis));
+ck('and a starter row says its threshold is a stated judgement, not a measurement',
+  D.seats.filter(s => s.is_starter_seat)
+    .every(s => /stated judgement/.test(s.tossup_basis || '')),
+  D.seats.filter(s => s.is_starter_seat).map(s => s.tossup_basis));
+/* CONTROL: a measured band must actually VARY by seat. One number wearing the
+ * word "measured" is the old defect with better prose. */
+const benchThresh = [...new Set(D.seats.filter(s => !s.is_starter_seat
+  && s.tossup_threshold != null).map(s => s.tossup_threshold))];
+ck('CONTROL — the measured bands differ across bench seats',
+  benchThresh.length > 1, benchThresh);
+ck('and they are small — a band as wide as the old 8 would flag everything',
+  benchThresh.every(t => t > 0 && t < 8), benchThresh);
+const starterThresh = [...new Set(D.seats.filter(s => s.is_starter_seat
+  && s.tossup_threshold != null).map(s => s.tossup_threshold))];
+ck('the stated starter threshold is ONE number, not one per row',
+  starterThresh.length <= 1, starterThresh);
+/* AND THE FLAG MUST STILL DISCRIMINATE. A threshold that fires on everything
+ * carries no information whichever way it was derived — that is what sent the
+ * flat 8 back for rework, so it is asserted rather than eyeballed. */
+const flagged = D.seats.filter(s => s.tossup).length;
+ck('the tossup flag separates the board rather than covering it',
+  flagged > 0 && flagged < D.seats.length * 0.75,
+  flagged + ' of ' + D.seats.length + ' flagged');
 
 // ── 4. THE ANTI-CROSS-POSITION CHECK ─────────────────────────────────────
 // The defect the whole schedule exists to prevent, and which I shipped into

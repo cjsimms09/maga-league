@@ -208,6 +208,7 @@
       ],
       "gap_to_second": 5.4,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": true,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR WR, not the best player on the board — the board ordering is roster-blind."
@@ -298,6 +299,7 @@
       ],
       "gap_to_second": 14.9,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": false,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR QB, not the best player on the board — the board ordering is roster-blind."
@@ -388,6 +390,7 @@
       ],
       "gap_to_second": 10.6,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": false,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR FLEX, not the best player on the board — the board ordering is roster-blind."
@@ -478,6 +481,7 @@
       ],
       "gap_to_second": 9.1,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": false,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR TE, not the best player on the board — the board ordering is roster-blind."
@@ -568,8 +572,9 @@
       ],
       "gap_to_second": 1.9,
       "gap_units": "season points",
-      "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
+      "tossup": false,
+      "tossup_threshold": 0.8,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -658,8 +663,9 @@
       ],
       "gap_to_second": 6.2,
       "gap_units": "season points",
-      "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
+      "tossup": false,
+      "tossup_threshold": 3.4,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -748,8 +754,9 @@
       ],
       "gap_to_second": 6.2,
       "gap_units": "season points",
-      "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
+      "tossup": false,
+      "tossup_threshold": 3.4,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -838,6 +845,7 @@
       ],
       "gap_to_second": 2,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": true,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR DEF, not the best player on the board — the board ordering is roster-blind."
@@ -928,6 +936,7 @@
       ],
       "gap_to_second": 3,
       "gap_units": "season points",
+      "tossup_basis": "stated judgement: 8 season points of projection",
       "tossup": true,
       "tossup_threshold": 8,
       "fallback_rule": "Take the best remaining player ELIGIBLE FOR K, not the best player on the board — the board ordering is roster-blind."
@@ -1018,8 +1027,9 @@
       ],
       "gap_to_second": 2.4,
       "gap_units": "season points",
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
       "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_threshold": 2.8,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -1108,8 +1118,9 @@
       ],
       "gap_to_second": 4.4,
       "gap_units": "season points",
-      "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
+      "tossup": false,
+      "tossup_threshold": 2.6,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     },
     {
@@ -1198,8 +1209,9 @@
       ],
       "gap_to_second": 0.5,
       "gap_units": "season points",
+      "tossup_basis": "MEASURED: two paired standard errors of this seat's own top-two gap over 600 simulated seasons",
       "tossup": true,
-      "tossup_threshold": 8,
+      "tossup_threshold": 2.1,
       "fallback_rule": "No seat is asserted here. Take upside, a handcuff, or the WR gap."
     }
   ]

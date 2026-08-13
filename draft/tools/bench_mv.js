@@ -590,19 +590,53 @@ function marginalValue(baseRoster, cand, cfg) {
   const alt = c.omegaMode === 'same_position'
     ? base.concat([omega(cand.position)])
     : base;                        /* the spot goes unused; holes stream */
-  let a = 0, b = 0;
+  /* THE PER-SIM DIFFERENCES ARE KEPT, NOT JUST THEIR MEAN.
+   *
+   * A gap between two candidates' MVs is a real gap only if it is larger than
+   * the noise in the estimates, and that noise is measurable right here. Under
+   * common random numbers sim `s` gives a paired difference for every candidate,
+   * so two candidates' series subtract term by term and the standard error of
+   * their gap follows. That is what turns "tossup" from a threshold somebody
+   * picked into a number the simulation reports about itself.
+   *
+   * COMMON RANDOM NUMBERS: every draw is ADDRESSED by (seed, sim, salt, roster
+   * index, week), so the players the two arms share are handed identical
+   * injuries, byes, weekly scores and wire draws no matter what happens to the
+   * one they do not share. */
+  const series = new Array(c.sims);
+  let sum = 0;
   for (let s = 0; s < c.sims; s++) {
-    /* COMMON RANDOM NUMBERS. Every draw is ADDRESSED by (seed, sim, salt,
-     * roster index, week), so the players the two arms share are handed
-     * identical injuries, byes, weekly scores and wire draws no matter what
-     * happens to the one they do not share. */
-    a += simSeason(withI, s, c);
-    b += simSeason(alt, s, c);
+    const d = simSeason(withI, s, c) - simSeason(alt, s, c);
+    series[s] = d; sum += d;
   }
-  return (a - b) / c.sims;
+  const mv = sum / c.sims;
+  if (!c.detail) return mv;
+  let ss = 0;
+  for (let s = 0; s < c.sims; s++) { const e = series[s] - mv; ss += e * e; }
+  const sd = Math.sqrt(ss / Math.max(1, c.sims - 1));
+  return { mv: mv, se: sd / Math.sqrt(c.sims), sd: sd, series: series, sims: c.sims };
 }
 
-module.exports = { marginalValue, simSeason, toSim, omega, bestLineup, resolveRho,
+/* THE STANDARD ERROR OF THE GAP BETWEEN TWO CANDIDATES, PAIRED.
+ * Both are measured against the same base arm on the same sim indices, so their
+ * difference is paired sim by sim and its SE is SMALLER than the two SEs added
+ * in quadrature. Using the unpaired form would overstate the noise and call real
+ * gaps tossups — which is the same failure as an arbitrary threshold, arrived at
+ * by a more respectable route. */
+function gapStandardError(detailA, detailB) {
+  const n = Math.min(detailA.series.length, detailB.series.length);
+  if (!n) return null;
+  let sum = 0;
+  for (let i = 0; i < n; i++) sum += detailA.series[i] - detailB.series[i];
+  const mean = sum / n;
+  let ss = 0;
+  for (let i = 0; i < n; i++) {
+    const e = (detailA.series[i] - detailB.series[i]) - mean; ss += e * e;
+  }
+  return Math.sqrt(ss / Math.max(1, n - 1)) / Math.sqrt(n);
+}
+
+module.exports = { marginalValue, gapStandardError, simSeason, toSim, omega, bestLineup, resolveRho,
   SLOTS, FIRST_WEEK, LAST_WEEK, WIRE_SAMPLE, WIRE_BASIS, FLEX_STREAM_POS,
   MEASURED, mulberry32, u01, FALLBACK_WIRE };
 
