@@ -70,11 +70,22 @@ function run(doc, label) {
   const r = run(soundDoc(), 'sound');
   const fails = r.out.split('\n').filter(l => /^FAIL/.test(l));
   ck('a SOUND log produces NO failures', fails.length === 0, fails.slice(0, 4));
+  /* THESE TWO PINNED THE WORDING, AND THE WORDING WENT STALE ON 2026-08-14.
+   * They required the phrase "NOT IMPLEMENTED" and "not known until B's artifact
+   * lands". The artifact landed, the roster shape resolved, and the real blocker
+   * turned out to be different (the log records board COUNTS, never which players
+   * were taken). Keeping the old assertions would have pinned a sentence that had
+   * become FALSE — a test enforcing a stale description is the same defect the
+   * auditor exists to find, so it is the EXPECTATION that moves here, and the
+   * reason is written down rather than silently edited.
+   *
+   * They now pin the INVARIANT rather than the sentence: unbuilt must not read as
+   * a pass, and it must name something concrete and actionable. */
   ck('  but does not exit 0 — the unbuilt cross-check is CANNOT AUDIT, not a pass',
-    r.code === 1 && /cross-check the log against the engine/.test(r.out)
-    && /NOT IMPLEMENTED/.test(r.out));
-  ck('  and the unbuilt check says WHY it is unbuilt rather than going quiet',
-    /roster entry shape|not known until B/.test(r.out));
+    r.code === 1 && /CANNOT AUDIT  cross-check the log against the engine/.test(r.out));
+  ck('  and the unbuilt check names what is missing rather than going quiet',
+    /BLOCKED|NOT IMPLEMENTED/.test(r.out)
+    && /board state|board_left|taken player_ids|roster entry shape/i.test(r.out));
 }
 
 // ── 3. BOARD STAMP ─────────────────────────────────────────────────────────

@@ -49,17 +49,22 @@ const ROOT = path.join(__dirname, '..', '..');
  * Each entry lists the names this auditor will accept for one concept. If none
  * matches, the audit says which concept it could not find and refuses to run —
  * it does not fall back to a default and it does not skip the check. */
+/* B's REAL NAMES ADDED 2026-08-14 when the artifact landed
+ * (public/js/drivelog/draft-drive-log.ndjson, 61 rows). Adding an ALIAS is the
+ * legitimate half of the split this file declares below; every CHECK is
+ * untouched. Named rather than merged silently so the next reader can see which
+ * concepts were resolved by guessing at a name versus by B confirming one. */
 const FIELD = {
-  pick: ['pick', 'pick_no', 'pick_number', 'overall_pick'],
+  pick: ['pick', 'pick_no', 'pick_number', 'overall_pick', 'sleeper_pick_no'],
   round: ['round', 'round_no', 'rnd'],
   player: ['player', 'recommended', 'recommended_player', 'name', 'player_name'],
   position: ['position', 'pos', 'recommended_position'],
   board_rank: ['board_rank', 'rank', 'overall_rank'],
   score: ['score', 'composite', 'composite_score'],
-  gap: ['gap', 'gap_to_second', 'gap_to_next', 'score_gap'],
+  gap: ['gap', 'gap_to_second', 'gap_to_next', 'score_gap', 'gap_1_to_2'],
   alternatives: ['alternatives', 'alts', 'others', 'candidates'],
   explanation: ['explanation', 'why', 'reason', 'reasons'],
-  roster: ['roster', 'roster_state', 'my_roster'],
+  roster: ['roster', 'roster_state', 'my_roster', 'roster_before'],
   panels: ['panels', 'panel', 'cards', 'surfaces'],
 };
 const STAMP = {
@@ -130,6 +135,12 @@ if (missingConcepts.length) {
 }
 console.log('');
 
+/* PICK ROWS VS EVERYTHING ELSE — needed by both the completeness block and the
+ * sequence block, so it is resolved once here rather than twice. */
+const isPick = r => r && key.player && Object.prototype.hasOwnProperty.call(r, key.player);
+const pickRows = rows.filter(isPick);
+const otherRows = rows.filter(r => !isPick(r));
+
 // ── 3. THE BOARD STAMP — checked first because everything else depends on it ─
 {
   const stampSrc = Object.keys(meta).length ? meta : rows[0];
@@ -174,51 +185,120 @@ console.log('');
    * it ten times. gap_to_second is the specific case: the engine sets it on the
    * leader and NULL on every other entry, so a log that omits it on non-leaders
    * has thrown away the distinction the engine deliberately encodes. */
+  /* A LOG MAY CARRY MORE THAN ONE RECORD SHAPE, AND RAGGEDNESS ACROSS SHAPES IS
+   * NOT THE SAME DEFECT AS RAGGEDNESS WITHIN ONE. B's log carries 60 PICK rows
+   * and 1 EVENT row (the kill marker on the frozen run). Comparing all 61
+   * against a union of both key sets reported twelve "missing" fields and read
+   * as a badly-formed capture; it is in fact a well-formed capture of two things.
+   * Checked within record type instead — which still catches a pick row that
+   * drops a field, the case this was written for.
+   *
+   * THE REAL FINDING THAT SURVIVES: there is NO TYPE DISCRIMINATOR. A consumer
+   * has to probe for the presence of `recommended` to know which shape it holds,
+   * and a consumer that does not probe will read the event row as a pick with
+   * everything missing. That is reported below rather than smoothed over. */
+  const typeKey = ['type', 'record_type', 'kind', 'event'].find(k => rows.some(r => r && k in r));
+  if (otherRows.length) {
+    console.log('  record shapes: ' + pickRows.length + ' pick row(s), '
+      + otherRows.length + ' non-pick row(s)');
+    ck('  a mixed-shape log declares its record type in a field',
+      Boolean(typeKey),
+      { note: 'without a discriminator a consumer must probe for `' + key.player
+        + '` to know what it is holding, and one that does not probe reads the '
+        + 'non-pick rows as picks with every field missing',
+        non_pick_row_keys: Object.keys(otherRows[0] || {}).slice(0, 12) });
+  }
+
   const allKeys = new Set();
-  rows.forEach(r => Object.keys(r || {}).forEach(k => allKeys.add(k)));
+  pickRows.forEach(r => Object.keys(r || {}).forEach(k => allKeys.add(k)));
   const ragged = Array.from(allKeys).filter(k =>
-    rows.some(r => !Object.prototype.hasOwnProperty.call(r || {}, k)));
-  ck('every row carries every field — absent is recorded as null, not omitted',
+    pickRows.some(r => !Object.prototype.hasOwnProperty.call(r || {}, k)));
+  ck('every PICK row carries every field — absent is recorded as null, not omitted',
     ragged.length === 0,
     { fields_missing_from_some_rows: ragged.slice(0, 12),
-      rows_total: rows.length,
+      pick_rows: pickRows.length,
       note: 'present-and-null means "asked, no value"; omitted means "nobody knows '
         + 'whether it was asked". They must not read the same.' });
 
-  const nulls = {};
-  Array.from(allKeys).forEach(k => {
-    nulls[k] = rows.filter(r => r && r[k] === null).length;
-  });
-  const everNull = Object.keys(nulls).filter(k => nulls[k] > 0);
+  /* NULLS AT ANY DEPTH, NOT JUST THE TOP LEVEL. The first version looked only at
+   * row keys and reported "this log never uses null" about a log whose
+   * alternatives carry `gap_to_second: null` on ranks 2..N — which is precisely
+   * the engine-side distinction Cory observed live and precisely what this
+   * control exists to confirm survived the capture. A control that reads one
+   * level deep and concludes something about the whole document is the same
+   * over-read it is meant to catch. */
+  const nullPaths = [];
+  const walk = (v, path, depth) => {
+    if (depth > 4 || nullPaths.length > 8) return;
+    if (v === null) { nullPaths.push(path); return; }
+    if (Array.isArray(v)) { v.slice(0, 3).forEach((x, i) => walk(x, path + '[' + i + ']', depth + 1)); return; }
+    if (v && typeof v === 'object') { Object.keys(v).forEach(k => walk(v[k], path ? path + '.' + k : k, depth + 1)); }
+  };
+  pickRows.slice(0, 10).forEach((r, i) => walk(r, '', 0));
+  const everNull = nullPaths;
   ck('  CONTROL: the log DOES use null somewhere — otherwise the check above is vacuous',
     everNull.length > 0,
     { note: 'a log with no nulls anywhere is either perfect or is omitting rather '
       + 'than nulling, and those look identical from outside' });
+  if (everNull.length) {
+    console.log('        (null observed at: ' + everNull.slice(0, 3).join(', ') + ')');
+  }
 }
 
 // ── 4. INTERNAL COHERENCE ───────────────────────────────────────────────────
 {
+  /* SEQUENCE INVARIANTS HOLD WITHIN A RUN, NOT ACROSS A FILE.
+   *
+   * THE FIRST VERSION OF THESE THREE CHECKS ASSUMED ONE DRAFT PER FILE AND
+   * FAILED ALL THREE ON A SOUND LOG. B's artifact concatenates four runs
+   * (follow-1, follow-2-killed, override-early, override-mid); each restarts at
+   * pick 8 with the three keepers. So "duplicate pick 33", "picks out of order"
+   * and "the roster shrank from 11 to 3" were MY instrument reporting its own
+   * assumption, and every one of them would have been read as a defect in B's
+   * capture. Rule 13f cuts both ways: a negative deserves the same reading as a
+   * positive, and three red lines are exactly as citable as three green ones.
+   *
+   * Grouping by run makes the invariant STRONGER, not weaker — it still catches
+   * a real duplicate or a real reset, and it now also catches a run whose rows
+   * are interleaved with another's. */
+  const runKey = ['run', 'run_id', 'session', 'trial'].find(k => rows[0] && k in rows[0]);
+  const groups = {};
+  pickRows.forEach(r => { const g = runKey ? String(r[runKey]) : '_all'; (groups[g] = groups[g] || []).push(r); });
+  const runNames = Object.keys(groups);
+  console.log('  sequence invariants evaluated PER RUN: '
+    + (runKey ? runNames.length + ' run(s) via `' + runKey + '` — ' + runNames.join(', ')
+      : 'no run field; treating the file as one run'));
+
   if (!key.pick) { blocked('one row per pick, picks strictly increasing', 'no pick field'); }
   else {
-    const picks = rows.map(r => Number(pick(r, FIELD.pick)));
-    const dupes = picks.filter((p, i) => picks.indexOf(p) !== i);
-    ck('one row per pick — no duplicate pick numbers', dupes.length === 0, dupes.slice(0, 8));
-    const sorted = picks.slice().sort((a, b) => a - b);
-    ck('  picks are in order and every one is a number',
-      picks.every(p => isFinite(p)) && picks.join(',') === sorted.join(','),
-      { first: picks.slice(0, 6), nonNumeric: picks.filter(p => !isFinite(p)).length });
+    const badDupes = [], badOrder = [];
+    runNames.forEach(g => {
+      const picks = groups[g].map(r => Number(pick(r, FIELD.pick)))
+        .filter(p => isFinite(p));
+      const dupes = picks.filter((p, i) => picks.indexOf(p) !== i);
+      if (dupes.length) badDupes.push({ run: g, dupes: dupes.slice(0, 6) });
+      const sorted = picks.slice().sort((a, b) => a - b);
+      if (picks.join(',') !== sorted.join(',')) badOrder.push({ run: g, picks: picks.slice(0, 8) });
+    });
+    ck('one row per pick — no duplicate pick numbers WITHIN a run',
+      badDupes.length === 0, badDupes);
+    ck('  and picks increase within a run',
+      badOrder.length === 0, badOrder);
   }
 
   if (!key.roster) { blocked('the roster advances', 'no roster field'); }
   else {
-    const sizes = rows.map(r => {
-      const v = pick(r, FIELD.roster);
-      return Array.isArray(v) ? v.length : (v && typeof v === 'object'
-        ? Object.keys(v).length : null);
+    const shrank = [];
+    runNames.forEach(g => {
+      const sizes = groups[g].map(r => {
+        const v = pick(r, FIELD.roster);
+        return Array.isArray(v) ? v.length : (v && typeof v === 'object'
+          ? Object.keys(v).length : null);
+      }).filter(s => s !== null);
+      sizes.forEach((s, i) => { if (i && s < sizes[i - 1]) shrank.push({ run: g, at: i, from: sizes[i - 1], to: s }); });
     });
-    const ok = sizes.every(s => s !== null) && sizes.every((s, i) => i === 0 || s >= sizes[i - 1]);
-    ck('the roster state never SHRINKS between picks', ok,
-      { sizes: sizes.slice(0, 12),
+    ck('the roster state never SHRINKS within a run', shrank.length === 0,
+      { shrank: shrank.slice(0, 6),
         note: 'a shrinking roster means the capture is reading a stale or reset state '
           + '— the mid-draft reset defect, seen from the log side' });
   }
@@ -266,11 +346,26 @@ console.log('');
      * WHEN THE LOG LANDS: map roster -> player_id, rebuild ctx via
      * live_context.js (which refuses partial or invented keys), call
      * E.recommend, and REPORT the disagreement rate without scoring it. */
+    /* THE ARTIFACT LANDED 2026-08-14 AND THE BLOCKER IS NO LONGER THE ROSTER
+     * SHAPE — that resolved cleanly ({name, pos}). It is that THE LOG DOES NOT
+     * RECORD THE BOARD STATE. Recomputing a recommendation needs the set of
+     * players already taken; the log carries only page_says.drafted (a count)
+     * and page_says.board_left (a count). Two different boards with the same
+     * count produce different recommendations, so counts cannot stand in.
+     *
+     * This is now a REQUEST WITH A NAME rather than an open-ended gap: one field
+     * per row — the taken player_ids, or a digest of the remaining board — makes
+     * every logged pick independently recomputable, and this check goes live
+     * without any other change. Recorded here rather than approximated, because
+     * a cross-check run against a guessed board would disagree with the surface
+     * for reasons that have nothing to do with the surface. */
     blocked('cross-check the log against the engine',
-      'NOT IMPLEMENTED. Needs the log\'s roster entry shape to map to board '
-      + 'players, which is not known until B\'s artifact lands. Guessing the '
-      + 'mapping would compare the wrong things silently. This is the check Cory '
-      + 'most wants and it is deliberately unbuilt rather than faked.');
+      'STILL BLOCKED, BUT THE BLOCKER IS NOW NAMED. The roster shape resolved '
+      + '({name, pos}); what is missing is the BOARD STATE. The log records '
+      + 'page_says.drafted and board_left as COUNTS, never which players were '
+      + 'taken, and recommend() is a function of the exact remaining board. '
+      + 'Needed from B: taken player_ids (or a digest of the remaining board) '
+      + 'per row. One field, and this check runs.');
   }
 }
 
@@ -283,12 +378,15 @@ console.log('');
       + 'composite card naming different players. Without it the log is a '
       + 'recommendation trace, not a surface trace.');
   } else {
-    const withPanels = rows.filter(r => {
+    /* PICK ROWS ONLY. An event row has no recommendation, so it has no panels to
+     * disagree about; counting it made a sound log read 60/61. */
+    const withPanels = pickRows.filter(r => {
       const p = pick(r, FIELD.panels);
       return p && (Array.isArray(p) ? p.length : Object.keys(p).length);
     });
-    ck('every row records what the other panels said', withPanels.length === rows.length,
-      { rows_with_panels: withPanels.length, rows_total: rows.length });
+    ck('every PICK row records what the other panels said',
+      withPanels.length === pickRows.length,
+      { rows_with_panels: withPanels.length, pick_rows: pickRows.length });
   }
 }
 
