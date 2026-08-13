@@ -45,20 +45,19 @@ jobs:
       # defects no test could reach. `verify_manifest` is tested — including
       # against a test that is hollowed out while keeping its name, which is the
       # case this whole workflow exists for.
+      # ONE RUN, NOT TWO. The first version had two python blocks and each
+      # called `verify_manifest()` — so the dispatched run re-applied all 28
+      # mutations TWICE, 40 seconds each, and the two runs could in principle
+      # disagree with nothing noticing which was reported.
       - name: Re-run every recorded mutation
         run: |
-          python3 - <<'PY' | tee /tmp/mm.txt
-          import json, sys
-          sys.path.insert(0, "draft/backtest")
-          import mutation_gate as MG
-          r = MG.verify_manifest(root=".")
-          print(json.dumps(r, indent=1)[:4000])
-          PY
           python3 - <<'PY'
           import json, sys
           sys.path.insert(0, "draft/backtest")
           import mutation_gate as MG
           r = MG.verify_manifest(root=".")
+          print(json.dumps({k: v for k, v in r.items() if k != "regressed"}, indent=1))
+
           with open("/tmp/summary.md", "w") as fh:
               fh.write("## Mutation manifest\n\n")
               fh.write("- re-ran **%d** recorded kills, **%d** still kill\n"
@@ -71,9 +70,24 @@ jobs:
                       fh.write("- `%s` → **%s** — %s (%s)\n"
                                % (", ".join(x["must_fail"]), x["verdict"],
                                   x["detail"], x["module"]))
+              elif not r["checked"]:
+                  fh.write("\n**NOTHING WAS CHECKED** — the manifest was empty or "
+                           "unreadable. This is not a pass.\n")
               else:
                   fh.write("\nAll recorded kills still kill.\n")
-          sys.exit(1 if r["regressed"] else 0)
+
+          # EXIT ON `all_killed`, NOT ON `regressed`. Found by reading the first
+          # dispatched run's log rather than trusting its green tick: with
+          # `checked == 0` — manifest missing, renamed, or unreadable — the
+          # regression list is EMPTY and the job would have gone green while
+          # verifying nothing. `all_killed` is `checked > 0 and not regressed`,
+          # so it refuses that case by construction. A weekly job that passes
+          # when it cannot find its own input is worse than no weekly job.
+          for x in r["regressed"]:
+              print("REGRESSED: %s -> %s" % (", ".join(x["must_fail"]), x["verdict"]))
+          if not r["checked"]:
+              print("NOTHING CHECKED — the manifest was empty or unreadable.")
+          sys.exit(0 if r["all_killed"] else 1)
           PY
 
       - name: Put it where it will be read
