@@ -49,9 +49,39 @@
    *     server's authoritative stamp can be recognised as a REPLAY stamp rather
    *     than mistaken for when the decision was made.
    */
+  /* ── UPGRADED TO WRITE-AHEAD, 2026-08-13, on B's diagnosis ────────────────
+   *
+   * My first fix parked a body only AFTER both post attempts failed. B's point
+   * is correct and it is not a refinement: a tab killed DURING the attempt —
+   * a backgrounded phone discarded mid-draft, the exact failure draft_session.js
+   * exists for — never reaches the catch, so the record is gone before anything
+   * writes it down. Parking on failure protects against a network outage. It
+   * does not protect against the browser going away, which is the likelier of
+   * the two at a draft table.
+   *
+   * So the queue is now the ONLY path. Every record is written to localStorage
+   * BEFORE any network call, and a row leaves the queue only on server
+   * acknowledgement. That is the same discipline draft_session.js already uses
+   * for draft state, and B was right that it should not have been reinvented
+   * one module over.
+   *
+   * ORDERING IS A FREE CONSEQUENCE: one drain, oldest-first, so nothing can
+   * overtake anything. And delivery becomes at-least-once rather than
+   * at-most-once, which is the correct trade for an append-only ledger — a
+   * duplicate is a nuisance the server can dedup on `key`, a loss is permanent.
+   *
+   * ── AND THE PART OF B'S CRITIQUE THAT STILL STANDS ────────────────────────
+   *
+   * "console.error on a phone, at a table, with nobody in devtools" is silent by
+   * every practical definition. THAT IS STILL TRUE OF THIS FILE. `pending()`
+   * exposes the count and `onError` fires, but a number nothing renders is a
+   * number nobody sees. The surface belongs to B; this module can only make the
+   * fact available, and it now does. Routed, not fixed here.
+   */
   var QUEUE_KEY = 'predledger_pending_v1';
   var QUEUE_MAX = 500;                    // ~30x a full draft's decision count
   var flushing = false;
+  var nextId = 1;
 
   function store() {
     try {
@@ -78,16 +108,38 @@
   function queueLength() { return readQueue().length; }
   function enqueue(body) {
     var q = readQueue();
-    if (q.length >= QUEUE_MAX) return false;
-    q.push({ body: body, queued_at: new Date().toISOString() });
-    return writeQueue(q);
+    if (q.length >= QUEUE_MAX) return null;
+    var id = 'r' + (Date.now()) + '-' + (nextId++);
+    q.push({ id: id, body: body, queued_at: new Date().toISOString(), attempts: 0 });
+    return writeQueue(q) ? id : null;
+  }
+  function dropById(id) {
+    var q = readQueue();
+    var out = [];
+    for (var i = 0; i < q.length; i++) if (q[i].id !== id) out.push(q[i]);
+    if (out.length !== q.length) writeQueue(out);
+  }
+  /* ON A FAILURE, THE HEAD WAS ATTEMPTED AND *EVERYTHING* IS NOW DELAYED.
+   * Only the head is ever posted, so `attempts` alone marks one record however
+   * many sit behind it — and those others reach the server late just the same.
+   * `replayed_at` means "this arrived later than it was captured", which is true
+   * for the whole queue at the moment of a failure, so the whole queue is
+   * marked. Stamping on `attempts` alone would have labelled one of three
+   * delayed records and left the other two indistinguishable from live ones. */
+  function markFailure(headId) {
+    var q = readQueue();
+    for (var i = 0; i < q.length; i++) {
+      if (q[i].id === headId) q[i].attempts = (q[i].attempts || 0) + 1;
+      q[i].delayed = true;
+    }
+    writeQueue(q);
   }
 
-  /* Drain oldest-first, stopping at the first failure so ordering holds. */
+  /* Drain oldest-first, stopping at the first failure so ordering holds.
+   * A row leaves ONLY on acknowledgement. */
   function flush() {
     if (flushing) return Promise.resolve(0);
-    var q = readQueue();
-    if (!q.length) return Promise.resolve(0);
+    if (!readQueue().length) return Promise.resolve(0);
     flushing = true;
     var sent = 0;
     function step() {
@@ -95,20 +147,27 @@
       if (!cur.length) return Promise.resolve();
       var head = cur[0];
       var body = head.body;
-      if (body && body.payload && typeof body.payload === 'object' && !body.payload.replayed_at) {
+      /* STAMPED AS A REPLAY ONLY IF AN EARLIER ATTEMPT ACTUALLY FAILED. With
+       * write-ahead every record passes through the queue, so stamping on
+       * presence-in-queue would mark all of them and the field would stop
+       * meaning anything — the same "a flag everything carries is not a flag"
+       * problem as a check that cannot fail. */
+      if ((head.attempts > 0 || head.delayed) && body && body.payload
+          && typeof body.payload === 'object' && !body.payload.replayed_at) {
         body.payload.replayed_at = new Date().toISOString();
       }
       return post(body).then(function () {
-        var after = readQueue();
-        after.shift();
-        writeQueue(after);
+        dropById(head.id);
         sent++;
         return step();
-      }, function () { /* still down — leave the rest parked, in order */ });
+      }, function (e) {
+        markFailure(head.id);
+        lastError = String(e && e.message || e);
+        throw e;                       // stop the drain; the rest stay in order
+      });
     }
     return step().then(function () {
       flushing = false;
-      if (sent && global.console) console.log('[predledger] replayed ' + sent + ' parked record(s)');
       return sent;
     }, function () { flushing = false; return sent; });
   }
@@ -190,26 +249,33 @@
       client_at: new Date().toISOString(),   // provenance only; server clock is authority
       payload: payload,
     };
-    return post(body).then(function (r) {
-      /* A SUCCESS IS THE ONLY RELIABLE SIGNAL THAT THE NETWORK IS BACK. There is
-       * no timer and no retry loop: the next real capture drains whatever is
-       * parked. Draft night produces a decision every few minutes, so the queue
-       * is never parked for long, and nothing spins in the background. */
-      if (queueLength()) flush();
-      return r;
-    }).catch(function (e) {
-      // one retry, then PARK IT RATHER THAN DROP IT — see the queue notes above.
-      return post(body).catch(function (e2) {
-        lastError = String(e2 && e2.message || e2);
-        var parked = enqueue(body);
-        if (global.console) {
-          console.error('[predledger] post failed:', lastError,
-            parked ? '— PARKED for replay (' + queueLength() + ' pending)'
-                   : '— AND COULD NOT BE PARKED. THIS RECORD IS LOST.', body);
-        }
-        if (typeof opts.onError === 'function') opts.onError(lastError);
-        return null;
+    /* WRITE FIRST, THEN DRAIN. The record is on disk before any network call,
+     * so a tab that dies mid-request loses nothing. */
+    var id = enqueue(body);
+    if (id == null) {
+      /* Storage is full, blocked or absent (private mode). Fall back to the old
+       * direct-post path — DEGRADED, not silent: this is the one case where a
+       * failure is still unrecoverable, and it says so. */
+      return post(body).catch(function () {
+        return post(body).catch(function (e2) {
+          lastError = String(e2 && e2.message || e2);
+          if (global.console) {
+            console.error('[predledger] post failed AND could not be parked '
+              + '(no usable localStorage). THIS RECORD IS LOST.', lastError, body);
+          }
+          if (typeof opts.onError === 'function') opts.onError(lastError);
+          return null;
+        });
       });
+    }
+    return flush().then(function (sent) {
+      var left = queueLength();
+      if (left && global.console) {
+        console.error('[predledger] ' + left + ' record(s) UNSENT and parked for replay — '
+          + 'last error: ' + lastError, body);
+      }
+      if (left && typeof opts.onError === 'function') opts.onError(lastError, left);
+      return sent ? { ok: true } : null;
     });
   }
 

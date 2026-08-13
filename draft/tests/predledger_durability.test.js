@@ -161,7 +161,31 @@ const OV = (pick, chosen) => ({
   try { await PL.override(OV(113, 'F')); } catch (e) { threw = true; }
   check('a corrupt queue is discarded rather than crashing capture', !threw);
 
-  // ── 9. THE CONTROL: THIS SUITE MUST BE ABLE TO FAIL ──────────────────────
+  // ── 9. WRITE-AHEAD: THE RECORD IS ON DISK BEFORE THE NETWORK ANSWERS ─────
+  /* THE CHECK THAT SEPARATES THIS FIX FROM THE PREVIOUS ONE. Parking on failure
+   * survives a network outage; it does NOT survive the browser going away
+   * mid-request, because the catch never runs. B named that case specifically —
+   * a backgrounded phone discarded at a draft table — and it is the likelier of
+   * the two. A hanging fetch stands in for the tab dying: if the record is
+   * already in localStorage while the request is still in flight, a tab death at
+   * that instant loses nothing.
+   *
+   * This check FAILS against my own first implementation, which is the point. */
+  PL._reset(); posted.length = 0;
+  let release;
+  global.fetch = function () { return new Promise(r => { release = r; }); };   // never settles
+  const inflight = PL.override(OV(128, 'G'));
+  await new Promise(r => setTimeout(r, 10));
+  check('WRITE-AHEAD: the record is on disk while the request is STILL IN FLIGHT',
+    q().length === 1 && q()[0].body.payload.chosen === 'G', q());
+  check('  so a tab killed mid-request loses nothing', PL.pending() === 1);
+  release({ ok: true, json: () => Promise.resolve({}) });
+  await inflight;
+  await new Promise(r => setTimeout(r, 10));
+  check('  and once the server acknowledges, the row leaves the queue',
+    PL.pending() === 0, q());
+
+  // ── 10. THE CONTROL: THIS SUITE MUST BE ABLE TO FAIL ─────────────────────
   /* If `online` did nothing, every check above would pass vacuously against a
    * ledger that simply always works. Prove the outage is real. */
   PL._reset(); posted.length = 0;
