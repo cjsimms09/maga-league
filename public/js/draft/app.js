@@ -7455,6 +7455,19 @@
     // player being taken. Snapshotted BEFORE the filter below; shadows draft
     // from exactly this snapshot, and its hash is what the robot verifies.
     const boardAtPick = (toMe && !alreadySeen) ? state.board.slice() : null;
+    /* THE TAKEN SET, SNAPSHOTTED HERE FOR THE SAME REASON THE BOARD IS.
+     *
+     * `capturePick` runs BELOW `ATTR.markLocal`, which has already added this
+     * player to `state.drafted`. Reading the set down there would record a board
+     * that already contains the pick being explained — off by exactly the
+     * decision under study, on every row, in the direction that makes the choice
+     * look inevitable.
+     *
+     * Array.from a Set preserves insertion order, which is draft order on the
+     * incremental path; boardState labels which it got rather than claiming. */
+    const takenAtPick = (toMe && !alreadySeen && state.drafted
+      && typeof state.drafted.forEach === 'function')
+      ? Array.from(state.drafted) : null;
     // A local mark is a GUESS; the shared module records it as such and Sleeper
     // can later override it. Same call the robot mock's R1/R3 scenarios prove.
     if (ATTR) ATTR.markLocal(state, p, slot, seatSlot);
@@ -7483,7 +7496,9 @@
     // L1 capture: a pick I take is a decision — log it at decision time. Only my
     // own picks (toMe); other teams' picks are recorded by the survival/board
     // context, not as my decisions. Never on a mock, and never a re-mark.
-    if (toMe && !alreadySeen && !state.mockMode) capturePick(p, pathKey);
+    if (toMe && !alreadySeen && !state.mockMode) {
+      capturePick(p, pathKey, takenAtPick, boardAtPick ? boardAtPick.length : null);
+    }
     // Phase H: every strategy takes its own counterfactual pick at my slot,
     // from the snapshot above. Mocks fire it too (flagged rehearsal) so the
     // whole shadow path is exercised before draft night.
@@ -7707,7 +7722,30 @@
       pick: currentPick(),
     };
   }
-  function capturePick(p, pathKey) {
+  /* THE PICK ROW MUST BE SELF-SUFFICIENT. IT WAS NOT.
+   *
+   * The board a decision was made from rode ONLY on the `recommendation` row.
+   * `pick` joined to it by `season|build_at|pick` and inherited it that way,
+   * which is sound arithmetic and an unsound dependency: THE RECOMMENDATION
+   * CAPTURE LIVES INSIDE `renderRecommendations`, and renderAll wraps that call
+   * in `safeRender` precisely because it can throw. I built that guard myself.
+   *
+   * So the failure mode is: renderRecommendations throws at pick N, safeRender
+   * records it and keeps the board alive (correct, and the reason the guard
+   * exists), no recommendation row is written, and the pick row at N has no
+   * board. That decision is then PERMANENTLY UNGRADABLE — not wrong, missing,
+   * and missing in a way that looks identical to a pick nobody analysed yet.
+   *
+   * `state.renderFailures` knows it happened. THE LEDGER DOES NOT, and the
+   * ledger is what September reads.
+   *
+   * The fix is to remove the coupling rather than to report it more loudly: the
+   * pick carries its own taken set. A lost recommendation row now costs the
+   * recommendation, not the evidence. `render_failed` rides alongside so a
+   * replay can tell a missing recommendation from one that was never due.
+   *
+   * COST: ~150 ids at the last pick, on twelve rows a draft. */
+  function capturePick(p, pathKey, takenAtPick, boardSizeAtPick) {
     if (typeof PredLedger === 'undefined') return;
     var c = ledgerCtx();
     // Part 2 §1: log WHICH path the pick came from. Resolve from the paths that
@@ -7722,13 +7760,31 @@
         return x.candidates.some(function (cd) { return String(cd.player.player_id) === String(p.player_id); });
       }) || null;
     }
+    /* DEGRADE, NEVER LOSE THE ROW. Same two-level shape as the recommendation
+     * capture: a browser holding a cached predledger.js without `boardState`
+     * must still log the pick. A pick without its board is worth less than one
+     * with it and far more than none. */
+    var board = {};
+    try {
+      board = (typeof PredLedger.boardState === 'function' && takenAtPick)
+        ? PredLedger.boardState(takenAtPick, boardSizeAtPick)
+        : { taken_state: takenAtPick ? 'unavailable' : 'not-snapshotted' };
+    } catch (e) { board = { taken_state: 'error' }; }
+    var rf = state.renderFailures || {};
     PredLedger.pick({ season: c.season, build_at: c.build_at, pick: c.pick,
       method: 'pick-v1',
-      payload: { player_id: String(p.player_id), name: p.name, position: p.position,
+      payload: Object.assign({}, board, {
+        player_id: String(p.player_id), name: p.name, position: p.position,
         team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier,
         chosen_path: chosen ? chosen.name : null,
         chosen_path_key: chosen ? chosen.key : null,
-        off_path: paths.length > 0 && !chosen } });
+        /* WHICH PANELS WERE STALE WHEN I DECIDED. Derived from the aggregate
+         * renderAll already keeps — not a new claim, the existing one routed
+         * into the record. `recommendations` is called out by name because a
+         * failure there is the one that also costs the recommendation row. */
+        render_failed: Object.keys(rf).length ? Object.keys(rf) : null,
+        rec_render_failed: !!rf.recommendations,
+        off_path: paths.length > 0 && !chosen }) });
   }
 
   /* Phase H shadow rosters (strategy-hunt-learning-seed.md). Every strategy
