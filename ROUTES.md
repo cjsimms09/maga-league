@@ -8,6 +8,29 @@
 
 ## TO: A
 
+- [ ] 2026-08-14 · C · 🔴🔴 **I SETTLED THE RB QUESTION AGAINST REALIZED POINTS, AND THE ANSWER IS THAT OUR RB REPLACEMENT SITS ON A 19-POINT CLIFF WHERE ONE FLEX SLOT IS WORTH 16 DRAFT SLOTS. Cory asked for this to be found and fixed; this is the found half, and the fix is a modelling choice that is yours.** I said an hour ago that ADP data could not separate "our flex rule under-rates RBs" from "drafters over-draft RBs". **`nflverse_weekly_points_{2023,2024,2025}.json` separates them** — realized weekly points, scored with OUR table, keyed by Sleeper id, and in my territory.
+  **RUN THE SAME GREEDY RULE ON REALIZED POINTS INSTEAD OF PROJECTIONS, three seasons independently:**
+  ```
+                          RB    WR
+  2023 realized           22    28
+  2024 realized           24    26
+  2025 realized           23    27
+  our board (projections) 21    29   <- outside the range of all three
+  ```
+  The board gives RB **one** of ten flex slots; every realized season says **two to four**. Ours is the most WR-tilted of the four and sits outside the observed range. **So the flex rule IS biased toward WR against outcomes — that half of the ambiguity is resolved.**
+  ⚠️ **BUT THE SENSITIVITY IS THE REAL FINDING, AND A NAIVE CORRECTION OVERSHOOTS.** Re-ranking our own board:
+  ```
+  split            RB median move   WR median move
+  RB 21 / WR 29         +0.0            +0.0        <- shipped
+  RB 22 / WR 28        -16.0            +9.0
+  RB 23 / WR 27        -17.0           +12.0
+  RB 24 / WR 26        -22.0           +14.0
+  ```
+  **The FIRST slot is worth -16 and the next two are worth -1 and -5.** That non-linearity is a tier cliff: RB21 projects 189.02 and RB22 projects 169.82, a **19.2-point drop**, and our replacement is standing exactly on its edge. ❗ **Correcting to the realized mean moves RBs 17 slots earlier, which OVERSHOOTS both markets** — they sit only 4 (MFL) and 10 (FFC) slots from our vorp on RB. So "set it to the realized average" is not automatically right either; the honest reading is that our current value is outside the evidence and the naive correction is past it on the other side.
+  **WHAT I AM NOT CLAIMING.** I have not shown the greedy-on-projections RULE is wrong in principle — comparing raw points across positions for a flex is defensible. What I have shown is that on THIS board it lands on a cliff edge, one slot from a 19-point discontinuity, and that its answer disagrees with three seasons of outcomes in the same direction both markets do. **Three independent lines — two live markets and three seasons of realized points — now point the same way about RB, which is more than any of them said alone.**
+  🎯 **AND THE PART THAT DOES NOT WAIT ON THE MODELLING CALL:** the war room shows `adp` and `vorp` side by side and they disagree about RBs by ~11 slots, with neither marked as the odd one out. Whatever you decide about replacement, **Cory should not be reading two contradictory numbers on the same card on 08-22.** `draft/vorp.py` and the surface are both yours — I have measured and not touched either.
+
+
 - [ ] 2026-08-14 · C · 🔴 **OUR OWN TWO COLUMNS DISAGREE ABOUT RUNNING BACKS BY ~11 RANK SLOTS, AND BOTH MARKETS SIT BETWEEN THEM. Cory read my earlier note and said "this is a problem with our model and it needs to be found and fixed" — I have found the mechanism, and I am NOT claiming the model is wrong. Here is exactly what is established and what is not.** Median rank delta, non-QB inside pick 150, positive = the market takes him LATER:
   ```
   pos   n  |  vs our ADP column (FantasyPros)  |  vs OUR MODEL (vorp)
