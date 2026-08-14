@@ -384,23 +384,48 @@ def sleeper_divergence(board, top_n=DRAFT_RANGE) -> dict:
 # is not a caveat, it is the largest single effect in the comparison — bigger than
 # anything this module was built to find.
 
-#: A shift this large cannot be two crowds disagreeing about a player; it is the
-#: two crowds drafting different games. Declared as a THRESHOLD FOR CALLING IT
-#: rather than fitted: a full round in our ten-team room out of the fifteen rounds
-#: that exist, so one fifteenth of the draft range.
+#: ⚠ RETIRED AS A VERDICT, KEPT ONLY AS A REPORTED REFERENCE LINE. Read Step 2.
 #:
-#: ⚠ A FRACTION OF THE POPULATION, NOT A SLOT COUNT — and the first cut of this was
-#: the slot count, which is this lane's own recurring defect turned inward. A rank
-#: delta is denominated in the size of the pool it was ranked over, so "15 slots"
-#: means a tenth of the board across the real 145-player draft range and most of
-#: the board across a thin one. The threshold now travels with its denominator and
-#: the absolute figure is reported beside it.
+#: This was "one full round of our fifteen", declared as the bar a positional
+#: shift must clear. Stress-testing it against a PERMUTATION NULL — market values
+#: shuffled across the same players, which destroys position structure and keeps
+#: both marginals — showed it measures nothing at quarterback: **56.9% of
+#: structureless draws already clear it.**
+#:
+#: THE REASON IS THE SAME DEFECT THIS LANE KEEPS FINDING, TURNED INWARD. The null
+#: is NOT centred at zero, because our board does not price the positions
+#: uniformly. Quarterbacks sit at a mean board rank of 84.3 out of 145 against a
+#: uniform 73.0 — LATE — so a market that ranked them at random still produces a
+#: median delta of -11.8. A threshold of -9.7 sits inside that.
+#:
+#: The verdicts are now taken against the null itself (`_null_band`). This
+#: constant survives only so the summary can print where the old line sat.
 FORMAT_SHIFT_FRACTION = 1.0 / 15.0
+
+#: How many permutations to build the null from, and the two-sided band. 2000 at
+#: 5/95 resolves a p05 to about a slot on a 145-player board, which is finer than
+#: the effect being judged and cheap enough to run every morning.
+NULL_TRIALS = 2000
+NULL_BAND = 0.05
+
+#: ⚠ AND A VERDICT NEEDS A NULL THAT LOCALIZES ANYTHING. With three kickers the
+#: null band spans -108 to -5 on a 145-player board — 103 slots — and calling a
+#: median of +4.0 "outside" a band that wide is true and says nothing. So the
+#: verdict is withheld when the band is wider than this share of the ranked
+#: population. DERIVED FROM GEOMETRY, not fitted: a band covering half the board
+#: cannot place an effect in either half of it.
+NULL_MAX_BAND_FRACTION = 0.5
 
 #: Above this, an age gradient among NON-quarterbacks is a dynasty/keeper
 #: population rather than a redraft one. Non-QB is the whole point — a superflex
 #: pool moves quarterbacks and leaves the age curve alone, so an age effect that
 #: survives with quarterbacks removed cannot be superflex wearing a disguise.
+#: ⚠ SAME TREATMENT. This one SURVIVED its stress test — 0.0% of null draws clear
+#: +0.25 — but it is kept as a reference line for the same reason and the verdict
+#: comes from the null. Worth recording that the age null is ALSO not zero: age
+#: correlates with board rank at +0.204 among non-quarterbacks, so a structureless
+#: market yields a median rho of -0.148, and the observed +0.425 is further from
+#: the null than it looks against zero.
 DYNASTY_AGE_RHO = 0.25
 
 #: ⚠ AND A VERDICT NEEDS A POPULATION THAT IS ACTUALLY THE DRAFT. The threshold
@@ -431,6 +456,73 @@ def _spearman(xs, ys):
     if not den:
         return None
     return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / den
+
+
+def _nulls(stats: dict, values, positions, board_ranks, trials=NULL_TRIALS,
+           band=NULL_BAND, seed=20260814) -> dict:
+    """{name: band} for every statistic, from ONE set of permutations.
+
+    ⚠ WHY A NULL AT ALL, AND WHY IT IS NOT ZERO. A rank delta is
+    `market_rank - board_rank`, so its null depends on where the thing being
+    measured sits on OUR board. Our board prices quarterbacks late — mean rank
+    84.3 of 145 against a uniform 73.0 — so a market that ranked every player at
+    random still returns a QB median of -11.8. Judging that against zero, or
+    against a round-number fraction, measures the board's own shape and reports it
+    as the market's format. 56.9% of structureless draws cleared the fraction this
+    replaced.
+
+    PERMUTATION, NOT A PARAMETRIC GUESS: the market values are shuffled ACROSS the
+    same players, which destroys any position- or age-shaped structure while
+    keeping both marginal distributions exactly as observed.
+
+    ⚠ ONE LOOP FOR EVERY STATISTIC, not one loop each. Six positions plus two
+    verdicts meant eight independent permutation runs per day and eight more per
+    archived day inside `format_trend` — seventy seconds on the test suite alone.
+    Sharing the draws is also the more honest null: every statistic is then judged
+    against the same structureless markets rather than eight different ones.
+
+    Deterministic seed, so two runs on one day agree and a change in the band is a
+    change in the data rather than in the dice.
+    """
+    import random
+    from statistics import median as _m
+    rng = random.Random(seed)
+    vals = list(values)
+    acc = {k: [] for k in stats}
+    for _ in range(trials):
+        rng.shuffle(vals)
+        mr = _avg_ranks(list(enumerate(vals)))
+        deltas = [mr[i] - board_ranks[i] for i in range(len(vals))]
+        for k, fn in stats.items():
+            got = fn(deltas, positions)
+            if got is not None:
+                acc[k].append(got)
+    out = {}
+    for k, v in acc.items():
+        if not v:
+            out[k] = None
+            continue
+        v.sort()
+        lo = v[max(0, int(band * (len(v) - 1)))]
+        hi = v[min(len(v) - 1, int((1.0 - band) * (len(v) - 1)))]
+        out[k] = {"median": round(_m(v), 3), "p_lo": round(lo, 3),
+                  "p_hi": round(hi, 3), "trials": len(v), "band": band}
+    return out
+
+
+def _verdict(value, nb, n, side):
+    """(detected, too_wide) for a statistic against its null band.
+
+    `side` is "low" or "high" — one-sided by construction, because the SIGN is
+    part of every claim here. Quarterbacks going LATER than our board is the
+    opposite composition, not a weaker version of the same one.
+    """
+    if nb is None or value is None:
+        return False, False
+    wide = (nb["p_hi"] - nb["p_lo"]) > NULL_MAX_BAND_FRACTION * n
+    if wide:
+        return False, True
+    return (value < nb["p_lo"] if side == "low" else value > nb["p_hi"]), False
 
 
 def _paired(archive, board, year, top_n, observed_at=None):
@@ -516,8 +608,53 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
                      "delta": round(d, 1)})
 
     from statistics import median
+    # ── THE NULLS, BUILT ONCE FROM THIS DAY'S OWN BOARD ─────────────────
+    from statistics import median as _med
+    pos_list = [str(p["row"].get("position") or "?").upper() for p in pairs]
+    ages = [p["row"].get("age") for p in pairs]
+    board_ranks = [ours[i] for i in range(len(pairs))]
+    market_vals = [p["market_adp"] for p in pairs]
+
+    def _qb_stat(deltas, positions):
+        d = [deltas[i] for i in range(len(deltas)) if positions[i] == "QB"]
+        return _med(d) if len(d) >= 3 else None
+
+    def _age_stat(deltas, positions):
+        idx = [i for i in range(len(deltas))
+               if positions[i] != "QB" and isinstance(ages[i], (int, float))]
+        if len(idx) < 3:
+            return None
+        return _spearman([float(ages[i]) for i in idx], [deltas[i] for i in idx])
+
     by_pos = {k: {"n": len(v), "median": round(median(v), 1)}
               for k, v in sorted(per.items())}
+    # ⚠ EVERY POSITION GETS ITS OWN NULL, because every one of them sits somewhere
+    # non-uniform on our board. Measured 2026-08-14: QB -49.8 is outside its null
+    # (p05 -33.8) and REAL; RB +16.5 (null p05..p95 -1.0..+27.0), WR +7.0
+    # (-6.5..+17.0) and TE -5.0 (-34.5..+15.0) are all INSIDE theirs and are not
+    # findings. Those three were reported to A as a table of shifts before this
+    # test existed.
+    def _pos_stat(_k):
+        def f(deltas, positions):
+            d = [deltas[i] for i in range(len(deltas)) if positions[i] == _k]
+            return median(d) if len(d) >= 3 else None
+        return f
+
+    stats = {("pos:" + k): _pos_stat(k) for k in by_pos}
+    stats["qb"] = _qb_stat
+    stats["age"] = _age_stat
+    NB = _nulls(stats, market_vals, pos_list, board_ranks)
+
+    for k, v in by_pos.items():
+        nb = NB.get("pos:" + k)
+        v["null"] = nb
+        hit, wide = _verdict(v["median"], nb, len(pairs),
+                             "low" if v["median"] < 0 else "high")
+        # THE PER-POSITION TABLE IS TWO-SIDED — it reports WHERE a position sits,
+        # and either tail is informative there. The VERDICTS below are one-sided,
+        # because each of them names a direction.
+        v["null_too_wide"] = wide
+        v["outside_null"] = bool(hit)
 
     # THE FLOOR IS CHECKED ONCE AND APPLIES TO BOTH VERDICTS — one contaminant
     # detected off a decayed crosswalk is as wrong as the other.
@@ -526,20 +663,26 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
     qb = by_pos.get("QB")
     superflex = None
     if qb and qb["n"] >= 3:
-        # THE THRESHOLD IS SIZED TO THE POPULATION THAT WAS RANKED. Both the
-        # fraction and the slot count it worked out to are reported, so a reader
-        # can see which pool the verdict was taken over.
+        # ⚠ THE VERDICT IS "OUTSIDE THE NULL", NOT "PAST A ROUND NUMBER". The old
+        # bar was one full round of our fifteen, and 56.9% of structureless draws
+        # already cleared it — because our board prices quarterbacks LATE, so a
+        # market that ranked them at random still returns a median of -11.8.
+        # The declared line is still reported so the change is visible.
+        nb = NB.get("qb")
+        hit, wide = _verdict(qb["median"], nb, len(pairs), "low")
         thresh = FORMAT_SHIFT_FRACTION * len(pairs)
         superflex = {
             "qb_median_slots": qb["median"], "qb_n": qb["n"],
             "qb_median_fraction": round(qb["median"] / len(pairs), 3),
-            # THE SIGN IS PART OF THE CLAIM. Quarterbacks going LATER than our
-            # board would be evidence of a single-QB pool that likes them less —
-            # the opposite reading — so a bare magnitude could confirm superflex
-            # with the data refuting it.
-            "detected": (not thin) and qb["median"] <= -thresh,
-            "threshold_slots": round(thresh, 1),
-            "threshold_fraction": round(FORMAT_SHIFT_FRACTION, 4),
+            # THE SIGN IS STILL PART OF THE CLAIM. Quarterbacks going LATER than
+            # our board is the opposite composition, so only the LOW tail counts.
+            "detected": bool((not thin) and hit),
+            "null": nb,
+            "null_too_wide": wide,
+            "reference_line_slots": round(thresh, 1),
+            "reference_line_fraction": round(FORMAT_SHIFT_FRACTION, 4),
+            "reference_line_retired": "56.9% of permutation draws clear it; kept "
+                                      "only to show where the old bar sat",
             "ranked_over": len(pairs),
         }
 
@@ -552,13 +695,22 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
     if len(non_qb) >= 3:
         rho = _spearman([float(r["age"]) for r in non_qb],
                         [r["delta"] for r in non_qb])
+        # SAME TREATMENT, AND THIS ARM SURVIVED ITS STRESS TEST — 0.0% of null
+        # draws clear +0.25. The null is still not zero: age correlates with board
+        # rank at +0.204 among non-quarterbacks, so a structureless market yields
+        # a median rho of -0.148 and the observed value is FURTHER from the null
+        # than it looks against zero.
+        nb = NB.get("age")
+        hit, wide = _verdict(rho, nb, len(pairs), "high")
         dynasty = {
             "age_rho_non_qb": None if rho is None else round(rho, 3),
-            "n": len(non_qb), "threshold_rho": DYNASTY_AGE_RHO,
+            "n": len(non_qb), "null": nb,
+            "reference_line_rho": DYNASTY_AGE_RHO,
             # POSITIVE rho = older players go LATER on the market than on our
             # board, which is what paying for youth looks like from a redraft
-            # board's side.
-            "detected": (not thin) and rho is not None and rho >= DYNASTY_AGE_RHO,
+            # board's side. Only the HIGH tail counts.
+            "null_too_wide": wide,
+            "detected": bool((not thin) and hit),
         }
 
     detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty))
@@ -709,6 +861,17 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
     season nears. A market that stopped being contaminated would become usable,
     and finding that out on the 23rd is finding it out too late.
 
+    ⚠ AND A FLAT WINDOW IS NOT EVIDENCE OF STABILITY. I called the composition
+    "structural" on four days at drift 0.003 — three consecutive day-intervals,
+    all mid-August. That supports HAS NOT MOVED YET and nothing stronger, and the
+    mechanism above is precisely a reason to expect the flat part first. Linear
+    extrapolation to the 22nd gives 0.011, under the bar; linear is the assumption
+    the mechanism argues against. THE OBSERVATION THAT WOULD SETTLE IT is draft
+    day against the first day over the same crosswalked population — which is a
+    POST-DRAFT calibration question, and a second independent reason the Aug 22
+    capture matters: no provider serves a past-dated board, so the 22nd is the
+    last day that observation can be taken at all.
+
     ⚠ EVERY DAY IS RANKED AGAINST TODAY'S BOARD, deliberately. The question is how
     the MARKET moved, and comparing each day's market against that day's board
     would fold our own rebuilds into the answer — a board edit on the 13th would
@@ -754,6 +917,17 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
                          first["observed_at"], last["observed_at"],
                          (" and %s flipped" % ", ".join(flipped)) if flipped else ""))
                 if abs(drift) >= COMPOSITION_DRIFT_FRACTION or flipped else
-                ("Composition steady across %d days: the quarterback shift moved "
+                ("HAS NOT MOVED across %d day(s): the quarterback shift moved "
                  "%.3f of the board, under the %.3f that would mean a different "
-                 "pool." % (len(usable), drift, COMPOSITION_DRIFT_FRACTION)))
+                 "pool. ⚠ THAT IS NOT 'STRUCTURAL' AND MUST NOT BE READ AS ONE. "
+                 "%d consecutive day-interval(s) in mid-August support 'has not "
+                 "moved yet'; the mechanism proposed for the contamination "
+                 "— dynasty and best-ball startups run early, single-QB redraft "
+                 "rooms fill in late — predicts the pool converges toward ours as "
+                 "the draft nears, so a flat mid-August window is exactly what a "
+                 "curve that bends later looks like at its flat end. The "
+                 "observation that would settle it is draft day against the "
+                 "first day, and no provider serves a past-dated board, so it "
+                 "cannot be taken afterwards."
+                 % (len(usable), drift, COMPOSITION_DRIFT_FRACTION,
+                    len(usable) - 1)))

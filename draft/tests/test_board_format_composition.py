@@ -123,11 +123,10 @@ def test_A_QUARTERBACK_ONLY_SHIFT_IS_REPORTED_AS_SUPERFLEX_not_as_a_mispricing()
     out = B.format_composition(*_draft_range(qb_shift=-60.0))
     assert out["status"] == "measured", out
     assert out["superflex"]["detected"] is True
-    assert out["superflex"]["qb_median_slots"] <= -out["superflex"]["threshold_slots"]
+    # ⚠ AGAINST THE NULL, NOT THE RETIRED LINE. See the Step 2 block below: the
+    # old bar was cleared by 56.9% of structureless draws.
+    assert out["superflex"]["qb_median_slots"] < out["superflex"]["null"]["p_lo"]
     assert out["superflex"]["ranked_over"] == out["n"]
-    # THE THRESHOLD LANDS ON A FULL ROUND OF OUR TEN-TEAM ROOM, which is what the
-    # fraction was declared to mean. A slot constant would not track the pool.
-    assert 9.0 <= out["superflex"]["threshold_slots"] <= 11.0, out["superflex"]
     # AND THE OVERALL FIGURE IS NOT WHAT IS BEING REPORTED — the deltas cancel.
     assert abs(sum(r["delta"] for r in out["rows"])) < 1e-6
     # NOTHING ELSE MOVED, so a per-position read is what makes the QBs visible.
@@ -151,8 +150,8 @@ def test_QUARTERBACKS_GOING_LATER_IS_NOT_SUPERFLEX_the_sign_is_the_claim():
     out = B.format_composition(*_draft_range(qb_shift=+60.0))
     assert out["status"] == "measured", out["status"]
     assert out["superflex"]["qb_median_slots"] > 0
-    # THE SHIFT IS LARGER THAN THE THRESHOLD, so only the SIGN can be refusing it.
-    assert abs(out["superflex"]["qb_median_slots"]) > out["superflex"]["threshold_slots"]
+    # THE SHIFT IS OUTSIDE THE NULL ON THE HIGH SIDE, so only the SIGN refuses it.
+    assert out["superflex"]["qb_median_slots"] > out["superflex"]["null"]["p_hi"]
     assert out["superflex"]["detected"] is False
     assert "superflex" not in out["note"]
 
@@ -474,7 +473,16 @@ def test_A_STEADY_POOL_IS_NOT_REPORTED_AS_MOVING_so_the_alarm_can_be_believed():
     assert tr["status"] == "measured"
     assert tr["moving"] is False and tr["flipped"] == []
     assert abs(tr["drift"]) < tr["drift_threshold"]
-    assert "steady" in tr["note"]
+    # ⚠ AND THE QUIET ANSWER MUST NOT CLAIM STABILITY. Four days at drift 0.003
+    # is three consecutive mid-August intervals; it supports "has not moved yet"
+    # and nothing stronger, and the mechanism proposed for the contamination
+    # predicts the flat part comes FIRST. Asserted on the claim rather than on a
+    # word, because the first version of this pinned the literal "steady" and
+    # broke the moment the wording was corrected.
+    assert "HAS NOT MOVED" in tr["note"]
+    assert "NOT 'STRUCTURAL'" in tr["note"]
+    assert "draft day against the first day" in tr["note"], \
+        "the note must name the observation that would settle it"
 
 
 def test_A_FLIP_IS_REPORTED_EVEN_WHEN_THE_DRIFT_IS_UNDER_THRESHOLD():
@@ -485,10 +493,14 @@ def test_A_FLIP_IS_REPORTED_EVEN_WHEN_THE_DRIFT_IS_UNDER_THRESHOLD():
 
     MUTATION: gate the note on the drift alone — the crossing happens, the verdict
     in every consumer flips, and the trend line says the pool held steady."""
-    # STRADDLING THE LINE BY A ROUNDING'S WORTH: -0.069 of the board on the 13th,
-    # -0.062 on the 14th, against a 1/15 threshold. The verdict crosses; the drift
-    # is 0.007, a fifth of what would call the pool changed.
-    arc, brd = _multi_day({"2026-08-13": -11.5, "2026-08-14": -10.5})
+    # STRADDLING THE NULL BY A ROUNDING'S WORTH: -0.241 of the board on the 13th,
+    # -0.217 on the 14th, against a null p_lo near -0.23. The verdict crosses; the
+    # drift is 0.024, under the 0.033 that would call the pool changed.
+    #
+    # ⚠ RECALIBRATED. The first version of this fixture straddled the RETIRED
+    # fraction line, which 56.9% of structureless draws already cleared — so it
+    # was testing a boundary that meant nothing.
+    arc, brd = _multi_day({"2026-08-13": -40.0, "2026-08-14": -36.0})
     tr = B.format_trend(arc, brd)
     assert tr["days"][0]["superflex"] is True, tr["days"]
     assert tr["days"][-1]["superflex"] is False, tr["days"]
@@ -514,3 +526,121 @@ def test_EVERY_DAY_IS_RANKED_AGAINST_TODAYS_BOARD_not_that_days():
     fracs = {d["qb_median_fraction"] for d in tr["days"]}
     assert len(fracs) == 1, fracs
     assert tr["drift"] == 0.0
+
+
+# ── THE VERDICT IS "OUTSIDE THE NULL", AND THE NULL IS NOT ZERO ─────────────
+#
+# STEP 2, AND IT COST ME THREE OF MY OWN REPORTED NUMBERS. The declared bar was
+# one full round of our fifteen. Stress-tested against a PERMUTATION NULL — market
+# values shuffled across the same players, destroying position structure and
+# keeping both marginals — **56.9% of structureless draws already cleared it at
+# quarterback.** The cause is this lane's own recurring defect turned inward: our
+# board prices QBs LATE (mean rank 84.3 of 145 against a uniform 73.0), so a
+# market that ranked them at random still returns a median delta of -11.8.
+#
+# The QB finding SURVIVED (-49.8 against a null p05 of -33.5) and so did the age
+# gradient (+0.425 against a null p95 of -0.041, itself not zero because age
+# correlates with board rank at +0.204). RB +16.5, WR +7.0 and TE -5.0 did NOT —
+# all three sit inside their own nulls, and all three had been reported to A.
+
+
+def test_THE_NULL_IS_NOT_CENTRED_ON_ZERO_when_a_position_sits_late_on_our_board():
+    """The whole reason the old threshold measured nothing. A market with NO
+    position structure still produces a negative delta for any position our board
+    prices late, because the delta is `market_rank - board_rank` and the board
+    rank is not uniform.
+
+    MUTATION: judge against 0 (or against any fixed line) — a board that happens
+    to price a position late reports that position as format-shifted every single
+    morning, and the number being reported is the board's own shape."""
+    # QUARTERBACKS ALL LATE ON OUR BOARD, market identical to it: zero real effect.
+    specs = []
+    for i, pos in enumerate(POS_MIX):
+        p = "QB" if i >= len(POS_MIX) - 20 else ("WR" if i % 2 else "RB")
+        specs.append(("P%03d" % i, p, 1.0 + i, 1.0 + i, 26, None, None))
+    out = B.format_composition(*_fixture(specs))
+    nb = out["superflex"]["null"]
+    assert nb is not None
+    assert nb["median"] < -1.0, ("a late-priced position must have a negative "
+                                 "null, not zero", nb)
+    # AND WITH NO REAL EFFECT THE VERDICT MUST BE FALSE ANYWAY.
+    assert out["superflex"]["detected"] is False, out["superflex"]
+
+
+def test_A_NULL_BAND_WIDER_THAN_HALF_THE_BOARD_YIELDS_NO_VERDICT():
+    """With three kickers the null spans -108 to -5 on a 145-player board. A
+    median of +4.0 is technically outside that, and the statement is worthless: a
+    band covering most of the board cannot place an effect anywhere in it.
+
+    MUTATION: drop the width guard — DEF (n=5) and K (n=3) come back `REAL` on the
+    live board every morning, and two positions nobody drafts before pick 130
+    appear beside the quarterback finding as equals."""
+    out = B.format_composition(*_draft_range(qb_shift=-60.0))
+    thin_pos = [k for k, v in out["by_position"].items() if v["n"] <= 5]
+    assert thin_pos, "the fixture must contain a thin position for this to test"
+    for k in thin_pos:
+        v = out["by_position"][k]
+        assert v["null_too_wide"] is True, (k, v)
+        assert v["outside_null"] is False, (k, v)
+
+
+def test_A_REAL_EFFECT_IS_STILL_DETECTED_against_its_null():
+    """The other arm, so the null is a discrimination and not a blanket refusal.
+    A 60-pick quarterback shift must clear its own null comfortably.
+
+    MUTATION: widen the band to 0.001/0.999 — nothing is ever outside it and the
+    instrument reports a clean market every day, which is the quiet failure the
+    old threshold had in the other direction."""
+    out = B.format_composition(*_draft_range(qb_shift=-60.0))
+    sfx = out["superflex"]
+    assert sfx["detected"] is True
+    assert sfx["qb_median_slots"] < sfx["null"]["p_lo"]
+    assert out["by_position"]["QB"]["outside_null"] is True
+
+
+def test_THE_NULL_IS_DETERMINISTIC_so_two_runs_on_one_day_agree():
+    """A permutation null reseeded per call would move the band between the
+    summary and the escalation reading it, and a verdict that flips on rerun is
+    not a verdict.
+
+    MUTATION: seed from the clock — the same archive gives two answers and the
+    drift alarm fires on its own noise."""
+    a = B.format_composition(*_draft_range(qb_shift=-60.0))
+    b = B.format_composition(*_draft_range(qb_shift=-60.0))
+    assert a["superflex"]["null"] == b["superflex"]["null"]
+    assert a["dynasty"]["null"] == b["dynasty"]["null"]
+
+
+def test_ONLY_THE_LOW_TAIL_COUNTS_FOR_SUPERFLEX():
+    """Quarterbacks going LATER than our board is the opposite composition. A
+    two-sided test on this arm would call a single-QB market that likes QBs less
+    than we do a superflex pool.
+
+    MUTATION: use `outside the band` instead of `below p_lo` — the sign-flipped
+    fixture reports superflex, and the note tells a reader not to blend a market
+    that agrees with them more than they do."""
+    out = B.format_composition(*_draft_range(qb_shift=+60.0))
+    sfx = out["superflex"]
+    assert sfx["qb_median_slots"] > sfx["null"]["p_hi"], "must be outside, high"
+    assert sfx["detected"] is False
+    assert "superflex" not in out["note"]
+
+
+def test_THE_RETIRED_LINE_IS_REPORTED_but_is_not_the_verdict():
+    """The old bar is kept so the change is visible to whoever reads the summary,
+    and it must be impossible to mistake it for the decision.
+
+    MUTATION: restore it as the verdict — 56.9% of structureless quarterback
+    draws clear it, so the instrument goes back to reporting the board's own
+    shape as the market's format."""
+    out = B.format_composition(*_draft_range(qb_shift=-60.0))
+    sfx = out["superflex"]
+    assert "reference_line_slots" in sfx and "reference_line_retired" in sfx
+    assert "threshold_slots" not in sfx, "the old key must not survive as a verdict"
+    # THE VERDICT MUST TRACK THE NULL, NOT THE LINE: a shift that clears the old
+    # line but sits inside the null is NOT detected.
+    n = len(POS_MIX)
+    small = B.format_composition(*_draft_range(qb_shift=-(B.FORMAT_SHIFT_FRACTION * n + 2)))
+    s2 = small["superflex"]
+    assert abs(s2["qb_median_slots"]) > s2["reference_line_slots"], "clears the old line"
+    assert s2["detected"] is False, "and is still inside the null"
