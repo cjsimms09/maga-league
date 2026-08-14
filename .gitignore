@@ -6,8 +6,13 @@ data/
 !draft/data/**
 *.log
 draft/.cache/
-draft/__pycache__/
-draft/**/__pycache__/
+# Python bytecode, ANYWHERE. This was two path-scoped lines
+# (`draft/__pycache__/` and `draft/**/__pycache__/`) because draft/ was the only
+# Python tree. tools/ is now a second one, and a stray .pyc from it reached a
+# commit — so this generalises rather than adding a third scoped line. One rule
+# subsuming two is less accumulation than three rules, and bytecode is never a
+# source artifact in any directory.
+__pycache__/
 draft/backtest/bundles.json
 draft/backtest/weekly_points.json
 draft/backtest/replay-records.json
