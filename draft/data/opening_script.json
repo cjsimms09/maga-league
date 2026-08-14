@@ -2,7 +2,7 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-13T23:13:18Z",
+   "board_built_at": "2026-08-14T09:15:36Z",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2c3c05638a32"
@@ -33,39 +33,39 @@
     "pick": 33,
     "candidates": [
      {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 44.4,
-      "survival": 0.27
-     },
-     {
       "player_id": "9997",
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 42.7,
-      "survival": 0.6
+      "survival": 0.73
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 38.0,
-      "survival": 0.87
+      "survival": 0.93
      },
      {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 38.0,
-      "survival": 0.83
+      "survival": 0.76
      },
      {
-      "player_id": "8155",
-      "name": "Breece Hall",
-      "position": "RB",
-      "vorp": 36.1,
-      "survival": 0.32
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 35.8,
+      "survival": 0.94
+     },
+     {
+      "player_id": "6801",
+      "name": "Tee Higgins",
+      "position": "WR",
+      "vorp": 33.6,
+      "survival": 0.8
      }
     ]
    },
@@ -84,14 +84,14 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 28.9,
-      "survival": 0.88
+      "survival": 0.95
      },
      {
       "player_id": "8148",
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.82
+      "survival": 0.98
      },
      {
       "player_id": "11564",
@@ -105,7 +105,7 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.55
+      "survival": 0.53
      }
     ]
    },
@@ -117,14 +117,14 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 28.9,
-      "survival": 0.74
+      "survival": 0.81
      },
      {
       "player_id": "8148",
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.63
+      "survival": 0.77
      },
      {
       "player_id": "11564",
@@ -138,14 +138,14 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.3
+      "survival": 0.35
      },
      {
-      "player_id": "6790",
-      "name": "D'Andre Swift",
-      "position": "RB",
-      "vorp": 23.8,
-      "survival": 0.27
+      "player_id": "5927",
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "vorp": 22.3,
+      "survival": 0.44
      }
     ]
    }
@@ -155,39 +155,39 @@
     "pick": 33,
     "candidates": [
      {
-      "player_id": "7525",
-      "name": "DeVonta Smith",
-      "position": "WR",
-      "vorp": 44.4,
-      "survival": 0.27
-     },
-     {
       "player_id": "9997",
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 42.7,
-      "survival": 0.6
+      "survival": 0.73
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 38.0,
-      "survival": 0.87
+      "survival": 0.93
      },
      {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 38.0,
-      "survival": 0.83
+      "survival": 0.76
      },
      {
-      "player_id": "8155",
-      "name": "Breece Hall",
-      "position": "RB",
-      "vorp": 36.1,
-      "survival": 0.32
+      "player_id": "7526",
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "vorp": 35.8,
+      "survival": 0.94
+     },
+     {
+      "player_id": "6801",
+      "name": "Tee Higgins",
+      "position": "WR",
+      "vorp": 33.6,
+      "survival": 0.8
      }
     ]
    },
@@ -206,14 +206,14 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 28.9,
-      "survival": 0.88
+      "survival": 0.95
      },
      {
       "player_id": "8148",
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.82
+      "survival": 0.98
      },
      {
       "player_id": "11564",
@@ -227,7 +227,7 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.55
+      "survival": 0.53
      }
     ]
    },
@@ -239,14 +239,14 @@
       "name": "Mike Evans",
       "position": "WR",
       "vorp": 28.9,
-      "survival": 0.74
+      "survival": 0.81
      },
      {
       "player_id": "8148",
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.63
+      "survival": 0.77
      },
      {
       "player_id": "11564",
@@ -260,14 +260,14 @@
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.3
+      "survival": 0.35
      },
      {
-      "player_id": "6790",
-      "name": "D'Andre Swift",
-      "position": "RB",
-      "vorp": 23.8,
-      "survival": 0.27
+      "player_id": "5927",
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "vorp": 22.3,
+      "survival": 0.44
      }
     ]
    }
