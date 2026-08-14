@@ -7,6 +7,24 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🤝 **THE AGGREGATE CORY ASKED FOR HAS ITS FIRST REAL ANSWER — and running it on live data immediately found a defect in my own scale, which is the only reason the table below says what it says.**
+  **WHERE FFC AND FANTASYPROS DISAGREE MOST, inside pick 150, measured in WHOLE PLAYERS:**
+  | player | pos | fantasypros | ffc | apart |
+  |---|---|---|---|---|
+  | Alec Pierce | WR | 36 | 26 | **10** |
+  | Courtland Sutton | WR | 37 | 29 | **8** |
+  | Jordyn Tyson | WR | 34 | 42 | **8** |
+  | Aaron Jones | RB | 39 | 32 | **7** |
+  | Luther Burden | WR | 21 | 28 | **7** |
+  | Brock Purdy | QB | 15 | 9 | 6 |
+  | Dallas Goedert | TE | 15 | 9 | 6 |
+  | Rashee Rice | WR | 11 | **6** | 5 |
+  | Garrett Wilson | WR | 19 | 14 | 5 |
+  **🔴 AND THE DEFECT, because it changes the reading completely.** The stored disagreement is a FRACTION of the position's shared board, and I sorted every position into one table on it. By that scale it read **QB 0.083 against WR 0.040** — quarterbacks, clearly. **They are not.** The intersection is **25 quarterbacks against 76 receivers**, so one rank step is 0.040 at QB and 0.013 at WR: the fraction was ordering the table partly by how shallow each position is. **In rank steps it is WR 3.0, QB 2.1, RB 2.0, TE 0.0**, and the loudest row moves from Goedert to Alec Pierce.
+  **`consensus_order` had already fixed a real depth defect** — making the scale the SHARED players every source prices, which is what lets two sources of different depth be compared for one player. **It does not make two POSITIONS comparable**, and I had not noticed the difference. Rows now carry `rank_steps`, the cross-position sort is on it, and the report prints the column it sorts on.
+  **⚠ I NEARLY ROUTED "THE SOURCES DISAGREE MOST ABOUT QUARTERBACKS" TO YOU.** It was the denominator, and it would have compounded misleadingly with something true: QB *is* the position where our format diverges from the market (`pass_td = 6.0` against 4.0, and no source prices it). Two unrelated facts would have looked like one.
+  **COVERAGE, which is the caveat on all of it:** QB 42 ranked / **25 corroborated**, RB 90 / 57, TE 44 / **21**, WR 115 / 76. **A third to a half of each position is priced by ONE source only** and is not consensus at any scale. `to_pick_scale` remains unrun — it needs a format-matched anchor and the module's own docstring says none exists.
+  **This is computable TODAY from what landed at 12:02. It is not running, because my step is behind your four red prune fixtures.**
 - [ ] 2026-08-14 · C · 🎉 **THE 12:02 CAPTURE LANDED AND BOTH NEVER-RUN PATHS WORKED. Two open questions are answered on first contact, and one number moved that changes a threshold I had declared.**
   **① THE SPREAD ARRIVED — 681 of 681 rows, coverage 1.0, `dispersion_health` state `present`.** Sample row: `{min_pick: 163, max_pick: 296, sel_pct: 12.0, drafts: 16}`. All four fields populated for every player. Your `spread_missing` escalation correctly did not fire. **`mfl_adp.parse`'s field names were right** — that was the thing `dispersion_health` said to suspect first, and it was wrong to suspect them.
   **② `draftSelPct` IS A PERCENT, MEASURED RATHER THAN ASSUMED.** `sel_pct_units` returns **`percent`, median ratio 0.977 across 681 rows** — the published figure matches `drafts / total_drafts * 100`. **`TRUNCATION_SEL_PCT = 50.0` is on the right scale**, which had rested on one row quoted in a comment since it was written. That question is now closed with data.
