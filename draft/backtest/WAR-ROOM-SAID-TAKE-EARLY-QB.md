@@ -229,6 +229,74 @@ Cory's.** The race says no *constraint* beats value-drafting. `slot_schedule.js`
 which optimises across all twelve picks at once, is the one that says when — and
 it says TE at 33, QB at 73.
 
+## The root fix — pricing a plan over the draft instead of at one pick
+
+Cory on the defect-2 fix above: *"We've either got bad data or a bad equation …
+Just making rules to fix a symptom of a deeper problem is going to cause more
+problems later."* Correct. Marking the deferral stopped the panel making a false
+statement; it did not make it compute the right quantity.
+
+`draft/tools/doctrine_lookahead.js` computes the right one:
+
+```
+cost(doctrine) = best(unconstrained) − best(subject to doctrine)
+```
+
+Both sides in points of **starting lineup across all twelve picks**, both
+two-sided, using the DP `slot_schedule.js` already brute-force verified. Result:
+
+| doctrine | cost | its QB / TE |
+|---|---|---|
+| Balanced Value · Ceiling Chase · Robust RB · **Elite-TE Anchor** | **0.0** | TE@33 QB@73 |
+| Zero RB · Hero-RB Continuation · **Early-QB Strike** | **5.6** | TE@33 QB@48 |
+| **Late-QB Patience** | **19.4** | TE@33 QB@108 |
+| WR Feast | **not scorable** | — |
+
+**This is the actionable answer to "when do I take the QB and the TE."** Take the
+tight end at 33 and the quarterback around 73. Being forced to take the QB by
+live pick 3 costs 5.6 points; deferring him to live pick 8 costs 19.4. **The
+value plan sits between the two extremes rather than at either** — waiting is
+right, waiting forever is not.
+
+**Elite-TE Anchor costing exactly zero is a result, not a bug:** the value plan
+already takes a tight end at pick 33, so the doctrine asks for something it was
+going to do anyway. It is a *name* for what the model does, not a strategy that
+changes a pick. Same for Ceiling Chase and Robust RB.
+
+**WR Feast is refused rather than scored.** Its constraint depends on how the
+bench splits between RB and WR, and this DP does not model the bench. Probed, not
+assumed: the predicate answers differently when the bench is receivers instead of
+backs, so any number would have been a guess wearing a decimal point.
+
+### Three things that could have made this quietly wrong
+
+1. **A transcribed constraint table.** The shapes are *probed* out of the live
+   `LIVE_CONSTRAINTS` predicates. The test mutates a predicate and requires the
+   derived shape to follow — a hand-copied table would not move.
+2. **A state-dependent constraint flattened into a filter.** `early_qb` reads "at
+   live pick 3, if you have no quarterback, take one". Filtering pick 3 to
+   QB-only would forbid the legal plan of taking him at pick 1. Restated over the
+   whole draft it is a **deadline** — QB slot filled *by* live pick 3 — checked
+   against an independent pin-based solve, with a fail arm proving "at the
+   deadline" and "by the deadline" are different answers.
+3. **Three copies of the same DP.** `slot_schedule.js` carried the solver three
+   times — the headline plan, the robustness sweep, and the QB counterfactual all
+   had their own. Collapsed to one; every number reproduced to the decimal, which
+   is the evidence they had agreed.
+
+### And the limitation that matters
+
+Measured against the value model's **own** projections, a constraint can only
+cost or be neutral — **never gain**. So this prices plans; it does not rank them.
+A doctrine beats best-available only if the projections are wrong in a way the
+doctrine exploits, and that is a claim about the projections this cannot test.
+The paired-room race is the test for that, and it currently enrolls nothing.
+
+**Nothing here is wired to the live panel.** The panel still shows the one-pick
+number, now correctly labelled. Wiring this in is a real piece of work — the DP
+would have to run in the browser against a board that changes every pick — and it
+is routed to B rather than rushed eight days out.
+
 ## What this does NOT establish
 
 **That taking a quarterback early is wrong.** It establishes that *neither number
