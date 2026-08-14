@@ -140,6 +140,16 @@ def record(entry: dict) -> dict:
             "carries proj_mean, replacement, adp and adp_sd, so this is "
             "computable later and scorable OUT OF SAMPLE against these rows.",
 
+        # ⚠️ THIS PAIR WAS DROPPED BY THE FIRST CUT AND THE REHEARSAL CAUGHT IT.
+        # `_from_sleeper` set `is_keeper` and `record` never copied it, so all
+        # 150 rows came back with 20 keepers indistinguishable from 130
+        # selections — the exact collapse the docstring above warns about,
+        # reintroduced one function later. A keeper is GONE from the pool but
+        # was never a decision, so scoring a recommendation against him would
+        # grade the board on a pick nobody made.
+        "is_keeper": bool(entry.get("is_keeper")),
+        "is_selection": not bool(entry.get("is_keeper")),
+
         "is_mine": bool(entry.get("is_mine")),
         "my_actual_pick": entry.get("my_actual_pick"),
         "my_deviation_reason": entry.get("my_deviation_reason"),
@@ -150,6 +160,118 @@ def record(entry: dict) -> dict:
     with LOG.open("a") as fh:
         fh.write(json.dumps(row, sort_keys=True) + "\n")
     return row
+
+
+def _from_sleeper(p: dict, slot_to_roster: dict, players: dict) -> dict:
+    """One Sleeper pick -> one log entry.
+
+    ⚠️ A KEEPER IS A PICK BUT NOT A SELECTION, AND SLEEPER SERVES BOTH IN ONE
+    LIST. The 2025 draft is 150 picks of which 20 carry `is_keeper: true`. Both
+    remove a player from the pool, so both belong in the `gone` set; only one is
+    a decision anybody made, so only one can be scored against a recommendation.
+
+    That is `picks` versus `live_picks` again — the distinction the artifact's
+    own numbering_note draws and `applySlot` collapsed. Recorded per row here so
+    the scoring in September cannot re-collapse it.
+    """
+    pid = str(p.get("player_id") or "")
+    meta = players.get(pid) or {}
+    roster = p.get("roster_id")
+    slot = next((int(s) for s, r in (slot_to_roster or {}).items() if r == roster),
+                p.get("draft_slot"))
+    return {
+        "pick": int(p["pick_no"]),
+        "team_slot": slot,
+        "player_id": pid,
+        "player_name": meta.get("name") or (p.get("metadata") or {}).get("first_name"),
+        "position": meta.get("position") or (p.get("metadata") or {}).get("position"),
+        "is_keeper": bool(p.get("is_keeper")),
+    }
+
+
+def sync(picks: list, *, slot_to_roster: dict | None = None) -> dict:
+    """Append every pick not already logged. IDEMPOTENT ON PURPOSE.
+
+    Draft night is a poll loop: this runs every few seconds against a list that
+    keeps growing. `record()` refuses a duplicate because a duplicate there means
+    someone is rewriting a prediction. Here a duplicate is the NORMAL case — it
+    is the same pick seen again — so it is skipped, and only genuinely new picks
+    are appended.
+
+    Two different meanings for one word, kept apart by two functions rather than
+    by a flag, because a flag is a thing a caller gets wrong at 8pm on draft
+    night.
+    """
+    fz = _freeze()
+    players = {str(p["player_id"]): p for p in fz["players"]}
+    have = {r["pick"] for r in _rows()}
+    incoming = sorted((p for p in picks if p.get("pick_no")),
+                      key=lambda p: int(p["pick_no"]))
+
+    # ── DO NOT APPEND PAST A GAP. ───────────────────────────────────────────
+    #
+    # Sleeper serves the FULL pick list on every poll, so a pick arriving after
+    # a later one cannot happen ACROSS polls — but a truncated or partial
+    # payload absolutely can, and it looks identical to "the draft is only this
+    # far along".
+    #
+    # Every row's `old_path_recommendation` is computed from the set of players
+    # already gone. Log pick 41 while 40 is missing and that set is wrong for 41
+    # and for all 109 rows after it — a whole draft of plausible, unfalsifiable
+    # recommendations. So the log advances only over a CONTIGUOUS prefix and
+    # stops at the first hole, which is a wait rather than a failure: the next
+    # poll brings the missing pick and the log resumes.
+    stop_at = None
+    seq = []
+    expect = (max(have) + 1) if have else 1
+    for p in incoming:
+        e = _from_sleeper(p, slot_to_roster or {}, players)
+        if e["pick"] in have:
+            continue
+        if e["pick"] != expect:
+            stop_at = e["pick"]
+            break
+        seq.append(e)
+        expect += 1
+
+    added = []
+    for e in seq:
+        added.append(record(e)["pick"])
+
+    skipped = len(incoming) - len(added) - (0 if stop_at is None else
+                                            sum(1 for p in incoming
+                                                if int(p["pick_no"]) >= stop_at))
+    logged = sorted(r["pick"] for r in _rows())
+    return {
+        "added": len(added), "skipped": skipped, "logged_total": len(logged),
+        "held_at_gap": stop_at,
+        "held_reason": None if stop_at is None else (
+            f"pick {stop_at} arrived while {expect} is still missing. Holding: "
+            "logging past a hole makes the gone-set wrong for every row after "
+            "it. The next poll should fill it."),
+        "contiguous": logged == list(range(1, len(logged) + 1)),
+    }
+
+
+def sync_live(draft_id: str) -> dict:
+    """Poll Sleeper and append. The draft-night entry point.
+
+    Kept as a thin wrapper so the whole of `sync` is exercisable against real
+    recorded picks without a network — which is the only rehearsal available
+    here, since Sleeper is blocked from this sandbox (HTTP 000 via the proxy).
+    """
+    import sleeper_import as si
+    drafts = si.fetch_drafts_by_id(draft_id) if hasattr(
+        si, "fetch_drafts_by_id") else None
+    picks = si.fetch_draft_picks(draft_id)
+    if not picks:
+        raise SystemExit(
+            "REFUSING: Sleeper returned no picks for draft %s. An empty read is "
+            "not an empty draft, and logging zero picks as if the board were "
+            "untouched is the `or []` failure this repo has already paid for "
+            "once on the keeper path." % draft_id)
+    s2r = (drafts or {}).get("slot_to_roster_id") if drafts else None
+    return sync(picks, slot_to_roster=s2r)
 
 
 def status() -> int:
@@ -175,10 +297,13 @@ def main() -> int:
         return status()
     if "--record" in sys.argv:
         payload = json.loads(sys.argv[sys.argv.index("--record") + 1])
-        row = record(payload)
-        print(json.dumps(row, indent=1, sort_keys=True))
+        print(json.dumps(record(payload), indent=1, sort_keys=True))
         return 0
-    print(__doc__.strip().splitlines()[-2].strip())
+    if "--sync" in sys.argv:
+        did = sys.argv[sys.argv.index("--sync") + 1]
+        print(json.dumps(sync_live(did), indent=1))
+        return 0
+    print("usage: log_draft_picks.py --sync <draft_id> | --record <json> | --status")
     return 2
 
 
