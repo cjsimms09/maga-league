@@ -666,7 +666,8 @@ def _print_report(report: dict, strict_top_n: int) -> None:
 
 def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
                         draft_picks: int | None = None,
-                        relevant: int | None = None) -> dict:
+                        relevant: int | None = None,
+                        projections: dict | None = None) -> dict:
     """Attach ADP to the board, falling back to `search_rank` **on the record**.
 
     `players` is mutated in place: each gets `adp`, `adp_sd` and `adp_source`.
@@ -794,8 +795,45 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         # `ffc_max + 1` by construction and the relevant board is 225 deep, so
         # no fallback player can rank inside it. That is C's measurement and it
         # is the reason this was safe to leave for a day.
-        proj = p.get("proj_mean")
-        proj = float(proj) if isinstance(proj, (int, float)) and proj > 0 else None
+        # ⚠️ THIS READ `p.get("proj_mean")` AND proj_mean DOES NOT EXIST YET.
+        #
+        # Confirmed at line level in build.py: `apply_with_fallback` is called at
+        # :527, and `proj_mean` is first assigned inside `projections.blend()` —
+        # projections.py:238 — which build.py does not call until :576. So at the
+        # moment this loop runs, NO player carries the key. `ordered_by_proj` was
+        # empty on every build, every fallback row took the unprojected branch,
+        # and all 348 got `ffc_max + 600`.
+        #
+        # Measured on the shipped board: max real ADP 317, so the unprojected
+        # branch writes 917 — and 917 is what all 348 rows carry, including the
+        # 274 that DO end up with a projection once blend() runs. The ordering
+        # this comment block describes at length has never once executed.
+        #
+        # THE SECOND VERSION OF THE SAME DEFECT. The paragraph above records the
+        # first: `search_rank` was read here and no board dict carried it, so
+        # everybody got 600. That was fixed by ordering on projection instead —
+        # and the replacement reads a key that is equally absent at this point in
+        # the pipeline. A constant wearing the name of an ordering, twice, with
+        # the comment asserting the ordering both times.
+        #
+        # ── SO IT NOW READS WHAT THE CALLER HAS, NOT WHAT IT HOPES FOR ───────
+        #
+        # `projections` is the `baseline` map build.py already computes at :365 —
+        # player_id -> points in our scoring — which EXISTS when this runs. The
+        # value is passed in rather than fished out of the row, so "is it
+        # populated yet" stops being a question this function can get wrong.
+        # `_fallback_proj` reports how the caller answered, so a build that omits
+        # it is visible in provenance instead of silently pricing 274 players at
+        # a sentinel and calling them ranked.
+        proj = None
+        if projections:
+            raw_proj = projections.get(str(p.get("player_id")))
+            if isinstance(raw_proj, (int, float)) and raw_proj > 0:
+                proj = float(raw_proj)
+        if proj is None:                      # belt and braces: use the row if it has one
+            row_proj = p.get("proj_mean")
+            if isinstance(row_proj, (int, float)) and row_proj > 0:
+                proj = float(row_proj)
         if proj is not None:
             ordered_by_proj.append((proj, p))
         else:
@@ -873,9 +911,17 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         "fallback_ordered_by_projection": len(ordered_by_proj),
         "fallback_unordered_tied": len(unordered),
         "fallback_ordering_basis": (
-            "proj_mean where present; the remainder share one price because "
-            "nothing on the board separates them. NOT search_rank — the board "
+            "the caller's projection map where present; the remainder share one "
+            "price because nothing separates them. NOT search_rank — the board "
             "does not carry it, and it is a popularity rank rather than a value"),
+        # ⚠️ THE COUNTS ABOVE WERE TRUE AND USELESS WITHOUT THIS ONE. They read
+        # "0 ordered, 348 tied" on every build and nobody noticed, because a
+        # deep pool that genuinely cannot be separated reports the same shape.
+        # This says WHY it was 0: no projection map was supplied, so the ordering
+        # had nothing to rank with. A silent zero and a legitimate zero are
+        # different states and looked identical for as long as this existed.
+        "fallback_projection_map_supplied": bool(projections),
+        "fallback_projection_map_size": len(projections or {}),
         "fallback_count_in_play": len(fb_in_play),
         "relevant_board": len(in_play),
         "fallback_rate": round(rate, 4),

@@ -524,8 +524,21 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             ADP_PROVENANCE["fantasypros"] = {"error": f"{type(fpx).__name__}: {fpx}"}
             print(f"  ! FantasyPros anchor skipped ({type(fpx).__name__}: {fpx}); FFC stands")
 
+        # `projections=baseline` IS LOAD-BEARING, NOT A CONVENIENCE. The deep-pool
+        # ordering inside apply_with_fallback used to read `p["proj_mean"]`, which
+        # is not assigned until `projections.blend()` fifty lines BELOW this call
+        # — so it was empty on every build and all 348 fallback players got the
+        # identical unprojected sentinel. `baseline` is computed at :365 and is
+        # the same quantity in the same scoring, available here. Passing it is
+        # what makes the ordering actually run.
+        #
+        # It cannot simply be deferred until after blend(): `raw_adp` is copied
+        # from `adp` at :571, still above blend, so an ordering applied later
+        # would never reach raw_adp — which is the field the acceptance test
+        # reads and the one a stale-ordering bug hides in.
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
-            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n))
+            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n,
+            projections=baseline))
         # apply_with_fallback hardcodes adp_source='ffc' in its provenance; the per-player
         # rows already carry the true source, so correct the top-level label to the real
         # primary now (it drives the War Room's "priced by" banner).
