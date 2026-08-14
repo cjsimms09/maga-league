@@ -402,6 +402,38 @@ def source_audit(series: list, year, observed_at: str) -> dict:
 #: spread every day so it can be re-derived the moment it is derivable.
 SD_STABILITY_TOLERANCE = 0.25
 
+#: ⚠ PREDECLARED, BEFORE THE FIRST COMPARABLE DAY EXISTS, so it cannot be fitted
+#: to whatever the data turns out to say. The archive holds ONE day; the second
+#: arrives tomorrow. This is the number of days below which `sd_stability` states
+#: a verdict of `insufficient_days` and nothing else.
+#:
+#: FIVE, AND THE REASONING IS MY OWN STANDARD APPLIED TO MYSELF. I downgraded a
+#: "structural" claim this afternoon for resting on four days — three intervals —
+#: on the grounds that consecutive mid-August days cannot separate "has not moved"
+#: from "moving slowly". Two days is ONE interval. Five days is four, which is the
+#: first count at which a single anomalous morning is not the whole finding.
+#:
+#: IT IS A FLOOR ON EVIDENCE, NOT A PROMISE OF AN ANSWER. Reaching five days
+#: entitles the instrument to state which failure mode it sees. It entitles
+#: nobody to change a constant — see `AUTHORIZES`.
+SD_STABILITY_MIN_DAYS = 5
+
+#: ⚠ WHAT THIS INSTRUMENT AUTHORIZES, AS A LITERAL FIELD ON EVERY RESULT.
+#:
+#: Cory, 2026-08-14: "Keep it explicitly observational. Do not allow it to alter
+#: `adp_sd`, recommendation scoring, or any production constant until its
+#: predeclared evidence threshold is met... Neither result by itself authorizes a
+#: production change. It determines what question remains answerable."
+#:
+#: A dict that reports a number and stays silent about its standing is how a
+#: measurement becomes a mandate three weeks later, read by somebody who was not
+#: in this conversation. So the standing rides on the result.
+AUTHORIZES = ("nothing. This is an OBSERVATION of the feed's own stability. It "
+              "does not license a change to adp_sd, to recommendation scoring, "
+              "or to any production constant. What it determines is WHICH "
+              "QUESTION REMAINS ANSWERABLE about A's floor, not what to do "
+              "about it.")
+
 
 def sd_stability(series: list, source: str, year, bands=((0, 25), (25, 50),
                                                          (50, 100), (100, 10 ** 6))):
@@ -421,8 +453,13 @@ def sd_stability(series: list, source: str, year, bands=((0, 25), (25, 50),
                    if str(s.get("source")) == str(source)
                    and str(s.get("year")) == str(year) and s.get("observed_at")})
     base = {"status": "first_day", "source": str(source), "days": len(days),
-            "tolerance": SD_STABILITY_TOLERANCE, "players": 0, "by_band": {},
-            "moved": 0, "note": None}
+            "tolerance": SD_STABILITY_TOLERANCE,
+            "min_days": SD_STABILITY_MIN_DAYS,
+            # THE STANDING RIDES ON THE RESULT, on every path including the
+            # unmeasured ones — a reader who gets the dict gets the constraint.
+            "authorizes": AUTHORIZES,
+            "verdict": None, "remaining_question": None,
+            "players": 0, "by_band": {}, "moved": 0, "note": None}
     if len(days) < 2:
         return dict(base, note="only %d day of %s in the archive — a spread "
                                "observed once has not been observed to HOLD, and "
@@ -470,7 +507,35 @@ def sd_stability(series: list, source: str, year, bands=((0, 25), (25, 50),
         b["median_spread"] = round(median(b["spreads"]), 4) if b["spreads"] else None
         b["worst_spread"] = round(max(b["spreads"]), 4) if b["spreads"] else None
         del b["spreads"]
+    # ── THE TWO FAILURE MODES, KEPT APART BY CONSTRUCTION ───────────────
+    # Cory: "evaluate the two failure modes separately... Neither result by
+    # itself authorizes a production change. It determines what question remains
+    # answerable." So the verdict names the SURVIVING QUESTION and never an
+    # action, and it is withheld entirely below the predeclared day floor.
+    share_moved = (moved / float(n)) if n else None
+    if len(days) < SD_STABILITY_MIN_DAYS:
+        verdict, question = "insufficient_days", (
+            "none yet. %d of the %d predeclared days are in the archive, so the "
+            "movement below is reported but no failure mode is being claimed."
+            % (len(days), SD_STABILITY_MIN_DAYS))
+    elif share_moved is not None and share_moved <= SD_STABILITY_TOLERANCE:
+        verdict, question = "stable_within_player", (
+            "a player's own published sd HOLDS across days while A's refit across "
+            "PLAYERS does not. That points at the instability being "
+            "CROSS-SECTIONAL — those ~25 players genuinely disagree — and no "
+            "quantity of further days can fix it. THE QUESTION THAT REMAINS is "
+            "whether any published-sd source has a materially larger band inside "
+            "its own top 25, because waiting on this one will not produce it.")
+    else:
+        verdict, question = "unstable_within_player", (
+            "a player's own published sd does NOT hold across days, which is a "
+            "second and independent reason not to fit a constant to this feed's "
+            "top of board. THE QUESTION THAT REMAINS is whether the top-of-board "
+            "sd is usable at all, which is prior to how it should be fitted.")
+
     return dict(base, status="measured", players=n, moved=moved,
+                verdict=verdict, remaining_question=question,
+                share_moved=None if share_moved is None else round(share_moved, 4),
                 by_band={k: out[k] for k in sorted(out, key=lambda x: float(x.split("-")[0].rstrip("+")))},
                 note="%d of %d players carrying a published sd on 2+ days moved "
                      "their own sd by more than %.0f%% of its median across %d "

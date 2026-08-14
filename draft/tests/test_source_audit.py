@@ -253,17 +253,42 @@ def test_THE_LIVE_ARCHIVE_PASSES_ITS_OWN_AUDIT():
     is the archive as actually written this morning.
 
     MUTATION: any FATAL check that is too strict — it fires on real, correct data,
-    which is how an audit gets switched off."""
+    which is how an audit gets switched off.
+
+    ⚠️ THIS TEST USED THREE SILENT SUBSTITUTIONS AND THEREFORE COULD NOT FAIL.
+    A routed the shape (`|| <fallback>` turns "the input is missing" into "proceed
+    with something else") and asked me to sweep my own fixtures. It was here, in
+    the one test that most needs to be unfallible — the POSITIVE CONTROL, whose
+    entire job is to prove the audit does not fire on real correct data.
+
+    It read `.get("series") or []`, then skipped when the resulting day list was
+    empty. MEASURED, not argued: rename `series` to `rows` in the archive — an
+    ordinary schema change — and `ser` becomes `[]`, `days` becomes `[]`, and the
+    positive control SKIPS. Green suite, audit never invoked, nothing looked at.
+    Every other test in this file builds a fixture designed to fail, so with this
+    one skipping the file proves only that the audit can say no.
+
+    All three now REFUSE. The archive is a committed file (`git ls-files` matches
+    it), so its absence is a defect and not a tree variation; a renamed key is a
+    defect; and an archive with no days is a defect the moment the capture has run
+    even once. None of the three is a state this test may pass through quietly."""
     import json
     p = HERE.parents[1] / "draft" / "data" / "external_source_prices.json"
-    if not p.exists():
-        import pytest
-        pytest.skip("archive not present in this tree")
-    ser = json.loads(p.read_text()).get("series") or []
+    assert p.exists(), (
+        "the archive is COMMITTED to this repository, so its absence is a broken "
+        "tree and not a tree without data — this used to `pytest.skip`, which made "
+        "a deleted archive indistinguishable from a passing audit: %s" % p)
+    raw = json.loads(p.read_text())
+    assert "series" in raw, (
+        "the archive carries no `series` key. This used to read `.get('series') "
+        "or []`, so renaming the key turned the positive control into a skip "
+        "instead of a failure. Keys present: %s" % sorted(raw))
+    ser = raw["series"]
     days = sorted({str(s.get("observed_at")) for s in ser if s.get("observed_at")})
-    if not days:
-        import pytest
-        pytest.skip("archive holds no days yet")
+    assert days, (
+        "the archive holds %d series entr(ies) and NOT ONE carries `observed_at`. "
+        "This used to skip. An archive that cannot say when it was observed cannot "
+        "support any cross-day check in this file." % len(ser))
     out = S.source_audit(ser, "2026", days[-1])
     assert out["status"] == "measured"
     assert out["fatal"] == [], out["fatal"]
@@ -540,3 +565,147 @@ def test_THE_OBSERVED_SPREAD_IS_REPORTED_so_the_tolerance_can_be_re_derived():
         assert band["median_spread"] is not None
         assert band["worst_spread"] is not None
     assert got["tolerance"] == S.SD_STABILITY_TOLERANCE
+
+
+# ── THE INVARIANT CORY MADE A CONDITION, EXECUTABLE RATHER THAN WRITTEN ─────
+#
+# "Keep the result strictly observational and make the 'does not authorize a
+# production change' invariant EXECUTABLE." A field on a dict is a claim; this is
+# the check that makes it true, and it is the only part of the constraint that
+# survives somebody who never read the conversation.
+#
+# THE STRUCTURE, EXACTLY AS SPECIFIED:
+#   < 5 days                          -> insufficient_days
+#   >= 5 days + stable within-player  -> stable_within_player
+#   >= 5 days + unstable              -> unstable_within_player
+#   NEITHER RESULT                    -> changes adp_sd or scoring
+# The last line is what these two tests make mechanically impossible.
+
+#: Every module that can put a number on the shipped board or into a
+#: recommendation. If `sd_stability` becomes reachable from ANY of them, the
+#: observation has become an input and the test below fails.
+PRODUCTION_ROOTS = ("draft/build.py", "draft/adp.py", "draft/keepers.py",
+                    "draft/grab_by.py", "draft/opening_script.py",
+                    "draft/predict_keepers.py", "draft/backtest/build_bundle.py")
+
+
+def test_sd_stability_IS_UNREACHABLE_FROM_ANY_PRODUCTION_PATH():
+    """MECHANICAL, NOT DOCUMENTARY. `AUTHORIZES` rides on the result so a reader
+    cannot miss it; this makes the reader irrelevant. A module that prices the
+    board or scores a recommendation must not be able to call this, and "nothing
+    calls it today" is precisely the state that rots — `adp_sd_source` was
+    computed and copied onto zero rows for days on exactly that footing.
+
+    MUTATION: import it in `adp.py` — the observation becomes an input to the
+    field it was built to judge, and the loop closes on itself with nobody
+    noticing until a constant moves."""
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    seen, stack, offenders = set(), list(PRODUCTION_ROOTS), []
+    while stack:
+        rel = stack.pop()
+        if rel in seen:
+            continue
+        seen.add(rel)
+        p = root / rel
+        if not p.exists():
+            continue
+        src = p.read_text()
+        if "sd_stability" in src:
+            offenders.append(rel)
+        # follow local imports one hop at a time, both spellings the repo uses
+        for m in re.finditer(r"^\s*(?:import|from)\s+([a-z_][a-z0-9_]*)", src, re.M):
+            for cand in ("draft/backtest/%s.py" % m.group(1), "draft/%s.py" % m.group(1)):
+                if (root / cand).exists():
+                    stack.append(cand)
+    assert not offenders, (
+        "sd_stability is reachable from a production path via %s. It is an "
+        "OBSERVATION of the feed's stability and must not be able to alter "
+        "adp_sd, recommendation scoring, or any production constant — Cory's "
+        "condition, 2026-08-14." % offenders)
+    assert len(seen) > 5, ("the walk visited %d files, which is too few to have "
+                           "covered the production graph — a check that cannot "
+                           "reach the code it guards proves nothing" % len(seen))
+
+
+def test_THE_VERDICT_NAMES_A_QUESTION_and_never_an_action():
+    """"Neither result by itself authorizes a production change. It determines
+    what question remains answerable." So the verdict vocabulary is closed, every
+    result carries `authorizes`, and `remaining_question` says what is still open
+    rather than what to do.
+
+    MUTATION: let a verdict read `raise_the_floor` or `rate=0.11` — the
+    instrument starts issuing instructions, and the gap between measuring and
+    deciding closes silently."""
+    ALLOWED = {None, "insufficient_days", "stable_within_player",
+               "unstable_within_player"}
+
+    # ⚠️ THE BOUNDARY IS WRITTEN HERE AS A LITERAL, NOT READ FROM THE MODULE.
+    # This test used `if k < S.SD_STABILITY_MIN_DAYS`, which took its expectation
+    # from the thing under test: mutate the constant 5 -> 2 and the branch
+    # boundary moved with it, so every k still satisfied whichever arm it landed
+    # in and the mutation SURVIVED. The five-day minimum was predeclared before
+    # the second day existed; a test of a predeclaration that reads the
+    # declaration cannot detect the declaration changing.
+    assert S.SD_STABILITY_MIN_DAYS == 5, (
+        "the predeclared minimum moved to %s. It was fixed at 5 BEFORE the second "
+        "day existed, and lowering it to reach a verdict sooner is the exact move "
+        "the predeclaration exists to prevent." % S.SD_STABILITY_MIN_DAYS)
+    PREDECLARED_MIN_DAYS = 5
+
+    # A DELIBERATELY STEADY FIXTURE, so the expected verdict is KNOWN and can be
+    # pinned by name. Player "1" drifts 2.00 -> 2.05 (a 2.5% move of its own
+    # median, well inside the 25% tolerance) and player "2" never moves, so
+    # share_moved is 0.0 and the honest answer is `stable_within_player`.
+    days = [_sdday("2026-08-%02d" % (10 + i), {"1": 2.0 + i * 0.01, "2": 5.0})
+            for i in range(6)]
+    for k in (1, 2, 4, 5, 6):
+        got = S.sd_stability(days[:k], "ffc", "2026")
+        assert got["verdict"] in ALLOWED, got["verdict"]
+        assert got["authorizes"].startswith("nothing"), got["authorizes"]
+        assert "does not license" in got["authorizes"]
+        if k < PREDECLARED_MIN_DAYS:
+            assert got["verdict"] in (None, "insufficient_days"), (k, got["verdict"])
+        else:
+            # NAMED, NOT "one of the two". Accepting either verdict let `elif
+            # share_moved <= TOLERANCE` be replaced by `elif False`: the stable
+            # arm died, every result fell through to `unstable_within_player`,
+            # and the assertion below still passed. A test that accepts both
+            # answers cannot tell which arm produced one.
+            assert got["verdict"] == "stable_within_player", (
+                "a fixture whose sd moves 2.5%% of its own median across %d days "
+                "is STABLE by the declared 25%% tolerance; got %r. If the stable "
+                "arm is unreachable every measurement reads as instability."
+                % (k, got["verdict"]))
+            assert got["remaining_question"], "a verdict must name what is still open"
+            # AND IT MUST NOT READ AS AN INSTRUCTION.
+            low = got["remaining_question"].lower()
+            for word in ("raise", "lower", "set the", "ship", "change the floor"):
+                assert word not in low, (word, got["remaining_question"])
+
+    # AND THE OPPOSITE ARM, so a mutation that makes EVERYTHING read stable dies
+    # too. Player "1" swings 2.0 -> 8.0 across the same six days: a 150% move of
+    # its own median, six times the tolerance.
+    wild = [_sdday("2026-08-%02d" % (10 + i), {"1": 2.0 + i * 1.2, "2": 5.0})
+            for i in range(6)]
+    got = S.sd_stability(wild, "ffc", "2026")
+    assert got["verdict"] == "unstable_within_player", got["verdict"]
+    assert got["authorizes"].startswith("nothing"), got["authorizes"]
+
+
+def test_FIVE_DAYS_MAKES_IT_ELIGIBLE_not_true():
+    """Cory: "Five days makes the measurement eligible for interpretation; it does
+    not make the conclusion true." So the floor gates the VERDICT and nothing
+    else — the movement is reported below it, and reaching it grants no extra
+    standing.
+
+    MUTATION: suppress the numbers below the floor — the days before the fifth
+    become invisible, and nobody can see the trend that the verdict will later
+    be taken over."""
+    days = [_sdday("2026-08-%02d" % (10 + i), {"1": 2.0, "2": 5.0}) for i in range(3)]
+    got = S.sd_stability(days, "ffc", "2026")
+    assert got["verdict"] == "insufficient_days"
+    assert got["status"] == "measured", "the MOVEMENT is still measured and reported"
+    assert got["players"] == 2 and got["by_band"], "the numbers must be visible"
+    assert got["authorizes"].startswith("nothing")
