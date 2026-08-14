@@ -3833,3 +3833,84 @@ def test_drop_depth_is_ABSENT_not_zeroed_when_no_drop_cleared_the_floor():
     cov = C.coverage(steady, "2026")
     assert cov["largest_drop"] == 0
     assert cov["drop_depth"] is None
+
+
+# ── UNDECODED AT A ROSTERED POSITION, AND INSIDE OUR DRAFT ──────────────────
+#
+# `_classify_undraftable` already separates a keeper and an IDP from a player we
+# lost, and its own docstring says the survivor count is "printed in the capture
+# summary every morning and nobody could act on it". Live: 11 survivors, ALL
+# beyond pick 150, shallowest Travis Hunter at ADP 153.0 — a three-pick margin.
+
+def _rep(ids, truncated=False, total=None):
+    return {"no_sleeper_match_draftable_ids": [str(i) for i in ids],
+            "no_sleeper_match_draftable_truncated": truncated,
+            "no_sleeper_match_draftable": total if total is not None else len(ids)}
+
+
+def test_undecoded_ALL_OUTSIDE_the_draft_is_clear_and_reports_the_margin():
+    """The live state. The margin is the point: 3 picks is close enough that the
+    gate is worth having before the draft rather than after.
+
+    MUTATION: drop `margin` — the report says "clear" and loses the only number
+    that says how nearly it was not."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 153.0, "2": 444.0}, 150)
+    assert out["verdict"] == "clear", out
+    assert out["inside"] == 0
+    assert out["shallowest_outside"] == 153.0 and out["margin"] == 3.0
+    assert "3.0 picks outside" in out["note"]
+
+
+def test_undecoded_INSIDE_the_draft_is_the_arm_that_must_fire():
+    """A player this room can take, at a position it rosters, not kept, with no
+    market price. This is the only reason the other buckets are worth computing.
+
+    MUTATION: `a <= draftable` -> `a < 0` — nothing is ever inside, the gate is
+    permanently green, and the board silently loses a draftable player."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 148.0, "2": 444.0}, 150)
+    assert out["verdict"] == "undecoded_in_draft", out
+    assert out["inside"] == 1 and out["players"] == ["1"]
+    assert out["note"].startswith("⚠") and "148.0" in out["note"]
+
+
+def test_a_TRUNCATED_list_cannot_support_a_verdict_of_clear():
+    """The producer caps the ids at 40. On the day it truncates, the players past
+    the cap are exactly the ones nobody sees — and "none of the 40 I was shown was
+    draftable" would print as "none was draftable" (rule 13f).
+
+    MUTATION: ignore the truncation flag."""
+    out = C.undecoded_inside_draft(_rep(range(40), truncated=True, total=97),
+                                   {str(i): 400.0 for i in range(40)}, 150)
+    assert out["verdict"] == "unknown", out
+    assert out["inside"] is None
+    assert "TRUNCATED" in out["note"] and "97" in out["note"]
+
+
+def test_an_UNREADABLE_pick_must_not_come_back_as_clear():
+    """Same defect `drop_depth` was fixed for one commit earlier, reproduced by
+    me in this function: `if a is None: continue` drops the player from BOTH
+    buckets and the verdict reads `clear`.
+
+    MUTATION: `unpriced.append(...)` -> bare `continue`."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": {"no_pick": 1}, "2": 444.0}, 150)
+    assert out["verdict"] == "unknown", out
+    assert out["inside"] is None
+    assert "no readable pick" in out["note"]
+
+
+def test_a_KNOWN_inside_player_still_fires_even_with_an_unreadable_row():
+    """Unknown must not outrank a confirmed hit. If one player is provably inside
+    the draft, that is the finding, whatever else failed to parse.
+
+    MUTATION: return `unknown` whenever anything is unpriced — the real alarm is
+    downgraded by an unrelated bad row."""
+    out = C.undecoded_inside_draft(_rep([1, 2]), {"1": 100.0, "2": {"x": 1}}, 150)
+    assert out["verdict"] == "undecoded_in_draft", out
+    assert out["inside"] == 1
+
+
+def test_without_a_draft_range_the_verdict_is_unknown_not_clear():
+    """MUTATION: default `draftable` to 150 — a guessed range produces a
+    confident "none was draftable" for a league nobody read."""
+    out = C.undecoded_inside_draft(_rep([1]), {"1": 10.0}, None)
+    assert out["verdict"] == "unknown" and out["inside"] is None, out

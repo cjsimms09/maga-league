@@ -929,6 +929,102 @@ def _total_drafts(snapshot):
         return None
 
 
+def undecoded_inside_draft(report: dict, rows: dict, draftable=None) -> dict:
+    """Of the players undecoded AT A ROSTERED POSITION, how many can we draft?
+
+    ⚠ THE NUMBER THIS REFINES IS PRINTED EVERY MORNING AND GATED BY NOTHING.
+    `_classify_undraftable` already does the hard part — it separates a keeper and
+    an IDP from a player we actually lost, and its own docstring says the survivor
+    count is "printed in the capture summary every morning and nobody could act on
+    it". Measured on the live archive that count is 11, and ALL ELEVEN sit beyond
+    our 150-pick draft; the shallowest is Travis Hunter at ADP 153.0.
+
+    SO THE WHOLE-BOARD COUNT CANNOT BE GATED AT ZERO — it is 11 today and failing
+    every morning over Drew Lock at ADP 444 would train everyone to ignore it.
+    Restricted to the range this room actually drafts it IS zero, which makes it
+    gateable, and the three-pick margin under Travis Hunter is the reason to gate
+    it now rather than after the draft.
+
+    This builds ON that classification and does not repeat it: I started writing a
+    parallel classifier and it shadowed `rostered_positions`, broke six passing
+    tests, and re-derived a finding this module's docstring already records. One
+    definition, not two that drift.
+    """
+    ids = report.get("no_sleeper_match_draftable_ids") or []
+    if draftable is None:
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": None, "margin": None, "verdict": "unknown",
+                "note": "the draft range could not be read, so 'is any of them "
+                        "draftable' has no answer. %d undecoded at a rostered "
+                        "position." % len(ids)}
+    # ⚠ A TRUNCATED LIST CANNOT SUPPORT A ZERO. The ids are capped at 40 by the
+    # producer, so on a bad day the ones past the cap are exactly the ones nobody
+    # would see — and "none of the 40 I was shown was draftable" would print as
+    # "none was draftable" (rule 13f).
+    if report.get("no_sleeper_match_draftable_truncated"):
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": None, "margin": None, "verdict": "unknown",
+                "note": "the undecoded list is TRUNCATED at %d of %s, so a count "
+                        "of zero inside the draft would be a statement about the "
+                        "cap and not about the board."
+                        % (len(ids), report.get("no_sleeper_match_draftable"))}
+
+    def _adp(v):
+        if isinstance(v, dict):
+            for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+                if v.get(k) is not None:
+                    try:
+                        return float(v[k])
+                    except (TypeError, ValueError):
+                        return None
+            return None
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    inside, outside, unpriced = [], [], []
+    for pid in ids:
+        a = _adp((rows or {}).get(str(pid)))
+        if a is None:
+            # ⚠ COUNTED, NOT SKIPPED — I wrote `continue` here first, which is the
+            # same defect `drop_depth` was fixed for one commit earlier. A player
+            # undecoded at a rostered position whose pick will not parse falls out
+            # of BOTH buckets, and the verdict then reads `clear`: the most
+            # reassuring answer, produced by the rows nobody could read.
+            unpriced.append(str(pid))
+            continue
+        (inside if a <= draftable else outside).append((a, str(pid)))
+    inside.sort(); outside.sort()
+    shallow = outside[0][0] if outside else None
+    if unpriced and not inside:
+        return {"inside": None, "checked": len(ids), "players": [],
+                "shallowest_outside": shallow, "margin": None,
+                "verdict": "unknown",
+                "note": "%d of %d undecoded player(s) carry no readable pick, so "
+                        "whether they fall inside pick %d cannot be stated: %s"
+                        % (len(unpriced), len(ids), draftable,
+                           ", ".join(unpriced[:5]))}
+    if inside:
+        verdict = "undecoded_in_draft"
+        note = ("⚠ %d player(s) priced inside pick %d are at a position this "
+                "league rosters, are not kept, and did not decode — the shallowest "
+                "at ADP %.1f. The board has no market price for a player this room "
+                "can take." % (len(inside), draftable, inside[0][0]))
+    else:
+        verdict = "clear"
+        note = ("%d undecoded at a rostered position and NONE inside pick %d. "
+                "Nearest is ADP %s — %s picks outside the draft."
+                % (len(ids), draftable,
+                   "n/a" if shallow is None else "%.1f" % shallow,
+                   "n/a" if shallow is None else "%.1f" % (shallow - draftable)))
+    return {"inside": len(inside), "checked": len(ids),
+            "players": [p for _a, p in inside],
+            "shallowest_outside": shallow,
+            "margin": None if shallow is None else round(shallow - draftable, 2),
+            "verdict": verdict, "note": note}
+
+
 def latest_marginal(series: list, year) -> dict:
     """The most recent derivable marginal day, chosen rather than assumed.
 

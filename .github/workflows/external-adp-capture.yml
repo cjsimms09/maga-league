@@ -388,6 +388,37 @@ jobs:
                         "undecoded at a rostered position: **%d**"
                         % (xrep["kept_not_draftable"], xrep["position_not_rostered"],
                            xrep["no_sleeper_match_draftable"]))
+
+                  # ── AND THE ONE SLICE OF IT THAT *IS* ESCALATED ─────────────
+                  #
+                  # This does NOT contradict "REPORTED, NOT ESCALATED" above; the
+                  # argument there is still right and it is about a DIFFERENT
+                  # number. Failing every morning over the whole-board count would
+                  # be red-by-design: it is 11 today and every one of them is a
+                  # deep player nobody drafts — Drew Lock at ADP 444.
+                  #
+                  # Inside the range this room actually drafts the count is ZERO,
+                  # and it is zero for a reason that can stop being true: the
+                  # nearest undecoded player is Travis Hunter at ADP 153.0, THREE
+                  # PICKS outside a 150-pick draft. That is not a static property
+                  # of the name matcher — it becomes true the day a player drifts
+                  # across pick 150 or a new name lands — and unlike the deep-pool
+                  # misses it is worth knowing BEFORE the draft rather than after.
+                  # A gate that is zero today, actionable, and time-bound is the
+                  # opposite of red-by-design.
+                  _ser = sorted(C.load(), key=lambda s: str(s.get("observed_at")))
+                  _rows = (_ser[-1].get("rows") or {}) if _ser else {}
+                  ud = C.undecoded_inside_draft(xrep, _rows, C._draftable_picks())
+                  print("Draftable decode: %s" % ud["note"])
+                  if ud["verdict"] == "undecoded_in_draft":
+                      print("::error::%d player(s) inside our draft are at a rostered"
+                            " position, not kept, and did not decode: %s"
+                            % (ud["inside"], ", ".join(ud["players"][:10])))
+                      raise SystemExit(1)
+                  if ud["verdict"] == "unknown":
+                      print("::error::whether any undecoded player falls inside our"
+                            " draft could NOT be established — %s" % ud["note"])
+                      raise SystemExit(1)
           except Exception as e:                      # noqa: BLE001
               # A DECODE REPORT THAT DIES MUST NOT TAKE THE SNAPSHOT WITH IT.
               # This step is `if: always()` and the commit below is gated on the
