@@ -1433,7 +1433,42 @@
     // Before any pick is recorded, my first live pick stays the anchor: that is
     // the pre-draft prep board, and "who do I take at 34" is the right question
     // then. Once picks start flowing, the count of recorded picks IS the clock.
-    return pickState().currentPick;
+    /* ⚠️ BEFORE THE DRAFT STARTS, THE ANCHOR IS MY FIRST PICK — and this line
+     * stopped doing that, which is what Cory hit on a mock.
+     *
+     * The paragraph above already promises it: "before any pick is recorded, my
+     * first live pick stays the anchor: that is the pre-draft prep board". The
+     * code returned `pickState().currentPick` unconditionally, which is
+     * `pickEvents + 1` — and with nothing recorded that is ONE.
+     *
+     * SO THE WHOLE RECOMMENDATION SURFACE WAS SCORED FOR PICK 1. Cory owns no
+     * pick before 33. The board told him to take Jahmyr Gibbs (adp 1), offered
+     * Bijan Robinson (adp 2) and Puka Nacua (adp 3) as the alternatives, and
+     * printed "RB: take-now (grab-by 33)" — advice for a pick that is not his,
+     * about players who are gone before he ever chooses, with a deadline of the
+     * pick he was already standing on.
+     *
+     * THE SEAT PANEL WAS RIGHT ON THE SAME SCREEN, which is what makes this a
+     * defect rather than a preference: `seatForCurrentPick()` falls forward with
+     * `seats.find(s => s.pick >= cur)` and correctly read "THE PLAN WANTS TE at
+     * overall 33" while the engine beside it argued for a back at pick 1. Two
+     * panels, one screen, two different picks.
+     *
+     * `pickState().currentPick` IS NOT WRONG and is not touched — it names the
+     * pick the ROOM is on, and 1 is the truth for that. Two quantities were
+     * sharing one accessor, which is the same shape as board picks versus live
+     * picks, the confusion that produced a first pick of 30 instead of 33.
+     *
+     * NARROW BY CONSTRUCTION: this only fires with NO sync and NO recorded pick
+     * — the pre-draft prep board, which is the state Cory was in. The moment a
+     * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
+     * over exactly as before. Live-draft behaviour is unchanged. */
+    const ps = pickState();
+    if (ps.pickEvents === 0) {
+      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
+      if (mine.length) return mine[0];
+    }
+    return ps.currentPick;
   }
   function onTheClock() {
     const mine = state.data.pick_order.my_picks || [];
