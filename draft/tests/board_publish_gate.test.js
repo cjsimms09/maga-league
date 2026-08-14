@@ -98,6 +98,33 @@ const commit = at(/^\s+- name: Commit the artifact if it changed/m);
     + 'board is still worth the two minutes', /pytest draft\/tests/.test(pre));
   ck('the reason it could not gate is recorded where the next reader will be, '
     + 'with the date it cost us', /2026-08-14/.test(pre) && /UNTESTED/.test(pre));
+
+  /* ── AND IT MUST NOT FAIL THE JOB, WHICH IS THE OPPOSITE OF THE POST-BUILD
+   *    GATE AND DELIBERATELY SO ──────────────────────────────────────────────
+   *
+   * Failing here stops the rebuild BECAUSE the committed board is broken — and a
+   * rebuild is exactly what repairs a broken board. One red test on the current
+   * artifact froze the pipeline that would replace it.
+   *
+   * Live on 2026-08-14: the 09:16Z run published a board carrying
+   * `adp_sd_source` with no declared purpose, so from that moment this step
+   * failed. The next scheduled run, 08:00Z on the 15th and six days before
+   * keeper lock, would have died here without attempting a build — stale ADP
+   * into a draft, caused by the guard rather than by the defect.
+   *
+   * The two steps are NOT redundant and must not be made symmetric: this one
+   * reports, the post-build one enforces. */
+  ck('the pre-build step is ADVISORY — it must not fail the job, or a broken '
+    + 'board blocks its own repair', /continue-on-error: true/.test(pre),
+  pre.slice(pre.indexOf('pre-build'), pre.indexOf('pre-build') + 200));
+  ck('and it says WHY it is advisory, so the next reader does not "fix" it back '
+    + 'into a deadlock', /blocks its own repair|blocking its own repair|block its own repair/i
+    .test(pre.replace(/\s+/g, ' ')) || /a rebuild is exactly what repairs/.test(pre.replace(/\s+/g, ' ')));
+  ck('CONTROL — the POST-build gate still fails the job, so this change did not '
+    + 'quietly disarm publication protection',
+  /exit 1/.test(src.slice(gate, commit))
+    && !/continue-on-error/.test(src.slice(gate, commit)),
+  src.slice(gate, commit).slice(0, 160));
 }
 
 // ── 5. THE WORKFLOW IS STILL VALID YAML-ISH ─────────────────────────────

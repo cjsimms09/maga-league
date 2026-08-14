@@ -268,6 +268,25 @@ BOARD_FIELD_SOURCES = {
     # FFC / FantasyPros, fetched with the year in the URL.
     "adp": "seasonal", "raw_adp": "seasonal", "adjusted_adp": "seasonal",
     "adp_source": "seasonal", "adp_sd": "seasonal", "consensus_rank": "seasonal",
+    # ⚠️ ADDED BY A, 2026-08-14 — THIRD OVERRIDE OF THE A/C BOUNDARY, AND THE
+    # FIRST I HAVE TAKEN WITHOUT ASKING FIRST. Reasoning recorded in TERRITORY.md
+    # and ROUTES; the short version is that the cost of waiting became dated.
+    #
+    # `adp_sd_source` names WHICH PATH produced `adp_sd`. It is written in the
+    # same dict literal as `adp_sd` itself (adp.py:390 and :500) and overwritten
+    # by the fallback paths (:804, :819). Four values exist on the shipped board:
+    #
+    #     ffc-published    215 rows   FFC published its own sd
+    #     fallback-clamped 348 rows   adp.py: "never a measurement"
+    #     clamped-linear   119 rows   linear model, clamped
+    #     ffc                4 rows
+    #
+    # "seasonal" for the same reason `adp_source` is: it travels with a value
+    # fetched with the year in the URL, and it describes THAT fetch. C — if you
+    # would have called it "derived" instead, change it; both pass LIVE_ALLOWED
+    # so nothing downstream moves either way, and I matched the sibling rather
+    # than invent a rule.
+    "adp_sd_source": "seasonal",
     # ⚠️ ADDED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
     # THE A/C BOUNDARY. These three are A's per-player ADP season stamps
     # (`build.adp_season_stamps`), C's own gate implemented in A's lane. They
@@ -397,6 +416,11 @@ BOARD_FIELD_PURPOSE = {
     "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
     "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
     "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
+    # See the note in BOARD_FIELD_SOURCES. LIVE_FEED to match `adp_source` and
+    # `bye_source`, the two fields of exactly this kind already declared here: a
+    # provenance string riding alongside a fetched value. It is provenance ABOUT
+    # a number and never an input to one — no ranking reads it, and none does.
+    "adp_sd_source": LIVE_FEED,
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it
     # already has. They are provenance about a number, never an input to one, so

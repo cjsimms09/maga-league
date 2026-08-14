@@ -64,6 +64,23 @@ jobs:
         # Kept because failing fast on a board that is ALREADY broken is still
         # worth the two minutes. The gate that actually protects publication is
         # "Acceptance gate on the FRESH board" below.
+        #
+        # ⚠️ ADVISORY, AND IT HAD TO BECOME ADVISORY (2026-08-14). Failing the JOB
+        # here is backwards: it stops the rebuild BECAUSE the current board is
+        # broken, and a rebuild is exactly what repairs a broken board. So one red
+        # test on the committed artifact froze the pipeline that would replace it.
+        #
+        # That is not hypothetical. The 09:16Z rebuild published a board carrying
+        # `adp_sd_source` with no declared purpose; from that moment this step
+        # failed, and the next scheduled run — 08:00Z on the 15th, six days before
+        # keeper lock — would have died here without ever attempting a build.
+        # Stale ADP into a draft, caused by the guard rather than by the defect.
+        #
+        # Publication is still protected, and by the step that can actually do it:
+        # "Acceptance gate on the FRESH board" runs AFTER the build and DOES fail
+        # the job. Nothing untested gets published; a broken board simply no
+        # longer blocks its own repair.
+        continue-on-error: true
         run: python -m pytest draft/tests -q
 
       # The JS suites are not optional extras: keepers.test.js is the only thing
