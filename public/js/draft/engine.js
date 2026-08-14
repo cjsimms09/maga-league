@@ -2160,6 +2160,32 @@
         if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
             && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
             && cap(b) > cap(a)) {
+          /* ⚠️ THE SWAP WAS SILENT, AND SILENCE READS AS A BUG (2026-08-14).
+           *
+           * This is the ONE place the rendered order stops matching the rendered
+           * score. Measured on the live board at pick 33: row 6 printed 31.6
+           * ABOVE row 7 printing 32.9 — Waddle over Higgins, same position, same
+           * tier, 1.3 apart, Waddle's ceiling higher. Working exactly as
+           * designed, and from the outside indistinguishable from a broken sort.
+           *
+           * Cory on that screen: *"This screen doesn't make sense?"* A reader who
+           * cannot tell a deliberate tiebreak from a defect stops trusting the
+           * column, and the score column is how he compares the ten candidates
+           * he asked for.
+           *
+           * So the promotion now SAYS SO, and names the man it passed — a reason
+           * without the other name is not checkable by the person reading it.
+           * This changes no ordering; `CEILING_TIEBREAK` off still yields no
+           * marks because the swap never happens. */
+          list[i + 1].ceiling_tiebreak = {
+            over: a.name || null,
+            score_gap: Math.round((list[i].score - list[i + 1].score) * 10) / 10,
+            ceiling: cap(b),
+            ceiling_over: cap(a),
+          };
+          list[i + 1].reasons = ['↑ ahead of ' + (a.name || 'the man below')
+            + ' on upside — within ' + CFG.TIE_THRESHOLD + ' pts, higher ceiling']
+            .concat(list[i + 1].reasons || []);
           const t = list[i]; list[i] = list[i + 1]; list[i + 1] = t; swapped = true;
         }
       }
