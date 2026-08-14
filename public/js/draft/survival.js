@@ -39,7 +39,8 @@
     // both need the networked build. Until then this is a less-wrong constant,
     // and it is labelled as such rather than presented as calibrated.
     ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,          // was 0.22 — see above
+    ADP_SD_RATE: 0.15,          // was 0.22 — see above. GRADED against 219
+                                // published dispersions 2026-08-14: measures 0.11. HELD, see keepers.py.
     ADP_SD_CAP: 15.0,           // beyond this the curve is flat regardless
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon

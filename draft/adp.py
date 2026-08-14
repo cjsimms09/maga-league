@@ -35,6 +35,11 @@ import urllib.request
 from collections import defaultdict
 from pathlib import Path
 
+# ONE SET OF DISPERSION CONSTANTS. keepers.py owns them and is import-safe: it
+# pulls in nothing local, so there is no cycle. See fitted_sd() for why this
+# module used to carry its own copy and what that cost.
+import keepers as _K
+
 FFC_BASE = "https://fantasyfootballcalculator.com/api/v1/adp"
 CACHE = Path(__file__).parent / ".cache"
 CACHE_TTL = 12 * 60 * 60  # FFC recomputes daily; one call per build is plenty.
@@ -346,7 +351,20 @@ def fitted_sd(adp_mean: float, published_sd: float | None) -> tuple[float, str]:
     """
     if published_sd and published_sd > 0:
         return float(published_sd), "ffc"
-    return max(3.0, min(0.15 * adp_mean, 15.0)), "clamped-linear"
+    # ⚠️ A FOURTH COPY OF THE RATE LIVED HERE AS THE LITERAL `0.15`.
+    #
+    # keepers.py carries ADP_SD_{FLOOR,RATE,CAP} and survival.js carries
+    # CFG.ADP_SD_*, and `test_survival_parity.py` pins those two to each other by
+    # parsing the JS. This line was in neither set — a third implementation of
+    # the same rule that no parity test could see, in the file that actually
+    # STAMPS the board. Changing the rate in keepers.py would have moved the
+    # keeper optimizer and the war room and left the shipped `adp_sd` alone.
+    #
+    # Same shape as `picks` versus `my_picks` and as the four adp_sd formulas C
+    # routed today: one rule, several copies, and the guard over it comparing two
+    # of them to each other.
+    return (min(_K.ADP_SD_CAP, max(_K.ADP_SD_FLOOR, _K.ADP_SD_RATE * adp_mean)),
+            "clamped-linear")
 
 
 def build_adp_table(sleeper_players: dict, *, fmt: str, teams: int, year: int,
