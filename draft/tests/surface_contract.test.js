@@ -289,7 +289,8 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * the assertion aging into a lie about its own subject. The invariant is that
    * the two lists are DISJOINT and the outstanding one is non-empty; which names
    * sit on which side is exactly what is supposed to change. */
-  const AUDITED = ['legality strip', 'dollar-gap hero line', 'LRM strip', 'stack card'];
+  const AUDITED = ['legality strip', 'dollar-gap hero line', 'LRM strip', 'stack card',
+    'movement line'];
   const stillListed = AUDITED.filter(n => new RegExp(n, 'i').test(notYet));
   ck('every surface with its own section has moved OFF the unaudited list — a '
     + 'list that never shortens is a decoration that makes the document look '

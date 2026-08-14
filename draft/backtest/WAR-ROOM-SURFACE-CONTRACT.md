@@ -277,11 +277,39 @@ name, and which the §1 table counts inside `stack`'s 10.6%. It has **never
 fired**: `playoff_sos` is null on all 686 board rows. Asserted, so the day that
 field lands the suite goes red instead of the behaviour appearing in a pick.
 
+### 9. The movement line
+
+**IS:** a diff between two snapshots of the top of the board, taken at two
+different picks. Either the top changed ("Shifted to X"), or it held while the
+runner-up closed to within 3.0 points having shrunk the gap by at least 0.5.
+
+**IS NOT:** a causal explanation, and **it read as one.** Three defects, one root
+— the "why" was passed in as an opaque pre-formatted string:
+
+1. **Grammar, in production only.** The app sent `"WR run on"`; the almost branch
+   wrapped it as `' on the ' + reason`, so the live line read *"closed to within
+   1.5 pts **on the WR run on** — didn't pass."* The suite never saw it because
+   the suite passed `"WR run"` — **a different format from the one production
+   uses.** Two call sites owning half a sentence each.
+2. **False causality.** The reason named *every* running position, joined by an
+   em-dash, which is causal in English: *"Shifted to Colston Loveland — RB run
+   on."* attributes a TE rising to an RB run it has nothing to do with. The app's
+   own comment said "factual co-occurrence, not a causal claim" — true of the
+   code, false of the sentence.
+3. **Unknown top read as same top.** The moved branch required both ids non-null,
+   so a null id **fell through** and narrated a runner-up gap while the top had
+   actually changed.
+
+**NOW:** the caller passes `runs` (positions) and the snapshot carries positions,
+so phrasing lives in one place. A run **at the position that moved** earns the
+causal em-dash; a run elsewhere is an aside (*"Shifted to Loveland. RB run also
+on."*). Identity falls back to names when an id is missing, and says **nothing**
+when it is genuinely unknowable.
+
 ---
 
 ## What I have NOT audited yet
 
-The movement line, the shadow projection, and the manager panel. Named so this
-document cannot read as a completed sweep. Roughly 20 more surfaces carry a
-number; seven are covered here — four because they decide a pick, and three added
-as the audit reached them.
+The shadow projection and the manager panel. Named so this document cannot read
+as a completed sweep. Roughly 20 more surfaces carry a number; nine are covered
+here — four because they decide a pick, and five added as the audit reached them.

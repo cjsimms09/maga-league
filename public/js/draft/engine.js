@@ -3508,17 +3508,64 @@
    * The `reason` is appended, never fabricated: an empty reason yields a bare
    * factual line ("Shifted to X.") rather than an invented explanation.
    */
+  /* ⚠ THREE DEFECTS, ONE ROOT: `reason` WAS AN OPAQUE STRING (2026-08-14).
+   *
+   * 1. GRAMMAR, shipped. The app passed `movementReason()` = "WR run on"; the
+   *    almost branch wrapped it as `' on the ' + reason`, so the live line read
+   *    "closed to within 1.5 pts ON THE WR RUN ON — didn't pass." The suite never
+   *    saw it because the suite passed "WR run" — a DIFFERENT format from the one
+   *    production uses. A test that supplies its own input shape agrees with
+   *    itself; this is that hazard, in the string layer.
+   *
+   * 2. FALSE CAUSALITY. `movementReason` names EVERY running position, and the
+   *    em-dash construction is causal in English. "Shifted to Colston Loveland —
+   *    RB run on." attributes a TE rising to an RB run it has nothing to do with.
+   *    The app's own comment says "factual co-occurrence, not a causal claim" —
+   *    correct about the code and untrue of the sentence it produces.
+   *
+   * 3. UNKNOWN TOP READ AS SAME TOP. The moved branch required both ids non-null,
+   *    so a null id FELL THROUGH to the runner-up branch and narrated a gap story
+   *    while the top had actually changed — measured: prev Flowers / curr
+   *    Loveland with a null id yields "Y closed to within 2.0 pts — didn't pass."
+   *    A null must not resolve to the reassuring answer.
+   *
+   * THE FIX FOR ALL THREE IS STRUCTURE. The caller passes `runs` (positions) and
+   * `pos` (the position this line is about); phrasing lives here, once, so the
+   * two callers cannot disagree about format and relevance is checkable. */
   function movementLine(prev, curr, opts) {
     opts = opts || {};
     var CLOSE = opts.closeBand != null ? opts.closeBand : 3.0;   // "within N pts"
     var SHRINK = opts.minShrink != null ? opts.minShrink : 0.5;  // gap must actually close
-    var reason = opts.reason || '';
+    var runs = Array.isArray(opts.runs) ? opts.runs.filter(Boolean) : [];
+    var label = runs.length
+      ? runs.join('/') + ' run' + (runs.length > 1 ? 's' : '') : '';
     if (!prev || !curr || !curr.topName) return { kind: 'steady', line: '' };
 
-    if (prev.topId != null && curr.topId != null
-        && String(prev.topId) !== String(curr.topId)) {
+    /* A run at the position that moved may have caused it; a run elsewhere is
+     * concurrent. Only the first earns the causal em-dash. */
+    var relatedTo = function (pos) { return !!(label && pos && runs.indexOf(pos) >= 0); };
+    var aside = function (pos) { return label && !relatedTo(pos) ? ' ' + label + ' also on.' : ''; };
+
+    /* SAME TOP, OR UNKNOWN? Ids first; names when an id is missing on either
+     * side; and when neither is available the answer is UNKNOWN and the line says
+     * nothing. Residual, stated: two different players sharing a name with both
+     * ids absent would read as "same top" — strictly better than the old
+     * behaviour, which read ANY missing id as "same top". */
+    var sameTop;
+    if (prev.topId != null && curr.topId != null) {
+      sameTop = String(prev.topId) === String(curr.topId);
+    } else if (prev.topName && curr.topName) {
+      sameTop = prev.topName === curr.topName;
+    } else {
+      sameTop = null;
+    }
+    if (sameTop === null) return { kind: 'steady', line: '' };
+
+    if (sameTop === false) {
+      var mPos = curr.topPos || null;
       return { kind: 'moved',
-        line: 'Shifted to ' + curr.topName + (reason ? ' — ' + reason : '') + '.' };
+        line: 'Shifted to ' + curr.topName
+          + (relatedTo(mPos) ? ' — ' + label + ' on' : '') + '.' + aside(mPos) };
     }
 
     // Same top: did the runner-up close in without passing?
@@ -3529,9 +3576,11 @@
     if (prevGap != null && currGap != null
         && currGap >= 0 && currGap <= CLOSE && currGap < prevGap - SHRINK) {
       var name = curr.secondName || 'the runner-up';
+      var sPos = curr.secondPos || null;
       return { kind: 'almost',
         line: name + ' closed to within ' + currGap.toFixed(1) + ' pts'
-          + (reason ? ' on the ' + reason : '') + " — didn't pass." };
+          + (relatedTo(sPos) ? ' on the ' + label : '') + " — didn't pass."
+          + aside(sPos) };
     }
     return { kind: 'steady', line: '' };
   }
@@ -3539,8 +3588,17 @@
   /* ── LIVE STACK ROUTES ──────────────────────────────────────────────────────
    *
    * Enumerate the same-team QB↔pass-catcher completions still on the board,
-   * ranked by the stack value the ENGINE ITSELF uses (CFG.STACK_*), so the line
-   * cannot claim a value the scorer would not. Single-partner routes rank first
+   * priced by `correlationAdjustment` — the function the COMPOSITE scores — so
+   * the line cannot claim a value the scorer would not.
+   *
+   * ⚠ THIS PARAGRAPH SAID "ranked by the stack value the ENGINE ITSELF uses
+   * (CFG.STACK_*)" AND THAT WAS THE BUG WEARING ITS OWN JUSTIFICATION. Reading
+   * the raw constants is exactly what let the badge skip the competition penalty
+   * and recommend picks the composite was docking (see the note at the pricing
+   * call below). A comment claiming a property the code does not have is worse
+   * than no comment: it is what a reviewer checks INSTEAD of the code.
+   *
+   * Single-partner routes rank first
    * — exp 6's finding that the FIRST partner is the value; a second catcher is a
    * flattened marginal and sorts below.
    *

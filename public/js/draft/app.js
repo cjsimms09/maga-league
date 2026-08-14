@@ -5196,25 +5196,37 @@
       topId: top && top.player ? String(top.player.player_id) : null,
       topName: top && top.player ? top.player.name : null,
       topScore: top ? top.score : null,
+      // POSITIONS CARRIED so the line can tell a run that may explain the change
+      // from one that merely coincides with it. Without them every run reads as
+      // the cause of every move.
+      topPos: top && top.player ? top.player.position : null,
       secondName: second && second.player ? second.player.name : null,
       secondScore: second ? second.score : null,
+      secondPos: second && second.player ? second.player.position : null,
     };
   }
 
-  function movementReason() {
-    // Factual co-occurrence, not a causal claim: name any position currently
-    // running. Empty when nothing is running, so the line stays bare.
-    try {
-      var runs = E.detectRuns(state.runMults || {});
-      return runs.length ? runs.join('/') + ' run on' : '';
-    } catch (e) { return ''; }
+  /* THE RUNNING POSITIONS, AS A LIST — not a pre-formatted sentence.
+   *
+   * This returned `runs.join('/') + ' run on'`, and `movementLine` wrapped that
+   * as `' on the ' + reason`, so the shipped line read "closed to within 1.5 pts
+   * ON THE WR RUN ON". The suite never caught it because the suite passed
+   * "WR run" — a different format from this one. Two call sites owning half a
+   * sentence each is how a string ends up ungrammatical in production and
+   * grammatical in its test.
+   *
+   * The phrasing now lives entirely in `movementLine`, which also needs the raw
+   * positions to tell a run that might explain the move from one that merely
+   * coincides with it. This function's whole job is to answer "what is running". */
+  function movementRuns() {
+    try { return E.detectRuns(state.runMults || {}) || []; } catch (e) { return []; }
   }
 
   function updateMovement(pick, scored) {
     var curr = snapshotRec(pick, scored);
     var prev = state.lastRecommendation;
     if (!prev || prev.pick !== pick) {
-      var mv = prev ? E.movementLine(prev, curr, { reason: movementReason() })
+      var mv = prev ? E.movementLine(prev, curr, { runs: movementRuns() })
                     : { kind: 'steady', line: '' };
       state.movement = { pick: pick, kind: mv.kind, line: mv.line };
       state.lastRecommendation = curr;   // advance ONLY on a new pick
