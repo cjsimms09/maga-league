@@ -2176,6 +2176,14 @@
       "test_THE_CAVEATS_ARE_STILL_IN_THE_FILE"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "\"median_abs_delta\": 0.52",
+     "new": "\"median_abs_delta\": 9.9",
+     "must_fail": [
+      "test_SHRINKAGE_MOVES_PLAYERS_TOWARD_THE_PRIOR_never_away"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },

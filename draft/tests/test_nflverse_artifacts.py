@@ -146,3 +146,44 @@ def test_PACE_KEEPS_RAW_AND_NEUTRAL_APART_for_every_team():
         assert v.get("neutral_plays_per_game") is not None, t
     # AND THE HEADLINE RHO IS THE REASON THE TWO ARE KEPT APART.
     assert art["raw_vs_neutral_rank_rho"] < 0.8, art["raw_vs_neutral_rank_rho"]
+
+
+def test_THE_PER_PLAYER_PRIOR_DELTA_IS_THE_SUBTRACTION_IT_CLAIMS():
+    """Same class as the `gap` check above, on the block that would actually feed
+    a board. `delta` must be `expected_games - position_prior`; a stale delta
+    beside a live prior is unfalsifiable by reading, and this is the number a
+    consumer would sort on.
+
+    MUTATION: leave `delta` behind when the shrinkage setting changes — every row
+    reads as internally consistent while describing a different `k` than the one
+    it is filed under."""
+    art = _load("nflverse_durability.json")
+    prior = art.get("per_player_prior")
+    if not prior:
+        pytest.skip("per_player_prior not present")
+    for setting, block in prior["settings"].items():
+        for pid, r in block["players"].items():
+            assert abs((r["expected_games"] - r["position_prior"]) - r["delta"]) < 0.011, \
+                (setting, pid)
+
+
+def test_SHRINKAGE_MOVES_PLAYERS_TOWARD_THE_PRIOR_never_away():
+    """The whole point of `k` is that a larger one trusts the player's own history
+    less. If a setting with more shrinkage moved somebody FURTHER from his position
+    constant, the parameter would not mean what its docstring says.
+
+    MUTATION: report the raw history under every k — the table shows three
+    identical rows and the choice A is being asked to make looks like it does not
+    matter."""
+    art = _load("nflverse_durability.json")
+    prior = art.get("per_player_prior")
+    if not prior:
+        pytest.skip("per_player_prior not present")
+    s = prior["settings"]
+    assert s["shrink_k=None"]["median_abs_delta"] > s["shrink_k=1"]["median_abs_delta"] \
+        > s["shrink_k=2"]["median_abs_delta"], {k: v["median_abs_delta"] for k, v in s.items()}
+    for pid, raw in s["shrink_k=None"]["players"].items():
+        for k in ("shrink_k=1", "shrink_k=2"):
+            r = s[k]["players"].get(pid)
+            if r:
+                assert abs(r["delta"]) <= abs(raw["delta"]) + 1e-6, (pid, k)
