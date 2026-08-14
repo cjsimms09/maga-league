@@ -1808,6 +1808,14 @@
       "test_A_MISSING_built_at_IS_UNKNOWN_not_unrebuilt"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "                last_rebuild = str(ser[i].get(\"built_at\"))[:10]",
+     "new": "                last_rebuild = ser[i].get(\"observed_at\")",
+     "must_fail": [
+      "test_A_REBUILD_IS_DATED_BY_WHEN_IT_HAPPENED_not_when_we_noticed"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }
