@@ -108,6 +108,51 @@ for a season, that season is reported as UNAVAILABLE rather than estimated.
 outcome-free by construction, so the ACTUAL draft arm is safe. **The projections
 are the exposure.**
 
+
+---
+
+## 3b. THE TOOLS EXIST — VERIFIED, NOT ASSUMED
+
+§2 says "the waiver tool" and "the lineup tool" as if they were givens. They
+were not checked when this document was first written, and a design that tests
+tools which do not exist is fiction. Verified:
+
+- **`src/routes/waivers.js`** — prices free agents through the **SAME shared
+  valuation the draft uses (contract C1)**. That matters for §2b: TOOL's draft
+  and waiver arms are not two independent models, so a valuation error appears
+  in both and the isolation arms will not separate it. Stated so the
+  decomposition is not over-read.
+- **`src/routes/lineup.js`** — maximises `E[$] = P(win)·matchup_value +
+  P(clear the weekly-high band)·$100`. **NOT "start your highest projection"**,
+  which is precisely why BASELINE's naive lineup rule is the right contrast: the
+  two objectives genuinely differ, because the high-chase rewards variance and
+  the matchup rewards floor.
+
+## 3c. THE HARNESS FALSIFIER — a hard ceiling that catches leaks mechanically
+
+`EFFICIENCY-LEAK.md` already measured the **optimal-in-hindsight lineup** with
+the certified grader: **$595 (2024), $445 (2025), $2,100 across 2023–25** in
+weekly-high plus regular-season money, at 86–89% lineup efficiency.
+
+Hindsight-optimal is, by definition, **the maximum achievable with perfect
+information**. TOOL has only as-of information. Therefore:
+
+> **IF TOOL's LINEUP ARM RECOVERS MORE THAN THE HINDSIGHT CEILING IN ANY SEASON,
+> THE HARNESS HAS A LEAK. Not a good result — a broken test.**
+
+This is the most valuable check in the document because it is MECHANICAL. Every
+other leak guard in §3 depends on me noticing the leak. This one fires on any
+leak that produces lineup overperformance, whether or not anyone anticipated it,
+and it fires automatically.
+
+It also gives the lineup arm a scale: recovering a fraction of $445–595/season
+is a real result; recovering 100% would mean the tool is seeing the future.
+
+**The same shape does not exist for the draft or waiver arms** and this document
+does not pretend otherwise — there is no measured hindsight ceiling for either.
+Their leak exposure rests on §3, which is weaker, and that asymmetry is stated
+rather than smoothed over.
+
 ---
 
 ## 4. WHAT IS GRADED
