@@ -180,6 +180,40 @@ ck('and it does not describe dead code — every panel found is really called',
     parsed && parsed.weight_order);
 }
 
+
+// -- 6. THE SURVIVAL DESCRIPTION MATCHES THE PANEL, NOT THE OPPOSITE OF IT --
+/* THIS ENTRY SAID "86% means he is GONE 86% of the time" AND THE PANEL SHOWS THE
+ * PROBABILITY HE LASTS. Backwards, in the one sentence written to disambiguate —
+ * the kind a reader trusts precisely because it looks like the clarification. B
+ * builds the layout from this file, so an inverted description inverts every
+ * emphasis and colour decision taken from it.
+ *
+ * THE CONFUSION IS REAL AND ON THE SCREEN, which is why prose alone cannot be
+ * trusted here: the SAME number renders as "chance they last" in the survival
+ * panel and as "~X% gone by next" on the rec card. Both are correctly labelled.
+ * So this asserts the description against the SHIPPED HEADER, not against itself. */
+{
+  const surv = SPEC.PANELS.find(p => p.fn === 'renderSurvival');
+  ck('CONTROL — the survival entry exists', !!surv, surv && surv.fn);
+  ck('the panel header renders the LASTS direction',
+    /Chance they last to your pick/.test(SRC));
+  ck('and the bar width is the survival probability itself, not its complement',
+    /surv-bar[\s\S]{0,80}Math\.round\(x\.s \* 100\)/.test(SRC));
+  ck('green marks a HIGH chance of lasting, which only makes sense in that '
+    + 'direction', /x\.s > 0\.6 \? 'pos'/.test(SRC));
+
+  ck('the description now says LASTS / STILL THERE, agreeing with the header',
+    /LASTS until my next turn/.test(surv.means) && /STILL THERE/.test(surv.means),
+    surv.means);
+  ck('FAIL ARM — the inverted sentence is gone from the DESCRIPTION',
+    !/means he is GONE/.test(surv.means), surv.means);
+  ck('and the inversion is recorded as a retraction rather than quietly '
+    + 'rewritten, since it is the reason to distrust the next such sentence',
+  /exactly backwards/.test(surv.note));
+  ck('the note names the live source of the confusion — the same number shown '
+    + 'both ways on one screen', /SAME\s+NUMBER/.test(surv.note.replace(/\s+/g, ' ')));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: every panel that paints on the war room has a written');

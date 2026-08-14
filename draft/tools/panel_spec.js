@@ -98,13 +98,24 @@ const PANELS = [
   // ── TIMES ─────────────────────────────────────────────────────────────
   { fn: 'renderSurvival', weight: 'TIMES', lines: 112,
     question: 'Will he still be there at my next pick?',
-    means: 'Probability each player lasts until my next turn, from ADP and the '
-      + 'number of picks in between. 86% means he is GONE 86% of the time.',
+    means: 'Probability each player LASTS until my next turn, from ADP and the '
+      + 'number of picks in between. 86% means he is STILL THERE 86% of the time. '
+      + 'The panel header says exactly this ("Chance they last to your pick N"), '
+      + 'the bar is that probability, and green = likely to last.',
     changes_it: 'the room picking; my next pick getting closer',
     reads: ['adjusted_adp', 'adp_sd', 'pick_order.my_picks'],
     note: 'THE STRONGEST CHART CANDIDATE ON THE PAGE. It is a decay curve per '
       + 'candidate and it renders as a percentage in a chip. A reader cannot see '
-      + 'from "86%" whether the cliff is at pick 20 or pick 32.' },
+      + 'from "86%" whether the cliff is at pick 20 or pick 32. '
+      + '⚠ THIS ENTRY SAID "86% means he is GONE 86% of the time" UNTIL 2026-08-14 '
+      + '— exactly backwards, in the sentence a reader trusts BECAUSE it looks '
+      + 'like it is resolving the ambiguity. B builds the layout from this file, '
+      + 'so any emphasis, colour or copy decision taken from it would have been '
+      + 'inverted. The confusion is genuine and lives on the screen: THE SAME '
+      + 'NUMBER is shown as "lasts" here and as "~X% gone by next" on the rec '
+      + 'card. Both panels are labelled correctly; only this description was '
+      + 'wrong. Pinned in draft/tests/panel_spec.test.js against the shipped '
+      + 'header rather than against prose.' },
 
   { fn: 'renderRuns', weight: 'TIMES', lines: 19,
     question: 'Is the room emptying a position faster than expected?',

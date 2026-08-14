@@ -5002,12 +5002,54 @@
    * (the elite tier) and "when do I lose a STARTER" (the startable tier). Tracking
    * only the #1 reads "gone immediately" always; only the top-12 buries the elite
    * cliff. So QB/TE get BOTH thresholds; K/DEF are streamable, startable-only. */
-  function lrmLastSafe(pool, upcoming) {
+  /* ⚠ THIS STRIP ASKED SURVIVAL A DIFFERENT QUESTION THAN THE REST OF THE SCREEN
+   * (2026-08-14).
+   *
+   * The call was `E.survival(pool[j], upcoming[i], state.runMults)` — a BARE
+   * multiplier map. `normalizeCtx` accepts that shape deliberately, so the run
+   * multipliers really were applied and nothing looked wrong. But with no
+   * `currentPick` in the context, `survivalProbability` takes its UNCONDITIONAL
+   * branch (`layer1Taken`) instead of `layer1TakenGivenAvailable` — and that
+   * module's own comment says both layers must answer "GIVEN HE IS AVAILABLE NOW,
+   * is he still there at targetPick?".
+   *
+   * Everything else on the war room passes the full `context()`, which carries
+   * `currentPick`. So the rec card's "~X% gone by next" and this strip's "safe
+   * until pick N" were computed from two different branches for the same player
+   * on the same screen.
+   *
+   * ── THE SIGN IS ALWAYS THE SAME, WHICH IS WHY IT MATTERS ─────────────────
+   *
+   * Conditioning on "he lasted this long" can only RAISE survival, so the old
+   * form could only ever UNDERSTATE the deadline. It never errs toward patience.
+   * Measured on the live board — Lamar Jackson to pick 48: 0.0575 unconditional,
+   * 0.1102 conditional, nearly double.
+   *
+   * On the 12-deep startable pool this washes out: 0 of 12 deadlines moved,
+   * because with twelve candidates somebody clears 0.85 at the same pick either
+   * way. ON THE 3-MAN ELITE POOL IT DOES NOT: 2 of 12 moved, both toward MORE
+   * time, and one of those printed **"elite tier gone"** at pick 88 for TE when
+   * the conditioned answer is safe until 93. That is the panel closing a window
+   * that is open, at the position this league already drafts too early.
+   *
+   * ── THE SHAPE TRAP, since the next person here will hit it ───────────────
+   *
+   * `normalizeCtx` treats an object whose values are ALL NUMBERS as the legacy
+   * multiplier map. So `{ currentPick: cur }` alone would be read as "position
+   * 'currentPick' has multiplier 33" and silently do something absurd. The
+   * `runMultipliers` key is what keeps this a context; it is not optional
+   * decoration. Guarded in draft/tests/lrm_survival_ctx.test.js.
+   *
+   * NOT ADDED: `intervening`, which would switch Layer 2 (opponent needs) on for
+   * this strip too. That is a larger behavioural change and I have no measurement
+   * of it, so it stays off rather than being bundled into a correctness fix. */
+  function lrmLastSafe(pool, upcoming, cur) {
+    var ctx = { currentPick: cur, runMultipliers: state.runMults };
     var last = null, idx = 0, target = null;
     for (var i = 1; i < upcoming.length; i++) {
       var surv = null;
       for (var j = 0; j < pool.length; j++) {
-        if (E.survival(pool[j], upcoming[i], state.runMults) >= 0.85) { surv = pool[j]; break; }
+        if (E.survival(pool[j], upcoming[i], ctx) >= 0.85) { surv = pool[j]; break; }
       }
       if (surv) { last = upcoming[i]; idx = i; target = surv; }
     }
@@ -5026,8 +5068,12 @@
       // fall back to top-3 by VORP if tiers are absent.
       var elitePool = atPos.filter(function (p) { return (p.tier || 99) <= 1; });
       if (!elitePool.length) elitePool = atPos.slice(0, 3);
-      var st = lrmLastSafe(startablePool, upcoming);
-      var el = dual ? lrmLastSafe(elitePool, upcoming) : null;
+      // The observation point is the LIVE pick, not `upcoming[0]` — "he is
+      // available now" is a fact about the board this instant, and off the clock
+      // upcoming[0] is a turn that has not happened yet.
+      var cur = currentPick();
+      var st = lrmLastSafe(startablePool, upcoming, cur);
+      var el = dual ? lrmLastSafe(elitePool, upcoming, cur) : null;
       // NO DEADLINE IS NOT A DEADLINE (Cory, 2026-08-10). K and DEF reported "safe
       // until pick 145" in a 150-pick draft, naming Cam Little (ADP 171) and
       // Baltimore (ADP 203) — men who go UNDRAFTED in a 10-team league, so the
