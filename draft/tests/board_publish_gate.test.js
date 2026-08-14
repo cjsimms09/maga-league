@@ -140,6 +140,37 @@ const commit = at(/^\s+- name: Commit the artifact if it changed/m);
   gateBody.slice(0, 160));
 }
 
+// ── 6. THE INPUT THAT MADE THE BOARD IS COMMITTED WITH IT ───────────────
+/* `draft/config/keepers.json` was REGENERATED EVERY RUN AND NEVER COMMITTED.
+ * The workflow rebuilds it from live Sleeper designations, the board is built
+ * from that fresh copy, and then it went away with the runner — so the repo kept
+ * whatever was last hand-committed.
+ *
+ * MEASURED 2026-08-14: the committed file carried ONE team at draft_slot 4,
+ * while the board sitting next to it reported FOUR teams designated and slot 8.
+ * Neither was wrong. They were different vintages of the same input, and that
+ * disagreement is what sent me looking.
+ *
+ * THE BOARD WAS NEVER AFFECTED — it is built from the fresh copy. What was lost
+ * is REPRODUCIBILITY: a published board could not be rebuilt from the repo,
+ * because the keeper input that produced it existed nowhere. Keepers decide the
+ * forfeited rounds, every pick number, AND the draftable pool, so it is the
+ * single input with the widest downstream reach. */
+{
+  const commit = src.slice(src.indexOf('- name: Commit the artifact if it changed'));
+  ck('CONTROL — the commit step is locatable', commit.length > 200, commit.length);
+  ck('the keeper designations are committed alongside the board they produced',
+    /draft\/config\/keepers\.json/.test(commit));
+  ck('and the file is REGENERATED in the same run, so what is committed is what '
+    + 'the board was built from', /python draft\/gen_keepers_json\.py/.test(src));
+  ck('the regeneration still runs BEFORE the build — committing a keeper file '
+    + 'the board did not use would be worse than not committing one',
+  src.indexOf('gen_keepers_json.py') < src.indexOf('- name: Build the draft artifact'));
+  ck('the reason is recorded where the next reader will be, with what it cost',
+    /REGENERATED EVERY[\s\S]{0,40}RUN AND NEVER COMMITTED/.test(src)
+      && /reproducib/i.test(src));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the board is tested AFTER it is built and BEFORE it is');
