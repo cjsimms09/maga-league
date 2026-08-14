@@ -129,6 +129,59 @@
    */
   function keeperOptionValue(player, ctx) {
     const raw = keeperOptionValueRaw(player, ctx);
+    /* ⚠️ AN OPTION CANNOT BE WORTH LESS THAN ZERO, AND THIS PATH RETURNED
+     * NEGATIVE VALUES ALL THE WAY TO −138.85.
+     *
+     * The docstring above states the contract: KOV_marginal = max(0, raw − bar).
+     * The positive path below implements it. THIS early return did not — it
+     * passed `raw.value` straight through — so every player whose next-year
+     * projection sits below what the forfeited pick would return came back
+     * NEGATIVE, at weight 1.0.
+     *
+     * MEASURED at pick 128: 556 of 559 board players carried a negative keeper
+     * value. Exactly two were positive, and they were a defense and a kicker.
+     *
+     * WHY NEGATIVE IS WRONG AND NOT MERELY UNTIDY. A keeper is an OPTION
+     * exercised next August with full information. If the player is not worth
+     * keeping you decline, and the option is worth ZERO — never less. The
+     * negative branch was charging today for a decision nobody will make.
+     *
+     * WHAT IT WAS ACTUALLY COMPUTING: `next_vorp` for a fringe QB is −382.7,
+     * which is not an option price at all — it is "he is not a starting QB",
+     * restated. `value` (VONA) already prices that. So this was an unscaled
+     * second VORP term wearing the keeper term's name and weight.
+     *
+     * FIXED AS A CONTRACT VIOLATION, NOT AS AN IMPROVEMENT. The objective
+     * evidence is a NULL: starting-lineup points move 1998.4 -> 2003.4 in one
+     * deterministic room, the same magnitude as the `need` null that was
+     * refused promotion, measured by a lab that cannot see injury insurance.
+     * The case for this change is that the code contradicts its own stated
+     * contract, which is true independent of any measurement. */
+    /* ⚠️ THE FLOOR IS NOT APPLIED HERE, AND THAT IS A KNOWN DEFECT AWAITING
+     * CORY'S DECISION — NOT AN OVERSIGHT. See draft/tests/keeper_option_floor.
+     *
+     * `value: 0` is deliberately ABSENT from this return. Adding it is the
+     * one-line fix, it is written and measured, and it is HELD.
+     *
+     * WHY IT IS HELD RATHER THAN SHIPPED: flooring it makes the keeper term
+     * contribute NOTHING on the frozen benchmark pool — intervention-rate
+     * reports `unexpectedly dead: ["keeper"]` and surface_contract's ordering
+     * becomes value:60.8 keeper:0.0 onesie:27.8 stack:11.4. So the term's entire
+     * live contribution today IS the negative branch. Removing the defect
+     * removes the term, which takes the shipped board from three live terms to
+     * two, and that is a change Cory should make knowingly four days before a
+     * draft rather than one I make inside a bug fix.
+     *
+     * THE ARGUMENT FOR FIXING IT, so the decision is not re-derived: an option
+     * cannot be worth less than zero — you decline it — and the docstring above
+     * already specifies max(0, raw − bar). The positive path implements that;
+     * this one does not. The objective evidence is a NULL either way (1998.4 ->
+     * 2003.4 starting points, one deterministic room, the same magnitude as the
+     * `need` null that was refused promotion), so the case rests on the contract
+     * and not on the score.
+     *
+     * Cory's first three picks are unaffected in both states: KOV_ROUND_RAMP_
+     * START keeps this term at exactly zero through round 6. */
     if (raw.value <= 0) return Object.assign({}, raw, { raw_value: raw.value, bar: 0, displaced: null });
 
     const slots = keeperSlots(ctx);
