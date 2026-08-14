@@ -627,6 +627,226 @@ def dispersion_health(series: list, year) -> dict:
                      "names are unproven." % len(judged))
 
 
+def marginal_adp(earlier: dict, later: dict) -> dict:
+    """What TODAY'S drafters did — recovered exactly from two cumulative days.
+
+    THE PROBLEM THIS SOLVES, MEASURED RATHER THAN ASSUMED. On 2026-08-14 the
+    published ADP moved a median 0.17-0.21 picks a day inside the top 150, which
+    reads as a market that has made up its mind. It is not: `total_drafts` went
+    115 -> 119 -> 125, so a day's new drafts carry 3-5% of the weight and the
+    published mean CANNOT move even if every new drafter behaved differently. The
+    calm is arithmetic. Six days from a draft, the 3-5% is the only part anybody
+    would act on, and it is the part the headline number averages away.
+
+    A MEAN TIMES ITS COUNT IS A SUM, so two cumulative snapshots contain the
+    interval between them exactly — no smoothing, no estimation, no window:
+
+        new      = drafts1 - drafts0
+        marginal = (adp1*drafts1 - adp0*drafts0) / new
+
+    THE DENOMINATOR IS `drafts`, AND NEVER `sel_pct * total_drafts`. Both phrases
+    say "the number of drafts he was selected in", which is exactly the coincidence
+    A's first criterion exists to catch — say the comparison out loud and the two
+    part company. MFL publishes `draftSelPct` rounded to whole percents, so its
+    quantum is total_drafts/100: 1.25 drafts today, and ~50 at the 5011-draft depth
+    MFL reported for a finished 2023. The daily increment does not grow with the
+    season. The rounding error does. `draftsSelectedIn` is an exact integer sitting
+    in the same row, and `dispersion_of` has been archiving it since 2026-08-14.
+
+    RETURNS, per player kept:
+      `marginal_adp`   the mean pick of the NEW selections alone
+      `new_selections` the exact integer increment
+      `published_move` adp1 - adp0, beside it rather than instead of it, because
+                       the gap between the two IS the finding
+      `outside_observed_range`  the falsification arm — see below
+
+    THE ONE FALSIFIABLE CHECK THIS ADMITS, and it costs nothing. Every new
+    selection is a real pick, so their mean must lie inside the LATER day's own
+    observed [min_pick, max_pick], which already contains them. If it does not, the
+    premise is false — `averagePick` is not averaged over `draftsSelectedIn`, or
+    the two snapshots are not the same accumulation. That converts "MFL's fields
+    mean what their names say" from an assumption into a measurement, on the first
+    morning two snapshots exist. The offending row is REPORTED, NOT DROPPED
+    (rule 17a): the number is the evidence, and deleting it leaves the alarm with
+    nothing to point at.
+
+    UNMEASURED IS A VERDICT, NOT A ZERO. Every day archived before 2026-08-14 has
+    no dispersion, and calling their marginal move zero would make the entire
+    back-archive look like a settled market.
+    """
+    a, b = earlier or {}, later or {}
+    da, db = a.get("observed_at"), b.get("observed_at")
+    # REFUSED, NOT SORTED. Swapping the arguments returns the exact mirror image
+    # rather than failing, so a caller who reads them the wrong way round gets a
+    # confident number for a day that ran backwards. Sorting internally would be
+    # worse: it makes the argument order stop meaning anything, and
+    # `published_move` would quietly describe a different pair than the caller
+    # named.
+    if da and db and str(da) >= str(db):
+        raise ValueError(
+            "marginal_adp(earlier, later): %r is not earlier than %r. Refusing "
+            "rather than reordering — the sign of every move here depends on "
+            "which day the caller believes is which." % (da, db))
+
+    out = {"status": None, "earlier": da, "later": db, "rows": {},
+           "skipped_no_new_selections": 0, "refused_count_fell": 0,
+           "outside_observed_range": [], "note": None}
+
+    dispa, dispb = a.get("dispersion") or {}, b.get("dispersion") or {}
+    if not dispa or not dispb:
+        which = [n for n, d in (("earlier", dispa), ("later", dispb)) if not d]
+        return dict(out, status="unmeasured",
+                    note="no `dispersion` on the %s snapshot, so the per-player "
+                         "selection count that makes this exact is absent. Days "
+                         "captured before %s have none, and their marginal move is "
+                         "UNKNOWN rather than zero."
+                         % (" and ".join(which), DISPERSION_SINCE))
+
+    rowsa, rowsb = a.get("rows") or {}, b.get("rows") or {}
+    for pid, recb in dispb.items():
+        reca = dispa.get(pid)
+        if reca is None or pid not in rowsa or pid not in rowsb:
+            continue
+        try:
+            n0, n1 = int(reca.get("drafts")), int(recb.get("drafts"))
+            adp0, adp1 = float(rowsa[pid]), float(rowsb[pid])
+        except (TypeError, ValueError):
+            continue
+        if n1 < n0:
+            out["refused_count_fell"] += 1
+            continue
+        if n1 == n0:
+            out["skipped_no_new_selections"] += 1
+            continue
+        new = n1 - n0
+        marginal = (adp1 * n1 - adp0 * n0) / new
+        lo, hi = recb.get("min_pick"), recb.get("max_pick")
+        outside = False
+        try:
+            # A bound the source did not publish cannot falsify anything, so a
+            # missing one is skipped rather than treated as an open range that
+            # always passes — the check has to be able to say "not checked".
+            if lo is not None and marginal < float(lo) - 1e-9:
+                outside = True
+            if hi is not None and marginal > float(hi) + 1e-9:
+                outside = True
+        except (TypeError, ValueError):
+            outside = False
+        if outside:
+            out["outside_observed_range"].append(pid)
+        out["rows"][pid] = {
+            "new_selections": new,
+            "marginal_adp": marginal,
+            "published_move": adp1 - adp0,
+            # BOTH PRICES TRAVEL WITH THE ROW. A consumer that has to re-join
+            # against `rows` to say what the board is charging is a second
+            # derivation of a fact this function already held, and the re-join is
+            # where the wrong day gets picked.
+            "adp_earlier": adp0,
+            "adp_later": adp1,
+            "drafts": [n0, n1],
+            "outside_observed_range": outside,
+        }
+    out["outside_observed_range"].sort()
+    out["status"] = "measured"
+    if out["outside_observed_range"]:
+        out["note"] = (
+            "%d player(s) derive a marginal ADP outside the LATER day's own "
+            "observed [min_pick, max_pick]. A mean of real picks cannot do that, "
+            "so the decomposition's premise is wrong — most likely `averagePick` "
+            "is not averaged over `draftsSelectedIn`, or the two snapshots are not "
+            "the same accumulation. Infer nothing from any row here until that is "
+            "settled; the rows are kept because they are the evidence."
+            % len(out["outside_observed_range"]))
+    return out
+
+
+#: Below this many new selections, the "mean of the new picks" is one person's
+#: pick wearing the authority of an average. Declared from the cadence, not tuned:
+#: `total_drafts` gained 4 and 6 over the two most recent days, so requiring 3
+#: means a majority of the day's drafts took him. Rows below it are KEPT and
+#: reported — they are simply not allowed to lead, because ranking by distance
+#: from the price puts the thinnest player on the board first every morning.
+MIN_NEW_SELECTIONS = 3
+
+
+def latest_marginal(series: list, year) -> dict:
+    """The most recent derivable marginal day, chosen rather than assumed.
+
+    THE TWO DAYS ARE FOUND BY (YEAR, SPREAD), NEVER BY `series[-1]`. Every
+    ingredient of that mistake is already here: the series is sorted by
+    (year, observed_at) so the newest rows are always the newest SEASON, and the
+    days before 2026-08-14 carry no dispersion at all. Taking the last two rows
+    works exactly as long as the tail happens to be complete, and a daily capture
+    changes the tail every morning. `capture()` already carries this lesson in a
+    comment; I still spent part of 2026-08-14 comparing a board file to itself.
+
+    RANKED BY DISTANCE FROM THE STANDING PRICE — `marginal_adp - adp_later` — and
+    not by how far the published average drifted. The drift is the damped number
+    this whole path exists to see past: a player whose board price moved 1.0 pick
+    while today's four drafters averaged 25 picks later than it is the finding;
+    a player the market has ALREADY repriced is not.
+
+    UNMEASURED UNTIL THERE ARE TWO SPREAD DAYS, and it says how many it found.
+    Tonight's 12:02 capture is the first contact between `dispersion_of` and MFL's
+    real response, so the first marginal day cannot exist before 2026-08-15. A
+    report that printed nothing tonight would be indistinguishable from a broken
+    one, six days before the draft.
+    """
+    days = [s for s in (series or [])
+            if str(s.get("year")) == str(year) and (s.get("dispersion") or {})]
+    days.sort(key=lambda s: str(s.get("observed_at")))
+    if len(days) < 2:
+        return {"status": "unmeasured", "spread_days_found": len(days),
+                "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
+                "earlier": None, "later": None,
+                "note": "only %d day in %s carries a spread, and a marginal day "
+                        "needs two. The spread first reaches disk on %s, so the "
+                        "first derivable day is one more capture away — this is "
+                        "UNKNOWN, not a market where nobody moved."
+                        % (len(days), year, DISPERSION_SINCE)}
+
+    # DEFERRED IMPORT, and the cycle is the reason: `board_vs_market` imports THIS
+    # module, so a top-level import here would not resolve. The range is not
+    # re-declared for that convenience — rule 11 — because a second copy of "how
+    # many picks Cory can reach" is exactly the kind of duplicate that goes stale
+    # in one place only. It is imported WITHOUT a fallback: a report that silently
+    # loses its scope is worse than one that fails and says so.
+    from board_vs_market import DRAFT_RANGE
+
+    out = marginal_adp(days[-2], days[-1])
+    thin = 0
+    out_of_range = 0
+    ranked = []
+    for pid, r in out["rows"].items():
+        if r["new_selections"] < MIN_NEW_SELECTIONS:
+            thin += 1
+            continue
+        # EITHER END INSIDE, NEVER BOTH. A player the board prices at 291 whom
+        # today's room took at 20 is the most actionable row this can produce, and
+        # scoping on the price alone deletes him. So does scoping on the marginal
+        # alone, to the player priced at 50 who quietly stopped going there.
+        if min(r["adp_later"], r["marginal_adp"]) > DRAFT_RANGE:
+            out_of_range += 1
+            continue
+        ranked.append({"player_id": pid,
+                       "gap": r["marginal_adp"] - r["adp_later"],
+                       "marginal_adp": r["marginal_adp"],
+                       "adp_later": r["adp_later"],
+                       "published_move": r["published_move"],
+                       "new_selections": r["new_selections"],
+                       "outside_observed_range": r["outside_observed_range"]})
+    ranked.sort(key=lambda x: (-abs(x["gap"]), x["player_id"]))
+    out["ranked"] = ranked
+    out["ranking_excluded_thin"] = thin
+    # NO SILENT CAPS. A morning where everything interesting sat outside the
+    # draft range must say so, not look like a quiet day.
+    out["ranking_excluded_out_of_range"] = out_of_range
+    out["min_new_selections"] = MIN_NEW_SELECTIONS
+    out["draft_range"] = DRAFT_RANGE
+    return out
+
+
 #: A qualifying board older than this is still F5-legal and still stale. Declared
 #: from the capture cadence — daily, so two missed days is a pattern, not a blip —
 #: and not tuned to what the archive currently shows.

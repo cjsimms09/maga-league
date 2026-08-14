@@ -2784,3 +2784,282 @@ def test_THE_NAMED_SET_AND_THE_ARITHMETIC_MUST_AGREE():
                                 positions={"QB", "RB", "WR", "TE", "K", "DEF"})
     assert len(rep["no_sleeper_match_draftable_ids"]) == \
         rep["no_sleeper_match_draftable"], rep
+
+
+# ── THE MARGINAL DAY: WHAT TODAY'S DRAFTERS DID, NOT WHAT THE SEASON AVERAGES ──
+#
+# Measured 2026-08-14: MFL's published ADP moves a median 0.17-0.21 picks a day
+# inside the top 150, and `total_drafts` goes 115 -> 119 -> 125. The stability is
+# ARITHMETIC — one day's new drafts carry 3-5% of the weight — so the published
+# number is structurally incapable of showing what today's room did. Six days from
+# the draft, that is the only part anybody would act on.
+#
+# ⚠ I NEARLY BUILT THIS ON A DEFECT THAT DOES NOT EXIST. I had it written down
+# that `sel_pct` was extracted by `mfl_adp.parse` and then discarded on the way to
+# disk, making the marginal day permanently underivable — urgent, and false.
+# `dispersion_of` stores it, `append_snapshot` archives it, and the three days on
+# disk carry `dispersion: None` for the plain reason that `dispersion_of` reached
+# MAIN at f1e1d4e 13:02 on 08-13, one hour AFTER that day's 12:03 capture. I had
+# dated the code from the commit on MY BRANCH (6472968, 05:22) instead of from the
+# hour it could actually run. `DISPERSION_SINCE = "2026-08-14"` was right the
+# whole time. Merged is not executed — and neither is committed.
+#
+# SO THE GAP IS NOT STORAGE. It is that nothing DERIVES the marginal day from what
+# is already being stored, and two cumulative snapshots contain it exactly, because
+# a mean times its count is a sum:
+#     new       = drafts1 - drafts0
+#     marginal  = (adp1*drafts1 - adp0*drafts0) / new
+#
+# AND THE DENOMINATOR IS `drafts`, NEVER `sel_pct * total_drafts`. Both are "how
+# many drafts he was selected in", which is exactly the coincidence A's first
+# criterion is about — say the comparison out loud and they part company. MFL
+# publishes `draftSelPct` rounded to whole percents, so its quantum is
+# total_drafts/100: 1.25 drafts today, and ~50 at the 5011-draft depth MFL
+# reported for a finished 2023. The DAILY INCREMENT does not grow with the season;
+# the rounding error does. `draftsSelectedIn` is an exact integer and is sitting in
+# the same row.
+
+def _mday(day, adp, drafts, total, lo=5, hi=400):
+    return {"year": "2026", "observed_at": day, "rows": {"1": float(adp)},
+            "total_drafts": total,
+            "dispersion": {"1": {"min_pick": lo, "max_pick": hi,
+                                 "sel_pct": round(drafts / total * 100.0),
+                                 "drafts": drafts}}}
+
+
+def test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents():
+    """60 selections at 80.0, then 62 at 83.87: the two new drafters took him at
+    200.0. The published board moved 3.9 picks and calls that a quiet day.
+
+    MUTATION 1: difference the MEANS instead of the sums — reports 3.87, the damped
+    figure, which is the one quantity this function exists to see past.
+    MUTATION 2: use `sel_pct * total_drafts / 100` as the count. Both days publish
+    "50" (60/119 = 50.4%, 62/125 = 49.6%), so the derived increment is 3.0 rather
+    than 2 and the marginal comes back 160.7 — a 20% miss, in the direction that
+    makes the new drafters look tamer than they were."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", (60 * 80.0 + 200.0 + 200.0) / 62, 62, 125)
+    assert a["dispersion"]["1"]["sel_pct"] == b["dispersion"]["1"]["sel_pct"] == 50
+    r = C.marginal_adp(a, b)
+    assert r["status"] == "measured", r
+    row = r["rows"]["1"]
+    assert row["new_selections"] == 2
+    assert abs(row["marginal_adp"] - 200.0) < 1e-9, row
+    assert abs(row["published_move"] - 3.87096774193549) < 1e-6, row
+
+
+def test_THE_DERIVED_MEAN_MUST_LIE_INSIDE_THE_OBSERVED_RANGE_or_the_premise_is_wrong():
+    """The one falsifiable check this derivation admits, and it costs nothing.
+
+    Every new selection is a REAL PICK, so their mean cannot fall outside the
+    later day's own observed [min_pick, max_pick] — that range already contains
+    them. If it does, the decomposition's premise is false: `averagePick` is not
+    averaged over `draftsSelectedIn`, or the two snapshots are not the same
+    accumulation. That turns "MFL's fields mean what their names say" from an
+    assumption into a measurement, on the first morning two snapshots exist.
+
+    MUTATION: drop the check — a marginal ADP of 200 gets reported for a player
+    MFL says was never taken later than 150, with the same confidence as a sound
+    one, and the wrongness is invisible because the number is plausible."""
+    a = _mday("2026-08-13", 80.0, 60, 119, hi=150)
+    b = _mday("2026-08-14", (60 * 80.0 + 200.0 + 200.0) / 62, 62, 125, hi=150)
+    r = C.marginal_adp(a, b)
+    assert r["outside_observed_range"] == ["1"], r
+    assert r["rows"]["1"]["outside_observed_range"] is True
+    # STILL REPORTED, NOT DELETED. Rule 17a — preserve before you alarm. The
+    # number is the evidence that the premise is wrong; discarding it leaves the
+    # alarm with nothing to point at.
+    assert abs(r["rows"]["1"]["marginal_adp"] - 200.0) < 1e-9
+
+
+def test_A_PLAYER_WITH_NO_NEW_SELECTIONS_IS_SKIPPED_not_divided_by_zero():
+    """MUTATION: divide anyway — one unchanged player raises ZeroDivisionError and
+    takes the whole day's derivation down with him, on a day that cannot be
+    refetched."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 80.0, 60, 125)
+    r = C.marginal_adp(a, b)
+    assert r["rows"] == {}
+    assert r["skipped_no_new_selections"] == 1
+
+
+def test_A_SHRINKING_SELECTION_COUNT_IS_REFUSED():
+    """A cumulative count cannot fall. If it does, the two snapshots are not the
+    same accumulation — a restatement, a re-scoped feed, or our own units drifting.
+
+    MUTATION: allow it — the negative denominator flips the sign and the marginal
+    ADP comes back pointing the wrong way, with nothing to say it is odd."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 81.0, 55, 125)
+    r = C.marginal_adp(a, b)
+    assert r["rows"] == {}
+    assert r["refused_count_fell"] == 1
+
+
+def test_MARGINAL_WITHOUT_DISPERSION_IS_UNMEASURED_not_zero():
+    """Every day on disk before 2026-08-14 is exactly this case.
+
+    MUTATION: treat a missing dispersion as full coverage — the days that CANNOT
+    be derived report a marginal equal to the published move, which is the damped
+    number wearing the undamped name, across the whole back-archive at once."""
+    a = {"observed_at": "2026-08-13", "rows": {"1": 80.0}, "total_drafts": 119}
+    b = {"observed_at": "2026-08-14", "rows": {"1": 81.0}, "total_drafts": 125}
+    r = C.marginal_adp(a, b)
+    assert r["status"] == "unmeasured"
+    assert "dispersion" in r["note"]
+    assert r["rows"] == {}
+
+
+def test_THE_SNAPSHOTS_MUST_BE_PASSED_EARLIER_FIRST():
+    """Swapping them does not fail — it silently returns the mirror image, and a
+    caller reading `marginal_adp(today, yesterday)` gets a confident number for a
+    day that ran backwards.
+
+    MUTATION: sort them internally instead of refusing. That is worse, not better:
+    it makes the argument order stop meaning anything, so `published_move` and
+    `new_selections` quietly describe a different pair than the caller named."""
+    a = _mday("2026-08-13", 80.0, 60, 119)
+    b = _mday("2026-08-14", 83.87, 62, 125)
+    with pytest.raises(ValueError, match="earlier"):
+        C.marginal_adp(b, a)
+
+
+# ── AND SOMETHING HAS TO READ IT ─────────────────────────────────────────────
+# The derivation above is useless sitting in a module. It needs the two right
+# days chosen for it, and choosing days is exactly where this file has already
+# been burned: `capture()` carries a comment about finding today "by (year, date)
+# rather than taken as `series[-1]`", and I spent part of 08-14 comparing a board
+# file to ITSELF because I picked the wrong two refs.
+
+def _md(day, year, players, total, disp=True, hi=400):
+    """players: {pid: (adp, drafts)}."""
+    s = {"year": year, "observed_at": day, "total_drafts": total,
+         "rows": {p: float(a) for p, (a, _n) in players.items()}, "dispersion": None}
+    if disp:
+        s["dispersion"] = {p: {"min_pick": 1, "max_pick": hi,
+                               "sel_pct": round(n / total * 100.0), "drafts": n}
+                           for p, (_a, n) in players.items()}
+    return s
+
+
+def test_IT_PICKS_THE_LAST_TWO_DAYS_THAT_ACTUALLY_CARRY_A_SPREAD():
+    """08-11 and 08-12 have no dispersion — the parser was still discarding it.
+    Taking `series[-1]` and `series[-2]` works only while the tail happens to be
+    complete, and the tail is exactly what a daily capture keeps changing.
+
+    MUTATION: use the last two rows regardless — the pair straddles the day the
+    spread started arriving, `marginal_adp` returns UNMEASURED, and a report that
+    could have been produced says there is nothing to see."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119, disp=False),
+           _md("2026-08-13", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert (r["earlier"], r["later"]) == ("2026-08-13", "2026-08-14")
+
+
+def test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR():
+    """MUTATION: drop the year filter — asking about 2025 silently answers with
+    2026, because the series is sorted by (year, date) and the most recent rows
+    are always the newest season. Two seasons differenced against each other is
+    not a slow day, it is a different question."""
+    ser = [_md("2025-08-20", "2025", {"1": (30.0, 700)}, 800),
+           _md("2025-08-21", "2025", {"1": (31.0, 720)}, 830),
+           _md("2026-08-13", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2025")
+    assert (r["earlier"], r["later"]) == ("2025-08-20", "2025-08-21"), r
+
+
+def test_ONE_SPREAD_DAY_IS_UNMEASURED_and_says_how_many_it_found():
+    """THIS IS TONIGHT. The 12:02 capture on 2026-08-14 is the first contact
+    between `dispersion_of` and MFL's real response, so the first marginal day
+    cannot exist before 08-15. A report that printed nothing tonight would be
+    indistinguishable from one that was broken.
+
+    MUTATION: return `measured` with no rows — the step reads as a working
+    instrument observing a market where nobody moved."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 119, disp=False),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "unmeasured"
+    assert r["spread_days_found"] == 1
+    assert "2026-08-15" in r["note"] or "one more" in r["note"]
+
+
+def test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move():
+    """The actionable quantity is where today's room took a player versus what
+    the board is charging for him NOW — not how far the cumulative average
+    drifted, which is the damped number this whole exercise exists to get past.
+
+    Player 2's board price moved 1.0 pick while his four new drafters averaged
+    46.0 against a standing price of 21.0. Player 1's price moved 10.0 — ten
+    times as much — on a smaller real disagreement.
+
+    MUTATION: rank by `published_move` — the order inverts, and the report leads
+    with the player the market has ALREADY repriced instead of the one it has
+    not."""
+    ser = [_md("2026-08-13", "2026", {"1": (80.0, 60), "2": (20.0, 100)}, 119),
+           _md("2026-08-14", "2026", {"1": (90.0, 90), "2": (21.0, 104)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    top = r["ranked"][0]
+    assert top["player_id"] == "2", r["ranked"]
+    assert abs(top["gap"] - 25.0) < 1e-9 and abs(top["adp_later"] - 21.0) < 1e-9
+    assert abs(r["rows"]["1"]["published_move"] - 10.0) < 1e-9
+
+
+def test_A_SINGLE_NEW_DRAFTER_IS_NOT_A_MARKET_and_is_kept_out_of_the_RANKING():
+    """One new selection makes the "mean of the new picks" a single person's
+    pick. Ranked by distance from the price, those rows win every morning by
+    construction, and the report becomes a list of the thinnest players on the
+    board wearing the authority of an average.
+
+    KEPT IN `rows`, EXCLUDED FROM `ranked` — rule 17a. The row is real evidence
+    and gets thrown away by nobody; it just does not get to lead the report.
+
+    MUTATION: rank everything — player 3 moved one pick of published ADP on a
+    single new drafter and leads, displacing a player four drafters agreed on."""
+    ser = [_md("2026-08-13", "2026", {"2": (20.0, 100), "3": (30.0, 50)}, 119),
+           _md("2026-08-14", "2026", {"2": (21.0, 104), "3": (31.0, 51)}, 125)]
+    r = C.latest_marginal(ser, "2026")
+    assert abs(r["rows"]["3"]["marginal_adp"] - 81.0) < 1e-9   # kept
+    assert [x["player_id"] for x in r["ranked"]] == ["2"]
+    assert r["ranking_excluded_thin"] == 1
+
+
+def test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH():
+    """FOUND BY REHEARSING THE WORKFLOW STEP, not by reasoning about it. Run
+    against a realistic board, the top 15 came back as players priced 222 to 458
+    — a 10x15 draft ends at 150, so not one of them can be reached. Deep players
+    win a ranking by |gap| structurally: they carry the largest ADP values and the
+    thinnest denominators, so they will crowd out the actionable rows EVERY
+    morning, and the report would have looked busy while saying nothing.
+
+    THE TEST IS `min(price, marginal) <= DRAFT_RANGE` — EITHER end inside, never
+    both. The two rows that matter most are precisely the ones that straddle it:
+
+      a RISER  the board prices him at 291 and today's room took him at 20
+      a FALLER the board prices him at 50 and today's room took him at 300
+
+    MUTATION 1: scope on the board price alone — the riser disappears, and a
+    player the market has not noticed being taken 271 picks early is the single
+    most actionable row this report can produce.
+    MUTATION 2: scope on the marginal alone — the faller disappears, and a player
+    we are about to spend a fifth-round pick on quietly stopped going there.
+
+    NOT A SILENT CAP: the excluded count is reported, so a morning where
+    everything interesting sat outside the range says so rather than looking
+    like a quiet day."""
+    a = _md("2026-08-13", "2026",
+            {"deep": (460.0, 10), "riser": (400.0, 10), "faller": (40.0, 100)},
+            119, hi=600)
+    b = _md("2026-08-14", "2026",
+            {"deep": (450.0, 14), "riser": (4080.0 / 14, 14), "faller": (50.0, 104)},
+            125, hi=600)
+    r = C.latest_marginal(a and [a, b], "2026")
+    assert abs(r["rows"]["riser"]["marginal_adp"] - 20.0) < 1e-9, r["rows"]["riser"]
+    assert abs(r["rows"]["faller"]["marginal_adp"] - 300.0) < 1e-9
+    assert abs(r["rows"]["deep"]["marginal_adp"] - 425.0) < 1e-9   # kept, rule 17a
+    assert [x["player_id"] for x in r["ranked"]] == ["riser", "faller"], r["ranked"]
+    assert r["ranking_excluded_out_of_range"] == 1
+    assert r["draft_range"] == 150

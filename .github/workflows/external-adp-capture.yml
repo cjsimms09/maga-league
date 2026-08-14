@@ -681,6 +681,106 @@ jobs:
                     "result; nothing was compared." % (type(e).__name__, e))
           DIV
 
+      # WHAT TODAY'S DRAFTERS DID, as opposed to what the season averages.
+      #
+      # Measured 2026-08-14 and it is the reason this step exists: the published
+      # ADP moves a median 0.17-0.21 picks a day inside the top 150, which reads
+      # as a market that has settled. It has not. `total_drafts` went 115 -> 119
+      # -> 125, so one day's drafts carry 3-5% of the weight and the cumulative
+      # mean CANNOT move much even if every new drafter behaved differently. The
+      # calm is arithmetic, not evidence — and six days from our draft, the 3-5%
+      # is the only part anybody would act on.
+      #
+      # `marginal_adp` recovers it exactly, because a mean times its count is a
+      # sum and `dispersion` has carried `draftsSelectedIn` per player since
+      # 2026-08-14. Nothing is smoothed, estimated or windowed.
+      #
+      # ⚠ IT WILL SAY UNMEASURED TONIGHT AND THAT IS CORRECT. Tonight's run is
+      # the FIRST contact between `dispersion_of` and MFL's real response, so
+      # there is exactly one spread day and a difference needs two. The first
+      # derivable marginal day is 2026-08-15. The step says which case it is in,
+      # because "nothing printed" and "nobody moved" must not look alike.
+      - name: What today's drafters did, as opposed to the season average
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'MARG'
+          import os, sys
+          sys.path.insert(0, "draft/backtest")
+
+          # ⚠ THE SUMMARY IS OPENED, NOT REDIRECTED, AND THE SIBLING STEPS ARE NOT
+          # WRONG TO REDIRECT — this one is different because it emits an
+          # ANNOTATION as well as prose. `::error::` is a workflow command parsed
+          # from the step's STDOUT; written into $GITHUB_STEP_SUMMARY it is just
+          # eight literal characters in a markdown blob. I wrote it that way
+          # first. That is rule 9 exactly — a mechanism degraded into a note —
+          # inside the step whose whole job is to stop a damped number being read
+          # as a real one.
+          _sum = os.environ.get("GITHUB_STEP_SUMMARY")
+          fh = open(_sum, "a") if _sum else sys.stdout
+
+          def md(line=""):
+              print(line, file=fh)
+
+          def alarm(line):
+              print("::error::" + line)          # STDOUT, deliberately
+
+          md("## The marginal day — the new drafts only")
+          try:
+              import external_adp_capture as C
+              r = C.latest_marginal(C.load(), "${{ github.event.inputs.year || '2026' }}")
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f).
+                  md("**UNMEASURED** — %s" % r.get("note"))
+              else:
+                  md("`%s` -> `%s`. %d player(s) derived; %d had no new "
+                     "selections, %d had a count that FELL, %d ranked too thin "
+                     "(< %d new selections), %d outside the %d-pick draft range "
+                     "at BOTH ends."
+                     % (r["earlier"], r["later"], len(r["rows"]),
+                        r["skipped_no_new_selections"], r["refused_count_fell"],
+                        r["ranking_excluded_thin"], r["min_new_selections"],
+                        r["ranking_excluded_out_of_range"], r["draft_range"]))
+                  if r["outside_observed_range"]:
+                      # THE FALSIFICATION ARM FIRED. A mean of real picks cannot
+                      # sit outside the day's own observed range, so this is the
+                      # premise failing rather than a big move, and it invalidates
+                      # the whole table rather than one row of it.
+                      alarm("MARGINAL ADP OUTSIDE THE OBSERVED RANGE for %d "
+                            "player(s) — the decomposition's premise is wrong "
+                            "(averagePick may not be averaged over "
+                            "draftsSelectedIn, or the two snapshots are not the "
+                            "same accumulation). Infer NOTHING from this table "
+                            "until that is settled."
+                            % len(r["outside_observed_range"]))
+                      md("")
+                      md("> ⚠ **%d player(s) derive a mean outside the day's own "
+                         "observed range.** See the run annotation — the premise "
+                         "is in question, not just these rows."
+                         % len(r["outside_observed_range"]))
+                  md("")
+                  md("| player | board says | today's drafters | gap | n new | published move |")
+                  md("|---|---|---|---|---|---|")
+                  for x in r["ranked"][:15]:
+                      md("| `%s`%s | %.1f | %.1f | %+.1f | %d | %+.2f |"
+                         % (x["player_id"],
+                            " ⚠" if x["outside_observed_range"] else "",
+                            x["adp_later"], x["marginal_adp"], x["gap"],
+                            x["new_selections"], x["published_move"]))
+                  md("")
+                  md("Ranked by distance from the STANDING PRICE, not by how far "
+                     "the average drifted — the drift is the damped number this "
+                     "exists to see past. Positive gap = today's drafters took "
+                     "him LATER than the board is charging.")
+          except Exception as e:                      # noqa: BLE001
+              md("**THE MARGINAL DAY DID NOT RUN** (%s: %s) — not a clean "
+                 "result; nothing was derived." % (type(e).__name__, e))
+          finally:
+              if fh is not sys.stdout:
+                  fh.close()
+          MARG
+
       # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
       # the standing check escalates by failing. Losing a day of a perishable
       # curve deserves the same channel — but only ONCE, on the run that can

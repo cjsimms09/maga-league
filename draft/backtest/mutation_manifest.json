@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: C — written by draft/backtest/mutation_gate.record",
+ "_territory": "TERRITORY: C \u2014 written by draft/backtest/mutation_gate.record",
  "_note": "Verified mutation kills. Each entry is a mutation that was APPLIED and whose NAMED test failed, with a green baseline and an unchanged collection count. draft/tests/test_mutation_manifest.py checks these cheaply on every run; re-running them for real is run_all().",
  "version": 1,
  "modules": {
@@ -272,7 +272,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) — the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
+     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) \u2014 the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
      "new": "        note = note",
      "must_fail": [
       "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
@@ -383,6 +383,135 @@
      "new": "    rep = None\n    _units = sel_pct_units({})\n    try:\n        rep = coverage(series, year)",
      "must_fail": [
       "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        marginal = (adp1 * n1 - adp0 * n0) / new",
+     "new": "        marginal = adp1 - adp0",
+     "must_fail": [
+      "test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            n0, n1 = int(reca.get(\"drafts\")), int(recb.get(\"drafts\"))",
+     "new": "            n0, n1 = (float(reca.get(\"sel_pct\")) * float(a.get(\"total_drafts\")) / 100.0), (float(recb.get(\"sel_pct\")) * float(b.get(\"total_drafts\")) / 100.0)",
+     "must_fail": [
+      "test_THE_MARGINAL_ADP_IS_DERIVED_EXACTLY_from_the_counts_not_the_percents"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if outside:\n            out[\"outside_observed_range\"].append(pid)",
+     "new": "        if False:\n            out[\"outside_observed_range\"].append(pid)",
+     "must_fail": [
+      "test_THE_DERIVED_MEAN_MUST_LIE_INSIDE_THE_OBSERVED_RANGE_or_the_premise_is_wrong"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n1 == n0:\n            out[\"skipped_no_new_selections\"] += 1\n            continue",
+     "new": "        if False:\n            out[\"skipped_no_new_selections\"] += 1\n            continue",
+     "must_fail": [
+      "test_A_PLAYER_WITH_NO_NEW_SELECTIONS_IS_SKIPPED_not_divided_by_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n1 < n0:\n            out[\"refused_count_fell\"] += 1\n            continue",
+     "new": "        if False:\n            out[\"refused_count_fell\"] += 1\n            continue",
+     "must_fail": [
+      "test_A_SHRINKING_SELECTION_COUNT_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not dispa or not dispb:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_MARGINAL_WITHOUT_DISPERSION_IS_UNMEASURED_not_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if da and db and str(da) >= str(db):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_THE_SNAPSHOTS_MUST_BE_PASSED_EARLIER_FIRST"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    days = [s for s in (series or [])\n            if str(s.get(\"year\")) == str(year) and (s.get(\"dispersion\") or {})]",
+     "new": "    days = list(series or [])",
+     "must_fail": [
+      "test_IT_PICKS_THE_LAST_TWO_DAYS_THAT_ACTUALLY_CARRY_A_SPREAD",
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if str(s.get(\"year\")) == str(year) and (s.get(\"dispersion\") or {})]",
+     "new": "            if (s.get(\"dispersion\") or {})]",
+     "must_fail": [
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"status\": \"unmeasured\", \"spread_days_found\": len(days),",
+     "new": "        return {\"status\": \"measured\", \"spread_days_found\": len(days),",
+     "must_fail": [
+      "test_ONE_SPREAD_DAY_IS_UNMEASURED_and_says_how_many_it_found"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    ranked.sort(key=lambda x: (-abs(x[\"gap\"]), x[\"player_id\"]))",
+     "new": "    ranked.sort(key=lambda x: (-abs(x[\"published_move\"]), x[\"player_id\"]))",
+     "must_fail": [
+      "test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if r[\"new_selections\"] < MIN_NEW_SELECTIONS:\n            thin += 1\n            continue",
+     "new": "        if False:\n            thin += 1\n            continue",
+     "must_fail": [
+      "test_A_SINGLE_NEW_DRAFTER_IS_NOT_A_MARKET_and_is_kept_out_of_the_RANKING"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"adp_earlier\": adp0,\n            \"adp_later\": adp1,",
+     "new": "            \"adp_earlier\": adp1,\n            \"adp_later\": adp0,",
+     "must_fail": [
+      "test_THE_RANKING_IS_BY_DISTANCE_FROM_THE_STANDING_PRICE_not_by_the_move"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if r[\"adp_later\"] > DRAFT_RANGE:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if r[\"marginal_adp\"] > DRAFT_RANGE:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if min(r[\"adp_later\"], r[\"marginal_adp\"]) > DRAFT_RANGE:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
      ],
      "verdict": "KILLED"
     }
@@ -1214,7 +1343,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    head = (\"recorded %d/%d source(s)\" % (len(got), len(verdicts))) if got else \\\n        (\"NO SOURCE CAPTURED — nothing written; the day's MFL snapshot is \"\n         \"committed and unaffected\")",
+     "old": "    head = (\"recorded %d/%d source(s)\" % (len(got), len(verdicts))) if got else \\\n        (\"NO SOURCE CAPTURED \u2014 nothing written; the day's MFL snapshot is \"\n         \"committed and unaffected\")",
      "new": "    head = \"recorded %d/%d source(s)\" % (len(got), len(verdicts))",
      "must_fail": [
       "test_NOTHING_CAPTURED_SAYS_SO_rather_than_reading_as_success"
@@ -1362,7 +1491,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value — FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
+     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value \u2014 FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
      "new": "        note=\"real human drafts at our exact format and league size; crosswalked \"\n             \"by draft/adp.py:build_adp_table, the same one the board uses\")",
      "must_fail": [
       "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
@@ -1370,7 +1499,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it — this source is \"\n                    \"4.0 like every other public source\"],",
+     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it \u2014 this source is \"\n                    \"4.0 like every other public source\"],",
      "new": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],",
      "must_fail": [
       "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
