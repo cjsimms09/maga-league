@@ -110,7 +110,20 @@ const by = k => rows.find(r => r.kind === k);
   ck('the open loops are exactly the ones we know about — if this list changes, '
     + 'either a loop was closed or a new claim went ungraded',
   JSON.stringify(open) === JSON.stringify(['doctrine', 'doctrine_decline', 'lrm',
-    'override', 'recommendation', 'shadow_pick']), open);
+    'run', 'shadow_pick']), open);
+
+  /* ⚠ THIS LIST SHRANK FOR TWO DIFFERENT REASONS AND ONLY ONE OF THEM IS WORK.
+   *
+   * `recommendation` and `override` left it because they were NEVER open — the
+   * first detector missed `gradeDecisions` (it hunts `resolve*`, and that
+   * function is not called that), so it reported two closed loops as open.
+   * `run` JOINED it for the opposite reason: the old body-scan matched the
+   * English word "run" in a comment near a resolver and called it graded.
+   *
+   * Both were my detector, not the model. The numbers I reported off the first
+   * version were wrong in both directions, which is exactly why detection is
+   * now by CONSUMPTION (an exact `kind === '<kind>'` in a grader) and by
+   * RESOLVER NAME, never by a word appearing near something. */
 
   /* SURVIVAL WAS ON THIS LIST AND IS NOT ANY MORE — closed 2026-08-14, and this
    * assertion is the record of it. It was the cheapest to close (the next pick
@@ -122,6 +135,20 @@ const by = k => rows.find(r => r.kind === k);
   ck('survival is CLOSED — captured and resolved, not on the open list',
     open.indexOf('survival') < 0 && by('survival').captured && by('survival').resolved,
     { captured: by('survival').captured, resolved: by('survival').resolved });
+  /* THE TWO DETECTOR BUGS, PINNED AS ARMS so neither can come back quietly. */
+  ck('REGRESSION — `recommendation` reads as RESOLVED. It is graded by '
+    + '`gradeDecisions`, which is not called resolve*, and the first detector '
+    + 'missed it and reported a closed loop as open',
+  by('recommendation').resolved === true, by('recommendation').resolvedIn);
+  ck('REGRESSION — `pick_reconciled` is its own DECLARED KIND, not a resolution '
+    + 'of `pick`. A prefix match is not a relationship, and treating it as one '
+    + 'is why `pick` first read as resolved for the wrong reason',
+  LC.declaredKinds().indexOf('pick_reconciled') >= 0);
+  ck('REGRESSION — `run` reads as OPEN. The old body-scan matched the English '
+    + 'word "run" in a comment near a resolver and called it graded; there is '
+    + 'no run resolver', by('run').resolved === false && by('run').captured === true,
+  by('run').resolvedIn);
+
   ck('every open loop carries a stated reason it is gradeable, so none of them '
     + 'is on the list by accident',
   rows.filter(r => r.gradeable && r.captured && !r.resolved)

@@ -144,10 +144,46 @@ function scan() {
       const viaSend = new RegExp("send\\(\\s*'" + kind + "'").test(src);
       if (viaHelper || viaCapture || viaSend) captures.push(rel(f));
 
-      // RESOLUTION — a resolution row for this kind, or a named resolver.
-      const resolvedKind = new RegExp("'" + kind + "_(resolved|reconciled)'", 'g');
-      const namedResolver = new RegExp("function resolve[A-Za-z]*\\b[\\s\\S]{0,600}?\\b" + kind + "\\b", 'g');
-      if (resolvedKind.test(src) || namedResolver.test(src)) resolves.push(rel(f));
+      /* ── RESOLUTION IS DETECTED BY CONSUMPTION, NOT BY NAME ──────────────
+       *
+       * ⚠ THE NAME HEURISTIC WAS WRONG IN BOTH DIRECTIONS AND I SHIPPED IT.
+       * It looked for `'<kind>_resolved'` / `'<kind>_reconciled'` and for a
+       * function called `resolve*` mentioning the kind. That produced:
+       *
+       *   FALSE POSITIVE — `pick` read as RESOLVED because the string
+       *     `'pick_reconciled'` exists. But `pick_reconciled` is a SEPARATE
+       *     DECLARED KIND (missed-mark recovery), not a grade of `pick`. A
+       *     prefix match is not a relationship.
+       *   FALSE NEGATIVE — `recommendation` and `override` read as UNRESOLVED
+       *     even though `gradeDecisions` in src/forecast_grade.js grades both,
+       *     because that function is not called `resolve*`.
+       *
+       * So it now looks for CONSUMPTION: code that reads rows OF this kind and
+       * produces a grade — `kind === '<kind>'`, an exact string comparison that
+       * cannot match a longer kind by prefix. Plus a genuine resolution row
+       * written for it, and named resolvers, both still useful signals. */
+      // (1) A GRADER READS ROWS OF THIS KIND. Exact string comparison, so a
+      //     longer kind can never match by prefix.
+      const q = "['\"]" + kind + "['\"]";
+      const gradedHere = /grade|accuracy/i.test(path.basename(f))
+        && (new RegExp("kind\\s*===\\s*" + q).test(src)
+          || new RegExp("_KINDS[\\s\\S]{0,400}?" + q).test(src));
+      /* (2) A NAMED RESOLVER handles it — matched on the resolver's NAME, not
+       * on the kind appearing somewhere in its body.
+       *
+       * The body version used a 600-character window after the function name,
+       * and it broke the moment I added a comment inside `resolveSurvival`:
+       * `e.survival` slid past the window and a closed loop read as open. A
+       * detector whose answer depends on comment length is not a detector.
+       *
+       * `resolveSurvival` -> "survival"; `resolveOpponentPredictions` ->
+       * "opponentpredictions". Normalise both sides (drop underscores, lower
+       * case) and ask for containment, so `opponent_prediction` matches its
+       * plural resolver without a transcribed alias table. */
+      const flat = s => String(s).replace(/_/g, '').toLowerCase();
+      const namedResolver = (src.match(/function\s+resolve([A-Za-z]+)/g) || [])
+        .some(m => flat(m.replace(/function\s+resolve/, '')).indexOf(flat(kind)) >= 0);
+      if (gradedHere || namedResolver) resolves.push(rel(f));
     });
 
     const [gradeable, why] = OUTCOMES[kind] || [null, 'NOT CLASSIFIED — add it to OUTCOMES'];

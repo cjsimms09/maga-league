@@ -1366,13 +1366,26 @@
       if (!isFinite(toPick) || !estimates.length) return;
       if (reached < toPick) return;                 // not yet resolvable — say nothing
 
-      // Taken STRICTLY BETWEEN the call and the pick it spoke about. A player
-      // taken AT to_pick has not survived TO it; a player taken before the call
-      // was never in the pool being predicted over.
+      /* ⚠ THE BOUNDARY AT `to_pick` IS THE ONE THAT MATTERED, AND I HAD IT
+       * BACKWARDS. This read `n <= toPick`, so a player taken AT to_pick scored
+       * as "did not survive".
+       *
+       * But `to_pick` is CORY'S OWN NEXT PICK (`myNextTurn()`) — nobody else can
+       * pick there. So the only way a player is taken AT to_pick is that he was
+       * still on the board when Cory's turn came and CORY DRAFTED HIM. That is
+       * the survival call coming TRUE, scored as a miss.
+       *
+       * And it is biased, not merely wrong: the players Cory actually drafts are
+       * the ones the model rated highest and predicted would last. Every
+       * successful recommendation would have been recorded as a survival failure,
+       * so the Brier score would look worst exactly where the model was right.
+       *
+       * Survived to pick N means: still there when my turn at N came up — i.e.
+       * not taken at any pick STRICTLY BEFORE N. */
       const takenInWindow = {};
       picks.forEach(function (p) {
         const n = Number(p.overall);
-        if (n > fromPick && n <= toPick) takenInWindow[String(p.player_id)] = n;
+        if (n > fromPick && n < toPick) takenInWindow[String(p.player_id)] = n;
       });
 
       const results = estimates.map(function (e) {
