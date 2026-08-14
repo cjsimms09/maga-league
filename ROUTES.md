@@ -7,6 +7,27 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · ❗ **CORRECTION TO MY OWN ROUTE FROM THIS MORNING — three of the numbers I gave you do not survive their own null, and the threshold that certified the fourth was measuring nothing. The QB finding and the age gradient BOTH SURVIVE; the RB, WR and TE shifts do not. Hold your pre-declaration against the corrected table, not the first one.**
+  **WHAT WENT WRONG, AND IT IS THIS Lane'S OWN RECURRING DEFECT TURNED INWARD.** A rank delta is `market_rank − board_rank`, so its null depends on where the position sits on OUR board — and our board is not uniform. Mean board rank out of 145, against a uniform 73.0: **QB 84.3, TE 82.0, WR 67.8, RB 61.1.** We price quarterbacks and tight ends LATE and running backs EARLY. So a market that ranked every player **at random** still returns QB −11.8, TE −9.0, RB +12.0, WR +5.0. I was reporting the shape of our own board as the market's format.
+  **THE VERDICTS NOW COME FROM A PERMUTATION NULL** — market values shuffled across the same players, 2000 draws, one shared set for every statistic, deterministic seed. Both arms, corrected:
+  | arm | old threshold | what the old threshold was worth | new rule | observed | verdict |
+  |---|---|---|---|---|---|
+  | **superflex** | QB median ≤ −9.7 slots (1/15 of the board) | ⚠ **RETIRED — 56.9% of structureless draws already clear it** | QB median < null p05 = **−33.5** (null median −11.8, p95 +9.0) | **−49.8** | **SURVIVES**, outside by 16.3 slots |
+  | **dynasty** | age rho ≥ +0.25 among non-QBs | sound — 0.0% of null draws clear it | rho > null p95 = **−0.041** (null median **−0.149**, p05 −0.257) | **+0.425** | **SURVIVES**, and by MORE than it looked: the null centre is −0.149, not 0 |
+  **THE THREE THAT DO NOT SURVIVE, AND WHAT THEY BECOME:**
+  | pos | I reported | its own null [p05..p95] | now |
+  |---|---|---|---|
+  | RB | **+16.5** | [−1.0 .. +27.5], median +12.0 | **inside the null — not a finding.** Consistent with a structureless market against a board that prices RBs early |
+  | WR | **+7.0** | [−7.0 .. +18.0], median +5.0 | **inside the null — not a finding** |
+  | TE | **−5.0** | [−34.0 .. +16.0], median −9.0 | **inside the null — not a finding** |
+  So **"Josh Jacobs +37.5 and David Montgomery +39.0 are the dynasty gradient" still stands** — those are individual players and the age rho that carries them is outside its null — but **"RB +16.5 / WR +7.0 / TE −5.0" as positional findings is withdrawn.** DEF and K now report NO VERDICT at all: with n=5 and n=3 their null bands span 85 and 103 slots on a 145-player board, and "outside" a band that wide places nothing.
+  **UNCHANGED FOR YOU:** the QB shift is real and large, the age gradient is real, and the conclusion stands — do not blend this market into a single-QB redraft board, and do not read its QB divergence as a mispricing. What changed is that three positions I listed beside them were the board's own shape.
+
+- [ ] 2026-08-14 · C · ⬇️ **AND I AM DOWNGRADING "STRUCTURAL". I called the composition structural on four days at drift 0.003. That is THREE day-intervals, all consecutive, all mid-August — it supports "has not moved yet", not "cannot move".**
+  **THE MECHANISM I PROPOSED PREDICTS ACCELERATION, WHICH MAKES FOUR MID-AUGUST DAYS THE WEAKEST PLACE TO LOOK.** Dynasty and best-ball startups run early; single-QB redraft rooms fill in late. If that is right, MFL's pool becomes MORE like ours as the 22nd approaches, and a flat mid-August window is exactly what a curve that bends later looks like at its flat end. Linear extrapolation of +0.001/day to the 22nd gives 0.011 — under my own 0.033 drift bar — but linear is the assumption the mechanism argues against.
+  **WHAT WOULD SETTLE IT, AND IT IS A POST-DRAFT QUESTION.** The composition on draft day compared against the composition on the 11th, over the same crosswalked population. That single comparison distinguishes "structural" from "converging" and nothing available before the 22nd does — MFL serves no past-dated ADP, so the days cannot be recovered afterwards. **⏩ THAT IS A SECOND INDEPENDENT ARGUMENT FOR CAPTURING ON AUG 22 ITSELF**, beside the replay one: the 22nd is the last observation that can answer it, and it is unrefetchable on the 23rd.
+  Nothing is claimed on it either way today. `format_trend` reports the per-day series and flags a move; the artifact no longer says structural.
+
 - [ ] 2026-08-14 · C · ❗ **`draft/backtest/MONEY-HISTORY.md` IS NOT REPRODUCIBLE FROM THE COMMIT THAT CONTAINS IT. Same code, same inputs, same sha — regenerating it changes nine rows of "the real leaderboard, in dollars" by up to $175.** Reproduced on a CLEAN `origin/main` worktree, not my tree, and the generator is deterministic (two consecutive runs are byte-identical).
   | # | manager | committed total | regenerated total | delta |
   |---|---|---|---|---|
