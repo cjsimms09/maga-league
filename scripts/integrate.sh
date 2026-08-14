@@ -120,6 +120,28 @@ fi
 echo "== territory: has main's side stayed in ITS lane?"
 if ! bash scripts/territory-check.sh A --range "$BASE" origin/main; then
   echo "REFUSED: main contains edits outside side A's lane. Nothing merged."
+  # ── AND SAY THE LIKELY CAUSE, BECAUSE IT IS ALMOST ALWAYS THIS ────────────
+  #
+  # The exemption above passes a would-be trespass when the file is BYTE-
+  # IDENTICAL to origin/main — merged, not edited. So when another lane
+  # legitimately merges its own files to main and this branch has not caught
+  # up, those files differ, the exemption cannot fire, and every one of them
+  # reports as a trespass by A. Nothing is wrong; the branch is just behind.
+  #
+  # Hit twice in one session, and both times the refusal was correct and the
+  # message sent me to read territory-check rather than to `git merge`. A guard
+  # whose true message is "you are out of date" should say that instead of
+  # making the reader derive it — the diagnosis is one command away and this is
+  # the only place that knows to run it.
+  behind="$(git rev-list --count "HEAD..origin/main" 2>/dev/null || echo 0)"
+  if [ "$behind" != "0" ]; then
+    echo
+    echo "  LIKELY CAUSE: this branch is $behind commit(s) behind origin/main."
+    echo "  A file another lane merged to main is exempt only while it is"
+    echo "  byte-identical here — behind main it is not, so it reads as YOUR edit."
+    echo "  Catch up first, then re-run:"
+    echo "      git merge origin/main && git push"
+  fi
   exit 1
 fi
 
