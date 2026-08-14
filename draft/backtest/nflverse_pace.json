@@ -499,6 +499,13 @@
    },
    "_reading": "A team's pace this year says almost nothing about its pace next year. That is the whole explanation for the null above: a draft-day tiebreak on last season's pace is using a number that will not describe the team being drafted."
   },
-  "_what_this_does_NOT_refute": "IN-SEASON use, where you know the current team's current pace and no persistence is required. Nothing measured here speaks against that, and the raw-vs-neutral distinction (rho 0.53 between the two orderings) stands on its own: if pace is ever used, the neutral figure is the one to use."
+  "_what_this_does_NOT_refute": "IN-SEASON use, where you know the current team's current pace and no persistence is required. Nothing measured here speaks against that, and the raw-vs-neutral distinction (rho 0.53 between the two orderings) stands on its own: if pace is ever used, the neutral figure is the one to use.",
+  "_which_evidence_is_load_bearing": {
+   "_correction_to_my_own_framing": "I led with the rho DELTA (share x pace vs share alone, ~0.001) and that is the WEAKER half. Measured on 2025: team neutral pace spans 42.1 to 61.1, a 1.45x spread, while usage share across players spans 0.024 to 0.303 at p05/p95 \u2014 a 12.7x spread. A multiplier varying by 1.45x cannot move a whole-population rank correlation against a factor varying by 12.7x, so a null delta is partly a statement about the TEST'S POWER and not only about pace.",
+   "pace_spread_2025": 1.45,
+   "usage_share_spread_p05_p95": 12.7,
+   "_what_is_load_bearing": "PERSISTENCE. Last season's team pace correlates with the next season's at rho +0.194 and +0.024. That is what rules pace out as a DRAFT-DAY input, and it does so regardless of whether pace matters at all: a number that does not describe the team being drafted cannot inform the pick. The delta is consistent with that conclusion; it does not carry it.",
+   "_what_would_settle_the_remaining_question": "Whether pace matters at all is best asked WITHIN near-ties \u2014 two players at similar usage on differently-paced offences \u2014 where a 1.45x multiplier has room to decide something and a whole-population rho does not. That is a different experiment and it is not run here."
+  }
  }
 }
