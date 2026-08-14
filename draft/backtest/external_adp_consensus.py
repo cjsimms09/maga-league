@@ -91,6 +91,49 @@ def within_position_ranks(rows: dict, positions: dict) -> dict:
     return {pos: [pid for _, pid in sorted(v)] for pos, v in by.items()}
 
 
+def _scale_position(i: int, ruler: list):
+    """Where index `i` sits among the SHARED players, as a fraction in [0, 1].
+
+    THE COMMON SCALE, AND IT IS PIECEWISE FOR A REASON. `ruler` holds the indices
+    the shared players occupy in THIS source's own order. The fraction returned is
+    a player's position among THOSE — k of K — which is by construction the same
+    quantity in every source, because the shared set is the same set.
+
+    ⚠ INTERPOLATING BETWEEN THE ENDPOINTS ALONE WOULD NOT BE ENOUGH. That assumes
+    the shared players are evenly spread through each source's list; if one source
+    clusters them at the top and another spreads them out, the middle is mapped
+    wrongly and the error looks like disagreement. So this brackets `i` between the
+    two shared players either side of it and interpolates between THEIR ordinals.
+
+    Outside the shared range the value is projected past 0 or 1 rather than
+    clamped, because clamping piles every deep single-source row onto one value
+    and destroys the extra order MFL is being included for.
+
+    None when there is no scale to speak of: fewer than two shared players means
+    nothing to measure against, and inventing a fraction there is exactly the
+    derived-from-a-different-thing error this replaced.
+    """
+    K = len(ruler)
+    if K < 2:
+        return None
+    if i <= ruler[0]:
+        # Before the first shared player. Extrapolate on the first segment's slope.
+        span = ruler[1] - ruler[0]
+        return round((i - ruler[0]) / span / (K - 1), 6) if span > 0 else 0.0
+    if i >= ruler[-1]:
+        span = ruler[-1] - ruler[-2]
+        return round(1.0 + (i - ruler[-1]) / span / (K - 1), 6) if span > 0 else 1.0
+    # BRACKET: find the shared players either side and interpolate their ordinals.
+    lo_k = 0
+    for k in range(K - 1):
+        if ruler[k] <= i <= ruler[k + 1]:
+            lo_k = k
+            break
+    a, b = ruler[lo_k], ruler[lo_k + 1]
+    within = 0.0 if b == a else (i - a) / (b - a)
+    return round((lo_k + within) / (K - 1), 6)
+
+
 def consensus_order(sources: dict, positions: dict, weights: dict = None) -> dict:
     """Combine several sources' within-position orders into one.
 
@@ -114,18 +157,45 @@ def consensus_order(sources: dict, positions: dict, weights: dict = None) -> dic
 
     out = {}
     for pos in POSITIONS:
+        # ⚠ THE DENOMINATOR MUST BE THE SAME POPULATION IN EVERY SOURCE, and my
+        # first version's was not. Ranking each player as a fraction of HIS OWN
+        # SOURCE'S depth compares two different quantities: FantasyPros lists 44
+        # tight ends (a curated consensus) and MFL lists 69 (everyone drafted in
+        # 125 drafts). A player both rank #30 came out at 0.674 and 0.426 — an
+        # apparent disagreement of 0.248 produced entirely by list length, growing
+        # with rank, and systematically making the DEEPER source look optimistic
+        # about everybody.
+        #
+        # So the scale is the SHARED PLAYERS — the intersection every source
+        # prices. Depths are then equal by construction and the fractions are
+        # derived from the same thing. A player outside the intersection is placed
+        # by INTERPOLATION against his own source's shared ranks, which is a
+        # monotone map onto that same scale rather than a second one.
+        #
+        # MY TEST FOR THIS PASSED FOR THE WRONG REASON. Its fixture put the player
+        # LAST in both lists, and fractions always agree at the endpoints — 1.0
+        # either way — while diverging maximally in the middle. It tested the two
+        # points where the bug is invisible.
+        orders = {name: (by_pos.get(pos) or []) for name, by_pos in ranked.items()}
+        orders = {k: v for k, v in orders.items() if v}
+        if not orders:
+            out[pos] = []
+            continue
+        shared = set.intersection(*(set(v) for v in orders.values())) if len(orders) > 1 \
+            else set(next(iter(orders.values())))
+
         per_player = {}
-        for name, by_pos in ranked.items():
-            order = by_pos.get(pos) or []
+        for name, order in orders.items():
+            idx = {pid: i for i, pid in enumerate(order)}
+            # The shared players, in THIS source's order. This is the common ruler.
+            ruler = sorted((idx[p] for p in shared if p in idx))
             for i, pid in enumerate(order):
-                # RANK AS A FRACTION OF THE SOURCE'S OWN DEPTH, not a raw index.
-                # One source listing 40 running backs and another listing 90 do
-                # not mean the same thing by "RB30"; the fraction does.
-                per_player.setdefault(pid, {})[name] = (i + 1, len(order))
+                per_player.setdefault(pid, {})[name] = (
+                    _scale_position(i, ruler), i + 1, len(order))
         rows = []
         for pid, seen in per_player.items():
             fracs, w = [], []
-            for name, (r, n) in seen.items():
+            for name, (frac, r, n) in seen.items():
                 # ⚠ A SOURCE THAT LISTS ONE PLAYER AT A POSITION CANNOT RANK HIM.
                 # One item has no position within a list. It still PRICED him, so
                 # it counts in `sources`; it contributes no ORDER, so it is
@@ -133,16 +203,16 @@ def consensus_order(sources: dict, positions: dict, weights: dict = None) -> dic
                 # disagreement. My first version counted it in `sources` alone,
                 # which reported two-source corroboration for a player exactly one
                 # source had ranked.
-                if n > 1:
-                    fracs.append((r - 1) / (n - 1))
+                if frac is not None:
+                    fracs.append(frac)
                     w.append(float(weights.get(name, 1.0)))
             rows.append({
                 "player_id": pid,
                 "consensus": _weighted_median(fracs, w) if fracs else None,
                 "sources": len(seen),
                 "ranking_sources": len(fracs),
-                "ranks": {k: v[0] for k, v in sorted(seen.items())},
-                "depths": {k: v[1] for k, v in sorted(seen.items())},
+                "ranks": {k: v[1] for k, v in sorted(seen.items())},
+                "depths": {k: v[2] for k, v in sorted(seen.items())},
                 "disagreement": (round(max(fracs) - min(fracs), 4)
                                  if len(fracs) > 1 else None),
             })

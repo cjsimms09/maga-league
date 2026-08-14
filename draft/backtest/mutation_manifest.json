@@ -1064,26 +1064,34 @@
      "verdict": "KILLED"
     },
     {
-     "old": "                if n > 1:\n                    fracs.append((r - 1) / (n - 1))",
-     "new": "                if n >= 1:\n                    fracs.append((r - 1) / max(n - 1, 1))",
-     "must_fail": [
-      "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
-     ],
-     "verdict": "KILLED"
-    },
-    {
-     "old": "                    fracs.append((r - 1) / (n - 1))",
-     "new": "                    fracs.append(float(r))",
-     "must_fail": [
-      "test_RANK_IS_A_FRACTION_OF_THE_SOURCES_OWN_DEPTH"
-     ],
-     "verdict": "KILLED"
-    },
-    {
      "old": "        if pos not in POSITIONS or adp is None:\n            continue",
      "new": "        if adp is None:\n            continue\n        pos = pos or \"UNK\"",
      "must_fail": [
       "test_a_PLAYER_WITH_NO_POSITION_is_dropped_rather_than_bucketed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                per_player.setdefault(pid, {})[name] = (\n                    _scale_position(i, ruler), i + 1, len(order))",
+     "new": "                per_player.setdefault(pid, {})[name] = (\n                    (i / (len(order) - 1) if len(order) > 1 else None), i + 1, len(order))",
+     "must_fail": [
+      "test_TWO_SOURCES_OF_DIFFERENT_DEPTH_AGREEING_read_as_AGREEMENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    lo_k = 0\n    for k in range(K - 1):\n        if ruler[k] <= i <= ruler[k + 1]:\n            lo_k = k\n            break\n    a, b = ruler[lo_k], ruler[lo_k + 1]\n    within = 0.0 if b == a else (i - a) / (b - a)\n    return round((lo_k + within) / (K - 1), 6)",
+     "new": "    return round((i - ruler[0]) / (ruler[-1] - ruler[0]), 6)",
+     "must_fail": [
+      "test_the_SHARED_POPULATION_IS_THE_RULER_and_a_clustered_source_still_maps"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    K = len(ruler)\n    if K < 2:\n        return None",
+     "new": "    K = len(ruler)\n    if K < 0:\n        return None",
+     "must_fail": [
+      "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
      ],
      "verdict": "KILLED"
     }

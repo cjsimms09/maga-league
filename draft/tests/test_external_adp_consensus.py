@@ -89,14 +89,19 @@ def test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so():
     # single running back, so it priced r1 and ranked nothing: one item has no
     # position within a list.
     assert by["r1"]["sources"] == 2
-    assert by["r1"]["ranking_sources"] == 1
     assert by["r2"]["sources"] == 1
+    # AND NEITHER IS RANKABLE HERE, which is the honest answer: the two sources
+    # share exactly ONE player, and one point cannot define a scale to measure
+    # anything against. Reporting a rank off a one-point ruler would be the
+    # derived-from-a-different-thing error in its purest form.
+    assert by["r1"]["ranking_sources"] == 0, by["r1"]
+    assert by["r1"]["consensus"] is None
     assert by["r2"]["disagreement"] is None, (
         "a single source cannot disagree with anything, and reporting 0 would "
         "read as perfect agreement")
     cov = X.coverage(order)["RB"]
     assert cov["corroborated"] == 0 and cov["single_source"] == 2, (
-        "a depth-1 source is being counted as corroboration: %s" % cov)
+        "a one-player overlap is being counted as corroboration: %s" % cov)
 
     # AND THE CONTROL, because a `corroborated` that is always zero would satisfy
     # the line above perfectly.
@@ -138,23 +143,79 @@ def test_the_OUTLIER_IS_PRESERVED_rather_than_blended_away():
     assert d and d[0]["disagreement"] == 1.0
 
 
-def test_RANK_IS_A_FRACTION_OF_THE_SOURCES_OWN_DEPTH():
-    """One source listing 40 running backs and another listing 90 do not mean the
-    same thing by "RB30". Comparing raw indices makes the deeper source look
-    systematically more pessimistic about everyone.
+def test_TWO_SOURCES_OF_DIFFERENT_DEPTH_AGREEING_read_as_AGREEMENT():
+    """THE BUG CORY CAUGHT, AND MY FIRST TEST FOR IT PROVED NOTHING.
 
-    MUTATION: compare raw ranks — a source with a longer list drags every shared
-    player down, and the effect grows with how much MORE data it has, which is the
-    exact opposite of what aggregating more sources should do."""
-    shallow = {"r1": 1.0, "r2": 2.0}                        # depth 2
-    deep = {"r1": 1.0, "x1": 2.0, "x2": 3.0, "r2": 4.0}     # depth 4, same order
-    pos = dict(POS, x1="RB", x2="RB")
-    order = X.consensus_order({"a": shallow, "b": deep}, pos)
-    by = {r["player_id"]: r for r in order["RB"]}
-    # r2 is LAST in both sources — fraction 1.0 either way — so the sources agree.
-    assert by["r2"]["disagreement"] == 0.0, (
-        "depth is not being normalised: r2 is last in both lists and reads as a "
-        "disagreement (%s)" % by["r2"])
+    FantasyPros lists 44 tight ends (a curated consensus); MFL lists 69 (everyone
+    drafted in 125 drafts). Ranking each player as a fraction of HIS OWN SOURCE'S
+    depth compares two different quantities, and a player BOTH rank #30 came out
+    at 0.674 against 0.426 — an apparent disagreement of 0.248 manufactured
+    entirely by list length, growing with rank, and systematically making the
+    deeper source look optimistic about everybody.
+
+    ⚠ MY ORIGINAL FIXTURE PUT THE PLAYER LAST IN BOTH LISTS. Fractions always
+    agree at the endpoints — 1.0 either way — and diverge maximally in the MIDDLE.
+    I tested the two points where the defect is invisible, and it passed. So this
+    asserts the middle, at the real depths, and asserts the divergence would have
+    been large enough to see.
+
+    MUTATION: score each player against his own source's depth — #10, #20 and #30
+    report disagreements of 0.077, 0.162 and 0.248 while the sources agree
+    perfectly."""
+    pos = {("p%d" % i): "TE" for i in range(80)}
+    shallow = {("p%d" % i): float(i + 1) for i in range(44)}     # FantasyPros depth
+    deep = {("p%d" % i): float(i + 1) for i in range(69)}        # MFL depth, SAME order
+    order = X.consensus_order({"fp": shallow, "mfl": deep}, pos)
+    by = {r["player_id"]: r for r in order["TE"]}
+    for k in (10, 20, 30):
+        r = by["p%d" % (k - 1)]
+        assert r["ranks"] == {"fp": k, "mfl": k}, r
+        assert r["disagreement"] == 0.0, (
+            "sources that rank him identically at #%d read as disagreeing by %s — "
+            "the scale is derived from each source's own depth, which is not the "
+            "same quantity" % (k, r["disagreement"]))
+    # AND THE DEPTHS REALLY DO DIFFER, or the assertion above is satisfied by a
+    # fixture with nothing to normalise.
+    assert by["p9"]["depths"] == {"fp": 44, "mfl": 69}, by["p9"]["depths"]
+
+
+def test_the_SHARED_POPULATION_IS_THE_RULER_and_a_clustered_source_still_maps():
+    """The endpoints alone are not enough, and this fixture is built to prove it.
+
+    If one source's shared players are UNEVENLY spaced in its list, interpolating
+    between only the first and last shared player misplaces everything between
+    them — and the error reads as disagreement.
+
+    ⚠ MY FIRST FIXTURE SPACED THE SHARED PLAYERS EVENLY IN BOTH SOURCES, where the
+    endpoint map and the piecewise map give the SAME answer. The mutation survived
+    and the gate said so. Here `a` puts five shared players first and the sixth
+    last, so the two maps diverge by 0.4 on the middle rows.
+
+    MUTATION: interpolate between the shared endpoints only — s4 maps to 0.4 in
+    `a` and 0.8 in `b`, and two sources that agree perfectly on order report a
+    disagreement that is an artifact of where the shared players sit."""
+    pos = {("s%d" % i): "WR" for i in range(6)}
+    pos.update({("x%d" % i): "WR" for i in range(5)})
+    # `a`: s0..s4, then all five extras, then s5 -> shared at indices 0,1,2,3,4,10
+    a = {}
+    for i in range(5):
+        a["s%d" % i] = float(i + 1)
+    for i in range(5):
+        a["x%d" % i] = float(6 + i)
+    a["s5"] = 11.0
+    # `b`: only the shared players, in the same order -> indices 0..5
+    b = {("s%d" % i): float(i + 1) for i in range(6)}
+
+    order = X.consensus_order({"a": a, "b": b}, pos)
+    by = {r["player_id"]: r for r in order["WR"]}
+    for i in range(6):
+        r = by["s%d" % i]
+        assert r["disagreement"] == 0.0, (
+            "s%d is in the same ORDER in both sources but reads as a disagreement "
+            "of %s — the shared players are not being used as a piecewise ruler "
+            "(ranks %s)" % (i, r["disagreement"], r["ranks"]))
+    # THE SPACING REALLY IS UNEVEN, or the assertion above tests nothing.
+    assert by["s5"]["ranks"] == {"a": 11, "b": 6}, by["s5"]["ranks"]
 
 
 def test_a_POSITION_THE_ANCHOR_CANNOT_PRICE_is_UNANCHORED_not_invented():
