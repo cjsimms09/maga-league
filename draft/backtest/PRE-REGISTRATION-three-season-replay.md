@@ -232,6 +232,54 @@ unchanged and a bad week can be opened and read.
 **The success condition is not "the tool wins." It is a model that provably does
 NO HARM, with every hole it exposes either fixed or written down.**
 
+
+### 3g. WE ARE USING THE ACTUAL SLEEPER SEASONS — and exp33 already proved which
+###     single field cannot come from them
+
+Cory asked whether we should be using the real Sleeper seasons. We are, and it
+is worth stating exactly:
+
+| season | Sleeper league_id | status | teams |
+|---|---|---|---|
+| 2023 | 990840142107619328 | complete | 10 |
+| 2024 | 1117672595379277824 | complete | 10 |
+| 2025 | 1248121522762027008 | complete | 10 |
+
+Real rosters, real weekly scores, real transactions, real standings, real
+brackets, real money. Nothing about the seasons is simulated. The replay lives
+inside them.
+
+**THE ONE FIELD SLEEPER CANNOT HONESTLY GIVE US IS THE PRESEASON PROJECTION, AND
+THIS IS MEASURED RATHER THAN ASSUMED.** exp33 fetched it and DISQUALIFIED it:
+
+> `/projections/nfl/regular/{season}` **is updated in-season**, so a past
+> season's stored projection is NOT decision-time-safe. Its **~0.8 rank
+> correlation with realized** (against the real market's **~0.4**) is the leak's
+> fingerprint.
+
+Sleeper will happily serve a 2023 "projection" today. It has been quietly
+revised with what actually happened. That is not a gap in our collection — it is
+a field that no longer contains what it claims to.
+
+### 3h. THE SECOND MECHANICAL LEAK DETECTOR, free from exp33's measurement
+
+exp33 hands us a calibrated expectation, and it is worth as much as the §3c
+ceiling:
+
+- an HONEST preseason projection correlates about **0.4** with realized season
+  points
+- a projection contaminated by outcomes correlates about **0.8**
+
+> **THE WALK-FORWARD PROJECTION (§3e) MUST LAND NEAR 0.4. IF IT CORRELATES LIKE
+> 0.8, IT HAS LEAKED — regardless of how the arms then score.**
+
+This is checkable BEFORE any arm runs, on the projection alone, and it does not
+depend on anyone anticipating the leak's route. Together with §3c's hindsight
+ceiling it gives the programme two independent, mechanical leak alarms — one on
+the INPUTS and one on the OUTPUTS — and neither requires me to have been clever.
+
+Both are reported with every run, not consulted when something looks suspicious.
+
 ---
 
 ## 4. WHAT IS GRADED
