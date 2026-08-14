@@ -6895,6 +6895,11 @@
     "bytes": 2625771,
     "sha256_12": "76f7438517ec"
    }
+  },
+  "reproduced": {
+   "when": "2026-08-14",
+   "result": "EXACT. Re-derived `durability` from the weekly-roster assets recorded above and compared against this file: 135 of 135 draftable players, 0 differences in mean games or seasons observed, and the by_position summary recomputed from the player rows agrees with the stored one.",
+   "_caveat": "Needs the parquet assets, which are not in the repo, so it runs where they are rather than in CI. `projection_spread_vs_realized` has NOT been reproduced this way \u2014 it depends on the scoring mapper as well as the roster, and the fumble gap parked for A sits inside that path."
   }
  }
 }
