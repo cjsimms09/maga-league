@@ -133,10 +133,35 @@ function gradeForecasts(entries) {
 // followed or OVERRIDDEN, and — where an outcome entry exists — did the taken choice beat
 // the recommended one (so "where Cory beat the model" and "recs that lost money" are real,
 // not anecdotal). Outcome join is by payload.key -> a resolution/outcome carrying `realized`.
+/* ── THE IN-SEASON KINDS JOIN DIFFERENTLY, AND THAT IS THE WHOLE EXTENSION ──
+ *
+ * `src/routes/accuracy.js` has carried the read side for these since it was
+ * written, with its labels deliberately inert and a `PENDING_KINDS` list so the
+ * table "cannot quietly look like it covers decisions it does not". Its comment
+ * names the blocker: *"that extension is A's, and is parked."* This is it.
+ *
+ * A DRAFT decision is a PAIR — `recommendation` says one thing, `pick` records
+ * another, and the join discovers whether they differed. An IN-SEASON decision
+ * is a SINGLE entry that already contains both sides, because `predledger`
+ * REFUSES to store one without `payload.counterfactual` ("what I would plausibly
+ * have done without the tool"). So they need no pairing, and pretending they do
+ * would drop every one of them for lacking a partner that cannot exist.
+ *
+ * ⚠ COUNTED SEPARATELY, DELIBERATELY. `override_rate` today means "of the DRAFT
+ * decisions, how often did Cory go another way". Folding start/sit calls into
+ * the same numerator would leave the name unchanged while the quantity became
+ * something else — the defect this project keeps finding. In-season decisions
+ * get their own counts, and a reader can add them up on purpose if they want to.
+ */
+const INSEASON_DECISION_KINDS = ['lineup_call', 'waiver_claim', 'stream_call',
+                                 'trade_eval', 'inseason_override'];
+
 function gradeDecisions(entries) {
   const recs = {}, picks = {}, overrides = {}, outcomes = {};
+  const inseason = [];
   for (const e of entries) {
     const p = e.payload || {};
+    if (INSEASON_DECISION_KINDS.indexOf(e.kind) >= 0) inseason.push(e);
     // decision entries join on payload.key; outcome/resolution entries join on
     // payload.forecast_key (they carry no `key` of their own) — routing on kind first
     // so a resolution is never skipped for lacking a `key` (the bug this fixes).
@@ -170,12 +195,55 @@ function gradeDecisions(entries) {
     }
     rows.push(row);
   }
+  /* ── IN-SEASON DECISIONS: one entry, both sides, outcome joined by key ──── */
+  const inRows = [];
+  let inScored = 0, inToolWon = 0, inCfWon = 0;
+  const byKind = {};
+  for (const e of inseason) {
+    const p = e.payload || {};
+    const k = p.key || null;
+    const out = (k && outcomes[k] && (outcomes[k].payload || {})) || p;
+    const row = {
+      kind: e.kind, key: k, decision_at: ts(e),
+      chosen: p.chosen ?? p.value ?? p.player_id ?? null,
+      // The counterfactual is REQUIRED by predledger, so its absence here means
+      // an entry got in before that guard existed — reported, not defaulted.
+      counterfactual: p.counterfactual ?? null,
+      counterfactual_missing: p.counterfactual === undefined || p.counterfactual === null,
+    };
+    // Outcome scoring, same shape as the draft side: realized value of what was
+    // done against realized value of what we would have done instead.
+    const rt = num(out.realized_chosen ?? out.realized_taken);
+    const rc = num(out.realized_counterfactual ?? out.realized_recommended);
+    if (rt !== null && rc !== null) {
+      row.realized_chosen = rt; row.realized_counterfactual = rc;
+      row.edge = Math.round((rt - rc) * 100) / 100;
+      inScored += 1;
+      if (rt > rc) inToolWon += 1; else if (rc > rt) inCfWon += 1;
+    }
+    byKind[e.kind] = (byKind[e.kind] || 0) + 1;
+    inRows.push(row);
+  }
+
   return {
     n_decisions: Object.keys(recs).length, followed, overridden, scored,
     // among scored OVERRIDES: how often the human's different choice actually won
     cory_beat_model: cory_beat, model_beat_cory: model_beat,
     override_rate: (followed + overridden) ? Math.round((overridden / (followed + overridden)) * 1000) / 1000 : null,
     rows,
+    /* SEPARATE BLOCK, SEPARATE NAMES. Nothing above changes value when in-season
+     * rows arrive — `override_rate` still means what it has always meant. */
+    inseason: {
+      n: inRows.length, by_kind: byKind, scored: inScored,
+      tool_won: inToolWon, counterfactual_won: inCfWon,
+      // The edge only means something over the SCORED subset; reporting it over
+      // all rows would silently treat "not yet resolved" as "no edge".
+      mean_edge: inScored
+        ? Math.round((inRows.filter(r => r.edge != null)
+          .reduce((s, r) => s + r.edge, 0) / inScored) * 100) / 100 : null,
+      missing_counterfactual: inRows.filter(r => r.counterfactual_missing).length,
+      rows: inRows,
+    },
   };
 }
 
@@ -210,4 +278,4 @@ function buildDraftResolutions(forecasts, draft) {
   return out;
 }
 
-module.exports = { gradeForecasts, gradeDecisions, buildDraftResolutions, pair, reliabilityTable, isForward };
+module.exports = { gradeForecasts, gradeDecisions, INSEASON_DECISION_KINDS, buildDraftResolutions, pair, reliabilityTable, isForward };
