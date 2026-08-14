@@ -929,6 +929,69 @@ def _total_drafts(snapshot):
         return None
 
 
+#: Our league's rules, and the census bucket that counts as agreeing with each.
+#: Keyed off the census's own vocabulary rather than re-derived, so a change in
+#: how the census bins a rule shows up as a KeyError-shaped absence rather than a
+#: quietly wrong share.
+_OUR_RULES = (("10 teams", "teams", "10"),
+              ("half-PPR", "reception_points", "0.4-0.6 (half-PPR)"),
+              ("6-pt passing TD", "pass_td_points", "6 (OURS)"),
+              ("single-QB", "superflex", "False"),
+              ("redraft", "keeper_type", "(absent)"))
+
+
+def _format_census():
+    """The newest row of the MFL format census, or None.
+
+    A's data file; read, never written. None rather than a default, because a
+    missing census must make the denomination note say LESS, not say the same
+    thing with no evidence behind it.
+    """
+    try:
+        doc = json.loads((SERIES.parent / "format_census_series.json").read_text())
+    except (OSError, ValueError):
+        return None
+    ser = [s for s in (doc.get("series") or []) if s.get("readable_leagues")]
+    if not ser:
+        return None
+    return sorted(ser, key=lambda s: str(s.get("observed_at") or ""))[-1]
+
+
+def census_agreement(row: dict) -> dict:
+    """How much of MFL's sampled pool plays OUR game, rule by rule.
+
+    ⚠ THIS EXISTS BECAUSE I ASSERTED SOMETHING I HAD NOT MEASURED. The
+    `denomination` note I shipped this morning said MFL pools "superflex, 2QB,
+    dynasty, keeper and IDP" drafts — a true list, and the wrong emphasis. The
+    census says the dominant divergence is NONE OF THOSE: 55.3% of the sampled
+    pool is FULL PPR and only 6.1% is half-PPR like us, against superflex at just
+    21.1%. Reception scoring lifts every pass-catching back and receiver relative
+    to our board, and my note did not mention it at all.
+
+    THE HEADLINE IS THE JOINT RATE, NOT THE MARGINALS. Each rule taken alone
+    looks survivable — 78.9% are single-QB, 82.5% are redraft. Taken together,
+    `matched` is 0 of 114: not one sampled league plays our game.
+    """
+    n = int((row or {}).get("readable_leagues") or 0)
+    if not n:
+        return {"status": "unmeasured",
+                "note": "the format census holds no readable leagues, so how much "
+                        "of MFL's pool plays our game is unmeasured."}
+    shares, worst = {}, None
+    for label, field, bucket in _OUR_RULES:
+        got = int(((row.get(field) or {}).get(bucket)) or 0)
+        shares[label] = round(got / float(n), 4)
+        if worst is None or shares[label] < shares[worst]:
+            worst = label
+    return {"status": "measured",
+            "readable_leagues": n,
+            "matched_our_format": row.get("matched"),
+            "observed_at": row.get("observed_at"),
+            "share_sharing_each_rule": shares,
+            "largest_divergence": worst,
+            "largest_divergence_share": shares[worst]}
+
+
 def _rostered_for_archive():
     """`rostered_positions` off the Sleeper league settings on disk, or None.
 
@@ -944,17 +1007,27 @@ def _rostered_for_archive():
     return rostered_positions(ls) or None
 
 
-def denomination(series: list, players: dict, rostered=None, draftable=None) -> dict:
+def denomination(series: list, players: dict, rostered=None, draftable=None,
+                 census=None) -> dict:
     """WHAT THIS ADP IS DENOMINATED IN, measured on the newest day and written
     beside the rows.
 
     ⚠ TEN MODULES IN THIS REPO READ THIS ARCHIVE AND ONE OF THEM KNOWS. MFL pools
-    EVERY draft on its platform — superflex, 2QB, dynasty, keeper, IDP — into a
-    single ADP. `board_vs_market` measures and reports that; the other nine
-    readers get a number with no statement of what population produced it, and
-    the natural mistake is to read a board-vs-market gap as OUR board being wrong
-    when the two ends are not denominated in the same thing. That is A's own
-    criterion 1, and it is the failure mode this project keeps paying for.
+    EVERY draft on its platform into a single ADP. `board_vs_market` measures and
+    reports that; the other nine readers get a number with no statement of what
+    population produced it, and the natural mistake is to read a board-vs-market
+    gap as OUR board being wrong when the two ends are not denominated in the
+    same thing. That is A's own criterion 1, and it is the failure mode this
+    project keeps paying for.
+
+    ⚠ AND THE FIRST VERSION OF THIS NOTE, SHIPPED THIS MORNING, NAMED THE WRONG
+    CONTAMINANT. It said "superflex, 2QB, dynasty, keeper and IDP alike" — a true
+    list with the wrong emphasis, and asserted rather than measured. The format
+    census says the dominant divergence is none of those: **55.3% of the sampled
+    pool is FULL PPR and only 6.1% is half-PPR like us**, against superflex at
+    21.1%. Reception scoring lifts every pass-catching back and receiver relative
+    to our board, and the note did not mention it. The list is gone; the census
+    numbers are carried instead, so the claim moves with the evidence.
 
     MEASURED, NOT ASSERTED, and re-measured every day rather than written once:
     on 2026-08-14, 27 of the 170 rows priced inside our 150-pick draft — 15.9% —
@@ -972,6 +1045,26 @@ def denomination(series: list, players: dict, rostered=None, draftable=None) -> 
                 "so nothing can be said about what its ADP is denominated in."}
     last = days[-1]
     rows = last.get("rows") or {}
+    # THE CENSUS TURNS THE CLAIM INTO A MEASUREMENT. Absent, it says less rather
+    # than saying the same thing with nothing behind it.
+    census = census_agreement(census if census is not None else (_format_census() or {}))
+    if census.get("status") == "measured":
+        census["note"] = (
+            "Of %d readable MFL leagues sampled, %s matched our format; the "
+            "largest single divergence is %s, shared by only %.1f%% of them "
+            "(our board's own rule). ⚠ THAT SAMPLE CARRIES NO DATE — the one "
+            "census row predates the fix that made a keyless row raise, and the "
+            "next is not due until the monthly run, so treat it as one undated "
+            "observation rather than a current reading."
+            % (census["readable_leagues"], census["matched_our_format"],
+               census["largest_divergence"],
+               100.0 * census["largest_divergence_share"])
+            if census.get("observed_at") is None else
+            "Of %d readable MFL leagues sampled on %s, %s matched our format; "
+            "the largest single divergence is %s, shared by only %.1f%%."
+            % (census["readable_leagues"], census["observed_at"],
+               census["matched_our_format"], census["largest_divergence"],
+               100.0 * census["largest_divergence_share"]))
 
     def _adp(v):
         if isinstance(v, dict):
@@ -1017,18 +1110,19 @@ def denomination(series: list, players: dict, rostered=None, draftable=None) -> 
             % ("the roster settings" if not rostered else "the draft range"))
     else:
         out["note"] = (
-            "MFL pools EVERY draft on its platform into one ADP — superflex, 2QB, "
-            "dynasty, keeper and IDP alike — so this is NOT a redraft half-PPR "
-            "board and is not denominated in the same thing our board is. "
-            "Measured on %s: %d of the %d rows priced inside pick %d (%.1f%%) sit "
-            "at positions this league cannot roster at all%s. A gap between this "
-            "market and our board is therefore NOT evidence that our board is "
-            "wrong. `board_vs_market` measures the superflex and dynasty "
-            "signatures directly; read them before attributing any gap."
+            "MFL pools EVERY draft on its platform into one ADP, so this is not "
+            "denominated in the same thing our board is. Measured on %s: %d of the "
+            "%d rows priced inside pick %d (%.1f%%) sit at positions this league "
+            "cannot roster at all%s. A gap between this market and our board is "
+            "therefore NOT evidence that our board is wrong. `board_vs_market` "
+            "measures the superflex and dynasty signatures directly; read them "
+            "before attributing any gap.%s"
             % (last.get("observed_at"), unros, len(inside), draftable,
                100.0 * out["unrosterable_share"],
                "" if not unknown_pos else
-               ", and %d more carry no position in the decode key" % unknown_pos))
+               ", and %d more carry no position in the decode key" % unknown_pos,
+               (" " + census["note"]) if census.get("note") else ""))
+    out["census"] = census
     return out
 
 

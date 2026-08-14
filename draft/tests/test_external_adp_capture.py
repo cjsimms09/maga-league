@@ -4003,3 +4003,68 @@ def test_the_archive_CARRIES_its_denomination_after_a_save(tmp_path):
     assert "denomination" in got, sorted(got)
     assert got["denomination"]["pooled_across_formats"] is True
     assert got["denomination"]["observed_at"] == "2026-08-14"
+
+
+# ── THE CENSUS TURNS THE DENOMINATION CLAIM INTO A MEASUREMENT ──────────────
+#
+# The note shipped this morning asserted "superflex, 2QB, dynasty, keeper and
+# IDP alike" — a true list with the wrong emphasis. The census says the dominant
+# divergence is none of those: 55.3% of the sampled pool is FULL PPR and 6.1% is
+# half-PPR like us, against superflex at 21.1%.
+
+_CENSUS = {"readable_leagues": 114, "matched": 0, "observed_at": None,
+           "teams": {"10": 21, "12": 51},
+           "reception_points": {"0.4-0.6 (half-PPR)": 7, "0.9-1.1 (full PPR)": 63},
+           "pass_td_points": {"6 (OURS)": 30, "4 (market standard)": 47},
+           "superflex": {"False": 90, "True": 24},
+           "keeper_type": {"(absent)": 94, "dynasty": 11}}
+
+
+def test_the_LARGEST_divergence_is_found_not_assumed():
+    """MUTATION: hard-code `largest_divergence = "superflex"` — the note names
+    the contaminant everyone expects and misses the one that dominates. Superflex
+    is 21.1% here; half-PPR is 6.1%."""
+    got = C.census_agreement(_CENSUS)
+    assert got["status"] == "measured", got
+    assert got["largest_divergence"] == "half-PPR", got["share_sharing_each_rule"]
+    assert got["largest_divergence_share"] == 0.0614
+    assert got["share_sharing_each_rule"]["single-QB"] == 0.7895
+
+
+def test_the_JOINT_rate_is_carried_because_the_marginals_look_survivable():
+    """Each rule alone reads fine — 78.9% single-QB, 82.5% redraft. Together,
+    NOT ONE of the 114 sampled leagues plays our game.
+
+    MUTATION: drop `matched_our_format` — the note reports five reassuring
+    marginals and loses the only number that says they never co-occur."""
+    got = C.census_agreement(_CENSUS)
+    assert got["matched_our_format"] == 0, got
+    assert got["readable_leagues"] == 114
+
+
+def test_an_EMPTY_census_says_unmeasured_not_a_clean_market():
+    """MUTATION: return zero shares for an absent census — every rule reads as
+    0% shared, which looks like maximum contamination measured, rather than
+    nothing measured."""
+    got = C.census_agreement({})
+    assert got["status"] == "unmeasured", got
+    assert "share_sharing_each_rule" not in got
+
+
+def test_an_UNDATED_census_row_is_flagged_in_the_note(monkeypatch):
+    """The one census row on disk predates the fix that made a keyless row raise,
+    so it carries no `observed_at` and the next is not due until the monthly run.
+
+    MUTATION: drop the undated caveat — a single stale observation reads as a
+    current reading of the market's composition."""
+    ser = [{"year": "2026", "observed_at": "2026-08-14", "rows": {"a": 10.0}}]
+    out = C.denomination(ser, {"a": {"name": "A", "position": "WR"}},
+                         rostered={"WR"}, draftable=150, census=_CENSUS)
+    assert "CARRIES NO DATE" in out["note"], out["note"]
+    assert out["census"]["largest_divergence"] == "half-PPR"
+
+    dated = dict(_CENSUS, observed_at="2026-08-12")
+    out2 = C.denomination(ser, {"a": {"name": "A", "position": "WR"}},
+                          rostered={"WR"}, draftable=150, census=dated)
+    assert "CARRIES NO DATE" not in out2["note"]
+    assert "2026-08-12" in out2["note"], out2["note"]
