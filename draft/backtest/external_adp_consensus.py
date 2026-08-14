@@ -590,6 +590,24 @@ def block_shift(deltas, tol: float = BLOCK_SHIFT_TOLERANCE) -> dict:
     NONE, NOT FALSE, WHEN THERE IS NOTHING TO JUDGE. An empty set and an all-zero
     set have no typical movement to compare a drift against, and returning False
     would report a clean bill of health on a comparison that never happened.
+
+    ⚠ AND IT DOES NOT TRAVEL. I tried to add it to `board_vs_market.sleeper_divergence`
+    and had to take it out again, for two reasons that are worth more than the
+    guard would have been:
+
+      1. That function compares RANKS WITHIN ONE POOL, so a uniform offset cancels
+         by construction and the artifact this detects cannot arise there.
+      2. Worse, a block WOULD still occur there and would mean the OPPOSITE. Every
+         quarterback ranking 36 slots earlier in Sleeper's ordering than in the
+         market's is a genuine positional displacement — the one real finding on
+         that board — and labelling it "no per-item conclusion may be drawn" would
+         suppress it.
+
+    THE SAME STATISTIC, OPPOSITE MEANINGS, DECIDED BY WHETHER THE TWO SIDES SHARE
+    A SCALE. Which is the very trap this function exists to catch, one level up:
+    generalising a detector across contexts where its verdict inverts. Use it only
+    where the two sides are measured on DIFFERENT scales and the shift is
+    therefore an artifact.
     """
     vals = [float(d) for d in (deltas or []) if d is not None]
     if not vals:
