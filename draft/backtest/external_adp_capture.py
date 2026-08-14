@@ -92,6 +92,21 @@ def append_snapshot(series: list, year, observed_at: str, rows: dict,
         # DISPERSION, BESIDE THE MEAN AND NOT INSIDE IT.
         #
         # MFL publishes minPick/maxPick/draftSelPct per player. The board's
+        # MEASURED ON THE FIRST REAL SPREAD, 2026-08-14, AND IT CORRECTS
+        # THIS JUSTIFICATION. Inside the draft range the board's `adp_sd` is NOT a
+        # clamp: it is FFC-PUBLISHED for 142 of the 146 players priced inside pick
+        # 150, with 38 distinct values across adp 0-50, 41 across 50-100 and 47
+        # across 100-150. The saturation is real but lives ENTIRELY BEYOND PICK
+        # 150 — 348 rows at 30.00 (`fallback-clamped`) and 122 at 15.00 — which is
+        # the deep pool A's own comment calls a place where "nothing reaches a
+        # decision today".
+        #
+        # So the capture is still worth having — a day's spread is perishable, MFL
+        # is a genuine second opinion, and the deep pool IS content-free — but NOT
+        # for the reason written below, which was true of the board as a whole and
+        # false of the part that drafts get made from. Kept unedited so the
+        # correction is visible rather than tidied away:
+        #
         # `adp_sd` is a clamp that saturates in both directions — 15.00 for every
         # player at adp >= 100, and exactly 30.00 for the whole search_rank
         # fallback by construction — so it carries no player-specific information
