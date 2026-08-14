@@ -532,6 +532,26 @@
    * The other six are unaffected: vona, tier_urgency, need, ceiling, keeper, bye
    * and stack all vary on a bundle board (lab_term_degeneracy.js prints the
    * spread for each), so their experiments had something to measure. */
+  /* ── WHICH OF THE TWO A TEST SHOULD PASS, because getting this backwards is
+   *    silent and cost a full session on 2026-08-14 ─────────────────────────
+   *
+   * DEFAULT_WEIGHTS if you are testing a MECHANISM — "does the tier term do what
+   * it claims". Five of the eight terms are zero in MEASURED_WEIGHTS, and a
+   * zeroed term cannot exercise anything, so a mechanism test under production
+   * weights is a test of multiplication by zero. `engine.test.js` is right to
+   * use DEFAULT_WEIGHTS throughout.
+   *
+   * MEASURED_WEIGHTS if you are testing a SURFACE — "is the list Cory sees
+   * ranked / distinct / marked / capped". `app.js` initialises `state.weights`
+   * from this constant, so any other choice grades a board no screen renders.
+   * Measured on the same boards with weights as the only variable: the TOP
+   * recommendation differs at 7 of Cory's 12 picks, and 34 of 120 name slots.
+   *
+   * AND NEVER `|| undefined`. `rec_rows.test.js` and `paths_offer_options.test.js`
+   * both read `(D.defaults && D.defaults.weights) || undefined` — a key that has
+   * never existed on the artifact — so they silently took the mechanism weights
+   * while claiming to test the surface. Both suites now THROW if this export
+   * disappears rather than falling back to anything. */
   const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
