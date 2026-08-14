@@ -205,6 +205,43 @@ const by = k => rows.find(r => r.kind === k);
     /mock_platform_sample\s+yes\s+NO\s+n\/a/.test(out.replace(/ +/g, ' ')));
 }
 
+
+// ── 5b. BLOCKED-ON-AN-OUTCOME IS REPORTED APART FROM NOBODY-BUILT-IT ─────
+/* All three remaining open loops resolve over a season, and the report printed
+ * them identically to a loop somebody simply forgot. A section that is
+ * permanently red with nothing actionable in it is the muted-alarm shape this
+ * project criticises elsewhere: it teaches the reader to skip the block, and the
+ * day a genuinely-forgotten loop lands there it reads as more of the same.
+ *
+ * The split must NOT become an excuse, which is what these checks are really
+ * for: the list is short and NAMED, so a new ungraded kind is OPEN by default
+ * and cannot inherit a blocked status by sitting still. */
+{
+  const src = fs.readFileSync(path.join(ROOT, 'draft', 'tools', 'loop_closure.js'), 'utf8');
+  const m = src.match(/const RESOLVES_WHEN = \{([\s\S]*?)\n\};/);
+  ck('CONTROL — the blocked list is locatable', !!m);
+  const named = [...(m ? m[1].matchAll(/^\s{2}([a-z_]+):/gm) : [])].map(x => x[1]);
+  ck('every kind claiming to be blocked NAMES the event that resolves it — '
+    + '"later" is not a reason', named.length >= 1
+    && named.every(k => /resolves when|the season|weekly scores|week 1/.test(
+      m[1].split(k + ':')[1].split('\n\n')[0])), named);
+
+  /* THE DEFAULT MUST BE OPEN. Anything not named is reported as work, not as
+   * waiting — the same default-is-violation shape the board-field tables use. */
+  const open = rows.filter(r => r.gradeable && r.captured && !r.resolved).map(r => r.kind);
+  ck('the blocked list is a SUBSET of the open loops — it cannot excuse a kind '
+    + 'that is not actually open', named.every(k => open.indexOf(k) >= 0),
+  { named: named, open: open });
+  ck('and it does not silently cover every open loop, or the split would just be '
+    + 'a way of printing zero', named.length <= open.length, { named: named.length, open: open.length });
+
+  ck('the report says a blocked loop STILL OWES a resolver before the outcomes '
+    + 'land — otherwise "blocked" reads as "not my problem"',
+  /Still owed a resolver BEFORE those outcomes land/.test(src));
+  ck('and it names WHY that matters, in this project\'s own history rather than '
+    + 'in the abstract', /in-season capture gap/.test(src));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the kinds come from the server\'s own list, the helper');
