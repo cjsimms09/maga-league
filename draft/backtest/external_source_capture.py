@@ -45,7 +45,7 @@ SERIES = HERE.parent / "data" / "external_source_prices.json"
 #: that stops being written shows up as EMPTY instead of ceasing to exist — the
 #: same reason `SNAPSHOT_FIELDS` exists one file over.
 SOURCE_FIELDS = ("source", "observed_at", "year", "params", "row_count", "rows",
-                 "note")
+                 "sd", "sd_count", "note")
 
 
 def load(path=None) -> list:
@@ -56,12 +56,20 @@ def load(path=None) -> list:
 
 
 def append_day(series: list, source: str, year, observed_at: str, rows: dict,
-               params: dict = None, note: str = None) -> list:
+               sd: dict = None, params: dict = None, note: str = None) -> list:
     """Add one source's board for one day. Returns a NEW series.
 
     DEDUPED BY (source, year, date), so a retried workflow replaces rather than
     doubling — the same rule the MFL archive enforces, and for the same reason: a
     duplicated day is indistinguishable from two real observations downstream.
+
+    `sd` IS THE PROVIDER'S OWN PUBLISHED DISPERSION AND NOTHING ELSE. FFC serves
+    one; FantasyPros serves none. The merge destroys FFC's on the same rows it
+    destroys the price — the shipped board keeps an `ffc-published` sd on 4
+    players of the 215 FFC priced — so it is exactly as unrefetchable as the mean
+    beside it. A value FITTED from the mean by our own clamp must never be stored
+    here: archived, it becomes our arithmetic wearing the provider's name a year
+    later, which is the same failure as a merged price with no source field.
     """
     key = (str(source), str(year), str(observed_at))
     keep = [s for s in (series or [])
@@ -76,6 +84,8 @@ def append_day(series: list, source: str, year, observed_at: str, rows: dict,
         "params": dict(params or {}),
         "rows": {str(k): float(v) for k, v in (rows or {}).items() if v is not None},
         "row_count": len([v for v in (rows or {}).values() if v is not None]),
+        "sd": {str(k): float(v) for k, v in (sd or {}).items() if v is not None},
+        "sd_count": len([v for v in (sd or {}).values() if v is not None]),
         "note": note,
     })
     return keep

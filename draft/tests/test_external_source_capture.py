@@ -127,6 +127,24 @@ def test_a_NULL_PRICE_IS_NOT_STORED_AS_A_NUMBER():
     assert ser[0]["row_count"] == 1
 
 
+def test_a_PUBLISHED_DISPERSION_IS_KEPT_beside_the_mean():
+    """FFC publishes a standard deviation and `merge_primary_over_ffc` destroys it
+    on the same rows it destroys the mean — the merged board keeps an
+    `ffc-published` sd on 4 players out of 215. It is the same unrefetchable
+    measurement as the price and costs one dict to hold.
+
+    MUTATION: store the mean only — the published spread is gone every day, and
+    every future dispersion question is answered by our own clamp fitted from the
+    mean, which is our arithmetic wearing the provider's name."""
+    ser = S.append_day([], "ffc", 2026, "2026-08-14", {"1": 20.0, "2": 40.0},
+                       sd={"1": 6.5})
+    assert ser[0]["sd"] == {"1": 6.5}
+    assert ser[0]["sd_count"] == 1
+    # AND AN ABSENT SD IS ABSENT, not zero: FantasyPros publishes none at all.
+    ser2 = S.append_day([], "fantasypros", 2026, "2026-08-14", {"1": 20.0})
+    assert ser2[0]["sd"] == {} and ser2[0]["sd_count"] == 0
+
+
 def test_the_SAVED_FILE_ROUND_TRIPS(tmp_path):
     """Written and read by the same module, because an archive nothing can reload
     is a write-only file.

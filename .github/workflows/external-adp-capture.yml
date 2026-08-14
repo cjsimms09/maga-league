@@ -456,6 +456,87 @@ jobs:
           echo "SNAPSHOT COULD NOT BE PUSHED after retries — TODAY'S BOARD IS LOST"
           echo "and cannot be refetched. Rerun today, not tomorrow."
           exit 1
+      # ── EVERY SOURCE'S OWN PRICE, AFTER THE DAY IS SAFE ────────────────────
+      #
+      # `adp_series.json` stores the MERGED price with no source field, so every
+      # day we record what the anchor said and destroy what every other source
+      # said. `merge_primary_over_ffc` overwrites 211 of FFC's 215 prices — 144
+      # inside the draftable board, including Allen, Lamar, Burrow, Maye, Daniels,
+      # Hurts, Herbert and Prescott — and none of it is recoverable, because
+      # neither provider serves ADP as of a past date. The anchor question ("does
+      # FFC actually price quarterbacks earlier, and by how much") is unanswerable
+      # from disk, and would be unanswerable next August too.
+      #
+      # ⚠ IT RUNS AFTER THE COMMIT AND IT `continue-on-error`s, DELIBERATELY, FOR
+      # THE SAME REASON THE ALARM BELOW IS LAST. The MFL snapshot is the
+      # perishable, unrefetchable thing. A NEW FETCH MUST NOT BE ABLE TO COST IT A
+      # DAY — not by failing, not by timing out, not by turning the job red before
+      # the commit. Every failure mode here is a missing day in ITS OWN archive,
+      # which is regrettable and recoverable-ish; a missing day in the snapshot is
+      # neither.
+      #
+      # It writes a SEPARATE FILE and commits separately, so a half-written source
+      # archive can never appear inside the snapshot commit.
+      - name: Record what each source said, separately
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 8
+        run: |
+          # THE LOGIC IS IN A MODULE, NOT HERE, AND THAT IS THE FIX RATHER THAN A
+          # TIDY-UP. This step was fifty lines of Python inline, and it guessed at
+          # both providers' APIs: it passed `FP.fetch(year)` — which returns
+          # `(text, url, diag)` — straight into `FP.parse` as html, and keyed FFC
+          # rows on `entry["player_id"]`, a field FFC does not send. NEITHER GUESS
+          # RAISES. Both produce an empty dict, the step goes green, and the
+          # archive gains a dated row with no board behind it — which every later
+          # coverage report counts as a captured day. Code inside YAML cannot be
+          # tested, which is exactly how both defects got written.
+          # TEE'D INTO THE STEP SUMMARY, because the number this archive exists
+          # to produce — the per-position gap between what FFC and FantasyPros
+          # charge for the same player — is the whole point of recording it, and
+          # a figure that only ever lands in a job log is a figure nobody reads
+          # (rule 14: the consumer exists the day the writer does).
+          # ⚠ `|| rc=$?`, NOT a bare pipeline followed by `rc=$?`. `run:` executes
+          # under `bash -e`, so a failing pipeline ABORTS THE STEP AT THAT LINE —
+          # the closing fence and the failure note below would never be written,
+          # and the summary would end mid-code-block on exactly the runs that
+          # have something to say. Same shape as the pin failure that once killed
+          # the snapshot commit: the reporting path must survive what it reports.
+          set -o pipefail
+          rc=0
+          {
+            echo "## Per-source ADP prices"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/external_source_run.py \
+            --year "${{ github.event.inputs.year || '2026' }}" \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          [ "$rc" = 0 ] || echo "**NO SOURCE CAPTURED** — see the log above. The day's MFL snapshot is committed and unaffected." >> "$GITHUB_STEP_SUMMARY"
+          # COMMIT WHATEVER LANDED FIRST, THEN FAIL. When one source recorded and
+          # the other did not, `rc` is 0 and the day is real; when NOTHING
+          # recorded, `rc` is 1 and there is nothing staged, so this block is a
+          # no-op either way — the ordering is the same rule the pin follows one
+          # step up. Preserve before you alarm.
+          git add draft/data/external_source_prices.json || true
+          if ! git diff --cached --quiet; then
+            git config user.name "lab-bot"; git config user.email "actions@github.com"
+            git commit -m "D3: per-source ADP prices [skip deploy]"
+            for i in 1 2 3 4 5; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              git push origin HEAD:main && break || sleep $((i*5))
+            done
+          fi
+          # AND NOW THE STEP CARRIES THE RUNNER'S VERDICT. Without this the step
+          # goes GREEN on a total capture failure — `[ ... ] || echo` succeeds, so
+          # the last command's status is 0 and "no source reached us at all" reads
+          # exactly like a clean morning. `continue-on-error: true` still keeps the
+          # JOB green and the MFL snapshot untouched; this only makes the failure
+          # visible, which is the entire difference between a day missing and a
+          # fortnight missing.
+          exit "$rc"
+
       # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
       # the standing check escalates by failing. Losing a day of a perishable
       # curve deserves the same channel — but only ONCE, on the run that can
