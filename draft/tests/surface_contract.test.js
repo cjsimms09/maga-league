@@ -290,7 +290,7 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * the two lists are DISJOINT and the outstanding one is non-empty; which names
    * sit on which side is exactly what is supposed to change. */
   const AUDITED = ['legality strip', 'dollar-gap hero line', 'LRM strip', 'stack card',
-    'movement line'];
+    'movement line', 'shadow projection'];
   const stillListed = AUDITED.filter(n => new RegExp(n, 'i').test(notYet));
   ck('every surface with its own section has moved OFF the unaudited list — a '
     + 'list that never shortens is a decoration that makes the document look '
@@ -300,9 +300,18 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   AUDITED.every(n => new RegExp(n.split(' ')[0], 'i').test(docRaw.split('What I have NOT audited yet')[0])),
   AUDITED.filter(n => !new RegExp(n.split(' ')[0], 'i')
     .test(docRaw.split('What I have NOT audited yet')[0])));
-  ck('the outstanding list is still NON-EMPTY and named — the sweep is not '
+  /* ⚠ THIRD TIME I HAVE WRITTEN THIS ASSERTION AGAINST A NAME THAT WAS ABOUT TO
+   * MOVE. It demanded "LRM strip", then "shadow projection", and each went red
+   * the moment I audited that surface — the check failing for the exact reason it
+   * was supposed to be satisfied. The property is NOT which names are outstanding;
+   * it is that the section still LISTS something. Derived from the text before
+   * "Named so", so it survives every rename and empties only when the sweep
+   * genuinely finishes — at which point the document's framing has to change and
+   * red is the correct answer. */
+  const outstanding = notYet.split('Named so')[0].trim();
+  ck('the outstanding list still NAMES at least one surface — the sweep is not '
     + 'finished and must not read as if it were',
-  /manager panel/.test(notYet) && /shadow projection/.test(notYet), notYet.slice(0, 200));
+  outstanding.length >= 10 && !/^(none|nothing)\b/i.test(outstanding), outstanding);
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

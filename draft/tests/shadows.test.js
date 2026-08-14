@@ -229,5 +229,93 @@ function ctxAt(pick, board) {
     })());
 }
 
+
+// --- THE ARTIFACT FLAG IS GENERAL, AND THE PANEL ACTUALLY SHOWS IT ----------
+/* `consensus()` has returned `lead_driver`, `driver_is_artifact`, `runner_up`
+ * and `gap_to_second` since it was written, with a comment stating exactly why:
+ * "A 7/7 driven by `need` is the artifact flag; a 7/7 driven by `value` is real
+ * agreement." This suite asserted all four are CORRECT. Nothing asserted anyone
+ * READS them — and nothing did. Rule 14 on the one field whose job is to stop
+ * the misread the strip invites.
+ *
+ * MEASURED ON THE LIVE BOARD AT PICK 33, CORY'S FIRST PICK:
+ *
+ *     rec list #1     Colston Loveland (TE) 17.3
+ *     shadow strip    "7 of 7 -> Zay Flowers"   (no contested flag)
+ *     Flowers's rank in the real list: 4th
+ *
+ * all seven driven by `need` at values 42.7 / 21.3 / 42.7 / 85.4 / 42.7 / 64.0 /
+ * 42.7 — one need computation times each strategy's need weight. Seven
+ * "independent strategies" are seven multiples of one number, and `need` is
+ * weighted ZERO on the board he drafts from. */
+{
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.join(__dirname, '..', '..');
+  const E2 = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+  const APP = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  const row = (drv) => ([
+    { player_id: 'x', player: 'A', position: 'RB', key: 'k1', driver: drv, runner_up: 'B', gap_to_second: 2 },
+    { player_id: 'x', player: 'A', position: 'RB', key: 'k2', driver: drv, runner_up: 'B', gap_to_second: 3 },
+  ]);
+
+  // -- the general form: `need` is not special, it is just one of the five zeros
+  const zeroed = Object.keys(E2.MEASURED_WEIGHTS).filter(k => E2.MEASURED_WEIGHTS[k] === 0);
+  check('CONTROL — production really does zero more than one term, or the '
+    + 'generalisation below is pointless', zeroed.length >= 2, zeroed.join(','));
+  check('EVERY zero-weighted driver raises driver_zero_weighted, not only `need`',
+    zeroed.every(k => SH.consensus(row(k)).driver_zero_weighted === true),
+    zeroed.filter(k => !SH.consensus(row(k)).driver_zero_weighted).join(','));
+  check('and a LIVE term does not — the flag means "the board ignores this", not '
+    + '"the shadows agreed"',
+  SH.consensus(row('value')).driver_zero_weighted === false,
+  JSON.stringify(SH.consensus(row('value')).driver_zero_weighted));
+  check('FAIL ARM — driver_is_artifact alone would have missed the other four, '
+    + 'which is why the general form was added',
+  zeroed.filter(k => SH.consensus(row(k)).driver_is_artifact).length < zeroed.length,
+  zeroed.filter(k => SH.consensus(row(k)).driver_is_artifact).join(','));
+
+  // -- and the strip renders it
+  check('the panel reads lead_driver rather than computing its own',
+    /cons\.lead_driver/.test(APP));
+  check('it treats the artifact flag as a WARNING state, not a decoration',
+    /cons\.driver_is_artifact \|\| cons\.driver_zero_weighted/.test(APP)
+      && /ONE TERM, NOT/.test(APP));
+  check('it says the board weights that term zero — the fact that makes the '
+    + 'unanimity hollow', /which the board weights 0/.test(APP));
+  check('the runner-up and margin are rendered too, both previously computed and '
+    + 'dropped', /cons\.runner_up/.test(APP) && /cons\.gap_to_second/.test(APP));
+  check('and each strategy row shows the term that drove IT, so a reader can see '
+    + 'seven-arguments vs one-argument-seven-times without trusting a summary',
+  /r\.driver/.test(APP) && /sp-rowdriver/.test(APP));
+
+  // -- the measured case, re-derived rather than quoted
+  const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const keepers = (B2.kept_players || []).slice();
+  const priced = B2.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
+  const gone = new Set(priced.slice(0, 32).map(x => String(x.player_id)));
+  keepers.forEach(t => gone.add(String(t.player_id)));
+  const board33 = B2.players.filter(x => !gone.has(String(x.player_id)));
+  const ctx33 = { board: board33, nextPick: 48, totalPicks: 150, myPicksLeft: 12,
+    roster: keepers.slice(), doctrine: null, myPickIndex: 0, totalMyPicks: 12,
+    currentKeepers: keepers.slice(), league: B2.league, weights: E2.MEASURED_WEIGHTS,
+    runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: 33,
+    intervening: 15, roundsLeft: 12 };
+  const c33 = SH.consensus(SH.project(board33, ctx33, 4, keepers.slice()));
+  console.log('      pick 33: ' + c33.agree + '/' + c33.n + ' -> ' + c33.lead
+    + ' · driver ' + c33.lead_driver + ' · zero-weighted ' + c33.driver_zero_weighted
+    + ' · contested ' + c33.contested);
+  check('CONTROL — pick 33 really is a high-agreement consensus, or there is '
+    + 'nothing here to mislabel', c33.agree >= Math.ceil(c33.n * 0.75),
+  c33.agree + '/' + c33.n);
+  check('and it IS flagged — the strongest agreement the strip can express is '
+    + 'the one that needed qualifying',
+  c33.driver_zero_weighted === true || c33.driver_is_artifact === true,
+  'driver ' + c33.lead_driver);
+  check('CONTROL — `contested` does NOT catch it, which is why a separate signal '
+    + 'was needed rather than reusing that flag', c33.contested === false,
+  String(c33.contested));
+}
+
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
 process.exit(fail ? 1 : 0);

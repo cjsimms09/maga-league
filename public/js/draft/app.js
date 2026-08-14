@@ -6143,16 +6143,58 @@
         + esc(d.keys.map(strategyName).join(', ')) + ': '
         + esc(shortName(d.player)) + '</span>';
     }
+    /* ⚠ THE ENGINE COMPUTES WHY THE SHADOWS AGREE AND THIS PANEL DROPPED IT.
+     *
+     * `consensus()` returns `lead_driver`, `driver_is_artifact`, `runner_up` and
+     * `gap_to_second`, and its own comment says why: "A 7/7 driven by `need` is
+     * the artifact flag; a 7/7 driven by `value` is real agreement." Every one of
+     * those four fields was read by NOTHING — rule 14 on the exact field whose
+     * job is to stop the misread this strip invites.
+     *
+     * MEASURED AT PICK 33, CORY'S FIRST PICK, all on one screen:
+     *
+     *     rec list #1     Colston Loveland (TE) 17.3
+     *     shadow strip    "7 of 7 → Zay Flowers"      (no contested flag)
+     *     Flowers's rank in the real list: 4th
+     *
+     * All seven shadows driven by `need`, at driver values 42.7 / 21.3 / 42.7 /
+     * 85.4 / 42.7 / 64.0 / 42.7 — ONE need computation times each strategy's need
+     * weight. Seven "independent strategies" are seven multiples of one number,
+     * and `need` is weighted ZERO on the board Cory actually drafts from.
+     *
+     * "7 of 7" is the strongest agreement this surface can express. Unqualified,
+     * it reads as the safest pick on the screen while pointing at the tool's
+     * fourth choice. Same shape as `entry`/`RS`: indicators that CANNOT disagree,
+     * presented as independent confirmations.
+     *
+     * Nothing about the shadows changes — they are meant to differ from
+     * production. The strip now says what the model already knew. */
+    var artifact = !!(cons.driver_is_artifact || cons.driver_zero_weighted);
+    var driverTxt = cons.lead_driver
+      ? ' <span class="sp-driver' + (artifact ? ' sp-driver-weak' : '') + '">'
+        + (artifact ? 'all on ' : 'on ') + esc(cons.lead_driver)
+        + (artifact ? ', which the board weights 0' : '') + '</span>'
+      : '';
+    var overTxt = (cons.runner_up && cons.gap_to_second != null)
+      ? ' <span class="sp-over muted">over ' + esc(shortName(cons.runner_up))
+        + ' by ' + Math.abs(cons.gap_to_second).toFixed(1) + '</span>'
+      : '';
     line.innerHTML = (cons.contested
         ? '<span class="sp-flag">⚠ STRATEGIES SPLIT — slow down</span> '
-        : '<span class="sp-tag">🧭 strategies</span> ')
-      + leadTxt + dissentTxt;
+        : artifact
+          ? '<span class="sp-flag">⚠ ONE TERM, NOT ' + cons.agree + ' VOTES</span> '
+          : '<span class="sp-tag">🧭 strategies</span> ')
+      + leadTxt + driverTxt + overTxt + dissentTxt;
 
-    // The full list, one tap away: every strategy and the player it would take.
+    // The full list, one tap away: every strategy, the player it would take, and
+    // the term that drove it — so a reader can see for themselves whether the
+    // agreement is seven arguments or one argument seven times.
     body.innerHTML = proj.map(function (r) {
       return '<div class="sp-row"><span class="sp-strat">' + esc(r.name) + '</span>'
         + '<span class="sp-pick">' + esc(shortName(r.player))
         + (r.position ? ' <span class="sp-pos">' + esc(r.position) + '</span>' : '')
+        + (r.driver ? ' <span class="sp-rowdriver muted">' + esc(r.driver)
+          + (r.driver_value != null ? ' ' + r.driver_value.toFixed(1) : '') + '</span>' : '')
         + '</span></div>';
     }).join('');
   }

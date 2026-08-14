@@ -265,6 +265,27 @@
       contested: agree < Math.ceil(n * 0.75),
       lead_driver: leadDriver,                 // which term drove the agreement
       driver_is_artifact: leadDriver === 'need',   // the fingerprint of the old bug
+      /* THE GENERAL FORM OF THE SAME TEST, added 2026-08-14.
+       *
+       * `driver_is_artifact` names ONE term. But `need` is not special — it is
+       * simply the zero-weighted term that happened to produce the old bug. FIVE
+       * of the eight are zero in MEASURED_WEIGHTS (tier, need, risk, ceiling,
+       * bye), and a unanimous shadow consensus resting on ANY of them is the same
+       * thing: agreement on a quantity the live board does not score.
+       *
+       * Measured at pick 33, Cory's FIRST pick: 7 of 7 shadows pick Zay Flowers,
+       * all seven driven by `need`, and the driver values are 42.7 / 21.3 / 42.7 /
+       * 85.4 / 42.7 / 64.0 / 42.7 — one need computation times each strategy's
+       * need weight. Seven "independent strategies" are seven multiples of one
+       * number. Meanwhile the rec list's own top pick is Colston Loveland and
+       * Flowers is FOURTH.
+       *
+       * REPORTING ONLY. No pick moves, no weight changes, no strategy is altered
+       * — the shadows are meant to differ from production and that is the point.
+       * What changes is that the panel can stop presenting one term seven times
+       * as seven confirmations. */
+      driver_zero_weighted: !!(leadDriver && E && E.MEASURED_WEIGHTS
+        && E.MEASURED_WEIGHTS[leadDriver] === 0),
       runner_up: runnerUp,                     // the "contested vs <2nd>" name, always shown
       gap_to_second: medianGap,                // median margin over that runner-up
       dissenters,

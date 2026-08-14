@@ -306,10 +306,46 @@ causal em-dash; a run elsewhere is an aside (*"Shifted to Loveland. RB run also
 on."*). Identity falls back to names when an id is missing, and says **nothing**
 when it is genuinely unknowable.
 
+### 10. The shadow projection ("N of 7 → X")
+
+**IS:** seven alternative weight vectors run over the same board, each reporting
+the player it would take. `contested` fires when the leader is under a 75%
+supermajority.
+
+**IS NOT — and this is the sharpest finding of the audit — SEVEN INDEPENDENT
+VOTES.** Measured at **pick 33, Cory's first pick**, all on one screen:
+
+| surface | says |
+|---|---|
+| rec list #1 | **Colston Loveland** (TE), 17.3 |
+| shadow strip | **"7 of 7 → Zay Flowers"**, no contested flag |
+| Flowers's actual rank in that rec list | **4th** |
+
+All seven shadows were driven by `need`, at driver values **42.7 / 21.3 / 42.7 /
+85.4 / 42.7 / 64.0 / 42.7** — one `need` computation times each strategy's `need`
+weight. **Seven "independent strategies" are seven multiples of one number**, and
+`need` is weighted **0** on the board he drafts from. Same shape as `entry`/`RS`
+in §3: indicators that *cannot* disagree, presented as confirmations.
+
+"7 of 7" is the strongest agreement this surface can express. Unqualified, it
+read as the safest pick on the screen while pointing at the tool's fourth choice.
+
+**THE MODEL ALREADY KNEW.** `consensus()` has always returned `lead_driver`,
+`driver_is_artifact` ("a 7/7 driven by `need` is the artifact flag"), `runner_up`
+and `gap_to_second` — and **all four were read by nothing.** The panel now renders
+them, the artifact flag is generalised to *any* zero-weighted driver (five of the
+eight qualify, `need` was never special), and each strategy row shows its own
+driver. **No shadow, weight or pick changed** — they are meant to differ from
+production. Only the sentence did.
+
+**`contested` does not catch this**, by construction: it measures name-split, and
+this failure is unanimous. That is why it is a separate signal rather than a
+widening of that flag.
+
 ---
 
 ## What I have NOT audited yet
 
-The shadow projection and the manager panel. Named so this document cannot read
-as a completed sweep. Roughly 20 more surfaces carry a number; nine are covered
-here — four because they decide a pick, and five added as the audit reached them.
+The manager panel. Named so this document cannot read as a completed sweep.
+Roughly 20 more surfaces carry a number; ten are covered here — four because they
+decide a pick, and six added as the audit reached them.
