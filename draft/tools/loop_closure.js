@@ -122,6 +122,7 @@ const OUTCOMES = {
   weekly_brief: [false, 'a summary of rows that are graded individually'],
   forecast: [true, 'a committed claim about a future pick — resolved by buildResolutions'],
   forecast_resolution: [false, 'this IS a resolution row'],
+  survival_resolved: [false, 'this IS a resolution row — the grade for a survival call'],
 };
 
 function scan() {

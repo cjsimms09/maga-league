@@ -1304,7 +1304,120 @@
     return out;
   }
 
-  const api = { expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
+  /* ══ GRADING THE SURVIVAL CALL — the cheapest closed loop we have ═══════
+   *
+   * Cory: *"close the loop to actually grade these and find useful info wherever
+   * we can."* `loop_closure.js` measured seven claims the model makes and never
+   * learns from. This closes the one with the shortest feedback cycle and the
+   * highest leverage:
+   *
+   *   · SHORTEST — a survival call names a pick. Within a handful of picks the
+   *     player is either still on the board or he is not. It does not wait for a
+   *     week, a season, or a payout. **The draft itself grades it.**
+   *   · HIGHEST LEVERAGE — survival drives `expectedBestAvailable`, which is
+   *     VONA, which is 62% of what moves the composite. Grading survival is
+   *     grading the input Cory said has to be locked solid.
+   *
+   * ── WHY BRIER AND NOT ACCURACY ────────────────────────────────────────
+   *
+   * These are PROBABILITIES, not calls. "He survives with p=0.7" is not wrong
+   * when he goes; it is wrong only if 0.7 was the wrong number. Accuracy would
+   * reward a model that said 1.0 or 0.0 about everything and punish an honest
+   * 0.7 — the opposite of what we want. The Brier score, mean (p − outcome)²,
+   * is minimised by reporting your true belief, so it cannot be gamed by
+   * overconfidence.
+   *
+   * A BASELINE SHIPS WITH IT, because a Brier score alone is unreadable. The
+   * comparison is against always predicting the observed base rate: beat that
+   * and the model knows something about WHICH player survives, not merely how
+   * many do. `skill` is the fraction of that baseline's error removed — positive
+   * is real information, zero is "no better than counting", negative is worse
+   * than knowing nothing.
+   *
+   * ── WHAT IT DELIBERATELY REFUSES ──────────────────────────────────────
+   *
+   * A capture whose `to_pick` has not been reached yet is NOT resolved as a
+   * survival. Absence of a pick is not evidence he lasted; it is evidence the
+   * draft has not got there. Resolving early would score every open prediction
+   * as a correct "survived" and manufacture a flawless model.
+   */
+  function resolveSurvival(captures, opts) {
+    /* NOT NAMED `ctx`, DELIBERATELY. The app-wiring seam guard scrapes
+     * `ctx.<field>` reads out of the engine modules and requires the live
+     * `context()` to supply every one of them — so calling this parameter `ctx`
+     * made the guard demand that `context()` provide `picks`, which it neither
+     * does nor should. This is a pick LOG passed by one caller, not the shared
+     * draft context, and the two must not share a name. The guard was right. */
+    opts = opts || {};
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.player_id != null;
+    });
+    // How far the draft has actually got. A capture cannot be graded past it.
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+
+    const out = [];
+    (captures || []).forEach(function (cap) {
+      const payload = cap.payload || cap;
+      const toPick = Number(payload.to_pick);
+      const fromPick = Number(cap.pick != null ? cap.pick : payload.from_pick);
+      const estimates = payload.estimates || [];
+      if (!isFinite(toPick) || !estimates.length) return;
+      if (reached < toPick) return;                 // not yet resolvable — say nothing
+
+      // Taken STRICTLY BETWEEN the call and the pick it spoke about. A player
+      // taken AT to_pick has not survived TO it; a player taken before the call
+      // was never in the pool being predicted over.
+      const takenInWindow = {};
+      picks.forEach(function (p) {
+        const n = Number(p.overall);
+        if (n > fromPick && n <= toPick) takenInWindow[String(p.player_id)] = n;
+      });
+
+      const results = estimates.map(function (e) {
+        const gone = Object.prototype.hasOwnProperty.call(takenInWindow, String(e.player_id));
+        const outcome = gone ? 0 : 1;               // 1 = survived
+        const p = Math.max(0, Math.min(1, Number(e.survival)));
+        return { player_id: String(e.player_id), position: e.position || null,
+          predicted: p, survived: outcome,
+          taken_at: gone ? takenInWindow[String(e.player_id)] : null,
+          sq_error: Math.round((p - outcome) * (p - outcome) * 1e6) / 1e6 };
+      }).filter(function (r) { return isFinite(r.predicted); });
+      if (!results.length) return;
+
+      const n = results.length;
+      const brier = results.reduce(function (s, r) { return s + r.sq_error; }, 0) / n;
+      const base = results.reduce(function (s, r) { return s + r.survived; }, 0) / n;
+      // The base-rate forecaster predicts `base` for everyone, every time.
+      const baseBrier = results.reduce(function (s, r) {
+        return s + (base - r.survived) * (base - r.survived);
+      }, 0) / n;
+      // SKILL IS UNDEFINED, NOT ZERO, WHEN THE BASELINE IS PERFECT. If every
+      // player survived, base is 1 and the baseline scores 0 — there is nothing
+      // to improve on and a ratio would divide by zero. Reporting 0 there would
+      // read as "no skill" when the truth is "this round cannot show skill".
+      const skill = baseBrier > 1e-9
+        ? Math.round((1 - brier / baseBrier) * 1000) / 1000 : null;
+
+      out.push({ method: 'survival-resolver-v1',
+        payload: { from_pick: fromPick, to_pick: toPick, n: n,
+          brier: Math.round(brier * 1e6) / 1e6,
+          base_rate: Math.round(base * 1000) / 1000,
+          baseline_brier: Math.round(baseBrier * 1e6) / 1e6,
+          skill: skill,
+          skill_note: skill === null
+            ? 'undefined: every player resolved the same way, so the base rate is '
+              + 'already perfect and there is nothing for the model to improve on'
+            : 'fraction of the base-rate forecaster\'s error removed; 0 = no better '
+              + 'than counting, negative = worse than knowing nothing',
+          results: results } });
+    });
+    return out;
+  }
+
+  const api = { resolveSurvival,
+    expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
     layer1Taken, layer1TakenGivenAvailable, layer2Taken, precomputeLayer2,
