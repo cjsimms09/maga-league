@@ -79,6 +79,25 @@ PLAYER_FIELDS = (
     "adp", "raw_adp", "adjusted_adp", "adp_sd",
     "adp_source", "adp_sd_source", "adp_season", "adp_stale",
     "games_expected", "injury_status", "age",
+    # ⚠️ OPPORTUNITY, WITH THE AMBIGUITY THAT COMES WITH IT. Frozen because a
+    # September regression of outcomes on `opportunity_z` is one of the things
+    # this capture exists to make possible -- and because that regression is
+    # exactly where the ambiguity below would bite.
+    #
+    # `projections.py:236` writes `round(z.get(pid, 0.0), 2)`, so a player
+    # absent from the opportunity map scores 0.0 -- indistinguishable from one
+    # measured at exactly league average. Counted on this board: 312 of 686 rows
+    # are exactly 0.0, of which QB, K and DEF are 100% and CORRECT (opportunity
+    # is a receiving metric; not-applicable genuinely is zero). The real cases
+    # are 144 RB/WR/TE rows, six of them inside pick 150, and all six are
+    # ROOKIES -- no prior-season NFL snaps by construction.
+    #
+    # NOT A LIVE DEFECT: `opportunity_adj` is 0.0 for every one of them, so the
+    # adjustment is inert and no recommendation moves. It is a PROVENANCE gap,
+    # and `opportunity_share` is what distinguishes the two cases -- None means
+    # no data, a number means measured. Both are frozen so the distinction
+    # survives into September instead of being re-derived from memory.
+    "opportunity_z", "opportunity_share", "opportunity_adj",
 )
 
 
@@ -208,6 +227,21 @@ def build() -> dict:
             "rows_with_published_sd": sum(
                 1 for p in art["players"]
                 if str(p.get("adp_sd_source") or "").startswith("ffc")),
+        },
+
+        "opportunity_ambiguity": {
+            "field": "opportunity_z",
+            "zero_means": "EITHER measured-at-league-average OR absent from the "
+                          "opportunity map. The two are not distinguishable "
+                          "from this field alone.",
+            "disambiguator": "opportunity_share is None when there was no data",
+            "why_it_matters":
+                "A September regression of outcomes on opportunity_z that "
+                "treats no-data rows as average will bias the coefficient "
+                "toward zero. Filter on opportunity_share before fitting.",
+            "inert_today":
+                "opportunity_adj is 0.0 for every no-data row, so no "
+                "recommendation on this board is affected.",
         },
 
         # ── 4c: replacement level per position ────────────────────────────
