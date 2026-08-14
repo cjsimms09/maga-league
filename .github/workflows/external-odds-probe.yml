@@ -126,6 +126,20 @@ jobs:
       - name: Commit the answer, including a null
         if: always()
         run: |
+          # ⚠ A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main. This step ends
+          # `git push origin HEAD:main`, and on a branch checkout HEAD is the
+          # BRANCH TIP — so testing this workflow from a feature branch would have
+          # pushed that entire branch to main, bypassing integration completely.
+          # Nobody would have typed that; they would have typed "run it on my
+          # branch to see if it works". The answer still lands in the step
+          # summary, so a branch dispatch is still useful; it just cannot write.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
           git add draft/backtest/external_odds_probe.json || true
           if ! git diff --cached --quiet; then
