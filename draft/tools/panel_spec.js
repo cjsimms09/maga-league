@@ -22,9 +22,15 @@
  *   TRUSTS     tells me whether to believe the panels above. Invalidating.
  *   CONTEXT    true, useful, and has never once changed a pick by itself.
  *
- * FOUR PANELS DECIDE. Twenty-two do not. That is the finding, and it is the
- * measurement B should lay the page out from — the current screen gives a
- * take-button, tier-cliff prose and a chip grid roughly equal billing.
+ * MOST PANELS DO NOT DECIDE. That is the finding, and it is the measurement B
+ * should lay the page out from — the current screen gives a take-button,
+ * tier-cliff prose and a chip grid roughly equal billing.
+ *
+ * THE COUNTS ARE PRINTED AT THE BOTTOM, COMPUTED. They were written into this
+ * header as words ("FOUR PANELS DECIDE. Twenty-two do not") and were wrong
+ * within a day — the file described 25 panels while 54 painted. A number typed
+ * into prose beside the data it describes is the defect this repo keeps
+ * shipping, and a spec is the last place it belongs.
  *
  * ── AND THE PART I HAVE TO OWN ────────────────────────────────────────────
  *
@@ -209,6 +215,242 @@ const PANELS = [
     note: 'CONTEXT BY CONTENT, CRITICAL BY FUNCTION. After a wedge this is the '
       + 'entire plan for the rest of the night, so it must never be the thing '
       + 'that scrolls off.' },
+  // ══════════════════════════════════════════════════════════════════════
+  // THE 29 THE FIRST VERSION MISSED (2026-08-14).
+  //
+  // The spec said "every panel `renderAll` paints" and its test read `renderAll`
+  // for zero-argument `renderXxx()` calls. Every panel rendered as a SUB-PANEL,
+  // or taking an argument, was invisible to both — 29 of them, MORE THAN THE 25
+  // DESCRIBED. So a document written to close exactly this gap shipped covering
+  // less than half the screen while reading as complete.
+  //
+  // THAT IS THE DEFECT THIS FILE EXISTS TO PREVENT, COMMITTED BY THIS FILE. The
+  // extraction is now over every `render*` function DEFINED AND CALLED in
+  // app.js, which cannot be fooled by a call shape.
+  //
+  // AND `renderPaths` WAS IN THE MISSING SET — the strategy cards Cory was
+  // complaining about when he asked for this spec in the first place.
+  // ══════════════════════════════════════════════════════════════════════
+
+  // ── DECIDES ───────────────────────────────────────────────────────────
+  { fn: 'renderPaths', weight: 'DECIDES', lines: null,
+    question: 'What are my real OPTIONS here, and what does each one cost?',
+    means: 'The top candidates grouped into coherent DIRECTIONS (position x '
+      + 'take-now-vs-value), each led by its best man, each priced in points '
+      + 'below the top direction. "-12.5 vs top" is what choosing it concedes.',
+    changes_it: 'any pick at those positions; my next pick moving; a tier emptying',
+    reads: ['E.computePaths', 'scored', 'league.starters'],
+    note: 'THE PANEL CORY WAS DESCRIBING and the one this spec originally left '
+      + 'out. It rendered ONE card at 10 of his 12 picks, and a card\'s leader '
+      + 'is by construction the #1 recommendation — "Gibbs listed twice? No '
+      + 'other options." Fixed 08-14: it now always offers what the board holds. '
+      + 'Two fields B must render DIFFERENTLY: `price` and `within_band`. A card '
+      + 'with within_band=false is a real option at a real cost and must never '
+      + 'carry the same visual weight as one inside the band.' },
+  { fn: 'renderTiming', weight: 'TIMES', lines: null,
+    question: 'Should I take this position NOW or can it wait?',
+    means: 'Per position: TAKE NOW / WAIT / OK, from what the position loses '
+      + 'between this pick and my next one. It answers order, not identity.',
+    changes_it: 'the gap to my next pick; a run at that position',
+    reads: ['positionTiming', 'scored', 'nextPick'],
+    note: 'STRONGEST SINGLE-GLANCE PANEL ON THE PAGE and it is buried inside '
+      + 'renderRecommendations. Four verdicts, no reading required.' },
+  { fn: 'renderBestAvailStrip', weight: 'DECIDES', lines: null,
+    question: 'Who is the best man left at each position, in one line?',
+    means: 'One name per position off the same scored board the recommendations '
+      + 'use — so it can never disagree with them.',
+    changes_it: 'any pick',
+    reads: ['scored', 'nextPick'],
+    note: 'OVERLAPS renderPositionRecs — same question, one as a strip and one '
+      + 'as chips. Cory asked for "10 next best players in easy view"; these two '
+      + 'are the closest thing and neither is it. Merging them is a layout call.' },
+  { fn: 'renderMVS', weight: 'CONTEXT', lines: null,
+    question: 'If I could only see one box, what would it say?',
+    means: 'The minimum viable screen — state, seat, board freshness, health, '
+      + 'current pick and the pick itself, in one block.',
+    changes_it: 'any pick; sync health; the board rebuilding',
+    reads: ['state', 'out.scored', 'out.paths'],
+    note: 'NOT DECIDES, BY THIS FILE\'S OWN VOCABULARY — it restates the '
+      + 'decision surface rather than adding to it, and duplicating a DECIDES '
+      + 'panel does not make you one. Worth saying because it was built as the '
+      + 'answer to a busy screen and then placed ON the busy screen beside '
+      + 'everything it summarises. If B wants a fold, this is already it.' },
+
+  // ── TIMES ─────────────────────────────────────────────────────────────
+  { fn: 'renderBranches', weight: 'TIMES', lines: null,
+    question: 'What is likely still on the board at my NEXT pick?',
+    means: 'Per position, what the best available is expected to be when I pick '
+      + 'again — and only where waiting actually costs something.',
+    changes_it: 'the picks between now and my turn; a run',
+    reads: ['E.branchForecast', 'nextPick'] },
+  { fn: 'renderQueueSlip', weight: 'TIMES', lines: null,
+    question: 'Is anybody on my shortlist about to be gone?',
+    means: 'The men I queued, flagged when their survival to my next pick drops '
+      + 'far enough that waiting is a real risk.',
+    changes_it: 'the room picking; me queueing somebody',
+    reads: ['state.lists.queue', 'survival_to_next'],
+    note: 'THE ONLY PANEL THAT ACTS ON MY OWN LIST rather than the model\'s. It '
+      + 'is small and it earns its space.' },
+  { fn: 'renderMovementLine', weight: 'TIMES', lines: null,
+    question: 'Did the recommendation change since my last look?',
+    means: 'A diff of this pick\'s top against the previous pick\'s — moved, '
+      + 'nearly moved, or held.',
+    changes_it: 'any pick that re-scores the board',
+    reads: ['state.movement'] },
+  { fn: 'renderStackLine', weight: 'TIMES', lines: null,
+    question: 'Would this pick complete a QB-receiver stack I already own?',
+    means: 'Live stack routes off my roster and the scored board — a correlation '
+      + 'note, not a scoring term.',
+    changes_it: 'me taking a QB or a pass-catcher',
+    reads: ['E.liveStackRoutes', 'roster'] },
+  { fn: 'renderShadowProjection', weight: 'TIMES', lines: null,
+    question: 'Where would each strategy have me end up?',
+    means: 'The alternative strategies projected forward from the LIVE board, so '
+      + 'it is populated at every pick rather than only after a rebuild.',
+    changes_it: 'any pick; the board rebuilding',
+    reads: ['DraftShadows', 'state.board'] },
+  { fn: 'renderShadowStrip', weight: 'TIMES', lines: null,
+    question: 'How do the strategies compare, in one line?',
+    means: 'The same shadow strategies collapsed to a strip.',
+    changes_it: 'a rebuild re-running the race',
+    reads: ['state.shadows'],
+    note: 'DUPLICATES renderShadowProjection at a different size — the same '
+      + 'pattern as renderThreats/renderThreatStrip. Two of these pairs on one '
+      + 'screen is a large part of what "super busy yet very little info" is.' },
+
+  // ── TRUSTS ────────────────────────────────────────────────────────────
+  { fn: 'renderConfidence', weight: 'TRUSTS', lines: null,
+    question: 'How sure is the model about this pick?',
+    means: 'Coin-flip / close / clear, from the gap between the top two. Silent '
+      + 'when the gap is clear, so seeing it at all means take care.',
+    changes_it: 'the gap between the top two candidates',
+    reads: ['E.confidence'],
+    note: 'SILENT WHEN CLEAR is the right design and makes it easy to miss '
+      + 'that it is a TRUSTS panel rather than decoration.' },
+  { fn: 'renderProvenance', weight: 'TRUSTS', lines: null,
+    question: 'Where did these numbers come from, and are any of them stale?',
+    means: 'Build age, sources, and any recomputation the board did to itself.',
+    changes_it: 'the nightly rebuild; the slot being recomputed',
+    reads: ['draft_data.provenance'] },
+  { fn: 'renderStatusBar', weight: 'TRUSTS', lines: null,
+    question: 'Am I on the clock, and is this board connected?',
+    means: 'Current pick, my next turn, and whether sync is live.',
+    changes_it: 'any pick; sync connecting or dropping',
+    reads: ['pickState', 'state.sync'] },
+  { fn: 'renderSyncAge', weight: 'TRUSTS', lines: null,
+    question: 'How old is the last sync?',
+    means: 'Seconds since Sleeper was last read. A board that stopped updating '
+      + 'looks exactly like a room that stopped picking.',
+    changes_it: 'every sync; the network dropping',
+    reads: ['state.sync.lastSyncAt'],
+    note: 'THE SINGLE MOST INVALIDATING NUMBER ON THE PAGE and it renders as '
+      + 'small grey text.' },
+  { fn: 'renderReconcile', weight: 'TRUSTS', lines: null,
+    question: 'Does the board agree with the room about what has happened?',
+    means: 'A mismatch between the recorded slate and the live draft. When it '
+      + 'halts, every number below it is derived from a slate known to be wrong.',
+    changes_it: 'a pick the board missed; a keeper mismatch',
+    reads: ['state.reconcile'],
+    note: 'THE ONE PANEL THAT CAN STOP THE BOARD — renderRecommendations refuses '
+      + 'to draw while it halts. That relationship should be visible.' },
+  { fn: 'renderKeeperLock', weight: 'TRUSTS', lines: null,
+    question: 'Are my keepers final?',
+    means: 'Whether the keeper slate is locked or still predicted. Lock is 08-20.',
+    changes_it: 'keeper lock; the predicted slate going stale',
+    reads: ['state.keeperLock'],
+    note: 'SUPPRESSED IN A MOCK ON PURPOSE — a banner you learn to scroll past '
+      + 'is worse than no banner, and this is the one that must land on 08-20.' },
+  { fn: 'renderRehearsalKeeperNote', weight: 'TRUSTS', lines: null,
+    question: 'Which keepers did rehearsal mode take off the board?',
+    means: 'The players a rehearsal removed, so a mock board is never mistaken '
+      + 'for the real pool.',
+    changes_it: 'entering rehearsal; the keeper slate changing',
+    reads: ['state.rehearsalKeepers'] },
+  { fn: 'renderOverrideCount', weight: 'TRUSTS', lines: null,
+    question: 'How much of this board is me rather than the model?',
+    means: 'How many manual overrides are active. Hidden at zero.',
+    changes_it: 'me overriding something; me clearing one',
+    reads: ['state overrides'] },
+  { fn: 'renderSearchTail', weight: 'TRUSTS', lines: null,
+    question: 'The man I searched for — is he already gone, and to whom?',
+    means: 'For a search hit, whether he is drafted and which roster holds him.',
+    changes_it: 'the search box; any pick',
+    reads: ['state.search', 'state.rosters'],
+    note: 'ANSWERS THE QUESTION A SEARCH IS USUALLY ASKED — "is he still there" — '
+      + 'and only appears while searching, which is right.' },
+
+  // ── CONTEXT ───────────────────────────────────────────────────────────
+  { fn: 'renderClock', weight: 'CONTEXT', lines: null,
+    question: 'Give me the stripped-down on-the-clock view.',
+    means: 'A mode switch, not a panel: it hides the recommendations card and '
+      + 'the branch card in favour of a single clock view.',
+    changes_it: 'me toggling clock mode',
+    reads: ['state.clockMode'],
+    note: 'A SECOND ANSWER TO "the screen is too busy", built before MVS and '
+      + 'overlapping it. Two competing minimal views is one too many.' },
+  { fn: 'renderRuleHeadline', weight: 'CONTEXT', lines: null,
+    question: 'What does the needs-based rule say, in one line?',
+    means: 'A one-line headline from the need rule, sitting above the '
+      + 'recommendations it does not produce.',
+    changes_it: 'my roster filling a slot',
+    reads: ['DraftNeedRule'],
+    note: 'RANKS BY A DIFFERENT QUANTITY than the panel underneath it — the rule '
+      + 'is market-ordered and the recommendations are model-ordered, and they '
+      + 'disagree about 11 times in 12. Two headlines that disagree, adjacent, '
+      + 'is a large part of "I don\'t know what it\'s telling me".' },
+  { fn: 'renderCompareTray', weight: 'CONTEXT', lines: null,
+    question: 'How do these two players actually differ?',
+    means: 'A side-by-side of two chosen players with the dollar-gap breakdown.',
+    changes_it: 'me picking two to compare; the board changing',
+    reads: ['state.compare', 'E.dollarGap'],
+    note: 'THE INTERACTIVE TOOL CORY ASKED FOR ("I can click for more info") and '
+      + 'it already exists — it just needs a way in from the rec cards.' },
+  { fn: 'renderDeviationBadge', weight: 'CONTEXT', lines: null,
+    question: 'Why is this pick so far from where the market has him?',
+    means: 'When a recommendation departs from ADP, which scoring terms bought '
+      + 'the distance, each with its size and class.',
+    changes_it: 'the gap between our score and market ADP',
+    reads: ['DraftDeviation', 'components'],
+    note: 'THE BEST EXPLAIN-YOURSELF SURFACE IN THE APP and it renders as a '
+      + 'badge. This is the "pros and cons of the options" Cory asked for.' },
+  { fn: 'renderDoctrine', weight: 'CONTEXT', lines: null,
+    question: 'Which strategy is the board following?',
+    means: 'The enrolled doctrine and what it is tilting toward.',
+    changes_it: 'a rebuild re-running the race; me switching manually',
+    reads: ['DraftDoctrine', 'scored'] },
+  { fn: 'renderDoctrinePicker', weight: 'CONTEXT', lines: null,
+    question: 'Can I change the strategy myself?',
+    means: 'The always-visible doctrine chooser. A manual choice re-tilts the '
+      + 'scoring exactly as an auto-enrolled one does.',
+    changes_it: 'me choosing a doctrine',
+    reads: ['state.doctrine'],
+    note: 'CONTEXT BY CONTENT, DECIDES BY CONSEQUENCE — choosing here re-scores '
+      + 'the whole board. Cory asked for it always visible and compact.' },
+  { fn: 'renderDoctrineSwitch', weight: 'CONTEXT', lines: null,
+    question: 'Did the model just change its mind about the strategy?',
+    means: 'An announcement when the doctrine switches, with the option to '
+      + 'decline it. Leaves any prior announcement standing.',
+    changes_it: 'the doctrine switching mid-draft',
+    reads: ['doctrine switch output'] },
+  { fn: 'renderPresets', weight: 'CONTEXT', lines: null,
+    question: 'How is the model weighted, and can I change it?',
+    means: 'The weight presets plus the auto-reweighting toggle.',
+    changes_it: 'me choosing a preset; auto-weights adjusting by round',
+    reads: ['E.WEIGHT_PRESETS', 'state.weights'] },
+  { fn: 'renderAutoNote', weight: 'CONTEXT', lines: null,
+    question: 'Why did the weights just move?',
+    means: 'When auto-weighting is on, the phase and round it adjusted for and '
+      + 'the reasons. Blank when auto is off.',
+    changes_it: 'the round advancing; auto-weights being toggled',
+    reads: ['state.autoWeights'] },
+  { fn: 'renderBaselineControl', weight: 'CONTEXT', lines: null,
+    question: 'How do I get back to the measured settings?',
+    means: 'A restore button for the frozen measured core, stamped with the date '
+      + 'it was frozen.',
+    changes_it: 'me changing weights away from the baseline',
+    reads: ['state.frozenBaseline'],
+    note: 'THE UNDO FOR EVERY SLIDER ON THE PAGE. Worth being findable from '
+      + 'wherever the sliders are.' },
 ];
 
 const ORDER = ['DECIDES', 'TIMES', 'TRUSTS', 'CONTEXT'];

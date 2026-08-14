@@ -38,18 +38,41 @@ const ck = (n, c, d) => {
   else { fail++; console.log('FAIL  ' + n + (d !== undefined ? '  — ' + String(JSON.stringify(d)).slice(0, 300) : '')); }
 };
 
-/* WHAT ACTUALLY PAINTS, read from `renderAll` itself rather than from a list
- * somebody maintains. A hand-kept list of panels is the thing this test exists
- * to prevent, so it must not depend on one. */
+/* WHAT ACTUALLY PAINTS, read from the source rather than from a list somebody
+ * maintains. A hand-kept list of panels is the thing this test exists to
+ * prevent, so it must not depend on one.
+ *
+ * ── THE FIRST VERSION OF THIS EXTRACTION HID 29 PANELS (2026-08-14) ────────
+ *
+ * It read `renderAll`'s body for `/render[A-Za-z]+\(\)/` — zero-argument calls,
+ * in one function. Every panel drawn as a SUB-PANEL (renderPaths, renderTiming,
+ * renderBestAvailStrip and the rest are called from renderRecommendations) or
+ * taking any argument at all was invisible to it. The spec described 25 panels
+ * while 54 painted, and BOTH DIRECTIONS of the check below passed the whole
+ * time, because the missing ones were missing from the comparison too.
+ *
+ * SO THE DOCUMENT WRITTEN TO CLOSE THIS EXACT GAP SHIPPED WITH THE GAP IN IT,
+ * and the guard could not see it — a test whose input is narrower than its
+ * claim. `renderPaths` was in the hidden set: the strategy cards Cory was
+ * describing when he asked for the spec.
+ *
+ * Now: every `render*` function DEFINED in app.js that is also CALLED somewhere
+ * in it. Definition and call are both required — a defined-but-uncalled
+ * function is dead code and describing it would send B to lay out nothing. */
 const painted = (function () {
-  const i = SRC.indexOf('function renderAll(');
-  const body = SRC.slice(i, SRC.indexOf('\n  }', i));
-  return Array.from(new Set((body.match(/render[A-Za-z]+\(\)/g) || [])
-    .map(s => s.replace('()', '')))).filter(n => n !== 'renderAll');
+  const defined = Array.from(SRC.matchAll(/^  function (render[A-Za-z]+)\(/gm)).map(m => m[1]);
+  const called = new Set(Array.from(SRC.matchAll(/\b(render[A-Za-z]+)\(/g)).map(m => m[1]));
+  return defined.filter(n => n !== 'renderAll' && called.has(n));
 })();
 
-ck('renderAll is locatable and paints a real number of panels',
-  painted.length >= 20, painted.length);
+ck('the panel inventory is locatable and finds a real number of panels',
+  painted.length >= 40, painted.length);
+ck('CONTROL — the extraction sees panels the OLD one could not, or this file is '
+  + 'still asking the narrow question it asked before',
+  painted.indexOf('renderPaths') >= 0 && painted.indexOf('renderTiming') >= 0
+    && painted.indexOf('renderBestAvailStrip') >= 0);
+ck('and it does not describe dead code — every panel found is really called',
+  painted.every(n => new RegExp('[^a-zA-Z]' + n + '\\(').test(SRC)));
 
 // ── 1. BOTH DIRECTIONS, WHICH IS THE WHOLE POINT ────────────────────────
 {
