@@ -1740,6 +1740,29 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/nflverse_pace.py": {
+   "tests": [
+    "draft/tests/test_nflverse_pace.py"
+   ],
+   "mutations": [
+    {
+     "old": "            \"games_with_plays\": len(a[\"games_with_plays\"]),\n            # NAMED, not left to be derived by subtraction",
+     "new": "            \"games_with_plays\": g,\n            # NAMED, not left to be derived by subtraction",
+     "must_fail": [
+      "test_THE_GAME_COUNT_AND_THE_PLAY_COUNT_COME_FROM_DIFFERENT_FILTERS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if gid is not None and gid == gid:\n            a[\"games_with_plays\"].add(str(gid))",
+     "new": "        pass",
+     "must_fail": [
+      "test_THE_GAME_COUNT_AND_THE_PLAY_COUNT_COME_FROM_DIFFERENT_FILTERS"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

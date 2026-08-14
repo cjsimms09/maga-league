@@ -103,7 +103,23 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
         if not team or team != team:                 # None or NaN
             continue
         a = agg.setdefault(str(team), {"plays": 0, "passes": 0, "games": set(),
-                                       "n_plays": 0, "n_passes": 0})
+                                       "n_plays": 0, "n_passes": 0,
+                                       # ⚠ THE SAME GAMES, COUNTED AFTER THE PLAY
+                                       # FILTERS. `games` is added before the
+                                       # SCRIMMAGE and kneel/spike filters, so a
+                                       # game contributing only special-teams rows
+                                       # for this team sits in the DENOMINATOR of
+                                       # `plays_per_game` and not in the numerator
+                                       # — A's criterion 1, found by saying the
+                                       # ratio out loud. On real pbp the two are
+                                       # expected identical; expected is what must
+                                       # not be relied on, and the pbp pull is
+                                       # egress-blocked from the sandbox so I
+                                       # cannot measure it. Reported rather than
+                                       # silently corrected: if these ever differ
+                                       # the denominator is wrong and
+                                       # `plays_per_game` is understated.
+                                       "games_with_plays": set()})
         gid = r.get("game_id")
         if gid is not None and gid == gid:
             a["games"].add(str(gid))
@@ -113,6 +129,8 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
         if _truthy(r.get("qb_kneel")) or _truthy(r.get("qb_spike")):
             continue
         a["plays"] += 1
+        if gid is not None and gid == gid:
+            a["games_with_plays"].add(str(gid))
         if pt == "pass":
             a["passes"] += 1
         diff = r.get("score_differential")
@@ -132,6 +150,8 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
             # A NUMBER OFF ONE GAME RANKS BESIDE ONE OFF SEVENTEEN and nothing in
             # the value says which is which.
             out[team] = {"plays": a["plays"], "games": g, "status": "unmeasurable",
+                         "games_with_plays": len(a["games_with_plays"]),
+                         "games_without_plays": g - len(a["games_with_plays"]),
                          "plays_per_game": None, "neutral_plays_per_game": None,
                          "neutral_share": None, "pass_rate": None,
                          "neutral_pass_rate": None,
@@ -139,6 +159,11 @@ def team_pace(pbp, seasons, *, before_season=None, min_games=MIN_GAMES,
             continue
         out[team] = {
             "plays": a["plays"], "games": g, "status": "measured",
+            "games_with_plays": len(a["games_with_plays"]),
+            # NAMED, not left to be derived by subtraction — a reader should not
+            # have to spot the gap to know the ratio below is over the wrong
+            # denominator.
+            "games_without_plays": g - len(a["games_with_plays"]),
             "plays_per_game": round(a["plays"] / g, 3),
             "neutral_plays_per_game": round(a["n_plays"] / g, 3),
             # The GAP is the interesting quantity: a low neutral share means the raw
