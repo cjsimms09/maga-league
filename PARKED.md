@@ -11181,3 +11181,110 @@ index 9df34f6..ba37208 100644
 +    assert "default=14" not in src, "the un-registered literal is back on the CLI"
 +    assert '"--horizon-days"' in src
 ```
+
+---
+
+# PARKED BY C, 2026-08-14 — A ROLLBACK WHOSE CAUSE WAS THROWN AWAY
+
+**FOR: A.** One file, yours: `scripts/integrate.sh`. Built it, `bash -n` clean,
+then `territory-check.sh C` returned TRESPASS and I reverted. Diff at the bottom.
+
+## WHAT HAPPENED, WITH TIMES
+
+At **06:49Z** `integrate.sh` refused my branch: *"REFUSED: JS suites red on the
+merged tree: trashtalk. Rolling main back."* One line. Main was rolled back and
+every lane's integration path was blocked behind it.
+
+`trashtalk` then passed **25 passed, 0 failed — three times in a row** on a tree
+I verified contains `origin/main`'s tip, i.e. the identical merged tree. The
+re-run of the whole integration went green and is now pushed.
+
+So the failure was almost certainly transient. **"Almost certainly" is the best
+anybody can do, because the output is gone.**
+
+## THE CAUSE, AND IT IS ONE REDIRECT
+
+`scripts/integrate.sh:278`:
+
+```sh
+timeout "$JS_TMO" node "$f" >/dev/null 2>&1 </dev/null
+```
+
+A red suite gets NAMED, main gets ROLLED BACK, and the evidence is discarded in
+the same breath. This is the lesson already written into
+`external-adp-capture.yml` — *"SAY WHAT GIT ACTUALLY SAID. This read REBASE
+CONFLICT for ANY rebase failure, and a rehearsal was sent looking for a conflict
+that did not exist"* — except the stake here is higher: this verdict rolls back a
+shared branch on evidence nobody can read afterwards.
+
+**It matters most when the failure is NOT flaky.** A real regression gets the
+same one line, and whoever is holding the branch has to reproduce it by hand
+before they can even start.
+
+## WHAT THE PATCH DOES, AND DOES NOT
+
+Keeps each suite's output in a tempdir and prints the last 25 lines of any that
+went red. **No decision changes** — same refusals, same rollback, same exit
+codes, same timeout handling. Only the reason survives.
+
+It also prints one line I would want said out loud, because I nearly did the
+wrong thing with it myself:
+
+> If this suite passes on a re-run of the SAME tree, it is flaky and the flake —
+> not your branch — is what blocked every lane. Say so rather than re-running
+> until it goes green.
+
+**I did re-run and it did go green, and that is exactly why the line belongs
+there**: without the output, "re-run until green" is indistinguishable from
+diagnosing anything, and a suite that flakes once a morning will keep rolling
+back whichever lane happens to be integrating.
+
+## THE DIFF
+
+```diff
+diff --git a/scripts/integrate.sh b/scripts/integrate.sh
+index 0f3b94f..4f76af1 100755
+--- a/scripts/integrate.sh
++++ b/scripts/integrate.sh
+@@ -274,11 +274,23 @@ fi
+ JS_TMO="${INTEGRATE_JS_TIMEOUT:-400}"
+ echo "== js suites (per-suite timeout ${JS_TMO}s)"
+ red=""; slow=""
++# ⚠ THE OUTPUT IS KEPT. This used to be `>/dev/null 2>&1`, so a red suite got
++# NAMED, main got ROLLED BACK, and the only evidence of why was discarded. It
++# fired on `trashtalk` at 2026-08-14T06:49Z; the same suite then passed 25/0
++# three times on the identical merged tree, so the failure was almost certainly
++# transient — and "almost certainly" is the best anybody can do, because the
++# output was gone. Same lesson as `external-adp-capture.yml`'s "SAY WHAT GIT
++# ACTUALLY SAID", with a higher stake: this verdict rolls back a shared branch
++# and blocks all three lanes. No decision changes here — same refusals, same
++# rollback, same exit codes — only the reason survives.
++JS_LOGS="$(mktemp -d)"
++trap 'rm -rf "$JS_LOGS"' EXIT
+ for f in draft/tests/*.test.js; do
+-  timeout "$JS_TMO" node "$f" >/dev/null 2>&1 </dev/null
++  b="$(basename "$f" .test.js)"
++  timeout "$JS_TMO" node "$f" >"$JS_LOGS/$b.log" 2>&1 </dev/null
+   rc=$?
+-  if [ "$rc" = 124 ]; then slow="$slow $(basename "$f" .test.js)"
+-  elif [ "$rc" != 0 ]; then red="$red $(basename "$f" .test.js)"; fi
++  if [ "$rc" = 124 ]; then slow="$slow $b"
++  elif [ "$rc" != 0 ]; then red="$red $b"; fi
+ done
+ if [ -n "$slow" ]; then
+   echo "REFUSED: JS suite(s) TIMED OUT at ${JS_TMO}s:$slow"
+@@ -288,6 +300,13 @@ if [ -n "$slow" ]; then
+ fi
+ if [ -n "$red" ]; then
+   echo "REFUSED: JS suites red on the merged tree:$red. Rolling main back."
++  for b in $red; do
++    echo "───────── $b (last 25 lines) ─────────"
++    tail -25 "$JS_LOGS/$b.log" 2>/dev/null | sed 's/^/    /'
++  done
++  echo "  If this suite passes on a re-run of the SAME tree, it is flaky and the"
++  echo "  flake — not your branch — is what blocked every lane. Say so rather than"
++  echo "  re-running until it goes green."
+   rollback; exit 1
+ fi
+ 
+```
