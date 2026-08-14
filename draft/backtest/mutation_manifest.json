@@ -1040,6 +1040,54 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/external_adp_consensus.py": {
+   "tests": [
+    "draft/tests/test_external_adp_consensus.py"
+   ],
+   "mutations": [
+    {
+     "old": "        slots = sorted(float(a) for pid, a in (anchor or {}).items()\n                       if (positions or {}).get(str(pid)) == pos and a is not None)",
+     "new": "        slots = sorted(r[\"consensus\"] * 100 for r in rows\n                       if r.get(\"consensus\") is not None)",
+     "must_fail": [
+      "test_a_SUPERFLEX_SOURCE_CANNOT_MOVE_WHEN_A_POSITION_GOES",
+      "test_THE_LIVE_PICK_SCALE_IS_THE_ANCHORS_and_the_superflex_QBs_do_not_leak"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    ws = list(weights) or [1.0] * len(values)\n    if len(set(ws)) <= 1:\n        return round(median(values), 6)\n    pairs = sorted(zip(values, ws))\n    total = sum(w for _, w in pairs)\n    if total <= 0:\n        return round(median(values), 6)\n    acc = 0.0\n    for i, (v, w) in enumerate(pairs):\n        acc += w\n        if acc > total / 2.0:\n            return round(v, 6)\n        if acc == total / 2.0:",
+     "new": "    ws = list(weights) or [1.0] * len(values)\n    pairs = sorted(zip(values, ws))\n    total = sum(w for _, w in pairs)\n    if total <= 0:\n        return round(median(values), 6)\n    acc = 0.0\n    for i, (v, w) in enumerate(pairs):\n        acc += w\n        if acc >= total / 2.0:\n            return round(v, 6)\n        if False:",
+     "must_fail": [
+      "test_the_CONTAMINATED_SOURCE_STILL_GETS_A_VOTE_ON_ORDER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                if n > 1:\n                    fracs.append((r - 1) / (n - 1))",
+     "new": "                if n >= 1:\n                    fracs.append((r - 1) / max(n - 1, 1))",
+     "must_fail": [
+      "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                    fracs.append((r - 1) / (n - 1))",
+     "new": "                    fracs.append(float(r))",
+     "must_fail": [
+      "test_RANK_IS_A_FRACTION_OF_THE_SOURCES_OWN_DEPTH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if pos not in POSITIONS or adp is None:\n            continue",
+     "new": "        if adp is None:\n            continue\n        pos = pos or \"UNK\"",
+     "must_fail": [
+      "test_a_PLAYER_WITH_NO_POSITION_is_dropped_rather_than_bucketed"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
