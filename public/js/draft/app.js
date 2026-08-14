@@ -3828,8 +3828,28 @@
       + '<div class="cmp-bars">' + bar + '</div>'
       + '<details class="cmp-why"><summary>Why? — the derivation</summary>'
         + '<div class="cmp-why-body">' + escapeHtml(g.terms.note)
-        + '<br>' + escapeHtml(a.name) + ': high $' + g.terms.A.dollars.high + ' · entry $' + g.terms.A.dollars.entry + ' · RS $' + g.terms.A.dollars.rs
-        + '<br>' + escapeHtml(b.name) + ': high $' + g.terms.B.dollars.high + ' · entry $' + g.terms.B.dollars.entry + ' · RS $' + g.terms.B.dollars.rs
+        /* ⚠ `entry` AND `RS` ARE ONE SIGNAL, NOT TWO, AND THIS LINE USED TO
+         * SHOW THEM AS TWO. Both are a constant times proj_mean
+         * (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their ratio is EXACTLY 1.6 for
+         * every player, always — measured across the live board and identical
+         * to three decimals on every row.
+         *
+         * They are genuinely different pots of money, so the amounts are real
+         * and stay. What is false is the READING: a decomposition printed as
+         * three terms invites "entry favours him AND RS favours him" as two
+         * confirmations, when it is one number counted twice. Only `high`
+         * (which prices ceiling-over-mean) carries independent information.
+         *
+         * So the two mean-driven pots are shown as ONE season line with the
+         * split named as the fixed ratio it is. */
+        + '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
+          + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
+          + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
+        + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
+          + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
+          + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
+        + '<br><span class="muted">boom is the only term with independent information: '
+          + 'entry and RS are both a constant times the projection, so they always move together.</span>'
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
       + '</div>';
