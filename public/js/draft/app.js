@@ -3799,8 +3799,31 @@
     const b = playerById(state.compare[1]);
     if (!a || !b) { host.style.display = 'none'; return; }
     const g = E.dollarGap(a, b, context());
-    // The breakdown bar: signed contributions, gold for money.
-    const parts = [['high-pool', g.high], ['top-4 entry', g.entry], ['RS', g.rs], ['next-pick echo', g.echo]];
+    /* ⚠ THE VISIBLE BAR SHOWED ONE SIGNAL AS TWO — AND I HAD ALREADY FIXED THAT
+     * TEN LINES BELOW, IN THE PART YOU HAVE TO CLICK TO SEE (2026-08-14).
+     *
+     * This read `[['high-pool', g.high], ['top-4 entry', g.entry], ['RS', g.rs],
+     * ['next-pick echo', g.echo]]` — four bars. `entry` and `rs` are both a
+     * constant times proj_mean (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their
+     * DIFFERENCE carries the same ratio: measured over 40 real pairs off the live
+     * board, `entry_diff / rs_diff` deviates from exactly 1.6 by 1.7e-14, and the
+     * two bars point the SAME DIRECTION IN 39 OF 39 cases where rs is non-zero.
+     * They cannot disagree; it is arithmetically impossible.
+     *
+     * So a reader comparing Gibbs to Jefferson saw `high-pool +16.7 · top-4 entry
+     * +8.7 · RS +5.4` and read THREE independent reasons pointing the same way.
+     * There are two, and one of them is counted twice — the same false reading
+     * the `<details>` body below was rewritten to remove. **I fixed the
+     * explanation and left the chart**, which is the worse half: the chart is
+     * always visible and the explanation is behind a toggle.
+     *
+     * The money is real and both pots exist, so the AMOUNT is unchanged — the two
+     * mean-driven pots are summed into one `season` bar with the fixed split
+     * named, exactly as the text below already does. Only `high` (ceiling over
+     * mean) and `echo` (the next-pick consequence) are independent of it. */
+    const season = Math.round((g.entry + g.rs) * 10) / 10;
+    const parts = [['high-pool (boom)', g.high], ['season (entry+RS, fixed 1.6:1)', season],
+      ['next-pick echo', g.echo]];
     const maxMag = Math.max(1, ...parts.map(p => Math.abs(p[1])));
     const bar = parts.map(function (p) {
       const w = Math.round((Math.abs(p[1]) / maxMag) * 100);

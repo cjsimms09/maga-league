@@ -104,6 +104,67 @@ const ck = (n, c, d) => {
     !/high \$' \+ g\.terms\.A\.dollars\.high \+ ' · entry \$/.test(app));
 }
 
+// ── 3b. AND SO DOES THE CHART, WHICH IS THE HALF I MISSED ───────────────
+/* SECTION 3 ABOVE GUARDS THE `<details>` BODY — the part a reader has to CLICK.
+ * The breakdown bar directly above it, which is always visible, still plotted
+ * `high-pool · top-4 entry · RS · next-pick echo` as four independent rows. I
+ * fixed the explanation and left the chart, and the chart is the worse half.
+ *
+ * THE BARS CANNOT DISAGREE. `entry` and `rs` are each a constant times mean, so
+ * their DIFFERENCE carries the same fixed ratio — measured below on real pairs —
+ * and the two bars therefore always point the same way, in fixed 1.6:1 lengths.
+ * A reader comparing Gibbs to Jefferson saw `+16.7 · +8.7 · +5.4` and counted
+ * three reasons agreeing. There are two. */
+{
+  const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 'utf8');
+  ck('the visible breakdown bar collapses the two mean-driven pots into one row',
+    /\['season \(entry\+RS, fixed 1\.6:1\)', season\]/.test(app));
+  ck('and the row is the SUM, so no money vanishes from the chart',
+    /const season = Math\.round\(\(g\.entry \+ g\.rs\) \* 10\) \/ 10;/.test(app));
+  /* SCOPED TO THE LIVE STATEMENT, NOT THE FILE. My first version asserted the old
+   * form was absent from `app.js` — and it matched MY OWN QUOTATION of it inside
+   * the comment that retracts it. That is the second time this exact trap has
+   * caught me (see board_publish_gate.test.js), and the resolution is the same:
+   * deleting the history to satisfy a regex makes the file worse, because the
+   * next reader needs to know what the chart used to say and why it was false.
+   * So what must be true is that the ASSIGNMENT is the new form. */
+  const partsStmt = (function () {
+    const i = app.indexOf('const parts = [');
+    return i < 0 ? '' : app.slice(i, app.indexOf('\n', app.indexOf('echo', i)));
+  })();
+  ck('CONTROL — the parts assignment is locatable', partsStmt.length > 20, partsStmt.length);
+  ck('FAIL ARM — the old four-row form is gone from the ASSIGNMENT (it survives '
+    + 'only as the quoted, retracted comment above it)',
+  !/\['top-4 entry', g\.entry\]/.test(partsStmt) && !/\['RS', g\.rs\]/.test(partsStmt),
+  partsStmt.slice(0, 200));
+  ck('and the retraction is recorded rather than the history being deleted',
+    /I fixed the\s*\*? ?\n?\s*\* ?explanation and left the chart/.test(app)
+      || /fixed the explanation and left the chart/.test(app.replace(/\s+/g, ' ')));
+  ck('the independent terms are still charted separately — collapsing everything '
+    + 'would destroy the decomposition rather than fix it',
+  /'high-pool \(boom\)', g\.high/.test(app) && /'next-pick echo', g\.echo/.test(app));
+
+  /* THE MEASUREMENT THE FIX RESTS ON, re-derived rather than quoted. */
+  const pool = B.players.filter(p => p.proj_mean != null && p.adp != null)
+    .sort((a, b) => a.adp - b.adp).slice(0, 60);
+  let pairs = 0, sameDir = 0, worst = 0;
+  for (let i = 0; i + 8 < pool.length && i < 40; i++) {
+    const da = E.playerDollars(pool[i]), db = E.playerDollars(pool[i + 8]);
+    const e = da.entry - db.entry, r = da.rs - db.rs;
+    if (Math.abs(r) < 1e-12) continue;
+    pairs++;
+    if (Math.sign(e) === Math.sign(r)) sameDir++;
+    worst = Math.max(worst, Math.abs(e / r - E.CFG.DG_ENTRY_K / E.CFG.DG_RS_K));
+  }
+  ck('CONTROL — enough real pairs to measure the bars against', pairs >= 20, pairs);
+  ck('the two bars point the same direction in EVERY pair — they are arithmetically '
+    + 'incapable of disagreeing, which is why showing them as two is a false reading',
+  sameDir === pairs, { same: sameDir, of: pairs });
+  ck('and their length ratio is the constant, not merely close to it — the [1.0, '
+    + '2.0] spread visible in `dollarGap` output is one-decimal ROUNDING, not '
+    + 'variation in the underlying quantity', worst < 1e-9, worst);
+}
+
 // ── 4. WHAT THIS DOES NOT CLAIM ─────────────────────────────────────────
 // The amounts are not being called wrong, and this must not read as if they are.
 {

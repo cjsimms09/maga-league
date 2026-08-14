@@ -169,9 +169,61 @@ passed. **Rendering that is B's, and it is routed.**
 
 ---
 
+---
+
+## Two more, audited 2026-08-14
+
+### 5. The legality strip
+
+**IS:** which starting slots your roster fills, and — for slots that are *not*
+streamable — whether the picks remaining can still fill them.
+
+**IS NOT:** a statement about your week-1 lineup. **The draft is not the lineup
+deadline.** The draft is 22 August and week 1 is mid-September, so an empty DEF
+or K at the final pick is filled off the wire in between; `exitSummary` already
+emits that as the plan ("claim Tuesday; wire targets pre-loaded"). This is why an
+open onesie **never** reads ILLEGAL however few picks remain, and that rule is
+correct rather than merely preferred.
+
+**IT IS NOT FREE, THOUGH, AND THE STRIP DOES NOT SAY SO.** The roster is 15
+(9 starters + 6 bench), so claiming two onesies into a full roster costs two
+drops. `priceOnesie` prices exactly that — "the bench slot is the real cost" —
+but the strip does not surface it.
+
+**WHAT WAS ACTUALLY BROKEN:** the hard branch of the line appended `· N picks
+left`; **the streamable branch appended nothing.** So DEF/K open produced the
+identical sentence at twelve picks left and at zero. On Cory's real board that
+same text appeared at picks 88, 93, 108, 113, 128 and 133 while the count ran 7
+down to 2. The clock is now on both branches, and `softCount` / `onesieSqueeze`
+are published so a consumer can tell the endgame from the middle without
+recomputing it. **The status enum is untouched** — four `PROTECTED` assertions in
+`legality.test.js` now stop a future reader "fixing" the rule on the same wrong
+intuition I had.
+
+### 6. The dollar-gap hero line (the compare tray)
+
+**IS:** two players priced against each other in the same rough dollars as §3,
+plus a **next-pick echo** — what taking A costs you at B's position by your next
+turn, minus the symmetric cost.
+
+**IS NOT:** a decomposition into independent reasons. **`entry` and `rs` are one
+signal, and the always-visible bar chart plotted them as two bars until today.**
+Measured over 40 real pairs on the live board: `entry_diff / rs_diff` deviates
+from exactly 1.6 by **1.7e-14**, and the two bars point the same direction in
+**39 of 39** cases. They are arithmetically incapable of disagreeing, so a reader
+seeing `high-pool +16.7 · top-4 entry +8.7 · RS +5.4` counted three agreeing
+reasons where there are two.
+
+**THIS IS THE SAME DEFECT AS §3 AND I HAD ALREADY FIXED HALF OF IT.** The
+`<details>` body was rewritten to one season line; the chart ten lines above it
+was not. **The half I fixed is the half you have to click.** Now one `season`
+bar carrying the sum, with the fixed split named.
+
+---
+
 ## What I have NOT audited yet
 
-The dollar-gap hero line, the legality strip, the LRM strip, the stack card, the
-movement line, the shadow projection, and the manager panel. Named so this
-document cannot read as a completed sweep. Roughly 20 more surfaces carry a
-number; four are covered here because those four decide a pick.
+The LRM strip, the stack card, the movement line, the shadow projection, and the
+manager panel. Named so this document cannot read as a completed sweep. Roughly
+20 more surfaces carry a number; six are covered here — four because they decide
+a pick, and two added after the audit reached them.

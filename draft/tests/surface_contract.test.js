@@ -221,15 +221,75 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     E.CFG.PATHS_MAX === 4 && /up to four \*directions\*/.test(doc), E.CFG.PATHS_MAX);
 }
 
+// ── 6b. THE TWO SURFACES ADDED TODAY, RE-DERIVED ────────────────────────
+{
+  const L = require(path.join(ROOT, 'public', 'js', 'draft', 'legality.js'));
+  const S = { DEF: 1, FLEX: 1, K: 1, QB: 1, RB: 2, TE: 1, WR: 2 };
+  const mk = (pos, i) => ({ player_id: 'x' + pos + i, name: pos + i, position: pos });
+  const onesiesOpen = [mk('QB', 1), mk('RB', 1), mk('RB', 2), mk('WR', 1), mk('WR', 2),
+    mk('TE', 1), mk('RB', 3)];
+
+  ck('the document\'s claim that an open onesie never reads ILLEGAL is TRUE of '
+    + 'the shipped module, at zero picks left',
+  L.assess(onesiesOpen, S, 0).status === 'streamable',
+  L.assess(onesiesOpen, S, 0).status);
+  ck('and the picks-left clock the document says was missing is now on the '
+    + 'streamable line', /0 picks left/.test(L.assess(onesiesOpen, S, 0).line),
+  L.assess(onesiesOpen, S, 0).line);
+  ck('the squeeze flag the document names actually exists and is signed correctly',
+    L.assess(onesiesOpen, S, 8).onesieSqueeze === false
+      && L.assess(onesiesOpen, S, 2).onesieSqueeze === true);
+  ck('the document states the draft is not the lineup deadline, which is the '
+    + 'mechanism that makes the rule right rather than merely chosen',
+  /draft is not the lineup deadline/i.test(doc));
+  ck('and prices the cost it does carry rather than calling it free',
+    /costs two\s*drops/.test(doc) || /costs two drops/.test(doc));
+
+  /* THE GAP CHART. The claim is that two of its terms cannot disagree — asserted
+   * against the engine, not against the sentence in the document. */
+  const pool = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'))
+    .players.filter(p => p.proj_mean != null && p.adp != null)
+    .sort((a, b) => a.adp - b.adp).slice(0, 60);
+  let pairs = 0, sameDir = 0, worst = 0;
+  for (let i = 0; i + 8 < pool.length && i < 40; i++) {
+    const da = E.playerDollars(pool[i]), db = E.playerDollars(pool[i + 8]);
+    const e = da.entry - db.entry, r = da.rs - db.rs;
+    if (Math.abs(r) < 1e-12) continue;
+    pairs++;
+    if (Math.sign(e) === Math.sign(r)) sameDir++;
+    worst = Math.max(worst, Math.abs(e / r - E.CFG.DG_ENTRY_K / E.CFG.DG_RS_K));
+  }
+  ck('CONTROL — real pairs measured for the gap claim', pairs >= 20, pairs);
+  ck('the document\'s "39 of 39 same direction" claim holds — the two bars cannot '
+    + 'disagree', sameDir === pairs && /39 of 39/.test(doc), { same: sameDir, of: pairs });
+  ck('and its 1.7e-14 deviation claim is the right order of magnitude',
+    worst < 1e-9 && /1\.7e-14/.test(doc), worst);
+  ck('the document records that the chart was the half left unfixed, which is the '
+    + 'lesson rather than the fix', /half you have to click/i.test(doc));
+}
+
 // ── 7. IT DOES NOT CLAIM TO BE A COMPLETE SWEEP ─────────────────────────
 // A partial audit that reads as finished is worse than no audit: it retires the
 // question. This is the assertion that keeps it honest.
 {
   ck('the document names what it has NOT audited', /What I have NOT audited yet/.test(doc));
-  ck('and says roughly how much is left, so "four surfaces" cannot read as "all '
+  ck('and says roughly how much is left, so the covered set cannot read as "all '
     + 'of them"', /20 more surfaces/.test(doc));
-  ck('it states the four covered are covered BECAUSE they decide a pick',
-    /those four decide a pick/.test(doc));
+  ck('it states WHY the covered ones were covered — four because they decide a '
+    + 'pick, the rest because the audit reached them',
+  /four because they decide a pick/.test(doc));
+  /* THE UNAUDITED LIST MUST SHRINK AS SURFACES ARE COVERED, or it becomes a
+   * decoration that makes the document look honest while going stale — which is
+   * this document's own defect class. The two audited today must be OFF it. */
+  const notYet = (docRaw.split('What I have NOT audited yet')[1] || '').replace(/\s+/g, ' ');
+  ck('CONTROL — the unaudited section is locatable and non-empty', notYet.length > 40,
+    notYet.length);
+  ck('the legality strip has moved OFF the unaudited list now that it is audited',
+    !/legality strip/.test(notYet), notYet.slice(0, 200));
+  ck('and so has the dollar-gap hero line', !/dollar-gap hero line/.test(notYet),
+    notYet.slice(0, 200));
+  ck('while the ones still outstanding are still named — the list shrank, it did '
+    + 'not get deleted', /LRM strip/.test(notYet) && /manager panel/.test(notYet));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
