@@ -79,6 +79,19 @@ PLAYER_FIELDS = (
     "adp", "raw_adp", "adjusted_adp", "adp_sd",
     "adp_source", "adp_sd_source", "adp_season", "adp_stale",
     "games_expected", "injury_status", "age",
+    # ⚠️ READ BY THE ENGINE AND NOT FROZEN. Measured by replaying the freeze:
+    # removing `depth_chart_order` alone from a live board costs 4 of the top 25
+    # under DEFAULT_WEIGHTS. `variance` is read by engine, value, mcts and
+    # doctrine; `consensus_rank` and `pool_rank` by keepers.js (keeper option
+    # value, a WEIGHT-1 term today); `years_exp` by composite; `tier_size` and
+    # `tier_rank` by the war-room surfaces a replay would want to reproduce.
+    #
+    # None of them moved a score under the shipped weights, which is exactly why
+    # they were droppable-looking. The freeze exists to answer "would a
+    # DIFFERENT valuation have chosen differently", so "inert under the current
+    # weights" is the one argument that cannot justify dropping a field.
+    "depth_chart_order", "variance", "consensus_rank", "pool_rank",
+    "years_exp", "tier_size", "tier_rank", "weekly_sd",
     # ⚠️ OPPORTUNITY, WITH THE AMBIGUITY THAT COMES WITH IT. Frozen because a
     # September regression of outcomes on `opportunity_z` is one of the things
     # this capture exists to make possible -- and because that regression is
@@ -227,15 +240,55 @@ def build() -> dict:
             "compute every availability curve 25 slots early and the error "
             "would be permanent." % (my_picks[:4], derived[:4]))
 
+    # ── THE LINEUP-SHAPE GUARD. Same standing as the pick-8 guard above.
+    #    A freeze without `starters` is not a degraded freeze, it is a permanent
+    #    record that looks authoritative and cannot answer the question it was
+    #    taken for. Refusing is cheap; discovering it in January is not.
+    if not (league.get("starters") or {}):
+        raise SystemExit(
+            "REFUSING TO FREEZE: league.starters is empty or absent, so the "
+            "board has no lineup shape. Every player would replay as bench, "
+            "roster legality would never fire, and replacement levels could not "
+            "be recomputed — while the artifact still claimed every valuation "
+            "path was reproducible from it.")
+
     players = [{k: p.get(k) for k in PLAYER_FIELDS} for p in art["players"]]
 
     payload = {
         "season": 2026,
         "source_artifact_built_at": art["built_at"],
         "source_artifact_sha256": hashlib.sha256(ARTIFACT.read_bytes()).hexdigest(),
+        # ⚠️ `starters` WAS NEVER CAPTURED, AND `roster` IS NOT A KEY THAT EXISTS.
+        #
+        # The live league object carries `roster_slots` and `starters`. This
+        # asked for `roster`, got None, and never asked for `starters` at all —
+        # so the frozen league had NO LINEUP SHAPE. Measured 2026-08-14 by
+        # replaying the freeze through the real engine:
+        #
+        #   MEASURED_WEIGHTS   top-25 identical 25/25, score delta 0.0000
+        #   DEFAULT_WEIGHTS    top-25 identical  1/25, score delta 80.4327
+        #
+        # With `starters` missing, starterSlotMarginal sees {} so EVERY player
+        # reads fills:'bench', mandatoryGaps returns nothing, applyRosterLegality
+        # never fires, and replacement levels cannot be recomputed.
+        #
+        # IT WAS INVISIBLE BECAUSE TWO DEFECTS COMPOSED. Under the shipped
+        # weights the starter/bench branch is arithmetically inert (measured
+        # this morning: 164 of 174 fills-flips produce a byte-identical score),
+        # so the missing lineup shape changed nothing anyone would see. The
+        # freeze looked perfect precisely while it was unusable for the one
+        # question it exists to answer.
+        #
+        # And that question is the payload's own claim two fields below:
+        # "any path consuming proj_mean, replacement, adp, adp_sd — including
+        # ... paths not yet designed". A path that reads the lineup shape — which
+        # is every roster-aware valuation anyone would try next, starting with
+        # re-weighting `need` — was NOT recomputable, and the artifact said it
+        # was.
         "league": {k: league.get(k) for k in
                    ("teams", "rounds", "my_draft_slot", "draft_type",
-                    "scoring", "roster", "keeper_rules")},
+                    "scoring", "roster_slots", "starters", "keeper_rules",
+                    "season", "reversal_round")},
         "my_picks": my_picks,
         "pick_order": po,
 
