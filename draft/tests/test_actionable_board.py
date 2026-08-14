@@ -265,3 +265,92 @@ def test_NO_MORE_ROWS_ARE_PRICED_BY_THE_MARKET_AND_ZEROED_BY_US():
     assert len(rows) <= KNOWN_ZERO_PROJ, (
         "absent-projection-as-zero grew to %d from a known %d: %s"
         % (len(rows), KNOWN_ZERO_PROJ, [p.get("name") for p in rows[:10]]))
+
+
+# ── MERGED IS NOT EXECUTED: adp_sd_source ──────────────────────────────────
+#
+# `adp_sd_source` exists so a consumer can tell a MEASURED dispersion from a
+# fitted one, and `adp_sd` is the whole SHAPE of the survival curve — two players
+# at the same ADP get identical curves under a fitted sd, while a published stdev
+# knows one is a consensus pick and the other splits the room. A fixed it after
+# finding the field was computed and never copied onto the player: ZERO of 1,841
+# rows carried it.
+#
+# THE FIX IS ON MAIN AND HAS NOT RUN. `draft/adp.py` copies it at ~line 738
+# (`0fe19d4`, 2026-08-14 01:18:27Z); `public/draft_data.json` was built
+# 2026-08-13T23:13:18Z — two hours EARLIER. So the shipped board still carries it
+# on zero rows, and that is staleness rather than failure.
+#
+# THAT DISTINCTION IS A's OWN, ABOUT TOP_N: "it is on main AND IT EXECUTED, which
+# is the half a merge does not prove." Nothing was enforcing it. A ratchet is what
+# turns "somebody should check after the rebuild" into a mechanism — the same
+# shape as `bye_ceiling` above, for the same reason.
+#
+# VERIFIED BEFORE WRITING THIS, by driving `apply_with_fallback` over the shipped
+# board with an anchor table built the way `build_adp_table`/`build_fp_table` build
+# theirs: 1,841 rows in, ZERO left without a source — 4 `ffc`, 334
+# `clamped-linear`, 1,503 `fallback-clamped`. So the rebuild WILL populate it, and
+# if it does not, this fires.
+
+#: When the copy landed on main. A board built after this must carry the field.
+ADP_SD_SOURCE_FIX_LANDED = "2026-08-14T01:18:27Z"
+
+
+def adp_sd_source_required(built_at) -> bool:
+    """May this board still carry a null `adp_sd_source`?
+
+    Factored out so BOTH branches are testable. An untested self-tightening
+    ratchet is a ratchet with an extra branch to get wrong — the lesson from
+    `bye_ceiling`, which is the same mechanism one field over.
+    """
+    built = str(built_at or "")
+    return bool(built) and built > ADP_SD_SOURCE_FIX_LANDED
+
+
+def test_the_adp_sd_source_RATCHET_TIGHTENS_ITSELF():
+    """MUTATION: return False unconditionally — the board never has to carry the
+    field, the rebuild could silently fail to populate it, and nothing says so."""
+    assert adp_sd_source_required("2026-08-13T23:13:18Z") is False   # the stale board
+    assert adp_sd_source_required("2026-08-14T08:00:00Z") is True    # after the rebuild
+    assert adp_sd_source_required(None) is False, (
+        "a board that does not state when it was built cannot be judged, and "
+        "guessing is how a stale artifact passes as a fresh one")
+
+
+def test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM():
+    """The assertion this exists for. A row with a real market ADP and no
+    `adp_sd_source` is a spread nobody can classify: `fallback-clamped` and a
+    published FFC stdev are different kinds of number and drive survival, and
+    therefore VONA, differently.
+
+    Before the rebuild this reports the known-stale state and does not fail —
+    staleness is not a defect. After it, a null is a defect.
+
+    MUTATION: assert only `len(rows) > 0` — the check passes on a board where
+    every source is null, which is exactly today's board."""
+    b = board()
+    built = b.get("built_at")
+    rows = [p for p in (b.get("players") or [])
+            if p.get("adp") is not None and p.get("adp_source") not in (None, "search_rank")]
+    assert rows, "no market-priced rows at all — the board is not what this judges"
+    missing = [p for p in rows if not p.get("adp_sd_source")]
+
+    if not adp_sd_source_required(built):
+        assert missing, (
+            "the board predates the fix (%s <= %s) yet every row already carries "
+            "adp_sd_source — good news that must be RECORDED: move "
+            "ADP_SD_SOURCE_FIX_LANDED back so this starts enforcing"
+            % (built, ADP_SD_SOURCE_FIX_LANDED))
+        pytest.skip(
+            "board built %s, BEFORE the fix landed %s — %d of %d priced rows carry "
+            "no adp_sd_source, which is staleness and not failure. This enforces "
+            "from the next rebuild."
+            % (built, ADP_SD_SOURCE_FIX_LANDED, len(missing), len(rows)))
+
+    assert not missing, (
+        "%d of %d market-priced rows carry NO adp_sd_source on a board built %s, "
+        "AFTER the fix landed %s. The fix is on main and did not take: a fitted "
+        "spread is now indistinguishable from a published one, and adp_sd is the "
+        "whole shape of the survival curve. Sample: %s"
+        % (len(missing), len(rows), built, ADP_SD_SOURCE_FIX_LANDED,
+           [p.get("name") for p in missing[:6]]))
