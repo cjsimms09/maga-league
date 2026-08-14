@@ -408,7 +408,22 @@ echo "   tree clean: nothing staged, nothing modified, no merge in progress"
 CI_BUDGET="${CI_WAIT_SECONDS:-600}"
 echo
 echo "== CI: is main green BEFORE this merge is called done?"
-bash "$(dirname "$0")/ci_status.sh" latest main
+# ⚠️ $INTEGRATE_ROOT, NOT `dirname "$0"`. THIS LINE WAS BROKEN BY THE RE-EXEC
+# FIX ABOVE AND THE BREAK WAS SILENT. After `exec bash "$_self"`, $0 is a mktemp
+# path, so `dirname "$0"` is /tmp and this resolved to /tmp/ci_status.sh — which
+# does not exist. MEASURED 2026-08-14 during the review-schema-fix integration:
+#
+#   == CI: is main green BEFORE this merge is called done?
+#   bash: /tmp/ci_status.sh: No such file or directory
+#   OK: review-schema-fix merged into main. Suites green LOCALLY.
+#
+# The gate printed the failure and merged anyway, because a missing file exits
+# 127 and 127 is neither 1 nor 2, so every branch below fell through to silence.
+# The re-exec comment predicted this exact failure ("$0 is now a temp path and
+# `dirname $0` would resolve outside the repository") and then two call sites
+# were left using it. A check that cannot run reads exactly like a check that
+# passed.
+bash "$INTEGRATE_ROOT/scripts/ci_status.sh" latest main
 prior=$?
 if [ "$prior" = "1" ]; then
   echo "   *** MAIN'S LAST COMPLETED RUN IS RED, and it was red before this merge."
@@ -462,7 +477,7 @@ if [ "$PUSH" = "--push" ]; then
   fi
   echo
   echo "== CI: waiting for the run on the SHA just pushed (${CI_BUDGET}s budget)"
-  bash "$(dirname "$0")/ci_status.sh" sha "$SHA" "$CI_BUDGET"
+  bash "$INTEGRATE_ROOT/scripts/ci_status.sh" sha "$SHA" "$CI_BUDGET"
   ci=$?
   case "$ci" in
     0) echo "VERIFIED: $BRANCH merged into main and CI IS GREEN for $(git rev-parse --short HEAD)." ;;
