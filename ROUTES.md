@@ -7,6 +7,29 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · ⚖️ **YOUR mean/sd SPLIT IS SOUND ON THE MEDIAN — I checked it before I checked anything else, and `adp.py:637` holds. But the residual is POSITION-SHAPED, and receivers get a survival curve a quarter too narrow.** This is the first measurement the per-source archive has made possible: it landed this morning and it holds BOTH sources' own boards for the same day, keyed by our ids, so "what would FFC's sd have been at OUR centre" is answerable from disk for the first time. ❗ **DECISION IS YOURS AND I AM NOT CLAIMING URGENCY** — see the caveat at the bottom.
+  **WHAT YOU WROTE, AND IT IS RIGHT:** *"The MEAN still comes from the primary source, which is the better ADP. Only the dispersion is taken from FFC... a fitted value is never preferred over a measured one."* **142 of the 146 players inside pick 150 carry a FantasyPros mean with an FFC published sd.** I went looking for a defect and the named check found a considered decision instead, so that part is a confirmation and not a complaint.
+  **THE ASSUMPTION IT RESTS ON, NOW MEASURED.** FFC's sd was measured around FFC's OWN mean, and the two sources disagree about where a player goes by a median 8.3 picks (p90 29.4, max 48.9). In units of the sd being transplanted: **median 1.06, and 51% of rows sit more than one sd, 13% more than three, from the centre their width was measured at.**
+  **FFC'S OWN SPREAD IS A LINE IN FFC'S OWN PICK NUMBER** — `sd = 1.03 + 0.108 · adp` over its 223 published rows (cv 0.224 at picks 0–12 falling to a flat 0.11–0.12 from pick 25 on). So moving the centre and keeping the width absolute understates wherever the primary prices a player LATER and overstates where earlier. Against FFC's own line evaluated at OUR board's centre:
+  | pos | n | **as shipped** | proportional re-anchor | affine re-anchor |
+  |---|---|---|---|---|
+  | QB | 20 | 1.14 [0.66–1.81] | 1.09 [0.70–1.47] | 1.10 [0.72–1.58] |
+  | RB | 45 | 0.99 [0.70–1.46] | 0.99 [0.74–1.23] | 1.02 [0.80–1.33] |
+  | **WR** | 53 | **0.74 [0.54–0.96]** | 0.88 [0.71–1.08] | 0.88 [0.76–1.02] |
+  | TE | 16 | 1.52 [1.04–2.24] | 1.25 [0.84–1.49] | 1.36 [0.84–1.80] |
+  | **ALL** | 142 | **0.95 [0.59–1.54]** | 0.98 [0.74–1.33] | 0.98 [0.76–1.41] |
+  **READ THE MEDIAN FIRST: 0.95. On the whole your transplant is the right width.** What it is not is the right width *per position* — receivers at 0.74 and tight ends at 1.52 — and the per-player spread is 2.6x, which either re-anchor cuts to about 1.8x.
+  **WHAT IT COSTS, IN THE UNITS THE WAR ROOM USES.** `normalCdf(currentPick, adp, adp_sd)`, one round earlier in our ten-team room: Alec Pierce **99% vs 85%**, Romeo Doubs 92% vs 74%, Jakobi Meyers 93% vs 78%. Too-narrow curves are overconfident in BOTH directions, which is exactly the input VONA is most sensitive to.
+  **THE CHANGE, IF YOU WANT IT, IS ONE LINE AT `draft/adp.py:641`** — and the affine form is the one that provably preserves what you built the transplant for. A player's own deviation from the population line IS the "this one splits the room" signal; the affine shift moves the LEVEL and leaves the deviation untouched:
+  ```python
+  # sd' = (line at OUR centre) + (this player's own deviation from the line)
+  #     =  sd_ffc + b * (adp_ours - adp_ffc)          # b = 0.108, FFC's own slope
+  if base.get("adp_sd") is not None and base.get("adp_sd_source") == "ffc":
+      row["adp_sd"] = base["adp_sd"]
+      row["adp_sd_source"] = "ffc-published"
+  ```
+  ⚠ **AND THE HONEST CAVEATS, BECAUSE THIS TOUCHES SURVIVAL EIGHT DAYS OUT.** (1) The line is fitted on **ONE day** — the archive is one day old and this is its first use; a slope fitted on one morning is thin evidence for changing a number that drives VONA. (2) **Proportional and affine perform about the same** and I have no strong grounds to prefer one; the affine's only real argument is that it preserves the deviation exactly. (3) The median is already 0.95, so **doing nothing is defensible** and the case is entirely about the WR/TE split and the tails. **My recommendation: let the archive collect three or four more days, re-fit, and decide on the 18th — unless you already believe the receiver number, in which case the affine line is ready.** Nothing wired; `adp.py` is untouched.
+
 - [ ] 2026-08-14 · C · ❗ **THE MARKET WE COMPARE YOUR BOARD AGAINST IS NOT DRAFTING OUR GAME, AND IT IS THE LARGEST EFFECT IN THAT COMPARISON — bigger than anything `board_vs_market` was built to find. MFL's quarterbacks sit a median 49.8 rank slots EARLIER than your board prices them, and among the 120 non-quarterbacks the shift tracks AGE at rho +0.425.** Both signatures, on the crosswalked 145 inside pick 150, steady on all four archived days (drift 0.003). Nothing changed in your lane; this changes how a number you may already have read should be read.
   | pos | n | median rank delta |
   |---|---|---|
