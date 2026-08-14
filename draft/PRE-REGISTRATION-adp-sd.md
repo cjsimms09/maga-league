@@ -99,3 +99,74 @@ under a half-sample refit, the blast radius stays ≤5 rows inside pick 150, and
 survival at my twelve picks is unchanged for every player with a published sd
 (it must be, since published always wins — and if it is not, the rule is being
 applied where it should not be, which is a bigger finding than the constants).
+
+---
+
+# OUTCOME — recorded 2026-08-14, after the fit. NOT SHIPPED.
+
+## Against the four expectations
+
+| expectation | result | |
+|---|---|---|
+| rate near 0.11 | **0.122** (half-sample median 0.116, drift 21%) | ✓ just inside the 25% bar |
+| floor 1.0–2.0 | **2.0** — but **119% drift** across 12 half-samples (0.50–2.70) | ✗ |
+| cap near 15 or higher | **fell to 12.0** | ✗ |
+| worst-band error < 0.15 | **0.040**, from 0.293 | ✓ |
+
+## Against the falsifiers
+
+| | |
+|---|---|
+| optimum no better in the worst band | passed — 0.293 → 0.040 |
+| **optimum unstable under a half-sample refit (>25%)** | **FIRED — floor drifts 119%** |
+| blast radius grows | passed — 119 rows, **1** inside pick 150 |
+| survival moves at my twelve picks | passed — the one affected row (Oronde Gadsden, adp 147) reads **100.0% → 100.0%, delta +0.0** at pick 33 |
+
+**Three of four. The stability falsifier fired. Decision rule required all four.
+NOT SHIPPED. Production constants are unchanged: floor 3.0, rate 0.15, cap 15.0.**
+
+## Why the rate cannot be shipped alone
+
+```
+variant                       1-25  25-50 50-100 100-150   worst
+CURRENT (ships today)         1.29   1.27   1.24   1.20    0.293
+FULL FIT (floor unstable)     0.97   1.03   1.01   0.96    0.040
+RATE ONLY, floor + cap held   1.25   1.03   1.01   1.07    0.252
+```
+
+The 1-25 band is **floor-bound**: `0.122 × 25 = 3.05`, so every row below adp 25
+receives exactly 3.0 whatever the rate is. Almost the whole error lives in the
+floor, and the floor is the parameter the data cannot determine — n=22 in that
+band, so a half-sample sees about eleven rows. Shipping the rate alone moves the
+worst band from 0.293 to 0.252, which is not a repair; it is a rounding of one.
+
+## What this established, which was worth the measurement
+
+1. The shipped rule really is **~25% wide** across every band the draft happens
+   in — confirmed against 219 published dispersions, monotone across four
+   independent bands.
+2. **The error is concentrated in the floor-bound region**, adp < 25. That was
+   not obvious before the per-band fit; the pooled metric hid it.
+3. **The floor is not identifiable from today's data.** Not "hard to estimate" —
+   it moves by 119% under resampling. Any value I picked would be fitted to
+   about eleven rows.
+4. **It does not matter for this draft.** One row inside pick 150, and its
+   survival at my first pick is identical to a tenth of a point either way.
+
+Point 4 is why not shipping costs nothing, and why shipping anyway would have
+been the worse error: a real but unmeasurable improvement to a deep-pool
+constant, made eight days before a draft, on a parameter I had already watched
+swing by a factor of five.
+
+## When to revisit
+
+FFC's published-sd population grows as more drafts run — 2,391 behind today's
+prices and rising into the season. The floor becomes identifiable when the
+adp 1-25 band carries enough rows that a half-sample refit holds it inside 25%.
+Re-run this fit then; the objective, bands and falsifiers above are unchanged
+and do not need re-deriving.
+
+**No reviewer verdict was available** (harness not yet on main), so this
+adversarial pass is mine. That is the protocol's UNAVAILABLE state working as
+intended: the work continued, and the absence of a review did not become an
+approval.
