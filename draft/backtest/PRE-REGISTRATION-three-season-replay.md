@@ -380,6 +380,38 @@ So, declared before any run:
 **THE HONEST USE OF 10,000 RUNS IS TO PUT ERROR BARS ON A SMALL NUMBER OF
 PRE-DECLARED COMPARISONS — not to search a space for a winner.**
 
+### 11a. THE TEST THAT SEPARATES DIAGNOSING FROM FITTING
+
+Cory, emphatically: *"I'm not saying to fit. It will identify if our model is
+wrong or off and give us a chance to identify, adjust and try again. But do not
+fit."* That is the intended loop and it is the right one. The rule below exists
+so the line is checkable by someone else, not held in one person's head.
+
+**THE DIFFERENCE IS NOT HOW MANY RUNS. IT IS WHETHER THE CHANGE HAS A MECHANISM.**
+
+> **THE ONE-SENTENCE TEST: can you say WHY it was wrong, in a sentence that would
+> still be true if the score had not moved?**
+
+- **YES -> it is a FIX.** *"Week 9 started a player on bye, because the bye guard
+  reads a field the replay never populates."* That is a defect. It is worth
+  fixing whether or not it cost money, and the replay merely FOUND it.
+- **NO -> it is a FIT.** *"Config 4,712 scored best."* No mechanism, no
+  falsifier, nothing that would have been true in advance. Forbidden.
+
+**THE REPLAY'S JOB IS TO POINT AT THE WEEK, NOT TO CHOOSE THE NUMBER.** It says
+"something went wrong here"; a human works out what; the fix is justified on the
+mechanism. That is why §3f requires every arm to record WHY it decided — a
+result that cannot be opened and read supports fitting and nothing else.
+
+This is the same rule engine.js already states for weights: *"picking the
+fraction that makes a symptom look best is calibration against the symptom
+(Cory's hard rule)."* §11a is that rule applied to the rig.
+
+**WHEN A FIX LANDS, THE WHOLE THING RE-RUNS.** Not the failing week — the whole
+programme, all seasons, all arms. A fix that repairs week 9 of 2024 and quietly
+costs 2023 is the thing a single-week check cannot see.
+
+
 ## 12. BUILT TO ACCUMULATE — this outlives the 2026 draft
 
 Cory: *"this is how we will test lots of theories for the eternity of this
