@@ -153,6 +153,85 @@ does not pretend otherwise — there is no measured hindsight ceiling for either
 Their leak exposure rests on §3, which is weaker, and that asymmetry is stated
 rather than smoothed over.
 
+
+---
+
+## 3d. THE DATA INVENTORY — verified on disk, not assumed
+
+Cory asked whether Sleeper gives us enough to replay three seasons. Measured:
+
+**WHAT WE HAVE — outcomes, and they are complete.** `league_history.json`,
+`provenance.complete: true`, `gaps: []`:
+
+| | 2023 | 2024 | 2025 |
+|---|---|---|---|
+| draft picks | 180 | 150 | 150 |
+| weeks | 18 | 18 | 18 |
+| transactions | 373 | 370 | 348 |
+
+Every week carries `starters`, `players`, `players_points` **for every rostered
+player including bench**, `starters_points`, and `matchup_id`. That is enough to
+compute the hindsight-optimal lineup (§3c's ceiling), to reconstruct any team's
+roster in any week, and to derive who was unrostered.
+
+**WHAT WE DO NOT HAVE, AND THE DISTINCTION IS THE WHOLE POINT:**
+
+1. **Free-agent weekly scores.** `players_points` covers ROSTERED players only —
+   151 rostered, 151 scored, week 1 2025. A waiver claim on somebody nobody
+   rostered cannot be graded from this file. `nflverse_weekly_points_2024.json`
+   exists for ONE season; 2023 and 2025 are missing and must be fetched.
+
+2. **As-of preseason projections for 2023–25. THESE DO NOT EXIST AND CANNOT BE
+   HONESTLY OBTAINED.** `proj_series.json` holds only 2026, earliest snapshot
+   2026-08-09 — six days old. Its own note says why: *"Frozen for a CLEAN
+   post-season grade — retroactive fetches leak (exp33)."* The repository already
+   MEASURED that fetching past projections leaks, because sites revise them.
+
+**THE LINE BETWEEN THEM: OUTCOMES CAN BE FETCHED RETROACTIVELY, FORECASTS
+CANNOT.** What a player scored in 2023 is a fact and does not change. What a site
+projected in August 2023 has been silently revised, and fetching it today
+retrieves a number nobody could have acted on. So nflverse weekly points are
+safe to go and get; historical projections are not.
+
+## 3e. THE CONSEQUENCE FOR THE DRAFT ARM, STATED PLAINLY
+
+**The draft arm cannot run against our production projection pipeline for
+2023–25**, because that pipeline needs a preseason projection we do not hold and
+must not reconstruct.
+
+It CAN run against a **WALK-FORWARD projection built only from prior-season
+outcomes** — project 2024 from 2023-and-earlier actuals, and so on. That is
+leak-free by construction and is already the discipline
+`exp_construction_objective.py` uses.
+
+**WHAT THAT SUBSTITUTION DOES AND DOES NOT ESTABLISH, so the result is not
+over-read:**
+
+- It DOES test the decision logic — roster construction, need, legality, onesie
+  caps, the flex discount, waiver selection, sit/start. That is what Cory asked
+  about and what he says he is least sure of.
+- It does NOT test our projection sources. A walk-forward projection is not
+  FantasyPros. A tool that wins here has better DECISIONS, not better inputs,
+  and the write-up must say so in those words.
+- Both TOOL and BASELINE see the SAME walk-forward projection, so the comparison
+  is fair even though the inputs are not our production ones.
+
+## 3f. THIS IS A LOOP, NOT A REPORT
+
+Cory's framing, and it changes what gets built: *"the main thing isn't running
+the test, it is that we learn from it, diagnose when something goes wrong, fix
+it, and keep running it."*
+
+So the harness is built to be **re-run after every fix**, and every arm records
+WHY it made each decision, not only what it chose. A replay that returns one
+number and cannot say which decision cost the money is a report; this needs to
+be an instrument. Concretely: every simulated decision writes the same
+decision-time record shape the live ledger uses, so the existing graders apply
+unchanged and a bad week can be opened and read.
+
+**The success condition is not "the tool wins." It is a model that provably does
+NO HARM, with every hole it exposes either fixed or written down.**
+
 ---
 
 ## 4. WHAT IS GRADED
