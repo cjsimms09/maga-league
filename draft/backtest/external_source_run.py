@@ -233,13 +233,30 @@ def capture_ffc(sleeper_players, year, teams, fmt):  # pragma: no cover
                 "total_drafts": depth["value"], "total_drafts_field": depth["field"],
                 "total_drafts_note": depth["note"],
                 "provider_meta": meta,
+                # ⚠ WHAT IS AND IS NOT MATCHED, AS DATA RATHER THAN PROSE.
+                # A's correction (Cory caught it): `adp.py:67` — FFC publishes
+                # `standard`, `ppr`, `half-ppr`, `2qb`, `dynasty`, every one a
+                # RECEPTION or ROSTER-SHAPE axis. There is NO passing-TD
+                # parameter, so FFC is 4-point passing TDs exactly like
+                # FantasyPros. "Our exact settings" was false on the one rule
+                # that produces the whole measured gap, and it was about to be
+                # written into every row of this archive daily. A false claim
+                # stored beside real numbers is worse than no claim — a year
+                # from now it is indistinguishable from a measurement.
+                "format_axes_matched": ["reception scoring", "teams"],
+                "format_axes_unmatched": [
+                    "passing TD value: our league scores 6.0, the market default "
+                    "is 4.0, and FFC serves no parameter for it — this source is "
+                    "4.0 like every other public source"],
                 "parsed": rep.get("parsed"), "matched": rep.get("matched"),
                 "unmatched": rep.get("unmatched_count"),
                 "collisions": rep.get("collisions"),
                 "dropped_to_collision": rep.get("dropped_to_collision"),
                 "published_sd_rows": len(sd)},
-        note="real human drafts at our exact format and league size; crosswalked "
-             "by draft/adp.py:build_adp_table, the same one the board uses")
+        note="real human drafts at our reception scoring and league size, but NOT "
+             "at our passing TD value — FFC exposes no such parameter, so this is "
+             "4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, "
+             "the same one the board uses")
 
 
 def capture_fantasypros(sleeper_players, year, half_ppr=True):  # pragma: no cover
@@ -275,6 +292,18 @@ def capture_fantasypros(sleeper_players, year, half_ppr=True):  # pragma: no cov
                 "total_drafts_note": "FantasyPros publishes expert consensus, not "
                                      "a draft sample — depth is not applicable "
                                      "rather than zero",
+                # THE SAME UNMATCHED AXIS, ON THIS SOURCE TOO — and that is the
+                # finding, not a caveat. No public source prices 6-point passing
+                # TDs, so the QB bias CANNOT be fixed by choosing between them:
+                # it is structural. Recording the limitation on one source only
+                # would read as the other being clean, which is the original
+                # error with the sources swapped.
+                "format_axes_matched": ["reception scoring"],
+                "format_axes_unmatched": [
+                    "passing TD value: our league scores 6.0, the market default "
+                    "is 4.0, and this consensus is drawn from 4.0 drafts",
+                    "league size: FantasyPros consensus is not league-size "
+                    "specific; FFC's is"],
                 "rows_parsed": diag.get("fp_rows_parsed"),
                 "matched": diag.get("fp_matched"), "unmatched": diag.get("fp_unmatched"),
                 "collisions": diag.get("fp_collisions"),

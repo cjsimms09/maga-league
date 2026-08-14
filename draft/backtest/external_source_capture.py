@@ -28,6 +28,22 @@ writes its own file, runs after the snapshot is committed, and its every failure
 mode is a missing day in ITS archive rather than a missing day in the one that
 matters.
 
+⚠ CORRECTION, SAME DAY, AND IT MAKES THIS FILE MORE IMPORTANT RATHER THAN LESS.
+A told me FFC was "format-matched at our exact settings" and Cory caught that it
+is not: `adp.py:67` — FFC publishes `standard`, `ppr`, `half-ppr`, `2qb`,
+`dynasty`, every one a RECEPTION or ROSTER-SHAPE axis. THERE IS NO PASSING-TD
+PARAMETER, so FFC is 4-point passing TDs exactly like FantasyPros. The anchor
+swap would have fixed nothing. And that is the finding getting BIGGER, not going
+away: if no public source prices our 6-point rule, the QB bias cannot be fixed by
+CHOOSING a source — it is structural, and recording what each source said is then
+the only way it is ever quantified. A confirmed it from our own drafts: our room
+takes QB1 5.7 picks early, QB2 14.7, TE1 13.0, while RB and WR sit at ~0.
+
+Every row this file writes therefore carries `format_axes_matched` and
+`format_axes_unmatched` AS DATA. The claim that was wrong was going to be written
+into the archive daily, and a false claim stored beside real numbers is worse than
+no claim: a year from now it is indistinguishable from a measurement.
+
 WHAT IT DOES NOT DO. It does not merge, rank, average or choose. It records what
 each source said, keyed by OUR player id, with the fetch parameters that produced
 it. Deciding which one prices the board is A's; this only makes the decision

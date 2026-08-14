@@ -1360,6 +1360,30 @@
       "test_the_FFC_CAPTURE_JOINS_A_s_BUILDER_and_keys_on_OUR_ids"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value — FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
+     "new": "        note=\"real human drafts at our exact format and league size; crosswalked \"\n             \"by draft/adp.py:build_adp_table, the same one the board uses\")",
+     "must_fail": [
+      "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it — this source is \"\n                    \"4.0 like every other public source\"],",
+     "new": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],",
+     "must_fail": [
+      "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"format_axes_matched\": [\"reception scoring\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and this consensus is drawn from 4.0 drafts\",\n                    \"league size: FantasyPros consensus is not league-size \"\n                    \"specific; FFC's is\"],",
+     "new": "                \"format_axes_matched\": [\"reception scoring\"],\n                \"format_axes_unmatched\": [],",
+     "must_fail": [
+      "test_FANTASYPROS_CARRIES_THE_SAME_UNMATCHED_AXIS"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }

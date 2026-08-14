@@ -522,11 +522,28 @@ jobs:
           if ! git diff --cached --quiet; then
             git config user.name "lab-bot"; git config user.email "actions@github.com"
             git commit -m "D3: per-source ADP prices [skip deploy]"
+            # A PUSH THAT NEVER SUCCEEDED MUST NOT READ AS SUCCESS. The loop
+            # used to `break` on success and otherwise simply run out of
+            # iterations — nothing told the two apart, `exit "$rc"` carried the
+            # runner's 0, and the step went green having lost the day. The CI
+            # checkout is discarded when the job ends, so an unpushed commit is
+            # gone. Same failure the MFL step's own `SNAPSHOT COULD NOT BE
+            # PUSHED` exit exists for, one step up.
+            pushed=0
             for i in 1 2 3 4 5; do
               git fetch origin main || true
               git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
-              git push origin HEAD:main && break || sleep $((i*5))
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
             done
+            if [ "$pushed" != 1 ]; then
+              echo "::warning::PER-SOURCE PRICES COULD NOT BE PUSHED after 5 tries."
+              echo "::warning::Neither provider serves ADP as of a past date, so"
+              echo "::warning::today's alternatives are lost unless this is rerun TODAY."
+              echo "**PER-SOURCE PRICES NOT PUSHED** — rerun today, not tomorrow." \
+                >> "$GITHUB_STEP_SUMMARY"
+              rc=1
+            fi
           fi
           # AND NOW THE STEP CARRIES THE RUNNER'S VERDICT. Without this the step
           # goes GREEN on a total capture failure — `[ ... ] || echo` succeeds, so

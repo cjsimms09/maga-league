@@ -401,3 +401,49 @@ def test_A_CROSSWALK_MISS_DOES_NOT_DISCARD_THE_DAY(monkeypatch):
     r = R.capture_ffc(SLEEPER, 2026, 10, "half-ppr")
     assert len(r["rows"]) == 3
     assert r["params"]["parsed"] == 4 and r["params"]["unmatched"] == 1
+
+
+def test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE(monkeypatch):
+    """A's correction, 2026-08-14, and Cory caught it: `adp.py:67` — FFC publishes
+    `standard`, `ppr`, `half-ppr`, `2qb`, `dynasty`. Every one is a RECEPTION or
+    ROSTER-SHAPE axis. THERE IS NO PASSING-TD PARAMETER, so FFC is 4-point passing
+    TDs exactly like FantasyPros, and "real human drafts at our exact settings"
+    was false on the one rule that causes the entire measured gap.
+
+    This is not a prose correction. `note` is written into EVERY ROW of the
+    archive, every day, and read a year from now by someone who was not here —
+    which is the whole reason the file exists. A false claim stored beside real
+    numbers is worse than no claim: it is indistinguishable from a measurement.
+
+    The limitation therefore TRAVELS WITH THE DATA rather than living in a doc
+    that goes stale (rule 9: a mechanism implemented as a note).
+
+    MUTATION: restore "our exact format" — the archive asserts a match on the one
+    axis it does not have, and a reader concludes the QB gap must be something
+    other than scoring."""
+    import adp as A
+    monkeypatch.setattr(A, "fetch_adp", lambda fmt, teams, year: FFC_PAYLOAD)
+    r = R.capture_ffc(SLEEPER, 2026, 10, "half-ppr")
+    assert "exact format" not in r["note"], r["note"]
+    assert "passing TD" in r["note"]
+    # NAMED AXES, NOT PROSE. What is matched and what is not, as data.
+    assert r["params"]["format_axes_matched"] == ["reception scoring", "teams"]
+    un = " ".join(r["params"]["format_axes_unmatched"])
+    assert "passing TD" in un and "6.0" in un and "4.0" in un
+
+
+def test_FANTASYPROS_CARRIES_THE_SAME_UNMATCHED_AXIS(monkeypatch):
+    """Both sources are 4-point passing TDs, so the gap is STRUCTURAL: no public
+    source prices our rule, and choosing between them cannot fix it. Recording the
+    limitation on only one source would read as the other one being clean.
+
+    MUTATION: name the axis on FFC alone — a reader comparing the two params
+    blocks concludes FantasyPros matches our passing-TD value, which is the
+    original error with the sources swapped."""
+    import fantasypros_adp as FP
+    monkeypatch.setattr(FP, "fetch",
+                        lambda year, half_ppr=True, timeout=30: (FP_JSON, "u", {}))
+    r = R.capture_fantasypros(SLEEPER, 2026)
+    un = " ".join(r["params"]["format_axes_unmatched"])
+    assert "passing TD" in un and "6.0" in un
+    assert r["params"]["format_axes_matched"] == ["reception scoring"]
