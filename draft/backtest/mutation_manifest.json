@@ -1667,6 +1667,79 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/external_pick_prediction.py": {
+   "tests": [
+    "draft/tests/test_external_pick_prediction.py"
+   ],
+   "mutations": [
+    {
+     "old": "            if p.get(\"is_keeper\") and not include_keepers:\n                continue",
+     "new": "            if False:\n                continue",
+     "must_fail": [
+      "test_A_KEEPER_IS_NOT_A_MARKET_DECISION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if str(season) not in seasons:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_A_MISSING_SEASON_IS_NAMED_not_returned_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    shared = set(pick_of)\n    for tbl in sources.values():\n        shared &= set(tbl or {})",
+     "new": "    shared = set(pick_of)\n    for tbl in sources.values():\n        shared |= set(tbl or {})",
+     "must_fail": [
+      "test_SOURCES_ARE_GRADED_ON_THE_SAME_PLAYERS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(shared) < MIN_SHARED:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_SHARED_POPULATION_TOO_THIN_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"total_drafts\": (depth or {}).get(name),",
+     "new": "            \"total_drafts\": (depth or {}).get(name) or 0,",
+     "must_fail": [
+      "test_AN_UNDECLARED_DEPTH_IS_NOT_ZERO",
+      "test_THE_ACCUMULATION_DEPTH_TRAVELS_WITH_THE_COEFFICIENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"rho\": round(spearman(adp, got), 4),",
+     "new": "            \"rho\": round(spearman([-a for a in adp], got), 4),",
+     "must_fail": [
+      "test_THE_SIGN_IS_NOT_THE_SIBLING_EXPERIMENTS_SIGN",
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"by_position\": {k: {\"n\": len(v),\n                                \"median_room_earlier_by\": round(median(v), 1)}\n                            for k, v in sorted(per.items())},",
+     "new": "            \"by_position\": {},",
+     "must_fail": [
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                per.setdefault(pos, []).append(float(tbl[pid]) - pick_of[pid])",
+     "new": "                per.setdefault(pos, []).append(pick_of[pid] - float(tbl[pid]))",
+     "must_fail": [
+      "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
