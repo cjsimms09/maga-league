@@ -41,76 +41,76 @@
   }
  },
  "sim_independent": {
-  "run_share": 0.391,
-  "runs_per_draft": 18.92,
-  "mean_run_len": 3.11,
+  "run_share": 0.386,
+  "runs_per_draft": 18.46,
+  "mean_run_len": 3.13,
   "timing": {
    "q1": {
-    "QB": 0.169,
-    "RB": 0.294,
-    "WR": 0.349,
-    "TE": 0.129
+    "QB": 0.151,
+    "RB": 0.296,
+    "WR": 0.36,
+    "TE": 0.125
    },
    "q2": {
-    "QB": 0.169,
-    "RB": 0.293,
-    "WR": 0.349,
-    "TE": 0.129
-   },
-   "q3": {
-    "QB": 0.164,
-    "RB": 0.297,
-    "WR": 0.343,
-    "TE": 0.129
-   },
-   "q4": {
-    "QB": 0.167,
-    "RB": 0.294,
-    "WR": 0.347,
+    "QB": 0.15,
+    "RB": 0.301,
+    "WR": 0.354,
     "TE": 0.128
    },
+   "q3": {
+    "QB": 0.149,
+    "RB": 0.294,
+    "WR": 0.357,
+    "TE": 0.126
+   },
+   "q4": {
+    "QB": 0.15,
+    "RB": 0.301,
+    "WR": 0.35,
+    "TE": 0.125
+   },
    "q5": {
-    "QB": 0.175,
-    "RB": 0.285,
-    "WR": 0.342,
-    "TE": 0.133
+    "QB": 0.154,
+    "RB": 0.289,
+    "WR": 0.35,
+    "TE": 0.132
    }
   }
  },
  "sim_fitted": {
-  "run_share": 0.45,
-  "runs_per_draft": 20.88,
-  "mean_run_len": 3.23,
+  "run_share": 0.464,
+  "runs_per_draft": 21.29,
+  "mean_run_len": 3.27,
   "timing": {
    "q1": {
-    "QB": 0.169,
-    "RB": 0.294,
-    "WR": 0.351,
-    "TE": 0.128
+    "QB": 0.149,
+    "RB": 0.297,
+    "WR": 0.361,
+    "TE": 0.124
    },
    "q2": {
-    "QB": 0.168,
-    "RB": 0.294,
-    "WR": 0.35,
-    "TE": 0.129
+    "QB": 0.153,
+    "RB": 0.299,
+    "WR": 0.354,
+    "TE": 0.126
    },
    "q3": {
-    "QB": 0.165,
-    "RB": 0.296,
-    "WR": 0.343,
-    "TE": 0.129
+    "QB": 0.15,
+    "RB": 0.297,
+    "WR": 0.356,
+    "TE": 0.126
    },
    "q4": {
-    "QB": 0.168,
-    "RB": 0.29,
-    "WR": 0.347,
-    "TE": 0.132
+    "QB": 0.149,
+    "RB": 0.303,
+    "WR": 0.354,
+    "TE": 0.124
    },
    "q5": {
-    "QB": 0.174,
-    "RB": 0.286,
-    "WR": 0.342,
-    "TE": 0.133
+    "QB": 0.153,
+    "RB": 0.289,
+    "WR": 0.35,
+    "TE": 0.132
    }
   }
  },
@@ -118,128 +118,130 @@
  "fit_grid": [
   {
    "cascade": 0.0,
-   "run_share": 0.391,
-   "runs_per_draft": 18.92,
-   "err": 0.069
+   "run_share": 0.386,
+   "runs_per_draft": 18.46,
+   "err": 0.074
   },
   {
    "cascade": 1.0,
-   "run_share": 0.41,
-   "runs_per_draft": 19.54,
-   "err": 0.05
+   "run_share": 0.411,
+   "runs_per_draft": 19.33,
+   "err": 0.049
   },
   {
    "cascade": 2.0,
-   "run_share": 0.423,
-   "runs_per_draft": 19.96,
-   "err": 0.037
+   "run_share": 0.437,
+   "runs_per_draft": 20.54,
+   "err": 0.023
   },
   {
    "cascade": 4.0,
-   "run_share": 0.45,
-   "runs_per_draft": 20.88,
-   "err": 0.01
+   "run_share": 0.464,
+   "runs_per_draft": 21.29,
+   "err": 0.004
   },
   {
    "cascade": 8.0,
-   "run_share": 0.495,
-   "runs_per_draft": 22.42,
-   "err": 0.035
+   "run_share": 0.504,
+   "runs_per_draft": 22.5,
+   "err": 0.044
   },
   {
    "cascade": 16.0,
-   "run_share": 0.566,
-   "runs_per_draft": 24.75,
-   "err": 0.106
+   "run_share": 0.557,
+   "runs_per_draft": 24.04,
+   "err": 0.097
   }
  ],
  "checks": [
   {
    "stat": "run_share",
    "real": 0.46,
-   "sim": 0.45,
+   "sim": 0.464,
    "tolerance": 0.05,
    "reproduces": true
   },
   {
    "stat": "runs_per_draft",
    "real": 19.67,
-   "sim": 20.88,
+   "sim": 21.29,
    "tolerance": 1.5,
-   "reproduces": true
+   "reproduces": false
   },
   {
    "stat": "mean_run_len",
    "real": 3.16,
-   "sim": 3.23,
+   "sim": 3.27,
    "tolerance": 0.5,
    "reproduces": true
   },
   {
    "stat": "timing_q1_RB",
    "real": 0.321,
-   "sim": 0.294,
+   "sim": 0.297,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_WR",
    "real": 0.457,
-   "sim": 0.351,
+   "sim": 0.361,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q1_QB",
    "real": 0.099,
-   "sim": 0.169,
+   "sim": 0.149,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_RB",
    "real": 0.309,
-   "sim": 0.296,
+   "sim": 0.297,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_WR",
    "real": 0.296,
-   "sim": 0.343,
+   "sim": 0.356,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q3_QB",
    "real": 0.123,
-   "sim": 0.165,
+   "sim": 0.15,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_RB",
    "real": 0.28,
-   "sim": 0.286,
+   "sim": 0.289,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_WR",
    "real": 0.305,
-   "sim": 0.342,
+   "sim": 0.35,
    "tolerance": 0.15,
    "reproduces": true
   },
   {
    "stat": "timing_q5_QB",
    "real": 0.098,
-   "sim": 0.174,
+   "sim": 0.153,
    "tolerance": 0.15,
    "reproduces": true
   }
  ],
- "cannot_reproduce": [],
+ "cannot_reproduce": [
+  "runs_per_draft"
+ ],
  "not_measurable_locally": [
   "reach / ADP-deviation distribution \u2014 historical ADP lives in the CI-built bundles (egress); this comparison runs in the replay-bridge job"
  ]
