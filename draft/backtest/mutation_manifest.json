@@ -460,8 +460,8 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        return {\"status\": \"unmeasured\", \"spread_days_found\": len(days),",
-     "new": "        return {\"status\": \"measured\", \"spread_days_found\": len(days),",
+     "old": "        return {\"status\": \"unmeasured\", \"spread_days_found\": len(days),\n                \"rows\": {}, \"ranked\": [], \"ranking_excluded_thin\": 0,\n                \"earlier\": None, \"later\": None,",
+     "new": "        return {\"status\": \"measured\", \"spread_days_found\": len(days),\n                \"rows\": {}, \"ranked\": [], \"ranking_excluded_thin\": 0,\n                \"earlier\": None, \"later\": None,",
      "must_fail": [
       "test_ONE_SPREAD_DAY_IS_UNMEASURED_and_says_how_many_it_found"
      ],
@@ -528,6 +528,30 @@
      "new": "        return len(s.get(\"dispersion\") or {})",
      "must_fail": [
       "test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if gained is None or gained >= MIN_NEW_SELECTIONS:\n            break",
+     "new": "        if gained is None or gained >= 0:\n            break",
+     "must_fail": [
+      "test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if gained is not None and gained < MIN_NEW_SELECTIONS:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return None if v is None else int(v)",
+     "new": "        return 0 if v is None else int(v)",
+     "must_fail": [
+      "test_A_SNAPSHOT_WITH_NO_total_drafts_DOES_NOT_MANUFACTURE_A_WINDOW"
      ],
      "verdict": "KILLED"
     }

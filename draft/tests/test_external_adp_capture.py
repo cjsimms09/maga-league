@@ -3129,3 +3129,89 @@ def test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything():
     h = C.dispersion_health(ser, "2026")
     assert h["rows"] == 1, h        # one row carries a spread, not two
     assert h["adp_rows"] == 2
+
+
+# ── THE FIRST REAL CAPTURE MOVED A NUMBER I HAD DECLARED FROM THREE DAYS ─────
+#
+# `MIN_NEW_SELECTIONS = 3` was declared from the cadence: "total_drafts gained 4
+# and then 6 over the two most recent days, so requiring 3 means a majority of the
+# day's drafts took him." The 2026-08-14 capture gained **2** (125 -> 127).
+#
+# At +2, the MOST new selections any player can have is 2, so NOT ONE can reach 3
+# and `ranked` is empty — every row filed under `ranking_excluded_thin`. The report
+# would print a correct-looking table with nothing in it, every morning the market
+# happens to be quiet, and the reason would be invisible.
+#
+# THE FIX IS NOT A LOWER THRESHOLD. Lowering it to reach a number is the move this
+# project refuses; two drafters are two drafters however they are labelled. The
+# window widens instead: compare against the most recent EARLIER day that adds
+# enough drafts to make a qualifying player arithmetically possible, and say which
+# window was used.
+
+def test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW():
+    """08-13 -> 08-14 adds 2 drafts, so no player can reach 3 new selections. The
+    answer is to reach further back, not to lower the bar.
+
+    MUTATION: keep the one-day window — `ranked` is empty, every row lands in
+    `ranking_excluded_thin`, and a quiet day is indistinguishable from a broken
+    instrument."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 106)}, 127)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert (r["earlier"], r["later"]) == ("2026-08-12", "2026-08-14"), r
+    assert r["window_days"] == 2 and r["window_new_drafts"] == 8, r
+    assert r["rows"]["1"]["new_selections"] == 6
+
+
+def test_THE_WINDOW_STAYS_AT_ONE_DAY_WHEN_ONE_DAY_IS_ENOUGH():
+    """Widening is a fallback, not the default: the whole point is the MARGINAL
+    day, and reaching back further than necessary blends days that could have been
+    read separately.
+
+    MUTATION: always take the widest window — the instrument stops being marginal
+    and starts being a slow-moving average, which is the thing it was built to see
+    past."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 119),
+           _md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 110)}, 131)]
+    r = C.latest_marginal(ser, "2026")
+    assert (r["earlier"], r["later"]) == ("2026-08-13", "2026-08-14")
+    assert r["window_days"] == 1 and r["window_new_drafts"] == 6
+
+
+def test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty():
+    """Two thin days in a row and nothing further back: there is genuinely no
+    derivable marginal figure yet, and that must read as UNMEASURED with the
+    reason, not as a market where nobody moved.
+
+    MUTATION: report the widest window anyway — a table built on one new draft
+    goes out labelled the same as one built on twelve."""
+    ser = [_md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 105)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "unmeasured"
+    assert "new draft" in r["note"]
+    assert r["window_new_drafts"] == 1
+
+
+def test_A_SNAPSHOT_WITH_NO_total_drafts_DOES_NOT_MANUFACTURE_A_WINDOW():
+    """Written because `return 0 if v is None else int(v)` SURVIVED the gate: every
+    fixture above carries `total_drafts`, so the missing-count branch was never
+    exercised. A survived mutation is a missing assertion.
+
+    It is not hypothetical — `total_drafts` is the provider's own figure and a day
+    where MFL omits it is exactly the day this arithmetic runs on. Read as ZERO,
+    the window `n_late - 0` is the whole season's draft count, so the widest window
+    always looks wide enough and a two-drafter day is reported as if it rested on
+    a hundred and twenty-seven.
+
+    MUTATION: the zero default — the guard passes on a day it should refuse."""
+    ser = [_md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.5, 106)}, 127)]
+    ser[0]["total_drafts"] = None
+    r = C.latest_marginal(ser, "2026")
+    # UNKNOWN, not a wide window: the gap cannot be computed, so it is not asserted.
+    assert r["window_new_drafts"] is None, r
+    assert r["status"] == "measured"

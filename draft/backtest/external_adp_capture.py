@@ -775,6 +775,17 @@ def marginal_adp(earlier: dict, later: dict) -> dict:
 MIN_NEW_SELECTIONS = 3
 
 
+def _total_drafts(snapshot):
+    """The report's own draft count, or None. NEVER 0 for a missing field: the
+    window arithmetic below subtracts these, and a missing count read as zero
+    would manufacture a window as wide as the whole season."""
+    try:
+        v = (snapshot or {}).get("total_drafts")
+        return None if v is None else int(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def latest_marginal(series: list, year) -> dict:
     """The most recent derivable marginal day, chosen rather than assumed.
 
@@ -819,7 +830,55 @@ def latest_marginal(series: list, year) -> dict:
     # loses its scope is worse than one that fails and says so.
     from board_vs_market import DRAFT_RANGE
 
-    out = marginal_adp(days[-2], days[-1])
+    # ── THE WINDOW WIDENS WHEN A SINGLE DAY CANNOT QUALIFY ANYBODY ──────────
+    #
+    # `MIN_NEW_SELECTIONS` was declared from a cadence of +4 and +6 drafts a day.
+    # The first real capture gained TWO (125 -> 127). At +2 the most new selections
+    # any player can have is 2, so not one can reach 3 and `ranked` comes back
+    # empty with every row filed as "thin" — a correct-looking table with nothing
+    # in it, on any morning the market is quiet, and no way to see why.
+    #
+    # THE THRESHOLD IS NOT LOWERED. Two drafters are two drafters however they are
+    # labelled, and tuning a bar to reach a number is the move this project
+    # refuses. Instead the comparison reaches back to the most recent earlier day
+    # that makes a qualifying player ARITHMETICALLY POSSIBLE — which is
+    # MIN_NEW_SELECTIONS drafts, derived rather than chosen, because below it no
+    # player can qualify no matter how the drafters behaved.
+    #
+    # ONE DAY STAYS THE DEFAULT. Widening is a fallback: the instrument is about
+    # the MARGINAL day, and reaching back further than necessary blends days that
+    # could have been read apart.
+    later = days[-1]
+    n_late = _total_drafts(later)
+    # The initialiser is UNREACHABLE — `days[:-1]` is non-empty whenever
+    # len(days) >= 2, which the guard above has already established, so the
+    # loop always assigns both on its first pass. No mutation is filed
+    # against it for that reason: a mutation on equivalent code cannot be
+    # killed, and pairing it with a test that could never fail would be
+    # coverage theatre. Kept for the reader rather than for the machine.
+    earlier, gained = days[-2], None
+    for cand in reversed(days[:-1]):
+        earlier = cand
+        gained = (None if n_late is None or _total_drafts(cand) is None
+                  else n_late - _total_drafts(cand))
+        if gained is None or gained >= MIN_NEW_SELECTIONS:
+            break
+    if gained is not None and gained < MIN_NEW_SELECTIONS:
+        return {"status": "unmeasured", "spread_days_found": len(days),
+                "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
+                "ranking_excluded_out_of_range": 0,
+                "earlier": earlier.get("observed_at"), "later": later.get("observed_at"),
+                "window_days": len(days) - 1, "window_new_drafts": gained,
+                "min_new_selections": MIN_NEW_SELECTIONS,
+                "note": "the widest window available adds only %d new draft(s), "
+                        "and %d are needed before ANY player can reach the "
+                        "%d-selection floor. There is no derivable marginal "
+                        "figure yet — that is UNKNOWN, not a quiet market."
+                        % (gained, MIN_NEW_SELECTIONS, MIN_NEW_SELECTIONS)}
+
+    out = marginal_adp(earlier, later)
+    out["window_days"] = days.index(later) - days.index(earlier)
+    out["window_new_drafts"] = gained
     thin = 0
     out_of_range = 0
     ranked = []
