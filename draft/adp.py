@@ -612,17 +612,47 @@ def merge_primary_over_ffc(ffc_table: dict, primary_table: dict) -> tuple[dict, 
     FFC's bye is preserved on primary rows (the primary source carries no bye). Returns
     (merged, stats). Same {pid: row} shape apply_with_fallback consumes — it then handles
     only the search_rank tier, so the fallback chain is primary -> FFC -> search_rank."""
-    merged = dict(ffc_table)                        # FFC is the coverage backbone (+ bye)
+    merged = dict(ffc_table)                        # FFC is the coverage backbone (+ bye + sd)
     for pid, prow in primary_table.items():
         row = dict(prow)
         base = ffc_table.get(pid, {})
         if base.get("bye") not in (None, "", 0):
             row["bye"] = base["bye"]
+        # ⚠️ AND THE STANDARD DEVIATION, FOR THE SAME REASON AS THE BYE.
+        #
+        # The line above preserves FFC's bye onto a primary row because "the
+        # primary source carries no bye". FANTASYPROS CARRIES NO STDEV EITHER,
+        # and that half was missed — so every primary row fell back to
+        # `fitted_sd(adp, None)`, a clamped linear rule, and the ONE source that
+        # publishes real draft-position dispersion was used for FOUR players.
+        #
+        # WHY IT MATTERS MORE THAN IT SOUNDS: `adp_sd` is the entire shape of the
+        # survival curve — "will he still be there at my next pick", which is the
+        # question the war room exists to answer. With a fitted sd, two players
+        # at the same ADP have IDENTICAL survival curves by construction; the
+        # published stdev is the only thing that knows one of them is a
+        # consensus pick and the other splits the room.
+        #
+        # The MEAN still comes from the primary source, which is the better ADP.
+        # Only the dispersion is taken from FFC, and only where FFC published
+        # one — a fitted value is never preferred over a measured one, and a
+        # measured one is never invented where it does not exist.
+        if base.get("adp_sd") is not None and base.get("adp_sd_source") == "ffc":
+            row["adp_sd"] = base["adp_sd"]
+            row["adp_sd_source"] = "ffc-published"
         merged[pid] = row
     primary_n = sum(1 for r in merged.values() if r.get("adp_source") == "fantasypros")
     ffc_n = sum(1 for r in merged.values() if r.get("adp_source") == "ffc")
+    pub_sd = sum(1 for r in merged.values()
+                 if str(r.get("adp_sd_source") or "").startswith("ffc"))
     return merged, {"primary_priced": primary_n, "ffc_gap_fill": ffc_n,
-                    "total_in_table": len(merged)}
+                    "total_in_table": len(merged),
+                    # HOW MANY SURVIVAL CURVES ARE SHAPED BY A MEASUREMENT rather
+                    # than by a clamped line. Reported because "the sd is fitted"
+                    # and "the sd is published" are different claims and the
+                    # board could not previously tell them apart at all.
+                    "published_sd": pub_sd,
+                    "fitted_sd": len(merged) - pub_sd}
 
 
 def _print_report(report: dict, strict_top_n: int) -> None:
@@ -691,7 +721,22 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     for p in players:
         row = adp_table.get(str(p.get("player_id")))
         if row:
+            # ⚠️ `adp_sd_source` IS COMPUTED AND WAS NEVER COPIED, so the board
+            # carried it on ZERO of 1,841 rows. `fitted_sd` returns
+            # ("ffc"|"clamped-linear") precisely so a consumer can tell a
+            # MEASURED dispersion from a fitted one — and the field died here,
+            # three lines from the artifact, exactly like `bye_source` and
+            # `arithmetic_check.condition` before it.
+            #
+            # It matters because `adp_sd` is the whole SHAPE of the survival
+            # curve. A published stdev knows that one player is a consensus pick
+            # and another splits the room; a clamped line cannot, and gives them
+            # identical curves at the same ADP. Without the provenance nothing
+            # downstream — and nobody reading the board — could tell which of
+            # those two things they were looking at.
             p.update({k: row[k] for k in ("adp", "adp_sd", "adp_source")})
+            if row.get("adp_sd_source"):
+                p["adp_sd_source"] = row["adp_sd_source"]
             # BYE WEEKS. Sleeper's /players/nfl dump carries metadata.bye_week,
             # and in the preseason it is empty for ALL of them — 0 of 1737 on
             # the 2026-08-07 build. So the bye grid and every bye-conflict
@@ -756,6 +801,7 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
         else:
             p["adp"] = ffc_max + 600.0
             p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
+            p["adp_sd_source"] = "fallback-clamped"   # never a measurement
             p["adp_source"] = "search_rank"
             unordered.append(p.get("player_id"))
         used_fallback.append(p.get("player_id"))
@@ -770,6 +816,7 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     for i, (_proj, _p) in enumerate(ordered_by_proj):
         _p["adp"] = ffc_max + 1.0 + i
         _p["adp_sd"] = max(8.0, min(0.25 * _p["adp"], 30.0))
+        _p["adp_sd_source"] = "fallback-clamped"      # never a measurement
         _p["adp_source"] = "search_rank"
 
     # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
