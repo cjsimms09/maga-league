@@ -602,7 +602,12 @@ def dispersion_health(series: list, year) -> dict:
                          "rather than a fault to diagnose." % DISPERSION_SINCE)
 
     def n_of(s):
-        return len(s.get("dispersion") or {})
+        # ROWS WITH A BOUND, not rows with anything. This alarm is about the
+        # SPREAD arriving; counting selection-count-only rows would report full
+        # coverage on a feed that sent no bounds at all — muting the escalation
+        # that exists for precisely that case.
+        return sum(1 for v in (s.get("dispersion") or {}).values()
+                   if any((v or {}).get(k) is not None for k in DISPERSION_BOUNDS))
 
     latest = judged[-1]
     rows, adp_rows = n_of(latest), int(latest.get("row_count") or 0)
@@ -1728,10 +1733,26 @@ PLAYERS_PARAMS = {"TYPE": "players", "JSON": "1"}
 #: Which of MFL's per-player fields describe the SPREAD rather than the mean.
 DISPERSION_FIELDS = ("min_pick", "max_pick", "sel_pct", "drafts")
 
-#: A player is kept only if the source published at least one BOUND. `drafts` and
-#: `sel_pct` alone do not describe a spread, and a row of all-None on disk is
-#: indistinguishable from a measured zero.
+#: What makes a row a SPREAD. `drafts` and `sel_pct` alone do not describe one, so
+#: the health alarm and the spread summary count rows carrying at least one of
+#: these — never rows carrying anything at all.
 DISPERSION_BOUNDS = ("min_pick", "max_pick")
+
+#: What makes a row WORTH KEEPING, which is a wider question than what makes it a
+#: spread — and the two were the same test until `marginal_adp` arrived.
+#:
+#: `dispersion` had exactly one consumer when it was written, so "no bound" and
+#: "nothing useful" were the same thing. The marginal day reads `drafts` — the
+#: exact per-player denominator, available from no other field — off the same
+#: record, and a player MFL counts but does not bound was being dropped carrying
+#: the one number nothing else supplies.
+#:
+#: THIS IS NOT HYPOTHETICAL UNTIL THE FIRST REAL CAPTURE PROVES IT EITHER WAY:
+#: `dispersion_health` says of these very fields that "the shape is right and only
+#: the names are unproven". If `minPick`/`maxPick` turn out absent, the bounds-only
+#: test drops EVERY row and the marginal day becomes silently underivable on a day
+#: whose denominator did arrive.
+DISPERSION_KEEP = ("min_pick", "max_pick", "drafts")
 
 
 def dispersion_of(parsed: list) -> dict:
@@ -1757,7 +1778,10 @@ def dispersion_of(parsed: list) -> dict:
         pid = r.get("mfl_id")
         if pid is None:
             continue
-        if all(r.get(k) is None for k in DISPERSION_BOUNDS):
+        # KEPT IF IT CARRIES ANYTHING A CONSUMER NEEDS, dropped only if it says
+        # nothing — a row of all-None on disk is a measurement of nothing wearing
+        # the shape of one.
+        if all(r.get(k) is None for k in DISPERSION_KEEP):
             continue
         out[str(pid)] = {k: r.get(k) for k in DISPERSION_FIELDS}
     return out

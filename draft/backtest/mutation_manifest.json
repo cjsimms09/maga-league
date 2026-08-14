@@ -514,6 +514,22 @@
       "test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        if all(r.get(k) is None for k in DISPERSION_KEEP):",
+     "new": "        if all(r.get(k) is None for k in DISPERSION_BOUNDS):",
+     "must_fail": [
+      "test_A_PLAYER_WITH_A_COUNT_BUT_NO_BOUNDS_IS_KEPT_for_the_marginal_day"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return sum(1 for v in (s.get(\"dispersion\") or {}).values()\n                   if any((v or {}).get(k) is not None for k in DISPERSION_BOUNDS))",
+     "new": "        return len(s.get(\"dispersion\") or {})",
+     "must_fail": [
+      "test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },

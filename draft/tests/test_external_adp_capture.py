@@ -928,9 +928,23 @@ def test_a_player_the_source_gave_NO_spread_for_is_OMITTED_not_stored_as_nulls()
     """A row of all-None is indistinguishable from a measured zero once it is on
     disk, and it inflates the dispersion count so a later reader thinks coverage is
     complete. MUTATION: emit every player — `dispersion_rows` stops being a
-    coverage figure and becomes a copy of `row_count`."""
-    d = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None))
+    coverage figure and becomes a copy of `row_count`.
+
+    ⚠ THE FIXTURE GAINED `drafts=None` WHEN `DISPERSION_KEEP` WIDENED, and that is
+    a correction to the fixture rather than a relaxation of the assertion. This
+    test's own sentence says "a row of all-None"; `drafts` is one of the Nones and
+    the fixture had been leaving it at 3510, so it was really testing "no bounds"
+    under a name that claimed more. A row carrying a selection count is now KEPT on
+    purpose — the marginal day needs exactly that number and no other field
+    supplies it — and the row that says NOTHING is still dropped, which is what the
+    assertion below has always been about."""
+    d = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None,
+                                drafts=None))
     assert d == {}
+    # AND THE NARROWER CLAIM THE OLD FIXTURE ACTUALLY TESTED, kept explicitly so
+    # the widening is visible rather than inferred from a passing suite.
+    kept = C.dispersion_of(_parsed(min_pick=None, max_pick=None, sel_pct=None))
+    assert list(kept) == ["1"] and kept["1"]["drafts"] == 3510
 
 
 def test_ONE_published_bound_is_enough_to_keep_him():
@@ -3063,3 +3077,55 @@ def test_THE_RANKING_IS_SCOPED_TO_PICKS_WE_CAN_ACTUALLY_REACH():
     assert [x["player_id"] for x in r["ranked"]] == ["riser", "faller"], r["ranked"]
     assert r["ranking_excluded_out_of_range"] == 1
     assert r["draft_range"] == 150
+
+
+# ── THE SPREAD AND THE COUNT ARE TWO CONSUMERS OF ONE ROW ────────────────────
+#
+# `dispersion_of` drops any player with no min/max bound, and that was right when
+# `dispersion` had exactly one consumer: a SPREAD, which `drafts` and `sel_pct`
+# genuinely cannot describe. `marginal_adp` arrived today with a different need —
+# `drafts` alone, the exact per-player denominator — and it reads the same record.
+#
+# So a player MFL gives a selection count but no bounds is now dropped carrying a
+# number nothing else can supply. Whether that happens at all is unknown until the
+# first real capture: `dispersion_health` says so itself — "suspect the field names
+# in mfl_adp.parse — minPick, maxPick, draftSelPct — BEFORE suspecting MFL... the
+# shape is right and only the names are unproven." If minPick/maxPick turn out
+# absent, EVERY row is dropped and the marginal day becomes silently underivable
+# even though its input was in the response.
+
+def test_A_PLAYER_WITH_A_COUNT_BUT_NO_BOUNDS_IS_KEPT_for_the_marginal_day():
+    """MUTATION: keep the bounds-only test — a feed that publishes
+    `draftsSelectedIn` without `minPick`/`maxPick` loses every selection count,
+    and `marginal_adp` reports UNMEASURED on a day whose denominator arrived."""
+    parsed = [{"mfl_id": "1", "min_pick": 3, "max_pick": 40, "sel_pct": 70.0, "drafts": 88},
+              {"mfl_id": "2", "min_pick": None, "max_pick": None,
+               "sel_pct": 50.0, "drafts": 62},
+              {"mfl_id": "3", "min_pick": None, "max_pick": None,
+               "sel_pct": None, "drafts": None}]
+    d = C.dispersion_of(parsed)
+    assert set(d) == {"1", "2"}, d
+    assert d["2"]["drafts"] == 62
+    # STILL DROPS THE ROW THAT SAYS NOTHING. All-None on disk is a measurement of
+    # nothing wearing the shape of one.
+    assert "3" not in d
+
+
+def test_THE_SPREAD_ALARM_COUNTS_ROWS_WITH_A_BOUND_not_rows_with_anything():
+    """Keeping count-only rows would inflate `dispersion_health`'s coverage — the
+    instrument that fires when the spread never arrives — until it reported a
+    healthy day on a feed that sent no bounds at all. The alarm has to keep
+    counting the thing it is about.
+
+    MUTATION: count every dispersion row — a capture carrying selection counts and
+    NO bounds reports full spread coverage, and the escalation that exists for
+    exactly that case never fires."""
+    ser = [{"year": "2026", "observed_at": "2026-08-14", "rows": {"1": 1.0, "2": 2.0},
+            "row_count": 2,
+            "dispersion": {"1": {"min_pick": 3, "max_pick": 40, "sel_pct": 70.0,
+                                 "drafts": 88},
+                           "2": {"min_pick": None, "max_pick": None,
+                                 "sel_pct": 50.0, "drafts": 62}}}]
+    h = C.dispersion_health(ser, "2026")
+    assert h["rows"] == 1, h        # one row carries a spread, not two
+    assert h["adp_rows"] == 2
