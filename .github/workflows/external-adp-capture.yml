@@ -892,6 +892,55 @@ jobs:
                             "mean: two sources at RB4 and one at RB19 should "
                             "return RB4 and report the argument, not RB9 — a rank "
                             "no source holds and no reader can defend.")
+
+                  # ── WHERE THE AGGREGATE DISAGREES WITH OUR BOARD ───────────
+                  #
+                  # The question a reader actually has, and the one that cannot be
+                  # asked naively. The consensus is mapped onto FFC's pick scale
+                  # (the only format-matched anchor: half-ppr, teams=10) while the
+                  # board is built primarily on FantasyPros — so a whole position
+                  # can shift by the gap between two providers' scales and look
+                  # like a finding. Measured 2026-08-14: TE moved +21.5 with a
+                  # typical move of 21.5, and WR -9.3 of 9.3. Every tight end, one
+                  # way. `block_shift` refuses those positions rather than
+                  # printing them.
+                  anchor = {}
+                  for d in SC.load():
+                      if d.get("source") == "ffc" and d.get("observed_at") == r["day"]:
+                          anchor = {k: v for k, v in (d.get("rows") or {}).items()
+                                    if v is not None}
+                  scaled = CN.to_pick_scale(r["order"], anchor, positions) if anchor else {}
+                  lines, refused = [], []
+                  for pos, blk in sorted(scaled.items()):
+                      if blk.get("status") != "anchored":
+                          continue
+                      pairs = [(x["player_id"], x["adp"], float(prices[x["player_id"]]))
+                               for x in blk["rows"]
+                               if x.get("adp") is not None
+                               and prices.get(x["player_id"]) is not None
+                               and float(prices[x["player_id"]]) <= 150]
+                      bs = CN.block_shift([c - b for _p, c, b in pairs])
+                      if bs["systematic"] is not False:
+                          refused.append((pos, bs))
+                          continue
+                      for pid, c, b in pairs:
+                          lines.append((abs(c - b), pid, pos, c, b))
+                  print("")
+                  print("### Where the aggregate disagrees with our board")
+                  for pos, bs in refused:
+                      print("- **%s SUPPRESSED** — %s"
+                            % (pos, bs.get("note") or "nothing comparable"))
+                  if lines:
+                      lines.sort(reverse=True)
+                      print("")
+                      print("| player | pos | consensus pick | board adp | move |")
+                      print("|---|---|---|---|---|")
+                      for _m, pid, pos, c, b in lines[:12]:
+                          print("| %s | %s | %.1f | %.1f | %+.1f |"
+                                % (names.get(pid) or ("`%s`" % pid), pos, c, b, c - b))
+                  elif not refused:
+                      print("- nothing to compare: no position survived both the "
+                            "anchor and the draft-range scope.")
           except Exception as e:                      # noqa: BLE001
               print("**THE CONSENSUS DID NOT RUN** (%s: %s) — not a clean result; "
                     "nothing was aggregated." % (type(e).__name__, e))
