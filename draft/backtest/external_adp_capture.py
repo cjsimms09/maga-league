@@ -219,7 +219,107 @@ _D_N = {2: 1.128, 3: 1.693, 4: 2.059, 5: 2.326, 6: 2.534, 7: 2.704, 8: 2.847,
 #: Below this selection rate the observed min/max is cut by drafts simply ENDING
 #: before the player was taken, so the range understates. Declared from the shape
 #: of the thing rather than tuned: at 50% the median draft did not take him.
+#:
+#: ⚠ 50.0 IS ON THE PERCENT SCALE, which is an ASSUMPTION about MFL's feed and not
+#: yet a measurement. See `sel_pct_units`.
 TRUNCATION_SEL_PCT = 50.0
+
+#: How far the implied rate may sit from the published one and still be called the
+#: same quantity. MFL publishes `draftSelPct` rounded to whole percents ("70"), so
+#: at a small denominator the rounding alone moves the ratio by several percent —
+#: this is a UNITS test (1x vs 100x), not a precision one, and the band is wide on
+#: purpose so it answers the question it was built for and no other.
+SEL_PCT_UNITS_TOLERANCE = 0.15
+
+
+def sel_pct_units(snapshot: dict) -> dict:
+    """Is `sel_pct` a PERCENT or a FRACTION? Answered from the day, not assumed.
+
+    THE ONE THING ABOUT THE FEED WE READ BUT NEVER CHECKED. `TRUNCATION_SEL_PCT`
+    is 50.0 and the note prints `%.1f%%`, both of which read `draftSelPct` as a
+    whole percent. That reading comes from ONE row quoted in a comment — no
+    captured MFL response in this repo carries the field, and MFL is unreachable
+    from here (the proxy 403s CONNECT), so it could not be verified before the
+    first real capture.
+
+    IT IS VERIFIABLE FROM WHAT WE ALREADY STORE, which is the point. The snapshot
+    carries `drafts` (selections) per player and `total_drafts` for the report, so
+    the rate is DERIVABLE — and a derived rate against a published one settles the
+    scale on the first day rather than never.
+
+    WHY THIS IS A LABEL CHECK AND NOT AN ALARM, stated so nobody reads it as worse
+    than it is. `sd` does not use `sel_pct` at all: the estimator is
+    `(max - min) / d_n`. A wrong scale mislabels `truncated` and prints a wrong
+    figure in a note; it does not move a single number anyone drafts on. And the
+    raw value is archived verbatim, so the interpretation can be corrected later
+    over every day already captured. That is the design working — capture raw,
+    interpret afterwards — and this makes the interpretation checkable instead of
+    permanent.
+
+    FOUR ANSWERS, and "unmeasured" is one of them rather than a quiet pass:
+
+      percent      the published figure matches drafts/total_drafts * 100
+      fraction     it matches drafts/total_drafts — every threshold here is 100x
+                   wrong and every row would read as truncated
+      disagrees    neither. `draftSelPct` is not the selection rate we think it
+                   is, and NOTHING should be inferred from it until it is known
+      unmeasured   no dispersion, no `total_drafts`, or no row with both — the
+                   two days before the parser kept the spread are exactly this,
+                   and they are not evidence of anything
+    """
+    out = {"verdict": None, "rows": 0, "median_ratio": None,
+           "expected_percent": True, "note": None}
+    disp = (snapshot or {}).get("dispersion") or {}
+    total = (snapshot or {}).get("total_drafts")
+    try:
+        total = float(total)
+    except (TypeError, ValueError):
+        total = None
+    if not disp or not total or total <= 0:
+        return dict(out, verdict="unmeasured",
+                    note="no dispersion or no total_drafts on this day — nothing "
+                         "to derive the rate from")
+
+    ratios = []
+    for rec in disp.values():
+        sel, n = (rec or {}).get("sel_pct"), (rec or {}).get("drafts")
+        try:
+            sel, n = float(sel), float(n)
+        except (TypeError, ValueError):
+            continue
+        # A player with no selections cannot imply a rate, and a published zero
+        # divides into nothing. Both are skipped rather than counted as agreement.
+        if n <= 0 or sel <= 0:
+            continue
+        ratios.append(sel / (n / total * 100.0))
+    if not ratios:
+        return dict(out, verdict="unmeasured",
+                    note="no row carried both a selection count and a published "
+                         "rate — the scale is still unestablished")
+
+    from statistics import median
+    med = median(ratios)
+    out = dict(out, rows=len(ratios), median_ratio=med)
+    if abs(med - 1.0) <= SEL_PCT_UNITS_TOLERANCE:
+        return dict(out, verdict="percent",
+                    note="published rate matches drafts/total_drafts x 100 across "
+                         "%d rows — TRUNCATION_SEL_PCT=%.1f is on the right scale"
+                         % (len(ratios), TRUNCATION_SEL_PCT))
+    if abs(med - 0.01) <= SEL_PCT_UNITS_TOLERANCE / 100.0:
+        return dict(out, verdict="fraction", expected_percent=False,
+                    note="published rate is a FRACTION, not a percent — "
+                         "TRUNCATION_SEL_PCT=%.1f is 100x too high, so every row "
+                         "reads as truncated and every note prints a rate 100x "
+                         "too small. The stored spread is unaffected: `sd` does "
+                         "not use sel_pct, and the raw value is archived, so this "
+                         "is re-derivable over every day already captured."
+                         % TRUNCATION_SEL_PCT)
+    return dict(out, verdict="disagrees", expected_percent=False,
+                note="`draftSelPct` is neither drafts/total_drafts nor 100x it "
+                     "(median ratio %.4g over %d rows) — it is not the selection "
+                     "rate we take it for. Infer NOTHING from it until this is "
+                     "understood; `sd` is unaffected and the raw value is archived."
+                     % (med, len(ratios)))
 
 
 def _expected_range(n: int) -> float:
@@ -1667,6 +1767,20 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
                           # NAMED, because a dispersion count of zero after this landed
                           # means MFL stopped publishing it — not that spreads are zero.
                           "dispersion_rows": len(dispersion),
+                          # THE SCALE OF `sel_pct`, ANSWERED FROM TODAY'S OWN DAY.
+                          # `TRUNCATION_SEL_PCT` reads MFL's figure as a whole
+                          # percent on the strength of one row quoted in a comment.
+                          # Printed here because this is the first surface anyone
+                          # reads on the morning it first matters — a check whose
+                          # answer nobody sees is rule 14 in the other direction.
+                          # Found by (year, date) rather than taken as `series[-1]`:
+                          # today IS appended last, and depending on that is how a
+                          # report ends up describing a different day than the one
+                          # it names.
+                          "sel_pct_units": sel_pct_units(next(
+                              (s for s in series
+                               if str(s.get("year")) == str(year)
+                               and s.get("observed_at") == observed_at), {})),
                           # HOW MANY OF TODAY'S IDS THIS ARCHIVE CAN ACTUALLY RESOLVE.
                           # Printed beside the capture count because the two failed
                           # independently for two days and only one of them was visible.
