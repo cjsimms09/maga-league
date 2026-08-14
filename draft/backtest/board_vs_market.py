@@ -985,6 +985,31 @@ COMPOSITION_DRIFT_FRACTION = 1.0 / 30.0
 AGREEMENT_VARS = ("wopr", "target_share", "proj_mean", "vorp")
 
 
+def _median(v):
+    from statistics import median as _m
+    return _m(v) if v else 0.0
+
+
+def _rho_on(keys, var, a, b, info):
+    """The same gradient as `market_agreement._rho`, on an arbitrary subset.
+
+    Factored out rather than duplicated, because the pooled figure and the
+    per-position figures MUST be the same computation — the whole point of the
+    split is that only the population changes.
+    """
+    xs, ys = [], []
+    for k in keys:
+        v = (info.get(k) or {}).get(var)
+        if isinstance(v, (int, float)):
+            xs.append(float(v))
+            ys.append(a[k] - b[k])
+    if len(xs) < 3:
+        return None, len(xs)
+    if len(set(ys)) == 1:
+        return 0.0, len(xs)
+    return _spearman(xs, ys), len(xs)
+
+
 def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
                      top_n=DRAFT_RANGE, variables=AGREEMENT_VARS) -> dict:
     """Do two INDEPENDENT DRAFT MARKETS agree with each other, or with our board?
@@ -1073,6 +1098,43 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
             return 0.0, len(xs)
         return _spearman(xs, ys), len(xs)
 
+    # ⚠ THE POOLED NUMBER IS A POSITION COMPOSITION AND IT FOOLED ME TWICE.
+    # Pooled, both markets show a wopr gradient near -0.39 and agree with each
+    # other at +0.04 — which reads as a clean finding about receiving
+    # opportunity. Split by position it evaporates and the two markets stop
+    # agreeing at all:
+    #
+    #     ALL non-QB  n=111   MFL -0.388   FFC -0.397
+    #     WR only     n=51    MFL -0.04    FFC +0.188
+    #     RB only     n=43    MFL -0.04    FFC -0.472
+    #     TE only     n=16    MFL +0.177   FFC -0.451
+    #
+    # What is actually there is a modest POSITION effect — the markets take RBs
+    # LATER than we do (median +7 MFL, +2 FFC) and WRs slightly earlier (-1,
+    # -4) — and TE where the two markets flatly contradict each other (-11 vs
+    # +21.5). wopr separates the groups because WRs have high wopr and RBs low,
+    # not because either market prices opportunity within a position.
+    #
+    # SO THE DECOMPOSITION SHIPS WITH THE POOLED FIGURE, always. A reader who
+    # gets the -0.39 without this reads Simpson's paradox as a finding, which is
+    # exactly what I did and routed to A before running the split.
+    by_pos = {}
+    for posn in sorted({str(info[k].get("position") or "?").upper() for k in pop}):
+        keys = [k for k in pop if str(info[k].get("position") or "?").upper() == posn]
+        if len(keys) < 3:
+            continue
+        pm, pn = _rho_on(keys, "wopr", rm, rb, info)
+        ps, _ = _rho_on(keys, "wopr", rs, rb, info)
+        pms, _ = _rho_on(keys, "wopr", rm, rs, info)
+        by_pos[posn] = {
+            "n": pn,
+            "mfl_vs_board": None if pm is None else round(pm, 3),
+            "source_vs_board": None if ps is None else round(ps, 3),
+            "mfl_vs_source": None if pms is None else round(pms, 3),
+            "median_mfl_delta": round(_median([rm[k] - rb[k] for k in keys]), 1),
+            "median_source_delta": round(_median([rs[k] - rb[k] for k in keys]), 1),
+        }
+
     out = {}
     for var in variables:
         mb, n = _rho(var, rm, rb)
@@ -1091,7 +1153,23 @@ def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
                 and abs(ms) < min(abs(mb), abs(sb)) / 2.0
                 and (mb < 0) == (sb < 0)),
         }
+        # ⚠ AND WHETHER IT SURVIVES THE SPLIT, because the flag above is TRUE on
+        # this data and the finding is nevertheless composition. A pooled
+        # agreement that vanishes inside every position is Simpson's paradox, and
+        # shipping the flag without this is shipping the paradox.
+        if var == "wopr":
+            agreeing = [d for d in by_pos.values()
+                        if d["n"] >= 3 and d["mfl_vs_board"] is not None
+                        and d["source_vs_board"] is not None
+                        and (d["mfl_vs_board"] < 0) == (d["source_vs_board"] < 0)]
+            out[var]["positions_where_markets_agree"] = len(agreeing)
+            out[var]["positions_tested"] = len([d for d in by_pos.values()
+                                                if d["n"] >= 3])
+            out[var]["survives_within_position"] = bool(
+                out[var]["positions_tested"]
+                and len(agreeing) > out[var]["positions_tested"] / 2.0)
     return {"status": "measured", "n": len(pop), "by_variable": out,
+            "by_position": by_pos,
             "note": "MFL and %s are independent markets of REAL DRAFTS; our "
                     "board's adp is FantasyPros EXPERT CONSENSUS. Where the two "
                     "markets agree with each other and both differ from us, the "

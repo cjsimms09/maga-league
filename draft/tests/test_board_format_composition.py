@@ -889,3 +889,33 @@ def test_all_three_comparisons_use_ONE_population():
     ns = {d["n"] for d in out["by_variable"].values()}
     assert len(ns) == 1, out["by_variable"]
     assert out["n"] == len(partial), (out["n"], len(partial))
+
+
+def test_a_POOLED_agreement_that_vanishes_within_position_is_not_a_finding():
+    """Simpson's paradox, and it fooled me twice before a control caught it.
+    Pooled, both markets show a wopr gradient near -0.39 and agree with each
+    other at +0.04. Split by position the gradient evaporates and the two
+    markets stop agreeing at all — what is really there is a modest POSITION
+    effect, because WRs have high wopr and RBs low.
+
+    MUTATION: report `markets_agree_board_differs` without
+    `survives_within_position` — the pooled paradox ships as a finding, which is
+    exactly what I routed to A before running the split."""
+    import json as _json
+    import external_adp_capture as _CAP
+    b = _json.load(open("public/draft_data.json"))
+    arch = _json.loads(open("draft/data/external_adp_series.json").read())
+    ls = _json.load(open("draft/data/sleeper_league_settings.json"))
+    ids, _r = _CAP.crosswalk_map(arch.get("players") or {}, b["players"],
+                                 kept=b.get("kept_players"),
+                                 positions=_CAP.rostered_positions(ls))
+    mfl = sorted(arch["series"], key=lambda s: str(s.get("observed_at")))[-1]["rows"]
+    ffc = next(e for e in _json.load(open("draft/data/external_source_prices.json"))["series"]
+               if e["source"] == "ffc")["rows"]
+    out = B.market_agreement(ids, mfl, ffc, b)
+    w = out["by_variable"]["wopr"]
+    assert w["markets_agree_board_differs"] is True, w      # the pooled read
+    assert w["survives_within_position"] is False, w        # and the correction
+    assert w["positions_tested"] >= 3, w
+    # the decomposition must ship WITH the pooled figure, never separately
+    assert "by_position" in out and {"WR", "RB", "TE"} <= set(out["by_position"]), out
