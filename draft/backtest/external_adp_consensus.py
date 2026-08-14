@@ -49,6 +49,25 @@ it does not turn one source into a consensus — a player priced by a single sou
 is reported as `sources: 1` and is NOT a consensus, however confident the number
 looks.
 
+⚠ THE CRITERION IS FORMAT MATCH, NOT SOURCE COUNT (Cory, 2026-08-14), AND THE
+BOARD'S OWN FORMAT SAYS NO SOURCE MATCHES. Our league scores `pass_td = 6.0`
+against the market standard of 4.0 — measured, and it is the only one of our 44
+rules that differs. FFC `half-ppr`, FantasyPros `HALF` and MFL are all 4-point
+markets, so there is no format-matched ADP source to be had and NO AMOUNT OF
+AGGREGATION FIXES IT: averaging ten more 4-point sources buys a more confident
+estimate of a market that is not ours. Aggregation buys PRECISION; the error here
+is BIAS.
+
+SO THIS EARNS ITS KEEP ON TWO THINGS AND NOT ON A THIRD:
+
+  DISPERSION      MFL is the only source publishing per-player min/max/selPct, and
+                  the board's `adp_sd` is a clamp on two values across 94.8% of
+                  rows. More sources genuinely improve a spread.
+  DEEP COVERAGE   MFL crosswalks 433 players against FantasyPros's 337. The deep
+                  board is where a single source simply stops.
+  NOT THE MEAN    the survival anchor stays the single closest-format source. A
+                  blended pick number is a more confident wrong answer.
+
 NOTHING HERE IS WIRED INTO THE BOARD. `draft/adp.py` and `draft/build.py` are A's,
 and choosing what prices the board is A's call. This produces the aggregate and
 the disagreement report; the decision to consume it is routed, not taken.
