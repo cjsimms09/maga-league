@@ -340,6 +340,63 @@ def availability(classified, honoured) -> dict:
     return out
 
 
+#: Candidate paths for a SECOND question, each with the reason it is plausible.
+#: `market_request.build` demands a reason for any unregistered path precisely
+#: because "a 404 from an invented path is evidence about the query, not the
+#: provider" — this list is short and declared so a null is readable as "these
+#: four guesses did not answer" rather than as "the provider serves nothing".
+DISCOVERY_PATHS = (
+    ("/v3/markets",
+     "the conventional sibling of /v3/odds on this API's own /v3 namespace — if a "
+     "market catalogue exists anywhere it is the first place to look"),
+    ("/v3/odds/markets",
+     "the same catalogue nested under the endpoint it describes, which is the "
+     "other common shape"),
+    ("/v3/props",
+     "named directly for the thing Cory asked about, in case props are a separate "
+     "product rather than a market family"),
+    ("/v3/outrights",
+     "season win totals are futures, not game markets, so they may not live under "
+     "an event-scoped endpoint at all"),
+)
+
+
+def discovery_report(results) -> dict:
+    """What the candidate paths said — and what that does NOT prove.
+
+    THE REFUSAL THAT MATTERS: a 404 from a path WE INVENTED is evidence about our
+    spelling, not about the provider. `market_request.build` already states this,
+    which is why it demands a reason for every discovery request; recording those
+    404s as "props do not exist" would close Cory's question with our own guesses.
+
+    Three verdicts, and the third exists because a step that never ran looks
+    exactly like a step that found nothing (rule 13f).
+    """
+    rows = list(results or [])
+    if not rows:
+        return {"verdict": "not attempted", "proves_absence": False, "tried": [],
+                "answered": [],
+                "note": "the discovery step did not run. Nothing was asked, so "
+                        "nothing was learned — this is not a null result."}
+    answered = [r for r in rows if int(r.get("status") or 0) == 200 and r.get("names")]
+    return {
+        "verdict": "answered" if answered else "no candidate path answered",
+        # NEVER TRUE. Absence of a market can only be established on a path the
+        # provider acknowledges, and every path here is one we made up.
+        "proves_absence": False,
+        "tried": [{"path": r.get("path"), "status": r.get("status")} for r in rows],
+        "answered": [{"path": r.get("path"), "names": list(r.get("names") or [])[:40]}
+                     for r in answered],
+        "note": ("one or more candidate paths returned a market list — see "
+                 "`answered`. This is a lead, not a capture."
+                 if answered else
+                 "none of the candidate paths answered. That is a fact about our "
+                 "guesses, not about the provider: every path here was invented "
+                 "by us, and a 404 on an invented path proves only that we spelled "
+                 "it wrong. The question stays OPEN."),
+    }
+
+
 def credit_cost(before, after) -> dict:
     """What the probe SPENT, from the provider's own counters.
 
@@ -539,6 +596,31 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
     rep["raw_shape"] = structure_keys(default_payload)
     rep["raw_names"] = all_names(default_payload)[:40]
     rep["selection_sample"] = selection_names(default_payload)[:10]
+    # THE PROVIDER'S OWN `urls` NODE, VERBATIM. It showed up in run 4's raw_shape
+    # and it is the one lead in this payload that is not a guess of ours — if the
+    # API advertises its own endpoints anywhere, that is where.
+    rep["provider_urls"] = (default_payload or {}).get("urls") \
+        if isinstance(default_payload, dict) else None
+
+    # ── THE SECOND QUESTION, ASKED ONLY ONCE THE FIRST IS SETTLED ────────────
+    # Runs 2-5 established that `markets` is accepted and IGNORED, so props are
+    # not reachable by parameter on this endpoint. Whether they live elsewhere is
+    # a different question, and it is asked with declared reasons and a refusal to
+    # read our own 404s as the provider's answer.
+    disc = []
+    if honoured.get("honoured") is not True:
+        for path, reason in DISCOVERY_PATHS:
+            try:
+                u = R.build(host, path, {"apiKey": api_key}, discovery=True,
+                            reason=reason)
+                r = R.fetch(u, timeout)
+                pay = r[0] if isinstance(r, tuple) else r
+                disc.append({"path": path, "status": 200,
+                             "names": all_names(pay)[:40]})
+            except Exception as e:                    # noqa: BLE001
+                disc.append({"path": path, "status": 0,
+                             "error": "%s: %s" % (type(e).__name__, e)})
+    rep["discovery"] = discovery_report(disc)
     rep.update(out)
     return rep
 

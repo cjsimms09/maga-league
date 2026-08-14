@@ -1545,6 +1545,30 @@
       "test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        \"proves_absence\": False,\n        \"tried\":",
+     "new": "        \"proves_absence\": not answered,\n        \"tried\":",
+     "must_fail": [
+      "test_A_PATH_THAT_DID_NOT_ANSWER_IS_NOT_A_PROVIDER_THAT_DOES_NOT_SERVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return {\"verdict\": \"not attempted\", \"proves_absence\": False, \"tried\": [],",
+     "new": "    if False:\n        return {\"verdict\": \"not attempted\", \"proves_absence\": False, \"tried\": [],",
+     "must_fail": [
+      "test_DISCOVERY_WITH_NOTHING_TRIED_IS_NOT_A_NULL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"answered\": [{\"path\": r.get(\"path\"), \"names\": list(r.get(\"names\") or [])[:40]}\n                     for r in answered],",
+     "new": "        \"answered\": [{\"path\": r.get(\"path\")} for r in answered],",
+     "must_fail": [
+      "test_A_PATH_THAT_ANSWERED_IS_REPORTED_WITH_WHAT_IT_SAID"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }

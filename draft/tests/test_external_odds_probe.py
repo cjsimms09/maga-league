@@ -375,3 +375,50 @@ def test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT():
     av = P.availability(c, {"honoured": True, "note": "x"})
     assert av["sides"]["state"] == "available"
     assert av["player_props"]["state"] == "absent"
+
+
+# ── THE FOLLOW-UP THE ANSWER FORCES ─────────────────────────────────────────
+#
+# Run 5 settled it: asking for props returned the SAME seven names as asking for
+# `zzz_not_a_market_qqq`, on a payload carrying a real board (ML, Spread, Totals,
+# Team Total Away/Home). The parameter is accepted and ignored, so props are NOT
+# reachable by adding a query parameter to this endpoint. The next question is
+# whether they live somewhere else — and it must be asked without inventing a
+# provider that does not exist.
+
+def test_A_PATH_THAT_DID_NOT_ANSWER_IS_NOT_A_PROVIDER_THAT_DOES_NOT_SERVE():
+    """A 404 from a path WE made up is evidence about our guess, not about the
+    provider — `market_request.build` already says exactly that, which is why it
+    demands a reason for every discovery request. Recording an invented path's
+    404 as "props do not exist" would close Cory's question with our own spelling.
+
+    MUTATION: report a 404 as absent — three guessed URLs come back empty and the
+    probe concludes the provider serves no props, having never asked it anything
+    it understood."""
+    d = P.discovery_report([{"path": "/v3/markets", "status": 404, "names": []},
+                            {"path": "/v3/props", "status": 404, "names": []}])
+    assert d["verdict"] == "no candidate path answered"
+    assert d["proves_absence"] is False
+    assert "about our guesses" in d["note"]
+
+
+def test_A_PATH_THAT_ANSWERED_IS_REPORTED_WITH_WHAT_IT_SAID():
+    """MUTATION: report only that something answered — the one path that works
+    comes back as a bare 200 and the names it served are lost, so the next run
+    has to spend credits rediscovering them."""
+    d = P.discovery_report([{"path": "/v3/markets", "status": 404, "names": []},
+                            {"path": "/v3/odds/markets", "status": 200,
+                             "names": ["player_pass_yds", "ML"]}])
+    assert d["verdict"] == "answered"
+    assert d["answered"][0]["path"] == "/v3/odds/markets"
+    assert "player_pass_yds" in d["answered"][0]["names"]
+    assert d["proves_absence"] is False
+
+
+def test_DISCOVERY_WITH_NOTHING_TRIED_IS_NOT_A_NULL():
+    """MUTATION: return the same "nothing answered" verdict for an empty list —
+    a run where the discovery step never executed is indistinguishable from one
+    where every candidate failed, which is rule 13f exactly."""
+    d = P.discovery_report([])
+    assert d["verdict"] == "not attempted"
+    assert d["proves_absence"] is False
