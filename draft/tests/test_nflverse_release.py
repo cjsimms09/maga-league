@@ -154,3 +154,51 @@ def test_THE_RUNNER_SENDS_THE_REPO_S_USER_AGENT():
     provider problem."""
     import external_adp_capture as CAP
     assert R.USER_AGENT == CAP.USER_AGENT
+
+
+# ── REGENERATE-AND-COMPARE: the diffing half, which is pure ──────────────────
+
+def test_A_MATCHING_ARTIFACT_REPORTS_NO_DIFFERENCE():
+    import nflverse_run as RUN
+    fresh = {"a": {"x": 1.0, "y": 2.0}, "b": {"x": 3.0}}
+    r = RUN.compare_rows(fresh, dict(fresh), ("x", "y"))
+    assert r["differences"] == [] and r["compared"] == 2 and r["ok"] is True
+
+
+def test_A_CHANGED_FIELD_IS_NAMED_with_both_values():
+    """A diff that says "they differ" and not HOW is a diff nobody can act on —
+    the same complaint this lane made about integrate.sh discarding suite output.
+
+    MUTATION: report only a count — a revision upstream is indistinguishable from
+    a bug in our own derivation, which are opposite problems."""
+    import nflverse_run as RUN
+    r = RUN.compare_rows({"a": {"x": 1.0}}, {"a": {"x": 2.0}}, ("x",))
+    assert r["ok"] is False
+    d = r["differences"][0]
+    assert d["key"] == "a" and d["field"] == "x"
+    assert d["fresh"] == 1.0 and d["committed"] == 2.0
+
+
+def test_A_ROW_ON_ONE_SIDE_ONLY_IS_A_DIFFERENCE_not_a_skip():
+    """Population drift is the failure that hides: a player who appears or vanishes
+    changes every summary computed over the set, and comparing only the overlap
+    reports agreement while the denominators moved.
+
+    MUTATION: intersect the keys first — the two artifacts agree perfectly on the
+    players they share, which is exactly what a silent revision looks like."""
+    import nflverse_run as RUN
+    r = RUN.compare_rows({"a": {"x": 1.0}, "b": {"x": 1.0}}, {"a": {"x": 1.0}}, ("x",))
+    assert r["ok"] is False
+    assert any(d.get("field") == "__present__" for d in r["differences"]), r
+
+
+def test_THE_TOLERANCE_IS_EXPLICIT_and_absolute():
+    """Committed artifacts store rounded values, so an exact comparison would fail
+    on arithmetic rather than on drift — which is the mistake I made twice today.
+    The tolerance is a parameter and it is stated in the result.
+
+    MUTATION: compare with == — every rounded field reports a difference and the
+    check becomes noise nobody reads."""
+    import nflverse_run as RUN
+    r = RUN.compare_rows({"a": {"x": 1.0004}}, {"a": {"x": 1.0}}, ("x",), tol=0.01)
+    assert r["ok"] is True and r["tolerance"] == 0.01

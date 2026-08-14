@@ -35,6 +35,7 @@ those mean opposite things and the difference is what cost the fortnight.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -61,6 +62,51 @@ NEEDS = {
 #: themselves — declared here too so a caller cannot quietly widen it.
 SEASONS = (2023, 2024, 2025)
 DRAFTED_SEASON = 2026
+
+
+#: How far a regenerated value may sit from the committed one and still count as
+#: the same number. Committed artifacts store ROUNDED values, so an exact
+#: comparison fails on arithmetic rather than on drift — a mistake I made twice on
+#: 2026-08-14 before writing this down. Absolute, and reported in the result so a
+#: reader never has to guess what "ok" meant.
+COMPARE_TOLERANCE = 0.01
+
+
+def compare_rows(fresh: dict, committed: dict, fields, tol: float = COMPARE_TOLERANCE) -> dict:
+    """Regenerate-and-compare, as a value. -> {ok, compared, differences, tolerance}.
+
+    THE HALF THAT CAN BE TESTED. Fetching needs egress; deciding whether two
+    derivations agree does not, and it is where the interesting mistakes live.
+
+    A ROW ON ONE SIDE ONLY IS A DIFFERENCE, NOT A SKIP. Population drift is the
+    failure that hides: a player who appears or vanishes changes every summary
+    computed over the set, and comparing only the overlap reports agreement while
+    the denominators moved. That is exactly what a silent upstream revision looks
+    like.
+
+    AND A DIFFERENCE IS NAMED WITH BOTH VALUES. "They differ" is a verdict nobody
+    can act on — the same complaint this lane made about `integrate.sh` discarding
+    the output of the suite it refused on. An upstream revision and a bug in our
+    own derivation are opposite problems and the two numbers are what tells them
+    apart.
+    """
+    diffs = []
+    for key in sorted(set(fresh or {}) | set(committed or {})):
+        a, b = (fresh or {}).get(key), (committed or {}).get(key)
+        if a is None or b is None:
+            diffs.append({"key": key, "field": "__present__",
+                          "fresh": a is not None, "committed": b is not None,
+                          "note": "present on one side only — the population "
+                                  "moved, which changes every summary over it"})
+            continue
+        for f in fields:
+            x, y = a.get(f), b.get(f)
+            if x is None and y is None:
+                continue
+            if x is None or y is None or abs(float(x) - float(y)) > float(tol):
+                diffs.append({"key": key, "field": f, "fresh": x, "committed": y})
+    return {"ok": not diffs, "compared": len(set(fresh or {}) & set(committed or {})),
+            "differences": diffs, "tolerance": float(tol)}
 
 
 def plan(measurement: str, seasons=SEASONS) -> list:
@@ -113,6 +159,55 @@ def fetch(url: str, kind: str, season, timeout: int = 120):  # pragma: no cover
             % (url, type(e).__name__, e)) from e
 
 
+def verify(kind: str, tol: float = COMPARE_TOLERANCE) -> dict:  # pragma: no cover
+    """Re-derive one artifact from its recorded assets and diff it. -> compare_rows.
+
+    THIS IS THE THING THE ROUTING SAID WAS MISSING: *"Regeneration needs egress,
+    so the artifact cannot be regenerate-and-compared the way
+    `waiver_replacement.json` is."* It can now, where the assets are reachable.
+
+    It does NOT rewrite the artifact. A verifier that repairs what it finds cannot
+    tell you the artifact was wrong — it just makes it right and says nothing,
+    which is how a silent upstream revision becomes invisible.
+    """
+    import json as _json
+
+    import pandas as pd
+    import pyarrow.parquet as pq
+
+    here = HERE
+    assets = _json.loads((here / ("nflverse_%s.json" % kind)).read_text())["_provenance"]["assets"]
+    local = {k: (Path(a["url"]).name) for k, a in assets.items()}
+
+    def frames(prefix, cols=None):
+        out = []
+        for key in sorted(k for k in assets if k.startswith(prefix + "/")):
+            p = Path(os.environ.get("NFLVERSE_CACHE", "/tmp")) / local[key]
+            if not p.exists():
+                raise RuntimeError(
+                    "asset %s is not cached at %s. `verify` compares against the "
+                    "EXACT files the artifact records; it does not refetch, "
+                    "because a refetch that silently picked up a revision would "
+                    "report agreement with a different world." % (key, p))
+            out.append(pq.read_table(p, columns=cols).to_pandas())
+        return pd.concat(out, ignore_index=True)
+
+    if kind == "pace":
+        import nflverse_pace as NP
+        cols = ["season", "game_id", "posteam", "play_type", "qb_kneel", "qb_spike",
+                "score_differential"]
+        art = _json.loads((here / "nflverse_pace.json").read_text())
+        seasons = art["seasons"]
+        fresh, _rep = NP.team_pace(frames("pbp", cols), seasons, before_season=2026)
+        fields = ("plays", "games", "plays_per_game", "neutral_plays_per_game",
+                  "neutral_share", "pass_rate", "neutral_pass_rate")
+        return compare_rows(fresh, art["teams"], fields, tol=tol)
+    raise ValueError("verify(%r) is not implemented — only `pace` re-derives from "
+                     "its assets alone. Durability needs the id crosswalk and the "
+                     "board, and wiring it half-way would be a verifier that "
+                     "checks less than it claims." % kind)
+
+
 def main(argv=None):  # pragma: no cover  (egress, CI only)
     import argparse
 
@@ -121,7 +216,18 @@ def main(argv=None):  # pragma: no cover  (egress, CI only)
                     choices=["all", *sorted(NEEDS)])
     ap.add_argument("--dry-run", action="store_true",
                     help="print the asset plan and fetch nothing")
+    ap.add_argument("--verify", metavar="KIND",
+                    help="re-derive an artifact from its RECORDED assets and diff "
+                         "it; does not refetch and does not rewrite")
     a = ap.parse_args(argv)
+    if a.verify:
+        r = verify(a.verify)
+        print("verify %s: %s — %d row(s) compared, %d difference(s), tol %s"
+              % (a.verify, "OK" if r["ok"] else "DIFFERS", r["compared"],
+                 len(r["differences"]), r["tolerance"]))
+        for d in r["differences"][:10]:
+            print("   ", d)
+        return 0 if r["ok"] else 1
     wanted = sorted(NEEDS) if a.measurement == "all" else [a.measurement]
 
     for m in wanted:

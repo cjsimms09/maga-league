@@ -2317,6 +2317,38 @@
       "test_THE_PLAN_REFUSES_THE_SEASON_BEING_DRAFTED"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        if a is None or b is None:\n            diffs.append({\"key\": key, \"field\": \"__present__\",",
+     "new": "        if False:\n            diffs.append({\"key\": key, \"field\": \"__present__\",",
+     "must_fail": [
+      "test_A_ROW_ON_ONE_SIDE_ONLY_IS_A_DIFFERENCE_not_a_skip"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for key in sorted(set(fresh or {}) | set(committed or {})):",
+     "new": "    for key in sorted(set(fresh or {}) & set(committed or {})):",
+     "must_fail": [
+      "test_A_ROW_ON_ONE_SIDE_ONLY_IS_A_DIFFERENCE_not_a_skip"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if x is None or y is None or abs(float(x) - float(y)) > float(tol):",
+     "new": "            if x is None or y is None or float(x) != float(y):",
+     "must_fail": [
+      "test_THE_TOLERANCE_IS_EXPLICIT_and_absolute"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                diffs.append({\"key\": key, \"field\": f, \"fresh\": x, \"committed\": y})",
+     "new": "                diffs.append({\"key\": key, \"field\": f})",
+     "must_fail": [
+      "test_A_CHANGED_FIELD_IS_NAMED_with_both_values"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }
