@@ -130,6 +130,37 @@ const baseState = (predicted, extra) => Object.assign({
     r.emit_errors === 3 && r.last_error === 'boom', r);
 }
 
+/* ── THE DENOMINATOR'S OWN RELIABILITY TRAVELS WITH IT ─────────────────────
+ *
+ * Raised by the independent reviewer and CONFIRMED by tracing the chain:
+ * currentPick() -> sync.currentPickNumber() -> allPicks().length + 1, and
+ * allPicks() DROPS rows with no resolvable id. So an id-less row lowers `cur`,
+ * fewer rows satisfy `overall < cur`, `opponent_picks_due` undercounts, and
+ * coverage — predicted/due — is OVERSTATED. Overstated exactly when ingest is
+ * anomalous, which is when under-coverage is likeliest. An instrument that
+ * reads healthiest when the feed is sickest is worse than none.
+ *
+ * Deliberately NOT fixed by deriving `cur` a second way: currentPick is the
+ * app's one clock and a second derivation is the defect class this repo keeps
+ * removing. The caveat is published WITH the number instead. */
+{
+  const withSync = baseState({}, { sync: { ingestHealth: () => (
+    { picks: 30, dropped_no_id: 2, pick_no_collisions: 0, clean: false }) } });
+  const r = run(withSync, 34);
+  ck('ingest health rides on the coverage row, so a consumer can discount a '
+    + 'denominator computed from a lossy feed',
+    r.ingest && r.ingest.dropped_no_id === 2 && r.ingest.clean === false, r.ingest);
+  ck('a clean feed still reports its health rather than omitting it — absent '
+    + 'and clean must not look the same',
+    run(baseState({}, { sync: { ingestHealth: () => ({ picks: 30, dropped_no_id: 0,
+      pick_no_collisions: 0, clean: true }) } }), 34).ingest.clean === true);
+  ck('no sync -> ingest is explicitly null, not silently omitted',
+    run(baseState({}), 34).ingest === null);
+  ck('a sync without ingestHealth (older cached module) degrades to null '
+    + 'rather than throwing and losing the whole coverage row',
+    run(baseState({}, { sync: {} }), 34).ingest === null);
+}
+
 // ── DEGRADATION ────────────────────────────────────────────────────────────
 {
   ck('no pick_order -> null rather than a fabricated denominator',

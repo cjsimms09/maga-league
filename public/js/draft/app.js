@@ -8181,6 +8181,29 @@
       last_error: state.opponentPredictLastError || null,
       unresolved_queue: (state.opponentForecasts || []).length,
       at_pick: cur,
+      /* ⚠️ THE DENOMINATOR'S OWN RELIABILITY, JOINED IN. Raised by the
+       * independent reviewer on 2026-08-14 and CONFIRMED by reading the chain
+       * rather than by accepting the finding:
+       *
+       *   currentPick() -> sync.currentPickNumber() -> allPicks().length + 1
+       *   and allPicks() DROPS rows with no resolvable id (counting them in
+       *   droppedNoId, which is why the count exists at all).
+       *
+       * So an id-less row makes `cur` LOWER than the true pick, fewer rows
+       * satisfy `overall < cur`, and `opponent_picks_due` UNDERCOUNTS. Coverage
+       * is predicted/due, so the ratio is OVERSTATED — and overstated exactly
+       * when ingest is anomalous, which is when under-coverage is likeliest.
+       * An instrument that reads healthiest when the feed is sickest is worse
+       * than no instrument.
+       *
+       * NOT "fixed" by deriving `cur` differently. currentPick is the app's one
+       * clock and a second derivation of it is the defect class this repo keeps
+       * removing — the budget is two owners and they are pickState/currentPick.
+       * The honest move is to publish the caveat WITH the number so a consumer
+       * can discount it, which is the same present/null/missing discipline the
+       * rest of the ledger uses. */
+      ingest: (state.sync && typeof state.sync.ingestHealth === 'function')
+        ? state.sync.ingestHealth() : null,
     };
   }
 

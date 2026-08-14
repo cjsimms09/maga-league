@@ -1,9 +1,40 @@
 """Module 4 — replacement level, VORP, and tier detection.
 
 Replacement level is the last-starter baseline: the worst player at a position
-who still starts somewhere in the league every week. FLEX makes that circular —
-how many RBs start depends on how good the WRs are — so the allocation is
-solved iteratively until it stops moving.
+who still starts somewhere in the league every week. FLEX makes the COUNTS
+interdependent — how many RBs start depends on how good the WRs are — and each
+flex slot is assigned to whichever eligible position offers the best next-man-up
+projection.
+
+⚠️ THIS IS A ONE-PASS GREEDY, NOT A FIXED-POINT ITERATION, and this docstring
+used to claim the latter ("solved iteratively until it stops moving"). MEASURED
+2026-08-14: instrumenting `_replacement_from_counts` across a full build shows
+FOUR calls producing exactly TWO distinct count-vectors — the dedicated-only
+start, then the greedy result, repeated until the convergence test passes.
+
+The loop cannot do anything else, because the allocation never reads
+`replacement`: it ranks on `by_pos[pos][idx]["proj_mean"]`, and `counts` is
+reset to dedicated-only at the top of every pass. So pass N always recomputes
+pass N-1's answer. That is not a defect — greedy IS the correct solution to
+"assign each slot to the best available next man up", and it is exact in one
+pass — but a reader was being told a circularity is being resolved when none is
+present, and could reasonably have concluded the counts were a converged
+equilibrium rather than a sort.
+
+⚠️ THE OUTPUT IS A STEP FUNCTION, WHICH MATTERS MORE THAN THE LOOP.
+Replacement moves discontinuously when a flex slot flips. Measured on the 2026
+board (10 teams, 1 FLEX, so 10 slots split RB+1/WR+9/TE+0): a +2% shift in RB
+projections — well inside real projection error — flips one slot and moves RB
+replacement by 15.8 points, about 8%, IN THE OPPOSITE DIRECTION to the nudge.
+The margins that decide the slots run 0.77 to 18.43 points, so the split is not
+knife-edge, but neither is it smooth.
+
+What that costs the board is measured, not assumed, in
+draft/tests/test_replacement_sensitivity.py: the composite absorbs it entirely
+at pick 33, partially at 70, and at pick 110 it changes the top recommendation.
+NOTHING IS CHANGED ON THE STRENGTH OF THAT — it is characterised so that a
+future change making the board more VORP-dependent makes the fragility visible
+instead of silently amplifying it.
 """
 from __future__ import annotations
 from statistics import mean

@@ -145,7 +145,14 @@ jobs:
         # if: always() — independent of the JS suites; a JS failure must not hide a
         # Python regression by skipping this step (the vacuous-CI failure, 2026-08-09).
         if: always()
-        run: python -m pytest draft/tests -q
+        # `tools` IS LISTED SEPARATELY, and the reason is a guard firing.
+        # tools/test_reviewer_schema_strict.py was written into draft/tests/ and
+        # test_core_needs_no_reviewer went red — correctly: draft/** is the
+        # product tree and that file imports the reviewer. The guard allows one
+        # excluded file per tree, so exempting a second would widen exactly what
+        # its CONTROL says cannot widen. The file moved instead; this keeps it
+        # running every build rather than only when the reviewer is invoked.
+        run: python -m pytest draft/tests tools -q
 
       - name: Baseline regression — live engine vs the FROZEN measured core
         # EVERY RUN, NO FILE FILTER, by explicit instruction. This week's
