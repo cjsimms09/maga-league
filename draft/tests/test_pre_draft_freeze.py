@@ -150,6 +150,34 @@ def test_NOT_SUPPORTED_flex_allocation_needs_lineups_not_the_draft():
 
 
 # ── THE DENOMINATION MUST TRAVEL WITH THE PREDICTIONS ───────────────────────
+def test_the_availability_basis_is_the_SELECTION_scale_on_BOTH_sides():
+    """The defect that forced this freeze to be re-taken. The first cut computed
+    survival(market adp, BOARD slot) -- two errors in opposite directions that
+    nearly cancelled on today's three-keeper board (Josh Allen 4.6% against a
+    true 4.0%) and would not have cancelled at all after the 20 August lock."""
+    b = FZ["availability_basis"]
+    assert "adjusted_adp" in b["adp_field"]
+    assert "live_index_of" in b["pick_scale"]
+    assert b["matches_engine"].endswith("liveIndexOf")
+    # And the numbers must actually BE on that scale, not merely labelled.
+    import keepers as _K
+    board = FZ["pick_order"]["picks"]
+    p = next(x for x in FZ["players"]
+             if x["name"] == "Josh Allen" and x.get("adjusted_adp"))
+    want = round(_K.survival_probability(
+        float(p["adjusted_adp"]), _K.live_index_of(33, board), p.get("adp_sd")), 6)
+    got = FZ["availability_by_pick"][str(p["player_id"])]["33"]
+    assert abs(got - want) < 1e-6, f"frozen {got} vs selection-scale {want}"
+
+
+def test_the_freeze_declares_itself_PROVISIONAL_until_the_slate_locks():
+    """5f: the pre-lock run is a rehearsal against the predicted pool. A freeze
+    that did not say so would be read in September as the real baseline."""
+    assert FZ["status"] == "PROVISIONAL"
+    assert "20 August" in FZ["status_reason"]
+    assert FZ["keepers_on_board_at_freeze"] == 3, FZ["keepers_on_board_at_freeze"]
+
+
 def test_the_scoring_gap_is_recorded_or_the_curve_measures_the_WRONG_THING():
     """Our projections are 6-point passing TDs; the ADP is 4.0 and no public
     feed serves a parameter for it. A reader scoring these curves in 2027

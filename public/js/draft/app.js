@@ -1848,6 +1848,18 @@
       currentKeepers: (state.myRoster || []).filter(function (p) { return p.is_keeper; }),
       league: state.data.league,
       weights: state.weights,
+      // THE PICK BOARD, SO SURVIVAL CAN CONVERT BOARD SLOTS TO SELECTIONS.
+      //
+      // `adjusted_adp` counts SELECTIONS; every pick number counts BOARD SLOTS,
+      // keeper slots included. survival.js compared them directly and had no
+      // converter at all, while keepers.py has `live_index_of` and grab_by.py
+      // calls it. One rule, implemented on one side.
+      //
+      // 3 slots of error today; 18 once the slate locks on 20 August, two days
+      // before the draft. Measured at board 33: A.J. Brown reads 0.0% against a
+      // true 95.9%. Threading this is what makes the conversion possible, and
+      // `E.survivalModel.SCALE.unconverted` is how a test proves it happened.
+      pickBoard: ((state.data || {}).pick_order || {}).picks || null,
       runMultipliers: state.runMults,
       // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
       // exploration shadows set this true to explore ceiling-forward drafts.
@@ -5207,7 +5219,10 @@
    * this strip too. That is a larger behavioural change and I have no measurement
    * of it, so it stays off rather than being bundled into a correctness fix. */
   function lrmLastSafe(pool, upcoming, cur) {
-    var ctx = { currentPick: cur, runMultipliers: state.runMults };
+    var ctx = { currentPick: cur, runMultipliers: state.runMults,
+      // See the note at the other ctx site: without this, survival compares a
+      // selection-scale ADP against a board slot.
+      pickBoard: ((state.data || {}).pick_order || {}).picks || null };
     var last = null, idx = 0, target = null;
     for (var i = 1; i < upcoming.length; i++) {
       var surv = null;

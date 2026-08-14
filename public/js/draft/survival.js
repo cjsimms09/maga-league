@@ -200,9 +200,64 @@
     return adpSd(adpOf(p), p.adp_sd) * (d && d.applied ? d.sdScale : 1);
   }
 
+  /* ⚠️ BOARD SLOTS AND SELECTIONS ARE TWO SCALES AND THIS FILE USED ONLY ONE.
+   *
+   * `adpOf` returns `adjusted_adp`, which counts SELECTIONS — keepers.py maps
+   * market ADP onto the live sequence, with kept players removed from the
+   * numbering. Every pick number handed to this module is a BOARD SLOT, keeper
+   * slots included. They were compared directly.
+   *
+   * keepers.py already has the converter and REFUSES rather than defaulting:
+   *
+   *     live_index_of: no board rows. REFUSING to fall back to the pick number
+   *     — that is exactly the scale confusion this exists to fix.
+   *
+   * `grab_by.py:233` calls it. This file had ZERO conversions — grep for
+   * `live_index` in it returned 0. One rule, implemented on one side.
+   *
+   * MEASURED COST at my first pick, board slot 33:
+   *
+   *                        today (3 keepers)     after keeper lock (17)
+   *     live index of 33         30                      15
+   *     Josh Allen          4.0% vs 1.5%           61.8% vs 1.5%
+   *     A.J. Brown          0.0% vs 0.0%           95.9% vs 0.0%
+   *     Nico Collins        0.2% vs 0.0%           97.4% vs 0.0%
+   *
+   * Small today because only my three keepers are on the board. THE SLATE LOCKS
+   * 20 AUGUST AND THE DRAFT IS THE 22nd, so the live error on the night is the
+   * right-hand column: the board says a 96%-available receiver is certainly
+   * gone. It understates survival, which manufactures urgency and makes the
+   * tool reach.
+   *
+   * B reported "Josh Allen reads 98% where he should read 61%". The mechanism B
+   * named was a different defect (applySlot, fixed separately) — but 61% is
+   * this one's correct post-lock answer, to a tenth.
+   */
+  /** Observable counters, so "did the conversion actually run" is a fact a test
+   *  and a surface can read rather than a thing anyone assumes. */
+  const SCALE = { converted: 0, unconverted: 0 };
+  function liveIndexOf(boardPick, ctx) {
+    const rows = (ctx && ctx.pickBoard) || null;
+    if (!rows || !rows.length) {
+      // NOT a silent identity. keepers.py refuses here; refusing in the browser
+      // would blank the war room mid-draft, so this converts by identity AND
+      // records that it did, so a surface can say the scale is unconverted
+      // instead of quietly showing numbers from the wrong one.
+      SCALE.unconverted += 1;
+      return boardPick;
+    }
+    SCALE.converted += 1;
+    let n = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r.keeper_slot && Number(r.overall) <= boardPick) n += 1;
+    }
+    return n;
+  }
   // =============================================== Layer 1 — ADP baseline
   function layer1Taken(player, pick, ctx) {
-    return normalCdf(pick, effectiveAdp(player, ctx), effectiveSd(player, ctx));
+    return normalCdf(liveIndexOf(pick, ctx),
+                     effectiveAdp(player, ctx), effectiveSd(player, ctx));
   }
 
   /**
@@ -966,7 +1021,10 @@
   }
 
   // ======================== Layer 3 — live Bayesian run detection (hazard) ====
-  function runMultipliers(recentPicks, board, currentPick) {
+  // `ctx` is OPTIONAL and last so no existing caller breaks. Without it
+  // liveIndexOf converts by identity and increments SCALE.unconverted, which is
+  // the pre-fix behaviour made VISIBLE rather than silently retained.
+  function runMultipliers(recentPicks, board, currentPick, ctx) {
     const out = {};
     if (!recentPicks || recentPicks.length < 4) return out;
     const window = recentPicks.slice(-CFG.RUN_WINDOW);
@@ -979,8 +1037,13 @@
     const expected = {};
     let expTotal = 0;
     (board || []).forEach(pl => {
-      const mass = normalCdf(currentPick, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
-        - normalCdf(start, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
+      // SAME SCALE FIX. This estimates how many players of each position the
+      // room "should" have taken between two picks; both bounds are board slots
+      // and adpOf is on the selection scale, so the window was measured in the
+      // wrong units and the drift correction inherited it.
+      const liveNow = liveIndexOf(currentPick, ctx), liveStart = liveIndexOf(start, ctx);
+      const mass = normalCdf(liveNow, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
+        - normalCdf(liveStart, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
       if (mass > 0) {
         expected[pl.position] = (expected[pl.position] || 0) + mass;
         expTotal += mass;
@@ -1643,6 +1706,13 @@
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
     bumpBoard, boardVersion,
     conservedSurvival, solveTilt,
+    // THE SCALE CONVERTER AND ITS COUNTERS, EXPORTED ON PURPOSE. "Did the
+    // board-slot -> live-selection conversion actually run" must be a fact a
+    // test and a surface can read, not a thing anyone assumes. `SCALE` is the
+    // live evidence: unconverted > 0 with a pick board present means the
+    // context is not being threaded and every survival number is on the wrong
+    // scale, which is exactly how this defect survived until 2026-08-14.
+    liveIndexOf, SCALE,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

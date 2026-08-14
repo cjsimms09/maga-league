@@ -127,6 +127,12 @@ function liveContext(opts) {
     runMultipliers: o.runMultipliers != null ? o.runMultipliers : null,
     ceilingAllStages: o.ceilingAllStages != null ? o.ceilingAllStages : false,
     drift: o.drift != null ? o.drift : null,
+    // BOARD SLOTS -> SELECTIONS. survival.js converts pick numbers onto the
+    // live-selection scale that `adjusted_adp` lives on, and it can only do
+    // that with the pick board. A probe without it measures the pre-fix
+    // system: 3 slots of error today, 18 once the slate locks.
+    pickBoard: o.pickBoard !== undefined ? o.pickBoard
+      : ((data.pick_order || {}).picks || null),
     currentPick: o.currentPick,
     intervening: o.intervening
       || interveningFor(data, o.currentPick, o.nextPick, mySlot),

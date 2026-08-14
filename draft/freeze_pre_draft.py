@@ -112,21 +112,38 @@ def _denomination(art: dict) -> dict:
     }
 
 
-def _availability(players: list, my_picks: list) -> dict:
+def _availability(players: list, my_picks: list, board: list) -> dict:
     """P(still on the board) for every player at every pick I own.
 
-    This is the field the calibration curve in 4e is built from: of the players
-    the board called 70% available at pick 48, how many were. A wrong ADP spread
-    shows up here as systematic over- or under-confidence.
+    The field 4e's calibration curve is built from: of the players the board
+    called 70% available at pick 48, how many were.
+
+    ⚠️ BOTH SIDES MUST BE ON THE SELECTION SCALE, AND THE FIRST CUT OF THIS
+    FUNCTION HAD NEITHER OF THEM ON IT.
+
+    It computed `survival_probability(adp, board_pick)` — market ADP, which
+    counts selections in a keeperless market, against a BOARD SLOT, which counts
+    keeper slots too. Two errors in opposite directions that very nearly
+    cancelled on today's board: Josh Allen read 4.6% against a true 4.0%.
+
+    A cancellation is not a correctness argument. It holds only while the board
+    carries three keepers; once the slate locks on 20 August it does not, and
+    the frozen curves would have been permanently wrong in the artifact whose
+    whole purpose is to be the trustworthy record.
+
+    So: `adjusted_adp` (already on the live-selection scale) against
+    `live_index_of(board_pick)`. The same pairing survival.js was fixed to use,
+    and the one keepers.py has always documented.
     """
     out = {}
     for p in players:
-        adp = p.get("adp")
+        adp = p.get("adjusted_adp") or p.get("adp")
         if not adp:
             continue
         sd = p.get("adp_sd")
         out[str(p["player_id"])] = {
-            str(pick): round(K.survival_probability(float(adp), int(pick), sd), 6)
+            str(pick): round(K.survival_probability(
+                float(adp), K.live_index_of(int(pick), board), sd), 6)
             for pick in my_picks
         }
     return out
@@ -204,7 +221,28 @@ def build() -> dict:
             "the VORP-space path in Step 5 and paths not yet designed",
 
         "players": players,
-        "availability_by_pick": _availability(art["players"], my_picks),
+        "availability_by_pick": _availability(art["players"], my_picks, po["picks"]),
+        "availability_basis": {
+            "adp_field": "adjusted_adp (live-selection scale), falling back to adp",
+            "pick_scale": "live_index_of(board_slot) — selections, not board slots",
+            "why":
+                "adjusted_adp counts SELECTIONS and pick numbers count BOARD "
+                "SLOTS. Comparing them directly was a live defect in "
+                "survival.js (3 slots of error today, 18 after the 20 August "
+                "keeper lock). Both sides here are on the selection scale.",
+            "matches_engine": "public/js/draft/survival.js liveIndexOf",
+        },
+
+        # ── 5f: THIS IS A REHEARSAL UNTIL THE SLATE LOCKS ─────────────────
+        "status": "PROVISIONAL",
+        "status_reason":
+            "validated against PREDICTED keeper state, pending the 20 August "
+            "keeper lock. Cory's 5f: the pre-lock run is a rehearsal. Re-take "
+            "after the slate confirms; keepers disproportionately remove RB/WR "
+            "value, so divergence between the two runs is evidence about "
+            "keeper-driven scarcity, not a regression to chase away.",
+        "keepers_on_board_at_freeze": sum(
+            1 for r in po["picks"] if r.get("keeper_slot")),
     }
     payload["_sha256_of_payload"] = _sha(
         {k: v for k, v in payload.items() if k != "_sha256_of_payload"})
