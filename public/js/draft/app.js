@@ -1433,7 +1433,42 @@
     // Before any pick is recorded, my first live pick stays the anchor: that is
     // the pre-draft prep board, and "who do I take at 34" is the right question
     // then. Once picks start flowing, the count of recorded picks IS the clock.
-    return pickState().currentPick;
+    /* ⚠️ BEFORE THE DRAFT STARTS, THE ANCHOR IS MY FIRST PICK — and this line
+     * stopped doing that, which is what Cory hit on a mock.
+     *
+     * The paragraph above already promises it: "before any pick is recorded, my
+     * first live pick stays the anchor: that is the pre-draft prep board". The
+     * code returned `pickState().currentPick` unconditionally, which is
+     * `pickEvents + 1` — and with nothing recorded that is ONE.
+     *
+     * SO THE WHOLE RECOMMENDATION SURFACE WAS SCORED FOR PICK 1. Cory owns no
+     * pick before 33. The board told him to take Jahmyr Gibbs (adp 1), offered
+     * Bijan Robinson (adp 2) and Puka Nacua (adp 3) as the alternatives, and
+     * printed "RB: take-now (grab-by 33)" — advice for a pick that is not his,
+     * about players who are gone before he ever chooses, with a deadline of the
+     * pick he was already standing on.
+     *
+     * THE SEAT PANEL WAS RIGHT ON THE SAME SCREEN, which is what makes this a
+     * defect rather than a preference: `seatForCurrentPick()` falls forward with
+     * `seats.find(s => s.pick >= cur)` and correctly read "THE PLAN WANTS TE at
+     * overall 33" while the engine beside it argued for a back at pick 1. Two
+     * panels, one screen, two different picks.
+     *
+     * `pickState().currentPick` IS NOT WRONG and is not touched — it names the
+     * pick the ROOM is on, and 1 is the truth for that. Two quantities were
+     * sharing one accessor, which is the same shape as board picks versus live
+     * picks, the confusion that produced a first pick of 30 instead of 33.
+     *
+     * NARROW BY CONSTRUCTION: this only fires with NO sync and NO recorded pick
+     * — the pre-draft prep board, which is the state Cory was in. The moment a
+     * pick lands anywhere, `pickEvents` is non-zero and the room's clock takes
+     * over exactly as before. Live-draft behaviour is unchanged. */
+    const ps = pickState();
+    if (ps.pickEvents === 0) {
+      const mine = ((state.data || {}).pick_order || {}).my_picks || [];
+      if (mine.length) return mine[0];
+    }
+    return ps.currentPick;
   }
   function onTheClock() {
     const mine = state.data.pick_order.my_picks || [];
@@ -4346,14 +4381,85 @@
     }
   }
 
+  /* ⚠️ THE SEARCH DEMANDED A CONTIGUOUS SUBSTRING OF THE FULL NAME, which is
+   * not how anybody types a name under a clock.
+   *
+   * Cory: *"The search for player tool is not working and not convenient... I
+   * have to type in whole name."* Driven against the real board, the old
+   * `name.indexOf(query)` gave:
+   *
+   *     "gibbs"        -> Jahmyr Gibbs            fine
+   *     "jahmyr gibbs" -> Jahmyr Gibbs            fine
+   *     "j gibbs"      -> NOTHING                 <- initial + surname, the
+   *                                                  fastest way to type, dead
+   *     "gibbs j"      -> NOTHING                 <- how a board lists a name
+   *     "gibs"         -> ANTONIO GIBSON          <- one typo, and it hands you
+   *                                                  a DIFFERENT PLAYER
+   *
+   * The last one is the dangerous case and the reason this is not just
+   * convenience: it does not fail, it silently answers with somebody else. On
+   * the clock, typing fast, that is a wrong pick rather than a retry.
+   *
+   * ── TOKENS AGAINST NAME PARTS, IN ANY ORDER ──────────────────────────────
+   *
+   * Every whitespace-separated token must match SOME part of the name, by
+   * prefix. So "j gibbs", "gibbs j", "jah gib" and "gibbs" all find him, and
+   * order does not matter because a draft board and a human list names
+   * differently.
+   *
+   * ── AND IT IS DELIBERATELY NOT FUZZY ─────────────────────────────────────
+   *
+   * Levenshtein or a soundex would "fix" the "gibs" typo, and that is exactly
+   * the wrong medicine: it makes a near-miss MORE likely to return a confident
+   * wrong player, which is the failure that matters here. A typo should return
+   * few results or none and let him retype, not silently pick a neighbour.
+   * `gibs` still prefix-matches Gibson because it genuinely is a prefix of it —
+   * but the SCORE below puts a full-token hit above a partial one, so where both
+   * exist the exact one leads. */
+  function nameScore(name, q) {
+    const n = String(name || '').toLowerCase();
+    if (!n) return 0;
+    const parts = n.split(/[\s.'-]+/).filter(Boolean);
+    const tokens = String(q || '').toLowerCase().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return 1;
+    let score = 0;
+    for (let t = 0; t < tokens.length; t++) {
+      const tok = tokens[t];
+      let best = 0;
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        if (part === tok) best = Math.max(best, 4);            // whole name part
+        else if (part.indexOf(tok) === 0) best = Math.max(best, 3);   // prefix
+        else if (part.indexOf(tok) > 0) best = Math.max(best, 1);     // inside
+      }
+      /* EVERY token must land somewhere, or it is not this player. That is what
+       * stops "gibbs smith" returning Gibbs — the second token has no home. */
+      if (!best) return 0;
+      score += best;
+    }
+    /* A SURNAME HIT OUTRANKS A FORENAME HIT on a single token, because "gibbs"
+     * means the man called Gibbs, not the man called Gibbs-something-else. */
+    if (tokens.length === 1 && parts.length > 1
+        && parts[parts.length - 1].indexOf(tokens[0]) === 0) score += 2;
+    return score;
+  }
+
   function renderBoard() {
     // PER-PASS, not per-session: a caveat shown once on page load and never
     // again would be worse than repeating it, because a filter change rebuilds
     // the table and the reader would then see none at all.
     resetCaveats();
     const match = p => (state.filterPos === 'ALL' || p.position === state.filterPos)
-      && (!state.search || (p.name || '').toLowerCase().indexOf(state.search) !== -1);
-    const rows = state.board.filter(match).slice(0, 200);
+      && (!state.search || nameScore(p.name, state.search) > 0);
+    /* RANKED BY HOW WELL THE NAME MATCHES, then by the board's own order. The
+     * old filter kept board order, so a search that hit several men buried the
+     * one actually typed — `gib` returned Jahmyr Gibbs and Antonio Gibson with
+     * the winner decided by ADP rather than by what was asked for. */
+    const rows = (state.search
+      ? state.board.filter(match)
+        .map((p, i) => ({ p: p, s: nameScore(p.name, state.search), i: i }))
+        .sort((a, b) => (b.s - a.s) || (a.i - b.i)).map(x => x.p)
+      : state.board.filter(match)).slice(0, 200);
 
     // Searching also looks at players already taken. "He isn't here" and "he
     // went four picks ago" are different answers, and only one of them means
