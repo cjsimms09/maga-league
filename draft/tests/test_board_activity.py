@@ -84,6 +84,16 @@ RETIRED = ("Tom Brady", "Drew Brees", "Rob Gronkowski", "Julian Edelman",
            "Antonio Brown", "Larry Fitzgerald", "Todd Gurley", "Marshawn Lynch")
 
 
+def _fixture_board():
+    """The board the instant BEFORE the activity filter first ran — A's input,
+    committed so the detector keeps being testable after it succeeds."""
+    p = (Path(__file__).resolve().parent / "fixtures" /
+         "board_pre_activity_filter.json")
+    if not p.exists():
+        pytest.skip("UNCHECKED: board_pre_activity_filter.json is absent")
+    return json.loads(p.read_text())
+
+
 def test_NO_RETIRED_PLAYER_IS_ON_THE_BOARD_AND_UNFLAGGED():
     """THE INVARIANT THAT SURVIVES THE FIX, which the first version did not.
 
@@ -241,30 +251,57 @@ def test_NOTHING_DORMANT_PRICES_A_DECISION_ON_THE_SHIPPED_BOARD():
     assert got["dormant"] >= 0
 
 
-def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
-    """The EFFECT of the prune build.py now performs, checked against the real
-    artifact rather than a fixture — because the artifact is the exact input it
-    receives.
+@pytest.mark.parametrize("which", ["fixture", "shipped"])
+def test_PRUNING_A_BOARD_REMOVES_NOTHING_ACTIONABLE(which):
+    """The EFFECT of the prune, with every exemption asserted separately. A single
+    count would pass while any one of them had quietly stopped applying, and each
+    is a different way to delete a player somebody is drafting.
 
-    Every exemption is asserted separately. A single count would pass while any
-    one of them had quietly stopped applying, and each is a different way to
-    delete a player somebody is drafting: a market price, a projection, a
-    rookie's blank history, or a position the evidence cannot see at all.
+    ⚠ TWO ARMS, BECAUSE THE SHIPPED ARM STOPS RUNNING THE DAY THE PRUNE SUCCEEDS.
+    This used to run only against the artifact, and skipped when nothing was left
+    to drop — "the success state, not a broken detector", which is true and still
+    leaves seven assertions silently retired on the day they start mattering. A
+    detector that can only be tested while the defect is present stops being
+    tested the moment it works (A's finding, and A built the input for it:
+    `fixtures/board_pre_activity_filter.json`, the board the instant before the
+    filter first ran, 1,841 rows, from CI run 31750835657).
+
+      fixture   ALWAYS runs. 1,158 dormant under the current rule, Brady among
+                them, so the seven clauses are exercised forever.
+      shipped   still catches a live regression while the artifact has dormant
+                rows, and skips honestly once it does not.
 
     MUTATION: remove any exemption from `dormant` — the corresponding assertion
-    here names exactly which one went."""
-    b = board()
+    names exactly which one went, on the fixture arm regardless of the board."""
+    b = _fixture_board() if which == "fixture" else board()
     rows = BA.dormant(b)["rows"]
     if not rows:
-        pytest.skip("the board is already pruned — nothing dormant left to drop, "
-                    "which is the success state, not a broken detector")
+        assert which == "shipped", (
+            "the FIXTURE has nothing dormant in it — it exists precisely to hold "
+            "the hazard permanently, so this arm can never be allowed to skip")
+        pytest.skip("the shipped board is already pruned — nothing dormant left "
+                    "to drop, which is the success state. The fixture arm above "
+                    "still asserts every clause.")
     drop = {str(p.get("player_id")) for p in rows}
     gone = [p for p in b["players"] if str(p.get("player_id")) in drop]
 
     def num(v):
         return v if isinstance(v, (int, float)) and not isinstance(v, bool) else None
 
+    # THE BOUND, AND WHY IT IS BORROWED FOR THE FIXTURE. A trimmed the fixture to
+    # `players` and dropped `provenance`, so the relevant board cannot be derived
+    # from it. Falling through to None would make this clause vanish on the arm
+    # that runs forever — the exact silent retirement the two arms exist to
+    # prevent. It is the same league and the same build lineage, so the shipped
+    # board's bound applies, and it is ASSERTED present rather than defaulted.
     relevant = (((b.get("provenance") or {}).get("adp") or {})).get("relevant_board")
+    if relevant is None:
+        relevant = (((board().get("provenance") or {}).get("adp") or {})
+                    ).get("relevant_board")
+    assert relevant, (
+        "no relevant-board bound from either the board under test or the shipped "
+        "artifact — the 'inside the relevant board' clause below would silently "
+        "not run")
     for label, bad in (
         ("ranked inside the draft's depth",
          [p for p in gone if (num(p.get("overall_rank")) or 10 ** 9) <= BA.DEPTH]),
