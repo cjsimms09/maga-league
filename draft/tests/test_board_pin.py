@@ -236,3 +236,95 @@ def test_a_pin_field_that_NEVER_ARRIVES_is_still_named():
     assert "built_at" in doc["population"]["fields"]
     assert doc["population"]["fields"]["built_at"]["missing"] == 2
     assert "built_at" in doc["population"]["empty"]
+
+
+# ── IS THE BOARD STALE, AND WAS IT REBUILT OR ONLY EDITED? ───────────────────
+#
+# Proven from git on 2026-08-14: three commits to public/draft_data.json with
+# sha256 25b10172 / 2814c6de / 7fa64ad7 — 1,679,767 then 1,648,204 then
+# 1,647,977 bytes — and `built_at` identical at 2026-08-13T23:13:18Z on all
+# three. The board is rebuilt once and then EDITED IN PLACE, so `built_at` alone
+# cannot answer "is this board fresh" and sha256 alone cannot answer "has the
+# pipeline run". The pin already carries both; nothing read them together.
+
+def _pin(day, sha, built_at="2026-08-13T09:20:18Z"):
+    return {"observed_at": day, "sha256": sha, "built_at": built_at,
+            "commit": "c" + sha[:6], "path": "public/draft_data.json"}
+
+
+def test_AN_EDIT_IN_PLACE_IS_NOT_A_REBUILD():
+    """THE CASE THAT WAS MEASURED. Content moved — 136 of 400 player rows, the
+    field being `adp_unordered` — while `built_at` stayed frozen. Reading only
+    `built_at` calls that board unchanged; reading only the digest calls it
+    rebuilt. Neither is true and the difference matters: an edit means somebody
+    changed the artifact, a rebuild means the pipeline ran.
+
+    MUTATION: report `rebuilt` whenever the digest moves — a stalled nightly build
+    reads as healthy for as long as anyone keeps hand-editing the file, which is
+    precisely the morning this was found on."""
+    ser = [_pin("2026-08-12", "aaa"), _pin("2026-08-13", "bbb")]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["state"] == "edited", r
+    assert r["days_since_rebuild"] is not None
+    assert r["days_since_content_change"] == 0
+
+
+def test_A_REBUILD_IS_RECOGNISED_BY_built_at_ADVANCING():
+    """MUTATION: compare `built_at` for inequality only — a board rebuilt from an
+    older snapshot, or a clock that goes backwards, counts as progress."""
+    ser = [_pin("2026-08-12", "aaa", "2026-08-12T09:00:00Z"),
+           _pin("2026-08-13", "bbb", "2026-08-13T09:20:18Z")]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["state"] == "rebuilt"
+    assert r["days_since_rebuild"] == 0
+    ser_back = [_pin("2026-08-12", "aaa", "2026-08-13T09:20:18Z"),
+                _pin("2026-08-13", "bbb", "2026-08-12T09:00:00Z")]
+    back = B.staleness(ser_back, today="2026-08-13")
+    assert back["state"] != "rebuilt"
+    # AND THE REBUILD DATE MUST NOT ADVANCE EITHER. The gate caught this: the
+    # state line and the last_rebuild walk are two separate comparisons, and I had
+    # only asserted the first. Mutating the walk to `!=` left the state correct
+    # while the reported rebuild DATE jumped forward on a clock that went
+    # backwards — a survived mutation is a missing assertion, not a spare one.
+    assert back["last_rebuild"] == "2026-08-12", back
+
+
+def test_A_FROZEN_BOARD_REPORTS_ITS_TRUE_AGE():
+    """MUTATION: measure staleness from the last PIN rather than the last CHANGE —
+    the pin runs daily, so `days_since` is always 0 and a board frozen for a week
+    reads as captured this morning. The instrument would then be reporting that
+    itself ran."""
+    ser = [_pin("2026-08-08", "aaa"), _pin("2026-08-09", "aaa"),
+           _pin("2026-08-13", "aaa")]
+    r = B.staleness(ser, today="2026-08-14")
+    assert r["state"] == "frozen"
+    assert r["days_since_content_change"] == 6      # last CHANGE was before 08-08
+    assert r["days_since_rebuild"] == 6
+
+
+def test_ONE_PIN_IS_UNMEASURED_not_zero_days_stale():
+    """A single pin has nothing to compare against. Reporting 0 days would make a
+    brand-new archive indistinguishable from a board that changed this morning.
+
+    MUTATION: return zeroes for a one-pin series — the first run of this check
+    always reports perfect freshness, which is the reading it can least afford."""
+    r = B.staleness([_pin("2026-08-13", "aaa")], today="2026-08-14")
+    assert r["state"] == "unmeasured"
+    assert r["days_since_content_change"] is None
+    assert B.staleness([], today="2026-08-14")["state"] == "unmeasured"
+
+
+def test_A_MISSING_built_at_IS_UNKNOWN_not_unrebuilt():
+    """`population()`'s docstring already anticipates a board that stops carrying
+    `built_at` — it yields an explicit null. A null must not be read as "no
+    rebuild happened", which would report a stalled pipeline that is in fact
+    unobserved.
+
+    MUTATION: treat a missing `built_at` as no change — the day the field
+    disappears, this check starts reporting a rebuild failure that nobody can
+    reproduce because the evidence is absent rather than negative."""
+    ser = [_pin("2026-08-12", "aaa", None), _pin("2026-08-13", "bbb", None)]
+    r = B.staleness(ser, today="2026-08-13")
+    assert r["rebuild_measurable"] is False
+    assert r["days_since_rebuild"] is None
+    assert "built_at" in r["note"]

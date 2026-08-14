@@ -574,6 +574,56 @@ jobs:
           # fortnight missing.
           exit "$rc"
 
+      # ── IS THE BOARD FRESH, AND WAS IT REBUILT OR ONLY EDITED ─────────────
+      #
+      # Nothing measured this, and on 2026-08-14 I was watching for a late
+      # nightly rebuild by hand — which is a mechanism implemented as a person
+      # staring at a terminal. The pin has carried `sha256` AND `built_at` since
+      # it was written; nothing read them together.
+      #
+      # Neither answers it alone, measured rather than supposed: three commits
+      # that morning carried three different digests and the SAME `built_at`, and
+      # 136 of the first 400 player rows differed. `built_at` alone calls that
+      # board unchanged; the digest alone calls it rebuilt. A nightly build that
+      # quietly stops firing stays invisible to the digest for as long as anyone
+      # keeps editing the file in place.
+      #
+      # Runs AFTER the pin is committed so today's pin is in the series. Reads
+      # bytes already on disk — worst case is a missing paragraph.
+      - name: Is the board fresh, and was it rebuilt or edited
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'AGE' >> "$GITHUB_STEP_SUMMARY"
+          import datetime, json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Board freshness")
+          try:
+              import board_pin as BP
+              today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+              ser = (json.load(open(BP.SERIES)) or {}).get("series") or []
+              r = BP.staleness(ser, today=today)
+              if r["state"] == "unmeasured":
+                  print("**UNMEASURED** — %s" % r["note"])
+              else:
+                  print("state **%s** · content last changed `%s` (%s day(s) ago)"
+                        % (r["state"].upper(), r["last_content_change"],
+                           r["days_since_content_change"]))
+                  if r["rebuild_measurable"]:
+                      print("last rebuild `%s` (%s day(s) ago)"
+                            % (r["last_rebuild"], r["days_since_rebuild"]))
+                  else:
+                      print("**REBUILD AGE UNMEASURABLE** — %s" % r["note"])
+                  if r["state"] == "edited":
+                      print("⚠ **EDITED IN PLACE, NOT REBUILT** — the artifact "
+                            "changed and the pipeline did not run. `built_at` no "
+                            "longer describes this file.")
+          except Exception as e:                      # noqa: BLE001
+              print("**FRESHNESS CHECK DID NOT RUN** (%s: %s) — not a clean "
+                    "result; nothing was measured." % (type(e).__name__, e))
+          AGE
+
       # ── WHERE THE PLATFORM OUR ROOM DRAFTS ON DISAGREES WITH THE PRICE ────
       #
       # `board_vs_market.sleeper_divergence` had no caller. I built it this
