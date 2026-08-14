@@ -868,20 +868,27 @@ jobs:
                             "it means the sources agree; with none, nothing was "
                             "compared.")
                   else:
-                      print("| player | pos | consensus | ranks by source | spread |")
+                      print("| player | pos | consensus | ranks by source | apart |")
                       print("|---|---|---|---|---|")
                       for d in dis[:20]:
                           pid = d["player_id"]
-                          print("| %s | %s | %d | %s | %.3f |"
+                          print("| %s | %s | %d | %s | %.0f |"
                                 % (names.get(pid) or ("`%s` (unknown id)" % pid),
                                    d["position"], d["consensus_rank"],
                                    ", ".join("%s %s" % (k, v) for k, v in
                                              sorted(d["ranks"].items())),
-                                   d["disagreement"]))
+                                   d["rank_steps"]))
                       print("")
-                      print("Spread is the gap between the sources' own "
-                            "within-position placements on a shared scale. The "
-                            "consensus rank is the MEDIAN of ranks, never the "
+                      print("`apart` is HOW MANY PLAYERS separate the sources at "
+                            "that position — the column the table is sorted on. "
+                            "The share-of-the-position figure it replaced is "
+                            "comparable across SOURCES and not across POSITIONS: "
+                            "the intersection is 25 quarterbacks against 76 "
+                            "receivers, so one rank step is 0.040 at QB and 0.013 "
+                            "at WR, and sorting on it ordered the table partly by "
+                            "how shallow each position is.")
+                      print("")
+                      print("The consensus rank is the MEDIAN of ranks, never the "
                             "mean: two sources at RB4 and one at RB19 should "
                             "return RB4 and report the argument, not RB9 — a rank "
                             "no source holds and no reader can defend.")

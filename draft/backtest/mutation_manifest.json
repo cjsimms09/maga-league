@@ -1328,6 +1328,22 @@
       "test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "\"rank_steps\": r[\"disagreement\"] * max(shared - 1, 1),",
+     "new": "\"rank_steps\": r[\"disagreement\"] * shared,",
+     "must_fail": [
+      "test_THE_RANK_STEPS_ARE_THE_FRACTION_TIMES_THE_SHARED_DEPTH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    out.sort(key=lambda r: -r[\"rank_steps\"])",
+     "new": "    out.sort(key=lambda r: -r[\"disagreement\"])",
+     "must_fail": [
+      "test_THE_CROSS_POSITION_TABLE_IS_SORTED_ON_RANK_STEPS_not_the_fraction"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },

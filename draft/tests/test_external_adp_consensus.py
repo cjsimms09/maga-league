@@ -453,3 +453,95 @@ def test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH():
     kept, dropped = X.in_draft_range(dis, board, limit=150)
     assert [d["player_id"] for d in kept] == ["near"]
     assert dropped == 2
+
+
+# ── THE CROSS-POSITION SORT IS ON A SCALE THAT IS NOT CROSS-POSITION ─────────
+#
+# `consensus_order` fixed a REAL depth defect: ranking each player as a fraction
+# of his own source's list length compared two different quantities, so the scale
+# became the SHARED players every source prices. That makes the fraction
+# comparable ACROSS SOURCES for one player. It does not make it comparable ACROSS
+# POSITIONS — the intersection is 25 quarterbacks and 76 receivers on the live
+# 2026-08-14 archive, so one rank step is 0.040 at QB and 0.013 at WR.
+#
+# `disagreements()` then sorts every position into ONE list on that fraction. On
+# real data the effect is not subtle: by fraction the table reads QB 0.083 vs WR
+# 0.040 and looks like quarterbacks are where the sources argue. Converted to rank
+# steps it is WR 3.0, QB 2.1, RB 2.0, TE 0.0 — receivers, and the loudest single
+# row goes from Dallas Goedert to Alec Pierce, ten receivers apart.
+#
+# I nearly routed "the sources disagree most about quarterbacks". It was the
+# denominator.
+
+def test_A_DISAGREEMENT_CARRIES_RANK_STEPS_so_positions_can_be_compared():
+    """Two positions, deliberately different depths, with the SAME two-place
+    disagreement in each. By fraction the shallow position looks worse; in rank
+    steps they are equal, which is the truth.
+
+    MUTATION: report only the fraction — every cross-position table this module
+    produces is ordered partly by how many players the position has, and the
+    shallowest position leads whatever the sources actually did."""
+    pos = {}
+    a, b = {}, {}
+    for i in range(1, 5):                       # 4 shared QBs
+        pos["q%d" % i] = "QB"
+        a["q%d" % i] = float(i)
+        b["q%d" % i] = float(i)
+    for i in range(1, 21):                      # 20 shared WRs
+        pos["w%d" % i] = "WR"
+        a["w%d" % i] = float(i)
+        b["w%d" % i] = float(i)
+    # one two-place swap in each position
+    a["q1"], a["q3"] = 3.0, 1.0
+    a["w1"], a["w3"] = 3.0, 1.0
+    order = X.consensus_order({"one": a, "two": b}, pos)
+    dis = {d["player_id"]: d for d in X.disagreements(order)}
+    q, w = dis["q1"], dis["w1"]
+    assert q["disagreement"] > w["disagreement"], "fraction should favour the shallow one"
+    # TOLERANCE 0.01 BECAUSE `disagreement` IS STORED ROUNDED TO 4dp and
+    # `rank_steps` inherits that: at a 76-deep position the rounding is worth
+    # 76e-4 = 0.008 steps. Tightening this to 1e-6 asserts a precision the stored
+    # value does not carry, which is a test that fails on arithmetic rather than
+    # on behaviour — it did, at 6e-4, before this line said so.
+    assert abs(q["rank_steps"] - w["rank_steps"]) < 0.01, (q, w)
+
+
+def test_THE_RANK_STEPS_ARE_THE_FRACTION_TIMES_THE_SHARED_DEPTH():
+    """Stated as arithmetic so it cannot drift into a second definition.
+
+    MUTATION: divide by the position's FULL list rather than the shared set — the
+    two scales part company exactly where the module's own docstring says they
+    do, and the number stops being the one the coverage table reports."""
+    pos = {"a": "RB", "b": "RB", "c": "RB", "d": "RB"}
+    s1 = {"a": 1.0, "b": 2.0, "c": 3.0, "d": 4.0}
+    s2 = {"a": 3.0, "b": 2.0, "c": 1.0, "d": 4.0}
+    order = X.consensus_order({"one": s1, "two": s2}, pos)
+    cov = X.coverage(order)["RB"]
+    for d in X.disagreements(order):
+        # (corroborated - 1): the fraction spans the GAPS between shared players.
+        assert abs(d["rank_steps"]
+                   - d["disagreement"] * max(cov["corroborated"] - 1, 1)) < 1e-6, d
+
+
+def test_THE_CROSS_POSITION_TABLE_IS_SORTED_ON_RANK_STEPS_not_the_fraction():
+    """A four-deep position with a TWO-place disagreement against a twenty-deep one
+    with a FIVE-place disagreement. By fraction the shallow one leads (0.667 vs
+    0.263); by rank steps the deep one does (2 vs 5), and the deep one is the
+    bigger disagreement by any reading a drafter cares about.
+
+    MUTATION: sort on `disagreement` — the table leads with the shallowest
+    position's smallest real disagreement, every morning, and on the live archive
+    that put Dallas Goedert above Alec Pierce when the sources are six tight ends
+    apart on one and ten receivers apart on the other."""
+    pos, a, b = {}, {}, {}
+    for i in range(1, 5):
+        pos["q%d" % i] = "QB"; a["q%d" % i] = float(i); b["q%d" % i] = float(i)
+    for i in range(1, 21):
+        pos["w%d" % i] = "WR"; a["w%d" % i] = float(i); b["w%d" % i] = float(i)
+    a["q1"], a["q3"] = 3.0, 1.0          # two places apart at a 4-deep position
+    a["w1"], a["w6"] = 6.0, 1.0          # five places apart at a 20-deep position
+    dis = X.disagreements(X.consensus_order({"one": a, "two": b}, pos))
+    by = {d["player_id"]: d for d in dis}
+    assert by["q1"]["disagreement"] > by["w1"]["disagreement"]
+    assert by["w1"]["rank_steps"] > by["q1"]["rank_steps"]
+    assert dis[0]["player_id"] == "w1", [d["player_id"] for d in dis[:3]]

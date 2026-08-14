@@ -369,13 +369,41 @@ def disagreements(order: dict, top_n: int = 40) -> list:
     """
     out = []
     for pos, rows in (order or {}).items():
+        # ⚠ THE FRACTION IS COMPARABLE ACROSS SOURCES AND NOT ACROSS POSITIONS.
+        #
+        # `consensus_order` fixed a real defect by making the scale the SHARED
+        # players every source prices, which is what lets two sources of different
+        # depth be compared for ONE player. It does not make two POSITIONS
+        # comparable: on the live 2026-08-14 archive the intersection is 25
+        # quarterbacks and 76 receivers, so one rank step is 0.040 at QB and 0.013
+        # at WR, and a fraction sorted across positions is ordered partly by how
+        # many players each position has.
+        #
+        # MEASURED, NOT SUSPECTED: by fraction that table reads QB 0.083 against WR
+        # 0.040 and looks like the sources argue about quarterbacks. In rank steps
+        # it is WR 3.0, QB 2.1, RB 2.0, TE 0.0 — and the loudest single row moves
+        # from Dallas Goedert to Alec Pierce, ten receivers apart. I nearly routed
+        # the first reading; it was the denominator.
+        #
+        # BOTH TRAVEL. The fraction answers "how far apart as a share of this
+        # position's board"; `rank_steps` answers "how many players apart", and the
+        # second is the one a cross-position table may be sorted on.
+        shared = sum(1 for r in rows if r.get("ranking_sources", 0) > 1)
         for r in rows[:int(top_n)]:
             if r.get("disagreement") is not None and r["ranking_sources"] > 1:
                 out.append({"position": pos, "player_id": r["player_id"],
                             "consensus_rank": r["rank"],
                             "disagreement": r["disagreement"],
+                            # (shared - 1), NOT `shared`: the fraction spans the
+                            # GAPS between the shared players, so n of them give
+                            # n-1 steps. My first version multiplied by n and the
+                            # fixture caught it — a two-place swap came out 2.67
+                            # steps at a four-deep position and 2.11 at a
+                            # twenty-deep one, when both are exactly 2.
+                            "rank_steps": r["disagreement"] * max(shared - 1, 1),
+                            "shared_at_position": shared,
                             "ranks": r["ranks"]})
-    out.sort(key=lambda r: -r["disagreement"])
+    out.sort(key=lambda r: -r["rank_steps"])
     return out
 
 
