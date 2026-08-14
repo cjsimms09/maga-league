@@ -110,7 +110,7 @@ const by = k => rows.find(r => r.kind === k);
   ck('the open loops are exactly the ones we know about — if this list changes, '
     + 'either a loop was closed or a new claim went ungraded',
   JSON.stringify(open) === JSON.stringify(['doctrine', 'doctrine_decline', 'lrm',
-    'run', 'shadow_pick']), open);
+    'shadow_pick']), open);
 
   /* ⚠ THIS LIST SHRANK FOR TWO DIFFERENT REASONS AND ONLY ONE OF THEM IS WORK.
    *
@@ -144,10 +144,14 @@ const by = k => rows.find(r => r.kind === k);
     + 'of `pick`. A prefix match is not a relationship, and treating it as one '
     + 'is why `pick` first read as resolved for the wrong reason',
   LC.declaredKinds().indexOf('pick_reconciled') >= 0);
-  ck('REGRESSION — `run` reads as OPEN. The old body-scan matched the English '
-    + 'word "run" in a comment near a resolver and called it graded; there is '
-    + 'no run resolver', by('run').resolved === false && by('run').captured === true,
-  by('run').resolvedIn);
+  /* `run` WAS on this list for a real reason and is now CLOSED — resolveRun
+   * landed 2026-08-14. Note it first read as closed for a FALSE reason (the old
+   * body-scan matched the English word "run" in a comment near a resolver), then
+   * correctly as open once detection was fixed, and now as closed because the
+   * resolver exists. Three states, only the last one earned. */
+  ck('`run` is CLOSED — a real resolver now grades it, and this is the second '
+    + 'draft-day loop to come off the list',
+    by('run').resolved === true && by('run').captured === true, by('run').resolvedIn);
 
   ck('every open loop carries a stated reason it is gradeable, so none of them '
     + 'is on the list by accident',

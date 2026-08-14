@@ -5668,10 +5668,20 @@
     if (typeof PredLedger !== 'undefined' && !state.mockMode) {
       var c = ledgerCtx();
       var sig = runs.map(function (p) { return p + ':' + state.runMults[p].toFixed(2); }).join(',');
+      var runPayload = { positions: runs.map(function (p) {
+        return { position: p, multiplier: Math.round(state.runMults[p] * 100) / 100 }; }) };
       PredLedger.run({ season: c.season, build_at: c.build_at, pick: c.pick,
-        method: 'run-detect-v1',
-        payload: { positions: runs.map(function (p) {
-          return { position: p, multiplier: Math.round(state.runMults[p] * 100) / 100 }; }) } }, sig);
+        method: 'run-detect-v1', payload: runPayload }, sig);
+
+      /* REMEMBERED SO IT CAN BE GRADED, same as the survival calls. `sig` is
+       * already the de-duplication key the ledger uses (positions + multipliers),
+       * so reusing it here keeps one definition of "the same run call" rather
+       * than inventing a second that could disagree with it. */
+      if (!state.runCaptures) state.runCaptures = [];
+      var rKey = String(c.pick) + '|' + sig;
+      if (!state.runCaptures.some(function (x) { return x._key === rKey; })) {
+        state.runCaptures.push({ _key: rKey, pick: c.pick, payload: runPayload });
+      }
     }
   }
 
@@ -7620,6 +7630,41 @@
     } catch (e) { console.error('[survival-resolve]', e && e.message); }
   }
 
+  /* GRADE THE RUN CALLS THE ROOM HAS NOW ANSWERED.
+   *
+   * Second draft-day loop. Run multipliers feed `survivalProbability`, so a run
+   * call that is wrong makes every survival number downstream of it wrong too —
+   * grading this grades a VONA input, same as survival itself.
+   *
+   * Needs the pick POSITIONS, not just ids: the claim is about a position going
+   * faster than usual, so a pick log without positions cannot grade it. */
+  function resolveRunCalls(picks) {
+    if (state.mockMode) return;                     // a mock is not forward evidence
+    if (typeof DraftSurvival === 'undefined' || typeof PredLedger === 'undefined') return;
+    const caps = (state.runCaptures || []).filter(function (c) { return !c._resolved; });
+    if (!caps.length) return;
+    const pickLog = (picks || [])
+      .filter(function (pk) { return pk && pk.pick_no != null && pk.player_id != null; })
+      .map(function (pk) {
+        const p = playerById(String(pk.player_id));
+        return { overall: Number(pk.pick_no), position: p && p.position };
+      })
+      .filter(function (x) { return x.position; });
+    if (!pickLog.length) return;
+    try {
+      const season = ledgerCtx().season;
+      DraftSurvival.resolveRun(caps, { picks: pickLog }).forEach(function (r) {
+        PredLedger.capture('run_resolved', { season: season, method: r.method,
+          pick: currentPick(), payload: r.payload });
+        // Mark only the captures made AT that pick — several run calls can share
+        // a pick, and marking by pick alone would silently drop the others.
+        caps.forEach(function (c) {
+          if (c.pick === r.payload.at_pick) c._resolved = true;
+        });
+      });
+    } catch (e) { console.error('[run-resolve]', e && e.message); }
+  }
+
   function onSyncPicks(picks) {
     const seatSlot = mySlot();
     // SPEED (audit 2026-08-10): the Sleeper poll fires every 4s, but most polls
@@ -7752,6 +7797,7 @@
     // FORWARD LOOP: let reality answer the committed forecasts the new picks resolve.
     resolveCommittedForecasts(picks);
     resolveSurvivalCalls(picks);
+    resolveRunCalls(picks);
     // SHADOW ARM: let reality answer the opponent predictions these picks
     // resolve, THEN commit predictions for the next window. Resolve before emit
     // so a pick can never resolve a forecast made after it was already known.

@@ -27,7 +27,7 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                // omitting this would have thrown away every resolution silently
                // from the client's point of view — the loop would read as closed
                // in the code and be empty in the data.
-               'survival_resolved',
+               'survival_resolved', 'run_resolved',
                'doctrine', 'doctrine_decline',
                // Experiment 31 data collection. Every non-Cory pick in a MOCK
                // room is Sleeper's default ordering executing — especially the

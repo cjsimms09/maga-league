@@ -1429,7 +1429,93 @@
     return out;
   }
 
-  const api = { resolveSurvival,
+  /* ══ GRADING THE RUN CALL ═══════════════════════════════════════════════
+   *
+   * The second draft-day loop, and it grades another VONA input: run
+   * multipliers feed `survivalProbability`, so a run call that is wrong makes
+   * every survival number downstream of it wrong too.
+   *
+   * THE CLAIM: "position P is going faster than usual right now" — `detectRuns`
+   * fires when the multiplier clears RUN_BANNER_AT. Within a few picks the room
+   * either kept taking that position or it did not.
+   *
+   * ── THE BASELINE IS THE TRAP, AND IT IS WHY THIS IS NOT "after vs before" ──
+   *
+   * The obvious grade is "did P go faster AFTER the call than BEFORE it". That
+   * is biased against the model by construction: the call FIRES because P just
+   * went fast, so the before-window is elevated by selection and regression to
+   * the mean alone would score most correct calls as failures. It is the same
+   * shape as the survival boundary bug — a comparison that looks neutral and
+   * systematically punishes the model for the cases it fired on.
+   *
+   * So the baseline is the position's share of THE WHOLE DRAFT SO FAR: how often
+   * this position normally goes in this room, measured on this draft, unaffected
+   * by the window that triggered the call.
+   *
+   * ── AND THE MULTIPLIER IS REPORTED, NOT SCORED ────────────────────────────
+   *
+   * A multiplier of 1.6 claims more than 1.4 does. But nothing here knows what
+   * excess a 1.6 SHOULD produce, and inventing a mapping now would be fitting a
+   * curve to zero observations. Each row carries the multiplier beside the
+   * measured excess so the relationship becomes measurable once there are rows —
+   * and stays honestly unasserted until then.
+   *
+   * The forward window is RUN_WINDOW, the same horizon `runMultipliers` looks
+   * BACK over. Grading a 10-pick detector on a 3-pick future would measure the
+   * window, not the call.
+   */
+  function resolveRun(captures, opts) {
+    opts = opts || {};
+    const W = opts.window || CFG.RUN_WINDOW;
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.position;
+    });
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+
+    const out = [];
+    (captures || []).forEach(function (cap) {
+      const at = Number(cap.pick);
+      const positions = ((cap.payload || cap).positions) || [];
+      if (!isFinite(at) || !positions.length) return;
+      if (reached < at + W) return;             // window not complete — say nothing
+
+      const before = picks.filter(function (p) { return Number(p.overall) < at; });
+      // A baseline off three picks is not a baseline. Refuse rather than divide
+      // by a number that cannot mean anything.
+      if (before.length < W) return;
+      const after = picks.filter(function (p) {
+        const n = Number(p.overall); return n > at && n <= at + W;
+      });
+      if (!after.length) return;
+
+      const share = function (list, pos) {
+        return list.filter(function (p) { return p.position === pos; }).length / list.length;
+      };
+      const results = positions.map(function (row) {
+        const b = share(before, row.position), o = share(after, row.position);
+        return { position: row.position, multiplier: row.multiplier,
+          baseline_rate: Math.round(b * 1000) / 1000,
+          observed_rate: Math.round(o * 1000) / 1000,
+          excess: Math.round((o - b) * 1000) / 1000,
+          continued: o > b };
+      });
+      const nCont = results.filter(function (r) { return r.continued; }).length;
+      out.push({ method: 'run-resolver-v1',
+        payload: { at_pick: at, window: W, n_before: before.length, n_after: after.length,
+          positions: results, n_called: results.length, n_continued: nCont,
+          baseline_note: 'baseline is the position\'s share of the whole draft before '
+            + 'the call, NOT the window that triggered it — an after-vs-before '
+            + 'comparison is biased against a detector that fires on a spike',
+          multiplier_note: 'the multiplier is recorded beside the measured excess, '
+            + 'not scored against it: no mapping from multiplier to expected excess '
+            + 'has been established, and inventing one on zero rows would be fitting' } });
+    });
+    return out;
+  }
+
+  const api = { resolveSurvival, resolveRun,
     expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
