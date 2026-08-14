@@ -442,3 +442,80 @@ def test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive():
     # AND A FORBIDDEN PATH IS CALLED OUT, because it is the one that changes what
     # anybody would do next.
     assert d["exists_but_forbidden"] == ["/v3/props"], d
+
+
+# ── WHAT IS IN THE EVENTS WE DROP — A's first-priority question ──────────────
+#
+# `events_before_horizon: 48 -> 32` out of a 134-event catalogue. A wants to know
+# what is in the 102 we never ask about, specifically whether any of it is
+# regular season, because those weeks are unrecoverable once they pass.
+
+EV = [
+    {"id": "p1", "date": "2026-08-15T00:20:00"},   # +1 day
+    {"id": "p2", "date": "2026-08-20T00:20:00"},   # +6 days   -> inside 7
+    {"id": "p3", "date": "2026-08-24T00:20:00"},   # +10 days  -> inside 14 only
+    {"id": "r1", "date": "2026-09-11T00:20:00"},   # +28 days  -> beyond both
+    {"id": "r2", "date": "2026-12-28T18:00:00"},   # far
+    {"id": "old", "date": "2026-08-01T00:00:00"},  # already played
+    {"id": "u"},                                    # undated
+]
+NOW = "2026-08-14T06:00:00"
+
+
+def test_THE_DROPPED_EVENTS_ARE_COUNTED_AND_DATED_not_just_subtracted():
+    """`48 -> 32` says sixteen went and nothing about what they were. A cut slate
+    and a small slate look identical in a difference, which is the same complaint
+    `horizon_report` was written to fix one layer down — and it still cannot say
+    whether the dropped games are the ones that matter.
+
+    MUTATION: report the counts only — "102 dropped" stays a number nobody can
+    act on, and whether the first regular-season weeks are inside it is unknown
+    on the day it stops being recoverable."""
+    c = P.events_census(EV, now=NOW, horizons=(7, 14))
+    assert c["total"] == 7
+    assert c["undated"] == 1 and c["already_started"] == 1
+    assert c["upcoming"] == 5
+    assert c["within"]["7"] == 2 and c["within"]["14"] == 3
+    # THE DROPPED SET, DATED — the answer to "what is in the 102"
+    assert c["beyond"]["14"]["n"] == 2
+    assert c["beyond"]["14"]["first"] == "2026-09-11T00:20:00"
+    assert c["beyond"]["14"]["last"] == "2026-12-28T18:00:00"
+
+
+def test_WIDENING_THE_HORIZON_IS_PRICED_IN_EVENTS_not_argued():
+    """The 7-vs-14 question is a real trade and it should be answered with the
+    number of games each buys, not with a preference. This is the arithmetic A
+    needs to set the registered filter.
+
+    MUTATION: report one horizon — the choice between them goes back to being an
+    argument, on a window whose first weeks cannot be recaptured."""
+    c = P.events_census(EV, now=NOW, horizons=(7, 14))
+    assert c["marginal"]["7->14"] == 1        # exactly one extra game bought
+
+
+def test_AN_UNDATED_EVENT_IS_NOT_BEYOND_THE_HORIZON():
+    """`KEEP_UNDATED` exists one file over for this reason: absent is not "far
+    away". Filing undated events under "dropped" would make the horizon look more
+    expensive than it is and hide a game we simply cannot date.
+
+    MUTATION: bucket undated events with the far-future ones — every capture
+    reports phantom attrition, and the one event we genuinely cannot place
+    disappears into a count."""
+    c = P.events_census(EV, now=NOW, horizons=(7,))
+    assert c["undated"] == 1
+    # p3 (+10d), r1 (+28d), r2 (far) are all beyond a 7-day cut — and the undated
+    # one is in NEITHER bucket, which is the assertion that matters here.
+    assert c["beyond"]["7"]["n"] == 3
+    # ⚠ ASSERT ON THE LIST, NOT ON THE SERIALISED BLOB. My first version checked
+    # `"u" not in json.dumps(...)` and matched the letter inside "ids_truncated",
+    # which would have failed for a payload that was perfectly correct — a test
+    # that fails for the wrong reason is as bad as one that passes for it.
+    assert "u" not in c["beyond"]["7"]["ids"]
+
+
+def test_AN_EMPTY_CATALOGUE_IS_UNMEASURED_not_a_clean_slate():
+    """MUTATION: return zeroes — a listing call that failed reads as a league with
+    no games, and the horizon looks like it is dropping nothing."""
+    c = P.events_census([], now=NOW)
+    assert c["status"] == "unmeasured"
+    assert "no events" in c["note"]
