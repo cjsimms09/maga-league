@@ -247,6 +247,23 @@ def parameter_was_honoured(real, control) -> dict:
                         "parameter being honoured"}
     rk, _ = _fingerprint(real)
     ck, _ = _fingerprint(control)
+    # ⚠ TWO EMPTY RESPONSES ARE TRIVIALLY IDENTICAL, and run 31772127983 proved
+    # it: the probe took `events[0]` of 136 listed for usa-nfl — an arbitrary game
+    # months out and unpriced — got a payload with NO markets at all (not even the
+    # ML and spread the daily capture pulls every day), and duly reported the
+    # parameter as ignored. The control fired on an empty game and would have
+    # fired no matter what the parameter did.
+    #
+    # That is exactly the failure this control exists to prevent, one level up: a
+    # conclusion about the provider drawn from a fact about our own request. An
+    # unpriced event cannot convict anybody.
+    if not rk and not ck:
+        return {"honoured": None, "real_keys": 0, "control_keys": 0,
+                "note": "neither response carried any markets, so there was "
+                        "nothing to compare — two empty payloads are identical "
+                        "whatever the parameter does. UNMEASURED: the event was "
+                        "probably unpriced, which is a fact about the game we "
+                        "picked and not about the provider."}
     if rk == ck:
         return {"honoured": False, "real_keys": len(rk), "control_keys": len(ck),
                 "note": "a nonsense `markets` value returned the SAME market names, "
@@ -356,6 +373,30 @@ ASK = ("player_props", "player_pass_yds", "player_rush_yds", "player_receptions"
 CONTROL = "zzz_not_a_market_qqq"
 
 
+def nearest_first(events) -> list:
+    """Events sorted by kickoff, soonest first; undated LAST rather than dropped.
+
+    THE FIX FOR RUN 31772127983. It took `events[0]` of 136 listed for usa-nfl and
+    got a payload carrying no markets at all — not even the ML and spread the
+    daily capture pulls every day — because an arbitrary game from a whole-season
+    list is very likely months out and unpriced. Every verdict drawn from that run
+    was about the game we happened to pick.
+
+    Soonest-first is not a preference, it is the same market-structure fact
+    `market_filters` registers its horizon on: lines are posted and actively
+    traded through the week before kickoff, so the nearest game is the one most
+    likely to carry a board at all.
+
+    UNDATED SORTS LAST, NOT OUT. An event we cannot date is not "far away" — the
+    same rule `KEEP_UNDATED` states one file over — so it stays available as a
+    fallback rather than being silently discarded.
+    """
+    def key(e):
+        t = str((e or {}).get("date") or "")[:19]
+        return (0, t) if t else (1, "")
+    return sorted(list(events or []), key=key)
+
+
 def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no cover
     """One event, three requests: default, asked, nonsense control."""
     import market_request as R                        # A's validator, imported not edited
@@ -370,9 +411,13 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
         events, headers, _ = R.fetch(url, timeout), None, None
         if isinstance(events, tuple):
             events = events[0]
-        ev = list(events or [])
+        ev = nearest_first(events)
         out["events_listed"] = len(ev)
+        # NEAREST KICKOFF, because the game most likely to carry a board is the
+        # one closest to being played. Run 31772127983 took `events[0]` of 136 and
+        # asked about an unpriced game.
         event_id = (ev[0] or {}).get("id") if ev else None
+        out["event_date"] = (ev[0] or {}).get("date") if ev else None
         if not event_id:
             return {**out, "verdict": "UNMEASURED — the league listed no events, so "
                                       "no odds request could be made. A fact about "
@@ -393,6 +438,24 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
     default_payload, h0 = _get(dict(base))
     real_payload, _h1 = _get({**base, "markets": ",".join(ASK)})
     control_payload, h2 = _get({**base, "markets": CONTROL})
+
+    # ⚠ IF THE DEFAULT CALL CARRIED NO BOARD, THE RUN ANSWERS NOTHING. The daily
+    # capture pulls ML, spread and totals from this same endpoint every day, so a
+    # default response with no markets means the EVENT is unpriced — and three
+    # empty payloads compared against each other convict whatever we point them
+    # at. Reported as UNMEASURED with the next events named, rather than as a
+    # finding about the provider.
+    if not market_keys(default_payload):
+        nxt = [e.get("id") for e in ev[1:6]] if not event_id else []
+        return {**out, "event_id": event_id,
+                "asked_markets": list(ASK),
+                "credit": credit_cost(h0, h2),
+                "raw_shape": structure_keys(default_payload),
+                "verdict": "UNMEASURED — the event carried no markets at all, not "
+                           "even the sides the daily capture pulls from this same "
+                           "endpoint. That is a fact about the game we picked, not "
+                           "about the provider. Retry with --event-id from: %s"
+                           % (nxt or "the next nearest events")}
 
     honoured = parameter_was_honoured(real_payload, control_payload)
     classified = classify(market_keys(real_payload if real_payload is not None
