@@ -3914,3 +3914,92 @@ def test_without_a_draft_range_the_verdict_is_unknown_not_clear():
     confident "none was draftable" for a league nobody read."""
     out = C.undecoded_inside_draft(_rep([1]), {"1": 10.0}, None)
     assert out["verdict"] == "unknown" and out["inside"] is None, out
+
+
+# ── WHAT THIS ADP IS DENOMINATED IN, beside the rows ────────────────────────
+#
+# Ten modules read this archive and only `board_vs_market` knows MFL pools
+# superflex, 2QB, dynasty, keeper and IDP drafts into one ADP. The other nine
+# can read a gap against our board as OUR BOARD being wrong — A's criterion 1,
+# and the failure this project keeps paying for.
+
+def _dn_series(day="2026-08-14"):
+    return [{"year": "2026", "observed_at": day,
+             "rows": {"a": 10.0, "b": 20.0, "c": 400.0}}]
+
+
+_DN_PLAYERS = {"a": {"name": "A", "position": "WR"},
+               "b": {"name": "B", "position": "LB"},
+               "c": {"name": "C", "position": "DE"}}
+
+
+def test_denomination_MEASURES_the_unrosterable_share_inside_the_draft():
+    """MUTATION: count over the WHOLE board instead of inside the draft — the
+    share is dominated by the deep pool and stops describing the population any
+    decision is made from."""
+    out = C.denomination(_dn_series(), _DN_PLAYERS,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["status"] == "measured", out
+    assert out["rows_inside_draft"] == 2          # ADP 400 is outside
+    assert out["unrosterable_inside_draft"] == 1  # the LB; the DE is outside
+    assert out["unrosterable_share"] == 0.5
+    assert "not denominated in the same thing" in out["note"]
+
+
+def test_denomination_WITHOUT_settings_is_unknown_never_a_clean_zero():
+    """"We could not tell what we roster" and "nothing is contaminated" must
+    never render the same.
+
+    MUTATION: initialise `unros = 0` instead of None — an unreadable settings
+    file reports a pristine 0.0% contaminated board."""
+    out = C.denomination(_dn_series(), _DN_PLAYERS, rostered=None, draftable=150)
+    assert out["status"] == "unknown", out
+    assert out["unrosterable_inside_draft"] is None
+    assert out["unrosterable_share"] is None
+    assert "NOT a statement that the board is clean" in out["note"]
+
+
+def test_denomination_counts_a_MISSING_POSITION_separately_from_a_clean_one():
+    """A row whose position the decode key does not carry is not evidence that
+    the row is rosterable.
+
+    MUTATION: fold unknown positions into the rosterable side — every gap in the
+    decode key quietly improves the contamination figure."""
+    players = dict(_DN_PLAYERS, b={"name": "B"})       # no position
+    out = C.denomination(_dn_series(), players,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["unknown_position_inside_draft"] == 1, out
+    assert out["unrosterable_inside_draft"] == 0
+    assert "carry no position" in out["note"]
+
+
+def test_denomination_is_REMEASURED_on_the_newest_day_not_the_first():
+    """MUTATION: read days[0] — the archive's oldest day becomes a permanent
+    claim about a board that moves every morning."""
+    ser = [{"year": "2026", "observed_at": "2026-08-10", "rows": {"a": 10.0}},
+           {"year": "2026", "observed_at": "2026-08-14", "rows": {"a": 10.0, "b": 20.0}}]
+    out = C.denomination(ser, _DN_PLAYERS,
+                         rostered={"QB", "RB", "WR", "TE", "K", "DEF"}, draftable=150)
+    assert out["observed_at"] == "2026-08-14", out
+    assert out["rows_inside_draft"] == 2
+
+
+def test_denomination_on_an_EMPTY_archive_says_unmeasured():
+    """MUTATION: return a measured-looking block with zeroes for an archive that
+    holds nothing (rule 13f)."""
+    out = C.denomination([], {}, rostered={"WR"}, draftable=150)
+    assert out["status"] == "unmeasured", out
+    assert "unrosterable_share" not in out
+
+
+def test_the_archive_CARRIES_its_denomination_after_a_save(tmp_path):
+    """The consumer this exists for reads the FILE, not the function.
+
+    MUTATION: drop the key from `save()` — every guard above still passes and no
+    reader ever sees any of it."""
+    p = tmp_path / "arch.json"
+    C.save(_dn_series(), path=p, players=_DN_PLAYERS)
+    got = json.loads(p.read_text())
+    assert "denomination" in got, sorted(got)
+    assert got["denomination"]["pooled_across_formats"] is True
+    assert got["denomination"]["observed_at"] == "2026-08-14"

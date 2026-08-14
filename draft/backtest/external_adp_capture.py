@@ -929,6 +929,109 @@ def _total_drafts(snapshot):
         return None
 
 
+def _rostered_for_archive():
+    """`rostered_positions` off the Sleeper league settings on disk, or None.
+
+    A SEPARATE READER FROM `rostered_positions(settings)` ON PURPOSE — that
+    function takes the settings dict and stays pure, and `save()` has no settings
+    argument. Narrow catch for the same reason `_draftable_picks` has one: a typo
+    here must raise rather than come back as "the league could not be read".
+    """
+    try:
+        ls = json.loads((SERIES.parent / "sleeper_league_settings.json").read_text())
+    except (OSError, ValueError):
+        return None
+    return rostered_positions(ls) or None
+
+
+def denomination(series: list, players: dict, rostered=None, draftable=None) -> dict:
+    """WHAT THIS ADP IS DENOMINATED IN, measured on the newest day and written
+    beside the rows.
+
+    ⚠ TEN MODULES IN THIS REPO READ THIS ARCHIVE AND ONE OF THEM KNOWS. MFL pools
+    EVERY draft on its platform — superflex, 2QB, dynasty, keeper, IDP — into a
+    single ADP. `board_vs_market` measures and reports that; the other nine
+    readers get a number with no statement of what population produced it, and
+    the natural mistake is to read a board-vs-market gap as OUR board being wrong
+    when the two ends are not denominated in the same thing. That is A's own
+    criterion 1, and it is the failure mode this project keeps paying for.
+
+    MEASURED, NOT ASSERTED, and re-measured every day rather than written once:
+    on 2026-08-14, 27 of the 170 rows priced inside our 150-pick draft — 15.9% —
+    sit at positions this league cannot roster at all. A sentence in a docstring
+    would have gone stale; this number moves with the board.
+
+    `rostered=None` (settings unreadable) yields `unknown`, never a comforting 0%,
+    because "we could not tell what we roster" and "nothing is contaminated" must
+    never render the same.
+    """
+    days = sorted((s for s in (series or []) if s.get("observed_at")),
+                  key=lambda s: str(s.get("observed_at")))
+    if not days:
+        return {"status": "unmeasured", "note": "the archive holds no dated day, "
+                "so nothing can be said about what its ADP is denominated in."}
+    last = days[-1]
+    rows = last.get("rows") or {}
+
+    def _adp(v):
+        if isinstance(v, dict):
+            for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+                if v.get(k) is not None:
+                    try:
+                        return float(v[k])
+                    except (TypeError, ValueError):
+                        return None
+            return None
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    inside = [p for p in rows if draftable is not None
+              and (_adp(rows[p]) or float("inf")) <= draftable]
+    unros = unknown_pos = None
+    if rostered:
+        unros, unknown_pos = 0, 0
+        for p in inside:
+            pos = str(((players or {}).get(p) or {}).get("position") or "").upper()
+            if not pos:
+                unknown_pos += 1
+            elif pos not in rostered:
+                unros += 1
+    out = {
+        "status": "measured" if (rostered and draftable is not None) else "unknown",
+        "observed_at": last.get("observed_at"),
+        "pooled_across_formats": True,
+        "rows_inside_draft": len(inside) if draftable is not None else None,
+        "unrosterable_inside_draft": unros,
+        "unknown_position_inside_draft": unknown_pos,
+        "draftable_picks": draftable,
+    }
+    out["unrosterable_share"] = (round(unros / float(len(inside)), 4)
+                                 if (unros is not None and inside) else None)
+    if out["status"] != "measured":
+        out["note"] = (
+            "UNKNOWN — %s could not be read, so the share of this board that our "
+            "league cannot roster is unmeasured. This is NOT a statement that the "
+            "board is clean."
+            % ("the roster settings" if not rostered else "the draft range"))
+    else:
+        out["note"] = (
+            "MFL pools EVERY draft on its platform into one ADP — superflex, 2QB, "
+            "dynasty, keeper and IDP alike — so this is NOT a redraft half-PPR "
+            "board and is not denominated in the same thing our board is. "
+            "Measured on %s: %d of the %d rows priced inside pick %d (%.1f%%) sit "
+            "at positions this league cannot roster at all%s. A gap between this "
+            "market and our board is therefore NOT evidence that our board is "
+            "wrong. `board_vs_market` measures the superflex and dynasty "
+            "signatures directly; read them before attributing any gap."
+            % (last.get("observed_at"), unros, len(inside), draftable,
+               100.0 * out["unrosterable_share"],
+               "" if not unknown_pos else
+               ", and %d more carry no position in the decode key" % unknown_pos))
+    return out
+
+
 def undecoded_inside_draft(report: dict, rows: dict, draftable=None) -> dict:
     """Of the players undecoded AT A ROSTERED POSITION, how many can we draft?
 
@@ -2122,6 +2225,16 @@ def save(series: list, path=None, players=None) -> None:
         # in this repo could resolve one without a live call to MFL, which is the
         # exact dependency the archive exists to outlive. Its population is recorded
         # for the same reason every other durable record here carries one.
+        # AND SO DOES THE DENOMINATION, for the same reason and by the same rule.
+        # `population` says which FIELDS are empty and `coverage` says which DAYS
+        # are missing; neither says WHAT THIS ADP IS. Ten modules read this file
+        # and only `board_vs_market` knows the board is pooled across superflex,
+        # dynasty, keeper and IDP drafts — so the other nine can read a gap
+        # against our board as our board being wrong. Measured on the newest day,
+        # re-measured every write, `unknown` when the settings cannot be read.
+        "denomination": denomination(series or [], merged,
+                                     rostered=_rostered_for_archive(),
+                                     draftable=_draftable_picks()),
         "players": merged,
         "players_population": FP.of_records(
             [dict(v, mfl_id=k) for k, v in sorted(merged.items())],
