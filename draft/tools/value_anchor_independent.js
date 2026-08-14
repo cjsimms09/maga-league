@@ -47,18 +47,25 @@ global.window = global;
 const S = require(path.join(ROOT, 'public', 'js', 'draft', 'survival.js'));
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
 
+const PM = require(path.join(ROOT, 'draft', 'tools', 'position_map.js'));
 const HIST = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
 const DATA = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
-/* Position for a historical player id. The 2026 board is the only player table
- * we have; a 2023 rookie who never reached it is UNKNOWN and is counted as such
- * rather than dropped, because dropping them would quietly shrink every
- * denominator below. */
-const posById = {};
-DATA.players.forEach(p => { posById[String(p.player_id)] = p.position; });
-(DATA.kept_players || []).forEach(p => { posById[String(p.player_id)] = p.position; });
+/* Position for a historical player id.
+ *
+ * ⚠️ THE COMMENT THAT WAS HERE SAID "The 2026 board is the only player table we
+ * have; a 2023 rookie who never reached it is UNKNOWN." THAT WAS TRUE WHEN IT
+ * WAS WRITTEN AND `draft/data/player_positions.json` MADE IT FALSE — a union
+ * over every board ever built. The premise outlived its truth in comment form,
+ * and a consumer trusting it kept joining through the live board. Resolvable
+ * picks ran 99.8% here and 93.8% against a pruned board.
+ *
+ * Unknown is still COUNTED rather than dropped, which was the right half of the
+ * original design: dropping would quietly shrink every denominator below. */
+const posMap = PM.positionMap();
+const posById = new Proxy({}, { get: (_, k) => (typeof k === 'string' ? PM.posOf(posMap, k) : undefined) });
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
 

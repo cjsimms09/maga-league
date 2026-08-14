@@ -54,8 +54,13 @@ const H = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_hi
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
 
 const all = D.players.concat(D.kept_players || []);
-const posOf = {};
-all.forEach(p => { posOf[String(p.player_id)] = p.position; });
+/* POSITION COMES FROM THE RECORD, NOT THE LIVE BOARD. A 2023 waiver add who has
+ * since retired is not absent from 2023; he is absent from the 2026 board, and
+ * joining through it deletes him from a sample about him. This tool already
+ * dropped 9 historical ids and printed it as a data quirk. */
+const PM = require(path.join(ROOT, 'draft', 'tools', 'position_map.js'));
+const posMap = PM.positionMap();
+const posOf = new Proxy({}, { get: (_, k) => (typeof k === 'string' ? PM.posOf(posMap, k) : undefined) });
 const pool = {};
 all.forEach(p => { if ((p.proj_mean || 0) > 0) pool[p.position] = (pool[p.position] || 0) + 1; });
 

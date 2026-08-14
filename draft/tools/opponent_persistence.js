@@ -52,8 +52,12 @@ const OP = require(path.join(ROOT, 'public', 'js', 'draft', 'opponent_predict.js
 const HIST = require(path.join(ROOT, 'draft', 'data', 'league_history.json'));
 const BOARD = require(path.join(ROOT, 'public', 'draft_data.json'));
 
-const POS = {};
-BOARD.players.forEach(p => { if (p.player_id != null) POS[String(p.player_id)] = p.position; });
+/* POSITION COMES FROM THE RECORD, NOT THE LIVE BOARD. Against a pruned board
+ * the 2024 DIFF doubled (+1.6pp -> +3.1pp) and the 2025 DIFF CHANGED SIGN
+ * (+0.0pp -> -0.8pp) — a conclusion, not a digit. */
+const PM = require(path.join(ROOT, 'draft', 'tools', 'position_map.js'));
+const _posMap = PM.positionMap();
+const POS = new Proxy({}, { get: (_, k) => (typeof k === 'string' ? PM.posOf(_posMap, k) : undefined) });
 
 const ROUND_BUCKET = r => (r <= 3 ? 'early' : (r <= 9 ? 'mid' : 'late'));
 

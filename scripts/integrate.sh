@@ -120,6 +120,28 @@ fi
 echo "== territory: has main's side stayed in ITS lane?"
 if ! bash scripts/territory-check.sh A --range "$BASE" origin/main; then
   echo "REFUSED: main contains edits outside side A's lane. Nothing merged."
+  # ── AND SAY THE LIKELY CAUSE, BECAUSE IT IS ALMOST ALWAYS THIS ────────────
+  #
+  # The exemption above passes a would-be trespass when the file is BYTE-
+  # IDENTICAL to origin/main — merged, not edited. So when another lane
+  # legitimately merges its own files to main and this branch has not caught
+  # up, those files differ, the exemption cannot fire, and every one of them
+  # reports as a trespass by A. Nothing is wrong; the branch is just behind.
+  #
+  # Hit twice in one session, and both times the refusal was correct and the
+  # message sent me to read territory-check rather than to `git merge`. A guard
+  # whose true message is "you are out of date" should say that instead of
+  # making the reader derive it — the diagnosis is one command away and this is
+  # the only place that knows to run it.
+  behind="$(git rev-list --count "HEAD..origin/main" 2>/dev/null || echo 0)"
+  if [ "$behind" != "0" ]; then
+    echo
+    echo "  LIKELY CAUSE: this branch is $behind commit(s) behind origin/main."
+    echo "  A file another lane merged to main is exempt only while it is"
+    echo "  byte-identical here — behind main it is not, so it reads as YOUR edit."
+    echo "  Catch up first, then re-run:"
+    echo "      git merge origin/main && git push"
+  fi
   exit 1
 fi
 
@@ -334,8 +356,46 @@ fi
 
 echo "OK: $BRANCH merged into main. Suites green LOCALLY."
 if [ "$PUSH" = "--push" ]; then
-  git push origin main && echo "pushed."
+  # ── A FAILED PUSH MUST NOT BE FOLLOWED BY A WAIT FOR ITS CI ───────────────
+  #
+  # This read `git push origin main && echo "pushed."` — and the `&&` guarded
+  # only the ECHO. On a rejected push the script walked straight on and printed
+  # "waiting for the run on the SHA just pushed", then polled for 600 seconds
+  # for a commit that was never pushed, and timed out as "COULD NOT REACH CI".
+  #
+  # OBSERVED 2026-08-14: another lane pushed to main during the ten minutes this
+  # was running the suites, so the push was rejected with "! [rejected] main ->
+  # main (fetch first)". The one line that said so scrolled past between a
+  # "merged into main. Suites green LOCALLY." and ten minutes of polling — and
+  # the run's whole visible ending was about CI rather than about the push.
+  #
+  # It is the failure class this repo keeps naming, in the script written to
+  # stop it: a step reporting on work it did not do. The remedy is not a louder
+  # message, it is refusing to make the downstream claim at all.
+  if ! git push origin main; then
+    echo
+    echo "*** PUSH REJECTED — main is NOT updated on the remote."
+    behind="$(git rev-list --count "HEAD..origin/main" 2>/dev/null || echo '?')"
+    echo "    The merge is committed LOCALLY at $(git rev-parse --short HEAD) and"
+    echo "    nothing has been lost. The usual cause is another lane pushing to"
+    echo "    main while this run was in the suites (currently $behind commit(s)"
+    echo "    ahead of you on the remote)."
+    echo "    Re-run after catching up:  git fetch origin main && git merge origin/main"
+    echo "    NOT VERIFIED: no CI was waited for, because there is nothing pushed"
+    echo "    to wait for."
+    exit 1
+  fi
+  echo "pushed."
   SHA="$(git rev-parse HEAD)"
+  # AND ASSERT THE REMOTE ACTUALLY HAS IT, rather than trusting the exit code —
+  # the same reason the merge is asserted with `merge-base --is-ancestor` above
+  # instead of being assumed from `git merge` returning 0.
+  git fetch -q origin main 2>/dev/null || true
+  if ! git merge-base --is-ancestor "$SHA" origin/main 2>/dev/null; then
+    echo "*** PUSH REPORTED SUCCESS BUT $SHA IS NOT ON origin/main."
+    echo "    Refusing to wait for CI on a commit the remote does not have."
+    exit 1
+  fi
   echo
   echo "== CI: waiting for the run on the SHA just pushed (${CI_BUDGET}s budget)"
   bash "$(dirname "$0")/ci_status.sh" sha "$SHA" "$CI_BUDGET"

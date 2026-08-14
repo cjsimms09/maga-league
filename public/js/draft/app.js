@@ -4189,7 +4189,24 @@
     catch (e) { console.error('[movement]', e && e.message); }
     renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
-    const scored = all.slice(0, 5);
+    /* TEN, NOT FIVE — asked for twice, in these words (Cory, 2026-08-13):
+     *   "Need top 5 recommended players so I can compare options."
+     *   "Again! More options, I need to 10 next best players in easy view to
+     *    make a decision. Feel free to compact things more, even with smaller
+     *    font. I can click for more info."
+     *
+     * He already had five, which is why the first ask read as satisfied and the
+     * second one is the real number. THE ENGINE ALREADY SCORES THEM — the
+     * ledger has been capturing `out.scored.slice(0, 10)` on every pick since
+     * decision-capture went in, so ten candidates were computed, recorded for
+     * the January grade, and shown to nobody. This line was the whole gap.
+     *
+     * IT IS A CEILING, NOT A QUOTA: a thin board renders what it has, and the
+     * cards below already handle a short list. The COMPACTING he asked for in
+     * the same breath is B's — ten cards at the current card size is a wall,
+     * and the note routed to B says so rather than leaving them to discover it. */
+    const REC_ROWS = 10;
+    const scored = all.slice(0, REC_ROWS);
     const host = $('#recs');
     if (state.reconcile && state.reconcile.halt) {
       host.innerHTML = '<p class="muted" style="margin:0">Paused — resolve the keeper '

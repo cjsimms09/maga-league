@@ -37,13 +37,13 @@ const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.js
 const HIST = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'data', 'league_history.json'), 'utf8'));
 
 const POS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'];
-const pos = {};
-(DATA.players || []).forEach(p => { pos[String(p.player_id)] = p.position; });
-(DATA.kept_players || []).forEach(p => { pos[String(p.player_id)] = p.position; });
-/* Sleeper stores defences by team abbreviation, not numeric id. Without this
- * every DEF row reads as "unresolved" and the churn table silently loses a
- * position — the kind of quiet drop that makes a table look complete. */
-const posOf = id => (/^[A-Z]{2,3}$/.test(String(id)) ? 'DEF' : pos[String(id)]);
+/* POSITION COMES FROM THE RECORD, NOT THE LIVE BOARD — this is a measurement
+ * about 2023-2025 and the board is 2026. Defences arrive as a team abbreviation
+ * rather than a numeric id, and position_map handles that in ONE place; without
+ * it every DEF row reads as "unresolved" and the churn table silently loses a
+ * position, which is the kind of quiet drop that makes a table look complete. */
+const PM = require(path.join(ROOT, 'draft', 'tools', 'position_map.js'));
+const posOf = PM.resolver();
 const done = HIST.seasons.filter(s => s.status === 'complete');
 const TEAMS = ((DATA.league || {}).teams) || 10;
 
