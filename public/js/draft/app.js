@@ -8101,9 +8101,80 @@
     // means nothing happened — skip the full board re-score (~1700 players) + full
     // re-render that used to run every cycle regardless. Recommendations still update
     // the instant a real pick lands; idle polls are now free.
-    const nPicks = (picks || []).length;
-    if (state._syncedPickCount === nPicks) return;
-    state._syncedPickCount = nPicks;
+    /* ⚠️ AN UNCHANGED COUNT IS NOT AN UNCHANGED LIST, AND THIS RETURNED EARLY
+     * ON THE COUNT ALONE.
+     *
+     * The comment above says "Sleeper's pick list is append-only, so an
+     * unchanged count means nothing happened." Append-only is the normal case,
+     * not a guarantee: a commissioner can CORRECT a pick mid-draft — wrong
+     * player, an undo-and-redo, an autopick fix — and the list comes back the
+     * same LENGTH with different CONTENT. The old guard returned before any of
+     * the reconciliation below could see it, so the board kept the superseded
+     * player marked gone and never learned about the real one.
+     *
+     * That is a wrong-decision path, not a cosmetic one: Cory is recommended
+     * against a pool with the wrong man removed, and every survival number is
+     * computed from that pool.
+     *
+     * The fingerprint is the ids and pick numbers, not the count. It is O(n) on
+     * at most 150 rows once every 4s, which is free next to the board re-score
+     * this guard exists to skip — so the speed win the count guard was written
+     * for is kept, and the blind spot is not. */
+    const fingerprint = (picks || [])
+      .map(p => String(p.player_id) + '@' + (p.pick_no == null ? '?' : p.pick_no))
+      .join(',');
+    if (state._syncedPickFingerprint === fingerprint) return;
+    const priorFingerprint = state._syncedPickFingerprint;
+    state._syncedPickFingerprint = fingerprint;
+    state._syncedPickCount = (picks || []).length;
+
+    /* ── A PICK THAT WAS UNDONE MUST COME BACK ONTO THE BOARD ───────────────
+     *
+     * The ingest loop below is purely ADDITIVE — `state.drafted.add(id)` with
+     * no removal path — so a player Sleeper stops reporting stayed gone from
+     * Cory's board for the rest of the draft. Two independent routes to the
+     * same wrong decision: he would never be shown a player who is genuinely
+     * available.
+     *
+     * Restoring is scoped tightly, because `drafted` has four other writers and
+     * three of them are NOT the room: my keepers (:4995), manual placeholders
+     * (:4873), and rehearsal removals. Only ids this sync itself put there are
+     * eligible, tracked in `_syncOwnedIds`, so a keeper can never be handed
+     * back to the pool by a Sleeper hiccup.
+     *
+     * It also REFUSES to act on an empty read: `picks` arriving empty is a
+     * failed fetch far more often than a reset draft, and treating it as "every
+     * pick was undone" would blank the board mid-round. That is the `or []`
+     * failure this repo has already paid for on the keeper path. */
+    state._syncOwnedIds = state._syncOwnedIds || new Set();
+    if (priorFingerprint !== undefined && (picks || []).length > 0) {
+      const nowIds = new Set((picks || []).map(p => String(p.player_id)));
+      const vanished = [...state._syncOwnedIds].filter(id => !nowIds.has(id));
+      if (vanished.length) {
+        vanished.forEach(id => {
+          state._syncOwnedIds.delete(id);
+          state.drafted.delete(id);
+          Object.keys(state.rosters || {}).forEach(sl => {
+            state.rosters[sl] = (state.rosters[sl] || [])
+              .filter(x => String(x.player_id) !== id);
+          });
+          state.myRoster = (state.myRoster || [])
+            .filter(x => String(x.player_id) !== id);
+          state.recentPicks = (state.recentPicks || [])
+            .filter(x => String(x.player_id) !== id);
+          const back = playerById(id);
+          if (back && !(state.board || []).some(x => String(x.player_id) === id)) {
+            state.board.push(back);
+          }
+        });
+        /* SAID OUT LOUD. A player reappearing on the board mid-draft is
+         * alarming unless you know why, and this is the one case where it is
+         * correct. */
+        console.warn('[sync] ' + vanished.length + ' pick(s) withdrawn by the '
+          + 'room — those players are BACK on the board: ' + vanished.join(', '));
+        state.syncWithdrawn = (state.syncWithdrawn || 0) + vanished.length;
+      }
+    }
 
     /* ⚠️ RETIRE ANY TYPED PLACEHOLDER THE ROOM HAS NOW REPORTED FOR REAL.
      *
@@ -8148,6 +8219,12 @@
       // rosters, so the seat only lives in draft_slot — prefer it.
       const slot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
       const firstSight = !state.drafted.has(id);
+      /* OWNERSHIP RECORDED ONCE, HERE, FOR EVERY PICK THE ROOM REPORTS —
+       * regardless of which branch below marks it drafted. `ATTR.applyRemote`
+       * is a third writer to `state.drafted` (attribution.js:92/126/163), so
+       * tagging inside the branches would have missed it and left those picks
+       * ineligible for withdrawal. One place, before the fork. */
+      state._syncOwnedIds.add(id);
 
       // Known to the board, or reconstructed from what Sleeper sent. A stub
       // carries no projection, so it can never affect a recommendation — it

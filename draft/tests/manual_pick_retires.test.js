@@ -165,9 +165,22 @@ const real = (no, seat, id) => ({ pick_no: no, draft_slot: seat, roster_id: seat
 // excluding a row from allPicks() would leave the placeholder in state.drafted,
 // the seat roster and my roster. That is the half B measured on screen.
 {
+  /* ⚠️ THIS SLICED A FIXED 3200-CHARACTER WINDOW, WHICH IS A LENGTH TEST
+   * WEARING A BEHAVIOUR TEST'S CLOTHES. Adding a comment to onSyncPicks pushed
+   * `supersededManual()` past the edge and turned five assertions red with the
+   * purge logic entirely intact (2026-08-14, during the sync-reconciliation
+   * fix). A window that shrinks when documentation grows measures the wrong
+   * thing in both directions — it can also stop covering code that MOVED past
+   * the boundary while still reporting green on what remains.
+   *
+   * Sliced to the real function boundary now: the next top-level `function` at
+   * the same indent, which is how the other lifts in this repo find it. */
   const i = APP.indexOf('function onSyncPicks(');
-  const block = APP.slice(i, i + 3200);
+  const nxt = APP.indexOf('\n  function ', i + 10);
+  const block = APP.slice(i, nxt < 0 ? APP.length : nxt);
   ck('onSyncPicks is locatable', block.length > 1000);
+  ck('and the slice is the WHOLE function, not a fixed-size window that a '
+    + 'comment can push assertions out of', nxt > i, { start: i, end: nxt });
   ck('it asks sync which typed rows were superseded',
     /supersededManual\(\)/.test(block), block.slice(0, 200));
   ['state.drafted.delete', 'state.rosters', 'state.myRoster', 'state.recentPicks']
