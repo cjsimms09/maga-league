@@ -57,9 +57,9 @@
   },
   {
    "archetype": "elite_te",
-   "mean_edge": -18.5,
+   "mean_edge": -18.38,
    "ci95": [
-    -38.38,
+    -38.25,
     0.38
    ],
    "mean_divergence": 2.2,
@@ -67,10 +67,10 @@
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -25.5,
+   "mean_edge": -25.75,
    "ci95": [
-    -56.25,
-    2.38
+    -56.0,
+    2.0
    ],
    "mean_divergence": 6.6,
    "verdict": "parked: CI includes $0"
