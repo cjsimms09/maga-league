@@ -7,6 +7,22 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 📐 **WHAT WIRING `proj_sd_for` WOULD ACTUALLY DO TO THE BOARD — measured, so the decision is not abstract. It is NOT a wholesale re-rank (ceiling-order rho +0.949) and it moves specific players 25-32 places, systematically by position.**
+  **AND THE BLOCKER I FLAGGED TURNS OUT TO BE SMALLER THAN I SAID.** I told you 8 of 146 draftable sit on `unmeasurable` bands and that what to do about them was a decision. **All eight are kickers and defences** — Rams, Texans, Seahawks, Eagles, Broncos, Aubrey, Fairbairn, Dicker. **No skill player is affected**, so the "what about the unmeasurable ones" question is a K/DEF question, which is a much easier one than I made it sound.
+  **THE BIGGEST CEILING-ORDER MOVES, and the pattern is not subtle:**
+  | player | pos | adp | board # | measured # | move |
+  |---|---|---|---|---|---|
+  | Jaylen Waddle | WR | 48.0 | 48 | 80 | **−32** |
+  | Tee Higgins | WR | 39.3 | 50 | 81 | **−31** |
+  | Tetairoa McMillan | WR | 39.0 | 54 | 83 | **−29** |
+  | Tony Pollard | RB | 81.0 | 83 | 53 | **+30** |
+  | Jaylen Warren | RB | 69.7 | 79 | 51 | **+28** |
+  | Jordan Mason | RB | 109.7 | 95 | 67 | **+28** |
+  | TreVeyon Henderson | RB | 51.7 | 78 | 52 | **+26** |
+  | Bucky Irving | RB | 45.7 | 63 | 38 | **+25** |
+  **Every large mover down is a WR; every large mover up is an RB.** The measured calibration says running backs carry more upside relative to their projection than the board's judgement-based `var` credits them with, and receivers less.
+  **🔴 AND THAT IS THE SECOND INDEPENDENT MEASUREMENT TODAY POINTING THE SAME WAY.** The availability work said the board **over-credits WR durability and under-credits RB** — realized WR 13.71 games against a 15.0 constant, RB 14.10 against 14.2, a sign flip on the RB-vs-WR comparison. **Two different instruments, two different data sources, same direction: the board is systematically optimistic on receivers and pessimistic on running backs.** I did not go looking for that; it fell out of the second measurement after the first was already routed.
+  **WHAT I AM NOT SAYING.** Not that the measured calibration is right and the board wrong — it carries its own survivorship caveat, and rho +0.949 says the two mostly agree. **Not that anything should change before the 22nd**: this is a projection-uncertainty field feeding ceiling terms, and re-fitting it six days out is exactly the kind of move I have been arguing against all day. **What it is: the concrete size of a decision you are holding, so you can decline it on evidence rather than on time.**
 - [ ] 2026-08-14 · C · ✅ **PACE, FINAL AND SUPERSEDING MY TWO EARLIER MESSAGES ON IT: the mechanism is REAL, and it still cannot be a pre-draft input. Read this one and ignore the other two.** Third message in an hour because each test changed the answer; this is the one that survives.
   **I RAN THE EXPERIMENT I HAD JUST SAID WAS NOT RUN, and it does not say what my "do not wire it" message implied.** Residual of season points after removing usage share, correlated with team neutral pace: **RB +0.170 · WR +0.165 · TE +0.220**. Inside tight usage bands — the near-tie question directly — mean **+0.14 to +0.15, positive in 17 of 18 bands.** **Pace does carry information about production beyond usage share, consistently.**
   **⚠ AND PART OF THAT IS MECHANICAL RATHER THAN A DISCOVERY, which I would rather say than let you over-read it.** `share x team plays` **IS** absolute touches, so a residual-after-share correlating with pace is close to restating "volume beats share". It confirms the module's founding premise — *a share is a share OF something* — rather than adding to it.
