@@ -342,6 +342,20 @@ shared() {
     # and contradicted by a mechanism, where the mechanism wins silently. It
     # belongs beside PARKED.md, which is shared for exactly this reason.
     ROUTES.md) return 0 ;;
+    # `.claude/*` — AGENT SESSION CONFIG, NOT LANE TERRITORY. Added 2026-08-14.
+    #
+    # It fell to A by default, so B creating `.claude/settings.json` read as a
+    # trespass and refused a 293-commit branch. But nothing in there is A's
+    # PRODUCT: it is permission config for whoever is running the agent, and all
+    # three lanes run one. A file every lane needs and only one may write is the
+    # same unenforceable shape ROUTES.md had directly above.
+    #
+    # ⚠️ IT IS SECURITY-RELEVANT AND THAT IS ROUTED, NOT SETTLED. `settings.json`
+    # sets `defaultMode: bypassPermissions` for every session in this repo, which
+    # is a posture change for all three lanes, not a B preference. Shared here so
+    # the mechanism stops lying about who may write it; whether the CONTENT is
+    # what Cory wants is his call and is in ROUTES.
+    .claude/*) return 0 ;;
     # Shared coordination infra: the split's own enforcement, maintained by both.
     # ⚠️ SHARED-FILE EDIT BY C, 2026-08-12 — banner per Cory's three-session rule.
     # THE TESTS COME WITH THEM, and leaving them out was the same hole this file
@@ -503,9 +517,26 @@ file_list() {
 _declared_owner() {
   _d=""
   if [ -n "${RANGE_REF:-}" ]; then
-    _d="$(git show "$RANGE_REF:$1" 2>/dev/null | head -5)" || _d=""
+    # ⚠️ `| head -5` UNDER `set -o pipefail` BLANKED THIS FOR EVERY FILE LONGER
+    # THAN FIVE LINES (found 2026-08-14, and it had never worked).
+    #
+    # `head` closes the pipe after five lines, `git show` dies of SIGPIPE (141),
+    # pipefail propagates that as a pipeline failure, and `|| _d=""` then threw
+    # the capture away. Short files worked; every real file did not.
+    #
+    # SO THE RULE TERRITORY.md CALLS THE AUTHORITY — "a declaration beats every
+    # pattern, shared() included" — has never once executed on a file with more
+    # than five lines in it. Declared files silently fell through to pattern
+    # matching, which usually agreed and so hid the failure, and a NEW file in
+    # draft/tests carrying a perfectly good `// TERRITORY: B` was reported as
+    # NO OWNER DECLARED. That is what refused B's branch today: 293 commits
+    # blocked by a guard that could not read the thing it demanded.
+    #
+    # `sed -n '1,5p'` consumes the whole stream, so nothing gets SIGPIPE'd and
+    # the exit status is honest. Do not "optimise" it back to head.
+    _d="$(git show "$RANGE_REF:$1" 2>/dev/null | sed -n '1,5p')" || _d=""
   fi
-  [ -n "$_d" ] || { [ -f "$1" ] && _d="$(head -5 "$1" 2>/dev/null)"; }
+  [ -n "$_d" ] || { [ -f "$1" ] && _d="$(sed -n '1,5p' "$1" 2>/dev/null)"; }
   [ -n "$_d" ] || return 1
   _o="$(printf '%s' "$_d" | grep -oE 'TERRITORY:[[:space:]]*[ABC]\b' | head -1 \
         | grep -oE '[ABC]\b' | head -1)"
