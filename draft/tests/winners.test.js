@@ -35,6 +35,13 @@ const ck = (n, c, d) => {
 };
 const D = W.DATA;
 const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+// The tool's own printed output, run once. Several sections below assert on what
+// a READER is shown, not just on what the functions return — the output is the
+// product here, and a correct function behind a misleading table is the defect
+// this whole file exists to prevent.
+const OUT = require('child_process').execFileSync(
+  'node', [require('path').join(ROOT, 'draft', 'tools', 'winners.js')],
+  { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
 
 // ── 1. THE SAMPLE IS WHAT IT CLAIMS ─────────────────────────────────────
 {
@@ -139,6 +146,107 @@ const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
   ck('MOST metrics clear 0.75 rank positions — which means ~1 rank position IS '
     + 'the noise floor of this sample, not a finding', cleared >= 3,
   { cleared: cleared, of: W.METRICS.length });
+}
+
+// ── 5. THE SECOND OUTCOME: THE WEEKLY POT ───────────────────────────────
+// Cory: "maybe also test teams that won weekly pot the most". It is 37.5% of the
+// money ($100 x 15 weeks of a $4,000 pot) and it is won by CEILING rather than
+// season total — so it can reward a different draft shape, and nothing measured
+// before this saw it.
+{
+  const wk = D.map(r => r.weekly_highs);
+  ck('every team-season carries a weekly-high count', wk.every(Number.isFinite));
+  /* THE ARITHMETIC THAT MUST HOLD: one winner per paid week, so the counts sum
+   * to weeks x seasons. If this drifts, the weekly column is measuring something
+   * other than the pot it claims to measure. */
+  const seasons = [...new Set(D.map(r => r.season))].length;
+  ck('the counts sum to exactly one winner per paid week per season — the pot is '
+    + 'fully accounted for and no week is double-counted',
+  wk.reduce((a, b) => a + b, 0) === W.WEEKLY_HIGH_WEEKS * seasons,
+  { total: wk.reduce((a, b) => a + b, 0), expected: W.WEEKLY_HIGH_WEEKS * seasons });
+  ck('only the PAID weeks count — a playoff-week blowout must not buy a share of '
+    + 'a regular-season pot', W.WEEKLY_HIGH_WEEKS === 15);
+
+  ck('the negated column really is the negation, so "lower is better" holds for '
+    + 'both outcomes and a sign cannot mean two things',
+  D.every(r => r.weekly_highs_neg === -r.weekly_highs));
+
+  /* THE CONTROL THAT DECIDES WHAT "AGREEMENT" IS WORTH. If rank and weekly-high
+   * wins were the same thing twice, agreeing across them would be worth nothing
+   * and the filter in §6 would be theatre. */
+  const oc = W.outcomeCorrelation(D);
+  ck('the two outcomes are CORRELATED — a good season tends to produce both, so '
+    + 'agreement across them is partly automatic', oc.within < -0.2, oc.within);
+  ck('but they are NOT the same measurement, which is what makes the second one '
+    + 'worth running at all', oc.within > -0.8, oc.within);
+  ck('and the tool PRINTS that correlation rather than letting a reader count '
+    + 'two columns as two witnesses', /NOT INDEPENDENT/.test(OUT)
+    && new RegExp(oc.within.toFixed(3)).test(OUT), oc.within.toFixed(3));
+  ck('it also states the coarse resolution — wins run 0..4, so every spread is a '
+    + 'fraction of one win', /FRACTION OF ONE/.test(OUT) && oc.maxWins <= 5, oc.maxWins);
+}
+
+// ── 6. THE FILTER, AND THE RESULT THAT CHANGED ──────────────────────────
+{
+  ck('the tool applies the agreement filter itself rather than leaving three '
+    + 'tables to be cherry-picked from', /WHAT SURVIVES BOTH OUTCOMES/.test(OUT));
+  ck('and it reports the comparison count as 18, not 6 — adding outcomes '
+    + 'multiplies the chances of a spurious standout',
+  /COMPARISONS RUN: 18/.test(OUT));
+
+  /* THE FINDING THAT JUSTIFIES HAVING RUN IT. QB was the one metric that agreed
+   * across the naive and within-manager cuts, and the note said it was the only
+   * one worth carrying forward. The SECOND OUTCOME contradicts it. */
+  const qbR = W.withinManager(D, 'qb_first', 'rank');
+  const qbW = W.withinManager(D, 'qb_first', 'weekly_highs_neg');
+  ck('QB is now IN TENSION: taking him earlier goes with a better RANK but '
+    + 'FEWER weekly-high wins — the second outcome demoted the one signal the '
+    + 'rank-only test had promoted',
+  Math.sign(qbR.spread) !== Math.sign(qbW.spread),
+  { rank: qbR.spread, weekly: qbW.spread });
+  ck('and the tool says so in those terms rather than reporting the rank column '
+    + 'alone', /IN TENSION/.test(OUT) && /first QB taken/.test(OUT));
+
+  /* AND THE CONTROL: something must survive, or the filter is just a way of
+   * rejecting everything and would prove nothing about QB. */
+  const survives = W.METRICS.filter(([k]) => {
+    const a = W.withinManager(D, k, 'rank'), b = W.withinManager(D, k, 'weekly_highs_neg');
+    return isFinite(a.spread) && isFinite(b.spread) && Math.abs(a.spread) >= 0.75
+      && Math.sign(a.spread) === Math.sign(b.spread);
+  });
+  ck('CONTROL — the filter is not simply rejecting everything: some metrics DO '
+    + 'agree across both pots', survives.length >= 1, survives.map(m => m[1]));
+}
+
+// ── 7. "LEAGUE WORST" IS ANSWERED AS ASYMMETRY, NOT A SECOND CUT ────────
+{
+  ck('the tool says outright that a bottom-three cut would be the same data '
+    + 'again rather than new evidence', /SAME data again/i.test(OUT));
+  const a = W.asymmetry(D, 'qb_first', 'rank');
+  const wm = W.withinManager(D, 'qb_first', 'rank');
+  /* THE SPLIT IS BY OUTCOME, NOT BY METRIC, so every row of a multi-season
+   * manager lands in one half or the other. That is deliberately a LARGER n than
+   * `withinManager` reports: that function drops rows where the metric sits
+   * exactly on the manager's own mean (no deviation to attribute), and the
+   * asymmetry split has no such hole. My first assertion here copied the 28 and
+   * was simply wrong about a correct function. */
+  ck('the asymmetry split uses every row of every multi-season manager — none '
+    + 'is dropped', a.nGood + a.nBad === D.length, { good: a.nGood, bad: a.nBad, rows: D.length });
+  ck('and that is MORE rows than the deviation test keeps, because a season '
+    + 'sitting exactly on his own average has no deviation to classify',
+  a.nGood + a.nBad > wm.nEarly + wm.nLate,
+  { asym: a.nGood + a.nBad, within: wm.nEarly + wm.nLate });
+  ck('CONTROL — both halves are populated, or a one-sided table would read as a '
+    + 'finding', a.nGood > 5 && a.nBad > 5, { good: a.nGood, bad: a.nBad });
+
+  /* MY OWN BUG, PINNED. The ratio column divided by the good-half effect with a
+   * 0.01 guard, and duly printed -23.75 for TE off a denominator of +0.03 — the
+   * largest number in the table, manufactured entirely by dividing by nothing. */
+  ck('a ratio with a near-zero denominator is reported as `flat`, not as a large '
+    + 'number', !/-?\d{2,}\.\d\d/.test((OUT.match(/his GOOD half[\s\S]*?\n\n/) || [''])[0]),
+  (OUT.match(/his GOOD half[\s\S]*?\n\n/) || [''])[0].slice(0, 240));
+  ck('and the guard is stated as a threshold rather than left implicit',
+    /flat/.test(OUT));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
