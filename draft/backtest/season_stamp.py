@@ -268,6 +268,13 @@ BOARD_FIELD_SOURCES = {
     # FFC / FantasyPros, fetched with the year in the URL.
     "adp": "seasonal", "raw_adp": "seasonal", "adjusted_adp": "seasonal",
     "adp_source": "seasonal", "adp_sd": "seasonal", "consensus_rank": "seasonal",
+    # ⚠️ ADDED 2026-08-14, THE MORNING IT FIRST REACHED A ROW. `adp_sd_source` was
+    # computed and never copied onto players — A fixed that, the 09:15 rebuild ran
+    # it, and this table refused the board within minutes. That refusal is the
+    # design working: DEFAULT-IS-VIOLATION means a field nobody declared stops the
+    # suite rather than sliding onto the board unexamined. It describes the SAME
+    # 2026 dispersion `adp_sd` does, so it carries the same stamp.
+    "adp_sd_source": "seasonal",
     # ⚠️ ADDED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
     # THE A/C BOUNDARY. These three are A's per-player ADP season stamps
     # (`build.adp_season_stamps`), C's own gate implemented in A's lane. They
@@ -397,6 +404,13 @@ BOARD_FIELD_PURPOSE = {
     "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
     "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
     "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
+    # DERIVED, NOT LIVE_FEED, and by this table's own stated criterion rather than
+    # by resemblance: `fitted_sd` RETURNS it ("ffc" where the provider published a
+    # stdev, "clamped-linear" where we fitted one), so nothing fetches it — the
+    # build computes it from the source it already has. It is provenance ABOUT a
+    # number and never an input to one, which is exactly the reasoning written for
+    # the ADP season stamps below. No ranking may read it and none does.
+    "adp_sd_source": DERIVED_PURPOSE,
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it
     # already has. They are provenance about a number, never an input to one, so
