@@ -122,20 +122,52 @@ ck('CONTROL — the actual lineup sits BETWEEN the floor and the optimum',
     { greedy: total, exhaustive: best });
 }
 
-// ── 5. THE PER-OWNER HOLE IS REAL AND IS NOT PAPERED OVER ────────────────
+// ── 5. THE PER-OWNER HOLE IS CLOSED ──────────────────────────────────────
+//
+// ⚠️ RE-BASED 2026-08-14, AND THE OLD ASSERTION WAS NOT WRONG — IT EXPIRED.
+//
+// It read: "Cory's own gradeable weeks are FEW — the hole is on his roster, and
+// this is the fact that stops a per-owner claim being made", asserting
+// `mine.length < 30`. That was true and worth pinning: 4 gradeable weeks of a
+// possible 54, and the tool printed "CORY ONLY: NOT MEASURABLE".
+//
+// THE HOLE IS GONE, so the assertion became unprovable — and a test that can
+// only pass while a defect is present stops testing anything the day the defect
+// is fixed. C named this shape earlier today on the retired-player detector:
+// "it did not stop working, it ran out of things to find."
+//
+// WHAT CLOSED IT WAS NOT WHAT THE TOOL PREDICTED. Its own note said "Resolving
+// those ten ids against Sleeper's full player list is what unlocks it." Nobody
+// resolved anything against Sleeper. `lineup_skill` was building its position
+// map from `BOARD.players` only, and the missing men were KEEPERS — who live in
+// `kept_players`, which it never read. Routing it through the shared
+// `position_map` (which includes them) took his sample 4 -> 52 and the league's
+// 458 -> 530 team-weeks.
+//
+// So this section now asserts the OPPOSITE property, which is the one that has
+// to keep holding: his rows are gradeable, and the per-owner claim is available.
 {
   const mine = M.rows.filter(r => r.mine);
   ck('CONTROL — the owner crosswalk works at all (rows carry owners)',
     new Set(M.rows.map(r => r.owner)).size >= 8,
     new Set(M.rows.map(r => r.owner)).size);
-  ck('Cory\'s own gradeable weeks are FEW — the hole is on his roster, and this '
-    + 'is the fact that stops a per-owner claim being made', mine.length < 30,
-    mine.length);
-  ck('and every other owner has a usable sample, so it is HIS rows specifically',
+  ck('Cory\'s own weeks are now GRADEABLE — the per-owner claim the tool used to '
+    + 'refuse can be made', mine.length >= 30, mine.length);
+  ck('and his sample is comparable to everyone else\'s rather than a remnant — '
+    + 'a handful of weeks would still be a hole wearing a number',
+    mine.length >= 0.6 * (M.rows.length / new Set(M.rows.map(r => r.owner)).size),
+    { mine: mine.length, mean_per_owner: Math.round(M.rows.length / new Set(M.rows.map(r => r.owner)).size) });
+  ck('every owner has a usable sample, so no per-owner comparison is resting on '
+    + 'somebody\'s remnant',
     [...new Set(M.rows.map(r => r.owner))].filter(o =>
-      M.rows.filter(r => r.owner === o).length >= 30).length >= 7,
+      M.rows.filter(r => r.owner === o).length >= 30).length >= 8,
     [...new Set(M.rows.map(r => r.owner))].map(o =>
       o.slice(-4) + ':' + M.rows.filter(r => r.owner === o).length));
+  /* AND THE UNRESOLVED COUNT IS PINNED LOW, which is the thing that would
+   * regress if anybody re-coupled this tool to the live board. The old
+   * assertion measured the SYMPTOM on one owner; this measures the CAUSE. */
+  ck('almost nothing is unresolved any more — the cause, not the symptom',
+    M.dropped == null || M.dropped <= 20, { dropped: M.dropped, used: M.rows.length });
 }
 
 // ── 6. CALIBRATION IS SOLVED, NOT EYEBALLED ──────────────────────────────
