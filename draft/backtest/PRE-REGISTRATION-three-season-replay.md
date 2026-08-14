@@ -324,6 +324,85 @@ The property that keeps it honest, stated so it can be checked:
   availability cannot be established for a week, that week's waiver decision is
   recorded as UNAVAILABLE and no claim is made for it.
 
+
+---
+
+## 10. WHAT VARIES ACROSS 10,000 RUNS — because a fixed replay is deterministic
+
+Cory wants this run 10,000 times. The instinct is right and the mechanics matter:
+**re-running a fixed room against fixed outcomes returns the same answer every
+time.** Ten thousand identical runs is one run. Three axes make repetition mean
+something, and they answer different questions:
+
+**A. MONTE CARLO OVER OUTCOME UNCERTAINTY — the one that fixes n=3.**
+Resample each player's weekly score from his own realized distribution and
+re-run the season. The draft, waiver and lineup DECISIONS stay as the tools made
+them; only what the players then scored is redrawn. This converts *"the tool won
+by $50"* into a DISTRIBUTION, and answers the question three seasons cannot:
+**is +$50 signal, or is it inside the noise of one football season?**
+
+This is the highest-value axis. A point estimate over n=3 is nearly
+uninterpretable; the same estimate with a spread around it is a finding.
+
+**B. SEAT — 10 managers, not 1.** Run the tools from every seat, not only
+Cory's. Thirty season-seats instead of three. It answers a question the single-
+seat design cannot: **does the tool help from ANY seat, or did it help from the
+one seat we tuned it against?** Cheap, and it multiplies the evidence honestly
+rather than by resampling.
+
+**C. CONFIGURATION — the fine-tuning axis, and the dangerous one.** Same replay
+across many weight vectors and rule on/off settings.
+
+## 11. ⚠️ THE OVERFITTING TRAP — the largest risk in this whole programme
+
+**RUNNING 10,000 CONFIGURATIONS AND KEEPING THE BEST ONE IS NOT TUNING. IT IS
+FITTING NOISE, AND WITH THREE SEASONS IT IS GUARANTEED TO PRODUCE A WINNER THAT
+MEANS NOTHING.**
+
+With n=3 seasons, the best of 10,000 configurations will look excellent BY
+CHANCE ALONE. It will then fail in 2026 and we will not understand why. This is
+the exact failure the constitution's promote-reluctantly rule exists for, and a
+10,000-run rig is the most efficient machine ever built for violating it.
+
+So, declared before any run:
+
+- **AXES A AND B ARE FOR MEASUREMENT.** Uncertainty and generality. Use freely.
+- **AXIS C IS FOR DIAGNOSIS, NOT SELECTION.** A config sweep may say *"the
+  onesie cap is doing nothing across every setting"* — that is a finding. It may
+  NOT say *"weight 0.7 is best, ship it."*
+- **NO CONFIGURATION IS PROMOTED ON THIS RIG'S SAY-SO.** A config that looks
+  good here becomes a HYPOTHESIS, pre-registered separately, tested on data it
+  was not chosen from.
+- **THE NUMBER OF CONFIGURATIONS TRIED IS REPORTED WITH EVERY RESULT.** "Best of
+  10,000" and "the one we predicted" are different claims and must never be
+  printed in the same format.
+
+**THE HONEST USE OF 10,000 RUNS IS TO PUT ERROR BARS ON A SMALL NUMBER OF
+PRE-DECLARED COMPARISONS — not to search a space for a winner.**
+
+## 12. BUILT TO ACCUMULATE — this outlives the 2026 draft
+
+Cory: *"this is how we will test lots of theories for the eternity of this
+model, so we will just keep adding years and data we can simulate through."*
+
+That is a design requirement, not an aspiration, and it means:
+
+- **Season-agnostic.** No year is hardcoded. Adding 2026 after this season is a
+  data drop, not a code change. The 2023 draft being 180 picks against 150 in
+  2024/25 is already proof that per-season rules must be read, never assumed.
+- **The rig is the product, the first result is not.** What is being built is a
+  place to ask questions of three (then four, then five) seasons — the draft
+  tool, the waiver tool, the lineup tool and the league analyzer, all inside the
+  same harness.
+- **Every run is archived with its config and its code version**, so a result
+  from today remains interpretable when the model has moved. An un-versioned
+  result is a number nobody can reproduce.
+- **The as-of discipline (§3) is what makes the accumulation legitimate.** Each
+  new season arrives with its own uncontaminated preseason projections IF we
+  archive them at the time — which `proj_series.json` began doing on 2026-08-09.
+  **Every future season is clean; the past three never will be.** That asymmetry
+  is permanent and is the reason §3e's walk-forward substitution exists.
+
 ---
 
 ## 9. WHAT THIS DOES NOT ESTABLISH
