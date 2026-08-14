@@ -50,11 +50,48 @@ import actionable_board as AB  # noqa: E402
 
 BOARD = ROOT / "public" / "draft_data.json"
 
-#: Known open defects, measured 2026-08-13 and routed to A. A RATCHET, not a
-#: pass: the assertions below allow no more than this and say so by name. The
-#: moment either is fixed these become 0 and the ceiling comes down with them.
+#: Known open defects, measured 2026-08-13. A RATCHET, not a pass: the assertions
+#: below allow no more than this and say so by name.
 KNOWN_BYE_GAP = 35
 KNOWN_ZERO_PROJ = 1
+
+#: WHEN THE BYE FIX LANDED, so the ratchet TIGHTENS ITSELF.
+#:
+#: A ceiling I have to remember to lower is a ceiling that stops ratcheting the
+#: first time I forget — the check would pass forever at 35 while the real gap
+#: was 0, which is the "a guard that can only say nothing yet" failure I have
+#: spent this session removing from other people's code. So the allowance is tied
+#: to the ARTIFACT, not to my memory: a board built before the fix may carry the
+#: gap, a board built after it may not, and nobody has to do anything for the
+#: ceiling to come down.
+#:
+#: `adp.py` now builds its team map after the FFC merge (main, 2026-08-13). The
+#: nightly rebuild runs at 08:00 UTC.
+BYE_FIX_LANDED = "2026-08-13T23:00:00Z"
+
+
+def bye_ceiling(built_at) -> int:
+    """How many derivable-but-missing byes this board is allowed to carry.
+
+    A board built BEFORE the fix may carry the known gap; one built after it may
+    not. Factored out so both branches are testable — an untested self-tightening
+    ratchet is just a ratchet with an extra branch to get wrong.
+    """
+    built = str(built_at or "")
+    return 0 if (built and built > BYE_FIX_LANDED) else KNOWN_BYE_GAP
+
+
+def test_the_RATCHET_TIGHTENS_ITSELF_when_the_board_is_rebuilt():
+    """A ceiling somebody has to remember to lower stops ratcheting the first time
+    they forget, and then passes forever at the old number while the real gap is
+    zero. That is the "can only say nothing yet" failure, in my own test.
+
+    MUTATION: return KNOWN_BYE_GAP unconditionally — the check keeps allowing 35
+    on a board that should have none, and the bye fix could silently regress."""
+    assert bye_ceiling("2026-08-13T20:09:26Z") == KNOWN_BYE_GAP   # before the fix
+    assert bye_ceiling("2026-08-14T08:00:00Z") == 0               # after it
+    assert bye_ceiling(None) == KNOWN_BYE_GAP, (
+        "an undated board must not be treated as fixed — unknown is not proof")
 
 
 def board():
@@ -201,11 +238,20 @@ def test_NO_MORE_ACTIONABLE_ROWS_LOSE_A_DERIVABLE_BYE():
     9 TE, 8 QB, 5 WR, 2 DEF, 1 K. The tools' bye logic skips all of them without
     saying so. This does not pass because the board is right; it passes because
     the board is no MORE wrong than when it was measured and reported."""
-    d = AB.bye_gap(board())
-    assert len(d["derivable"]) <= KNOWN_BYE_GAP, (
-        "the derivable-bye gap GREW to %d from a known %d: %s"
-        % (len(d["derivable"]), KNOWN_BYE_GAP,
-           [p.get("name") for p in d["derivable"][:10]]))
+    b = board()
+    d = AB.bye_gap(b)
+    built = str(b.get("built_at") or "")
+    ceiling = bye_ceiling(built)
+    fixed_board = ceiling == 0
+    assert len(d["derivable"]) <= ceiling, (
+        "%d actionable rows have no bye their own team could supply, ceiling %d.\n"
+        "This board was built %s, which is %s the fix landed (%s).\n%s"
+        % (len(d["derivable"]), ceiling, built or "(undated)",
+           "AFTER" if fixed_board else "BEFORE", BYE_FIX_LANDED,
+           ("The fill is not working on a board that should have it — that is the "
+            "defect back, not the old one." if fixed_board else
+            "Expected on a board built before the fix; it must read 0 after the "
+            "next rebuild.")))
     assert d["teams_with_a_bye"] >= 30, (
         "only %d teams have a bye on this board — the gap is now a source "
         "problem rather than a fill that did not happen, which is a different "

@@ -787,6 +787,21 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/tests/test_actionable_board.py": {
+   "tests": [
+    "draft/tests/test_actionable_board.py"
+   ],
+   "mutations": [
+    {
+     "old": "    return 0 if (built and built > BYE_FIX_LANDED) else KNOWN_BYE_GAP",
+     "new": "    return KNOWN_BYE_GAP",
+     "must_fail": [
+      "test_the_RATCHET_TIGHTENS_ITSELF_when_the_board_is_rebuilt"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
