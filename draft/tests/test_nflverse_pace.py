@@ -133,3 +133,39 @@ def test_THE_DRAFTED_SEASON_IS_REFUSED():
         assert "before" in str(e).lower() or "prior" in str(e).lower()
     else:
         raise AssertionError("the drafted season must be refused")
+
+
+def test_THE_GAME_COUNT_AND_THE_PLAY_COUNT_COME_FROM_DIFFERENT_FILTERS():
+    """A's criterion 1, found by saying this ratio out loud: `plays_per_game` is
+    SCRIMMAGE plays over games, but `games` is added BEFORE the `SCRIMMAGE` and
+    kneel/spike filters — so a game that contributed only special-teams rows for
+    this team counts in the denominator and not in the numerator.
+
+    On real play-by-play the two are expected to be identical, because a team that
+    appears in a game runs scrimmage plays in it. EXPECTED is exactly what should
+    not be relied on, and I cannot measure it here — the pbp pull is egress-blocked
+    from this sandbox. So the divergence is made OBSERVABLE rather than assumed
+    away or silently corrected: `games_with_plays` is reported beside `games`, and
+    if they ever differ the denominator is wrong and `plays_per_game` is
+    understated.
+
+    MUTATION: report `games_with_plays` as a copy of `games` — the one instrument
+    that could ever show the mismatch agrees with the thing it is checking, which
+    is a control that cannot fail."""
+    rows = [
+        # a real game: two scrimmage plays
+        {"season": 2024, "posteam": "BUF", "game_id": "g1", "play_type": "pass",
+         "score_differential": 0},
+        {"season": 2024, "posteam": "BUF", "game_id": "g1", "play_type": "run",
+         "score_differential": 0},
+        # a game where BUF appears on a special-teams row ONLY
+        {"season": 2024, "posteam": "BUF", "game_id": "g2", "play_type": "punt",
+         "score_differential": 0},
+    ]
+    out, _ = P.team_pace(rows, [2024], before_season=2025, min_games=1)
+    buf = out["BUF"]
+    assert buf["games"] == 2, buf
+    assert buf["games_with_plays"] == 1, buf
+    # AND THE GAP IS NAMED, so a reader does not have to subtract two fields to
+    # notice that the ratio below it is over the wrong denominator.
+    assert buf["games_without_plays"] == 1

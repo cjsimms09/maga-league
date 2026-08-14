@@ -574,6 +574,56 @@ jobs:
           # fortnight missing.
           exit "$rc"
 
+      # ── WHERE THE PLATFORM OUR ROOM DRAFTS ON DISAGREES WITH THE PRICE ────
+      #
+      # `board_vs_market.sleeper_divergence` had no caller. I built it this
+      # morning, measured a real effect with it — Sleeper places quarterbacks a
+      # median 36 slots earlier than the market price, inside the draftable 150 —
+      # and then left the function sitting there, which is rule 14 exactly: the
+      # consumer has to exist the day the writer does, or the number is only ever
+      # true on the day somebody happens to run it by hand.
+      #
+      # ⚠ AFTER THE COMMIT, `always()` AND `continue-on-error`, for the reason
+      # spelled out twice above: the MFL snapshot is the unrefetchable thing and
+      # no report may cost it a day. This one reads bytes already on disk, so its
+      # worst case is a missing paragraph in a summary.
+      - name: Where Sleeper disagrees with the price
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'DIV' >> "$GITHUB_STEP_SUMMARY"
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Sleeper ordering vs the market price")
+          try:
+              import board_vs_market as BM
+              board = json.load(open("public/draft_data.json"))
+              r = BM.sleeper_divergence(board)
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f). `collapsed` and
+                  # `unmeasured` are real states and each names its own cause.
+                  print("**%s** — %s" % (r["status"].upper(), r.get("note")))
+              else:
+                  print("`%d ranked`, `%d parked at a sentinel` (%s), "
+                        "`%d distinct` Sleeper ranks."
+                        % (r["ranked"], r["unranked"], r["sentinels"], r["distinct"]))
+                  print("")
+                  print("| pos | n | median | mean |")
+                  print("|---|---|---|---|")
+                  for k, v in r["by_position"].items():
+                      print("| %s | %d | %+.1f | %+.1f |"
+                            % (k, v["n"], v["median"], v["mean"]))
+                  print("")
+                  print("Negative = Sleeper places the player EARLIER than the "
+                        "market. `sleeper_rank` is a SEARCH ordering, not a "
+                        "draft-position estimate — this is a mechanism with a "
+                        "sign, not evidence anybody drafted off the list.")
+          except Exception as e:                      # noqa: BLE001
+              print("**DIVERGENCE CHECK DID NOT RUN** (%s: %s) — not a clean "
+                    "result; nothing was compared." % (type(e).__name__, e))
+          DIV
+
       # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
       # the standing check escalates by failing. Losing a day of a perishable
       # curve deserves the same channel — but only ONCE, on the run that can
