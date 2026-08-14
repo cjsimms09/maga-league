@@ -17,7 +17,29 @@
 #
 # Usage:  bash scripts/integrate.sh <branch> <side A|B|C> [--push]
 set -uo pipefail
-cd "$(dirname "$0")/.."
+# ⚠️ THIS SCRIPT REPLACES ITS OWN SOURCE FILE MID-RUN, AND BASH READS SCRIPTS
+# LAZILY. `git checkout main` below swaps scripts/integrate.sh on disk to main's
+# version; bash then continues reading from the SAME BYTE OFFSET in a DIFFERENT
+# FILE. So a run started from a branch executes that branch's code up to the
+# checkout and main's code after it — at an offset that no longer means anything
+# if the two differ in length.
+#
+# MEASURED 2026-08-14: a fix to the JS classification was invoked from its own
+# branch, and the gate printed main's OLD refusal message. The script cannot fix
+# itself, and every previous edit to it landed unpredictably — including,
+# plausibly, edits nobody realised were half-applied.
+#
+# Re-exec from a private COPY before touching git. The copy cannot be swapped by
+# a checkout, so the whole run executes one version of this file. ROOT travels in
+# the environment because $0 is now a temp path and `dirname $0` would resolve
+# outside the repository.
+if [ -z "${INTEGRATE_ROOT:-}" ]; then
+  INTEGRATE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+  _self="$(mktemp)"; cp "$0" "$_self"
+  export INTEGRATE_ROOT
+  exec bash "$_self" "$@"
+fi
+cd "$INTEGRATE_ROOT"
 
 BRANCH="${1:-}"; SIDE="${2:-}"; PUSH="${3:-}"
 [ -n "$BRANCH" ] && [ -n "$SIDE" ] || { echo "usage: integrate.sh <branch> <A|B|C> [--push]"; exit 2; }
@@ -273,13 +295,55 @@ fi
 # suite that failed.
 JS_TMO="${INTEGRATE_JS_TIMEOUT:-400}"
 echo "== js suites (per-suite timeout ${JS_TMO}s)"
-red=""; slow=""
+# ⚠️ A SUITE THAT DIED IS NOT A SUITE THAT FAILED, AND THIS COULD NOT TELL THEM
+# APART — it discarded output with `>/dev/null 2>&1` and judged on the exit code
+# alone. `js-sweep.sh` already makes exactly this distinction, and the reason is
+# written there: "Two suites went RED here on one run and green on the next,
+# standalone exit 0 both times — and NEITHER printed a `FAIL` line... That is the
+# signature of a process that DIED (OOM, signal, resource limit under 239
+# sequential node starts), not of a test that ran and disagreed."
+#
+# The gate never inherited that fix. One rule, two implementations, and only one
+# of them correct — the same shape as the four adp_sd formulas and as `picks`
+# versus `my_picks`.
+#
+# WHAT IT COST, 2026-08-14: this refused `review-harness-only` for `trashtalk`,
+# rolled main back, and reported "JS suites red". trashtalk then passed 25/25
+# three times in a row on the exact merged tree. The merge was blocked on
+# evidence that did not exist — which is precisely what this script's own
+# TIMEOUT branch four lines below says it must never do.
+#
+# So the classification now matches js-sweep's, and INFRA gets ONE retry. A
+# retry is legitimate for a process that died and never for a real FAIL, which
+# is the whole point of keeping them apart.
+red=""; slow=""; infra=""
 for f in draft/tests/*.test.js; do
-  timeout "$JS_TMO" node "$f" >/dev/null 2>&1 </dev/null
-  rc=$?
-  if [ "$rc" = 124 ]; then slow="$slow $(basename "$f" .test.js)"
-  elif [ "$rc" != 0 ]; then red="$red $(basename "$f" .test.js)"; fi
+  name="$(basename "$f" .test.js)"
+  out="$(timeout "$JS_TMO" node "$f" 2>&1 </dev/null)"; rc=$?
+  if [ "$rc" = 124 ]; then slow="$slow $name"; continue; fi
+  if [ "$rc" != 0 ]; then
+    if echo "$out" | grep -qE '^FAIL'; then
+      red="$red $name"
+    else
+      # Died without asserting. Re-run ONCE before believing it.
+      out2="$(timeout "$JS_TMO" node "$f" 2>&1 </dev/null)"; rc2=$?
+      if [ "$rc2" = 0 ]; then
+        echo "   $name: died once (exit $rc, no FAIL line), passed on re-run — not a code failure"
+      elif echo "$out2" | grep -qE '^FAIL'; then
+        red="$red $name"
+      else
+        infra="$infra $name"
+      fi
+    fi
+  fi
 done
+if [ -n "$infra" ]; then
+  echo "REFUSED: JS suite(s) DIED WITHOUT ASSERTING, twice:$infra"
+  echo "  INCONCLUSIVE, not a failure — no assertion disagreed, the process did"
+  echo "  not survive to run them. Debug the machine, not the code."
+  echo "  Rolling main back rather than merging on evidence that does not exist."
+  rollback; exit 1
+fi
 if [ -n "$slow" ]; then
   echo "REFUSED: JS suite(s) TIMED OUT at ${JS_TMO}s:$slow"
   echo "  INCONCLUSIVE, not a failure — raise INTEGRATE_JS_TIMEOUT or fix the suite."
