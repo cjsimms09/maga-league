@@ -223,13 +223,34 @@ function boardAt(pk) {
     ['QB', 'RB', 'WR', 'TE'].every(p => D.prefers(enr.key, p, 1, []) === 0),
     ['QB', 'RB', 'WR', 'TE'].map(p => [p, D.prefers(enr.key, p, 1, [])]));
 
+  /* THE ARTIFACT MOVED ON, AND SO DOES THIS CHECK. When these were written the
+   * race was VOID — its control could not field a quarterback in 198 of 200
+   * rooms — so they pinned `void_reason` and a validity rate above 0.5.
+   *
+   * The currency mismatch is now fixed (`best_by_marginal_value`), the control
+   * fields a legal lineup in 200 of 200, and the race is VALID. It still
+   * enrolls nothing, but for the far stronger reason that nothing cleared its
+   * gate on a sound experiment. Pinning the void would now pin a defect we
+   * repaired, which is how a test starts holding a bug in place. */
   const cc = JSON.parse(fs.readFileSync(
     path.join(ROOT, 'draft', 'backtest', 'cory-conditional.json'), 'utf8'));
-  ck('the race artifact records WHY nothing enrolled, so the next reader does '
-    + 'not re-enroll it', !!cc.void_reason && /could not field/.test(cc.void_reason),
-  cc.void_reason);
-  ck('and it keeps the control-validity measurement that voided it',
-    cc.control_validity && cc.control_validity.rate > 0.5, cc.control_validity);
+  ck('the shipped race is VALID — its control can field the lineup it is graded '
+    + 'on in every room', cc.void_reason === null && cc.control_validity.rate === 0,
+  { void: cc.void_reason, validity: cc.control_validity });
+  ck('and it still enrolls nothing, now because nothing cleared its gate rather '
+    + 'than because the race was thrown out', cc.enrolled === 'balanced'
+    && !cc.leaderboard.some(r => r.archetype === cc.enrolled), cc.enrolled);
+  /* THE RESULT THAT RETIRED THE EARLY-QB PLAN, pinned where a reader of this
+   * file will see it: the constraint stopped binding once the seat drafted in
+   * the currency it is graded in. */
+  const eq = cc.leaderboard.find(r => r.archetype === 'early_qb');
+  ck('early_qb now diverges from the control by NOTHING and is worth exactly $0 '
+    + '— it described what value-drafting already does', eq
+    && eq.mean_divergence === 0 && eq.mean_edge === 0, eq);
+  ck('CONTROL — an archetype that really does draft differently still shows '
+    + 'divergence, so the row above is not "the constraints stopped working"',
+  cc.leaderboard.some(r => r.mean_divergence > 1),
+  cc.leaderboard.map(r => [r.archetype, r.mean_divergence]));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

@@ -1,5 +1,6 @@
 """EXPERIMENT 19b — smoke-lock the Cory-conditional race machinery."""
 from __future__ import annotations
+import contextlib
 import sys
 from pathlib import Path
 
@@ -174,37 +175,102 @@ def test_control_validity_counts_rooms_and_names_the_slot():
     assert clean["illegal"] == 0 and clean["rate"] == 0.0 and clean["by_slot"] == {}
 
 
-def test_the_control_really_cannot_field_a_lineup_on_the_live_board():
-    """The defect reproduced from the data, not remembered from a write-up.
+@contextlib.contextmanager
+def _vorp_greedy_seat():
+    """Restore the ORIGINAL defect: pick by VORP, grade by startable lineup.
 
-    If this ever goes green on its own, the currency mismatch was fixed and the
-    gate below should stop firing — which is exactly the signal we want.
+    This is how the three tests below stay honest now that the bug is fixed. The
+    gate must fire on a broken control and stay silent on a sound one, and a gate
+    only ever tested against one of those is not tested at all.
     """
-    _, _, control_short = CC.race(n_rooms=8, seed=123)
-    v = CC.control_validity(control_short)
-    assert v["rate"] > 0.5, (
-        f"expected a mostly-illegal control, got {v}")
-    assert "QB" in v["by_slot"], f"QB was the slot that drove the enrollment: {v}"
+    original = CC.best_by_marginal_value
+    CC.best_by_marginal_value = lambda roster, allowed, scan=60: max(
+        allowed, key=lambda p: p["vorp"])
+    try:
+        yield
+    finally:
+        CC.best_by_marginal_value = original
 
 
-def test_a_race_with_an_invalid_control_enrolls_NOTHING(tmp_path):
-    res = _run_main(tmp_path, rooms=8)
-    assert res["void_reason"], "an unfillable control must void the race"
-    assert res["control_validity"]["rate"] > 0.5
+def test_the_control_NOW_fields_a_legal_lineup_and_did_not_before():
+    """The fix and the defect, measured side by side on the same board."""
+    _, _, fixed = CC.race(n_rooms=6, seed=123)
+    v = CC.control_validity(fixed)
+    assert v["rate"] == 0.0, f"the control must field the lineup it is graded on: {v}"
+
+    # FAIL ARM — the original chooser, reproduced rather than remembered.
+    with _vorp_greedy_seat():
+        _, _, broken = CC.race(n_rooms=6, seed=123)
+    b = CC.control_validity(broken)
+    assert b["rate"] > 0.5, f"the old VORP-greedy seat should be mostly illegal: {b}"
+    assert "QB" in b["by_slot"], (
+        f"QB is the slot whose absence produced the +$352.75 enrollment: {b}")
+
+
+def test_early_qb_stops_diverging_once_the_currencies_match():
+    """THE RESULT THAT SETTLES IT. `early_qb` forces a quarterback at live pick 3.
+    Under a chooser that maximises the lineup it is graded on, the seat already
+    takes one by then — so the constraint never binds, divergence is 0, and the
+    +$352.75 'edge' is exactly $0. It was never a strategy; it was a description
+    of what correct value-drafting does anyway."""
+    per_seed, diverg, _ = CC.race(n_rooms=6, seed=123)
+    assert sum(diverg["early_qb"]) == 0, (
+        f"early_qb should no longer diverge from the control: {diverg['early_qb']}")
+    assert per_seed["early_qb"] == per_seed["balanced"]
+
+    # CONTROL — an archetype that genuinely drafts differently still does, or the
+    # result above would just mean the constraints stopped working.
+    assert sum(diverg["late_qb"]) > 0, "late_qb must still diverge"
+
+
+def test_the_gate_fires_on_a_broken_control_and_is_silent_on_a_sound_one(tmp_path):
+    sound = _run_main(tmp_path, rooms=6)
+    assert sound["void_reason"] is None, sound["void_reason"]
+    assert sound["control_validity"]["rate"] == 0.0
+    assert not any(r["verdict"].startswith("VOID") for r in sound["leaderboard"])
+
+    with _vorp_greedy_seat():
+        broken = _run_main(tmp_path, rooms=6)
+    assert broken["void_reason"], "an unfillable control must void the race"
+    assert broken["control_validity"]["rate"] > 0.5
     # The enrolled key must not name an archetype — `build.py` looks it up in the
     # leaderboard and yields None, so the banner runs the control and says so.
-    assert res["enrolled"] == "balanced"
-    assert not any(r["archetype"] == res["enrolled"] for r in res["leaderboard"])
+    assert broken["enrolled"] == "balanced"
+    assert not any(r["archetype"] == broken["enrolled"] for r in broken["leaderboard"])
 
 
 def test_a_void_race_leaves_no_row_claiming_a_win(tmp_path):
     """`enrolled: balanced` beside a row reading 'WINNER — enroll as THE PLAN'
     is a contradiction, and the appealing way to resolve it is the wrong one."""
-    res = _run_main(tmp_path, rooms=8)
+    with _vorp_greedy_seat():
+        res = _run_main(tmp_path, rooms=6)
     assert res["void_reason"]
     assert all(r["verdict"].startswith("VOID") for r in res["leaderboard"]), \
         [r["verdict"] for r in res["leaderboard"]]
     assert res["head_to_head"] is None
+
+
+def test_the_marginal_chooser_fills_an_empty_slot_before_upgrading_a_full_one():
+    """The mechanism, on a constructed board rather than through the race.
+
+    A roster with no quarterback and a full receiver corps must take the QB even
+    though the receiver has more VORP — that preference is precisely what the
+    grader rewards, and precisely what the VORP seat got backwards."""
+    roster = [{"player_id": "r1", "position": "RB", "proj_mean": 300, "weekly_sd": 6, "vorp": 150},
+              {"player_id": "r2", "position": "RB", "proj_mean": 290, "weekly_sd": 6, "vorp": 140},
+              {"player_id": "w1", "position": "WR", "proj_mean": 280, "weekly_sd": 6, "vorp": 130},
+              {"player_id": "w2", "position": "WR", "proj_mean": 270, "weekly_sd": 6, "vorp": 120}]
+    qb = {"player_id": "q1", "position": "QB", "proj_mean": 350, "weekly_sd": 6, "vorp": 40}
+    wr = {"player_id": "w3", "position": "WR", "proj_mean": 240, "weekly_sd": 6, "vorp": 110}
+    assert CC.best_by_marginal_value(roster, [qb, wr])["player_id"] == "q1"
+    # FAIL ARM — VORP picks the receiver, which is how the control ended up
+    # playing a season with no quarterback.
+    assert max([qb, wr], key=lambda p: p["vorp"])["player_id"] == "w3"
+
+    # And it does NOT take a second quarterback once the slot is filled: the
+    # replacement logic is built in rather than bolted on.
+    qb2 = {"player_id": "q2", "position": "QB", "proj_mean": 340, "weekly_sd": 6, "vorp": 35}
+    assert CC.best_by_marginal_value(roster + [qb], [qb2, wr])["player_id"] == "w3"
 
 
 def test_the_verdict_label_matches_the_interval():
