@@ -335,6 +335,35 @@ def to_pick_scale(order: dict, anchor: dict, positions: dict) -> dict:
     `status: "unanchored"`. Inventing a pick scale from a contaminated source is
     the failure this whole module exists to avoid, and doing it silently on one
     position would be worse than doing it openly on all four.
+
+    ⚠ AND THE OUTPUT MAY ONLY BE COMPARED AGAINST THE ANCHOR'S OWN SCALE. This is
+    not a caveat about contamination — it bites a perfectly format-matched anchor,
+    and it caught me on the first real run.
+
+    The pick numbers here ARE the anchor's, re-assigned. Compare them to a board
+    built on a DIFFERENT source and the whole position shifts by however far the
+    two providers' scales differ, and that shift wears the appearance of a
+    finding. Measured on 2026-08-14, consensus against the shipped board:
+
+        TE  median delta +21.5, median |delta| 21.5   <- every tight end, one way
+        WR  median delta  -9.3, median |delta|  9.3   <- every receiver, one way
+        QB  median delta  +1.5, median |delta|  5.7   <- player-level
+        RB  median delta  +0.8, median |delta|  3.0   <- player-level
+
+    A median delta equal to the median ABSOLUTE delta means the position moved as
+    a block: FFC prices 21 tight ends where the board holds 17 inside pick 150, so
+    the consensus TE order inherits a deeper, later scale. Nothing about any
+    individual tight end is being said there.
+
+    AGAINST THE ANCHOR ITSELF the shift cancels — median delta 0.0 at all four
+    positions — and what remains is purely the re-ordering the aggregate did. That
+    is the only comparison this function's output supports.
+
+    ⚠ AND EVEN THEN, DO NOT COMPARE THE POSITIONS TO EACH OTHER. Median |delta|
+    against the anchor is QB 6.5, WR 3.2, TE 2.4, RB 2.0 — but a position whose
+    picks are spread thinly across the draft converts one rank step into a larger
+    pick move by construction, and QB is the thinnest. The per-player moves are in
+    pick units and mean what they say; the positional ORDERING of them does not.
     """
     out = {}
     for pos, rows in (order or {}).items():

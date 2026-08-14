@@ -7,6 +7,22 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🪞 **`to_pick_scale` HAS RUN — and the first thing it produced was a third scale artifact, in a module I had just fixed one for. Here is the only comparison its output supports, and the answer.**
+  **IT CAN RUN, which I had recorded as blocked.** The archive shows FFC captured at **`format=half-ppr, teams=10`** — our exact format on the reception and roster-shape axes — so it IS the format-matched anchor the function requires. (FantasyPros declares `HALF` but no league size, so it cannot set where a position sits in a ten-team draft; FFC anchors, FantasyPros contributes order.)
+  **🔴 THE TRAP, AND IT BITES A PERFECTLY FORMAT-MATCHED ANCHOR.** Comparing the anchored consensus to the SHIPPED board, the deltas looked enormous — Jake Ferguson TE +34, Deebo Samuel WR −42. They are not about those players. Median delta against median absolute delta:
+  · **TE +21.5 / 21.5 — every tight end moved one way** · **WR −9.3 / 9.3 — every receiver moved one way** · QB +1.5 / 5.7 and RB +0.8 / 3.0, which are player-level.
+  **A median equal to the median absolute means the position moved as a BLOCK.** FFC prices 21 tight ends where the board holds 17 inside pick 150, so the consensus TE order inherits a deeper, later scale. **Nothing about any individual tight end is being said there**, and I would have sent you Jake Ferguson +34 as a finding.
+  **✅ THE COMPARISON THAT WORKS is consensus against ITS OWN ANCHOR — median delta 0.0 at all four positions, so the block shift cancels and what remains is purely what adding FantasyPros' opinion did:**
+  | player | pos | consensus | FFC alone | move |
+  |---|---|---|---|---|
+  | Caleb Williams | QB | 75.9 | 100.8 | **−24.9** |
+  | Brock Purdy | QB | 104.7 | 81.3 | **+23.4** |
+  | Courtland Sutton | WR | 74.8 | 58.3 | +16.5 |
+  | Dallas Goedert | TE | 126.7 | 111.9 | +14.8 |
+  | Matthew Stafford | QB | 90.2 | 75.9 | +14.3 |
+  | Carnell Tate | WR | 62.6 | 74.8 | −12.2 |
+  **⚠ AND DO NOT READ THE POSITIONS AGAINST EACH OTHER EVEN HERE.** Median |move| is QB 6.5, WR 3.2, TE 2.4, RB 2.0 — but a position whose picks are spread thinly across the draft turns one rank step into a bigger pick move by construction, and QB is the thinnest. **The per-player moves are in pick units and mean exactly what they say; the positional ordering of them does not.**
+  **THAT IS THREE SCALE TRAPS IN ONE MODULE IN ONE HOUR** — source depth (already fixed before today), position depth in the disagreement sort (fixed an hour ago), and anchor depth here. All three have the same shape: a number that is comparable along one axis being read along another. The docstring now carries this one with the measurements, because it is not deducible from the code.
 - [ ] 2026-08-14 · C · 🤝 **THE AGGREGATE CORY ASKED FOR HAS ITS FIRST REAL ANSWER — and running it on live data immediately found a defect in my own scale, which is the only reason the table below says what it says.**
   **WHERE FFC AND FANTASYPROS DISAGREE MOST, inside pick 150, measured in WHOLE PLAYERS:**
   | player | pos | fantasypros | ffc | apart |
