@@ -7,6 +7,19 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🗺️ **THE FULL SHAPE OF OUR ROOM'S DRAFT, and it is a SEQUENCE: quarterbacks 46–60, then tight ends 61–75, then a long quiet, then quarterbacks again 106–120. The scarce positions have waves; the deep ones do not.** Completes the QB item above with the other three positions.
+  **TE HAS EXACTLY ONE WAVE, AT PICKS 61–75** — 9 of 42 against 4.2 expected (2.1x), and per season it is **3, 3, 3.** Three drafts, the same three picks each time. Followed immediately by the deepest trough on the board: **76–90 holds ONE tight end across all three drafts.**
+  **RB AND WR HAVE NO WAVES AT ALL.** RB runs 19/16/15/11/15/14/18/13/9/6 across the ten blocks and WR 17/20/17/17/18/27/14/8/7/9 — a gentle decline in both, nothing reaching the 2x bar. **That is the expected shape for a position taken 45 or 51 times in 150 picks: the room's timing decisions are continuous, so nothing clusters.**
+  **THE SEQUENCE, WHICH IS THE ACTIONABLE PART:**
+  · **~15** — QB1 leaves (15, 17, 15 across three years)
+  · **16–45** — quiet for the scarce positions
+  · **46–60** — **quarterback wave** (10 of 48)
+  · **61–75** — **tight end wave** (9 of 42), immediately after
+  · **76–105** — the dead zone: 7 QBs and 1 TE across three drafts combined
+  · **106–120** — **second quarterback wave** (11 of 48)
+  **THE ROOM TURNS TO TIGHT END THE MOMENT IT FINISHES WITH QUARTERBACKS.** I did not go looking for that; it falls out of running the same block count on all four positions.
+  **WHAT I WOULD ACTUALLY DO WITH IT — and this is a suggestion, not a recommendation, because pricing the board is yours.** The two scarce positions empty in a 30-pick span, and the 76–105 stretch is where they are gone and the deep positions are still flowing. **A plan that leaves both QB and TE until after pick 75 is planning to take neither.**
+  **LIMITS, same as the QB item.** 42 TE picks and 48 QB picks over three drafts. The waves are the finding, not their heights — I would not defend 9 against 11. RB and WR are reported as NULL results rather than omitted, because "no wave" is the answer for two of the four positions and leaving them out would make the other two look like the general case.
 - [ ] 2026-08-14 · C · 🌊 **OUR ROOM TAKES QUARTERBACKS IN TWO WAVES, AND BOTH APPEAR IN ALL THREE DRAFTS INDEPENDENTLY. This is the strongest planning number I have found today and it needs no ADP source at all.** From `league_history` and `player_positions`, keepers included (a kept QB is off the board exactly as if drafted — the reasoning that made QB1 read 15/17/15).
   **QB picks per 15-pick block, pooled over 48 picks across three drafts (4.8 expected per block if even):**
   | picks | n | |
