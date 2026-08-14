@@ -58,6 +58,40 @@ echo "== fetching $BRANCH"
 git fetch -q origin "$BRANCH" || { echo "FAIL: cannot fetch $BRANCH"; exit 1; }
 REF="origin/$BRANCH"
 
+# ── 1b. THIS SCRIPT MERGES THE REMOTE. SAY SO, AND REFUSE WHEN THEY DIFFER ──
+#
+# Every line below operates on `origin/$BRANCH`. That is deliberate — the branch
+# being integrated usually belongs to another session and only the remote ref
+# exists here. But it means "commit the fix, then integrate" WITHOUT A PUSH
+# integrates the commit before the fix, merges cleanly, runs both suites on the
+# stale tree, and prints the same success it prints for a correct integration.
+#
+# C hit exactly that on 2026-08-11: a fix to territory-check.sh was committed and
+# not pushed, integrate.sh merged the previous commit — a guard that refused any
+# second argument — and every `territory-check.sh <side> --range ...` call inside
+# THIS script was refused for every lane for ~20 minutes. Nothing reported a
+# problem. The only symptom was main being wrong afterwards.
+#
+# THAT IS THE FAILURE CLASS THIS REPO KEEPS NAMING: a step that reports success
+# for work it did not do. It is not a habit problem, because a habit produces no
+# evidence when it lapses; the local ref is right there and can be asked.
+#
+# Guarded on the local branch EXISTING, because integrate is also run for
+# branches where only the remote ref is present — the normal case for C's work,
+# and there is nothing stale about a branch you have never checked out.
+if git rev-parse --verify --quiet "refs/heads/$BRANCH" >/dev/null; then
+  AHEAD="$(git rev-list --count "$REF..$BRANCH" 2>/dev/null || echo 0)"
+  if [ "$AHEAD" != "0" ]; then
+    echo "REFUSING: local '$BRANCH' has $AHEAD commit(s) the remote does not."
+    git log --oneline "$REF..$BRANCH" | sed 's/^/     /'
+    echo "  integrate.sh merges $REF, so those commits WOULD NOT BE MERGED and"
+    echo "  this run would report success for work it did not do."
+    echo "  Push first:  git push -u origin $BRANCH"
+    exit 2
+  fi
+  echo "   local '$BRANCH' matches $REF — nothing unpushed"
+fi
+
 # ── 2. TERRITORY, FROM THE OTHER SIDE'S PERSPECTIVE ─────────────────────────
 # The point of asking as SIDE rather than as A: A merging is legitimate, so an
 # A-side check would exempt everything. The question that matters is whether the

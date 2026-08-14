@@ -76,6 +76,24 @@
     PATHS_POOL: 10,
     get PATHS_BAND() { return (this.COIN_FLIP_GAP == null ? 1 : this.COIN_FLIP_GAP) * 4; },
     PATHS_MAX: 4,
+    /* THE FLOOR ON DIRECTIONS OFFERED (2026-08-14). PATHS_BAND above answers
+     * "are these priced alike"; it was also answering "does this option exist",
+     * and at 10 of Cory's 12 picks the answer to the second was ONE. A single
+     * direction is not a decision, and its leader is by construction the same
+     * player the recommendations panel already prints at #1 — which is exactly
+     * what he reported seeing.
+     *
+     * THREE, NOT FOUR OR TWO, and the reason is his own two complaints, which
+     * point in opposite directions and bracket it. Two leaves no middle option
+     * to reject, which is how a menu of two becomes a yes/no. Four is what the
+     * panel showed at pick 110 — leaders 0.0, 0.5, 0.7 and 3.6 apart, four
+     * things at equal visual weight separated by less than a point — which he
+     * could not read. PATHS_MAX stays 4, so this narrows nothing; it is a floor
+     * under the count, not a new target for it.
+     *
+     * It is a FLOOR, so a board that genuinely holds only two clusters still
+     * renders two. This never invents a direction. */
+    PATHS_MIN: 3,
     // Tier-urgency at/above this makes a path a "cliff — take it now" direction
     // rather than a "value" one; it drives both the name and the when-it's-right.
     PATHS_CLIFF_URGENCY: 6.0,
@@ -2446,12 +2464,49 @@
    *   2. cluster them by DIRECTION = position, split into a "cliff" vs "value"
    *      flavour by the leader's tier-urgency (position × tier-urgency, the two
    *      axes the spec names; branch consequence then colours when-it's-right)
-   *   3. a direction QUALIFIES only if its best candidate is within PATHS_BAND of
-   *      the top composite score — beyond that it is not a solid direction
+   *   3. a direction is PRICED-ALIKE if its best candidate is within PATHS_BAND
+   *      of the top composite score. That flag is `within_band`; it is NOT a
+   *      gate on existence — see below
    *   4. price every path vs the top path (never hidden), name it in plain
    *      language, and generate the one-line "when it's right" from live state
-   *   5. cap at PATHS_MAX; flag a path-level coin flip when the top two price
+   *   5. always offer at least PATHS_MIN directions where the board has them,
+   *      cap at PATHS_MAX; flag a path-level coin flip when the top two price
    *      within COIN_FLIP_GAP
+   *
+   * ── THE BAND WAS DECIDING WHETHER AN OPTION EXISTED (2026-08-14) ──────────
+   *
+   * Cory, after a mock: *"Need more recommended players than just the 1 ...
+   * Gibbs listed twice? No other options."* Both halves are this function.
+   * The recommendations panel already renders five players; the paths panel
+   * rendered ONE direction, whose leader is by construction the same man the
+   * rec panel already has at #1. One option, printed twice, is what he saw.
+   *
+   * MEASURED ACROSS ALL TWELVE OF HIS PICKS, on a market-follow board (at pick
+   * N the N−1 best ADPs are gone — an approximation, and the full pre-draft
+   * board is not a state that ever occurs at pick 48, so measuring on it would
+   * answer a question nobody asks):
+   *
+   *      band = 4.0  (shipped)  ONE direction at 10 of 12 picks
+   *      band = 12.0 (previous) ONE direction at  7 of 12 picks
+   *      top-10 spread across his picks: 13.4 .. 148.3 points
+   *
+   * So this is not pre-draft weirdness; it is what the panel will do on the
+   * 22nd. And tightening the band from 12 to 4 yesterday made it worse — that
+   * change was right about its own defect (a hardcoded 12 silently overriding
+   * its stated derivation) and wrong about the consequence.
+   *
+   * THE CAUSE IS ONE CONSTANT ANSWERING TWO QUESTIONS. "Are these two
+   * directions indistinguishable?" is a claim about the composite's own
+   * resolution and is correctly absolute — that is COIN_FLIP_GAP, and
+   * PATHS_BAND derives from it. "Is this a real alternative worth showing?" is
+   * a different question, and an absolute answer to it is a function of where
+   * you are in the draft rather than of how many options the board holds.
+   *
+   * A direction costing 20 points IS an option; it is simply an expensive one,
+   * and `price` has stated the cost on every card since the panel existed.
+   * Suppressing it does not protect the reader from choosing badly — it hides
+   * the shape of the board, which is the thing he is trying to see. So the band
+   * now sets `within_band` and the panel always offers what it has.
    *
    * Returns [] when the board is empty. The caller renders these as cards and
    * logs which path a pick came from; picking off every path is an override.
@@ -2482,10 +2537,21 @@
       clusters[key].members.push(entry);
     });
 
-    // Qualify + build. A cluster's score is its best member's score.
-    const paths = order.map(key => clusters[key]).filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND);
-    paths.sort((a, b) => b.members[0].score - a.members[0].score);
-    const chosen = paths.slice(0, CFG.PATHS_MAX);
+    // Rank + build. A cluster's score is its best member's score.
+    //
+    // THE ORDER OF THESE THREE LINES IS THE WHOLE CHANGE. Ranking first and
+    // taking `max(PATHS_MIN, in-band)` means the in-band set is a PREFIX of what
+    // renders: every path that qualified before still qualifies, in the same
+    // position, at the same price. Nothing is removed and nothing is reordered —
+    // suppressed directions are added back after the ones that were already
+    // there. That is what makes this safe to ship eight days out.
+    const ranked = order.map(key => clusters[key])
+      .sort((a, b) => b.members[0].score - a.members[0].score);
+    const inBand = ranked.filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND).length;
+    const chosen = ranked.slice(0, Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN)));
+    // `bestScore` is read off `ranked[0]`, which is `chosen[0]`, so prices are
+    // identical to what they were. Computing it from a widened set would silently
+    // re-baseline every price badge on the panel.
     const bestScore = chosen.length ? chosen[0].members[0].score : topScore;
 
     const named = chosen.map((c, i) => {
@@ -2497,6 +2563,10 @@
       // = the value will fall (you can wait), which colours when-it's-right.
       const posRow = branch ? (branch.rows.find(r => r.position === c.pos) || null) : null;
       const posLoss = posRow ? posRow.loss : 0;
+      // ONE derivation of the cost, read by the badge, the flag and the prose.
+      // Three copies of `bestScore - score` is how they end up disagreeing.
+      const price = Math.round((bestScore - lead.score) * 10) / 10;   // >= 0; 0 for the top path
+      const withinBand = price <= CFG.PATHS_BAND;
 
       // PATH NAMES STATE THEIR MECHANISM (mock-#1 fix #2). "Fill RB now" and
       // "Lock the last elite RB" read as contradictory when they are two valid
@@ -2545,6 +2615,25 @@
           + ' pts of downside risk by waiting';
       }
 
+      /* THE CONCESSION IS SAID IN THE PROSE, NOT ONLY IN THE BADGE.
+       *
+       * Widening the panel to always offer PATHS_MIN directions means a card can
+       * now sit far below the top — measured across Cory's twelve picks, the
+       * third direction runs from 4.2 to 61.0 points behind. Every clause above
+       * is written for a direction that is genuinely in contention: "right if
+       * you want QB certainty now" reads as a live coin flip whether the option
+       * costs one point or sixty.
+       *
+       * That is the defect I keep committing — prose describing behaviour the
+       * body does not have — and the fix that CREATED the wide cards is the
+       * wrong place to commit it again. The price badge already carries the
+       * number; this makes the sentence agree with it. Silent inside the band,
+       * so nothing changes for a direction that really is close. */
+      if (!withinBand) {
+        whenRight += ' — but it concedes ' + Math.round(price) + ' pts to the top path, so this is '
+          + 'a deliberate departure from the board rather than a close call';
+      }
+
       return {
         key: c.key,
         name: name,
@@ -2563,9 +2652,15 @@
         candidates: c.members.map(m => ({ player: m.player, score: m.score })),
         plan: branch ? branch.rows.slice(0, 2) : [],
         next_pick: branch ? branch.pick : null,
-        price: Math.round((bestScore - c.members[0].score) * 10) / 10,   // >= 0; 0 for the top path
+        price: price,
         when_right: whenRight,
         is_top: i === 0,
+        /* PRICED-ALIKE OR MERELY AVAILABLE — the distinction the band used to
+         * make by DELETING the second kind. A card must never let a 20-point
+         * concession read as an equal alternative, so the flag rides with the
+         * price rather than replacing it, and B can weight the two differently.
+         * `false` here means "a real direction, at a real cost", not "invalid". */
+        within_band: withinBand,
       };
     });
 

@@ -792,12 +792,59 @@ def load_opportunity(cfg: dict, offline: bool) -> dict:
         weekly = None
         # Record the shape we actually received. The audit's point: this code had
         # never run against a real response, and a schema drift would be silent.
+        OPPORTUNITY_PROVENANCE["pbp_seasons_requested"] = list(seasons)
         try:
             OPPORTUNITY_PROVENANCE["pbp_columns"] = sorted(map(str, pbp.columns))[:200]
             OPPORTUNITY_PROVENANCE["pbp_rows"] = int(len(pbp))
             print(f"  pbp: {len(pbp)} rows, {len(pbp.columns)} columns")
         except Exception:  # noqa: BLE001 — diagnostics must never break the build
             pass
+        # ── WHICH SEASONS CAME BACK, READ FROM THE FRAME ─────────────────────
+        #
+        # `seasons` above is what we ASKED FOR. Six fields on every board row —
+        # target_share, wopr, opportunity_share/_z/_adj, games_expected — are
+        # priors built from whatever actually arrived, and they print beside
+        # injury_status as if they were current numbers. Until now the artifact
+        # recorded only `pbp_rows`, so which seasons produced them was an
+        # inference from a row count.
+        #
+        # THAT INFERENCE WAS DOABLE AND C DID IT — 2024 (49492) + 2025 (48771) =
+        # 98263, matching the board exactly (draft/backtest/nflverse_pbp_census.json).
+        # But the nearest competing pair, 2022+2025, is only 58 rows away, so an
+        # upstream revision that size would make the count identify the WRONG
+        # pair rather than fail to match. And it is not hypothetical that a
+        # season can go missing: `import_weekly_data` 404s for 2025 in this
+        # environment, so a neighbouring nfl_data_py call has demonstrably
+        # returned less than it was asked for.
+        #
+        # So it is READ, not inferred, and the source of the reading is declared
+        # — a field that is silently absent reads exactly like one that agrees.
+        try:
+            if "season" in pbp.columns:
+                by_season = pbp["season"].value_counts().to_dict()
+                src = "frame.season"
+            else:  # nflfastR game_id is "<season>_<week>_<away>_<home>"
+                by_season = pbp["game_id"].astype(str).str.slice(0, 4).value_counts().to_dict()
+                src = "frame.game_id-prefix"
+            rows_by_season = {int(k): int(v) for k, v in by_season.items()}
+            observed = sorted(rows_by_season)
+            OPPORTUNITY_PROVENANCE["pbp_seasons_observed"] = observed
+            OPPORTUNITY_PROVENANCE["pbp_rows_by_season"] = dict(sorted(rows_by_season.items()))
+            OPPORTUNITY_PROVENANCE["pbp_seasons_source"] = src
+            if observed != sorted(seasons):
+                # NOT fatal — a build with one season of priors is still better
+                # than none — but it must never be silent, because the six
+                # fields keep printing with the same confidence either way.
+                OPPORTUNITY_PROVENANCE["pbp_seasons_mismatch"] = True
+                print(f"  ! pbp: asked for {sorted(seasons)}, RECEIVED {observed} "
+                      f"— opportunity priors rest on the received set")
+            else:
+                OPPORTUNITY_PROVENANCE["pbp_seasons_mismatch"] = False
+                print(f"  pbp seasons: {observed} (rows {rows_by_season})")
+        except Exception as exc:  # noqa: BLE001 — diagnostics never break the build
+            # Absence would read as agreement. Say why instead.
+            OPPORTUNITY_PROVENANCE["pbp_seasons_source"] = (
+                f"unreadable — {type(exc).__name__}: {exc}")
         metrics = proj_mod.opportunity_metrics(
             pbp, weekly, seasons, cfg.get("recency_weights", [0.7, 0.3]))
         OPPORTUNITY_PROVENANCE["status"] = "ok"

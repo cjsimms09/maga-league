@@ -186,6 +186,7 @@ jobs:
         run: |
           bash netlify-ignore.test.sh
           bash scripts/territory-check.test.sh
+          bash scripts/integrate_staleness.test.sh
           if git rev-parse -q --verify HEAD^2 >/dev/null; then
             mb=$(git merge-base HEAD^1 HEAD^2)
             echo "merge commit detected — checking completeness (base HEAD^1, source HEAD^2)"

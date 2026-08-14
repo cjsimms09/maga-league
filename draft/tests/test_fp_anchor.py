@@ -38,7 +38,19 @@ def test_merge_fp_over_ffc_overrides_and_gap_fills_and_keeps_bye():
     assert merged["1"]["adp"] == 1.0 and merged["1"]["adp_source"] == "fantasypros"
     assert merged["1"]["bye"] == 10                     # FFC's bye preserved onto the FP row
     assert merged["9"]["adp_source"] == "ffc"           # FP miss -> FFC gap-fill survives
-    assert stats == {"primary_priced": 2, "ffc_gap_fill": 1, "total_in_table": 3}
+    # ⚠️ ASSERT THE FIELDS THIS TEST IS ABOUT, NOT THE WHOLE DICT.
+    #
+    # This was `assert stats == {...}` — exact equality on a report — so ADDING a
+    # statistic broke a test that has nothing to do with it. That is a guard
+    # shaped so that improving the thing it guards is a breaking change, which is
+    # how a report stops growing: the next person to consider adding a number
+    # sees a red test and does not bother.
+    #
+    # It went red when `merge_primary_over_ffc` began reporting how many survival
+    # curves rest on a PUBLISHED standard deviation versus a fitted one — which
+    # is exactly the kind of number a merge report should carry.
+    for k, want in (("primary_priced", 2), ("ffc_gap_fill", 1), ("total_in_table", 3)):
+        assert stats[k] == want, (k, stats)
 
 
 def test_build_fp_table_crosswalks_when_coverage_clears_gate(monkeypatch):
