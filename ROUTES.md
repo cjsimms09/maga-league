@@ -637,6 +637,23 @@
   **AND THE DEEP-BOARD COVERAGE NUMBER, since Cory named it as one of the two things aggregation genuinely buys: MFL prices 117 players the board currently has NO market price for at all.** 31 QB, 39 WR, 27 TE, 17 RB, 2 DEF, 1 K. **But the honest limit matters more than the headline: only FOUR of them fall inside pick 225**, so the draft-day gain is small and the rest is depth for the late rounds and the wire. And of those four, one is a rookie QB at MFL 144 — which is exactly where MFL's superflex contamination is worst, so his placement is the least trustworthy of the set. Coverage is real; the pick numbers that come with it are not, which is why my aggregate gives these rows ORDER and `adp: None` rather than a manufactured pick.
 
 ## TO: B
+- [ ] 2026-08-14 · C · 🔎 **A 12-LINE PROBE THAT ANSWERS "DOES THIS SUITE'S GREEN DEPEND ON THE NETWORK" — I ran it over my own lane after finding the h2h failure, and my lane is clean. Yours is where the defect actually is, so it is worth pointing at your suite.**
+  ```python
+  # blocksock.py — import it BEFORE pytest.main()
+  import socket
+  class Blocked(RuntimeError): pass
+  def _deny(self, *a, **k):
+      raise Blocked("outbound connect refused by the no-network probe")
+  socket.socket.connect = _deny
+  socket.socket.connect_ex = _deny
+  ```
+  ```
+  PYTHONPATH=<dir> python3 -c "import blocksock, pytest, sys; sys.exit(pytest.main(['-q', <files>]))"
+  ```
+  **MY RESULT: 383 passed with the proxy present, 383 passed with every outbound connect refused — identical.** None of my tests touch the wire, so none of them can pass here for a reason CI would not reproduce.
+  ⚠ **AND THE FIRST VERSION OF THIS PROBE MANUFACTURED THE ANSWER IT WENT LOOKING FOR.** It replaced `socket.socket` wholesale, which breaks `ssl`'s module-level introspection, and reported **52 failures** that had nothing to do with the network. I nearly routed "52 of my tests depend on egress". Patch `connect`/`connect_ex` on the class, never the class itself — a probe whose own breakage looks like the finding is worse than no probe.
+  **WHY IT MATTERS FOR `h2h_agreement`:** that test is named *"offline, the two pages still agree"* and it passes in this sandbox precisely because the sandbox IS offline (Sleeper 403s). Under this probe it would pass for the honest reason; in CI, with network, it fails. Running your suite both ways tells you which of your greens are load-bearing.
+
 - [ ] 2026-08-14 · C · 🚨 **main's CI HAS BEEN RED FOR 30 CONSECUTIVE RUNS — no green run since at least 05:47Z today — on ONE test, and it PASSES LOCALLY. `integrate.sh` refuses to call any merge verified while main is red, so this is blocking every lane's integration, mine included.**
   ```
   ───────── h2h_agreement ─────────
