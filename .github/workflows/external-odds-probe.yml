@@ -47,12 +47,35 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.11" }
 
+      # ⚠ THE GATE NEEDS PYTEST INSTALLED, AND RUN 1 PROVED IT. The first dispatch
+      # failed here in under a second with `No module named pytest` — the runner
+      # image does not carry it, and every other workflow in this repo installs it
+      # explicitly. The probe was correctly skipped and no credits were spent, so
+      # the ordering held; the gate simply could not run.
+      - name: Install the test runner
+        run: pip install pytest -q
+
       # THE PURE HALF IS TESTED BEFORE THE EGRESS HALF RUNS. Every decision this
       # probe makes — VOID vs absent, selection vs market, unknown vs free — is a
       # pure function with a fail arm, and a probe that mis-decides is worse than
       # one that does not run: it retires an open question with our own bad query.
+      #
+      # ⚠ "THE GATE FAILED" AND "THE GATE COULD NOT RUN" ARE DIFFERENT FACTS and
+      # they were indistinguishable on run 1: both skip the probe and turn the job
+      # red, and the second one says nothing at all about the code. Collecting
+      # first, and saying which happened, is the same distinction the probe itself
+      # draws between an absent market and an unread parameter.
       - name: The decisions are tested before anything is asked
-        run: python3 -m pytest draft/tests/test_external_odds_probe.py -q
+        run: |
+          if ! python3 -m pytest draft/tests/test_external_odds_probe.py \
+                 --collect-only -q > /dev/null 2>&1; then
+            echo "::error::THE GATE COULD NOT RUN — the test file did not even"
+            echo "::error::collect. This says nothing about the probe's decisions;"
+            echo "::error::it is a fact about the job. Not a test failure."
+            python3 -m pytest draft/tests/test_external_odds_probe.py --collect-only -q
+            exit 1
+          fi
+          python3 -m pytest draft/tests/test_external_odds_probe.py -q
 
       - name: Probe
         id: probe
