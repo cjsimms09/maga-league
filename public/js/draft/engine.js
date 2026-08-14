@@ -532,6 +532,26 @@
    * The other six are unaffected: vona, tier_urgency, need, ceiling, keeper, bye
    * and stack all vary on a bundle board (lab_term_degeneracy.js prints the
    * spread for each), so their experiments had something to measure. */
+  /* ── WHICH OF THE TWO A TEST SHOULD PASS, because getting this backwards is
+   *    silent and cost a full session on 2026-08-14 ─────────────────────────
+   *
+   * DEFAULT_WEIGHTS if you are testing a MECHANISM — "does the tier term do what
+   * it claims". Five of the eight terms are zero in MEASURED_WEIGHTS, and a
+   * zeroed term cannot exercise anything, so a mechanism test under production
+   * weights is a test of multiplication by zero. `engine.test.js` is right to
+   * use DEFAULT_WEIGHTS throughout.
+   *
+   * MEASURED_WEIGHTS if you are testing a SURFACE — "is the list Cory sees
+   * ranked / distinct / marked / capped". `app.js` initialises `state.weights`
+   * from this constant, so any other choice grades a board no screen renders.
+   * Measured on the same boards with weights as the only variable: the TOP
+   * recommendation differs at 7 of Cory's 12 picks, and 34 of 120 name slots.
+   *
+   * AND NEVER `|| undefined`. `rec_rows.test.js` and `paths_offer_options.test.js`
+   * both read `(D.defaults && D.defaults.weights) || undefined` — a key that has
+   * never existed on the artifact — so they silently took the mechanism weights
+   * while claiming to test the surface. Both suites now THROW if this export
+   * disappears rather than falling back to anything. */
   const MEASURED_WEIGHTS = { value: 1.0, tier: 0.0, need: 0.0, risk: 0.0, ceiling: 0.0,
     keeper: 1.0, bye: 0.0, stack: 1.0 };
 
@@ -2571,10 +2591,108 @@
     // position, at the same price. Nothing is removed and nothing is reordered —
     // suppressed directions are added back after the ones that were already
     // there. That is what makes this safe to ship eight days out.
-    const ranked = order.map(key => clusters[key])
+    /* ONE ROW PER POSITION — a DIRECTION is a position, not a position×flavour.
+     *
+     * The cluster key is `pos + ':cliff'` or `pos + ':value'`, so one position
+     * can produce two clusters, and both can be in-band. On the live board at
+     * pick 33 — Cory's FIRST pick — that rendered as:
+     *
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
+     *
+     * Three "directions", two of them RB. "Take an RB because the cliff is here"
+     * and "take an RB for value" are two ARGUMENTS for the same direction, and a
+     * panel whose job is to offer options with pros and cons was showing one
+     * option twice. The flavour still decides how the surviving row is NAMED and
+     * priced (its leader carries the cliff/value urgency); it no longer buys a
+     * second row.
+     *
+     * ── CORRECTION, 2026-08-14: I FIRST WROTE THIS TRIO AS "WR Zay Flowers · RB
+     * Travis Etienne · RB D'Andre Swift" AND THAT BOARD DOES NOT EXIST. ───────
+     *
+     * It came from `paths_offer_options.test.js`, which passed
+     * `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults`
+     * has never been a key on the artifact, so every measurement in that file ran
+     * under DEFAULT_WEIGHTS while the app runs MEASURED_WEIGHTS. Re-measured under
+     * the weights the app actually uses:
+     *
+     *   - the real trio at pick 33 is the TE/RB/RB above;
+     *   - under DEFAULT_WEIGHTS the old rule returned ONE path at pick 33, so the
+     *     duplicate I quoted could not have been on that screen either;
+     *   - and under DEFAULT_WEIGHTS the position-repeat defect occurs at NO pick,
+     *     so the board I was reading is the one board on which this bug is invisible.
+     *
+     * THE FIX IS RIGHT AND THE EVIDENCE FOR IT WAS NOT. Kept in full rather than
+     * quietly restated: a corrected number with the wrong one deleted teaches the
+     * next reader nothing about how it got there.
+     *
+     * Collapsing here rather than at render time means every consumer — the
+     * panel, the ledger capture, the tests — sees the same set. Two of them
+     * disagreeing about what a "path" is would be the next defect. */
+    const bestPerPos = {};
+    order.map(key => clusters[key]).forEach(c => {
+      const cur = bestPerPos[c.pos];
+      if (!cur || c.members[0].score > cur.members[0].score) bestPerPos[c.pos] = c;
+    });
+    const ranked = Object.keys(bestPerPos).map(p => bestPerPos[p])
       .sort((a, b) => b.members[0].score - a.members[0].score);
     const inBand = ranked.filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND).length;
-    const chosen = ranked.slice(0, Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN)));
+    const want = Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN));
+
+    /* ⚠ THE FILL MUST NOT REPEAT A POSITION, AND MY FIRST VERSION DID.
+     *
+     * A cluster key is `pos + ':cliff'` or `pos + ':value'`, so ONE position can
+     * produce TWO clusters. On the live board at pick 33, CORY'S FIRST PICK, the
+     * panel offered:
+     *
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
+     *
+     * Three "directions", two of them RB. A panel whose whole job is to offer
+     * options with pros and cons was showing one option twice — the same defect
+     * as the ceiling tiebreak looking like a broken sort, and the same cost: a
+     * reader stops trusting the column.
+     *
+     * ── AND IT IS OLDER THAN I SAID. This paragraph used to read "that was
+     * harmless while only the in-band set rendered — the second flavour almost
+     * never qualified; raising the floor to PATHS_MIN pulled it into view."
+     * RETRACTED: under the weights the app actually runs, all three of those
+     * cards are IN BAND on their own scores at pick 33. The floor did not expose
+     * the duplicate, it was already there — so this is a defect the panel has been
+     * shipping, not one my own widening introduced. Same fix; worse provenance.
+     *
+     * THE IN-BAND PREFIX IS UNTOUCHED, which is what made this safe to ship: every
+     * path that qualified on its own score still renders, in the same place, at
+     * the same price. Only the ADDED ones — the ones there purely to fill up to
+     * PATHS_MIN — prefer a position not already on screen. If nothing else is
+     * available they fall back to the ranked order rather than returning fewer
+     * than the board can support. */
+    /* ⚠ THE CAP. I BROKE IT IN THIS SAME REFACTOR AND ONLY THE WEIGHTS FIX
+     * SHOWED IT (2026-08-14).
+     *
+     * The line this replaced was `ranked.slice(0, Math.min(CFG.PATHS_MAX,
+     * Math.max(inBand, CFG.PATHS_MIN)))` — one expression, capped. Splitting it
+     * into a `want` and a prefix moved the cap onto the FILL only, so an in-band
+     * set larger than PATHS_MAX rendered in full: at pick 113 five positions
+     * price within PATHS_BAND, so the panel drew FIVE cards against a bound the
+     * contract document states as four and `surface_contract.test.js` asserts.
+     *
+     * It hid for a session because `paths_offer_options.test.js` was scoring
+     * with DEFAULT_WEIGHTS instead of the app's MEASURED_WEIGHTS — the wrong
+     * yardstick concealing a real regression is the compounding case, and it is
+     * why the yardstick is worth fixing even when nothing looks wrong.
+     *
+     * `head` is taken BEFORE the fills push onto `chosen`, so `rest` is the true
+     * remainder rather than a window that moves as the array grows. */
+    const head = Math.min(inBand, CFG.PATHS_MAX);
+    const chosen = ranked.slice(0, head);
+    const seen = {};
+    chosen.forEach(c => { seen[c.pos] = 1; });
+    const rest = ranked.slice(head);
+    rest.filter(c => !seen[c.pos]).forEach(c => {
+      if (chosen.length < want) { chosen.push(c); seen[c.pos] = 1; }
+    });
+    rest.filter(c => chosen.indexOf(c) < 0).forEach(c => {
+      if (chosen.length < want) chosen.push(c);
+    });
     // `bestScore` is read off `ranked[0]`, which is `chosen[0]`, so prices are
     // identical to what they were. Computing it from a widened set would silently
     // re-baseline every price badge on the panel.
@@ -2835,10 +2953,46 @@
 
     // Reaching. Proxy-flagged metrics say so, because a manager who drafted a
     // player who later busted looks like a reacher purely in hindsight.
+    /* ⚠ THE REACH TELL IS A MEAN WITH NO REGARD FOR ITS OWN SPREAD, AND THE
+     * SPREAD IS ALREADY IN THE DATA (measured 2026-08-14).
+     *
+     * `reach_delta` carries `sd` and the profile carries `picks_analysed`, so the
+     * standard error is computable and never was computed. Over all ten managers
+     * on the live board:
+     *
+     *   manager        picks   mean      sd     mean/SE
+     *   ds7mmet          40    +7.3   134.2      0.34   <- labelled "reaches"
+     *   Richard2121      40   +12.9   141.2      0.58   <- labelled "reaches"
+     *   MarianSaar       39    -7.0    20.7     -2.10   <- labelled near-market
+     *   B8T3S            40    -5.9    18.3     -2.05   <- labelled near-market
+     *
+     * ONLY TWO OF TEN EXCEED TWO STANDARD ERRORS, AND THEY ARE NOT THE TWO THE
+     * TELL FIRES ON. The threshold is on |mean| alone, and a manager with one or
+     * two enormous outliers (sd 134 against a mean of 7) gets a mean large enough
+     * to trip it. So the "reaches early" flag is, on this board, anti-correlated
+     * with the evidence for reaching.
+     *
+     * ── WHAT I AM DELIBERATELY NOT DOING ──────────────────────────────────
+     *
+     * Not gating the tell, not changing its weight, and NOT touching
+     * `withinPrecision` in survival.js, which reads the same `rd.mean` to shape
+     * the opponent softmax. Several corrections are defensible — shrink by t,
+     * gate on SE, use a robust centre — and NONE of them is measured. Re-fitting
+     * one eight days before the draft would move Layer 2 survival, and through
+     * it VONA, on the strength of a suspicion. The number stays; what changes is
+     * that it now carries how well it is supported, so a reader and a future
+     * experiment can both see it. */
     const rd = profile.reach_delta || {};
+    const rdN = profile.picks_analysed || 0;
+    const rdSe = (rd.sd != null && rdN > 0) ? rd.sd / Math.sqrt(rdN) : null;
+    const rdT = (rdSe && rdSe > 0 && rd.mean != null) ? rd.mean / rdSe : null;
     if (rd.mean != null && Math.abs(rd.mean) >= CFG.TELL_REACH_PICKS) {
       out.push({
         kind: 'reach', weight: Math.abs(rd.mean) / 2,
+        // The support for this tell, published rather than acted on.
+        se: rdSe == null ? null : Math.round(rdSe * 10) / 10,
+        support_t: rdT == null ? null : Math.round(rdT * 100) / 100,
+        well_supported: rdT == null ? null : Math.abs(rdT) >= 2,
         // Relative to this league, not to raw ADP: keepers pull every pick
         // "ahead of market" by construction, so the absolute figure is a
         // shared offset rather than anything about him.
@@ -2846,8 +3000,18 @@
           ? 'reaches ' + rd.mean.toFixed(1) + ' picks earlier than the rest of the league'
           : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1)
             + ' picks later than the rest of the league',
-        detail: rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
-                         : 'measured against that season\'s real ADP',
+        /* THE DETAIL NOW CARRIES SUPPORT AS WELL AS PROVENANCE. `proxy` already
+         * set the precedent: a tell that says how it was measured is one a
+         * reader can discount. "Where it came from" and "whether it is
+         * distinguishable from zero" are both required to read this honestly,
+         * and only the first was here. */
+        detail: (rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
+          : 'measured against that season\'s real ADP')
+          + (rdT != null && Math.abs(rdT) < 2
+            ? ' · WEAK: spread ±' + Math.round(rdSe) + ' picks over ' + rdN
+              + ' picks, so this is not distinguishable from drafting at market'
+            : (rdT != null ? ' · holds at ' + Math.abs(rdT).toFixed(1)
+              + ' standard errors' : '')),
         proxy: !!rd.proxy,
       });
     }
@@ -3390,17 +3554,64 @@
    * The `reason` is appended, never fabricated: an empty reason yields a bare
    * factual line ("Shifted to X.") rather than an invented explanation.
    */
+  /* ⚠ THREE DEFECTS, ONE ROOT: `reason` WAS AN OPAQUE STRING (2026-08-14).
+   *
+   * 1. GRAMMAR, shipped. The app passed `movementReason()` = "WR run on"; the
+   *    almost branch wrapped it as `' on the ' + reason`, so the live line read
+   *    "closed to within 1.5 pts ON THE WR RUN ON — didn't pass." The suite never
+   *    saw it because the suite passed "WR run" — a DIFFERENT format from the one
+   *    production uses. A test that supplies its own input shape agrees with
+   *    itself; this is that hazard, in the string layer.
+   *
+   * 2. FALSE CAUSALITY. `movementReason` names EVERY running position, and the
+   *    em-dash construction is causal in English. "Shifted to Colston Loveland —
+   *    RB run on." attributes a TE rising to an RB run it has nothing to do with.
+   *    The app's own comment says "factual co-occurrence, not a causal claim" —
+   *    correct about the code and untrue of the sentence it produces.
+   *
+   * 3. UNKNOWN TOP READ AS SAME TOP. The moved branch required both ids non-null,
+   *    so a null id FELL THROUGH to the runner-up branch and narrated a gap story
+   *    while the top had actually changed — measured: prev Flowers / curr
+   *    Loveland with a null id yields "Y closed to within 2.0 pts — didn't pass."
+   *    A null must not resolve to the reassuring answer.
+   *
+   * THE FIX FOR ALL THREE IS STRUCTURE. The caller passes `runs` (positions) and
+   * `pos` (the position this line is about); phrasing lives here, once, so the
+   * two callers cannot disagree about format and relevance is checkable. */
   function movementLine(prev, curr, opts) {
     opts = opts || {};
     var CLOSE = opts.closeBand != null ? opts.closeBand : 3.0;   // "within N pts"
     var SHRINK = opts.minShrink != null ? opts.minShrink : 0.5;  // gap must actually close
-    var reason = opts.reason || '';
+    var runs = Array.isArray(opts.runs) ? opts.runs.filter(Boolean) : [];
+    var label = runs.length
+      ? runs.join('/') + ' run' + (runs.length > 1 ? 's' : '') : '';
     if (!prev || !curr || !curr.topName) return { kind: 'steady', line: '' };
 
-    if (prev.topId != null && curr.topId != null
-        && String(prev.topId) !== String(curr.topId)) {
+    /* A run at the position that moved may have caused it; a run elsewhere is
+     * concurrent. Only the first earns the causal em-dash. */
+    var relatedTo = function (pos) { return !!(label && pos && runs.indexOf(pos) >= 0); };
+    var aside = function (pos) { return label && !relatedTo(pos) ? ' ' + label + ' also on.' : ''; };
+
+    /* SAME TOP, OR UNKNOWN? Ids first; names when an id is missing on either
+     * side; and when neither is available the answer is UNKNOWN and the line says
+     * nothing. Residual, stated: two different players sharing a name with both
+     * ids absent would read as "same top" — strictly better than the old
+     * behaviour, which read ANY missing id as "same top". */
+    var sameTop;
+    if (prev.topId != null && curr.topId != null) {
+      sameTop = String(prev.topId) === String(curr.topId);
+    } else if (prev.topName && curr.topName) {
+      sameTop = prev.topName === curr.topName;
+    } else {
+      sameTop = null;
+    }
+    if (sameTop === null) return { kind: 'steady', line: '' };
+
+    if (sameTop === false) {
+      var mPos = curr.topPos || null;
       return { kind: 'moved',
-        line: 'Shifted to ' + curr.topName + (reason ? ' — ' + reason : '') + '.' };
+        line: 'Shifted to ' + curr.topName
+          + (relatedTo(mPos) ? ' — ' + label + ' on' : '') + '.' + aside(mPos) };
     }
 
     // Same top: did the runner-up close in without passing?
@@ -3411,9 +3622,11 @@
     if (prevGap != null && currGap != null
         && currGap >= 0 && currGap <= CLOSE && currGap < prevGap - SHRINK) {
       var name = curr.secondName || 'the runner-up';
+      var sPos = curr.secondPos || null;
       return { kind: 'almost',
         line: name + ' closed to within ' + currGap.toFixed(1) + ' pts'
-          + (reason ? ' on the ' + reason : '') + " — didn't pass." };
+          + (relatedTo(sPos) ? ' on the ' + label : '') + " — didn't pass."
+          + aside(sPos) };
     }
     return { kind: 'steady', line: '' };
   }
@@ -3421,8 +3634,17 @@
   /* ── LIVE STACK ROUTES ──────────────────────────────────────────────────────
    *
    * Enumerate the same-team QB↔pass-catcher completions still on the board,
-   * ranked by the stack value the ENGINE ITSELF uses (CFG.STACK_*), so the line
-   * cannot claim a value the scorer would not. Single-partner routes rank first
+   * priced by `correlationAdjustment` — the function the COMPOSITE scores — so
+   * the line cannot claim a value the scorer would not.
+   *
+   * ⚠ THIS PARAGRAPH SAID "ranked by the stack value the ENGINE ITSELF uses
+   * (CFG.STACK_*)" AND THAT WAS THE BUG WEARING ITS OWN JUSTIFICATION. Reading
+   * the raw constants is exactly what let the badge skip the competition penalty
+   * and recommend picks the composite was docking (see the note at the pricing
+   * call below). A comment claiming a property the code does not have is worse
+   * than no comment: it is what a reviewer checks INSTEAD of the code.
+   *
+   * Single-partner routes rank first
    * — exp 6's finding that the FIRST partner is the value; a second catcher is a
    * flattened marginal and sorts below.
    *
@@ -3468,16 +3690,49 @@
       var qbs = mates.filter(function (m) { return m.position === 'QB'; });
       var catchers = mates.filter(function (m) { return m.position === 'WR' || m.position === 'TE'; });
 
-      var value = 0, anchor = null;
+      var anchor = null;
       if (p.position === 'QB' && catchers.length) {
-        value = catchers[0].position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = catchers[0];
       } else if ((p.position === 'WR' || p.position === 'TE') && qbs.length) {
-        value = p.position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = qbs[0];
       } else {
-        return; // same-team competition is a penalty, not a route to complete
+        return; // no pairing exists at all — not a route
       }
+
+      /* ⚠ THE BADGE USED TO SCORE THE ROUTE ITSELF, AND IT SCORED ONLY THE HALF
+       * THAT FLATTERS IT (2026-08-14).
+       *
+       * This read the bonus straight off `CFG.STACK_QB_TE / STACK_QB_WR1` and
+       * skipped the competition penalty on the stated grounds that "same-team
+       * competition is a penalty, not a route to complete". True of whether a
+       * ROUTE EXISTS; false of what the route is WORTH — and the badge is read as
+       * a recommendation, not as a topology fact.
+       *
+       * `correlationAdjustment` — the function the COMPOSITE actually scores —
+       * adds the pairing bonus AND subtracts `SAME_TEAM_COMPETITION` per
+       * same-team pass-catcher already held. So the two disagreed, measured:
+       *
+       *   Chase + Burrow, considering a 2nd CIN receiver   badge ⚡  term  +2
+       *   + Higgins,      considering a 3rd CIN catcher    badge ⚡  term  -4
+       *   + Gesicki,      considering a 4th                badge ⚡  term  -6
+       *
+       * Chase is a KEEPER, so "keep Chase, stack Burrow, add Higgins" is exactly
+       * the path this badge talks Cory down — and then it keeps saying "extends
+       * Burrow stack" while the model docks the pick for splitting one pie.
+       *
+       * ONE DERIVATION NOW. The value is the composite's own number, so the badge
+       * cannot disagree with the score by construction, and the two copies of the
+       * stack constants cannot drift apart. A route whose NET value is not
+       * positive is not offered — the panel's job is live routes worth taking.
+       *
+       * `league`/`currentPick` are passed through when the caller has them. Absent,
+       * `correlationAdjustment` sees round 1 and skips its playoff-schedule branch
+       * — which is inert either way today: `playoff_sos` is null on all 686 board
+       * rows, so that term has never once fired in production. */
+      var value = C.correlationAdjustment(p, {
+        roster: roster, league: opts.league || null, currentPick: opts.currentPick || null,
+      }).value;
+      if (!(value > 0)) return;
 
       // First pairing on this team (single) vs an add-on to an existing QB+catcher pair (double).
       var single = !(qbs.length && catchers.length);

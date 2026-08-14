@@ -34,11 +34,21 @@
  *
  * ── AND THE PART I HAVE TO OWN ────────────────────────────────────────────
  *
- * `renderRecommendations` is 377 LINES. A third of the decision surface is one
+ * `renderRecommendations` is 436 LINES. A third of the decision surface is one
  * function emitting a headline, a rationale, a timing block, a tier-cliff card,
  * an against-case and a chip grid. Cory read the same player appearing in three
  * of those as "Gibbs listed twice". That is not a layout problem B can solve by
  * moving things; it is one function doing six jobs, and splitting it is mine.
+ *
+ * ── AND IT IS GROWING, WHICH IS THE HONEST WAY TO REPORT THIS BUMP ────────
+ *
+ * This said 377 until 2026-08-14 and `panel_spec.test.js` went red on it, which
+ * is exactly what that assertion is for. I bumped the number because the code
+ * really did grow — the `.rec-promoted` mark for ceiling tiebreaks — but a
+ * staleness guard that I satisfy by editing the claim every time is a guard I am
+ * training myself to ignore. So: +59 lines since the split was called mine, and
+ * NONE of them were the split. Recorded here rather than in a task list, because
+ * the next person to bump this number should have to read that sentence first.
  *
  * Run: node draft/tools/panel_spec.js            (human-readable)
  *      node draft/tools/panel_spec.js --json     (for B to build from)
@@ -50,7 +60,7 @@
  * that is cheap to move from one that is wired to a lot. */
 const PANELS = [
   // ── DECIDES ───────────────────────────────────────────────────────────
-  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 377,
+  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 436,
     question: 'Who should I take right now?',
     means: 'A ranked list of available players scored on projection, positional '
       + 'scarcity and what survives to my next pick. The top row is the model\'s pick.',
@@ -65,9 +75,14 @@ const PANELS = [
       + '(fill TE, fill FLEX). The engine then picks the player for that role.',
     changes_it: 'the pick on the clock; a seat being filled early',
     reads: ['seat_plan.json seats[]'],
-    note: 'CORY ASKED FOR EXACTLY THIS AND DOES NOT KNOW HE HAS IT: "a look ahead '
-      + 'to what complete strategy may be for rest of draft". Twelve seats exist; '
-      + 'ONE is rendered. The other eleven are the look-ahead, unbuilt.' },
+    note: 'THE LOOK-AHEAD CORY ASKED FOR — "a look ahead to what complete strategy '
+      + 'may be for rest of draft" — and as of 2026-08-14 all twelve seats render, '
+      + 'not one. This note said "ONE is rendered ... the other eleven are the '
+      + 'look-ahead, unbuilt" for days while the artifact already held every seat. '
+      + 'IT LEADS WITH THE SLOT, NOT THE NAME, and B must not invert that: the '
+      + 'artifact\'s own assumption is that the SEAT ORDER survived ADP drift from '
+      + '-25% to +15% and the NAMES did not, so twelve names billed as a plan would '
+      + 'be a confident list of the least robust thing in the file.' },
 
   { fn: 'renderPositionRecs', weight: 'DECIDES', lines: 35,
     question: 'Who is the best man left at each position?',
@@ -88,13 +103,24 @@ const PANELS = [
   // ── TIMES ─────────────────────────────────────────────────────────────
   { fn: 'renderSurvival', weight: 'TIMES', lines: 112,
     question: 'Will he still be there at my next pick?',
-    means: 'Probability each player lasts until my next turn, from ADP and the '
-      + 'number of picks in between. 86% means he is GONE 86% of the time.',
+    means: 'Probability each player LASTS until my next turn, from ADP and the '
+      + 'number of picks in between. 86% means he is STILL THERE 86% of the time. '
+      + 'The panel header says exactly this ("Chance they last to your pick N"), '
+      + 'the bar is that probability, and green = likely to last.',
     changes_it: 'the room picking; my next pick getting closer',
     reads: ['adjusted_adp', 'adp_sd', 'pick_order.my_picks'],
     note: 'THE STRONGEST CHART CANDIDATE ON THE PAGE. It is a decay curve per '
       + 'candidate and it renders as a percentage in a chip. A reader cannot see '
-      + 'from "86%" whether the cliff is at pick 20 or pick 32.' },
+      + 'from "86%" whether the cliff is at pick 20 or pick 32. '
+      + '⚠ THIS ENTRY SAID "86% means he is GONE 86% of the time" UNTIL 2026-08-14 '
+      + '— exactly backwards, in the sentence a reader trusts BECAUSE it looks '
+      + 'like it is resolving the ambiguity. B builds the layout from this file, '
+      + 'so any emphasis, colour or copy decision taken from it would have been '
+      + 'inverted. The confusion is genuine and lives on the screen: THE SAME '
+      + 'NUMBER is shown as "lasts" here and as "~X% gone by next" on the rec '
+      + 'card. Both panels are labelled correctly; only this description was '
+      + 'wrong. Pinned in draft/tests/panel_spec.test.js against the shipped '
+      + 'header rather than against prose.' },
 
   { fn: 'renderRuns', weight: 'TIMES', lines: 19,
     question: 'Is the room emptying a position faster than expected?',
@@ -403,8 +429,17 @@ const PANELS = [
     means: 'A side-by-side of two chosen players with the dollar-gap breakdown.',
     changes_it: 'me picking two to compare; the board changing',
     reads: ['state.compare', 'E.dollarGap'],
-    note: 'THE INTERACTIVE TOOL CORY ASKED FOR ("I can click for more info") and '
-      + 'it already exists — it just needs a way in from the rec cards.' },
+    note: 'THE INTERACTIVE TOOL CORY ASKED FOR ("I can click for more info"). '
+      + 'THIS NOTE SAID IT "just needs a way in from the rec cards" AND THE WAY IN '
+      + 'ALREADY EXISTED — every rec card carries a ⚖️ `data-compare` button '
+      + '(app.js:4519) and the document-level handler has been wired the whole '
+      + 'time (app.js:8446). A spec that reports work as outstanding when it is '
+      + 'done costs the same as one that reports it done when it is not: B builds '
+      + 'from this file. Corrected 2026-08-14 and pinned in panel_spec.test.js. '
+      + 'WHAT IS ACTUALLY LEFT IS DISCOVERABILITY, which is B\'s: the affordance '
+      + 'is a bare emoji among four buttons and nothing says what comparing gets '
+      + 'you. Note also that the tray\'s breakdown was showing one signal as two '
+      + 'until today — see §3/§6 of WAR-ROOM-SURFACE-CONTRACT.md.' },
   { fn: 'renderDeviationBadge', weight: 'CONTEXT', lines: null,
     question: 'Why is this pick so far from where the market has him?',
     means: 'When a recommendation departs from ADP, which scoring terms bought '

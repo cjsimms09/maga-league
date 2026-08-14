@@ -39,7 +39,8 @@
     // both need the networked build. Until then this is a less-wrong constant,
     // and it is labelled as such rather than presented as calibrated.
     ADP_SD_FLOOR: 3.0,          // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,          // was 0.22 — see above
+    ADP_SD_RATE: 0.15,          // was 0.22 — see above. GRADED against 219
+                                // published dispersions 2026-08-14: measures 0.11. HELD, see keepers.py.
     ADP_SD_CAP: 15.0,           // beyond this the curve is flat regardless
     NEAR_HORIZON: 24,           // picks over which Layer 2 is fully trusted
     BLEND_DECAY: 12,            // picks over which Layer 2's weight decays past the horizon
@@ -80,6 +81,12 @@
     // again above market. Three straight years is not a coincidence.
     AFFINITY: { 2: 1.7, 3: 2.4, 4: 3.0 },
     RUN_WINDOW: 10,
+    /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
+     * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
+     * of the number it grades against — the two would agree until somebody tuned
+     * one. It is the strip's only quantitative claim, so it belongs where both
+     * the claim and its resolution can read it. */
+    LRM_SAFE_P: 0.85,
     RUN_DAMPING: 0.5,
     RUN_MIN: 0.6,
     RUN_MAX: 1.8,
@@ -193,9 +200,64 @@
     return adpSd(adpOf(p), p.adp_sd) * (d && d.applied ? d.sdScale : 1);
   }
 
+  /* ⚠️ BOARD SLOTS AND SELECTIONS ARE TWO SCALES AND THIS FILE USED ONLY ONE.
+   *
+   * `adpOf` returns `adjusted_adp`, which counts SELECTIONS — keepers.py maps
+   * market ADP onto the live sequence, with kept players removed from the
+   * numbering. Every pick number handed to this module is a BOARD SLOT, keeper
+   * slots included. They were compared directly.
+   *
+   * keepers.py already has the converter and REFUSES rather than defaulting:
+   *
+   *     live_index_of: no board rows. REFUSING to fall back to the pick number
+   *     — that is exactly the scale confusion this exists to fix.
+   *
+   * `grab_by.py:233` calls it. This file had ZERO conversions — grep for
+   * `live_index` in it returned 0. One rule, implemented on one side.
+   *
+   * MEASURED COST at my first pick, board slot 33:
+   *
+   *                        today (3 keepers)     after keeper lock (17)
+   *     live index of 33         30                      15
+   *     Josh Allen          4.0% vs 1.5%           61.8% vs 1.5%
+   *     A.J. Brown          0.0% vs 0.0%           95.9% vs 0.0%
+   *     Nico Collins        0.2% vs 0.0%           97.4% vs 0.0%
+   *
+   * Small today because only my three keepers are on the board. THE SLATE LOCKS
+   * 20 AUGUST AND THE DRAFT IS THE 22nd, so the live error on the night is the
+   * right-hand column: the board says a 96%-available receiver is certainly
+   * gone. It understates survival, which manufactures urgency and makes the
+   * tool reach.
+   *
+   * B reported "Josh Allen reads 98% where he should read 61%". The mechanism B
+   * named was a different defect (applySlot, fixed separately) — but 61% is
+   * this one's correct post-lock answer, to a tenth.
+   */
+  /** Observable counters, so "did the conversion actually run" is a fact a test
+   *  and a surface can read rather than a thing anyone assumes. */
+  const SCALE = { converted: 0, unconverted: 0 };
+  function liveIndexOf(boardPick, ctx) {
+    const rows = (ctx && ctx.pickBoard) || null;
+    if (!rows || !rows.length) {
+      // NOT a silent identity. keepers.py refuses here; refusing in the browser
+      // would blank the war room mid-draft, so this converts by identity AND
+      // records that it did, so a surface can say the scale is unconverted
+      // instead of quietly showing numbers from the wrong one.
+      SCALE.unconverted += 1;
+      return boardPick;
+    }
+    SCALE.converted += 1;
+    let n = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r.keeper_slot && Number(r.overall) <= boardPick) n += 1;
+    }
+    return n;
+  }
   // =============================================== Layer 1 — ADP baseline
   function layer1Taken(player, pick, ctx) {
-    return normalCdf(pick, effectiveAdp(player, ctx), effectiveSd(player, ctx));
+    return normalCdf(liveIndexOf(pick, ctx),
+                     effectiveAdp(player, ctx), effectiveSd(player, ctx));
   }
 
   /**
@@ -959,7 +1021,10 @@
   }
 
   // ======================== Layer 3 — live Bayesian run detection (hazard) ====
-  function runMultipliers(recentPicks, board, currentPick) {
+  // `ctx` is OPTIONAL and last so no existing caller breaks. Without it
+  // liveIndexOf converts by identity and increments SCALE.unconverted, which is
+  // the pre-fix behaviour made VISIBLE rather than silently retained.
+  function runMultipliers(recentPicks, board, currentPick, ctx) {
     const out = {};
     if (!recentPicks || recentPicks.length < 4) return out;
     const window = recentPicks.slice(-CFG.RUN_WINDOW);
@@ -972,8 +1037,13 @@
     const expected = {};
     let expTotal = 0;
     (board || []).forEach(pl => {
-      const mass = normalCdf(currentPick, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
-        - normalCdf(start, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
+      // SAME SCALE FIX. This estimates how many players of each position the
+      // room "should" have taken between two picks; both bounds are board slots
+      // and adpOf is on the selection scale, so the window was measured in the
+      // wrong units and the drift correction inherited it.
+      const liveNow = liveIndexOf(currentPick, ctx), liveStart = liveIndexOf(start, ctx);
+      const mass = normalCdf(liveNow, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd))
+        - normalCdf(liveStart, adpOf(pl), adpSd(adpOf(pl), pl.adp_sd));
       if (mass > 0) {
         expected[pl.position] = (expected[pl.position] || 0) + mass;
         expTotal += mass;
@@ -1515,7 +1585,114 @@
     return out;
   }
 
-  const api = { resolveSurvival, resolveRun,
+  /* ══ RESOLVE THE LAST-RESPONSIBLE-MOMENT CALLS ═════════════════════════
+   *
+   * The LRM strip makes the most actionable claim on the war room: "startable QB
+   * safe until pick 73". It has been CAPTURED since decision-capture went in
+   * (`PredLedger.lrm`, method `survival-snapshot-v0`) and GRADED BY NOTHING —
+   * one of four open loops, and the one that resolves entirely inside the draft.
+   * If it is not closed before 22 August the evidence is not recoverable later,
+   * which is the same shape as the in-season capture gap.
+   *
+   * ── WHY THIS IS A HIT RATE AND NOT A BRIER SCORE ───────────────────────
+   *
+   * `resolveSurvival` scores probabilities, so Brier is right there. An LRM call
+   * is NOT a probability — it is a DEADLINE produced by thresholding one at 0.85.
+   * The only number the strip commits to is that threshold, so the honest grade
+   * is: of the calls that said "safe until N", how often was somebody from that
+   * pool actually still there at N? That rate belongs against 0.85, and a gap
+   * between them is calibration evidence rather than a bug.
+   *
+   * ── WHAT COUNTS AS THE CALL COMING TRUE ────────────────────────────────
+   *
+   * The claim is about the POOL, not the named target: the strip says a startable
+   * option survives, and names one only so the reader can check it. So a call
+   * hits when ANY member of the pool it was computed over is still undrafted when
+   * pick N arrives. The capture stores the pool ids for exactly this reason; a
+   * capture without them is skipped rather than graded against the target alone,
+   * because grading the named man would be a harder claim than the one made.
+   *
+   * SAME BOUNDARY AS `resolveSurvival`, and for the same reason: `by_pick` is
+   * one of CORY'S OWN picks, so a player taken AT it was taken BY HIM — the call
+   * coming true. Strictly-before is the test.
+   */
+  function resolveLrm(captures, opts) {
+    opts = opts || {};                    // never `ctx` — see resolveSurvival
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.player_id != null;
+    });
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+    const takenAt = {};
+    picks.forEach(function (p) { takenAt[String(p.player_id)] = Number(p.overall); });
+
+    const rows = [], noDeadline = [];
+    (captures || []).forEach(function (cap) {
+      const payload = cap.payload || cap;
+      const list = payload.last_responsible_moment || [];
+      const from = Number(cap.pick != null ? cap.pick : payload.from_pick);
+      list.forEach(function (r) {
+        ['startable', 'elite'].forEach(function (band) {
+          /* ⚠ `Number(null)` IS 0 AND `isFinite(0)` IS TRUE, so my first version
+           * graded a NULL DEADLINE as a deadline of pick 0 — which every pool
+           * trivially survives, scoring a free HIT. Measured on a constructed
+           * case: a TE row with `elite_by: null` came back "by 0 · HIT".
+           *
+           * A null here is not a deadline at all. It is the strip saying "elite
+           * tier gone — there is no safe moment left", which is a DIFFERENT claim
+           * and a real one. Counting it as a satisfied deadline would inflate the
+           * hit rate exactly where the model admitted it had nothing to offer.
+           * Skipped and COUNTED, so it shows up as unresolved rather than
+           * disappearing into the numerator. */
+          const raw = r[band + '_by'];
+          if (raw == null) { noDeadline.push({ position: r.position, band: band }); return; }
+          const by = Number(raw);
+          const pool = r[band + '_pool_ids'];
+          if (!isFinite(by) || by <= 0 || !Array.isArray(pool) || !pool.length) return;
+          if (reached < by) return;                  // not resolvable yet
+          const alive = pool.filter(function (id) {
+            const n = takenAt[String(id)];
+            return !(n != null && n > from && n < by);
+          });
+          rows.push({
+            position: r.position, band: band, from_pick: from, by_pick: by,
+            pool_size: pool.length, survivors: alive.length,
+            hit: alive.length > 0,
+            target: r[band + '_target'] || null,
+          });
+        });
+      });
+    });
+
+    const n = rows.length;
+    const hits = rows.filter(function (r) { return r.hit; }).length;
+    return {
+      n: n,
+      hits: hits,
+      hit_rate: n ? hits / n : null,
+      /* THE NUMBER THE STRIP COMMITTED TO. Reported beside the outcome so the
+       * comparison is the reader's, not a verdict I baked in. */
+      implied: CFG.LRM_SAFE_P,
+      calibration_gap: n ? (hits / n) - CFG.LRM_SAFE_P : null,
+      by_band: ['startable', 'elite'].map(function (b) {
+        const sub = rows.filter(function (r) { return r.band === b; });
+        return { band: b, n: sub.length,
+          hits: sub.filter(function (r) { return r.hit; }).length,
+          hit_rate: sub.length ? sub.filter(function (r) { return r.hit; }).length / sub.length : null };
+      }),
+      rows: rows,
+      /* THE "NO SAFE MOMENT LEFT" CALLS, kept apart from the scored ones. They
+       * are a real claim and a gradeable one, but not THIS grade — folding them
+       * in would credit the model for the calls where it offered no deadline. */
+      no_deadline: noDeadline,
+      /* A NULL IS NOT A SCORE. Nothing resolvable yet means exactly that, and
+       * the caller must not read `hit_rate: null` as a failure. */
+      resolvable: n > 0,
+    };
+  }
+
+  const api = { resolveSurvival, resolveRun, resolveLrm,
     expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,
@@ -1529,6 +1706,13 @@
     positionSoftmax, poolSoftmax, memoStats, resetMemoStats,
     bumpBoard, boardVersion,
     conservedSurvival, solveTilt,
+    // THE SCALE CONVERTER AND ITS COUNTERS, EXPORTED ON PURPOSE. "Did the
+    // board-slot -> live-selection conversion actually run" must be a fact a
+    // test and a surface can read, not a thing anyone assumes. `SCALE` is the
+    // live evidence: unconverted > 0 with a pick board present means the
+    // context is not being threaded and every survival number is on the wrong
+    // scale, which is exactly how this defect survived until 2026-08-14.
+    liveIndexOf, SCALE,
   };
   global.DraftSurvival = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

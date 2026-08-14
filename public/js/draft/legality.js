@@ -102,6 +102,7 @@
     var hard = st.missing.filter(function (s) { return !s.streamable; });
     var soft = st.missing.filter(function (s) { return s.streamable; });
     var hardCount = hard.reduce(function (n, s) { return n + s.missing; }, 0);
+    var softCount = soft.reduce(function (n, s) { return n + s.missing; }, 0);
     var left = Number(picksLeft);
     if (!Number.isFinite(left)) left = Infinity;
 
@@ -119,10 +120,25 @@
       hardMissing: hard,
       softMissing: soft,
       hardCount: hardCount,
+      softCount: softCount,
       picksLeft: left,
       // TRUE when every remaining pick is spoken for by a mandatory slot. Not a
       // hard filter — a suppression trigger for paths that would waste one.
       mustDraftNow: hard.length > 0 && hardCount >= left,
+      /* THE ONESIE SQUEEZE — REPORTED, AND IT CHANGES NOTHING BY ITSELF.
+       *
+       * TRUE when the open slots (streamable ones included) no longer all fit in
+       * the picks remaining. `status` deliberately ignores streamable slots — an
+       * empty DEF never reads ILLEGAL however late it is, which is a recorded
+       * decision — so there was NO field on this object that could distinguish
+       * "two onesies open with eight picks left" from "two onesies open with
+       * zero". A consumer wanting to say something about the endgame had to
+       * recompute it, and none did.
+       *
+       * Deliberately NOT wired to suppression, the status, or `deliberate`.
+       * Reversing the onesie rule is Cory's call and it is routed; publishing the
+       * quantity it turns on is what lets that call be made from evidence. */
+      onesieSqueeze: softCount > 0 && (hardCount + softCount) >= left,
       line: line(st, hard, soft, left),
     };
   }
@@ -138,8 +154,33 @@
       }).join(', ') + (Number.isFinite(left) ? ' · ' + left + ' picks left' : ''));
     }
     if (soft.length) {
+      /* THE CLOCK WAS MISSING FROM THIS BRANCH ONLY (2026-08-14).
+       *
+       * The hard branch above appends `· N picks left`; this one never did. So a
+       * reader with DEF and K open saw the SAME SENTENCE at twelve picks left and
+       * at zero — "DEF/K empty (streamable — by design?)" — with nothing on the
+       * strip to tell the two apart. Measured on Cory's real board: identical text
+       * at picks 88, 93, 108, 113, 128 and 133, while `picksLeft` ran 7 down to 2.
+       *
+       * ⚠ AND THE STATUS IS RIGHT AS IT STANDS — I CHECKED BEFORE ASSUMING
+       * OTHERWISE. My first reading was that "by design?" at zero picks left is a
+       * reassuring sentence over an unfillable lineup, and that reading is wrong
+       * on the mechanism: THE DRAFT IS NOT THE LINEUP DEADLINE. The draft is
+       * 22 August and week 1 is mid-September, so an empty DEF or K at the last
+       * pick is filled off the wire in the three weeks between — which is exactly
+       * what `exitSummary` already writes down as the plan ("claim Tuesday; wire
+       * targets pre-loaded"). Calling that ILLEGAL would be the false label, not
+       * the true one, and `legality.test.js` calls the rule "the whole revision".
+       *
+       * It is not FREE — the roster is 15 (9 + 6 bench), so claiming two onesies
+       * into a full roster costs two drops. `priceOnesie` already prices that as
+       * "the bench slot is the real cost". Priced, not prohibited.
+       *
+       * So the only real defect here was the ASYMMETRY: the count is a fact, and
+       * withholding it from one branch was never part of any decision. */
       parts.push(soft.map(function (s) { return s.slot; }).join('/')
-        + ' empty (streamable — by design?)');
+        + ' empty (streamable — by design?)'
+        + (Number.isFinite(left) ? ' · ' + left + ' picks left' : ''));
     }
     return head + ' · ' + parts.join(' · ');
   }

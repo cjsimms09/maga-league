@@ -124,6 +124,37 @@ const OUTCOMES = {
   forecast_resolution: [false, 'this IS a resolution row'],
   survival_resolved: [false, 'this IS a resolution row — the grade for a survival call'],
   run_resolved: [false, 'this IS a resolution row — the grade for a run call'],
+  lrm_resolved: [false, 'this IS a resolution row — the grade for an LRM deadline'],
+};
+
+/* ══ WAITING ON AN OUTCOME IS NOT THE SAME AS NOBODY BUILT IT ═════════════
+ *
+ * Every open loop printed identically as a red row, and three of them have been
+ * red since this tool was written for a reason no work can change: the outcome
+ * that would resolve them does not exist yet. A section that is permanently red
+ * with no way to act on it is the muted-alarm shape this project keeps
+ * criticising elsewhere — it trains the reader to skip the block, and the day a
+ * genuinely-forgotten loop appears there it reads as more of the same.
+ *
+ * `resolves_when` names the event, so the two states are legible:
+ *
+ *   BLOCKED   the grader cannot be written usefully yet — no outcomes to grade
+ *   OPEN      nothing is stopping this but the work
+ *
+ * This does NOT excuse them. A blocked loop still needs its resolver built
+ * before the outcomes arrive, or the first week of data lands with nowhere to go
+ * — which is exactly how the in-season capture gap happened. It says WHEN, so
+ * "why is this still red" has an answer other than "nobody got to it".
+ *
+ * DELIBERATELY A SHORT, NAMED LIST. Anything not in it is OPEN, so a new
+ * ungraded kind cannot inherit a blocked excuse by default — the same
+ * default-is-violation shape the board-field tables use. */
+const RESOLVES_WHEN = {
+  doctrine: 'the season the enrolled plan produced — and there is no enrolled '
+    + 'plan today, the Early-QB race was voided',
+  doctrine_decline: 'the season, against the branch not taken',
+  shadow_pick: 'weekly scores — the counterfactual is priced in dollars, which '
+    + 'do not exist until week 1',
 };
 
 function scan() {
@@ -215,9 +246,23 @@ if (require.main === module) {
 
   console.log('\n  ── OPEN LOOPS: predicted, gradeable, never graded ──────────────');
   if (openLoops.length) {
-    openLoops.forEach(r => console.log('  🔴 ' + r.kind.padEnd(24) + r.why));
-    console.log('\n  These are claims the model makes and never learns from. Each one is a');
-    console.log('  season of evidence that does not accumulate.');
+    const nowable = openLoops.filter(r => !RESOLVES_WHEN[r.kind]);
+    const waiting = openLoops.filter(r => RESOLVES_WHEN[r.kind]);
+    nowable.forEach(r => console.log('  🔴 ' + r.kind.padEnd(24) + r.why));
+    if (nowable.length) {
+      console.log('\n  Nothing is stopping these but the work. Each is a claim the model');
+      console.log('  makes and never learns from.');
+    } else {
+      console.log('  none that could be closed today.');
+    }
+    if (waiting.length) {
+      console.log('\n  ── BLOCKED ON AN OUTCOME, NOT ON WORK ──────────────────────────');
+      waiting.forEach(r => console.log('  ⏳ ' + r.kind.padEnd(24) + 'resolves when: '
+        + RESOLVES_WHEN[r.kind]));
+      console.log('\n  Still owed a resolver BEFORE those outcomes land. A grader written');
+      console.log('  the week the data arrives is a week of data with nowhere to go —');
+      console.log('  which is how the in-season capture gap happened.');
+    }
   } else {
     console.log('  none — every gradeable kind that is captured is also resolved.');
   }

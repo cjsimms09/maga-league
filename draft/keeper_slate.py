@@ -59,8 +59,32 @@ def assess_slate(expected_teams, designations, placements=None, keeper_lock_pass
     if not placed:
         status = "predicted"
         confirmed = False
-        reason = ("no keeper PLACEMENTS on the draft yet — the board is built on PREDICTED "
-                  "opponent keepers; undesignated teams are modeled, not assumed empty")
+        # ⚠️ THIS WAS A STATIC STRING ASSERTING PIPELINE BEHAVIOUR, AND IT WAS
+        # FALSE — twice over (2026-08-14).
+        #
+        # It read: "the board is built on PREDICTED opponent keepers; undesignated
+        # teams are modeled, not assumed empty". Measured by injecting the
+        # predicted slate as live designations and reading `kept_player_ids`:
+        #
+        #   injected            6 designating teams / 17 keepers
+        #   keepers.json        holds all 6 / 17          (ingestion works)
+        #   slate 'predicted'   kept_player_ids = 3       (MINE ONLY)
+        #   slate 'confirmed'   kept_player_ids = 17
+        #
+        # The board is not built on predicted opponent keepers. It is built on NO
+        # opponent keepers — `_keeper_map_for_board` withholds every designation
+        # that is not mine until the slate confirms, which is Cory's own ruling of
+        # 2026-08-11 and correct. The string described a mechanism that does not
+        # exist, in the field a reader consults to find out what the board did.
+        #
+        # DERIVED FROM THE COUNTS, so it cannot describe a pipeline it is not
+        # part of. What this function knows is designations and placements; what
+        # the BOARD does with them is build.py's to stamp, and it does.
+        reason = (
+            "%d/%d team(s) have designated on Sleeper and NO keeper placements "
+            "exist on the draft yet, so nothing here is confirmed. %d team(s) "
+            "have not designated — unknown, not assumed empty."
+            % (teams_designated, expected_teams, undesignated))
     elif teams_placed < expected_teams:
         status = "partial"
         confirmed = False

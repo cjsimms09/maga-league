@@ -46,7 +46,18 @@ const twoSource = p => p.proj_fantasypros != null;
     kdef.filter(twoSource).map(p => p.name).slice(0, 5));
   ck('  and they all still HAVE a projection — single-source, not absent',
     kdef.every(p => p.proj_mean != null && p.proj_baseline != null));
-  ck('  there are enough of them for that to mean something', kdef.length > 100, kdef.length);
+    /* THRESHOLD RECALIBRATED, NOT RELAXED. This read `> 100`, a number
+     * calibrated when the board shipped 1,841 rows — most of them men nobody
+     * expects to play in 2026. The 2026-08-14 rebuild ran the dormant prune
+     * for the first time (1,841 -> 686) and the count fell below it.
+     *
+     * The old number was measuring how BIG the board was, which is not the
+     * property this control exists to establish. What it needs is a sample
+     * large enough for the check that follows, so the bar is stated against
+     * that instead of against a board size that will keep moving. */
+  ck('  there are enough of them for that to mean something — every kicker and\n    defence the board carries, and both positions represented',
+    kdef.length >= 40 && kdef.some(p => p.position === 'K')
+      && kdef.some(p => p.position === 'DEF'), kdef.length);
 }
 
 // ── THE MARK IS PRECISE WHERE IT IS READ, WHICH IS WHY IT IS NOT NOISE ─────

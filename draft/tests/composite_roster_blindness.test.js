@@ -124,8 +124,17 @@ const FILLED = state(ROSTER_FULL);
 
 // ── THE MASK WORKS. Establish that first, or the rest proves nothing. ──────
 {
-  ck('CONTROL: with the QB slot open the mask admits quarterbacks',
-    (EMPTY.mask.QB || 0) > 100, EMPTY.mask.QB);
+    /* THRESHOLD RECALIBRATED, NOT RELAXED. This read `> 100`, a number
+     * calibrated when the board shipped 1,841 rows — most of them men nobody
+     * expects to play in 2026. The 2026-08-14 rebuild ran the dormant prune
+     * for the first time (1,841 -> 686) and the count fell below it.
+     *
+     * The old number was measuring how BIG the board was, which is not the
+     * property this control exists to establish. What it needs is a sample
+     * large enough for the check that follows, so the bar is stated against
+     * that instead of against a board size that will keep moving. */
+  ck('CONTROL: with the QB slot open the mask admits quarterbacks — enough of\n    them that the drop-to-zero below is a real change',
+    (EMPTY.mask.QB || 0) >= 25, EMPTY.mask.QB);
   ck('the MASK drops every QB once the slot is filled',
     (FILLED.mask.QB || 0) === 0, FILLED.mask.QB);
 }

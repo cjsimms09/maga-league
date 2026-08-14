@@ -28,6 +28,7 @@ import board_activity  # noqa: E402
 import config_schema  # noqa: E402
 import keepers as keepers_mod  # noqa: E402
 import projections as proj_mod  # noqa: E402
+from backtest import lab_scoring_gap  # noqa: E402
 import vorp as vorp_mod  # noqa: E402
 import managers as managers_mod  # noqa: E402
 import keeper_slate as keeper_slate_mod  # noqa: E402
@@ -524,8 +525,21 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
             ADP_PROVENANCE["fantasypros"] = {"error": f"{type(fpx).__name__}: {fpx}"}
             print(f"  ! FantasyPros anchor skipped ({type(fpx).__name__}: {fpx}); FFC stands")
 
+        # `projections=baseline` IS LOAD-BEARING, NOT A CONVENIENCE. The deep-pool
+        # ordering inside apply_with_fallback used to read `p["proj_mean"]`, which
+        # is not assigned until `projections.blend()` fifty lines BELOW this call
+        # — so it was empty on every build and all 348 fallback players got the
+        # identical unprojected sentinel. `baseline` is computed at :365 and is
+        # the same quantity in the same scoring, available here. Passing it is
+        # what makes the ordering actually run.
+        #
+        # It cannot simply be deferred until after blend(): `raw_adp` is copied
+        # from `adp` at :571, still above blend, so an ordering applied later
+        # would never reach raw_adp — which is the field the acceptance test
+        # reads and the one a stale-ordering bug hides in.
         ADP_PROVENANCE.update(adp_mod.apply_with_fallback(
-            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n))
+            players, anchor_table, teams=teams_n, draft_picks=teams_n * rounds_n,
+            projections=baseline))
         # apply_with_fallback hardcodes adp_source='ffc' in its provenance; the per-player
         # rows already carry the true source, so correct the top-level label to the real
         # primary now (it drives the War Room's "priced by" banner).
@@ -571,6 +585,25 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         p["raw_adp"] = p.get("adp", p["raw_adp"])
         p["consensus_rank"] = p["raw_adp"]
         p.update(adp_season_stamps(p.get("adp_source"), adp_year))
+
+    # ── THE SCORING GAP, MEASURED WHERE THE STAT LINES STILL EXIST ──────────
+    #
+    # Our league scores pass_td 6 / pass_int -2; the ADP that prices this board
+    # comes from a scoring=HALF consensus — 4 and -1. So `proj_mean` knows a
+    # quarterback is worth more here and every ADP-anchored quantity does not.
+    # That is a candidate mechanism for a deviation we have already measured 18
+    # of 18 times, and it had no number attached to it.
+    #
+    # HERE because the raw payload exists exactly once. A built board carries
+    # only already-scored points, so the difference between two scorings is not
+    # recoverable downstream — the measurement has to happen while `projections`
+    # is still in hand. It fits nothing and changes no price.
+    try:
+        PROJECTION_PROVENANCE["scoring_gap_vs_adp_market"] = lab_scoring_gap.measure(
+            projections, cfg["scoring"], players)
+    except Exception as exc:  # noqa: BLE001 — a measurement must never fail a build
+        PROJECTION_PROVENANCE["scoring_gap_vs_adp_market"] = {
+            "measured": False, "why": f"{type(exc).__name__}: {exc}"}
 
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
     board = proj_mod.blend(players, baseline, opportunity, cfg)

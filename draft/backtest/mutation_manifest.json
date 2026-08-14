@@ -1233,7 +1233,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-13T23:24:43Z\"",
+     "old": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-14T13:02:23Z\"",
      "new": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
      "must_fail": [
       "test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant"

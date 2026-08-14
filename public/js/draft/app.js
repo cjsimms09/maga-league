@@ -1034,6 +1034,55 @@
     const sup = seat.superseded_plan_player;
     const supLine = sup ? '<div class="sp-superseded">draft_plan named '
       + escapeHtml(sup.position + ' ' + sup.name) + ' here — ' + escapeHtml(sup.why) + '</div>' : '';
+    /* ── THE OTHER ELEVEN SEATS. CORY ASKED FOR THIS IN THESE WORDS ────────
+     *
+     *   "a look ahead to what complete strategy may be for rest of draft"
+     *
+     * `seat_plan.json` has held all twelve seats since it was written — slot,
+     * planned player, starter-or-bench — and this function rendered exactly ONE
+     * of them, whichever pick was live. `panel_spec.js` has said so for days:
+     * "Twelve seats exist; ONE is rendered. The other eleven are the look-ahead,
+     * unbuilt." No new modelling; the plan was computed and shown to nobody.
+     *
+     * ⚠ IT LEADS WITH THE SLOT, NOT THE NAME, AND THAT IS THE WHOLE DESIGN.
+     * The artifact's own assumption says: "The SEAT ORDER held under ADP drift
+     * from -25% to +15%; the NAMES did not." So twelve names read as a plan would
+     * be a confident list of the least robust thing in the file. The slot column
+     * is the finding; the name is the current best guess at filling it and is
+     * marked as such. Getting that the wrong way round is precisely the class
+     * this week's audit kept finding — every number true, the sentence false.
+     *
+     * A seat whose `plan_player` is null is NOT blanked: pick 88 has no plan
+     * player because the preseason waiver line and the realized wire genuinely
+     * disagree, and the artifact says so in `superseded_plan_player.why`. An
+     * empty cell there would read as "nothing planned" rather than "two honest
+     * methods disagree". */
+    const allSeats = (function () {
+      const seats = (d.seats || []).slice().sort(function (a, b) { return a.pick - b.pick; });
+      if (seats.length < 2) return '';
+      const cur = seat.pick;
+      const rows = seats.map(function (s) {
+        const done = s.pick < cur;
+        const live = s.pick === cur;
+        const who = s.plan_player ? s.plan_player.name
+          : (s.superseded_plan_player
+            ? s.superseded_plan_player.name + ' — methods disagree' : 'open');
+        return '<tr class="spa-row' + (live ? ' spa-live' : '') + (done ? ' spa-done' : '') + '">'
+          + '<td class="spa-pick">' + escapeHtml(roundLabel(s.pick)) + '</td>'
+          + '<td class="spa-slot"><b>' + escapeHtml(s.slot) + '</b>'
+            + (s.is_starter_seat ? '' : ' <span class="muted">bench</span>') + '</td>'
+          + '<td class="spa-who' + (s.plan_player ? '' : ' muted') + '">'
+            + escapeHtml(who) + '</td>'
+          + '</tr>';
+      }).join('');
+      return '<details class="sp-all"><summary>the whole draft — all '
+        + seats.length + ' of your picks</summary>'
+        + '<div class="spa-lede">The <b>slot order</b> is the plan and it survived '
+        + 'ADP drift from &minus;25% to +15%. The <b>names</b> did not — treat them '
+        + 'as today\'s best fill for each seat, not as the plan.</div>'
+        + '<table class="spa-table"><tbody>' + rows + '</tbody></table></details>';
+    })();
+
     host.innerHTML =
       '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
@@ -1042,6 +1091,7 @@
       + gapLine
       + supLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
+      + allSeats
       + '<div class="sp-caveat">' + escapeHtml(d.assumption) + '</div>'
       + '<div class="sp-caveat">edge over the greedy board: ' + d.measured_edge_vs_greedy
         + ' ' + escapeHtml(capt('measured_edge_vs_greedy').units || '')
@@ -1079,22 +1129,95 @@
    *
    * Your seat is decided on the site (reverse standings, one at a time) and can
    * change right up to draft day — including after the nightly pipeline has
-   * already built a board. `pick_order.picks` is slot-independent: it is the
-   * true pick sequence after keeper forfeits, with each entry carrying the slot
-   * that owns it. Only `my_picks` is slot-specific, so re-deriving it is a
-   * filter, not a rebuild, and it stays exact under snake order and keeper
-   * forfeits alike because it reuses the sequence the pipeline already solved.
+   * already built a board. Only `my_picks` is slot-specific, so re-deriving it
+   * is a filter over `pick_order.picks` rather than a rebuild.
+   *
+   * ⚠️ `pick_order.picks` IS THE BOARD, NOT THE PICK SEQUENCE, AND THIS COMMENT
+   * USED TO SAY THE OPPOSITE.
+   *
+   * The text here read "`pick_order.picks` is ... the true pick sequence AFTER
+   * keeper forfeits ... it stays exact under snake order and keeper forfeits
+   * alike". Both halves are false, and the artifact says so in its own
+   * `numbering_note`, three fields away: "`picks` is the BOARD (depth: how many
+   * players leave the pool). `live_picks` is how many SELECTIONS happen."
+   *
+   * A keeper OCCUPIES his slot — the row stays, flagged `keeper_slot: true`, and
+   * nothing shifts up. So filtering `picks` by seat returns every pick the seat
+   * was SCHEDULED, forfeited ones included. Measured against the shipped
+   * artifact on 2026-08-14, seat 8:
+   *
+   *     pipeline my_picks   33,48,53,68,73,88,93,108,113,128,133,148   (12)
+   *     this filter         8,13,28,33,48,53,68,73,88,93,108,113,...   (15)
+   *
+   * 8, 13 and 28 are the rounds Derrick Henry, Ja'Marr Chase and Kenneth Walker
+   * were kept with. They are not picks Cory owns. The filter handed them back,
+   * disagreed with the baked list, and therefore OVERWROTE the correct answer
+   * with the wrong one on the normal load path.
+   *
+   * WHAT IT COST. `currentPick()` anchors the pre-draft board on `my_picks[0]`.
+   * That read 8 instead of 33 — every survival window computed TWENTY-FIVE
+   * SLOTS EARLY. Josh Allen surviving to my first pick measured 89.6% against a
+   * true 1.5%: the board was pricing a QB it had already lost as very likely to
+   * be there. The error runs the same direction for every player, so VONA
+   * understated scarcity across the whole board.
+   *
+   * THE SAME DEFECT THIS REPOSITORY KEEPS FINDING: one name (`picks`), two
+   * quantities (board depth / selections). `my_picks` versus
+   * `my_picks_before_keepers` is that pair given two honest names one field
+   * away — and this function reconstructed the second while calling it the
+   * first.
+   *
+   * Reported by B. B's line reference (1092) and figures (98% -> 61%) did not
+   * match; the mechanism and the missing predicate did, exactly, and the true
+   * error is larger than the report claimed. Recorded because the citation
+   * being wrong is not evidence the finding is.
    */
   function applySlot(data) {
     const slot = Number(data.league.my_draft_slot);
     const picks = (data.pick_order && data.pick_order.picks) || [];
     if (!slot || !picks.length) return;
 
-    const derived = picks.filter(p => Number(p.slot) === slot).map(p => p.overall);
+    /* `&& !p.keeper_slot` is the whole fix: a forfeited row is a pick the seat
+     * was scheduled and does not own. On the shipped artifact this reproduces
+     * the pipeline's list exactly, which is why the guard below can be strict. */
+    const derived = picks.filter(p => Number(p.slot) === slot && !p.keeper_slot)
+      .map(p => p.overall);
     if (!derived.length) {
       console.warn('draft slot ' + slot + ' owns no picks in this board');
       return;
     }
+
+    /* CONSERVATION, ACROSS TWO INDEPENDENT FIELDS — not over this filter's own
+     * input, which is the failure mode `_assert_accounting` was just fixed for.
+     * `kept_players` is a different part of the artifact than `pick_order`, so
+     * one being wrong does not make the other agree.
+     *
+     * This is also the arm that catches what the predicate alone cannot. If the
+     * SEAT MOVED after the build, the `keeper_slot` flags still sit on the old
+     * seat's rows, so filtering the new seat drops nothing and returns a full
+     * 15 — my three keepers silently un-forfeited. A filter cannot re-seat a
+     * keeper; only `DraftKeepers.buildTruePickOrder` can (see changeSlot). So
+     * this REFUSES and keeps the pipeline's value rather than shipping a board
+     * that thinks I own three picks I do not. */
+    const teams = Number((data.league || {}).teams) || 0;
+    const myKeepers = ((data.kept_players || []).length);
+    const rounds = teams ? picks.length / teams : 0;
+    if (rounds && Number.isInteger(rounds)) {
+      const expected = rounds - myKeepers;
+      if (derived.length !== expected) {
+        state.slotRecomputeRefused = {
+          slot: slot, got: derived.length, expected: expected,
+          rounds: rounds, myKeepers: myKeepers,
+          why: 'seat ' + slot + ' derives ' + derived.length + ' picks but '
+             + rounds + ' rounds minus ' + myKeepers + ' keeper(s) is ' + expected
+             + '. A slot filter cannot move keeper forfeits to a new seat. '
+             + 'KEEPING the pipeline pick list; re-run the pipeline for this seat.',
+        };
+        console.warn('applySlot REFUSED: ' + state.slotRecomputeRefused.why);
+        return;
+      }
+    }
+
     const baked = (data.pick_order.my_picks || []).join(',');
     if (derived.join(',') === baked) return;   // slot unchanged; nothing to do
 
@@ -1725,6 +1848,18 @@
       currentKeepers: (state.myRoster || []).filter(function (p) { return p.is_keeper; }),
       league: state.data.league,
       weights: state.weights,
+      // THE PICK BOARD, SO SURVIVAL CAN CONVERT BOARD SLOTS TO SELECTIONS.
+      //
+      // `adjusted_adp` counts SELECTIONS; every pick number counts BOARD SLOTS,
+      // keeper slots included. survival.js compared them directly and had no
+      // converter at all, while keepers.py has `live_index_of` and grab_by.py
+      // calls it. One rule, implemented on one side.
+      //
+      // 3 slots of error today; 18 once the slate locks on 20 August, two days
+      // before the draft. Measured at board 33: A.J. Brown reads 0.0% against a
+      // true 95.9%. Threading this is what makes the conversion possible, and
+      // `E.survivalModel.SCALE.unconverted` is how a test proves it happened.
+      pickBoard: ((state.data || {}).pick_order || {}).picks || null,
       runMultipliers: state.runMults,
       // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
       // exploration shadows set this true to explore ceiling-forward drafts.
@@ -1895,11 +2030,41 @@
         + 'modelled as league-average until there is history to learn from.</p>';
       return;
     }
+    /* ⚠ THE SUMMARY STATES MAGNITUDES THE SAMPLE CANNOT CARRY, AND THE PANEL
+     * SHOWED NONE OF THE SPREAD THE DATA ALREADY HOLDS (2026-08-14).
+     *
+     * "Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds
+     * before the league)." — from THREE drafts, with `reach_delta.sd` of 134.2
+     * sitting in the same object. Over 40 picks that is a standard error of ~21,
+     * so ~7 is not distinguishable from zero. Across all ten managers only TWO
+     * exceed two standard errors, and neither is one the summary calls a reacher.
+     *
+     * THIS CONTRADICTS THE PROJECT'S OWN STANDARD, set in the VONA section of the
+     * surface contract: "three drafts give a direction, not a magnitude. No
+     * correction is fitted." The same three drafts are quoted here to one decimal
+     * place.
+     *
+     * SO THE PANEL SHOWS THE SUPPORT, and nothing is suppressed or re-weighted —
+     * the profile generator is the Python pipeline and re-fitting shrinkage on a
+     * suspicion, eight days out, is the move this project keeps refusing. A
+     * reader can now discount a tell instead of being asked to trust it. */
+    var reachSupport = function (m) {
+      var rd = m.reach_delta || {}, n = m.picks_analysed || 0;
+      if (rd.sd == null || !n || rd.mean == null) return '';
+      var se = rd.sd / Math.sqrt(n);
+      if (!(se > 0)) return '';
+      var t = Math.abs(rd.mean / se);
+      return t >= 2
+        ? '<span class="mgr-support">reach holds at ' + t.toFixed(1) + 'σ</span>'
+        : '<span class="mgr-support mgr-support-weak">reach ±' + Math.round(se)
+          + ' picks over ' + n + ' — not distinguishable from market</span>';
+    };
     host.innerHTML = managers.map(m =>
       '<div class="mgr-card">' +
         '<div class="mgr-name">' + escapeHtml(m.name) +
           '<span class="muted">' + m.sample_size + ' draft' + (m.sample_size === 1 ? '' : 's') + '</span></div>' +
         '<div class="mgr-summary">' + escapeHtml(m.summary) + '</div>' +
+        reachSupport(m) +
       '</div>').join('');
     const head = document.getElementById('managers-head');
     if (head) head.textContent = 'from ' + (mp.drafts_analysed || 0) + ' prior draft(s)';
@@ -3799,8 +3964,31 @@
     const b = playerById(state.compare[1]);
     if (!a || !b) { host.style.display = 'none'; return; }
     const g = E.dollarGap(a, b, context());
-    // The breakdown bar: signed contributions, gold for money.
-    const parts = [['high-pool', g.high], ['top-4 entry', g.entry], ['RS', g.rs], ['next-pick echo', g.echo]];
+    /* ⚠ THE VISIBLE BAR SHOWED ONE SIGNAL AS TWO — AND I HAD ALREADY FIXED THAT
+     * TEN LINES BELOW, IN THE PART YOU HAVE TO CLICK TO SEE (2026-08-14).
+     *
+     * This read `[['high-pool', g.high], ['top-4 entry', g.entry], ['RS', g.rs],
+     * ['next-pick echo', g.echo]]` — four bars. `entry` and `rs` are both a
+     * constant times proj_mean (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their
+     * DIFFERENCE carries the same ratio: measured over 40 real pairs off the live
+     * board, `entry_diff / rs_diff` deviates from exactly 1.6 by 1.7e-14, and the
+     * two bars point the SAME DIRECTION IN 39 OF 39 cases where rs is non-zero.
+     * They cannot disagree; it is arithmetically impossible.
+     *
+     * So a reader comparing Gibbs to Jefferson saw `high-pool +16.7 · top-4 entry
+     * +8.7 · RS +5.4` and read THREE independent reasons pointing the same way.
+     * There are two, and one of them is counted twice — the same false reading
+     * the `<details>` body below was rewritten to remove. **I fixed the
+     * explanation and left the chart**, which is the worse half: the chart is
+     * always visible and the explanation is behind a toggle.
+     *
+     * The money is real and both pots exist, so the AMOUNT is unchanged — the two
+     * mean-driven pots are summed into one `season` bar with the fixed split
+     * named, exactly as the text below already does. Only `high` (ceiling over
+     * mean) and `echo` (the next-pick consequence) are independent of it. */
+    const season = Math.round((g.entry + g.rs) * 10) / 10;
+    const parts = [['high-pool (boom)', g.high], ['season (entry+RS, fixed 1.6:1)', season],
+      ['next-pick echo', g.echo]];
     const maxMag = Math.max(1, ...parts.map(p => Math.abs(p[1])));
     const bar = parts.map(function (p) {
       const w = Math.round((Math.abs(p[1]) / maxMag) * 100);
@@ -3828,8 +4016,28 @@
       + '<div class="cmp-bars">' + bar + '</div>'
       + '<details class="cmp-why"><summary>Why? — the derivation</summary>'
         + '<div class="cmp-why-body">' + escapeHtml(g.terms.note)
-        + '<br>' + escapeHtml(a.name) + ': high $' + g.terms.A.dollars.high + ' · entry $' + g.terms.A.dollars.entry + ' · RS $' + g.terms.A.dollars.rs
-        + '<br>' + escapeHtml(b.name) + ': high $' + g.terms.B.dollars.high + ' · entry $' + g.terms.B.dollars.entry + ' · RS $' + g.terms.B.dollars.rs
+        /* ⚠ `entry` AND `RS` ARE ONE SIGNAL, NOT TWO, AND THIS LINE USED TO
+         * SHOW THEM AS TWO. Both are a constant times proj_mean
+         * (DG_ENTRY_K 0.08, DG_RS_K 0.05), so their ratio is EXACTLY 1.6 for
+         * every player, always — measured across the live board and identical
+         * to three decimals on every row.
+         *
+         * They are genuinely different pots of money, so the amounts are real
+         * and stay. What is false is the READING: a decomposition printed as
+         * three terms invites "entry favours him AND RS favours him" as two
+         * confirmations, when it is one number counted twice. Only `high`
+         * (which prices ceiling-over-mean) carries independent information.
+         *
+         * So the two mean-driven pots are shown as ONE season line with the
+         * split named as the fixed ratio it is. */
+        + '<br>' + escapeHtml(a.name) + ': boom $' + g.terms.A.dollars.high
+          + ' · season $' + Math.round((g.terms.A.dollars.entry + g.terms.A.dollars.rs) * 10) / 10
+          + ' <span class="muted">(entry $' + g.terms.A.dollars.entry + ' + RS $' + g.terms.A.dollars.rs + ', fixed 1.6:1)</span>'
+        + '<br>' + escapeHtml(b.name) + ': boom $' + g.terms.B.dollars.high
+          + ' · season $' + Math.round((g.terms.B.dollars.entry + g.terms.B.dollars.rs) * 10) / 10
+          + ' <span class="muted">(entry $' + g.terms.B.dollars.entry + ' + RS $' + g.terms.B.dollars.rs + ', fixed 1.6:1)</span>'
+        + '<br><span class="muted">boom is the only term with independent information: '
+          + 'entry and RS are both a constant times the projection, so they always move together.</span>'
         + (g.terms.echo ? '<br>next-pick echo: cost of taking ' + escapeHtml(a.name) + ' = ' + g.terms.echo.cost_of_taking_A + ' pts, ' + escapeHtml(b.name) + ' = ' + g.terms.echo.cost_of_taking_B + ' pts' : '')
         + '</div></details>'
       + '</div>';
@@ -4271,6 +4479,12 @@
     + 'margin:0 0 .5rem;border-left:2px solid rgba(245,196,69,.55);'
     + 'background:rgba(245,196,69,.05);border-radius:0 4px 4px 0;';
 
+  // Fallback only — see the comment at the `.rec-promoted` emit site. Sized to
+  // sit under the score without pushing the action buttons, and legible on the
+  // dark card before B styles the class.
+  const PROMOTED_CSS = 'font-size:.68rem;line-height:1.1;text-align:center;'
+    + 'letter-spacing:.02em;color:#f5c445;white-space:nowrap;margin:0 0 .15rem;';
+
     try {
       if (typeof DecisionContract !== 'undefined' && scored.length > 1) {
         const gap = scored[0].score - scored[1].score;
@@ -4346,6 +4560,43 @@
           (i === 0 ? recDisagreementLine(s, scored) : '') +
         '</div>' +
         '<div class="rec-actions">' +
+          /* ⚠️ THE MARK GOES WHERE THE INVERSION IS VISIBLE — NEXT TO THE SCORE.
+           *
+           * The engine has emitted `ceiling_tiebreak` since 2026-08-14 and
+           * prepends a reason naming the man passed, so the EXPLANATION was
+           * already on the card. But it lands in `.rec-why`, on the left, one of
+           * two reasons; the thing that looks broken is the `.rec-score` column
+           * on the right. Measured on the live board at pick 33 — Cory's FIRST
+           * pick — the list prints:
+           *
+           *     1. TE Colston Loveland  17.3
+           *     2. RB Travis Etienne    16.5   <- promoted
+           *     3. RB D'Andre Swift     17.0
+           *
+           * Scanning the score column top-down at his most important pick, the
+           * numbers go 17.3, 16.5, 17.0 and nothing in that column says why. A
+           * reader who cannot tell a deliberate promotion from a broken sort
+           * stops trusting the column, and the column is how he compares ten
+           * candidates.
+           *
+           * READABLE WITHOUT HOVER, deliberately. The `title` carries the
+           * arithmetic, but titles do not exist on a phone, so the visible text
+           * has to do the work on its own; the full sentence stays in
+           * `.rec-why`. This mark is the POINTER, not the explanation.
+           *
+           * A DISTINCT ELEMENT, same contract as `.rec-context`: B styles
+           * `.rec-promoted`, A only guarantees it is emitted, separate, and
+           * adjacent to the number it is about. The inline rule is a legible
+           * fallback so it is not invisible before B styles it — the same
+           * pattern as `DECISIVE_CSS` above, not a claim on B's lane. */
+          (s.ceiling_tiebreak
+            ? '<div class="rec-promoted" style="' + PROMOTED_CSS + '" title="'
+                + escapeHtml('Promoted over ' + (s.ceiling_tiebreak.over || 'the row below')
+                  + ' — scores ' + Math.abs(s.ceiling_tiebreak.score_gap).toFixed(1)
+                  + ' lower, ceiling ' + Math.round(s.ceiling_tiebreak.ceiling)
+                  + ' vs ' + Math.round(s.ceiling_tiebreak.ceiling_over))
+                + '">↑ upside</div>'
+            : '') +
           '<div class="rec-score" title="Composite score">' + s.score.toFixed(1) + '</div>' +
           '<button class="btn small gold" data-draft-me="' + p.player_id + '">I took him</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id + '">Gone</button>' +
@@ -4904,6 +5155,16 @@
         PredLedger.lrm({ season: c.season, build_at: c.build_at, pick: c.pick,
           method: 'survival-snapshot-v0',
           payload: { last_responsible_moment: lrm } });
+        /* REMEMBERED SO IT CAN BE GRADED, exactly as the survival capture is.
+         * The write goes to the server; the RESOLUTION needs the original call
+         * back, and the client is the only place holding both it and the pick
+         * stream. Deduped on the pick, because a re-render inside one pick is
+         * the same call and not a second one. */
+        state.lrmCaptures = state.lrmCaptures || [];
+        if (!state.lrmCaptures.some(function (x) { return x.pick === c.pick; })) {
+          state.lrmCaptures.push({ pick: c.pick,
+            payload: { last_responsible_moment: lrm } });
+        }
       }
     }
   }
@@ -4916,12 +5177,62 @@
    * (the elite tier) and "when do I lose a STARTER" (the startable tier). Tracking
    * only the #1 reads "gone immediately" always; only the top-12 buries the elite
    * cliff. So QB/TE get BOTH thresholds; K/DEF are streamable, startable-only. */
-  function lrmLastSafe(pool, upcoming) {
+  /* ⚠ THIS STRIP ASKED SURVIVAL A DIFFERENT QUESTION THAN THE REST OF THE SCREEN
+   * (2026-08-14).
+   *
+   * The call was `E.survival(pool[j], upcoming[i], state.runMults)` — a BARE
+   * multiplier map. `normalizeCtx` accepts that shape deliberately, so the run
+   * multipliers really were applied and nothing looked wrong. But with no
+   * `currentPick` in the context, `survivalProbability` takes its UNCONDITIONAL
+   * branch (`layer1Taken`) instead of `layer1TakenGivenAvailable` — and that
+   * module's own comment says both layers must answer "GIVEN HE IS AVAILABLE NOW,
+   * is he still there at targetPick?".
+   *
+   * Everything else on the war room passes the full `context()`, which carries
+   * `currentPick`. So the rec card's "~X% gone by next" and this strip's "safe
+   * until pick N" were computed from two different branches for the same player
+   * on the same screen.
+   *
+   * ── THE SIGN IS ALWAYS THE SAME, WHICH IS WHY IT MATTERS ─────────────────
+   *
+   * Conditioning on "he lasted this long" can only RAISE survival, so the old
+   * form could only ever UNDERSTATE the deadline. It never errs toward patience.
+   * Measured on the live board — Lamar Jackson to pick 48: 0.0575 unconditional,
+   * 0.1102 conditional, nearly double.
+   *
+   * On the 12-deep startable pool this washes out: 0 of 12 deadlines moved,
+   * because with twelve candidates somebody clears 0.85 at the same pick either
+   * way. ON THE 3-MAN ELITE POOL IT DOES NOT: 2 of 12 moved, both toward MORE
+   * time, and one of those printed **"elite tier gone"** at pick 88 for TE when
+   * the conditioned answer is safe until 93. That is the panel closing a window
+   * that is open, at the position this league already drafts too early.
+   *
+   * ── THE SHAPE TRAP, since the next person here will hit it ───────────────
+   *
+   * `normalizeCtx` treats an object whose values are ALL NUMBERS as the legacy
+   * multiplier map. So `{ currentPick: cur }` alone would be read as "position
+   * 'currentPick' has multiplier 33" and silently do something absurd. The
+   * `runMultipliers` key is what keeps this a context; it is not optional
+   * decoration. Guarded in draft/tests/lrm_survival_ctx.test.js.
+   *
+   * NOT ADDED: `intervening`, which would switch Layer 2 (opponent needs) on for
+   * this strip too. That is a larger behavioural change and I have no measurement
+   * of it, so it stays off rather than being bundled into a correctness fix. */
+  function lrmLastSafe(pool, upcoming, cur) {
+    var ctx = { currentPick: cur, runMultipliers: state.runMults,
+      // See the note at the other ctx site: without this, survival compares a
+      // selection-scale ADP against a board slot.
+      pickBoard: ((state.data || {}).pick_order || {}).picks || null };
     var last = null, idx = 0, target = null;
     for (var i = 1; i < upcoming.length; i++) {
       var surv = null;
       for (var j = 0; j < pool.length; j++) {
-        if (E.survival(pool[j], upcoming[i], state.runMults) >= 0.85) { surv = pool[j]; break; }
+        // ONE DEFINITION OF "SAFE". This was a bare 0.85 here while the grader
+        // needed the same number to score the call against — two copies of the
+        // only quantitative claim this strip makes.
+        if (E.survival(pool[j], upcoming[i], ctx) >= E.survivalModel.CFG.LRM_SAFE_P) {
+          surv = pool[j]; break;
+        }
       }
       if (surv) { last = upcoming[i]; idx = i; target = surv; }
     }
@@ -4940,8 +5251,12 @@
       // fall back to top-3 by VORP if tiers are absent.
       var elitePool = atPos.filter(function (p) { return (p.tier || 99) <= 1; });
       if (!elitePool.length) elitePool = atPos.slice(0, 3);
-      var st = lrmLastSafe(startablePool, upcoming);
-      var el = dual ? lrmLastSafe(elitePool, upcoming) : null;
+      // The observation point is the LIVE pick, not `upcoming[0]` — "he is
+      // available now" is a fact about the board this instant, and off the clock
+      // upcoming[0] is a turn that has not happened yet.
+      var cur = currentPick();
+      var st = lrmLastSafe(startablePool, upcoming, cur);
+      var el = dual ? lrmLastSafe(elitePool, upcoming, cur) : null;
       // NO DEADLINE IS NOT A DEADLINE (Cory, 2026-08-10). K and DEF reported "safe
       // until pick 145" in a 150-pick draft, naming Cam Little (ADP 171) and
       // Baltimore (ADP 203) — men who go UNDRAFTED in a 10-team league, so the
@@ -4954,9 +5269,17 @@
       var tgtAdp = stTarget && (stTarget.adjusted_adp || stTarget.raw_adp) || null;
       var noDeadline = !!(totalPicks && tgtAdp && tgtAdp > totalPicks
         && st.by_pick === upcoming[upcoming.length - 1]);
+      /* THE POOL IDS RIDE WITH THE CALL, because the claim is about the POOL and
+       * not the named man. The strip says "a startable option survives" and names
+       * one only so the reader can check it; grading the named man would score a
+       * harder claim than the one made. Without these the resolver has nothing to
+       * grade and correctly skips the row — so this is the difference between a
+       * closed loop and a capture nobody can use. */
       out.push({ position: pos, dual: dual, next_pick: upcoming[1],
         startable_by: st.by_pick, startable_early: st.picks_early,
         startable_target: stTarget.name,
+        startable_pool_ids: startablePool.map(function (p) { return String(p.player_id); }),
+        elite_pool_ids: elitePool.map(function (p) { return String(p.player_id); }),
         no_deadline: noDeadline,
         elite_by: el ? el.by_pick : null, elite_early: el ? el.picks_early : 0,
         elite_target: el && el.target ? el.target.name : null });
@@ -5064,25 +5387,37 @@
       topId: top && top.player ? String(top.player.player_id) : null,
       topName: top && top.player ? top.player.name : null,
       topScore: top ? top.score : null,
+      // POSITIONS CARRIED so the line can tell a run that may explain the change
+      // from one that merely coincides with it. Without them every run reads as
+      // the cause of every move.
+      topPos: top && top.player ? top.player.position : null,
       secondName: second && second.player ? second.player.name : null,
       secondScore: second ? second.score : null,
+      secondPos: second && second.player ? second.player.position : null,
     };
   }
 
-  function movementReason() {
-    // Factual co-occurrence, not a causal claim: name any position currently
-    // running. Empty when nothing is running, so the line stays bare.
-    try {
-      var runs = E.detectRuns(state.runMults || {});
-      return runs.length ? runs.join('/') + ' run on' : '';
-    } catch (e) { return ''; }
+  /* THE RUNNING POSITIONS, AS A LIST — not a pre-formatted sentence.
+   *
+   * This returned `runs.join('/') + ' run on'`, and `movementLine` wrapped that
+   * as `' on the ' + reason`, so the shipped line read "closed to within 1.5 pts
+   * ON THE WR RUN ON". The suite never caught it because the suite passed
+   * "WR run" — a different format from this one. Two call sites owning half a
+   * sentence each is how a string ends up ungrammatical in production and
+   * grammatical in its test.
+   *
+   * The phrasing now lives entirely in `movementLine`, which also needs the raw
+   * positions to tell a run that might explain the move from one that merely
+   * coincides with it. This function's whole job is to answer "what is running". */
+  function movementRuns() {
+    try { return E.detectRuns(state.runMults || {}) || []; } catch (e) { return []; }
   }
 
   function updateMovement(pick, scored) {
     var curr = snapshotRec(pick, scored);
     var prev = state.lastRecommendation;
     if (!prev || prev.pick !== pick) {
-      var mv = prev ? E.movementLine(prev, curr, { reason: movementReason() })
+      var mv = prev ? E.movementLine(prev, curr, { runs: movementRuns() })
                     : { kind: 'steady', line: '' };
       state.movement = { pick: pick, kind: mv.kind, line: mv.line };
       state.lastRecommendation = curr;   // advance ONLY on a new pick
@@ -5114,7 +5449,13 @@
     var host = document.getElementById('stack-line');
     if (!card || !host) return;
     var ctx = context();
-    var res = E.liveStackRoutes((ctx && ctx.roster) || [], scored || []);
+    /* league + currentPick PASSED THROUGH so the badge's correlation value is
+     * computed in exactly the context the composite scores in. Without them
+     * `correlationAdjustment` sees round 1 and skips its playoff-schedule branch,
+     * which is inert today (`playoff_sos` is null on all 686 board rows) but
+     * would silently split the two the day C lands that field. */
+    var res = E.liveStackRoutes((ctx && ctx.roster) || [], scored || [],
+      { league: ctx && ctx.league, currentPick: ctx && ctx.currentPick });
     state.stackRoutes = res;                       // consumed by stackBadge()
     var clsEl = document.getElementById('stack-class');
     if (clsEl) clsEl.textContent = res.class_label;
@@ -5993,16 +6334,58 @@
         + esc(d.keys.map(strategyName).join(', ')) + ': '
         + esc(shortName(d.player)) + '</span>';
     }
+    /* ⚠ THE ENGINE COMPUTES WHY THE SHADOWS AGREE AND THIS PANEL DROPPED IT.
+     *
+     * `consensus()` returns `lead_driver`, `driver_is_artifact`, `runner_up` and
+     * `gap_to_second`, and its own comment says why: "A 7/7 driven by `need` is
+     * the artifact flag; a 7/7 driven by `value` is real agreement." Every one of
+     * those four fields was read by NOTHING — rule 14 on the exact field whose
+     * job is to stop the misread this strip invites.
+     *
+     * MEASURED AT PICK 33, CORY'S FIRST PICK, all on one screen:
+     *
+     *     rec list #1     Colston Loveland (TE) 17.3
+     *     shadow strip    "7 of 7 → Zay Flowers"      (no contested flag)
+     *     Flowers's rank in the real list: 4th
+     *
+     * All seven shadows driven by `need`, at driver values 42.7 / 21.3 / 42.7 /
+     * 85.4 / 42.7 / 64.0 / 42.7 — ONE need computation times each strategy's need
+     * weight. Seven "independent strategies" are seven multiples of one number,
+     * and `need` is weighted ZERO on the board Cory actually drafts from.
+     *
+     * "7 of 7" is the strongest agreement this surface can express. Unqualified,
+     * it reads as the safest pick on the screen while pointing at the tool's
+     * fourth choice. Same shape as `entry`/`RS`: indicators that CANNOT disagree,
+     * presented as independent confirmations.
+     *
+     * Nothing about the shadows changes — they are meant to differ from
+     * production. The strip now says what the model already knew. */
+    var artifact = !!(cons.driver_is_artifact || cons.driver_zero_weighted);
+    var driverTxt = cons.lead_driver
+      ? ' <span class="sp-driver' + (artifact ? ' sp-driver-weak' : '') + '">'
+        + (artifact ? 'all on ' : 'on ') + esc(cons.lead_driver)
+        + (artifact ? ', which the board weights 0' : '') + '</span>'
+      : '';
+    var overTxt = (cons.runner_up && cons.gap_to_second != null)
+      ? ' <span class="sp-over muted">over ' + esc(shortName(cons.runner_up))
+        + ' by ' + Math.abs(cons.gap_to_second).toFixed(1) + '</span>'
+      : '';
     line.innerHTML = (cons.contested
         ? '<span class="sp-flag">⚠ STRATEGIES SPLIT — slow down</span> '
-        : '<span class="sp-tag">🧭 strategies</span> ')
-      + leadTxt + dissentTxt;
+        : artifact
+          ? '<span class="sp-flag">⚠ ONE TERM, NOT ' + cons.agree + ' VOTES</span> '
+          : '<span class="sp-tag">🧭 strategies</span> ')
+      + leadTxt + driverTxt + overTxt + dissentTxt;
 
-    // The full list, one tap away: every strategy and the player it would take.
+    // The full list, one tap away: every strategy, the player it would take, and
+    // the term that drove it — so a reader can see for themselves whether the
+    // agreement is seven arguments or one argument seven times.
     body.innerHTML = proj.map(function (r) {
       return '<div class="sp-row"><span class="sp-strat">' + esc(r.name) + '</span>'
         + '<span class="sp-pick">' + esc(shortName(r.player))
         + (r.position ? ' <span class="sp-pos">' + esc(r.position) + '</span>' : '')
+        + (r.driver ? ' <span class="sp-rowdriver muted">' + esc(r.driver)
+          + (r.driver_value != null ? ' ' + r.driver_value.toFixed(1) : '') + '</span>' : '')
         + '</span></div>';
     }).join('');
   }
@@ -7630,6 +8013,52 @@
     } catch (e) { console.error('[survival-resolve]', e && e.message); }
   }
 
+  /* GRADE THE LAST-RESPONSIBLE-MOMENT CALLS THE DRAFT HAS NOW ANSWERED.
+   *
+   * Third draft-day loop, and the one that resolves ENTIRELY inside the draft:
+   * "startable QB safe until pick 73" is answered by pick 73 and by nothing else
+   * afterwards. It has been captured since decision-capture went in and graded by
+   * nothing — so on 22 August it would have produced a full set of claims and no
+   * record of whether any of them held. Unrecoverable after the fact, which is
+   * the same shape as the in-season capture gap.
+   *
+   * Scored as a HIT RATE against the 0.85 the strip thresholds on, not as a
+   * Brier score: an LRM call is a deadline, not a probability, and the only
+   * number it commits to is that threshold. Both sides now read
+   * `CFG.LRM_SAFE_P` so the claim and its grade cannot drift apart. */
+  function resolveLrmCalls(picks) {
+    if (state.mockMode) return;                     // a mock is not forward evidence
+    if (typeof DraftSurvival === 'undefined' || typeof PredLedger === 'undefined') return;
+    const caps = (state.lrmCaptures || []).filter(function (c) { return !c._resolved; });
+    if (!caps.length) return;
+    const pickLog = (picks || [])
+      .filter(function (pk) { return pk && pk.pick_no != null && pk.player_id != null; })
+      .map(function (pk) { return { overall: Number(pk.pick_no), player_id: String(pk.player_id) }; });
+    if (!pickLog.length) return;
+    try {
+      const res = DraftSurvival.resolveLrm(caps, { picks: pickLog });
+      if (!res || !res.resolvable) return;          // nothing answered yet — say nothing
+      PredLedger.capture('lrm_resolved', { season: ledgerCtx().season,
+        method: 'lrm-hitrate-v1', pick: currentPick(), payload: res });
+      /* A CAPTURE IS SPENT ONLY WHEN EVERY DEADLINE IN IT HAS BEEN REACHED.
+       * Marking on the first resolution would discard the later picks a single
+       * capture speaks about — one LRM row carries a deadline per position, and
+       * they come due at different times. */
+      const reached = pickLog.reduce(function (m, p) {
+        return p.overall > m ? p.overall : m; }, 0);
+      caps.forEach(function (c) {
+        const list = (c.payload || {}).last_responsible_moment || [];
+        const pending = list.some(function (r) {
+          return ['startable', 'elite'].some(function (b) {
+            const by = r[b + '_by'];
+            return by != null && Number(by) > reached;
+          });
+        });
+        if (!pending) c._resolved = true;
+      });
+    } catch (e) { console.error('[lrm-resolve]', e && e.message); }
+  }
+
   /* GRADE THE RUN CALLS THE ROOM HAS NOW ANSWERED.
    *
    * Second draft-day loop. Run multipliers feed `survivalProbability`, so a run
@@ -7798,6 +8227,7 @@
     resolveCommittedForecasts(picks);
     resolveSurvivalCalls(picks);
     resolveRunCalls(picks);
+    resolveLrmCalls(picks);
     // SHADOW ARM: let reality answer the opponent predictions these picks
     // resolve, THEN commit predictions for the next window. Resolve before emit
     // so a pick can never resolve a forecast made after it was already known.

@@ -28,6 +28,12 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                // from the client's point of view — the loop would read as closed
                // in the code and be empty in the data.
                'survival_resolved', 'run_resolved',
+               // The grade for an `lrm` row: at the pick the strip called safe,
+               // was anybody from that pool still on the board. Declared here at
+               // the same time the resolver was written, because an undeclared
+               // kind is REJECTED by buildEntry — which is how the loop would
+               // read as closed in the code and be empty in the data.
+               'lrm_resolved',
                'doctrine', 'doctrine_decline',
                // Experiment 31 data collection. Every non-Cory pick in a MOCK
                // room is Sleeper's default ordering executing — especially the

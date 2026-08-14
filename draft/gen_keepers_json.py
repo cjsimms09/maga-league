@@ -68,7 +68,7 @@ def designations(hist, rosters=None):
     if rosters is None:
         try:
             import sleeper_import as si  # noqa: PLC0415
-            rosters = si.fetch_rosters(_LEAGUE_ID) or []
+            _fetched = si.fetch_rosters(_LEAGUE_ID)
             src = "sleeper"
         except Exception as exc:                     # noqa: BLE001
             # LOUDLY: a fallback that looks like a success is how a stale board
@@ -76,7 +76,29 @@ def designations(hist, rosters=None):
             print("  ! could not reach Sleeper for designations (%s: %s) — "
                   "falling back to league_history.json, which may be STALE"
                   % (type(exc).__name__, exc))
-            rosters, src = None, "history (sleeper unreachable)"
+            _fetched, src = None, "history (sleeper unreachable)"
+
+        # ⚠️ CHECKED OUTSIDE THE `try`, AND THE FIRST VERSION WAS NOT.
+        #
+        # `or []` used to turn an empty or null response — bad league id, API
+        # change, empty cached body — into an empty roster list labelled
+        # `src="sleeper"`: zero designations reported as a successful live read,
+        # every keeper silently returned to the draftable pool.
+        #
+        # My first fix raised inside the `try`, where the `except Exception`
+        # above CAUGHT IT and converted the refusal into the quiet history
+        # fallback. The guard against a swallowed failure, swallowed. Caught by
+        # its own test, which is the only reason it is not still there.
+        #
+        # A league always has rosters. Zero is a broken read, not a state.
+        if src == "sleeper" and not _fetched:
+            raise RuntimeError(
+                "Sleeper returned NO rosters for league %s. That is not "
+                "'nobody has designated yet' — a league always has rosters, so "
+                "this is a bad league id, an API change, or an empty cached "
+                "body. Refusing to emit a keeper file that would silently drop "
+                "every keeper from the pool." % _LEAGUE_ID)
+        rosters = _fetched
     else:
         # Injected by a caller (tests, offline replay). Labelled as such rather
         # than as "sleeper": a source field that can claim a live read it did not
@@ -101,8 +123,28 @@ def build(cfg, art, hist, rosters=None):
     by_id = {str(p["player_id"]): p for p in art.get("players") or []}
     for k in art.get("kept_players") or []:          # my own kept players are NOT
         by_id.setdefault(str(k["player_id"]), k)     # in `players` (already rostered)
-    teams = int(cfg.get("teams") or 10)
-    my_slot = int(cfg.get("my_draft_slot") or 4)
+    # ⚠️ THESE WERE `or 10` AND `or 4` — DEFAULTS THAT LOOK LIKE ANSWERS.
+    #
+    # `my_draft_slot` decides WHOSE ROUNDS ARE FORFEITED. Defaulting it to 4
+    # silently forfeits another team's picks and every pick number downstream is
+    # wrong, on a board that looks entirely normal. The committed keepers.json
+    # carries `draft_slot: 4` today while league_config says 8 — whatever the
+    # provenance of that file, the default is exactly the shape that produces it
+    # and cannot be told apart from a real 4.
+    #
+    # An absent seat is not a 4. Refuse.
+    _teams = cfg.get("teams")
+    _slot = cfg.get("my_draft_slot")
+    if not _teams:
+        raise SystemExit("gen_keepers_json: league_config has no `teams` — refusing "
+                         "to assume 10; the pool and the pick order both scale on it")
+    if not _slot:
+        raise SystemExit("gen_keepers_json: league_config has no `my_draft_slot` — "
+                         "refusing to assume 4. This value decides whose rounds are "
+                         "forfeited; a wrong seat corrupts every pick number on a "
+                         "board that otherwise looks correct.")
+    teams = int(_teams)
+    my_slot = int(_slot)
 
     designating, source = designations(hist, rosters)
     problems = []
@@ -182,6 +224,16 @@ def main():
              out["_provisional_slots"]))
     for p in out["_problems"]:
         print("  PROBLEM [%s] %s" % (p["kind"], p["reason"]))
+    _assert_accounting(out, art)
+
+
+def _assert_accounting(out, art):
+    """The accounting, EXTRACTED so it can be tested.
+
+    It lived inline in `main()`, which meant the only way to exercise it
+    was to run the whole generator against live Sleeper — so the arm that
+    is supposed to catch a missing input had never been run against one.
+    """
     # ACCOUNTING, ASSERTED. The failure this replaces was designations going
     # missing without the total ever being checked against the input.
     accounted = len(out["teams"]) + len(
@@ -190,6 +242,38 @@ def main():
         raise SystemExit(
             "gen_keepers_json: %d designating teams but %d accounted for — a "
             "designation went missing without a reason" % (out["_designating_teams"], accounted))
+
+    # ⚠️ THE ASSERTION ABOVE IS CONSERVATION, AND CONSERVATION CANNOT SEE AN
+    # INPUT THAT NEVER ARRIVED.
+    #
+    # Both sides of it derive from the SAME `designating` list. If that list is
+    # empty the check reads 0 == 0 and passes — so the workflow's claim that
+    # "the only way it exits non-zero is its own accounting assertion:
+    # designations went missing" is false for the one failure that matters most.
+    # It catches designations lost AFTER the read and is blind to the read
+    # returning nothing.
+    #
+    # THE INDEPENDENT CHECK: the artifact already knows how many teams Sleeper
+    # says have designated (`keeper_slate.teams_designated`, computed in build.py
+    # from the same rosters endpoint). Comparing against it is a second source,
+    # not a restatement of the first.
+    #
+    # A WARNING, NOT A REFUSAL, and deliberately: the two are read at different
+    # moments, so a team designating between them is a legitimate difference. A
+    # hard failure here would block builds for a benign race. What is NOT benign
+    # is the silent zero, so that arm refuses.
+    slate = (art.get("keeper_slate") or {})
+    expected = slate.get("teams_designated")
+    if out["_designating_teams"] == 0 and expected:
+        raise SystemExit(
+            "gen_keepers_json: read ZERO designating teams, but the last board's "
+            "keeper_slate says %d team(s) had designated. A keeper file with no "
+            "teams silently returns every kept player to the draftable pool. "
+            "Refusing." % expected)
+    if expected is not None and out["_designating_teams"] != expected:
+        print("  ! designating teams: %d here vs %d on the last board — expected "
+              "if a team designated between the two reads, worth a look if not"
+              % (out["_designating_teams"], expected))
 
 
 if __name__ == "__main__":

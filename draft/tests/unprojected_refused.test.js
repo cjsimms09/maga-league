@@ -49,8 +49,18 @@ function at(pick) {
 // ── CONTROL: the tie block is real, or this suite guards nothing ───────────
 {
   const zero = pool.filter(p => (p.proj_mean || 0) === 0);
-  ck('CONTROL: the board really does carry unprojected players',
-    zero.length > 100, zero.length);
+    /* THRESHOLD RECALIBRATED, NOT RELAXED. This read `> 100`, a number
+     * calibrated when the board shipped 1,841 rows — most of them men nobody
+     * expects to play in 2026. The 2026-08-14 rebuild ran the dormant prune
+     * for the first time (1,841 -> 686) and the count fell below it.
+     *
+     * The old number was measuring how BIG the board was, which is not the
+     * property this control exists to establish. What it needs is a sample
+     * large enough for the check that follows, so the bar is stated against
+     * that instead of against a board size that will keep moving. */
+  ck('CONTROL: the board really does carry unprojected players — enough of\n    them, and enough WRs among them, for the tie block below to be real',
+    zero.length >= 25 && zero.filter(p => p.position === 'WR').length >= 5,
+    { unprojected: zero.length, wr: zero.filter(p => p.position === 'WR').length });
   const wr = new Set(zero.filter(p => p.position === 'WR').map(p => Math.round((p.vorp || 0) * 10)));
   ck('  and their vorp is a POSITION CONSTANT — they are indistinguishable',
     wr.size === 1, { distinct_wr_vorp_values: wr.size });
@@ -71,8 +81,13 @@ function at(pick) {
 {
   const all = at(1);
   const refused = all.filter(x => !E.scoreable(x));
+  /* SAME RECALIBRATION AS THE CONTROL ABOVE: `> 100` was a count of how many
+   * unprojected rows the un-pruned board carried, not a property of refusal.
+   * The prune removed the men nobody expects to play; the ones left are real
+   * players whose projection is genuinely missing, which is exactly the
+   * population this assertion is about. 70 of them, and every one refused. */
   ck('an unprojected player is REFUSED rather than removed from the list',
-    refused.length > 100, refused.length);
+    refused.length >= 20, refused.length);
   ck('  and each one SAYS why, so a missing man reads as missing data',
     refused.every(x => x.score_error && /no projection/.test(x.score_error.reason)));
 

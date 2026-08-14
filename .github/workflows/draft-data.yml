@@ -50,8 +50,37 @@ jobs:
       - name: Install dependencies
         run: pip install -r draft/requirements.txt
 
-      - name: Run acceptance tests
-        # A board that fails its own scoring tests must never be published.
+      - name: Run acceptance tests (against the CURRENT board, pre-build)
+        # ⚠ THIS DOES NOT GATE WHAT GETS PUBLISHED, and its old comment claimed it
+        # did: "A board that fails its own scoring tests must never be published."
+        # It runs BEFORE `Build the draft artifact`, so it tests the board already
+        # committed and then a NEW, UNTESTED one is built and pushed below.
+        #
+        # That is how 2026-08-14's rebuild reached main red: the new board carried
+        # a field (`adp_sd_source`) with no declared purpose, nine suites failed on
+        # it, and nothing stopped the push — an unattended bot darkened the gate
+        # for every lane and no owner was watching.
+        #
+        # Kept because failing fast on a board that is ALREADY broken is still
+        # worth the two minutes. The gate that actually protects publication is
+        # "Acceptance gate on the FRESH board" below.
+        #
+        # ⚠️ ADVISORY, AND IT HAD TO BECOME ADVISORY (2026-08-14). Failing the JOB
+        # here is backwards: it stops the rebuild BECAUSE the current board is
+        # broken, and a rebuild is exactly what repairs a broken board. So one red
+        # test on the committed artifact froze the pipeline that would replace it.
+        #
+        # That is not hypothetical. The 09:16Z rebuild published a board carrying
+        # `adp_sd_source` with no declared purpose; from that moment this step
+        # failed, and the next scheduled run — 08:00Z on the 15th, six days before
+        # keeper lock — would have died here without ever attempting a build.
+        # Stale ADP into a draft, caused by the guard rather than by the defect.
+        #
+        # Publication is still protected, and by the step that can actually do it:
+        # "Acceptance gate on the FRESH board" runs AFTER the build and DOES fail
+        # the job. Nothing untested gets published; a broken board simply no
+        # longer blocks its own repair.
+        continue-on-error: true
         run: python -m pytest draft/tests -q
 
       # The JS suites are not optional extras: keepers.test.js is the only thing
@@ -156,10 +185,48 @@ jobs:
           python draft/opening_script.py
           python draft/room_read.py
 
-      - name: Commit the artifact if it changed
+      - name: Acceptance gate on the FRESH board — nothing untested is published
+        # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
+        # after the artifact is built and before it is committed. A board is the
+        # single input every draft-day surface reads, so publishing one that fails
+        # its own suite is the most expensive silent failure available here — and
+        # on 22 August it would ship to the room Cory is drafting in.
+        #
+        # FAILS THE JOB rather than skipping the commit quietly. A rebuild that
+        # stops publishing is a visible red run; a rebuild that publishes a broken
+        # board is invisible until somebody else's merge goes red, which is exactly
+        # what happened. Freezing on the last good board is the safe direction.
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/config/keepers.json"
+          echo "== the board about to be committed must pass the suite that reads it"
+          if ! python -m pytest draft/tests -q; then
+            echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
+            echo "    The previously published board is untouched and still live."
+            echo "    Fix the board (or whatever the suite is telling you about it)"
+            echo "    and re-run — do NOT bypass this to get a rebuild out."
+            exit 1
+          fi
+
+      - name: Commit the artifact if it changed
+        # ⚠️ `draft/config/keepers.json` ADDED 2026-08-14 — it was REGENERATED EVERY
+        # RUN AND NEVER COMMITTED. The step above rebuilds it from live Sleeper
+        # designations, the board is then built from that fresh copy, and the file
+        # was thrown away with the runner. The repo kept whatever was last
+        # hand-committed.
+        #
+        # Measured: the committed file carried ONE team at draft_slot 4, while the
+        # board built beside it reported FOUR teams designated and slot 8. Neither
+        # was wrong — they were different vintages of the same input, and the
+        # disagreement is what sent me looking.
+        #
+        # THE BOARD WAS NEVER AFFECTED; it is built from the fresh copy. What was
+        # lost is REPRODUCIBILITY: you could not rebuild a published board from the
+        # repo, because the keeper input that produced it no longer existed
+        # anywhere. For a project whose premise is auditable evidence, an input
+        # that vanishes after use is the wrong kind of missing.
+        if: github.event.inputs.snapshot != 'true'
+        run: |
+          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
