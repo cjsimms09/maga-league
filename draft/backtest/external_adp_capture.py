@@ -907,6 +907,25 @@ def _classify_undraftable(report: dict, players: dict, ids: dict,
     out["no_sleeper_match_draftable"] = max(
         0, int(report.get("no_sleeper_match") or 0) - len(excluded))
 
+    # ⚠ AND NAMED, NOT ONLY COUNTED. This figure is printed in the capture summary
+    # every morning and nobody could act on it: computed by SUBTRACTION, the
+    # players it counts were never identified. Trying to answer "which players did
+    # the prune cost us market coverage on" — the count moved 6 to 11 across one
+    # rebuild — my own ad-hoc enumeration disagreed with this module twice in a
+    # session, once listing three of our own keepers as misses. A count of a set
+    # nobody can enumerate is the shape this lane keeps finding elsewhere.
+    #
+    # THE SET IS ALSO A FREE CONTROL. The subtraction is only sound while every
+    # excluded id is itself unresolved, and nothing checked that. Built directly,
+    # its size and the subtraction become two independent routes to one number;
+    # they disagree exactly when the exclusion sets drift out of the unresolved
+    # population, which would inflate `crosswalk_rate_draftable` — and this class
+    # of error always goes in the flattering direction.
+    draftable_missing = [str(pid) for pid, _m in unresolved
+                         if str(pid) not in excluded]
+    out["no_sleeper_match_draftable_ids"] = draftable_missing[:40]
+    out["no_sleeper_match_draftable_truncated"] = len(draftable_missing) > 40
+
     # THE RATE THAT ANSWERS THE QUESTION. `crosswalk_rate` is "how much of the
     # source can we decode"; what decides whether the archive is usable is "how
     # much of what we can actually DRAFT can we decode". A keeper is draftable by

@@ -2738,3 +2738,49 @@ def test_the_REAL_ARCHIVE_is_judged_and_the_verdict_is_RECORDED_not_assumed():
     assert unmeasured <= 3, (
         "%d days carry no derivable rate; only the three captured before the "
         "parser kept the spread (08-11, -12, -13) should" % unmeasured)
+
+
+def test_THE_DRAFTABLE_MISSES_ARE_NAMED_not_only_counted():
+    """`no_sleeper_match_draftable` is reported in the capture summary every
+    morning and NOBODY CAN ACT ON IT, because it is computed by SUBTRACTION —
+    `no_sleeper_match - len(excluded)` — so the players it counts were never
+    identified. I hit this trying to answer "which players did the prune cost us
+    market coverage on": my own ad-hoc enumeration disagreed with the module twice
+    in one session, once listing three of our own keepers.
+
+    A count of a set nobody can enumerate is the shape this lane keeps finding in
+    other people's code.
+
+    MUTATION: report the count alone — the number moves 6 to 11 across a rebuild
+    and the only way to learn WHO is to re-derive the exclusions by hand and get
+    them wrong."""
+    key = {"1": {"name": "Real Player", "position": "WR", "team": "CIN"},
+           "2": {"name": "A Linebacker", "position": "LB", "team": "CIN"},
+           "3": {"name": "Kept Guy", "position": "RB", "team": "DET"}}
+    board = [{"player_id": "x", "name": "Somebody Else", "position": "WR",
+              "team": "SEA"}]
+    _ids, rep = C.crosswalk_map(key, board, kept=[{"name": "Kept Guy"}],
+                                positions={"QB", "RB", "WR", "TE", "K", "DEF"})
+    assert rep["no_sleeper_match_draftable"] == 1
+    assert rep["no_sleeper_match_draftable_ids"] == ["1"], rep
+    assert rep["no_sleeper_match_draftable_truncated"] is False
+
+
+def test_THE_NAMED_SET_AND_THE_ARITHMETIC_MUST_AGREE():
+    """A FREE CONTROL THAT DID NOT EXIST. The count subtracts `len(excluded)` from
+    `no_sleeper_match`, which is only sound while every excluded id is itself
+    unresolved. Nothing checked that. Now the set is built directly, so its size
+    and the subtraction are two independent routes to one number — and a
+    disagreement means the exclusion sets have drifted out of the unresolved
+    population, which would silently inflate `crosswalk_rate_draftable`.
+
+    MUTATION: derive the ids by filtering something other than `unresolved` — the
+    two numbers part company and the rate quietly climbs toward a better-than-real
+    figure, which is the direction this kind of error always goes."""
+    key = {str(i): {"name": "P%d" % i, "position": "WR", "team": "CIN"}
+           for i in range(1, 6)}
+    key["9"] = {"name": "Linebacker", "position": "LB", "team": "CIN"}
+    _ids, rep = C.crosswalk_map(key, [], kept=None,
+                                positions={"QB", "RB", "WR", "TE", "K", "DEF"})
+    assert len(rep["no_sleeper_match_draftable_ids"]) == \
+        rep["no_sleeper_match_draftable"], rep
