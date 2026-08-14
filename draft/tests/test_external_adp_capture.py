@@ -2004,8 +2004,47 @@ def test_a_CHECKER_THAT_THROWS_MUST_NOT_COST_THE_DAY(tmp_path, monkeypatch):
 # The classification is checked against `capture()`'s source, so a NEW helper
 # forces a decision instead of silently joining whichever set is convenient.
 
+def _calls(fn) -> set:
+    """Every bare name this function CALLS — prose excluded.
+
+    ⚠ ONE DEFINITION, USED BY BOTH CLASSIFICATION TESTS. My first version of the
+    `assemble_day` one was a second copy of the regex `capture()`'s uses, and it
+    failed immediately on the word "`capture()`" appearing in a DOCSTRING. Two
+    copies of "what does this function call", drifting, in a file whose recurring
+    finding is exactly that — so there is one, and it reads code rather than
+    English: the docstring and every comment are removed first.
+
+    That also closes the direction the old regex could not see. A name mentioned
+    in prose was an unexplained failure; a call that only APPEARS in prose was
+    indistinguishable from a real one, so a helper deleted from the body but left
+    in a comment would still look classified.
+    """
+    import ast
+    import inspect
+    import textwrap
+    src = textwrap.dedent(inspect.getsource(fn))
+    tree = ast.parse(src)
+    for node in ast.walk(tree):
+        if (isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef,
+                              ast.Module)) and ast.get_docstring(node)):
+            node.body = node.body[1:]
+    out = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            f = node.func
+            if isinstance(f, ast.Name):
+                out.add(f.id)
+            elif isinstance(f, ast.Attribute):
+                out.add(f.attr)
+    return out
+
+
 WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
-GUARDS = ["integrity"]
+#: `blocking_fatal` joined `integrity` here the moment it was written, because the
+#: check above FORCED the decision — it failed naming the new call by name rather
+#: than letting it default into whichever list was convenient. That is the whole
+#: point of the classification test, and it is the first time it has fired.
+GUARDS = ["integrity", "blocking_fatal"]
 #: The SOURCE. Not a guard and not the write: if it fails there is no board at
 #: all, so aborting is the only honest outcome. Grouped with the write path for
 #: the loud-and-no-partial-file assertion because the requirement is identical.
@@ -2064,17 +2103,22 @@ def test_EVERY_HELPER_capture_CALLS_IS_CLASSIFIED_as_write_or_guard():
 
     MUTATION: drop a name from either list — the parametrised tests keep passing
     on a smaller set and the coverage quietly shrinks with nothing saying so."""
-    import inspect
-    import re as _re
-    body = inspect.getsource(C.capture)
-    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save", "capture"}
-    called = {m.group(1) for m in _re.finditer(r"\b([a-z_][a-z0-9_]*)\(", body)}
+    known = set(WRITE_PATH) | set(GUARDS) | set(SOURCE) | {"load", "save"}
+    called = _calls(C.capture)
     module_level = {n for n in called if hasattr(C, n) and n not in dir(__builtins__)}
     missing = module_level - known
     assert not missing, (
         "capture() calls %s and neither list covers them — classify each as WRITE "
         "PATH (may abort, must be loud and leave no partial file) or GUARD (must "
         "never cost the day)" % sorted(missing))
+    # AND THE OTHER DIRECTION, which this check did not have and rule 13f names:
+    # `module_level - known` is empty whenever `_calls` returns NOTHING, so a
+    # reader that stopped reading would report a fully classified function
+    # forever. Every classified name must still be a call.
+    for name in WRITE_PATH + GUARDS + SOURCE:
+        assert name in called, (
+            "%s is classified but capture() no longer calls it — the parametrised "
+            "tests above are injecting a fault into nothing" % name)
 
 
 # ── WHEN THE SPREAD DOES NOT ARRIVE, SAY WHY IN THE SAME BREATH ────────────
@@ -2263,3 +2307,274 @@ def test_the_REAL_config_yields_the_REAL_BOARD_DEPTH():
     # the other. 147 is how many SELECTIONS happen, not how deep the draft is.
     assert po["live_picks"] == 147
     assert po["live_picks"] == d["last_pick"] - len(po["forfeited"])
+
+# ── THE SAME INVARIANT, ONE LAYER UP: INSIDE THE FETCH ─────────────────────
+#
+# THE INVARIANT ABOVE WAS CHECKED FOR EVERY HELPER `capture()` CALLS AND FOR NONE
+# OF THE HELPERS `fetch_mfl` CALLS — and `fetch_mfl` is where the riskiest line in
+# the whole path lived: `dispersion = dispersion_of(parsed)`, unguarded, inside a
+# `pragma: no cover` function, on the morning of the first day it would ever meet
+# MFL's real response. A raise there aborts the capture and costs a day no
+# provider will serve again, in exchange for a field the archive did without
+# entirely until 2026-08-13.
+#
+# So the second half of `fetch_mfl` — everything below the two HTTP reads — is now
+# `assemble_day`, pure and executable, and the invariant reaches it. Same split
+# `dispersion_of` got, same reason, one level out.
+#
+# The three roles are the ones `capture()` already names:
+#   SOURCE  `mfl_adp.parse` — no board without it, so raising is the honest outcome
+#   GUARD   `dispersion_of`, `dispersion_diagnosis` — enhancements; may not stop
+#           a day reaching disk
+#   REPORT  the note
+
+ASSEMBLE_SOURCE = ["parse"]
+ASSEMBLE_GUARDS = ["dispersion_of", "dispersion_diagnosis"]
+
+#: One MFL row in the shape the live endpoint actually returns — observed keys,
+#: string values and all. `_parsed` above starts from `parse`'s OUTPUT; this
+#: starts from MFL's, so the assertions below exercise the whole assembly rather
+#: than the half of it that was already reachable.
+def _texts(**over):
+    row = {"id": "13593", "averagePick": "10.5", "draftsSelectedIn": "3510",
+           "minPick": "2", "maxPick": "40", "draftSelPct": "70", "rank": "1"}
+    row.update(over)
+    adp = {"adp": {"totalDrafts": "5011", "player": [row]}}
+    players = {"players": {"player": [
+        {"id": "13593", "name": "Jefferson, Justin", "position": "WR", "team": "MIN"}]}}
+    return json.dumps(adp), json.dumps(players)
+
+
+def test_assemble_day_TURNS_THE_TWO_RAW_EXPORTS_INTO_A_DAY():
+    """The whole assembly, end to end, for the first time — it was unreachable
+    behind `pragma: no cover` until it was split out.
+
+    MUTATION: return `rows` keyed by the players export instead of the ADP report.
+    Every id still resolves in the test above because both fixtures use the same
+    one; the archive silently keys a day by whichever export happened to be
+    richer, and the ADP curve is attributed to the wrong players."""
+    adp_text, players_text = _texts()
+    rws, plrs, total, note, disp = C.assemble_day(adp_text, players_text, "n")
+    assert rws == {"13593": 10.5}
+    assert plrs["13593"] == {"name": "Justin Jefferson", "position": "WR",
+                             "team": "MIN"}
+    assert total == 5011
+    assert disp == {"13593": {"min_pick": 2.0, "max_pick": 40.0, "sel_pct": 70.0,
+                              "drafts": 3510}}
+    assert note == "n", "a successful assembly adds nothing to the note"
+
+
+@pytest.mark.parametrize("victim", ASSEMBLE_GUARDS)
+def test_A_GUARD_INSIDE_THE_FETCH_MUST_NOT_COST_THE_DAY(victim, monkeypatch, capsys):
+    """THE ONE THIS SPLIT EXISTS FOR. Both of these were written after the archive
+    was already running and neither is load-bearing: the day was worth keeping
+    without a spread for two days, and it is worth keeping without one again.
+
+    MUTATION: let it propagate — an optional field kills an unrefetchable day, and
+    it does it in a function nothing can execute, so nothing says it will."""
+    adp_text, players_text = _texts()
+    hit = {"x": False}
+
+    def boom(*a, **k):
+        hit["x"] = True
+        raise KeyError("injected fault in %s" % victim)
+
+    monkeypatch.setattr(C, victim, boom)
+    rws, plrs, total, note, disp = C.assemble_day(adp_text, players_text, "n")
+    assert hit["x"], "%s was never called — this proved nothing" % victim
+    assert rws == {"13593": 10.5}, "the day survived %s failing" % victim
+    assert total == 5011, "and so did the coverage figure beside it"
+
+
+def test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG():
+    """SURVIVING IS NOT ENOUGH — a day whose spread silently became `None` is
+    indistinguishable from a day MFL published no spread for, and `dispersion_health`
+    would then blame the feed for our bug. The note travels with the snapshot into
+    the archive; the print reaches the CI log. Both name the exception.
+
+    MUTATION: swallow it quietly — the archive gains days with no spread and no
+    reason, and the diagnosis built to make the fix a diff has nothing to read."""
+    import mfl_adp as MFL
+    adp_text, players_text = _texts()
+    real = C.dispersion_of
+    try:
+        C.dispersion_of = lambda p: (_ for _ in ()).throw(TypeError("bad shape"))
+        rws, _p, _t, note, disp = C.assemble_day(adp_text, players_text, "mfl PPR")
+    finally:
+        C.dispersion_of = real
+    assert rws == {"13593": 10.5}
+    assert disp == {}
+    assert "DISPERSION PARSE FAILED" in note and "TypeError" in note, note
+    assert "bad shape" in note, "and WHICH failure, so the fix is a diff: %s" % note
+    assert note.startswith("mfl PPR"), "the market's own note must survive: %s" % note
+    assert MFL.parse  # the source is untouched by any of this
+
+
+def test_THE_SOURCE_INSIDE_THE_FETCH_ABORTS_RATHER_THAN_INVENTING_A_DAY(monkeypatch):
+    """The other direction, and it must stay this way. If `parse` fails there is no
+    board — `capture()` refuses a zero-row day precisely so a dated empty snapshot
+    never reaches the archive to be replayed later as a frozen market.
+
+    MUTATION: guard `parse` the way the enhancements are guarded — the capture
+    writes a day with no rows in it, or `capture` raises its zero-row refusal and
+    the real reason is gone."""
+    import mfl_adp as MFL
+    adp_text, players_text = _texts()
+
+    def boom(*a, **k):
+        raise ValueError("MFL returned something parse cannot read")
+
+    monkeypatch.setattr(MFL, "parse", boom)
+    with pytest.raises(ValueError):
+        C.assemble_day(adp_text, players_text, "n")
+
+
+def test_EVERY_HELPER_assemble_day_CALLS_IS_CLASSIFIED_as_source_or_guard():
+    """Same forcing function as `capture()`'s, and it has already earned its keep
+    once today — the capture-side version failed by name when `blocking_fatal` was
+    added, which is how `blocking_fatal` came to be inside the guard's `try` rather
+    than beside it.
+
+    MUTATION: drop a name from either list — the parametrised test keeps passing on
+    a smaller set and the invariant quietly stops covering the line it was built
+    for."""
+    import mfl_adp as MFL
+    known = set(ASSEMBLE_SOURCE) | set(ASSEMBLE_GUARDS)
+    called = _calls(C.assemble_day)
+    interesting = {n for n in called
+                   if (hasattr(C, n) or hasattr(MFL, n)) and n not in dir(__builtins__)}
+    missing = interesting - known
+    assert not missing, (
+        "assemble_day calls %s and neither list covers them — classify each as "
+        "SOURCE (may raise; there is no day without it) or GUARD (must never cost "
+        "the day)" % sorted(missing))
+    for name in ASSEMBLE_GUARDS + ASSEMBLE_SOURCE:
+        assert name in called, (
+            "%s is classified but assemble_day no longer calls it — the "
+            "parametrised test above is injecting a fault into nothing" % name)
+
+
+# ── ONE BAD DAY MUST NOT COST ALL THE REST ─────────────────────────────────
+#
+# `integrity` judges the WHOLE archive; `capture()` refused to write whenever ANY
+# day in it was fatal. So a single corrupt day — from a bug, a bad merge, a hand
+# edit — would have blocked EVERY SUBSEQUENT CAPTURE, not just its own. The
+# workflow step fails, the commit step is gated on it, and the days accumulate as
+# nothing until a human notices the red run.
+#
+# This is the board-pin lesson for the fourth time in this file and by far the
+# largest instance: the previous three could each cost a day. This one could cost
+# every day that came after it, and the archive exists BECAUSE those days are
+# unrepeatable.
+#
+# The rule is unchanged in the case the check was built for — corruption in the
+# day being written still refuses. What changed is that yesterday's corruption is
+# no longer allowed to destroy today's board, because refusing does not unwrite
+# it, does not fix it, and is not even how anyone finds out: the standing check
+# over the committed archive is.
+
+def _fatal(kind="bad_adp", day=("2026", "2026-08-10")):
+    return {"kind": kind, "day": day, "n": 1}
+
+
+def test_only_TODAYS_OWN_CORRUPTION_may_stop_todays_write():
+    """MUTATION: return `ig["fatal"]` whole — one bad day anywhere blocks every
+    capture that follows it, permanently, which is the defect this replaced."""
+    ig = {"fatal": [_fatal(day=("2026", "2026-08-10")),
+                    _fatal(kind="row_count_mismatch", day=("2026", "2026-08-14"))]}
+    blocking = C.blocking_fatal(ig, 2026, "2026-08-14")
+    assert [f["kind"] for f in blocking] == ["row_count_mismatch"]
+
+
+def test_the_SAME_DATE_IN_ANOTHER_SEASON_is_not_todays_day():
+    """Two seasons legitimately hold the same observation date — the archive keys on
+    (year, date) and a 2025 backfill sitting beside a 2026 capture is normal.
+
+    MUTATION: compare the date only — a corrupt historical season blocks the live
+    one, which is the original defect wearing a smaller hat."""
+    ig = {"fatal": [_fatal(day=("2025", "2026-08-14"))]}
+    assert C.blocking_fatal(ig, 2026, "2026-08-14") == []
+    assert len(C.blocking_fatal(ig, 2025, "2026-08-14")) == 1
+
+
+def test_the_YEAR_MATCHES_WHETHER_IT_ARRIVES_AS_INT_OR_STRING():
+    """`capture(2026, ...)` passes an int; `integrity` stamps `str(s["year"])`; a
+    round trip through JSON turns the tuple into a list. All three are the same day.
+
+    MUTATION: compare the raw values — the types never match, `blocking_fatal`
+    returns empty for everything, and a genuinely corrupt day sails onto disk while
+    the test above still passes."""
+    assert len(C.blocking_fatal({"fatal": [_fatal(day=["2026", "2026-08-14"])]},
+                                2026, "2026-08-14")) == 1
+    assert len(C.blocking_fatal({"fatal": [_fatal(day=("2026", "2026-08-14"))]},
+                                "2026", "2026-08-14")) == 1
+
+
+def test_a_FINDING_THAT_CANNOT_NAME_A_DAY_DOES_NOT_BLOCK_ONE():
+    """Every fatal kind carries `day` today. A future archive-wide check that does
+    not is not evidence about the board in hand, and it may not destroy it — it is
+    printed with the others instead. The same asymmetry decides it as everywhere
+    else here: a corrupt archive is recoverable, a lost day is not.
+
+    MUTATION: block on unattributable findings — a new whole-archive check silently
+    acquires the power to end the capture, which is how this defect got in."""
+    assert C.blocking_fatal({"fatal": [{"kind": "something_new"}]},
+                            2026, "2026-08-14") == []
+    assert C.blocking_fatal({"fatal": [{"kind": "x", "day": None}]},
+                            2026, "2026-08-14") == []
+
+
+def test_NOTHING_WRONG_blocks_nothing_and_a_MISSING_report_is_not_a_finding():
+    """`ig` is a stub with an empty `fatal` when the checker itself failed, and that
+    path must not be read as corruption."""
+    assert C.blocking_fatal({"fatal": [], "ok": True}, 2026, "2026-08-14") == []
+    assert C.blocking_fatal({}, 2026, "2026-08-14") == []
+    assert C.blocking_fatal(None, 2026, "2026-08-14") == []
+
+
+def test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD(tmp_path, monkeypatch, capsys):
+    """END TO END, because the unit above proves the decision and this proves it is
+    the decision `capture()` actually makes.
+
+    An archive holding one fatal day from last week; today's fetch is good. Today
+    must reach disk, and the older finding must still be shouted — a corruption
+    that stops blocking must not also stop being reported.
+
+    MUTATION: keep `if not ig["ok"]` — every capture after the first bad day is
+    lost, and the archive this file exists to protect stops growing."""
+    p = tmp_path / "arch.json"
+    p.write_text(json.dumps({"series": [
+        {"year": "2026", "observed_at": "2026-08-10",
+         "rows": {"1": 4.5}, "row_count": 999, "total_drafts": 10},
+    ], "players": {"1": {"name": "A B"}}}))
+
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": 4.5, "2": 9.0}, {"1": {"name": "A B"}},
+                                      10, "n", {}))
+    C.capture(2026, "2026-08-14", path=str(p))
+
+    days = {s["observed_at"] for s in json.loads(p.read_text())["series"]}
+    assert days == {"2026-08-10", "2026-08-14"}, (
+        "today's unrefetchable board was discarded over a week-old finding")
+    out = capsys.readouterr().out
+    assert "OTHER DAYS" in out and "row_count_mismatch" in out, (
+        "and it went quiet about the corruption while it was at it:\n%s" % out)
+
+
+def test_TODAYS_corruption_STILL_REFUSES_even_beside_an_older_one(tmp_path,
+                                                                  monkeypatch):
+    """The half that must not have moved. MUTATION: return `[]` unconditionally —
+    every test above still passes and the refusal built to keep a corrupt day out
+    of a permanent archive has silently become a no-op."""
+    p = tmp_path / "arch.json"
+    p.write_text(json.dumps({"series": [
+        {"year": "2026", "observed_at": "2026-08-10",
+         "rows": {"1": 4.5}, "row_count": 999, "total_drafts": 10},
+    ], "players": {}}))
+    before = p.read_text()
+    monkeypatch.setattr(C, "fetch_mfl",
+                        lambda year: ({"1": -4.5}, {"1": {"name": "A B"}}, 10, "n", {}))
+    with pytest.raises(RuntimeError) as e:
+        C.capture(2026, "2026-08-14", path=str(p))
+    assert "bad_adp" in str(e.value)
+    assert p.read_text() == before, "and it must not have touched the file"

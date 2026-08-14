@@ -223,13 +223,32 @@ def _purge_pycache(path: str):
                 pass
 
 
+def _test_name(s: str) -> str:
+    """`path::test_x[param]` -> `test_x`. THE ONE NORMALISATION, USED ON BOTH SIDES.
+
+    It was applied only to what pytest REPORTED, never to what the caller CLAIMED,
+    and the verdict is decided by `t in failed` — exact membership. So naming a
+    parametrised case the way pytest prints it,
+    `test_A_GUARD_MUST_NOT_COST_THE_DAY[dispersion_of]`, produced a `must_fail`
+    entry that could never match anything. Alone it reads SURVIVED, which looks
+    like a coverage hole and sends the reader to fix a test that is working.
+    Beside a second name that does match it is worse: the run reports KILLED and
+    the manifest keeps a name that will never fire again.
+
+    I hit both halves of that within one unit. Normalising the claim the same way
+    as the evidence is the fix, and it belongs here rather than at each call site
+    — which is the multi-derivation this repo keeps finding.
+    """
+    return s.split("::")[-1].split("[")[0].strip()
+
+
 def _failed_names(stdout: str) -> list:
     """Test names pytest reported as FAILED, from the summary lines."""
     out = []
     for line in stdout.splitlines():
         m = re.match(r"^FAILED\s+(\S+)", line.strip())
         if m:
-            out.append(m.group(1).split("::")[-1].split("[")[0])
+            out.append(_test_name(m.group(1)))
     return out
 
 
@@ -296,7 +315,8 @@ def check(target_file: str, old: str, new: str, test_paths, must_fail,
 
     p = Path(target_file)
     src = p.read_text(encoding="utf-8")
-    must = [must_fail] if isinstance(must_fail, str) else list(must_fail)
+    must = [_test_name(m)
+            for m in ([must_fail] if isinstance(must_fail, str) else must_fail)]
     res = {"file": str(p), "old": old[:80], "old_full": old, "new": new,
            "must_fail": must,
            "verdict": None, "detail": None, "failed": [],

@@ -354,6 +354,45 @@ def integrity(archive) -> dict:
     return out
 
 
+def blocking_fatal(ig, year, observed_at) -> list:
+    """Of everything `integrity` found wrong, what may stop TODAY reaching disk.
+
+    ONLY EVIDENCE ABOUT TODAY. `integrity` judges the WHOLE archive, and
+    `capture()` was refusing to write whenever ANY day in it was fatal — so one
+    corrupt day, from any cause, would have blocked EVERY SUBSEQUENT CAPTURE
+    FOREVER. Not one day lost: all of them, silently, until a human noticed the
+    workflow going red. The guard that exists to protect an unrefetchable archive
+    was one bad row away from being the thing that emptied it.
+
+    That is the board-pin lesson for the fourth time in this file, and it is the
+    largest instance of it: the previous three could cost a day, this one could
+    cost the rest of them.
+
+    WHICH ERROR IS WORSE, THE SAME WAY IT IS DECIDED EVERYWHERE ELSE HERE. Today's
+    board is perishable and unrepeatable. Yesterday's corruption is already on
+    disk, already in git, and already caught by the standing CI check that runs
+    `integrity` over the committed archive — refusing to write today does not
+    unwrite it, does not fix it, and does not even report it any louder. It only
+    adds a second, permanent loss to a recoverable one.
+
+    A FINDING THAT CANNOT NAME A DAY DOES NOT BLOCK EITHER, for the same reason:
+    it is not evidence about today. It is printed with the rest. Every fatal kind
+    that exists today carries `day`; a future archive-wide check that does not
+    must be able to say what it means for the day in hand before it is allowed to
+    destroy one.
+
+    Corruption in TODAY'S snapshot still refuses, unchanged — that is the case the
+    check was built for, and it is the only one where refusing prevents anything.
+    """
+    today = (str(year), str(observed_at))
+    out = []
+    for f in ((ig or {}).get("fatal") or []):
+        day = f.get("day")
+        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:
+            out.append(f)
+    return out
+
+
 #: What `mfl_adp.parse` looks for when it extracts a spread. Named here so a
 #: failure can be reported as a DIFF against what arrived, rather than as a
 #: request to go and read the parser.
@@ -1392,6 +1431,10 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     {mfl_id: adp}, `players` is {mfl_id: {name, position, team}}, `dispersion` is
     {mfl_id: {min_pick, max_pick, sel_pct, drafts}}.
 
+    THIS IS THE EGRESS AND NOTHING ELSE. Everything after the two HTTP reads is
+    `assemble_day`, which is pure and tested; only the parts that genuinely
+    cannot run outside CI stay behind this `pragma: no cover`.
+
     DISPERSION IS PART OF THE PERISHABLE DAY. MFL publishes minPick, maxPick and
     draftSelPct per player; `parse` discarded them until 2026-08-13, so the two
     days already archived have the mean and nothing else. The board's `adp_sd` is
@@ -1417,7 +1460,6 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
     so loudly, rather than throwing away an observation that cannot be refetched.
     """
     import urllib.request
-    import mfl_adp as MFL
 
     def get(params, what):
         req = urllib.request.Request(_mfl_url(year, params),
@@ -1439,6 +1481,38 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
               % (type(e).__name__, e))
         players_text, note = "{}", note + " (players export FAILED this run)"
 
+    return assemble_day(adp_text, players_text, note)
+
+
+def assemble_day(adp_text, players_text, note=""):
+    """The two MFL exports -> one day's board. PURE, SO THE GUARDS CAN BE PROVEN.
+
+    Returns `(rows, players, total_drafts, note, dispersion)` — the same tuple
+    `fetch_mfl` has always returned, because this IS the second half of
+    `fetch_mfl`, moved out from behind `pragma: no cover`.
+
+    WHY IT MOVED, AND IT IS THE SAME REASON `dispersion_of` MOVED. Everything
+    below the two HTTP reads is a transformation with no egress in it, and it was
+    living inside a function nothing can execute — so the standing invariant this
+    module tests everywhere else, A GUARD MAY NEVER COST THE DAY, was checked for
+    every helper `capture()` calls and for NONE of the helpers `fetch_mfl` calls,
+    while the riskiest line in the whole path sat in here.
+
+    THE THREE ROLES ARE THE SAME ONES `capture()` ALREADY NAMES:
+
+      SOURCE   `mfl_adp.parse` — if it fails there is no board, so raising is the
+               only honest outcome and the caller must not paper over it.
+      GUARD    `dispersion_of`, `dispersion_diagnosis` — enhancements. Neither
+               existed before 2026-08-13 and the archive was worth keeping
+               without them, so neither may stop a day reaching disk.
+      REPORT   the note. Never load-bearing.
+
+    The ADP curve is the perishable thing. Names, spread and diagnosis are all
+    recoverable or optional; the mean as of a past date is not, and no provider
+    serves it again.
+    """
+    import mfl_adp as MFL
+
     parsed = MFL.parse(adp_text, players_text)
     rows = {r["mfl_id"]: r["adp"] for r in parsed}
     players = {r["mfl_id"]: {"name": r.get("name"), "position": r.get("position"),
@@ -1446,7 +1520,29 @@ def fetch_mfl(year):  # pragma: no cover  (egress; CI only)
                for r in parsed}
     # Only players the source actually gave a spread for. A row with every field
     # None would be indistinguishable from a measured zero once it is on disk.
-    dispersion = dispersion_of(parsed)
+    #
+    # ⚠ GUARDED, BECAUSE THE SPREAD IS AN ENHANCEMENT AND THE DAY IS NOT.
+    # An ADP day cannot be refetched. `dispersion_of` is pure and tested, but
+    # 2026-08-14 is the FIRST contact between it and MFL's real response — MFL is
+    # unreachable from here, so no amount of care rehearses that — and an
+    # unexpected shape in one row would raise, abort the capture, and cost a day
+    # that no later run can recover, in exchange for a field we did without
+    # entirely until yesterday.
+    #
+    # The diagnosis two blocks down already carries this rule in its own comment:
+    # "must never cost the capture". This line did not, and it is the one most
+    # likely to meet something new. Failing to a spread of NOTHING is honest —
+    # `dispersion_health` already reports an absent spread by name, and the note
+    # says which exception it was, so the fix is a diff rather than a second
+    # unrefetchable day of guessing.
+    try:
+        dispersion = dispersion_of(parsed)
+    except Exception as e:                          # noqa: BLE001
+        dispersion = {}
+        note = note + (" | DISPERSION PARSE FAILED (%s: %s) — the day's ADP is "
+                       "captured, the spread is not" % (type(e).__name__, e))
+        print("assemble_day: dispersion parse FAILED (%s: %s) — capturing the "
+              "day's ADP anyway" % (type(e).__name__, e))
     # IF THE SPREAD DID NOT ARRIVE, SAY WHY IN THE SAME BREATH. MFL cannot be
     # reached from the dev environment (the agent proxy 403s CONNECT to
     # api.myfantasyleague.com:443), so the scheduled run is the first contact
@@ -1503,22 +1599,42 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     # standing CI test runs `integrity` against the committed archive and would
     # catch it, and the file can be corrected. A lost day is PERMANENT. So a
     # checker that cannot RUN reports loudly and does not block; a checker that
-    # runs and finds corruption still refuses.
+    # runs and finds corruption in TODAY'S SNAPSHOT still refuses.
+    #
+    # ⚠ AND IT IS SCOPED TO TODAY — see `blocking_fatal`. `integrity` judges the
+    # whole archive, so refusing on `ok` meant one corrupt day anywhere would have
+    # blocked every future capture until someone noticed, turning one recoverable
+    # loss into an unbounded permanent one.
+    #
+    # BOTH GUARD CALLS SIT IN ONE `try`, deliberately. `blocking_fatal` is the
+    # second thing standing between a good board and the disk, and it would have
+    # been the fourth guard in this file able to destroy what it protects if a bug
+    # in it were allowed to propagate.
     try:
         ig = integrity({"series": series, "players": merge_players(
             load_players(path), players or {})})
+        blocking = blocking_fatal(ig, year, observed_at)
     except Exception as e:                          # noqa: BLE001
         ig = {"ok": True, "fatal": [], "reported": [], "status": "check_failed"}
+        blocking = []
         print("INTEGRITY CHECK ITSELF FAILED (%s: %s) — WRITING THE DAY ANYWAY. A "
               "bug in the guard is not evidence the data is bad, and the day cannot "
               "be refetched. The standing check on the committed archive still runs."
               % (type(e).__name__, e))
-    if not ig["ok"]:
+    # LOUD ABOUT WHAT IT IS NOT REFUSING FOR. An older day going fatal is a real
+    # finding and must not become quiet just because it no longer stops the write.
+    older = [f for f in (ig.get("fatal") or []) if f not in blocking]
+    if older:
+        print("⚠ THE ARCHIVE HAS %d FATAL FINDING(S) ON OTHER DAYS — WRITING TODAY "
+              "ANYWAY, because refusing does not unwrite them and today's board "
+              "cannot be refetched. FIX THE ARCHIVE: %s"
+              % (len(older), json.dumps(older, default=str)[:400]))
+    if blocking:
         raise RuntimeError(
             "REFUSING TO WRITE — integrity check failed for %s on %s: %s. The "
             "archive is append-only and its days cannot be refetched, so a corrupt "
             "snapshot would be permanent."
-            % (year, observed_at, json.dumps(ig["fatal"])[:400]))
+            % (year, observed_at, json.dumps(blocking, default=str)[:400]))
 
     save(series, path, players=players)
 

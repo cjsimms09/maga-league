@@ -183,16 +183,16 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}",
-     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    if False:\n        ig = {}",
+     "old": "    try:\n        ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n        blocking = blocking_fatal(ig, year, observed_at)\n    except Exception as e:                          # noqa: BLE001\n        ig = {\"ok\": True, \"fatal\": [], \"reported\": [], \"status\": \"check_failed\"}\n        blocking = []",
+     "new": "    ig = integrity({\"series\": series, \"players\": merge_players(\n            load_players(path), players or {})})\n    blocking = blocking_fatal(ig, year, observed_at)\n    if False:\n        ig = {}\n        blocking = []",
      "must_fail": [
       "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
      ],
      "verdict": "KILLED"
     },
     {
-     "old": "    if not ig[\"ok\"]:",
-     "new": "    if False:",
+     "old": "    if blocking:\n        raise RuntimeError(",
+     "new": "    if False:\n        raise RuntimeError(",
      "must_fail": [
       "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
      ],
@@ -259,6 +259,73 @@
      "new": "    judged = list(ser)",
      "must_fail": [
       "test_days_BEFORE_the_capture_could_carry_it_are_NOT_counted_against_us"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    try:\n        dispersion = dispersion_of(parsed)\n    except Exception as e:                          # noqa: BLE001\n        dispersion = {}",
+     "new": "    if True:\n        dispersion = dispersion_of(parsed)\n    if False:\n        dispersion = {}",
+     "must_fail": [
+      "test_A_GUARD_INSIDE_THE_FETCH_MUST_NOT_COST_THE_DAY",
+      "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) \u2014 the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
+     "new": "        note = note",
+     "must_fail": [
+      "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    parsed = MFL.parse(adp_text, players_text)",
+     "new": "    try:\n        parsed = MFL.parse(adp_text, players_text)\n    except Exception:\n        parsed = []",
+     "must_fail": [
+      "test_THE_SOURCE_INSIDE_THE_FETCH_ABORTS_RATHER_THAN_INVENTING_A_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for f in ((ig or {}).get(\"fatal\") or []):\n        day = f.get(\"day\")\n        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:\n            out.append(f)",
+     "new": "    for f in ((ig or {}).get(\"fatal\") or []):\n        out.append(f)",
+     "must_fail": [
+      "test_only_TODAYS_OWN_CORRUPTION_may_stop_todays_write",
+      "test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:\n            out.append(f)",
+     "new": "        if False:\n            out.append(f)",
+     "must_fail": [
+      "test_TODAYS_corruption_STILL_REFUSES_even_beside_an_older_one",
+      "test_capture_REFUSES_TO_WRITE_a_corrupt_archive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:",
+     "new": "        if isinstance(day, (list, tuple)) and str(day[-1]) == str(observed_at):",
+     "must_fail": [
+      "test_the_SAME_DATE_IN_ANOTHER_SEASON_is_not_todays_day"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if isinstance(day, (list, tuple)) and tuple(str(x) for x in day) == today:",
+     "new": "        if isinstance(day, (list, tuple)) and tuple(day) == (year, observed_at):",
+     "must_fail": [
+      "test_the_YEAR_MATCHES_WHETHER_IT_ARRIVES_AS_INT_OR_STRING"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    older = [f for f in (ig.get(\"fatal\") or []) if f not in blocking]",
+     "new": "    older = []",
+     "must_fail": [
+      "test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD"
      ],
      "verdict": "KILLED"
     }
@@ -446,6 +513,14 @@
      "new": "        prev[sig] = signal.getsignal(sig)",
      "must_fail": [
       "test_SIGTERM_MID_MUTATION_restores_the_file"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    must = [_test_name(m)\n            for m in ([must_fail] if isinstance(must_fail, str) else must_fail)]",
+     "new": "    must = [must_fail] if isinstance(must_fail, str) else list(must_fail)",
+     "must_fail": [
+      "test_a_PARAMETRISED_case_may_be_NAMED_THE_WAY_PYTEST_PRINTS_IT"
      ],
      "verdict": "KILLED"
     }

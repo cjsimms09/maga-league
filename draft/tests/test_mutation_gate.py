@@ -80,6 +80,22 @@ def test_label_uses_the_threshold():
 '''
 
 
+#: The same subject, but the test is PARAMETRISED — the shape that produced a
+#: `must_fail` entry which could never match. pytest prints `test_x[4]`; the
+#: gate's verdict is exact membership against names it has already stripped.
+PARAM_TESTS = '''
+import sys
+from pathlib import Path
+import pytest
+sys.path.insert(0, r"{d}")
+import subject as S
+
+@pytest.mark.parametrize("n", [4, 5])
+def test_double_doubles(n):
+    assert S.double(n) == n * 2
+'''
+
+
 def scenario(tmp_path, module=MODULE):
     d = tmp_path / "pkg"
     d.mkdir()
@@ -98,6 +114,37 @@ def test_a_REAL_kill_is_reported_as_KILLED_and_names_the_test(tmp_path):
                  must_fail=["test_double_doubles"])
     assert r["verdict"] == "KILLED", r
     assert "test_double_doubles" in r["failed"]
+
+
+def test_a_PARAMETRISED_case_may_be_NAMED_THE_WAY_PYTEST_PRINTS_IT(tmp_path):
+    """NAMING A CASE `test_x[param]` USED TO BE A NAME THAT COULD NEVER MATCH.
+
+    The gate strips `path::` and `[param]` off what pytest REPORTED and never off
+    what the caller CLAIMED, then decides the verdict by exact membership. So the
+    obvious way to name a parametrised case — copy it out of pytest's own output —
+    produced an entry that matched nothing: SURVIVED on a mutation the suite
+    catches, which reads as a coverage hole and sends the reader to fix a test
+    that works. Beside a second name that DID match it was quieter and worse: the
+    run reported KILLED and the record kept a name that will never fire again.
+
+    Both halves happened to me inside one unit, which is why the normalisation is
+    now on both sides rather than one.
+
+    MUTATION: normalise only `_failed_names` — the claim keeps its brackets, the
+    verdict goes SURVIVED, and the mutation this file exists to catch is filed as
+    uncaught."""
+    src, _ = scenario(tmp_path)
+    t = tmp_path / "test_param.py"
+    t.write_text(PARAM_TESTS.format(d=str(Path(src).parent)))
+
+    r = MG.check(src, "return x * 2", "return x * 3", [str(t)],
+                 must_fail=["test_double_doubles[4]"])
+    assert r["verdict"] == "KILLED", r
+    # AND THE RECORD MUST CARRY THE NORMALISED NAME, not the one it was handed.
+    # `test_mutation_manifest.py` looks each `must_fail` up against the `def test`
+    # lines in the file; a bracketed name is absent from that list forever, so a
+    # manifest holding one fails the cheap standing check every run.
+    assert r["must_fail"] == ["test_double_doubles"], r["must_fail"]
 
 
 def test_the_FILE_IS_RESTORED_afterwards(tmp_path):
