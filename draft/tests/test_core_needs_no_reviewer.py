@@ -419,6 +419,17 @@ def test_EXEC_AN_UNAVAILABLE_REVIEWER_YIELDS_UNAVAILABLE_AND_NEVER_ACCEPT():
     artifact carries no `verdict` key at all, rather than trusting that a
     consumer will check `status` first."""
     import tempfile
+    # And the NORMAL path stays non-blocking, asserted here so the two modes
+    # cannot silently converge on one behaviour.
+    r0 = subprocess.run(
+        [sys.executable, "tools/independent_review.py",
+         "--base", "HEAD~1", "--head", "HEAD", "--no-tests", "--out", "/dev/null"],
+        env={**{k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"},
+             "OPENAI_API_KEY": ""},
+        capture_output=True, text=True, cwd=str(ROOT))
+    assert r0.returncode == 0, (
+        "an unavailable NORMAL review must stay non-blocking (exit 0); the "
+        "football system must never stop for a reviewer outage")
     for env_extra, expect in (({"OPENAI_API_KEY": ""}, "CONFIG"),
                               ({"REVIEW_PROVIDER": "disabled",
                                 "OPENAI_API_KEY": "x"}, "DISABLED")):
@@ -429,9 +440,24 @@ def test_EXEC_AN_UNAVAILABLE_REVIEWER_YIELDS_UNAVAILABLE_AND_NEVER_ACCEPT():
                 [sys.executable, "tools/independent_review.py",
                  "--self-test", "--out", tf.name],
                 env=env, capture_output=True, text=True, cwd=str(ROOT))
-            # EXIT 0: unreviewed is not rejected. A red job here would let a
+            # ⚠️ THE EXIT CODE DIFFERS BY MODE, AND THAT IS THE ARCHITECTURE.
+            #
+            # A NORMAL review that cannot run exits 0: the change is unreviewed,
+            # the football system does not care, and a red job would let a
             # billing event halt draft-night work.
-            assert r.returncode == 0, r.stderr[-800:]
+            #
+            # A SELF-TEST that cannot run exits NON-ZERO. Its only purpose is to
+            # answer "is this reviewer worth listening to", and an unrun one
+            # answers nothing while looking like a completed step. Reporting
+            # success there would let an unvalidated reviewer be promoted on a
+            # run that never happened.
+            #
+            # This file exercises --self-test, so 1 is the correct code. The
+            # assertion said 0 and went red the moment that distinction landed,
+            # which is the test doing its job on a deliberate change.
+            assert r.returncode == 1, (
+                "an unavailable SELF-TEST must exit non-zero -- an unrun "
+                f"validation cannot establish reviewer validity\n{r.stderr[-600:]}")
             rec = json.loads(Path(tf.name).read_text())
             assert rec["status"] == "UNAVAILABLE"
             assert rec["unavailable_kind"] == expect
