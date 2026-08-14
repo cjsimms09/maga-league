@@ -251,9 +251,9 @@ def test_the_TWO_SOURCES_LAND_ON_ONE_ID_SPACE():
     ])
     d = S.disagreement(ser, 2026, "2026-08-14", {"4034": "QB", "6786": "WR"})
     assert d["status"] == "measured"
-    pair = d["pairs"]["ffc->fantasypros"]
+    pair = d["pairs"]["fantasypros->ffc"]     # sorted, so the sign is stable
     assert pair["shared"] == 2
-    assert pair["by_position"]["QB"]["median"] == 15.0
+    assert pair["by_position"]["QB"]["median"] == -15.0
 
 
 # ── THE WIRING ITSELF, AGAINST A's REAL BUILDERS ────────────────────────────

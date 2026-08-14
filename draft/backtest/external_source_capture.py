@@ -126,6 +126,13 @@ def disagreement(series: list, year, observed_at: str, positions: dict = None) -
     from statistics import median
     out = {"status": "measured", "sources": sorted(s.get("source") for s in day),
            "pairs": {}}
+    # ⚠ SORTED, SO THE SIGN OF EVERY GAP IS A FACT ABOUT THE SOURCES AND NOT
+    # ABOUT THE ORDER THEY WERE APPENDED IN. `a->b` reports `b - a`; `save` sorts
+    # by source name and `append_day` does not, so the same day read +15 in the
+    # run that captured it and -15 the next morning after a reload. Same number,
+    # opposite readings, nothing saying which was which — and the whole point of
+    # this file is a comparison somebody trusts a year later.
+    day = sorted(day, key=lambda s: str(s.get("source")))
     for i in range(len(day)):
         for j in range(i + 1, len(day)):
             a, b = day[i], day[j]
@@ -141,6 +148,13 @@ def disagreement(series: list, year, observed_at: str, positions: dict = None) -
                     per_pos.setdefault(pos, []).append(d)
             out["pairs"]["%s->%s" % (a["source"], b["source"])] = {
                 "shared": len(shared),
+                # THE DIRECTION IN WORDS. A signed pick difference is exactly the
+                # kind of number a reader flips without noticing, and the finding
+                # this archive exists to settle is a SIGNED one — whether FFC
+                # prices quarterbacks EARLIER than FantasyPros, not by how much
+                # they differ. Spelling it out costs a string per pair.
+                "reads": "positive = priced LATER by %s than by %s"
+                         % (b["source"], a["source"]),
                 "median_pick_difference": round(median(overall), 2),
                 "by_position": {k: {"n": len(v), "median": round(median(v), 2)}
                                 for k, v in sorted(per_pos.items())},

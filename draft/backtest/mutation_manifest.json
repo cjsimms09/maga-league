@@ -1165,6 +1165,22 @@
       "test_a_PUBLISHED_DISPERSION_IS_KEPT_beside_the_mean"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    day = sorted(day, key=lambda s: str(s.get(\"source\")))",
+     "new": "    day = list(day)",
+     "must_fail": [
+      "test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"reads\": \"positive = priced LATER by %s than by %s\"\n                         % (b[\"source\"], a[\"source\"]),",
+     "new": "                \"reads\": \"positive = priced LATER by %s than by %s\"\n                         % (a[\"source\"], b[\"source\"]),",
+     "must_fail": [
+      "test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },

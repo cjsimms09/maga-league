@@ -158,3 +158,30 @@ def test_the_SAVED_FILE_ROUND_TRIPS(tmp_path):
     back = S.load(str(p))
     assert len(back) == 1 and back[0]["source"] == "ffc"
     assert back[0]["params"] == {"teams": 10}
+
+
+def test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER():
+    """`a->b` reports `b - a`, so the SIGN of every reported gap depends on which
+    source happens to sit first in the list. `save` sorts by source name and
+    `append_day` does not, so the same day's measurement reads +15 in the run that
+    captured it and −15 the next morning after a reload — the same number, two
+    opposite readings, and nothing anywhere says which one is which.
+
+    MUTATION: compare in list order — a retried step that captures FantasyPros
+    first inverts every gap in the log, and a reader comparing two days' output
+    sees a source that flipped from pricing quarterbacks late to pricing them
+    early, on a day nothing changed."""
+    fwd = S.append_day(S.append_day([], "ffc", 2026, "2026-08-14", {"1": 20.0}),
+                       "fantasypros", 2026, "2026-08-14", {"1": 35.0})
+    rev = S.append_day(S.append_day([], "fantasypros", 2026, "2026-08-14", {"1": 35.0}),
+                       "ffc", 2026, "2026-08-14", {"1": 20.0})
+    a = S.disagreement(fwd, 2026, "2026-08-14", POS)
+    b = S.disagreement(rev, 2026, "2026-08-14", POS)
+    assert list(a["pairs"]) == list(b["pairs"]) == ["fantasypros->ffc"]
+    assert a["pairs"]["fantasypros->ffc"]["median_pick_difference"] == -15.0
+    assert b["pairs"]["fantasypros->ffc"]["median_pick_difference"] == -15.0
+    # AND THE DIRECTION IS SPELLED OUT, because a signed pick difference is the
+    # kind of number a reader flips without noticing — and the finding this file
+    # exists to settle is a signed one.
+    assert a["pairs"]["fantasypros->ffc"]["reads"] == \
+        "positive = priced LATER by ffc than by fantasypros"
