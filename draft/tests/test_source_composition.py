@@ -67,29 +67,58 @@ def test_DYNASTY_CONTAMINATION_DOES_NOT_FIRE_between_the_pricing_sources():
         "the two sources that price the board, which it had not on 2026-08-14")
 
 
-def test_the_QB_THRESHOLD_CLEARS_and_that_alone_would_have_been_WRONG():
-    """The finding. Checking the number the hypothesis names would have
-    confirmed superflex; the position it does NOT name is what refutes it."""
-    assert R["qb_clears_superflex_threshold"], (
-        "the QB delta no longer clears the superflex threshold — the example "
-        "this file is built on has changed and the lesson needs re-deriving")
-    assert not R["superflex_signature_holds"], (
-        "TE no longer moves further than QB, so the QB delta may now genuinely "
-        "be superflex rather than a positional disagreement — re-argue before "
-        "trusting the conclusion that no source switch is warranted")
-    assert R["worst_position"] == "TE", R["worst_position"]
+def test_THE_THRESHOLD_ITSELF_SITS_INSIDE_ITS_OWN_NULL():
+    """⚠️ THIS FILE PREVIOUSLY ASSERTED THE OPPOSITE.
+
+    It checked that the QB delta CLEARED -9.7 and that TE moved twice as far,
+    and drew a conclusion from the pair. Both assertions are retracted: -9.7
+    lies inside the QB null band, so clearing it is not evidence of anything,
+    and TE's observed -28.0 is inside a null band of [-51, +14].
+
+    The cause is board composition, not market opinion. QBs and TEs sit LATE on
+    our board (mean rank 112 and 126 of 215 against a uniform 108), so a market
+    that ranked every player AT RANDOM returns negative QB and TE deltas."""
+    qb = R["per_pos"]["QB"]
+    assert R["qb_threshold_is_inside_its_own_null"], (
+        f"the -9.7 threshold is no longer inside the QB null band "
+        f"[{qb['null_p05']}, {qb['null_p95']}] — if the board's composition has "
+        "changed enough for that, the retraction needs re-deriving")
+    assert not qb["survives_null"], (
+        f"QB {qb['median_delta']} now escapes its null band — a real superflex "
+        "signal may have appeared and the no-switch conclusion needs re-arguing")
 
 
-def test_SUPERFLEX_CANNOT_MOVE_TIGHT_ENDS_which_is_why_the_signature_fails():
-    """Stated as arithmetic rather than as prose, so it cannot rot. A 2QB
-    contaminant lifts quarterbacks; if TE moves further than QB, whatever is
-    moving them is not about how many QBs a lineup starts."""
-    te = R["per_pos"]["TE"]["median_delta"]
-    qb = R["per_pos"]["QB"]["median_delta"]
-    assert te < qb, f"TE {te} is not further than QB {qb}"
-    assert abs(te) > 2 * abs(qb) * 0.9, (
-        f"TE {te} is no longer roughly twice QB {qb} — the margin that makes "
-        "the misattribution obvious has narrowed")
+def test_the_TE_NUMBER_THAT_CARRIED_THE_OLD_ARGUMENT_IS_NOISE():
+    """The specific retraction, asserted so it cannot quietly come back."""
+    te = R["per_pos"]["TE"]
+    assert not te["survives_null"], (
+        f"TE {te['median_delta']} now escapes [{te['null_p05']}, "
+        f"{te['null_p95']}] — the withdrawn argument may be recoverable, but it "
+        "has to be re-made against the null rather than restored")
+    assert te["mean_board_rank"] > 115, (
+        f"TE mean board rank {te['mean_board_rank']:.1f} — the late-board "
+        "position that MAKES a random ranking look TE-negative has moved, and "
+        "the explanation for the retraction with it")
+
+
+def test_the_ONLY_position_that_survives_is_the_one_the_first_pass_MISSED():
+    """RB. Not mentioned in the original write-up at all, because the argument
+    was built around the position the hypothesis named and the one that looked
+    most extreme raw."""
+    assert R["positions_surviving_null"] == ["RB"], R["positions_surviving_null"]
+    rb = R["per_pos"]["RB"]
+    assert rb["median_delta"] < rb["null_p05"], (
+        f"RB {rb['median_delta']} vs p05 {rb['null_p05']}")
+
+
+def test_CONTROL_the_null_is_not_centred_on_zero_which_is_the_whole_point():
+    """If the null medians were ~0, raw deltas would have been readable and no
+    retraction would have been needed. They are not: board composition alone
+    moves every position."""
+    meds = [abs(v["null_median"]) for v in R["per_pos"].values()]
+    assert max(meds) > 8, (
+        f"null medians {meds} are all near zero — board composition no longer "
+        "biases the deltas and this file's premise is gone")
 
 
 def test_the_centre_gap_is_the_SD_BASIS_MISMATCH_and_is_independently_confirmed():

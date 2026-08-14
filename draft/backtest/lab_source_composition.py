@@ -96,6 +96,7 @@ Run: python3 draft/backtest/lab_source_composition.py
 from __future__ import annotations
 
 import json
+import random
 import statistics as st
 from pathlib import Path
 
@@ -121,7 +122,8 @@ def _pearson(xs, ys):
     return num / den if den else 0.0
 
 
-def compose(primary: str = "fantasypros", reference: str = "ffc") -> dict:
+def compose(primary: str = "fantasypros", reference: str = "ffc",
+            null_draws: int = 4000) -> dict:
     """Rank `primary` against a FORMAT-MATCHED `reference` over shared players.
 
     Both sides are ranked over the SHARED population only. Ranking each source
@@ -151,6 +153,28 @@ def compose(primary: str = "fantasypros", reference: str = "ffc") -> dict:
     inside = [p for p in shared if a[p] <= 150]
     gap = sorted(abs(a[p] - b[p]) for p in inside)
 
+    # ── THE NULL. Without it none of the deltas above mean anything. ──────
+    # FP ranks assigned at random, board composition held fixed. Seeded, because
+    # a null that moves between runs is not a null.
+    rng = random.Random(20260814)
+    ids = list(shared)
+    null = {k: [] for k in per_pos}
+    for _ in range(null_draws):
+        perm = list(range(1, n + 1))
+        rng.shuffle(perm)
+        rm = dict(zip(ids, perm))
+        for pos in per_pos:
+            g = [p for p in shared if meta[p].get("position") == pos]
+            null[pos].append(st.median(rm[p] - br[p] for p in g))
+    for pos, v in per_pos.items():
+        dd = sorted(null[pos])
+        lo, hi = dd[int(0.05 * null_draws)], dd[int(0.95 * null_draws)]
+        v["null_median"] = st.median(dd)
+        v["null_p05"], v["null_p95"] = lo, hi
+        v["survives_null"] = v["median_delta"] < lo or v["median_delta"] > hi
+        v["mean_board_rank"] = st.mean(
+            br[p] for p in shared if meta[p].get("position") == pos)
+
     qb = per_pos.get("QB", {}).get("median_delta", 0.0)
     worst = min(per_pos, key=lambda k: per_pos[k]["median_delta"]) if per_pos else None
     return {
@@ -158,6 +182,13 @@ def compose(primary: str = "fantasypros", reference: str = "ffc") -> dict:
         "age_rho_qb_removed": rho, "age_rho_n": len(ages),
         "qb_delta": qb,
         "qb_clears_superflex_threshold": qb < SUPERFLEX_THRESHOLD,
+        # THE THRESHOLD IS KEPT ONLY TO SHOW IT IS MEANINGLESS. -9.7 sits inside
+        # the QB null band, so "clearing" it is not evidence of anything.
+        "qb_threshold_is_inside_its_own_null":
+            per_pos.get("QB", {}).get("null_p05", 0) < SUPERFLEX_THRESHOLD
+            < per_pos.get("QB", {}).get("null_p95", 0),
+        "positions_surviving_null": [k for k, v in per_pos.items()
+                                     if v.get("survives_null")],
         "dynasty_fires": rho > DYNASTY_THRESHOLD,
         # THE DISCRIMINATOR. Superflex moves QUARTERBACKS. If some other
         # position moved further, the QB number is not measuring superflex
