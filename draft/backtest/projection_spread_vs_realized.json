@@ -1,0 +1,1866 @@
+{
+ "_territory": "TERRITORY: C \u2014 measurement only. `draft/projections.py` is A's.",
+ "_what": "The board's per-player `weekly_sd` against the realized week-to-week spread of the same players' 2023-2025 scoring under OUR scoring table.",
+ "_mechanism": "`projections.py:244` derives `weekly_sd = season_sd / sqrt(games)` where `season_sd = mean_proj * var` and `var` comes from `player_variance` \u2014 which encodes SEASON-level role and outcome risk ('second year', 'behind on the depth chart', 'carrying Questionable'). Dividing that by sqrt(games) converts a season-total uncertainty into a per-week number AS IF every bit of season uncertainty were independent weekly noise. It is not, and the two are not denominated in the same thing.",
+ "_denomination": "Measured BOTH ways. `played` is the spread over weeks he appeared; `with_missed_as_zero` adds a 0 for each week the availability record says he was out, because a missed week scores zero in a lineup. Byes are excluded from both \u2014 a bye is not a scoring opportunity. 107 of 130 players missed at least one week, so the distinction is not academic; the comparison below uses the zero-inclusive figure, which is the one that favours the board.",
+ "_caveats": [
+  "K and DEF are EXCLUDED, not measured as zero: `nflverse_weekly_to_scoring` scores every kicker week at 0.0 through this path, so kicker volatility is UNMEASURED here and nothing should be read into it.",
+  "SURVIVORSHIP: the cut conditions on being priced inside pick 150 on the 2026 board, so players whose careers ended are absent.",
+  "Realized past volatility is not expected 2026 volatility. It is the best estimate available, and the gap is far larger than estimation error.",
+  "Players with fewer than 4 scored weeks are dropped: 130 of 146 draftable."
+ ],
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "by_position": {
+  "QB": {
+   "n": 20,
+   "board_weekly_sd_mean": 19.49,
+   "measured_played_mean": 9.65,
+   "measured_with_zeros_mean": 10.83,
+   "ratio_board_over_measured": 1.8,
+   "players_missing_a_week": 13
+  },
+  "RB": {
+   "n": 42,
+   "board_weekly_sd_mean": 17.96,
+   "measured_played_mean": 7.07,
+   "measured_with_zeros_mean": 7.58,
+   "ratio_board_over_measured": 2.37,
+   "players_missing_a_week": 34
+  },
+  "TE": {
+   "n": 17,
+   "board_weekly_sd_mean": 14.97,
+   "measured_played_mean": 6.03,
+   "measured_with_zeros_mean": 6.26,
+   "ratio_board_over_measured": 2.39,
+   "players_missing_a_week": 14
+  },
+  "WR": {
+   "n": 51,
+   "board_weekly_sd_mean": 14.89,
+   "measured_played_mean": 6.69,
+   "measured_with_zeros_mean": 7.09,
+   "ratio_board_over_measured": 2.1,
+   "players_missing_a_week": 46
+  }
+ },
+ "median_per_player_ratio": 2.213,
+ "players": {
+  "9221": {
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "adp": 1.0,
+   "board_weekly_sd": 34.85,
+   "measured_weekly_sd_played": 9.538,
+   "measured_weekly_sd_with_missed_as_zero": 9.978,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 3.493,
+   "variance_why": [
+    "carrying Questionable"
+   ]
+  },
+  "9509": {
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "adp": 2.0,
+   "board_weekly_sd": 24.92,
+   "measured_weekly_sd_played": 8.094,
+   "measured_weekly_sd_with_missed_as_zero": 8.094,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 3.079,
+   "variance_why": [
+    "bell-cow usage (22% of team opportunity)"
+   ]
+  },
+  "9493": {
+   "name": "Puka Nacua",
+   "position": "WR",
+   "adp": 4.0,
+   "board_weekly_sd": 21.69,
+   "measured_weekly_sd_played": 8.686,
+   "measured_weekly_sd_with_missed_as_zero": 9.776,
+   "weeks": 48,
+   "missed_weeks": 6,
+   "ratio": 2.219,
+   "variance_why": [
+    "bell-cow usage (27% of team opportunity)",
+    "carrying Questionable"
+   ]
+  },
+  "4034": {
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "adp": 5.0,
+   "board_weekly_sd": 31.34,
+   "measured_weekly_sd_played": 8.648,
+   "measured_weekly_sd_with_missed_as_zero": 11.771,
+   "weeks": 48,
+   "missed_weeks": 12,
+   "ratio": 2.662,
+   "variance_why": [
+    "carrying Questionable",
+    "age 30, past the RB peak"
+   ]
+  },
+  "6813": {
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "adp": 7.0,
+   "board_weekly_sd": 23.22,
+   "measured_weekly_sd_played": 10.251,
+   "measured_weekly_sd_with_missed_as_zero": 11.569,
+   "weeks": 48,
+   "missed_weeks": 10,
+   "ratio": 2.007,
+   "variance_why": [
+    "bell-cow usage (24% of team opportunity)",
+    "age 27, past the RB peak"
+   ]
+  },
+  "9488": {
+   "name": "Jaxon Smith-Njigba",
+   "position": "WR",
+   "adp": 6.0,
+   "board_weekly_sd": 17.17,
+   "measured_weekly_sd_played": 7.621,
+   "measured_weekly_sd_with_missed_as_zero": 7.621,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 2.253,
+   "variance_why": [
+    "bell-cow usage (32% of team opportunity)"
+   ]
+  },
+  "8138": {
+   "name": "James Cook",
+   "position": "RB",
+   "adp": 9.33,
+   "board_weekly_sd": 20.87,
+   "measured_weekly_sd_played": 8.18,
+   "measured_weekly_sd_with_missed_as_zero": 8.393,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.487,
+   "variance_why": [
+    "bell-cow usage (21% of team opportunity)"
+   ]
+  },
+  "7547": {
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "adp": 8.0,
+   "board_weekly_sd": 16.62,
+   "measured_weekly_sd_played": 7.856,
+   "measured_weekly_sd_with_missed_as_zero": 8.096,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.053,
+   "variance_why": [
+    "bell-cow usage (30% of team opportunity)"
+   ]
+  },
+  "11604": {
+   "name": "Brock Bowers",
+   "position": "TE",
+   "adp": 21.67,
+   "board_weekly_sd": 17.87,
+   "measured_weekly_sd_played": 7.508,
+   "measured_weekly_sd_with_missed_as_zero": 8.078,
+   "weeks": 32,
+   "missed_weeks": 4,
+   "ratio": 2.212,
+   "variance_why": [
+    "bell-cow usage (20% of team opportunity)"
+   ]
+  },
+  "6786": {
+   "name": "CeeDee Lamb",
+   "position": "WR",
+   "adp": 11.67,
+   "board_weekly_sd": 16.02,
+   "measured_weekly_sd_played": 7.584,
+   "measured_weekly_sd_with_missed_as_zero": 8.498,
+   "weeks": 47,
+   "missed_weeks": 4,
+   "ratio": 1.885,
+   "variance_why": [
+    "bell-cow usage (21% of team opportunity)"
+   ]
+  },
+  "4866": {
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "adp": 13.67,
+   "board_weekly_sd": 20.84,
+   "measured_weekly_sd_played": 9.277,
+   "measured_weekly_sd_with_missed_as_zero": 9.809,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.125,
+   "variance_why": [
+    "bell-cow usage (23% of team opportunity)",
+    "age 29, past the RB peak"
+   ]
+  },
+  "12527": {
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "adp": 11.33,
+   "board_weekly_sd": 26.01,
+   "measured_weekly_sd_played": 8.585,
+   "measured_weekly_sd_with_missed_as_zero": 8.585,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 3.03,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "9224": {
+   "name": "Chase Brown",
+   "position": "RB",
+   "adp": 14.67,
+   "board_weekly_sd": 23.52,
+   "measured_weekly_sd_played": 8.025,
+   "measured_weekly_sd_with_missed_as_zero": 8.384,
+   "weeks": 48,
+   "missed_weeks": 5,
+   "ratio": 2.805,
+   "variance_why": []
+  },
+  "5859": {
+   "name": "A.J. Brown",
+   "position": "WR",
+   "adp": 22.0,
+   "board_weekly_sd": 16.28,
+   "measured_weekly_sd_played": 7.807,
+   "measured_weekly_sd_with_missed_as_zero": 8.377,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 1.944,
+   "variance_why": [
+    "bell-cow usage (25% of team opportunity)",
+    "age 29, past the WR peak"
+   ]
+  },
+  "7569": {
+   "name": "Nico Collins",
+   "position": "WR",
+   "adp": 24.0,
+   "board_weekly_sd": 18.43,
+   "measured_weekly_sd_played": 7.196,
+   "measured_weekly_sd_with_missed_as_zero": 8.305,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 2.219,
+   "variance_why": []
+  },
+  "4984": {
+   "name": "Josh Allen",
+   "position": "QB",
+   "adp": 20.67,
+   "board_weekly_sd": 22.66,
+   "measured_weekly_sd_played": 11.161,
+   "measured_weekly_sd_with_missed_as_zero": 11.161,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 2.03,
+   "variance_why": []
+  },
+  "8137": {
+   "name": "George Pickens",
+   "position": "WR",
+   "adp": 24.33,
+   "board_weekly_sd": 17.96,
+   "measured_weekly_sd_played": 7.633,
+   "measured_weekly_sd_with_missed_as_zero": 7.971,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.253,
+   "variance_why": [
+    "bell-cow usage (22% of team opportunity)",
+    "behind on the depth chart"
+   ]
+  },
+  "8130": {
+   "name": "Trey McBride",
+   "position": "TE",
+   "adp": 21.0,
+   "board_weekly_sd": 16.49,
+   "measured_weekly_sd_played": 7.022,
+   "measured_weekly_sd_with_missed_as_zero": 7.143,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.308,
+   "variance_why": [
+    "bell-cow usage (28% of team opportunity)"
+   ]
+  },
+  "6794": {
+   "name": "Justin Jefferson",
+   "position": "WR",
+   "adp": 11.0,
+   "board_weekly_sd": 15.0,
+   "measured_weekly_sd_played": 7.125,
+   "measured_weekly_sd_with_missed_as_zero": 8.073,
+   "weeks": 48,
+   "missed_weeks": 7,
+   "ratio": 1.858,
+   "variance_why": [
+    "bell-cow usage (30% of team opportunity)"
+   ]
+  },
+  "8112": {
+   "name": "Drake London",
+   "position": "WR",
+   "adp": 18.33,
+   "board_weekly_sd": 14.99,
+   "measured_weekly_sd_played": 7.539,
+   "measured_weekly_sd_with_missed_as_zero": 8.005,
+   "weeks": 48,
+   "missed_weeks": 6,
+   "ratio": 1.873,
+   "variance_why": [
+    "bell-cow usage (24% of team opportunity)"
+   ]
+  },
+  "9226": {
+   "name": "De'Von Achane",
+   "position": "RB",
+   "adp": 13.67,
+   "board_weekly_sd": 22.61,
+   "measured_weekly_sd_played": 9.632,
+   "measured_weekly_sd_with_missed_as_zero": 10.548,
+   "weeks": 48,
+   "missed_weeks": 6,
+   "ratio": 2.143,
+   "variance_why": []
+  },
+  "8144": {
+   "name": "Chris Olave",
+   "position": "WR",
+   "adp": 28.67,
+   "board_weekly_sd": 13.99,
+   "measured_weekly_sd_played": 6.633,
+   "measured_weekly_sd_with_missed_as_zero": 7.506,
+   "weeks": 48,
+   "missed_weeks": 9,
+   "ratio": 1.864,
+   "variance_why": [
+    "bell-cow usage (22% of team opportunity)"
+   ]
+  },
+  "7525": {
+   "name": "DeVonta Smith",
+   "position": "WR",
+   "adp": 33.0,
+   "board_weekly_sd": 15.84,
+   "measured_weekly_sd_played": 6.825,
+   "measured_weekly_sd_with_missed_as_zero": 7.153,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.214,
+   "variance_why": [
+    "bell-cow usage (24% of team opportunity)",
+    "carrying Questionable"
+   ]
+  },
+  "9997": {
+   "name": "Zay Flowers",
+   "position": "WR",
+   "adp": 38.33,
+   "board_weekly_sd": 13.71,
+   "measured_weekly_sd_played": 6.03,
+   "measured_weekly_sd_with_missed_as_zero": 6.03,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 2.274,
+   "variance_why": [
+    "bell-cow usage (27% of team opportunity)"
+   ]
+  },
+  "12517": {
+   "name": "Colston Loveland",
+   "position": "TE",
+   "adp": 42.67,
+   "board_weekly_sd": 19.54,
+   "measured_weekly_sd_played": 6.838,
+   "measured_weekly_sd_with_missed_as_zero": 6.88,
+   "weeks": 16,
+   "missed_weeks": 1,
+   "ratio": 2.84,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "11635": {
+   "name": "Ladd McConkey",
+   "position": "WR",
+   "adp": 44.33,
+   "board_weekly_sd": 13.41,
+   "measured_weekly_sd_played": 6.346,
+   "measured_weekly_sd_with_missed_as_zero": 6.521,
+   "weeks": 32,
+   "missed_weeks": 1,
+   "ratio": 2.056,
+   "variance_why": [
+    "bell-cow usage (21% of team opportunity)"
+   ]
+  },
+  "8155": {
+   "name": "Breece Hall",
+   "position": "RB",
+   "adp": 33.0,
+   "board_weekly_sd": 20.3,
+   "measured_weekly_sd_played": 8.229,
+   "measured_weekly_sd_with_missed_as_zero": 8.352,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.431,
+   "variance_why": []
+  },
+  "7526": {
+   "name": "Jaylen Waddle",
+   "position": "WR",
+   "adp": 48.0,
+   "board_weekly_sd": 18.12,
+   "measured_weekly_sd_played": 5.96,
+   "measured_weekly_sd_with_missed_as_zero": 6.336,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.86,
+   "variance_why": [
+    "carrying Questionable"
+   ]
+  },
+  "6801": {
+   "name": "Tee Higgins",
+   "position": "WR",
+   "adp": 39.33,
+   "board_weekly_sd": 18.58,
+   "measured_weekly_sd_played": 8.591,
+   "measured_weekly_sd_with_missed_as_zero": 9.184,
+   "weeks": 48,
+   "missed_weeks": 11,
+   "ratio": 2.023,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "12507": {
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "adp": 15.33,
+   "board_weekly_sd": 24.85,
+   "measured_weekly_sd_played": 6.837,
+   "measured_weekly_sd_with_missed_as_zero": 8.356,
+   "weeks": 16,
+   "missed_weeks": 7,
+   "ratio": 2.974,
+   "variance_why": [
+    "committee usage (6%)",
+    "second year"
+   ]
+  },
+  "12526": {
+   "name": "Tetairoa McMillan",
+   "position": "WR",
+   "adp": 39.0,
+   "board_weekly_sd": 17.56,
+   "measured_weekly_sd_played": 6.329,
+   "measured_weekly_sd_with_missed_as_zero": 6.329,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 2.775,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "8150": {
+   "name": "Kyren Williams",
+   "position": "RB",
+   "adp": 29.0,
+   "board_weekly_sd": 16.34,
+   "measured_weekly_sd_played": 6.747,
+   "measured_weekly_sd_with_missed_as_zero": 7.921,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.063,
+   "variance_why": [
+    "bell-cow usage (20% of team opportunity)"
+   ]
+  },
+  "12514": {
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "adp": 39.0,
+   "board_weekly_sd": 19.28,
+   "measured_weekly_sd_played": 7.455,
+   "measured_weekly_sd_with_missed_as_zero": 7.455,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 2.586,
+   "variance_why": [
+    "second year",
+    "carrying Questionable"
+   ]
+  },
+  "4881": {
+   "name": "Lamar Jackson",
+   "position": "QB",
+   "adp": 37.67,
+   "board_weekly_sd": 20.79,
+   "measured_weekly_sd_played": 11.311,
+   "measured_weekly_sd_with_missed_as_zero": 12.829,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 1.621,
+   "variance_why": []
+  },
+  "2216": {
+   "name": "Mike Evans",
+   "position": "WR",
+   "adp": 61.67,
+   "board_weekly_sd": 18.47,
+   "measured_weekly_sd_played": 7.849,
+   "measured_weekly_sd_with_missed_as_zero": 9.034,
+   "weeks": 48,
+   "missed_weeks": 12,
+   "ratio": 2.044,
+   "variance_why": [
+    "carrying Questionable",
+    "age 32, past the WR peak"
+   ]
+  },
+  "7543": {
+   "name": "Travis Etienne",
+   "position": "RB",
+   "adp": 40.67,
+   "board_weekly_sd": 20.74,
+   "measured_weekly_sd_played": 7.34,
+   "measured_weekly_sd_with_missed_as_zero": 7.611,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 2.725,
+   "variance_why": [
+    "age 27, past the RB peak"
+   ]
+  },
+  "8146": {
+   "name": "Garrett Wilson",
+   "position": "WR",
+   "adp": 44.33,
+   "board_weekly_sd": 15.52,
+   "measured_weekly_sd_played": 5.844,
+   "measured_weekly_sd_with_missed_as_zero": 6.847,
+   "weeks": 48,
+   "missed_weeks": 9,
+   "ratio": 2.267,
+   "variance_why": []
+  },
+  "11632": {
+   "name": "Malik Nabers",
+   "position": "WR",
+   "adp": 32.0,
+   "board_weekly_sd": 17.37,
+   "measured_weekly_sd_played": 8.884,
+   "measured_weekly_sd_with_missed_as_zero": 9.63,
+   "weeks": 32,
+   "missed_weeks": 14,
+   "ratio": 1.804,
+   "variance_why": [
+    "carrying Questionable"
+   ]
+  },
+  "8148": {
+   "name": "Jameson Williams",
+   "position": "WR",
+   "adp": 59.0,
+   "board_weekly_sd": 17.94,
+   "measured_weekly_sd_played": 7.411,
+   "measured_weekly_sd_with_missed_as_zero": 7.688,
+   "weeks": 48,
+   "missed_weeks": 6,
+   "ratio": 2.334,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "11564": {
+   "name": "Drake Maye",
+   "position": "QB",
+   "adp": 52.0,
+   "board_weekly_sd": 20.55,
+   "measured_weekly_sd_played": 7.867,
+   "measured_weekly_sd_with_missed_as_zero": 7.867,
+   "weeks": 28,
+   "missed_weeks": 0,
+   "ratio": 2.612,
+   "variance_why": []
+  },
+  "5850": {
+   "name": "Josh Jacobs",
+   "position": "RB",
+   "adp": 28.67,
+   "board_weekly_sd": 22.79,
+   "measured_weekly_sd_played": 7.216,
+   "measured_weekly_sd_with_missed_as_zero": 8.011,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.845,
+   "variance_why": [
+    "carrying Questionable",
+    "age 28, past the RB peak"
+   ]
+  },
+  "7588": {
+   "name": "Javonte Williams",
+   "position": "RB",
+   "adp": 31.0,
+   "board_weekly_sd": 19.3,
+   "measured_weekly_sd_played": 6.247,
+   "measured_weekly_sd_with_missed_as_zero": 6.356,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 3.037,
+   "variance_why": []
+  },
+  "12518": {
+   "name": "Tyler Warren",
+   "position": "TE",
+   "adp": 51.67,
+   "board_weekly_sd": 18.12,
+   "measured_weekly_sd_played": 4.295,
+   "measured_weekly_sd_with_missed_as_zero": 4.295,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 4.219,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "6790": {
+   "name": "D'Andre Swift",
+   "position": "RB",
+   "adp": 51.67,
+   "board_weekly_sd": 20.36,
+   "measured_weekly_sd_played": 6.351,
+   "measured_weekly_sd_with_missed_as_zero": 6.517,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 3.124,
+   "variance_why": [
+    "age 27, past the RB peak"
+   ]
+  },
+  "5927": {
+   "name": "Terry McLaurin",
+   "position": "WR",
+   "adp": 54.0,
+   "board_weekly_sd": 16.05,
+   "measured_weekly_sd_played": 6.091,
+   "measured_weekly_sd_with_missed_as_zero": 6.849,
+   "weeks": 48,
+   "missed_weeks": 7,
+   "ratio": 2.343,
+   "variance_why": [
+    "age 30, past the WR peak"
+   ]
+  },
+  "11620": {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "adp": 64.0,
+   "board_weekly_sd": 15.01,
+   "measured_weekly_sd_played": 6.728,
+   "measured_weekly_sd_with_missed_as_zero": 6.875,
+   "weeks": 31,
+   "missed_weeks": 3,
+   "ratio": 2.183,
+   "variance_why": []
+  },
+  "6770": {
+   "name": "Joe Burrow",
+   "position": "QB",
+   "adp": 51.67,
+   "board_weekly_sd": 20.24,
+   "measured_weekly_sd_played": 11.402,
+   "measured_weekly_sd_with_missed_as_zero": 14.284,
+   "weeks": 48,
+   "missed_weeks": 15,
+   "ratio": 1.417,
+   "variance_why": []
+  },
+  "9487": {
+   "name": "Parker Washington",
+   "position": "WR",
+   "adp": 79.33,
+   "board_weekly_sd": 14.88,
+   "measured_weekly_sd_played": 6.119,
+   "measured_weekly_sd_with_missed_as_zero": 6.031,
+   "weeks": 44,
+   "missed_weeks": 9,
+   "ratio": 2.467,
+   "variance_why": []
+  },
+  "10859": {
+   "name": "Sam LaPorta",
+   "position": "TE",
+   "adp": 73.67,
+   "board_weekly_sd": 15.86,
+   "measured_weekly_sd_played": 6.059,
+   "measured_weekly_sd_with_missed_as_zero": 6.704,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 2.366,
+   "variance_why": []
+  },
+  "10229": {
+   "name": "Rashee Rice",
+   "position": "WR",
+   "adp": 30.0,
+   "board_weekly_sd": 14.58,
+   "measured_weekly_sd_played": 6.443,
+   "measured_weekly_sd_with_missed_as_zero": 7.88,
+   "weeks": 48,
+   "missed_weeks": 20,
+   "ratio": 1.85,
+   "variance_why": []
+  },
+  "8167": {
+   "name": "Christian Watson",
+   "position": "WR",
+   "adp": 67.0,
+   "board_weekly_sd": 14.54,
+   "measured_weekly_sd_played": 6.432,
+   "measured_weekly_sd_with_missed_as_zero": 6.81,
+   "weeks": 47,
+   "missed_weeks": 15,
+   "ratio": 2.135,
+   "variance_why": []
+  },
+  "5892": {
+   "name": "David Montgomery",
+   "position": "RB",
+   "adp": 50.0,
+   "board_weekly_sd": 19.44,
+   "measured_weekly_sd_played": 6.656,
+   "measured_weekly_sd_with_missed_as_zero": 7.397,
+   "weeks": 48,
+   "missed_weeks": 5,
+   "ratio": 2.628,
+   "variance_why": [
+    "age 29, past the RB peak"
+   ]
+  },
+  "11631": {
+   "name": "Brian Thomas",
+   "position": "WR",
+   "adp": 73.67,
+   "board_weekly_sd": 16.6,
+   "measured_weekly_sd_played": 6.683,
+   "measured_weekly_sd_with_missed_as_zero": 7.199,
+   "weeks": 32,
+   "missed_weeks": 3,
+   "ratio": 2.306,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "3294": {
+   "name": "Dak Prescott",
+   "position": "QB",
+   "adp": 81.67,
+   "board_weekly_sd": 20.9,
+   "measured_weekly_sd_played": 10.397,
+   "measured_weekly_sd_with_missed_as_zero": 12.623,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 1.656,
+   "variance_why": [
+    "age 33, past the QB peak"
+   ]
+  },
+  "8183": {
+   "name": "Brock Purdy",
+   "position": "QB",
+   "adp": 107.0,
+   "board_weekly_sd": 19.57,
+   "measured_weekly_sd_played": 10.101,
+   "measured_weekly_sd_with_missed_as_zero": 12.644,
+   "weeks": 48,
+   "missed_weeks": 9,
+   "ratio": 1.548,
+   "variance_why": []
+  },
+  "11584": {
+   "name": "Bucky Irving",
+   "position": "RB",
+   "adp": 45.67,
+   "board_weekly_sd": 17.79,
+   "measured_weekly_sd_played": 6.435,
+   "measured_weekly_sd_with_missed_as_zero": 7.754,
+   "weeks": 32,
+   "missed_weeks": 7,
+   "ratio": 2.294,
+   "variance_why": []
+  },
+  "7553": {
+   "name": "Kyle Pitts",
+   "position": "TE",
+   "adp": 74.0,
+   "board_weekly_sd": 12.23,
+   "measured_weekly_sd_played": 6.704,
+   "measured_weekly_sd_with_missed_as_zero": 6.704,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 1.824,
+   "variance_why": [
+    "bell-cow usage (20% of team opportunity)"
+   ]
+  },
+  "2133": {
+   "name": "Davante Adams",
+   "position": "WR",
+   "adp": 57.0,
+   "board_weekly_sd": 17.07,
+   "measured_weekly_sd_played": 8.476,
+   "measured_weekly_sd_with_missed_as_zero": 9.001,
+   "weeks": 48,
+   "missed_weeks": 5,
+   "ratio": 1.896,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 33, past the WR peak"
+   ]
+  },
+  "12506": {
+   "name": "Harold Fannin",
+   "position": "TE",
+   "adp": 68.33,
+   "board_weekly_sd": 16.39,
+   "measured_weekly_sd_played": 4.916,
+   "measured_weekly_sd_with_missed_as_zero": 4.916,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 3.334,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "1466": {
+   "name": "Travis Kelce",
+   "position": "TE",
+   "adp": 97.33,
+   "board_weekly_sd": 12.92,
+   "measured_weekly_sd_played": 5.969,
+   "measured_weekly_sd_with_missed_as_zero": 6.078,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.126,
+   "variance_why": [
+    "bell-cow usage (21% of team opportunity)",
+    "age 36, past the TE peak"
+   ]
+  },
+  "12512": {
+   "name": "Quinshon Judkins",
+   "position": "RB",
+   "adp": 46.0,
+   "board_weekly_sd": 19.26,
+   "measured_weekly_sd_played": 6.599,
+   "measured_weekly_sd_with_missed_as_zero": 7.199,
+   "weeks": 16,
+   "missed_weeks": 2,
+   "ratio": 2.675,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "11560": {
+   "name": "Caleb Williams",
+   "position": "QB",
+   "adp": 75.67,
+   "board_weekly_sd": 19.3,
+   "measured_weekly_sd_played": 10.125,
+   "measured_weekly_sd_with_missed_as_zero": 10.125,
+   "weeks": 32,
+   "missed_weeks": 0,
+   "ratio": 1.906,
+   "variance_why": []
+  },
+  "6904": {
+   "name": "Jalen Hurts",
+   "position": "QB",
+   "adp": 62.0,
+   "board_weekly_sd": 19.25,
+   "measured_weekly_sd_played": 8.441,
+   "measured_weekly_sd_with_missed_as_zero": 9.002,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.138,
+   "variance_why": []
+  },
+  "7523": {
+   "name": "Trevor Lawrence",
+   "position": "QB",
+   "adp": 85.67,
+   "board_weekly_sd": 19.19,
+   "measured_weekly_sd_played": 9.332,
+   "measured_weekly_sd_with_missed_as_zero": 11.136,
+   "weeks": 48,
+   "missed_weeks": 7,
+   "ratio": 1.723,
+   "variance_why": []
+  },
+  "4217": {
+   "name": "George Kittle",
+   "position": "TE",
+   "adp": 97.0,
+   "board_weekly_sd": 16.85,
+   "measured_weekly_sd_played": 6.828,
+   "measured_weekly_sd_with_missed_as_zero": 7.738,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 2.178,
+   "variance_why": [
+    "carrying PUP",
+    "age 32, past the TE peak"
+   ]
+  },
+  "12481": {
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "adp": 37.33,
+   "board_weekly_sd": 21.15,
+   "measured_weekly_sd_played": 7.84,
+   "measured_weekly_sd_with_missed_as_zero": 9.112,
+   "weeks": 16,
+   "missed_weeks": 8,
+   "ratio": 2.321,
+   "variance_why": [
+    "committee usage (5%)",
+    "second year"
+   ]
+  },
+  "11566": {
+   "name": "Jayden Daniels",
+   "position": "QB",
+   "adp": 59.33,
+   "board_weekly_sd": 19.1,
+   "measured_weekly_sd_played": 9.911,
+   "measured_weekly_sd_with_missed_as_zero": 13.368,
+   "weeks": 32,
+   "missed_weeks": 9,
+   "ratio": 1.429,
+   "variance_why": []
+  },
+  "5846": {
+   "name": "DK Metcalf",
+   "position": "WR",
+   "adp": 83.0,
+   "board_weekly_sd": 15.83,
+   "measured_weekly_sd_played": 6.051,
+   "measured_weekly_sd_with_missed_as_zero": 6.572,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.409,
+   "variance_why": [
+    "carrying Questionable",
+    "age 28, past the WR peak"
+   ]
+  },
+  "5012": {
+   "name": "Mark Andrews",
+   "position": "TE",
+   "adp": 116.0,
+   "board_weekly_sd": 15.05,
+   "measured_weekly_sd_played": 6.259,
+   "measured_weekly_sd_with_missed_as_zero": 6.523,
+   "weeks": 48,
+   "missed_weeks": 6,
+   "ratio": 2.307,
+   "variance_why": [
+    "age 30, past the TE peak"
+   ]
+  },
+  "12519": {
+   "name": "Luther Burden",
+   "position": "WR",
+   "adp": 50.67,
+   "board_weekly_sd": 18.51,
+   "measured_weekly_sd_played": 6.707,
+   "measured_weekly_sd_with_missed_as_zero": 6.69,
+   "weeks": 16,
+   "missed_weeks": 2,
+   "ratio": 2.767,
+   "variance_why": [
+    "behind on the depth chart",
+    "second year",
+    "carrying Questionable"
+   ]
+  },
+  "11628": {
+   "name": "Marvin Harrison",
+   "position": "WR",
+   "adp": 77.33,
+   "board_weekly_sd": 13.2,
+   "measured_weekly_sd_played": 6.7,
+   "measured_weekly_sd_with_missed_as_zero": 6.968,
+   "weeks": 32,
+   "missed_weeks": 4,
+   "ratio": 1.894,
+   "variance_why": []
+  },
+  "9484": {
+   "name": "Tucker Kraft",
+   "position": "TE",
+   "adp": 66.33,
+   "board_weekly_sd": 15.48,
+   "measured_weekly_sd_played": 6.709,
+   "measured_weekly_sd_with_missed_as_zero": 6.792,
+   "weeks": 45,
+   "missed_weeks": 8,
+   "ratio": 2.279,
+   "variance_why": [
+    "carrying Questionable"
+   ]
+  },
+  "6797": {
+   "name": "Justin Herbert",
+   "position": "QB",
+   "adp": 77.67,
+   "board_weekly_sd": 18.86,
+   "measured_weekly_sd_played": 8.865,
+   "measured_weekly_sd_with_missed_as_zero": 9.886,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 1.908,
+   "variance_why": []
+  },
+  "8142": {
+   "name": "Alec Pierce",
+   "position": "WR",
+   "adp": 89.0,
+   "board_weekly_sd": 14.65,
+   "measured_weekly_sd_played": 6.404,
+   "measured_weekly_sd_with_missed_as_zero": 6.468,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.265,
+   "variance_why": [
+    "carrying PUP"
+   ]
+  },
+  "11563": {
+   "name": "Bo Nix",
+   "position": "QB",
+   "adp": 106.67,
+   "board_weekly_sd": 18.76,
+   "measured_weekly_sd_played": 9.056,
+   "measured_weekly_sd_with_missed_as_zero": 9.056,
+   "weeks": 32,
+   "missed_weeks": 0,
+   "ratio": 2.072,
+   "variance_why": []
+  },
+  "5045": {
+   "name": "Courtland Sutton",
+   "position": "WR",
+   "adp": 89.67,
+   "board_weekly_sd": 13.41,
+   "measured_weekly_sd_played": 5.569,
+   "measured_weekly_sd_with_missed_as_zero": 5.751,
+   "weeks": 47,
+   "missed_weeks": 1,
+   "ratio": 2.332,
+   "variance_why": [
+    "bell-cow usage (22% of team opportunity)",
+    "behind on the depth chart",
+    "age 30, past the WR peak"
+   ]
+  },
+  "3163": {
+   "name": "Jared Goff",
+   "position": "QB",
+   "adp": 115.33,
+   "board_weekly_sd": 19.75,
+   "measured_weekly_sd_played": 10.177,
+   "measured_weekly_sd_with_missed_as_zero": 10.177,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 1.941,
+   "variance_why": [
+    "age 31, past the QB peak"
+   ]
+  },
+  "421": {
+   "name": "Matthew Stafford",
+   "position": "QB",
+   "adp": 106.33,
+   "board_weekly_sd": 19.74,
+   "measured_weekly_sd_played": 9.181,
+   "measured_weekly_sd_with_missed_as_zero": 9.536,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.07,
+   "variance_why": [
+    "age 38, past the QB peak"
+   ]
+  },
+  "3214": {
+   "name": "Hunter Henry",
+   "position": "TE",
+   "adp": 150.0,
+   "board_weekly_sd": 14.2,
+   "measured_weekly_sd_played": 5.711,
+   "measured_weekly_sd_with_missed_as_zero": 5.807,
+   "weeks": 47,
+   "missed_weeks": 2,
+   "ratio": 2.445,
+   "variance_why": [
+    "age 31, past the TE peak"
+   ]
+  },
+  "10236": {
+   "name": "Dalton Kincaid",
+   "position": "TE",
+   "adp": 105.33,
+   "board_weekly_sd": 13.36,
+   "measured_weekly_sd_played": 4.605,
+   "measured_weekly_sd_with_missed_as_zero": 5.014,
+   "weeks": 48,
+   "missed_weeks": 9,
+   "ratio": 2.664,
+   "variance_why": []
+  },
+  "4046": {
+   "name": "Patrick Mahomes",
+   "position": "QB",
+   "adp": 102.0,
+   "board_weekly_sd": 20.82,
+   "measured_weekly_sd_played": 8.312,
+   "measured_weekly_sd_with_missed_as_zero": 9.22,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 2.258,
+   "variance_why": [
+    "carrying Questionable"
+   ]
+  },
+  "10222": {
+   "name": "Jayden Reed",
+   "position": "WR",
+   "adp": 114.33,
+   "board_weekly_sd": 14.72,
+   "measured_weekly_sd_played": 6.79,
+   "measured_weekly_sd_with_missed_as_zero": 7.41,
+   "weeks": 47,
+   "missed_weeks": 11,
+   "ratio": 1.986,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "4983": {
+   "name": "DJ Moore",
+   "position": "WR",
+   "adp": 52.67,
+   "board_weekly_sd": 13.4,
+   "measured_weekly_sd_played": 8.661,
+   "measured_weekly_sd_with_missed_as_zero": 8.661,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 1.547,
+   "variance_why": [
+    "age 29, past the WR peak"
+   ]
+  },
+  "12508": {
+   "name": "Jaxson Dart",
+   "position": "QB",
+   "adp": 89.0,
+   "board_weekly_sd": 20.19,
+   "measured_weekly_sd_played": 11.37,
+   "measured_weekly_sd_with_missed_as_zero": 12.402,
+   "weeks": 15,
+   "missed_weeks": 2,
+   "ratio": 1.628,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "8110": {
+   "name": "Jake Ferguson",
+   "position": "TE",
+   "adp": 112.33,
+   "board_weekly_sd": 12.96,
+   "measured_weekly_sd_played": 4.934,
+   "measured_weekly_sd_with_missed_as_zero": 5.136,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.523,
+   "variance_why": []
+  },
+  "9756": {
+   "name": "Jordan Addison",
+   "position": "WR",
+   "adp": 110.0,
+   "board_weekly_sd": 15.7,
+   "measured_weekly_sd_played": 7.606,
+   "measured_weekly_sd_with_missed_as_zero": 7.923,
+   "weeks": 48,
+   "missed_weeks": 5,
+   "ratio": 1.982,
+   "variance_why": [
+    "behind on the depth chart",
+    "carrying Questionable"
+   ]
+  },
+  "8131": {
+   "name": "Isaiah Likely",
+   "position": "TE",
+   "adp": 106.67,
+   "board_weekly_sd": 12.54,
+   "measured_weekly_sd_played": 5.555,
+   "measured_weekly_sd_with_missed_as_zero": 5.544,
+   "weeks": 42,
+   "missed_weeks": 4,
+   "ratio": 2.262,
+   "variance_why": []
+  },
+  "9500": {
+   "name": "Josh Downs",
+   "position": "WR",
+   "adp": 111.0,
+   "board_weekly_sd": 15.36,
+   "measured_weekly_sd_played": 5.182,
+   "measured_weekly_sd_with_missed_as_zero": 5.431,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.828,
+   "variance_why": [
+    "behind on the depth chart",
+    "carrying Questionable"
+   ]
+  },
+  "8228": {
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "adp": 69.67,
+   "board_weekly_sd": 16.24,
+   "measured_weekly_sd_played": 5.245,
+   "measured_weekly_sd_with_missed_as_zero": 5.622,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.889,
+   "variance_why": [
+    "age 27, past the RB peak"
+   ]
+  },
+  "6804": {
+   "name": "Jordan Love",
+   "position": "QB",
+   "adp": 141.0,
+   "board_weekly_sd": 18.02,
+   "measured_weekly_sd_played": 8.51,
+   "measured_weekly_sd_with_missed_as_zero": 9.62,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 1.873,
+   "variance_why": []
+  },
+  "10232": {
+   "name": "Michael Wilson",
+   "position": "WR",
+   "adp": 87.67,
+   "board_weekly_sd": 13.81,
+   "measured_weekly_sd_played": 6.761,
+   "measured_weekly_sd_with_missed_as_zero": 6.831,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.022,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "12529": {
+   "name": "TreVeyon Henderson",
+   "position": "RB",
+   "adp": 51.67,
+   "board_weekly_sd": 16.82,
+   "measured_weekly_sd_played": 9.214,
+   "measured_weekly_sd_with_missed_as_zero": 9.214,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 1.825,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "6819": {
+   "name": "Michael Pittman",
+   "position": "WR",
+   "adp": 108.0,
+   "board_weekly_sd": 13.75,
+   "measured_weekly_sd_played": 5.659,
+   "measured_weekly_sd_with_missed_as_zero": 5.907,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 2.328,
+   "variance_why": [
+    "bell-cow usage (22% of team opportunity)",
+    "behind on the depth chart",
+    "carrying Questionable",
+    "age 28, past the WR peak"
+   ]
+  },
+  "5967": {
+   "name": "Tony Pollard",
+   "position": "RB",
+   "adp": 81.0,
+   "board_weekly_sd": 16.07,
+   "measured_weekly_sd_played": 5.469,
+   "measured_weekly_sd_with_missed_as_zero": 5.634,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.852,
+   "variance_why": [
+    "age 29, past the RB peak"
+   ]
+  },
+  "7611": {
+   "name": "Rhamondre Stevenson",
+   "position": "RB",
+   "adp": 76.33,
+   "board_weekly_sd": 18.36,
+   "measured_weekly_sd_played": 6.736,
+   "measured_weekly_sd_with_missed_as_zero": 7.261,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 2.528,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 28, past the RB peak"
+   ]
+  },
+  "8126": {
+   "name": "Wan'Dale Robinson",
+   "position": "WR",
+   "adp": 119.0,
+   "board_weekly_sd": 11.36,
+   "measured_weekly_sd_played": 5.564,
+   "measured_weekly_sd_with_missed_as_zero": 5.705,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 1.991,
+   "variance_why": [
+    "bell-cow usage (27% of team opportunity)",
+    "behind on the depth chart"
+   ]
+  },
+  "7594": {
+   "name": "Chuba Hubbard",
+   "position": "RB",
+   "adp": 78.0,
+   "board_weekly_sd": 17.45,
+   "measured_weekly_sd_played": 7.06,
+   "measured_weekly_sd_with_missed_as_zero": 7.308,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.388,
+   "variance_why": [
+    "carrying Questionable",
+    "age 27, past the RB peak"
+   ]
+  },
+  "9754": {
+   "name": "Quentin Johnston",
+   "position": "WR",
+   "adp": 106.0,
+   "board_weekly_sd": 13.24,
+   "measured_weekly_sd_played": 6.132,
+   "measured_weekly_sd_with_missed_as_zero": 6.266,
+   "weeks": 47,
+   "missed_weeks": 4,
+   "ratio": 2.113,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "8121": {
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "adp": 146.0,
+   "board_weekly_sd": 13.21,
+   "measured_weekly_sd_played": 5.495,
+   "measured_weekly_sd_with_missed_as_zero": 5.723,
+   "weeks": 48,
+   "missed_weeks": 3,
+   "ratio": 2.308,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "7021": {
+   "name": "Rico Dowdle",
+   "position": "RB",
+   "adp": 79.0,
+   "board_weekly_sd": 17.91,
+   "measured_weekly_sd_played": 7.404,
+   "measured_weekly_sd_with_missed_as_zero": 7.484,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 2.393,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 28, past the RB peak"
+   ]
+  },
+  "5947": {
+   "name": "Jakobi Meyers",
+   "position": "WR",
+   "adp": 121.0,
+   "board_weekly_sd": 13.8,
+   "measured_weekly_sd_played": 5.023,
+   "measured_weekly_sd_with_missed_as_zero": 5.573,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 2.476,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 29, past the WR peak"
+   ]
+  },
+  "5022": {
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "adp": 120.67,
+   "board_weekly_sd": 12.35,
+   "measured_weekly_sd_played": 5.998,
+   "measured_weekly_sd_with_missed_as_zero": 6.505,
+   "weeks": 48,
+   "missed_weeks": 11,
+   "ratio": 1.899,
+   "variance_why": [
+    "age 31, past the TE peak"
+   ]
+  },
+  "4892": {
+   "name": "Baker Mayfield",
+   "position": "QB",
+   "adp": 142.0,
+   "board_weekly_sd": 18.59,
+   "measured_weekly_sd_played": 8.787,
+   "measured_weekly_sd_with_missed_as_zero": 8.787,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 2.116,
+   "variance_why": [
+    "age 31, past the QB peak"
+   ]
+  },
+  "11624": {
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "adp": 134.0,
+   "board_weekly_sd": 14.39,
+   "measured_weekly_sd_played": 5.567,
+   "measured_weekly_sd_with_missed_as_zero": 5.746,
+   "weeks": 32,
+   "missed_weeks": 2,
+   "ratio": 2.504,
+   "variance_why": [
+    "behind on the depth chart",
+    "carrying Questionable"
+   ]
+  },
+  "12490": {
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "adp": 56.33,
+   "board_weekly_sd": 17.81,
+   "measured_weekly_sd_played": 4.751,
+   "measured_weekly_sd_with_missed_as_zero": 4.787,
+   "weeks": 16,
+   "missed_weeks": 2,
+   "ratio": 3.72,
+   "variance_why": [
+    "committee usage (4%)",
+    "second year"
+   ]
+  },
+  "6806": {
+   "name": "J.K. Dobbins",
+   "position": "RB",
+   "adp": 89.33,
+   "board_weekly_sd": 16.84,
+   "measured_weekly_sd_played": 5.156,
+   "measured_weekly_sd_with_missed_as_zero": 7.2,
+   "weeks": 48,
+   "missed_weeks": 25,
+   "ratio": 2.339,
+   "variance_why": [
+    "carrying Questionable",
+    "age 27, past the RB peak"
+   ]
+  },
+  "4037": {
+   "name": "Chris Godwin",
+   "position": "WR",
+   "adp": 92.0,
+   "board_weekly_sd": 13.36,
+   "measured_weekly_sd_played": 6.159,
+   "measured_weekly_sd_with_missed_as_zero": 7.181,
+   "weeks": 48,
+   "missed_weeks": 17,
+   "ratio": 1.861,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 30, past the WR peak"
+   ]
+  },
+  "8408": {
+   "name": "Jordan Mason",
+   "position": "RB",
+   "adp": 109.67,
+   "board_weekly_sd": 15.03,
+   "measured_weekly_sd_played": 6.348,
+   "measured_weekly_sd_with_missed_as_zero": 6.297,
+   "weeks": 47,
+   "missed_weeks": 5,
+   "ratio": 2.387,
+   "variance_why": [
+    "age 27, past the RB peak"
+   ]
+  },
+  "12501": {
+   "name": "Matthew Golden",
+   "position": "WR",
+   "adp": 142.67,
+   "board_weekly_sd": 15.26,
+   "measured_weekly_sd_played": 3.543,
+   "measured_weekly_sd_with_missed_as_zero": 3.584,
+   "weeks": 16,
+   "missed_weeks": 3,
+   "ratio": 4.258,
+   "variance_why": [
+    "committee usage (7%)",
+    "behind on the depth chart",
+    "second year"
+   ]
+  },
+  "12493": {
+   "name": "Oronde Gadsden",
+   "position": "TE",
+   "adp": 147.0,
+   "board_weekly_sd": 12.27,
+   "measured_weekly_sd_played": 6.6,
+   "measured_weekly_sd_with_missed_as_zero": 6.641,
+   "weeks": 16,
+   "missed_weeks": 2,
+   "ratio": 1.848,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "5872": {
+   "name": "Deebo Samuel",
+   "position": "WR",
+   "adp": 143.0,
+   "board_weekly_sd": 11.24,
+   "measured_weekly_sd_played": 7.849,
+   "measured_weekly_sd_with_missed_as_zero": 8.118,
+   "weeks": 48,
+   "missed_weeks": 4,
+   "ratio": 1.385,
+   "variance_why": [
+    "bell-cow usage (21% of team opportunity)",
+    "behind on the depth chart",
+    "age 30, past the WR peak"
+   ]
+  },
+  "2449": {
+   "name": "Stefon Diggs",
+   "position": "WR",
+   "adp": 122.33,
+   "board_weekly_sd": 12.78,
+   "measured_weekly_sd_played": 6.569,
+   "measured_weekly_sd_with_missed_as_zero": 7.417,
+   "weeks": 48,
+   "missed_weeks": 8,
+   "ratio": 1.723,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 32, past the WR peak"
+   ]
+  },
+  "4943": {
+   "name": "Sam Darnold",
+   "position": "QB",
+   "adp": 149.67,
+   "board_weekly_sd": 16.92,
+   "measured_weekly_sd_played": 12.177,
+   "measured_weekly_sd_with_missed_as_zero": 12.177,
+   "weeks": 41,
+   "missed_weeks": 0,
+   "ratio": 1.39,
+   "variance_why": []
+  },
+  "12534": {
+   "name": "Kyle Monangai",
+   "position": "RB",
+   "adp": 87.33,
+   "board_weekly_sd": 16.98,
+   "measured_weekly_sd_played": 6.019,
+   "measured_weekly_sd_with_missed_as_zero": 6.019,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 2.821,
+   "variance_why": [
+    "behind on the depth chart",
+    "second year"
+   ]
+  },
+  "5849": {
+   "name": "Kyler Murray",
+   "position": "QB",
+   "adp": 134.67,
+   "board_weekly_sd": 16.55,
+   "measured_weekly_sd_played": 6.61,
+   "measured_weekly_sd_with_missed_as_zero": 10.761,
+   "weeks": 48,
+   "missed_weeks": 20,
+   "ratio": 1.538,
+   "variance_why": []
+  },
+  "7567": {
+   "name": "Kenny Gainwell",
+   "position": "RB",
+   "adp": 107.67,
+   "board_weekly_sd": 14.92,
+   "measured_weekly_sd_played": 6.161,
+   "measured_weekly_sd_with_missed_as_zero": 6.162,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 2.421,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 27, past the RB peak"
+   ]
+  },
+  "11586": {
+   "name": "Blake Corum",
+   "position": "RB",
+   "adp": 93.33,
+   "board_weekly_sd": 13.96,
+   "measured_weekly_sd_played": 5.433,
+   "measured_weekly_sd_with_missed_as_zero": 5.433,
+   "weeks": 30,
+   "missed_weeks": 0,
+   "ratio": 2.57,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "8676": {
+   "name": "Rashid Shaheed",
+   "position": "WR",
+   "adp": 147.0,
+   "board_weekly_sd": 11.77,
+   "measured_weekly_sd_played": 6.255,
+   "measured_weekly_sd_with_missed_as_zero": 6.425,
+   "weeks": 49,
+   "missed_weeks": 12,
+   "ratio": 1.832,
+   "variance_why": [
+    "committee usage (7%)",
+    "behind on the depth chart"
+   ]
+  },
+  "4199": {
+   "name": "Aaron Jones",
+   "position": "RB",
+   "adp": 116.0,
+   "board_weekly_sd": 14.51,
+   "measured_weekly_sd_played": 5.679,
+   "measured_weekly_sd_with_missed_as_zero": 6.717,
+   "weeks": 48,
+   "missed_weeks": 10,
+   "ratio": 2.16,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 31, past the RB peak"
+   ]
+  },
+  "12489": {
+   "name": "RJ Harvey",
+   "position": "RB",
+   "adp": 81.33,
+   "board_weekly_sd": 16.43,
+   "measured_weekly_sd_played": 7.045,
+   "measured_weekly_sd_with_missed_as_zero": 7.045,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 2.332,
+   "variance_why": [
+    "committee usage (8%)",
+    "behind on the depth chart",
+    "second year"
+   ]
+  },
+  "12533": {
+   "name": "Jacory Croskey-Merritt",
+   "position": "RB",
+   "adp": 107.0,
+   "board_weekly_sd": 12.36,
+   "measured_weekly_sd_played": 7.256,
+   "measured_weekly_sd_with_missed_as_zero": 7.256,
+   "weeks": 16,
+   "missed_weeks": 0,
+   "ratio": 1.703,
+   "variance_why": [
+    "second year"
+   ]
+  },
+  "8136": {
+   "name": "Rachaad White",
+   "position": "RB",
+   "adp": 111.33,
+   "board_weekly_sd": 13.01,
+   "measured_weekly_sd_played": 6.471,
+   "measured_weekly_sd_with_missed_as_zero": 6.593,
+   "weeks": 48,
+   "missed_weeks": 1,
+   "ratio": 1.973,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 27, past the RB peak"
+   ]
+  },
+  "11655": {
+   "name": "Tyrone Tracy",
+   "position": "RB",
+   "adp": 143.33,
+   "board_weekly_sd": 11.54,
+   "measured_weekly_sd_played": 6.202,
+   "measured_weekly_sd_with_missed_as_zero": 6.401,
+   "weeks": 32,
+   "missed_weeks": 2,
+   "ratio": 1.803,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "12474": {
+   "name": "Woody Marks",
+   "position": "RB",
+   "adp": 149.67,
+   "board_weekly_sd": 8.99,
+   "measured_weekly_sd_played": 6.356,
+   "measured_weekly_sd_with_missed_as_zero": 6.488,
+   "weeks": 16,
+   "missed_weeks": 1,
+   "ratio": 1.386,
+   "variance_why": [
+    "behind on the depth chart",
+    "second year"
+   ]
+  },
+  "8132": {
+   "name": "Tyler Allgeier",
+   "position": "RB",
+   "adp": 144.0,
+   "board_weekly_sd": 7.34,
+   "measured_weekly_sd_played": 5.211,
+   "measured_weekly_sd_with_missed_as_zero": 5.211,
+   "weeks": 48,
+   "missed_weeks": 0,
+   "ratio": 1.409,
+   "variance_why": [
+    "behind on the depth chart"
+   ]
+  },
+  "9753": {
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "adp": 133.0,
+   "board_weekly_sd": 7.77,
+   "measured_weekly_sd_played": 6.987,
+   "measured_weekly_sd_with_missed_as_zero": 7.051,
+   "weeks": 48,
+   "missed_weeks": 2,
+   "ratio": 1.102,
+   "variance_why": [
+    "behind on the depth chart",
+    "carrying PUP"
+   ]
+  },
+  "8154": {
+   "name": "Brian Robinson",
+   "position": "RB",
+   "adp": 146.67,
+   "board_weekly_sd": 7.3,
+   "measured_weekly_sd_played": 6.403,
+   "measured_weekly_sd_with_missed_as_zero": 6.624,
+   "weeks": 48,
+   "missed_weeks": 5,
+   "ratio": 1.102,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 27, past the RB peak"
+   ]
+  },
+  "4035": {
+   "name": "Alvin Kamara",
+   "position": "RB",
+   "adp": 142.0,
+   "board_weekly_sd": 6.31,
+   "measured_weekly_sd_played": 7.776,
+   "measured_weekly_sd_with_missed_as_zero": 8.815,
+   "weeks": 48,
+   "missed_weeks": 10,
+   "ratio": 0.716,
+   "variance_why": [
+    "behind on the depth chart",
+    "age 31, past the RB peak"
+   ]
+  },
+  "8147": {
+   "name": "John Metchie",
+   "position": "WR",
+   "adp": 122.8,
+   "board_weekly_sd": 3.73,
+   "measured_weekly_sd_played": 3.902,
+   "measured_weekly_sd_with_missed_as_zero": 3.815,
+   "weeks": 39,
+   "missed_weeks": 5,
+   "ratio": 0.978,
+   "variance_why": [
+    "committee usage (3%)",
+    "behind on the depth chart"
+   ]
+  },
+  "11638": {
+   "name": "Ricky Pearsall",
+   "position": "WR",
+   "adp": 112.0,
+   "board_weekly_sd": 0.0,
+   "measured_weekly_sd_played": 6.716,
+   "measured_weekly_sd_with_missed_as_zero": 6.209,
+   "weeks": 32,
+   "missed_weeks": 13,
+   "ratio": 0.0,
+   "variance_why": [
+    "behind on the depth chart",
+    "carrying IR"
+   ]
+  }
+ }
+}
