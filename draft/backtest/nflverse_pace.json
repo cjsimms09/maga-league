@@ -437,5 +437,68 @@
    "neutral_pass_rate": 0.5336,
    "basis": "2287 scrimmage plays over 37 games"
   }
+ },
+ "does_it_predict": {
+  "_question": "Whether pace is worth WIRING, as opposed to whether it is measurable. Handing over a number with no evidence it matters is not much use.",
+  "_answer": "NO, not as a draft-day tiebreak. Measured, not argued.",
+  "same_season": {
+   "_what": "Spearman(x, season fantasy points), 875 player-seasons, >=20 touches.",
+   "RB": {
+    "n": 300,
+    "share": 0.9619,
+    "share_x_neutral": 0.9611,
+    "delta": -0.0007
+   },
+   "WR": {
+    "n": 403,
+    "share": 0.9189,
+    "share_x_neutral": 0.9173,
+    "delta": -0.0015
+   },
+   "TE": {
+    "n": 172,
+    "share": 0.9134,
+    "share_x_neutral": 0.9135,
+    "delta": 0.0001
+   },
+   "_caveat": "Same-season share is an OUTCOME, not a prior \u2014 on draft day you do not know it. This is why the lagged test below is the one that decides anything."
+  },
+  "lagged": {
+   "_what": "Prior-season usage and prior-season team pace predicting the FOLLOWING season's points \u2014 the shape of the actual draft-day question. 588 player-season pairs.",
+   "RB": {
+    "n": 167,
+    "prior_share": 0.686,
+    "share_x_neutral": 0.6859,
+    "delta": -0.0001,
+    "pace_alone": 0.0569
+   },
+   "WR": {
+    "n": 244,
+    "prior_share": 0.6496,
+    "share_x_neutral": 0.6506,
+    "delta": 0.0011,
+    "pace_alone": 0.0706
+   },
+   "TE": {
+    "n": 106,
+    "prior_share": 0.6201,
+    "share_x_neutral": 0.6277,
+    "delta": 0.0077,
+    "pace_alone": 0.0563
+   }
+  },
+  "why": {
+   "_what": "Year-over-year persistence of team pace, all 32 teams.",
+   "2023_to_2024": {
+    "neutral": 0.194,
+    "raw": 0.165
+   },
+   "2024_to_2025": {
+    "neutral": 0.024,
+    "raw": -0.065
+   },
+   "_reading": "A team's pace this year says almost nothing about its pace next year. That is the whole explanation for the null above: a draft-day tiebreak on last season's pace is using a number that will not describe the team being drafted."
+  },
+  "_what_this_does_NOT_refute": "IN-SEASON use, where you know the current team's current pace and no persistence is required. Nothing measured here speaks against that, and the raw-vs-neutral distinction (rho 0.53 between the two orderings) stands on its own: if pace is ever used, the neutral figure is the one to use."
  }
 }
