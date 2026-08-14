@@ -287,3 +287,76 @@ def test_TWO_DRAFTS_OF_EQUAL_SIZE_ARE_REFUSED_rather_than_arbitrated():
             {"round": 1, "pick_no": 9, "player_id": "a", "is_keeper": None}]}]}]}
     with pytest.raises(ValueError, match="two drafts"):
         PP.picks_of(h, "2023")
+
+
+# ── WHERE THE ROOM TAKES A POSITION, AND THE TWO WAYS THAT LIES ──────────────
+#
+# Measured 2026-08-14 and routed: quarterbacks bunch at picks 46-60 and again at
+# 106-120, tight ends at 61-75, and RB/WR not at all. Both traps below caught me
+# on the way there, and the second one caught me AFTER I had already drafted the
+# routing.
+
+def test_A_WAVE_IS_MEASURED_AGAINST_THE_POSITIONS_OWN_FREQUENCY():
+    """Ten of a position in one block is a wave if the position goes 16 times in
+    the draft and NOTHING if it goes 150 times. Counting raw picks per block
+    ranks positions by how often they are drafted at all.
+
+    It is not a subtle effect: the raw median gap between consecutive same-position
+    picks reads QB 5.0 against WR 2.0, so quarterbacks look like the most
+    spread-out position on the board. Normalised they are the most CLUSTERED —
+    QB 0.53, RB 0.60, WR 0.68, TE 0.75.
+
+    MUTATION: compare the block count against a constant instead of against the
+    position's own expectation — every deep position is a wave everywhere and
+    every scarce one never is."""
+    # 40 picks: a position taken 4 times, all in one block, against one taken 20
+    # times spread evenly. The scarce one is the wave.
+    hist = {"seasons": [{"season": "2023", "drafts": [{"draft_id": "d", "picks": [
+        {"round": 1, "pick_no": n, "player_id": "s%d" % n, "is_keeper": None}
+        for n in (11, 12, 13, 14)] + [
+        {"round": 1, "pick_no": n, "player_id": "d%d" % n, "is_keeper": None}
+        for n in range(1, 41, 2)]}]}]}
+    pos = {"s%d" % n: "TE" for n in (11, 12, 13, 14)}
+    pos.update({"d%d" % n: "WR" for n in range(1, 41, 2)})
+    w = PP.position_waves(hist, ["2023"], pos, block=10, last_pick=40)
+    te = {b["start"]: b for b in w["TE"]["blocks"]}
+    assert te[11]["ratio"] > 2.0, w["TE"]
+    assert all(b["ratio"] < 2.0 for b in w["WR"]["blocks"]), w["WR"]
+
+
+def test_A_WAVE_IN_ONE_SEASON_ONLY_IS_NOT_A_WAVE():
+    """Pooling three drafts can manufacture a block that exists in two of them.
+    The QB and TE waves routed today are worth sending precisely because they
+    survive that check — TE 61-75 is 3, 3, 3.
+
+    The fixture clears the ratio bar ON POOLED COUNTS (6 against an expectation of
+    3, exactly 2.0x) while one season contributes nothing. It must be reported as
+    a block with its counts, and it must NOT reach `waves`, which is the list a
+    consumer reads.
+
+    ⚠ THE FIRST VERSION OF THIS FIXTURE NEVER CLEARED THE RATIO AT ALL, so the
+    `waves` filter was never exercised and the mutation on it SURVIVED the gate.
+    A test that asserts the right thing about the wrong fixture is not a test.
+
+    MUTATION: build `waves` from the ratio alone — one anomalous draft becomes a
+    standing fact about the room, which is the shape of every over-read pattern
+    in this project."""
+    def season(n, picks):
+        return {"season": n, "drafts": [{"draft_id": n, "picks": [
+            {"round": 1, "pick_no": p, "player_id": "%s_%d" % (n, p),
+             "is_keeper": None} for p in picks]}]}
+    hist = {"seasons": [season("2023", [1, 2, 3, 11]),
+                        season("2024", [4, 5, 6, 21]),
+                        season("2025", [11, 21, 31, 32])]}
+    pos = {}
+    for s in hist["seasons"]:
+        for p in s["drafts"][0]["picks"]:
+            pos[p["player_id"]] = "QB"
+    w = PP.position_waves(hist, ["2023", "2024", "2025"], pos, block=10, last_pick=40)
+    first = [b for b in w["QB"]["blocks"] if b["start"] == 1][0]
+    assert first["ratio"] >= 2.0, first          # pooled, it IS a wave by ratio
+    assert first["wave"] is True, first
+    assert first["per_season"] == [3, 3, 0], first
+    assert first["in_every_season"] is False, first
+    # AND IT MUST NOT REACH `waves`, which is the list a consumer reads.
+    assert 1 not in w["QB"]["waves"], w["QB"]["waves"]

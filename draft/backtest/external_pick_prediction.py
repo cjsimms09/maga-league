@@ -248,3 +248,74 @@ def season_report(history, season, sources: dict, positions: dict = None,
     # population being graded, and that has to be visible next to the result.
     rep["keepers_excluded"] = len(all_picks) - len(picks)
     return rep
+
+
+#: A block holding this many times its own expectation is a wave. Declared from
+#: the shape rather than tuned: at 2x the position is going twice as fast as its
+#: own average, which is the difference between "some went here" and "they went
+#: here". Not fitted to make any block qualify — QB 46-60 came out 2.08 and TE
+#: 61-75 2.14 on the real drafts, and the bar was chosen before either was seen.
+WAVE_RATIO = 2.0
+
+
+def position_waves(history, seasons, positions: dict, block: int = 15,
+                   last_pick: int = 150) -> dict:
+    """Where the room takes each position. -> {pos: {taken, blocks: [...]}}.
+
+    KEEPERS ARE INCLUDED and that is the opposite of `season_report`'s choice,
+    deliberately. This asks when a position becomes SCARCE, and a kept player is
+    off the board exactly as if he had been drafted — the same reasoning that made
+    QB1 read 15/17/15 rather than the keeper-excluded 33/47/23.
+
+    ⚠ EVERY COUNT IS AGAINST THE POSITION'S OWN EXPECTATION, never a constant.
+    Ten of a position in one block is a wave if it goes 16 times in the draft and
+    nothing at all if it goes 150 times. This is not a subtle correction: the raw
+    median gap between consecutive same-position picks reads QB 5.0 against WR
+    2.0, which makes quarterbacks look like the most spread-out position on the
+    board. Normalised they are the most CLUSTERED — QB 0.53, RB 0.60, WR 0.68,
+    TE 0.75. I hit that trap on the way to this function and it was the fourth
+    time in one day.
+
+    ⚠ AND `in_every_season` TRAVELS WITH EVERY BLOCK, because pooling three drafts
+    can manufacture a wave that exists in one. The two findings this was written
+    for are worth sending precisely because they survive that: QB 46-60 and
+    106-120 appear in all three drafts, and TE 61-75 is 3, 3, 3.
+
+    MEASURED on our three drafts: QB waves at 46-60 (2.08x) and 106-120 (2.29x),
+    TE at 61-75 (2.14x), and RB and WR nowhere — the expected shape for positions
+    taken 45 and 51 times in 150 picks, where the room's timing is continuous.
+    """
+    seasons = [str(s) for s in (seasons or [])]
+    per_pos: dict = {}
+    for s in seasons:
+        for p in picks_of(history, s, include_keepers=True):
+            pos = (positions or {}).get(p["player_id"])
+            if not pos or p["pick_no"] > float(last_pick):
+                continue
+            per_pos.setdefault(pos, {}).setdefault(s, []).append(p["pick_no"])
+
+    out = {}
+    n_blocks = int(last_pick) // int(block)
+    for pos, by_season in sorted(per_pos.items()):
+        taken = sum(len(v) for v in by_season.values())
+        # THE EXPECTATION IS THIS POSITION'S OWN, spread evenly over the board.
+        expected = taken / float(n_blocks) if n_blocks else 0.0
+        blocks = []
+        for i in range(n_blocks):
+            lo, hi = i * int(block), (i + 1) * int(block)
+            per = [sum(1 for x in by_season.get(s, []) if lo < x <= hi) for s in seasons]
+            n = sum(per)
+            blocks.append({
+                "start": lo + 1, "end": hi, "n": n, "per_season": per,
+                "expected": round(expected, 2),
+                "ratio": round(n / expected, 2) if expected else None,
+                "wave": bool(expected) and n >= WAVE_RATIO * expected,
+                # A BLOCK IS ONLY A PATTERN IF EVERY DRAFT HAS IT. Pooled counts
+                # are how one strange season becomes a standing fact.
+                "in_every_season": all(c > 0 for c in per) if per else False,
+            })
+        out[pos] = {"taken": taken, "seasons": seasons,
+                    "expected_per_block": round(expected, 2), "blocks": blocks,
+                    "waves": [b["start"] for b in blocks
+                              if b["wave"] and b["in_every_season"]]}
+    return out

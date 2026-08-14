@@ -2029,6 +2029,30 @@
       "test_TWO_DRAFTS_OF_EQUAL_SIZE_ARE_REFUSED_rather_than_arbitrated"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        expected = taken / float(n_blocks) if n_blocks else 0.0",
+     "new": "        expected = 10.0",
+     "must_fail": [
+      "test_A_WAVE_IS_MEASURED_AGAINST_THE_POSITIONS_OWN_FREQUENCY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"in_every_season\": all(c > 0 for c in per) if per else False,",
+     "new": "                \"in_every_season\": True,",
+     "must_fail": [
+      "test_A_WAVE_IN_ONE_SEASON_ONLY_IS_NOT_A_WAVE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                    \"waves\": [b[\"start\"] for b in blocks\n                              if b[\"wave\"] and b[\"in_every_season\"]]}",
+     "new": "                    \"waves\": [b[\"start\"] for b in blocks if b[\"wave\"]]}",
+     "must_fail": [
+      "test_A_WAVE_IN_ONE_SEASON_ONLY_IS_NOT_A_WAVE"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
