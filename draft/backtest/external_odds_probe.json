@@ -66,7 +66,7 @@
  ],
  "credit": {
   "spent": 2,
-  "remaining": 80,
+  "remaining": 76,
   "note": "measured from the provider's own remaining counter, not from how many calls we think we made"
  },
  "verdict": "VOID \u2014 the parameter was not read",
@@ -119,21 +119,26 @@
   "tried": [
    {
     "path": "/v3/markets",
-    "status": 0
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
    },
    {
     "path": "/v3/odds/markets",
-    "status": 0
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
    },
    {
     "path": "/v3/props",
-    "status": 0
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
    },
    {
     "path": "/v3/outrights",
-    "status": 0
+    "status": 0,
+    "error": "HTTPError: HTTP Error 404: Not Found"
    }
   ],
+  "exists_but_forbidden": [],
   "answered": [],
   "note": "none of the candidate paths answered. That is a fact about our guesses, not about the provider: every path here was invented by us, and a 404 on an invented path proves only that we spelled it wrong. The question stays OPEN."
  },
