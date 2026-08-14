@@ -398,7 +398,10 @@ def test_the_ARTIFACT_IS_REGENERATED_AND_COMPARED_not_merely_pinned():
     art = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
     hist = _json.loads((root / "data" / "league_history.json").read_text())
     board = _json.loads((root.parent / "public" / "draft_data.json").read_text())["players"]
-    positions = {p["player_id"]: p.get("position") for p in board}
+    # THE MODULE'S OWN READER, not a second copy of "where do positions come
+    # from". Building the map here was the defect: it read the LIVE 2026 board for
+    # a statistic about 2023-2025. See `positions_for_history`.
+    positions = WR.positions_for_history(board)
 
     cells = {}
     for s in art["seasons"]:
@@ -420,3 +423,100 @@ def test_the_ARTIFACT_IS_REGENERATED_AND_COMPARED_not_merely_pinned():
     r = EC.agreement(fresh, stored, name="regenerated shelf vs committed artifact")
     assert r["compared"] >= 4, "nothing was compared — an empty overlap is a wrong key"
     assert r["ok"] is True, r["note"]
+
+
+# ── A MEASUREMENT ABOUT 2023 MUST NOT SHRINK WHEN THE 2026 BOARD DOES ──────
+#
+# The shelf is computed from 2023-2025 acquisitions, and its only position source
+# was the LIVE 2026 board. A man added off the wire in 2023 who has since retired
+# is not on that board, so he fails the join, lands in `unpositioned`, and falls
+# out of a sample ABOUT 2023. Nothing goes red — a shrinking denominator reads as
+# a smaller league, not as a bug.
+#
+# THE SAME DEFECT A FIXED AT THE ROOT FOR `wire_level.js` (72fb098, "and one for
+# C"). This is that instance, and the remedy is theirs: a historical position
+# record written before any filter and merged, never overwritten.
+#
+# MEASURED with the inactive prune simulated (1,841 rows -> 683):
+#   live board  full   6.30 TE / 13.30 WR / 5.32 RB / 20.88 QB
+#   live board  PRUNED 3.20 TE / 13.57 WR / 6.45 RB / 20.88 QB
+#   this reader BOTH   6.30 TE / 13.30 WR / 5.32 RB / 20.88 QB
+# TE HALVES — and it is one of the two positions resting on a single thin cell,
+# with the WIRE constants hand-copied into four tools.
+
+def _shelf(positions):
+    """The shipped statistic, from whatever position map it is handed."""
+    import json as _json, statistics as _st, sys as _sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    _sys.path.insert(0, str(root / "backtest"))
+    import waiver_replacement as WR
+    art = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
+    hist = _json.loads((root / "data" / "league_history.json").read_text())
+    cells = {}
+    for s in art["seasons"]:
+        store = _json.loads((root / "backtest" /
+                             ("nflverse_weekly_points_%s.json" % s)).read_text())
+        wp = {int(w["week"]): {k: float(v) for k, v in (w.get("points") or {}).items()}
+              for w in store["weeks"]}
+        c, _ = WR.replacement(hist, s, wp, positions)
+        for k, v in c.items():
+            cells[(s,) + k] = v
+    bypos = {}
+    for k, v in cells.items():
+        if v.get("status") == "measured" or v.get("n", 0) >= WR.MIN_N:
+            bypos.setdefault(k[1], []).append(v)
+    return {p: round(_st.median([c["median"] for c in cs if c.get("median") is not None]), 2)
+            for p, cs in bypos.items()}
+
+
+def _history_ids():
+    """Every player id this league actually acquired off the wire, 2023-2025."""
+    import json as _json, sys as _sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    _sys.path.insert(0, str(root / "backtest"))
+    import waiver_replacement as WR
+    art = _json.loads((root / "backtest" / "waiver_replacement.json").read_text())
+    hist = _json.loads((root / "data" / "league_history.json").read_text())
+    ids = set()
+    for s in art["seasons"]:
+        for a in WR.acquisitions(hist, s):
+            ids.add(str(a["player_id"]))
+    return ids
+
+
+def _board_and_board_without_history():
+    """The real board, and the same board with every historically-acquired player
+    removed.
+
+    ⚠ THE HAZARD IS CONSTRUCTED, NOT BORROWED FROM DORMANCY. My first version built
+    it by simulating the inactive prune — which works exactly once: on a board that
+    has ALREADY been pruned there is nothing dormant left, the two boards are
+    identical, and the test either passes vacuously or (with a guard) fails
+    forever. It failed on the pruned board, which is how I found it.
+
+    Removing the historically-acquired rows is the hazard ITSELF rather than one
+    cause of it, so this holds on any board, pruned or not, today and after."""
+    import json as _json
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    full = _json.loads((root.parent / "public" / "draft_data.json").read_text())["players"]
+    gone = _history_ids()
+    return full, [p for p in full if str(p.get("player_id")) not in gone]
+
+
+def test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land():
+    """Only the DISAPPEARANCE of a row must be ignored. A player who has genuinely
+    CHANGED position since must still be corrected by the live board.
+
+    MUTATION: return the record alone — a position fix never reaches the
+    measurement, and the historical record becomes a place errors go to be
+    preserved."""
+    import sys as _sys
+    from pathlib import Path
+    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "backtest"))
+    import waiver_replacement as WR
+    got = WR.positions_for_history([{"player_id": "4034", "position": "TE"}])
+    assert got["4034"] == "TE", "the live board must win over the stored record"
+    assert len(got) > 100, "and the record must still be underneath it"
