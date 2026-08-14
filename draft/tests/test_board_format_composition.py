@@ -794,3 +794,98 @@ def test_the_TWO_ARMS_carry_their_controls_and_they_disagree():
     assert abs(sp["wopr"]) > abs(sp["target_share"]) > abs(sp["proj_mean"]), sp
     assert abs(sp["proj_mean"]) < 0.05 and abs(sp["vorp"]) < 0.05, sp
     assert "no null on these" in sp["note"], sp
+
+
+# ── DO THE TWO MARKETS AGREE WITH EACH OTHER, OR WITH US? ───────────────────
+#
+# Both markets pricing high-target players earlier than our board has three
+# readings that render identically: a format difference, noise in one source, or
+# a property of OUR adp column. Comparing the markets TO EACH OTHER separates
+# them, because they share nothing except being real drafts.
+
+def _ma_board(n=30):
+    return {"players": [
+        {"player_id": str(i), "name": "P%d" % i, "position": "WR",
+         "adp": float(i + 1), "wopr": 0.60 - 0.015 * i, "target_share": 0.30 - 0.008 * i,
+         "proj_mean": 200.0 - i, "vorp": 50.0 - i}
+        for i in range(n)]}
+
+
+def test_markets_that_AGREE_with_each_other_locate_the_gap_in_OUR_column():
+    """Both markets shift high-wopr players EARLY by the same amount, so they
+    agree with each other and differ from us. That is the signature that says the
+    disagreement is ours.
+
+    MUTATION: drop the `abs(ms) < min(...)/2` term — two markets that disagree
+    with each other as much as with us still read as a finding about our board."""
+    # ⚠ THE FIRST FIXTURE WAS DEGENERATE AND THE FAILURE WAS INFORMATIVE. It
+    # offset a monotone board by a constant and clamped at 1, which preserved the
+    # original ORDER exactly, so every delta was 0 and all three rhos came back
+    # None. High wopr therefore alternates here rather than tracking the board,
+    # and the base is lifted clear of the clamp.
+    n = 30
+    board = {"players": [
+        {"player_id": str(i), "name": "P%d" % i, "position": "WR",
+         "adp": float(i + 11), "wopr": 0.50 if i % 2 == 0 else 0.10,
+         "target_share": 0.30 if i % 2 == 0 else 0.05,
+         "proj_mean": 200.0 - i, "vorp": 50.0 - i} for i in range(n)]}
+    ids = {str(i): str(i) for i in range(n)}
+    # both markets move HIGH-wopr players 10 slots earlier, low-wopr 10 later
+    mkt = {str(i): float((i + 11) - 10 if i % 2 == 0 else (i + 11) + 10)
+           for i in range(n)}
+    # The second market agrees on the SHAPE but is not byte-identical. ⚠ THE
+    # JITTER MUST BE ORTHOGONAL TO WOPR: my first attempt perturbed `i % 4 == 0`,
+    # and since that implies `i % 2 == 0` every nudge landed on a high-wopr
+    # player — a real wopr-correlated disagreement between the two markets, which
+    # is precisely what this fixture must NOT contain. Period 5 against wopr's
+    # period 2 is coprime, so the jitter is balanced across both groups.
+    mkt2 = {k: v + (((int(k) * 7) % 5) - 2) * 0.2 for k, v in mkt.items()}
+    out = B.market_agreement(ids, mkt, mkt2, board, top_n=60)
+    assert out["status"] == "measured", out
+    w = out["by_variable"]["wopr"]
+    assert w["markets_agree_board_differs"] is True, w
+    assert abs(w["mfl_vs_source"]) < abs(w["mfl_vs_board"]), w
+
+
+def test_markets_that_DISAGREE_with_each_other_are_NOT_a_finding_about_us():
+    """The discriminating arm. If the two markets differ from each other as much
+    as from us, the effect is not located in our column.
+
+    MUTATION: return True whenever both markets differ from the board — one noisy
+    source manufactures a finding about our board."""
+    n = 30
+    board = _ma_board(n)
+    ids = {str(i): str(i) for i in range(n)}
+    early = {str(i): float(max(1, (i + 1) - 8 if i < n // 2 else (i + 1) + 8))
+             for i in range(n)}
+    late = {str(i): float(max(1, (i + 1) + 8 if i < n // 2 else (i + 1) - 8))
+            for i in range(n)}
+    out = B.market_agreement(ids, early, late, board, top_n=n)
+    assert out["by_variable"]["wopr"]["markets_agree_board_differs"] is False, out
+
+
+def test_a_population_too_thin_to_compare_says_so(monkeypatch):
+    """MUTATION: return `measured` with two players — three correlations on a
+    population that cannot support one, and every rho is +/-1."""
+    board = _ma_board(30)
+    out = B.market_agreement({"0": "0"}, {"0": 1.0}, {"0": 1.0}, board, top_n=30)
+    assert out["status"] == "thin", out
+    assert "cannot be compared" in out["note"]
+
+
+def test_all_three_comparisons_use_ONE_population():
+    """The only thing allowed to change between the three numbers is which pair
+    is compared. A player priced by one market and not the other must fall out of
+    ALL THREE or the numbers are not comparable.
+
+    MUTATION: build each comparison from its own intersection — the three rhos
+    describe three different sets of players and the control is meaningless."""
+    n = 30
+    board = _ma_board(n)
+    ids = {str(i): str(i) for i in range(n)}
+    mkt = {str(i): float(i + 1) for i in range(n)}
+    partial = {str(i): float(i + 1) for i in range(n) if i % 3}      # drops a third
+    out = B.market_agreement(ids, mkt, partial, board, top_n=n)
+    ns = {d["n"] for d in out["by_variable"].values()}
+    assert len(ns) == 1, out["by_variable"]
+    assert out["n"] == len(partial), (out["n"], len(partial))

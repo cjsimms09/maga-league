@@ -978,6 +978,129 @@ def spread_composition(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
 COMPOSITION_DRIFT_FRACTION = 1.0 / 30.0
 
 
+#: Board variables the three-way agreement is measured on. `wopr` and
+#: `target_share` because that is where the gradient lives; `proj_mean` and
+#: `vorp` as the NEGATIVE CONTROLS — a mechanism that moves every variable is a
+#: re-ranking, not a finding about receiving opportunity.
+AGREEMENT_VARS = ("wopr", "target_share", "proj_mean", "vorp")
+
+
+def market_agreement(mfl_ids: dict, mfl_rows: dict, source_rows: dict, board,
+                     top_n=DRAFT_RANGE, variables=AGREEMENT_VARS) -> dict:
+    """Do two INDEPENDENT DRAFT MARKETS agree with each other, or with our board?
+
+    ⚠ THE CONTROL THAT DISCRIMINATES, AND THE REASON THIS IS A FUNCTION RATHER
+    THAN A NUMBER IN A COMMENT. `format_composition` found that both markets
+    price high-target players earlier than our board. That has three readings and
+    they render identically: a format difference, noise in one source, or a
+    property of OUR ADP COLUMN. Comparing the two markets TO EACH OTHER separates
+    them, because they share nothing except being real drafts.
+
+    Measured 2026-08-14 on the 111 non-QB players both markets price inside our
+    draft:
+
+        wopr          MFL vs board -0.388   FFC vs board -0.397   MFL vs FFC +0.039
+        target_share  MFL vs board -0.336   FFC vs board -0.331   MFL vs FFC +0.023
+
+    The two markets agree with each other to within noise and both disagree with
+    us by about the same amount. A format cause is already refuted (FFC is
+    half-PPR at our league size); single-source noise cannot survive two
+    independent sources agreeing; and the crosswalk is identical on both arms.
+    What is left is our `adp` column, which is FantasyPros EXPERT CONSENSUS — so
+    the live hypothesis is DRAFTERS versus RANKERS.
+
+    ⚠ WHAT IT STILL DOES NOT SHOW: that the drafters are RIGHT. Two markets can
+    share a bias, and `proj_mean` derives from Sleeper, which may share the
+    rankers' view. This says the disagreement is real and located in the ADP
+    column. It does not say which side to follow.
+
+    ONE POPULATION FOR ALL THREE COMPARISONS, or the numbers are not comparable —
+    the whole point is that the only thing changing is which pair is compared.
+    """
+    rows = _board_rows(board)
+    info = {str(p.get("player_id")): p for p in rows}
+    mfl = {}
+    for mid, adp in (mfl_rows or {}).items():
+        ours = (mfl_ids or {}).get(str(mid))
+        if ours is not None:
+            try:
+                mfl[str(ours)] = float(adp)
+            except (TypeError, ValueError):
+                pass
+    src = {}
+    for pid, adp in (source_rows or {}).items():
+        try:
+            src[str(pid)] = float(adp)
+        except (TypeError, ValueError):
+            pass
+    pop = [k for k in mfl if k in src and k in info
+           and isinstance(info[k].get("adp"), (int, float))
+           and float(info[k]["adp"]) <= top_n
+           and str(info[k].get("position") or "").upper() != "QB"]
+    if len(pop) < 3:
+        return {"status": "thin", "n": len(pop),
+                "note": "fewer than 3 non-QB players are priced by BOTH markets "
+                        "inside pick %s, so the two markets cannot be compared to "
+                        "each other at all." % top_n}
+
+    def _rank(d):
+        return {k: i + 1 for i, (k, _v) in
+                enumerate(sorted(d.items(), key=lambda kv: kv[1]))}
+
+    rm = _rank({k: mfl[k] for k in pop})
+    rs = _rank({k: src[k] for k in pop})
+    rb = _rank({k: float(info[k]["adp"]) for k in pop})
+
+    def _rho(var, a, b):
+        xs, ys = [], []
+        for k in pop:
+            v = info[k].get(var)
+            if isinstance(v, (int, float)):
+                xs.append(float(v))
+                ys.append(a[k] - b[k])
+        if len(xs) < 3:
+            return None, len(xs)
+        # ⚠ A CONSTANT DISAGREEMENT IS ZERO GRADIENT, NOT AN UNMEASURABLE ONE.
+        # `_spearman` returns None on a constant column, deliberately, so that a
+        # flat variable never reports as 0.0. Here the constant is the DELTA, and
+        # a delta that never varies means the two orderings differ by the same
+        # amount everywhere — which is exactly no gradient. Two IDENTICAL markets
+        # produce all-zero deltas, the strongest possible agreement, and letting
+        # that come back None made perfect agreement read as "not measured" and
+        # switched the discrimination flag OFF. Caught by a fixture that made the
+        # two markets identical.
+        if len(set(ys)) == 1:
+            return 0.0, len(xs)
+        return _spearman(xs, ys), len(xs)
+
+    out = {}
+    for var in variables:
+        mb, n = _rho(var, rm, rb)
+        sb, _ = _rho(var, rs, rb)
+        ms, _ = _rho(var, rm, rs)
+        out[var] = {
+            "n": n,
+            "mfl_vs_board": None if mb is None else round(mb, 3),
+            "source_vs_board": None if sb is None else round(sb, 3),
+            "mfl_vs_source": None if ms is None else round(ms, 3),
+            # THE DISCRIMINATION, AS A FLAG RATHER THAN AS PROSE. True when the
+            # two markets agree with each other and both differ from us — the
+            # signature that locates the disagreement in OUR column.
+            "markets_agree_board_differs": bool(
+                mb is not None and sb is not None and ms is not None
+                and abs(ms) < min(abs(mb), abs(sb)) / 2.0
+                and (mb < 0) == (sb < 0)),
+        }
+    return {"status": "measured", "n": len(pop), "by_variable": out,
+            "note": "MFL and %s are independent markets of REAL DRAFTS; our "
+                    "board's adp is FantasyPros EXPERT CONSENSUS. Where the two "
+                    "markets agree with each other and both differ from us, the "
+                    "disagreement is located in OUR adp column — not in a format, "
+                    "not in one source, and not in the crosswalk, which is "
+                    "identical on both arms. It does NOT show the drafters are "
+                    "right." % "the second source"}
+
+
 def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
     """The composition on EVERY archived day, and whether it is moving.
 
