@@ -3555,3 +3555,158 @@ def test_A_LATER_DAY_IS_NOT_A_YESTERDAY():
     got = C.collapse_verdict(20, ser, "2026", "2026-08-14")
     assert got["was"] == 681, "the same date must not be its own baseline"
     assert got["refuse"] is True
+
+
+# ── ARE TWO DAYS ONE CUMULATIVE SERIES AT ALL ───────────────────────────────
+#
+# THE GAP IS BETWEEN A PER-PLAYER GUARD AND A POPULATION ONE. `marginal_adp`
+# already refuses an INDIVIDUAL player whose count fell, which handles MFL's
+# aggregation lag. It cannot see the provider RE-SCOPING its sample — a rolling
+# window advancing, a season boundary, a format filter changing — where counts
+# fall for many players at once, the per-player guard drops every one of them,
+# and the marginal comes back as a real-looking number over whichever players
+# survived the break.
+#
+# ⚠ WRITTEN BEFORE THE FIRST DAY IT CAN FIRE. The archive holds one dispersion
+# day; tomorrow is the first morning two exist to compare. A guard that arrives
+# after the day it was needed is a post-mortem.
+
+
+def _cum(dt, n, cnt, td=100, start=0):
+    return {"year": "2026", "observed_at": dt, "total_drafts": td,
+            "rows": {str(i): 10.0 + i for i in range(start, start + n)},
+            "dispersion": {str(i): {"drafts": cnt, "min_pick": 1.0,
+                                    "max_pick": 50.0, "sel_pct": 100.0}
+                           for i in range(start, start + n)}}
+
+
+def test_A_POOL_RESET_IS_CAUGHT_even_though_every_player_would_be_dropped_singly():
+    """Every count falls, so `marginal_adp`'s per-player refusal would drop every
+    row and report "nothing qualified" — a fact about the floor, not about the
+    provider re-scoping its sample.
+
+    MUTATION: rely on the per-player guard alone — a partial reset (say half the
+    pool) leaves the other half, `new = drafts1 - drafts0` is computed for them,
+    and a marginal ADP is published over a population selected by the break."""
+    got = C.cumulative_break(_cum("2026-08-13", 50, 40, td=100),
+                             _cum("2026-08-14", 50, 10, td=30))
+    assert got["status"] == "measured"
+    assert got["usable"] is False
+    assert got["fell"] == 50 and got["fell_share"] == 1.0
+    assert got["total_drafts_fell"] is True
+    assert "not one accumulating series" in got["note"]
+
+
+def test_THE_AGGREGATION_LAG_IS_TOLERATED_so_the_alarm_can_be_believed():
+    """MFL disagrees with itself every day — 25 of 681 players (3.7%) carried a
+    count above `total_drafts` on 2026-08-14. A check that fires on a handful of
+    players moving backwards would be red every morning and therefore unread.
+
+    MUTATION: refuse on ANY fall — the ordinary daily lag stops the marginal
+    being derived at all, and the instrument built to see today's drafters never
+    sees one."""
+    later = _cum("2026-08-14", 100, 55, td=120)
+    later["dispersion"]["0"] = dict(later["dispersion"]["0"], drafts=40)
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50, td=100), later)
+    assert got["fell"] == 1
+    assert got["usable"] is True
+    assert "within the" in got["note"]
+
+
+def test_THE_PROVIDERS_OWN_TOTAL_FALLING_IS_ENOUGH_on_its_own():
+    """`total_drafts` is an aggregate that LAGS its own per-player counts — this
+    module measured that — so it decides nothing by itself normally. But it is
+    cumulative too, and a cumulative aggregate going DOWN is the provider having
+    re-scoped, whatever the per-player share says.
+
+    MUTATION: judge on the player share alone — a re-scope that happens to leave
+    most individual counts alone (a format filter dropping whole leagues) passes,
+    and the marginal is derived across a boundary."""
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50, td=200),
+                             _cum("2026-08-14", 100, 55, td=120))
+    assert got["fell"] == 0, "no player moved backwards"
+    assert got["total_drafts_fell"] is True
+    assert got["usable"] is False, got
+
+
+def test_TWO_DAYS_WITH_NO_SHARED_COUNTS_ARE_UNMEASURED_not_clean():
+    """The days archived before the dispersion parser landed carry no counts at
+    all. Reported as "no falls" they would read as a verified cumulative series,
+    which is the strongest possible claim resting on nothing.
+
+    MUTATION: return `usable: True` on an empty overlap — every pair involving a
+    pre-dispersion day certifies itself."""
+    # ⚠ THE TWO ABSENCES ARE DIFFERENT AND EACH MUST NAME ITSELF. The first cut
+    # accepted either note for either case, so a mutation collapsing the two
+    # branches SURVIVED — the test could not tell them apart.
+    #
+    # (a) NO OVERLAP AT ALL: one day has no dispersion, or the ids are disjoint.
+    for a, b in (({"observed_at": "2026-08-12", "dispersion": None},
+                  _cum("2026-08-14", 10, 20)),
+                 (_cum("2026-08-13", 10, 20, start=0),
+                  _cum("2026-08-14", 10, 30, start=500))):
+        got = C.cumulative_break(a, b)
+        assert got["status"] == "unmeasured", got
+        assert got["usable"] is None
+        assert "share no player" in got["note"], got["note"]
+
+    # (b) THE PLAYERS OVERLAP BUT NEITHER DAY CARRIES A COUNT — the days archived
+    # before `dispersion_of` parsed `draftsSelectedIn`. A separate branch, and
+    # without this case it is unreachable from any fixture here.
+    def _nocount(dt):
+        d = _cum(dt, 10, 20)
+        d["dispersion"] = {k: {"min_pick": 1.0, "max_pick": 50.0, "drafts": None}
+                           for k in d["dispersion"]}
+        return d
+    got = C.cumulative_break(_nocount("2026-08-13"), _nocount("2026-08-14"))
+    assert got["status"] == "unmeasured", got
+    assert got["usable"] is None
+    assert "BOTH days" in got["note"], got["note"]
+
+
+def test_latest_marginal_REFUSES_A_BROKEN_PAIR_and_says_which_it_was():
+    """The consumer. "Nothing qualified" and "the series broke" are different
+    facts and only one of them is about the market — a reader who gets the first
+    concludes the drafters were quiet.
+
+    MUTATION: drop the check from the window loop — the reset pair is used, every
+    player is refused individually, and the run reports UNMEASURED with a note
+    about the new-selection floor."""
+    healthy = [_cum("2026-08-13", 50, 40, td=100), _cum("2026-08-14", 50, 50, td=120)]
+    assert C.latest_marginal(healthy, "2026")["status"] == "measured"
+
+    # ⚠ A PARTIAL RESET, NOT A TOTAL ONE, AND THAT IS THE WHOLE TEST. The first
+    # fixture reset EVERY player, so `marginal_adp`'s per-player guard alone
+    # already produced `unmeasured` and the mutation that removes this check
+    # SURVIVED. The dangerous case is the one where survivors WOULD qualify: half
+    # the pool is re-scoped, the other half still clears the new-selection floor,
+    # and a marginal ADP is published over a population selected by the break.
+    earlier = _cum("2026-08-13", 50, 40, td=100)
+    later = _cum("2026-08-14", 50, 50, td=120)
+    for i in range(25):                      # half the pool goes backwards
+        later["dispersion"][str(i)] = dict(later["dispersion"][str(i)], drafts=5)
+    survivors = sum(1 for i in range(25, 50))
+    assert survivors >= C.MIN_NEW_SELECTIONS, "the survivors must be able to qualify"
+    got = C.latest_marginal([earlier, later], "2026")
+    assert got["status"] == "unmeasured", (
+        "half the pool was re-scoped and the other half still clears the floor — "
+        "without the series check this publishes a marginal over the survivors")
+    assert got["cumulative_break"]["usable"] is False
+    assert got["cumulative_break"]["fell"] == 25
+    assert "not one accumulating series" in got["cumulative_break"]["note"]
+
+
+def test_THE_TOLERANCE_IS_DECLARED_AND_THE_OBSERVED_SHARE_IS_REPORTED():
+    """This archive holds ONE dispersion day, so no day-over-day count movement
+    has ever been observed and the bar cannot be derived from any. It is set from
+    the only related figure that HAS been measured — the 3.7% same-day
+    aggregation lag — and the OBSERVED share is reported every day so it can be
+    re-derived from real movement once there is some.
+
+    MUTATION: report only the verdict — the number that would let anyone
+    recalibrate this is thrown away daily, and the declared bar becomes permanent
+    by default."""
+    got = C.cumulative_break(_cum("2026-08-13", 100, 50), _cum("2026-08-14", 100, 55))
+    assert got["fell_share"] is not None
+    assert got["tolerance"] == C.CUMULATIVE_FALL_TOLERANCE
+    assert 0.0 < C.CUMULATIVE_FALL_TOLERANCE < 1.0

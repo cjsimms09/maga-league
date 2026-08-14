@@ -65,6 +65,19 @@ ROW_DROP_FLOOR = 30
 #: ordinary here. Reusing it would refuse a normal Tuesday.
 COLLAPSE_KEEP_FRACTION = 0.5
 
+#: What share of players may have a LOWER cumulative draft count than yesterday
+#: before the two days stop being one cumulative series.
+#:
+#: ⚠ DECLARED, NOT DERIVED, AND SAYING SO IS THE POINT. This archive holds ONE
+#: day of dispersion, so no day-over-day count movement has ever been observed
+#: and there is nothing to derive from. The bar is set from the only related
+#: figure that HAS been measured: MFL's own aggregation lag put 25 of 681 players
+#: (3.7%) above `total_drafts` on 2026-08-14, so 5% sits just above the largest
+#: same-day inconsistency the feed has shown. `cumulative_break` reports the
+#: OBSERVED share every day precisely so this can be re-derived from real
+#: movement once there is some.
+CUMULATIVE_FALL_TOLERANCE = 0.05
+
 SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
                    "source_note", "dispersion"]
 
@@ -691,6 +704,74 @@ def dispersion_health(series: list, year) -> dict:
                      "names are unproven." % len(judged))
 
 
+def cumulative_break(earlier: dict, later: dict) -> dict:
+    """Are these two days ONE cumulative series? -> verdict, before any marginal.
+
+    ⚠ THE GAP THIS CLOSES IS BETWEEN A PER-PLAYER GUARD AND A POPULATION ONE, and
+    it is the shape this lane keeps finding. `marginal_adp` already refuses an
+    INDIVIDUAL player whose count fell (`refused_count_fell`) — correct, and it
+    handles MFL's aggregation lag, which moves a handful of players. It does NOT
+    handle the case where the provider RE-SCOPES ITS SAMPLE: a rolling window
+    advancing, a season boundary, a format filter changing. Then counts fall for
+    MANY players at once, the per-player guard silently drops every one of them,
+    and the marginal is computed from the survivors — a real-looking number over
+    a population selected by the very thing that broke.
+
+    `new = drafts1 - drafts0` is only "what today's drafters did" while the two
+    counts are readings of the same accumulating total. That is an ASSUMPTION
+    about the provider, it has never been checked, and tomorrow is the first day
+    two dispersion days exist to check it with. Built before then on purpose: a
+    guard that arrives after the day it was needed is a post-mortem.
+    """
+    e = (earlier or {}).get("dispersion") or {}
+    l = (later or {}).get("dispersion") or {}
+    shared = [k for k in l if k in e]
+    base = {"status": "unmeasured", "shared": len(shared), "fell": 0,
+            "fell_share": None, "worst_fall": None, "usable": None,
+            "tolerance": CUMULATIVE_FALL_TOLERANCE,
+            "total_drafts_fell": None, "note": None}
+    if not shared:
+        # ⚠ NOT "no falls, all clear". Two days with no player in common cannot
+        # be judged, and the days before dispersion landed have no counts at all.
+        return dict(base, note="the two days share no player carrying a draft "
+                               "count, so nothing was compared — that is the "
+                               "archive's shape, not a clean result")
+    falls = []
+    for k in shared:
+        a, b = (e[k] or {}).get("drafts"), (l[k] or {}).get("drafts")
+        if a is None or b is None:
+            continue
+        if b < a:
+            falls.append((k, a - b))
+    counted = [k for k in shared
+               if (e[k] or {}).get("drafts") is not None
+               and (l[k] or {}).get("drafts") is not None]
+    if not counted:
+        return dict(base, note="no shared player carries a count on BOTH days")
+    share = len(falls) / float(len(counted))
+    td0, td1 = (earlier or {}).get("total_drafts"), (later or {}).get("total_drafts")
+    td_fell = (None if td0 is None or td1 is None else bool(td1 < td0))
+    usable = share <= CUMULATIVE_FALL_TOLERANCE and not td_fell
+    return dict(base, status="measured", shared=len(counted), fell=len(falls),
+                fell_share=round(share, 4),
+                worst_fall=(max(x for _k, x in falls) if falls else 0),
+                usable=usable, total_drafts_fell=td_fell,
+                note=("%d of %d shared players (%.1f%%) have FEWER cumulative "
+                      "drafts than yesterday%s. Above the %.0f%% tolerance, so "
+                      "these two days are not one accumulating series and "
+                      "`new = drafts1 - drafts0` is not 'what today's drafters "
+                      "did' — the marginal must not be derived across them."
+                      % (len(falls), len(counted), 100.0 * share,
+                         " and the provider's own total_drafts FELL" if td_fell else "",
+                         100.0 * CUMULATIVE_FALL_TOLERANCE))
+                if not usable else
+                ("%d of %d shared players (%.1f%%) fell, within the %.0f%% "
+                 "tolerance — consistent with the aggregation lag already "
+                 "measured on this feed, and the two days read as one series."
+                 % (len(falls), len(counted), 100.0 * share,
+                    100.0 * CUMULATIVE_FALL_TOLERANCE)))
+
+
 def marginal_adp(earlier: dict, later: dict) -> dict:
     """What TODAY'S drafters did — recovered exactly from two cumulative days.
 
@@ -927,9 +1008,19 @@ def latest_marginal(series: list, year) -> dict:
     # player does, and `total_drafts` is reported as context rather than consulted.
     later = days[-1]
     n_late = _total_drafts(later)
-    earlier, out, qualifying = None, None, 0
+    earlier, out, qualifying, broke = None, None, 0, None
     for cand in reversed(days[:-1]):
         earlier = cand
+        # ⚠ IS THIS PAIR ONE CUMULATIVE SERIES AT ALL, before deriving anything
+        # from the difference between them. `marginal_adp` refuses an INDIVIDUAL
+        # player whose count fell, which is right and handles MFL's aggregation
+        # lag. It cannot see a provider RE-SCOPING its sample: then counts fall
+        # for many players at once, the per-player guard drops every one of them,
+        # and the marginal comes back as a real-looking number computed over
+        # whichever players happened to survive the break.
+        broke = cumulative_break(cand, later)
+        if broke["status"] == "measured" and not broke["usable"]:
+            continue
         out = marginal_adp(cand, later)
         qualifying = sum(1 for r in out["rows"].values()
                          if r["new_selections"] >= MIN_NEW_SELECTIONS)
@@ -941,6 +1032,9 @@ def latest_marginal(series: list, year) -> dict:
         return {"status": "unmeasured", "spread_days_found": len(days),
                 "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
                 "ranking_excluded_out_of_range": 0,
+                # WHY, NOT JUST THAT. "Nothing qualified" and "the series broke"
+                # are different facts and only one of them is about the market.
+                "cumulative_break": broke,
                 "earlier": earlier.get("observed_at"), "later": later.get("observed_at"),
                 "window_days": len(days) - 1, "window_qualifying": 0,
                 "provider_total_drafts_delta": delta,
