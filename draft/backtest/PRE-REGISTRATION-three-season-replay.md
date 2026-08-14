@@ -435,6 +435,50 @@ That is a design requirement, not an aspiration, and it means:
   **Every future season is clean; the past three never will be.** That asymmetry
   is permanent and is the reason §3e's walk-forward substitution exists.
 
+
+---
+
+## 13. THE HARNESS CONTRACT — the grading half is already built and CERTIFIED
+
+Verified rather than assumed, and it substantially reduces what has to be built.
+
+`money_grade.grade_substituted(history, payouts, season, roster_id, my_weekly)`
+re-grades weekly-high + regular-season + playoff dollars with ONE seat's weekly
+scores replaced. `draft/tests/test_money_grade_certification.py` reproduces all
+three seasons' actual money tables **to the dollar** — 8 checks, green today.
+
+**SO EVERY ARM HAS THE SAME, SMALL CONTRACT:**
+
+> produce `{week: score}` for the seat, for the season. Nothing else.
+
+Everything downstream — standings, weekly-high, bracket reseed, payouts — is
+certified machinery that already exists and is shared with exp34-dollars. The
+build is the DECISION half only:
+
+1. draft a roster (draft arm)
+2. evolve it weekly (waiver arm)
+3. choose starters each week (lineup arm)
+4. sum the starters' ACTUAL points -> `{week: score}`
+
+Step 4 is where the as-of rule bites and where it is also easiest: the DECISION
+uses only weeks 1..N−1, the SCORE uses week N's realized points. Those are
+different reads of the same data and conflating them is the leak.
+
+**THE GRADER ALREADY REFUSES TO MIX EVIDENCE**, which is the behaviour this
+programme needs and did not have to build: if a replayed seat reaches the
+bracket but the replay does not cover the playoff weeks, it withholds playoff
+dollars and says so, rather than pairing a replayed regular season with the
+incumbent roster's playoff scores. That is the same refusal discipline as
+`opponent_prediction_coverage` and it is already in the certified layer.
+
+**AND IT ALREADY DRAWS §8's DISTINCTION.** `grade_substituted` holds the rest of
+the field at their realized scores — the RIGHT denominator for a lineup decision,
+because a manager controls their own lineup and not the field's. It is a WEAKER
+assumption for a draft decision, where drafting differently would in reality have
+changed what everyone else could take. The lineup and waiver arms are therefore
+on firmer ground than the draft arm, and the write-up must not present all three
+with equal confidence.
+
 ---
 
 ## 9. WHAT THIS DOES NOT ESTABLISH
