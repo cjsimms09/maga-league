@@ -39,6 +39,7 @@ Run: python -m pytest draft/tests/test_core_needs_no_reviewer.py -q
 from __future__ import annotations
 
 import ast
+import json
 import os
 import re
 import subprocess
@@ -172,6 +173,184 @@ def test_NO_CORE_PYTHON_IMPORTS_A_PROVIDER_SDK():
     assert not bad, "\n".join(bad)
 
 
+# ── EXECUTION-LEVEL PROOF ───────────────────────────────────────────────────
+#
+# Cory: "Do not settle for string-based absence testing. The guard must prove
+# that the core execution path has no runtime dependency on the reviewer, not
+# merely that certain strings don't appear in source. Prefer an execution-level
+# test over source-code grep wherever possible."
+#
+# He is right, and the grep above is now the cheap early warning rather than the
+# evidence. A grep proves a spelling. What the invariant actually claims is:
+#
+#   "With OpenAI completely absent, the fantasy system produces the same class
+#    of valid production output it would otherwise produce."
+#
+# So the tests below make OpenAI genuinely absent -- a meta-path finder that
+# raises on any attempt to import it, plus the key stripped from the
+# environment -- and then require a REAL RECOMMENDATION to come out the far end.
+# An unimportable package is a stronger condition than an uninstalled one: it
+# fails even if something pip-installs it later.
+
+#: Injected ahead of the core work. `find_spec` raising is what makes the
+#: package unimportable rather than merely missing.
+_BLOCKER = """
+import sys, importlib.abc
+_BANNED = {'open' + 'ai', 'anthro' + 'pic'}
+class _Block(importlib.abc.MetaPathFinder):
+    def find_spec(self, name, path=None, target=None):
+        if name.split('.')[0] in _BANNED:
+            raise ImportError('BLOCKED BY TEST: %s must not be reachable from '
+                              'the core execution path' % name)
+        return None
+sys.meta_path.insert(0, _Block())
+"""
+
+
+def _run_core(body: str, env_extra: dict | None = None):
+    """Execute `body` with the provider SDKs unimportable and no API key."""
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")}
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(ROOT / "draft"), str(ROOT / "draft" / "backtest")])
+    env.update(env_extra or {})
+    return subprocess.run([sys.executable, "-c", _BLOCKER + body], env=env,
+                          capture_output=True, text=True, cwd=str(ROOT))
+
+
+def test_EXEC_the_blocker_actually_blocks_or_every_test_below_is_theatre():
+    """CONTROL. If the finder does not bite, the checks that follow prove
+    nothing about absence -- they would pass on a machine with the SDK present
+    and happily importable."""
+    r = _run_core("import " + "open" + "ai")
+    assert r.returncode != 0, "the import blocker did not block"
+    assert "BLOCKED BY TEST" in r.stderr, r.stderr[-500:]
+
+
+def test_EXEC_THE_BOARD_PRODUCES_A_REAL_RECOMMENDATION_WITH_OPENAI_ABSENT():
+    """THE INVARIANT, executed. Not "no string appears" -- an actual ranked
+    recommendation with survival attached, from the shipped artifact, through
+    the same functions the war room and the freeze use."""
+    r = _run_core("""
+import json, keepers as K
+art = json.load(open('public/draft_data.json'))
+board = art['pick_order']['picks']
+mine  = art['pick_order']['my_picks']
+pool  = [p for p in art['players']
+         if p.get('vorp') is not None and p.get('adjusted_adp')]
+pool.sort(key=lambda p: -float(p['vorp']))
+top = pool[:5]
+rec = [{'name': p['name'], 'pos': p['position'], 'vorp': p['vorp'],
+        'survival_at_my_pick': K.survival_probability(
+            float(p['adjusted_adp']),
+            K.live_index_of(int(mine[0]), board), p.get('adp_sd'))}
+       for p in top]
+import sys
+print(json.dumps({'rec': rec, 'n_pool': len(pool),
+                  'openai_in_modules': any(m.startswith('open'+'ai')
+                                           for m in sys.modules)}))
+""")
+    assert r.returncode == 0, r.stderr[-2000:]
+    out = json.loads(r.stdout.strip().splitlines()[-1])
+    # A VALID PRODUCTION OUTPUT, not merely a non-crash.
+    assert out["n_pool"] > 200, f"only {out['n_pool']} players priced"
+    assert len(out["rec"]) == 5
+    for row in out["rec"]:
+        assert row["name"] and row["pos"] in ("QB", "RB", "WR", "TE", "K", "DEF")
+        assert isinstance(row["vorp"], (int, float))
+        assert 0.0 <= row["survival_at_my_pick"] <= 1.0
+    # 6. THE PRODUCTION PATH DOES NOT IMPORT OR INITIALISE THE CLIENT.
+    assert out["openai_in_modules"] is False
+
+
+def test_EXEC_the_recommendation_is_IDENTICAL_with_and_without_the_reviewer():
+    """"The same class of valid production output" is the stated invariant, and
+    for a deterministic engine the honest form of that is BIT-IDENTICAL. If the
+    two ever diverge, something in the product path is reading the environment
+    it must not read."""
+    body = """
+import json, keepers as K
+art = json.load(open('public/draft_data.json'))
+board = art['pick_order']['picks']; mine = art['pick_order']['my_picks']
+pool = [p for p in art['players'] if p.get('vorp') is not None and p.get('adjusted_adp')]
+pool.sort(key=lambda p: (-float(p['vorp']), str(p['player_id'])))
+print(json.dumps([[p['name'], round(K.survival_probability(
+    float(p['adjusted_adp']), K.live_index_of(int(mine[0]), board),
+    p.get('adp_sd')), 9)] for p in pool[:25]]))
+"""
+    absent = _run_core(body)
+    # The same work with a key present and the provider "enabled" -- which must
+    # change nothing, because the core never consults either.
+    withkey = _run_core(body, {"OPENAI_API_KEY": "sk-not-a-real-key",
+                               "REVIEW_PROVIDER": "openai"})
+    assert absent.returncode == 0 and withkey.returncode == 0
+    assert absent.stdout == withkey.stdout, (
+        "the recommendation CHANGED depending on reviewer configuration -- the "
+        "product path is reading something it must not read")
+
+
+def test_EXEC_REVIEW_PROVIDER_disabled_changes_nothing_about_the_core():
+    """2. and 3. together: with the reviewer switched off by configuration, the
+    board still produces a recommendation."""
+    body = """
+import json, keepers as K
+art = json.load(open('public/draft_data.json'))
+pool = [p for p in art['players'] if p.get('vorp') is not None]
+pool.sort(key=lambda p: -float(p['vorp']))
+print(json.dumps({'top': pool[0]['name'], 'n': len(pool)}))
+"""
+    r = _run_core(body, {"REVIEW_PROVIDER": "disabled"})
+    assert r.returncode == 0, r.stderr[-1500:]
+    out = json.loads(r.stdout.strip().splitlines()[-1])
+    assert out["n"] > 200 and out["top"]
+
+
+def test_EXEC_NO_REVIEWER_ARTIFACT_IS_NEEDED_TO_RECONSTRUCT_A_RECOMMENDATION():
+    """4. The freeze is the reconstruction substrate for every later score. It
+    must contain no reviewer output and must replay with the SDK blocked."""
+    fz = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+    if not fz.exists():
+        pytest.skip("no freeze on this branch")
+    blob = fz.read_text().lower()
+    for bad in FORBIDDEN:
+        assert bad not in blob, (
+            f"the frozen capture contains {bad!r} -- a reconstruction would "
+            "depend on reviewer output")
+    r = _run_core("""
+import json, keepers as K
+fz = json.load(open('draft/data/pre_draft_freeze_2026.json'))
+board = fz['pick_order']['picks']; pick = fz['my_picks'][0]
+p = next(x for x in fz['players'] if x.get('adjusted_adp'))
+want = fz['availability_by_pick'][str(p['player_id'])][str(pick)]
+got = round(K.survival_probability(float(p['adjusted_adp']),
+        K.live_index_of(int(pick), board), p.get('adp_sd')), 6)
+print(json.dumps({'want': want, 'got': got, 'match': abs(want-got) < 1e-6}))
+""")
+    assert r.returncode == 0, r.stderr[-1500:]
+    out = json.loads(r.stdout.strip().splitlines()[-1])
+    assert out["match"], f"replay {out['got']} != frozen {out['want']}"
+
+
+def test_EXEC_the_JS_ENGINE_ALSO_RUNS_WITH_NO_PROVIDER_PRESENT():
+    """The war room is JavaScript, and an import-graph check over Python says
+    nothing about it. node has no provider package installed at all here, so
+    this is genuine absence rather than a simulated one."""
+    r = subprocess.run(
+        ["node", "-e", """
+const S = require('./public/js/draft/survival.js');
+const D = require('./public/draft_data.json');
+const rows = D.pick_order.picks;
+const p = D.players.find(x => x.adjusted_adp && x.adp_sd);
+const surv = 1 - S.layer1Taken(p, D.pick_order.my_picks[0], {pickBoard: rows});
+if (!(surv >= 0 && surv <= 1)) { console.error('bad survival'); process.exit(1); }
+console.log(JSON.stringify({ok: true, surv: surv}));
+"""],
+        capture_output=True, text=True, cwd=str(ROOT),
+        env={k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"})
+    assert r.returncode == 0, r.stderr[-1500:]
+    assert json.loads(r.stdout.strip())["ok"] is True
+
+
 def test_THE_CORE_MODULES_IMPORT_WITH_NO_KEY_IN_THE_ENVIRONMENT():
     """Executed, not read. A module that reached for a key at import time would
     pass every static check above and still break a keyless draft night."""
@@ -220,6 +399,46 @@ def test_NO_WORKFLOW_MAKES_A_MODEL_JOB_DEPEND_ON_THE_REVIEWER():
         + ", ".join(offenders)
         + ". A reviewer outage would stop them, which is the single point of "
           "failure this requirement forbids.")
+
+
+def test_THE_PROVIDER_SEAM_IS_NOT_IN_THE_MODELS_DECISION_CODE():
+    """7. The seam belongs to the reviewer layer. If valuation or the decision
+    path ever branched on REVIEW_PROVIDER, the product would have a
+    configuration input it must not have -- and the identical-output test above
+    would be the only thing standing between that and a silent behaviour fork."""
+    hits = [str(p.relative_to(ROOT)) for p in CORE_FILES
+            if "REVIEW_PROVIDER" in p.read_text(errors="ignore")]
+    assert not hits, ("the product path reads REVIEW_PROVIDER: " + ", ".join(hits))
+
+
+@pytest.mark.skipif(not (ROOT / "tools" / "independent_review.py").exists(),
+                    reason="harness not on this branch")
+def test_EXEC_AN_UNAVAILABLE_REVIEWER_YIELDS_UNAVAILABLE_AND_NEVER_ACCEPT():
+    """5. Executed against the real harness. The danger is not that the reviewer
+    fails -- it is that a failure is later READ as approval. So this asserts the
+    artifact carries no `verdict` key at all, rather than trusting that a
+    consumer will check `status` first."""
+    import tempfile
+    for env_extra, expect in (({"OPENAI_API_KEY": ""}, "CONFIG"),
+                              ({"REVIEW_PROVIDER": "disabled",
+                                "OPENAI_API_KEY": "x"}, "DISABLED")):
+        with tempfile.NamedTemporaryFile(suffix=".json") as tf:
+            env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
+            env.update(env_extra)
+            r = subprocess.run(
+                [sys.executable, "tools/independent_review.py",
+                 "--self-test", "--out", tf.name],
+                env=env, capture_output=True, text=True, cwd=str(ROOT))
+            # EXIT 0: unreviewed is not rejected. A red job here would let a
+            # billing event halt draft-night work.
+            assert r.returncode == 0, r.stderr[-800:]
+            rec = json.loads(Path(tf.name).read_text())
+            assert rec["status"] == "UNAVAILABLE"
+            assert rec["unavailable_kind"] == expect
+            assert "verdict" not in rec, (
+                "an unavailable review carries a verdict key -- a consumer "
+                "reading it could treat an outage as approval")
+            assert rec.get("verdict") is None
 
 
 @pytest.mark.skipif(not (ROOT / "tools" / "independent_review.py").exists(),
