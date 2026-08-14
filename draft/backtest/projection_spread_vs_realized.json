@@ -1907,6 +1907,14 @@
     "predicted_weekly_overstatement": 2.31,
     "observed_weekly_overstatement": 2.16
    }
+  },
+  "_robustness": {
+   "games_expected_choice": "The weekly share is `games * Var(weekly) / Var(season)`, and `games` is the board's `games_expected` \u2014 which today's durability work shows OVER-STATES availability. Recomputed with each player's MEASURED games the share is 10.6% against the routed 10.9%, so the figure I sent is the conservative one: over-stating games inflates the implied weekly contribution. The conclusion does not turn on the choice.",
+   "share_board_games": 0.109,
+   "share_measured_games": 0.106,
+   "n": 129,
+   "why_it_is_still_an_upper_bound": "The weekly sd used here already includes missed weeks as zeros, so it carries some injury variance itself. Pure week-to-week noise is therefore a SMALLER share than 10.9%, not a larger one \u2014 every bias in this number runs against the conclusion it supports.",
+   "denomination_check": "Both ends are a season-total variance in points. `proj_sd_for` returns proj_mean * sd_ratio where sd_ratio is the spread of realized/projected, and projected is a constant per player, so that IS sd(realized season total). The weekly end is weekly_sd * sqrt(games), the season sd implied if weeks were independent. Same quantity, two routes \u2014 which is the comparison being made."
   }
  }
 }
