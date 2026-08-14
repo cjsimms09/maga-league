@@ -219,6 +219,46 @@
 
   var api = { KEY: KEY, VERSION: VERSION, serialize: serialize, restore: restore,
     save: save, load: load, clear: clear, isResumable: isResumable };
-  global.DraftSession = api;
+  /* ⚠️ TWO MODULES, ONE GLOBAL NAME — AND THE LAST ONE LOADED WON.
+   *
+   * `draft_session.js` (persistence: save/load/restore, "the draft survives the
+   * page") and `session.js` (the connection lifecycle: create/tick/wedged) both
+   * did `global.DraftSession = api`. The war-room page loads BOTH — line 25 and
+   * line 86 of `_warroom_scripts.ejs` — so the second REPLACED the first, and
+   * `app.js:1704` calling `DraftSession.load()` threw
+   * `DraftSession.load is not a function` during boot.
+   *
+   * IT LEFT THE BOARD STUCK ON "Loading the board…" FOREVER, which is the worst
+   * possible shape: the throw happens inside the boot chain's `.catch()`
+   * recovery path, where nothing catches it again, so the page never reaches the
+   * line that would have EXPLAINED itself. Cory hit it trying to run a mock.
+   *
+   * `typeof DraftSession === 'undefined'` guarded the call and passed, because
+   * the name WAS defined — just by the other module. A presence check cannot see
+   * an identity swap.
+   *
+   * SO NEITHER MODULE REPLACES THE OTHER: each merges into whatever is already
+   * there. The two APIs are disjoint today (persistence has KEY, VERSION,
+   * serialize, restore, save, load, clear, isResumable; the lifecycle has
+   * STATES, the three timeouts, create, transition, connecting, sawResponse,
+   * tick, hardReset, describe, report) and a merge is only safe WHILE that
+   * holds — so a genuine collision throws rather than silently picking a winner.
+   * Merging two APIs under one name is not a good long-term arrangement; the
+   * durable fix is separate names, and that is a rename across app.js eight days
+   * from a draft. This makes the page work and makes the next collision loud. */
+  (function (existing) {
+    if (existing) {
+      Object.keys(api).forEach(function (k) {
+        if (Object.prototype.hasOwnProperty.call(existing, k) && existing[k] !== api[k]) {
+          throw new Error('DraftSession: two modules define "' + k + '" differently. '
+            + 'They are sharing a global name and no longer agree — give one of '
+            + 'them its own name rather than letting load order decide.');
+        }
+        existing[k] = api[k];
+      });
+    } else {
+      global.DraftSession = api;
+    }
+  })(global.DraftSession);
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
