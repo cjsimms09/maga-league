@@ -460,6 +460,26 @@ def main() -> int:
                 "and state in the report that the independent review was "
                 "UNAVAILABLE and why.",
         }
+        # ⚠️ THE SELF-TEST IS THE ONE PLACE UNAVAILABILITY MUST FAIL.
+        #
+        # Cory: "API/config unavailability must make the self-test fail, because
+        # an unrun self-test cannot establish reviewer validity."
+        #
+        # Exactly right, and the distinction is the whole architecture. A NORMAL
+        # review that cannot run is non-blocking: the change is unreviewed, the
+        # football system does not care, exit 0. A SELF-TEST that cannot run is
+        # different in kind — its only purpose is to answer "is this reviewer
+        # worth listening to", and an unrun one answers nothing while looking
+        # like a completed step. Reporting success there would let an
+        # unvalidated reviewer be promoted on the strength of a run that never
+        # happened.
+        rec["self_test_conclusive"] = False
+        if a.self_test:
+            rec["why_this_fails"] = (
+                "A self-test that did not run cannot establish reviewer "
+                "validity. This exits non-zero so it cannot be mistaken for a "
+                "passed validation. Normal reviewer unavailability remains "
+                "non-blocking; only the validation run is gated.")
         Path(a.out).write_text(json.dumps(rec, indent=1))
         print("=" * 66)
         print(f"INDEPENDENT REVIEW UNAVAILABLE  ({kind})")
@@ -469,10 +489,11 @@ def main() -> int:
               "UNREVIEWED.\nThe pipeline does not depend on the reviewer: "
               "carry on and do the\nadversarial pass by hand, saying so in the "
               "report.")
-        # EXIT 0 ON PURPOSE. A billing stop is not a defect in the change, and a
-        # red job here would halt model work on an unrelated funding event --
-        # exactly the single point of failure this must not become.
-        return 0
+        # EXIT 0 FOR A NORMAL REVIEW, ON PURPOSE: a billing stop is not a defect
+        # in the change, and a red job would halt model work on an unrelated
+        # funding event -- the single point of failure this must not become.
+        # NON-ZERO FOR A SELF-TEST, for the reason above.
+        return 1 if a.self_test else 0
 
     out["_model"] = model            # WHICH reviewer said this. Never the key.
     out["_provider"] = provider
