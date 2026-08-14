@@ -377,7 +377,16 @@ def test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM():
 # working. "Read what actually calls it" is the rule, and it saved me here.
 
 #: When the deep-pool ordering landed on main.
-RAW_ADP_ORDER_FIX_LANDED = "2026-08-13T23:24:43Z"
+#:
+#: ⚠️ MOVED FORWARD 2026-08-14, and forward is normally the wrong direction for a
+#: ratchet. The justification is that the fix it dated NEVER RAN: the ordering
+#: read `p["proj_mean"]`, which `projections.blend()` does not assign until fifty
+#: lines below the call that needs it (build.py :527 vs :576), so every fallback
+#: row took the unprojected sentinel. Arithmetic on the shipped board: max real
+#: ADP 317, unprojected branch writes 317+600 = 917, and 917 is what all 348
+#: carry. The honest date is when the ordering became capable of running.
+#: Simulated against the shipped board after the fix: 274 distinct, 318..591.
+RAW_ADP_ORDER_FIX_LANDED = "2026-08-14T13:02:23Z"
 
 #: What the board carried before it — one value for every fallback row.
 KNOWN_TIED_FALLBACK_VALUES = 1
@@ -397,9 +406,13 @@ def raw_adp_order_required(built_at) -> bool:
 def test_the_raw_adp_ORDER_RATCHET_TIGHTENS_ITSELF():
     """MUTATION: return False unconditionally — the deep pool can stay a single
     constant forever and the fix could silently fail to take."""
-    assert raw_adp_order_required("2026-08-13T23:13:18Z") is False   # the stale board
-    assert raw_adp_order_required("2026-08-14T08:00:00Z") is True    # after the rebuild
+    # The examples move with the constant. They read 08-13T23:13 as "stale" and
+    # 08-14T08:00 as "after the rebuild" — correct against a fix that never ran.
+    assert raw_adp_order_required("2026-08-14T09:15:36Z") is False   # the shipped board
+    assert raw_adp_order_required("2026-08-15T08:00:00Z") is True    # the next cron
     assert raw_adp_order_required(None) is False
+    # The boundary itself, which neither example touches.
+    assert raw_adp_order_required(RAW_ADP_ORDER_FIX_LANDED) is False
 
 
 def test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant():
