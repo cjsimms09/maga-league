@@ -107,3 +107,50 @@ def test_A_404_IS_REPORTED_AS_THE_ASSET_WE_ASKED_FOR_not_as_missing_data():
     assert "403" not in msg
     forbidden = R.describe_failure("weekly_stats", 2025, 403)
     assert "403" in forbidden and "proxy" in forbidden.lower()
+
+
+# ── THE RUNNER'S PLAN: which asset each measurement reads ────────────────────
+
+def test_THE_SPREAD_WORK_READS_BOTH_ROSTER_AND_STATS():
+    """Availability comes from the ROSTER (was he there) and points from the STATS
+    file (what did he do). Reading availability from the stats file is the exact
+    mistake that scored 39.4% of active QB weeks as absences.
+
+    MUTATION: drop `weekly_rosters` from the spread plan — the measurement falls
+    back to presence-in-the-stats-file as availability, and the bias it
+    reintroduces differs by position, which is what manufactures a positional
+    ordering out of usage."""
+    import nflverse_run as RUN
+    kinds = {k for k, _s, _u in RUN.plan("spread")}
+    assert kinds == {"weekly_rosters", "weekly_stats"}, kinds
+
+
+def test_AN_UNKNOWN_MEASUREMENT_IS_REFUSED_rather_than_given_an_empty_plan():
+    """MUTATION: return [] for an unknown name — the runner fetches nothing,
+    reports no failure, and the measurement silently does not happen."""
+    import nflverse_run as RUN
+    with pytest.raises(ValueError, match="not a measurement"):
+        RUN.plan("usage")
+
+
+def test_THE_PLAN_REFUSES_THE_SEASON_BEING_DRAFTED():
+    """Every one of these measurements is a PRIOR. `team_pace`, `durability` and
+    `weekly_variance` each enforce this for themselves; the runner enforcing it too
+    is what stops a caller quietly widening the window before they ever run.
+
+    MUTATION: allow it — 2026 is fetched, the per-module guards raise deep inside a
+    fetch loop instead of before it, and the failure reads as a missing asset."""
+    import nflverse_run as RUN
+    with pytest.raises(ValueError, match="strictly before"):
+        RUN.plan("pace", seasons=(2025, 2026))
+
+
+def test_THE_RUNNER_SENDS_THE_REPO_S_USER_AGENT():
+    """FFC 403s Python's default and a fetcher using a different identity is a
+    second one nobody chose. Asserted against the module that already ships it
+    rather than restated.
+
+    MUTATION: change either — the two drift and the next 403 is diagnosed as a
+    provider problem."""
+    import external_adp_capture as CAP
+    assert R.USER_AGENT == CAP.USER_AGENT

@@ -38,6 +38,12 @@ from __future__ import annotations
 
 BASE = "https://github.com/nflverse/nflverse-data/releases/download"
 
+#: The header this repo sends everywhere. Declared here rather than at each call
+#: site for the same reason `external_adp_capture` declares it: FFC 403s Python's
+#: default, and a fetcher that quietly uses a different one is a second identity
+#: nobody chose. Kept in step by test, not by trust.
+USER_AGENT = "mfga-league-draft-tool/1.0"
+
 #: kind -> (release, filename template, takes_a_season). NOTHING IS CONSTRUCTED
 #: FROM A PATTERN — every entry here was confirmed with a HEAD request, and the
 #: whole point of the module is that an unverified name must not become a URL.
