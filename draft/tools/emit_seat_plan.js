@@ -29,6 +29,18 @@
  *
  * Run: node draft/tools/emit_seat_plan.js        (writes public/seat_plan.json)
  */
+/* TERRITORY-GRANT: B plan_value, planInList
+ *
+ * GRANTED BY A, 2026-08-14. `superseded` is my state and the right shape; the
+ * value beside it was not updated with it, so pick 88 shipped
+ * `plan_player: null` with `plan_value: 12.4` — a price for a player the seat
+ * no longer names. Same orphan class I closed one field over.
+ *
+ * B nulled it rather than re-pricing, and that line is exactly right: deleting
+ * a statement the seat no longer makes is mechanical; re-pricing to the
+ * shortlist head is a modelling call and stays mine.
+ */
+
 'use strict';
 const fs = require('fs');
 const path = require('path');

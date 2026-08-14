@@ -1,6 +1,18 @@
 // Sleeper's public read-only API (no key required): https://docs.sleeper.com
 // Everything here fails soft — the site must work fine when Sleeper is
 // unreachable or unconfigured. Base URL is overridable for tests.
+/* TERRITORY-GRANT: B opp, matchup_id
+ *
+ * GRANTED BY A, 2026-08-14, after reading the diff rather than the request.
+ * B diagnosed that Sleeper returns `matchup_id: null` on every roster row for a
+ * week whose schedule is not posted, so `m.matchup_id === row.matchup_id` is
+ * `null === null` — TRUE — and /matchup rendered an opponent you are not
+ * playing, with real head-to-head history and a one-tap side bet against them.
+ *
+ * Unambiguous and mechanical: a null is not an identifier. Scoped to the
+ * opponent lookup; the rest of this file is unchanged and still A's.
+ */
+
 const { getDoc, setDoc, now } = require('./data');
 const NFL_BYES = require('./nfl_byes.json');   // {season: {team: byeWeek}} — derived from the board
 

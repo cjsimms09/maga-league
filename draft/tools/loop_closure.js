@@ -112,6 +112,11 @@ const OUTCOMES = {
   shadow_pick: [true, 'the shadow board\'s pick against the one actually made'],
   opponent_prediction: [true, 'the room resolves it within picks — already wired'],
   opponent_prediction_resolved: [false, 'this IS a resolution row'],
+  opponent_prediction_coverage: [false, 'a DENOMINATOR, not a claim. It records how '
+    + 'many opponent picks were due against how many were predicted, and why any gap '
+    + 'exists. Nothing later makes it right or wrong — it is the sample-completeness '
+    + 'fact that says whether the resolution rows above constitute an experiment or a '
+    + 'biased subset'],
   pick_reconciled: [false, 'this IS a reconciliation row'],
   correction: [false, 'a correction to an earlier row, not a forward claim'],
   inseason_override: [true, 'same as override, in season'],

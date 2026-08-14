@@ -42,6 +42,18 @@ schema is now caught before a call is spent rather than by spending one. That
 is the same principle as every other instrument in this audit: compute the
 aggregate that makes the silent failure loud.
 
+── WHY IT LIVES IN tools/ AND NOT draft/tests/ ────────────────────────────────
+
+It was written into draft/tests/ and test_core_needs_no_reviewer.py went RED,
+correctly: draft/** is the product tree, this file imports independent_review
+and names reviewer_schema.json, and the guard exists to prove the core carries
+no reviewer reference. The guard permits at most ONE excluded file per tree,
+deliberately, so exempting a second would have widened the very thing a CONTROL
+asserts cannot widen.
+
+Moving it is the structural answer; an exemption would have been a rule someone
+has to remember. The reviewer's own test belongs with the reviewer.
+
 ── SCOPE ──────────────────────────────────────────────────────────────────────
 
 This validates SHAPE CONFORMANCE ONLY. It cannot tell whether the reviewer asks
@@ -51,7 +63,7 @@ that the request will not be rejected before the model sees it.
 import json
 import pathlib
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCHEMA_PATH = ROOT / "tools" / "reviewer_schema.json"
 
 

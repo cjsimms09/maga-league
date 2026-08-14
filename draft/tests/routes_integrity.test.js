@@ -34,6 +34,20 @@
 // causes it, rather than whenever somebody next reads the file.
 //
 // Run: node draft/tests/routes_integrity.test.js
+/* TERRITORY-GRANT: B key, base, inBase, lost, unionLost, itemsOf, execSync, ROOT
+ *
+ * GRANTED BY A, 2026-08-14. This arm fired on every legitimate merge: the union
+ * rule was "every item from either side survives", but an item B closed
+ * deliberately still exists on my side, and the merge correctly preserves the
+ * deletion. The check could not tell a closure from a casualty.
+ *
+ * Using the MERGE BASE to separate them is the correct discrimination, and it
+ * keeps the case this arm exists for — an item new on the other side and absent
+ * from the base is still a hard failure. It falls back to the strict rule with
+ * no base, so a noisy guard is preferred to a blind one. That is my own suite's
+ * standard applied better than I applied it.
+ */
+
 'use strict';
 const fs = require('fs');
 const path = require('path');

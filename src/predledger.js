@@ -76,6 +76,20 @@ const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
                // good — and only after the one night it could be collected.
                'opponent_prediction',            // predicted before the pick
                'opponent_prediction_resolved',   // graded against the actual
+               // A FOURTH TIME, to me, on 2026-08-14 — and caught the same way,
+               // by `emitted ⊆ registered` going red rather than by anyone
+               // reading the emit site. I added the coverage row precisely
+               // because the opponent experiment had no denominator, and the
+               // row carrying the denominator would itself have 400'd at the
+               // boundary and been lost. The instrument built to stop evidence
+               // going missing, going missing.
+               //
+               // The lesson is not "remember to register kinds" — it has been
+               // forgotten four times, so remembering is not the mechanism.
+               // The test IS the mechanism, and it works.
+               'opponent_prediction_coverage',   // the denominator: how many
+                                                 // opponent picks were due vs
+                                                 // predicted, and why any gap
 
                /* ── IN-SEASON KINDS (experiment 37's rail) ──────────────────
                 *

@@ -130,8 +130,17 @@ const CALIBRATION = {
   stack: { status: 'soft', note: 'priced against a MODELLED correlation (rho 0.35), '
     + 'not a measured one — the reason D10 refused to install a change on it' },
   tier: { status: 'measured', note: 'measured as a drag; weighted to zero' },
-  need: { status: 'measured', note: 'redundant with the always-on lineup mask; '
-    + 'weighted to zero' },
+  /* "ALWAYS-ON" WAS FALSE AND WAS THE MOST MISLEADING WORD IN THIS MAP.
+   * engine.js:563 was corrected on 2026-08-14 to scope the redundancy claim to
+   * the needrule card; THIS COPY WAS MISSED and still told a reader the
+   * composite is roster-aware. It is not: `recommend()` never calls the mask,
+   * and composite_roster_blindness.test.js measures the top 70 as unchanged
+   * when QB and TE are filled. A caveat that overstates coverage is worse than
+   * no caveat, because it retires the question. */
+  need: { status: 'measured', note: 'measured as a drag and weighted to zero. The '
+    + 'startable-cap MASK that makes it redundant runs on the NEEDRULE CARD ONLY '
+    + '— the composite list never calls it and is blind to positional fill until '
+    + 'applyRosterLegality fires in the endgame' },
   risk: { status: 'measured', note: 'measured as a drag; weighted to zero' },
   ceiling: { status: 'soft', note: 'could not be signed (−4.8 [−26, +17]); '
     + 'weighted to zero' },

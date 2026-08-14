@@ -1976,33 +1976,96 @@
     /* The seat panel must follow the clock. Loaded once, re-rendered on every
      * board update — otherwise it is a screenshot of the first pick and it would
      * be WRONG rather than merely stale, since the seat changes with the pick. */
-    try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
+    /* ⚠️ NINETEEN OF THESE CALLS WERE UNGUARDED, AND ONE THROW FROZE EVERY
+     * PANEL AFTER IT.
+     *
+     * Eight calls below already carry `try { } catch (e) { /* never blocks the
+     * clock *\/ }`, so the hazard was understood — it was simply not applied to
+     * the main chain, which includes `renderRecommendations`.
+     *
+     * A throw in an unguarded call means every render AFTER it never runs, and
+     * the DOM keeps the PREVIOUS pick's content. The ordering makes the worst
+     * case the likely one: `renderHeader` runs first, so if recommendations
+     * throw, the header advances to pick 55 while the advice stays frozen at
+     * pick 40. The surface looks current. It is not.
+     *
+     * SWALLOWING WOULD BE THE WRONG FIX — that is the `|| true` class this repo
+     * keeps removing. `safeRender` catches so one broken panel cannot freeze
+     * the rest, COUNTS the failure, and names the panel, so a stale panel is
+     * announced rather than merely survived. `state.renderFailures` is the
+     * aggregate that makes it loud; every other defect found in this audit was
+     * invisible for want of exactly that.
+     *
+     * `applyAutoWeights`, `saveDraftSession` and `checkKeeperLock` stay
+     * UNGUARDED on purpose: they are not renders. If the weights for this pick
+     * cannot be established, every panel below would render last pick's opinion
+     * while looking fine, and that is worth failing loudly for. */
+    const safeRender = (name, fn) => {
+      try { fn(); } catch (e) {
+        state.renderFailures = state.renderFailures || {};
+        /* THE PICK NUMBER COMES FROM ITS OWNER, NOT FROM A THIRD DERIVATION.
+         *
+         * My first cut recorded `(state.recentPicks || []).length` and
+         * test_shared_state_audit caught it immediately: that made THREE
+         * derivations of `current_pick` against a budget of two, owner
+         * `pickState() / currentPick()`. Its message is the whole reason the
+         * guard exists — "every severity-1 in this project came from a shared
+         * fact derived in more than one place" — and it was right about me.
+         *
+         * Guarded, because this runs INSIDE a catch: if `currentPick()` is what
+         * is broken, the recorder must still record. A null `at` is honest;
+         * a recorder that throws inside the error path loses the error. */
+        let at = null;
+        try { at = currentPick(); } catch (e2) { at = null; }
+        state.renderFailures[name] = {
+          at: at,
+          message: (e && e.message) || String(e),
+        };
+        console.error('[render] ' + name + ' FAILED — that panel is showing the '
+          + 'PREVIOUS pick: ' + ((e && e.message) || e));
+      }
+    };
+
+    safeRender('seatPlan', renderSeatPlan);
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
     saveDraftSession();
     checkKeeperLock();
-    renderHeader();
-    renderRecommendations();
+    safeRender('header', renderHeader);
+    safeRender('recommendations', renderRecommendations);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
-    renderPositionRecs();
-    renderLists();
-    renderQueue();
-    renderThreats();
-    renderThreatStrip();
-    renderBoard();
-    renderRoster();
-    renderPlan();
-    renderByes();
-    renderChecklist();
-    renderRehearsalWatermark();
-    renderSlotWatermark();
-    renderLRM();
-    renderSurvival();
-    renderRuns();
-    renderPicksFeed();
-    renderManagers();
+    safeRender('positionRecs', renderPositionRecs);
+    safeRender('lists', renderLists);
+    safeRender('queue', renderQueue);
+    safeRender('threats', renderThreats);
+    safeRender('threatStrip', renderThreatStrip);
+    safeRender('board', renderBoard);
+    safeRender('roster', renderRoster);
+    safeRender('plan', renderPlan);
+    safeRender('byes', renderByes);
+    safeRender('checklist', renderChecklist);
+    safeRender('rehearsalWatermark', renderRehearsalWatermark);
+    safeRender('slotWatermark', renderSlotWatermark);
+    safeRender('lrm', renderLRM);
+    safeRender('survival', renderSurvival);
+    safeRender('runs', renderRuns);
+    safeRender('picksFeed', renderPicksFeed);
+    safeRender('managers', renderManagers);
+
+    /* THE AGGREGATE, SAID OUT LOUD. Catching without announcing would convert a
+     * frozen panel from a visible crash into an invisible lie — strictly worse
+     * than the bug being fixed, and the exact `|| true` shape this repo keeps
+     * removing. If a panel did not update, the board says which one. */
+    if (state.renderFailures && Object.keys(state.renderFailures).length) {
+      const names = Object.keys(state.renderFailures);
+      try {
+        setStatus({ state: 'error', message: 'PANEL(S) NOT UPDATING: '
+          + names.join(', ') + ' — those panels are showing an EARLIER pick. '
+          + 'Do not draft off them; the rest of the board is current.' });
+      } catch (e) { /* console.error in safeRender still carries it */ }
+    }
     try { assertPickState(); } catch (e) { /* never blocks the clock */ }
     try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
@@ -7042,17 +7105,70 @@
     return missing;
   }
 
-  function capturePlatformSample(pick, player, slot) {
+  /* SELECTIONS, NOT BOARD SLOTS. The scale conversion, derived per sample.
+   *
+   * `adjusted_adp` counts SELECTIONS. `pick_no` counts BOARD SLOTS, and a
+   * keeper occupies a board slot without being a selection. Differencing them
+   * is the two-quantities-one-variable defect this repo keeps finding — the
+   * same one keepers.py:live_index_of and survival.js:liveIndexOf exist for.
+   *
+   * IT HAS NEVER PRODUCED A WRONG NUMBER, and the reason is worth stating
+   * because it is the reason it survived: sampling is gated on `state.mockMode`
+   * and Sleeper mock rooms carry no keepers, so board slots and selections
+   * coincide and `adp - pick_no` is correct. THAT IS A PROPERTY OF THE ROOMS WE
+   * HAPPENED TO SAMPLE, asserted nowhere and true by luck.
+   *
+   * So this DERIVES the selection index from the pick stream rather than
+   * assuming it. In a keeper-free room the loop returns `pickNo` unchanged and
+   * every existing sample keeps its exact value — the fix is a no-op on all
+   * evidence collected so far, which is what preserving production behaviour
+   * where the evidence supports it means here.
+   *
+   * Sleeper serves `is_keeper` on every pick (log_draft_picks.py:_from_sleeper
+   * reads the same field), so keeper-ness is OBSERVED, not inferred.
+   *
+   * Returns null rather than a guess when the stream cannot answer. A ledger
+   * row that says "I could not compute this" is analysable in September; one
+   * carrying a silently mis-scaled number is not, and the rows would be
+   * indistinguishable. */
+  function selectionIndexOf(pickNo, picks) {
+    if (pickNo == null) return { index: null, basis: 'no-pick-number', keepers: null };
+    if (!picks || !picks.length) {
+      return { index: null, basis: 'pick-stream-unavailable', keepers: null };
+    }
+    let n = 0, keepers = 0;
+    for (let i = 0; i < picks.length; i++) {
+      const p = picks[i];
+      const no = Number(p.pick_no);
+      /* `no <= 0` IS LOAD-BEARING, not defensive padding. Number(null) is 0 and
+       * isFinite(0) is true, so a row with `pick_no: null` passed the finite
+       * check as pick ZERO, sat below every real pickNo, and was counted as a
+       * selection — inflating the index by one for the rest of the draft.
+       * Caught by the malformed-row arm of platform_sample_scale.test.js on the
+       * first run. `Number(undefined)` and `Number('x')` are NaN and were
+       * already skipped, which is exactly why the null case looked covered. */
+      if (!isFinite(no) || no <= 0 || no > pickNo) continue;
+      if (p.is_keeper) { keepers += 1; continue; }
+      n += 1;
+    }
+    return { index: n, basis: keepers ? 'selection-converted' : 'selection-keeper-free',
+             keepers: keepers };
+  }
+
+  function capturePlatformSample(pick, player, slot, picks) {
     if (typeof PredLedger === 'undefined' || !state.mockMode) return;
     try {
       const c = ledgerCtx();
       const pickNo = Number(pick.pick_no) || null;
       const adp = player.adjusted_adp != null ? player.adjusted_adp
         : (player.raw_adp != null ? player.raw_adp : null);
+      const scale = selectionIndexOf(pickNo, picks);
       // The whole point: where did the platform take him vs where the market
       // says he goes. Negative = platform took him EARLIER than market (a REACH
       // the room pays for); positive = he lasted longer (a FALL to me).
-      const delta = (pickNo != null && adp != null) ? Math.round((adp - pickNo) * 10) / 10 : null;
+      // BOTH SIDES ON THE SELECTION SCALE — see selectionIndexOf.
+      const delta = (scale.index != null && adp != null)
+        ? Math.round((adp - scale.index) * 10) / 10 : null;
       PredLedger.platformSample({
         season: c.season, build_at: c.build_at, pick: pickNo,
         method: 'platform-sample-v1',
@@ -7067,6 +7183,14 @@
           consensus_rank: player.consensus_rank != null ? player.consensus_rank : null,
           sleeper_rank: player.sleeper_rank != null ? player.sleeper_rank : null,
           vs_market: delta,
+          /* THE BASIS TRAVELS WITH THE NUMBER. A delta is meaningless without
+           * knowing which scale both sides were on, and rows written before and
+           * after this change would otherwise be indistinguishable. September
+           * can filter on it instead of trusting that every sampled room was
+           * keeper-free. */
+          vs_market_basis: scale.basis,
+          selection_no: scale.index,
+          keeper_slots_before: scale.keepers,
           // INFERRED, not observed: Sleeper omits picked_by for autopick/bot
           // seats, but an absent field is not proof. Labelled so exp 31 can
           // weight it rather than trust it.
@@ -7331,6 +7455,19 @@
     // player being taken. Snapshotted BEFORE the filter below; shadows draft
     // from exactly this snapshot, and its hash is what the robot verifies.
     const boardAtPick = (toMe && !alreadySeen) ? state.board.slice() : null;
+    /* THE TAKEN SET, SNAPSHOTTED HERE FOR THE SAME REASON THE BOARD IS.
+     *
+     * `capturePick` runs BELOW `ATTR.markLocal`, which has already added this
+     * player to `state.drafted`. Reading the set down there would record a board
+     * that already contains the pick being explained — off by exactly the
+     * decision under study, on every row, in the direction that makes the choice
+     * look inevitable.
+     *
+     * Array.from a Set preserves insertion order, which is draft order on the
+     * incremental path; boardState labels which it got rather than claiming. */
+    const takenAtPick = (toMe && !alreadySeen && state.drafted
+      && typeof state.drafted.forEach === 'function')
+      ? Array.from(state.drafted) : null;
     // A local mark is a GUESS; the shared module records it as such and Sleeper
     // can later override it. Same call the robot mock's R1/R3 scenarios prove.
     if (ATTR) ATTR.markLocal(state, p, slot, seatSlot);
@@ -7359,7 +7496,9 @@
     // L1 capture: a pick I take is a decision — log it at decision time. Only my
     // own picks (toMe); other teams' picks are recorded by the survival/board
     // context, not as my decisions. Never on a mock, and never a re-mark.
-    if (toMe && !alreadySeen && !state.mockMode) capturePick(p, pathKey);
+    if (toMe && !alreadySeen && !state.mockMode) {
+      capturePick(p, pathKey, takenAtPick, boardAtPick ? boardAtPick.length : null);
+    }
     // Phase H: every strategy takes its own counterfactual pick at my slot,
     // from the snapshot above. Mocks fire it too (flagged rehearsal) so the
     // whole shadow path is exercised before draft night.
@@ -7583,7 +7722,30 @@
       pick: currentPick(),
     };
   }
-  function capturePick(p, pathKey) {
+  /* THE PICK ROW MUST BE SELF-SUFFICIENT. IT WAS NOT.
+   *
+   * The board a decision was made from rode ONLY on the `recommendation` row.
+   * `pick` joined to it by `season|build_at|pick` and inherited it that way,
+   * which is sound arithmetic and an unsound dependency: THE RECOMMENDATION
+   * CAPTURE LIVES INSIDE `renderRecommendations`, and renderAll wraps that call
+   * in `safeRender` precisely because it can throw. I built that guard myself.
+   *
+   * So the failure mode is: renderRecommendations throws at pick N, safeRender
+   * records it and keeps the board alive (correct, and the reason the guard
+   * exists), no recommendation row is written, and the pick row at N has no
+   * board. That decision is then PERMANENTLY UNGRADABLE — not wrong, missing,
+   * and missing in a way that looks identical to a pick nobody analysed yet.
+   *
+   * `state.renderFailures` knows it happened. THE LEDGER DOES NOT, and the
+   * ledger is what September reads.
+   *
+   * The fix is to remove the coupling rather than to report it more loudly: the
+   * pick carries its own taken set. A lost recommendation row now costs the
+   * recommendation, not the evidence. `render_failed` rides alongside so a
+   * replay can tell a missing recommendation from one that was never due.
+   *
+   * COST: ~150 ids at the last pick, on twelve rows a draft. */
+  function capturePick(p, pathKey, takenAtPick, boardSizeAtPick) {
     if (typeof PredLedger === 'undefined') return;
     var c = ledgerCtx();
     // Part 2 §1: log WHICH path the pick came from. Resolve from the paths that
@@ -7598,13 +7760,31 @@
         return x.candidates.some(function (cd) { return String(cd.player.player_id) === String(p.player_id); });
       }) || null;
     }
+    /* DEGRADE, NEVER LOSE THE ROW. Same two-level shape as the recommendation
+     * capture: a browser holding a cached predledger.js without `boardState`
+     * must still log the pick. A pick without its board is worth less than one
+     * with it and far more than none. */
+    var board = {};
+    try {
+      board = (typeof PredLedger.boardState === 'function' && takenAtPick)
+        ? PredLedger.boardState(takenAtPick, boardSizeAtPick)
+        : { taken_state: takenAtPick ? 'unavailable' : 'not-snapshotted' };
+    } catch (e) { board = { taken_state: 'error' }; }
+    var rf = state.renderFailures || {};
     PredLedger.pick({ season: c.season, build_at: c.build_at, pick: c.pick,
       method: 'pick-v1',
-      payload: { player_id: String(p.player_id), name: p.name, position: p.position,
+      payload: Object.assign({}, board, {
+        player_id: String(p.player_id), name: p.name, position: p.position,
         team: p.team, adjusted_adp: p.adjusted_adp, vorp: p.vorp, tier: p.tier,
         chosen_path: chosen ? chosen.name : null,
         chosen_path_key: chosen ? chosen.key : null,
-        off_path: paths.length > 0 && !chosen } });
+        /* WHICH PANELS WERE STALE WHEN I DECIDED. Derived from the aggregate
+         * renderAll already keeps — not a new claim, the existing one routed
+         * into the record. `recommendations` is called out by name because a
+         * failure there is the one that also costs the recommendation row. */
+        render_failed: Object.keys(rf).length ? Object.keys(rf) : null,
+        rec_render_failed: !!rf.recommendations,
+        off_path: paths.length > 0 && !chosen }) });
   }
 
   /* Phase H shadow rosters (strategy-hunt-learning-seed.md). Every strategy
@@ -7920,6 +8100,10 @@
       });
       if (out.over_budget) {
         state.opponentPredictOff = true;
+        /* WHY IT STOPPED AND FROM WHERE, so the gap in coverage has a cause
+         * attached to it rather than being an unexplained hole in January. */
+        state.opponentPredictOffAt = cur;
+        state.opponentPredictOffWhy = out.why || 'over budget';
         console.warn('[opponent-predict] ' + out.why);
         return;
       }
@@ -7933,21 +8117,124 @@
     } catch (e) {
       /* NEVER BLOCK THE CLOCK. A shadow measurement that breaks the board costs
        * more than it is worth, which is the standing condition on this whole
-       * experiment. Loud in the console, invisible on the page. */
+       * experiment. Loud in the console, invisible on the page.
+       * COUNTED, THOUGH — see opponentPredictCoverage. A console line is not
+       * evidence; it is gone when the tab closes, and the missing rows it
+       * explains are still missing in January. */
+      state.opponentPredictErrors = (state.opponentPredictErrors || 0) + 1;
+      state.opponentPredictLastError = (e && e.message) || String(e);
       console.error('[opponent-predict] emit failed —', e && e.message);
     }
+  }
+
+  /* ── THE DENOMINATOR. WITHOUT IT THE EXPERIMENT HAS NO POWER. ─────────────
+   *
+   * `OpponentPredict.summarize` accounts for its exclusions carefully — it
+   * reports n_excluded_no_profile and says why. But it can only account for
+   * ROWS THAT EXIST. A pick that was never predicted at all produces no
+   * forecast, therefore no resolution, therefore no row, and vanishes from the
+   * accounting entirely.
+   *
+   * So `n_compared: 60` reads identically whether we predicted 60 of 60 or 60
+   * of 138. The first is an experiment; the second is a biased sample of one,
+   * because the picks that go unpredicted are not a random subset — they are
+   * the ones where the budget blew, which correlates with a big board, which is
+   * early, which is where profiles differ most from ADP.
+   *
+   * THREE WAYS COVERAGE IS LOST, and all three are silent today:
+   *   the budget blowing once turns prediction off for the REST OF THE DRAFT
+   *   an exception in emit is caught and only console-logged
+   *   a window never emitted because sync was dead across it
+   *
+   * This DERIVES the denominator from pick_order — the same authoritative
+   * artifact interveningPicks reads — rather than asserting a count. Every
+   * number below is computed from what the pipeline actually did.
+   *
+   * REPORTED, NOT ENFORCED. It changes no prediction and blocks nothing; it
+   * makes "was this sample complete" answerable instead of assumed. */
+  function opponentPredictCoverage() {
+    const cur = currentPick();
+    const rows = ((state.data || {}).pick_order || {}).picks || [];
+    if (cur == null || !rows.length) return null;
+    const mine = {};
+    (((state.data || {}).pick_order || {}).my_picks || []).forEach(n => { mine[Number(n)] = 1; });
+    const predicted = state.opponentPredicted || {};
+    let due = 0, got = 0;
+    rows.forEach(r => {
+      const no = Number(r.overall);
+      // A keeper slot is not a decision anybody makes, and my own picks are not
+      // opponent picks. Neither is predictable, so neither belongs in the
+      // denominator — the same picks-versus-selections distinction as elsewhere.
+      if (!isFinite(no) || no >= cur || r.keeper_slot || mine[no]) return;
+      due += 1;
+      if (predicted[no]) got += 1;
+    });
+    return {
+      opponent_picks_due: due,
+      opponent_picks_predicted: got,
+      coverage: due ? Math.round((got / due) * 1000) / 1000 : null,
+      // THE CAUSES, so a gap is diagnosable rather than merely visible.
+      predictor_off: !!state.opponentPredictOff,
+      predictor_off_at: state.opponentPredictOffAt == null ? null : state.opponentPredictOffAt,
+      predictor_off_why: state.opponentPredictOffWhy || null,
+      emit_errors: state.opponentPredictErrors || 0,
+      last_error: state.opponentPredictLastError || null,
+      unresolved_queue: (state.opponentForecasts || []).length,
+      at_pick: cur,
+      /* ⚠️ THE DENOMINATOR'S OWN RELIABILITY, JOINED IN. Raised by the
+       * independent reviewer on 2026-08-14 and CONFIRMED by reading the chain
+       * rather than by accepting the finding:
+       *
+       *   currentPick() -> sync.currentPickNumber() -> allPicks().length + 1
+       *   and allPicks() DROPS rows with no resolvable id (counting them in
+       *   droppedNoId, which is why the count exists at all).
+       *
+       * So an id-less row makes `cur` LOWER than the true pick, fewer rows
+       * satisfy `overall < cur`, and `opponent_picks_due` UNDERCOUNTS. Coverage
+       * is predicted/due, so the ratio is OVERSTATED — and overstated exactly
+       * when ingest is anomalous, which is when under-coverage is likeliest.
+       * An instrument that reads healthiest when the feed is sickest is worse
+       * than no instrument.
+       *
+       * NOT "fixed" by deriving `cur` differently. currentPick is the app's one
+       * clock and a second derivation of it is the defect class this repo keeps
+       * removing — the budget is two owners and they are pickState/currentPick.
+       * The honest move is to publish the caveat WITH the number so a consumer
+       * can discount it, which is the same present/null/missing discipline the
+       * rest of the ledger uses. */
+      ingest: (state.sync && typeof state.sync.ingestHealth === 'function')
+        ? state.sync.ingestHealth() : null,
+    };
   }
 
   function resolveOpponentPredictions(picks) {
     if (state.mockMode) return;
     if (typeof OpponentPredict === 'undefined' || typeof PredLedger === 'undefined') return;
     const fc = state.opponentForecasts || [];
+    const c = ledgerCtx();
+    /* ⚠️ COVERAGE IS EMITTED BEFORE THE EARLY RETURN, AND THAT ORDER IS THE
+     * WHOLE POINT. My first cut put it at the end of this function, below
+     * `if (!fc.length) return` — so the ONE case coverage exists to record, the
+     * predictor failing from the first pick and producing no forecasts at all,
+     * would have emitted nothing. Zero rows and zero coverage rows look
+     * identical, which is precisely the ambiguity this is meant to remove.
+     *
+     * A coverage row that only appears when there is something to cover is not
+     * an instrument, it is a decoration. */
+    try {
+      const cov = opponentPredictCoverage();
+      if (cov && state.opponentCoverageAt !== cov.at_pick) {
+        state.opponentCoverageAt = cov.at_pick;
+        PredLedger.capture('opponent_prediction_coverage', { season: c.season,
+          build_at: c.build_at, pick: cov.at_pick,
+          method: 'opponent-predict-v1', payload: cov });
+      }
+    } catch (e) { console.error('[opponent-predict] coverage failed —', e && e.message); }
     if (!fc.length || !picks || !picks.length) return;
     const byPick = {};
     picks.forEach(pk => {
       if (pk && pk.pick_no != null && pk.player_id != null) byPick[Number(pk.pick_no)] = String(pk.player_id);
     });
-    const c = ledgerCtx();
     state.opponentForecasts = fc.filter(f => {
       const actual = byPick[f.subject.pick_no];
       if (actual == null) return true;            // not taken yet — NOT a miss
@@ -7958,7 +8245,11 @@
             build_at: c.build_at, pick: f.subject.pick_no,
             method: 'opponent-predict-v1', payload: r });
         }
-      } catch (e) { console.error('[opponent-predict] resolve failed —', e && e.message); }
+      } catch (e) {
+        state.opponentPredictErrors = (state.opponentPredictErrors || 0) + 1;
+        state.opponentPredictLastError = (e && e.message) || String(e);
+        console.error('[opponent-predict] resolve failed —', e && e.message);
+      }
       return false;                               // resolved: drop from the queue
     });
   }
@@ -8101,9 +8392,80 @@
     // means nothing happened — skip the full board re-score (~1700 players) + full
     // re-render that used to run every cycle regardless. Recommendations still update
     // the instant a real pick lands; idle polls are now free.
-    const nPicks = (picks || []).length;
-    if (state._syncedPickCount === nPicks) return;
-    state._syncedPickCount = nPicks;
+    /* ⚠️ AN UNCHANGED COUNT IS NOT AN UNCHANGED LIST, AND THIS RETURNED EARLY
+     * ON THE COUNT ALONE.
+     *
+     * The comment above says "Sleeper's pick list is append-only, so an
+     * unchanged count means nothing happened." Append-only is the normal case,
+     * not a guarantee: a commissioner can CORRECT a pick mid-draft — wrong
+     * player, an undo-and-redo, an autopick fix — and the list comes back the
+     * same LENGTH with different CONTENT. The old guard returned before any of
+     * the reconciliation below could see it, so the board kept the superseded
+     * player marked gone and never learned about the real one.
+     *
+     * That is a wrong-decision path, not a cosmetic one: Cory is recommended
+     * against a pool with the wrong man removed, and every survival number is
+     * computed from that pool.
+     *
+     * The fingerprint is the ids and pick numbers, not the count. It is O(n) on
+     * at most 150 rows once every 4s, which is free next to the board re-score
+     * this guard exists to skip — so the speed win the count guard was written
+     * for is kept, and the blind spot is not. */
+    const fingerprint = (picks || [])
+      .map(p => String(p.player_id) + '@' + (p.pick_no == null ? '?' : p.pick_no))
+      .join(',');
+    if (state._syncedPickFingerprint === fingerprint) return;
+    const priorFingerprint = state._syncedPickFingerprint;
+    state._syncedPickFingerprint = fingerprint;
+    state._syncedPickCount = (picks || []).length;
+
+    /* ── A PICK THAT WAS UNDONE MUST COME BACK ONTO THE BOARD ───────────────
+     *
+     * The ingest loop below is purely ADDITIVE — `state.drafted.add(id)` with
+     * no removal path — so a player Sleeper stops reporting stayed gone from
+     * Cory's board for the rest of the draft. Two independent routes to the
+     * same wrong decision: he would never be shown a player who is genuinely
+     * available.
+     *
+     * Restoring is scoped tightly, because `drafted` has four other writers and
+     * three of them are NOT the room: my keepers (:4995), manual placeholders
+     * (:4873), and rehearsal removals. Only ids this sync itself put there are
+     * eligible, tracked in `_syncOwnedIds`, so a keeper can never be handed
+     * back to the pool by a Sleeper hiccup.
+     *
+     * It also REFUSES to act on an empty read: `picks` arriving empty is a
+     * failed fetch far more often than a reset draft, and treating it as "every
+     * pick was undone" would blank the board mid-round. That is the `or []`
+     * failure this repo has already paid for on the keeper path. */
+    state._syncOwnedIds = state._syncOwnedIds || new Set();
+    if (priorFingerprint !== undefined && (picks || []).length > 0) {
+      const nowIds = new Set((picks || []).map(p => String(p.player_id)));
+      const vanished = [...state._syncOwnedIds].filter(id => !nowIds.has(id));
+      if (vanished.length) {
+        vanished.forEach(id => {
+          state._syncOwnedIds.delete(id);
+          state.drafted.delete(id);
+          Object.keys(state.rosters || {}).forEach(sl => {
+            state.rosters[sl] = (state.rosters[sl] || [])
+              .filter(x => String(x.player_id) !== id);
+          });
+          state.myRoster = (state.myRoster || [])
+            .filter(x => String(x.player_id) !== id);
+          state.recentPicks = (state.recentPicks || [])
+            .filter(x => String(x.player_id) !== id);
+          const back = playerById(id);
+          if (back && !(state.board || []).some(x => String(x.player_id) === id)) {
+            state.board.push(back);
+          }
+        });
+        /* SAID OUT LOUD. A player reappearing on the board mid-draft is
+         * alarming unless you know why, and this is the one case where it is
+         * correct. */
+        console.warn('[sync] ' + vanished.length + ' pick(s) withdrawn by the '
+          + 'room — those players are BACK on the board: ' + vanished.join(', '));
+        state.syncWithdrawn = (state.syncWithdrawn || 0) + vanished.length;
+      }
+    }
 
     /* ⚠️ RETIRE ANY TYPED PLACEHOLDER THE ROOM HAS NOW REPORTED FOR REAL.
      *
@@ -8148,11 +8510,40 @@
       // rosters, so the seat only lives in draft_slot — prefer it.
       const slot = Number(pick.draft_slot) || Number(pick.roster_id) || null;
       const firstSight = !state.drafted.has(id);
+      /* OWNERSHIP RECORDED ONCE, HERE, FOR EVERY PICK THE ROOM REPORTS —
+       * regardless of which branch below marks it drafted. `ATTR.applyRemote`
+       * is a third writer to `state.drafted` (attribution.js:92/126/163), so
+       * tagging inside the branches would have missed it and left those picks
+       * ineligible for withdrawal. One place, before the fork. */
+      state._syncOwnedIds.add(id);
 
       // Known to the board, or reconstructed from what Sleeper sent. A stub
       // carries no projection, so it can never affect a recommendation — it
       // exists so the pick is visible and lands on the right roster.
       const known = playerById(id);
+      /* ⚠️ ID-SPACE DIVERGENCE IS THE ONE SYNC FAILURE THAT REMOVES NOBODY FROM
+       * THE POOL, AND NOTHING COUNTED IT.
+       *
+       * A stub is fine one at a time — Sleeper carries deep players our 686-row
+       * board does not, and a stub is rendered "(not on the board)" and never
+       * scored. But if the two id spaces ever DIVERGE — a players-DB refresh, a
+       * board rebuilt from a different source, an id format change — then EVERY
+       * pick becomes a stub, `state.drafted` fills with ids the board does not
+       * contain, and `players.filter(p => !drafted.has(p.player_id))` removes
+       * NOBODY. Cory would be recommended players taken forty picks earlier, for
+       * the whole draft, with each individual row looking merely unusual.
+       *
+       * THE THRESHOLD IS DERIVED, NOT CHOSEN. Real drafts against today's board:
+       *     2025  150 picks,   5 stubs   3.3%
+       *     2024  150 picks,  13 stubs   8.7%
+       *     2023  150 picks,  21 stubs  14.0%
+       * The older seasons run high only because retired players are dropped from
+       * a 2026 board, so 3.3% is the honest expectation and 14% an upper bound.
+       * 50% is far above any of them and far below the ~100% a divergence
+       * produces — a false alarm mid-draft is itself harmful, so this fires only
+       * for catastrophe. Minimum eight picks before it can judge at all. */
+      state._syncMatched = (state._syncMatched || 0) + (known ? 1 : 0);
+      state._syncStubs = (state._syncStubs || 0) + (known ? 0 : 1);
       const meta = pick.metadata || {};
       const p = known || {
         player_id: id,
@@ -8186,9 +8577,36 @@
       // so it is safe to run for every pick on every four-second poll.
       if (ATTR) ATTR.applyRemote(state, p, slot, seatSlot);
       else {
+        /* ⚠️ THE IDEMPOTENCY THE COMMENT ABOVE PROMISES BELONGS TO applyRemote,
+         * AND THIS BRANCH NEVER HAD IT.
+         *
+         * Sleeper returns the WHOLE pick list every poll, so when any new pick
+         * lands the loop re-processes every earlier one. `drafted.add` is a Set
+         * and survives that; two array PUSHES do not. Measured by running this
+         * function with ATTR absent:
+         *
+         *     after 1 pick   slot roster = 100
+         *     after 2 picks  slot roster = 100,100,200
+         *     after 3 picks  slot roster = 100,100,200,100,200,300
+         *
+         * Quadratic. By pick 150 the roster holds thousands of rows, and need,
+         * legality, bye coverage and every roster-dependent recommendation are
+         * computed from it.
+         *
+         * REACHABLE, NOT THEORETICAL. `ATTR` is `window.DraftAttribution ||
+         * null`, captured ONCE at init (app.js:7170) — so a single failed load
+         * of attribution.js (a 404 after deploy, a cache miss, a flaky asset)
+         * leaves it null for the entire session and routes every pick here.
+         * A fallback whose failure mode is worse than having no fallback.
+         *
+         * `firstSight` was already computed above and already gates the
+         * missed-mark recovery twelve lines below. It just was not applied to
+         * the two lines that needed it most. */
         state.drafted.add(id);
-        if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-        if (seatSlot && slot === seatSlot) state.myRoster.push(p);
+        if (firstSight) {
+          if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+          if (seatSlot && slot === seatSlot) state.myRoster.push(p);
+        }
       }
       state.board = state.board.filter(x => String(x.player_id) !== id);
       // MISSED-MARK RECOVERY (1) — THE SYNC-LIVE PATH.
@@ -8207,7 +8625,7 @@
       // delta board sharper. Captured with OUR FFC ADP alongside, because the
       // sample is only useful as a DELTA against the market.
       if (firstSight && state.mockMode && slot && slot !== seatSlot) {
-        capturePlatformSample(pick, p, slot);
+        capturePlatformSample(pick, p, slot, picks);
       }
       if (firstSight) {
         state.recentPicks.push({
@@ -8233,6 +8651,22 @@
     // so a pick can never resolve a forecast made after it was already known.
     resolveOpponentPredictions(picks);
     emitOpponentPredictions();
+    /* THE ALARM, RAISED ONCE AND LOUDLY. See the derivation above the counters. */
+    {
+      const seen = (state._syncMatched || 0) + (state._syncStubs || 0);
+      const rate = seen ? (state._syncStubs || 0) / seen : 0;
+      if (seen >= 8 && rate >= 0.5 && !state.syncIdDivergence) {
+        state.syncIdDivergence = { matched: state._syncMatched, stubs: state._syncStubs,
+                                   rate: Math.round(rate * 100) };
+        const msg = 'ID MISMATCH: ' + state._syncStubs + ' of ' + seen + ' picks ('
+          + Math.round(rate * 100) + '%) do not match the board. Players taken are '
+          + 'NOT being removed from your pool — the board is recommending men who '
+          + 'are already gone. Verify against Sleeper before you draft.';
+        console.error('[sync] ' + msg);
+        try { setStatus({ state: 'error', message: msg }); } catch (e) { /* console still carries it */ }
+      }
+    }
+
     recomputeRuns();
     alertTick();               // A-3: did that batch put me on the clock?
     renderAll();
