@@ -4879,11 +4879,24 @@
     // last-responsible-moment snapshot per onesie position, once per (pick,build).
     if (typeof PredLedger !== 'undefined' && !state.mockMode) {
       var c = ledgerCtx();
+      var survivalPayload = { to_pick: next, estimates: top.map(function (x) {
+        return { player_id: String(x.p.player_id), name: x.p.name,
+          position: x.p.position, survival: Math.round(x.s * 1000) / 1000 }; }) };
       PredLedger.survival({ season: c.season, build_at: c.build_at, pick: c.pick,
-        method: 'survival-v1',
-        payload: { to_pick: next, estimates: top.map(function (x) {
-          return { player_id: String(x.p.player_id), name: x.p.name,
-            position: x.p.position, survival: Math.round(x.s * 1000) / 1000 }; }) } });
+        method: 'survival-v1', payload: survivalPayload });
+
+      /* REMEMBERED SO IT CAN BE GRADED. The capture goes to the server; the
+       * RESOLUTION needs the original call back, and the client is the only
+       * place that has it while the draft is running. Same shape as
+       * `state.committedForecasts`, which is the one loop already closing.
+       * De-duplicated on (pick, to_pick): this render path can fire more than
+       * once for the same pick, and a doubled capture would double-weight that
+       * pick in the Brier score. */
+      if (!state.survivalCaptures) state.survivalCaptures = [];
+      var sKey = String(c.pick) + '>' + String(next);
+      if (!state.survivalCaptures.some(function (x) { return x._key === sKey; })) {
+        state.survivalCaptures.push({ _key: sKey, pick: c.pick, payload: survivalPayload });
+      }
       var lrm = computeLRM(upcoming);
       if (lrm && lrm.length) {
         // Explicitly a stopgap computed from the survival model, NOT the real
@@ -7576,6 +7589,37 @@
     } catch (e) { console.error('[forecast-resolve]', e && e.message); }
   }
 
+  /* GRADE THE SURVIVAL CALLS THE ROOM HAS NOW ANSWERED.
+   *
+   * The shortest loop in the model: a survival call names a pick, and within a
+   * few picks the player is either there or gone. It grades itself DURING the
+   * draft rather than in January, and it grades the input VONA is built on.
+   *
+   * Once per capture, tracked by key — a resolution written twice would count
+   * the same evidence twice in every calibration that reads these rows. */
+  function resolveSurvivalCalls(picks) {
+    if (state.mockMode) return;                     // a mock is not forward evidence
+    if (typeof DraftSurvival === 'undefined' || typeof PredLedger === 'undefined') return;
+    const caps = (state.survivalCaptures || []).filter(function (c) { return !c._resolved; });
+    if (!caps.length) return;
+    const pickLog = (picks || [])
+      .filter(function (pk) { return pk && pk.pick_no != null && pk.player_id != null; })
+      .map(function (pk) { return { overall: Number(pk.pick_no), player_id: String(pk.player_id) }; });
+    if (!pickLog.length) return;
+    try {
+      const season = ledgerCtx().season;
+      const resolutions = DraftSurvival.resolveSurvival(caps, { picks: pickLog });
+      resolutions.forEach(function (r) {
+        PredLedger.capture('survival_resolved', { season: season, method: r.method,
+          pick: currentPick(), payload: r.payload });
+        // Mark ONLY the capture this resolution belongs to. Marking all of them
+        // would silently drop the ones the draft has not reached yet.
+        const key = String(r.payload.from_pick) + '>' + String(r.payload.to_pick);
+        caps.forEach(function (c) { if (c._key === key) c._resolved = true; });
+      });
+    } catch (e) { console.error('[survival-resolve]', e && e.message); }
+  }
+
   function onSyncPicks(picks) {
     const seatSlot = mySlot();
     // SPEED (audit 2026-08-10): the Sleeper poll fires every 4s, but most polls
@@ -7707,6 +7751,7 @@
     if (!state.mockMode && picks && picks.length) captureRawPicks(picks);
     // FORWARD LOOP: let reality answer the committed forecasts the new picks resolve.
     resolveCommittedForecasts(picks);
+    resolveSurvivalCalls(picks);
     // SHADOW ARM: let reality answer the opponent predictions these picks
     // resolve, THEN commit predictions for the next window. Resolve before emit
     // so a pick can never resolve a forecast made after it was already known.

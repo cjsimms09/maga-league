@@ -22,6 +22,12 @@
 // cannot do if the banner's state was never written down.
 
 const KINDS = ['recommendation', 'pick', 'survival', 'override', 'lrm', 'run',
+               // The grade for a `survival` row: was he still there at the pick
+               // we spoke about. `buildEntry` REJECTS an undeclared kind, so
+               // omitting this would have thrown away every resolution silently
+               // from the client's point of view — the loop would read as closed
+               // in the code and be empty in the data.
+               'survival_resolved',
                'doctrine', 'doctrine_decline',
                // Experiment 31 data collection. Every non-Cory pick in a MOCK
                // room is Sleeper's default ordering executing — especially the

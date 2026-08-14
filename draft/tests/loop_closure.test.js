@@ -110,10 +110,18 @@ const by = k => rows.find(r => r.kind === k);
   ck('the open loops are exactly the ones we know about — if this list changes, '
     + 'either a loop was closed or a new claim went ungraded',
   JSON.stringify(open) === JSON.stringify(['doctrine', 'doctrine_decline', 'lrm',
-    'override', 'recommendation', 'shadow_pick', 'survival']), open);
+    'override', 'recommendation', 'shadow_pick']), open);
 
-  ck('SURVIVAL is among them, and it is the cheapest to close — the next pick '
-    + 'resolves it', open.indexOf('survival') >= 0);
+  /* SURVIVAL WAS ON THIS LIST AND IS NOT ANY MORE — closed 2026-08-14, and this
+   * assertion is the record of it. It was the cheapest to close (the next pick
+   * resolves it) and the highest leverage (it is the input to VONA, which is 62%
+   * of what moves the composite). See draft/tests/survival_resolve.test.js.
+   *
+   * The list above is pinned BY NAME precisely so that closing a loop breaks
+   * this file rather than quietly decrementing a count nobody reads. */
+  ck('survival is CLOSED — captured and resolved, not on the open list',
+    open.indexOf('survival') < 0 && by('survival').captured && by('survival').resolved,
+    { captured: by('survival').captured, resolved: by('survival').resolved });
   ck('every open loop carries a stated reason it is gradeable, so none of them '
     + 'is on the list by accident',
   rows.filter(r => r.gradeable && r.captured && !r.resolved)
