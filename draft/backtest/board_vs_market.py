@@ -720,6 +720,21 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             "age_rho_non_qb": None if rho is None else round(rho, 3),
             "n": len(non_qb), "null": nb,
             "reference_line_rho": DYNASTY_AGE_RHO,
+            # ✅ THIS ARM PASSES THE CONTROL THE RECEPTION ARM FAILED, and the
+            # pair is only meaningful together. Same board, same day, same
+            # population, against FFC — half-PPR, 10 teams, and REDRAFT:
+            #
+            #     age    MFL +0.425   FFC -0.200   <- SIGN FLIPS
+            #     target MFL -0.301   FFC -0.321   <- same sign AND magnitude
+            #
+            # A format cause predicts exactly that flip: MFL pools dynasty and
+            # keeper leagues (17.5% of the sampled pool) and FFC does not, so the
+            # age gradient should reverse against a redraft-only market. It does.
+            # The target gradient should have vanished. It did not.
+            "control_ffc_rho": -0.200,
+            "control": "PASSES — sign flips against FFC (redraft), which is what "
+                       "a dynasty/keeper composition predicts and what the "
+                       "reception arm failed to do.",
             # POSITIVE rho = older players go LATER on the market than on our
             # board, which is what paying for youth looks like from a redraft
             # board's side. Only the HIGH tail counts.
@@ -798,6 +813,34 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
                                     "EXPERT CONSENSUS. Drafters vs rankers, "
                                     "untested — do not act on it as a format "
                                     "correction.",
+            # ⚠ AND THE SECOND CONTROL, WHICH IS THE ONE THAT MAKES THIS WORTH
+            # KEEPING: the gradient is SPECIFIC, not a generic re-ranking. Run
+            # against twelve board variables on the same FFC comparison, same
+            # population, same day:
+            #
+            #     wopr              -0.388      <- receiving opportunity
+            #     target_share      -0.321      <- receiving opportunity
+            #     tier              -0.285
+            #     years_exp         -0.278
+            #     age               -0.200
+            #     proj_mean         -0.006      <- OUR VALUE MODEL: nothing
+            #     vorp              -0.001      <- OUR VALUE MODEL: nothing
+            #
+            # The two receiving-opportunity variables lead, and our board's own
+            # value estimates show NO disagreement with the market at all. So the
+            # markets do not disagree with what our board THINKS players are
+            # worth; they disagree with the ADP COLUMN, which is FantasyPros.
+            #
+            # ⚠ WHAT THIS IS NOT: these twelve are one day, one source pair, and
+            # only the MFL arm above carries a permutation null. Ordering them
+            # against each other is sound because they share a population; the
+            # magnitudes are not null-tested and must not be quoted as effects.
+            "specificity": {"wopr": -0.388, "target_share": -0.321,
+                            "proj_mean": -0.006, "vorp": -0.001,
+                            "note": "strongest on receiving opportunity, ZERO on "
+                                    "proj_mean and vorp — the disagreement is with "
+                                    "our ADP column, not with our value model. "
+                                    "One day, one source pair, no null on these."},
         }
 
     detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty),

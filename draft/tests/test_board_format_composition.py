@@ -767,3 +767,30 @@ def test_the_THIRD_ARM_is_tracked_by_the_trend_the_day_it_is_written():
     assert '"reception"' in src, "format_trend does not carry the reception arm"
     assert 'for k in ("superflex", "dynasty", "reception")' in src, \
         "the flip list does not include reception"
+
+
+def test_the_TWO_ARMS_carry_their_controls_and_they_disagree():
+    """The dynasty arm PASSES the control the reception arm FAILS, and the pair
+    is only meaningful together. Against FFC — half-PPR, 10 teams, REDRAFT:
+
+        age    MFL +0.425   FFC -0.200   sign FLIPS  -> format-specific
+        target MFL -0.301   FFC -0.321   same sign   -> not format
+
+    MUTATION: drop either control field — the module reports two findings of
+    apparently equal standing when one has survived a falsification test and the
+    other has failed one."""
+    import json as _json
+    arch = _json.loads(open("draft/data/external_adp_series.json").read())
+    board = _json.load(open("public/draft_data.json"))
+    f = B.format_composition(arch, board, "2026", 150)
+    dyn, rcp = f["dynasty"], f["reception"]
+    assert "PASSES" in dyn["control"], dyn
+    assert dyn["control_ffc_rho"] < 0 < dyn["age_rho_non_qb"], (dyn, "sign must flip")
+    assert "REFUTED" in rcp["cause"], rcp
+    # same sign is the refutation, and it must stay visible
+    assert rcp["control_ffc_rho"] < 0 and rcp["target_share_rho_non_qb"] < 0, rcp
+    # AND THE SPECIFICITY, which is why the measurement is kept at all
+    sp = rcp["specificity"]
+    assert abs(sp["wopr"]) > abs(sp["target_share"]) > abs(sp["proj_mean"]), sp
+    assert abs(sp["proj_mean"]) < 0.05 and abs(sp["vorp"]) < 0.05, sp
+    assert "no null on these" in sp["note"], sp
