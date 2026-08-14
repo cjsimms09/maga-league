@@ -794,6 +794,38 @@
       "test_UNREADABLE_STORES_are_unmeasured_rather_than_clean"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(p.get(\"player_id\")) in keep[\"ids\"]:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_a_KEPT_player_is_NOT_dormant_however_dead_he_looks"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if keep[\"status\"] == \"unreadable\":",
+     "new": "    if False:",
+     "must_fail": [
+      "test_an_UNREADABLE_keeper_file_REFUSES_rather_than_pruning_blind"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if keep[\"status\"] == \"unreadable\":",
+     "new": "    if keep[\"status\"] in (\"unreadable\", \"absent\"):",
+     "must_fail": [
+      "test_an_ABSENT_keeper_file_is_NOT_a_refusal"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    p = base / \"config\" / \"keepers.json\"",
+     "new": "    p = base / \"config\" / \"keepers.json\"\n    if not p.exists():\n        p = base / \"config\" / \"predicted_keepers.json\"",
+     "must_fail": [
+      "test_the_PREDICTED_slate_is_NOT_read_as_a_designation"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
