@@ -69,8 +69,6 @@ jobs:
           # thing that separates them, and its absence is why two rounds of
           # diagnosis could not get past "present: NO".
           SECRET_NONEMPTY: ${{ secrets.OPENAI_API_KEY != '' }}
-          # KEY NAMES ONLY — parsed in Python below, values never echoed.
-          ALL_SECRET_NAMES: ${{ toJSON(secrets) }}
         run: |
           # ── THE FOUR-WAY BOUNDARY, in the step that demonstrably RUNS ──────
           # A standalone probe workflow was written first and GitHub held it at
@@ -89,17 +87,17 @@ jobs:
           else
             echo "  4. env var present, NON-EMPTY    : yes (length ${#OPENAI_API_KEY})"
           fi
-          python3 <<'PYEOF'
-          import json, os
-          raw = os.environ.get("ALL_SECRET_NAMES") or "{}"
-          try:
-              keys = sorted(json.loads(raw).keys())
-          except Exception as e:
-              print("  secrets context unparseable:", type(e).__name__)
-              raise SystemExit(0)
-          print("  secret NAMES visible to this job :", keys)
-          print("  OPENAI_API_KEY among them        :", "OPENAI_API_KEY" in keys)
-          PYEOF
+          # ⚠️ `toJSON(secrets)` WAS HERE AND IT STOPPED THE WORKFLOW RUNNING.
+          # Evidence, not a guess: three runs at 82ce373d executed and returned
+          # success; the two runs carrying `toJSON(secrets)` (38516dd and
+          # d3fe3485) both came back `action_required` with ZERO jobs and no
+          # pending deployment — so nothing was awaiting approval, the run was
+          # simply never allowed to start. Enumerating the whole secrets context
+          # is treated as exfiltration-shaped whatever the values do.
+          #
+          # No loss: the key-name list was a nice-to-have. `SECRET_NONEMPTY` is
+          # the discriminator, because it is the ONLY thing that separates a
+          # missing secret from a present-but-empty one.
           echo "────────────────────────────────────────────────────────────"
 
           # Prints presence and length only. The value never reaches the log,
