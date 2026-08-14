@@ -17,7 +17,29 @@
 #
 # Usage:  bash scripts/integrate.sh <branch> <side A|B|C> [--push]
 set -uo pipefail
-cd "$(dirname "$0")/.."
+# ⚠️ THIS SCRIPT REPLACES ITS OWN SOURCE FILE MID-RUN, AND BASH READS SCRIPTS
+# LAZILY. `git checkout main` below swaps scripts/integrate.sh on disk to main's
+# version; bash then continues reading from the SAME BYTE OFFSET in a DIFFERENT
+# FILE. So a run started from a branch executes that branch's code up to the
+# checkout and main's code after it — at an offset that no longer means anything
+# if the two differ in length.
+#
+# MEASURED 2026-08-14: a fix to the JS classification was invoked from its own
+# branch, and the gate printed main's OLD refusal message. The script cannot fix
+# itself, and every previous edit to it landed unpredictably — including,
+# plausibly, edits nobody realised were half-applied.
+#
+# Re-exec from a private COPY before touching git. The copy cannot be swapped by
+# a checkout, so the whole run executes one version of this file. ROOT travels in
+# the environment because $0 is now a temp path and `dirname $0` would resolve
+# outside the repository.
+if [ -z "${INTEGRATE_ROOT:-}" ]; then
+  INTEGRATE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+  _self="$(mktemp)"; cp "$0" "$_self"
+  export INTEGRATE_ROOT
+  exec bash "$_self" "$@"
+fi
+cd "$INTEGRATE_ROOT"
 
 BRANCH="${1:-}"; SIDE="${2:-}"; PUSH="${3:-}"
 [ -n "$BRANCH" ] && [ -n "$SIDE" ] || { echo "usage: integrate.sh <branch> <A|B|C> [--push]"; exit 2; }
