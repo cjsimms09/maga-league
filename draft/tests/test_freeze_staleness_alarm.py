@@ -129,6 +129,71 @@ def test_a_confirmed_freeze_after_the_lock_is_quiet(tmp_path, monkeypatch):
     assert row["state"] == "quiet", row
 
 
+def test_THE_PRODUCER_CAN_ACTUALLY_EMIT_CONFIRMED():
+    """THE ARM THE TEST ABOVE WAS MISSING, AND IT WAS THE ONE THAT MATTERED.
+
+    The arm above builds a CONFIRMED freeze BY HAND and shows the alarm clears.
+    That proves nothing about whether a CONFIRMED freeze can EXIST. When it was
+    written, `status` was the literal `"PROVISIONAL"` in freeze_pre_draft.build
+    — so the 20 August re-take would have produced another PROVISIONAL freeze
+    and left this alarm PERMANENTLY RED. A permanent red gets muted, and a muted
+    alarm is exactly how the real signal goes unseen.
+
+    Vacuous in the direction that mattered: I asserted the alarm clears without
+    asserting the clearing condition was reachable.
+
+    So this asks the REAL producer, not a fixture: given a locked, trusted,
+    unmismatched slate, does it say CONFIRMED?
+    """
+    sys.path.insert(0, str(ROOT / "draft"))
+    from freeze_pre_draft import _slate_status
+
+    live = json.loads(BOARD.read_text())["keeper_slate"]
+    assert _slate_status(live)[0] == "PROVISIONAL", (
+        "the live slate is not provisional any more — the freeze is due a re-take"
+    )
+
+    locked = dict(live, keeper_lock_passed=True, safe_to_treat_as_truth=True,
+                  mismatches=[], teams_designated=live.get("teams_expected"))
+    status, reason = _slate_status(locked)
+    assert status == "CONFIRMED", (
+        f"the producer cannot emit CONFIRMED (got {status!r}), so the freeze "
+        "alarm can never clear and will be muted before it is ever right"
+    )
+    assert "lock has passed" in reason and "truth" in reason
+
+
+@pytest.mark.parametrize("broken,why", [
+    ({"keeper_lock_passed": False}, "lock not passed"),
+    ({"safe_to_treat_as_truth": False}, "importer does not call it truth"),
+    ({"mismatches": ["team 4 designated X, placed Y"]}, "a designation disagrees"),
+])
+def test_each_confirmation_condition_is_independently_load_bearing(broken, why):
+    """Three conditions, three different ways of being wrong. If any one of them
+    could be dropped without changing the answer, it is decoration."""
+    sys.path.insert(0, str(ROOT / "draft"))
+    from freeze_pre_draft import _slate_status
+
+    live = json.loads(BOARD.read_text())["keeper_slate"]
+    good = dict(live, keeper_lock_passed=True, safe_to_treat_as_truth=True,
+                mismatches=[], teams_designated=live.get("teams_expected"))
+    assert _slate_status(good)[0] == "CONFIRMED"
+    assert _slate_status(dict(good, **broken))[0] == "PROVISIONAL", why
+
+
+def test_the_provisional_reason_says_WHICH_condition_failed():
+    """"Provisional" alone tells January nothing about what it was provisional
+    ABOUT, which is the difference between a caveat and a label."""
+    sys.path.insert(0, str(ROOT / "draft"))
+    from freeze_pre_draft import _slate_status
+
+    live = json.loads(BOARD.read_text())["keeper_slate"]
+    reason = _slate_status(live)[1]
+    assert "keeper lock has not passed" in reason, reason
+    # The slate's OWN words, so the two cannot drift apart.
+    assert (live.get("reason") or "")[:20] in reason, reason
+
+
 def test_drift_alone_never_escalates(tmp_path, monkeypatch):
     """The board rebuilds daily. If drift escalated, this row would be red every
     day from 08-15 and ignored by 08-20."""

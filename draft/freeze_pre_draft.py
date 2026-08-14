@@ -168,6 +168,45 @@ def _availability(players: list, my_picks: list, board: list) -> dict:
     return out
 
 
+def _slate_status(slate: dict) -> tuple:
+    """(status, reason) DERIVED from the keeper slate the board was built with.
+
+    CONFIRMED requires all three, and each rules out a different way of being
+    wrong: the lock has actually passed, the importer is willing to call the
+    slate truth, and no designation disagrees with a placement. Any one missing
+    leaves the freeze a rehearsal, and the reason SAYS WHICH — a freeze that
+    says only "provisional" tells whoever reads it in January nothing about
+    what it was provisional ABOUT.
+
+    The reason carries the slate's own words rather than a sentence written
+    here, so the two cannot drift apart.
+    """
+    locked = bool(slate.get("keeper_lock_passed"))
+    truth = bool(slate.get("safe_to_treat_as_truth"))
+    mismatches = list(slate.get("mismatches") or [])
+    if locked and truth and not mismatches:
+        return ("CONFIRMED",
+                "the keeper lock has passed, the importer reports the slate "
+                "safe to treat as truth, and no designation disagrees with a "
+                "placement (%s/%s teams designated). This freeze is the "
+                "grading baseline for the season."
+                % (slate.get("teams_designated"), slate.get("teams_expected")))
+    missing = []
+    if not locked:
+        missing.append("the keeper lock has not passed")
+    if not truth:
+        missing.append("the importer does not yet call the slate truth (%s)"
+                       % (slate.get("reason") or "no reason given"))
+    if mismatches:
+        missing.append("%d designation/placement mismatch(es)" % len(mismatches))
+    return ("PROVISIONAL",
+            "validated against PREDICTED keeper state: " + "; ".join(missing)
+            + ". Cory's 5f: the pre-lock run is a rehearsal. Re-take after the "
+            "slate confirms; keepers disproportionately remove RB/WR value, so "
+            "divergence between the two runs is evidence about keeper-driven "
+            "scarcity, not a regression to chase away.")
+
+
 def build() -> dict:
     art = json.loads(ARTIFACT.read_text())
     league = art["league"]
@@ -268,13 +307,30 @@ def build() -> dict:
         },
 
         # ── 5f: THIS IS A REHEARSAL UNTIL THE SLATE LOCKS ─────────────────
-        "status": "PROVISIONAL",
-        "status_reason":
-            "validated against PREDICTED keeper state, pending the 20 August "
-            "keeper lock. Cory's 5f: the pre-lock run is a rehearsal. Re-take "
-            "after the slate confirms; keepers disproportionately remove RB/WR "
-            "value, so divergence between the two runs is evidence about "
-            "keeper-driven scarcity, not a regression to chase away.",
+        #
+        # ⚠️ DERIVED FROM THE SLATE, NOT ASSERTED. This read `"status":
+        # "PROVISIONAL"` as a literal, and that had two faults, the second
+        # much worse than the first.
+        #
+        # It is a static assertion about pipeline state, which this project
+        # forbids on its own terms. And it made the re-take IMPOSSIBLE TO
+        # RECOGNISE: standing_check's freeze alarm escalates while the lock has
+        # passed and status != CONFIRMED, so a re-take on 20 August would have
+        # produced another PROVISIONAL freeze and left the alarm PERMANENTLY
+        # RED. A permanent red gets muted, and a muted alarm is how the real
+        # one goes unseen — which is the failure the alarm exists to prevent,
+        # reintroduced by the artifact it watches.
+        #
+        # My own test asserted the alarm CLEARS for a CONFIRMED freeze and
+        # never asked whether a CONFIRMED freeze was PRODUCIBLE. It was
+        # vacuous in the direction that mattered.
+        #
+        # THE CONDITION IS THE BOARD'S OWN. safe_to_treat_as_truth is what the
+        # importer publishes after checking placements against designations; a
+        # second definition here would disagree with the board on the one day
+        # it mattered.
+        "status": _slate_status(art.get("keeper_slate") or {})[0],
+        "status_reason": _slate_status(art.get("keeper_slate") or {})[1],
         "keepers_on_board_at_freeze": sum(
             1 for r in po["picks"] if r.get("keeper_slot")),
     }
