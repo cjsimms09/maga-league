@@ -62,7 +62,44 @@ jobs:
       - name: Prove the key resolved WITHOUT printing it
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # ⚠️ EVALUATED BEFORE THE SHELL EXISTS, AND THAT IS THE WHOLE POINT.
+          # `${{ secrets.X }}` for a MISSING secret expands to an EMPTY STRING,
+          # so "the secret is absent" and "the secret is present but empty" are
+          # indistinguishable once they reach bash. This boolean is the only
+          # thing that separates them, and its absence is why two rounds of
+          # diagnosis could not get past "present: NO".
+          SECRET_NONEMPTY: ${{ secrets.OPENAI_API_KEY != '' }}
         run: |
+          # ── THE FOUR-WAY BOUNDARY, in the step that demonstrably RUNS ──────
+          # A standalone probe workflow was written first and GitHub held it at
+          # `action_required` with ZERO jobs — a newly added workflow needs
+          # approval before it executes at all. This step is inside a workflow
+          # that has already run twice, so it answers the question today instead
+          # of waiting on an approval, and leaves no separate diagnostic file
+          # behind afterwards.
+          echo "── secret boundary ─────────────────────────────────────────"
+          echo "  job declares environment : Review_ChatGPT"
+          echo "  1. secrets.OPENAI_API_KEY != ''  : ${SECRET_NONEMPTY:-<unset>}"
+          if [ -z "${OPENAI_API_KEY+isset}" ]; then
+            echo "  2. env mapping                   : ABSENT (variable unset)"
+          elif [ -z "$OPENAI_API_KEY" ]; then
+            echo "  3. env var present but EMPTY     : yes"
+          else
+            echo "  4. env var present, NON-EMPTY    : yes (length ${#OPENAI_API_KEY})"
+          fi
+          # ⚠️ `toJSON(secrets)` WAS HERE AND IT STOPPED THE WORKFLOW RUNNING.
+          # Evidence, not a guess: three runs at 82ce373d executed and returned
+          # success; the two runs carrying `toJSON(secrets)` (38516dd and
+          # d3fe3485) both came back `action_required` with ZERO jobs and no
+          # pending deployment — so nothing was awaiting approval, the run was
+          # simply never allowed to start. Enumerating the whole secrets context
+          # is treated as exfiltration-shaped whatever the values do.
+          #
+          # No loss: the key-name list was a nice-to-have. `SECRET_NONEMPTY` is
+          # the discriminator, because it is the ONLY thing that separates a
+          # missing secret from a present-but-empty one.
+          echo "────────────────────────────────────────────────────────────"
+
           # Prints presence and length only. The value never reaches the log,
           # and a length is not a leak — it is what distinguishes "absent" from
           # "present but truncated".
