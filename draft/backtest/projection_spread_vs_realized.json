@@ -1862,5 +1862,51 @@
     "carrying IR"
    ]
   }
+ },
+ "reconciliation": {
+  "_what": "The season spread and the weekly spread are not two findings. They are one mechanism with two visible consequences, and the arithmetic closes.",
+  "_the_number": "Week-to-week noise is only ~11% of season projection variance (QB 8.5%, RB 8.5%, WR 12.2%, TE 12.6%). The other ~89% is season-level: role, injury, team, usage. `weekly_sd = season_sd / sqrt(games)` assumes it is 100%.",
+  "_why_both_directions": "Two errors compose. (1) The board's SEASON spread is too NARROW \u2014 its `var` is 0.51x to 0.81x the measured projection-error ratio. (2) Converting that season figure to a weekly one by dividing by sqrt(games) INFLATES it by 1/sqrt(0.11) ~ 3x, because only a tenth of season variance is weekly noise. Net: a weekly figure roughly 2.2x too wide sitting under a season figure roughly 1.5x too narrow. Neither is a scaling error to be corrected by a constant.",
+  "_confirmation": "The decomposition PREDICTS the observed weekly over-statement at all four positions within 8% (QB 1.74 predicted / 1.89 observed, RB 2.17 / 2.41, TE 2.29 / 2.31, WR 2.31 / 2.16). That is what makes this one account rather than two coincidences.",
+  "_the_replacement_already_exists": "`projection_error.proj_sd_for` applies a MEASURED per-(position, rank-band) sd_ratio from `projection_error_calibration.json` \u2014 1,304 graded players, 20 measured cells \u2014 and NOTHING CALLS IT. The measured season spread is written, tested and unwired. 8 of 146 draftable players fall on bands it reports as `unmeasurable`, and it returns None there by design rather than a fallback constant, so wiring it needs a decision about those 8.",
+  "_caveat": "The calibration's own header says it is OPTIMISTIC: players with no weekly rows at all are excluded, so every band is fitted on players who reached the field. Measured season spread is therefore if anything WIDER than shown, which makes the board's too-narrow season figure worse rather than better.",
+  "by_position": {
+   "QB": {
+    "n": 20,
+    "board_var": 0.22,
+    "measured_var": 0.432,
+    "season_too_narrow_by": 0.509,
+    "weekly_share_of_season_variance": 0.0854,
+    "predicted_weekly_overstatement": 1.74,
+    "observed_weekly_overstatement": 1.89
+   },
+   "RB": {
+    "n": 42,
+    "board_var": 0.388,
+    "measured_var": 0.615,
+    "season_too_narrow_by": 0.63,
+    "weekly_share_of_season_variance": 0.0847,
+    "predicted_weekly_overstatement": 2.17,
+    "observed_weekly_overstatement": 2.41
+   },
+   "TE": {
+    "n": 17,
+    "board_var": 0.382,
+    "measured_var": 0.469,
+    "season_too_narrow_by": 0.814,
+    "weekly_share_of_season_variance": 0.1264,
+    "predicted_weekly_overstatement": 2.29,
+    "observed_weekly_overstatement": 2.31
+   },
+   "WR": {
+    "n": 50,
+    "board_var": 0.333,
+    "measured_var": 0.412,
+    "season_too_narrow_by": 0.807,
+    "weekly_share_of_season_variance": 0.1224,
+    "predicted_weekly_overstatement": 2.31,
+    "observed_weekly_overstatement": 2.16
+   }
+  }
  }
 }

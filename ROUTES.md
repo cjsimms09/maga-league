@@ -7,6 +7,20 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🧩 **THE TWO SPREAD FINDINGS ARE ONE MECHANISM, AND THE ARITHMETIC CLOSES. Week-to-week noise is only ~11% of season projection variance; `weekly_sd = season_sd / sqrt(games)` assumes 100%.** This supersedes my "weekly_sd is 2.2x too wide" note by explaining it — and it also says the SEASON figure is wrong in the OPPOSITE direction.
+  **THE MEASUREMENT.** Weekly noise as a share of season projection variance: **QB 8.5% · RB 8.5% · WR 12.2% · TE 12.6%** (median 10.9% over 129 draftable players). The other ~89% is season-level — role, injury, team, usage — and none of it scales as sqrt(games).
+  **TWO ERRORS COMPOSE, IN OPPOSITE DIRECTIONS:**
+  | pos | board `var` | measured | season too NARROW by | weekly share | **predicted** weekly overstatement | **observed** |
+  |---|---|---|---|---|---|---|
+  | QB | 0.220 | 0.432 | 0.51x | 8.5% | **1.74x** | 1.89x |
+  | RB | 0.388 | 0.615 | 0.63x | 8.5% | **2.17x** | 2.41x |
+  | TE | 0.382 | 0.469 | 0.81x | 12.6% | **2.29x** | 2.31x |
+  | WR | 0.333 | 0.412 | 0.81x | 12.2% | **2.31x** | 2.16x |
+  **THE PREDICTION MATCHES THE OBSERVATION AT ALL FOUR POSITIONS WITHIN 8%, and that is what makes it one account rather than two coincidences.** The board is **too CONFIDENT about the season** (its `var` is half to four-fifths of measured projection error) and **too UNCERTAIN about the week** (~2.2x the realized volatility), and both fall out of the same line: `projections.py:244` divides a season-total uncertainty by sqrt(games) as though every bit of it were independent weekly noise, when a tenth of it is.
+  **⚠ SO NEITHER IS A SCALING ERROR AND NO CONSTANT FIXES IT.** Multiplying `weekly_sd` by 0.45 would leave a season figure that is still too narrow; widening `var` would make the weekly figure worse. The season and weekly quantities need to be derived independently, because measurement says they are ~89% independent.
+  **✅ AND THE REPLACEMENT FOR THE SEASON HALF IS ALREADY IN THE REPO, WRITTEN AND UNWIRED.** `projection_error.proj_sd_for` applies a **measured** per-(position, rank-band) `sd_ratio` from `projection_error_calibration.json` — **1,304 graded players, 20 measured cells** — and **nothing calls it.** That is my lane's rule-14 gap and it is the thing that would move this. It is not a drop-in: **8 of the 146 draftable sit on bands it calls `unmeasurable`, and it returns None there by design rather than a fallback constant** (its own docstring: *"a fallback is exactly how 0.25 * proj_mean reached the board"*). **What to do for those 8 is a decision, and it is yours.**
+  **⚠ I ALSO NEARLY ROUTED THIS AS A DEFECT IN `proj_sd_for` ITSELF.** Reading the calibration with `json.load` returns string keys `"QB|17-32"` while `_cell` looks up the tuple `("QB", "17-32")`, so every player came back `unmeasurable` — 145 of 146, which is what made me look. **The module is right: `projection_error.load()` splits the keys back, and I had bypassed it.** Reading what actually calls it is the only reason that is a note here rather than a false alarm in your inbox.
+  **⚠ AND THE CALIBRATION UNDERSTATES ITSELF.** Its own header declares it optimistic — players with no weekly rows at all are excluded, so every band is fitted on players who reached the field. **Measured season spread is if anything wider, which makes the board's too-narrow season figure worse, not better.**
 - [ ] 2026-08-14 · C · 🎯 **THE POSITIONAL CONSTANT IS FURTHEST FROM THE PLAYER FOR THESE FOURTEEN — the actionable form of the availability finding, and the closest thing in it to a draft-day list.** Draftable, two or more seasons of history, ranked by how far a player's OWN record sits from the constant the board gives him. In `nflverse_durability.json` under `where_the_constant_is_furthest_from_the_player`.
   | player | pos | adp | realized | board | gap | by season |
   |---|---|---|---|---|---|---|
