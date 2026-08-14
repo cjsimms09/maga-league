@@ -59,6 +59,63 @@ def _def_position(pid):
     return "DEF" if pid and not str(pid).isdigit() else None
 
 
+def positions_for_history(board=None, root=None) -> dict:
+    """Who played WHICH POSITION, for a measurement about SEASONS THAT ARE OVER.
+
+    ⚠ NOT THE LIVE BOARD. This shelf is computed from 2023-2025 acquisitions, and
+    the only position source was `{p["player_id"]: p["position"] for p in board}` —
+    the 2026 board. A man added off the wire in 2023 who has since retired is not
+    on it, so he fails the join, lands in `unpositioned`, and drops out of a sample
+    ABOUT 2023. The denominator shrinks and nothing goes red: it reads as a smaller
+    league rather than as a bug.
+
+    THIS IS THE SAME DEFECT A FIXED AT THE ROOT FOR `wire_level.js` (72fb098, whose
+    message ends "and one for C" — this is that instance). The remedy is theirs:
+    `draft/data/player_positions.json`, written from the board BEFORE any filter and
+    MERGED rather than overwritten, because a historical record may only grow.
+
+    MEASURED, on the real history and the real stores, with the inactive prune
+    simulated (1841 rows -> 683):
+
+        live board  full 6.30 TE / 13.30 WR / 5.32 RB / 20.88 QB
+        live board  PRUNED 3.20 TE / 13.57 WR / 6.45 RB / 20.88 QB   <- moves
+        this reader BOTH   6.30 TE / 13.30 WR / 5.32 RB / 20.88 QB   <- identical
+
+    TE would have HALVED. It is one of the two positions A already flags as resting
+    on a single thin cell, and the WIRE constants are hand-copied into four tools —
+    so a 49% move in it travels straight to the draft card.
+
+    THE LIVE BOARD IS OVERLAID ON TOP, not ignored: a position CORRECTION (a player
+    who has changed position since) should reach the measurement. Only the
+    DISAPPEARANCE of a row must not.
+
+    Today the record and the board hold the same 1,841 ids, so this changes nothing
+    — which is the point. It is written before the prune so that it is already true
+    on the day the board first shrinks, rather than being the thing someone has to
+    remember afterwards.
+    """
+    import json
+    from pathlib import Path
+    base = Path(root) if root else Path(__file__).resolve().parent.parent
+    out = {}
+    rec = base / "data" / "player_positions.json"
+    if rec.exists():
+        try:
+            out.update({str(k): v for k, v in
+                        (json.loads(rec.read_text()).get("positions") or {}).items()
+                        if v})
+        except (ValueError, OSError):
+            # A record we cannot read is not a record of nothing — but it is also
+            # not a reason to refuse. The live board below still answers, which is
+            # exactly the behaviour before this existed.
+            pass
+    for p in (board or []):
+        pid, pos = p.get("player_id"), p.get("position")
+        if pid and pos:
+            out[str(pid)] = pos
+    return out
+
+
 def _ceil_idx(q, n):
     """Index of the nearest-rank q-quantile in a sorted list of length n."""
     import math
