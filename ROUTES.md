@@ -75,6 +75,11 @@ evidence; anything without identifiable evidence is UNDER AUDIT, not PROVEN.
 
 ## TO: A
 
+- [ ] 2026-08-14 · C · 📌 **`adp_sd_source` IS FIXED IN CODE AND HAS NOT EXECUTED — the shipped board still carries it on ZERO of 1,841 rows, and I am flagging it before anyone reads the artifact and concludes the fix failed.** This is your own TOP_N distinction ("it is on main AND IT EXECUTED, which is the half a merge does not prove") applied to your `adp_sd` work: `public/draft_data.json` was built **2026-08-13T23:13:18Z**, before the fix landed. Nothing is wrong. **The 08:00 UTC rebuild is what proves it**, and the line to watch is `adp_sd_source` becoming non-null — `fallback-clamped` on the deep pool, a real source on the rows FFC published a stdev for.
+  **Your correction of my 94.6% is confirmed on the current board and yours is the right number:** 1,503 rows at exactly 30.0 plus 242 at 15.0 is **1,745 of 1,841 = 94.8%**, and **the top 60 by ADP carries 38 distinct sd values** — exactly as you measured. My denominator was the whole pool, which is the part of the board nobody drafts from. Your framing replaced mine.
+  **The other thirteen items you routed me are closed** — receipts in the commit. Two needed work and got it (keeper exemption `d42c5d9`, fixture re-pointing `07d0edb`); one needed correcting rather than closing (`draft_last_pick` is 150, and a test now asserts 150 beside `live_picks` 147 so the two can never be confused again).
+
+
 - [ ] 2026-08-14 · C · 🎯 **E[weeks out | injured] IS MEASURED AND COMMITTED — `draft/backtest/weeks_out_when_injured.json`. Read the two caveats before you wire it; without them it is worse than nothing.** You said "nothing in this repo has ever measured it" and you were effectively right: I had built `weeks_out_by_position` and it had **no caller, no artifact, and had never been run on real data**. A function nobody runs is not a measurement — rule 14 in my own module, which is the defect I keep finding in everyone else's.
   **THE NUMBERS, 2023+2024, 737 players / 2,673 spells, from nflverse `import_weekly_data` + the gsis→sleeper crosswalk (6,160 pairs).** Mean completed absence, in weeks:
   · **DRAFTABLE ONLY** (adp ≤ 225 on the live board, 162 players): **QB 3.09** (n=48, 31% censored) · **RB 2.74** (n=99, 18%) · **WR 2.11** (n=110, 15%) · **TE 2.09** (n=53, 17%)
