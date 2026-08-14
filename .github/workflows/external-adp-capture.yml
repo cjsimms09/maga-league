@@ -781,6 +781,115 @@ jobs:
                   fh.close()
           MARG
 
+      # WHICH PLAYERS THE SOURCES ARE ARGUING ABOUT — the aggregate Cory asked
+      # for ("We need an aggregate!! The more data aggregated the better the info.
+      # But needs to be done methodically and accurately"), finally reaching a
+      # surface somebody reads.
+      #
+      # ⚠ IT AGGREGATES WITHIN-POSITION ORDER, NOT PICK NUMBERS, and that is the
+      # whole design rather than a detail. Measured on 314 shared players: the
+      # median MFL/FantasyPros ADP ratio is 0.494 at QB against 1.388 at RB —
+      # one mechanism, not four, because MFL's pool includes superflex leagues.
+      # But compared on ORDER WITHIN A POSITION the same two sources agree at
+      # rho 0.98/0.97/0.96/0.94. Format moves WHERE a position sits; it barely
+      # touches WHO IS BETTER THAN WHOM inside it, and that is the only space in
+      # which averaging these sources is defensible.
+      #
+      # ⚠ AND AN EMPTY DISAGREEMENT TABLE IS AMBIGUOUS ON ITS OWN — it means "the
+      # sources agree" or "there was only one of them", which are opposite. The
+      # corroborated counts are printed beside it for exactly that reason, and
+      # `latest_consensus` refuses to aggregate a lone source at all.
+      #
+      # `consensus_order` was built, tested thirteen ways, and called by NOTHING
+      # until this step existed. Rule 14, found by sweeping this lane for
+      # functions with no production caller.
+      - name: Which players the two sources are arguing about
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'CONS' >> "$GITHUB_STEP_SUMMARY"
+          import json, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Multi-source consensus — within-position order")
+          try:
+              import external_adp_consensus as CN
+              import external_source_capture as SC
+              positions = json.load(
+                  open("draft/data/player_positions.json"))["positions"]
+              r = CN.latest_consensus(SC.load(), positions,
+                                      "${{ github.event.inputs.year || '2026' }}")
+              if r["status"] != "measured":
+                  # NOT CHECKED IS NOT CLEAN (rule 13f).
+                  print("**UNMEASURED** — %s" % r.get("note"))
+              else:
+                  print("`%s`, sources `%s`.%s"
+                        % (r["day"], "` + `".join(r["sources"]),
+                           (" %d earlier day(s) held one source only."
+                            % r["single_source_days"])
+                           if r["single_source_days"] else ""))
+                  print("")
+                  print("| pos | ranked | corroborated | single-source | median disagreement |")
+                  print("|---|---|---|---|---|")
+                  for pos, c in sorted(r["coverage"].items()):
+                      print("| %s | %d | %d | %d | %s |"
+                            % (pos, c["players"], c["corroborated"],
+                               c["single_source"],
+                               "—" if c["median_disagreement"] is None
+                               else "%.3f" % c["median_disagreement"]))
+                  # NAMES, NOT SLEEPER IDS. A table of bare ids is a mechanism
+                  # nobody can act on at 8am — the board already holds the decode
+                  # key and a missing one says so rather than printing a blank.
+                  names, prices, dropped = {}, {}, None
+                  try:
+                      board = json.load(open("public/draft_data.json"))
+                      names = {str(p.get("player_id")): p.get("name")
+                               for p in (board.get("players") or [])}
+                      prices = {str(p.get("player_id")): p.get("adp")
+                                for p in (board.get("players") or [])}
+                  except Exception as e:              # noqa: BLE001
+                      print("")
+                      print("_(board unreadable — %s — showing ids, and NOT scoped "
+                            "to the draft range)_" % type(e).__name__)
+                  dis = r["disagreements"]
+                  # SCOPED TO WHAT WE CAN DRAFT, and counted rather than silent.
+                  # Unscoped, this table led with TE39 and TE40 on the real board.
+                  # The price gates RELEVANCE only — it never touches the rank.
+                  if prices:
+                      dis, dropped = CN.in_draft_range(dis, prices, limit=150)
+                  print("")
+                  if dropped:
+                      print("_%d argument(s) hidden: the board prices those players "
+                            "outside pick 150, or not at all._" % dropped)
+                      print("")
+                  if not dis:
+                      print("**No disagreement to report.** Read that against the "
+                            "corroborated counts above: with players corroborated "
+                            "it means the sources agree; with none, nothing was "
+                            "compared.")
+                  else:
+                      print("| player | pos | consensus | ranks by source | spread |")
+                      print("|---|---|---|---|---|")
+                      for d in dis[:20]:
+                          pid = d["player_id"]
+                          print("| %s | %s | %d | %s | %.3f |"
+                                % (names.get(pid) or ("`%s` (unknown id)" % pid),
+                                   d["position"], d["consensus_rank"],
+                                   ", ".join("%s %s" % (k, v) for k, v in
+                                             sorted(d["ranks"].items())),
+                                   d["disagreement"]))
+                      print("")
+                      print("Spread is the gap between the sources' own "
+                            "within-position placements on a shared scale. The "
+                            "consensus rank is the MEDIAN of ranks, never the "
+                            "mean: two sources at RB4 and one at RB19 should "
+                            "return RB4 and report the argument, not RB9 — a rank "
+                            "no source holds and no reader can defend.")
+          except Exception as e:                      # noqa: BLE001
+              print("**THE CONSENSUS DID NOT RUN** (%s: %s) — not a clean result; "
+                    "nothing was aggregated." % (type(e).__name__, e))
+          CONS
+
       # A GREEN RUN'S STEP SUMMARY IS READ BY NOBODY, which is the whole reason
       # the standing check escalates by failing. Losing a day of a perishable
       # curve deserves the same channel — but only ONCE, on the run that can

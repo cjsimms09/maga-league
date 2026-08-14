@@ -398,3 +398,106 @@ def coverage(order: dict) -> dict:
                         round(median([r["disagreement"] for r in multi]), 4)
                         if multi else None)}
     return out
+
+
+#: Below this many sources on one day there is no consensus to compute. Not a
+#: tunable: two is the smallest number that can disagree, and one source wearing
+#: the word "consensus" is the failure this module's docstring opens with.
+MIN_SOURCES = 2
+
+
+def latest_consensus(series: list, positions: dict, year, weights: dict = None) -> dict:
+    """The most recent day TWO SOURCES BOTH REACHED, aggregated. -> the report.
+
+    THIS FUNCTION EXISTS BECAUSE THE AGGREGATE HAD NO CALLER. `consensus_order`
+    was built, tested thirteen ways and wired to nothing — found by sweeping this
+    lane for functions with no production consumer, which is the same rule-14 gap
+    that left `marginal_adp` inert this morning. Correct code connected to nothing
+    looks exactly like correct code that is working, and this repo has now paid
+    for that four times.
+
+    ⚠ CHOOSING THE DAY IS NOT A DETAIL, and getting it wrong fails in the
+    reassuring direction. The per-source archive holds one row per (source, day);
+    both sources are captured in one run but `apply_results` records them
+    INDEPENDENTLY, so a morning where FantasyPros 404s leaves an FFC-only day at
+    the end of the archive. `consensus_order` will aggregate that single source
+    quite happily — every row comes back `ranking_sources: 1` and `disagreements`
+    returns an EMPTY LIST. An empty disagreement table reads as "the sources
+    agree". It would actually mean one of them was gone.
+
+    So the day is chosen as the latest with at least MIN_SOURCES, and a run with
+    no such day is UNMEASURED with the lonely days counted rather than silently
+    aggregating whatever was there.
+
+    AND `coverage` TRAVELS WITH IT for the same reason: beside a corroborated
+    count, an empty disagreement list is unambiguous — 4 of 4 corroborated and
+    nothing to report means they agree, 0 of 4 means nothing was compared.
+    """
+    by_day: dict = {}
+    for s in (series or []):
+        if str(s.get("year")) != str(year):
+            continue
+        rows = {k: v for k, v in (s.get("rows") or {}).items() if v is not None}
+        if not rows:
+            continue
+        by_day.setdefault(str(s.get("observed_at")), {})[str(s.get("source"))] = rows
+
+    usable = sorted(d for d, srcs in by_day.items() if len(srcs) >= MIN_SOURCES)
+    if not usable:
+        lonely = len(by_day)
+        return {"status": "unmeasured", "day": None, "sources": [],
+                "single_source_days": lonely, "order": {}, "coverage": {},
+                "disagreements": [],
+                "note": "no day in %s carries %d sources — %d day(s) hold one "
+                        "source only. Aggregating one source would return a full "
+                        "consensus order with an EMPTY disagreement table, which "
+                        "reads as the sources agreeing rather than as one of them "
+                        "being absent." % (year, MIN_SOURCES, lonely)}
+
+    day = usable[-1]
+    srcs = by_day[day]
+    order = consensus_order(srcs, positions, weights=weights)
+    return {"status": "measured", "day": day, "sources": sorted(srcs),
+            "single_source_days": len(by_day) - len(usable),
+            "order": order,
+            "coverage": coverage(order),
+            "disagreements": disagreements(order),
+            "note": None}
+
+
+def in_draft_range(rows: list, board_adp: dict, limit: int = 150):
+    """Keep only the arguments about players our draft can actually reach.
+
+    -> (kept, dropped_count).
+
+    FOUND BY REHEARSING THE REPORT, not by reasoning about it. Against the real
+    board the disagreement table led with TE39 and TE40 — a 10x15 draft takes
+    about a dozen tight ends, so the two players the sources argued about hardest
+    were two nobody can draft. `disagreements` is right to be general: it ranks by
+    how far apart the sources are, and depth is not its business.
+
+    ⚠ THE BOARD PRICE IS USED ONLY TO ASK "CAN HE BE DRAFTED", NEVER TO ORDER
+    ANYTHING, and that distinction is this whole module. Pick numbers are
+    contaminated across formats and within-position order is not — so a price may
+    gate a row's RELEVANCE and must never touch its RANK. Applying it to the
+    REPORT rather than to the aggregate is what keeps that true: the consensus
+    order is unchanged and only the printed table is scoped.
+
+    AN UNPRICED PLAYER IS DROPPED, NOT KEPT. "The board has no price for him" is
+    not evidence that he is reachable, and treating absence as inclusion puts
+    every deep unpriced player back at the top of the table — the same report with
+    an extra step. The count says how many went, so this is a scope, not a
+    silence.
+    """
+    kept, dropped = [], 0
+    for r in rows or []:
+        a = (board_adp or {}).get(str(r.get("player_id")))
+        try:
+            reachable = a is not None and float(a) <= float(limit)
+        except (TypeError, ValueError):
+            reachable = False
+        if reachable:
+            kept.append(r)
+        else:
+            dropped += 1
+    return kept, dropped

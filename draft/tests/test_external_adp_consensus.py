@@ -316,3 +316,140 @@ def test_THE_LIVE_PICK_SCALE_IS_THE_ANCHORS_and_the_superflex_QBs_do_not_leak():
     assert placed == anchor_qb[:len(placed)], (
         "the QB pick scale is not the anchor's: first five %s vs anchor %s"
         % (placed[:5], anchor_qb[:5]))
+
+
+# ── AND SOMETHING HAS TO CHOOSE THE DAY ──────────────────────────────────────
+#
+# `consensus_order` was built, tested thirteen ways, and called by NOTHING. Found
+# by sweeping my own lane for functions with no production caller — the same
+# rule-14 gap that had `marginal_adp` sitting inert this morning, and the failure
+# class this repo has already paid for four times: correct code wired to nothing
+# looks exactly like correct code that is working.
+#
+# The step between the archive and the aggregate is CHOOSING WHICH DAY, and it is
+# not a detail. The per-source archive holds one row per (source, day), the
+# sources are captured in one run but fail independently, and `consensus_order`
+# will happily aggregate a single source — returning `ranking_sources: 1` on every
+# row and an EMPTY disagreement list. An empty disagreement list means "the
+# sources agree" or "there was only one of them", and those are opposite readings
+# of the same blank table.
+
+def _row(source, day, rows, year="2026"):
+    return {"source": source, "year": year, "observed_at": day,
+            "rows": {str(k): float(v) for k, v in rows.items()}}
+
+
+_POS = {"1": "RB", "2": "RB", "3": "RB", "4": "WR", "5": "WR", "6": "WR"}
+
+
+def test_IT_PICKS_THE_LATEST_DAY_TWO_SOURCES_BOTH_REACHED():
+    """08-15 has FFC only — the FantasyPros fetch failed that morning, which is
+    exactly what `apply_results` records by writing nothing for it.
+
+    MUTATION: take the most recent day — 08-15 wins, every row comes back
+    `ranking_sources: 1`, and the disagreement table is empty. A reader sees a
+    consensus with nothing to argue about on the morning one source went dark."""
+    ser = [_row("ffc", "2026-08-14", {"1": 10, "2": 20, "4": 30, "5": 40}),
+           _row("fantasypros", "2026-08-14", {"1": 12, "2": 18, "4": 33, "5": 36}),
+           _row("ffc", "2026-08-15", {"1": 11, "2": 21, "4": 31, "5": 41})]
+    r = X.latest_consensus(ser, _POS, "2026")
+    assert r["status"] == "measured", r
+    assert r["day"] == "2026-08-14"
+    assert sorted(r["sources"]) == ["fantasypros", "ffc"]
+
+
+def test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR():
+    """MUTATION: drop the year filter — a 2025 question is answered with 2026's
+    board, because the archive sorts newest last and 2026 rows are always newest.
+    Two seasons aggregated as one is not a consensus about either."""
+    ser = [_row("ffc", "2025-08-20", {"1": 10, "2": 20}, year="2025"),
+           _row("fantasypros", "2025-08-20", {"1": 12, "2": 18}, year="2025"),
+           _row("ffc", "2026-08-14", {"1": 11, "2": 21}),
+           _row("fantasypros", "2026-08-14", {"1": 13, "2": 19})]
+    r = X.latest_consensus(ser, _POS, "2025")
+    assert r["day"] == "2025-08-20", r
+
+
+def test_NO_DAY_WITH_TWO_SOURCES_IS_UNMEASURED_and_counts_the_lonely_days():
+    """Before tonight's capture the per-source archive is EMPTY, and the first
+    days after it may well carry one source while the other's fetch settles.
+
+    MUTATION: aggregate the single source anyway — the report shows a full
+    consensus order with an empty disagreement table, which is the most
+    reassuring possible rendering of a source going dark."""
+    ser = [_row("ffc", "2026-08-14", {"1": 10, "2": 20}),
+           _row("ffc", "2026-08-15", {"1": 11, "2": 21})]
+    r = X.latest_consensus(ser, _POS, "2026")
+    assert r["status"] == "unmeasured"
+    assert r["single_source_days"] == 2
+    assert "one source" in r["note"] or "1 source" in r["note"]
+
+
+def test_THE_REPORT_CARRIES_CORROBORATION_so_an_empty_table_is_readable():
+    """`disagreements` returning [] is ambiguous on its own. Beside a
+    corroborated count it is not: 4 of 4 corroborated and no disagreements means
+    the sources agree; 0 of 4 corroborated means nobody was compared.
+
+    MUTATION: report only the disagreements — the one rendering where "they
+    agree" and "nothing was compared" look identical."""
+    ser = [_row("ffc", "2026-08-14", {"1": 10, "2": 20, "3": 30}),
+           _row("fantasypros", "2026-08-14", {"1": 12, "2": 18, "3": 33})]
+    r = X.latest_consensus(ser, _POS, "2026")
+    assert r["coverage"]["RB"]["corroborated"] == 3
+    assert r["coverage"]["RB"]["single_source"] == 0
+    # AND THE DISAGREEMENT IS REAL: the two sources swap RB1 and RB2.
+    ids = [d["player_id"] for d in r["disagreements"]]
+    assert "1" in ids and "2" in ids, r["disagreements"]
+
+
+def test_WITH_SEVERAL_QUALIFYING_DAYS_IT_TAKES_THE_LATEST():
+    """Written because `day = usable[0]` SURVIVED the gate. Every fixture above
+    had exactly one qualifying day, so first and last were the same row and the
+    claim in the function's name — the LATEST day two sources reached — was never
+    asserted at all. A survived mutation is a missing assertion, not a spare one.
+
+    It is not hypothetical either: the archive gains a day every morning, so
+    `usable[0]` would pin the report to the FIRST day ever captured and hold it
+    there for the rest of the season, growing more wrong and more stable-looking
+    every day.
+
+    MUTATION: `usable[0]` — the report answers with 08-13 for ever."""
+    ser = [_row("ffc", "2026-08-13", {"1": 10, "2": 20}),
+           _row("fantasypros", "2026-08-13", {"1": 12, "2": 18}),
+           _row("ffc", "2026-08-14", {"1": 11, "2": 21}),
+           _row("fantasypros", "2026-08-14", {"1": 13, "2": 19})]
+    r = X.latest_consensus(ser, _POS, "2026")
+    assert r["day"] == "2026-08-14", r
+
+
+def test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH():
+    """FOUND BY REHEARSING THE WORKFLOW STEP, exactly as the marginal day's
+    version of this was. Run against the real board, the disagreement table led
+    with TE39 and TE40 — a 10x15 draft takes about a dozen tight ends, so the two
+    players the sources argued about hardest were two nobody can draft.
+
+    `disagreements` is right to be general: it ranks by how far apart the sources
+    are, and depth is not its business. Reachability is a fact about OUR league,
+    so it is applied here, from the board's own prices, and it is applied to the
+    REPORT rather than to the aggregate — the consensus order is unchanged and
+    the excluded rows are counted, never silently dropped.
+
+    ⚠ THE BOARD PRICE IS USED ONLY TO ASK "CAN HE BE DRAFTED", NEVER TO ORDER
+    ANYTHING. That distinction is the whole module: pick numbers are contaminated
+    across formats and within-position order is not, so a price may gate a row's
+    RELEVANCE but must never touch its RANK.
+
+    MUTATION 1: drop the filter — the report leads with players outside the draft
+    every morning, and the rows that matter sit below them.
+    MUTATION 2: treat an unpriced player as reachable — every unpriced deep player
+    returns, which is the same table with an extra step."""
+    dis = [{"position": "TE", "player_id": "deep", "consensus_rank": 39,
+            "disagreement": 0.9, "ranks": {"a": 42, "b": 37}},
+           {"position": "RB", "player_id": "near", "consensus_rank": 13,
+            "disagreement": 0.4, "ranks": {"a": 11, "b": 16}},
+           {"position": "WR", "player_id": "nopriceatall", "consensus_rank": 20,
+            "disagreement": 0.5, "ranks": {"a": 18, "b": 22}}]
+    board = {"deep": 260.0, "near": 44.0, "nopriceatall": None}
+    kept, dropped = X.in_draft_range(dis, board, limit=150)
+    assert [d["player_id"] for d in kept] == ["near"]
+    assert dropped == 2

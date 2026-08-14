@@ -1239,6 +1239,55 @@
       "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    usable = sorted(d for d, srcs in by_day.items() if len(srcs) >= MIN_SOURCES)",
+     "new": "    usable = sorted(by_day)",
+     "must_fail": [
+      "test_IT_PICKS_THE_LATEST_DAY_TWO_SOURCES_BOTH_REACHED",
+      "test_NO_DAY_WITH_TWO_SOURCES_IS_UNMEASURED_and_counts_the_lonely_days"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(s.get(\"year\")) != str(year):\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_IT_STAYS_INSIDE_THE_YEAR_IT_WAS_ASKED_FOR"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            \"coverage\": coverage(order),",
+     "new": "            \"coverage\": {},",
+     "must_fail": [
+      "test_THE_REPORT_CARRIES_CORROBORATION_so_an_empty_table_is_readable"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    day = usable[-1]",
+     "new": "    day = usable[0]",
+     "must_fail": [
+      "test_WITH_SEVERAL_QUALIFYING_DAYS_IT_TAKES_THE_LATEST"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if reachable:\n            kept.append(r)",
+     "new": "        if True:\n            kept.append(r)",
+     "must_fail": [
+      "test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            reachable = a is not None and float(a) <= float(limit)",
+     "new": "            reachable = a is None or float(a) <= float(limit)",
+     "must_fail": [
+      "test_THE_ARGUMENT_IS_SCOPED_TO_PLAYERS_THE_DRAFT_CAN_REACH"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
