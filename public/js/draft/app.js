@@ -1129,22 +1129,95 @@
    *
    * Your seat is decided on the site (reverse standings, one at a time) and can
    * change right up to draft day — including after the nightly pipeline has
-   * already built a board. `pick_order.picks` is slot-independent: it is the
-   * true pick sequence after keeper forfeits, with each entry carrying the slot
-   * that owns it. Only `my_picks` is slot-specific, so re-deriving it is a
-   * filter, not a rebuild, and it stays exact under snake order and keeper
-   * forfeits alike because it reuses the sequence the pipeline already solved.
+   * already built a board. Only `my_picks` is slot-specific, so re-deriving it
+   * is a filter over `pick_order.picks` rather than a rebuild.
+   *
+   * ⚠️ `pick_order.picks` IS THE BOARD, NOT THE PICK SEQUENCE, AND THIS COMMENT
+   * USED TO SAY THE OPPOSITE.
+   *
+   * The text here read "`pick_order.picks` is ... the true pick sequence AFTER
+   * keeper forfeits ... it stays exact under snake order and keeper forfeits
+   * alike". Both halves are false, and the artifact says so in its own
+   * `numbering_note`, three fields away: "`picks` is the BOARD (depth: how many
+   * players leave the pool). `live_picks` is how many SELECTIONS happen."
+   *
+   * A keeper OCCUPIES his slot — the row stays, flagged `keeper_slot: true`, and
+   * nothing shifts up. So filtering `picks` by seat returns every pick the seat
+   * was SCHEDULED, forfeited ones included. Measured against the shipped
+   * artifact on 2026-08-14, seat 8:
+   *
+   *     pipeline my_picks   33,48,53,68,73,88,93,108,113,128,133,148   (12)
+   *     this filter         8,13,28,33,48,53,68,73,88,93,108,113,...   (15)
+   *
+   * 8, 13 and 28 are the rounds Derrick Henry, Ja'Marr Chase and Kenneth Walker
+   * were kept with. They are not picks Cory owns. The filter handed them back,
+   * disagreed with the baked list, and therefore OVERWROTE the correct answer
+   * with the wrong one on the normal load path.
+   *
+   * WHAT IT COST. `currentPick()` anchors the pre-draft board on `my_picks[0]`.
+   * That read 8 instead of 33 — every survival window computed TWENTY-FIVE
+   * SLOTS EARLY. Josh Allen surviving to my first pick measured 89.6% against a
+   * true 1.5%: the board was pricing a QB it had already lost as very likely to
+   * be there. The error runs the same direction for every player, so VONA
+   * understated scarcity across the whole board.
+   *
+   * THE SAME DEFECT THIS REPOSITORY KEEPS FINDING: one name (`picks`), two
+   * quantities (board depth / selections). `my_picks` versus
+   * `my_picks_before_keepers` is that pair given two honest names one field
+   * away — and this function reconstructed the second while calling it the
+   * first.
+   *
+   * Reported by B. B's line reference (1092) and figures (98% -> 61%) did not
+   * match; the mechanism and the missing predicate did, exactly, and the true
+   * error is larger than the report claimed. Recorded because the citation
+   * being wrong is not evidence the finding is.
    */
   function applySlot(data) {
     const slot = Number(data.league.my_draft_slot);
     const picks = (data.pick_order && data.pick_order.picks) || [];
     if (!slot || !picks.length) return;
 
-    const derived = picks.filter(p => Number(p.slot) === slot).map(p => p.overall);
+    /* `&& !p.keeper_slot` is the whole fix: a forfeited row is a pick the seat
+     * was scheduled and does not own. On the shipped artifact this reproduces
+     * the pipeline's list exactly, which is why the guard below can be strict. */
+    const derived = picks.filter(p => Number(p.slot) === slot && !p.keeper_slot)
+      .map(p => p.overall);
     if (!derived.length) {
       console.warn('draft slot ' + slot + ' owns no picks in this board');
       return;
     }
+
+    /* CONSERVATION, ACROSS TWO INDEPENDENT FIELDS — not over this filter's own
+     * input, which is the failure mode `_assert_accounting` was just fixed for.
+     * `kept_players` is a different part of the artifact than `pick_order`, so
+     * one being wrong does not make the other agree.
+     *
+     * This is also the arm that catches what the predicate alone cannot. If the
+     * SEAT MOVED after the build, the `keeper_slot` flags still sit on the old
+     * seat's rows, so filtering the new seat drops nothing and returns a full
+     * 15 — my three keepers silently un-forfeited. A filter cannot re-seat a
+     * keeper; only `DraftKeepers.buildTruePickOrder` can (see changeSlot). So
+     * this REFUSES and keeps the pipeline's value rather than shipping a board
+     * that thinks I own three picks I do not. */
+    const teams = Number((data.league || {}).teams) || 0;
+    const myKeepers = ((data.kept_players || []).length);
+    const rounds = teams ? picks.length / teams : 0;
+    if (rounds && Number.isInteger(rounds)) {
+      const expected = rounds - myKeepers;
+      if (derived.length !== expected) {
+        state.slotRecomputeRefused = {
+          slot: slot, got: derived.length, expected: expected,
+          rounds: rounds, myKeepers: myKeepers,
+          why: 'seat ' + slot + ' derives ' + derived.length + ' picks but '
+             + rounds + ' rounds minus ' + myKeepers + ' keeper(s) is ' + expected
+             + '. A slot filter cannot move keeper forfeits to a new seat. '
+             + 'KEEPING the pipeline pick list; re-run the pipeline for this seat.',
+        };
+        console.warn('applySlot REFUSED: ' + state.slotRecomputeRefused.why);
+        return;
+      }
+    }
+
     const baked = (data.pick_order.my_picks || []).join(',');
     if (derived.join(',') === baked) return;   // slot unchanged; nothing to do
 
