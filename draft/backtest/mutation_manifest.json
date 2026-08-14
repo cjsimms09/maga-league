@@ -2076,6 +2076,53 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/nflverse_release.py": {
+   "tests": [
+    "draft/tests/test_nflverse_release.py"
+   ],
+   "mutations": [
+    {
+     "old": "    \"weekly_stats\":   (\"stats_player\",   \"stats_player_week_%d.parquet\", True),",
+     "new": "    \"weekly_stats\":   (\"player_stats\",   \"stats_player_week_%d.parquet\", True),",
+     "must_fail": [
+      "test_THE_WEEKLY_STATS_RELEASE_IS_stats_player_not_player_stats"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if kind not in RELEASES:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_AN_UNKNOWN_KIND_IS_REFUSED_BY_NAME_rather_than_guessed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not needs_season and season is not None:\n        raise ValueError(",
+     "new": "    if False:\n        raise ValueError(",
+     "must_fail": [
+      "test_A_SEASONLESS_ASSET_REFUSES_A_SEASON_and_vice_versa"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "PLAYER_IDS_URL = (\"https://raw.githubusercontent.com/dynastyprocess/data/master/\"",
+     "new": "PLAYER_IDS_URL = (\"https://github.com/dynastyprocess/data/raw/master/\"",
+     "must_fail": [
+      "test_THE_ID_CROSSWALK_IS_ON_RAW_GITHUBUSERCONTENT_not_github_com"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if int(status) == 403:\n        return (\"nflverse returned 403 for %s",
+     "new": "    if False:\n        return (\"nflverse returned 403 for %s",
+     "must_fail": [
+      "test_A_404_IS_REPORTED_AS_THE_ASSET_WE_ASKED_FOR_not_as_missing_data"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
