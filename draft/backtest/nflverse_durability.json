@@ -1980,5 +1980,361 @@
     "clean_season_pct": 41.7
    }
   }
+ },
+ "where_the_constant_is_furthest_from_the_player": {
+  "_what": "Draftable players with >=2 seasons of history, ranked by how far their OWN realized availability sits from the single positional constant the board assigns them.",
+  "_how_to_read_it": "THIS IS HISTORY, NOT A FORECAST, and the difference matters. It does not say these players will miss games in 2026; it says the board currently assumes they will play the positional average and their own record says otherwise. That is an argument for a PER-PLAYER prior, not for fading these names. Two-season players regress hardest \u2014 Nabers is 14 then 4, which is one injured season out of two, and a mean of 9.0 carries almost no information about a third.",
+  "_min_seasons": 2,
+  "n": 114,
+  "most_optimistic": [
+   {
+    "name": "J.K. Dobbins",
+    "pos": "RB",
+    "adp": 89.33,
+    "seasons": 3,
+    "realized": 7.67,
+    "board": 14.2,
+    "gap": -6.53,
+    "by_season": {
+     "2023": 1,
+     "2024": 12,
+     "2025": 10
+    }
+   },
+   {
+    "name": "Kyler Murray",
+    "pos": "QB",
+    "adp": 134.67,
+    "seasons": 3,
+    "realized": 9.33,
+    "board": 15.5,
+    "gap": -6.17,
+    "by_season": {
+     "2023": 7,
+     "2024": 16,
+     "2025": 5
+    }
+   },
+   {
+    "name": "Malik Nabers",
+    "pos": "WR",
+    "adp": 32.0,
+    "seasons": 2,
+    "realized": 9.0,
+    "board": 15.0,
+    "gap": -6.0,
+    "by_season": {
+     "2024": 14,
+     "2025": 4
+    }
+   },
+   {
+    "name": "Rashee Rice",
+    "pos": "WR",
+    "adp": 30.0,
+    "seasons": 3,
+    "realized": 9.33,
+    "board": 15.0,
+    "gap": -5.67,
+    "by_season": {
+     "2023": 16,
+     "2024": 4,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Ricky Pearsall",
+    "pos": "WR",
+    "adp": 112.0,
+    "seasons": 2,
+    "realized": 9.5,
+    "board": 15.0,
+    "gap": -5.5,
+    "by_season": {
+     "2024": 10,
+     "2025": 9
+    }
+   },
+   {
+    "name": "Chris Godwin",
+    "pos": "WR",
+    "adp": 92.0,
+    "seasons": 3,
+    "realized": 10.33,
+    "board": 15.0,
+    "gap": -4.67,
+    "by_season": {
+     "2023": 16,
+     "2024": 7,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Joe Burrow",
+    "pos": "QB",
+    "adp": 51.67,
+    "seasons": 3,
+    "realized": 11.0,
+    "board": 15.5,
+    "gap": -4.5,
+    "by_season": {
+     "2023": 10,
+     "2024": 16,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Christian Watson",
+    "pos": "WR",
+    "adp": 67.0,
+    "seasons": 3,
+    "realized": 11.0,
+    "board": 15.0,
+    "gap": -4.0,
+    "by_season": {
+     "2023": 9,
+     "2024": 14,
+     "2025": 10
+    }
+   },
+   {
+    "name": "Jayden Daniels",
+    "pos": "QB",
+    "adp": 59.33,
+    "seasons": 2,
+    "realized": 11.5,
+    "board": 15.5,
+    "gap": -4.0,
+    "by_season": {
+     "2024": 16,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Mike Evans",
+    "pos": "WR",
+    "adp": 61.67,
+    "seasons": 3,
+    "realized": 12.0,
+    "board": 15.0,
+    "gap": -3.0,
+    "by_season": {
+     "2023": 16,
+     "2024": 13,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Ka'imi Fairbairn",
+    "pos": "K",
+    "adp": 146.0,
+    "seasons": 3,
+    "realized": 13.67,
+    "board": 16.5,
+    "gap": -2.83,
+    "by_season": {
+     "2023": 11,
+     "2024": 16,
+     "2025": 14
+    }
+   },
+   {
+    "name": "Tee Higgins",
+    "pos": "WR",
+    "adp": 39.33,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 12,
+     "2024": 11,
+     "2025": 14
+    }
+   },
+   {
+    "name": "Jayden Reed",
+    "pos": "WR",
+    "adp": 114.33,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 15,
+     "2024": 16,
+     "2025": 6
+    }
+   },
+   {
+    "name": "Rashid Shaheed",
+    "pos": "WR",
+    "adp": 147.0,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 14,
+     "2024": 6,
+     "2025": 17
+    }
+   },
+   {
+    "name": "Brock Purdy",
+    "pos": "QB",
+    "adp": 107.0,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.5,
+    "gap": -2.5,
+    "by_season": {
+     "2023": 16,
+     "2024": 15,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Dallas Goedert",
+    "pos": "TE",
+    "adp": 120.67,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 14.8,
+    "gap": -2.47,
+    "by_season": {
+     "2023": 13,
+     "2024": 9,
+     "2025": 15
+    }
+   },
+   {
+    "name": "Christian McCaffrey",
+    "pos": "RB",
+    "adp": 5.0,
+    "seasons": 3,
+    "realized": 12.0,
+    "board": 14.2,
+    "gap": -2.2,
+    "by_season": {
+     "2023": 16,
+     "2024": 4,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Dak Prescott",
+    "pos": "QB",
+    "adp": 81.67,
+    "seasons": 3,
+    "realized": 13.33,
+    "board": 15.5,
+    "gap": -2.17,
+    "by_season": {
+     "2023": 16,
+     "2024": 8,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Chris Olave",
+    "pos": "WR",
+    "adp": 28.67,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.0,
+    "gap": -2.0,
+    "by_season": {
+     "2023": 15,
+     "2024": 8,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Garrett Wilson",
+    "pos": "WR",
+    "adp": 44.33,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.0,
+    "gap": -2.0,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 7
+    }
+   }
+  ],
+  "understated": [
+   {
+    "name": "Kenny Gainwell",
+    "pos": "RB",
+    "adp": 107.67,
+    "seasons": 3,
+    "realized": 15.67,
+    "board": 14.2,
+    "gap": 1.47,
+    "by_season": {
+     "2023": 15,
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Rachaad White",
+    "pos": "RB",
+    "adp": 111.33,
+    "seasons": 3,
+    "realized": 15.67,
+    "board": 14.2,
+    "gap": 1.47,
+    "by_season": {
+     "2023": 16,
+     "2024": 15,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Bijan Robinson",
+    "pos": "RB",
+    "adp": 2.0,
+    "seasons": 3,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Blake Corum",
+    "pos": "RB",
+    "adp": 93.33,
+    "seasons": 2,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Tyler Allgeier",
+    "pos": "RB",
+    "adp": 144.0,
+    "seasons": 3,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 16
+    }
+   }
+  ]
  }
 }

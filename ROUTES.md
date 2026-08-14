@@ -7,6 +7,23 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🎯 **THE POSITIONAL CONSTANT IS FURTHEST FROM THE PLAYER FOR THESE FOURTEEN — the actionable form of the availability finding, and the closest thing in it to a draft-day list.** Draftable, two or more seasons of history, ranked by how far a player's OWN record sits from the constant the board gives him. In `nflverse_durability.json` under `where_the_constant_is_furthest_from_the_player`.
+  | player | pos | adp | realized | board | gap | by season |
+  |---|---|---|---|---|---|---|
+  | J.K. Dobbins | RB | 89.3 | 7.67 | 14.2 | **−6.53** | 1 / 12 / 10 |
+  | Kyler Murray | QB | 134.7 | 9.33 | 15.5 | **−6.17** | 7 / 16 / 5 |
+  | Malik Nabers | WR | **32.0** | 9.00 | 15.0 | **−6.00** | 14 / 4 |
+  | Rashee Rice | WR | **30.0** | 9.33 | 15.0 | **−5.67** | 16 / 4 / 8 |
+  | Ricky Pearsall | WR | 112.0 | 9.50 | 15.0 | −5.50 | 10 / 9 |
+  | Chris Godwin | WR | 92.0 | 10.33 | 15.0 | −4.67 | 16 / 7 / 8 |
+  | Joe Burrow | QB | **51.7** | 11.00 | 15.5 | −4.50 | 10 / 16 / 7 |
+  | Christian Watson | WR | 67.0 | 11.00 | 15.0 | −4.00 | 9 / 14 / 10 |
+  | Jayden Daniels | QB | 59.3 | 11.50 | 15.5 | −4.00 | 16 / 7 |
+  | Mike Evans | WR | 61.7 | 12.00 | 15.0 | −3.00 | 16 / 13 / 7 |
+  **AND THE OTHER END, which matters just as much because the board UNDER-credits them:** **Bijan Robinson (adp 2.0) has played 16/16/16** against an RB constant of 14.2, as have **Blake Corum** and **Tyler Allgeier**. The board discounts every running back for fragility and these three have never missed a game.
+  **⚠ READ IT AS HISTORY, NOT AS A FORECAST, and I would push back on anyone who used it the other way.** It does not say Nabers will miss games in 2026. It says the board assumes he plays the WR average and his own record is 14 then 4 — **one injured season out of two, on which a mean of 9.0 carries almost no information about a third.** The two-season rows (Nabers, Pearsall, Daniels, Corum) regress hardest and I would weight them least. **The finding is that a single constant per position is the wrong SHAPE, not that these particular names are fragile.**
+  **THE FOUR I WOULD ACTUALLY LOOK AT ARE THE ONES PRICED EARLY WITH THREE SEASONS BEHIND THEM: Rashee Rice (adp 30, 16/4/8), Joe Burrow (51.7, 10/16/7), Mike Evans (61.7, 16/13/7) and Christian Watson (67, 9/14/10).** Three seasons is thin but it is a record rather than an anecdote, and all four are priced inside the first six rounds where the board's constant is doing real work on VORP.
+  **114 players compared; nothing wired.** `games_expected` remains one constant per position on the shipped board and `projections.py` is yours. The artifact carries every player's `games_by_season` so a per-player prior can be built from it rather than from this table.
 - [ ] 2026-08-14 · C · ✅ **CAVEAT 1 ON THE DURABILITY CARD IS NOW MOSTLY LIFTED, AND CAVEAT 3 IS GONE ENTIRELY.** I wrote both of them; this is me retiring them with measurements rather than leaving them to be worked around. They are the two that told you to distrust the numbers.
   **CAVEAT 3 — *"2025 IS ABSENT AND IT IS THE SEASON CLOSEST TO THE BOARD"* — WAS WRONG.** 2025 was published the whole time. `import_weekly_data` 404s because it asks for a release named `player_stats`; nflverse calls it **`stats_player`**. All three seasons are now in the artifact. The release names are pinned in `nflverse_release.py` with a test on the exact string and a `describe_failure` that reports the asset WE asked for, so a 404 can never again be read as a season that does not exist.
   **CAVEAT 1 — *"`missed` is WEEKS WITH NO PRODUCTION, not WEEKS INJURED; a healthy backup and an inactive one are indistinguishable"* — was true of the SOURCE, not of the question.** The weekly **roster** release carries a per-week `status`: `ACT` 82,106 · `DEV` 26,108 (practice squad) · `RES` 16,142 (IR) · `INA` 10,773 (gameday scratch). **A healthy backup who dresses is `ACT`, and the old method counted him ABSENT because he recorded nothing.** Today's numbers are built on `status == ACT`.
