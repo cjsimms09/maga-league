@@ -30,8 +30,27 @@ all of them at once:
    treatment).
 3. **Hierarchical priors** — blocked by design until the pooled/local split exists, and
    pointless without a pool.
-4. **A true survival calibration** — blocked outright: it needs each season's PRE-DRAFT ADP,
-   and `adp_series.json` starts 2026-08-09.
+4. **A true survival calibration** — still blocked, but **the reason written here was
+   wrong and Cory caught the shape of it (2026-08-14)**. "We have no historical ADP" is
+   FALSE: FFC serves `?year=`, MFL serves `TYPE=adp` per year (2023 `totalDrafts` 5011,
+   2024 4485), and FantasyPros' data API served 358 rows for 2023 — all three were
+   fetched successfully by `exp_source_grade`. What we lack is not historical ADP, it is
+   **PRE-DRAFT-DATED** historical ADP, and Route 1 measured that separately and closed it:
+   run 31551417577, **SATISFIES F5 = 0** across 18 registered targets, walk not truncated,
+   0–3 captures per target in the whole preseason window.
+
+   **AND THE DISTINCTION DECIDES WHICH TESTS ARE RUNNABLE, which is why it must not stay
+   collapsed into one sentence.** A year-scoped ADP is the ACCUMULATED season average and
+   contains drafts later than ours — D3 measures 844 drafts for a complete 2025 against 112
+   for 2026 in progress. For a RELATIVE test ("which source ordered our room's picks best")
+   that contamination inflates every source and the ordering can still be read; that test is
+   runnable today and the harness is built (`external_pick_prediction.py`). For SURVIVAL
+   CALIBRATION it is disqualifying, because survival is a statement about an ABSOLUTE pick
+   position — `normalCdf(currentPick, adp, adp_sd)` — and an ADP that already knows where
+   players went would make the calibration look good by construction.
+
+   So: blocked, on Route 1's measured zero rather than on a claim about our own archive, and
+   **`adp_series.json` starting 2026-08-09 is not the binding constraint.**
 
 ## THE DESIGN — forward-style grades, not a pile of backtest material
 
