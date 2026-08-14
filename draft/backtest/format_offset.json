@@ -1,0 +1,184 @@
+{
+ "_territory": "TERRITORY: C",
+ "_what": "Where the market drafts a position versus where OUR scoring values him. Positive = the market takes him LATER than our board says he is worth.",
+ "board_built_at": "2026-08-13T23:13:18Z",
+ "relevant_board": 225,
+ "our_format": {
+  "pass_td": 6.0,
+  "rec": 0.5,
+  "bonus_rec_te": null,
+  "teams": 10,
+  "qb_slots": 1
+ },
+ "market_format": {
+  "pass_td": 4.0,
+  "note": "FFC half-ppr, FantasyPros HALF and MFL are all 4-point-passing-TD markets. NO external ADP source matches our 6-point rule, so the QB gap cannot be removed by choosing a different source or by aggregating more of them."
+ },
+ "replacement_level": {
+  "QB": 341.72,
+  "RB": 188.88,
+  "WR": 173.17,
+  "TE": 151.77
+ },
+ "basis_vorp": {
+  "QB": {
+   "n": 33,
+   "median_offset": 2,
+   "mean_offset": 5.9,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": 1
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": 7
+    },
+    "rank_13_plus": {
+     "n": 21,
+     "median_offset": 2
+    }
+   }
+  },
+  "RB": {
+   "n": 66,
+   "median_offset": -16.0,
+   "mean_offset": -20.9,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": 0
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": -2
+    },
+    "rank_13_plus": {
+     "n": 54,
+     "median_offset": -21.5
+    }
+   }
+  },
+  "WR": {
+   "n": 79,
+   "median_offset": 7,
+   "mean_offset": 4.3,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": 0
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": 5
+    },
+    "rank_13_plus": {
+     "n": 67,
+     "median_offset": 9
+    }
+   }
+  },
+  "TE": {
+   "n": 30,
+   "median_offset": 25.0,
+   "mean_offset": 28.2,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": 10
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": 26
+    },
+    "rank_13_plus": {
+     "n": 18,
+     "median_offset": 37.0
+    }
+   }
+  }
+ },
+ "basis_raw_points": {
+  "QB": {
+   "n": 33,
+   "median_offset": 95,
+   "mean_offset": 85.0,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": 45
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": 63
+    },
+    "rank_13_plus": {
+     "n": 21,
+     "median_offset": 105
+    }
+   }
+  },
+  "RB": {
+   "n": 66,
+   "median_offset": -21.5,
+   "mean_offset": -24.5,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": -20
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": -23
+    },
+    "rank_13_plus": {
+     "n": 54,
+     "median_offset": -22.0
+    }
+   }
+  },
+  "WR": {
+   "n": 79,
+   "median_offset": -13,
+   "mean_offset": -12.0,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": -24
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": -22
+    },
+    "rank_13_plus": {
+     "n": 67,
+     "median_offset": -6
+    }
+   }
+  },
+  "TE": {
+   "n": 30,
+   "median_offset": -16.5,
+   "mean_offset": -7.9,
+   "by_tier": {
+    "top_5": {
+     "n": 5,
+     "median_offset": -36
+    },
+    "rank_6_12": {
+     "n": 7,
+     "median_offset": -19
+    },
+    "rank_13_plus": {
+     "n": 18,
+     "median_offset": 6.5
+    }
+   }
+  }
+ },
+ "caveats": [
+  "THE BASIS DECIDES THE ANSWER AND THE TWO DISAGREE ENORMOUSLY. On VORP \u2014 what the draft engine actually decides with \u2014 QB is +2. On raw projected points QB is +95, because on raw points every QB outscores every RB and ranking them together is not a comparison. Any rule built on 'the offset' has to name which.",
+  "A 6-POINT PASSING TD LIFTS THE STREAMABLE QB12 AS MUCH AS IT LIFTS JOSH ALLEN. It moves raw points and largely cancels in VORP, because your alternative to an elite QB is another QB. Measured: QB replacement 341.7 against a best of 405.5, so the whole elite-QB edge in this league is 63.8 points \u2014 the smallest of any position. A format difference only becomes a draft edge to the extent it widens the gap between a player and his REPLACEMENT.",
+  "THE TIER SPLIT IS WHERE THE REAL EDGE IS. QB top-5 offset is +1.0 \u2014 the market takes elite QBs almost exactly where our board values them. TE runs +10 at the top, +26 at 6-12 and +37 beyond, and TE has NO premium in our scoring (bonus_rec_te absent), so it is pure scarcity: TE replacement is 151.8, the lowest of any position."
+ ]
+}
