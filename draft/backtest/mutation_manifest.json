@@ -826,6 +826,14 @@
       "test_the_PREDICTED_slate_is_NOT_read_as_a_designation"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        if (_num(p.get(\"proj_mean\")) or 0) > 0:\n            continue                                  # somebody projects him",
+     "new": "        if False:\n            continue                                  # somebody projects him",
+     "must_fail": [
+      "test_PRUNING_A_BOARD_REMOVES_NOTHING_ACTIONABLE"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
