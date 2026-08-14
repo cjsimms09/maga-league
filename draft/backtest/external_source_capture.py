@@ -203,3 +203,153 @@ def coverage(series: list, year) -> dict:
             # A DAY MISSING ONE SOURCE IS NOT A DAY. It is a day on which no
             # comparison can be made, and it must not be counted as covered.
             "days_missing_a_source": thin}
+
+
+# ── IS TODAY'S PER-SOURCE WRITE TRUSTWORTHY ─────────────────────────────────
+#
+# Cory, 2026-08-14: "the daily data capture process needs to be correct and fixed
+# so we don't keep having problems and the data itself needs to be accurate."
+# The MFL archive got `integrity` and `snapshot_audit`. THIS ONE LANDED ITS FIRST
+# WRITE THIS MORNING WITH NOTHING CHECKING IT AT ALL, which is the same gap one
+# file over: a writer shipped without the consumer that judges it (rule 14).
+#
+# THE SAME TWO-CATEGORY SPLIT, and getting it wrong in either direction is worse
+# than not checking. FATAL is arithmetically impossible — the day is corrupt
+# whatever anyone does with it. OBSERVED is the provider or the fetch behaving
+# differently from yesterday, which may be real and must not refuse a write.
+
+#: Losing this share of a source's board overnight is a partial fetch, not a
+#: provider trimming. DECLARED, not fitted, and the direction is the argument:
+#: in mid-August boards GROW as more players get priced, so a quarter of one
+#: vanishing between two mornings is the fetch, not the market.
+ROW_COUNT_COLLAPSE = 0.25
+
+#: The parameters that define WHAT WAS PRICED. If any of these changes between
+#: two days, the two days are not the same measurement and every cross-day
+#: comparison silently spans a format change — which is precisely the defect this
+#: whole archive exists to prevent, arriving through the back door.
+FORMAT_KEYS = ("scoring", "format", "teams", "year")
+
+
+def source_audit(series: list, year, observed_at: str) -> dict:
+    """One day's per-source write, judged. FATAL and OBSERVED kept apart.
+
+    ⚠ CROSS-DAY CHECKS SAY "FIRST DAY" RATHER THAN "CLEAN" (rule 13f). A check
+    whose only possible answer is "nothing yet" has not looked, and this archive
+    is one day old — so every comparison against yesterday reports the absence of
+    a yesterday by name instead of passing by default. That state was worth
+    building on the morning it is guaranteed to fire.
+
+    NOT AN `integrity`-STYLE WRITE GATE, and that is deliberate rather than an
+    omission. The MFL archive refuses a corrupt write because its days are
+    perishable and unrefetchable — there is no provider to re-ask. These sources
+    serve TODAY's board on request, so a bad day here can be re-fetched by
+    re-running the job, and refusing the write would trade a recoverable bad day
+    for a permanent missing one.
+    """
+    ser = [s for s in (series or []) if str(s.get("year")) == str(year)]
+    today = [s for s in ser if str(s.get("observed_at")) == str(observed_at)]
+    fatal, observed = [], []
+    if not today:
+        return {"status": "unmeasured", "observed_at": str(observed_at),
+                "sources": [], "fatal": [], "observed": [],
+                "note": "no source wrote on this day at all — that is the capture "
+                        "failing, not the sources disagreeing"}
+
+    seen = {}
+    for s in today:
+        name = str(s.get("source"))
+        # TWO BOARDS FOR ONE SOURCE ON ONE DAY. `append_day` dedupes by
+        # (source, year, date), so this can only be corruption or a hand edit —
+        # and downstream `disagreement` would pick whichever sorted first.
+        if name in seen:
+            fatal.append({"check": "duplicate_source_day", "source": name,
+                          "note": "two entries for one source on one day; every "
+                                  "reader takes whichever sorts first"})
+        seen[name] = s
+
+        rows, sd = s.get("rows") or {}, s.get("sd") or {}
+        # THE DECLARED COUNT IS WHAT EVERY INSTRUMENT READS, and `coverage`
+        # judges a source's depth entirely on `row_count`. A count that disagrees
+        # with its own rows describes a board nobody captured.
+        if s.get("row_count") != len(rows):
+            fatal.append({"check": "row_count_mismatch", "source": name,
+                          "declared": s.get("row_count"), "actual": len(rows)})
+        if s.get("sd_count") != len(sd):
+            fatal.append({"check": "sd_count_mismatch", "source": name,
+                          "declared": s.get("sd_count"), "actual": len(sd)})
+        # AN sd FOR A PLAYER WITH NO PRICE. The dispersion and the mean come from
+        # one response; a spread without its own mean means the two halves were
+        # keyed differently, and any consumer joining them gets a width around
+        # somebody else's centre.
+        orphans = [k for k in sd if k not in rows]
+        if orphans:
+            fatal.append({"check": "sd_orphan", "source": name, "n": len(orphans),
+                          "sample": sorted(orphans)[:5]})
+        bad = [k for k, v in rows.items() if not (v > 0)]
+        if bad:
+            fatal.append({"check": "adp_not_a_pick_number", "source": name,
+                          "n": len(bad), "sample": sorted(bad)[:5]})
+        neg = [k for k, v in sd.items() if v < 0]
+        if neg:
+            fatal.append({"check": "negative_sd", "source": name, "n": len(neg)})
+        missing = [f for f in SOURCE_FIELDS if f not in s]
+        if missing:
+            fatal.append({"check": "field_missing", "source": name,
+                          "fields": missing,
+                          "note": "a field that stops being written must show up "
+                                  "as EMPTY, not cease to exist"})
+        # A PRICE WITHOUT ITS FORMAT IS NOT EVIDENCE — this file's own opening
+        # claim, unenforced until now.
+        if not (s.get("params") or {}):
+            observed.append({"check": "no_params", "source": name,
+                             "note": "priced with no record of the format that "
+                                     "produced it; a year from now this row is "
+                                     "a number with no meaning"})
+
+    # ── AGAINST YESTERDAY ───────────────────────────────────────────────
+    prior_days = sorted({str(s.get("observed_at")) for s in ser
+                         if str(s.get("observed_at")) < str(observed_at)})
+    if not prior_days:
+        cross = {"status": "first_day",
+                 "note": "no earlier day in this archive, so nothing cross-day "
+                         "has been checked — that is the archive's age, not a "
+                         "clean bill of health"}
+    else:
+        prev = {str(s.get("source")): s for s in ser
+                if str(s.get("observed_at")) == prior_days[-1]}
+        cross = {"status": "measured", "against": prior_days[-1]}
+        for name, y in prev.items():
+            t = seen.get(name)
+            if t is None:
+                # A SOURCE THAT SILENTLY STOPS ARRIVING. The others keep landing,
+                # the file keeps growing, and the comparison quietly becomes a
+                # comparison of fewer things.
+                observed.append({"check": "source_vanished", "source": name,
+                                 "was": y.get("row_count"),
+                                 "note": "captured yesterday, absent today"})
+                continue
+            was, now = y.get("row_count") or 0, t.get("row_count") or 0
+            if was and now < was * (1.0 - ROW_COUNT_COLLAPSE):
+                observed.append({"check": "row_count_collapsed", "source": name,
+                                 "was": was, "now": now,
+                                 "lost_share": round(1.0 - now / float(was), 3),
+                                 "note": "a partial fetch returns 200 and writes "
+                                         "a truncated board that becomes the "
+                                         "day's price"})
+            drifted = {k: [(y.get("params") or {}).get(k), (t.get("params") or {}).get(k)]
+                       for k in FORMAT_KEYS
+                       if (y.get("params") or {}).get(k) != (t.get("params") or {}).get(k)}
+            if drifted:
+                observed.append({"check": "format_drifted", "source": name,
+                                 "changed": drifted,
+                                 "note": "the two days are not the same "
+                                         "measurement; any cross-day comparison "
+                                         "spans a format change"})
+    return {"status": "measured", "observed_at": str(observed_at),
+            "sources": sorted(seen), "cross_day": cross,
+            "fatal": fatal, "observed": observed,
+            "note": ("%d FATAL, %d observed" % (len(fatal), len(observed))
+                     if fatal else
+                     ("today's write is internally consistent; %d observed"
+                      % len(observed)))}
