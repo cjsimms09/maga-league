@@ -10911,3 +10911,273 @@ you most expect to be fine.
 
 16 tests. Three new mutations kill: keeping only the first input, letting a
 current-only derivation acquire a year, and dropping the historical flag.
+
+---
+
+# PARKED BY C, 2026-08-14 — THE HORIZON THE ARTIFACT REPORTS IS NOT THE HORIZON THAT RAN
+
+**FOR: A.** Four files, all yours: `draft/backtest/market_filters.py`,
+`draft/backtest/market_capture.py`, `draft/tests/test_market_capture.py`,
+`.github/workflows/market-capture.yml`. I built the fix, ran it green, then ran
+`territory-check.sh C`, got TRESPASS on all four, and reverted. The complete
+diff is at the bottom of this entry so you can apply it in one move.
+
+You routed me the horizon disagreement as item 3 (`--horizon-days 14` in the
+workflow against `horizon_days: 7` in the registered filter). It is two defects,
+and the second is why the first survived.
+
+## 1. THE ARTIFACT CONTRADICTS ITSELF, IN EVERY SNAPSHOT ON DISK
+
+`horizon_report()` stamps `"horizon_days": HORIZON_DAYS` — the REGISTERED
+constant — while the cutoff is computed from the ARGUMENT. So each snapshot
+carries both:
+
+```
+draft/market_snapshots/usa-nfl-preseason_2026-08-13T142119Z.json
+    "filters": { "horizon_days": 7,  "events_before_horizon": 48,
+                 "events_after_horizon": 32 }        <- says 7
+    "horizon_days": 14                               <- top level, what ran
+```
+
+Same for 08-11 and 08-12. `48 -> 32` is a **fourteen-day cut recorded as a
+seven-day cut**. Nothing could have revealed the override from the artifact,
+because the field that would have shown it was reporting the value it was being
+overridden away from. That is why item 3 needed a human to notice at all.
+
+## 2. THE CLI REINTRODUCED THE LITERAL THE FUNCTION HAD REMOVED
+
+`capture()`'s docstring already says it: *"THE HORIZON COMES FROM THE REGISTERED
+FILTERS, not from a literal here. It used to default to 14 — a number chosen
+after seeing that usa-nfl returns 134 events."* The function default was duly
+moved to `F.HORIZON_DAYS`. Then `main()` sets `ap.add_argument("--horizon-days",
+type=int, default=14)` and the workflow passes `|| '14'`, so `capture()` has
+never once received `None` in production. **The registered default is dead code.**
+
+And `test_market_capture.py:166` guards it — `assert "horizon_days: int = 14" not
+in src` — reading `inspect.getsource(C.capture)`, two hundred lines above the
+literal that actually runs. A true assertion about the wrong scope. Merged is not
+executed, one layer out.
+
+## WHAT I CHANGED, AND THE ONE PART THAT IS YOURS TO DECIDE
+
+**Mechanical (unambiguous, in the diff):**
+- `horizon_report(events, kept, cutoff_iso, applied_days=None)` now records
+  `horizon_days_registered`, `horizon_days_applied` and `horizon_overridden`.
+  `applied_days=None` records UNKNOWN rather than assuming the registered value —
+  substituting the constant for the applied width is the exact move that produced
+  the defect.
+- **`horizon_days` is RENAMED, deliberately.** A consumer still reading it gets a
+  KeyError rather than a number that quietly means something else. I checked:
+  the only reader is that one test.
+- `--horizon-days` defaults to `None`; the workflow omits the flag unless a
+  dispatch input supplies one.
+- Four new tests, all break-first, all failing before the change.
+
+**NOT mechanical, and I did not decide it: this returns the applied width to 7.**
+Your own registration says a change is *"a NEW version here with the old
+retained"* and that whether usable lines exist earlier than 7 days out *"must be
+settled by a REGISTERED PROBE whose result is recorded before the horizon
+changes — never by widening the horizon after noticing the captures looked
+sparse."* Fourteen has been running unregistered for three days. Either it
+becomes v2 with the reasoning written down, or it goes back to 7. **Both are
+defensible; neither is mine to pick, and the recording fix is correct under
+either.**
+
+One consequence worth pricing before you choose: at 7 days the preseason slate
+narrows, and `events_after_horizon` will drop below 32. That is not a regression
+— it is the registered filter finally being the one that runs — but it will move
+the `coverage` number, and anyone reading that number should know why it moved.
+
+## THE DIFF
+
+```diff
+diff --git a/.github/workflows/market-capture.yml b/.github/workflows/market-capture.yml
+index bda04b9..154f5bd 100644
+--- a/.github/workflows/market-capture.yml
++++ b/.github/workflows/market-capture.yml
+@@ -65,10 +65,22 @@ jobs:
+         env:
+           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || vars.ODDS_API_KEY }}
+         run: |
+-          python draft/backtest/market_capture.py \
+-            --league "${{ github.event.inputs.league || 'usa-nfl-preseason' }}" \
+-            --max-events "${{ github.event.inputs.max_events || '0' }}" \
+-            --horizon-days "${{ github.event.inputs.horizon_days || '14' }}"
++          # ⚠ NO `|| '14'` FALLBACK ON THE HORIZON. That literal overrode a
++          # PRE-REGISTRATION on every scheduled run — `market_filters.HORIZON_DAYS`
++          # is 7, derived from market structure and Signal C's repeat-observation
++          # requirement, and `capture()`'s own docstring records that 14 was chosen
++          # AFTER seeing usa-nfl returns 134 events, i.e. post-hoc filtering on the
++          # axis the signal runs along. The function default was duly moved to the
++          # registry and this line kept handing it 14 anyway.
++          #
++          # Omitting the flag entirely lets the registry decide. A dispatch input
++          # still overrides — and now says so in the artifact, because
++          # `horizon_report` records the APPLIED width beside the registered one.
++          ARGS=(--league "${{ github.event.inputs.league || 'usa-nfl-preseason' }}"
++                --max-events "${{ github.event.inputs.max_events || '0' }}")
++          HZ="${{ github.event.inputs.horizon_days }}"
++          if [ -n "$HZ" ]; then ARGS+=(--horizon-days "$HZ"); fi
++          python draft/backtest/market_capture.py "${ARGS[@]}"
+ 
+       # ── PRESERVE BEFORE YOU ALARM ────────────────────────────────────────
+       #
+diff --git a/draft/backtest/market_capture.py b/draft/backtest/market_capture.py
+index fc3e9bc..f5023ed 100644
+--- a/draft/backtest/market_capture.py
++++ b/draft/backtest/market_capture.py
+@@ -257,7 +257,9 @@ def capture(league: str, api_key: str, books=None, max_events=None,
+         # the sample is invisible in the artifact — a cut slate and a small slate
+         # look identical, and an unauditable filter is exactly what rule 4 is
+         # about. Same discipline the MFL ingest already applies to every rejection.
+-        horizon_note = F.horizon_report(before, events, cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"))
++        horizon_note = F.horizon_report(before, events,
++                                        cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
++                                        applied_days=int(horizon_days))
+         events.sort(key=lambda e: str(e.get("date") or "9999"))
+     if max_events:
+         events = events[:int(max_events)]
+@@ -285,7 +287,8 @@ def capture(league: str, api_key: str, books=None, max_events=None,
+     events = planned
+ 
+     if not horizon_days:
+-        horizon_note = F.horizon_report(events, events, None)
++        # NO HORIZON RAN, so the applied width is 0 — stated, not left unknown.
++        horizon_note = F.horizon_report(events, events, None, applied_days=0)
+     rows, failures, retried = [], [], []
+     td_finding = None
+     for ev in events:
+@@ -420,7 +423,13 @@ def main():                                                      # pragma: no co
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--league", default=PRESEASON)
+     ap.add_argument("--max-events", type=int, default=0)
+-    ap.add_argument("--horizon-days", type=int, default=14)
++    # DEFAULT None, NOT 14 — `capture()` then falls to the REGISTERED filter.
++    # This line was the whole defect: `capture()`'s own docstring says the 14 was
++    # chosen after seeing that usa-nfl returns 134 events (post-hoc filtering on
++    # the axis Signal C runs along), the function default was duly changed to the
++    # registry, and then argparse handed it 14 on every scheduled run anyway. The
++    # test written to prevent this reads `capture`'s source and never saw the CLI.
++    ap.add_argument("--horizon-days", type=int, default=None)
+     a = ap.parse_args()
+     key = os.environ.get("ODDS_API_KEY", "").strip()
+     if not key:
+diff --git a/draft/backtest/market_filters.py b/draft/backtest/market_filters.py
+index e05a6d1..46a8916 100644
+--- a/draft/backtest/market_filters.py
++++ b/draft/backtest/market_filters.py
+@@ -110,7 +110,7 @@ LEAGUES = ("usa-nfl-preseason", "usa-nfl")
+ CAPTURE_CRON_UTC = "0 13 * * *"
+ 
+ 
+-def horizon_report(events, kept, cutoff_iso):
++def horizon_report(events, kept, cutoff_iso, applied_days=None):
+     """The filter's EFFECT, as a record — not just its verdict.
+ 
+     The first horizon dropped events and recorded nothing about it, so its
+@@ -118,11 +118,31 @@ def horizon_report(events, kept, cutoff_iso):
+     slate that was small from a slate that had been cut. A filter whose attrition
+     is unrecorded cannot be audited, which is the same failure the MFL ingest
+     already guards against by attributing every rejection.
++
++    ⚠ IT USED TO STAMP THE REGISTERED CONSTANT WHILE THE CUTOFF WAS COMPUTED FROM
++    THE ARGUMENT. Every snapshot on disk therefore reads `filters.horizon_days: 7`
++    beside a top-level `horizon_days: 14` — one file, one filter, two widths, and
++    the one that ran is the one missing from the filters block. `48 -> 32` is a
++    fourteen-day cut recorded as a seven-day cut. Nothing could have revealed the
++    override from the artifact, because the field that would have shown it was
++    reporting the value it was being overridden away from.
++
++    So the two are now NAMED SEPARATELY and neither is inferred from the other.
++    `applied_days=None` means the caller did not say — recorded as UNKNOWN, not
++    as the registered value, because substituting the constant for the applied
++    width is the exact move that produced the defect.
+     """
+     dropped = [e for e in (events or []) if e not in (kept or [])]
+     return {
+         "filter_version": MARKET_FILTER_VERSION,
+-        "horizon_days": HORIZON_DAYS,
++        # RENAMED, DELIBERATELY. A consumer still reading `horizon_days` now gets
++        # a KeyError instead of a number that quietly means something else — a
++        # field whose meaning changed under a stable name is how this class of
++        # defect propagates outward instead of stopping here.
++        "horizon_days_registered": HORIZON_DAYS,
++        "horizon_days_applied": applied_days,
++        "horizon_overridden": (None if applied_days is None
++                               else int(applied_days) != int(HORIZON_DAYS)),
+         "cutoff": cutoff_iso,
+         "events_before_horizon": len(events or []),
+         "events_after_horizon": len(kept or []),
+diff --git a/draft/tests/test_market_capture.py b/draft/tests/test_market_capture.py
+index 9df34f6..ba37208 100644
+--- a/draft/tests/test_market_capture.py
++++ b/draft/tests/test_market_capture.py
+@@ -192,4 +192,66 @@ def test_the_horizon_records_what_it_dropped():
+     assert r["events_after_horizon"] == 1
+     assert r["dropped_beyond_horizon"] == 2
+     assert r["filter_version"].startswith("v1")
+-    assert r["horizon_days"] == 7
++    assert r["horizon_days_registered"] == 7
++
++
++def test_the_RECORDED_HORIZON_IS_THE_ONE_THAT_RAN():
++    """THE DEFECT, IN THREE SHIPPED SNAPSHOTS. `horizon_report` stamped the
++    REGISTERED constant while the cutoff was computed from the ARGUMENT, so every
++    capture on disk says `filters.horizon_days: 7` beside a top-level
++    `horizon_days: 14` — one file, one filter, two widths, and the one that ran is
++    the one that is not in the filters block. `events_before_horizon: 48 ->
++    events_after_horizon: 32` is a fourteen-day cut recorded as a seven-day cut.
++
++    Nothing could have revealed that from the artifact, which is the whole point:
++    the field that would have shown the override was reporting the value it was
++    being overridden away from.
++
++    MUTATION: stamp the constant again — the applied width becomes unobservable
++    and the artifact contradicts itself in silence."""
++    import market_filters as F
++    r = F.horizon_report([{"id": 1}], [{"id": 1}], "2026-08-28T00:00:00Z",
++                         applied_days=14)
++    assert r["horizon_days_applied"] == 14
++    assert r["horizon_days_registered"] == 7
++    assert r["horizon_overridden"] is True
++
++
++def test_AN_UNOVERRIDDEN_RUN_SAYS_SO_rather_than_reading_as_an_override():
++    """MUTATION: flag every run as overridden — the alarm fires daily and stops
++    meaning anything, which is how a real override gets ignored."""
++    import market_filters as F
++    r = F.horizon_report([{"id": 1}], [{"id": 1}], "2026-08-21T00:00:00Z",
++                         applied_days=F.HORIZON_DAYS)
++    assert r["horizon_overridden"] is False
++    assert r["horizon_days_applied"] == 7
++
++
++def test_AN_UNKNOWN_APPLIED_HORIZON_IS_NOT_ASSUMED_TO_BE_THE_REGISTERED_ONE():
++    """A caller that does not say what it applied has not told us it applied the
++    registered value — and defaulting to the constant is exactly the substitution
++    that produced the original defect.
++
++    MUTATION: fall back to HORIZON_DAYS — a caller that forgets to pass the
++    applied width silently reports the registered one, and the artifact is wrong
++    again in a way no test can see."""
++    import market_filters as F
++    r = F.horizon_report([{"id": 1}], [{"id": 1}], None)
++    assert r["horizon_days_applied"] is None
++    assert r["horizon_overridden"] is None
++
++
++def test_THE_CLI_DOES_NOT_REINTRODUCE_THE_LITERAL_THE_FUNCTION_REMOVED():
++    """`capture()` takes the horizon from the registry and its docstring says the
++    14 was post-hoc filtering — and `main()`'s argparse then handed it 14 on every
++    run, so the registered default was dead code in production. The existing test
++    above guards the FUNCTION signature, and the literal that actually ran sat two
++    hundred lines below it. Merged is not executed, one layer out.
++
++    MUTATION: put `default=14` back on the CLI — every scheduled run overrides a
++    pre-registration whose own comment calls that number post-hoc, and the test
++    that was written to prevent exactly this keeps passing."""
++    import inspect
++    src = inspect.getsource(C.main)
++    assert "default=14" not in src, "the un-registered literal is back on the CLI"
++    assert '"--horizon-days"' in src
+```
