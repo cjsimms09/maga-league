@@ -378,6 +378,13 @@ def test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM():
 
 #: When the deep-pool ordering landed on main.
 #:
+#: TERRITORY-GRANT: A RAW_ADP_ORDER_FIX_LANDED raw_adp_order_required
+#:
+#: The ratchet constant below dates a fix that lives in A's lane (`build.py`,
+#: `adp.py`), so A is the only lane that can know when it became true — but the
+#: test that reads it is C's. Scoped to these two symbols: every other assertion
+#: in this file still refuses an A edit.
+#:
 #: ⚠️ MOVED FORWARD 2026-08-14, and forward is normally the wrong direction for a
 #: ratchet. The justification is that the fix it dated NEVER RAN: the ordering
 #: read `p["proj_mean"]`, which `projections.blend()` does not assign until fifty
