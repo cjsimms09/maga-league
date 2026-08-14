@@ -109,6 +109,81 @@ git checkout -q main
 bash scripts/integrate.sh feature C > "$TMP/behind.out" 2>&1
 ckng "REFUSING" "$TMP/behind.out" "LOCAL BEHIND REMOTE — not stale, since the REMOTE is what is merged"
 
+# ── 5. A REJECTED PUSH MUST NOT BE FOLLOWED BY A CI WAIT ────────────────────
+#
+# Separate from the staleness guard above, same failure class, found the same
+# day. `git push origin main && echo "pushed."` guarded only the ECHO, so a
+# rejected push fell through into "waiting for the run on the SHA just pushed"
+# and polled 600s for a commit the remote never received.
+#
+# THE CAUSE IS ORDINARY AND WILL RECUR: another lane pushed to main during the
+# ten minutes this run spent in the suites. That is not a mistake anybody made;
+# it is what a shared main does. The script has to survive it by refusing the
+# downstream claim, not by printing a louder warning.
+#
+# ⚠️ MY FIRST VERSION OF THIS SECTION PASSED VACUOUSLY, which is worth recording
+# because it is the exact defect the section is about. The throwaway repo has no
+# `draft/tests`, so integrate.sh died at the python suite and rolled back long
+# BEFORE reaching any push — and all three assertions ("exits non-zero", "does
+# not wait for CI", "never claims VERIFIED") were true for that reason instead.
+# A guard that is never reached passes every test written about it.
+#
+# So the repo below is given suites that actually pass, and the run is asserted
+# to have REACHED the push before anything is concluded about it.
+{
+  cd "$TMP/work"
+  git checkout -q main
+  mkdir -p draft/tests
+  printf 'def test_ok():\n    assert True\n' > draft/tests/test_ok.py
+  printf 'console.log("ok");\n' > draft/tests/ok.test.js
+  # pytest leaves __pycache__/.pytest_cache, and integrate.sh REFUSES on any
+  # residue — correctly, since residue is what loses work on the next checkout.
+  # The real repo ignores these; this fixture has to as well or the arm dies of
+  # its own scaffolding before it reaches the push.
+  printf '__pycache__/\n.pytest_cache/\n' > .gitignore
+  git add -A; git commit -qm "suites the integration can actually run"
+  git push -q origin main
+
+  # ANOTHER LANE PUSHES TO main WHILE WE ARE MID-RUN. The clone needs an explicit
+  # branch: `git init --bare` leaves HEAD on master here, so a plain clone checks
+  # out nothing and the push fails with "src refspec main does not match any" —
+  # which is how the first version of this arm quietly did nothing at all.
+  git clone -q "$TMP/remote.git" "$TMP/other"
+  cd "$TMP/other"
+  git config user.email o@o; git config user.name o; git config commit.gpgsign false
+  git checkout -q -B main origin/main
+  echo "another lane's work" > other.txt
+  git add -A; git commit -qm "other lane pushes to main"
+  git push -q origin main
+  ck $? 0 "CONTROL — the other lane's push really landed, or main never moved"
+  cd "$TMP/work"
+
+  git checkout -q -B feature2 main
+  echo "our work" > ours.txt
+  git add -A; git commit -qm "our work"
+  git push -q -u origin feature2
+  git checkout -q main
+
+  bash scripts/integrate.sh feature2 C --push > "$TMP/pushfail.out" 2>&1
+  rc=$?
+  ckg "== merging into main" "$TMP/pushfail.out" \
+    "CONTROL — the run got past the guards and actually merged"
+  ckg "Suites green LOCALLY" "$TMP/pushfail.out" \
+    "CONTROL — and past BOTH suites, so it genuinely reached the push"
+  ck "$([ "$rc" != "0" ] && echo 0 || echo 1)" 0 \
+    "PUSH REJECTED — the run exits non-zero rather than reporting a merge"
+  ckg "PUSH REJECTED" "$TMP/pushfail.out" "and says so in those words"
+  ckng "waiting for the run on the SHA just pushed" "$TMP/pushfail.out" \
+    "and does NOT wait for CI on a commit that was never pushed"
+  # ANCHORED. A bare /VERIFIED:/ matches inside this script's own "NOT VERIFIED:"
+  # line, so the first version of this assertion failed on the very message that
+  # proves it is behaving. The real claim is printed at column 0.
+  ckng "^VERIFIED:" "$TMP/pushfail.out" "and never claims verification"
+  ckg "NOT VERIFIED" "$TMP/pushfail.out" "and says so explicitly instead"
+  ckg "nothing has been lost" "$TMP/pushfail.out" \
+    "and says the merge survives locally, so nobody re-does the work"
+}
+
 echo
 echo "$pass/$((pass+fail)) checks passed"
 [ "$fail" = 0 ] || { echo "FAILED"; exit 1; }
