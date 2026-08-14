@@ -183,6 +183,30 @@ def has_board(payload) -> bool:
                for k in named for pat, _ in FAMILIES.values())
 
 
+def all_names(payload) -> list:
+    """EVERY name the payload uses — markets, selections and market-ish containers.
+
+    ⚠ RUN 4 IS WHY THIS EXISTS. This provider's market names carry prices as
+    siblings — `{"name": "ML", "price": -145}` — so the shape rule that keeps
+    "Josh Allen" out of the market list also put `ML`, `Spread`, `Totals` and
+    `Team Total Home` there. `market_keys` came back holding nothing but
+    `American Football` and `USA - NFL Preseason`, the two strings that are
+    identical in every response this provider will ever send, and the control duly
+    reported the parameter ignored for a third time on a payload with a full board
+    in it.
+
+    THE CONTROL IS A CHANGE DETECTOR, NOT A CLASSIFIER. Whether a string is
+    "really" a market is irrelevant to the question it asks — did the response
+    change when we asked for something different — so it compares everything.
+    `market_keys` stays the curated view for the discovery bucket, where
+    precision is what makes it readable.
+    """
+    named, containers, selections = _walk(payload)
+    hits = [c for c in containers
+            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]
+    return sorted(set(named) | set(selections) | set(hits))
+
+
 def structure_keys(payload) -> list:
     """The container keys, reported separately so the shape is auditable.
 
@@ -242,7 +266,7 @@ def _fingerprint(payload) -> tuple:
     silently never fire. That is the failure the control exists to catch,
     reproduced inside the control.
     """
-    keys = tuple(market_keys(payload))
+    keys = tuple(all_names(payload))
     n = json.dumps(payload, sort_keys=True).count(":")
     return keys, n
 
@@ -501,17 +525,19 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
                            % (nxt or "the next nearest events")}
 
     honoured = parameter_was_honoured(real_payload, control_payload)
-    classified = classify(market_keys(real_payload if real_payload is not None
-                                      else default_payload))
+    classified = classify(all_names(real_payload if real_payload is not None
+                                    else default_payload),
+                          books=R.RECREATIONAL_BOOKS)
     rep = report(classified, honoured, credit_cost(h0, h2), ASK,
                  event_id=event_id, league=league)
-    rep["default_markets"] = classify(market_keys(default_payload))["families"]
+    rep["default_markets"] = classify(all_names(default_payload),
+                                      books=R.RECREATIONAL_BOOKS)["families"]
     # THE SKELETON OF WHAT CAME BACK, ALWAYS — not only on the refusal path. Two
     # runs reported "no markets" and neither recorded what the payload actually
     # looked like, so each retry started blind. A probe that does not describe the
     # shape it walked cannot be corrected from its own artifact.
     rep["raw_shape"] = structure_keys(default_payload)
-    rep["raw_names"] = market_keys(default_payload)[:40]
+    rep["raw_names"] = all_names(default_payload)[:40]
     rep["selection_sample"] = selection_names(default_payload)[:10]
     rep.update(out)
     return rep

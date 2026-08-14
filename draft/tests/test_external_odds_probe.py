@@ -12,6 +12,7 @@ vocabulary we did not anticipate being reported rather than dropped.
 
 Run: python3 -m pytest draft/tests/test_external_odds_probe.py -q
 """
+import json
 import sys
 from pathlib import Path
 
@@ -315,3 +316,62 @@ def test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD():
     assert P.has_board(PROPS) is True
     assert P.has_board(DEFAULT_ONLY) is True
     assert P.has_board(None) is False
+
+
+# ── THE REAL SHAPE, FROM RUN 4 — the fixture I could not have written before ─
+#
+# `raw_shape: [DraftKings, FanDuel, bookmakerIds, bookmakers, league, odds,
+#  sport, urls]` and `selection_sample: [ML, Spread, Team Total Away,
+#  Team Total Home, Totals]`. So this provider's MARKET names carry price fields
+# as siblings, which my `priced` rule files as selections — and `market_keys`
+# came back holding nothing but `American Football` and `USA - NFL Preseason`.
+REAL_SHAPE = {
+    "sport": {"name": "American Football"},
+    "league": {"name": "USA - NFL Preseason"},
+    "bookmakers": {"DraftKings": {"odds": [
+        {"name": "ML", "price": -145, "team": "BUF"},
+        {"name": "Spread", "price": -110, "point": -3.5},
+        {"name": "Totals", "price": -110, "point": 44.5},
+        {"name": "Team Total Home", "price": -115, "point": 21.5},
+    ]}},
+}
+REAL_WITH_PROPS = json.loads(json.dumps(REAL_SHAPE))
+REAL_WITH_PROPS["bookmakers"]["DraftKings"]["odds"].append(
+    {"name": "player_pass_yds", "price": -110, "point": 245.5})
+
+
+def test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES():
+    """RUN 4 IS WHY. The three calls all fingerprinted to the same two strings —
+    `American Football` and `USA - NFL Preseason` — because this provider's market
+    names (`ML`, `Spread`, `Totals`, `Team Total Home`) carry prices as siblings
+    and my classifier files priced nodes as selections. So the control compared
+    two labels that cannot change and reported the parameter ignored for a third
+    time, on a payload that plainly had a board in it.
+
+    THE CONTROL IS A CHANGE DETECTOR, NOT A CLASSIFIER. Whether a string is
+    "really" a market does not matter to the question it asks — did the response
+    change when we asked for something different. It must therefore compare
+    EVERY name the payload uses.
+
+    MUTATION: fingerprint on the curated market list — the comparison runs over
+    the sport and league labels, which are identical in every response this
+    provider will ever send, and the probe can only ever return VOID."""
+    a = P.all_names(REAL_SHAPE)
+    assert "ML" in a and "Totals" in a and "Team Total Home" in a
+    assert P.parameter_was_honoured(REAL_WITH_PROPS, REAL_SHAPE)["honoured"] is True
+    assert P.parameter_was_honoured(REAL_SHAPE, REAL_SHAPE)["honoured"] is False
+
+
+def test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT():
+    """`ML`, `Spread` and `Totals` are exactly the three the daily capture pulls,
+    and reporting `sides: unmeasured, matched: []` for a payload containing all
+    three was the visible symptom that the reader was looking in the wrong bucket.
+
+    MUTATION: classify the curated list only — a board full of markets reports
+    every family empty, and a real availability answer is unreachable."""
+    c = P.classify(P.all_names(REAL_SHAPE), books=("DraftKings", "FanDuel"))
+    assert "ML" in c["families"]["sides"] and "Spread" in c["families"]["sides"]
+    assert "Totals" in c["families"]["game_totals"]
+    av = P.availability(c, {"honoured": True, "note": "x"})
+    assert av["sides"]["state"] == "available"
+    assert av["player_props"]["state"] == "absent"

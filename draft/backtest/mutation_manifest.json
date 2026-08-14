@@ -1417,7 +1417,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    keys = tuple(market_keys(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
+     "old": "    keys = tuple(all_names(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
      "new": "    return (json.dumps(payload, sort_keys=True),)",
      "must_fail": [
       "test_the_CONTROL_COMPARES_STRUCTURE_not_bytes"
@@ -1526,6 +1526,23 @@
      "new": "    return bool(market_keys(payload))",
      "must_fail": [
       "test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    keys = tuple(all_names(payload))",
+     "new": "    keys = tuple(market_keys(payload))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(selections) | set(hits))",
+     "new": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(hits))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES",
+      "test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT"
      ],
      "verdict": "KILLED"
     }
