@@ -15,7 +15,7 @@ TERRITORY: A · seasons 2023, 2024, 2025 · one league · one seat (Cory's)
 
 Stated as an estimand rather than a slogan: **the difference in end-of-season
 money and finish between a roster managed by the model and the same seat managed
-by the two comparison arms, over the three seasons we hold complete data for.**
+by the comparison arms, over the three seasons we hold complete data for.**
 
 Not "did the model pick good players". Every measurement so far grades a
 component against itself. This grades the whole system against reality.
@@ -25,28 +25,64 @@ that, it is not a test. §7 below is the specific property that keeps it able to
 
 ---
 
-## 2. THE THREE ARMS
+## 2. THE ARMS
 
 Same seasons, same room, same schedule. They differ **only in who decides**.
+
+### 2a. The three full-system arms
 
 | arm | draft | waivers | lineup |
 |---|---|---|---|
 | **ACTUAL** | Cory's real picks | Cory's real transactions | Cory's real starts |
-| **MARKET** | best available by that year's ADP | never claims | highest projected, as of that week |
+| **BASELINE** | best available by that year's ADP | **naive rule (below)** | highest projected as of that week |
 | **TOOL** | the composite under shipped weights | the waiver tool | the lineup tool |
 
-**ACTUAL is the honest baseline** — the thing the tool has to beat to be worth
-running.
+**ACTUAL is the honest baseline** — what the tool must beat to be worth running.
 
-**MARKET is the load-bearing control**, and it is the one most experiments in
-this repo have lacked. It answers "did we beat *doing nothing thoughtfully*". A
-tool that beats ACTUAL but not MARKET has demonstrated that Cory should follow
-ADP, not that the model has edge.
+**BASELINE IS A COMPETENT MANAGER, NOT AN ABSENT ONE, AND THAT CORRECTION IS
+CORY'S.** The first draft of this document had BASELINE never claiming waivers.
+That is a strawman and it would have handed the tool a free win: TOOL vs a
+no-waiver arm measures *"did we play waivers at all"*, not *"did we play them
+well"*, and any active manager beats an inactive one. §7.1 claims the comparison
+arms are not strawmen; the original design violated its own property.
 
-**A fourth arm is deliberately excluded**: no "tool with hindsight". It would be
-the most flattering number available and it answers nothing.
+**THE NAIVE WAIVER RULE, fixed now:** each week, if a starting slot is filled by
+a player who is injured-out or on bye, claim the highest rest-of-season
+projected free agent who fills that slot; otherwise claim the highest
+rest-of-season projected free agent who would displace the weakest starter, and
+only if the improvement exceeds zero. Priority order as the league actually ran
+it (waiver priority, not FAAB — confirmed by zero bid amounts across 1,091
+historical transactions). No streaming, no speculative stashes.
 
----
+That is what an attentive manager with no tools does, and it is the bar that
+matters.
+
+### 2b. The isolation arms — what each subsystem is worth
+
+A single money number cannot say WHERE an advantage came from. Each isolation
+arm is **TOOL with exactly ONE subsystem swapped back to its naive counterpart**,
+so the difference from TOOL is that subsystem's contribution:
+
+| arm | what it isolates |
+|---|---|
+| **TOOL − draft-construction** (BPA draft) | roster construction |
+| **TOOL − waiver tool** (naive waivers) | the waiver tool |
+| **TOOL − lineup tool** (naive lineup) | sit/start |
+
+**BPA IS THE ROSTER-SELECTION TEST, AND IT IS THE SECOND CORRECTION FROM CORY.**
+Drafting off ADP does not test our roster construction — it produces a
+market-shaped roster and confounds *"are our valuations better"* with *"is our
+construction better"*. BPA drafts **best player available by OUR OWN
+projections**, with every construction rule switched off: no `need`, no roster
+legality, no onesie cap, no flex discount, no bye handling.
+
+So **TOOL vs BPA holds valuation fixed and varies only construction.** That is
+the one comparison that answers "is our roster selection right", which is the
+thing Cory says he is least sure of — and nothing in this repository has ever
+measured it end to end.
+
+**A hindsight arm is deliberately excluded.** It would be the most flattering
+number available and it answers nothing.
 
 ## 3. THE AS-OF RULE — the thing that makes or breaks this
 
@@ -98,11 +134,11 @@ an interval, and no confidence interval will be computed on three points.
 
 Declared before running:
 
-- **TOOL beats MARKET in all three seasons** -> the strongest result this design
+- **TOOL beats BASELINE in all three seasons** -> the strongest result this design
   can produce. Still n=3; still not a promotion on its own.
-- **TOOL beats MARKET in two of three** -> suggestive, reported as suggestive.
-- **TOOL beats MARKET in one or zero** -> the tool has not demonstrated
-  advantage over following the market, and that is the finding.
+- **TOOL beats BASELINE in two of three** -> suggestive, reported as suggestive.
+- **TOOL beats BASELINE in one or zero** -> the tool has not demonstrated
+  advantage over an attentive manager with no tools, and that is the finding.
 - **TOOL loses to ACTUAL in two or more** -> the tool is doing HARM at the seat,
   and that is reported first and loudest.
 
@@ -112,16 +148,23 @@ with its own evidence, per the standing rule.
 
 ---
 
-## 6. THE DECOMPOSITION, DECLARED IN ADVANCE
+## 6. READING THE ISOLATION ARMS
 
-Because a single money number cannot say WHERE the advantage came from, each arm
-is also run with **one subsystem at a time** swapped to the tool:
+Defined in §2b, declared here so the reading is not chosen after seeing which
+one looks good.
 
-- draft only · waivers only · lineup only
+- **TOOL − X beats TOOL** -> subsystem X is doing HARM. Reported first.
+- **TOOL − X ties TOOL** -> X is inert at this seat over these seasons. That is
+  a real result and the honest word for it is "not demonstrated", not "small".
+- **TOOL − X loses to TOOL** -> X contributed, by that margin, at n=3.
 
-Declared now so it is not chosen after seeing which one looks good. If the total
-is positive and every single-subsystem arm is flat, that is an interaction claim
-and needs saying rather than assuming.
+**TOOL vs BPA is the headline of this section**, because roster construction is
+the open question. If BPA matches TOOL, then every construction rule in the
+engine — need, legality, onesie caps, flex discount — is not earning its place,
+and that is a finding worth more than the total.
+
+If the full TOOL advantage is positive while every isolation arm is flat, that
+is an INTERACTION claim and must be stated as one rather than assumed.
 
 ---
 
@@ -129,8 +172,11 @@ and needs saying rather than assuming.
 
 The property that keeps it honest, stated so it can be checked:
 
-1. **The comparison arms are not strawmen.** MARKET follows ADP, which is the
-   consensus of thousands of drafters and beats most humans.
+1. **The comparison arms are not strawmen.** BASELINE drafts to ADP — the
+   consensus of thousands of drafters, which beats most humans — AND plays
+   waivers AND sets a projection-optimal lineup every week. The first version of
+   this document failed this property by letting BASELINE skip waivers
+   entirely; Cory caught it. A control that does nothing is not a control.
 2. **No arm gets information another lacks.** All three see the same week's data.
 3. **The grader is certified and shared**, not written for this experiment.
 4. **The losing outcomes are enumerated above BEFORE running**, with the
@@ -159,7 +205,7 @@ The property that keeps it honest, stated so it can be checked:
 ## 9. WHAT THIS DOES NOT ESTABLISH
 
 - Not that the model will help in 2026. Three past seasons under past rules.
-- Not which component is responsible, unless §6's decomposition separates them.
+- Not which component is responsible beyond what §2b's isolation arms separate.
 - Not calibration of any individual quantity — this is an end-to-end outcome
   test and cannot attribute error to a term.
 - Not anything about the side-bet or league-analyzer tools, which are graded
