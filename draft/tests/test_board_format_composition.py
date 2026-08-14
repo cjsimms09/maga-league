@@ -695,6 +695,17 @@ def test_a_MORE_RECEPTION_HEAVY_market_shows_as_a_NEGATIVE_rho():
     assert rcp is not None, f
     assert rcp["target_share_rho_non_qb"] < 0, rcp
     assert "EARLIER" in rcp["reads"]
+    # ⚠ THE ARM MUST NOT CLAIM A CAUSE IT DOES NOT HAVE. I shipped this saying
+    # the gradient was reception scoring, then refuted it with my own control:
+    # FFC is half-PPR at our league size and shows rho -0.321 against MFL's
+    # -0.301, and a format cause predicts the effect VANISHES there.
+    #
+    # MUTATION: restore the original `reads` — the module asserts a mechanism
+    # that its own control has already killed, and a reader acts on a format
+    # correction that is not what this measures.
+    assert "cause" in rcp and "NOT ESTABLISHED" in rcp["cause"], rcp
+    assert "REFUTED" in rcp["cause"], rcp
+    assert "reception-heavy market" not in rcp["reads"], rcp["reads"]
     # ⚠ AND THE VERDICT, NOT ONLY THE SIGN. Asserting `rho < 0` leaves the TAIL
     # unguarded: flipping `_verdict(..., "low")` to `"high"` changes nothing about
     # rho or the `reads` string, and the gate proved that mutation SURVIVED. The

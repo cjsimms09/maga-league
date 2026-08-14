@@ -765,12 +765,39 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             "n": len(idx), "null": nb,
             "null_too_wide": wide,
             "detected": bool((not thin) and hit),
-            "reads": "NEGATIVE rho = the market prices high-target players "
-                     "EARLIER than our board, which is what a more "
-                     "reception-heavy market looks like from a half-PPR board.",
-            "census_basis": "6.1% of 114 sampled MFL leagues are half-PPR; "
-                            "55.3% are full PPR (format_census_series.json, "
-                            "one undated sample).",
+            "reads": "NEGATIVE rho = this market prices high-target players "
+                     "EARLIER than our board. The EFFECT is real and survives "
+                     "its permutation null; the CAUSE is not established.",
+            # ⚠ MY FIRST EXPLANATION OF THIS ARM WAS REFUTED BY MY OWN CONTROL,
+            # WITHIN THE HOUR. I attributed it to reception scoring — the census
+            # says 55.3% of MFL's pool is full PPR against our 6.1% half-PPR — and
+            # then ran the obvious control: FFC is half-PPR at 10 teams, our exact
+            # format, and it shows the SAME gradient at the SAME magnitude.
+            #
+            #     MFL (format-pooled)      rho -0.301   n=112
+            #     FFC (half-PPR, 10 team)  rho -0.321   n=112
+            #
+            # A format explanation predicts the effect DISAPPEARS against FFC. It
+            # does not. So reception scoring does not explain this and the name of
+            # this key is a historical accident kept only because renaming a
+            # shipped field mid-session costs more than it buys.
+            #
+            # WHAT SURVIVES: two INDEPENDENT MARKETS OF REAL HUMAN DRAFTS agree
+            # with each other and disagree with our board about high-target
+            # players. Our board's `adp` is FantasyPros — EXPERT CONSENSUS, not
+            # drafts — which is why FantasyPros itself yields a constant column
+            # here and no rho at all. The live hypothesis is therefore
+            # drafters-versus-rankers, not scoring, and it is UNTESTED.
+            "cause": "NOT ESTABLISHED. The reception-scoring explanation was "
+                     "REFUTED by control: FFC is half-PPR at our league size and "
+                     "shows rho -0.321 against MFL's -0.301. A format cause "
+                     "predicts the effect vanishes there; it does not.",
+            "control_ffc_rho": -0.321,
+            "surviving_hypothesis": "two markets of REAL DRAFTS agree and differ "
+                                    "from our board, whose adp is FantasyPros "
+                                    "EXPERT CONSENSUS. Drafters vs rankers, "
+                                    "untested — do not act on it as a format "
+                                    "correction.",
         }
 
     detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty),
