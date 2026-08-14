@@ -284,12 +284,24 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   const notYet = (docRaw.split('What I have NOT audited yet')[1] || '').replace(/\s+/g, ' ');
   ck('CONTROL — the unaudited section is locatable and non-empty', notYet.length > 40,
     notYet.length);
-  ck('the legality strip has moved OFF the unaudited list now that it is audited',
-    !/legality strip/.test(notYet), notYet.slice(0, 200));
-  ck('and so has the dollar-gap hero line', !/dollar-gap hero line/.test(notYet),
-    notYet.slice(0, 200));
-  ck('while the ones still outstanding are still named — the list shrank, it did '
-    + 'not get deleted', /LRM strip/.test(notYet) && /manager panel/.test(notYet));
+  /* NAMED SURFACES, NOT A HARD-CODED EXAMPLE. My first version asserted "LRM
+   * strip" was still outstanding — and went red the moment I audited it, which is
+   * the assertion aging into a lie about its own subject. The invariant is that
+   * the two lists are DISJOINT and the outstanding one is non-empty; which names
+   * sit on which side is exactly what is supposed to change. */
+  const AUDITED = ['legality strip', 'dollar-gap hero line', 'LRM strip', 'stack card'];
+  const stillListed = AUDITED.filter(n => new RegExp(n, 'i').test(notYet));
+  ck('every surface with its own section has moved OFF the unaudited list — a '
+    + 'list that never shortens is a decoration that makes the document look '
+    + 'honest', stillListed.length === 0, stillListed);
+  ck('and each of them really does have a section, so "removed from the list" '
+    + 'never means "quietly dropped"',
+  AUDITED.every(n => new RegExp(n.split(' ')[0], 'i').test(docRaw.split('What I have NOT audited yet')[0])),
+  AUDITED.filter(n => !new RegExp(n.split(' ')[0], 'i')
+    .test(docRaw.split('What I have NOT audited yet')[0])));
+  ck('the outstanding list is still NON-EMPTY and named — the sweep is not '
+    + 'finished and must not read as if it were',
+  /manager panel/.test(notYet) && /shadow projection/.test(notYet), notYet.slice(0, 200));
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

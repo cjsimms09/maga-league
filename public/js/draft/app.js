@@ -5246,7 +5246,13 @@
     var host = document.getElementById('stack-line');
     if (!card || !host) return;
     var ctx = context();
-    var res = E.liveStackRoutes((ctx && ctx.roster) || [], scored || []);
+    /* league + currentPick PASSED THROUGH so the badge's correlation value is
+     * computed in exactly the context the composite scores in. Without them
+     * `correlationAdjustment` sees round 1 and skips its playoff-schedule branch,
+     * which is inert today (`playoff_sos` is null on all 686 board rows) but
+     * would silently split the two the day C lands that field. */
+    var res = E.liveStackRoutes((ctx && ctx.roster) || [], scored || [],
+      { league: ctx && ctx.league, currentPick: ctx && ctx.currentPick });
     state.stackRoutes = res;                       // consumed by stackBadge()
     var clsEl = document.getElementById('stack-class');
     if (clsEl) clsEl.textContent = res.class_label;

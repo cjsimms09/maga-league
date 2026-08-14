@@ -219,11 +219,69 @@ reasons where there are two.
 was not. **The half I fixed is the half you have to click.** Now one `season`
 bar carrying the sum, with the fixed split named.
 
+### 7. The LRM strip ("last responsible moment")
+
+**IS:** for each onesie position, the latest of *my own* future picks at which
+somebody in the pool still survives with probability ≥ **0.85**. For QB and TE it
+runs twice — once over a 12-deep startable pool, once over the top tier — and
+shows both lines when they diverge.
+
+**IS NOT:** a promise. "Safe until pick 73" means *85% safe*: roughly one time in
+seven the man is gone. The word "safe" is doing more work than the threshold
+supports, and that is unresolved rather than fixed.
+
+**WHAT WAS BROKEN:** it passed `state.runMults` — a bare multiplier map — where
+`survival()` expects a context. The multipliers applied (that shape is accepted
+deliberately), but with no `currentPick` the call took the **unconditional**
+branch while every other survival reader on the page conditions on *"given he is
+available now"*. One player, two survival numbers, one screen.
+
+**THE ERROR HAD ONE SIGN.** Conditioning can only *raise* survival, so the strip
+could only ever say the window closes sooner than it does. Measured: the 12-deep
+pool absorbs it (**0 of 12** deadlines move), the 3-man elite pool does not
+(**2 of 12**, both later) — including **"elite tier gone" for TE at pick 88 when
+the conditioned answer is safe until 93.**
+
+**NOT CHANGED:** the 0.85 threshold, and Layer 2 (opponent needs) stays off for
+this strip — that is a larger behavioural change with no measurement behind it.
+
+### 8. The stack card and the ⚡ badge
+
+**IS:** live QB↔pass-catcher pairings on the board, each priced by the **same
+`correlationAdjustment` the composite scores** — as of today, one derivation.
+
+**IS NOT:** an installed edge. It carries its class from the evidence table
+(`weak` → "LEAN, not installed"), and it was lead-driver on **5 of 221**
+interventions. That label is derived, not typed: flip the table and the card
+follows.
+
+**WHAT WAS BROKEN:** the badge scored routes off the pairing bonus alone and
+skipped the same-team competition penalty, on the reasoning that competition is
+"a penalty, not a route to complete" — true of whether a route *exists*, false of
+what it is *worth*. With Chase, a real keeper, on the roster:
+
+| roster | badge | composite `stack` |
+|---|---|---|
+| Chase + Burrow, 2nd CIN receiver | ⚡ | **+2** |
+| + Higgins, 3rd CIN catcher | ⚡ | **−4** |
+| + Gesicki, 4th | ⚡ | **−6** |
+
+So the card said *"extends Burrow stack"* on picks the model was docking, along
+the exact path it recommends. The route value is now the composite's number and a
+non-positive route is not offered.
+
+**⚠ `stack` IS NOT ONLY STACKING.** `correlationAdjustment` carries three effects:
+the pairing bonus, the same-team competition penalty, and **a playoff-schedule
+bump from round 6** worth up to ±4 × sos — which nobody would guess from the term
+name, and which the §1 table counts inside `stack`'s 10.6%. It has **never
+fired**: `playoff_sos` is null on all 686 board rows. Asserted, so the day that
+field lands the suite goes red instead of the behaviour appearing in a pick.
+
 ---
 
 ## What I have NOT audited yet
 
-The LRM strip, the stack card, the movement line, the shadow projection, and the
-manager panel. Named so this document cannot read as a completed sweep. Roughly
-20 more surfaces carry a number; six are covered here — four because they decide
-a pick, and two added after the audit reached them.
+The movement line, the shadow projection, and the manager panel. Named so this
+document cannot read as a completed sweep. Roughly 20 more surfaces carry a
+number; seven are covered here — four because they decide a pick, and three added
+as the audit reached them.

@@ -3586,16 +3586,49 @@
       var qbs = mates.filter(function (m) { return m.position === 'QB'; });
       var catchers = mates.filter(function (m) { return m.position === 'WR' || m.position === 'TE'; });
 
-      var value = 0, anchor = null;
+      var anchor = null;
       if (p.position === 'QB' && catchers.length) {
-        value = catchers[0].position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = catchers[0];
       } else if ((p.position === 'WR' || p.position === 'TE') && qbs.length) {
-        value = p.position === 'TE' ? CFG.STACK_QB_TE : CFG.STACK_QB_WR1;
         anchor = qbs[0];
       } else {
-        return; // same-team competition is a penalty, not a route to complete
+        return; // no pairing exists at all — not a route
       }
+
+      /* ⚠ THE BADGE USED TO SCORE THE ROUTE ITSELF, AND IT SCORED ONLY THE HALF
+       * THAT FLATTERS IT (2026-08-14).
+       *
+       * This read the bonus straight off `CFG.STACK_QB_TE / STACK_QB_WR1` and
+       * skipped the competition penalty on the stated grounds that "same-team
+       * competition is a penalty, not a route to complete". True of whether a
+       * ROUTE EXISTS; false of what the route is WORTH — and the badge is read as
+       * a recommendation, not as a topology fact.
+       *
+       * `correlationAdjustment` — the function the COMPOSITE actually scores —
+       * adds the pairing bonus AND subtracts `SAME_TEAM_COMPETITION` per
+       * same-team pass-catcher already held. So the two disagreed, measured:
+       *
+       *   Chase + Burrow, considering a 2nd CIN receiver   badge ⚡  term  +2
+       *   + Higgins,      considering a 3rd CIN catcher    badge ⚡  term  -4
+       *   + Gesicki,      considering a 4th                badge ⚡  term  -6
+       *
+       * Chase is a KEEPER, so "keep Chase, stack Burrow, add Higgins" is exactly
+       * the path this badge talks Cory down — and then it keeps saying "extends
+       * Burrow stack" while the model docks the pick for splitting one pie.
+       *
+       * ONE DERIVATION NOW. The value is the composite's own number, so the badge
+       * cannot disagree with the score by construction, and the two copies of the
+       * stack constants cannot drift apart. A route whose NET value is not
+       * positive is not offered — the panel's job is live routes worth taking.
+       *
+       * `league`/`currentPick` are passed through when the caller has them. Absent,
+       * `correlationAdjustment` sees round 1 and skips its playoff-schedule branch
+       * — which is inert either way today: `playoff_sos` is null on all 686 board
+       * rows, so that term has never once fired in production. */
+      var value = C.correlationAdjustment(p, {
+        roster: roster, league: opts.league || null, currentPick: opts.currentPick || null,
+      }).value;
+      if (!(value > 0)) return;
 
       // First pairing on this team (single) vs an add-on to an existing QB+catcher pair (double).
       var single = !(qbs.length && catchers.length);
