@@ -990,6 +990,22 @@
       "test_the_RATCHET_TIGHTENS_ITSELF_when_the_board_is_rebuilt"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    return bool(built) and built > ADP_SD_SOURCE_FIX_LANDED",
+     "new": "    return False",
+     "must_fail": [
+      "test_the_adp_sd_source_RATCHET_TIGHTENS_ITSELF"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "ADP_SD_SOURCE_FIX_LANDED = \"2026-08-14T01:18:27Z\"",
+     "new": "ADP_SD_SOURCE_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
+     "must_fail": [
+      "test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
