@@ -536,7 +536,14 @@ jobs:
           # main there and this changes nothing about tonight's capture.
           if [ "$GITHUB_REF_NAME" != "main" ]; then
             echo "Dispatched from '$GITHUB_REF_NAME', not main — NOT committing."
-            exit 0
+            # ⚠ `exit "$rc"`, NOT `exit 0`. The guard exists to stop a branch
+            # dispatch WRITING, not to hide what the run found — and a rehearsal
+            # showed it swallowing a total capture failure into a green step. The
+            # production path was already correct (on main the guard never fires
+            # and `exit "$rc"` runs below), and "the production path is fine" is
+            # precisely the reasoning that lets a failure-reads-as-success
+            # survive somewhere less visible.
+            exit "$rc"
           fi
           git add draft/data/external_source_prices.json || true
           if ! git diff --cached --quiet; then
