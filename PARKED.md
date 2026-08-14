@@ -11656,3 +11656,56 @@ No code written, no experiment registered, nothing gated. This is a full spec be
 Cory asked for one thorough enough to build from — the actual build, sequencing
 against everything else in the Lab queue, and any design changes along the way are
 entirely A's call.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — VERIFIED: THIS SEASON'S CAPTURES ARE LIVE, THREE SMALL GAPS BEFORE THEY START MATTERING
+
+**FOR: A.** Follow-up to the GM-simulation spec above — Cory asked to confirm this
+season's data is actually being captured live so next year's simulation has real
+2026 point-in-time data (not another season needing reconstruction like 2023–2025).
+Checked directly, good news first.
+
+## Confirmed already built and running — no action needed
+
+`weekly-proj-snapshot.yml` fires every Sunday 13:00 UTC with no end condition — it
+does not stop after draft day. It writes `draft/data/proj_series.json` and already
+has 11 passing tests, including explicit preseason/regular-season coexistence
+checks. Its own docstring already reasons through the exact "providers overwrite in
+place, this is the one thing that must be captured live" problem this thread
+identified — someone already solved this. It's currently capturing BOTH Sleeper and
+FantasyPros (more than expected — `consensus.js`'s comment saying FantasyPros isn't
+populated is now stale, see gap 1). Free-agent pools and nflverse stats/injuries need
+no live capture — both are reconstructable after the fact next year, from Sleeper's
+history API and nflverse's own public archive respectively.
+
+## Three small, time-sensitive gaps — season starts in ~3 weeks
+
+1. **Capture is ahead of consumption.** `proj_series.json` already has FantasyPros
+   data archived, but `consensus.js` (every in-season tool's shared projection feed)
+   still doesn't read it. This season's ARCHIVE will be fine for next year's
+   simulation either way — but the LIVE waiver/lineup/analyzer tools running this
+   season won't benefit from the second source until that wiring happens separately.
+   Worth doing for this season's actual users, not just future backtesting.
+2. **Only Sunday is captured; Tuesday's waiver deadline isn't.** `waiver_day_of_week: 2`
+   and there's already a Tuesday "before Wednesday waivers" cron on the draft-board
+   rebuild (`draft-data.yml`) — add a matching Tuesday projection snapshot so next
+   year's simulation has an honest point-in-time number for waiver decisions instead
+   of reusing Sunday's (5 days stale by Tuesday).
+3. **Stale comments will mislead whoever builds next year's simulation.** Both
+   `proj_series.json`'s file-level note and `weekly_proj_snapshot.py`'s docstring
+   still say "preseason snapshots only" — true when written, not true once the Sunday
+   cron starts firing into the season. Update them so nobody reads that comment in
+   January and assumes there's no in-season data when there will be.
+
+## One thing to just know about, not act on now
+
+GitHub auto-disables scheduled workflows after 60 days of repo inactivity. Not a
+real risk at current commit frequency — worth remembering only if there's ever a
+quiet off-season stretch, since a disabled cron fails silently with no error.
+
+## What this is NOT
+
+No code touched, nothing gated. Gaps 1–3 are small and cheap; flagging them now
+because closing them costs nothing today and costs a full season of missing data if
+caught in January instead.
