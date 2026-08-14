@@ -8100,6 +8100,10 @@
       });
       if (out.over_budget) {
         state.opponentPredictOff = true;
+        /* WHY IT STOPPED AND FROM WHERE, so the gap in coverage has a cause
+         * attached to it rather than being an unexplained hole in January. */
+        state.opponentPredictOffAt = cur;
+        state.opponentPredictOffWhy = out.why || 'over budget';
         console.warn('[opponent-predict] ' + out.why);
         return;
       }
@@ -8113,21 +8117,101 @@
     } catch (e) {
       /* NEVER BLOCK THE CLOCK. A shadow measurement that breaks the board costs
        * more than it is worth, which is the standing condition on this whole
-       * experiment. Loud in the console, invisible on the page. */
+       * experiment. Loud in the console, invisible on the page.
+       * COUNTED, THOUGH — see opponentPredictCoverage. A console line is not
+       * evidence; it is gone when the tab closes, and the missing rows it
+       * explains are still missing in January. */
+      state.opponentPredictErrors = (state.opponentPredictErrors || 0) + 1;
+      state.opponentPredictLastError = (e && e.message) || String(e);
       console.error('[opponent-predict] emit failed —', e && e.message);
     }
+  }
+
+  /* ── THE DENOMINATOR. WITHOUT IT THE EXPERIMENT HAS NO POWER. ─────────────
+   *
+   * `OpponentPredict.summarize` accounts for its exclusions carefully — it
+   * reports n_excluded_no_profile and says why. But it can only account for
+   * ROWS THAT EXIST. A pick that was never predicted at all produces no
+   * forecast, therefore no resolution, therefore no row, and vanishes from the
+   * accounting entirely.
+   *
+   * So `n_compared: 60` reads identically whether we predicted 60 of 60 or 60
+   * of 138. The first is an experiment; the second is a biased sample of one,
+   * because the picks that go unpredicted are not a random subset — they are
+   * the ones where the budget blew, which correlates with a big board, which is
+   * early, which is where profiles differ most from ADP.
+   *
+   * THREE WAYS COVERAGE IS LOST, and all three are silent today:
+   *   the budget blowing once turns prediction off for the REST OF THE DRAFT
+   *   an exception in emit is caught and only console-logged
+   *   a window never emitted because sync was dead across it
+   *
+   * This DERIVES the denominator from pick_order — the same authoritative
+   * artifact interveningPicks reads — rather than asserting a count. Every
+   * number below is computed from what the pipeline actually did.
+   *
+   * REPORTED, NOT ENFORCED. It changes no prediction and blocks nothing; it
+   * makes "was this sample complete" answerable instead of assumed. */
+  function opponentPredictCoverage() {
+    const cur = currentPick();
+    const rows = ((state.data || {}).pick_order || {}).picks || [];
+    if (cur == null || !rows.length) return null;
+    const mine = {};
+    (((state.data || {}).pick_order || {}).my_picks || []).forEach(n => { mine[Number(n)] = 1; });
+    const predicted = state.opponentPredicted || {};
+    let due = 0, got = 0;
+    rows.forEach(r => {
+      const no = Number(r.overall);
+      // A keeper slot is not a decision anybody makes, and my own picks are not
+      // opponent picks. Neither is predictable, so neither belongs in the
+      // denominator — the same picks-versus-selections distinction as elsewhere.
+      if (!isFinite(no) || no >= cur || r.keeper_slot || mine[no]) return;
+      due += 1;
+      if (predicted[no]) got += 1;
+    });
+    return {
+      opponent_picks_due: due,
+      opponent_picks_predicted: got,
+      coverage: due ? Math.round((got / due) * 1000) / 1000 : null,
+      // THE CAUSES, so a gap is diagnosable rather than merely visible.
+      predictor_off: !!state.opponentPredictOff,
+      predictor_off_at: state.opponentPredictOffAt == null ? null : state.opponentPredictOffAt,
+      predictor_off_why: state.opponentPredictOffWhy || null,
+      emit_errors: state.opponentPredictErrors || 0,
+      last_error: state.opponentPredictLastError || null,
+      unresolved_queue: (state.opponentForecasts || []).length,
+      at_pick: cur,
+    };
   }
 
   function resolveOpponentPredictions(picks) {
     if (state.mockMode) return;
     if (typeof OpponentPredict === 'undefined' || typeof PredLedger === 'undefined') return;
     const fc = state.opponentForecasts || [];
+    const c = ledgerCtx();
+    /* ⚠️ COVERAGE IS EMITTED BEFORE THE EARLY RETURN, AND THAT ORDER IS THE
+     * WHOLE POINT. My first cut put it at the end of this function, below
+     * `if (!fc.length) return` — so the ONE case coverage exists to record, the
+     * predictor failing from the first pick and producing no forecasts at all,
+     * would have emitted nothing. Zero rows and zero coverage rows look
+     * identical, which is precisely the ambiguity this is meant to remove.
+     *
+     * A coverage row that only appears when there is something to cover is not
+     * an instrument, it is a decoration. */
+    try {
+      const cov = opponentPredictCoverage();
+      if (cov && state.opponentCoverageAt !== cov.at_pick) {
+        state.opponentCoverageAt = cov.at_pick;
+        PredLedger.capture('opponent_prediction_coverage', { season: c.season,
+          build_at: c.build_at, pick: cov.at_pick,
+          method: 'opponent-predict-v1', payload: cov });
+      }
+    } catch (e) { console.error('[opponent-predict] coverage failed —', e && e.message); }
     if (!fc.length || !picks || !picks.length) return;
     const byPick = {};
     picks.forEach(pk => {
       if (pk && pk.pick_no != null && pk.player_id != null) byPick[Number(pk.pick_no)] = String(pk.player_id);
     });
-    const c = ledgerCtx();
     state.opponentForecasts = fc.filter(f => {
       const actual = byPick[f.subject.pick_no];
       if (actual == null) return true;            // not taken yet — NOT a miss
@@ -8138,7 +8222,11 @@
             build_at: c.build_at, pick: f.subject.pick_no,
             method: 'opponent-predict-v1', payload: r });
         }
-      } catch (e) { console.error('[opponent-predict] resolve failed —', e && e.message); }
+      } catch (e) {
+        state.opponentPredictErrors = (state.opponentPredictErrors || 0) + 1;
+        state.opponentPredictLastError = (e && e.message) || String(e);
+        console.error('[opponent-predict] resolve failed —', e && e.message);
+      }
       return false;                               // resolved: drop from the queue
     });
   }
