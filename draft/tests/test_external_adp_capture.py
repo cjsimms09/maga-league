@@ -2059,6 +2059,16 @@ def _calls(fn) -> set:
     return out
 
 
+#: `_series_of` was briefly on this list and is deliberately NOT any more, and
+#: the round trip is worth recording because the classification test drove
+#: every step of it. Filed under GUARDS first (the collapse guard reads it,
+#: wrapped) — refused, because `save()` reaches it via `coverage()` so a
+#: failure legitimately aborts the WRITE. Moved here — then refused AGAIN by
+#: the other direction of the same test once the read moved inside
+#: `collapse_verdict`: `capture` no longer calls it, so a fault injected into
+#: it was being injected into nothing. Wrapping a call site does not make a
+#: function a guard, and classifying one `capture` does not call proves
+#: nothing at all.
 WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
 #: `blocking_fatal` joined `integrity` here the moment it was written, because the
 #: check above FORCED the decision — it failed naming the new call by name rather
@@ -2069,7 +2079,12 @@ WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
 #: not be able to reach back and cost the day. It is called inside the report
 #: `try` for exactly that, and the parametrised test below proves it rather than
 #: trusting the placement.
-GUARDS = ["integrity", "blocking_fatal", "sel_pct_units"]
+#: `collapse_verdict` joined them on 2026-08-14 — the truncated-200 refusal.
+#: It REFUSES a collapsed board by design, and that refusal propagates; what
+#: must never propagate is the guard itself throwing, so `capture` wraps the
+#: call and only the verdict escapes. The parametrised test below proves the
+#: wrap rather than trusting it.
+GUARDS = ["integrity", "blocking_fatal", "sel_pct_units", "collapse_verdict"]
 #: The SOURCE. Not a guard and not the write: if it fails there is no board at
 #: all, so aborting is the only honest outcome. Grouped with the write path for
 #: the loud-and-no-partial-file assertion because the requirement is identical.
@@ -3430,3 +3445,113 @@ def test_THE_MEASURED_RETURN_CARRIES_A_STATUS_at_all():
         assert "status" in got, got
         assert got["status"] in ("measured", "unmeasured")
         assert set(("status", "ok", "fatal", "observed", "checked", "players")) <= set(got)
+
+
+# ── A TRUNCATED 200 IS THE ONLY BROKEN RESPONSE THAT LOOKS LIKE A GOOD DAY ───
+#
+# Measured by substituting the wire under `capture` and breaking it nine ways. A
+# connection error, a 404, a 403, an empty body, garbage and a zero-player export
+# ALL raise and leave the archive untouched. A 200 carrying 20 of 681 players in
+# a perfectly valid MFL shape wrote a 20-row day with no complaint — into an
+# APPEND-ONLY archive whose days cannot be refetched.
+#
+# ⚠ THESE TEST `collapse_verdict`, NOT A COPY OF IT. The first cut left the
+# condition inline in `capture` — which is `pragma: no cover` egress — so the
+# tests pinned a reimplementation of the arithmetic living in THIS FILE. The
+# mutation gate killed nothing: changing the shipped condition left them all
+# green. The function was extracted for that reason and nothing else.
+
+
+def _cday(n, day="2026-08-13", year="2026"):
+    return {"year": year, "observed_at": day,
+            "rows": {str(i): float(i + 1) for i in range(n)},
+            "row_count": n, "total_drafts": 120, "dispersion": None}
+
+
+def test_A_BOARD_THAT_KEEPS_UNDER_HALF_OF_YESTERDAY_IS_REFUSED():
+    """20 of 681 is 2.9%. The largest REAL day-over-day loss this feed has shown
+    is 36 of 708 — 5.1% — so a floor at 50% sits ten times above the drift and
+    cannot fire on it.
+
+    MUTATION: reuse `ROW_DROP_FLOOR` (30 ROWS) as the write-time bar — an ordinary
+    Tuesday that sheds 36 marginal players is refused, and the archive starts
+    losing real, unrefetchable days to its own alarm."""
+    ser = [_cday(681)]
+    assert C.collapse_verdict(20, ser, "2026", "2026-08-14")["refuse"] is True
+    assert C.collapse_verdict(340, ser, "2026", "2026-08-14")["refuse"] is True
+    assert C.collapse_verdict(341, ser, "2026", "2026-08-14")["refuse"] is False
+    # AND THE REAL OBSERVED DRIFT MUST SURVIVE — this is the calibration itself.
+    assert C.collapse_verdict(672, [_cday(708)], "2026", "2026-08-14")["refuse"] is False
+
+
+def test_THE_FIRST_DAY_HAS_NO_YESTERDAY_AND_SAYS_SO_rather_than_passing():
+    """A season's first capture has nothing to compare. Refusing it would lose the
+    first day of every year; reporting a plain pass would be a check whose only
+    possible answer is "nothing yet" claiming to have looked (rule 13f).
+
+    MUTATION: return `refuse: True` when `prior` is empty — no 2027 board is ever
+    archived. Or return a bare `refuse: False` with `status: measured` — the first
+    morning of the season certifies a board nothing examined."""
+    got = C.collapse_verdict(681, [], "2026", "2026-08-14")
+    assert got["refuse"] is False
+    assert got["status"] == "first_day"
+    assert got["was"] is None and got["kept"] is None
+    # A DIFFERENT YEAR'S DAYS ARE NOT A YESTERDAY EITHER.
+    other = C.collapse_verdict(681, [_cday(700, year="2025")], "2026", "2026-08-14")
+    assert other["status"] == "first_day"
+
+
+def test_A_PREVIOUS_DAY_WITH_NO_ROWS_IS_NOT_A_DENOMINATOR():
+    """Two days archived before the parser worked hold no rows. A share of zero is
+    not a quantity, and `now / 0` is the crash — inside the guard that stands
+    between a good board and the disk.
+
+    MUTATION: divide anyway — the guard raises ZeroDivisionError, `capture` catches
+    it, prints "COULD NOT RUN", and every day after an empty one is written
+    unjudged with nobody the wiser."""
+    got = C.collapse_verdict(681, [_cday(0)], "2026", "2026-08-14")
+    assert got["refuse"] is False and got["status"] == "prior_empty"
+    assert got["kept"] is None
+
+
+def test_THE_FLOOR_IS_A_SEPARATE_CONSTANT_FROM_THE_REPORTING_ONE():
+    """Two thresholds meaning different things must not be one name (rule 11).
+    `ROW_DROP_FLOOR` is 30 ROWS and reports inside `coverage`, AFTER the write;
+    this is a FRACTION and refuses BEFORE it.
+
+    MUTATION: set them equal — 30 read as a share refuses every board smaller than
+    thirty times yesterday, which is every board there has ever been."""
+    assert C.COLLAPSE_KEEP_FRACTION != C.ROW_DROP_FLOOR
+    assert 0.0 < C.COLLAPSE_KEEP_FRACTION < 1.0, "a share, not a row count"
+    assert C.ROW_DROP_FLOOR >= 1, "a row count, not a share"
+
+
+def test_THE_COMPARISON_IS_AGAINST_YESTERDAY_not_the_first_or_the_biggest_day():
+    """Against the biggest day ever seen, one unusually deep morning permanently
+    raises the bar and later normal days are refused. Against the first, the bar
+    never moves with the feed.
+
+    MUTATION: take `prior[0]` instead of the latest — with a 700-row day on the
+    10th and a 300-row day on the 13th, today's ordinary 310 is refused against a
+    board four days stale."""
+    ser = [_cday(700, "2026-08-10"), _cday(300, "2026-08-13")]
+    got = C.collapse_verdict(310, ser, "2026", "2026-08-14")
+    assert got["was"] == 300, "must compare against the LATEST earlier day"
+    assert got["refuse"] is False
+    # AND THE SAME BOARD AGAINST THE WRONG DAY IS WHAT THE MUTATION DOES.
+    assert C.collapse_verdict(310, [_cday(700, "2026-08-10")],
+                              "2026", "2026-08-14")["refuse"] is True
+
+
+def test_A_LATER_DAY_IS_NOT_A_YESTERDAY():
+    """A same-day re-run must compare against the day BEFORE, not against the copy
+    of itself already in the archive — which would always be a 100% keep and pass
+    unconditionally.
+
+    MUTATION: drop the `< observed_at` filter — a re-dispatched truncated morning
+    compares 20 rows against the 20 already written by the bad run, keeps 100%,
+    and the collapse is certified clean on its second attempt."""
+    ser = [_cday(681, "2026-08-13"), _cday(20, "2026-08-14")]
+    got = C.collapse_verdict(20, ser, "2026", "2026-08-14")
+    assert got["was"] == 681, "the same date must not be its own baseline"
+    assert got["refuse"] is True

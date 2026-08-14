@@ -52,6 +52,19 @@ SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.
 #: tuned: ~5% of a ~700-player board, the size of the drop that prompted this.
 ROW_DROP_FLOOR = 30
 
+#: A day keeping less than this share of the previous day's board is a TRUNCATED
+#: FETCH, not the feed moving, and it is refused BEFORE the write.
+#:
+#: DECLARED FROM THE FEED'S OWN OBSERVED MOVEMENT, not fitted to a failure: the
+#: largest real day-over-day loss this archive has recorded is 36 of 708 rows,
+#: 5.1% (`row_drop_note`, 2026-08-13). Half is ten times that, so this cannot
+#: fire on drift — only on a board that mostly did not arrive.
+#:
+#: ⚠ IT IS A SEPARATE CONSTANT FROM `ROW_DROP_FLOOR` ON PURPOSE. That one is a
+#: REPORTING threshold inside `coverage`, it runs AFTER the write, and 30 rows is
+#: ordinary here. Reusing it would refuse a normal Tuesday.
+COLLAPSE_KEEP_FRACTION = 0.5
+
 SNAPSHOT_FIELDS = ["year", "observed_at", "rows", "total_drafts", "row_count",
                    "source_note", "dispersion"]
 
@@ -2061,6 +2074,41 @@ def assemble_day(adp_text, players_text, note=""):
     return rows, players, total, note, dispersion
 
 
+def collapse_verdict(now: int, series, year, observed_at) -> dict:
+    """Is today's board a TRUNCATED FETCH rather than the feed moving? -> verdict.
+
+    EXTRACTED FROM `capture` SO IT IS REACHABLE AT ALL. `capture` is egress and
+    carries `pragma: no cover`; a guard living inside it can only be tested by
+    reimplementing its arithmetic in the test file, and a test that reimplements
+    the thing it checks passes no matter what the shipped code does. THE MUTATION
+    GATE PROVED THAT ON THE FIRST CUT OF THIS GUARD: changing the real condition
+    inside `capture` left every test written for it green.
+
+    `refuse: False` WITH A `status` SAYS WHICH KIND OF PASS IT IS. The season's
+    first capture has no yesterday, and that is `first_day` rather than a clean
+    bill — a check whose only possible answer is "nothing to compare" has not
+    looked (rule 13f).
+    """
+    prior = [s for s in _series_of(series)
+             if str(s.get("year")) == str(year)
+             and (s.get("observed_at") or "") < str(observed_at)]
+    if not prior:
+        return {"refuse": False, "status": "first_day", "now": now, "was": None,
+                "kept": None, "floor": COLLAPSE_KEEP_FRACTION,
+                "note": "no earlier day for %s, so nothing was compared — that is "
+                        "the archive's age, not a judgement on this board" % year}
+    was = len((sorted(prior, key=lambda s: s.get("observed_at") or "")[-1]
+               .get("rows") or {}))
+    if not was:
+        return {"refuse": False, "status": "prior_empty", "now": now, "was": was,
+                "kept": None, "floor": COLLAPSE_KEEP_FRACTION,
+                "note": "the previous day holds no rows, so a share of it is not "
+                        "a quantity — nothing was compared"}
+    kept = now / float(was)
+    return {"refuse": kept < COLLAPSE_KEEP_FRACTION, "status": "measured",
+            "now": now, "was": was, "kept": kept, "floor": COLLAPSE_KEEP_FRACTION,
+            "note": "kept %.1f%% of yesterday's %d rows" % (100.0 * kept, was)}
+
 def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only)
     rows, players, total, note, dispersion = fetch_mfl(year)
     if not rows:
@@ -2071,6 +2119,45 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
             "capture for %s on %s returned ZERO rows — refusing to write an empty "
             "snapshot, because a dated empty board is indistinguishable from a real "
             "one downstream (%s)" % (year, observed_at, note))
+    # ⚠ A TRUNCATED BOARD IS THE ONE BROKEN RESPONSE THAT LOOKS LIKE A GOOD DAY.
+    # Measured by breaking the wire nine ways against this exact function: a
+    # connection error, a 404, a 403, an empty body, garbage and a zero-player
+    # export ALL raise and leave the archive untouched. A 200 carrying 20 of 681
+    # players in a perfectly valid MFL shape wrote a 20-row day with no complaint
+    # — into an APPEND-ONLY archive whose days cannot be refetched, where every
+    # later coverage figure counts it as a captured day.
+    #
+    # `if not rows` above catches only ZERO. This catches the collapse.
+    #
+    # WHY REFUSE RATHER THAN MARK, given this file's own rule that a lost day is
+    # permanent and a corrupt one is recoverable: a truncated day is NOT
+    # recoverable-by-noticing. A 20-row day reads as a 20-row day forever, and
+    # nothing downstream can tell it from a market that priced 20 players. The
+    # day is also not lost — this workflow takes `workflow_dispatch`, and three
+    # of its seven runs to date were dispatches, so a refused morning is re-run
+    # rather than gone.
+    # ⚠ AND THE GUARD MUST NOT BE ABLE TO KILL THE DAY EITHER — the fourth time
+    # this file has had to say so, and the standing classification test caught me
+    # not saying it. REFUSING BECAUSE THE BOARD COLLAPSED is the point; ABORTING
+    # BECAUSE THIS CODE THREW is the alarm destroying what it watches. So the
+    # measurement sits in a `try` and only the VERDICT propagates.
+    verdict = {"refuse": False, "status": "guard_failed"}
+    try:
+        verdict = collapse_verdict(len(rows), load(path), year, observed_at)
+    except Exception as e:                                       # noqa: BLE001
+        print("collapse guard COULD NOT RUN (%s: %s) — the truncation check did "
+              "not happen and the day is being written unjudged. That is a fact "
+              "about this guard, not about the board." % (type(e).__name__, e))
+    if verdict["refuse"]:
+        raise RuntimeError(
+            "capture for %s on %s returned %d rows against %d yesterday — %s, "
+            "under the %.0f%% floor. Refusing to write: a truncated 200 is "
+            "indistinguishable downstream from a market that priced this many "
+            "players, and this archive cannot refetch the day to correct it. "
+            "Re-dispatch the workflow (%s)"
+            % (year, observed_at, verdict["now"], verdict["was"],
+               verdict["note"], 100.0 * verdict["floor"], note))
+
     series = append_snapshot(load(path), year, observed_at, rows, total,
                              source_note=note, dispersion=dispersion)
 
