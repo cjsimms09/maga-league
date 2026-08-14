@@ -952,6 +952,38 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/waiver_replacement.py": {
+   "tests": [
+    "draft/tests/test_waiver_replacement.py"
+   ],
+   "mutations": [
+    {
+     "old": "    rec = base / \"data\" / \"player_positions.json\"\n    if rec.exists():",
+     "new": "    rec = base / \"data\" / \"player_positions.json\"\n    if False:",
+     "must_fail": [
+      "test_PRUNING_THE_2026_BOARD_DOES_NOT_MOVE_A_2023_MEASUREMENT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for p in (board or []):\n        pid, pos = p.get(\"player_id\"), p.get(\"position\")\n        if pid and pos:\n            out[str(pid)] = pos",
+     "new": "    for p in []:\n        pid, pos = p.get(\"player_id\"), p.get(\"position\")\n        if pid and pos:\n            out[str(pid)] = pos",
+     "must_fail": [
+      "test_the_RECORD_IS_OVERLAID_BY_THE_LIVE_BOARD_so_corrections_still_land"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if pid and pos:\n            out[str(pid)] = pos\n    return out",
+     "new": "        if pid and pos:\n            out[str(pid)] = pos\n    return {k: v for k, v in out.items() if k != \"10859\"}",
+     "must_fail": [
+      "test_THE_UNRESOLVABLE_ACQUISITIONS_ARE_KNOWN_AND_DO_NOT_GROW",
+      "test_the_RATCHET_TIGHTENS_ITSELF_when_the_gap_closes"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
