@@ -10,12 +10,12 @@
   "season_wins",
   "outrights"
  ],
- "event_id": 71548092,
+ "event_id": 71548098,
  "league": "usa-nfl-preseason",
  "parameter_honoured": {
   "honoured": false,
-  "real_keys": 2,
-  "control_keys": 2,
+  "real_keys": 7,
+  "control_keys": 7,
   "note": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
  },
  "availability": {
@@ -31,20 +31,34 @@
   },
   "game_totals": {
    "state": "unmeasured",
-   "matched": [],
+   "matched": [
+    "Team Total Away",
+    "Team Total Home",
+    "Totals"
+   ],
    "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
   },
   "sides": {
    "state": "unmeasured",
-   "matched": [],
+   "matched": [
+    "ML",
+    "Spread"
+   ],
    "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
   }
  },
  "observed_markets": {
   "player_props": [],
   "season_win_totals": [],
-  "game_totals": [],
-  "sides": []
+  "game_totals": [
+   "Team Total Away",
+   "Team Total Home",
+   "Totals"
+  ],
+  "sides": [
+   "ML",
+   "Spread"
+  ]
  },
  "unclassified": [
   "American Football",
@@ -52,16 +66,49 @@
  ],
  "credit": {
   "spent": 2,
-  "remaining": 92,
+  "remaining": 84,
   "note": "measured from the provider's own remaining counter, not from how many calls we think we made"
  },
  "verdict": "VOID \u2014 the parameter was not read",
  "default_markets": {
   "player_props": [],
   "season_win_totals": [],
-  "game_totals": [],
-  "sides": []
+  "game_totals": [
+   "Team Total Away",
+   "Team Total Home",
+   "Totals"
+  ],
+  "sides": [
+   "ML",
+   "Spread"
+  ]
  },
+ "raw_shape": [
+  "DraftKings",
+  "FanDuel",
+  "bookmakerIds",
+  "bookmakers",
+  "league",
+  "odds",
+  "sport",
+  "urls"
+ ],
+ "raw_names": [
+  "American Football",
+  "ML",
+  "Spread",
+  "Team Total Away",
+  "Team Total Home",
+  "Totals",
+  "USA - NFL Preseason"
+ ],
+ "selection_sample": [
+  "ML",
+  "Spread",
+  "Team Total Away",
+  "Team Total Home",
+  "Totals"
+ ],
  "events_listed": 48,
- "event_date": "2026-08-13T23:00:00Z"
+ "event_date": "2026-08-14T23:00:00Z"
 }

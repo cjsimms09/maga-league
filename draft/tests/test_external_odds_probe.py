@@ -12,6 +12,7 @@ vocabulary we did not anticipate being reported rather than dropped.
 
 Run: python3 -m pytest draft/tests/test_external_odds_probe.py -q
 """
+import json
 import sys
 from pathlib import Path
 
@@ -273,3 +274,104 @@ def test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one():
               {"id": "mid", "date": "2026-09-08T00:20:00"}]
     assert [e["id"] for e in P.nearest_first(events)] == ["soon", "mid", "far", "undated"]
     assert P.nearest_first([]) == []
+
+
+def test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE():
+    """RUN 3 PICKED A KICKOFF IN THE PAST. `nearest_first` sorted ascending with no
+    sense of now, so on a 48-event preseason list it chose 2026-08-13T23:00Z — a
+    game that had already started — and a finished game has no live board. The
+    verdict that followed was about a played game, not about the provider.
+
+    Future ascending first, then undated, then the past most-recent-first: a game
+    that kicked off an hour ago may still carry a board, one from last month will
+    not, and an undated event is not "far away" so it stays ahead of the corpses.
+
+    MUTATION: sort by date alone — the oldest fixture in the list wins every time,
+    which on any full-season slate means a game from weeks ago."""
+    events = [{"id": "past", "date": "2026-08-10T00:00:00"},
+              {"id": "far", "date": "2026-12-28T18:00:00"},
+              {"id": "soon", "date": "2026-08-15T00:20:00"},
+              {"id": "undated"},
+              {"id": "justplayed", "date": "2026-08-13T23:00:00"}]
+    got = [e["id"] for e in P.nearest_first(events, now="2026-08-14T05:30:00")]
+    assert got == ["soon", "far", "undated", "justplayed", "past"], got
+
+
+def test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD():
+    """RUN 3'S REFUSAL DID NOT FIRE, AND THE REASON IS MY OWN READER. The empty
+    check asked whether ANY market name was found, and the response's `sport` and
+    `league` names — `American Football`, `USA - NFL Preseason` — come through the
+    naming fields. Two names, zero markets, and the payload read as non-empty.
+
+    A real odds board always carries PRICED selections. That is the shape test, and
+    it is the same one that separates a market from a player elsewhere in this file.
+
+    MUTATION: test for any name at all — a response carrying nothing but the sport
+    and league reads as a board, the refusal never fires, and the control convicts
+    the parameter on an empty payload exactly as it did on runs 2 and 3."""
+    names_only = {"sport": {"name": "American Football"},
+                  "league": {"name": "USA - NFL Preseason"}}
+    assert P.market_keys(names_only)          # names ARE found — that was the trap
+    assert P.has_board(names_only) is False
+    assert P.has_board(PROPS) is True
+    assert P.has_board(DEFAULT_ONLY) is True
+    assert P.has_board(None) is False
+
+
+# ── THE REAL SHAPE, FROM RUN 4 — the fixture I could not have written before ─
+#
+# `raw_shape: [DraftKings, FanDuel, bookmakerIds, bookmakers, league, odds,
+#  sport, urls]` and `selection_sample: [ML, Spread, Team Total Away,
+#  Team Total Home, Totals]`. So this provider's MARKET names carry price fields
+# as siblings, which my `priced` rule files as selections — and `market_keys`
+# came back holding nothing but `American Football` and `USA - NFL Preseason`.
+REAL_SHAPE = {
+    "sport": {"name": "American Football"},
+    "league": {"name": "USA - NFL Preseason"},
+    "bookmakers": {"DraftKings": {"odds": [
+        {"name": "ML", "price": -145, "team": "BUF"},
+        {"name": "Spread", "price": -110, "point": -3.5},
+        {"name": "Totals", "price": -110, "point": 44.5},
+        {"name": "Team Total Home", "price": -115, "point": 21.5},
+    ]}},
+}
+REAL_WITH_PROPS = json.loads(json.dumps(REAL_SHAPE))
+REAL_WITH_PROPS["bookmakers"]["DraftKings"]["odds"].append(
+    {"name": "player_pass_yds", "price": -110, "point": 245.5})
+
+
+def test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES():
+    """RUN 4 IS WHY. The three calls all fingerprinted to the same two strings —
+    `American Football` and `USA - NFL Preseason` — because this provider's market
+    names (`ML`, `Spread`, `Totals`, `Team Total Home`) carry prices as siblings
+    and my classifier files priced nodes as selections. So the control compared
+    two labels that cannot change and reported the parameter ignored for a third
+    time, on a payload that plainly had a board in it.
+
+    THE CONTROL IS A CHANGE DETECTOR, NOT A CLASSIFIER. Whether a string is
+    "really" a market does not matter to the question it asks — did the response
+    change when we asked for something different. It must therefore compare
+    EVERY name the payload uses.
+
+    MUTATION: fingerprint on the curated market list — the comparison runs over
+    the sport and league labels, which are identical in every response this
+    provider will ever send, and the probe can only ever return VOID."""
+    a = P.all_names(REAL_SHAPE)
+    assert "ML" in a and "Totals" in a and "Team Total Home" in a
+    assert P.parameter_was_honoured(REAL_WITH_PROPS, REAL_SHAPE)["honoured"] is True
+    assert P.parameter_was_honoured(REAL_SHAPE, REAL_SHAPE)["honoured"] is False
+
+
+def test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT():
+    """`ML`, `Spread` and `Totals` are exactly the three the daily capture pulls,
+    and reporting `sides: unmeasured, matched: []` for a payload containing all
+    three was the visible symptom that the reader was looking in the wrong bucket.
+
+    MUTATION: classify the curated list only — a board full of markets reports
+    every family empty, and a real availability answer is unreachable."""
+    c = P.classify(P.all_names(REAL_SHAPE), books=("DraftKings", "FanDuel"))
+    assert "ML" in c["families"]["sides"] and "Spread" in c["families"]["sides"]
+    assert "Totals" in c["families"]["game_totals"]
+    av = P.availability(c, {"honoured": True, "note": "x"})
+    assert av["sides"]["state"] == "available"
+    assert av["player_props"]["state"] == "absent"

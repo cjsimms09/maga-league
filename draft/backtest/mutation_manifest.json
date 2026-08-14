@@ -1417,7 +1417,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    keys = tuple(market_keys(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
+     "old": "    keys = tuple(all_names(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
      "new": "    return (json.dumps(payload, sort_keys=True),)",
      "must_fail": [
       "test_the_CONTROL_COMPARES_STRUCTURE_not_bytes"
@@ -1505,18 +1505,44 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    def key(e):\n        t = str((e or {}).get(\"date\") or \"\")[:19]\n        return (0, t) if t else (1, \"\")\n    return sorted(list(events or []), key=key)",
-     "new": "    return list(events or [])",
+     "old": "        if not t:\n            return (1, \"\", \"\")                  # undated: not \"far away\", not a corpse",
+     "new": "        if not t:\n            return (3, \"\", \"\")",
      "must_fail": [
+      "test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not now or t >= now:\n            return (0, t, \"\")                   # upcoming, soonest first",
+     "new": "        return (0, t, \"\")",
+     "must_fail": [
+      "test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE",
       "test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one"
      ],
      "verdict": "KILLED"
     },
     {
-     "old": "        return (0, t) if t else (1, \"\")",
-     "new": "        return (0, t)",
+     "old": "    named, _c, selections = _walk(payload)\n    if selections:\n        return True\n    return any(re.search(pat, k, re.I)\n               for k in named for pat, _ in FAMILIES.values())",
+     "new": "    return bool(market_keys(payload))",
      "must_fail": [
-      "test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one"
+      "test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    keys = tuple(all_names(payload))",
+     "new": "    keys = tuple(market_keys(payload))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(selections) | set(hits))",
+     "new": "    named, containers, selections = _walk(payload)\n    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(hits))",
+     "must_fail": [
+      "test_THE_CONTROL_COMPARES_EVERY_NAME_THE_PAYLOAD_USES",
+      "test_THE_REAL_MARKETS_CLASSIFY_ONCE_THEY_ARE_LOOKED_AT"
      ],
      "verdict": "KILLED"
     }
