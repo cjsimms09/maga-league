@@ -539,16 +539,68 @@ function wireVsStarter() {
    * WRs in a league that starts at most ten more of either. Half each is the
    * honest midpoint and it moves the line by half a player. */
   const flexShare = { RB: 0.5, WR: 0.5, TE: 0 };
+  /* ⚠️ THIS RATIO COMPARED A ONE-WEEK SPIKE TO A SEASON AVERAGE (2026-08-14).
+   *
+   * `WL.per_week` is the median score in the week a player was CLAIMED. That is
+   * selection on the outcome — managers spend a claim on the man who just blew
+   * up — and `wire_level.js` says so in its own caveat. The denominator is the
+   * last starter's SEASON-AVERAGE week. Dividing one by the other is not a
+   * ratio of like things, and the answer it gave has been quoted all week:
+   *
+   *      quoted        corrected (ongoing vs the same starter line)
+   *   QB   103%   ->    88%
+   *   RB    70%   ->    50%
+   *   WR    88%   ->    58%
+   *   TE   115%   ->    66%
+   *
+   * THE TE NUMBER IS THE ONE THAT MATTERED. "The TE wire is BETTER than a
+   * starter" is what justified streaming a tight end rather than rostering a
+   * backup, and it is false: over the three weeks you would actually hold a
+   * wire add, a TE delivers two thirds of a starter. No position's wire is
+   * starter-quality. Every backup is worth more than this function said.
+   *
+   * `ongoing` is the matching quantity for the question, and not by taste:
+   * C measured E[weeks out | injured] at QB 3.28 and TE 2.44 weeks, and
+   * `ongoingLevels` is the median over the three weeks AFTER acquisition. The
+   * window you need cover for and the window that was measured are the same.
+   *
+   * BOTH ARE RETURNED, NAMED. The spike is real and is the right number for a
+   * ONE-WEEK bye patch; it was only ever wrong as a hold-or-stream ratio. A
+   * caller that wants it must now ask for it by name, so this cannot be
+   * misread the same way twice.
+   *
+   * ── AND THE STARTER LINE DIVIDED EVERY POSITION BY A HARDCODED 15 ─────────
+   *
+   * `games_expected` is on the board, per position (QB 15.5, RB 14.2, WR 15.0,
+   * TE 14.8) and per player. Fifteen is a constant standing in for data sitting
+   * one field away — the same shape as the ADP_SD cap and the bye fallback. It
+   * understated the RB starter line by 5.6%, which flatters every RB ratio in
+   * the direction that makes a running back look easier to replace.
+   */
+  const EXP_FALLBACK = { QB: 15.5, RB: 14.2, WR: 15.0, TE: 14.8, K: 16.5, DEF: 17.0 };
   const out = {};
   Object.keys(WL.per_week).forEach(p => {
     const per = (+st[p] || 0) + (+st.FLEX ? (flexShare[p] || 0) * +st.FLEX : 0);
     const slots = Math.round(per * teams);
     const s = pool.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
-      .map(x => +x.proj_mean / 15).sort((a, b) => b - a);
+      .map(x => +x.proj_mean / (+x.games_expected || EXP_FALLBACK[p] || 15))
+      .sort((a, b) => b - a);
+    const starter = s.length >= slots ? s[slots - 1] : null;
+    const ong = ((WL.ongoing || {}).per_week || {})[p];
+    const pct = (v) => (starter && v != null ? 100 * v / starter : null);
     out[p] = {
-      wire: WL.per_week[p], n: WL.n[p], slots: slots,
-      starter: s.length >= slots ? s[slots - 1] : null,
-      pct: s.length >= slots ? 100 * WL.per_week[p] / s[slots - 1] : null,
+      // THE HOLD-OR-STREAM ANSWER. Named `wire`/`pct` because four call sites
+      // already read those and every one of them is asking this question.
+      wire: ong != null ? ong : WL.per_week[p],
+      pct: pct(ong != null ? ong : WL.per_week[p]),
+      n: ((WL.ongoing || {}).n || {})[p] != null ? WL.ongoing.n[p] : WL.n[p],
+      basis: ong != null ? 'ongoing-3wk' : 'claim-week (no ongoing measured)',
+      slots: slots,
+      starter: starter,
+      // THE CLAIM-WEEK SPIKE, kept and labelled — right for a one-week patch.
+      claim_week: WL.per_week[p],
+      claim_week_pct: pct(WL.per_week[p]),
+      claim_week_n: WL.n[p],
     };
   });
   return out;

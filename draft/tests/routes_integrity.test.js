@@ -226,14 +226,27 @@ const isHeading = l => /^## TO: /.test(l);
     console.log('SKIP  merge-union against real stages — no merge in progress '
       + '(the logic above was still exercised)');
   } else {
-    const lost = unionLost(ours, theirs, LINES.filter(isItem));
+    /* ⚠️ THIS BRANCH CRASHED ON `now is not defined` UNTIL 2026-08-14, and the
+     * shape is the one this repo keeps paying for: `now` is scoped INSIDE
+     * `unionLost` above, and this line is outside it. The branch only runs while
+     * a merge is in progress, so every ordinary run printed SKIP and passed —
+     * the guard died precisely and only when it was doing its job.
+     *
+     * It was live for a full day of ROUTES merges. I saw a FAIL line from here
+     * this morning, never saw a total, and did not ask why. A crash after a
+     * `ck` reads exactly like a suite that stopped at the failure. */
+    const resolved = LINES.filter(isItem);
+    const lost = unionLost(ours, theirs, resolved);
     ck('MERGE — every item line from EITHER side survives the resolution',
       lost.length === 0, lost.map(l => l.slice(0, 90)));
     ck('CONTROL — both sides genuinely carry items, or the union proves nothing',
       itemsOf(ours).length > 0 && itemsOf(theirs).length > 0,
       { ours: itemsOf(ours).length, theirs: itemsOf(theirs).length });
+    ck('and the summary below can actually be computed — this line threw for a '
+      + 'day, which is how a guard fails silently in the only state it matters',
+    Number.isFinite(resolved.length));
     console.log('      merge union: ours ' + itemsOf(ours).length + ' + theirs '
-      + itemsOf(theirs).length + ' -> ' + now.size + ' resolved');
+      + itemsOf(theirs).length + ' -> ' + resolved.length + ' resolved');
   }
 }
 

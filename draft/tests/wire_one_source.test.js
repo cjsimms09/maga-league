@@ -106,8 +106,28 @@ ck('and on the {v, n} shape wire_vs_bench used, which a naive reader would miss'
 {
   const PLAN = require(path.join(TOOLS, 'draft_plan.js'));
   const VS = PLAN.wireVsStarter();
-  ck('draft_plan.wireVsStarter reads the same level the tools print',
-    WL.MEASURED_POSITIONS.every(p => VS[p].wire === LV.per_week[p]), VS);
+  /* ── RE-BASED 2026-08-14. THIS ASSERTION PINNED A DEFECT. ────────────────
+   *
+   * It required `VS[p].wire === LV.per_week[p]` — the CLAIM-WEEK level, the
+   * median score in the week a player was claimed. That is selection on the
+   * outcome, and dividing it by the last starter's SEASON-AVERAGE week is not a
+   * ratio of like things. It produced "the TE wire is 115% of a starter", which
+   * is what justified streaming a tight end rather than rostering a backup.
+   * Corrected, no position's wire is starter-quality (TE 66%, QB 88%).
+   *
+   * THE PROPERTY THIS FILE EXISTS FOR IS UNCHANGED AND IS WHAT MATTERS: there
+   * is ONE measured source and nobody keeps a second copy. So the check still
+   * demands identity with `wire_level.js` — against the level that answers the
+   * question being asked, and it now also pins the OTHER level, so a future
+   * swap between them cannot pass silently. */
+  ck('draft_plan.wireVsStarter reads the ONGOING level from wire_level — one '
+    + 'source, and the one that matches the window a backup covers',
+  WL.MEASURED_POSITIONS.every(p => VS[p].wire === LV.ongoing.per_week[p]),
+  { vs: WL.MEASURED_POSITIONS.map(p => [p, VS[p].wire]), measured: LV.ongoing.per_week });
+  ck('and it still carries the CLAIM-WEEK level from the same source, named — '
+    + 'so the two can never be silently swapped again',
+  WL.MEASURED_POSITIONS.every(p => VS[p].claim_week === LV.per_week[p]),
+  { vs: WL.MEASURED_POSITIONS.map(p => [p, VS[p].claim_week]), measured: LV.per_week });
   ck('and prices it against a starter line derived from the league\'s OWN roster '
     + 'shape rather than an assumed one',
     WL.MEASURED_POSITIONS.every(p => VS[p].slots > 0 && VS[p].pct > 0),
