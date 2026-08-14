@@ -172,3 +172,118 @@ def test_THE_SIGN_IS_NOT_THE_SIBLING_EXPERIMENTS_SIGN():
     assert r["sources"]["same"]["rho"] == 1.0, r["sources"]["same"]["rho"]
     inverted = {p["player_id"]: -p["pick_no"] for p in EIGHT}
     assert PP.compare(EIGHT, {"back": inverted})["sources"]["back"]["rho"] == -1.0
+
+
+# ── 2023 RECORDS ITS KEEPERS AS A SECOND DRAFT, AND THE EXCLUSION MISSED THEM ─
+#
+# Found by reading the file before running anything against it. `league_history`
+# holds FOUR drafts across three seasons, not three:
+#
+#   2025  1 draft, 150 picks, 20 keepers flagged INLINE
+#   2024  1 draft, 150 picks, 23 keepers flagged INLINE
+#   2023  TWO drafts — a 150-pick main draft with `is_keeper: None` on every row,
+#         and a 30-pick record (`draft_id 990840142107619329`) that is ALL
+#         keepers and whose 30 player_ids are ALL ALSO IN THE MAIN DRAFT.
+#
+# So the 30-pick record is a keeper ROSTER, not a draft, and 2023's real draft
+# positions live only in the main one. `picks_of` concatenated both, which meant:
+#
+#   * `include_keepers=True` returned 180 rows for a 150-pick draft, 30 of them
+#     the same players twice at two different pick numbers;
+#   * `include_keepers=False` dropped the 30 flagged rows and KEPT the same 30
+#     players via the main draft, where nothing marks them — so it reported
+#     `keepers_excluded: 30` while excluding none of them.
+#
+# THE SECOND IS THE ONE THAT MATTERS. 2024 and 2025 would be graded on
+# keeper-free populations and 2023 on a population with 30 keepers in it, then
+# read side by side as one comparison. That is criterion 1: the three seasons
+# were not denominated in the same thing, and the guard SAID it had fixed that.
+
+_TWO_DRAFT_SEASON = {"seasons": [{"season": "2023", "drafts": [
+    {"draft_id": "main", "picks": [
+        {"round": 1, "pick_no": 1, "player_id": "kept1", "is_keeper": None},
+        {"round": 1, "pick_no": 2, "player_id": "kept2", "is_keeper": None},
+        {"round": 1, "pick_no": 3, "player_id": "free1", "is_keeper": None},
+        {"round": 2, "pick_no": 4, "player_id": "free2", "is_keeper": None}]},
+    {"draft_id": "keeper-roster", "picks": [
+        {"round": 1, "pick_no": 1, "player_id": "kept1", "is_keeper": True},
+        {"round": 1, "pick_no": 2, "player_id": "kept2", "is_keeper": True}]}]}]}
+
+
+def test_A_KEEPER_FLAGGED_ON_ANOTHER_DRAFT_OF_THE_SAME_SEASON_STILL_COUNTS():
+    """MUTATION: resolve `is_keeper` from the row alone — 2023's main draft flags
+    nobody, so all 30 keepers stay in the graded population while
+    `keepers_excluded` reports 30. A guard that reports success and does nothing
+    is worse than no guard: it is the reason nobody looks again."""
+    picks = PP.picks_of(_TWO_DRAFT_SEASON, "2023")
+    assert [p["player_id"] for p in picks] == ["free1", "free2"], picks
+    both = PP.picks_of(_TWO_DRAFT_SEASON, "2023", include_keepers=True)
+    assert [p["player_id"] for p in both] == ["kept1", "kept2", "free1", "free2"]
+    assert [p["is_keeper"] for p in both] == [True, True, False, False]
+
+
+def test_A_PLAYER_IN_TWO_DRAFTS_OF_ONE_SEASON_IS_RETURNED_ONCE():
+    """MUTATION: concatenate the drafts — `kept1` comes back twice at two
+    different pick numbers, and `compare`'s {player_id: pick_no} keeps whichever
+    survives the sort. The outcome variable would then be a mix of draft slots
+    and keeper-roster slots with nothing saying which is which."""
+    both = PP.picks_of(_TWO_DRAFT_SEASON, "2023", include_keepers=True)
+    assert len({p["player_id"] for p in both}) == len(both)
+    # AND THE PICK NUMBER COMES FROM THE REAL DRAFT, not the keeper roster.
+    assert [p["pick_no"] for p in both] == [1.0, 2.0, 3.0, 4.0]
+
+
+def test_A_SECONDARY_DRAFT_WITH_A_PLAYER_THE_MAIN_ONE_LACKS_IS_REFUSED():
+    """The whole treatment rests on the secondary record being keeper METADATA
+    about players the main draft already contains. A secondary draft holding
+    somebody the main one does not is a REAL supplemental draft, and silently
+    keeping only the main one would delete real picks.
+
+    MUTATION: take the largest draft and ignore the rest — a genuine supplemental
+    draft vanishes with no error, and the season is graded on part of itself."""
+    import pytest
+    h = {"seasons": [{"season": "2023", "drafts": [
+        {"draft_id": "main", "picks": [
+            {"round": 1, "pick_no": 1, "player_id": "a", "is_keeper": None},
+            {"round": 1, "pick_no": 2, "player_id": "b", "is_keeper": None}]},
+        {"draft_id": "supplemental", "picks": [
+            {"round": 1, "pick_no": 1, "player_id": "zzz", "is_keeper": None}]}]}]}
+    with pytest.raises(ValueError, match="supplemental|not in"):
+        PP.picks_of(h, "2023")
+
+
+def test_THE_REAL_FILE_2023_IS_150_PICKS_WITH_30_KEEPERS_ACTUALLY_REMOVED():
+    """A ratchet on the shipped data, because the fixtures above cannot catch the
+    file changing shape. 450 real picks across the three seasons — 150 each — and
+    377 gradeable once every season's keepers are genuinely out. Before this,
+    2023 reported 150 gradeable with all 30 keepers still in them."""
+    import json
+    h = json.loads((HERE.parent / "data" / "league_history.json").read_text())
+    got = {}
+    for y in ("2023", "2024", "2025"):
+        allp = PP.picks_of(h, y, include_keepers=True)
+        free = PP.picks_of(h, y)
+        assert len({p["player_id"] for p in allp}) == len(allp), y
+        got[y] = (len(allp), len(free), len(allp) - len(free))
+    assert got == {"2023": (150, 120, 30), "2024": (150, 127, 23),
+                   "2025": (150, 130, 20)}, got
+    assert sum(v[0] for v in got.values()) == 450
+    assert sum(v[1] for v in got.values()) == 377
+
+
+def test_TWO_DRAFTS_OF_EQUAL_SIZE_ARE_REFUSED_rather_than_arbitrated():
+    """Choosing the primary by pick count works because 150 and 30 are not close.
+    On a tie there is nothing here that can tell which record carries the real
+    draft positions, and picking either writes a guess into the outcome variable
+    every coefficient is computed against.
+
+    MUTATION: take the first — a coin flip decides where our room drafted, and
+    the result looks exactly as confident either way."""
+    import pytest
+    h = {"seasons": [{"season": "2023", "drafts": [
+        {"draft_id": "one", "picks": [
+            {"round": 1, "pick_no": 1, "player_id": "a", "is_keeper": None}]},
+        {"draft_id": "two", "picks": [
+            {"round": 1, "pick_no": 9, "player_id": "a", "is_keeper": None}]}]}]}
+    with pytest.raises(ValueError, match="two drafts"):
+        PP.picks_of(h, "2023")

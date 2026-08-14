@@ -1803,8 +1803,8 @@
    ],
    "mutations": [
     {
-     "old": "            if p.get(\"is_keeper\") and not include_keepers:\n                continue",
-     "new": "            if False:\n                continue",
+     "old": "        if is_keeper and not include_keepers:\n            continue",
+     "new": "        if False:\n            continue",
      "must_fail": [
       "test_A_KEEPER_IS_NOT_A_MARKET_DECISION"
      ],
@@ -1865,6 +1865,39 @@
      "new": "                per.setdefault(pos, []).append(pick_of[pid] - float(tbl[pid]))",
      "must_fail": [
       "test_THE_ERROR_IS_REPORTED_PER_POSITION_not_only_as_one_number"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        is_keeper = bool(p.get(\"is_keeper\")) or pid in kept_ids",
+     "new": "        is_keeper = bool(p.get(\"is_keeper\"))",
+     "must_fail": [
+      "test_A_KEEPER_FLAGGED_ON_ANOTHER_DRAFT_OF_THE_SAME_SEASON_STILL_COUNTS",
+      "test_THE_REAL_FILE_2023_IS_150_PICKS_WITH_30_KEEPERS_ACTUALLY_REMOVED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    for p in primary[\"picks\"]:",
+     "new": "    for p in [q for d in drafts for q in d.get(\"picks\") or []]:",
+     "must_fail": [
+      "test_A_PLAYER_IN_TWO_DRAFTS_OF_ONE_SEASON_IS_RETURNED_ONCE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if extra:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_A_SECONDARY_DRAFT_WITH_A_PLAYER_THE_MAIN_ONE_LACKS_IS_REFUSED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(drafts) > 1 and len(drafts[0][\"picks\"]) == len(drafts[1][\"picks\"]):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_TWO_DRAFTS_OF_EQUAL_SIZE_ARE_REFUSED_rather_than_arbitrated"
      ],
      "verdict": "KILLED"
     }

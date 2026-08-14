@@ -67,6 +67,33 @@ def picks_of(history, season, include_keepers=False) -> list:
     source happens to rank keepers near their forfeit round. Roughly one pick in
     seven across our three drafts.
 
+    ⚠ A SEASON IS NOT ONE DRAFT, AND 2023 IS THE PROOF. `league_history` holds
+    FOUR drafts across three seasons: 2024 and 2025 flag their keepers INLINE on
+    the single draft, while 2023 has a 150-pick main draft with `is_keeper: None`
+    on every row PLUS a 30-pick record whose rows are all keepers and whose 30
+    player_ids are all also in the main draft. That record is a keeper ROSTER, not
+    a draft.
+
+    This function used to concatenate them, which produced two failures in
+    opposite directions from one cause. `include_keepers=True` returned 180 rows
+    for a 150-pick draft, thirty of them the same players twice at two different
+    pick numbers. `include_keepers=False` dropped the thirty FLAGGED rows and kept
+    the same thirty players through the main draft, where nothing marks them — so
+    it reported `keepers_excluded: 30` while excluding none of them, and 2023
+    would have been graded on a population containing every keeper while 2024 and
+    2025 were graded without theirs. Criterion 1, with the guard announcing it had
+    already handled it.
+
+    SO KEEPERS ARE RESOLVED SEASON-WIDE and pick numbers come from the PRIMARY
+    draft — the one with the most picks, which is the only one whose numbers are
+    draft positions. The keeper roster contributes identity and nothing else.
+
+    AND THE PREMISE IS CHECKED RATHER THAN ASSUMED. All of that holds only while
+    the secondary record is METADATA about players the primary already contains. A
+    secondary draft holding somebody the primary lacks is a real supplemental
+    draft, and quietly keeping only the primary would delete real picks — so it
+    raises, by name.
+
     REFUSES A SEASON WE DO NOT HOLD, by name. Returning an empty list would let a
     typo in the year read as a draft where nobody picked anybody, and every
     coefficient computed after it would be about nothing.
@@ -77,17 +104,50 @@ def picks_of(history, season, include_keepers=False) -> list:
             "no season %r in league_history — held seasons are %s. Refusing to "
             "grade an empty draft, which is what an empty list would become."
             % (season, sorted(seasons)))
+    drafts = [d for d in seasons[str(season)].get("drafts") or [] if d.get("picks")]
+    if not drafts:
+        raise ValueError(
+            "season %r holds no draft with any picks. Refusing rather than "
+            "returning an empty list, which reads as a draft nobody picked in."
+            % season)
+
+    # THE PRIMARY IS THE FULL SLATE. A tie means two records both claim to be the
+    # draft and nothing here can say which — picking either would be a guess
+    # written into the outcome variable.
+    drafts.sort(key=lambda d: -len(d.get("picks") or []))
+    if len(drafts) > 1 and len(drafts[0]["picks"]) == len(drafts[1]["picks"]):
+        raise ValueError(
+            "season %r has two drafts of %d picks each and no way to tell which "
+            "carries the real draft positions. Refusing to choose."
+            % (season, len(drafts[0]["picks"])))
+    primary, secondary = drafts[0], drafts[1:]
+
+    ids_primary = {str(p.get("player_id")) for p in primary["picks"]}
+    kept_ids = {str(p.get("player_id")) for d in drafts for p in d.get("picks") or []
+                if p.get("is_keeper")}
+    for d in secondary:
+        extra = sorted({str(p.get("player_id")) for p in d.get("picks") or []}
+                       - ids_primary)
+        if extra:
+            raise ValueError(
+                "draft %r in season %r holds %d player(s) not in the primary "
+                "draft (%s...) — that is a real SUPPLEMENTAL draft, not keeper "
+                "metadata, and this function would silently delete those picks. "
+                "Refusing." % (d.get("draft_id"), season, len(extra), extra[:5]))
+
     out = []
-    for d in seasons[str(season)].get("drafts") or []:
-        for p in d.get("picks") or []:
-            if p.get("is_keeper") and not include_keepers:
-                continue
-            if p.get("player_id") is None or p.get("pick_no") is None:
-                continue
-            out.append({"player_id": str(p["player_id"]),
-                        "pick_no": float(p["pick_no"]),
-                        "round": p.get("round"),
-                        "is_keeper": bool(p.get("is_keeper"))})
+    for p in primary["picks"]:
+        if p.get("player_id") is None or p.get("pick_no") is None:
+            continue
+        pid = str(p["player_id"])
+        # SEASON-WIDE, not row-local. The flag may live on any draft of the season.
+        is_keeper = bool(p.get("is_keeper")) or pid in kept_ids
+        if is_keeper and not include_keepers:
+            continue
+        out.append({"player_id": pid,
+                    "pick_no": float(p["pick_no"]),
+                    "round": p.get("round"),
+                    "is_keeper": is_keeper})
     return sorted(out, key=lambda x: x["pick_no"])
 
 
