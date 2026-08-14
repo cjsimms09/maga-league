@@ -223,3 +223,144 @@ if __name__ == "__main__":  # pragma: no cover
     print(json.dumps(rep, indent=1))
     print()
     print(verdict(rep))
+
+
+# ---------------------------------------------------------------------------
+# SLEEPER'S OWN ORDERING vs THE MARKET'S PRICE
+# ---------------------------------------------------------------------------
+
+#: A Sleeper ordering is COLLAPSED when it carries fewer distinct values than this
+#: fraction of the population. `search_rank` was once the single constant 916.0
+#: for 1,419 players — the docstring at the top of this file records it — and a
+#: field that stops being populated produces a beautifully tidy median of nothing.
+COLLAPSE_RATIO = 0.25
+
+
+def _avg_ranks(pairs) -> dict:
+    """{key: rank}, ties sharing the MEAN of the positions they span.
+
+    88 of the 146 players inside the top 150 share a `sleeper_rank` with somebody
+    — 93 distinct values over 146 players. `sorted()` breaks those by input order,
+    so a player's measured divergence depended on where they happened to sit in
+    the JSON. With that many ties the arbitrary offset is a large fraction of the
+    effect being measured, not a rounding detail.
+    """
+    order = sorted(pairs, key=lambda kv: kv[1])
+    out, i = {}, 0
+    while i < len(order):
+        j = i
+        while j + 1 < len(order) and order[j + 1][1] == order[i][1]:
+            j += 1
+        avg = (i + j) / 2.0 + 1.0                     # 1-based mean of the span
+        for k, _v in order[i:j + 1]:
+            out[k] = avg
+        i = j + 1
+    return out
+
+
+def sleeper_divergence(board, top_n=DRAFT_RANGE) -> dict:
+    """Where does the PLATFORM our room drafts on disagree with the market price?
+
+    Cory's hypothesis, and it is worth measuring rather than asserting: our league
+    drafts on Sleeper, Sleeper shows its own ordering beside every player, and a
+    room that leans on the default list will reach for whatever that list puts
+    early. `sleeper_rank` is on every board row, so this is offline.
+
+    ⚠ IT IS A MECHANISM CHECK, NOT A CAUSAL ONE, and the distinction has to survive
+    into whatever reads this. `sleeper_rank` is Sleeper's SEARCH ordering — search
+    and roster popularity — not a draft-position estimate. Quarterbacks being
+    searched more than they are drafted is expected on its own. Agreement here
+    makes the anchoring story plausible and gives it the right sign; it does not
+    establish that anybody drafted off the list.
+
+    BOTH SIDES RANKED OVER THE SAME POPULATION, which is the whole arithmetic:
+    rank one side over the draftable 146 and the other over all 1,841 and the two
+    numbers are not comparable while every intermediate value looks healthy. This
+    project has already paid for that defect once, on ADP depth.
+
+    Negative delta = Sleeper places the player EARLIER than the market does.
+    """
+    rows = [r for r in _board_rows(board)
+            if r.get("adp") is not None and r.get("sleeper_rank") is not None]
+    pool = [r for r in rows if float(r["adp"]) <= float(top_n)]
+    n = len(pool)
+    if n < 2:
+        return {"status": "unmeasured", "ranked": 0, "unranked": 0,
+                "by_position": {}, "rows": [],
+                "note": "fewer than two priced players inside pick %s — nothing "
+                        "to rank, which is a fact about the board rather than "
+                        "about Sleeper" % top_n}
+
+    # ── SENTINELS ARE NOT RANKS, AND THE TEST IS STRUCTURAL ─────────────────
+    # Five players inside the top 150 sit at `sleeper_rank` 400.0 and every one is
+    # a team DEFENCE; another 301 sit at 999.0. Sleeper parks what it does not
+    # rank. Counting those as positions produced a reported "DEF +17 slots later"
+    # that is a filler value being read as an opinion — null-as-absence, inside
+    # the measurement built to check somebody else's.
+    #
+    # DERIVED, NOT A MAGIC LIST: a value shared by three or more players AND
+    # larger than the population being ranked cannot be a position within it.
+    counts = {}
+    for r in pool:
+        counts[float(r["sleeper_rank"])] = counts.get(float(r["sleeper_rank"]), 0) + 1
+    # `> 2 * n`, NOT `> n`. A parked value sits far beyond the whole population
+    # being ranked — 400 and 999 against 146 draftable players — which no genuine
+    # position within that population can. A bare `> n` also flags an ordinary
+    # shared rank just past the end of a small pool, which is a real rank.
+    sentinels = {v for v, c in counts.items() if c >= 3 and v > 2 * n}
+    live = [r for r in pool if float(r["sleeper_rank"]) not in sentinels]
+    unranked = len(pool) - len(live)
+    if len(live) < 2:
+        return {"status": "unmeasured", "ranked": len(live), "unranked": unranked,
+                "by_position": {}, "rows": [],
+                "sentinels": sorted(sentinels),
+                "note": "almost every player carries a parked sentinel rather than "
+                        "a rank — Sleeper is not ordering this population"}
+
+    distinct = len({float(r["sleeper_rank"]) for r in live})
+    if distinct < max(2, int(COLLAPSE_RATIO * len(live))):
+        return {"status": "collapsed", "ranked": len(live), "unranked": unranked,
+                "distinct": distinct, "by_position": {}, "rows": [],
+                "sentinels": sorted(sentinels),
+                "note": "only %d distinct Sleeper ranks over %d players. A median "
+                        "over that is tidy and meaningless — the same collapse "
+                        "`search_rank` showed at a single constant for 1,419 "
+                        "players." % (distinct, len(live))}
+
+    by_adp = _avg_ranks([(r["player_id"], float(r["adp"])) for r in live])
+    by_sl = _avg_ranks([(r["player_id"], float(r["sleeper_rank"])) for r in live])
+    out = []
+    for r in live:
+        pid = r["player_id"]
+        out.append({"player_id": pid, "name": r.get("name"),
+                    "position": r.get("position"),
+                    "market_rank": by_adp[pid], "sleeper_rank_in_pool": by_sl[pid],
+                    "delta": round(by_sl[pid] - by_adp[pid], 1)})
+
+    from statistics import median
+    per = {}
+    for x in out:
+        per.setdefault(x["position"], []).append(x["delta"])
+    return {
+        "status": "measured",
+        "ranked": len(live), "unranked": unranked, "distinct": distinct,
+        "sentinels": sorted(sentinels),
+        "top_n": top_n,
+        # PER POSITION, because the effect is position-shaped. The two rankings
+        # are a permutation of each other so the deltas SUM to zero — the mean is
+        # zero by construction, and the median is only near it. Reporting the
+        # overall figure alone therefore reports the one real finding on this
+        # board (quarterbacks, a median 36 slots early) as no finding at all.
+        # EVERY POSITION, WITH ITS n. A minimum-count filter would drop a thin
+        # position silently, and this lane's whole complaint is about numbers that
+        # vanish rather than declare themselves. `n` is right there to be read.
+        "by_position": {k: {"n": len(v), "median": round(median(v), 1),
+                            "mean": round(sum(v) / len(v), 1)}
+                        for k, v in sorted(per.items())},
+        "overall_median": round(median([x["delta"] for x in out]), 1),
+        "rows": sorted(out, key=lambda x: x["market_rank"]),
+        "note": "negative = Sleeper places the player EARLIER than the market. "
+                "`sleeper_rank` is a SEARCH ordering, not a draft-position "
+                "estimate: this makes an anchoring story plausible and gives it a "
+                "sign, it does not establish that anybody drafted off the list.",
+    }

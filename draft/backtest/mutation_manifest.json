@@ -1585,6 +1585,86 @@
       "test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        beyond[str(h)] = {\n            \"n\": len(out),\n            \"first\": out[0][0] if out else None,\n            \"last\": out[-1][0] if out else None,",
+     "new": "        beyond[str(h)] = {\n            \"n\": len(out),\n            \"first\": None,\n            \"last\": None,",
+     "must_fail": [
+      "test_THE_DROPPED_EVENTS_ARE_COUNTED_AND_DATED_not_just_subtracted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    marginal = {\"%d->%d\" % (a, b): within[str(b)] - within[str(a)]\n                for a, b in zip(hs, hs[1:])}",
+     "new": "    marginal = {}",
+     "must_fail": [
+      "test_WIDENING_THE_HORIZON_IS_PRICED_IN_EVENTS_not_argued"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not t:\n            undated += 1\n        elif nowk and t < nowk:",
+     "new": "        if not t:\n            dated.append((\"9999\", (e or {}).get(\"id\")))\n        elif nowk and t < nowk:",
+     "must_fail": [
+      "test_AN_UNDATED_EVENT_IS_NOT_BEYOND_THE_HORIZON",
+      "test_THE_DROPPED_EVENTS_ARE_COUNTED_AND_DATED_not_just_subtracted"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rows:\n        return {\"status\": \"unmeasured\", \"total\": 0,",
+     "new": "    if False:\n        return {\"status\": \"unmeasured\", \"total\": 0,",
+     "must_fail": [
+      "test_AN_EMPTY_CATALOGUE_IS_UNMEASURED_not_a_clean_slate"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/board_vs_market.py": {
+   "tests": [
+    "draft/tests/test_board_vs_market.py"
+   ],
+   "mutations": [
+    {
+     "old": "    sentinels = {v for v, c in counts.items() if c >= 3 and v > 2 * n}",
+     "new": "    sentinels = set()",
+     "must_fail": [
+      "test_a_SENTINEL_RANK_IS_NOT_A_RANK"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    order = sorted(pairs, key=lambda kv: kv[1])\n    out, i = {}, 0",
+     "new": "    order = sorted(pairs, key=lambda kv: kv[1])\n    return {k: i + 1.0 for i, (k, _v) in enumerate(order)}\n    out, i = {}, 0",
+     "must_fail": [
+      "test_TIES_GET_THE_AVERAGE_RANK_not_the_order_they_arrived_in"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    pool = [r for r in rows if float(r[\"adp\"]) <= float(top_n)]",
+     "new": "    pool = list(rows)",
+     "must_fail": [
+      "test_BOTH_SIDES_ARE_RANKED_OVER_THE_SAME_POPULATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if distinct < max(2, int(COLLAPSE_RATIO * len(live))):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_COLLAPSED_ORDERING_IS_REPORTED_not_averaged"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"by_position\": {k: {\"n\": len(v), \"median\": round(median(v), 1),\n                            \"mean\": round(sum(v) / len(v), 1)}\n                        for k, v in sorted(per.items())},",
+     "new": "        \"by_position\": {},",
+     "must_fail": [
+      "test_THE_DIVERGENCE_IS_REPORTED_PER_POSITION"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }

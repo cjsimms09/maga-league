@@ -361,6 +361,79 @@ DISCOVERY_PATHS = (
 )
 
 
+def events_census(events, now=None, horizons=(7, 14)) -> dict:
+    """WHAT IS IN THE EVENTS WE NEVER ASK ABOUT — A's first-priority question.
+
+    `events_before_horizon: 48 -> 32` out of a 134-event catalogue says sixteen
+    went and nothing about WHAT they were. A cut slate and a small slate look
+    identical in a difference, which is the complaint `horizon_report` was written
+    to fix one layer down — and it still cannot say whether the dropped games are
+    the ones that matter. Regular-season weeks are unrecoverable once they pass,
+    so "102 dropped" needs a date range attached to be actionable.
+
+    IT ALSO PRICES THE 7-vs-14 CHOICE IN GAMES rather than in preference:
+    `marginal["7->14"]` is exactly how many extra events the wider window buys.
+
+    UNDATED IS ITS OWN BUCKET, never "beyond". `KEEP_UNDATED` exists one file over
+    for this reason — absent is not far away — and filing undated events under
+    dropped would make the horizon look more expensive than it is while hiding the
+    one game we genuinely cannot place.
+    """
+    rows = list(events or [])
+    if not rows:
+        return {"status": "unmeasured", "total": 0,
+                "note": "the listing returned no events, so there is nothing to "
+                        "measure. A fact about the call, not a league with no "
+                        "games."}
+    nowk = str(now or "")[:19]
+    dated, undated, past = [], 0, 0
+    for e in rows:
+        t = str((e or {}).get("date") or "")[:19]
+        if not t:
+            undated += 1
+        elif nowk and t < nowk:
+            past += 1
+        else:
+            dated.append((t, (e or {}).get("id")))
+    dated.sort()
+
+    import datetime as _dt
+
+    def _cut(days):
+        if not nowk:
+            return None
+        base = _dt.datetime.strptime(nowk, "%Y-%m-%dT%H:%M:%S")
+        return (base + _dt.timedelta(days=int(days))).strftime("%Y-%m-%dT%H:%M:%S")
+
+    within, beyond = {}, {}
+    for h in horizons:
+        c = _cut(h)
+        inside = [d for d in dated if c is None or d[0] <= c]
+        out = [d for d in dated if c is not None and d[0] > c]
+        within[str(h)] = len(inside)
+        beyond[str(h)] = {
+            "n": len(out),
+            "first": out[0][0] if out else None,
+            "last": out[-1][0] if out else None,
+            # THE IDS, CAPPED AND SAID SO — enough to spot-check what got dropped
+            # without pasting a whole season into an artifact.
+            "ids": [d[1] for d in out[:20]],
+            "ids_truncated": len(out) > 20,
+        }
+    hs = sorted(int(h) for h in horizons)
+    marginal = {"%d->%d" % (a, b): within[str(b)] - within[str(a)]
+                for a, b in zip(hs, hs[1:])}
+    return {"status": "measured", "total": len(rows), "undated": undated,
+            "already_started": past, "upcoming": len(dated),
+            "now": nowk or None, "within": within, "beyond": beyond,
+            "marginal": marginal,
+            "span": {"first": dated[0][0] if dated else None,
+                     "last": dated[-1][0] if dated else None},
+            "note": "`within[h]` counts UPCOMING events inside h days. Undated "
+                    "events are their own bucket and are never counted as beyond "
+                    "the horizon; events already started are excluded from both."}
+
+
 def discovery_report(results) -> dict:
     """What the candidate paths said — and what that does NOT prove.
 
@@ -538,16 +611,23 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
     books = ",".join(R.RECREATIONAL_BOOKS[:2])
     out = {"league": league}
 
+    import datetime as _dt
     if not event_id:
         url = R.build(host, "events", {"apiKey": api_key,
                                        "sport": "american-football", "league": league})
         events, headers, _ = R.fetch(url, timeout), None, None
         if isinstance(events, tuple):
             events = events[0]
-        import datetime as _dt
         ev = nearest_first(
             events, now=_dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"))
         out["events_listed"] = len(ev)
+        # ── A's FIRST-PRIORITY QUESTION, ANSWERED ON THE CALL WE ALREADY MAKE ──
+        # "48 -> 32 of a 134-event catalogue: what is in the 102 we drop, and is
+        # any of it regular season?" The listing is fetched anyway, so the census
+        # costs nothing extra and prices the 7-vs-14 horizon choice in GAMES.
+        out["census"] = events_census(
+            events, now=_dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"),
+            horizons=(7, 14))
         # NEAREST KICKOFF, because the game most likely to carry a board is the
         # one closest to being played. Run 31772127983 took `events[0]` of 136 and
         # asked about an unpriced game.
