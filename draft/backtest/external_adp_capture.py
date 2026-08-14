@@ -2238,6 +2238,19 @@ def snapshot_audit(snapshot: dict) -> dict:
     measured, so it is promoted to FATAL rather than inheriting the tolerance
     granted to an excess of 3.
     """
+    # ⚠ AN ABSENT DAY IS NOT A CORRUPT DAY, AND THIS REPORTED IT AS ONE. Handed
+    # {} — which is what a caller asking about a year the archive does not hold
+    # gets — every check below ran against an empty dict and the first one fired:
+    # "row_count says None and the day holds 0 rows", FATAL, with a note about a
+    # permanent record contradicting its own contents. The archive was fine; there
+    # was no day. FOUND BY EXECUTING THE WORKFLOW STEP RATHER THAN READING IT,
+    # which is the whole reason that sweep exists.
+    if not snapshot:
+        return {"status": "unmeasured", "ok": None, "fatal": [], "observed": [],
+                "checked": [], "players": 0,
+                "note": "no snapshot was handed to the audit — that is a fact "
+                        "about which day was asked for, not about the archive, "
+                        "and it is NOT a clean bill of health"}
     rows = (snapshot or {}).get("rows") or {}
     disp = (snapshot or {}).get("dispersion") or {}
     td = (snapshot or {}).get("total_drafts")
@@ -2322,5 +2335,5 @@ def snapshot_audit(snapshot: dict) -> dict:
                                  "about exceeds 100%. Measured 2026-08-14: 12 "
                                  "players, worst 102.0."})
 
-    return {"ok": not fatal, "fatal": fatal, "observed": observed,
-            "checked": checked, "players": len(rows)}
+    return {"status": "measured", "ok": not fatal, "fatal": fatal,
+            "observed": observed, "checked": checked, "players": len(rows)}

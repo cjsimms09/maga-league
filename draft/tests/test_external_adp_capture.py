@@ -3365,3 +3365,68 @@ def test_AN_OBSERVED_INCONSISTENCY_THAT_GROWS_PAST_ITS_BOUND_IS_FATAL():
     d["dispersion"]["1"]["drafts"] = 200       # excess of 73 on a pool of 127
     r = C.snapshot_audit(d)
     assert any(f["kind"] == "drafts_above_total_UNBOUNDED" for f in r["fatal"]), r
+
+
+# ── AN ABSENT DAY IS NOT A CORRUPT DAY ──────────────────────────────────────
+#
+# FOUND BY EXECUTING THE WORKFLOW STEP, NOT BY READING IT. The daily audit step
+# does `C.snapshot_audit(today or {})`, and on a year the archive does not hold
+# `today` is None — so every invariant ran against an empty dict and the first one
+# fired FATAL `row_count_mismatch`, with a note accusing the archive of carrying
+# "a permanent record whose own summary contradicts its contents". There was no
+# record. There was no day.
+
+def test_AN_ABSENT_SNAPSHOT_IS_UNMEASURED_not_a_fatal_row_count_mismatch():
+    """The caller shape that produces this is the live one: `days[-1] if days else
+    None`, then `or {}`. Reported as FATAL it makes the loudest possible claim —
+    the archive is corrupt, do not use the day — out of the archive simply not
+    holding the year that was asked for.
+
+    MUTATION: drop the guard and let `{}` fall through — `row_count` is None,
+    `len(rows)` is 0, they differ, and the audit condemns an archive that is
+    fine."""
+    out = C.snapshot_audit({})
+    assert out["status"] == "unmeasured"
+    assert out["fatal"] == [] and out["observed"] == []
+    assert out["ok"] is None, "ok must be None, not False — False is a verdict"
+    assert out["players"] == 0
+    assert "NOT a clean bill of health" in out["note"]
+    # AND None IS THE SAME CASE, because the live caller passes `today or {}`.
+    assert C.snapshot_audit(None)["status"] == "unmeasured"
+
+
+def test_A_REAL_SNAPSHOT_STILL_REPORTS_measured_so_the_guard_discriminates():
+    """The other arm. A guard that swallowed every snapshot would make the audit
+    permanently silent, which is a worse failure than the one it fixes.
+
+    MUTATION: return the unmeasured shape unconditionally — every morning reports
+    "no snapshot", nobody's invariants are ever checked, and the escalation fires
+    daily until it is switched off."""
+    snap = {"year": "2026", "observed_at": "2026-08-14",
+            "rows": {"1": 10.0, "2": 20.0}, "row_count": 2, "total_drafts": 100,
+            "dispersion": {"1": {"min_pick": 5.0, "max_pick": 15.0, "drafts": 50,
+                                 "sel_pct": 100.0},
+                           "2": {"min_pick": 12.0, "max_pick": 30.0, "drafts": 50,
+                                 "sel_pct": 100.0}}}
+    out = C.snapshot_audit(snap)
+    assert out["status"] == "measured"
+    assert out["players"] == 2
+    assert out["ok"] is True and out["fatal"] == []
+    assert out["checked"], "a measured audit must name the invariants it ran"
+
+
+def test_THE_MEASURED_RETURN_CARRIES_A_STATUS_at_all():
+    """`snapshot_audit` never returned a `status` key, so the workflow's headline
+    printed a literal `None` beside a real result and any reader branching on
+    status saw the same value for a clean day and a missing one. The absent-day
+    guard above is only usable because both paths now answer the same question.
+
+    MUTATION: return the measured dict without `status` — the workflow's
+    `r["status"] != "measured"` raises KeyError on every healthy morning, which
+    the new SystemExit turns into a red job on good data."""
+    snap = {"year": "2026", "observed_at": "2026-08-14", "rows": {"1": 10.0},
+            "row_count": 1, "total_drafts": 100, "dispersion": None}
+    for got in (C.snapshot_audit(snap), C.snapshot_audit({})):
+        assert "status" in got, got
+        assert got["status"] in ("measured", "unmeasured")
+        assert set(("status", "ok", "fatal", "observed", "checked", "players")) <= set(got)
