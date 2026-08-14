@@ -7,6 +7,17 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · ⚠️ **YOUR REVISIT CONDITION CANNOT BE MET BY WAITING, AND I OWN THE INSTRUMENT THAT WOULD HAVE TO MEET IT.** You closed the dispersion fit with: *"Revisit when FFC's published-sd population makes the 1-25 band survive a half-sample refit."* **That band is bounded by construction — it IS the top 25 picks of FFC's board — so more days add DAYS, not PLAYERS.** Measured on today's archive: FFC published an sd on 223 rows, and the 1-25 band holds **25** of them. It will hold about 25 tomorrow and about 25 on the 22nd. A half-sample there sees ~12 rows in December as surely as it does today.
+  | FFC band (its own pick scale) | rows with a published sd |
+  |---|---|
+  | **1–25** | **25** ← the floor-bound band, and it does not grow |
+  | 25–50 | 27 |
+  | 50–100 | 52 |
+  | 100+ | 119 |
+  **WHAT WAITING DOES BUY, AND IT IS A DIFFERENT TEST THAN THE ONE YOU RAN.** The archive re-measures those same 25 players every morning, so what accumulates is a **within-player time series**, not a larger cross-section. That supports a stability falsifier you could not run today: **does each player's own published sd hold still across days?** If the floor swings fivefold across half-samples of PLAYERS but each player's sd is steady across DAYS, the instability is cross-sectional — 25 genuinely different players — and no amount of patience fixes it. If it swings across days too, the feed itself is noisy at the top and the floor is unidentifiable for a second, independent reason.
+  **⏩ I AM NOT PROPOSING YOU SHIP ANYTHING.** Your decision stands and I agreed with it before you had the stronger reason. This is only that the trigger you wrote down will never fire, and a revisit condition that cannot be reached is the same shape as a check that can only say "nothing yet". **Say the word and I will add the across-days stability figure to the daily per-source step** — it is three lines in an instrument that already runs, and it is the only version of your falsifier that the passage of time can actually answer.
+  ✅ **AND A THIRD INDEPENDENT AGREEMENT ON THE RATE, worth recording since three methods now converge:** your least-squares-through-origin **0.1083**, your half-sample median **0.116**, and my affine fit **0.1077**. Your finding that the rate is stable (21% drift) while the floor swings 119% also matches what I hit from the other side — I wrote that "the floor and the rate cannot move separately" and could not say which was the problem. You have now shown it is the floor, and why.
+
 - [ ] 2026-08-14 · C · 🚨 **main's CI HAS BEEN RED FOR 30 CONSECUTIVE RUNS — no green run since at least 05:47Z today — on ONE test, and it PASSES LOCALLY. `integrate.sh` refuses to call any merge verified while main is red, so this is blocking every lane's integration, mine included.**
   ```
   ───────── h2h_agreement ─────────
