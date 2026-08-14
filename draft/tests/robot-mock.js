@@ -367,8 +367,33 @@ if (!IS_FIXTURE) {
   check('R-paths: at least one direction on a live board', paths.length >= 1, 'n=' + paths.length);
   check('R-paths: the top path is priced at 0', paths.length > 0 && paths[0].price === 0,
     JSON.stringify(paths.map(p => p.price)));
-  check('R-paths: no direction is priced beyond the qualifying band',
-    paths.every(p => p.price >= 0 && p.price <= E.CFG.PATHS_BAND), JSON.stringify(paths.map(p => p.price)));
+  /* ── THIS ASSERTION PINNED BEHAVIOUR WE DELIBERATELY CHANGED ──────────────
+   *
+   * It read `paths.every(p => p.price <= PATHS_BAND)`, and it has been RED on
+   * every CI run since `computePaths` was changed to return
+   * `max(inBand, PATHS_MIN)` directions — Cory asked for options rather than a
+   * panel that goes empty when nothing qualifies. On this board the prices are
+   * [0, 25.5, 73]: two of the three are outside a band of 4, on purpose.
+   *
+   * ⚠ AND I DID NOT SEE IT FOR A WHOLE SESSION, because my local sweep globs
+   * `draft/tests/*.test.js` and this file is `robot-mock.js`. So "JS red: 0"
+   * was true of the files I ran and false of the checks CI runs — the same
+   * two-quantities-one-name defect this repository keeps finding, in my own
+   * verification. Fixed in `scripts/js-sweep.sh`, which now runs what CI runs.
+   *
+   * THE GUARD'S INTENT SURVIVES AND IS WHAT IS ASSERTED NOW: nothing may be
+   * priced beyond the band while PRESENTING ITSELF as qualifying. An
+   * out-of-band direction is allowed only if it is explicitly flagged
+   * `within_band: false`, which is what the panel renders the caveat from. */
+  check('R-paths: a direction priced beyond the band is FLAGGED, never shown as '
+    + 'qualifying',
+  paths.every(p => p.price >= 0
+    && (p.price <= E.CFG.PATHS_BAND ? p.within_band !== false : p.within_band === false)),
+  JSON.stringify(paths.map(p => [p.price, p.within_band])));
+  check('R-paths: the in-band ones are still marked in-band, so the flag is not '
+    + 'simply always false',
+  paths.filter(p => p.price <= E.CFG.PATHS_BAND).every(p => p.within_band === true),
+  JSON.stringify(paths.map(p => [p.price, p.within_band])));
   check('R-paths: each direction is a single real position (not a mix)',
     paths.every(p => p.candidates.every(c => c.player.position === p.position)));
   check('R-paths: every direction carries a name, a pick, and a when-it\'s-right',
