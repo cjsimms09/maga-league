@@ -162,7 +162,26 @@
     this.picks.concat(this.manual.filter(m => !dead.has(String(m.player_id))))
       .forEach(p => {
       const id = String(p.player_id || (p.metadata && p.metadata.player_id) || '');
-      if (!id || seen.has(id)) return;
+      /* ⚠️ A PICK WITH NO RESOLVABLE ID WAS DROPPED SILENTLY, AND A DROPPED
+       * PICK MAKES THE CLOCK READ EARLY.
+       *
+       * `currentPick` is `pickEvents + 1`. Lose one pick here and the board
+       * believes fewer selections have happened than really have, so every
+       * survival window is computed too early and every player looks more
+       * likely to last than he is. That is the same failure that cost 25 slots
+       * this morning via `applySlot`, arriving from a different direction — and
+       * this one leaves no trace at all.
+       *
+       * Dedup on `seen` is CORRECT and stays silent: the same player appearing
+       * twice is one selection, and Sleeper rows are concatenated ahead of
+       * manual ones so the real pick wins the slot. Only the ID-LESS case is
+       * counted, because that is a pick the room made that this board cannot
+       * represent. */
+      if (!id) {
+        this.droppedNoId = (this.droppedNoId || 0) + 1;
+        return;
+      }
+      if (seen.has(id)) return;
       seen.add(id);
       out.push({
         player_id: id,
@@ -190,6 +209,20 @@
       });
     });
     out.sort((a, b) => (a.pick_no || 0) - (b.pick_no || 0));
+    /* THE AGGREGATE THAT MAKES BOTH SILENT FAILURES LOUD.
+     *
+     * `pick_no: p.pick_no || out.length + 1` above substitutes a POSITION for a
+     * missing pick number. That is a plausible value standing in for an absent
+     * one, and it can COLLIDE with a real pick_no — after which the sort order
+     * between the two is arbitrary, and run detection reads a sequence the room
+     * never produced.
+     *
+     * Neither this nor the id-less drop is worth refusing over mid-draft: the
+     * board is still mostly right and stopping is worse. Both are COUNTED and
+     * exposed so a surface can say so, which is the difference between a
+     * degraded board and a board that lies about being intact. */
+    const nos = out.map(r => r.pick_no);
+    this.pickNoCollisions = nos.length - new Set(nos).size;
     return out;
   };
 
@@ -269,6 +302,19 @@
 
   /** Typed rows the room has since reported for real — ids only, for the caller
    *  to purge from its own surfaces. `allPicks()` already excludes them. */
+  /* One call a surface or a test can ask instead of reaching into fields.
+   * Reported rather than thrown: mid-draft, a degraded board that SAYS it is
+   * degraded beats a correct board that stopped. */
+  DraftSync.prototype.ingestHealth = function () {
+    const rows = this.allPicks();
+    return {
+      picks: rows.length,
+      dropped_no_id: this.droppedNoId || 0,
+      pick_no_collisions: this.pickNoCollisions || 0,
+      clean: !(this.droppedNoId || 0) && !(this.pickNoCollisions || 0),
+    };
+  };
+
   DraftSync.prototype.supersededManual = function () {
     return this.manual
       .filter(m => m.real_at_entry != null
