@@ -43,6 +43,12 @@ SHOULDER = 200
 #: 2026-08-12 board — it is not a rank at all but the single constant 916.0 for all 1,419
 #: players carrying it. Anything outside this set is unpriced, whatever the label says.
 REAL_ADP_SOURCES = ("fantasypros", "ffc")
+#: Which `adp_sd_source` values are the PUBLISHER'S OWN number rather than a
+#: constant we fitted. Measured on the 2026-08-14 board: 142 of the 146 rows
+#: inside pick 150 are `ffc-published`; the clamps (`fallback-clamped`,
+#: `clamped-linear`) live almost entirely beyond it.
+_PUBLISHED_SD = ("ffc-published", "ffc")
+
 
 #: How many players to NAME. The counts are always exact; only the lists are capped.
 NAMED = 20
@@ -364,3 +370,390 @@ def sleeper_divergence(board, top_n=DRAFT_RANGE) -> dict:
                 "estimate: this makes an anchoring story plausible and gives it a "
                 "sign, it does not establish that anybody drafted off the list.",
     }
+
+
+# ── IS MFL'S BOARD DENOMINATED IN OUR LEAGUE'S FORMAT? ──────────────────────
+#
+# A's criterion 1 — "are the two ends of this comparison denominated in the same
+# thing" — applied to the market side of every comparison above. Everything in
+# this module treats MFL as "an independent market". MFL is not A market: it is
+# EVERY draft on MFL's platform, pooled. Superflex, 2QB, dynasty, keeper, and
+# team counts from eight to sixteen all land in one average.
+#
+# That was written down as a caveat and never measured. Measured on 2026-08-14 it
+# is not a caveat, it is the largest single effect in the comparison — bigger than
+# anything this module was built to find.
+
+#: A shift this large cannot be two crowds disagreeing about a player; it is the
+#: two crowds drafting different games. Declared as a THRESHOLD FOR CALLING IT
+#: rather than fitted: a full round in our ten-team room out of the fifteen rounds
+#: that exist, so one fifteenth of the draft range.
+#:
+#: ⚠ A FRACTION OF THE POPULATION, NOT A SLOT COUNT — and the first cut of this was
+#: the slot count, which is this lane's own recurring defect turned inward. A rank
+#: delta is denominated in the size of the pool it was ranked over, so "15 slots"
+#: means a tenth of the board across the real 145-player draft range and most of
+#: the board across a thin one. The threshold now travels with its denominator and
+#: the absolute figure is reported beside it.
+FORMAT_SHIFT_FRACTION = 1.0 / 15.0
+
+#: Above this, an age gradient among NON-quarterbacks is a dynasty/keeper
+#: population rather than a redraft one. Non-QB is the whole point — a superflex
+#: pool moves quarterbacks and leaves the age curve alone, so an age effect that
+#: survives with quarterbacks removed cannot be superflex wearing a disguise.
+DYNASTY_AGE_RHO = 0.25
+
+#: ⚠ AND A VERDICT NEEDS A POPULATION THAT IS ACTUALLY THE DRAFT. The threshold
+#: above is a fraction of whatever got ranked, which is right — and which means a
+#: crosswalk that decays to twenty players would drop the bar to 1.3 slots and
+#: "detect" a format on noise. So the numbers are always reported and the VERDICT
+#: is withheld below half the draft range: fewer than 75 of the 150 picks paired
+#: is a fact about the crosswalk, and a format call taken over it would be a
+#: statement about the players who happened to match.
+MIN_RANKED_FRACTION = 0.5
+
+
+def _spearman(xs, ys):
+    """Rank correlation, ties averaged. None when either side is constant.
+
+    NONE, NOT ZERO. A constant column has no correlation to report, and 0.0 would
+    read as "measured, and there is no relationship" — the null-as-absence defect
+    this lane has now paid for five times.
+    """
+    if len(xs) < 3:
+        return None
+    rx = _avg_ranks(list(enumerate(xs)))
+    ry = _avg_ranks(list(enumerate(ys)))
+    a = [rx[i] for i in range(len(xs))]
+    b = [ry[i] for i in range(len(ys))]
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    den = (sum((x - ma) ** 2 for x in a) * sum((y - mb) ** 2 for y in b)) ** 0.5
+    if not den:
+        return None
+    return sum((x - ma) * (y - mb) for x, y in zip(a, b)) / den
+
+
+def _paired(archive, board, year, top_n, observed_at=None):
+    """Crosswalked (our row, market adp, market dispersion) inside OUR draft range.
+
+    THE POPULATION IS OURS, NOT THE MARKET'S. `report` above asks what the market
+    reaches that we bury, so it selects on the market's adp. This asks whether the
+    market's numbers mean what ours mean, so it selects on OUR board's adp — the
+    players a decision actually gets made about on the 22nd. Selecting on the
+    market's price here would answer the question over a population chosen by the
+    thing under test.
+    """
+    rows = _board_rows(board)
+    key = CAP.players_of(archive)
+    ids, _ = (CAP.crosswalk_map(key, rows) if key else ({}, {}))
+    by_id = {str(p.get("player_id")): p for p in rows}
+    snaps = [s for s in CAP._series_of(archive) if str(s.get("year")) == str(year)]
+    if not snaps:
+        return [], "no %s snapshot in the archive" % year
+    if observed_at is not None:
+        snaps = [s for s in snaps if s.get("observed_at") == observed_at]
+        if not snaps:
+            return [], "no %s snapshot dated %s" % (year, observed_at)
+    day = sorted(snaps, key=lambda s: s.get("observed_at") or "")[-1]
+    disp = day.get("dispersion") or {}
+    out = []
+    for mfl_id, adp in (day.get("rows") or {}).items():
+        ours = by_id.get(ids.get(mfl_id, ""))
+        if ours is None or ours.get("adp") is None or adp is None:
+            continue
+        if float(ours["adp"]) > float(top_n):
+            continue
+        out.append({"row": ours, "market_adp": float(adp),
+                    "dispersion": disp.get(mfl_id)})
+    return out, (day.get("observed_at") if out else "nothing crosswalked inside "
+                 "pick %s" % top_n)
+
+
+def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
+                       observed_at=None) -> dict:
+    """WHOSE GAME IS THE MARKET PLAYING? Positional and age shape of the shift.
+
+    ⚠ RANKED OVER THE SHARED POPULATION, BOTH SIDES. Raw pick numbers from two
+    markets are not comparable when the pools differ in size or in how many teams
+    pick per round — a 10-team room reaches pick 100 a round and a half sooner
+    than a 14-team one, so a raw delta would report that as an opinion. Ranking
+    both sides inside the crosswalked intersection removes every global scale
+    difference and leaves only what is POSITION- or AGE-shaped, which is the only
+    part a format can produce. Reading raw deltas is the mistake `sleeper_rank`
+    already cost this module once.
+
+    TWO CONTAMINANTS, AND THEY ARE SEPARABLE — that is why both are reported:
+
+      * SUPERFLEX / 2QB doubles the demand for quarterbacks and touches nothing
+        else, so it is POSITION-shaped and indifferent to age.
+      * DYNASTY / KEEPER pays for youth everywhere, so it is AGE-shaped and shows
+        up with quarterbacks removed.
+
+    A pool with both produces both signatures at once, and a reader who has only
+    the QB number will explain the old-running-back shift with superflex and be
+    wrong about which players are affected.
+
+    NEGATIVE DELTA = THE MARKET TAKES HIM EARLIER THAN OUR BOARD PRICES HIM.
+    """
+    pairs, note = _paired(archive, board, year, top_n, observed_at)
+    base = {"status": "unmeasured", "observed_at": None, "n": 0, "top_n": top_n,
+            "by_position": {}, "superflex": None, "dynasty": None,
+            "aged": 0, "no_age": 0, "rows": [], "note": note}
+    if len(pairs) < 3:
+        return base
+
+    ours = _avg_ranks([(i, p["row"]["adp"]) for i, p in enumerate(pairs)])
+    theirs = _avg_ranks([(i, p["market_adp"]) for i, p in enumerate(pairs)])
+    per, rows = {}, []
+    for i, p in enumerate(pairs):
+        pos = str(p["row"].get("position") or "?").upper()
+        d = theirs[i] - ours[i]
+        per.setdefault(pos, []).append(d)
+        rows.append({"player_id": p["row"].get("player_id"),
+                     "name": p["row"].get("name"), "position": pos,
+                     "age": p["row"].get("age"),
+                     "board_adp": p["row"]["adp"], "market_adp": p["market_adp"],
+                     "delta": round(d, 1)})
+
+    from statistics import median
+    by_pos = {k: {"n": len(v), "median": round(median(v), 1)}
+              for k, v in sorted(per.items())}
+
+    # THE FLOOR IS CHECKED ONCE AND APPLIES TO BOTH VERDICTS — one contaminant
+    # detected off a decayed crosswalk is as wrong as the other.
+    thin = len(pairs) < MIN_RANKED_FRACTION * float(top_n)
+
+    qb = by_pos.get("QB")
+    superflex = None
+    if qb and qb["n"] >= 3:
+        # THE THRESHOLD IS SIZED TO THE POPULATION THAT WAS RANKED. Both the
+        # fraction and the slot count it worked out to are reported, so a reader
+        # can see which pool the verdict was taken over.
+        thresh = FORMAT_SHIFT_FRACTION * len(pairs)
+        superflex = {
+            "qb_median_slots": qb["median"], "qb_n": qb["n"],
+            "qb_median_fraction": round(qb["median"] / len(pairs), 3),
+            # THE SIGN IS PART OF THE CLAIM. Quarterbacks going LATER than our
+            # board would be evidence of a single-QB pool that likes them less —
+            # the opposite reading — so a bare magnitude could confirm superflex
+            # with the data refuting it.
+            "detected": (not thin) and qb["median"] <= -thresh,
+            "threshold_slots": round(thresh, 1),
+            "threshold_fraction": round(FORMAT_SHIFT_FRACTION, 4),
+            "ranked_over": len(pairs),
+        }
+
+    # ⚠ AGE IS MISSING ON SOME ROWS AND MISSING IS NOT ZERO. A rookie with no age
+    # recorded would be the youngest player on the board at 0, and the gradient
+    # this is looking for is exactly the one an age of 0 would manufacture.
+    aged = [r for r in rows if isinstance(r.get("age"), (int, float))]
+    non_qb = [r for r in aged if r["position"] != "QB"]
+    dynasty = None
+    if len(non_qb) >= 3:
+        rho = _spearman([float(r["age"]) for r in non_qb],
+                        [r["delta"] for r in non_qb])
+        dynasty = {
+            "age_rho_non_qb": None if rho is None else round(rho, 3),
+            "n": len(non_qb), "threshold_rho": DYNASTY_AGE_RHO,
+            # POSITIVE rho = older players go LATER on the market than on our
+            # board, which is what paying for youth looks like from a redraft
+            # board's side.
+            "detected": (not thin) and rho is not None and rho >= DYNASTY_AGE_RHO,
+        }
+
+    detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty))
+                if v and v.get("detected")]
+    if thin:
+        return dict(base, status="thin", observed_at=note, n=len(pairs),
+                    by_position=by_pos, superflex=superflex, dynasty=dynasty,
+                    aged=len(aged), no_age=len(rows) - len(aged),
+                    rows=sorted(rows, key=lambda r: r["delta"]),
+                    note="only %d players crosswalked inside pick %s, under the %d "
+                         "needed for a verdict. The shifts below are real for the "
+                         "players in them; whether they describe the MARKET cannot "
+                         "be said from a population this thin, and calling a format "
+                         "off it would be a statement about who happened to match."
+                         % (len(pairs), top_n, int(MIN_RANKED_FRACTION * float(top_n))))
+    return dict(base, status="measured", observed_at=note, n=len(pairs),
+                by_position=by_pos, superflex=superflex, dynasty=dynasty,
+                aged=len(aged), no_age=len(rows) - len(aged),
+                rows=sorted(rows, key=lambda r: r["delta"]),
+                note=("THE MARKET IS NOT DRAFTING OUR FORMAT (%s). Its adp is an "
+                      "average over the leagues on its platform, so a shift this "
+                      "shape is composition, NOT the market disagreeing with our "
+                      "price. Do not read it as a mispricing and do not blend it "
+                      "into a single-QB redraft board." % ", ".join(detected))
+                if detected else
+                "No format signature above the declared thresholds. That is not "
+                "proof the pool is homogeneous — it is the absence of the two "
+                "shapes looked for, on this day's crosswalked intersection.")
+
+
+def spread_composition(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
+    """IS THE MARKET'S SPREAD THE SAME QUANTITY AS `adp_sd`? Measured, not assumed.
+
+    THE OPEN QUESTION THIS CLOSES. The market's range-derived sd came in ~3x the
+    board's `adp_sd` inside pick 150 and I would not say which was wrong, because
+    an estimator and a published figure are not obviously the same quantity. Two
+    explanations were killed by measurement before this one survived:
+
+      * SKEW IN THE ESTIMATOR — REFUTED. The market's mean sits at 0.35-0.39 of the
+        way through its own observed range rather than 0.50, so the pick
+        distribution is genuinely right-skewed. But calibrated to that skew, the
+        range estimator comes back essentially UNBIASED (x1.02 at n=125). Skew is
+        real and it is not the cause. The earlier guess that it inflated the
+        estimate by ~1.3x had the counterfactual backwards.
+      * SUPERFLEX WIDENING QUARTERBACKS — REFUTED as the cause of the SPREAD, even
+        though it is confirmed in the MEAN. If format mixing showed up as spread it
+        would be worst at quarterback; QB is the position with the SMALLEST ratio
+        (2.2 against 4.0 at receiver).
+
+    WHAT SURVIVED. Both markets' spreads are PROPORTIONAL to the pick number — the
+    coefficient of variation is flat across the range on both sides — and the
+    market's coefficient is about 2.7x the board's. A proportional spread is what
+    pooling rooms of different sizes produces mechanically: the same player at
+    pick 100 of a 12-team draft is at pick ~83 in a 10-team one whatever anybody
+    thinks of him.
+
+    SO THE EXCESS IS REPORTED AS AN EXCESS AND NOT ATTRIBUTED. Subtracting in
+    quadrature gives the part of the market's spread that the board's own
+    within-format disagreement does not account for. It is NOT provable that all of
+    it is composition — a rougher crowd would also disagree more — and what we hold
+    cannot split those. What IS established is the consequence: the two numbers are
+    not denominated in the same thing, so the market's sd must never be substituted
+    for `adp_sd`, which drives `survival.js`'s `normalCdf(currentPick, adp, adp_sd)`
+    and through it VONA.
+    """
+    pairs, note = _paired(archive, board, year, top_n)
+    base = {"status": "unmeasured", "observed_at": None, "n": 0, "top_n": top_n,
+            "market_cv": None, "board_cv": None, "ratio": None,
+            "excess_cv": None, "excess_share_of_variance": None,
+            "by_band": {}, "note": note}
+    got = []
+    for p in pairs:
+        # THE BOARD SIDE MUST BE THE PUBLISHER'S OWN NUMBER. Our fallback clamp is
+        # a constant we invented; comparing the market against it would measure our
+        # clamp and report it as a fact about the market.
+        r = p["row"]
+        if r.get("adp_sd") is None or str(r.get("adp_sd_source")) not in _PUBLISHED_SD:
+            continue
+        est = CAP.spread_from_dispersion(p["dispersion"] or {})
+        if est["status"] != "measured" or not p["market_adp"]:
+            continue
+        got.append({"position": str(r.get("position") or "?").upper(),
+                    "board_adp": float(r["adp"]), "board_sd": float(r["adp_sd"]),
+                    "market_adp": p["market_adp"], "market_sd": est["sd"]})
+    if len(got) < 3:
+        # ⚠ ONLY REPLACE THE REASON IF THERE WAS A PAIRING TO JUDGE. With no
+        # snapshot for the year asked about, `got` is empty for a reason that has
+        # nothing to do with published sds, and overwriting `_paired`'s note would
+        # answer "your board and this market barely overlap" to somebody who
+        # asked about a season the archive does not hold.
+        return dict(base, note=(note if not pairs else
+                                "fewer than three players carry BOTH a published "
+                                "board sd and a measurable market spread"))
+
+    from statistics import median
+    m_cv = median(g["market_sd"] / g["market_adp"] for g in got)
+    b_cv = median(g["board_sd"] / g["board_adp"] for g in got)
+    # THE EXCESS IN QUADRATURE, and the assumption is stated where the number is:
+    # this is the market's spread MINUS as much of it as the board's own
+    # within-format disagreement can explain. Never below zero — a market tighter
+    # than the board is a real answer and a negative "excess" would be arithmetic
+    # noise wearing a result's clothes.
+    excess = (m_cv ** 2 - b_cv ** 2) ** 0.5 if m_cv > b_cv else 0.0
+    bands = {}
+    for lo, hi in ((0, 25), (25, 50), (50, 100), (100, int(top_n))):
+        g = [x for x in got if lo < x["board_adp"] <= hi]
+        if len(g) >= 3:
+            bands["%d-%d" % (lo, hi)] = {
+                "n": len(g),
+                "market_cv": round(median(x["market_sd"] / x["market_adp"] for x in g), 3),
+                "board_cv": round(median(x["board_sd"] / x["board_adp"] for x in g), 3)}
+    return dict(base, status="measured", observed_at=note, n=len(got),
+                market_cv=round(m_cv, 3), board_cv=round(b_cv, 3),
+                ratio=round(m_cv / b_cv, 2) if b_cv else None,
+                excess_cv=round(excess, 3),
+                excess_share_of_variance=(round(excess ** 2 / m_cv ** 2, 3)
+                                          if m_cv else None),
+                by_band=bands,
+                note="The market's spread is %.0f%% wider per pick than the "
+                     "board's published one and the excess is NOT attributed — a "
+                     "pool of mixed room sizes and a rougher crowd both widen it "
+                     "and this data cannot split them. The usable conclusion is "
+                     "the denomination: this sd is NOT `adp_sd` and must not be "
+                     "substituted for it in survival or VONA."
+                     % ((m_cv / b_cv - 1) * 100 if b_cv else 0))
+
+
+#: A day-over-day move this big in the QB shift is the pool's composition
+#: CHANGING, not the same pool wobbling. Declared as a fraction of the ranked
+#: population for the same reason the threshold above is: a slot count means
+#: different things over different pools.
+COMPOSITION_DRIFT_FRACTION = 1.0 / 30.0
+
+
+def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
+    """The composition on EVERY archived day, and whether it is moving.
+
+    ⚠ THIS IS WHY THE DAILY CHECK IS A MECHANISM AND NOT A DASHBOARD (rule 9).
+    Contamination is the steady state — the market has been a mixed pool every day
+    we have looked, and a step that says so every morning is a number nobody
+    diffs. What a reader actually needs before the 22nd is whether it CHANGED, and
+    the archive already holds every day's rows, so the comparison costs nothing
+    but this function.
+
+    IT MATTERS THAT IT COULD CHANGE. MFL's pool in mid-August is not its pool in
+    draft week: best-ball and dynasty startups run early and single-QB redraft
+    rooms fill in late, so the mix genuinely drifts toward our format as the
+    season nears. A market that stopped being contaminated would become usable,
+    and finding that out on the 23rd is finding it out too late.
+
+    ⚠ EVERY DAY IS RANKED AGAINST TODAY'S BOARD, deliberately. The question is how
+    the MARKET moved, and comparing each day's market against that day's board
+    would fold our own rebuilds into the answer — a board edit on the 13th would
+    read as the market changing composition overnight.
+    """
+    days = sorted({s.get("observed_at") for s in CAP._series_of(archive)
+                   if str(s.get("year")) == str(year) and s.get("observed_at")})
+    series = []
+    for d in days:
+        f = format_composition(archive, board, year, top_n, observed_at=d)
+        sfx, dyn = f.get("superflex") or {}, f.get("dynasty") or {}
+        series.append({"observed_at": d, "status": f["status"], "n": f["n"],
+                       "qb_median_slots": sfx.get("qb_median_slots"),
+                       "qb_median_fraction": sfx.get("qb_median_fraction"),
+                       "superflex": sfx.get("detected"),
+                       "age_rho_non_qb": dyn.get("age_rho_non_qb"),
+                       "dynasty": dyn.get("detected")})
+    usable = [s for s in series if s["status"] == "measured"
+              and s["qb_median_fraction"] is not None]
+    base = {"days": series, "measured_days": len(usable), "drift": None,
+            "drift_threshold": round(COMPOSITION_DRIFT_FRACTION, 4),
+            "moving": None, "flipped": [], "status": "unmeasured",
+            "note": None}
+    if len(usable) < 2:
+        # ONE DAY IS NOT A TREND, AND SAYING "no drift" FROM IT WOULD BE A CHECK
+        # THAT CAN ONLY EVER SAY "nothing yet" — which is a check that has not
+        # looked. It says so instead.
+        return dict(base, note="only %d day carries a measurable composition, so "
+                               "there is nothing to compare it against — that is "
+                               "the archive's depth, not a stable market"
+                               % len(usable))
+    first, last = usable[0], usable[-1]
+    drift = last["qb_median_fraction"] - first["qb_median_fraction"]
+    flipped = [k for k in ("superflex", "dynasty") if first[k] != last[k]]
+    return dict(base, status="measured", drift=round(drift, 4),
+                moving=abs(drift) >= COMPOSITION_DRIFT_FRACTION,
+                flipped=flipped,
+                note=("THE MARKET'S COMPOSITION IS MOVING — the quarterback shift "
+                      "went from %.3f to %.3f of the ranked board between %s and "
+                      "%s%s. A comparison against this market is being taken "
+                      "against a different pool than it was last week."
+                      % (first["qb_median_fraction"], last["qb_median_fraction"],
+                         first["observed_at"], last["observed_at"],
+                         (" and %s flipped" % ", ".join(flipped)) if flipped else ""))
+                if abs(drift) >= COMPOSITION_DRIFT_FRACTION or flipped else
+                ("Composition steady across %d days: the quarterback shift moved "
+                 "%.3f of the board, under the %.3f that would mean a different "
+                 "pool." % (len(usable), drift, COMPOSITION_DRIFT_FRACTION)))

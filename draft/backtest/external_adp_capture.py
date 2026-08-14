@@ -379,11 +379,42 @@ def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
     EXIST; STATUS SAYS WHY (A's invariant). One selection gives a range of zero,
     and returning 0.0 would assert the market is CERTAIN about a player it has seen
     once — the most confident number on the board resting on the least evidence.
+
+    ⚠ THIS IS NOT `adp_sd` AND MUST NOT BE SUBSTITUTED FOR IT — measured, not
+    asserted, and it is why `scale` and `comparable_to_board_adp_sd` ride on every
+    row this returns rather than sitting in a docstring nobody copies. Inside pick
+    150 this figure runs ~2.7x the board's FFC-published `adp_sd` PER PICK, on 144
+    paired players (`board_vs_market.spread_composition`, 2026-08-14). Two
+    explanations were killed before the honest one survived:
+
+      * SKEW IN THIS ESTIMATOR — REFUTED. The provider's mean sits 0.35-0.39 of the
+        way through its own observed range rather than at 0.50, so the pick
+        distribution really is right-skewed; but calibrated to that skew the range
+        estimator comes back essentially UNBIASED (x1.02 at n=125). Real, and not
+        the cause.
+      * SUPERFLEX WIDENING QUARTERBACKS — REFUTED for the SPREAD (it is confirmed
+        in the MEAN, at a median 49.8 rank slots). Were format mixing showing up as
+        spread it would be worst at QB; QB has the SMALLEST ratio of any position.
+
+    What is left is a spread PROPORTIONAL to the pick number on both sides, with
+    the provider's coefficient ~2.7x ours — the shape a pool of mixed room sizes
+    produces mechanically. The excess is deliberately not attributed further: a
+    rougher crowd widens it too and what we hold cannot split the two. The
+    consequence stands either way — `survival.js` reads
+    `normalCdf(currentPick, adp, adp_sd)`, and feeding this number into that
+    denominator would triple every survival curve's width on a change that
+    describes MFL's league mix rather than our room.
     """
     lo, hi = row.get("min_pick"), row.get("max_pick")
     n = row.get("drafts")
     base = {"sd": None, "n": None, "basis": "range/d_n", "truncated": None,
-            "status": None, "note": None}
+            "status": None, "note": None,
+            # THE DENOMINATION TRAVELS WITH THE NUMBER. A consumer that reads
+            # `["sd"]` and nothing else is the exact failure this lane has now
+            # paid for repeatedly; a consumer that copies the dict carries the
+            # refusal with it whether or not anybody read the docstring.
+            "scale": "provider-internal picks (pooled formats and room sizes)",
+            "comparable_to_board_adp_sd": False}
     if lo is None or hi is None:
         return dict(base, status="absent",
                     note="MFL published no min/max for this player — absent, not zero")

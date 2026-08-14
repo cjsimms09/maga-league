@@ -681,6 +681,148 @@ jobs:
                     "result; nothing was compared." % (type(e).__name__, e))
           DIV
 
+      # ── IS THE MARKET WE COMPARE AGAINST EVEN PLAYING OUR GAME ─────────
+      #
+      # A's criterion 1 — "are the two ends of this comparison denominated in the
+      # same thing" — turned on the market side of every comparison in this
+      # workflow. MFL is not A market: it is EVERY draft on its platform pooled,
+      # so superflex, 2QB, dynasty, keeper and room sizes from eight to sixteen
+      # all land in one average. That sat in a docstring as a caveat for two days.
+      # Measured 2026-08-14 it is the largest effect in the comparison:
+      # quarterbacks a median 49.8 rank slots earlier than our board prices them,
+      # and among non-quarterbacks the shift tracks AGE at rho +0.425.
+      #
+      # IT RUNS DAILY BECAUSE THE COMPOSITION MOVES. MFL's pool in mid-August is
+      # not its pool the week of the 22nd — best-ball and dynasty startups run
+      # early, single-QB redraft rooms fill in late — so a composition measured
+      # once and filed is a fact about the day it was taken. The one number that
+      # matters on the 22nd is whether it is still this contaminated.
+      - name: Whose game is the market playing — format composition
+        id: fmt
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'FMT' >> "$GITHUB_STEP_SUMMARY"
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Is the market drafting our format?")
+          flags, standing = [], []
+          try:
+              import board_vs_market as BM
+              arc = json.load(open("draft/data/external_adp_series.json"))
+              brd = json.load(open("public/draft_data.json"))
+              f = BM.format_composition(arc, brd)
+              if f["status"] != "measured":
+                  # THIN AND UNMEASURED ARE DIFFERENT FACTS AND BOTH ARE STATES.
+                  # "Not checked" is not "clean" (rule 13f), and a thin crosswalk
+                  # is a crosswalk finding rather than a market one.
+                  print("**%s** — %s" % (f["status"].upper(), f.get("note")))
+                  if f["status"] == "thin":
+                      flags.append("crosswalk thin: %d players" % f["n"])
+              else:
+                  print("`%d` players crosswalked inside pick %d on %s "
+                        "(`%d` carry an age, `%d` do not)."
+                        % (f["n"], f["top_n"], f["observed_at"], f["aged"], f["no_age"]))
+                  print("")
+                  print("| pos | n | median rank delta |")
+                  print("|---|---|---|")
+                  for k, v in f["by_position"].items():
+                      print("| %s | %d | %+.1f |" % (k, v["n"], v["median"]))
+                  print("")
+                  sfx, dyn = f["superflex"] or {}, f["dynasty"] or {}
+                  print("- **superflex/2QB**: QB median `%+.1f` slots against a "
+                        "`%.1f` threshold (one round of our fifteen, over the `%d` "
+                        "ranked) → **%s**"
+                        % (sfx.get("qb_median_slots", 0.0),
+                           sfx.get("threshold_slots", 0.0),
+                           sfx.get("ranked_over", 0),
+                           "DETECTED" if sfx.get("detected") else "not detected"))
+                  print("- **dynasty/keeper**: age rho among the `%d` "
+                        "non-quarterbacks `%s` against `%.2f` → **%s**"
+                        % (dyn.get("n", 0), dyn.get("age_rho_non_qb"),
+                           dyn.get("threshold_rho", 0.0),
+                           "DETECTED" if dyn.get("detected") else "not detected"))
+                  print("")
+                  print(f["note"])
+                  # ⚠ STANDING, NOT ESCALATED. The market has been contaminated
+                  # on every day we hold, so escalating on the CONDITION would
+                  # turn this red every morning and therefore unread by the 22nd.
+                  # What escalates is a CHANGE in it, or the instrument breaking.
+                  if sfx.get("detected"):
+                      standing.append("superflex (QB %+.1f slots)" % sfx["qb_median_slots"])
+                  if dyn.get("detected"):
+                      standing.append("dynasty (age rho %+.3f)" % dyn["age_rho_non_qb"])
+                  print("")
+                  print("| the market takes these EARLIEST vs our board | pos | age | board | market | delta |")
+                  print("|---|---|---|---|---|---|")
+                  for r in f["rows"][:8]:
+                      print("| %s | %s | %s | %.1f | %.1f | %+.1f |"
+                            % (r["name"], r["position"], r["age"],
+                               r["board_adp"], r["market_adp"], r["delta"]))
+
+              s = BM.spread_composition(arc, brd)
+              print("")
+              print("### And is its SPREAD the same quantity as `adp_sd`?")
+              if s["status"] != "measured":
+                  print("**%s** — %s" % (s["status"].upper(), s.get("note")))
+              else:
+                  print("Per pick, on `%d` paired players: market `%.3f`, board "
+                        "`%.3f` — a ratio of `%.2f`. The part the board's own "
+                        "within-format disagreement cannot account for is `%.3f`, "
+                        "or `%.0f%%` of the market's variance."
+                        % (s["n"], s["market_cv"], s["board_cv"], s["ratio"],
+                           s["excess_cv"], 100.0 * (s["excess_share_of_variance"] or 0)))
+                  print("")
+                  print("| band (board adp) | n | market cv | board cv |")
+                  print("|---|---|---|---|")
+                  for k, v in s["by_band"].items():
+                      print("| %s | %d | %.3f | %.3f |"
+                            % (k, v["n"], v["market_cv"], v["board_cv"]))
+                  print("")
+                  print(s["note"])
+                  print("")
+                  print("_Two explanations were killed before that one: SKEW in "
+                        "the range estimator (real — the mean sits 0.35-0.39 through "
+                        "its own range, not 0.50 — but calibrated to it the "
+                        "estimator is unbiased, x1.02 at n=125), and SUPERFLEX "
+                        "widening quarterbacks (QB has the SMALLEST ratio of any "
+                        "position, 2.2 against 4.0 at receiver)._")
+              # ── AND IS IT THE SAME POOL IT WAS YESTERDAY ────────────────
+              # Contamination is the steady state — the market has been mixed on
+              # every day we hold — so a step that reports it each morning is a
+              # number nobody diffs (rule 9). What is worth waking up for is a
+              # CHANGE, and the archive already carries every day's rows, so the
+              # comparison costs nothing but reading them.
+              tr = BM.format_trend(arc, brd)
+              print("")
+              print("### Is it the same pool it was yesterday?")
+              if tr["status"] != "measured":
+                  print("**%s** — %s" % (tr["status"].upper(), tr.get("note")))
+              else:
+                  print("| day | n | QB slots | as a fraction | superflex | age rho | dynasty |")
+                  print("|---|---|---|---|---|---|---|")
+                  for d in tr["days"]:
+                      print("| %s | %s | %s | %s | %s | %s | %s |"
+                            % (d["observed_at"], d["n"], d["qb_median_slots"],
+                               d["qb_median_fraction"], d["superflex"],
+                               d["age_rho_non_qb"], d["dynasty"]))
+                  print("")
+                  print(tr["note"])
+                  if tr["moving"] or tr["flipped"]:
+                      flags.append("composition drift %+.3f%s"
+                                   % (tr["drift"],
+                                      (" — %s FLIPPED" % ",".join(tr["flipped"]))
+                                      if tr["flipped"] else ""))
+          except Exception as e:                      # noqa: BLE001
+              print("**FORMAT CHECK DID NOT RUN** (%s: %s) — not a clean result; "
+                    "nothing was compared." % (type(e).__name__, e))
+              flags.append("format check crashed: %s" % type(e).__name__)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("flags=%s\n" % ("; ".join(flags) or ""))
+              fh.write("standing=%s\n" % ("; ".join(standing) or ""))
+          FMT
+
       # ── IS TODAY'S DATA TRUSTWORTHY AT ALL ─────────────────────────────
       #
       # Cory, 2026-08-14: "the daily data capture process needs to be correct...
@@ -1091,4 +1233,31 @@ jobs:
           echo "::error::reported in the summary without failing. This reached the board."
           echo "::error::Check the player is not simply retired/suspended before treating"
           echo "::error::it as a capture defect. See the step summary."
+          exit 1
+
+      # ⚠ WHAT THIS ESCALATES ON, AND WHAT IT DELIBERATELY DOES NOT.
+      #
+      # NOT the contamination. The market has been superflex- and dynasty-mixed on
+      # all four days we hold, and the shift has moved 0.003 of the board across
+      # them. Escalating a standing condition makes this red every morning, and the
+      # audit step above already carries the note about how a real alarm gets muted
+      # by its second. It is printed in the summary and stamped in `standing`.
+      #
+      # It DOES escalate on the three things that mean the answer changed or the
+      # instrument did: the pool's composition drifting or a verdict flipping (the
+      # market becoming usable is a decision, and finding it out on the 23rd is
+      # finding it out too late), the crosswalk decaying below half the draft range
+      # so no verdict can be taken at all, and the check crashing — which is the
+      # one state that would otherwise read as "nothing to report".
+      - name: Escalate if the market stopped being the market we measured
+        if: always() && steps.fmt.outputs.flags != ''
+        run: |
+          echo "::error::THE MARKET COMPARISON'S GROUND MOVED — ${{ steps.fmt.outputs.flags }}"
+          echo "::error::Every comparison in this workflow ranks our board against"
+          echo "::error::MFL's pooled board. That pool is superflex- and"
+          echo "::error::dynasty-mixed by measurement, which is a STANDING fact and"
+          echo "::error::not what this is about. This fires because the pool CHANGED,"
+          echo "::error::the crosswalk got too thin to judge it, or the check did not"
+          echo "::error::run. Read the composition table in the summary before"
+          echo "::error::trusting any board-vs-market number from today."
           exit 1
