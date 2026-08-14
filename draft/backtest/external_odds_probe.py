@@ -375,7 +375,7 @@ def discovery_report(results) -> dict:
     rows = list(results or [])
     if not rows:
         return {"verdict": "not attempted", "proves_absence": False, "tried": [],
-                "answered": [],
+                "answered": [], "exists_but_forbidden": [],
                 "note": "the discovery step did not run. Nothing was asked, so "
                         "nothing was learned — this is not a null result."}
     answered = [r for r in rows if int(r.get("status") or 0) == 200 and r.get("names")]
@@ -384,7 +384,18 @@ def discovery_report(results) -> dict:
         # NEVER TRUE. Absence of a market can only be established on a path the
         # provider acknowledges, and every path here is one we made up.
         "proves_absence": False,
-        "tried": [{"path": r.get("path"), "status": r.get("status")} for r in rows],
+        # THE ERROR TEXT TRAVELS. A 404 says the path does not exist; a 403 says
+        # IT DOES AND WE CANNOT READ IT ON THIS TIER — opposite conclusions, and
+        # the second is a pricing decision rather than a dead end. The first
+        # discovery run reported `status: 0` for all four candidates and the
+        # artifact could not tell them apart.
+        "tried": [{"path": r.get("path"), "status": r.get("status"),
+                   "error": r.get("error")} for r in rows],
+        # NAMED SEPARATELY, because it is the one outcome that changes what
+        # anybody would do next.
+        "exists_but_forbidden": [r.get("path") for r in rows
+                                 if "403" in str(r.get("error") or "")
+                                 or int(r.get("status") or 0) in (401, 403)],
         "answered": [{"path": r.get("path"), "names": list(r.get("names") or [])[:40]}
                      for r in answered],
         "note": ("one or more candidate paths returned a market list — see "

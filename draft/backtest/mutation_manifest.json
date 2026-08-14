@@ -1547,8 +1547,8 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        \"proves_absence\": False,\n        \"tried\":",
-     "new": "        \"proves_absence\": not answered,\n        \"tried\":",
+     "old": "        # provider acknowledges, and every path here is one we made up.\n        \"proves_absence\": False,",
+     "new": "        # provider acknowledges, and every path here is one we made up.\n        \"proves_absence\": not answered,",
      "must_fail": [
       "test_A_PATH_THAT_DID_NOT_ANSWER_IS_NOT_A_PROVIDER_THAT_DOES_NOT_SERVE"
      ],
@@ -1567,6 +1567,22 @@
      "new": "        \"answered\": [{\"path\": r.get(\"path\")} for r in answered],",
      "must_fail": [
       "test_A_PATH_THAT_ANSWERED_IS_REPORTED_WITH_WHAT_IT_SAID"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"tried\": [{\"path\": r.get(\"path\"), \"status\": r.get(\"status\"),\n                   \"error\": r.get(\"error\")} for r in rows],",
+     "new": "        \"tried\": [{\"path\": r.get(\"path\"), \"status\": r.get(\"status\")} for r in rows],",
+     "must_fail": [
+      "test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"exists_but_forbidden\": [r.get(\"path\") for r in rows\n                                 if \"403\" in str(r.get(\"error\") or \"\")\n                                 or int(r.get(\"status\") or 0) in (401, 403)],",
+     "new": "        \"exists_but_forbidden\": [],",
+     "must_fail": [
+      "test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive"
      ],
      "verdict": "KILLED"
     }

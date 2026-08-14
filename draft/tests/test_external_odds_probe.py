@@ -422,3 +422,23 @@ def test_DISCOVERY_WITH_NOTHING_TRIED_IS_NOT_A_NULL():
     d = P.discovery_report([])
     assert d["verdict"] == "not attempted"
     assert d["proves_absence"] is False
+
+
+def test_A_404_AND_A_403_ARE_DIFFERENT_ANSWERS_and_both_must_survive():
+    """The discovery run reported `status: 0` for all four paths — my exception
+    branch — so the artifact could not tell a 404 from a 403. They mean opposite
+    things: 404 says the path does not exist, 403 says IT DOES AND WE CANNOT READ
+    IT ON THIS TIER, which is a pricing decision for Cory rather than a dead end.
+
+    MUTATION: keep only the status integer — a paid-tier endpoint that exists and
+    answers 403 is filed identically to a URL we misspelled, and the one outcome
+    worth escalating is indistinguishable from the three that are not."""
+    d = P.discovery_report([
+        {"path": "/v3/props", "status": 0, "error": "HTTPError: 403 Forbidden"},
+        {"path": "/v3/markets", "status": 0, "error": "HTTPError: 404 Not Found"}])
+    tried = {t["path"]: t for t in d["tried"]}
+    assert "403" in tried["/v3/props"]["error"]
+    assert "404" in tried["/v3/markets"]["error"]
+    # AND A FORBIDDEN PATH IS CALLED OUT, because it is the one that changes what
+    # anybody would do next.
+    assert d["exists_but_forbidden"] == ["/v3/props"], d
