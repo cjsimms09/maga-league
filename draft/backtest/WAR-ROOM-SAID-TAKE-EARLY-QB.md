@@ -113,9 +113,18 @@ It held at every pick Cory owns, widening as the board thinned:
 
 Deferring a quarterback buys a better RB/WR **at this pick** and pays for it at a
 **later** one. `forgone` sees only the decline. `slot_schedule.js` computes the
-two-sided version — a DP over 15 picks × 2⁶ slot states, verified against brute
-force over 3,603,600 assignments — and the comparison **inverts** once you look
-past the next pick: across the draft QB falls 103 points, TE 101, **RB/WR 139**.
+two-sided version — a DP over Cory's picks × 2⁶ slot states, verified against
+brute force — and it puts the **QB at 73 and the TE at 33**, pricing a
+quarterback at pick 33 at **11.1 points of starting lineup forgone**.
+
+> **Correction, same day.** This section first cited "QB falls 103 points, TE
+> 101, RB/WR 139" from that tool's header. Those numbers were measured over a
+> **fifteen**-pick schedule that began at pick 8 — and picks 8, 13 and 28 are the
+> rounds Cory *forfeited* for Henry, Chase and Walker. Over the twelve picks he
+> owns (33 → 148) best-available falls **QB 69, RB 87, WR 72, TE 52**. The
+> comparison still inverts, but by **4 points across the whole draft, not 36**.
+> Details in the section below; the tool is fixed and now reads the schedule off
+> the board.
 
 ### What changed
 
@@ -133,6 +142,92 @@ an eight-way tie is.
 **The fix does not price the other half.** That is `slot_schedule.js`'s job and
 nothing on this surface reads it yet. Until it does, the honest sentence is
 "cost here, gain not counted" — which is what it now says.
+
+## Defect 3 — the plan spent three picks Cory does not own
+
+Found while cross-checking defect 1's result. `slot_schedule.js` is the tool that
+answers Cory's central question — *"when is the best time to take a QB or TE"* —
+and its schedule was the literal
+
+```js
+const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+```
+
+which is `pick_order.my_picks_**before_keepers**`. **Picks 8, 13 and 28 are the
+rounds forfeited for Henry, Chase and Walker** — the board lists them by name
+under `pick_order.forfeited`, and carries the corrected `my_picks` right beside
+it.
+
+The same keepers *were* subtracted from the starting **slots**, by derivation,
+under a comment reading *"Derived, not typed: a hand-written list would drift the
+moment the keepers change."* One side of the assignment knew about the keepers
+and the other did not — and the sentence warning about exactly that failure sat
+twelve lines below it.
+
+**The brute force did not save us.** It agreed with the DP to the decimal, on the
+wrong pick set. Two methods agreeing on the wrong question is not verification.
+
+**It inverted the answer.**
+
+| | old (15 picks, 3 forfeited) | real (12 picks) |
+|---|---|---|
+| TE | pick **13** | pick **33** |
+| QB | pick **33** | pick **73** |
+| total starting value | 1325.5 | 1178.4 |
+
+The old plan's headline was a quarterback at 33. On the real schedule that
+**costs 11.1 points** of starting lineup, and the tight end moves up to 33.
+
+The old plan also printed *"THE ASYMMETRY FAVOURS US: the plan does not move at
+all on the negative side"* unconditionally. That was true of a schedule starting
+at pick 8 — too early for any plausible drift to reach — and is false of the real
+one, which reshuffles on both sides. **That verdict is now computed from the
+drift rows**, and when the plan moves it says so and tells the reader to carry
+the slot *order* rather than the pick numbers.
+
+## The rebuilt race — and the result that settles defect 1
+
+With the chooser and grader in one currency (`best_by_marginal_value`, which
+maximises the same startable-lineup mean the grader scores), the control fields a
+legal lineup in **200 of 200 rooms** and the validity gate stays silent. Re-run:
+
+| archetype | mean edge $ | 95% CI | divergence |
+|---|---|---|---|
+| hero_rb | +0.62 | [−0.62, 2.25] | 0.1 |
+| zero_rb | +0.25 | [−0.75, 1.50] | 0.1 |
+| **early_qb** | **+0.00** | **[0, 0]** | **0.0** |
+| wr_anchor | −0.25 | [−0.75, 0.00] | 0.0 |
+| elite_te | −18.50 | [−38.38, 0.38] | 2.2 |
+| late_qb | −25.50 | [−56.25, 2.38] | 6.6 |
+
+**`early_qb` now scores exactly $0.00 with zero divergence.** Its constraint
+never binds: a chooser that actually maximises lineup value already takes a
+quarterback by live pick 3 without being told to. **"Early-QB Strike" was not a
+strategy — it was a description of what correct value-drafting does anyway**, and
+its entire +$352.75 was the lineup gap.
+
+**Nothing enrolls**, and this time because nothing cleared its gate on a *valid*
+experiment rather than because the race was void. `late_qb` (−$25.50) and
+`elite_te` (−$18.50) both lean negative with CIs straddling zero — not resolvable
+at 200 rooms.
+
+That makes the shipped state — no doctrine, pure value — **evidence-backed rather
+than a fallback**, and it is exactly Cory's stated principle: *"Our model needs to
+first and foremost be drafting for value."*
+
+### The limitation that stops this being a QB-timing answer
+
+The race cannot tell you *when* to take a quarterback. Every archetype uses the
+same greedy chooser, and greedy-on-marginal-lineup-value takes the QB at pick 33
+in 60 of 60 rooms — with **zero variance**, which is the tell. It is greedy
+across picks: it correctly handles replacement level *within* a pick and has no
+model of what will still be there later. That is the same one-step myopia as
+VONA.
+
+**So the two tools answer different questions and only one of them answers
+Cory's.** The race says no *constraint* beats value-drafting. `slot_schedule.js`,
+which optimises across all twelve picks at once, is the one that says when — and
+it says TE at 33, QB at 73.
 
 ## What this does NOT establish
 

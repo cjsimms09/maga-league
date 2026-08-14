@@ -207,7 +207,10 @@ def draft_room(pool, my_keepers, opp_keepers, my_picks, chooser, rng,
         if pick_no in my_set:
             live_idx += 1
             allowed = chooser(board, live_idx, rosters[0])
-            choice = max(allowed, key=lambda p: p["vorp"])
+            # ONE CURRENCY. See best_by_marginal_value — picking by VORP while
+            # grading by startable-lineup proj_mean is what put a quarterback-less
+            # control at the centre of this experiment.
+            choice = best_by_marginal_value(rosters[0], allowed)
             rosters[0].append(choice)
         else:
             seat = opp_order[oi % len(opp_order)]
@@ -237,6 +240,82 @@ def draft_room_sequence(pool, my_keepers, opp_keepers, my_picks, rng, cascade=No
         recent.append(choice["position"])
         board = [p for p in board if p["player_id"] != choice["player_id"]]
     return recent
+
+
+def lineup_mean(roster):
+    """Weekly mean of the best startable lineup — the grader's own currency."""
+    return team_week_params(roster)[0] if roster else 0.0
+
+
+def best_by_marginal_value(roster, allowed, scan=60):
+    """The player who most raises the lineup this roster will be GRADED on.
+
+    ── WHY THIS REPLACED `max(allowed, key=vorp)` ──────────────────────────
+    The seat used to pick by VORP while `grade_room` scored `proj_mean` of the
+    best startable lineup. Two currencies, and they disagree hardest at exactly
+    the position Cory asked about. VORP is LOW for quarterbacks *because* they
+    are replaceable (Allen 63.8 against Gibbs 156.0), so a VORP-greedy seat
+    never spent a pick on one — and `team_week_params` then silently skipped the
+    slot it could not fill and docked the team ~350 points. The control could not
+    field a legal lineup in 198 of 200 rooms, and the archetype FORCED to buy a
+    quarterback collected that entire gap as a +$352.75 "strategy edge".
+
+    Marginal lineup value has the replacement logic built in rather than bolted
+    on: the first quarterback is worth his whole weekly score because the slot is
+    empty, and the second is worth ~0 because he never starts. Nobody has to tell
+    it that one quarterback is enough.
+
+    ── THE SCAN BOUND IS ADMISSIBLE, NOT A HEURISTIC ───────────────────────
+    Evaluating every board player each pick is too slow, so only the top `scan`
+    by proj_mean are measured. That is safe because marginal value is BOUNDED by
+    the player's own weekly score: adding p either fills an empty slot (gain
+    exactly p/WEEKS), displaces a starter q (gain (p-q)/WEEKS, strictly less), or
+    rides the bench (gain 0). So no unscanned player can beat a scanned one whose
+    margin already exceeds their proj_mean/WEEKS — and the loop widens the scan
+    if that condition is not met, rather than assuming it.
+    """
+    if not allowed:
+        return None
+    ranked = sorted(allowed, key=lambda p: -p["proj_mean"])
+    base = lineup_mean(roster)
+    best, best_gain, seen = None, -1.0, 0
+    while seen < len(ranked):
+        for p in ranked[seen:seen + scan]:
+            gain = lineup_mean(roster + [p]) - base
+            if gain > best_gain:
+                best, best_gain = p, gain
+        seen += scan
+        # ADMISSIBILITY: nothing further down can score above its own weekly
+        # points, so if the next candidate's ceiling is already below the best
+        # margin found, the search is provably complete.
+        if seen >= len(ranked) or ranked[seen]["proj_mean"] / WEEKS <= best_gain:
+            break
+    # ── THE BENCH TIE-BREAK IS A STATED CONVENTION, NOT A FINDING ───────────
+    # `best_gain > 0` already covers every UPGRADE — a better receiver than my
+    # current WR3 displaces him and shows a positive gain. So reaching here means
+    # no available player improves the startable lineup at all, and each one is a
+    # pure bench piece. This simulator does not price the bench (no injuries, no
+    # byes), so nothing can separate them on merit and ANY rule here is a
+    # convention. It is also GRADE-NEUTRAL: every archetype applies the same rule,
+    # so it cancels in the paired delta.
+    #
+    # What it is not free to do is produce rosters a reader cannot believe, and
+    # the two obvious rules both did. VORP on a depleted board prefers a FIFTH
+    # defence (vorp 15) to a receiver who has fallen below replacement — control
+    # rosters came out 5 DEF, 3 K. Raw proj_mean prefers a backup quarterback to
+    # any receiver, because QB points are simply bigger — 7 QB.
+    #
+    # So: at most ONE backup per position, because with no injuries a third
+    # quarterback can never appear in any lineup this grader builds, and then
+    # proj_mean among what remains.
+    if best_gain <= 0:
+        held = {}
+        for p in roster:
+            held[p["position"]] = held.get(p["position"], 0) + 1
+        cap = lambda p: held.get(p["position"], 0) < STARTERS.get(p["position"], 1) + 1
+        useful = [p for p in allowed if cap(p)]
+        return max(useful or allowed, key=lambda p: p["proj_mean"])
+    return best
 
 
 def unfilled_starters(roster):

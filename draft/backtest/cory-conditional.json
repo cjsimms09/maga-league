@@ -6,54 +6,24 @@
  "enrolled": "balanced",
  "leaderboard": [
   {
-   "archetype": "early_qb",
-   "mean_edge": 352.75,
+   "archetype": "hero_rb",
+   "mean_edge": 0.62,
    "ci95": [
-    306.0,
-    399.62
+    -0.62,
+    2.25
    ],
-   "mean_divergence": 1.0,
-   "verdict": "VOID \u2014 margin is the missing starter, not a strategy edge"
-  },
-  {
-   "archetype": "elite_te",
-   "mean_edge": 64.38,
-   "ci95": [
-    33.62,
-    96.75
-   ],
-   "mean_divergence": 0.7,
-   "verdict": "VOID \u2014 margin is the missing starter, not a strategy edge"
-  },
-  {
-   "archetype": "wr_anchor",
-   "mean_edge": 1.38,
-   "ci95": [
-    -6.25,
-    9.88
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "VOID \u2014 control invalid"
+   "mean_divergence": 0.1,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "zero_rb",
-   "mean_edge": 0.0,
+   "mean_edge": 0.25,
    "ci95": [
-    0.0,
-    0.0
+    -0.75,
+    1.5
    ],
-   "mean_divergence": 0.0,
-   "verdict": "VOID \u2014 control invalid"
-  },
-  {
-   "archetype": "hero_rb",
-   "mean_edge": 0.0,
-   "ci95": [
-    0.0,
-    0.0
-   ],
-   "mean_divergence": 0.0,
-   "verdict": "VOID \u2014 control invalid"
+   "mean_divergence": 0.1,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "robust_rb",
@@ -63,30 +33,57 @@
     0.0
    ],
    "mean_divergence": 0.0,
-   "verdict": "VOID \u2014 control invalid"
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "early_qb",
+   "mean_edge": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ],
+   "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "wr_anchor",
+   "mean_edge": -0.25,
+   "ci95": [
+    -0.75,
+    0.0
+   ],
+   "mean_divergence": 0.0,
+   "verdict": "parked: CI includes $0"
+  },
+  {
+   "archetype": "elite_te",
+   "mean_edge": -18.5,
+   "ci95": [
+    -38.38,
+    0.38
+   ],
+   "mean_divergence": 2.2,
+   "verdict": "parked: CI includes $0"
   },
   {
    "archetype": "late_qb",
-   "mean_edge": -45.88,
+   "mean_edge": -25.5,
    "ci95": [
-    -71.0,
-    -23.38
+    -56.25,
+    2.38
    ],
-   "mean_divergence": 0.1,
-   "verdict": "VOID \u2014 measured against an unfillable control"
+   "mean_divergence": 6.6,
+   "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": null,
  "control_validity": {
   "rooms": 200,
-  "illegal": 198,
-  "rate": 0.99,
-  "by_slot": {
-   "QB": 182,
-   "TE": 130
-  }
+  "illegal": 0,
+  "rate": 0.0,
+  "by_slot": {}
  },
- "void_reason": "control could not field the mandatory lineup in 198/200 rooms (99%; unfilled {'QB': 182, 'TE': 130}). Every edge here is measured against that roster, so a candidate forced to buy the missing starter collects its season value as a strategy edge. NOTHING ENROLLS until the chooser and the grader use the same currency.",
+ "void_reason": null,
  "caveats": [
   "money proxy v1: simulated weeks from proj_mean/weekly_sd normals",
   "playoff $ INCLUDED (bracket resim, 53% of the pot); bracket seeding is by season total points \u2014 this room has no schedule, so it cannot seed by record",

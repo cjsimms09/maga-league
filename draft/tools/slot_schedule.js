@@ -19,16 +19,39 @@
  *
  * VONA compares ONE-STEP drops at the CURRENT pick, which is why Josh Allen's
  * 33.6 beats a receiver's 12.7 and the engine takes a quarterback at 1.08.
- * Measured on this board, across the whole draft: QB falls 103 points, TE 101,
- * RB/WR 139. The comparison inverts once you look past the next pick.
+ *
+ * ⚠ THE NUMBERS HERE WERE WRONG AND ARE RESTATED. This read "QB falls 103
+ * points, TE 101, RB/WR 139", measured across the OLD fifteen-pick schedule --
+ * which began at pick 8, three picks Cory forfeited for his keepers. Measured
+ * across the picks he actually owns (33 -> 148), best-available falls:
+ *
+ *     QB 69   ·   RB 87   ·   WR 72   ·   TE 52   ·   best-of-RB/WR 73
+ *
+ * The comparison still inverts -- RB/WR falls faster than QB -- but by 4 points
+ * across the whole draft, not 36. It is a thin edge, not the wide one that was
+ * claimed, and the DP below is the thing to read rather than this ratio: it
+ * puts the QB at 73 and prices taking him at 33 at 11.1 points of lineup.
  *
  * ── AND THE REAL PROBLEM IS SMALLER THAN THE DRAFT ──────────────────────────
  *
  * Starters are QB1 RB2 WR2 TE1 FLEX1 K1 DEF1. Cory's keepers already fill
  * RB1, RB2 and WR1, so only SIX starting slots remain -- QB, WR2, TE, FLEX,
- * K, DEF -- against FIFTEEN picks. NINE PICKS ARE BENCH, and under the current
+ * K, DEF -- against TWELVE picks. SIX PICKS ARE BENCH, and under the current
  * model a bench player is worth nothing (measured: swapping a wasted third QB
  * for a receiver moved the season score -1.74, inside noise).
+ *
+ * ⚠ IT WAS FIFTEEN PICKS UNTIL 2026-08-14, AND THAT WAS THE BUG. `SCHED` was
+ * the literal [8, 13, 28, 33, ...] = `my_picks_BEFORE_keepers`. Picks 8, 13 and
+ * 28 are the rounds forfeited FOR Henry, Chase and Walker; the board lists them
+ * by name under `pick_order.forfeited`. The keepers were subtracted from the
+ * SLOTS (correctly, and derived) and not from the PICKS, so one side of the
+ * assignment knew about them and the other did not, and three of the six
+ * starters were placed in picks Cory does not own.
+ *
+ * IT INVERTED THE ANSWER. Old: TE at 13, QB at 33, total 1325.5. Real: TE at
+ * 33, QB at 73, total 1178.4 -- and taking the QB at 33 now COSTS 11.1 points
+ * rather than being the plan. The old plan also read as rock-stable under drift,
+ * which was an artifact of picks 8/13/28 being too early for drift to reach.
  *
  * So the question is exactly: WHICH SIX PICKS BUY THE SIX SLOTS. That is a
  * linear assignment problem, solved here exactly by DP over 15 picks x 2^6
@@ -45,9 +68,15 @@
  *
  * ── VERIFIED, NOT TRUSTED ───────────────────────────────────────────────────
  *
- * The DP was checked against BRUTE FORCE over all 3,603,600 assignments of six
- * slots to fifteen picks. Both return 1325.5. A dynamic program that silently
- * finds a local optimum would have looked exactly as convincing.
+ * The DP was checked against BRUTE FORCE over every assignment of six slots to
+ * my picks -- 665,280 of them on the real twelve-pick schedule. A dynamic
+ * program that silently finds a local optimum would have looked exactly as
+ * convincing.
+ *
+ * AND THE BRUTE FORCE DID NOT SAVE US FROM THE SCHEDULE BUG, which is the
+ * lesson worth keeping: it agreed with the DP to the decimal on the WRONG pick
+ * set. Two methods agreeing on the wrong question is not verification, it is
+ * two witnesses to the same mistake.
  *
  * AND THE BRUTE FORCE EXPOSED A TIE THE DP HID: it placed DEF at 48 and K at 53
  * where the DP placed them at 108 and 113, for the SAME TOTAL. The best
@@ -71,7 +100,29 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
   : (p.raw_adp != null ? +p.raw_adp : 9999));
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const keep = KEEP.keepersFrom(DATA);
-const SCHED = [8, 13, 28, 33, 48, 53, 68, 73, 88, 93, 108, 113, 128, 133, 148];
+/* THE PICKS CORY ACTUALLY OWNS — READ, NOT TYPED.
+ *
+ * This was the literal [8, 13, 28, 33, 48, ...], which is `my_picks_BEFORE_
+ * keepers`. Picks 8, 13 and 28 are the first-, second- and third-round slots
+ * FORFEITED for Derrick Henry, Ja'Marr Chase and Kenneth Walker — the board
+ * lists them under `pick_order.forfeited` by name. So the schedule spent three
+ * picks that do not exist, and the optimum it reported (1325.5) placed three of
+ * its six starters in them: FLEX at 8, TE at 13, WR at 28.
+ *
+ * The tell was already in this file. Twelve lines down, the open-slot list is
+ * derived from the keepers with the comment "Derived, not typed: a hand-written
+ * list would drift the moment the keepers change" — and it is right. The same
+ * keepers were subtracted from the SLOTS and not from the PICKS, so one side of
+ * the assignment knew about them and the other did not.
+ *
+ * The brute-force check did not catch it: it verified the DP against the same
+ * wrong pick set, and agreeing on the wrong question is not verification. */
+const SCHED = (DATA.pick_order || {}).my_picks;
+if (!Array.isArray(SCHED) || !SCHED.length) {
+  throw new Error('REFUSING to plan: pick_order.my_picks is missing from the board. '
+    + 'The previous literal was my_picks_before_keepers and spent three forfeited '
+    + 'picks; guessing a schedule is how that happened.');
+}
 
 /* WHICH STARTING SLOTS ARE STILL OPEN, given the keepers. Derived, not typed:
  * a hand-written list would drift the moment the keepers change. */
@@ -152,6 +203,7 @@ console.log('\n  bench picks (best available RB/WR): ' + benchPicks.join(', '));
   const DRIFTS = [[-0.25, 'room reaches 25% LESS deep'], [-0.15, '15% less deep'],
     [0, 'exactly ADP'], [0.15, '15% deeper (players go faster)'],
     [0.25, '25% deeper'], [0.5, '50% deeper']];
+  const plans = [];
   console.log('\n  ROBUSTNESS — the plan under a mis-projected room:');
   console.log('    drift   meaning                          QB    TE    WR  FLEX    total');
   DRIFTS.forEach(([d, lbl]) => {
@@ -183,9 +235,38 @@ console.log('\n  bench picks (best available RB/WR): ' + benchPicks.join(', '));
       + lbl.padEnd(32) + String(where.QB).padStart(4) + String(where.TE).padStart(6)
       + String(where.WR).padStart(6) + String(where.FLEX).padStart(6)
       + String(d2[N][FULL].toFixed(0)).padStart(9));
+    plans.push({ d: d, QB: where.QB, TE: where.TE, WR: where.WR, FLEX: where.FLEX });
   });
-  console.log('    THE ASYMMETRY FAVOURS US: the plan does not move at all on the');
-  console.log('    negative side, which is the direction survival is known to err.');
+
+  /* THE STABILITY CLAIM IS NOW COMPUTED, BECAUSE THE TYPED ONE WENT STALE.
+   *
+   * This used to print "THE ASYMMETRY FAVOURS US: the plan does not move at all
+   * on the negative side" unconditionally. That was TRUE of the old schedule and
+   * FALSE of the real one — and the old schedule spent three forfeited picks, so
+   * its stability was an artifact of planning around picks 8/13/28, which are so
+   * early that no plausible drift changes what is there. Remove them and the
+   * plan moves on both sides.
+   *
+   * A sentence that reassures the reader regardless of the numbers above it is
+   * the same failure as a badge on an uninstalled term. So it is derived. */
+  const base = plans.find(p => p.d === 0) || plans[0];
+  const same = p => p.QB === base.QB && p.TE === base.TE
+    && p.WR === base.WR && p.FLEX === base.FLEX;
+  const neg = plans.filter(p => p.d < 0), pos = plans.filter(p => p.d > 0);
+  const stableNeg = neg.every(same), stablePos = pos.every(same);
+  if (stableNeg && !stablePos) {
+    console.log('    THE ASYMMETRY FAVOURS US: the plan does not move on the negative');
+    console.log('    side, which is the direction survival is known to err.');
+  } else if (stableNeg && stablePos) {
+    console.log('    THE PLAN IS STABLE in both directions across the drifts tested.');
+  } else {
+    console.log('    ⚠ THE PLAN IS NOT STABLE — it moves under drift on the '
+      + (stablePos ? 'negative side' : (stableNeg ? 'positive side' : 'BOTH sides'))
+      + '.');
+    console.log('    Carry the slot ORDER into the room, not these pick numbers: the');
+    console.log('    assignment reshuffles under drift while the shape holds, and a');
+    console.log('    printed pick number implies a precision this does not have.');
+  }
 }
 
 /* THE COUNTERFACTUAL THAT MAKES IT A DECISION RATHER THAN AN ANSWER. */
