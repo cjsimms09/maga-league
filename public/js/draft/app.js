@@ -8230,6 +8230,29 @@
       // carries no projection, so it can never affect a recommendation — it
       // exists so the pick is visible and lands on the right roster.
       const known = playerById(id);
+      /* ⚠️ ID-SPACE DIVERGENCE IS THE ONE SYNC FAILURE THAT REMOVES NOBODY FROM
+       * THE POOL, AND NOTHING COUNTED IT.
+       *
+       * A stub is fine one at a time — Sleeper carries deep players our 686-row
+       * board does not, and a stub is rendered "(not on the board)" and never
+       * scored. But if the two id spaces ever DIVERGE — a players-DB refresh, a
+       * board rebuilt from a different source, an id format change — then EVERY
+       * pick becomes a stub, `state.drafted` fills with ids the board does not
+       * contain, and `players.filter(p => !drafted.has(p.player_id))` removes
+       * NOBODY. Cory would be recommended players taken forty picks earlier, for
+       * the whole draft, with each individual row looking merely unusual.
+       *
+       * THE THRESHOLD IS DERIVED, NOT CHOSEN. Real drafts against today's board:
+       *     2025  150 picks,   5 stubs   3.3%
+       *     2024  150 picks,  13 stubs   8.7%
+       *     2023  150 picks,  21 stubs  14.0%
+       * The older seasons run high only because retired players are dropped from
+       * a 2026 board, so 3.3% is the honest expectation and 14% an upper bound.
+       * 50% is far above any of them and far below the ~100% a divergence
+       * produces — a false alarm mid-draft is itself harmful, so this fires only
+       * for catastrophe. Minimum eight picks before it can judge at all. */
+      state._syncMatched = (state._syncMatched || 0) + (known ? 1 : 0);
+      state._syncStubs = (state._syncStubs || 0) + (known ? 0 : 1);
       const meta = pick.metadata || {};
       const p = known || {
         player_id: id,
@@ -8310,6 +8333,22 @@
     // so a pick can never resolve a forecast made after it was already known.
     resolveOpponentPredictions(picks);
     emitOpponentPredictions();
+    /* THE ALARM, RAISED ONCE AND LOUDLY. See the derivation above the counters. */
+    {
+      const seen = (state._syncMatched || 0) + (state._syncStubs || 0);
+      const rate = seen ? (state._syncStubs || 0) / seen : 0;
+      if (seen >= 8 && rate >= 0.5 && !state.syncIdDivergence) {
+        state.syncIdDivergence = { matched: state._syncMatched, stubs: state._syncStubs,
+                                   rate: Math.round(rate * 100) };
+        const msg = 'ID MISMATCH: ' + state._syncStubs + ' of ' + seen + ' picks ('
+          + Math.round(rate * 100) + '%) do not match the board. Players taken are '
+          + 'NOT being removed from your pool — the board is recommending men who '
+          + 'are already gone. Verify against Sleeper before you draft.';
+        console.error('[sync] ' + msg);
+        try { setStatus({ state: 'error', message: msg }); } catch (e) { /* console still carries it */ }
+      }
+    }
+
     recomputeRuns();
     alertTick();               // A-3: did that batch put me on the clock?
     renderAll();

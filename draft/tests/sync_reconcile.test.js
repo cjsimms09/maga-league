@@ -186,6 +186,36 @@ const pick = (id, no, slot) => ({ player_id: id, pick_no: no, draft_slot: slot |
     { drafted: [...s.drafted], withdrawn: s.syncWithdrawn });
 }
 
+// ── ID-SPACE DIVERGENCE: the sync failure that removes NOBODY from the pool ─
+{
+  const s = freshState();
+  // Every pick carries an id the board does not know — what a players-DB
+  // refresh or a board rebuilt from another source looks like.
+  const alien = n => ({ player_id: 'zz' + n, pick_no: n, draft_slot: 1,
+                        metadata: { first_name: 'Un', last_name: 'Known' } });
+  run(s, [alien(1), alien(2), alien(3), alien(4)]);
+  ck('under EIGHT picks it stays quiet — early noise must not fire it',
+    !s.syncIdDivergence, s.syncIdDivergence);
+  run(s, [alien(1), alien(2), alien(3), alien(4),
+          alien(5), alien(6), alien(7), alien(8), alien(9)]);
+  ck('a total id-space divergence RAISES the alarm',
+    !!s.syncIdDivergence, s.syncIdDivergence);
+  ck('and it reports the rate, not just a boolean',
+    s.syncIdDivergence.rate >= 50, s.syncIdDivergence);
+  ck('THE CONSEQUENCE IS REAL: nobody was removed from the board',
+    s.board.length === POOL.length, s.board.map(p => p.player_id));
+}
+{
+  const s = freshState();
+  // A realistic draft: mostly known, one deep player the board does not carry.
+  // Measured legitimate stub rate on the 2025 draft is 3.3%.
+  const alien = n => ({ player_id: 'zz' + n, pick_no: n, draft_slot: 1, metadata: {} });
+  run(s, [pick('100', 1), pick('200', 2), pick('300', 3), alien(4),
+          pick('900', 5), pick('100', 6), pick('200', 7), pick('300', 8)]);
+  ck('CONTROL — a normal draft with one unknown deep player does NOT alarm',
+    !s.syncIdDivergence, s.syncIdDivergence);
+}
+
 // ── FAIL ARM: the count-only guard could not have passed these ──────────────
 {
   const body = SRC.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
