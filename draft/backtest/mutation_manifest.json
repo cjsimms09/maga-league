@@ -1006,6 +1006,22 @@
       "test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    return bool(built) and built > RAW_ADP_ORDER_FIX_LANDED",
+     "new": "    return False",
+     "must_fail": [
+      "test_the_raw_adp_ORDER_RATCHET_TIGHTENS_ITSELF"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-13T23:24:43Z\"",
+     "new": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
+     "must_fail": [
+      "test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
@@ -1092,6 +1108,53 @@
      "new": "    K = len(ruler)\n    if K < 0:\n        return None",
      "must_fail": [
       "test_ONE_SOURCE_IS_NOT_A_CONSENSUS_and_says_so"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/external_source_capture.py": {
+   "tests": [
+    "draft/tests/test_external_source_capture.py"
+   ],
+   "mutations": [
+    {
+     "old": "    key = (str(source), str(year), str(observed_at))\n    keep = [s for s in (series or [])\n            if (str(s.get(\"source\")), str(s.get(\"year\")),\n                str(s.get(\"observed_at\"))) != key]",
+     "new": "    key = (str(year), str(observed_at))\n    keep = [s for s in (series or [])\n            if (str(s.get(\"year\")), str(s.get(\"observed_at\"))) != key]",
+     "must_fail": [
+      "test_TWO_SOURCES_ON_ONE_DAY_ARE_BOTH_KEPT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"rows\": {str(k): float(v) for k, v in (rows or {}).items() if v is not None},",
+     "new": "\"rows\": {str(k): float(v or 0.0) for k, v in (rows or {}).items()},",
+     "must_fail": [
+      "test_a_NULL_PRICE_IS_NOT_STORED_AS_A_NUMBER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                \"by_position\": {k: {\"n\": len(v), \"median\": round(median(v), 2)}\n                                for k, v in sorted(per_pos.items())},",
+     "new": "                \"by_position\": {},",
+     "must_fail": [
+      "test_the_DISAGREEMENT_IS_REPORTED_PER_POSITION_not_just_overall"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(day) < 2:\n        return {\"status\": \"unmeasured\"",
+     "new": "    if len(day) < 0:\n        return {\"status\": \"unmeasured\"",
+     "must_fail": [
+      "test_ONE_SOURCE_ON_A_DAY_IS_UNMEASURED_not_agreement"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    thin = [d for d in days\n            if len({s.get(\"source\") for s in ser if s.get(\"observed_at\") == d}) < len(by)]",
+     "new": "    thin = []",
+     "must_fail": [
+      "test_a_DAY_MISSING_A_SOURCE_IS_NAMED_not_counted_as_covered"
      ],
      "verdict": "KILLED"
     }

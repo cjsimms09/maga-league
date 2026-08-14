@@ -354,3 +354,87 @@ def test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM():
         "whole shape of the survival curve. Sample: %s"
         % (len(missing), len(rows), built, ADP_SD_SOURCE_FIX_LANDED,
            [p.get("name") for p in missing[:6]]))
+
+
+# ── MERGED IS NOT EXECUTED, SECOND FIELD: the deep pool's ordering ─────────
+#
+# `raw_adp` took exactly ONE distinct value across every unpriced row — "a
+# constant wearing the name of an ordering", A's phrase, with a comment above it
+# asserting the ordering. A fixed it: the players who carry a projection are
+# ranked among themselves starting at `ffc_max + 1`, and the rest stay GENUINELY
+# TIED behind them.
+#
+# THE FIX IS ON MAIN AND HAS NOT RUN. It landed `e77f834` at 2026-08-13T23:24:43Z;
+# the shipped board was built 23:13:18Z — ELEVEN MINUTES earlier. Measured on it:
+# 1,503 unpriced rows, 274 of them projected, and **1** distinct `raw_adp` among
+# those 274. A's own count of 274 reproduces exactly.
+#
+# ⚠ AND I ALMOST REPORTED A SECOND DEFECT THAT DOES NOT EXIST. `adp_unordered` is
+# on ZERO rows and I had it written up as missing — until I read the code. A put
+# that distinction in PROVENANCE deliberately, because `season_stamp` requires
+# every board field to be declared with a season and a purpose, and a flag no live
+# consumer reads is not worth an override. That registry is mine and the guard was
+# working. "Read what actually calls it" is the rule, and it saved me here.
+
+#: When the deep-pool ordering landed on main.
+RAW_ADP_ORDER_FIX_LANDED = "2026-08-13T23:24:43Z"
+
+#: What the board carried before it — one value for every fallback row.
+KNOWN_TIED_FALLBACK_VALUES = 1
+
+
+def raw_adp_order_required(built_at) -> bool:
+    """May this board still price every projected fallback player identically?
+
+    Same self-tightening shape as `bye_ceiling` and `adp_sd_source_required`, and
+    factored out for the same reason: an untested ratchet is a ratchet with an
+    extra branch to get wrong.
+    """
+    built = str(built_at or "")
+    return bool(built) and built > RAW_ADP_ORDER_FIX_LANDED
+
+
+def test_the_raw_adp_ORDER_RATCHET_TIGHTENS_ITSELF():
+    """MUTATION: return False unconditionally — the deep pool can stay a single
+    constant forever and the fix could silently fail to take."""
+    assert raw_adp_order_required("2026-08-13T23:13:18Z") is False   # the stale board
+    assert raw_adp_order_required("2026-08-14T08:00:00Z") is True    # after the rebuild
+    assert raw_adp_order_required(None) is False
+
+
+def test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant():
+    """A constant wearing the name of an ordering. Before the rebuild this reports
+    the known-stale state; after it, one distinct value across 274 projected rows
+    is a defect.
+
+    MUTATION: assert `>= 1` distinct values — satisfied by exactly today's board,
+    where every one of them is 917.0."""
+    b = board()
+    built = b.get("built_at")
+    unpriced = [p for p in (b.get("players") or [])
+                if p.get("adp_source") in (None, "search_rank")]
+    projected = [p for p in unpriced if (p.get("proj_mean") or 0) > 0]
+    if not projected:
+        pytest.skip("UNCHECKED: no projected fallback rows on this board")
+    distinct = len({p.get("raw_adp") for p in projected})
+
+    if not raw_adp_order_required(built):
+        assert distinct <= KNOWN_TIED_FALLBACK_VALUES, (
+            "the board predates the fix (%s <= %s) yet the deep pool is ALREADY "
+            "ordered (%d distinct values) — good news that must be RECORDED: move "
+            "RAW_ADP_ORDER_FIX_LANDED back so this starts enforcing"
+            % (built, RAW_ADP_ORDER_FIX_LANDED, distinct))
+        pytest.skip(
+            "board built %s, BEFORE the fix landed %s — %d projected fallback rows "
+            "share %d raw_adp value(s), which is staleness and not failure. This "
+            "enforces from the next rebuild."
+            % (built, RAW_ADP_ORDER_FIX_LANDED, len(projected), distinct))
+
+    assert distinct > 1, (
+        "%d projected fallback rows still share ONE raw_adp value on a board built "
+        "%s, AFTER the fix landed %s. A constant is not an ordering, and the "
+        "comment above it says it is."
+        % (len(projected), built, RAW_ADP_ORDER_FIX_LANDED))
+    assert distinct >= len(projected) * 0.5, (
+        "only %d distinct values across %d projected rows — they are ordered in "
+        "name but mostly still tied" % (distinct, len(projected)))

@@ -58,11 +58,42 @@ AGGREGATION FIXES IT: averaging ten more 4-point sources buys a more confident
 estimate of a market that is not ours. Aggregation buys PRECISION; the error here
 is BIAS.
 
+WHAT ADP IS ACTUALLY FOR HERE, VERIFIED RATHER THAN ASSUMED — and it decides the
+whole question. `adp` and `adp_sd` reach exactly one consumer:
+`survival.js`'s `normalCdf(currentPick, adp, adp_sd)`. The only other path into
+VALUE is `projections._rank_fallback`, and it is UNREACHABLE: 1,240 of 1,841 rows
+carry `proj_baseline: 0.0` rather than None, so `base is None` is never true and
+the ADP-decay cannot fire. ADP touches no projection, no VORP and no ranking.
+
+SO ADP IS A PREDICTION ABOUT OUR ROOM, NOT A STATEMENT ABOUT VALUE. "Will he be
+there at pick 48" is a question about what ten managers will do — and that flips
+the criterion. We do not want the ADP that best reflects OUR scoring. We want the
+ADP that best predicts OUR DRAFTERS. Our managers are not running the league's 44
+rules in their heads; they are looking at mainstream rankings, which are
+4-point-passing-TD standard. **A 4-point-TD market is plausibly a BETTER predictor
+of this room than a format-corrected one would be.**
+
+⚠ SO ADP MUST NEVER BE "CORRECTED" TOWARD OUR SCORING, and the gap between ADP and
+VORP is not an error to be removed — IT IS THE EDGE. TE +25 means the market lets
+tight ends fall past what our rules say they are worth. Correcting ADP to our
+format would erase exactly the signal that finds them. The two numbers answer
+different questions and reconciling them destroys both.
+
+THE SOURCE CRITERION FOLLOWS: closest to how OUR ROOM DRAFTS, which format match
+is a proxy for — a ten-team half-PPR market of real human drafts behaves more like
+our room than a twelve-team superflex pool. That argues for ONE closest source as
+the survival anchor and against a blend: averaging unlike markets buys a more
+confident prediction of the wrong room.
+
 SO THIS EARNS ITS KEEP ON TWO THINGS AND NOT ON A THIRD:
 
   DISPERSION      MFL is the only source publishing per-player min/max/selPct, and
                   the board's `adp_sd` is a clamp on two values across 94.8% of
-                  rows. More sources genuinely improve a spread.
+                  rows. More observations genuinely improve a spread — BUT NOT
+                  UNIFORMLY BY POSITION. A superflex pool's QB spread is a spread
+                  about a different decision; its RB/WR/TE spreads are not. So
+                  dispersion is transferable where the format does not bite and
+                  must be treated per position, exactly as the mean is.
   DEEP COVERAGE   MFL crosswalks 433 players against FantasyPros's 337. The deep
                   board is where a single source simply stops.
   NOT THE MEAN    the survival anchor stays the single closest-format source. A
