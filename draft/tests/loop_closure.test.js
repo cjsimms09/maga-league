@@ -109,8 +109,24 @@ const by = k => rows.find(r => r.kind === k);
   const open = rows.filter(r => r.gradeable && r.captured && !r.resolved).map(r => r.kind).sort();
   ck('the open loops are exactly the ones we know about — if this list changes, '
     + 'either a loop was closed or a new claim went ungraded',
-  JSON.stringify(open) === JSON.stringify(['doctrine', 'doctrine_decline', 'lrm',
+  JSON.stringify(open) === JSON.stringify(['doctrine', 'doctrine_decline',
     'shadow_pick']), open);
+
+  /* `lrm` LEFT THIS LIST ON 2026-08-14 BECAUSE IT WAS CLOSED, and it is worth
+   * naming which kind of shrink that is. The strip's "startable QB safe until
+   * pick 73" is answered by pick 73 and by nothing afterwards — so it was a full
+   * set of claims per draft with no record of whether any held, and after the
+   * draft it is not recoverable. `resolveLrm` grades it as a HIT RATE against
+   * the 0.85 the strip thresholds on (a deadline is not a probability, so Brier
+   * would be the wrong instrument), both sides reading one `CFG.LRM_SAFE_P` so
+   * the claim and its grade cannot drift.
+   *
+   * THE THREE THAT REMAIN ALL RESOLVE OVER A SEASON, not inside the draft:
+   * `doctrine` and `doctrine_decline` need the season the plan produced (and
+   * `doctrine` is currently null — the Early-QB race was voided, so there is no
+   * enrolled plan to grade), and `shadow_pick` needs outcomes to price the
+   * counterfactual. None of them loses evidence on 22 August the way `lrm` would
+   * have, which is why this one went first. */
 
   /* ⚠ THIS LIST SHRANK FOR TWO DIFFERENT REASONS AND ONLY ONE OF THEM IS WORK.
    *

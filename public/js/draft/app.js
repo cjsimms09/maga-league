@@ -5020,6 +5020,16 @@
         PredLedger.lrm({ season: c.season, build_at: c.build_at, pick: c.pick,
           method: 'survival-snapshot-v0',
           payload: { last_responsible_moment: lrm } });
+        /* REMEMBERED SO IT CAN BE GRADED, exactly as the survival capture is.
+         * The write goes to the server; the RESOLUTION needs the original call
+         * back, and the client is the only place holding both it and the pick
+         * stream. Deduped on the pick, because a re-render inside one pick is
+         * the same call and not a second one. */
+        state.lrmCaptures = state.lrmCaptures || [];
+        if (!state.lrmCaptures.some(function (x) { return x.pick === c.pick; })) {
+          state.lrmCaptures.push({ pick: c.pick,
+            payload: { last_responsible_moment: lrm } });
+        }
       }
     }
   }
@@ -5079,7 +5089,12 @@
     for (var i = 1; i < upcoming.length; i++) {
       var surv = null;
       for (var j = 0; j < pool.length; j++) {
-        if (E.survival(pool[j], upcoming[i], ctx) >= 0.85) { surv = pool[j]; break; }
+        // ONE DEFINITION OF "SAFE". This was a bare 0.85 here while the grader
+        // needed the same number to score the call against — two copies of the
+        // only quantitative claim this strip makes.
+        if (E.survival(pool[j], upcoming[i], ctx) >= E.survivalModel.CFG.LRM_SAFE_P) {
+          surv = pool[j]; break;
+        }
       }
       if (surv) { last = upcoming[i]; idx = i; target = surv; }
     }
@@ -5116,9 +5131,17 @@
       var tgtAdp = stTarget && (stTarget.adjusted_adp || stTarget.raw_adp) || null;
       var noDeadline = !!(totalPicks && tgtAdp && tgtAdp > totalPicks
         && st.by_pick === upcoming[upcoming.length - 1]);
+      /* THE POOL IDS RIDE WITH THE CALL, because the claim is about the POOL and
+       * not the named man. The strip says "a startable option survives" and names
+       * one only so the reader can check it; grading the named man would score a
+       * harder claim than the one made. Without these the resolver has nothing to
+       * grade and correctly skips the row — so this is the difference between a
+       * closed loop and a capture nobody can use. */
       out.push({ position: pos, dual: dual, next_pick: upcoming[1],
         startable_by: st.by_pick, startable_early: st.picks_early,
         startable_target: stTarget.name,
+        startable_pool_ids: startablePool.map(function (p) { return String(p.player_id); }),
+        elite_pool_ids: elitePool.map(function (p) { return String(p.player_id); }),
         no_deadline: noDeadline,
         elite_by: el ? el.by_pick : null, elite_early: el ? el.picks_early : 0,
         elite_target: el && el.target ? el.target.name : null });
@@ -7852,6 +7875,52 @@
     } catch (e) { console.error('[survival-resolve]', e && e.message); }
   }
 
+  /* GRADE THE LAST-RESPONSIBLE-MOMENT CALLS THE DRAFT HAS NOW ANSWERED.
+   *
+   * Third draft-day loop, and the one that resolves ENTIRELY inside the draft:
+   * "startable QB safe until pick 73" is answered by pick 73 and by nothing else
+   * afterwards. It has been captured since decision-capture went in and graded by
+   * nothing — so on 22 August it would have produced a full set of claims and no
+   * record of whether any of them held. Unrecoverable after the fact, which is
+   * the same shape as the in-season capture gap.
+   *
+   * Scored as a HIT RATE against the 0.85 the strip thresholds on, not as a
+   * Brier score: an LRM call is a deadline, not a probability, and the only
+   * number it commits to is that threshold. Both sides now read
+   * `CFG.LRM_SAFE_P` so the claim and its grade cannot drift apart. */
+  function resolveLrmCalls(picks) {
+    if (state.mockMode) return;                     // a mock is not forward evidence
+    if (typeof DraftSurvival === 'undefined' || typeof PredLedger === 'undefined') return;
+    const caps = (state.lrmCaptures || []).filter(function (c) { return !c._resolved; });
+    if (!caps.length) return;
+    const pickLog = (picks || [])
+      .filter(function (pk) { return pk && pk.pick_no != null && pk.player_id != null; })
+      .map(function (pk) { return { overall: Number(pk.pick_no), player_id: String(pk.player_id) }; });
+    if (!pickLog.length) return;
+    try {
+      const res = DraftSurvival.resolveLrm(caps, { picks: pickLog });
+      if (!res || !res.resolvable) return;          // nothing answered yet — say nothing
+      PredLedger.capture('lrm_resolved', { season: ledgerCtx().season,
+        method: 'lrm-hitrate-v1', pick: currentPick(), payload: res });
+      /* A CAPTURE IS SPENT ONLY WHEN EVERY DEADLINE IN IT HAS BEEN REACHED.
+       * Marking on the first resolution would discard the later picks a single
+       * capture speaks about — one LRM row carries a deadline per position, and
+       * they come due at different times. */
+      const reached = pickLog.reduce(function (m, p) {
+        return p.overall > m ? p.overall : m; }, 0);
+      caps.forEach(function (c) {
+        const list = (c.payload || {}).last_responsible_moment || [];
+        const pending = list.some(function (r) {
+          return ['startable', 'elite'].some(function (b) {
+            const by = r[b + '_by'];
+            return by != null && Number(by) > reached;
+          });
+        });
+        if (!pending) c._resolved = true;
+      });
+    } catch (e) { console.error('[lrm-resolve]', e && e.message); }
+  }
+
   /* GRADE THE RUN CALLS THE ROOM HAS NOW ANSWERED.
    *
    * Second draft-day loop. Run multipliers feed `survivalProbability`, so a run
@@ -8020,6 +8089,7 @@
     resolveCommittedForecasts(picks);
     resolveSurvivalCalls(picks);
     resolveRunCalls(picks);
+    resolveLrmCalls(picks);
     // SHADOW ARM: let reality answer the opponent predictions these picks
     // resolve, THEN commit predictions for the next window. Resolve before emit
     // so a pick can never resolve a forecast made after it was already known.

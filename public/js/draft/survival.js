@@ -80,6 +80,12 @@
     // again above market. Three straight years is not a coincidence.
     AFFINITY: { 2: 1.7, 3: 2.4, 4: 3.0 },
     RUN_WINDOW: 10,
+    /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
+     * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
+     * of the number it grades against — the two would agree until somebody tuned
+     * one. It is the strip's only quantitative claim, so it belongs where both
+     * the claim and its resolution can read it. */
+    LRM_SAFE_P: 0.85,
     RUN_DAMPING: 0.5,
     RUN_MIN: 0.6,
     RUN_MAX: 1.8,
@@ -1515,7 +1521,114 @@
     return out;
   }
 
-  const api = { resolveSurvival, resolveRun,
+  /* ══ RESOLVE THE LAST-RESPONSIBLE-MOMENT CALLS ═════════════════════════
+   *
+   * The LRM strip makes the most actionable claim on the war room: "startable QB
+   * safe until pick 73". It has been CAPTURED since decision-capture went in
+   * (`PredLedger.lrm`, method `survival-snapshot-v0`) and GRADED BY NOTHING —
+   * one of four open loops, and the one that resolves entirely inside the draft.
+   * If it is not closed before 22 August the evidence is not recoverable later,
+   * which is the same shape as the in-season capture gap.
+   *
+   * ── WHY THIS IS A HIT RATE AND NOT A BRIER SCORE ───────────────────────
+   *
+   * `resolveSurvival` scores probabilities, so Brier is right there. An LRM call
+   * is NOT a probability — it is a DEADLINE produced by thresholding one at 0.85.
+   * The only number the strip commits to is that threshold, so the honest grade
+   * is: of the calls that said "safe until N", how often was somebody from that
+   * pool actually still there at N? That rate belongs against 0.85, and a gap
+   * between them is calibration evidence rather than a bug.
+   *
+   * ── WHAT COUNTS AS THE CALL COMING TRUE ────────────────────────────────
+   *
+   * The claim is about the POOL, not the named target: the strip says a startable
+   * option survives, and names one only so the reader can check it. So a call
+   * hits when ANY member of the pool it was computed over is still undrafted when
+   * pick N arrives. The capture stores the pool ids for exactly this reason; a
+   * capture without them is skipped rather than graded against the target alone,
+   * because grading the named man would be a harder claim than the one made.
+   *
+   * SAME BOUNDARY AS `resolveSurvival`, and for the same reason: `by_pick` is
+   * one of CORY'S OWN picks, so a player taken AT it was taken BY HIM — the call
+   * coming true. Strictly-before is the test.
+   */
+  function resolveLrm(captures, opts) {
+    opts = opts || {};                    // never `ctx` — see resolveSurvival
+    const picks = (opts.picks || []).filter(function (p) {
+      return p && p.overall != null && p.player_id != null;
+    });
+    const reached = picks.reduce(function (m, p) {
+      return Number(p.overall) > m ? Number(p.overall) : m;
+    }, 0);
+    const takenAt = {};
+    picks.forEach(function (p) { takenAt[String(p.player_id)] = Number(p.overall); });
+
+    const rows = [], noDeadline = [];
+    (captures || []).forEach(function (cap) {
+      const payload = cap.payload || cap;
+      const list = payload.last_responsible_moment || [];
+      const from = Number(cap.pick != null ? cap.pick : payload.from_pick);
+      list.forEach(function (r) {
+        ['startable', 'elite'].forEach(function (band) {
+          /* ⚠ `Number(null)` IS 0 AND `isFinite(0)` IS TRUE, so my first version
+           * graded a NULL DEADLINE as a deadline of pick 0 — which every pool
+           * trivially survives, scoring a free HIT. Measured on a constructed
+           * case: a TE row with `elite_by: null` came back "by 0 · HIT".
+           *
+           * A null here is not a deadline at all. It is the strip saying "elite
+           * tier gone — there is no safe moment left", which is a DIFFERENT claim
+           * and a real one. Counting it as a satisfied deadline would inflate the
+           * hit rate exactly where the model admitted it had nothing to offer.
+           * Skipped and COUNTED, so it shows up as unresolved rather than
+           * disappearing into the numerator. */
+          const raw = r[band + '_by'];
+          if (raw == null) { noDeadline.push({ position: r.position, band: band }); return; }
+          const by = Number(raw);
+          const pool = r[band + '_pool_ids'];
+          if (!isFinite(by) || by <= 0 || !Array.isArray(pool) || !pool.length) return;
+          if (reached < by) return;                  // not resolvable yet
+          const alive = pool.filter(function (id) {
+            const n = takenAt[String(id)];
+            return !(n != null && n > from && n < by);
+          });
+          rows.push({
+            position: r.position, band: band, from_pick: from, by_pick: by,
+            pool_size: pool.length, survivors: alive.length,
+            hit: alive.length > 0,
+            target: r[band + '_target'] || null,
+          });
+        });
+      });
+    });
+
+    const n = rows.length;
+    const hits = rows.filter(function (r) { return r.hit; }).length;
+    return {
+      n: n,
+      hits: hits,
+      hit_rate: n ? hits / n : null,
+      /* THE NUMBER THE STRIP COMMITTED TO. Reported beside the outcome so the
+       * comparison is the reader's, not a verdict I baked in. */
+      implied: CFG.LRM_SAFE_P,
+      calibration_gap: n ? (hits / n) - CFG.LRM_SAFE_P : null,
+      by_band: ['startable', 'elite'].map(function (b) {
+        const sub = rows.filter(function (r) { return r.band === b; });
+        return { band: b, n: sub.length,
+          hits: sub.filter(function (r) { return r.hit; }).length,
+          hit_rate: sub.length ? sub.filter(function (r) { return r.hit; }).length / sub.length : null };
+      }),
+      rows: rows,
+      /* THE "NO SAFE MOMENT LEFT" CALLS, kept apart from the scored ones. They
+       * are a real claim and a gradeable one, but not THIS grade — folding them
+       * in would credit the model for the calls where it offered no deadline. */
+      no_deadline: noDeadline,
+      /* A NULL IS NOT A SCORE. Nothing resolvable yet means exactly that, and
+       * the caller must not read `hit_rate: null` as a failure. */
+      resolvable: n > 0,
+    };
+  }
+
+  const api = { resolveSurvival, resolveRun, resolveLrm,
     expectedBestByPos, adpDrift, effectiveAdp, effectiveSd,
     CFG, URGENCY, urgency,
     normalCdf, adpSd,

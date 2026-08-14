@@ -124,6 +124,7 @@ const OUTCOMES = {
   forecast_resolution: [false, 'this IS a resolution row'],
   survival_resolved: [false, 'this IS a resolution row — the grade for a survival call'],
   run_resolved: [false, 'this IS a resolution row — the grade for a run call'],
+  lrm_resolved: [false, 'this IS a resolution row — the grade for an LRM deadline'],
 };
 
 function scan() {
