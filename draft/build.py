@@ -610,29 +610,76 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # ── THE INACTIVE PRUNE IS WRITTEN AND HELD, NOT ABANDONED ───────────────
+    # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
     #
-    # `board_activity.dormant` identifies 1,158 rows nobody in the system expects
-    # to play in 2026 — Tom Brady, Brees, Gronkowski, Zeke, Thielen, three
-    # retired kickers. Dropping them here is correct and was verified not to move
-    # anything actionable: 0 ranked inside 150, 0 with positive VORP, 0 inside the
-    # relevant board, 0 market-priced, 0 projected, 0 rookies, 0 DEF.
+    # Tom Brady, Drew Brees, Gronkowski, Edelman, Antonio Brown, Fitzgerald,
+    # Todd Gurley and Marshawn Lynch were all on the 2026 board. `load_players`
+    # gates on `p.get("active") is False`, and Sleeper leaves `active` UNSET for
+    # much of what it lists — `None is False` is False, so a null sails through.
+    # The only other gate is `search_rank`, which Sleeper never retires; Brady's
+    # is 74, so no rank ceiling would have caught him either.
     #
-    # WHAT I VERIFIED WAS DECISIONS, NOT DEPENDENTS, and that gap is why it is
-    # held. Simulating the pruned board against the suite turned FIVE tests red:
-    # the crosswalk cases lose their same-name/same-position hazard entirely
-    # (Frank Gore Sr and Jr are both dormant, and no collision survives),
-    # waiver_replacement's cells move with the board size, and two of my own
-    # assertions require dormant rows to still exist.
+    # HERE, NOT IN `load_players`, because this is the first point where both a
+    # market ADP and a projection exist — and those are the two exemptions that
+    # stop this deleting somebody real. Run it earlier and 7 rows FFC actually
+    # prices go with it.
     #
-    # Every one of those is a fixture depending on the board containing what the
-    # prune removes, and each needs re-basing onto a planted hazard rather than a
-    # live one. That is the work, and shipping the prune before it is done would
-    # turn main red at the 08:00 rebuild for a change working exactly as intended.
+    # The evidence is `nflverse_weekly_points_*.json`: did this player score in a
+    # real NFL game in 2024 or 2025. That is a MEASUREMENT, where `active` is
+    # metadata that can be left unset. `board_activity` owns the conditions and
+    # every exemption, and is IMPORTED rather than reimplemented so there is one
+    # definition of dormant instead of two that drift.
     #
-    # The guarantee stands either way and is NOT held: `test_board_activity`
-    # asserts no dormant row reaches a rank, a VORP or the relevant board, which
-    # is the property that matters whether or not they are pruned.
+    # It REFUSES rather than pruning when the stores cannot be read: an absence
+    # of evidence must never read as evidence of absence, and a build that
+    # quietly dropped half the board because an artifact moved would be far worse
+    # than one carrying eight retired players.
+    #
+    # ── HELD 08-13, RESTORED 08-14, AND WHAT CHANGED IS EVIDENCE ────────────
+    #
+    # C wrote this, then held it: the blast radius had been verified on
+    # DECISIONS but not on DEPENDENTS, and simulating it turned five tests red.
+    # That was the right call and the reason it is un-held is that every one of
+    # those reds is now measured away rather than argued away — on a real 683-row
+    # pruned board the python suite runs 1,848 passed / 0 failed, and the last
+    # blocker was a LIVE DEFECT (waiver_replacement priced the 2023-25 wire
+    # through the 2026 board, moving TE 6.30 -> 3.20 under the prune) fixed at
+    # the root by `player_positions.json`.
+    #
+    # I re-verified the JS half, which did not exist when C simulated it: on the
+    # pruned board every one of Cory's twelve picks still scores 536+ candidates
+    # and renders 3 strategy directions (2 at his last), and the board-size
+    # assertions hold — 616 byes and 683 names, both against floors of 500.
+    #
+    # AND IT DOES SOMETHING NOBODY MEASURED, WHICH IS WHY IT IS WORTH LANDING
+    # BEFORE THE DRAFT RATHER THAN AFTER. Cory: *"The search for player tool is
+    # not working and not convenient."* 165 of the dropped rows share a SURNAME
+    # with a top-150 player, so on the clock "jones" returns 24 hits and
+    # "williams" 26, with Dalvin Cook, Jared Cook, Rohan Jones and Tanner Brown
+    # sitting among the men he can actually take. It also removes the board's
+    # only same-name/same-position collision (Frank Gore Sr and Jr) and both
+    # duplicate names — the "listed twice" hazard, at the root.
+    # ZERO draftable rows are lost at any position (`adp <= 225`).
+    #
+    # The guarantee test stays either way and that is deliberate: the prune can
+    # be reverted, skipped by its own exception guard, or refused because the
+    # stores moved, and in each of those cases the dormant rows are back.
+    # `test_board_activity` asserts no dormant row reaches a rank, a VORP or the
+    # relevant board — a property that must hold whether or not this ran.
+    try:
+        _act = board_activity.dormant({"players": board})
+        if _act["status"] == "measured" and _act["n"]:
+            _drop = {str(p.get("player_id")) for p in _act["rows"]}
+            before = len(board)
+            board = [p for p in board if str(p.get("player_id")) not in _drop]
+            print(f"  inactive: dropped {before - len(board)} player(s) with no "
+                  f"scored week in {_act['seasons_read']} — not rookies, not "
+                  f"market-priced, not projected ({len(board)} remain)")
+        elif _act["status"] != "measured":
+            print(f"  ! inactive filter NOT APPLIED — {_act['note']}")
+    except Exception as _ax:  # noqa: BLE001 — a hygiene filter is never a build dependency
+        print(f"  ! inactive filter skipped ({type(_ax).__name__}: {_ax}); "
+              f"the board keeps every row it had")
 
     # ── THE POSITION RECORD IS **NOT** HELD, AND THAT IS DELIBERATE ─────────
     #
