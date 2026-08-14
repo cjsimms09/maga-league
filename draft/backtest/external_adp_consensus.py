@@ -558,3 +558,57 @@ def in_draft_range(rows: list, board_adp: dict, limit: int = 150):
         else:
             dropped += 1
     return kept, dropped
+
+
+#: How much of a set's typical movement may be net drift before it is a BLOCK
+#: rather than a disagreement. Declared from the shape rather than tuned: at 0.5
+#: the median push is as large as half the typical player's movement, which no
+#: scatter of independent disagreements produces and every scale difference does.
+BLOCK_SHIFT_TOLERANCE = 0.5
+
+
+def block_shift(deltas, tol: float = BLOCK_SHIFT_TOLERANCE) -> dict:
+    """Did this whole group move ONE WAY? -> {median, median_abs, systematic, note}.
+
+    WRITTEN BECAUSE THE SAME MISTAKE HAPPENED THREE TIMES IN ONE DAY, in this
+    module alone: source depth (fixed before today), position depth in the
+    disagreement sort, and anchor depth in `to_pick_scale`. Every time, a number
+    comparable along one axis was read along another; every time, it was caught by
+    noticing a pattern by eye; and every time it looked like a finding first.
+
+    THE SIGNATURE IS ALWAYS THE SAME AND IT IS CHEAP TO TEST FOR. A scale
+    difference pushes the entire group one way, so its median delta is about as
+    large as its median ABSOLUTE delta. Real disagreement scatters around zero and
+    its median is small against the median absolute. Measured 2026-08-14, consensus
+    against the shipped board: TE +21.5 / 21.5 and WR -9.3 / 9.3 (both blocks),
+    against QB +1.5 / 5.7 and RB +0.8 / 3.0 (both player-level).
+
+    ⚠ THE COMPARISON IS AGAINST THE MEDIAN ABSOLUTE, NOT AGAINST ZERO. Judging
+    "is the median far from 0" flags any set with a small net bias, which is most
+    real ones, and a detector that cries wolf is a detector nobody reads.
+
+    NONE, NOT FALSE, WHEN THERE IS NOTHING TO JUDGE. An empty set and an all-zero
+    set have no typical movement to compare a drift against, and returning False
+    would report a clean bill of health on a comparison that never happened.
+    """
+    vals = [float(d) for d in (deltas or []) if d is not None]
+    if not vals:
+        return {"median": None, "median_abs": None, "systematic": None,
+                "n": 0, "note": "no deltas — nothing was compared, which is not "
+                                "the same as nothing having moved"}
+    med = median(vals)
+    mabs = median(abs(v) for v in vals)
+    if mabs == 0:
+        return {"median": med, "median_abs": 0.0, "systematic": None, "n": len(vals),
+                "note": "every delta is zero — there is no typical movement to "
+                        "judge a drift against, so this is UNMEASURED rather than "
+                        "clean"}
+    systematic = abs(med) > float(tol) * mabs
+    return {
+        "median": round(med, 4), "median_abs": round(mabs, 4), "n": len(vals),
+        "systematic": systematic,
+        "note": ("the whole group moved one way (median %.2f against a typical "
+                 "move of %.2f) — that is a SCALE difference between the two "
+                 "sides, and no per-item conclusion may be drawn from it"
+                 % (med, mabs)) if systematic else None,
+    }

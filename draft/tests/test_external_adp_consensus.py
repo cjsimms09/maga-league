@@ -545,3 +545,47 @@ def test_THE_CROSS_POSITION_TABLE_IS_SORTED_ON_RANK_STEPS_not_the_fraction():
     assert by["q1"]["disagreement"] > by["w1"]["disagreement"]
     assert by["w1"]["rank_steps"] > by["q1"]["rank_steps"]
     assert dis[0]["player_id"] == "w1", [d["player_id"] for d in dis[:3]]
+
+
+# ── THE SAME TRAP THREE TIMES IN ONE DAY DESERVES A DETECTOR ─────────────────
+#
+# Source depth, position depth, anchor depth. Each time a number comparable along
+# one axis got read along another, and each time it was caught by noticing a
+# pattern by eye. The signature is always identical: the whole group moves ONE
+# WAY, so its median delta is about as large as its median ABSOLUTE delta.
+#
+# Genuine player-level disagreement scatters around zero and its median delta is
+# small against the median absolute. A block shift does not.
+
+def test_A_POSITION_THAT_MOVED_AS_A_BLOCK_IS_FLAGGED():
+    """Every value shifted +20 with a little scatter: that is a scale difference,
+    not twenty players who each independently moved late.
+
+    MUTATION: compare the median against zero instead of against the median
+    ABSOLUTE — a genuinely disagreeing set with a small net bias is flagged as a
+    block, and the detector cries wolf until it is ignored."""
+    shifted = [19.0, 20.0, 21.0, 22.0, 18.0, 20.5]
+    r = X.block_shift(shifted)
+    assert r["systematic"] is True, r
+    assert abs(r["median"] - 20.0) < 1.0
+
+
+def test_REAL_DISAGREEMENT_SCATTERED_AROUND_ZERO_IS_NOT_FLAGGED():
+    """Players moving both ways is the case the whole report exists to show, and
+    a detector that flagged it would suppress the finding.
+
+    MUTATION: drop the median-absolute denominator — scatter with any net bias at
+    all trips the flag."""
+    scattered = [-12.0, 8.0, -3.0, 14.0, -9.0, 2.0, -1.0, 6.0]
+    r = X.block_shift(scattered)
+    assert r["systematic"] is False, r
+
+
+def test_AN_EMPTY_OR_ALL_ZERO_SET_IS_UNMEASURED_not_clean():
+    """No deltas is not "no shift" — it is nothing measured, and a detector that
+    returns False for it reports a clean bill of health on an empty comparison.
+
+    MUTATION: return systematic=False for an empty set — the guard passes on
+    exactly the runs where nothing was compared, which is rule 13f."""
+    assert X.block_shift([])["systematic"] is None
+    assert X.block_shift([0.0, 0.0, 0.0])["systematic"] is None

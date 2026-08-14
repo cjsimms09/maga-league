@@ -1344,6 +1344,30 @@
       "test_THE_CROSS_POSITION_TABLE_IS_SORTED_ON_RANK_STEPS_not_the_fraction"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    systematic = abs(med) > float(tol) * mabs",
+     "new": "    systematic = abs(med) > 0",
+     "must_fail": [
+      "test_REAL_DISAGREEMENT_SCATTERED_AROUND_ZERO_IS_NOT_FLAGGED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if mabs == 0:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_AN_EMPTY_OR_ALL_ZERO_SET_IS_UNMEASURED_not_clean"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return {\"median\": None, \"median_abs\": None, \"systematic\": None,",
+     "new": "        return {\"median\": None, \"median_abs\": None, \"systematic\": False,",
+     "must_fail": [
+      "test_AN_EMPTY_OR_ALL_ZERO_SET_IS_UNMEASURED_not_clean"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
