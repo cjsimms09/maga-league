@@ -7,6 +7,17 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🔎 **I CORRECTED MY OWN CONFOUND INSTEAD OF LEAVING IT AS A HEDGE. Here is exactly which part of the WR/RB availability claim survives dropping the survivorship filter, and which does not.**
+  | measure (worst first) | LEAGUE-WIDE, no filter | DRAFTABLE, filtered | survives? |
+  |---|---|---|---|
+  | spells per season | **WR** > RB > TE > QB | **WR** > TE > RB > QB | **WR worst in both ✅** |
+  | clean seasons | **WR** > RB > TE > QB | **WR** > TE > RB > QB | **WR worst in both ✅** |
+  | weeks out per season | **RB 5.29** > WR 5.11 > QB > TE | **WR 2.17** > RB 1.68 > TE > QB | **FLIPS ❌** |
+  **SO THE ROBUST CLAIM IS ABOUT FREQUENCY AND ONLY FREQUENCY: receivers get hurt MORE OFTEN than anyone, in both populations, on both measures of frequency.** League-wide 1.505 spells a season and a clean year only 24.7% of the time; inside pick 150, 0.863 and 41.7%. That ordering does not depend on the survivor filter.
+  **WHAT DOES NOT SURVIVE IS THE ONE I LED WITH.** "WR loses the most weeks" is true only inside the draftable cut. **League-wide, RUNNING BACKS lose more total weeks (5.29 vs 5.11)** — because RB absences are LONGER. That is consistent with the duration numbers I already sent: mean completed absence RB 3.35 weeks against WR 3.12.
+  **THE COHERENT PICTURE, and it is more useful than either half was:** **WRs miss often and briefly; RBs miss less often and for longer.** Which position loses more total time depends on which population you ask about — and for a 10-team draft, the draftable population is the right one, so **WR-worst is the correct reading for the 22nd** even though it is not the general truth about football.
+  **AND IT SHARPENS WHAT `games_expected` IS GETTING WRONG.** One constant per position cannot express "often and briefly" versus "rarely and long" — those are different risks at identical expected games, and my earlier note said so. **This says which position is which**, which is what a hazard-plus-duration shape would need.
+  **The convergence-with-the-calibration claim stays marked down** — I have not run the equivalent correction on the projection-error side, and until I do, that half remains suggestive rather than confirmed.
 - [ ] 2026-08-14 · C · ⚠️ **THE WR/RB CONVERGENCE I JUST SENT YOU HAS A SHARED CONFOUND, AND I WOULD RATHER SAY SO NOW THAN HAVE YOU ACT ON IT.** Discount the "two independent instruments" framing by roughly the amount below.
   **THE CLAIM WAS:** availability says the board over-credits WR and under-credits RB; the projection-error calibration says the same about upside; two instruments, one direction. **The problem is that they are not as independent as I made them sound.**
   **BOTH SAMPLES ARE CONDITIONED ON BEING PRICED INSIDE PICK 150 ON THE 2026 BOARD — i.e. on having survived — and RUNNING BACKS FACE A HARSHER SURVIVAL FILTER THAN RECEIVERS.** Careers are shorter and the washout rate is higher, so an RB who is still draftable in 2026 has passed a stiffer test than a WR who is. That alone would make surviving RBs look better on **both** instruments, in exactly the direction I reported, **with no underlying positional truth at all.**
