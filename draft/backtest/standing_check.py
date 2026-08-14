@@ -47,6 +47,7 @@ Exit 0 always — this is a reporter, not a gate. GitHub escalates on the marker
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pathlib
 import sys
@@ -127,7 +128,22 @@ SERIES_WATCH = {
 # they are the reason the cadence argument at the top of this file was written,
 # and gating them behind the weekly analysis pass buried the fast failure inside
 # the slow one. The rest stay weekly: nothing they watch changes in a day.
-LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH)
+LIVENESS_ROWS = ("market_capture_alive", *SERIES_WATCH,
+                 # ⚠️ DAILY, AND IT HAD TO BE — the invariant above applied to a
+                 # window measured in HOURS rather than days.
+                 #
+                 # The full examination is Monday-gated. The Mondays around the
+                 # draft are 08-17 and 08-24. The keeper lock is 08-20 and the
+                 # draft is 08-22, SO A WEEKLY pre_draft_freeze ROW COULD NOT
+                 # FIRE BETWEEN THE LOCK AND THE DRAFT — it would next speak two
+                 # days after the thing it protects was already lost.
+                 #
+                 # That is bar_days + examination_lag > tolerable_loss_days with
+                 # the numbers that actually matter, and it is the identical
+                 # defect this file documents above for the ADP series. Adding
+                 # the row weekly would have produced a check that runs, reports
+                 # clean, and is configured so it cannot detect its own failure.
+                 "pre_draft_freeze")
 
 
 # ── KNOWN BLINDNESS, PARKED WITH A DEADLINE ─────────────────────────────────
@@ -396,6 +412,93 @@ def check_calibration_drift():
                 f"{len(rows)} reading(s), none beyond its floor", n=len(rows))
 
 
+def check_pre_draft_freeze():
+    """THE FREEZE IS THE ONE ARTIFACT WHERE THE CALENDAR, NOT A BUG, IS THE RISK.
+
+    `freeze_pre_draft.verify()` existed and NOTHING CALLED IT — intention with no
+    trigger, on the artifact whose entire value is that it was written once
+    before the draft. Routed in by the steering layer on 2026-08-14 after they
+    checked by hand: `grep -rn freeze_pre_draft .github/workflows scripts`
+    returned nothing.
+
+    THE EXPOSURE IS SPECIFIC AND IT IS NOT AN INTEGRITY FAILURE. The freeze is
+    intact and self-consistent today. But draft-data.yml rebuilds the board every
+    morning, so `source_artifact_sha256` stops matching tomorrow — and that is
+    EXPECTED, not an error. A freeze is a snapshot of a past board; drift from
+    the live board is what a snapshot IS. Alarming on drift would fire every day
+    from tomorrow and be ignored by the 20th, which is the cry-wolf failure that
+    gets banners ignored.
+
+    WHAT IS ACTUALLY WRONG IS DRAFTING ON A PROVISIONAL FREEZE AFTER THE LOCK.
+    The freeze says so in its own words: "the pre-lock run is a rehearsal.
+    Re-take after the slate confirms." If nobody remembers, the season's grading
+    baseline is taken against the wrong keeper state — and no later work
+    reconstructs a decision-time record after the decision.
+
+    THE TRIGGER IS DERIVED, NOT A DATE. `keeper_slate.keeper_lock_passed` is
+    computed from Sleeper placements on the live board. No "20 August" literal
+    appears here, so a lock that moves — or one that happens early — is still
+    caught. A hardcoded date is a second definition of the lock and would
+    disagree with the board on exactly the day it mattered.
+    """
+    freeze = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+    board = ROOT / "public" / "draft_data.json"
+    if not freeze.exists():
+        return _row("pre_draft_freeze", "ESCALATE",
+                    "NO FREEZE EXISTS. The pre-draft capture is irreversible — "
+                    "after the draft there is nothing to take it from.")
+    try:
+        doc = json.loads(freeze.read_text())
+    except (ValueError, OSError) as e:
+        return _row("pre_draft_freeze", "BLIND", f"freeze unreadable: {type(e).__name__}")
+
+    # 1. INTEGRITY. Recomputed, not trusted.
+    want = doc.get("_sha256_of_payload")
+    payload = {k: v for k, v in doc.items() if k != "_sha256_of_payload"}
+    got = hashlib.sha256(json.dumps(payload, sort_keys=True,
+                                    separators=(",", ":")).encode()).hexdigest()
+    if want != got:
+        return _row("pre_draft_freeze", "ESCALATE",
+                    f"FREEZE ALTERED since it was written (stamped {str(want)[:12]}, "
+                    f"actual {got[:12]}). Evidence preservation outranks everything "
+                    "else here — do not overwrite it, work out what changed.")
+
+    status = doc.get("status")
+    # 2. HAS THE LOCK PASSED? Asked of the LIVE board, which is the only thing
+    #    that knows. A missing board is BLIND, never "no".
+    if not board.exists():
+        return _row("pre_draft_freeze", "BLIND",
+                    "freeze intact, but the live board is absent so the keeper "
+                    "lock state cannot be read")
+    try:
+        slate = (json.loads(board.read_text()).get("keeper_slate") or {})
+    except (ValueError, OSError) as e:
+        return _row("pre_draft_freeze", "BLIND",
+                    f"freeze intact, board unreadable: {type(e).__name__}")
+
+    locked = bool(slate.get("keeper_lock_passed"))
+    if locked and status != "CONFIRMED":
+        return _row("pre_draft_freeze", "ESCALATE",
+                    f"THE KEEPER LOCK HAS PASSED AND THE FREEZE IS STILL {status}. "
+                    "It was built on PREDICTED opponent keepers. Re-take it now: "
+                    "the diff between the two runs IS the keeper-scarcity evidence, "
+                    "and it is unrecoverable once the draft starts.")
+
+    # 3. DRIFT — REPORTED, NEVER ESCALATED. See the docstring.
+    drift = ""
+    try:
+        live_sha = hashlib.sha256(board.read_bytes()).hexdigest()
+        if live_sha != doc.get("source_artifact_sha256"):
+            drift = ("; board has been rebuilt since (expected — daily job), so "
+                     "the freeze no longer describes the live artifact")
+    except OSError:
+        pass
+    return _row("pre_draft_freeze", "quiet",
+                f"freeze intact and {status}; keeper lock not yet passed"
+                f" ({slate.get('teams_designated')}/{slate.get('teams_expected')} "
+                f"teams designated){drift}")
+
+
 def check_components():
     """The component-grading surface. Escalates on MEASURABILITY, not interest."""
     p = ROOT / "draft" / "data" / "component_grades.json"
@@ -488,6 +591,7 @@ CHECKS = [
     check_pred_ledger,
     check_calibration_drift,
     check_components,
+    check_pre_draft_freeze,
     check_coherence,
 ]
 
