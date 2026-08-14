@@ -76,7 +76,19 @@ function extractFn(sig) {
   }
   return '';
 }
-const HELPERS = ['  function seatForCurrentPick() {', '  function roundLabel(overall) {'];
+/* ⚠️ `seatPlanHost` JOINED THIS LIST WHEN THE PANEL LEARNED TO MOUNT ITSELF,
+ * and leaving it out is what turned this suite red: `renderSeatPlan` stopped
+ * reading `$('#seat-plan')` directly and started asking a helper for its host,
+ * so extracting the renderer alone produced `seatPlanHost is not defined`.
+ *
+ * IT TAKES THE EARLY-RETURN PATH HERE and never touches `document`, because the
+ * `$` stub below DOES return a host for '#seat-plan'. That is deliberate and it
+ * is the branch worth exercising in this file: this suite is about what the
+ * panel SAYS, and the view-supplies-the-container case is the one where the
+ * markup is the only variable. The create-a-container branch has its own file
+ * (`seat_panel_mounts.test.js`), driven against a DOM stub. */
+const HELPERS = ['  function seatPlanHost() {',
+  '  function seatForCurrentPick() {', '  function roundLabel(overall) {'];
 const helperSrc = HELPERS.map(extractFn);
 ck('every shared helper renderSeatPlan needs was extracted',
   helperSrc.every(x => x.length > 30), HELPERS.filter((h, i) => helperSrc[i].length <= 30));

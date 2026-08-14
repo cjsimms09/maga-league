@@ -882,8 +882,52 @@
       + '<span class="pe-read">' + escapeHtml(g.read) + '</span></div>';
   }
 
+  /* ⚠️ THE PANEL MOUNTS ITSELF, BECAUSE THE CONTAINER NEVER ARRIVED.
+   *
+   * `renderSeatPlan` reads `#seat-plan` and returns early when it is missing —
+   * which it always was. The one-line view change was routed to B days ago and
+   * has not landed, so the seat panel has never once appeared on the board. It
+   * failed SAFELY, which is exactly why nobody noticed: no error, no gap, no
+   * red. An absent panel and a panel with nothing to say render identically.
+   *
+   * ── WHY THIS IS NOT AN EDIT TO THE VIEW ──────────────────────────────────
+   *
+   * `views/admin/warroom.ejs` is B's, and WHERE a panel sits is a layout
+   * decision that belongs to whoever owns layout. Editing it would be a fourth
+   * boundary override in one day, to make a placement call that is not mine.
+   *
+   * So the panel finds its own home and STANDS DOWN THE MOMENT B GIVES IT ONE:
+   * if `#seat-plan` exists, that is used and nothing is created. B's eventual
+   * placement wins automatically and needs no coordination — they add the div,
+   * this code stops firing, and neither of us has to remember.
+   *
+   * It anchors after the legality strip: the seat plan answers "which chair am I
+   * filling", the strip above answers "is my lineup still legal", and the
+   * recommendations below answer "with whom". That ordering is the card's own
+   * thesis — the PLAN picks the seat, the ENGINE picks the player — so it is the
+   * least presumptuous place to put it. If the anchor is gone too, it goes to
+   * the top of the room rather than nowhere.
+   *
+   * ⚠️ AND IT IS A STOPGAP, SAID OUT LOUD: JS creating layout is worse than
+   * markup declaring it. This exists so the panel is on the board for 08-22, not
+   * because it is the right home for it. */
+  function seatPlanHost() {
+    const found = $('#seat-plan');
+    if (found) return found;                       // B's placement wins, always
+    const room = document.getElementById('warroom');
+    if (!room) return null;
+    const el = document.createElement('div');
+    el.id = 'seat-plan';
+    el.className = 'seat-plan';
+    el.setAttribute('data-mounted-by', 'app.js — no #seat-plan in the view');
+    const anchor = document.getElementById('legality-strip');
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(el, anchor.nextSibling);
+    else room.insertBefore(el, room.firstChild);
+    return el;
+  }
+
   function renderSeatPlan() {
-    const host = $('#seat-plan');
+    const host = seatPlanHost();
     const d = state.seatPlan;
     if (!host || !d) return;
     /* ONE LOOKUP, SHARED WITH THE AGAINST-CASE. This function had its own copy
@@ -1124,7 +1168,21 @@
 
   // ------------------------------------------------------------- computation
   function myNextPicks() {
-    const order = (state.data.pick_order && state.data.pick_order.my_picks) || [];
+    /* ⚠️ `state.data` MAY NOT EXIST YET, and this was the only reader that
+     * assumed it did. `pickCoordinate` twenty lines further down guards the
+     * identical expression with `state.data &&`; this one did not, so any caller
+     * that ran before the board finished loading threw on `.pick_order` of null.
+     *
+     * The seat panel is what found it: `loadSeatPlan()` fires its own fetch in
+     * `init()` BEFORE the draft_data fetch, so whenever seat_plan.json wins the
+     * race the panel renders against a board that has not arrived. It was
+     * invisible because `loadSeatPlan` wraps the render in a try/catch — the
+     * throw became a console line and the panel simply came back empty, then
+     * filled in correctly on the next `renderAll()`.
+     *
+     * Guarded here rather than at the call site because there are many callers
+     * and only one of this. */
+    const order = (state.data && state.data.pick_order && state.data.pick_order.my_picks) || [];
     const current = currentPick();
     return order.filter(p => p >= current);
   }
