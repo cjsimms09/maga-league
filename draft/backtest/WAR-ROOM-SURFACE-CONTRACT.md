@@ -342,10 +342,48 @@ production. Only the sentence did.
 this failure is unanimous. That is why it is a separate signal rather than a
 widening of that flag.
 
+### 11. The manager panel and the reach tell
+
+**IS:** per-opponent tendencies from **three** prior drafts, ~40 picks each,
+shrunk toward the league mean (`shrinkage_weight` 0.6).
+
+**IS NOT:** a magnitude you can act on, and it was **stated as one.** *"Reaches
+~7 picks early… 1.4 rounds before the league"* — from three drafts, with
+`reach_delta.sd` of **134.2** sitting in the same object. Over 40 picks that is a
+standard error of ~21: **~7 is not distinguishable from zero.**
+
+| manager | mean | sd | mean/SE | tell says |
+|---|---|---|---|---|
+| ds7mmet | +7.3 | 134.2 | **0.34** | *reaches* |
+| Richard2121 | +12.9 | 141.2 | **0.58** | *reaches* |
+| MarianSaar | −7.0 | 20.7 | **−2.10** | near market |
+| B8T3S | −5.9 | 18.3 | **−2.05** | near market |
+
+**Only two of ten exceed two standard errors, and neither is one the tell calls a
+reacher.** One or two huge outliers drag the mean past the threshold, so on this
+board the "reaches early" flag is **anti-correlated with the evidence for
+reaching.** It also contradicts this document's own standard in §2 — *"three
+drafts give a direction, not a magnitude"* — quoted here to one decimal place.
+
+**⚠ THIS IS NOT DISPLAY-ONLY.** `reach_delta.mean` feeds `withinPrecision` in
+`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 59% of
+the composite. The two least-supported estimates get the largest adjustment
+(`−0.02 × mean`).
+
+**NOTHING WAS RE-FITTED.** The tell still fires, with the same text and weight,
+and `withinPrecision` is untouched. Several corrections are defensible — shrink
+by *t*, gate on SE, use a robust centre — and **none is measured**; fitting one
+eight days out would move survival on a suspicion. What changed is that the tell
+and the panel now publish `se`, `support_t` and `well_supported`, so a reader can
+discount it and a future experiment has the quantity to test.
+
 ---
 
 ## What I have NOT audited yet
 
-The manager panel. Named so this document cannot read as a completed sweep.
-Roughly 20 more surfaces carry a number; ten are covered here — four because they
-decide a pick, and six added as the audit reached them.
+**The eleven surfaces that decide or time a pick are now covered.** What remains
+is the long tail: roughly a dozen panels that carry a number without driving a
+pick — the queue, the bye grid, the picks feed, the accounting note, the
+checklist, the threat strip, and the rest. Named so this document cannot read as
+a completed sweep of *everything*; it is a completed sweep of **what moves a
+pick**, which is what the audit was for.

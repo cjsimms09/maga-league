@@ -1895,11 +1895,41 @@
         + 'modelled as league-average until there is history to learn from.</p>';
       return;
     }
+    /* ⚠ THE SUMMARY STATES MAGNITUDES THE SAMPLE CANNOT CARRY, AND THE PANEL
+     * SHOWED NONE OF THE SPREAD THE DATA ALREADY HOLDS (2026-08-14).
+     *
+     * "Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds
+     * before the league)." — from THREE drafts, with `reach_delta.sd` of 134.2
+     * sitting in the same object. Over 40 picks that is a standard error of ~21,
+     * so ~7 is not distinguishable from zero. Across all ten managers only TWO
+     * exceed two standard errors, and neither is one the summary calls a reacher.
+     *
+     * THIS CONTRADICTS THE PROJECT'S OWN STANDARD, set in the VONA section of the
+     * surface contract: "three drafts give a direction, not a magnitude. No
+     * correction is fitted." The same three drafts are quoted here to one decimal
+     * place.
+     *
+     * SO THE PANEL SHOWS THE SUPPORT, and nothing is suppressed or re-weighted —
+     * the profile generator is the Python pipeline and re-fitting shrinkage on a
+     * suspicion, eight days out, is the move this project keeps refusing. A
+     * reader can now discount a tell instead of being asked to trust it. */
+    var reachSupport = function (m) {
+      var rd = m.reach_delta || {}, n = m.picks_analysed || 0;
+      if (rd.sd == null || !n || rd.mean == null) return '';
+      var se = rd.sd / Math.sqrt(n);
+      if (!(se > 0)) return '';
+      var t = Math.abs(rd.mean / se);
+      return t >= 2
+        ? '<span class="mgr-support">reach holds at ' + t.toFixed(1) + 'σ</span>'
+        : '<span class="mgr-support mgr-support-weak">reach ±' + Math.round(se)
+          + ' picks over ' + n + ' — not distinguishable from market</span>';
+    };
     host.innerHTML = managers.map(m =>
       '<div class="mgr-card">' +
         '<div class="mgr-name">' + escapeHtml(m.name) +
           '<span class="muted">' + m.sample_size + ' draft' + (m.sample_size === 1 ? '' : 's') + '</span></div>' +
         '<div class="mgr-summary">' + escapeHtml(m.summary) + '</div>' +
+        reachSupport(m) +
       '</div>').join('');
     const head = document.getElementById('managers-head');
     if (head) head.textContent = 'from ' + (mp.drafts_analysed || 0) + ' prior draft(s)';

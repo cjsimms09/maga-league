@@ -947,6 +947,76 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     /lets value come to him/.test(E.managerTells({ sample_size: 3,
       reach_delta: { mean: -3.5 } })[0].text));
 
+  /* ── THE REACH TELL CARRIES ITS OWN SUPPORT ────────────────────────────
+   *
+   * `reach_delta` has always carried `sd`, and the profile `picks_analysed`, so
+   * the standard error was computable and never computed. The tell fired on
+   * |mean| alone. Measured over the ten managers on the live board, only TWO
+   * exceed two standard errors — and NEITHER is one the tell calls a reacher:
+   *
+   *     ds7mmet      mean  +7.3   sd 134.2   t = 0.34   <- "reaches"
+   *     Richard2121  mean +12.9   sd 141.2   t = 0.58   <- "reaches"
+   *     MarianSaar   mean  -7.0   sd  20.7   t = -2.10  <- "near market"
+   *     B8T3S        mean  -5.9   sd  18.3   t = -2.05  <- "near market"
+   *
+   * One or two enormous outliers (sd 134 against a mean of 7) drag the mean past
+   * the threshold, so the flag is anti-correlated with the evidence for reaching.
+   * It also contradicts this project's own standard, set in the VONA section of
+   * the surface contract: "three drafts give a direction, not a magnitude."
+   *
+   * NOT GATED, NOT RE-WEIGHTED, AND `withinPrecision` IN survival.js — which
+   * reads the same mean to shape the opponent softmax — IS UNTOUCHED. Several
+   * corrections are defensible and none is measured; fitting one eight days out
+   * would move Layer 2 survival, and through it VONA, on a suspicion. */
+  {
+    const weak = E.managerTells({ sample_size: 3, picks_analysed: 40,
+      reach_delta: { mean: 7.3, sd: 134.2, proxy: false } })[0];
+    check('a reach whose spread swamps it is marked WEAK rather than stated flat',
+      /WEAK/.test(weak.detail) && weak.well_supported === false, JSON.stringify(weak.detail));
+    check('and it names the spread and the sample, so the reader can check it',
+      /±21 picks over 40/.test(weak.detail), weak.detail);
+
+    const solid = E.managerTells({ sample_size: 3, picks_analysed: 39,
+      reach_delta: { mean: -7.0, sd: 20.7, proxy: false } })[0];
+    check('a reach that survives its own spread says so instead',
+      /holds at 2\.1 standard errors/.test(solid.detail) && solid.well_supported === true,
+      solid.detail);
+
+    check('CONTROL — both tells still FIRE and carry the same text and weight; '
+      + 'nothing was gated or re-weighted on the strength of this',
+    /reaches 7\.3 picks/.test(weak.text) && /lets value come to him/.test(solid.text)
+      && weak.weight === 7.3 / 2, JSON.stringify([weak.text, weak.weight]));
+
+    check('a profile with no sd degrades to the old behaviour rather than '
+      + 'inventing support', (function () {
+      const t = E.managerTells({ sample_size: 3, reach_delta: { mean: 4.0, proxy: false } })[0];
+      return t.support_t === null && t.well_supported === null && !/WEAK|standard errors/.test(t.detail);
+    })());
+
+    /* THE MEASUREMENT, RE-DERIVED FROM THE LIVE BOARD rather than quoted, so
+     * this goes red if the profiles change shape rather than silently ageing. */
+    const PROF = require('../../public/draft_data.json').manager_profiles || {};
+    const mgrs = Object.values(PROF.managers || {});
+    const tOf = m => {
+      const rd = m.reach_delta || {}, n = m.picks_analysed || 0;
+      if (rd.sd == null || !n || rd.mean == null) return null;
+      return rd.mean / (rd.sd / Math.sqrt(n));
+    };
+    const supported = mgrs.filter(m => { const t = tOf(m); return t != null && Math.abs(t) >= 2; });
+    check('CONTROL — the live board still carries ten profiles with sd, or the '
+      + 'claim below measures nothing', mgrs.length >= 8
+      && mgrs.every(m => tOf(m) != null), mgrs.length);
+    check('MEASURED: most managers reach-effects are NOT distinguishable from '
+      + 'zero, which is why the tell had to carry its support',
+    supported.length <= mgrs.length / 2,
+    supported.length + ' of ' + mgrs.length + ' exceed 2 SE');
+    check('and every manager the tell calls a REACHER on this board is one of '
+      + 'the unsupported ones — the flag is anti-correlated with the evidence',
+    mgrs.filter(m => (m.reach_delta || {}).mean > 0 && Math.abs(tOf(m)) >= 2).length === 0,
+    mgrs.filter(m => (m.reach_delta || {}).mean > 0)
+      .map(m => m.name + ' t=' + tOf(m).toFixed(2)).join(', '));
+  }
+
   check('a homer above the threshold is called out by team',
     /homer for KC/.test(E.managerTells({ sample_size: 3,
       homer_index: { team: 'KC', rate: 0.31 } })[0].text));

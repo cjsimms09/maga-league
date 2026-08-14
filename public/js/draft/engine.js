@@ -2953,10 +2953,46 @@
 
     // Reaching. Proxy-flagged metrics say so, because a manager who drafted a
     // player who later busted looks like a reacher purely in hindsight.
+    /* ⚠ THE REACH TELL IS A MEAN WITH NO REGARD FOR ITS OWN SPREAD, AND THE
+     * SPREAD IS ALREADY IN THE DATA (measured 2026-08-14).
+     *
+     * `reach_delta` carries `sd` and the profile carries `picks_analysed`, so the
+     * standard error is computable and never was computed. Over all ten managers
+     * on the live board:
+     *
+     *   manager        picks   mean      sd     mean/SE
+     *   ds7mmet          40    +7.3   134.2      0.34   <- labelled "reaches"
+     *   Richard2121      40   +12.9   141.2      0.58   <- labelled "reaches"
+     *   MarianSaar       39    -7.0    20.7     -2.10   <- labelled near-market
+     *   B8T3S            40    -5.9    18.3     -2.05   <- labelled near-market
+     *
+     * ONLY TWO OF TEN EXCEED TWO STANDARD ERRORS, AND THEY ARE NOT THE TWO THE
+     * TELL FIRES ON. The threshold is on |mean| alone, and a manager with one or
+     * two enormous outliers (sd 134 against a mean of 7) gets a mean large enough
+     * to trip it. So the "reaches early" flag is, on this board, anti-correlated
+     * with the evidence for reaching.
+     *
+     * ── WHAT I AM DELIBERATELY NOT DOING ──────────────────────────────────
+     *
+     * Not gating the tell, not changing its weight, and NOT touching
+     * `withinPrecision` in survival.js, which reads the same `rd.mean` to shape
+     * the opponent softmax. Several corrections are defensible — shrink by t,
+     * gate on SE, use a robust centre — and NONE of them is measured. Re-fitting
+     * one eight days before the draft would move Layer 2 survival, and through
+     * it VONA, on the strength of a suspicion. The number stays; what changes is
+     * that it now carries how well it is supported, so a reader and a future
+     * experiment can both see it. */
     const rd = profile.reach_delta || {};
+    const rdN = profile.picks_analysed || 0;
+    const rdSe = (rd.sd != null && rdN > 0) ? rd.sd / Math.sqrt(rdN) : null;
+    const rdT = (rdSe && rdSe > 0 && rd.mean != null) ? rd.mean / rdSe : null;
     if (rd.mean != null && Math.abs(rd.mean) >= CFG.TELL_REACH_PICKS) {
       out.push({
         kind: 'reach', weight: Math.abs(rd.mean) / 2,
+        // The support for this tell, published rather than acted on.
+        se: rdSe == null ? null : Math.round(rdSe * 10) / 10,
+        support_t: rdT == null ? null : Math.round(rdT * 100) / 100,
+        well_supported: rdT == null ? null : Math.abs(rdT) >= 2,
         // Relative to this league, not to raw ADP: keepers pull every pick
         // "ahead of market" by construction, so the absolute figure is a
         // shared offset rather than anything about him.
@@ -2964,8 +3000,18 @@
           ? 'reaches ' + rd.mean.toFixed(1) + ' picks earlier than the rest of the league'
           : 'lets value come to him — ' + Math.abs(rd.mean).toFixed(1)
             + ' picks later than the rest of the league',
-        detail: rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
-                         : 'measured against that season\'s real ADP',
+        /* THE DETAIL NOW CARRIES SUPPORT AS WELL AS PROVENANCE. `proxy` already
+         * set the precedent: a tell that says how it was measured is one a
+         * reader can discount. "Where it came from" and "whether it is
+         * distinguishable from zero" are both required to read this honestly,
+         * and only the first was here. */
+        detail: (rd.proxy ? 'measured against today\'s ranks, not the ADP of the day — treat as a hint'
+          : 'measured against that season\'s real ADP')
+          + (rdT != null && Math.abs(rdT) < 2
+            ? ' · WEAK: spread ±' + Math.round(rdSe) + ' picks over ' + rdN
+              + ' picks, so this is not distinguishable from drafting at market'
+            : (rdT != null ? ' · holds at ' + Math.abs(rdT).toFixed(1)
+              + ' standard errors' : '')),
         proxy: !!rd.proxy,
       });
     }

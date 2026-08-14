@@ -273,11 +273,19 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 // question. This is the assertion that keeps it honest.
 {
   ck('the document names what it has NOT audited', /What I have NOT audited yet/.test(doc));
-  ck('and says roughly how much is left, so the covered set cannot read as "all '
-    + 'of them"', /20 more surfaces/.test(doc));
-  ck('it states WHY the covered ones were covered — four because they decide a '
-    + 'pick, the rest because the audit reached them',
-  /four because they decide a pick/.test(doc));
+  /* THE SCOPE CLAIM CHANGED WHEN THE SWEEP FINISHED, and these two assertions
+   * were written against the old framing ("four of ~24, four decide a pick").
+   * They are not stale prose — the document's claim genuinely moved from "a
+   * partial audit" to "a complete audit of the pick-driving surfaces". What must
+   * stay true is that it still BOUNDS itself: names a criterion for what is in,
+   * and refuses to read as a sweep of everything. */
+  ck('it states the CRITERION for what was covered rather than just listing what '
+    + 'was', /decide or time a pick/.test(doc));
+  ck('and says roughly how much is left, so "complete" cannot read as "all of '
+    + 'them"', /roughly a dozen/.test(doc));
+  ck('the completeness claim is explicitly SCOPED — a sweep of what moves a '
+    + 'pick, not of every panel',
+  /completed sweep of \*everything\*/.test(doc) && /what moves a pick/.test(doc));
   /* THE UNAUDITED LIST MUST SHRINK AS SURFACES ARE COVERED, or it becomes a
    * decoration that makes the document look honest while going stale — which is
    * this document's own defect class. The two audited today must be OFF it. */
