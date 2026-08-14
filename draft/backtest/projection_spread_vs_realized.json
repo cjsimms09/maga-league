@@ -1916,5 +1916,14 @@
    "why_it_is_still_an_upper_bound": "The weekly sd used here already includes missed weeks as zeros, so it carries some injury variance itself. Pure week-to-week noise is therefore a SMALLER share than 10.9%, not a larger one \u2014 every bias in this number runs against the conclusion it supports.",
    "denomination_check": "Both ends are a season-total variance in points. `proj_sd_for` returns proj_mean * sd_ratio where sd_ratio is the spread of realized/projected, and projected is a constant per player, so that IS sd(realized season total). The weekly end is weekly_sd * sqrt(games), the season sd implied if weeks were independent. Same quantity, two routes \u2014 which is the comparison being made."
   }
+ },
+ "_mapper_completeness": {
+  "_what": "Checked rather than assumed: which of our 32 non-zero scoring rules `grade.nflverse_weekly_to_scoring` actually produces from the current `stats_player_week` schema.",
+  "_result": "20 of 32 are NOT produced \u2014 and ALL TWENTY are kicker or defence rules: every `fgm_*`, `xpm`, `xpmiss`, every `pts_allow_*`, plus `def_td`, `def_st_td`, `int`, `sack`, `safe`, `fum_rec`, `fum_rec_td`. Every SKILL-position rule is mapped \u2014 pass/rush/rec yards and TDs, receptions, all three 2pt conversions, `pass_int`, and `fum_lost`.",
+  "_why_it_matters_here": "It turns 'K and DEF excluded' from a choice into a necessity with a reason: through this path a kicker scores 0.0 every week, so his measured volatility would be zero and would read as the most predictable thing on the board. The QB/RB/WR/TE figures are unaffected \u2014 the mapper is complete for them.",
+  "_the_one_known_gap_inside_skill_scoring": "`fum_lost` misses ~14% of fumbles because nflverse added `fumbles_lost_total` and the three split columns no longer carry everything (parked for A). Re-run with the correction, the measured weekly sd moves by at most 0.01 at any position.",
+  "non_zero_rules": 32,
+  "unmapped_rules": 20,
+  "unmapped_are_all_K_or_DEF": true
  }
 }
