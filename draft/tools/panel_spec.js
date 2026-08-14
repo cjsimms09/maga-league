@@ -34,11 +34,21 @@
  *
  * ── AND THE PART I HAVE TO OWN ────────────────────────────────────────────
  *
- * `renderRecommendations` is 377 LINES. A third of the decision surface is one
+ * `renderRecommendations` is 436 LINES. A third of the decision surface is one
  * function emitting a headline, a rationale, a timing block, a tier-cliff card,
  * an against-case and a chip grid. Cory read the same player appearing in three
  * of those as "Gibbs listed twice". That is not a layout problem B can solve by
  * moving things; it is one function doing six jobs, and splitting it is mine.
+ *
+ * ── AND IT IS GROWING, WHICH IS THE HONEST WAY TO REPORT THIS BUMP ────────
+ *
+ * This said 377 until 2026-08-14 and `panel_spec.test.js` went red on it, which
+ * is exactly what that assertion is for. I bumped the number because the code
+ * really did grow — the `.rec-promoted` mark for ceiling tiebreaks — but a
+ * staleness guard that I satisfy by editing the claim every time is a guard I am
+ * training myself to ignore. So: +59 lines since the split was called mine, and
+ * NONE of them were the split. Recorded here rather than in a task list, because
+ * the next person to bump this number should have to read that sentence first.
  *
  * Run: node draft/tools/panel_spec.js            (human-readable)
  *      node draft/tools/panel_spec.js --json     (for B to build from)
@@ -50,7 +60,7 @@
  * that is cheap to move from one that is wired to a lot. */
 const PANELS = [
   // ── DECIDES ───────────────────────────────────────────────────────────
-  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 377,
+  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 436,
     question: 'Who should I take right now?',
     means: 'A ranked list of available players scored on projection, positional '
       + 'scarcity and what survives to my next pick. The top row is the model\'s pick.',

@@ -121,8 +121,19 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 // ── 6. THE PATHS CLAIM ──────────────────────────────────────────────────
 {
   ck('the document claims one row per position', /one per position/.test(doc));
-  ck('and records the pick-33 WR/RB/RB defect it was written after',
-    /WR \/ RB \/ RB/.test(doc));
+  /* THE TRIO IS TE/RB/RB, NOT WR/RB/RB, AND THE CORRECTION IS ASSERTED TOO.
+   * This regex read `/WR \/ RB \/ RB/` and passed, because it was checking the
+   * document against the same wrong measurement that produced the document. Both
+   * came from a suite scoring under DEFAULT_WEIGHTS while the app runs
+   * MEASURED_WEIGHTS. A guard derived from the same bad source as the thing it
+   * guards is not a guard — so the retraction is pinned alongside the fact. */
+  ck('and records the pick-33 TE/RB/RB defect it was written after',
+    /TE \/ RB \/ RB/.test(doc));
+  ck('and keeps the retracted WR/RB/RB figure visible as a correction rather '
+    + 'than silently restating it — the wrong number is how the next reader '
+    + 'learns the weights fallback existed',
+  /Corrected 2026-08-14/.test(doc) && /D\.defaults/.test(doc)
+    && /DEFAULT_WEIGHTS/.test(doc) && /MEASURED_WEIGHTS/.test(doc));
   ck('PATHS_MAX still bounds the panel at four, as stated',
     E.CFG.PATHS_MAX === 4 && /up to four \*directions\*/.test(doc), E.CFG.PATHS_MAX);
 }

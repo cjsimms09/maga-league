@@ -96,8 +96,19 @@ that direction costs by the time I pick again.
 
 **IS NOT:** a ranking of players, and **not a list of distinct arguments**. Until
 today a position could appear twice ("RB for the cliff" and "RB for value"), and
-at pick 33 the panel offered **WR / RB / RB**: one option shown twice on a panel
-whose job is distinct options. Now one row per position.
+at pick 33 the panel offered **TE / RB / RB** — TE Loveland, RB Swift, RB Etienne:
+one option shown twice on a panel whose job is distinct options. Now one row per
+position.
+
+> **Corrected 2026-08-14.** This line first read **WR / RB / RB**. That trio came
+> from `paths_offer_options.test.js`, which scored every context with
+> `(D.defaults && D.defaults.weights) || undefined` — and `D.defaults` has never
+> been a key on the artifact, so the whole file ran under `DEFAULT_WEIGHTS` while
+> the app runs `MEASURED_WEIGHTS`. Under the app's real weights the top
+> recommendation differs at **7 of Cory's 12 picks**, and — the part that matters
+> here — the position-repeat defect occurs at **no pick at all** under
+> `DEFAULT_WEIGHTS`. The bug is real and the board I quoted it from was the one
+> board on which it is invisible. The suites now refuse rather than fall back.
 
 **AT THE LAST PICK it correctly offers ONE direction** — there is no next pick,
 so the look-ahead the panel is built on does not exist.

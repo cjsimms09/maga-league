@@ -2577,7 +2577,7 @@
      * can produce two clusters, and both can be in-band. On the live board at
      * pick 33 — Cory's FIRST pick — that rendered as:
      *
-     *     WR Zay Flowers · RB Travis Etienne · RB D'Andre Swift
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
      *
      * Three "directions", two of them RB. "Take an RB because the cliff is here"
      * and "take an RB for value" are two ARGUMENTS for the same direction, and a
@@ -2585,6 +2585,25 @@
      * option twice. The flavour still decides how the surviving row is NAMED and
      * priced (its leader carries the cliff/value urgency); it no longer buys a
      * second row.
+     *
+     * ── CORRECTION, 2026-08-14: I FIRST WROTE THIS TRIO AS "WR Zay Flowers · RB
+     * Travis Etienne · RB D'Andre Swift" AND THAT BOARD DOES NOT EXIST. ───────
+     *
+     * It came from `paths_offer_options.test.js`, which passed
+     * `weights: (D.defaults && D.defaults.weights) || undefined` — and `D.defaults`
+     * has never been a key on the artifact, so every measurement in that file ran
+     * under DEFAULT_WEIGHTS while the app runs MEASURED_WEIGHTS. Re-measured under
+     * the weights the app actually uses:
+     *
+     *   - the real trio at pick 33 is the TE/RB/RB above;
+     *   - under DEFAULT_WEIGHTS the old rule returned ONE path at pick 33, so the
+     *     duplicate I quoted could not have been on that screen either;
+     *   - and under DEFAULT_WEIGHTS the position-repeat defect occurs at NO pick,
+     *     so the board I was reading is the one board on which this bug is invisible.
+     *
+     * THE FIX IS RIGHT AND THE EVIDENCE FOR IT WAS NOT. Kept in full rather than
+     * quietly restated: a corrected number with the wrong one deleted teaches the
+     * next reader nothing about how it got there.
      *
      * Collapsing here rather than at render time means every consumer — the
      * panel, the ledger capture, the tests — sees the same set. Two of them
@@ -2602,17 +2621,23 @@
     /* ⚠ THE FILL MUST NOT REPEAT A POSITION, AND MY FIRST VERSION DID.
      *
      * A cluster key is `pos + ':cliff'` or `pos + ':value'`, so ONE position can
-     * produce TWO clusters. That was harmless while only the in-band set
-     * rendered — the second flavour almost never qualified. Raising the floor to
-     * PATHS_MIN pulled it into view, and on the live board at pick 33, CORY'S
-     * FIRST PICK, the panel offered:
+     * produce TWO clusters. On the live board at pick 33, CORY'S FIRST PICK, the
+     * panel offered:
      *
-     *     WR Zay Flowers · RB Travis Etienne · RB D'Andre Swift
+     *     TE Colston Loveland · RB D'Andre Swift · RB Travis Etienne
      *
      * Three "directions", two of them RB. A panel whose whole job is to offer
      * options with pros and cons was showing one option twice — the same defect
      * as the ceiling tiebreak looking like a broken sort, and the same cost: a
      * reader stops trusting the column.
+     *
+     * ── AND IT IS OLDER THAN I SAID. This paragraph used to read "that was
+     * harmless while only the in-band set rendered — the second flavour almost
+     * never qualified; raising the floor to PATHS_MIN pulled it into view."
+     * RETRACTED: under the weights the app actually runs, all three of those
+     * cards are IN BAND on their own scores at pick 33. The floor did not expose
+     * the duplicate, it was already there — so this is a defect the panel has been
+     * shipping, not one my own widening introduced. Same fix; worse provenance.
      *
      * THE IN-BAND PREFIX IS UNTOUCHED, which is what made this safe to ship: every
      * path that qualified on its own score still renders, in the same place, at
@@ -2620,10 +2645,28 @@
      * PATHS_MIN — prefer a position not already on screen. If nothing else is
      * available they fall back to the ranked order rather than returning fewer
      * than the board can support. */
-    const chosen = ranked.slice(0, inBand);
+    /* ⚠ THE CAP. I BROKE IT IN THIS SAME REFACTOR AND ONLY THE WEIGHTS FIX
+     * SHOWED IT (2026-08-14).
+     *
+     * The line this replaced was `ranked.slice(0, Math.min(CFG.PATHS_MAX,
+     * Math.max(inBand, CFG.PATHS_MIN)))` — one expression, capped. Splitting it
+     * into a `want` and a prefix moved the cap onto the FILL only, so an in-band
+     * set larger than PATHS_MAX rendered in full: at pick 113 five positions
+     * price within PATHS_BAND, so the panel drew FIVE cards against a bound the
+     * contract document states as four and `surface_contract.test.js` asserts.
+     *
+     * It hid for a session because `paths_offer_options.test.js` was scoring
+     * with DEFAULT_WEIGHTS instead of the app's MEASURED_WEIGHTS — the wrong
+     * yardstick concealing a real regression is the compounding case, and it is
+     * why the yardstick is worth fixing even when nothing looks wrong.
+     *
+     * `head` is taken BEFORE the fills push onto `chosen`, so `rest` is the true
+     * remainder rather than a window that moves as the array grows. */
+    const head = Math.min(inBand, CFG.PATHS_MAX);
+    const chosen = ranked.slice(0, head);
     const seen = {};
     chosen.forEach(c => { seen[c.pos] = 1; });
-    const rest = ranked.slice(inBand);
+    const rest = ranked.slice(head);
     rest.filter(c => !seen[c.pos]).forEach(c => {
       if (chosen.length < want) { chosen.push(c); seen[c.pos] = 1; }
     });

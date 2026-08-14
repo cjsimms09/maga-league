@@ -4291,6 +4291,12 @@
     + 'margin:0 0 .5rem;border-left:2px solid rgba(245,196,69,.55);'
     + 'background:rgba(245,196,69,.05);border-radius:0 4px 4px 0;';
 
+  // Fallback only — see the comment at the `.rec-promoted` emit site. Sized to
+  // sit under the score without pushing the action buttons, and legible on the
+  // dark card before B styles the class.
+  const PROMOTED_CSS = 'font-size:.68rem;line-height:1.1;text-align:center;'
+    + 'letter-spacing:.02em;color:#f5c445;white-space:nowrap;margin:0 0 .15rem;';
+
     try {
       if (typeof DecisionContract !== 'undefined' && scored.length > 1) {
         const gap = scored[0].score - scored[1].score;
@@ -4366,6 +4372,43 @@
           (i === 0 ? recDisagreementLine(s, scored) : '') +
         '</div>' +
         '<div class="rec-actions">' +
+          /* ⚠️ THE MARK GOES WHERE THE INVERSION IS VISIBLE — NEXT TO THE SCORE.
+           *
+           * The engine has emitted `ceiling_tiebreak` since 2026-08-14 and
+           * prepends a reason naming the man passed, so the EXPLANATION was
+           * already on the card. But it lands in `.rec-why`, on the left, one of
+           * two reasons; the thing that looks broken is the `.rec-score` column
+           * on the right. Measured on the live board at pick 33 — Cory's FIRST
+           * pick — the list prints:
+           *
+           *     1. TE Colston Loveland  17.3
+           *     2. RB Travis Etienne    16.5   <- promoted
+           *     3. RB D'Andre Swift     17.0
+           *
+           * Scanning the score column top-down at his most important pick, the
+           * numbers go 17.3, 16.5, 17.0 and nothing in that column says why. A
+           * reader who cannot tell a deliberate promotion from a broken sort
+           * stops trusting the column, and the column is how he compares ten
+           * candidates.
+           *
+           * READABLE WITHOUT HOVER, deliberately. The `title` carries the
+           * arithmetic, but titles do not exist on a phone, so the visible text
+           * has to do the work on its own; the full sentence stays in
+           * `.rec-why`. This mark is the POINTER, not the explanation.
+           *
+           * A DISTINCT ELEMENT, same contract as `.rec-context`: B styles
+           * `.rec-promoted`, A only guarantees it is emitted, separate, and
+           * adjacent to the number it is about. The inline rule is a legible
+           * fallback so it is not invisible before B styles it — the same
+           * pattern as `DECISIVE_CSS` above, not a claim on B's lane. */
+          (s.ceiling_tiebreak
+            ? '<div class="rec-promoted" style="' + PROMOTED_CSS + '" title="'
+                + escapeHtml('Promoted over ' + (s.ceiling_tiebreak.over || 'the row below')
+                  + ' — scores ' + Math.abs(s.ceiling_tiebreak.score_gap).toFixed(1)
+                  + ' lower, ceiling ' + Math.round(s.ceiling_tiebreak.ceiling)
+                  + ' vs ' + Math.round(s.ceiling_tiebreak.ceiling_over))
+                + '">↑ upside</div>'
+            : '') +
           '<div class="rec-score" title="Composite score">' + s.score.toFixed(1) + '</div>' +
           '<button class="btn small gold" data-draft-me="' + p.player_id + '">I took him</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id + '">Gone</button>' +

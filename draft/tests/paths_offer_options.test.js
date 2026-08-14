@@ -73,7 +73,27 @@ function ctxAt(pick, board) {
     myPicksLeft: MY.filter(p => p >= pick).length, roster: [], doctrine: null,
     myPickIndex: Math.max(0, MY.indexOf(pick)), totalMyPicks: MY.length,
     currentKeepers: [], league: D.league,
-    weights: (D.defaults && D.defaults.weights) || undefined,
+    /* PRODUCTION WEIGHTS, AND THEY REFUSE RATHER THAN FALL BACK.
+     *
+     * This line read `(D.defaults && D.defaults.weights) || undefined`. `D.defaults`
+     * has never been a key on the board, so it always resolved to `undefined` and
+     * `engine.js:1448` scored with DEFAULT_WEIGHTS — all eight terms live — while
+     * the app runs MEASURED_WEIGHTS with five of the eight at zero. Measured on the
+     * same boards with weights as the only variable, the top recommendation differs
+     * at 7 of Cory's 12 picks. The paths panel is clustered FROM that scored list,
+     * so this file was pricing directions off a board no surface renders.
+     *
+     * The dedup fix this file guards is keyed on POSITION and so is unaffected by
+     * scores — re-verified under these weights rather than assumed. See the header
+     * of rec_rows.test.js for the full measurement. */
+    weights: (function () {
+      const w = E.MEASURED_WEIGHTS;
+      if (!w || typeof w.value !== 'number') {
+        throw new Error('REFUSING to score: engine.js no longer exports MEASURED_WEIGHTS, '
+          + 'which is what app.js initialises state.weights from.');
+      }
+      return w;
+    })(),
     runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: pick,
     intervening: next ? next - pick : 0,
     roundsLeft: Math.max(0, Math.ceil((150 - pick) / (D.league.teams || 10))),
@@ -90,19 +110,24 @@ function pathsAt(pick) {
 /* THE OLD BEHAVIOUR, REBUILT FROM THE SHIPPED CLUSTERING. Not a remembered
  * number — the fail arm has to be produced by the same board this run reads, or
  * it is a claim about a board that no longer exists. */
-function oldPathCount(pick) {
+/* KEYS, NOT JUST A COUNT. The count alone cannot see the defect the dedup
+ * actually fixes — two cards at the SAME position — so the fail arm below could
+ * never have tested it. Same derivation as before; `oldPathCount` is now a
+ * length of this rather than a second walk over the pool. */
+function oldPathKeys(pick) {
   const r = pathsAt(pick);
   const pool = r.scored.slice(0, E.CFG.PATHS_POOL);
-  if (!pool.length) return 0;
+  if (!pool.length) return [];
   const top = pool[0].score, seen = {}, order = [];
   pool.forEach(e => {
     const key = e.player.position
       + (((e.components || {}).tier_urgency || 0) >= E.CFG.PATHS_CLIFF_URGENCY ? ':cliff' : ':value');
     if (!seen[key]) { seen[key] = e.score; order.push(key); }
   });
-  return Math.min(E.CFG.PATHS_MAX,
-    order.filter(k => seen[k] >= top - E.CFG.PATHS_BAND).length);
+  return order.filter(k => seen[k] >= top - E.CFG.PATHS_BAND)
+    .slice(0, E.CFG.PATHS_MAX);
 }
+function oldPathCount(pick) { return oldPathKeys(pick).length; }
 
 // ── 0. THE PREMISE ──────────────────────────────────────────────────────────
 ck('the artifact holds Cory\'s twelve picks', MY.length === 12, MY.length);
@@ -115,11 +140,42 @@ ck('PATHS_MIN exists and is a floor below the cap',
 // rest of this file is guarding something that is not happening any more.
 {
   const oldOnes = MY.filter(p => oldPathCount(p) <= 1);
+  console.log('      OLD rule collapses to <=1 direction at: '
+    + (oldOnes.join(', ') || 'no pick') + '  (' + oldOnes.length + ' of ' + MY.length + ')');
+  /* ⚠ BOTH ARMS HERE WERE FITTED TO A BOARD THE APP DOES NOT RENDER.
+   *
+   * They read `oldOnes.length >= 8` and `oldPathCount(MY[0]) <= 1`, and both
+   * passed — under DEFAULT_WEIGHTS, where the old rule collapses at 11 of 12
+   * picks including pick 33. Under the MEASURED_WEIGHTS the app actually runs it
+   * collapses at 6 of 12, and pick 33 yields THREE directions. So the "8" was a
+   * threshold fitted to 11, and the first-pick claim is simply FALSE of the
+   * board Cory sees. RETRACTED rather than re-tuned: replacing 8 with 6 would be
+   * fitting the bar to today's number a second time, which is the habit that
+   * produced the wrong bar in the first place.
+   *
+   * WHAT THE ARM IS ACTUALLY FOR is proving the defect is live, not measuring
+   * it. So the assertion is the weakest claim that does that job — more than one
+   * pick — and the MAGNITUDE is printed above, where a drift is readable without
+   * a threshold anybody had to guess. Six of twelve is half his draft; that is
+   * an argument for the fix, and it is made in prose rather than smuggled into a
+   * constant. */
   ck('FAIL ARM — the band-as-gate rule still collapses to a single direction at '
-    + 'most of his picks, so this file is about a live defect',
-    oldOnes.length >= 8, { one_option_at: oldOnes, of: MY.length });
-  ck('and it did it at his FIRST pick, which is the one he was looking at',
-    oldPathCount(MY[0]) <= 1, oldPathCount(MY[0]));
+    + 'more than one of his picks, so this file is about a live defect and not a '
+    + 'historical one', oldOnes.length > 1, { one_option_at: oldOnes, of: MY.length });
+
+  /* THE SECOND DEFECT, which is the one the dedup actually fixes and which the
+   * old fail arm never tested: a repeated POSITION in the old in-band set. */
+  const oldDupes = MY.filter(p => {
+    const ps = oldPathKeys(p).map(k => k.split(':')[0]);
+    return ps.length !== new Set(ps).size;
+  });
+  console.log('      OLD rule repeats a position at: ' + (oldDupes.join(', ') || 'no pick'));
+  ck('FAIL ARM — and it really does offer the same DIRECTION twice somewhere on '
+    + 'his board, which is the defect the dedup removes', oldDupes.length >= 1,
+  oldDupes);
+  ck('at pick 33 specifically — his first pick, TE Loveland / RB Swift / RB '
+    + 'Etienne, two of the three the same direction', oldDupes.indexOf(33) >= 0,
+  oldPathKeys(33));
 }
 
 // ── 2. THE FIX, AT EVERY PICK HE OWNS ───────────────────────────────────────
@@ -184,20 +240,57 @@ ck('PATHS_MIN exists and is a floor below the cap',
 // This is the assertion that makes the change shippable eight days out. The
 // widened set must contain the old set, as a PREFIX, at identical prices.
 {
+  /* ⚠ THE PREFIX PROPERTY WAS STATED OVER CLUSTERS AND HAD TO BE STATED OVER
+   * DIRECTIONS (corrected 2026-08-14).
+   *
+   * This compared `r.paths.slice(0, oldPathCount(p))` — the first N NEW paths
+   * against the count of OLD in-band CLUSTERS — and demanded all N be in band.
+   * That cannot hold, and should not: the dedup deliberately REMOVES a cluster
+   * when two share a position, so N old clusters become fewer than N new rows
+   * and the shortfall is backfilled by the PATHS_MIN floor with a direction that
+   * was never in band. At pick 33 the old set is `TE:value, RB:cliff, RB:value`
+   * — three clusters, TWO directions — so index 2 of the new panel is WR at 8.3,
+   * correctly out of band, and the assertion called that a regression.
+   *
+   * It passed only under DEFAULT_WEIGHTS, where no pick repeats a position and
+   * so the removal never happens. A "nothing was lost" check that is satisfied
+   * only when nothing is ever removed is not testing the change.
+   *
+   * THE PROPERTY THAT IS ACTUALLY PROMISED, and the one Cory cares about: no
+   * DIRECTION he previously had was taken away, none was reordered, and none
+   * that qualified on its own score is now flagged as a concession. The
+   * duplicate is the only thing that disappears. */
   const broken = [];
   MY.forEach(p => {
     const r = pathsAt(p);
-    const n = oldPathCount(p);
-    if (!n) return;
-    const kept = r.paths.slice(0, n);
-    if (kept.length !== n) broken.push({ pick: p, why: 'old set is not a prefix', n: n });
-    kept.forEach((x, i) => {
-      if (!x.within_band) broken.push({ pick: p, i: i, why: 'a previously-qualifying path is now out of band' });
+    const oldPositions = [];
+    oldPathKeys(p).forEach(k => {
+      const pos = k.split(':')[0];
+      if (oldPositions.indexOf(pos) < 0) oldPositions.push(pos);
+    });
+    if (!oldPositions.length) return;
+    const now = r.paths.map(x => x.position);
+    oldPositions.forEach((pos, i) => {
+      if (now[i] !== pos) {
+        broken.push({ pick: p, i: i, why: 'direction lost or reordered',
+          was: oldPositions, now: now });
+      } else if (!r.paths[i].within_band) {
+        broken.push({ pick: p, i: i, pos: pos,
+          why: 'a direction that qualified on its own score is now out of band' });
+      }
     });
     if (r.paths[0] && r.paths[0].price !== 0) broken.push({ pick: p, why: 'top path is not priced at 0' });
   });
-  ck('every direction that qualified under the old rule still renders, in the '
-    + 'same position, still in band', broken.length === 0, broken.slice(0, 4));
+  ck('every DIRECTION that qualified under the old rule still renders, in the '
+    + 'same position in the list, still in band — the collapsed duplicate is the '
+    + 'only thing that disappears', broken.length === 0, broken.slice(0, 4));
+  ck('CONTROL — a pick really does lose a row to the dedup, or the clause above '
+    + 'is just the old assertion in new words',
+  MY.some(p => oldPathKeys(p).length
+    > new Set(oldPathKeys(p).map(k => k.split(':')[0])).size),
+  MY.map(p => ({ pick: p, keys: oldPathKeys(p).length,
+    positions: new Set(oldPathKeys(p).map(k => k.split(':')[0])).size }))
+    .filter(x => x.keys !== x.positions));
 
   /* PRICES ARE MEASURED AGAINST THE TOP PATH. Widening the set must not
    * re-baseline them — computing bestScore off the widened set would shift every
