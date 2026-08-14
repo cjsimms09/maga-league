@@ -11469,3 +11469,190 @@ session — A's call entirely)
 No code changed, no experiment cancelled, no file deleted, nothing gated or queued.
 If A reads this and disagrees, that disagreement is itself useful information — this
 is one outside read, not a verdict.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — BUILD SPEC: THE MODEL PLAYS GM, GRADED AGAINST 2023–2025
+
+**FOR: A.** Not code, a full build spec — Cory's highest-priority ask from this
+research thread: *"There's no reason the model can't run a team itself. I want to be
+able to simulate the last 3 seasons against it."* He wants this thorough enough to
+build from directly, so this is long on purpose — every piece below was checked
+against the actual repo, not assumed. No code touched.
+
+## The goal, stated precisely
+
+For each of the 10 seats in each of 2023/2024/2025, replace ONE real owner with the
+model as GM — same real opponents, same real weekly outcomes for everyone else — and
+let the model draft a full roster, then manage it start to finish: waiver claims and
+lineup decisions every week, using the SAME functions the live site runs today, fed
+only what would have been knowable at each moment. Grade the result against what the
+real owner in that seat actually did. Do this for all 10 seats × 3 seasons = 30
+independent replays. Wire it so 2026 appends automatically once it closes, and make it
+re-runnable on demand — this becomes a permanent fixture for testing any future
+tool/model change, not a one-time report.
+
+## Why a single-seat counterfactual, not a full 10-team simulation
+
+Simulating what all 10 owners would have done differently requires modeling 9 other
+people's counterfactual decisions — intractable and not needed. Replacing exactly ONE
+seat while the other 9 stay fixed to real history is well-posed and fully computable
+from data already in the repo: the other 9 rosters, lineups, and scores each week are
+just facts (`draft/data/league_history.json`), so "what would this seat's record have
+been with the model as GM" is answerable without modeling anyone else's behavior. Run
+it once per seat (10 replays/season) rather than once per season so you get 30 data
+points, not 3, and can also ask position-dependent questions (does the model do better
+GMing from the 1-seat vs the 8-seat).
+
+## What already exists — reuse it, don't rebuild it
+
+This is most of the good news in this spec:
+
+- **`draft/data/league_history.json`** (928KB, rebuilt by walking Sleeper's
+  `previous_league_id` chain) already has, per season 2023/2024/2025: full league
+  settings + scoring settings + roster positions (**verified identical across all
+  three years** — no year-to-year rule normalization needed), every owner's roster
+  **per week** (starters + full bench + each player's actual points), every
+  transaction (waiver claims incl. failed ones, trades, with timestamps), and
+  pick-by-pick draft results. This is nearly the entire data-gathering task the
+  "how do we get the data" question was asking — it's already built and auto-extends
+  (see "extensibility" below).
+- **A draft-only version of this replay already runs**: `draft/backtest/asof.py`,
+  `external_replay.py`, and `BACKTEST.md`'s B0–B3 comparison table. It already grades
+  draft-day decisions against 2023–2025 outcomes. Extend this rather than starting
+  over — the leak-discipline pattern (`asof.py`) is exactly what the weekly loop needs
+  too.
+- **The real production functions should be called directly, not reimplemented:**
+  `evaluateClaims(freeAgents, myRoster, league, ctx)` in `src/routes/waivers.js:160`
+  and `optimize(roster, ctx)` in `src/routes/lineup.js:468` are the actual functions
+  the live site runs for waiver and lineup decisions. The entire value of this harness
+  is testing what's ACTUALLY SHIPPED, so the simulation must call these exact
+  functions with historical inputs — a parallel reimplementation would test a
+  different, unshipped thing and the result would mean nothing.
+- **Keeper mechanics** (`public/js/draft/keepers.js`, `keeperui.js`, `keeperlock.js`)
+  already exist and should be reused as-is for the draft phase, given the league's
+  3-keeper rule.
+
+## A correction to check before building: this league does NOT use FAAB
+
+Checked directly: `waiver_type` in the Sleeper settings is `1` (**Reverse Standings
+priority**, not FAAB) for 2023, 2024, 2025, AND the in-progress 2026 season, and every
+single transaction across all three historical seasons has `waiver_bid: null` — zero
+FAAB bids ever placed. `waiver_budget: 100` is present but appears unused (a Sleeper
+default field, not this league's actual mechanic). **This means a contested claim in
+the replay must be resolved by reverse-standings priority order, not by simulating a
+dollar bid.** If `evaluateClaims`/the waiver tool currently frames its output in
+bid-dollar terms, check whether that's real-league-money framing (consistent with the
+project's dollar-grading philosophy everywhere else) or an actual FAAB assumption —
+worth a quick look before the replay logic assumes the wrong resolution mechanism.
+
+## The one real gap: point-in-time projections for 2023–2025 don't exist
+
+Nobody was capturing "what did we know before this week's games" snapshots back then
+— `proj_series.json`/`adp_series.json` only go back to 2026-08. This isn't just a
+grading nuisance — the lineup and waiver functions need SOME projection number to rank
+players against, live, at each simulated decision point, so this blocks the whole
+weekly loop, not just its scoring. Three paths, use in combination:
+
+1. **Reconstruct algorithmically, strictly from prior weeks only** — a projection for
+   week W built ONLY from nflverse data through week W−1 (weekly stats, NGS, snap
+   counts, injuries — all already reachable per `DATA-INVENTORY.md`). Genuinely
+   leak-free by construction: it never touches data from W or later, regardless of
+   when the code computing it is run. **Build this first — it's the prerequisite for
+   everything else in this spec**, including the draft-phase extension and the whole
+   weekly loop.
+2. **Recover real archived rankings via Wayback Machine** — `ARCHITECTURE.md` already
+   identified this exact technique for Sleeper's own August ADP; the same CDX approach
+   against FantasyPros/ESPN's historical weekly-rankings URLs would recover what was
+   ACTUALLY published at the time, a stronger claim than any reconstruction. Worth
+   doing where it's cheap, not required to start.
+3. **For waiver-claim GRADING specifically** (not the live decision, just scoring it
+   afterward), you can skip needing a historical projection entirely — grade a
+   hypothetical claim against the player's REALIZED output over the following few
+   weeks, which is already in `league_history.json`. Legitimate for grading; would be
+   leakage if used to make the live simulated decision, so keep those two uses
+   separate.
+
+## Leak-prevention boundary (the non-negotiable part)
+
+At every simulated decision point in week W — waiver claim, lineup set, or a draft
+pick at its real historical pick-time — the model may see: real outcomes through week
+W−1 (or picks made before this pick), the algorithmically-reconstructed
+prior-only projection, and injury/practice reports as they stood at that moment
+(nflverse's injury data is genuinely weekly-reported, not end-of-season, so this is
+available). It may NOT see week W's actual results, later weeks' transactions, or
+anything computed with hindsight. This is the same discipline the project already
+enforces for live forward-prediction (`"the forward guarantee disqualifies backdated
+claims"`) — same rule, applied retroactively via strict `AsOf` filtering instead of
+literal real-time capture. Reuse `asof.py`'s pattern for this rather than inventing a
+new mechanism.
+
+## Free-agent pool — fully computable from data already in hand
+
+At week W, the model's available free agents = the full player universe minus the
+union of the 9 REAL rosters at week W (already in `league_history.json`'s per-week
+`players` field for each roster) minus the model's own current simulated roster.
+Because only one seat diverges from history, this never requires guessing what the
+other 9 teams would have rostered — they're fixed facts. No new data source needed
+here.
+
+## Grading — multiple benchmarks, not one number
+
+For each of the 30 replays, report against:
+- **The real human who actually held that seat that season** — the headline
+  comparison.
+- **A do-nothing baseline** — draft by ADP alone, never touch waivers, always start
+  the highest-projected legal lineup. Isolates how much value the waiver/lineup logic
+  adds ABOVE just a decent draft.
+- **A decomposition arm**: ADP-only draft + the model's real in-season management, and
+  separately the model's own draft + the human's real in-season moves. This separates
+  "is the draft good" from "is the in-season management good" — right now `BACKTEST.md`
+  only answers the first question; this closes the second, which per Session B's own
+  numbers ($445–595/team/season left on benches) is the bigger pool.
+- **Dollar/payout-equivalent terms** — final record, playoff berth, payout tier —
+  since that's what the project already grades everything else in, and it's literally
+  what determines real money in this league.
+- **Calibration, not just outcome** — log every recommendation with its stated
+  confidence/expected value, and bucket predicted-vs-actual the same way `BACKTEST.md`
+  section 4 already does for survival odds. That exact table format applies unchanged
+  to grading playoff-odds and waiver-claim confidence too — reuse the pattern, don't
+  invent a new one.
+
+## Explicitly out of scope for v1 — say so rather than getting stuck
+
+**Trades.** Simulating the model proposing/accepting trades requires modeling whether
+a counterfactual trade partner would accept an offer that never really happened — a
+much harder, separate modeling problem (an opponent-acceptance model, not just a
+value model). Recommend the v1 harness does draft + waivers + lineup only, and holds
+trades out explicitly rather than letting them block the rest of this.
+
+## Extensibility — already solved, just needs the harness to respect it
+
+`league_history.json` is REBUILT, not hand-maintained, by re-walking
+`previous_league_id` after each season closes. The harness should be written as a
+consumer of however many completed seasons exist in that file at run time, not
+hard-coded to three — so running the existing build after 2026 closes appends a 4th
+season with zero changes to the simulation code itself, exactly as asked.
+
+## Suggested build order (so this ships incrementally, not all-at-once)
+
+1. **Prior-only projection reconstruction** (nflverse-based) for 2023–2025 — nothing
+   else below can run without this.
+2. **Free-agent-pool + AsOf boundary computation** from `league_history.json` — pure
+   functions, testable in isolation, no model logic yet.
+3. **Draft-phase replay for one chosen seat**, extending the existing
+   `external_replay.py`/`asof.py` machinery rather than the current grade-picks-only
+   mode — produces an initial simulated roster.
+4. **The weekly loop**: waiver decision → apply → lineup decision → record outcome,
+   calling `evaluateClaims`/`optimize` directly, for weeks 1–18.
+5. **Grading/reporting**: the benchmark comparisons + calibration tables above.
+6. **Run all 10 seats × 3 seasons**, wire it to auto-include new seasons, make it
+   invocable the same way other Lab experiments are (so it becomes a standing
+   regression check any future waiver/lineup/draft change can be run against).
+
+## What this is NOT
+
+No code written, no experiment registered, nothing gated. This is a full spec because
+Cory asked for one thorough enough to build from — the actual build, sequencing
+against everything else in the Lab queue, and any design changes along the way are
+entirely A's call.
