@@ -1495,6 +1495,30 @@
       "test_a_MARKET_NAME_WE_DID_NOT_ANTICIPATE_IS_REPORTED_not_dropped"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    if not rk and not ck:\n        return {\"honoured\": None, \"real_keys\": 0, \"control_keys\": 0,",
+     "new": "    if False:\n        return {\"honoured\": None, \"real_keys\": 0, \"control_keys\": 0,",
+     "must_fail": [
+      "test_AN_EVENT_WITH_NO_MARKETS_CANNOT_CONVICT_THE_PARAMETER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    def key(e):\n        t = str((e or {}).get(\"date\") or \"\")[:19]\n        return (0, t) if t else (1, \"\")\n    return sorted(list(events or []), key=key)",
+     "new": "    return list(events or [])",
+     "must_fail": [
+      "test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        return (0, t) if t else (1, \"\")",
+     "new": "        return (0, t)",
+     "must_fail": [
+      "test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one"
+     ],
+     "verdict": "KILLED"
     }
    ]
   }

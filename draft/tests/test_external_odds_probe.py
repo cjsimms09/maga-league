@@ -215,3 +215,61 @@ def test_A_PLAYER_NAME_IS_A_SELECTION_not_a_market():
     assert "Josh Allen" in P.selection_names(PROPS)
     assert "player_pass_yds" in P.market_keys(PROPS)
     assert "BUF" not in P.market_keys(DEFAULT_ONLY)
+
+
+# ── WHAT RUN 2 ACTUALLY RETURNED, AND WHY ITS VERDICT WAS UNEARNED ──────────
+
+def test_AN_EVENT_WITH_NO_MARKETS_CANNOT_CONVICT_THE_PARAMETER():
+    """RUN 2 (31772127983) RETURNED `VOID — the parameter was not read`, AND THAT
+    VERDICT WAS NOT EARNED. The odds response carried NO market names at all —
+    `real_keys: 2, control_keys: 2`, both of them `American Football` and
+    `USA - NFL`, with even the `sides` family empty though the daily capture pulls
+    ML and spread every day. The probe took `events[0]` of 136 listed for usa-nfl,
+    i.e. an arbitrary game that may be months out and unpriced.
+
+    Two empty responses are trivially identical, so the control fires and reports
+    the parameter ignored NO MATTER WHAT THE PARAMETER DOES. That is the same
+    defect the control exists to prevent, one level up: a conclusion about the
+    provider drawn from a fact about our own request.
+
+    MUTATION: compare the fingerprints without checking whether either carried a
+    market — every unpriced event convicts the provider of ignoring `markets`, and
+    the open question Cory named the priority gets closed by an empty game."""
+    empty = {"sport": "American Football", "league": "USA - NFL"}
+    h = P.parameter_was_honoured(empty, empty)
+    assert h["honoured"] is None, h
+    assert "nothing to compare" in h["note"] and "UNMEASURED" in h["note"]
+
+
+def test_A_REAL_BOARD_STILL_CONVICTS_A_ONE_EYED_PARAMETER():
+    """The guard above must not swallow the finding it was added beside. When the
+    responses DO carry markets and they are identical, the parameter really is
+    being ignored and the run really is VOID.
+
+    MUTATION: return `None` whenever the two agree — the ignored-parameter finding
+    becomes unreachable and the probe can never conclude anything."""
+    h = P.parameter_was_honoured(DEFAULT_ONLY, DEFAULT_ONLY)
+    assert h["honoured"] is False
+    assert "IGNORED" in h["note"]
+
+
+def test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one():
+    """Run 2 took `events[0]` of 136 listed for usa-nfl and got a payload with no
+    markets at all. Lines are posted and traded in the days before kickoff — the
+    same market-structure fact `market_filters` registers its horizon on — so an
+    arbitrary event from a whole-season list is very likely unpriced, and an
+    unpriced event answers nothing about what the provider serves.
+
+    UNDATED EVENTS SORT LAST rather than being dropped: an event we cannot date is
+    not "far away", and the probe should prefer a game it can reason about over
+    one it cannot, without pretending the undated ones do not exist.
+
+    MUTATION: take the first listed event — the probe asks about a game months out
+    with no lines on it, gets an empty payload, and every verdict it draws is
+    about that game rather than about the provider."""
+    events = [{"id": "far", "date": "2026-12-28T18:00:00"},
+              {"id": "soon", "date": "2026-08-15T00:20:00"},
+              {"id": "undated"},
+              {"id": "mid", "date": "2026-09-08T00:20:00"}]
+    assert [e["id"] for e in P.nearest_first(events)] == ["soon", "mid", "far", "undated"]
+    assert P.nearest_first([]) == []

@@ -10,8 +10,8 @@
   "season_wins",
   "outrights"
  ],
- "event_id": 71515752,
- "league": "usa-nfl",
+ "event_id": 71548092,
+ "league": "usa-nfl-preseason",
  "parameter_honoured": {
   "honoured": false,
   "real_keys": 2,
@@ -48,11 +48,11 @@
  },
  "unclassified": [
   "American Football",
-  "USA - NFL"
+  "USA - NFL Preseason"
  ],
  "credit": {
   "spent": 2,
-  "remaining": 96,
+  "remaining": 92,
   "note": "measured from the provider's own remaining counter, not from how many calls we think we made"
  },
  "verdict": "VOID \u2014 the parameter was not read",
@@ -62,5 +62,6 @@
   "game_totals": [],
   "sides": []
  },
- "events_listed": 136
+ "events_listed": 48,
+ "event_date": "2026-08-13T23:00:00Z"
 }
