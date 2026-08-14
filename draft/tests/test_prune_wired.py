@@ -121,7 +121,51 @@ def test_NOTHING_DRAFTABLE_IS_LOST_at_any_position():
     assert not [p for p in lost if (p.get("vorp") or 0) > 0], "positive VORP"
     assert not [p for p in lost if (p.get("proj_mean") or 0) > 0], "carries a projection"
     assert not [p for p in lost if p.get("rookie")], "a rookie"
-    assert len(kept) < len(rows), "CONTROL — the prune actually removes something"
+
+    # ⚠ THE OLD CONTROL HERE WAS `len(kept) < len(rows)` — "the prune actually
+    # removes something" — asserted against the SHIPPED BOARD. It could only pass
+    # while the shipped board still CONTAINED prunable rows, which is precisely
+    # the bug the prune exists to remove. The first real build to run the wiring
+    # (2026-08-14T09:15Z, 1,841 -> 686 rows) made it false and turned main red.
+    #
+    # A control that depends on the defect still being present is not a control.
+    # The two things actually worth asserting are split apart below: the shipped
+    # board is CLEAN (the fix worked), and `dormant` still DISCRIMINATES (proved
+    # on a constructed row, where the answer cannot drift with the artifact).
+    assert not lost, (
+        "the shipped board is already pruned, so re-running dormant over it must "
+        "drop nothing; anything here is a row the build failed to remove")
+
+
+def test_the_prune_DISCRIMINATES_on_a_constructed_row():
+    """The control the artifact can no longer provide.
+
+    Once the build prunes correctly the shipped board has nothing left to drop,
+    so it cannot demonstrate that `dormant` still works — an always-empty result
+    and a broken detector look identical there. This asks the question on a board
+    we construct, where the right answer is known and stays known.
+    """
+    import board_activity  # noqa: PLC0415
+
+    board = json.loads(BOARD_PATH.read_text())
+    live = [p for p in (board.get("players") or []) if (p.get("proj_mean") or 0) > 0][:40]
+    if len(live) < 20:
+        pytest.skip("not enough projected rows to build the fixture")
+
+    # Nobody vouches for this man: no ADP, no projection, not a rookie, not kept.
+    # `years_exp` MUST be set: dormant skips a row with 0/blank experience
+    # because "a rookie's blank is correct". My first fixture left it out and the
+    # ghost was correctly spared — the detector was right and the fixture wrong.
+    ghost = {"player_id": "ghost-0", "name": "Retired Guy", "position": "WR",
+             "team": "FA", "proj_mean": 0, "years_exp": 9}
+    act = board_activity.dormant({"players": live + [ghost]})
+    assert act["status"] == "measured", act.get("note")
+    dropped = {str(p.get("player_id")) for p in act["rows"]}
+    assert "ghost-0" in dropped, (
+        "a row with no market price, no projection, no rookie flag and no keeper "
+        "designation is exactly what dormant exists to find")
+    assert not (dropped - {"ghost-0"}), (
+        "and it dropped ONLY him — the projected rows beside him are vouched for")
 
 
 def test_the_defences_survive_intact():
@@ -158,7 +202,15 @@ def test_it_removes_the_boards_only_name_collision():
                 dup.add(k)
             seen.add(k)
         return dup
-    assert collisions(rows), "CONTROL — the collision exists before the prune"
+    # WAS: `assert collisions(rows)` — "the collision exists before the prune",
+    # asserted against the SHIPPED board. Like the control above it, that could
+    # only pass while the shipped board still carried the defect. The first real
+    # build to run the prune removed it and the control fired.
+    #
+    # The end state is the thing worth guarding, and it is guarded directly: the
+    # board Cory searches on the clock has no two rows sharing a name and a
+    # position. Whether some earlier board did is history, not a property.
+    assert not collisions(rows), collisions(rows)
     assert not collisions(kept), collisions(kept)
 
 
@@ -174,7 +226,9 @@ def test_it_removes_the_duplicate_NAMES_too():
                 dup.add(n)
             seen.add(n)
         return dup
-    assert dupe_names(rows), "CONTROL — duplicates exist before the prune"
+    # Same correction as the collision control above: assert the SHIPPED board
+    # is clean, not that it is still dirty enough for the prune to have work.
+    assert not dupe_names(rows), dupe_names(rows)
     assert not dupe_names(kept), dupe_names(kept)
 
 
@@ -190,8 +244,36 @@ def test_it_cuts_real_search_noise_not_just_row_count():
     draftable = {surname(p) for p in rows
                  if str(p.get("player_id")) not in drop and (p.get("adp") or 999) <= 150}
     noisy = [p for p in rows if str(p.get("player_id")) in drop and surname(p) in draftable]
-    assert len(noisy) >= 50, (
-        f"only {len(noisy)} dropped rows collide with a draftable surname — the "
-        "search-noise claim in build.py's comment no longer holds and should be "
-        "corrected rather than left standing"
+    # WAS: `assert len(noisy) >= 50` — it demanded that fifty noisy rows still be
+    # ON the board waiting to be dropped, so it measured how DIRTY the artifact
+    # was and passed only while the prune had not run. That number was a one-time
+    # measurement of a board that no longer exists.
+    assert not noisy, noisy[:5]
+
+    # WHAT IS CHECKABLE NOW, and is the stronger claim: every noisy-looking row
+    # that SURVIVES is spared by a NAMED exemption, not by accident. Nothing is on
+    # this board because the prune failed to notice it.
+    #
+    # My first attempt asserted no such row could survive at all, and it found 13
+    # — every one of them correctly spared. Four have `years_exp == 0` (a rookie's
+    # blank is the right history) and the rest carry a real ADP outside the
+    # relevant board, which still means somebody is drafting them. The detector
+    # was right and the assertion was wrong.
+    survivors = [p for p in rows if str(p.get("player_id")) not in drop]
+    unexplained = []
+    for p in survivors:
+        if surname(p) not in draftable:
+            continue
+        if (p.get("adp") or 999) <= 225 or (p.get("proj_mean") or 0) > 0:
+            continue                                   # genuinely draftable himself
+        spared_rookie = (p.get("years_exp") or 0) == 0
+        spared_priced = p.get("adp") is not None       # the market prices him at all
+        if not (spared_rookie or spared_priced):
+            unexplained.append(p)
+    assert not unexplained, (
+        f"{len(unexplained)} rows share a surname with a draftable player, carry "
+        "neither a relevant price nor a projection, and are spared by NO named "
+        "exemption — they are on the board because nothing looked, which is the "
+        "search noise this prune exists to remove: "
+        + str([p.get("name") for p in unexplained[:5]])
     )
