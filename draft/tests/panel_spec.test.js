@@ -214,6 +214,61 @@ ck('and it does not describe dead code — every panel found is really called',
     + 'both ways on one screen', /SAME\s+NUMBER/.test(surv.note.replace(/\s+/g, ' ')));
 }
 
+
+// ── 7. A NOTE THAT REPORTS WORK AS OUTSTANDING MUST STILL BE OUTSTANDING ──
+/* TWO NOTES IN THIS FILE DESCRIBED WORK AS UNBUILT THAT WAS BUILT.
+ *
+ *   renderSeatPlan     "ONE is rendered ... the other eleven are the look-ahead,
+ *                       unbuilt" — while seat_plan.json held all twelve.
+ *   renderCompareTray  "it just needs a way in from the rec cards" — while every
+ *                       rec card already carried a data-compare button and the
+ *                       handler had been wired the whole time.
+ *
+ * B BUILDS THE LAYOUT FROM THIS FILE. A spec that reports done work as
+ * outstanding costs exactly what one reporting outstanding work as done costs:
+ * somebody plans around a false picture. Section 4 already re-checks the numeric
+ * claims; these are the PROSE claims, and they had gone stale first.
+ *
+ * Each is pinned to the code it describes, so the note cannot outlive its
+ * subject again without this going red. */
+{
+  const seat = SPEC.PANELS.find(p => p.fn === 'renderSeatPlan');
+  ck('CONTROL — the seat entry exists', !!seat);
+  /* ⚠ FOURTH TIME I HAVE WRITTEN "THE OLD TEXT IS ABSENT" AGAINST A FILE THAT
+   * DELIBERATELY KEEPS THE OLD TEXT AS A RETRACTION (after board_publish_gate,
+   * dollar_terms_independence, and surface_contract). The regex matched my own
+   * QUOTATION of the retracted claim. It is not a slip any more, it is a habit:
+   * when the house style is to preserve what was wrong and say so, an
+   * absence-assertion is the wrong instrument almost every time.
+   *
+   * THE RIGHT TEST IS THAT THE LIVE CLAIM IS CURRENT AND ANY STALE WORDING IS
+   * MARKED AS HISTORY — which is checkable without forbidding the history. */
+  ck('the seat note asserts the CURRENT state — all twelve render',
+    /all twelve seats render/.test(seat.note || ''), seat.note);
+  ck('and where it still says "unbuilt" it is quoting itself in the past tense, '
+    + 'not making the claim', !/unbuilt/.test(seat.note || '')
+    || /This note said/.test(seat.note || ''), seat.note);
+  ck('and the app really does render every seat, which is what makes that true',
+    /class="sp-all"/.test(SRC) && /\(d\.seats \|\| \[\]\)\.slice\(\)\.sort/.test(SRC));
+  ck('the note warns B not to invert slot-over-name, which is the one way this '
+    + 'panel can be made to lie', /LEADS WITH THE SLOT, NOT THE NAME/.test(seat.note || ''));
+
+  const cmp = SPEC.PANELS.find(p => p.fn === 'renderCompareTray');
+  ck('CONTROL — the compare-tray entry exists', !!cmp);
+  ck('FAIL ARM — the "needs a way in" claim is gone from the live sentence',
+    !/it just needs a way in/.test(cmp.note || ''), cmp.note);
+  ck('and the way in is REALLY there — a rec card emits the compare affordance',
+    /data-compare="' \+ p\.player_id \+ '" title="Compare/.test(SRC));
+  ck('and it is wired, not merely emitted — a button nothing listens to is the '
+    + 'same defect wearing the opposite face',
+  /closest\('\[data-compare\]'\)/.test(SRC));
+  ck('the correction is recorded rather than quietly rewritten, since a spec '
+    + 'that has been wrong once is the thing to check twice',
+  /Corrected 2026-08-14/.test(cmp.note || ''));
+  ck('and it names what IS still outstanding, so the correction does not read '
+    + 'as "nothing to do here"', /discoverability/i.test(cmp.note || ''));
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: every panel that paints on the war room has a written');

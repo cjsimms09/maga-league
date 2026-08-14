@@ -75,9 +75,14 @@ const PANELS = [
       + '(fill TE, fill FLEX). The engine then picks the player for that role.',
     changes_it: 'the pick on the clock; a seat being filled early',
     reads: ['seat_plan.json seats[]'],
-    note: 'CORY ASKED FOR EXACTLY THIS AND DOES NOT KNOW HE HAS IT: "a look ahead '
-      + 'to what complete strategy may be for rest of draft". Twelve seats exist; '
-      + 'ONE is rendered. The other eleven are the look-ahead, unbuilt.' },
+    note: 'THE LOOK-AHEAD CORY ASKED FOR — "a look ahead to what complete strategy '
+      + 'may be for rest of draft" — and as of 2026-08-14 all twelve seats render, '
+      + 'not one. This note said "ONE is rendered ... the other eleven are the '
+      + 'look-ahead, unbuilt" for days while the artifact already held every seat. '
+      + 'IT LEADS WITH THE SLOT, NOT THE NAME, and B must not invert that: the '
+      + 'artifact\'s own assumption is that the SEAT ORDER survived ADP drift from '
+      + '-25% to +15% and the NAMES did not, so twelve names billed as a plan would '
+      + 'be a confident list of the least robust thing in the file.' },
 
   { fn: 'renderPositionRecs', weight: 'DECIDES', lines: 35,
     question: 'Who is the best man left at each position?',
@@ -424,8 +429,17 @@ const PANELS = [
     means: 'A side-by-side of two chosen players with the dollar-gap breakdown.',
     changes_it: 'me picking two to compare; the board changing',
     reads: ['state.compare', 'E.dollarGap'],
-    note: 'THE INTERACTIVE TOOL CORY ASKED FOR ("I can click for more info") and '
-      + 'it already exists — it just needs a way in from the rec cards.' },
+    note: 'THE INTERACTIVE TOOL CORY ASKED FOR ("I can click for more info"). '
+      + 'THIS NOTE SAID IT "just needs a way in from the rec cards" AND THE WAY IN '
+      + 'ALREADY EXISTED — every rec card carries a ⚖️ `data-compare` button '
+      + '(app.js:4519) and the document-level handler has been wired the whole '
+      + 'time (app.js:8446). A spec that reports work as outstanding when it is '
+      + 'done costs the same as one that reports it done when it is not: B builds '
+      + 'from this file. Corrected 2026-08-14 and pinned in panel_spec.test.js. '
+      + 'WHAT IS ACTUALLY LEFT IS DISCOVERABILITY, which is B\'s: the affordance '
+      + 'is a bare emoji among four buttons and nothing says what comparing gets '
+      + 'you. Note also that the tray\'s breakdown was showing one signal as two '
+      + 'until today — see §3/§6 of WAR-ROOM-SURFACE-CONTRACT.md.' },
   { fn: 'renderDeviationBadge', weight: 'CONTEXT', lines: null,
     question: 'Why is this pick so far from where the market has him?',
     means: 'When a recommendation departs from ADP, which scoring terms bought '
