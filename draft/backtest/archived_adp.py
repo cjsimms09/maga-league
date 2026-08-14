@@ -755,7 +755,24 @@ def _csv_names(text, limit=15) -> list:
         sniffed = _csv.Sniffer().sniff(head[:4096], delimiters=",\t;")
         delim = sniffed.delimiter
     except Exception:                                            # noqa: BLE001
-        delim = ","
+        # ⚠ THE FALLBACK WAS A FLAT `","`, WHICH CONTRADICTS THIS FUNCTION'S OWN
+        # DOCSTRING — "returns nothing rather than guessing at column 0". Comma IS
+        # a guess, and on the file that most needs it it is the wrong one.
+        #
+        # REACHABLE, measured rather than assumed: `Sniffer` raises on a ragged
+        # head (a comment line, a blank row, an unbalanced quote inside the first
+        # 4096 chars). On a tab-separated head it then parses ONE column where tab
+        # yields three, so no name column is found.
+        #
+        # NOT CURRENTLY HARMFUL, and saying so matters: the column lookup below
+        # finds no `_NAME_COLS` match in the single mangled header cell and returns
+        # [], which is the same answer the honest path gives. The wrong fallback
+        # produces the right outcome BY ACCIDENT, which is exactly the condition
+        # under which it survives to a day when it does not.
+        #
+        # The guard above already proved at least one of these three is present,
+        # so counting them is a fact about the text rather than a guess about it.
+        delim = max(",\t;", key=lambda d: head.count(d))
     try:
         rows = list(_csv.reader(_io.StringIO(head), delimiter=delim))
     except Exception:                                            # noqa: BLE001

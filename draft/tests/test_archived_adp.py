@@ -1101,3 +1101,36 @@ def test_the_report_passes_its_INCONCLUSIVE_count_through_to_the_verdict():
     rep = X.route1_report(rows)
     assert "NOT CLOSED" in rep["verdict"], rep["verdict"]
     assert "1 of 2" in rep["verdict"]
+
+
+def test_the_delimiter_FALLBACK_does_not_guess_comma_on_a_tab_file():
+    """`_csv_names` promises in its own docstring to return "nothing rather than
+    guessing at column 0". The sniffer fallback was a flat `","`, which is a
+    guess — and on a tab-separated head it is the wrong one.
+
+    REACHABLE, and that is the part worth pinning: `csv.Sniffer` raises on a
+    ragged head (a stray short line inside the first 4096 chars), and the old
+    fallback then read a 3-column TSV as ONE column, so no name column existed
+    and the sample came back empty. The guard above the sniff has already proved
+    one of `,` `\\t` `;` is present, so counting them is a fact about the text.
+
+    MUTATION: `delim = ","` — a tab-separated archive silently yields no
+    hand-check sample, and an empty sample reads as "this board has no names"
+    rather than as "we could not read it"."""
+    import csv as _csv
+    ragged_tsv = "name\tteam\tadp\n1\nJa'Marr Chase\tCIN\t4\nBijan Robinson\tATL\t6\n"
+    # the premise: the sniffer really does fail here, so the fallback really runs
+    try:
+        _csv.Sniffer().sniff(ragged_tsv[:4096], delimiters=",\t;")
+        raise AssertionError("premise broken: the sniffer resolved this head, so "
+                             "the fallback under test never executes")
+    except _csv.Error:
+        pass
+    got = X._csv_names(ragged_tsv)
+    assert "Ja'Marr Chase" in got and "Bijan Robinson" in got, got
+
+    # AND THE COMMA CASE STILL WORKS — the fix must not trade one delimiter for
+    # another. Ragged rows contribute a junk cell on BOTH paths; that behaviour
+    # is pre-existing and identical, which is the point of checking both here.
+    ragged_csv = "name,team,adp\n1\nJa'Marr Chase,CIN,4\nBijan Robinson,ATL,6\n"
+    assert X._csv_names(ragged_csv) == X._csv_names(ragged_tsv)
