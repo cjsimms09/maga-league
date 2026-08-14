@@ -88,7 +88,18 @@ ALREADY_SEEN = (
 # the week before kickoff) and from Signal C's >= 2 observations requirement at
 # the declared daily cadence — NOT from the event count the API happened to
 # return, and NOT from the call budget, which does not bind at this width.
-HORIZON_DAYS = 7
+# DECIDED 2026-08-14 (A), on C's census. This was 7 while `market-capture.yml`
+# passed `--horizon-days 14`, so the registered value and the shipped value
+# disagreed and one of them was documentation of a run that never happened.
+#
+# FOURTEEN, and the reason is dated rather than aesthetic. C measured the
+# catalogue: `usa-nfl` lists 136 events, the nearest 27 days out, so TODAY both
+# settings capture exactly zero regular-season games and the width is free. It
+# starts mattering on 2026-08-27, when 14 days first pulls a Week-1 game into
+# the window; 7 days would not reach one until 09-03. That difference is ONE
+# EXTRA WEEK OF LINE MOVEMENT on the games we most want to model, bought at a
+# measured cost of zero extra events today.
+HORIZON_DAYS = 14
 
 # An UNDATED event is KEPT, not dropped. Absent is not "far away", and an event
 # we cannot date is exactly the one we must not silently skip.

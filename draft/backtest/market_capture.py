@@ -418,16 +418,29 @@ def write_health(snapshot: dict) -> dict:
 def main():                                                      # pragma: no cover
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--league", default=PRESEASON)
+    # EMPTY MEANS EVERY REGISTERED LEAGUE, not "the preseason one". The default
+    # was PRESEASON and the workflow never overrode it, so the scheduled capture
+    # asked for preseason every day and would have gone on doing so, green, after
+    # the preseason slate emptied on ~08-29 — with the regular season, the only
+    # part that carries fantasy signal, never requested at all.
+    ap.add_argument("--league", default="")
     ap.add_argument("--max-events", type=int, default=0)
-    ap.add_argument("--horizon-days", type=int, default=14)
+    ap.add_argument("--horizon-days", type=int, default=F.HORIZON_DAYS)
     a = ap.parse_args()
+    leagues = [a.league] if a.league else list(F.LEAGUES)
     key = os.environ.get("ODDS_API_KEY", "").strip()
     if not key:
         print("::error::ODDS_API_KEY not visible to this job — cannot capture")
         return 1
+    rc = 0
+    for lg in leagues:
+        rc = _capture_one(lg, a, key) or rc
+    return rc
+
+
+def _capture_one(league, a, key):                                # pragma: no cover
     try:
-        snap = capture(a.league, key, max_events=a.max_events or None,
+        snap = capture(league, key, max_events=a.max_events or None,
                        horizon_days=a.horizon_days)
     except BudgetExhausted as e:
         # A REFUSAL IS AN OUTCOME, NOT AN ABSENCE. Without this the health gate
@@ -439,19 +452,42 @@ def main():                                                      # pragma: no co
         # public repo Actions logs are world-readable. The health file is never
         # masked by anyone: we write it and the workflow commits it.
         print(f"::warning::{R.redact(e)}")
-        write_health({"finished_at": now_iso(), "league": a.league,
+        write_health({"finished_at": now_iso(), "league": league,
                       "events_captured": 0, "coverage": 0.0,
                       "refused": R.redact(e)})
         return 0
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = OUT_DIR / f"{a.league}_{snap['started_at'].replace(':', '')}.json"
+    path = OUT_DIR / f"{league}_{snap['started_at'].replace(':', '')}.json"
     path.write_text(json.dumps(snap, indent=2, sort_keys=True) + "\n")
     h = write_health(snap)
-    print(f"captured {snap['events_captured']}/{snap['events_listed']} events "
+    print(f"[{league}] captured {snap['events_captured']}/{snap['events_listed']} events "
           f"({snap['coverage']:.0%}) -> {path.name}")
     print(f"budget: {json.dumps(snap['budget'])}")
     print(f"touchdown finding: {json.dumps(snap.get('touchdown_finding'))}")
     print(f"health: {json.dumps(h)}")
+
+    # ── AN EMPTY CAPTURE IS NOT A SUCCESS ───────────────────────────────────
+    #
+    # THE FAILURE THIS EXISTS TO STOP, and it was live: the cron asked only for
+    # `usa-nfl-preseason`. When that slate empties around 08-29 the job would
+    # have kept running daily, exiting 0, writing a snapshot of nothing, while
+    # the regular season went uncaptured. Every dashboard green. The specific
+    # league bug is fixed above — this is the guard that makes the CLASS visible,
+    # because the next way to capture nothing will not be the same way.
+    #
+    # A WARNING, NOT A FAILURE, AND DELIBERATELY. Zero events is legitimate
+    # today: the nearest regular-season kickoff is 27 days out and the horizon
+    # correctly holds the slate at zero until 08-27. Failing the job now would
+    # train everyone to ignore a red market-capture for two weeks, which is how
+    # a real red becomes invisible. It says the words in the log and records the
+    # state in the health file, where the existing `consecutive_incomplete`
+    # machinery can see it.
+    if not snap.get("events_listed"):
+        print(f"::warning::[{league}] listed ZERO events. Legitimate while the "
+              f"slate is empty (preseason over, or the horizon of "
+              f"{a.horizon_days}d not yet reaching the next game). NOT legitimate "
+              f"once games are inside the window — a capture that succeeds at "
+              f"capturing nothing is how a season goes unrecorded.")
     return 0
 
 

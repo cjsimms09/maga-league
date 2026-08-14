@@ -165,7 +165,34 @@ def test_the_horizon_is_not_a_literal_in_the_capture():
     src = inspect.getsource(C.capture)
     assert "horizon_days: int = 14" not in src, "the un-registered literal is back"
     assert "F.HORIZON_DAYS" in src, "the horizon must come from the registered filters"
-    assert F.HORIZON_DAYS == 7
+
+    # ── THIS ASSERTION USED TO BE `== 7`, AND THAT WAS THE SAME DEFECT ──────
+    #
+    # A test named "the horizon is not a literal" that pins the literal in the
+    # TEST goes stale exactly the way the constant did. And it did: the registered
+    # value said 7 while `market-capture.yml` passed `--horizon-days 14` for weeks,
+    # so the registration documented a run that never happened — and this test was
+    # green throughout, because it checked the constant against itself.
+    #
+    # What has to be true is AGREEMENT between the three places the number lives:
+    # the registered filter, the CLI default, and the workflow that actually runs.
+    import argparse
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent.parent
+    wf = (root / ".github" / "workflows" / "market-capture.yml").read_text()
+    m = re.search(r"horizon_days\s*\|\|\s*'(\d+)'", wf)
+    assert m, "could not find the horizon the workflow actually passes"
+    assert int(m.group(1)) == F.HORIZON_DAYS, (
+        f"the workflow passes --horizon-days {m.group(1)} while the registered "
+        f"filter says {F.HORIZON_DAYS}. One of them is documentation of a run "
+        f"that does not happen.")
+
+    # And the CLI default must come from the registration too, not a third copy.
+    cli = inspect.getsource(C.main)
+    assert "default=F.HORIZON_DAYS" in cli, (
+        "the CLI default must derive from the registered filter")
+    del argparse
 
 
 def test_the_registration_declares_what_had_already_been_seen():
@@ -192,4 +219,76 @@ def test_the_horizon_records_what_it_dropped():
     assert r["events_after_horizon"] == 1
     assert r["dropped_beyond_horizon"] == 2
     assert r["filter_version"].startswith("v1")
-    assert r["horizon_days"] == 7
+    # The report must carry the REGISTERED horizon, not a number typed here —
+    # this pinned 7 and went stale the moment the registration changed to 14.
+    assert r["horizon_days"] == F.HORIZON_DAYS
+
+
+# ── THE SCHEDULED CAPTURE MUST ASK FOR THE REGULAR SEASON ────────────────────
+#
+# THE DEFECT, found by C's census 2026-08-14 and fixed the same day: the cron ran
+# `--league "${{ inputs.league || 'usa-nfl-preseason' }}"`, so the scheduled
+# capture had NEVER once asked for a regular-season game. `market_filters.LEAGUES`
+# registered both; the workflow passed one.
+#
+# The cost was not "we captured less". Preseason ends ~08-29, after which the job
+# would have kept running daily, exiting 0, writing a snapshot of an empty slate,
+# with every dashboard green, while the entire regular season went unrecorded —
+# and those weeks are unrecoverable. A job that succeeds at doing nothing.
+
+def _workflow_text():
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent.parent
+    return (root / ".github" / "workflows" / "market-capture.yml").read_text()
+
+
+def test_the_scheduled_capture_does_not_hardcode_preseason():
+    """Checked on the SUBSTITUTIONS, not on the whole file — the word still
+    appears legitimately in the header prose and in the dispatch description."""
+    wf = _workflow_text()
+    import re
+    subs = re.findall(r"\$\{\{[^}]*inputs\.league[^}]*\}\}", wf)
+    assert subs, "no league substitution found — has the step been renamed?"
+    bad = [x for x in subs if "usa-nfl-preseason" in x]
+    assert not bad, (
+        f"a league substitution still falls back to preseason: {bad}. After "
+        "~08-29 that captures an empty slate every day, green, and the regular "
+        "season is never requested.")
+
+
+def test_an_empty_league_argument_means_every_registered_league():
+    import inspect
+    import market_filters as F
+    src = inspect.getsource(C.main)
+    assert 'default=""' in src, "an empty default is what lets the cron mean 'all'"
+    assert "F.LEAGUES" in src, "the league set must come from the registration"
+    # Non-vacuity: the registration must actually contain the regular season, or
+    # 'every registered league' is still just preseason under a longer name.
+    assert C.REGULAR in F.LEAGUES and C.PRESEASON in F.LEAGUES, F.LEAGUES
+
+
+def test_the_workflow_passes_an_empty_league_so_the_default_applies():
+    wf = _workflow_text()
+    assert "--league \"${{ github.event.inputs.league || '' }}\"" in wf, (
+        "the workflow must pass an empty league on the scheduled path so the "
+        "capture covers every registered league")
+
+
+def test_a_capture_that_lists_nothing_says_so(capsys):
+    """The guard that makes the CLASS visible, since the next way to capture
+    nothing will not be this way.
+
+    A WARNING rather than a failure, deliberately: zero events is legitimate right
+    now — the nearest regular-season kickoff is 27 days out and the horizon
+    correctly holds the slate at zero until 08-27. Failing the job today would
+    train everyone to ignore a red market-capture for two weeks, which is exactly
+    how a real red becomes invisible.
+    """
+    import inspect
+    src = inspect.getsource(C._capture_one)
+    assert 'if not snap.get("events_listed")' in src, (
+        "an empty capture must be remarked on, not returned as a plain success")
+    assert "::warning::" in src, "it must reach the Actions log, not just stdout"
+    assert "::error::" not in src.split('if not snap.get("events_listed")')[1], (
+        "an empty slate is legitimate while the horizon is genuinely empty — "
+        "failing here would teach everyone to ignore this job for two weeks")
