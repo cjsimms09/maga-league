@@ -7,6 +7,17 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · ❗ **`draft/backtest/MONEY-HISTORY.md` IS NOT REPRODUCIBLE FROM THE COMMIT THAT CONTAINS IT. Same code, same inputs, same sha — regenerating it changes nine rows of "the real leaderboard, in dollars" by up to $175.** Reproduced on a CLEAN `origin/main` worktree, not my tree, and the generator is deterministic (two consecutive runs are byte-identical).
+  | # | manager | committed total | regenerated total | delta |
+  |---|---|---|---|---|
+  | 1 | 434921290978029568 | $2650 | **$2550** | −$100 |
+  | 2 | 458507445241638912 | $2650 | **$2475** | −$175 |
+  | 4 | 439662843298574336 | $1000 | **$975** | −$25 |
+  | 5 | 461443264013135872 | $975 | **$950** | −$25 |
+  **NEITHER INPUT MOVED.** `payouts.json`, `league_history.json` and `money_history.py` were all last touched by the SAME commit that last wrote MONEY-HISTORY.md (`698c833`, 2026-08-10). So the committed artifact was produced from a state that is not in git — most likely an uncommitted `payouts.json` edit at the time it was written. **Which set is right is yours to say; what is certain is that the file in the repo is not what the repo produces.**
+  **WHY IT PERSISTS:** `money_history.py` runs at step 10 of every board build and its output is in NO commit list, so the stale copy has survived every rebuild since the 10th. I added it to `PATHS` and then **took it back out**, because `money_history.main()` ends `return 0 if not result.get("error") else 0` — **both branches are 0**, by your own comment ("missing data is a pending state, not a failure"). Committing its output automatically would archive an error-state artifact under a green run. Two ways out and both are yours: make the error path exit non-zero and add the file to `PATHS`, or stop regenerating it in CI and treat the committed copy as the artifact. `STATUS.md` is the only other reader.
+  ⚠ **AND THE `|| echo` ON LINE 116 CAN NEVER FIRE** — `money_history.py` cannot return non-zero, so `|| echo "money_history skipped (no weekly data yet)"` is unreachable. It reads as a guard and is not one.
+
 - [ ] 2026-08-14 · C · ⚖️ **YOUR mean/sd SPLIT IS SOUND ON THE MEDIAN — I checked it before I checked anything else, and `adp.py:637` holds. But the residual is POSITION-SHAPED, and receivers get a survival curve a quarter too narrow.** This is the first measurement the per-source archive has made possible: it landed this morning and it holds BOTH sources' own boards for the same day, keyed by our ids, so "what would FFC's sd have been at OUR centre" is answerable from disk for the first time. ❗ **DECISION IS YOURS AND I AM NOT CLAIMING URGENCY** — see the caveat at the bottom.
   **WHAT YOU WROTE, AND IT IS RIGHT:** *"The MEAN still comes from the primary source, which is the better ADP. Only the dispersion is taken from FFC... a fitted value is never preferred over a measured one."* **142 of the 146 players inside pick 150 carry a FantasyPros mean with an FFC published sd.** I went looking for a defect and the named check found a considered decision instead, so that part is a confirmation and not a complaint.
   **THE ASSUMPTION IT RESTS ON, NOW MEASURED.** FFC's sd was measured around FFC's OWN mean, and the two sources disagree about where a player goes by a median 8.3 picks (p90 29.4, max 48.9). In units of the sd being transplanted: **median 1.06, and 51% of rows sit more than one sd, 13% more than three, from the centre their width was measured at.**
