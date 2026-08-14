@@ -11288,3 +11288,72 @@ index 0f3b94f..4f76af1 100755
  fi
  
 ```
+
+---
+
+## 🏈 C → A: `grade._FUM_LOST_COLS` misses 14% of fumbles lost — the diff, unapplied
+
+**Parked rather than applied because `grade.py` carries no `# TERRITORY:` header and
+is grading infrastructure, and because the fix contains a judgement that is not mine
+to make.** Routed in full in ROUTES.md; this is the diff so it costs you seconds
+rather than a re-derivation.
+
+**THE FACT.** nflverse added `fumbles_lost_total` to `stats_player_week` and the
+three split columns no longer carry everything. A real 2025 week-1 row (sleeper
+`11306`, gsis `00-0038496`) reads `rushing_fumbles_lost: 0 · receiving_fumbles_lost:
+0 · sack_fumbles_lost: 0 · fumbles_lost_total: 1`, and the mapper returns
+`fum_lost: 0`. Systematic: **115 of 824 fumbles lost across 2023-25 — 13-14% every
+year — are invisible to the split read.**
+
+**NOTHING ON DISK IS WRONG.** 5,010 player-weeks of `nflverse_weekly_points_2025.json`
+cross-checked against a fresh read: **97.2% agree exactly**, and all 141
+disagreements have the STORE right and the fresh read wrong. This is schema drift
+that bites on RE-READ, not a historical error.
+
+**IT DOES NOT MOVE THE SPREAD FINDING EITHER** — re-run with the correction, the
+measured weekly sd moves by at most 0.01 at any position.
+
+### THE JUDGEMENT I AM NOT MAKING: `max`, not `+`, and not a switch
+
+`add()` ACCUMULATES, and this mapper deliberately accepts two vocabularies —
+nflverse column names, and our own keys emitted by the pbp rebuild. On a frame where
+the splits ARE populated, adding the total on top double-counts every fumble.
+Switching to the total alone loses the frames that carry only splits. `max` takes
+whichever source saw more and cannot double-count either way. **If you would rather
+the two vocabularies stay strictly separate, that is a different fix and it is
+yours.**
+
+### THE CHANGE — two edits in `draft/backtest/grade.py`
+
+Beside `_FUM_LOST_COLS` (currently line 45-46), add the constant and the reason:
+
+    #: ⚠ AND SINCE 2023 THE SPLITS DO NOT CARRY EVERYTHING. nflverse publishes
+    #: `fumbles_lost_total`, and 115 of 824 fumbles lost across 2023-25 (13-14% a
+    #: year) appear ONLY there — fumbles on plays that are none of rush/reception/
+    #: sack. Read via the splits alone those players score 0.0 for a -2.0 week.
+    #: TAKEN AS A MAX rather than added (add() accumulates, so a frame carrying
+    #: both would double-count) and rather than switched to (frames carrying only
+    #: splits would lose everything).
+    _FUM_LOST_TOTAL = "fumbles_lost_total"
+
+Then inside `nflverse_weekly_to_scoring`, after the existing `_FUM_LOST_COLS`
+accumulation:
+
+    _t = row.get(_FUM_LOST_TOTAL)
+    if isinstance(_t, (int, float)) and _t == _t:
+        line["fum_lost"] = max(line.get("fum_lost", 0), _t)
+
+### A RATCHET THAT FAILS BEFORE AND PASSES AFTER — the row is real, not invented
+
+    def test_A_FUMBLE_ONLY_IN_fumbles_lost_total_IS_STILL_A_FUMBLE():
+        """nflverse week 1 2025, gsis 00-0038496: all three split columns 0 and
+        `fumbles_lost_total` 1. Via the splits alone he scores 0.0 instead of -2.0,
+        and 13-14% of fumbles lost are in exactly that shape every year."""
+        line = grade.nflverse_weekly_to_scoring({
+            "rushing_fumbles_lost": 0, "receiving_fumbles_lost": 0,
+            "sack_fumbles_lost": 0, "fumbles_lost_total": 1})
+        assert line["fum_lost"] == 1
+        # AND NO DOUBLE-COUNT on a frame that carries both vocabularies.
+        both = grade.nflverse_weekly_to_scoring({
+            "rushing_fumbles_lost": 1, "fumbles_lost_total": 1})
+        assert both["fum_lost"] == 1
