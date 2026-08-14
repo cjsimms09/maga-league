@@ -138,6 +138,48 @@ def result(name: str, rows: dict = None, sd: dict = None, params: dict = None,
             "params": dict(params or {}), "note": note, "error": error}
 
 
+def exit_code(verdicts: list) -> tuple:
+    """(rc, note) for a run, from every source's verdict. -> 0 only if all recorded.
+
+    EXTRACTED SO IT CAN BE TESTED, and the first version of its test could not:
+    the decision lived inside `main`, which is egress under `pragma: no cover`, so
+    the only assertion available was reading `main`'s source text for a substring.
+    A test that greps the implementation passes on any code that contains the
+    string and fails on any refactor that does not. Same lesson as
+    `collapse_verdict` one module over, the same afternoon.
+
+    THE RULE IS `all`, NOT `any`. This returned 0 whenever ANY source recorded, so
+    one provider could 404 for a fortnight while the job stayed green and the
+    archive quietly became a comparison of one thing.
+    """
+    absent = [v for v in (verdicts or []) if v.get("verdict") != "recorded"]
+    if not verdicts:
+        return 1, "no source produced a verdict at all — the run did not happen"
+    if absent:
+        return 1, ("%d source(s) did not record — %s"
+                   % (len(absent), ", ".join("%s=%s" % (v.get("source"),
+                                                        v.get("verdict"))
+                                             for v in absent)))
+    return 0, None
+
+
+def _previous_rows(series, source, year, observed_at):
+    """How deep this source's LATEST EARLIER day was, or 0 if it has none.
+
+    STRICTLY EARLIER, so a same-day re-run compares against the day before rather
+    than against the copy of itself a bad run already wrote — which would always
+    be a 100% keep and would certify the truncation on its second attempt.
+    """
+    prior = [s for s in (series or [])
+             if str(s.get("source")) == str(source)
+             and str(s.get("year")) == str(year)
+             and str(s.get("observed_at")) < str(observed_at)]
+    if not prior:
+        return 0
+    latest = sorted(prior, key=lambda s: str(s.get("observed_at")))[-1]
+    return len(latest.get("rows") or {})
+
+
 def apply_results(series: list, year, observed_at: str, results: list) -> tuple:
     """Write only the sources that actually produced a board. -> (series, verdicts).
 
@@ -165,6 +207,24 @@ def apply_results(series: list, year, observed_at: str, results: list) -> tuple:
                              "note": "the fetch returned no priced players — NOT "
                                      "written, because a dated empty board counts "
                                      "as a covered day for ever afterwards"})
+            continue
+        # ⚠ THE FOURTH OUTCOME, AND IT IS THE `empty` ARGUMENT APPLIED HONESTLY.
+        # `empty` is refused because "a dated empty board counts as a covered day
+        # for ever afterwards". A dated board carrying 12 of 223 players counts
+        # exactly the same, and unlike an empty one it looks like a board.
+        # Measured by breaking this function directly: `ffc TRUNCATED 12/223` came
+        # back `recorded(12)` and landed in the archive beside a full FantasyPros.
+        was = _previous_rows(series, name, year, observed_at)
+        if was and len(live) < was * S.COLLAPSE_KEEP_FRACTION:
+            verdicts.append({"source": name, "verdict": "truncated",
+                             "rows": len(live),
+                             "note": "kept %d of yesterday's %d rows (%.0f%%), "
+                                     "under the %.0f%% floor — NOT written. A "
+                                     "partial board is indistinguishable from a "
+                                     "market that priced this many players, and "
+                                     "these sources can be re-fetched today"
+                                     % (len(live), was, 100.0 * len(live) / was,
+                                        100.0 * S.COLLAPSE_KEEP_FRACTION)})
             continue
         series = S.append_day(series, name, year, observed_at, live,
                               sd=r.get("sd"), params=r.get("params"),
@@ -423,7 +483,13 @@ def main(argv=None):  # pragma: no cover  (egress, CI only)
                           "so this is one number about seven hundred players")
         else:
             print("  disagreement UNMEASURED — %s" % d["note"])
-        return 0
+        # ⚠ THE PRICES ARE SAVED ABOVE FIRST, THEN THE RUN GOES RED. The
+        # perishable half lands whatever the verdict; only the exit code carries
+        # the complaint.
+        rc, why = exit_code(verdicts)
+        if why:
+            print("EXIT NON-ZERO: %s" % why)
+        return rc
     return 1
 
 

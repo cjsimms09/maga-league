@@ -725,6 +725,78 @@ jobs:
       # early, single-QB redraft rooms fill in late — so a composition measured
       # once and filed is a fact about the day it was taken. The one number that
       # matters on the 22nd is whether it is still this contaminated.
+      # ── AND THE PER-SOURCE ARCHIVE GETS THE SAME TREATMENT AS THE MFL ONE ──
+      #
+      # `source_audit` was written this morning with NO CONSUMER — rule 14 on my
+      # own newest work, in the same session I raised it about somebody else's. It
+      # judges the file `external_source_run` writes one step above: FATAL for the
+      # internally impossible (a declared count disagreeing with its own rows, an
+      # sd for a player with no price, a pick number <= 0, two entries for one
+      # source-day, a declared field that stopped being written) and OBSERVED for
+      # a source that vanished, a board that lost a quarter overnight, or the
+      # format parameters drifting between two days.
+      - name: Is the per-source archive trustworthy
+        id: srcaudit
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'SAUD' >> "$GITHUB_STEP_SUMMARY"
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          print("## Is the per-source archive trustworthy")
+          bad = 0
+          try:
+              import external_source_capture as S
+              year = "${{ github.event.inputs.year || '2026' }}"
+              ser = S.load()
+              days = sorted({str(s.get("observed_at")) for s in ser
+                             if str(s.get("year")) == year and s.get("observed_at")})
+              if not days:
+                  # NO DAY IS A CAPTURE FAILURE, NOT A CLEAN AUDIT — the same
+                  # absent-is-not-corrupt lesson the MFL audit needed today.
+                  print("**NO DAY FOR %s** — the per-source archive holds nothing "
+                        "for this year, which is the capture failing." % year)
+                  bad = 1
+              else:
+                  r = S.source_audit(ser, year, days[-1])
+                  print("`%s` — sources %s. %s"
+                        % (r["observed_at"], ", ".join("`%s`" % x for x in r["sources"]),
+                           r["note"]))
+                  cd = r.get("cross_day") or {}
+                  print("")
+                  print("- cross-day: **%s** — %s" % (cd.get("status"), cd.get("note") or
+                        ("compared against %s" % cd.get("against"))))
+                  if r["fatal"]:
+                      bad = 1
+                      print("")
+                      print("| FATAL | source | detail |")
+                      print("|---|---|---|")
+                      for f in r["fatal"]:
+                          print("| `%s` | %s | %s |"
+                                % (f["check"], f.get("source"),
+                                   str(f.get("note") or f)[:180]))
+                  if r["observed"]:
+                      print("")
+                      print("| observed | source | detail |")
+                      print("|---|---|---|")
+                      for o in r["observed"]:
+                          print("| `%s` | %s | %s |"
+                                % (o["check"], o.get("source"),
+                                   str(o.get("note") or o)[:180]))
+                  if not r["fatal"] and not r["observed"]:
+                      print("")
+                      print("**Nothing fatal and nothing observed.**")
+          except Exception as e:                      # noqa: BLE001
+              bad = 1
+              print("**THE PER-SOURCE AUDIT DID NOT RUN** (%s: %s) — a fact about "
+                    "this job, not a clean archive." % (type(e).__name__, e))
+              raise SystemExit(1)
+          finally:
+              with open(os.environ["GITHUB_OUTPUT"], "a") as g:
+                  g.write("untrustworthy=%d\n" % bad)
+          SAUD
+
       - name: Whose game is the market playing — format composition
         id: fmt
         if: always() && steps.cap.outcome == 'success'
@@ -1277,7 +1349,7 @@ jobs:
           exit 1
 
       - name: Escalate if today's data failed an invariant
-        if: always() && steps.audit.outputs.untrustworthy == '1'
+        if: always() && (steps.audit.outputs.untrustworthy == '1' || steps.srcaudit.outputs.untrustworthy == '1')
         run: |
           echo "::error::TODAY'S SNAPSHOT FAILED AN INVARIANT THAT CANNOT BE WRONG."
           echo "::error::See the step summary for which. These are arithmetic"
@@ -1355,7 +1427,8 @@ jobs:
             "format composition:${{ steps.fmt.outcome }}" \
             "daily invariants:${{ steps.audit.outcome }}" \
             "marginal day:${{ steps.marginal.outcome }}" \
-            "source consensus:${{ steps.cons.outcome }}" ; do
+            "source consensus:${{ steps.cons.outcome }}" \
+            "per-source audit:${{ steps.srcaudit.outcome }}" ; do
             name="${s%%:*}"; res="${s##*:}"
             [ "$res" = "failure" ] && failed="$failed $name"
           done

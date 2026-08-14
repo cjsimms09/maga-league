@@ -224,6 +224,24 @@ def coverage(series: list, year) -> dict:
 #: vanishing between two mornings is the fetch, not the market.
 ROW_COUNT_COLLAPSE = 0.25
 
+#: And the share a source must KEEP to be written at all. Below this the day is
+#: refused, not merely noted.
+#:
+#: ⚠ TWO THRESHOLDS, TWO JOBS, AND THEY ARE ORDERED ON PURPOSE. The one above
+#: REPORTS at a 25% loss; this one REFUSES at a 50% loss, so everything refused is
+#: also reported and the reporting bar can never rise above the refusing one. A
+#: test pins that ordering, because the failure mode of two related constants is
+#: that one drifts past the other and the quieter check silently becomes the
+#: louder one's gate.
+#:
+#: DELIBERATELY THE SAME 0.5 AS THE MFL ARCHIVE'S `COLLAPSE_KEEP_FRACTION`, and
+#: for a reason worth stating rather than assuming: that floor was calibrated
+#: against a REAL feed's observed day-over-day drift (worst 36 of 708, 5.1%).
+#: THIS archive is one day old and has NO drift observation of its own, so
+#: inventing a tighter number here would be a threshold fitted to nothing. When
+#: these sources have a fortnight of days, re-derive it from them.
+COLLAPSE_KEEP_FRACTION = 0.5
+
 #: The parameters that define WHAT WAS PRICED. If any of these changes between
 #: two days, the two days are not the same measurement and every cross-day
 #: comparison silently spans a format change — which is precisely the defect this

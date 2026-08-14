@@ -267,3 +267,141 @@ def test_THE_LIVE_ARCHIVE_PASSES_ITS_OWN_AUDIT():
     out = S.source_audit(ser, "2026", days[-1])
     assert out["status"] == "measured"
     assert out["fatal"] == [], out["fatal"]
+
+
+# ── THE FOURTH OUTCOME: A BOARD THAT ARRIVED, MOSTLY ────────────────────────
+#
+# `apply_results` named three outcomes — recorded, empty, failed — and refused the
+# empty one on the grounds that "a dated empty board counts as a covered day for
+# ever afterwards". Measured by breaking the function directly, a source returning
+# 12 of 223 players came back `recorded(12)` and landed in the archive beside a
+# full FantasyPros. A partial board counts as a covered day exactly as an empty
+# one does, and unlike an empty one it looks like a board.
+
+import external_source_run as R  # noqa: E402
+
+
+def _res(name, rows=None, error=None):
+    return {"source": name, "rows": rows, "sd": {}, "params": {"year": 2026},
+            "note": None, "error": error}
+
+
+def _yesterday(n_fp=342, n_ffc=223):
+    s = S.append_day([], "fantasypros", "2026", "2026-08-13",
+                     {str(i): float(i + 1) for i in range(n_fp)}, params={"year": 2026})
+    return S.append_day(s, "ffc", "2026", "2026-08-13",
+                        {str(i): float(i + 1) for i in range(n_ffc)}, params={"year": 2026})
+
+
+def test_A_SOURCE_THAT_RETURNS_A_FRACTION_OF_ITS_BOARD_IS_NOT_RECORDED():
+    """12 of 223 is 5.4%. Written, it is a dated FFC day that every coverage
+    figure counts, and nothing downstream can tell it from a market that priced
+    twelve players.
+
+    MUTATION: keep the three original outcomes — `ffc TRUNCATED 12/223` comes
+    back `recorded(12)`, lands beside a full FantasyPros board, and the
+    disagreement measured that day is computed over the twelve players the broken
+    fetch happened to return."""
+    series, verdicts = R.apply_results(
+        _yesterday(), "2026", "2026-08-14",
+        [_res("fantasypros", {str(i): 1.0 for i in range(342)}),
+         _res("ffc", {str(i): 1.0 for i in range(12)})])
+    by = {v["source"]: v for v in verdicts}
+    assert by["ffc"]["verdict"] == "truncated"
+    assert by["fantasypros"]["verdict"] == "recorded"
+    written = {s["source"] for s in series if s["observed_at"] == "2026-08-14"}
+    assert written == {"fantasypros"}, written
+    assert "under the 50% floor" in by["ffc"]["note"]
+
+
+def test_ONE_SOURCE_TRUNCATED_DOES_NOT_COST_THE_OTHER():
+    """The whole reason this archive exists is to hold the alternatives
+    separately, and the isolation must survive the new refusal exactly as it
+    survives an exception.
+
+    MUTATION: refuse the whole day when any source truncates — one bad FFC fetch
+    deletes FantasyPros' board on an unrefetchable day."""
+    series, _ = R.apply_results(
+        _yesterday(), "2026", "2026-08-14",
+        [_res("fantasypros", {str(i): 1.0 for i in range(342)}),
+         _res("ffc", {str(i): 1.0 for i in range(3)})])
+    fp = [s for s in series if s["observed_at"] == "2026-08-14"
+          and s["source"] == "fantasypros"]
+    assert fp and fp[0]["row_count"] == 342
+
+
+def test_A_SOURCES_FIRST_EVER_DAY_IS_NOT_TRUNCATED():
+    """A source added today has no yesterday, so `was` is 0 and it must record.
+    Refusing would mean a new source could never enter the archive at all — a
+    check that makes its own subject unreachable.
+
+    MUTATION: treat a missing prior as the current row count's own floor, or
+    compare against the OTHER source's depth — FFC's 223 is judged against
+    FantasyPros' 342 and a perfectly good first day is refused as truncated."""
+    # ⚠ THE DEPTHS MUST SEPARATE THE TWO ARMS. The first fixture used FFC's real
+    # 223 against FantasyPros' 342 — 65%, which clears the floor whether or not
+    # the source filter exists, so the mutation SURVIVED. FFC's genuine first day
+    # is shallower than FantasyPros' board, and that is the case that matters.
+    only_fp = S.append_day([], "fantasypros", "2026", "2026-08-13",
+                           {str(i): 1.0 for i in range(342)}, params={"year": 2026})
+    _, verdicts = R.apply_results(
+        only_fp, "2026", "2026-08-14",
+        [_res("ffc", {str(i): 1.0 for i in range(100)})])
+    assert verdicts[0]["verdict"] == "recorded", verdicts
+    # AND 100 AGAINST FANTASYPROS' 342 IS 29% — what the mutation compares to.
+    assert R._previous_rows(only_fp, "ffc", "2026", "2026-08-14") == 0
+    assert R._previous_rows(only_fp, "fantasypros", "2026", "2026-08-14") == 342
+
+
+def test_A_SAME_DAY_RERUN_COMPARES_TO_THE_DAY_BEFORE_not_to_its_own_bad_write():
+    """If a truncated day did get written, a re-dispatch must not certify it by
+    comparing against itself — that is always a 100% keep.
+
+    MUTATION: drop the strictly-earlier filter — the second attempt at a broken
+    morning reports `recorded`, and the truncation is laundered by the retry."""
+    ser = _yesterday()
+    ser = S.append_day(ser, "ffc", "2026", "2026-08-14",
+                       {str(i): 1.0 for i in range(12)}, params={"year": 2026})
+    assert R._previous_rows(ser, "ffc", "2026", "2026-08-14") == 223
+
+
+def test_THE_REFUSING_FLOOR_SITS_ABOVE_THE_REPORTING_ONE():
+    """`ROW_COUNT_COLLAPSE` reports at a 25% loss; `COLLAPSE_KEEP_FRACTION`
+    refuses at a 50% loss. Everything refused must also be reported, so the
+    reporting bar can never rise above the refusing one.
+
+    MUTATION: swap them — days are refused before they are ever reported, and the
+    quieter check silently becomes the louder one's gate."""
+    assert 0.0 < S.COLLAPSE_KEEP_FRACTION < 1.0
+    assert 0.0 < S.ROW_COUNT_COLLAPSE < 1.0
+    # loss that triggers a REPORT must be no larger than the loss that REFUSES
+    assert S.ROW_COUNT_COLLAPSE <= (1.0 - S.COLLAPSE_KEEP_FRACTION)
+
+
+def test_A_SOURCE_THAT_DID_NOT_RECORD_MAKES_THE_RUN_EXIT_NON_ZERO():
+    """This returned 0 whenever ANY source recorded, so FFC could 404 for a
+    fortnight while the job stayed green and the archive quietly became a
+    comparison of one thing.
+
+    MUTATION: `any` instead of `all` — the alarm that notices a source going dark
+    is the one that never fires."""
+    ok = [{"source": "ffc", "verdict": "recorded"},
+          {"source": "fantasypros", "verdict": "recorded"}]
+    assert R.exit_code(ok) == (0, None)
+    for bad in ("failed", "empty", "truncated"):
+        rc, why = R.exit_code([{"source": "ffc", "verdict": bad},
+                               {"source": "fantasypros", "verdict": "recorded"}])
+        assert rc == 1, bad
+        assert "ffc=%s" % bad in why
+
+
+def test_NO_VERDICTS_AT_ALL_IS_A_FAILURE_not_a_vacuous_pass():
+    """`all([])` is True, so an empty verdict list — the run never reaching the
+    sources — would report a clean sweep. The same vacuous-truth defect the
+    mutation gate carries a comment about one module over.
+
+    MUTATION: decide on `not absent` alone — a run that fetched nothing at all
+    exits 0 and the archive silently gains no day."""
+    rc, why = R.exit_code([])
+    assert rc == 1
+    assert "did not happen" in why
