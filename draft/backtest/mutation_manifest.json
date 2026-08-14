@@ -1006,6 +1006,22 @@
       "test_EVERY_PRICED_ROW_DECLARES_WHERE_ITS_SPREAD_CAME_FROM"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "    return bool(built) and built > RAW_ADP_ORDER_FIX_LANDED",
+     "new": "    return False",
+     "must_fail": [
+      "test_the_raw_adp_ORDER_RATCHET_TIGHTENS_ITSELF"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-13T23:24:43Z\"",
+     "new": "RAW_ADP_ORDER_FIX_LANDED = \"2026-08-01T00:00:00Z\"",
+     "must_fail": [
+      "test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
