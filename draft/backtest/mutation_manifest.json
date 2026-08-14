@@ -2123,6 +2123,75 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/nflverse_durability.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"mean_games\": 15.22",
+     "new": "\"mean_games\": 99.99",
+     "must_fail": [
+      "test_DURABILITY_BY_POSITION_AGREES_WITH_ITS_OWN_PLAYER_ROWS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"gap\": -1.28",
+     "new": "\"gap\": -9.99",
+     "must_fail": [
+      "test_DURABILITY_GAP_IS_THE_SUBTRACTION_IT_CLAIMS_TO_BE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "SURVIVORSHIP: the cut conditions",
+     "new": "the cut conditions",
+     "must_fail": [
+      "test_THE_CAVEATS_ARE_STILL_IN_THE_FILE"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/projection_spread_vs_realized.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"predicted_weekly_overstatement\": 1.74",
+     "new": "\"predicted_weekly_overstatement\": 9.99",
+     "must_fail": [
+      "test_THE_RECONCILIATION_PREDICTION_ACTUALLY_MATCHES_THE_OBSERVATION"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "\"ratio\": 3.493",
+     "new": "\"ratio\": 9.999",
+     "must_fail": [
+      "test_EVERY_SPREAD_ROW_IS_A_RATIO_OF_THE_TWO_COLUMNS_BESIDE_IT"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
+  },
+  "draft/backtest/nflverse_pace.json": {
+   "tests": [
+    "draft/tests/test_nflverse_artifacts.py"
+   ],
+   "mutations": [
+    {
+     "old": "\"raw_vs_neutral_rank_rho\": 0.5326",
+     "new": "\"raw_vs_neutral_rank_rho\": 0.95",
+     "must_fail": [
+      "test_PACE_KEEPS_RAW_AND_NEUTRAL_APART_for_every_team"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
