@@ -371,3 +371,111 @@ def source_audit(series: list, year, observed_at: str) -> dict:
                      if fatal else
                      ("today's write is internally consistent; %d observed"
                       % len(observed)))}
+
+
+# ── DOES A PLAYER'S PUBLISHED SPREAD HOLD STILL ACROSS DAYS? ────────────────
+#
+# A closed the dispersion fit on a stability falsifier: refitting the sd rule on
+# half-samples of PLAYERS moved the floor 119% against a 25% bar. Their revisit
+# condition was "when FFC's published-sd population makes the 1-25 band survive a
+# half-sample refit" — and that band is bounded by construction. It IS the top 25
+# picks of FFC's board: 25 rows today, about 25 on draft day. More days add DAYS,
+# NOT PLAYERS, so the trigger as written can never fire.
+#
+# WHAT MORE DAYS DO BUY is the axis this archive was built for: the same players
+# re-measured every morning. That supports the falsifier the passage of time CAN
+# answer, and it discriminates between two very different worlds:
+#
+#   steady across days, unstable across players -> the instability is
+#       CROSS-SECTIONAL. Those 25 players genuinely disagree with each other and
+#       no amount of patience fixes it; the floor is unidentifiable, full stop.
+#   unstable across days too -> the FEED is noisy at the top of its own board,
+#       which is a second and independent reason not to fit a constant to it.
+
+#: A player's own published sd moving more than this share of its median, across
+#: days, is the feed moving rather than the market.
+#:
+#: ⚠ DECLARED, AND IT IS A PLACEHOLDER UNTIL THERE ARE DAYS TO DERIVE IT FROM —
+#: exactly like `COLLAPSE_KEEP_FRACTION` in this file and for the same reason.
+#: It is set to A's own bar (25%) so the two stability questions are judged on one
+#: number rather than two that drift, and `sd_stability` reports the OBSERVED
+#: spread every day so it can be re-derived the moment it is derivable.
+SD_STABILITY_TOLERANCE = 0.25
+
+
+def sd_stability(series: list, source: str, year, bands=((0, 25), (25, 50),
+                                                         (50, 100), (100, 10 ** 6))):
+    """Per-player published-sd movement across days, by the SOURCE'S OWN band.
+
+    ⚠ BANDED ON THE SOURCE'S OWN PICK SCALE, never on our board's. The bands
+    exist to line up with A's per-band objective, and A's bands are FFC's — a
+    player FFC prices at 20 and our board prices at 40 belongs to FFC's 1-25 band
+    for this question, because the constant being judged is fitted against FFC's
+    own dispersion. Using the board's scale here would answer a different
+    question while looking like this one.
+
+    ONE DAY IS `first_day`, NOT `stable`. A spread that has been observed once has
+    not been observed to hold still (rule 13f).
+    """
+    days = sorted({str(s.get("observed_at")) for s in (series or [])
+                   if str(s.get("source")) == str(source)
+                   and str(s.get("year")) == str(year) and s.get("observed_at")})
+    base = {"status": "first_day", "source": str(source), "days": len(days),
+            "tolerance": SD_STABILITY_TOLERANCE, "players": 0, "by_band": {},
+            "moved": 0, "note": None}
+    if len(days) < 2:
+        return dict(base, note="only %d day of %s in the archive — a spread "
+                               "observed once has not been observed to HOLD, and "
+                               "this is the archive's age rather than a verdict "
+                               "on the feed" % (len(days), source))
+    per, adp0 = {}, {}
+    for d in days:
+        snap = next((s for s in series
+                     if str(s.get("source")) == str(source)
+                     and str(s.get("year")) == str(year)
+                     and str(s.get("observed_at")) == d), None)
+        if snap is None:
+            continue
+        rows, sd = snap.get("rows") or {}, snap.get("sd") or {}
+        for pid, v in sd.items():
+            if v is None or pid not in rows:
+                continue
+            per.setdefault(pid, []).append(float(v))
+            adp0.setdefault(pid, float(rows[pid]))     # first day's own adp
+    from statistics import median
+    out, moved, n = {}, 0, 0
+    for pid, vals in per.items():
+        if len(vals) < 2:
+            continue
+        n += 1
+        med = median(vals)
+        # RANGE OVER MEDIAN, not sd-of-sd: with two or three days a standard
+        # deviation is barely defined, and the question is how far the value
+        # travelled rather than how it was distributed.
+        spread = (max(vals) - min(vals)) / med if med else None
+        if spread is not None and spread > SD_STABILITY_TOLERANCE:
+            moved += 1
+        a = adp0.get(pid)
+        for lo, hi in bands:
+            if a is not None and lo < a <= hi:
+                key = "%d-%d" % (lo, hi) if hi < 10 ** 6 else "%d+" % lo
+                b = out.setdefault(key, {"n": 0, "moved": 0, "spreads": []})
+                b["n"] += 1
+                if spread is not None:
+                    b["spreads"].append(spread)
+                    if spread > SD_STABILITY_TOLERANCE:
+                        b["moved"] += 1
+                break
+    for k, b in out.items():
+        b["median_spread"] = round(median(b["spreads"]), 4) if b["spreads"] else None
+        b["worst_spread"] = round(max(b["spreads"]), 4) if b["spreads"] else None
+        del b["spreads"]
+    return dict(base, status="measured", players=n, moved=moved,
+                by_band={k: out[k] for k in sorted(out, key=lambda x: float(x.split("-")[0].rstrip("+")))},
+                note="%d of %d players carrying a published sd on 2+ days moved "
+                     "their own sd by more than %.0f%% of its median across %d "
+                     "day(s). Steady across days with A's cross-player refit still "
+                     "unstable means the instability is CROSS-SECTIONAL and no "
+                     "amount of waiting fixes it; unsteady here means the feed "
+                     "itself is noisy at the top of its own board."
+                     % (moved, n, 100.0 * SD_STABILITY_TOLERANCE, len(days)))

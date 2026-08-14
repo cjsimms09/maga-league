@@ -405,3 +405,138 @@ def test_NO_VERDICTS_AT_ALL_IS_A_FAILURE_not_a_vacuous_pass():
     rc, why = R.exit_code([])
     assert rc == 1
     assert "did not happen" in why
+
+
+# ── THE FALSIFIER THAT TIME CAN ACTUALLY ANSWER ─────────────────────────────
+#
+# A closed the dispersion fit on a stability falsifier and set the revisit
+# condition as "when FFC's published-sd population makes the 1-25 band survive a
+# half-sample refit". That band is bounded by construction — it IS the top 25
+# picks of FFC's board, 25 rows today and about 25 on draft day — so more days add
+# DAYS, NOT PLAYERS and the trigger can never fire.
+#
+# What more days DO buy is the same players re-measured, which answers a different
+# question: does a player's own published sd hold still? Steady across days while
+# A's cross-player refit stays unstable means the instability is CROSS-SECTIONAL
+# and waiting never fixes it. Unsteady here means the feed is noisy at the top of
+# its own board — a second, independent reason not to fit a constant to it.
+#
+# ⚠ EVERY FIXTURE HERE IS SYNTHETIC AND HAS TO BE. The archive holds ONE day, so
+# there is no real multi-day data to test against — and building the instrument
+# only once real data exists is how a measurement arrives after the week it was
+# needed.
+
+
+def _sdday(dt, sd_by_pid, adp_by_pid=None, source="ffc"):
+    adp = adp_by_pid or {k: 10.0 + i for i, k in enumerate(sd_by_pid)}
+    return S.append_day([], source, "2026", dt,
+                        {k: adp[k] for k in sd_by_pid},
+                        sd=dict(sd_by_pid), params={"year": 2026})[0]
+
+
+def test_ONE_DAY_IS_first_day_not_stable():
+    """A spread observed once has not been observed to HOLD. Reported as stable it
+    would answer A's revisit question on the strength of no comparison at all.
+
+    MUTATION: return `measured` with zero movement — the morning after this lands
+    reports the feed steady, and the falsifier is satisfied by its own first
+    run."""
+    got = S.sd_stability([_sdday("2026-08-14", {"1": 2.0, "2": 5.0})], "ffc", "2026")
+    assert got["status"] == "first_day"
+    assert got["players"] == 0 and got["by_band"] == {}
+    assert "has not been observed to HOLD" in got["note"]
+
+
+def test_A_STEADY_FEED_REPORTS_NOBODY_MOVED():
+    """The arm that says "waiting will not help you" — if each player's own sd
+    holds while A's cross-player refit still swings, the instability is
+    cross-sectional and no number of days fixes it.
+
+    MUTATION: compare against the FIRST day rather than the median — a feed that
+    wobbles and returns reads as movement, and the standing answer becomes noise
+    about the market rather than about the constant."""
+    a = _sdday("2026-08-13", {"1": 2.00, "2": 5.00, "3": 12.0})
+    b = _sdday("2026-08-14", {"1": 2.05, "2": 5.10, "3": 12.2})
+    got = S.sd_stability([a, b], "ffc", "2026")
+    assert got["status"] == "measured"
+    assert got["players"] == 3
+    assert got["moved"] == 0, got["by_band"]
+
+
+def test_A_FEED_THAT_MOVES_A_PLAYERS_OWN_SD_IS_COUNTED():
+    """The other arm. One player's published sd doubling between two mornings is
+    the feed being noisy about him, not the market changing its mind — and it is
+    the second, independent reason A's floor cannot be fitted.
+
+    MUTATION: raise the tolerance until nothing ever clears it — the check runs
+    every day, reports zero, and reads as evidence of a steady feed."""
+    a = _sdday("2026-08-13", {"1": 2.0, "2": 5.0})
+    b = _sdday("2026-08-14", {"1": 4.0, "2": 5.1})
+    got = S.sd_stability([a, b], "ffc", "2026")
+    assert got["moved"] == 1, got
+    assert got["players"] == 2
+
+    # ⚠ AND A SPREAD THAT ONLY FALLS MOVED JUST AS FAR. This is the case that
+    # separates `(max - min) / median` from anything anchored on the FIRST day:
+    # 4.0 -> 2.0 is a 67% move, and `(max - first) / first` scores it ZERO because
+    # the maximum IS the first reading. A feed that quietly tightens is exactly as
+    # much evidence about the feed as one that widens, and half the movement would
+    # have been invisible.
+    fall_a = _sdday("2026-08-13", {"1": 4.0})
+    fall_b = _sdday("2026-08-14", {"1": 2.0})
+    down = S.sd_stability([fall_a, fall_b], "ffc", "2026")
+    assert down["moved"] == 1, down
+    assert down["by_band"]["0-25"]["worst_spread"] > S.SD_STABILITY_TOLERANCE
+
+
+def test_THE_BANDS_ARE_THE_SOURCES_OWN_PICK_SCALE_not_our_boards():
+    """A's per-band objective is stated on FFC's bands. A player FFC prices at 20
+    and our board prices at 40 belongs to FFC's 1-25 band for this question,
+    because the constant being judged is fitted against FFC's own dispersion.
+    Banding on the board's scale answers a different question while looking like
+    this one — the same scale confusion that has cost this project twice.
+
+    MUTATION: band on the board's adp — the floor-bound band fills with players
+    FFC never priced there, and the figure A would read is about a population
+    their objective was never stated over."""
+    adp = {"1": 5.0, "2": 20.0, "3": 40.0, "4": 300.0}
+    a = _sdday("2026-08-13", {"1": 1.0, "2": 3.0, "3": 6.0, "4": 30.0}, adp)
+    b = _sdday("2026-08-14", {"1": 1.0, "2": 3.0, "3": 6.0, "4": 30.0}, adp)
+    got = S.sd_stability([a, b], "ffc", "2026")
+    assert got["by_band"]["0-25"]["n"] == 2, got["by_band"]   # picks 5 and 20
+    assert got["by_band"]["25-50"]["n"] == 1
+    assert got["by_band"]["100+"]["n"] == 1
+
+
+def test_A_PLAYER_SEEN_ON_ONLY_ONE_DAY_IS_NOT_A_TIME_SERIES():
+    """Someone FFC prices for the first time today has one observation, and one
+    observation cannot move. Counted as steady he pads the denominator with rows
+    that could never have failed — which is how a stability figure improves every
+    time the board grows.
+
+    MUTATION: default a single observation to a spread of 0 — the more players
+    the source adds, the steadier the feed appears, and the number drifts toward
+    reassurance on its own."""
+    a = _sdday("2026-08-13", {"1": 2.0})
+    b = _sdday("2026-08-14", {"1": 4.0, "2": 9.0})
+    got = S.sd_stability([a, b], "ffc", "2026")
+    assert got["players"] == 1, "only the player seen on BOTH days is a series"
+    assert got["moved"] == 1
+
+
+def test_THE_OBSERVED_SPREAD_IS_REPORTED_so_the_tolerance_can_be_re_derived():
+    """`SD_STABILITY_TOLERANCE` is A's 25% bar borrowed wholesale, because this
+    archive has one day and nothing to derive one from. The observed spread is
+    reported per band so the placeholder can be replaced the moment it is
+    derivable — the same discipline the collapse floor in this file carries.
+
+    MUTATION: report only the counts — the number that would let anyone
+    recalibrate is discarded daily and the borrowed bar becomes permanent by
+    default."""
+    a = _sdday("2026-08-13", {"1": 2.0, "2": 5.0})
+    b = _sdday("2026-08-14", {"1": 2.2, "2": 6.0})
+    got = S.sd_stability([a, b], "ffc", "2026")
+    for band in got["by_band"].values():
+        assert band["median_spread"] is not None
+        assert band["worst_spread"] is not None
+    assert got["tolerance"] == S.SD_STABILITY_TOLERANCE

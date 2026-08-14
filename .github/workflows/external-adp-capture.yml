@@ -787,6 +787,43 @@ jobs:
                   if not r["fatal"] and not r["observed"]:
                       print("")
                       print("**Nothing fatal and nothing observed.**")
+
+                  # ── THE FALSIFIER A'S REVISIT CONDITION CANNOT REACH ──────
+                  # A closed the dispersion fit on a stability test that refits
+                  # across PLAYERS, and set the revisit condition as "when the
+                  # 1-25 band survives a half-sample refit". That band IS the top
+                  # 25 picks of FFC's board — 25 rows today, about 25 on draft
+                  # day — so more days add DAYS, NOT PLAYERS and the trigger can
+                  # never fire. What more days DO buy is the same players
+                  # re-measured, which answers the other question: does a
+                  # player's own published sd hold still?
+                  print("")
+                  print("### Does a published spread hold still across days?")
+                  for src in sorted(r["sources"]):
+                      st = S.sd_stability(ser, src, year)
+                      if st["status"] != "measured":
+                          print("- **%s** — %s" % (src, st["note"]))
+                          continue
+                      print("- **%s**: `%d` of `%d` players carrying a published "
+                            "sd on 2+ days moved their own sd by more than "
+                            "`%.0f%%` of its median, across `%d` days."
+                            % (src, st["moved"], st["players"],
+                               100.0 * st["tolerance"], st["days"]))
+                      if st["by_band"]:
+                          print("")
+                          print("| %s band (its own pick scale) | n | moved | median spread | worst |"
+                                % src)
+                          print("|---|---|---|---|---|")
+                          for k, b in st["by_band"].items():
+                              print("| %s | %d | %d | %s | %s |"
+                                    % (k, b["n"], b["moved"], b["median_spread"],
+                                       b["worst_spread"]))
+                      print("")
+                      print("_Steady here while a cross-PLAYER refit stays unstable "
+                            "means the instability is CROSS-SECTIONAL and no amount "
+                            "of waiting fixes it. Unsteady here means the feed is "
+                            "noisy at the top of its own board — a second, "
+                            "independent reason not to fit a constant to it._")
           except Exception as e:                      # noqa: BLE001
               bad = 1
               print("**THE PER-SOURCE AUDIT DID NOT RUN** (%s: %s) — a fact about "
