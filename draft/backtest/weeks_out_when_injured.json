@@ -1,0 +1,188 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by draft/backtest/nflverse_durability.py",
+ "_what": "E[weeks out | he missed time], per position. A's ask: the number that selects between the per-week and ongoing wire levels.",
+ "seasons": [
+  2023,
+  2024
+ ],
+ "seasons_unavailable": [
+  2025
+ ],
+ "why_2025_absent": "nfl_data_py.import_weekly_data 404s for 2025 in every environment tried; it is the season CLOSEST to the board, so this is a real limitation and not a rounding one.",
+ "last_scored_week": 17,
+ "players_all": 737,
+ "players_draftable": 162,
+ "relevant_board": 225,
+ "board_built_at": "2026-08-13T23:13:18Z",
+ "all_players": {
+  "QB": {
+   "status": "measured",
+   "n": 346,
+   "completed_n": 278,
+   "censored_n": 68,
+   "mean_completed": 3.284,
+   "censored_fraction": 0.1965,
+   "caveat": "mean_completed uses only absences observed to END. 68 of 346 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "TE": {
+   "status": "measured",
+   "n": 616,
+   "completed_n": 514,
+   "censored_n": 102,
+   "mean_completed": 2.444,
+   "censored_fraction": 0.1656,
+   "caveat": "mean_completed uses only absences observed to END. 102 of 616 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "P": {
+   "status": "measured",
+   "n": 52,
+   "completed_n": 35,
+   "censored_n": 17,
+   "mean_completed": 4.543,
+   "censored_fraction": 0.3269,
+   "caveat": "mean_completed uses only absences observed to END. 17 of 52 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "WR": {
+   "status": "measured",
+   "n": 952,
+   "completed_n": 769,
+   "censored_n": 183,
+   "mean_completed": 2.698,
+   "censored_fraction": 0.1922,
+   "caveat": "mean_completed uses only absences observed to END. 183 of 952 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "RB": {
+   "status": "measured",
+   "n": 520,
+   "completed_n": 416,
+   "censored_n": 104,
+   "mean_completed": 3.103,
+   "censored_fraction": 0.2,
+   "caveat": "mean_completed uses only absences observed to END. 104 of 520 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "FS": {
+   "status": "measured",
+   "n": 14,
+   "completed_n": 9,
+   "censored_n": 5,
+   "mean_completed": 5.667,
+   "censored_fraction": 0.3571,
+   "caveat": "mean_completed uses only absences observed to END. 5 of 14 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "FB": {
+   "status": "measured",
+   "n": 99,
+   "completed_n": 85,
+   "censored_n": 14,
+   "mean_completed": 2.565,
+   "censored_fraction": 0.1414,
+   "caveat": "mean_completed uses only absences observed to END. 14 of 99 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "OLB": {
+   "status": "unmeasurable",
+   "n": 6,
+   "completed_n": 5,
+   "censored_n": 1,
+   "mean_completed": null,
+   "censored_fraction": null,
+   "caveat": "only 6 spell(s); min_n is 8"
+  },
+  "ILB": {
+   "status": "measured",
+   "n": 10,
+   "completed_n": 8,
+   "censored_n": 2,
+   "mean_completed": 6.5,
+   "censored_fraction": 0.2,
+   "caveat": "mean_completed uses only absences observed to END. 2 of 10 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "CB": {
+   "status": "measured",
+   "n": 24,
+   "completed_n": 16,
+   "censored_n": 8,
+   "mean_completed": 4.75,
+   "censored_fraction": 0.3333,
+   "caveat": "mean_completed uses only absences observed to END. 8 of 24 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "DT": {
+   "status": "unmeasurable",
+   "n": 3,
+   "completed_n": 2,
+   "censored_n": 1,
+   "mean_completed": null,
+   "censored_fraction": null,
+   "caveat": "only 3 spell(s); min_n is 8"
+  },
+  "SS": {
+   "status": "measured",
+   "n": 19,
+   "completed_n": 12,
+   "censored_n": 7,
+   "mean_completed": 5.5,
+   "censored_fraction": 0.3684,
+   "caveat": "mean_completed uses only absences observed to END. 7 of 19 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "MLB": {
+   "status": "unmeasurable",
+   "n": 6,
+   "completed_n": 4,
+   "censored_n": 2,
+   "mean_completed": null,
+   "censored_fraction": null,
+   "caveat": "only 6 spell(s); min_n is 8"
+  },
+  "DE": {
+   "status": "unmeasurable",
+   "n": 6,
+   "completed_n": 4,
+   "censored_n": 2,
+   "mean_completed": null,
+   "censored_fraction": null,
+   "caveat": "only 6 spell(s); min_n is 8"
+  }
+ },
+ "draftable_only": {
+  "QB": {
+   "status": "measured",
+   "n": 48,
+   "completed_n": 33,
+   "censored_n": 15,
+   "mean_completed": 3.091,
+   "censored_fraction": 0.3125,
+   "caveat": "mean_completed uses only absences observed to END. 15 of 48 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "TE": {
+   "status": "measured",
+   "n": 53,
+   "completed_n": 44,
+   "censored_n": 9,
+   "mean_completed": 2.091,
+   "censored_fraction": 0.1698,
+   "caveat": "mean_completed uses only absences observed to END. 9 of 53 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "WR": {
+   "status": "measured",
+   "n": 110,
+   "completed_n": 94,
+   "censored_n": 16,
+   "mean_completed": 2.106,
+   "censored_fraction": 0.1455,
+   "caveat": "mean_completed uses only absences observed to END. 16 of 110 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  },
+  "RB": {
+   "status": "measured",
+   "n": 99,
+   "completed_n": 81,
+   "censored_n": 18,
+   "mean_completed": 2.741,
+   "censored_fraction": 0.1818,
+   "caveat": "mean_completed uses only absences observed to END. 18 of 99 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+  }
+ },
+ "caveats": [
+  "`missed` is WEEKS WITH NO PRODUCTION, not weeks injured. A healthy backup and an inactive one are indistinguishable in this data, so a spell conflates injury with benching. The draftable-only arm reduces this (a starter who misses a week is far more likely to be hurt) but does not remove it.",
+  "mean_completed uses only absences observed to END. 15-31% of spells are RIGHT-CENSORED \u2014 still running when the season stopped \u2014 so every mean here is a LOWER BOUND on the true expected absence.",
+  "A bye is excluded (the module removes each team's bye week); a spell is consecutive non-bye weeks with no production."
+ ]
+}
