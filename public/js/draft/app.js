@@ -8286,9 +8286,36 @@
       // so it is safe to run for every pick on every four-second poll.
       if (ATTR) ATTR.applyRemote(state, p, slot, seatSlot);
       else {
+        /* ⚠️ THE IDEMPOTENCY THE COMMENT ABOVE PROMISES BELONGS TO applyRemote,
+         * AND THIS BRANCH NEVER HAD IT.
+         *
+         * Sleeper returns the WHOLE pick list every poll, so when any new pick
+         * lands the loop re-processes every earlier one. `drafted.add` is a Set
+         * and survives that; two array PUSHES do not. Measured by running this
+         * function with ATTR absent:
+         *
+         *     after 1 pick   slot roster = 100
+         *     after 2 picks  slot roster = 100,100,200
+         *     after 3 picks  slot roster = 100,100,200,100,200,300
+         *
+         * Quadratic. By pick 150 the roster holds thousands of rows, and need,
+         * legality, bye coverage and every roster-dependent recommendation are
+         * computed from it.
+         *
+         * REACHABLE, NOT THEORETICAL. `ATTR` is `window.DraftAttribution ||
+         * null`, captured ONCE at init (app.js:7170) — so a single failed load
+         * of attribution.js (a 404 after deploy, a cache miss, a flaky asset)
+         * leaves it null for the entire session and routes every pick here.
+         * A fallback whose failure mode is worse than having no fallback.
+         *
+         * `firstSight` was already computed above and already gates the
+         * missed-mark recovery twelve lines below. It just was not applied to
+         * the two lines that needed it most. */
         state.drafted.add(id);
-        if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
-        if (seatSlot && slot === seatSlot) state.myRoster.push(p);
+        if (firstSight) {
+          if (slot) (state.rosters[slot] = state.rosters[slot] || []).push(p);
+          if (seatSlot && slot === seatSlot) state.myRoster.push(p);
+        }
       }
       state.board = state.board.filter(x => String(x.player_id) !== id);
       // MISSED-MARK RECOVERY (1) — THE SYNC-LIVE PATH.

@@ -87,6 +87,7 @@ function freshState() {
     drafted: new Set(), rosters: {}, myRoster: [], recentPicks: [],
     board: POOL.slice(), data: { players: POOL.slice(), league: {} },
     lists: { queue: [] }, sync: null, mockMode: null,
+    markedLocally: new Set(),
   };
 }
 const quiet = { warn: () => {}, info: () => {}, log: () => {}, error: () => {} };
@@ -94,6 +95,7 @@ const NOOP = () => {};
 function run(state, picks) {
   const byName = {
     state: state,
+    setStatus: NOOP,
     mySlot: () => 8,
     playerById: id => POOL.find(p => String(p.player_id) === String(id)) || null,
     ATTR: undefined,
@@ -184,6 +186,27 @@ const pick = (id, no, slot) => ({ player_id: id, pick_no: no, draft_slot: slot |
   ck('a REORDERED payload with the same members withdraws nothing',
     s.drafted.has('100') && s.drafted.has('200') && !s.syncWithdrawn,
     { drafted: [...s.drafted], withdrawn: s.syncWithdrawn });
+}
+
+// ── DUPLICATE INGEST: the fallback branch was NOT idempotent ────────────────
+// Sleeper returns the WHOLE list every poll, so a new pick re-processes every
+// earlier one. `drafted.add` is a Set and survives it; two array PUSHES did not.
+// ATTR is `window.DraftAttribution || null` captured ONCE at init, so one failed
+// load of attribution.js routes the entire draft down this branch.
+{
+  const s = freshState();
+  s.markedLocally = new Set();
+  run(s, [pick('100', 1)]);
+  run(s, [pick('100', 1), pick('200', 2)]);
+  run(s, [pick('100', 1), pick('200', 2), pick('300', 3)]);
+  const seat = (s.rosters[1] || []).map(p => String(p.player_id));
+  ck('a re-polled pick does not DUPLICATE on the seat roster',
+    seat.length === 3 && new Set(seat).size === 3, seat);
+  ck('...nor on my roster — need, legality and byes are computed from it',
+    s.myRoster.length === new Set(s.myRoster.map(p => String(p.player_id))).size,
+    s.myRoster.map(p => String(p.player_id)));
+  ck('...and the growth is LINEAR, not quadratic (it was 1, 3, 6)',
+    seat.length === 3, seat.length);
 }
 
 // ── ID-SPACE DIVERGENCE: the sync failure that removes NOBODY from the pool ─
