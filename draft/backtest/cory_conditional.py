@@ -239,6 +239,29 @@ def draft_room_sequence(pool, my_keepers, opp_keepers, my_picks, rng, cascade=No
     return recent
 
 
+def unfilled_starters(roster):
+    """Mandatory starting slots this roster CANNOT fill, e.g. {"QB": 1}.
+
+    `team_week_params` scores the best lineup it can build and silently skips a
+    slot it cannot fill — a roster with no quarterback simply plays without one
+    and scores less. That is the right behaviour for a grader and a catastrophic
+    one for a CONTROL: a candidate that merely owns a legal roster then beats it
+    by the whole value of the missing starter, and the difference gets reported
+    as a strategy edge.
+
+    So the gap is measured rather than assumed. See `control_validity`.
+    """
+    have = {}
+    for p in roster:
+        have[p["position"]] = have.get(p["position"], 0) + 1
+    short = {}
+    for pos, n in STARTERS.items():
+        gap = n - have.get(pos, 0)
+        if gap > 0:
+            short[pos] = gap
+    return short
+
+
 def team_week_params(roster):
     """Best lineup by proj; weekly mean/sd under normal approx."""
     by_pos = {}
@@ -330,6 +353,11 @@ def race(n_rooms=200, seed=SEED):
     arch = make_archetypes()
     per_seed = {k: [] for k in arch}
     diverg = {k: [] for k in arch}
+    # THE CONTROL'S OWN ROSTER LEGALITY, per room. Every edge in this experiment
+    # is measured AGAINST the control, so a control that cannot field a starter
+    # is not a baseline — it is a handicap, and every candidate that happens to
+    # own that starter collects its full season value as a "strategy edge".
+    control_short = []
     for s in range(n_rooms):
         room_rng = random.Random(seed + s)
         opp_state = room_rng.getstate()
@@ -340,13 +368,31 @@ def race(n_rooms=200, seed=SEED):
             rosters_by_arch[k] = draft_room(pool, my_keepers, opp_keepers,
                                             my_picks, chooser, r)
         grade_rng_state = random.Random(seed * 7 + s).getstate()
+        control_short.append(unfilled_starters(rosters_by_arch["balanced"][0]))
         ctrl_roster = {p["player_id"] for p in rosters_by_arch["balanced"][0]}
         for k, rosters in rosters_by_arch.items():
             g = random.Random()
             g.setstate(grade_rng_state)        # SAME weekly luck for every candidate
             per_seed[k].append(grade_room(rosters, g)["total"])
             diverg[k].append(len({p["player_id"] for p in rosters[0]} - ctrl_roster))
-    return per_seed, diverg
+    return per_seed, diverg, control_short
+
+
+def control_validity(control_short):
+    """Summarise the control's roster legality across rooms.
+
+    Returns {rooms, illegal, rate, by_slot} — `rate` is the fraction of rooms in
+    which the control could NOT field the mandatory starting lineup, and
+    `by_slot` counts which slot went unfilled.
+    """
+    n = len(control_short) or 1
+    bad = [s for s in control_short if s]
+    by_slot = {}
+    for s in bad:
+        for pos, gap in s.items():
+            by_slot[pos] = by_slot.get(pos, 0) + gap
+    return {"rooms": len(control_short), "illegal": len(bad),
+            "rate": round(len(bad) / n, 3), "by_slot": by_slot}
 
 
 def bootstrap_ci(deltas, rng, n=2000):
@@ -365,7 +411,8 @@ def main():
     ap.add_argument("--report", default=str(HERE / "CORY-CONDITIONAL.md"))
     args = ap.parse_args()
 
-    per_seed, diverg = race(args.rooms)
+    per_seed, diverg, control_short = race(args.rooms)
+    validity = control_validity(control_short)
     ctrl = per_seed["balanced"]
     rng = random.Random(SEED + 99)
     rows = []
@@ -380,8 +427,17 @@ def main():
         rows.append({"archetype": k, "mean_edge": round(mean, 2),
                      "ci95": [round(lo, 2), round(hi, 2)],
                      "mean_divergence": round(dv, 1),
+                     # THE LABEL MUST MATCH THE INTERVAL. This read `lo <= 0`,
+                     # which is true of ANY negative lower bound — so a result
+                     # sitting ENTIRELY below zero was reported as "CI includes
+                     # $0", i.e. as inconclusive. `late_qb` at [-71.00, -23.38]
+                     # is not inconclusive; under this grader it is significantly
+                     # WORSE than the control, and saying so is the whole point
+                     # of printing an interval. Zero is inside [lo, hi] only when
+                     # lo <= 0 <= hi.
                      "verdict": "WINNER — enroll as THE PLAN" if wins else
-                     ("parked: CI includes $0" if lo <= 0 else
+                     ("LOSER — significantly worse than the control" if hi < 0 else
+                      "parked: CI includes $0" if lo <= 0 <= hi else
                       f"parked: edge inside the ${EVEN_MONEY_BAND} even-money band")})
     rows.sort(key=lambda r: -r["mean_edge"])
 
@@ -404,8 +460,53 @@ def main():
     except (OSError, json.JSONDecodeError):
         pass
 
+    # ── THE CONTROL-VALIDITY GATE ────────────────────────────────────────────
+    #
+    # Measured 2026-08-14: the control fields NO QUARTERBACK in 85% of rooms.
+    # The chooser is `max(allowed, key=vorp)` and the grader is
+    # `sum(proj_mean of starters)` — two different currencies. QB VORP is low
+    # BECAUSE quarterbacks are replaceable (Allen 63.8 against Gibbs 156.0), so
+    # a VORP-greedy seat never spends a pick on one; the grader then scores a
+    # lineup with an empty QB slot and docks it the full ~350 points.
+    #
+    # `early_qb` is the archetype FORCED to take a quarterback. Its roster
+    # differs from the control by exactly ONE player (divergence 1.0) and it
+    # "wins" by +$352.75 — which is not a sequencing edge but the price of
+    # owning a starter the control never bought. Every other candidate is
+    # measured against the same broken baseline.
+    #
+    # So the race does not enroll anything until the control can field the
+    # lineup it is graded on. This is a REFUSAL, not a new belief: it withdraws
+    # a verdict the design cannot support and leaves the banner on the control.
+    CONTROL_MAX_ILLEGAL = 0.10
+    void_reason = None
+    if validity["rate"] > CONTROL_MAX_ILLEGAL:
+        void_reason = (
+            f"control could not field the mandatory lineup in "
+            f"{validity['illegal']}/{validity['rooms']} rooms "
+            f"({validity['rate']:.0%}; unfilled {validity['by_slot']}). "
+            f"Every edge here is measured against that roster, so a candidate "
+            f"forced to buy the missing starter collects its season value as a "
+            f"strategy edge. NOTHING ENROLLS until the chooser and the grader "
+            f"use the same currency.")
+
     head_to_head = None
-    if not winners:
+    if void_reason:
+        enrolled = "balanced"
+        winners = []
+        # A row reading "WINNER — enroll as THE PLAN" beside `enrolled: balanced`
+        # is a contradiction the next reader has to resolve, and the appealing
+        # resolution is the wrong one. Restate every verdict in terms of what the
+        # gate actually found, so the artifact cannot be quoted a row at a time.
+        for r in rows:
+            if r["verdict"].startswith("WINNER"):
+                r["verdict"] = ("VOID — margin is the missing starter, not a "
+                                "strategy edge")
+            elif r["verdict"].startswith("LOSER"):
+                r["verdict"] = "VOID — measured against an unfillable control"
+            else:
+                r["verdict"] = "VOID — control invalid"
+    elif not winners:
         enrolled = "balanced"
     elif len(winners) == 1:
         enrolled = winners[0]["archetype"]
@@ -434,12 +535,23 @@ def main():
               "rooms": args.rooms, "seed": SEED,
               "control": "balanced", "enrolled": enrolled, "leaderboard": rows,
               "head_to_head": head_to_head,
+              "control_validity": validity,
+              "void_reason": void_reason,
               "caveats": [
                   "money proxy v1: simulated weeks from proj_mean/weekly_sd normals",
                   "playoff $ INCLUDED (bracket resim, 53% of the pot); bracket seeding is by "
                   "season total points — this room has no schedule, so it cannot seed by record",
                   "predicted opponent slates (2 intel, 7 model) — regenerates when real designations land",
-                  "opponents = ADP-softmax; the room does not adapt to my sequencing",
+                  # WAS "opponents = ADP-softmax", which stopped being true when
+                  # heterogeneous rooms landed 2026-08-08 and `draft_room` began
+                  # defaulting to the fitted per-seat models. A caveat that
+                  # describes a sampler the run did not use is worse than none:
+                  # it invites exactly the objection it no longer answers.
+                  "opponents = per-seat models fitted from three seasons of real "
+                  "drafts (heterogeneous=True); the room does not adapt to my sequencing",
+                  "MY seat is VORP-greedy inside each archetype's constraint, while the "
+                  "grader scores proj_mean of the best startable lineup — two currencies. "
+                  "See the control-validity gate.",
                   "paired seeds: candidate vs control share room AND weekly luck — deltas isolate sequencing",
               ]}
     Path(args.out).write_text(json.dumps(result, indent=1))
@@ -447,7 +559,19 @@ def main():
     L = ["# EXPERIMENT 19b — THE CORY-CONDITIONAL ARCHETYPE RACE", "",
          f"_my keepers + my picks (34, 41, 54…) on the PREDICTED board · {args.rooms} paired rooms · "
          f"control: Balanced · **ENROLLED: {enrolled.upper()}**_", "",
-         "| archetype | mean edge $ | 95% CI | decisions ≠ control | verdict |", "|---|---|---|---|---|"]
+         ]
+    if void_reason:
+        L[2] = (f"_{args.rooms} paired rooms · control: Balanced · "
+                f"**RACE VOID — NOTHING ENROLLED**_")
+        L += ["> ## ⛔ THE RACE IS VOID — READ THIS BEFORE THE TABLE", ">",
+              f"> {void_reason}", ">",
+              "> The numbers below are printed because deleting them would hide the "
+              "defect, NOT because they rank anything. **The leader's margin is the "
+              "price of a starter the control never bought.** Treat every row as "
+              "evidence about the harness and none of it as evidence about a draft "
+              "strategy.", ""]
+    L += ["| archetype | mean edge $ | 95% CI | decisions ≠ control | verdict |",
+          "|---|---|---|---|---|"]
     for r in rows:
         L.append(f"| {r['archetype']} | {r['mean_edge']:+.2f} | [{r['ci95'][0]}, {r['ci95'][1]}] "
                  f"| {r['mean_divergence']} | {r['verdict']} |")

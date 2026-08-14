@@ -6223,11 +6223,13 @@
      * doctrine would be scored as if this were my first pick. At pick 34 that is
      * a silently wrong plan, which is exactly the failure this block's own
      * comment claimed to have fixed. */
-    const scores = DraftDoctrine.scoreBoard(scored, {
+    const detail = DraftDoctrine.scoreBoardDetail(scored, {
       liveIndex: myLivePickIndex(),
       roster: state.myRoster,
       dollarsOf: function (p) { return E.playerDollars(p).total; },
     });
+    const scores = {};
+    Object.keys(detail).forEach(function (k) { scores[k] = detail[k].score; });
     // A run is the causal story a switch needs — "the QB run erased its edge"
     // beats "the numbers moved", and it is the same detector the banner above
     // the board already fires on.
@@ -6245,6 +6247,13 @@
       // a deliberate null until that wiring lands. Filed with the movement-line
       // DOCTRINE-DRIFT follow-up.
       projected: null,
+      // WITHOUT THIS the banner prices one half of a two-sided trade. A doctrine
+      // whose constraint binds (Late-QB Patience, before live pick 8) differs
+      // from the plan only by the man it declines HERE; the pick that decline
+      // buys is in neither number. Passing `detail` lets update() report it as a
+      // deferral instead of as an alternative that "trails by $21" — which is
+      // what the war room showed at every pick Cory owns.
+      detail: detail,
     });
 
     const enr = state.doctrineEnrollment || { enrolled: false };
@@ -6274,14 +6283,27 @@
     document.getElementById('db-confidence').textContent = out.confidence;
     // A "$0 gap" is not an alternative, it is the same decision — say the pick
     // is doctrine-free rather than manufacture a contest out of a tie.
-    document.getElementById('db-alt').innerHTML = out.neutral
+    /* THE DEFERRAL LINE. A plan that declines a position here is not "trailing";
+     * it is buying a later pick this number does not model. Say the cost AND say
+     * what is missing from it, because the half-sentence is the one that reads as
+     * advice — "Late-QB Patience trails by $21" is why the war room looked like
+     * it was telling Cory to take a quarterback early. */
+    const defer = (out.deferrals || []).map(function (d) {
+      const who = d.declined && d.declined.position ? d.declined.position : 'the board leader';
+      return escapeHtml(d.name) + ' defers ' + escapeHtml(who) + ' here (−$'
+        + Math.abs(d.forgone).toFixed(0) + ' at this pick; what it buys later is '
+        + 'not in that number)';
+    }).join(' · ');
+
+    document.getElementById('db-alt').innerHTML = (out.neutral
       ? 'no doctrine changes this pick — take the best player'
       : (out.alternative
         ? escapeHtml(out.alternative) + (out.gap == null ? ''
             : (out.gap >= 0 ? ' trails by <b>$' + Math.abs(out.gap).toFixed(0) + '</b>'
                             : ' leads by <b>$' + Math.abs(out.gap).toFixed(0) + '</b>'))
           + ' <span class="muted">at this pick</span>'
-        : '');
+        : ''))
+      + (defer ? '<span class="db-defer muted">' + defer + '</span>' : '');
 
     renderDoctrineSwitch(out, prior);
     renderDoctrinePicker(scores, out, enr);

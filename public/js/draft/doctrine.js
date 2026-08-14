@@ -291,7 +291,35 @@
    * board falls back to unconstrained — the Lab does the same, and a doctrine
    * that cannot be executed should read as "no cost", not as a fake $0 cliff.
    */
-  function scoreBoard(entries, opts) {
+  /* ── WHY THIS NUMBER CANNOT RANK DOCTRINES, AND WHAT IT CAN DO ────────────
+   *
+   * `scoreBoard` answers "what is the best player this plan LETS me take right
+   * now". The banner was reading it as "what is this plan WORTH", and those are
+   * different quantities. Measured on the live board at Cory's real picks:
+   *
+   *     pick 33 — EIGHT of nine doctrines score $67.0 (Lamar, the board leader)
+   *               Late-QB Patience alone scores $46.0 and ranks LAST of nine
+   *
+   * The eight tie because none of their constraints binds at that pick, so each
+   * returns the unconstrained maximum. The ninth differs ONLY because it is
+   * forbidden from the man topping the board. So the ranking has exactly one
+   * degree of freedom — whose constraint happens to bite — and none at all about
+   * which plan is better. That is an algebraic guarantee, not a property of this
+   * board: at live pick i < 8 the late_qb pool is a strict SUBSET of the
+   * unconstrained pool, so its score can never exceed it, under ANY pricing.
+   *
+   * And the cost is charged one-sided. Deferring a quarterback buys a better
+   * RB/WR at THIS pick and pays for it at a LATER one; this number sees only the
+   * decline. `slot_schedule.js` computes the two-sided version (a DP over 15
+   * picks x 2^6 slot states, brute-force verified) and finds the comparison
+   * INVERTS once you look past the next pick — QB falls 103 points across the
+   * draft against RB/WR's 139.
+   *
+   * So the fix is not a better weight. It is to stop reporting a one-step
+   * decline as a plan ranking: `binds` marks the doctrines whose difference is a
+   * deferral, and the banner states that rather than pricing it.
+   */
+  function scoreBoardDetail(entries, opts) {
     opts = opts || {};
     const rows = entries || [];
     const dollarsOf = opts.dollarsOf || function () { return 0; };
@@ -300,19 +328,43 @@
     const keys = opts.keys || Object.keys(LIVE_CONSTRAINTS);
     const priced = rows.map(function (e) {
       const p = e.player || e;
-      return { position: p.position, dollars: dollarsOf(p) };
+      return { position: p.position, name: p.name || null, dollars: dollarsOf(p) };
     });
     const bestOf = function (list) {
       return list.reduce(function (m, r) { return r.dollars > m ? r.dollars : m; }, -Infinity);
     };
+    const topRow = priced.reduce(function (m, r) {
+      return (!m || r.dollars > m.dollars) ? r : m;
+    }, null);
     const unconstrained = priced.length ? bestOf(priced) : 0;
     const out = {};
     keys.forEach(function (k) {
       const allow = LIVE_CONSTRAINTS[k];
-      if (!allow || !priced.length) { out[k] = round2(unconstrained); return; }
+      if (!allow || !priced.length) {
+        out[k] = { score: round2(unconstrained), binds: false, forgone: 0, declined: null };
+        return;
+      }
       const pool = priced.filter(function (r) { return allow(r.position, i, roster); });
-      out[k] = round2(pool.length ? bestOf(pool) : unconstrained);
+      const score = round2(pool.length ? bestOf(pool) : unconstrained);
+      // THE CONSTRAINT BINDS when the plan cannot take the man topping the
+      // board. `forgone` is then a THIS-PICK decline, not a plan valuation —
+      // the offsetting later pick is not modelled here and must not be implied.
+      const binds = pool.length > 0 && score < unconstrained - 0.01;
+      out[k] = {
+        score: score,
+        binds: binds,
+        forgone: binds ? round2(unconstrained - score) : 0,
+        declined: binds && topRow ? { position: topRow.position, name: topRow.name } : null,
+      };
     });
+    return out;
+  }
+
+  /** Back-compatible {key: dollars} view of `scoreBoardDetail`. */
+  function scoreBoard(entries, opts) {
+    const d = scoreBoardDetail(entries, opts);
+    const out = {};
+    Object.keys(d).forEach(function (k) { out[k] = d[k].score; });
     return out;
   }
 
@@ -414,9 +466,33 @@
     // ties, that is itself the finding: this pick is doctrine-neutral.
     const mine = scoresByKey && scoresByKey[this.current] != null ? scoresByKey[this.current] : curScore;
     const others = ranked.filter(function (d) { return d.key !== this.current; }, this);
-    const differing = others.filter(function (d) { return Math.abs(d.score - mine) > 0.01; });
-    const neutral = others.length > 0 && differing.length === 0;
-    const alt = differing[0] || others[0] || null;
+
+    /* DEFERRAL IS NOT AN ALTERNATIVE THAT "TRAILS". When ctx.detail is supplied,
+     * a doctrine whose constraint BINDS differs from the plan only by the man it
+     * declines at this pick — the pick that decline buys is not in either number.
+     * Presenting it as "Late-QB Patience trails by $21" prices one half of a
+     * two-sided trade, and that sentence is what the war room was showing Cory at
+     * every pick he owns. It is reported separately, as a deferral, or not at all.
+     *
+     * Without ctx.detail the old behaviour stands unchanged — callers that never
+     * learned about binding keep the semantics they were written against. */
+    const detail = (ctx && ctx.detail) || null;
+    const bindsOf = function (k) { return !!(detail && detail[k] && detail[k].binds); };
+    const deferrals = !detail ? [] : others.filter(function (d) { return bindsOf(d.key); })
+      .map(function (d) {
+        return { key: d.key, name: d.name, forgone: detail[d.key].forgone,
+                 declined: detail[d.key].declined };
+      });
+
+    const comparable = detail
+      ? others.filter(function (d) { return !bindsOf(d.key); })
+      : others;
+    const differing = comparable.filter(function (d) { return Math.abs(d.score - mine) > 0.01; });
+    // Neutral now means "every plan that is comparable here takes the same man".
+    // A binding doctrine no longer suppresses that finding by pretending to be a
+    // contest — which is why the eight-way tie at pick 33 read as a contest.
+    const neutral = comparable.length > 0 && differing.length === 0;
+    const alt = differing[0] || comparable[0] || null;
     const altGap = alt ? +(mine - alt.score).toFixed(2) : null;
     const cur = doctrineMeta(this.current);
 
@@ -432,6 +508,9 @@
       // True when no doctrine would take a different player here — the plan is
       // not binding at this pick, so the choice is doctrine-free.
       neutral: neutral,
+      // Plans that differ ONLY by deferring a position at this pick. Their cost
+      // is real and one-sided: what the deferral buys later is not in `forgone`.
+      deferrals: deferrals,
       switched: switched,
       confidence: this._confidence(pick, switched, alt, altGap, neutral),
       sentence: switched ? this._switchSentence(cur, scoresByKey, ctx) : null,
@@ -502,7 +581,8 @@
                 DOCTRINES: DOCTRINES, ALIASES: ALIASES, DEFAULTS: DEFAULTS,
                 doctrineMeta: doctrineMeta, rankDoctrines: rankDoctrines,
                 DoctrineState: DoctrineState, LIVE_CONSTRAINTS: LIVE_CONSTRAINTS,
-                scoreBoard: scoreBoard, enrollment: enrollment,
+                scoreBoard: scoreBoard, scoreBoardDetail: scoreBoardDetail,
+                enrollment: enrollment,
                 PREFERS: PREFERS, prefers: prefers,
                 stackAnchorTeams: stackAnchorTeams };
   global.DraftDoctrine = api;
