@@ -1,0 +1,66 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by external_odds_probe.py",
+ "asked_markets": [
+  "player_props",
+  "player_pass_yds",
+  "player_rush_yds",
+  "player_receptions",
+  "player_anytime_td",
+  "totals",
+  "season_wins",
+  "outrights"
+ ],
+ "event_id": 71515752,
+ "league": "usa-nfl",
+ "parameter_honoured": {
+  "honoured": false,
+  "real_keys": 2,
+  "control_keys": 2,
+  "note": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+ },
+ "availability": {
+  "player_props": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "season_win_totals": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "game_totals": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  },
+  "sides": {
+   "state": "unmeasured",
+   "matched": [],
+   "why": "a nonsense `markets` value returned the SAME market names, so the parameter is accepted and IGNORED. Every availability reading in this run is VOID, not negative \u2014 the same shape the as-of probe found on date bounding."
+  }
+ },
+ "observed_markets": {
+  "player_props": [],
+  "season_win_totals": [],
+  "game_totals": [],
+  "sides": []
+ },
+ "unclassified": [
+  "American Football",
+  "USA - NFL"
+ ],
+ "credit": {
+  "spent": 2,
+  "remaining": 96,
+  "note": "measured from the provider's own remaining counter, not from how many calls we think we made"
+ },
+ "verdict": "VOID \u2014 the parameter was not read",
+ "default_markets": {
+  "player_props": [],
+  "season_win_totals": [],
+  "game_totals": [],
+  "sides": []
+ },
+ "events_listed": 136
+}

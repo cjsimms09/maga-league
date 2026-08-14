@@ -28,6 +28,22 @@ writes its own file, runs after the snapshot is committed, and its every failure
 mode is a missing day in ITS archive rather than a missing day in the one that
 matters.
 
+⚠ CORRECTION, SAME DAY, AND IT MAKES THIS FILE MORE IMPORTANT RATHER THAN LESS.
+A told me FFC was "format-matched at our exact settings" and Cory caught that it
+is not: `adp.py:67` — FFC publishes `standard`, `ppr`, `half-ppr`, `2qb`,
+`dynasty`, every one a RECEPTION or ROSTER-SHAPE axis. THERE IS NO PASSING-TD
+PARAMETER, so FFC is 4-point passing TDs exactly like FantasyPros. The anchor
+swap would have fixed nothing. And that is the finding getting BIGGER, not going
+away: if no public source prices our 6-point rule, the QB bias cannot be fixed by
+CHOOSING a source — it is structural, and recording what each source said is then
+the only way it is ever quantified. A confirmed it from our own drafts: our room
+takes QB1 5.7 picks early, QB2 14.7, TE1 13.0, while RB and WR sit at ~0.
+
+Every row this file writes therefore carries `format_axes_matched` and
+`format_axes_unmatched` AS DATA. The claim that was wrong was going to be written
+into the archive daily, and a false claim stored beside real numbers is worse than
+no claim: a year from now it is indistinguishable from a measurement.
+
 WHAT IT DOES NOT DO. It does not merge, rank, average or choose. It records what
 each source said, keyed by OUR player id, with the fetch parameters that produced
 it. Deciding which one prices the board is A's; this only makes the decision
@@ -45,7 +61,7 @@ SERIES = HERE.parent / "data" / "external_source_prices.json"
 #: that stops being written shows up as EMPTY instead of ceasing to exist — the
 #: same reason `SNAPSHOT_FIELDS` exists one file over.
 SOURCE_FIELDS = ("source", "observed_at", "year", "params", "row_count", "rows",
-                 "note")
+                 "sd", "sd_count", "note")
 
 
 def load(path=None) -> list:
@@ -56,12 +72,20 @@ def load(path=None) -> list:
 
 
 def append_day(series: list, source: str, year, observed_at: str, rows: dict,
-               params: dict = None, note: str = None) -> list:
+               sd: dict = None, params: dict = None, note: str = None) -> list:
     """Add one source's board for one day. Returns a NEW series.
 
     DEDUPED BY (source, year, date), so a retried workflow replaces rather than
     doubling — the same rule the MFL archive enforces, and for the same reason: a
     duplicated day is indistinguishable from two real observations downstream.
+
+    `sd` IS THE PROVIDER'S OWN PUBLISHED DISPERSION AND NOTHING ELSE. FFC serves
+    one; FantasyPros serves none. The merge destroys FFC's on the same rows it
+    destroys the price — the shipped board keeps an `ffc-published` sd on 4
+    players of the 215 FFC priced — so it is exactly as unrefetchable as the mean
+    beside it. A value FITTED from the mean by our own clamp must never be stored
+    here: archived, it becomes our arithmetic wearing the provider's name a year
+    later, which is the same failure as a merged price with no source field.
     """
     key = (str(source), str(year), str(observed_at))
     keep = [s for s in (series or [])
@@ -76,6 +100,8 @@ def append_day(series: list, source: str, year, observed_at: str, rows: dict,
         "params": dict(params or {}),
         "rows": {str(k): float(v) for k, v in (rows or {}).items() if v is not None},
         "row_count": len([v for v in (rows or {}).values() if v is not None]),
+        "sd": {str(k): float(v) for k, v in (sd or {}).items() if v is not None},
+        "sd_count": len([v for v in (sd or {}).values() if v is not None]),
         "note": note,
     })
     return keep
@@ -116,6 +142,13 @@ def disagreement(series: list, year, observed_at: str, positions: dict = None) -
     from statistics import median
     out = {"status": "measured", "sources": sorted(s.get("source") for s in day),
            "pairs": {}}
+    # ⚠ SORTED, SO THE SIGN OF EVERY GAP IS A FACT ABOUT THE SOURCES AND NOT
+    # ABOUT THE ORDER THEY WERE APPENDED IN. `a->b` reports `b - a`; `save` sorts
+    # by source name and `append_day` does not, so the same day read +15 in the
+    # run that captured it and -15 the next morning after a reload. Same number,
+    # opposite readings, nothing saying which was which — and the whole point of
+    # this file is a comparison somebody trusts a year later.
+    day = sorted(day, key=lambda s: str(s.get("source")))
     for i in range(len(day)):
         for j in range(i + 1, len(day)):
             a, b = day[i], day[j]
@@ -131,6 +164,13 @@ def disagreement(series: list, year, observed_at: str, positions: dict = None) -
                     per_pos.setdefault(pos, []).append(d)
             out["pairs"]["%s->%s" % (a["source"], b["source"])] = {
                 "shared": len(shared),
+                # THE DIRECTION IN WORDS. A signed pick difference is exactly the
+                # kind of number a reader flips without noticing, and the finding
+                # this archive exists to settle is a SIGNED one — whether FFC
+                # prices quarterbacks EARLIER than FantasyPros, not by how much
+                # they differ. Spelling it out costs a string per pair.
+                "reads": "positive = priced LATER by %s than by %s"
+                         % (b["source"], a["source"]),
                 "median_pick_difference": round(median(overall), 2),
                 "by_position": {k: {"n": len(v), "median": round(median(v), 2)}
                                 for k, v in sorted(per_pos.items())},

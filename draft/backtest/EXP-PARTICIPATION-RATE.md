@@ -4,16 +4,16 @@ _200 rooms · flat money + HIGH flip-rate = real null; flat money + LOW flip-rat
 
 | term | weight | flip-rate | flips/decisions | VORP cost/flip |
 |---|---|---|---|---|
-| need | 0.5 | 8.4% | 202/2400 | +5.1 |
-| need | 1.0 | 11.9% | 286/2400 | +6.6 |
-| need | 3.0 | 11.9% | 286/2400 | +6.6 |
-| ceiling | 0.65 | 55.3% | 1328/2400 | +5.2 |
-| ceiling | 1.0 | 69.6% | 1670/2400 | +9.0 |
-| ceiling | 3.0 | 81.9% | 1966/2400 | +21.8 |
-| bye | 1.0 | 38.5% | 925/2400 | +4.2 |
-| bye | 3.0 | 43.2% | 1036/2400 | +7.0 |
-| stack | 0.5 | 22.7% | 544/2400 | +7.7 |
-| tier | 1.0 | 94.1% | 2259/2400 | +43.9 |
-| risk | 1.0 | 60.5% | 1451/2400 | +8.7 |
+| need | 0.5 | 8.0% | 192/2400 | +3.5 |
+| need | 1.0 | 9.7% | 233/2400 | +4.7 |
+| need | 3.0 | 9.7% | 233/2400 | +4.7 |
+| ceiling | 0.65 | 49.8% | 1196/2400 | +4.6 |
+| ceiling | 1.0 | 61.9% | 1486/2400 | +9.3 |
+| ceiling | 3.0 | 77.8% | 1868/2400 | +22.1 |
+| bye | 1.0 | 39.5% | 947/2400 | +4.4 |
+| bye | 3.0 | 44.7% | 1072/2400 | +7.2 |
+| stack | 0.5 | 25.5% | 613/2400 | +7.5 |
+| tier | 1.0 | 87.3% | 2096/2400 | +49.1 |
+| risk | 1.0 | 64.7% | 1554/2400 | +7.2 |
 
-**Reading:** need: barely moves picks even at w=3.0 (12%) — the value anchor dominates; this term is near-inert at every strength tried, so its money-flatness says little · ceiling: participates at default (55% of picks) — its flat money is a REAL null, not a scale artifact · bye: participates at default (38% of picks) — its flat money is a REAL null, not a scale artifact
+**Reading:** need: barely moves picks even at w=3.0 (10%) — the value anchor dominates; this term is near-inert at every strength tried, so its money-flatness says little · ceiling: participates at default (50% of picks) — its flat money is a REAL null, not a scale artifact · bye: participates at default (40% of picks) — its flat money is a REAL null, not a scale artifact

@@ -1,7 +1,7 @@
 {
   "experiment": "participation regional disaggregation \u2014 did pooled negatives hide structure?",
   "rooms": 400,
-  "core_mean_dollars": 790.5,
+  "core_mean_dollars": 754.2,
   "bands": {
     "early_r4_6": "rounds 4-6",
     "mid_r7_10": "rounds 7-10",
@@ -12,20 +12,20 @@
     "need": {
       "by_band": {
         "early_r4_6": {
-          "edge": -36.56,
+          "edge": -21.62,
           "ci95": [
-            -53.88,
-            -18.0
+            -39.81,
+            -1.94
           ],
           "separable": true
         },
         "mid_r7_10": {
-          "edge": 2.12,
+          "edge": -3.69,
           "ci95": [
-            -2.25,
-            6.69
+            -8.38,
+            -0.06
           ],
-          "separable": false
+          "separable": true
         },
         "late_r11_15": {
           "edge": 0.0,
@@ -36,31 +36,31 @@
           "separable": false
         }
       },
-      "verdict": "hurts in early_r4_6, neutral elsewhere \u2014 drop in those bands"
+      "verdict": "hurts in early_r4_6, mid_r7_10, neutral elsewhere \u2014 drop in those bands"
     },
     "tier": {
       "by_band": {
         "early_r4_6": {
-          "edge": -144.12,
+          "edge": -205.75,
           "ci95": [
-            -167.0,
-            -121.0
+            -230.62,
+            -179.0
           ],
           "separable": true
         },
         "mid_r7_10": {
-          "edge": -105.19,
+          "edge": -114.56,
           "ci95": [
-            -126.56,
-            -83.88
+            -138.25,
+            -92.81
           ],
           "separable": true
         },
         "late_r11_15": {
-          "edge": -32.69,
+          "edge": -34.81,
           "ci95": [
-            -50.31,
-            -15.12
+            -54.31,
+            -15.88
           ],
           "separable": true
         }
@@ -70,55 +70,55 @@
     "risk": {
       "by_band": {
         "early_r4_6": {
-          "edge": -82.0,
+          "edge": -134.75,
           "ci95": [
-            -100.88,
-            -61.31
+            -159.06,
+            -111.5
           ],
           "separable": true
         },
         "mid_r7_10": {
-          "edge": -13.19,
+          "edge": -17.88,
           "ci95": [
-            -26.06,
-            -0.94
+            -31.0,
+            -3.5
           ],
           "separable": true
         },
         "late_r11_15": {
-          "edge": -20.19,
+          "edge": -16.88,
           "ci95": [
-            -38.0,
-            -2.81
+            -34.69,
+            1.38
           ],
-          "separable": true
+          "separable": false
         }
       },
-      "verdict": "uniformly hurts across all bands \u2014 pooled 'drop it' stands"
+      "verdict": "hurts in early_r4_6, mid_r7_10, neutral elsewhere \u2014 drop in those bands"
     },
     "ceiling": {
       "by_band": {
         "early_r4_6": {
-          "edge": -3.5,
+          "edge": -16.44,
           "ci95": [
-            -19.81,
-            13.06
+            -34.69,
+            2.5
           ],
           "separable": false
         },
         "mid_r7_10": {
-          "edge": 13.56,
+          "edge": 8.94,
           "ci95": [
-            -0.56,
-            28.62
+            -8.44,
+            26.0
           ],
           "separable": false
         },
         "late_r11_15": {
-          "edge": -13.94,
+          "edge": -18.75,
           "ci95": [
-            -25.19,
-            -3.19
+            -34.19,
+            -4.06
           ],
           "separable": true
         }
@@ -128,26 +128,26 @@
     "bye": {
       "by_band": {
         "early_r4_6": {
-          "edge": -0.31,
+          "edge": -1.56,
           "ci95": [
-            -9.5,
-            8.5
+            -9.94,
+            7.0
           ],
           "separable": false
         },
         "mid_r7_10": {
-          "edge": -5.81,
+          "edge": -10.06,
           "ci95": [
-            -18.88,
-            6.31
+            -24.38,
+            3.44
           ],
           "separable": false
         },
         "late_r11_15": {
-          "edge": -26.81,
+          "edge": -26.19,
           "ci95": [
-            -44.12,
-            -10.44
+            -44.06,
+            -8.31
           ],
           "separable": true
         }
@@ -155,5 +155,5 @@
       "verdict": "hurts in late_r11_15, neutral elsewhere \u2014 drop in those bands"
     }
   },
-  "headline": "need: hurts in early_r4_6, neutral elsewhere \u2014 drop in those bands; tier: uniformly hurts across all bands \u2014 pooled 'drop it' stands; risk: uniformly hurts across all bands \u2014 pooled 'drop it' stands; ceiling: hurts in late_r11_15, neutral elsewhere \u2014 drop in those bands; bye: hurts in late_r11_15, neutral elsewhere \u2014 drop in those bands"
+  "headline": "need: hurts in early_r4_6, mid_r7_10, neutral elsewhere \u2014 drop in those bands; tier: uniformly hurts across all bands \u2014 pooled 'drop it' stands; risk: hurts in early_r4_6, mid_r7_10, neutral elsewhere \u2014 drop in those bands; ceiling: hurts in late_r11_15, neutral elsewhere \u2014 drop in those bands; bye: hurts in late_r11_15, neutral elsewhere \u2014 drop in those bands"
 }

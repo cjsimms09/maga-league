@@ -127,6 +127,24 @@ def test_a_NULL_PRICE_IS_NOT_STORED_AS_A_NUMBER():
     assert ser[0]["row_count"] == 1
 
 
+def test_a_PUBLISHED_DISPERSION_IS_KEPT_beside_the_mean():
+    """FFC publishes a standard deviation and `merge_primary_over_ffc` destroys it
+    on the same rows it destroys the mean — the merged board keeps an
+    `ffc-published` sd on 4 players out of 215. It is the same unrefetchable
+    measurement as the price and costs one dict to hold.
+
+    MUTATION: store the mean only — the published spread is gone every day, and
+    every future dispersion question is answered by our own clamp fitted from the
+    mean, which is our arithmetic wearing the provider's name."""
+    ser = S.append_day([], "ffc", 2026, "2026-08-14", {"1": 20.0, "2": 40.0},
+                       sd={"1": 6.5})
+    assert ser[0]["sd"] == {"1": 6.5}
+    assert ser[0]["sd_count"] == 1
+    # AND AN ABSENT SD IS ABSENT, not zero: FantasyPros publishes none at all.
+    ser2 = S.append_day([], "fantasypros", 2026, "2026-08-14", {"1": 20.0})
+    assert ser2[0]["sd"] == {} and ser2[0]["sd_count"] == 0
+
+
 def test_the_SAVED_FILE_ROUND_TRIPS(tmp_path):
     """Written and read by the same module, because an archive nothing can reload
     is a write-only file.
@@ -140,3 +158,30 @@ def test_the_SAVED_FILE_ROUND_TRIPS(tmp_path):
     back = S.load(str(p))
     assert len(back) == 1 and back[0]["source"] == "ffc"
     assert back[0]["params"] == {"teams": 10}
+
+
+def test_the_PAIR_DIRECTION_DOES_NOT_DEPEND_ON_APPEND_ORDER():
+    """`a->b` reports `b - a`, so the SIGN of every reported gap depends on which
+    source happens to sit first in the list. `save` sorts by source name and
+    `append_day` does not, so the same day's measurement reads +15 in the run that
+    captured it and −15 the next morning after a reload — the same number, two
+    opposite readings, and nothing anywhere says which one is which.
+
+    MUTATION: compare in list order — a retried step that captures FantasyPros
+    first inverts every gap in the log, and a reader comparing two days' output
+    sees a source that flipped from pricing quarterbacks late to pricing them
+    early, on a day nothing changed."""
+    fwd = S.append_day(S.append_day([], "ffc", 2026, "2026-08-14", {"1": 20.0}),
+                       "fantasypros", 2026, "2026-08-14", {"1": 35.0})
+    rev = S.append_day(S.append_day([], "fantasypros", 2026, "2026-08-14", {"1": 35.0}),
+                       "ffc", 2026, "2026-08-14", {"1": 20.0})
+    a = S.disagreement(fwd, 2026, "2026-08-14", POS)
+    b = S.disagreement(rev, 2026, "2026-08-14", POS)
+    assert list(a["pairs"]) == list(b["pairs"]) == ["fantasypros->ffc"]
+    assert a["pairs"]["fantasypros->ffc"]["median_pick_difference"] == -15.0
+    assert b["pairs"]["fantasypros->ffc"]["median_pick_difference"] == -15.0
+    # AND THE DIRECTION IS SPELLED OUT, because a signed pick difference is the
+    # kind of number a reader flips without noticing — and the finding this file
+    # exists to settle is a signed one.
+    assert a["pairs"]["fantasypros->ffc"]["reads"] == \
+        "positive = priced LATER by ffc than by fantasypros"
