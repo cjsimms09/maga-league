@@ -202,10 +202,44 @@ def verify(kind: str, tol: float = COMPARE_TOLERANCE) -> dict:  # pragma: no cov
         fields = ("plays", "games", "plays_per_game", "neutral_plays_per_game",
                   "neutral_share", "pass_rate", "neutral_pass_rate")
         return compare_rows(fresh, art["teams"], fields, tol=tol)
-    raise ValueError("verify(%r) is not implemented — only `pace` re-derives from "
-                     "its assets alone. Durability needs the id crosswalk and the "
-                     "board, and wiring it half-way would be a verifier that "
-                     "checks less than it claims." % kind)
+    if kind == "durability":
+        import grade as GR
+        import nflverse_durability as ND
+        art = _json.loads((here / "nflverse_durability.json").read_text())
+        ids_path = Path(os.environ.get("NFLVERSE_CACHE", "/tmp")) / \
+            Path(assets["player_ids"]["url"]).name
+        if not ids_path.exists():
+            raise RuntimeError(
+                "the id crosswalk is not cached at %s. Same rule as the parquet "
+                "assets: `verify` compares against the exact file the artifact "
+                "records rather than refetching one that may have moved."
+                % ids_path)
+        cw = GR.crosswalk_gsis_to_sleeper(
+            [], ids_df=pd.read_csv(ids_path, low_memory=False))
+        # ROSTER STATUS, exactly as the artifact's `_source` declares: ACT is the
+        # availability record. Re-deriving from the stats file instead would
+        # "verify" a different measurement and report agreement with it.
+        rw = frames("weekly_rosters",
+                    ["season", "week", "gsis_id", "status", "team", "position"])
+        rw = rw[rw["status"] == "ACT"].rename(columns={"gsis_id": "player_id"})
+        out, _ = ND.durability(rw, art["seasons"], cw, before_season=2026)
+        board = _json.loads((here.parent.parent / "public" / "draft_data.json").read_text())
+        fresh = {}
+        for p in board.get("players") or []:
+            sid = str(p.get("player_id"))
+            gs = list((out.get(sid) or {}).get("games", {}).values())
+            if p.get("adp") is None or float(p["adp"]) > 150 or len(gs) < 1:
+                continue
+            fresh[sid] = {"mean_games": round(sum(gs) / len(gs), 2),
+                          "seasons": len(gs)}
+        return compare_rows(fresh, art["players"], ("mean_games", "seasons"), tol=tol)
+
+    raise ValueError("verify(%r) is not implemented. Known: pace, durability. The "
+                     "spread artifact is deliberately absent — it depends on the "
+                     "scoring mapper as well as the roster, and the fumble gap "
+                     "parked for A sits inside that path, so a green verify would "
+                     "confirm a derivation that is known to be missing 14%% of "
+                     "fumbles." % kind)
 
 
 def main(argv=None):  # pragma: no cover  (egress, CI only)
