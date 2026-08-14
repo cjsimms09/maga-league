@@ -328,6 +328,63 @@
       "test_a_CORRUPT_OLDER_DAY_DOES_NOT_COST_TODAYS_BOARD"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        ratios.append(sel / (n / total * 100.0))",
+     "new": "        ratios.append(sel / (n / total))",
+     "must_fail": [
+      "test_the_UNITS_CHECK_FIRES_on_a_planted_fraction"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    return dict(out, verdict=\"disagrees\", expected_percent=False,",
+     "new": "    return dict(out, verdict=\"percent\", expected_percent=True,",
+     "must_fail": [
+      "test_a_rate_that_is_NEITHER_says_so_rather_than_picking_the_closer_one"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "SEL_PCT_UNITS_TOLERANCE = 0.15",
+     "new": "SEL_PCT_UNITS_TOLERANCE = 1e-9",
+     "must_fail": [
+      "test_ROUNDING_IN_THE_PUBLISHED_FIGURE_is_not_read_as_a_units_error"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not disp or not total or total <= 0:\n        return dict(out, verdict=\"unmeasured\",",
+     "new": "    if not disp or not total or total <= 0:\n        return dict(out, verdict=\"percent\",",
+     "must_fail": [
+      "test_a_DAY_WITH_NO_SPREAD_is_UNMEASURED_and_specifically_not_percent",
+      "test_the_REAL_ARCHIVE_is_judged_and_the_verdict_is_RECORDED_not_assumed"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if n <= 0 or sel <= 0:\n            continue",
+     "new": "        if False:\n            continue",
+     "must_fail": [
+      "test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not ratios:\n        return dict(out, verdict=\"unmeasured\",",
+     "new": "    if not ratios:\n        return dict(out, verdict=\"percent\",",
+     "must_fail": [
+      "test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    rep = None\n    try:\n        rep = coverage(series, year)",
+     "new": "    rep = None\n    _units = sel_pct_units({})\n    try:\n        rep = coverage(series, year)",
+     "must_fail": [
+      "test_A_GUARD_FAILING_MUST_NOT_COST_THE_DAY"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },
@@ -521,6 +578,24 @@
      "new": "    must = [must_fail] if isinstance(must_fail, str) else list(must_fail)",
      "must_fail": [
       "test_a_PARAMETRISED_case_may_be_NAMED_THE_WAY_PYTEST_PRINTS_IT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\",\n                   **{JOURNAL_DIR_ENV: jdir})",
+     "new": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\")",
+     "must_fail": [
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents",
+      "test_a_CHILD_CANNOT_EVEN_SEE_THE_PARENTS_DECLARATION_mid_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    import os\n    import tempfile\n    return (Path(os.environ.get(JOURNAL_DIR_ENV) or tempfile.gettempdir())\n            / \"mutation_gate_inflight.json\")",
+     "new": "    import tempfile\n    return Path(tempfile.gettempdir()) / \"mutation_gate_inflight.json\"",
+     "must_fail": [
+      "test_the_JOURNAL_PATH_is_read_PER_CALL_not_frozen_at_import",
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents"
      ],
      "verdict": "KILLED"
     }

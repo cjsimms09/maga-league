@@ -2044,7 +2044,12 @@ WRITE_PATH = ["coverage", "load_players", "merge_players", "append_snapshot"]
 #: check above FORCED the decision — it failed naming the new call by name rather
 #: than letting it default into whichever list was convenient. That is the whole
 #: point of the classification test, and it is the first time it has fired.
-GUARDS = ["integrity", "blocking_fatal"]
+#: `sel_pct_units` is a REPORT, and reports live in this list for the reason the
+#: list exists: it sits between a saved day and the reader, and a bug in it must
+#: not be able to reach back and cost the day. It is called inside the report
+#: `try` for exactly that, and the parametrised test below proves it rather than
+#: trusting the placement.
+GUARDS = ["integrity", "blocking_fatal", "sel_pct_units"]
 #: The SOURCE. Not a guard and not the write: if it fails there is no board at
 #: all, so aborting is the only honest outcome. Grouped with the write path for
 #: the loud-and-no-partial-file assertion because the requirement is identical.
@@ -2578,3 +2583,152 @@ def test_TODAYS_corruption_STILL_REFUSES_even_beside_an_older_one(tmp_path,
         C.capture(2026, "2026-08-14", path=str(p))
     assert "bad_adp" in str(e.value)
     assert p.read_text() == before, "and it must not have touched the file"
+
+
+# ── IS `sel_pct` A PERCENT OR A FRACTION? DERIVED, NOT ASSUMED ─────────────
+#
+# `TRUNCATION_SEL_PCT = 50.0` and the note's `%.1f%%` both read MFL's
+# `draftSelPct` as a whole percent. That reading rests on ONE row quoted in a
+# comment — no captured MFL response in this repo carries the field, and MFL is
+# unreachable from here — so it was an assumption going live on the first day the
+# spread is ever captured.
+#
+# It is DERIVABLE from what the snapshot already stores: `drafts` per player and
+# `total_drafts` for the report give the rate, and a derived rate against the
+# published one settles the scale on day one rather than never.
+#
+# WHAT IS AND IS NOT AT STAKE, so this is not read as worse than it is. `sd` is
+# `(max - min) / d_n` and does not touch `sel_pct`. A wrong scale mislabels
+# `truncated` and prints a wrong figure in a note; it moves no number anyone
+# drafts on, and the raw value is archived so the reading can be corrected later
+# over every day already captured.
+
+def _day(sel_scale=1.0, total=125, rows=(("a", 70, 87), ("b", 20, 25),
+                                         ("c", 8, 10))):
+    """A day whose published rates are EXACTLY consistent with its counts.
+
+    Built from selection counts and a total, so the fixture cannot accidentally
+    encode the answer: each `sel_pct` is computed from `drafts/total`, then scaled
+    by `sel_scale` to plant a units error.
+    """
+    disp = {}
+    for pid, _pct, n in rows:
+        disp[pid] = {"min_pick": 1, "max_pick": 100, "drafts": n,
+                     "sel_pct": (n / total * 100.0) * sel_scale}
+    return {"total_drafts": total, "dispersion": disp}
+
+
+def test_the_UNITS_CHECK_FIRES_on_a_planted_fraction():
+    """Proved before the real feed is judged by it. MUTATION: compare the
+    published rate against `drafts/total` WITHOUT the x100 — percent and fraction
+    swap places and the check confidently reports the wrong scale."""
+    assert C.sel_pct_units(_day(sel_scale=1.0))["verdict"] == "percent"
+    frac = C.sel_pct_units(_day(sel_scale=0.01))
+    assert frac["verdict"] == "fraction", frac
+    assert frac["expected_percent"] is False
+    assert "100x" in frac["note"]
+
+
+def test_a_rate_that_is_NEITHER_says_so_rather_than_picking_the_closer_one():
+    """The answer that matters most, because it is the one that means STOP. If
+    `draftSelPct` is not the selection rate at all, rounding it to whichever of
+    two guesses is nearer would put a confident label on a field nobody
+    understands.
+
+    MUTATION: return `percent` unless it matches `fraction` — an unrecognised
+    feed silently becomes the assumption this check was built to test."""
+    odd = C.sel_pct_units(_day(sel_scale=3.7))
+    assert odd["verdict"] == "disagrees", odd
+    assert "NOTHING" in odd["note"]
+
+
+def test_ROUNDING_IN_THE_PUBLISHED_FIGURE_is_not_read_as_a_units_error():
+    """MFL publishes `draftSelPct` rounded to whole percents ("70"). At the real
+    archive's scale — 125 drafts — one rounding step is 0.4 points on a figure of
+    5.6, which is 7%. A tolerance tight enough to call that a units error would
+    fail on the first real day, every day.
+
+    ⚠ MY FIRST FIXTURE PROVED NOTHING AND THE GATE SAID SO. It rounded counts of
+    87, 25 and 10 against a total of 125 — all of which divide evenly into whole
+    percents — so `round()` changed nothing, the median ratio was exactly 1.0, and
+    the tight-tolerance mutation SURVIVED. A test that cannot fail for the reason
+    it names is not evidence, so the count here is deliberately one that does NOT
+    divide evenly, and the planted distortion is asserted before the verdict is.
+
+    7 of 125 is also the realistic worst case rather than an invented one: it is
+    the shape of a deep player on the live board, and it is where the rounding
+    error is largest.
+
+    MUTATION: drop the tolerance to 1e-9 — every real day reports `disagrees` and
+    a check built to answer a question becomes a daily false alarm."""
+    d = {"total_drafts": 125,
+         "dispersion": {"deep": {"min_pick": 40, "max_pick": 150, "drafts": 7,
+                                 "sel_pct": round(7 / 125 * 100.0)}}}
+    implied = 7 / 125 * 100.0
+    assert d["dispersion"]["deep"]["sel_pct"] != implied, (
+        "the fixture's rounding is a no-op, so this proves nothing — pick a count "
+        "that does not divide evenly into whole percents")
+    r = C.sel_pct_units(d)
+    assert r["verdict"] == "percent", r
+    assert abs(r["median_ratio"] - 1.0) > 0.05, (
+        "and the distortion must be REAL: ratio %s is inside any tolerance, so a "
+        "tighter one would still pass" % r["median_ratio"])
+
+
+def test_a_DAY_WITH_NO_SPREAD_is_UNMEASURED_and_specifically_not_percent():
+    """The two days archived before the parser kept the spread are exactly this
+    shape, and they are not evidence that the scale is right.
+
+    MUTATION: default to `percent` when there is nothing to check — the assumption
+    this exists to test gets confirmed by days that contain none of it."""
+    assert C.sel_pct_units({"total_drafts": 125, "dispersion": None})["verdict"] \
+        == "unmeasured"
+    assert C.sel_pct_units({"dispersion": _day()["dispersion"]})["verdict"] \
+        == "unmeasured", "no total_drafts means no derivable rate"
+    assert C.sel_pct_units({})["verdict"] == "unmeasured"
+    assert C.sel_pct_units(None)["verdict"] == "unmeasured"
+
+
+def test_a_ZERO_SELECTION_row_cannot_imply_a_rate_and_is_SKIPPED():
+    """Dividing by a zero selection count is not a disagreement, and counting a
+    published zero as agreement would let a feed of zeroes certify any scale.
+
+    MUTATION: keep them — one malformed row drags the median and the verdict flips
+    on data that says nothing either way."""
+    d = _day()
+    d["dispersion"]["dead"] = {"drafts": 0, "sel_pct": 0.0,
+                               "min_pick": 1, "max_pick": 2}
+    r = C.sel_pct_units(d)
+    assert r["verdict"] == "percent" and r["rows"] == 3, r
+    allzero = {"total_drafts": 125,
+               "dispersion": {"x": {"drafts": 0, "sel_pct": 0.0}}}
+    assert C.sel_pct_units(allzero)["verdict"] == "unmeasured"
+
+
+def test_the_REAL_ARCHIVE_is_judged_and_the_verdict_is_RECORDED_not_assumed():
+    """Against the committed archive, so this stops being a fixture exercise the
+    morning real data lands. Today every day predates the spread, so the honest
+    answer is `unmeasured` — and that is asserted rather than skipped, because a
+    check that can only say "nothing yet" has not looked.
+
+    WHEN THE FIRST REAL DAY LANDS this will read `percent` (or tell us it does
+    not), and the assertion below tightens to require a measured verdict."""
+    # THE SHIPPED PATH, from the module rather than rebuilt here — a second copy
+    # of where the archive lives is how a test ends up judging a file nobody
+    # writes. `C.SERIES` is the one `capture()` itself uses.
+    p = C.SERIES
+    if not p.exists():
+        pytest.skip("UNCHECKED: no committed archive")
+    days = json.loads(p.read_text())["series"]
+    judged = [(s["observed_at"], C.sel_pct_units(s)) for s in days]
+    assert judged, "the archive has no days at all"
+    measured = [(d, v) for d, v in judged if v["verdict"] != "unmeasured"]
+    for day, v in measured:
+        assert v["verdict"] == "percent", (
+            "%s: MFL's draftSelPct is not the percent scale TRUNCATION_SEL_PCT "
+            "assumes — %s" % (day, v["note"]))
+    # AND THE COUNT IS PINNED, so a day that stops being judged is visible.
+    unmeasured = len(judged) - len(measured)
+    assert unmeasured <= 3, (
+        "%d days carry no derivable rate; only the three captured before the "
+        "parser kept the spread (08-11, -12, -13) should" % unmeasured)
