@@ -215,9 +215,16 @@ ck('EVERY key the engine reads is a key the live context() supplies',
  * So the required set is now SCRAPED FROM THE CONSUMER instead of transcribed.
  * A hand-copied list is the same two-places disease as the code it audits, and it
  * failed the same way: it drifted to describe a different function. */
+/* THE TARGET MOVED, AND THE GUARD FOLLOWED THE READS RATHER THAN THE NAME.
+ * `scoreBoard` is now a thin {key: dollars} wrapper over `scoreBoardDetail`,
+ * which is where the opts are actually consumed — the split exists so the panel
+ * can tell "this doctrine has no opinion here" from "this doctrine is banned
+ * from the board leader" (see doctrine_permissiveness.test.js). Scraping the
+ * wrapper would have found ZERO opts reads and passed vacuously, which is the
+ * exact failure the comment above describes. Scrape the consumer. */
 {
   const doc = read('doctrine.js');
-  const sb = doc.slice(doc.indexOf('function scoreBoard('));
+  const sb = doc.slice(doc.indexOf('function scoreBoardDetail('));
   const body = sb.slice(0, sb.indexOf('\n  function ', 1));
   // Fields read WITHOUT a default are required of the caller; ones with a
   // `|| x` / `== null ? x :` fallback are optional by construction.
@@ -226,7 +233,7 @@ ck('EVERY key the engine reads is a key the live context() supplies',
      readNames.length >= 3 && readNames.includes('liveIndex'),
      'scraped ' + JSON.stringify(readNames));
 
-  const callAt = app.indexOf('DraftDoctrine.scoreBoard(scored, {');
+  const callAt = app.indexOf('DraftDoctrine.scoreBoardDetail(scored, {');
   ck('the scoreBoard call site was located', callAt > 0);
   const lit = app.slice(callAt, app.indexOf('});', callAt));
   const supplies = n => new RegExp('\\b' + n + '\\s*:').test(lit);
