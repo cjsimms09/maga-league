@@ -1,0 +1,154 @@
+name: Independent review (ChatGPT)
+
+# MANUAL ONLY, DELIBERATELY. No workflow in this repository has a
+# `pull_request` trigger, so "the change being reviewed" has no existing
+# definition here. Adding one would be a new CI behaviour on every branch, and
+# PR runs from forks cannot see Environment secrets at all. Dispatch keeps v1
+# to exactly what was asked for and touches nothing that already runs.
+on:
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: "Base to diff against"
+        default: "origin/main"
+      head_ref:
+        description: "Head to review"
+        default: "HEAD"
+      claim_path:
+        description: "Path to the agent's claim (what ran / what came back / what it proves / what it does NOT prove / uncertainty / next step)"
+        default: ""
+      run_tests:
+        description: "Run the suites and give the reviewer their real output"
+        type: boolean
+        default: true
+      self_test:
+        description: "Grade the REVIEWER against a known-null change instead of reviewing a diff"
+        type: boolean
+        default: false
+
+# READ-ONLY AT THE PERMISSION LAYER, not only by convention. Nothing here can
+# commit, push, comment, or approve even if the script tried to.
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # ⚠️ THE LINE THAT MAKES THE SECRET VISIBLE. An Environment secret is
+    # invisible to a job that does not name its environment — it resolves to an
+    # empty string with no error anywhere. This repo has already paid for that
+    # once (see annual-key-smoke.yml). If the environment is renamed, this line
+    # changes with it.
+    environment: Review_ChatGPT
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history: a shallow clone cannot diff against origin/main, and
+          # the failure looks like "no changes" rather than like an error.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+
+      - name: Deps
+        # openai is NOT a repository dependency and is installed only here, so
+        # nothing in the model pipeline gains a network client as a side effect.
+        run: |
+          pip install --quiet openai pytest
+          npm ci --silent || npm install --silent
+
+      - name: Prove the key resolved WITHOUT printing it
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Prints presence and length only. The value never reaches the log,
+          # and a length is not a leak — it is what distinguishes "absent" from
+          # "present but truncated".
+          if [ -z "${OPENAI_API_KEY:-}" ]; then
+            echo "::error::OPENAI_API_KEY did not reach this job."
+            echo "  1. the job must declare 'environment: Review_ChatGPT'"
+            echo "  2. the environment may restrict which branches can use it"
+            echo "  3. a value added under Variables is invisible to secrets.*"
+            exit 1
+          fi
+          echo "OPENAI_API_KEY present: YES (length ${#OPENAI_API_KEY})"
+
+      - name: Make the base ref fetchable
+        run: git fetch --quiet origin main || true
+
+      - name: Independent review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          REVIEW_MODEL: ${{ vars.REVIEW_MODEL || 'gpt-5' }}
+          REVIEW_EFFORT: ${{ vars.REVIEW_EFFORT || 'high' }}
+        run: |
+          set -o pipefail
+          args="--out review.json"
+          if [ "${{ inputs.self_test }}" = "true" ]; then
+            args="$args --self-test"
+          else
+            args="$args --base '${{ inputs.base_ref }}' --head '${{ inputs.head_ref }}'"
+            [ "${{ inputs.run_tests }}" = "true" ] || args="$args --no-tests"
+            [ -n "${{ inputs.claim_path }}" ] && args="$args --claim '${{ inputs.claim_path }}'"
+          fi
+          # `|| true` ON PURPOSE AND ONLY HERE. v1 does not gate on the verdict,
+          # and the self-test exits non-zero by design when the reviewer misses
+          # the planted null — that result must be READ, not turn the job red
+          # before the artifact uploads. The next step restates the outcome.
+          eval python3 tools/independent_review.py $args | tee review_console.txt || true
+
+      - name: Restate the verdict where the log tail can see it
+        run: |
+          if [ ! -f review.json ]; then
+            echo "::warning::no review.json — the reviewer did not complete. Console:"
+            cat review_console.txt 2>/dev/null || true
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          r = json.load(open('review.json'))
+          print('=' * 66)
+          print('VERDICT:', r['verdict'], ' (model', r.get('_model'), ')')
+          print('=' * 66)
+          for k in ('proven', 'supported', 'not_proven', 'contradicted', 'unknown'):
+              v = r.get(k) or []
+              print(f'\n{k.upper()} ({len(v)})')
+              for i in v[:10]:
+                  print('  -', i)
+          po = r.get('parity_only_claims') or []
+          if po:
+              print('\nPARITY-ONLY CLAIMS (agreement is not correctness):')
+              for i in po: print('  -', i)
+          print('\nCRITICAL FINDINGS')
+          for f in r.get('critical_findings') or []:
+              print(f"  [{f['severity']}/{f['audit']}] {f['finding']}")
+              print(f"      why: {f['why_it_matters']}")
+              print(f"      check: {f['how_to_check']}")
+          print('\nREQUIRED ACTIONS')
+          for a in r.get('required_actions') or []:
+              print('  -', a)
+          print('\n' + (r.get('reasoning_summary') or ''))
+          if r.get('_self_test'):
+              ok = r['verdict'] == 'BLOCK'
+              print('\nSELF-TEST:', 'PASS' if ok else 'FAIL — the reviewer '
+                    'accepted a finding whose threshold sits inside its own '
+                    'null band; its other verdicts are unvalidated.')
+          PY
+
+      - name: Upload the review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: independent-review
+          # review.json and the console transcript only. Neither contains the
+          # key: it is never bound into the payload, the prompt, or the output.
+          path: |
+            review.json
+            review_console.txt
+          if-no-files-found: warn
+
+      # v1 DOES NOT FAIL THE JOB ON A VERDICT, per the instruction to observe
+      # behaviour before gating. When that changes, the gate belongs HERE as an
+      # explicit step, not hidden inside the script.
