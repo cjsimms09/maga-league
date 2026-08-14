@@ -91,14 +91,51 @@ const ACQUIRING = ['waiver', 'free_agent'];
 
 function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
 
-/* POSITIONS COME FROM THE BOARD, and a non-numeric add id is a defence.
- * Sleeper keys a defence by TEAM ABBREVIATION (`{"GB": 6}`) where every other
- * add carries a numeric id. Requiring a numeric id silently deletes the busiest
- * waiver position in the league. */
+/* A NON-NUMERIC ADD ID IS A DEFENCE. Sleeper keys a defence by TEAM
+ * ABBREVIATION (`{"GB": 6}`) where every other add carries a numeric id.
+ * Requiring a numeric id silently deletes the busiest waiver position.
+ *
+ * ⚠️ AND POSITIONS COME FROM A HISTORICAL RECORD FIRST, AND THE LIVE BOARD SECOND.
+ *
+ * This read the 2026 board alone, and on 2026-08-13 that turned into a silent
+ * drift. C's activity filter began dropping players with no scored week in 2024
+ * or 2025 — correct, and it removed Tom Brady from a draft board. But THE WIRE
+ * IS A MEASUREMENT OF 2023-2025, and a man who was added off the wire in 2023
+ * had a position then whether or not he is on the 2026 board now. Dropping him
+ * from the board dropped his acquisition out of the sample:
+ *
+ *     scored acquisitions   422 -> 417        RB level  7.80 -> 7.95
+ *     unpositioned           10 ->  15        RB n       143 -> 140
+ *
+ * THE DIRECTION IS KNOWABLE AND IT IS THE WRONG ONE. A waiver add who washes
+ * out of the league is exactly the kind who scored badly, so pruning them lifts
+ * the realized wire — and it would have kept lifting on every nightly rebuild,
+ * with nothing going red, because a shrinking denominator looks like a smaller
+ * league rather than like a bug. That is the same shape as the `min_n = 5`
+ * filter this file was written to remove, arriving through a different door.
+ *
+ * `draft/data/player_positions.json` is the union over builds, written by
+ * `build.py` from the board BEFORE the filter runs. The live board is still
+ * overlaid on top so a position CORRECTION reaches this measurement, and the
+ * ledger reports which source answered so the coupling cannot come back
+ * silently a third time. */
 function positionMap() {
-  const board = readJson(path.join(ROOT, 'public', 'draft_data.json'));
   const m = {};
-  (board.players || []).forEach(p => { m[String(p.player_id)] = p.position; });
+  const hist = path.join(ROOT, 'draft', 'data', 'player_positions.json');
+  let fromHistory = 0;
+  if (fs.existsSync(hist)) {
+    const h = readJson(hist).positions || {};
+    Object.keys(h).forEach(id => { m[id] = h[id]; fromHistory++; });
+  }
+  const board = readJson(path.join(ROOT, 'public', 'draft_data.json'));
+  let fromBoard = 0;
+  (board.players || []).forEach(p => {
+    if (p.position) { m[String(p.player_id)] = p.position; fromBoard++; }
+  });
+  Object.defineProperty(m, '__sources', {
+    value: { history: fromHistory, board: fromBoard, history_file: fs.existsSync(hist) },
+    enumerable: false,
+  });
   return m;
 }
 
@@ -157,9 +194,15 @@ const med = s => (s.length ? (s.length % 2 ? s[(s.length - 1) / 2]
 function measure() {
   const history = readJson(path.join(ROOT, 'draft', 'data', 'league_history.json'));
   const POS = positionMap();
+  const POS_SOURCE = POS.__sources || { history: 0, board: 0, history_file: false };
   const sample = {}, byWeek = {}, ledger = {
     acquisitions: 0, scored: 0, unpositioned: 0, def_or_k_unscorable: 0,
     no_row_that_week: 0, seasons: [], missing_store: [],
+    /* WHERE THE POSITIONS CAME FROM, reported rather than assumed. If the
+     * historical file goes missing this measurement quietly reverts to being
+     * coupled to the live board, and a coverage number that hides its source is
+     * how that stayed invisible the first time. */
+    position_source: POS_SOURCE,
   };
 
   SEASONS.forEach(season => {
@@ -220,6 +263,148 @@ function measure() {
  * a missing position that defaults — that is the whole lesson of `SCHED`. */
 const MEASURED_POSITIONS = ['QB', 'RB', 'WR', 'TE'];
 
+/* ── THE ONE PLACE THAT DECIDES WHICH STATISTIC IS "THE WIRE LEVEL" ────────
+ *
+ * The sample above is what the SIMULATOR draws from. But three draft-day tools
+ * do a scalar comparison — "is my bench man worth more per week than the wire"
+ * — and a scalar needs a summary. Until 2026-08-13 that summary was TRANSCRIBED
+ * into four files, and on 08-13 C measured that three of them had drifted apart
+ * from the fourth:
+ *
+ *     tool                     QB     RB     WR     TE
+ *     free_picks.js          20.9    5.3   13.3    6.3
+ *     draft_card.js          20.9    5.3   13.3    6.3     <- the Aug 22 card
+ *     wire_vs_bench.js       20.9    5.3   13.3    6.3
+ *     emit_seat_plan.js     23.38   7.80  11.10  11.60     <- derived from here
+ *
+ * Not a uniform shift: TE moves 1.84x one way and WR 0.83x THE OTHER. So the two
+ * halves of the toolset SWAP SIDES on a marginal WR and on a marginal TE, and no
+ * reader holding both numbers can reconcile them in his head at a draft table.
+ *
+ * ── AND THE OLD NUMBER IS NOT A DIFFERENT-BUT-DEFENSIBLE STATISTIC ────────
+ *
+ * The obvious defence of 20.9/5.3/13.3/6.3 is that median-of-cell-medians
+ * weights every WEEK equally while pooling over-weights CHURN weeks — and a
+ * churn week is exactly when the wire is unusually rich, so pooling would be
+ * optimistic. That is a real argument and it is worth more than an opinion, so
+ * it was measured rather than asserted (2026-08-13, both statistics over the
+ * same 422 scored acquisitions, cells pooled across the three seasons so a cell
+ * is a WEEK rather than a season-week):
+ *
+ *     pos   pooled median   week-equalised cell median   with min_n=5
+ *     QB       23.38                23.08                   23.21
+ *     RB        7.80                 7.80                    7.50
+ *     WR       11.10                11.03                    9.80
+ *     TE       11.60                12.45                    9.52
+ *
+ * WEEK-EQUALISING MOVES NOTHING — 0.30, 0.00, 0.07 and 0.85 points. The whole
+ * 20.9-vs-23.4 gap is the `min_n = 5` REPORTING FLOOR applied to season-week
+ * cells, which keeps 1 of 42 QB cells and 1 of 43 TE cells, and it selects on
+ * the thing being measured. So there is no live choice between two defensible
+ * summaries here; there is one measurement and one artefact of a filter.
+ *
+ * `min_n = 5` remains correct where C wrote it — a per-cell REPORT must not
+ * print a median of one. Nothing in `waiver_replacement.py` changes.
+ *
+ * This function exists so the statistic is chosen ONCE. A tool that wants the
+ * level asks for it; a tool that disagrees changes it here, for everyone. */
+/* ⚠️ THE WIRE PAYS TWO DIFFERENT NUMBERS AND THEY ANSWER DIFFERENT QUESTIONS.
+ *
+ * Measured 2026-08-13, after shipping the add-week median as THE level. The
+ * score in the week a player is acquired is not what he pays over the weeks you
+ * then hold him — it is systematically higher, at every position, than his own
+ * production in the three weeks BEFORE and the three weeks AFTER:
+ *
+ *     pos   prev-3      ADD WEEK     next-3
+ *     QB    19.71        23.38       19.34
+ *     RB     4.60         7.80        6.25
+ *     WR     8.75        11.10        7.60
+ *     TE     6.20        11.60        6.75
+ *
+ * ELEVATED RELATIVE TO BOTH SIDES, so it is not a manager buying last week's
+ * points — it is the week the player inherits a role, and the role does not
+ * hold. And splitting by claim type says where it lives:
+ *
+ *     TE    waiver 14.10 -> 5.60 next        free agent 4.70 -> 7.75 next
+ *
+ * ALL OF THE SPIKE IS IN WAIVER CLAIMS and none of it is in free-agent adds.
+ * That is the opposite of an after-the-fact-selection story (a free agent can be
+ * added AFTER games, a waiver claim cannot) and it is consistent with the
+ * obvious mechanism: managers spend a claim on the man who just took over a job.
+ *
+ * ── WHICH NUMBER THE BENCH DECISION NEEDS, AND WHY IT IS NOT SETTLED ──────
+ *
+ * `per_week` is what the wire pays for ONE WEEK of streaming. `ongoing` is what
+ * it pays while you HOLD the replacement. Which applies depends on how long the
+ * hole lasts — a bye is one week, an injury is `E[weeks out | injured]`, which
+ * this repo has never measured and which is an open request to C.
+ *
+ * SO NEITHER IS PROMOTED OVER THE OTHER AND PRODUCTION IS UNCHANGED.
+ * `per_week` stays the shipped level; `ongoing` is published beside it so a
+ * consumer can show the band and say which side of it a verdict sits on. Five of
+ * the six bench verdicts on the current plan differ between the two, which is
+ * exactly why picking one silently would be the wrong move eight days out.
+ */
+function ongoingLevels() {
+  const M = module.exports.measured || (module.exports.measured = measure());
+  const POS = positionMap();
+  const out = {}, n = {};
+  MEASURED_POSITIONS.forEach(p => { out[p] = []; });
+  SEASONS.forEach(season => {
+    const wp = weeklyPoints(season);
+    if (!wp) return;
+    const history = readJson(path.join(ROOT, 'draft', 'data', 'league_history.json'));
+    acquisitions(history, season).forEach(a => {
+      const pos = POS[a.player_id];
+      if (MEASURED_POSITIONS.indexOf(pos) < 0) return;
+      /* THE WEEK OF ACQUISITION IS DELIBERATELY EXCLUDED. Including it is what
+       * makes this the same statistic as `per_week` rather than a second one. */
+      for (let k = 1; k <= 3; k++) {
+        const row = wp[a.week + k] || {};
+        if (Object.prototype.hasOwnProperty.call(row, a.player_id)) out[pos].push(row[a.player_id]);
+      }
+    });
+  });
+  const level = {};
+  MEASURED_POSITIONS.forEach(p => {
+    const s = out[p].slice().sort((x, y) => x - y);
+    n[p] = s.length;
+    level[p] = s.length ? +med(s).toFixed(2) : null;
+  });
+  return {
+    per_week: level, n: n, window_weeks: 3,
+    statistic: 'median_of_the_three_weeks_AFTER_acquisition',
+    /* SURVIVORSHIP, NAMED. A player who gets hurt has no row and drops out, so
+     * this is if anything OPTIMISTIC about what a held replacement delivers —
+     * the direction that makes the gap below a floor rather than a ceiling. */
+    caveat: 'excludes weeks a player did not play, so it slightly OVERSTATES '
+      + 'what a held wire add delivers; the gap to per_week is a floor',
+  };
+}
+
+function levels() {
+  const M = module.exports.measured || (module.exports.measured = measure());
+  const per_week = {}, n = {};
+  MEASURED_POSITIONS.forEach(p => {
+    const s = M.summary[p];
+    if (s) { per_week[p] = s.median; n[p] = s.n; }
+  });
+  return {
+    per_week: per_week,
+    n: n,
+    statistic: 'pooled_sample_median',
+    scored: M.ledger.scored,
+    acquisitions: M.ledger.acquisitions,
+    /* One sentence a tool can print verbatim, so the provenance travels with the
+     * number instead of being re-typed per tool and drifting there too. */
+    /* Published beside the shipped level, never instead of it. */
+    ongoing: ongoingLevels(),
+    provenance: 'realized wire: median of every scored acquisition-week, 2023-25, '
+      + 'n=' + M.ledger.scored + ' of ' + M.ledger.acquisitions + ' acquisitions '
+      + '(unfiltered — the min_n=5 reporting floor kept 1 of 42 QB weeks)',
+  };
+}
+
 function requireSample(pos) {
   const M = module.exports.measured || (module.exports.measured = measure());
   const s = M.sample[pos];
@@ -232,7 +417,7 @@ function requireSample(pos) {
   return s;
 }
 
-module.exports = { measure, acquisitions, weeklyPoints, requireSample,
+module.exports = { measure, levels, ongoingLevels, acquisitions, weeklyPoints, requireSample,
   MEASURED_POSITIONS, ACQUIRING, SEASONS };
 
 if (require.main === module) {

@@ -171,7 +171,7 @@ const kept = new Set(PLAN.keep.map(k => String(k.player_id)));
 let changed = 0, seatRows = 0;
 PLAN.ranked.forEach(r => {
   const seat = r.role !== 'bench';
-  const gone = new Set(byAdp.slice(0, r.pick - 1).map(x => String(x.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(r.pick)).map(x => String(x.player_id)));
   const av = pool.filter(x => !gone.has(String(x.player_id)) && !kept.has(String(x.player_id))
     && (!r.elig || r.elig.indexOf(x.position) >= 0));
   if (av.length < 2) return;

@@ -466,7 +466,95 @@ for (let i = 0; i < N; i++) {
   plan.push({ pick: SCHED[i], slot: 'bench', p: best.p, v: best.v, bench: true });
 }
 const TOTAL = plan.reduce((a, x) => a + x.v, 0);
-module.exports = { plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
+/* ── SELECTIONS BEFORE A PICK, NOT BOARD SLOTS ────────────────────────────
+ *
+ * SHARED, because it was got wrong in EIGHT PLACES AT ONCE and eight copies is
+ * eight chances to fix seven.
+ *
+ * `byAdp.slice(0, pick - 1)` is the natural way to ask "who is gone by my pick",
+ * and it OVER-REMOVES by exactly the number of keeper slots ahead of it. A
+ * keeper slot takes nobody out of the pool — the kept player is already excluded
+ * from `DATA.players` — so the board simply never deals that pick. At overall 33
+ * there are 32 slots behind Cory and TWENTY-NINE selections.
+ *
+ * EVERY CALL SITE WAS CORRECT UNTIL I FIXED THE NUMBERING. While
+ * `build_true_pick_order` renumbered survivors 1..N, `my_picks` was [30, 45, ...]
+ * — which IS the selection scale — so `pick - 1` and "selections before" were the
+ * same number and had been agreeing by accident. Correcting the pick numbers to
+ * Sleeper's own broke all eight simultaneously, which is the second time today a
+ * true fix has broken an accidental agreement (the first was the survival curve).
+ *
+ * It REFUSES rather than falling back: a plausible wrong denominator is exactly
+ * what this replaced, three times over. */
+function liveBefore(pick) {
+  const rows = ((DATA.pick_order || {}).picks) || [];
+  if (!rows.length) {
+    throw new Error('liveBefore: pick_order.picks is empty, so selections before a '
+      + 'pick cannot be counted. REFUSING to fall back to pick-1 — that over-removes '
+      + 'by the keeper count at every seat.');
+  }
+  return rows.filter(r => +r.overall < +pick && !r.keeper_slot).length;
+}
+
+/* THE ROUND A PICK SITS IN, READ RATHER THAN DIVIDED. `Math.ceil(overall / 10)`
+ * is right for this league today and is exactly the shape of arithmetic that was
+ * wrong for four seasons about `reversal_round` — it silently assumes ten teams,
+ * no reversal and no gaps in the board. The board carries `round` on every row,
+ * so it is read, and an overall that is not on the board is an error rather than
+ * a number. Tools print rounds in prose ("this is not a late-round budget") and
+ * a prose figure that is wrong reads exactly like one that is right. */
+function roundOf(pick) {
+  const rows = ((DATA.pick_order || {}).picks) || [];
+  const row = rows.find(r => +r.overall === +pick);
+  if (!row) {
+    throw new Error('roundOf: overall ' + pick + ' is not on the board ('
+      + rows.length + ' rows). REFUSING to divide by the team count — that assumes '
+      + 'ten seats, no third-round reversal and no gaps, and the board states all three.');
+  }
+  return +row.round;
+}
+
+/* THE WIRE AS A FRACTION OF THE STARTER IT WOULD REPLACE — the only wire
+ * comparison that travels across positions, and the one three tools were making
+ * by hand from raw points. "The RB wire pays 5.3/wk, the worst of any position"
+ * appeared in two files: true of the number and not of the claim, because a QB
+ * scores roughly twice what an RB does and 5.3 and 20.9 are not on one scale.
+ * The claim survives when it is computed properly, which is exactly why it was
+ * worth computing rather than leaving as a lucky sentence.
+ *
+ * The starter line is the LAST man who starts in this ten-team league at that
+ * position — the player a bench man actually insures. Slots are read from the
+ * league's own roster settings rather than assumed. */
+function wireVsStarter() {
+  const WL = require('./wire_level.js').levels();
+  const st = (DATA.league || {}).starters || {};
+  const teams = +((DATA.league || {}).teams || 0);
+  if (!teams || !Object.keys(st).length) {
+    throw new Error('wireVsStarter: league.starters / league.teams missing — REFUSING '
+      + 'to assume a roster shape. Without it the "starter line" is a guess and the '
+      + 'ratio it feeds is the whole hold-or-stream argument.');
+  }
+  /* THE FLEX IS SPLIT, NOT ASSIGNED. One flex per team goes to a back OR a
+   * receiver, so counting it fully into both would claim 30 starting RBs and 30
+   * WRs in a league that starts at most ten more of either. Half each is the
+   * honest midpoint and it moves the line by half a player. */
+  const flexShare = { RB: 0.5, WR: 0.5, TE: 0 };
+  const out = {};
+  Object.keys(WL.per_week).forEach(p => {
+    const per = (+st[p] || 0) + (+st.FLEX ? (flexShare[p] || 0) * +st.FLEX : 0);
+    const slots = Math.round(per * teams);
+    const s = pool.filter(x => x.position === p && Number.isFinite(+x.proj_mean))
+      .map(x => +x.proj_mean / 15).sort((a, b) => b - a);
+    out[p] = {
+      wire: WL.per_week[p], n: WL.n[p], slots: slots,
+      starter: s.length >= slots ? s[slots - 1] : null,
+      pct: s.length >= slots ? 100 * WL.per_week[p] / s[slots - 1] : null,
+    };
+  });
+  return out;
+}
+
+module.exports = { liveBefore, roundOf, wireVsStarter, plan, ranked, WAIVER, keep, pool, byAdp, SCHED, optionValue, TOTAL, MAXPOS };
 if (require.main !== module) return;
 
 console.log('  pick   role     take                        value');

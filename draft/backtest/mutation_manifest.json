@@ -554,7 +554,7 @@
      "old": "    return out or None",
      "new": "    return {}",
      "must_fail": [
-      "test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE"
+      "test_NO_TOOL_CARRIES_THE_CONSTANT_ANY_MORE_so_this_guard_is_retired"
      ],
      "verdict": "KILLED"
     },
@@ -567,10 +567,10 @@
      "verdict": "KILLED"
     },
     {
-     "old": "CONSTANT_TOOLS = (\"free_picks.js\", \"draft_card.js\", \"wire_vs_bench.js\")",
-     "new": "CONSTANT_TOOLS = (\"free_picks.js\", \"draft_card.js\", \"wire_vs_bench.js\", \"emit_seat_plan.js\")",
+     "old": "CONSTANT_TOOLS = ()",
+     "new": "CONSTANT_TOOLS = (\"free_picks.js\",)",
      "must_fail": [
-      "test_THE_TOOLS_THAT_CARRY_THE_CONSTANT_STILL_CARRY_THIS_ONE"
+      "test_NO_TOOL_CARRIES_THE_CONSTANT_ANY_MORE_so_this_guard_is_retired"
      ],
      "verdict": "KILLED"
     }

@@ -343,7 +343,21 @@ def test_a_real_generator_drop_still_counts_even_while_the_gate_withholds():
 
 
 class _FakeOrder:
-    def __init__(self, my_picks):
+    """A stand-in for TruePickOrder — and it must carry EVERY field the real one
+    does, or it tests a shape the code never sees.
+
+    `my_original_picks` was missing and `build.py` grew a reader for it (the
+    first-pick-by-keeper-count map). The stub raised AttributeError, which is the
+    GOOD failure — but it is luck: had the code used `getattr(..., None)` the
+    stub would have gone green while emitting a map with nothing in it. A partial
+    stub is a silent-divergence risk, not a convenience."""
+
+    def __init__(self, my_picks, my_original_picks=None):
         self.my_picks = my_picks
+        # The full pre-keeper snake. Defaults to `my_picks` so existing callers
+        # keep working, and callers that care pass a real one.
+        self.my_original_picks = list(my_original_picks if my_original_picks
+                                      is not None else my_picks)
         self.picks = []
         self.forfeited = []
+        self.board = []

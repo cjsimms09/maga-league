@@ -42,9 +42,16 @@ const adpOf = p => (p.adjusted_adp != null ? +p.adjusted_adp
 const byAdp = pool.slice().sort((a, b) => adpOf(a) - adpOf(b));
 const kept = new Set(keep.map(k => String(k.player_id)));
 
-/* Realized waiver level, pooled 2023-25 (waiver_replacement.py via wire_vs_bench).
- * Points per week actually delivered by a player added off the wire. */
-const WIRE = { QB: 20.9, RB: 5.3, WR: 13.3, TE: 6.3 };
+/* THE WIRE IS DERIVED, NOT TRANSCRIBED — and this is the file it mattered most
+ * in, because this is the card that gets opened on 08-22. It shipped
+ * `{QB 20.9, RB 5.3, WR 13.3, TE 6.3}` described as "pooled 2023-25"; that was
+ * the median of the cell medians surviving a min_n=5 reporting floor, which
+ * keeps 1 of 42 QB weeks. Every percentage this card prints below is now
+ * computed from `WIRE_LEVEL`, because a card that transcribes a derived figure
+ * goes stale silently and this one already had: it said "89% of a good QB" and
+ * "764 real acquisitions", and neither survived the measurement. */
+const WIRE_LEVEL = require('./wire_level.js').levels();
+const WIRE = WIRE_LEVEL.per_week;
 const BYE_STARTS = { RB: 3, WR: 2, QB: 1, TE: 1 };   // bye_structure.js, exact
 
 console.log('═══ DRAFT CARD — 2026-08-22 ═══════════════════════════════════════════\n');
@@ -77,7 +84,7 @@ seatRows.forEach(x => {
    * shortlist has to know that — FLEX and the RB/WR/TE seats overlap, and a
    * roster-blind ordering handing back a player you already own is the exact
    * failure this card warns about four lines below. */
-  const gone = new Set(byAdp.slice(0, x.pick - 1).map(p => String(p.player_id)));
+  const gone = new Set(byAdp.slice(0, PLAN.liveBefore(x.pick)).map(p => String(p.player_id)));
   const elig = x.slot === 'FLEX' ? ['RB', 'WR', 'TE'] : [x.slot];
   const short = pool.filter(p => !gone.has(String(p.player_id)) && !kept.has(String(p.player_id))
     && !taken.has(String(p.player_id)) && elig.indexOf(p.position) >= 0)
@@ -95,22 +102,45 @@ console.log('   the board ordering is roster-blind and will hand you a duplicate
  * Cory's own test, and the wire numbers that decide it. */
 console.log('\n  ── BENCH ────────────────────────────────────────────────────────────');
 console.log('   THE TEST (Cory): is he worth more than what is FREE at his position?');
-console.log('   Measured from 764 real acquisitions — what the wire actually delivers,');
-console.log('   points per week, against what a rostered backup gives you:\n');
+console.log('   Points per week, against what a rostered backup gives you. Measured from');
+console.log('   every scored acquisition-week 2023-25 — n=' + WIRE_LEVEL.scored
+  + ' of ' + WIRE_LEVEL.acquisitions + ' acquisitions, UNFILTERED:');
+console.log('   (the old min_n=5 floor this card used to quote kept 1 of 42 QB weeks)\n');
 console.log('     pos   wire/wk   a backup is worth holding when he beats it by...');
 console.log('     ' + '-'.repeat(66));
+/* THE ONLY COMPARISON THAT TRAVELS ACROSS POSITIONS IS A RATIO. RB's wire is
+ * the lowest number on the board in absolute points and that means nothing on
+ * its own — a QB scores roughly twice what an RB does, so 23.4 and 7.8 are not
+ * on one scale. What decides whether to hold a backup is the wire AS A FRACTION
+ * OF THE STARTER IT WOULD REPLACE. That derivation lives in `draft_plan` so this
+ * card and `free_picks` cannot compute it two ways, which is the mistake one
+ * layer up that this whole change is undoing. */
+const VS = PLAN.wireVsStarter();
+const wirePct = {};
 ['RB', 'WR', 'TE', 'QB'].forEach(p => {
+  wirePct[p] = VS[p] ? VS[p].pct : null;
   const starts = BYE_STARTS[p];
-  console.log('     ' + p.padEnd(6) + String(WIRE[p]).padStart(5)
+  console.log('     ' + p.padEnd(6) + WIRE[p].toFixed(2).padStart(6)
     + '     starts ~' + starts + ' wk from byes alone'
-    + (p === 'RB' ? '  <- the wire is worst here, hold RBs'
-      : p === 'QB' ? '  <- the wire is 89% of a good QB'
-      : ''));
+    + (wirePct[p] == null ? '   (no starter line — too few ' + p + ' priced)'
+      : '   = ' + wirePct[p].toFixed(0) + '% of your last starting ' + p));
 });
-console.log('\n   SO: hold running backs. The wire cannot replace one (37% of Swift).');
-console.log('   Do not hold a SECOND QB or TE either — the wire is 89% and 62% of yours,');
-console.log('   and they start 1 week each from byes. Cory\'s instinct was right and the');
-console.log('   model\'s 19.8-point preference for QB2/TE2 does not survive the wire.');
+/* WHICH POSITION TO HOLD IS AN ORDERING OF THOSE RATIOS, not a sentence written
+ * when the constants said something else. The old card said "hold RBs, the wire
+ * is worst here" from the raw 5.3 and it happened to be right; it is asserted
+ * here only if it is still true. */
+const RANKED = ['RB', 'WR', 'TE', 'QB'].filter(p => wirePct[p] != null)
+  .sort((a, b) => wirePct[a] - wirePct[b]);
+const HARDEST = RANKED[0], EASIEST = RANKED[RANKED.length - 1];
+{
+  const worst = HARDEST, best = EASIEST;
+  console.log('\n   SO: the wire replaces your ' + best + ' most easily ('
+    + wirePct[best].toFixed(0) + '% of a starter) and your ' + worst + ' least ('
+    + wirePct[worst].toFixed(0) + '%).');
+  console.log('   HOLD ' + worst + 's. A backup is worth a roster spot only where free is far');
+  console.log('   below the man he replaces AND he actually starts weeks — the table below');
+  console.log('   applies both halves to this plan\'s own bench.');
+}
 
 /* CORY'S RULE, RUN AGAINST THE MODEL'S OWN BENCH — the part a card exists for.
  * Stating a test and not applying it to your own recommendations is how a
@@ -118,7 +148,7 @@ console.log('   model\'s 19.8-point preference for QB2/TE2 does not survive the 
  * plan, not transcribed, so it stays true when the plan moves. */
 {
   const WEEKS = 15;
-  const N = { QB: 5, RB: 46, WR: 39, TE: 6 };   // wire_vs_bench.js, carried
+  const N = WIRE_LEVEL.n;   // derived with the level, so the two cannot disagree
   /* Weeks each backup ACTUALLY starts from byes — exact, no injury parameter,
    * from bye_structure.js section 1. Per-player and not per-position: Swift
    * covers all three RB bye weeks, so Pollard and Rodriguez behind him cover
@@ -148,26 +178,92 @@ console.log('   model\'s 19.8-point preference for QB2/TE2 does not survive the 
       + pct.toFixed(0).padStart(8) + '%'
       + (wk == null ? '     ?' : String(wk).padStart(6))
       + (floor == null ? '      ?' : floor.toFixed(1).padStart(7)) + '   '
-      + (wk == null ? 'UNKNOWN — re-run bye_structure.js'
-        : pct >= 100 ? 'CUT — the wire is better than him'
+      /* PCT >= 100 IS DECISIVE ON ITS OWN and must be tested BEFORE the
+       * missing-bye branch. It was tested after, so a player the wire simply
+       * outscores printed "UNKNOWN — re-run bye_structure.js" while the count
+       * at the bottom of this block counted him as failing — the table and its
+       * own total disagreeing on the same screen. */
+      + (pct >= 100 ? 'CUT — the wire is better than him'
+        : wk == null ? 'UNKNOWN — re-run bye_structure.js'
         : floor >= 5 ? 'HOLD — the byes alone pay for him'
         : replaceable ? 'CUT — no bye value, and free is ' + pct.toFixed(0) + '% of him'
         : 'injury insurance ONLY — but free is just ' + pct.toFixed(0) + '% of him')
       + (N[x.p.position] < 20 ? '  (n=' + N[x.p.position] + ')' : ''));
   });
+  /* ⚠️ THE VERDICT ABOVE USES THE ONE-WEEK WIRE, AND FIVE OF SIX ROWS SIT ON
+   * THE WRONG SIDE OF THE BAND. The shipped level is the score in the week a
+   * player is ACQUIRED; measured 2026-08-13, the same players pay far less over
+   * the three weeks you then hold them (TE 11.60 -> 6.8, WR 11.10 -> 7.3), and
+   * all of that spike lives in WAIVER claims rather than free-agent adds.
+   *
+   * Which number applies depends on HOW LONG THE HOLE LASTS — one week for a
+   * bye, `E[weeks out | injured]` for an injury, which nobody has measured. So
+   * the card does not pick; it says which verdicts survive both readings and
+   * which are an artefact of the shorter one. A verdict that flips inside the
+   * band is not a verdict, and printing it as one is what the whole wire
+   * correction was undertaken to stop. */
+  {
+    const OG = (WIRE_LEVEL.ongoing || {}).per_week || {};
+    const flips = [];
+    plan.filter(x => x.bench && x.p && WIRE[x.p.position] != null && OG[x.p.position] != null)
+      .forEach(x => {
+        const mine = x.p.proj_mean / WEEKS;
+        const a = 100 * WIRE[x.p.position] / mine, b = 100 * OG[x.p.position] / mine;
+        const cut = v => v >= 100;
+        if (cut(a) !== cut(b)) flips.push({ x: x, a: a, b: b });
+      });
+    if (flips.length) {
+      console.log('\n     ⚠️ ' + flips.length + ' OF THESE VERDICTS DEPEND ON HOW LONG THE HOLE LASTS.');
+      console.log('     The wire number above is the score in the week a player is CLAIMED.');
+      console.log('     Over the next three weeks the same adds pay much less, and the whole');
+      console.log('     spike is in waiver claims, not free-agent pickups:');
+      flips.forEach(f => {
+        console.log('       ' + (f.x.p.position + ' ' + f.x.p.name).padEnd(22)
+          + 'one week: ' + f.a.toFixed(0) + '% (' + (f.a >= 100 ? 'CUT' : 'hold')
+          + ')   held 3wk: ' + f.b.toFixed(0) + '% (' + (f.b >= 100 ? 'CUT' : 'hold') + ')');
+      });
+      console.log('     READ IT THIS WAY: cut them if you will STREAM the position week to');
+      console.log('     week. Keep them if you need somebody to hold a job while a starter');
+      console.log('     is out. E[weeks out | injured] is what decides it and is unmeasured.');
+    } else {
+      console.log('\n     Every verdict above survives BOTH wire readings — the one-week');
+      console.log('     claim level and the three-week held level — so none of them is an');
+      console.log('     artefact of which one the card happens to quote.');
+    }
+  }
   console.log('\n     FLOOR = weeks he actually starts x his edge over a free player. It is a');
   console.log('     FLOOR, not a forecast: injury weeks sit on top of it and are genuinely');
   console.log('     unknown (E[weeks out | injured] is an open C request). Read it as the');
   console.log('     value you get if nobody gets hurt, which is the half that is certain.');
   console.log('\n     ' + failed + ' of ' + plan.filter(x => x.bench && x.p && WIRE[x.p.position]).length
     + ' bench picks fail on BOTH counts and are the ones to redirect.');
-  console.log('     THE BACKUP QB IS ONE OF THEM, and this is where the two numbers above');
-  console.log('     reconcile: Dak clears the wire by 2.6/wk but starts ONE WEEK, so he');
-  console.log('     returns 2.6 points for a roster spot. 89% is why he barely beats free;');
-  console.log('     one start is why beating it barely does not matter.');
-  console.log('\n     THE RBs WITH A ZERO FLOOR ARE A DIFFERENT CASE AND SHOULD NOT BE CUT.');
-  console.log('     Pollard and Rodriguez start no weeks from byes, but the RB wire pays 5.3');
-  console.log('     — the worst on the board — so they are the one place where pure injury');
+  /* THE WORKED EXAMPLE IS READ OFF THE PLAN, NOT REMEMBERED. It named Dak, his
+   * 2.6/wk edge and "89%" — three figures transcribed from a run against the old
+   * wire constant, in the paragraph whose whole job is showing a reader how to
+   * combine them. Now it finds whichever bench player carries the fewest starts
+   * and prints HIS arithmetic. */
+  {
+    const cands = plan.filter(x => x.bench && x.p && WIRE[x.p.position] != null
+      && STARTS[x.p.name] != null && STARTS[x.p.name] > 0)
+      .sort((a, b) => STARTS[a.p.name] - STARTS[b.p.name]);
+    const e = cands[0];
+    if (e) {
+      const mine = e.p.proj_mean / WEEKS, w = WIRE[e.p.position];
+      const wk = STARTS[e.p.name];
+      console.log('     HOW TO READ ONE ROW — ' + e.p.name + ': he clears the wire by '
+        + (mine - w).toFixed(1) + '/wk but starts ' + wk + ' week' + (wk === 1 ? '' : 's')
+        + ',');
+      console.log('     so the spot returns ' + (wk * (mine - w)).toFixed(1)
+        + ' points. The edge is why he beats free; the ' + wk + ' start'
+        + (wk === 1 ? '' : 's') + ' is why');
+      console.log('     beating it does not settle whether he is worth the spot.');
+    }
+  }
+  console.log('\n     THE ' + HARDEST + 's WITH A ZERO FLOOR ARE A DIFFERENT CASE AND SHOULD NOT BE CUT.');
+  console.log('     They start no weeks from byes, but the ' + HARDEST + ' wire pays '
+    + WIRE[HARDEST].toFixed(1) + ' — only ' + wirePct[HARDEST].toFixed(0) + '% of');
+  console.log('     the starter it replaces, the hardest hole on the board to fill free — so they');
+  console.log('     are the one place where pure injury');
   console.log('     insurance is worth a spot. The floor excludes injury BY CONSTRUCTION;');
   console.log('     condemning them on it would be judging a player by the one term the');
   console.log('     measurement was built to leave out.');

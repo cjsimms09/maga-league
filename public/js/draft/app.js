@@ -805,6 +805,83 @@
    * A caption read from the artifact cannot drift from the number beside it;
    * one retyped here would.
    */
+  /* ── EVERY DECISION PANEL SAYS WHAT IT IS AND HOW TO ACT ON IT ───────────
+   *
+   * Cory: *"all the tools should explain what they do and how to use, all the
+   * tools working together toward the best pick."*
+   *
+   * MEASURED BEFORE BUILDING: 55 render functions, 26 on the page, and FIVE
+   * explain themselves. The six panels that put a NUMBER or a JUDGEMENT in front
+   * of him emit twenty numeric figures between them and not one caption. On the
+   * clock that is the difference between a tool he uses and one he scrolls past.
+   *
+   * ── WHY A TABLE AND NOT SIX PROSE BLOCKS ─────────────────────────────────
+   *
+   * The same reasoning as `seat_plan.json`'s display contract, which is the one
+   * part of this page that already works: a declaration read from ONE place
+   * cannot drift and six inline strings will. This repo has shipped the drift
+   * version — "value" meaning a model estimate in one panel and a market price
+   * in another, on the same screen.
+   *
+   * ── `read` IS THE HALF THAT EARNS ITS SPACE ──────────────────────────────
+   *
+   * `what` says what the number is; anyone can guess that. `read` says WHAT
+   * WOULD CHANGE THE ANSWER, which is the only thing worth space with nine
+   * managers waiting. A caption that restates the label is wallpaper, so the
+   * test asserts the two differ and that `read` is the longer of the two.
+   *
+   * NOT A TOOLTIP. B owns the stylesheet, and a caption emitted and then hidden
+   * renders this green while doing nothing — I flagged that exact risk to them
+   * about the seat panel. It ships as a visible block with a stable hook so B
+   * can restyle, collapse or tier it deliberately rather than by default. */
+  const PANEL_GUIDE = {
+    recommendations: {
+      what: 'The engine\'s ranked picks for THIS seat, scored on your roster and '
+        + 'what the room has already taken.',
+      read: 'Take the top name unless the seat panel above disagrees — when they '
+        + 'disagree the seat panel is the plan and this is the greedy best-now. A '
+        + 'small gap between #1 and #2 means the SEAT matters more than the NAME.',
+    },
+    position_recs: {
+      what: 'The best available at each position, so a run at one is visible '
+        + 'without scanning the whole board.',
+      read: 'Compare the DROP to your next pick, not the raw score: a position '
+        + 'whose best name barely changes by then is one you can wait on.',
+    },
+    survival: {
+      what: 'The chance each player is still on the board when you next pick, '
+        + 'from ADP and its dispersion.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. It is a '
+        + 'market estimate, not a promise — a run at his position breaks it.',
+    },
+    threats: {
+      what: 'What the managers picking before your next turn have historically '
+        + 'reached for.',
+      read: 'Use it to break a tossup, never to start one. If two names are '
+        + 'already close, take the one the room is likelier to remove.',
+    },
+    lrm: {
+      what: 'The last recorded model state — what the board believed at your '
+        + 'previous pick.',
+      read: 'Read it when the board surprises you: if this disagrees with what is '
+        + 'on screen now, something changed between picks and the checklist says '
+        + 'what.',
+    },
+  };
+
+  /* ONE EMITTER, so every caption has the same shape and the same hook. Returns
+   * '' for an unknown key rather than throwing — a missing caption must never
+   * take the board down mid-draft — and `panel_guide.test.js` fails on any
+   * decision panel whose key is absent, so silence here is caught at build time
+   * rather than at the table. */
+  function explainPanel(key) {
+    const g = PANEL_GUIDE[key];
+    if (!g) return '';
+    return '<div class="panel-explain" data-panel="' + key + '">'
+      + '<span class="pe-what">' + escapeHtml(g.what) + '</span> '
+      + '<span class="pe-read">' + escapeHtml(g.read) + '</span></div>';
+  }
+
   function renderSeatPlan() {
     const host = $('#seat-plan');
     const d = state.seatPlan;
@@ -857,6 +934,55 @@
             + ', so the SEAT matters more than the NAME'
           : '') + '</div>';
 
+    /* ── WHAT A STALE ROOM ACTUALLY COSTS, AS A NUMBER ──────────────────────
+     *
+     * `renderSystemStrip` already says "SYNC STALE 62s — picks may be missing"
+     * and `renderSyncAge` adds "verify against Sleeper before you draft". Its own
+     * comment states the problem exactly: *"the board still confidently
+     * recommends players who are already gone."* Both are INSTRUCTIONS. Cory's
+     * standing rule is mechanism, not instruction — and an instruction is at its
+     * weakest exactly here: on the clock, with a room watching.
+     *
+     * THE MECHANISM IS THE NUMBER ALREADY IN THE ARTIFACT. Staleness matters only
+     * insofar as the top name might be gone, and what THAT costs is
+     * `gap_to_second` — already computed, already in the seat's own units, already
+     * with a measured tossup band beside it. So the panel stops telling him to go
+     * and check, and tells him what checking is worth:
+     *
+     *   gap inside the band  -> the next name is as good; take it and move on
+     *   gap outside the band -> this is what you lose if #1 is gone; worth the
+     *                           ten seconds it costs to look
+     *
+     * IT CANNOT PREDICT HOW MANY PICKS WERE MISSED and does not pretend to. Our
+     * capture strips per-pick timestamps and this draft has `pick_timer: 0` — no
+     * timer at all — so there is no honest picks-per-second to divide by. Rather
+     * than invent a rate, this prices the ONE thing that is actually knowable:
+     * the cost of the top name being wrong. A fabricated "≈2 picks missed" would
+     * be a plausible number with nothing behind it, which is the defect class
+     * this file has spent the week removing.
+     *
+     * The whole shortlist is already on screen, so the recovery is visible
+     * without a fetch: if #1 is gone, #2 is the line below it. */
+    const staleLine = (function () {
+      if (!state.sync || typeof state.sync.syncAgeMs !== 'function') return '';
+      const age = state.sync.syncAgeMs();
+      if (age == null || age < SYNC_AGE_WARN_MS) return '';
+      const secs = Math.round(age / 1000);
+      const cheap = seat.gap_to_second != null && seat.tossup_threshold != null
+        && seat.gap_to_second <= seat.tossup_threshold;
+      const cost = seat.gap_to_second == null ? null : seat.gap_to_second;
+      return '<div class="sp-stale' + (age >= SYNC_AGE_BAD_MS ? ' sp-stale-bad' : '') + '">'
+        + 'SYNC ' + secs + 's OLD — the top name may already be gone. '
+        + (cost == null
+          ? 'No second name priced at this seat, so there is nothing to fall back to on the board.'
+          : (cheap
+            ? 'Costs <b>' + cost + '</b> ' + escapeHtml(gapU) + ' to take the next name '
+              + 'instead — inside this seat\'s own tossup band, so do not stop the clock for it.'
+            : 'Costs <b>' + cost + '</b> ' + escapeHtml(gapU) + ' to fall to the next name '
+              + '— outside the tossup band, so this one is worth checking against Sleeper.'))
+        + '</div>';
+    })();
+
     /* The plan's superseded name is SHOWN, not silently dropped — "the plan named
      * nobody" and "the plan named someone on a line since superseded" are
      * different facts, and hiding the second would make the artifact look
@@ -868,6 +994,7 @@
       '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
       + '<ol class="sp-list">' + rows + '</ol>'
+      + staleLine
       + gapLine
       + supLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
@@ -2421,7 +2548,7 @@
         + tells
         + '</div>';
     }).join('');
-    host.innerHTML = html;
+    host.innerHTML = explainPanel('threats') + html;
   }
 
   /* ── The queue, and the sheet you print from it ─────────────────────────── */
@@ -3040,7 +3167,7 @@
       return;
     }
     const next = ctx.nextPick;
-    host.innerHTML = '<ol style="margin:0; padding-left:1.1rem">' + scored.map(s => {
+    host.innerHTML = explainPanel('position_recs') + '<ol style="margin:0; padding-left:1.1rem">' + scored.map(s => {
       const p = s.player;
       const sv = s.survival_to_next;
       // Gone-by-next is the more useful direction: it is the risk, not the
@@ -4057,7 +4184,7 @@
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
-    host.innerHTML = head + decisiveLine + scored.map((s, i) => {
+    host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
@@ -4562,7 +4689,7 @@
         'vs picks', picksInWindow);
     })();
     $('#survival-head').textContent = 'Chance they last to your pick ' + next;
-    $('#survival').innerHTML = top.map(x =>
+    $('#survival').innerHTML = explainPanel('survival') + top.map(x =>
       '<div class="surv-row"><span>' + escapeHtml(x.p.name) + ' <span class="muted">' + x.p.position + '</span></span>' +
       '<div class="surv-bar"><div style="width:' + Math.round(x.s * 100) + '%"></div></div>' +
       '<b class="' + (x.s > 0.6 ? 'pos' : x.s < 0.25 ? 'neg' : '') + '">' + survivalText(x.s) + '</b></div>').join('');
@@ -4703,7 +4830,7 @@
       return until + cost;
     };
     host.style.display = '';
-    host.innerHTML = '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
+    host.innerHTML = explainPanel('lrm') + '<div class="lrm-head">Last responsible moment</div>' + lrm.map(function (r) {
       var badge = '<span class="rec-pos ' + r.position + '">' + r.position + '</span> ';
       // A position with no real deadline gets ONE short line, not a fake one.
       if (r.no_deadline) {
@@ -5776,7 +5903,32 @@
           : '<span class="ss-rmode">keepers locked · rounds 1–' + kn + ' skipped</span>');
     const age = ageH == null ? 'never built'
       : ageH < 1 ? 'board fresh' : 'board ' + Math.round(ageH) + 'h';
-    const issues = red.concat(amber);
+    /* WHICH RED GOES FIRST — ordered by HOW SOON it makes a recommendation
+     * wrong, not by the order the checks happen to run in.
+     *
+     * A stale sync is wrong at the NEXT PICK: the shortlist may name a man who
+     * went four picks ago. An unknown seat is wrong for every seat-dependent
+     * panel, which are already suppressed. A board built 19 hours ago is wrong
+     * SLOWLY. The old strip showed whichever check ran first, which is not an
+     * ordering at all — it is an artefact of the source layout. */
+    const RED_RANK = [
+      /^SYNC/,                    // the picture of the room is old — wrong now
+      /^PICK STATE/,              // our own accounting disagrees with itself
+      /^keeper slate/,            // the roster we are drafting around is wrong
+      /^SEAT UNKNOWN/,            // seat-dependent panels already suppressed
+      /^ADP is fixture/,          // the ordering is a fixture, not the market
+      /^thin projections/,        // values exist but rest on little
+      /^board /,                  // wrong slowly
+    ];
+    const redOrdered = red.slice().sort(function (a, b) {
+      const ra = RED_RANK.findIndex(function (r) { return r.test(a); });
+      const rb = RED_RANK.findIndex(function (r) { return r.test(b); });
+      /* AN UNRECOGNISED RED SORTS FIRST, NOT LAST. A new check nobody has ranked
+       * yet is the one most likely to be the thing that just broke, and burying
+       * it under the known ones is how a strip stops reporting new failures. */
+      return (ra < 0 ? -1 : ra) - (rb < 0 ? -1 : rb);
+    });
+    const issues = redOrdered.concat(amber);
 
     host.style.display = 'flex';
     host.className = 'system-strip ' + tone;
@@ -5785,9 +5937,35 @@
       + rehearsalTag
       + '<span class="ss-seat">' + escapeHtml(seat ? DraftSeat.describe(seat) : 'seat —') + '</span>'
       + '<span class="ss-age">' + escapeHtml(age) + '</span>'
+      /* ⚠️ THIS RENDERED `issues[0]` AND HID THE REST BEHIND `title=`.
+       *
+       * Another session drove a 44-second outage and reported what the
+       * always-visible strip actually said: nothing about sync. From second 12
+       * the board KNEW it was "sync 15s old" and from second 40 "SYNC STALE —
+       * picks may be missing"; both went into `issues` behind an earlier entry
+       * and surfaced as "+2". The full list lived in a `title` attribute — a
+       * HOVER TOOLTIP, on a phone, at a table. There is no hover on a phone.
+       *
+       * TWO CHANGES, AND THE FIRST IS THE ONE THAT MATTERS.
+       *
+       * 1. EVERY RED IS RENDERED, not just the first. Red means "a
+       *    recommendation cannot be trusted" — it is supposed to be rare, so
+       *    collapsing it to save a line is trading the whole point of the
+       *    channel for width. Ambers still collapse to `+N`; there are routinely
+       *    several and none of them invalidates the board.
+       * 2. REDS ARE ORDERED BY WHAT INVALIDATES THE BOARD SOONEST. A stale sync
+       *    means the shortlist on screen may name a player who went four picks
+       *    ago — worse, right now, than a board built 19 hours ago, because the
+       *    second is wrong slowly and the first is wrong at the next pick.
+       *
+       * The `title` stays as a completeness fallback. It is no longer where the
+       * thing he needs to see lives. */
       + '<span class="ss-dot" title="' + escapeHtml(issues.join(' · ') || 'all clear') + '">'
-      + dot + (issues.length ? ' <span class="ss-issues">' + escapeHtml(issues[0])
-        + (issues.length > 1 ? ' +' + (issues.length - 1) : '') + '</span>' : '') + '</span>';
+      + dot + (issues.length ? ' <span class="ss-issues">'
+        + escapeHtml(redOrdered.join(' · ') || amber[0])
+        + (redOrdered.length && amber.length ? ' +' + amber.length
+          : (!redOrdered.length && amber.length > 1) ? ' +' + (amber.length - 1) : '')
+        + '</span>' : '') + '</span>';
 
     // A red state force-opens the detail ONCE. Re-collapsing is the user's
     // call after that — a panel that refuses to close is its own problem.
@@ -7205,6 +7383,44 @@
     const nPicks = (picks || []).length;
     if (state._syncedPickCount === nPicks) return;
     state._syncedPickCount = nPicks;
+
+    /* ⚠️ RETIRE ANY TYPED PLACEHOLDER THE ROOM HAS NOW REPORTED FOR REAL.
+     *
+     * This loop is ADDITIVE — it adds on first sight and never removes — so
+     * excluding a superseded row from `allPicks()` is not enough on its own: the
+     * board's OWN surfaces (`state.drafted`, the seat roster, my roster, the
+     * recent-picks strip) still hold the placeholder from when it was typed.
+     * B measured exactly that: drafted 15 -> 16 (typed) -> 17 (Sleeper reports
+     * the SAME pick), with seat 3 holding both spellings.
+     *
+     * The purge runs BEFORE the add loop so the real pick lands into a seat that
+     * has already given up its stand-in, and the seat count never transiently
+     * reads one too high. `sync.supersededManual()` owns the decision — a typed
+     * row retires when its seat has more real picks than it had at entry — and
+     * this side only carries it out. */
+    if (state.sync && typeof state.sync.supersededManual === 'function') {
+      let retired = 0;
+      state.sync.supersededManual().forEach(id => {
+        if (!state.drafted.has(id)) return;
+        state.drafted.delete(id);
+        Object.keys(state.rosters || {}).forEach(sl => {
+          state.rosters[sl] = (state.rosters[sl] || [])
+            .filter(x => String(x.player_id) !== String(id));
+        });
+        state.myRoster = (state.myRoster || [])
+          .filter(x => String(x.player_id) !== String(id));
+        state.recentPicks = (state.recentPicks || [])
+          .filter(x => String(x.player_id) !== String(id));
+        retired++;
+      });
+      /* SAID OUT LOUD, because a pick silently vanishing off his board mid-draft
+       * is its own kind of alarming — and this is the one case where a row
+       * disappearing is correct. */
+      if (retired) {
+        console.info('[manual] ' + retired + ' typed pick(s) retired — the room '
+          + 'reported them for real');
+      }
+    }
     picks.forEach(pick => {
       const id = String(pick.player_id);
       // draft_slot is the seat; roster_id is the team. A MOCK draft has no
@@ -7703,6 +7919,22 @@
       // say so instantly rather than looking like an outage for eight seconds.
       const parsed = window.DraftSync.normalizeDraftId(typed);
       if (parsed.error) { setStatus({ state: 'error', message: parsed.error }); return; }
+      /* ⚠️ A SECOND POLLER IS WORSE THAN NO POLLER, and this button can now be
+       * pressed while one is already running — the wedge no longer tears the
+       * first one down. Two DraftSync objects on the same draft double the
+       * request rate and interleave their `onPicks`, so the board's picture of
+       * the room would flip between two fetches mid-render.
+       *
+       * On an existing sync this is a KICK, not a connect: reset the failure
+       * count so the backoff drops from its 30s cap back to 4s, and poll now. */
+      if (state.sync && state.sync.running && state.sync.draftId === parsed.id) {
+        state.sync.failures = 0;
+        if (state.sync.timer) clearTimeout(state.sync.timer);
+        setStatus({ state: 'warn', message: 'Retrying now — the board keeps polling on '
+          + 'its own either way, so you never have to press this.' });
+        state.sync.poll();
+        return;
+      }
       // Show them what we actually understood, so a URL paste is visibly fixed
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
@@ -7754,14 +7986,37 @@
       setStatus({ state: now === 'wedged' ? 'error' : now === 'stalled' ? 'warn' : 'live',
                   message: d.text });
       if (now === 'wedged') {
-        // AUTO-FALLBACK. Stop polling, unlink, and say so loudly. The manual
-        // path is the draft-night fallback anyway, so exercising it is free.
-        try { if (state.sync && state.sync.stop) state.sync.stop(); } catch (e) { /* expected */ }
-        state.sync = null;
+        /* ⚠️ WEDGED IS A DEGRADED STATE, NOT A TERMINUS. IT USED TO UNLINK.
+         *
+         * This block used to call `state.sync.stop()`, null the sync, kill this
+         * watch and relabel the button "Retry connect". Nothing was lost — manual
+         * entry is a first-class path — and the reasoning was sound as far as it
+         * went: a spinner that hangs forever is worse than an honest surrender.
+         *
+         * IT ASSUMED SOMEONE IS LOOKING AT THE SCREEN. On 08-22 Cory is watching
+         * the room and the clock, and the one thing he asked for is to get back
+         * to an accurate board as fast as possible. Auto-surrender costs the
+         * whole outage plus however long it takes him to notice a button changed.
+         *
+         * AND IT FIRED BY CONSTRUCTION, NOT BY TUNING. Another session drove a
+         * real 44-second outage: the poll backoff caps at 30s (`sync.js`
+         * BACKOFF_MAX) while the patience budget is fixed at 45s
+         * (`session.js` WEDGE_AFTER), so ANY outage past ~45 seconds wedges no
+         * matter how healthy the connection is either side of it. A phone in a
+         * pocket at a draft table clears 45 seconds without trying.
+         *
+         * THE ASYMMETRY DECIDES IT. Retrying costs one request per 30 seconds
+         * against an endpoint we already poll every 4. Surrendering costs a
+         * board that silently stops updating while it goes on recommending
+         * players who are already gone — the exact failure the staleness work
+         * exists to prevent, reintroduced by the thing meant to handle it.
+         *
+         * So the sync KEEPS RUNNING at its capped interval and `sawResponse`
+         * carries the session straight back to `live` the moment the room
+         * answers — no tap required. The button stays as a KICK (skip the
+         * backoff and poll now), not as the only road back. */
         const connect = document.getElementById('start-sync');
-        if (connect) { connect.disabled = false; connect.textContent = 'Retry connect'; }
-        clearInterval(state.sessionWatch);
-        state.sessionWatch = null;
+        if (connect) { connect.disabled = false; connect.textContent = 'Reconnect now'; }
         renderAll();
       }
     }, 1000);

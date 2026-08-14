@@ -40,15 +40,22 @@
 'use strict';
 const PLAN = require('./draft_plan.js');
 
-/* Realized acquisition medians, points in the week added, pooled 2023-2025 from
- * draft/backtest/waiver_replacement.py against C's nflverse weekly archives.
- * n IS CARRIED EVERYWHERE. QB and TE rest on 5 and 6 observations and a median
- * of five reads exactly like a median of forty unless the count travels with
- * it — which is C's own MIN_N argument, applied to C's own output. */
-const WIRE = {
-  QB: { v: 20.9, n: 5 }, RB: { v: 5.3, n: 46 },
-  WR: { v: 13.3, n: 39 }, TE: { v: 6.3, n: 6 },
-};
+/* Realized acquisition medians, points in the week added, pooled 2023-2025 —
+ * DERIVED from `wire_level.js`, which is the one place the summary statistic is
+ * chosen, rather than transcribed here.
+ *
+ * THE `n` CARRIED BESIDE IT USED TO BE A DIFFERENT ESTIMATOR'S n. This file
+ * shipped `QB {v: 20.9, n: 5}` and argued, correctly, that "a median of five
+ * reads exactly like a median of forty unless the count travels with it" — and
+ * then carried a count that did not belong to the value. 20.9 was the median of
+ * the per-(position, week) CELL MEDIANS clearing min_n=5; 5 was the pooled
+ * acquisition count of those cells. The value rested on ONE CELL, not five
+ * observations, and the number printed to make it honest was the wrong one.
+ * `levels()` returns the n OF THE SAMPLE IT SUMMARISES, so the argument this
+ * file makes about counts is now true of its own output. */
+const WL = require('./wire_level.js').levels();
+const WIRE = {};
+Object.keys(WL.per_week).forEach(p => { WIRE[p] = { v: WL.per_week[p], n: WL.n[p] }; });
 const WEEKS = 15;
 const thin = p => WIRE[p].n < 20;
 
@@ -77,9 +84,20 @@ PLAN.plan.filter(x => x.bench && x.p && WIRE[x.p.position]).forEach(x => {
   const qb = rows.find(r => r.x.p.position === 'QB');
   const rb = rows.find(r => r.x.p.position === 'RB');
   if (qb && rb) {
-    console.log('\n     HE WAS RIGHT, AND CLOSE ON THE NUMBER. The wire quarterback is '
-      + qb.pct.toFixed(0) + '% of');
-    console.log('     ' + qb.x.p.name + ' (he guessed 80). The wire running back is '
+    /* THE VERDICT ON CORY'S CLAIM IS COMPUTED, NOT WRITTEN DOWN. This line read
+     * "HE WAS RIGHT, AND CLOSE ON THE NUMBER" against a QB wire of 20.9 — 89%,
+     * nine points off his 80. Measured over the full sample the QB wire is
+     * higher, so the direction of his error changes, and a sentence that
+     * announces the verdict before computing it would have gone on saying
+     * "close" no matter how far apart they were. */
+    const guess = 80;
+    const off = qb.pct - guess;
+    console.log('\n     HIS CLAIM WAS "' + guess + '% OF A GOOD ONE", AND HE '
+      + (Math.abs(off) <= 10 ? 'HAD IT TO WITHIN TEN POINTS'
+        : off > 0 ? 'UNDERSTATED IT BY ' + off.toFixed(0)
+        : 'OVERSTATED IT BY ' + (-off).toFixed(0)) + '.');
+    console.log('     The wire quarterback is ' + qb.pct.toFixed(0) + '% of');
+    console.log('     ' + qb.x.p.name + '. The wire running back is '
       + rb.pct.toFixed(0) + '% of ' + rb.x.p.name + '.');
     console.log('     THAT ASYMMETRY IS THE ENTIRE CASE AGAINST A BACKUP QB, and it is the');
     console.log('     one thing the bench equation could not see, because it priced every');
@@ -131,11 +149,31 @@ console.log('     measurement was worth waiting for rather than guessing.');
 
 /* ── 4. WHAT THIS DOES NOT ESTABLISH ───────────────────────────────────────*/
 console.log('\n  WHAT THIS DOES NOT ESTABLISH');
-console.log('     QB rests on n=5 and TE on n=6. Those two medians are the ones carrying');
-console.log('     the QB2/TE2 argument, and they are the thinnest cells in the sample. RB');
-console.log('     (n=46) and WR (n=39) are the solid ones, and they say the same thing from');
-console.log('     the other side: the RB wire is genuinely poor, which is the more robust');
-console.log('     half of Cory\'s claim.');
+/* THE THIN-SAMPLE CAVEAT IS RECOMPUTED, AND IT NO LONGER APPLIES. This block
+ * warned that "QB rests on n=5 and TE on n=6" — true of the filtered statistic
+ * and not of this one, which reads every scored acquisition. Leaving a caveat in
+ * place after the thing it warns about is gone is the same defect as leaving the
+ * constant: prose that was measured once and then stopped being checked. So the
+ * counts are read from the sample and the warning fires only if it is earned. */
+{
+  const thinPos = Object.keys(WIRE).filter(p => WIRE[p].n < 20)
+    .sort((a, b) => WIRE[a].n - WIRE[b].n);
+  const counts = ['QB', 'RB', 'WR', 'TE'].filter(p => WIRE[p])
+    .map(p => p + ' ' + WIRE[p].n).join(', ');
+  if (thinPos.length) {
+    console.log('     ' + thinPos.map(p => p + ' rests on n=' + WIRE[p].n).join(' and ')
+      + '. Read those two rows as directional');
+    console.log('     only — they are the thinnest in the sample and a median of a handful');
+    console.log('     reads exactly like a median of forty. Counts: ' + counts + '.');
+  } else {
+    console.log('     NO POSITION HERE IS THIN: ' + counts + ' scored acquisitions, '
+      + WL.scored + ' in all,');
+    console.log('     across 16-17 distinct weeks each. The earlier version of this section');
+    console.log('     warned that QB rested on 5 observations and TE on 6 — that was true of');
+    console.log('     the min_n=5 FILTERED statistic this tool used to carry, not of the');
+    console.log('     sample it reads now, and the caveat is retired rather than repeated.');
+  }
+}
 console.log('     A median acquisition is also not a median AVAILABLE player — managers add');
 console.log('     for need and for handcuffs, not only for points (C\'s bound_note). The');
 console.log('     direction of that bias is toward UNDERSTATING the wire, which would make');

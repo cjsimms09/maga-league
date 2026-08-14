@@ -1,0 +1,153 @@
+diff --git a/draft/tests/trashtalk.test.js b/draft/tests/trashtalk.test.js
+index 2a84224..940e829 100644
+--- a/draft/tests/trashtalk.test.js
++++ b/draft/tests/trashtalk.test.js
+@@ -106,6 +106,75 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
+       JSON.stringify({ listed: a.map(p => p.body), reversed: b.map(p => p.body) }));
+     ck('  and the order is total — no two posts tie',
+       new Set(a.map(p => p.created_at + '|' + p.id)).size === a.length);
++
++    /* ⚠️ EVERY CLAUSE ABOVE CHECKS STABILITY AND NONE CHECKS CORRECTNESS, and
++     * that is precisely how the defect survived them. `a.ids === b.ids` and "no
++     * two tie" are both satisfied by a tie-break that is CONSISTENTLY WRONG —
++     * and the shipped one was: `newId()` is a millisecond stamp plus six hex
++     * characters of randomness, so inside one millisecond the prefix is equal
++     * and the comparison decides on the random half. C measured 50.0% wrong
++     * over 19,940 same-millisecond pairs, and this suite failed about one run
++     * in three while every clause above passed.
++     *
++     * DETERMINISTIC IS NOT THE SAME AS CORRECT. The comment beside the sort
++     * used the first word to claim the second. So the property is asserted
++     * DIRECTLY: the thread must come back in the order it was WRITTEN, which
++     * only a recorded sequence can know. */
++    ck('  THE ORDER IS THE ORDER THEY WERE POSTED IN, not merely a stable one',
++      a.map(p => p.body).join() === ['first', 'second', 'third', 'fourth', 'fifth'].join(),
++      a.map(p => p.body));
++    ck('  and it survives the store listing keys backwards, which is the case '
++      + 'a local filesystem never produces and Netlify Blobs never rules out',
++      b.map(p => p.body).join() === ['first', 'second', 'third', 'fourth', 'fifth'].join(),
++      b.map(p => p.body));
++    ck('  CONTROL — the burst really did collide, so the clause above is not '
++      + 'passing because created_at separated them',
++      stamps.size < burst.length, { distinct: stamps.size, posted: burst.length });
++    ck('  every post carries the write-order witness, since nothing else can '
++      + 'recover it', burst.every(p => Number.isFinite(p.seq)), burst.map(p => p.seq));
++    /* ⚠️ TWO FAIL ARMS IN A ROW WERE THEMSELVES COIN FLIPS. The first asserted
++     * that (created_at, id) gives the WRONG order — true 119 times in 120,
++     * because five random ids sort correctly by chance 1/5!. The second
++     * asserted that same-millisecond posts share an id PREFIX, and that is not
++     * true either: `post()` READS THE CLOCK TWICE — `newId()` via `Date.now()`
++     * and `created_at` via `new Date()` — so the two can land on opposite sides
++     * of a tick. Observed: five posts with one identical `created_at` carrying
++     * TWO distinct id prefixes, `mss6av0r…` and `mss6av0s…`.
++     *
++     * That is worse than the original diagnosis, not better: the id is not
++     * merely random inside a millisecond, it can disagree with `created_at`
++     * about WHICH millisecond a post is in.
++     *
++     * A PROBABILISTIC FAIL ARM IN THE FILE FIXING A PROBABILISTIC BUG is the
++     * same mistake one level up, and it reads as "the flake is still there". So
++     * the arm is now CONSTRUCTED rather than observed: two records that differ
++     * only in the way the old comparator was blind to. No dice. */
++    {
++      const older = { created_at: '2026-09-01T00:00:00.500Z', id: 'zzzz9999', seq: 1, body: 'written first' };
++      const newer = { created_at: '2026-09-01T00:00:00.500Z', id: 'aaaa1111', seq: 2, body: 'written second' };
++      const oldSort = (x, y) => String(x.created_at).localeCompare(String(y.created_at))
++        || String(x.id).localeCompare(String(y.id));
++      const got = [older, newer].slice().sort(oldSort).map(p => p.body);
++      ck('  FAIL ARM — the (created_at, id) comparator puts the SECOND post '
++        + 'first whenever the random tail happens to sort that way',
++        got[0] === 'written second', got);
++      const newSort = (x, y) => String(x.created_at).localeCompare(String(y.created_at))
++        || (Number.isFinite(x.seq) && Number.isFinite(y.seq) ? x.seq - y.seq : 0)
++        || String(x.id).localeCompare(String(y.id));
++      ck('  and the shipped comparator gets it right on the identical input',
++        [newer, older].slice().sort(newSort).map(p => p.body)[0] === 'written first');
++      ck('  CONTROL — the two records are otherwise INDISTINGUISHABLE, so the '
++        + 'sequence is doing the work and not some other field',
++        older.created_at === newer.created_at);
++      ck('  a legacy row with no `seq` still falls back to the id rather than '
++        + 'throwing — the store holds posts written before it existed',
++        [{ created_at: 'x', id: 'b' }, { created_at: 'x', id: 'a' }]
++          .sort(newSort).map(p => p.id).join() === 'a,b');
++      ck('  and every post written NOW carries the witness',
++        burst.every(p => Number.isFinite(p.seq)), burst.map(p => p.seq));
++      ck('  which separates every one of them, even where created_at cannot',
++        new Set(burst.map(p => p.seq)).size === burst.length, burst.map(p => p.seq));
++    }
+     // The season archive reads the same posts with NO key sort in front of it,
+     // so the tie-break is the only thing holding it together.
+     const arcA = (await TT.archiveForSeason(2026)).filter(p => p.game_id === g);
+diff --git a/src/routes/trashtalk.js b/src/routes/trashtalk.js
+index a0d4811..86dc324 100644
+--- a/src/routes/trashtalk.js
++++ b/src/routes/trashtalk.js
+@@ -22,12 +22,25 @@ const CFG = {
+ 
+ const gameKey = (season, week, gameId) => `trash:${season}:${week}:${gameId}`;
+ 
++/* A COUNTER THAT ONLY EVER GOES UP, for the one thing the clock cannot see.
++ * Per-process and deliberately not persisted: it exists to order posts made in
++ * the SAME MILLISECOND, and two posts a process restart apart are separated by
++ * `created_at` long before this is consulted. Persisting it would buy nothing
++ * and would add a write to the hot path of the one page that has to feel
++ * instant. */
++let _seq = 0;
++const nextSeq = () => ++_seq;
++
+ /** Post to a game. Returns the stored post, or null if the body was empty. */
+ async function post(season, week, gameId, ownerId, body) {
+   const text = String(body == null ? '' : body).trim().slice(0, CFG.MAX_LEN);
+   if (!text) return null;
+   const id = newId();
+-  const rec = { id, season, week, game_id: gameId, owner_id: Number(ownerId), body: text, created_at: now() };
++  /* WRITE-ORDER, RECORDED, because it cannot be recovered afterwards. Two posts
++   * inside one millisecond are indistinguishable to the clock and to the id;
++   * this is the only witness to which was actually first. */
++  const rec = { id, season, week, game_id: gameId, owner_id: Number(ownerId),
++                body: text, created_at: now(), seq: nextSeq() };
+   await setDoc(`${gameKey(season, week, gameId)}:${id}`, rec);
+   return rec;
+ }
+@@ -35,13 +48,35 @@ async function post(season, week, gameId, ownerId, body) {
+ // Oldest first, and TOTALLY ordered. `created_at` is an ISO string with
+ // millisecond resolution, so two posts inside the same millisecond compared
+ // equal and the thread fell back to whatever order listKeys happened to return
+-// — which is directory order, i.e. arbitrary and not even stable between
+-// calls. On a record the page advertises as permanent and quotable, a thread
+-// that renders in a different order on a refresh is not a cosmetic problem. The
+-// id breaks the tie: newId() is `Date.now().toString(36)` plus random, so it is
+-// both chronological to the millisecond and unique, which makes the order
+-// deterministic even where the timestamp cannot separate two posts.
++// — directory order, arbitrary and not even stable between calls. On a record
++// the page advertises as permanent and quotable, a thread that renders in a
++// different order on a refresh is not a cosmetic problem.
++//
++// ⚠️ THE FIRST FIX BROKE THE TIE WITH THE ID, AND THE ID CANNOT BREAK IT.
++//
++// The comment here claimed newId() is "chronological to the millisecond and
++// unique, which makes the order deterministic". Both halves are true and the
++// conclusion does not follow. `newId()` is
++// `Date.now().toString(36) + crypto.randomBytes(3).toString('hex')` — so INSIDE
++// one millisecond the timestamp prefix is IDENTICAL and the comparison falls
++// through to SIX HEX CHARACTERS OF PURE RANDOMNESS.
++//
++// DETERMINISTIC IS NOT THE SAME AS CORRECT. The same two posts always sort the
++// same way, which is what the word was doing all the work for — and that order
++// is the true one exactly half the time. C measured it at 50.0% wrong over
++// 19,940 same-millisecond pairs, and it is what made `trashtalk.test.js` fail
++// roughly one run in three and integration nondeterministic.
++//
++// A MONOTONIC SEQUENCE IS THE ONLY THING THAT KNOWS. Nothing recoverable from a
++// stored record can order two posts inside a millisecond — the clock cannot see
++// them and the id was never a clock. So the order is RECORDED at write time by
++// a counter that only ever goes up, and `seq` is consulted before the id.
++//
++// The id remains the last resort, for rows written before `seq` existed and for
++// the cross-restart case where two posts land in one millisecond either side of
++// a process boundary. That is still a coin flip, and it is now the only one.
+ const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at))
++  || (Number.isFinite(a.seq) && Number.isFinite(b.seq) ? a.seq - b.seq : 0)
+   || String(a.id).localeCompare(String(b.id));
+ 
+ /** Every post on one game, oldest first (the order an argument actually happened). */

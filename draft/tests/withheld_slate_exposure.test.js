@@ -98,12 +98,54 @@ ck('every opponent keeper ranks inside the top 22 by ADP', deepest <= 22, deepes
 ck('and my FIRST pick is deeper than all of them', MY[0] > deepest,
   { first_pick: MY[0], deepest_keeper_rank: deepest });
 
+// ⚠️ WHAT THIS NULL DOES **NOT** SAY, AND I OVER-READ IT ─────────────────
+//
+// It says WITHHELDING OPPONENT KEEPERS costs nothing, because those men are
+// still in the pool and both accounts remove them. I reported that to Cory as
+// "the divergence is zero" and let it stand for the gone-set as a whole.
+//
+// IT IS NOT. CORY'S OWN THREE KEEPERS ARE ALREADY OUT OF THE POOL while their
+// board slots still count toward `pick - 1`, so `byAdp.slice(0, pick - 1)`
+// OVER-REMOVED by exactly the keeper-slot count — three players at every seat,
+// seventeen once the slate lands. At pick 33 it discarded DeVonta Smith, Breece
+// Hall and Cam Skattebo, the same names the survival panel puts at 58% and 52%
+// likely to reach that pick. Fixed in `emit_seat_plan.js`; six of twelve
+// shortlists changed.
+//
+// A NULL THAT ANSWERS A NARROWER QUESTION THAN THE ONE THAT MATTERS READS
+// EXACTLY LIKE A NULL THAT ANSWERS THE RIGHT ONE. Rule 13f is about instruments
+// that cannot produce a non-null; this is the sibling — an instrument that works
+// perfectly on a question adjacent to the one being asked. The guard is to state
+// the question the null answers, in the same breath as the null, which is what
+// this block now does.
+//
 // ── 2. SO THE WITHHELD SLATE COSTS NOTHING, AT EVERY PICK ───────────────
 const perPick = MY.map(pk => ({ pick: pk, n: divergence(others, pk).length }));
 ck('the model and a keeper-aware account agree at EVERY one of my picks',
   perPick.every(x => x.n === 0), perPick.filter(x => x.n));
 ck('CONTROL — both accounts remove the same COUNT, so this is about identity',
   divergence(others, MY[0]).length === 0 && MY[0] - 1 === 32, MY[0] - 1);
+
+// ── 2b. AND THE QUESTION IT DOES NOT ANSWER, PINNED ─────────────────────
+// The gone-set must count SELECTIONS, not board slots. This is the check that
+// would have caught what the null above did not.
+{
+  const rows = (DATA.pick_order || {}).picks || [];
+  const liveBefore = pk => rows.filter(r => r.overall < pk && !r.keeper_slot).length;
+  const keeperSlots = pk => rows.filter(r => r.overall < pk && r.keeper_slot).length;
+  ck('CONTROL — there ARE keeper slots before my first pick, or this proves nothing',
+    keeperSlots(MY[0]) > 0, keeperSlots(MY[0]));
+  ck('selections before a pick are FEWER than board slots, by exactly the keeper '
+    + 'slots', MY.every(pk => (pk - 1) - liveBefore(pk) === keeperSlots(pk)),
+    MY.map(pk => pk + ': ' + (pk - 1) + ' slots, ' + liveBefore(pk) + ' selections'));
+  const SP = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'seat_plan.json'), 'utf8'));
+  ck('the seat plan REMOVES the selection count, not the board number — the '
+    + 'emitter is the thing being checked here, via its own source',
+    /liveBefore\(x\.pick\)/.test(fs.readFileSync(path.join(ROOT, 'draft', 'tools',
+      'emit_seat_plan.js'), 'utf8')));
+  ck('CONTROL — the seat plan is built on the same picks', 
+    (SP.my_picks || []).join() === MY.join(), SP.my_picks);
+}
 
 // ── 3. FAIL ARM — the probe must be able to produce a non-null ──────────
 // Rule 13f. A null that matches what its author expected needs its instrument
@@ -125,7 +167,7 @@ ck('CONTROL — both accounts remove the same COUNT, so this is about identity',
     found.map(f => f.who[0]));
 }
 
-// ── 4. THE RULE THAT MAKES IT STRUCTURAL, READ NOT ASSUMED ──────────────
+// ── 6. THE RULE THAT MAKES IT STRUCTURAL, READ NOT ASSUMED ──────────────
 // Under top_picks_flat keeping anybody costs a first, second or third, so nobody
 // keeps a player who is not worth one. If the cost model ever changes to
 // original_round, cheap deep keepers become rational and this null dies with it.
@@ -134,6 +176,67 @@ ck('the league charges a TOP round for any keeper, which is why keepers are elit
   kr.cost_model === 'top_picks_flat', kr.cost_model);
 ck('and caps the count at 3, so at most 30 board slots can be keepers',
   +kr.count === 3, kr.count);
+
+// ── 5. THE TRIGGER — this stops being informational when the slate lands ──
+//
+// EVERY SUMMARY I HAVE WRITTEN ABOUT THIS ENDS "one number to re-check at keeper
+// lock on 20 August". That is an instruction to a future reader, and this
+// project's own named failure class is WORK WITH A PLAN AND NO TRIGGER. So the
+// re-check is wired to fire by itself.
+//
+// THE SIGNAL IS STATE, NOT A DATE, which is better because it fires when the
+// fact changes rather than on a morning somebody guessed. `withheld_from_board`
+// says whether the board is carrying the confirmed league-wide slate or only
+// Cory's own keepers. While it is withheld this section is informational —
+// exactly what it is today, with 8 keepers from 3 teams held back. The moment it
+// is not, the same arithmetic runs against the BOARD'S OWN keepers and FAILS if
+// any of them sits deeper than a pick of his.
+//
+// A DATE BACKSTOP SITS UNDER IT, because a state trigger that never fires is a
+// trigger that never fires: if the slate has not landed by the eve of the draft,
+// that is itself the finding.
+{
+  const KS = DATA.keeper_slate || {};
+  const wh = KS.withheld_from_board || {};
+  const confirmed = wh.withheld === false;
+  ck('the board declares whether it carries the confirmed slate',
+    typeof wh.withheld === 'boolean', wh);
+
+  if (!confirmed) {
+    console.log('      slate WITHHELD (' + (wh.keepers || 0) + ' keepers, '
+      + (wh.teams || 0) + ' teams) — section 5 is informational until it lands');
+    /* AND THE BACKSTOP. Lock is 20 August, draft the 22nd. A board still
+     * withholding on the 21st is not a quiet state, it is a problem — the pool
+     * and every seat would be solved against keepers that are already decided. */
+    const DRAFT_EVE = Date.UTC(2026, 7, 21);
+    ck('SLATE-LOCK BACKSTOP — if this is red, the confirmed keeper slate has not '
+      + 'reached the board and the draft is tomorrow',
+      Date.now() < DRAFT_EVE,
+      { now: new Date().toISOString().slice(0, 10), withheld: wh });
+  } else {
+    /* THE REAL CHECK. Keepers are removed from `players` once applied, so their
+     * ranks come from `kept_players`, which carries the full board row. */
+    const kept = (DATA.kept_players || []).filter(k => String(k.team_slot)
+      !== String((DATA.league || {}).my_draft_slot));
+    ck('CONTROL — a confirmed slate carries opponent keepers to rank',
+      kept.length > 0, kept.length);
+    const rankOfKept = k => {
+      const a = (k.adjusted_adp != null ? +k.adjusted_adp
+        : (k.raw_adp != null ? +k.raw_adp : 9999));
+      return byAdp.filter(p => adpOf(p) < a).length + 1;
+    };
+    const deepest = Math.max.apply(null, kept.map(rankOfKept));
+    const exposed = MY.map(pk => ({
+      pick: pk, n: kept.filter(k => rankOfKept(k) > pk - 1).length,
+    })).filter(x => x.n > 0);
+    ck('CONFIRMED SLATE — no opponent keeper ranks deeper than a pick of mine, so '
+      + 'the board and a keeper-aware account still agree',
+      exposed.length === 0,
+      { exposed: exposed, deepest_keeper_rank: deepest, first_pick: MY[0] });
+    console.log('      slate CONFIRMED — ' + kept.length + ' opponent keepers, '
+      + 'deepest #' + deepest + ', first pick ' + MY[0]);
+  }
+}
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed  (deepest opponent '
   + 'keeper #' + deepest + ', first pick ' + MY[0] + ')');

@@ -155,7 +155,12 @@
   DraftSync.prototype.allPicks = function () {
     const seen = new Set();
     const out = [];
-    this.picks.concat(this.manual).forEach(p => {
+    /* Superseded placeholders are excluded HERE rather than deleted, so the
+     * retirement is reversible and the row can still be inspected. A real pick
+     * arriving out of order un-retires nothing — the watermark only rises. */
+    const dead = new Set(this.supersededManual ? this.supersededManual() : []);
+    this.picks.concat(this.manual.filter(m => !dead.has(String(m.player_id))))
+      .forEach(p => {
       const id = String(p.player_id || (p.metadata && p.metadata.player_id) || '');
       if (!id || seen.has(id)) return;
       seen.add(id);
@@ -188,15 +193,87 @@
     return out;
   };
 
+  /* THE SEAT A PICK BELONGS TO. `draft_slot` is the chair and `roster_id` is the
+   * team; a MOCK draft has no rosters, so the seat only lives in draft_slot. */
+  function seatOf(p) {
+    return Number(p.draft_slot) || Number(p.roster_id) || null;
+  }
+
+  /* ⚠️ A TYPED PICK IS A PLACEHOLDER, AND IT HAS TO RETIRE ITSELF.
+   *
+   * B drove this and it is the one that mattered most: the room takes a player
+   * the board does not carry, Cory types it in, Sleeper comes back and reports
+   * THE SAME PICK under its own id, and the pick is counted TWICE — drafted
+   * 15 -> 16 -> 17, seat 3 holding both `manual:rondale-deepcut` and `990001`.
+   * `recordManualPick` mints a synthetic id and `allPicks()` dedupes BY
+   * player_id, so a synthetic id can never equal Sleeper's. `removeManual()`
+   * existed for exactly this and was called from nowhere in the repo.
+   *
+   * MY OWN CHANGE MADE IT REACHABLE IN THE COMMON CASE. Before 2026-08-13 a
+   * wedge unlinked sync permanently, so Sleeper never came back and the
+   * duplicate never arrived; the bug was real and largely unreachable. Now the
+   * board recovers by itself, which is right — and it means every pick typed
+   * during an outage WILL be reported again a few seconds later. The fallback
+   * B measured is the whole plan after a wedge, and it was putting the picks out
+   * of step, which is the exact opposite of what its own form promises.
+   *
+   * ── WHY NOT MATCH BY NAME, WHICH IS THE OBVIOUS FIX ──────────────────────
+   *
+   * Because getting it wrong MERGES TWO DIFFERENT PLAYERS, and the room contains
+   * similar names on purpose (B's own probe hit `Frank Gore Sr` / `Frank Gore
+   * Jr` in a different guard, and their case-sensitive match let a duplicate
+   * through as `rondale deepcut` vs `Rondale Deepcut`). A wrong merge deletes a
+   * real pick from the board and looks like nothing happened.
+   *
+   * A TYPED ROW NEVER CLAIMED TO IDENTIFY A PLAYER. It claims "SEAT S MADE A
+   * PICK WE COULD NOT IDENTIFY". So it is retired on exactly that claim being
+   * satisfied: the moment seat S has MORE REAL PICKS than it had when the row
+   * was typed, the placeholder has been superseded and is dropped. Count-
+   * preserving, identity-free, and it cannot merge two players because it never
+   * asserts who the player was.
+   *
+   * WHAT IT DOES WHEN IT IS WRONG, which is the half worth stating: if Cory
+   * types a pick against the WRONG SEAT, that placeholder never retires and sits
+   * on the board as a visible stale row. A stale row he can see beats a silent
+   * double count he cannot — and `removeManual` is still there to delete it. */
+  DraftSync.prototype.realPicksForSeat = function (seat) {
+    if (seat == null) return 0;
+    return this.picks.filter(p => seatOf(p) === Number(seat)).length;
+  };
+
   DraftSync.prototype.addManual = function (playerId, rosterId, draftSlot) {
+    const seat = draftSlot != null ? Number(draftSlot) : Number(rosterId);
     this.manual.push({
       player_id: String(playerId), roster_id: rosterId,
       // Same reasoning as the sleeper path: without a seat a typed pick is
       // recorded but belongs to nobody, which is the failure it exists to fix.
       draft_slot: draftSlot != null ? draftSlot : rosterId,
       pick_no: this.allPicks().length + 1, __manual: true,
+      /* THE WATERMARK THIS ROW RETIRES AGAINST — the real-pick count at this seat
+       * that must be EXCEEDED before the placeholder is considered superseded.
+       * Recorded at entry, because "how many real picks had this seat made when
+       * he typed" is not recoverable afterwards.
+       *
+       * ⚠️ IT COUNTS THE PLACEHOLDERS ALREADY QUEUED AT THIS SEAT, and the first
+       * version did not. Two picks typed for seat 4 during one outage both got
+       * watermark 0, so the FIRST real pick to come back retired BOTH of them —
+       * one real event silently deleting two records, which is the same
+       * over-count as the bug, in the other direction. Giving the second row a
+       * watermark of 1 makes them retire one at a time, in order, which is how
+       * the room actually reports them. */
+      real_at_entry: this.realPicksForSeat(seat)
+        + this.manual.filter(m => seatOf(m) === seat).length,
     });
     this.onPicks(this.allPicks());
+  };
+
+  /** Typed rows the room has since reported for real — ids only, for the caller
+   *  to purge from its own surfaces. `allPicks()` already excludes them. */
+  DraftSync.prototype.supersededManual = function () {
+    return this.manual
+      .filter(m => m.real_at_entry != null
+        && this.realPicksForSeat(seatOf(m)) > m.real_at_entry)
+      .map(m => String(m.player_id));
   };
 
   DraftSync.prototype.removeManual = function (playerId) {

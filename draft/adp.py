@@ -654,6 +654,9 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     ffc_max = max((r["adp"] for r in adp_table.values()), default=0.0)
 
     used_fallback = []
+
+    ordered_by_proj = []
+    unordered = []
     # ── THE TEAM FALLBACK, BECAUSE A BYE IS A PROPERTY OF THE TEAM ──────────
     #
     # Sleeper leaves bye_week empty in the preseason and FFC only publishes it
@@ -705,13 +708,69 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
                 p["bye"] = int(row["bye"])
                 p["bye_source"] = "ffc"
             continue
-        # Declared fallback: search_rank orders these players relative to each
-        # other, which is all we ask of it. It does not get to set their price.
-        rank = float(p.get("search_rank") or 9999)
-        p["adp"] = ffc_max + min(rank, 600.0)
-        p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
-        p["adp_source"] = "search_rank"
+        # ⚠️ THE DECLARED ORDERING NEVER HAPPENED. C found this and routed it.
+        #
+        # This said "search_rank orders these players relative to each other,
+        # which is all we ask of it". THE BOARD DICTS DO NOT CARRY `search_rank`
+        # — zero of them, verified on the shipped board — so `p.get()` returned
+        # None, `rank` was 9999, `min(rank, 600.0)` was 600 for everybody, and
+        # all 603 fallback players got the IDENTICAL price. `raw_adp` on the
+        # shipped board takes exactly ONE distinct value across all of them.
+        # A constant wearing the name of an ordering, with a comment asserting
+        # the ordering, is the hardest version of this defect to see.
+        #
+        # ── AND PLUMBING `search_rank` THROUGH WOULD BE WORSE ────────────────
+        #
+        # Sleeper's search_rank is a POPULARITY rank — how often a name is typed
+        # into a search box. That is not draft value, and using it here would
+        # replace an honest tie with a confident wrong ordering, which is the
+        # more expensive error. C flagged that too and they are right.
+        #
+        # SO IT IS ORDERED BY THE VALUE QUANTITY WE ACTUALLY HOLD, and only for
+        # the players who have one. 274 of the 603 carry a projection; those are
+        # ranked among themselves, best first. The remaining 329 have nothing to
+        # rank them by, so they stay GENUINELY TIED at the back and say so via
+        # `adp_unordered`, rather than being handed a spread that looks like
+        # information. A consumer can now tell "ranked 41st of the deep pool"
+        # from "one of 329 we cannot separate".
+        #
+        # THE DISTINCTION IS REPORTED IN PROVENANCE, NOT AS A ROW FIELD. A per-
+        # player `adp_unordered` was the obvious shape and it is the wrong one:
+        # `season_stamp` requires every board field to be declared with a season
+        # classification and a purpose (default-is-violation, and it caught this
+        # immediately, which is the guard working). That registry is C's file,
+        # and a flag NO LIVE CONSUMER READS is not worth an override — every
+        # fallback price starts past the relevant board, so nothing downstream
+        # can reach one. The counts below carry the same information to anyone
+        # who needs it, in the block that already describes how ADP was sourced.
+        #
+        # NOTHING HERE REACHES A DECISION TODAY, which is why this is a
+        # correctness fix and not an urgent one: every fallback price starts at
+        # `ffc_max + 1` by construction and the relevant board is 225 deep, so
+        # no fallback player can rank inside it. That is C's measurement and it
+        # is the reason this was safe to leave for a day.
+        proj = p.get("proj_mean")
+        proj = float(proj) if isinstance(proj, (int, float)) and proj > 0 else None
+        if proj is not None:
+            ordered_by_proj.append((proj, p))
+        else:
+            p["adp"] = ffc_max + 600.0
+            p["adp_sd"] = max(8.0, min(0.25 * p["adp"], 30.0))
+            p["adp_source"] = "search_rank"
+            unordered.append(p.get("player_id"))
         used_fallback.append(p.get("player_id"))
+
+    # THE DEEP POOL, RANKED AMONG ITSELF. Best projection first, one slot apart,
+    # starting immediately after the last real ADP — so the ordering is
+    # INTERNAL to the fallback and cannot push a fallback player past anybody
+    # the market actually priced. The players with no projection sit behind all
+    # of them at a single shared price, which is the honest statement that we
+    # cannot separate them.
+    ordered_by_proj.sort(key=lambda t: -t[0])
+    for i, (_proj, _p) in enumerate(ordered_by_proj):
+        _p["adp"] = ffc_max + 1.0 + i
+        _p["adp_sd"] = max(8.0, min(0.25 * _p["adp"], 30.0))
+        _p["adp_source"] = "search_rank"
 
     # THE TEAM BYE FALLBACK RUNS LAST, so Sleeper and FFC both win wherever they
     # actually have a value and this only ever fills a hole neither could.
@@ -759,6 +818,17 @@ def apply_with_fallback(players: list, adp_table: dict, *, teams: int,
     prov = {
         "adp_source": "ffc",
         "fallback_count": len(used_fallback),
+        # HOW MUCH OF THE FALLBACK IS AN ORDERING AND HOW MUCH IS A TIE. Before
+        # 2026-08-13 all of it was a tie and none of it said so: `search_rank` is
+        # absent from every board row, so `min(rank, 600.0)` gave all 603 the
+        # identical price while a comment claimed they were "ordered relative to
+        # each other". Split here so the claim is countable rather than asserted.
+        "fallback_ordered_by_projection": len(ordered_by_proj),
+        "fallback_unordered_tied": len(unordered),
+        "fallback_ordering_basis": (
+            "proj_mean where present; the remainder share one price because "
+            "nothing on the board separates them. NOT search_rank — the board "
+            "does not carry it, and it is a popularity rank rather than a value"),
         "fallback_count_in_play": len(fb_in_play),
         "relevant_board": len(in_play),
         "fallback_rate": round(rate, 4),
