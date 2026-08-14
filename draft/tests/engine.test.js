@@ -540,9 +540,37 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
       Array.isArray(paths) && paths.length <= E.CFG.PATHS_MAX, 'n=' + paths.length);
     check('paths: the top path is priced at zero (nothing costs less than the best)',
       paths.length > 0 && paths[0].price === 0, JSON.stringify(paths.map(p => p.price)));
-    check('paths: every price is >= 0 and within the qualifying band',
-      paths.every(p => p.price >= 0 && p.price <= E.CFG.PATHS_BAND),
-      JSON.stringify(paths.map(p => p.price)));
+    /* ── THIS ASSERTION PINNED THE DEFECT, AND ITS TWO HALVES SPLIT (08-14) ──
+     *
+     * It checked `price >= 0 && price <= PATHS_BAND` as one condition. The first
+     * half is a genuine invariant — a "cost" below zero is a badge that reads
+     * backwards, and it really can happen (an unsorted board produces −5.1, −9,
+     * −23.6; see paths_offer_options.test.js).
+     *
+     * THE SECOND HALF WAS PINNING THE THING CORY REPORTED. "Every rendered path
+     * is within the band" is the same statement as "the band decides whether an
+     * option exists", and measured across his twelve picks that left ONE
+     * direction at ten of them — whose leader is by construction the player the
+     * recommendations panel already prints at #1. *"Gibbs listed twice? No other
+     * options."*
+     *
+     * The band still means what it meant; it now sets `within_band` instead of
+     * deleting the card. So the checkable claim is that the FLAG is accurate,
+     * not that it is universally true — a test asserting the latter is a test
+     * that goes red when the panel starts offering alternatives. */
+    check('paths: no price is negative — a cost below zero is a badge that reads '
+      + 'backwards', paths.every(p => p.price >= 0),
+    JSON.stringify(paths.map(p => p.price)));
+    check('paths: within_band agrees with the price on every card, so an expensive '
+      + 'direction can never render as an equal',
+      paths.every(p => p.within_band === (p.price <= E.CFG.PATHS_BAND)),
+      JSON.stringify(paths.map(p => [p.price, p.within_band])));
+    check('paths: the in-band cards are a PREFIX — a widened panel never demotes '
+      + 'a direction that already qualified',
+      (function () {
+        const f = paths.map(p => p.within_band);
+        return f.lastIndexOf(true) < f.indexOf(false) || f.indexOf(false) < 0;
+      })(), JSON.stringify(paths.map(p => p.within_band)));
     check('paths: each direction groups a single position (a real direction, not a mix)',
       paths.every(p => p.candidates.every(c => c.player.position === p.position)));
     check('paths: every path names a plain-language direction and a when-it\'s-right',
