@@ -125,10 +125,26 @@ const near = (a, b, e) => Math.abs(a - b) < (e || 1e-6);
 // Off-by-one here silently rewrites every outcome.
 {
   const est = [{ player_id: 'x', survival: 0.5 }];
+
+  /* ⚠ THE BOUNDARY I SHIPPED BACKWARDS, pinned so it cannot return.
+   *
+   * `to_pick` is CORY'S OWN next pick (`myNextTurn()`), so nobody else can pick
+   * there — the only way a player is taken AT to_pick is that he lasted until
+   * Cory's turn and Cory drafted him. That is the survival call coming TRUE.
+   *
+   * My first version scored it as a MISS, and it is biased rather than merely
+   * wrong: the players Cory drafts are the ones the model rated highest and
+   * predicted would last, so every successful recommendation would have been
+   * recorded as a survival failure and the Brier score would look worst exactly
+   * where the model was right. */
   const at = S.resolveSurvival(cap(10, 20, est),
-    { picks: [{ overall: 20, player_id: 'x' }] })[0].payload;
-  ck('a player taken AT to_pick did NOT survive to it', at.results[0].survived === 0,
-    at.results[0]);
+    { picks: [{ overall: 20, player_id: 'x' }, { overall: 19, player_id: 'q' }] })[0].payload;
+  ck('a player taken AT to_pick — which only Cory can do — DID survive to it: '
+    + 'he was there when the turn came, and taking him is the call coming true',
+  at.results[0].survived === 1 && at.results[0].taken_at === null, at.results[0]);
+  ck('and that call scores as a HIT rather than a miss, so the model is not '
+    + 'punished for the recommendations it got right',
+  at.results[0].sq_error === 0.25 && at.brier === 0.25, { sq: at.results[0].sq_error, brier: at.brier });
 
   const before = S.resolveSurvival(cap(10, 20, est),
     { picks: [{ overall: 5, player_id: 'x' }, { overall: 20, player_id: 'z' }] })[0].payload;
