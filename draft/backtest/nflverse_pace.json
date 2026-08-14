@@ -523,5 +523,79 @@
    "_reading": "Pace DOES carry information about production beyond usage share \u2014 consistently, across positions and bands. At least part of that is mechanical rather than a discovery: share x team plays IS absolute touches, so a residual-after-share correlating with pace is close to restating 'volume beats share'. It confirms the module's premise \u2014 a share is a share OF something \u2014 rather than adding to it.",
    "_but": "It does not survive the trip to draft day. Pace persists at rho +0.194 and +0.024 year over year, so last season's figure does not describe the team being drafted. The mechanism is real and the pre-draft OBSERVABILITY is what fails."
   }
+ },
+ "_provenance": {
+  "_what": "Which nflverse assets these numbers came from. nflverse REVISES completed seasons occasionally \u2014 its own census says so \u2014 and without this there is no way to tell which revision a figure was measured on. Byte size and row count are two independent handles on that.",
+  "_fetched": "2026-08-14",
+  "assets": {
+   "pbp/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2023.parquet",
+    "bytes": 20534088,
+    "rows": 49665,
+    "columns": 372,
+    "sha256_12": "bd3484731408"
+   },
+   "pbp/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2024.parquet",
+    "bytes": 20597560,
+    "rows": 49492,
+    "columns": 372,
+    "sha256_12": "3fd2896bc0b9"
+   },
+   "pbp/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+    "bytes": 20337029,
+    "rows": 48771,
+    "columns": 372,
+    "sha256_12": "c6ecedd6d678"
+   },
+   "weekly_stats/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2023.parquet",
+    "bytes": 846050,
+    "rows": 18643,
+    "columns": 150,
+    "sha256_12": "ac776fbd7c9f"
+   },
+   "weekly_stats/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2024.parquet",
+    "bytes": 849243,
+    "rows": 18983,
+    "columns": 150,
+    "sha256_12": "847569d194ca"
+   },
+   "weekly_stats/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.parquet",
+    "bytes": 855077,
+    "rows": 19422,
+    "columns": 150,
+    "sha256_12": "2a461becaa9a"
+   },
+   "weekly_rosters/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2023.parquet",
+    "bytes": 794392,
+    "rows": 45655,
+    "columns": 36,
+    "sha256_12": "0fa5abf9b462"
+   },
+   "weekly_rosters/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2024.parquet",
+    "bytes": 829272,
+    "rows": 46579,
+    "columns": 36,
+    "sha256_12": "4b144e8eda5a"
+   },
+   "weekly_rosters/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2025.parquet",
+    "bytes": 850871,
+    "rows": 46849,
+    "columns": 36,
+    "sha256_12": "a8764c947bfe"
+   },
+   "player_ids": {
+    "url": "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv",
+    "bytes": 2625771,
+    "sha256_12": "76f7438517ec"
+   }
+  }
  }
 }

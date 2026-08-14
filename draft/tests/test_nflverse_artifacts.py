@@ -187,3 +187,44 @@ def test_SHRINKAGE_MOVES_PLAYERS_TOWARD_THE_PRIOR_never_away():
             r = s[k]["players"].get(pid)
             if r:
                 assert abs(r["delta"]) <= abs(raw["delta"]) + 1e-6, (pid, k)
+
+
+@pytest.mark.parametrize("name", ["nflverse_pace.json", "nflverse_durability.json",
+                                  "projection_spread_vs_realized.json"])
+def test_EVERY_ARTIFACT_SAYS_WHICH_ASSETS_IT_WAS_MEASURED_ON(name):
+    """nflverse REVISES completed seasons occasionally — its own census says so —
+    so a figure with no record of which revision produced it cannot be re-checked,
+    only re-taken.
+
+    MUTATION: drop the provenance block — the numbers survive with nothing tying
+    them to a source, which is the state all three were in this morning."""
+    art = _load(name)
+    prov = art.get("_provenance")
+    assert prov and prov.get("assets"), name
+    for key, a in prov["assets"].items():
+        assert a.get("url", "").startswith("https://"), key
+        assert a.get("bytes", 0) > 0, key
+
+
+def test_THE_pbp_ROW_COUNTS_AGREE_WITH_THE_CENSUS_taken_a_day_earlier():
+    """Two independent readings of the same release, a day apart: the census read
+    parquet footers over HTTP Range on 2026-08-13; these artifacts were measured on
+    files downloaded on 08-14. Agreement is evidence nflverse did not revise those
+    seasons in between, and disagreement would be exactly the revision the census
+    exists to catch.
+
+    MUTATION: compare against nothing — a silent revision moves every number in all
+    three artifacts and the only sign is that they stopped matching a file nobody
+    is reading."""
+    art = _load("nflverse_durability.json")
+    census = json.loads((BT / "nflverse_pbp_census.json").read_text())
+    seen = 0
+    for key, a in art["_provenance"]["assets"].items():
+        if not key.startswith("pbp/"):
+            continue
+        c = (census.get("seasons") or {}).get(key.split("/")[1])
+        if not c or c.get("rows") is None:
+            continue
+        assert a["rows"] == c["rows"], (key, a["rows"], c["rows"])
+        seen += 1
+    assert seen >= 3, "expected the census to cover the pbp seasons; saw %d" % seen
