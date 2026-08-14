@@ -2571,10 +2571,65 @@
     // position, at the same price. Nothing is removed and nothing is reordered —
     // suppressed directions are added back after the ones that were already
     // there. That is what makes this safe to ship eight days out.
-    const ranked = order.map(key => clusters[key])
+    /* ONE ROW PER POSITION — a DIRECTION is a position, not a position×flavour.
+     *
+     * The cluster key is `pos + ':cliff'` or `pos + ':value'`, so one position
+     * can produce two clusters, and both can be in-band. On the live board at
+     * pick 33 — Cory's FIRST pick — that rendered as:
+     *
+     *     WR Zay Flowers · RB Travis Etienne · RB D'Andre Swift
+     *
+     * Three "directions", two of them RB. "Take an RB because the cliff is here"
+     * and "take an RB for value" are two ARGUMENTS for the same direction, and a
+     * panel whose job is to offer options with pros and cons was showing one
+     * option twice. The flavour still decides how the surviving row is NAMED and
+     * priced (its leader carries the cliff/value urgency); it no longer buys a
+     * second row.
+     *
+     * Collapsing here rather than at render time means every consumer — the
+     * panel, the ledger capture, the tests — sees the same set. Two of them
+     * disagreeing about what a "path" is would be the next defect. */
+    const bestPerPos = {};
+    order.map(key => clusters[key]).forEach(c => {
+      const cur = bestPerPos[c.pos];
+      if (!cur || c.members[0].score > cur.members[0].score) bestPerPos[c.pos] = c;
+    });
+    const ranked = Object.keys(bestPerPos).map(p => bestPerPos[p])
       .sort((a, b) => b.members[0].score - a.members[0].score);
     const inBand = ranked.filter(c => c.members[0].score >= topScore - CFG.PATHS_BAND).length;
-    const chosen = ranked.slice(0, Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN)));
+    const want = Math.min(CFG.PATHS_MAX, Math.max(inBand, CFG.PATHS_MIN));
+
+    /* ⚠ THE FILL MUST NOT REPEAT A POSITION, AND MY FIRST VERSION DID.
+     *
+     * A cluster key is `pos + ':cliff'` or `pos + ':value'`, so ONE position can
+     * produce TWO clusters. That was harmless while only the in-band set
+     * rendered — the second flavour almost never qualified. Raising the floor to
+     * PATHS_MIN pulled it into view, and on the live board at pick 33, CORY'S
+     * FIRST PICK, the panel offered:
+     *
+     *     WR Zay Flowers · RB Travis Etienne · RB D'Andre Swift
+     *
+     * Three "directions", two of them RB. A panel whose whole job is to offer
+     * options with pros and cons was showing one option twice — the same defect
+     * as the ceiling tiebreak looking like a broken sort, and the same cost: a
+     * reader stops trusting the column.
+     *
+     * THE IN-BAND PREFIX IS UNTOUCHED, which is what made this safe to ship: every
+     * path that qualified on its own score still renders, in the same place, at
+     * the same price. Only the ADDED ones — the ones there purely to fill up to
+     * PATHS_MIN — prefer a position not already on screen. If nothing else is
+     * available they fall back to the ranked order rather than returning fewer
+     * than the board can support. */
+    const chosen = ranked.slice(0, inBand);
+    const seen = {};
+    chosen.forEach(c => { seen[c.pos] = 1; });
+    const rest = ranked.slice(inBand);
+    rest.filter(c => !seen[c.pos]).forEach(c => {
+      if (chosen.length < want) { chosen.push(c); seen[c.pos] = 1; }
+    });
+    rest.filter(c => chosen.indexOf(c) < 0).forEach(c => {
+      if (chosen.length < want) chosen.push(c);
+    });
     // `bestScore` is read off `ranked[0]`, which is `chosen[0]`, so prices are
     // identical to what they were. Computing it from a widened set would silently
     // re-baseline every price badge on the panel.

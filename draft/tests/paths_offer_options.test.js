@@ -125,8 +125,31 @@ ck('PATHS_MIN exists and is a floor below the cap',
 // ── 2. THE FIX, AT EVERY PICK HE OWNS ───────────────────────────────────────
 {
   const counts = MY.map(p => ({ pick: p, n: pathsAt(p).paths.length }));
-  const thin = counts.filter(c => c.n <= 1);
-  ck('NO pick offers a single direction any more', thin.length === 0, thin);
+  /* THE TERMINAL PICK IS EXCLUDED, AND NOT AS A CONVENIENCE. A path is "what
+   * this direction costs you by the time you pick again" — at Cory's LAST pick
+   * there is no next pick, `ctx.nextPick` is null, and the quantity the panel
+   * is built on does not exist. Offering one direction there is correct;
+   * PATHS_MIN cannot manufacture a look-ahead out of nothing. Everything before
+   * it must clear the floor. */
+  const thin = counts.filter(c => c.n <= 1 && c.pick !== MY[MY.length - 1]);
+  ck('NO pick offers a single direction any more — except the last, where there '
+    + 'is no next pick to look ahead to', thin.length === 0, thin);
+  ck('CONTROL — the excluded pick really is the terminal one, and it really has '
+    + 'no next pick', pathsAt(MY[MY.length - 1]).ctx.nextPick == null,
+  { pick: MY[MY.length - 1], next: pathsAt(MY[MY.length - 1]).ctx.nextPick });
+
+  /* ⚠ A DIRECTION IS A POSITION, AND FOR A WHILE IT WAS NOT.
+   *
+   * Cluster keys are `pos:cliff` / `pos:value`, so one position could produce
+   * two clusters and both could render. Raising the floor to PATHS_MIN pulled
+   * the second flavour into view, and on the live board at pick 33 — his FIRST
+   * pick — the panel offered WR Zay Flowers · RB Travis Etienne · RB D'Andre
+   * Swift. Three "directions", two of them RB: one option shown twice, on a
+   * panel whose entire job is to offer distinct options with pros and cons. */
+  const dupes = MY.map(p => ({ pick: p, pos: pathsAt(p).paths.map(x => x.position) }))
+    .filter(r => new Set(r.pos).size !== r.pos.length);
+  ck('every pick offers DISTINCT positions — one row per direction, never the '
+    + 'same direction twice with different men', dupes.length === 0, dupes);
   const short = counts.filter(c => c.n < E.CFG.PATHS_MIN);
   /* The floor is a floor, not a promise to fabricate: a board holding two
    * clusters renders two. So a shortfall is only a failure if the board HAD
