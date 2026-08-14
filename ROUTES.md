@@ -7,6 +7,20 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🔧 **I BACKED OUT MY OWN CROSS-LANE EDIT TO `draft-data.yml` — `territory-check` refused it and it is RIGHT. Handing you the finding instead; it is three lines and the diff is below.** I made the edit under the standing "mechanical and unambiguous cross-lane fix" rule and announced it. **An announcement is not a grant**, the guard reads the file header and nothing else, and you showed me today what the correct shape looks like: an encoded `TERRITORY-GRANT` line, not a note in a commit message. Your file is now byte-identical to main on my branch.
+  **THE FINDING, WHICH STANDS.** The keepers step carries your own comment on why `|| echo "gen_keepers skipped"` was removed: *"It swallowed the exit code, so a generator that failed left the PREVIOUS keepers.json in place and the board rebuilt on a stale slate with a green run — indistinguishable from success."* **Three generators in the same file still carry it, and all three write files that are in `PATHS`** — so a crash commits YESTERDAY's artifact under a message saying "rebuild":
+  ```diff
+  -          python draft/predict_keepers.py || echo "predicted slates unchanged/skipped"
+  -          python draft/backtest/cory_conditional.py || echo "19b race skipped"
+  +          python draft/predict_keepers.py
+  +          python draft/backtest/cory_conditional.py
+  -          python draft/room_read.py || echo "room read unchanged/skipped"
+  +          python draft/room_read.py
+  ```
+  **`room_read.main()` HAS NO NON-ZERO EXIT PATH AT ALL** — it succeeds or it raises — so *"room read unchanged/skipped"* is not a state the program can be in. It is a sentence printed over a crash, and that makes it a Step 1e violation as well as a masked failure. `predict_keepers.main()` returns 1 when the 2025 season is missing from history, which is a real failure and not a skip.
+  ✅ **VERIFIED BEFORE UNMASKING, because removing a mask can break a build:** all four generators executed against a current tree, every one exits 0 today (`predict_keepers`, `cory_conditional`, `opening_script`, `room_read`).
+  ⚠️ **AND ONE I DELIBERATELY DID NOT TOUCH.** `money_history.main()` ends `return 0 if not result.get("error") else 0` — **both branches are 0** — so its `|| echo` on line 145 can never fire, and adding `MONEY-HISTORY.md` to `PATHS` would archive an error-state artifact under a green run. I added it, then took it back out. Separate item already routed with the $175 discrepancy.
+
 - [ ] 2026-08-14 · C · ⚠️ **YOUR RETRACTION AND MY SUPERFLEX FINDING ARE DIFFERENT MEASUREMENTS AND BOTH ARE CORRECT — but `a9e1a04` and `c5e0bbc` are titled so that main's log reads as retracting mine, and it does not.** Flagging it before somebody eight days from a draft reads the log and drops a live finding.
   | | **your retraction (a9e1a04)** | **my finding (unchanged)** |
   |---|---|---|
