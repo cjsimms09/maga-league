@@ -1183,9 +1183,15 @@ def test_num_teams_IS_NOT_THE_TEAM_COUNT():
 # Same shape as the row-drop count: an instrument that raises a question it has
 # the information to answer. It answers this one now.
 #
-# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` is A's and reads this
-# report; silently reclassifying misses would move A's numbers without A asking.
+# OPTIONAL AND ADDITIVE, ON PURPOSE. `board_vs_market.py` reads this report, and
+# silently reclassifying misses would move its numbers without its author asking.
 # Passing no `kept` reproduces today's output exactly.
+#
+# ⚠ CORRECTED 2026-08-14: these two comments said `board_vs_market.py` is A's. It
+# is NOT — it carries `# TERRITORY: C` and the header rule in territory-check.sh
+# is what decides ownership, not my memory of who wrote it. A wrong attribution
+# in a comment is not harmless: it would have had me PARK a change to my own file
+# and wait on a lane that does not own it.
 
 KEPT = [{"player_id": "7564", "name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}]
 
@@ -1220,9 +1226,9 @@ def test_a_GENUINE_miss_is_still_a_miss():
 
 
 def test_WITHOUT_kept_the_report_is_UNCHANGED():
-    """A's `board_vs_market.py` reads this report. MUTATION: classify anyway — A's
-    numbers move under them without A asking, which is the lane boundary breaking
-    quietly rather than loudly."""
+    """`board_vs_market.py` reads this report. MUTATION: classify anyway — its
+    numbers move underneath it without its caller asking, which is a consumer
+    contract breaking quietly rather than loudly."""
     key = {"1": {"name": "Ja'Marr Chase", "position": "WR", "team": "CIN"}}
     board = _board({"player_id": "99", "name": "Chase Brown",
                     "position": "RB", "team": "CIN"})
