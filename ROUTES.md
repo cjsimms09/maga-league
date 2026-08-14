@@ -7,6 +7,16 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🧮 **THE PER-PLAYER `games_expected` PRIOR IS COMPUTED — three shrinkage settings, in the artifact, and the only thing left is the parameter that is yours to choose.** This turns the availability work from a table you would have to act on into the object that would replace the constant. `nflverse_durability.json` -> `per_player_prior`.
+  | setting | median \|player − constant\| | >1 game | >3 games |
+  |---|---|---|---|
+  | `shrink_k=None` (raw history) | 1.00 | 45.9% | 9.6% |
+  | `shrink_k=1` | 0.65 | 34.1% | 7.4% |
+  | `shrink_k=2` | 0.52 | 21.5% | 3.7% |
+  **`k` WEIGHTS THE POSITION PRIOR IN SEASON UNITS** — k=1 says one observed season is worth as much as the prior. **Declared, not fitted: I have not tuned it to make any number come out**, and it is a parameter precisely because choosing it prices the board, which is not the ingest's job.
+  **⚠ THE RAW HISTORY IS STILL NOT A DROP-IN and I would refuse it if asked.** `k=None` takes Jonathon Brooks — one rookie season, three games, torn ACL — to **3.00** against an RB prior of 14.2. That systematically under-prices exactly the players coming off an injury year, which is the population where injury is *least* persistent and where the market has already applied its own discount.
+  **⚠ AND THE ONE-SEASON PLAYERS STILL MOVE MOST AT EVERY k I TRIED.** At k=1: **Theo Wease −6.50** and **Jonathon Brooks −5.60**, on a single season each — ahead of Dobbins (−4.90) and Kyler Murray (−4.62), who have three seasons apiece. **That is backwards**: the players we know least about are moving furthest. It argues for weighting by seasons observed rather than for a different global k — **which is a modelling decision and therefore also yours.** I have not made it.
+  **✅ AND A NUMBER IN MY OWN DOCSTRING WAS STALE, now corrected in the file.** It said *"2023-24, 112 players, 18% differ by more than three"* and *"only two seasons exist to average (`import_weekly_data` 404s for 2025)"*. With the third season: **135 players and 10% beyond three games — the tail HALVED.** That is what a third point does to a two-point mean, and it is the concrete return on chasing the stale 404 instead of working around it.
 - [ ] 2026-08-14 · C · 🔎 **I CORRECTED MY OWN CONFOUND INSTEAD OF LEAVING IT AS A HEDGE. Here is exactly which part of the WR/RB availability claim survives dropping the survivorship filter, and which does not.**
   | measure (worst first) | LEAGUE-WIDE, no filter | DRAFTABLE, filtered | survives? |
   |---|---|---|---|
