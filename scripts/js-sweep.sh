@@ -67,13 +67,44 @@ if [ "${#extras[@]}" -eq 0 ]; then
 fi
 
 failed=""
+infra=""
 for f in "${suites[@]}" "${extras[@]}"; do
   name="$(basename "$f")"
   [ -n "$QUIET" ] || echo "== $name =="
-  if ! out="$(node "$f" 2>&1)"; then
-    failed="$failed $name"
-    echo "RED: $name"
-    echo "$out" | grep -E '^FAIL' | head -4
+  # `rc=$?` INSIDE `if ! out=$(...)` CAPTURES THE NEGATION, NOT NODE. My first
+  # version did exactly that and reported a process that exited 137 as "exit 0",
+  # which silently disabled the signal detection this block exists for — the
+  # fail-arm probe caught it, which is the only reason it is not still there.
+  out="$(node "$f" 2>&1)"; rc=$?
+  if [ "$rc" -ne 0 ]; then
+    # ── A KILLED PROCESS IS NOT A FAILED ASSERTION, AND THIS REPORTED THEM
+    #    IDENTICALLY (2026-08-14) ──────────────────────────────────────────
+    #
+    # Two suites went RED here on one run and green on the next, standalone exit
+    # 0 both times — and NEITHER printed a `FAIL` line, so the grep below emitted
+    # nothing and the report was a bare "RED: <name>" with no evidence. That is
+    # the signature of a process that DIED (OOM, signal, resource limit under 239
+    # sequential node starts), not of a test that ran and disagreed.
+    #
+    # Conflating them costs both ways: a real assertion failure looks like
+    # infrastructure noise and gets re-run away, and a machine problem looks like
+    # a code defect and gets debugged in the wrong file. I have been quoting
+    # "239 green" as evidence all session; a sweep that cannot tell these apart
+    # is weaker evidence than I was treating it as.
+    #
+    # Exit >128 is a signal (128+N). Exit 1 with no FAIL line is a throw before
+    # the assertions ran. Both are reported as INFRA, distinctly.
+    if echo "$out" | grep -qE '^FAIL'; then
+      failed="$failed $name"
+      echo "RED: $name"
+      echo "$out" | grep -E '^FAIL' | head -4
+    else
+      infra="$infra $name"
+      echo "INFRA: $name — exit $rc with no FAIL line ($(
+        if [ "$rc" -gt 128 ]; then echo "signal $((rc - 128)) — killed, not failed";
+        else echo "died before asserting"; fi))"
+      echo "$out" | tail -3
+    fi
   fi
 done
 
@@ -82,6 +113,17 @@ echo
 echo "js-sweep: $total JS entry points ( ${#suites[@]} globbed + ${#extras[@]} from ci.yml: $(for e in "${extras[@]}"; do basename "$e"; done | tr '\n' ' '))"
 if [ -n "$failed" ]; then
   echo "RED:$failed"
+  [ -n "$infra" ] && echo "INFRA (died without asserting, NOT a code failure):$infra"
+  exit 1
+fi
+if [ -n "$infra" ]; then
+  # STILL EXIT NON-ZERO. A suite that died told us nothing, and "nothing" must
+  # not read as "green" — that is the whole defect this split was written for.
+  # It is reported SEPARATELY so the next reader debugs the machine rather than
+  # the code, and re-running is a legitimate response here in a way it never is
+  # for a real FAIL.
+  echo "INFRA (died without asserting, NOT a code failure):$infra"
+  echo "no assertion failed, but the sweep did not COVER those suites — re-run"
   exit 1
 fi
 echo "all green"

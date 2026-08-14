@@ -1034,6 +1034,55 @@
     const sup = seat.superseded_plan_player;
     const supLine = sup ? '<div class="sp-superseded">draft_plan named '
       + escapeHtml(sup.position + ' ' + sup.name) + ' here — ' + escapeHtml(sup.why) + '</div>' : '';
+    /* ── THE OTHER ELEVEN SEATS. CORY ASKED FOR THIS IN THESE WORDS ────────
+     *
+     *   "a look ahead to what complete strategy may be for rest of draft"
+     *
+     * `seat_plan.json` has held all twelve seats since it was written — slot,
+     * planned player, starter-or-bench — and this function rendered exactly ONE
+     * of them, whichever pick was live. `panel_spec.js` has said so for days:
+     * "Twelve seats exist; ONE is rendered. The other eleven are the look-ahead,
+     * unbuilt." No new modelling; the plan was computed and shown to nobody.
+     *
+     * ⚠ IT LEADS WITH THE SLOT, NOT THE NAME, AND THAT IS THE WHOLE DESIGN.
+     * The artifact's own assumption says: "The SEAT ORDER held under ADP drift
+     * from -25% to +15%; the NAMES did not." So twelve names read as a plan would
+     * be a confident list of the least robust thing in the file. The slot column
+     * is the finding; the name is the current best guess at filling it and is
+     * marked as such. Getting that the wrong way round is precisely the class
+     * this week's audit kept finding — every number true, the sentence false.
+     *
+     * A seat whose `plan_player` is null is NOT blanked: pick 88 has no plan
+     * player because the preseason waiver line and the realized wire genuinely
+     * disagree, and the artifact says so in `superseded_plan_player.why`. An
+     * empty cell there would read as "nothing planned" rather than "two honest
+     * methods disagree". */
+    const allSeats = (function () {
+      const seats = (d.seats || []).slice().sort(function (a, b) { return a.pick - b.pick; });
+      if (seats.length < 2) return '';
+      const cur = seat.pick;
+      const rows = seats.map(function (s) {
+        const done = s.pick < cur;
+        const live = s.pick === cur;
+        const who = s.plan_player ? s.plan_player.name
+          : (s.superseded_plan_player
+            ? s.superseded_plan_player.name + ' — methods disagree' : 'open');
+        return '<tr class="spa-row' + (live ? ' spa-live' : '') + (done ? ' spa-done' : '') + '">'
+          + '<td class="spa-pick">' + escapeHtml(roundLabel(s.pick)) + '</td>'
+          + '<td class="spa-slot"><b>' + escapeHtml(s.slot) + '</b>'
+            + (s.is_starter_seat ? '' : ' <span class="muted">bench</span>') + '</td>'
+          + '<td class="spa-who' + (s.plan_player ? '' : ' muted') + '">'
+            + escapeHtml(who) + '</td>'
+          + '</tr>';
+      }).join('');
+      return '<details class="sp-all"><summary>the whole draft — all '
+        + seats.length + ' of your picks</summary>'
+        + '<div class="spa-lede">The <b>slot order</b> is the plan and it survived '
+        + 'ADP drift from &minus;25% to +15%. The <b>names</b> did not — treat them '
+        + 'as today\'s best fill for each seat, not as the plan.</div>'
+        + '<table class="spa-table"><tbody>' + rows + '</tbody></table></details>';
+    })();
+
     host.innerHTML =
       '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
@@ -1042,6 +1091,7 @@
       + gapLine
       + supLine
       + '<div class="sp-fallback">' + escapeHtml(seat.fallback_rule) + '</div>'
+      + allSeats
       + '<div class="sp-caveat">' + escapeHtml(d.assumption) + '</div>'
       + '<div class="sp-caveat">edge over the greedy board: ' + d.measured_edge_vs_greedy
         + ' ' + escapeHtml(capt('measured_edge_vs_greedy').units || '')
