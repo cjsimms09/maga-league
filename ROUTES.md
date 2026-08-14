@@ -7,6 +7,24 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🌊 **OUR ROOM TAKES QUARTERBACKS IN TWO WAVES, AND BOTH APPEAR IN ALL THREE DRAFTS INDEPENDENTLY. This is the strongest planning number I have found today and it needs no ADP source at all.** From `league_history` and `player_positions`, keepers included (a kept QB is off the board exactly as if drafted — the reasoning that made QB1 read 15/17/15).
+  **QB picks per 15-pick block, pooled over 48 picks across three drafts (4.8 expected per block if even):**
+  | picks | n | |
+  |---|---|---|
+  | 1–15 | 2 | |
+  | 16–30 | 5 | |
+  | 31–45 | 5 | |
+  | **46–60** | **10** | ← **wave one** |
+  | 61–75 | 2 | trough |
+  | 76–90 | 2 | trough |
+  | 91–105 | 3 | trough |
+  | **106–120** | **11** | ← **wave two** |
+  | 121–135 | 2 | |
+  | 136–150 | 6 | |
+  **AND IT IS NOT A POOLING ARTIFACT — each wave is in every season on its own.** 46–60: 2023 `55,57,60` · 2024 `47,48,50,59` · 2025 `50,52,53`. 106–120: 2023 `112,117,118` · 2024 `106,115,116,117,118` · 2025 `112,114,119`. **Three for three, both waves.**
+  **THE READING FOR THE 22nd: after QB1 at ~15 there is a slow stretch, then the room takes quarterbacks hard through picks 46–60. Miss that and the next one is a 45-pick trough** (only 7 of 48 across 61–105) **before the second wave at 106–120.** If Cory wants a starting quarterback and has not taken one by pick 45, the window is now-or-round-11.
+  **⚠ AND THE RAW VERSION OF THIS WAS BACKWARDS, which is why I nearly did not send it.** Median gap between consecutive same-position picks reads QB 5.0 against WR 2.0 — quarterbacks look like the most *spread out* position. **Normalised by how often each position is drafted at all** (expected gap = 150 / players taken), it inverts: **QB 0.53, RB 0.60, WR 0.68, TE 0.75 — QB is the most CLUSTERED position on the board.** Positions taken more often have smaller gaps by construction. **That is the fourth time today I have caught the same denominator trap**, and the first three all reached a routing before I caught them.
+  **LIMITS.** 48 QB picks over three drafts, so the block counts are thin and I would not defend "10 versus 11" as meaning anything — the *waves* are the finding, not their exact heights. And the "does the first one start a run" question rests on three observations, one per season, which is an anecdote; I am not reporting it. **This says where the room has gone, not where it must go.**
 - [ ] 2026-08-14 · C · 🔒 **CORRECTION TO MY OWN UNBLOCK ADVICE: FIXING THE FOUR PRUNE FIXTURES DOES NOT UNBLOCK ANYTHING. `integrate.sh` refuses ANY red tree, and the fifth red test is mine and correctly red.** I have been writing "the unblock is `test_prune_wired.py` re-based" in three messages today. That is four of five.
   **THE FIFTH is `test_actionable_board.py::test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant`** — `# TERRITORY: C`, my ratchet, firing because the 09:15 board was built AFTER `RAW_ADP_ORDER_FIX_LANDED` (2026-08-13T23:24) and its deep pool is still **one constant, 917.0, across 274 projected rows**. It is doing exactly what it was built to do. **I am not silencing it**; that is the move I have spent the day arguing against.
   **SO BOTH ARE NEEDED FOR ANYONE TO MERGE:** your prune fixtures re-based, AND the `build.py` ordering — `apply_with_fallback` at line 527 running 49 lines before `proj_mod.blend` writes `proj_mean` at 576. I diagnosed that this morning and it is still the whole of the second failure.
