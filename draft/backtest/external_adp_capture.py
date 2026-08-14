@@ -43,6 +43,9 @@ from pathlib import Path
 import field_population as FP
 
 SERIES = Path(__file__).resolve().parent.parent / "data" / "external_adp_series.json"
+#: Anchored the same way as SERIES rather than to a module-local `HERE`, which
+#: this module does not define — see `_draftable_picks`.
+CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
 
 #: The fields a snapshot is SUPPOSED to carry, declared rather than derived. Derived
 #: from the rows, a field that stops being written simply stops existing and the
@@ -1638,6 +1641,116 @@ def dropped_inside(series: list, year, last_pick=None) -> dict:
                          ", ".join(inside[:12]))))
 
 
+def _draftable_picks():
+    """teams x rounds, READ from the league config. None if unreadable.
+
+    None rather than 150: a depth verdict that says "none of them were draftable"
+    on a guessed range is worse than no verdict, because it reassures. Same shape
+    and same reasoning as `external_source_run._our_pass_td`.
+    """
+    # ⚠ THE CATCH IS NARROW ON PURPOSE, and this function is why. It first read
+    # `HERE.parent / "config"`, and this module has no `HERE` — so every call
+    # raised NameError, a bare `except Exception` swallowed it, and the verdict
+    # came back "the league config could not be read". A coding error wearing the
+    # costume of a missing file. `except Exception` around a path expression is
+    # the same defect as `|| <fallback>`: it converts "this code is wrong" into
+    # "proceed with something else" and reports success either way.
+    #
+    # Only the ways a FILE can genuinely fail are caught. A typo raises.
+    try:
+        cfg = json.loads((CONFIG_DIR / "league_config.json").read_text())
+    except (OSError, ValueError):
+        return None
+    t, r = cfg.get("teams"), cfg.get("rounds")
+    return int(t) * int(r) if t and r else None
+
+
+def _adp_of(row):
+    """The pick value in a snapshot row, whatever shape the row is.
+
+    The archive stores a bare float today (`341.5`). It has stored dicts before
+    and may again, and a depth measurement that silently reads None off every row
+    would report "0 of 37 were draftable" — the most reassuring possible answer —
+    on a schema it simply could not parse. So the shapes are enumerated and an
+    unparseable row is counted, not dropped.
+    """
+    if isinstance(row, dict):
+        for k in ("adp", "pick", "avg_pick", "average_pick", "rank"):
+            if row.get(k) is not None:
+                try:
+                    return float(row[k])
+                except (TypeError, ValueError):
+                    return None
+        return None
+    try:
+        return float(row)
+    except (TypeError, ValueError):
+        return None
+
+
+def drop_depth(earlier: dict, later: dict, draftable=None) -> dict:
+    """WHERE the players a snapshot lost were priced — not merely how many.
+
+    ⚠ THIS EXISTS BECAUSE THE COUNT ALONE INVITES THE WRONG REACTION. The note
+    below used to read "the board LOST 36 players in a day" and stop there. That
+    sentence is true and it is alarming, and the alarm points at nothing a reader
+    can act on: measured on 08-12 -> 08-13, ALL 37 lost players were priced
+    beyond pick 169 (median 441, shallowest 169.2) and NOT ONE was inside our
+    150-pick draft. The board did not lose anything our room can take.
+
+    The mechanism makes that structural rather than lucky: MFL's cutoff removes
+    the LEAST-DRAFTED players, and a player going inside pick 150 of a 10-team
+    league appears in nearly every draft. But structural is not guaranteed, which
+    is the whole reason to measure it every day instead of asserting it once.
+
+    `draftable=None` means the league config could not be read, and the verdict
+    is then `unknown` rather than a reassuring zero.
+    """
+    lost = [p for p in earlier if p not in later]
+    vals, unparseable = [], 0
+    for p in lost:
+        v = _adp_of(earlier[p])
+        if v is None:
+            unparseable += 1
+        else:
+            vals.append(v)
+    vals.sort()
+    inside = None if draftable is None else [v for v in vals if v <= draftable]
+    if draftable is None:
+        verdict, note = "unknown", (
+            "the league config could not be read, so 'was anything DRAFTABLE lost' "
+            "has no answer here. %d player(s) left the board." % len(lost))
+    elif unparseable:
+        verdict, note = "unknown", (
+            "%d of %d lost row(s) carried no readable pick value, so the depth of "
+            "the loss cannot be stated. Reporting 'none were draftable' off rows "
+            "that could not be parsed would be the most reassuring possible lie."
+            % (unparseable, len(lost)))
+    elif not vals:
+        verdict, note = "none_lost", "no players left the board between these two days."
+    elif not inside:
+        verdict, note = "outside_draft", (
+            "%d player(s) left the board and NONE was priced inside pick %d — the "
+            "shallowest sat at %.1f, the median at %.1f. This does not touch any "
+            "player our room can draft."
+            % (len(vals), draftable, vals[0], vals[len(vals) // 2]))
+    else:
+        verdict, note = "inside_draft", (
+            "⚠ %d of %d player(s) that left the board were priced INSIDE pick %d "
+            "(shallowest %.1f). This one DOES reach the draftable range and the "
+            "board is now missing players our room could take."
+            % (len(inside), len(vals), draftable, min(inside)))
+    return {
+        "lost": len(lost), "gained": sum(1 for p in later if p not in earlier),
+        "unparseable": unparseable,
+        "draftable_picks": draftable,
+        "lost_inside_draft": None if inside is None else len(inside),
+        "shallowest_lost": vals[0] if vals else None,
+        "median_lost": vals[len(vals) // 2] if vals else None,
+        "verdict": verdict, "note": note,
+    }
+
+
 def coverage(series: list, year) -> dict:
     """What we actually hold for a season — reported, never assumed.
 
@@ -1669,19 +1782,34 @@ def coverage(series: list, year) -> dict:
     dead-capture case is covered by anything below.
     """
     ser = _series_of(series)
-    days = sorted(s["observed_at"] for s in ser if str(s.get("year")) == str(year))
-    counts = [s.get("row_count") or 0 for s in ser if str(s.get("year")) == str(year)]
+    # ⚠ SORTED BY DAY, NOT BY ARCHIVE ORDER. `days` was sorted and `counts` was
+    # not, so `row_deltas` was day-over-day movement only while the archive
+    # happened to be appended in date order. It is today, and a single backfilled
+    # snapshot would have turned every delta into noise with nothing saying so —
+    # including `largest_drop`, which gates the note below.
+    mine = sorted((s for s in ser if str(s.get("year")) == str(year)),
+                  key=lambda s: str(s.get("observed_at")))
+    days = [s["observed_at"] for s in mine]
+    counts = [s.get("row_count") or 0 for s in mine]
     # Day-over-day row movement. One snapshot cannot show movement, so the largest
     # drop is None rather than 0 — 0 would read as "measured, and stable" (rule 13f).
     deltas = [counts[i] - counts[i - 1] for i in range(1, len(counts))]
     worst = min(deltas) if deltas else None
     drop_note = None
+    depth = None
     if worst is not None and worst <= -ROW_DROP_FLOOR:
+        # WHICH PAIR OF DAYS PRODUCED THE WORST DROP, so the depth measured below
+        # is the depth of THAT drop and not of some other one.
+        i = deltas.index(worst) + 1
+        depth = drop_depth(mine[i - 1].get("rows") or {},
+                           mine[i].get("rows") or {}, _draftable_picks())
         drop_note = (
             "the board LOST %d players in a day (%s). More drafts with fewer priced "
             "players is not self-explanatory: check whether MFL's CUTOFF is a "
             "percentage of drafts rather than a count, which would raise the bar as "
-            "drafts accumulate." % (abs(worst), " -> ".join(str(c) for c in counts)))
+            "drafts accumulate. ── WHERE THEY SAT (%s -> %s): %s"
+            % (abs(worst), " -> ".join(str(c) for c in counts),
+               days[i - 1], days[i], depth["note"]))
     out = {
         "year": str(year), "snapshots": len(days),
         "first": days[0] if days else None, "last": days[-1] if days else None,
@@ -1698,6 +1826,11 @@ def coverage(series: list, year) -> dict:
         "row_deltas": deltas,
         "largest_drop": (min(deltas) if deltas else None),
         "row_drop_note": drop_note,
+        # THE DEPTH OF THE WORST DROP, as structure rather than only as prose, so
+        # a consumer can branch on `verdict` without parsing a sentence. None when
+        # no drop cleared the floor — NOT a zeroed dict, which would read as
+        # "measured, and nothing was lost" (rule 13f).
+        "drop_depth": depth,
         # A DAY WITH ZERO ROWS IS NOT A DAY CAPTURED. It is a failed fetch wearing
         # a date, and counting it would make a broken run look like coverage.
         "empty_snapshots": sum(1 for c in counts if c == 0),

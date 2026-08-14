@@ -3710,3 +3710,126 @@ def test_THE_TOLERANCE_IS_DECLARED_AND_THE_OBSERVED_SHARE_IS_REPORTED():
     assert got["fell_share"] is not None
     assert got["tolerance"] == C.CUMULATIVE_FALL_TOLERANCE
     assert 0.0 < C.CUMULATIVE_FALL_TOLERANCE < 1.0
+
+
+# ── WHERE THE LOST PLAYERS SAT, not merely how many ─────────────────────────
+#
+# `row_drop_note` read "the board LOST 36 players in a day" and stopped. True,
+# alarming, and pointing at nothing actionable: measured on the live archive,
+# all 37 sat beyond pick 169 and NOT ONE was inside our 150-pick draft. A count
+# without a depth is the kind of number that gets misused in both directions —
+# panic when it is harmless, and a shrug on the day it is not.
+
+def _dd_rows(*adps):
+    return {str(1000 + i): a for i, a in enumerate(adps)}
+
+
+def test_drop_depth_OUTSIDE_the_draft_is_named_as_such():
+    """The live case, 2026-08-12 -> 08-13, in miniature.
+
+    MUTATION: return `outside_draft` unconditionally — every drop reads harmless
+    including the one that takes a startable player off the board."""
+    out = C.drop_depth(_dd_rows(170.0, 300.0, 441.0), {}, 150)
+    assert out["verdict"] == "outside_draft", out
+    assert out["lost"] == 3 and out["lost_inside_draft"] == 0
+    assert out["shallowest_lost"] == 170.0
+    assert "150" in out["note"] and "170.0" in out["note"]
+
+
+def test_drop_depth_INSIDE_the_draft_is_the_arm_that_must_fire():
+    """The whole reason the measurement exists. If the cutoff ever climbs into
+    the draftable range this is the only thing that would say so.
+
+    MUTATION: `elif not inside` -> `elif True` — the alarming arm becomes
+    unreachable and every drop, at any depth, reports as harmless."""
+    out = C.drop_depth(_dd_rows(12.0, 300.0), {}, 150)
+    assert out["verdict"] == "inside_draft", out
+    assert out["lost_inside_draft"] == 1
+    assert out["note"].startswith("⚠")
+    assert "INSIDE pick 150" in out["note"]
+
+
+def test_drop_depth_REFUSES_to_reassure_when_it_cannot_read_the_rows():
+    """An unparseable row must not be silently skipped. Dropping it would leave
+    `vals` empty, `inside` empty, and the verdict `outside_draft` — the most
+    reassuring possible answer produced by a schema nobody could parse.
+
+    MUTATION: count unparseable rows and then ignore the count."""
+    out = C.drop_depth({"a": {"no_pick_field": 1}, "b": 12.0}, {}, 150)
+    assert out["verdict"] == "unknown", out
+    assert out["unparseable"] == 1
+    assert "reassuring possible lie" in out["note"]
+
+
+def test_drop_depth_WITHOUT_a_config_says_unknown_and_never_zero():
+    """MUTATION: default `draftable` to 150 — a guessed draft range produces a
+    confident "none were draftable" on a league nobody read."""
+    out = C.drop_depth(_dd_rows(12.0, 300.0), {}, None)
+    assert out["verdict"] == "unknown", out
+    assert out["lost_inside_draft"] is None
+    assert out["draftable_picks"] is None
+
+
+def test_the_draft_range_is_READ_from_the_league_config_not_assumed(monkeypatch,
+                                                                    tmp_path):
+    """150 is teams x rounds for THIS league and would be wrong for any other.
+
+    MUTATION: `return 150` — passes against our own config and silently
+    mis-scopes every verdict in a 12-team or 16-round room."""
+    (tmp_path / "league_config.json").write_text(json.dumps({"teams": 12,
+                                                            "rounds": 16}))
+    monkeypatch.setattr(C, "CONFIG_DIR", tmp_path)
+    assert C._draftable_picks() == 192
+
+    (tmp_path / "league_config.json").write_text(json.dumps({"teams": 10}))
+    assert C._draftable_picks() is None, "a config missing `rounds` is not a 150"
+
+
+def test_a_TYPO_in_the_config_path_must_not_read_as_a_missing_config():
+    """This function shipped reading `HERE.parent`, and this module has no
+    `HERE`. Every call raised NameError, `except Exception` swallowed it, and
+    the verdict came back "the league config could not be read" — a coding error
+    wearing the costume of a missing file, on the one path whose whole job is to
+    refuse to reassure.
+
+    MUTATION: widen the catch back to `except Exception`."""
+    import pathlib
+    class Exploding(pathlib.PurePosixPath):
+        def __truediv__(self, other):
+            raise NameError("name 'HERE' is not defined")
+    with pytest.raises(NameError):
+        real = C.CONFIG_DIR
+        try:
+            C.CONFIG_DIR = Exploding("/nope")
+            C._draftable_picks()
+        finally:
+            C.CONFIG_DIR = real
+
+
+def test_row_deltas_ARE_DAY_OVER_DAY_even_when_the_archive_is_out_of_order():
+    """`days` was sorted and `counts` was not, so every delta — and
+    `largest_drop`, which gates the note — was correct only while the archive
+    happened to be appended in date order.
+
+    MUTATION: iterate the raw series instead of the day-sorted one."""
+    def snap(day, n):
+        return {"year": "2026", "observed_at": day, "row_count": n,
+                "rows": {str(i): float(i + 1) for i in range(n)}}
+    ordered = [snap("2026-08-01", 700), snap("2026-08-02", 660)]
+    shuffled = [ordered[1], ordered[0]]          # same days, backfilled order
+    a = C.coverage(ordered, "2026")
+    b = C.coverage(shuffled, "2026")
+    assert a["row_deltas"] == b["row_deltas"] == [-40], (a["row_deltas"],
+                                                        b["row_deltas"])
+    assert a["largest_drop"] == b["largest_drop"] == -40
+
+
+def test_drop_depth_is_ABSENT_not_zeroed_when_no_drop_cleared_the_floor():
+    """MUTATION: emit an empty dict instead of None — a consumer branching on
+    truthiness reads "measured, and nothing was lost" from a run that never
+    looked (rule 13f)."""
+    steady = [{"year": "2026", "observed_at": "2026-08-0%d" % d, "row_count": 700,
+               "rows": {"1": 5.0}} for d in (1, 2, 3)]
+    cov = C.coverage(steady, "2026")
+    assert cov["largest_drop"] == 0
+    assert cov["drop_depth"] is None

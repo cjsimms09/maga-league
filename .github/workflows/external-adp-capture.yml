@@ -129,6 +129,35 @@ jobs:
                   print("...and more — %d total, first %d listed."
                         % (cov["missing"], len(cov["missing_days"])))
 
+          # ── A DROP THAT REACHES THE DRAFTABLE RANGE IS THE ONE THAT MATTERS ──
+          #
+          # The count alone was already reported and is not actionable: measured
+          # 08-12 -> 08-13, all 37 players the board lost sat beyond pick 169 and
+          # none was inside our 150. That is the expected shape, because MFL's
+          # cutoff removes the LEAST-DRAFTED players and anyone going inside pick
+          # 150 of a 10-team room appears in nearly every draft.
+          #
+          # EXPECTED IS NOT GUARANTEED, and this is the only thing that would say
+          # so. `inside_draft` means our ADP source has stopped pricing a player
+          # our room can actually take — a real degradation of the board, days
+          # from a draft — so it FAILS rather than printing. `unknown` fails too:
+          # it means the depth could not be established, and "we could not tell"
+          # must not be quieter than "we looked and it was fine".
+          dd = cov.get("drop_depth")
+          if dd is not None:
+              print("**DEEPEST DROP** — %s" % dd["note"])
+              if dd["verdict"] == "inside_draft":
+                  print("::error::%d of the %d players the board dropped were priced"
+                        " INSIDE pick %s — the ADP source no longer prices players"
+                        " this room can draft"
+                        % (dd["lost_inside_draft"], dd["lost"], dd["draftable_picks"]))
+                  raise SystemExit(1)
+              if dd["verdict"] == "unknown":
+                  print("::error::a drop of %d cleared the floor and its DEPTH could"
+                        " not be established (%s) — an unmeasurable drop is not a"
+                        " harmless one" % (dd["lost"], dd["note"]))
+                  raise SystemExit(1)
+
           # DID *THIS* RUN RESUME FROM AN OUTAGE. Escalates on the day the gap
           # becomes detectable and self-clears afterwards, so a permanent
           # historical hole never makes this job red every morning for ever —
