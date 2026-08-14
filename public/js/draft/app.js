@@ -1976,33 +1976,96 @@
     /* The seat panel must follow the clock. Loaded once, re-rendered on every
      * board update — otherwise it is a screenshot of the first pick and it would
      * be WRONG rather than merely stale, since the seat changes with the pick. */
-    try { renderSeatPlan(); } catch (e) { console.error('[seat-plan]', e && e.message); }
+    /* ⚠️ NINETEEN OF THESE CALLS WERE UNGUARDED, AND ONE THROW FROZE EVERY
+     * PANEL AFTER IT.
+     *
+     * Eight calls below already carry `try { } catch (e) { /* never blocks the
+     * clock *\/ }`, so the hazard was understood — it was simply not applied to
+     * the main chain, which includes `renderRecommendations`.
+     *
+     * A throw in an unguarded call means every render AFTER it never runs, and
+     * the DOM keeps the PREVIOUS pick's content. The ordering makes the worst
+     * case the likely one: `renderHeader` runs first, so if recommendations
+     * throw, the header advances to pick 55 while the advice stays frozen at
+     * pick 40. The surface looks current. It is not.
+     *
+     * SWALLOWING WOULD BE THE WRONG FIX — that is the `|| true` class this repo
+     * keeps removing. `safeRender` catches so one broken panel cannot freeze
+     * the rest, COUNTS the failure, and names the panel, so a stale panel is
+     * announced rather than merely survived. `state.renderFailures` is the
+     * aggregate that makes it loud; every other defect found in this audit was
+     * invisible for want of exactly that.
+     *
+     * `applyAutoWeights`, `saveDraftSession` and `checkKeeperLock` stay
+     * UNGUARDED on purpose: they are not renders. If the weights for this pick
+     * cannot be established, every panel below would render last pick's opinion
+     * while looking fine, and that is worth failing loudly for. */
+    const safeRender = (name, fn) => {
+      try { fn(); } catch (e) {
+        state.renderFailures = state.renderFailures || {};
+        /* THE PICK NUMBER COMES FROM ITS OWNER, NOT FROM A THIRD DERIVATION.
+         *
+         * My first cut recorded `(state.recentPicks || []).length` and
+         * test_shared_state_audit caught it immediately: that made THREE
+         * derivations of `current_pick` against a budget of two, owner
+         * `pickState() / currentPick()`. Its message is the whole reason the
+         * guard exists — "every severity-1 in this project came from a shared
+         * fact derived in more than one place" — and it was right about me.
+         *
+         * Guarded, because this runs INSIDE a catch: if `currentPick()` is what
+         * is broken, the recorder must still record. A null `at` is honest;
+         * a recorder that throws inside the error path loses the error. */
+        let at = null;
+        try { at = currentPick(); } catch (e2) { at = null; }
+        state.renderFailures[name] = {
+          at: at,
+          message: (e && e.message) || String(e),
+        };
+        console.error('[render] ' + name + ' FAILED — that panel is showing the '
+          + 'PREVIOUS pick: ' + ((e && e.message) || e));
+      }
+    };
+
+    safeRender('seatPlan', renderSeatPlan);
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
     saveDraftSession();
     checkKeeperLock();
-    renderHeader();
-    renderRecommendations();
+    safeRender('header', renderHeader);
+    safeRender('recommendations', renderRecommendations);
     // Every pick changes who is left, so the position panel is stale the
     // instant it is not redrawn with everything else.
-    renderPositionRecs();
-    renderLists();
-    renderQueue();
-    renderThreats();
-    renderThreatStrip();
-    renderBoard();
-    renderRoster();
-    renderPlan();
-    renderByes();
-    renderChecklist();
-    renderRehearsalWatermark();
-    renderSlotWatermark();
-    renderLRM();
-    renderSurvival();
-    renderRuns();
-    renderPicksFeed();
-    renderManagers();
+    safeRender('positionRecs', renderPositionRecs);
+    safeRender('lists', renderLists);
+    safeRender('queue', renderQueue);
+    safeRender('threats', renderThreats);
+    safeRender('threatStrip', renderThreatStrip);
+    safeRender('board', renderBoard);
+    safeRender('roster', renderRoster);
+    safeRender('plan', renderPlan);
+    safeRender('byes', renderByes);
+    safeRender('checklist', renderChecklist);
+    safeRender('rehearsalWatermark', renderRehearsalWatermark);
+    safeRender('slotWatermark', renderSlotWatermark);
+    safeRender('lrm', renderLRM);
+    safeRender('survival', renderSurvival);
+    safeRender('runs', renderRuns);
+    safeRender('picksFeed', renderPicksFeed);
+    safeRender('managers', renderManagers);
+
+    /* THE AGGREGATE, SAID OUT LOUD. Catching without announcing would convert a
+     * frozen panel from a visible crash into an invisible lie — strictly worse
+     * than the bug being fixed, and the exact `|| true` shape this repo keeps
+     * removing. If a panel did not update, the board says which one. */
+    if (state.renderFailures && Object.keys(state.renderFailures).length) {
+      const names = Object.keys(state.renderFailures);
+      try {
+        setStatus({ state: 'error', message: 'PANEL(S) NOT UPDATING: '
+          + names.join(', ') + ' — those panels are showing an EARLIER pick. '
+          + 'Do not draft off them; the rest of the board is current.' });
+      } catch (e) { /* console.error in safeRender still carries it */ }
+    }
     try { assertPickState(); } catch (e) { /* never blocks the clock */ }
     try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
     try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
