@@ -89,6 +89,11 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           REVIEW_MODEL: ${{ vars.REVIEW_MODEL || 'gpt-5' }}
+          # Set repo variable REVIEW_PROVIDER=disabled to switch the reviewer
+          # off entirely. A supported state, not a fault: nothing in the
+          # football system waits on it, so this is how the budget gets
+          # protected without letting calls fail.
+          REVIEW_PROVIDER: ${{ vars.REVIEW_PROVIDER || 'openai' }}
           REVIEW_EFFORT: ${{ vars.REVIEW_EFFORT || 'high' }}
         run: |
           set -o pipefail

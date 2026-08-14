@@ -84,6 +84,23 @@ SCHEMA = ROOT / "tools" / "reviewer_schema.json"
 #: nothing would say so.
 DEFAULT_MODEL = "gpt-5"
 
+#: WHICH INDEPENDENT REVIEWER, OR NONE AT ALL.
+#:
+#: Cory, 2026-08-14: "We should be able to disable the OpenAI reviewer
+#: completely and run the entire project from the repository's existing
+#: deterministic/data-driven machinery."
+#:
+#: `disabled` is a supported, first-class setting -- not a broken state. It
+#: records `status: UNAVAILABLE, kind: DISABLED` and exits 0, so turning the
+#: reviewer off changes nothing about whether the football system runs. It also
+#: means the budget can be protected by a config change rather than by letting
+#: calls fail.
+#:
+#: The provider is a seam, not an abstraction layer: one function returns a
+#: review dict. Another provider or a local model fills the same slot without
+#: the football system knowing a provider exists at all.
+PROVIDERS = ("openai", "disabled")
+
 #: Bytes of diff we are willing to send. Truncation is declared in the payload.
 MAX_DIFF_BYTES = 400_000
 
@@ -255,7 +272,23 @@ def _client():
     return OpenAI(api_key=key)
 
 
-def review(payload: dict, *, model: str) -> dict:
+def review(payload: dict, *, model: str, provider: str = "openai") -> dict:
+    if provider == "disabled":
+        raise Unavailable(
+            "DISABLED: REVIEW_PROVIDER=disabled. The independent reviewer is "
+            "switched off by configuration.\n  This is a supported state, not "
+            "a fault: the core model, board, freeze, pick logger and every "
+            "production decision path run with zero reviewer access. Nothing "
+            "downstream is waiting on this.")
+    if provider != "openai":
+        raise Unavailable(
+            f"PROVIDER: REVIEW_PROVIDER={provider!r} is not implemented. "
+            f"Known: {', '.join(PROVIDERS)}.\n  Refusing beats silently using "
+            "a provider nobody asked for.")
+    return _review_openai(payload, model=model)
+
+
+def _review_openai(payload: dict, *, model: str) -> dict:
     schema = json.loads(SCHEMA.read_text())
     # `additionalProperties: false` and full `required` are what the strict
     # structured-output mode needs; the schema is authored that way already.
@@ -379,6 +412,7 @@ def main() -> int:
                          "exits non-zero unless it BLOCKs")
     a = ap.parse_args()
     model = os.environ.get("REVIEW_MODEL", DEFAULT_MODEL)
+    provider = os.environ.get("REVIEW_PROVIDER", "openai").strip().lower()
 
     if a.self_test:
         payload = self_test_payload()
@@ -404,7 +438,7 @@ def main() -> int:
         payload = {"repository_facts": facts, "claude_claims": load_claims(a.claim)}
 
     try:
-        out = review(payload, model=model)
+        out = review(payload, model=model, provider=provider)
     except Unavailable as u:
         # ── THE DEGRADED PATH. Recorded, never silent, never mistaken for a
         #    verdict. NO `verdict` KEY IS WRITTEN AT ALL: a consumer that reads
@@ -415,6 +449,7 @@ def main() -> int:
             "unavailable_kind": kind,
             "detail": str(u),
             "_model": model,
+            "_provider": provider,
             "_self_test": bool(a.self_test),
             "what_this_is_not":
                 "This is NOT a verdict and NOT an approval. The change was not "
@@ -440,6 +475,7 @@ def main() -> int:
         return 0
 
     out["_model"] = model            # WHICH reviewer said this. Never the key.
+    out["_provider"] = provider
     out["_self_test"] = bool(a.self_test)
     out["status"] = "REVIEWED"
     Path(a.out).write_text(json.dumps(out, indent=1))
