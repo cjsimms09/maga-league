@@ -165,6 +165,24 @@ def market_keys(payload) -> list:
     return sorted(set(named) | set(hits))
 
 
+def has_board(payload) -> bool:
+    """Does this payload actually carry an odds board, or only its own labels?
+
+    ⚠ RUN 3'S REFUSAL DID NOT FIRE AND MY OWN READER IS WHY. The check asked
+    whether ANY market name was found — and the response's `sport` and `league`
+    names (`American Football`, `USA - NFL Preseason`) arrive through the naming
+    fields. Two names, zero markets, and a board-less payload read as non-empty.
+
+    A real board always carries PRICED selections. That is the test, and it is the
+    same shape rule that separates a market from a player above.
+    """
+    named, _c, selections = _walk(payload)
+    if selections:
+        return True
+    return any(re.search(pat, k, re.I)
+               for k in named for pat, _ in FAMILIES.values())
+
+
 def structure_keys(payload) -> list:
     """The container keys, reported separately so the shape is auditable.
 
@@ -373,7 +391,7 @@ ASK = ("player_props", "player_pass_yds", "player_rush_yds", "player_receptions"
 CONTROL = "zzz_not_a_market_qqq"
 
 
-def nearest_first(events) -> list:
+def nearest_first(events, now=None) -> list:
     """Events sorted by kickoff, soonest first; undated LAST rather than dropped.
 
     THE FIX FOR RUN 31772127983. It took `events[0]` of 136 listed for usa-nfl and
@@ -390,11 +408,34 @@ def nearest_first(events) -> list:
     UNDATED SORTS LAST, NOT OUT. An event we cannot date is not "far away" — the
     same rule `KEEP_UNDATED` states one file over — so it stays available as a
     fallback rather than being silently discarded.
+
+    ⚠ AND "NEAREST" MEANS NEAREST UPCOMING. Run 3 sorted ascending with no sense
+    of now and duly picked 2026-08-13T23:00Z off a 48-event preseason list — a
+    game that had already kicked off. A finished game has no live board, so the
+    verdict that followed was about a played fixture rather than about the
+    provider. Future ascending first, then undated, then the past most-recent
+    first: a game that started an hour ago may still carry a board, one from last
+    month will not.
+
+    `now` is passed in rather than read from the clock, so the ordering stays
+    testable — the same rule the archive logic follows one module over.
     """
+    now = str(now or "")[:19]
+
     def key(e):
         t = str((e or {}).get("date") or "")[:19]
-        return (0, t) if t else (1, "")
+        if not t:
+            return (1, "", "")                  # undated: not "far away", not a corpse
+        if not now or t >= now:
+            return (0, t, "")                   # upcoming, soonest first
+        # PAST: most recent first, so a game that just kicked off beats last month
+        return (2, "", _invert(t))
     return sorted(list(events or []), key=key)
+
+
+def _invert(t: str) -> str:
+    """Descending sort inside an ascending key, without a reverse pass."""
+    return "".join(chr(0x7E - (ord(c) - 0x20) % 0x5F) for c in t)
 
 
 def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no cover
@@ -411,7 +452,9 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
         events, headers, _ = R.fetch(url, timeout), None, None
         if isinstance(events, tuple):
             events = events[0]
-        ev = nearest_first(events)
+        import datetime as _dt
+        ev = nearest_first(
+            events, now=_dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S"))
         out["events_listed"] = len(ev)
         # NEAREST KICKOFF, because the game most likely to carry a board is the
         # one closest to being played. Run 31772127983 took `events[0]` of 136 and
@@ -445,7 +488,7 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
     # empty payloads compared against each other convict whatever we point them
     # at. Reported as UNMEASURED with the next events named, rather than as a
     # finding about the provider.
-    if not market_keys(default_payload):
+    if not has_board(default_payload):
         nxt = [e.get("id") for e in ev[1:6]] if not event_id else []
         return {**out, "event_id": event_id,
                 "asked_markets": list(ASK),
@@ -463,6 +506,13 @@ def probe(api_key, league="usa-nfl", event_id=None, timeout=20):  # pragma: no c
     rep = report(classified, honoured, credit_cost(h0, h2), ASK,
                  event_id=event_id, league=league)
     rep["default_markets"] = classify(market_keys(default_payload))["families"]
+    # THE SKELETON OF WHAT CAME BACK, ALWAYS — not only on the refusal path. Two
+    # runs reported "no markets" and neither recorded what the payload actually
+    # looked like, so each retry started blind. A probe that does not describe the
+    # shape it walked cannot be corrected from its own artifact.
+    rep["raw_shape"] = structure_keys(default_payload)
+    rep["raw_names"] = market_keys(default_payload)[:40]
+    rep["selection_sample"] = selection_names(default_payload)[:10]
     rep.update(out)
     return rep
 

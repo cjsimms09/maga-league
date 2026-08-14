@@ -273,3 +273,45 @@ def test_THE_PROBE_PICKS_THE_NEAREST_EVENT_not_an_arbitrary_one():
               {"id": "mid", "date": "2026-09-08T00:20:00"}]
     assert [e["id"] for e in P.nearest_first(events)] == ["soon", "mid", "far", "undated"]
     assert P.nearest_first([]) == []
+
+
+def test_A_GAME_ALREADY_PLAYED_IS_NOT_THE_NEAREST_ONE():
+    """RUN 3 PICKED A KICKOFF IN THE PAST. `nearest_first` sorted ascending with no
+    sense of now, so on a 48-event preseason list it chose 2026-08-13T23:00Z — a
+    game that had already started — and a finished game has no live board. The
+    verdict that followed was about a played game, not about the provider.
+
+    Future ascending first, then undated, then the past most-recent-first: a game
+    that kicked off an hour ago may still carry a board, one from last month will
+    not, and an undated event is not "far away" so it stays ahead of the corpses.
+
+    MUTATION: sort by date alone — the oldest fixture in the list wins every time,
+    which on any full-season slate means a game from weeks ago."""
+    events = [{"id": "past", "date": "2026-08-10T00:00:00"},
+              {"id": "far", "date": "2026-12-28T18:00:00"},
+              {"id": "soon", "date": "2026-08-15T00:20:00"},
+              {"id": "undated"},
+              {"id": "justplayed", "date": "2026-08-13T23:00:00"}]
+    got = [e["id"] for e in P.nearest_first(events, now="2026-08-14T05:30:00")]
+    assert got == ["soon", "far", "undated", "justplayed", "past"], got
+
+
+def test_A_PAYLOAD_WITH_NO_PRICES_IS_A_PAYLOAD_WITH_NO_BOARD():
+    """RUN 3'S REFUSAL DID NOT FIRE, AND THE REASON IS MY OWN READER. The empty
+    check asked whether ANY market name was found, and the response's `sport` and
+    `league` names — `American Football`, `USA - NFL Preseason` — come through the
+    naming fields. Two names, zero markets, and the payload read as non-empty.
+
+    A real odds board always carries PRICED selections. That is the shape test, and
+    it is the same one that separates a market from a player elsewhere in this file.
+
+    MUTATION: test for any name at all — a response carrying nothing but the sport
+    and league reads as a board, the refusal never fires, and the control convicts
+    the parameter on an empty payload exactly as it did on runs 2 and 3."""
+    names_only = {"sport": {"name": "American Football"},
+                  "league": {"name": "USA - NFL Preseason"}}
+    assert P.market_keys(names_only)          # names ARE found — that was the trap
+    assert P.has_board(names_only) is False
+    assert P.has_board(PROPS) is True
+    assert P.has_board(DEFAULT_ONLY) is True
+    assert P.has_board(None) is False
