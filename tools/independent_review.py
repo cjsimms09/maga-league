@@ -38,6 +38,28 @@ A diff trimmed to fit a context window without saying so lets a reviewer report
 "no issue found" about code it never saw. `diff_truncated` and the omitted byte
 count travel in the payload, and the prompt routes unseen code to `unknown`.
 
+── THE REVIEWER IS OPTIONAL AND THE PIPELINE MUST NOT DEPEND ON IT ────────
+
+Cory, 2026-08-14: "this process needs to be able to work still if my openai
+money runs out."
+
+A correctness requirement, not a convenience. The delegation protocol says to
+obtain an independent verdict before committing a substantive model change, so
+an unreachable reviewer would BLOCK model work entirely on a billing event days
+before a draft. A review step that can halt the pipeline it reviews is a worse
+defect than any it could catch.
+
+So unavailability is a first-class outcome: exit 0, an artifact whose `status`
+is UNAVAILABLE and which carries NO `verdict` key at all, and a named kind
+(BILLING / AUTH / MODEL / TRANSIENT / CONFIG / UNKNOWN) because the human
+response differs for each. The fallback is not a weaker model — it is that I do
+the adversarial pass myself and say so.
+
+Verify that path in one line, no key and no network needed:
+
+    OPENAI_API_KEY= python3 tools/independent_review.py --self-test --out /tmp/u.json
+    # -> exit 0, status UNAVAILABLE, .get("verdict") is None
+
 Usage:
     python3 tools/independent_review.py --base origin/main --head HEAD \\
         --claim claim.md --out review.json
@@ -140,14 +162,81 @@ def load_claims(path: str | None) -> dict:
 
 
 # ── THE CALL ────────────────────────────────────────────────────────────────
+class Unavailable(Exception):
+    """THE REVIEWER IS OPTIONAL AND MUST STAY OPTIONAL.
+
+    Cory, 2026-08-14: "this process needs to be able to work still if my openai
+    money runs out."
+
+    That is a correctness requirement, not a convenience one. The delegation
+    protocol says to obtain an independent verdict before committing a
+    substantive model change — so an unreachable reviewer would BLOCK model work
+    entirely, three days before a draft, on a billing event. A review step that
+    can halt the pipeline it reviews is a worse defect than any it could catch.
+
+    So unavailability is a FIRST-CLASS OUTCOME, distinct from every verdict:
+
+      * it exits 0 — the change is not rejected, it is UNREVIEWED, and those are
+        different claims;
+      * it writes an artifact whose `status` is UNAVAILABLE and which carries NO
+        `verdict` key at all, so nothing downstream can mistake it for ACCEPT.
+        An absence of review must never read as approval — that is this repo's
+        oldest failure mode wearing yet another costume;
+      * it names WHICH kind of unavailability, because the human response
+        differs: a billing stop means "carry on without it", a bad key means
+        "fix the setup", a transient 5xx means "re-run".
+
+    The fallback is not a weaker reviewer. There is no automatic second model,
+    because a review from something nobody chose is not a second opinion. The
+    fallback is: I do the adversarial pass myself and say plainly that I did.
+    """
+
+
+#: Substrings that mean "the account cannot pay", as opposed to "the setup is
+#: wrong". Matched case-insensitively against the exception text, because the
+#: SDK's typed errors do not distinguish billing from other 429s reliably.
+_BILLING = ("insufficient_quota", "exceeded your current quota", "billing",
+            "payment required", "account is not active", "credit balance")
+_TRANSIENT = ("rate limit", "429", "500", "502", "503", "504", "timeout",
+              "timed out", "connection", "overloaded")
+
+
+def _classify(e: Exception) -> tuple[str, str]:
+    """(kind, what to do about it). Kept separate from the call so the mapping
+    is readable and testable rather than buried in an except block."""
+    t = f"{type(e).__name__}: {e}".lower()
+    if any(s in t for s in _BILLING):
+        return ("BILLING", "The OpenAI account cannot fund this call. Nothing "
+                "is wrong with the change or the repository. Proceed WITHOUT "
+                "the reviewer and say so in the report; do not treat the "
+                "missing review as approval.")
+    if any(s in t for s in ("401", "invalid_api_key", "unauthorized",
+                            "authentication")):
+        return ("AUTH", "The key was present but rejected. This is a setup "
+                "problem, not a funding one — check the secret's value.")
+    if "model" in t and ("not found" in t or "does not exist" in t
+                         or "unsupported" in t):
+        return ("MODEL", "The configured model is unavailable. Set REVIEW_MODEL "
+                "to a current reasoning model. There is deliberately no "
+                "automatic fallback: a review from a model nobody chose is not "
+                "a second opinion.")
+    if any(s in t for s in _TRANSIENT):
+        return ("TRANSIENT", "A transient API failure. Re-running is a "
+                "legitimate response here, in a way it never is for a verdict.")
+    return ("UNKNOWN", "The call failed for a reason this does not classify. "
+            "Read the message before deciding whether to proceed unreviewed.")
+
+
 def _client():
     """The key is read here and handed straight to the SDK. It is never bound to
     a module global, a payload field, or an argument, so no printer can reach
     it."""
     key = os.environ.get("OPENAI_API_KEY", "")
     if not key.strip():
-        raise SystemExit(
-            "REFUSING: OPENAI_API_KEY is empty.\n"
+        # UNAVAILABLE, not a hard exit. A missing key must not halt the work it
+        # was meant to review; it must be RECORDED as unreviewed.
+        raise Unavailable(
+            "CONFIG: OPENAI_API_KEY is empty.\n"
             "  This repository has hit the silent-empty-secret failure twice, so\n"
             "  the three causes are named rather than left to be guessed:\n"
             "    1. the job does not declare `environment: Review_ChatGPT` —\n"
@@ -157,12 +246,12 @@ def _client():
             "       not on an allowed branch;\n"
             "    3. the value was added under Variables rather than Secrets,\n"
             "       which leaves `secrets.*` empty and silent.\n"
-            "  Refusing beats reviewing nothing and reporting a verdict.")
+            "  Recording this as UNREVIEWED beats reporting a verdict.")
     try:
         from openai import OpenAI
     except ImportError:
-        raise SystemExit("REFUSING: the openai SDK is not installed. "
-                         "`pip install openai` — it is not a repo dependency.")
+        raise Unavailable("CONFIG: the openai SDK is not installed. "
+                          "`pip install openai` — it is not a repo dependency.")
     return OpenAI(api_key=key)
 
 
@@ -190,16 +279,13 @@ def review(payload: dict, *, model: str) -> dict:
     except Exception as e:
         # NO SILENT FALLBACK TO ANOTHER MODEL. A quietly downgraded reviewer
         # produces confident, weaker verdicts and nothing says so.
-        raise SystemExit(
-            f"REFUSING: the Responses API call failed for model {model!r}.\n"
-            f"  {type(e).__name__}: {e}\n"
-            "  If the model name is wrong or unavailable, set REVIEW_MODEL to a\n"
-            "  current reasoning model. This does NOT fall back automatically:\n"
-            "  a review from a model nobody chose is not a second opinion.")
+        kind, advice = _classify(e)
+        raise Unavailable(f"{kind}: the Responses API call failed for model "
+                          f"{model!r}.\n  {type(e).__name__}: {e}\n  {advice}")
 
     text = getattr(resp, "output_text", None)
     if not text:
-        raise SystemExit("REFUSING: the API returned no output text.")
+        raise Unavailable("EMPTY: the API returned no output text.")
     out = json.loads(text)
     _validate(out, schema)
     return out
@@ -317,9 +403,45 @@ def main() -> int:
                 "  shallow (fetch-depth: 0 is required to see origin/main).")
         payload = {"repository_facts": facts, "claude_claims": load_claims(a.claim)}
 
-    out = review(payload, model=model)
+    try:
+        out = review(payload, model=model)
+    except Unavailable as u:
+        # ── THE DEGRADED PATH. Recorded, never silent, never mistaken for a
+        #    verdict. NO `verdict` KEY IS WRITTEN AT ALL: a consumer that reads
+        #    `.get("verdict") == "ACCEPT"` gets None, not approval.
+        kind = str(u).split(":", 1)[0]
+        rec = {
+            "status": "UNAVAILABLE",
+            "unavailable_kind": kind,
+            "detail": str(u),
+            "_model": model,
+            "_self_test": bool(a.self_test),
+            "what_this_is_not":
+                "This is NOT a verdict and NOT an approval. The change was not "
+                "reviewed. Absence of review is absence of evidence.",
+            "how_to_proceed":
+                "The reviewer is advisory and the pipeline does not depend on "
+                "it. Continue the work, perform the adversarial pass manually, "
+                "and state in the report that the independent review was "
+                "UNAVAILABLE and why.",
+        }
+        Path(a.out).write_text(json.dumps(rec, indent=1))
+        print("=" * 66)
+        print(f"INDEPENDENT REVIEW UNAVAILABLE  ({kind})")
+        print("=" * 66)
+        print(str(u))
+        print("\nThis is not a rejection and not an approval — the change is "
+              "UNREVIEWED.\nThe pipeline does not depend on the reviewer: "
+              "carry on and do the\nadversarial pass by hand, saying so in the "
+              "report.")
+        # EXIT 0 ON PURPOSE. A billing stop is not a defect in the change, and a
+        # red job here would halt model work on an unrelated funding event --
+        # exactly the single point of failure this must not become.
+        return 0
+
     out["_model"] = model            # WHICH reviewer said this. Never the key.
     out["_self_test"] = bool(a.self_test)
+    out["status"] = "REVIEWED"
     Path(a.out).write_text(json.dumps(out, indent=1))
 
     print(f"verdict: {out['verdict']}   (model {model})")

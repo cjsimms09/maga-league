@@ -66,14 +66,21 @@ jobs:
           # Prints presence and length only. The value never reaches the log,
           # and a length is not a leak — it is what distinguishes "absent" from
           # "present but truncated".
+          # ⚠️ A WARNING, NOT AN ERROR, AND THAT IS THE POINT.
+          # The reviewer is advisory. If it could red the job, an OpenAI billing
+          # stop would halt model work on an unrelated funding event -- a review
+          # step able to break the pipeline it reviews is worse than any defect
+          # it could catch. The script records UNAVAILABLE and exits 0; this
+          # step only makes the cause visible.
           if [ -z "${OPENAI_API_KEY:-}" ]; then
-            echo "::error::OPENAI_API_KEY did not reach this job."
+            echo "::warning::OPENAI_API_KEY did not reach this job — the review"
+            echo "  will be recorded as UNAVAILABLE, which is NOT an approval."
             echo "  1. the job must declare 'environment: Review_ChatGPT'"
             echo "  2. the environment may restrict which branches can use it"
             echo "  3. a value added under Variables is invisible to secrets.*"
-            exit 1
+          else
+            echo "OPENAI_API_KEY present: YES (length ${#OPENAI_API_KEY})"
           fi
-          echo "OPENAI_API_KEY present: YES (length ${#OPENAI_API_KEY})"
 
       - name: Make the base ref fetchable
         run: git fetch --quiet origin main || true
@@ -109,6 +116,17 @@ jobs:
           python3 - <<'PY'
           import json
           r = json.load(open('review.json'))
+          if r.get('status') == 'UNAVAILABLE':
+              # NO VERDICT EXISTS. Say that in the words that matter, because a
+              # log that just says "review complete" would read as approval.
+              print('=' * 66)
+              print('INDEPENDENT REVIEW UNAVAILABLE  (%s)' % r.get('unavailable_kind'))
+              print('=' * 66)
+              print(r.get('detail', ''))
+              print()
+              print(r.get('what_this_is_not', ''))
+              print(r.get('how_to_proceed', ''))
+              raise SystemExit(0)
           print('=' * 66)
           print('VERDICT:', r['verdict'], ' (model', r.get('_model'), ')')
           print('=' * 66)
