@@ -596,6 +596,12 @@
     "bytes": 2625771,
     "sha256_12": "76f7438517ec"
    }
+  },
+  "reproduced": {
+   "when": "2026-08-14",
+   "result": "EXACT. Re-derived `team_pace` from the pbp assets recorded above and compared field by field against this file: 32/32 teams, 0 differences on plays, games, plays_per_game, neutral_plays_per_game, neutral_share, pass_rate and neutral_pass_rate, and the headline raw-vs-neutral rho matches at 0.5326.",
+   "_why_it_was_worth_doing": "These numbers were produced by commands typed into a shell. 'The pure functions are tested' is not the same claim as 'this file is what they produce', and the gap between those two is where a hand-run artifact drifts from its own module. Now checked once, against named assets with recorded shas, so a future disagreement has something to point at.",
+   "_caveat": "The check needs the ~60MB of parquet, which is not in the repo, so it runs where the assets are rather than in CI. Only `pace` has been reproduced so far; durability and the spread work have not."
   }
  }
 }
