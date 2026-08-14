@@ -863,37 +863,63 @@ def latest_marginal(series: list, year) -> dict:
     # ONE DAY STAYS THE DEFAULT. Widening is a fallback: the instrument is about
     # the MARGINAL day, and reaching back further than necessary blends days that
     # could have been read apart.
+    # ── THE WINDOW IS DECIDED BY PLAYERS QUALIFYING, NOT BY `total_drafts` ──
+    #
+    # `MIN_NEW_SELECTIONS` was declared from a cadence of +4 and +6 drafts a day;
+    # 2026-08-14 gained two. At that width no player can reach three, `ranked`
+    # comes back empty with every row filed as thin, and a quiet morning is
+    # indistinguishable from a broken instrument. So the comparison reaches back.
+    #
+    # ⚠ BUT NOT ON `total_drafts`, WHICH IS NOT EXACT. Measured on that same
+    # snapshot: MFL reports `totalDrafts = 127` while 25 players carry a
+    # `draftsSelectedIn` above it — up to 130 — and `draftSelPct` up to 102.0.
+    # Recovering the denominator from each player's own pair gives 127.0-128.4
+    # across the 180 players with 100+ drafts, so the pool is ~127-128 and MFL's
+    # aggregate disagrees with its own per-player counts by two or three.
+    #
+    # A FIELD WRONG BY THREE CANNOT DECIDE A THRESHOLD OF THREE. The per-player
+    # `drafts` are exact integers, and whether anybody clears the floor is
+    # directly computable from them — so the window widens until at least one
+    # player does, and `total_drafts` is reported as context rather than consulted.
     later = days[-1]
     n_late = _total_drafts(later)
-    # The initialiser is UNREACHABLE — `days[:-1]` is non-empty whenever
-    # len(days) >= 2, which the guard above has already established, so the
-    # loop always assigns both on its first pass. No mutation is filed
-    # against it for that reason: a mutation on equivalent code cannot be
-    # killed, and pairing it with a test that could never fail would be
-    # coverage theatre. Kept for the reader rather than for the machine.
-    earlier, gained = days[-2], None
+    earlier, out, qualifying = None, None, 0
     for cand in reversed(days[:-1]):
         earlier = cand
-        gained = (None if n_late is None or _total_drafts(cand) is None
-                  else n_late - _total_drafts(cand))
-        if gained is None or gained >= MIN_NEW_SELECTIONS:
+        out = marginal_adp(cand, later)
+        qualifying = sum(1 for r in out["rows"].values()
+                         if r["new_selections"] >= MIN_NEW_SELECTIONS)
+        if qualifying:
             break
-    if gained is not None and gained < MIN_NEW_SELECTIONS:
+    n_early = _total_drafts(earlier)
+    delta = None if n_late is None or n_early is None else n_late - n_early
+    if not qualifying:
         return {"status": "unmeasured", "spread_days_found": len(days),
                 "rows": {}, "ranked": [], "ranking_excluded_thin": 0,
                 "ranking_excluded_out_of_range": 0,
                 "earlier": earlier.get("observed_at"), "later": later.get("observed_at"),
-                "window_days": len(days) - 1, "window_new_drafts": gained,
+                "window_days": len(days) - 1, "window_qualifying": 0,
+                "provider_total_drafts_delta": delta,
                 "min_new_selections": MIN_NEW_SELECTIONS,
-                "note": "the widest window available adds only %d new draft(s), "
-                        "and %d are needed before ANY player can reach the "
-                        "%d-selection floor. There is no derivable marginal "
-                        "figure yet — that is UNKNOWN, not a quiet market."
-                        % (gained, MIN_NEW_SELECTIONS, MIN_NEW_SELECTIONS)}
+                "note": "no player gained %d new selections at ANY width back to "
+                        "%s — there is no derivable marginal figure yet, which is "
+                        "UNKNOWN rather than a quiet market."
+                        % (MIN_NEW_SELECTIONS, earlier.get("observed_at"))}
 
     out = marginal_adp(earlier, later)
     out["window_days"] = days.index(later) - days.index(earlier)
-    out["window_new_drafts"] = gained
+    out["window_qualifying"] = qualifying
+    # REPORTED, NOT CONSULTED. It is the only handle anyone has on the pool's
+    # rough size, so dropping it would lose a measurement — but it is the
+    # provider's aggregate and it disagrees with the provider's own per-player
+    # counts, so it decides nothing here.
+    out["provider_total_drafts_delta"] = delta
+    out["provider_total_drafts_note"] = (
+        "MFL's own aggregate, reported for context and NOT used to choose this "
+        "window: on 2026-08-14 it read 127 while 25 players carried a higher "
+        "per-player count, up to 130. The window is decided by how many players "
+        "actually cleared %d new selections, which is exact."
+        % MIN_NEW_SELECTIONS)
     thin = 0
     out_of_range = 0
     ranked = []
@@ -2135,3 +2161,135 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
     return rep if rep is not None else {"year": str(year), "uncounted": True,
                                         "note": "coverage not computed — see "
                                                 "REPORT FAILED above"}
+
+
+#: How far MFL's per-player `draftsSelectedIn` may exceed its own `totalDrafts`
+#: before the disagreement stops being the aggregation lag we have measured and
+#: becomes a different fact. DERIVED FROM THE OBSERVATION, not chosen to pass:
+#: on 2026-08-14 the worst excess was 3 on a pool of 127 (2.4%), so the bound is
+#: set at 5% of the pool with a floor of 5 — comfortably above what MFL does and
+#: far below anything that would indicate the two fields describe different
+#: populations.
+DRAFTS_EXCESS_TOLERANCE = 0.05
+DRAFTS_EXCESS_FLOOR = 5
+
+
+def snapshot_audit(snapshot: dict) -> dict:
+    """Is this day trustworthy? -> {ok, fatal, observed, checked}.
+
+    WRITTEN TO A DIRECT REQUEST (Cory, 2026-08-14): *"the daily data capture
+    process needs to be correct... the data itself needs to be accurate and we
+    need understand what it means so we don't misuse it."*
+
+    TWO CATEGORIES, AND CONFLATING THEM IS HOW A REAL ALARM GETS MUTED.
+
+    **FATAL** — arithmetically impossible, so either our pipeline or MFL's export
+    is broken and nothing on the day may be used. `min_pick <= adp <= max_pick` is
+    the strongest of these: a mean pick outside the range of the picks it averages
+    cannot happen, and the marginal-ADP derivation assumes exactly that those
+    fields describe one population.
+
+    **OBSERVED** — MFL disagreeing with itself, every day, in a way that is now
+    measured and bounded. On 2026-08-14: 25 of 681 players carried a
+    `draftsSelectedIn` above `totalDrafts` (127), the worst by 3, and 12 carried
+    `draftSelPct` above 100 — up to 102.0. Recovering the denominator from each
+    player's own pair gives 127.0-128.4 across the 180 with 100+ drafts, so the
+    pool really is ~127-128 and MFL's aggregate simply lags its own counts.
+
+    ⚠ THE CONSEQUENCE, WHICH IS THE POINT OF SAYING ANY OF THIS: `total_drafts`
+    IS NOT AN EXACT BOUND AND MUST NOT DECIDE ANYTHING. `latest_marginal` used to
+    choose its window on `total_drafts` deltas — a field wrong by up to 3 deciding
+    a threshold of 3 — and now decides on per-player `drafts`, which are exact.
+    Anything else reading `total_drafts` as a hard denominator is wrong by ~2%.
+
+    AND THE TOLERANCE IS ITSELF CHECKED. Bounded is the reason the second category
+    is tolerated at all; an excess of 40 on a pool of 127 is not the lag we
+    measured, so it is promoted to FATAL rather than inheriting the tolerance
+    granted to an excess of 3.
+    """
+    rows = (snapshot or {}).get("rows") or {}
+    disp = (snapshot or {}).get("dispersion") or {}
+    td = (snapshot or {}).get("total_drafts")
+    fatal, observed, checked = [], [], []
+
+    def fail(kind, note, **extra):
+        fatal.append(dict({"kind": kind, "note": note}, **extra))
+
+    checked.append("row_count")
+    if (snapshot or {}).get("row_count") != len(rows):
+        fail("row_count_mismatch",
+             "row_count says %s and the day holds %d rows. Every coverage figure "
+             "downstream reads row_count, so the archive would carry a permanent "
+             "record whose own summary contradicts its contents."
+             % ((snapshot or {}).get("row_count"), len(rows)))
+
+    checked.append("dispersion_keys_in_rows")
+    orphan = [k for k in disp if k not in rows]
+    if orphan:
+        fail("dispersion_orphan",
+             "%d dispersion row(s) have no priced player — the two halves of the "
+             "day describe different populations." % len(orphan),
+             ids=orphan[:10])
+
+    checked.append("adp_within_min_max")
+    outside = []
+    for pid, v in disp.items():
+        lo, hi, adp = (v or {}).get("min_pick"), (v or {}).get("max_pick"), rows.get(pid)
+        if adp is None or lo is None or hi is None:
+            continue
+        if not (float(lo) <= float(adp) <= float(hi)):
+            outside.append({"player_id": pid, "min": lo, "adp": adp, "max": hi})
+    if outside:
+        fail("adp_outside_range",
+             "%d player(s) have an ADP outside their OWN observed pick range. A "
+             "mean of picks cannot fall outside the picks it averages, so "
+             "`averagePick` and min/max are not describing the same population — "
+             "and the marginal-ADP derivation assumes they are." % len(outside),
+             examples=outside[:5])
+
+    checked.append("min_pick_at_least_1")
+    bad_lo = [pid for pid, v in disp.items()
+              if (v or {}).get("min_pick") is not None and float(v["min_pick"]) < 1]
+    if bad_lo:
+        fail("min_pick_below_one",
+             "%d player(s) report being drafted before pick 1." % len(bad_lo),
+             ids=bad_lo[:10])
+
+    # ── OBSERVED: MFL against itself, measured and bounded ──────────────────
+    if td:
+        checked.append("drafts_vs_total_drafts")
+        over = [(pid, v["drafts"] - int(td)) for pid, v in disp.items()
+                if (v or {}).get("drafts") is not None and v["drafts"] > int(td)]
+        if over:
+            worst = max(x for _p, x in over)
+            bound = max(DRAFTS_EXCESS_FLOOR, DRAFTS_EXCESS_TOLERANCE * int(td))
+            entry = {"kind": "drafts_above_total", "n": len(over),
+                     "worst_excess": worst, "total_drafts": int(td),
+                     "bound": round(bound, 1),
+                     "note": "MFL's aggregate lags its own per-player counts. "
+                             "Measured 2026-08-14: 25 players, worst excess 3 on "
+                             "a pool of 127. `total_drafts` is therefore NOT an "
+                             "exact bound and must not decide anything."}
+            if worst > bound:
+                fail("drafts_above_total_UNBOUNDED",
+                     "worst excess %d exceeds the measured lag bound of %.1f — "
+                     "that is no longer the aggregation lag we understand, and it "
+                     "must not inherit the tolerance granted to an excess of 3."
+                     % (worst, bound), **{k: v for k, v in entry.items()
+                                          if k not in ("kind", "note")})
+            else:
+                observed.append(entry)
+
+    checked.append("sel_pct_above_100")
+    hot = [(pid, v["sel_pct"]) for pid, v in disp.items()
+           if (v or {}).get("sel_pct") is not None and v["sel_pct"] > 100]
+    if hot:
+        observed.append({"kind": "sel_pct_above_100", "n": len(hot),
+                         "worst": max(x for _p, x in hot),
+                         "note": "the same lag seen from the other side: a player "
+                                 "counted in more drafts than the aggregate knows "
+                                 "about exceeds 100%. Measured 2026-08-14: 12 "
+                                 "players, worst 102.0."})
+
+    return {"ok": not fatal, "fatal": fatal, "observed": observed,
+            "checked": checked, "players": len(rows)}

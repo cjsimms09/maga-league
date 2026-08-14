@@ -681,6 +681,80 @@ jobs:
                     "result; nothing was compared." % (type(e).__name__, e))
           DIV
 
+      # ── IS TODAY'S DATA TRUSTWORTHY AT ALL ─────────────────────────────
+      #
+      # Cory, 2026-08-14: "the daily data capture process needs to be correct...
+      # the data itself needs to be accurate and we need understand what it means
+      # so we don't misuse it." This is that check, and it runs before anything
+      # reads the day.
+      #
+      # TWO CATEGORIES, because conflating them is how a real alarm gets muted.
+      # FATAL is arithmetically impossible — an ADP outside its own min/max means
+      # `averagePick` and the range are not describing one population, and the
+      # marginal-ADP derivation assumes they are. OBSERVED is MFL disagreeing with
+      # itself every day in a way now measured and bounded: 25 players with a
+      # per-player count above `totalDrafts`, worst excess 3 on a pool of 127.
+      #
+      # Reporting the second as a failure would make this red every morning and
+      # therefore ignored. Not reporting it would lose the day the excess jumps
+      # from 3 to 30 — which is why the magnitude is printed, not just the fact.
+      - name: Is today's data trustworthy — the invariants, and MFL against itself
+        id: audit
+        if: always() && steps.cap.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python3 - <<'AUD'
+          import json, os, sys
+          sys.path.insert(0, "draft/backtest")
+          _sum = os.environ.get("GITHUB_STEP_SUMMARY")
+          fh = open(_sum, "a") if _sum else sys.stdout
+          def md(x=""): print(x, file=fh)
+          md("## Is today's data trustworthy")
+          bad = 0
+          try:
+              import external_adp_capture as C
+              year = "${{ github.event.inputs.year || '2026' }}"
+              days = [s for s in C.load() if str(s.get("year")) == year]
+              today = days[-1] if days else None
+              r = C.snapshot_audit(today or {})
+              md("`%s` — %d players, %d invariant(s) checked."
+                 % ((today or {}).get("observed_at"), r["players"], len(r["checked"])))
+              if r["fatal"]:
+                  bad = 1
+                  md("")
+                  md("| FATAL | detail |")
+                  md("|---|---|")
+                  for f in r["fatal"]:
+                      md("| `%s` | %s |" % (f["kind"], f["note"][:220]))
+              else:
+                  md("")
+                  md("**No fatal finding.** Every invariant that cannot be wrong held.")
+              if r["observed"]:
+                  md("")
+                  md("| known inconsistency | n | worst | bound |")
+                  md("|---|---|---|---|")
+                  for o in r["observed"]:
+                      md("| `%s` | %s | %s | %s |"
+                         % (o["kind"], o.get("n"), o.get("worst_excess", o.get("worst")),
+                            o.get("bound", "—")))
+                  md("")
+                  md("These are MFL disagreeing with ITSELF, not our pipeline. "
+                     "`total_drafts` is the provider's aggregate and it lags its "
+                     "own per-player counts, so it is **not an exact bound and "
+                     "decides nothing** — the marginal day is derived from "
+                     "per-player `drafts`, which are exact integers.")
+          except Exception as e:                      # noqa: BLE001
+              bad = 1
+              md("**THE AUDIT DID NOT RUN** (%s: %s) — that is a fact about this "
+                 "job, not a clean day." % (type(e).__name__, e))
+          finally:
+              if fh is not sys.stdout:
+                  fh.close()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as g:
+              g.write("untrustworthy=%d\n" % bad)
+          AUD
+
       # WHAT TODAY'S DRAFTERS DID, as opposed to what the season averages.
       #
       # Measured 2026-08-14 and it is the reason this step exists: the published
@@ -993,6 +1067,18 @@ jobs:
           echo "::error::read from the same response dict as averagePick, which works, so"
           echo "::error::the shape is right and only the names are unproven."
           echo "::error::This fires ONCE and then self-clears; the summary carries it daily."
+          exit 1
+
+      - name: Escalate if today's data failed an invariant
+        if: always() && steps.audit.outputs.untrustworthy == '1'
+        run: |
+          echo "::error::TODAY'S SNAPSHOT FAILED AN INVARIANT THAT CANNOT BE WRONG."
+          echo "::error::See the step summary for which. These are arithmetic"
+          echo "::error::impossibilities — an ADP outside its own min/max means"
+          echo "::error::averagePick and the pick range are not describing the same"
+          echo "::error::population, and the marginal-ADP derivation assumes they are."
+          echo "::error::The day IS committed (it cannot be refetched); do not READ"
+          echo "::error::it until this is understood."
           exit 1
 
       - name: Escalate ONLY if a DRAFTABLE player left the board

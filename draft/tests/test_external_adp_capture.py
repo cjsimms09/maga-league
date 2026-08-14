@@ -3161,8 +3161,12 @@ def test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW():
     r = C.latest_marginal(ser, "2026")
     assert r["status"] == "measured", r
     assert (r["earlier"], r["later"]) == ("2026-08-12", "2026-08-14"), r
-    assert r["window_days"] == 2 and r["window_new_drafts"] == 8, r
+    assert r["window_days"] == 2 and r["window_qualifying"] == 1, r
     assert r["rows"]["1"]["new_selections"] == 6
+    # AND THE PROVIDER'S FIGURE IS CARRIED WITHOUT DECIDING: +8 here, which would
+    # also have passed the old total_drafts test — the two agree in this fixture
+    # and the point is that only one of them is consulted.
+    assert r["provider_total_drafts_delta"] == 8
 
 
 def test_THE_WINDOW_STAYS_AT_ONE_DAY_WHEN_ONE_DAY_IS_ENOUGH():
@@ -3178,7 +3182,7 @@ def test_THE_WINDOW_STAYS_AT_ONE_DAY_WHEN_ONE_DAY_IS_ENOUGH():
            _md("2026-08-14", "2026", {"1": (21.5, 110)}, 131)]
     r = C.latest_marginal(ser, "2026")
     assert (r["earlier"], r["later"]) == ("2026-08-13", "2026-08-14")
-    assert r["window_days"] == 1 and r["window_new_drafts"] == 6
+    assert r["window_days"] == 1 and r["window_qualifying"] == 1
 
 
 def test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty():
@@ -3192,26 +3196,172 @@ def test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty():
            _md("2026-08-14", "2026", {"1": (21.5, 105)}, 126)]
     r = C.latest_marginal(ser, "2026")
     assert r["status"] == "unmeasured"
-    assert "new draft" in r["note"]
-    assert r["window_new_drafts"] == 1
+    assert "new selections" in r["note"]
+    assert r["window_qualifying"] == 0
 
 
-def test_A_SNAPSHOT_WITH_NO_total_drafts_DOES_NOT_MANUFACTURE_A_WINDOW():
-    """Written because `return 0 if v is None else int(v)` SURVIVED the gate: every
-    fixture above carries `total_drafts`, so the missing-count branch was never
-    exercised. A survived mutation is a missing assertion.
+def test_A_SNAPSHOT_WITH_NO_total_drafts_STILL_DERIVES_THE_MARGINAL_DAY():
+    """This test used to assert that a missing `total_drafts` did not manufacture
+    a window, because the window arithmetic subtracted the field and a zero
+    default made the widest window always look wide enough.
 
-    It is not hypothetical — `total_drafts` is the provider's own figure and a day
-    where MFL omits it is exactly the day this arithmetic runs on. Read as ZERO,
-    the window `n_late - 0` is the whole season's draft count, so the widest window
-    always looks wide enough and a two-drafter day is reported as if it rested on
-    a hundred and twenty-seven.
+    THAT PREMISE IS GONE AND THAT IS THE POINT. The window is now decided by how
+    many players cleared the selection floor — exact per-player integers — so
+    `total_drafts` cannot corrupt it however it is missing or wrong. Re-aimed at
+    the stronger property that replaced the guard: the day derives ANYWAY, and
+    the provider's figure is reported as UNKNOWN rather than as a number.
 
-    MUTATION: the zero default — the guard passes on a day it should refuse."""
-    ser = [_md("2026-08-13", "2026", {"1": (21.0, 104)}, 125),
-           _md("2026-08-14", "2026", {"1": (21.5, 106)}, 127)]
+    MUTATION: make the decision consult `total_drafts` again — a day MFL happened
+    not to stamp becomes underivable, when every number the derivation needs is
+    present on the players themselves."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 127)]
     ser[0]["total_drafts"] = None
     r = C.latest_marginal(ser, "2026")
-    # UNKNOWN, not a wide window: the gap cannot be computed, so it is not asserted.
-    assert r["window_new_drafts"] is None, r
-    assert r["status"] == "measured"
+    assert r["status"] == "measured", r
+    assert r["rows"]["1"]["new_selections"] == 4
+    assert r["provider_total_drafts_delta"] is None
+
+
+# ── `total_drafts` IS NOT EXACT, SO IT MUST NOT DECIDE ANYTHING ──────────────
+#
+# MEASURED on the first real snapshot, 2026-08-14: MFL reports
+# `totalDrafts = 127`, and 25 players carry a `draftsSelectedIn` LARGER than that
+# — up to 130 — with `draftSelPct` up to 102.0. Recovering the denominator from
+# each player's own pair (drafts / (sel_pct/100)) gives 127.0-128.4 for the 180
+# players with 100+ drafts, so the pool really is ~127-128 and MFL's own
+# aggregate disagrees with its own per-player counts by two or three.
+#
+# THAT IS FINE FOR THE MARGINAL ADP ITSELF, which uses per-player `drafts` — an
+# exact integer. It is NOT fine for the window decision, which I wrote against
+# `total_drafts` deltas: a field wrong by up to 3 cannot decide a threshold of 3.
+
+def test_THE_WINDOW_IS_DECIDED_BY_PLAYERS_QUALIFYING_not_by_total_drafts():
+    """`total_drafts` says the window gained only 1 — below the floor — while a
+    player's own exact count gained 4. The player is what matters.
+
+    MUTATION: decide on the `total_drafts` delta — a real, derivable marginal day
+    is thrown away because MFL's aggregate under-reported by three, which it
+    demonstrably does."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["status"] == "measured", r
+    assert r["rows"]["1"]["new_selections"] == 4
+    assert r["window_qualifying"] == 1, r
+
+
+def test_A_WINDOW_NOBODY_QUALIFIES_IN_WIDENS_even_if_total_drafts_looks_ample():
+    """The mirror case: `total_drafts` claims +9, comfortably over the floor, but
+    no player's own count moved by 3. Widening is decided by the players.
+
+    MUTATION: trust the aggregate — the report goes out with an empty `ranked`
+    table on a day it could have reached back one more and filled it."""
+    ser = [_md("2026-08-12", "2026", {"1": (20.0, 100)}, 110),
+           _md("2026-08-13", "2026", {"1": (20.5, 102)}, 119),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 128)]
+    r = C.latest_marginal(ser, "2026")
+    assert (r["earlier"], r["later"]) == ("2026-08-12", "2026-08-14"), r
+    assert r["rows"]["1"]["new_selections"] == 4
+
+
+def test_total_drafts_IS_STILL_REPORTED_but_labelled_as_the_providers_figure():
+    """It is real context — the pool's rough size — and dropping it would lose a
+    measurement. It just does not decide.
+
+    MUTATION: stop reporting it — the reader loses the only handle on how big the
+    pool is, and the inconsistency this test exists to document becomes invisible."""
+    ser = [_md("2026-08-13", "2026", {"1": (20.0, 100)}, 125),
+           _md("2026-08-14", "2026", {"1": (21.0, 104)}, 126)]
+    r = C.latest_marginal(ser, "2026")
+    assert r["provider_total_drafts_delta"] == 1
+    assert "not" in (r.get("provider_total_drafts_note") or "").lower()
+
+
+# ── THE DAILY AUDIT: what must never be wrong, and what is wrong every day ────
+#
+# Cory, 2026-08-14: "the daily data capture process needs to be correct and fixed
+# so we don't keep having problems and the data itself needs to be accurate and we
+# need understand what it means so we don't misuse it."
+#
+# Two categories, and conflating them is how a real alarm gets muted. A FATAL
+# violation means OUR pipeline or the provider's export is broken and the day
+# cannot be trusted. An OBSERVED inconsistency is MFL disagreeing with itself in a
+# way that is present every day, bounded, and now understood — reporting it as a
+# failure would make the audit red forever and therefore ignored.
+
+def _real_ish(**over):
+    d = {"observed_at": "2026-08-14", "year": "2026", "total_drafts": 127,
+         "rows": {"1": 20.0, "2": 300.0},
+         "dispersion": {"1": {"min_pick": 3, "max_pick": 60, "sel_pct": 99.0, "drafts": 126},
+                        "2": {"min_pick": 200, "max_pick": 400, "sel_pct": 12.0, "drafts": 16}}}
+    d["row_count"] = len(d["rows"])
+    d.update(over)
+    return d
+
+
+def test_A_CLEAN_DAY_HAS_NO_FATAL_FINDINGS():
+    r = C.snapshot_audit(_real_ish())
+    assert r["fatal"] == [], r
+    assert r["ok"] is True
+
+
+def test_AN_ADP_OUTSIDE_ITS_OWN_MIN_MAX_IS_FATAL():
+    """A mean pick outside the observed range of the picks it averages is
+    arithmetically impossible. If it happens, `averagePick` and min/max are not
+    describing the same population and NOTHING on the day may be trusted —
+    including the marginal ADP, which assumes exactly that they do.
+
+    MUTATION: skip the check — the single strongest evidence that the fields mean
+    what we think stops being looked at."""
+    d = _real_ish()
+    d["rows"]["1"] = 500.0           # above its own max_pick of 60
+    r = C.snapshot_audit(d)
+    assert any(f["kind"] == "adp_outside_range" for f in r["fatal"]), r
+    assert r["ok"] is False
+
+
+def test_A_ROW_COUNT_THAT_LIES_IS_FATAL():
+    """MUTATION: drop it — every coverage figure downstream reads `row_count`, so
+    the archive would carry a permanent record whose own summary contradicts it."""
+    d = _real_ish(row_count=999)
+    assert any(f["kind"] == "row_count_mismatch" for f in C.snapshot_audit(d)["fatal"])
+
+
+def test_DRAFTS_ABOVE_total_drafts_IS_OBSERVED_NOT_FATAL_and_is_QUANTIFIED():
+    """This happens EVERY day. Measured 2026-08-14: 25 players carry a
+    `draftsSelectedIn` above MFL's own `totalDrafts` of 127, up to 130, and 12
+    carry `draftSelPct` above 100. Recovering the denominator from each player's
+    own pair gives 127.0-128.4 across the 180 players with 100+ drafts, so the
+    pool is ~127-128 and MFL's aggregate disagrees with its own per-player counts
+    by two or three.
+
+    REPORTING IT AS FATAL WOULD MAKE THE AUDIT RED EVERY MORNING and therefore
+    ignored — the muted-alarm shape this project keeps finding. But it must be
+    QUANTIFIED, because the day the excess jumps from 3 to 30 is the day
+    something actually changed.
+
+    MUTATION: treat it as fatal — the audit fails on its first real day and
+    somebody switches it off."""
+    d = _real_ish()
+    d["dispersion"]["1"]["drafts"] = 130      # above total_drafts of 127
+    d["dispersion"]["1"]["sel_pct"] = 102.0
+    r = C.snapshot_audit(d)
+    assert r["fatal"] == [], r
+    obs = {o["kind"]: o for o in r["observed"]}
+    assert obs["drafts_above_total"]["n"] == 1
+    assert obs["drafts_above_total"]["worst_excess"] == 3
+    assert obs["sel_pct_above_100"]["n"] == 1
+
+
+def test_AN_OBSERVED_INCONSISTENCY_THAT_GROWS_PAST_ITS_BOUND_IS_FATAL():
+    """Bounded is the whole reason it is tolerated. An excess of 3 on a pool of
+    127 is MFL's aggregation lagging its own counts; an excess of 40 is a
+    different fact and must not inherit the tolerance granted to the first.
+
+    MUTATION: tolerate any excess — the category stops being "understood and
+    bounded" and becomes "ignored", which is the same thing one word later."""
+    d = _real_ish()
+    d["dispersion"]["1"]["drafts"] = 200       # excess of 73 on a pool of 127
+    r = C.snapshot_audit(d)
+    assert any(f["kind"] == "drafts_above_total_UNBOUNDED" for f in r["fatal"]), r

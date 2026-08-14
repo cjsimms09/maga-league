@@ -532,15 +532,31 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if gained is None or gained >= MIN_NEW_SELECTIONS:\n            break",
-     "new": "        if gained is None or gained >= 0:\n            break",
+     "old": "        return None if v is None else int(v)",
+     "new": "        return 0 if v is None else int(v)",
+     "must_fail": [
+      "test_A_SNAPSHOT_WITH_NO_total_drafts_STILL_DERIVES_THE_MARGINAL_DAY"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        qualifying = sum(1 for r in out[\"rows\"].values()\n                         if r[\"new_selections\"] >= MIN_NEW_SELECTIONS)",
+     "new": "        qualifying = 1",
      "must_fail": [
       "test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW"
      ],
      "verdict": "KILLED"
     },
     {
-     "old": "    if gained is not None and gained < MIN_NEW_SELECTIONS:",
+     "old": "        if qualifying:\n            break",
+     "new": "        if True:\n            break",
+     "must_fail": [
+      "test_A_DAY_TOO_THIN_TO_QUALIFY_ANYBODY_WIDENS_THE_WINDOW"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if not qualifying:",
      "new": "    if False:",
      "must_fail": [
       "test_IF_NO_WINDOW_IS_WIDE_ENOUGH_IT_SAYS_SO_rather_than_reporting_empty"
@@ -548,10 +564,42 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        return None if v is None else int(v)",
-     "new": "        return 0 if v is None else int(v)",
+     "old": "    out[\"provider_total_drafts_delta\"] = delta",
+     "new": "    out[\"provider_total_drafts_delta\"] = 0",
      "must_fail": [
-      "test_A_SNAPSHOT_WITH_NO_total_drafts_DOES_NOT_MANUFACTURE_A_WINDOW"
+      "test_total_drafts_IS_STILL_REPORTED_but_labelled_as_the_providers_figure"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not (float(lo) <= float(adp) <= float(hi)):",
+     "new": "        if False:",
+     "must_fail": [
+      "test_AN_ADP_OUTSIDE_ITS_OWN_MIN_MAX_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if (snapshot or {}).get(\"row_count\") != len(rows):",
+     "new": "    if False:",
+     "must_fail": [
+      "test_A_ROW_COUNT_THAT_LIES_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            if worst > bound:",
+     "new": "            if False:",
+     "must_fail": [
+      "test_AN_OBSERVED_INCONSISTENCY_THAT_GROWS_PAST_ITS_BOUND_IS_FATAL"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            else:\n                observed.append(entry)",
+     "new": "            else:\n                fatal.append(entry)",
+     "must_fail": [
+      "test_DRAFTS_ABOVE_total_drafts_IS_OBSERVED_NOT_FATAL_and_is_QUANTIFIED"
      ],
      "verdict": "KILLED"
     }
