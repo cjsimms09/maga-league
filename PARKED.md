@@ -11371,3 +11371,101 @@ queued. If A decides any of this is worth a real look, it goes through the
 normal Lab process (read the actual source, register a question, null/
 backtest before install) like anything else — this entry only exists so the
 pointer isn't lost.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — IS THE MODEL OVERBUILT? A COMPLEXITY-VS-VALUE READ, FOR A
+
+**FOR: A.** Not a spec, not a build request, no code touched. Cory's read after
+watching this session dig through the deploy state: *"I feel like we've overcomplicated
+some things — is the model learning what's normal for advanced fantasy analytics, or
+has this drifted past what a 10-team home league needs?"* He asked for an honest
+opinion on draft/waiver/analyzer/projection tooling, to hand to A's own judgement. Use
+or discard entirely — this is one outside read after a few hours in the repo, not the
+accumulated context A/B/C have. Numbers below are real counts, not vibes; check them
+if anything here doesn't match what you already know.
+
+## The footprint, in numbers
+
+**Draft side:** `draft/` is 923 files, 30MB. `public/js/draft/` alone is 24,139 lines
+of client JS — `app.js` is 9,320 lines, `engine.js` 3,801, `survival.js` 1,719, plus a
+665-line MCTS/UCT search module with opponent-behavioral "dossiers" as chance nodes.
+`draft/backtest/` has 247 files, `draft/tests/` 419, `draft/tools/` 96. `LAB-REGISTRY.md`
+is 73KB with ~23 numbered experiment sections (dose-response curves, calibration-weighted
+ensembles, stack sweeps, frontier analysis). Coordination overhead on top: `TERRITORY.md`
+1071 lines, `SESSION-A.md` 1274, `STATUS.md` 1656 — three parallel sessions negotiating
+file ownership via append-only markdown.
+
+**In-season side** (waivers/lineup/analyzer — the tools that run all 17 weeks, not one
+draft night): `src/routes/waivers.js` 278 lines, `src/analyzer_claims.js` 193,
+`src/routes/lineup.js` 1058, `views/analyzer.ejs` 135. Reasonably scoped, not the
+complaint. **The complaint is what feeds them:** `public/js/draft/consensus.js` — the
+ONE shared projection module every in-season tool calls — says outright in its own
+header comment: *"TODAY IT IS SLEEPER ONLY... FantasyPros projections are a CI fetch
+not yet populated."* One un-aggregated source, honestly labeled as such, powering
+every waiver claim, lineup call, and analyzer verdict all season.
+
+## The asymmetry is backwards from where the project's own numbers say the money is
+
+Session B's stated objective (SESSION-B.md): *"the biggest known pool is in-season
+execution — ≈$445–595/team/season left on benches, measured."* That's the tool running
+on a single-source projection. Draft day — a few hours, once a year, 10-team home
+league — has FFC + FantasyPros + BBM multi-source ADP, MCTS search, opponent
+behavioral modeling, and 20+ registered Lab experiments. **The heaviest machinery is
+on the smaller pool.**
+
+## What "normal" advanced fantasy analytics tooling actually looks like
+
+A separate research pass this week (parked above, "FOUR EXTERNAL REPOS") looked at
+`ffanalytics`, `jjti/ff`, and `nfl_mcp` directly. None of them come close to this
+footprint:
+- **`ffanalytics`** (a mature, years-old, widely-used R package): scrapes ~9 sources,
+  averages them (`avg_type = average|robust|weighted`), adds an uncertainty score from
+  cross-source spread, keeps ECR as a separate signal from the points projection. That
+  is close to the entire value proposition of a professional-grade tool.
+- **`jjti/ff`** (a public site with real users, 72 stars): ADP + straightforward
+  `VOR = player − (n+1)th ranked player`, plus bye/handcuff/ADP-velocity tags. That's
+  the whole draft-assistant.
+- **`nfl_mcp`** states its own discipline explicitly: *"new signals ship as standalone
+  tools first and only enter the projection formula after they earn it on the
+  backtest."* That's this project's own Lab-gate philosophy — but applied there to a
+  small core model, not a 24k-line engine with a 665-line search tree.
+
+None of the four run anything resembling MCTS, opponent dossiers, or dose-response
+curve fitting for a home league draft.
+
+## A concrete, checkable question rather than an opinion
+
+Of the ~23 registered/fired Lab experiments, TODO.md's own "recently fired" section
+lists what reads like 3–4 experiments that actually changed a draft-night
+recommendation (the RB dead zone, the regression-weight over-correction, our-ordering-
+beats-market). Worth an honest tally: **how many of the rest changed a recommendation
+Cory would see, versus tuned a constant inside a range nobody would notice moving?**
+If it's mostly the latter, that's real, measured evidence the Lab has passed
+diminishing returns — worth knowing either way, in the project's own "measure, don't
+assume" style.
+
+## Where I'd point new effort, if it were mine to spend (Cory's opinion via this
+session — A's call entirely)
+
+1. **Extend the FantasyPros/FFC pipeline already built for draft ADP to also produce a
+   real multi-source POINTS projection for in-season use.** This reuses infrastructure
+   that already exists rather than building anything new, and replaces the honestly-
+   labeled single-source number every waiver/lineup/analyzer call currently runs on —
+   directly targeting the pool the project's own doctrine says is biggest.
+2. **A value audit of the Lab before adding experiment #24+**: which fired experiments
+   moved a real recommendation. Archive/retire the rest as maintained surface rather
+   than carrying 247 backtest files forward.
+3. **The coordination layer has a real, measured cost, not just a code-complexity
+   one.** This session found the live site 95 commits behind main with the automated
+   drift-alarm silently blind to it (shallow-clone bug in `site-check.yml`) — nobody
+   had one clear picture of deployed state. That's plausibly a symptom of three
+   parallel sessions each owning a slice rather than one picture of the whole, not a
+   one-off CI bug. Worth asking whether a simpler ownership model would have caught it
+   sooner, independent of whether the Lab itself gets trimmed.
+
+## What this is NOT
+
+No code changed, no experiment cancelled, no file deleted, nothing gated or queued.
+If A reads this and disagrees, that disagreement is itself useful information — this
+is one outside read, not a verdict.
