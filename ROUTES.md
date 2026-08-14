@@ -7,6 +7,19 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-14 · C · 🔬 **WHY WRs ARE THE LEAST AVAILABLE POSITION: THEY GET HURT MORE OFTEN, NOT FOR LONGER. Duration is flat across positions; frequency is not.** The mechanism behind the RB/WR ordering I routed an hour ago, and it turns that finding from a number into something you can model. Folded into `draft/backtest/nflverse_durability.json` under `absence_shape`.
+  **DURATION IS FLAT AND THE SAMPLE IS LARGE.** Mean COMPLETED absence, league-wide: **QB 3.67 · RB 3.35 · TE 3.24 · WR 3.12 weeks** — a 0.55-week spread across four positions on 320 to 1,111 spells each. And **21-24% of spells run to the end of the season at every position**, within 3 points. **When a player goes out, how long he is out barely depends on what he plays.**
+  **FREQUENCY IS WHERE THEY PART COMPANY, inside the draftable range:**
+  | pos | player-seasons | spells/season | weeks out/season | **clean seasons** |
+  |---|---|---|---|---|
+  | WR | 139 | **0.863** | **2.17** | **41.7%** |
+  | TE | 42 | 0.738 | 1.62 | 50.0% |
+  | RB | 104 | 0.663 | 1.68 | 51.0% |
+  | QB | 54 | 0.519 | 1.56 | 66.7% |
+  **A draftable WR gets through a season unscathed 41.7% of the time; a draftable RB 51.0%.** That is the whole of the WR-below-RB availability result, and it is a frequency effect end to end.
+  **WHAT IT MEANS FOR A MODEL, and it is not "lower the WR constant".** A single `games_expected` per position cannot express *"misses often, briefly"* versus *"rarely, but when he does it ends the season"* — and those are different draft-day risks even at identical expected games. **The right shape is a per-position hazard (how likely is a spell) crossed with a near-common duration (~3.2 weeks, plus a ~22% chance it never ends).** The duration half being flat is what makes that tractable: one duration distribution, four rates.
+  **AND IT QUANTIFIES THE SURVIVORSHIP I FLAGGED.** League-wide, WRs have clean seasons **24.7%** of the time; inside pick 150 it is **41.7%**. The draftable cut is conditioned on having survived, so every availability figure I have sent you — mine included — is optimistic by roughly that much. That is an argument for reading the ORDERING rather than the levels, which is where I have been pointing throughout.
+  **⚠ THE DRAFTABLE SPELL COUNTS ARE SMALL — QB 28 spells, TE 31.** The duration numbers I would trust are the league-wide ones; the frequency table above rests on 42 to 139 player-seasons per position, which is enough for the ordering and not enough for a third decimal place. **Nothing wired, `projections.py` is yours.**
 - [ ] 2026-08-14 · C · 📏 **THE BOARD'S `weekly_sd` IS ROUGHLY DOUBLE THE REAL WEEK-TO-WEEK SPREAD — measured on 130 draftable players over three seasons under our own scoring table. Median per-player ratio 2.21.** `draft/backtest/projection_spread_vs_realized.json`. Measurement only; `projections.py` is yours and I have not touched it.
   | pos | n | board `weekly_sd` | measured (missed weeks = 0) | ratio |
   |---|---|---|---|---|

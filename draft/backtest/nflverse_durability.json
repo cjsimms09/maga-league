@@ -1776,5 +1776,209 @@
    "mean_games": 9.5,
    "board_games_expected": 15.0
   }
+ },
+ "absence_shape": {
+  "_what": "WHY the positions differ in availability: frequency vs duration, measured separately because a single games-played number cannot distinguish them and the two imply different draft-day risks.",
+  "_finding": "DURATION IS FLAT. League-wide the mean COMPLETED absence is 3.67 weeks at QB, 3.35 RB, 3.24 TE, 3.12 WR \u2014 a 0.55-week spread across four positions on 320-1111 spells each \u2014 and 21-24% of spells run to the end of the season at every position. FREQUENCY is where the positions part company.",
+  "weeks_out_when_out": {
+   "OL": {
+    "status": "unmeasurable",
+    "n": 3,
+    "completed_n": 2,
+    "censored_n": 1,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 3 spell(s); min_n is 8"
+   },
+   "QB": {
+    "status": "measured",
+    "n": 320,
+    "completed_n": 243,
+    "censored_n": 77,
+    "mean_completed": 3.667,
+    "censored_fraction": 0.2406,
+    "caveat": "mean_completed uses only absences observed to END. 77 of 320 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "K": {
+    "status": "measured",
+    "n": 112,
+    "completed_n": 85,
+    "censored_n": 27,
+    "mean_completed": 3.518,
+    "censored_fraction": 0.2411,
+    "caveat": "mean_completed uses only absences observed to END. 27 of 112 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "TE": {
+    "status": "measured",
+    "n": 527,
+    "completed_n": 415,
+    "censored_n": 112,
+    "mean_completed": 3.241,
+    "censored_fraction": 0.2125,
+    "caveat": "mean_completed uses only absences observed to END. 112 of 527 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "DL": {
+    "status": "measured",
+    "n": 1313,
+    "completed_n": 1030,
+    "censored_n": 283,
+    "mean_completed": 3.175,
+    "censored_fraction": 0.2155,
+    "caveat": "mean_completed uses only absences observed to END. 283 of 1313 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "WR": {
+    "status": "measured",
+    "n": 1111,
+    "completed_n": 871,
+    "censored_n": 240,
+    "mean_completed": 3.124,
+    "censored_fraction": 0.216,
+    "caveat": "mean_completed uses only absences observed to END. 240 of 1111 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "P": {
+    "status": "measured",
+    "n": 55,
+    "completed_n": 39,
+    "censored_n": 16,
+    "mean_completed": 4.128,
+    "censored_fraction": 0.2909,
+    "caveat": "mean_completed uses only absences observed to END. 16 of 55 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "DB": {
+    "status": "measured",
+    "n": 1819,
+    "completed_n": 1441,
+    "censored_n": 378,
+    "mean_completed": 3.002,
+    "censored_fraction": 0.2078,
+    "caveat": "mean_completed uses only absences observed to END. 378 of 1819 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "LB": {
+    "status": "measured",
+    "n": 1173,
+    "completed_n": 932,
+    "censored_n": 241,
+    "mean_completed": 3.241,
+    "censored_fraction": 0.2055,
+    "caveat": "mean_completed uses only absences observed to END. 241 of 1173 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "RB": {
+    "status": "measured",
+    "n": 713,
+    "completed_n": 550,
+    "censored_n": 163,
+    "mean_completed": 3.345,
+    "censored_fraction": 0.2286,
+    "caveat": "mean_completed uses only absences observed to END. 163 of 713 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "LS": {
+    "status": "unmeasurable",
+    "n": 3,
+    "completed_n": 2,
+    "censored_n": 1,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 3 spell(s); min_n is 8"
+   }
+  },
+  "weeks_out_when_out_draftable": {
+   "QB": {
+    "status": "measured",
+    "n": 28,
+    "completed_n": 17,
+    "censored_n": 11,
+    "mean_completed": 2.647,
+    "censored_fraction": 0.3929,
+    "caveat": "mean_completed uses only absences observed to END. 11 of 28 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "TE": {
+    "status": "measured",
+    "n": 31,
+    "completed_n": 23,
+    "censored_n": 8,
+    "mean_completed": 1.739,
+    "censored_fraction": 0.2581,
+    "caveat": "mean_completed uses only absences observed to END. 8 of 31 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "WR": {
+    "status": "measured",
+    "n": 120,
+    "completed_n": 103,
+    "censored_n": 17,
+    "mean_completed": 2.369,
+    "censored_fraction": 0.1417,
+    "caveat": "mean_completed uses only absences observed to END. 17 of 120 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "K": {
+    "status": "unmeasurable",
+    "n": 2,
+    "completed_n": 2,
+    "censored_n": 0,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 2 spell(s); min_n is 8"
+   },
+   "RB": {
+    "status": "measured",
+    "n": 69,
+    "completed_n": 52,
+    "censored_n": 17,
+    "mean_completed": 2.481,
+    "censored_fraction": 0.2464,
+    "caveat": "mean_completed uses only absences observed to END. 17 of 69 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   }
+  },
+  "frequency_league_wide": {
+   "QB": {
+    "player_seasons": 271,
+    "spells_per_season": 1.181,
+    "weeks_out_per_season": 4.46,
+    "clean_season_pct": 41.0
+   },
+   "RB": {
+    "player_seasons": 483,
+    "spells_per_season": 1.476,
+    "weeks_out_per_season": 5.29,
+    "clean_season_pct": 29.2
+   },
+   "TE": {
+    "player_seasons": 409,
+    "spells_per_season": 1.289,
+    "weeks_out_per_season": 4.38,
+    "clean_season_pct": 34.5
+   },
+   "WR": {
+    "player_seasons": 738,
+    "spells_per_season": 1.505,
+    "weeks_out_per_season": 5.11,
+    "clean_season_pct": 24.7
+   }
+  },
+  "frequency_draftable": {
+   "QB": {
+    "player_seasons": 54,
+    "spells_per_season": 0.519,
+    "weeks_out_per_season": 1.56,
+    "clean_season_pct": 66.7
+   },
+   "RB": {
+    "player_seasons": 104,
+    "spells_per_season": 0.663,
+    "weeks_out_per_season": 1.68,
+    "clean_season_pct": 51.0
+   },
+   "TE": {
+    "player_seasons": 42,
+    "spells_per_season": 0.738,
+    "weeks_out_per_season": 1.62,
+    "clean_season_pct": 50.0
+   },
+   "WR": {
+    "player_seasons": 139,
+    "spells_per_season": 0.863,
+    "weeks_out_per_season": 2.17,
+    "clean_season_pct": 41.7
+   }
+  }
  }
 }
