@@ -257,6 +257,26 @@ def summary(verdicts: list) -> str:
 # egress — CI only, and every one of these returns a `result` rather than raising
 # ---------------------------------------------------------------------------
 
+#: What every public source prices passing TDs at. Not ours — a fact about the
+#: market, and the reason no source can be CHOSEN to fix our QB bias.
+MARKET_PASS_TD = 4.0
+
+
+def _our_pass_td():
+    """Our league's passing-TD value, READ from the config. None if unreadable.
+
+    None rather than a guess: a note that says "we score 6.0" when nobody could
+    read the config is the same defect as the literal it replaces, one step
+    further from being noticed.
+    """
+    try:
+        import json
+        return (json.loads((HERE.parent / "config" / "league_config.json").read_text())
+                .get("scoring", {}).get("pass_td"))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def capture_ffc(sleeper_players, year, teams, fmt):  # pragma: no cover
     """FFC's own board, keyed by our player id, pre-merge.
 
@@ -321,10 +341,17 @@ def capture_ffc(sleeper_players, year, teams, fmt):  # pragma: no cover
                 "collisions": rep.get("collisions"),
                 "dropped_to_collision": rep.get("dropped_to_collision"),
                 "published_sd_rows": len(sd)},
+        # ⚠ OUR PASSING-TD VALUE IS READ, NOT ASSERTED, AND THIS NOTE IS WRITTEN
+        # INTO THE ARCHIVE PERMANENTLY. It used to say "we score 6.0" as a
+        # literal. If the league ever rescored, every future row would carry a
+        # false claim sitting beside real prices — which this module's own
+        # docstring calls worse than no claim, because a year later it is
+        # indistinguishable from a measurement.
         note="real human drafts at our reception scoring and league size, but NOT "
              "at our passing TD value — FFC exposes no such parameter, so this is "
-             "4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, "
-             "the same one the board uses")
+             "%s and we score %s; crosswalked by draft/adp.py:build_adp_table, "
+             "the same one the board uses"
+             % (MARKET_PASS_TD, _our_pass_td()))
 
 
 def capture_fantasypros(sleeper_players, year, half_ppr=True):  # pragma: no cover

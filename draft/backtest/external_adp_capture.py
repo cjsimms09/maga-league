@@ -2288,6 +2288,11 @@ def capture(year, observed_at, path=None):  # pragma: no cover  (egress; CI only
 #: set at 5% of the pool with a floor of 5 — comfortably above what MFL does and
 #: far below anything that would indicate the two fields describe different
 #: populations.
+#: The day the two constants below were derived from a real snapshot. Named
+#: rather than written into prose, so a note can say WHEN it was calibrated
+#: without claiming those were this morning's numbers.
+DRAFTS_EXCESS_CALIBRATION = "2026-08-14"
+
 DRAFTS_EXCESS_TOLERANCE = 0.05
 DRAFTS_EXCESS_FLOOR = 5
 
@@ -2397,16 +2402,25 @@ def snapshot_audit(snapshot: dict) -> dict:
             entry = {"kind": "drafts_above_total", "n": len(over),
                      "worst_excess": worst, "total_drafts": int(td),
                      "bound": round(bound, 1),
-                     "note": "MFL's aggregate lags its own per-player counts. "
-                             "Measured 2026-08-14: 25 players, worst excess 3 on "
-                             "a pool of 127. `total_drafts` is therefore NOT an "
-                             "exact bound and must not decide anything."}
+                     # ⚠ DERIVED FROM TODAY, NOT FROM THE DAY THIS WAS
+                     # CALIBRATED. This note used to read "Measured 2026-08-14: 25
+                     # players, worst excess 3 on a pool of 127" — frozen prose
+                     # sitting beside three fields computing the same quantities
+                     # live. On the 20th it would still have said 25 and 3.
+                     "note": "MFL's aggregate lags its own per-player counts: %d "
+                             "player(s) today, worst excess %d on a pool of %d. "
+                             "`total_drafts` is therefore NOT an exact bound and "
+                             "must not decide anything."
+                             % (len(over), worst, int(td)),
+                     # THE CALIBRATION KEPT AS PROVENANCE, clearly dated and
+                     # clearly not a claim about this run.
+                     "bound_calibrated_on": DRAFTS_EXCESS_CALIBRATION}
             if worst > bound:
                 fail("drafts_above_total_UNBOUNDED",
                      "worst excess %d exceeds the measured lag bound of %.1f — "
-                     "that is no longer the aggregation lag we understand, and it "
-                     "must not inherit the tolerance granted to an excess of 3."
-                     % (worst, bound), **{k: v for k, v in entry.items()
+                     "that is no longer the aggregation lag we understand, and "
+                     "it must not inherit the tolerance calibrated on %s."
+                     % (worst, bound, DRAFTS_EXCESS_CALIBRATION), **{k: v for k, v in entry.items()
                                           if k not in ("kind", "note")})
             else:
                 observed.append(entry)
@@ -2417,10 +2431,13 @@ def snapshot_audit(snapshot: dict) -> dict:
     if hot:
         observed.append({"kind": "sel_pct_above_100", "n": len(hot),
                          "worst": max(x for _p, x in hot),
+                         # SAME FIX: the numbers come from `hot`, not from the
+                         # afternoon this was first observed.
                          "note": "the same lag seen from the other side: a player "
                                  "counted in more drafts than the aggregate knows "
-                                 "about exceeds 100%. Measured 2026-08-14: 12 "
-                                 "players, worst 102.0."})
+                                 "about exceeds 100%%. Today: %d player(s), worst "
+                                 "%.1f." % (len(hot), max(x for _p, x in hot)),
+                         "calibrated_on": DRAFTS_EXCESS_CALIBRATION})
 
     return {"status": "measured", "ok": not fatal, "fatal": fatal,
             "observed": observed, "checked": checked, "players": len(rows)}

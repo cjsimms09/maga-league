@@ -1668,7 +1668,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value \u2014 FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
+     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value \u2014 FFC exposes no such parameter, so this is \"\n             \"%s and we score %s; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\"\n             % (MARKET_PASS_TD, _our_pass_td()))",
      "new": "        note=\"real human drafts at our exact format and league size; crosswalked \"\n             \"by draft/adp.py:build_adp_table, the same one the board uses\")",
      "must_fail": [
       "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
@@ -1688,6 +1688,14 @@
      "new": "                \"format_axes_matched\": [\"reception scoring\"],\n                \"format_axes_unmatched\": [],",
      "must_fail": [
       "test_FANTASYPROS_CARRIES_THE_SAME_UNMATCHED_AXIS"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "             % (MARKET_PASS_TD, _our_pass_td()))",
+     "new": "             % (4.0, 6.0))",
+     "must_fail": [
+      "test_OUR_SCORING_IN_THE_ARCHIVED_NOTE_IS_READ_not_a_literal"
      ],
      "verdict": "KILLED"
     }
