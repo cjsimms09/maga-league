@@ -11288,3 +11288,86 @@ index 0f3b94f..4f76af1 100755
  fi
  
 ```
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — FOUR EXTERNAL REPOS, FOR A TO TRIAGE
+
+**FOR: A.** Not a spec, not a build request — a pointer. Cory asked a separate
+session to survey four public fantasy-football repos for anything relevant to
+the draft/model lane (composite ADP, projection blending, VOR/dead-zone,
+uncertainty). That session read READMEs and some source files but did **not**
+clone or deep-audit any of them. **A: go look at the actual repositories
+yourself before using anything below** — treat this as a reading list with a
+first pass already done, not a verified finding. Use or discard at your own
+judgement; nothing here is gated or pre-registered.
+
+## The four repos
+
+1. **`FantasyFootballAnalytics/ffanalytics`** (R) — mature multi-source
+   projection aggregator (CBS/ESPN/FantasyPros/FantasySharks/FFToday/
+   NumberFire/FantasyFootballNerd/NFL/RTSports/Walterfootball). Two things
+   worth a real look:
+   - `add_uncertainty()` — turns cross-source spread into a per-player
+     uncertainty score. Compare its method against what
+     `PROJ-SD-DECISION-ARM.md` / the regression-weight work is doing with
+     fewer sources — this package has had years to shake out its approach.
+   - `add_ecr()` — keeps Expert Consensus Rank as a **separate** input from
+     the points-projection average rather than folding rank-consensus into
+     the same number. Our composite currently blends ADP sources into one
+     value; this pattern (keep rank-signal and points-signal apart, combine
+     downstream) might be worth a look for the composite.
+   - `projections_table(avg_type = "average"|"robust"|"weighted")` — three
+     named aggregation modes; "robust" specifically is presumably some
+     outlier-resistant average (median-ish / trimmed) — worth reading the
+     actual R source (`R/calc_projections.R`, `R/helper_funcs.R`) since the
+     README didn't spell out the method.
+   - Repo: https://github.com/FantasyFootballAnalytics/ffanalytics
+
+2. **`jjti/ff`** (ffdraft.app, Go) — textbook VOR/VBD implementation with a
+   worked example: `VOR = player's projection − (n+1)th-ranked player at that
+   position` (n = league starters at the position). Concrete numbers in their
+   docs: QB1 VOR = 394 − 320 (QB11) = 74; RB1 VOR = 253 − 117 (RB31) = 136.
+   Two things worth checking against our own numbers:
+   - Where does classic replacement-level VOR put the RB cliff vs. where
+     exp25/EXP-DEADZONE-ERA.md puts it empirically? Could be a cheap
+     corroborating footnote either way.
+   - They surface **ADP velocity** (how fast a player's ADP is moving across
+     recent drafts) as a draft-board tag, alongside bye-week-conflict and
+     handcuff flags. We ingest ADP already; velocity might be near-free to
+     add and could feed the forward-prediction / survival-% work.
+   - Repo: https://github.com/jjti/ff
+
+3. **`gtonic/nfl_mcp`** (Python, MCP server) — mostly Session B's lane
+   (in-season: matchups, FAAB, playoff odds, trade grading), flagging here
+   in case any of it touches shared projection infra. Notes:
+   - Data sources not currently wired here: FantasyCalc (market-consensus
+     valuations), Vegas lines, Open-Meteo weather.
+   - States its projection formula only conceptually ("value × matchup ×
+     Vegas game-script × usage × injury") — no published coefficients. One
+     quantified fallback rule they do publish: snap-share estimate off depth
+     chart when real snap data isn't in yet (starter ≈ 70%, #2 ≈ 45%, others
+     ≈ 15%).
+   - Their own stated methodology rule: *"new signals ship as standalone
+     tools first and only enter the projection formula after they earn it on
+     the backtest."* Same discipline as our Lab gates — external validation
+     that the approach is sound, not a new idea.
+   - Repo: https://github.com/gtonic/nfl_mcp (docs: `AGENT.md`,
+     `docs/TECHNICAL.md`)
+
+4. **`mattgilgo/fantasy_football`** — weakest fit, flagging for completeness
+   only. Per-position sklearn/XGBoost regression trained on PFR + combine
+   data, benchmarked by MAE against ESPN/NFL.com expert projections.
+   Reported 2022 result: beat expert MAE on QB/WR/TE, did not clearly beat on
+   RB. Loosely corroborates (does not prove) our own finding that RB is the
+   hardest position to project — not a source of new method, just another
+   independent data point in the same direction.
+   - Repo: https://github.com/mattgilgo/fantasy_football
+
+## What this is NOT
+
+No code was changed, no experiment was registered, nothing is gated or
+queued. If A decides any of this is worth a real look, it goes through the
+normal Lab process (read the actual source, register a question, null/
+backtest before install) like anything else — this entry only exists so the
+pointer isn't lost.
