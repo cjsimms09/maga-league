@@ -7105,17 +7105,70 @@
     return missing;
   }
 
-  function capturePlatformSample(pick, player, slot) {
+  /* SELECTIONS, NOT BOARD SLOTS. The scale conversion, derived per sample.
+   *
+   * `adjusted_adp` counts SELECTIONS. `pick_no` counts BOARD SLOTS, and a
+   * keeper occupies a board slot without being a selection. Differencing them
+   * is the two-quantities-one-variable defect this repo keeps finding — the
+   * same one keepers.py:live_index_of and survival.js:liveIndexOf exist for.
+   *
+   * IT HAS NEVER PRODUCED A WRONG NUMBER, and the reason is worth stating
+   * because it is the reason it survived: sampling is gated on `state.mockMode`
+   * and Sleeper mock rooms carry no keepers, so board slots and selections
+   * coincide and `adp - pick_no` is correct. THAT IS A PROPERTY OF THE ROOMS WE
+   * HAPPENED TO SAMPLE, asserted nowhere and true by luck.
+   *
+   * So this DERIVES the selection index from the pick stream rather than
+   * assuming it. In a keeper-free room the loop returns `pickNo` unchanged and
+   * every existing sample keeps its exact value — the fix is a no-op on all
+   * evidence collected so far, which is what preserving production behaviour
+   * where the evidence supports it means here.
+   *
+   * Sleeper serves `is_keeper` on every pick (log_draft_picks.py:_from_sleeper
+   * reads the same field), so keeper-ness is OBSERVED, not inferred.
+   *
+   * Returns null rather than a guess when the stream cannot answer. A ledger
+   * row that says "I could not compute this" is analysable in September; one
+   * carrying a silently mis-scaled number is not, and the rows would be
+   * indistinguishable. */
+  function selectionIndexOf(pickNo, picks) {
+    if (pickNo == null) return { index: null, basis: 'no-pick-number', keepers: null };
+    if (!picks || !picks.length) {
+      return { index: null, basis: 'pick-stream-unavailable', keepers: null };
+    }
+    let n = 0, keepers = 0;
+    for (let i = 0; i < picks.length; i++) {
+      const p = picks[i];
+      const no = Number(p.pick_no);
+      /* `no <= 0` IS LOAD-BEARING, not defensive padding. Number(null) is 0 and
+       * isFinite(0) is true, so a row with `pick_no: null` passed the finite
+       * check as pick ZERO, sat below every real pickNo, and was counted as a
+       * selection — inflating the index by one for the rest of the draft.
+       * Caught by the malformed-row arm of platform_sample_scale.test.js on the
+       * first run. `Number(undefined)` and `Number('x')` are NaN and were
+       * already skipped, which is exactly why the null case looked covered. */
+      if (!isFinite(no) || no <= 0 || no > pickNo) continue;
+      if (p.is_keeper) { keepers += 1; continue; }
+      n += 1;
+    }
+    return { index: n, basis: keepers ? 'selection-converted' : 'selection-keeper-free',
+             keepers: keepers };
+  }
+
+  function capturePlatformSample(pick, player, slot, picks) {
     if (typeof PredLedger === 'undefined' || !state.mockMode) return;
     try {
       const c = ledgerCtx();
       const pickNo = Number(pick.pick_no) || null;
       const adp = player.adjusted_adp != null ? player.adjusted_adp
         : (player.raw_adp != null ? player.raw_adp : null);
+      const scale = selectionIndexOf(pickNo, picks);
       // The whole point: where did the platform take him vs where the market
       // says he goes. Negative = platform took him EARLIER than market (a REACH
       // the room pays for); positive = he lasted longer (a FALL to me).
-      const delta = (pickNo != null && adp != null) ? Math.round((adp - pickNo) * 10) / 10 : null;
+      // BOTH SIDES ON THE SELECTION SCALE — see selectionIndexOf.
+      const delta = (scale.index != null && adp != null)
+        ? Math.round((adp - scale.index) * 10) / 10 : null;
       PredLedger.platformSample({
         season: c.season, build_at: c.build_at, pick: pickNo,
         method: 'platform-sample-v1',
@@ -7130,6 +7183,14 @@
           consensus_rank: player.consensus_rank != null ? player.consensus_rank : null,
           sleeper_rank: player.sleeper_rank != null ? player.sleeper_rank : null,
           vs_market: delta,
+          /* THE BASIS TRAVELS WITH THE NUMBER. A delta is meaningless without
+           * knowing which scale both sides were on, and rows written before and
+           * after this change would otherwise be indistinguishable. September
+           * can filter on it instead of trusting that every sampled room was
+           * keeper-free. */
+          vs_market_basis: scale.basis,
+          selection_no: scale.index,
+          keeper_slots_before: scale.keepers,
           // INFERRED, not observed: Sleeper omits picked_by for autopick/bot
           // seats, but an absent field is not proof. Labelled so exp 31 can
           // weight it rather than trust it.
@@ -8397,7 +8458,7 @@
       // delta board sharper. Captured with OUR FFC ADP alongside, because the
       // sample is only useful as a DELTA against the market.
       if (firstSight && state.mockMode && slot && slot !== seatSlot) {
-        capturePlatformSample(pick, p, slot);
+        capturePlatformSample(pick, p, slot, picks);
       }
       if (firstSight) {
         state.recentPicks.push({

@@ -60,6 +60,46 @@
  * points and loses on starting points, that is the objective divergence stated
  * as a number instead of as an argument.
  *
+ * ── THE ESTIMAND IS NARROWER THAN THE OBJECTIVE. SAY SO FIRST. ─────────────
+ *
+ * This computes STATIC PROJECTED starting-lineup points: the sum of proj_mean
+ * over the optimal nine slots of the FINISHED roster. That is NOT expected
+ * season points, and it is further still from probability of winning the
+ * league. Three things it cannot see, and each one matters:
+ *
+ *   INJURIES. Every bench player scores exactly ZERO here. So this lab is
+ *   STRUCTURALLY INCAPABLE of valuing insurance — which is most of what the
+ *   `need` term prices. THE NULL ON `need` IS THEREFORE PART ARTEFACT: a metric
+ *   that scores depth at zero will report that depth is worth nothing, and that
+ *   is an arithmetic identity rather than a finding. Do not cite the null as
+ *   evidence that bench value is small.
+ *
+ *   BYES. Season totals are summed; no weekly lineup is ever fielded. Two
+ *   starters sharing a bye costs nothing in this metric and real points in a
+ *   real season.
+ *
+ *   WAIVERS AND WEEKLY DECISIONS. A 10-team league with a stocked wire changes
+ *   what a bench body is worth. Replacement availability is not modelled.
+ *
+ * ⚠️ DO NOT ASK THIS LAB WHETHER A SPARE QB OR TE EARNS ITS PICK. The whole
+ * value of a spare onesie is injury insurance, which is exactly the term this
+ * metric zeroes. It would return "worthless" by construction and the answer
+ * would be a property of the instrument, not of the roster.
+ *
+ * WHAT IT IS GOOD FOR, precisely: comparing ALLOCATION between arms that face
+ * an identical room and identical projections. "Given these projections and
+ * this room, did the weights put the better players in the starting slots?" It
+ * is a necessary condition, not a sufficient one — a board that loses here is
+ * losing on something the objective definitely contains, but a board that ties
+ * here has not been shown to be equally good.
+ *
+ * THE MISSING LINK to the real objective is a season-forward simulator
+ * (allocation -> weekly lineups with injuries/byes/waivers -> weekly scores ->
+ * record and weekly highs -> bracket -> money). roster_sim.py and the certified
+ * money grader exist and exp_construction_objective.py already chains them.
+ * That is the instrument that answers the strategic question; this one does not
+ * and must not be quoted as if it did.
+ *
  * ── LIMITS, STATED BEFORE THE NUMBERS ──────────────────────────────────────
  *
  * ONE ROOM, DETERMINISTIC, NOT A DISTRIBUTION. Opponents take the best
