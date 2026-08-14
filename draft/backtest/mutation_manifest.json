@@ -1386,6 +1386,117 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/external_odds_probe.py": {
+   "tests": [
+    "draft/tests/test_external_odds_probe.py"
+   ],
+   "mutations": [
+    {
+     "old": "    if rk == ck:\n        return {\"honoured\": False,",
+     "new": "    if False:\n        return {\"honoured\": False,",
+     "must_fail": [
+      "test_AN_IGNORED_PARAMETER_VOIDS_THE_READING_rather_than_reading_as_absent"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if honoured.get(\"honoured\") is not True:\n        return {n: {\"state\": \"unmeasured\"",
+     "new": "    if False:\n        return {n: {\"state\": \"unmeasured\"",
+     "must_fail": [
+      "test_AN_IGNORED_PARAMETER_VOIDS_THE_READING_rather_than_reading_as_absent"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if real is None or control is None:\n        return {\"honoured\": None,",
+     "new": "    if False:\n        return {\"honoured\": None,",
+     "must_fail": [
+      "test_a_MISSING_CALL_IS_UNANSWERED_not_dishonoured"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    keys = tuple(market_keys(payload))\n    n = json.dumps(payload, sort_keys=True).count(\":\")\n    return keys, n",
+     "new": "    return (json.dumps(payload, sort_keys=True),)",
+     "must_fail": [
+      "test_the_CONTROL_COMPARES_STRUCTURE_not_bytes"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        else:\n            unclassified.append(k)",
+     "new": "        else:\n            pass",
+     "must_fail": [
+      "test_a_MARKET_NAME_WE_DID_NOT_ANTICIPATE_IS_REPORTED_not_dropped"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                elif str(k).lower() in NAMING_FIELDS:\n                    add(selections if priced else named,\n                        seen_s if priced else seen_n, v)",
+     "new": "                elif str(k).lower() in (\"marketname\",):\n                    add(selections if priced else named,\n                        seen_s if priced else seen_n, v)",
+     "must_fail": [
+      "test_MARKET_NAMES_ARE_FOUND_WHEREVER_THEY_SIT"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                    add(containers, seen_c, k)\n                    walk(v, depth + 1)",
+     "new": "                    add(named, seen_n, k)\n                    walk(v, depth + 1)",
+     "must_fail": [
+      "test_SCAFFOLDING_DOES_NOT_LAND_IN_THE_DISCOVERY_BUCKET"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    hits = [c for c in containers\n            if any(re.search(pat, c, re.I) for pat, _ in FAMILIES.values())]\n    return sorted(set(named) | set(hits))",
+     "new": "    return sorted(set(named))",
+     "must_fail": [
+      "test_A_PROVIDER_THAT_KEYS_MARKETS_BY_NAME_IS_STILL_DISCOVERED"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        \"asked_markets\": list(asked_markets or []),",
+     "new": "        \"asked_markets\": [],",
+     "must_fail": [
+      "test_the_ASKED_MARKETS_TRAVEL_WITH_THE_ANSWER"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    actionable = [n for n, v in avail.items()\n                  if v[\"state\"] == \"available\" and n != \"sides\"]",
+     "new": "    actionable = [n for n, v in avail.items()\n                  if v[\"state\"] == \"available\"]",
+     "must_fail": [
+      "test_FINDING_ONLY_WHAT_WE_ALREADY_CAPTURE_IS_A_NULL_not_a_hit"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if rem_b is None or rem_a is None:\n        return {\"spent\": None, \"remaining\": rem_a,",
+     "new": "    if False:\n        return {\"spent\": None, \"remaining\": rem_a,",
+     "must_fail": [
+      "test_AN_UNKNOWN_CREDIT_COST_IS_NOT_FREE"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "            priced = any(str(k).lower() in PRICE_FIELDS for k in node)",
+     "new": "            priced = False",
+     "must_fail": [
+      "test_A_PLAYER_NAME_IS_A_SELECTION_not_a_market"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if str(k).strip().lower() in want:\n            books_seen.append(k)\n            continue",
+     "new": "        if False:\n            books_seen.append(k)\n            continue",
+     "must_fail": [
+      "test_a_MARKET_NAME_WE_DID_NOT_ANTICIPATE_IS_REPORTED_not_dropped"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }

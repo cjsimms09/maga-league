@@ -1,0 +1,124 @@
+# TERRITORY: C
+name: External odds probe — does the pipe carry anything that maps onto our scoring?
+
+# WHY THIS EXISTS. Cory, routed through A as the priority: "we're paying for the
+# pipe and pulling the one market type least connected to what we're modelling."
+# The daily capture is healthy and captures ML/Spread/Totals on PRESEASON games.
+# Preseason moneylines carry almost no fantasy signal.
+#
+# AND THE REQUEST HAS NEVER ASKED FOR ANYTHING ELSE. `market_capture.py:294`
+# builds the odds URL as {apiKey, eventId, bookmakers} — no `markets` parameter —
+# so we receive the provider's defaults and the availability question has stayed
+# open. One request answers it.
+#
+# ⚠ MANUAL ONLY, DELIBERATELY. This is a QUESTION, not a feed: it runs when
+# somebody wants the answer, and a probe on a schedule is a standing spend
+# against an allowance the live capture needs. If the answer turns out to be
+# ACTIONABLE, the follow-up is a change to A's capture — not a cron here.
+#
+# ⚠ IT CANNOT COST THE DAILY CAPTURE A DAY. Separate workflow, separate artifact,
+# no concurrency group shared with market-capture.yml, and it writes nothing the
+# capture reads. The worst case is a probe that fails and answers nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      league:
+        description: 'usa-nfl (regular season) or usa-nfl-preseason'
+        required: false
+        default: 'usa-nfl'
+      event_id:
+        description: 'Optional specific event id; otherwise the first listed event'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-odds-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # THE PURE HALF IS TESTED BEFORE THE EGRESS HALF RUNS. Every decision this
+      # probe makes — VOID vs absent, selection vs market, unknown vs free — is a
+      # pure function with a fail arm, and a probe that mis-decides is worse than
+      # one that does not run: it retires an open question with our own bad query.
+      - name: The decisions are tested before anything is asked
+        run: python3 -m pytest draft/tests/test_external_odds_probe.py -q
+
+      - name: Probe
+        id: probe
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || vars.ODDS_API_KEY }}
+        run: |
+          set -o pipefail
+          rc=0
+          ARGS=(--league "${{ github.event.inputs.league || 'usa-nfl' }}")
+          EID="${{ github.event.inputs.event_id }}"
+          if [ -n "$EID" ]; then ARGS+=(--event-id "$EID"); fi
+          {
+            echo "## Odds probe — ${{ github.event.inputs.league || 'usa-nfl' }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/external_odds_probe.py "${ARGS[@]}" \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          # THE THREE OUTCOMES, NAMED. "VOID" is not a failure of the provider and
+          # it is not a null — it means the parameter was accepted and ignored, so
+          # nothing was measured, and reading it as "no props exist" would close
+          # the question on the strength of our own query. That distinction is the
+          # entire reason this probe has a control.
+          if [ -f draft/backtest/external_odds_probe.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/external_odds_probe.json"))
+          print("**%s**" % r.get("verdict"))
+          h = r.get("parameter_honoured") or {}
+          print("Parameter honoured: `%s` — %s" % (h.get("honoured"), h.get("note")))
+          c = r.get("credit") or {}
+          print("Credit spent: `%s`, remaining `%s` — %s"
+                % (c.get("spent"), c.get("remaining"), c.get("note")))
+          un = r.get("unclassified") or []
+          if un:
+              print("Market names we did not anticipate: `%s`" % "`, `".join(un[:30]))
+          PY
+          else
+            echo "**PROBE WROTE NO ARTIFACT** — a statement about the run, not about the provider." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$rc"
+
+      # THE ANSWER IS COMMITTED WHETHER IT IS A HIT OR A NULL. A null that lives
+      # only in a job log gets re-asked in three weeks by somebody who was not
+      # here — and re-asking costs another slice of an allowance the live capture
+      # needs. `always()` because a partial answer still records what was asked.
+      - name: Commit the answer, including a null
+        if: always()
+        run: |
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/external_odds_probe.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Odds probe: what the pipe actually serves [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            # A PUSH THAT NEVER SUCCEEDED MUST NOT READ AS SUCCESS — the CI
+            # checkout is discarded when the job ends, so an unpushed answer is
+            # gone and the credits that bought it are spent.
+            if [ "$pushed" != 1 ]; then
+              echo "::error::PROBE ANSWER NOT PUSHED — the credits are spent and the answer is lost."
+              exit 1
+            fi
+          fi
