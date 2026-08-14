@@ -249,6 +249,76 @@ COLLAPSE_KEEP_FRACTION = 0.5
 FORMAT_KEYS = ("scoring", "format", "teams", "year")
 
 
+#: A source that published dispersion yesterday must still publish it on at least
+#: this share of its own rows today.
+#:
+#: ⚠ CHOSEN, NOT DERIVED, AND SAYING SO IS THE POINT. The archive holds ONE day,
+#: on which FFC published an sd for 223 of 223 rows — a share of 1.00 — so there
+#: is no observed day-over-day drift to derive a bar from and I will not dress a
+#: pick up as a measurement. The reasoning is that the only observed value is
+#: 100%: a fall past half is not drift in what a provider happens to cover, it is
+#: a change in what the provider PUBLISHES. Refine it once the archive holds
+#: enough days to show the real spread — and if that spread turns out to be wide,
+#: this bar is wrong and the number that says so will be in the file.
+SD_COVERAGE_KEEP_FRACTION = 0.5
+
+
+def sd_coverage_break(earlier: dict, later: dict) -> dict:
+    """Did a source that published a spread yesterday stop publishing one today?
+
+    ⚠ THIS IS THE ONE COLLAPSE NOTHING WAS WATCHING. `source_audit` checks
+    `sd_count_mismatch` — that the DECLARED count equals the actual dict — which
+    is internal consistency and is satisfied perfectly by a source that serves
+    every row and publishes dispersion on none of them. `sd_count: 0` beside
+    `sd: {}` is self-consistent, raises nothing, and is exactly what the failure
+    looks like. `row_count_collapsed` does not see it either: the ROWS all
+    arrived.
+
+    WHY IT MATTERS MORE THAN ITS SIZE SUGGESTS. The shipped board's `adp_sd` is
+    `ffc-published` for 142 of the 146 players priced inside pick 150 — I had to
+    correct two docstrings that called it a clamp. If FFC stops publishing, those
+    142 silently switch from a MEASURED spread to a FITTED one, with no event
+    anywhere, and every survival curve that reads `adp_sd` changes width.
+
+    PER-SOURCE AND RELATIVE TO ITS OWN HISTORY, so this can never be
+    red-by-design: FantasyPros publishes expert consensus and no dispersion at
+    all, sits at 0 -> 0 forever, and correctly returns `not_applicable`.
+    """
+    def _share(s):
+        rc = int((s or {}).get("row_count") or 0)
+        sc = int((s or {}).get("sd_count") or 0)
+        return (sc / float(rc)) if rc else None, sc, rc
+
+    was_share, was_n, was_rows = _share(earlier)
+    now_share, now_n, now_rows = _share(later)
+    if not was_n:
+        return {"verdict": "not_applicable", "was": was_n, "now": now_n,
+                "note": "this source published no dispersion yesterday either, so "
+                        "there is nothing to have lost."}
+    if was_share is None or now_share is None:
+        return {"verdict": "unknown", "was": was_n, "now": now_n,
+                "note": "a day carries no row_count, so the share of rows "
+                        "carrying a spread cannot be compared."}
+    kept = now_share / was_share if was_share else None
+    if kept is not None and kept < SD_COVERAGE_KEEP_FRACTION:
+        return {"verdict": "collapsed", "was": was_n, "now": now_n,
+                "was_share": round(was_share, 4), "now_share": round(now_share, 4),
+                "kept": round(kept, 4),
+                "note": "published a spread on %d of %d rows yesterday (%.1f%%) "
+                        "and %d of %d today (%.1f%%). The rows still arrived, so "
+                        "no row-count check sees this — but the board takes its "
+                        "adp_sd from this source for most of the draftable range, "
+                        "and those players have just moved from a MEASURED spread "
+                        "to a fitted one."
+                        % (was_n, was_rows, 100 * was_share,
+                           now_n, now_rows, 100 * now_share)}
+    return {"verdict": "held", "was": was_n, "now": now_n,
+            "was_share": round(was_share, 4), "now_share": round(now_share, 4),
+            "kept": None if kept is None else round(kept, 4),
+            "note": "dispersion coverage held (%.1f%% -> %.1f%% of rows)."
+                    % (100 * was_share, 100 * now_share)}
+
+
 def source_audit(series: list, year, observed_at: str) -> dict:
     """One day's per-source write, judged. FATAL and OBSERVED kept apart.
 
@@ -355,6 +425,17 @@ def source_audit(series: list, year, observed_at: str) -> dict:
                                  "note": "a partial fetch returns 200 and writes "
                                          "a truncated board that becomes the "
                                          "day's price"})
+            # FATAL, NOT observed — and the tier is the whole point. `observed`
+            # prints a row in the summary and sets nothing; only `fatal` makes
+            # the step fail. A source silently ceasing to publish dispersion
+            # reprices most of our draftable range from a measured spread to a
+            # fitted one, which is not something to notice in a table later.
+            sdb = sd_coverage_break(y, t)
+            if sdb["verdict"] == "collapsed":
+                fatal.append(dict(sdb, check="sd_coverage_collapsed", source=name))
+            elif sdb["verdict"] == "unknown":
+                observed.append(dict(sdb, check="sd_coverage_unmeasurable",
+                                     source=name))
             drifted = {k: [(y.get("params") or {}).get(k), (t.get("params") or {}).get(k)]
                        for k in FORMAT_KEYS
                        if (y.get("params") or {}).get(k) != (t.get("params") or {}).get(k)}

@@ -709,3 +709,88 @@ def test_FIVE_DAYS_MAKES_IT_ELIGIBLE_not_true():
     assert got["status"] == "measured", "the MOVEMENT is still measured and reported"
     assert got["players"] == 2 and got["by_band"], "the numbers must be visible"
     assert got["authorizes"].startswith("nothing")
+
+
+# ── THE COLLAPSE NOTHING WAS WATCHING ───────────────────────────────────────
+#
+# `sd_count_mismatch` checks the DECLARED count against the actual dict. That is
+# internal consistency, and it is satisfied perfectly by a source serving every
+# row with dispersion on none of them: `sd_count: 0` beside `sd: {}` raises
+# nothing. `row_count_collapsed` does not see it either — the rows all arrived.
+# The board takes `adp_sd` from ffc-published for 142 of the 146 players inside
+# pick 150, so those players would silently move to a fitted spread.
+
+def _sdsnap(source, day, rows, sd):
+    return {"source": source, "observed_at": day, "year": "2026",
+            "params": {"format": "half-ppr", "teams": 10, "year": 2026},
+            "rows": rows, "row_count": len(rows),
+            "sd": sd, "sd_count": len(sd), "note": "n"}
+
+
+def test_a_source_that_STOPS_publishing_dispersion_is_caught():
+    """The rows all arrive; only the spread disappears.
+
+    MUTATION: compare `sd_count` to `row_count` on ONE day instead of across
+    days — FantasyPros fails every morning and FFC's collapse still passes."""
+    y = _sdsnap("ffc", "2026-08-14", {"1": 1.0, "2": 2.0, "3": 3.0},
+                {"1": 0.7, "2": 0.9, "3": 1.1})
+    t = _sdsnap("ffc", "2026-08-15", {"1": 1.0, "2": 2.0, "3": 3.0}, {})
+    got = S.sd_coverage_break(y, t)
+    assert got["verdict"] == "collapsed", got
+    assert got["was"] == 3 and got["now"] == 0
+    assert "MEASURED spread to a fitted one" in got["note"]
+
+
+def test_the_collapse_is_FATAL_because_observed_sets_nothing():
+    """`observed` prints a table row and the step still passes; only `fatal`
+    makes it fail. A repriced draftable range is not a table row.
+
+    MUTATION: append to `observed` instead of `fatal` — the alarm renders and
+    nothing happens."""
+    ser = [_sdsnap("ffc", "2026-08-14", {"1": 1.0, "2": 2.0}, {"1": 0.7, "2": 0.9}),
+           _sdsnap("ffc", "2026-08-15", {"1": 1.0, "2": 2.0}, {})]
+    out = S.source_audit(ser, "2026", "2026-08-15")
+    checks = [f["check"] for f in out["fatal"]]
+    assert "sd_coverage_collapsed" in checks, out
+    assert out["fatal"], "a repriced draftable range must fail the step"
+
+
+def test_FANTASYPROS_publishing_no_dispersion_is_NEVER_an_alarm():
+    """THE RED-BY-DESIGN GUARD. FantasyPros publishes expert consensus and no
+    dispersion at all, permanently. A check that fires on it every morning is
+    how a real alarm gets ignored.
+
+    MUTATION: drop the `if not was_n` arm — a source that never published a
+    spread is reported as having lost one, every single day."""
+    y = _sdsnap("fantasypros", "2026-08-14", {"1": 1.0, "2": 2.0}, {})
+    t = _sdsnap("fantasypros", "2026-08-15", {"1": 1.0, "2": 2.0}, {})
+    got = S.sd_coverage_break(y, t)
+    assert got["verdict"] == "not_applicable", got
+    ser = [y, t]
+    out = S.source_audit(ser, "2026", "2026-08-15")
+    assert not [f for f in out["fatal"] if f["check"] == "sd_coverage_collapsed"], out
+
+
+def test_a_PARTIAL_fall_in_dispersion_coverage_still_holds():
+    """The bar is a share of the source's OWN prior, not any drop at all. FFC
+    losing a handful of rows' spreads is drift; losing most of them is a change
+    in what it publishes.
+
+    MUTATION: fire on `now < was` — every ordinary day-to-day wobble is fatal
+    and the check is switched off within a week."""
+    y = _sdsnap("ffc", "2026-08-14", {str(i): 1.0 for i in range(10)},
+                {str(i): 0.7 for i in range(10)})
+    t = _sdsnap("ffc", "2026-08-15", {str(i): 1.0 for i in range(10)},
+                {str(i): 0.7 for i in range(8)})
+    got = S.sd_coverage_break(y, t)
+    assert got["verdict"] == "held", got
+    assert got["kept"] == 0.8
+
+
+def test_dispersion_coverage_WITHOUT_a_row_count_is_unknown_not_held():
+    """MUTATION: treat a missing row_count as 0 rows and return `held` — an
+    unreadable day certifies the spread as intact."""
+    y = _sdsnap("ffc", "2026-08-14", {"1": 1.0}, {"1": 0.7})
+    t = dict(_sdsnap("ffc", "2026-08-15", {"1": 1.0}, {"1": 0.7}), row_count=0)
+    got = S.sd_coverage_break(y, t)
+    assert got["verdict"] == "unknown", got
