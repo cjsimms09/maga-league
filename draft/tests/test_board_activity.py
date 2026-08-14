@@ -288,3 +288,127 @@ def test_PRUNING_THE_SHIPPED_BOARD_REMOVES_NOTHING_ACTIONABLE():
     ):
         assert not bad, "the prune would drop %d player(s) %s: %s" % (
             len(bad), label, [p.get("name") for p in bad[:6]])
+
+
+# ── A KEPT PLAYER IS NEVER DORMANT ─────────────────────────────────────────
+#
+# A'S FINDING, NOT MINE, AND MY OWN REDESIGN MADE IT SHARPER. `dormant()` had
+# four exemptions and a keeper was none of them. A player kept through a
+# two-season injury — no scored week in 2024 or 2025, dropped by FFC, unprojected
+# — matches every dormancy condition.
+#
+# THE ORDERING IS WHAT MAKES IT LIVE. `build.py` builds `kept_players` by
+# FILTERING `players` at ~line 1266; the prune's insertion point is ~line 613. A
+# keeper removed at 613 never appears at 1266 — he is simply gone, and the
+# artifact the whole draft plan rests on is short a player with nothing saying so.
+#
+# The old "scored recently" rule accidentally protected an injured keeper who had
+# played in 2024. "Who vouches for him" does not. Measured today: 0 of the 3 real
+# designations and 0 of the 17 predicted are dormant — so nothing is broken, and
+# the safety rests entirely on nobody currently keeping a two-year absentee.
+# Keeper lock is 2026-08-20.
+
+def _keeperless_row(pid="99001"):
+    """A row that matches EVERY dormancy condition: not a rookie, no market
+    price, no projection."""
+    return {"player_id": pid, "name": "Kept Through Injury", "position": "RB",
+            "years_exp": 8, "adp_source": None, "proj_mean": 0.0}
+
+
+def _root_with_keepers(tmp_path, ids, name="keepers.json"):
+    cfg = tmp_path / "config"
+    cfg.mkdir(exist_ok=True)
+    (cfg / name).write_text(json.dumps(
+        {"teams": [{"draft_slot": 1,
+                    "keepers": [{"player_id": i} for i in ids]}]}))
+    return tmp_path
+
+
+def _board_with(rows):
+    """A board whose projection health passes, plus the rows under test."""
+    filler = [{"player_id": "f%d" % i, "years_exp": 3, "adp_source": "ffc",
+               "adp": 10.0 + i, "proj_mean": 100.0} for i in range(40)]
+    return {"players": filler + list(rows)}
+
+
+def test_a_KEPT_player_is_NOT_dormant_however_dead_he_looks(tmp_path):
+    """THE ASSERTION THIS EXISTS FOR. MUTATION: drop the keeper check — the row
+    below is pruned, `build.py` looks for him in `kept_players` 650 lines later
+    and does not find him, and a keeper leaves the board silently on 08-20."""
+    row = _keeperless_row()
+    root = _root_with_keepers(tmp_path, ["99001"])
+    d = BA.dormant(_board_with([row]), root=str(root))
+    assert d["status"] == "measured", d
+    assert [r["player_id"] for r in d["rows"]] == [], (
+        "a real keeper designation was flagged dormant: %s"
+        % [r["player_id"] for r in d["rows"]])
+    assert d["keepers"]["spared"] == ["99001"], (
+        "and the save must be COUNTED — '0 spared' and 'the check never ran' are "
+        "different states: %s" % d["keepers"])
+
+
+def test_the_HAZARD_IS_REAL_the_same_row_IS_dormant_without_a_designation(tmp_path):
+    """Proved by removing the designation, because the test above passes
+    perfectly against a rule that has stopped flagging anything at all."""
+    row = _keeperless_row()
+    root = _root_with_keepers(tmp_path, ["70000"])          # somebody else
+    d = BA.dormant(_board_with([row]), root=str(root))
+    assert [r["player_id"] for r in d["rows"]] == ["99001"], (
+        "the row is not dormant even WITHOUT a designation, so the test above "
+        "proves nothing about keepers: %s" % d)
+
+
+def test_an_UNREADABLE_keeper_file_REFUSES_rather_than_pruning_blind(tmp_path):
+    """An unreadable file is not 'no keepers', it is 'I do not know who is kept'.
+    Pruning under an unknown keeper set is the loss this exists to prevent.
+
+    MUTATION: treat a parse failure as an empty set — the prune runs with no
+    keeper protection at all, on the one path where nobody would look."""
+    cfg = tmp_path / "config"
+    cfg.mkdir()
+    (cfg / "keepers.json").write_text("{not json")
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["status"] == "unmeasured", d
+    assert d["n"] == 0 and d["rows"] == []
+    assert "UNKNOWN" in d["keepers"]["note"] or "unreadable" in d["keepers"]["note"]
+
+
+def test_an_ABSENT_keeper_file_is_NOT_a_refusal(tmp_path):
+    """No file means no designations exist yet — a fact about the league, not a
+    failure to read one. `build.py` says exactly that and builds anyway.
+
+    MUTATION: refuse on absent too — the prune never runs before the first
+    designation is made, and the reason is invisible."""
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["status"] == "measured", d
+    assert [r["player_id"] for r in d["rows"]] == ["99001"]
+    assert d["keepers"]["status"] == "absent"
+
+
+def test_the_PREDICTED_slate_is_NOT_read_as_a_designation(tmp_path):
+    """`predicted_keepers.json` is quarantined research — "PREDICTED slates for
+    MOCK/REHEARSAL ONLY — never applied to the live board". Sparing a row on the
+    strength of a prediction couples the live board to it, in the one direction
+    that looks harmless and is still the coupling.
+
+    MUTATION: fall back to the predicted slate when no real designation exists —
+    research data starts deciding which rows survive on the board Cory drafts
+    from, which is exactly what the quarantine forbids."""
+    cfg = tmp_path / "config"
+    cfg.mkdir()
+    (cfg / "predicted_keepers.json").write_text(json.dumps(
+        {"teams": [{"draft_slot": 1, "keepers": [{"player_id": "99001"}]}]}))
+    d = BA.dormant(_board_with([_keeperless_row()]), root=str(tmp_path))
+    assert d["keepers"]["status"] == "absent", (
+        "the predicted slate was read as a real designation: %s" % d["keepers"])
+    assert [r["player_id"] for r in d["rows"]] == ["99001"]
+
+
+def test_the_REAL_DESIGNATIONS_are_read_from_the_SHIPPED_config():
+    """Against the real file, so this stops being a fixture exercise. Today: 3
+    designations across 1 team — Cory's — because the rest of the league has not
+    designated yet. MUTATION: read a different path and this reports 0."""
+    k = BA.keeper_ids()
+    assert k["status"] == "read", k
+    assert k["teams"] >= 1 and len(k["ids"]) >= 3, k
+    assert {"3198", "7564", "8151"} <= set(k["ids"]), sorted(k["ids"])
