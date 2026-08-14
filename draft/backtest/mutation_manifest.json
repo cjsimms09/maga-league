@@ -1980,6 +1980,53 @@
      "verdict": "KILLED"
     }
    ]
+  },
+  "draft/backtest/external_pick_run.py": {
+   "tests": [
+    "draft/tests/test_external_pick_run.py"
+   ],
+   "mutations": [
+    {
+     "old": "        if (r or {}).get(\"error\"):\n            dropped.append({\"source\": name, \"reason\": r[\"error\"]})\n            continue",
+     "new": "        if False:\n            dropped.append({\"source\": name, \"reason\": r[\"error\"]})\n            continue",
+     "must_fail": [
+      "test_A_SOURCE_THAT_FAILED_IS_DROPPED_AND_NAMED_not_passed_through_empty"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        if not rows:",
+     "new": "        if False:",
+     "must_fail": [
+      "test_A_SOURCE_THAT_FETCHED_NOTHING_IS_DROPPED_TOO"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "        depth[name] = ((r or {}).get(\"params\") or {}).get(\"total_drafts\")",
+     "new": "        depth[name] = ((r or {}).get(\"params\") or {}).get(\"total_drafts\") or 0",
+     "must_fail": [
+      "test_A_SOURCE_THAT_PUBLISHES_NO_DEPTH_CARRIES_NONE_and_never_zero"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "                if v is not None}",
+     "new": "                }",
+     "must_fail": [
+      "test_AN_UNPRICED_PLAYER_IS_STRIPPED_rather_than_compared_as_a_None"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    if len(sources) < 2:",
+     "new": "    if False:",
+     "must_fail": [
+      "test_ONE_SURVIVING_SOURCE_IS_NOT_A_COMPARISON_and_the_run_says_so"
+     ],
+     "verdict": "KILLED"
+    }
+   ]
   }
  }
 }
