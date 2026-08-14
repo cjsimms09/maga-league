@@ -400,7 +400,7 @@ def test_A_CROSSWALK_MISS_DOES_NOT_DISCARD_THE_DAY(monkeypatch):
     monkeypatch.setattr(A, "fetch_adp", lambda fmt, teams, year: payload)
     r = R.capture_ffc(SLEEPER, 2026, 10, "half-ppr")
     assert len(r["rows"]) == 3
-    assert r["params"]["parsed"] == 4 and r["params"]["unmatched"] == 1
+    assert r["params"]["parsed"] == 4 and r["params"]["unmatched_count"] == 1
 
 
 def test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE(monkeypatch):

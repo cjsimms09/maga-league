@@ -249,7 +249,15 @@ def capture_ffc(sleeper_players, year, teams, fmt):  # pragma: no cover
                     "is 4.0, and FFC serves no parameter for it — this source is "
                     "4.0 like every other public source"],
                 "parsed": rep.get("parsed"), "matched": rep.get("matched"),
-                "unmatched": rep.get("unmatched_count"),
+                # ⚠ `unmatched_count`, THE SOURCE'S OWN NAME FOR IT. A's report
+                # carries BOTH `unmatched` (a LIST of the entries that missed) and
+                # `unmatched_count` (the integer). I was storing the integer under
+                # the name `unmatched`, so the same word would mean a list in one
+                # artifact and a number in the next — a name collision across two
+                # files that a reader has every reason to trust. Free to fix today
+                # and a schema change tomorrow, because nothing has been written
+                # yet.
+                "unmatched_count": rep.get("unmatched_count"),
                 "collisions": rep.get("collisions"),
                 "dropped_to_collision": rep.get("dropped_to_collision"),
                 "published_sd_rows": len(sd)},
@@ -305,7 +313,8 @@ def capture_fantasypros(sleeper_players, year, half_ppr=True):  # pragma: no cov
                     "league size: FantasyPros consensus is not league-size "
                     "specific; FFC's is"],
                 "rows_parsed": diag.get("fp_rows_parsed"),
-                "matched": diag.get("fp_matched"), "unmatched": diag.get("fp_unmatched"),
+                "matched": diag.get("fp_matched"),
+                "unmatched_count": diag.get("fp_unmatched"),
                 "collisions": diag.get("fp_collisions"),
                 "dropped_to_collision": diag.get("fp_dropped_to_collision"),
                 "fp_url": diag.get("fp_url")},
