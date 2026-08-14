@@ -50,8 +50,20 @@ jobs:
       - name: Install dependencies
         run: pip install -r draft/requirements.txt
 
-      - name: Run acceptance tests
-        # A board that fails its own scoring tests must never be published.
+      - name: Run acceptance tests (against the CURRENT board, pre-build)
+        # ⚠ THIS DOES NOT GATE WHAT GETS PUBLISHED, and its old comment claimed it
+        # did: "A board that fails its own scoring tests must never be published."
+        # It runs BEFORE `Build the draft artifact`, so it tests the board already
+        # committed and then a NEW, UNTESTED one is built and pushed below.
+        #
+        # That is how 2026-08-14's rebuild reached main red: the new board carried
+        # a field (`adp_sd_source`) with no declared purpose, nine suites failed on
+        # it, and nothing stopped the push — an unattended bot darkened the gate
+        # for every lane and no owner was watching.
+        #
+        # Kept because failing fast on a board that is ALREADY broken is still
+        # worth the two minutes. The gate that actually protects publication is
+        # "Acceptance gate on the FRESH board" below.
         run: python -m pytest draft/tests -q
 
       # The JS suites are not optional extras: keepers.test.js is the only thing
@@ -155,6 +167,28 @@ jobs:
           python draft/backtest/cory_conditional.py || echo "19b race skipped"
           python draft/opening_script.py
           python draft/room_read.py || echo "room read unchanged/skipped"
+
+      - name: Acceptance gate on the FRESH board — nothing untested is published
+        # THE STEP THE OLD COMMENT DESCRIBED, in the only place it can be true:
+        # after the artifact is built and before it is committed. A board is the
+        # single input every draft-day surface reads, so publishing one that fails
+        # its own suite is the most expensive silent failure available here — and
+        # on 22 August it would ship to the room Cory is drafting in.
+        #
+        # FAILS THE JOB rather than skipping the commit quietly. A rebuild that
+        # stops publishing is a visible red run; a rebuild that publishes a broken
+        # board is invisible until somebody else's merge goes red, which is exactly
+        # what happened. Freezing on the last good board is the safe direction.
+        if: github.event.inputs.snapshot != 'true'
+        run: |
+          echo "== the board about to be committed must pass the suite that reads it"
+          if ! python -m pytest draft/tests -q; then
+            echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
+            echo "    The previously published board is untouched and still live."
+            echo "    Fix the board (or whatever the suite is telling you about it)"
+            echo "    and re-run — do NOT bypass this to get a rebuild out."
+            exit 1
+          fi
 
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'
