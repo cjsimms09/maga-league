@@ -151,15 +151,15 @@ jobs:
         # their fingerprints always match the board they claim to describe.
         if: github.event.inputs.snapshot != 'true'
         run: |
-          python draft/predict_keepers.py || echo "predicted slates unchanged/skipped"
-          python draft/backtest/cory_conditional.py || echo "19b race skipped"
+          python draft/predict_keepers.py
+          python draft/backtest/cory_conditional.py
           python draft/opening_script.py
-          python draft/room_read.py || echo "room read unchanged/skipped"
+          python draft/room_read.py
 
       - name: Commit the artifact if it changed
         if: github.event.inputs.snapshot != 'true'
         run: |
-          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
+          PATHS="public/draft_data.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/config/keepers.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
