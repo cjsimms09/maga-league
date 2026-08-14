@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # TERRITORY: C
-"""REGENERATE THE nflverse MEASUREMENTS — the runner today's artifacts did not have.
+"""FETCH AND VERIFY THE nflverse ASSETS — the reachable half of a regeneration.
+
+⚠ IT DOES NOT REGENERATE THE ARTIFACTS YET, AND THE FIRST DRAFT OF THIS DOCSTRING
+SAID IT DID. That is the defect this repo keeps finding — a comment promising
+behaviour the body does not have — caught here before it was believed, and the
+honest version is below. `main()` resolves each measurement's assets, fetches
+them, and reports what came back; computing the three artifacts from them is the
+next step and is NOT written.
 
 `nflverse_pace.json`, `nflverse_durability.json` and
 `projection_spread_vs_realized.json` were all produced on 2026-08-14 by commands
@@ -9,7 +16,8 @@ tested, but **nobody else could reproduce them**, and the routing that carried t
 said as much: *"Regeneration needs egress, so the artifact cannot be
 regenerate-and-compared the way `waiver_replacement.json` is."*
 
-This is that runner. It also gives `nflverse_release` a caller, which it did not
+This closes the FIRST half of that: which assets each measurement reads is now
+declared and checkable instead of remembered. It also gives `nflverse_release` a caller, which it did not
 have — a module written to hold the release names, with nothing exercising them,
 is the same rule-14 gap it was written in response to, one turn later.
 
