@@ -76,6 +76,89 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   /−4\.8/.test(doc) && /\[−26, \+17\] interval\*\*: unsignable/.test(doc));
 }
 
+// ── 2b. THE COMPOSITE IS NOT ONLY THE WEIGHT VECTOR ─────────────────────
+/* THE DOCUMENT SAID THE SCORE IS "`value + keeper + stack` AND NOTHING ELSE".
+ * It is that sum PLUS two post-assembly deltas — `onesie` (the duplicate-position
+ * discount) and `doctrine` (the plan tilt) — which are in no weight vector and
+ * which `engine.js` publishes into `components.weighted` precisely so a consumer
+ * cannot silently disagree with the score. Measured with a real roster, `onesie`
+ * is the THIRD-LARGEST driver of what separates the top five.
+ *
+ * IT WAS INVISIBLE BECAUSE EVERY HARNESS RAN `roster: []`. Both `onesie` and
+ * `stack` score a relationship to players already held, so on an empty roster
+ * they are structurally 0.0% — two of the four live terms vanish and VONA's
+ * measured share inflates from 59% to 78%. That is why the assertion below scores
+ * with an ACCUMULATING roster: a decomposition on an empty one is a measurement
+ * of a state that never occurs after the first pick. */
+{
+  const src = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'), 'utf8');
+  ck('the engine publishes the post-assembly deltas alongside the weighted terms, '
+    + 'so components can sum to the score', /onesie: onesieDelta, doctrine: doctrineDelta/.test(src));
+  ck('the document no longer claims the composite is the weight vector and '
+    + 'nothing else', !/`value \+ keeper \+ stack`\*\* and nothing else/.test(doc));
+  ck('and it NAMES onesie as a driver rather than leaving it off the list',
+    /`onesie`/.test(doc) && /third-largest driver/.test(doc));
+  ck('it states the empty-roster caveat, which is what hid this',
+    /unmeasured, not inert/.test(doc) && /structurally zero/.test(doc));
+
+  /* THE SHARES, RE-DERIVED. A table of percentages in a document is exactly the
+   * kind of claim that goes stale silently — this one already did, at 62%. */
+  const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
+  const MY = D.pick_order.my_picks;
+  const keepers = (D.kept_players || []).slice();
+  const priced = D.players.filter(x => x.adp != null).slice().sort((a, b) => a.adp - b.adp);
+  const roster = keepers.slice(), taken = keepers.slice(), tot = {};
+  MY.forEach(p => {
+    const gone = new Set(priced.slice(0, p - 1).map(x => String(x.player_id)));
+    taken.forEach(t => gone.add(String(t.player_id)));
+    const next = MY.find(q => q > p) || null;
+    const sc = (E.onTheClock({
+      board: D.players.filter(x => !gone.has(String(x.player_id))), nextPick: next,
+      totalPicks: 150, myPicksLeft: MY.filter(q => q >= p).length, roster: roster.slice(),
+      doctrine: null, myPickIndex: Math.max(0, MY.indexOf(p)), totalMyPicks: MY.length,
+      currentKeepers: keepers.slice(), league: D.league, weights: E.MEASURED_WEIGHTS,
+      runMultipliers: {}, ceilingAllStages: false, drift: null, currentPick: p,
+      intervening: next ? next - p : 0,
+      roundsLeft: Math.max(0, Math.ceil((150 - p) / (D.league.teams || 10))),
+    }, { avoid: [], target: [] }) || {}).scored || [];
+    const top = sc.slice(0, 5);
+    if (top.length > 1) {
+      const wc = top.map(x => (x.components || {}).weighted || {});
+      Object.keys(wc[0]).filter(k => typeof wc[0][k] === 'number').forEach(k => {
+        const v = wc.map(x => x[k] || 0);
+        const m = v.reduce((a, b) => a + b, 0) / v.length;
+        tot[k] = (tot[k] || 0) + v.reduce((a, b) => a + Math.abs(b - m), 0) / v.length;
+      });
+    }
+    if (sc[0]) { roster.push(sc[0].player); taken.push(sc[0].player); }
+  });
+  const sum = Object.keys(tot).reduce((a, k) => a + tot[k], 0);
+  const pct = k => 100 * (tot[k] || 0) / sum;
+  console.log('      re-derived term shares: ' + Object.keys(tot)
+    .sort((a, b) => tot[b] - tot[a]).filter(k => pct(k) >= 0.05)
+    .map(k => k + ' ' + pct(k).toFixed(1) + '%').join(' · '));
+
+  ck('VONA really is the largest term, which is the claim the whole VONA section '
+    + 'rests on', Object.keys(tot).every(k => k === 'value' || tot[k] <= tot.value),
+  Object.keys(tot).map(k => k + ':' + pct(k).toFixed(1)));
+  /* BANDED, NOT PINNED. The board rebuilds nightly and these shares move with it;
+   * a hard 59.3 would go red on a projection refresh, which is the model being
+   * punished for the data changing. The band is wide enough to survive a rebuild
+   * and narrow enough that 78% — the empty-roster artifact — fails it. */
+  ck('and its share matches the ~59% the document states, on a band that the '
+    + 'empty-roster artifact (78%) would fail',
+  pct('value') >= 50 && pct('value') <= 70, pct('value').toFixed(1));
+  ck('onesie is live and material rather than a rounding term — the reason it had '
+    + 'to be named', pct('onesie') >= 5, pct('onesie').toFixed(1));
+  ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
+    + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
+  pct('stack').toFixed(1));
+  ck('the document\'s table is in the right ORDER, which is the part a reader '
+    + 'acts on', pct('value') > pct('keeper') && pct('keeper') > pct('onesie')
+    && pct('onesie') > pct('stack'),
+  ['value', 'keeper', 'onesie', 'stack'].map(k => k + ':' + pct(k).toFixed(1)));
+}
+
 // ── 3. A ZERO-WEIGHT TERM REPORTS ZERO, NOT A NUMBER ────────────────────
 // The claim that stops a breakdown listing eight terms as if eight were used.
 {
@@ -152,8 +235,10 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the contract document is re-derived from the shipped');
-console.log('engine — the weights, which zeros are measured versus unmeasured, the dollar');
-console.log('coefficients and their collinearity, and the paths bound. If the model moves');
+console.log('engine — the weights, which zeros are measured versus unmeasured, the TERM');
+console.log('SHARES (scored on an accumulating roster, because an empty one zeroes two of');
+console.log('the four live terms), the dollar coefficients and their collinearity, and the');
+console.log('paths bound. If the model moves');
 console.log('and the document does not, this goes red rather than the document going quietly');
 console.log('stale — which is how two of the three defects it describes came to exist.');
 console.log('WHAT IT DOES NOT: check what B renders. That half is B\'s and is routed. A');

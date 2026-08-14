@@ -38,8 +38,35 @@ sentence true?**
 ### 1. The score column on a rec row
 
 **IS:** a weighted sum, in projection points, of the terms the tool currently
-weights. Under the shipped weights (`MEASURED_WEIGHTS`, set at `app.js:52`) that
-is **`value + keeper + stack`** and nothing else.
+weights — `value + keeper + stack` under the shipped weights (`MEASURED_WEIGHTS`,
+`app.js:52`) — **plus two adjustments applied AFTER that sum, which are not in the
+weight vector at all.**
+
+**THE "AND NOTHING ELSE" IN THIS LINE WAS FALSE UNTIL 2026-08-14, AND IT IS THE
+THIRD INSTANCE OF THE CLASS THIS DOCUMENT EXISTS TO CATCH — found in the document
+itself.** `onesie` (a duplicate-position discount that buries a second QB/TE once
+the slot is full) and `doctrine` (the plan tilt) are applied post-assembly and
+published as deltas in `components.weighted`. Measured share of what separates the
+top five candidates, over Cory's twelve picks, with his real keepers and the
+roster accumulating as the model picks:
+
+| term | share of movement |
+|---|---|
+| `value` (VONA) | **59.3%** |
+| `keeper` | 16.1% |
+| **`onesie`** | **13.9%** |
+| `stack` | 10.6% |
+
+**`onesie` is the third-largest driver of the recommendation and a reader of the
+old sentence would not have known it exists.**
+
+**⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
+harness the suites used, the same decomposition returns `value 77.9% / keeper
+22.1%` with **`stack` and `onesie` at exactly 0.0%** — both score a relationship
+to players already held, so with nobody held they are structurally zero. Two of
+the four terms vanish and VONA's share inflates by 19 points. **A term reading
+0.0% on an empty roster is unmeasured, not inert**, and that distinction is the
+same one this document draws about `ceiling`.
 
 **IS NOT:** a dollar figure, a probability, or a season projection. It is not
 comparable to the `$` numbers anywhere else on the screen.
@@ -61,7 +88,15 @@ term reports 0 rather than a number — **that is correct and must stay correct.
 ### 2. VONA
 
 **IS:** `proj_mean(p) − E[best available at p's position at MY next pick]`, in
-projection points. **62% of what moves the composite.**
+projection points. **59% of what moves the composite** — the largest single term
+by a factor of three, re-measured today over the top five at each of his twelve
+picks with the roster accumulating from his real keepers.
+
+> This figure read **62%** and was carried in prose with no computation behind it
+> anywhere in the repo. Re-derived, it is 59.3% — so the number was approximately
+> right, and it is recorded here because *checking it was worth it anyway*: the
+> same run is what surfaced `onesie` as a 13.9% driver missing from §1 entirely.
+> An unreproducible number that happens to be correct is still unreproducible.
 
 **IS NOT:** value over a *starter*, or over replacement. It is value over the
 next player at that position I could realistically get instead — which is why it
