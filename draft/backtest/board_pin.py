@@ -214,6 +214,20 @@ def staleness(series, today) -> dict:
                   never from the last pin, because the pin runs daily and would
                   otherwise report that it had itself run
       unmeasured  fewer than two pins: nothing to compare against
+
+    ⚠ WHAT "ONE DAY SINCE REBUILD" MEANS IN PRACTICE, measured rather than
+    assumed. `draft-data.yml` declares `cron: 0 8 * * *`, and the scheduled runs
+    it has actually started are 09:07, 08:50, 08:52, 13:51, 09:40, 09:06, 11:37,
+    09:18 and 09:19 UTC — a GitHub queue delay of roughly **50 to 100 minutes**,
+    with the last two days both landing at ~09:18.
+
+    I recorded this because I got it wrong first: I called the rebuild "late" at
+    08:16 and set a stalled-by-08:45 threshold, borrowed from the D3 capture's own
+    delay (cron 11:20, runs ~12:02, ~40 minutes). Two different workflows queue
+    differently, so a threshold carried across from one to the other is a bar and
+    a measurement denominated in different things — the same mistake this file's
+    own findings keep being about. A rebuild missing at 08:45 is NORMAL; missing
+    at 10:00 is worth looking at.
     """
     ser = sorted([p for p in (series or []) if p.get("observed_at")],
                  key=lambda p: str(p.get("observed_at")))
