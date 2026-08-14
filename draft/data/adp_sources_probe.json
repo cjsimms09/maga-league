@@ -87,27 +87,27 @@
       "2023": {
         "status": 200,
         "has_players": true,
-        "sample": "{\"version\":\"1.0\",\"adp\":{\"totalPicks\":\"1346\",\"totalDrafts\":\"5011\",\"player\":[{\"draftsSelectedIn\":\"3510\",\"rank\":\"1\",\"minPick\":\"1\",\"id\":\"14836\",\"draftSelPct\":\"70\",\"averagePick\":\"3.04\",\"maxPick\":\"200\"},{\"m"
+        "sample": "{\"adp\":{\"totalDrafts\":\"5011\",\"totalPicks\":\"1346\",\"player\":[{\"averagePick\":\"3.04\",\"id\":\"14836\",\"maxPick\":\"200\",\"minPick\":\"1\",\"draftsSelectedIn\":\"3510\",\"draftSelPct\":\"70\",\"rank\":\"1\"},{\"draftsSelectedIn\""
       },
       "2024": {
         "status": 200,
         "has_players": true,
-        "sample": "{\"encoding\":\"utf-8\",\"adp\":{\"timestamp\":\"1786287973\",\"totalPicks\":\"1359\",\"totalDrafts\":\"4485\",\"player\":[{\"maxPick\":\"164\",\"averagePick\":\"3.24\",\"draftsSelectedIn\":\"3133\",\"rank\":\"1\",\"minPick\":\"1\",\"id\":\"13"
+        "sample": "{\"version\":\"1.0\",\"encoding\":\"utf-8\",\"adp\":{\"totalDrafts\":\"4485\",\"timestamp\":\"1786716074\",\"player\":[{\"draftsSelectedIn\":\"3133\",\"rank\":\"1\",\"draftSelPct\":\"69\",\"maxPick\":\"164\",\"minPick\":\"1\",\"id\":\"13130\",\""
       },
       "2025": {
         "status": 200,
         "has_players": true,
-        "sample": "{\"version\":\"1.0\",\"encoding\":\"utf-8\",\"adp\":{\"totalPicks\":\"947\",\"timestamp\":\"1786284077\",\"player\":[{\"draftsSelectedIn\":\"778\",\"maxPick\":\"11\",\"minPick\":\"1\",\"draftSelPct\":\"92\",\"rank\":\"1\",\"averagePick\":\"2.8"
+        "sample": "{\"encoding\":\"utf-8\",\"adp\":{\"totalDrafts\":\"844\",\"player\":[{\"draftsSelectedIn\":\"778\",\"rank\":\"1\",\"draftSelPct\":\"92\",\"averagePick\":\"2.87\",\"maxPick\":\"11\",\"minPick\":\"1\",\"id\":\"15281\"},{\"averagePick\":\"4.11\",\""
       }
     },
     "wayback": {
       "sleeper.com/football/nfl/adp": {
-        "status": null,
+        "status": 200,
         "snapshots": 0
       },
       "fantasyfootballcalculator.com/adp": {
-        "status": null,
-        "snapshots": 0
+        "status": 200,
+        "snapshots": 20
       }
     },
     "fantasydata": {
