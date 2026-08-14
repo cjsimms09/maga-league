@@ -13,37 +13,52 @@
     "unknown",
     "critical_findings",
     "required_actions",
-    "reasoning_summary"
+    "reasoning_summary",
+    "parity_only_claims"
   ],
   "properties": {
     "verdict": {
       "type": "string",
-      "enum": ["ACCEPT", "ACCEPT_WITH_REQUIREMENT", "BLOCK"],
+      "enum": [
+        "ACCEPT",
+        "ACCEPT_WITH_REQUIREMENT",
+        "BLOCK"
+      ],
       "description": "Exactly one. ACCEPT_WITH_REQUIREMENT means the change may stand only if required_actions are carried out."
     },
     "proven": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Claims the repository facts ESTABLISH. Not claims that merely sound right, and never a claim resting only on implementation parity."
     },
     "supported": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Claims the evidence makes more likely without establishing."
     },
     "not_proven": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Claims asserted but not established by the supplied evidence. Absence of evidence goes here, never in `contradicted`."
     },
     "contradicted": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Claims the repository facts actively refute."
     },
     "unknown": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Questions the supplied evidence cannot answer either way, including anything hidden by a truncated diff."
     },
     "critical_findings": {
@@ -52,7 +67,15 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["audit", "severity", "finding", "why_it_matters", "how_to_check"],
+        "required": [
+          "audit",
+          "severity",
+          "finding",
+          "why_it_matters",
+          "how_to_check",
+          "file",
+          "line"
+        ],
         "properties": {
           "audit": {
             "type": "string",
@@ -66,21 +89,46 @@
               "evidence_boundary"
             ]
           },
-          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
-          "finding": { "type": "string" },
-          "why_it_matters": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "finding": {
+            "type": "string"
+          },
+          "why_it_matters": {
+            "type": "string"
+          },
           "how_to_check": {
             "type": "string",
             "description": "A concrete command, file:line, or measurement that would settle it. 'Review carefully' is not an answer."
           },
-          "file": { "type": "string" },
-          "line": { "type": "integer" }
+          "file": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Repo-relative path the finding anchors to, or null when the finding is not about one file."
+          },
+          "line": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "1-indexed line, or null when the finding is not about one line."
+          }
         }
       }
     },
     "required_actions": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Must be non-empty when the verdict is ACCEPT_WITH_REQUIREMENT or BLOCK."
     },
     "reasoning_summary": {
@@ -89,8 +137,10 @@
     },
     "parity_only_claims": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Claims resting ONLY on two implementations agreeing. Listed separately because such a test cannot fail on a wrong rule, only a divergent one — it is never evidence of correctness."
+      "items": {
+        "type": "string"
+      },
+      "description": "Claims resting ONLY on two implementations agreeing. Listed separately because such a test cannot fail on a wrong rule, only a divergent one \u2014 it is never evidence of correctness."
     }
   }
 }
