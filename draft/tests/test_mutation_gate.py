@@ -44,6 +44,7 @@ Run: python3 -m pytest draft/tests/test_mutation_gate.py -q
 """
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -382,7 +383,7 @@ def test_a_MUTANT_ABANDONED_BY_A_KILLED_RUN_is_repaired_before_it_is_read(tmp_pa
     original = Path(src).read_text()
     mutant = original.replace("return x * 2", "return x * 999")
     Path(src).write_text(mutant)
-    Path(MG.JOURNAL).write_text(json.dumps(
+    Path(MG._journal_path()).write_text(json.dumps(
         {"pid": _DEAD_PID, "file": src, "original": original, "mutated": mutant}))
 
     r = MG.check(src, "return x * 2", "return x * 3", [tests],
@@ -391,7 +392,7 @@ def test_a_MUTANT_ABANDONED_BY_A_KILLED_RUN_is_repaired_before_it_is_read(tmp_pa
     assert Path(src).read_text() == original, (
         "the abandoned mutant was adopted as the original — this is how a "
         "temporary corruption becomes a permanent one")
-    assert not Path(MG.JOURNAL).exists()
+    assert not Path(MG._journal_path()).exists()
 
 
 def test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE(tmp_path):
@@ -405,7 +406,7 @@ def test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE(tmp_path):
     import os
     src, tests = scenario(tmp_path)
     original = Path(src).read_text()
-    Path(MG.JOURNAL).write_text(json.dumps(
+    Path(MG._journal_path()).write_text(json.dumps(
         {"pid": os.getpid(), "file": src,        # alive by construction
          "original": original, "mutated": original.replace("2", "9")}))
     try:
@@ -415,7 +416,7 @@ def test_a_LIVE_run_holding_a_mutation_makes_a_second_run_REFUSE(tmp_path):
         assert "REFUSING TO START" in str(e.value)
         assert str(os.getpid()) in str(e.value), "name the process that holds it"
     finally:
-        Path(MG.JOURNAL).unlink(missing_ok=True)
+        Path(MG._journal_path()).unlink(missing_ok=True)
 
 
 def test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten(tmp_path):
@@ -430,7 +431,7 @@ def test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten(tmp_path):
     mutant = original.replace("return x * 2", "return x * 999")
     edited = original.replace("return x * 2", "return x * 2  # somebody's work")
     Path(src).write_text(edited)
-    Path(MG.JOURNAL).write_text(json.dumps(
+    Path(MG._journal_path()).write_text(json.dumps(
         {"pid": _DEAD_PID, "file": src, "original": original, "mutated": mutant}))
     try:
         with pytest.raises(RuntimeError) as e:
@@ -438,9 +439,9 @@ def test_a_FILE_EDITED_AFTER_THE_KILL_is_not_silently_overwritten(tmp_path):
                      must_fail=["test_double_doubles"])
         assert "REFUSING TO START" in str(e.value)
         assert Path(src).read_text() == edited, "their edit must survive"
-        assert Path(MG.JOURNAL).exists(), "the journal still holds the original"
+        assert Path(MG._journal_path()).exists(), "the journal still holds the original"
     finally:
-        Path(MG.JOURNAL).unlink(missing_ok=True)
+        Path(MG._journal_path()).unlink(missing_ok=True)
 
 
 def test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after(tmp_path):
@@ -474,7 +475,7 @@ def test_the_JOURNAL_IS_WRITTEN_BEFORE_THE_MUTATION_not_after(tmp_path):
         "        'matched': bool(rec) and rec['mutated'] == SRC.read_text(),\n"
         "        'differs': bool(rec) and rec['original'] != rec['mutated'],\n"
         "        'names_the_file': bool(rec) and rec['file'] == str(SRC)}))\n"
-        % (str(MG.JOURNAL), src, str(seen)))
+        % (str(MG._journal_path()), src, str(seen)))
 
     r = MG.check(src, "return x * 2", "return x * 3", [str(probe)],
                  must_fail=["test_probe_records_the_journal_against_the_file"])
@@ -573,10 +574,10 @@ def test_SIGTERM_MID_MUTATION_restores_the_file(tmp_path):
             time.sleep(0.1)
         assert Path(src).read_text() == MODULE, (
             "SIGTERM left a mutant on disk: %r" % Path(src).read_text())
-        assert not Path(MG.JOURNAL).exists(), "the journal outlived the mutation"
+        assert not Path(MG._journal_path()).exists(), "the journal outlived the mutation"
     finally:
         _reap(pgid)
-        Path(MG.JOURNAL).unlink(missing_ok=True)
+        Path(MG._journal_path()).unlink(missing_ok=True)
 
 
 def test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs(tmp_path):
@@ -595,14 +596,14 @@ def test_SIGKILL_leaves_a_JOURNAL_that_the_next_run_repairs(tmp_path):
     _reap(pgid)          # the pytest it spawned outlives it otherwise
 
     assert "return x * 3" in Path(src).read_text(), "SIGKILL should leave the mutant"
-    assert Path(MG.JOURNAL).exists(), "nothing on disk declares the corruption"
-    rec = json.loads(Path(MG.JOURNAL).read_text())
+    assert Path(MG._journal_path()).exists(), "nothing on disk declares the corruption"
+    rec = json.loads(Path(MG._journal_path()).read_text())
     assert rec["file"] == src and rec["original"] == MODULE
 
     out = MG.repair()
     assert out["status"] == "repaired", out
     assert Path(src).read_text() == MODULE
-    assert not Path(MG.JOURNAL).exists()
+    assert not Path(MG._journal_path()).exists()
 
 
 def test_verify_manifest_SORTS_NON_KILLS_BY_WHAT_THE_READER_MUST_DO(tmp_path):
@@ -666,3 +667,143 @@ def test_a_SUITE_THAT_CANNOT_BE_COLLECTED_is_INVALID_not_green(tmp_path):
     assert r["verdict"] == "INVALID_BASELINE", r
     assert "COLLECTED" in r["detail"], r["detail"]
     assert r["verdict"] in MG.INVALID, "it proved nothing in either direction"
+
+
+# ── THE JOURNAL MUST NOT BE SHARED WITH THE PROCESSES THE GATE SPAWNS ──────
+#
+# THIS FILE IS ONE OF THOSE PROCESSES. The manifest records mutations against
+# `draft/backtest/mutation_gate.py` whose test path is `test_mutation_gate.py` —
+# so every scheduled `verify_manifest` run spawns THIS SUITE as a child while the
+# parent holds `mutation_gate.py` mutated on disk. And this suite writes and
+# unlinks the journal, because it is the suite that tests the journal.
+#
+# OBSERVED, NOT REASONED, 2026-08-14 00:55 UTC, mid-run, against a known-good copy:
+#
+#   $ diff good.py draft/backtest/mutation_gate.py
+#   <             "all_killed": bool(results) and all(
+#   >             "all_killed": True and all(          <- LIVE MUTATION ON DISK
+#   $ cat /tmp/mutation_gate_inflight.json
+#     file: /tmp/pytest-of-root/pytest-1114/.../subject.py   <- a CHILD's tmp file
+#     pid : 9183                                             <- not the parent
+#
+# The parent's restore record was gone while its mutant was on disk. A SIGKILL in
+# that window leaves `"all_killed": True and all(...)` permanently — a gate that
+# reports every batch as fully killed — with nothing on disk declaring it. That is
+# the same shape as the incident the journal was written for, inside the journal.
+
+
+def test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents():
+    """THE FIX, ASSERTED WHERE IT FAILS. A child that writes the journal — which
+    every run of this very suite does — must not be writing the parent's.
+
+    MUTATION: drop the env var from `_pytest` and the child resolves the same
+    path, clobbers the parent's record, and the parent's mutant loses the only
+    thing on disk that could restore it."""
+    import os
+    parent = {"pid": os.getpid(), "file": "/parent/subject.py",
+              "original": "ORIGINAL", "mutated": "MUTANT"}
+    Path(MG._journal_path()).write_text(json.dumps(parent))
+    try:
+        t = Path(tempfile.mkdtemp()) / "test_child_clobbers.py"
+        t.write_text(
+            "import json, sys\n"
+            "sys.path.insert(0, %r)\n" % str(Path(MG.__file__).resolve().parent) +
+            "from pathlib import Path\n"
+            "import mutation_gate as MG\n"
+            "def test_child_writes_and_deletes_the_journal():\n"
+            "    j = Path(MG._journal_path())\n"
+            "    j.write_text(json.dumps({'pid': 1, 'file': 'x',\n"
+            "                             'original': 'a', 'mutated': 'b'}))\n"
+            "    assert j.exists()\n"
+            "    j.unlink()\n")
+        r = MG._pytest([str(t)])
+        assert r.returncode == 0, r.stdout + r.stderr
+
+        held = json.loads(Path(MG._journal_path()).read_text())
+        assert held == parent, (
+            "a child overwrote or deleted the parent's in-flight record — the "
+            "parent's mutant is now unrecoverable and nothing on disk says so")
+    finally:
+        Path(MG._journal_path()).unlink(missing_ok=True)
+
+
+def test_the_JOURNAL_PATH_is_read_PER_CALL_not_frozen_at_import(monkeypatch,
+                                                                tmp_path):
+    """`_pytest` sets the variable for the child AFTER this module is imported, so
+    a path resolved at import time would ignore it and the isolation above would
+    be decoration.
+
+    MUTATION: resolve it once into a module constant — the child inherits the
+    variable, ignores it, and writes to the parent's file anyway."""
+    # ⚠ ASSERTED AGAINST THE SYSTEM TEMP DIR, NOT AGAINST "whatever this process
+    # currently resolves". My first version captured the ambient value as `default`
+    # and compared back to it — which passes standalone and FAILS when this suite
+    # runs as a CHILD of a real gate run, because there the variable IS set and
+    # `delenv` therefore changes the answer.
+    #
+    # The gate caught that itself: every mutation in the batch came back
+    # INVALID_BASELINE naming this test, rather than crediting twenty-two kills
+    # against a suite that was already red. A test whose result depends on who
+    # launched it is not a fact about the code, and the refusal is the machinery
+    # working — the isolation this test exists to prove is exactly what broke it.
+    import tempfile as _tf
+    monkeypatch.delenv(MG.JOURNAL_DIR_ENV, raising=False)
+    assert MG._journal_path() == Path(_tf.gettempdir()) / "mutation_gate_inflight.json", (
+        "a process nobody told must resolve the shared default — every existing "
+        "caller and every other test in this file depends on that")
+    monkeypatch.setenv(MG.JOURNAL_DIR_ENV, str(tmp_path))
+    assert MG._journal_path() == tmp_path / "mutation_gate_inflight.json"
+
+
+def test_a_CHILD_CANNOT_EVEN_SEE_THE_PARENTS_DECLARATION_mid_run(tmp_path):
+    """END TO END, THROUGH `check` — and rewritten because my first version of it
+    PASSED WITH THE FIX REVERTED.
+
+    That version asserted the subject was restored afterwards. It always is: the
+    parent restores from its own IN-MEMORY copy in a `finally`, so the journal is
+    irrelevant on every path except the one where the parent DIES. A test that
+    cannot fail for the reason it names is not evidence, and I nearly filed it as
+    a kill.
+
+    What actually matters is whether the parent's declaration is REACHABLE by the
+    child while the mutation is live. So the child reports what it can see at its
+    own journal path, and the parent reads that back.
+
+    MUTATION: share the directory (drop the env var in `_pytest`, or resolve the
+    path at import) — the child sees the parent's declaration, which means it can
+    also overwrite or delete it, which is the whole defect."""
+    d = tmp_path / "pkg"
+    d.mkdir()
+    src = d / "subject.py"
+    src.write_text(MODULE)
+    original = src.read_text()
+    seen = tmp_path / "seen.txt"
+
+    t = tmp_path / "test_reports_what_it_sees.py"
+    t.write_text(
+        "import sys\n"
+        "sys.path.insert(0, %r)\n" % str(d) +
+        "sys.path.insert(0, %r)\n" % str(Path(MG.__file__).resolve().parent) +
+        "from pathlib import Path\n"
+        "import mutation_gate as MG\n"
+        "import subject as S\n"
+        "def test_double_doubles():\n"
+        "    j = Path(MG._journal_path())\n"
+        "    Path(%r).write_text('%%s|%%s' %% (j.exists(), j))\n" % str(seen) +
+        # AND THE CLOBBER THIS SUITE REALLY PERFORMS, a dozen times over.
+        "    j.unlink(missing_ok=True)\n"
+        "    assert S.double(4) == 8\n")
+
+    r = MG.check(str(src), "return x * 2", "return x * 3", [str(t)],
+                 must_fail=["test_double_doubles"])
+    assert r["verdict"] == "KILLED", r
+
+    visible, child_path = seen.read_text().split("|")
+    assert visible == "False", (
+        "the child could SEE the parent's in-flight declaration at %s while the "
+        "parent held %s mutated — so it can delete it, and a kill in that window "
+        "leaves the mutant permanent with nothing on disk declaring it"
+        % (child_path, src))
+    assert child_path != str(MG._journal_path()), (
+        "child and parent resolved the SAME journal path: %s" % child_path)
+    assert src.read_text() == original

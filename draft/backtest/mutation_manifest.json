@@ -523,6 +523,24 @@
       "test_a_PARAMETRISED_case_may_be_NAMED_THE_WAY_PYTEST_PRINTS_IT"
      ],
      "verdict": "KILLED"
+    },
+    {
+     "old": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\",\n                   **{JOURNAL_DIR_ENV: jdir})",
+     "new": "        env = dict(os.environ, PYTHONDONTWRITEBYTECODE=\"1\")",
+     "must_fail": [
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents",
+      "test_a_CHILD_CANNOT_EVEN_SEE_THE_PARENTS_DECLARATION_mid_run"
+     ],
+     "verdict": "KILLED"
+    },
+    {
+     "old": "    import os\n    import tempfile\n    return (Path(os.environ.get(JOURNAL_DIR_ENV) or tempfile.gettempdir())\n            / \"mutation_gate_inflight.json\")",
+     "new": "    import tempfile\n    return Path(tempfile.gettempdir()) / \"mutation_gate_inflight.json\"",
+     "must_fail": [
+      "test_the_JOURNAL_PATH_is_read_PER_CALL_not_frozen_at_import",
+      "test_a_CHILD_PROCESS_GETS_ITS_OWN_JOURNAL_and_cannot_touch_the_parents"
+     ],
+     "verdict": "KILLED"
     }
    ]
   },

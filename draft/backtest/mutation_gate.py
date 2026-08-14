@@ -68,7 +68,49 @@ INVALID = ("INVALID_BASELINE", "TARGET_NOT_FOUND", "AMBIGUOUS_TARGET",
 #: Deliberately OUTSIDE the repository. A marker inside the tree is one `git add
 #: -A` away from being committed, which is the failure it exists to prevent. It
 #: lives for the duration of one mutation and is removed on every exit path.
-JOURNAL = Path(__import__("tempfile").gettempdir()) / "mutation_gate_inflight.json"
+#:
+#: ⚠ AND IT MUST NOT BE SHARED WITH THE PROCESSES THIS MODULE SPAWNS. `JOURNAL`
+#: was one global path, and `test_mutation_gate.py` writes and unlinks THAT EXACT
+#: FILE — it has to, it is the suite that tests the journal. The manifest records
+#: mutations against `mutation_gate.py` whose test path IS that suite, so on every
+#: scheduled `verify_manifest` run the child destroyed the parent's restore record
+#: while the parent's mutant sat on disk.
+#:
+#: OBSERVED, NOT REASONED. 2026-08-14 00:55 UTC, mid-run, diffed against a
+#: known-good copy: `mutation_gate.py` on disk held `"all_killed": True and
+#: all(...)` while `/tmp/mutation_gate_inflight.json` named
+#: `/tmp/pytest-of-root/.../subject.py` and a child's pid. A kill in that window
+#: leaves a gate that reports every batch as fully killed, permanently, with
+#: nothing on disk declaring it — the shape of the incident above, in the module
+#: written to prevent it.
+#:
+#: So the DIRECTORY is a per-process question. `_pytest` hands every child a
+#: private one; a process nobody told resolves the default, which is what every
+#: existing caller and every test already does.
+JOURNAL_DIR_ENV = "MUTATION_GATE_JOURNAL_DIR"
+
+
+def _journal_path() -> Path:
+    """Where THIS process declares an in-flight mutation. Resolved per call.
+
+    Per CALL and not at import, because `_pytest` sets the variable for the child
+    and a module-level constant would have been frozen before that mattered.
+    """
+    import os
+    import tempfile
+    return (Path(os.environ.get(JOURNAL_DIR_ENV) or tempfile.gettempdir())
+            / "mutation_gate_inflight.json")
+
+
+#: THERE IS NO `JOURNAL` CONSTANT, DELIBERATELY. Keeping one "for callers" is
+#: what made the first version of this fix decoration: `test_mutation_gate.py`
+#: wrote `MG.JOURNAL` twelve times, the constant still resolved to the default
+#: temp dir, and every child went on clobbering its parent's record exactly as
+#: before while the new isolation sat unused one name away.
+#:
+#: A name that LOOKS like the path in use and is not is this repo's most common
+#: defect — a consumer reading a field its author believed in. So the name does
+#: not exist and there is one way to ask.
 
 
 def _pid_alive(pid: int) -> bool:
@@ -107,7 +149,7 @@ def repair(journal=None) -> dict:
                  ALARM: refuse to write, keep the journal, and name the file — an
                  automatic "restore" here would silently discard real work.
     """
-    j = Path(journal or JOURNAL)
+    j = Path(journal or _journal_path())
     if not j.exists():
         return {"status": "clean"}
     try:
@@ -153,7 +195,8 @@ def _declare(p: Path, original: str, mutated: str):
     """
     import os
     import signal
-    JOURNAL.write_text(json.dumps({
+    journal = _journal_path()
+    journal.write_text(json.dumps({
         "pid": os.getpid(), "file": str(p),
         "original": original, "mutated": mutated}))
 
@@ -161,7 +204,7 @@ def _declare(p: Path, original: str, mutated: str):
         try:
             p.write_text(original, encoding="utf-8")
             _purge_pycache(str(p))
-            JOURNAL.unlink(missing_ok=True)
+            journal.unlink(missing_ok=True)
             sys.stderr.write("mutation_gate: caught signal %d — restored %s\n"
                              % (signum, p))
         finally:
@@ -186,7 +229,7 @@ def _undeclare(prev):
             signal.signal(sig, handler)
         except (ValueError, OSError):
             pass
-    JOURNAL.unlink(missing_ok=True)
+    _journal_path().unlink(missing_ok=True)
 
 
 def _pytest(args, timeout=600):
@@ -205,10 +248,18 @@ def _pytest(args, timeout=600):
     removes anything already there.
     """
     import os
-    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
-    return subprocess.run([sys.executable, "-B", "-m", "pytest", *args, "-q",
-                           "-p", "no:cacheprovider"],
-                          capture_output=True, text=True, timeout=timeout, env=env)
+    import tempfile
+    # A PRIVATE JOURNAL DIRECTORY FOR THE CHILD — see `_journal_path`. Without
+    # this, a child that touches the journal (the gate's own suite does, because
+    # it is the suite that tests it) deletes the record that would restore the
+    # PARENT's mutant, and the parent's corruption becomes permanent and silent.
+    with tempfile.TemporaryDirectory(prefix="mutation_gate_child_") as jdir:
+        env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+                   **{JOURNAL_DIR_ENV: jdir})
+        return subprocess.run([sys.executable, "-B", "-m", "pytest", *args, "-q",
+                               "-p", "no:cacheprovider"],
+                              capture_output=True, text=True, timeout=timeout,
+                              env=env)
 
 
 def _purge_pycache(path: str):
