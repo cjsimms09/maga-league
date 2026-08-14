@@ -612,6 +612,12 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
     from statistics import median as _med
     pos_list = [str(p["row"].get("position") or "?").upper() for p in pairs]
     ages = [p["row"].get("age") for p in pairs]
+    # ⚠ THE DOMINANT CONTAMINANT WAS THE ONE THIS MODULE DID NOT LOOK FOR.
+    # `format_census_series.json`, 114 readable MFL leagues: only 6.1% are
+    # half-PPR like us and 55.3% are FULL PPR, against superflex at 21.1%. This
+    # function tested superflex and dynasty and nothing else, so the LARGEST
+    # divergence between that market and our board was unmeasured.
+    targets = [p["row"].get("target_share") for p in pairs]
     board_ranks = [ours[i] for i in range(len(pairs))]
     market_vals = [p["market_adp"] for p in pairs]
 
@@ -640,9 +646,17 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             return median(d) if len(d) >= 3 else None
         return f
 
+    def _target_stat(deltas, positions):
+        idx = [i for i in range(len(deltas))
+               if positions[i] != "QB" and isinstance(targets[i], (int, float))]
+        if len(idx) < 3:
+            return None
+        return _spearman([float(targets[i]) for i in idx], [deltas[i] for i in idx])
+
     stats = {("pos:" + k): _pos_stat(k) for k in by_pos}
     stats["qb"] = _qb_stat
     stats["age"] = _age_stat
+    stats["target"] = _target_stat
     NB = _nulls(stats, market_vals, pos_list, board_ranks)
 
     for k, v in by_pos.items():
@@ -713,11 +727,59 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
             "detected": bool((not thin) and hit),
         }
 
-    detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty))
+    # ── RECEPTION SCORING: THE SIGNATURE THE CENSUS SAYS DOMINATES ──────────
+    #
+    # PREDICTION STATED BEFORE THE NUMBER WAS COMPUTED, because the sign IS the
+    # claim and I have had a counterfactual backwards before. A market that is
+    # 55.3% full PPR values a reception MORE than our half-PPR board does, so it
+    # should price high-target players EARLIER than we do. `delta` is
+    # market_rank - board_rank, so earlier means NEGATIVE, and the correlation
+    # between target share and delta should therefore be NEGATIVE. **The LOW tail
+    # counts**, as with superflex. A positive rho would be the opposite
+    # composition — a market LESS reception-heavy than ours — and must not be
+    # allowed to read as a weaker version of the same finding.
+    #
+    # ⚠ MISSING target_share IS NOT ZERO, for the same reason a missing age is not
+    # a rookie aged 0: a player with no target share recorded would sit at the
+    # bottom of the gradient this is looking for and manufacture it. Excluded.
+    #
+    # NON-QB ONLY. Quarterbacks catch nothing, their target share is 0 or absent
+    # by construction, and leaving them in would put a large block at one end of
+    # the x-axis whose position says nothing about reception scoring.
+    # ⚠ ONE POPULATION, DEFINED ONCE. This built the set TWICE — a `tgt` list off
+    # `rows` for the length guard and an `idx` list off `pos_list` for the
+    # arithmetic — and the mutation gate proved they could drift: removing the QB
+    # filter from one of them changed nothing the output could show, so the
+    # mutation SURVIVED. Two definitions of one thing is rule 11, and here the
+    # duplicate existed purely so a guard could count a set the maths never used.
+    idx = [i for i in range(len(pairs))
+           if pos_list[i] != "QB" and isinstance(targets[i], (int, float))]
+    reception = None
+    if len(idx) >= 3:
+        rho = _spearman([float(targets[i]) for i in idx],
+                        [rows[i]["delta"] for i in idx])
+        nb = NB.get("target")
+        hit, wide = _verdict(rho, nb, len(pairs), "low")
+        reception = {
+            "target_share_rho_non_qb": None if rho is None else round(rho, 3),
+            "n": len(idx), "null": nb,
+            "null_too_wide": wide,
+            "detected": bool((not thin) and hit),
+            "reads": "NEGATIVE rho = the market prices high-target players "
+                     "EARLIER than our board, which is what a more "
+                     "reception-heavy market looks like from a half-PPR board.",
+            "census_basis": "6.1% of 114 sampled MFL leagues are half-PPR; "
+                            "55.3% are full PPR (format_census_series.json, "
+                            "one undated sample).",
+        }
+
+    detected = [k for k, v in (("superflex", superflex), ("dynasty", dynasty),
+                               ("reception", reception))
                 if v and v.get("detected")]
     if thin:
         return dict(base, status="thin", observed_at=note, n=len(pairs),
                     by_position=by_pos, superflex=superflex, dynasty=dynasty,
+                    reception=reception,
                     aged=len(aged), no_age=len(rows) - len(aged),
                     rows=sorted(rows, key=lambda r: r["delta"]),
                     note="only %d players crosswalked inside pick %s, under the %d "
@@ -728,6 +790,7 @@ def format_composition(archive, board, year="2026", top_n=DRAFT_RANGE,
                          % (len(pairs), top_n, int(MIN_RANKED_FRACTION * float(top_n))))
     return dict(base, status="measured", observed_at=note, n=len(pairs),
                 by_position=by_pos, superflex=superflex, dynasty=dynasty,
+                    reception=reception,
                 aged=len(aged), no_age=len(rows) - len(aged),
                 rows=sorted(rows, key=lambda r: r["delta"]),
                 note=("THE MARKET IS NOT DRAFTING OUR FORMAT (%s). Its adp is an "
@@ -883,12 +946,19 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
     for d in days:
         f = format_composition(archive, board, year, top_n, observed_at=d)
         sfx, dyn = f.get("superflex") or {}, f.get("dynasty") or {}
+        # THE THIRD ARM IS TRACKED THE DAY IT IS WRITTEN (rule 14). Adding a
+        # detector to `format_composition` and not to the series that watches it
+        # flip would leave the market's LARGEST divergence from our format
+        # measured once a day and never compared across days.
+        rcp = f.get("reception") or {}
         series.append({"observed_at": d, "status": f["status"], "n": f["n"],
                        "qb_median_slots": sfx.get("qb_median_slots"),
                        "qb_median_fraction": sfx.get("qb_median_fraction"),
                        "superflex": sfx.get("detected"),
                        "age_rho_non_qb": dyn.get("age_rho_non_qb"),
-                       "dynasty": dyn.get("detected")})
+                       "dynasty": dyn.get("detected"),
+                       "target_share_rho_non_qb": rcp.get("target_share_rho_non_qb"),
+                       "reception": rcp.get("detected")})
     usable = [s for s in series if s["status"] == "measured"
               and s["qb_median_fraction"] is not None]
     base = {"days": series, "measured_days": len(usable), "drift": None,
@@ -905,7 +975,8 @@ def format_trend(archive, board, year="2026", top_n=DRAFT_RANGE) -> dict:
                                % len(usable))
     first, last = usable[0], usable[-1]
     drift = last["qb_median_fraction"] - first["qb_median_fraction"]
-    flipped = [k for k in ("superflex", "dynasty") if first[k] != last[k]]
+    flipped = [k for k in ("superflex", "dynasty", "reception")
+               if first[k] != last[k]]
     return dict(base, status="measured", drift=round(drift, 4),
                 moving=abs(drift) >= COMPOSITION_DRIFT_FRACTION,
                 flipped=flipped,

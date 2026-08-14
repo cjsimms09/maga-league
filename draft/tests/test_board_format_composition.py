@@ -644,3 +644,115 @@ def test_THE_RETIRED_LINE_IS_REPORTED_but_is_not_the_verdict():
     s2 = small["superflex"]
     assert abs(s2["qb_median_slots"]) > s2["reference_line_slots"], "clears the old line"
     assert s2["detected"] is False, "and is still inside the null"
+
+
+# ── RECEPTION SCORING: THE DIVERGENCE THE CENSUS SAYS DOMINATES ─────────────
+#
+# `format_composition` tested superflex and dynasty and nothing else. The MFL
+# format census (114 readable leagues) says only 6.1% are half-PPR like us and
+# 55.3% are FULL PPR, against superflex at 21.1% — so the LARGEST divergence
+# between that market and our board was the one this module did not look for.
+
+def _tgt_rows(pairs):
+    """pairs: [(target_share, market_adp)] — board adp is the index order."""
+    rows = [{"player_id": str(i), "name": "P%d" % i, "position": "WR",
+             "adp": float(i + 1), "adp_source": "fantasypros",
+             "adp_sd": 1.0, "adp_sd_source": "ffc-published",
+             "age": 25.0, "target_share": ts}
+            for i, (ts, _m) in enumerate(pairs)]
+    key = {str(i): {"name": "P%d" % i, "position": "WR", "team": "NYJ"}
+           for i in range(len(pairs))}
+    arch = {"players": key,
+            "series": [{"year": "2026", "observed_at": "2026-08-14",
+                        "rows": {str(i): float(m) for i, (_t, m) in enumerate(pairs)},
+                        "row_count": len(pairs)}]}
+    return arch, {"players": rows}
+
+
+def test_a_MORE_RECEPTION_HEAVY_market_shows_as_a_NEGATIVE_rho():
+    """The sign IS the claim, and it was predicted before the number was computed.
+    A market that values a reception more than our board prices high-target
+    players EARLIER; `delta` is market_rank - board_rank, so earlier is NEGATIVE.
+
+    MUTATION: score the HIGH tail — a market MORE reception-heavy than ours reads
+    as undetected, and one LESS reception-heavy reads as the finding."""
+    # THE FIRST VERSION OF THIS FIXTURE EXPRESSED THE OPPOSITE HYPOTHESIS and
+    # returned rho +1.0, which is the detector working: I had built a market that
+    # prices high-target players LATER. Board rank is i+1; target share alternates
+    # independently of it, and the market moves HIGH-target players 10 slots
+    # EARLIER and low-target players 10 slots later. So delta is negative exactly
+    # where target share is high, which is the claim.
+    n = 40
+    pairs = []
+    for i in range(n):
+        high = (i % 2 == 0)
+        ts = 0.25 if high else 0.05
+        mkt = float(max(1, (i + 1) - 10 if high else (i + 1) + 10))
+        pairs.append((ts, mkt))
+    arch, board = _tgt_rows(pairs)
+    f = B.format_composition(arch, board, "2026", n)
+    rcp = f.get("reception")
+    assert rcp is not None, f
+    assert rcp["target_share_rho_non_qb"] < 0, rcp
+    assert "EARLIER" in rcp["reads"]
+    # ⚠ AND THE VERDICT, NOT ONLY THE SIGN. Asserting `rho < 0` leaves the TAIL
+    # unguarded: flipping `_verdict(..., "low")` to `"high"` changes nothing about
+    # rho or the `reads` string, and the gate proved that mutation SURVIVED. The
+    # tail is the half of the claim that decides whether a finding is reported.
+    assert rcp["detected"] is True, rcp
+
+    # THE OPPOSITE COMPOSITION MUST NOT READ AS A WEAKER VERSION OF THIS ONE. A
+    # market LESS reception-heavy than ours prices high-target players LATER, and
+    # a two-sided test would call that the same finding.
+    flip = [(ts, float(max(1, (i + 1) + 10 if ts > 0.1 else (i + 1) - 10)))
+            for i, (ts, _m) in enumerate(pairs)]
+    arch2, board2 = _tgt_rows(flip)
+    r2 = B.format_composition(arch2, board2, "2026", n)["reception"]
+    assert r2["target_share_rho_non_qb"] > 0, r2
+    assert r2["detected"] is False, r2
+
+
+def test_a_MISSING_target_share_is_excluded_not_read_as_zero():
+    """A player with no target share would sit at the bottom of the gradient this
+    is looking for and manufacture it — the same reason a missing age is not a
+    rookie aged 0.
+
+    MUTATION: `float(targets[i] or 0)` — every unrecorded player becomes a
+    zero-target anchor and the correlation is built out of absent data."""
+    n = 30
+    pairs = [(0.25 - 0.006 * i, float(n - i)) for i in range(n)]
+    arch, board = _tgt_rows(pairs)
+    for r in board["players"][:12]:
+        del r["target_share"]
+    f = B.format_composition(arch, board, "2026", n)
+    rcp = f.get("reception")
+    assert rcp["n"] == n - 12, rcp
+
+
+def test_QUARTERBACKS_are_excluded_from_the_reception_gradient():
+    """QBs catch nothing; their target share is 0 or absent by construction, so
+    leaving them in puts a large block at one end of the x-axis whose position
+    says nothing about reception scoring.
+
+    MUTATION: drop the position filter — the QB block drives the correlation."""
+    n = 30
+    pairs = [(0.25 - 0.006 * i, float(n - i)) for i in range(n)]
+    arch, board = _tgt_rows(pairs)
+    for r in board["players"][:10]:
+        r["position"] = "QB"
+        r["target_share"] = 0.0
+    f = B.format_composition(arch, board, "2026", n)
+    assert f["reception"]["n"] == n - 10, f["reception"]
+
+
+def test_the_THIRD_ARM_is_tracked_by_the_trend_the_day_it_is_written():
+    """rule 14 — a detector added to `format_composition` and not to the series
+    that watches it flip is measured once a day and never compared across days.
+
+    MUTATION: leave ("superflex", "dynasty") in the flip list — the market's
+    LARGEST divergence can switch on or off and `flipped` stays silent."""
+    import inspect
+    src = inspect.getsource(B.format_trend)
+    assert '"reception"' in src, "format_trend does not carry the reception arm"
+    assert 'for k in ("superflex", "dynasty", "reception")' in src, \
+        "the flip list does not include reception"
