@@ -1,14 +1,17 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/learning_loop.py",
- "_note": "Measured grading \u2192 concrete model-update recommendations. NOTHING here is applied: every default is untouched, acceptance is a one-line reviewed change per recommendation, gated on Cory's ruling.",
+ "_note": "Measured grading \u2192 concrete model-update recommendations. A change is applied ONLY under a recorded ruling from Cory (REC-1: his 2026-08-15 'We need to fix!!!', decision arm re-verified first); everything else is untouched and acceptance stays a one-line reviewed change per recommendation.",
  "generated_by": "draft/backtest/learning_loop.py",
- "defaults_untouched": true,
+ "applied_under_ruling": [
+  "REC-1-proj-sd-calibration"
+ ],
+ "defaults_untouched_beyond_ruling": true,
  "recommendations": [
   {
    "id": "REC-1-proj-sd-calibration",
-   "status": "ready-for-ruling",
-   "summary": "Derive proj_sd from MEASURED 2023-25 projection error (projection_error.proj_sd_for) instead of the hand-set POSITION_VARIANCE constants, per position \u00d7 projection-rank band.",
-   "proposed_values": {
+   "status": "applied-2026-08-15",
+   "summary": "proj_sd now comes from MEASURED 2023-25 projection error (projection_error.proj_sd_for) per position \u00d7 projection-rank band, with the POSITION_VARIANCE path as fallback for unmeasured cells (K/DEF/unranked). Wired in draft/projections.py blend(); each board row declares its path in proj_sd_source.",
+   "applied_values": {
     "QB|17-32": {
      "sd_ratio": 0.572513,
      "n": 42
@@ -92,11 +95,11 @@
    },
    "evidence": [
     "draft/backtest/projection_error_calibration.json \u2014 20 measured cells, 1,304 graded players (C)",
-    "draft/backtest/BOARD-UNCERTAINTY-AUDIT.md \u2014 shipped sd understates measured by median 1.38x; streaming-range QBs ship ~70 against measured 145-185",
-    "draft/backtest/PROJ-SD-DECISION-ARM.md \u2014 the 12-seat plan's ROLES are identical under the measured arm, so adoption does not move the plan; what it fixes is every uncertainty surface reading an honest spread"
+    "draft/backtest/BOARD-UNCERTAINTY-AUDIT.md \u2014 shipped sd understated measured by median 1.38x; streaming-range QBs shipped ~70 against measured 145-185",
+    "draft/backtest/PROJ-SD-DECISION-ARM.md \u2014 original arm AND the 2026-08-15 addendum: re-run on the fresh board before wiring, roles identical at all twelve seats, same four bench flips"
    ],
-   "acceptance": "one reviewed change: projections.blend() computes season_sd via projection_error.proj_sd_for(cal, position, rank, mean) with the POSITION_VARIANCE path as fallback for unmeasured cells. NOT APPLIED \u2014 Cory's ruling gates every scoring-path change.",
-   "caveat": "calibration is fitted on walk_forward's error; provider baselines may be tighter \u2014 C's stated assumption, unresolved until January 2027"
+   "acceptance": "APPLIED \u2014 the exact acceptance line shipped: projections.blend() computes season_sd via projection_error.proj_sd_for(cal, position, rank, mean) with the POSITION_VARIANCE path as fallback. Authorized by Cory's ruling on the 2026-08-15 learning audit; decision arm re-verified on the current board first. Guarded by draft/tests/test_proj_sd_wiring.py and proj_sd_arm.test.js.",
+   "caveat": "calibration is fitted on walk_forward's error; provider baselines may be tighter \u2014 C's stated assumption, unresolved until January 2027. Band edges are discontinuous in rank (smooth-in-rank caveat recorded in the arm doc)."
   },
   {
    "id": "REC-2-source-weights",
@@ -110,26 +113,82 @@
      "sleeper"
     ]
    },
+   "unlock_progress": {
+    "weeks_graded": 0,
+    "weeks_needed": 17,
+    "store": "draft/backtest/nflverse_weekly_points_2026.json",
+    "store_exists": false,
+    "line": "REC-2: 0/17 graded 2026 weeks in the committed store \u2014 unlocks ~2027-01",
+    "checked_by": "draft/tools/weekly_grade_runner.js every Tuesday (GitHub Actions), which also regenerates this artifact"
+   },
    "preregistered": "metric, population, cutoff and weight rule fixed 2026-08-15 in learning_loop.py, before any 2026 outcome exists \u2014 see module docstring. The January run cannot be tuned to fit.",
    "acceptance": "one reviewed change in build.py's composition once measured: per-position weighted blend with the emitted weights. NOT APPLIED."
   },
   {
    "id": "REC-3-own-model-stays-display-only",
    "status": "standing-negative",
-   "summary": "proj_ownmodel (walk_forward) LOSES to the naive recency blend at 4/4 positions on MAE (shared population, 2025, leak-free) and at 4/4 on rank correlation. It must stay a display-only third opinion; any promotion to the composition is evidence-blocked by this measurement.",
+   "summary": "proj_ownmodel (walk_forward) LOSES to the naive recency blend at 4/4 positions on MAE (shared population, 2025, leak-free) and at 4/4 on rank correlation. It must stay a display-only third opinion; any promotion to the composition is evidence-blocked until a candidate clears the promotion bar.",
+   "promotion_bar": {
+    "rule": "promotion of ANY own model (v1, v2, or successor) into the composition requires beating BOTH naive baselines (naive_prev AND recency_blend) at ALL four positions on BOTH metrics (MAE and Spearman) in the leak-free walk-forward protocol, then a reviewed promotion decision file for Cory \u2014 never an automatic flip. The bar Cory's ruling implies: until it earns it.",
+    "candidates": {
+     "own_model_v2": {
+      "bar": "beat BOTH naive baselines at ALL four positions on BOTH metrics (MAE and Spearman), shared population, leak-free walk-forward",
+      "clears": false,
+      "per_position": {
+       "QB": {
+        "mae_beats_both": false,
+        "spearman_beats_both": false,
+        "v2_mae": 76.14,
+        "best_baseline_mae": 74.09,
+        "v2_spearman": 0.7166,
+        "best_baseline_spearman": 0.7213
+       },
+       "RB": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "v2_mae": 41.19,
+        "best_baseline_mae": 42.55,
+        "v2_spearman": 0.7686,
+        "best_baseline_spearman": 0.7587
+       },
+       "WR": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "v2_mae": 34.08,
+        "best_baseline_mae": 36.7,
+        "v2_spearman": 0.7461,
+        "best_baseline_spearman": 0.7293
+       },
+       "TE": {
+        "mae_beats_both": true,
+        "spearman_beats_both": false,
+        "v2_mae": 23.81,
+        "best_baseline_mae": 24.27,
+        "v2_spearman": 0.776,
+        "best_baseline_spearman": 0.7826
+       }
+      },
+      "consequence": "clears=false \u2192 proj_ownmodel and v2 stay display-only. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."
+     }
+    }
+   },
    "evidence": [
-    "draft/backtest/model_accuracy_2025.json \u2014 head_to_head_shared_population"
+    "draft/backtest/model_accuracy_2025.json \u2014 head_to_head_shared_population",
+    "draft/backtest/model_accuracy_v2.json \u2014 v2 graded under the same protocol"
    ],
-   "acceptance": "nothing to accept \u2014 this recommendation BLOCKS a change. It expires only if a future season's head-to-head reverses it."
+   "acceptance": "nothing to accept \u2014 this recommendation BLOCKS a change. It expires only when a candidate clears the promotion bar above in the walk-forward AND Cory accepts the written promotion decision."
   },
   {
    "id": "REC-4-evidence-weights-have-no-reader",
    "status": "wiring-gap",
-   "summary": "grade-cron writes evidence_weights:current every week and NOTHING reads it \u2014 the one artifact designed to feed measured calibration back into the model terminates in the store. Until a consumer exists the grading loop's last arc is display, not learning.",
+   "summary": "grade-cron writes evidence_weights:current every week. The read side now exists: netlify/functions/weights-read.js exposes it read-only, draft/tools/weekly_grade_runner.js mirrors it into draft/data/evidence_weights_latest.json every Tuesday, and this artifact consumes the mirror on each weekly regeneration \u2014 so weekly grades flow into the RECOMMENDATION artifact, era-stamped. A LIVE parameter consumer stays deliberately unwired: that change is beyond REC-1's ruling and remains a design ruling for Cory.",
+   "consumed_evidence_weights": null,
+   "reader_status": "reader wired and executed, but no mirror on disk yet \u2014 the weekly runner writes it once WEIGHTS_READ_URL/SITE_URL is configured in the workflow and grade-cron has produced a snapshot; until then this is a named absence, not a claim",
    "evidence": [
-    "grep evidence_weights: writer in netlify/functions/grade-cron.js:88, zero readers anywhere in src/, public/, draft/"
+    "writer: netlify/functions/grade-cron.js (evidence_weights:current, era-stamped)",
+    "read side: netlify/functions/weights-read.js (read-only expose) \u2192 draft/tools/weekly_grade_runner.js (weekly mirror) \u2192 this artifact"
    ],
-   "acceptance": "a reviewed consumer in the engine or the board build that reads evidence_weights:current and adjusts a DECLARED, gated parameter. Which parameter is a design ruling \u2014 deliberately not proposed here."
+   "acceptance": "consumption into a LIVE parameter stays gated: a reviewed consumer in the engine or the board build adjusting a DECLARED parameter. Which parameter is a design ruling \u2014 deliberately not proposed here."
   }
  ]
 }

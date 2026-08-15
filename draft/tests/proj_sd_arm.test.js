@@ -91,33 +91,60 @@ const bandSd = (pos, rank) => {
 {
   const rows = (D.players || []).filter(p => p.proj_mean && p.pos_rank && BANDS[p.position]);
   ck('the board carries the fields the arm needs', rows.length > 300, rows.length);
+  const rebuilt = rows.filter(p => p.proj_sd_source === 'measured-2023-25-error').length
+    > rows.length * 0.5;
   const changed = rows.filter(p => {
     const sd = bandSd(p.position, p.pos_rank);
     return sd != null && Math.abs(p.proj_mean * sd - (p.proj_sd || 0)) > 0.5;
   });
-  ck('CONTROL — applying C\'s measured bands really does move proj_sd on most '
-    + 'of the board, so the arm is not comparing a board with itself',
-  changed.length > rows.length * 0.8, { changed: changed.length, of: rows.length });
+  if (!rebuilt) {
+    ck('CONTROL — applying C\'s measured bands really does move proj_sd on most '
+      + 'of the board, so the arm is not comparing a board with itself',
+    changed.length > rows.length * 0.8, { changed: changed.length, of: rows.length });
+  } else {
+    ck('CONTROL (post-rebuild form) — the shipped board and the measured table now '
+      + 'agree on nearly every banded row, because REC-1 wired the table in',
+    changed.length < rows.length * 0.2, { changed: changed.length, of: rows.length });
+  }
 }
 
-// ── 2. THE FINDING ITSELF, RE-DERIVED FROM THE LIVE BOARD ───────────────
-// Not "C said 1.28" — computed here, so it moves when the board moves.
+// ── 2. THE BOARD'S RELATION TO THE MEASURED TABLE, RE-DERIVED ───────────
+// Two valid states since REC-1 was applied (2026-08-15): a board built BEFORE
+// the wiring still ships the understated constants (the original finding must
+// re-derive), and a board built AFTER ships the measured table itself (the
+// rows must MATCH it and say so). Which state we are in is read from the
+// board's own proj_sd_source declaration, never assumed.
 {
   const rows = (D.players || []).filter(p => p.proj_mean > 0 && p.proj_sd > 0
     && p.pos_rank && BANDS[p.position]);
-  const ratios = rows.map(p => bandSd(p.position, p.pos_rank) / (p.proj_sd / p.proj_mean))
-    .filter(v => isFinite(v) && v > 0).sort((a, b) => a - b);
-  const med = ratios[Math.floor(ratios.length / 2)];
-  console.log('      measured ÷ shipped dispersion, median across the board: '
-    + med.toFixed(2) + '×  (n=' + ratios.length + ')');
-  ck('the board\'s dispersion really is BELOW the measured one — the direction '
-    + 'of C\'s finding, re-derived rather than quoted', med > 1.05, med);
-  ck('and it is not so extreme that something else is wrong — a 5× gap would '
-    + 'mean the units disagree, not that the parameter is low', med < 3, med);
-  const below = rows.filter(p => bandSd(p.position, p.pos_rank) > p.proj_sd / p.proj_mean).length;
-  ck('it is a TENDENCY, not a uniform offset — some of the board runs the other '
-    + 'way, exactly as C reported', below > rows.length * 0.5 && below < rows.length,
-  { below: below, of: rows.length });
+  const declared = rows.filter(p => p.proj_sd_source === 'measured-2023-25-error');
+  const rebuilt = declared.length > rows.length * 0.5;
+  console.log('      board state: ' + (rebuilt
+    ? 'post-REC-1 rebuild (' + declared.length + '/' + rows.length + ' rows declare the measured source)'
+    : 'pre-REC-1 rebuild (constants still shipped)'));
+  if (!rebuilt) {
+    const ratios = rows.map(p => bandSd(p.position, p.pos_rank) / (p.proj_sd / p.proj_mean))
+      .filter(v => isFinite(v) && v > 0).sort((a, b) => a - b);
+    const med = ratios[Math.floor(ratios.length / 2)];
+    console.log('      measured ÷ shipped dispersion, median across the board: '
+      + med.toFixed(2) + '×  (n=' + ratios.length + ')');
+    ck('the pre-rebuild board\'s dispersion really is BELOW the measured one — '
+      + 'the direction of C\'s finding, re-derived rather than quoted', med > 1.05, med);
+    ck('and it is not so extreme that something else is wrong — a 5× gap would '
+      + 'mean the units disagree, not that the parameter is low', med < 3, med);
+    const below = rows.filter(p => bandSd(p.position, p.pos_rank) > p.proj_sd / p.proj_mean).length;
+    ck('it is a TENDENCY, not a uniform offset — some of the board runs the other '
+      + 'way, exactly as C reported', below > rows.length * 0.5 && below < rows.length,
+    { below: below, of: rows.length });
+  } else {
+    const off = declared.filter(p =>
+      Math.abs(p.proj_sd - p.proj_mean * bandSd(p.position, p.pos_rank)) > 0.6);
+    ck('every row that declares the measured source actually CARRIES the measured '
+      + 'band sd — the declaration and the number cannot part ways',
+    off.length === 0, off.slice(0, 3).map(p => p.name));
+    ck('and the identity proj_sd == proj_mean × variance still holds on the rebuilt rows',
+      declared.every(p => Math.abs(p.proj_sd - p.proj_mean * p.variance) < 0.6));
+  }
 }
 
 // ── 3. THE CLAIMS THE WRITE-UP MAKES, CHECKED ───────────────────────────
@@ -126,8 +153,11 @@ const bandSd = (pos, rank) => {
 {
   ck('the write-up exists', fs.existsSync(DOC));
   const doc = fs.readFileSync(DOC, 'utf8');
-  ck('it states production is UNCHANGED, which is the whole disposition',
-    /Nothing here is wired\. Production is unchanged\./.test(doc));
+  ck('it records the DISPOSITION CHANGE — the arm was re-run on the fresh board '
+    + 'and REC-1 applied under Cory\'s ruling, not silently',
+  /DISPOSITION CHANGED 2026-08-15/.test(doc) && /ADDENDUM 2026-08-15/.test(doc));
+  ck('the addendum states the re-run REPRODUCED the original result before '
+    + 'anything was wired', /Result: identical to the original measurement/.test(doc));
   ck('it names the arm as an UPPER BOUND rather than a best estimate — the '
     + 'caveat that makes a null result meaningful', /upper bound/i.test(doc));
   ck('it records that ROLES never change, which is the load-bearing half',
@@ -146,18 +176,27 @@ const bandSd = (pos, rank) => {
     my.length === 12 && inDoc.length === 12, { picks: my.length, in_doc: inDoc.length });
 }
 
-// ── 4. THE DISPOSITION IS RECORDED WHERE IT WILL BE READ ────────────────
-// C's finding said "not an ask". This file's answer is "and here is why that is
-// safe". If production ever DOES adopt a recalibration, this must fail rather
-// than sit here describing a decision nobody is making any more.
+// ── 4. THE NEW DISPOSITION IS WIRED THE WAY THE RULING SAYS ─────────────
+// The original form of this section pinned POSITION_VARIANCE as the shipped
+// source and existed to FAIL the day production adopted a recalibration — the
+// point at which the arm had to be re-run. That day was 2026-08-15: the arm
+// WAS re-run (reproduced), Cory's ruling landed, and REC-1 is applied. This
+// section now pins the applied form instead.
 {
   const proj = fs.readFileSync(path.join(ROOT, 'draft', 'projections.py'), 'utf8');
-  ck('POSITION_VARIANCE is still the shipped source of dispersion — if this ever '
-    + 'changes, the arm above needs re-running before its conclusion is quoted',
+  ck('blend() routes proj_sd through C\'s applier — the calibration finally has '
+    + 'its production caller (REC-1\'s exact acceptance line)',
+  /proj_sd_for\(cal, p\.get\("position"\), rank, mean_proj\)/.test(proj));
+  ck('POSITION_VARIANCE survives as the FALLBACK for unmeasured cells, not as '
+    + 'the primary — deleted would mean K/DEF ship sd 0',
   /POSITION_VARIANCE = \{/.test(proj) && /season_sd = mean_proj \* var/.test(proj));
+  ck('every row declares which path priced it (proj_sd_source), so a consumer '
+    + 'can tell a fitted number from a filled-in one',
+  /proj_sd_source/.test(proj) && /position_variance/.test(proj)
+    && /measured-2023-25-error/.test(proj));
   const qb = (proj.match(/"QB": ([0-9.]+)/) || [])[1];
-  ck('and the QB base variance is unchanged at the value the arm was run against',
-    qb === '0.22', qb);
+  ck('the fallback QB base variance is unchanged — the ruling covered the measured '
+    + 'table, not a retuning of the constants', qb === '0.22', qb);
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

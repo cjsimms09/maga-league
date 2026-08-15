@@ -70,9 +70,13 @@
   # It projects through liveWeek-1, not liveWeek: teamStrength reads weeks
   # 1..throughWeek, so the week in progress would feed it a week of zeros.
   #
-  # It EMITS ONLY. Resolution of a checkpoint is a separate pass over forecasts
-  # written on earlier runs, once the regular season is final — a job that
-  # emitted and resolved in one pass could settle a forecast it had just made.
+  # It emits, and it RESOLVES — as a separate pass over forecasts written on
+  # EARLIER runs only, gated on the regular season being final in the harvested
+  # history (loop closure 2026-08-15: the resolvers existed since the emitter
+  # landed and nothing ever scheduled them). Until season-final each run
+  # reports the pending count by name; at season-final it resolves the two
+  # kinds once, deduped on forecast_key, this run's own emissions excluded —
+  # a job must never settle a forecast it just made.
   schedule = "5 13 * * 0"
 
 [functions."app"]

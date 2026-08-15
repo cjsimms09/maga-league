@@ -38,15 +38,29 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
       - name: Run the weekly grade runner (self-checks inside; exit 1 = pipe broken)
+        # SITE_URL (repo variable) + GRADE_CRON_KEY (secret) arm step 3, the
+        # read-only evidence-weights mirror. Unset = the step SKIPS BY NAME in
+        # the log; it never reds a run. The runner also machine-checks REC-2's
+        # unlock (graded 2026 weeks) and regenerates the recommendation
+        # artifact via learning_loop.py — the loop-closure read side.
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          GRADE_CRON_KEY: ${{ secrets.GRADE_CRON_KEY }}
         run: node draft/tools/weekly_grade_runner.js
-      - name: Commit the refreshed component grades
+      - name: Commit the refreshed loop artifacts
         run: |
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
           git add draft/data/component_grades.json
+          git add draft/data/model_update_recommendations.json
+          # the mirror only exists once SITE_URL is configured and grade-cron
+          # has produced a snapshot — absent is a named preseason state
+          git add draft/data/evidence_weights_latest.json 2>/dev/null || true
           # Nothing staged is a no-op (no input moved this week), not a
           # failure — same reasoning as the projection snapshot's commit step.
-          git diff --cached --quiet && echo "no change — artifact already fresh" && exit 0
-          git commit -m "weekly component grades [skip deploy]"
+          git diff --cached --quiet && echo "no change — artifacts already fresh" && exit 0
+          git commit -m "weekly loop artifacts: component grades + recommendation refresh [skip deploy]"
           git push

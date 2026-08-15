@@ -20,6 +20,18 @@
  *     resolver + grader the live crons use against REAL 2023 history with
  *     independently hand-summed expected answers.
  *
+ *     LOOP CLOSURE (2026-08-15, Cory's ruling): three read-side steps —
+ *     (3) MIRROR evidence_weights:current from the live store (read-only
+ *         weights-read function; never grade-cron's manual key, which RUNS a
+ *         grading pass) into draft/data/evidence_weights_latest.json, era
+ *         stamp and all — grade-cron's weights finally have a reader;
+ *     (4) CHECK REC-2's unlock condition (graded 2026 weeks in the committed
+ *         store) so 'blocked until January' is observed by machinery weekly,
+ *         never remembered;
+ *     (5) REGENERATE draft/data/model_update_recommendations.json
+ *         (learning_loop.py), which consumes the mirror — weekly grades flow
+ *         into the RECOMMENDATION artifact, not into live parameters.
+ *
  * WHY THE SELF-CHECK EXISTS (the component_write pattern, one level up): from
  * now until week 1 every real input is empty, so a broken resolver and a quiet
  * preseason look identical from the outside. The check below is labelled a
@@ -110,6 +122,85 @@ function selfCheckResolutionPipe() {
       + 'not a measurement (rule 10d): it proves the code computes, nothing else.' };
 }
 
+/* (3) THE EVIDENCE-WEIGHTS MIRROR — REC-4's read side. Fetches the read-only
+ * weights-read function and writes the era-stamped mirror the recommendation
+ * artifact consumes. Degrades honestly: unset URL or unreachable site is a
+ * NAMED absence (the mirror is left as-is and the run says why), never a
+ * failure — preseason weeks with no deploy configured must stay green. */
+function mirrorEvidenceWeights() {
+  const site = process.env.SITE_URL || '';
+  const key = process.env.GRADE_CRON_KEY || '';
+  if (!site) {
+    return Promise.resolve({ ok: false, skipped: true,
+      detail: 'SITE_URL unset — mirror step skipped by name; configure the repo '
+        + 'variable to arm the weekly fetch' });
+  }
+  const url = site.replace(/\/$/, '') + '/.netlify/functions/weights-read'
+    + (key ? ('?key=' + encodeURIComponent(key)) : '');
+  return fetch(url, { signal: AbortSignal.timeout(20000) })
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(doc => {
+      if (!doc || doc.ok !== true) throw new Error('weights-read returned not-ok');
+      if (!doc.weights) {
+        return { ok: false, skipped: true,
+          detail: 'reachable, but no evidence_weights:current in the store yet — '
+            + 'grade-cron has not produced a snapshot; named absence, not a claim' };
+      }
+      const out = {
+        _territory: 'TERRITORY: A — mirrored by draft/tools/weekly_grade_runner.js',
+        _note: 'Weekly mirror of evidence_weights:current (grade-cron\'s consumed '
+          + 'weights, rules_era stamp included). Consumed by learning_loop.py into '
+          + 'model_update_recommendations.json — the RECOMMENDATION artifact, not a '
+          + 'live parameter (REC-4).',
+        fetched_at: new Date().toISOString(),
+        calibration_snapshots: doc.calibration_snapshots || 0,
+        weights: doc.weights,
+      };
+      fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'evidence_weights_latest.json'),
+        JSON.stringify(out, null, 1));
+      return { ok: true, detail: 'mirrored (graded_n=' + (doc.weights.graded_n || 0)
+        + ', era=' + String((doc.weights.rules_era || {}).signature || 'unstamped').slice(0, 12)
+        + ', snapshots=' + (doc.calibration_snapshots || 0) + ')' };
+    })
+    .catch(e => ({ ok: false, skipped: true,
+      detail: 'fetch failed (' + (e && e.message) + ') — mirror left as-is; a red '
+        + 'weekly run is reserved for a broken pipe, not an unreachable site' }));
+}
+
+/* (4) REC-2's UNLOCK CONDITION, machine-checked. The prereg (learning_loop.py)
+ * grades weeks 1-17 of the 2026 store; until that store exists and fills, the
+ * recommendation is blocked — and this line is how 'blocked' stays OBSERVED. */
+function rec2UnlockCheck() {
+  const p = path.join(ROOT, 'draft', 'backtest', 'nflverse_weekly_points_2026.json');
+  let weeks = 0;
+  if (fs.existsSync(p)) {
+    try {
+      const store = JSON.parse(fs.readFileSync(p, 'utf8'));
+      weeks = new Set((store.weeks || []).filter(w => w.week >= 1 && w.week <= 17)
+        .map(w => w.week)).size;
+    } catch (e) { /* unreadable store counts as 0 graded weeks, said below */ }
+  }
+  return { weeks: weeks, needed: 17,
+    line: 'REC-2 source-weights unlock: ' + weeks + '/17 graded 2026 weeks in the '
+      + 'committed store — unlocks ~2027-01'
+      + (weeks === 0 ? ' (store ' + (fs.existsSync(p) ? 'present but empty' : 'absent')
+        + ' — correct until week 1)' : '') };
+}
+
+/* (5) THE RECOMMENDATION ARTIFACT REFRESH — learning_loop.py consumes the
+ * mirror (and every other committed grade artifact) so weekly grades land in
+ * the one artifact rulings act on. A failure HERE is a broken pipe: red. */
+function refreshRecommendations() {
+  const { spawnSync } = require('child_process');
+  const r = spawnSync('python3', [path.join(ROOT, 'draft', 'backtest', 'learning_loop.py')],
+    { encoding: 'utf8', timeout: 120000 });
+  if (r.status !== 0) {
+    return { ok: false, detail: 'learning_loop.py exited ' + r.status + ': '
+      + String(r.stderr || r.stdout).slice(0, 400) };
+  }
+  return { ok: true, detail: String(r.stdout).trim().split('\n').join('; ') };
+}
+
 function main() {
   console.log('WEEKLY GRADE RUNNER — repo-side loop artifacts + pipe self-check\n');
 
@@ -131,15 +222,32 @@ function main() {
   console.log(`\nresolution-pipe self-check (FIXTURE, not league evidence): `
     + `${sc.ok ? 'PASS' : 'FAIL'} — ${sc.detail}`);
 
-  const ok = doc.self_check.ok && !doc.feed_error && sc.ok;
-  console.log(ok
-    ? '\nOK — artifacts written, both pipes compute. The LIVE loop (capture->'
-      + 'resolve->grade->read) runs on Netlify schedules; this run is the weekly '
-      + 'proof the shared machinery still computes and the repo artifact is fresh.'
-    : '\nFAILED — see above. A red run here means the pipe is broken, not that '
-      + 'the season is quiet; the two are exactly what this runner exists to tell apart.');
-  process.exit(ok ? 0 : 1);
+  // (3) Mirror the live evidence weights — REC-4's reader. An unreachable
+  // site is a named skip, never a red run.
+  return mirrorEvidenceWeights().then(mw => {
+    console.log(`\nevidence-weights mirror (REC-4 read side): `
+      + `${mw.ok ? 'MIRRORED' : 'SKIPPED'} — ${mw.detail}`);
+
+    // (4) REC-2's unlock condition, observed by machinery.
+    const r2 = rec2UnlockCheck();
+    console.log(r2.line);
+
+    // (5) Refresh the recommendation artifact so this week's grades LAND.
+    const rr = refreshRecommendations();
+    console.log(`recommendation artifact refresh: ${rr.ok ? 'OK' : 'FAIL'} — ${rr.detail}`);
+
+    const ok = doc.self_check.ok && !doc.feed_error && sc.ok && rr.ok;
+    console.log(ok
+      ? '\nOK — artifacts written, both pipes compute, and the read side ran: '
+        + 'weekly grades flow into the RECOMMENDATION artifact (era-stamped), '
+        + 'REC-2\'s unlock is machine-checked, and the weights mirror is '
+        + (mw.ok ? 'fresh.' : 'a named absence.')
+      : '\nFAILED — see above. A red run here means the pipe is broken, not that '
+        + 'the season is quiet; the two are exactly what this runner exists to tell apart.');
+    process.exit(ok ? 0 : 1);
+  });
 }
 
-module.exports = { selfCheckResolutionPipe };
+module.exports = { selfCheckResolutionPipe, mirrorEvidenceWeights, rec2UnlockCheck,
+  refreshRecommendations };
 if (require.main === module) main();

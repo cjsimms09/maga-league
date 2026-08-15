@@ -6,20 +6,33 @@ model-update RECOMMENDATIONS. Built 2026-08-15 (model/learning audit, Mission 2)
 
 The loop captures (predledger, claims-cron), resolves (claims-cron, forecast
 resolutions), and grades (grade-cron → calibration:{season}:* snapshots +
-evidence_weights:current). Then it stops:
+evidence_weights:current). When this module was written (2026-08-15 AM) it
+stopped there:
 
     evidence_weights:current        written weekly, ZERO readers (grep: only
                                     its writer and a PARKED mention)
     calibration snapshots           read by /accuracy, /member, /standings —
                                     pages a human might look at
     projection_error_calibration    measured (C, 20 cells); its appliers
-                                    proj_sd_for/proj_ceiling_for have NO
+                                    proj_sd_for/proj_ceiling_for had NO
                                     production caller
     component_grades.json           all rows no_data; read by standing_check
 
-Nothing in the MODEL — engine.js CFG, MEASURED_WEIGHTS, POSITION_VARIANCE,
-the projection composition — reads any grade artifact. "Humans might look at
-a page" is the entire learning mechanism today.
+── CLOSED 2026-08-15 PM under Cory's ruling ("We need to fix!!!") ────────────
+
+    projection_error_calibration    → REC-1 APPLIED: projections.blend() is now
+                                    proj_sd_for's production caller (decision
+                                    arm re-verified on the fresh board first)
+    evidence_weights:current        → READ: weights-read.js exposes it,
+                                    weekly_grade_runner.js mirrors it weekly to
+                                    draft/data/evidence_weights_latest.json,
+                                    and THIS module consumes the mirror into
+                                    REC-4 (era-stamped). Live-parameter
+                                    consumption stays gated on a design ruling.
+    REC-2 unlock                    → machine-checked weekly (rec2_unlock_progress)
+    REC-3 promotion bar             → beat BOTH baselines, ALL 4 positions,
+                                    BOTH metrics — read from the v2 artifact
+                                    (own_model_v2.py) when it exists.
 
 ── WHAT THIS MODULE DOES AND REFUSES TO DO ──────────────────────────────────
 
@@ -172,41 +185,67 @@ def _load(path: Path):
         return None
 
 
+def rec2_unlock_progress(store: dict | None) -> dict:
+    """The machine-checked REC-2 unlock condition — observed by machinery, not
+    memory. The weekly grade runner prints this every Tuesday and this artifact
+    refreshes with it, so 'blocked' can never quietly become 'forgotten'."""
+    weeks = sorted({w["week"] for w in ((store or {}).get("weeks") or [])
+                    if w.get("week") and w["week"] <= LAST_SCORED_WEEK})
+    return {
+        "weeks_graded": len(weeks),
+        "weeks_needed": LAST_SCORED_WEEK,
+        "store": f"draft/backtest/nflverse_weekly_points_{GRADE_SEASON}.json",
+        "store_exists": bool(store),
+        "line": (f"REC-2: {len(weeks)}/{LAST_SCORED_WEEK} graded {GRADE_SEASON} weeks "
+                 f"in the committed store — unlocks ~2027-01"),
+        "checked_by": ("draft/tools/weekly_grade_runner.js every Tuesday (GitHub "
+                       "Actions), which also regenerates this artifact"),
+    }
+
+
 def build_recommendations() -> dict:
     cal = _load(HERE / "projection_error_calibration.json")
     acc = _load(HERE / "model_accuracy_2025.json")
+    acc_v2 = _load(HERE / "model_accuracy_v2.json")
     series_doc = _load(DATA / "proj_series.json") or {}
     series = series_doc.get("series") or []
     store_2026 = _load(HERE / f"nflverse_weekly_points_{GRADE_SEASON}.json")
     positions = ((_load(DATA / "player_positions.json") or {}).get("positions")) or {}
+    ew_mirror = _load(DATA / "evidence_weights_latest.json")
 
     recs = []
 
     # REC-1 — proj_sd from measured error instead of hand-set constants.
+    # APPLIED 2026-08-15 under Cory's ruling ("We need to fix!!!"), after the
+    # decision arm was re-run on the fresh 86e42bc2 board and reproduced.
     if cal and cal.get("cells"):
         sd_table = {name: {"sd_ratio": c["sd_ratio"], "n": c["n"]}
                     for name, c in cal["cells"].items() if c.get("status") == "measured"}
         recs.append({
             "id": "REC-1-proj-sd-calibration",
-            "status": "ready-for-ruling",
-            "summary": ("Derive proj_sd from MEASURED 2023-25 projection error "
-                        "(projection_error.proj_sd_for) instead of the hand-set "
-                        "POSITION_VARIANCE constants, per position × projection-rank band."),
-            "proposed_values": sd_table,
+            "status": "applied-2026-08-15",
+            "summary": ("proj_sd now comes from MEASURED 2023-25 projection error "
+                        "(projection_error.proj_sd_for) per position × projection-rank "
+                        "band, with the POSITION_VARIANCE path as fallback for "
+                        "unmeasured cells (K/DEF/unranked). Wired in "
+                        "draft/projections.py blend(); each board row declares its "
+                        "path in proj_sd_source."),
+            "applied_values": sd_table,
             "evidence": [
                 "draft/backtest/projection_error_calibration.json — 20 measured cells, 1,304 graded players (C)",
-                "draft/backtest/BOARD-UNCERTAINTY-AUDIT.md — shipped sd understates measured by median 1.38x; "
-                "streaming-range QBs ship ~70 against measured 145-185",
-                "draft/backtest/PROJ-SD-DECISION-ARM.md — the 12-seat plan's ROLES are identical under the "
-                "measured arm, so adoption does not move the plan; what it fixes is every uncertainty surface "
-                "reading an honest spread",
+                "draft/backtest/BOARD-UNCERTAINTY-AUDIT.md — shipped sd understated measured by median 1.38x; "
+                "streaming-range QBs shipped ~70 against measured 145-185",
+                "draft/backtest/PROJ-SD-DECISION-ARM.md — original arm AND the 2026-08-15 addendum: re-run on "
+                "the fresh board before wiring, roles identical at all twelve seats, same four bench flips",
             ],
-            "acceptance": ("one reviewed change: projections.blend() computes season_sd via "
-                           "projection_error.proj_sd_for(cal, position, rank, mean) with the "
-                           "POSITION_VARIANCE path as fallback for unmeasured cells. "
-                           "NOT APPLIED — Cory's ruling gates every scoring-path change."),
+            "acceptance": ("APPLIED — the exact acceptance line shipped: projections.blend() computes "
+                           "season_sd via projection_error.proj_sd_for(cal, position, rank, mean) with "
+                           "the POSITION_VARIANCE path as fallback. Authorized by Cory's ruling on the "
+                           "2026-08-15 learning audit; decision arm re-verified on the current board "
+                           "first. Guarded by draft/tests/test_proj_sd_wiring.py and proj_sd_arm.test.js."),
             "caveat": ("calibration is fitted on walk_forward's error; provider baselines may be "
-                       "tighter — C's stated assumption, unresolved until January 2027"),
+                       "tighter — C's stated assumption, unresolved until January 2027. Band edges "
+                       "are discontinuous in rank (smooth-in-rank caveat recorded in the arm doc)."),
         })
 
     # REC-2 — per-source per-position composition weights, evidence-gated.
@@ -221,6 +260,7 @@ def build_recommendations() -> dict:
                     "the same scoring (measured on the 2026-08-15 board) and nothing "
                     "grades which source is right."),
         "grade": source_grade,
+        "unlock_progress": rec2_unlock_progress(store_2026),
         "preregistered": ("metric, population, cutoff and weight rule fixed 2026-08-15 in "
                           "learning_loop.py, before any 2026 outcome exists — see module "
                           "docstring. The January run cannot be tuned to fit."),
@@ -228,12 +268,24 @@ def build_recommendations() -> dict:
                        "per-position weighted blend with the emitted weights. NOT APPLIED."),
     })
 
-    # REC-3 — the own-model negative, recorded so it cannot be un-learned.
+    # REC-3 — the own-model negative + the promotion bar, so the negative cannot
+    # be un-learned and no successor is promoted without EARNING it.
     if acc:
         h2h = acc.get("head_to_head_shared_population") or {}
         wf_loses = [p for p, row in h2h.items()
                     if row.get("status") == "measured"
                     and row["walk_forward"]["mae"] > row["recency_blend"]["mae"]]
+        promotion_bar = {
+            "rule": ("promotion of ANY own model (v1, v2, or successor) into the "
+                     "composition requires beating BOTH naive baselines (naive_prev "
+                     "AND recency_blend) at ALL four positions on BOTH metrics "
+                     "(MAE and Spearman) in the leak-free walk-forward protocol, "
+                     "then a reviewed promotion decision file for Cory — never an "
+                     "automatic flip. The bar Cory's ruling implies: until it earns it."),
+            "candidates": {},
+        }
+        if acc_v2 and acc_v2.get("promotion_bar"):
+            promotion_bar["candidates"]["own_model_v2"] = acc_v2["promotion_bar"]
         recs.append({
             "id": "REC-3-own-model-stays-display-only",
             "status": "standing-negative",
@@ -241,34 +293,72 @@ def build_recommendations() -> dict:
                         f"{len(wf_loses)}/4 positions on MAE (shared population, 2025, "
                         "leak-free) and at 4/4 on rank correlation. It must stay a "
                         "display-only third opinion; any promotion to the composition is "
-                        "evidence-blocked by this measurement."),
-            "evidence": ["draft/backtest/model_accuracy_2025.json — head_to_head_shared_population"],
+                        "evidence-blocked until a candidate clears the promotion bar."),
+            "promotion_bar": promotion_bar,
+            "evidence": (["draft/backtest/model_accuracy_2025.json — head_to_head_shared_population"]
+                         + (["draft/backtest/model_accuracy_v2.json — v2 graded under the same protocol"]
+                            if acc_v2 else [])),
             "acceptance": ("nothing to accept — this recommendation BLOCKS a change. It expires "
-                           "only if a future season's head-to-head reverses it."),
+                           "only when a candidate clears the promotion bar above in the "
+                           "walk-forward AND Cory accepts the written promotion decision."),
         })
 
-    # REC-4 — the unread weights wire.
+    # REC-4 — the weights wire, now READ: the weekly grade runner mirrors
+    # evidence_weights:current (era stamp and all) into
+    # draft/data/evidence_weights_latest.json and this artifact consumes the
+    # mirror on every weekly regeneration. Consumption lands HERE — in the
+    # gated recommendation artifact — and not in a live parameter, because a
+    # live consumer would change behaviour beyond what REC-1's ruling covers.
+    consumed = None
+    if ew_mirror and isinstance(ew_mirror.get("weights"), dict):
+        w = ew_mirror["weights"]
+        consumed = {
+            "updated_at": w.get("updated_at"),
+            "season": w.get("season"),
+            "graded_n": w.get("graded_n"),
+            "league_se": w.get("league_se"),
+            "combined": w.get("combined"),
+            "rules_era": w.get("rules_era"),
+            "fetched_at": ew_mirror.get("fetched_at"),
+            "era_note": ("rules_era travels with the weights; a snapshot graded under "
+                         "different money-bearing rules must not steer this era's model"),
+        }
     recs.append({
         "id": "REC-4-evidence-weights-have-no-reader",
-        "status": "wiring-gap",
-        "summary": ("grade-cron writes evidence_weights:current every week and NOTHING reads "
-                    "it — the one artifact designed to feed measured calibration back into "
-                    "the model terminates in the store. Until a consumer exists the grading "
-                    "loop's last arc is display, not learning."),
-        "evidence": ["grep evidence_weights: writer in netlify/functions/grade-cron.js:88, "
-                     "zero readers anywhere in src/, public/, draft/"],
-        "acceptance": ("a reviewed consumer in the engine or the board build that reads "
-                       "evidence_weights:current and adjusts a DECLARED, gated parameter. "
-                       "Which parameter is a design ruling — deliberately not proposed here."),
+        "status": ("wired-to-recommendation-artifact" if consumed else "wiring-gap"),
+        "summary": ("grade-cron writes evidence_weights:current every week. The read side "
+                    "now exists: netlify/functions/weights-read.js exposes it read-only, "
+                    "draft/tools/weekly_grade_runner.js mirrors it into "
+                    "draft/data/evidence_weights_latest.json every Tuesday, and this "
+                    "artifact consumes the mirror on each weekly regeneration — so weekly "
+                    "grades flow into the RECOMMENDATION artifact, era-stamped. A LIVE "
+                    "parameter consumer stays deliberately unwired: that change is beyond "
+                    "REC-1's ruling and remains a design ruling for Cory."),
+        "consumed_evidence_weights": consumed,
+        "reader_status": ("mirror consumed" if consumed else
+                          "reader wired and executed, but no mirror on disk yet — the "
+                          "weekly runner writes it once WEIGHTS_READ_URL/SITE_URL is "
+                          "configured in the workflow and grade-cron has produced a "
+                          "snapshot; until then this is a named absence, not a claim"),
+        "evidence": ["writer: netlify/functions/grade-cron.js (evidence_weights:current, era-stamped)",
+                     "read side: netlify/functions/weights-read.js (read-only expose) → "
+                     "draft/tools/weekly_grade_runner.js (weekly mirror) → this artifact"],
+        "acceptance": ("consumption into a LIVE parameter stays gated: a reviewed consumer in "
+                       "the engine or the board build adjusting a DECLARED parameter. Which "
+                       "parameter is a design ruling — deliberately not proposed here."),
     })
 
+    applied = [r["id"] for r in recs if str(r.get("status", "")).startswith("applied")]
     return {
         "_territory": "TERRITORY: A — produced by draft/backtest/learning_loop.py",
-        "_note": ("Measured grading → concrete model-update recommendations. NOTHING here is "
-                  "applied: every default is untouched, acceptance is a one-line reviewed "
-                  "change per recommendation, gated on Cory's ruling."),
+        "_note": ("Measured grading → concrete model-update recommendations. A change is "
+                  "applied ONLY under a recorded ruling from Cory (REC-1: his 2026-08-15 "
+                  "'We need to fix!!!', decision arm re-verified first); everything else "
+                  "is untouched and acceptance stays a one-line reviewed change per "
+                  "recommendation."),
         "generated_by": "draft/backtest/learning_loop.py",
-        "defaults_untouched": True,
+        "applied_under_ruling": applied,
+        "defaults_untouched_beyond_ruling": True,
         "recommendations": recs,
     }
 
