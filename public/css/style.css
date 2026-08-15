@@ -3412,7 +3412,17 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 
 /* chosen (pre-lock) */
 .pk-opt.picked { border-color: var(--gold); background: rgba(245,196,69,.12); box-shadow: var(--glow-gold); }
-.pk-opt.picked .pk-opt-name { color: #fff; }
+/* was #fff — dark-era ink: the name you PICKED went white-on-gold-tint, the
+   one name on the card that must read (2026-08-15 phone capture). */
+.pk-opt.picked .pk-opt-name { color: var(--ink); }
+/* Tap feedback without waiting for the save round-trip: a checked radio wears
+   the picked look immediately (server still stamps .picked on render). */
+.pk-opt:has(input:checked) { border-color: var(--gold); background: rgba(245,196,69,.12); }
+.pk-opt:has(input:checked) .pk-opt-name { color: var(--ink); }
+/* The lock clock — the slate's state, worn as a chip, not buried in a .sub. */
+.pk-lockrow { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  padding: .55rem 1rem; border-bottom: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+.pk-lockrow .wr-num { font-weight: 700; color: var(--ink); }
 /* graded (post-lock) */
 .pk-opt.win { border-color: rgba(47,213,118,.55); }
 .pk-opt.win .pk-opt-name { color: #0c1a2b; }
