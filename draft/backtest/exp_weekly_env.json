@@ -1,0 +1,341 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, produced by draft/backtest/exp_weekly_env.py",
+ "experiment": "EXP-WEEKLY-ENV",
+ "prereg": "draft/backtest/EXP-WEEKLY-ENV-PREREG.md",
+ "seasons": {
+  "2023": {
+   "n_player_weeks": 2179,
+   "eval_weeks": [
+    5,
+    18
+   ],
+   "baseline": {
+    "mae": 5.6729,
+    "spearman": 0.4951,
+    "top_decile": 0.3619
+   },
+   "arms": {
+    "pace_raw@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.6775,
+     "delta_mae": -0.0046,
+     "spearman": 0.4929,
+     "top_decile": 0.3518,
+     "delta_top_decile": -0.0102,
+     "null_p95_delta_mae": 0.009,
+     "beats_null_p95": false
+    },
+    "pace_raw@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.673,
+     "delta_mae": -0.0002,
+     "spearman": 0.4941,
+     "top_decile": 0.3527,
+     "delta_top_decile": -0.0092,
+     "null_p95_delta_mae": 0.0071,
+     "beats_null_p95": false
+    },
+    "pace_neutral@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.6798,
+     "delta_mae": -0.007,
+     "spearman": 0.4916,
+     "top_decile": 0.3648,
+     "delta_top_decile": 0.0029,
+     "null_p95_delta_mae": -0.0032,
+     "beats_null_p95": false
+    },
+    "pace_neutral@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.6679,
+     "delta_mae": 0.0049,
+     "spearman": 0.4941,
+     "top_decile": 0.3619,
+     "delta_top_decile": 0.0,
+     "null_p95_delta_mae": 0.0086,
+     "beats_null_p95": false
+    },
+    "env_points@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.9109,
+     "delta_mae": -0.2381,
+     "spearman": 0.4698,
+     "top_decile": 0.3413,
+     "delta_top_decile": -0.0206,
+     "null_p95_delta_mae": -0.0747,
+     "beats_null_p95": false
+    },
+    "env_points@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.7559,
+     "delta_mae": -0.083,
+     "spearman": 0.4864,
+     "top_decile": 0.345,
+     "delta_top_decile": -0.0169,
+     "null_p95_delta_mae": -0.0018,
+     "beats_null_p95": false
+    },
+    "oracle_total@1.0": {
+     "lambda": 1.0,
+     "oracle": true,
+     "mae": 5.5316,
+     "delta_mae": 0.1412,
+     "spearman": 0.5155,
+     "top_decile": 0.4322,
+     "delta_top_decile": 0.0703
+    },
+    "oracle_total@0.5": {
+     "lambda": 0.5,
+     "oracle": true,
+     "mae": 5.4306,
+     "delta_mae": 0.2422,
+     "spearman": 0.5304,
+     "top_decile": 0.4268,
+     "delta_top_decile": 0.0648
+    }
+   },
+   "multiplier_spread": {
+    "pace_raw": {
+     "min": 0.882,
+     "max": 1.112,
+     "mean": 1.0
+    },
+    "pace_neutral": {
+     "min": 0.751,
+     "max": 1.267,
+     "mean": 1.0
+    },
+    "env_points": {
+     "min": 0.619,
+     "max": 1.524,
+     "mean": 1.0
+    },
+    "oracle_total": {
+     "min": 0.07,
+     "max": 1.885,
+     "mean": 1.0
+    }
+   }
+  },
+  "2024": {
+   "n_player_weeks": 2259,
+   "eval_weeks": [
+    5,
+    18
+   ],
+   "baseline": {
+    "mae": 5.7369,
+    "spearman": 0.5049,
+    "top_decile": 0.4363
+   },
+   "arms": {
+    "pace_raw@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.7585,
+     "delta_mae": -0.0215,
+     "spearman": 0.5017,
+     "top_decile": 0.4317,
+     "delta_top_decile": -0.0046,
+     "null_p95_delta_mae": 0.0034,
+     "beats_null_p95": false
+    },
+    "pace_raw@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.7462,
+     "delta_mae": -0.0092,
+     "spearman": 0.5036,
+     "top_decile": 0.4268,
+     "delta_top_decile": -0.0095,
+     "null_p95_delta_mae": 0.0039,
+     "beats_null_p95": false
+    },
+    "pace_neutral@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.7988,
+     "delta_mae": -0.0618,
+     "spearman": 0.4977,
+     "top_decile": 0.4274,
+     "delta_top_decile": -0.0089,
+     "null_p95_delta_mae": -0.0021,
+     "beats_null_p95": false
+    },
+    "pace_neutral@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.7594,
+     "delta_mae": -0.0225,
+     "spearman": 0.502,
+     "top_decile": 0.4409,
+     "delta_top_decile": 0.0046,
+     "null_p95_delta_mae": 0.0075,
+     "beats_null_p95": false
+    },
+    "env_points@1.0": {
+     "lambda": 1.0,
+     "oracle": false,
+     "mae": 5.8826,
+     "delta_mae": -0.1456,
+     "spearman": 0.4837,
+     "top_decile": 0.4157,
+     "delta_top_decile": -0.0206,
+     "null_p95_delta_mae": -0.0675,
+     "beats_null_p95": false
+    },
+    "env_points@0.5": {
+     "lambda": 0.5,
+     "oracle": false,
+     "mae": 5.7807,
+     "delta_mae": -0.0437,
+     "spearman": 0.4976,
+     "top_decile": 0.4359,
+     "delta_top_decile": -0.0004,
+     "null_p95_delta_mae": -0.0024,
+     "beats_null_p95": false
+    },
+    "oracle_total@1.0": {
+     "lambda": 1.0,
+     "oracle": true,
+     "mae": 5.6151,
+     "delta_mae": 0.1219,
+     "spearman": 0.5199,
+     "top_decile": 0.4541,
+     "delta_top_decile": 0.0178
+    },
+    "oracle_total@0.5": {
+     "lambda": 0.5,
+     "oracle": true,
+     "mae": 5.5231,
+     "delta_mae": 0.2138,
+     "spearman": 0.5333,
+     "top_decile": 0.4769,
+     "delta_top_decile": 0.0406
+    }
+   },
+   "multiplier_spread": {
+    "pace_raw": {
+     "min": 0.904,
+     "max": 1.089,
+     "mean": 1.0
+    },
+    "pace_neutral": {
+     "min": 0.767,
+     "max": 1.225,
+     "mean": 1.0
+    },
+    "env_points": {
+     "min": 0.639,
+     "max": 1.419,
+     "mean": 1.0
+    },
+    "oracle_total": {
+     "min": 0.201,
+     "max": 2.006,
+     "mean": 1.0
+    }
+   }
+  }
+ },
+ "verdicts": {
+  "pace_raw@1.0": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": -0.0046,
+    "2024": -0.0215
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": false,
+   "signal": false,
+   "pooled_delta_mae": -0.013
+  },
+  "pace_raw@0.5": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": -0.0002,
+    "2024": -0.0092
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": false,
+   "signal": false,
+   "pooled_delta_mae": -0.0047
+  },
+  "pace_neutral@1.0": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": -0.007,
+    "2024": -0.0618
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": false,
+   "signal": false,
+   "pooled_delta_mae": -0.0344
+  },
+  "pace_neutral@0.5": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": 0.0049,
+    "2024": -0.0225
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": true,
+   "signal": false,
+   "pooled_delta_mae": -0.0088
+  },
+  "env_points@1.0": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": -0.2381,
+    "2024": -0.1456
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": false,
+   "signal": false,
+   "pooled_delta_mae": -0.1919
+  },
+  "env_points@0.5": {
+   "oracle": false,
+   "delta_mae_by_season": {
+    "2023": -0.083,
+    "2024": -0.0437
+   },
+   "positive_both_seasons": false,
+   "beats_null_p95_both": false,
+   "top_decile_not_degraded": false,
+   "signal": false,
+   "pooled_delta_mae": -0.0634
+  },
+  "oracle_total@1.0": {
+   "oracle": true,
+   "delta_mae_by_season": {
+    "2023": 0.1412,
+    "2024": 0.1219
+   },
+   "positive_both_seasons": true,
+   "positive_control_passed": true,
+   "pooled_delta_mae": 0.1316
+  },
+  "oracle_total@0.5": {
+   "oracle": true,
+   "delta_mae_by_season": {
+    "2023": 0.2422,
+    "2024": 0.2138
+   },
+   "positive_both_seasons": true,
+   "positive_control_passed": true,
+   "pooled_delta_mae": 0.228
+  }
+ }
+}
