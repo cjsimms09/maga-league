@@ -15,6 +15,13 @@
 <% if (typeof currentPath !== 'undefined' && /^\/history(\/|$|\?)/.test(currentPath) && !(typeof section !== 'undefined' && section)) { %>
 <link rel="stylesheet" href="/css/chronicle.css">
 <% } %>
+<%# The War Room design system (tokens + draft components) — same page-scoped
+    pattern as the Chronicle. The in-season pass widens this condition when
+    lineup/waivers adopt the tokens; until then only the draft surfaces pay
+    for it. %>
+<% if (typeof currentPath !== 'undefined' && /^\/admin\/(warroom|draft-sheet)(\/|$|\?)/.test(currentPath)) { %>
+<link rel="stylesheet" href="/css/warroom.css">
+<% } %>
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
 <%# Home-screen install. The manifest covers Android/Chrome; the apple-* tags

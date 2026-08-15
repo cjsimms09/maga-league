@@ -1,0 +1,191 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   WAR ROOM DESIGN SYSTEM — tokens + components (2026-08-15 design pass)
+
+   The law for feel is docs/queued/warroom-v2-visual-design.md:
+     1. ONE dominant number per card — everything else subordinate.
+     2. GOLD IS MONEY — the gold accent colors dollar figures and nothing else.
+     3. Americana identity (navy/gold/eagle/stars), never generic SaaS.
+     4. Motion only on state changes.
+     5. Density gradient: Zone 1 breathes, Zone 3 is dense.
+
+   This file is the WAR ROOM'S layer over /css/style.css (site tokens live
+   there: --navy, --gold, --ink, --muted, --line, --panel …). It defines the
+   scale tokens and component classes the draft renderers emit. The in-season
+   pass (lineup/waivers/matchup) adopts THIS file's tokens — extend, don't fork.
+
+   Naming: every token is --wr-*; every component class is .wr* or an existing
+   renderer hook (.rec-*, .ba-*, .threat-*) restyled here. Numeric columns use
+   .wr-num (tabular figures); hero figures deliberately do not.
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── type scale (major-second-ish, phone-first) ── */
+  --wr-fs-hero: 1.6rem;     /* THE pick's name / the one dominant number */
+  --wr-fs-big: 1.15rem;     /* dominant figure on a lesser card */
+  --wr-fs-title: .95rem;    /* card titles */
+  --wr-fs-body: .85rem;     /* prose */
+  --wr-fs-sub: .78rem;      /* subordinate context */
+  --wr-fs-micro: .7rem;     /* dense-zone rows, captions */
+
+  /* ── spacing scale ── */
+  --wr-s1: .25rem;
+  --wr-s2: .5rem;
+  --wr-s3: .75rem;
+  --wr-s4: 1rem;
+  --wr-s5: 1.5rem;
+
+  /* ── palette roles (mapped from site tokens; the DOCTRINE lives here) ── */
+  --wr-money: var(--gold);          /* DOLLAR FIGURES ONLY — nothing else */
+  --wr-structure: var(--navy);      /* headings, chrome, authority */
+  --wr-accent: var(--blue);         /* interactive / data accent (non-money) */
+  --wr-good: var(--green);          /* the ONE semantic pair … */
+  --wr-bad: var(--red);             /* … and its other half */
+  --wr-warn: #b45309;               /* amber prose warnings (not money-gold) */
+  --wr-ink: var(--ink);
+  --wr-muted: var(--muted);
+  --wr-line: var(--line);
+  --wr-panel: var(--panel);
+  --wr-panel-soft: var(--panel-soft);
+
+  /* ── chart ink (dataviz: one hue for magnitude, gray for context) ── */
+  --wr-chart-main: #2f5382;         /* navy-family series hue */
+  --wr-chart-dim: #b9c2cf;          /* de-emphasis series */
+  --wr-chart-grid: #e8e6df;         /* hairline grid, one step off paper */
+}
+
+/* Numbers that sit in columns align; hero numbers stay proportional. */
+.wr-num { font-variant-numeric: tabular-nums; }
+
+/* ══ VERDICT BLOCK — the one surface that owns the answer ═══════════════ */
+.wrv { margin: 0 0 var(--wr-s3); }
+.wrv-top { display: flex; align-items: center; gap: var(--wr-s2); flex-wrap: wrap; }
+.wrv-chip {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .08em;
+  padding: .22rem .55rem; border-radius: 999px; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.wrv-chip.lock   { background: var(--wr-structure); color: #fff; }
+.wrv-chip.lean   { background: var(--navy-soft); color: var(--wr-structure); border-color: var(--wr-structure); }
+.wrv-chip.tossup { background: transparent; color: var(--wr-muted); border-color: var(--wr-muted); border-style: dashed; }
+.wrv-chip.split  { background: transparent; color: var(--wr-warn); border-color: var(--wr-warn); }
+.wrv-chip.pinned { background: transparent; color: var(--wr-accent); border-color: var(--wr-accent); }
+.wrv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.1; }
+.wrv-name .rec-pos { vertical-align: .35em; }
+.wrv-why { font-size: var(--wr-fs-body); color: var(--wr-ink); margin: var(--wr-s1) 0 0; max-width: 62ch; }
+.wrv-conf { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin: var(--wr-s1) 0 0; }
+.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
+  font-size: 1rem; }
+
+/* The lens row: every voice on this pick, labeled by what it optimizes.     */
+.wrv-lenses { display: flex; flex-wrap: wrap; gap: var(--wr-s1); margin-top: var(--wr-s2); }
+.wrv-lens {
+  font-size: var(--wr-fs-micro); line-height: 1.25; text-align: left;
+  border: 1px solid var(--wr-line); border-radius: 8px; background: var(--wr-panel);
+  padding: .3rem .5rem; cursor: pointer; font-family: inherit; color: var(--wr-ink);
+  flex: 1 1 8.5rem; min-width: 8rem;
+}
+.wrv-lens b { display: block; font-size: var(--wr-fs-micro); letter-spacing: .05em; }
+.wrv-lens .lens-opt { color: var(--wr-muted); display: block; }
+.wrv-lens .lens-pick { font-weight: 700; }
+.wrv-lens.differs { border-color: var(--wr-warn); }
+.wrv-lens.differs .lens-pick { color: var(--wr-warn); }
+.wrv-alts { margin-top: var(--wr-s2); font-size: var(--wr-fs-sub); }
+.wrv-alts .wr-num { font-weight: 700; }
+
+/* ══ EXPLAINER LAYER — ⓘ on every panel, legend on every badge ══════════ */
+.wr-info {
+  border: 1px solid var(--wr-line); background: var(--wr-panel); color: var(--wr-muted);
+  border-radius: 50%; width: 1.15rem; height: 1.15rem; line-height: 1;
+  font-size: .72rem; font-weight: 700; cursor: pointer; flex: 0 0 auto;
+  padding: 0; font-family: inherit;
+}
+.wr-info[aria-expanded="true"] { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+.panel-explain {
+  font-size: var(--wr-fs-sub); color: var(--wr-muted); line-height: 1.45;
+  border-left: 2px solid var(--wr-line); padding: .35rem .6rem; margin: 0 0 .6rem;
+  background: var(--wr-panel-soft); border-radius: 0 6px 6px 0;
+}
+.panel-explain[hidden] { display: none; }
+.panel-explain .pe-what { color: var(--wr-ink); }
+.panel-explain .pe-read { display: block; margin-top: .2rem; }
+.panel-explain .pe-do { display: block; margin-top: .2rem; color: var(--wr-ink); }
+.panel-explain .pe-do::before { content: 'Do: '; font-weight: 700; }
+.panel-explain .pe-src { display: block; margin-top: .2rem; font-size: var(--wr-fs-micro); opacity: .8; }
+
+/* Badges: compact chips whose tap opens the shared legend line. */
+.wr-flag {
+  display: inline-block; font-size: var(--wr-fs-micro); font-weight: 700;
+  letter-spacing: .03em; padding: .05rem .35rem; border-radius: 4px;
+  border: 1px solid var(--wr-line); color: var(--wr-muted); background: var(--wr-panel);
+  cursor: pointer; white-space: nowrap; font-family: inherit; line-height: 1.3;
+}
+.wr-flag.risk { color: var(--wr-bad); border-color: var(--wr-bad); }
+.wr-flag.up   { color: var(--wr-good); border-color: var(--wr-good); }
+.wr-flag-legend {
+  font-size: var(--wr-fs-sub); color: var(--wr-ink); background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); border-radius: 6px; padding: .4rem .6rem;
+  margin: .3rem 0; line-height: 1.4;
+}
+
+/* Dossier: the one-tap expansion under a shortlist row. */
+.rec-dossier { grid-column: 1 / -1; width: 100%;
+  border-top: 1px dashed var(--wr-line); margin-top: .45rem; padding-top: .45rem;
+  font-size: var(--wr-fs-sub); }
+.rec-dossier table { border-collapse: collapse; width: auto; }
+.rec-dossier td { padding: .08rem .6rem .08rem 0; }
+.rec-dossier td.wr-num { text-align: right; }
+.rec-dossier .dossier-why { margin: .3rem 0 0; color: var(--wr-muted); max-width: 70ch; }
+.rec-expand {
+  border: none; background: none; color: var(--wr-accent); cursor: pointer;
+  font-size: var(--wr-fs-micro); padding: .1rem .3rem; font-family: inherit;
+}
+
+/* ══ SHORTLIST CARDS — aligned numerals, one dominant figure ════════════ */
+.rec-stats { font-variant-numeric: tabular-nums; }
+.rec-stats span { font-size: var(--wr-fs-micro); }
+.rec-score { font-variant-numeric: tabular-nums; }
+
+/* ══ BEST-AVAILABLE STRIP — model-labeled survival ══════════════════════ */
+.ba-model-note { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+
+/* ══ CHARTS (dataviz: thin marks, hairline grid, emphasis > rainbow) ════ */
+.wr-chart { margin: .5rem 0; overflow-x: auto; }
+.wr-chart svg { display: block; max-width: 100%; height: auto; }
+.wr-chart .bar { fill: var(--wr-chart-main); }
+.wr-chart .bar.dim { fill: var(--wr-chart-dim); }
+.wr-chart .bar.me { fill: var(--wr-accent); }
+.wr-chart .grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.wr-chart .cliff { stroke: var(--wr-bad); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.wr-chart text { font-family: var(--font-body); fill: var(--wr-muted); font-size: 9px; }
+.wr-chart text.lbl { fill: var(--wr-ink); font-weight: 600; }
+.wr-chart-cap { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 0; }
+
+/* ══ BOARD TABLE — tier banding, aligned numerics, calm flags ═══════════ */
+.roll td.num, .roll th.num { font-variant-numeric: tabular-nums; }
+.roll tr.tier-cliff td { border-top: 2px solid var(--wr-structure); }
+.roll td .tier-note {
+  display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .04em;
+  color: var(--wr-structure); opacity: .75; white-space: nowrap;
+}
+.roll tr.onesie-demoted td { opacity: .62; }
+.board-onesie-note { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .3rem 0; }
+
+/* ══ STATUS RAIL — alarms aggregate instead of stacking ═════════════════ */
+.wr-alarm-rail { display: flex; flex-direction: column; gap: .4rem; margin: 0 0 .6rem; }
+.wr-alarm-rail .roast-banner, .wr-alarm-rail [id$='-note'] { margin: 0; }
+
+/* ══ DENSITY GRADIENT ═══════════════════════════════════════════════════ */
+.wr-zone1 > .card > .body { padding: var(--wr-s4); }
+.wr-zone3 .card .body { padding: var(--wr-s2) var(--wr-s3); font-size: var(--wr-fs-sub); }
+.wr-zone3 .card h2 { font-size: var(--wr-fs-title); }
+
+/* ══ HELP / FIRST-RUN VIEW ══════════════════════════════════════════════ */
+.wr-help { max-width: 74ch; }
+.wr-help h3 { margin: .9rem 0 .25rem; font-size: var(--wr-fs-title); color: var(--wr-structure); }
+.wr-help p { margin: .2rem 0; font-size: var(--wr-fs-body); line-height: 1.5; }
+.wr-help .pe-src { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+
+/* Motion: state changes only. Respect the doctrine — no ambient animation. */
+@media (prefers-reduced-motion: reduce) {
+  .wr-chart * , .wrv * { transition: none !important; animation: none !important; }
+}
