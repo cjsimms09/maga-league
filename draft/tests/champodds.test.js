@@ -67,11 +67,17 @@ ck('probabilities are probabilities: champ sums to 1, playoff to 4, nested', () 
   const sumP = ids.reduce((s, id) => s + res[id].playoff_prob, 0);
   assert(Math.abs(sumC - 1) < 1e-9, `champ probs sum to ${sumC}`);
   assert(Math.abs(sumP - 4) < 1e-9, `playoff probs sum to ${sumP}`);
+  const sumF = ids.reduce((s, id) => s + res[id].final_prob, 0);
+  const sumL = ids.reduce((s, id) => s + res[id].last_prob, 0);
+  assert(Math.abs(sumF - 2) < 1e-9, `final probs sum to ${sumF} (two finalists per season)`);
+  assert(Math.abs(sumL - 1) < 1e-9, `last probs sum to ${sumL} (one toilet per season)`);
   for (const id of ids) {
     const r = res[id];
     assert(r.champ_prob >= 0 && r.champ_prob <= 1, `champ_prob out of range: ${r.champ_prob}`);
     assert(r.champ_prob <= r.playoff_prob + 1e-9,
       `team ${id}: champ ${r.champ_prob} > playoff ${r.playoff_prob} — won a title without making the bracket`);
+    assert(r.champ_prob <= r.final_prob + 1e-9 && r.final_prob <= r.playoff_prob + 1e-9,
+      `team ${id}: champ ${r.champ_prob} / final ${r.final_prob} / playoff ${r.playoff_prob} must nest`);
   }
 });
 

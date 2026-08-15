@@ -91,13 +91,20 @@ function gauss(rand, mean, sd) {
 
 /** One playoff among the top-4 seed ids: 1v4, 2v3, winners meet. Each game is a
  *  fresh pair of Normal draws — a semifinal performance says nothing about the
- *  final's. Returns the champion's id. */
+ *  final's. Returns { champ, finalists } — the finalists exist because a
+ *  "finishes top 2" bet is priced off reaching the final, and deriving that
+ *  anywhere else would be a second bracket that could disagree with this one.
+ *  Draw order is game(1v4), game(2v3), final — the same sequence the original
+ *  champion-only version used, so seeded results did not move when finalists
+ *  were added. */
 function playBracket(seeds, strengths, rand) {
   const game = (a, b) => {
     const sa = strengths[a], sb = strengths[b];
     return gauss(rand, sa.mean, sa.sd) > gauss(rand, sb.mean, sb.sd) ? a : b;
   };
-  return game(game(seeds[0], seeds[3]), game(seeds[1], seeds[2]));
+  const f1 = game(seeds[0], seeds[3]);
+  const f2 = game(seeds[1], seeds[2]);
+  return { champ: game(f1, f2), finalists: [f1, f2] };
 }
 
 /** Fisher-Yates on a copy, driven by the sim's own rng so runs reproduce. */
@@ -130,8 +137,8 @@ function simulate({ strengths, baseRec, futureWeeks, schedule = null, cut = 4,
   if (cut !== 4) throw new Error(`bracket model is pinned to a 4-team playoff; got cut=${cut}`);
   const ids = Object.keys(strengths).map(Number);
   const rand = rng(seed);
-  const champ = {}, made = {}, winSum = {};
-  ids.forEach(id => { champ[id] = 0; made[id] = 0; winSum[id] = 0; });
+  const champ = {}, made = {}, winSum = {}, finals = {}, last = {};
+  ids.forEach(id => { champ[id] = 0; made[id] = 0; winSum[id] = 0; finals[id] = 0; last[id] = 0; });
 
   for (let s = 0; s < sims; s++) {
     const rec = {};
@@ -159,7 +166,10 @@ function simulate({ strengths, baseRec, futureWeeks, schedule = null, cut = 4,
     ids.forEach(id => { winSum[id] += rec[id].wins; });
     const seeds = order.slice(0, cut);
     seeds.forEach(id => { made[id]++; });
-    champ[playBracket(seeds, strengths, rand)]++;
+    last[order[order.length - 1]]++;
+    const br = playBracket(seeds, strengths, rand);
+    champ[br.champ]++;
+    br.finalists.forEach(id => { finals[id]++; });
   }
 
   const out = {};
@@ -167,6 +177,11 @@ function simulate({ strengths, baseRec, futureWeeks, schedule = null, cut = 4,
     out[id] = {
       champ_prob: champ[id] / sims,
       playoff_prob: made[id] / sims,
+      // Reaching the final ("top 2") and finishing dead last — priced here, in
+      // the same sims as the title, so a top-2 bet and a champion bet can never
+      // disagree about which bracket they were priced on.
+      final_prob: finals[id] / sims,
+      last_prob: last[id] / sims,
       exp_wins: winSum[id] / sims,
     };
   });
