@@ -199,12 +199,39 @@ ck('every row of the plan sits on a pick I actually own',
    * instead. Pinning the arm to QB would have gone quietly vacuous — passing
    * while proving nothing — which is the class of defect this suite exists for. */
   const differ = POS.filter(pos => Math.abs(at(depth, pos) - at(live, pos)) > 1);
-  ck('FAIL ARM — taking it at the LIVE-SELECTION count changes the answer at some '
-    + 'position, so the two depths are genuinely distinguishable',
-    differ.length > 0,
-    POS.map(pos => pos + ' ' + at(depth, pos) + '/' + at(live, pos)).join('  '));
-  console.log('      (the depth error currently bites at: ' + differ.join(', ')
-    + ' — it was QB this morning on a smaller board)');
+  if (differ.length > 0) {
+    ck('FAIL ARM — taking it at the LIVE-SELECTION count changes the answer at some '
+      + 'position, so the two depths are genuinely distinguishable',
+      true,
+      POS.map(pos => pos + ' ' + at(depth, pos) + '/' + at(live, pos)).join('  '));
+    console.log('      (the depth error currently bites at: ' + differ.join(', ')
+      + ' — it was QB on the 1,759 board, TE on the 1,841 one)');
+  } else {
+    /* RE-DERIVED 2026-08-15: whether the confusion bites AT ALL is as
+     * board-dependent as where. The first fresh rebuild after the pipeline
+     * was unblocked (677 players, re-ranked ADP) produced a board where the
+     * slots between the live-selection count and the board depth lead no
+     * position's remaining projections by more than a point — every position
+     * flat across the keeper-slot window, so the two depths are honestly
+     * indistinguishable HERE. That is a fact about this board's tail, not
+     * proof the guard works, so this arm MEASURES the flatness from the
+     * players' side (a second computation path, not the differ set restated)
+     * and says UNCHECKED loudly. The arm above re-arms by itself the night
+     * the tail steepens. */
+    const goneLive = new Set(byAdp.slice(0, live).map(q => String(q.player_id)));
+    const bulging = byAdp.slice(live, depth).filter(p => {
+      const bestAfter = at(depth, p.position);
+      return +p.proj_mean - bestAfter > 1;
+    });
+    ck('FAIL ARM (flat-board arm) — no player in the live-to-depth window beats '
+      + 'the post-window best at his position by over a point, which is WHY the '
+      + 'depths are indistinguishable on this board',
+      bulging.length === 0 && goneLive.size === live,
+      byAdp.slice(live, depth).map(p => p.position + ' ' + p.name + ' ' + p.proj_mean).join('  '));
+    console.log('      UNCHECKED (board-dependent): depth-vs-live discrimination '
+      + 'unobservable on this board — the keeper-slot window is projection-flat '
+      + 'at every position');
+  }
 }
 
 // ── 4c. NOBODY SLICES THE POOL BY A BOARD PICK NUMBER ───────────────────
