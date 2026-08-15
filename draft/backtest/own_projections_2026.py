@@ -119,6 +119,73 @@ def main():
     coverage = len(set(proj) & board_ids)
     print(f"  coverage on live board: {coverage} / {len(board_ids)} players")
 
+    # ── DEPTH-CHART DAMPENING — the fix for the finding parked earlier today ──
+    #
+    # walk_forward() has no opportunity/depth-chart signal: it regresses a
+    # small-sample player toward the FULL positional mean regardless of whether
+    # his 2026 role has collapsed since his last productive stretch. Measured
+    # result before this: Kendre Miller (Sleeper 4.6, a buried backup) came out
+    # at 90+ from the raw model — not noise, a systematic one-directional bias
+    # (median RB ratio 1.33 despite every star correctly regressing BELOW 1.0).
+    #
+    # depth_chart_order is already on the live board for 538/686 players — no
+    # new data source needed. Dampen the projection for anyone clearly buried,
+    # leave it alone for anyone the board can't classify (absence of evidence is
+    # not evidence of absence — matching board_activity.dormant()'s own stated
+    # principle) and for depth_chart_order 1-2 (starter/clear backup, where the
+    # raw model's regression is doing something defensible).
+    #
+    # THE MULTIPLIERS ARE NOT MEASURED. Labeled as such rather than presented as
+    # calibrated — same discipline as WEIGHT_PROVENANCE in engine.js marking a
+    # default apart from a measurement. A real calibration needs a held-out
+    # season the same way REGRESSION_WEIGHT was tuned; this is a labeled-honest
+    # starting point that fixes the visible symptom, not a finished feature.
+    DEPTH_DAMPEN = {2: 0.45, 3: 0.30, 4: 0.20}  # order -> multiplier; >= next uses floor
+    DEPTH_DAMPEN_FLOOR = 0.15
+    # QB'S "2" IS NOT RB/WR/TE'S "2". First run dampened depth_chart_order>=3
+    # uniformly and RB/WR/TE improved (median ratio 1.33->1.04, 1.15->0.89) but
+    # QB DID NOT MOVE AT ALL (stayed 1.755) — checked why rather than assume the
+    # fix worked everywhere: QB inflation was almost entirely players at
+    # depth_chart_order 2 (Mason Rudolph, Andy Dalton, ...), which the first cut
+    # exempted as "defensible". It isn't, for this one position: an NFL team
+    # plays ONE quarterback barring injury, so QB2 means near-zero real snaps —
+    # the same single-starter ("onesie") shape this project already treats QB/TE
+    # differently for elsewhere (onesieState in engine.js). RB2/WR2/TE2 still see
+    # real usage in committees and rotations; QB2 structurally does not. So the
+    # dampening window starts one slot earlier for QB than for the others.
+    ONESIE_QB_START = 2   # QB: dampen from backup on, matching the real NFL shape
+    SKILL_START = 3        # RB/WR/TE: dampen from clear-3rd-string on
+    # A PERCENTAGE DISCOUNT IS THE WRONG SHAPE FOR A BACKUP QB SPECIFICALLY.
+    # Tried 0.45 first (same as RB/WR/TE order-2): Mason Rudolph 207 -> 93,
+    # Kyle Allen 99 -> 44 — real movement, still 4-7x Sleeper's ~13. A backup
+    # RB/WR/TE keeps SOME real opportunity (committee touches, 2-WR sets); a
+    # backup QB gets close to ZERO unless the starter is hurt, which a
+    # percentage-of-regressed-rate can't represent no matter how low the
+    # percentage — the positional MEAN it regresses toward already assumes a
+    # real chance of playing, which is the wrong assumption for this specific
+    # slot. Floored much harder for QB order>=2 as a result (still a labeled
+    # default, not a calibration).
+    QB_DAMPEN = {2: 0.08, 3: 0.05}
+    QB_DAMPEN_FLOOR = 0.04
+    dampened = 0
+    depth_chart = {str(p["player_id"]): p.get("depth_chart_order") for p in players}
+    for pid, val in list(proj.items()):
+        order = depth_chart.get(pid)
+        if order is None:
+            continue
+        is_qb = positions.get(pid) == "QB"
+        start = ONESIE_QB_START if is_qb else SKILL_START
+        if order < start:
+            continue
+        table = QB_DAMPEN if is_qb else DEPTH_DAMPEN
+        floor = QB_DAMPEN_FLOOR if is_qb else DEPTH_DAMPEN_FLOOR
+        mult = table.get(int(order), floor)
+        proj[pid] = round(val * mult, 2)
+        dampened += 1
+    print(f"  depth-chart dampening applied to {dampened} players "
+          f"(QB from order 2, RB/WR/TE from order 3 — UNMEASURED default "
+          f"multipliers, see comment)")
+
     # Diagnostic-only comparison against what's already on the board. No write-back.
     diffs = []
     for p in players:
