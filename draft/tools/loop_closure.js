@@ -81,13 +81,34 @@ function helperKinds() {
 
 /* The files that can capture or resolve. The shipped client and the server —
  * NOT the tests, which would make every kind look wired. */
+/* ⚠ NON-RECURSIVE UNTIL 2026-08-15, AND IT COST A REAL FALSE NEGATIVE.
+ * `fs.readdirSync(d)` only lists a directory's own entries — it never
+ * descended into `src/routes/`, where `lineup_call` and `inseason_override`
+ * turn out to already be captured (member.js, POST /lineup/log and
+ * /lineup/override — real, working, server-side). This tool reported both as
+ * "NOT CAPTURED AT ALL" and that was trusted into DECISIONS-NEEDED.md/
+ * PARKED.md without an independent grep first — exactly the "detector blind
+ * to the shape of the code" failure this file's own comments already warn
+ * about twice (the helper-name miss, the resolver-window miss). Third time,
+ * same root cause: a scanner that cannot see where the code actually lives
+ * returns a confident, wrong answer instead of no answer. Now recurses,
+ * skipping node_modules/.git the way every other walk in this repo does. */
 function sourceFiles() {
   const dirs = [path.join(ROOT, 'public', 'js', 'draft'), path.join(ROOT, 'src')];
   const out = [];
-  dirs.forEach(d => {
-    if (!fs.existsSync(d)) return;
-    fs.readdirSync(d).forEach(f => { if (f.endsWith('.js')) out.push(path.join(d, f)); });
-  });
+  const SKIP = new Set(['node_modules', '.git']);
+  function walk(d) {
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); }
+    catch (e) { return; }
+    entries.forEach(e => {
+      if (SKIP.has(e.name)) return;
+      const full = path.join(d, e.name);
+      if (e.isDirectory()) walk(full);
+      else if (e.isFile() && e.name.endsWith('.js')) out.push(full);
+    });
+  }
+  dirs.forEach(d => { if (fs.existsSync(d)) walk(d); });
   return out;
 }
 
@@ -174,12 +195,20 @@ function scan() {
     const names = Object.keys(helpers).filter(h => helpers[h] === kind);
     files.forEach(({ f, src }) => {
       if (/predledger\.js$/.test(f)) return;      // the library is not a call site
-      // CAPTURE — a named helper for this kind, or an explicit generic capture.
+      // CAPTURE — a named client helper, the client's generic escape hatch, OR
+      // the SERVER-SIDE shape (predledger.append(store, { kind: '<kind>', ... })
+      // — found 2026-08-15 missing entirely: lineup_call and inseason_override
+      // are captured exactly this way in src/routes/member.js and this tool
+      // reported both as uncaptured because it only ever looked for the
+      // client's three call shapes. A detector that knows one caller's
+      // vocabulary and not the other's is the same defect as the directory
+      // scan that couldn't see src/routes/ — fixed the same day, same cause.
       const viaHelper = names.some(n =>
         new RegExp("PredLedger\\." + n + "\\s*\\(").test(src));
       const viaCapture = new RegExp("\\.capture\\(\\s*'" + kind + "'").test(src);
       const viaSend = new RegExp("send\\(\\s*'" + kind + "'").test(src);
-      if (viaHelper || viaCapture || viaSend) captures.push(rel(f));
+      const viaAppendLiteral = new RegExp("kind:\\s*'" + kind + "'").test(src);
+      if (viaHelper || viaCapture || viaSend || viaAppendLiteral) captures.push(rel(f));
 
       /* ── RESOLUTION IS DETECTED BY CONSUMPTION, NOT BY NAME ──────────────
        *
