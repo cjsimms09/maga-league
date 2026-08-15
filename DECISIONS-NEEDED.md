@@ -21,6 +21,54 @@ respects the same rule that already governs superseded headings in this file
 
 # OPEN — needs a decision, or is blocked and waiting
 
+## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
+
+**Checked because Cory asked to "hammer down predictions, snapshots, grades, and
+closing the loop." The capture machinery for GRADING the draft after the fact is
+fully built, tested, and rehearsed — and there is currently no plan, automated or
+manual, to actually run it during the live draft.**
+
+**What exists and is genuinely solid:**
+- `draft/freeze_pre_draft.py` — freezes projections/replacement/ADP before the draft
+  starts (already run: sha256 `17bd1e45f83a`, 686 players).
+- `draft/log_draft_picks.py` — append-only JSONL pick log, joins every real pick to
+  the frozen board by sha256, records the model's recommendation AT THE MOMENT each
+  pick landed (not reconstructed later — Cory's own stated rule: "this repo has been
+  wrong about that class of claim four times"). Has a `sync_live(draft_id)` mode
+  built specifically to poll Sleeper's live draft picks and log them as they happen —
+  "the draft-night entry point," per its own docstring.
+- `draft/tests/test_pick_log_rehearsal.py` — rehearsed against a REAL 150-pick
+  Sleeper draft (2025, from `league_history.json`, not a synthetic fixture), across 7
+  conditions: normal sequence, duplicate event, out-of-order event, player
+  unavailable, reconnect/repeat payload, keeper-adjusted clock, final-row behavior.
+  This is genuinely thorough, real work — not a gap.
+
+**What's missing: nothing calls `--sync` during the actual draft.** Checked directly:
+`grep`'d every `.github/workflows/*.yml` and every root-level `.md` for
+`log_draft_picks`, `sync_live`, or `--sync` — zero hits outside the tool itself and
+its own tests. No scheduled workflow, no documented manual runbook step, nothing.
+The nightly `draft-data.yml` cron (confirmed healthy and running today) does NOT call
+this — it rebuilds the board, it doesn't watch a live draft. Without something
+invoking `--sync <draft_id>` repeatedly during the ~150-pick live event on Aug 22,
+every pick happens, the freeze/rehearsal machinery sits idle, and post-draft grading
+has nothing to grade against — not because the tool is broken, but because nobody
+runs it.
+
+**Why this isn't something to just fix silently:** it interacts with the build-minute
+budget question right below this entry, which is ALSO unresolved and ALSO flagged as
+untouchable during draft week. A scheduled GitHub Actions poller during the draft
+window is the obvious automated fix, but adding new recurring CI usage before that
+budget number is re-verified is exactly the kind of thing that entry warns against.
+A manual fallback (someone runs `python3 draft/log_draft_picks.py --sync <draft_id>`
+in a loop, or repeatedly, during the draft) costs nothing and needs no budget —
+that alone would close the gap without touching CI at all.
+
+**Recommendation:** at minimum, write the one-line manual runbook step into whatever
+doc gets read on draft day, so this doesn't get missed by omission. A scoped
+automated poller (only active during a declared draft-day window, not year-round) is
+a very small, very safe build once the budget question resolves — Cory's call on
+timing, not mine to just ship given the open budget interaction.
+
 ## 🚨 URGENT — CHECK BUILD-MINUTE BUDGET FIRST, BEFORE ANY DEPLOY (Cory research relay, 2026-08-15)
 
 **Read this before doing anything that could trigger a build.** `DEPLOY-POLICY.md` is
