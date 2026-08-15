@@ -53,6 +53,17 @@ that -> read the ledger back) was built for the stream forms and failed. Fixed i
 prove it round-trips correctly now, including with a player name carrying both an
 apostrophe and a literal double quote. Full JS + robot-mock + Python suites green after.
 
+**Follow-up, same finding: is any REAL captured data corrupted?** This sandbox has no
+access to the live site's Netlify Blobs store, so it can't check production directly.
+`draft/tools/ledger_corruption_check.js` is the one-command answer for whoever does:
+log in as commissioner, visit the already-shipped `/admin/api/ledger/predict?season=
+2026`, save the response, run the tool against it. It flags any entry whose
+recommended/counterfactual/chosen/drop is a raw string instead of parsed JSON (the
+exact signature the bug leaves) — deliberately NOT flagging `waiver_claim`'s
+`counterfactual`, which is a hardcoded `'hold priority'` string by design, not a bug.
+8/8 tests pass, including that exact false-positive trap. **Someone with real access
+needs to actually run this** — not done here, can't be from this sandbox.
+
 **The single biggest finding of the day about the MODEL (as opposed to the bug above):
 our core projection formula was already
 audited and found to LOSE, and nobody was ever told.** Experiment 33 (`EXP33.md`,
