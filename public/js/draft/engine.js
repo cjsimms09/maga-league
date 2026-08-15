@@ -2309,10 +2309,44 @@
     return 0;
   }
 
+  /**
+   * PRE-DRAFT ONLY: `ctx.board` before any pick — real or mock — has landed
+   * is the FULL undrafted pool, not a realistic one. `currentPick()` (app.js)
+   * already anchors ahead to the user's own first selection (the fix in
+   * predraft_anchor.test.js), so `ctx.currentPick` can read 33 while
+   * `ctx.board` still holds every player nobody has removed, because nobody
+   * has picked yet. The two agree on WHICH pick; nothing yet makes the board
+   * agree on WHO WOULD REALISTICALLY BE THERE.
+   *
+   * MEASURED, 2026-08-15, on the shipped board: Puka Nacua (adjusted_adp 3.0,
+   * adp_sd 0.4) survives to pick 33 at **0.000%** by the engine's OWN survival
+   * math — not a close call. Scoring him as a live pick-33 candidate anyway
+   * is not a value judgement the model is making; it is the model treating an
+   * event its own probability estimate says will not happen as though it
+   * already had. The macro audit's "empty room" rec-panel probe (Nacua, "ADP
+   * 3 · fell 30") is this exact defect, caught live.
+   *
+   * Filters candidates below the same negligible-mass floor VONA already
+   * uses elsewhere (`SURVIVOR_CUTOFF`) — not a new threshold invented for
+   * this. A live draft (`ctx.preDraftPrep` false, the default — set only by
+   * app.js's `context()` when zero picks, real or mock, have landed) is
+   * completely unaffected: there `ctx.board` IS ground truth (real
+   * removals), so every survivor is genuinely on the board and filtering
+   * would suppress the exact "he actually fell" signal the recommendation
+   * exists to catch — Cory's own instinct that a real value cliff must win
+   * is already how vona() scores every live pick, unchanged here.
+   */
+  function preDraftPool(board, ctx) {
+    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
+    const kept = board.filter(p => survival(p, ctx.currentPick, ctx) >= CFG.SURVIVOR_CUTOFF);
+    return kept.length ? kept : board;   // never recommend from an empty pool
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
-    const all = ctx.board.map(p => scorePlayer(p, ctx));
+    const pool = preDraftPool(ctx.board, ctx);
+    const all = pool.map(p => scorePlayer(p, ctx));
     all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
@@ -3842,7 +3876,7 @@
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
     expectedBestAvailable, vona, wireBenchValue,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, preDraftPool, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,

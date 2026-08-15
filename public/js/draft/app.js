@@ -1903,6 +1903,15 @@
       // measured personal leak. The engine was amplifying the behaviour it
       // measured as costing him money.
       currentPick: cur,
+      // TRUE ONLY WHEN `currentPick()` JUST TOOK ITS PRE-DRAFT ANCHOR BRANCH:
+      // zero pick-events (real or mock) recorded, so `state.board` is still
+      // the full undrafted pool and cannot yet be treated as ground truth
+      // about who is realistically still available at `cur`. The moment
+      // anything is recorded — sync, a mock pick, a manual mark —
+      // `pickState().pickEvents` moves off zero and this reverts to false
+      // for the rest of the draft, same guard `currentPick()` itself uses.
+      // Consumed by engine.js's `preDraftPool()`.
+      preDraftPrep: pickState().pickEvents === 0 && cur > 1,
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),

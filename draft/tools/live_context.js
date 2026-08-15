@@ -143,6 +143,16 @@ function liveContext(opts) {
       || interveningFor(data, o.currentPick, o.nextPick, mySlot),
     roundsLeft: totalPicks == null ? 0
       : Math.max(0, Math.ceil((totalPicks - o.currentPick) / teams)),
+    // DEFAULTS FALSE, DELIBERATELY, FOR EVERY CALLER OF THIS BUILDER. app.js
+    // sets this true ONLY in the narrow pre-draft-prep window (zero picks —
+    // real or mock — recorded), where `board` is not yet ground truth about
+    // who is realistically still available. Every tool that calls
+    // `liveContext` is already simulating an in-progress or historical draft
+    // — a mock walk, a room replay, a backtest — where `o.board` (or the
+    // loaded artifact) IS ground truth for that simulation. Filtering it
+    // again by survival-to-currentPick would be double-counting a discount
+    // the simulation already applied by actually removing players.
+    preDraftPrep: o.preDraftPrep != null ? o.preDraftPrep : false,
   };
 
   // ── BOTH DIRECTIONS, BECAUSE BOTH WERE LIVE DEFECTS ─────────────────────
