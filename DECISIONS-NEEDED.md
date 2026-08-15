@@ -472,12 +472,21 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
 
   Modal shape is now **QB2 RB3 WR3 TE2** (28.3% of rooms) — was QB3 RB1 WR3 TE3
   (45.8%). RB moved from the worst-drafted position to among the best-stocked;
-  onesie spend (QB+TE) roughly halved. Most likely cause: the ceiling-units fix
-  (2026-08-13, `computeCeilingScales` in `engine.js`, see the TE/onesie PARKED.md
-  entry from this week) — that fix targeted exactly this class of distortion, and
-  landed after this entry was written. **Not independently confirmed as the sole
-  cause** — I did not re-run the three-arm isolation to prove which specific term
-  moved it, only that the composite outcome changed substantially.
+  onesie spend (QB+TE) roughly halved.
+  **CORRECTION, same day: my first pass at this attributed the improvement to
+  the 2026-08-13 ceiling-units fix. That was too fast.** Checked `engine.js`
+  directly afterward: `CFG.ONESIE_HARD_CAP` is `true` and `ONESIE_MAX_SPARE`
+  (`{QB:1, TE:1}`) is live and actually gating `onesieState()` right now —
+  `draft/tests/onesie_cap.test.js` confirms a 3rd QB/TE gets sunk below rank 12.
+  The cap's own history is tangled: deleted 2026-08-14 ("delete them, do not fix
+  them" — the units defect was real, see PARKED.md), then **restored** at some
+  point after (undated in what I read, found via `git log` on `engine.js` — not
+  traced to the exact commit). The test file's own comment says as much: it was
+  rewritten to assert the exposure (defect present) right after the 2026-08-14
+  deletion, then rewritten AGAIN back to asserting the cap works, "because the
+  cap is restored." **So this healthy roster shape may be the restored hard cap
+  doing its job, not the underlying units defect being fixed — I cannot tell
+  which from a black-box roster-shape re-run, and I should not have guessed.**
   **The unpriced concentration risk this entry named (an injury away from a hole
   the roster can't fix) is smaller now that RB depth is real**, but not
   necessarily zero — worth a fresh look at whether 3-4 RBs still cluster on a
