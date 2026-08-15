@@ -164,7 +164,11 @@ console.log('\nWHAT THIS GUARANTEES: in-season decisions are graded from the sin
 console.log('that carries both sides, scored only where an outcome exists, counted');
 console.log('SEPARATELY so the draft override rate keeps meaning what it has always meant,');
 console.log('and the grader\'s kind list is pinned to the ledger\'s so the two cannot drift.');
-console.log('WHAT IT DOES NOT: capture anything. The write side lives in src/routes/**,');
-console.log('which is B\'s lane, and is not wired. Until it is, this grades an empty set —');
-console.log('the read side (accuracy.js) and the grade side (here) are both ready and the');
-console.log('season\'s evidence still depends on one lane that has been idle since 08-09.');
+console.log('CORRECTED 2026-08-15, twice (each earlier claim was accurate when written,');
+console.log('kept visible rather than deleted): capture IS wired (src/routes/member.js\'s');
+console.log('/lineup/log, /waivers/log, /stream/log + the overrides), and resolution now');
+console.log('covers lineup_call (inseason_resolution.test.js), waiver_claim, stream_call');
+console.log('and post-fix inseason_override (waiver_stream_resolution.test.js), run weekly');
+console.log('by claims-cron and driven end-to-end in loop_closure_live.test.js. What still');
+console.log('blocks a real score: no 2026 in-season week has been played yet, and');
+console.log('trade_eval alone has no capture surface (declared in PENDING_KINDS).');

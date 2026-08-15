@@ -85,6 +85,38 @@ def test_fingerprint_and_staleness_contract():
     assert "my_slot" in OS.is_stale(s["meta"], moved3)
 
 
+def test_an_in_place_board_edit_marks_the_script_stale_even_with_built_at_unchanged():
+    """THE FAIL-ARM THE OLD FINGERPRINT MISSED — C's routed finding
+    (ROUTES.md TO:A, 2026-08-14), fixed 2026-08-15. built_at is stamped by
+    the REBUILD and survives in-place edits: C reproduced three different
+    boards from git (31KB apart, 136 player rows differing) all sharing one
+    built_at, and a fingerprint carrying only board_built_at called a script
+    generated against any of them fresh against all of them. The content
+    hash is what catches it. This test edits a player row IN PLACE, leaves
+    built_at untouched, and requires the script to announce itself stale —
+    exactly the case that used to pass silently."""
+    board, predicted = _inputs()
+    s = OS.generate(board, predicted)
+
+    import copy
+    edited = copy.deepcopy(board)
+    assert edited["players"], "no players to edit — the fail-arm would be vacuous"
+    edited["players"][0]["adp_unordered"] = (
+        (edited["players"][0].get("adp_unordered") or 0) + 1)   # the real drifting field
+    assert edited.get("built_at") == board.get("built_at")      # the stamp did NOT move
+
+    fp_edited = OS.fingerprint(edited, predicted)
+    stale = OS.is_stale(s["meta"], fp_edited)
+    assert "board_content_hash" in stale, (
+        "an in-place board edit with an unchanged built_at was not flagged — "
+        "the fingerprint has regressed to timestamp identity")
+    assert "board_built_at" not in stale  # the stamp really was held constant (control)
+
+    # CONTROL — the hash is not simply always-different: the unedited board
+    # still reads fresh, so the flag above is the edit's doing.
+    assert OS.is_stale(s["meta"], OS.fingerprint(board, predicted)) == []
+
+
 def test_doctrine_enrollment_follows_the_19b_verdict():
     board, predicted = _inputs()
     s = OS.generate(board, predicted)

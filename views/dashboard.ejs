@@ -233,7 +233,7 @@
             <% const _fl = (typeof flags !== 'undefined' && r.owner_id != null) ? (flags[r.owner_id] || '') : ''; %>
             <td><% if (r.owner_id != null) { %><button type="button" class="contact-link" data-contact="<%= r.owner_id %>"><b><%= r.owner_name || r.team %></b></button><%- include('partials/_owner_badges', { name: r.owner_name }) %><% if (_fl) { %> <span class="flag"><%= _fl %></span><% } %><% } else { %><b><%= r.owner_name || r.team %></b><%- include('partials/_owner_badges', { name: r.owner_name }) %><% } %><% if (bm) { %><span
                 class="bet-money<%= bm.mine ? ' mine' : '' %>"
-                title="<%= bm.notes.join(' · ').replace(/"/g, '&quot;') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
+                title="<%= bm.notes.join(' · ') %>">💰<% if (bm.mine) { %><%= money(bm.mine) %><% } %></span><% } %><% if (r.owner_name && r.owner_name !== r.team) { %> <span class="muted"><%= r.team %></span><% } %></td>
             <td class="num" style="white-space:nowrap"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></td>
             <td class="num" style="white-space:nowrap"><%= r.pf.toFixed(1) %></td>
             <% if (showPO) { %><td class="num po-cell" style="white-space:nowrap"><%- _poCell(r.owner_id) %></td><% } %>

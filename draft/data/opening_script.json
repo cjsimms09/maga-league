@@ -3,6 +3,7 @@
   "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
   "fingerprint": {
    "board_built_at": "2026-08-15T17:52:22Z",
+   "board_content_hash": "317dc3ee3052",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2c3c05638a32"

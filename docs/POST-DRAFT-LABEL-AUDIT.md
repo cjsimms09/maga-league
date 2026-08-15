@@ -159,7 +159,7 @@ Two items sat in the parked queue that should not have been there.
 7. **League history: Founding + Chronicle of Amendments + The Rolls** — highest joy-per-hour in the whole backlog, zero gates, and the amendment ledger is the spine everything else hangs on
 8. **Contact directory + tappable owner cards** — small, immediately useful, unblocks settlement chasing
 9. **League history: 2023–25 chapters in chronicle voice** — the box-score mining below is already proven to work
-10. **Lineup optimizer** (build + historical validation, dark) — the largest measured dollar leak, ~$445–595/team/season
+10. **Lineup optimizer** (build + historical validation, dark) — the largest measured dollar leak, ~$520–637.50/team/season
 11. **Weekly brief** (dark) — the front door; if a tool does not surface here it does not exist
 12. **Streaming engine** (dark)
 13. **League-wide projections machinery** (dark; activation waits on final rosters)

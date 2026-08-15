@@ -58,7 +58,17 @@
         + '<p style="opacity:.7">built_at ' + escapeHtml(String((data || {}).built_at))
         + ' &middot; ' + (((data || {}).players || []).length) + ' players</p>'
         + '</div></div>';
-      throw new Error('fixture board refused');
+      // MARKED, not a bare throw — found 2026-08-15 by
+      // draft/tests/rehearsal-keepers.js: boot()'s catch below used to run
+      // unconditionally on ANY rejection (network failure OR a fixture
+      // refusal) and overwrite #loading with a generic "could not load"
+      // message, clobbering the specific diagnostic text just written above
+      // before it was ever seen. The whole point of this function's detailed
+      // message — the one an hour of debugging this comment describes going
+      // into — was defeated by the fallback that ran immediately after it.
+      const err = new Error('fixture board refused');
+      err.fixtureRefused = true;
+      throw err;
     }
     return data;
   }
@@ -69,12 +79,17 @@
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(guardFixture)
       .then(start)
-      .catch(() => {
+      .catch(err => {
         // The pinned artifact is the same one the War Room runs from offline.
+        // Tried even for a fixture rejection — a real pinned board is strictly
+        // better than either message, fixture or generic.
         try {
           const pin = JSON.parse(localStorage.getItem(PIN_KEY) || 'null');
           if (pin && pin.data) return start(pin.data);
         } catch (e) { /* fall through */ }
+        // guardFixture already wrote its own specific message — do not
+        // clobber it with the generic one below.
+        if (err && err.fixtureRefused) return;
         $('#loading').innerHTML = '<div class="card"><div class="body">'
           + '<p>Could not load the draft board, so the keeper slate cannot be '
           + 'edited against it. Open the War Room once while online, then come back — '

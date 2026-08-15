@@ -23,6 +23,17 @@ respects the same rule that already governs superseded headings in this file
 
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
 
+> **✅ SUPERSEDED later the same day — the capture path now EXISTS and was
+> fired for real.** `.github/workflows/draft-night-sync.yml`: dispatch it when
+> the draft opens (paste the Sleeper draft_id), it polls every 20s and commits
+> each pick. Verified by two REAL runs in dry-run mode against a completed
+> historical draft — the first run caught a genuine bash -e bug that had made
+> its own retry logic dead code, fixed, re-verified. THE ONE REMAINING MANUAL
+> STEP, unchanged and worth repeating: **someone must dispatch it when the
+> draft opens on the 22nd** — deliberately not automatic (a snake draft's
+> start time isn't predictable). The heading is kept verbatim per this file's
+> no-delete rule; the body below is the state BEFORE the workflow existed.
+
 **Checked because Cory asked to "hammer down predictions, snapshots, grades, and
 closing the loop." The capture machinery for GRADING the draft after the fact is
 fully built, tested, and rehearsed — and there is currently no plan, automated or
@@ -70,6 +81,15 @@ a very small, very safe build once the budget question resolves — Cory's call 
 timing, not mine to just ship given the open budget interaction.
 
 ## 🚨 URGENT, SUPERSEDES THE ORIGINAL VERSION OF THIS ENTRY — THE DEPLOY GATE WAS BACKWARDS, TWO REAL DEPLOYS ALREADY HAPPENED (Cory research relay, 2026-08-15)
+
+> **✅ SETTLED later the same day, Cory's ruling ("find the happy medium") —
+> no decision remains here.** The blanket-[skip deploy] freeze this entry
+> instituted is RETIRED; `DEPLOY-POLICY.md` was rewritten from scratch and is
+> the single authority (served-path changes deploy when they land on main,
+> every deploy path verified — including the previously-unchecked nightly bot
+> push, which now polls its own deploy in-run; Aug 20-22 the build reserve is
+> untouchable). Kept verbatim below per the no-delete rule as the record of
+> WHY the rewrite happened.
 
 **The original version of this entry (below the line) said "no commit carries a
 [deploy] marker, nothing was pushed to main, the budget hasn't moved." That was
@@ -978,3 +998,11 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
+
+## KOV RAMP SHAPE — MEASURED HISTORY INVERTS THE SHIPPED KEEPER RAMP (A, 2026-08-15) 🔴 OPEN
+
+- **THE QUESTION.** Flip `CFG.KOV_MEASURED_RAMP` (composite.js, built today, ships FALSE) or keep the reasoned ramp? The keeper term is LIVE at weight 1.0 in `MEASURED_WEIGHTS`, so this shapes real late-round tie-breaks on the 22nd.
+- **THE MEASUREMENT** (`draft/backtest/exp_keeper_option.py`, preregistered; the league's own 450 picks + keeper designations 2023-25, realized points under our scoring): keeper-option value by the round a pick was made = **+7.1 pts (rounds 4-6) / +1.4 (7-9) / −1.1 (10-12) / 0.0 (13-15 — zero of 31 such picks were EVER kept)**. The shipped ramp is the inverse: zero credit through round 6, maximum by round 12. Full working: `draft/audit/roster_construction_audit_2026-08-15.md` §B.4, artifact `draft/backtest/exp_keeper_option.json`.
+- **ALSO IN THE SAME MEASUREMENT, no action proposed:** keeping paid overall (+23.5 mean over the forfeited round) but the round-1 keeper slot returned NEGATIVE (−11.7 mean, 39.3% positive, n=28) — the value of keeping three lives in slots 2-3. Worth knowing before keeper lock on the 21st; the current Chase+Henry+Walker slate was separately optimized (EXP-KEEPER-NABERS) and this does not reopen it.
+- **CAVEATS, stated:** two keep transitions, ~40 keep events; behavior-revealed (what managers chose to keep), not counterfactual-optimal; sub-n=10 cells reported but not trusted. That is why it ships OFF.
+- **COST OF INACTION:** the live keeper term keeps leaning late-round near-ties toward players whose keeper option, in three real seasons of this league, was never once exercised.

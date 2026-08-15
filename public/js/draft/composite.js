@@ -11,6 +11,21 @@
     KOV_DISCOUNT: 0.75,          // next year's value discounted to today (spec)
     KOV_ROUND_RAMP_START: 6,     // rounds 1-6 contribute ~nothing: those picks are
     KOV_ROUND_RAMP_FULL: 12,     // expensive to keep anyway. Full weight by round 12.
+    /* GATED, DEFAULT FALSE — Cory's ruling required before this ever flips
+     * (same pattern as VONA_WIRE_BENCH). EXP-KEEPER-OPTION (draft/backtest/
+     * exp_keeper_option.py, 2026-08-15) measured the league's OWN 2023-25
+     * keeper history under top_picks_flat and found the reasoned ramp above
+     * has the WRONG SHAPE for this league: realized keeper-option value by
+     * the round a pick was made is ~7 pts for rounds 4-6 (P(kept next)=11.7%,
+     * mean return over the forfeited round +59.9 when kept), ~1.4 pts for
+     * rounds 7-9, and ~0 or negative for rounds 10-15 (0 of 31 round-13-15
+     * picks were EVER kept). The shipped ramp gives those late rounds MAXIMUM
+     * weight and rounds 4-6 zero. When this flag is true, the measured shape
+     * replaces the reasoned one; when false (always, today), nothing changes.
+     * Small-sample caveat travels with the number: two keep transitions,
+     * ~40 keep events — which is why this is a gate, not a default. */
+    KOV_MEASURED_RAMP: false,
+    KOV_MEASURED_RAMP_TABLE: { '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 },
     KOV_BADGE_AT: 8,             // KOV points that earn a "KEEPER TARGET" badge
     // Age decay applied to next year's projection, by position. RBs fall off a
     // cliff; WR/TE hold value; QBs barely move.
@@ -26,6 +41,20 @@
   };
 
   // ------------------------------------------------------------------- KOV
+  /* The measured ramp (EXP-KEEPER-OPTION), only reachable when
+   * CFG.KOV_MEASURED_RAMP is true. Rounds 1-3 read 1.0 DELIBERATELY AND THE
+   * CHOICE IS DECLARED: under this league's flat model those rounds are
+   * keeper-forfeited and nearly never hold live picks, so the history cannot
+   * measure them separately; a live top-3-round pick is at least as keepable
+   * as a round-4-6 one, and Cory owns no live pick there anyway. */
+  function measuredRamp(round) {
+    const t = CFG.KOV_MEASURED_RAMP_TABLE;
+    if (round <= 6) return t['4-6']; // rounds 1-3 share the 4-6 peak, per above
+    if (round <= 9) return t['7-9'];
+    if (round <= 12) return t['10-12'];
+    return t['13-15'];
+  }
+
   /**
    * P(this player is worth keeping next season).
    * Logistic over age, role security, breakout signal, and — crucially — how
@@ -92,9 +121,11 @@
     const teams = league.teams || 10;
     const round = ctx.currentPick ? Math.ceil(ctx.currentPick / teams) : 1;
 
-    const ramp = round <= CFG.KOV_ROUND_RAMP_START ? 0
-      : Math.min(1, (round - CFG.KOV_ROUND_RAMP_START)
-        / Math.max(1, CFG.KOV_ROUND_RAMP_FULL - CFG.KOV_ROUND_RAMP_START));
+    const ramp = CFG.KOV_MEASURED_RAMP
+      ? measuredRamp(round)
+      : (round <= CFG.KOV_ROUND_RAMP_START ? 0
+        : Math.min(1, (round - CFG.KOV_ROUND_RAMP_START)
+          / Math.max(1, CFG.KOV_ROUND_RAMP_FULL - CFG.KOV_ROUND_RAMP_START)));
     if (ramp <= 0) return { value: 0, p_keep: 0, ramp: 0, next_vorp: 0, alternative: 0 };
 
     const pKeep = keepProbability(player, round, league);
