@@ -3,6 +3,30 @@
 _Effective 2026-08-08. Enforced by `netlify-ignore.sh`, alarmed by
 `site-check.yml` + `draft/tools/deploy_drift.py`._
 
+> 🚨 **CORRECTION, 2026-08-15 (Cory research relay) — THE MECHANISM BELOW IS
+> STALE AND DESCRIBES THE OPPOSITE OF WHAT'S ACTUALLY ENFORCED.** This doc says
+> deploys are opt-in (`[deploy]` in the tip commit). `netlify-ignore.sh` itself
+> says it flipped to **opt-out on 2026-08-09** — a build happens BY DEFAULT
+> when a served path changes (`public/`, `views/`, `src/`, `server-app.js`,
+> `package.json`, `netlify.toml`, `netlify/functions/`); `[skip deploy]` /
+> `[skip netlify]` is now the ONLY way to suppress one. This doc is one day
+> older than that flip and was never updated.
+>
+> **This was not caught in time.** A served-file commit pushed to `main`
+> earlier today (`b6ea669e`, the doctrine-governance pill fix) and another
+> (`f235ad0d`, the own-model consensus.js wiring) each triggered a REAL
+> Netlify deploy — confirmed directly from `deploy-verify.yml`'s own log, not
+> inferred: `"range touches 1 served file(s) — BUILDING"`, followed by the
+> live `build-stamp.json` actually advancing to the new commit. Nobody
+> intended either deploy; both happened because this document said the
+> opposite of what the enforced gate does.
+>
+> **Read `netlify-ignore.sh` directly for the real rule, not this section,
+> until it's rewritten properly.** The one-line version: any served-path
+> change auto-deploys unless the tip commit carries `[skip deploy]`.
+
+## ⚠️ THE SECTION BELOW ("How to deploy") IS THE STALE OPT-IN DESCRIPTION — DO NOT FOLLOW IT AS WRITTEN. See the correction above.
+
 ## The numbers that caused this
 
 | measurement | value |
