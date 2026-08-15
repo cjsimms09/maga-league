@@ -49,19 +49,26 @@ jobs:
           if [ "$code" = "200" ]; then echo "PASS  $V/build-stamp.json answers 200"; else
             echo "FAIL  $V/build-stamp.json returned $code — check the URL value"; exit 1; fi
 
-      - name: grade-cron endpoint reachable (auth state reported, key never sent to logs)
+      - name: weights-read endpoint (THE endpoint the weekly job actually calls)
         env:
           V: ${{ vars.SITE_URL }}
           K: ${{ secrets.GRADE_CRON_KEY }}
         run: |
-          # A keyed manual hit. Until Netlify's env var is live (it applies on
-          # the NEXT DEPLOY after being added), the function does not enforce
-          # the key — both 200-without-enforcement and 200-with-matching-key
-          # read as PASS here; a 401/403 means the Netlify value and the
-          # GitHub value DISAGREE, which is the one failure this catches.
-          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$V/.netlify/functions/grade-cron?key=$K" || echo 000)
+          # CORRECTED 2026-08-15, after this check burned three runs testing
+          # the WRONG DOOR: the weekly runner calls the read-only weights-read
+          # function, NEVER grade-cron's manual key (that would RUN a grading
+          # pass as a side effect — the runner's own header forbids it), and
+          # grade-cron is a SCHEDULED function whose direct-hit semantics are
+          # not a reliable oracle anyway. weights-read is a plain GET, safe to
+          # probe. It ships with the relay branch, so until that merges the
+          # honest verdict on the live site is NOT-DEPLOYED-YET, not failure.
+          body=$(curl -s --max-time 30 -w "\n%{http_code}" "$V/.netlify/functions/weights-read?key=$K" || echo "curl-failed
+          000")
+          code=$(printf '%s' "$body" | tail -1)
+          resp=$(printf '%s' "$body" | head -1 | cut -c1-200)
           case "$code" in
-            200) echo "PASS  grade-cron answered 200 with the stored key";;
-            401|403) echo "FAIL  grade-cron REFUSED the stored key ($code) — the Netlify GRADE_CRON_KEY and the GitHub secret do not match"; exit 1;;
-            *) echo "WARN  grade-cron returned $code — endpoint state inconclusive (function may not be deployed yet); the two GitHub values above are still verified";;
+            200) echo "PASS  weights-read answered 200 with the stored key: $resp";;
+            401|403) echo "FAIL  weights-read REFUSED the stored key ($code: $resp) — the Netlify GRADE_CRON_KEY and the GitHub secret do not match"; exit 1;;
+            404) echo "WAIT  weights-read is not on the live site yet (404) — it deploys with the relay-branch merge; both GitHub values above are verified and nothing more is needed from a human";;
+            *) echo "WARN  weights-read returned $code ($resp) — inconclusive; GitHub values above are still verified";;
           esac
