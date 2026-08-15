@@ -13805,3 +13805,58 @@ the same breath rather than just the gap.
 Not a code change. Not a claim that the dampening fix is wrong — only that
 "is it right" cannot currently be answered with real evidence, which is a
 different and more honest thing to say than either "yes" or "no."
+
+---
+
+## 0000000. VONA_SLOT_AWARE=true STILL BREAKS TODAY'S CODE — TESTED DIRECTLY, NOT ASSUMED (2026-08-15) 🔴 OPEN (design work, not a bug)
+
+**The question this answers:** does today's bench-branch fix (the "THIRD COLLAPSE OF
+THE SAME SHAPE" fix — bench VONA now uses signed `rate * vorp - forgone`, not a
+floored/clamped version) change the outcome of the 2026-08-14 measurement that turned
+`CFG.VONA_SLOT_AWARE` off? Worth checking directly: `git log -S"THIRD COLLAPSE OF"`
+and `git log -S"turning it on makes Cory's own acceptance"` both point to the exact
+same commit (`20a6c256`, 2026-08-14 10:01:34 +0000) — the bench fix and the
+flag-off decision were contemporaneous, not sequential, which already argues against
+the flag being stale. Checked the history first, but a comment (even an accurate one)
+describing a measurement is not the same as re-running the measurement on today's
+code, so it was tested directly rather than left as an inference from git log.
+
+**Method:** wrote a scratch script
+(`/tmp/.../scratchpad/test_vona_slot_aware.js` — not committed, throwaway) that
+`require()`s `public/js/draft/engine.js`, monkey-patches the exported
+`E.CFG.VONA_SLOT_AWARE = true` (the module exports `CFG` directly, and Node caches
+modules by resolved path, so the mutation is visible to any other script that
+`require()`s the same file afterward), then `require()`s
+`draft/tools/roster_construction.js` — the same 60-room, seat-8,
+real-keepers simulation used for the RB/TE re-audit earlier this session — so the
+flag change actually flows through a full simulated draft, not just a unit check of
+`vona()` in isolation.
+
+**Result:** modal roster shape **QB2 RB0 WR6 TE2** in 66.7% of the 60 rooms. Running
+back collapses to **zero** drafted in two-thirds of rooms with the flag forced on.
+
+**This confirms the flag is still correctly off today** — the hypothesis that it
+might be safe to flip now was wrong, and it's useful to have that be a tested "no"
+instead of an inferred one.
+
+**What's actually new here, worth recording separately from "still broken":** the
+*shape* of the breakage has changed since the original 2026-08-14 measurement.
+That one found QB/TE **hoarding** (TE 1→3, QB 2→4) caused by a tie-collapse at
+VONA=0 that quarterbacks won on raw point-scale magnitude. This one — same flag, same
+simulator, post-bench-fix code — finds **WR hoarding + RB wipeout** instead. The
+underlying mechanism is presumably still the tie-collapse (1,331/1,686 players landing
+on VONA=0 once starters fill), but which position wins the resulting arbitrary ties
+has apparently shifted now that the bench branch no longer flattens negative VORP to
+zero. That's a concrete, fresh data point for whoever eventually does the real
+slot-aware VONA fix (or the seat-assignment mechanism in `draft_plan.js` the code
+already says is the intended real fix) — the failure mode is not fixed and not static,
+it moves with other changes to the engine, which argues for re-testing this flag
+after *any* future change to `vona()`'s bench or tie-breaking logic, not just trusting
+the last recorded shape of the failure.
+
+**What this is NOT:** not a code change (flag is back to `false` — the mutation was
+process-local to the throwaway script and never touched the committed file). Not a
+new fix. Just a direct, reproducible test replacing an inference, parked so nobody
+re-tests the same "maybe it's fixed now" hypothesis from a false starting point, and
+so the next person doing the real fix has two dated measurements of the failure shape
+to compare against instead of one.
