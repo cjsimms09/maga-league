@@ -14,7 +14,10 @@ real shipped board file in place).
 2. `bash scripts/verify-relay-session.sh` — 7/7 PASS at branch tip (suites
    2286 Python / 268 JS entry points; artifact-generator consistency; no CFG
    default moved; territory refusal pinned to the documented Override #5 set)
-3. Merge via the documented Override #5 bypass. Merging DEPLOYS (served files
+3. `bash scripts/merge-relay.sh` — the Override #5 bypass as a mechanism:
+   re-verifies, merges into LOCAL main, runs both suites on the merged tree,
+   and STOPS with the push printed (the push stays your deliberate act; an
+   undocumented crossing aborts it). Merging DEPLOYS (served files
    changed; deploy policy is settled in DEPLOY-POLICY.md — the blanket
    [skip deploy] era is over). Post-merge the config-check workflow's last
    cell goes green (weights-read ships with the merge; Cory's key config is

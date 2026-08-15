@@ -23,6 +23,17 @@ respects the same rule that already governs superseded headings in this file
 
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
 
+> **✅ SUPERSEDED later the same day — the capture path now EXISTS and was
+> fired for real.** `.github/workflows/draft-night-sync.yml`: dispatch it when
+> the draft opens (paste the Sleeper draft_id), it polls every 20s and commits
+> each pick. Verified by two REAL runs in dry-run mode against a completed
+> historical draft — the first run caught a genuine bash -e bug that had made
+> its own retry logic dead code, fixed, re-verified. THE ONE REMAINING MANUAL
+> STEP, unchanged and worth repeating: **someone must dispatch it when the
+> draft opens on the 22nd** — deliberately not automatic (a snake draft's
+> start time isn't predictable). The heading is kept verbatim per this file's
+> no-delete rule; the body below is the state BEFORE the workflow existed.
+
 **Checked because Cory asked to "hammer down predictions, snapshots, grades, and
 closing the loop." The capture machinery for GRADING the draft after the fact is
 fully built, tested, and rehearsed — and there is currently no plan, automated or
@@ -70,6 +81,15 @@ a very small, very safe build once the budget question resolves — Cory's call 
 timing, not mine to just ship given the open budget interaction.
 
 ## 🚨 URGENT, SUPERSEDES THE ORIGINAL VERSION OF THIS ENTRY — THE DEPLOY GATE WAS BACKWARDS, TWO REAL DEPLOYS ALREADY HAPPENED (Cory research relay, 2026-08-15)
+
+> **✅ SETTLED later the same day, Cory's ruling ("find the happy medium") —
+> no decision remains here.** The blanket-[skip deploy] freeze this entry
+> instituted is RETIRED; `DEPLOY-POLICY.md` was rewritten from scratch and is
+> the single authority (served-path changes deploy when they land on main,
+> every deploy path verified — including the previously-unchecked nightly bot
+> push, which now polls its own deploy in-run; Aug 20-22 the build reserve is
+> untouchable). Kept verbatim below per the no-delete rule as the record of
+> WHY the rewrite happened.
 
 **The original version of this entry (below the line) said "no commit carries a
 [deploy] marker, nothing was pushed to main, the budget hasn't moved." That was

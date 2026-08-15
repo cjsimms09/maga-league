@@ -92,7 +92,9 @@ echo "WHAT A GREEN RUN MEANS: every mechanical claim on this branch verifies —
 echo "suites, artifact/generator consistency, no scoring default moved, and the"
 echo "territory refusal is exactly the documented, Cory-authorised Override #5"
 echo "set. The merge itself stays A's deliberate act (bypass integrate.sh's lane"
-echo "gate knowingly, per TERRITORY.md Override #5), not this script's."
+echo "gate knowingly, per TERRITORY.md Override #5) — scripts/merge-relay.sh is that
+act as a mechanism: verify, merge locally, suites on the merged tree, and it
+STOPS before pushing."
 echo ""
 echo "THE OPEN JUDGMENT CALLS (evidence complete, decision NOT made here):"
 echo "  1. VONA_WIRE_BENCH ship/no-ship — draft/audit/vona_slot_aware_isolation_"
