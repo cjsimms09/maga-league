@@ -56,21 +56,28 @@ hour on them:
   2026-08-15 from a partial read of the file — corrected same day. Nothing to do.
 - ◻ **Deploy policy after Aug 22** — low urgency, not blocking anything now.
 
-### 1. Safe to build now — no network, no live-scoring change, no deploy
-- ◻ REGRESSION_WEIGHT dollar-arm sizing — in progress.
-- ◻ TE-at-3.6-picks term-isolation diagnostic (board data only, no network) — ~1hr, not started.
-- ◻ Third arm: composite vs ADP in dollars (JS replay) — feeds the D14/deviation-trust verdict.
-- ◻ Dollar-grade the exp35 sweep.
-- ◻ Exp41 paired-room race (combiner core already built + tested).
-- ◻ What-would-have-worked audit vs the 3 historical drafts.
+### 1. Safe to build now — confirmed no network needed before starting (learned the hard way: check this first)
+- ◻ TE-at-3.6-picks term-isolation diagnostic (board data only) — next up.
+- ◻ What-would-have-worked audit vs the 3 historical drafts (uses `league_history.json`, local).
+- ◻ Exp41 paired-room race — combiner core already built + tested; needs checking whether its
+  race arm hits Sleeper before assuming it's clear.
+- ◻ Third arm: composite vs ADP in dollars (JS replay) — needs checking whether it's local-data
+  only or needs live rosters, before starting.
+- ◻ Dollar-grade the exp35 sweep — same underlying grader as REGRESSION_WEIGHT below, so
+  almost certainly blocked the same way; verify before spending time on it.
 
-### 2. Blocked on live network access — guidance written, needs A or any session with egress
+### 2. Blocked on live network access (Sleeper/FantasyPros egress, this sandbox can't reach either) — guidance written, needs A or any session with egress
 - ◻ **DEF projections missing `def_fum_td` AND `def_kr_td`** (bigger than originally
   scoped — see `DECISIONS-NEEDED.md` #0, 2026-08-15 addendum, for the exact next step:
   pull raw rows for all 32 DEFs in one pass, not one alias at a time).
 - ◻ **WR/TE projection-source ~20% disagreement** — see `DECISIONS-NEEDED.md` #000,
   2026-08-15 addendum, for a concrete first hypothesis (PPR-assumption confound in
   FP's raw data) before assuming it needs deeper novel diagnosis.
+- ◻ **REGRESSION_WEIGHT dollar-arm sizing** — see `DECISIONS-NEEDED.md` #2, 2026-08-15
+  addendum. Confirmed blocked at `sleeper_import.fetch_players()` specifically, not
+  the rest of the pipeline (nflverse access works fine). One command to run once
+  someone has Sleeper access: `python draft/backtest/exp35_regression_sweep.py --out
+  draft/backtest`.
 
 ### 3. Higher-risk — needs real design + a full backtest cycle, not a date
 These aren't calendar-gated; they're blocked on missing design work, and building that
