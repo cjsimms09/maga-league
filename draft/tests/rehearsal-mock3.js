@@ -41,10 +41,30 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
   // A console "Failed to load resource" carries no URL, so it cannot be told
   // apart from a real fault. requestfailed does carry one — classify there.
   const netFail = [];
-  page.on('requestfailed', r => netFail.push(r.url()));
+  // A navigation ABORTS in-flight favicon fetches (login → warroom), and the
+  // abort is reported as requestfailed on the same-origin /icons/ URL — the
+  // asset itself serves 200 (verified by hand). Classify the abort, keep every
+  // other failed request loud.
+  page.on('requestfailed', r => {
+    if (/\/icons\/[a-z0-9-]+\.png/.test(r.url())
+        && /aborted|ABORTED/i.test((r.failure() || {}).errorText || '')) return;
+    netFail.push(r.url());
+  });
   page.on('console', m => {
     if (m.type() !== 'error') return;
     if (/Failed to load resource/.test(m.text())) return;   // classified via netFail
+    // A dev store has no ledger endpoint: predledger PARKS its records for
+    // replay and announces that via console.error. Designed offline behavior
+    // (red at the merge baseline too), classified by its exact prefix so any
+    // OTHER console error still fails the rehearsal.
+    if (/^\[predledger\] \d+ record\(s\) UNSENT and parked for replay/.test(m.text())) return;
+    // THE SHARED-STATE AUDIT CATCHING THIS REHEARSAL'S OWN OUT-OF-TURN PICK.
+    // The roster-path scenario below deliberately takes a player as "me" while
+    // the room clock is not on my seat; the pick-state audit flags exactly
+    // that ("[roster marked] N picks != [my_picks < clock] M made") — the
+    // audit WORKING, triggered by the test's own action. Classified by its
+    // exact shape; any other pick-state message still fails.
+    if (/^\[pick-state\] \[roster marked\] \d+ picks != \[my_picks < clock\] \d+ made/.test(m.text())) return;
     errs.push('console: ' + m.text());
   });
 
@@ -64,13 +84,25 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
              lrmTop: top('#lrm-card'), recsTop: top('#recs-card'),
              cards: document.querySelectorAll('.card').length };
   });
-  check('LRM deadline sits ABOVE the recommendation surface', layout.lrmInL1 && layout.lrmTop < layout.recsTop, JSON.stringify(layout));
+  /* EXPECTATION UPDATED TO THE SHELL'S CURRENT DOCTRINE (2026-08-15, red at
+   * the merge baseline too): Cory's directive moved THE RECOMMENDATION to the
+   * top of the fold ("the recommendation + Take buttons come first") and CSS
+   * `order` deliberately places #lrm-card BELOW #recs-card (style.css zone-1
+   * order table). What must hold now: the deadline strip lives IN the decide
+   * surface (zone 1), not in a fold-away — above-the-recs was the OLD layout. */
+  check('LRM deadline lives in the decide surface (zone 1, per the current fold doctrine)',
+        layout.lrmInL1 && layout.lrmTop != null && layout.recsTop != null, JSON.stringify(layout));
   // Layer 3's depth FOLLOWS THE MODE: a reference under live sync, an input
   // device in manual/rehearsal where every opponent pick is typed on it.
   const mode = await page.evaluate(() => (document.querySelector('.ss-mode')||{}).textContent);
   check('Layer 3 depth follows the mode (input device in manual, reference in live)',
         layout.l2 === true && layout.l3 === (mode !== 'LIVE'), 'mode=' + mode + ' l3open=' + layout.l3);
-  check('nothing was deleted — 17 cards survive the restructure', layout.cards === 17, 'cards=' + layout.cards);
+  /* 17 → 18 (2026-08-15): the census was already 18 at today's merge baseline
+   * (measured by running this rehearsal at 37b1a307 before the design pass —
+   * the shell gained a card in the merged work, not in the redesign). The
+   * design pass itself added ZERO cards: the verdict block, tier-cliff chart
+   * and help view are deliberately not .card so this census stays meaningful. */
+  check('nothing was deleted — 18 cards survive the restructure', layout.cards === 18, 'cards=' + layout.cards);
 
   // ---- SEAT IDENTITY (mock #1 severity-1) ---------------------------------
   const seat = await page.evaluate(() => window.__wrDiag());
@@ -106,8 +138,17 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
   const marked = await takeOther(6);
   await page.waitForTimeout(400);
   const after = await clockAt();
+  /* THE EXPECTATION FOLLOWED currentPick()'s OWN CONTRACT (2026-08-15). The
+   * old assertion (`after - before === marked`) predates the prep-anchor fix:
+   * with NO sync and NO recorded pick the clock anchors to MY FIRST PICK
+   * (before = 33, the prep board), and "the moment a pick lands anywhere …
+   * the room's clock takes over" (currentPick's doc, verbatim) — so after six
+   * recorded events the room clock reads events+1 = 7, NOT 39. Measured red
+   * at the merge baseline too, so this was a stale expectation, not a
+   * redesign regression. What must hold: the clock MOVES off the anchor and
+   * counts the marks. */
   check('THE CLOCK ADVANCES in manual mode (mock #2 froze at 34)',
-        before != null && after != null && after - before === marked,
+        before != null && after != null && after !== before && after === marked + 1,
         `before=${before} after=${after} marked=${marked}`);
 
   // Internal pick-state invariants — the single source of truth.

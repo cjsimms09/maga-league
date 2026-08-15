@@ -78,6 +78,19 @@
     as a sanity check, labelled honestly by source count (Sleeper-only today, so it
     reads "Sleeper proj", never "consensus"). app.js renders it in the clock + recs. %>
 <script src="/js/draft/consensus.js"></script>
+<%# verdict.js — the ONE-VOICE chip (design pass 2026-08-15). Pure derivation
+    from engine fields (confidence/contested/CFG bands) of the LOCK / LEAN /
+    TOSS-UP / SPLIT verdict the page backs; renderVerdict prints its output.
+    Its thresholds are pinned to the engine's own in
+    draft/tests/ui_fidelity_verdict.test.js. Loaded before app.js; app.js
+    guards the call so a missing module degrades to the old surface rather
+    than blanking the board. %>
+<script src="/js/draft/verdict.js"></script>
+<%# charts.js — pure SVG/HTML string builders for the three chart forms
+    (tier cliffs, market-vs-room gone, branch delta grid). Encodes engine
+    outputs only; ui_fidelity_charts.test.js pins mark values to inputs.
+    Guarded consumers — a missing module degrades to the text surfaces. %>
+<script src="/js/draft/charts.js"></script>
 <%# coherence.js — the ONE-VOICE resolver (ARCHITECTURE.md L2). Pure; consumes the
     outputs of deviation/doctrine/needs/LRM/recommendation and returns a single
     verdict so the war room never leaves Cory to arbitrate between his own tools.
