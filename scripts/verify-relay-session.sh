@@ -26,7 +26,7 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2163 passed)" python3 -m pytest draft/tests -q
+ck "Python suite (expect ~2176 passed)" python3 -m pytest draft/tests -q
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
