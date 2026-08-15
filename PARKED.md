@@ -13135,3 +13135,233 @@ any of it back on had real, self-admitted holes.**
 No code touched, nothing gated. Every claim above traces to a direct read of
 `engine.js`/`composite.js`'s own comments and constants, not inference —
 quoted rather than paraphrased where it mattered.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — A DRAFT TOOL PROTOTYPE, BUILT AND TESTED (AND A REAL BUG FOUND FIRST)
+
+**FOR: A.** Cory asked to design AND test a better draft tool, same rigor as
+the GM-sim. Built it, it broke in an instructive way first, fixed it properly,
+and the final result is a real, if humbling, finding: the "obvious fix" made
+things worse. Not merged, not adopted — for review, same as everything else in
+this thread.
+
+## The design (and why each piece is in)
+
+- **Primary signal: follow real 2023 draft order directly**, not a VORP
+  transform of it. This is the design, not a fallback — this project's own
+  real backtest already found plain ADP-following (B0) beats both plain VORP
+  (B2) and the full composite (B3) on real historical drafts (cited five
+  entries up, `BACKTEST.md`). A "better" tool that ignores its own project's
+  strongest finding would be worse, not better.
+- **Need masking** — skip the top-by-ADP player once a position already holds
+  starters + a 2-deep bench buffer, take the next-best-by-ADP elsewhere
+  instead. A simple, scale-free attempt at the exact gap `engine.js` admits:
+  *"the composite has no positional-fill awareness in the mid-draft."*
+- **Stack and bye-collision**, using the REAL production functions from
+  `composite.js` (`correlationAdjustment`, `byeCollisionPenalty`) unmodified —
+  same discipline as the waiver/lineup test — used ONLY to break near-ties
+  (within 8 real draft picks of each other), never to override a real ADP gap.
+- `tier`/`risk`/`ceiling` deliberately omitted — same reasoning as the earlier
+  engine-review entry: the live tool already has them at zero, two of those
+  zeros are measurement artifacts not findings, and reproducing them cleanly
+  is separate scope.
+
+## The bug found first, and why it matters beyond this one script
+
+v1 computed VORP by turning real draft pick order into a synthetic "value"
+number (`400 - pick_no`) and diffing it against a per-position replacement
+rank borrowed from `waiver_live_check.js`'s table. Result: **the tool drafted
+six tight ends with its first six picks.** Debugged rather than reported:
+only 13 TEs get drafted at all in a real 150-pick, 10-team draft, vs. ~50
+RBs/WRs — so a rank-12 replacement cutoff for TE lands on almost the WORST
+drafted TE, making TE1's "VORP" look enormous. This is a real, general
+lesson, not just a script bug: **turning market rank/ADP into a synthetic
+value number and then re-deriving VORP from it double-counts scarcity that
+the rank already encodes**, and the distortion is worst at positions with
+naturally shallow real draft pools (TE, K, DEF). Worth keeping in mind if
+`engine.js`'s own VORP math is ever re-examined against an ADP-shaped input.
+
+## The result — real, verified, and the "fix" made it worse
+
+```
+REAL (Cory's actual draft + season)               9-6-0   PF 1566.0
+TOOL, pure ADP best-available (no need/stack/bye) 9-6-0   PF 1464.8
+TOOL, full design (ADP + need-mask + stack + bye) 7-8-0   PF 1437.8
+```
+
+Pure ADP-following alone nearly matches the real outcome. Adding the
+need-mask made it WORSE: it forced a second QB at pick 115 and a defense at
+pick 135 that pure ADP would have skipped for better value, and that cost
+real games — checked the pick log line by line, the logic did exactly what
+it was designed to do, the design itself just wasn't an improvement. **A
+legitimate, useful negative result** — better to find this out testing a
+prototype than after installing a "fix" in the real tool.
+
+## Limitations, stated
+
+Same as the GM-sim: one season, one seat, not enough to generalize from
+alone. `tier`/`risk`/`ceiling` untested here, so this doesn't speak to
+whether they'd help — only that ADP+stack+bye-tiebreak beats the same-plus-
+need-masking on this one draft. Trades and keeper mechanics not exercised
+(2023's real picks show no `is_keeper: true` entries, so keeper logic never
+fired in this replay either way).
+
+## The code
+
+```javascript
+'use strict';
+/* DRAFT TOOL PROTOTYPE (v2) — tested against the real 2023 draft. */
+const path = require('path');
+const ROOT = '/home/user/maga-league';
+const LO = require(path.join(ROOT, 'src/routes/lineup.js'));
+const V = require(path.join(ROOT, 'public/js/draft/valuation.js'));
+const C = require(path.join(ROOT, 'public/js/draft/composite.js'));
+
+const SEASON = '2023';
+const MY_RID = 1;
+const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const SLOTS = LEAGUE.starters;
+const REG_SEASON_WEEKS = 15;
+
+const history = LO.harvest();
+const season = LO.seasonOf(history, SEASON);
+const richPositions = require(path.join(ROOT, 'draft/data/player_positions.json')).positions || {};
+const posById = Object.assign({}, LO.inferPositions(season), richPositions);
+const owners = season.owners;
+const myOwner = owners[String(MY_RID)];
+const GLOBAL_PTS = require('./real_points_2023.json');   // built earlier in this thread
+const byeByPlayer = require('./byes_2023.json');
+const REAL_NAMES = require('./names_2023.json');
+
+function weekEntries(wk) { return season.weeks[String(wk)] || []; }
+function nameFor(pid) { return REAL_NAMES[pid] || pid; }
+function realPointsFor(pid, wk) {
+  const g = GLOBAL_PTS[pid] && GLOBAL_PTS[pid][String(wk)];
+  if (g != null) return Number(g);
+  for (const e of weekEntries(wk)) if (e.players_points && e.players_points[pid] != null) return Number(e.players_points[pid]);
+  if (byeByPlayer[pid] != null && Number(byeByPlayer[pid]) === Number(wk)) return 0;
+  return undefined;
+}
+const SHRINK_K = 4;
+function rollingProjections(throughWeek) {
+  const acc = {};
+  for (let wk = 1; wk < throughWeek; wk++) for (const pid of universe) {
+    const v = realPointsFor(pid, wk); if (v != null) (acc[pid] = acc[pid] || []).push(v);
+  }
+  const posSum = {}, posN = {};
+  for (const pid of Object.keys(acc)) { const p = posById[pid]; if (!p) continue; const arr = acc[pid];
+    posSum[p] = (posSum[p] || 0) + arr.reduce((a, b) => a + b, 0); posN[p] = (posN[p] || 0) + arr.length; }
+  const posAvg = {}; Object.keys(posSum).forEach(p => { posAvg[p] = posSum[p] / posN[p]; });
+  const out = {};
+  for (const pid of Object.keys(acc)) { const arr = acc[pid], n = arr.length;
+    const rawMean = arr.reduce((a, b) => a + b, 0) / n;
+    const base = posAvg[posById[pid]] != null ? posAvg[posById[pid]] : rawMean;
+    out[pid] = (n * rawMean + SHRINK_K * base) / (n + SHRINK_K); }
+  return out;
+}
+function week1FallbackProj(pid, pickNoByPid) {
+  const pn = pickNoByPid[String(pid)];
+  return pn != null ? Math.max(1, 300 - pn) : 5;
+}
+const universe = (() => { const ids = new Set();
+  for (let wk = 1; wk <= 18; wk++) for (const e of weekEntries(wk)) (e.players || []).forEach(pid => ids.add(String(pid)));
+  return [...ids]; })();
+
+const draft = season.drafts[0];
+const picks = draft.picks.slice().sort((a, b) => a.pick_no - b.pick_no);
+
+// THE SIGNAL: real draft order itself, used directly — not re-derived into VORP.
+const pickNoOf = {};
+picks.forEach(p => { pickNoOf[String(p.player_id)] = p.pick_no; });
+function marketRank(pid) { return pickNoOf[pid] != null ? pickNoOf[pid] : 9999; }
+
+function rosterAtWeek(rid, wk) { const e = weekEntries(wk).find(x => x.roster_id === rid); return e ? (e.players || []).map(String) : []; }
+function realMatchup(rid, wk) { const entries = weekEntries(wk); const mine = entries.find(e => e.roster_id === rid);
+  if (!mine) return null; return { mine, opp: entries.find(e => e.matchup_id === mine.matchup_id && e.roster_id !== rid) }; }
+
+let myDraftedRoster = [];
+let bpaOnlyRoster = [];
+const draftedSoFarByOthers = new Set();
+const NEAR_TIE_PICKS = 8;
+
+for (const pick of picks) {
+  if (pick.roster_id !== MY_RID) { draftedSoFarByOthers.add(String(pick.player_id)); continue; }
+
+  const takenByMeMain = new Set(myDraftedRoster.map(p => p.pid));
+  const takenByMeBpa = new Set(bpaOnlyRoster.map(p => p.pid));
+  const pool = [...new Set(picks.map(p => String(p.player_id)))]
+    .filter(pid => !draftedSoFarByOthers.has(pid) && posById[pid]);
+
+  const myRosterObjs = myDraftedRoster.map(p => ({ position: p.pos, team: p.team, bye: p.bye }));
+  const open = V.openStartableSlots(myRosterObjs, LEAGUE);
+  const ranked = pool.filter(pid => !takenByMeMain.has(pid)).sort((a, b) => marketRank(a) - marketRank(b));
+  const eligible = ranked.filter(pid => {
+    const pos = posById[pid];
+    const heldAtPos = myRosterObjs.filter(p => p.position === pos).length;
+    const dedicated = LEAGUE.starters[pos] || 0;
+    return !!open[pos] || heldAtPos < dedicated + 2;
+  });
+  const candidates = (eligible.length ? eligible : ranked).slice(0, 12);
+  const bestRank = candidates.length ? marketRank(candidates[0]) : null;
+  const nearTies = candidates.filter(pid => marketRank(pid) - bestRank <= NEAR_TIE_PICKS);
+  let best = null, bestScore = -Infinity;
+  for (const pid of nearTies) {
+    const pos = posById[pid];
+    const playerObj = { position: pos, team: undefined, bye: byeByPlayer[pid], proj_mean: 0, vorp: 0 };
+    const stack = C.correlationAdjustment(playerObj, { roster: myRosterObjs, league: LEAGUE, currentPick: pick.pick_no }).value;
+    const byePenalty = C.byeCollisionPenalty(Object.assign({}, playerObj, { games_expected: 15, replacement: 0 }), { roster: myRosterObjs, league: LEAGUE }).value;
+    const score = -marketRank(pid) + stack - byePenalty;
+    if (score > bestScore) { bestScore = score; best = { pid, pos, stack, byePenalty }; }
+  }
+  if (!best && candidates.length) best = { pid: candidates[0], pos: posById[candidates[0]], stack: 0, byePenalty: 0 };
+  if (best) myDraftedRoster.push({ pid: best.pid, pos: best.pos, bye: byeByPlayer[best.pid] });
+  draftedSoFarByOthers.add(String(pick.player_id));
+
+  const bpaPool = pool.filter(pid => !takenByMeBpa.has(pid)).sort((a, b) => marketRank(a) - marketRank(b));
+  if (bpaPool.length) bpaOnlyRoster.push({ pid: bpaPool[0], pos: posById[bpaPool[0]], bye: byeByPlayer[bpaPool[0]] });
+}
+
+function simulateSeason(rosterList) {
+  const rosterPids = rosterList.map(p => p.pid);
+  const pickNoByPid = {}; picks.forEach(p => { pickNoByPid[String(p.player_id)] = p.pick_no; });
+  let rec = { w: 0, l: 0, t: 0, pf: 0 };
+  for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+    const proj = wk === 1 ? null : rollingProjections(wk);
+    const projFor = (pid) => wk === 1 ? week1FallbackProj(pid, pickNoByPid) : (proj[pid] != null ? proj[pid] : 0);
+    const activeProj = (pid) => LO.activeProjection(projFor(pid), { bye: byeByPlayer[pid], inj: null }, wk);
+    const arr = rosterPids.filter(pid => posById[pid]).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: activeProj(pid) }));
+    const opt = arr.length ? LO.optimize(arr, { slots: SLOTS }) : null;
+    const { opp } = realMatchup(MY_RID, wk) || {};
+    const oppPts = opp ? Number(opp.points || 0) : null;
+    if (!opt || oppPts == null) continue;
+    const pts = opt.lineup.reduce((s, st) => { const v = realPointsFor(st.pid, wk); return v == null ? s : s + v; }, 0);
+    rec.pf += pts;
+    if (pts > oppPts) rec.w++; else if (pts < oppPts) rec.l++; else rec.t++;
+  }
+  return rec;
+}
+
+let realRecord = { w: 0, l: 0, t: 0, pf: 0 };
+for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+  const { mine, opp } = realMatchup(MY_RID, wk) || {};
+  if (!mine || !opp) continue;
+  const mp = Number(mine.points || 0), op = Number(opp.points || 0);
+  realRecord.pf += mp;
+  if (mp > op) realRecord.w++; else if (mp < op) realRecord.l++; else realRecord.t++;
+}
+
+const fullDesignRecord = simulateSeason(myDraftedRoster);
+const bpaOnlyRecord = simulateSeason(bpaOnlyRoster);
+
+function fmt(rec, label) { console.log(`${label.padEnd(38)} ${rec.w}-${rec.l}-${rec.t}   PF ${rec.pf.toFixed(1)}`); }
+fmt(realRecord, "REAL (Cory's actual draft + actual season)");
+fmt(bpaOnlyRecord, 'TOOL, pure ADP best-available (no need/stack/bye)');
+fmt(fullDesignRecord, 'TOOL, full design (VORP+stack+bye+need)');
+```
+
+## What this is NOT
+
+Not merged, not adopted, not touching `draft/`. A tested prototype and an
+honest negative result for A's review — the value here is in what didn't
+work as much as what did.
