@@ -629,7 +629,12 @@
   function caveatOnce(id, marker, text) {
     const first = !_caveatSeen[id];
     _caveatSeen[id] = true;
-    return '<span class="cav" data-caveat="' + id + '"'
+    /* data-caveat-text rides EVERY marker (design pass 2026-08-15): titles do
+     * not exist on a phone, so the ¹ was "explained nowhere on-page" (Cory's
+     * capture). Tap any marker → the sentence renders inline via the shared
+     * legend mechanism. The attribute is invisible, so the say-it-once rule
+     * for VISIBLE text still holds. */
+    return '<span class="cav" data-caveat="' + id + '" data-caveat-text="' + escapeHtml(text) + '"'
       + (first ? ' data-caveat-first="1" title="' + escapeHtml(text) + '"' : '')
       + '>' + marker + '</span>';
   }
@@ -2359,9 +2364,235 @@
     const host = $('#confidence-note');
     if (!host || !c || c.level === 'none') { if (host) host.innerHTML = ''; return; }
     if (c.level === 'clear') { host.innerHTML = ''; return; }
+    // The verdict block owns the confidence sentence when it rendered; a second
+    // copy of the same message right under it is the noise Cory named.
+    if (state.verdictShown) { host.innerHTML = ''; return; }
     host.innerHTML = '<div class="conf-note ' + c.level + '">'
       + (c.level === 'coin-flip' ? '\u{1FA99} ' : '\u2696\ufe0f ')
       + escapeHtml(c.message) + '</div>';
+  }
+
+  /* \u2500\u2500 THE VERDICT BLOCK \u2014 one voice over four lenses (design pass 2026-08-15).
+   *
+   * Cory's capture showed rule headline / paths / plan / poll giving four
+   * different answers with no arbiter. This surface owns the answer now:
+   * DraftVerdict.derive (pure, thresholds = the engine's own CFG bands) says
+   * which pick the page backs and how confident, and the lens row presents the
+   * other voices AS the host of options \u2014 each labeled by what it optimizes,
+   * disagreement rendered as information rather than as competing headlines.
+   *
+   * GUARDED \u2014 a missing module degrades to the pre-verdict surface, never a
+   * blank board. Pinned by ui_fidelity_verdict.test.js: displayed chip, name,
+   * gap and units must equal the derivation's, and the derivation's must equal
+   * the engine's. */
+  const VERDICT_CHIP_WORDS = {
+    'LOCK': 'LOCK \u2014 take it and bank the clock',
+    'LEAN': 'LEAN \u2014 ahead, a real preference can override',
+    'TOSS-UP': 'TOSS-UP \u2014 your call',
+    'SPLIT': 'SPLIT \u2014 two answers, rule wins ties',
+    'PINNED': 'YOUR PIN \u2014 the board disagrees',
+  };
+  function renderVerdict(out) {
+    const host = $('#verdict-block');
+    if (!host) return;
+    state.verdictShown = false;
+    if (typeof DraftVerdict === 'undefined' || !out || !out.scored || !out.scored.length) {
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+    // Rule lens \u2014 same call the rule headline makes; null when the module is off.
+    let rule = null;
+    try {
+      if (typeof DraftNeedRule !== 'undefined' && (state.board || []).length) {
+        const r = DraftNeedRule.recommend(state.board, state.myRoster || []);
+        if (r && r.pick) rule = { pick: r.pick, reason: r.reason || '' };
+      }
+    } catch (e) { /* the rule lens is optional; the verdict is not */ }
+    // Plan lens \u2014 the seat the season plan wants filled at this pick.
+    let plan = null;
+    try {
+      const seat = seatForCurrentPick();
+      if (seat && seat.slot) {
+        plan = { slot: seat.slot,
+          name: seat.shortlist && seat.shortlist[0] ? seat.shortlist[0].name : null };
+      }
+    } catch (e) { /* optional */ }
+    // Poll lens \u2014 computed ONCE here and handed to renderShadowProjection via
+    // state._shadowProj (one-shot, same render cycle), so the strip and the
+    // lens can never disagree about what the strategies said.
+    let poll = null;
+    try {
+      if (typeof DraftShadows !== 'undefined' && state.board && state.board.length && state.data) {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const cons = DraftShadows.consensus(proj);
+        if (cons && proj.length) {
+          state._shadowProj = { proj: proj, cons: cons, pick: currentPick() };
+          poll = { agree: cons.agree, n: cons.n,
+            lead_name: shortName(cons.lead), lead_position: cons.lead_position || null,
+            artifact: !!(cons.driver_is_artifact || cons.driver_zero_weighted),
+            contested: !!cons.contested };
+        }
+      }
+    } catch (e) { /* optional */ }
+
+    let v;
+    try {
+      v = DraftVerdict.derive({ cfg: E.CFG, scored: out.scored,
+        confidence: out.confidence, rule: rule, plan: plan, poll: poll });
+    } catch (e) {
+      console.error('[verdict]', e && e.message);
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+    if (!v || v.verdict === 'NONE' || !v.pick) {
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+
+    const chipClass = { 'LOCK': 'lock', 'LEAN': 'lean', 'TOSS-UP': 'tossup',
+      'SPLIT': 'split', 'PINNED': 'pinned' }[v.verdict] || 'tossup';
+    const alts = v.alternatives.filter(a => a.delta_pts != null).slice(0, 3);
+    const altHtml = alts.length
+      ? '<div class="wrv-alts">other options: ' + alts.map(a =>
+          escapeHtml(shortName(a.player.name)) + ' <span class="rec-pos ' + a.player.position + '">'
+          + a.player.position + '</span> <span class="wr-num">'
+          + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
+        + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
+        + '(+ = scores higher)</span></div>'
+      : '';
+    const lensHtml = v.lenses.length
+      ? '<div class="wrv-lenses">' + v.lenses.map(l =>
+          '<button type="button" class="wrv-lens' + (l.stance === 'differs' || l.stance === 'artifact' ? ' differs' : '')
+          + '" data-lens="' + l.key + '" title="' + escapeHtml(l.note || '') + '">'
+          + '<b>' + escapeHtml(l.label) + ' <span class="lens-opt">' + escapeHtml(l.optimizes) + '</span></b>'
+          + '<span class="lens-pick">' + escapeHtml(l.pick) + '</span>'
+          + (l.stance === 'differs' ? '<span class="lens-opt">disagrees \u2014 tap for detail</span>'
+             : l.stance === 'artifact' ? '<span class="lens-opt">\u26a0 one term, not votes</span>' : '')
+          + '</button>').join('') + '</div>'
+      : '';
+    host.innerHTML =
+      '<div class="wrv-top">'
+      + '<span class="wrv-chip ' + chipClass + '" data-verdict="' + escapeHtml(v.verdict) + '">'
+        + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
+      + '</div>'
+      + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
+        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
+      + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
+      + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
+        + '">\u2713 Take ' + escapeHtml(v.pick.name || 'him') + '</button>'
+      + lensHtml + altHtml;
+    host.style.display = '';
+    state.verdictShown = true;
+    state.lastVerdict = v;
+  }
+
+  /* ── PROGRESSIVE DISCLOSURE (design pass 2026-08-15) ─────────────────────
+   * Cory: "combining tons of info into a small space … having easy access to
+   * info if needed." Nothing is removed; everything compressed expands one tap:
+   * lens chips reveal their source panel, shortlist rows open a dossier of the
+   * engine fields already on the scored entry, badges open their legend, and
+   * every panel's ⓘ opens its explainer. All state survives re-renders. */
+  function revealLens(key) {
+    const target = {
+      rule: '#rule-headline',
+      value: '#recs-details',
+      plan: '#seat-plan',
+      poll: '#shadow-projection',
+    }[key];
+    if (!target) return;
+    const el = document.querySelector(target);
+    if (!el) return;
+    // Open whatever container hides it, then bring it into view.
+    if (el.tagName === 'DETAILS') el.open = true;
+    const det = el.closest('details');
+    if (det) det.open = true;
+    if (key === 'poll') {
+      const d = document.getElementById('shadow-proj-details');
+      if (d) d.open = true;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* The dossier: every field the engine already computed for this candidate,
+   * one tap under his shortlist row. READS state.lastClock — the same scored
+   * board the row rendered from — never a recomputation. */
+  function toggleDossier(playerId) {
+    state.dossierOpen = state.dossierOpen === String(playerId) ? null : String(playerId);
+    renderRecommendations();
+  }
+  function dossierHtml(s) {
+    const c = s.components || {};
+    const w = c.weighted || {};
+    const TERMS = [
+      ['value', 'raw value (VONA)'], ['tier', 'tier cliff'], ['need', 'lineup need'],
+      ['risk', 'risk'], ['ceiling', 'upside'], ['keeper', 'keeper option'],
+      ['bye', 'bye collision'], ['stack', 'stacking'], ['onesie', 'onesie discount'],
+      ['doctrine', 'doctrine'],
+    ];
+    const rows = TERMS
+      .filter(t => w[t[0]] != null && Math.abs(w[t[0]]) >= 0.05)
+      .map(t => '<tr><td>' + t[1] + '</td><td class="wr-num">'
+        + (w[t[0]] >= 0 ? '+' : '') + w[t[0]].toFixed(1) + '</td></tr>').join('');
+    const sv = s.survival_to_next;
+    const conf = state.lastClock && state.lastClock.confidence ? state.lastClock.confidence : null;
+    return '<div class="rec-dossier" data-dossier-for="' + escapeHtml(String(s.player.player_id)) + '">'
+      + '<b>What builds his ' + (s.score != null ? s.score.toFixed(1) : '—') + '</b>'
+      + ' <span class="muted">(weighted composite points — each line is one term × your slider)</span>'
+      + '<table>' + (rows || '<tr><td class="muted">no non-zero terms</td></tr>') + '</table>'
+      + (sv != null
+        ? '<div>market survival to your next pick: <b class="wr-num">' + Math.round(sv * 100)
+          + '%</b> <span class="muted">(ADP model — the number the score uses)</span></div>'
+        : '')
+      + ((s.rails && s.rails.length)
+        ? '<div class="dossier-why">⚠ rails: ' + s.rails.map(escapeHtml).join(' · ') + '</div>' : '')
+      + ((s.reasons && s.reasons.length)
+        ? '<div class="dossier-why"><b>why:</b> ' + s.reasons.map(escapeHtml).join(' · ') + '</div>' : '')
+      + ((s.context && s.context.length)
+        ? '<div class="dossier-why"><b>board facts (not the reason):</b> '
+          + s.context.map(escapeHtml).join(' · ') + '</div>' : '')
+      + (conf && conf.message
+        ? '<div class="dossier-why"><b>the board’s own confidence line:</b> '
+          + escapeHtml(conf.message) + '</div>' : '')
+      + '</div>';
+  }
+
+  /* Badge legend — the full sentence behind every compact flag, on tap.
+   * Each entry is written FROM the code that fires the badge; the fidelity
+   * suite greps those sources so this table cannot outlive them. */
+  const FLAG_LEGEND = {
+    injury: s => 'Sleeper’s injury report lists him ' + s + '. The score prices it '
+      + '(−12 through the risk term) ONLY when the RISK slider is on — it ships OFF, '
+      + 'measured as a drag. Until then this badge is a heads-up, not a price change.',
+    age: 'RB aged 30+. The risk model’s RB age cliff is 27 (−6/season past it), '
+      + 'priced only when the RISK slider is on — it ships OFF. The badge stays '
+      + 'visible because age is the one risk you cannot news-override away.',
+    opp_up: 'His projected usage is unusually HIGH for his draft cost, measured '
+      + 'against this board’s own mean — a buy signal the market may be missing. '
+      + 'Feeds the risk term (+6) only when RISK is on; otherwise information only.',
+    opp_down: 'His projected usage is unusually LOW for his draft cost, measured '
+      + 'against this board’s own mean — the market may be paying for a name. '
+      + 'Feeds the risk term (−6) only when RISK is on; otherwise information only.',
+  };
+  function toggleFlagLegend(el) {
+    const kind = el.getAttribute('data-flag-legend');
+    const arg = el.getAttribute('data-flag-arg') || '';
+    const existing = el.parentNode.querySelector('.wr-flag-legend');
+    if (existing) { existing.remove(); return; }
+    const entry = FLAG_LEGEND[kind];
+    if (!entry) return;
+    const div = document.createElement('div');
+    div.className = 'wr-flag-legend';
+    div.textContent = typeof entry === 'function' ? entry(arg) : entry;
+    el.parentNode.appendChild(div);
+  }
+
+  /* ⓘ toggle — openness survives re-renders via state.explainOpen. */
+  function toggleExplain(btn) {
+    const key = btn.getAttribute('data-explain-toggle');
+    state.explainOpen = state.explainOpen || {};
+    state.explainOpen[key] = !state.explainOpen[key];
+    const block = document.querySelector('.panel-explain[data-panel="' + key + '"]');
+    if (block) block.hidden = !state.explainOpen[key];
+    btn.setAttribute('aria-expanded', state.explainOpen[key] ? 'true' : 'false');
   }
 
   /* ── What each option costs you at your next pick ──────────────────────── */
@@ -4183,14 +4414,24 @@
       + escapeHtml(p.position || '') + '</span>';
     const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
     const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
-    let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
-      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">' + escapeHtml(rec.reason) + '</div>'
+    /* DEMOTED UNDER THE VERDICT (design pass 2026-08-15): when #verdict-block
+     * rendered this cycle it owns the headline name, the take button and the
+     * Two-Reads reconciliation — a second full-width take button and a second
+     * "TAKE X" name three inches below the first was exactly the four-voices
+     * noise Cory rejected. The rule's DETAIL (reason, bye stack, grab-by
+     * timing) stays here as the rule lens's expansion. Without the verdict
+     * (module missing / degraded), everything renders as before. */
+    const demoted = !!state.verdictShown;
+    let html = (demoted ? '' : '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>')
+      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">'
+      + (demoted ? '<b>rule detail:</b> ' : '') + escapeHtml(rec.reason) + '</div>'
       // TAKE BUTTON on the headline (phone-blocker fix 2026-08-10): the most
       // prominent recommendation on the page named a player but gave no way to
-      // draft him. A full-width take, always present, right under the pick.
-      + '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
+      // draft him. A full-width take, always present, right under the pick —
+      // unless the verdict block above already carries it.
+      + (demoted ? '' : '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
       + '" style="display:block;width:100%;margin:.5rem 0 .2rem;padding:.6rem;font-size:1rem">✓ Take '
-      + escapeHtml(rec.pick.name || 'him') + '</button>';
+      + escapeHtml(rec.pick.name || 'him') + '</button>');
     // The FIELD when it's close — human chooses; ledger records which (already wired).
     if (gap < 8 && field.length > 1) {
       html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
@@ -4228,7 +4469,7 @@
         html += '<div class="rh-warn" style="font-size:.78rem;margin-top:.35rem;color:#ff8a8a">'
           + '↔ the composite suggests ' + nm(comp) + ' but that over-fills ' + escapeHtml(comp.position || '')
           + ' — the rule recommends ' + nm(rec.pick) + '.</div>';
-      } else if (differs) {
+      } else if (differs && !demoted) {
         // THE MISSING HALF OF THE EXPLAINER (Cory, 2026-08-10). The guard above
         // only covered the OVER-FILL case, so when both picks are legal — two RBs
         // in round 1 — the card showed the rule's name up top, the composite's
@@ -4260,9 +4501,15 @@
           + '</div>';
       }
     }
-    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
-    html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
-      + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a
+    // projection (Cory #2). When the verdict block is up, this caveat lives one
+    // tap deeper (the recommendations panel's ⓘ explainer carries it verbatim)
+    // instead of repeating inline on every render — Cory's wording review:
+    // caveats one tap deeper, never boilerplate on the decision surface.
+    if (!demoted) {
+      html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
+        + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    }
 
     // GRAB-BY (live) — "stick to value, know when to grab QB/TE". Recomputed every
     // pick off the live board + my roster (DraftGrabBy). This is the model watching
@@ -4330,6 +4577,10 @@
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
+    // VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
+    // button and Two-Reads block only when the verdict actually rendered this
+    // cycle, so it must know — state.verdictShown is set here, read there.
+    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
     try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
@@ -4666,7 +4917,10 @@
               + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
             '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
             '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
-            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">~' + pct + '% gone by next</span>' : '') +
+            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="ADP-model estimate — the number the score uses">~' + pct + '% gone by next (mkt)</span>' : '') +
+            // One tap deeper: the full dossier of engine fields for this row.
+            '<button class="rec-expand" data-dossier="' + p.player_id + '">'
+              + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>' +
           '</div>' +
           // The disagreement line on the TOP card: if a same-position candidate
           // projects higher than the one we're recommending, say so — that is the
@@ -4718,6 +4972,7 @@
           '<button class="btn small ghost" data-compare="' + p.player_id + '" title="Compare — dollar gap">' +
             (state.compare.indexOf(String(p.player_id)) >= 0 ? '⚖️✓' : '⚖️') + '</button>' +
         '</div>' +
+        (state.dossierOpen === String(p.player_id) ? dossierHtml(s) : '') +
       '</div>';
     }).join('');
 
@@ -4998,10 +5253,22 @@
     renderAll();
   }
 
+  /* Flags render as COMPACT TAPPABLE CHIPS with the full sentence one tap away
+   * (final-pass B4: "QUESTI0" was clipping; every badge needs a one-line
+   * explanation on tap — titles do not exist on a phone). The chip text is a
+   * fixed short form so it can never clip; FLAG_LEGEND carries the sentence. */
   function riskFlags(p) {
     const flags = [];
-    if (p.injury_status && !/^(healthy|active)$/i.test(p.injury_status)) flags.push('<span class="badge owes">' + escapeHtml(p.injury_status) + '</span>');
-    if (p.age && p.age >= 30 && (p.position === 'RB')) flags.push('<span class="badge owes">age ' + p.age + '</span>');
+    if (p.injury_status && !/^(healthy|active)$/i.test(p.injury_status)) {
+      const st = String(p.injury_status);
+      const short = { questionable: 'Q', doubtful: 'D', out: 'OUT', ir: 'IR', sus: 'SUS' }[st.toLowerCase()]
+        || st.slice(0, 3).toUpperCase();
+      flags.push('<button class="wr-flag risk" data-flag-legend="injury" data-flag-arg="'
+        + escapeHtml(st) + '">' + escapeHtml(short) + '</button>');
+    }
+    if (p.age && p.age >= 30 && (p.position === 'RB')) {
+      flags.push('<button class="wr-flag risk" data-flag-legend="age">age ' + p.age + '</button>');
+    }
     // OPPORTUNITY, STANDARDISED AGAINST THIS BOARD (Cory, 2026-08-10: "fires on
     // roughly 90% of the top 200 — a flag that fires on nearly everything conveys
     // nothing"). The field is NAMED a z-score but is not one: measured over the
@@ -5012,8 +5279,8 @@
     // can usefully mean, and both directions become possible again.
     const z = opportunityVsPeers(p);
     if (z != null) {
-      if (z > OPP_CUT) flags.push('<span class="badge open" title="unusually high opportunity for his draft cost">opp ↑</span>');
-      else if (z < -OPP_CUT) flags.push('<span class="badge owes" title="unusually low opportunity for his draft cost">opp ↓</span>');
+      if (z > OPP_CUT) flags.push('<button class="wr-flag up" data-flag-legend="opp_up">opp ↑</button>');
+      else if (z < -OPP_CUT) flags.push('<button class="wr-flag risk" data-flag-legend="opp_down">opp ↓</button>');
     }
     return flags.join(' ');
   }
@@ -6426,10 +6693,19 @@
         || !state.data) { host.style.display = 'none'; return; }
     let proj, cons;
     try {
-      const teams = ((state.data.league || {}).teams) || 10;
-      const round = Math.max(1, Math.ceil(currentPick() / teams));
-      proj = DraftShadows.project(state.board, context(), round, state.myRoster);
-      cons = DraftShadows.consensus(proj);
+      // One-shot handoff from renderVerdict (same render cycle, same pick):
+      // the poll lens and this strip must never disagree about what the
+      // strategies said, so when the verdict already projected them, reuse.
+      const pre = state._shadowProj;
+      state._shadowProj = null;
+      if (pre && pre.pick === currentPick()) {
+        proj = pre.proj; cons = pre.cons;
+      } else {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        cons = DraftShadows.consensus(proj);
+      }
     } catch (e) { host.style.display = 'none'; return; }
     if (!cons || !proj.length) { host.style.display = 'none'; return; }
     host.style.display = '';
@@ -9062,6 +9338,26 @@
       if (why) return showWhy(why.getAttribute('data-why'));
       const railAck = ev.target.closest('[data-rail-ack]');
       if (railAck) return acknowledgeRailFire(railAck.getAttribute('data-rail-ack'));
+      // ── Progressive disclosure (design pass 2026-08-15) ──────────────────
+      const lens = ev.target.closest('[data-lens]');
+      if (lens) { ev.preventDefault(); return revealLens(lens.getAttribute('data-lens')); }
+      const doss = ev.target.closest('[data-dossier]');
+      if (doss) { ev.preventDefault(); return toggleDossier(doss.getAttribute('data-dossier')); }
+      const flg = ev.target.closest('[data-flag-legend]');
+      if (flg) { ev.preventDefault(); return toggleFlagLegend(flg); }
+      const info = ev.target.closest('[data-explain-toggle]');
+      if (info) { ev.preventDefault(); return toggleExplain(info); }
+      const cav = ev.target.closest('[data-caveat-text]');
+      if (cav) {
+        ev.preventDefault();
+        const near = cav.parentNode.querySelector('.wr-flag-legend');
+        if (near) { near.remove(); return; }
+        const d = document.createElement('div');
+        d.className = 'wr-flag-legend';
+        d.textContent = cav.getAttribute('data-caveat-text');
+        cav.parentNode.appendChild(d);
+        return;
+      }
     });
 
     $$('.weight-slider').forEach(sl => {

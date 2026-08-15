@@ -247,6 +247,14 @@
       <button class="btn small gold" id="clock-on" style="flex:0 0 auto">⏱ One answer</button>
     </h2>
     <div class="body">
+      <%# THE VERDICT — the one surface that owns the answer (design pass
+          2026-08-15). Four voices used to argue unmarked on this screen (rule
+          headline, paths panel, seat plan, strategy poll). renderVerdict fills
+          this from DraftVerdict.derive — the chip (LOCK/LEAN/TOSS-UP/SPLIT),
+          the backed name, one plain-English why, and the lens row that shows
+          every other voice labeled by what it optimizes. Everything below it
+          is detail on this answer, not a competing one. %>
+      <div id="verdict-block" class="wrv" style="display:none"></div>
       <div id="confidence-note"></div>
       <%# Part 2 §1 — the Paths panel: the primary decision surface. The flat
           ranked list below it stays for the "who exactly" follow-through. %>

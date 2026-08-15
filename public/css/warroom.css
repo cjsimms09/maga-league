@@ -73,8 +73,14 @@
 .wrv-name .rec-pos { vertical-align: .35em; }
 .wrv-why { font-size: var(--wr-fs-body); color: var(--wr-ink); margin: var(--wr-s1) 0 0; max-width: 62ch; }
 .wrv-conf { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin: var(--wr-s1) 0 0; }
-.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
-  font-size: 1rem; }
+.btn.gold.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
+  font-size: 1rem;
+  /* The take action wears NAVY AUTHORITY, deliberately overriding .btn.gold:
+     on this page red = alarm, gold = money, and the one button that commits a
+     pick must read as neither an emergency nor a price. Selector carries
+     .btn.gold so it outweighs the site button rule it is overriding. */
+  background: var(--wr-structure); border-color: var(--wr-structure); color: #fff; }
+.btn.gold.wrv-take:hover { background: var(--navy-deep); }
 
 /* The lens row: every voice on this pick, labeled by what it optimizes.     */
 .wrv-lenses { display: flex; flex-wrap: wrap; gap: var(--wr-s1); margin-top: var(--wr-s2); }
