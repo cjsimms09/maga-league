@@ -1170,6 +1170,17 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     refusal set is now **11 files** (the count "8" earlier in this entry was
     correct when written); `scripts/verify-relay-session.sh` pins the exact
     current set.
+  * B-adjacent files from the learning-loop closure pass (Cory's ruling,
+    verbatim: "We need to fix!!!", replying to "the loop grades, but nothing
+    learns"): `netlify/functions/weights-read.js` (NEW, read-only,
+    GRADE_CRON_KEY-gated — the evidence-weights mirror's endpoint),
+    `netlify/functions/analyzer-cron.js` (the checkpoint-RESOLUTION pass —
+    the arc had both ends built and no scheduled middle), `netlify.toml`
+    (schedule comment matched to it), `.github/workflows/weekly-grade.yml`
+    (setup-python + env + two artifacts in the commit step). grade-cron.js
+    itself untouched in that pass. None register as gate trespass
+    (netlify/** is outside the three-lane split's named surfaces) — listed
+    for B's awareness, not because the gate flags them.
   * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
     day) — the independent review's required action #2: the test's no-bundle
     arm had an accidental live-network dependency with a sign bit (passed
