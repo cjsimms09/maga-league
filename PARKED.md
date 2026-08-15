@@ -13365,3 +13365,99 @@ fmt(fullDesignRecord, 'TOOL, full design (VORP+stack+bye+need)');
 Not merged, not adopted, not touching `draft/`. A tested prototype and an
 honest negative result for A's review — the value here is in what didn't
 work as much as what did.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — re-checked the 4 repos for the TE/onesie bug, found one useful precedent; VONA stays, the bug is not where it looks
+
+Cory's instruction: go back to the four repos from the first research pass
+(nfl_mcp, mattgilgo/fantasy_football, ffanalytics, jjti/ff) specifically for
+answers to the TE/onesie value-scale bug, and confirm VONA stays in the draft
+math with the TE issue fixed, not ripped out. Direct answer up front: **VONA
+is not the bug.** Read the real `vona()` in `public/js/draft/engine.js`
+(line 792) end to end before touching the repos, and it already does the
+right thing for this exact failure class — starter/FLEX/bench get three
+different pricing paths specifically because a single formula collapsed onto
+TE three separate times in this project's own history (comments cite "TE 4 /
+QB 3 / RB 0" and Josh Johnson/Joe Flacco getting drafted in rounds 9-10). The
+bench branch is deliberately unclamped at 0 for the same reason my own
+prototype (previous entry) broke: clamping negative marginal value to 0 ties
+hundreds of players together and destroys the ranking. None of that is
+broken today. Don't touch it.
+
+Where the actual open bug lives: `onesieState()` (line 1127) and the ceiling
+term inside `demoteFlaggedOnesies` scoring. `ONESIE_MAX_SPARE` — the old hard
+cap on how many backup QBs/TEs could be carried — was deleted 2026-08-14 on
+direct instruction, because it was caught doing exactly the wrong thing: "the
+first unstartable QB priced at 81% of standalone VORP and board rank 1; the
+first unstartable TE at 8% and rank 5 — same depth, same league shape." The
+named, scoped, not-yet-built replacement is "position-normalised ceiling":
+`draft/tests/onesie_cap.test.js` still measures the raw defect today (2 QB +
+2 TE carried, a third of each lands at board rank 5 and 4) and is gated to
+not start before 2026-08-23 (first post-draft session) on Cory's own
+instruction. That gate is correct and this entry doesn't move it — it just
+adds a concrete algorithm for whoever picks it up.
+
+## What the 4 repos actually had
+
+**jjti/ff** (`app/lib/store/reducers/players.tsx`) — computes VOR the
+textbook way: replacement rank = starters × teams (FLEX split across
+RB/WR/TE by need), `vor = forecast - replacementForecast`, all in raw
+points. K/DST get `starters = 0` — hard-zeroed, not modeled. This is
+*less* sophisticated than our `vona()`, not more: it has no FLEX-vs-bench
+distinction and no cross-position spread comparison at all, so it never
+even reaches the bug we're chasing. Confirms our engine is already ahead of
+this reference on the value side. Nothing to borrow here.
+
+**mattgilgo/fantasy_football** — trains separate regression models per
+position (QB/RB/WR/TE) and benchmarks each against expert consensus
+independently. It never ranks across positions, so it structurally can't
+hit this bug either — no cross-position comparison exists to get wrong.
+Nothing to borrow.
+
+**nfl_mcp** — a data-access MCP server, no valuation logic (confirmed in
+the first research pass too). Not applicable to this question.
+
+**ffanalytics** (R package, `R/calc_projections.R`) — this one has the
+actual answer, and it's a real, shipped, years-old precedent for the exact
+fix already named in PARKED.md as "position-normalised ceiling." It
+computes floor/ceiling as raw-point quantiles (5th/95th percentile of the
+projection ensemble) — same raw-scale problem we have. But it *separately*
+computes an `uncertainty` score like this:
+
+```r
+projection_table %>%
+  dplyr::group_by(pos) %>%
+  dplyr::mutate(uncertainty = calculate_uncertainty(sd_pts, sd_ecr))
+# underlying: mean_risk <- scale(rowMeans(scale(vars_m), na.rm = TRUE))[, 1]
+# then converted to a 1-99 percentile rank, computed WITHIN the group_by(pos)
+```
+
+That's `group_by(pos)` before the z-score, every time. It never compares a
+QB's raw spread number to a TE's raw spread number — it converts each
+player's spread to a percentile *of players at their own position* first,
+then compares percentiles across positions. That's precisely the fix
+already scoped for `onesieState`/ceiling-tiebreak: express
+`proj_ceiling − proj_mean` as a within-position percentile (or z-score)
+before it's allowed to compete against another position's spread, instead
+of comparing raw season-point numbers where QB's 66.5-point p90 spread
+structurally dwarfs TE's 30.8.
+
+## Recommendation for whoever picks up the 2026-08-23 fix
+
+Don't invent the normalization scheme from scratch — `group_by(position) %>%
+scale()` then rank-to-percentile is a boring, already-validated approach (it's
+been in a maintained fantasy analytics package for years). Concretely: at
+board-build time, bucket players by position, z-score (or percentile-rank)
+`proj_ceiling − proj_mean` within each bucket, and use *that* normalized
+number wherever the raw spread is compared across positions today (the
+bench-ranking branch in `onesieState`/ceiling tiebreak). Leave `vona()`
+itself untouched — it isn't the source of the QB-vs-TE pricing gap, the raw
+ceiling comparison is.
+
+## What this is NOT
+
+Not a code change, not touching `draft/` or `public/js/draft/`, not moving
+the 2026-08-23 gate. A confirmation that VONA stays in the draft math as-is,
+plus one concrete, precedented algorithm handed off for the fix that's
+already scoped and already scheduled, for A to decide on.
