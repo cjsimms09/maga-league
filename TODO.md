@@ -110,11 +110,34 @@ class of bug the two-line-up fix repaired, in a governance-sensitive file).
   post-draft learning engine.
 
 **A systematic sweep for other "built, exported, never called" gaps (the pattern
-behind exp 33's banner and three earlier findings today) came back clean** — checked
-every `public/js/draft/*.js` module's exported API against the rest of the codebase;
-the only unreferenced exports left are `PredLedger.pending/flush/lastError`, which are
-already explicitly flagged in-code as "routed to B" for a status-UI surface that
-doesn't exist yet, not a new discovery.
+behind exp 33's banner and three earlier findings today) found one more, then went
+clean.** Checked every `public/js/draft/*.js` module's exported API against the rest
+of the codebase — the only unreferenced exports left are `PredLedger.pending/flush/
+lastError`, already explicitly flagged in-code as "routed to B" for a status-UI
+surface that doesn't exist yet, not a new discovery. **Separately found the SAME
+class of bug right next to the exp33 fix**: the "In-season instrumentation live"
+checklist item (`app.js` ~line 3289) read `window.INSEASON_LEDGER_LIVE`, which
+nothing in the codebase ever set — it permanently reported "NOT LIVE" regardless of
+what was actually captured. Fixed to report the real state (lineup/waiver/override
+are logging; stream/trade aren't). **Also checked whether the other "spec, not run
+yet" Lab experiments (34/35/36) had the same dormant-result problem as exp 33** —
+they don't. All three have real result files, and unlike exp 33, all three are
+already correctly wired: exp34's verdict is the same one already in `deviation.js`'s
+`EVIDENCE_STATE`, exp35's finding is already accurately summarized in
+`DECISIONS-NEEDED.md` #2, and exp36 is wired into `deviation.js`'s `MARKET_EFFICIENCY`
+constants with its own CI regression test (`test_cited_constants.py`) guarding
+against drift. Exp 33's dormant banner was the genuine exception, not a symptom of a
+wider backlog — useful to have checked rather than assumed.
+
+**Checked whether `stream_call`/`trade_eval` had a shortcut before writing them off
+as a bigger build — they don't.** No K/DEF-specific logic exists anywhere to attach
+a stream capture to (the whole waiver tool is built around priority-spending, a
+different decision shape from a free matchup-based stream); no trade-evaluation
+logic exists at all beyond one passing mention of the word "trade" in `analyzer.ejs`.
+Scoped build plans for both are in PARKED.md's "STREAM_CALL / TRADE_EVAL" entry —
+`stream_call` is small and buildable in an afternoon *by someone not already deep in
+a long session*; `trade_eval` needs a real product decision first (whose trades get
+evaluated, priced how) and belongs with the post-draft work.
 
 ---
 
