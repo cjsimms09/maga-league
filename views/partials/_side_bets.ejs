@@ -304,7 +304,9 @@ function betCard(b, opts) {
           <li class="<%= b.winner_ids.includes(p.owner_id) ? 'won' : '' %><%= p.owner_id === owner.id ? ' me' : '' %>">
             <b><%= betNames(p.owner_id) %><%= p.owner_id === owner.id ? ' (you)' : '' %><%= b.winner_ids.includes(p.owner_id) ? ' 🏆' : '' %></b>
             <% if (p.position) { %><span><%= p.position %></span>
-            <% } else if (p.owner_id === owner.id && !['settled', 'declined'].includes(b.status)) { %>
+            <%# The add-your-side form only while the bet is forming or running —
+                on a confirm/dispute card it is noise next to the one decision. %>
+            <% } else if (p.owner_id === owner.id && ['open', 'proposed', 'locked'].includes(b.status)) { %>
               <form class="asis sb-pos" method="post" action="/sidebets/<%= b.id %>/position">
                 <input type="text" name="position" maxlength="400" placeholder="add your side…">
                 <button class="btn small ghost" type="submit">Save</button>

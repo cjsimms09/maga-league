@@ -56,6 +56,8 @@
         </div>
 
         <div class="sb-detail">
+          <%# Side-bet money riding on this exact game — gold only when it's YOURS. %>
+          <% if (c.wager) { %><span class="sb-chip money<%= c.wager.mine ? ' mine' : '' %>" title="<%= c.wager.pairs.join(' · ') %>">💰 <%= money(c.wager.total) %> riding<%= c.wager.mine ? ' — you\'re in it' : ' (' + c.wager.pairs.join(', ') + ')' %></span><% } %>
           <% if (c.split && c.split.total) { %><span class="sb-chip">🗳️ <%= c.split.line %></span><% } %>
           <% if (c.inWHRace) { %><span class="sb-chip hot">🎯 in the $100 race</span><% } %>
           <% if (c.worth) { %><span class="sb-chip">🎟️ worth <b><%= c.worth.swing %>%</b> to <%= c.worth.name %>'s playoff odds</span><% } %>

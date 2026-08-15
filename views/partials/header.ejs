@@ -96,7 +96,11 @@
     { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈',  primary: true },
     { href: '/scoreboard', label: 'This Week',   short: 'Scores',  icon: '🏈', match: '/scoreboard' },
-    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup' },
+    // PRIMARY since the 2026-08-15 member-site review: the goal is tracking
+    // matchups HERE instead of on Sleeper, and Sleeper's whole pitch is the
+    // matchup one tap from anywhere. The phone tab bar was preseason-shaped —
+    // Office/Team/Finances/Locker — with every live surface buried behind More.
+    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup', primary: true },
     { href: '/pickem',  label: "Pick'em",       short: "Pick'em", icon: '🗳️', match: '/pickem' },
     { href: '/watch',   label: 'What to Watch', short: 'Watch',   icon: '📺', match: '/watch' },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },

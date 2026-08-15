@@ -3921,6 +3921,10 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .sb-chip.hot{ color:var(--gold-bright); border-color:rgba(185,130,42,.4); background:rgba(185,130,42,.08); }
 .sb-chip.in{ color:var(--green); border-color:rgba(15,138,77,.4); }
 .sb-chip.out{ color:var(--red); border-color:rgba(212,36,47,.4); }
+/* Side-bet money on a game card. Gold = money (the war-room doctrine); the
+   bolder .mine face is reserved for a bet YOU are in. */
+.sb-chip.money{ color:var(--gold-bright); border-color:rgba(185,130,42,.4); }
+.sb-chip.money.mine{ font-weight:800; background:rgba(185,130,42,.1); }
 .sb-chip.sweat{ color:#fff; background:var(--navy); border-color:var(--navy); }
 .sb-open{ font-size:.72rem; margin-top:.5rem; text-align:right; }
 

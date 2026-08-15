@@ -756,7 +756,20 @@ router.get('/', aw(async (req, res) => {
     for (const it of items) { try { await DISPATCH.archive(it); } catch (e) { /* archive is best-effort */ } }
     dispatches = DISPATCH.pending(items, await DISPATCH.getSeen(req.owner.id));
   } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
+
+  // PICK'EM ON THE NEEDS-YOU STRIP (member-site review, 2026-08-15). The strip
+  // listed draft spot / votes / money but not the one thing with a hard weekly
+  // deadline — unpicked games vanish at kickoff. Cheap variant (no boards).
+  let pickemNudge = null;
+  try {
+    const pc = await pickemContext(world, req.owner, { wantBoards: false });
+    if (!pc.locked && pc.games.length && pc.picksMade < pc.games.length) {
+      pickemNudge = { made: pc.picksMade, total: pc.games.length };
+    }
+  } catch (e) { /* the nudge is a bonus; never break home */ }
+
   res.render('dashboard', {
+    pickemNudge,
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
     liveStale: await liveFreshness(),
@@ -2600,6 +2613,29 @@ router.get('/scoreboard', aw(async (req, res) => {
   const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
   const primetime = etDay === 0 || etDay === 1;
 
+  // SIDE-BET MONEY ON THE GAME CARD (member-site review, 2026-08-15). Half the
+  // point of a matchup bet is watching the game with it in mind — and this is
+  // the Sunday screen. LOCKED bets only (a proposal is not money); the pair a
+  // bet names is the subject/target of a this-week condition, which is the same
+  // low-id-first key the pick'em games use, so it joins for free. Locked bets
+  // are league-visible (same rule as SB.betsAbout — gossip is the feature).
+  const betsByGame = {};
+  try {
+    for (const b of await SB.all()) {
+      if (b.status !== SB.STATUS.LOCKED) continue;
+      for (const c of (b.conditions || [])) {
+        if (String(c.when) !== 'week' || Number(c.week) !== Number(weekNo)) continue;
+        if (!c.subject_id || !c.target_id) continue;
+        const key = PE.gameId(c.subject_id, c.target_id);
+        const row = (betsByGame[key] ??= { total: 0, mine: false, pairs: [] });
+        row.total += b.stake;
+        if (SB.isParty(b, me.id)) row.mine = true;
+        const label = (b.parties || []).map(p => nameOf(p.owner_id)).join(' vs ');
+        if (!row.pairs.includes(label)) row.pairs.push(label);
+      }
+    }
+  } catch (e) { /* the chip is a bonus; the scoreboard renders without it */ }
+
   const cards = games.map(g => {
     const aPts = livePts ? livePts[String(g.a.id)] : null;
     const bPts = livePts ? livePts[String(g.b.id)] : null;
@@ -2624,7 +2660,8 @@ router.get('/scoreboard', aw(async (req, res) => {
       const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [], remainKnown: false });
       sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
     }
-    return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
+    return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat,
+             wager: betsByGame[g.id] || null };
   });
 
   const liveStale = await liveFreshness();
