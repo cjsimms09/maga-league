@@ -134,10 +134,19 @@ as a bigger build — they don't.** No K/DEF-specific logic exists anywhere to a
 a stream capture to (the whole waiver tool is built around priority-spending, a
 different decision shape from a free matchup-based stream); no trade-evaluation
 logic exists at all beyond one passing mention of the word "trade" in `analyzer.ejs`.
-Scoped build plans for both are in PARKED.md's "STREAM_CALL / TRADE_EVAL" entry —
-`stream_call` is small and buildable in an afternoon *by someone not already deep in
-a long session*; `trade_eval` needs a real product decision first (whose trades get
-evaluated, priced how) and belongs with the post-draft work.
+
+**`stream_call` — built, same day, after the plan above.** `POST /stream/log` +
+`/stream/override`, mirroring the proven `waiver_claim` pattern with one real
+difference: the counterfactual is a specific alternative (the K/DEF already
+rostered) rather than a fixed phrase, because this page actually has one. No new
+scoring logic — reuses the same tested `evaluateClaims` ranking, filtered to K/DEF,
+honestly labelled on the page as season-value rather than matchup-tuned. Real-data
+render tests (with and without a current K/DEF rostered), not just an EJS compile
+check. Full suite green after.
+
+**`trade_eval` remains genuinely unbuilt** — needs a real product decision first
+(whose trades get evaluated, priced how), no evaluator exists to attach a capture
+to. Belongs with the post-draft work, plan is in `PARKED.md`.
 
 ---
 
