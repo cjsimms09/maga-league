@@ -14018,6 +14018,53 @@ Not a case where the earlier finding was wrong about the underlying disconnect
 wrong about which knob to turn in response to it. Recorded as a correction rather than
 a silent edit so the wrong version isn't the only one anyone finds later.
 
+## CORRECTION, found during the 2026-08-15 full re-audit: the TE=2 figure above (47%)
+does not reproduce, and no saved script exists to check any of these numbers
+
+Cory asked for everything to be re-verified without the reduced gate. This entry's
+history numbers were a one-off calculation — no script producing them was ever saved,
+so they were unreproducible prose, not a checkable artifact. Built one:
+`draft/tools/onesie_history_check.js`, tested (`draft/tests/onesie_history_check.test.js`,
+8/8 pass), reads `league_history.json` the same way this entry describes.
+
+**Re-deriving found a real bug in the naive approach FIRST** — before touching the QB/TE
+numbers at all: `league_history.json`'s 2023 entry carries TWO drafts, a real 150-pick
+one and a second, 30-pick one (draft_id `990840142107619329`) — almost certainly an
+abandoned/restarted attempt still sitting in Sleeper's history, not a played season.
+Iterating "every draft in the season" naively gives 40 team-seasons, not this entry's
+stated 30; filtering to the one draft per season whose pick count matches
+`rounds * teams` is what gets back to 30 team-seasons at all — that filter is now the
+tested, documented mechanism in `realDraftFor()`.
+
+**With that fix applied, most of this entry's numbers reproduce exactly:**
+- 30 team-seasons — matches.
+- QB=2 count: 17/30 (57%) — matches exactly, including the headline "2nd QB is the
+  modal outcome" claim.
+- 2nd-TE picks-remaining distribution: 50% / 58% / 83% / 100% at <=2/3/4/5 remaining —
+  matches exactly.
+
+**One does not: TE=2 total count.** This script gets **12/30 (40%)**, not the claimed
+**14/30 (47%)**. QB's breakdown across QB=1/QB=2/QB=3 also differs slightly (this
+script finds zero QB=3 team-seasons; the original claimed 2) — a smaller, secondary
+discrepancy, but a real one, and it means the original's own QB2-event count (n=18,
+stated for the picks-remaining distribution) doesn't even sum against its own QB=2+QB=3
+components (17+2=19, not 18) — an internal inconsistency in the un-reproduced figures,
+independent of anything this script finds.
+
+**What this changes and what it doesn't.** The QUALITATIVE conclusion — a 2nd TE is
+common in this league, not a rare event, and duplicate QB/TE picks cluster hard in the
+last few slots of the draft — holds under EITHER number; 40% is still far from rare.
+The `ONESIE_ENDGAME_PICKS` widening recommendation's own evidence (the QB timing
+distribution, which matches almost exactly: 41%/88%/94%/100% here vs the claimed
+44%/89%/94%/100%) is not meaningfully disturbed. What changes is precision: if Cory
+sees "47%, nearly half" cited as the reason to trust this finding, the honest number
+this session can actually reproduce is 40%. Not corrected in place in the paragraphs
+above — the original claim is left as written, with this note beside it, so neither
+version is the only one anyone finds later, matching this file's own stated discipline.
+Whoever picks this recommendation back up should run
+`node draft/tools/onesie_history_check.js` directly rather than cite either number from
+memory.
+
 ---
 
 ## 0000000000. WIRE-COMPARED BENCH BRANCH — PROTOTYPED, TESTED, FIXES THE RB WIPEOUT (2026-08-15) 🟡 CANDIDATE FIX, NOT SHIPPED
