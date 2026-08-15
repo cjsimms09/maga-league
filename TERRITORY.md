@@ -1181,6 +1181,16 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     itself untouched in that pass. None register as gate trespass
     (netlify/** is outside the three-lane split's named surfaces) — listed
     for B's awareness, not because the gate flags them.
+  * B-adjacent files from the league-wide player-projection loop (Cory's
+    directive, verbatim: "We should at least be projecting players in every
+    matchup not just my own... close the loop, and use it to help model get
+    smarter"): `src/weekly_player_projection.js` (NEW — the projector +
+    resolution + partition core, 68 assertions),
+    `netlify/functions/player-projection-cron.js` (NEW — Thursday 10:00 UTC
+    pre-TNF emission), `src/predledger.js` (additive `appendBatch` only),
+    plus additive resolution/partition blocks in claims-cron/grade-cron.
+    Same note as above: netlify/** and new src files don't register as gate
+    trespass; listed for B's review on return.
   * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
     day) — the independent review's required action #2: the test's no-bundle
     arm had an accidental live-network dependency with a sign bit (passed

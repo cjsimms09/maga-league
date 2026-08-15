@@ -26,7 +26,7 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2250 passed)" python3 -m pytest draft/tests -q
+ck "Python suite (expect ~2274 passed)" python3 -m pytest draft/tests -q
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
@@ -48,7 +48,7 @@ script = json.load(open('draft/data/opening_script.json'))
 stale = OS.is_stale(script['meta'], OS.fingerprint(board, pred))
 assert stale == [], stale"
 ck "no engine CFG default changed vs origin/main (the standing scoring gate)" \
-  bash -c "git diff origin/main -- public/js/draft/engine.js | grep -E '^[-+] *[A-Z_]+:' | grep -v '^\+ *VONA_WIRE_BENCH: false' | grep -vE '^\+ *//' | { ! grep -q .; }"
+  bash -c "git diff origin/main -- public/js/draft/engine.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^\+ *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP): false' | grep -vE '^\+ *//' | { ! grep -q .; }"
 
 echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
