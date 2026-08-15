@@ -34,6 +34,34 @@ Cory pushed hard on "actually fix things, in a way A will approve and push" and 
 deploy everything together in large sums." Real builds, all tested, all `[skip deploy]`,
 all on `main` right now — check `git log`, don't re-derive from this prose.
 
+**60-SECOND VERSION, for whoever reads this first.** Everything below is real, tested,
+and already on `main` (or this branch — check which). In priority order:
+
+1. **Fixed a real data-corruption bug that predates today** — every in-season capture
+   form (`/lineup/log`, `/lineup/override`, `/waivers/*`, `/stream/*`) was silently
+   mangling its own payload before this fix. See "🔴 A REAL BUG" below. If the site was
+   used for real before this shipped, **run `draft/tools/ledger_corruption_check.js`
+   against the live ledger** to check for damage — nobody with live access has done
+   this yet; it's a 5-minute job, instructions in the tool's own header.
+2. **Fixed a real bug in `draft-night-sync.yml`** (built today) that would have killed
+   its retry logic on the FIRST Sleeper hiccup during the actual draft — found and
+   fixed by firing the workflow for real, not by reading it. Verified working on real
+   CI. Nobody needs to do anything here except trigger it for real when the draft opens.
+3. **Own-model projections are live on the board**, additively, alongside Sleeper/FantasyPros.
+4. **The core projection formula was already audited and found to LOSE** to a naive
+   baseline (exp33) — a banner now surfaces this on the board. Read as: lean on tier
+   structure, not the point projection itself.
+5. Draft-night pick capture and in-season prediction capture (lineup/waiver/stream) are
+   now real and wired — `trade_eval` is the one kind still genuinely uncaptured.
+6. A dedicated security pass on everything built today came back clean — nothing to fix.
+7. **Three things need Cory's judgment, not more engineering** — none built or changed:
+   - `ONESIE_ENDGAME_PICKS` / the bench-branch VONA formula / `ONESIE_MAX_SPARE` —
+     scoring-logic prototypes, fully evidenced, held per standing policy this close to
+     the draft. Full writeups in `PARKED.md`.
+   - `trade_eval` — needs a product decision (whose trades, priced how) before any code.
+   - Whether `config-screen.js` is worth the same Playwright test `keeperui.js` just got
+     (cheap now that the pattern exists, just not urgent).
+
 **🔴 A REAL BUG, NOT A JUDGMENT CALL, FOUND AND FIXED: every in-season capture form
 was silently corrupting its own payload.** `views/lineup.ejs` and `views/waivers.ejs`
 built their hidden JSON fields as `JSON.stringify(...).replace(/"/g, '&quot;')` INSIDE
