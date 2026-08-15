@@ -222,6 +222,38 @@ found there, first real proof it works). **Every `public/js/draft/*.js` module t
 original sweep flagged is now covered.** Full story, including the correction, in
 `PARKED.md`'s "`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
 
+**`draft-night-sync.yml` (built earlier today) had never actually been fired — checked,
+and firing it blind wasn't safe, so this made it safe first.** Same "verify by
+execution" discipline as `weekly-proj-snapshot.yml` earlier, but that workflow only
+skips a write when it's not in season; this one, on a real trigger, `git commit`s +
+pushes straight into `draft/data/draft_pick_log_2026.jsonl` — the real live pick log
+this season's actual draft needs clean. Testing it blind, even against a completed
+historical draft_id, would have corrupted that file with the wrong season's data. Added
+a `dry_run` input that redirects `log_draft_picks.py`'s `LOG` constant (now
+`DRAFT_PICK_LOG_PATH`-overridable, default unchanged) to a `$RUNNER_TEMP` scratch file
+and skips the git block entirely, proven with 3 new tests
+(`draft/tests/test_log_draft_picks_path_override.py`).
+
+**Then actually fired it for real, twice, and found a genuine bug the first time.**
+Run 1 failed in 13 seconds with only "Process completed with exit code 1" in the log —
+GitHub Actions runs `run:` blocks under `bash -e`, and a bare `OUT="$(cmd)"` assignment
+is not one of the contexts `-e` exempts (an `if cmd; then` is). So the very first
+non-zero `--sync` exit killed the whole job before `echo "$OUT"` or the workflow's own
+documented "will retry on next poll rather than abort the whole night on one bad
+response" ever ran — dead code, invisible until fired for real. Same trap on the
+`--status` call right after it (`status()` deliberately returns 1 on a real, designed
+warning — a row joined to the wrong freeze — not a crash). Both fixed by moving the
+assignment into the `if` test. **Run 2, after the fix: the retry logic actually fired
+9 times over the full 3 minutes**, correctly logging "will retry" each time instead of
+dying, and the real underlying message was finally visible in the log — a legitimate
+`REFUSING: Sleeper returned no picks for draft ...` from `sync_live()`'s own `or []`
+guard (this specific archived draft_id doesn't serve picks via Sleeper's live picks
+endpoint; unrelated to anything touched here). `--status` printed correctly every
+iteration, dry-run wrote only to the scratch path (zero git activity anywhere in the
+log), and `max_minutes` gave up cleanly with the intended warning. **The actual
+draft-night mechanics — polling, retry-on-failure, clean give-up — are now verified
+working on real GitHub infrastructure, not assumed from reading the YAML.**
+
 ---
 
 ## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
