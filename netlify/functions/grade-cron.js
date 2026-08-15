@@ -18,6 +18,7 @@ const FG = require('../../src/forecast_grade');
 const EW = require('../../src/evidence_weight');
 const ERA = require('../../src/rules_era');
 const ACC = require('../../src/routes/accuracy');   // deriveByKind — one derivation, shared
+const WPP = require('../../src/weekly_player_projection');
 
 async function readLedger(season) {
   const keys = (await store.listKeys(`pred:${season}:`)).sort();
@@ -46,8 +47,16 @@ async function currentRules() {
 // The core, pure enough to unit-test: given the ledger entries + rules + prior calibration
 // ledger, produce this run's stamped snapshot and the consumed evidence weights.
 function runGrade(entries, rules, priorLedger, nowIso) {
-  const forecasts = FG.gradeForecasts(entries);
-  const decisions = FG.gradeDecisions(entries);
+  /* PLAYER-WEEK ROWS ARE PARTITIONED OUT before the generic grader sees them,
+   * additively: `forecasts.point` has always meant the draft-time point claims,
+   * and folding several hundred player-week residuals into the same numbers
+   * would leave the name unchanged while the quantity became something else —
+   * the defect this repo keeps finding. Player-week skill gets its OWN block
+   * (per arm, per position — the table the source-weight machinery reads),
+   * and every pre-existing snapshot field keeps meaning what it meant. */
+  const split = WPP.partitionLedger(entries);
+  const forecasts = FG.gradeForecasts(split.rest);
+  const decisions = FG.gradeDecisions(split.rest);
   /* THE EDGE-IDENTIFICATION ROLL-UPS (2026-08-15). The accuracy page's
    * "By prediction type" table reads the calibration doc's `by_kind`; without
    * this merge the in-season decision kinds could never reach it — their
@@ -65,6 +74,7 @@ function runGrade(entries, rules, priorLedger, nowIso) {
     graded_at: nowIso,
     forecasts,
     decisions,
+    player_weeks: WPP.gradePlayerWeeks(split.playerWeek),
   }, rules, rules.season);
   // #5 consume: fold this snapshot into the running ledger, derive league precision, and
   // recombine against the external prior (placeholder transferability until a source is

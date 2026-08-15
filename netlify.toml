@@ -56,6 +56,20 @@
   # the one job whose SCHEDULE is part of its correctness.
   schedule = "0 13 * * 0"
 
+[functions."player-projection-cron"]
+  # Thursday 10:00 UTC — BEFORE Thursday Night Football (earliest kickoff of an
+  # NFL week is ~00:20 UTC Friday). Emits per-player point forecasts for the
+  # coming week, league-wide, both arms (our blend + Sleeper's line). claims-cron
+  # cannot host this: it runs Sunday, AFTER TNF, and a TNF player's "projection"
+  # emitted Sunday is post-hoc. Like claims-cron, this is a job whose SCHEDULE is
+  # part of its correctness — the handler additionally stamps emitted_late on any
+  # run at/after the week's first possible kickoff, and late rows are excluded
+  # from grading (counted, never silently graded).
+  #
+  # EMIT ONLY. Resolution stays in claims-cron (Sunday), grading in grade-cron
+  # (Tuesday): three jobs, so no run settles or grades a row it just wrote.
+  schedule = "0 10 * * 4"
+
 [functions."analyzer-cron"]
   # Sunday 13:05 UTC — five minutes behind claims-cron, on the same reasoning:
   # a belief committed after the games is not a prediction.
