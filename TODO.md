@@ -1,4 +1,5 @@
-# TODO — the real count, in plain English (regenerated 2026-08-15, mid-week)
+# TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
+# again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
 _Regenerated from STATUS.md, PARKED.md, DECISIONS-NEEDED.md and this week's findings —
 not from memory. Draft is **Aug 22** (7 days out). **A and B are both unreachable until
@@ -6,18 +7,116 @@ Monday** (weekly session limit) — everything below this line that isn't marked
 done by the research-relay session on `claude/fantasy-football-research-926y6z`.
 Session B keeps the site/in-season half of this list separately._
 
-**UPDATED policy, same day, Cory's call:** the relay session now pushes anything with
-a passing test straight to `main` — no pre-approval, no per-item check-in. The only
-gate left is (1) changing what the model actually recommends this close to the draft,
-and (2) an actual live *deploy* (Netlify build), which is batched rather than
-triggered per fix. Everything below marked ✅-pushed is already on `main` — check it
-with `git log`, not by re-reading this file's prose.
+**UPDATED policy, same day, Cory's call:** the relay session pushes anything with a
+passing test straight to `main` — no pre-approval, no per-item check-in, EXCEPT
+draft-scoring/weight changes (still held for a ruling). **⚠ CORRECTED, later the same
+day: every commit now carries `[skip deploy]`, no exceptions — "no reason to deploy
+til everything is done, I will tell you when to deploy" (Cory).** The earlier version
+of this note said pushing to `main` never deploys on its own — THAT WAS WRONG, see the
+🚨 entry immediately below. Batching is now enforced by the commit message, not by an
+assumption about the gate.
 
-**🚨 CHECK FIRST, BEFORE ANYTHING ELSE:** `DECISIONS-NEEDED.md`'s top entry — the
-build-minute budget numbers are stale (a week old) with the draft-week reserve
-(Aug 20-22) five days away. Re-verify the real number before deploying anything.
-Nothing this session did triggers a deploy on its own — everything so far is commits,
-not builds — but the actual live deploy is still pending that number.
+**🚨 READ THIS BEFORE TOUCHING A SERVED FILE (`public/`, `views/`, `src/`,
+`server-app.js`, `package*.json`, `netlify.toml`, `netlify/functions/`):** the deploy
+gate (`netlify-ignore.sh`) flipped to **opt-out on 2026-08-09** — it builds BY DEFAULT
+on any served-path change now, `[skip deploy]` is the ONLY suppressor. `DEPLOY-POLICY.md`
+still describes the OLD opt-in gate and is one day older than the flip; it has a
+correction banner now but still needs a real rewrite. **This was not caught in time** —
+two real, unintended deploys already fired today before the mistake was found (confirmed
+directly from `deploy-verify.yml`'s own logs, not inferred). Standing rule now: `[skip
+deploy]` on every commit, verified working (checked the actual gate output after adding
+it, three separate times, all skipped correctly) — nothing deploys again until Cory says
+go. The build-minute budget question (below) is still separately unresolved.
+
+## LATER THE SAME DAY, 2026-08-15 — read this section first, everything below it is the morning/midday pass
+
+Cory pushed hard on "actually fix things, in a way A will approve and push" and "we'll
+deploy everything together in large sums." Real builds, all tested, all `[skip deploy]`,
+all on `main` right now — check `git log`, don't re-derive from this prose.
+
+**The single biggest finding of the day: our core projection formula was already
+audited and found to LOSE, and nobody was ever told.** Experiment 33 (`EXP33.md`,
+reported 2026-08-09, six days before this was surfaced) — our blend loses to a naive
+prior-year+opportunity model on every metric, both tested seasons: top-decile hit rate
+0.41 vs 0.57-0.59 (the metric the experiment itself named as the one that matters),
+worse MAE, worse rank correlation, and $200 vs naive's $100 vs raw FFC ADP's **$1,200**
+through the money grader. `deviation.js` already had a complete, honest, carefully-
+reconciled banner mechanism for exactly this (`projectionProvenance()`) — built,
+correct, exported, **never called from anywhere**. Now wired into the board checklist.
+See PARKED.md's "THE CORE PROJECTION FORMULA WAS ALREADY AUDITED" entry for the full
+numbers. **Read as: lean on tier structure and scarcity, not on the point projection
+itself — the model's own honest self-assessment, now actually visible.**
+
+**Own-model projections are now live on the board, additively.** `draft/own_projections.py`
+(extracted, shared, no more two-places-disease) attaches `proj_ownmodel` in `build.py`
+the same way FantasyPros was added; `consensus.js` folds it into the displayed
+consensus number automatically. Does NOT touch `proj_mean`/VORP/ranking — no clean
+grade exists to justify a swap, and exp 33 (above) argues AGAINST swapping our
+existing blend in as authoritative for anything, which is exactly why this stayed
+additive. Full build.py run couldn't be verified end-to-end from this sandbox (Sleeper
+blocked); the new attach block WAS verified against the real live board+config
+directly, and the full test suite passed. Check the next real nightly build's log for
+"own model 3rd source on N players".
+
+**Draft-night pick capture — closed a real, dangerous gap.** `log_draft_picks.py`'s
+`--sync` mode was fully built and rehearsed against a real 150-pick draft and NOTHING
+ever called it during a live draft — grepped every workflow and doc, zero automation,
+zero manual step. `.github/workflows/draft-night-sync.yml` now exists:
+workflow_dispatch-triggered (start it by hand when the draft opens, paste the Sleeper
+draft_id), polls every 20s, commits only on real change, stops when every pick is
+logged. **Someone needs to actually trigger this when the draft opens Aug 22** — it is
+not automatic, by design (a snake draft's start time isn't predictable).
+
+**In-season prediction capture — genuinely confusing, resolved.** First pass (via
+`loop_closure.js`) reported 5 kinds uncaptured (lineup_call, waiver_claim, stream_call,
+trade_eval, inseason_override). **That tool had two real bugs** (no directory
+recursion into `src/routes/`; blind to the server-side `predledger.append(store,
+{kind:...})` capture shape) — both fixed. Re-run: `lineup_call` and `inseason_override`
+were ALREADY captured (`src/routes/member.js`, `/lineup/log` + `/lineup/override`,
+predate this session). Built client-side helpers for all 5 before discovering this,
+then **reverted them** — wrong pattern, would never have been called. `waiver_claim`
+was genuinely missing; built to match the proven `/lineup/log` pattern exactly
+(`/waivers/log`, `/waivers/override` in `member.js` + `views/waivers.ejs`).
+**Still genuinely open: `stream_call`, `trade_eval`** — no existing page to attach
+either to, so this is small feature-design work, not a wiring gap.
+
+**Weekly in-season projection snapshot — verified live, not just read.** `weekly-proj-
+snapshot.yml` existed, had never fired (added the day before its first scheduled
+Sunday). Triggered it manually to check: ran clean end-to-end in real CI, correctly
+detected preseason and did nothing rather than writing a mislabelled snapshot. Real
+verification of "will this work when the season starts," not an assumption.
+
+**Two real bugs in test/tooling infrastructure, fixed while doing the above:**
+`loop_closure.js` (directory recursion + capture-shape detection, above) and
+`draft/tests/authority.test.js` (a structural check used a raw string-match that
+returned the wrong shape, silently breaking its own exemption mechanism — the SAME
+class of bug the two-line-up fix repaired, in a governance-sensitive file).
+
+**Scoring-logic prototypes tested but NOT shipped, awaiting Cory's explicit ruling
+(not swept into "fix everything" — these are judgment calls, not bugs):**
+- `ONESIE_MAX_SPARE.TE: 1→0` — tested, looked clean on a 12-pick simulator, then
+  found to conflict with 3 years of real draft history (TE2 happens 47% of the time)
+  — WALKED BACK, see PARKED.md's correction.
+- `CFG.ONESIE_ENDGAME_PICKS: 2→~4-5` — the better-evidenced replacement, matches
+  when real duplicate QB/TE picks actually land (89-94% coverage vs ~44-50% today).
+  Not shipped.
+- A wire-compared bench-branch formula for `vona()` — prototyped in a scratch copy of
+  `engine.js`, fixes the RB-wipeout bug when `VONA_SLOT_AWARE=true`, but has an
+  unexplained gap (100% of sim rooms take a 2nd QB vs 57% in real history) that
+  wasn't resolved before time ran out on it. Full write-up and numbers in PARKED.md.
+- Random Forest / XGBoost for the core model — real precedent exists (`mattgilgo/
+  fantasy_football`, `RESOURCES.md`), genuinely plausible, explicitly NOT for this
+  draft (7 days, thin data, leak-free discipline gets harder) — flagged for the
+  post-draft learning engine.
+
+**A systematic sweep for other "built, exported, never called" gaps (the pattern
+behind exp 33's banner and three earlier findings today) came back clean** — checked
+every `public/js/draft/*.js` module's exported API against the rest of the codebase;
+the only unreferenced exports left are `PredLedger.pending/flush/lastError`, which are
+already explicitly flagged in-code as "routed to B" for a status-UI surface that
+doesn't exist yet, not a new discovery.
+
+---
 
 ## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
 
