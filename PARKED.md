@@ -12921,3 +12921,60 @@ mainly against the waiver layer's numbers, not the lineup layer's.
 No code touched, no new build — a reasoning clarification on an existing
 finding, parked because it changes how success should be measured, not just
 academic.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — CORRECTION: THE ODDS API WORKS FINE. THE EARLIER "0% COVERAGE" FINDING WAS WRONG.
+
+**FOR: A.** Cory asked directly "does the bet API work, does it give everything
+we need" — and checking properly this time (real CI job logs, not just the
+tail of `capture_health.json`) shows the earlier finding two entries up was
+wrong. Correcting it here rather than leaving a bad finding standing.
+
+## What was actually wrong in the earlier entry
+
+That entry read `capture_health.json`'s final state (`last_coverage: 0.0`,
+`consecutive_failures: 1`) and one sampled event with empty `bookmakers: {}`,
+and concluded the capture was broken / the key might be invalid. Neither check
+was sufficient — checked the real GitHub Actions run (`31808544950`, 2026-08-14)
+directly this time.
+
+## What's actually true, verified from the real run
+
+**The API key works and the capture succeeds.** The job's own log:
+`[usa-nfl-preseason] captured 36/36 events (100%) -> usa-nfl-preseason_
+2026-08-14T141450Z.json`. Re-checked the snapshot file itself properly (not
+just one sampled event): **10 of 36 games have real, detailed odds** from
+DraftKings and FanDuel — moneyline, spread, full-game totals, even first-half
+lines, with real timestamps. Budget is healthy: `{"limit": 100, "remaining":
+62, "spent_this_run": 37}`.
+
+**Why the job still reported failure.** This run captures TWO leagues:
+`usa-nfl-preseason` (succeeded, 100%) and `usa-nfl` (the regular season —
+correctly found 0 events, because the regular season hasn't started; nothing to
+capture is not a failure). Both write to the SAME shared `capture_health.json`.
+`usa-nfl` runs second in the loop, so its "0 events available" status
+**overwrites** the preseason league's genuinely successful one, and the gate
+step then reads that final, misleading state and fails the whole job. **This is
+a real bug** — conflating "no data exists yet for a season that hasn't started"
+with "the capture is broken" — but it's a false-alarm/reporting bug, not a
+broken connection to the provider. Worth fixing (per-league health tracking,
+not one shared file) before the regular season starts and this check is
+expected to run daily against real games — a check that cries wolf for two
+weeks straight is a check people stop reading, which is exactly when a real
+failure would go unnoticed.
+
+## What still holds from the earlier entry — this part was right
+
+**Player props are still not requested at all.** Confirmed again directly from
+this same real run: `"markets_requested": null"`, `"no prop market(s)
+requested"`. The capture only asks for moneyline/spread/totals from 2 books.
+Getting player-prop data is a config change to something already working
+(add markets to the request), not a fix to something broken — different, and
+cheaper, than the earlier entry implied.
+
+## What this is NOT
+
+No code touched. This is a direct correction to an earlier finding in this
+file, made because it was checked against real evidence and found wrong rather
+than left standing.
