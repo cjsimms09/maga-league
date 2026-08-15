@@ -17,6 +17,7 @@ const store = require('../../src/store');
 const FG = require('../../src/forecast_grade');
 const EW = require('../../src/evidence_weight');
 const ERA = require('../../src/rules_era');
+const ACC = require('../../src/routes/accuracy');   // deriveByKind — one derivation, shared
 
 async function readLedger(season) {
   const keys = (await store.listKeys(`pred:${season}:`)).sort();
@@ -47,6 +48,19 @@ async function currentRules() {
 function runGrade(entries, rules, priorLedger, nowIso) {
   const forecasts = FG.gradeForecasts(entries);
   const decisions = FG.gradeDecisions(entries);
+  /* THE EDGE-IDENTIFICATION ROLL-UPS (2026-08-15). The accuracy page's
+   * "By prediction type" table reads the calibration doc's `by_kind`; without
+   * this merge the in-season decision kinds could never reach it — their
+   * grades live under `decisions.inseason`, which byKindRows does not read.
+   * Forecast kinds come from THE SAME deriveByKind the page falls back to
+   * (imported, not re-implemented), so the numbers cannot drift between the
+   * doc and the fallback; decision kinds come from the grader's own rows via
+   * decisionByKind. Per-week lands beside it for the same reason: "is week 3's
+   * edge holding up in week 8" is the question edge identification actually
+   * asks, and a season total cannot answer it. */
+  forecasts.by_kind = Object.assign({},
+    ACC.deriveByKind(forecasts.graded), FG.decisionByKind(decisions));
+  forecasts.by_week = FG.decisionByWeek(decisions);
   const snapshot = ERA.stamp({
     graded_at: nowIso,
     forecasts,

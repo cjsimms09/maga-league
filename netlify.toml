@@ -35,6 +35,12 @@
   schedule = "0 12 * * 2"
 
 [functions."claims-cron"]
+  # The measured wire baseline the waiver_claim resolver prices hold-priority
+  # claims against (see buildDecisionResolutions). Data read from disk at run
+  # time, so it must ship with the bundle — same reason app carries draft/data.
+  # Absent file degrades honestly: drop-based resolutions still run, wire-based
+  # ones stay pending.
+  included_files = ["draft/data/wire_level.json"]
   # Sunday 13:00 UTC (~9am ET, before the 1pm slate) — EMIT this week's forecasts
   # and RESOLVE last week's, in that order and in one run. They cannot collide: by
   # Sunday morning the prior week is final (MNF included) and this week has not
