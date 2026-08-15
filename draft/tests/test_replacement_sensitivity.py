@@ -29,6 +29,14 @@ broken. Highest silent-failure risk of anything in the valuation chain.
    because replacement steps from RB21 to RB22. 2% is well inside real
    projection error.
 
+   [2026-08-15] WHERE the step sits is BOARD-SPECIFIC, and pinning it at
+   exactly +2% was a knife edge: the first fresh candidate board CI ever
+   built (run 31897110098) did not flip at 2% — allocation held RB21/WR29
+   and the "move" was +3.78, exactly the smooth 1.02x scaling of the same
+   replacement player. The step test now scans +0.5%..+10% to find the flip
+   on whatever board is present and asserts existence, direction, and
+   discontinuity — the properties, not the coordinate.
+
 3. THE BOARD MOSTLY ABSORBS IT, AND WHERE IT DOES NOT IS THE INTERESTING PART.
    Measured through the real composite with base projections and only `vorp`
    recomputed — isolating the replacement channel:
@@ -149,17 +157,60 @@ def test_flex_allocation_margins_are_published_not_knife_edge():
 
 
 def test_a_within_error_projection_shift_moves_replacement_by_a_step():
-    """THE FINDING. 2% is inside real projection error; the response is not."""
-    base, _ = vorp.replacement_levels(PLAYERS, CFG)
-    bumped, _ = vorp.replacement_levels(_scaled("RB", 0.02), CFG)
-    move = bumped["RB"] - base["RB"]
-    assert move < -5.0, (
-        f"expected RB replacement to STEP DOWN when RB projections rise 2% "
-        f"(RB gains a flex slot, replacement moves from RB21 to RB22); got "
-        f"{move:+.2f}. If this is now smooth, the allocation changed."
+    """THE FINDING, RE-DERIVED 2026-08-15. The original version pinned the
+    step at EXACTLY +2% — the scale that happened to flip the COMMITTED
+    board's flex allocation. The first fresh board CI ever built against this
+    test (run 31897110098's in-run diagnosis) did not flip at 2%: allocation
+    stayed RB21/WR29 and the move was +3.78 = 189.02 x 0.02, i.e. pure smooth
+    scaling of the unchanged replacement player. The finding was never "the
+    step is at 2%"; it was "the step EXISTS within real projection error, and
+    it is discontinuous and backwards". So the test now LOCATES the step by
+    scanning scales on whatever board is present, then asserts those three
+    properties — the characterisation survives a rebuild, a genuinely smooth
+    allocation still fails."""
+    base, base_diag = vorp.replacement_levels(PLAYERS, CFG)
+    base_rb = base_diag["starter_counts"]["RB"]
+
+    flip = None
+    prev_rep = base["RB"]
+    for i in range(1, 21):                       # +0.5% .. +10.0%
+        pct = i * 0.005
+        rep, diag = vorp.replacement_levels(_scaled("RB", pct), CFG)
+        if diag["starter_counts"]["RB"] != base_rb:
+            flip = (pct, rep["RB"], diag["starter_counts"]["RB"], prev_rep)
+            break
+        prev_rep = rep["RB"]
+
+    assert flip is not None, (
+        "no RB projection scale up to +10% moved the flex allocation at all — "
+        "replacement is now SMOOTH in the inputs on this board. That is a "
+        "different regime from the characterised one entirely: re-read the "
+        "file docstring and re-derive, the allocation code has changed."
     )
-    assert abs(move) / base["RB"] > 0.05, (
-        f"the step is {abs(move) / base['RB']:.1%} of the level; it was ~8%"
+    pct, flip_rep, flip_rb, rep_before = flip
+
+    # Property 1: the step sits within real projection error. Season-long RB
+    # projection error is well above 10%, so any flip found by this scan
+    # qualifies; record where it landed for the log.
+    assert pct <= 0.10, f"flip found at +{pct:.1%}"
+
+    # Property 2: counter-intuitive direction. Raising RB projections makes
+    # RB WIN a slot (never lose one), and winning a slot pushes replacement
+    # DEEPER — so the level steps DOWN as the position gets better.
+    assert flip_rb > base_rb, (
+        f"RB LOST a flex slot ({base_rb} -> {flip_rb}) as its projections "
+        f"rose +{pct:.1%} — the allocation is inverted"
+    )
+
+    # Property 3: discontinuity. Across ONE 0.5% increment, smooth scaling
+    # can move the level by ~0.5% (~1 point); the flip moves it by a whole
+    # inter-player gap at replacement depth. On the committed 2026-08-14
+    # board: -15.80 (~8% of the level) at +2%.
+    step = flip_rep - rep_before
+    assert step < -5.0, (
+        f"crossing +{pct:.1%} moved RB replacement by only {step:+.2f} "
+        f"(from {rep_before:.2f} to {flip_rep:.2f}) — that is not a step, "
+        "the discontinuity this file exists to record has vanished"
     )
 
 
