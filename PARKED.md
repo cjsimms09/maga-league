@@ -13640,3 +13640,85 @@ Not a code change. Not a recommendation to adopt the position-normalization
 approach — it's a downgrade from what's already shipped. The one thing
 worth carrying forward is narrow and explicitly future work, flagged so
 whoever builds the learning engine doesn't have to re-discover it.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — "our own projections" wired to the live board for the first time; real, not ready, here's exactly what's missing
+
+Cory asked to build our own projections, combined with what A was already
+thinking on the topic. Checked first rather than building from scratch:
+`lab_projections.walk_forward()` already IS "our own projections" —
+leak-free, self-derived from prior-season production scored under our own
+engine, never touching a provider's number, used for backtest replay
+(exp33/exp35/exp_regression_cv) since before this week. **It had just never
+been attached to the live 2026 board.** That's the actual gap, and this is
+the first real attempt to close it — `draft/backtest/own_projections_2026.py`.
+
+## Why this didn't hit the network wall everything else did today
+
+Every other blocked script today died on `sleeper_import.fetch_players()`.
+This doesn't need it: the gsis↔sleeper crosswalk comes from
+`nfl_data_py.import_ids()` alone (12,472 rows, both ID columns present —
+`grade.py`'s `crosswalk_gsis_to_sleeper()` already prefers this source), and
+positions/ages for every 2026 board player are already sitting in
+`public/draft_data.json`. Ran it for real, not in theory.
+
+## Two real bugs found and fixed getting it to run
+
+1. **`score_stat_line` was silently scoring everyone at 0.** nflverse's
+   weekly-data columns (`passing_yards`, `receiving_tds`) aren't our scoring
+   table's Sleeper-style keys (`pass_yd`, `rec_td`) — `score_stat_line` skips
+   any key it can't find. `grade.py` already has the translation function
+   (`nflverse_weekly_to_scoring`) built for exactly this; I just wasn't
+   calling it. First run: every projection was 0.0. Caught by checking, not
+   assuming a nonzero number is a right number.
+2. **Playoff rows were inflating good players' rates.** `import_weekly_data`
+   returns `season_type: POST` rows alongside `REG` (257 of 5597 in 2024)
+   with no matching game-count correction. Filtered to regular season only.
+3. **2025 nflverse data 404s from this endpoint right now** — confirmed by
+   direct fetch, not assumed. Fell back to 2023+2024 as the two prior
+   seasons; the output JSON says so explicitly rather than silently using
+   older data than intended.
+
+## What it found, and why it's not ready to use
+
+Elite players project **lower** than Sleeper (Gibbs 222 vs 300, McCaffrey
+131 vs 256) — that's `walk_forward`'s regression-to-mean working as
+designed, pulling the top of the list back down. But deep bench players
+project **far higher**: Kendre Miller (Sleeper 4.6 — buried on a depth
+chart) comes out at 90. That's not noise, it's the median RB ratio landing
+at 1.33 despite every star being under 1.0.
+
+**The cause: `walk_forward` has zero opportunity/depth-chart signal.** It's
+pure historical box-score rate, regressed toward the POSITIONAL mean for
+low-sample players — correct for backtesting a season that already
+happened, wrong for a player whose CURRENT role has collapsed since his
+last productive stretch. Sleeper's number presumably has real 2026
+depth-chart context baked in that this doesn't.
+
+**The fix is concrete and the data for it already exists on the board:**
+538 of 686 players carry `depth_chart_order` on `public/draft_data.json`
+right now — no new data source needed. Dampen or re-baseline the regression
+target for anyone with `depth_chart_order >= 3` (or similar) instead of
+pulling them toward the full positional mean, the same shape as
+`projections.py`'s existing `opportunity_z` adjustment on the Sleeper
+baseline. Not built here — this entry stops at the diagnosis, on purpose,
+since fixing it means picking a specific dampening curve, which is a
+valuation judgment call, not a bug fix.
+
+## The "predictions" half of the ask — not started, said plainly
+
+Cory also asked to add the predictions/grading loop discussed earlier this
+week (the 4-part plan: own projections, more market data, predictions +
+grading, draft-tool testing). This entry is only the first piece. Ran out
+of room to do the grading loop with the same rigor in the same pass —
+flagging that honestly rather than building it fast and thin. Real next
+step, not done.
+
+## What this is NOT
+
+The script is real, runs, and is pushed to `main` — but it does not write
+`proj_ownmodel` onto the live board or change any ranking. Diagnostic only,
+per `DECISIONS-NEEDED.md` #6's standing rule against swapping the
+projection source without a clean grade. That rule stands; this is evidence
+for the eventual grade, not a swap.
