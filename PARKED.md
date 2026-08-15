@@ -13461,3 +13461,66 @@ Not a code change, not touching `draft/` or `public/js/draft/`, not moving
 the 2026-08-23 gate. A confirmation that VONA stays in the draft math as-is,
 plus one concrete, precedented algorithm handed off for the fix that's
 already scoped and already scheduled, for A to decide on.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — Cory independently flagged the mid-draft need-blindness gap; adding his framing as a priority signal, not a new finding
+
+Cory, unprompted, in conversation: "I don't think your bench rules are
+complex enough. It may not be dumb to draft a bench player before all
+starters are filled, especially if the value is good!" I went and read
+`starterSlotMarginal`, `vona`'s bench branch, and `applyRosterLegality` in
+`public/js/draft/engine.js` before answering, rather than assume. This is
+NOT a new gap — the code already documents it, dated one day earlier
+(2026-08-14, line ~427-444) — but Cory arrived at the same conclusion
+independently from the outside, which is worth recording as a second,
+unprompted vote for priority.
+
+## What's actually true today, read directly from the code
+
+There is no hard "fill starters first" rule outside the true endgame.
+`applyRosterLegality` only forces a pick when `picksLeft <= gaps.length` —
+i.e., the last few picks where a mandatory slot would otherwise go unfilled.
+Before that, a bench-classified player competes on score like anyone else.
+So the tool doesn't actually block what Cory describes.
+
+What it lacks is the nuance he's pointing at. Two bench-value mechanisms
+exist and only one of them is alive:
+
+- `starterSlotMarginal`'s bench discount is format-aware (15-45%, scaled by
+  team count and keeper count via `formatDefaults`) — real engineering. It
+  is dead in production: it only reaches the score multiplied by the `need`
+  weight, which is 0 in `MEASURED_WEIGHTS`, and the code's own 2026-08-14
+  measurement (`composite_roster_blindness.test.js`) found it "inert at
+  every weight from 0.25 to 2.0" even turned on — the need signal is
+  ~uniform inside the startable-cap mask and barely moves any picks.
+- What actually prices a bench player is `vona()`'s bench branch: flat
+  per-position `INJURY_RATE` (~10-20%) times VORP, minus the opportunity
+  cost of the best flex-eligible alternative. Same multiplier whether the
+  player is a marginal handcuff or a true talent-gap outlier who happens to
+  be your third guy at a position — it only scales linearly with VORP, not
+  with how much better he is than what's actually forming your bench, and
+  it isn't sensitive to draft stage the way the ceiling term is.
+
+The code's own comment states the headline directly: "the composite has no
+positional-fill awareness in the mid-draft." The real need-tracking logic
+(`needrule.js`'s startable-cap mask) exists and is roster-aware, but it only
+drives a UI card — `recommend()` never calls it, confirmed by grep (every
+hit on `withinCap` in `engine.js` is a comment, not a call).
+
+## Why this is worth surfacing rather than just noting "already known"
+
+The gap is dated 2026-08-14 and Cory raised the identical concern on
+2026-08-15 without having read the code — that's real external validation
+of an internal measurement, from the person who has to trust the tool's
+picks. It doesn't change the fix's scope, which the code has already
+correctly scoped (wire `starterSlotMarginal`'s roster-aware, format-aware
+discount into the live path instead of the flat injury-rate crush, or
+decide the flat crush is actually fine and say why) — it just adds weight
+to prioritizing it.
+
+## What this is NOT
+
+Not a code change. Not a new discovery — the gap is already measured and
+documented in `engine.js` itself. This entry exists only to record that
+Cory reached the same conclusion independently, for A's prioritization.
