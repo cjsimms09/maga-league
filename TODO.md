@@ -131,13 +131,24 @@ log entries in `STATUS.md`/`LAB-RUN-STATE.md`) is in `ROUTES.md`'s `## TO: A` se
 2026-08-15 entry. New regression tests in both languages assert the per-row invariant
 directly (`optimal >= actual` on every team-week, not just in aggregate) so this can't
 silently regress. Full JS (256/256) and Python (2148 passed/6 skipped) suites green
-after.
+after **in this sandbox — caveat added 2026-08-15: this sandbox cannot reach Sleeper
+(confirmed 403 all session), so any test whose behavior differs live-vs-offline was
+never actually exercised on its live path here. The independent OpenAI review's own
+CI job (real network) caught exactly this: `h2h_agreement.test.js` red there. It
+shares no code path with anything in this change (h2h/rivalry/Sleeper-id resolution,
+nothing touching lineup/roster_sim/season_stamp), so it is very unlikely caused by
+this diff, but "full suite green" claims made from this sandbox should be read as
+"green on everything this sandbox's network can exercise," not an absolute
+statement — worth a real-network re-run by whoever has one.**
 **Then the actual question got answered, honestly, on the corrected numbers:** does
 following the live tool's own fallback projection (season-running-average — the path
 its own UI already flags as "directional, not precise" whenever it's not on a live
-Sleeper projection) beat what Cory actually played? **No.** Edge vs. actual play:
-2023 -$11.45/wk (beats actual 22% of weeks), 2024 -$14.51/wk (20%), 2025 -$17.65/wk
-(16%) — bye-week-corrected for 2023/24 via real nflverse schedule data
+Sleeper projection) beat what Cory actually played? **No.** Edge vs. actual play, in
+**FANTASY POINTS, not dollars — corrected 2026-08-15, caught by the independent
+OpenAI review (below): `lineup_edge_backtest.js` never calls the money grader, it
+only ever computed points, and the first write-up of this wrongly called them
+dollars**: 2023 -11.45 pts/wk (beats actual 22% of weeks), 2024 -14.51 pts/wk (20%),
+2025 -17.65 pts/wk (16%) — bye-week-corrected for 2023/24 via real nflverse schedule data
 (`draft/backtest/build_historical_byes.py`), uncorrected (structurally pessimistic) for
 2025 since nflverse doesn't have 2025 data yet. This is not a regression or a newly
 discovered defect in the live tool — the assignment logic itself is separately proven

@@ -135,6 +135,43 @@ def test_hindsight_ceiling_beats_realized_every_week(hist, season):
     assert not violations, f"{season}: hindsight ceiling below realized on {len(violations)} team-weeks: {violations[:5]}"
 
 
+def test_player_positions_fallback_agrees_with_the_reliable_source_wherever_both_exist():
+    """Independent-review finding, 2026-08-15 (low/population_denominator):
+    player_positions.json is a single union-over-builds snapshot per player_id,
+    not season-keyed, so using it as a historical fallback is only safe if a
+    player's position does not actually change build-to-build. This is not an
+    assumption: for every (season, player_id) pair the starters-array heuristic
+    -- which is unambiguous whenever it fires, since a dedicated slot is exact,
+    unlike the FLEX case this fallback exists for -- can independently confirm,
+    the two sources must agree. A disagreement means the fallback would have
+    silently MISCLASSIFIED a player this test could have caught."""
+    from pathlib import Path
+    root = Path(RS.__file__).resolve().parent.parent.parent
+    hist = MG.load_history()
+    db = RS._player_positions_db()
+    mismatches = []
+    checked = 0
+    for season in ("2023", "2024", "2025"):
+        s = MG.season_of(hist, season)
+        template = s.get("roster_positions") or []
+        dedicated = {}
+        for entries in (s.get("weeks") or {}).values():
+            for e in entries or []:
+                for slot, pid in zip(template, e.get("starters") or []):
+                    if slot in ("QB", "RB", "WR", "TE", "K", "DEF"):
+                        dedicated[str(pid)] = slot
+        for pid, pos in dedicated.items():
+            if pid in db:
+                checked += 1
+                if db[pid] != pos:
+                    mismatches.append((season, pid, pos, db[pid]))
+    assert checked > 100, f"only {checked} overlapping ids -- too few to trust this check"
+    assert not mismatches, (
+        f"player_positions.json disagrees with the season's own dedicated-slot "
+        f"starts on {len(mismatches)} players -- the fallback would misclassify "
+        f"them: {mismatches[:10]}")
+
+
 def test_roster_weekly_scores_covers_every_week(hist):
     s = MG.season_of(hist, "2025")
     pos = _dedicated_pos_map(s)

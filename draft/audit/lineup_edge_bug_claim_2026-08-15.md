@@ -43,9 +43,11 @@ WHAT CAME BACK:
   87-88% — an INCREASE in measured leak, i.e. the bug was an undercount, not an
   overcount.
 - The lineup-edge backtest itself: the tool's own fallback projection loses to
-  actual human play by $11-18/week and beats it only 16-22% of weeks across all
-  three seasons (bye-corrected for 2023/24 via real nflverse schedule data,
-  uncorrected for 2025 since nflverse has no 2025 data yet).
+  actual human play by 11-18 FANTASY POINTS per week (not dollars — the script
+  only ever computes points, never calls the money grader) and beats it only
+  16-22% of weeks across all three seasons (bye-corrected for 2023/24 via real
+  nflverse schedule data, uncorrected for 2025 since nflverse has no 2025 data
+  yet).
 
 WHAT IT PROVES:
 - The FLEX-classification gap is a real, reproducible defect, not a
