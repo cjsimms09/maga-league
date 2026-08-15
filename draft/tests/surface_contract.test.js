@@ -97,7 +97,7 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   ck('the document no longer claims the composite is the weight vector and '
     + 'nothing else', !/`value \+ keeper \+ stack`\*\* and nothing else/.test(doc));
   ck('and it NAMES onesie as a driver rather than leaving it off the list',
-    /`onesie`/.test(doc) && /third-largest driver/.test(doc));
+    /`onesie`/.test(doc) && /top-three driver/.test(doc));
   ck('it states the empty-roster caveat, which is what hid this',
     /unmeasured, not inert/.test(doc) && /structurally zero/.test(doc));
 
@@ -153,10 +153,21 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
     + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
   pct('stack').toFixed(1));
-  ck('the document\'s table is in the right ORDER, which is the part a reader '
-    + 'acts on', pct('value') > pct('keeper') && pct('keeper') > pct('onesie')
-    && pct('onesie') > pct('stack'),
+  /* RE-DERIVED 2026-08-15: this asserted the full order value > keeper >
+   * onesie > stack — the 2026-08-14 board's order — and the first fresh
+   * nightly rebuild swapped the middle pair (keeper 14.3 vs onesie 16.8).
+   * The document now states explicitly that the middle ranks are
+   * board-dependent (the two run within a few points), so the check pins
+   * the STABLE claims the reader actually acts on: value first, stack last.
+   * The middle pair going ABOVE value or BELOW stack still fails. */
+  ck('the document\'s table order holds where it is stable — value largest, '
+    + 'stack smallest — which is the part a reader acts on',
+  pct('value') > pct('keeper') && pct('value') > pct('onesie')
+    && pct('keeper') > pct('stack') && pct('onesie') > pct('stack'),
   ['value', 'keeper', 'onesie', 'stack'].map(k => k + ':' + pct(k).toFixed(1)));
+  ck('and the document SAYS the middle ranks are board-dependent, so the '
+    + 'relaxation above is the document\'s claim rather than a quiet test edit',
+  /MIDDLE RANKS are board-dependent/.test(doc));
 }
 
 // ── 3. A ZERO-WEIGHT TERM REPORTS ZERO, NOT A NUMBER ────────────────────
