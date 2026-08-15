@@ -127,3 +127,13 @@ simulator is reusable — a larger room count, or a run isolating
 VONA_SLOT_AWARE's own effect (compare it against VONA_SLOT_AWARE=false as
 well, not just the two bench variants under it) would directly test that
 hypothesis and is the natural next command to run, not new code to write.
+
+RESOLVED 2026-08-15, LATER THE SAME DAY: that isolation run was performed —
+a third, shipped-default arm (both flags false) was added to the simulator
+and all three arms ran on 60 paired seeds. The hypothesis held: the shipped
+default's QB2 rate is 53.3% (statistically indistinguishable from the real
+56.7%), and flipping VONA_SLOT_AWARE alone — with the OLD vorp bench
+formula, no wire code executed — jumps it to 100%. The anomaly belongs to
+VONA_SLOT_AWARE, not the wire comparison. The RB-wipeout claim reproduced
+in no arm at the doubled sample. Full numbers, confidence bounds, and what
+remains unproven: draft/audit/vona_slot_aware_isolation_2026-08-15.md.
