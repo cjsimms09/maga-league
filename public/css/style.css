@@ -1456,7 +1456,10 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
 .sb-settle { display: flex; gap: .3rem; align-items: center; }
 .sb-settle select { width: auto; min-width: 7rem; }
 .sb-row.pending { background: rgba(245, 196, 69, .07); border-radius: 10px; padding-left: .6rem; }
-.sb-row.mine .sb-terms { color: #fff; }
+/* .sb-row.mine .sb-terms was color:#fff — a dark-era leftover that rendered
+   YOUR OWN bets' terms white-on-white on the light theme (caught in the
+   2026-08-15 side-bet pass's phone capture). Your cards read like everyone
+   else's; "mine" is marked by the sides list, not by vanishing text. */
 .sb-row.declined .sb-terms { color: var(--muted); text-decoration: line-through; }
 
 .sb-people { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .3rem; }
@@ -1494,8 +1497,8 @@ table.ledger .btn.ghost:hover { color: var(--gold-bright); border-color: var(--g
 .sb-sides li.me { border-left-color: var(--gold); background: rgba(245, 196, 69, .07); }
 .sb-sides li.me b { color: var(--gold-bright); }
 /* The winner, once there is one. */
-.sb-sides li.won { border-left-color: #4ade80; background: rgba(74, 222, 128, .08); }
-.sb-sides li.won b { color: #86efac; }
+.sb-sides li.won { border-left-color: var(--green); background: rgba(15, 138, 77, .07); }
+.sb-sides li.won b { color: var(--green); }  /* was #86efac — invisible on paper */
 
 /* The side-bet ledger. The bet column carries a paragraph; the three money
    columns must stay narrow enough to read across, so the terms get clamped and
@@ -1591,7 +1594,8 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 
 /* ---------- a bet's own rule, and the engine's verdict ---------- */
 .sb-rule {
-  margin-top: .3rem; font-size: .8rem; line-height: 1.45; color: #bcd7f5;
+  /* was color:#bcd7f5 — pale dark-theme blue, near-invisible on paper */
+  margin-top: .3rem; font-size: .8rem; line-height: 1.45; color: #1e4d8a;
   padding: .3rem .55rem; border-radius: 8px;
   background: rgba(96, 165, 250, .08); border-left: 2px solid rgba(96, 165, 250, .5);
 }
@@ -1603,8 +1607,9 @@ table .num.zero { color: var(--muted); font-weight: 400; }
 .verdict > summary {
   cursor: pointer; padding: .45rem 0; font-size: .82rem; font-weight: 700; color: #4a5972;
 }
-.verdict.ready { border-color: rgba(74, 222, 128, .45); background: rgba(74, 222, 128, .07); }
-.verdict.ready > summary { color: #86efac; }
+.verdict.ready { border-color: rgba(15, 138, 77, .45); background: rgba(15, 138, 77, .06); }
+/* was #86efac — pale dark-theme green, unreadable on the light card */
+.verdict.ready > summary { color: var(--green); }
 .verdict-lines { margin: 0 0 .5rem; padding-left: 1.1rem; }
 .verdict-lines li { font-size: .78rem; color: #4a5972; line-height: 1.5; margin-bottom: .2rem; }
 
@@ -3436,8 +3441,11 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
 /* Hall of Shame callout */
 .pk-shame-card { border-color: rgba(255,70,85,.45); background:
   linear-gradient(180deg, rgba(255,70,85,.08), rgba(255,70,85,.02)); }
-.pk-shame { margin: 0; font-size: .92rem; line-height: 1.45; color: #ffd7db; }
-.pk-shame b { color: #fff; }
+/* was #ffd7db text with #fff bolds — dark-era ink that rendered the shamed
+   name INVISIBLE on the light card (caught in the 2026-08-15 phone capture).
+   The one page whose whole point is naming somebody must print the name. */
+.pk-shame { margin: 0; font-size: .92rem; line-height: 1.45; color: var(--ink); }
+.pk-shame b { color: var(--red); }
 
 /* a compact pick'em strip other pages (the matchup screen) drop in */
 .pk-strip { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;

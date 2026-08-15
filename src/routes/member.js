@@ -1713,9 +1713,13 @@ router.post('/sidebets/:id/decline', aw(async (req, res) => {
 
 router.post('/sidebets/:id/settle', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
-  // Only someone in the bet can record its result — or the commissioner, who
-  // ends up adjudicating anyway.
-  if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
+  // COMMISSIONER-ONLY since the 2026-08-15 pass. A party could previously
+  // one-tap a result straight to SETTLED here, skipping the other side —
+  // which contradicts the declare→confirm two-man rule everywhere else on the
+  // page. Parties settle by declaring (the other side confirms); this direct
+  // write exists to adjudicate a stuck dispute, and an adjudicator is what
+  // the commissioner is. Enforced here, not just hidden in the view.
+  if (bet && req.owner.is_commissioner) {
     const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
     await SB.settle(req.params.id, winners, req.owner.id, req.owner.name, {
       push: req.body.push === '1',

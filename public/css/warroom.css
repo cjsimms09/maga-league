@@ -210,6 +210,92 @@
 .wr-help p { margin: .2rem 0; font-size: var(--wr-fs-body); line-height: 1.5; }
 .wr-help .pe-src { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   SIDE-BET CARD GRAMMAR — the in-season pass (2026-08-15) extends this file
+   per the war-room handoff ("extend, don't fork").
+
+   One card shape for every kind of bet, read top to bottom in the order a
+   bettor actually asks: WHAT'S THE BET (one plain line) → THE NUMBER (the
+   stake, dominant, and gold because gold is money) → WHO'S ON WHICH SIDE →
+   STATE (a chip, not a status word buried in a meta line) → THE CLOCK.
+   The engine's live read is a "score bug" strip; its working is one tap deeper.
+   State chip doctrine: navy = the site is waiting on YOU (action wears navy,
+   same as the war-room take button); green = live money; amber = waiting on
+   someone else; red = disputed (red stays alarm-only); muted = over.
+   ════════════════════════════════════════════════════════════════════════ */
+.bcard {
+  border: 1px solid var(--wr-line); border-radius: 12px; background: var(--wr-panel);
+  padding: var(--wr-s3); margin: 0 0 var(--wr-s3);
+}
+.bcard:last-child { margin-bottom: 0; }
+.bcard.needs { border-color: var(--wr-structure); box-shadow: 0 1px 3px rgba(12,26,43,.08); }
+.bcard.disputed { border-color: var(--wr-bad); }
+.bcard.done { background: var(--wr-panel-soft); }
+.bc-top { display: flex; align-items: center; gap: var(--wr-s2); flex-wrap: wrap; }
+.bc-kind {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  color: var(--wr-muted); border: 1px solid var(--wr-line); border-radius: 4px;
+  padding: .05rem .4rem; white-space: nowrap; background: var(--wr-panel-soft);
+}
+.bc-state {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  border-radius: 999px; padding: .14rem .55rem; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.bc-state.needs { background: var(--wr-structure); color: #fff; }
+.bc-state.open { color: var(--wr-accent); border-color: var(--wr-accent); }
+.bc-state.live { color: var(--wr-good); border-color: var(--wr-good); }
+.bc-state.wait { color: var(--wr-warn); border-color: var(--wr-warn); border-style: dashed; }
+.bc-state.disputed { background: var(--wr-bad); color: #fff; }
+.bc-state.done { color: var(--wr-muted); border-color: var(--wr-line); }
+/* THE NUMBER — the stake is the card's one dominant figure, and it is money,
+   so it wears the money color. Nothing else on the card is gold. */
+.bc-stake { margin-left: auto; text-align: right; line-height: 1.05; white-space: nowrap; }
+.bc-stake b { font-size: var(--wr-fs-big); color: var(--wr-money); font-weight: 800; }
+.bc-stake small { display: block; font-size: var(--wr-fs-micro); color: var(--wr-muted); font-weight: 600; }
+.bc-what { font-weight: 700; color: var(--wr-ink); line-height: 1.35; margin: var(--wr-s2) 0 0; font-size: var(--wr-fs-body); }
+.bc-rule { font-size: var(--wr-fs-sub); color: var(--wr-muted); font-style: italic; margin: .2rem 0 0; }
+.bc-meta { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin-top: .25rem; }
+.bc-clock {
+  display: inline-block; font-size: var(--wr-fs-micro); font-weight: 700;
+  color: var(--wr-warn); margin-top: .3rem;
+}
+.bc-clock.dead { color: var(--wr-muted); font-weight: 600; }
+/* The score bug: the engine's current read on a live bet — headline always
+   visible, the working one tap deeper. Never a settle switch: the buttons it
+   carries only DECLARE, and a human on the other side still confirms. */
+.bc-bug {
+  margin-top: var(--wr-s2); border-radius: 8px; padding: .45rem .6rem;
+  border: 1px solid var(--wr-line); background: var(--wr-panel-soft);
+  font-size: var(--wr-fs-sub);
+}
+.bc-bug.ready { border-color: var(--wr-good); background: rgba(15,138,77,.06); }
+.bc-bug-tag {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  color: var(--wr-muted); margin-right: .4rem;
+}
+.bc-bug.ready .bc-bug-tag { color: var(--wr-good); }
+.bc-bug-line { color: var(--wr-ink); font-weight: 600; }
+.bc-bug details { margin-top: .25rem; }
+.bc-bug summary { cursor: pointer; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.bc-bug .verdict-lines { margin: .25rem 0 0; padding-left: 1rem; }
+.bc-bug .verdict-lines li { font-size: var(--wr-fs-micro); color: var(--wr-muted); line-height: 1.5; }
+.bc-act { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; margin-top: var(--wr-s2); }
+.bc-act .grow { flex: 1 1 auto; }
+/* The needs-you section header count. */
+.bc-count {
+  display: inline-block; min-width: 1.4em; text-align: center; font-size: .78rem;
+  font-weight: 800; background: var(--wr-structure); color: #fff; border-radius: 999px;
+  padding: .05rem .4rem; vertical-align: middle;
+}
+/* Paid-flow interim state: the payer says it's sent, the receiver hasn't
+   confirmed. Amber wait, same vocabulary as the state chips. */
+.leg-claimed {
+  font-size: var(--wr-fs-micro); font-weight: 700; color: var(--wr-warn);
+  border: 1px dashed var(--wr-warn); border-radius: 999px; padding: .1rem .5rem;
+  white-space: nowrap;
+}
+
 /* Motion: state changes only. Respect the doctrine — no ambient animation. */
 @media (prefers-reduced-motion: reduce) {
   .wr-chart * , .wrv * { transition: none !important; animation: none !important; }

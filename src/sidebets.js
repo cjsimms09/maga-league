@@ -955,10 +955,11 @@ function leagueLedgerForYear(bets, year, nameOf) {
 }
 
 /**
- * Bets waiting on this person to ACT. Drives the nav badge and the email. Two
- * kinds of waiting now: a PROPOSED bet you haven't accepted, and an
- * AWAITING_CONFIRM bet where the OTHER side declared a result you must confirm or
- * dispute (you're a party and not the declarer).
+ * Bets waiting on this person to ACT. Drives the nav badge and the banner.
+ * Three kinds of waiting: a PROPOSED bet you haven't accepted, an
+ * AWAITING_CONFIRM bet where the OTHER side declared a result you must confirm
+ * or dispute, and a franchise-pool draft where it is YOUR pick (the whole
+ * draft is blocked on you, which is the most waiting a bet can do).
  */
 function awaiting(bets, owner_id) {
   const me = Number(owner_id);
@@ -968,6 +969,9 @@ function awaiting(bets, owner_id) {
     }
     if (b.status === STATUS.AWAITING_CONFIRM && b.declared) {
       return isParty(b, me) && Number(b.declared.by) !== me;
+    }
+    if (b.status === STATUS.LOCKED && b.format === 'pool' && b.draft && !b.draft.complete) {
+      return Number(b.draft.turn) === me;
     }
     return false;
   });
