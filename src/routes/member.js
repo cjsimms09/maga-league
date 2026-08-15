@@ -2753,8 +2753,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
       const playersDb = await sleeper.players();
       let artifact = {};
       try {
+        /* DRAFT_DATA_PATH override (2026-08-15, composed-tree review): the two
+         * waiver surface tests used to exercise this read by REWRITING the real
+         * public/draft_data.json in place and restoring it in a finally. That
+         * left the shipped board transiently fake for any concurrent reader
+         * (measured live: a roster-room audit run alongside js-sweep read the
+         * 15-player fixture board and produced silently different picks), and a
+         * hard crash between write and restore would leave the fake board as
+         * the real artifact. Tests now point this env var at a scratch file;
+         * production never sets it and reads the same path as before. */
         artifact = JSON.parse(fs.readFileSync(
-          path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+          process.env.DRAFT_DATA_PATH
+            || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
       const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
       if (inputs && inputs.myRoster.length) {

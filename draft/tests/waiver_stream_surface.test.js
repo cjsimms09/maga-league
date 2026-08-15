@@ -63,8 +63,16 @@ const NO_STREAM_WIRE = [['f1', 'Weak Wire Kicker', 'K', 50], ['f2', 'Wire Scrub'
   const myRid = Object.keys(cfg.sleeper_map).find(k => Number(cfg.sleeper_map[k]) === Number(cory.id));
   const SEASON = String(H.currentSeason(await store.get('seasons')).year);
 
-  const artifactPath = path.join(ROOT, 'public', 'draft_data.json');
-  const realArtifact = fs.readFileSync(artifactPath);
+  /* A SCRATCH artifact, not the real board. This test used to rewrite
+   * public/draft_data.json in place and restore it in the finally — which left
+   * the shipped board transiently fake for any concurrent reader and would
+   * leave it permanently fake on a hard crash. The route honors
+   * DRAFT_DATA_PATH exactly so tests can exercise the real read path without
+   * ever touching the real artifact. */
+  const artifactPath = path.join(
+    fs.mkdtempSync(path.join(require('os').tmpdir(), 'waiver-stream-artifact-')),
+    'draft_data.json');
+  process.env.DRAFT_DATA_PATH = artifactPath;
   const mkArt = wire => ({
     players: [...MINE, ...wire].map(([id, name, pos, proj]) => ({
       player_id: id, name, position: pos, proj_mean: proj, vorp: Math.round(proj * 0.4), bye: null })),
@@ -178,7 +186,8 @@ const NO_STREAM_WIRE = [['f1', 'Weak Wire Kicker', 'K', 50], ['f2', 'Wire Scrub'
       ck('  reason chip is captured verbatim', !!entry && entry.payload.reason === 'kept current', entry && entry.payload);
     }
   } finally {
-    fs.writeFileSync(artifactPath, realArtifact);
+    delete process.env.DRAFT_DATA_PATH;
+    try { fs.rmSync(path.dirname(artifactPath), { recursive: true, force: true }); } catch (e) { /* scratch */ }
   }
 
   srv.close();
