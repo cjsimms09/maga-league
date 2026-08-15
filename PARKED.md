@@ -12872,3 +12872,52 @@ engine next. Two things make this timely rather than premature:
 No code touched, nothing gated, nothing installed. This is a plan for A to
 sequence, build, and adapt — every piece here traces to something measured or
 verified earlier in this file, not asserted fresh.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — WHY LINEUP WAS NEAR-HUMAN BUT WAIVERS WEREN'T, ON THE SAME CRUDE PROJECTION (READ BEFORE PRIORITIZING PART 1)
+
+**FOR: A.** Cory's sharp pushback on the GM-sim attribution finding: if the
+projection was too weak to trust (proven — see the Waddle example, three
+entries up), how did lineup-only nearly match the real human (8-7 vs 9-6)? This
+isn't a contradiction, and it changes how Part 1 of the big plan (two entries
+up) should be sequenced — worth reading before building.
+
+## The explanation
+
+**Lineup-setting chooses from a small, already-good, human-curated pool** (~15
+rostered players). A crude projection is bad at nuance but usually fine at
+obvious — real studs tend to also show up as high scorers in a noisy recent-
+average, because genuine talent correlates with recent production even
+imperfectly. Most weeks "start your studs" isn't a close call. This is already
+named in the codebase itself: `optimize()`'s own baseline is literally called
+`naive = "start your studs" = the E[points]-optimal lineup`, and everything else
+in the function only nudges away from it when there's a specific, priced reason
+to. Lineup deployment has low sensitivity to projection noise by construction.
+
+**Waiver-adding chooses from a huge, mostly-irrelevant pool** (hundreds of
+unrostered names) and has to find the few real signals with no name recognition
+and no context — exactly where a crude average gets fooled (one huge game reads
+as "elite," one bad game from a real producer reads as "washed" — the Waddle
+example). High sensitivity to projection noise by construction, the opposite of
+lineup.
+
+**And the two mistakes don't cost the same.** A bad lineup call costs one week;
+next week's decision starts fresh. A bad waiver call compounds — the dropped
+player is gone, and the mistake keeps costing points every week until it's
+undone. Same weak input, structurally different failure cost.
+
+## What this changes about Part 1's sequencing
+
+Not "skip lineup, it's fine forever" — but the expected payoff from Part 1's real
+projection is NOT evenly spread across tools. Waivers should show the largest
+improvement once a real projection lands; lineup-setting is already close to its
+practical ceiling even on a crude number, and shouldn't be the thing used to
+justify or measure whether Part 1 was worth building. Measure Part 1's success
+mainly against the waiver layer's numbers, not the lineup layer's.
+
+## What this is NOT
+
+No code touched, no new build — a reasoning clarification on an existing
+finding, parked because it changes how success should be measured, not just
+academic.
