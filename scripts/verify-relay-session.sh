@@ -26,7 +26,7 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2161 passed)" python3 -m pytest draft/tests -q
+ck "Python suite (expect ~2163 passed)" python3 -m pytest draft/tests -q
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
@@ -53,11 +53,17 @@ ck "no engine CFG default changed vs origin/main (the standing scoring gate)" \
 echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
-# Override #5 in TERRITORY.md. This check pins the refusal to EXACTLY the 8
-# documented files: a ninth trespass appearing later fails HERE, so
-# "expected refusal" can never quietly grow.
-EXPECTED_TRESPASS="draft/tests/lineup_sanity.test.js
-draft/tests/test_board_pin.py
+# Override #5 in TERRITORY.md (including both same-day appendices). This check
+# pins the refusal to EXACTLY the 11 documented files: a twelfth trespass
+# appearing later fails HERE, so "expected refusal" can never quietly grow.
+# (test_board_pin.py left the set when its fix reached main directly; the
+# board_activity pair and scope_agreement/accuracy entered with the rebuild-
+# blocker and loop-closure passes — each documented in Override #5.)
+EXPECTED_TRESPASS="draft/backtest/board_activity.py
+draft/tests/lineup_sanity.test.js
+draft/tests/scope_agreement.test.js
+draft/tests/test_board_activity.py
+src/routes/accuracy.js
 src/routes/lineup.js
 src/routes/member.js
 views/bank.ejs
@@ -71,7 +77,7 @@ views/waivers.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 8 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 11 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'

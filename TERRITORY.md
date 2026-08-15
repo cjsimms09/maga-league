@@ -1144,3 +1144,29 @@ each fix carrying a test that demonstrates the defect:
 No scoring/weight default moved. The gate will refuse these files too — same
 protocol: the merge is A's call or Cory's, and B should review the
 `member.js`/views crossings on return.
+
+**APPENDED 2026-08-15 (later the same day), SAME AUTHORITY — the nightly-rebuild
+blockers.** Two C-lane files crossed and one bookkeeping correction:
+
+  * `draft/backtest/board_activity.py`, `draft/tests/test_board_activity.py`
+    (C's lane) — the market-spare exemption in `dormant()` treated ANY adp
+    number as a vouch, so FantasyPros deep-table ghost rows (Gronkowski at
+    adp 298, proj_mean 0.0 on the fresh candidate board; 11 more on the
+    committed board) were spared forever and blocked the nightly publish.
+    Bounded by `market_vouches()` (known adp > DEPTH×1.5 does not vouch;
+    priced-but-no-adp stays fail-safe spared), one definition shared by the
+    exemption and the pruning audit. All 13 of C's board_activity mutations
+    re-run for real through C's own `mutation_gate` — KILLED, manifest
+    re-recorded by `record()`, never hand-edited. C's refusal semantics
+    (unreadable stores, keeper handling, health floor) byte-for-byte
+    unchanged.
+  * `draft/tests/scope_agreement.test.js` (B's lane) — listed explicitly: the
+    reachability guard updated alongside the `accuracy.js` crossing above (it
+    is the test that keeps `PENDING_KINDS` honest against the resolver's
+    actual branches).
+  * Bookkeeping: `draft/tests/test_board_pin.py` no longer appears in the
+    gate's refusal of this branch — its fix reached main directly under the
+    explicit authorisation recorded above, so it no longer diffs. The
+    refusal set is now **11 files** (the count "8" earlier in this entry was
+    correct when written); `scripts/verify-relay-session.sh` pins the exact
+    current set.
