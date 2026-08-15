@@ -103,15 +103,77 @@ absent market feature); per-week usage (targets/carries) and TD counts; team
 assignment history; any pre-2023 store (the one-year training transition is
 the binding limit of this whole program).
 
-## 3. Results — 2025 arm, shared population
+## 3. Results — 2025 arm, shared population (the single preregistered run)
 
-*Pending — this section is filled by the single preregistered run in the
-commit that adds `model_accuracy_v3.json`, whatever it says.*
+Marker gate: **ok** — the 2025 draft prices pick 48 (RB, realized 29.3; the
+same James Conner season the FP-archive audit cites as its 2025 marker) and
+pick 63 (RB, realized 8.3): the draft is preseason-frozen. Drafted players
+inside the graded population: QB 15, RB 36, WR 47, TE 13.
+
+MAE / Spearman, head-to-head on the shared population (identical denominator
+to `model_accuracy_v2.json` — every non-v3 cell reproduces that artifact bit
+for bit, asserted by test). The board's shipped 2026 source (Sleeper) has no
+pre-2026 archive and remains unmeasurable here — `walk_forward_v1` is the
+shipped **display-only** own-model column; the REC-3 baselines are
+`naive_prev` and `recency_blend`, quoted in §1:
+
+| pos | n | **own_v3** | own_v2 | walk_forward_v1 | naive_prev | recency_blend | v3 beats both baselines? |
+|---|---|---|---|---|---|---|---|
+| QB | 58 | 74.76 / 0.7189 | 76.14 / 0.7166 | 103.88 / 0.6712 | 78.89 / 0.7080 | **74.09 / 0.7213** | **NO — both metrics** |
+| RB | 99 | **38.66 / 0.7957** | 40.81 / 0.7751 | 56.37 / 0.7434 | 42.37 / 0.7612 | 41.86 / 0.7682 | yes (MAE −3.20, ρ +0.0275) |
+| WR | 150 | **34.05 / 0.7530** | 34.08 / 0.7465 | 46.69 / 0.6909 | 37.72 / 0.7339 | 36.82 / 0.7344 | yes (MAE −2.77, ρ +0.0186) |
+| TE | 84 | **23.73 / 0.7920** | 23.71 / 0.7813 | 34.06 / 0.6866 | 26.73 / 0.7440 | 24.04 / 0.7871 | yes (MAE −0.31, ρ +0.0049) |
+
+Signed bias (v3, own coverage): QB +12.07, RB +7.25, WR +9.27, TE +3.16 —
+the same optimistic-side survivorship caveat as every model in this protocol.
 
 ## 4. Verdict against REC-3
 
-*Pending — one bold sentence after the run.*
+**v3 does NOT clear the promotion bar: it beats both baselines on both
+metrics at RB, WR and TE — including the TE Spearman cell that killed v2 —
+but loses BOTH metrics at QB to the recency blend (MAE 74.76 vs 74.09,
+Spearman 0.7189 vs 0.7213), so v3 stays display-only beside v2 and no
+promotion decision goes to Cory.**
 
-## 5. Failure analysis / promotion diff
+Sanity check against the FP benchmark: v3's wins are inside FP's measured
+3–9-point headroom (RB −3.20, WR −2.77, TE −0.31 vs the blend), and v3 does
+not approach FP's 2025 cells (QB 66.32, RB 39.93 — v3 RB 38.66 is 1.3 under
+FP on a different, survivorship-matched population; nothing here beats FP by
+a wide margin). The result is scale-plausible, not leak-shaped.
 
-*Pending.*
+## 5. Failure analysis — where QB died (post-hoc decomposition, no new candidate)
+
+Splitting the 58 shared-population QBs by 2025 draft status:
+
+    drafted (15):    v3 91.86 MAE / ρ 0.0571   blend 91.07 / 0.1071   v2 87.77 / 0.0857
+    undrafted (43):  v3 68.79 MAE / ρ 0.6139   blend 68.16 / 0.6077   v2 72.09 / 0.6110
+
+Two named causes:
+
+1. **The 2025 QB market went dead.** Rank-vs-outcome Spearman among drafted
+   QBs was 0.43 (2023) and 0.27 (2024) — the evidence the 0.50 market weight
+   was tuned on — but **0.054 in 2025**. The league's preseason QB board was
+   noise this year (its QB2 overall realized 228; a 12th-round QB realized
+   367), and v3 bet half its QB opinion on it. RB/WR/TE markets stayed
+   informative (their cells all cleared); the QB market alone collapsed.
+2. **Ordering the QB top tier is unforecastable from committed data.** Every
+   model on disk ranks the drafted-15 at ρ ≤ 0.11. QB Spearman above ~0.72
+   is decided exactly there, and points-only stores carry none of what moves
+   it (rushing volume, team pass context, injury recovery). FP's 66.32 QB
+   MAE proves ~8 points of QB headroom exists — behind data this repo does
+   not hold.
+
+**Named data-needs** (recorded, not faked): per-player FP archived preseason
+projections (only summary metrics were committed in `exp_fp_hist_proj.json`);
+per-week usage (targets/carries/attempts) and TD counts in the weekly stores;
+team-assignment history; any pre-2023 store (the one-year training transition
+cannot price the year-to-year stability of a market signal — exactly the
+failure that hit QB).
+
+**Promotion diff: none is prepared.** The bar is all-four-positions by
+Cory's ratified rule; 3/4 does not queue a partial promotion, and no
+per-position carve-out is proposed. v2 and v3 both stand as display-only
+candidates; `model_update_recommendations.json` REC-3 is untouched. The next
+candidate should not attempt QB from points-only stores — it needs one of
+the named data sources, or January 2027's first graded season of the frozen
+2026 `proj_series` to benchmark against.
