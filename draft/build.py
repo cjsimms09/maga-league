@@ -643,6 +643,34 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL (2026-08-15). Same additive pattern as
+    # FantasyPros immediately above: attach alongside, never a build dependency,
+    # never touches proj_mean/proj_baseline/VORP/ranking. `walk_forward()` is
+    # leak-free and self-derived (never reads a provider's number), so it is a real
+    # third opinion rather than a re-blend of the same inputs. DECISIONS-NEEDED.md
+    # #6 is explicit that swapping the AUTHORITATIVE source needs a clean grade
+    # first — this has none yet, so it stays a display-only sanity-check column,
+    # exactly like FantasyPros before it earned anything more. Coverage today is
+    # partial by design: walk_forward() needs prior-season NFL production, so
+    # rookies and anyone without 2023-2024 usage carry no proj_ownmodel — same
+    # "absent, not zero" discipline as proj_feed.js.
+    try:
+        from own_projections import compute_own_projections
+        own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
+        PROJECTION_PROVENANCE["own_model"] = own_diag
+        attached_own = 0
+        for p in board:
+            v = own_proj.get(str(p.get("player_id")))
+            if v is not None:
+                p["proj_ownmodel"] = round(float(v), 2)
+                attached_own += 1
+        PROJECTION_PROVENANCE["own_model_attached"] = attached_own
+        print(f"  projections: own model (walk_forward) 3rd source on "
+              f"{attached_own} players")
+    except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
+        PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
+        print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
+
     # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
     #
     # Tom Brady, Drew Brees, Gronkowski, Edelman, Antonio Brown, Fitzgerald,

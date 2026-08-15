@@ -26,7 +26,8 @@
   'use strict';
 
   var SOURCE_LABELS = { sleeper: 'Sleeper', sleeper_projections: 'Sleeper',
-    fantasypros: 'FantasyPros', ffc: 'FFC', consensus: 'Consensus' };
+    fantasypros: 'FantasyPros', ffc: 'FFC', consensus: 'Consensus',
+    ownmodel: 'Our model' };
 
   function cleanSource(s) {
     if (!s) return 'proj';
@@ -45,6 +46,12 @@
     if (player.proj_sleeper != null) perSource.push(['sleeper', Number(player.proj_sleeper)]);
     if (player.proj_fantasypros != null) perSource.push(['fantasypros', Number(player.proj_fantasypros)]);
     if (player.proj_ffc != null) perSource.push(['ffc', Number(player.proj_ffc)]);
+    // THIRD SOURCE, ADDED 2026-08-15. proj_ownmodel is our own leak-free,
+    // self-derived model (walk_forward), attached by build.py the same additive
+    // way FantasyPros was — coverage is partial by design (needs prior-season
+    // production, so rookies carry none), which is exactly why it's an entry in
+    // an array that only includes what's present rather than a required field.
+    if (player.proj_ownmodel != null) perSource.push(['ownmodel', Number(player.proj_ownmodel)]);
     if (perSource.length) {
       var sum = perSource.reduce(function (a, kv) { return a + kv[1]; }, 0);
       var srcs = perSource.map(function (kv) { return kv[0]; });
