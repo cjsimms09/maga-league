@@ -324,7 +324,11 @@ def _grade_models(models: dict, graded_season: int, positions: dict) -> dict:
         skipped = 0
         for pos in POSITIONS:
             pairs = []
-            for pid, f in proj.items():
+            # sorted: v1's walk_forward builds its dict off a set comprehension,
+            # so its iteration order is hash-randomized — same determinism rule
+            # as the shared-population loop below.
+            for pid in sorted(proj):
+                f = proj[pid]
                 if positions.get(pid) != pos:
                     continue
                 a = actual.get(pid)
@@ -347,8 +351,11 @@ def _grade_models(models: dict, graded_season: int, positions: dict) -> dict:
     shared = set.intersection(*(set(m) for m in models.values()))
     h2h = {}
     for pos in POSITIONS:
-        pids = [pid for pid in shared
-                if positions.get(pid) == pos and actual.get(pid) is not None]
+        # sorted: set iteration order is hash-randomized per process, and a
+        # different float-summation order moves the rounded MAE — the artifact
+        # must equal its regeneration bit for bit.
+        pids = sorted(pid for pid in shared
+                      if positions.get(pid) == pos and actual.get(pid) is not None)
         if len(pids) < MIN_N:
             h2h[pos] = {"n": len(pids), "status": "unmeasurable"}
             continue

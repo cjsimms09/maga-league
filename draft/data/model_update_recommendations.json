@@ -130,10 +130,51 @@
    "summary": "proj_ownmodel (walk_forward) LOSES to the naive recency blend at 4/4 positions on MAE (shared population, 2025, leak-free) and at 4/4 on rank correlation. It must stay a display-only third opinion; any promotion to the composition is evidence-blocked until a candidate clears the promotion bar.",
    "promotion_bar": {
     "rule": "promotion of ANY own model (v1, v2, or successor) into the composition requires beating BOTH naive baselines (naive_prev AND recency_blend) at ALL four positions on BOTH metrics (MAE and Spearman) in the leak-free walk-forward protocol, then a reviewed promotion decision file for Cory \u2014 never an automatic flip. The bar Cory's ruling implies: until it earns it.",
-    "candidates": {}
+    "candidates": {
+     "own_model_v2": {
+      "bar": "beat BOTH naive baselines at ALL four positions on BOTH metrics (MAE and Spearman), shared population, leak-free walk-forward",
+      "clears": false,
+      "per_position": {
+       "QB": {
+        "mae_beats_both": false,
+        "spearman_beats_both": false,
+        "v2_mae": 76.14,
+        "best_baseline_mae": 74.09,
+        "v2_spearman": 0.7166,
+        "best_baseline_spearman": 0.7213
+       },
+       "RB": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "v2_mae": 41.19,
+        "best_baseline_mae": 42.55,
+        "v2_spearman": 0.7686,
+        "best_baseline_spearman": 0.7587
+       },
+       "WR": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "v2_mae": 34.08,
+        "best_baseline_mae": 36.7,
+        "v2_spearman": 0.7461,
+        "best_baseline_spearman": 0.7293
+       },
+       "TE": {
+        "mae_beats_both": true,
+        "spearman_beats_both": false,
+        "v2_mae": 23.81,
+        "best_baseline_mae": 24.27,
+        "v2_spearman": 0.776,
+        "best_baseline_spearman": 0.7826
+       }
+      },
+      "consequence": "clears=false \u2192 proj_ownmodel and v2 stay display-only. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."
+     }
+    }
    },
    "evidence": [
-    "draft/backtest/model_accuracy_2025.json \u2014 head_to_head_shared_population"
+    "draft/backtest/model_accuracy_2025.json \u2014 head_to_head_shared_population",
+    "draft/backtest/model_accuracy_v2.json \u2014 v2 graded under the same protocol"
    ],
    "acceptance": "nothing to accept \u2014 this recommendation BLOCKS a change. It expires only when a candidate clears the promotion bar above in the walk-forward AND Cory accepts the written promotion decision."
   },
