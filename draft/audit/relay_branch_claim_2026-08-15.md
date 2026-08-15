@@ -105,3 +105,52 @@ live-network flake unrelated to this branch.
 NEXT STEP: A runs `bash scripts/verify-relay-session.sh`, reads the two
 judgment-call files, and merges via the documented Override #5 bypass — or
 refuses with the specific claim that failed.
+
+REVISION HISTORY
+
+[2026-08-15, review run 31899571772, gpt-5, against commit 5b2faceb]
+VERDICT: **ACCEPT_WITH_REQUIREMENT**. 7 PROVEN, 4 SUPPORTED, 4 NOT_PROVEN,
+**0 CONTRADICTED**. Verbatim close: "Most of the branch's substance is
+present and well-scoped... However, the headline 'one-command verifier 7/7
+PASS' is unevidenced here and the JS suite has one red test in this
+environment, so accepting the change with a requirement to either show the
+verifier run passing (and reconcile the red test) or narrow the claim is
+the honest middle stance." Three required actions, each answered with
+evidence, not prose:
+
+1. "Provide a captured run of verify-relay-session.sh at this HEAD."
+   Captured at commit `5b714a2d` (post-fixes): exit 0, all seven lines PASS
+   — Python suite (2196 passed / 5 skipped), JS sweep (263 entry points all
+   green), wire_level generator match, canonical sim artifact, fresh
+   opening-script fingerprint against the published 2026-08-15 board, no
+   engine CFG default moved vs origin/main, and the territory refusal
+   matching Override #5's now-10-file set exactly.
+
+2. "Resolve or explicitly quarantine the failing JS test
+   (h2h_agreement.test.js)." RESOLVED at the mechanism, not quarantined
+   (commit `988bc1b4`): the no-bundle arm deletes sleeper-cache and hits
+   /matchup, whose bundle() then attempts a LIVE Sleeper fetch — so the
+   test passed only where api.sleeper.app was unreachable and flaked on
+   runners with egress (exactly the reviewer's environment). SLEEPER_BASE
+   is now pinned to the discard port before any require, making the arm's
+   premise enforced rather than hoped. 9/9 across three consecutive runs;
+   crossing documented in Override #5 (B-lane file, no assertion changed).
+
+3. "Add links or IDs for the cherry-picks to main and the re-fired
+   rebuild." Main commits `5b14778c` (market-spare bound + 11-ghost prune)
+   and `1f44a543` (replacement-step re-derivation); rebuild run
+   **31899419770** completed SUCCESS, publishing board commit `86e42bc2`
+   (677 players, proj_ownmodel on 364 rows, built 2026-08-15T17:52:22Z);
+   tracking issue **#3** auto-closed by that run at 17:55:07Z
+   (state_reason: completed, closed_by github-actions). The published
+   board re-verified with board_activity's own predicate: dormant() n=0,
+   projection health 99.4%.
+
+Also noted from the review's non-blocking findings: the
+scoring-gap-correction confound (2026 ADP on 2023-25 drafts) stays scoped
+to paired comparisons exactly as the reviewer prescribes — that scoping is
+already stated in the report and repeated here so external claims never
+quote the absolute MAE outside it. Events postdating the reviewed commit
+(deploy-policy settlement, inbox tooling, the pre-draft survival filter)
+are NOT covered by this verdict; per REVIEW-POLICY.md they fold into the
+next scheduled pre-handoff moment rather than a re-fire.
