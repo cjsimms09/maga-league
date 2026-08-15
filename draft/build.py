@@ -655,15 +655,10 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # rookies and anyone without 2023-2024 usage carry no proj_ownmodel — same
     # "absent, not zero" discipline as proj_feed.js.
     try:
-        from own_projections import compute_own_projections
+        from own_projections import compute_own_projections, attach_own_model
         own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
         PROJECTION_PROVENANCE["own_model"] = own_diag
-        attached_own = 0
-        for p in board:
-            v = own_proj.get(str(p.get("player_id")))
-            if v is not None:
-                p["proj_ownmodel"] = round(float(v), 2)
-                attached_own += 1
+        attached_own = attach_own_model(board, own_proj)
         PROJECTION_PROVENANCE["own_model_attached"] = attached_own
         print(f"  projections: own model (walk_forward) 3rd source on "
               f"{attached_own} players")

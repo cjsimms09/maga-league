@@ -102,3 +102,22 @@ def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
         "crosswalk_size": len(crosswalk), "projected": len(proj), "dampened": dampened,
     }
     return proj, diag
+
+
+def attach_own_model(board: list[dict], own_proj: dict) -> int:
+    """Additively write proj_ownmodel onto each board player that has one.
+
+    Pure and separately testable — extracted from build.py's attach block
+    (2026-08-15) specifically so the "additive only, never touches proj_mean/
+    proj_baseline/vorp/ranking" guarantee is a thing a test checks rather than
+    only a thing a comment claims. Returns the number of players attached.
+    A player with no computed projection is left completely untouched
+    (no key, not None) — "absent, not zero", same discipline as proj_feed.js.
+    """
+    attached = 0
+    for p in board:
+        v = own_proj.get(str(p.get("player_id")))
+        if v is not None:
+            p["proj_ownmodel"] = round(float(v), 2)
+            attached += 1
+    return attached
