@@ -164,7 +164,10 @@ console.log('\nWHAT THIS GUARANTEES: in-season decisions are graded from the sin
 console.log('that carries both sides, scored only where an outcome exists, counted');
 console.log('SEPARATELY so the draft override rate keeps meaning what it has always meant,');
 console.log('and the grader\'s kind list is pinned to the ledger\'s so the two cannot drift.');
-console.log('WHAT IT DOES NOT: capture anything. The write side lives in src/routes/**,');
-console.log('which is B\'s lane, and is not wired. Until it is, this grades an empty set —');
-console.log('the read side (accuracy.js) and the grade side (here) are both ready and the');
-console.log('season\'s evidence still depends on one lane that has been idle since 08-09.');
+console.log('CORRECTED 2026-08-15 (the claim below was accurate when written, stale now,');
+console.log('kept visible rather than deleted): capture IS wired (src/routes/member.js\'s');
+console.log('/lineup/log, /waivers/log, /stream/log) and, for lineup_call specifically, so');
+console.log('is resolution (forecast_grade.js\'s buildInseasonResolutions — see');
+console.log('inseason_resolution.test.js). What still blocks a real score: no 2026 in-');
+console.log('season week has been played yet, and waiver_claim/stream_call/inseason_override');
+console.log('remain unresolved for reasons specific to each, not a wiring gap.');

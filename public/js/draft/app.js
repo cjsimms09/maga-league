@@ -1860,6 +1860,19 @@
       // true 95.9%. Threading this is what makes the conversion possible, and
       // `E.survivalModel.SCALE.unconverted` is how a test proves it happened.
       pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+      // WIRE-COMPARED BENCH BRANCH's input (engine.js's wireBenchValue(),
+      // read only when CFG.VONA_WIRE_BENCH is true -- off by default, so
+      // this line changes no live behaviour today). Read the same way every
+      // other board-sourced field here is: from state.data, never a
+      // module-level constant that could go stale. `state.data.wire_level`
+      // does not exist on the board yet -- draft/build.py does not embed it
+      // (a separate, deliberate change, not made in this pass) -- so this
+      // resolves to null until that lands, and wireBenchValue() already
+      // treats null/absent as "fall back to the vorp rule", exactly as if
+      // the flag were off. Wiring THIS side now means turning the feature on
+      // is a build.py change plus a config flip, not an app.js patch someone
+      // has to remember to also write.
+      wireWeekly: (state.data || {}).wire_level || null,
       runMultipliers: state.runMults,
       // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
       // exploration shadows set this true to explore ceiling-forward drafts.
@@ -3293,15 +3306,17 @@
       // read "NOT LIVE" unconditionally, forever, regardless of what was
       // actually captured. Real, checked state as of today: lineup_call and
       // inseason_override were already captured (src/routes/member.js,
-      // predate this session); waiver_claim was wired the same day
-      // (/waivers/log, /waivers/override). stream_call and trade_eval remain
-      // genuinely uncaptured — no page exists yet to attach either to. So
+      // predate this session); waiver_claim and stream_call were both wired
+      // the same day (/waivers/log+override, /stream/log+override — all four
+      // now covered by draft/tests/inseason_capture_routes.test.js, a real
+      // POST-and-read-back test, not just a source grep). trade_eval remains
+      // genuinely uncaptured — no evaluator exists yet to attach it to. So
       // this is neither fully green nor "NOT LIVE" — it says which.
       { ok: true,
         label: 'In-season instrumentation live (HARD DATE: Sept 1)',
-        detail: 'lineup_call, waiver_claim, inseason_override — logging. '
-          + 'stream_call, trade_eval — NOT YET (no page built to log them from).',
-        fix: 'stream_call / trade_eval need a decision-point UI before they can log anything' },
+        detail: 'lineup_call, waiver_claim, stream_call, inseason_override — logging. '
+          + 'trade_eval — NOT YET (no evaluator to log from).',
+        fix: 'trade_eval needs a real trade evaluator before it can log anything' },
       { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',

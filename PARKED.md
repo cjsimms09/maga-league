@@ -14018,6 +14018,53 @@ Not a case where the earlier finding was wrong about the underlying disconnect
 wrong about which knob to turn in response to it. Recorded as a correction rather than
 a silent edit so the wrong version isn't the only one anyone finds later.
 
+## CORRECTION, found during the 2026-08-15 full re-audit: the TE=2 figure above (47%)
+does not reproduce, and no saved script exists to check any of these numbers
+
+Cory asked for everything to be re-verified without the reduced gate. This entry's
+history numbers were a one-off calculation — no script producing them was ever saved,
+so they were unreproducible prose, not a checkable artifact. Built one:
+`draft/tools/onesie_history_check.js`, tested (`draft/tests/onesie_history_check.test.js`,
+8/8 pass), reads `league_history.json` the same way this entry describes.
+
+**Re-deriving found a real bug in the naive approach FIRST** — before touching the QB/TE
+numbers at all: `league_history.json`'s 2023 entry carries TWO drafts, a real 150-pick
+one and a second, 30-pick one (draft_id `990840142107619329`) — almost certainly an
+abandoned/restarted attempt still sitting in Sleeper's history, not a played season.
+Iterating "every draft in the season" naively gives 40 team-seasons, not this entry's
+stated 30; filtering to the one draft per season whose pick count matches
+`rounds * teams` is what gets back to 30 team-seasons at all — that filter is now the
+tested, documented mechanism in `realDraftFor()`.
+
+**With that fix applied, most of this entry's numbers reproduce exactly:**
+- 30 team-seasons — matches.
+- QB=2 count: 17/30 (57%) — matches exactly, including the headline "2nd QB is the
+  modal outcome" claim.
+- 2nd-TE picks-remaining distribution: 50% / 58% / 83% / 100% at <=2/3/4/5 remaining —
+  matches exactly.
+
+**One does not: TE=2 total count.** This script gets **12/30 (40%)**, not the claimed
+**14/30 (47%)**. QB's breakdown across QB=1/QB=2/QB=3 also differs slightly (this
+script finds zero QB=3 team-seasons; the original claimed 2) — a smaller, secondary
+discrepancy, but a real one, and it means the original's own QB2-event count (n=18,
+stated for the picks-remaining distribution) doesn't even sum against its own QB=2+QB=3
+components (17+2=19, not 18) — an internal inconsistency in the un-reproduced figures,
+independent of anything this script finds.
+
+**What this changes and what it doesn't.** The QUALITATIVE conclusion — a 2nd TE is
+common in this league, not a rare event, and duplicate QB/TE picks cluster hard in the
+last few slots of the draft — holds under EITHER number; 40% is still far from rare.
+The `ONESIE_ENDGAME_PICKS` widening recommendation's own evidence (the QB timing
+distribution, which matches almost exactly: 41%/88%/94%/100% here vs the claimed
+44%/89%/94%/100%) is not meaningfully disturbed. What changes is precision: if Cory
+sees "47%, nearly half" cited as the reason to trust this finding, the honest number
+this session can actually reproduce is 40%. Not corrected in place in the paragraphs
+above — the original claim is left as written, with this note beside it, so neither
+version is the only one anyone finds later, matching this file's own stated discipline.
+Whoever picks this recommendation back up should run
+`node draft/tools/onesie_history_check.js` directly rather than cite either number from
+memory.
+
 ---
 
 ## 0000000000. WIRE-COMPARED BENCH BRANCH — PROTOTYPED, TESTED, FIXES THE RB WIPEOUT (2026-08-15) 🟡 CANDIDATE FIX, NOT SHIPPED
@@ -14450,3 +14497,80 @@ real, cheap, and well-scoped above. Just not something to build in the same brea
 everything else today without checking first whether it was actually a quick wire (it
 wasn't) — the same discipline that caught the wrong `lineupCall`/`waiverClaim` client
 helpers earlier, applied before writing code this time instead of after.
+
+## 00000000000000000. `config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE — CHECKED, REAL, AND A DIFFERENT SHAPE OF GAP THAN THE ONES FIXED TODAY (2026-08-15)
+
+Same sweep that found `consensus.js` had no dedicated test (fixed, see TODO.md) also
+counted every `public/js/draft/*.js` module's hits inside `draft/tests/*.js`.
+Everything else is at least 1; these two are 0.
+
+**Why they weren't fixed the same way.** Every module fixed today — `own_projections.py`
+`attach_own_model`, the four capture routes, `consensus.js` — is either a plain
+function/`module.exports` object, or (for the routes) requires only `store` + a real
+HTTP server, which this project's existing `node draft/tests/*.test.js` convention
+already boots and hits directly. `config-screen.js` and `keeperui.js` are neither:
+both are `(function(){...})()` IIFEs with **no `module.exports` at all**, wired
+entirely through top-level `document.querySelector` calls and `fetch()` against
+`window`/`document` at load time. `keeperui.js`'s own `guardFixture()` — the function
+most worth pinning (it refuses to render a keeper screen against a fixture/offline
+board so nobody edits keepers for players who don't exist) — writes directly into
+`$('#loading').innerHTML` as its failure path, so even that one function can't be
+called in isolation without a DOM already present.
+
+**This needs jsdom (or an equivalent), which nothing in this project's test suite
+uses today** — `draft/tests/route_smoke.test.js` and friends boot a real HTTP server
+and assert on the raw HTML *string* a route returns, which is a different, DOM-free
+technique that doesn't reach code that only runs after a browser parses and executes
+that HTML. Adding a browser-emulation test harness this close to the draft is a new
+piece of test infrastructure, not a same-pattern fix — exactly the class of thing this
+project has a cited scar for building under a draft-week clock (the bench-branch
+anchor). Not doing it without checking with Cory first.
+
+**What IS already true, so this isn't a blind spot on the actual risk:** both screens
+are pre-draft confirmation UI, run once by a human (Cory) before the draft, on real
+data he is looking at directly — not automated, unattended, or in the grading path the
+in-season captures protect. `route_smoke.test.js` already confirms the pages these
+scripts are loaded from render without a 500 or a template `ReferenceError`. The actual
+uncovered risk is narrower than "zero coverage" sounds: it's "a JS bug in these two
+screens fails silently in front of Cory instead of loudly," not "a bug reaches
+production undetected."
+
+## What this is NOT
+
+Not a claim these two files are broken, or that DOM-based testing is a bad idea in
+general — `guardFixture()` in particular is exactly the kind of function worth pinning
+if a jsdom harness ever gets built. Just not something to start building, unannounced,
+as a side effect of a "continue."
+
+## CORRECTION, same day: "needs jsdom" was WRONG — it needed nothing new at all
+
+The claim above — that closing this gap meant adding new test infrastructure — was
+false, and cost nothing to check: `draft/tests/rehearsal-mock3.js` was sitting right
+there in the same directory, already using Playwright + the pre-installed Chromium
+(`/opt/pw-browsers/chromium`, per this environment's own setup) to drive the war room
+in a real browser. That's not jsdom, it's a full browser, and it was ALREADY an
+established, working pattern in this exact project — just outside the default
+`.test.js` glob because it needs more than a bare `node` process. `keeperui.js`'s
+`guardFixture()` now has that test: `draft/tests/rehearsal-keepers.js`, 6/6 checks,
+self-contained (boots its own `createApp().listen(0)` instead of assuming a
+manually-started `dev-server.js`, unlike `rehearsal-mock3.js`). It found a real second
+bug in the process — `boot()`'s catch handler was unconditionally overwriting
+`guardFixture()`'s specific "this board is not real data" message with a generic
+"could not load" one, the instant after it was written — fixed in the same commit.
+
+**The actual lesson isn't "the caution was wrong," it's "check what's already in the
+toolbox before concluding a fix needs new infrastructure."** The caution about
+inventing NEW mechanisms under a draft-week clock still stands; this wasn't new, it
+was unused. `config-screen.js` remains genuinely uncovered — smaller, lower-stakes (a
+confirmation-numbers display, not a decision guard), and not done here; the same
+Playwright pattern applies to it directly whenever it's worth the time.
+
+**Update, same day: done.** `draft/tests/rehearsal-config-screen.js`, 13/13 checks —
+the imported values populate correctly, the ★ CRITICAL scoring highlight (the actual
+safety mechanism the page's own copy exists to provide — "a single wrong scoring value
+silently corrupts every projection in the tool") stars the right keys and only the
+right keys, a saved override wins over an imported value for both a plain field and a
+nested scoring value (matching this module's own stated design), and the
+no-board-built-yet path shows a real message rather than hanging blank. No bug found
+this time — first actual proof the page works as intended, not an assumption. Every
+`public/js/draft/*.js` module the original sweep flagged is now covered.

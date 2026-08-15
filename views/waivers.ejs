@@ -8,6 +8,22 @@
 <h1 class="page-title">📋 Waiver Wire
   <span class="sub" style="font-weight:600">what the wire adds — and what this tool cannot tell you</span></h1>
 
+<%# Found 2026-08-15 (re-audit): /waivers/log, /waivers/override, /stream/log,
+    /stream/override redirected to a "success" query param UNCONDITIONALLY —
+    on the SAME line whether predledger.append() succeeded or threw. This page
+    never even read that param (no banner existed either way, success or
+    failure), so nothing here was actively lying to anyone — but the redirect
+    itself was, and the next person who wired a success banner off it would
+    have inherited a false-positive. Fixed at the source (member.js) and this
+    is the banner that should have existed from the start: real failure,
+    actually shown. %>
+<% if (typeof captureError !== 'undefined' && captureError) { %>
+  <div class="alert-banner" style="margin-bottom:1.1rem; border-color:rgba(176,0,32,.6)">
+    <span class="tag">⚠</span><span>That didn't save. The claim/stream/override was NOT recorded to the
+    ledger — try again, or note it manually for now.</span>
+  </div>
+<% } %>
+
 <%# ── THE THING THIS PAGE MUST NOT PAPER OVER ──────────────────────────────────
     Our league runs PRIORITY waivers, not FAAB. Priority is a depleting resource:
     one good claim and you drop to the bottom. So the decision is never "is this
@@ -141,8 +157,11 @@
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= top.dollars %>">
       <input type="hidden" name="contested" value="<%= top.contested ? '1' : '0' %>">
-      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
-      <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}).replace(/"/g, '&quot;') %>">
+      <%# double-escape bug fixed 2026-08-15 — see lineup.ejs's note by the same fix
+          for the full mechanism. Was .replace(/"/g,'&quot;') stacked on EJS's own
+          output escaping, so a real browser submitted unparseable text instead of JSON. %>
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
+      <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}) %>">
       <button class="btn gold" type="submit">Log this claim</button>
     </div>
   </form>
@@ -155,7 +174,7 @@
       </div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= top.dollars %>">
-      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
       <div class="lo-ov-chips">
         <button class="btn small ghost" type="submit" name="reason" value="held priority">✋ Held priority</button>
         <button class="btn small ghost" type="submit" name="reason" value="claimed someone else">🔀 Claimed someone else</button>
@@ -203,8 +222,8 @@
         <span class="muted" style="font-size:.82rem">Logs it against who you already have, so the season can grade the difference.</span></div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= s.dollars %>">
-      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
-      <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
+      <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }) %>">
       <button class="btn gold" type="submit">Log this stream</button>
     </div>
   </form>
@@ -215,7 +234,7 @@
         <span class="muted" style="font-size:.82rem">One tap says why.</span></div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= s.dollars %>">
-      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
       <div class="lo-ov-chips">
         <button class="btn small ghost" type="submit" name="reason" value="kept current">✋ Kept who I have</button>
         <button class="btn small ghost" type="submit" name="reason" value="streamed someone else">🔀 Streamed someone else</button>

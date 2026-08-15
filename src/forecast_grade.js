@@ -205,7 +205,15 @@ function gradeDecisions(entries) {
     const out = (k && outcomes[k] && (outcomes[k].payload || {})) || p;
     const row = {
       kind: e.kind, key: k, decision_at: ts(e),
-      chosen: p.chosen ?? p.value ?? p.player_id ?? null,
+      // FIXED 2026-08-15: `p.recommended` is `lineup_call`'s real field name
+      // (src/routes/member.js's /lineup/log route) -- this used to read only
+      // chosen/value/player_id, none of which that route ever writes, so a
+      // real lineup_call always graded chosen: null and could never be
+      // scored even once an outcome existed. Found by reproducing the real
+      // capture payload against this function directly, not by reading the
+      // route and assuming. `p.chosen` still wins when present (waiver_claim
+      // already writes it correctly) so this is purely additive.
+      chosen: p.chosen ?? p.value ?? p.player_id ?? p.recommended ?? null,
       // The counterfactual is REQUIRED by predledger, so its absence here means
       // an entry got in before that guard existed — reported, not defaulted.
       counterfactual: p.counterfactual ?? null,
@@ -278,4 +286,69 @@ function buildDraftResolutions(forecasts, draft) {
   return out;
 }
 
-module.exports = { gradeForecasts, gradeDecisions, INSEASON_DECISION_KINDS, buildDraftResolutions, pair, reliabilityTable, isForward };
+// THE PIECE inseason_decisions.test.js's own closing note said did not exist:
+// "In-season resolutions come from the weekly score path (added there)" was
+// aspirational when it was written -- nothing implemented it. Built 2026-08-15,
+// directly requested rather than left flagged: gradeDecisions() has correctly
+// graded in-season decisions since inseason_decisions.test.js landed, but
+// nothing ever produced the forecast_resolution entries it joins against, so
+// every in-season row has sat permanently unscored regardless of the field-name
+// fix above.
+//
+// SCOPED TO lineup_call ONLY, deliberately. It is the one in-season kind whose
+// capture (src/routes/member.js's /lineup/log) is unambiguous: payload.recommended
+// and payload.counterfactual are each a REAL, COMPLETE, DISTINCT lineup ([{id,
+// name, pos, proj}, ...] -- views/lineup.ejs's own hidden-field shape), and
+// resolving "did this decision beat the alternative" is exactly "sum each
+// named player's REAL points that week for each lineup and diff them" -- the
+// same computation draft/tools/lineup_edge_backtest.js already does in
+// aggregate, applied per-decision instead.
+//
+// waiver_claim/stream_call/inseason_override are NOT resolved here, and that is
+// a decision, not an oversight: waiver_claim's counterfactual is the literal
+// string 'hold priority' (not a player), so "realized_counterfactual" has no
+// well-defined single number without deciding how many weeks a claimed
+// player's value should count for -- a real design question, not a mechanical
+// join. inseason_override's capture (src/routes/member.js's /lineup/override)
+// writes payload.recommended and payload.counterfactual as the SAME value (the
+// tool's rejected recommendation) and never captures what was actually played
+// instead -- a genuine gap in that route, separate from this one, and forcing
+// a resolution here would mean inventing data that was never captured.
+//
+// weeklyPoints: {week: {player_id: points}} -- REAL points, however sourced.
+// Deliberately decoupled from any specific feed (weekly_realized.json does not
+// exist yet; no season has been played). Proven against real HISTORICAL data
+// in the test file rather than only a synthetic fixture, exactly the
+// leak-free-backtest discipline this session used throughout, so the mechanism
+// is validated before the live data it needs even exists.
+function buildInseasonResolutions(entries, weeklyPoints) {
+  const out = [];
+  for (const e of entries) {
+    if (e.kind !== 'lineup_call') continue;
+    const p = e.payload || {};
+    const key = p.key;
+    const week = p.week;
+    if (!key || week == null) continue;                 // cannot join without both
+    const pts = (weeklyPoints || {})[String(week)];
+    if (!pts) continue;                                  // week not yet resolvable -- not a zero
+    const rec = Array.isArray(p.recommended) ? p.recommended : null;
+    const cf = Array.isArray(p.counterfactual) ? p.counterfactual : null;
+    if (!rec || !cf) continue;                           // not the lineup-array shape this resolves
+    const sum = lineup => lineup.reduce((s, pl) => {
+      const v = num(pts[String(pl && pl.id)]);
+      return s + (v == null ? 0 : v);
+    }, 0);
+    out.push({
+      kind: 'forecast_resolution', method: 'inseason-resolution-v1',
+      payload: {
+        forecast_key: key,
+        realized_chosen: Math.round(sum(rec) * 100) / 100,
+        realized_counterfactual: Math.round(sum(cf) * 100) / 100,
+        source: 'weekly realized points',
+      },
+    });
+  }
+  return out;
+}
+
+module.exports = { gradeForecasts, gradeDecisions, INSEASON_DECISION_KINDS, buildDraftResolutions, buildInseasonResolutions, pair, reliabilityTable, isForward };

@@ -1,0 +1,577 @@
+{
+  "rooms": 3,
+  "seed_start": 900,
+  "generated_at": "2026-08-15T16:00:24.080Z",
+  "summary": {
+    "off": {
+      "n": 3,
+      "rb_zero_rooms": 0,
+      "rb_zero_pct": 0,
+      "modal_shape": "QB2/RB2/WR7/TE2",
+      "modal_pct": 100,
+      "shape_distribution": {
+        "QB2/RB2/WR7/TE2": 3
+      },
+      "qb2_rate_pct": 100,
+      "qb2_late_of_qb2_pct": 0,
+      "qb2_rounds": [
+        9,
+        8,
+        9
+      ]
+    },
+    "on": {
+      "n": 3,
+      "rb_zero_rooms": 0,
+      "rb_zero_pct": 0,
+      "modal_shape": "QB2/RB4/WR6/TE1",
+      "modal_pct": 33.3,
+      "shape_distribution": {
+        "QB2/RB4/WR6/TE1": 1,
+        "QB2/RB6/WR4/TE1": 1,
+        "QB2/RB5/WR5/TE1": 1
+      },
+      "qb2_rate_pct": 100,
+      "qb2_late_of_qb2_pct": 100,
+      "qb2_rounds": [
+        12,
+        11,
+        11
+      ]
+    }
+  },
+  "detail": {
+    "off": [
+      {
+        "seed": 900,
+        "posCounts": {
+          "WR": 7,
+          "RB": 2,
+          "TE": 2,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Jaylen Waddle",
+            "pos": "WR",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Drake Maye",
+            "pos": "QB",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Mike Evans",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Parker Washington",
+            "pos": "WR",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Brock Purdy",
+            "pos": "QB",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "Hunter Henry",
+            "pos": "TE",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Jayden Reed",
+            "pos": "WR",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Deebo Samuel",
+            "pos": "WR",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Stefon Diggs",
+            "pos": "WR",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Cam Little",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 9,
+        "picksLeftAtQB2": 7,
+        "totalRounds": 15
+      },
+      {
+        "seed": 901,
+        "posCounts": {
+          "WR": 7,
+          "RB": 2,
+          "TE": 2,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Joe Burrow",
+            "pos": "QB",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Jameson Williams",
+            "pos": "WR",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Parker Washington",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Trevor Lawrence",
+            "pos": "QB",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Travis Kelce",
+            "pos": "TE",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "Courtland Sutton",
+            "pos": "WR",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Jayden Reed",
+            "pos": "WR",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Jordan Addison",
+            "pos": "WR",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Deebo Samuel",
+            "pos": "WR",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Cam Little",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 8,
+        "picksLeftAtQB2": 8,
+        "totalRounds": 15
+      },
+      {
+        "seed": 902,
+        "posCounts": {
+          "WR": 7,
+          "RB": 2,
+          "TE": 2,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Drake Maye",
+            "pos": "QB",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Mike Evans",
+            "pos": "WR",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Rome Odunze",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Parker Washington",
+            "pos": "WR",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Brock Purdy",
+            "pos": "QB",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "Travis Kelce",
+            "pos": "TE",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Jayden Reed",
+            "pos": "WR",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Jordan Addison",
+            "pos": "WR",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Romeo Doubs",
+            "pos": "WR",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Cam Little",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 9,
+        "picksLeftAtQB2": 7,
+        "totalRounds": 15
+      }
+    ],
+    "on": [
+      {
+        "seed": 900,
+        "posCounts": {
+          "WR": 6,
+          "RB": 4,
+          "TE": 1,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Jaylen Waddle",
+            "pos": "WR",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Drake Maye",
+            "pos": "QB",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Mike Evans",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Rhamondre Stevenson",
+            "pos": "RB",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Parker Washington",
+            "pos": "WR",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "J.K. Dobbins",
+            "pos": "RB",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Mack Hollins",
+            "pos": "WR",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Joe Flacco",
+            "pos": "QB",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Odell Beckham",
+            "pos": "WR",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Chris Boswell",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 12,
+        "picksLeftAtQB2": 4,
+        "totalRounds": 15
+      },
+      {
+        "seed": 901,
+        "posCounts": {
+          "WR": 4,
+          "RB": 6,
+          "TE": 1,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Joe Burrow",
+            "pos": "QB",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Jameson Williams",
+            "pos": "WR",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Parker Washington",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Rhamondre Stevenson",
+            "pos": "RB",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Tony Pollard",
+            "pos": "RB",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "Jordan Mason",
+            "pos": "RB",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Josh Johnson",
+            "pos": "QB",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Jayden Reed",
+            "pos": "WR",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Aaron Jones",
+            "pos": "RB",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Cam Little",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 11,
+        "picksLeftAtQB2": 5,
+        "totalRounds": 15
+      },
+      {
+        "seed": 902,
+        "posCounts": {
+          "WR": 5,
+          "RB": 5,
+          "TE": 1,
+          "QB": 2,
+          "DEF": 1,
+          "K": 1
+        },
+        "picksLog": [
+          {
+            "pick": 33,
+            "name": "Colston Loveland",
+            "pos": "TE",
+            "round": 4
+          },
+          {
+            "pick": 48,
+            "name": "Drake Maye",
+            "pos": "QB",
+            "round": 5
+          },
+          {
+            "pick": 53,
+            "name": "Mike Evans",
+            "pos": "WR",
+            "round": 6
+          },
+          {
+            "pick": 68,
+            "name": "Rome Odunze",
+            "pos": "WR",
+            "round": 7
+          },
+          {
+            "pick": 73,
+            "name": "Rhamondre Stevenson",
+            "pos": "RB",
+            "round": 8
+          },
+          {
+            "pick": 88,
+            "name": "Tony Pollard",
+            "pos": "RB",
+            "round": 9
+          },
+          {
+            "pick": 93,
+            "name": "Jordan Mason",
+            "pos": "RB",
+            "round": 10
+          },
+          {
+            "pick": 108,
+            "name": "Brock Purdy",
+            "pos": "QB",
+            "round": 11
+          },
+          {
+            "pick": 113,
+            "name": "Mack Hollins",
+            "pos": "WR",
+            "round": 12
+          },
+          {
+            "pick": 128,
+            "name": "Demarcus Robinson",
+            "pos": "WR",
+            "round": 13
+          },
+          {
+            "pick": 133,
+            "name": "Seattle Seahawks",
+            "pos": "DEF",
+            "round": 14
+          },
+          {
+            "pick": 148,
+            "name": "Cam Little",
+            "pos": "K",
+            "round": 15
+          }
+        ],
+        "qb2Round": 11,
+        "picksLeftAtQB2": 5,
+        "totalRounds": 15
+      }
+    ]
+  }
+}

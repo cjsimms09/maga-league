@@ -2582,7 +2582,8 @@ router.get('/scoreboard', aw(async (req, res) => {
 }));
 
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
-// The tool that attacks $445–595/team/season left on the bench. Two faces:
+// The tool that attacks $520–637.50/team/season left on the bench (corrected
+// 2026-08-15 — see EFFICIENCY-LEAK.md). Two faces:
 //   • LIVE: your roster + projections → the dollar-optimal lineup and priced
 //     start/sit calls. Projections come from A's sleeper.js when they land; until
 //     then it runs on this season's per-game average (labelled), so it works now.
@@ -2774,6 +2775,7 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   res.render('waivers', {
     me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
     liveStale: await liveFreshness(),
+    captureError: req.query.captureError === '1',
   });
 }));
 
@@ -2820,8 +2822,18 @@ router.post('/waivers/log', requireCommissioner, aw(async (req, res) => {
         contested: req.body.contested === '1',
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?logged=1');
+    res.redirect('/waivers?logged=1');
+  } catch (e) {
+    // FIXED 2026-08-15 (re-audit): this used to redirect to ?logged=1
+    // UNCONDITIONALLY, outside the try/catch — so a real append() failure
+    // (a rejected entry, a store outage) looked identical to success on the
+    // redirect. lineup.ejs's "✅ Logged" banner would have shown even when
+    // nothing was actually written — the exact class of silent data loss
+    // this whole ledger exists to prevent. waivers.ejs does not render a
+    // banner for this route yet, but the redirect must stop lying regardless
+    // of whether anything currently reads it.
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
@@ -2844,8 +2856,10 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?overrode=1');
+    res.redirect('/waivers?overrode=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 // ── STREAM CAPTURE (2026-08-15) — same waiver_claim pattern, deliberately NOT
@@ -2883,8 +2897,10 @@ router.post('/stream/log', requireCommissioner, aw(async (req, res) => {
         dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?streamed=1');
+    res.redirect('/waivers?streamed=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
@@ -2904,8 +2920,10 @@ router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?streamoverrode=1');
+    res.redirect('/waivers?streamoverrode=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
@@ -2943,6 +2961,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
     overrode: req.query.overrode === '1',
+    captureError: req.query.captureError === '1',
     // The optimizer converts this data into a dollar recommendation, so it needs
     // the staleness banner at least as much as the pages that only display it.
     liveStale: await liveFreshness(),
@@ -3157,8 +3176,17 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
         opp_mean: req.body.opp_mean != null ? Number(req.body.opp_mean) : null,
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/lineup?logged=1');
+    res.redirect('/lineup?logged=1');
+  } catch (e) {
+    // FIXED 2026-08-15 (re-audit, prompted by Cory asking to re-verify
+    // everything without the reduced gate): the redirect used to fire
+    // unconditionally, outside the try/catch, so a real append() failure
+    // looked exactly like success — the "✅ Logged" banner below would show
+    // even though nothing was written. Found by reading this route fresh
+    // rather than trusting that "the tests pass" meant the failure path was
+    // sound; nothing had ever exercised it.
+    res.redirect('/lineup?captureError=1');
+  }
 }));
 
 // THE OVERRIDE CAPTURE — the other half, and the half that was missing.
@@ -3210,8 +3238,10 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
         confidence: String(req.body.confidence || '').slice(0, 600),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/lineup?overrode=1');
+    res.redirect('/lineup?overrode=1');
+  } catch (e) {
+    res.redirect('/lineup?captureError=1');
+  }
 }));
 
 // ---------- the locker room ----------

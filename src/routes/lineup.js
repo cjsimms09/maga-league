@@ -3,11 +3,13 @@
 // THE LINEUP OPTIMIZER — the in-season tool that captures the measured leak.
 //
 // The Lab measured it (EFFICIENCY-LEAK.md, experiment L0, certified grader): the
-// optimal-in-hindsight lineup would have earned each team **$445–595/season more**
-// than they collected, in weekly-high + regular-season money alone — Cory's own
-// three-year total is **$2,100**, his lineup efficiency **86–89%** three seasons
-// running. Weekly-high is ~70–75% of it: $100/week rides on the top score and one
-// benched boom decides it.
+// optimal-in-hindsight lineup would have earned each team **$520–637.50/season
+// more** than they collected, in weekly-high + regular-season money alone —
+// Cory's own three-year total is **$2,400**, his lineup efficiency **87–88%**
+// three seasons running (corrected 2026-08-15 — see EFFICIENCY-LEAK.md's
+// correction note; the original $445-595/86-89% undercounted players who only
+// ever started via FLEX). Weekly-high is ~70–75% of it: $100/week rides on the
+// top score and one benched boom decides it.
 //
 // This module is the forward tool that attacks that leak. Given a roster with
 // projections, this week's opponent, and this week's high-point band, it finds
@@ -32,7 +34,9 @@
 // DATA: reads draft/data/league_history.json (A's harvest, read-only) for the
 // backtest + the band; live projections come from sleeper.js (A's lane) at
 // request time. Positions are inferred from the harvest's own starters ordering
-// (roster_sim.infer_positions, ported) — no external player DB needed.
+// (roster_sim.infer_positions, ported), with draft/data/player_positions.json
+// (A's harvest, ground truth) as a fallback for players that heuristic can't
+// resolve — see the FLEX gap documented on inferPositions() below.
 
 const fs = require('fs');
 const path = require('path');
@@ -128,7 +132,36 @@ function slotsFromTemplate(template) {
 }
 const DEFAULT_SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
 
+// Ground-truth id -> position, built by A's build.py, union-over-builds and
+// never pruned (draft/data/player_positions.json). Loaded once; an absent or
+// unreadable file degrades to the pre-existing starters-only behavior rather
+// than throwing.
+let _playerPositionsDB = null;
+function playerPositionsDB() {
+  if (_playerPositionsDB) return _playerPositionsDB;
+  try {
+    _playerPositionsDB = (JSON.parse(fs.readFileSync(findFile('draft/data/player_positions.json'), 'utf8')) || {}).positions || {};
+  } catch (e) { _playerPositionsDB = {}; }
+  return _playerPositionsDB;
+}
+
 // --- positions from the harvest (port of roster_sim.infer_positions) ---------
+//
+// REAL BUG, found 2026-08-15 while backtesting whether the lineup optimizer
+// gives an edge: this only records a position when template[i] is itself one
+// of the six fixed labels. A player who started in a FLEX-type slot has
+// template[i] === 'FLEX' (or SUPER_FLEX/REC_FLEX), which matches none of
+// them, so anyone who EVERY time they started did so via a flex slot never
+// gets classified at all — 36 real players across 2023-25 (confirmed via
+// census). bestLineup()'s `if (!p) continue;` then silently drops them,
+// which is invisible in the live "what should I start" case (an unscored
+// player just can't be recommended) but corrupts any HINDSIGHT recomputation
+// that includes a week such a player actually, legally started: the true
+// optimal can undercount below what was actually played, an impossibility
+// that draft/tests/lineup_edge_backtest.test.js caught directly. Fixed by
+// falling back to draft/data/player_positions.json's ground truth — which
+// this module's own header comment wrongly claimed didn't exist — for
+// exactly the ids the starters-heuristic couldn't resolve.
 function inferPositions(season) {
   const template = season.roster_positions || [];
   const pos = {};
@@ -138,6 +171,15 @@ function inferPositions(season) {
       for (let i = 0; i < template.length && i < starters.length; i++) {
         const slot = template[i];
         if (['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].includes(slot)) pos[String(starters[i])] = slot;
+      }
+    }
+  }
+  const db = playerPositionsDB();
+  for (const entries of Object.values(season.weeks || {})) {
+    for (const e of (entries || [])) {
+      for (const pidRaw of (e.players || [])) {
+        const pid = String(pidRaw);
+        if (!pos[pid] && db[pid]) pos[pid] = db[pid];
       }
     }
   }
