@@ -2745,14 +2745,17 @@
      * one form. Text blocks remain the no-module fallback. */
     const gridBranches = branches.map(b => ({ taking: b.taking, pick: b.pick,
       rows: b.rows.filter(r => r.loss > 1).slice(0, 4) }));
+    // ONE emit site for the caption (panel_guide parity: two literals for one
+    // panel read as two panels to the census).
+    const branchesExplain = explainPanel('branches');
     if (typeof DraftCharts !== 'undefined') {
       const grid = DraftCharts.branchGrid(gridBranches);
-      host.innerHTML = explainPanel('branches')
+      host.innerHTML = branchesExplain
         + (grid || '<p class="muted" style="margin:.2rem 0 0; font-size:.78rem">'
           + 'Nothing falls off a cliff before your next pick.</p>');
       return;
     }
-    host.innerHTML = explainPanel('branches') + gridBranches.map(b => {
+    host.innerHTML = branchesExplain + gridBranches.map(b => {
       const rows = b.rows;
       return '<div class="branch">'
         + '<div class="branch-head">Take <b>' + escapeHtml(b.taking) + '</b></div>'

@@ -24,7 +24,7 @@ fs.mkdirSync(OUT, { recursive: true });
 (async () => {
   const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
   const errs = [];
-  async function capture(viewport, label) {
+  async function capture(viewport, label, confirmKeepers) {
     const ctx = await b.newContext({ viewport });
     const page = await ctx.newPage();
     page.on('pageerror', e => errs.push(label + ': ' + e.message));
@@ -52,6 +52,28 @@ fs.mkdirSync(OUT, { recursive: true });
     }
     await page.goto(BASE + '/admin/warroom', { waitUntil: 'networkidle' });
     await page.waitForTimeout(3000);
+    // ACCEPTANCE EVIDENCE NEEDS THE PRE-DRAFT BOARD. Run this harness against
+    // a FRESH dev store (rm -rf data/ before starting dev-server): rehearsals
+    // record picks server-side, and a resumed dirty draft is not the state
+    // Cory reviews. Driving END DRAFT here was tried and rejected — it also
+    // clears keeper attribution, which is NOT the draft-night boot state.
+    if (confirmKeepers) {
+      // The CONFIRMED keeper state, through the lock's own contract: store the
+      // built slate's hash the way the keepers screen does, then reload so
+      // checkKeeperLock reads it back. No server state touched.
+      await page.evaluate(() => {
+        // Rebuild the slate from the artifact the same way checkKeeperLock
+        // does (state lives inside the IIFE), then store the confirming hash.
+        const KL = window.KeeperLock;
+        return fetch('/draft_data.json', { cache: 'no-cache' }).then(r => r.json()).then(d => {
+          const s = KL.slateFromForfeited((d.pick_order || {}).forfeited || []);
+          localStorage.setItem(KL.CFG.LOCK_KEY, JSON.stringify({
+            hash: KL.slateHash(s), at: new Date().toISOString() }));
+        });
+      });
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.waitForTimeout(2500);
+    }
     const file = path.join(OUT, TAG + '-' + label + '.png');
     await page.screenshot({ path: file, fullPage: true });
     console.log('saved', file);
@@ -68,6 +90,10 @@ fs.mkdirSync(OUT, { recursive: true });
   }
   await capture({ width: 390, height: 844 }, 'phone');
   await capture({ width: 1440, height: 950 }, 'desktop');
+  // Both keeper states: the slate-confirmed board (banner replaced by the
+  // one-line confirmed stamp) at both widths.
+  await capture({ width: 390, height: 844 }, 'phone-keepers-confirmed', true);
+  await capture({ width: 1440, height: 950 }, 'desktop-keepers-confirmed', true);
   await b.close();
   if (errs.length) { console.log('CONSOLE/PAGE ERRORS:'); errs.forEach(e => console.log('  ' + e)); process.exit(1); }
   console.log('zero console errors');
