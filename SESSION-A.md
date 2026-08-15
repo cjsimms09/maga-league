@@ -21,8 +21,9 @@ sequencing, or measure has improved the work.
 **Impact = expected DOLLARS to Cory, weighted by how soon he can act.** State the
 one-sentence reason before running anything. Fixing a way the model is *wrong* beats
 making it marginally more right. Draft-relevant work wins until **Aug 22**; then the
-priority flips to in-season (the biggest known pool — ~$2,100 of Cory's left on benches
-over three years, and weekly-high is 37.5% of the pot, rewarding distribution shape, and
+priority flips to in-season (the biggest known pool — ~$2,400 of Cory's left on benches
+over three years, corrected upward 2026-08-15 from the superseded $2,100 (see
+EFFICIENCY-LEAK.md), and weekly-high is 37.5% of the pot, rewarding distribution shape, and
 almost nobody plays it). A recoverable deadline yields to an **unrecoverable** one even
 when the recoverable pool is larger (why the weekly grading cron jumped ahead of louder
 work). The draft edge is real but **small and fragile** — don't oversell it.

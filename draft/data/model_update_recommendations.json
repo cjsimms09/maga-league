@@ -157,26 +157,26 @@
        "RB": {
         "mae_beats_both": true,
         "spearman_beats_both": true,
-        "v2_mae": 41.19,
-        "best_baseline_mae": 42.55,
-        "v2_spearman": 0.7686,
-        "best_baseline_spearman": 0.7587
+        "v2_mae": 40.81,
+        "best_baseline_mae": 41.86,
+        "v2_spearman": 0.7751,
+        "best_baseline_spearman": 0.7682
        },
        "WR": {
         "mae_beats_both": true,
         "spearman_beats_both": true,
         "v2_mae": 34.08,
-        "best_baseline_mae": 36.7,
-        "v2_spearman": 0.7461,
-        "best_baseline_spearman": 0.7293
+        "best_baseline_mae": 36.82,
+        "v2_spearman": 0.7465,
+        "best_baseline_spearman": 0.7344
        },
        "TE": {
         "mae_beats_both": true,
         "spearman_beats_both": false,
-        "v2_mae": 23.81,
-        "best_baseline_mae": 24.27,
-        "v2_spearman": 0.776,
-        "best_baseline_spearman": 0.7826
+        "v2_mae": 23.71,
+        "best_baseline_mae": 24.04,
+        "v2_spearman": 0.7813,
+        "best_baseline_spearman": 0.7871
        }
       },
       "consequence": "clears=false \u2192 proj_ownmodel and v2 stay display-only. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."

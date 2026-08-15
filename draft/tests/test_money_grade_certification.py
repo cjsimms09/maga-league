@@ -3,8 +3,10 @@
 The reconciliation gate stands as the certification order: **before ANY experiment
 consumes this grader, this must be green.** It reproduces all three completed
 seasons' actual money outcomes and matches the known money table TO THE DOLLAR —
-every owner, every season. The efficiency-leak finding (~$445–595/team) is
-computed by the same machinery, so a green gate certifies that number too.
+every owner, every season. The efficiency-leak finding (~$520–637.50/team after
+the 2026-08-15 upward correction; originally stated ~$445–595 — see
+EFFICIENCY-LEAK.md) is computed by the same machinery, so a green gate
+certifies that number too.
 
 External truth anchors (cited by Cory from the master sheet): Cory 2023 = $400,
 mhagen 2025 = $1,325. The rest of the table is locked here as a regression

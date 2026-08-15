@@ -22,25 +22,25 @@
      "spearman": 0.659
     },
     "RB": {
-     "n": 100,
+     "n": 102,
      "status": "measured",
-     "mae": 56.52,
-     "bias": 24.41,
-     "spearman": 0.72
+     "mae": 56.54,
+     "bias": 24.36,
+     "spearman": 0.7296
     },
     "WR": {
-     "n": 155,
+     "n": 156,
      "status": "measured",
-     "mae": 47.19,
-     "bias": 30.65,
-     "spearman": 0.6853
+     "mae": 47.23,
+     "bias": 30.74,
+     "spearman": 0.688
     },
     "TE": {
-     "n": 87,
+     "n": 88,
      "status": "measured",
-     "mae": 34.43,
-     "bias": 19.68,
-     "spearman": 0.6842
+     "mae": 34.47,
+     "bias": 19.85,
+     "spearman": 0.6857
     }
    },
    "forecasts": 737,
@@ -57,25 +57,25 @@
      "spearman": 0.709
     },
     "RB": {
-     "n": 97,
+     "n": 99,
      "status": "measured",
-     "mae": 42.82,
-     "bias": 8.99,
-     "spearman": 0.7524
+     "mae": 42.37,
+     "bias": 9.17,
+     "spearman": 0.7612
     },
     "WR": {
-     "n": 149,
+     "n": 150,
      "status": "measured",
-     "mae": 37.39,
-     "bias": 11.64,
-     "spearman": 0.7289
+     "mae": 37.72,
+     "bias": 12.15,
+     "spearman": 0.734
     },
     "TE": {
-     "n": 83,
+     "n": 84,
      "status": "measured",
-     "mae": 26.96,
-     "bias": 2.63,
-     "spearman": 0.7405
+     "mae": 26.73,
+     "bias": 2.69,
+     "spearman": 0.7443
     }
    },
    "forecasts": 582,
@@ -92,25 +92,25 @@
      "spearman": 0.7213
     },
     "RB": {
-     "n": 97,
+     "n": 99,
      "status": "measured",
-     "mae": 42.55,
+     "mae": 41.86,
      "bias": 7.77,
-     "spearman": 0.7589
+     "spearman": 0.7683
     },
     "WR": {
-     "n": 149,
+     "n": 150,
      "status": "measured",
-     "mae": 36.7,
-     "bias": 12.34,
-     "spearman": 0.7293
+     "mae": 36.82,
+     "bias": 12.62,
+     "spearman": 0.7345
     },
     "TE": {
-     "n": 83,
+     "n": 84,
      "status": "measured",
-     "mae": 24.27,
-     "bias": 2.32,
-     "spearman": 0.7826
+     "mae": 24.04,
+     "bias": 2.36,
+     "spearman": 0.7871
     }
    },
    "forecasts": 582,
@@ -141,51 +141,51 @@
    }
   },
   "RB": {
-   "n": 97,
+   "n": 99,
    "status": "measured",
    "walk_forward": {
-    "mae": 56.4,
-    "spearman": 0.7354
+    "mae": 56.37,
+    "spearman": 0.744
    },
    "naive_prev": {
-    "mae": 42.82,
-    "spearman": 0.7523
+    "mae": 42.37,
+    "spearman": 0.7612
    },
    "recency_blend": {
-    "mae": 42.55,
-    "spearman": 0.7588
+    "mae": 41.86,
+    "spearman": 0.7682
    }
   },
   "WR": {
-   "n": 149,
+   "n": 150,
    "status": "measured",
    "walk_forward": {
-    "mae": 46.68,
-    "spearman": 0.6868
+    "mae": 46.69,
+    "spearman": 0.6907
    },
    "naive_prev": {
-    "mae": 37.39,
-    "spearman": 0.729
+    "mae": 37.72,
+    "spearman": 0.7341
    },
    "recency_blend": {
-    "mae": 36.7,
-    "spearman": 0.7294
+    "mae": 36.82,
+    "spearman": 0.7346
    }
   },
   "TE": {
-   "n": 83,
+   "n": 84,
    "status": "measured",
    "walk_forward": {
-    "mae": 34.0,
-    "spearman": 0.6852
+    "mae": 34.06,
+    "spearman": 0.6866
    },
    "naive_prev": {
-    "mae": 26.96,
-    "spearman": 0.7405
+    "mae": 26.73,
+    "spearman": 0.7443
    },
    "recency_blend": {
-    "mae": 24.27,
-    "spearman": 0.7826
+    "mae": 24.04,
+    "spearman": 0.7871
    }
   }
  }

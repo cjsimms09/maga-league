@@ -26,3 +26,7 @@ draft/backtest/bridge-results.json
 draft/backtest/tournament-results.json
 draft/data/bbm/*.csv
 .scan_receipt.json
+
+# Background-agent worktrees (Claude Code Agent tool) — full duplicate
+# checkouts; never repo content. Same line the relay branch carries.
+.claude/worktrees/

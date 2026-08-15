@@ -3,8 +3,8 @@
  "version": "format-census-series/v1",
  "series": [
   {
-   "observed_at": null,
-   "season": null,
+   "observed_at": "2026-08-12",
+   "season": 2026,
    "examined": null,
    "readable_leagues": 114,
    "matched": 0,
@@ -101,7 +101,8 @@
     "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=1.75": 1,
     "F1.te_premium_or_split_ppr:RB=1.0,WR=1.0,TE=6.0": 1
    },
-   "crosswalk_pooled_rate": 0.8493
+   "crosswalk_pooled_rate": 0.8493,
+   "_key_provenance": "backfilled 2026-08-15 (data audit): the append() docstring dates the null-producing run to the first real CI run on 2026-08-12 (consumer read fields the report never emitted); the row is present in git by 2026-08-14 (271083b3). `examined` stays null \u2014 unknown is unknown. Without a key this row could never be deduped or replaced."
   }
  ],
  "population": {
@@ -109,16 +110,16 @@
   "rows": 1,
   "fields": {
    "observed_at": {
-    "present": 0,
-    "null": 1,
+    "present": 1,
+    "null": 0,
     "missing": 0,
-    "pct": 0.0
+    "pct": 100.0
    },
    "season": {
-    "present": 0,
-    "null": 1,
+    "present": 1,
+    "null": 0,
     "missing": 0,
-    "pct": 0.0
+    "pct": 100.0
    },
    "examined": {
     "present": 0,
@@ -185,11 +186,15 @@
     "null": 0,
     "missing": 0,
     "pct": 100.0
+   },
+   "_key_provenance": {
+    "present": 1,
+    "null": 0,
+    "missing": 0,
+    "pct": 100.0
    }
   },
   "empty": [
-   "observed_at",
-   "season",
    "examined"
   ],
   "partial": [],

@@ -320,7 +320,7 @@
      "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
     },
     "TE": {
-     "n": 92,
+     "n": 93,
      "needed": 12,
      "healthy": true,
      "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
@@ -350,8 +350,8 @@
     "median_gap": 17.68
    },
    "TE": {
-    "n": 92,
-    "median_gap": 11.8
+    "n": 93,
+    "median_gap": 11.78
    }
   },
   "status": "measured"

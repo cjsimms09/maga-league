@@ -722,6 +722,13 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # stores moved, and in each of those cases the dormant rows are back.
     # `test_board_activity` asserts no dormant row reaches a rank, a VORP or the
     # relevant board — a property that must hold whether or not this ran.
+    # Snapshot the PRE-prune board for the position record below. The record's
+    # own contract says "written from the board BEFORE any filter", but as
+    # first coded it iterated `board` AFTER the prune reassigned it — so a
+    # player seen for the FIRST time on a board that also prunes him would
+    # never enter the union, exactly the row the wire measurement needs.
+    # (2026-08-15 data audit; test_data_assumptions.py pins the contract.)
+    _pre_prune_board = list(board)
     try:
         _act = board_activity.dormant({"players": board})
         if _act["status"] == "measured" and _act["n"]:
@@ -759,7 +766,7 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         _prev = json.loads(_pp.read_text())if _pp.exists() else {}
         _pos = dict(_prev.get("positions") or {})
         _added = 0
-        for _p in board:
+        for _p in _pre_prune_board:
             _q = _p.get("position")
             if _q and str(_p.get("player_id")) not in _pos:
                 _pos[str(_p["player_id"])] = _q
