@@ -12978,3 +12978,64 @@ cheaper, than the earlier entry implied.
 No code touched. This is a direct correction to an earlier finding in this
 file, made because it was checked against real evidence and found wrong rather
 than left standing.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — ALTERNATIVE NFL ODDS/PROPS SOURCES, AND A CORRECTION: THE CURRENT PROVIDER IGNORES THE markets PARAMETER
+
+**FOR: A.** Cory asked whether there's somewhere else to get NFL betting data.
+Found something in the repo before answering that changes the earlier advice.
+
+## Correction to the earlier "just add markets to the request" recommendation
+
+`draft/backtest/external_odds_probe.py` (Session C, already built and already
+run — `external_odds_probe.json` has the result) tested exactly this with a
+careful nonsense-control methodology: requested real player-prop market names
+AND a nonsense value, and got back the IDENTICAL market list either way (ML,
+Spread, Totals). **Verdict from that probe: "VOID — the parameter was not
+read."** The `markets` param is silently accepted and ignored by odds-api.io at
+this endpoint — this is NOT "props aren't available," it's "this request
+mechanism doesn't ask for them correctly," and the earlier recommendation
+("cheap config change, just add markets") should be corrected: it isn't
+guaranteed to work with this provider, and someone already caught that with
+real evidence.
+
+## Could not test alternatives directly — same sandbox limitation as before
+
+Confirmed this session: this sandbox blocks essentially everything except
+GitHub-hosted content — even `pro-football-reference.com` is blocked, so it's a
+general allowlist restriction, not a betting-specific one. Nothing below is
+verified live; all of it needs testing from CI (open egress), the same way the
+current pipe already runs.
+
+## Candidates, from general knowledge, for A to actually test
+
+- **The Odds API** (`the-odds-api.com` — a DIFFERENT provider from
+  `odds-api.io`, easy to confuse by name). Free tier covers game odds; player
+  props are typically available on paid tiers. Well-documented, commonly used
+  for exactly this purpose — probably the first one worth probing.
+- **ESPN's public scoreboard/odds endpoints** — free, unauthenticated,
+  game-level lines only (spread/total via ESPN's odds partnership), no player
+  props, and unofficial (undocumented, can change without notice).
+- **Underdog Fantasy / PrizePicks** — literally player-prop pick'em platforms,
+  so the data shape is exactly right (real market lines on individual player
+  stats). This project already has a working relationship with Underdog's data
+  (the Best Ball Mania archive, `draft/data/bbm/`) — different product from
+  their prop lines, but worth trying first given the existing familiarity and
+  precedent for reaching their infrastructure.
+- **SportsDataIO / Sportradar** — comprehensive, commercial, includes props,
+  likely overkill/priced for a product, not a 10-team home league.
+
+## The right way to test any of these
+
+Reuse `external_odds_probe.py`'s own methodology rather than assuming a new
+provider "just works": pair every real request with a nonsense-control request,
+and only trust a "no props" reading if the control's response is materially
+different from the real one. That discipline is already proven necessary in
+this exact repo — the as-of probe found the same ignored-parameter shape on
+date-bounding before this probe found it again on markets.
+
+## What this is NOT
+
+No code touched. Corrects an earlier recommendation with evidence found in the
+repo, and proposes candidates for A to test from CI, not from here.
