@@ -122,13 +122,16 @@ since then either.
   and the DEF replacement level eleven days out, on a position that is picked last
   and where the ordering is unlikely to change. The evidence and the trap are
   written down; the change is one alias plus a components-vs-aliases test.
-- **RE-CHECKED 2026-08-15 (Cory research relay) — found the gap is BIGGER than
-  documented, then hit a wall confirming how much bigger.** Pulled the actual raw
-  row from `draft/audit/rule12_statlines.json` (the same LAR sample the original
-  audit used — no fresher data available to me). It carries **`def_kr_td: 1.0`**
-  (kick-return TD) in addition to `def_fum_td: 2.0` — a second stat key that maps to
-  nothing in the scoring table, not mentioned in the original write-up because it
-  only ever sampled the one row. Also worth noting for whoever picks this up: `int:
+- **RE-CHECKED 2026-08-15 (Cory research relay) — CORRECTED SAME DAY, `def_kr_td` is
+  not actually a gap.** First pass here claimed `def_kr_td: 1.0` on the raw row was a
+  second missing stat key alongside `def_fum_td`. Checked `draft/config/league_config.json`
+  directly afterward: `def_kr_td` and `def_pr_td` ARE in the scoring table, both
+  explicitly set to `0.0` — this league deliberately does not reward kick/punt-return
+  TDs, not an omission. `score_stat_line` scores it correctly at zero on purpose.
+  **Only `def_fum_td` is genuinely missing** (confirmed absent from the scoring table
+  entirely, not zero-valued) — the original 2026-08-11 finding stands as originally
+  scoped, my "bigger than documented" claim was wrong. Also worth noting for whoever
+  picks this up: `int:
   15.0` and `sack: 52.0` are season-total counting stats sitting in what looks like a
   single-week-shaped row (`gp: 1.0`) — worth confirming these are being treated as
   season totals, not per-game, wherever `proj_baseline` consumes them.
