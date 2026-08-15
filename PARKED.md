@@ -11765,3 +11765,364 @@ ever expands.
 
 No code touched. Flagging this now because — same as the projection-snapshot gaps —
 it's cheap today and permanently gone if missed for another season.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — A WORKING GM-SIMULATION PROTOTYPE (2023, ONE SEAT), FOR A'S REVIEW — NOT MERGED, NOT ADOPTED
+
+**FOR: A.** Cory asked for this built and actually run, not just spec'd — "it needs
+to be accurate or it's useless." This is a real, working prototype: it calls
+`LO.optimize()` and `W.evaluateClaims()` unmodified, against real 2023 historical
+data, and produces a real result. It found and fixed three genuine bugs along the
+way (below) — read that part before the number, because the number only means
+anything in light of what almost made it meaningless. **This lives here, in
+PARKED.md, not in `draft/` — deliberately not touching your territory or claiming
+this is ready to merge. Review it, keep what's useful, discard the rest.**
+
+## THE RESULT (2023, roster_id 1 — Cory's actual seat, regular season weeks 1–15)
+
+```
+REAL (Cory, actual)          9-6-0   PF   1566.0   PA   1475.7
+DO-NOTHING baseline          6-9-0   PF   1351.2   PA   1475.7
+MODEL (waivers+lineup)       6-9-0   PF   1304.3   PA   1475.7
+```
+
+Model ties the do-nothing baseline on record and trails it slightly on points; both
+trail the real human by 3 games. **Read this as "a real human beat a crude
+prior-only-projection bot," not as "the waiver/lineup tools don't work"** — see
+why below. This is ONE seat, ONE season — not enough signal to generalize, exactly
+as the original build spec said. The value here is that the harness runs correctly
+and end-to-end, not this one number.
+
+## THREE REAL BUGS, FOUND BY NOT TRUSTING THE FIRST RESULT
+
+The first version of this ran and produced a 2-13 record, worse than doing nothing
+at all. That was implausible enough not to report — a working waiver/lineup tool
+should not actively destroy value that badly. Debugged rather than published:
+
+**Bug 1 — position-inference gap.** `LO.inferPositions()` only assigns a position
+to a player who was SOMEONE'S STARTER at some point in the season — a player who
+spent the whole year on a bench never gets one. Checked directly: 3 of Cory's own
+15 real 2023 roster players (`4147`, `8168`, `9754`) were invisible to the
+optimizer for exactly this reason. Fixed by merging in `draft/data/player_positions.json`
+(1841 players, "union over all builds, never pruned") as a richer position source.
+
+**Bug 2 — the big one: silent-zero scoring for real free-agent pickups.**
+`league_history.json`'s `players_points` only records a score for a player on
+weeks he was on one of the 10 REAL rosters. A free agent the model picks up who
+stayed unrostered in real history has NO entry there for any week he wasn't real-
+rostered — and the harness was defaulting that to 0, which reads as "he played and
+scored nothing" when the truth is "no data." Checked directly: `sleeper_id 4068` in
+week 5, 2023 — confirmed absent from every one of the 10 real rosters that week,
+so genuinely no recorded score anywhere in the harvested data. **Fixed properly,
+not patched around**: pulled real 2023 weekly stats for every NFL player from
+nflverse (`player_stats.csv`, network-reachable from this session), computed
+fantasy points under THIS LEAGUE'S EXACT scoring settings (half-PPR, 6pt pass TD —
+read directly from `scoring_settings`), joined to Sleeper IDs via the
+`dynastyprocess/data` gsis↔sleeper crosswalk. **Verified exact match** against
+`league_history.json`'s own recorded numbers for every spot-checked real-roster
+player (e.g. `sleeper_id 7564`, week 1: both sources say 6.6, to the decimal).
+Covers 583 players (QB/RB/WR/TE) vs. 250 in the roster-limited table. Does NOT
+cover K/DEF (nflverse's `player_stats` has no kicker/team-defense rows) — stated
+residual gap, falls back to the roster-limited table there.
+
+**Bug 3 — bye-week blindness.** A rolling average has no idea a player is on bye
+this specific week; it just sees his last few good games. `src/nfl_byes.json`
+deliberately excludes historical seasons (its own comment: *"a WRONG bye
+false-zeros a playing player — worse than a dormant guard"*), so rather than
+derive a bye table, this uses the same evidence directly: if there's no real
+record of a player taking the field THIS week in either data source, he is
+excluded from being startable that week — the same thing a real optimizer would
+do by greying him out, not confidently recommending him into a real zero.
+
+**A fourth thing, caught but not really a "bug" — small-sample overreaction.**
+Even after fixes 1–3, `sleeper_id 9999` — one recorded game (34.62 pts, a clear
+outlier) — got projected at 34.62 with zero discount going into week 9, and
+`evaluateClaims` (correctly, given that input) chased it, dropping the team's ONLY
+rostered defense to add him. Not a bug in the production functions — a real,
+textbook failure mode of an un-shrunk small-sample average. Fixed with standard
+empirical-Bayes shrinkage toward the position average (k=4 phantom games), which
+is a real methodology choice, not a fit-to-outcome patch. This is also the
+strongest evidence in this whole exercise for the original build spec's point:
+**projection quality is the actual bottleneck, not the decision logic.**
+
+## WHAT THIS PROTOTYPE DELIBERATELY DOES NOT DO (stated, not hidden)
+
+- Does not replay the draft — Cory's real 2023 draft roster is the fixed starting
+  point; the model only takes over at waivers + lineup (also where the project's
+  own numbers say the bigger $ opportunity is).
+- Regular season only (weeks 1–15; `playoff_week_start` = 16 confirmed in
+  `season.settings`). Playoffs need a bracket-counterfactual this doesn't attempt.
+- The model may only add a free agent NO real team claimed that week in real
+  history — it does not out-bid a real team. Avoids a cascading counterfactual
+  (would the other 9 teams behave differently) this isn't built to model.
+- Waiver priority is NOT reconstructed from standings in this version — simplified
+  to "never contest a real claim" instead, which sidesteps needing it. The
+  `standingsThrough()` function is in the script but unused; leftover from a first
+  design pass, harmless, flagged so it isn't mistaken for wired-in behavior.
+- One season, one seat. The build spec's 30-replay (10 seats × 3 seasons) design
+  is the real test; this is the proof that the pipeline runs correctly on one.
+
+## THE CODE (both files — reproducible, nothing hidden)
+
+`draft/backtest/gm_sim_2023.js`-equivalent (this session's version lives outside
+your territory; paste it wherever fits your layout):
+
+```javascript
+'use strict';
+/* GM SIMULATION PROTOTYPE — 2023, Cory's seat (roster_id 1), regular season only. */
+const path = require('path');
+const ROOT = '/home/user/maga-league';
+const LO = require(path.join(ROOT, 'src/routes/lineup.js'));
+const W = require(path.join(ROOT, 'src/routes/waivers.js'));
+
+const SEASON = '2023';
+const MY_RID = 1; // Cory
+const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+const REPL_RANK = { QB: 10, RB: 34, WR: 34, TE: 12, K: 10, DEF: 10 };
+const REG_SEASON_WEEKS = 15;
+
+const history = LO.harvest();
+const season = LO.seasonOf(history, SEASON);
+const richPositions = require(path.join(ROOT, 'draft/data/player_positions.json')).positions || {};
+const inferred = LO.inferPositions(season);
+const posById = Object.assign({}, inferred, richPositions);
+const owners = season.owners;
+const myOwner = owners[String(MY_RID)];
+const GLOBAL_PTS = require('./real_points_2023.json'); // see build_real_points.py below
+
+function weekEntries(wk) { return season.weeks[String(wk)] || season.weeks[wk] || []; }
+function nameFor(pid) { return String(pid); }
+
+let unknownStarts = 0;
+function realPointsFor(pid, wk) {
+  const g = GLOBAL_PTS[pid] && GLOBAL_PTS[pid][String(wk)];
+  if (g != null) return Number(g);
+  for (const e of weekEntries(wk)) {
+    if (e.players_points && e.players_points[pid] != null) return Number(e.players_points[pid]);
+  }
+  return undefined;
+}
+
+const SHRINK_K = 4;
+function rollingProjections(throughWeek) {
+  const acc = {};
+  for (let wk = 1; wk < throughWeek; wk++) {
+    for (const pid of universe) {
+      const v = realPointsFor(pid, wk);
+      if (v != null) (acc[pid] = acc[pid] || []).push(v);
+    }
+  }
+  const posSum = {}, posN = {};
+  for (const pid of Object.keys(acc)) {
+    const p = posById[pid]; if (!p) continue;
+    const arr = acc[pid];
+    posSum[p] = (posSum[p] || 0) + arr.reduce((a, b) => a + b, 0);
+    posN[p] = (posN[p] || 0) + arr.length;
+  }
+  const posAvg = {};
+  Object.keys(posSum).forEach(p => { posAvg[p] = posSum[p] / posN[p]; });
+  const out = {};
+  for (const pid of Object.keys(acc)) {
+    const arr = acc[pid], n = arr.length;
+    const rawMean = arr.reduce((a, b) => a + b, 0) / n;
+    const base = posAvg[posById[pid]] != null ? posAvg[posById[pid]] : rawMean;
+    out[pid] = (n * rawMean + SHRINK_K * base) / (n + SHRINK_K);
+  }
+  return out;
+}
+
+const draft = season.drafts[0]; // 150 picks / 15 rounds, the real startup draft
+const pickNoByPid = {};
+draft.picks.forEach(p => { pickNoByPid[String(p.player_id)] = Number(p.pick_no); });
+function week1FallbackProj(pid) {
+  const pn = pickNoByPid[String(pid)];
+  return pn != null ? Math.max(1, 300 - pn) : 5;
+}
+
+const universe = (() => {
+  const ids = new Set();
+  for (let wk = 1; wk <= 18; wk++) for (const e of weekEntries(wk)) (e.players || []).forEach(pid => ids.add(String(pid)));
+  return [...ids];
+})();
+const universeWithPos = universe.filter(pid => posById[pid]);
+const universeNoPos = universe.filter(pid => !posById[pid]);
+
+function replacementLevels(projByPid, universeList) {
+  const byPos = {};
+  universeList.forEach(pid => {
+    const p = posById[pid];
+    if (!p || !REPL_RANK[p]) return;
+    (byPos[p] = byPos[p] || []).push(projByPid[pid] || 0);
+  });
+  const repl = {};
+  Object.keys(REPL_RANK).forEach(P => {
+    const arr = (byPos[P] || []).slice().sort((a, b) => b - a);
+    const r = arr[Math.min(REPL_RANK[P], arr.length) - 1];
+    repl[P] = r != null ? r : 0;
+  });
+  return repl;
+}
+
+function rosterAtWeek(rid, wk) {
+  const e = weekEntries(wk).find(x => x.roster_id === rid);
+  return e ? (e.players || []).map(String) : [];
+}
+function realMatchup(rid, wk) {
+  const entries = weekEntries(wk);
+  const mine = entries.find(e => e.roster_id === rid);
+  if (!mine) return null;
+  const opp = entries.find(e => e.matchup_id === mine.matchup_id && e.roster_id !== rid);
+  return { mine, opp };
+}
+function realAddedThisWeek(wk) {
+  const wkTx = season.transactions[String(wk)] || [];
+  const added = new Set();
+  wkTx.forEach(t => { if (t.status === 'complete') Object.keys(t.adds || {}).forEach(pid => added.add(String(pid))); });
+  return added;
+}
+
+let myRoster = rosterAtWeek(MY_RID, 1).slice();
+const log = [];
+let simRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let realRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let baseRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let baseRoster = rosterAtWeek(MY_RID, 1).slice();
+
+for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+  const proj = wk === 1 ? null : rollingProjections(wk);
+  const projFor = (pid) => wk === 1 ? week1FallbackProj(pid) : (proj[pid] != null ? proj[pid] : 0);
+
+  let claimNote = null;
+  if (wk > 1) {
+    const priorProj = rollingProjections(wk);
+    const repl = replacementLevels(priorProj, universeWithPos);
+    const rosteredByOthers = new Set();
+    for (let rid = 1; rid <= 10; rid++) if (rid !== MY_RID) rosterAtWeek(rid, wk).forEach(pid => rosteredByOthers.add(pid));
+    const realAdds = realAddedThisWeek(wk - 1);
+    const freeAgents = universeWithPos
+      .filter(pid => !rosteredByOthers.has(pid) && !myRoster.includes(pid) && !realAdds.has(pid) && priorProj[pid] != null)
+      .map(pid => ({ player_id: pid, name: nameFor(pid), position: posById[pid],
+        proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0) }));
+    const myRosterObjs = myRoster.filter(pid => posById[pid]).map(pid => ({
+      player_id: pid, name: nameFor(pid), position: posById[pid],
+      proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0),
+    }));
+    if (myRosterObjs.length && freeAgents.length) {
+      const res = W.evaluateClaims(freeAgents, myRosterObjs, LEAGUE, { lineupMean: 120, lineupSd: 24, oppMean: 118 });
+      const top = res.claims[0];
+      if (top && top.net_value > 0 && res.drop) {
+        myRoster = myRoster.filter(pid => pid !== res.drop.player_id).concat([top.player_id]);
+        claimNote = `+${top.name}(${top.position}) -${res.drop.name} net_pts=${top.net_value}`;
+      }
+    }
+  }
+
+  const dataAvail = (pid) => wk === 1 || realPointsFor(pid, wk) !== undefined;
+  const rosterArr = myRoster.filter(pid => posById[pid] && dataAvail(pid)).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: projFor(pid) }));
+  const baseArr = baseRoster.filter(pid => posById[pid] && dataAvail(pid)).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: projFor(pid) }));
+  const optRes = rosterArr.length ? LO.optimize(rosterArr, { slots: SLOTS }) : null;
+  const baseOpt = baseArr.length ? LO.optimize(baseArr, { slots: SLOTS }) : null;
+
+  const { mine: realMine, opp: realOpp } = realMatchup(MY_RID, wk) || {};
+  const realPtsFor = realMine ? Number(realMine.points || 0) : null;
+  const oppPts = realOpp ? Number(realOpp.points || 0) : null;
+
+  function scoreStarters(starters) {
+    return (starters || []).reduce((s, st) => {
+      const v = realPointsFor(st.pid, wk);
+      if (v == null) { unknownStarts++; return s; }
+      return s + v;
+    }, 0);
+  }
+  const simPts = optRes ? scoreStarters(optRes.lineup) : 0;
+  const basePts = baseOpt ? scoreStarters(baseOpt.naive) : 0;
+
+  if (oppPts != null) {
+    simRecord.pf += simPts; simRecord.pa += oppPts;
+    if (simPts > oppPts) simRecord.w++; else if (simPts < oppPts) simRecord.l++; else simRecord.t++;
+    baseRecord.pf += basePts; baseRecord.pa += oppPts;
+    if (basePts > oppPts) baseRecord.w++; else if (basePts < oppPts) baseRecord.l++; else baseRecord.t++;
+    realRecord.pf += realPtsFor; realRecord.pa += oppPts;
+    if (realPtsFor > oppPts) realRecord.w++; else if (realPtsFor < oppPts) realRecord.l++; else realRecord.t++;
+  }
+}
+
+function fmt(rec, label) {
+  console.log(`${label.padEnd(28)} ${rec.w}-${rec.l}-${rec.t}   PF ${rec.pf.toFixed(1).padStart(8)}   PA ${rec.pa.toFixed(1).padStart(8)}`);
+}
+fmt(realRecord, 'REAL (Cory, actual)');
+fmt(baseRecord, 'DO-NOTHING baseline');
+fmt(simRecord, 'MODEL (waivers+lineup)');
+console.log('starts with NO real data in either source:', unknownStarts);
+```
+
+`build_real_points.py` (regenerates `real_points_2023.json`, the global weekly
+scoring table that fixes Bug 2 — run once, cache the output):
+
+```python
+#!/usr/bin/env python3
+"""Global 2023 weekly fantasy points, every NFL player, scored under THIS
+league's exact scoring_settings, keyed by Sleeper player_id."""
+import csv, json, urllib.request
+
+SCORING = {
+    "pass_yd": 0.03999999910593033, "pass_td": 6.0, "pass_int": -2.0, "pass_2pt": 2.0,
+    "rush_yd": 0.10000000149011612, "rush_td": 6.0, "rush_2pt": 2.0,
+    "rec_yd": 0.10000000149011612, "rec_td": 6.0, "rec": 0.5, "rec_2pt": 2.0,
+    "fum_lost": -2.0,
+}
+
+def f(row, key):
+    v = row.get(key, "")
+    try: return float(v) if v not in ("", None) else 0.0
+    except ValueError: return 0.0
+
+def fantasy_points(row):
+    pts = 0.0
+    pts += f(row, "passing_yards") * SCORING["pass_yd"]
+    pts += f(row, "passing_tds") * SCORING["pass_td"]
+    pts += f(row, "interceptions") * SCORING["pass_int"]
+    pts += f(row, "passing_2pt_conversions") * SCORING["pass_2pt"]
+    pts += f(row, "rushing_yards") * SCORING["rush_yd"]
+    pts += f(row, "rushing_tds") * SCORING["rush_td"]
+    pts += f(row, "rushing_2pt_conversions") * SCORING["rush_2pt"]
+    pts += f(row, "receiving_yards") * SCORING["rec_yd"]
+    pts += f(row, "receiving_tds") * SCORING["rec_td"]
+    pts += f(row, "receptions") * SCORING["rec"]
+    pts += f(row, "receiving_2pt_conversions") * SCORING["rec_2pt"]
+    fum_lost = f(row, "sack_fumbles_lost") + f(row, "rushing_fumbles_lost") + f(row, "receiving_fumbles_lost")
+    pts += fum_lost * SCORING["fum_lost"]
+    return round(pts, 2)
+
+urllib.request.urlretrieve(
+    "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats.csv",
+    "player_stats.csv")
+urllib.request.urlretrieve(
+    "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv",
+    "db_playerids.csv")
+
+crosswalk = {}
+with open("db_playerids.csv", newline="", encoding="utf-8") as fh:
+    for row in csv.DictReader(fh):
+        gsis, sleeper = row.get("gsis_id"), row.get("sleeper_id")
+        if gsis and sleeper: crosswalk[gsis] = sleeper
+
+out = {}
+with open("player_stats.csv", newline="", encoding="utf-8") as fh:
+    for row in csv.DictReader(fh):
+        if row.get("season") != "2023" or row.get("season_type") != "REG": continue
+        sleeper = crosswalk.get(row.get("player_id"))
+        if not sleeper: continue
+        out.setdefault(sleeper, {})[row.get("week")] = fantasy_points(row)
+
+json.dump(out, open("real_points_2023.json", "w"))
+```
+
+## What this is NOT
+
+Not merged, not adopted, not touching `draft/` or any file in your territory. This
+is a working, debugged, honestly-caveated prototype for your review — extend it to
+the full 10-seat × 3-season design from the earlier spec, discard it, or rebuild it
+your way. Your call entirely.
