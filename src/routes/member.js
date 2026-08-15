@@ -2582,7 +2582,8 @@ router.get('/scoreboard', aw(async (req, res) => {
 }));
 
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
-// The tool that attacks $445–595/team/season left on the bench. Two faces:
+// The tool that attacks $520–637.50/team/season left on the bench (corrected
+// 2026-08-15 — see EFFICIENCY-LEAK.md). Two faces:
 //   • LIVE: your roster + projections → the dollar-optimal lineup and priced
 //     start/sit calls. Projections come from A's sleeper.js when they land; until
 //     then it runs on this season's per-game average (labelled), so it works now.

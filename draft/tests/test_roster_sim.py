@@ -113,6 +113,28 @@ def test_hindsight_ceiling_beats_realized_on_average(hist, season):
     assert best_sum >= real_sum, f"{season}: ceiling {best_sum} < realized {real_sum}"
 
 
+@pytest.mark.parametrize("season", ["2023", "2024", "2025"])
+def test_hindsight_ceiling_beats_realized_every_week(hist, season):
+    """The AGGREGATE check above is too coarse: it can pass even if individual
+    weeks undercount the ceiling below what was realized, so long as other
+    weeks overcorrect for it in sum. This is the per-row version that caught
+    the real bug (infer_positions' FLEX gap, fixed 2026-08-15): the exact same
+    (season=2023, roster_id=3, week=3) case that broke the JS-side port
+    (draft/tests/lineup_edge_backtest.test.js) belongs to this dataset too."""
+    s = MG.season_of(hist, season)
+    pos = RS.infer_positions(s)
+    violations = []
+    for wk, entries in (s.get("weeks") or {}).items():
+        w = int(wk)
+        for e in entries or []:
+            ids = [str(p) for p in (e.get("players") or [])]
+            pts = {str(pid): float(v or 0.0) for pid, v in (e.get("players_points") or {}).items()}
+            best = RS.best_lineup_points(pts, pos, ids, RS.DEFAULT_SLOTS)["points"]
+            if best < e["points"] - 0.01:
+                violations.append((w, e["roster_id"], best, e["points"]))
+    assert not violations, f"{season}: hindsight ceiling below realized on {len(violations)} team-weeks: {violations[:5]}"
+
+
 def test_roster_weekly_scores_covers_every_week(hist):
     s = MG.season_of(hist, "2025")
     pos = _dedicated_pos_map(s)

@@ -54,7 +54,17 @@ and already on `main` (or this branch — check which). In priority order:
 5. Draft-night pick capture and in-season prediction capture (lineup/waiver/stream) are
    now real and wired — `trade_eval` is the one kind still genuinely uncaptured.
 6. A dedicated security pass on everything built today came back clean — nothing to fix.
-7. **Three things need Cory's judgment, not more engineering** — none built or changed:
+7. **Backtested whether the lineup optimizer actually gives an edge — it does not, yet,
+   and found + fixed a real bug in the process that had been quietly deflating the
+   "certified" leak numbers since the file was written.** See "🔴 SECOND REAL BUG"
+   below. Short version: the tool's own fallback projection loses to what Cory actually
+   played (-14 to -18 pts/week, beats actual play only ~15-22% of weeks, all 3 seasons)
+   — the tool's live UI already says to "treat the dollar figures as directional" on
+   this exact fallback path, so this backtest confirms and quantifies that caveat
+   rather than contradicting it. Not shipped as an edge; not a regression either —
+   nothing changed about the live recommender, only about how honestly its historical
+   value is measured.
+8. **Three things need Cory's judgment, not more engineering** — none built or changed:
    - `ONESIE_ENDGAME_PICKS` / the bench-branch VONA formula / `ONESIE_MAX_SPARE` —
      scoring-logic prototypes, fully evidenced, held per standing policy this close to
      the draft. Full writeups in `PARKED.md`.
@@ -91,6 +101,51 @@ exact signature the bug leaves) — deliberately NOT flagging `waiver_claim`'s
 `counterfactual`, which is a hardcoded `'hold priority'` string by design, not a bug.
 8/8 tests pass, including that exact false-positive trap. **Someone with real access
 needs to actually run this** — not done here, can't be from this sandbox.
+
+**🔴 SECOND REAL BUG, NOT A JUDGMENT CALL: `infer_positions()` was silently deflating
+every hindsight-optimal lineup calculation, in both the JS and Python originals, since
+before this session.** Found while directly answering Cory's question — "have we
+retested the lineup optimizer to prove it's giving an edge or at least not hurting" —
+by building `draft/tools/lineup_edge_backtest.js`, a leak-free replay of every real
+2023-25 team-week using only strictly-prior information (no lookahead). Its first run
+threw an impossible result: the TRUE OPTIMAL (perfect hindsight) scored LESS than what
+was actually played in real weeks. Traced to `inferPositions()`/`infer_positions()`
+(JS: `src/routes/lineup.js`, Python: `draft/backtest/roster_sim.py` — the JS is a
+direct port of the Python): a player who only ever started via a FLEX-type slot never
+got a position classified at all (its own docstring's excuse, "almost always caught in
+another week's dedicated slot," is false for 36 real players across 3 seasons), so
+`bestLineup()`/`best_lineup_points()` silently dropped him from any hindsight
+recomputation whenever he'd actually, legally started. Fixed in both languages using a
+remedy A already established for the identical defect class in `wire_level.js`: fall
+back to `draft/data/player_positions.json`'s ground truth for exactly the ids the
+starters-heuristic can't resolve.
+**This changes EFFICIENCY-LEAK.md's "certified" L0 numbers, and only upward** — the
+old figures were an undercount, not an overcount: leak $470/595/445 → **$520/637.50/520**
+(2023/24/25), Cory's 3-yr total $2,100 → **$2,400**, efficiency ~89-90% →
+**87-88%**. Regenerated via the file's own documented refresh (`python
+draft/backtest/lab.py`), propagated to `EFFICIENCY-LEAK.md` (old numbers struck through,
+not deleted), `LAB-REGISTRY.md`, `docs/queued/in-season-master.md`,
+`draft/DECISION-LOGIC-SPEC.md`, `docs/POST-DRAFT-LABEL-AUDIT.md`, and the code comments
+that cited the old figure. Full detail and what was deliberately left untouched (dated
+log entries in `STATUS.md`/`LAB-RUN-STATE.md`) is in `ROUTES.md`'s `## TO: A` section,
+2026-08-15 entry. New regression tests in both languages assert the per-row invariant
+directly (`optimal >= actual` on every team-week, not just in aggregate) so this can't
+silently regress. Full JS (256/256) and Python (2148 passed/6 skipped) suites green
+after.
+**Then the actual question got answered, honestly, on the corrected numbers:** does
+following the live tool's own fallback projection (season-running-average — the path
+its own UI already flags as "directional, not precise" whenever it's not on a live
+Sleeper projection) beat what Cory actually played? **No.** Edge vs. actual play:
+2023 -$11.45/wk (beats actual 22% of weeks), 2024 -$14.51/wk (20%), 2025 -$17.65/wk
+(16%) — bye-week-corrected for 2023/24 via real nflverse schedule data
+(`draft/backtest/build_historical_byes.py`), uncorrected (structurally pessimistic) for
+2025 since nflverse doesn't have 2025 data yet. This is not a regression or a newly
+discovered defect in the live tool — the assignment logic itself is separately proven
+exhaustively optimal given a set of projections (`lineup_skill.test.js`, pre-existing);
+the gap is entirely in projection quality on the fallback path, which the tool's own UI
+already discloses. It quantifies an acknowledged limitation rather than revealing an
+undisclosed one. Not shipped as a claimed edge; nothing to fix here without better
+in-season projections, which is a separate, larger project.
 
 **The single biggest finding of the day about the MODEL (as opposed to the bug above):
 our core projection formula was already

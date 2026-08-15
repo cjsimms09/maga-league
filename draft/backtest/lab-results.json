@@ -1,5 +1,5 @@
 {
-  "git_head": "33d55f4da148000b57556e89199c25cfad6cc7d3",
+  "git_head": "d3749843e7520ecaf04e140dd515f04d6a3c3a6b",
   "seasons": [
     "2023",
     "2024",
@@ -15,29 +15,29 @@
       "per_season": [
         {
           "season": "2023",
-          "mean_dollars_left_on_table": 470.0,
-          "mean_high_pool_leak": 330.0,
-          "mean_matchup_leak": 140.0,
-          "max_seat": 800.0
+          "mean_dollars_left_on_table": 520.0,
+          "mean_high_pool_leak": 370.0,
+          "mean_matchup_leak": 150.0,
+          "max_seat": 900.0
         },
         {
           "season": "2024",
-          "mean_dollars_left_on_table": 595.0,
-          "mean_high_pool_leak": 420.0,
-          "mean_matchup_leak": 175.0,
-          "max_seat": 950.0
+          "mean_dollars_left_on_table": 637.5,
+          "mean_high_pool_leak": 450.0,
+          "mean_matchup_leak": 187.5,
+          "max_seat": 1050.0
         },
         {
           "season": "2025",
-          "mean_dollars_left_on_table": 445.0,
-          "mean_high_pool_leak": 345.0,
-          "mean_matchup_leak": 100.0,
-          "max_seat": 750.0
+          "mean_dollars_left_on_table": 520.0,
+          "mean_high_pool_leak": 395.0,
+          "mean_matchup_leak": 125.0,
+          "max_seat": 925.0
         }
       ],
-      "my_three_year_leak": 2100.0,
+      "my_three_year_leak": 2400.0,
       "note": "Playoff-$ leak excluded until the substituted-seat bracket resim lands; these are a lower bound. See EFFICIENCY-LEAK.md.",
-      "summary": "mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0 (my 3-yr: $2100)",
+      "summary": "mean $/team the optimal-in-hindsight lineup would have added: 2023 +$520.0, 2024 +$637.5, 2025 +$520.0 (my 3-yr: $2400)",
       "verdict": "measurement \u2014 quantifies the lineup-decision prize the in-season experiments (13/14) will chase; not a shipped edge."
     }
   ],
