@@ -40,6 +40,18 @@
     That's the disagreement written down at decision time, which is the only moment it can be.</span>
   </div>
 <% } %>
+<%# Found 2026-08-15 (re-audit): /lineup/log and /lineup/override used to
+    redirect to ?logged=1 / ?overrode=1 UNCONDITIONALLY, so a real append()
+    failure looked exactly like the success banners above. Now the routes
+    redirect to ?captureError=1 on failure instead — this is the banner that
+    was missing to actually surface it, rather than confirming nothing
+    happened while claiming it did. %>
+<% if (typeof captureError !== 'undefined' && captureError) { %>
+  <div class="alert-banner" style="margin-bottom:1rem; border-color:rgba(176,0,32,.6)">
+    <span class="tag">⚠</span><span>That didn't save. The lineup call was NOT recorded to the ledger —
+    try again, or note it manually for now. (If this keeps happening, something's wrong with the store, not with you.)</span>
+  </div>
+<% } %>
 <%# THE REHEARSAL RESULT, HONESTLY. This banner said "sent to your inbox" for
     every outcome, including a provider refusal — and this button is the only way
     to find out whether the email reaches you at all when you aren't on the site,

@@ -8,6 +8,22 @@
 <h1 class="page-title">📋 Waiver Wire
   <span class="sub" style="font-weight:600">what the wire adds — and what this tool cannot tell you</span></h1>
 
+<%# Found 2026-08-15 (re-audit): /waivers/log, /waivers/override, /stream/log,
+    /stream/override redirected to a "success" query param UNCONDITIONALLY —
+    on the SAME line whether predledger.append() succeeded or threw. This page
+    never even read that param (no banner existed either way, success or
+    failure), so nothing here was actively lying to anyone — but the redirect
+    itself was, and the next person who wired a success banner off it would
+    have inherited a false-positive. Fixed at the source (member.js) and this
+    is the banner that should have existed from the start: real failure,
+    actually shown. %>
+<% if (typeof captureError !== 'undefined' && captureError) { %>
+  <div class="alert-banner" style="margin-bottom:1.1rem; border-color:rgba(176,0,32,.6)">
+    <span class="tag">⚠</span><span>That didn't save. The claim/stream/override was NOT recorded to the
+    ledger — try again, or note it manually for now.</span>
+  </div>
+<% } %>
+
 <%# ── THE THING THIS PAGE MUST NOT PAPER OVER ──────────────────────────────────
     Our league runs PRIORITY waivers, not FAAB. Priority is a depleting resource:
     one good claim and you drop to the bottom. So the decision is never "is this
