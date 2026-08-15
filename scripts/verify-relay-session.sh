@@ -26,7 +26,7 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2286 passed)" python3 -m pytest draft/tests -q
+ck "Python suite (expect ~2293 passed)" python3 -m pytest draft/tests -q
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
@@ -54,23 +54,30 @@ echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the
-# refusal to EXACTLY the 13 documented files: a fourteenth trespass appearing later
+# refusal to EXACTLY the 17 documented files: an eighteenth trespass appearing later
 # fails HERE, so "expected refusal" can never quietly grow. The set SHRINKS as
 # authorised fixes reach main and stop diffing (test_board_pin.py first, then
-# the board_activity pair with the rebuild-blocker cherry-picks) — each exit
-# and entry is documented in Override #5's bookkeeping notes.
+# the board_activity pair with the rebuild-blocker cherry-picks) and GREW
+# 2026-08-15 night with the war-room design pass (warroom.ejs, header.ejs,
+# warroom.css — Cory's design directive) and the sidebets.test.js guard
+# restatement (the edge advisor) — each exit and entry is documented in
+# Override #5's bookkeeping notes.
 EXPECTED_TRESPASS="draft/tests/h2h_agreement.test.js
 draft/tests/lineup_sanity.test.js
 draft/tests/scope_agreement.test.js
+draft/tests/sidebets.test.js
 draft/tests/trashtalk.test.js
 draft/tests/waiver_surface.test.js
+public/css/warroom.css
 src/routes/accuracy.js
 src/routes/lineup.js
 src/routes/member.js
 src/routes/trashtalk.js
+views/admin/warroom.ejs
 views/bank.ejs
 views/dashboard.ejs
 views/lineup.ejs
+views/partials/header.ejs
 views/waivers.ejs"
 # awk on the LAST ": "-field, not a paren-matching regex — the C-file line
 # reads "TRESPASS (A touched C's file (declared in-file)): path" and nested
@@ -79,7 +86,7 @@ views/waivers.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 13 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 17 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'

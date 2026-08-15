@@ -1225,3 +1225,35 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     board_activity pair later LEFT the refusal set the same way
     test_board_pin.py did — their fix reached main via the authorised
     rebuild-blocker cherry-picks.)
+
+**APPENDED 2026-08-15 (night), SAME AUTHORITY — the war-room design pass and
+the side-bet edge advisor.** Four more B-lane crossings, two distinct Cory
+directives, each verbatim:
+
+  * `views/admin/warroom.ejs`, `views/partials/header.ejs`,
+    `public/css/warroom.css` (NEW) — the war-room design overhaul, under
+    Cory's direct order (*"really need to work on design of war room and in
+    season tools, theyre very amatuerish"*) and his explicit rejection of the
+    live page (the uploaded 21-page PDF: *"no charts or visual explanations.
+    wording is terrible not clear, design is very busy"*), with the mid-pass
+    fidelity gate (*"we need to also be certain the design is actually
+    implementing and explaining what the model says"*). TERRITORY.md's own
+    presentation split (B owns the warroom SHELL) is why these register as
+    crossings; the pass is pinned by a 137-check UI-fidelity suite
+    (`draft/tests/ui_fidelity_*.test.js`) and documented with before/after
+    captures in `draft/audit/warroom_design_pass_2026-08-15.md`. header.ejs
+    carries only the page-scoped CSS include (Chronicle pattern).
+  * `draft/tests/sidebets.test.js` (B's lane by module-under-test) — its
+    include-guard check restated structurally (guard → include →
+    money-section anchor). Its 80-char proximity regex asserted "adjacent"
+    where the documented claim was "inside the branch"; the commissioner
+    edge report (Cory: *"if an open bet or proposed bet to me is decided to
+    be advantageous then tell me"*) legitimately renders between the guard
+    and the include, in `views/bank.ejs` — already a documented crossing
+    above — precisely so the B-lane `_side_bets.ejs` partial stayed
+    untouched. No behavioural assertion changed; 27/27.
+
+Refusal-set bookkeeping: the pinned set is now **17 files**
+(`scripts/verify-relay-session.sh` carries the exact list). No scoring/weight
+default moved in either pass; the merge remains A's or Cory's deliberate act
+via `scripts/merge-relay.sh`.

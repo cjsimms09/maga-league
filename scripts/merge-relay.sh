@@ -2,9 +2,11 @@
 # TERRITORY: A
 # MERGE THE RELAY BRANCH — the Override #5 bypass, as a MECHANISM.
 #
-# integrate.sh will (correctly) refuse the relay branch: it carries the 13
+# integrate.sh will (correctly) refuse the relay branch: it carries the
 # documented, Cory-authorised lane crossings recorded in TERRITORY.md
-# Override #5. The documented procedure was "bypass the lane gate knowingly"
+# Override #5 (verify-relay-session.sh pins the exact current list — the
+# count moves as fixes reach main and authorised passes land, the pin never
+# drifts). The documented procedure was "bypass the lane gate knowingly"
 # — a hand-executed instruction, which is exactly the shape this repo keeps
 # converting into mechanisms (Cory's own ruling: PREFER A MECHANISM TO AN
 # INSTRUCTION). This is that mechanism. It does everything integrate.sh
