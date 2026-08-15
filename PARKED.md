@@ -14082,3 +14082,98 @@ than a hardcoded JS constant, and get a second opinion on the 100%-vs-57% gap be
 calling it final. Left for Cory to decide whether to build for real, or leave this
 prototype and its numbers for A to pick up — either way, don't re-derive any of the
 above from scratch.
+
+---
+
+## 00000000000. WEEKLY IN-SEASON PROJECTION CAPTURE — VERIFIED LIVE, NOT JUST READ (2026-08-15) ✅ CONFIRMED WORKING
+
+**The question:** Cory pushed back on "proj_series.json capture is healthy" — that
+check only covered the ONE-TIME preseason snapshot. What about weekly, in-season
+projections, which lineup/waiver/analyzer all depend on, every week of the season?
+
+**Real gap, already named by the codebase itself.** `weekly_proj_snapshot.py`'s own
+docstring: *"NOTHING ARCHIVES THE WEEKLY PROJECTIONS: proj_series.json holds
+preseason snapshots only... and providers overwrite weekly numbers in place."* This
+tool + its workflow (`weekly-proj-snapshot.yml`, Sundays 13:00 UTC, before the 1pm ET
+slate) exist specifically to close that — write the week's projection into the same
+archive before providers overwrite it, so every in-season tool's decision is
+reconstructable in January instead of lost the moment the week turns.
+
+**It had never actually run — total_count was 0.** Added to the repo 2026-08-14, one
+day before its first scheduled Sunday. Not a bug, just untested in the one
+environment that matters (live CI, real Sleeper access — this sandbox's Sleeper
+access is blocked, so it can't be verified by reading code alone).
+
+**So it was actually triggered, not just read.** Ran `workflow_dispatch` on
+`weekly-proj-snapshot.yml` live. Result: completed, all steps succeeded, AND —
+checked, not assumed — `proj_series.json` on `origin/main` did NOT change. That's the
+CORRECT outcome: the script's own preseason-is-a-clean-skip logic
+(`season_type != 'regular'` → exit 0, no write) fired exactly as designed. This
+confirms the mechanism runs end-to-end in the real environment (checkout, Python,
+live Sleeper `/state/nfl` call all succeeded) and correctly does nothing rather than
+writing garbage under a wrong week label — the failure mode its own comments say
+they were most worried about ("a mislabelled week grades a strategy against inputs
+it never saw").
+
+**Confidence, honestly scoped:** this proves the machinery works TODAY, in preseason.
+It does not prove it will correctly detect week 1 the moment the real season starts —
+that depends on Sleeper's own `/state/nfl` flipping `season_type` to `'regular'` on
+schedule, which is outside this project's control and wasn't and couldn't be tested
+here. Worth a manual `--week 1` dry-run check in the first week of the season rather
+than trusting the cron blindly on its first real week.
+
+## What this is NOT
+
+Not a new build — the tool and workflow already existed, fully written, before this
+entry. This is a verification (actually triggered it, checked the real outcome) of
+something that had never been run, closing exactly the kind of gap
+`log_draft_picks.py` (entry above) turned out to have — the difference being this one
+checks out clean.
+
+---
+
+## 000000000000. RANDOM FOREST / XGBOOST FOR THE CORE PROJECTION MODEL — REAL QUESTION FOR A, NOT DECIDED HERE (2026-08-15)
+
+**Cory's question, direct:** are Random Forest / XGBoost relevant to our projections?
+Should we use them?
+
+**Already a real, checked precedent, not a cold question.** `mattgilgo/fantasy_football`
+(reviewed 2026-08-14, `RESOURCES.md`) does exactly this — per-position sklearn/XGBoost
+regression, benchmarked by MAE against expert consensus. Reported result: beat expert
+MAE on QB/WR/TE, did NOT clearly beat on RB — the position this project has separately
+and independently found to be the hardest to project (RB-concentration risk,
+DECISIONS-NEEDED #0000/#00000). That's a real, corroborating data point about the
+approach's limits, not just a design description.
+
+**Honest assessment, not a recommendation either way:**
+- **Plausible upgrade path, not a near-term one.** `walk_forward()` is a simple,
+  transparent regression-to-mean + age-curve formula. A tree ensemble could capture
+  real non-linear interactions (age × usage × team context) it can't — IF there's
+  enough clean data to train it without overfitting.
+- **Data volume is thin for it right now.** Only 3 years of nflverse weekly data
+  reachable (2023-2025) — mattgilgo's own weak RB result is plausibly a symptom of
+  exactly this, not a flaw in trees generally.
+- **Leak-free discipline gets harder, not easier.** This project has repeatedly,
+  expensively enforced AsOf/leak-free discipline (exp33 and others). A hand-written
+  regression formula has few places for a leak to hide; a tree model with many
+  engineered features has many, and each one needs the same scrutiny individually.
+- **Explainability drops.** This codebase's whole culture is transparent,
+  commented, "here is exactly why" reasoning. A tree ensemble is a comparative
+  black box — SHAP/feature-importance can partially bridge that, but it's a real
+  cost, not a free upgrade.
+- **Timing:** building, validating, and leak-auditing a new model class in the 7
+  days before this draft is exactly the kind of thing this project's own history
+  warns against (the bench-branch anchor broke from inventing something new under
+  draft-week pressure). Not for this draft.
+
+**Where this actually fits:** the post-draft "learning engine" already on the roadmap
+(`TODO.md`, "GENUINELY AFTER THE DRAFT" — weekly re-grading, needs live weekly
+outcomes that don't exist yet). Once real 2026 weekly results start accumulating,
+there's a natural, low-risk way to test this: build it as a candidate arm, backtest it
+against `walk_forward()` through the same Lab-gate discipline (register the question,
+null-test, accuracy + overfitting gates) already used for every other model change
+here — not swap it in on a hunch.
+
+**Not decided here — flagged as a real question for A**, since it's a genuine
+architectural choice about the core projection model Cory himself called "the base of
+everything," not something to settle unilaterally in a research-relay session.
