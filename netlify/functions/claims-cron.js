@@ -31,6 +31,7 @@ const store = require('../../src/store');
 const WC = require('../../src/weekly_claims');
 const predledger = require('../../src/predledger');
 const PO = require('../../src/routes/playoffs');
+const WPP = require('../../src/weekly_player_projection');
 
 /* THE PURE CORE, exported for the unit test — no store, no egress.
  *
@@ -192,6 +193,27 @@ exports.handler = async (event) => {
           await predledger.append(store, { kind: 'forecast_resolution',
             method: 'weekly-claims-v1', season, payload: r });
           resolved.push(r.forecast_key);
+        }
+      }
+
+      /* PLAYER-WEEK RESOLUTIONS — the player-projection cron's rows, settled
+       * from the SAME matchup read, at players_points grain. By Sunday morning
+       * the prior week is final, so every rostered player's realized points is
+       * in hand; a player with no entry (dropped mid-week) stays pending
+       * rather than becoming a miss. The marker doc keeps a manual re-run from
+       * appending the same several hundred resolutions twice (the grader's
+       * first-resolution-wins join is the backstop, not the mechanism). */
+      const playerPrior = prior.filter(p => p.ftype === 'point' && WPP.isPlayerKey(p.key));
+      const rmarkKey = `playerproj:resolved:${season}:${week - 1}`;
+      if (playerPrior.length && !(await store.get(rmarkKey))) {
+        const rawPrev = await sleeper.matchupsForWeek(leagueId, week - 1).catch(() => null);
+        const pp = WPP.playersPointsFromMatchups(rawPrev);
+        if (pp) {
+          const rows = WPP.resolvePlayerForecasts(playerPrior, pp);
+          await predledger.appendBatch(store, rows.map(r => ({
+            kind: 'forecast_resolution', method: WPP.METHOD, season, payload: r })));
+          for (const r of rows) resolved.push(r.forecast_key);
+          await store.set(rmarkKey, { n: rows.length, at: new Date().toISOString() });
         }
       }
     }
