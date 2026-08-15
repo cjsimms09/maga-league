@@ -1170,3 +1170,13 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     refusal set is now **11 files** (the count "8" earlier in this entry was
     correct when written); `scripts/verify-relay-session.sh` pins the exact
     current set.
+  * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
+    day) — the independent review's required action #2: the test's no-bundle
+    arm had an accidental live-network dependency with a sign bit (passed
+    only where api.sleeper.app was UNREACHABLE; flaked on CI runners with
+    egress). One env-pin line (`SLEEPER_BASE` → the discard port) before the
+    requires makes it deterministic everywhere. No assertion changed; B
+    should still glance at it on return. (Also bookkeeping: the
+    board_activity pair later LEFT the refusal set the same way
+    test_board_pin.py did — their fix reached main via the authorised
+    rebuild-blocker cherry-picks.)
