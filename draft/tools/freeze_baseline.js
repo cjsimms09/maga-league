@@ -347,12 +347,38 @@ function artifactPath() {
     + 'BASELINE_ARTIFACT deliberately.');
 }
 
+/* BOARD IDENTITY IS THE BYTES, NOT THE TIMESTAMP — fixed 2026-08-15 from C's
+ * routed evidence (ROUTES.md TO:A, 2026-08-14). `same_board` used to be
+ * `pinned.built_at === live.built_at`, and built_at does not track content:
+ * the board is REBUILT once (which stamps built_at) and then EDITED IN PLACE
+ * by later commits. C reproduced it from git — three commits (ce866a5,
+ * e77f834, 57ce958), three different sha256s, 31KB apart with 136 of the
+ * first 400 player rows differing, all carrying built_at =
+ * 2026-08-13T23:13:18Z. So the identity check answered "were these built by
+ * the same run" while every reader took it as "are these the same board" —
+ * a silent failure on exactly the day it matters, freezing a baseline
+ * against the wrong board before the 22nd.
+ *
+ * The remedy is C's own board_pin.py shape: content-address with sha256 over
+ * the raw bytes. built_at stays REPORTED (it is honest provenance about the
+ * build event) but no longer decides identity. Pure and exported so the
+ * fail-arm — same built_at, different bytes — is a test, not a war story. */
+function boardIdentity(pinnedRaw, liveRaw) {
+  const crypto = require('crypto');
+  const sha = s => crypto.createHash('sha256').update(s).digest('hex');
+  const pinnedSha = sha(pinnedRaw), liveSha = sha(liveRaw);
+  return { pinned_sha256: pinnedSha, live_sha256: liveSha, same_board: pinnedSha === liveSha };
+}
+
 /** What moved between the PINNED board and the live one. Reported, never failed on. */
 function artifactDrift() {
   const livePath = path.join(ROOT, 'public', 'draft_data.json');
   if (!fs.existsSync(livePath)) return { live_present: false };
-  const pinned = JSON.parse(fs.readFileSync(artifactPath(), 'utf8'));
-  const live = JSON.parse(fs.readFileSync(livePath, 'utf8'));
+  const pinnedRaw = fs.readFileSync(artifactPath(), 'utf8');
+  const liveRaw = fs.readFileSync(livePath, 'utf8');
+  const identity = boardIdentity(pinnedRaw, liveRaw);
+  const pinned = JSON.parse(pinnedRaw);
+  const live = JSON.parse(liveRaw);
   const pi = {}, li = {};
   pinned.players.forEach(p => { pi[String(p.player_id)] = p; });
   live.players.forEach(p => { li[String(p.player_id)] = p; });
@@ -365,7 +391,10 @@ function artifactDrift() {
   return {
     live_present: true,
     pinned_built_at: pinned.built_at, live_built_at: live.built_at,
-    same_board: pinned.built_at === live.built_at,
+    // Content-addressed — see boardIdentity above. built_at is provenance
+    // about the build EVENT; the sha256s are identity of the board ITSELF.
+    pinned_sha256: identity.pinned_sha256, live_sha256: identity.live_sha256,
+    same_board: identity.same_board,
     players_pinned: pinned.players.length, players_live: live.players.length,
     projections_moved_gt1: projMoved, adp_changed: adpMoved, compared: common.length,
   };
@@ -527,6 +556,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  build, canonicalStates, surfaceFor, artifactPath, artifactDrift,
+  build, canonicalStates, surfaceFor, artifactPath, artifactDrift, boardIdentity,
   ACTIVE_VERSION, BASELINE_PATH,
 };

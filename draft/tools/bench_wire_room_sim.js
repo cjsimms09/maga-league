@@ -142,8 +142,18 @@ function runRoom(seed, wireBenchOn) {
   const totalRounds = Math.ceil(TOTAL / (LEAGUE.teams || 10));
   const qbPicks = picksLog.filter(x => x.pos === 'QB');
   const qb2 = qbPicks.length >= 2 ? qbPicks[1] : null;
+  // picksLeftAtQB2 counts picks remaining AFTER the QB2 pick — a QB2 taken
+  // with my very last pick reads 0. FIXED 2026-08-15: the independent review
+  // (low/boundary) flagged the original `MY_PICKS.length - index` as a
+  // possible off-by-one, and checking the source of truth proved it right:
+  // onesie_history_check.js computes its real-history timing bands as
+  // `pks.length - 1 - i` (line 103) — exclusive — and the ONLY purpose of
+  // this metric is comparison against those bands, so the simulator must
+  // count the same way or every room reads one slot later than the history
+  // it is compared to. My first version was inclusive AND its comment
+  // claimed the historical tool was too, without checking. It wasn't.
   return { seed, posCounts, picksLog, qb2Round: qb2 ? qb2.round : null,
-    picksLeftAtQB2: qb2 ? (MY_PICKS.length - picksLog.findIndex(x => x === qb2)) : null,
+    picksLeftAtQB2: qb2 ? (MY_PICKS.length - 1 - picksLog.findIndex(x => x === qb2)) : null,
     totalRounds };
 }
 
@@ -177,8 +187,16 @@ function summarize(rooms) {
 const summary = { off: summarize(results.off), on: summarize(results.on) };
 const out = { rooms: ROOMS, seed_start: SEED0, generated_at: new Date().toISOString(),
   summary, detail: results };
-fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'bench_wire_room_sim.json'),
-  JSON.stringify(out, null, 2));
+// BENCH_WIRE_SIM_OUT: output-path override (default unchanged), same pattern
+// as log_draft_picks.py's DRAFT_PICK_LOG_PATH. Exists because the TEST runs
+// this script for real — and its small 3-room runs were silently OVERWRITING
+// the committed 30-room artifact on every full sweep, which is exactly the
+// narrative-vs-artifact mismatch the independent review caught (2026-08-15,
+// medium/evidence_boundary): the audit cited a 30-room run while the
+// committed file held rooms:3, seed_start:900 from the last test pass.
+const OUT_PATH = process.env.BENCH_WIRE_SIM_OUT
+  || path.join(ROOT, 'draft', 'data', 'bench_wire_room_sim.json');
+fs.writeFileSync(OUT_PATH, JSON.stringify(out, null, 2));
 
 console.log(`BENCH WIRE-COMPARISON — ${ROOMS} paired rooms, seeds ${SEED0}-${SEED0 + ROOMS - 1}`);
 console.log('  Both arms run with VONA_SLOT_AWARE=true (also off by default; needed to reach');

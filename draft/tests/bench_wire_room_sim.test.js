@@ -14,9 +14,18 @@ let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        -> ' + JSON.stringify(d).slice(0, 300) : ''))); };
 
+// The test's runs write to a SCRATCH path (BENCH_WIRE_SIM_OUT), never the
+// committed artifact. The first version of this file omitted that and its
+// 3-room runs silently overwrote draft/data/bench_wire_room_sim.json on
+// every full sweep — so the committed artifact stopped matching the 30-room
+// run the audit narrative cited, which is exactly what the independent
+// review caught (2026-08-15, medium/evidence_boundary).
+const os = require('os');
+const fs = require('fs');
+const TEST_OUT = path.join(os.tmpdir(), 'bench_wire_room_sim.test-out.json');
 function run(rooms, seed) {
   return execSync(`node draft/tools/bench_wire_room_sim.js --rooms ${rooms} --seed ${seed}`,
-    { cwd: ROOT }).toString();
+    { cwd: ROOT, env: Object.assign({}, process.env, { BENCH_WIRE_SIM_OUT: TEST_OUT }) }).toString();
 }
 
 // ── 1. DETERMINISTIC — the same seed must reproduce byte-for-byte ──────────
@@ -35,8 +44,7 @@ function run(rooms, seed) {
 // ── 3. THE ARTIFACT IS REAL, STRUCTURED, AND REGENERATED EACH RUN ──────────
 {
   run(3, 900);
-  const out = JSON.parse(require('fs').readFileSync(
-    path.join(ROOT, 'draft', 'data', 'bench_wire_room_sim.json'), 'utf8'));
+  const out = JSON.parse(fs.readFileSync(TEST_OUT, 'utf8'));
   ck('the artifact records the exact seed/room count that produced it',
     out.rooms === 3 && out.seed_start === 900, { rooms: out.rooms, seed: out.seed_start });
   ck('both arms (off/on) ran the same number of rooms',
@@ -51,8 +59,7 @@ function run(rooms, seed) {
 // VONA_WIRE_BENCH applies at all — is unreachable without it, which made the
 // first version of this file report byte-identical off/on results.)
 {
-  const out = JSON.parse(require('fs').readFileSync(
-    path.join(ROOT, 'draft', 'data', 'bench_wire_room_sim.json'), 'utf8'));
+  const out = JSON.parse(fs.readFileSync(TEST_OUT, 'utf8'));
   const offShape = JSON.stringify(out.summary.off.shape_distribution);
   const onShape = JSON.stringify(out.summary.on.shape_distribution);
   // Not asserting they MUST differ on every 3-room run (a real strategy
