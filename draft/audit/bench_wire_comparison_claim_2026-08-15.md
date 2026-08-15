@@ -53,6 +53,19 @@ WHAT RAN, all of it fresh this session, all of it committed:
 WHAT CAME BACK, exactly as measured, not adjusted to match the earlier
 uncommitted claim:
 
+[ARTIFACT SCOPING NOTE, 2026-08-15, after the independent re-audit: the
+numbers below are this claim's original 2-arm, 30-room run. The COMMITTED
+artifact at draft/data/bench_wire_room_sim.json has since moved on twice —
+(1) the re-audit caught the test suite silently overwriting it with a
+3-room test run (fixed: the test now writes to scratch via
+BENCH_WIRE_SIM_OUT), and (2) the artifact is now the 3-arm, 60-room
+isolation run with the corrected, history-matching picks-remaining metric
+(the re-audit's off-by-one finding, confirmed against
+onesie_history_check.js line 103 and fixed). Under that corrected metric
+the late-QB2 figures below read 10% (vorp arm) and 100% (wire arm) —
+rates, rounds, and shapes unchanged. Current numbers and their meaning:
+draft/audit/vona_slot_aware_isolation_2026-08-15.md.]
+
     VONA_SLOT_AWARE=true, VONA_WIRE_BENCH=false (vorp-based bench,
     i.e. the baseline PARKED.md's earlier, uncommitted run reported wiping
     RB to 0 in 66.7% of rooms):
@@ -127,3 +140,13 @@ simulator is reusable — a larger room count, or a run isolating
 VONA_SLOT_AWARE's own effect (compare it against VONA_SLOT_AWARE=false as
 well, not just the two bench variants under it) would directly test that
 hypothesis and is the natural next command to run, not new code to write.
+
+RESOLVED 2026-08-15, LATER THE SAME DAY: that isolation run was performed —
+a third, shipped-default arm (both flags false) was added to the simulator
+and all three arms ran on 60 paired seeds. The hypothesis held: the shipped
+default's QB2 rate is 53.3% (statistically indistinguishable from the real
+56.7%), and flipping VONA_SLOT_AWARE alone — with the OLD vorp bench
+formula, no wire code executed — jumps it to 100%. The anomaly belongs to
+VONA_SLOT_AWARE, not the wire comparison. The RB-wipeout claim reproduced
+in no arm at the doubled sample. Full numbers, confidence bounds, and what
+remains unproven: draft/audit/vona_slot_aware_isolation_2026-08-15.md.

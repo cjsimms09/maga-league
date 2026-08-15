@@ -14130,6 +14130,20 @@ calling it final. Left for Cory to decide whether to build for real, or leave th
 prototype and its numbers for A to pick up — either way, don't re-derive any of the
 above from scratch.
 
+**UPDATE 2026-08-15 — the 100%-vs-57% gap is EXPLAINED, and two of this entry's
+numbers did not survive a committed re-run.** A committed, seeded, three-arm
+60-room simulation (`draft/tools/bench_wire_room_sim.js`, artifact at
+`draft/data/bench_wire_room_sim.json`) isolated the variable: the shipped default
+(both flags off) takes QB2 in 53.3% of rooms — matching the real 56.7% — and
+turning on `VONA_SLOT_AWARE` alone, with the OLD vorp bench formula and no wire
+code at all, jumps it to 100%. **The QB2-rate anomaly is VONA_SLOT_AWARE's, not
+the wire branch's.** The wire branch's real, confirmed contribution is TIMING
+(QB2 in rounds 10-13, 90% endgame, vs rounds 8-9 and 3.3% endgame under vorp).
+Also: this entry's headline RB-wipeout (66.7% of rooms RB=0 under slot-aware
+vorp) reproduced in NO arm — 0/60 everywhere. Full write-up:
+`draft/audit/vona_slot_aware_isolation_2026-08-15.md`. Nothing shipped; defaults
+untouched.
+
 ---
 
 ## 00000000000. WEEKLY IN-SEASON PROJECTION CAPTURE — VERIFIED LIVE, NOT JUST READ (2026-08-15) ✅ CONFIRMED WORKING
