@@ -161,6 +161,17 @@ now reads `lineup_call, waiver_claim, stream_call, inseason_override — logging
 only `trade_eval` flagged open. Full JS + Python suites green after (2135 passed / 6
 skipped, 0 failed).
 
+**`consensus.js` (contract C3) had zero dedicated test file — found while looking for
+more of the same class of gap.** It's the ONE shared projection-consensus derivation
+Cory asked for so the draft board / waivers / lineup tools can never label or value
+the same player differently. Only indirect coverage existed (`waivers.test.js`
+exercises it through `src/routes/waivers.js`'s delegation); nothing tested
+`proj_ownmodel` (today's third source) or `higherProjectionAlt()` at all.
+`draft/tests/consensus.test.js` now hits the module directly — 23 checks, all pass
+first run: 1/2/3-source averaging + honest labelling, the `proj_mean`+provenance
+fallback, `cleanSource`, and `higherProjectionAlt`'s same-position-only /
+self-exclusion / `withinTop`-window behavior.
+
 ---
 
 ## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
