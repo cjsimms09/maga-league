@@ -436,6 +436,30 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   **Not re-verified: whether the daily snapshot capture is still running today** (last dated row
   is 2026-08-14) — worth a 30-second check that it fired again since, not just that it once worked.
 
+## 000000. STREAMABLE_LATE IS DEFINED, TESTED, AND NEVER READ (2026-08-15) 🔴 OPEN
+
+- **WHAT WAS FOUND.** Cory raised a generic VBD critique (source unverified, network-blocked from
+  checking it directly): QB/TE replacement level should be anchored to what's realistically
+  streamable off the wire, not the "next starter." Checked against the live engine before agreeing
+  or dismissing it: `formatDefaults()` in `engine.js` already computes exactly this —
+  `STREAMABLE_LATE: teams <= 10 ? ['QB', 'TE', 'K', 'DEF'] : ['K', 'DEF']` — correctly, per-format.
+  `engine.test.js` even asserts it computes right for both team-count cases.
+- **WHAT IT IMPLIES.** Grepped every reference to `STREAMABLE_LATE` in the codebase. Outside its
+  own definition and its own test, **nothing reads it.** It affects zero recommendations, zero
+  weights, zero anything a player on the board sees. A real, reasoned, tested concept that was
+  computed and then never connected to the thing it was computed for — same shape as `needrule.js`'s
+  mask (measured, tested, real, and never called by `recommend()`) and the pre-restoration
+  `ONESIE_MAX_SPARE` history earlier this file.
+- **CONFIDENCE.** High and mechanical — a grep, not an inference.
+- **COST OF INACTION.** Unknown/unmeasured. The two OTHER generic-critique ideas checked alongside
+  this one (flex-eligible pricing, positional ceiling normalization) are both already live — this
+  is the one gap of the three, and nobody has measured what wiring it in would be worth.
+- **RECOMMENDATION.** Not scoped here — this is a "found it, didn't build it" entry, consistent
+  with the rest of today's work. Whoever picks it up needs to decide WHERE it plugs in (most
+  likely: as an input to the replacement-level calc for QB/TE specifically, or as a modifier
+  inside `onesieState`) and whether it's worth measuring before wiring, given the project's own
+  standing rule against installing anything unmeasured this close to the draft.
+
 ## 0000. THE TOOL DRAFTS 0.9 RUNNING BACKS IN EVERY ARM (2026-08-12) 🔴 OPEN — NOT FIXED, NOT DISAPPEARING
 
 - **WHAT WAS FOUND.** The roster-construction run measured position mix across
