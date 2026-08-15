@@ -43,13 +43,19 @@ Run:  python3 draft/log_draft_picks.py --record '<json>'
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 FREEZE = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
-LOG = ROOT / "draft" / "data" / "draft_pick_log_2026.jsonl"
+# Overridable so draft-night-sync.yml's dry_run mode (added 2026-08-15, see
+# that workflow's own comment) can verify the --sync polling/exit mechanics
+# for real against GitHub Actions without ever writing to the real 2026 pick
+# log — the default here is completely unchanged for every normal caller.
+LOG = Path(os.environ.get("DRAFT_PICK_LOG_PATH")
+           or str(ROOT / "draft" / "data" / "draft_pick_log_2026.jsonl"))
 
 
 def _freeze() -> dict:

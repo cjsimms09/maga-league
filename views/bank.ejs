@@ -118,7 +118,13 @@ season until settled.</p>
                 <% for (const l of r.legs) { %>
                   <form class="asis" method="post" action="/sidebets/<%= l.bet.id %>/leg/<%= l.id %>">
                     <input type="hidden" name="back" value="money">
-                    <button class="btn small ghost" title="<%= l.bet.terms.replace(/"/g, '&quot;') %>">✓ <%= money(l.amount) %></button>
+                    <%# double-escape bug fixed 2026-08-15 (see views/lineup.ejs's note):
+                        EJS's output tag already HTML-escapes, so the manual replace was
+                        stacking a second escape on top of it — cosmetic here (a literal
+                        quote in bet terms would show as the text "&quot;" in the tooltip)
+                        rather than the data-corrupting version in the predledger capture
+                        forms. %>
+                    <button class="btn small ghost" title="<%= l.bet.terms %>">✓ <%= money(l.amount) %></button>
                   </form>
                 <% } %>
               </span>

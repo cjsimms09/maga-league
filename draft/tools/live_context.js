@@ -133,11 +133,26 @@ function liveContext(opts) {
     // system: 3 slots of error today, 18 once the slate locks.
     pickBoard: o.pickBoard !== undefined ? o.pickBoard
       : ((data.pick_order || {}).picks || null),
+    // Mirrors app.js's context() exactly: read from the board if present,
+    // else the caller's override, else null -- same as pickBoard above.
+    // app.js's own comment explains why the board rarely carries it yet
+    // (draft/build.py does not embed wire_level -- separate, undone work).
+    wireWeekly: o.wireWeekly !== undefined ? o.wireWeekly : (data.wire_level || null),
     currentPick: o.currentPick,
     intervening: o.intervening
       || interveningFor(data, o.currentPick, o.nextPick, mySlot),
     roundsLeft: totalPicks == null ? 0
       : Math.max(0, Math.ceil((totalPicks - o.currentPick) / teams)),
+    // DEFAULTS FALSE, DELIBERATELY, FOR EVERY CALLER OF THIS BUILDER. app.js
+    // sets this true ONLY in the narrow pre-draft-prep window (zero picks —
+    // real or mock — recorded), where `board` is not yet ground truth about
+    // who is realistically still available. Every tool that calls
+    // `liveContext` is already simulating an in-progress or historical draft
+    // — a mock walk, a room replay, a backtest — where `o.board` (or the
+    // loaded artifact) IS ground truth for that simulation. Filtering it
+    // again by survival-to-currentPick would be double-counting a discount
+    // the simulation already applied by actually removing players.
+    preDraftPrep: o.preDraftPrep != null ? o.preDraftPrep : false,
   };
 
   // ── BOTH DIRECTIONS, BECAUSE BOTH WERE LIVE DEFECTS ─────────────────────

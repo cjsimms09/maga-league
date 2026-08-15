@@ -1069,3 +1069,141 @@ correctly: it contains files from two lanes and neither side's check can pass it
 Widening a guard to fit the work already done is how a boundary stops being one —
 the lesson recorded at #1. The branch is pushed and the merge is A's call or
 Cory's.
+
+## OVERRIDE #5 — the relay session touched B's and C's files, 2026-08-15, authorised by Cory
+
+**WHO AND UNDER WHAT AUTHORITY.** The research-relay session (branch
+`claude/fantasy-football-research-926y6z`), working A's queue while A and B are
+unreachable until Monday, under Cory's explicit, repeated instruction — verbatim:
+*"You need to stop just finding issues. You need to start fixing things to As
+standards"*, *"Stop leaving things for A just because they're difficult.. dive
+in, try to solve"*, and the standing policy recorded in TODO.md (*"the relay
+session pushes anything with a passing test straight to main — no pre-approval
+... EXCEPT draft-scoring/weight changes"*). Every edit below has a test that
+demonstrates the defect it fixes; none changes a scoring/weight default.
+
+**THE FILES, AND WHY EACH CROSSING HAPPENED** (the full evidence chain for each
+is in the commit that made it — listed so the gate's refusal reads as
+documented, not discovered):
+
+  * `views/lineup.ejs`, `views/waivers.ejs`, `views/bank.ejs`,
+    `views/dashboard.ejs`, `src/routes/member.js` (B's lane) — the
+    double-escape bug corrupting every in-season capture form, the
+    capture-failure honesty fix, and the in-season capture routes. Data
+    corruption, not styling: the defect lived in B's files but destroyed A's
+    ledger entries, which is why the relay fixed it rather than filing it.
+  * `src/routes/lineup.js` (B's lane) — the `inferPositions()` FLEX gap that
+    silently deflated the certified L0 leak numbers. Same shape: B's file, A's
+    certified measurement corrupted. Fixed in lockstep with A's own
+    `roster_sim.py` so the port and the original cannot disagree.
+  * `draft/tests/lineup_sanity.test.js` (B-side header) — corrected numbers in
+    its header comment after the L0 fix moved them; no behaviour change.
+  * `draft/tests/test_board_pin.py` (C's file) — the nightly-rebuild false
+    failure (working-tree bytes pinned against HEAD mid-rebuild). Fixed with
+    both arms proven; C's equality contract on clean trees is byte-for-byte
+    unchanged.
+
+**WHAT THIS IS NOT.** Not a redraw proposal and not a precedent for the relay
+editing other lanes at will — every crossing above is a data-integrity defect
+whose evidence and whose victim lay in A's lane while the code lay elsewhere,
+the exact "boundary drawn through the middle of one concern" shape C named at
+its #3/#4. The gate's refusal of this branch is CORRECT and expected:
+`integrate.sh` will list 8 trespasses, all of them the files above. **The merge
+is A's call or Cory's, per the precedent directly above this entry.** The relay
+did not merge the branch to main itself; the only direct main pushes were the
+two board-rebuild-pipeline fixes, each with its own explicit authorisation,
+recorded in their commit messages (`68f1699f`, `dd09c060`).
+
+**APPENDED 2026-08-15, SAME SESSION LINE, SAME AUTHORITY — the prediction-loop
+closure pass (Cory's directive, verbatim: "Complete verification of all
+predictions, making sure they're graded properly and evaluated for future edge
+identification").** Four more B-lane files crossed, every one the same
+data-integrity class as the entries above — B's file, A's ledger the victim,
+each fix carrying a test that demonstrates the defect:
+
+  * `src/routes/member.js` (B's lane) — the six in-season capture routes wrote
+    NO `payload.key`, while the resolver and grader join outcomes BY KEY:
+    every real capture was permanently unjoinable (every test fixture had a
+    key, which is why it read closed). Deterministic keys added; also
+    `/lineup/override` + `/stream/override` now capture `payload.actual`
+    (what the human actually did) — without it every override was structurally
+    ungradeable, since the route recorded the tool's rejected recommendation
+    twice and the human's action never. Proven end-to-end in
+    `draft/tests/loop_closure_live.test.js` (real HTTP captures).
+  * `views/lineup.ejs`, `views/waivers.ejs` (B's lane) — the hidden `actual`
+    fields feeding the above (the current starters / the kept K-or-DEF, both
+    already on the page), plus the override form's footnote corrected to stop
+    promising a Sleeper reconstruction nothing performs.
+  * `src/routes/accuracy.js` (B's lane) — `PENDING_KINDS` shrunk to
+    `['trade_eval']` now that lineup_call/waiver_claim/stream_call actually
+    grade and reach the by-kind table (grade-cron writes `by_kind`/`by_week`
+    merged from `deriveByKind`, newly exported, + `decisionByKind`);
+    `byKindRows` carries the scored/mean-edge denominators. Guarded by the
+    updated reachability check in `draft/tests/scope_agreement.test.js`.
+
+No scoring/weight default moved. The gate will refuse these files too — same
+protocol: the merge is A's call or Cory's, and B should review the
+`member.js`/views crossings on return.
+
+**APPENDED 2026-08-15 (later the same day), SAME AUTHORITY — the nightly-rebuild
+blockers.** Two C-lane files crossed and one bookkeeping correction:
+
+  * `draft/backtest/board_activity.py`, `draft/tests/test_board_activity.py`
+    (C's lane) — the market-spare exemption in `dormant()` treated ANY adp
+    number as a vouch, so FantasyPros deep-table ghost rows (Gronkowski at
+    adp 298, proj_mean 0.0 on the fresh candidate board; 11 more on the
+    committed board) were spared forever and blocked the nightly publish.
+    Bounded by `market_vouches()` (known adp > DEPTH×1.5 does not vouch;
+    priced-but-no-adp stays fail-safe spared), one definition shared by the
+    exemption and the pruning audit. All 13 of C's board_activity mutations
+    re-run for real through C's own `mutation_gate` — KILLED, manifest
+    re-recorded by `record()`, never hand-edited. C's refusal semantics
+    (unreadable stores, keeper handling, health floor) byte-for-byte
+    unchanged.
+  * `draft/tests/scope_agreement.test.js` (B's lane) — listed explicitly: the
+    reachability guard updated alongside the `accuracy.js` crossing above (it
+    is the test that keeps `PENDING_KINDS` honest against the resolver's
+    actual branches).
+  * Bookkeeping: `draft/tests/test_board_pin.py` no longer appears in the
+    gate's refusal of this branch — its fix reached main directly under the
+    explicit authorisation recorded above, so it no longer diffs. The
+    refusal set is now **11 files** (the count "8" earlier in this entry was
+    correct when written); `scripts/verify-relay-session.sh` pins the exact
+    current set.
+  * B-adjacent files from the learning-loop closure pass (Cory's ruling,
+    verbatim: "We need to fix!!!", replying to "the loop grades, but nothing
+    learns"): `netlify/functions/weights-read.js` (NEW, read-only,
+    GRADE_CRON_KEY-gated — the evidence-weights mirror's endpoint),
+    `netlify/functions/analyzer-cron.js` (the checkpoint-RESOLUTION pass —
+    the arc had both ends built and no scheduled middle), `netlify.toml`
+    (schedule comment matched to it), `.github/workflows/weekly-grade.yml`
+    (setup-python + env + two artifacts in the commit step). grade-cron.js
+    itself untouched in that pass. None register as gate trespass
+    (netlify/** is outside the three-lane split's named surfaces) — listed
+    for B's awareness, not because the gate flags them.
+  * B-adjacent files from the league-wide player-projection loop (Cory's
+    directive, verbatim: "We should at least be projecting players in every
+    matchup not just my own... close the loop, and use it to help model get
+    smarter"): `src/weekly_player_projection.js` (NEW — the projector +
+    resolution + partition core, 68 assertions),
+    `netlify/functions/player-projection-cron.js` (NEW — Thursday 10:00 UTC
+    pre-TNF emission), `src/predledger.js` (additive `appendBatch` only),
+    plus additive resolution/partition blocks in claims-cron/grade-cron.
+    Same note as above: netlify/** and new src files don't register as gate
+    trespass; listed for B's review on return.
+    APPENDED (loop review, same day): additive `emissionSanity` in
+    `weekly_player_projection.js` + an `emission_sanity` response field in
+    the cron (Thursday self-check — response-only, moves no number, 6 new
+    assertions), and `weights-read.js`/`weekly_grade_runner.js` now expose/
+    mirror the calibration snapshot's `player_weeks` block (read-only) so
+    the player loop's grades have a machine consumer.
+  * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
+    day) — the independent review's required action #2: the test's no-bundle
+    arm had an accidental live-network dependency with a sign bit (passed
+    only where api.sleeper.app was UNREACHABLE; flaked on CI runners with
+    egress). One env-pin line (`SLEEPER_BASE` → the discard port) before the
+    requires makes it deterministic everywhere. No assertion changed; B
+    should still glance at it on return. (Also bookkeeping: the
+    board_activity pair later LEFT the refusal set the same way
+    test_board_pin.py did — their fix reached main via the authorised
+    rebuild-blocker cherry-picks.)

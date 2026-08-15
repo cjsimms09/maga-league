@@ -35,6 +35,12 @@
   schedule = "0 12 * * 2"
 
 [functions."claims-cron"]
+  # The measured wire baseline the waiver_claim resolver prices hold-priority
+  # claims against (see buildDecisionResolutions). Data read from disk at run
+  # time, so it must ship with the bundle — same reason app carries draft/data.
+  # Absent file degrades honestly: drop-based resolutions still run, wire-based
+  # ones stay pending.
+  included_files = ["draft/data/wire_level.json"]
   # Sunday 13:00 UTC (~9am ET, before the 1pm slate) — EMIT this week's forecasts
   # and RESOLVE last week's, in that order and in one run. They cannot collide: by
   # Sunday morning the prior week is final (MNF included) and this week has not
@@ -50,6 +56,20 @@
   # the one job whose SCHEDULE is part of its correctness.
   schedule = "0 13 * * 0"
 
+[functions."player-projection-cron"]
+  # Thursday 10:00 UTC — BEFORE Thursday Night Football (earliest kickoff of an
+  # NFL week is ~00:20 UTC Friday). Emits per-player point forecasts for the
+  # coming week, league-wide, both arms (our blend + Sleeper's line). claims-cron
+  # cannot host this: it runs Sunday, AFTER TNF, and a TNF player's "projection"
+  # emitted Sunday is post-hoc. Like claims-cron, this is a job whose SCHEDULE is
+  # part of its correctness — the handler additionally stamps emitted_late on any
+  # run at/after the week's first possible kickoff, and late rows are excluded
+  # from grading (counted, never silently graded).
+  #
+  # EMIT ONLY. Resolution stays in claims-cron (Sunday), grading in grade-cron
+  # (Tuesday): three jobs, so no run settles or grades a row it just wrote.
+  schedule = "0 10 * * 4"
+
 [functions."analyzer-cron"]
   # Sunday 13:05 UTC — five minutes behind claims-cron, on the same reasoning:
   # a belief committed after the games is not a prediction.
@@ -64,9 +84,13 @@
   # It projects through liveWeek-1, not liveWeek: teamStrength reads weeks
   # 1..throughWeek, so the week in progress would feed it a week of zeros.
   #
-  # It EMITS ONLY. Resolution of a checkpoint is a separate pass over forecasts
-  # written on earlier runs, once the regular season is final — a job that
-  # emitted and resolved in one pass could settle a forecast it had just made.
+  # It emits, and it RESOLVES — as a separate pass over forecasts written on
+  # EARLIER runs only, gated on the regular season being final in the harvested
+  # history (loop closure 2026-08-15: the resolvers existed since the emitter
+  # landed and nothing ever scheduled them). Until season-final each run
+  # reports the pending count by name; at season-final it resolves the two
+  # kinds once, deduped on forecast_key, this run's own emissions excluded —
+  # a job must never settle a forecast it just made.
   schedule = "5 13 * * 0"
 
 [functions."app"]

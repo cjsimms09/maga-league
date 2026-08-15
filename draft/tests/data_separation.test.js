@@ -65,6 +65,11 @@ const PRODUCTION_INPUTS = {
   'draft-config.json': 'Draft-day configuration.',
   'state.json': 'Slot-picker UI state.',
   'ledger.csv': 'The decision ledger export.',
+  'player_positions.json': 'Ground-truth id -> position, union-over-builds, never '
+    + 'pruned. Fallback for inferPositions() (src/routes/lineup.js) on players the '
+    + 'starters-array heuristic cannot classify — anyone who only ever started in a '
+    + 'FLEX-type slot. About real historical rosters of THIS league, same as '
+    + 'league_history.json, not a future-season signal.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not

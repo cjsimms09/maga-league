@@ -95,3 +95,48 @@ January 2027 the first date a real Sleeper skill number can exist. Nothing in
 this experiment substitutes for that; it benchmarks the *class* of
 professional projection against naive baselines, which is the strongest
 previous-years sanity test that does not leak.
+
+---
+
+## THE DISPATCH FIRED, AND THE ANSWER IS IN (run committed as `b1798e58`, same day)
+
+**Headline: 3/3 years passed every authenticity gate and were graded.** The
+archives are genuinely preseason-frozen, proven by the preregistered markers:
+2023's archive projects Nick Chubb at 183.24 (realized 21.1 — the archive
+does not know about the injury that ended his season in week 2); 2024's
+projects Zamir White at 158.54 (realized 26.3); 2025's projects James Conner
+at 189.83 (realized 29.3). Retired-since ghosts present where a later store
+exists (180 in 2023, 96 in 2024); ADP anchor correlations passed all years.
+
+**The first real previous-years projection-skill table under OUR scoring**
+(head-to-head on the shared population — the one denominator on which the
+comparison is a single quantity):
+
+    2024 (vs naive prev-season):        2025 (vs the 0.7/0.3 recency blend —
+                                          the baseline that beats our own model):
+    QB  FP MAE 62.41 vs 81.36  (−18.95)   QB  FP MAE 66.32 vs 75.25  (−8.93)
+    RB  FP MAE 41.02 vs 49.94  (−8.92)    RB  FP MAE 39.93 vs 44.93  (−5.00)
+    WR  FP MAE 31.73 vs 42.12  (−10.39)   WR  FP MAE 34.55 vs 38.36  (−3.81)
+    TE  FP MAE 24.27 vs 28.20  (−3.93)    TE  FP MAE 21.08 vs 24.27  (−3.19)
+
+FP's rank correlation also beats the baseline in every cell of both years.
+
+**WHAT THIS PRICES.** Professional preseason projection skill is REAL and
+worth roughly **3–9 points of season-long MAE per position over the naive
+recency blend** (more over raw prior-season). That is the honest size of the
+edge available in the projection layer: meaningful, and bounded. Two direct
+consequences: (1) the shipped basis (professional consensus rescored under
+our table) is VALIDATED AS A CLASS — the first previous-years evidence that
+the kind of source the board runs on beats what a naive spreadsheet would do,
+under our rules; (2) projector-v2's realistic headroom over the blend is that
+same 3–9 points — clearing the blend is the entry bar, approaching FP's
+number is the real target, and anything claiming to beat FP by a wide margin
+should be treated as a leak until proven otherwise.
+
+**Carried caveats, verbatim class:** survivorship (players projected but
+absent from every graded week are excluded and counted — 108/96/189 by year —
+so every MAE in the table is optimistic by an unmeasured amount, equally for
+FP and the baselines); FP ≠ Sleeper (the shipped source's own skill remains
+unmeasurable until the January 2027 grade of the daily freeze); QB bias runs
+positive (+14 to +27 across years) — FP over-projects QBs as a group under
+our scoring, worth remembering when reading QB point totals as absolutes.

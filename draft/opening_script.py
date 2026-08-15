@@ -58,9 +58,19 @@ def _hash(obj) -> str:
 
 
 def fingerprint(board: dict, predicted: dict) -> dict:
-    """What the script was generated FROM. Any change here = regenerate."""
+    """What the script was generated FROM. Any change here = regenerate.
+
+    board_content_hash ADDED 2026-08-15, same fix as freeze_baseline.js's
+    boardIdentity() and from the same routed evidence (ROUTES.md TO:A,
+    2026-08-14): built_at is stamped by the REBUILD and survives in-place
+    edits, so a fingerprint carrying only board_built_at called two boards
+    31KB apart identical — C reproduced three different boards from git all
+    sharing one built_at. The content hash is the identity; built_at stays
+    as provenance about the build event (and a rebuild moving it still
+    correctly marks the script stale)."""
     return {
         "board_built_at": board.get("built_at"),
+        "board_content_hash": _hash(board),
         "my_slot": (board.get("league") or {}).get("my_draft_slot"),
         "my_keepers_hash": _hash(sorted(str(k.get("player_id"))
                                         for k in board.get("kept_players", []))),
@@ -229,8 +239,9 @@ def main():
     script = generate(board, predicted)
     OUT_JSON.write_text(json.dumps(script, indent=1))
     OUT_MD.write_text(render_md(script))
+    fp = script['meta']['fingerprint']
     print(f"opening script: picks {script['my_picks'][:3]} scripted, "
-          f"2 branches, fingerprint {script['meta']['fingerprint']['board_built_at']}")
+          f"2 branches, board {fp['board_content_hash']} (built {fp['board_built_at']})")
     print(f"wrote {OUT_MD} + {OUT_JSON}")
     return 0
 

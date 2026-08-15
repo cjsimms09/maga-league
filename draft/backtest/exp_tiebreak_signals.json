@@ -1,0 +1,81 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, no production reader",
+ "experiment": "EXP-TIEBREAK-SIGNALS \u2014 ceiling structure (live board) + age/experience effects (2023-2024 drafts)",
+ "prereg": "header of draft/backtest/exp_tiebreak_signals.py",
+ "part1_ceiling_structure": {
+  "QB": {
+   "n": 76,
+   "distinct_variance_values": 12,
+   "spearman_ceiling_vs_mean": 0.9965,
+   "within_tier_pairs": 872,
+   "pair_inversion_pct": 4.36
+  },
+  "RB": {
+   "n": 134,
+   "distinct_variance_values": 21,
+   "spearman_ceiling_vs_mean": 0.9993,
+   "within_tier_pairs": 1381,
+   "pair_inversion_pct": 3.91
+  },
+  "WR": {
+   "n": 204,
+   "distinct_variance_values": 24,
+   "spearman_ceiling_vs_mean": 0.9993,
+   "within_tier_pairs": 1963,
+   "pair_inversion_pct": 6.21
+  },
+  "TE": {
+   "n": 113,
+   "distinct_variance_values": 21,
+   "spearman_ceiling_vs_mean": 0.9994,
+   "within_tier_pairs": 1009,
+   "pair_inversion_pct": 3.87
+  }
+ },
+ "part2_age_experience": {
+  "population": 234,
+  "excluded_missing_years_exp": 27,
+  "excluded_missing_store_row": 0,
+  "coverage_note": "years_exp derived from the 2026 board \u2014 survivor-biased toward players still rostered in 2026",
+  "same_season_effect_by_exp": {
+   "3-5yr": {
+    "n": 72,
+    "mean_effect_pts": 2.0,
+    "rough_se": 7.9,
+    "null": true
+   },
+   "6+yr": {
+    "n": 67,
+    "mean_effect_pts": 6.0,
+    "rough_se": 9.6,
+    "null": null
+   },
+   "rookie-2yr": {
+    "n": 95,
+    "mean_effect_pts": -5.8,
+    "rough_se": 6.3,
+    "null": null
+   }
+  },
+  "next_season_effect_by_exp": {
+   "3-5yr": {
+    "n": 71,
+    "mean_effect_pts": 13.1,
+    "rough_se": 7.7,
+    "null": null
+   },
+   "6+yr": {
+    "n": 66,
+    "mean_effect_pts": -14.4,
+    "rough_se": 8.7,
+    "null": null
+   },
+   "rookie-2yr": {
+    "n": 92,
+    "mean_effect_pts": 0.2,
+    "rough_se": 8.0,
+    "null": true
+   }
+  }
+ }
+}

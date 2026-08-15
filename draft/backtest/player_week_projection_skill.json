@@ -1,0 +1,299 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, produced by draft/backtest/player_week_projection_skill.py",
+ "validates": "src/weekly_player_projection.js arm 'ours' (player-week-projection-v1)",
+ "protocol": "exp_weekly_env eval semantics: strictly-prior inputs, MAE/bias/within-week Spearman vs realized under OUR scoring",
+ "prior_stand_in": "2024 prior = 2023 per-game rate regressed 0.35 to positional mean x 15.5/17 (lab_projections constants). 2023 has no committed 2022 store: realized-mean regime only.",
+ "cross_check_target": {
+  "2023": {
+   "mae": 5.6729,
+   "n": 2179
+  },
+  "2024": {
+   "mae": 5.7369,
+   "n": 2259
+  },
+  "source": "exp_weekly_env.json committed baseline"
+ },
+ "seasons": {
+  "2023": {
+   "running_mean_parity": {
+    "overall": {
+     "n": 2097,
+     "mae": 5.6762,
+     "bias": 0.2073,
+     "spearman_weekly": 0.4915
+    },
+    "QB": {
+     "n": 377,
+     "mae": 7.6174,
+     "bias": -0.1508,
+     "spearman_weekly": 0.3151
+    },
+    "RB": {
+     "n": 580,
+     "mae": 5.2962,
+     "bias": 0.2125,
+     "spearman_weekly": 0.4629
+    },
+    "WR": {
+     "n": 854,
+     "mae": 5.4882,
+     "bias": 0.4798,
+     "spearman_weekly": 0.3598
+    },
+    "TE": {
+     "n": 286,
+     "mae": 4.4494,
+     "bias": -0.145,
+     "spearman_weekly": 0.2935
+    }
+   },
+   "running_mean_zero_excluded": {
+    "overall": {
+     "n": 2176,
+     "mae": 5.6544,
+     "bias": 0.3249,
+     "spearman_weekly": 0.4994
+    },
+    "QB": {
+     "n": 377,
+     "mae": 7.6224,
+     "bias": -0.1266,
+     "spearman_weekly": 0.3131
+    },
+    "RB": {
+     "n": 586,
+     "mae": 5.2919,
+     "bias": 0.2154,
+     "spearman_weekly": 0.4631
+    },
+    "WR": {
+     "n": 911,
+     "mae": 5.4356,
+     "bias": 0.7072,
+     "spearman_weekly": 0.3848
+    },
+    "TE": {
+     "n": 302,
+     "mae": 4.5608,
+     "bias": -0.0523,
+     "spearman_weekly": 0.2961
+    }
+   }
+  },
+  "2024": {
+   "running_mean_parity": {
+    "overall": {
+     "n": 2224,
+     "mae": 5.7127,
+     "bias": -0.1521,
+     "spearman_weekly": 0.4979
+    },
+    "QB": {
+     "n": 388,
+     "mae": 8.2608,
+     "bias": -1.4809,
+     "spearman_weekly": 0.2858
+    },
+    "RB": {
+     "n": 585,
+     "mae": 5.4892,
+     "bias": 0.6159,
+     "spearman_weekly": 0.5002
+    },
+    "WR": {
+     "n": 932,
+     "mae": 5.2211,
+     "bias": 0.1048,
+     "spearman_weekly": 0.3425
+    },
+    "TE": {
+     "n": 319,
+     "mae": 4.4597,
+     "bias": -0.6949,
+     "spearman_weekly": 0.2735
+    }
+   },
+   "running_mean_zero_excluded": {
+    "overall": {
+     "n": 2282,
+     "mae": 5.7071,
+     "bias": -0.0209,
+     "spearman_weekly": 0.4957
+    },
+    "QB": {
+     "n": 386,
+     "mae": 8.2768,
+     "bias": -1.4921,
+     "spearman_weekly": 0.2738
+    },
+    "RB": {
+     "n": 590,
+     "mae": 5.5166,
+     "bias": 0.605,
+     "spearman_weekly": 0.4929
+    },
+    "WR": {
+     "n": 968,
+     "mae": 5.2242,
+     "bias": 0.2976,
+     "spearman_weekly": 0.3252
+    },
+    "TE": {
+     "n": 338,
+     "mae": 4.4878,
+     "bias": -0.3453,
+     "spearman_weekly": 0.3168
+    }
+   },
+   "shipped_blend_on_baseline_set": {
+    "overall": {
+     "n": 2282,
+     "mae": 5.5932,
+     "bias": -0.6522,
+     "spearman_weekly": 0.5143
+    },
+    "QB": {
+     "n": 386,
+     "mae": 8.2803,
+     "bias": -2.2163,
+     "spearman_weekly": 0.2863
+    },
+    "RB": {
+     "n": 590,
+     "mae": 5.356,
+     "bias": -0.2014,
+     "spearman_weekly": 0.5047
+    },
+    "WR": {
+     "n": 968,
+     "mae": 5.088,
+     "bias": -0.2278,
+     "spearman_weekly": 0.3431
+    },
+    "TE": {
+     "n": 338,
+     "mae": 4.3853,
+     "bias": -0.8682,
+     "spearman_weekly": 0.4027
+    }
+   },
+   "shipped_blend_weeks2_18": {
+    "overall": {
+     "n": 4419,
+     "mae": 4.7355,
+     "bias": -0.3973,
+     "spearman_weekly": 0.5987
+    },
+    "QB": {
+     "n": 590,
+     "mae": 7.969,
+     "bias": -1.2147,
+     "spearman_weekly": 0.4478
+    },
+    "RB": {
+     "n": 1211,
+     "mae": 4.457,
+     "bias": -0.3043,
+     "spearman_weekly": 0.599
+    },
+    "WR": {
+     "n": 1755,
+     "mae": 4.4728,
+     "bias": -0.1802,
+     "spearman_weekly": 0.512
+    },
+    "TE": {
+     "n": 863,
+     "mae": 3.4498,
+     "bias": -0.4103,
+     "spearman_weekly": 0.4803
+    },
+    "refused_absent": 297
+   },
+   "shipped_blend_weeks2_4": {
+    "overall": {
+     "n": 766,
+     "mae": 4.5654,
+     "bias": -0.387,
+     "spearman_weekly": 0.6004
+    },
+    "QB": {
+     "n": 104,
+     "mae": 7.2781,
+     "bias": -0.2788,
+     "spearman_weekly": 0.3989
+    },
+    "RB": {
+     "n": 209,
+     "mae": 4.4129,
+     "bias": -0.7421,
+     "spearman_weekly": 0.6282
+    },
+    "WR": {
+     "n": 308,
+     "mae": 4.4591,
+     "bias": -0.3983,
+     "spearman_weekly": 0.5151
+    },
+    "TE": {
+     "n": 145,
+     "mae": 3.0654,
+     "bias": 0.071,
+     "spearman_weekly": 0.2471
+    },
+    "refused_absent": 113
+   },
+   "prior_only_weeks2_4": {
+    "overall": {
+     "n": 749,
+     "mae": 4.7045,
+     "bias": -0.6952,
+     "spearman_weekly": 0.5681
+    },
+    "QB": {
+     "n": 101,
+     "mae": 7.503,
+     "bias": -0.8215,
+     "spearman_weekly": 0.3381
+    },
+    "RB": {
+     "n": 203,
+     "mae": 4.6673,
+     "bias": -1.3781,
+     "spearman_weekly": 0.5716
+    },
+    "WR": {
+     "n": 301,
+     "mae": 4.5934,
+     "bias": -0.6034,
+     "spearman_weekly": 0.4916
+    },
+    "TE": {
+     "n": 144,
+     "mae": 3.0263,
+     "bias": 0.1641,
+     "spearman_weekly": 0.3135
+    }
+   }
+  }
+ },
+ "k_sweep_2024": {
+  "declared_k": 3,
+  "sweep": {
+   "2": {
+    "mae": 4.7353,
+    "n": 4419
+   },
+   "3": {
+    "mae": 4.7355,
+    "n": 4419
+   },
+   "4": {
+    "mae": 4.7399,
+    "n": 4419
+   }
+  },
+  "note": "measured, not installed \u2014 K stays 3"
+ }
+}
