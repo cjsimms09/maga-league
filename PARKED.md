@@ -14230,11 +14230,26 @@ number is captured (Layer 1, working), but the decisions that actually matter fo
 learning the league (which lineup call was right, which waiver add paid off, which
 stream worked) are not captured AT ALL right now.** Not broken, not degraded — never
 built. And per the tool's own finding, the RESOLUTION side for lineup_call/
-waiver_claim/stream_call/trade_eval already exists (`weekly_claims.js`,
-`analyzer_claims.js`) — it's the CAPTURE side, the actual `PredLedger.lineupCall(...)`-
-style call at the moment a decision is made, that's completely missing. Confirmed by
-grep: zero references to `lineupCall`, `waiverClaim`, `streamCall`, `tradeEval`, or
-`inseasonOverride` anywhere in `predledger.js` itself.
+waiver_claim/stream_call/trade_eval/inseason_override already exists — it's the
+CAPTURE side, the actual `PredLedger.lineupCall(...)`-style call at the moment a
+decision is made, that's completely missing. Confirmed by grep: zero references to
+`lineupCall`, `waiverClaim`, `streamCall`, `tradeEval`, or `inseasonOverride` anywhere
+in `predledger.js` itself.
+
+**CORRECTION, same day, before anything was built on top of this:** the resolver
+attribution above (`weekly_claims.js`, `analyzer_claims.js`) was wrong — stated from
+the filenames matching the topic, not from actually checking which file
+`loop_closure.js` found. Re-ran it with the `resolvedIn` detail instead of trusting
+the summary table: the real resolver for all five in-season kinds is
+**`src/forecast_grade.js`** (`gradeDecisions()` / `INSEASON_DECISION_KINDS`), which
+already fully specifies the expected payload shape — `payload.key` (join key),
+`payload.chosen` (or `.value`/`.player_id`), `payload.counterfactual` (REQUIRED —
+server-side `assertCounterfactual` refuses a capture without it), and later a
+resolution carrying `realized_chosen`/`realized_counterfactual` joined by the same
+key. `weekly_claims.js`/`analyzer_claims.js` are a different, unrelated pair
+(`forecast`/`forecast_resolution` — weekly matchup and playoff-odds forecasts, not
+these five). Caught by checking the tool's own per-kind file list before building
+against the wrong contract, not by anyone else catching it.
 
 **Directly relevant to the in-season lineup optimizer / waiver tool builds already in
 progress this session (tasks #8/#9).** Building those tools without wiring in capture
