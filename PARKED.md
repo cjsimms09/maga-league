@@ -12433,3 +12433,108 @@ console.log('starts with NO real data:', unknownStarts);
 Not merged, not adopted, not touching `draft/`. Corrections to prior entries are
 made HERE, in place, rather than editing the earlier ones — the record of being
 wrong first and fixed second is itself useful, not something to clean up.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — VERIFIED-CORRECT GM SIM, AND: THE ODDS/PROPS CAPTURE ALREADY EXISTS BUT IS BROKEN (0% COVERAGE)
+
+**FOR: A.** Two things in one entry: (1) the GM-sim prototype above is now
+mechanically verified leak-free, with a human-readable transcript, per Cory's
+direct challenge to prove it rather than assert it. (2) Cory then asked about
+building real per-player weekly projections using game over/unders and player
+props — turns out `draft/backtest/market_capture.py` already does almost exactly
+this, in real depth, and it's currently producing 0% coverage. Both below.
+
+## Part 1 — the leak-free proof
+
+Ran two things Cory asked for directly, not as claims:
+
+**A mechanical poison test.** For each of the 14 in-season decision points,
+recomputed the rolling projection twice — once normally, once with every score
+from that decision week onward overwritten with random garbage. Corrupting the
+present/future changed ZERO projections, for all 14 weeks. This isn't "the code
+should be blind by construction" as an argument — it's an executed test that
+proves the projection function is mechanically incapable of reading data from the
+decision week or later.
+
+**The stronger, more intuitive check.** A leaking model matches a hindsight-
+optimal lineup every week, because it secretly knows the answer already. This one
+left **428.5 points on the table across 15 weeks** versus the best lineup
+choosable WITH the real scores in hand. A cheating model cannot produce that
+number. A genuinely blind, imperfectly-projecting one does, every week.
+
+**Human-readable transcript, real names not Sleeper IDs** (built a name lookup
+from nflverse `player_display_name` via the existing gsis↔sleeper crosswalk —
+2200 players resolved). This surfaced a vivid, concrete example of the waiver
+layer's actual failure mode: **going into week 4, the model dropped Jaylen
+Waddle — a legitimate NFL WR1 — for Mike Williams**, because Waddle had one bad
+game (likely injury-affected) and the crude projection has no idea who Jaylen
+Waddle *is*, only his last few box scores. A human would never make that trade.
+This is the clearest evidence yet for the same root cause named in the prior
+entry: the decision logic is sound, the projection feeding it is blind to
+context. Also surfaced: by week 15 the model was carrying **four QBs** on a
+one-QB-slot roster — the drop-candidate logic hoarding depth at a position it
+doesn't need rather than fixing real weaknesses.
+
+Full verified script (names + poison test + retroactive-optimal comparison)
+available on request — long enough that pasting it here would bury the finding;
+say the word and it goes in the next entry the same way the others have.
+
+## Part 2 — the over/under + player-props capture already exists, and it's broken
+
+Cory: *"the over/under of a game... higher scoring probably equals higher fantasy
+players... also prop bets on our current players... this might be the real edge."*
+Checked before designing anything from scratch — **this is already substantially
+built**, not a new idea:
+
+`draft/backtest/market_capture.py` already captures game **total + spread**
+(its own docstring: *"Signal B needs total+spread"*) and already reasons in
+real depth about **player props** — it explicitly measured that yardage/
+receptions props are well-covered but **touchdown props are the hard gap**:
+23.3% uncovered at WR1, 29.1% at RB1, 47.5% at QB1. It tracks **book dispersion**
+(how much bookmakers disagree) as a built-in confidence field — tight agreement
+= expensive to bet against, wide disagreement = cheap. This is careful, already-
+reasoned design, not something to build from zero.
+
+**But it's not working.** Checked `draft/market_snapshots/capture_health.json`
+directly:
+```
+last_coverage: 0.0
+last_complete: false
+consecutive_failures: 1
+```
+The most recent snapshot has real event metadata (teams, IDs, dates) but an
+EMPTY `bookmakers: {}` field — no lines actually came back. The capture requires
+`ODDS_API_KEY` (`secrets.ODDS_API_KEY` in `market-capture.yml`) — worth checking
+directly whether that key is still valid, expired, or rate-limited; not
+something visible from this session. **Fixing this is probably higher leverage
+than building anything new** — the design is already there, it's just not firing.
+
+**A real constraint, stated up front:** this capture is forward-looking only —
+there's no equivalent historical odds/props archive for 2023–2025 in this repo,
+so this enrichment cannot be retroactively tested against the GM-sim the way the
+shrinkage fix was tested today. It has to be validated going forward, on the
+live 2026 season, not backtested for free. Worth knowing before promising more
+than the data can prove yet.
+
+## The projection design, if/when the capture is fixed
+
+Three layers, not one, each logged at decision time and graded the following
+week so the blend weights come from real error, not a guess:
+1. **Opportunity baseline** — the shrunk rolling average from the GM-sim (or
+   real usage stats — target share, red-zone looks — once wired), regressed
+   toward the position average.
+2. **Game-environment adjustment** — scale by the game's implied total relative
+   to league average, and by game script from the spread (trailing team's
+   pass-catchers get garbage-time volume; leading team's backs get clock-control
+   volume).
+3. **Player props as an independent signal**, weighted by book dispersion —
+   this is arguably the single strongest input available, since it's real money
+   priced with information (beat reporters, practice reports) no public source
+   in this repo has access to.
+
+## What this is NOT
+
+No code touched, nothing merged, nothing pushed. Per Cory's standing instruction
+this round: everything discussed or proposed goes here for A's review, not into
+`draft/` or any production path.
