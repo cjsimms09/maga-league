@@ -250,6 +250,25 @@ def build_recommendations() -> dict:
 
     # REC-2 — per-source per-position composition weights, evidence-gated.
     source_grade = grade_frozen_sources(series, store_2026 or {}, positions)
+    # The Week-1 prior attempt (2026-08-15, Cory's conditional ruling "Yes! If
+    # it works."): built from the FP-archive aggregates under a prereg
+    # committed first — and it did NOT work: G3 (error-scale transfer) failed
+    # at RB/2023, and the prereg's own n0 rule conflicts with its G5 dominance
+    # bar. Recorded here so the negative is discoverable by the machinery that
+    # would have consumed the prior; a re-attempt requires a NEW prereg.
+    swp = _load(HERE / "source_weight_prior.json")
+    week1_prior = {
+        "status": (swp or {}).get("status", "artifact-missing"),
+        "ruling": "Cory, verbatim: 'Yes! If it works.' — conditional; it did not pass its gates",
+        "outcome": ("failed-gate: G3 scale-transfer outside the preregistered "
+                    "±40% band (RB, held-out 2023) + the recorded G5 n0-vs-"
+                    "dominance-bar inconsistency. Prior NOT applied; the flat "
+                    "start stands until January's measured cells."
+                    if (swp or {}).get("status") == "failed-gate" else
+                    (swp or {}).get("status", "artifact-missing")),
+        "prereg": "draft/backtest/SOURCE-WEIGHT-PRIOR-PREREG.md",
+        "artifact": "draft/backtest/source_weight_prior.json",
+    }
     recs.append({
         "id": "REC-2-source-weights",
         "status": ("ready-for-ruling" if source_grade.get("status") == "measured"
@@ -260,6 +279,7 @@ def build_recommendations() -> dict:
                     "the same scoring (measured on the 2026-08-15 board) and nothing "
                     "grades which source is right."),
         "grade": source_grade,
+        "week1_prior_attempt": week1_prior,
         "unlock_progress": rec2_unlock_progress(store_2026),
         "preregistered": ("metric, population, cutoff and weight rule fixed 2026-08-15 in "
                           "learning_loop.py, before any 2026 outcome exists — see module "

@@ -1,0 +1,363 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/source_weight_prior.py",
+ "_prereg": "draft/backtest/SOURCE-WEIGHT-PRIOR-PREREG.md (committed before this module)",
+ "_ruling": "Cory, verbatim: 'Yes! If it works.' \u2014 conditional application; a failed gate files this artifact as the honest negative and wires nothing.",
+ "status": "failed-gate",
+ "gates": {
+  "G1_skill_sign": {
+   "cells": [
+    {
+     "year": "2024",
+     "pos": "QB",
+     "baseline": "naive_prev",
+     "fp_mae": 62.41,
+     "base_mae": 81.36,
+     "ok": true
+    },
+    {
+     "year": "2024",
+     "pos": "RB",
+     "baseline": "naive_prev",
+     "fp_mae": 41.02,
+     "base_mae": 49.94,
+     "ok": true
+    },
+    {
+     "year": "2024",
+     "pos": "WR",
+     "baseline": "naive_prev",
+     "fp_mae": 31.73,
+     "base_mae": 42.12,
+     "ok": true
+    },
+    {
+     "year": "2024",
+     "pos": "TE",
+     "baseline": "naive_prev",
+     "fp_mae": 24.27,
+     "base_mae": 28.2,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "QB",
+     "baseline": "naive_prev",
+     "fp_mae": 66.32,
+     "base_mae": 80.14,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "QB",
+     "baseline": "recency_blend",
+     "fp_mae": 66.32,
+     "base_mae": 75.25,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "RB",
+     "baseline": "naive_prev",
+     "fp_mae": 39.93,
+     "base_mae": 45.35,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "RB",
+     "baseline": "recency_blend",
+     "fp_mae": 39.93,
+     "base_mae": 44.93,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "WR",
+     "baseline": "naive_prev",
+     "fp_mae": 34.55,
+     "base_mae": 38.98,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "WR",
+     "baseline": "recency_blend",
+     "fp_mae": 34.55,
+     "base_mae": 38.36,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "TE",
+     "baseline": "naive_prev",
+     "fp_mae": 21.08,
+     "base_mae": 26.96,
+     "ok": true
+    },
+    {
+     "year": "2025",
+     "pos": "TE",
+     "baseline": "recency_blend",
+     "fp_mae": 21.08,
+     "base_mae": 24.27,
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  "G2_bias_sign": {
+   "folds": [
+    {
+     "held_out": "2023",
+     "pos": "QB",
+     "claim": true,
+     "fitted_bias": 14.78,
+     "held_out_bias": 27.32,
+     "ok": true
+    },
+    {
+     "held_out": "2023",
+     "pos": "RB",
+     "claim": false,
+     "fitted_bias": -0.32
+    },
+    {
+     "held_out": "2023",
+     "pos": "WR",
+     "claim": false,
+     "fitted_bias": -3.69
+    },
+    {
+     "held_out": "2023",
+     "pos": "TE",
+     "claim": true,
+     "fitted_bias": -10.69,
+     "held_out_bias": -8.93,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "QB",
+     "claim": true,
+     "fitted_bias": 21.38,
+     "held_out_bias": 14.11,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "RB",
+     "claim": false,
+     "fitted_bias": 0.43
+    },
+    {
+     "held_out": "2024",
+     "pos": "WR",
+     "claim": true,
+     "fitted_bias": -6.51,
+     "held_out_bias": -3.49,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "TE",
+     "claim": true,
+     "fitted_bias": -10.71,
+     "held_out_bias": -8.89,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "QB",
+     "claim": true,
+     "fitted_bias": 20.71,
+     "held_out_bias": 15.45,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "RB",
+     "claim": false,
+     "fitted_bias": 0.83
+    },
+    {
+     "held_out": "2025",
+     "pos": "WR",
+     "claim": true,
+     "fitted_bias": -6.31,
+     "held_out_bias": -3.88,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "TE",
+     "claim": true,
+     "fitted_bias": -8.91,
+     "held_out_bias": -12.48,
+     "ok": true
+    }
+   ],
+   "pass": true
+  },
+  "G3_scale_transfer": {
+   "folds": [
+    {
+     "held_out": "2023",
+     "pos": "QB",
+     "fitted_mae": 60.21,
+     "held_out_mae": 46.22,
+     "rel_err": 0.303,
+     "ok": true
+    },
+    {
+     "held_out": "2023",
+     "pos": "RB",
+     "fitted_mae": 38.36,
+     "held_out_mae": 25.92,
+     "rel_err": 0.48,
+     "ok": false
+    },
+    {
+     "held_out": "2023",
+     "pos": "WR",
+     "fitted_mae": 30.55,
+     "held_out_mae": 22.9,
+     "rel_err": 0.334,
+     "ok": true
+    },
+    {
+     "held_out": "2023",
+     "pos": "TE",
+     "fitted_mae": 23.27,
+     "held_out_mae": 16.86,
+     "rel_err": 0.38,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "QB",
+     "fitted_mae": 54.96,
+     "held_out_mae": 56.72,
+     "rel_err": 0.031,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "RB",
+     "fitted_mae": 31.78,
+     "held_out_mae": 39.09,
+     "rel_err": 0.187,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "WR",
+     "fitted_mae": 26.98,
+     "held_out_mae": 30.06,
+     "rel_err": 0.103,
+     "ok": true
+    },
+    {
+     "held_out": "2024",
+     "pos": "TE",
+     "fitted_mae": 19.68,
+     "held_out_mae": 24.05,
+     "rel_err": 0.182,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "QB",
+     "fitted_mae": 51.47,
+     "held_out_mae": 63.7,
+     "rel_err": 0.192,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "RB",
+     "fitted_mae": 32.51,
+     "held_out_mae": 37.63,
+     "rel_err": 0.136,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "WR",
+     "fitted_mae": 26.48,
+     "held_out_mae": 31.05,
+     "rel_err": 0.147,
+     "ok": true
+    },
+    {
+     "held_out": "2025",
+     "pos": "TE",
+     "fitted_mae": 20.45,
+     "held_out_mae": 22.5,
+     "rel_err": 0.091,
+     "ok": true
+    }
+   ],
+   "pass": false
+  },
+  "G4_divergence_health": {
+   "per_position": {
+    "QB": {
+     "n": 71,
+     "needed": 25,
+     "healthy": true,
+     "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
+    },
+    "RB": {
+     "n": 103,
+     "needed": 25,
+     "healthy": true,
+     "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
+    },
+    "WR": {
+     "n": 157,
+     "needed": 25,
+     "healthy": true,
+     "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
+    },
+    "TE": {
+     "n": 92,
+     "needed": 12,
+     "healthy": true,
+     "effect_when_unhealthy": "gap := 0 (equal-professional weight prior, named)"
+    }
+   },
+   "date_spread_days": 0
+  }
+ },
+ "g5_machinery_note": "G5(b) as preregistered is ALSO unsatisfied by the preregistered n0 rule: at n0=t2*mean_n (45 at WR) a maximally-opposed prior deviates ~0.06 from pure measured weights at January n \u2014 outside the prereg's own 0.05 dominance bar. The two clauses conflict; resolving them (smaller t, or a looser bar) is a NEW preregistration decision. Pinned in draft/tests/test_source_weight_prior.py.",
+ "divergence": {
+  "snapshot_dates": {
+   "sleeper": "2026-08-15",
+   "fantasypros": "2026-08-15"
+  },
+  "date_spread_days": 0,
+  "by_position": {
+   "QB": {
+    "n": 71,
+    "median_gap": -1.09
+   },
+   "RB": {
+    "n": 103,
+    "median_gap": -1.95
+   },
+   "WR": {
+    "n": 157,
+    "median_gap": 17.68
+   },
+   "TE": {
+    "n": 92,
+    "median_gap": 11.8
+   }
+  },
+  "status": "measured"
+ },
+ "consumer": "REC-2 in draft/data/model_update_recommendations.json \u2014 regenerated weekly (Tue 13:30 UTC, weekly-grade.yml); grade_frozen_sources combines this prior with January's measured cells via combine_with_measured. proj_mean stays single-source Sleeper; a composition change is a separate January decision file.",
+ "handoff": "measured evidence outweighs the prior at n > n0 per position \u2014 January's cells (n 57-141 by the archive's own range) dominate the day they land",
+ "drift_monitor": "player-week loop, sleeper arm, WR/TE cumulative bias: NEGATIVE at n>=30 in any calibration snapshot contradicts the transported gap -> flag contradicted-in-season on the next weekly regeneration. QB excluded by name (known 4pt-passTD weekly bias, a different quantity).",
+ "prior": null
+}

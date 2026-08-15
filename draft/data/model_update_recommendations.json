@@ -113,6 +113,13 @@
      "sleeper"
     ]
    },
+   "week1_prior_attempt": {
+    "status": "failed-gate",
+    "ruling": "Cory, verbatim: 'Yes! If it works.' \u2014 conditional; it did not pass its gates",
+    "outcome": "failed-gate: G3 scale-transfer outside the preregistered \u00b140% band (RB, held-out 2023) + the recorded G5 n0-vs-dominance-bar inconsistency. Prior NOT applied; the flat start stands until January's measured cells.",
+    "prereg": "draft/backtest/SOURCE-WEIGHT-PRIOR-PREREG.md",
+    "artifact": "draft/backtest/source_weight_prior.json"
+   },
    "unlock_progress": {
     "weeks_graded": 0,
     "weeks_needed": 17,
