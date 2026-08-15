@@ -34,7 +34,27 @@ Cory pushed hard on "actually fix things, in a way A will approve and push" and 
 deploy everything together in large sums." Real builds, all tested, all `[skip deploy]`,
 all on `main` right now — check `git log`, don't re-derive from this prose.
 
-**The single biggest finding of the day: our core projection formula was already
+**🔴 A REAL BUG, NOT A JUDGMENT CALL, FOUND AND FIXED: every in-season capture form
+was silently corrupting its own payload.** `views/lineup.ejs` and `views/waivers.ejs`
+built their hidden JSON fields as `JSON.stringify(...).replace(/"/g, '&quot;')` INSIDE
+an EJS `<%= %>` tag — which already HTML-escapes by default. The manual replace ran a
+SECOND time on top of that, so the real page contained `&amp;#34;` instead of `&#34;`.
+A browser decodes HTML entities in one non-recursive pass, so the value it actually
+SUBMITS still has the literal text `&#34;` where a quote belongs — not valid JSON.
+`safeJson()` on the server silently falls back to storing the mangled raw string.
+**This predates today** — it hit `/lineup/log`/`/lineup/override` (built earlier)
+exactly as much as the `/waivers` and `/stream` forms built today, and
+`override_capture.test.js` never caught it because it posts a hand-built body and
+renders the form separately, never combining the two. Found only because a NEW
+end-to-end test (render real HTML -> extract the real `value=` text -> POST exactly
+that -> read the ledger back) was built for the stream forms and failed. Fixed in
+7 places across 4 views; two new tests
+(`draft/tests/waiver_stream_surface.test.js`, `draft/tests/lineup_capture_escaping.test.js`)
+prove it round-trips correctly now, including with a player name carrying both an
+apostrophe and a literal double quote. Full JS + robot-mock + Python suites green after.
+
+**The single biggest finding of the day about the MODEL (as opposed to the bug above):
+our core projection formula was already
 audited and found to LOSE, and nobody was ever told.** Experiment 33 (`EXP33.md`,
 reported 2026-08-09, six days before this was surfaced) — our blend loses to a naive
 prior-year+opportunity model on every metric, both tested seasons: top-decile hit rate
