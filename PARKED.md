@@ -14450,3 +14450,47 @@ real, cheap, and well-scoped above. Just not something to build in the same brea
 everything else today without checking first whether it was actually a quick wire (it
 wasn't) — the same discipline that caught the wrong `lineupCall`/`waiverClaim` client
 helpers earlier, applied before writing code this time instead of after.
+
+## 00000000000000000. `config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE — CHECKED, REAL, AND A DIFFERENT SHAPE OF GAP THAN THE ONES FIXED TODAY (2026-08-15)
+
+Same sweep that found `consensus.js` had no dedicated test (fixed, see TODO.md) also
+counted every `public/js/draft/*.js` module's hits inside `draft/tests/*.js`.
+Everything else is at least 1; these two are 0.
+
+**Why they weren't fixed the same way.** Every module fixed today — `own_projections.py`
+`attach_own_model`, the four capture routes, `consensus.js` — is either a plain
+function/`module.exports` object, or (for the routes) requires only `store` + a real
+HTTP server, which this project's existing `node draft/tests/*.test.js` convention
+already boots and hits directly. `config-screen.js` and `keeperui.js` are neither:
+both are `(function(){...})()` IIFEs with **no `module.exports` at all**, wired
+entirely through top-level `document.querySelector` calls and `fetch()` against
+`window`/`document` at load time. `keeperui.js`'s own `guardFixture()` — the function
+most worth pinning (it refuses to render a keeper screen against a fixture/offline
+board so nobody edits keepers for players who don't exist) — writes directly into
+`$('#loading').innerHTML` as its failure path, so even that one function can't be
+called in isolation without a DOM already present.
+
+**This needs jsdom (or an equivalent), which nothing in this project's test suite
+uses today** — `draft/tests/route_smoke.test.js` and friends boot a real HTTP server
+and assert on the raw HTML *string* a route returns, which is a different, DOM-free
+technique that doesn't reach code that only runs after a browser parses and executes
+that HTML. Adding a browser-emulation test harness this close to the draft is a new
+piece of test infrastructure, not a same-pattern fix — exactly the class of thing this
+project has a cited scar for building under a draft-week clock (the bench-branch
+anchor). Not doing it without checking with Cory first.
+
+**What IS already true, so this isn't a blind spot on the actual risk:** both screens
+are pre-draft confirmation UI, run once by a human (Cory) before the draft, on real
+data he is looking at directly — not automated, unattended, or in the grading path the
+in-season captures protect. `route_smoke.test.js` already confirms the pages these
+scripts are loaded from render without a 500 or a template `ReferenceError`. The actual
+uncovered risk is narrower than "zero coverage" sounds: it's "a JS bug in these two
+screens fails silently in front of Cory instead of loudly," not "a bug reaches
+production undetected."
+
+## What this is NOT
+
+Not a claim these two files are broken, or that DOM-based testing is a bad idea in
+general — `guardFixture()` in particular is exactly the kind of function worth pinning
+if a jsdom harness ever gets built. Just not something to start building, unannounced,
+as a side effect of a "continue."

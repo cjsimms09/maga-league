@@ -172,6 +172,17 @@ first run: 1/2/3-source averaging + honest labelling, the `proj_mean`+provenance
 fallback, `cleanSource`, and `higherProjectionAlt`'s same-position-only /
 self-exclusion / `withinTop`-window behavior.
 
+**Checked the rest of `public/js/draft/*.js` for the same "zero test hits" pattern —
+found two more, `config-screen.js` and `keeperui.js`, and did NOT fix them the same
+way.** Both are DOM-only IIFEs with no `module.exports`, wired through
+`document.querySelector`/`fetch` at load time — unlike everything fixed today, they
+can't be required and called directly; closing this would mean introducing a jsdom (or
+similar) test harness, which nothing in this project's suite uses yet. That's new test
+infrastructure, not a same-pattern fix, seven days before the draft — not building it
+without checking first. Full reasoning and the narrower actual risk (a UI bug fails
+silently in front of Cory, not undetected in production) in `PARKED.md`'s
+"`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
+
 ---
 
 ## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
