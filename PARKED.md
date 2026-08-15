@@ -13940,15 +13940,27 @@ already agree on the underlying facts, not a case for starting over.
 
 ## 000000000. CORRECTION, SAME DAY: THE TE:0/QB:0 RECOMMENDATION ABOVE WAS PREMATURE — CHECKED AGAINST 3 REAL DRAFTS IN THIS LEAGUE, NOT JUST A SIMULATOR (2026-08-15) 🔴 OPEN, BETTER-EVIDENCED REPLACEMENT FIX BELOW
 
-**What was wrong with entry #00000000.** The 60-room test that recommended cutting
-`ONESIE_MAX_SPARE.TE` (and QB) to 0 used `draft/tools/roster_construction.js`, which
-only simulates the first **12 picks**. That window structurally cannot contain a
-legitimate late-round dart-throw QB2/TE2 — it ends before round 13 of what is actually
-a 15-round real draft. A recommendation built entirely inside a window that excludes
-the exact behavior being judged is not evidence about that behavior. This should have
-been checked before proposing the config change; it wasn't, and Cory dismissing the
-go/no-go prompt rather than accepting it on the spot is why this got caught before
-being shipped, not because of anything I did.
+**What was wrong with entry #00000000 — and a SECOND correction to the paragraph
+that used to be here.** The 60-room test that recommended cutting
+`ONESIE_MAX_SPARE.TE` (and QB) to 0 used `draft/tools/roster_construction.js`. This
+entry originally claimed that tool "only simulates the first 12 picks" and
+"structurally cannot contain a legitimate late-round dart-throw... it ends before
+round 13." **That claim was checked again later the same day (during the wire-branch
+prototype work, entry #0000000000 below) and it is WRONG.** `myPicks()` in that tool
+takes `ROUNDS` (15) pick numbers and does `.slice(KR)` where `KR = keeper_rules.count`
+(3) — it drops the first 3 rounds because keepers occupy them, not the last 3. The 12
+simulated picks span **rounds 4 through 15**, the FULL remainder of the draft including
+the true endgame. Verified directly by logging one room's actual pick sequence: it
+runs to "15:K Cam Little". The window was never truncated.
+
+So the mechanism given for the correction was wrong. **The correction's practical
+conclusion still holds, on different grounds**, confirmed the same way: a follow-up
+run showed `ONESIE_MAX_SPARE.QB: 0` produces **zero** QB2 picks across 60 FULL
+(round 4-15) simulated drafts — not "the simulator can't see it," but a real,
+measured 0% against a real 57% in actual history, which is still a genuine
+overcorrection. The real number below still stands; only the explanation for why the
+first test was misleading has changed, and this paragraph is rewritten rather than
+deleted so nobody cites the wrong mechanism later.
 
 **Checked against REAL history instead of self-play.** `draft/data/league_history.json`
 has three complete, real, human-drafted seasons for THIS league (2023, 2024, 2025 —
@@ -14005,3 +14017,68 @@ Not a case where the earlier finding was wrong about the underlying disconnect
 (`starter_counts` really is unused by `onesieState`, that part still stands) — only
 wrong about which knob to turn in response to it. Recorded as a correction rather than
 a silent edit so the wrong version isn't the only one anyone finds later.
+
+---
+
+## 0000000000. WIRE-COMPARED BENCH BRANCH — PROTOTYPED, TESTED, FIXES THE RB WIPEOUT (2026-08-15) 🟡 CANDIDATE FIX, NOT SHIPPED
+
+**Cory's design, stated directly:** once you're drafting for bench (not a starter
+slot), a duplicate shouldn't be compared to the best available in the DRAFT — it
+should be compared to what you can get FREE off waivers. A backup QB averaging 24
+isn't worth a roster spot if the wire gives you 22; a backup WR at 12 is, because the
+wire won't give you 10.
+
+**Already measured, just never wired in.** `draft/tools/waiver_replacement.py` +
+`wire_level.js` + `wire_vs_bench.js` already compute exactly this from 422 real
+2023-2025 acquisition-week scores. Ran it fresh today:
+
+```
+Real wire, weekly median:  QB 23.38   RB 7.80   WR 11.10   TE 11.60
+wire_vs_bench.js on today's plan: Brock Purdy (bench QB) — wire is 100% of him.
+  Rhamondre Stevenson (bench RB) — wire is 70% of him.
+```
+
+`wire_vs_bench.js`'s own docstring: *"THAT ASYMMETRY IS THE ENTIRE CASE AGAINST A
+BACKUP QB, and it is the one thing the bench equation could not see, because it
+priced every position against a preseason projection of the leftovers."* Confirmed:
+`vona()`'s live bench branch uses `INJURY_RATE[pos] * vorp - forgone` — vorp compares
+to the last real STARTER leaguewide, never to the wire. No `wire` field exists
+anywhere on a player object in `draft_data.json`.
+
+**Prototyped a fix** (scratch only — `.../scratchpad/engine_copy3/engine.js`, not the
+committed file): bench branch now computes `edgePerWeek = max(0, weeklyMine -
+wireWeekly[pos])`, `seasonEdge = edgePerWeek * games_expected`, and returns
+`INJURY_RATE[pos] * seasonEdge - forgone` — same shape as today's formula, but the
+"is this worth a roster spot" side is measured against the real wire instead of vorp.
+Positions with no wire sample (K/DEF — nflverse is offense-only) fall back to the old
+vorp-based rule rather than inventing a floor with no evidence.
+
+**Tested in two ways, not one:**
+1. **Direct VONA check** on a real bench-QB candidate (Geno Smith behind Herbert) vs
+   a real bench-RB candidate (RJ Harvey): QB2 candidate scores **-166.6**, RB bench
+   candidate scores **-36.5** — the formula correctly discriminates hard against QB
+   duplication now, using real numbers, not a guess.
+2. **Full 60-room simulation** (`VONA_SLOT_AWARE=true`, flex branch untouched, only
+   bench branch wire-compared): **RB wipeout is gone.** Modal shape QB2/RB3/WR4/TE1
+   (45%), RB2-5 across every listed shape, zero rooms with RB=0 — versus the original
+   VONA_SLOT_AWARE=true test (PARKED.md above) that wiped RB to 0 in 66.7% of rooms.
+
+**QB2 still happens in these sims (every room) — checked WHEN, not just IF, given the
+history-timing lesson from entry #000000000 above.** Logged actual pick sequences
+across 8 seeds: every single QB2 pick landed at round 10-13 of 15 (2-5 picks
+remaining) — Joe Flacco/Brock Purdy-tier, taken exactly where `ONESIE_ENDGAME_PICKS`
+already relaxes the cap and exactly the window real history validated as normal
+(round 10-13 covers the ≤5-remaining band that captured 100% of real historical QB2
+picks). None fired early or mid-draft. The rate (100% of sim rooms vs. 57% real) is
+higher than history, not yet explained, and left open rather than waved away —
+possibly an artifact of one fixed keeper/board configuration rather than a defect in
+the formula itself, since the formula's own direct VONA numbers and its qualitative
+timing both check out.
+
+**Not shipped.** This changes what the model recommends — same standing gate. If
+built for real: read the wire numbers from `draft_data.json` (computed at build time
+by the existing Python tool, the same pattern `starter_counts` already uses) rather
+than a hardcoded JS constant, and get a second opinion on the 100%-vs-57% gap before
+calling it final. Left for Cory to decide whether to build for real, or leave this
+prototype and its numbers for A to pick up — either way, don't re-derive any of the
+above from scratch.
