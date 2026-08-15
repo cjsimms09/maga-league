@@ -19,6 +19,65 @@ respects the same rule that already governs superseded headings in this file
 
 ---
 
+# ⚡ THE QUEUE — every open decision, one screen (2026-08-15 night)
+
+**This section is THE decision list. Every other surface (the Monday runbook's
+footer, TODO.md's state block, ROUTES items) POINTS here rather than keeping
+its own copy — one list, referenced everywhere, per Cory: "the decision list
+should live in one place." Each line: the call · the gated switch · the
+evidence file. Detail lives in the evidence, not here.**
+
+## Needs Cory before the 22nd
+
+1. **VONA_WIRE_BENCH ship/no-ship** — flip `CFG.VONA_WIRE_BENCH` (engine.js,
+   ships false)? The QB2 anomaly is resolved (it belongs to VONA_SLOT_AWARE,
+   not the wire branch; the wire branch's timing matches real history
+   exactly). → `draft/audit/vona_slot_aware_isolation_2026-08-15.md` +
+   `bench_wire_comparison_claim_2026-08-15.md`.
+2. **Scoring-gap ADP correction** — apply the 6pt-TD correction to ADP?
+   Report's own recommendation: NO (right size, $0.00 through the certified
+   grader; the room already prices the rule).
+   → `draft/audit/scoring_gap_correction_backtest_2026-08-15.md`.
+3. **KOV_MEASURED_RAMP** — flip `CFG.KOV_MEASURED_RAMP` (ships false)? The
+   LIVE keeper-option ramp is INVERSE to the league's own 450-pick history
+   (value lives rounds 4-6, not 10-15; 0 of 31 round-13-15 picks were ever
+   kept). Full entry at the bottom of this file (2026-08-15, roster audit).
+   → `draft/audit/roster_construction_audit_2026-08-15.md` §B.4.
+4. **Pick-33 headline ownership** — which surface owns the recommendation
+   when the value lens (Flowers) and the season-plan lens (Loveland TE)
+   disagree? Relay recommendation: the DP-backed seat plan owns the
+   headline; one keeper-assumption overlap must be verified first (the
+   data-audit pass is checking it). → ROUTES.md TO:A item 2026-08-15 🎯.
+
+## Standing open (predate today; unresolved; details under OPEN below)
+
+- Two projection sources disagree by position, systematically (#000,
+  2026-08-12) — partially answered by today's FP-archive skill benchmark
+  (`projection_skill_backtest_2026-08-15.md`) + the Sleeper-vs-FP fork
+  measurement (`model_learning_audit` §1.7, preregistered for Jan grading).
+- DEF projections 12 points short — `def_fum_td` maps to nothing (#0,
+  2026-08-11).
+- Regression/shrinkage weight over-regresses — $ arm pending (#2).
+- Simplify AUTO: mask + value is the whole measured edge (#3).
+- STREAMABLE_LATE defined, tested, never read (#000000, 2026-08-15).
+- The tool drafts 0.9 RBs per draft in every arm (#0000) · TE at 3.6 picks
+  undiagnosed (#00000).
+- Sunday alert fires before official inactives (B, #7) · self-referential
+  fixtures clause awaiting authorization (A).
+
+## Settled today (rulings made; records, not questions)
+
+- Deploy policy — Cory's "find the happy medium" → DEPLOY-POLICY.md rewritten,
+  blanket freeze retired.
+- Learning loop — Cory's "We need to fix!!!" → REC-1 measured proj_sd LIVE
+  (decision arm re-verified on the fresh board), read-side wired.
+- Pre-draft phantom availability — Cory's Nacua ruling → survival filter live.
+- FP-archive Week-1 source prior — Cory's "Yes! If it works" → preregistered
+  gates said NO (error scale doesn't transfer); flat start stands, negative
+  pinned.
+
+---
+
 # OPEN — needs a decision, or is blocked and waiting
 
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)

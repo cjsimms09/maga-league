@@ -23,18 +23,13 @@ real shipped board file in place).
    cell goes green (weights-read ships with the merge; Cory's key config is
    already verified on the GitHub side).
 
-**THE FOUR OPEN DECISIONS** (evidence complete, listed with files by the
-verify script's footer): VONA_WIRE_BENCH ship/no-ship · scoring-gap ADP
-correction (report says don't ship) · KOV_MEASURED_RAMP (the live
-keeper-option ramp is INVERSE to the league's own 450-pick history — gated
-fix built, DECISIONS-NEEDED.md) · pick-33 headline ownership
-(Loveland/Flowers, recommendation stated in ROUTES TO:A).
-
-**APPLIED UNDER CORY'S EXPLICIT RULINGS** (tested, listed so the merge reads
-them as intended): REC-1 measured proj_sd (decision arm re-verified on the
-fresh board — zero starter seats move) · the pre-draft survival filter (the
-Nacua phantom-availability fix) · the league-wide player-week projection
-loop (Thursday emission, two arms, closed through grading).
+**THE DECISION QUEUE LIVES IN ONE PLACE: `DECISIONS-NEEDED.md` → "⚡ THE
+QUEUE" (top section).** Four calls need Cory before the 22nd (wire-bench ·
+scoring-gap ADP · KOV ramp · pick-33 headline), the standing older opens are
+indexed under them, and today's already-settled rulings (REC-1 proj_sd live,
+the pre-draft survival filter, the player-week loop) are listed as records so
+the merge reads every applied change as intended. Everything here and in the
+runbook footer is a pointer to that section, never a second copy.
 
 **HONEST NEGATIVES FILED TODAY** (do not re-litigate without new evidence):
 own-model v2 beats v1 everywhere but fails the promotion bar (QB + TE
