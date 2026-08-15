@@ -13524,3 +13524,70 @@ to prioritizing it.
 Not a code change. Not a new discovery — the gap is already measured and
 documented in `engine.js` itself. This entry exists only to record that
 Cory reached the same conclusion independently, for A's prioritization.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — correction to the entry above: `needrule.js` already answers most of this, and Cory asked me to consider fixing it myself, which I'm declining to do solo
+
+Cory's follow-up, paraphrased: why are so many things named-but-not-built,
+is A backlogged, and can I just fix things now instead of parking more
+proposals. Fair pressure, and it surfaced a real gap in my own last entry
+before I acted on it, so recording that correction here rather than
+silently editing the prior entry.
+
+## The correction
+
+The entry above frames the composite (`recommend()` in `engine.js`) as
+having no positional-fill awareness mid-draft, which is true of that one
+function but not the whole picture. `public/js/draft/needrule.js` is a
+second, independent, already-measured rule that runs alongside it (per its
+own header: "the war room renders `recommend()` as the top voice;
+`coherence.js` resolves it against other signals") and already does most
+of what Cory's original comment was asking for:
+
+- Masks the board to positions under startable capacity — never
+  over-drafts a filled position (measured ~$258 over pure ADP).
+- Lets flex-eligible value jump ahead of a weak starter rather than
+  force-filling it (measured ~$51).
+- And, the part that answers "is it dumb to bench a good player before
+  starters are full" directly: once skill starters + flex are genuinely
+  covered and only K/DEF remain, `outOfDomain()` makes the rule STOP
+  masking rather than force a onesie pick. Its own comment: *"a high-upside
+  skill player has value INDEPENDENT of my starting slots (insurance,
+  trade, a role opening)... the mask would exclude that player to force a
+  onesie — asserting evidence it does not have."* That is a considered,
+  measured, deliberate decision to defer to the human past its tested
+  domain — not an oversight.
+
+So the actual gap is narrower than "the model doesn't know about need." It
+is: the composite's VONA-ranked list and needrule's ADP-masked
+recommendation are computed independently and **disagree on 11 of 12 picks**
+(measured, `draft/tools/mock_walk.js`) — two cards, two opinions, and the
+human reconciles them. That's a real, worth-fixing gap. It is not the same
+gap as "no fill-awareness anywhere," and the fix is not "wire need into the
+composite" — that path already measured inert. The fix, if there is one, is
+in how the two signals get reconciled (`coherence.js`), which I have not
+yet read closely enough to recommend anything concrete about.
+
+## Why I'm not shipping a patch for this today
+
+Cory asked directly if I could just fix this now. I looked hard at whether
+I could respons­ibly ship a tested patch this session and decided not to,
+for a specific reason rather than blanket caution: `vona()`'s own comments
+document three separate collapses from people fusing signals into it
+without the full measured picture, and `needrule.js`'s non-answer past its
+domain is a stated design decision, not dead logic — overriding it risks
+replacing a deliberate "defer to the human" with a confident wrong answer,
+which is exactly the failure class (K/DST rails, "confident nonsense
+shipped three times") this codebase has scar tissue from. Building the
+actual reconciliation fix needs `coherence.js` read in full first, and
+ideally the same before/after backtest discipline every other change in
+this file has gotten. That is real work, not an excuse — but it is not
+today's work.
+
+## What this is NOT
+
+Not a code change, not touching `engine.js`, `needrule.js`, or
+`coherence.js`. A correction to my own prior entry's framing, and an
+honest answer to a direct question about why I'm not just fixing things —
+for A (and Cory) to weigh against actually wanting it done now regardless.
