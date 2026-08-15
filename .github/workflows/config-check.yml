@@ -1,0 +1,67 @@
+name: Config check (read-only)
+
+# VERIFY A HUMAN CONFIG STEP WITHOUT REVEALING A VALUE.
+#
+# Built 2026-08-15 when Cory added SITE_URL (repo variable) + GRADE_CRON_KEY
+# (repo secret) for the weekly weights mirror and asked "can you check that it
+# was done right" — and there was no way to: secrets are unreadable by design,
+# and the workflow that consumes them (weekly-grade.yml) only becomes
+# dispatchable once it reaches the default branch. This is the gap filler for
+# that class of question, kept because the next config step will raise it
+# again.
+#
+# READ-ONLY BY CONSTRUCTION: prints PASS/FAIL per item and string LENGTHS
+# only — never a value. Secrets echoed into logs get masked by Actions anyway,
+# but this never puts one in a position to be masked.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SITE_URL repository variable
+        env:
+          V: ${{ vars.SITE_URL }}
+        run: |
+          if [ -z "$V" ]; then echo "FAIL  SITE_URL variable is NOT set (Variables tab, not Secrets)"; exit 1; fi
+          echo "PASS  SITE_URL is set (${#V} chars)"
+          case "$V" in
+            https://*) echo "PASS  it starts with https://";;
+            *) echo "FAIL  it does not start with https:// — value looks wrong"; exit 1;;
+          esac
+
+      - name: GRADE_CRON_KEY repository secret
+        env:
+          K: ${{ secrets.GRADE_CRON_KEY }}
+        run: |
+          if [ -z "$K" ]; then echo "FAIL  GRADE_CRON_KEY secret is NOT set (Secrets tab)"; exit 1; fi
+          echo "PASS  GRADE_CRON_KEY is set (${#K} chars)"
+
+      - name: The site answers at SITE_URL
+        env:
+          V: ${{ vars.SITE_URL }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$V/build-stamp.json" || echo 000)
+          if [ "$code" = "200" ]; then echo "PASS  $V/build-stamp.json answers 200"; else
+            echo "FAIL  $V/build-stamp.json returned $code — check the URL value"; exit 1; fi
+
+      - name: grade-cron endpoint reachable (auth state reported, key never sent to logs)
+        env:
+          V: ${{ vars.SITE_URL }}
+          K: ${{ secrets.GRADE_CRON_KEY }}
+        run: |
+          # A keyed manual hit. Until Netlify's env var is live (it applies on
+          # the NEXT DEPLOY after being added), the function does not enforce
+          # the key — both 200-without-enforcement and 200-with-matching-key
+          # read as PASS here; a 401/403 means the Netlify value and the
+          # GitHub value DISAGREE, which is the one failure this catches.
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$V/.netlify/functions/grade-cron?key=$K" || echo 000)
+          case "$code" in
+            200) echo "PASS  grade-cron answered 200 with the stored key";;
+            401|403) echo "FAIL  grade-cron REFUSED the stored key ($code) — the Netlify GRADE_CRON_KEY and the GitHub secret do not match"; exit 1;;
+            *) echo "WARN  grade-cron returned $code — endpoint state inconclusive (function may not be deployed yet); the two GitHub values above are still verified";;
+          esac
