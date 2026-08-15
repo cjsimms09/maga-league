@@ -26,7 +26,7 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2196 passed)" python3 -m pytest draft/tests -q
+ck "Python suite (expect ~2250 passed)" python3 -m pytest draft/tests -q
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
@@ -91,7 +91,7 @@ echo "territory refusal is exactly the documented, Cory-authorised Override #5"
 echo "set. The merge itself stays A's deliberate act (bypass integrate.sh's lane"
 echo "gate knowingly, per TERRITORY.md Override #5), not this script's."
 echo ""
-echo "THE TWO OPEN JUDGMENT CALLS (evidence complete, decision NOT made here):"
+echo "THE OPEN JUDGMENT CALLS (evidence complete, decision NOT made here):"
 echo "  1. VONA_WIRE_BENCH ship/no-ship — draft/audit/vona_slot_aware_isolation_"
 echo "     2026-08-15.md. The anomaly is resolved (it is VONA_SLOT_AWARE's own);"
 echo "     the wire branch's timing effect matches real history exactly. Cory's"
@@ -99,4 +99,15 @@ echo "     ruling required either way."
 echo "  2. Scoring-gap ADP correction — draft/audit/scoring_gap_correction_"
 echo "     backtest_2026-08-15.md. Recommendation IN the report: do not ship"
 echo "     (right size, \$0.00 in dollars)."
+echo "  3. KOV_MEASURED_RAMP — the measured keeper-option ramp (the live term is"
+echo "     inverse to the league's own 450-pick history: value lives rounds 4-6,"
+echo "     not 10-15). Gated default-false; DECISIONS-NEEDED.md carries it;"
+echo "     draft/audit/roster_construction_audit_2026-08-15.md is the evidence."
+echo "  4. Pick-33 headline ownership (Loveland/Flowers surfaces) — ROUTES TO:A,"
+echo "     recommendation stated, one keeper-assumption overlap to verify first."
+echo ""
+echo "APPLIED UNDER CORY'S EXPLICIT RULING (not open, listed so the merge reads"
+echo "them as intended): REC-1 measured proj_sd (decision arm re-verified on the"
+echo "fresh board — zero starter seats move); the pre-draft survival filter"
+echo "(phantom-availability fix, Cory's Nacua ruling). Both carry tests."
 exit $((fail > 0))
