@@ -1,15 +1,15 @@
 {
   "consecutive_failures": 1,
   "consecutive_incomplete": 1,
-  "last_attempt_at": "2026-08-14T14:15:00Z",
+  "last_attempt_at": "2026-08-15T13:28:02Z",
   "last_complete": false,
-  "last_complete_at": "2026-08-14T14:15:00Z",
+  "last_complete_at": "2026-08-15T13:28:01Z",
   "last_coverage": 0.0,
   "last_deferred": null,
   "last_events_captured": 0,
   "last_events_listed": null,
   "last_league": "usa-nfl",
-  "last_success_at": "2026-08-14T14:15:00Z",
+  "last_success_at": "2026-08-15T13:28:01Z",
   "max_consecutive_incomplete": 3,
   "stale_after_days": 7
 }
