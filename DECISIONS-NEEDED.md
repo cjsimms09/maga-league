@@ -260,6 +260,28 @@ since then either.
      (weights→0) achieves the same draft-day effect without deleting code.
   - The autoWeights edit is staged and ready to bundle; **Cory's call on scope before Aug 22.**
 
+- **✅ SUBSTANTIALLY RESOLVED, found 2026-08-15 (Cory research relay) — was mis-surfaced as still
+  open.** Checked the live `MEASURED_WEIGHTS` and its own provenance comment in `engine.js`
+  (line ~411) before touching anything, on the near-miss below. Every term this entry asks about
+  already matches a LATER, more specific decision than this entry itself:
+  - **Stack** stays at 1.0, not the "~0.5" this entry suggests — you personally resolved this
+    exact conflict on 2026-08-13 (D10 correction): the code was right, an earlier record was
+    wrong, and 1.0 is what was always meant to ship.
+  - **Ceiling** stays at 0, not the "0.65" this entry recommends — you ruled it to 0 on
+    **2026-08-10**, a day AFTER this entry's revision, specifically rejecting 0.65 (a "flip
+    diagnostic" showed it deciding a third of the late board on a term with "no defensible
+    sign"). A 2026-08-14 follow-up found the underlying measurement this entry cites was itself
+    flawed (collinear with the value term, not real evidence either way) and explicitly kept
+    ceiling at 0 rather than move it on broken evidence — "UNCHANGED AND THAT IS DELIBERATE" in
+    the code's own words.
+  - value/need/tier/risk/bye/keeper already match what this entry recommends.
+  - **I almost implemented the 0.65 change before finding this** — caught only because the
+    code's own provenance comment carries the full decision history and I read it before editing
+    rather than after. Two rulings I'd have silently reverted if I hadn't.
+  - **What's actually still open, narrowly:** item 3 above — building the faithful JS-engine
+    ablation before deleting the tier/risk code paths outright (they currently ship at weight 0,
+    which is not the same as removed). Low urgency, not a live-board question.
+
 ## 7. THE SUNDAY ALERT FIRES BEFORE THE OFFICIAL INACTIVES (B, 2026-08-11)
 - **Trigger (Cory):** does the alert reach me when I'm not looking at the site, and does it
   fire when it should not? The second half is fixed (it now sends only when there is something
