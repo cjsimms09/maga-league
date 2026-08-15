@@ -13765,3 +13765,43 @@ The script is real, runs, and is pushed to `main` — but it does not write
 per `DECISIONS-NEEDED.md` #6's standing rule against swapping the
 projection source without a clean grade. That rule stands; this is evidence
 for the eventual grade, not a swap.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — the depth-chart dampening fix cannot be properly validated yet, and it's a data-archival gap, not a to-do
+
+Cory asked whether I think the depth-chart dampening fix (previous entry)
+is sound. Answered honestly that the multipliers are tuned against
+Sleeper's own numbers (circular — matches another guess, not truth) and
+tried to do better: backtest the dampening against REAL 2024 outcomes
+using 2023 depth-chart data, the same held-out-season standard
+`REGRESSION_WEIGHT` was measured against.
+
+**Checked whether that's even possible before attempting it: it is not.**
+`grep`'d every file in `draft/data/` for `depth_chart_order` — the only hit
+is `pre_draft_freeze_2026.json`, this year's snapshot. Nothing for 2023,
+2024, or 2025. This is the same limitation already documented for the risk
+term's inputs (`injury_status`/`depth_chart_order` are live-only Sleeper
+fields with no historical archive) — I re-found it independently, from a
+different direction, which is at least a second confirmation.
+
+**Using 2026's depth chart to backtest 2024 outcomes would be lookahead
+contamination** — current information a 2024 draft couldn't have had —
+which is exactly what this project's AsOf discipline exists to prevent. So
+the dampening fix's numbers aren't "unmeasured because nobody measured them
+yet"; they're **currently unmeasurable**, a stronger and more honest
+statement.
+
+**The actionable version:** this is the same shape as the "capture this
+season's data so next year's simulation has it" gap from earlier this week,
+for a different field. If `depth_chart_order` (and `injury_status`) start
+getting snapshotted now — alongside whatever else `pre_draft_freeze_2026.json`
+already captures once a season — a real backtest of this exact fix becomes
+possible for 2027. Not scoped further here; flagging the gap and its fix in
+the same breath rather than just the gap.
+
+## What this is NOT
+
+Not a code change. Not a claim that the dampening fix is wrong — only that
+"is it right" cannot currently be answered with real evidence, which is a
+different and more honest thing to say than either "yes" or "no."
