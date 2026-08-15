@@ -6746,8 +6746,19 @@
       // THE GOVERNANCE STATE, stated rather than implied. While the doctrine is
       // display-only, a banner reading "The plan — WR Feast +$187" asserts
       // control it does not have.
-      + '<span class="db-governs' + (DraftDoctrine.governs() ? '' : ' off') + '">'
-      + escapeHtml(DraftDoctrine.governanceLine(enr.enrolled)) + '</span>';
+      //
+      // ONLY WHEN ENROLLED. governanceLine(false) returns the same sentence the
+      // eyebrow above already shows verbatim ("no doctrine enrolled — running
+      // the control") — a real duplication, and long enough as a nowrap pill to
+      // clip against the card edge on a phone. The pill exists to distinguish
+      // "enrolled and tilting" from "enrolled, display-only" — a distinction
+      // that does not exist when nothing is enrolled, so there is nothing for
+      // it to say. governanceLine(false) itself is unchanged (still tested,
+      // still correct in meaning) — this only stops re-rendering it here.
+      + (enr.enrolled
+        ? '<span class="db-governs' + (DraftDoctrine.governs() ? '' : ' off') + '">'
+          + escapeHtml(DraftDoctrine.governanceLine(true)) + '</span>'
+        : '');
     document.getElementById('db-creed').textContent = out.creed || '';
     document.getElementById('db-confidence').textContent = out.confidence;
     // A "$0 gap" is not an alternative, it is the same decision — say the pick
