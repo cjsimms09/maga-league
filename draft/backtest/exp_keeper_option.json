@@ -1,0 +1,953 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, no production reader",
+ "experiment": "EXP-KEEPER-OPTION \u2014 keeper returns and draft-time keeper signals, 2023-2025 real league history",
+ "prereg": "header of draft/backtest/exp_keeper_option.py",
+ "scoring": "weekly stores (our table, fingerprint-stamped), weeks 1-17",
+ "q1_keeper_return_over_forfeit": {
+  "summary": {
+   "n_keeper_seasons": 73,
+   "n_measurable": 73,
+   "n_degraded_benchmark": 20,
+   "mean_return_over_forfeit": 23.5,
+   "median_return_over_forfeit": 13.7,
+   "pct_positive": 53.4,
+   "p10": -89.3,
+   "p90": 148.2,
+   "by_cost_round": {
+    "1": {
+     "n": 28,
+     "mean": -11.7,
+     "median": -24.9,
+     "pct_positive": 39.3
+    },
+    "2": {
+     "n": 25,
+     "mean": 50.2,
+     "median": 53.8,
+     "pct_positive": 68.0
+    },
+    "3": {
+     "n": 20,
+     "mean": 39.4,
+     "median": 29.9,
+     "pct_positive": 55.0
+    }
+   }
+  },
+  "rows": [
+   {
+    "season": "2023",
+    "player_id": "4039",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 134.9,
+    "round_median": 187.1,
+    "return_over_forfeit": -52.2
+   },
+   {
+    "season": "2023",
+    "player_id": "6813",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 120.3,
+    "round_median": 187.1,
+    "return_over_forfeit": -66.8
+   },
+   {
+    "season": "2023",
+    "player_id": "4034",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 357.8,
+    "round_median": 187.1,
+    "return_over_forfeit": 170.7
+   },
+   {
+    "season": "2023",
+    "player_id": "4663",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 151.5,
+    "round_median": 187.1,
+    "return_over_forfeit": -35.6
+   },
+   {
+    "season": "2023",
+    "player_id": "7564",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 208.8,
+    "round_median": 187.1,
+    "return_over_forfeit": 21.7
+   },
+   {
+    "season": "2023",
+    "player_id": "2449",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 208.1,
+    "round_median": 187.1,
+    "return_over_forfeit": 21.0
+   },
+   {
+    "season": "2023",
+    "player_id": "4866",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 180.0,
+    "round_median": 187.1,
+    "return_over_forfeit": -7.1
+   },
+   {
+    "season": "2023",
+    "player_id": "1466",
+    "pos": "TE",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 172.9,
+    "round_median": 187.1,
+    "return_over_forfeit": -14.2
+   },
+   {
+    "season": "2023",
+    "player_id": "3321",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 299.2,
+    "round_median": 187.1,
+    "return_over_forfeit": 112.1
+   },
+   {
+    "season": "2023",
+    "player_id": "6794",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 140.2,
+    "round_median": 187.1,
+    "return_over_forfeit": -46.9
+   },
+   {
+    "season": "2023",
+    "player_id": "3198",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 215.4,
+    "round_median": 187.1,
+    "return_over_forfeit": 28.3
+   },
+   {
+    "season": "2023",
+    "player_id": "6786",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 308.7,
+    "round_median": 187.1,
+    "return_over_forfeit": 121.6
+   },
+   {
+    "season": "2023",
+    "player_id": "5859",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 237.2,
+    "round_median": 187.1,
+    "return_over_forfeit": 50.1
+   },
+   {
+    "season": "2023",
+    "player_id": "5012",
+    "pos": "TE",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 112.9,
+    "round_median": 187.1,
+    "return_over_forfeit": -74.2
+   },
+   {
+    "season": "2023",
+    "player_id": "4046",
+    "pos": "QB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 334.2,
+    "round_median": 187.1,
+    "return_over_forfeit": 147.1
+   },
+   {
+    "season": "2023",
+    "player_id": "7526",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 162.6,
+    "round_median": 187.1,
+    "return_over_forfeit": -24.5
+   },
+   {
+    "season": "2023",
+    "player_id": "5850",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 162.6,
+    "round_median": 187.1,
+    "return_over_forfeit": -24.5
+   },
+   {
+    "season": "2023",
+    "player_id": "7547",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 247.5,
+    "round_median": 187.1,
+    "return_over_forfeit": 60.4
+   },
+   {
+    "season": "2023",
+    "player_id": "6801",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 116.6,
+    "round_median": 187.1,
+    "return_over_forfeit": -70.5
+   },
+   {
+    "season": "2023",
+    "player_id": "6904",
+    "pos": "QB",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 402.2,
+    "round_median": 187.1,
+    "return_over_forfeit": 215.1
+   },
+   {
+    "season": "2023",
+    "player_id": "8144",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 174.7,
+    "round_median": 187.1,
+    "return_over_forfeit": -12.4
+   },
+   {
+    "season": "2023",
+    "player_id": "6770",
+    "pos": "QB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 177.2,
+    "round_median": 187.1,
+    "return_over_forfeit": -9.9
+   },
+   {
+    "season": "2023",
+    "player_id": "5967",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 179.5,
+    "round_median": 187.1,
+    "return_over_forfeit": -7.6
+   },
+   {
+    "season": "2023",
+    "player_id": "7611",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 126.7,
+    "round_median": 187.1,
+    "return_over_forfeit": -60.4
+   },
+   {
+    "season": "2023",
+    "player_id": "4988",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 21.1,
+    "round_median": 187.1,
+    "return_over_forfeit": -166.0
+   },
+   {
+    "season": "2023",
+    "player_id": "2133",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 3,
+    "benchmark_degraded": true,
+    "realized": 200.8,
+    "round_median": 187.1,
+    "return_over_forfeit": 13.7
+   },
+   {
+    "season": "2023",
+    "player_id": "5872",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 209.5,
+    "round_median": 187.1,
+    "return_over_forfeit": 22.4
+   },
+   {
+    "season": "2023",
+    "player_id": "8146",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 161.3,
+    "round_median": 187.1,
+    "return_over_forfeit": -25.8
+   },
+   {
+    "season": "2023",
+    "player_id": "8155",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 224.5,
+    "round_median": 187.1,
+    "return_over_forfeit": 37.4
+   },
+   {
+    "season": "2023",
+    "player_id": "7528",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 159.2,
+    "round_median": 187.1,
+    "return_over_forfeit": -27.9
+   },
+   {
+    "season": "2024",
+    "player_id": "8155",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 195.7,
+    "round_median": 264.0,
+    "return_over_forfeit": -68.3
+   },
+   {
+    "season": "2024",
+    "player_id": "3321",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 174.7,
+    "round_median": 264.0,
+    "return_over_forfeit": -89.3
+   },
+   {
+    "season": "2024",
+    "player_id": "4034",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 40.3,
+    "round_median": 264.0,
+    "return_over_forfeit": -223.7
+   },
+   {
+    "season": "2024",
+    "player_id": "9493",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 167.1,
+    "round_median": 264.0,
+    "return_over_forfeit": -96.9
+   },
+   {
+    "season": "2024",
+    "player_id": "7564",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 318.9,
+    "round_median": 264.0,
+    "return_over_forfeit": 54.9
+   },
+   {
+    "season": "2024",
+    "player_id": "1466",
+    "pos": "TE",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 146.9,
+    "round_median": 264.0,
+    "return_over_forfeit": -117.1
+   },
+   {
+    "season": "2024",
+    "player_id": "6794",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 259.1,
+    "round_median": 264.0,
+    "return_over_forfeit": -4.9
+   },
+   {
+    "season": "2024",
+    "player_id": "4018",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 219.2,
+    "round_median": 264.0,
+    "return_over_forfeit": -44.8
+   },
+   {
+    "season": "2024",
+    "player_id": "6813",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 213.2,
+    "round_median": 264.0,
+    "return_over_forfeit": -50.8
+   },
+   {
+    "season": "2024",
+    "player_id": "8146",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 194.3,
+    "round_median": 100.8,
+    "return_over_forfeit": 93.5
+   },
+   {
+    "season": "2024",
+    "player_id": "2216",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 190.0,
+    "round_median": 100.8,
+    "return_over_forfeit": 89.2
+   },
+   {
+    "season": "2024",
+    "player_id": "8144",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 60.7,
+    "round_median": 100.8,
+    "return_over_forfeit": -40.1
+   },
+   {
+    "season": "2024",
+    "player_id": "5859",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 183.4,
+    "round_median": 100.8,
+    "return_over_forfeit": 82.6
+   },
+   {
+    "season": "2024",
+    "player_id": "4866",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 338.8,
+    "round_median": 100.8,
+    "return_over_forfeit": 238.0
+   },
+   {
+    "season": "2024",
+    "player_id": "4984",
+    "pos": "QB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 428.3,
+    "round_median": 100.8,
+    "return_over_forfeit": 327.5
+   },
+   {
+    "season": "2024",
+    "player_id": "6786",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 212.9,
+    "round_median": 100.8,
+    "return_over_forfeit": 112.1
+   },
+   {
+    "season": "2024",
+    "player_id": "9509",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 280.9,
+    "round_median": 100.8,
+    "return_over_forfeit": 180.1
+   },
+   {
+    "season": "2024",
+    "player_id": "7547",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 250.0,
+    "round_median": 169.2,
+    "return_over_forfeit": 80.8
+   },
+   {
+    "season": "2024",
+    "player_id": "7543",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 103.2,
+    "round_median": 169.2,
+    "return_over_forfeit": -66.0
+   },
+   {
+    "season": "2024",
+    "player_id": "8150",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 255.1,
+    "round_median": 169.2,
+    "return_over_forfeit": 85.9
+   },
+   {
+    "season": "2024",
+    "player_id": "9226",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 242.8,
+    "round_median": 169.2,
+    "return_over_forfeit": 73.6
+   },
+   {
+    "season": "2024",
+    "player_id": "4046",
+    "pos": "QB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 334.5,
+    "round_median": 169.2,
+    "return_over_forfeit": 165.3
+   },
+   {
+    "season": "2024",
+    "player_id": "9221",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 285.4,
+    "round_median": 169.2,
+    "return_over_forfeit": 116.2
+   },
+   {
+    "season": "2025",
+    "player_id": "9221",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 309.3,
+    "round_median": 206.7,
+    "return_over_forfeit": 102.6
+   },
+   {
+    "season": "2025",
+    "player_id": "9509",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 323.5,
+    "round_median": 206.7,
+    "return_over_forfeit": 116.8
+   },
+   {
+    "season": "2025",
+    "player_id": "11584",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 113.2,
+    "round_median": 206.7,
+    "return_over_forfeit": -93.5
+   },
+   {
+    "season": "2025",
+    "player_id": "7564",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 231.5,
+    "round_median": 206.7,
+    "return_over_forfeit": 24.8
+   },
+   {
+    "season": "2025",
+    "player_id": "5850",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 219.1,
+    "round_median": 206.7,
+    "return_over_forfeit": 12.4
+   },
+   {
+    "season": "2025",
+    "player_id": "4034",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 354.9,
+    "round_median": 206.7,
+    "return_over_forfeit": 148.2
+   },
+   {
+    "season": "2025",
+    "player_id": "6794",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 145.1,
+    "round_median": 206.7,
+    "return_over_forfeit": -61.6
+   },
+   {
+    "season": "2025",
+    "player_id": "4866",
+    "pos": "RB",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 211.8,
+    "round_median": 206.7,
+    "return_over_forfeit": 5.1
+   },
+   {
+    "season": "2025",
+    "player_id": "6786",
+    "pos": "WR",
+    "cost_round": 1,
+    "benchmark_round": 1,
+    "benchmark_degraded": false,
+    "realized": 162.5,
+    "round_median": 206.7,
+    "return_over_forfeit": -44.2
+   },
+   {
+    "season": "2025",
+    "player_id": "9493",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 289.5,
+    "round_median": 235.7,
+    "return_over_forfeit": 53.8
+   },
+   {
+    "season": "2025",
+    "player_id": "9226",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 288.6,
+    "round_median": 235.7,
+    "return_over_forfeit": 52.9
+   },
+   {
+    "season": "2025",
+    "player_id": "4984",
+    "pos": "QB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 412.6,
+    "round_median": 235.7,
+    "return_over_forfeit": 176.9
+   },
+   {
+    "season": "2025",
+    "player_id": "11632",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 48.1,
+    "round_median": 235.7,
+    "return_over_forfeit": -187.6
+   },
+   {
+    "season": "2025",
+    "player_id": "11631",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 108.4,
+    "round_median": 235.7,
+    "return_over_forfeit": -127.3
+   },
+   {
+    "season": "2025",
+    "player_id": "7569",
+    "pos": "WR",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 188.7,
+    "round_median": 235.7,
+    "return_over_forfeit": -47.0
+   },
+   {
+    "season": "2025",
+    "player_id": "6813",
+    "pos": "RB",
+    "cost_round": 2,
+    "benchmark_round": 2,
+    "benchmark_degraded": false,
+    "realized": 332.4,
+    "round_median": 235.7,
+    "return_over_forfeit": 96.7
+   },
+   {
+    "season": "2025",
+    "player_id": "8130",
+    "pos": "TE",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 242.9,
+    "round_median": 149.0,
+    "return_over_forfeit": 93.9
+   },
+   {
+    "season": "2025",
+    "player_id": "3198",
+    "pos": "RB",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 259.4,
+    "round_median": 149.0,
+    "return_over_forfeit": 110.4
+   },
+   {
+    "season": "2025",
+    "player_id": "7547",
+    "pos": "WR",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 246.1,
+    "round_median": 149.0,
+    "return_over_forfeit": 97.1
+   },
+   {
+    "season": "2025",
+    "player_id": "11604",
+    "pos": "TE",
+    "cost_round": 3,
+    "benchmark_round": 3,
+    "benchmark_degraded": false,
+    "realized": 142.2,
+    "round_median": 149.0,
+    "return_over_forfeit": -6.8
+   }
+  ]
+ },
+ "q2_kept_next_predictors": {
+  "population": 261,
+  "kdef_excluded": 39,
+  "by_round_bucket": {
+   "1-3 (kept)": {
+    "n": 61,
+    "kept": 29,
+    "p_kept_pct": 47.5
+   },
+   "10-12": {
+    "n": 51,
+    "kept": 2,
+    "p_kept_pct": 3.9
+   },
+   "13-15": {
+    "n": 31,
+    "kept": 0,
+    "p_kept_pct": 0.0
+   },
+   "4-6": {
+    "n": 59,
+    "kept": 7,
+    "p_kept_pct": 11.9
+   },
+   "7-9": {
+    "n": 59,
+    "kept": 2,
+    "p_kept_pct": 3.4
+   }
+  },
+  "by_position": {
+   "QB": {
+    "n": 33,
+    "kept": 3,
+    "p_kept_pct": 9.1
+   },
+   "RB": {
+    "n": 95,
+    "kept": 17,
+    "p_kept_pct": 17.9
+   },
+   "TE": {
+    "n": 27,
+    "kept": 3,
+    "p_kept_pct": 11.1
+   },
+   "WR": {
+    "n": 106,
+    "kept": 17,
+    "p_kept_pct": 16.0
+   }
+  },
+  "by_years_exp_at_draft": {
+   "3-5yr": {
+    "n": 72,
+    "kept": 13,
+    "p_kept_pct": 18.1
+   },
+   "6+yr": {
+    "n": 67,
+    "kept": 9,
+    "p_kept_pct": 13.4
+   },
+   "rookie-2yr": {
+    "n": 95,
+    "kept": 17,
+    "p_kept_pct": 17.9
+   }
+  },
+  "years_exp_coverage_pct": 89.7
+ },
+ "q3_option_value_by_source_bucket": {
+  "1-3 (kept)": {
+   "p_kept_next": 0.475,
+   "n_kept_with_return": 29,
+   "mean_return_if_kept": 37.2,
+   "option_value_pts": 17.7
+  },
+  "4-6": {
+   "p_kept_next": 0.119,
+   "n_kept_with_return": 7,
+   "mean_return_if_kept": 59.9,
+   "option_value_pts": 7.1
+  },
+  "7-9": {
+   "p_kept_next": 0.034,
+   "n_kept_with_return": 2,
+   "mean_return_if_kept": 41.2,
+   "option_value_pts": 1.4
+  },
+  "10-12": {
+   "p_kept_next": 0.039,
+   "n_kept_with_return": 2,
+   "mean_return_if_kept": -26.9,
+   "option_value_pts": -1.1
+  },
+  "13-15": {
+   "p_kept_next": 0.0,
+   "n_kept_with_return": 0,
+   "mean_return_if_kept": null,
+   "option_value_pts": null
+  },
+  "undrafted (rd10 rule)": {
+   "p_kept_next": null,
+   "n_kept_with_return": 3,
+   "mean_return_if_kept": -34.8,
+   "option_value_pts": null
+  }
+ },
+ "shipped_kov_ramp": "composite.js CFG: 0 through round 6, linear to full at round 12"
+}
