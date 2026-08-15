@@ -13039,3 +13039,99 @@ date-bounding before this probe found it again on markets.
 
 No code touched. Corrects an earlier recommendation with evidence found in the
 repo, and proposes candidates for A to test from CI, not from here.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — HOW THE DRAFT ENGINE ACTUALLY DRAFTS, AND WHAT ITS OWN CODE ALREADY ADMITS IS WRONG
+
+**FOR: A.** Cory asked to shift focus to the draft tools: how it drafts, what
+the issues are, how to improve it. Read `engine.js`, `composite.js`, and the
+weight-configuration block directly rather than going from memory of earlier
+docs — the code's own comments turned out to already contain a remarkably
+honest self-diagnosis. Organized below so it's a punch list, not just a report.
+
+## How it actually drafts (the real pipeline, `recommend()` in engine.js)
+
+Every board player is scored on eight weighted components: **value** (VONA —
+value over next-best-available, flex- and position-aware), **tier** (cliff
+urgency), **need**, **risk** (age-cliff), **ceiling** (upside spread), **keeper**
+(next-year option value, from `composite.js`'s KOV), **bye** (collision penalty
+against the actual roster), **stack** (QB/pass-catcher correlation). Then:
+ceiling tiebreak on near-ties → Stage-2 anchor (off by default) → roster
+legality → plausibility rails (catches runaway scores) → demotion of flagged
+one-position players → doctrine report. Structurally sound — the problems below
+are about what's actually live inside it, not the shape of the pipeline.
+
+## What's actually wrong, in the code's own words
+
+**1. Five of eight scoring terms are zero in the live config.** `MEASURED_WEIGHTS`
+— what `app.js` initializes `state.weights` from, i.e. what real picks are
+scored under — is `{ value: 1.0, tier: 0, need: 0, risk: 0, ceiling: 0, keeper:
+1.0, bye: 0, stack: 1.0 }`. Most of the apparent sophistication in this engine
+is multiplying by zero on every real recommendation.
+
+**2. The ranked list has no idea what's on your roster, mid-draft.** Direct
+quote: *"the composite has no positional-fill awareness in the mid-draft...
+filling QB and TE moves this top 70 by zero players."* A separate roster-fill
+mask exists (in `needrule.js`) but `recommend()` never calls it — grep
+`withinCap` in `engine.js` and every hit is a comment, not a call. It only
+fires in the endgame legality check, not the list Cory reads most of the draft.
+
+**3. Two of the zeros (`risk`, `ceiling`) are measurement artifacts, not
+findings.** The Lab's backtest board was missing risk's five inputs entirely,
+and ceiling's value was mathematically identical to the value term on that
+board (Spearman 0.98–1.0 — collinearity, not a weak signal). The code says
+this itself: *"not evidence that ceiling is worthless. It is not evidence of
+anything."* Worth treating as a systemic red flag, not a two-term issue — if
+the Lab's board-builder (`build_bundle.py`, 12 fields) silently diverges from
+production (48 fields) on these two terms, other backtest conclusions resting
+on the same harness deserve the same scrutiny, including the B0-vs-B3 result
+already flagged (three entries up in this file's earlier GM-sim thread).
+
+**4. A real governance failure already happened on this exact config.** The
+`stack` weight's shipped value and its own decision record (D10) disagreed with
+each other for five days before it was caught — the engine ran one number while
+the file documenting the ruling said another.
+
+**5. The alternate presets quietly undo the measured findings.** Three of the
+four named strategies (`balanced`, `value` i.e. "Best available", `upside` i.e.
+"Swing for it") run `tier` and other terms at meaningful weight — the SAME
+terms just measured as a net drag (tier: −$235 pooled). Selecting anything but
+"Live policy" silently reverts to a config the Lab already found loses money,
+with no warning that it's doing so.
+
+**6. Layered on the pre-existing, still-open findings** (round-1 leak alarm
+unresolved across multiple grading passes, 2025's backtest season contributing
+zero graded picks due to a stat-reconciliation break, and the full composite
+B3 underperforming plain ADP B0 — and even plain VORP B2 — in the project's own
+official backtest): the honest summary is that **the draft engine's actual
+demonstrated edge is narrow (value + stack + keeper), most of the apparent
+sophistication is currently dormant, and the harness that would justify turning
+any of it back on had real, self-admitted holes.**
+
+## How to improve it, in priority order
+
+1. **Fix the Lab board-builder's field gap first.** Nothing measured against a
+   12-field board can be trusted against production's 48 fields — this is the
+   prerequisite for re-evaluating `risk` and `ceiling` honestly, not a
+   nice-to-have.
+2. **Wire the roster-fill mask into `recommend()` itself**, not just the
+   endgame legality path — a real, already-located, already-acknowledged fix.
+3. **Resolve the round-1 leak alarm** before trusting any composite-vs-ADP
+   comparison again, including any future re-measurement of `risk`/`ceiling`.
+4. **Update or clearly warn on the alternate presets** — a UI choice shouldn't
+   silently undo a measured Lab finding with no indication it's doing so.
+5. **Connect this to the real weekly projection engine once built** (the
+   Part-1 plan, five entries up) — VONA's `proj_mean` input should come from
+   the same "one engine, two horizons" as the in-season tools, not stay a
+   separate FFC/FantasyPros-based system forever.
+6. **Point the same rigor used on the GM-sim today at the draft engine next** —
+   mechanical leak proof, human-readable transcripts, real attribution — now
+   buildable for real once a genuine projection exists instead of the
+   backtest's current "era-appropriate reconstructions."
+
+## What this is NOT
+
+No code touched, nothing gated. Every claim above traces to a direct read of
+`engine.js`/`composite.js`'s own comments and constants, not inference —
+quoted rather than paraphrased where it mattered.
