@@ -14,7 +14,8 @@ that changes the behaviour._
 **THE OBJECTIVE: money in Cory's pocket in this league.** Not a prettier site, not a
 cleaner abstraction — those matter only to the extent they make him more money or make
 the tools he uses to make money better. The biggest known pool is **in-season execution**
-(≈$445–595/team/season left on benches, measured) — your lane owns the surfaces that
+(≈$520–637.50/team/season left on benches, measured — corrected upward 2026-08-15
+from the superseded ≈$445–595; see EFFICIENCY-LEAK.md) — your lane owns the surfaces that
 capture it. Sequence by expected dollars, weighted by how soon Cory can act.
 
 **PREFER DERIVED OVER DECLARED.** Any value, threshold, weight, or policy that could be

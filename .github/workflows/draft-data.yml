@@ -338,7 +338,12 @@ jobs:
         if: github.event.inputs.snapshot != 'true'
         id: publish
         run: |
-          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
+          # player_positions.json ADDED 2026-08-15 (data audit): build.py grows
+          # this union-over-builds record on the runner every rebuild, but it
+          # was never in this commit list — so the committed record was frozen
+          # at its last hand-commit and the union could not actually grow. A
+          # union that only grows in a discarded working tree is not a record.
+          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
