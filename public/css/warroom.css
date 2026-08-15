@@ -47,8 +47,12 @@
   --wr-panel: var(--panel);
   --wr-panel-soft: var(--panel-soft);
 
-  /* ── chart ink (dataviz: one hue for magnitude, gray for context) ── */
-  --wr-chart-main: #2f5382;         /* navy-family series hue */
+  /* ── chart ink (dataviz: one hue for magnitude, gray for context).
+     The two-series pair (market vs room) is VALIDATED: #2a5f9e / #eb6834
+     pass the six checks on the light surface (CVD worst pair ΔE 22.1,
+     normal-vision 33.7, contrast ≥3:1) — do not eyeball substitutes. ── */
+  --wr-chart-main: #2a5f9e;         /* navy-family series hue (market model) */
+  --wr-chart-room: #eb6834;         /* room-model series (validated pair) */
   --wr-chart-dim: #b9c2cf;          /* de-emphasis series */
   --wr-chart-grid: #e8e6df;         /* hairline grid, one step off paper */
 }
@@ -165,6 +169,15 @@
 .wr-chart text { font-family: var(--font-body); fill: var(--wr-muted); font-size: 9px; }
 .wr-chart text.lbl { fill: var(--wr-ink); font-weight: 600; }
 .wr-chart-cap { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 0; }
+
+/* Branch delta grid (IF YOU TAKE…): compact matrix, sequential ink. */
+.wr-branch-grid { border-collapse: collapse; font-size: var(--wr-fs-sub); }
+.wr-branch-grid th { font-size: var(--wr-fs-micro); color: var(--wr-muted);
+  font-weight: 600; text-align: right; padding: .15rem .45rem; }
+.wr-branch-grid th:first-child { text-align: left; }
+.wr-branch-grid td { padding: .3rem .55rem; text-align: right; border: 2px solid var(--wr-panel); }
+.wr-branch-grid td.bg-take { text-align: left; font-weight: 700; color: var(--wr-ink); }
+.tier-cliff-wrap { margin: .5rem 0 0; }
 
 /* ══ BOARD TABLE — tier banding, aligned numerics, calm flags ═══════════ */
 /* The sticky header + name column were painted var(--navy-deep) — a dark-era

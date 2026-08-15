@@ -272,6 +272,13 @@
           does waiting cost me". %>
       <%# §2(d) — always-visible best-available strip (cross-position glance). %>
       <div id="best-avail-strip" class="best-avail-strip"></div>
+      <%# Tier-cliff small multiples (design pass 2026-08-15, Cory: "no charts
+          or visual explanations"). Collapsed one-liner; renderRecommendations
+          fills it from the same scored board via DraftCharts.tierCliffChart. %>
+      <details id="tier-cliff-wrap" class="tier-cliff-wrap">
+        <summary style="font-size:.78rem;cursor:pointer">📉 Tier cliffs — where each position falls off</summary>
+        <div id="tier-cliff-chart"></div>
+      </details>
       <div id="pos-recs-wrap" style="margin-top:.9rem; border-top:1px solid var(--line,#2a2a2a); padding-top:.7rem">
         <label class="field" style="margin-bottom:.25rem">Best available by position — detail</label>
         <select id="pos-recs" style="width:auto">

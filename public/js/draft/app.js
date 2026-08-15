@@ -2739,10 +2739,21 @@
     if (!branches || !branches.length) { card.style.display = 'none'; return; }
     card.style.display = '';
     $('#branch-head').textContent = 'what is likely left at pick ' + branches[0].pick;
-    host.innerHTML = explainPanel('branches') + branches.map(b => {
-      // Only the positions where waiting actually costs something. A row
-      // saying "you lose 0.2 points" is noise on the clock.
-      const rows = b.rows.filter(r => r.loss > 1).slice(0, 4);
+    /* THE DELTA GRID (design pass 2026-08-15): four near-identical text blocks
+     * became one compact matrix \u2014 rows are candidates, columns positions, ink
+     * deepens with the cost of waiting. Same data (loss > 1 filter unchanged),
+     * one form. Text blocks remain the no-module fallback. */
+    const gridBranches = branches.map(b => ({ taking: b.taking, pick: b.pick,
+      rows: b.rows.filter(r => r.loss > 1).slice(0, 4) }));
+    if (typeof DraftCharts !== 'undefined') {
+      const grid = DraftCharts.branchGrid(gridBranches);
+      host.innerHTML = explainPanel('branches')
+        + (grid || '<p class="muted" style="margin:.2rem 0 0; font-size:.78rem">'
+          + 'Nothing falls off a cliff before your next pick.</p>');
+      return;
+    }
+    host.innerHTML = explainPanel('branches') + gridBranches.map(b => {
+      const rows = b.rows;
       return '<div class="branch">'
         + '<div class="branch-head">Take <b>' + escapeHtml(b.taking) + '</b></div>'
         + (rows.length
@@ -3207,6 +3218,25 @@
     // working, and on the clock most people only ever read the answer.
     let html = '';
     if (t.atRisk.length) {
+      // The two-model chart: the same players' market and room numbers side by
+      // side — the disagreement the page used to print under one caption is
+      // now ONE encoding with a legend. Market % looked up from the SAME
+      // scored board the recommendations rendered (state.lastClock), never a
+      // second survival computation.
+      try {
+        if (typeof DraftCharts !== 'undefined') {
+          const svById = {};
+          ((state.lastClock || {}).scored || []).forEach(s => {
+            svById[String(s.player.player_id)] = s.survival_to_next;
+          });
+          html += DraftCharts.goneChart(t.atRisk.map(r => ({
+            name: r.name, position: r.position,
+            market_gone: svById[String(r.player_id)] == null ? null
+              : Math.round((1 - svById[String(r.player_id)]) * 100),
+            room_gone: r.gone,
+          })));
+        }
+      } catch (e) { console.error('[gone-chart]', e && e.message); }
       html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone '
         + '<span class="muted">(room model — who the seats ahead actually take; '
         + 'this is the number that differentiates players the market lumps together)</span></div>'
@@ -4940,6 +4970,13 @@
     try { renderShadowProjection(); }
     catch (e) { console.error('[shadow-proj]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    // Tier-cliff small multiples — same scored board, never a second computation.
+    try {
+      const tcHost = document.getElementById('tier-cliff-chart');
+      if (tcHost && typeof DraftCharts !== 'undefined') {
+        tcHost.innerHTML = DraftCharts.tierCliffChart(out.scored);
+      }
+    } catch (e) { console.error('[tier-cliff]', e && e.message); }
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
