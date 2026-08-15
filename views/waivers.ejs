@@ -124,5 +124,50 @@
       </p>
     </div>
   </div>
+
+  <%# ── Log the decision (writes to the ledger with its counterfactual) ─────
+      Same pattern as /lineup/log + /lineup/override: two forms, one records
+      agreement with the tool's own alternative as the counterfactual, the
+      other records going another way with the tool's pick AS the
+      counterfactual. This page has no "submit the claim" action of its own
+      (the real claim happens on Sleeper) so this tap IS the decision moment -
+      it says "this is what I'm doing", not just "this is what I saw". %>
+  <form method="post" action="/waivers/log" class="card" style="margin-bottom:1.1rem">
+    <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
+      <div>
+        <b>Making this claim?</b>
+        <span class="muted" style="font-size:.82rem">Logs it against holding your priority, so the rest of the season can grade the difference.</span>
+      </div>
+      <input type="hidden" name="week" value="<%= weekNo || '' %>">
+      <input type="hidden" name="dollars" value="<%= top.dollars %>">
+      <input type="hidden" name="contested" value="<%= top.contested ? '1' : '0' %>">
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}).replace(/"/g, '&quot;') %>">
+      <button class="btn gold" type="submit">Log this claim</button>
+    </div>
+  </form>
+
+  <form method="post" action="/waivers/override" class="card lo-override" style="margin-bottom:1.1rem">
+    <div class="body">
+      <div style="margin-bottom:.55rem">
+        <b>Holding, or claiming someone else?</b>
+        <span class="muted" style="font-size:.82rem">One tap says why. The tool's pick was worth <b><%= money0(top.dollars) %></b>.</span>
+      </div>
+      <input type="hidden" name="week" value="<%= weekNo || '' %>">
+      <input type="hidden" name="dollars" value="<%= top.dollars %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
+      <div class="lo-ov-chips">
+        <button class="btn small ghost" type="submit" name="reason" value="held priority">✋ Held priority</button>
+        <button class="btn small ghost" type="submit" name="reason" value="claimed someone else">🔀 Claimed someone else</button>
+        <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
+        <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+        <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+      </div>
+      <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
+        What you actually claimed is readable from Sleeper afterwards. What the tool told you
+        <i>right now</i> isn't recoverable from anything, so that's what gets written down.
+      </p>
+    </div>
+  </form>
 <% } %>
 <%- include('partials/footer') %>

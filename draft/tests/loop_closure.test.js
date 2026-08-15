@@ -178,11 +178,19 @@ const by = k => rows.find(r => r.kind === k);
 // ── 5. THE IN-SEASON KINDS NOT CAPTURED AT ALL ──────────────────────────
 // The Sept 1 deadline items. A prediction never made cannot be graded later, and
 // the weeks it would have covered are not recoverable.
+//
+// 2026-08-15: this list used to be all five in-season kinds. Two things
+// happened the same day, in order: (1) the scanner itself was fixed (it never
+// recursed into src/routes/, and didn't recognize the server-side
+// `predledger.append(store, {kind:'...'})` shape at all) — re-running the FIXED
+// scanner against UNCHANGED code found lineup_call and inseason_override were
+// already captured in src/routes/member.js the whole time. (2) waiver_claim was
+// then actually wired (POST /waivers/log, /waivers/override — same pattern).
+// stream_call and trade_eval remain genuinely unbuilt.
 {
   const missing = rows.filter(r => r.gradeable && !r.captured).map(r => r.kind).sort();
   ck('the uncaptured gradeable kinds are the in-season rail',
-    JSON.stringify(missing) === JSON.stringify(['inseason_override', 'lineup_call',
-      'stream_call', 'trade_eval', 'waiver_claim']), missing);
+    JSON.stringify(missing) === JSON.stringify(['stream_call', 'trade_eval']), missing);
   ck('they are DECLARED, so the shape is agreed and only the wiring is missing — '
     + 'which is why this is a deadline and not a design question',
   missing.every(k => LC.declaredKinds().indexOf(k) >= 0));

@@ -2765,6 +2765,77 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   });
 }));
 
+// ── WAIVER CLAIM CAPTURE (2026-08-15) — the missing half of the in-season ledger.
+//
+// `waiver_claim` has been a registered, gradeable ledger kind since before the
+// draft (src/predledger.js COUNTERFACTUAL_KINDS, graded by
+// src/forecast_grade.js's INSEASON_DECISION_KINDS) and nothing ever wrote one.
+// Found by re-running draft/tools/loop_closure.js after fixing two real bugs in
+// it (see that commit) — lineup_call and inseason_override turned out to
+// already be captured this exact way (POST /lineup/log, POST /lineup/override,
+// both in this file); waiver_claim was the one of the three still genuinely
+// missing that has a clean, unambiguous decision moment to hook.
+//
+// SAME PATTERN, DELIBERATELY. Two forms, matching /lineup/log + /lineup/override
+// below: "Log this claim" preserves the tool's pick as the decision with a
+// counterfactual; the reason chips record going another way, with the tool's
+// pick AS the counterfactual this time — same shape, same reasoning, so a reader
+// of one understands the other for free.
+//
+// THE COUNTERFACTUAL IS "hold priority", NOT A SPECIFIC ALTERNATIVE PLAYER. This
+// page's own header (and its own text below) is explicit that the real decision
+// is a stopping problem the engine does not model — spend your position now or
+// wait for something better — so "I would have held" is the one alternative the
+// page itself already commits to, not a guess about a substitute I might have
+// claimed instead. A future page that DOES surface a #2 option can pass a real
+// one; nothing here forecloses that, it just does not invent one today.
+router.post('/waivers/log', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'waiver_claim',
+      method: 'waiver-tool-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        chosen: safeJson(req.body.chosen),
+        // REQUIRED: what I'd have done without the tool.
+        counterfactual: 'hold priority',
+        drop: safeJson(req.body.drop),
+        dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+        contested: req.body.contested === '1',
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/waivers?logged=1');
+}));
+
+router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'waiver-override-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        // What I went against. For an override the tool's claim is BOTH the
+        // thing overridden and the counterfactual — same convention as
+        // /lineup/override immediately below.
+        recommended: safeJson(req.body.recommended),
+        counterfactual: safeJson(req.body.recommended),
+        gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+        reason: String(req.body.reason || 'unstated').slice(0, 60),
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/waivers?overrode=1');
+}));
+
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
