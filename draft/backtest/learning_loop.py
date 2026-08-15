@@ -280,6 +280,19 @@ def build_recommendations() -> dict:
                     "grades which source is right."),
         "grade": source_grade,
         "week1_prior_attempt": week1_prior,
+        # The player-week loop's per-arm skill table — REC-2's IN-SEASON
+        # evidence stream (weekly per-position n/MAE/bias for arm 'ours' vs
+        # arm 'sleeper', graded by grade-cron from week 2). Rides the
+        # evidence-weights mirror; a named absence until the first graded
+        # week. January's season-grain cells stay the decision evidence; this
+        # is the early-warning channel (which arm is measurably better, weeks
+        # before any composition ruling is due).
+        "inseason_arm_evidence": (
+            (ew_mirror or {}).get("player_weeks")
+            or {"status": "absent",
+                "why": ("no player_weeks block in the evidence-weights mirror "
+                        "yet — the player loop's first graded week lands it; "
+                        "mirrored weekly by weekly_grade_runner.js")}),
         "unlock_progress": rec2_unlock_progress(store_2026),
         "preregistered": ("metric, population, cutoff and weight rule fixed 2026-08-15 in "
                           "learning_loop.py, before any 2026 outcome exists — see module "

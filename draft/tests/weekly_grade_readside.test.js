@@ -53,6 +53,14 @@ const ck = (n, c, d) => {
     !/store\.set\(/.test(src) && /store\.get\('evidence_weights:current'\)/.test(src));
     ck('and it is key-gated under the same GRADE_CRON_KEY policy',
       /GRADE_CRON_KEY/.test(src));
+    ck('and it exposes the player-week arm table from the LATEST calibration '
+      + 'snapshot — the player loop\'s grades now have a machine reader '
+      + '(loop review 2026-08-15), still with zero store writes',
+    /player_weeks/.test(src) && !/store\.set\(/.test(src));
+    const runnerSrc = fs.readFileSync(path.join(ROOT, 'draft', 'tools', 'weekly_grade_runner.js'), 'utf8');
+    ck('the weekly mirror carries player_weeks alongside the weights, so '
+      + 'learning_loop.py can consume both from one committed file',
+    /player_weeks: doc\.player_weeks \|\| null/.test(runnerSrc));
 
     // ── 4. The artifact refresh executes the real regeneration ────────────
     const rr = R.refreshRecommendations();

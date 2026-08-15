@@ -116,11 +116,19 @@ exports.handler = async (event) => {
       sleeper_arm_status: proj.status,
     });
 
+    /* THE THURSDAY SELF-CHECK (loop review 2026-08-15): what this run is
+     * emitting, compared against the realized history the SAME run fetched.
+     * Response-only — it moves no number and grades nothing; a 'drift' flag
+     * in the Thursday run log is five days earlier than the same fact
+     * surfacing at the next Tuesday grade. */
+    const sanity = WPP.emissionSanity(built.forecasts, history);
+
     return { statusCode: 200, body: JSON.stringify({
       ok: true, season, week,
       emitted: appended.length, deduped: built.forecasts.length - fresh.length,
       coverage: built.coverage, sleeper_arm_status: proj.status,
       emitted_late: built.forecasts.length && built.forecasts[0].emitted_late,
+      emission_sanity: sanity,
     }) };
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };

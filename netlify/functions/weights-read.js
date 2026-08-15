@@ -27,8 +27,22 @@ exports.handler = async (event) => {
   try {
     const weights = await store.get('evidence_weights:current');
     let snapshots = 0;
+    /* THE PLAYER-WEEK ARM TABLE rides along (loop review 2026-08-15): the
+     * league-wide player loop's grades land in the calibration snapshot's
+     * player_weeks block, and until this line NOTHING machine-read them —
+     * the newest loop's consume arc terminated at a store key (the exact
+     * "grades reach only a page" failure Cory's standard names, except no
+     * page read this block either). Exposed here read-only, mirrored by the
+     * weekly runner, consumed by learning_loop.py as REC-2's in-season
+     * per-source evidence stream. */
+    let playerWeeks = null;
     if (weights && weights.season) {
-      snapshots = ((await store.listKeys(`calibration:${weights.season}:`)) || []).length;
+      const keys = ((await store.listKeys(`calibration:${weights.season}:`)) || []).sort();
+      snapshots = keys.length;
+      if (keys.length) {
+        const latest = await store.get(keys[keys.length - 1]);
+        if (latest && latest.player_weeks) playerWeeks = latest.player_weeks;
+      }
     }
     return {
       statusCode: 200,
@@ -37,6 +51,7 @@ exports.handler = async (event) => {
         ok: true,
         weights: weights || null,
         calibration_snapshots: snapshots,
+        player_weeks: playerWeeks,
         note: weights ? undefined
           : 'no evidence_weights:current in the store yet — grade-cron has not produced one',
       }),

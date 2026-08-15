@@ -506,6 +506,68 @@ function gradePlayerWeeks(entries) {
   };
 }
 
+// ── emission-time sanity (loop review 2026-08-15) ───────────────────────────
+/* THE THURSDAY SELF-CHECK. Grading runs Tuesday; without this, an emission
+ * whose inputs broke (a zeroed board vintage, an empty history fetch, a
+ * degenerate projection feed) would emit confidently on Thursday and only
+ * read as drift at the NEXT Tuesday's grade — five days after the week
+ * locked. This compares what is being emitted against what the SAME run
+ * already fetched (the strictly-prior realized history), per position, arm
+ * 'ours', active rows only — no new inputs, no network, no effect on what is
+ * emitted or graded. A flag here is a run-log warning a Thursday reader can
+ * act on before kickoff; it moves no number.
+ *
+ * Thresholds declared: a position with n>=10 emitted actives and n>=10
+ * realized player-weeks whose emitted mean falls outside [0.6, 1.67]x the
+ * realized per-appearance mean is flagged 'drift'. Preseason (no history) is
+ * 'no_history' — a clean skip, never a warning nobody reads. */
+const SANITY_MIN_N = 10;
+const SANITY_RATIO_LO = 0.6;
+const SANITY_RATIO_HI = 1.67;
+
+function emissionSanity(forecasts, history) {
+  const weeks = Object.keys(history || {});
+  const active = (forecasts || []).filter(f =>
+    f && f.arm === 'ours' && f.ftype === 'point'
+    && Number.isFinite(Number(f.value)) && Number(f.value) > 0
+    && f.subject && f.subject.position);
+  if (!weeks.length) {
+    return { status: 'no_history', why: 'no completed weeks yet — nothing to compare against',
+      positions: {} };
+  }
+  // Realized per-appearance mean per position, over the forecast players
+  // (0.0 weeks excluded — the same DNP-indistinguishable rule the blend uses).
+  const byPos = {};
+  for (const f of active) {
+    const pos = f.subject.position;
+    const p = (byPos[pos] || (byPos[pos] = { emitted: [], realized: [] }));
+    p.emitted.push(Number(f.value));
+    const pid = String(f.subject.player_id);
+    for (const w of weeks) {
+      const v = Number((history[w] || {})[pid]);
+      if (Number.isFinite(v) && v > 0) p.realized.push(v);
+    }
+  }
+  const positions = {};
+  let flagged = 0;
+  for (const [pos, p] of Object.entries(byPos)) {
+    const mean = a => a.length ? a.reduce((s, v) => s + v, 0) / a.length : null;
+    const em = mean(p.emitted), re = mean(p.realized);
+    const measurable = p.emitted.length >= SANITY_MIN_N && p.realized.length >= SANITY_MIN_N;
+    const ratio = (measurable && re > 0) ? em / re : null;
+    const drift = ratio != null && (ratio < SANITY_RATIO_LO || ratio > SANITY_RATIO_HI);
+    if (drift) flagged++;
+    positions[pos] = {
+      n_emitted: p.emitted.length, n_realized: p.realized.length,
+      emitted_mean: em != null ? Math.round(em * 100) / 100 : null,
+      realized_mean: re != null ? Math.round(re * 100) / 100 : null,
+      ratio: ratio != null ? Math.round(ratio * 1000) / 1000 : null,
+      status: !measurable ? 'thin' : (drift ? 'drift' : 'ok'),
+    };
+  }
+  return { status: flagged ? 'drift' : 'ok', flagged, positions };
+}
+
 // ── the Sleeper weekly-projection fetch (arm b's source) ────────────────────
 /* Same TTL + negative-cache discipline bundle() uses. The URL shape is the
  * weekly variant sleeper_import.py's endpoint probe verified; the empty-payload
@@ -573,6 +635,6 @@ module.exports = {
   playerKey, isPlayerKey, armOfKey, lateCutoffUtc,
   playersPointsFromMatchups, playersPointsForWeek, appearances,
   armOurs, armSleeper, forecastRow, buildWeekForecasts, dedupeAgainstMarker,
-  resolvePlayerForecasts, partitionLedger, gradePlayerWeeks,
+  resolvePlayerForecasts, partitionLedger, gradePlayerWeeks, emissionSanity,
   normalizeProjectionPayload, fetchWeekProjections,
 };

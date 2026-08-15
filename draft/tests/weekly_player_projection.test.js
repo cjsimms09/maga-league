@@ -339,6 +339,49 @@ function mockStore(seed) {
       typeof W.partitionLedger === 'function' && typeof W.gradePlayerWeeks === 'function');
   }
 
+  // ── emission-time sanity: the Thursday self-check (loop review 2026-08-15) ──
+  {
+    const row = (pid, pos, value) => ({
+      key: `wk|2026|5|player|${pid}|ours`, ftype: 'point', value,
+      arm: 'ours', subject: { week: 5, player_id: String(pid), position: pos } });
+    // 12 WRs emitted near their realized level, plus history for each.
+    const okRows = [], hist = { 3: {}, 4: {} };
+    for (let i = 0; i < 12; i++) {
+      okRows.push(row(100 + i, 'WR', 11 + (i % 3)));
+      hist[3][String(100 + i)] = 10 + (i % 4);
+      hist[4][String(100 + i)] = 12 - (i % 3);
+    }
+    const ok = W.emissionSanity(okRows, hist);
+    ck('a healthy emission reads ok with a measured per-position ratio',
+      ok.status === 'ok' && ok.positions.WR.status === 'ok'
+      && ok.positions.WR.ratio > 0.6 && ok.positions.WR.ratio < 1.67);
+
+    // The defect it exists for: a zeroed/deflated feed — emitted at ~20% of
+    // realized. Must flag on Thursday, not wait for Tuesday's grade.
+    const drift = W.emissionSanity(okRows.map(r =>
+      Object.assign({}, r, { value: r.value * 0.2 })), hist);
+    ck('a deflated emission flags drift at emission time',
+      drift.status === 'drift' && drift.positions.WR.status === 'drift'
+      && drift.flagged === 1);
+
+    ck('preseason (no completed weeks) is a clean no_history skip, not a warning',
+      W.emissionSanity(okRows, {}).status === 'no_history');
+
+    const thin = W.emissionSanity(okRows.slice(0, 3), hist);
+    ck('a thin position is named thin and never flagged on n<10',
+      thin.status === 'ok' && thin.positions.WR.status === 'thin');
+
+    ck('zero-value rows (bye/out) are excluded — a bye week must not read as drift',
+      W.emissionSanity(okRows.map(r => Object.assign({}, r, { value: 0 })), hist)
+        .positions.WR === undefined);
+
+    const cronSrc = require('fs').readFileSync(
+      path.join(ROOT, 'netlify', 'functions', 'player-projection-cron.js'), 'utf8');
+    ck('the cron reports emission_sanity in its response (run-log visibility, '
+      + 'no effect on what is emitted)',
+    /emission_sanity: sanity/.test(cronSrc) && /emissionSanity\(built\.forecasts, history\)/.test(cronSrc));
+  }
+
   console.log(`\n${pass} passed, ${fail} failed`);
   if (fail) process.exit(1);
 })();

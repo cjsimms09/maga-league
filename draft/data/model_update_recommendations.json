@@ -120,6 +120,10 @@
     "prereg": "draft/backtest/SOURCE-WEIGHT-PRIOR-PREREG.md",
     "artifact": "draft/backtest/source_weight_prior.json"
    },
+   "inseason_arm_evidence": {
+    "status": "absent",
+    "why": "no player_weeks block in the evidence-weights mirror yet \u2014 the player loop's first graded week lands it; mirrored weekly by weekly_grade_runner.js"
+   },
    "unlock_progress": {
     "weeks_graded": 0,
     "weeks_needed": 17,

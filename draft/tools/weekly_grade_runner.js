@@ -155,6 +155,11 @@ function mirrorEvidenceWeights() {
         fetched_at: new Date().toISOString(),
         calibration_snapshots: doc.calibration_snapshots || 0,
         weights: doc.weights,
+        /* The player-week arm table from the latest calibration snapshot —
+         * per-position per-arm n/MAE/bias + better_arm. null until the
+         * player loop's first graded week; learning_loop.py names the
+         * absence rather than defaulting. */
+        player_weeks: doc.player_weeks || null,
       };
       fs.writeFileSync(path.join(ROOT, 'draft', 'data', 'evidence_weights_latest.json'),
         JSON.stringify(out, null, 1));

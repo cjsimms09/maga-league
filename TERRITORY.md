@@ -1191,6 +1191,12 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     plus additive resolution/partition blocks in claims-cron/grade-cron.
     Same note as above: netlify/** and new src files don't register as gate
     trespass; listed for B's review on return.
+    APPENDED (loop review, same day): additive `emissionSanity` in
+    `weekly_player_projection.js` + an `emission_sanity` response field in
+    the cron (Thursday self-check — response-only, moves no number, 6 new
+    assertions), and `weights-read.js`/`weekly_grade_runner.js` now expose/
+    mirror the calibration snapshot's `player_weeks` block (read-only) so
+    the player loop's grades have a machine consumer.
   * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
     day) — the independent review's required action #2: the test's no-bundle
     arm had an accidental live-network dependency with a sign bit (passed
