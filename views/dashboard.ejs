@@ -151,11 +151,14 @@
   const myTurn = draft.current && draft.current.owner_id === owner.id;
   const unvoted = openVotes.filter(v => !v.myChoice).length;
   const iOwe = myBalance < 0;
+  const pkNudge = (typeof pickemNudge !== 'undefined' && pickemNudge) ? pickemNudge : null;
 %>
-<% if (myTurn || unvoted || iOwe) { %>
+<% if (myTurn || unvoted || iOwe || pkNudge) { %>
 <div class="todo-strip">
   <span class="todo-label">Needs you</span>
   <% if (myTurn) { %><a class="todo-item urgent" href="/draft">🎯 Pick your draft spot</a><% } %>
+  <%# The one item with a hard weekly deadline — unpicked games vanish at kickoff. %>
+  <% if (pkNudge) { %><a class="todo-item" href="/pickem">🗳️ Pick this week's games (<%= pkNudge.made %> of <%= pkNudge.total %> in)</a><% } %>
   <% if (unvoted) { %><a class="todo-item" href="/votes">🗳 <%= unvoted %> vote<%= unvoted === 1 ? '' : 's' %> you haven't cast</a><% } %>
   <% if (iOwe) { %><a class="todo-item" href="/bank">💵 You owe <%= money(-myBalance) %></a><% } %>
 </div>

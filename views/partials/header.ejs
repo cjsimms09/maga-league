@@ -16,10 +16,10 @@
 <link rel="stylesheet" href="/css/chronicle.css">
 <% } %>
 <%# The War Room design system (tokens + draft components) — same page-scoped
-    pattern as the Chronicle. The in-season pass widens this condition when
-    lineup/waivers adopt the tokens; until then only the draft surfaces pay
-    for it. %>
-<% if (typeof currentPath !== 'undefined' && /^\/admin\/(warroom|draft-sheet)(\/|$|\?)/.test(currentPath)) { %>
+    pattern as the Chronicle. The in-season pass (2026-08-15) widened this to
+    the surfaces that adopted the tokens: the side-bet book and pick'em live on
+    /bank and /pickem, and the matchup page carries the same card grammar. %>
+<% if (typeof currentPath !== 'undefined' && /^\/(admin\/(warroom|draft-sheet)|bank|pickem|matchup)(\/|$|\?)/.test(currentPath)) { %>
 <link rel="stylesheet" href="/css/warroom.css">
 <% } %>
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
@@ -96,7 +96,11 @@
     { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
     { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈',  primary: true },
     { href: '/scoreboard', label: 'This Week',   short: 'Scores',  icon: '🏈', match: '/scoreboard' },
-    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup' },
+    // PRIMARY since the 2026-08-15 member-site review: the goal is tracking
+    // matchups HERE instead of on Sleeper, and Sleeper's whole pitch is the
+    // matchup one tap from anywhere. The phone tab bar was preseason-shaped —
+    // Office/Team/Finances/Locker — with every live surface buried behind More.
+    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup', primary: true },
     { href: '/pickem',  label: "Pick'em",       short: "Pick'em", icon: '🗳️', match: '/pickem' },
     { href: '/watch',   label: 'What to Watch', short: 'Watch',   icon: '📺', match: '/watch' },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
