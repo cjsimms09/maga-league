@@ -75,6 +75,27 @@ surplus→weekly-points conversion. Its *ordering* is the defensible part; the
 decimals are not. The flat-field alternative (trust the measured null, ignore
 keepers) prices everyone at 10%.
 
+### Late update, same day: real designations landed
+
+The data audit surfaced live Sleeper designations (`draft/config/keepers.json`,
+4 of 10 teams so far) that correct two rows above:
+
+- **You and Bates designated exactly as predicted** — the top two rows stand
+  on facts now, not predictions.
+- **Marian kept JSN + Jefferson + De'Von Achane, not Bowers** — his surplus
+  drops to roughly +15, and **Brock Bowers (VORP 81) is in the draft pool**.
+- **Justin, predicted to keep nothing, kept Ashton Jeanty + Chase Brown**
+  (~+15 at approximate round costs — his real cost rounds aren't on file yet).
+- **Richard has NOT designated.** His "certain" slate is still a prediction.
+
+Re-run with those corrections, the board barely moves (you 29.0%, Bates 17.9%,
+greedy snake 62.8/37.2) and no recommendation changes: **Bates stays pick 1**,
+the pick-4/5 pair is still two of {Michael, Marian, Dylan, David} with the
+same David-consistency vs Dylan-keepers tilt, and the only real shift is that
+**Justin is no longer indistinguishable from the floor** — if the board is
+picked clean of the middle by your last turn, Justin (Jeanty + Chase Brown)
+now edges Sam and Jeremy for pick 8.
+
 ## The picks
 
 Ten teams split five and five — someone always holds the champion, so the
