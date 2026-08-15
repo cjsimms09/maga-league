@@ -141,8 +141,11 @@
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= top.dollars %>">
       <input type="hidden" name="contested" value="<%= top.contested ? '1' : '0' %>">
-      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
-      <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}).replace(/"/g, '&quot;') %>">
+      <%# double-escape bug fixed 2026-08-15 — see lineup.ejs's note by the same fix
+          for the full mechanism. Was .replace(/"/g,'&quot;') stacked on EJS's own
+          output escaping, so a real browser submitted unparseable text instead of JSON. %>
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
+      <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}) %>">
       <button class="btn gold" type="submit">Log this claim</button>
     </div>
   </form>
@@ -155,7 +158,7 @@
       </div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= top.dollars %>">
-      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
       <div class="lo-ov-chips">
         <button class="btn small ghost" type="submit" name="reason" value="held priority">✋ Held priority</button>
         <button class="btn small ghost" type="submit" name="reason" value="claimed someone else">🔀 Claimed someone else</button>
@@ -203,8 +206,8 @@
         <span class="muted" style="font-size:.82rem">Logs it against who you already have, so the season can grade the difference.</span></div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= s.dollars %>">
-      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
-      <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
+      <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }) %>">
       <button class="btn gold" type="submit">Log this stream</button>
     </div>
   </form>
@@ -215,7 +218,7 @@
         <span class="muted" style="font-size:.82rem">One tap says why.</span></div>
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= s.dollars %>">
-      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
       <div class="lo-ov-chips">
         <button class="btn small ghost" type="submit" name="reason" value="kept current">✋ Kept who I have</button>
         <button class="btn small ghost" type="submit" name="reason" value="streamed someone else">🔀 Streamed someone else</button>

@@ -248,9 +248,23 @@
         <input type="hidden" name="week" value="<%= (matchup && matchup.week) || '' %>">
         <input type="hidden" name="dollars" value="<%= live.edge %>">
         <input type="hidden" name="opp_mean" value="<%= (live && live.ev && band) ? Math.round(band.median) : '' %>">
-        <input type="hidden" name="confidence" value="<%= live.confidence.replace(/"/g, '&quot;') %>">
-        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
-        <input type="hidden" name="counterfactual" value="<%= JSON.stringify(live.naive.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <%# DOUBLE-ESCAPE BUG, found 2026-08-15: this used to end each line with
+            .replace(/"/g, '&quot;') — but EJS's own output tag already
+            HTML-escapes its output by default, so the manual replace ran a
+            SECOND time on top of that and turned every &#34; into &amp;#34;.
+            A real browser decodes HTML entities in a SINGLE pass, so the form
+            value it actually submits still contains the literal text "&#34;"
+            where a real quote belongs — not valid JSON. safeJson() on the
+            server then fails to parse it and falls back to storing the raw
+            mangled string, silently corrupting
+            payload.recommended/counterfactual/confidence on every capture
+            through this form since it was built. Removing the manual replace
+            and trusting EJS's own escaping is the fix — verified end-to-end
+            (real rendered HTML -> real POST -> predledger.readAll()) in
+            draft/tests/waiver_stream_surface.test.js. %>
+        <input type="hidden" name="confidence" value="<%= live.confidence %>">
+        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))) %>">
+        <input type="hidden" name="counterfactual" value="<%= JSON.stringify(live.naive.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))) %>">
         <button class="btn gold" type="submit">Log this lineup</button>
       </div>
     </form>
@@ -271,8 +285,8 @@
         </div>
         <input type="hidden" name="week" value="<%= (matchup && matchup.week) || '' %>">
         <input type="hidden" name="dollars" value="<%= live.edge %>">
-        <input type="hidden" name="confidence" value="<%= live.confidence.replace(/"/g, '&quot;') %>">
-        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))).replace(/"/g, '&quot;') %>">
+        <input type="hidden" name="confidence" value="<%= live.confidence %>">
+        <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))) %>">
         <div class="lo-ov-chips">
           <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
           <button class="btn small ghost" type="submit" name="reason" value="matchup read">🎯 Matchup read</button>
