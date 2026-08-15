@@ -1,0 +1,168 @@
+# TERRITORY: A
+name: EXP-FP-HIST-PROJ — is FP's historical projection archive preseason-frozen, and does it beat naive?
+
+# WHY THIS EXISTS. Cory, 2026-08-15: "don't feel like I've gotten real
+# confirmation that we are confident of our points projections, have we ran
+# through previous years to test for sanity". The model audit verified the
+# ARITHMETIC; the one gap is projection SKILL on previous years — unmeasurable
+# from disk because nobody archived any provider's 2023-25 preseason numbers,
+# and a retroactive fetch normally leaks (exp33). FantasyPros' API *claims*
+# historical endpoints (the ADP side is already proven genuine by
+# exp_source_grade). ONE dispatch of this job answers, per year 2023/24/25:
+#   1. does FP serve historical season projections at all,
+#   2. are they preseason-FROZEN — proven by preregistered authenticity gates
+#      (marker players whose seasons died early must still carry full-season
+#      projections; since-departed ghosts must exist; the proven-genuine ADP
+#      archive must rank-agree) — or post-hoc revised (-> REFUSED as 'leaked',
+#      and that refusal is the filed verdict),
+#   3. if frozen: does a professional source beat naive_prev and the 0.7/0.3
+#      recency blend under OUR scoring, per position, on a shared population.
+#
+# PREREGISTERED. draft/backtest/EXP-FP-HIST-PROJ-PREREG.md was committed BEFORE
+# this workflow existed and before any fetch; the gate below refuses to run
+# without it. Grading a leaked forecast flatters it — no number is computed
+# until the gates pass.
+#
+# ⚠ MANUAL ONLY, DELIBERATELY. This is a QUESTION, not a feed: it runs when
+# somebody wants the answer. If the archive turns out genuine and skillful,
+# the follow-up is a decision about the 2026 board's sources — not a cron here.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: exp-fp-hist-proj
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # The runner image does not carry pytest (external-odds-probe run 1
+      # proved it the expensive way).
+      - name: Install the test runner
+        run: pip install pytest -q
+
+      # THE PREREGISTRATION MUST PRE-EXIST THE FETCH. If the prereg is not in
+      # the checkout, the gates were not fixed before the data was seen, and
+      # any number this job produced would be exactly the post-hoc grading the
+      # experiment exists to refuse.
+      - name: Preregistration precedes the fetch
+        run: |
+          if [ ! -f draft/backtest/EXP-FP-HIST-PROJ-PREREG.md ]; then
+            echo "::error::EXP-FP-HIST-PROJ-PREREG.md missing — gates were not"
+            echo "::error::preregistered; refusing to fetch anything."
+            exit 1
+          fi
+
+      # THE PURE HALF IS TESTED BEFORE THE EGRESS HALF RUNS. Every gate is
+      # two-armed (a genuine fixture that passes AND a leaked fixture that
+      # refuses); a gate that mis-decides is worse than one that does not run.
+      # "The gate failed" and "the gate could not run" are different facts —
+      # collect first, and say which happened.
+      - name: The gates are tested before anything is asked
+        run: |
+          if ! python3 -m pytest draft/tests/test_exp_fp_hist_proj.py \
+                 --collect-only -q > /dev/null 2>&1; then
+            echo "::error::THE GATE COULD NOT RUN — the test file did not even"
+            echo "::error::collect. A fact about the job, not a test failure."
+            python3 -m pytest draft/tests/test_exp_fp_hist_proj.py --collect-only -q
+            exit 1
+          fi
+          python3 -m pytest draft/tests/test_exp_fp_hist_proj.py -q
+
+      - name: Probe FantasyPros' historical projections, gated
+        id: probe
+        timeout-minutes: 20
+        run: |
+          set -o pipefail
+          rc=0
+          {
+            echo "## EXP-FP-HIST-PROJ — archived preseason projections, gated then graded"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/exp_fp_hist_proj.py \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f draft/backtest/exp_fp_hist_proj.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/exp_fp_hist_proj.json"))
+          print("**%s**" % r.get("headline"))
+          print()
+          print("| year | status | mode | anchor rho | crosswalk |")
+          print("|---|---|---|---|---|")
+          for y, yr in sorted(r.get("years", {}).items()):
+              g = yr.get("gates", {})
+              rho = (g.get("g4_anchor") or {}).get("rho", "—")
+              xw = (g.get("g5_crosswalk") or {}).get("match_rate", "—")
+              print("| %s | **%s** | %s | %s | %s |"
+                    % (y, yr.get("status"), yr.get("grading_mode", "—"), rho, xw))
+          for y, yr in sorted(r.get("years", {}).items()):
+              m = yr.get("metrics")
+              if not m:
+                  continue
+              print()
+              print("**%s — FP vs baselines (shared population)**" % y)
+              h2h = m.get("head_to_head_shared_population", {})
+              if h2h.get("status") == "no_baselines_available":
+                  print("- no baselines buildable: %s" % h2h.get("why"))
+                  continue
+              for p, row in h2h.items():
+                  if row.get("status") != "measured":
+                      continue
+                  parts = ["%s n=%s" % (p, row["n"])]
+                  for name in ("fantasypros", "naive_prev", "recency_blend"):
+                      c = row.get(name)
+                      if c:
+                          parts.append("%s mae=%s rho=%s"
+                                       % (name, c.get("mae", "—"), c.get("spearman")))
+                  print("- " + "  ·  ".join(parts))
+          PY
+          else
+            echo "**PROBE WROTE NO ARTIFACT** — a statement about the run, not about FantasyPros." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$rc"
+
+      # THE ANSWER IS COMMITTED WHETHER IT IS A HIT, A NULL, OR A REFUSAL. A
+      # refusal that lives only in a job log gets re-asked in three weeks by
+      # somebody who was not here. `always()` because a partial answer still
+      # records what was asked. [skip deploy] because draft/backtest/ is not a
+      # served path.
+      - name: Commit the answer, including a refusal
+        if: always()
+        run: |
+          # ⚠ A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main (this step
+          # ends `git push origin HEAD:main`, and on a branch checkout HEAD is
+          # the branch tip). The answer still lands in the step summary above.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/exp_fp_hist_proj.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "EXP-FP-HIST-PROJ: gated verdict on FP's historical projections [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::VERDICT NOT PUSHED — the fetch is spent and the answer is lost."
+              exit 1
+            fi
+          fi
