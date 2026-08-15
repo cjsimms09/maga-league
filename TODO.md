@@ -3,13 +3,65 @@
 _Regenerated from STATUS.md, PARKED.md, DECISIONS-NEEDED.md and this week's findings —
 not from memory. Draft is **Aug 22** (7 days out). **A and B are both unreachable until
 Monday** (weekly session limit) — everything below this line that isn't marked ✅ was
-done by the research-relay session on `claude/fantasy-football-research-926y6z`,
-committed and pushed, **nothing merged to `main`, no deploys**. A has final say on all
-of it. Session B keeps the site/in-season half of this list separately._
+done by the research-relay session on `claude/fantasy-football-research-926y6z`.
+Session B keeps the site/in-season half of this list separately._
+
+**UPDATED policy, same day, Cory's call:** the relay session now pushes anything with
+a passing test straight to `main` — no pre-approval, no per-item check-in. The only
+gate left is (1) changing what the model actually recommends this close to the draft,
+and (2) an actual live *deploy* (Netlify build), which is batched rather than
+triggered per fix. Everything below marked ✅-pushed is already on `main` — check it
+with `git log`, not by re-reading this file's prose.
 
 **🚨 CHECK FIRST, BEFORE ANYTHING ELSE:** `DECISIONS-NEEDED.md`'s top entry — the
 build-minute budget numbers are stale (a week old) with the draft-week reserve
 (Aug 20-22) five days away. Re-verify the real number before deploying anything.
+Nothing this session did triggers a deploy on its own — everything so far is commits,
+not builds — but the actual live deploy is still pending that number.
+
+## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
+
+Cory asked for a systematic pass rather than reacting to items one at a time. This is
+that pass, in one place, so "is X actually still open" never needs re-deriving:
+
+**Confirmed ALREADY DONE, docs were stale (fixed in DECISIONS-NEEDED.md, no code
+changed by finding this):**
+- F4-excluded-league replay — ruled 2026-08-11, implemented, verified.
+- Sunday alert cron timing — shipped, tested (`sunday_cron.test.js`).
+- Stack weight (~0.5 vs 1.0) — resolved by D10, 2026-08-13, code was already right.
+- Ceiling weight (0 vs 0.65) — deliberately settled at 0 twice (2026-08-10, 2026-08-14),
+  not a gap.
+- needrule-vs-composite reconciliation — already built (A10 "Two reads" guard).
+- Position-normalized ceiling (units defect) — already shipped, 2026-08-13.
+- Rule 10d self-referential-fixture clause — authorized 2026-08-11, already in
+  `SESSION-A.md`. Its own follow-on extension (10d covers any measuring instrument,
+  not just fixtures) is flagged for authorization there and is NOT yet in this file —
+  a gap in the other direction, worth Cory's eyes.
+- RB=0.9-per-draft and TE=3.6-per-draft — roster shape has reversed (see #0000/#00000
+  for the numbers), **but the cause is genuinely unclear — see the correction inside
+  those entries**, don't take the first pass at "why" as settled.
+- Projection-source snapshot capture (#6, part a) — already running, 6 days of both
+  sources in `proj_series.json`.
+
+**Confirmed GENUINELY STILL OPEN (checked against code, not assumed):**
+- D14 (Stage-2 as a real market anchor) — `CFG.STAGE2_CAP` is explicitly OFF by
+  default in `engine.js`. Not built. Recommendation (hold) still stands.
+- The offline survival-calibration grader (#5, mock-draft evidence) — no such tool
+  found anywhere in `draft/`. Not built.
+- The Lab experiment queue (exp41, third-arm dollars, exp35 dollar-grade) — all blocked
+  on the same `sleeper_import.fetch_players()` 403, confirmed by direct execution, not
+  assumption.
+- DEF projection gap, WR/TE source disagreement, REGRESSION_WEIGHT dollar-arm — same
+  network wall, ready-to-run commands left in `DECISIONS-NEEDED.md`.
+- RB-concentration risk (single-team injury exposure) — smaller now that RB depth
+  improved, not measured as zero.
+
+**Actually built and shipped to `main` today (not just documented):**
+- Seat-plan CSS ordering fix — recommendation was buried below the fold on phone;
+  now visible immediately. Tested, screenshotted before/after.
+- Doctrine-governance duplicate-pill fix — redundant clipped text removed. Tested.
+- `draft/tools/decisions_drift_check.js` — new mechanical checker for exactly this
+  class of staleness going forward.
 
 **Before trusting anything in `DECISIONS-NEEDED.md`'s OPEN section:** run `node
 draft/tools/decisions_drift_check.js`. Four "open" items today turned out already
