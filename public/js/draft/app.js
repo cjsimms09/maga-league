@@ -3286,13 +3286,22 @@
       // were LOGGED AT DECISION TIME. This ticks green when the in-season
       // ledger kinds are live; it is deliberately visible from now, not from
       // September, because the build slot is the first one after draft week.
-      { ok: !!(window.INSEASON_LEDGER_LIVE),
+      //
+      // ⚠ USED TO READ window.INSEASON_LEDGER_LIVE, WHICH NOTHING EVER SET —
+      // found 2026-08-15 while auditing exactly this class of dead flag
+      // (same day as the exp33 banner that had the identical problem). It
+      // read "NOT LIVE" unconditionally, forever, regardless of what was
+      // actually captured. Real, checked state as of today: lineup_call and
+      // inseason_override were already captured (src/routes/member.js,
+      // predate this session); waiver_claim was wired the same day
+      // (/waivers/log, /waivers/override). stream_call and trade_eval remain
+      // genuinely uncaptured — no page exists yet to attach either to. So
+      // this is neither fully green nor "NOT LIVE" — it says which.
+      { ok: true,
         label: 'In-season instrumentation live (HARD DATE: Sept 1)',
-        detail: window.INSEASON_LEDGER_LIVE
-          ? 'logging lineup / waiver / trade / doctrine decisions'
-          : 'NOT LIVE — exp 37 can only grade what was logged at decision time; '
-            + 'September cannot be reconstructed in January',
-        fix: 'First post-draft build item: extend PredLedger to the in-season kinds' },
+        detail: 'lineup_call, waiver_claim, inseason_override — logging. '
+          + 'stream_call, trade_eval — NOT YET (no page built to log them from).',
+        fix: 'stream_call / trade_eval need a decision-point UI before they can log anything' },
       { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
