@@ -12582,3 +12582,64 @@ question than guess at the answer.
 
 No code touched. This corrects and sharpens the earlier screenshot-based finding
 rather than replacing it with another unverified claim.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — RECOMMENDATION: BUILD OUR OWN WEEKLY PROJECTIONS, SCORED UNDER THIS LEAGUE'S RULES
+
+**FOR: A.** Standalone, direct recommendation — pulled out on its own because it
+got buried across earlier entries and Cory had to ask twice. Not a research
+question, a clear "yes, do this" with the evidence gathered this session.
+
+## The recommendation
+
+Build a real weekly per-player projection, generated from actual usage stats and
+scored under THIS league's exact `scoring_settings` (half-PPR, 6pt passing TD,
+the real kicker/DEF table) — replacing both the crude rolling-average this
+session's GM-sim prototype used AND the flat season-rate `proj_feed.js` currently
+serves to the live `/lineup` route.
+
+## Why this is not a maybe
+
+1. **The current live feed already admits it's inadequate.** `src/proj_feed.js`'s
+   own header comment: `proj_mean` is a season total, the weekly number "knows
+   nothing about this week's opponent, weather or usage trend... a poor input for
+   a start/sit call between two close players." That's not hypothetical — it's
+   what's running in production right now.
+2. **Watched the failure mode directly, not just argued it.** In the GM-sim
+   (three entries up), a crude-but-honestly-shrunk projection dropped Jaylen
+   Waddle — a real WR1 — for a bench body, purely because it only sees box
+   scores, not context. A league-generic ranking has the identical blind spot.
+3. **Generic public rankings are wrong for this league by construction.** Most
+   public projections assume standard/half-PPR/PPR scoring. This league runs
+   half-PPR WITH 6-point passing TDs — a real, material skew for QB value that
+   every outside ranking silently gets wrong until rescored under our actual
+   settings. This is the single cheapest, least-ambiguous fix available: no new
+   modeling, just correctly applying a formula that already exists
+   (`scoring_settings`, already read directly and confirmed this session).
+4. **Most of the pieces already exist, disconnected.** nflverse box-score data
+   (proven reachable and exactly accurate this session — verified to the decimal
+   against real recorded scores), the multi-source draft-day pipeline
+   (FFC/FantasyPros), and the game-total/prop-market capture (`market_capture.py`
+   — real, well-designed, currently broken at 0% coverage, flagged two entries
+   up).
+
+## Build order, by leverage
+
+1. **Score real usage stats (targets, carries, red-zone looks) under the exact
+   `scoring_settings`** — highest value, lowest risk, not really "modeling."
+2. **Shrink/regress toward position average** — proven necessary this session
+   (the one-game-outlier finding); without it a small sample fools the tool.
+3. **Layer in game total/spread and player props** once `market_capture.py` is
+   fixed (its own ODDS_API_KEY issue, flagged separately) — real scoring-
+   environment and market-information context a box-score average can't have.
+4. **Log every projection before the game, grade it after.** Closes the loop for
+   real — feeds the blend weights from measured error instead of a guess,
+   exactly the "make it smarter every year, immune to noise" goal stated
+   earlier in this thread.
+
+## What this is NOT
+
+No code touched. This is a direct recommendation, not a new finding — everything
+underneath it is already evidenced in the entries above. A's call on sequencing
+against the rest of the queue.
