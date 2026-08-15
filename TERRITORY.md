@@ -1197,6 +1197,24 @@ blockers.** Two C-lane files crossed and one bookkeeping correction:
     assertions), and `weights-read.js`/`weekly_grade_runner.js` now expose/
     mirror the calibration snapshot's `player_weeks` block (read-only) so
     the player loop's grades have a machine consumer.
+  * `src/routes/trashtalk.js` + `draft/tests/trashtalk.test.js` (B's lane,
+    appended late 2026-08-15) — the trashtalk same-millisecond flake, the one
+    that ROLLED AN integrate.sh RUN BACK OFF MAIN and then passed 8/8 re-runs
+    (standing TO:A item). Tonight's learning-loop pass root-caused it (byTime
+    tied on created_at AND newId()'s time prefix, falling to the id's RANDOM
+    suffix — a write-time coin flip no re-read could reproduce) and the relay
+    fixed it at the mechanism: a monotonic `seq` on each post, tiebreak
+    (created_at, seq, id). Pre-seq records render byte-identically. 27/27,
+    10/10 consecutive full runs. Crossing justified as integration-blocking
+    (the flake's victim was every lane's merges), not cosmetics.
+  * `draft/tests/waiver_surface.test.js` (B's lane, appended by the
+    composed-tree review pass) — part of the board-clobbering fix: the test
+    rewrote the REAL public/draft_data.json in place with a 15-player
+    fixture; a mid-test crash would have shipped the fixture as the live
+    board a week before the draft. Now uses a scratch path via
+    DRAFT_DATA_PATH (with the /waivers read honoring it in member.js — same
+    pass, already listed). draft/audit/composed_tree_review_2026-08-15.md
+    carries the live measurement of the consequence.
   * `draft/tests/h2h_agreement.test.js` (B's lane, appended later the same
     day) — the independent review's required action #2: the test's no-bundle
     arm had an accidental live-network dependency with a sign bit (passed
