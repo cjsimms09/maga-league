@@ -170,4 +170,59 @@
     </div>
   </form>
 <% } %>
+
+<%# ── STREAMING (K/DEF) — independent of the claims block above: a stream can
+    be worth doing even in a week with no priority claim worth spending, and
+    vice versa. Same evaluateClaims ranking as the claims above, filtered to
+    K/DEF, HONESTLY LABELLED as season-value rather than matchup-tuned — no
+    new scoring logic was built for this, on purpose. %>
+<% if (live && !err && streamClaims && streamClaims.length) { %>
+  <% const s = streamClaims[0]; %>
+  <% const holding = (currentKD || []).find(p => p.position === s.position); %>
+  <div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
+    <h2>🔁 Streaming (<%= s.position %>)
+      <span class="sub">season-value ranking, not matchup-tuned — a real limit, not hidden</span></h2>
+    <div class="body">
+      <p style="margin:0">
+        <b><%= s.name %></b> ranks <%= s.net_value.toFixed(1) %> pts above
+        <% if (holding) { %> your current <%= s.position %>, <b><%= holding.name %></b><% } else { %> what you're currently starting<% } %>
+        for this week — <%= money0(s.dollars) %>.
+      </p>
+      <p class="muted" style="margin:.5rem 0 0; font-size:.82rem">
+        This is the same season-value model as the claims above, not a matchup read (no
+        opponent-defense or weather signal is built into it yet). A stream costs no waiver
+        priority — the alternative here is simply keeping who you already have, not holding
+        a position in line.
+      </p>
+    </div>
+  </div>
+
+  <form method="post" action="/stream/log" class="card" style="margin-bottom:1.1rem">
+    <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
+      <div><b>Streaming this?</b>
+        <span class="muted" style="font-size:.82rem">Logs it against who you already have, so the season can grade the difference.</span></div>
+      <input type="hidden" name="week" value="<%= weekNo || '' %>">
+      <input type="hidden" name="dollars" value="<%= s.dollars %>">
+      <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
+      <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }).replace(/"/g, '&quot;') %>">
+      <button class="btn gold" type="submit">Log this stream</button>
+    </div>
+  </form>
+
+  <form method="post" action="/stream/override" class="card lo-override" style="margin-bottom:1.1rem">
+    <div class="body">
+      <div style="margin-bottom:.55rem"><b>Not streaming?</b>
+        <span class="muted" style="font-size:.82rem">One tap says why.</span></div>
+      <input type="hidden" name="week" value="<%= weekNo || '' %>">
+      <input type="hidden" name="dollars" value="<%= s.dollars %>">
+      <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }).replace(/"/g, '&quot;') %>">
+      <div class="lo-ov-chips">
+        <button class="btn small ghost" type="submit" name="reason" value="kept current">✋ Kept who I have</button>
+        <button class="btn small ghost" type="submit" name="reason" value="streamed someone else">🔀 Streamed someone else</button>
+        <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+        <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+      </div>
+    </div>
+  </form>
+<% } %>
 <%- include('partials/footer') %>

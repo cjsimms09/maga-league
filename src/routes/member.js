@@ -2720,6 +2720,7 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   const W = require('./waivers');
 
   let claims = [], drop = null, perPoint = 0, weekNo = null, err = null, live = false;
+  let streamClaims = [], currentKD = [];
   try {
     const sData = await sleeper.bundle(world.config.sleeper_league_id);
     if (sData && Array.isArray(sData.rosters) && sData.rosters.length) {
@@ -2755,12 +2756,23 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
         });
         drop = res2.drop; perPoint = res2.dollars_per_point;
         claims = res2.claims.filter(c => c.net_value > 0).slice(0, 8);
+        // STREAMING (K/DEF), same underlying valuation, different decision shape.
+        // A stream is a FREE weekly swap, not a priority-costly claim — the
+        // counterfactual is "kept who I have", not "held priority". Uses the SAME
+        // tested net_value ranking as the claims above (no new scoring logic,
+        // that gate stays closed this close to the draft) with the limitation
+        // stated honestly on the page: season-value, not matchup-tuned.
+        streamClaims = res2.claims.filter(c => (c.position === 'K' || c.position === 'DEF')
+          && c.net_value > 0).slice(0, 2);
+        currentKD = (inputs.myRoster || [])
+          .filter(p => p.position === 'K' || p.position === 'DEF')
+          .map(p => ({ player_id: p.player_id, name: p.name, position: p.position }));
       }
     }
   } catch (e) { err = String((e && e.message) || e); }
 
   res.render('waivers', {
-    me, season, weekNo, live, err, claims, drop, perPoint,
+    me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
     liveStale: await liveFreshness(),
   });
 }));
@@ -2834,6 +2846,66 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
     });
   } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
   res.redirect('/waivers?overrode=1');
+}));
+
+// ── STREAM CAPTURE (2026-08-15) — same waiver_claim pattern, deliberately NOT
+// waiver_claim: `stream_call` is its own registered kind because a K/DEF stream
+// is a different decision shape from a priority claim — free, weekly, no
+// scarce resource spent. Checked before building (PARKED.md "STREAM_CALL /
+// TRADE_EVAL") whether reusing /waivers/log would work; it wouldn't, because
+// the counterfactual is wrong there ("hold priority" — a stream costs no
+// priority, so that phrase would misdescribe every row). Here the
+// counterfactual IS a specific alternative — the K/DEF currently rostered —
+// which /waivers/log's page structurally cannot supply (it has no #2 option;
+// this page always has one: whoever you already have started).
+//
+// NO NEW SCORING LOGIC. `streamClaims` (the /waivers route, above) is the SAME
+// tested `evaluateClaims` net_value ranking as the priority claims, filtered to
+// K/DEF — not a new matchup model. That is a real, stated limitation (season-
+// value, not matchup-tuned) and the page says so; inventing a matchup score
+// this close to the draft is exactly the kind of new mechanism this project
+// has already been burned by building under time pressure once.
+router.post('/stream/log', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'stream_call',
+      method: 'waiver-tool-stream-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        chosen: safeJson(req.body.chosen),
+        // REQUIRED, and a real alternative here (unlike /waivers/log): the
+        // K/DEF I already have, who I'd have started if I didn't stream.
+        counterfactual: safeJson(req.body.counterfactual),
+        dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/waivers?streamed=1');
+}));
+
+router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
+  const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
+  const predledger = require('../predledger');
+  try {
+    await predledger.append(store, {
+      kind: 'inseason_override',
+      method: 'stream-override-v1',
+      season,
+      payload: {
+        owner_id: req.owner.id,
+        week: req.body.week ? Number(req.body.week) : null,
+        recommended: safeJson(req.body.recommended),
+        counterfactual: safeJson(req.body.recommended),
+        gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
+        reason: String(req.body.reason || 'unstated').slice(0, 60),
+      },
+    });
+  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
+  res.redirect('/waivers?streamoverrode=1');
 }));
 
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
