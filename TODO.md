@@ -1,6 +1,61 @@
 # TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
 # again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
+## ⭐ END-OF-DAY STATE, 2026-08-15 NIGHT — READ THIS FIRST, EVERYTHING ELSE IS HISTORY
+
+**A's Monday is three commands and four decisions.** The branch
+(`claude/fantasy-football-research-926y6z`) holds the entire day — 12 agent
+worktrees merged, every merge suite-verified, then two independent Fable
+review passes over the COMPOSED tree (cross-merge interactions re-measured:
+all hold; one real defect found and fixed — two tests were overwriting the
+real shipped board file in place).
+
+1. `bash scripts/lane-start.sh A` → `bash scripts/inbox.sh A` (triaged: decisions first)
+2. `bash scripts/verify-relay-session.sh` — 7/7 PASS at branch tip (suites
+   2286 Python / 268 JS entry points; artifact-generator consistency; no CFG
+   default moved; territory refusal pinned to the documented Override #5 set)
+3. Merge via the documented Override #5 bypass. Merging DEPLOYS (served files
+   changed; deploy policy is settled in DEPLOY-POLICY.md — the blanket
+   [skip deploy] era is over). Post-merge the config-check workflow's last
+   cell goes green (weights-read ships with the merge; Cory's key config is
+   already verified on the GitHub side).
+
+**THE FOUR OPEN DECISIONS** (evidence complete, listed with files by the
+verify script's footer): VONA_WIRE_BENCH ship/no-ship · scoring-gap ADP
+correction (report says don't ship) · KOV_MEASURED_RAMP (the live
+keeper-option ramp is INVERSE to the league's own 450-pick history — gated
+fix built, DECISIONS-NEEDED.md) · pick-33 headline ownership
+(Loveland/Flowers, recommendation stated in ROUTES TO:A).
+
+**APPLIED UNDER CORY'S EXPLICIT RULINGS** (tested, listed so the merge reads
+them as intended): REC-1 measured proj_sd (decision arm re-verified on the
+fresh board — zero starter seats move) · the pre-draft survival filter (the
+Nacua phantom-availability fix) · the league-wide player-week projection
+loop (Thursday emission, two arms, closed through grading).
+
+**HONEST NEGATIVES FILED TODAY** (do not re-litigate without new evidence):
+own-model v2 beats v1 everywhere but fails the promotion bar (QB + TE
+rank-corr vs the recency blend) — display-only stands · the FP-archive
+Week-1 source-weight prior failed its own preregistered error-scale gate —
+flat start stands until January · the analyzer projection-prior hypothesis:
+no detectable improvement pooled (the one good-prior season helped weeks
+1-2; K≈1.5 diff proposal routed to B) · pace-of-play NULL · age tie-break
+NULL.
+
+**THE AUDIT INDEX for the day** (each self-contained, in draft/audit/):
+macro_tool_audit · model_learning_audit · roster_construction_audit ·
+composed_tree_review · loop_review · learning_loop_closure ·
+league_wide_player_loop · projection_skill_backtest (FP archives: 3/3
+authentic, FP beats naive everywhere — the projection layer's edge priced
+at 3-9 MAE pts/position) · analyzer_prior_hypothesis ·
+warroom_design_pass (in flight — war-room professional elevation with a
+UI-fidelity gate per Cory: "the design is actually implementing and
+explaining what the model says").
+
+**IN FLIGHT AT WRITE TIME:** the war-room design pass (Fable agent;
+screenshots for Cory's sign-off before merge); the in-season tools design
+pass queued behind it (adopts the same design system).
+
 _Regenerated from STATUS.md, PARKED.md, DECISIONS-NEEDED.md and this week's findings —
 not from memory. Draft is **Aug 22** (7 days out). **A and B are both unreachable until
 Monday** (weekly session limit) — everything below this line that isn't marked ✅ was
