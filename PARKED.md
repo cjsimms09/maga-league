@@ -14494,3 +14494,26 @@ Not a claim these two files are broken, or that DOM-based testing is a bad idea 
 general — `guardFixture()` in particular is exactly the kind of function worth pinning
 if a jsdom harness ever gets built. Just not something to start building, unannounced,
 as a side effect of a "continue."
+
+## CORRECTION, same day: "needs jsdom" was WRONG — it needed nothing new at all
+
+The claim above — that closing this gap meant adding new test infrastructure — was
+false, and cost nothing to check: `draft/tests/rehearsal-mock3.js` was sitting right
+there in the same directory, already using Playwright + the pre-installed Chromium
+(`/opt/pw-browsers/chromium`, per this environment's own setup) to drive the war room
+in a real browser. That's not jsdom, it's a full browser, and it was ALREADY an
+established, working pattern in this exact project — just outside the default
+`.test.js` glob because it needs more than a bare `node` process. `keeperui.js`'s
+`guardFixture()` now has that test: `draft/tests/rehearsal-keepers.js`, 6/6 checks,
+self-contained (boots its own `createApp().listen(0)` instead of assuming a
+manually-started `dev-server.js`, unlike `rehearsal-mock3.js`). It found a real second
+bug in the process — `boot()`'s catch handler was unconditionally overwriting
+`guardFixture()`'s specific "this board is not real data" message with a generic
+"could not load" one, the instant after it was written — fixed in the same commit.
+
+**The actual lesson isn't "the caution was wrong," it's "check what's already in the
+toolbox before concluding a fix needs new infrastructure."** The caution about
+inventing NEW mechanisms under a draft-week clock still stands; this wasn't new, it
+was unused. `config-screen.js` remains genuinely uncovered — smaller, lower-stakes (a
+confirmation-numbers display, not a decision guard), and not done here; the same
+Playwright pattern applies to it directly whenever it's worth the time.

@@ -204,14 +204,19 @@ fallback, `cleanSource`, and `higherProjectionAlt`'s same-position-only /
 self-exclusion / `withinTop`-window behavior.
 
 **Checked the rest of `public/js/draft/*.js` for the same "zero test hits" pattern —
-found two more, `config-screen.js` and `keeperui.js`, and did NOT fix them the same
-way.** Both are DOM-only IIFEs with no `module.exports`, wired through
-`document.querySelector`/`fetch` at load time — unlike everything fixed today, they
-can't be required and called directly; closing this would mean introducing a jsdom (or
-similar) test harness, which nothing in this project's suite uses yet. That's new test
-infrastructure, not a same-pattern fix, seven days before the draft — not building it
-without checking first. Full reasoning and the narrower actual risk (a UI bug fails
-silently in front of Cory, not undetected in production) in `PARKED.md`'s
+found two more, `config-screen.js` and `keeperui.js`.** First conclusion (below, then
+corrected same day): both are DOM-only IIFEs with no `module.exports`, so closing this
+looked like it needed a new jsdom-style test harness — not worth adding seven days
+before the draft without checking first. **That was wrong, and cheap to find out:**
+`draft/tests/rehearsal-mock3.js` already established Playwright + the pre-installed
+Chromium as a working pattern in this exact project. `draft/tests/rehearsal-keepers.js`
+now pins `keeperui.js`'s `guardFixture()` — the function that refuses to open the
+keeper editor against synthetic/offline data — using that same pattern, self-contained.
+6/6 checks pass, and building it found a real SECOND bug: `boot()`'s catch handler was
+unconditionally clobbering `guardFixture()`'s specific refusal message with a generic
+one the instant after it was written. Fixed in the same commit. `config-screen.js`
+remains genuinely uncovered (smaller, lower-stakes, same fix available whenever it's
+worth the time). Full story, including the correction, in `PARKED.md`'s
 "`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
 
 ---
