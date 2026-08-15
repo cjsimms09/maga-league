@@ -12538,3 +12538,47 @@ week so the blend weights come from real error, not a guess:
 No code touched, nothing merged, nothing pushed. Per Cory's standing instruction
 this round: everything discussed or proposed goes here for A's review, not into
 `draft/` or any production path.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — THE WAR-ROOM REDESIGN IS REAL, BUT #seat-plan (order:0) BUMPS #recs-card PAST THE PHONE FOLD
+
+**FOR: A.** Cory noticed a screenshot I sent two rounds ago didn't match what he
+understood B's war-room redesign to be. Re-investigated properly this time
+(scrolled the whole page, checked live computed CSS order, not just a viewport
+crop) rather than repeat the same shallow look.
+
+## The redesign is real and matches its own claims — mostly
+
+`#recs-card`'s CSS `order` (5) genuinely sits before `doctrine-banner` (6),
+`legality-strip` (7), `wr-statusbar` (4)... — checked directly against the live
+computed styles, not just the source comments. `#paths-panel` renders real,
+detailed content (FOR/AGAINST reasoning per path, real player data, ADP deltas,
+"I TOOK NACUA" action buttons). My screenshot two rounds ago only captured the
+top 844px viewport and I never reviewed the full-page capture I'd also taken —
+that's on me, not evidence the redesign wasn't real.
+
+## The actual discrepancy: `#seat-plan` at `order: 0`
+
+`#seat-plan` sits BEFORE even the search bar (order 0 vs order 1), and in the
+current pre-draft state it's 549px tall — dominated by a large "Keeper slate not
+confirmed" warning banner ("The keeper slate has never been confirmed. Every
+pick number and every adjusted ADP on the board depends on it."). That block
+alone pushes `#recs-card` down to **1005px from the top** — past a 390×844 phone
+fold, directly contradicting the redesign's own stated goal ("the recommendation
+owns the phone's first fold").
+
+**What needs A's judgment, not a guess from this session:** is `#seat-plan` this
+size because the keeper slate genuinely is unconfirmed right now (a real,
+arguably correct safety gate — you don't want confident recommendations built on
+possibly-wrong ADP), and does it shrink back once confirmed? Or is it sized like
+this regardless of keeper state, meaning the first-fold goal is broken in the
+state Cory will actually see on draft day? I didn't force a keeper-confirmation
+in local dev data to test this, since mutating that and presenting the result as
+representative felt like the wrong kind of shortcut — better to flag the precise
+question than guess at the answer.
+
+## What this is NOT
+
+No code touched. This corrects and sharpens the earlier screenshot-based finding
+rather than replacing it with another unverified claim.
