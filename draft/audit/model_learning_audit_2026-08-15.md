@@ -232,35 +232,27 @@ claim "measured" while `nflverse_weekly_points_2026.json` does not exist.
   gate; unlabelled counts toward neither side) and the two existing
   Signal-C tests updated to regular-season fixtures. 29/29 pass.
 
-### 3.3 MAIN WAS RED — three suites, one defect class, all fixed
+### 3.3 MAIN WAS RED — three suites, one defect class, independently diagnosed; upstream fixes adopted
 
 `bash scripts/js-sweep.sh` on a **clean `origin/main` worktree** (verified,
 exit 1 on all three): `pick_schedule`, `survival_scale`, `surface_contract`
-red — so the integrate gate was refusing every lane. Not caused by any commit:
-all three pinned an OBSERVED, board-dependent value and the 08-15 rebuild
-moved the board under them. The class is the repo's own named one — a pin
-wearing a band's clothes — and each fix replaces observation with
-construction:
+red — the integrate gate refusing every lane. All three pinned an OBSERVED,
+board-dependent value and the 08-15 rebuild moved the board under them
+(pick_schedule's fail-arm demanded the 147-vs-150 confusion bite somewhere,
+and today it honestly bites nowhere; survival_scale pinned Allen at the
+08-13 board's literal 4.0%, tonight 3.18 with both sides agreeing;
+surface_contract pinned the keeper>onesie sub-order, which swapped).
 
-- **pick_schedule** — the fail-arm demanded the 147-vs-150 waiver-depth
-  confusion bite somewhere on TODAY's board; today it bites nowhere (all six
-  positions read the same level at both counts — an honest fact about today's
-  ADP ordering). Rewritten CONSTRUCTED: slice just past the player the QB
-  level is read from and the level must move to a different player — cannot
-  go vacuous on any non-empty pool. 40/40.
-- **survival_scale** — pinned Allen's survival at 4.0%, keepers.py's number
-  from the 08-13 board; the rebuild moved his `adjusted_adp`/`adp_sd`
-  (3.18%). The parity target is now DERIVED at test time (survival = 1−Φ at
-  the LIVE index with the player's own spread, independent erf
-  transcription), plus a new fail-arm proving the check discriminates the
-  raw-pick scale. 19/19.
-- **surface_contract** — asserted the term-share TOTAL ORDER
-  value>keeper>onesie>stack; keeper (16.1→14.3) and onesie (13.9→16.8)
-  swapped in the rebuild. The order among three 10-17% terms is a board
-  property, not a model claim — the test now asserts the stable claims
-  (value dominates — already banded — and every minor term ≥3% material),
-  and `WAR-ROOM-SURFACE-CONTRACT.md`'s table now shows both boards' shares
-  and says the sub-order trades places nightly. 51/51.
+I diagnosed and fixed all three in this worktree — and on fetch found the
+main session had landed the same diagnosis with equivalent-or-stronger
+re-derivations minutes earlier (`36bc8cf0`; its survival_scale fix actually
+RUNS the python side live-to-live, stronger than my independent-Φ
+transcription). **My duplicates were dropped and the landed versions
+adopted** — two parallel fixes of one file is the dual-maintenance disease
+this repo keeps removing. Verified on the merged tree: pick_schedule,
+survival_scale, surface_contract all exit 0; full sweep green. The
+independent double-diagnosis is itself evidence the defect class is real:
+two sessions, same three suites, same root cause, no communication.
 
 ### 3.4 Justification of the pick set
 
@@ -287,7 +279,6 @@ measured, pinned, and routed rather than open.
 ## SUITE RESULTS (after all changes, before commit)
 
 - `python3 -m pytest draft/tests -q` — **2157 passed, 5 skipped, 0 failed.**
-- `bash scripts/js-sweep.sh` — **248 entry points, all green** (main had 3
-  red suites before §3.3's fixes; verified red on a clean `origin/main`
-  worktree first, so the fixes clear a pre-existing gate blocker rather than
-  papering over anything this audit introduced).
+- `bash scripts/js-sweep.sh` — **248 entry points, all green** on the tree
+  merged with `origin/main` (which carries `36bc8cf0`'s re-derivations of
+  the three board-pinned suites — §3.3).
