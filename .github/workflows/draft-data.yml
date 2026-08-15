@@ -266,6 +266,29 @@ jobs:
             gh issue create --title "🔴 Board rebuild refused to publish" --label "$LABEL" --body-file "$BODY_FILE"
           fi
 
+      - name: Preserve the refused candidate board for offline diagnosis
+        # Added 2026-08-15. The two failures still blocking auto-publish
+        # (a retired player unflagged by board_activity.dormant, the
+        # replacement-sensitivity sign flip) reproduce ONLY against the fresh
+        # candidate board built from live fetches — and the runner discarded
+        # that board on every refused run, so every diagnosis attempt so far
+        # has been done blind, against yesterday's committed board where both
+        # tests pass. Preserving the refused candidate (plus the two config
+        # inputs it was built from) turns "needs live Sleeper access to
+        # debug" into "download one artifact and run the failing test
+        # locally". test_pick_log-style test isolation is unaffected: this
+        # uploads, commits nothing.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: refused-candidate-board
+          path: |
+            public/draft_data.json
+            draft/config/keepers.json
+            draft/data/predicted_keepers.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Close the tracking issue if this rebuild is the one that fixed it
         # Reached only when the acceptance gate above SUCCEEDED (no special `if`
         # needed — a step with no condition runs exactly when every prior step
