@@ -42,6 +42,11 @@ on:
         description: 'Give up after this many minutes if the draft never completes'
         required: false
         default: '240'
+      dry_run:
+        description: 'Write to a throwaway log and skip git commit/push — verifies the polling/exit mechanics against a real (e.g. completed, historical) draft_id without ever touching draft_pick_log_2026.jsonl'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -59,10 +64,16 @@ jobs:
         env:
           DRAFT_ID: ${{ github.event.inputs.draft_id }}
           MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
+
+          if [ "$DRY_RUN" = "true" ]; then
+            export DRAFT_PICK_LOG_PATH="$RUNNER_TEMP/draft_pick_log_dry_run.jsonl"
+            echo "DRY RUN: writing to $DRAFT_PICK_LOG_PATH, nothing will be committed or pushed."
+          fi
 
           deadline=$(( $(date +%s) + MAX_MINUTES * 60 ))
           echo "Syncing draft $DRAFT_ID, giving up after ${MAX_MINUTES}m if it never completes."
@@ -77,8 +88,10 @@ jobs:
 
             # Commit only if the log actually changed — the common case is
             # polling between picks with nothing new, which must be a silent
-            # no-op, not noise in the history.
-            if ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
+            # no-op, not noise in the history. Skipped entirely in dry_run:
+            # the whole point is proving the polling/exit mechanics without
+            # ever committing or pushing anything.
+            if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
               git add draft/data/draft_pick_log_2026.jsonl
               git commit -m "[skip deploy] draft-night sync: pick log update" -q
               git push -q
