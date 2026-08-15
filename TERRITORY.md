@@ -1069,3 +1069,47 @@ correctly: it contains files from two lanes and neither side's check can pass it
 Widening a guard to fit the work already done is how a boundary stops being one —
 the lesson recorded at #1. The branch is pushed and the merge is A's call or
 Cory's.
+
+## OVERRIDE #5 — the relay session touched B's and C's files, 2026-08-15, authorised by Cory
+
+**WHO AND UNDER WHAT AUTHORITY.** The research-relay session (branch
+`claude/fantasy-football-research-926y6z`), working A's queue while A and B are
+unreachable until Monday, under Cory's explicit, repeated instruction — verbatim:
+*"You need to stop just finding issues. You need to start fixing things to As
+standards"*, *"Stop leaving things for A just because they're difficult.. dive
+in, try to solve"*, and the standing policy recorded in TODO.md (*"the relay
+session pushes anything with a passing test straight to main — no pre-approval
+... EXCEPT draft-scoring/weight changes"*). Every edit below has a test that
+demonstrates the defect it fixes; none changes a scoring/weight default.
+
+**THE FILES, AND WHY EACH CROSSING HAPPENED** (the full evidence chain for each
+is in the commit that made it — listed so the gate's refusal reads as
+documented, not discovered):
+
+  * `views/lineup.ejs`, `views/waivers.ejs`, `views/bank.ejs`,
+    `views/dashboard.ejs`, `src/routes/member.js` (B's lane) — the
+    double-escape bug corrupting every in-season capture form, the
+    capture-failure honesty fix, and the in-season capture routes. Data
+    corruption, not styling: the defect lived in B's files but destroyed A's
+    ledger entries, which is why the relay fixed it rather than filing it.
+  * `src/routes/lineup.js` (B's lane) — the `inferPositions()` FLEX gap that
+    silently deflated the certified L0 leak numbers. Same shape: B's file, A's
+    certified measurement corrupted. Fixed in lockstep with A's own
+    `roster_sim.py` so the port and the original cannot disagree.
+  * `draft/tests/lineup_sanity.test.js` (B-side header) — corrected numbers in
+    its header comment after the L0 fix moved them; no behaviour change.
+  * `draft/tests/test_board_pin.py` (C's file) — the nightly-rebuild false
+    failure (working-tree bytes pinned against HEAD mid-rebuild). Fixed with
+    both arms proven; C's equality contract on clean trees is byte-for-byte
+    unchanged.
+
+**WHAT THIS IS NOT.** Not a redraw proposal and not a precedent for the relay
+editing other lanes at will — every crossing above is a data-integrity defect
+whose evidence and whose victim lay in A's lane while the code lay elsewhere,
+the exact "boundary drawn through the middle of one concern" shape C named at
+its #3/#4. The gate's refusal of this branch is CORRECT and expected:
+`integrate.sh` will list 8 trespasses, all of them the files above. **The merge
+is A's call or Cory's, per the precedent directly above this entry.** The relay
+did not merge the branch to main itself; the only direct main pushes were the
+two board-rebuild-pipeline fixes, each with its own explicit authorisation,
+recorded in their commit messages (`68f1699f`, `dd09c060`).
