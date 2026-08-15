@@ -14251,3 +14251,63 @@ kind of thing `loop_closure.js` was built to catch mechanically rather than leav
 someone's memory. The tool itself says what it doesn't check: whether a resolver that
 exists actually runs correctly — that needs real season rows, not code-reading, and
 isn't claimed here.
+
+---
+
+## 00000000000000. OWN-MODEL PROJECTIONS ARE NOW LIVE ON THE BOARD — SHIPPED, NOT PARKED (2026-08-15)
+
+**Unlike everything else marked "prototype" today, this one is actually merged and
+pushed.** It's additive and doesn't touch anything the standing gate protects
+(scoring/rankings), so it went through build+test+push under the reduced-gate policy
+rather than sitting parked for a ruling.
+
+**What changed, concretely:**
+- `draft/own_projections.py` — the core of `own_projections_2026.py` (crosswalk,
+  nflverse fetch, `walk_forward()`, depth-chart dampening), extracted into an
+  importable function so it isn't computed twice in two files — the exact "two-places
+  disease" this project has already found and fixed before (see `proj_feed.js`'s own
+  comment on the same mistake elsewhere).
+- `draft/build.py` — attaches `proj_ownmodel` to every board player it can, additively,
+  same try/except/coverage-gated pattern as the FantasyPros block right above it.
+  **Does not touch `proj_mean`, `proj_baseline`, VORP, or ranking** — #6 below still
+  requires a clean grade before any of those swap sources, and none exists yet.
+- `public/js/draft/consensus.js` — `rawProjection()` now includes `proj_ownmodel` in
+  the averaged display when present, labelled "Our model". This is the ONE shared
+  module every tool (draft/waiver/lineup/standings) already reads for its sanity-check
+  number, so it reaches all of them for free — no per-tool change needed.
+
+**Scope, stated precisely so it isn't oversold:** this makes our own model VISIBLE
+everywhere as a third opinion. It does NOT change what any tool actually recommends —
+the dollar-EV math in `lineup.js`/`waivers.js` (via `proj_feed.js`) still reads
+`proj_mean`, which is still Sleeper's number. That's deliberate, not a shortfall: the
+same rule (#6, below) that's stopped every projection-source swap today stops this one
+too. What this DOES give a human is a real, computed, non-guessed data point to look
+at ("our own model says X, Sleeper says Y") the same way the FantasyPros column
+already does.
+
+**Verification, stated honestly about what could and couldn't be checked here:**
+- The extracted module: re-ran the standalone diagnostic after the refactor — IDENTICAL
+  output to before the change (753 players projected, same by-position ratios:
+  QB 0.866, RB 0.914, TE 0.965, WR 0.837). The refactor didn't change behavior.
+- The exact new `build.py` block: simulated directly against the REAL live board and
+  league config (not a fixture) — 366/686 players got a real `proj_ownmodel` value,
+  spot-checked one (Jahmyr Gibbs: proj_mean 344.88, proj_ownmodel 222.25, every other
+  field untouched).
+- Full test suites: **2128 Python tests passed** (`pytest draft/tests`), **247/247 JS
+  test files passed** (every `draft/tests/*.test.js`, run individually). Nothing broke.
+- **What could NOT be verified here:** running the actual `build.py` end-to-end —
+  Sleeper is blocked from this sandbox, and `load_players()` needs it before reaching
+  this code. Real confirmation comes from the next nightly `draft-data.yml` run.
+  **Deliberately not triggered manually** — unlike `weekly-proj-snapshot.yml` (which
+  is `[skip deploy]`-tagged), this workflow's commit is not, and the build-minute
+  budget is still an open question at the top of this file. Worth checking the next
+  nightly run's log for the "own model 3rd source on N players" line rather than
+  assuming it worked.
+
+## What this is NOT
+
+Not a projection-source swap, not a claim `proj_ownmodel` is more accurate than
+Sleeper's — no grade exists yet either way. Not fully verified end-to-end (the one
+piece this sandbox structurally cannot run). A real, tested, additive feature that
+makes "are we using our own projections" true for the first time, everywhere
+`consensus.js` is read, without touching anything the draft-scoring gate protects.
