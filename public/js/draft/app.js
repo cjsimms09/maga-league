@@ -1860,6 +1860,19 @@
       // true 95.9%. Threading this is what makes the conversion possible, and
       // `E.survivalModel.SCALE.unconverted` is how a test proves it happened.
       pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+      // WIRE-COMPARED BENCH BRANCH's input (engine.js's wireBenchValue(),
+      // read only when CFG.VONA_WIRE_BENCH is true -- off by default, so
+      // this line changes no live behaviour today). Read the same way every
+      // other board-sourced field here is: from state.data, never a
+      // module-level constant that could go stale. `state.data.wire_level`
+      // does not exist on the board yet -- draft/build.py does not embed it
+      // (a separate, deliberate change, not made in this pass) -- so this
+      // resolves to null until that lands, and wireBenchValue() already
+      // treats null/absent as "fall back to the vorp rule", exactly as if
+      // the flag were off. Wiring THIS side now means turning the feature on
+      // is a build.py change plus a config flip, not an app.js patch someone
+      // has to remember to also write.
+      wireWeekly: (state.data || {}).wire_level || null,
       runMultipliers: state.runMults,
       // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
       // exploration shadows set this true to explore ceiling-forward drafts.

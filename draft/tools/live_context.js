@@ -133,6 +133,11 @@ function liveContext(opts) {
     // system: 3 slots of error today, 18 once the slate locks.
     pickBoard: o.pickBoard !== undefined ? o.pickBoard
       : ((data.pick_order || {}).picks || null),
+    // Mirrors app.js's context() exactly: read from the board if present,
+    // else the caller's override, else null -- same as pickBoard above.
+    // app.js's own comment explains why the board rarely carries it yet
+    // (draft/build.py does not embed wire_level -- separate, undone work).
+    wireWeekly: o.wireWeekly !== undefined ? o.wireWeekly : (data.wire_level || null),
     currentPick: o.currentPick,
     intervening: o.intervening
       || interveningFor(data, o.currentPick, o.nextPick, mySlot),
