@@ -13935,3 +13935,73 @@ Not a claim the whole roster-construction engine is broken — the replacement-l
 (`vorp.py`), survival model, and tier detection are all doing real, correct scarcity
 work already. This is one specific disconnected wire between two pieces of code that
 already agree on the underlying facts, not a case for starting over.
+
+---
+
+## 000000000. CORRECTION, SAME DAY: THE TE:0/QB:0 RECOMMENDATION ABOVE WAS PREMATURE — CHECKED AGAINST 3 REAL DRAFTS IN THIS LEAGUE, NOT JUST A SIMULATOR (2026-08-15) 🔴 OPEN, BETTER-EVIDENCED REPLACEMENT FIX BELOW
+
+**What was wrong with entry #00000000.** The 60-room test that recommended cutting
+`ONESIE_MAX_SPARE.TE` (and QB) to 0 used `draft/tools/roster_construction.js`, which
+only simulates the first **12 picks**. That window structurally cannot contain a
+legitimate late-round dart-throw QB2/TE2 — it ends before round 13 of what is actually
+a 15-round real draft. A recommendation built entirely inside a window that excludes
+the exact behavior being judged is not evidence about that behavior. This should have
+been checked before proposing the config change; it wasn't, and Cory dismissing the
+go/no-go prompt rather than accepting it on the spot is why this got caught before
+being shipped, not because of anything I did.
+
+**Checked against REAL history instead of self-play.** `draft/data/league_history.json`
+has three complete, real, human-drafted seasons for THIS league (2023, 2024, 2025 —
+15 rounds, 10 teams, 30 team-seasons total). Player IDs cross-referenced against
+`public/draft_data.json` + `draft/fixtures/players.json` for position (86-97% coverage
+per year — good enough for a distribution, not exhaustive).
+
+```
+Real final roster composition, 30 team-seasons:
+  QB=1: 11/30 (37%)   QB=2: 17/30 (57%)   QB=3: 2/30 (7%)
+  TE=1: 16/30 (53%)   TE=2: 14/30 (47%)
+```
+
+**A second QB is not rare in this league — it's the modal outcome (57%). A second TE
+happens nearly half the time (47%).** Cutting `ONESIE_MAX_SPARE` to 0 for either
+position would have made the tool actively fight what the humans in this specific
+league actually do most seasons. That's the opposite of what a "smart way to solve
+this" should do.
+
+**But WHEN they take it is exactly the pattern the code already assumes.** Checked the
+round (converted to "picks remaining for that team," matching how `onesieState` reads
+`ctx.myPicksLeft`):
+
+```
+2nd QB taken with N picks still remaining (n=18):
+  <=2 remaining: 8/18 (44%)   <=3: 16/18 (89%)   <=4: 17/18 (94%)   <=5: 18/18 (100%)
+2nd TE taken with N picks still remaining (n=12):
+  <=2 remaining: 6/12 (50%)   <=3: 7/12 (58%)   <=4: 10/12 (83%)   <=5: 12/12 (100%)
+```
+
+**Zero of 30 real duplicate QB/TE picks in three years happened with more than 5 picks
+left.** This is exactly the shape the code's own `ENDGAME_RELAXATION` comment already
+argues for ("with a pick or two left, nothing else matters") — the mechanism is right,
+the WINDOW is too narrow. `CFG.ONESIE_ENDGAME_PICKS = 2` only relaxes the cap for the
+closest ~44% (QB) / 50% (TE) of what real drafters in this league actually do — the
+other half of real duplicate picks land with 3-5 picks still left, a zone the cap
+currently still sinks.
+
+**Revised recommendation, replacing #00000000's:** widen `ONESIE_ENDGAME_PICKS` from
+2 to somewhere in 4-5 (89-94% QB / 83-100% TE coverage of real historical behavior),
+NOT tighten `ONESIE_MAX_SPARE`. This lets the model's late-round recommendations track
+what this league's own drafters repeatedly and independently choose, while leaving the
+early/mid-draft protection (which the history data supports — nobody in 3 years took a
+QB2/TE2 with 6+ picks left) completely untouched. Smaller, better-targeted, and
+grounded in this exact league's revealed behavior rather than self-play.
+
+**Not applied** — still a live-recommendation change, same standing gate. Both this and
+#00000000 are now on the table; this one supersedes that one as the better-evidenced
+option. Cory's call.
+
+## What this is NOT
+
+Not a case where the earlier finding was wrong about the underlying disconnect
+(`starter_counts` really is unused by `onesieState`, that part still stands) — only
+wrong about which knob to turn in response to it. Recorded as a correction rather than
+a silent edit so the wrong version isn't the only one anyone finds later.

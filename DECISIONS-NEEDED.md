@@ -531,15 +531,23 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   already improved substantially. A full re-audit (the three-arm isolation, same
   rigor as the original) would confirm the mechanism rather than just the outcome,
   but this is no longer a live fire.
-- **✅ FURTHER MOVE FOUND AND TESTED 2026-08-15 (Cory research relay, same day,
-  later pass) — see PARKED.md #00000000.** `ONESIE_MAX_SPARE.TE: 1 -> 0` (matches
-  a real starter_counts fact the pipeline already computes — TE gets 0 flex-slot
-  share on this board, so a "spare" TE has zero legitimate demand behind it)
-  pushes the modal shape further, from today's QB2/RB3/WR3/TE2 toward QB1/RB4/
-  WR4/TE1 (36.7% of 60 rooms if QB is cut too). NOT APPLIED — Cory asked for it,
-  then dismissed the go/no-go prompt ("do not proceed, wait for next
-  instruction") before choosing an option. Live-scoring-affecting, so it stays
-  parked, not shipped, until he rules.
+- **✅ FURTHER MOVE FOUND, THEN SELF-CORRECTED, SAME DAY 2026-08-15 (Cory research
+  relay) — see PARKED.md #00000000 and its correction, #000000000.** First pass:
+  `ONESIE_MAX_SPARE.TE: 1 -> 0` tested on a 60-room, 12-PICK simulator, looked
+  clean. NOT APPLIED — Cory dismissed the go/no-go prompt before choosing, which
+  is what caught this before it shipped: the 12-pick simulator structurally
+  cannot see round 13-15 behavior, where real duplicate QB/TE picks concentrate.
+  Checked against 3 real completed drafts in THIS league instead
+  (`league_history.json`, 30 team-seasons): **QB2 is the modal real outcome
+  (57%), TE2 happens 47% of the time** — cutting the spare allowance to 0 would
+  have fought what this league's own drafters actually do most seasons. BUT the
+  TIMING matches the code's existing endgame-relaxation logic almost exactly:
+  zero of 30 real duplicate QB/TE picks in three years happened with more than 5
+  picks left on that team's clock. Revised recommendation: widen
+  `CFG.ONESIE_ENDGAME_PICKS` from 2 to ~4-5 instead of touching
+  `ONESIE_MAX_SPARE` at all — covers 89-94% (QB) / 83-100% (TE) of real
+  historical duplicate picks instead of ~44-50%, while leaving the early/mid
+  cap (which the same data supports) untouched. Not applied — same gate.
 
 ## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
 
@@ -567,15 +575,19 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   2026-08-13 fix but not verified against this specific number). Recommend closing
   this as an ACTIVE risk and keeping it as a genuine open research question only,
   behind the higher-priority items.
-- **RELATED, not the same question, found later the same day 2026-08-15 (see
-  PARKED.md #00000000):** `ONESIE_MAX_SPARE.TE = 1` (the cap's own allowance,
-  not the original over-selection mechanism this entry is about) turns out to be
-  more generous than the league's own computed demand — `starter_counts.TE = 10
-  = teams * starters_at(TE)`, i.e. zero real flex overflow for TE on this board.
-  Tested `TE: 1 -> 0`: modal TE count drops further, off the cap's ceiling of 2.
-  Doesn't answer why the original term over-selected TE; does give a tested,
-  ready-to-apply tightening of the cap that's currently bounding it. Awaiting
-  Cory's go/no-go, not yet applied.
+- **RELATED, not the same question, found THEN CORRECTED later the same day
+  2026-08-15 (see PARKED.md #00000000 and its correction #000000000):** first
+  found `starter_counts.TE = 10 = teams * starters_at(TE)` (zero computed flex
+  overflow for TE) and proposed tightening `ONESIE_MAX_SPARE.TE` to 0 — but that
+  was tested only on a 12-pick simulator, which cannot see round 13-15, where 12
+  of 14 real TE2 picks across 3 actual drafts in this league actually happen. TE2
+  is 47% of real final rosters (30 team-seasons, `league_history.json`) — cutting
+  the spare to 0 would fight normal, common human behavior in this exact league,
+  not fix a defect. Revised fix instead widens `CFG.ONESIE_ENDGAME_PICKS`
+  (2 -> ~4-5) so the existing late-draft relaxation actually covers when real
+  duplicates get taken. Doesn't answer why the original term over-selected TE
+  early/mid-draft pre-cap; does give a tested, history-grounded adjustment to
+  when the cap relaxes. Awaiting Cory's go/no-go, not yet applied.
 
 ---
 
