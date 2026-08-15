@@ -13860,3 +13860,78 @@ new fix. Just a direct, reproducible test replacing an inference, parked so nobo
 re-tests the same "maybe it's fixed now" hypothesis from a false starting point, and
 so the next person doing the real fix has two dated measurements of the failure shape
 to compare against instead of one.
+
+---
+
+## 00000000. THE REAL LEAGUE-WIDE DEMAND NUMBERS ALREADY EXIST — ONESIE_MAX_SPARE JUST NEVER READS THEM (2026-08-15) 🟡 CANDIDATE FIX, AWAITING GO/NO-GO
+
+**Cory's question, asked directly:** shouldn't the model account for how many total players
+will actually be drafted at each position — only 10-12 QBs, way more WRs — and isn't
+QB/TE VONA overvaluing partly because of that?
+
+**Checked, not assumed.** `draft/vorp.py`'s `replacement_levels()` already computes
+exactly this — real starter demand per position, INCLUDING how the league's flex slot
+gets allocated (greedy, best-next-man-up across RB/WR/TE) — and it's already sitting on
+the live board:
+
+```
+public/draft_data.json["replacement"]["starter_counts"] (2026 board, right now):
+  QB: 10   RB: 21   WR: 29   TE: 10   K: 10   DEF: 10
+  flex_slots_allocated: 10  (this board's flex split: RB +1, WR +9, TE +0)
+```
+
+QB and TE both come out to EXACTLY `teams * starters_at(pos)` — 10 apiece — meaning the
+league's own computed demand says there is ZERO legitimate flex overflow for either
+position on this board. That number is real, already computed every build, and matches
+Cory's "10-12 QBs" intuition almost exactly.
+
+**The disconnect:** `onesieState()` in `engine.js` — the function that's supposed to stop
+a team stacking a second QB/TE — never reads it. It uses a flat, hand-set constant
+instead: `CFG.ONESIE_MAX_SPARE: { QB: 1, TE: 1 }`, applied PER TEAM, with no reference to
+`starter_counts` anywhere in the JS engine (grepped for `starter_counts` across
+`public/js/draft/*.js` — zero hits outside the Python that produces it). So the one
+number that would let the cap say "the league doesn't need this many, here's the receipt"
+was computed and then never wired to the thing it should govern.
+
+**Tested it, not just diagnosed it.** Scratch script
+(`/tmp/.../scratchpad/test_onesie_spare.js`, same CFG-mutation-via-module-cache
+technique as the VONA_SLOT_AWARE test above) forced `ONESIE_MAX_SPARE.TE` from 1 to 0 —
+matching the measured 0-flex-share fact for TE exactly — and re-ran the same 60-room
+seat-8 real-keepers simulator (`draft/tools/roster_construction.js`):
+
+```
+BASELINE (TE:1, QB:1, today's live config):
+  modal shape QB2 RB3 WR3 TE2 K1 DEF1 — 30.0% of rooms
+  (the single most common shape drafts a SPARE QB AND a spare TE)
+
+TE:0 (QB left at 1):
+  modal shape QB2 RB4 WR3 TE1 K1 DEF1 — 21.7% of rooms
+  (TE-stacking mostly gone; QB2 still dominant across shapes)
+
+TE:0 AND QB:0:
+  modal shape QB1 RB4 WR4 TE1 K1 DEF1 — 36.7% of rooms, now a clear plurality
+  (the textbook single-QB/single-TE shape, extra capital flows to RB/WR —
+   exactly the direction the RB=0.9/TE=3.6 problem needed to move)
+```
+
+**Recommendation, not yet applied:** `ONESIE_MAX_SPARE.TE: 1 -> 0` is a well-evidenced,
+one-line, easily-reversible config change — it matches a fact the pipeline ALREADY
+computes and reports every build, not a new guess. `QB: 1 -> 0` produces the cleaner
+result but is a bigger call: it would also suppress the deliberately-reasoned "elite
+faller" exception (the Lamar-Jackson-falls-89-picks carve-out, engine.js ~line
+1190-1223) from ever surfacing on the recommendation list, because `capped` sinks a
+player in `demoteFlaggedOnesies` REGARDLESS of which branch of `onesieState` set it —
+that carve-out was added on purpose (Cory, 2026-08-12) and this would quietly defeat it
+for a position where a real bye-week/trade-insurance argument does exist, unlike TE.
+
+**This is a live-scoring-affecting change** (changes what the model recommends), so per
+the standing gate it is NOT applied without sign-off, even though it's small and
+well-evidenced. Parked here with real numbers attached so the decision is a five-minute
+read, not a re-derivation.
+
+## What this is NOT
+
+Not a claim the whole roster-construction engine is broken — the replacement-level math
+(`vorp.py`), survival model, and tier detection are all doing real, correct scarcity
+work already. This is one specific disconnected wire between two pieces of code that
+already agree on the underlying facts, not a case for starting over.
