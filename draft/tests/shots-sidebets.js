@@ -214,6 +214,10 @@ const SEASON_START = '2026-09-10';   // week 8 "now", week 9 kickoff still ahead
     for (const [slug, url] of paths) {
       await page.goto(base + url, { waitUntil: 'networkidle' });
       await page.waitForTimeout(400);
+      // A phone page must never scroll sideways — the war-room acceptance bar.
+      const over = await page.evaluate(() =>
+        document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      if (over > 1) errs.push(`${slug}-${label}: horizontal overflow ${over}px`);
       const file = path.join(OUT, `${TAG}-${slug}-${label}.png`);
       await page.screenshot({ path: file, fullPage: true });
       console.log('saved', file);
