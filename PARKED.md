@@ -14396,3 +14396,57 @@ Not a new negative finding — exp 33 already found and reported this, honestly,
 6 days ago. This is a "make the already-true thing visible" fix, the same shape as
 every other gap found today, just about the single most consequential fact in the
 whole system.
+
+---
+
+## 0000000000000000. STREAM_CALL / TRADE_EVAL — CHECKED WHETHER THERE'S A SHORTCUT, THERE ISN'T, HERE'S THE SCOPED PLAN FOR EACH (2026-08-15)
+
+**Checked before writing this off as "just needs a page":** could `stream_call` piggyback
+on the `waiver_claim` UI just built (same form, different kind label when the position
+is K/DEF)? No — checked `waivers.js`/`valuation.js` directly, there is no K/DEF-specific
+branch anywhere in the tool; it's built entirely around PRIORITY WAIVERS (spend your
+position or hold), and a stream is a DIFFERENT decision shape — typically free,
+same-week, matchup-driven, not a scarce-resource stopping problem. Reusing the form
+would mislabel the decision, not save real work. Confirmed `trade_eval` has even less
+to build on: grepped `views/` and `src/` for any trade-evaluation logic — `analyzer.ejs`
+mentions the word "trade" once, in passing, about rival posture. No calculator, no
+offer-pricing, nothing.
+
+**Not building either now.** Both are genuine new features, not fixes, and this
+project has a specific, cited lesson about inventing new mechanisms under a draft-week
+clock (the bench-branch anchor breaking). Scoped plans instead, so whoever picks this
+up next executes rather than designs from zero:
+
+**`stream_call` — the smaller of the two, buildable in an afternoon:**
+1. A tiny new view (or a K/DEF-filtered section bolted onto `waivers.ejs`) that shows
+   this week's best K/DEF option by matchup, not by season value — `evaluateClaims`'s
+   existing `net_value` math is season-shaped (startable-value delta), not matchup-
+   shaped, so this needs a real (small) matchup-aware score, not a reuse.
+2. Same two-form pattern as `/waivers/log` + `/waivers/override` (proven twice now):
+   `POST /stream/log` (kind: `stream_call`, `chosen` = the streamed player,
+   `counterfactual` = "held" the currently-rostered K/DEF, per `assertCounterfactual`'s
+   requirement — this one actually has an unambiguous counterfactual, unlike waivers).
+3. Resolver: `forecast_grade.js`'s `INSEASON_DECISION_KINDS` already covers it — no
+   server-side work needed there.
+
+**`trade_eval` — genuinely bigger, needs a product decision first, not just code:**
+The predledger schema wants "an offer priced, accepted or declined" — which presumes a
+trade EVALUATOR already exists to produce the price. It doesn't. Building this means
+answering, before any code: does the tool evaluate trades OFFERED to Cory, trades HE
+proposes, or both? What's priced — the players' `proj_mean`/dollars only, or does it
+run through the same lineup/matchup machinery `lineup.js` uses (which would make it
+consistent with everything else, but is real work to wire)? `COUNTERFACTUAL_BASELINE
+_INVENTORY` in `LAB-REGISTRY.md` already flags this exact gap from the measurement
+side: *"trade evaluations... our history is sparse... too few events to model a
+baseline; report n, do not infer a rate."* Recommend treating this as genuinely
+post-draft, alongside the learning engine and the RF/XGBoost question — not a Sept 1
+item the way lineup/waiver captures were, because unlike those it has no existing tool
+to attach to.
+
+## What this is NOT
+
+Not a claim these are impossible or not worth doing — `stream_call` in particular is
+real, cheap, and well-scoped above. Just not something to build in the same breath as
+everything else today without checking first whether it was actually a quick wire (it
+wasn't) — the same discipline that caught the wrong `lineupCall`/`waiverClaim` client
+helpers earlier, applied before writing code this time instead of after.
