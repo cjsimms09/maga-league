@@ -96,6 +96,17 @@ for itself again.
 
 ## 4. BUILT (all offline-tested, committed on this branch)
 
+**Ranked by learning-per-week gained:** (1) the player-week consume arc —
+~hundreds of residuals/week that previously reached nobody now reach the
+recommendation artifact weekly, the largest new evidence flow in the system;
+(2) the Thursday emission self-check — no new evidence, but 5 days less
+latency on detecting a broken emitter, protecting the flow in (1);
+(3) the K diff proposal (§5.1) — zero learning until January, then it converts
+an already-measured finding into one reviewed line; (4) the FP prior — would
+have ranked first (informed Week 1 instead of flat) and resolved to zero
+gain by its own gates: the honest rank of a failed gate is nothing, recorded;
+(5) parity pin + dedupe doc — insurance, not evidence flow.
+
 1. **The player-week consume arc** — `weights-read.js` exposes the latest
    calibration snapshot's `player_weeks` block (read-only, pinned),
    `weekly_grade_runner.js` mirrors it into
