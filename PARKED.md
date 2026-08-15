@@ -12643,3 +12643,232 @@ serves to the live `/lineup` route.
 No code touched. This is a direct recommendation, not a new finding — everything
 underneath it is already evidenced in the entries above. A's call on sequencing
 against the rest of the queue.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — THE FULL PLAN: OUR OWN PROJECTIONS, MORE MARKET DATA, AND CLOSING THE PREDICTION LOOP
+
+**FOR: A.** Cory asked for one detailed, connected plan covering four things:
+how to build our own league-scored projections and everywhere they'd be used,
+how to get more betting data, a full predictions-and-grading plan to close the
+loop, and a note on what comes after (draft-tool testing). All four below, in
+order. This is a plan for you to sequence and build — not code, not gated,
+Cory's explicit instruction is that everything in this thread stays here for
+your review.
+
+## PART 1 — Our own weekly projections, scored under this league's rules
+
+### Why this solves the normalization problem directly
+
+Right now this app has THREE disconnected notions of a player's value: the
+draft-day composite (FFC/FantasyPros ADP-based), the in-season feed
+(`proj_feed.js`, a flat season-rate), and whatever a human remembers from public
+rankings computed under someone else's scoring. `valuation.js`'s own doctrine
+already states the principle that should extend here: *"if two tools ever value
+the same player differently, that is a bug."* A single, real, in-house
+projection — generated from usage stats, scored under `scoring_settings`
+exactly — is the one thing that makes every tool (draft, waiver, lineup,
+analyzer) reference the same normalized number instead of drifting sources.
+
+### The build, concretely
+
+1. **Inputs** (all confirmed reachable this session): nflverse weekly stats
+   (targets, carries, red-zone touches, air yards, snap %, NGS efficiency
+   metrics), injury/practice reports, and this league's real `scoring_settings`
+   (already read directly: half-PPR, 6pt passing TD, the real kicker/DEF bucket
+   table).
+2. **Base layer — opportunity, not outcome.** Project next week's usage
+   (targets/carries/red-zone share) from a recency-weighted trend of recent
+   usage, NOT recent fantasy points — points are TD-variance-heavy, opportunity
+   is the more stable signal (this is the standard "xFP" logic from the earlier
+   tool-norms research, applied at the input stage instead of after the fact).
+   Convert projected usage into fantasy points using THIS league's exact scoring
+   formula — this is the step that fixes the normalization problem outright.
+3. **Shrinkage, mandatory, not optional.** Regress every projection toward the
+   position average, weighted by sample size (proven necessary this session —
+   the one-game QB outlier that got projected at face value and justified
+   dropping the team's only defense). A fixed shrinkage constant is a fine start;
+   the constant itself should eventually be *derived* from measured variance by
+   position, matching the project's own "prefer derived over declared"
+   principle already written into SESSION-B.md.
+4. **Context layer — game environment**, once Part 2 below is fixed: scale by
+   the game's implied total relative to league average, and by game script from
+   the spread.
+5. **Market layer — player props**, weighted by book dispersion (tight agreement
+   = trust it more, wide disagreement = discount it) — the single strongest
+   signal available, priced with real money and information no public fantasy
+   source has.
+6. **One engine, two horizons.** The SAME underlying stat-projection method
+   should produce both the draft-day season total (feeding the existing
+   composite/VORP machinery) AND the week-by-week number (feeding
+   waiver/lineup/analyzer) — not two separate systems. This also means the
+   draft-day backtest (`BACKTEST.md`) stops being graded on "era-appropriate
+   reconstructions" (its own stated, honest limitation) and starts being graded
+   on the real thing, closing that gap too.
+
+### Everywhere this gets used, not just the two tools already tested
+
+- **Lineup optimizer** — direct, already proven today (`LO.optimize()` needs a
+  real `proj` per player; that's exactly this).
+- **Waiver tool** — direct, and the highest-measured value target: today's
+  GM-sim proved the crude version of exactly this projection was the
+  attributable cause of the model's worst decisions.
+- **League analyzer** — playoff-odds Monte Carlo simulation needs a real
+  forward projection per team per remaining week, not just current record;
+  same for the roster-efficiency ("bench points left on the table") metric,
+  which is currently likely built on the same flat `proj_feed.js` number.
+- **Trade evaluation**, if/when built — any trade value comparison is only as
+  good as the projection underneath it.
+- **The Sunday alert / matchup pages** — anywhere a "your guy is projected for
+  X" number is shown to an owner directly.
+- **The draft composite itself**, per the "one engine, two horizons" point
+  above — this is the one most likely to be missed since it looks like a
+  separate system today, but it doesn't have to stay that way.
+
+## PART 2 — Getting more betting/market data
+
+1. **Fix `ODDS_API_KEY` first — cheapest, highest-leverage step, already
+   flagged two entries up.** `capture_health.json` shows 0% coverage right now;
+   nothing else in this section matters until real lines are flowing again.
+2. **Actually request player-prop markets.** Checked directly this session:
+   `market_capture.py`'s own `touchdown_finding` states *"NO prop market(s)
+   requested"* — the capture currently asks for game odds only, not props, even
+   though the script's own docstring already reasons carefully about prop
+   coverage. Requesting prop markets (receiving yards, rushing yards,
+   receptions, passing yards/TDs, anytime TD) is a config change to what's
+   already built, not new infrastructure.
+3. **Check the actual odds-api.io plan/tier.** Player props are frequently a
+   paid-tier feature on odds APIs; whether the current subscription includes
+   them needs Cory/A to check directly against the account, not something
+   visible from this session.
+4. **Extend the capture cadence into the season**, mirroring the same logic
+   already applied to `weekly-proj-snapshot.yml`: a capture near the Tuesday
+   waiver deadline AND one Sunday morning before kickoff, since lines move
+   through the week and the number that mattered for a Tuesday decision isn't
+   the same as Sunday's.
+5. **Historical odds/props for 2023–2025 are a separate, harder problem**,
+   already flagged in the GM-sim entries — no equivalent free historical archive
+   found this session. This means the market-enriched projection can be
+   deployed and validated going forward on 2026, but can't be retroactively
+   proven against past seasons the way the shrinkage fix was proven today. Say
+   this plainly to Cory if asked "does this help our backtest" — it doesn't,
+   yet; it helps the live 2026 season.
+6. **Watch the rate budget.** `market_capture.py` already has real budget
+   tracking (`RateBudget`, `backoff_plan`) — extending capture frequency and
+   market breadth should be checked against it, not assumed free.
+
+## PART 3 — The predictions-and-grading plan (closing the loop)
+
+This should live inside the EXISTING "Learning Engine" concept already
+specified earlier in this file (item 10 in the original parked queue —
+continuous re-grading, hypothesis generation from residuals, the Annual as the
+Tier-2 install gate) rather than as a separate system. That entry already
+flagged its own blocker: the "Learning Constitution" and Tier-0/1/2 taxonomy it
+depends on is referenced but not actually in the repo. **That taxonomy file has
+to exist before this plan can plug into it** — worth resolving first.
+
+### What to predict, and how often
+
+**Every draft (once a year):**
+- Season-total projection per drafted player (from the same engine as Part 1).
+- Predicted VORP/value at the pick made, vs. the next-best alternative at that
+  pick (already partially built via the draft backtest's B0-B3 comparison —
+  extend it to log the LIVE pick's prediction at the moment of the pick, not
+  just in a post-season replay).
+- Predicted round-by-round positional runs (does a position go in a burst).
+- Predicted keeper value (is keeping player X at cost Y a good deal, checked
+  against the season that follows).
+
+**Every week:**
+- Per-player point projection (Part 1) — grade: actual points vs. projected.
+- Start/sit recommendation with its stated expected-dollar edge (`optimize()`
+  already computes this via `calls`/`edge`) — grade: did the recommended
+  swap actually outscore the alternative.
+- Waiver claim recommendation with its stated net value (`evaluateClaims`'s
+  `net_value`) — grade: realized value of the added player over the following
+  2-4 weeks vs. the dropped player, and separately, whether a contested claim's
+  predicted priority outcome (win/lose) matched reality once real
+  `waiver_position` capture exists (flagged three entries up).
+- Weekly playoff-odds / win-probability for the upcoming matchup — grade:
+  bucketed calibration (the exact table format `BACKTEST.md` section 4 already
+  uses for survival odds — reuse it unchanged for playoff odds and win
+  probability, not a new format).
+
+**Every year:**
+- Preseason standings/playoff-odds prediction vs. final result.
+- Draft-value realized: which players/picks outperformed or underperformed
+  their draft cost, and whether the tool's own recommendations (if a shadow log
+  exists of what it WOULD have recommended at picks Cory didn't take) would
+  have done better or worse than what actually happened — this is the live,
+  forward-collected version of what the GM-sim did retroactively today.
+- Tool-vs-human season summary: across every week's start/sit and waiver calls,
+  how often did the tool's recommendation beat the human's actual choice, and
+  by how much — the same shape as this session's attribution finding
+  (lineup-only vs. real), but collected prospectively all season instead of
+  reconstructed after the fact.
+
+### How to grade each type (reuse existing patterns, don't invent new ones)
+
+- **Point estimates** (projections): MAE/RMSE, tracked per position per week,
+  trended over the season and across years.
+- **Probabilities/confidence** (win prob, playoff odds, survival %, waiver-
+  contest outcomes): bucketed calibration — group every "73% likely" call and
+  check if ~73% of them were actually right. `BACKTEST.md` section 4 already
+  has exactly this table; the format should be copied, not redesigned, for
+  every new probabilistic claim this plan adds.
+- **Recommendations** (start/sit, waiver, draft pick): realized value of the
+  choice taken vs. the best alternative not taken, in both raw points and
+  dollars (the project's existing $110/$100 win/weekly-high framing) — the same
+  B0-B3-style comparison the draft backtest already runs, applied weekly.
+
+### The noise-immunity rules (the ones Cory asked for explicitly)
+
+- **Log every prediction BEFORE the outcome, immutably** — the same discipline
+  `proj_series.json` already states for itself ("frozen for a CLEAN post-season
+  grade — retroactive fetches leak"). No exceptions, no retroactive edits.
+- **Minimum sample size before trusting a pattern.** Directly caused by today's
+  bug: a real signal needs enough games/weeks before it's actionable; a
+  hypothesis from residuals should be tagged with its n and not act on n<4-5
+  observations without explicit shrinkage, exactly as this session's fix did.
+- **Multi-season replication before a "learned" adjustment becomes permanent.**
+  Matches the project's own caution already applied to `REGRESSION_WEIGHT`
+  tuning — a pattern seen in one season is a hypothesis, not a rule, until it
+  survives more than one.
+- **Separate hit rates for machine-generated vs. human-generated hypotheses**,
+  reported WITH n, never as a bare rate — already specced in the original
+  Learning Engine entry (item 10, sub-point 2b) and directly applicable here:
+  this new prediction stream will generate far more data points than any human
+  registering hypotheses by hand, and volume alone should never read as
+  confidence.
+
+### How to use it once enough data exists
+
+Feed the tracked error back into the projection blend itself — if the market-
+prop layer has been closest for WRs the last 6 weeks and the usage-based layer
+closest for RBs, the blend should weight accordingly, recency-weighted so it
+keeps adapting. This closes the loop for real: predictions inform the model,
+grading measures the predictions, and the measured error adjusts the model —
+not a one-way pipe.
+
+## PART 4 — What comes after (once lineup/waiver are confirmed working)
+
+Cory's own sequencing, restated so it's on record: once the in-season tools are
+validated (the GM-sim extended to more seats/seasons per the earlier build
+spec), the same rigor applied to them this session — mechanical leak proofs,
+human-readable auditability, real attribution — should be pointed at the DRAFT
+engine next. Two things make this timely rather than premature:
+- The existing draft backtest (`BACKTEST.md`) already admits its own honest
+  limitation: it grades the decision machinery on "era-appropriate
+  reconstructions... not archived forecasts." Once Part 1's real projection
+  engine exists, that caveat can be closed for the FIRST time — the draft
+  backtest becomes a test of real projection accuracy, not just decision logic
+  on plausible inputs.
+- The still-open round-1 leak alarm and the broken 2025 stat-reconciliation
+  (both flagged in an earlier entry) should be resolved as part of this pass,
+  not carried forward again.
+
+## What this is NOT
+
+No code touched, nothing gated, nothing installed. This is a plan for A to
+sequence, build, and adapt — every piece here traces to something measured or
+verified earlier in this file, not asserted fresh.
