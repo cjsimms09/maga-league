@@ -11709,3 +11709,59 @@ quiet off-season stretch, since a disabled cron fails silently with no error.
 No code touched, nothing gated. Gaps 1–3 are small and cheap; flagging them now
 because closing them costs nothing today and costs a full season of missing data if
 caught in January instead.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — CONFIRMED GAP: WAIVER PRIORITY IS CAPTURED NOWHERE, FOR ANY SEASON
+
+**FOR: A.** Follow-up to the two entries above. Cory asked directly whether the
+weekly-proj-snapshot really covers everything the GM-simulation needs — specifically
+named "available waivers" and "my waiver order that week." Checked both rather than
+assuming; one is fine, one is a real, previously-unflagged gap.
+
+## Available waivers (the free-agent pool) — confirmed fine, no action
+
+Fully reconstructable from data already captured: free agents at any moment = full
+player universe minus whoever's rostered at that moment, and roster membership is
+preserved historically (weekly matchup snapshots + the transaction log, down to exact
+timestamps of every add/drop including failed claims). No live capture needed.
+
+## Waiver priority/order — confirmed MISSING, checked directly
+
+`final_rosters` (the only per-roster settings snapshot in `league_history.json`) has
+exactly four fields — `roster_id`, `owner_id`, `players`, `keepers` — for all four
+seasons including 2026. No `waiver_position` field anywhere in the repo. Grepped for
+`waiver_position`/`waiver_priority` across every `.py`/`.js`/`.json`/`.md` file: zero
+hits outside this note. `src/sleeper.js` never reads `roster.settings.waiver_position`
+either — nothing has ever captured this, live or historical.
+
+**2023–2025 (unrecoverable, work around it):** this league is `waiver_type: 1`
+(Reverse Standings), so priority should be a deterministic function of current
+standings, which we DO have (reconstructable from the weekly matchup results, week by
+week). Cross-validate that reconstruction against real evidence already in the
+transactions log: contested claims (multiple rosters claiming the same player in the
+same window) show real complete/failed outcomes at precise timestamps — e.g. 2023 week
+1, player `5995`: roster 10's claim completed while rosters 7, 3, and 1 failed. That's
+ground truth for real priority at that exact moment, dozens of times per season, usable
+to check the standings-derived reconstruction rather than trusting it blind. Flagging
+honestly: there's residual uncertainty here (unconfirmed tie-break rule when records
+match) that a reconstruction can't fully remove — treat reconstructed priority as
+"best available," not ground truth, when grading the simulation.
+
+**2026 onward (fixable now, do it):** capture the raw `roster.settings.waiver_position`
+for all 10 rosters live, same Tuesday cadence as the projection-snapshot Tuesday fix
+already flagged above (both are "before Wednesday waivers" captures — worth doing in
+the same pass). This is cheap and removes the reconstruction uncertainty entirely for
+every season from here forward.
+
+## One more check while in there — trades, no gap
+
+Transaction `type` includes `free_agent`, `waiver`, AND `trade` — trade data is
+already logged (participants, timestamps) even though trades are out of scope for v1
+per the GM-simulation spec above. Not needed now, just confirming it's there if scope
+ever expands.
+
+## What this is NOT
+
+No code touched. Flagging this now because — same as the projection-snapshot gaps —
+it's cheap today and permanently gone if missed for another season.
