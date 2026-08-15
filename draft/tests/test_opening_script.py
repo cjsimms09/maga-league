@@ -20,42 +20,109 @@ def test_script_targets_my_real_live_picks():
     s = OS.generate(board, predicted)
     my = (board.get("pick_order") or {}).get("my_picks") or []
     assert s["my_picks"] == my
-    scripted = [e["pick"] for e in s["branches"]["primary_both_tes_gone"]]
-    assert scripted == my[:OS.PICKS_TO_SCRIPT]          # 34, 41, 54 today
+    scripted = [e["pick"] for e in s["branches"]["primary_effective_board"]]
+    assert scripted == my[:OS.PICKS_TO_SCRIPT]          # 33, 48, 53 on today's board
 
 
-def test_primary_branch_excludes_every_predicted_keeper_and_mine():
+def test_primary_excludes_every_EFFECTIVE_keeper_and_mine():
+    """The audit's §1 contract: the primary removes real designations where
+    they exist and predictions only where they don't — never a contradicted
+    prediction."""
     board, predicted = _inputs()
+    real = OS.load_real()
     s = OS.generate(board, predicted)
-    gone = OS.predicted_kept_ids(predicted) | {
+    slates = OS.effective_slates(predicted, real)
+    gone = {i for sl in slates.values() for i in sl["ids"]} | {
         str(k.get("player_id")) for k in board.get("kept_players", [])}
-    for entry in s["branches"]["primary_both_tes_gone"]:
+    for entry in s["branches"]["primary_effective_board"]:
         for c in entry["candidates"]:
-            assert c["player_id"] not in gone, f"{c['name']} is predicted kept but scripted"
+            assert c["player_id"] not in gone, f"{c['name']} is kept (effective) but scripted"
 
 
-def test_contingency_returns_bowers_to_the_board():
-    # The contract: the primary removes Bowers (predicted kept by Marian); the
-    # contingency returns him to the pool. Whether he then SHOWS as a candidate is
-    # gated by survival — if his ADP puts him out of reach of my early picks, honestly
-    # listing him would be a lie, so the assertion is conditional on reachability.
+def test_designation_supersedes_prediction_wholesale():
+    """THE BOWERS TRIPWIRE, generalized — the exact failure the 2026-08-15 data
+    audit caught. Synthetic fixture so the contract outlives this year's facts:
+    a designated team's real slate replaces its prediction ENTIRELY — a player
+    the prediction kept but the owner did not (Bowers) must NOT be removed from
+    the primary pool, and a player the owner kept but the prediction missed
+    (Jeanty) MUST be removed from BOTH branches."""
+    predicted = {"predictions": {
+        "OwnerX": {"roster_id": "6", "predicted_keepers": [
+            {"player_id": "100", "name": "Predicted And Kept"},
+            {"player_id": "101", "name": "Predicted Not Kept"},   # the Bowers shape
+        ]},
+        "OwnerY": {"roster_id": "8", "predicted_keepers": [
+            {"player_id": "300", "name": "Pure Prediction"},      # undesignated team
+        ]},
+    }}
+    real = {"6": ["100", "102"]}   # kept the unpredicted 102 (the Jeanty shape)
+    slates = OS.effective_slates(predicted, real)
+    assert slates["6"] == {"ids": ["100", "102"], "source": "designated", "handle": "OwnerX"}
+    assert slates["8"] == {"ids": ["300"], "source": "predicted", "handle": "OwnerY"}
+    designated = {i for sl in slates.values() if sl["source"] == "designated" for i in sl["ids"]}
+    predicted_only = {i for sl in slates.values() if sl["source"] == "predicted" for i in sl["ids"]}
+    assert "101" not in designated | predicted_only, "a contradicted prediction stayed removed"
+    assert "102" in designated, "an unpredicted real keeper was left draftable-looking"
+    assert "300" in predicted_only
+
+
+def test_live_supersessions_are_reported_and_bowers_is_free():
+    """Against the LIVE files: every designation-vs-prediction difference must
+    surface in keeper_basis.supersessions (the branch notes derive from it),
+    and any player a designated team was predicted to keep but did not must be
+    scriptable in the PRIMARY branch's pool. Skips honestly if no designations
+    are on file (early August of a future year)."""
     board, predicted = _inputs()
+    real = OS.load_real()
+    if not real:
+        import pytest
+        pytest.skip("no real designations on file — predictions-only mode")
     s = OS.generate(board, predicted)
-    names = {c["name"] for e in s["branches"]["contingency_bowers_available"]
-             for c in e["candidates"]}
-    prim = {c["name"] for e in s["branches"]["primary_both_tes_gone"]
-            for c in e["candidates"]}
-    assert "Brock Bowers" not in prim     # removed as a predicted keeper in the primary
+    sup = s["meta"]["keeper_basis"]["supersessions"]
+    slates = OS.effective_slates(predicted, real)
+    freed_names = {n for x in sup for n in x["freed"]}
+    # Recompute freed ids independently and require agreement.
+    pred_by_roster = {str(v.get("roster_id")): {str(k["player_id"]) for k in v.get("predicted_keepers", [])}
+                     for v in predicted["predictions"].values()}
+    freed_ids = {i for rid, sl in slates.items() if sl["source"] == "designated"
+                 for i in pred_by_roster.get(rid, set()) - set(sl["ids"])}
+    name_of = {str(p.get("player_id")): p.get("name") for p in board.get("players", [])}
+    assert {name_of.get(i) for i in freed_ids} - {None} == freed_names
+    # And none of the freed players is removed from the primary pool: if one is
+    # reachable at my first scripted pick it may appear as a candidate, and it
+    # must never be excluded as "kept".
+    gone = {i for sl in slates.values() for i in sl["ids"]}
+    for i in freed_ids:
+        assert i not in gone, f"freed player {name_of.get(i)} still treated as kept"
 
-    bowers = next((p for p in board.get("players", []) if p.get("name") == "Brock Bowers"), None)
+
+def test_contingency_returns_predicted_only_keepers():
+    """The facts-only branch: real designations + mine stay gone, every
+    predicted-only keeper returns to the pool; the strongest returners are
+    pinned so the branch surfaces its own subjects (reachability permitting)."""
+    board, predicted = _inputs()
+    real = OS.load_real()
+    s = OS.generate(board, predicted)
+    slates = OS.effective_slates(predicted, real)
+    predicted_only = {i for sl in slates.values() if sl["source"] == "predicted" for i in sl["ids"]}
+    designated = {i for sl in slates.values() if sl["source"] == "designated" for i in sl["ids"]}
+    mine = {str(k.get("player_id")) for k in board.get("kept_players", [])}
+    for entry in s["branches"]["contingency_predictions_bust"]:
+        for c in entry["candidates"]:
+            assert c["player_id"] not in designated | mine, (
+                f"{c['name']} is a FACT-kept player but scripted in the facts-only branch")
+    # The pins: any top-VORP predicted-only player who is reachable at my first
+    # pick must be surfaced in the contingency.
     my_picks = (board.get("pick_order") or {}).get("my_picks") or []
-    assert bowers is not None and my_picks
-    adp = bowers.get("adjusted_adp") or bowers.get("raw_adp")
-    reachable = OS.survival_probability(float(adp), my_picks[0]) >= OS.SURVIVAL_FLOOR
-    if reachable:
-        assert "Brock Bowers" in names    # returned to the pool AND reachable -> surfaced
-    else:
-        assert "Brock Bowers" not in names   # his ADP now puts him out of reach even when available
+    pins = OS.top_by_vorp(board, predicted_only, n=2)
+    names = {c["player_id"] for e in s["branches"]["contingency_predictions_bust"]
+             for c in e["candidates"]}
+    for pid in pins:
+        p = next(x for x in board["players"] if str(x["player_id"]) == pid)
+        adp = p.get("adjusted_adp") or p.get("raw_adp")
+        if adp is not None and my_picks and \
+                OS.survival_probability(float(adp), my_picks[0], p.get("adp_sd")) >= OS.SURVIVAL_FLOOR:
+            assert pid in names, f"pinned returner {p.get('name')} not surfaced"
 
 
 def test_candidates_carry_survival_and_respect_the_floor():
@@ -80,6 +147,11 @@ def test_fingerprint_and_staleness_contract():
     # nightly draft-data rebuild reading live Sleeper — there is no keeper-watch.
     moved2 = dict(fp, predicted_slates_hash="deadbeefcafe")
     assert "predicted_slates_hash" in OS.is_stale(s["meta"], moved2)
+    # A REAL designation landing/changing is its own staleness axis — the
+    # audit's gap was precisely that a contradicted prediction changed no
+    # fingerprint field; now it changes this one.
+    moved2b = dict(fp, designated_slates_hash="deadbeefcafe")
+    assert "designated_slates_hash" in OS.is_stale(s["meta"], moved2b)
     # And a slot assignment (Sleeper draft order) is a regeneration event.
     moved3 = dict(fp, my_slot=9)
     assert "my_slot" in OS.is_stale(s["meta"], moved3)

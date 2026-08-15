@@ -1,17 +1,41 @@
 {
  "meta": {
-  "generated_from": "opening_script.py \u2014 derives from board + predicted slates; regenerate on any input change",
+  "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
    "board_built_at": "2026-08-15T17:52:22Z",
    "board_content_hash": "317dc3ee3052",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
-   "predicted_slates_hash": "2c3c05638a32"
+   "predicted_slates_hash": "2c3c05638a32",
+   "designated_slates_hash": "0d0c68bf2ac1"
   },
   "slot_provenance": "site-claimed \u2014 Sleeper draft order pending (regenerates on assignment)",
   "doctrine": {
    "enrolled": "Balanced Value (the control)",
    "why": "19b race ran; no archetype cleared the paired CI + even-money band"
+  },
+  "keeper_basis": {
+   "designated_teams": 4,
+   "predicted_slate_teams": 3,
+   "supersessions": [
+    {
+     "handle": "cashworth",
+     "freed": [],
+     "kept_unpredicted": [
+      "Ashton Jeanty",
+      "Chase Brown"
+     ]
+    },
+    {
+     "handle": "MarianSaar",
+     "freed": [
+      "Brock Bowers"
+     ],
+     "kept_unpredicted": [
+      "De'Von Achane"
+     ]
+    }
+   ]
   }
  },
  "my_picks": [
@@ -29,7 +53,7 @@
   148
  ],
  "branches": {
-  "primary_both_tes_gone": [
+  "primary_effective_board": [
    {
     "pick": 33,
     "candidates": [
@@ -151,7 +175,7 @@
     ]
    }
   ],
-  "contingency_bowers_available": [
+  "contingency_predictions_bust": [
    {
     "pick": 33,
     "candidates": [
