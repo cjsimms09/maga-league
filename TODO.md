@@ -27,6 +27,12 @@ hour on them:
 - **The position-normalized ceiling fix (upsideBonus units defect) already shipped**
   — 2026-08-13, `computeCeilingScales` in `engine.js`. Don't re-propose the
   `group_by(pos)`-style normalization; it's built.
+- **The F4-excluded-league replay question is CLOSED, not open.** Ruled 2026-08-11
+  ("✅ RULED — F4 GATES OUTCOME-DEPENDENT GRADING ONLY"), implemented, verified
+  end-to-end. A near-identical heading below it, marked SUPERSEDED, is kept only as
+  an unedited historical record per this file's own audit discipline — reading only
+  that section (a partial/tail read) makes it look open. It isn't. Mistakenly
+  re-surfaced as a live decision on 2026-08-15; corrected same day.
 - **Mid-draft need-blindness is a real, still-open gap** (not new) — already measured
   and dated 2026-08-14 in `engine.js` (~line 427, `composite_roster_blindness.test.js`).
   See the two 2026-08-15 PARKED.md entries on this for the full trail, including a
@@ -36,11 +42,18 @@ hour on them:
 ## THIS WEEK, in dependency order (no calendar gates — sequenced by risk and what unblocks what)
 
 ### 0. Zero-code — needs only Cory's ruling, unblocks everything else
-- ◻ **GO for mock #4?** Accounting green + deployed already.
-- ◻ **D14:** build the real Stage-2 anchor, or hold? Recommendation: hold.
+- ✅ **GO for mock #4 — Cory ruled YES (2026-08-15).** Accounting green + deployed.
+  Actually running it is a live event (needs real participants) — schedule with
+  A/B, not something a session executes alone.
+- ◻ **D14:** build the real Stage-2 anchor, or hold? Recommendation: hold, because
+  wiring it now would suppress the exact deviations exp 33/34 need to measure
+  cleanly. Still open as of 2026-08-15.
 - ◻ **REGRESSION_WEIGHT install (0.35→0.1 or 0.0)?** Accuracy + overfitting gates
   cleared; dollar-arm sizing is the one remaining gate — in progress below.
-- ◻ **F4-excluded league replay ruling** — recommendation on file, needs sign-off.
+- ✅ **F4-excluded league replay** — was ALREADY RULED 2026-08-11, before this week
+  started (`DECISIONS-NEEDED.md`, "✅ RULED — F4 GATES OUTCOME-DEPENDENT GRADING
+  ONLY"), fully implemented and verified. Mistakenly re-surfaced as open on
+  2026-08-15 from a partial read of the file — corrected same day. Nothing to do.
 - ◻ **Deploy policy after Aug 22** — low urgency, not blocking anything now.
 
 ### 1. Safe to build now — no network, no live-scoring change, no deploy
