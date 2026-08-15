@@ -69,7 +69,57 @@ automated poller (only active during a declared draft-day window, not year-round
 a very small, very safe build once the budget question resolves — Cory's call on
 timing, not mine to just ship given the open budget interaction.
 
-## 🚨 URGENT — CHECK BUILD-MINUTE BUDGET FIRST, BEFORE ANY DEPLOY (Cory research relay, 2026-08-15)
+## 🚨 URGENT, SUPERSEDES THE ORIGINAL VERSION OF THIS ENTRY — THE DEPLOY GATE WAS BACKWARDS, TWO REAL DEPLOYS ALREADY HAPPENED (Cory research relay, 2026-08-15)
+
+**The original version of this entry (below the line) said "no commit carries a
+[deploy] marker, nothing was pushed to main, the budget hasn't moved." That was
+wrong, and not from lack of pushing — from a wrong model of the gate.**
+
+`DEPLOY-POLICY.md` describes an OPT-IN gate: default skip, a build only happens
+if the tip commit carries `[deploy]`. That description is **stale and backwards**.
+The actually-enforced `netlify-ignore.sh` flipped to **OPT-OUT on 2026-08-09**: a
+build happens BY DEFAULT the moment a served path changes (`public/`, `views/`,
+`src/`, `server-app.js`, `package.json`, `netlify.toml`, `netlify/functions/`) —
+`[skip deploy]` / `[skip netlify]` on the tip commit is now the ONLY way to
+suppress one. This whole research-relay session operated on the wrong model all
+day, because the doc it trusted was one day older than the policy it described.
+
+**Confirmed, not inferred — pulled the real `deploy-verify.yml` job log:**
+```
+last built commit (from the live build-stamp): b6ea669e77a9
+[deploy-gate] range touches 1 served file(s) — BUILDING (opt-out: served changes auto-deploy)
+OK — live site build-stamp is ccd48a66d4e2 (branch main, built 2026-08-15T05:02:07Z)
+```
+**Two real, unintended Netlify deploys already happened today** — one from an
+earlier served-file commit (`b6ea669e`, the doctrine-governance pill fix), one from
+this session's own `consensus.js` change (`f235ad0d`, batched into the build that
+landed as `ccd48a66`). Nobody intended either one.
+
+**Cory's ruling, same day, on being told: "Let's say last deploy part. No reason to
+deploy til everything is done. I will tell you when to deploy."**
+
+**STANDING RULE FROM HERE FORWARD, until Cory says otherwise:** every commit this
+session pushes — served file or not, no exceptions, no judgment calls about whether
+a given file "counts" — carries `[skip deploy]` in its message. That's the whole
+mechanism (`netlify-ignore.sh` reads the TIP commit's message and skips outright if
+present, before even computing what changed), so it's simple to hold to and cheap to
+verify: `git log -1 --format=%s` should show the tag on everything from here on.
+
+`DEPLOY-POLICY.md` has its own correction note now (2026-08-15) pointing at the real
+gate. This entry is the decision record; that one is the fix to the doc itself.
+
+**RECOMMENDATION, in order:**
+1. Standing: no deploy fires again until Cory explicitly says go — enforced via
+   `[skip deploy]` on every commit, not by hoping nobody touches a served path.
+2. The actual build-minute usage is still unverified from this sandbox (I have no
+   dashboard access) — worth a real check before the eventual real deploy, given two
+   unplanned ones already landed today. Original ask (below) still stands.
+3. A: when back, `DEPLOY-POLICY.md`'s "How to deploy" section needs a real rewrite,
+   not just the correction banner — this entry and that banner are a stopgap.
+
+---
+
+### ORIGINAL VERSION OF THIS ENTRY (superseded above, kept verbatim per this file's own no-delete rule)
 
 **Read this before doing anything that could trigger a build.** `DEPLOY-POLICY.md` is
 dated 2026-08-08 and its numbers (75 min / 25% remaining, ~8.5 builds/day through
@@ -88,6 +138,11 @@ no commit carries a `[deploy]` marker; nothing was merged or pushed to `main`. N
 session was running to trigger a build while Cory was locked out, so the budget has
 not moved from whatever it was Friday — but nobody has looked at the real number
 since then either.
+
+**⚠️ THIS PARAGRAPH WAS WRONG — see the correction above.** It described the gate
+backwards and, unrelatedly, the "nothing pushed to main" claim stopped being true
+almost immediately after it was written, as this whole session's `git push origin
+...:main` history shows.
 
 **RECOMMENDATION, in order:**
 1. Cory: check the actual current Netlify build-minute usage directly (I cannot) —
