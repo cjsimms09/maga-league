@@ -39,6 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
       # fetch-depth: 2, not the default 1 — found 2026-08-15 when the nightly
       # rebuild refused to publish. test_core_needs_no_reviewer.py diffs
@@ -209,15 +210,78 @@ jobs:
         # stops publishing is a visible red run; a rebuild that publishes a broken
         # board is invisible until somebody else's merge goes red, which is exactly
         # what happened. Freezing on the last good board is the safe direction.
+        # UNCHANGED FROM THE ORIGINAL: this step still `exit 1`s directly on
+        # failure, so every unconditioned step after it (Commit the artifact,
+        # below) is skipped automatically — the safety property this project
+        # depends on. The `set -o pipefail` matters: GitHub Actions runs `run:`
+        # blocks under `bash -e`, and without it `... | tee file` reports tee's
+        # exit code, not pytest's, which would silently defeat this whole gate
+        # (the exact class of bug draft-night-sync.yml hit earlier this session).
         if: github.event.inputs.snapshot != 'true'
         run: |
+          set -o pipefail
           echo "== the board about to be committed must pass the suite that reads it"
-          if ! python -m pytest draft/tests -q; then
+          if ! python -m pytest draft/tests -q 2>&1 | tee /tmp/board_gate_output.txt; then
             echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
             echo "    The previously published board is untouched and still live."
             echo "    Fix the board (or whatever the suite is telling you about it)"
             echo "    and re-run — do NOT bypass this to get a rebuild out."
             exit 1
+          fi
+
+      - name: Make a refused publish LOUD, not just red — found 2026-08-15
+        # A run that fails and sits in the Actions tab is invisible until someone
+        # goes looking, which is exactly what happened here: the 08:36 UTC nightly
+        # refused to publish, left the board 24h+ stale and missing a whole
+        # projection source, and nobody knew until this step's absence was
+        # investigated by hand many hours later. The gate's DECISION was correct
+        # (don't ship a broken board); its SILENCE was the actual defect.
+        #
+        # `if: failure()` — runs ONLY when the acceptance gate above just failed,
+        # and does not change whether the job ends up red (it still does; see the
+        # unconditioned steps below, which stay skipped exactly as before). Opens
+        # (or updates, if already open — one tracking issue, not one per night) a
+        # labeled GitHub issue with the exact failing test names, so a human is
+        # notified same-day instead of by accident.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          gh label create "$LABEL" --color B60205 --description "Nightly board rebuild refused to publish" 2>/dev/null || true
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY_FILE=$(mktemp)
+          {
+            printf 'The nightly board rebuild ran at %s and refused to publish — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '**Failing tests:**\n\x60\x60\x60\n'
+            printf '%s\n' "${FAILING:-see run log, no FAILED lines parsed}"
+            printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
+            printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+          } > "$BODY_FILE"
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file "$BODY_FILE"
+          else
+            gh issue create --title "🔴 Board rebuild refused to publish" --label "$LABEL" --body-file "$BODY_FILE"
+          fi
+
+      - name: Close the tracking issue if this rebuild is the one that fixed it
+        # Reached only when the acceptance gate above SUCCEEDED (no special `if`
+        # needed — a step with no condition runs exactly when every prior step
+        # in the job has succeeded, GitHub Actions' own default). So "no open
+        # board-rebuild-broken issue" becomes a trustworthy signal rather than
+        # something to remember to check by hand.
+        if: github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING" ]; then
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            gh issue comment "$EXISTING" --body "Rebuild at $(date -u +%Y-%m-%dT%H:%M:%SZ) passed clean. Closing — run: $RUN_URL"
+            gh issue close "$EXISTING"
           fi
 
       - name: Commit the artifact if it changed

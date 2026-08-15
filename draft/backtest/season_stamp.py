@@ -329,6 +329,17 @@ BOARD_FIELD_SOURCES = {
     "target_share": "historical", "opportunity_share": "historical",
     "wopr": "historical", "opportunity_z": "historical",
     "opportunity_adj": "historical",
+    # own_projections.compute_own_projections: a walk_forward model fit over
+    # prior-season nflverse data (own_projections.py's own default
+    # prior_years, discovered backward from season-1). Same axis as the four
+    # above -- these ARE prior-season values on a 2026 board, legitimately.
+    # SECOND HALF OF THE SAME FIX AS BOARD_FIELD_PURPOSE below: this is a
+    # SEPARATE registry (the season axis, not the purpose axis) and
+    # registering proj_ownmodel in only one of the two still failed the
+    # nightly rebuild -- found 2026-08-15 by firing the real rebuild after
+    # the first fix and watching test_EVERY_BOARD_FIELD_IS_CLASSIFIED still
+    # red, rather than assuming the first fix was complete.
+    "proj_ownmodel": "historical",
 
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
