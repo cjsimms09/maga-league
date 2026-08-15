@@ -531,6 +531,15 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   already improved substantially. A full re-audit (the three-arm isolation, same
   rigor as the original) would confirm the mechanism rather than just the outcome,
   but this is no longer a live fire.
+- **✅ FURTHER MOVE FOUND AND TESTED 2026-08-15 (Cory research relay, same day,
+  later pass) — see PARKED.md #00000000.** `ONESIE_MAX_SPARE.TE: 1 -> 0` (matches
+  a real starter_counts fact the pipeline already computes — TE gets 0 flex-slot
+  share on this board, so a "spare" TE has zero legitimate demand behind it)
+  pushes the modal shape further, from today's QB2/RB3/WR3/TE2 toward QB1/RB4/
+  WR4/TE1 (36.7% of 60 rooms if QB is cut too). NOT APPLIED — Cory asked for it,
+  then dismissed the go/no-go prompt ("do not proceed, wait for next
+  instruction") before choosing an option. Live-scoring-affecting, so it stays
+  parked, not shipped, until he rules.
 
 ## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
 
@@ -558,6 +567,15 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   2026-08-13 fix but not verified against this specific number). Recommend closing
   this as an ACTIVE risk and keeping it as a genuine open research question only,
   behind the higher-priority items.
+- **RELATED, not the same question, found later the same day 2026-08-15 (see
+  PARKED.md #00000000):** `ONESIE_MAX_SPARE.TE = 1` (the cap's own allowance,
+  not the original over-selection mechanism this entry is about) turns out to be
+  more generous than the league's own computed demand — `starter_counts.TE = 10
+  = teams * starters_at(TE)`, i.e. zero real flex overflow for TE on this board.
+  Tested `TE: 1 -> 0`: modal TE count drops further, off the cap's ceiling of 2.
+  Doesn't answer why the original term over-selected TE; does give a tested,
+  ready-to-apply tightening of the cap that's currently bounding it. Awaiting
+  Cory's go/no-go, not yet applied.
 
 ---
 
