@@ -14517,3 +14517,13 @@ inventing NEW mechanisms under a draft-week clock still stands; this wasn't new,
 was unused. `config-screen.js` remains genuinely uncovered — smaller, lower-stakes (a
 confirmation-numbers display, not a decision guard), and not done here; the same
 Playwright pattern applies to it directly whenever it's worth the time.
+
+**Update, same day: done.** `draft/tests/rehearsal-config-screen.js`, 13/13 checks —
+the imported values populate correctly, the ★ CRITICAL scoring highlight (the actual
+safety mechanism the page's own copy exists to provide — "a single wrong scoring value
+silently corrupts every projection in the tool") stars the right keys and only the
+right keys, a saved override wins over an imported value for both a plain field and a
+nested scoring value (matching this module's own stated design), and the
+no-board-built-yet path shows a real message rather than hanging blank. No bug found
+this time — first actual proof the page works as intended, not an assumption. Every
+`public/js/draft/*.js` module the original sweep flagged is now covered.

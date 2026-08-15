@@ -214,10 +214,13 @@ now pins `keeperui.js`'s `guardFixture()` — the function that refuses to open 
 keeper editor against synthetic/offline data — using that same pattern, self-contained.
 6/6 checks pass, and building it found a real SECOND bug: `boot()`'s catch handler was
 unconditionally clobbering `guardFixture()`'s specific refusal message with a generic
-one the instant after it was written. Fixed in the same commit. `config-screen.js`
-remains genuinely uncovered (smaller, lower-stakes, same fix available whenever it's
-worth the time). Full story, including the correction, in `PARKED.md`'s
-"`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
+one the instant after it was written. Fixed in the same commit. `config-screen.js` got
+the same treatment right after (`draft/tests/rehearsal-config-screen.js`, 13/13 —
+proves the ★ CRITICAL scoring highlight actually discriminates and that a saved
+override really does win over an imported value, the page's own stated design; no bug
+found there, first real proof it works). **Every `public/js/draft/*.js` module the
+original sweep flagged is now covered.** Full story, including the correction, in
+`PARKED.md`'s "`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
 
 ---
 
