@@ -16,17 +16,19 @@ of this note said pushing to `main` never deploys on its own — THAT WAS WRONG,
 🚨 entry immediately below. Batching is now enforced by the commit message, not by an
 assumption about the gate.
 
-**🚨 READ THIS BEFORE TOUCHING A SERVED FILE (`public/`, `views/`, `src/`,
-`server-app.js`, `package*.json`, `netlify.toml`, `netlify/functions/`):** the deploy
-gate (`netlify-ignore.sh`) flipped to **opt-out on 2026-08-09** — it builds BY DEFAULT
-on any served-path change now, `[skip deploy]` is the ONLY suppressor. `DEPLOY-POLICY.md`
-still describes the OLD opt-in gate and is one day older than the flip; it has a
-correction banner now but still needs a real rewrite. **This was not caught in time** —
-two real, unintended deploys already fired today before the mistake was found (confirmed
-directly from `deploy-verify.yml`'s own logs, not inferred). Standing rule now: `[skip
-deploy]` on every commit, verified working (checked the actual gate output after adding
-it, three separate times, all skipped correctly) — nothing deploys again until Cory says
-go. The build-minute budget question (below) is still separately unresolved.
+**🚨 DEPLOY POLICY SETTLED (2026-08-15 evening, Cory: "fix the deploy freeze...
+find the happy medium").** The blanket-`[skip deploy]` freeze is RETIRED — it was
+fighting the opt-out gate and delivering both failure modes at once (fixes
+stranded AND deploys leaking whenever an unmarked bot push topped the branch;
+the macro audit found the live site current while policy said frozen).
+**`DEPLOY-POLICY.md` is REWRITTEN and is now the single authority**; policy and
+`netlify-ignore.sh` finally say the same thing. One-line version: served-path
+changes deploy when they land on `main` and every deploy path is now verified
+(deploy-verify on pushes; a new in-run poll in `draft-data.yml` for the bot's
+board push, which was the one deploy nothing checked); Lab/docs/data commits
+never build; `[skip deploy]` is reserved for a served change deliberately not
+ready, with the reason in the commit; Aug 20–22 the draft-week build reserve is
+untouchable and only draft-critical fixes deploy.
 
 ## LATER THE SAME DAY, 2026-08-15 — read this section first, everything below it is the morning/midday pass
 

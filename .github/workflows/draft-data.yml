@@ -336,6 +336,7 @@ jobs:
         # anywhere. For a project whose premise is auditable evidence, an input
         # that vanishes after use is the wrong kind of missing.
         if: github.event.inputs.snapshot != 'true'
+        id: publish
         run: |
           PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
           EXISTING=""
@@ -349,3 +350,42 @@ jobs:
           git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
           git push
+          # Tell the verify step below whether a SERVED file actually moved —
+          # a push that only refreshed draft/ data (Lab lane) triggers no
+          # Netlify build by the gate's own rules, so polling for one would
+          # time out against correct behavior.
+          if git diff --name-only HEAD~1 HEAD | grep -q '^public/'; then
+            echo "served=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "served=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the deploy actually shipped this board
+        # THE ONE DEPLOY NOBODY VERIFIED, found by the 2026-08-15 macro audit.
+        # deploy-verify.yml triggers on push — but this workflow pushes with
+        # GITHUB_TOKEN, and GitHub's recursion guard means a bot push triggers
+        # NO workflows. So the daily board deploy — draft morning's included —
+        # shipped on faith. This polls the live build-stamp from INSIDE the
+        # same run (no trigger needed) until it names the commit just pushed.
+        # A silent Netlify failure becomes a red nightly run instead of Cory
+        # drafting on yesterday's board. Runs ONLY when a served file moved,
+        # because a data-only push correctly builds nothing.
+        if: github.event.inputs.snapshot != 'true' && steps.publish.outputs.served == 'true'
+        env:
+          SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
+        run: |
+          WANT="$(git rev-parse HEAD)"
+          echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
+          deadline=$(( $(date +%s) + 600 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            GOT="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+            if [ "$GOT" = "$WANT" ]; then
+              echo "deploy verified: live build-stamp reports ${GOT:0:12}"
+              exit 0
+            fi
+            echo "  live stamp: ${GOT:0:12} — waiting"
+            sleep 30
+          done
+          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          exit 1
