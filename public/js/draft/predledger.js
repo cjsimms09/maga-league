@@ -387,6 +387,40 @@
     forecastResolution: function (info) {
       return oncePer('forecast_resolution', info, (info.payload || {}).forecast_key);
     },
+    /* ── IN-SEASON DECISION CAPTURE (2026-08-15) ─────────────────────────────
+     *
+     * Registered server-side in src/predledger.js (COUNTERFACTUAL_KINDS) and
+     * graded by src/forecast_grade.js (gradeDecisions/INSEASON_DECISION_KINDS)
+     * since before the draft — the resolver was ready and nothing ever called
+     * these five. Same shape as `forecast`: payload MUST carry `key` (the join
+     * key a later resolution attaches realized_chosen/realized_counterfactual
+     * to) and `counterfactual` ("what I would plausibly have done without the
+     * tool") — the server's assertCounterfactual REFUSES a capture missing it,
+     * because an entry with an outcome and nothing to compare it to cannot be
+     * graded. Deduped by key, same reason as forecast: a page re-render must
+     * not re-log the same actual decision.
+     *
+     * ⚠ ATTRIBUTION WORDING IS BINDING on anything graded from these
+     * (docs/queued/in-season-master.md, cited in forecast_grade.js): the
+     * design is observational with no control arm, so the only permitted form
+     * is "$X was realised on decisions where the tool recommended Y" — never
+     * "the tool earned $X". Enforce this in whatever renders the grade, not
+     * just here. */
+    /* A start/sit call — payload.chosen the player started, payload.counterfactual
+     * who I would have started without the tool. */
+    lineupCall: function (info) { return oncePer('lineup_call', info, (info.payload || {}).key); },
+    /* A waiver claim — payload.chosen the player claimed, payload.counterfactual
+     * who I would have claimed (or "nobody") without the tool. */
+    waiverClaim: function (info) { return oncePer('waiver_claim', info, (info.payload || {}).key); },
+    /* A K/DEF (or similar) stream — payload.chosen the pickup, payload.counterfactual
+     * the hold I'd have kept instead. */
+    streamCall: function (info) { return oncePer('stream_call', info, (info.payload || {}).key); },
+    /* A trade offer priced — payload.chosen accept/decline, payload.counterfactual
+     * what I would have decided without the tool's price. */
+    tradeEval: function (info) { return oncePer('trade_eval', info, (info.payload || {}).key); },
+    /* I went against an in-season recommendation — payload.chosen what I actually
+     * did, payload.counterfactual what the tool recommended (the thing I didn't do). */
+    inseasonOverride: function (info) { return oncePer('inseason_override', info, (info.payload || {}).key); },
     /* Generic passthrough. */
     /* The decision-time board, canonicalised. Exposed so the call site cannot
      * invent its own representation, and so the representation is testable
