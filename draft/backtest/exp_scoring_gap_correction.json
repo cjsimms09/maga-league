@@ -1,4 +1,5 @@
 {
+ "_territory": "TERRITORY: A \u2014 written by exp_scoring_gap_correction.py",
  "experiment": "scoring-gap-correction (SG-1)",
  "ran": true,
  "installs": "nothing \u2014 measurement + backtest only, per the standing policy",

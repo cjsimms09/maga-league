@@ -647,6 +647,8 @@ def run() -> dict:
 
 if __name__ == "__main__":
     result = run()
+    result = {"_territory": "TERRITORY: A — written by exp_scoring_gap_correction.py",
+              **result}
     OUT.write_text(json.dumps(result, indent=1))
     print(f"wrote {OUT}")
     if result.get("ran"):

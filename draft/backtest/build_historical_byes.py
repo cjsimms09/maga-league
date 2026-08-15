@@ -1,3 +1,4 @@
+# TERRITORY: A
 """HISTORICAL BYE WEEKS, BY OUR OWN PLAYER_ID — for the lineup-edge backtest.
 
 Built 2026-08-15. draft/tools/lineup_edge_backtest.js's first run showed the
@@ -86,7 +87,9 @@ def build(seasons=(2023, 2024)):
 if __name__ == "__main__":
     data = build()
     out_path = HERE / "historical_byes.json"
-    out_path.write_text(json.dumps(data, indent=0))
+    payload = {"_territory": "TERRITORY: A — written by draft/backtest/build_historical_byes.py"}
+    payload.update(data)
+    out_path.write_text(json.dumps(payload, indent=0))
     for season, byes in data.items():
         if isinstance(byes, dict) and "error" not in byes:
             print(f"{season}: {len(byes)} players mapped to a bye week")

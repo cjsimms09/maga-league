@@ -1,3 +1,4 @@
+// TERRITORY: A
 /* KEEPER SLATE DRESS REHEARSAL — a real browser drives guardFixture().
  *
  * Found 2026-08-15 (see PARKED.md's "config-screen.js / keeperui.js HAVE ZERO

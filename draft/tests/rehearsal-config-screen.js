@@ -1,3 +1,4 @@
+// TERRITORY: A
 /* LEAGUE SETUP CONFIRMATION SCREEN, DRESS REHEARSAL — a real browser drives
  * config-screen.js, same convention as rehearsal-keepers.js right above it.
  *

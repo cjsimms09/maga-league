@@ -1,3 +1,4 @@
+// TERRITORY: A
 /* EXP33 PROJECTION-PROVENANCE BANNER — proven live, not traced by hand.
  *
  * Part of the full re-audit Cory asked for (2026-08-15): the banner was wired
