@@ -11,6 +11,14 @@ of it. Session B keeps the site/in-season half of this list separately._
 build-minute budget numbers are stale (a week old) with the draft-week reserve
 (Aug 20-22) five days away. Re-verify the real number before deploying anything.
 
+**Before trusting anything in `DECISIONS-NEEDED.md`'s OPEN section:** run `node
+draft/tools/decisions_drift_check.js`. Four "open" items today turned out already
+resolved in code (F4, the Sunday alert cron, and two weight values in #3) —
+three of those four were a literal quoted value that had drifted from the code, which
+is now mechanically checked. It's advisory only (one confirmed false positive already,
+matching the English word "value" in an unrelated sentence) — a clean run doesn't mean
+an entry is current, but a flagged one is worth checking before acting on it.
+
 ---
 
 ## ALREADY SETTLED — DO NOT RE-DERIVE THESE
