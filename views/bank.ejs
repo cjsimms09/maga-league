@@ -29,6 +29,42 @@
 </nav>
 
 <% if (section === 'sidebets') { %>
+  <%# ── THE EDGE REPORT — commissioner-only (analysis is the commissioner's).
+      "If an open or proposed bet to me is decided to be advantageous then
+      tell me" (Cory, 2026-08-15). Priced by src/betedge.js off the same
+      measured models everything else reads; a bet the model can't price is
+      simply absent here — free text never gets a guessed number. Renders in
+      bank.ejs (already the money page's surface) rather than on each card so
+      the answer to "is anything out there worth taking?" is one box, not a
+      hunt through the list. %>
+  <% if (owner.is_commissioner && typeof betEdges !== 'undefined') {
+       const edged = bets.filter(b => betEdges[b.id]);
+       const good = edged.filter(b => betEdges[b.id].flag === 'advantageous');
+       const bad = edged.filter(b => betEdges[b.id].flag === 'against'); %>
+    <% if (edged.length) { %>
+      <div class="card" style="margin-bottom:1rem">
+        <h3 style="margin:0 0 .35rem">📈 Your edges <span class="muted" style="font-weight:400;font-size:.8rem">measured model · even-money stakes</span></h3>
+        <% if (!good.length && !bad.length) { %>
+          <div class="muted" style="font-size:.85rem">Everything actionable prices near fair — no edge worth moving on.</div>
+        <% } %>
+        <% for (const b of [...good, ...bad]) { const e = betEdges[b.id]; %>
+          <div style="padding:.45rem 0;border-top:1px solid rgba(128,128,128,.15)">
+            <div>
+              <% if (e.flag === 'advantageous') { %><b class="money-up">✅ Worth it</b><% } else { %><b class="money-down">🚫 Avoid</b><% } %>
+              — <%= b.terms || 'pool bet' %>
+              <span class="muted">(<%= b.status %>)</span>
+            </div>
+            <div class="muted" style="font-size:.82rem">
+              Your side wins <b><%= Math.round(e.p * 100) %>%</b> · EV <b class="<%= e.ev >= 0 ? 'money-up' : 'money-down' %>"><%= (e.ev >= 0 ? '+$' : '−$') + Math.abs(e.ev).toFixed(2) %></b> on $<%= e.stake %>
+            </div>
+            <details style="font-size:.78rem"><summary class="muted">how it was priced</summary>
+              <ul style="margin:.2rem 0 .2rem 1rem"><% for (const line of e.lines) { %><li><%= line %></li><% } %></ul>
+            </details>
+          </div>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
   <%- include('partials/_side_bets') %>
 <% } else { %>
 

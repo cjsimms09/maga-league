@@ -1242,9 +1242,11 @@ router.get('/bank', aw(async (req, res) => {
   // back to pending: a half-played bracket isn't modelled (champodds header),
   // and the bracket itself is the honest source by then.
   const poolAdvice = {};
+  const betEdges = {};
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
     const CH = require('./champodds');
+    const BE = require('../betedge');
     const nameOfId = id => (H.ownerById(owners, id) || {}).name || '?';
     let champModel = null;
     try {
@@ -1254,6 +1256,21 @@ router.get('/bank', aw(async (req, res) => {
         const rows = sleeper.standings(sBundle, world.config.sleeper_map || {}, owners)
           .filter(r => r.owner_id != null);
         champModel = CH.champProbLive(rows, Math.max(0, pwStart - week));
+        // THE EDGE ADVISOR — "if an open or proposed bet to me is advantageous,
+        // tell me" (Cory, 2026-08-15). Prices every bet the commissioner could
+        // still ACT on (take from the market, accept a proposal) plus his live
+        // ones, off the same measured context (src/betedge.js — refusals are
+        // honest, free-text bets say "can't price" rather than guessing).
+        const ectx = BE.contextFromRows(rows, Math.max(0, pwStart - week), { weekNow: week });
+        if (ectx) {
+          for (const b of bets) {
+            const actionable = b.status === SB.STATUS.OPEN ? !SB.isParty(b, req.owner.id)
+              : [SB.STATUS.PROPOSED, SB.STATUS.LOCKED].includes(b.status) && SB.isParty(b, req.owner.id);
+            if (!actionable) continue;
+            const priced = BE.priceBet(b, req.owner.id, ectx, nameOfId);
+            if (priced && priced.priceable) betEdges[b.id] = priced;
+          }
+        }
       }
     } catch (e) { champModel = null; /* pending beats a guessed number */ }
     for (const b of bets) {
@@ -1299,7 +1316,7 @@ router.get('/bank', aw(async (req, res) => {
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
 
   res.render('bank', {
-    poolAdvice, career,
+    poolAdvice, betEdges, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
