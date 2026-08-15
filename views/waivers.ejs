@@ -235,6 +235,11 @@
       <input type="hidden" name="week" value="<%= weekNo || '' %>">
       <input type="hidden" name="dollars" value="<%= s.dollars %>">
       <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
+      <%# WHAT DECLINING THE STREAM ACTUALLY MEANS (2026-08-15): keeping the
+          K/DEF already rostered — the same `holding` object the log form above
+          records as its counterfactual. Captured so the override is gradeable:
+          the kept player's real week vs the recommended stream's real week. %>
+      <input type="hidden" name="actual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }) %>">
       <div class="lo-ov-chips">
         <button class="btn small ghost" type="submit" name="reason" value="kept current">✋ Kept who I have</button>
         <button class="btn small ghost" type="submit" name="reason" value="streamed someone else">🔀 Streamed someone else</button>

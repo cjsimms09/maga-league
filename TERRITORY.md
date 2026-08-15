@@ -1113,3 +1113,34 @@ is A's call or Cory's, per the precedent directly above this entry.** The relay
 did not merge the branch to main itself; the only direct main pushes were the
 two board-rebuild-pipeline fixes, each with its own explicit authorisation,
 recorded in their commit messages (`68f1699f`, `dd09c060`).
+
+**APPENDED 2026-08-15, SAME SESSION LINE, SAME AUTHORITY — the prediction-loop
+closure pass (Cory's directive, verbatim: "Complete verification of all
+predictions, making sure they're graded properly and evaluated for future edge
+identification").** Four more B-lane files crossed, every one the same
+data-integrity class as the entries above — B's file, A's ledger the victim,
+each fix carrying a test that demonstrates the defect:
+
+  * `src/routes/member.js` (B's lane) — the six in-season capture routes wrote
+    NO `payload.key`, while the resolver and grader join outcomes BY KEY:
+    every real capture was permanently unjoinable (every test fixture had a
+    key, which is why it read closed). Deterministic keys added; also
+    `/lineup/override` + `/stream/override` now capture `payload.actual`
+    (what the human actually did) — without it every override was structurally
+    ungradeable, since the route recorded the tool's rejected recommendation
+    twice and the human's action never. Proven end-to-end in
+    `draft/tests/loop_closure_live.test.js` (real HTTP captures).
+  * `views/lineup.ejs`, `views/waivers.ejs` (B's lane) — the hidden `actual`
+    fields feeding the above (the current starters / the kept K-or-DEF, both
+    already on the page), plus the override form's footnote corrected to stop
+    promising a Sleeper reconstruction nothing performs.
+  * `src/routes/accuracy.js` (B's lane) — `PENDING_KINDS` shrunk to
+    `['trade_eval']` now that lineup_call/waiver_claim/stream_call actually
+    grade and reach the by-kind table (grade-cron writes `by_kind`/`by_week`
+    merged from `deriveByKind`, newly exported, + `decisionByKind`);
+    `byKindRows` carries the scored/mean-edge denominators. Guarded by the
+    updated reachability check in `draft/tests/scope_agreement.test.js`.
+
+No scoring/weight default moved. The gate will refuse these files too — same
+protocol: the merge is A's call or Cory's, and B should review the
+`member.js`/views crossings on return.

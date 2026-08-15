@@ -1430,6 +1430,28 @@ function safeJson(v) {
   try { return JSON.parse(String(v)); } catch (e) { return String(v).slice(0, 2000); }
 }
 
+// ── THE JOIN KEY EVERY IN-SEASON CAPTURE MUST CARRY (2026-08-15) ─────────────
+// Found by the commissioner's full-verification pass: none of the six in-season
+// capture routes wrote a payload.key, while the resolver
+// (src/forecast_grade.js buildInseasonResolutions) and the grader
+// (gradeDecisions) JOIN OUTCOMES BY KEY. Every test fixture carried one, so
+// the loop read closed in the tests and would have been unjoinable in the
+// data — a real captured decision could never meet its resolution. The grader
+// side also grew an entry-id fallback the same day, but the deterministic key
+// is the primary fix: it names the decision ("this owner's week-3 lineup
+// call") so a double-tap of the same form reuses one key instead of minting a
+// second decision, and a human reading the raw ledger can see what joins to
+// what. Deterministic from (surface, season, week, owner [, subject]) — never
+// a timestamp, which would defeat the dedupe silently.
+function decisionKey(surface, season, week, ownerId, subjectId) {
+  const wk = (week == null || week === '') ? 'x' : String(week);
+  return `${surface}|${season}|w${wk}|${ownerId}` + (subjectId != null ? `|${subjectId}` : '');
+}
+function subjectIdOf(obj) {
+  if (!obj || typeof obj !== 'object') return null;
+  return obj.id != null ? String(obj.id) : (obj.player_id != null ? String(obj.player_id) : null);
+}
+
 // Franchise-pool draft order: whoever finished HIGHER in the most recent
 // completed season picks first (computed, not entered). Returns the ordered
 // bettor ids and the human "why" the draft room shows.
@@ -2807,14 +2829,17 @@ router.post('/waivers/log', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
   try {
+    const chosen = safeJson(req.body.chosen);
     await predledger.append(store, {
       kind: 'waiver_claim',
       method: 'waiver-tool-v1',
       season,
       payload: {
+        // The join key the resolver + grader meet on — see decisionKey above.
+        key: decisionKey('waiver_claim', season, req.body.week, req.owner.id, subjectIdOf(chosen)),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
-        chosen: safeJson(req.body.chosen),
+        chosen,
         // REQUIRED: what I'd have done without the tool.
         counterfactual: 'hold priority',
         drop: safeJson(req.body.drop),
@@ -2845,6 +2870,8 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
       method: 'waiver-override-v1',
       season,
       payload: {
+        key: decisionKey('override:waiver', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.recommended))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         // What I went against. For an override the tool's claim is BOTH the
@@ -2852,6 +2879,13 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
         // /lineup/override immediately below.
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // WHAT WAS ACTUALLY DONE stays uncaptured HERE, deliberately and
+        // honestly: declining a claim means holding — but the page cannot see
+        // whether the human then claimed somebody else instead (the reason
+        // chip records the claim-someone-else case as intent only). With no
+        // player to sum, this kind's override stays unresolvable and is
+        // reported pending, never defaulted — the resolver skips entries
+        // without payload.actual (src/forecast_grade.js).
         gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
@@ -2888,6 +2922,8 @@ router.post('/stream/log', requireCommissioner, aw(async (req, res) => {
       method: 'waiver-tool-stream-v1',
       season,
       payload: {
+        key: decisionKey('stream_call', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.chosen))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         chosen: safeJson(req.body.chosen),
@@ -2912,10 +2948,24 @@ router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
       method: 'stream-override-v1',
       season,
       payload: {
+        key: decisionKey('override:stream', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.recommended))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // WHAT WAS ACTUALLY DONE (2026-08-15): declining a stream means keeping
+        // the K/DEF already rostered, and the page KNOWS who that is — the same
+        // `holding` object /stream/log records as its counterfactual. Captured
+        // here so the override is resolvable (human's kept player vs the tool's
+        // stream, both real players, one week). Absent on entries from before
+        // this fix; those stay pending rather than being guessed at.
+        // EXCEPT when the reason chip itself says the human streamed somebody
+        // the page cannot see — then `actual` is genuinely unknown and storing
+        // the kept player would grade a decision that was not made. Null, and
+        // the resolver leaves it pending.
+        actual: String(req.body.reason || '') === 'streamed someone else'
+          ? null : safeJson(req.body.actual),
         gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
@@ -3166,6 +3216,9 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
       method: 'lineup-optimizer-v1',
       season,
       payload: {
+        // The join key the weekly resolver meets this entry on. One lineup
+        // call per owner-week by construction; a double-tap reuses the key.
+        key: decisionKey('lineup_call', season, req.body.week, req.owner.id),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         recommended: safeJson(req.body.recommended),
@@ -3205,9 +3258,18 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
 // after it. Reconstructing an override afterwards loses most of its value, so
 // the capture is never allowed to cost more than one press.
 //
-// WHAT IT DOES NOT CAPTURE, deliberately: the lineup actually played. That is
-// recoverable from Sleeper after the fact. The tool's recommendation AT THE
-// MOMENT is not recoverable from anything, which is why it is what gets written.
+// WHAT IT CAPTURES SINCE 2026-08-15 that it deliberately did not before: the
+// lineup AS ACTUALLY SET at the moment of the tap (`actual`, the same starter
+// rows the page's own optimizer just compared against). The original comment
+// here said the played lineup was "recoverable from Sleeper after the fact" —
+// true, but nothing was ever going to do that recovery, and a resolver cannot
+// invent it: every override sat permanently ungradeable because the entry
+// recorded the tool's rejected lineup TWICE and the human's actual play never.
+// The honest limitation rides with the field: `actual` is the lineup at
+// OVERRIDE TIME — if the human taps the chip and then edits the lineup on
+// Sleeper afterwards, the final played lineup can differ, and the resolution
+// grades what was set at the decision moment, which is the decision-time
+// record this whole ledger exists to keep.
 router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
@@ -3218,6 +3280,7 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
       method: 'lineup-override-v1',
       season,
       payload: {
+        key: decisionKey('override:lineup', season, req.body.week, req.owner.id),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         // What I went against. For an override the tool's lineup is BOTH the
@@ -3225,6 +3288,8 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
         // done otherwise" is precisely what the tool told me to do.
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // What was ACTUALLY set at the moment of the override — see the header.
+        actual: safeJson(req.body.actual),
         // THE GAP, raw. Stored as the dollar figure rather than only as a
         // contested/not flag, so a threshold can be re-drawn later without
         // having thrown away the number it was drawn from.
