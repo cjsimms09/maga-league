@@ -3117,10 +3117,18 @@
     // scroll past — and learning to scroll past this one is the failure.
     if (!st || (st.locked && !st.stale) || state.mockMode) { host.style.display = 'none'; return; }
     host.style.display = '';
+    /* A3 progress line (final-pass): "N of 10 teams designated" \u2014 derived from
+     * the slate the banner itself is asking about (distinct seats with a
+     * forfeited-pick designation on the built board), so the number and the
+     * warning can never come from two sources. */
+    const teams = ((state.data || {}).league || {}).teams || 10;
+    const designated = Object.keys(state.keeperSlate || {}).length;
     host.innerHTML = '<div class="stale-block' + (st.stale ? ' warn' : '') + '">'
       + '<h3>' + (st.stale ? '\u26a0\ufe0f Keeper slate confirmed a while ago'
                           : '\u26d4 Keeper slate not confirmed') + '</h3>'
       + '<p>' + escapeHtml(st.message) + '</p>'
+      + '<p class="muted" style="margin:.2rem 0 0;font-size:.8rem"><b>' + designated
+      + ' of ' + teams + '</b> teams have keepers designated on this board build.</p>'
       + '<p><a class="btn small gold" href="/admin/keepers">\u{1F512} Review and confirm the slate</a></p>'
       + '</div>';
   }
