@@ -424,6 +424,14 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   board — do they diverge at Cory's picks (34/41/54…)? If they largely agree, the source choice is
   cosmetic; if they diverge, flag it. (c) Do NOT swap the projection source blind — unlike the ADP
   anchor (which had a clean grade), there is NO clean projection grade to justify a swap yet.
+- **✅ PART (a) DONE, found 2026-08-15 (Cory research relay).** `draft/data/proj_series.json`
+  already carries daily frozen snapshots of BOTH `sleeper` and `fantasypros`, dated 2026-08-09
+  through 2026-08-14 (six consecutive days) — exactly the recommendation, already running.
+  Part (b) — whether they diverge at Cory's actual picks — is answered elsewhere: see
+  `DECISIONS-NEEDED.md` entry #000 (this same file), which reconfirmed live TODAY that WR/TE
+  diverge ~20%, QB/RB agree within 2%. Part (c) still holds — no swap, this is diagnosis only.
+  **Not re-verified: whether the daily snapshot capture is still running today** (last dated row
+  is 2026-08-14) — worth a 30-second check that it fired again since, not just that it once worked.
 
 ## 0000. THE TOOL DRAFTS 0.9 RUNNING BACKS IN EVERY ARM (2026-08-12) 🔴 OPEN — NOT FIXED, NOT DISAPPEARING
 
