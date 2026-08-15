@@ -1232,16 +1232,30 @@ router.get('/bank', aw(async (req, res) => {
   for (const b of bets) deadlines[b.id] = BL.acceptDeadline(b, gateCtx);
 
   // COMMISSIONER-ONLY franchise-pool advisor (the tools rule: analysis is the
-  // commissioner's). The VONA math is ready, but it needs A's MEASURED league-
-  // championship probabilities. Cory (2026-08-09): do NOT show a placeholder that
-  // looks authoritative — better "odds pending" than a number nobody measured. So
-  // until a real champProb model is wired here, the advisor renders a PENDING
-  // state, not fabricated percentages. When A ships it, replace `champModel` below.
+  // commissioner's). The VONA math consumes MEASURED league-championship
+  // probabilities from routes/champodds.js — the bracket Monte-Carlo forward-
+  // tested on 2023-25 (mean P(actual champion) ≈27% vs 10% uniform; see its
+  // test file and CLI readout). Cory's rule stands (2026-08-09: no placeholder
+  // odds), and the model honors it by construction: champProbLive returns null
+  // until real games exist (preseason) — the advisor renders PENDING then, and
+  // real measured odds from week 1 on. During the fantasy playoffs it goes
+  // back to pending: a half-played bracket isn't modelled (champodds header),
+  // and the bracket itself is the honest source by then.
   const poolAdvice = {};
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
+    const CH = require('./champodds');
     const nameOfId = id => (H.ownerById(owners, id) || {}).name || '?';
-    const champModel = null;   // ← A's measured { owner_id: p(win league) } goes here
+    let champModel = null;
+    try {
+      const week = (sBundle && sBundle.week) || 1;
+      const pwStart = Number(gateCtx.playoffWeek) || BL.CFG.PLAYOFF_WEEK_DEFAULT;
+      if (sBundle && week < pwStart) {
+        const rows = sleeper.standings(sBundle, world.config.sleeper_map || {}, owners)
+          .filter(r => r.owner_id != null);
+        champModel = CH.champProbLive(rows, Math.max(0, pwStart - week));
+      }
+    } catch (e) { champModel = null; /* pending beats a guessed number */ }
     for (const b of bets) {
       if (b.format === 'pool' && b.draft && SB.isParty(b, req.owner.id)) {
         poolAdvice[b.id] = champModel
