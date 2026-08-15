@@ -10,6 +10,37 @@ Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + 
 
 ---
 
+## 🚨 URGENT — CHECK BUILD-MINUTE BUDGET FIRST, BEFORE ANY DEPLOY (Cory research relay, 2026-08-15)
+
+**Read this before doing anything that could trigger a build.** `DEPLOY-POLICY.md` is
+dated 2026-08-08 and its numbers (75 min / 25% remaining, ~8.5 builds/day through
+Aug 19, **draft-week reserve Aug 20-22 marked UNTOUCHABLE**) are now a full week
+stale as of this entry. Nobody has been able to re-check the actual current Netlify
+usage since — I do not have dashboard access and cannot verify it from this sandbox.
+
+**Why it matters more than usual right now:** the draft is Aug 22, seven days out,
+and the policy's own stated failure mode is explicit — *"Running out suspends the
+site until Sept 1, which would take the war room down on draft day."* The reserve
+window (Aug 20-22) is now less than a week away.
+
+**What I confirmed is SAFE, so this is not currently an active emergency:** every
+change I made this week is on `claude/fantasy-football-research-926y6z`, not `main`;
+no commit carries a `[deploy]` marker; nothing was merged or pushed to `main`. No
+session was running to trigger a build while Cory was locked out, so the budget has
+not moved from whatever it was Friday — but nobody has looked at the real number
+since then either.
+
+**RECOMMENDATION, in order:**
+1. Cory: check the actual current Netlify build-minute usage directly (I cannot) —
+   this takes under a minute and resolves the only real unknown here.
+2. A, first thing Monday, before touching anything else: re-run whatever produced
+   the Aug 8 table (or check the Netlify dashboard directly) and update this entry
+   with the real current number before deciding to deploy anything, including any
+   of the work below.
+3. Until that's confirmed, default to **not deploying** — everything built this week
+   is staged on the research branch specifically so it can wait for that check
+   without costing anything.
+
 ## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 — ✅ FIXED 2026-08-12 (option 1)
 
 > **CLOSED.** Cory chose option 1. `CFG.BENCH_CEILING_FLOOR` and
@@ -86,6 +117,21 @@ The record below is the evidence that drove the fix.
   genuinely disagree about WR/TE volume, averaging them is the right thing and the
   finding is only that we should know. Surfaced by
   `draft/audit/high_contrast_candidates_2026-08-12.md` §D.
+- **RE-CHECKED 2026-08-15 (Cory research relay), NOT ADVANCED — network-blocked, not
+  stale.** Reproduced live on `public/draft_data.json` today: QB 1.001, RB 1.014,
+  WR 0.824, TE 0.81 — same shape, still live, 419 players with both sources. Tried
+  to go further than the original diagnosis and could not: this needs FantasyPros'
+  *component* stat-line projections (yardage/TD/reception assumptions), not just
+  their final point total, and `fantasypros_adp.py`'s fetch is `# pragma: no cover
+  (egress, CI only)` — blocked from this sandbox exactly like every non-GitHub host.
+  **Ready-to-run for whoever has network access:** pull `fetch_projections()` /
+  `fetch()` output for ~10 WR and ~10 TE alongside their `proj_sleeper` component
+  stats, diff yardage/TD/reception assumptions per player the way the original rule-12
+  audit diffed the DEF row by hand. If FP's WR/TE *receptions* are markedly lower
+  than Sleeper's at the same yardage, that is a PPR-format assumption baked into FP's
+  raw numbers before it ever reaches our scoring table — the same class of confound
+  the anchor decision (#1) already found and resolved for ADP (MFL's full-PPR tilt).
+  That is the first thing I would check, not a certainty.
 
 ## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
 
@@ -118,6 +164,28 @@ The record below is the evidence that drove the fix.
   and the DEF replacement level eleven days out, on a position that is picked last
   and where the ordering is unlikely to change. The evidence and the trap are
   written down; the change is one alias plus a components-vs-aliases test.
+- **RE-CHECKED 2026-08-15 (Cory research relay) — found the gap is BIGGER than
+  documented, then hit a wall confirming how much bigger.** Pulled the actual raw
+  row from `draft/audit/rule12_statlines.json` (the same LAR sample the original
+  audit used — no fresher data available to me). It carries **`def_kr_td: 1.0`**
+  (kick-return TD) in addition to `def_fum_td: 2.0` — a second stat key that maps to
+  nothing in the scoring table, not mentioned in the original write-up because it
+  only ever sampled the one row. Also worth noting for whoever picks this up: `int:
+  15.0` and `sack: 52.0` are season-total counting stats sitting in what looks like a
+  single-week-shaped row (`gp: 1.0`) — worth confirming these are being treated as
+  season totals, not per-game, wherever `proj_baseline` consumes them.
+  **I cannot go further than this.** All 32 DEFs are on the live board but I only
+  have `proj_baseline` (already-scored output) for the other 31 — not their raw
+  stat lines, which is the one thing needed to know whether `def_kr_td` is common
+  or a one-off, and whether a `def_int_td`-style key exists anywhere. That needs a
+  live Sleeper fetch (403 from this sandbox, same as FantasyPros above).
+  **Ready-to-run once someone has that access:** pull raw projection rows for all 32
+  DEFs, collect every key starting with `def_` or `st_`/`blk_` across all of them
+  (not just one), and build the alias/component table from the FULL set in one pass
+  — rather than patching `def_fum_td` alone and re-discovering `def_kr_td` (and
+  whatever else is in the other 31) as a second silent gap next month. The
+  components-vs-aliases distinction from the original write-up still holds: sum
+  real components, first-writer-wins on aliases, never both.
 - Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
 
 ## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
