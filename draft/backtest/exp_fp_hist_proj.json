@@ -1,0 +1,484 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/exp_fp_hist_proj.py",
+ "_prereg": "draft/backtest/EXP-FP-HIST-PROJ-PREREG.md (committed before any fetch)",
+ "_note": "Authenticity-gated grade of FantasyPros' claimed historical preseason projections under OUR scoring. A year that failed a gate carries its refusal as the verdict and NO numbers. Sleeper's own historical skill remains structurally unmeasurable until Jan 2027 (proj_series grading, already armed).",
+ "years": {
+  "2023": {
+   "year": 2023,
+   "gates": {
+    "g0_rows": {
+     "proj_rows": 684
+    },
+    "g1_adp_anchor": {
+     "adp_rows": 358
+    },
+    "g2_markers": {
+     "status": "pass",
+     "markers": [
+      {
+       "name": "Nick Chubb",
+       "pid": "4988",
+       "adp": 8.33,
+       "realized": 21.1,
+       "projected": 183.24,
+       "verdict": "full_season"
+      }
+     ]
+    },
+    "g3_ghosts": {
+     "status": "pass",
+     "ghost_count": 180,
+     "ghost_sample_pids": [
+      "10221",
+      "10223",
+      "10228",
+      "1034",
+      "1049",
+      "10862",
+      "10863",
+      "10866",
+      "10983",
+      "11046"
+     ]
+    },
+    "g4_anchor": {
+     "status": "pass",
+     "n": 268,
+     "rho": 0.7566
+    },
+    "g5_crosswalk": {
+     "matched": 665,
+     "parsed": 684,
+     "match_rate": 0.972
+    }
+   },
+   "statline_coverage": 1.0,
+   "grading_mode": "statline",
+   "status": "graded",
+   "metrics": {
+    "mode": "statline",
+    "fp_cells": {
+     "QB": {
+      "n": 75,
+      "status": "measured",
+      "spearman": 0.8826,
+      "mae": 46.22,
+      "bias": 27.32
+     },
+     "RB": {
+      "n": 121,
+      "status": "measured",
+      "spearman": 0.871,
+      "mae": 25.92,
+      "bias": 1.58
+     },
+     "WR": {
+      "n": 180,
+      "status": "measured",
+      "spearman": 0.9243,
+      "mae": 22.9,
+      "bias": -9.13
+     },
+     "TE": {
+      "n": 96,
+      "status": "measured",
+      "spearman": 0.8971,
+      "mae": 16.86,
+      "bias": -8.93
+     }
+    },
+    "excluded_no_weekly_row": 108,
+    "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
+    "baseline_statuses": {
+     "naive_prev": "no_prior_store",
+     "recency_blend": "no_prior_store"
+    },
+    "head_to_head_shared_population": {
+     "status": "no_baselines_available",
+     "why": {
+      "naive_prev": "no_prior_store",
+      "recency_blend": "no_prior_store"
+     }
+    }
+   },
+   "fetch": {
+    "adp": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2023/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+     "rows": 358
+    },
+    "projections": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2023/projections?position=ALL&scoring=HALF&week=draft",
+     "rows": 684,
+     "tried": [
+      {
+       "url": "https://api.fantasypros.com/v2/json/nfl/2023/projections?position=ALL&scoring=HALF&week=draft",
+       "rows": 684,
+       "keyed": true
+      }
+     ]
+    }
+   }
+  },
+  "2024": {
+   "year": 2024,
+   "gates": {
+    "g0_rows": {
+     "proj_rows": 598
+    },
+    "g1_adp_anchor": {
+     "adp_rows": 343
+    },
+    "g2_markers": {
+     "status": "pass",
+     "markers": [
+      {
+       "name": "Zamir White",
+       "pid": "8139",
+       "adp": 68.67,
+       "realized": 26.3,
+       "projected": 158.54,
+       "verdict": "full_season"
+      }
+     ]
+    },
+    "g3_ghosts": {
+     "status": "pass",
+     "ghost_count": 96,
+     "ghost_sample_pids": [
+      "10215",
+      "10216",
+      "10221",
+      "10223",
+      "10228",
+      "10862",
+      "10866",
+      "111",
+      "11292",
+      "11378"
+     ]
+    },
+    "g4_anchor": {
+     "status": "pass",
+     "n": 272,
+     "rho": 0.8137
+    },
+    "g5_crosswalk": {
+     "matched": 591,
+     "parsed": 598,
+     "match_rate": 0.988
+    }
+   },
+   "statline_coverage": 1.0,
+   "grading_mode": "statline",
+   "status": "graded",
+   "metrics": {
+    "mode": "statline",
+    "fp_cells": {
+     "QB": {
+      "n": 69,
+      "status": "measured",
+      "spearman": 0.7927,
+      "mae": 56.72,
+      "bias": 14.11
+     },
+     "RB": {
+      "n": 111,
+      "status": "measured",
+      "spearman": 0.752,
+      "mae": 39.09,
+      "bias": 0.08
+     },
+     "WR": {
+      "n": 177,
+      "status": "measured",
+      "spearman": 0.7917,
+      "mae": 30.06,
+      "bias": -3.49
+     },
+     "TE": {
+      "n": 87,
+      "status": "measured",
+      "spearman": 0.7087,
+      "mae": 24.05,
+      "bias": -8.89
+     }
+    },
+    "excluded_no_weekly_row": 96,
+    "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
+    "baseline_statuses": {
+     "naive_prev": "built",
+     "recency_blend": "no_prior_prior_store"
+    },
+    "head_to_head_shared_population": {
+     "QB": {
+      "n": 57,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.8015,
+       "mae": 62.41,
+       "bias": 18.95
+      },
+      "naive_prev": {
+       "spearman": 0.6115,
+       "mae": 81.36,
+       "bias": 3.88
+      },
+      "fp_minus_naive_prev_mae": -18.95
+     },
+     "RB": {
+      "n": 86,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7625,
+       "mae": 41.02,
+       "bias": -1.11
+      },
+      "naive_prev": {
+       "spearman": 0.6779,
+       "mae": 49.94,
+       "bias": 0.31
+      },
+      "fp_minus_naive_prev_mae": -8.92
+     },
+     "WR": {
+      "n": 138,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7757,
+       "mae": 31.73,
+       "bias": -4.45
+      },
+      "naive_prev": {
+       "spearman": 0.7028,
+       "mae": 42.12,
+       "bias": 9.36
+      },
+      "fp_minus_naive_prev_mae": -10.39
+     },
+     "TE": {
+      "n": 76,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7131,
+       "mae": 24.27,
+       "bias": -8.99
+      },
+      "naive_prev": {
+       "spearman": 0.7048,
+       "mae": 28.2,
+       "bias": 0.66
+      },
+      "fp_minus_naive_prev_mae": -3.93
+     }
+    }
+   },
+   "fetch": {
+    "adp": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2024/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+     "rows": 343
+    },
+    "projections": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2024/projections?position=ALL&scoring=HALF&week=draft",
+     "rows": 598,
+     "tried": [
+      {
+       "url": "https://api.fantasypros.com/v2/json/nfl/2024/projections?position=ALL&scoring=HALF&week=draft",
+       "rows": 598,
+       "keyed": true
+      }
+     ]
+    }
+   }
+  },
+  "2025": {
+   "year": 2025,
+   "gates": {
+    "g0_rows": {
+     "proj_rows": 729
+    },
+    "g1_adp_anchor": {
+     "adp_rows": 389
+    },
+    "g2_markers": {
+     "status": "pass",
+     "markers": [
+      {
+       "name": "James Conner",
+       "pid": "4137",
+       "adp": 47.0,
+       "realized": 29.3,
+       "projected": 189.83,
+       "verdict": "full_season"
+      }
+     ]
+    },
+    "g3_ghosts": {
+     "status": "not_applicable",
+     "ghost_count": null,
+     "note": "no later store exists to establish departure"
+    },
+    "g4_anchor": {
+     "status": "pass",
+     "n": 283,
+     "rho": 0.8227
+    },
+    "g5_crosswalk": {
+     "matched": 716,
+     "parsed": 729,
+     "match_rate": 0.982
+    }
+   },
+   "statline_coverage": 1.0,
+   "grading_mode": "statline",
+   "status": "graded",
+   "metrics": {
+    "mode": "statline",
+    "fp_cells": {
+     "QB": {
+      "n": 71,
+      "status": "measured",
+      "spearman": 0.7515,
+      "mae": 63.7,
+      "bias": 15.45
+     },
+     "RB": {
+      "n": 115,
+      "status": "measured",
+      "spearman": 0.7649,
+      "mae": 37.63,
+      "bias": -0.72
+     },
+     "WR": {
+      "n": 178,
+      "status": "measured",
+      "spearman": 0.7621,
+      "mae": 31.05,
+      "bias": -3.88
+     },
+     "TE": {
+      "n": 100,
+      "status": "measured",
+      "spearman": 0.7824,
+      "mae": 22.5,
+      "bias": -12.48
+     }
+    },
+    "excluded_no_weekly_row": 189,
+    "survivorship_note": "players projected but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount",
+    "baseline_statuses": {
+     "naive_prev": "built",
+     "recency_blend": "built"
+    },
+    "head_to_head_shared_population": {
+     "QB": {
+      "n": 57,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.768,
+       "mae": 66.32,
+       "bias": 20.35
+      },
+      "naive_prev": {
+       "spearman": 0.7015,
+       "mae": 80.14,
+       "bias": 11.98
+      },
+      "recency_blend": {
+       "spearman": 0.7162,
+       "mae": 75.25,
+       "bias": 10.08
+      },
+      "fp_minus_naive_prev_mae": -13.82,
+      "fp_minus_recency_blend_mae": -8.93
+     },
+     "RB": {
+      "n": 88,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7795,
+       "mae": 39.93,
+       "bias": -2.96
+      },
+      "naive_prev": {
+       "spearman": 0.7478,
+       "mae": 45.35,
+       "bias": 9.05
+      },
+      "recency_blend": {
+       "spearman": 0.7581,
+       "mae": 44.93,
+       "bias": 7.5
+      },
+      "fp_minus_naive_prev_mae": -5.42,
+      "fp_minus_recency_blend_mae": -5.0
+     },
+     "WR": {
+      "n": 141,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7423,
+       "mae": 34.55,
+       "bias": -3.4
+      },
+      "naive_prev": {
+       "spearman": 0.7006,
+       "mae": 38.98,
+       "bias": 11.98
+      },
+      "recency_blend": {
+       "spearman": 0.7,
+       "mae": 38.36,
+       "bias": 12.75
+      },
+      "fp_minus_naive_prev_mae": -4.43,
+      "fp_minus_recency_blend_mae": -3.81
+     },
+     "TE": {
+      "n": 83,
+      "status": "measured",
+      "fantasypros": {
+       "spearman": 0.7892,
+       "mae": 21.08,
+       "bias": -10.19
+      },
+      "naive_prev": {
+       "spearman": 0.7404,
+       "mae": 26.96,
+       "bias": 2.63
+      },
+      "recency_blend": {
+       "spearman": 0.7827,
+       "mae": 24.27,
+       "bias": 2.32
+      },
+      "fp_minus_naive_prev_mae": -5.88,
+      "fp_minus_recency_blend_mae": -3.19
+     }
+    }
+   },
+   "fetch": {
+    "adp": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2025/consensus-rankings?type=adp&scoring=HALF&position=ALL&week=0",
+     "rows": 389
+    },
+    "projections": {
+     "url": "https://api.fantasypros.com/v2/json/nfl/2025/projections?position=ALL&scoring=HALF&week=draft",
+     "rows": 729,
+     "tried": [
+      {
+       "url": "https://api.fantasypros.com/v2/json/nfl/2025/projections?position=ALL&scoring=HALF&week=draft",
+       "rows": 729,
+       "keyed": true
+      }
+     ]
+    }
+   }
+  }
+ },
+ "graded_years": [
+  2023,
+  2024,
+  2025
+ ],
+ "headline": "3/3 years passed every authenticity gate and were graded"
+}
