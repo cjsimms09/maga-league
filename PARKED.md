@@ -14177,3 +14177,77 @@ here — not swap it in on a hunch.
 **Not decided here — flagged as a real question for A**, since it's a genuine
 architectural choice about the core projection model Cory himself called "the base of
 everything," not something to settle unilaterally in a research-relay session.
+
+---
+
+## 0000000000000. "IS EVERY PROJECTED PLAYER A PREDICTION" — NO, AND THERE'S ALREADY A TOOL THAT KNOWS EXACTLY WHICH ONES AREN'T (2026-08-15) 🔴 REAL GAP, DIRECTLY RELEVANT TO THE LINEUP/WAIVER BUILDS
+
+**Cory's question: how many predictions are we making per week, is the mechanism
+there to grade and learn them, and is every projected player a prediction?**
+
+**Short answer: no, a raw projection number is not automatically a prediction.** It
+becomes one only once it's captured (timestamped, frozen, can't be revised after the
+fact) and later resolved against a real outcome. Two different layers exist here and
+they're in very different states:
+
+**Layer 1 — raw weekly point projections (the number itself).** `weekly_proj_snapshot.py`
+(verified live, entry above) DOES capture this — every player Sleeper returns a
+weekly projection for, archived before the provider can overwrite it. Real count:
+matches the current board's ~686 (preseason); the actual in-season weekly count is
+unknown until the season starts and can't be tested from here (Sleeper blocked in
+this sandbox) — flagged as unknown rather than guessed.
+
+**Layer 2 — DECISIONS built on those numbers (lineup calls, waiver claims, streams,
+trades — what the tool actually TOLD someone to do).** This is the layer that
+answers "is the mechanism there to grade and learn," and there's already a purpose-
+built tool that answers it mechanically rather than by inspection:
+`draft/tools/loop_closure.js` — reads `src/predledger.js`'s own declared kinds and
+greps the shipped client/server for what actually captures and resolves each one, so
+the answer can't go stale the way a hand-written list would. Ran it:
+
+```
+27 ledger kinds declared. Draft-side is fully healthy:
+  recommendation, pick, survival, override, lrm, run, opponent_prediction
+  — all captured AND resolved AND gradeable. Nothing wrong here.
+
+Captured but NOT YET RESOLVABLE (blocked on a real outcome, not on missing work):
+  doctrine, doctrine_decline, shadow_pick
+  — resolvers for these are NOT yet built either; the tool's own warning:
+    "a grader written the week the data arrives is a week of data with nowhere
+    to go — which is how the in-season capture gap happened."
+
+NOT CAPTURED AT ALL, despite being gradeable — checked, zero client-side helper
+exists for any of these (grepped predledger.js directly, not inferred):
+  lineup_call     — the week resolves it, start/sit against what both scored
+  waiver_claim    — the rest of the season resolves it against who we passed on
+  stream_call     — the week resolves it
+  trade_eval      — the season resolves it against the roster we would have had
+  inseason_override — same as override, in season
+```
+
+**This is the real answer to "is every projected player a prediction": no — the raw
+number is captured (Layer 1, working), but the decisions that actually matter for
+learning the league (which lineup call was right, which waiver add paid off, which
+stream worked) are not captured AT ALL right now.** Not broken, not degraded — never
+built. And per the tool's own finding, the RESOLUTION side for lineup_call/
+waiver_claim/stream_call/trade_eval already exists (`weekly_claims.js`,
+`analyzer_claims.js`) — it's the CAPTURE side, the actual `PredLedger.lineupCall(...)`-
+style call at the moment a decision is made, that's completely missing. Confirmed by
+grep: zero references to `lineupCall`, `waiverClaim`, `streamCall`, `tradeEval`, or
+`inseasonOverride` anywhere in `predledger.js` itself.
+
+**Directly relevant to the in-season lineup optimizer / waiver tool builds already in
+progress this session (tasks #8/#9).** Building those tools without wiring in capture
+at the same time would repeat exactly the mistake `log_draft_picks.py` almost made —
+solid machinery with nothing feeding it. The resolvers already exist; what's missing
+is one capture call at each tool's actual decision point. Folding this into how those
+two builds get done rather than treating it as separate follow-up work.
+
+## What this is NOT
+
+Not a claim the in-season side is unusually broken — the draft side (7 kinds) is
+fully healthy, and this specific gap (predicted-but-never-captured) is exactly the
+kind of thing `loop_closure.js` was built to catch mechanically rather than leave to
+someone's memory. The tool itself says what it doesn't check: whether a resolver that
+exists actually runs correctly — that needs real season rows, not code-reading, and
+isn't claimed here.
