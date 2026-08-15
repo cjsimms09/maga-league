@@ -13591,3 +13591,52 @@ Not a code change, not touching `engine.js`, `needrule.js`, or
 `coherence.js`. A correction to my own prior entry's framing, and an
 honest answer to a direct question about why I'm not just fixing things —
 for A (and Cory) to weigh against actually wanting it done now regardless.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — reviewed derekrbreese/fantasy-football-mcp-public, one idea worth keeping
+
+Cory pointed at this repo (an MCP server for Yahoo Fantasy Football —
+lineup optimization, draft assistance, league management) and asked
+whether it has relevant info. Read the README and `position_normalizer.py`
+directly before answering.
+
+## The position-normalization logic — less sophisticated than what's already
+shipped here, not worth adopting
+
+It normalizes FLEX value with a plain z-score (`(projection - mean) / std`)
+and a static formula: `FLEX value = (vor * scarcity * 0.3) + (projection *
+0.7)`, with hand-picked scarcity constants (RB 1.0, WR 0.95, TE 1.05) — no
+citation, no backtest, no measurement behind those specific numbers or the
+70/30 split.
+
+Compare to `computeCeilingScales` (`engine.js`, shipped 2026-08-13, see the
+TE/onesie PARKED.md entry from earlier this week): that fix explicitly
+tested and REJECTED a simpler median-spread normalizer because it inverted
+the problem (it would have handed quarterbacks a 2.35x boost, the exact
+defect amplified), and landed on replacement-level ratio instead, with the
+reasoning and the wrong-turn both documented in the code. This repo's
+z-score approach is the same class of naive fix maga-league already tried,
+measured, and moved past. Nothing to take from it here.
+
+## One idea worth keeping for later: the "Player Enhancement Layer"
+
+Blends a stale preseason projection with actual recent performance (last
+1-3 weeks, 60/40 or 70/30 weighted) and applies simple trend flags
+(BREAKOUT_CANDIDATE, TRENDING_UP, DECLINING_ROLE). Also zeroes projections
+on a detected bye week — the same guard maga-league's `isInactive`/
+`activeProjection` already does, independently arrived at.
+
+This is directly relevant to the in-season "learning engine" already on
+the roadmap (`TODO.md`, "GENUINELY AFTER THE DRAFT" — weekly re-grading
+that needs live weekly outcomes, which don't exist yet). It's a real,
+simple, citable technique for that future problem specifically — a
+recency-blend weight and a small trend-flag vocabulary — not something to
+build now, since there's no live season data to blend yet.
+
+## What this is NOT
+
+Not a code change. Not a recommendation to adopt the position-normalization
+approach — it's a downgrade from what's already shipped. The one thing
+worth carrying forward is narrow and explicitly future work, flagged so
+whoever builds the learning engine doesn't have to re-discover it.
