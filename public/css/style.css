@@ -2610,6 +2610,15 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
 .wr-zone1 > #recs-card         { order: 5; }   /* THE recommendation + Take button — up top now */
 .wr-zone1 > #doctrine-banner   { order: 6; }   /* THE PLAN — reference, beneath the rec */
 .wr-zone1 > #legality-strip    { order: 7; }   /* WATCH — reference, beneath the rec */
+/* #seat-plan was never given an order here, so it defaulted to 0 — lower than
+ * .wr-search (order 1) — and rendered first regardless of where app.js's
+ * seatPlanHost() anchored it in the DOM (CSS flex `order` overrides DOM
+ * position for visual layout). That pushed #recs-card, the actual
+ * recommendation, past the fold on a phone screen. Tied to legality-strip's
+ * order (7) so app.js's existing DOM insertion (immediately after
+ * #legality-strip) breaks the tie and lands it exactly where its own comment
+ * already specified: seat plan below the recommendation, not above it. */
+.wr-zone1 > #seat-plan         { order: 7; }   /* which chair — beneath the rec, per app.js's own anchor */
 .wr-zone1 > #doctrine-switch   { order: 8; }
 .wr-zone1 > #doctrine-picker   { order: 8; }   /* A's compact plan table — reference, beneath the rec */
 .wr-zone1 > #mvs               { order: 9; }   /* redundant summary — hidden on warroom, ordered anyway */
