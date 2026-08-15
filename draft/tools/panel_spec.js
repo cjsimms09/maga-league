@@ -433,6 +433,18 @@ const PANELS = [
     reads: ['state.clockMode'],
     note: 'A SECOND ANSWER TO "the screen is too busy", built before MVS and '
       + 'overlapping it. Two competing minimal views is one too many.' },
+  { fn: 'renderHelp', weight: 'CONTEXT', lines: null,
+    question: 'How do I run draft night with this page?',
+    means: 'The first-run manual: the night in one paragraph, the verdict-chip '
+      + 'glossary, and every decision panel\'s what/read/do — assembled from the '
+      + 'SAME PANEL_GUIDE table the ⓘ explainers read, so the manual cannot '
+      + 'drift from the captions.',
+    changes_it: 'editing PANEL_GUIDE or VERDICT_CHIP_WORDS — nothing else; it is '
+      + 'static per page load',
+    reads: ['PANEL_GUIDE', 'VERDICT_CHIP_WORDS'],
+    note: 'Collapsed one-liner at the bottom of Zone 1 (#help-card). Deliberately '
+      + 'not a .card — rehearsal-mock3 pins the card census. Content pinned by '
+      + 'ui_fidelity_explainers.test.js §3.' },
   { fn: 'renderRuleHeadline', weight: 'CONTEXT', lines: null,
     question: 'What does the needs-based rule say, in one line?',
     means: 'A one-line headline from the need rule, sitting above the '

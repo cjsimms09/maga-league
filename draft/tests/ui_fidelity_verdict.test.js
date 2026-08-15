@@ -190,11 +190,11 @@ ck('the chip-word table exists and names every verdict',
   const out = { scored, confidence: E.confidence(scored) };
   // eslint-disable-next-line no-new-func
   const run = new Function('$', 'state', 'escapeHtml', 'shortName', 'currentPick',
-    'seatForCurrentPick', 'context', 'E', 'DraftVerdict', 'console',
+    'seatForCurrentPick', 'context', 'E', 'DraftVerdict', 'console', 'explainPanel',
     chipWords + ';\n' + fnSrc + ';\nreturn renderVerdict;');
   const render = run(stubs.$, stubs.state, stubs.escapeHtml, stubs.shortName,
     stubs.currentPick, stubs.seatForCurrentPick, stubs.context, stubs.E,
-    stubs.DraftVerdict, stubs.console);
+    stubs.DraftVerdict, stubs.console, () => '');
   render(out);
   const v = V.derive({ cfg: CFG, scored, confidence: out.confidence });
   ck('RENDERED: the chip in the markup is the derivation\'s verdict',

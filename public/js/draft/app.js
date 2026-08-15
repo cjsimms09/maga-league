@@ -839,38 +839,120 @@
    * renders this green while doing nothing — I flagged that exact risk to them
    * about the seat panel. It ships as a visible block with a stable hook so B
    * can restyle, collapse or tier it deliberately rather than by default. */
+  /* Each entry now carries FOUR halves (design pass 2026-08-15, Cory's gate:
+   * "explain what the model says … or I can't implement it"):
+   *   what — what the number is;
+   *   read — what would change the answer;
+   *   do   — what to DO with it on the clock (the implementation half);
+   *   src  — the code the sentence paraphrases, cited so
+   *          ui_fidelity_explainers.test.js can pin each load-bearing claim to
+   *          the engine line it describes. Wrong-but-confident explainer text
+   *          is worse than none: the old `lrm` entry described "the last
+   *          recorded model state" — a panel that does not exist — while the
+   *          strip actually renders survival-derived DEADLINES. Every entry
+   *          below is rewritten from its renderer's actual source. */
   const PANEL_GUIDE = {
+    verdict: {
+      what: 'The one answer the page backs for this pick, with a confidence chip '
+        + 'derived from the engine\'s own gaps — LOCK / LEAN / TOSS-UP / SPLIT — '
+        + 'and every other voice (rule, value, plan, poll) as a labeled lens below it.',
+      read: 'The chip is the board\'s honesty about separation: TOSS-UP means the top '
+        + 'options sit inside the model\'s own tie threshold, so your preference IS the '
+        + 'tiebreaker. SPLIT means the measured rule and the value board name different '
+        + 'players — a real disagreement, priced in composite points. A lens marked '
+        + '"one term, not votes" is one argument repeated, never independent confirmation.',
+      do: 'LOCK: take it and bank the clock time. LEAN: take it unless you hold a real '
+        + 'preference. TOSS-UP: the model cannot separate these — use your own read, and '
+        + 'log which you took so it grades. SPLIT: follow the rule unless you have a '
+        + 'reason; if you take the value pick, log why. The dollar magnitudes behind the '
+        + 'rule are lab-tier measurements, not season projections.',
+      src: 'verdict.js derive(); engine.js confidence() + CFG.TIE_THRESHOLD/COIN_FLIP_GAP/CLOSE_GAP/PATHS_BAND',
+    },
     recommendations: {
-      what: 'The engine\'s ranked picks for THIS seat, scored on your roster and '
-        + 'what the room has already taken.',
-      read: 'Take the top name unless the seat panel above disagrees — when they '
-        + 'disagree the seat panel is the plan and this is the greedy best-now. A '
-        + 'small gap between #1 and #2 means the SEAT matters more than the NAME.',
+      what: 'The engine\'s ranked list for THIS pick: every candidate\'s composite '
+        + 'score is a weighted sum of the seven adjuster terms, scored on your roster '
+        + 'and what the room has already taken.',
+      read: 'Take the top name unless the verdict above says SPLIT or TOSS-UP — those '
+        + 'mean the ranking alone cannot settle it. A gap under 2 composite points '
+        + 'between #1 and #2 is the engine\'s own tie flag; the dossier on each row '
+        + 'shows which term built the score.',
+      do: 'Scan the top three, tap a dossier when a rank surprises you, and take from '
+        + 'the card. When the decisive-term line says one term flips the pick, that '
+        + 'term\'s slider is the one worth a second look.',
+      src: 'engine.js recommend()/scorePlayer(); CFG.TIE_THRESHOLD',
     },
     position_recs: {
       what: 'The best available at each position, so a run at one is visible '
         + 'without scanning the whole board.',
       read: 'Compare the DROP to your next pick, not the raw score: a position '
         + 'whose best name barely changes by then is one you can wait on.',
+      do: 'Use the dropdown when you already know which position you want and need '
+        + 'the ranked field; the strip above answers the cross-position glance faster.',
+      src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
-      what: 'The chance each player is still on the board when you next pick, '
-        + 'from ADP and its dispersion.',
-      read: 'Under ~50% treat him as gone and plan the seat without him. It is a '
-        + 'market estimate, not a promise — a run at his position breaks it.',
+      what: 'The chance each player is still on the board at your next pick, from '
+        + 'the market (ADP) model: ADP, its dispersion, and a conservation tilt so '
+        + 'only as many players can go as there are picks.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. Identical '
+        + 'percentages on several elites are the tilt\'s redistribution floor — the '
+        + 'market cannot split players already past their ADP; the room model in '
+        + 'Most-likely-to-be-gone can, and it names the seat.',
+      do: 'Plan with the market number (it is what the score uses), but when you '
+        + 'need WHO goes first among the elites, read the room model instead. A run '
+        + 'at a position breaks both — re-read after any run banner.',
+      src: 'survival.js survivalProbability()/conservedSurvival(); engine.js survival() accessor',
     },
     threats: {
-      what: 'What the managers picking before your next turn have historically '
-        + 'reached for.',
+      what: 'The room model: what each seat picking before your next turn is '
+        + 'likely to take, from their own past Sleeper drafts, and the roll-up of '
+        + 'who is most likely to be gone.',
       read: 'Use it to break a tossup, never to start one. If two names are '
-        + 'already close, take the one the room is likelier to remove.',
+        + 'already close, take the one the room is likelier to remove. Seats show '
+        + 'league-average until Sleeper assigns the draft order — the collapse line '
+        + 'says so when that is the case.',
+      do: 'If your target tops the gone-list with a named seat before your turn, '
+        + 'take him now — he probably does not come back. If nobody ahead wants his '
+        + 'position, bank him for a round.',
+      src: 'engine.js threatBoard(); survival.js positionProbabilities()',
     },
     lrm: {
-      what: 'The last recorded model state — what the board believed at your '
-        + 'previous pick.',
-      read: 'Read it when the board surprises you: if this disagrees with what is '
-        + 'on screen now, something changed between picks and the checklist says '
-        + 'what.',
+      what: 'The last responsible moment per position: the pick by which the '
+        + 'current startable tier is likely gone, computed from the same survival '
+        + 'model, with the cost of acting early priced in skill picks.',
+      read: '"Startable until pick 113 (−8 skill picks)" means waiting past 113 '
+        + 'likely costs the startable tier, and grabbing one NOW costs about 8 '
+        + 'better skill players. "No deadline" on K/DEF is real: startable ones go '
+        + 'undrafted in this league — take one whenever.',
+      do: 'Treat deadlines as a round, not a pick — they move as the room drafts. '
+        + 'When a position\'s deadline crosses your next pick, that position jumps '
+        + 'your queue; until then the deadline is why you can wait.',
+      src: 'app.js computeLRM() over engine survival; renderLRM()',
+    },
+    paths: {
+      what: 'Your 2–4 coherent directions for this pick, clustered from the same '
+        + 'scored board — each led by its best player and priced in composite '
+        + 'points below the top direction.',
+      read: '"−82.3 vs top" is what choosing that direction concedes today, in the '
+        + 'same points the ranked list uses. A direction outside the board\'s own '
+        + 'resolve band (4 pts) is a real cost, not a style choice; a path-level '
+        + 'coin flip means the board cannot separate the top two directions.',
+      do: 'Pick the direction you believe, then take its lead player from the card. '
+        + 'Going off the top path is legitimate — the price is printed; log the '
+        + 'reason with the pick so January can grade it.',
+      src: 'engine.js computePaths(); CFG.PATHS_BAND (= COIN_FLIP_GAP × 4)',
+    },
+    branches: {
+      what: 'What your NEXT pick likely looks like if you take each top option '
+        + 'now: the expected best player left per position at your next turn, from '
+        + 'the same survival model.',
+      read: '"Best left ≈ 144 (11 worse than now)" means waiting on that position '
+        + 'costs about 11 projected points across the round trip. Rows under one '
+        + 'point are hidden — nothing falls off a cliff there.',
+      do: 'Use it to time positions, not to pick names: take now the position whose '
+        + 'drop to your next pick is steepest, wait on the flattest — that is the '
+        + 'whole wait-vs-grab decision in two numbers.',
+      src: 'engine.js branchForecast()/expectedBestAvailable()',
     },
   };
 
@@ -882,9 +964,24 @@
   function explainPanel(key) {
     const g = PANEL_GUIDE[key];
     if (!g) return '';
-    return '<div class="panel-explain" data-panel="' + key + '">'
+    /* COLLAPSED BY DEFAULT behind a visible ⓘ (design pass 2026-08-15): the
+     * always-open paragraph blocks were a large share of "very busy" in Cory's
+     * capture. One tap opens the full four halves; openness survives re-renders
+     * via state.explainOpen. The block is EMITTED either way — hidden with the
+     * [hidden] attribute, not deleted — so panel_guide.test.js still proves
+     * every caption reaches its host. */
+    // typeof-guarded: panel_guide.test.js evaluates this function outside the
+    // IIFE, where `state` is not in scope — a bare reference would throw there.
+    const open = !!(typeof state !== 'undefined' && state.explainOpen && state.explainOpen[key]);
+    return '<button class="wr-info" type="button" data-explain-toggle="' + key + '"'
+      + ' aria-expanded="' + (open ? 'true' : 'false') + '"'
+      + ' title="what is this panel, and what do I do with it?">i</button>'
+      + '<div class="panel-explain" data-panel="' + key + '"' + (open ? '' : ' hidden') + '>'
       + '<span class="pe-what">' + escapeHtml(g.what) + '</span> '
-      + '<span class="pe-read">' + escapeHtml(g.read) + '</span></div>';
+      + '<span class="pe-read">' + escapeHtml(g.read) + '</span>'
+      + (g.do ? '<span class="pe-do">' + escapeHtml(g.do) + '</span>' : '')
+      + (g.src ? '<span class="pe-src">source of truth: ' + escapeHtml(g.src) + '</span>' : '')
+      + '</div>';
   }
 
   /* ⚠️ THE PANEL MOUNTS ITSELF, BECAUSE THE CONTAINER NEVER ARRIVED.
@@ -2054,6 +2151,8 @@
     };
 
     safeRender('seatPlan', renderSeatPlan);
+    // Static per load; renderHelp no-ops after its first fill.
+    safeRender('help', renderHelp);
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
@@ -2470,7 +2569,8 @@
           + '</button>').join('') + '</div>'
       : '';
     host.innerHTML =
-      '<div class="wrv-top">'
+      explainPanel('verdict')
+      + '<div class="wrv-top">'
       + '<span class="wrv-chip ' + chipClass + '" data-verdict="' + escapeHtml(v.verdict) + '">'
         + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
       + '</div>'
@@ -2585,6 +2685,43 @@
     el.parentNode.appendChild(div);
   }
 
+  /* ── THE HELP VIEW — "how to run your draft night with this page" ────────
+   * Assembled from the SAME PANEL_GUIDE the ⓘ explainers read (single source:
+   * the manual cannot drift from the captions) plus the verdict chip glossary.
+   * Rendered once — the content is static per page load. */
+  function renderHelp() {
+    const host = document.getElementById('wr-help');
+    if (!host || host.childNodes.length) return;
+    const order = ['verdict', 'recommendations', 'paths', 'branches', 'survival',
+      'threats', 'lrm', 'position_recs'];
+    const chipGloss = Object.keys(VERDICT_CHIP_WORDS).map(k =>
+      '<p><span class="wrv-chip ' + ({ 'LOCK': 'lock', 'LEAN': 'lean', 'TOSS-UP': 'tossup',
+        'SPLIT': 'split', 'PINNED': 'pinned' }[k] || 'tossup') + '">' + escapeHtml(k)
+      + '</span> ' + escapeHtml(VERDICT_CHIP_WORDS[k].split('— ')[1] || '') + '</p>').join('');
+    host.innerHTML =
+      '<p><b>The night in one paragraph:</b> when you are on the clock, the verdict '
+      + 'block is the answer — one name, one chip, one why. Everything under it is the '
+      + 'working: the ranked list (tap a dossier for any score\'s anatomy), the paths '
+      + '(your real options, priced), and what waiting costs (If You Take). Between '
+      + 'picks, watch the deadline strip and the survival panels; keep your queue '
+      + 'honest; and let the alarms interrupt you — a quiet page means nothing needs '
+      + 'you. Every ⓘ on the page opens the same explainers this manual is built from.</p>'
+      + '<h3>The chips</h3>' + chipGloss
+      + order.map(k => {
+        const g = PANEL_GUIDE[k];
+        if (!g) return '';
+        const title = { verdict: 'The verdict', recommendations: 'The ranked list',
+          paths: 'Paths — your real options', branches: 'If you take… (the round trip)',
+          survival: 'Survival odds (market model)', threats: 'The room model',
+          lrm: 'Last responsible moment', position_recs: 'Best by position' }[k] || k;
+        return '<h3>' + escapeHtml(title) + '</h3>'
+          + '<p>' + escapeHtml(g.what) + '</p>'
+          + '<p>' + escapeHtml(g.read) + '</p>'
+          + '<p><b>Do:</b> ' + escapeHtml(g.do || '') + '</p>'
+          + '<p class="pe-src">source of truth: ' + escapeHtml(g.src || '') + '</p>';
+      }).join('');
+  }
+
   /* ⓘ toggle — openness survives re-renders via state.explainOpen. */
   function toggleExplain(btn) {
     const key = btn.getAttribute('data-explain-toggle');
@@ -2602,7 +2739,7 @@
     if (!branches || !branches.length) { card.style.display = 'none'; return; }
     card.style.display = '';
     $('#branch-head').textContent = 'what is likely left at pick ' + branches[0].pick;
-    host.innerHTML = branches.map(b => {
+    host.innerHTML = explainPanel('branches') + branches.map(b => {
       // Only the positions where waiting actually costs something. A row
       // saying "you lose 0.2 points" is noise on the clock.
       const rows = b.rows.filter(r => r.loss > 1).slice(0, 4);
@@ -4215,7 +4352,7 @@
     const planName = onPlanKey && state.doctrine
       ? DraftDoctrine.doctrineMeta(state.doctrine.current).name : null;
 
-    host.innerHTML = paths.map(function (p, i) {
+    host.innerHTML = explainPanel('paths') + paths.map(function (p, i) {
       const pl = p.pick.player;
       const doctrineBadge = (onPlanKey && p.key === onPlanKey)
         ? '<span class="path-doctrine' + (DraftDoctrine.governs() ? '' : ' inert')
