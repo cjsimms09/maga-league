@@ -8,7 +8,18 @@ blast radius) are NOT here — they change on their own and say so.
 
 Audit date: 2026-08-09 (swept every recorded verdict in draft/backtest/*.json + *.md).
 
+**REORGANIZED 2026-08-15 (Cory research relay).** This file had closed and open items
+interleaved (two entries numbered "1", two numbered "7"), which caused a real mistake
+that day — a resolved item was read as still-open from a partial scan. Restructured
+into **OPEN** (top, actually needs a decision or is blocked) and **RESOLVED /
+HISTORICAL** (bottom, kept for the audit trail). **Nothing was deleted, edited, or
+renamed — every heading below is byte-identical to before, only relocated** — so this
+respects the same rule that already governs superseded headings in this file
+(`integrate.sh` refuses a merge that loses one).
+
 ---
+
+# OPEN — needs a decision, or is blocked and waiting
 
 ## 🚨 URGENT — CHECK BUILD-MINUTE BUDGET FIRST, BEFORE ANY DEPLOY (Cory research relay, 2026-08-15)
 
@@ -40,59 +51,6 @@ since then either.
 3. Until that's confirmed, default to **not deploying** — everything built this week
    is staged on the research branch specifically so it can wait for that check
    without costing anything.
-
-## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 — ✅ FIXED 2026-08-12 (option 1)
-
-> **CLOSED.** Cory chose option 1. `CFG.BENCH_CEILING_FLOOR` and
-> `CFG.BENCH_RISK_FLOOR` floor the bench branch's anchor the way
-> `VALUE_WEIGHT_FLOOR` floors the starter branch's, and the branch recomputes
-> `upsideBonus` with the gate OPEN — `CEILING_LATE_FROM = 0.6` is a *proxy* for
-> the throwaway rounds and the bench branch is the actual condition.
-> **Reaches (ADP > 250): 111/240 → 0/240**, with the branch still firing on
-> 120/240 picks, so it is not that the branch stopped running.
-> Baseline re-frozen **v6 → v7** against the SAME board, departure confined to
-> the `late-onesies-open` state (ranking + composite scores; per-player survival
-> did not move). Intervention rate re-pinned 78.3% → 85.8%, magnitude 19.8 →
-> 15.0 — opposite directions, which is the fix's signature: it now departs from
-> ADP more often and by far less. The starter branch and the 2026-08-10
-> ceiling-zero decision are untouched. Guard:
-> `draft/tests/bench_branch_anchor.test.js` (14 checks, inverted from the
-> characterisation test it retired).
-
-The record below is the evidence that drove the fix.
-
-- **WHAT WAS FOUND.** Once every starting slot is filled, `scorePlayer` takes its
-  bench branch. `MEASURED_WEIGHTS` — what `app.js:52` ships — zeroes four of that
-  branch's six terms, and the two weights it does not zero (`value`, `tier`) do
-  not appear in the branch at all. The shipped bench score is therefore
-  `0.5*stack + 1*keeper`, and `stack` is a flat bonus for sharing an NFL team with
-  somebody already on my roster, regardless of whether the player can play.
-- **MAGNITUDE, measured.** 20 simulated drafts, `draft/tools/bench_branch_probe.js`:
-  **MEASURED reaches (ADP > 250) on 111/240 picks = 46.3%. DEFAULT reaches on 0/240.**
-  Concentrated rounds 8–13; 20 of 20 drafts reach in rounds 8, 11, 12 and 13.
-  Actual recommendations: Denzel Mims (ADP 696) over Sam LaPorta, then Josh
-  Johnson, Joe Flacco, **Tom Brady**, Marcedes Lewis, Jason Witten.
-- **AND THE ANCHOR THE COMMENT CREDITS WAS NEVER RUNNING.** The branch says its top
-  pick "is the highest-ceiling player left". `upsideBonus` is gated to zero until
-  pick 90 of 150; the branch starts firing near pick 70. At pick 73 the ceiling
-  term is 0.00 for **every** player on the board. Rule 11e — and it is the second
-  defect that makes the first one reachable.
-- **WHY DEFAULT SURVIVES, which is diagnostic not reassuring.** What saves it is the
-  `risk` term (−42.00 on Mims at weight 1), not the ceiling. MEASURED zeroed risk
-  because the Lab measured it as drag **in the starter branch**, where `value`
-  anchors everything. In the bench branch it was the only thing holding the floor.
-  A weight measured on one composition, applied to another.
-- **CONFIDENCE.** High and mechanical. Isolated term by term through the engine's
-  own scorer; pinned by `draft/tests/bench_branch_anchor.test.js` (10 checks).
-- **COST OF INACTION.** Six of my fifteen picks, on draft day, ten days out.
-- **RECOMMENDATION — YOUR CALL, because it changes a weights policy the week of the
-  draft and re-opens the frozen baseline (`draft/baseline/v6.json`).** Floor the
-  bench branch's ceiling weight the way `wValue` is already floored by
-  `CFG.VALUE_WEIGHT_FLOOR = 0.25`, **and** start the ceiling ramp where the bench
-  branch starts rather than at 0.6 of the draft, with a risk-weight floor as the
-  safety net. Two alternatives and their trade-offs are in the audit. I have not
-  applied any of them.
-- Full diagnosis: `draft/audit/bench_branch_2026-08-12.md`.
 
 ## 000. THE TWO PROJECTION SOURCES DISAGREE BY POSITION, SYSTEMATICALLY (2026-08-12) 🔴 OPEN
 
@@ -187,58 +145,6 @@ The record below is the evidence that drove the fix.
   components-vs-aliases distinction from the original write-up still holds: sum
   real components, first-writer-wins on aliases, never both.
 - Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
-
-## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
-> **LANDED (main @ FP-anchor commit + real egress rebuild):** the live board now ranks by
-> FantasyPros PRIMARY, FFC gap-fill, search_rank last. Verified on the rebuilt board:
-> `primary_source=fantasypros`, 342 FP rows matched, **primary_priced 342 / ffc_gap_fill 3**
-> (Pearsall/Metchie/Wease — the exact probe gap), top-200 = 197 FP / 3 FFC / 0 search_rank,
-> fallback_rate 0.0. Coverage-gated so a thin/failed FP fetch keeps FFC untouched. The
-> record below is the evidence that drove the swap.
-
-## 1. ANCHOR SOURCE: the three-way LANDED — anchor on FantasyPros (our format), not MFL — 2026-08-09
-- **Three-way result (FantasyPros now IN the grade, 126/105 players):** n-weighted ρ —
-  2023: FFC 0.281 · MFL **0.397** · FP 0.307; 2024: FFC −0.03 · MFL 0.070 · FP **0.075**.
-  Region wins FP 5 / MFL 4 / FFC 3; **composite beats no single source** (blend nothing).
-- **The format confound is resolved:** **FantasyPros (half-PPR, OUR format) beats FFC
-  (half-PPR) in BOTH seasons** — so the market-read edge is REAL and format-independent, not
-  an artifact. MFL edges FP only in 2023 (0.397 vs 0.307) and ties in 2024, but MFL carries a
-  full-PPR handicap (2023 was receiver-friendly, which full-PPR over-weights) — exactly the
-  confound we refused to act on. Per the pre-registered rule (FP beats FFC like MFL did →
-  crowd quality, anchor on the clean same-format source): **anchor on FantasyPros.**
-- **Recommendation:** swap the live anchor FFC → **FantasyPros** (single source; composite
-  doesn't beat it; FFC fallback for deep gaps). FP wins the EARLY regions (r1-3, r4-7) where
-  Cory drafts, and it feeds the value anchor that the participation test showed is half our
-  edge. **Still thin (2 seasons, n~90/67, no CI on gaps, 2024 ~0 for all — leans on 2023),**
-  so directional; but FP is our exact format with no handicap, so it's the *cleaner* anchor
-  regardless of the thinness. MFL's residual 2023 edge is format-confounded — do not chase it.
-- **Cost of inaction:** the live board ranks by FFC, which FP beats in both graded seasons.
-- **Status:** supersedes the earlier MFL lean. Wiring = ingest FP 2026 ADP onto the live
-  board (was HELD on this result; the block is cleared). Confirm the FP endpoint reproduces
-  (re-fire in flight) before wiring. (EXP-SOURCE-GRADE.md, exp_source_grade.json)
-
-## 1b. (superseded) ANCHOR SOURCE: MFL over FFC — the MFL-only lean, now replaced by #1
-- **Found:** source grade — MFL orders realized value better than FFC (ρ 0.40 vs 0.28
-  in 2023; 0.07 vs −0.03 in 2024; MFL won 7 pooled regions to 5; composite/hybrid does
-  not beat MFL alone). Decomposition: MFL's edge is strongest in **rounds 1-7** (where
-  Cory drafts), not the deep board; FFC wins r12+.
-- **Implies:** swap the live board's ADP anchor from FFC to MFL.
-- **Magnitude:** at Cory's picks, top-50 median rank move 18; pick 41 (Bucky Irving)
-  moves 25 ranks. Real where he drafts, not cosmetic.
-- **Confidence:** directional — two graded seasons, resting substantially on 2023 (2024
-  near-zero for both); thin per-cell n (10-18).
-- **Cost of inaction:** the whole draft rule ranks by the worse board through Aug 22.
-- **Recommendation:** swap, MFL-alone (hybrid doesn't beat it), FFC fallback for the 28%
-  uncovered (all deep; top-130 ~100% covered). Approved by Cory — but **WIRING ON HOLD
-  pending the three-way grade (2026-08-09), because a FORMAT CONFOUND surfaced that we
-  hadn't turned on this banked result:** MFL is FULL-PPR, which tilts receivers/pass-catching
-  backs up for a game we don't play; the grade never isolated "better ordering" from "a
-  receiver-lean that aligned with a receiver-friendly 2023" (and the finding rests on 2023).
-  FantasyPros is **half-PPR (our format)** and is the natural de-confounding CONTROL: if FP
-  beats FFC like MFL does, it's crowd quality not format tilt → **anchor on FP (cleaner, no
-  handicap), not MFL**; if only MFL wins, the edge is provisional and we do NOT swap on it.
-  So the swap is still on, but the SOURCE (MFL vs FP) and whether it survives format-matching
-  are settled by the three-way — do not wire until it lands. (EXP-MFL-SWAP.md)
 
 ## 2. REGRESSION / SHRINKAGE WEIGHT: over-regresses — ACCURACY+OVERFITTING GATE CLEARED, $ pending (2026-08-10)
 - **✅ CV UPDATE (exp_regression_cv):** the gate exp35 set ("leave-one-season-out CV")
@@ -354,53 +260,66 @@ The record below is the evidence that drove the fix.
      (weights→0) achieves the same draft-day effect without deleting code.
   - The autoWeights edit is staged and ready to bundle; **Cory's call on scope before Aug 22.**
 
-## 4. FANTASYPROS AS A THIRD SOURCE — ✅ RESOLVED (endpoint found, in the grade) → folds into #1
-- **Found:** the FP page SSR-renders only a top-5 teaser; the full board is served by an
-  export/data variant of the ADP URL, surfaced by the self-discovering fetch after prioritizing
-  export variants over the proven-teaser nav links. FP now crosswalks 126 (2023) / 105 (2024)
-  players and is IN the three-way grade. See #1 for the result and the anchor decision.
-- **Status:** measurement DONE; the decision is #1 (anchor on FantasyPros). Reproducibility of
-  the endpoint re-firing in CI; endpoint recorded in `fantasypros_source` for future runs.
+## 7. THE SUNDAY ALERT FIRES BEFORE THE OFFICIAL INACTIVES (B, 2026-08-11)
+- **Trigger (Cory):** does the alert reach me when I'm not looking at the site, and does it
+  fire when it should not? The second half is fixed (it now sends only when there is something
+  to do, once per week). This is what the first half turned up that I can't decide for you.
+- **The facts.** The cron is `40 14 * * 0` — 14:40 UTC. That is **10:40am ET** while the clocks
+  are forward (Sept–early Nov) and **9:40am ET** after they go back. The NFL announces official
+  inactives **90 minutes before kickoff**, i.e. **11:30am ET** for the 1pm slate. So the alert
+  fires 50–110 minutes before the list that turns a QUESTIONABLE into an OUT.
+- **What that costs.** The "⛔ a starter cannot score this week" case now added to the alert
+  catches byes and players already ruled OUT on the Wed–Fri practice reports — most of the
+  value, and known by Saturday. It will systematically **miss game-time decisions**, which are
+  exactly the players whose status is still in question on a Sunday morning.
+- **Why I'm not just moving it.** One UTC cron cannot hold one ET time across the DST change,
+  and pushing it later trades warning time for accuracy — 11:45am ET leaves you 75 minutes,
+  which is fine if you're near your phone and useless if you're driving to a game.
+- **The options, cheapest first:**
+  1. **Leave it.** Accept that game-time decisions are yours to catch. Zero work.
+  2. **Move to `45 15 * * 0`** — 11:45am ET in the fall, 10:45am ET after the clocks change.
+     Catches most inactives during the stretch that matters, one line of YAML.
+  3. **Two runs** — keep the 10:40 planning alert, add a ~11:35am ET run that sends ONLY if a
+     starter's status changed since the first. More useful, more moving parts, and it needs the
+     first run's state stamped (the once-per-week stamp already written would need a second key).
+- **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
+  a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
 
-### (historical) FANTASYPROS — the discovery path, kept for the record
-- **Found:** the parser is correct, but the FantasyPros ADP page **server-renders only the
-  top-5 rows** (a teaser; `ssrHeader:true`) — players 6-300 are hydrated client-side from a
-  data endpoint the initial HTML never contains. So the grade only ever saw 5 rows (self-
-  diagnosing dump caught it — a miss looked like a miss, not an absent source). First discovery
-  probe: the reports bundle references **no `api.fantasypros.com` host** and two guessed
-  endpoints 403'd, so the endpoint is a relative/other-host path; a broadened discovery pass is
-  in flight.
-- **Implies:** until the data endpoint is found, FP **cannot** de-confound the MFL swap (#1),
-  so the three-way stays unresolved and **the MFL wiring stays HELD** and format-confounded.
-- **Confidence/cost:** FP feeds the input to our LARGEST earner (the value anchor — see the
-  participation test), so it's worth the discovery iterations; but it may not be cheaply
-  scrapable (endpoint could be constructed dynamically in minified JS). If two more discovery
-  passes don't surface it, fall back: keep FFC (our format) as the live anchor, hold MFL, and
-  record the source question as format-confounded-and-parked rather than burn more egress.
-- **Status:** measurement blocked on discovery; NOT a decision yet. On the model queue.
+## PROPOSED CLAUSE (A, 2026-08-11) — self-referential fixtures, needs your authorization
 
----
+**Not added to SESSION-A.md.** Constitution changes require explicit
+authorization, so this is a proposal, not a rewrite.
 
-### Acted-on findings checked in this audit (no decision needed — recorded so they're not re-surfaced)
-- **Keeper-need rule** (b0_need +$258, value_depth +$51): WIRED live (needrule.js). ✅
-- **Dead zone** (mid-round RB worst allocation): board marker live. ✅
-- **Doctrine "enroll as THE PLAN"** (frontier/19b): board shows `enrolled: wr_anchor`,
-  edge +172 — the plan IS enrolled. ✅
-- **Keeper decision (Nabers)**: settled — keep Chase/Henry/Walker. ✅
+**The observation (Cory's words):** *a fixture that derives from the thing under
+test can stop exercising its case without failing — same shape as a guard whose
+baseline comes from what it's guarding.*
 
-### ⚠️ NEEDS VALIDATION before promotion (Cory 2026-08-09 — do not surface ghosts)
-Several recorded "install" verdicts predate later work that may have SUPERSEDED, REFUTED,
-or CONFOUNDED-INSTRUMENTED them. Validate each against everything learned since before
-writing it up as a live decision; record the ones that don't survive as RETIRED-with-reason.
-- **`install via the gates (slider change, cited)` ×4** and **`WINNER — dose pays` (exp6
-  stack) / `enroll as THE PLAN` ×2** — check against: the keeper-need rule (changed what
-  the composite does), the market-reliability surface (changed the anchor story), exp43's
-  within-position fix (invalidated confounded cross-position readings), and the phantom-null
-  result. Present only survivors, ranked by dollars.
-- **This validation pass + the AUTOMATIC finding→decision mechanism** (fire at experiment
-  conclusion, not via a remembered audit) are queued BEHIND the slate rails and the weekly
-  cron per Cory — they are the process fix that prevents the next backlog, worth more than
-  clearing this one.
+**Evidence, from today, two instances in one change.** C's `wk()` seeds a column
+for every key in `grade._WEEKLY_MAP` — the right instinct, since a fixture
+carrying only the columns a test cares about would pass a schema check on a shape
+the live path never serves. But adding one alias to that map silently changed
+what every fixture contained: a helper named `unmapped_rename` removed one
+interception column and left the other, and the present-but-never-populated case
+nulled one alias of two. Both kept passing. **A fixture cannot fail for no longer
+representing its case; it quietly tests something easier.**
+
+**Why it belongs next to the baseline clause rather than as a new rule.** It is
+the same defect with the arrow reversed. A guard whose reference derives from the
+code always agrees; a fixture whose input derives from the code always passes.
+Both swap a fixed question for a self-referential one, and both hide inside a
+derivation that is genuinely the better engineering choice.
+
+**Proposed wording, for rule 10 as a further clause:**
+
+> **10d.** A fixture or baseline that DERIVES from the thing under test can stop
+> exercising its case without ever failing. Deriving is usually right — it is what
+> keeps a fixture honest against a live shape — so the requirement is not to stop.
+> It is that anything the test SUBTRACTS from a derived set must be derived from
+> THE SAME SOURCE, and that a fixture whose meaning depends on the code's current
+> shape carries an assertion that it still represents its case.
+
+Applied to the two helpers already; they now derive their removals from
+`_WEEKLY_MAP` instead of listing column names.
 
 ## 5. IN-SEASON MARKET SIGNALS + MOCK-DRAFT FORWARD EVIDENCE — sequenced 2026-08-09
 Cory raised three in-season/forward inputs. Sequencing verdict (dollars × soonness),
@@ -475,6 +394,215 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   cosmetic; if they diverge, flag it. (c) Do NOT swap the projection source blind — unlike the ADP
   anchor (which had a clean grade), there is NO clean projection grade to justify a swap yet.
 
+## 0000. THE TOOL DRAFTS 0.9 RUNNING BACKS IN EVERY ARM (2026-08-12) 🔴 OPEN — NOT FIXED, NOT DISAPPEARING
+
+- **WHAT WAS FOUND.** The roster-construction run measured position mix across
+  three weight vectors, same seeds. RB is essentially constant:
+
+  | arm | QB | **RB** | WR | TE |
+  |---|---|---|---|---|
+  | MEASURED + bench floors (shipped) | 3.0 | **0.9** | 2.5 | 3.6 |
+  | MEASURED, floors removed (pre-fix) | 4.7 | **0.9** | 2.3 | 2.1 |
+  | DEFAULT_WEIGHTS | 3.7 | **0.8** | 3.2 | 2.3 |
+
+  **Three different weight vectors, three different QB/TE shapes, the same 0.8–0.9
+  running backs.** And after the onesie cap landed, the freed picks went to
+  **WR (3 → 5), not RB** — RB stayed at 1.
+- **WHAT IT IMPLIES.** This is a property of the RULE, not of a coefficient. No
+  weight setting reachable from the panel changes it, and the onesie cap — which
+  moved everything else — did not touch it.
+- **THE RISK, and it is not a valuation error.** With Henry and Walker kept, the
+  mask is doing its job: RB2 is filled, so RB depth reads as bench and the FLEX
+  is genuinely position-agnostic. But twelve picks ending with Henry, Walker and
+  one other means **a single injury puts a replacement-level back in a FLEX that
+  could have held anyone**. Nothing in the system prices that. `riskAdjustment`
+  scores a player's own injury probability; nothing scores the roster's
+  concentration.
+- **MAGNITUDE.** Unpriced. The arm table is the evidence that it is structural;
+  what it costs in points or dollars has not been measured and I am not going to
+  estimate it.
+- **COST OF INACTION.** One injury away from a hole the draft cannot fix,
+  every season, until something prices roster concentration.
+- **RECOMMENDATION: do not fix this week.** It is not a defect with a one-hour
+  patch — it needs a concentration/insurance term that does not exist, and
+  inventing one nine days before a draft is how the bench branch got its anchor
+  removed in the first place. Recorded here so it survives the fix that capped
+  the visible half.
+- Evidence: `draft/audit/roster_construction_2026-08-12.md`,
+  `draft/tools/roster_construction.js`.
+
+## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
+
+- **THE NUMBER.** Before the onesie cap, the tool took a mean **3.6 tight ends**
+  in twelve picks — more than any other position, in a league that starts one.
+- **WHAT IT IS NOT.** It is not explained by the ceiling-spread mechanism that
+  explains the quarterbacks. Measured p90 of `proj_ceiling − proj_mean`:
+  QB 66.5, RB 44.9, DEF 41.7, WR 34.7, **TE 30.8**, K 28.1. **TE has the
+  smallest skill-position spread on the board**, so the units argument that
+  accounts for QB predicts the opposite of what TE does.
+- **STATUS.** Recorded with the number attached and NO hypothesis, deliberately.
+  The onesie cap has since bounded it at 2, so the visible cost is gone — but
+  the reason a term over-selected the position with the *smallest* upside spread
+  is unknown, and an unexplained mechanism that happened to be capped is still
+  unexplained.
+- **WHAT WOULD ANSWER IT.** A term-isolation pass at a state with two tight ends
+  carried, the same way the bench branch was decomposed — an hour, post-draft.
+
+---
+
+# RESOLVED / HISTORICAL — kept for the audit trail, not action items
+
+## 00. THE SHIPPED WEIGHTS RECOMMEND NON-PLAYERS FROM ROUND 8 — ✅ FIXED 2026-08-12 (option 1)
+
+> **CLOSED.** Cory chose option 1. `CFG.BENCH_CEILING_FLOOR` and
+> `CFG.BENCH_RISK_FLOOR` floor the bench branch's anchor the way
+> `VALUE_WEIGHT_FLOOR` floors the starter branch's, and the branch recomputes
+> `upsideBonus` with the gate OPEN — `CEILING_LATE_FROM = 0.6` is a *proxy* for
+> the throwaway rounds and the bench branch is the actual condition.
+> **Reaches (ADP > 250): 111/240 → 0/240**, with the branch still firing on
+> 120/240 picks, so it is not that the branch stopped running.
+> Baseline re-frozen **v6 → v7** against the SAME board, departure confined to
+> the `late-onesies-open` state (ranking + composite scores; per-player survival
+> did not move). Intervention rate re-pinned 78.3% → 85.8%, magnitude 19.8 →
+> 15.0 — opposite directions, which is the fix's signature: it now departs from
+> ADP more often and by far less. The starter branch and the 2026-08-10
+> ceiling-zero decision are untouched. Guard:
+> `draft/tests/bench_branch_anchor.test.js` (14 checks, inverted from the
+> characterisation test it retired).
+
+The record below is the evidence that drove the fix.
+
+- **WHAT WAS FOUND.** Once every starting slot is filled, `scorePlayer` takes its
+  bench branch. `MEASURED_WEIGHTS` — what `app.js:52` ships — zeroes four of that
+  branch's six terms, and the two weights it does not zero (`value`, `tier`) do
+  not appear in the branch at all. The shipped bench score is therefore
+  `0.5*stack + 1*keeper`, and `stack` is a flat bonus for sharing an NFL team with
+  somebody already on my roster, regardless of whether the player can play.
+- **MAGNITUDE, measured.** 20 simulated drafts, `draft/tools/bench_branch_probe.js`:
+  **MEASURED reaches (ADP > 250) on 111/240 picks = 46.3%. DEFAULT reaches on 0/240.**
+  Concentrated rounds 8–13; 20 of 20 drafts reach in rounds 8, 11, 12 and 13.
+  Actual recommendations: Denzel Mims (ADP 696) over Sam LaPorta, then Josh
+  Johnson, Joe Flacco, **Tom Brady**, Marcedes Lewis, Jason Witten.
+- **AND THE ANCHOR THE COMMENT CREDITS WAS NEVER RUNNING.** The branch says its top
+  pick "is the highest-ceiling player left". `upsideBonus` is gated to zero until
+  pick 90 of 150; the branch starts firing near pick 70. At pick 73 the ceiling
+  term is 0.00 for **every** player on the board. Rule 11e — and it is the second
+  defect that makes the first one reachable.
+- **WHY DEFAULT SURVIVES, which is diagnostic not reassuring.** What saves it is the
+  `risk` term (−42.00 on Mims at weight 1), not the ceiling. MEASURED zeroed risk
+  because the Lab measured it as drag **in the starter branch**, where `value`
+  anchors everything. In the bench branch it was the only thing holding the floor.
+  A weight measured on one composition, applied to another.
+- **CONFIDENCE.** High and mechanical. Isolated term by term through the engine's
+  own scorer; pinned by `draft/tests/bench_branch_anchor.test.js` (10 checks).
+- **COST OF INACTION.** Six of my fifteen picks, on draft day, ten days out.
+- **RECOMMENDATION — YOUR CALL, because it changes a weights policy the week of the
+  draft and re-opens the frozen baseline (`draft/baseline/v6.json`).** Floor the
+  bench branch's ceiling weight the way `wValue` is already floored by
+  `CFG.VALUE_WEIGHT_FLOOR = 0.25`, **and** start the ceiling ramp where the bench
+  branch starts rather than at 0.6 of the draft, with a risk-weight floor as the
+  safety net. Two alternatives and their trade-offs are in the audit. I have not
+  applied any of them.
+- Full diagnosis: `draft/audit/bench_branch_2026-08-12.md`.
+
+## 1. ANCHOR SOURCE: ✅ WIRED & VERIFIED LIVE 2026-08-09 — board anchors on FantasyPros
+> **LANDED (main @ FP-anchor commit + real egress rebuild):** the live board now ranks by
+> FantasyPros PRIMARY, FFC gap-fill, search_rank last. Verified on the rebuilt board:
+> `primary_source=fantasypros`, 342 FP rows matched, **primary_priced 342 / ffc_gap_fill 3**
+> (Pearsall/Metchie/Wease — the exact probe gap), top-200 = 197 FP / 3 FFC / 0 search_rank,
+> fallback_rate 0.0. Coverage-gated so a thin/failed FP fetch keeps FFC untouched. The
+> record below is the evidence that drove the swap.
+
+## 1. ANCHOR SOURCE: the three-way LANDED — anchor on FantasyPros (our format), not MFL — 2026-08-09
+- **Three-way result (FantasyPros now IN the grade, 126/105 players):** n-weighted ρ —
+  2023: FFC 0.281 · MFL **0.397** · FP 0.307; 2024: FFC −0.03 · MFL 0.070 · FP **0.075**.
+  Region wins FP 5 / MFL 4 / FFC 3; **composite beats no single source** (blend nothing).
+- **The format confound is resolved:** **FantasyPros (half-PPR, OUR format) beats FFC
+  (half-PPR) in BOTH seasons** — so the market-read edge is REAL and format-independent, not
+  an artifact. MFL edges FP only in 2023 (0.397 vs 0.307) and ties in 2024, but MFL carries a
+  full-PPR handicap (2023 was receiver-friendly, which full-PPR over-weights) — exactly the
+  confound we refused to act on. Per the pre-registered rule (FP beats FFC like MFL did →
+  crowd quality, anchor on the clean same-format source): **anchor on FantasyPros.**
+- **Recommendation:** swap the live anchor FFC → **FantasyPros** (single source; composite
+  doesn't beat it; FFC fallback for deep gaps). FP wins the EARLY regions (r1-3, r4-7) where
+  Cory drafts, and it feeds the value anchor that the participation test showed is half our
+  edge. **Still thin (2 seasons, n~90/67, no CI on gaps, 2024 ~0 for all — leans on 2023),**
+  so directional; but FP is our exact format with no handicap, so it's the *cleaner* anchor
+  regardless of the thinness. MFL's residual 2023 edge is format-confounded — do not chase it.
+- **Cost of inaction:** the live board ranks by FFC, which FP beats in both graded seasons.
+- **Status:** supersedes the earlier MFL lean. Wiring = ingest FP 2026 ADP onto the live
+  board (was HELD on this result; the block is cleared). Confirm the FP endpoint reproduces
+  (re-fire in flight) before wiring. (EXP-SOURCE-GRADE.md, exp_source_grade.json)
+
+## 1b. (superseded) ANCHOR SOURCE: MFL over FFC — the MFL-only lean, now replaced by #1
+- **Found:** source grade — MFL orders realized value better than FFC (ρ 0.40 vs 0.28
+  in 2023; 0.07 vs −0.03 in 2024; MFL won 7 pooled regions to 5; composite/hybrid does
+  not beat MFL alone). Decomposition: MFL's edge is strongest in **rounds 1-7** (where
+  Cory drafts), not the deep board; FFC wins r12+.
+- **Implies:** swap the live board's ADP anchor from FFC to MFL.
+- **Magnitude:** at Cory's picks, top-50 median rank move 18; pick 41 (Bucky Irving)
+  moves 25 ranks. Real where he drafts, not cosmetic.
+- **Confidence:** directional — two graded seasons, resting substantially on 2023 (2024
+  near-zero for both); thin per-cell n (10-18).
+- **Cost of inaction:** the whole draft rule ranks by the worse board through Aug 22.
+- **Recommendation:** swap, MFL-alone (hybrid doesn't beat it), FFC fallback for the 28%
+  uncovered (all deep; top-130 ~100% covered). Approved by Cory — but **WIRING ON HOLD
+  pending the three-way grade (2026-08-09), because a FORMAT CONFOUND surfaced that we
+  hadn't turned on this banked result:** MFL is FULL-PPR, which tilts receivers/pass-catching
+  backs up for a game we don't play; the grade never isolated "better ordering" from "a
+  receiver-lean that aligned with a receiver-friendly 2023" (and the finding rests on 2023).
+  FantasyPros is **half-PPR (our format)** and is the natural de-confounding CONTROL: if FP
+  beats FFC like MFL does, it's crowd quality not format tilt → **anchor on FP (cleaner, no
+  handicap), not MFL**; if only MFL wins, the edge is provisional and we do NOT swap on it.
+  So the swap is still on, but the SOURCE (MFL vs FP) and whether it survives format-matching
+  are settled by the three-way — do not wire until it lands. (EXP-MFL-SWAP.md)
+
+## 4. FANTASYPROS AS A THIRD SOURCE — ✅ RESOLVED (endpoint found, in the grade) → folds into #1
+- **Found:** the FP page SSR-renders only a top-5 teaser; the full board is served by an
+  export/data variant of the ADP URL, surfaced by the self-discovering fetch after prioritizing
+  export variants over the proven-teaser nav links. FP now crosswalks 126 (2023) / 105 (2024)
+  players and is IN the three-way grade. See #1 for the result and the anchor decision.
+- **Status:** measurement DONE; the decision is #1 (anchor on FantasyPros). Reproducibility of
+  the endpoint re-firing in CI; endpoint recorded in `fantasypros_source` for future runs.
+
+### (historical) FANTASYPROS — the discovery path, kept for the record
+- **Found:** the parser is correct, but the FantasyPros ADP page **server-renders only the
+  top-5 rows** (a teaser; `ssrHeader:true`) — players 6-300 are hydrated client-side from a
+  data endpoint the initial HTML never contains. So the grade only ever saw 5 rows (self-
+  diagnosing dump caught it — a miss looked like a miss, not an absent source). First discovery
+  probe: the reports bundle references **no `api.fantasypros.com` host** and two guessed
+  endpoints 403'd, so the endpoint is a relative/other-host path; a broadened discovery pass is
+  in flight.
+- **Implies:** until the data endpoint is found, FP **cannot** de-confound the MFL swap (#1),
+  so the three-way stays unresolved and **the MFL wiring stays HELD** and format-confounded.
+- **Confidence/cost:** FP feeds the input to our LARGEST earner (the value anchor — see the
+  participation test), so it's worth the discovery iterations; but it may not be cheaply
+  scrapable (endpoint could be constructed dynamically in minified JS). If two more discovery
+  passes don't surface it, fall back: keep FFC (our format) as the live anchor, hold MFL, and
+  record the source question as format-confounded-and-parked rather than burn more egress.
+- **Status:** measurement blocked on discovery; NOT a decision yet. On the model queue.
+
+### Acted-on findings checked in this audit (no decision needed — recorded so they're not re-surfaced)
+- **Keeper-need rule** (b0_need +$258, value_depth +$51): WIRED live (needrule.js). ✅
+- **Dead zone** (mid-round RB worst allocation): board marker live. ✅
+- **Doctrine "enroll as THE PLAN"** (frontier/19b): board shows `enrolled: wr_anchor`,
+  edge +172 — the plan IS enrolled. ✅
+- **Keeper decision (Nabers)**: settled — keep Chase/Henry/Walker. ✅
+
+### ⚠️ NEEDS VALIDATION before promotion (Cory 2026-08-09 — do not surface ghosts)
+Several recorded "install" verdicts predate later work that may have SUPERSEDED, REFUTED,
+or CONFOUNDED-INSTRUMENTED them. Validate each against everything learned since before
+writing it up as a live decision; record the ones that don't survive as RETIRED-with-reason.
+- **`install via the gates (slider change, cited)` ×4** and **`WINNER — dose pays` (exp6
+  stack) / `enroll as THE PLAN` ×2** — check against: the keeper-need rule (changed what
+  the composite does), the market-reliability surface (changed the anchor story), exp43's
+  within-position fix (invalidated confounded cross-position readings), and the phantom-null
+  result. Present only survivors, ranked by dollars.
+- **This validation pass + the AUTOMATIC finding→decision mechanism** (fire at experiment
+  conclusion, not via a remembered audit) are queued BEHIND the slate rails and the weekly
+  cron per Cory — they are the process fix that prevents the next backlog, worth more than
+  clearing this one.
+
 ## 7. CONSERVATION TILT — WIRED LIVE as a gated departure (2026-08-11), baseline v3 → v4
 
 - **Trigger (Cory):** "conservedSurvival is built, exported, and exercised only by its own test.
@@ -524,73 +652,11 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
 app's conservation banner widens its band automatically in that mode, because a raw model that
 does not conserve should not paint the banner red on every render of a deliberate revert.
 
-### Open, and NOT resolved by this
+### Open, and NOT resolved by this — the one live sub-question in this entry
 
 The per-player *ordering* within the tilted total is unvalidated. The tilt concentrates correction
 where the weight is, which is defensible but untested against outcomes. That is a **post-draft**
 question (mock-calibration arm), not a pre-Aug-22 one.
-## 7. THE SUNDAY ALERT FIRES BEFORE THE OFFICIAL INACTIVES (B, 2026-08-11)
-- **Trigger (Cory):** does the alert reach me when I'm not looking at the site, and does it
-  fire when it should not? The second half is fixed (it now sends only when there is something
-  to do, once per week). This is what the first half turned up that I can't decide for you.
-- **The facts.** The cron is `40 14 * * 0` — 14:40 UTC. That is **10:40am ET** while the clocks
-  are forward (Sept–early Nov) and **9:40am ET** after they go back. The NFL announces official
-  inactives **90 minutes before kickoff**, i.e. **11:30am ET** for the 1pm slate. So the alert
-  fires 50–110 minutes before the list that turns a QUESTIONABLE into an OUT.
-- **What that costs.** The "⛔ a starter cannot score this week" case now added to the alert
-  catches byes and players already ruled OUT on the Wed–Fri practice reports — most of the
-  value, and known by Saturday. It will systematically **miss game-time decisions**, which are
-  exactly the players whose status is still in question on a Sunday morning.
-- **Why I'm not just moving it.** One UTC cron cannot hold one ET time across the DST change,
-  and pushing it later trades warning time for accuracy — 11:45am ET leaves you 75 minutes,
-  which is fine if you're near your phone and useless if you're driving to a game.
-- **The options, cheapest first:**
-  1. **Leave it.** Accept that game-time decisions are yours to catch. Zero work.
-  2. **Move to `45 15 * * 0`** — 11:45am ET in the fall, 10:45am ET after the clocks change.
-     Catches most inactives during the stretch that matters, one line of YAML.
-  3. **Two runs** — keep the 10:40 planning alert, add a ~11:35am ET run that sends ONLY if a
-     starter's status changed since the first. More useful, more moving parts, and it needs the
-     first run's state stamped (the once-per-week stamp already written would need a second key).
-- **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
-  a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
-
-## PROPOSED CLAUSE (A, 2026-08-11) — self-referential fixtures, needs your authorization
-
-**Not added to SESSION-A.md.** Constitution changes require explicit
-authorization, so this is a proposal, not a rewrite.
-
-**The observation (Cory's words):** *a fixture that derives from the thing under
-test can stop exercising its case without failing — same shape as a guard whose
-baseline comes from what it's guarding.*
-
-**Evidence, from today, two instances in one change.** C's `wk()` seeds a column
-for every key in `grade._WEEKLY_MAP` — the right instinct, since a fixture
-carrying only the columns a test cares about would pass a schema check on a shape
-the live path never serves. But adding one alias to that map silently changed
-what every fixture contained: a helper named `unmapped_rename` removed one
-interception column and left the other, and the present-but-never-populated case
-nulled one alias of two. Both kept passing. **A fixture cannot fail for no longer
-representing its case; it quietly tests something easier.**
-
-**Why it belongs next to the baseline clause rather than as a new rule.** It is
-the same defect with the arrow reversed. A guard whose reference derives from the
-code always agrees; a fixture whose input derives from the code always passes.
-Both swap a fixed question for a self-referential one, and both hide inside a
-derivation that is genuinely the better engineering choice.
-
-**Proposed wording, for rule 10 as a further clause:**
-
-> **10d.** A fixture or baseline that DERIVES from the thing under test can stop
-> exercising its case without ever failing. Deriving is usually right — it is what
-> keeps a fixture honest against a live shape — so the requirement is not to stop.
-> It is that anything the test SUBTRACTS from a derived set must be derived from
-> THE SAME SOURCE, and that a fixture whose meaning depends on the code's current
-> shape carries an assertion that it still represents its case.
-
-Applied to the two helpers already; they now derive their removals from
-`_WEEKLY_MAP` instead of listing column names.
-
----
 
 ## ✅ RULED — F4 GATES OUTCOME-DEPENDENT GRADING ONLY (Cory, 2026-08-11)
 
@@ -668,59 +734,3 @@ Applied to the two helpers already; they now derive their removals from
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
-
----
-
-## 0000. THE TOOL DRAFTS 0.9 RUNNING BACKS IN EVERY ARM (2026-08-12) 🔴 OPEN — NOT FIXED, NOT DISAPPEARING
-
-- **WHAT WAS FOUND.** The roster-construction run measured position mix across
-  three weight vectors, same seeds. RB is essentially constant:
-
-  | arm | QB | **RB** | WR | TE |
-  |---|---|---|---|---|
-  | MEASURED + bench floors (shipped) | 3.0 | **0.9** | 2.5 | 3.6 |
-  | MEASURED, floors removed (pre-fix) | 4.7 | **0.9** | 2.3 | 2.1 |
-  | DEFAULT_WEIGHTS | 3.7 | **0.8** | 3.2 | 2.3 |
-
-  **Three different weight vectors, three different QB/TE shapes, the same 0.8–0.9
-  running backs.** And after the onesie cap landed, the freed picks went to
-  **WR (3 → 5), not RB** — RB stayed at 1.
-- **WHAT IT IMPLIES.** This is a property of the RULE, not of a coefficient. No
-  weight setting reachable from the panel changes it, and the onesie cap — which
-  moved everything else — did not touch it.
-- **THE RISK, and it is not a valuation error.** With Henry and Walker kept, the
-  mask is doing its job: RB2 is filled, so RB depth reads as bench and the FLEX
-  is genuinely position-agnostic. But twelve picks ending with Henry, Walker and
-  one other means **a single injury puts a replacement-level back in a FLEX that
-  could have held anyone**. Nothing in the system prices that. `riskAdjustment`
-  scores a player's own injury probability; nothing scores the roster's
-  concentration.
-- **MAGNITUDE.** Unpriced. The arm table is the evidence that it is structural;
-  what it costs in points or dollars has not been measured and I am not going to
-  estimate it.
-- **COST OF INACTION.** One injury away from a hole the draft cannot fix,
-  every season, until something prices roster concentration.
-- **RECOMMENDATION: do not fix this week.** It is not a defect with a one-hour
-  patch — it needs a concentration/insurance term that does not exist, and
-  inventing one nine days before a draft is how the bench branch got its anchor
-  removed in the first place. Recorded here so it survives the fix that capped
-  the visible half.
-- Evidence: `draft/audit/roster_construction_2026-08-12.md`,
-  `draft/tools/roster_construction.js`.
-
-## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
-
-- **THE NUMBER.** Before the onesie cap, the tool took a mean **3.6 tight ends**
-  in twelve picks — more than any other position, in a league that starts one.
-- **WHAT IT IS NOT.** It is not explained by the ceiling-spread mechanism that
-  explains the quarterbacks. Measured p90 of `proj_ceiling − proj_mean`:
-  QB 66.5, RB 44.9, DEF 41.7, WR 34.7, **TE 30.8**, K 28.1. **TE has the
-  smallest skill-position spread on the board**, so the units argument that
-  accounts for QB predicts the opposite of what TE does.
-- **STATUS.** Recorded with the number attached and NO hypothesis, deliberately.
-  The onesie cap has since bounded it at 2, so the visible cost is gone — but
-  the reason a term over-selected the position with the *smallest* upside spread
-  is unknown, and an unexplained mechanism that happened to be capped is still
-  unexplained.
-- **WHAT WOULD ANSWER IT.** A term-isolation pass at a state with two tight ends
-  carried, the same way the bench branch was decomposed — an hour, post-draft.
