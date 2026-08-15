@@ -266,6 +266,17 @@ jobs:
             gh issue create --title "🔴 Board rebuild refused to publish" --label "$LABEL" --body-file "$BODY_FILE"
           fi
 
+      - name: Diagnose the refusal in-run, where the candidate board exists
+        # The refused board lives only on this runner, and the artifact
+        # download path is unreachable from the relay sandbox (the GitHub
+        # redirect lands on Azure blob storage, 403'd at the egress proxy) —
+        # so the diagnosis runs HERE and lands in this log, which is
+        # retrievable. Measures via board_activity's and vorp's own
+        # functions; prints which exemption spares each unflagged retiree
+        # and the replacement-sensitivity move on this exact board.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        run: python3 draft/tools/diagnose_refused_board.py || true
+
       - name: Preserve the refused candidate board for offline diagnosis
         # Added 2026-08-15. The two failures still blocking auto-publish
         # (a retired player unflagged by board_activity.dormant, the
