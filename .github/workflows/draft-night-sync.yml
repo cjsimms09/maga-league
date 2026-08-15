@@ -1,0 +1,101 @@
+name: Draft-night pick sync
+
+# THE GAP THIS CLOSES (Cory research relay, 2026-08-15). `draft/log_draft_picks.py`
+# already has everything needed to capture the live draft for post-draft grading —
+# an append-only JSONL log, joined to the frozen pre-draft board by sha256, rehearsed
+# against a real 150-pick Sleeper draft across 7 edge cases (duplicates, out-of-order
+# events, reconnects, all of it). It has a `--sync <draft_id>` mode built specifically
+# to poll Sleeper and log picks as they land — its own docstring calls this "the
+# draft-night entry point." NOTHING WAS CALLING IT. Grepped every workflow and every
+# doc in the repo; zero automation, zero manual runbook step. Without this, the
+# rehearsed machinery sits idle during the one event it exists for, and there is
+# nothing to grade the draft against afterward.
+#
+# WHY THIS IS SAFE TO RUN, BUDGET-WISE. `sync()` writes only to
+# draft/data/draft_pick_log_2026.jsonl — under draft/, not a served path
+# (views/public/src/server-app.js/package*.json/netlify.toml/netlify/functions/), so
+# netlify-ignore.sh's own gate SKIPS a deploy for these commits on its own. `[skip
+# deploy]` is added anyway, explicitly, per Cory's standing rule (2026-08-15: no
+# deploy fires until he says so) rather than relying on the gate alone. GitHub
+# Actions minutes are a SEPARATE budget from Netlify build minutes (see
+# netlify-ignore.sh's own comment: "never couple them") — this does not touch the
+# build-minute reserve flagged as untouchable during draft week.
+#
+# MANUAL START, NOT A SCHEDULE. A snake draft's start time depends on who shows up;
+# a cron guess would either poll for hours before anything happens or miss the start
+# entirely. Start it by hand right when the draft opens (Actions tab -> this
+# workflow -> Run workflow -> paste the Sleeper draft_id) or via `fire_trigger`.
+# It polls every 20s, exits cleanly the moment the log goes contiguous with the
+# freeze's full pick count, and gives up after `max_minutes` (default 240 = a very
+# long draft) rather than running forever on a bad draft_id.
+#
+# NOT the automated version of anything long-running or unattended — this is a
+# bounded, single-event tool for one night, matching the one thing it captures.
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft_id:
+        description: 'Sleeper draft_id to sync (from the league draft URL)'
+        required: true
+      max_minutes:
+        description: 'Give up after this many minutes if the draft never completes'
+        required: false
+        default: '240'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Poll Sleeper and log picks until the draft completes
+        env:
+          DRAFT_ID: ${{ github.event.inputs.draft_id }}
+          MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+        run: |
+          set -uo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+
+          deadline=$(( $(date +%s) + MAX_MINUTES * 60 ))
+          echo "Syncing draft $DRAFT_ID, giving up after ${MAX_MINUTES}m if it never completes."
+
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            OUT="$(python3 draft/log_draft_picks.py --sync "$DRAFT_ID" 2>&1)"
+            code=$?
+            echo "$OUT"
+            if [ $code -ne 0 ]; then
+              echo "sync call failed (exit $code) — will retry on next poll rather than abort the whole night on one bad response"
+            fi
+
+            # Commit only if the log actually changed — the common case is
+            # polling between picks with nothing new, which must be a silent
+            # no-op, not noise in the history.
+            if ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
+              git add draft/data/draft_pick_log_2026.jsonl
+              git commit -m "[skip deploy] draft-night sync: pick log update" -q
+              git push -q
+              echo "logged and pushed a change to the pick log"
+            fi
+
+            # Done when the log is a contiguous run covering every pick the
+            # freeze expects — read from --status rather than re-deriving the
+            # total here, so this can't drift from what the log itself checks.
+            STATUS="$(python3 draft/log_draft_picks.py --status 2>&1)"
+            echo "$STATUS"
+            if printf '%s' "$STATUS" | grep -qE '^picks\s*: ([0-9]+) of \1 logged$'; then
+              echo "draft complete — every pick logged, stopping."
+              exit 0
+            fi
+
+            sleep 20
+          done
+
+          echo "::warning::max_minutes (${MAX_MINUTES}) elapsed without the log reporting complete — draft may still be running, or draft_id may be wrong. Whatever was captured is already committed; re-run manually to keep going."
