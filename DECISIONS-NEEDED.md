@@ -461,6 +461,32 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   the visible half.
 - Evidence: `draft/audit/roster_construction_2026-08-12.md`,
   `draft/tools/roster_construction.js`.
+- **✅ RE-RUN 2026-08-15 (Cory research relay) — LARGELY RESOLVED, not a live problem
+  today.** Ran the same tool, same seat, same MEASURED_WEIGHTS, 120 rooms (matching
+  the original sample size exactly). The shape has reversed:
+
+  | | QB | **RB** | WR | TE |
+  |---|---|---|---|---|
+  | 2026-08-12 (original finding) | 3.0 | **0.9** | 2.5 | 3.6 |
+  | 2026-08-15 (re-run, weighted mean, 120 rooms) | ~1.7 | **~3.4** | ~3.4 | ~1.5 |
+
+  Modal shape is now **QB2 RB3 WR3 TE2** (28.3% of rooms) — was QB3 RB1 WR3 TE3
+  (45.8%). RB moved from the worst-drafted position to among the best-stocked;
+  onesie spend (QB+TE) roughly halved. Most likely cause: the ceiling-units fix
+  (2026-08-13, `computeCeilingScales` in `engine.js`, see the TE/onesie PARKED.md
+  entry from this week) — that fix targeted exactly this class of distortion, and
+  landed after this entry was written. **Not independently confirmed as the sole
+  cause** — I did not re-run the three-arm isolation to prove which specific term
+  moved it, only that the composite outcome changed substantially.
+  **The unpriced concentration risk this entry named (an injury away from a hole
+  the roster can't fix) is smaller now that RB depth is real**, but not
+  necessarily zero — worth a fresh look at whether 3-4 RBs still cluster on a
+  small number of NFL teams, not re-measured here.
+- **RECOMMENDATION, revised:** downgrade from "do not fix this week" — the
+  underlying shape problem that motivated the original urgency appears to have
+  already improved substantially. A full re-audit (the three-arm isolation, same
+  rigor as the original) would confirm the mechanism rather than just the outcome,
+  but this is no longer a live fire.
 
 ## 00000. TIGHT END AT 3.6 PICKS IS UNDIAGNOSED (2026-08-12) 🟡 OPEN QUESTION, NOT A HYPOTHESIS
 
@@ -478,6 +504,16 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   unexplained.
 - **WHAT WOULD ANSWER IT.** A term-isolation pass at a state with two tight ends
   carried, the same way the bench branch was decomposed — an hour, post-draft.
+- **✅ RE-RUN 2026-08-15 (Cory research relay) — the symptom is gone, the
+  mechanism is still unexplained.** Same 120-room re-run as #0000 above: TE mean
+  is now ~1.5 (weighted), modal TE count is 2, not 3.6 — matches the onesie cap's
+  intended ceiling and then some. **This closes the practical question (is TE
+  over-drafted today — no) without answering the original one** (why did a term
+  over-select the position with the SMALLEST upside spread — still not diagnosed;
+  the "it's the ceiling units bug" hypothesis is plausible given the timing of the
+  2026-08-13 fix but not verified against this specific number). Recommend closing
+  this as an ACTIVE risk and keeping it as a genuine open research question only,
+  behind the higher-priority items.
 
 ---
 
