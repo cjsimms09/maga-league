@@ -148,6 +148,19 @@ check. Full suite green after.
 (whose trades get evaluated, priced how), no evaluator exists to attach a capture
 to. Belongs with the post-draft work, plan is in `PARKED.md`.
 
+**The 4 new capture routes only had hand verification — same gap as `attach_own_model`
+had, closed the same way.** `/waivers/log`, `/waivers/override`, `/stream/log`,
+`/stream/override` were checked by syntax, an EJS render test, and the full suite
+passing — never by actually POSTing to them and reading the ledger back.
+`draft/tests/inseason_capture_routes.test.js` now does exactly that: boots the real
+app, logs in as commissioner, hits all four, reads `predledger.readAll()` and checks
+kind/method/payload on each (21 checks, all pass). Also fixed a stale line in
+`app.js`'s "In-season instrumentation live" checklist — it still said `stream_call`
+was NOT YET captured after `stream_call` had already been built earlier the same day;
+now reads `lineup_call, waiver_claim, stream_call, inseason_override — logging` with
+only `trade_eval` flagged open. Full JS + Python suites green after (2135 passed / 6
+skipped, 0 failed).
+
 ---
 
 ## THE FULL SWEEP, 2026-08-15 — every claimed-open item checked against real code
