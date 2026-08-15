@@ -167,6 +167,12 @@
 .wr-chart-cap { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 0; }
 
 /* ══ BOARD TABLE — tier banding, aligned numerics, calm flags ═══════════ */
+/* The sticky header + name column were painted var(--navy-deep) — a dark-era
+   leftover that renders dark-on-dark ink on the light theme (invisible names,
+   caught in this pass's desktop capture). Sticky cells simply wear the panel
+   surface; opacity is what sticky needs, not navy. */
+#board thead th { background: var(--wr-panel); color: var(--wr-ink); }
+#board th:nth-child(2), #board td:nth-child(2) { background: var(--wr-panel); color: var(--wr-ink); }
 .roll td.num, .roll th.num { font-variant-numeric: tabular-nums; }
 .roll tr.tier-cliff td { border-top: 2px solid var(--wr-structure); }
 .roll td .tier-note {

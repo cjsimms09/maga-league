@@ -2861,13 +2861,30 @@
    * slider at 1.0 under a highlighted "Measured" preset — the same lie the reset
    * button told: a surface claiming the weights are one thing while the engine
    * loads another. Called on init and after server-pref adoption. */
+  /* THE SLIDERS CONTRADICTED THEIR OWN CAPTIONS (Cory's capture: TIER at 1.2
+   * under copy reading "OFF by default"). Both were true — the caption
+   * describes the MEASURED default, the value is the LIVE policy (auto mode
+   * re-weights every pick) — and the page never reconciled them. Now every
+   * slider whose live value differs from its measured default says which
+   * authority moved it, right next to the number. The measured default is read
+   * from the markup's own value attribute (the EJS hardcodes MEASURED_WEIGHTS
+   * as the no-JS fallback), so this cannot drift from the caption it explains. */
   function syncSliders() {
     $$('.weight-slider').forEach(sl => {
       const v = state.weights[sl.dataset.weight];
       if (v == null) return;
+      const measured = parseFloat(sl.getAttribute('value'));   // the EJS-stamped default
       sl.value = v;
       const lab = $('#w-' + sl.dataset.weight);
-      if (lab) lab.textContent = Number(v).toFixed(1);
+      if (lab) {
+        const differs = isFinite(measured) && Math.abs(Number(v) - measured) >= 0.05;
+        lab.innerHTML = Number(v).toFixed(1)
+          + (differs
+            ? ' <span class="muted" style="font-weight:400">('
+              + (state.autoWeights ? 'auto for this round' : 'yours')
+              + ' — measured default ' + measured.toFixed(1) + ')</span>'
+            : '');
+      }
     });
   }
 
@@ -3053,7 +3070,9 @@
     // working, and on the clock most people only ever read the answer.
     let html = '';
     if (t.atRisk.length) {
-      html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone</div>'
+      html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone '
+        + '<span class="muted">(room model — who the seats ahead actually take; '
+        + 'this is the number that differentiates players the market lumps together)</span></div>'
         + t.atRisk.map(r =>
           '<div class="risk-row">'
           + '<span class="risk-pct' + (r.gone >= 70 ? ' hot' : '') + '">' + r.gone + '%</span>'
@@ -3066,7 +3085,14 @@
         + '</div>';
     }
 
-    html += t.rows.map(r => {
+    /* NOISE COLLAPSE (Cory's capture: FOURTEEN near-identical seat blocks, every
+     * one saying "MAY TARGET RB 45% WR 36% TE 11% · seat mapping unavailable²" —
+     * pages of repetition whose entire content was "seats unassigned"). When the
+     * seat mapping is missing, every seat is league-average BY CONSTRUCTION
+     * (profileForSlot returns null → CFG defaults), so per-seat rows carry zero
+     * information beyond their pick numbers. One honest line says so; the rows
+     * live one tap deeper for when the mapping lands mid-night. Nothing removed. */
+    const rowsHtml = t.rows.map(r => {
       const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
       const pos = r.positions.slice(0, 3).map(p =>
         '<span class="rec-pos ' + p.position + '">' + p.position + '</span>'
@@ -3122,6 +3148,16 @@
         + tells
         + '</div>';
     }).join('');
+    if (seatsUnassigned && haveDossier && t.rows.length > 2) {
+      html += '<div class="threat-collapsed muted" style="font-size:.78rem;margin:.3rem 0">'
+        + t.rows.length + ' seats pick before your next turn. All are modeled '
+        + 'league-average until Sleeper assigns the draft order — the per-seat '
+        + 'dossiers exist (Know Your League) but cannot be mapped to seats yet.</div>'
+        + '<details><summary style="font-size:.75rem;cursor:pointer">per-seat rows '
+        + '(league-average until seats are assigned)</summary>' + rowsHtml + '</details>';
+    } else {
+      html += rowsHtml;
+    }
     host.innerHTML = explainPanel('threats') + html;
   }
 
@@ -3715,8 +3751,23 @@
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
+    /* THE 42% WALL, DIAGNOSED (Cory's capture: eight chips all reading 42%,
+     * while MOST LIKELY TO BE GONE said 73% for the same player on the same
+     * screen). Both numbers are engine outputs answering different questions:
+     *   · THIS strip prints survival_to_next — the ADP-market model through
+     *     the conservation tilt, the number the SCORE uses. Every elite
+     *     already past his ADP has raw survival ~0 and the tilt lifts them all
+     *     to the SAME redistributed value — the uniformity is the tilt's
+     *     documented artifact ("fixes the total, not the ordering within it").
+     *   · The threats panel prints the ROOM model — seat-by-seat behavior,
+     *     which genuinely differentiates players and names the likely seat.
+     * One page, two numbers, one caption was the defect. Each now wears its
+     * model's name, and the strip points at the room model for WHO. Pinned by
+     * ui_fidelity_numbers.test.js. */
     host.innerHTML = rows
-      ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your next pick · tap to compare</span></div>' + rows
+      ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your '
+        + 'next pick, market (ADP) model — the number the score uses. Identical %s mean the '
+        + 'market can’t split them; the room model under Survival Odds can. · tap to compare</span></div>' + rows
       : '';
   }
 
@@ -5104,18 +5155,68 @@
     const takenHits = state.search
       ? (state.data.players || []).filter(p => state.drafted.has(String(p.player_id)) && match(p)).slice(0, 25)
       : [];
-    $('#board-body').innerHTML = rows.map(p =>
-      '<tr data-tier="' + p.tier + '">' +
-        '<td>' + p.overall_rank + '</td>' +
-        '<td><b>' + escapeHtml(p.name) + '</b></td>' +
+    /* ── B1 ONESIE DEMOTION (final-pass): in the "All" view K/DEF flooded ranks
+     * 52-200 with their own tier-1 labels — replacement onesies are freely
+     * streamable in this league, so cross-position VORP is misleading there.
+     * The All view lists skill players first, onesies after them (dimmed, with
+     * one explanatory line); position-filtered views are untouched — tier/VORP
+     * stay meaningful within a position. DISPLAY ORDER ONLY: no score, rank or
+     * engine field changes, and every row keeps its true numbers. */
+    const demoteOnesies = state.filterPos === 'ALL' && !state.search;
+    const displayRows = demoteOnesies
+      ? rows.filter(p => p.position !== 'K' && p.position !== 'DEF')
+          .concat(rows.filter(p => p.position === 'K' || p.position === 'DEF'))
+      : rows;
+    let onesieNoteAt = demoteOnesies
+      ? displayRows.findIndex(p => p.position === 'K' || p.position === 'DEF') : -1;
+    /* ── B2 SENTINELS (final-pass): players priced by Sleeper search rank
+     * rather than a real ADP feed rendered "ADJ ADP 328" as if it were market
+     * data. A sentinel never renders as a number — it renders as "—" with the
+     * reason one tap away (data-caveat, same mechanism as ¹). */
+    const adpCell = (p, v) => (p.adp_source === 'search_rank'
+      ? '<span class="muted" title="beyond real ADP coverage — priced by Sleeper '
+        + 'popularity rank for late-round ordering only">—' + caveatOnce('adp_sentinel', '³',
+          'beyond FantasyPros/FFC ADP coverage. Ordered by Sleeper popularity rank — '
+          + 'fine for late-round fliers, not a market price. Never shown as a number.')
+        + '</span>'
+      : Math.round(v));
+    /* ── B3 TIER BANDING: a hairline where the tier breaks inside a position
+     * view, and in the All view a thin "last of Tier N POS" marker on the final
+     * player of each positional tier — the "last of Tier 1 WR" moment. */
+    const lastOfTier = {};
+    if (state.filterPos === 'ALL') {
+      const seen = {};
+      for (let i = displayRows.length - 1; i >= 0; i--) {
+        const p = displayRows[i];
+        const key = p.position + ':' + p.tier;
+        if (!seen[key]) { seen[key] = true; lastOfTier[p.player_id] = p.tier <= 2; }
+      }
+    }
+    $('#board-body').innerHTML = displayRows.map((p, ri) => {
+      const tierBreak = state.filterPos !== 'ALL' && ri > 0
+        && displayRows[ri - 1].tier !== p.tier;
+      const onesieRow = demoteOnesies && (p.position === 'K' || p.position === 'DEF');
+      const noteRow = (ri === onesieNoteAt)
+        ? '<tr class="onesie-demoted"><td colspan="13"><div class="board-onesie-note">'
+          + 'K &amp; DEF below — demoted in this view: streamable all season, so their '
+          + 'cross-position rank is not a draft signal. Use the position filter for their real tiers.'
+          + '</div></td></tr>'
+        : '';
+      return noteRow + '<tr data-tier="' + p.tier + '"'
+        + ((tierBreak ? ' class="tier-cliff"' : '')
+          || (onesieRow ? ' class="onesie-demoted"' : '')) + '>' +
+        '<td class="num">' + p.overall_rank + '</td>' +
+        '<td><b>' + escapeHtml(p.name) + '</b>'
+          + (lastOfTier[p.player_id]
+            ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
         '<td class="muted">' + escapeHtml(p.team || '') + '</td>' +
         '<td class="num">' + (p.bye || '—') + '</td>' +
         '<td class="num">' + Math.round(p.proj_mean) + projSourceMark(p) + '</td>' +
         '<td class="num">' + p.vorp.toFixed(1) + '</td>' +
         '<td class="num tier-cell t' + ((p.tier - 1) % 6) + '">' + p.tier + '</td>' +
-        '<td class="num">' + Math.round(p.adjusted_adp) + '</td>' +
-        '<td class="num muted">' + Math.round(p.raw_adp || 0) + '</td>' +
+        '<td class="num">' + adpCell(p, p.adjusted_adp) + '</td>' +
+        '<td class="num muted">' + adpCell(p, p.raw_adp || 0) + '</td>' +
         '<td>' + riskFlags(p) + '</td>' +
         '<td class="num" style="white-space:nowrap">' +
           (p.override
@@ -5160,7 +5261,8 @@
             + '" title="I drafted him — adds to MY roster">\u2795 Me</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id
             + '" title="Somebody else took him">✕</button></td>' +
-      '</tr>').join('');
+      '</tr>';
+    }).join('');
     renderSearchTail(rows.length, takenHits);
     // Lead with the number that MOVES. The visible list is capped at 200, so
     // "200 shown" holds steady as picks come off and reads as if nothing updated
