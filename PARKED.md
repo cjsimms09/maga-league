@@ -13464,6 +13464,49 @@ already scoped and already scheduled, for A to decide on.
 
 ---
 
+# PARKED BY CORY (research relay), 2026-08-15 — CORRECTION to the entry above: the starter/FLEX/bench VONA branches described as "not broken today" are real but INACTIVE, not running
+
+Cory asked directly "are we using VONA properly," which is what caught this.
+The entry above said the starter/FLEX/bench-differentiated pricing in
+`vona()` "already does the right thing for this exact failure class...
+None of that is broken today." **That is true of the code and false about
+what actually runs.** Checked directly: `CFG.VONA_SLOT_AWARE: false` (line
+237). `vona()`'s own logic (line 798): `if (!CFG.VONA_SLOT_AWARE) return
+straight;` — with the flag off, EVERY player, starter or bench, gets the
+same flat formula. The sophisticated branch structure I described as
+protecting against the TE-collapse failure class is real code that the live
+board never reaches. I was reading a well-designed mechanism and describing
+it as active without checking the flag that gates it.
+
+**Why it's off is a good, measured reason, not an oversight — found reading
+the comment directly above the flag (2026-08-14):** turning it on was tested
+against Cory's own acceptance criterion (exactly 1 QB, 1 TE on the roster)
+and made it WORSE — TE 1→3, QB 2→4. Mechanism: once starters are filled,
+1,331 of 1,686 scored players collapse to VONA exactly 0 (a tie), and in
+that tie quarterbacks win arbitrarily because their raw point scale is
+largest — the same units-distortion class as the ceiling bug, showing up as
+a tie-break artifact instead of a magnitude one. **What's actually
+preventing the TE/QB spam right now is `ONESIE_HARD_CAP`/`ONESIE_MAX_SPARE`**
+(confirmed active and passing its test earlier today), explicitly described
+in the code as "the right SHAPE and the wrong IMPLEMENTATION... the seat
+assignment in `draft_plan.js` is the good [mechanism] eventually... this is
+the first version of the correct mechanism, not a stopgap."
+
+**Net correction:** VONA's core value math (the `straight` formula) is what
+actually runs and drives the board — that part of the prior entry's
+conclusion ("VONA stays, don't touch it") still holds. But "the
+starter/FLEX/bench branches already protect against this" was wrong as a
+description of live behavior. The real protection today is the hard cap,
+which is a deliberate, measured, acknowledged-as-temporary stand-in, not the
+finished mechanism.
+
+## What this is NOT
+
+Not a code change. A correction to my own prior entry, found only because
+Cory asked a direct question rather than accepted the earlier framing.
+
+---
+
 # PARKED BY CORY (research relay), 2026-08-15 — Cory independently flagged the mid-draft need-blindness gap; adding his framing as a priority signal, not a new finding
 
 Cory, unprompted, in conversation: "I don't think your bench rules are
