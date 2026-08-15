@@ -3346,6 +3346,24 @@
       })(),
     ];
 
+    // PROJECTION PROVENANCE (exp 33, 2026-08-15). The pre-registered "a loss is
+    // the headline" banner that DraftDeviation.projectionProvenance() derives
+    // from EVIDENCE_STATE[33] was built, exported, and never called from
+    // anywhere — found while auditing projection quality for Cory. Exp 33's
+    // real, honest, already-reported result: our blend LOSES to a naive
+    // prior-year+opportunity baseline on top-decile hit rate, the metric that
+    // finds league-winners (0.41 vs 0.57-0.59, both seasons). The checklist is
+    // where every other "does the board's own math agree with itself" fact
+    // already renders, so this joins them rather than getting a bespoke banner
+    // nobody else's code knows to look for.
+    try {
+      const pp = (typeof DraftDeviation !== 'undefined' && DraftDeviation.projectionProvenance)
+        ? DraftDeviation.projectionProvenance() : null;
+      if (pp && pp.severity === 'warn') {
+        items.push({ ok: false, label: pp.headline, detail: pp.detail, fix: '' });
+      }
+    } catch (e) { /* the checklist must not go blank because one entry threw */ }
+
     // Rail-fire budget: >2 flagged in the top 15 is red until each is
     // acknowledged with a logged reason. Placed last so a board-quality alarm
     // reads after the board-built lines it depends on.

@@ -14326,3 +14326,73 @@ Sleeper's — no grade exists yet either way. Not fully verified end-to-end (the
 piece this sandbox structurally cannot run). A real, tested, additive feature that
 makes "are we using our own projections" true for the first time, everywhere
 `consensus.js` is read, without touching anything the draft-scoring gate protects.
+
+---
+
+## 000000000000000. THE CORE PROJECTION FORMULA WAS ALREADY AUDITED, LOST, AND THE HONEST BANNER WAS NEVER SHOWN (2026-08-15) — THE BIGGEST FINDING OF THE DAY, SHIPPED
+
+**Cory: "double check our projection formula is as good as it could be. It's the
+base of everything." Went looking for the real answer instead of a fresh guess —
+this project already ran that exact audit.**
+
+**Experiment 33 (`draft/backtest/EXP33.md`, reported 2026-08-09) is the real, honest,
+pre-registered answer, and nobody had to build anything to get it — it already
+exists:**
+
+```
+our_blend  MAE 56.67-57.09   rank_corr 0.58-0.61   top-decile 0.413
+naive      MAE 45.59-46.25   rank_corr 0.70-0.70   top-decile 0.565-0.587
+ffc_adp                      rank_corr 0.38-0.45   top-decile 0.222-0.312
+```
+
+**Our blend LOSES to a naive prior-year + opportunity model on every metric that
+matters, in both tested seasons (2023, 2024).** Top-decile hit rate — "does it find
+the players who actually decide seasons" — is the metric the experiment itself
+named as the one that matters most, and our blend loses there by the widest margin
+(0.41 vs 0.57-0.59). MAE and rank correlation both lose too. Dollars, summed through
+the money grader: our_blend $200, naive $100, **ffc_adp $1,200** — raw market ADP
+alone outperforms our own machinery by 6x on this measure.
+
+**This was pre-registered exactly as "a loss is the headline," and the project
+followed its own rule** — `EXP33.md` reports the loss in plain language, no
+softening. It goes further: `public/js/draft/deviation.js` has a whole,
+carefully-built mechanism (`EVIDENCE_STATE`, `projectionProvenance()`) that derives
+an honest warning banner from this exact result — reconciled against exp 34 (a
+separate, real, small ranking edge over a weak market) so neither finding is cited
+misleadingly alone. The comment inside it is explicit about WHY this matters: "a
+confidence sentence that outlives the experiment which should have updated it is
+WORSE than the bare word."
+
+**And it was never called from anywhere.** `projectionProvenance()` is fully built,
+exported, correct — checked directly: `require()`d it and ran it, got the real
+banner text back. Grepped every other file in `public/js/draft/` and `views/` for
+any caller. Zero. The single most important, most honestly-measured fact this
+project has about its own core machinery — the thing Cory called "the base of
+everything" — was computed, reconciled, worded carefully, and shown to no one.
+
+**Wired it in** (`public/js/draft/app.js`, `renderChecklist()`, right before the
+rail-fire-budget entry): calls `DraftDeviation.projectionProvenance()`, and when it
+returns a warning, adds it to the SAME checklist every other "does the board agree
+with itself" fact already renders through — not a bespoke banner, the existing
+mechanism. Wrapped in try/catch so a future change to `deviation.js` can't blank the
+whole checklist. Full JS suite still 247/247 after.
+
+**What this means for "is the projection formula as good as it can be":** measured,
+honestly, already — and the answer is no, not yet, on the metric that matters most.
+The reconciled read (exp 33 lost, exp 34 shows a small real ranking edge) is:
+**lean on tier structure and scarcity, not on the point projection itself** — which
+is exactly what the banner now says, and exactly what own model's build.py wiring
+today (entry above) is careful to leave true (additive third source, not a swap,
+because there is still no clean grade to justify one).
+
+**What I did NOT do:** re-run exp 33, extend it, or attempt to fix the underlying
+regression/age-curve model. That's real modeling work on a 7-day clock, not a wiring
+gap — flagged for A/the post-draft learning-engine work, same bucket as the
+RF/XGBoost question above.
+
+## What this is NOT
+
+Not a new negative finding — exp 33 already found and reported this, honestly,
+6 days ago. This is a "make the already-true thing visible" fix, the same shape as
+every other gap found today, just about the single most consequential fact in the
+whole system.
