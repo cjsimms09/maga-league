@@ -109,6 +109,11 @@ for (const slot of ['SUPER_FLEX', 'REC_FLEX']) {
       { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
   } catch (e) { hits = []; }
   const rel = hits.map(h => path.relative(ROOT, h)).filter(f => !f.startsWith('node_modules'))
+    // Background-agent worktrees are full duplicate checkouts under
+    // .claude/worktrees/ — every hit inside one is a COPY of a registered
+    // site, not a seventh definition. Found 2026-08-15 when two live
+    // worktrees turned this red with copies of lineup.js/value.js/grabby.js.
+    .filter(f => !f.startsWith('.claude'))
     .filter(f => f !== 'draft/tests/flex_eligibility.test.js');
   const known = new Set(SITES.map(s => s.file));
   const unknown = rel.filter(f => !known.has(f));

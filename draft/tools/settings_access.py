@@ -47,7 +47,16 @@ SKIP_FILES = {
 }
 SKIP_DIRS = ("node_modules", ".git", ".cache", os.path.join("draft", "data"),
              os.path.join("draft", "tests"), os.path.join("draft", "config"),
-             "tests", "coverage")
+             "tests", "coverage",
+             # Background-agent worktrees (Claude Code Agent tool,
+             # isolation:"worktree"): full duplicate checkouts of this repo
+             # under .claude/worktrees/. Scanning them double-counts every
+             # consumer and, worse, counts files this scan's own SKIP rules
+             # exclude at the top level (a worktree's draft/tests/ path does
+             # not match the relative SKIP_DIRS entries) — found 2026-08-15
+             # when two live worktrees turned test_settings_registry_truth
+             # red with "consumers" that were copies of excluded files.
+             ".claude")
 EXTS = (".js", ".py", ".html")
 
 

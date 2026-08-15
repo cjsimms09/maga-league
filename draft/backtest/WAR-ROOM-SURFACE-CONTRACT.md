@@ -50,15 +50,23 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement |
+| term | share of movement (2026-08-15 board) |
 |---|---|
-| `value` (VONA) | **59.3%** |
-| `keeper` | 16.1% |
-| **`onesie`** | **13.9%** |
-| `stack` | 10.6% |
+| `value` (VONA) | **59.0%** |
+| **`onesie`** | **16.8%** |
+| `keeper` | 14.3% |
+| `stack` | 9.9% |
 
-**`onesie` is the third-largest driver of the recommendation and a reader of the
-old sentence would not have known it exists.**
+**`onesie` is a top-three driver of the recommendation and a reader of the
+old sentence would not have known it exists.** The shares move with the nightly
+rebuild and the MIDDLE RANKS are board-dependent: on the 2026-08-14 board the
+table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6, and the
+first fresh rebuild after the pipeline was unblocked (2026-08-15, 677 players)
+swapped `keeper` and `onesie` — they run within a few points of each other and
+their order is not a stable claim. The claims that ARE stable, and that the
+test pins: `value` is the largest term, `onesie` is material (top-three, never
+a rounding term), and `stack` is the smallest of the four yet nonzero once a
+roster exists.
 
 **⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
 harness the suites used, the same decomposition returns `value 77.9% / keeper
