@@ -284,6 +284,15 @@ since then either.
      first run's state stamped (the once-per-week stamp already written would need a second key).
 - **My recommendation: (2).** The alert's job is the lineup, and a lineup set at 11:45 is still
   a lineup set. (3) is the right shape eventually but not before there is a season to test it on.
+- **✅ ALREADY SHIPPED, found 2026-08-15 (Cory research relay) — was mis-surfaced as still open.**
+  `.github/workflows/sunday-alert.yml` already runs option 2 (`45 15 * * 0`), with a detailed
+  dated comment and a dedicated regression test (`draft/tests/sunday_cron.test.js`) pinning the
+  schedule against the same reasoning above, including the DST honest-limitation note. Cory
+  re-confirmed option 2 today without knowing it already shipped — nothing to build. **Third
+  time this file has had a resolved item read as open from its status label alone** (after F4 and
+  now this) — the OPEN section's reorg fixed structure but did not re-verify each item against
+  current code. The remaining OPEN items have not been re-checked against code either; treat them
+  as unverified until someone does, not as confirmed-open.
 
 ## PROPOSED CLAUSE (A, 2026-08-11) — self-referential fixtures, needs your authorization
 
