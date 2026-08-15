@@ -1,0 +1,52 @@
+name: Weekly grade runner
+
+# THE REPO-SIDE HALF OF THE WEEKLY LEARNING LOOP. The LIVE half is already
+# scheduled inside Netlify (netlify.toml): claims-cron (Sun 13:00 UTC) emits
+# forecasts and resolves last week's forecasts AND in-season decisions;
+# grade-cron (Tue 12:00 UTC) grades everything into the calibration ledger the
+# /lineup/accuracy page reads. Neither of those can refresh COMMITTED
+# artifacts or prove the shared machinery in CI — that is this job:
+#
+#   1. regenerate draft/data/component_grades.json (component_write.js —
+#      degrades honestly while weekly_realized.json does not exist, every
+#      empty row naming the input it awaits, fixture self-check inside);
+#   2. run the resolution-pipe self-check: the SAME resolver + grader the
+#      live crons use, against real 2023 history with independently
+#      hand-summed expected answers. A red run means THE PIPE IS BROKEN —
+#      never "the season is quiet"; distinguishing those two states is the
+#      entire reason this job exists before week 1.
+#
+# TUESDAY 13:30 UTC — 90 minutes after grade-cron, so a broken grading week
+# and a broken pipe surface the same morning, in the same log column.
+#
+# Deliberately does NOT curl the live crons: grade-cron's manual key RUNS a
+# grading pass (another calibration snapshot), so a "verification" hit would
+# double-write the append-only ledger every Tuesday. The live loop's health is
+# read from its own schedule logs; this job proves the code both loops share.
+on:
+  schedule:
+    - cron: '30 13 * * 2'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Run the weekly grade runner (self-checks inside; exit 1 = pipe broken)
+        run: node draft/tools/weekly_grade_runner.js
+      - name: Commit the refreshed component grades
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/component_grades.json
+          # Nothing staged is a no-op (no input moved this week), not a
+          # failure — same reasoning as the projection snapshot's commit step.
+          git diff --cached --quiet && echo "no change — artifact already fresh" && exit 0
+          git commit -m "weekly component grades [skip deploy]"
+          git push

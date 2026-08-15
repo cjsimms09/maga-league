@@ -20,6 +20,15 @@ const out = {
   statistic: L.statistic,
   scored: L.scored,
   acquisitions: L.acquisitions,
+  /* THE OTHER NUMBER THE WIRE PAYS (added 2026-08-15): wire_level.js has
+   * published `ongoing` (median of the three weeks AFTER acquisition — what a
+   * HELD add delivers, systematically lower than the add-week spike) beside
+   * per_week since 08-13, and this artifact silently dropped it. The
+   * waiver_claim resolver (src/forecast_grade.js buildInseasonResolutions)
+   * needs both: a claim's baseline window is its add week at per_week plus its
+   * held weeks at ongoing. Emitted from the same measured source, never
+   * transcribed. */
+  ongoing: L.ongoing,
   seasons: WL.SEASONS,
   generated_at: new Date().toISOString(),
   note: 'Real acquisition-week medians from draft/tools/wire_level.js, '

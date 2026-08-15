@@ -299,6 +299,12 @@
         <input type="hidden" name="dollars" value="<%= live.edge %>">
         <input type="hidden" name="confidence" value="<%= live.confidence %>">
         <input type="hidden" name="recommended" value="<%= JSON.stringify(live.lineup.map(s => ({ id: s.pid, name: s.name, pos: s.pos, proj: s.proj }))) %>">
+        <%# THE LINEUP AS ACTUALLY SET, captured at the moment of the tap
+            (2026-08-15). Without it the override recorded the tool's rejected
+            lineup twice and the human's play never — permanently ungradeable.
+            `roster.rows` is the page's own live Sleeper read; the starter rows
+            here are exactly what the optimizer just compared against. %>
+        <input type="hidden" name="actual" value="<%= JSON.stringify(((roster && roster.rows) || []).filter(r => r.starter && r.pos && r.pos !== '?').map(r => ({ id: r.id, name: r.name, pos: r.pos, proj: r.proj }))) %>">
         <div class="lo-ov-chips">
           <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
           <button class="btn small ghost" type="submit" name="reason" value="matchup read">🎯 Matchup read</button>
@@ -307,8 +313,9 @@
           <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
         </div>
         <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
-          What you actually start is readable from Sleeper afterwards. What the tool told you <i>right now</i> isn't
-          recoverable from anything, so that's what gets written down.
+          This records the tool's call <i>and</i> the lineup you have set right now, so the week can
+          grade the disagreement. If you change the lineup on Sleeper after tapping, the graded
+          record is the one from this moment — the decision, not the late edit.
         </p>
       </div>
     </form>
