@@ -98,6 +98,9 @@ function normalize(b) {
   for (const p of b.parties || []) { p.position ??= ''; p.picks ??= []; }
   if (b.status === STATUS.SETTLED && !b.legs) b.legs = buildLegs(b);
   b.legs ??= [];
+  // Payer's I-paid claim (receiver-confirms model) — default at read time so a
+  // leg written before the claim state existed reads cleanly.
+  for (const l of b.legs) l.claimed ??= null;
   return b;
 }
 
@@ -282,7 +285,7 @@ function buildLegs(bet) {
       legs.push({
         id: newId(), from, to,
         amount: r2(bet.stake / winners.length),
-        paid: false, paid_at: null, paid_by: null,
+        paid: false, paid_at: null, paid_by: null, claimed: null,
       });
     }
   }
@@ -470,18 +473,50 @@ async function poolDraftPick(id, owner_id, team_id) {
 // pass names elsewhere). Falls back to the id so the trail is never blank.
 function betNamesSafe(id) { return `#${id}`; }
 
-/** Mark one payment leg paid, or un-mark it. Either side of that leg can. */
+/**
+ * Mark one payment leg — the RECEIVER-CONFIRMS model (2026-08-15).
+ *
+ * The old rule let either side of a leg set `paid`, which means the person who
+ * OWES the money could unilaterally write "paid" into the record the whole
+ * ledger trusts. Money arriving is a fact only the person it arrives to can
+ * attest, so:
+ *
+ *   * the RECEIVER (leg.to) marking paid is THE FACT — it sets `paid` and the
+ *     leg leaves every owes-list. Un-marking (receiver only) reverses it and
+ *     clears any claim, because "actually it never arrived" outranks "I sent it".
+ *   * the PAYER (leg.from) marking paid is A CLAIM — it sets `leg.claimed`
+ *     ({by, at}), the card reads "says they've paid — confirm?", and the leg
+ *     STAYS on the books until the receiver confirms. Marking unpaid as the
+ *     payer withdraws the claim.
+ *   * anyone else: refused.
+ *
+ * This is the two-step (payer-says → receiver-confirms) rather than
+ * receiver-only because the payer taps Venmo and the confirm from the other
+ * phone can be hours away — the interim state is real and worth showing.
+ * Tested both arms (allowed and refused) in draft/tests/sidebet_paid_flow.test.js.
+ */
 async function markLeg(id, leg_id, owner_id, by_name, paid = true) {
   const bet = await get(id);
   if (!bet || bet.status !== STATUS.SETTLED) return null;
   const leg = (bet.legs || []).find(l => l.id === leg_id);
   if (!leg) return null;
-  if (leg.from !== Number(owner_id) && leg.to !== Number(owner_id)) return null;
-  leg.paid = !!paid;
-  leg.paid_at = paid ? now() : null;
-  leg.paid_by = paid ? Number(owner_id) : null;
-  bet.audit.push({ at: now(), by: Number(owner_id),
-    what: `${by_name || 'Someone'} marked a ${paid ? 'payment made' : 'payment unmade'}` });
+  const me = Number(owner_id);
+  if (leg.to === me) {
+    // The receiver's mark is the fact.
+    leg.paid = !!paid;
+    leg.paid_at = paid ? now() : null;
+    leg.paid_by = paid ? me : null;
+    if (!paid) leg.claimed = null;      // "it never arrived" clears "I sent it"
+    bet.audit.push({ at: now(), by: me,
+      what: `${by_name || 'Someone'} confirmed a payment ${paid ? 'received' : 'NOT received — back on the books'}` });
+  } else if (leg.from === me) {
+    // The payer's mark is a claim. It never sets `paid`.
+    leg.claimed = paid ? { by: me, at: now() } : null;
+    bet.audit.push({ at: now(), by: me,
+      what: `${by_name || 'Someone'} ${paid ? 'says they have paid — waiting on the other side to confirm' : 'withdrew their paid claim'}` });
+  } else {
+    return null;                        // not your leg, not your money
+  }
   await store.set(KEY(bet.id), bet);
   return bet;
 }
@@ -545,7 +580,7 @@ async function acceptBuyout(id, owner_id, by_name) {
       id: newId(),
       from: bet.buyout.direction === 'receive' ? other : bet.buyout.by,
       to: bet.buyout.direction === 'receive' ? bet.buyout.by : other,
-      amount: each, paid: false, paid_at: null, paid_by: null,
+      amount: each, paid: false, paid_at: null, paid_by: null, claimed: null,
     }));
     bet.audit.push({ at: now(), what: 'Bought out — bet closed by agreement' });
   }
