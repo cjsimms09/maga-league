@@ -448,6 +448,17 @@ BOARD_FIELD_PURPOSE = {
     "opportunity_adj": HISTORICAL_PRIOR, "opportunity_share": HISTORICAL_PRIOR,
     "opportunity_z": HISTORICAL_PRIOR, "target_share": HISTORICAL_PRIOR,
     "wopr": HISTORICAL_PRIOR, "games_expected": HISTORICAL_PRIOR,
+    # own_projections.compute_own_projections: a walk_forward season-total model
+    # fit over prior-season nflverse data (own_projections.py), same class as the
+    # other prior-season estimates above. NOT derived from other board fields (it
+    # is fetched/computed independently) and NOT yet an input to proj_mean/vorp/
+    # ranking -- attach_own_model()'s own docstring guarantees additive-only, a
+    # display field for comparison, not a pricing input. Missing this
+    # classification is what blocked the 2026-08-15 08:36 UTC nightly rebuild
+    # (draft-data.yml) from publishing at all -- the "every board field is
+    # classified" gate correctly refused an undeclared field rather than
+    # trusting it silently.
+    "proj_ownmodel": HISTORICAL_PRIOR,
     # declared in config or code rather than measured from a feed
     "variance": MODEL_CONSTANT, "variance_why": MODEL_CONSTANT,
     "replacement": MODEL_CONSTANT,

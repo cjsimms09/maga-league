@@ -40,7 +40,20 @@ jobs:
     permissions:
       contents: write
     steps:
+      # fetch-depth: 2, not the default 1 — found 2026-08-15 when the nightly
+      # rebuild refused to publish. test_core_needs_no_reviewer.py diffs
+      # `HEAD~1` against `HEAD` to exercise independent_review.py's own
+      # unavailable-reviewer path; a depth-1 (shallow) clone has no `HEAD~1` to
+      # find, so the test's own subprocess exited via
+      # independent_review.py's "REFUSING: ...contains no changes" path (exit
+      # 1) instead of the CONFIG-unavailable path it meant to test (exit 0) —
+      # a false failure with nothing wrong in the reviewed change. Depth 2 is
+      # the minimum this specific test needs; independent-review.yml already
+      # uses fetch-depth: 0 for its own, different reason (diffing against
+      # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-python@v5
         with:
