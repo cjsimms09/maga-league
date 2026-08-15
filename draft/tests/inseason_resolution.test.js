@@ -92,13 +92,14 @@ const ck = (n, c, d) => {
     res.length === 1 && res[0].payload.realized_chosen === 10, res);
 }
 {
-  // inseason_override deliberately NOT resolved here — its capture never
-  // records what was actually played (both recommended and counterfactual
-  // are the tool's rejected suggestion), so there is nothing honest to sum.
+  // A PRE-FIX inseason_override (recommended duplicated into counterfactual,
+  // no `actual`) is not resolved — there is nothing honest to sum. Since
+  // 2026-08-15 the routes capture payload.actual and THOSE entries do resolve:
+  // waiver_stream_resolution.test.js §5 proves both arms.
   const entries = [{ kind: 'inseason_override', decision_at: 't1',
     payload: { key: 'w1', week: 3, recommended: [{ id: 'a' }], counterfactual: [{ id: 'a' }] } }];
   const res = buildInseasonResolutions(entries, { 3: { a: 10 } });
-  ck('inseason_override is not resolved — its capture never recorded what was actually played',
+  ck('a pre-fix inseason_override (no captured actual) is not resolved — nothing honest to sum',
     res.length === 0, res);
 }
 
@@ -178,6 +179,7 @@ console.log('player\'s realized points for both the recommended and counterfactu
 console.log('and gradeDecisions() scores the edge between them — proven against both hand-');
 console.log('built numbers and a real historical team-week, not assumed from the shape.');
 console.log('WHAT IT DOES NOT: supply real 2026 weekly data (does not exist yet — season');
-console.log('has not started), or resolve waiver_claim/stream_call/inseason_override,');
-console.log('which need separate, different treatment — see the comment on');
-console.log('buildInseasonResolutions() in src/forecast_grade.js for exactly why.');
+console.log('has not started). The other three kinds are no longer this file\'s open item:');
+console.log('waiver_claim/stream_call/inseason_override resolvers landed 2026-08-15 and are');
+console.log('proven in waiver_stream_resolution.test.js; the full capture->resolve->grade->');
+console.log('read loop is driven end-to-end in loop_closure_live.test.js.');

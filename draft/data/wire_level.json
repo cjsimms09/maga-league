@@ -14,11 +14,28 @@
   "statistic": "pooled_sample_median",
   "scored": 422,
   "acquisitions": 764,
+  "ongoing": {
+    "per_week": {
+      "QB": 19.46,
+      "RB": 5.9,
+      "WR": 7.3,
+      "TE": 6.8
+    },
+    "n": {
+      "QB": 225,
+      "RB": 381,
+      "WR": 298,
+      "TE": 215
+    },
+    "window_weeks": 3,
+    "statistic": "median_of_the_three_weeks_AFTER_acquisition",
+    "caveat": "excludes weeks a player did not play, so it slightly OVERSTATES what a held wire add delivers; the gap to per_week is a floor"
+  },
   "seasons": [
     "2023",
     "2024",
     "2025"
   ],
-  "generated_at": "2026-08-15T15:43:35.144Z",
+  "generated_at": "2026-08-15T17:07:04.080Z",
   "note": "Real acquisition-week medians from draft/tools/wire_level.js, 2023-2025. K/DEF absent: nflverse is offense-only, unmeasurable from this source, not zero. Regenerate: node draft/tools/emit_wire_level.js"
 }
