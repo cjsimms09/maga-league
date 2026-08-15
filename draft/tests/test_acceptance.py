@@ -356,28 +356,67 @@ def test_variance_multiplier_is_clamped():
 
 
 def test_upside_ordering_now_differs_from_projection_ordering():
-    """THE test from the audit. Before the fix this could not pass by
-    construction: ceiling - mean was mean x constant within a position."""
-    cfg = {"opportunity_cap": 0.15}
-    players = [
-        _mk("bell", "RB", 210, years_exp=5, depth_chart_order=1),
-        _mk("comm", "RB", 205, years_exp=0, depth_chart_order=2),
-        _mk("mid", "RB", 200, years_exp=4, depth_chart_order=1),
-    ]
-    baseline = {p["player_id"]: p["proj_mean"] for p in players}
-    metrics = {"bell": {"opportunity_share": 0.30},
-               "comm": {"opportunity_share": 0.03},
-               "mid": {"opportunity_share": 0.15}}
-    PJ.blend(players, baseline, metrics, cfg)
+    """THE test from the audit, re-derived for REC-1 (2026-08-15).
 
+    The original degeneracy: ceiling - mean was mean x ONE constant across the
+    whole position, so upside ordering WAS projection ordering everywhere. Two
+    successive fixes broke it two different ways, and this test now pins both:
+
+    - MEASURED path (REC-1, Cory's ruling): sd/mean varies BY RANK BAND — the
+      measured 2023-25 table gives deep bands wider relative spread than the
+      top (RB 33+ 0.666 vs RB 1-3 0.492), so across bands the ceiling ordering
+      diverges from the mean ordering. WITHIN a measured band the ratio is
+      deliberately flat: that is what was measured, and the hand-set per-player
+      modifiers do not override a measurement (every intuition-based term added
+      to this model failed measurement — draft_plan's own record).
+    - FALLBACK path (no calibration on disk): the per-player variance modifiers
+      still differentiate a committee rookie from a bell-cow, exactly as the
+      audit's original fix built.
+    """
+    cfg = {"opportunity_cap": 0.15}
+
+    def mkset():
+        players = [
+            _mk("bell", "RB", 210, years_exp=5, depth_chart_order=1),
+            _mk("comm", "RB", 205, years_exp=0, depth_chart_order=2),
+            _mk("mid", "RB", 200, years_exp=4, depth_chart_order=1),
+            # a deep-band back: measured RB|33+ carries a WIDER relative band
+            # than RB|1-3, so his ceiling-minus-mean can outrank a top back's
+            # despite a fraction of the projection.
+            *[_mk(f"deep{i}", "RB", 190 - i * 3, years_exp=4, depth_chart_order=1)
+              for i in range(35)],
+        ]
+        baseline = {p["player_id"]: p["proj_mean"] for p in players}
+        metrics = {"bell": {"opportunity_share": 0.30},
+                   "comm": {"opportunity_share": 0.03},
+                   "mid": {"opportunity_share": 0.15}}
+        return players, baseline, metrics
+
+    # ── measured path: band structure breaks the global tie ─────────────────
+    players, baseline, metrics = mkset()
+    PJ.blend(players, baseline, metrics, cfg)
+    assert players[0]["proj_sd_source"] == "measured-2023-25-error"
+    ratios = {p["player_id"]: (p["proj_ceiling"] - p["proj_mean"]) / p["proj_mean"]
+              for p in players}
+    assert len({round(v, 4) for v in ratios.values()}) > 1, (
+        "ceiling - mean collapsed back to mean x ONE constant — the original "
+        "degeneracy this test exists to block")
     by_mean = [p["player_id"] for p in sorted(players, key=lambda x: -x["proj_mean"])]
     by_upside = [p["player_id"] for p in
                  sorted(players, key=lambda x: -(x["proj_ceiling"] - x["proj_mean"]))]
-    assert by_mean != by_upside, (
-        f"UpsideBonus still just re-ranks proj_mean: {by_mean} == {by_upside}")
-    # And specifically: the committee rookie outranks the bell-cow on ceiling
-    # despite a lower projection, which is the whole point of the term.
-    assert by_upside.index("comm") < by_upside.index("bell")
+    assert by_mean != by_upside, "upside ordering is still just projection ordering"
+
+    # ── fallback path: the per-player modifiers still do their work ─────────
+    players, baseline, metrics = mkset()
+    import unittest.mock as _mock
+    with _mock.patch.object(PJ, "_sd_calibration", lambda: None):
+        PJ.blend(players, baseline, metrics, cfg)
+    assert players[0]["proj_sd_source"] == "position_variance"
+    by_upside_fb = [p["player_id"] for p in
+                    sorted(players, key=lambda x: -(x["proj_ceiling"] - x["proj_mean"]))]
+    # the committee rookie outranks the bell-cow on ceiling despite a lower
+    # projection — the whole point of the per-player term, alive on this path.
+    assert by_upside_fb.index("comm") < by_upside_fb.index("bell")
 
 
 # ---------------------------------------------------------------------------
