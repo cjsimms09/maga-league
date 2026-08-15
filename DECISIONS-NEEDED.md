@@ -265,6 +265,24 @@ The record below is the evidence that drove the fix.
   was the trigger case) — matters for a closer keeper/draft call than this year's.
 - **Recommendation:** run the sweep's dollar arm + held-out, then bring a specific
   proposed weight here. NOT ready to install blind. (queued behind slate rails + cron)
+- **ATTEMPTED 2026-08-15 (Cory research relay), BLOCKED — same wall as #0/#000 above.**
+  Confirmed the pure sweep math (`draft/tests/test_exp35.py`, 4/4 pass, no network) and
+  confirmed `nfl_data_py` (nflverse realized points) works fine from this sandbox — ran
+  it live, 5,653 rows for 2023. Ran `exp35_regression_sweep.py`'s real egress path
+  directly: it fails at `sleeper_import.fetch_players()` — `Tunnel connection failed:
+  403`. That's the ONE blocked call; `history`/`payouts` are already local files and
+  everything else in the pipeline (`nfl.import_weekly_data`, `nfl.import_ids`) is
+  nflverse and works. Checked for a local substitute for the players dict before giving
+  up: `draft/fixtures/players.json` is synthetic test data (fake names, 233 rows) — using
+  it would map fabricated identities onto real historical picks. `public/draft_data.json`'s
+  686 real players is real but current-year-only — feeding 2023-2025 rosters through it
+  would silently drop retired/off-board players and bias the dollar figure in an unknown
+  direction, for a number whose whole job is gating whether this weight changes on the
+  live board. Declined to produce a number either way rather than guess.
+  **Ready-to-run once someone has Sleeper access:** `python
+  draft/backtest/exp35_regression_sweep.py --out draft/backtest` — that's the whole
+  command, nothing else needs building. Should complete in one shot given every other
+  dependency is already confirmed working.
 
 ## 3. SIMPLIFY AUTO: mask + value is the WHOLE measured edge — the 6 adjusters don't earn — OPEN
 - **Found (exp_participation, 400 paired rooms — the all-terms test):** built each adjuster UP
