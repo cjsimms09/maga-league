@@ -24,11 +24,22 @@ WHAT GETS GRADED, ARM BY ARM:
     `sleeper_fp_average` (simple mean where BOTH providers price a player).
     Provider arms are graded on their own archived population AND on the
     shared population with our champion, honestly labeled when they differ.
+  - `props_weekly_v1` — OUR OWN weekly-props-priced arm (the second half of
+    Cory's 2026-08-16 split: "one for season projections for draft and
+    another for weekly projections specific to that week?"), graded through
+    this SAME provider pathway rather than as a champion/challenger — it is
+    NOT a third-party feed, but it shares the provider arms' exact
+    constraint (a partial, market-dependent population, never the full
+    board), so it reuses their population-honest scoring instead of a
+    parallel one. Full reasoning: draft/weekly_props_arm.py's header. Wired
+    from draft/data/props/weekly_props_<season>_w<week>.json (produced by
+    draft/tools/fetch_weekly_props.py) — empty on this branch pending a
+    human-dispatched real fetch; see draft/audit/weekly_props_study_2026-08-16.md.
 
-THE BOUNDARY, EXPLICIT: provider arms are STUDY arms. The mechanical
-promotion rule below governs OUR OWN formula variants only — no provider is
-ever auto-promoted, and which provider feeds the LIVE waiver/lineup tools is
-actionable-this-year and stays a human ruling.
+THE BOUNDARY, EXPLICIT: provider arms — and props_weekly_v1 — are STUDY arms.
+The mechanical promotion rule below governs OUR OWN formula variants only —
+no provider and no study arm is ever auto-promoted, and which source feeds
+the LIVE waiver/lineup tools is actionable-this-year and stays a human ruling.
 
 THE MECHANICAL PROMOTION RULE (Cory authorized frequent adaptation because
 this data is non-actionable in 2026: "we can adjust more often, no harm if
@@ -64,7 +75,8 @@ Run: python3 draft/weekly_own_grade.py [--season 2026] [--date YYYY-MM-DD]
 Env overrides (tests + dry-run): OWN_WEEKLY_DIR, OWN_WEEKLY_LEDGER_OUT,
 OWN_WEEKLY_ACTUALS (path to {"weeks": {"1": {"players": {pid: pts},
 "teams": N}}} — skips the network fetch), OWN_WEEKLY_PROJ_SERIES,
-OWN_WEEKLY_ISSUE_DIR.
+OWN_WEEKLY_ISSUE_DIR, PROPS_WEEKLY_DIR (weekly_props_<season>_w<week>.json
+snapshots — see draft/weekly_props_arm.py; default draft/data/props/).
 """
 from __future__ import annotations
 
@@ -87,6 +99,8 @@ from weekly_own_projection import (  # noqa: E402
     read_controls,
     week_window,
 )
+from weekly_props_arm import ARM_NAME as PROPS_ARM_NAME  # noqa: E402
+from weekly_props_arm import load_props_arm  # noqa: E402
 
 SEASON = 2026
 MIN_WEEK_PLAYERS = 200   # a real NFL week has ~600 offensive player rows
@@ -466,6 +480,8 @@ def main(argv: list | None = None) -> int:
     ledger_out = Path(os.environ.get("OWN_WEEKLY_LEDGER_OUT") or ledger_path)
     series_path = Path(os.environ.get("OWN_WEEKLY_PROJ_SERIES")
                        or HERE / "data" / "proj_series.json")
+    props_dir = Path(os.environ.get("PROPS_WEEKLY_DIR")
+                     or HERE / "data" / "props")
     issue_dir = os.environ.get("OWN_WEEKLY_ISSUE_DIR")
 
     snapshots = sorted(own_dir.glob(f"own_weekly_{season}_w*.json"))
@@ -529,7 +545,15 @@ def main(argv: list | None = None) -> int:
             print(f"week {wk}: PARTIAL actuals ({len(players)} players, "
                   f"{teams} teams) — refusing to half-grade; retried next run")
             continue
-        entry = grade_week(snap, players, provider_weeklies(series, wk),
+        provider_proj = provider_weeklies(series, wk)
+        props_map = load_props_arm(props_dir, season, wk)
+        if props_map:
+            # a NEW dict, never a mutation of provider_weeklies' return —
+            # props_weekly_v1 is not a provider archive, it merges in only
+            # here, at the point weekly_own_grade decides what counts as a
+            # study arm this run.
+            provider_proj = {**provider_proj, PROPS_ARM_NAME: props_map}
+        entry = grade_week(snap, players, provider_proj,
                            graded_at=today.isoformat())
         ledger["weeks"][str(wk)] = entry
         n_graded += 1

@@ -61,6 +61,16 @@ lives in the grades ledger; this writer reads it there and defaults to v1.
 Humans and agents invent new arms by reading miss patterns; the mechanical
 loop only selects among the arms it is given.
 
+A DIFFERENT KIND OF ARM lives OUTSIDE this file's arm set on purpose:
+`props_weekly_v1` (draft/weekly_props_arm.py, fed by
+draft/tools/fetch_weekly_props.py) prices a week directly from THAT week's
+fetched player-prop O/U lines rather than from proj_ownmodel/divisor*tilt, so
+it cannot promise the full-population coverage every arm above guarantees (a
+prop line exists only where a market was quoted). It is graded by
+weekly_own_grade.py through the provider-study pathway instead of as a
+challenger column here — see that module's header and
+draft/audit/weekly_props_study_2026-08-16.md for the full reasoning.
+
 THE WEEK CLOCK. The vegas store carries week numbers but NO game dates
 (checked 2026-08-16: seasons["2026"] rows are week/home/away/spread/total
 only), so the week helper anchors on the declared 2026 opener —
