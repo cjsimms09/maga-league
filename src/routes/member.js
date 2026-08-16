@@ -17,6 +17,8 @@ const OT = require('./oddstext');          // how a probability is printed — o
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
+const MW = require('./memberweek');        // member week engine — previews, week nav, Sleeper-fed odds
+const RW = require('./recordswatch');      // records watch — chips when a franchise record is in play
 const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
@@ -652,6 +654,12 @@ router.get('/', aw(async (req, res) => {
         margin: anyScore ? Math.abs(Math.round((mePts - oppPts) * 10) / 10) : null,
         lineupWarn,
       };
+      // The Tuesday preview line on the hero — the record you're playing for,
+      // on the page you land on (member-site pass, 2026-08-16).
+      try {
+        const oppOwner = myGame.opp.owner;
+        weekHero.prev = oppOwner ? MW.previewFor(req.owner.name, oppOwner.name) : null;
+      } catch (e) { weekHero.prev = null; }
     }
   }
 
@@ -672,6 +680,25 @@ router.get('/', aw(async (req, res) => {
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
   const playoffTeams = PO.playoffCut(sData && sData.league);
+
+  // ── RECORDS WATCH, completed-week half (member-site pass, 2026-08-16):
+  // did last week's FINAL scores enter the franchise book? Read from the
+  // frozen week docs (works offline), compared against the same records the
+  // History page renders. Dormant when nothing landed — the normal case.
+  let recordBanners = [];
+  try {
+    if (reviewWeek && reviewWeek >= 1) {
+      const pwr = await MW.pastWeek(season.year, world.config.sleeper_league_id, reviewWeek);
+      if (pwr && pwr.final) {
+        const weekRows = [];
+        for (const g of pwr.games) {
+          if (g.aPts != null) weekRows.push({ ownerId: g.a.id, name: g.a.name, pts: g.aPts, oppPts: g.bPts });
+          if (g.bPts != null) weekRows.push({ ownerId: g.b.id, name: g.b.name, pts: g.bPts, oppPts: g.aPts });
+        }
+        recordBanners = RW.completedWatch(HIST.build().records, weekRows, reviewWeek);
+      }
+    }
+  } catch (e) { recordBanners = []; }
 
   // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
   // with week-over-week movement + clinch/elimination markers. Derived (a seeded
@@ -778,6 +805,7 @@ router.get('/', aw(async (req, res) => {
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace, rivalryOfWeek, rivalryMore,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
+    recordBanners,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
@@ -2089,7 +2117,29 @@ router.get('/team', aw(async (req, res) => {
   // And what everyone else has riding on you, which you are not part of.
   const aboutMe = viewOwner.id === req.owner.id
     ? SB.betsAbout(allBets, req.owner.id, nameOf) : [];
-  res.render('team', { viewOwner, owners, roster, matchup, betWindow,
+  // ── SEASON TREND (member-site pass, 2026-08-16): this owner's weekly
+  // scores from the frozen week docs, beside the league median for the same
+  // week — the chart is ADDITIVE (its own table of the same numbers rides
+  // under it; nothing it draws is removed). Dormant until weeks finish.
+  const trend = [];
+  try {
+    const lid = world.config.sleeper_league_id;
+    const curWeek = (sData && sData.week) || 1;
+    for (let w = 1; w < curWeek; w++) {
+      const doc = await getDoc(`weekpoints:${lid}:${w}`, null);
+      const pts = doc && doc.points ? doc.points : null;
+      if (!pts) continue;
+      const mine = pts[String(viewOwner.id)];
+      if (mine == null) continue;
+      const all = Object.values(pts).map(Number).filter(n => Number.isFinite(n)).sort((a, b) => a - b);
+      const med = all.length ? all[Math.floor(all.length / 2)] : null;
+      trend.push({ week: w, pts: Math.round(mine * 10) / 10,
+        med: med != null ? Math.round(med * 10) / 10 : null,
+        top: all.length ? Math.round(all[all.length - 1] * 10) / 10 : null });
+    }
+  } catch (e) { /* the chart is a bonus */ }
+
+  res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
@@ -2097,6 +2147,88 @@ router.get('/team', aw(async (req, res) => {
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
 }));
+
+// ── WEEK-NAV CONTEXT — one gather for every surface that navigates weeks ────
+// (member-site pass, 2026-08-16). The schedule doc is refreshed best-effort
+// with a failure memory (see memberweek.js), so an outage costs one timeout
+// per six hours, not one per page load.
+async function weekNavContext(world, sData, owners, weekNo) {
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const leagueId = world.config.sleeper_league_id;
+  const map = world.config.sleeper_map || {};
+  const regWeeks = (sData && sData.league && sData.league.settings
+      && sData.league.settings.playoff_week_start)
+    ? sData.league.settings.playoff_week_start - 1 : 14;
+  let scheduleDoc = null;
+  try {
+    scheduleDoc = await MW.futureSchedule(leagueId, seasonYear, weekNo, regWeeks, {
+      rosterToOwner: rid => { const v = map[String(rid)]; return v == null ? null : Number(v); },
+    });
+  } catch (e) { scheduleDoc = null; }
+  return { seasonYear, leagueId, regWeeks, scheduleDoc,
+    nameOf: id => (H.ownerById(owners, id) || {}).name || '?' };
+}
+
+// ── A NON-CURRENT WEEK'S MATCHUP PAGE ───────────────────────────────────────
+// Past week: the frozen slate + frozen scores (result, full slate, the trash
+// thread as it stood). Future week: the scheduled opponent + the Tuesday
+// preview. Either way the page says what it KNOWS and says so when it doesn't
+// — an unposted schedule renders as "not posted", never a guessed pairing.
+async function renderMatchupWeek(req, res, ctx) {
+  const { world, owners, me, weekNo, viewWeek, nav, goatId } = ctx;
+  const past = viewWeek < weekNo;
+  let myGame = null, slate = null, known = false, final = false;
+  if (past) {
+    const pw = await MW.pastWeek(nav.seasonYear, nav.leagueId, viewWeek);
+    if (pw) {
+      known = true; final = pw.final;
+      slate = pw.games;
+      myGame = pw.games.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+    }
+  } else {
+    const pairs = nav.scheduleDoc && nav.scheduleDoc.weeks && nav.scheduleDoc.weeks[String(viewWeek)];
+    if (pairs && pairs.length) {
+      known = true;
+      slate = pairs.map(p => ({ a: { id: Number(p[0]), name: nav.nameOf(Number(p[0])) },
+        b: { id: Number(p[1]), name: nav.nameOf(Number(p[1])) }, aPts: null, bPts: null }));
+      myGame = slate.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+    }
+  }
+  let opp = null, mine = null;
+  if (myGame) {
+    const meSideA = myGame.a.id === me.id;
+    opp = H.ownerById(owners, meSideA ? myGame.b.id : myGame.a.id) || null;
+    mine = { myPts: meSideA ? myGame.aPts : myGame.bPts,
+      oppPts: meSideA ? myGame.bPts : myGame.aPts };
+    mine.result = (mine.myPts != null && mine.oppPts != null)
+      ? (mine.myPts > mine.oppPts ? 'W' : mine.myPts < mine.oppPts ? 'L' : 'T') : null;
+  }
+  const preview = opp ? MW.previewFor(me.name, opp.name) : null;
+  // The trash thread as it stood that week (read-only for a past game).
+  let trash = [];
+  if (opp && past) {
+    try { trash = await TT.forGame(nav.seasonYear, viewWeek, TT.gameId(me.id, opp.id)); }
+    catch (e) { trash = []; }
+  }
+  // Per-game previews for the whole slate, so any week reads like Tuesday.
+  const slateCards = (slate || []).map(g => ({ ...g,
+    prev: MW.previewFor(g.a.name, g.b.name),
+    winnerId: g.winnerId != null ? g.winnerId
+      : ((g.aPts != null && g.bPts != null && g.aPts !== g.bPts) ? (g.aPts > g.bPts ? g.a.id : g.b.id) : null) }));
+  const mySeason = await MW.ownerSeason(me.id, {
+    seasonYear: nav.seasonYear, leagueId: nav.leagueId, curWeek: weekNo,
+    regWeeks: nav.regWeeks, nameOf: nav.nameOf,
+    currentOppId: ctx.currentOppId != null ? ctx.currentOppId : null,
+    scheduleDoc: nav.scheduleDoc,
+  }).catch(() => null);
+  res.render('matchup-week', {
+    me, owners, weekNo, viewWeek, past, known, final,
+    opp, mine, preview, trash, slateCards, mySeason, regWeeks: nav.regWeeks,
+    nameOf: nav.nameOf, goatId,
+    configured: !!world.config.sleeper_league_id,
+  });
+}
 
 // ---------- the matchup, up close (dedicated page) ----------
 // The team page answers "who am I playing" in passing; this page is that
@@ -2141,6 +2273,34 @@ router.get('/matchup', aw(async (req, res) => {
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
   const betWindow = BL.matchupWindow(liveMatchup);
+
+  // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
+  // "Matchup tracking, this week and other weeks" — ?week=N opens any past
+  // week (frozen slates + frozen points) or any upcoming week (the cached
+  // schedule doc), and the current page carries the season strip either way.
+  // "When do I play Michael again" lives here now, not on Sleeper.
+  const nav = await weekNavContext(world, sData, owners, weekNo);
+  const viewWeek = parseInt(req.query.week, 10) || null;
+  if (viewWeek && viewWeek >= 1 && viewWeek <= nav.regWeeks && viewWeek !== weekNo) {
+    return renderMatchupWeek(req, res, {
+      world, owners, me, weekNo, viewWeek, nav, sData,
+      currentOppId: opp ? opp.id : null,
+      goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
+    });
+  }
+
+  // The viewer's season, week by week — past results, this week, upcoming
+  // opponents — for the schedule card and the week strip. Defensive: the strip
+  // is navigation, never a reason the page fails.
+  let mySeason = null;
+  try {
+    mySeason = await MW.ownerSeason(me.id, {
+      seasonYear: (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear(),
+      leagueId: world.config.sleeper_league_id,
+      curWeek: weekNo, regWeeks: nav.regWeeks, nameOf: nav.nameOf,
+      currentOppId: opp ? opp.id : null, scheduleDoc: nav.scheduleDoc,
+    });
+  } catch (e) { mySeason = null; }
 
   // An already-placed bet on THIS game, so the page shows the standing wager
   // instead of only offering to create another. A matchup bet between the two of
@@ -2213,6 +2373,8 @@ router.get('/matchup', aw(async (req, res) => {
       me, A, B, aPts, bPts, record: specRecord, weekNo,
       live: (aPts != null || bPts != null),
       trash: specTrash, nameOf: nameOfS,
+      // The Tuesday preview facts for the pairing being watched (neutral voice).
+      preview: MW.previewFor(A.name, B.name),
       goatId: MK.goatOwnerId(sData, map),
       configured: !!world.config.sleeper_league_id,
     });
@@ -2238,7 +2400,7 @@ router.get('/matchup', aw(async (req, res) => {
   // not by an independently-sorted row index. See src/matchup.js for why the old
   // index pairing was wrong. Needs the live bundle (starters + points) and the
   // player name DB; absent either, the card stays folded rather than half-drawn.
-  let starters = null, bench = null;
+  let starters = null, bench = null, odds = null;
   if (opp && live && sData && Array.isArray(sData.matchups) && liveMatchup && liveMatchup.me) {
     const myRid = liveMatchup.me.roster_id;
     const oppRid = liveMatchup.opp && liveMatchup.opp.roster_id;
@@ -2255,6 +2417,22 @@ router.get('/matchup', aw(async (req, res) => {
         bench = MU.benchRows(myRow, oppRow, playersDb, byeOpts);
       } catch (e) { starters = null; bench = null; /* the card is a bonus — never break the page */ }
     }
+    // ── THE SLEEPER-FED WIN-ODDS LINE (member-site pass, 2026-08-16) ────────
+    // Cory: "their odds of winning this week (sleeper info only, not our model
+    // for anyone but me)". Mean = Sleeper's own projections off the board;
+    // probability core = the /watch panel's (LO.pWin over Normal sums;
+    // memberweek.js documents the access-rule mechanics). PRE-KICK ONLY: once
+    // a point is on the board we cannot see who has played (the per-player
+    // feed is A's parked work), so an unmoving pre-kick number next to a live
+    // score would be a stale claim — the live surfaces take over there.
+    // A refusal (missing starter, no board) renders NOTHING, never a guess.
+    try {
+      const anyPts = PE.anyScoreOnBoard(sData);
+      if (!anyPts && myRow && oppRow && (myRow.starters || []).length && (oppRow.starters || []).length) {
+        const o = MW.matchupOdds(myRow.starters, oppRow.starters, { week: weekNo });
+        if (o.ok) odds = o;
+      }
+    } catch (e) { odds = null; /* the line is a bonus */ }
   }
 
   // The weekly-high TARGET, served now from the harvested band (a RESULT: what it
@@ -2321,7 +2499,9 @@ router.get('/matchup', aw(async (req, res) => {
   res.render('matchup', {
     liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, recordKnown, rivalry,
-    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,     // The availability badge is derived from the optimizer's INACTIVE_INJURY set
+    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,
+    odds, mySeason, regWeeks: nav.regWeeks,
+    // The availability badge is derived from the optimizer's INACTIVE_INJURY set
     // (src/matchup.js), not from a second ladder in the template.
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
@@ -2563,7 +2743,50 @@ router.get('/watch', aw(async (req, res) => {
     const anyScore = PE.anyScoreOnBoard(sData);
     if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples, req.owner.id); source = 'live'; }
   }
-  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
+
+  // ── THE LEAGUE-WIDE SWING LAYER (member-site pass, 2026-08-16) ────────────
+  // Cory's extension: the one-line STAKE per game across the whole slate, so
+  // everyone tracks everyone's matchups. Computed from real standings
+  // arithmetic (whatwatch.gameStake re-ranks the table under each result of
+  // this one game); dormant without standings; never breaks the panel.
+  let stakesOn = 0;
+  if (rows.length) {
+    try {
+      const sStand = sleeper.standings(sData, world.config.sleeper_map || {}, owners)
+        .filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+      if (sStand.length >= 4) {
+        const names = {};
+        for (const o of owners) names[o.id] = o.name;
+        // The live $100 leader, off this week's board.
+        let whLeaderId = null;
+        if (sData && Array.isArray(sData.matchups)) {
+          const map2 = world.config.sleeper_map || {};
+          let top = 0;
+          for (const m of sData.matchups) {
+            const oid = Number(map2[String(m.roster_id)]);
+            const pts = Number(m.points) || 0;
+            if (oid && pts > top) { top = pts; whLeaderId = oid; }
+          }
+        }
+        const ctx = {
+          rows: sStand.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf })),
+          cut: PO.playoffCut(sData && sData.league), names, whLeaderId,
+        };
+        // Count GAMES, not per-owner rows — the panel is built from per-owner
+        // entries (each game arrives twice) and the header must say how many
+        // games can move a race, not how many rows carry the line.
+        const staked = new Set();
+        for (const r of rows) {
+          if (r.opp_id == null) continue;
+          r.stake = WW.gameStake(r.owner_id, r.opp_id, ctx);
+          if (r.stake) staked.add([Number(r.owner_id), Number(r.opp_id)].sort((a, b) => a - b).join('-'));
+        }
+        stakesOn = staked.size;
+      }
+    } catch (e) { /* the stake line is a bonus */ }
+  }
+
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview, stakesOn,
     liveStale: await liveFreshness() });
 }));
 
@@ -2600,6 +2823,41 @@ router.get('/scoreboard', aw(async (req, res) => {
   const games = PE.weekGames(sData, map, owners);
   const anyScore = PE.anyScoreOnBoard(sData);
   const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
+
+  // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
+  // ?week=N opens any past week's full slate (frozen scores, final) or an
+  // upcoming week's scheduled pairings with their Tuesday previews. Honest
+  // when a week is unknown; the current week stays exactly this page.
+  const nav = await weekNavContext(world, sData, owners, weekNo);
+  const viewWeek = parseInt(req.query.week, 10) || null;
+  if (viewWeek && viewWeek >= 1 && viewWeek <= nav.regWeeks && viewWeek !== weekNo) {
+    const past = viewWeek < weekNo;
+    let rows = null, final = false;
+    if (past) {
+      const pw = await MW.pastWeek(seasonYear, world.config.sleeper_league_id, viewWeek);
+      if (pw) { rows = pw.games; final = pw.final; }
+    } else {
+      const pairs = nav.scheduleDoc && nav.scheduleDoc.weeks && nav.scheduleDoc.weeks[String(viewWeek)];
+      if (pairs && pairs.length) {
+        rows = pairs.map(p => ({ a: { id: Number(p[0]), name: nameOf(Number(p[0])) },
+          b: { id: Number(p[1]), name: nameOf(Number(p[1])) }, aPts: null, bPts: null, winnerId: null }));
+      }
+    }
+    const weekCards = (rows || []).map(g => ({
+      g: { id: PE.gameId(g.a.id, g.b.id), a: g.a, b: g.b },
+      aPts: g.aPts, bPts: g.bPts, final,
+      leader: g.winnerId != null ? (g.winnerId === g.a.id ? g.a : g.b) : null,
+      riv: RIVN.rivalryFor(g.a.name, g.b.name),
+      prev: MW.previewFor(g.a.name, g.b.name),
+    }));
+    const liveStaleW = await liveFreshness();
+    return res.render('scoreboard-week', {
+      liveStale: liveStaleW, me, owners, weekNo, viewWeek, past, final,
+      known: !!(rows && rows.length), cards: weekCards, regWeeks: nav.regWeeks,
+      goatId: MK.goatOwnerId(sData, map), nameOf,
+      configured: !!world.config.sleeper_league_id,
+    });
+  }
 
   // live points per owner (from the scoreboard)
   let livePts = null;
@@ -2675,6 +2933,17 @@ router.get('/scoreboard', aw(async (req, res) => {
     }
   } catch (e) { /* the chip is a bonus; the scoreboard renders without it */ }
 
+  // Starter ids per owner, for the pre-kick Sleeper odds line (memberweek.js).
+  const startersByOwner = {};
+  if (sData && Array.isArray(sData.matchups)) {
+    for (const m of sData.matchups) {
+      const oid = map[String(m.roster_id)];
+      if (oid != null && Array.isArray(m.starters) && m.starters.length) {
+        startersByOwner[String(oid)] = m.starters;
+      }
+    }
+  }
+
   const cards = games.map(g => {
     const aPts = livePts ? livePts[String(g.a.id)] : null;
     const bPts = livePts ? livePts[String(g.b.id)] : null;
@@ -2699,18 +2968,133 @@ router.get('/scoreboard', aw(async (req, res) => {
       const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [], remainKnown: false });
       sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
     }
+    // ── TUESDAY PREVIEW + SLEEPER ODDS, pre-kick only (member-site pass) ────
+    // Before any score exists this page IS the Tuesday preview: the all-time
+    // record, the streak, the last meeting, and the Sleeper-fed win odds per
+    // game. Once the ball is in the air the live chips above take over — an
+    // unmoving pre-game probability beside a live score would be stale.
+    let prev = null, gOdds = null;
+    if (!anyScore) {
+      prev = MW.previewFor(g.a.name, g.b.name);
+      try {
+        const sa = startersByOwner[String(g.a.id)], sb = startersByOwner[String(g.b.id)];
+        if (sa && sb) {
+          const o = MW.matchupOdds(sa, sb, { week: weekNo });
+          if (o.ok) gOdds = o;
+        }
+      } catch (e) { gOdds = null; }
+    }
     return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat,
-             wager: betsByGame[g.id] || null };
+             prev, odds: gOdds, wager: betsByGame[g.id] || null };
   });
+
+  // ── RECORDS WATCH (member-site pass): chips when someone is playing their
+  // way into the franchise book. Dormant by construction — a normal week
+  // renders nothing. Defensive: the book must never break the scoreboard.
+  let recordChips = [];
+  try {
+    if (anyScore) {
+      recordChips = RW.liveWatch(HIST.build().records,
+        cards.map(c => ({ a: c.g.a, b: c.g.b, aPts: c.aPts, bPts: c.bPts, g: c.g })));
+    }
+  } catch (e) { recordChips = []; }
 
   const liveStale = await liveFreshness();
   res.render('scoreboard', {
     liveStale,
-    me, owners, weekNo, cards, locked, whRace, whBand,
+    me, owners, weekNo, cards, locked, whRace, whBand, recordChips,
+    regWeeks: nav.regWeeks,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
     configured: !!world.config.sleeper_league_id,
     goatId: MK.goatOwnerId(sData, map), nameOf,
+  });
+}));
+
+// ---------- THE RACES — playoff race / points crown / toilet race ----------
+// (member-site pass, 2026-08-16; Cory: "the races yes.") One page where every
+// member finds a race they're still in: the playoff race with week-over-week
+// odds movement, the points crown (best PF), and the toilet race — all
+// LEAGUE-VISIBLE (the races are RESULTS-in-progress, ACCESS-RULE.md; the odds
+// are the same seeded Monte-Carlo estimate the standings column already
+// carries, labelled, and never the commissioner's model). Dormant pre-season.
+router.get('/races', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getUTCFullYear();
+  const map = world.config.sleeper_map || {};
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+
+  const sStand = sleeper.standings(sData, map, owners);
+  const playedRows = sStand.filter(r => r.owner_id != null
+    && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+  const started = !!(sData && playedRows.length >= 4);
+
+  let picture = null, gamesLeft = 0, regWeeks = 14;
+  const cut = PO.playoffCut(sData && sData.league);
+  let rankMoves = {};
+  if (started) {
+    try {
+      const rows = playedRows.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : ((season && season.weeks) || 14);
+      gamesLeft = PO.gamesRemaining(weekNo, regWeeks);
+      const prev = await getDoc(`playoff-odds:${seasonYear}:${weekNo - 1}`, null);
+      picture = PO.picture(rows, gamesLeft, cut, prev ? prev.odds : null);
+    } catch (e) { picture = null; /* the odds column is a bonus */ }
+    // Movement arrows off the last completed week's FROZEN slate (works
+    // offline — same source the week nav reads), keyed back to roster ids.
+    try {
+      const pw = await MW.pastWeek(seasonYear, world.config.sleeper_league_id, weekNo - 1);
+      if (pw && pw.final) {
+        const rosterOf = {};
+        for (const [rid, oid] of Object.entries(map)) rosterOf[String(oid)] = Number(rid);
+        const weekMatchups = [];
+        pw.games.forEach((g, i) => {
+          if (rosterOf[String(g.a.id)] != null && g.aPts != null) weekMatchups.push({ roster_id: rosterOf[String(g.a.id)], matchup_id: i + 1, points: g.aPts });
+          if (rosterOf[String(g.b.id)] != null && g.bPts != null) weekMatchups.push({ roster_id: rosterOf[String(g.b.id)], matchup_id: i + 1, points: g.bPts });
+        });
+        rankMoves = MOVE.rankMovement(sStand, weekMatchups);
+      }
+    } catch (e) { rankMoves = {}; }
+  }
+
+  // The three races, from the one standings table.
+  const playoffRace = playedRows.map(r => {
+    const p = picture ? picture[r.owner_id] : null;
+    const cutRow = playedRows[cut - 1] || null;
+    return {
+      rank: r.rank, owner_id: r.owner_id, name: r.owner_name || r.team, team: r.team,
+      wins: r.wins, losses: r.losses, ties: r.ties, pf: r.pf,
+      odds: p ? p.odds : null, delta: p ? p.delta : null, status: p ? p.status : null,
+      move: rankMoves[r.owner_id] || null,
+      // Games back of the line: wins behind the current cut-holder (0 inside).
+      gb: cutRow ? Math.max(0, (cutRow.wins || 0) - (r.wins || 0)) : null,
+    };
+  });
+  const pointsCrown = [...playedRows].sort((a, b) => b.pf - a.pf).map((r, i, arr) => ({
+    rank: i + 1, owner_id: r.owner_id, name: r.owner_name || r.team,
+    pf: r.pf, gap: Math.round((arr[0].pf - r.pf) * 10) / 10,
+    perWeek: weekNo > 1 ? Math.round((r.pf / (weekNo - 1)) * 10) / 10 : null,
+  }));
+  const toilet = [...playedRows].reverse().slice(0, Math.min(4, playedRows.length)).map(r => ({
+    rank: r.rank, owner_id: r.owner_id, name: r.owner_name || r.team,
+    wins: r.wins, losses: r.losses, pf: r.pf,
+    // Wins clear of the bottom — 0 means you're holding the toilet.
+    clear: (r.wins || 0) - (playedRows[playedRows.length - 1].wins || 0),
+    move: rankMoves[r.owner_id] || null,
+  }));
+
+  res.render('races', {
+    me, owners, weekNo, started, cut, gamesLeft, regWeeks,
+    playoffRace, pointsCrown, toilet, nameOf,
+    goatId: MK.goatOwnerId(sData, map),
+    configured: !!world.config.sleeper_league_id,
+    liveStale: await liveFreshness(),
   });
 }));
 

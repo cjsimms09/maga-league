@@ -3731,12 +3731,24 @@ h1.page-title .sub{
 .num, td.num, th.num, .mu-pts, .hg-score, .pk-me-num, .pot-n, .wtw-pct,
 .po-odds, .money, .tab-balance, .h2h-stat-val{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
 
-/* buttons — solid navy default, red for gold/primary, ghost = hairline */
-.btn{ box-shadow:none; }
-.btn.gold{ background:var(--red); color:#fff; box-shadow:none; }
-.btn.navy{ background:var(--navy); color:#fff; border:0; }
-.btn.navy:hover{ background:#1c3a63; }
-.btn.ghost{ color:var(--red); border-color:var(--red); }
+/* buttons — the token doctrine executed (member-site pass, 2026-08-16):
+   red = ALARM only and gold = MONEY only, so the primary action button must
+   read as neither an emergency nor a price. `.btn.gold` was painted
+   var(--red) here — every save/send/post on the site wore the alarm color —
+   which the in-season pass flagged to this pass as the site-wide button
+   decision. The call the war room's take button already made
+   (.btn.gold.wrv-take: "the one button that commits must wear NAVY
+   AUTHORITY") now applies to the whole button language:
+     primary  (.btn, .btn.gold)  = solid navy authority
+     secondary (.btn.navy)       = hairline navy (quiet, navigational)
+     destructive (.btn.ghost)    = red hairline — the only red button */
+.btn{ box-shadow:none; background:var(--navy); color:#fff; }
+.btn:hover{ background:#1c3a63; filter:none; }
+.btn.gold{ background:var(--navy); color:#fff; box-shadow:none; }
+.btn.gold:hover{ background:#1c3a63; }
+.btn.navy{ background:var(--panel); color:var(--navy); border:1.5px solid rgba(23,42,74,.4); }
+.btn.navy:hover{ background:var(--panel-soft); }
+.btn.ghost{ color:var(--red); border-color:var(--red); background:none; }
 
 /* alerts — light cards with a signal edge */
 .alert-banner{ background:var(--panel); border:1px solid var(--line); color:var(--ink); box-shadow:0 1px 2px rgba(12,26,43,.04); }
@@ -3842,6 +3854,24 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
   color:#ffd7db; font-size:.8rem; font-weight:700; }
 .week-hero-foot{ margin-top:.55rem; font-size:.78rem; color:#cdd9ea; }
 .week-hero-cue{ font-weight:800; }
+/* The Tuesday preview line on the hero — history in one breath. */
+.week-hero-prev{ margin-top:.55rem; font-size:.76rem; color:#cdd9ea; }
+
+/* ── MEMBER-SITE PASS (2026-08-16): dashboard-side pieces. The rest of the
+   member component grammar lives in warroom.css (loaded on the member pages);
+   these render on '/', which deliberately stays on the site sheet alone. ── */
+/* Records watch — chips/banners when a franchise record is in play. Dormant by
+   construction; navy-forward (history, not alarm), red only if ever alarming. */
+.rec-watch{ margin:0 0 1rem; display:flex; flex-direction:column; gap:.45rem; }
+.rec-watch-chip{ display:flex; gap:.5rem; align-items:flex-start; border:1px solid var(--line);
+  border-left:3px solid var(--navy); border-radius:10px; background:var(--panel);
+  padding:.55rem .7rem; font-size:.82rem; color:var(--ink); box-shadow:0 1px 2px rgba(12,26,43,.05); }
+.rec-watch-chip.in{ border-left-color:var(--navy); }
+.rec-watch-chip.near{ border-left-color:var(--blue); }
+.rec-watch-chip .tag{ flex:0 0 auto; }
+/* The races CTA variant rides the weekhub grammar. */
+.weekhub-cta.races{ background:var(--panel); color:var(--navy); border:1.5px solid rgba(23,42,74,.35); box-shadow:none; }
+.weekhub-cta.races .whc-sub{ color:var(--muted); }
 
 /* DRAFT DAY BANNER — the pre-draft headline, clickable through to the board.
    Gold-forward so it reads as the marquee item, distinct from the navy week CTA. */

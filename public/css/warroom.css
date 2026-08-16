@@ -375,6 +375,132 @@ body.inseason-tools .wrap { max-width: 1280px; }
 .is-zone3 .card .body { font-size: var(--wr-fs-sub); }
 .is-zone3 .card h2 { font-size: var(--wr-fs-title); }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   MEMBER SITE — the 2026-08-16 member-site pass extends this file per the
+   standing handoff ("extend, don't fork"). Phone-first (doctrine §7: members
+   live on phones; 390 is the design width) — every row grammar here wraps
+   instead of overflowing. Gold stays money-only; red stays alarm-only; the
+   navy/gold/eagle identity carries, never generic SaaS.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE WEEK STRIP — matchup/scoreboard week navigation ─────────────────── */
+.wk-strip { display: flex; align-items: center; gap: .35rem; margin: 0 0 1rem; }
+.wk-strip .wk-arrow {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 1px solid var(--wr-line);
+  background: var(--wr-panel); color: var(--wr-structure); font-weight: 800;
+  text-decoration: none; font-size: 1rem;
+}
+.wk-pills { display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; padding: .15rem 0; min-width: 0; }
+.wk-pills::-webkit-scrollbar { display: none; }
+.wk-pill {
+  flex: 0 0 auto; font-size: var(--wr-fs-micro); font-weight: 700; white-space: nowrap;
+  padding: .28rem .6rem; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--wr-line); background: var(--wr-panel); color: var(--wr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.wk-pill.past { color: var(--wr-ink); }
+.wk-pill.now { border-color: var(--wr-structure); color: var(--wr-structure); }
+.wk-pill.active { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+
+/* ── THE TUESDAY PREVIEW LINE — one pairing's history in one strip ───────── */
+.mu-prev {
+  display: flex; flex-wrap: wrap; gap: .15rem .7rem; margin: .55rem 0 0;
+  font-size: var(--wr-fs-sub); color: var(--wr-muted); line-height: 1.4;
+}
+.mu-prev .mu-prev-lead { color: var(--wr-ink); font-weight: 700; }
+.mu-prev .mu-prev-item::before { content: '· '; color: var(--wr-line); }
+
+/* ── THE SLEEPER-FED WIN-ODDS LINE — labelled by source, pre-kick only ───── */
+.mu-odds { margin: .75rem 0 0; border-top: 1px dashed var(--wr-line); padding-top: .6rem; }
+.mu-odds-top { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+.mu-odds-lbl { font-size: var(--wr-fs-sub); font-weight: 800; color: var(--wr-ink); }
+.mu-odds-src { font-weight: 600; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.mu-odds-pct { font-size: var(--wr-fs-big); font-weight: 800; color: var(--wr-structure);
+  font-variant-numeric: tabular-nums; }
+.mu-odds-meter { height: 8px; border-radius: 4px; background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); overflow: hidden; margin: .35rem 0 0; }
+.mu-odds-meter i { display: block; height: 100%; background: var(--wr-chart-main); }
+.mu-odds-foot { font-size: var(--wr-fs-micro); margin-top: .3rem; }
+/* The scoreboard-card variant: one compact line per game. */
+.sb-odds { display: flex; flex-wrap: wrap; gap: .15rem .6rem; align-items: baseline;
+  margin: .45rem 0 0; font-size: var(--wr-fs-sub); }
+.sb-odds-lbl { font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--wr-muted); }
+.sb-odds-val { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+
+/* ── YOUR SEASON — the schedule list ("when do I play Michael again") ────── */
+.sched-list { list-style: none; margin: 0; padding: 0; }
+.sched-row a { display: flex; align-items: baseline; gap: .55rem; padding: .38rem .2rem;
+  text-decoration: none; color: var(--wr-ink); border-top: 1px dashed var(--wr-line);
+  font-size: var(--wr-fs-sub); min-width: 0; }
+.sched-row:first-child a { border-top: none; }
+.sched-wk { flex: 0 0 3.2rem; font-weight: 800; color: var(--wr-muted);
+  font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
+.sched-opp { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sched-res { flex: 0 0 auto; font-weight: 800; font-size: var(--wr-fs-micro);
+  padding: .05rem .4rem; border-radius: 4px; }
+.sched-res.W { color: var(--wr-good); border: 1px solid var(--wr-good); }
+.sched-res.L { color: var(--wr-bad); border: 1px solid var(--wr-bad); }
+.sched-res.T { color: var(--wr-muted); border: 1px solid var(--wr-line); }
+.sched-res.now { background: var(--wr-structure); color: #fff; }
+.sched-score { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+.sched-row.now a { background: var(--navy-soft, rgba(31,95,168,.07)); border-radius: 6px; }
+.sched-row.viewing a { box-shadow: inset 3px 0 0 var(--wr-structure); }
+.sched-cue { flex: 0 0 auto; font-size: var(--wr-fs-micro); }
+
+/* ── A NON-CURRENT WEEK'S SLATE — result rows with the preview riding on ─── */
+.wkslate { list-style: none; margin: 0; padding: 0; }
+.wkslate-row { padding: .5rem 0; border-top: 1px dashed var(--wr-line); }
+.wkslate-row:first-child { border-top: none; }
+.wkslate-teams { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap;
+  font-size: var(--wr-fs-body); }
+.wkslate-teams .num { font-variant-numeric: tabular-nums; }
+.wkslate-win { color: var(--wr-good); }
+.wkslate-row .mu-prev { margin-top: .25rem; }
+
+/* ── THE RACES — one row grammar for all three races ─────────────────────── */
+.race-you {
+  display: flex; flex-direction: column; gap: .2rem; margin: 0 0 1rem;
+  border: 1px solid var(--wr-line); border-left: 4px solid var(--wr-structure);
+  border-radius: 10px; background: var(--wr-panel); padding: .65rem .8rem;
+}
+.race-you-kicker { font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--wr-muted); }
+.race-you-line { font-size: var(--wr-fs-body); color: var(--wr-ink); font-weight: 600; line-height: 1.45; }
+.race-list { list-style: none; margin: 0; padding: 0; }
+.race-row { display: flex; align-items: center; gap: .5rem; padding: .32rem 0;
+  border-top: 1px dashed var(--wr-line); font-size: var(--wr-fs-sub); min-width: 0; }
+.race-row:first-child { border-top: none; }
+.race-row.me { box-shadow: inset 3px 0 0 var(--wr-structure); padding-left: .45rem; }
+.race-rank { flex: 0 0 3.1rem; font-weight: 800; color: var(--wr-muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+.race-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.race-rec { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--wr-muted); }
+.race-meter { flex: 0 0 3.6rem; height: 7px; border-radius: 3px; background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); overflow: hidden; }
+.race-meter.wide { flex: 0 0 5rem; }
+.race-meter i { display: block; height: 100%; background: var(--wr-chart-main); }
+.race-odds { flex: 0 0 auto; min-width: 3.4rem; text-align: right;
+  font-variant-numeric: tabular-nums; font-size: var(--wr-fs-sub); }
+.race-gap { font-size: var(--wr-fs-micro); }
+.race-cutline { padding: .18rem 0; font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--wr-bad); border-bottom: 1px dashed rgba(255,70,85,.5);
+  list-style: none; }
+@media (max-width: 430px) {
+  .race-meter { flex-basis: 2.6rem; }
+  .race-meter.wide { flex-basis: 3.4rem; }
+}
+
+/* ── THE SWING BOARD — the league-wide stake lines on /watch ─────────────── */
+.wtw-swing-head { margin: 0 0 .7rem; font-size: var(--wr-fs-sub); color: var(--wr-ink); }
+.wtw-stake { margin-top: .3rem; font-size: var(--wr-fs-micro); color: var(--wr-ink);
+  border-top: 1px dashed var(--wr-line); padding-top: .3rem; line-height: 1.45; }
+
+/* ── SEASON TREND chart extras (team page) ───────────────────────────────── */
+.wr-chart .med { stroke: var(--wr-ink); stroke-width: 1.5; opacity: .55; }
+
 /* Motion: state changes only. Respect the doctrine — no ambient animation. */
 @media (prefers-reduced-motion: reduce) {
   .wr-chart * , .wrv * { transition: none !important; animation: none !important; }
