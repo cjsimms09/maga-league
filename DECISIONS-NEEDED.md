@@ -48,6 +48,27 @@ evidence file. Detail lives in the evidence, not here.**
    disagree? Relay recommendation: the DP-backed seat plan owns the
    headline; one keeper-assumption overlap must be verified first (the
    data-audit pass is checking it). → ROUTES.md TO:A item 2026-08-15 🎯.
+   **EVIDENCE UPDATE (data audit + fix, 2026-08-15 night):** the
+   keeper-assumption check came back CONTRADICTED and is now FIXED at the
+   mechanism — real Sleeper designations supersede predictions in
+   `opening_script.py` (Marian freed Bowers into the pool; Jeanty + Chase
+   Brown are actually kept). The regenerated script's pick-33/48/53 slates
+   are UNCHANGED (every affected keeper fails the survival floor either
+   way), so this decision's inputs stand; the headline call itself is
+   still yours/A's. → `draft/audit/data_assumptions_audit_2026-08-15.md`
+   §1 + the opening_script commit of 2026-08-15 night.
+5. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
+   (survival.js, ships false)? The league's own positional draft behavior
+   (fit 2023-24, 377 corrected decisions) beat the engine's ADP-plus-noise
+   survival form on a preregistered 2025 forward test (pooled Brier 0.099
+   vs 0.503, and vs 0.206 even after widening the baseline's σ to honest
+   levels). Per-owner signatures did NOT persist (rho 0.074, p=0.56) and
+   are NOT in the feed — only the league-level bucket mix ships, bounded
+   at the existing 0.25 blend weight; survival moves ≤3.1pp. Agent's own
+   recommendation: flip for the 22nd only if mock rehearsals show no
+   surprises; leaving it off costs little.
+   → `draft/audit/draft_behavior_2026-08-15.md` §5 +
+   `draft/data/draft_behavior.json`.
 
 ## Standing open (predate today; unresolved; details under OPEN below)
 

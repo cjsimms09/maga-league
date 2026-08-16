@@ -1253,7 +1253,48 @@ directives, each verbatim:
     above — precisely so the B-lane `_side_bets.ejs` partial stayed
     untouched. No behavioural assertion changed; 27/27.
 
-Refusal-set bookkeeping: the pinned set is now **17 files**
+Refusal-set bookkeeping (superseded same night — see next appendix): the
+pinned set reached **17 files** at this point.
+
+**APPENDED 2026-08-16 (the same working night), SAME AUTHORITY — the side-bet
+/ member-site design pass.** Cory's directive verbatim: *"bet cards should be
+easy to understand and function like a real betting site... currently
+confusing and not clear... should be adjudicated automatically and we should
+have an easy but secure way to mark a bet as paid"*, plus the member-site
+review (*"Goal is that we use this site instead of sleeper app"*). Five more
+B-lane crossings from that pass, each pinned by its own extract-the-renderer
+suite (78 new checks across sidebet_card_grammar / sidebet_paid_flow /
+pickem_surface / member_review_fixes; before/after captures in
+draft/audit/screens/):
+
+  * `views/partials/_side_bets.ejs` — rewritten around one betCard grammar
+    (kind chips, state chips, deadline clock, engine score-bug); killed a
+    real duplication bug (awaiting-confirm bets rendered twice, one copy
+    with dead controls).
+  * `views/pickem.ejs`, `views/scoreboard.ejs` — pick'em card grammar +
+    the locked-bet chip on scoreboard game cards (member-review fix #3).
+  * `src/sidebets.js` — mark-as-paid tightened to receiver-confirms
+    (payer's mark is a claim, receiver's mark is the fact; both arms
+    tested), and `/sidebets/:id/settle` restricted commissioner-only at
+    the route — a party could previously one-tap past the other side to
+    SETTLED. THE ENGINE NEVER SETTLES A BET stands; the engine's verdict
+    became a one-tap DECLARE (source=sleeper) that still awaits the other
+    side's confirm.
+  * `public/css/style.css` — the bet-card CSS section + five invisible-ink
+    fixes (dark-era colors rendering white-on-white in light theme).
+    (`views/dashboard.ejs`, `views/partials/header.ejs`, `src/routes/
+    member.js` were already in the set from earlier appendices; the pass
+    also touched them plus A-lane files and `server-app.js`, which the
+    gate does not flag — listed in
+    `draft/audit/sidebet_design_pass_2026-08-15.md` for B's review.)
+
+Also same night, two A-lane model passes for the record (no gate impact):
+projector v3 (`draft/backtest/own_model_v3.py` — does NOT clear the REC-3
+bar, QB fails; display-only) and the draft-behavior model
+(`draft/backtest/draft_behavior.py` + `CFG.ROOM_MIX_PRIOR: false` in
+`public/js/draft/survival.js`, A-owned, gated off; the flip is queue item 5).
+
+Refusal-set bookkeeping: the pinned set is now **22 files**
 (`scripts/verify-relay-session.sh` carries the exact list). No scoring/weight
-default moved in either pass; the merge remains A's or Cory's deliberate act
+default moved in any pass; the merge remains A's or Cory's deliberate act
 via `scripts/merge-relay.sh`.
