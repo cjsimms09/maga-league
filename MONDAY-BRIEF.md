@@ -41,7 +41,7 @@ RED in STATUS.md.
   key-probe workflows, and the odds capture (fetcher, workflow, tests,
   first snapshot). Nothing else was pushed to main.
 - **The record files:** `TODO.md` (current state), `DECISIONS-NEEDED.md`
-  (rulings + queue — ZERO open calls), `TERRITORY.md` Override #5 (+appendices,
+  (rulings + queue — ZERO gated rulings open before the 22nd; standing research items stay open in its OPEN section), `TERRITORY.md` Override #5 (+appendices,
   every one of the 45 B/C-lane crossings documented), audit docs under
   `draft/audit/*_2026-08-16.md` (one per pass, with before/after screenshots
   under `draft/audit/screens/`).
