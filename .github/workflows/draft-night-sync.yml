@@ -108,8 +108,10 @@ jobs:
             # no-op, not noise in the history. Skipped entirely in dry_run:
             # the whole point is proving the polling/exit mechanics without
             # ever committing or pushing anything.
-            if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
-              git add draft/data/draft_pick_log_2026.jsonl
+            if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl draft/data/draft_shadow_2026.jsonl 2>/dev/null; then
+              # shadow ledger rides the same commit — without this line the
+              # per-pick recommendations die with the runner (shadow pass)
+              git add draft/data/draft_pick_log_2026.jsonl draft/data/draft_shadow_2026.jsonl
               git commit -m "[skip deploy] draft-night sync: pick log update" -q
             fi
             # Enter the push path whenever local HEAD is AHEAD of the remote —
