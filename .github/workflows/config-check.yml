@@ -107,6 +107,10 @@ jobs:
           S_BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
           S_BALL_DONT_LIE_API_KEY: ${{ secrets.BALL_DONT_LIE_API_KEY }}
           S_BALLDONTLIE: ${{ secrets.BALLDONTLIE }}
+          S_SPORTSGAME_ODDS_API: ${{ secrets.SPORTSGAME_ODDS_API }}
+          S_SPORTSGAMEODDS_API_KEY: ${{ secrets.SPORTSGAMEODDS_API_KEY }}
+          S_SPORTS_GAME_ODDS_API: ${{ secrets.SPORTS_GAME_ODDS_API }}
+          S_SPORTSGAMEODDS: ${{ secrets.SPORTSGAMEODDS }}
           V_OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
           V_ODDS_API_KEY: ${{ vars.ODDS_API_KEY }}
         run: |
@@ -115,6 +119,7 @@ jobs:
                    S_ODDS_API_KEY S_THE_ODDS_API_KEY S_ODDS_API S_ODDSAPI_KEY S_ODDS_KEY S_BETTING_API_KEY \
                    S_SLEEPER_API_KEY S_SLEEPER_API S_SLEEPER_KEY S_SLEEPER \
                    S_BALL_DONT_LIE_API S_BALLDONTLIE_API_KEY S_BALL_DONT_LIE_API_KEY S_BALLDONTLIE \
+                   S_SPORTSGAME_ODDS_API S_SPORTSGAMEODDS_API_KEY S_SPORTS_GAME_ODDS_API S_SPORTSGAMEODDS \
                    V_OPENAI_API_KEY V_ODDS_API_KEY; do
             val="${!v}"
             kind="secret"; case "$v" in V_*) kind="VARIABLE (wrong tab — move to Secrets)";; esac
