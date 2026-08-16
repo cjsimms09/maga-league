@@ -1,0 +1,3813 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/proj_mean_blend.py",
+ "_prereg": "draft/backtest/PROJ-MEAN-BLEND-PREREG.md (+ Amendment 1), both committed before this artifact existed",
+ "_ruling": "Cory 2026-08-16: 'not replace Sleeper with own_v6 ... but blend. A blended proj_mean is a smaller, safer change than a swap ... Let's do it' \u2014 and, on coverage, 'Can we use sleeper or fantasy pros on rookies, k and def'",
+ "board_rows": 685,
+ "constructibility_gate": {
+  "status": "no_control",
+  "why": "The CONTROL arm \u2014 Sleeper alone \u2014 has no per-player history for any graded season, so 'does the blend rank players better than Sleeper alone' has no measurable answer on 2023/2024/2025. Prereg \u00a72: a missing control is a REFUSAL, and substituting a different professional source would be a different test wearing this one's name.",
+  "arms": {
+   "sleeper": {
+    "per_player_history": false,
+    "searched": [
+     "draft/backtest/sleeper_projections_2023.json",
+     "draft/backtest/proj_sleeper_2023.json",
+     "draft/backtest/sleeper_proj_2023.json",
+     "draft/data/sleeper_projections_2023.json",
+     "draft/backtest/sleeper_projections_2024.json",
+     "draft/backtest/proj_sleeper_2024.json",
+     "draft/backtest/sleeper_proj_2024.json",
+     "draft/data/sleeper_projections_2024.json",
+     "draft/backtest/sleeper_projections_2025.json",
+     "draft/backtest/proj_sleeper_2025.json",
+     "draft/backtest/sleeper_proj_2025.json",
+     "draft/data/sleeper_projections_2025.json"
+    ],
+    "found": [],
+    "proj_series": {
+     "snapshots": 15,
+     "earliest": "2026-08-09",
+     "latest": "2026-08-16"
+    },
+    "why": "Sleeper published no pre-2026 preseason projection archive and none was ever captured here. draft/data/proj_series.json \u2014 the only Sleeper freeze that exists \u2014 starts 2026-08-09, so it covers the 2026 season and no earlier one. Recorded independently three times in this repo before this run: model_accuracy_backtest.py's docstring ('a backtest of the SOURCES against 2023-25 is UNMEASURABLE from this repo'), draft/audit/projection_skill_backtest_2026-08-15.md \u00a7 'what can never be known', and SOURCE-WEIGHT-PRIOR-PREREG.md \u00a74. A retroactive fetch leaks (exp33): it grades flatteringly because it already knows the injuries.",
+    "what_a_positive_would_look_like": "a committed per-player file keyed by Sleeper player_id carrying a 2023/24/25 preseason projection, dated before that season's week 1 and passing the EXP-FP-HIST-PROJ marker gate (a dead top pick still projected full-season-sized). No such file exists at any searched path, and proj_series.json's earliest snapshot post-dates every gradeable season."
+   },
+   "fantasypros": {
+    "per_player_history": false,
+    "searched": [
+     "draft/backtest/fp_projections_2023.json",
+     "draft/backtest/exp_fp_hist_proj_rows_2023.json",
+     "draft/backtest/fantasypros_projections_2023.json",
+     "draft/backtest/fp_projections_2024.json",
+     "draft/backtest/exp_fp_hist_proj_rows_2024.json",
+     "draft/backtest/fantasypros_projections_2024.json",
+     "draft/backtest/fp_projections_2025.json",
+     "draft/backtest/exp_fp_hist_proj_rows_2025.json",
+     "draft/backtest/fantasypros_projections_2025.json",
+     "draft/backtest/exp_fp_hist_proj.json"
+    ],
+    "found": [],
+    "aggregate_only": true,
+    "why": "exp_fp_hist_proj graded 2023/24/25 in CI and passed every authenticity gate, but committed ONLY per-position aggregates (n / MAE / bias / Spearman). The per-player archive rows were deliberately not retained \u2014 SOURCE-WEIGHT-PRIOR-PREREG.md \u00a74 states it and draws the same consequence: 'the ideal held-out test ... is NOT constructible offline'. Re-fetching is CI-only egress and is unreachable from this sandbox \u2014 the agent proxy answers CONNECT for fantasypros.com with 403 (verified this run, both via urllib and curl)."
+   },
+   "own_v6": {
+    "per_player_history": true,
+    "searched": [
+     "draft/backtest/nflverse_weekly_points_2023.json",
+     "draft/backtest/nflverse_weekly_points_2024.json",
+     "draft/backtest/nflverse_weekly_points_2025.json"
+    ],
+    "found": [
+     "draft/backtest/nflverse_weekly_points_2023.json",
+     "draft/backtest/nflverse_weekly_points_2024.json",
+     "draft/backtest/nflverse_weekly_points_2025.json"
+    ],
+    "why": "reproducible offline and leak-free from the committed weekly and component stores; own_model_v6's construction is a deterministic function of them."
+   }
+  },
+  "position_weighted_arm_A3": {
+   "requires": "per-player history for every source (as A1/A2) AND at least two independently gradeable seasons, so weights fitted on one can be applied to another",
+   "weekly_stores": [
+    2023,
+    2024,
+    2025
+   ],
+   "seasons_predictable_leak_free": [
+    2025
+   ],
+   "fit_seasons_available": 0,
+   "constructible": false,
+   "verdict": "DROPPED",
+   "why_dropped": "Two independent blocks, either of which is sufficient. (1) The same per-player history gap as A1/A2 \u2014 there is no Sleeper or FantasyPros per-player series to weight. (2) Even setting that aside, only ONE season is predictable leak-free from the committed stores (2025 needs 2023+2024; grading 2024 would need 2022, which is not committed), so a position weight could only ever be fitted on the season it grades. Amendment 2 (b), declared before this check: that arm is DROPPED, not reported. A fitted-on-itself position weight would be the strongest-looking number in this study and would mean nothing."
+  }
+ },
+ "graded_test": {
+  "status": "no_control",
+  "why": "The CONTROL arm \u2014 Sleeper alone \u2014 has no per-player history for any graded season, so 'does the blend rank players better than Sleeper alone' has no measurable answer on 2023/2024/2025. Prereg \u00a72: a missing control is a REFUSAL, and substituting a different professional source would be a different test wearing this one's name.",
+  "consequence": "Prereg \u00a73's bar cannot be evaluated on 2023/2024/2025. Prereg \u00a72 and \u00a77: the ship decision is REFUSE and nothing on the board changes."
+ },
+ "coverage_census": {
+  "RB": {
+   "veteran": {
+    "n": 121,
+    "sources_0": 0,
+    "sources_1": 5,
+    "sources_2": 32,
+    "sources_3": 84,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 91,
+    "has_own": 109
+   },
+   "rookie": {
+    "n": 33,
+    "sources_0": 0,
+    "sources_1": 21,
+    "sources_2": 12,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 12,
+    "has_own": 0
+   }
+  },
+  "WR": {
+   "veteran": {
+    "n": 172,
+    "sources_0": 0,
+    "sources_1": 6,
+    "sources_2": 37,
+    "sources_3": 129,
+    "sleeper_adp_fallback_only": 1,
+    "has_fp": 132,
+    "has_own": 164
+   },
+   "rookie": {
+    "n": 67,
+    "sources_0": 0,
+    "sources_1": 40,
+    "sources_2": 27,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 27,
+    "has_own": 0
+   }
+  },
+  "TE": {
+   "veteran": {
+    "n": 93,
+    "sources_0": 0,
+    "sources_1": 3,
+    "sources_2": 12,
+    "sources_3": 78,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 79,
+    "has_own": 89
+   },
+   "rookie": {
+    "n": 35,
+    "sources_0": 0,
+    "sources_1": 18,
+    "sources_2": 17,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 17,
+    "has_own": 0
+   }
+  },
+  "QB": {
+   "veteran": {
+    "n": 70,
+    "sources_0": 0,
+    "sources_1": 1,
+    "sources_2": 10,
+    "sources_3": 59,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 63,
+    "has_own": 65
+   },
+   "rookie": {
+    "n": 18,
+    "sources_0": 0,
+    "sources_1": 10,
+    "sources_2": 8,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 8,
+    "has_own": 0
+   }
+  },
+  "DEF": {
+   "rookie": {
+    "n": 32,
+    "sources_0": 0,
+    "sources_1": 32,
+    "sources_2": 0,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 0,
+    "has_own": 0
+   }
+  },
+  "K": {
+   "veteran": {
+    "n": 39,
+    "sources_0": 4,
+    "sources_1": 35,
+    "sources_2": 0,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 4,
+    "has_fp": 0,
+    "has_own": 0
+   },
+   "rookie": {
+    "n": 5,
+    "sources_0": 0,
+    "sources_1": 5,
+    "sources_2": 0,
+    "sources_3": 0,
+    "sleeper_adp_fallback_only": 0,
+    "has_fp": 0,
+    "has_own": 0
+   }
+  }
+ },
+ "disagreement_decomposition": {
+  "RB": {
+   "fantasypros": {
+    "n": 103,
+    "n_rookie_covered": 12,
+    "n_veteran_covered": 91,
+    "status": "measured",
+    "rookie_mean_delta_pct": -0.0662,
+    "veteran_mean_delta_pct": 0.0087,
+    "reading": "covers both groups \u2014 a difference between the two means is a genuine OPINION about rookies"
+   },
+   "own": {
+    "n": 109,
+    "n_rookie_covered": 0,
+    "n_veteran_covered": 109,
+    "status": "measured",
+    "rookie_mean_delta_pct": null,
+    "veteran_mean_delta_pct": -0.0,
+    "reading": "no_coverage \u2014 this source sees no rookie at this position, so it can express no opinion about them and any bloc movement it causes is ARTIFACT"
+   }
+  },
+  "WR": {
+   "fantasypros": {
+    "n": 159,
+    "n_rookie_covered": 27,
+    "n_veteran_covered": 132,
+    "status": "measured",
+    "rookie_mean_delta_pct": -0.0363,
+    "veteran_mean_delta_pct": 0.0074,
+    "reading": "covers both groups \u2014 a difference between the two means is a genuine OPINION about rookies"
+   },
+   "own": {
+    "n": 164,
+    "n_rookie_covered": 0,
+    "n_veteran_covered": 164,
+    "status": "measured",
+    "rookie_mean_delta_pct": null,
+    "veteran_mean_delta_pct": 0.0,
+    "reading": "no_coverage \u2014 this source sees no rookie at this position, so it can express no opinion about them and any bloc movement it causes is ARTIFACT"
+   }
+  },
+  "TE": {
+   "fantasypros": {
+    "n": 96,
+    "n_rookie_covered": 17,
+    "n_veteran_covered": 79,
+    "status": "measured",
+    "rookie_mean_delta_pct": -0.1362,
+    "veteran_mean_delta_pct": 0.0293,
+    "reading": "covers both groups \u2014 a difference between the two means is a genuine OPINION about rookies"
+   },
+   "own": {
+    "n": 89,
+    "n_rookie_covered": 0,
+    "n_veteran_covered": 89,
+    "status": "measured",
+    "rookie_mean_delta_pct": null,
+    "veteran_mean_delta_pct": 0.0,
+    "reading": "no_coverage \u2014 this source sees no rookie at this position, so it can express no opinion about them and any bloc movement it causes is ARTIFACT"
+   }
+  },
+  "QB": {
+   "fantasypros": {
+    "n": 71,
+    "n_rookie_covered": 8,
+    "n_veteran_covered": 63,
+    "status": "measured",
+    "rookie_mean_delta_pct": 0.018,
+    "veteran_mean_delta_pct": -0.0023,
+    "reading": "covers both groups \u2014 a difference between the two means is a genuine OPINION about rookies"
+   },
+   "own": {
+    "n": 65,
+    "n_rookie_covered": 0,
+    "n_veteran_covered": 65,
+    "status": "measured",
+    "rookie_mean_delta_pct": null,
+    "veteran_mean_delta_pct": 0.0,
+    "reading": "no_coverage \u2014 this source sees no rookie at this position, so it can express no opinion about them and any bloc movement it causes is ARTIFACT"
+   }
+  },
+  "DEF": {
+   "fantasypros": {
+    "n": 0,
+    "status": "too_thin"
+   },
+   "own": {
+    "n": 0,
+    "status": "too_thin"
+   }
+  },
+  "K": {
+   "fantasypros": {
+    "n": 0,
+    "status": "too_thin"
+   },
+   "own": {
+    "n": 0,
+    "status": "too_thin"
+   }
+  }
+ },
+ "level_offsets": {
+  "QB": {
+   "fantasypros": {
+    "n": 71,
+    "offset": 1.09
+   },
+   "own": {
+    "n": 65,
+    "offset": -14.86
+   }
+  },
+  "RB": {
+   "fantasypros": {
+    "n": 103,
+    "offset": 15.7
+   },
+   "own": {
+    "n": 109,
+    "offset": -9.78
+   }
+  },
+  "WR": {
+   "fantasypros": {
+    "n": 159,
+    "offset": 5.1
+   },
+   "own": {
+    "n": 163,
+    "offset": -18.9
+   }
+  },
+  "TE": {
+   "fantasypros": {
+    "n": 96,
+    "offset": 5.43
+   },
+   "own": {
+    "n": 89,
+    "offset": -2.51
+   }
+  },
+  "K": {
+   "fantasypros": {
+    "n": 0,
+    "offset": null
+   },
+   "own": {
+    "n": 0,
+    "offset": null
+   }
+  },
+  "DEF": {
+   "fantasypros": {
+    "n": 0,
+    "offset": null
+   },
+   "own": {
+    "n": 0,
+    "offset": null
+   }
+  }
+ },
+ "measured_biases": {
+  "own": {
+   "QB": 10.87,
+   "RB": 2.38,
+   "WR": 8.72,
+   "TE": 2.12
+  },
+  "fantasypros": {
+   "QB": 17.29,
+   "RB": 0.06,
+   "WR": -4.77,
+   "TE": -10.33
+  },
+  "fantasypros_years": {
+   "QB": [
+    {
+     "year": "2023",
+     "weight": 0.5,
+     "bias": 27.32
+    },
+    {
+     "year": "2024",
+     "weight": 1.0,
+     "bias": 14.11
+    },
+    {
+     "year": "2025",
+     "weight": 1.0,
+     "bias": 15.45
+    }
+   ],
+   "RB": [
+    {
+     "year": "2023",
+     "weight": 0.5,
+     "bias": 1.58
+    },
+    {
+     "year": "2024",
+     "weight": 1.0,
+     "bias": 0.08
+    },
+    {
+     "year": "2025",
+     "weight": 1.0,
+     "bias": -0.72
+    }
+   ],
+   "WR": [
+    {
+     "year": "2023",
+     "weight": 0.5,
+     "bias": -9.13
+    },
+    {
+     "year": "2024",
+     "weight": 1.0,
+     "bias": -3.49
+    },
+    {
+     "year": "2025",
+     "weight": 1.0,
+     "bias": -3.88
+    }
+   ],
+   "TE": [
+    {
+     "year": "2023",
+     "weight": 0.5,
+     "bias": -8.93
+    },
+    {
+     "year": "2024",
+     "weight": 1.0,
+     "bias": -8.89
+    },
+    {
+     "year": "2025",
+     "weight": 1.0,
+     "bias": -12.48
+    }
+   ]
+  },
+  "sleeper": {
+   "QB": 0.0,
+   "RB": 0.0,
+   "WR": 0.0,
+   "TE": 0.0,
+   "K": 0.0,
+   "DEF": 0.0
+  },
+  "sleeper_is_an_assumption": "ZERO BY ASSUMPTION, NOT BY MEASUREMENT. Sleeper's bias against realized points is the quantity the constructibility gate proves does not exist for any graded season. P4 therefore corrects two of three sources onto the truth scale and leaves the third where it is \u2014 an unmeasured term sitting inside the correction whose whole purpose is to remove unmeasured terms. Read every P4 number with that in it.",
+  "stationarity_caveat": "own_v6's biases are one season (2025); FP's are 2023-25 weighted. Both are past-season measurements applied to a 2026 board and nothing here shows they are stationary."
+ },
+ "policies": {
+  "P1": {
+   "policy": "P1",
+   "blended_rows": 350,
+   "n_rookie": 190,
+   "n_veteran": 495,
+   "rookie_median_delta": 5.0,
+   "veteran_median_delta": 2,
+   "rookie_mean_delta": 0.01,
+   "veteran_mean_delta": -0.0,
+   "median_gap": 3.0,
+   "mean_gap": 0.01,
+   "limit": 3.0,
+   "bloc_veto": "FAIL",
+   "post_hoc_draftable_only": {
+    "status": "post_hoc_diagnostic_only",
+    "n_rookie": 34,
+    "n_veteran": 205,
+    "rookie_median_delta": -3.0,
+    "veteran_median_delta": -1,
+    "rookie_mean_delta": -8.09,
+    "veteran_mean_delta": -3.42,
+    "median_gap": 2.0,
+    "mean_gap": 4.66,
+    "would_have_passed": false,
+    "cannot_rescue": "Declared: this cut was chosen AFTER seeing the preregistered veto fail. It is a diagnostic for the next preregistration, never a second chance at this one."
+   },
+   "moved_ge_5": 547,
+   "moved_ge_10": 437,
+   "max_abs_rank_move": 108,
+   "replacement_levels": {
+    "QB": {
+     "before": 341.72,
+     "after": 329.85,
+     "delta": -11.87
+    },
+    "RB": {
+     "before": 189.1,
+     "after": 170.31,
+     "delta": -18.79
+    },
+    "WR": {
+     "before": 187.84,
+     "after": 172.25,
+     "delta": -15.59
+    },
+    "TE": {
+     "before": 151.95,
+     "after": 143.81,
+     "delta": -8.14
+    },
+    "K": {
+     "before": 97.0,
+     "after": 97.0,
+     "delta": 0.0
+    },
+    "DEF": {
+     "before": 103.0,
+     "after": 103.0,
+     "delta": 0.0
+    }
+   },
+   "position_distributions": {
+    "QB": {
+     "before": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     },
+     "after": {
+      "n": 88,
+      "sum": 10102.0,
+      "max": 402.73,
+      "median": 18.67,
+      "min": 0.0
+     }
+    },
+    "RB": {
+     "before": {
+      "n": 154,
+      "sum": 11271.7,
+      "max": 344.88,
+      "median": 31.59,
+      "min": 0.0
+     },
+     "after": {
+      "n": 154,
+      "sum": 11244.9,
+      "max": 347.81,
+      "median": 32.04,
+      "min": 0.0
+     }
+    },
+    "WR": {
+     "before": {
+      "n": 239,
+      "sum": 16184.5,
+      "max": 297.85,
+      "median": 31.94,
+      "min": 0.0
+     },
+     "after": {
+      "n": 239,
+      "sum": 15132.5,
+      "max": 304.83,
+      "median": 31.2,
+      "min": 0.0
+     }
+    },
+    "TE": {
+     "before": {
+      "n": 128,
+      "sum": 6281.7,
+      "max": 232.87,
+      "median": 25.49,
+      "min": 0.0
+     },
+     "after": {
+      "n": 128,
+      "sum": 6206.8,
+      "max": 230.24,
+      "median": 26.65,
+      "min": 0.0
+     }
+    },
+    "K": {
+     "before": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     },
+     "after": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     }
+    },
+    "DEF": {
+     "before": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     },
+     "after": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     }
+    }
+   },
+   "k_def_distribution_moved": false,
+   "largest_movers": [
+    {
+     "name": "Jacoby Brissett",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 438,
+     "rank_after": 330,
+     "delta": -108
+    },
+    {
+     "name": "Isiah Pacheco",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 361,
+     "rank_after": 253,
+     "delta": -108
+    },
+    {
+     "name": "Alvin Kamara",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 343,
+     "rank_after": 243,
+     "delta": -100
+    },
+    {
+     "name": "Malik Willis",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 192,
+     "rank_after": 288,
+     "delta": 96
+    },
+    {
+     "name": "Ashton Dulin",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 560,
+     "rank_after": 464,
+     "delta": -96
+    },
+    {
+     "name": "Isaiah Bond",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 327,
+     "rank_after": 422,
+     "delta": 95
+    },
+    {
+     "name": "Emari Demercado",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 436,
+     "rank_after": 345,
+     "delta": -91
+    },
+    {
+     "name": "Zach Charbonnet",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 300,
+     "rank_after": 210,
+     "delta": -90
+    },
+    {
+     "name": "Tua Tagovailoa",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 541,
+     "rank_after": 452,
+     "delta": -89
+    },
+    {
+     "name": "Aaron Rodgers",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 354,
+     "rank_after": 265,
+     "delta": -89
+    }
+   ]
+  },
+  "P2": {
+   "policy": "P2",
+   "blended_rows": 506,
+   "n_rookie": 190,
+   "n_veteran": 495,
+   "rookie_median_delta": 1.0,
+   "veteran_median_delta": 0,
+   "rookie_mean_delta": 7.24,
+   "veteran_mean_delta": -2.78,
+   "median_gap": 1.0,
+   "mean_gap": 10.02,
+   "limit": 3.0,
+   "bloc_veto": "FAIL",
+   "post_hoc_draftable_only": {
+    "status": "post_hoc_diagnostic_only",
+    "n_rookie": 34,
+    "n_veteran": 205,
+    "rookie_median_delta": 0.0,
+    "veteran_median_delta": -1,
+    "rookie_mean_delta": 4.82,
+    "veteran_mean_delta": -2.52,
+    "median_gap": 1.0,
+    "mean_gap": 7.35,
+    "would_have_passed": false,
+    "cannot_rescue": "Declared: this cut was chosen AFTER seeing the preregistered veto fail. It is a diagnostic for the next preregistration, never a second chance at this one."
+   },
+   "moved_ge_5": 502,
+   "moved_ge_10": 379,
+   "max_abs_rank_move": 198,
+   "replacement_levels": {
+    "QB": {
+     "before": 341.72,
+     "after": 334.44,
+     "delta": -7.28
+    },
+    "RB": {
+     "before": 189.1,
+     "after": 178.08,
+     "delta": -11.02
+    },
+    "WR": {
+     "before": 187.84,
+     "after": 172.96,
+     "delta": -14.88
+    },
+    "TE": {
+     "before": 151.95,
+     "after": 142.77,
+     "delta": -9.18
+    },
+    "K": {
+     "before": 97.0,
+     "after": 97.0,
+     "delta": 0.0
+    },
+    "DEF": {
+     "before": 103.0,
+     "after": 103.0,
+     "delta": 0.0
+    }
+   },
+   "position_distributions": {
+    "QB": {
+     "before": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     },
+     "after": {
+      "n": 88,
+      "sum": 10366.2,
+      "max": 407.32,
+      "median": 19.5,
+      "min": 0.0
+     }
+    },
+    "RB": {
+     "before": {
+      "n": 154,
+      "sum": 11271.7,
+      "max": 344.88,
+      "median": 31.59,
+      "min": 0.0
+     },
+     "after": {
+      "n": 154,
+      "sum": 11142.6,
+      "max": 345.54,
+      "median": 30.07,
+      "min": 0.0
+     }
+    },
+    "WR": {
+     "before": {
+      "n": 239,
+      "sum": 16184.5,
+      "max": 297.85,
+      "median": 31.94,
+      "min": 0.0
+     },
+     "after": {
+      "n": 239,
+      "sum": 16063.9,
+      "max": 310.12,
+      "median": 39.18,
+      "min": -0.15
+     }
+    },
+    "TE": {
+     "before": {
+      "n": 128,
+      "sum": 6281.7,
+      "max": 232.87,
+      "median": 25.49,
+      "min": 0.0
+     },
+     "after": {
+      "n": 128,
+      "sum": 6116.8,
+      "max": 229.12,
+      "median": 26.38,
+      "min": 0.0
+     }
+    },
+    "K": {
+     "before": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     },
+     "after": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     }
+    },
+    "DEF": {
+     "before": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     },
+     "after": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     }
+    }
+   },
+   "k_def_distribution_moved": false,
+   "largest_movers": [
+    {
+     "name": "Sterling Shepard",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 574,
+     "rank_after": 376,
+     "delta": -198
+    },
+    {
+     "name": "DeAndre Hopkins",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 565,
+     "rank_after": 373,
+     "delta": -192
+    },
+    {
+     "name": "Kareem Hunt",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 469,
+     "rank_after": 288,
+     "delta": -181
+    },
+    {
+     "name": "Tyler Lockett",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 475,
+     "rank_after": 352,
+     "delta": -123
+    },
+    {
+     "name": "Nicholas Singleton",
+     "position": "RB",
+     "group": "rookie",
+     "rank_before": 341,
+     "rank_after": 460,
+     "delta": 119
+    },
+    {
+     "name": "Nick Chubb",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 460,
+     "rank_after": 343,
+     "delta": -117
+    },
+    {
+     "name": "Ashton Dulin",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 560,
+     "rank_after": 443,
+     "delta": -117
+    },
+    {
+     "name": "Ray Davis",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 325,
+     "rank_after": 441,
+     "delta": 116
+    },
+    {
+     "name": "Brandin Cooks",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 472,
+     "rank_after": 357,
+     "delta": -115
+    },
+    {
+     "name": "Jacoby Brissett",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 438,
+     "rank_after": 327,
+     "delta": -111
+    }
+   ]
+  },
+  "P3": {
+   "policy": "P3",
+   "blended_rows": 506,
+   "n_rookie": 190,
+   "n_veteran": 495,
+   "rookie_median_delta": 7.0,
+   "veteran_median_delta": 3,
+   "rookie_mean_delta": 2.2,
+   "veteran_mean_delta": -0.84,
+   "median_gap": 4.0,
+   "mean_gap": 3.04,
+   "limit": 3.0,
+   "bloc_veto": "FAIL",
+   "post_hoc_draftable_only": {
+    "status": "post_hoc_diagnostic_only",
+    "n_rookie": 34,
+    "n_veteran": 205,
+    "rookie_median_delta": 0.5,
+    "veteran_median_delta": -1,
+    "rookie_mean_delta": -6.32,
+    "veteran_mean_delta": -3.8,
+    "median_gap": 1.5,
+    "mean_gap": 2.53,
+    "would_have_passed": true,
+    "cannot_rescue": "Declared: this cut was chosen AFTER seeing the preregistered veto fail. It is a diagnostic for the next preregistration, never a second chance at this one."
+   },
+   "moved_ge_5": 569,
+   "moved_ge_10": 451,
+   "max_abs_rank_move": 180,
+   "replacement_levels": {
+    "QB": {
+     "before": 341.72,
+     "after": 329.85,
+     "delta": -11.87
+    },
+    "RB": {
+     "before": 189.1,
+     "after": 170.31,
+     "delta": -18.79
+    },
+    "WR": {
+     "before": 187.84,
+     "after": 172.25,
+     "delta": -15.59
+    },
+    "TE": {
+     "before": 151.95,
+     "after": 143.81,
+     "delta": -8.14
+    },
+    "K": {
+     "before": 97.0,
+     "after": 97.0,
+     "delta": 0.0
+    },
+    "DEF": {
+     "before": 103.0,
+     "after": 103.0,
+     "delta": 0.0
+    }
+   },
+   "position_distributions": {
+    "QB": {
+     "before": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     },
+     "after": {
+      "n": 88,
+      "sum": 10057.3,
+      "max": 402.73,
+      "median": 17.87,
+      "min": 0.0
+     }
+    },
+    "RB": {
+     "before": {
+      "n": 154,
+      "sum": 11271.7,
+      "max": 344.88,
+      "median": 31.59,
+      "min": 0.0
+     },
+     "after": {
+      "n": 154,
+      "sum": 11342.3,
+      "max": 347.81,
+      "median": 33.73,
+      "min": 0.0
+     }
+    },
+    "WR": {
+     "before": {
+      "n": 239,
+      "sum": 16184.5,
+      "max": 297.85,
+      "median": 31.94,
+      "min": 0.0
+     },
+     "after": {
+      "n": 239,
+      "sum": 15197.9,
+      "max": 304.83,
+      "median": 32.92,
+      "min": 0.0
+     }
+    },
+    "TE": {
+     "before": {
+      "n": 128,
+      "sum": 6281.7,
+      "max": 232.87,
+      "median": 25.49,
+      "min": 0.0
+     },
+     "after": {
+      "n": 128,
+      "sum": 6230.1,
+      "max": 230.24,
+      "median": 27.18,
+      "min": 0.0
+     }
+    },
+    "K": {
+     "before": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     },
+     "after": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     }
+    },
+    "DEF": {
+     "before": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     },
+     "after": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     }
+    }
+   },
+   "k_def_distribution_moved": false,
+   "largest_movers": [
+    {
+     "name": "Kareem Hunt",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 469,
+     "rank_after": 289,
+     "delta": -180
+    },
+    {
+     "name": "Sterling Shepard",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 574,
+     "rank_after": 423,
+     "delta": -151
+    },
+    {
+     "name": "DeAndre Hopkins",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 565,
+     "rank_after": 419,
+     "delta": -146
+    },
+    {
+     "name": "Nick Chubb",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 460,
+     "rank_after": 338,
+     "delta": -122
+    },
+    {
+     "name": "Jacoby Brissett",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 438,
+     "rank_after": 330,
+     "delta": -108
+    },
+    {
+     "name": "Isiah Pacheco",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 361,
+     "rank_after": 254,
+     "delta": -107
+    },
+    {
+     "name": "Caleb Douglas",
+     "position": "WR",
+     "group": "rookie",
+     "rank_before": 450,
+     "rank_after": 343,
+     "delta": -107
+    },
+    {
+     "name": "Clyde Edwards-Helaire",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 611,
+     "rank_after": 510,
+     "delta": -101
+    },
+    {
+     "name": "Ashton Dulin",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 560,
+     "rank_after": 459,
+     "delta": -101
+    },
+    {
+     "name": "Isaiah Bond",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 327,
+     "rank_after": 426,
+     "delta": 99
+    }
+   ]
+  },
+  "P4": {
+   "policy": "P4",
+   "blended_rows": 506,
+   "n_rookie": 190,
+   "n_veteran": 495,
+   "rookie_median_delta": 5.0,
+   "veteran_median_delta": 3,
+   "rookie_mean_delta": -3.44,
+   "veteran_mean_delta": 1.32,
+   "median_gap": 2.0,
+   "mean_gap": 4.76,
+   "limit": 3.0,
+   "bloc_veto": "FAIL",
+   "post_hoc_draftable_only": {
+    "status": "post_hoc_diagnostic_only",
+    "n_rookie": 34,
+    "n_veteran": 205,
+    "rookie_median_delta": 0.0,
+    "veteran_median_delta": 0,
+    "rookie_mean_delta": -7.97,
+    "veteran_mean_delta": -3.55,
+    "median_gap": 0.0,
+    "mean_gap": 4.42,
+    "would_have_passed": false,
+    "cannot_rescue": "Declared: this cut was chosen AFTER seeing the preregistered veto fail. It is a diagnostic for the next preregistration, never a second chance at this one."
+   },
+   "moved_ge_5": 581,
+   "moved_ge_10": 448,
+   "max_abs_rank_move": 180,
+   "replacement_levels": {
+    "QB": {
+     "before": 341.72,
+     "after": 320.46,
+     "delta": -21.26
+    },
+    "RB": {
+     "before": 189.1,
+     "after": 169.4,
+     "delta": -19.7
+    },
+    "WR": {
+     "before": 187.84,
+     "after": 170.81,
+     "delta": -17.03
+    },
+    "TE": {
+     "before": 151.95,
+     "after": 146.74,
+     "delta": -5.21
+    },
+    "K": {
+     "before": 97.0,
+     "after": 97.0,
+     "delta": 0.0
+    },
+    "DEF": {
+     "before": 103.0,
+     "after": 103.0,
+     "delta": 0.0
+    }
+   },
+   "position_distributions": {
+    "QB": {
+     "before": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     },
+     "after": {
+      "n": 88,
+      "sum": 9367.2,
+      "max": 393.34,
+      "median": 8.86,
+      "min": -3.04
+     }
+    },
+    "RB": {
+     "before": {
+      "n": 154,
+      "sum": 11271.7,
+      "max": 344.88,
+      "median": 31.59,
+      "min": 0.0
+     },
+     "after": {
+      "n": 154,
+      "sum": 11241.1,
+      "max": 346.87,
+      "median": 32.94,
+      "min": 0.0
+     }
+    },
+    "WR": {
+     "before": {
+      "n": 239,
+      "sum": 16184.5,
+      "max": 297.85,
+      "median": 31.94,
+      "min": 0.0
+     },
+     "after": {
+      "n": 239,
+      "sum": 14943.0,
+      "max": 303.32,
+      "median": 32.63,
+      "min": -4.11
+     }
+    },
+    "TE": {
+     "before": {
+      "n": 128,
+      "sum": 6281.7,
+      "max": 232.87,
+      "median": 25.49,
+      "min": 0.0
+     },
+     "after": {
+      "n": 128,
+      "sum": 6531.0,
+      "max": 233.38,
+      "median": 30.5,
+      "min": -0.19
+     }
+    },
+    "K": {
+     "before": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     },
+     "after": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     }
+    },
+    "DEF": {
+     "before": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     },
+     "after": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     }
+    }
+   },
+   "k_def_distribution_moved": false,
+   "largest_movers": [
+    {
+     "name": "Kareem Hunt",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 469,
+     "rank_after": 289,
+     "delta": -180
+    },
+    {
+     "name": "Sterling Shepard",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 574,
+     "rank_after": 431,
+     "delta": -143
+    },
+    {
+     "name": "DeAndre Hopkins",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 565,
+     "rank_after": 429,
+     "delta": -136
+    },
+    {
+     "name": "Caleb Douglas",
+     "position": "WR",
+     "group": "rookie",
+     "rank_before": 450,
+     "rank_after": 329,
+     "delta": -121
+    },
+    {
+     "name": "Nick Chubb",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 460,
+     "rank_after": 342,
+     "delta": -118
+    },
+    {
+     "name": "Jacoby Brissett",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 438,
+     "rank_after": 328,
+     "delta": -110
+    },
+    {
+     "name": "Tua Tagovailoa",
+     "position": "QB",
+     "group": "veteran",
+     "rank_before": 541,
+     "rank_after": 437,
+     "delta": -104
+    },
+    {
+     "name": "Isiah Pacheco",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 361,
+     "rank_after": 257,
+     "delta": -104
+    },
+    {
+     "name": "Clyde Edwards-Helaire",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 611,
+     "rank_after": 509,
+     "delta": -102
+    },
+    {
+     "name": "Alvin Kamara",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 343,
+     "rank_after": 244,
+     "delta": -99
+    }
+   ]
+  },
+  "P5": {
+   "policy": "P5",
+   "blended_rows": 506,
+   "n_rookie": 190,
+   "n_veteran": 495,
+   "rookie_median_delta": 3.0,
+   "veteran_median_delta": 0,
+   "rookie_mean_delta": 10.28,
+   "veteran_mean_delta": -3.95,
+   "median_gap": 3.0,
+   "mean_gap": 14.22,
+   "limit": 3.0,
+   "bloc_veto": "FAIL",
+   "post_hoc_draftable_only": {
+    "status": "post_hoc_diagnostic_only",
+    "n_rookie": 34,
+    "n_veteran": 205,
+    "rookie_median_delta": 2.5,
+    "veteran_median_delta": 1,
+    "rookie_mean_delta": 18.44,
+    "veteran_mean_delta": 1.58,
+    "median_gap": 1.5,
+    "mean_gap": 16.86,
+    "would_have_passed": false,
+    "cannot_rescue": "Declared: this cut was chosen AFTER seeing the preregistered veto fail. It is a diagnostic for the next preregistration, never a second chance at this one."
+   },
+   "moved_ge_5": 516,
+   "moved_ge_10": 432,
+   "max_abs_rank_move": 323,
+   "replacement_levels": {
+    "QB": {
+     "before": 341.72,
+     "after": 341.72,
+     "delta": 0.0
+    },
+    "RB": {
+     "before": 189.1,
+     "after": 187.68,
+     "delta": -1.42
+    },
+    "WR": {
+     "before": 187.84,
+     "after": 189.11,
+     "delta": 1.27
+    },
+    "TE": {
+     "before": 151.95,
+     "after": 148.92,
+     "delta": -3.03
+    },
+    "K": {
+     "before": 97.0,
+     "after": 97.0,
+     "delta": 0.0
+    },
+    "DEF": {
+     "before": 103.0,
+     "after": 103.0,
+     "delta": 0.0
+    }
+   },
+   "position_distributions": {
+    "QB": {
+     "before": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     },
+     "after": {
+      "n": 88,
+      "sum": 10647.1,
+      "max": 405.5,
+      "median": 24.26,
+      "min": 0.0
+     }
+    },
+    "RB": {
+     "before": {
+      "n": 154,
+      "sum": 11271.7,
+      "max": 344.88,
+      "median": 31.59,
+      "min": 0.0
+     },
+     "after": {
+      "n": 154,
+      "sum": 11294.8,
+      "max": 344.88,
+      "median": 31.11,
+      "min": 0.0
+     }
+    },
+    "WR": {
+     "before": {
+      "n": 239,
+      "sum": 16184.5,
+      "max": 297.85,
+      "median": 31.94,
+      "min": 0.0
+     },
+     "after": {
+      "n": 239,
+      "sum": 16237.0,
+      "max": 297.85,
+      "median": 32.4,
+      "min": 0.0
+     }
+    },
+    "TE": {
+     "before": {
+      "n": 128,
+      "sum": 6281.7,
+      "max": 232.87,
+      "median": 25.49,
+      "min": 0.0
+     },
+     "after": {
+      "n": 128,
+      "sum": 6304.6,
+      "max": 232.87,
+      "median": 25.3,
+      "min": 0.0
+     }
+    },
+    "K": {
+     "before": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     },
+     "after": {
+      "n": 44,
+      "sum": 3072.0,
+      "max": 107.0,
+      "median": 84.0,
+      "min": 0.0
+     }
+    },
+    "DEF": {
+     "before": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     },
+     "after": {
+      "n": 32,
+      "sum": 3051.0,
+      "max": 132.0,
+      "median": 94.0,
+      "min": 70.0
+     }
+    }
+   },
+   "k_def_distribution_moved": false,
+   "largest_movers": [
+    {
+     "name": "Sterling Shepard",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 574,
+     "rank_after": 251,
+     "delta": -323
+    },
+    {
+     "name": "DeAndre Hopkins",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 565,
+     "rank_after": 258,
+     "delta": -307
+    },
+    {
+     "name": "Fernando Mendoza",
+     "position": "QB",
+     "group": "rookie",
+     "rank_before": 261,
+     "rank_after": 535,
+     "delta": 274
+    },
+    {
+     "name": "Allen Lazard",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 535,
+     "rank_after": 286,
+     "delta": -249
+    },
+    {
+     "name": "Josh Reynolds",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 534,
+     "rank_after": 294,
+     "delta": -240
+    },
+    {
+     "name": "Kareem Hunt",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 469,
+     "rank_after": 233,
+     "delta": -236
+    },
+    {
+     "name": "Keenan Allen",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 257,
+     "rank_after": 53,
+     "delta": -204
+    },
+    {
+     "name": "Antonio Gibson",
+     "position": "RB",
+     "group": "veteran",
+     "rank_before": 568,
+     "rank_after": 367,
+     "delta": -201
+    },
+    {
+     "name": "Tyler Lockett",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 475,
+     "rank_after": 275,
+     "delta": -200
+    },
+    {
+     "name": "Curtis Samuel",
+     "position": "WR",
+     "group": "veteran",
+     "rank_before": 539,
+     "rank_after": 347,
+     "delta": -192
+    }
+   ]
+  }
+ },
+ "mechanism_probe": {
+  "status": "measured",
+  "graded_season": 2025,
+  "arms": [
+   "own_v6",
+   "own_v5",
+   "own_v4",
+   "own_v3",
+   "own_v2",
+   "walk_forward_v1",
+   "recency_blend",
+   "naive_prev"
+  ],
+  "reproduction_check": {
+   "faithful": true,
+   "cells_exact": 3,
+   "cells": {
+    "QB": {
+     "n_here": 58,
+     "n_committed": 58,
+     "population_delta": 0,
+     "spearman_here": 0.7225,
+     "spearman_committed": 0.7225,
+     "matches": true,
+     "verdict": "exact"
+    },
+    "RB": {
+     "n_here": 99,
+     "n_committed": 99,
+     "population_delta": 0,
+     "spearman_here": 0.7968,
+     "spearman_committed": 0.7968,
+     "matches": true,
+     "verdict": "exact"
+    },
+    "WR": {
+     "n_here": 151,
+     "n_committed": 150,
+     "population_delta": 1,
+     "spearman_here": 0.7663,
+     "spearman_committed": 0.7634,
+     "matches": false,
+     "verdict": "population_differs"
+    },
+    "TE": {
+     "n_here": 84,
+     "n_committed": 84,
+     "population_delta": 0,
+     "spearman_here": 0.7987,
+     "spearman_committed": 0.7987,
+     "matches": true,
+     "verdict": "exact"
+    }
+   },
+   "why": "own_v6 is rebuilt from its committed helpers here rather than imported from own_model_v6.run(), which exposes no per-player predictions and is read-only to this task. The rebuild must reproduce model_accuracy_v6.json's committed cells or the probe is measuring a different model and says so instead of reporting numbers.",
+   "incidental_finding": "own_v6's graded cells are NOT a pure function of the committed stores. own_model_v2.board_ages() reads public/draft_data.json, so the model's population \u2014 and therefore every cell's n and every published MAE/rho \u2014 tracks the nightly board rebuild. Reported here, not fixed: own_model_v* is read-only to this task."
+  },
+  "pairs": [
+   {
+    "pair": [
+     "own_v6",
+     "own_v5"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7188,
+      "rho_equal_blend": 0.7246,
+      "rho_weighted_blend": 0.7246,
+      "weight_a_folds": [
+       0.516,
+       0.5
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9808
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7968,
+      "rho_equal_blend": 0.7968,
+      "rho_weighted_blend": 0.7968,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7663,
+      "rho_equal_blend": 0.7663,
+      "rho_weighted_blend": 0.7663,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.7987,
+      "rho_equal_blend": 0.7987,
+      "rho_weighted_blend": 0.7987,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "own_v4"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7225,
+      "rho_equal_blend": 0.7225,
+      "rho_weighted_blend": 0.7225,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7957,
+      "rho_equal_blend": 0.7973,
+      "rho_weighted_blend": 0.7977,
+      "weight_a_folds": [
+       0.507,
+       0.523
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9844
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7552,
+      "rho_equal_blend": 0.765,
+      "rho_weighted_blend": 0.7651,
+      "weight_a_folds": [
+       0.486,
+       0.52
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9852
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.792,
+      "rho_equal_blend": 0.7928,
+      "rho_weighted_blend": 0.7926,
+      "weight_a_folds": [
+       0.512,
+       0.497
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9911
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "own_v3"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7189,
+      "rho_equal_blend": 0.7198,
+      "rho_weighted_blend": 0.7198,
+      "weight_a_folds": [
+       0.511,
+       0.51
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9784
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7957,
+      "rho_equal_blend": 0.7973,
+      "rho_weighted_blend": 0.7977,
+      "weight_a_folds": [
+       0.507,
+       0.523
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9844
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7552,
+      "rho_equal_blend": 0.765,
+      "rho_weighted_blend": 0.7651,
+      "weight_a_folds": [
+       0.486,
+       0.52
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9852
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.792,
+      "rho_equal_blend": 0.7928,
+      "rho_weighted_blend": 0.7926,
+      "weight_a_folds": [
+       0.512,
+       0.497
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9911
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "own_v2"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7166,
+      "rho_equal_blend": 0.7234,
+      "rho_weighted_blend": 0.7234,
+      "weight_a_folds": [
+       0.501,
+       0.481
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9455
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7751,
+      "rho_equal_blend": 0.7962,
+      "rho_weighted_blend": 0.7981,
+      "weight_a_folds": [
+       0.577,
+       0.509
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.9498
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7488,
+      "rho_equal_blend": 0.7631,
+      "rho_weighted_blend": 0.7616,
+      "weight_a_folds": [
+       0.467,
+       0.527
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.955
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.7813,
+      "rho_equal_blend": 0.7914,
+      "rho_weighted_blend": 0.7893,
+      "weight_a_folds": [
+       0.55,
+       0.472
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9126
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "walk_forward_v1"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.6712,
+      "rho_equal_blend": 0.718,
+      "rho_weighted_blend": 0.7234,
+      "weight_a_folds": [
+       0.634,
+       0.576
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.7855
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7444,
+      "rho_equal_blend": 0.7862,
+      "rho_weighted_blend": 0.7939,
+      "weight_a_folds": [
+       0.605,
+       0.637
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8899
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.6964,
+      "rho_equal_blend": 0.7601,
+      "rho_weighted_blend": 0.7625,
+      "weight_a_folds": [
+       0.571,
+       0.637
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8296
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.6866,
+      "rho_equal_blend": 0.7698,
+      "rho_weighted_blend": 0.7793,
+      "weight_a_folds": [
+       0.589,
+       0.652
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.7981
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "recency_blend"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7249,
+      "rho_weighted_blend": 0.7251,
+      "weight_a_folds": [
+       0.52,
+       0.517
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.983
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7866,
+      "rho_weighted_blend": 0.7881,
+      "weight_a_folds": [
+       0.563,
+       0.578
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.944
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7563,
+      "rho_weighted_blend": 0.7576,
+      "weight_a_folds": [
+       0.542,
+       0.577
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9598
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7947,
+      "rho_weighted_blend": 0.7957,
+      "weight_a_folds": [
+       0.526,
+       0.531
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9888
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v6",
+     "naive_prev"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7254,
+      "rho_weighted_blend": 0.7255,
+      "weight_a_folds": [
+       0.575,
+       0.562
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9301
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7939,
+      "rho_weighted_blend": 0.7974,
+      "weight_a_folds": [
+       0.641,
+       0.584
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.888
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7559,
+      "rho_weighted_blend": 0.7587,
+      "weight_a_folds": [
+       0.564,
+       0.585
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9323
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7715,
+      "rho_weighted_blend": 0.7767,
+      "weight_a_folds": [
+       0.575,
+       0.558
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9401
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "own_v4"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.7225,
+      "rho_equal_blend": 0.7246,
+      "rho_weighted_blend": 0.7246,
+      "weight_a_folds": [
+       0.484,
+       0.5
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9808
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7957,
+      "rho_equal_blend": 0.7973,
+      "rho_weighted_blend": 0.7977,
+      "weight_a_folds": [
+       0.507,
+       0.523
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9844
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7552,
+      "rho_equal_blend": 0.765,
+      "rho_weighted_blend": 0.7651,
+      "weight_a_folds": [
+       0.486,
+       0.52
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9852
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.792,
+      "rho_equal_blend": 0.7928,
+      "rho_weighted_blend": 0.7926,
+      "weight_a_folds": [
+       0.512,
+       0.497
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9911
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "own_v3"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.7189,
+      "rho_equal_blend": 0.72,
+      "rho_weighted_blend": 0.72,
+      "weight_a_folds": [
+       0.495,
+       0.509
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9685
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7957,
+      "rho_equal_blend": 0.7973,
+      "rho_weighted_blend": 0.7977,
+      "weight_a_folds": [
+       0.507,
+       0.523
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9844
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7552,
+      "rho_equal_blend": 0.765,
+      "rho_weighted_blend": 0.7651,
+      "weight_a_folds": [
+       0.486,
+       0.52
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9852
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.792,
+      "rho_equal_blend": 0.7928,
+      "rho_weighted_blend": 0.7926,
+      "weight_a_folds": [
+       0.512,
+       0.497
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9911
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "own_v2"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.7166,
+      "rho_equal_blend": 0.7176,
+      "rho_weighted_blend": 0.7181,
+      "weight_a_folds": [
+       0.484,
+       0.481
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.964
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7751,
+      "rho_equal_blend": 0.7962,
+      "rho_weighted_blend": 0.7981,
+      "weight_a_folds": [
+       0.577,
+       0.509
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.9498
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7488,
+      "rho_equal_blend": 0.7631,
+      "rho_weighted_blend": 0.7616,
+      "weight_a_folds": [
+       0.467,
+       0.527
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.955
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.7813,
+      "rho_equal_blend": 0.7914,
+      "rho_weighted_blend": 0.7893,
+      "weight_a_folds": [
+       0.55,
+       0.472
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9126
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "walk_forward_v1"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.6712,
+      "rho_equal_blend": 0.7189,
+      "rho_weighted_blend": 0.712,
+      "weight_a_folds": [
+       0.619,
+       0.576
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": true,
+      "error_corr": 0.8384
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7444,
+      "rho_equal_blend": 0.7862,
+      "rho_weighted_blend": 0.7939,
+      "weight_a_folds": [
+       0.605,
+       0.637
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8899
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.6964,
+      "rho_equal_blend": 0.7601,
+      "rho_weighted_blend": 0.7625,
+      "weight_a_folds": [
+       0.571,
+       0.637
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8296
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.6866,
+      "rho_equal_blend": 0.7698,
+      "rho_weighted_blend": 0.7793,
+      "weight_a_folds": [
+       0.589,
+       0.652
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.7981
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "recency_blend"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7204,
+      "rho_weighted_blend": 0.7182,
+      "weight_a_folds": [
+       0.504,
+       0.517
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9624
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7866,
+      "rho_weighted_blend": 0.7881,
+      "weight_a_folds": [
+       0.563,
+       0.578
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.944
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7563,
+      "rho_weighted_blend": 0.7576,
+      "weight_a_folds": [
+       0.542,
+       0.577
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9598
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7947,
+      "rho_weighted_blend": 0.7957,
+      "weight_a_folds": [
+       0.526,
+       0.531
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9888
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v5",
+     "naive_prev"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7188,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7197,
+      "rho_weighted_blend": 0.7242,
+      "weight_a_folds": [
+       0.559,
+       0.562
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9265
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7968,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7939,
+      "rho_weighted_blend": 0.7974,
+      "weight_a_folds": [
+       0.641,
+       0.584
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.888
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7663,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7559,
+      "rho_weighted_blend": 0.7587,
+      "weight_a_folds": [
+       0.564,
+       0.585
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9323
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7987,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7715,
+      "rho_weighted_blend": 0.7767,
+      "weight_a_folds": [
+       0.575,
+       0.558
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9401
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v4",
+     "own_v3"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7189,
+      "rho_equal_blend": 0.7198,
+      "rho_weighted_blend": 0.7198,
+      "weight_a_folds": [
+       0.511,
+       0.51
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9784
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7957,
+      "rho_equal_blend": 0.7957,
+      "rho_weighted_blend": 0.7957,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.7552,
+      "rho_equal_blend": 0.7552,
+      "rho_weighted_blend": 0.7552,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.792,
+      "rho_equal_blend": 0.792,
+      "rho_weighted_blend": 0.792,
+      "weight_a_folds": [
+       0.5,
+       0.5
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 1.0
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v4",
+     "own_v2"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7166,
+      "rho_equal_blend": 0.7234,
+      "rho_weighted_blend": 0.7234,
+      "weight_a_folds": [
+       0.501,
+       0.481
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9455
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7751,
+      "rho_equal_blend": 0.7905,
+      "rho_weighted_blend": 0.7901,
+      "weight_a_folds": [
+       0.571,
+       0.486
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9439
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.7488,
+      "rho_equal_blend": 0.7533,
+      "rho_weighted_blend": 0.7537,
+      "weight_a_folds": [
+       0.481,
+       0.507
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9759
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.7813,
+      "rho_equal_blend": 0.7873,
+      "rho_weighted_blend": 0.7862,
+      "weight_a_folds": [
+       0.538,
+       0.475
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.956
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v4",
+     "walk_forward_v1"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.6712,
+      "rho_equal_blend": 0.718,
+      "rho_weighted_blend": 0.7234,
+      "weight_a_folds": [
+       0.634,
+       0.576
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": false,
+      "error_corr": 0.7855
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7444,
+      "rho_equal_blend": 0.7852,
+      "rho_weighted_blend": 0.7914,
+      "weight_a_folds": [
+       0.599,
+       0.616
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8508
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.6964,
+      "rho_equal_blend": 0.7531,
+      "rho_weighted_blend": 0.755,
+      "weight_a_folds": [
+       0.585,
+       0.619
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8553
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.6866,
+      "rho_equal_blend": 0.7664,
+      "rho_weighted_blend": 0.7732,
+      "weight_a_folds": [
+       0.577,
+       0.655
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.849
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v4",
+     "recency_blend"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7249,
+      "rho_weighted_blend": 0.7251,
+      "weight_a_folds": [
+       0.52,
+       0.517
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.983
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7862,
+      "rho_weighted_blend": 0.7877,
+      "weight_a_folds": [
+       0.556,
+       0.555
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9586
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7467,
+      "rho_weighted_blend": 0.7469,
+      "weight_a_folds": [
+       0.556,
+       0.558
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.972
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7883,
+      "rho_weighted_blend": 0.7893,
+      "weight_a_folds": [
+       0.514,
+       0.534
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9831
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v4",
+     "naive_prev"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7225,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7254,
+      "rho_weighted_blend": 0.7255,
+      "weight_a_folds": [
+       0.575,
+       0.562
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9301
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7924,
+      "rho_weighted_blend": 0.7942,
+      "weight_a_folds": [
+       0.635,
+       0.562
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9091
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7494,
+      "rho_weighted_blend": 0.7502,
+      "weight_a_folds": [
+       0.578,
+       0.566
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9379
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7688,
+      "rho_weighted_blend": 0.772,
+      "weight_a_folds": [
+       0.563,
+       0.561
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9374
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v3",
+     "own_v2"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7189,
+      "rho_b": 0.7166,
+      "rho_equal_blend": 0.7182,
+      "rho_weighted_blend": 0.718,
+      "weight_a_folds": [
+       0.49,
+       0.472
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9438
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7751,
+      "rho_equal_blend": 0.7905,
+      "rho_weighted_blend": 0.7901,
+      "weight_a_folds": [
+       0.571,
+       0.486
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9439
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.7488,
+      "rho_equal_blend": 0.7533,
+      "rho_weighted_blend": 0.7537,
+      "weight_a_folds": [
+       0.481,
+       0.507
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9759
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.7813,
+      "rho_equal_blend": 0.7873,
+      "rho_weighted_blend": 0.7862,
+      "weight_a_folds": [
+       0.538,
+       0.475
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.956
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v3",
+     "walk_forward_v1"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7189,
+      "rho_b": 0.6712,
+      "rho_equal_blend": 0.7089,
+      "rho_weighted_blend": 0.7091,
+      "weight_a_folds": [
+       0.624,
+       0.567
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.7692
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7444,
+      "rho_equal_blend": 0.7852,
+      "rho_weighted_blend": 0.7914,
+      "weight_a_folds": [
+       0.599,
+       0.616
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8508
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.6964,
+      "rho_equal_blend": 0.7531,
+      "rho_weighted_blend": 0.755,
+      "weight_a_folds": [
+       0.585,
+       0.619
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8553
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.6866,
+      "rho_equal_blend": 0.7664,
+      "rho_weighted_blend": 0.7732,
+      "weight_a_folds": [
+       0.577,
+       0.655
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.849
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v3",
+     "recency_blend"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7189,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7163,
+      "rho_weighted_blend": 0.7166,
+      "weight_a_folds": [
+       0.509,
+       0.507
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.98
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7862,
+      "rho_weighted_blend": 0.7877,
+      "weight_a_folds": [
+       0.556,
+       0.555
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9586
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7467,
+      "rho_weighted_blend": 0.7469,
+      "weight_a_folds": [
+       0.556,
+       0.558
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.972
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7883,
+      "rho_weighted_blend": 0.7893,
+      "weight_a_folds": [
+       0.514,
+       0.534
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9831
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v3",
+     "naive_prev"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7189,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7241,
+      "rho_weighted_blend": 0.7216,
+      "weight_a_folds": [
+       0.564,
+       0.553
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9253
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7957,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7924,
+      "rho_weighted_blend": 0.7942,
+      "weight_a_folds": [
+       0.635,
+       0.562
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9091
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7552,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7494,
+      "rho_weighted_blend": 0.7502,
+      "weight_a_folds": [
+       0.578,
+       0.566
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9379
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.792,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7688,
+      "rho_weighted_blend": 0.772,
+      "weight_a_folds": [
+       0.563,
+       0.561
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9374
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v2",
+     "walk_forward_v1"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7166,
+      "rho_b": 0.6712,
+      "rho_equal_blend": 0.706,
+      "rho_weighted_blend": 0.7016,
+      "weight_a_folds": [
+       0.633,
+       0.594
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9127
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7751,
+      "rho_b": 0.7444,
+      "rho_equal_blend": 0.7816,
+      "rho_weighted_blend": 0.7802,
+      "weight_a_folds": [
+       0.529,
+       0.629
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.912
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7488,
+      "rho_b": 0.6964,
+      "rho_equal_blend": 0.7491,
+      "rho_weighted_blend": 0.7496,
+      "weight_a_folds": [
+       0.603,
+       0.612
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.8995
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7813,
+      "rho_b": 0.6866,
+      "rho_equal_blend": 0.7667,
+      "rho_weighted_blend": 0.7632,
+      "weight_a_folds": [
+       0.54,
+       0.677
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9238
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v2",
+     "recency_blend"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7166,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7199,
+      "rho_weighted_blend": 0.7196,
+      "weight_a_folds": [
+       0.519,
+       0.536
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.915
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7751,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7845,
+      "rho_weighted_blend": 0.7815,
+      "weight_a_folds": [
+       0.485,
+       0.569
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.8949
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7488,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7406,
+      "rho_weighted_blend": 0.7411,
+      "weight_a_folds": [
+       0.575,
+       0.551
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9105
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7813,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7882,
+      "rho_weighted_blend": 0.7844,
+      "weight_a_folds": [
+       0.476,
+       0.558
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": true,
+      "error_corr": 0.8991
+     }
+    }
+   },
+   {
+    "pair": [
+     "own_v2",
+     "naive_prev"
+    ],
+    "n_shared": 392,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7166,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7204,
+      "rho_weighted_blend": 0.7187,
+      "weight_a_folds": [
+       0.574,
+       0.581
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.858
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7751,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7813,
+      "rho_weighted_blend": 0.781,
+      "weight_a_folds": [
+       0.567,
+       0.575
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.8676
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.7488,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7452,
+      "rho_weighted_blend": 0.7461,
+      "weight_a_folds": [
+       0.596,
+       0.559
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.8855
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7813,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7648,
+      "rho_weighted_blend": 0.7663,
+      "weight_a_folds": [
+       0.526,
+       0.585
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.868
+     }
+    }
+   },
+   {
+    "pair": [
+     "walk_forward_v1",
+     "recency_blend"
+    ],
+    "n_shared": 423,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.6712,
+      "rho_b": 0.7213,
+      "rho_equal_blend": 0.7089,
+      "rho_weighted_blend": 0.7112,
+      "weight_a_folds": [
+       0.385,
+       0.441
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.7082
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7444,
+      "rho_b": 0.7682,
+      "rho_equal_blend": 0.7783,
+      "rho_weighted_blend": 0.7774,
+      "weight_a_folds": [
+       0.457,
+       0.438
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.8226
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.6964,
+      "rho_b": 0.737,
+      "rho_equal_blend": 0.7411,
+      "rho_weighted_blend": 0.7385,
+      "weight_a_folds": [
+       0.471,
+       0.437
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.7599
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.6866,
+      "rho_b": 0.7871,
+      "rho_equal_blend": 0.7667,
+      "rho_weighted_blend": 0.7701,
+      "weight_a_folds": [
+       0.436,
+       0.376
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.7702
+     }
+    }
+   },
+   {
+    "pair": [
+     "walk_forward_v1",
+     "naive_prev"
+    ],
+    "n_shared": 423,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.6712,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7178,
+      "rho_weighted_blend": 0.7091,
+      "weight_a_folds": [
+       0.439,
+       0.486
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.6521
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7444,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7912,
+      "rho_weighted_blend": 0.7853,
+      "weight_a_folds": [
+       0.539,
+       0.444
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.737
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.6964,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7458,
+      "rho_weighted_blend": 0.7462,
+      "weight_a_folds": [
+       0.493,
+       0.445
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.6968
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.6866,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7448,
+      "rho_weighted_blend": 0.7411,
+      "weight_a_folds": [
+       0.486,
+       0.402
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": true,
+      "error_corr": 0.7092
+     }
+    }
+   },
+   {
+    "pair": [
+     "recency_blend",
+     "naive_prev"
+    ],
+    "n_shared": 423,
+    "positions": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "rho_a": 0.7213,
+      "rho_b": 0.708,
+      "rho_equal_blend": 0.7233,
+      "rho_weighted_blend": 0.7232,
+      "weight_a_folds": [
+       0.555,
+       0.546
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9603
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "rho_a": 0.7682,
+      "rho_b": 0.7612,
+      "rho_equal_blend": 0.7696,
+      "rho_weighted_blend": 0.7687,
+      "weight_a_folds": [
+       0.582,
+       0.507
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.953
+     },
+     "WR": {
+      "n": 151,
+      "status": "measured",
+      "rho_a": 0.737,
+      "rho_b": 0.7374,
+      "rho_equal_blend": 0.7413,
+      "rho_weighted_blend": 0.7412,
+      "weight_a_folds": [
+       0.522,
+       0.508
+      ],
+      "weighted_beat_equal": false,
+      "weighted_beat_better_parent": true,
+      "beat_better_parent": true,
+      "error_corr": 0.9597
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "rho_a": 0.7871,
+      "rho_b": 0.744,
+      "rho_equal_blend": 0.7694,
+      "rho_weighted_blend": 0.7712,
+      "weight_a_folds": [
+       0.55,
+       0.528
+      ],
+      "weighted_beat_equal": true,
+      "weighted_beat_better_parent": false,
+      "beat_better_parent": false,
+      "error_corr": 0.9595
+     }
+    }
+   }
+  ],
+  "summary": {
+   "cells": 112,
+   "blend_beat_better_parent": 31,
+   "share": 0.2768,
+   "median_error_correlation": 0.9439,
+   "min_error_correlation": 0.6521,
+   "max_error_correlation": 1.0,
+   "cells_with_error_corr_below_0.8": 12,
+   "blend_won_among_those": 5,
+   "weighted_cells": 112,
+   "weighted_beat_equal": 76,
+   "weighted_beat_better_parent": 37,
+   "weighting_note": "Amendment 2 (a)/(b): weights \u221d 1/MSE fitted by 2-fold cross-fit over PLAYERS, never on the player being graded. This is a player holdout, NOT a season holdout \u2014 every offline arm can only predict 2025 \u2014 so it cannot test whether a position weight transfers across seasons, which is the transfer that matters. The shipped arm A3 is DROPPED for exactly that reason; see constructibility_gate.position_weighted_arm_A3."
+  },
+  "cannot_license_the_ship": "Prereg \u00a75, declared before the run: no outcome here changes the ship decision. None of these arms is Sleeper or FantasyPros, and every arm from own_v3 up consumes recency_blend internally, so these pairs are far more correlated than two independent professional forecasts. This prices the MECHANISM and locates the error-correlation regime; it does not grade the shipped blend."
+ },
+ "ship": {
+  "decision": "REFUSE",
+  "why": "The CONTROL arm \u2014 Sleeper alone \u2014 has no per-player history for any graded season, so 'does the blend rank players better than Sleeper alone' has no measurable answer on 2023/2024/2025. Prereg \u00a72: a missing control is a REFUSAL, and substituting a different professional source would be a different test wearing this one's name.",
+  "policies_passing_bloc_veto": [],
+  "note": "The bloc veto is NECESSARY, NOT SUFFICIENT. A policy that passes it is still ungraded against realized points, and prereg \u00a73's bar \u2014 which the constructibility gate says cannot be evaluated \u2014 is the ship criterion."
+ }
+}
