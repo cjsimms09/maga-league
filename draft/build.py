@@ -691,34 +691,10 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v6 since 2026-08-16 (Cory:
-    # "YES on V6", upgrading his same-day v4 acceptance; v6 = v4's QB arm +
-    # v5's component arms, cleared the REC-3 bar at all four positions: beat
-    # both naive baselines, both metrics, held-out 2025). Same
-    # additive pattern as FantasyPros above: attach alongside, never a build
-    # dependency, never touches proj_mean/proj_baseline/VORP/ranking — the
-    # promotion swapped the ALGORITHM behind the labeled third-opinion column,
-    # not its role; entering proj_mean's composition stays blocked on the
-    # January 2027 Sleeper grade (REC-2). The v6 path reads committed stores
-    # (zero egress, unlike v1's live fetches). Coverage: QB/RB/WR/TE with
-    # prior-season NFL production; rookies and K/DEF carry no proj_ownmodel —
-    # same "absent, not zero" discipline as proj_feed.js.
-    try:
-        from own_projections import compute_own_projections, attach_own_model
-        own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
-        PROJECTION_PROVENANCE["own_model"] = own_diag
-        attached_own = attach_own_model(board, own_proj)
-        PROJECTION_PROVENANCE["own_model_attached"] = attached_own
-        # The ALGORITHM NAME comes from the diag (own_projections.py stamps
-        # provenance["algorithm"]), never typed here: this line said "(own_v6)"
-        # verbatim, which is one promotion away from lying in the build log —
-        # the same class as the FFC footer credit (2026-08-10). Surfaces that
-        # name the algorithm read provenance; so does the log.
-        print(f"  projections: own model ({own_diag.get('algorithm', '?')}) "
-              f"3rd source on {attached_own} players")
-    except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
-        PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
-        print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL — is attached AFTER the activity
+    # prune below, not here beside the other two sources. See the block after
+    # the prune for why (population reproducibility — runs 31949909332 and
+    # 31950441042, 2026-08-16).
 
     # ── PLAYERS WHO HAVE NOT PLAYED A DOWN IN TWO YEARS ─────────────────────
     #
@@ -797,6 +773,52 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     except Exception as _ax:  # noqa: BLE001 — a hygiene filter is never a build dependency
         print(f"  ! inactive filter skipped ({type(_ax).__name__}: {_ax}); "
               f"the board keeps every row it had")
+
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v6 since 2026-08-16 (Cory:
+    # "YES on V6", upgrading his same-day v4 acceptance; v6 = v4's QB arm +
+    # v5's component arms, cleared the REC-3 bar at all four positions: beat
+    # both naive baselines, both metrics, held-out 2025). Same
+    # additive pattern as FantasyPros above: attach alongside, never a build
+    # dependency, never touches proj_mean/proj_baseline/VORP/ranking — the
+    # promotion swapped the ALGORITHM behind the labeled third-opinion column,
+    # not its role; entering proj_mean's composition stays blocked on the
+    # January 2027 Sleeper grade (REC-2). The v6 path reads committed stores
+    # (zero egress, unlike v1's live fetches). Coverage: QB/RB/WR/TE with
+    # prior-season NFL production; rookies and K/DEF carry no proj_ownmodel —
+    # same "absent, not zero" discipline as proj_feed.js.
+    #
+    # AFTER THE ACTIVITY PRUNE, DELIBERATELY (2026-08-16, runs 31949909332 and
+    # 31950441042): computed before the prune, the model's population was the
+    # FULL draftable pool (1,863 rows), whose ~90 later-pruned 2024/25
+    # producers entered the v2 OLS fit and v5's league-efficiency/availability
+    # means — so every published value depended on rows the published board no
+    # longer carries, and NO recompute from the artifact could reproduce the
+    # column (the gate's soundness test measured 352 mismatching rows against
+    # both honest artifact populations; reproduced offline at 351 by
+    # simulating the pre-prune pool). Here the population is exactly the rows
+    # the board publishes — players + kept_players, the keeper split being
+    # below — so the column is auditable from the artifact alone, which is
+    # also the population class the promotion's accepted hand-attach used.
+    # The prune never reads proj_ownmodel (dormant() judges market/projection/
+    # rookie/keeper), so ordering it first changes nothing the prune sees; and
+    # if the prune ever refuses and the full board ships, this population IS
+    # that board, so the reproducibility contract holds on that arm too.
+    try:
+        from own_projections import compute_own_projections, attach_own_model
+        own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
+        PROJECTION_PROVENANCE["own_model"] = own_diag
+        attached_own = attach_own_model(board, own_proj)
+        PROJECTION_PROVENANCE["own_model_attached"] = attached_own
+        # The ALGORITHM NAME comes from the diag (own_projections.py stamps
+        # provenance["algorithm"]), never typed here: this line said "(own_v6)"
+        # verbatim, which is one promotion away from lying in the build log —
+        # the same class as the FFC footer credit (2026-08-10). Surfaces that
+        # name the algorithm read provenance; so does the log.
+        print(f"  projections: own model ({own_diag.get('algorithm', '?')}) "
+              f"3rd source on {attached_own} players")
+    except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
+        PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
+        print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
 
     # ── THE POSITION RECORD IS **NOT** HELD, AND THAT IS DELIBERATE ─────────
     #

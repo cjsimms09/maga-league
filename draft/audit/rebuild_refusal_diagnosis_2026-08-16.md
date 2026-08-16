@@ -384,3 +384,102 @@ band ratios inside test_FAIL_ARM's unmarked bounds. The refire of
 draft-data.yml on the relay ref after this merges is the actual test; if it
 still refuses, the failure list is the next §-numbered section of this
 file, not a bypass.
+
+---
+
+## 8. THE ONE OF RUNS 31949909332 / 31950441042 — §7's dual-accept fix met a real fresh candidate and lost; the defect was in build.py's population (2026-08-16, fourth pass)
+
+§7 predicted its own audit: "what local runs cannot prove: the two
+dual-accept fixes (#4, #7) against a REAL fresh candidate." The two refires
+after §7 merged (run 31949909332 at 13:28Z on head `99b84845` itself, job
+95171686130; run 31950441042 at 13:39Z on head `1f9dc17c`, job 95172974638)
+answered: everything else went green — the advisory full suite passed 2491/0
+and 2522-passed gate otherwise clean, all 14/15 parity pins deselected, the
+native correction stamp (#7) held ("projection-correctness: DEF TD
+vocabulary corrected 11 rows (stamped in provenance.projections)") — and
+exactly ONE test refused both candidates:
+
+```
+test_own_projections_v6_live::test_committed_board_carries_the_promoted_numbers
+AssertionError: board rows disagree with a fresh own_v6 run from BOTH honest
+populations (players-only: 352 rows; players+kept_players, build.py's
+pre-split population: 352 rows) — e.g. ['9221','9509','9493','4034','6813','9488']
+```
+
+(The short ~1,357-line logs are the CLEANUP working, not a new early death:
+one failure body instead of eight with full playoff-SOS diff dumps. The
+job died at its normal place — the gate — with `1 failed, 2477 passed, 9
+skipped, 14 deselected` at 13:34Z and `1 failed, 2522 passed, 9 skipped,
+15 deselected` at 13:45Z.)
+
+### The defect: build.py computed the column from a population the artifact does not publish
+
+§7 node 4's premise was that build.py's compute population is "players +
+kept_players (the pre-SPLIT population)", the soon-pruned rows being
+harmless because they "carry no prior-season production and cannot enter
+any store the fit reads." Both halves of that sentence were wrong:
+
+- build.py attached the own model at load_players' mid-point, off the FULL
+  draftable pool — the 13:42Z build log reads, in order: "1863 draftable
+  players … own model (own_v6) 3rd source on **519** players … inactive:
+  dropped 1178 … (685 remain)". Compute population 1,863; published
+  population 685 (682 players + 3 kept).
+- `dormant()` does not prune on production. It prunes on WHO VOUCHES
+  (market ADP / proj_mean > 0 / rookie / keeper designation) — so a fringe
+  2024/25 producer with no 2026 consensus projection and no ADP is pruned
+  while sitting in `season_totals`, the v2 OLS fit, and v5's
+  league-efficiency and availability means. ~90+ such rows were in the fit
+  at build time and gone from the artifact at gate time.
+
+Offline reproduction (committed board, zero network): recomputing own_v6
+with the historical-position record's off-board QB/RB/WR/TE ids folded into
+the population (simulating the 1,863-row pool) projects 514 (CI attached
+519) and mismatches **351** of the board's rows against the pool-run vs
+352 in CI — same failure, one row of drift from the 5 new signings. Values
+move up to ~9.7 points (Gibbs 270.11 → 260.42, CMC 195.50 → 188.44).
+Both CI counts being IDENTICAL (352/352) is the tell the §7 table lacked:
+a population delta of 3 keepers moves 159 rows by ≤1.2, but a delta of
+~1,180 pool rows swamps it identically from either honest population.
+
+### The classification (§6 vocabulary): SOUNDNESS-kept — the test was RIGHT
+
+This is the one node in four passes where the failing test stays untouched
+in substance and the BUILD moves. A projection column whose values depend
+on 1,178 rows the artifact does not carry cannot be audited from the
+artifact by anyone, ever — which is precisely the "column can't silently be
+an older model's numbers" property the test exists to enforce. Growing the
+test a third population was rejected: a population the artifact cannot
+reconstruct is not an honest population, it is unauditability with a name.
+
+### What changed (this commit)
+
+1. **`draft/build.py`** — the own-model compute/attach block moved from
+   before the activity prune to immediately AFTER it, inside
+   `load_players()`: the compute population is now exactly the rows the
+   board publishes (players + kept_players; the keeper split happens later
+   in `build()`), so the column is reproducible from the artifact alone —
+   and it is the same population class as the promotion's accepted
+   hand-attach (a board-rows-only run). The prune cannot see the change
+   (`dormant()` never reads proj_ownmodel), and on the prune's refusal arm
+   the full board ships, making the compute population that board — the
+   contract holds on both arms. A pointer comment remains at the old site.
+2. **`draft/tests/test_own_projections_v6_live.py`** — docstring only: the
+   third trap recorded, the false "cannot enter any store the fit reads"
+   claim corrected. The test's logic is unchanged — its pop-B arm is now
+   the build's actual population.
+
+Round-trip proof (offline, committed board): attach a post-prune-population
+run the way build.py now does, then run the test's arms — pop A mismatches
+159 (the keeper fold, expected), pop B mismatches **0**, stale arm clean.
+Suite state: `pytest draft/tests -q` → **2550 passed, 5 skipped**; gate
+selection `-m "not repo_parity"` → **2535 passed, 5 skipped, 15
+deselected**.
+
+### Honest status
+
+The one known refusal standing after §7 is fixed at its root, and the fix
+direction is the strict one: the build became auditable rather than the
+test becoming lenient. What local runs cannot prove remains the same class
+as before — a REAL fresh candidate (new signings, the day's market) through
+the whole workflow. The refire after this merges is the actual test; if it
+refuses, the list goes in §9, not in a bypass.

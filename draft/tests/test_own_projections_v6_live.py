@@ -153,18 +153,34 @@ def test_committed_board_carries_the_promoted_numbers():
     THE SECOND PARITY TRAP THIS TEST CARRIED (runs 31928455030 and
     31948330004, 2026-08-16): the value arm recomputed from BOARD["players"]
     ONLY — the population the 2026-08-16 promotion hand-attached from — but
-    build.py computes the column BEFORE the keeper split (build.py:660 vs
-    :1382), so a fresh build's fit population also contains the 3
-    kept_players (and the soon-pruned retirees, which carry no prior-season
-    production and cannot enter any store the fit reads). The v2 OLS fit is
+    build.py computes the column before the keeper split, so a fresh build's
+    fit population also contains the 3 kept_players. The v2 OLS fit is
     population-sensitive: measured on the committed board, folding the 3
     keepers in moves 159 rows by up to ~1.2 points — so every fresh build
     mismatched the players-only recompute and was refused for being built
-    the way build.py builds, not for being wrong. The rule now: the column
+    the way build.py builds, not for being wrong. The rule since: the column
     must equal ONE honest population's fresh run WHOLLY — players-only (the
-    promotion's hand-attach) or players+kept_players (build.py's pre-split
-    population). A hand-edited value, a mixed column, or an older
-    algorithm's numbers match neither run and still refuse."""
+    promotion's hand-attach) or players+kept_players (build.py's population).
+    A hand-edited value, a mixed column, or an older algorithm's numbers
+    match neither run and still refuse.
+
+    THE THIRD TRAP WAS IN BUILD.PY, NOT HERE (runs 31949909332 and
+    31950441042, 2026-08-16): the dual-population fix above assumed the
+    "soon-pruned" rows couldn't move the fit ("no prior-season production").
+    Wrong — build.py attached the column BEFORE the activity prune, off the
+    full 1,863-row draftable pool, and dormant() prunes on who-vouches
+    (market/projection/rookie/keeper), NOT on production, so ~90 pruned rows
+    WERE 2024/25 producers sitting in the v2 OLS fit and v5's league-
+    efficiency/availability means. Every fresh candidate's column depended
+    on rows the artifact doesn't publish: 352 rows mismatched BOTH honest
+    populations (reproduced offline at 351 by simulating the pre-prune
+    pool; values moved up to ~9.7 points). Fixed at the root in build.py —
+    the own-model attach now runs AFTER the prune, on exactly
+    players+kept_players, so this test's pop-B arm is the build's actual
+    population and the column is auditable from the artifact alone. This
+    test deliberately did NOT grow a third population: a pool the artifact
+    cannot reconstruct is not an honest population, it is unauditability
+    with a name."""
     proj, diag = _run()
     prov_root = BOARD.get("provenance") or {}
     homes = {
