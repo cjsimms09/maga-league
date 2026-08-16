@@ -108,6 +108,20 @@ const TOTAL_ROUNDS = LEAGUE.rounds || 15;
 const WIRE = JSON.parse(fs.readFileSync(
   path.join(ROOT, 'draft', 'data', 'wire_level.json'), 'utf8')).per_week;
 
+/* The shipped seat plan's positional schedule (public/seat_plan.json) — the
+ * seat_plan arm's constraint. pick -> slot ('TE'|'FLEX'|'BENCH'|'K'|'DEF'|…).
+ * Loaded permissively: if the artifact is absent the seat_plan arm degrades
+ * to the shipped control, and the artifact records that it did. */
+const PLAN_SLOT = (() => {
+  const out = {};
+  try {
+    const sp = JSON.parse(fs.readFileSync(
+      path.join(ROOT, 'public', 'seat_plan.json'), 'utf8'));
+    (sp.seats || []).forEach(s => { out[s.pick] = s.slot; });
+  } catch (e) { /* recorded via plan_seats_loaded below */ }
+  return out;
+})();
+
 // Starter map asserted against the league config (no silent divergence).
 Object.keys(AS.STARTERS).forEach(pos => {
   if ((LEAGUE.starters || {})[pos] !== AS.STARTERS[pos]) {
@@ -290,7 +304,8 @@ function runRoom(seed, armName) {
       const posCounts = {};
       t.roster.forEach(p => { posCounts[p.position] = (posCounts[p.position] || 0) + 1; });
       const chosen = AP.choosePick(armName, recs,
-        { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts });
+        { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts,
+          planSlot: PLAN_SLOT[overall] || null });
       if (chosen !== recs[0]) overlayDiverged++;
       const p = chosen.player;
       picksLog.push({ pick: overall, round, name: p.name, pos: p.position,
@@ -440,6 +455,7 @@ const out = {
     VONA_WIRE_BENCH: E.CFG.VONA_WIRE_BENCH },
   weekly_sd: CH.CFG.WEEKLY_SD,
   opp_keeper_teams: OPP_KEEPERS.size,
+  plan_seats_loaded: Object.keys(PLAN_SLOT).length,
   generated_at: new Date().toISOString(),
   note: 'SIMULATION throughout: season outcomes are model outcomes conditioned on '
     + 'proj_mean, the opponent model, and a constant measured weekly sd — not measurements.',

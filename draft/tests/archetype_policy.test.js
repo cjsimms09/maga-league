@@ -120,6 +120,27 @@ const st = (round, posCounts, picksLeft) =>
     AP.choosePick('te_early', recs, st(8, {})) === recs[0]);
 }
 
+// ── seat_plan: follow the shipped schedule where the engine has the goods ──
+{
+  const recs = [rec('WR'), rec('RB'), rec('TE')];
+  ck('seat_plan with planSlot TE takes the TE',
+    AP.choosePick('seat_plan', recs, Object.assign(st(4, {}), { planSlot: 'TE' })) === recs[2]);
+  ck('seat_plan with planSlot BENCH defers to the engine',
+    AP.choosePick('seat_plan', recs, Object.assign(st(7, {}), { planSlot: 'BENCH' })) === recs[0]);
+  ck('seat_plan with no planSlot defers to the engine',
+    AP.choosePick('seat_plan', recs, st(7, {})) === recs[0]);
+  ck('seat_plan FLEX seat = best engine candidate among RB/WR/TE (recs[0] here)',
+    AP.choosePick('seat_plan', recs, Object.assign(st(5, {}), { planSlot: 'FLEX' })) === recs[0]);
+}
+{
+  const recs = [rec('WR'), rec('K'), rec('RB')];
+  ck('seat_plan is the ONE archetype allowed to seek a scheduled onesie',
+    AP.choosePick('seat_plan', recs, Object.assign(st(12, {}), { planSlot: 'K' })) === recs[1]);
+  const noK = [rec('WR'), rec('RB')];
+  ck('a scheduled onesie absent from the candidate slice defers to the engine',
+    AP.choosePick('seat_plan', noK, Object.assign(st(12, {}), { planSlot: 'K' })) === noK[0]);
+}
+
 // ── bpa_vorp / market_adp reranks ──────────────────────────────────────────
 {
   const recs = [rec('WR', { vorp: 20 }), rec('RB', { vorp: 45 }), rec('QB', { vorp: 30 })];

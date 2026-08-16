@@ -54,6 +54,8 @@ const FAST = '--rooms 2 --seed 9001 --arms shipped,zero_rb --sims 200';
     && out.opponents === 'measured' && out.keepers === 'designated');
   ck('the three designated opponent keeper teams are applied',
     out.opp_keeper_teams === 3, out.opp_keeper_teams);
+  ck('the seat plan schedule is loaded (12 seats) for the seat_plan arm',
+    out.plan_seats_loaded === 12, out.plan_seats_loaded);
   const rooms = out.detail.shipped;
   ck('both arms ran both rooms, no crashes',
     rooms.length === 2 && out.detail.zero_rb.length === 2

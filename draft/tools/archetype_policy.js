@@ -176,6 +176,37 @@ const ARCHETYPES = {
     },
   },
 
+  /* The war room's OTHER half: the pre-draft seat plan (draft_plan.js DP,
+   * shipped as public/seat_plan.json). The engine's greedy #1 plus this
+   * positional schedule is the full shipped surface Cory actually sees, so
+   * "follow the plan's seat" is its own arm: seek the plan's scheduled
+   * position for this pick among the engine's candidates; defer to the
+   * engine wherever the plan is silent (bench seats) or the position is gone
+   * from the candidate slice. The driver supplies state.planSlot from the
+   * committed artifact. */
+  seat_plan: {
+    doc: 'seek the seat plan\'s scheduled position (public/seat_plan.json) among engine candidates; engine order elsewhere',
+    choose(recs, state) {
+      const owned = legalityOwns(recs); if (owned) return owned;
+      const slot = state.planSlot;
+      if (!slot || slot === 'BENCH') return recs[0];
+      // FLEX is a seat, not a position: any flex-eligible skill player fills
+      // it, so the plan's constraint is "best engine candidate among RB/WR/TE".
+      const wanted = {};
+      if (slot === 'FLEX') { wanted.RB = wanted.WR = wanted.TE = true; }
+      else wanted[slot] = true;
+      // The plan may schedule K/DEF earlier than the engine's rails would —
+      // that timing is the plan's own shipped claim, so an explicitly
+      // scheduled onesie IS sought here (the one archetype allowed to)…
+      if (ONESIE[slot]) {
+        const cand = candidates(recs);
+        for (const r of cand) if (r.player.position === slot) return r;
+        return recs[0];   // …but only inside the engine's candidate slice.
+      }
+      return seek(recs, wanted) || recs[0];
+    },
+  },
+
   /* Pure best-player-available by raw VORP — the composite's adjusters
    * (VONA, survival, KOV, stack…) stripped back to the value column. */
   bpa_vorp: {
