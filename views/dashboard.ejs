@@ -44,12 +44,28 @@
         <span class="whs-who"><%= _wh.oppName %></span>
       </span>
     </div>
+    <%# The Tuesday preview line — what history says about this pairing, on the
+        page you land on (member-site pass, 2026-08-16). %>
+    <% if (_wh.prev && _wh.prev.leadLine) { %>
+      <div class="week-hero-prev">📜 <%= _wh.prev.leadLine %><%= _wh.prev.streakLine ? ' · ' + _wh.prev.streakLine : '' %></div>
+    <% } %>
     <% if (_wh.lineupWarn) { %>
       <div class="week-hero-warn">⚠️ Lineup problem: <%= _wh.lineupWarn.items.map(i => i.text).join(', ') %><% if (_wh.lineupWarn.count > _wh.lineupWarn.items.length) { %> +<%= _wh.lineupWarn.count - _wh.lineupWarn.items.length %> more<% } %> — fix it before kickoff →</div>
     <% } else { %>
       <div class="week-hero-foot">Open your matchup — bet it, talk trash, watch the starters <span class="week-hero-cue">→</span></div>
     <% } %>
   </a>
+<% } %>
+
+<%# ── RECORDS WATCH — last week's finals that entered the franchise book.
+    Dormant when nothing landed (the normal week). League-visible history. %>
+<% const _rb = (typeof recordBanners !== 'undefined' && recordBanners) ? recordBanners : []; %>
+<% if (_rb.length) { %>
+  <div class="rec-watch" role="region" aria-label="Records watch">
+    <% for (const ch of _rb) { %>
+      <div class="rec-watch-chip in"><span class="tag">📚</span><span><b>Into the book:</b> <%= ch.text %> — <a href="/history?section=records" style="color:inherit">the record book →</a></span></div>
+    <% } %>
+  </div>
 <% } %>
 
 <%# RIVALRY GAME OF THE WEEK — billed on the home page when one of the league's real
@@ -92,6 +108,10 @@
 <a class="weekhub-cta" href="/scoreboard">
   <span class="whc-ico">🏈</span>
   <span class="whc-txt"><b>This Week — every game on one screen</b><span class="whc-sub">scores, the pick'em split, the $100 race, what's at stake →</span></span>
+</a>
+<a class="weekhub-cta races" href="/races">
+  <span class="whc-ico">🏁</span>
+  <span class="whc-txt"><b>The Races — playoff race, points crown, the toilet</b><span class="whc-sub">week-over-week movement · everyone's in one of them →</span></span>
 </a>
 
 <% if (roast) { %>

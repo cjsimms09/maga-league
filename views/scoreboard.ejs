@@ -15,6 +15,20 @@
 
 <h1 class="page-title">🏈 This Week <span class="sub" style="font-weight:600">Week <%= weekNo %> — every game</span></h1>
 
+<%# ── Week navigation — any past week's finals, any upcoming week's preview. %>
+<%- include('partials/_week_strip', { base: '/scoreboard', cur: weekNo, view: weekNo, regWeeks: (typeof regWeeks !== 'undefined' && regWeeks) || 14 }) %>
+
+<%# ── RECORDS WATCH — chips only when someone is playing into the book.
+    Dormant by construction; a normal Sunday renders nothing here. %>
+<% const _rc = (typeof recordChips !== 'undefined' && recordChips) ? recordChips : []; %>
+<% if (_rc.length) { %>
+  <div class="rec-watch" role="region" aria-label="Records watch">
+    <% for (const ch of _rc) { %>
+      <div class="rec-watch-chip <%= ch.level %>"><span class="tag">📚</span><span><b>Records watch:</b> <%= ch.text %></span></div>
+    <% } %>
+  </div>
+<% } %>
+
 <%# THE SEASON MONEY POSITION — the pot to date, shown whether or not this week's
     slate is posted. The real scoreboard; the weekly race below is one week of it. %>
 <%- include('partials/money-line') %>
@@ -55,6 +69,13 @@
           </div>
         </div>
 
+        <%# ── The Tuesday preview + Sleeper odds — pre-kick, this card IS the
+            preview; both stand down when real points land. %>
+        <% if (c.prev) { %><%- include('partials/_preview_line', { prev: c.prev }) %><% } %>
+        <% if (c.odds && c.odds.ok) { %>
+          <div class="sb-odds"><span class="sb-odds-lbl">win odds <span class="mu-odds-src">from Sleeper's projections</span></span>
+            <span class="sb-odds-val"><b><%= g.a.name %></b> <%= pctText(c.odds.pWin) %> · <b><%= g.b.name %></b> <%= pctText(1 - c.odds.pWin) %></span></div>
+        <% } %>
         <div class="sb-detail">
           <%# Side-bet money riding on this exact game — gold only when it's YOURS. %>
           <% if (c.wager) { %><span class="sb-chip money<%= c.wager.mine ? ' mine' : '' %>" title="<%= c.wager.pairs.join(' · ') %>">💰 <%= money(c.wager.total) %> riding<%= c.wager.mine ? ' — you\'re in it' : ' (' + c.wager.pairs.join(', ') + ')' %></span><% } %>

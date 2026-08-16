@@ -22,6 +22,10 @@
 
 <h1 class="page-title">⚔️ The Matchup <span class="sub" style="font-weight:600">Week <%= weekNo %></span></h1>
 
+<%# ── Week navigation — this week, any past week, the upcoming schedule.
+    "When do I play Michael again" lives on this site now, not on Sleeper. %>
+<%- include('partials/_week_strip', { base: '/matchup', cur: weekNo, view: weekNo, regWeeks: (typeof regWeeks !== 'undefined' && regWeeks) || 14 }) %>
+
 <%# ── Pick'em hook — the whole league's games, one tap away ─────────────────── %>
 <% if (typeof pickem !== 'undefined' && pickem && pickem.games) { %>
   <a class="pk-strip" href="/pickem">
@@ -113,6 +117,21 @@
       <p class="muted" style="text-align:center; margin:.7rem 0 0; font-size:.76rem">
         No live scoreboard<%= configured ? ' for this week yet' : ' (Sleeper not connected)' %> — showing the head-to-head and letting you bet it.
       </p>
+    <% } %>
+    <%# ── THE SLEEPER-FED WIN-ODDS LINE — pre-kick only, labelled by source.
+        Sleeper info only (Cory's access rule) — this is Sleeper's own player
+        projections through the /watch panel's probability core, and it stands
+        down the moment a real point lands on the board. Absent (refused)
+        whenever a starter has no Sleeper number: no manufactured odds. %>
+    <% if (typeof odds !== 'undefined' && odds && odds.ok) { %>
+      <div class="mu-odds">
+        <div class="mu-odds-top">
+          <span class="mu-odds-lbl">Win odds <span class="mu-odds-src">from Sleeper's projections</span></span>
+          <span class="mu-odds-pct"><%= pctText(odds.pWin) %></span>
+        </div>
+        <div class="mu-odds-meter"><i style="width:<%= Math.max(2, Math.min(98, Math.round(odds.pWin * 100))) %>%"></i></div>
+        <div class="mu-odds-foot muted">projected <%= odds.my.toFixed(1) %>–<%= odds.opp.toFixed(1) %> · Sleeper's player projections (season rate), pre-kick<% if (odds.excluded && odds.excluded.length) { %> · <%= odds.excluded.join('/') %> not projected by Sleeper — left out of both sides<% } %></div>
+      </div>
     <% } %>
   </div>
 </div>
@@ -411,7 +430,10 @@
 
 <% } %><%# /opp %>
 
+<%- include('partials/_season_sched', { mySeason: (typeof mySeason !== 'undefined' ? mySeason : null), weekNo }) %>
+
 <p style="text-align:center; margin-top:1rem">
   <a class="btn navy" href="/team?section=week">← Full team &amp; roster</a>
+  <a class="btn navy" href="/scoreboard">🏈 Every game this week</a>
 </p>
 <%- include('partials/footer') %>

@@ -1,0 +1,61 @@
+<%- include('partials/header', { title: 'Week ' + viewWeek + (past ? ' — finals' : ' — schedule') }) %>
+<%- include('partials/_live_stale') %>
+<%
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
+  const mine = c => (c.g.a.id === me.id || c.g.b.id === me.id);
+  const fmt = n => n == null ? '—' : n.toFixed(1);
+  // Same deep-link rule as the live scoreboard: your game → your matchup page
+  // for that week; anyone else's past game has no per-pair archive page, so the
+  // card links your own week view when you're in it and stays a block otherwise.
+  const linkFor = c => mine(c)
+    ? ('/matchup?week=' + viewWeek)
+    : null;
+%>
+
+<h1 class="page-title">🏈 Week <%= viewWeek %>
+  <span class="sub" style="font-weight:600"><%= past ? (final ? 'every final' : 'the slate on file — scores pending') : 'the scheduled slate, previewed' %></span>
+</h1>
+
+<%- include('partials/_week_strip', { base: '/scoreboard', cur: weekNo, view: viewWeek, regWeeks }) %>
+
+<% if (!known) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0">
+      <% if (past) { %>No record of week <%= viewWeek %>'s slate<%= configured ? '' : ' (Sleeper is not connected)' %> — the box-score history lives in the <a href="/history">league history</a>.
+      <% } else { %>Week <%= viewWeek %>'s schedule isn't posted yet<%= configured ? '' : ' (Sleeper is not connected)' %>. When Sleeper publishes the pairings they land here — no guessing.<% } %>
+    </p>
+  </div></div>
+<% } else { %>
+  <div class="sb-list">
+    <% for (const c of cards) { const _lnk = linkFor(c); const _tag = _lnk ? 'a' : 'div'; %>
+      <<%= _tag %> class="sb-card<%= c.riv ? ' rivalry' : '' %><%= mine(c) ? ' mine' : '' %>"<% if (_lnk) { %> href="<%= _lnk %>"<% } %>>
+        <% if (c.riv) { %><div class="sb-riv"><%= c.riv.emoji %> <%= c.riv.label %></div><% } %>
+        <div class="sb-teams">
+          <div class="sb-side<%= c.leader && c.leader.id === c.g.a.id ? ' win' : '' %>">
+            <span class="sb-name"><%= c.g.a.name %><%- goat(c.g.a.id) %></span>
+            <span class="sb-score"><%= fmt(c.aPts) %></span>
+          </div>
+          <div class="sb-mid">
+            <% if (past) { %><span class="sb-badge"><%= final ? 'FINAL' : 'on file' %></span>
+            <% } else { %><span class="sb-badge open">week <%= viewWeek %></span><% } %>
+          </div>
+          <div class="sb-side<%= c.leader && c.leader.id === c.g.b.id ? ' win' : '' %>" style="text-align:right">
+            <span class="sb-name"><%= c.g.b.name %><%- goat(c.g.b.id) %></span>
+            <span class="sb-score"><%= fmt(c.bPts) %></span>
+          </div>
+        </div>
+        <%- include('partials/_preview_line', { prev: c.prev }) %>
+        <% if (_lnk) { %><div class="sb-open muted">Open your week-<%= viewWeek %> matchup →</div><% } %>
+      </<%= _tag %>>
+    <% } %>
+  </div>
+  <p class="muted" style="margin:1rem 0 0; font-size:.76rem">
+    <%= past ? 'Frozen when the week ran — the same records the pick\'em graded on.' : 'Pairings from Sleeper\'s posted schedule; previews from the box-score archive.' %>
+  </p>
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn gold" href="/scoreboard">🏈 Back to this week</a>
+  <a class="btn navy" href="/matchup<%= viewWeek === weekNo ? '' : '?week=' + viewWeek %>">⚔️ Your week-<%= viewWeek %> game</a>
+</p>
+<%- include('partials/footer') %>

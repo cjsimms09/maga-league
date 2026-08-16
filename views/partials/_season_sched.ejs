@@ -1,0 +1,34 @@
+<%# ── YOUR SEASON — every week: played (result + score), this week, upcoming.
+    Expects: mySeason (memberweek.ownerSeason rows), weekNo (current), and
+    optionally viewingWeek (the week the page is showing). Weeks nobody can
+    vouch for say so — an unposted schedule is a fact, not a blank to fill. %>
+<% const _ms = (typeof mySeason !== 'undefined' && mySeason) ? mySeason : null;
+   const _vw = (typeof viewingWeek !== 'undefined' && viewingWeek) ? viewingWeek : null; %>
+<% if (_ms && _ms.length) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🗓️ Your Season <span class="sub">every week — tap one to open it</span></h2>
+    <div class="body tight">
+      <ul class="sched-list">
+        <% for (const r of _ms) { %>
+          <li class="sched-row <%= r.state %><%= _vw && r.week === _vw ? ' viewing' : '' %><%= r.week === weekNo ? ' now' : '' %>">
+            <a href="<%= r.week === weekNo ? '/matchup' : '/matchup?week=' + r.week %>">
+              <span class="sched-wk">Wk <%= r.week %></span>
+              <% if (!r.known) { %>
+                <span class="sched-opp muted"><%= r.state === 'future' ? 'schedule not posted yet' : 'no record of this week' %></span>
+              <% } else if (r.state === 'past') { %>
+                <span class="sched-opp">vs <b><%= r.oppName %></b></span>
+                <% if (r.result) { %><span class="sched-res <%= r.result %>"><%= r.result %></span>
+                  <span class="sched-score num"><%= r.myPts != null ? r.myPts.toFixed(1) : '—' %>–<%= r.oppPts != null ? r.oppPts.toFixed(1) : '—' %></span>
+                <% } else { %><span class="sched-score muted">score not on file</span><% } %>
+              <% } else if (r.state === 'current') { %>
+                <span class="sched-opp">vs <b><%= r.oppName %></b></span><span class="sched-res now">this week</span>
+              <% } else { %>
+                <span class="sched-opp">vs <b><%= r.oppName %></b></span><span class="sched-cue muted">preview →</span>
+              <% } %>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+<% } %>
