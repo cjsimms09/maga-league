@@ -91,6 +91,10 @@ const OPP_MODEL = String(argOf('--opponents', 'measured'));
 const KEEPER_MODE = String(argOf('--keepers', 'designated'));
 const SIMS = Number(argOf('--sims', 2000));
 const BATCH = Number(argOf('--batch', 40));
+// --wire-floor: score seasons with each starting slot floored at the measured
+// waiver-wire level (draft/data/wire_level.json per_week) — the sensitivity
+// arm for the zero-replacement assumption, which overpays backup coverage.
+const WIRE_FLOOR = args.indexOf('--wire-floor') >= 0;
 ARMS.forEach(a => { if (!AP.ARCHETYPES[a]) throw new Error('unknown arm: ' + a); });
 if (['measured', 'adp'].indexOf(OPP_MODEL) < 0) throw new Error('bad --opponents');
 if (['designated', 'mine-only'].indexOf(KEEPER_MODE) < 0) throw new Error('bad --keepers');
@@ -329,7 +333,8 @@ function runRoom(seed, armName) {
   const series = {}, flat = {};
   let unknownBye = 0, oppMissingStarters = 0;
   for (let s = 1; s <= TEAMS; s++) {
-    const wm = AS.weeklyTeamMeans(teams[s].roster);
+    const wm = AS.weeklyTeamMeans(teams[s].roster, AS.REGULAR_SEASON_WEEKS,
+      WIRE_FLOOR ? { wireFloor: WIRE } : undefined);
     series[s] = wm.series;
     flat[s] = { mean: wm.mean_weekly, sd: CH.CFG.WEEKLY_SD };
     if (s === MY_SLOT) unknownBye = wm.unknown_bye;
@@ -451,6 +456,7 @@ const out = {
   mandate: 'Cory 2026-08-16: roster building — have we run enough tests on roster construction?',
   rooms: ROOMS, seed_start: SEED0, batch: BATCH, sims_per_room: SIMS,
   arms: ARMS, opponents: OPP_MODEL, keepers: KEEPER_MODE,
+  wire_floor: WIRE_FLOOR ? WIRE : null,
   engine_flags: { VONA_SLOT_AWARE: E.CFG.VONA_SLOT_AWARE,
     VONA_WIRE_BENCH: E.CFG.VONA_WIRE_BENCH },
   weekly_sd: CH.CFG.WEEKLY_SD,

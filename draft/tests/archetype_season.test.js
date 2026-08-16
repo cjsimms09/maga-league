@@ -53,6 +53,47 @@ const near = (a, b, eps) => Math.abs(a - b) <= eps;
     near(AS.lineupPointsForWeek(roster, weekPts), 99.5, 1e-9));
 }
 
+// ── the wire floor: streamed slots, hand-computed ──────────────────────────
+{
+  let id = 100;
+  const mk = (pos, pts) => ({ player_id: String(++id), position: pos, _pts: pts });
+  const roster = [mk('QB', 4), mk('RB', 15), mk('RB', 12), mk('WR', 14),
+    mk('WR', 11), mk('TE', 7), mk('K', 6), mk('DEF', 5)];
+  const weekPts = {};
+  roster.forEach(p => { weekPts[p.player_id] = p._pts; });
+  const floor = { QB: 23.38, RB: 7.8, WR: 11.1, TE: 11.6 };
+  // Hand-computed: QB slot streams (4 -> 23.38), TE streams (7 -> 11.6),
+  // RB/WR own players beat their floors (15,12,14,11 vs 7.8/11.1... WR2 11
+  // is BELOW 11.1 -> streams to 11.1), K/DEF have no floor (6+5), no
+  // flex-eligible spare so FLEX streams at min(7.8, 11.1, 11.6) = 7.8.
+  // Total = 23.38 + 15 + 12 + 14 + 11.1 + 11.6 + 6 + 5 + 7.8 = 105.88
+  const got = AS.lineupPointsForWeek(roster, weekPts, floor);
+  ck('wire floor, hand-computed: streamed QB/TE/WR2/FLEX -> 105.88',
+    near(got, 105.88, 1e-9), got);
+  ck('the same roster WITHOUT the floor keeps the zero-replacement total (74)',
+    near(AS.lineupPointsForWeek(roster, weekPts), 74, 1e-9),
+    AS.lineupPointsForWeek(roster, weekPts));
+  // Boundary: a WR at exactly the floor is indifferent; at floor+0.1 the
+  // own player wins and the total moves by exactly 0.1.
+  weekPts[roster[4].player_id] = 11.2;
+  ck('boundary: WR2 at floor+0.1 beats the stream by exactly 0.1',
+    near(AS.lineupPointsForWeek(roster, weekPts, floor), 105.98, 1e-9));
+}
+{
+  const wmOff = AS.weeklyTeamMeans([
+    { player_id: 'q', position: 'QB', proj_mean: 320, bye: 5 }]);
+  const wmOn = AS.weeklyTeamMeans([
+    { player_id: 'q', position: 'QB', proj_mean: 320, bye: 5 }],
+    AS.REGULAR_SEASON_WEEKS, { wireFloor: { QB: 23.38, RB: 7.8, WR: 11.1, TE: 11.6 } });
+  // Hand-computed bye week (only a QB rostered, on bye): floored lineup =
+  // QB 23.38 + RB 2x7.8 + WR 2x11.1 + TE 11.6 + FLEX 7.8 + K/DEF 0 = 80.58;
+  // unfloored = 0.
+  ck('weeklyTeamMeans threads the floor: the QB bye week streams the whole '
+    + 'lineup (80.58) instead of scoring 0',
+    wmOff.series[4] === 0 && near(wmOn.series[4], 80.58, 1e-9),
+    { off: wmOff.series[4], on: wmOn.series[4] });
+}
+
 // ── weeklyTeamMeans: byes bite where there is no depth ─────────────────────
 {
   const roster = [

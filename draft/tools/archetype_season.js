@@ -75,8 +75,18 @@ function playerWeekMean(p, w) {
 }
 
 /** Optimal legal lineup points for one week's per-player means. Exact for
- *  dedicated slots + one FLEX. `weekPts` maps player_id -> points. */
-function lineupPointsForWeek(roster, weekPts) {
+ *  dedicated slots + one FLEX. `weekPts` maps player_id -> points.
+ *
+ *  `wireFloor` (optional, {POS: weekly pts}) models the waiver wire: a
+ *  dedicated slot whose best occupant scores below the measured wire level
+ *  for that position is streamed at the wire level instead (an EMPTY slot is
+ *  streamed too — this league does not start nobody). The FLEX floor is the
+ *  lowest flex-eligible wire. Positions absent from the floor map (K/DEF in
+ *  the shipped wire artifact) floor at 0. Default (no floor) preserves the
+ *  original zero-replacement model — the two are compared as a sensitivity
+ *  arm, because a zero-replacement model overpays backup coverage (a QB bye
+ *  week reads as −20 when the measured wire says streaming recovers ~23). */
+function lineupPointsForWeek(roster, weekPts, wireFloor) {
   const byPos = {};
   roster.forEach(p => {
     if (!p || !p.position) return;
@@ -84,16 +94,24 @@ function lineupPointsForWeek(roster, weekPts) {
   });
   const pts = p => weekPts[String(p.player_id)] || 0;
   Object.keys(byPos).forEach(pos => byPos[pos].sort((a, b) => pts(b) - pts(a)));
+  const floorOf = pos => (wireFloor && wireFloor[pos] != null ? Number(wireFloor[pos]) : 0);
   let total = 0;
   Object.keys(STARTERS).forEach(pos => {
     const have = byPos[pos] || [];
-    for (let i = 0; i < STARTERS[pos]; i++) if (have[i]) total += pts(have[i]);
+    for (let i = 0; i < STARTERS[pos]; i++) {
+      const own = have[i] ? pts(have[i]) : 0;
+      total += Math.max(own, floorOf(pos));
+    }
   });
   let flexBest = 0;
   FLEX_ELIG.forEach(pos => {
     const extra = (byPos[pos] || [])[STARTERS[pos]];
     if (extra && pts(extra) > flexBest) flexBest = pts(extra);
   });
+  if (wireFloor) {
+    const flexFloor = Math.min.apply(null, FLEX_ELIG.map(floorOf));
+    flexBest = Math.max(flexBest, flexFloor);
+  }
   return total + flexBest;
 }
 
@@ -101,14 +119,15 @@ function lineupPointsForWeek(roster, weekPts) {
  * Roster -> weekly expected starting-lineup series over the regular season.
  * Returns { series: number[15], mean_weekly, unknown_bye }.
  */
-function weeklyTeamMeans(roster, weeks = REGULAR_SEASON_WEEKS) {
+function weeklyTeamMeans(roster, weeks = REGULAR_SEASON_WEEKS, opts) {
+  const wireFloor = (opts && opts.wireFloor) || null;
   const clean = (roster || []).filter(p => p && p.position);
   const unknownBye = clean.filter(p => p.bye == null && (Number(p.proj_mean) || 0) > 0).length;
   const series = [];
   for (let w = 1; w <= weeks; w++) {
     const weekPts = {};
     clean.forEach(p => { weekPts[String(p.player_id)] = playerWeekMean(p, w); });
-    series.push(lineupPointsForWeek(clean, weekPts));
+    series.push(lineupPointsForWeek(clean, weekPts, wireFloor));
   }
   const mean = series.length ? series.reduce((s, x) => s + x, 0) / series.length : 0;
   return { series, mean_weekly: mean, unknown_bye: unknownBye };
