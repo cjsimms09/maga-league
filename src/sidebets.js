@@ -963,8 +963,17 @@ function leagueLedgerForYear(bets, year, nameOf) {
  */
 function awaiting(bets, owner_id) {
   const me = Number(owner_id);
+  // Deadline-aware: an EXPIRED proposal is a corpse, not a task. The accept
+  // routes already refuse it server-side (member.js tooLate), so nagging the
+  // recipient about it — in the banner, the nav badge, and Needs You, forever,
+  // until the proposer remembered to delete it — was a task nobody could
+  // complete. betlogic's own fallbacks (derived season start, default playoff
+  // week) make the zero-arg call safe here; the routes still apply the
+  // stricter live-scoreboard check on the actual accept.
+  const BL = require('./betlogic');
   return bets.filter(b => {
     if (b.status === STATUS.PROPOSED) {
+      if (!BL.acceptDeadline(b).open) return false;
       return (b.parties || []).some(p => p.owner_id === me && !p.accepted);
     }
     if (b.status === STATUS.AWAITING_CONFIRM && b.declared) {
