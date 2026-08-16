@@ -44,6 +44,10 @@ REPO_PARITY_NODES = {
     "draft/tests/test_own_model_v5.py::test_artifact_matches_regeneration_and_reproduces_v4_bit_for_bit",
     "draft/tests/test_own_model_v6.py::test_artifact_matches_regeneration_and_reproduces_both_parents",
     "draft/tests/test_source_weight_prior.py::test_artifact_equals_regeneration",
+    # draft replay (2026-08-16): regeneration reads the tree's positions
+    # record and board ages, both refreshed by the nightly board rebuild —
+    # the same class as the own-model pins above.
+    "draft/tests/test_draft_replay_2025.py::test_artifact_matches_regeneration",
 }
 
 
