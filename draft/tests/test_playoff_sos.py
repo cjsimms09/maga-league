@@ -13,6 +13,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 HERE = Path(__file__).resolve().parent
 DRAFT = HERE.parent
 sys.path.insert(0, str(DRAFT / "tools"))
@@ -162,9 +164,20 @@ def test_rank_1_is_the_softest_slate_highest_points_allowed():
         assert all(avgs[i] >= avgs[i + 1] for i in range(len(avgs) - 1))
 
 
+@pytest.mark.repo_parity
 def test_every_board_skill_player_is_ranked_or_honestly_absent():
     """players + players_absent partition the board's QB/RB/WR/TE exactly —
-    nobody silently dropped, nobody in both."""
+    nobody silently dropped, nobody in both.
+
+    repo_parity (run 31948330004, 2026-08-16): the partition is between the
+    COMMITTED SOS artifact and whatever board sits at BOARD_PATH. The
+    publication gate runs after the nightly rebuild put a FRESH board there
+    (682 players that night vs the 677 the artifact was built from), so new
+    Sleeper additions are neither ranked nor absent BY CONSTRUCTION — the
+    test refuses the board for being NEW, never for being BAD. In the repo
+    (normal pytest, the advisory pre-build step) board and artifact are the
+    pair the artifact was built from, and the partition is the real
+    nobody-silently-dropped guard."""
     board_ids = {str(p["player_id"]) for p in BOARD["players"]
                  if p.get("position") in POSITIONS}
     ranked = set(SOS["players"])
@@ -228,10 +241,19 @@ def test_unpaired_player_weeks_are_counted_not_silently_dropped():
 # 5. The committed artifact matches a fresh run.
 # --------------------------------------------------------------------------
 
+@pytest.mark.repo_parity
 def test_committed_artifact_matches_a_fresh_run_of_the_tool():
     """Recomputed end-to-end from the committed inputs (no network) and
     compared as whole objects. MUTATION: hand-edit any number in the
-    committed JSON — this is the test that catches it."""
+    committed JSON — this is the test that catches it.
+
+    repo_parity (run 31948330004, 2026-08-16): S.compute() reads BOARD_PATH,
+    which the nightly gate has just replaced with the fresh candidate — the
+    regeneration's own input was rewritten by the run, so the committed
+    artifact mismatches BY CONSTRUCTION on any later board (same shape as
+    the seven §6 pins). Anti-hand-edit parity stays enforced in every normal
+    pytest run and the workflow's advisory pre-build step, where the tree is
+    as committed."""
     assert S.compute() == SOS
 
 

@@ -18,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "draft"))
 sys.path.insert(0, str(ROOT / "draft" / "backtest"))
@@ -368,8 +370,19 @@ def test_main_honors_champion_override(tmp_path):
 
 # ── the workflow YAMLs parse (a broken workflow fails SILENTLY on GitHub) ────
 
+@pytest.mark.repo_parity
 def test_own_weekly_workflow_yamls_parse_and_carry_dry_run():
-    import yaml
+    """repo_parity (runs 31928455030 + 31948330004, 2026-08-16): this checks
+    REPO WORKFLOW FILES, not board soundness — and it refused two live
+    candidate boards with `ModuleNotFoundError: No module named 'yaml'`
+    because pyyaml rides the dev env, not the gate venv. A missing library
+    can never be allowed to block a board, so the gate deselects this; it
+    still runs in every normal pytest invocation, and importorskip makes a
+    yaml-less env an honest SKIP instead of a red that reads like a broken
+    workflow."""
+    yaml = pytest.importorskip(
+        "yaml", reason="pyyaml not installed — workflow-file parse check "
+                       "needs it; nothing here is about the board")
     for name, cron in (("own-weekly-proj.yml", "0 14 * * 4"),
                        ("own-weekly-grade.yml", "0 6 * * 2")):
         doc = yaml.safe_load((ROOT / ".github" / "workflows" / name).read_text())

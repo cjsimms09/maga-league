@@ -148,7 +148,23 @@ def test_committed_board_carries_the_promoted_numbers():
     candidate board genuinely carried v6 under the other key. The rule now:
     every home that declares an algorithm must declare own_v6, and at least
     one must. A fresh board whose attach failed declares nothing -> refused;
-    a board labeled by an older model -> refused; both homes honest -> pass."""
+    a board labeled by an older model -> refused; both homes honest -> pass.
+
+    THE SECOND PARITY TRAP THIS TEST CARRIED (runs 31928455030 and
+    31948330004, 2026-08-16): the value arm recomputed from BOARD["players"]
+    ONLY — the population the 2026-08-16 promotion hand-attached from — but
+    build.py computes the column BEFORE the keeper split (build.py:660 vs
+    :1382), so a fresh build's fit population also contains the 3
+    kept_players (and the soon-pruned retirees, which carry no prior-season
+    production and cannot enter any store the fit reads). The v2 OLS fit is
+    population-sensitive: measured on the committed board, folding the 3
+    keepers in moves 159 rows by up to ~1.2 points — so every fresh build
+    mismatched the players-only recompute and was refused for being built
+    the way build.py builds, not for being wrong. The rule now: the column
+    must equal ONE honest population's fresh run WHOLLY — players-only (the
+    promotion's hand-attach) or players+kept_players (build.py's pre-split
+    population). A hand-edited value, a mixed column, or an older
+    algorithm's numbers match neither run and still refuse."""
     proj, diag = _run()
     prov_root = BOARD.get("provenance") or {}
     homes = {
@@ -161,12 +177,30 @@ def test_committed_board_carries_the_promoted_numbers():
     assert set(declared.values()) == {"own_v6"}, (
         "board provenance does not say own_v6 (declared: %r) — the column may "
         "still be an older model's numbers" % (declared,))
-    mismatch = [str(p["player_id"]) for p in BOARD["players"]
+
+    def _mismatches(run):
+        return [str(p["player_id"]) for p in BOARD["players"]
                 if p.get("proj_ownmodel") is not None
-                and abs(p["proj_ownmodel"] - proj.get(str(p["player_id"]), -1)) > 0.011]
-    assert not mismatch, f"{len(mismatch)} board rows disagree with a fresh own_v6 run"
+                and abs(p["proj_ownmodel"] - run.get(str(p["player_id"]), -1)) > 0.011]
+
+    chosen = proj
+    mismatch_players_only = _mismatches(proj)
+    if mismatch_players_only:
+        pool = BOARD["players"] + (BOARD.get("kept_players") or [])
+        proj_build_pop, diag_build_pop = OP.compute_own_projections(
+            pool, {}, season=2026)
+        assert diag_build_pop["algorithm"] == "own_v6"
+        chosen = proj_build_pop
+        mismatch_build_pop = _mismatches(proj_build_pop)
+        assert not mismatch_build_pop, (
+            "board rows disagree with a fresh own_v6 run from BOTH honest "
+            "populations (players-only: %d rows; players+kept_players, "
+            "build.py's pre-split population: %d rows) — the column is not "
+            "any fresh run's output, e.g. %r"
+            % (len(mismatch_players_only), len(mismatch_build_pop),
+               mismatch_build_pop[:5]))
     stale = [str(p["player_id"]) for p in BOARD["players"]
-             if p.get("proj_ownmodel") is not None and str(p["player_id"]) not in proj]
+             if p.get("proj_ownmodel") is not None and str(p["player_id"]) not in chosen]
     assert not stale, f"{len(stale)} rows carry proj_ownmodel outside own_v6's scope (stale)"
 
 

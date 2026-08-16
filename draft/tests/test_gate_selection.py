@@ -26,16 +26,26 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
 
-#: The complete repo_parity set — every committed-artifact == regeneration
-#: pin, and NOTHING else. These are the 7 of run 31926152660's 16 refusals
-#: classified PARITY-excluded in rebuild_refusal_diagnosis_2026-08-16.md
-#: (the other 9 were soundness and remain unmarked, in the gate). Adding a
-#: marker to any other test WILL fail this file until the addition is
-#: recorded here — that is the point, not an inconvenience.
+#: The complete repo_parity set — every pin whose failure says the repo /
+#: market state is NEW, never that the candidate board is BAD — and NOTHING
+#: else. Two incidents built it, each node classified one line at a time in
+#: rebuild_refusal_diagnosis_2026-08-16.md:
+#:   · §6, run 31926152660: the 7 committed-artifact == regeneration pins
+#:     whose regeneration inputs the nightly run itself rewrites (the other
+#:     9 refusals were soundness and remain unmarked, in the gate);
+#:   · §7, run 31948330004: the 2 playoff-SOS pins (committed artifact vs
+#:     the just-rebuilt board — object parity and player-set coverage), the
+#:     4 ADP-band ratchet params (keepers.py's shipped constant graded
+#:     against the morning's fetched market dispersion), and the weekly
+#:     workflow-YAML parse check (repo files + a gate venv without pyyaml).
+#: Adding a marker to any other test WILL fail this file until the addition
+#: is recorded here — that is the point, not an inconvenience.
 REPO_PARITY_NODES = {
     "draft/tests/test_model_accuracy_backtest.py::test_the_COMMITTED_artifact_matches_regeneration",
     "draft/tests/test_own_model_v2.py::test_artifact_matches_regeneration_and_names_what_is_missing",
@@ -44,14 +54,28 @@ REPO_PARITY_NODES = {
     "draft/tests/test_own_model_v5.py::test_artifact_matches_regeneration_and_reproduces_v4_bit_for_bit",
     "draft/tests/test_own_model_v6.py::test_artifact_matches_regeneration_and_reproduces_both_parents",
     "draft/tests/test_source_weight_prior.py::test_artifact_equals_regeneration",
+    # §7 additions — run 31948330004 (2026-08-16 12:58Z, 8 failed / 2479 passed)
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",
+    "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[100-150]",
+    "draft/tests/test_playoff_sos.py::test_committed_artifact_matches_a_fresh_run_of_the_tool",
+    "draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
+    "draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
 }
 
 
 def _gate_step():
-    # In-function import, the test_weekly_own_projection.py precedent: yaml
-    # rides the CI env rather than requirements.txt, and a missing import
-    # must fail THIS file's tests, never the whole suite's collection.
-    import yaml
+    # importorskip, not a bare import: run 31948330004 proved the gate venv
+    # itself carries no pyyaml, so a bare import turned BOTH yaml-reading
+    # guards here into board refusals — a missing library blocking a live
+    # board, exactly the class this file exists to prevent. Where yaml is
+    # absent these two guards SKIP (visibly, in the skip count) and the
+    # marker-side pin below — which needs no yaml — still runs; where yaml
+    # exists (every dev env, the pre-merge suite) they enforce in full.
+    yaml = pytest.importorskip(
+        "yaml", reason="pyyaml absent — workflow-expression guards skip; "
+                       "the collector-side pin still enforces the marked set")
     wf = yaml.safe_load(WORKFLOW.read_text())
     steps = wf["jobs"]["build"]["steps"]
     gates = [s for s in steps

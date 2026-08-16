@@ -393,6 +393,54 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
                            "starting point, not a forecast.",
             })
 
+    # THE CORY-RULED PROJECTION-CORRECTNESS RECORD (2026-08-16, "Don't agree
+    # with timelines we fix now" — DECISIONS #0 DEF TD vocabulary, #000 FP
+    # dropped receptions), stamped BY THE BUILD from what its own scoring path
+    # just did — never retyped counts. Run 31948330004's gate refused every
+    # fresh board because only the promotion's HAND stamp
+    # (provenance.projection_correctness_2026_08_16, committed board) carried
+    # the record and build.py never wrote it; fresh boards run the fixed code
+    # paths (scoring.normalize_def_stat_line inside baseline_from_projections;
+    # adp.recover_fp_dropped_stats inside the FP parse, whose measured diag
+    # already lands at provenance.projections.fantasypros.fp_proj_recovered)
+    # but carried no provenance of it. This stamp is the native home;
+    # test_projection_correctness.py accepts either. The DEF rows are
+    # re-derived here from the SAME payload the baseline was scored from, so
+    # the record cannot disagree with the board it rides.
+    from scoring import (normalize_def_stat_line as _pc_norm,   # noqa: E402
+                         score_stat_line as _pc_score)
+    _pc_rows = (projections if PROJECTION_PROVENANCE.get("source") == "sleeper_projections"
+                else stats)
+    _pc_def = []
+    for _pc_pid, _pc_line in (_pc_rows or {}).items():
+        if str(_pc_pid).isdigit():
+            continue        # team defenses only — Sleeper keys DSTs by team code
+        _pc_stats = (_pc_line.get("stats")
+                     if isinstance(_pc_line, dict) and "stats" in _pc_line else _pc_line)
+        if not isinstance(_pc_stats, dict):
+            continue
+        _pc_old = _pc_score(_pc_stats, cfg["scoring"])
+        _pc_new = _pc_score(_pc_norm(_pc_stats), cfg["scoring"])
+        if _pc_new != _pc_old:
+            _pc_def.append({"team": str(_pc_pid),
+                            "old": round(_pc_old, 2), "new": round(_pc_new, 2)})
+    PROJECTION_PROVENANCE["projection_correctness"] = {
+        "ruling": "Cory 2026-08-16: 'Don't agree with timelines we fix now'",
+        "date_fixed": "2026-08-16",
+        "def_td_vocabulary": {
+            "algorithm": "scoring.normalize_def_stat_line (DEF_PROJ_TD_ALIASES, "
+                         "aggregate-wins / components-sum)",
+            "def_rows_corrected": sorted(_pc_def, key=lambda r: r["team"]),
+        },
+        "fp_dropped_stats": {
+            "algorithm": "adp.recover_fp_dropped_stats (rec_rec receptions, 2pt_tds)",
+            "diag_home": "provenance.projections.fantasypros.fp_proj_recovered",
+        },
+    }
+    if _pc_def:
+        print(f"  projection-correctness: DEF TD vocabulary corrected "
+              f"{len(_pc_def)} rows (stamped in provenance.projections)")
+
     # TEAM -> BYE WEEK, derived from the pool itself. Sleeper populates
     # metadata.bye_week on only SOME players per team, but a bye belongs to the
     # TEAM, so one populated player is enough to fix it for the whole roster. Most

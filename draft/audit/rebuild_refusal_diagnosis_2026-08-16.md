@@ -298,3 +298,89 @@ moves). This pass did not reach into that lane; the declaration is routed
 via ROUTES.md alongside the refire instruction. Once it lands, every known
 by-construction refusal is gone and the refire answers the end-to-end
 question for real.
+
+---
+
+## 7. THE EIGHT OF RUN 31948330004, CLASSIFIED — tonight's unclassified tests put through the §6 method (2026-08-16, third pass)
+
+Run 31948330004 (workflow_dispatch on the relay ref, head `a6056125`, gate
+at 12:58Z) refused a LIVE candidate with **8 failed / 2479 passed /
+7 deselected**. Everything §6 classified passed — the seven parity pins
+deselected cleanly, all eight §6 soundness keeps green (the fresh board now
+declares `proj_sd_source`… or the C-lane declaration landed; either way that
+lane is quiet). The 8 failures are tests ADDED on 2026-08-16 by parallel
+crews (playoff SOS `cdff2290`, projection correctness `e993e1de`, weekly
+own-projection `3a4a2805`, the ADP dispersion grade, and this fix's own
+`test_gate_selection.py`) that were never classified parity-vs-soundness.
+Evidence: issue #5's 12:58Z comment (the full 8-node list), the job-log tail
+(job 95167799371; the API's ~316KB tail cap hides the early failure bodies
+behind the playoff-SOS diff dumps — noted per node below where it bit), and
+offline reproduction against the committed board where the log was out of
+reach.
+
+### The classification, one line each (8 nodes; §6 vocabulary)
+
+| # | node | class | why |
+|---|------|-------|-----|
+| 1 | test_adp_sd_measured::test_MEASURE_each_ADP_band…[4 params] | **PARITY-excluded** | the ratio is keepers.py's shipped CONSTANT over the morning's freshly fetched FFC dispersion — no board value is asserted (the board's own adp_sd on measured rows IS the published number, taken as-is), so a market move refuses a sound board; it also failed on main's 08:42 run (31936912289), confirming market drift, not branch code; the 2026-08-14-calibrated ratchet stays enforced against committed state in every normal run + the advisory step. (Which band crossed 1.35 is unrecoverable from the capped log; all four params marked — they are one measurement over one fetch.) |
+| 2 | test_gate_selection::test_the_workflow_gate_deselects_repo_parity… | **SOUNDNESS-kept**, exception-hardened | failed `ModuleNotFoundError: yaml` — the gate venv carries no pyyaml and `_gate_step()` imported it bare; the guard itself is right and stays in the gate, but a missing LIBRARY may never block a board, so the import is now `pytest.importorskip` (honest SKIP where yaml is absent; full enforcement everywhere else) |
+| 3 | test_gate_selection::test_the_gate_selection_excludes_exactly_the_marked_set… | **SOUNDNESS-kept**, exception-hardened | same yaml import via `_gate_marker_expression()`; same importorskip; note the yaml-free marker-side pin (`test_the_marked_set_is_exactly_the_declared_nodes`) PASSED in this very run — the collector proof never went dark |
+| 4 | test_own_projections_v6_live::test_committed_board_carries_the_promoted_numbers | **SPLIT** | the label and stale arms stay untouched; the value arm recomputed from `BOARD["players"]` ONLY — but build.py computes the column BEFORE the keeper split (build.py:660 vs :1382), so every fresh build's fit population also holds the 3 kept_players, and the v2 OLS fit is population-sensitive (measured on the committed board: folding the keepers in moves 159 rows, up to ~1.2 pts — the committed column matches the players-only run to 0 rows because the promotion hand-attached exactly that run). A second refuse-every-fresh-board trap in the same test §6 already fixed once. The rule now: the column must equal ONE honest population's fresh run WHOLLY (players-only or players+kept); hand-edits, mixes, and older algorithms match neither and still refuse. Fully in the gate, unmarked. |
+| 5 | test_playoff_sos::test_committed_artifact_matches_a_fresh_run_of_the_tool | **PARITY-excluded** | `S.compute()` reads BOARD_PATH, which the gate just replaced with the fresh candidate — committed artifact vs regeneration whose own input the run rewrote, the exact §6(i) shape; anti-hand-edit parity keeps its home in the normal suite + advisory step |
+| 6 | test_playoff_sos::test_every_board_skill_player_is_ranked_or_honestly_absent | **PARITY-excluded** | the ranked/absent partition is committed-artifact COVERAGE of the live board; the candidate carried 682 players vs the artifact's 677-player basis, so the ~5 new Sleeper signings are neither ranked nor absent BY CONSTRUCTION — refuses NEW players, not a bad board (it passed the 05:17 run, when the candidate was still 677 — the growth, not the tool, is what fired) |
+| 7 | test_projection_correctness::test_board_provenance_records_the_correction | **SPLIT** (soundness kept, native stamp added) | asserted the promotion's HAND-stamped `provenance.projection_correctness_2026_08_16` — a key build.py never writes — so a fresh board running the FIXED code paths (its DEF/FP values correct, and the 12 sibling value tests all PASSED in this run) failed `assert None`; build.py now stamps the record natively at `provenance.projections.projection_correctness`, re-derived from the same payload the baseline was scored from (verified offline: the native derivation reproduces the hand record's 11 rows, old/new identical), and the test holds whichever home is present to its own soundness — a board carrying NEITHER still refuses |
+| 8 | test_weekly_own_projection::test_own_weekly_workflow_yamls_parse_and_carry_dry_run | **PARITY-excluded** + importorskip | `ModuleNotFoundError: yaml`; it parses REPO WORKFLOW FILES, asserts nothing about the board, and pyyaml rides the dev env, not the gate venv — marked, and importorskip makes a yaml-less env an honest SKIP in any unmarked context |
+
+Again nothing was excluded on faith: 2 of 8 keep refusing exactly as
+before wherever their library exists, 2 were fixed to test what they always
+meant to test (with the trap arm generalized, not deleted), and 4 are
+excluded only where their comparison input — the board file or the day's
+market fetch — was rewritten by the run itself, while still running
+everywhere else. `test_FAIL_ARM_the_shipped_rate_IS_measurably_wrong`
+(test_adp_sd_measured) is the same fetch-sensitive shape as node 1 in the
+opposite direction and was deliberately NOT marked: it has refused no
+board, and pre-excluding it without an observed failure is the on-faith
+exclusion this method forbids. If a future market swing fires it in the
+gate, classify it then, with its failure in hand.
+
+### What changed (this commit)
+
+1. **`draft/build.py`** (provenance stamp only) — the projection-
+   correctness record is stamped natively into
+   `provenance.projections.projection_correctness` (ruling, date, the two
+   algorithms, and the DEF corrected rows re-derived from the same payload
+   the baseline was scored from), so fresh boards carry the record without
+   the hand stamp.
+2. **`draft/tests/test_projection_correctness.py`** — dual-home acceptance
+   (hand stamp held to its measured counts; native stamp held to ruling +
+   algorithms + agreement with the board's own DEF baselines; neither
+   present refuses).
+3. **`draft/tests/test_own_projections_v6_live.py`** — dual-population
+   value arm (players-only or players+kept_players, wholly; both-mismatch
+   refuses with both counts named).
+4. **Marks**: `test_playoff_sos` (2 nodes), `test_adp_sd_measured` (the
+   4-param ratchet), `test_weekly_own_projection` (the YAML parse) carry
+   `@pytest.mark.repo_parity` with per-test docstrings naming the run and
+   the rewritten input.
+5. **`draft/tests/test_gate_selection.py`** — REPO_PARITY_NODES pinned to
+   the new 14-node set; the yaml import is importorskip; docstrings updated.
+6. **`draft/tests/conftest.py`** — the marker's docstring now names all
+   three species and the single membership test (could nothing but the
+   world moving since commit time cause this failure on a fresh board?).
+
+Suite state: `pytest draft/tests -q` → **2496 passed, 5 skipped** (every
+marked pin still running and green against committed state). Gate selection
+`-m "not repo_parity"` → **2482 passed, 5 skipped, 14 deselected**, and
+`test_gate_selection.py` proves the deselection is exactly the pinned set.
+
+### Honest status
+
+Every one of the 8 is either deselected by the gate, skipped where its
+library is absent, or fixed to pass on the population/provenance a fresh
+build actually produces — against the committed board, both invocations are
+green locally. What local runs cannot prove: the two dual-accept fixes (#4,
+#7) against a REAL fresh candidate, and whether tomorrow's market keeps
+band ratios inside test_FAIL_ARM's unmarked bounds. The refire of
+draft-data.yml on the relay ref after this merges is the actual test; if it
+still refuses, the failure list is the next §-numbered section of this
+file, not a bypass.

@@ -279,8 +279,39 @@ def test_recover_fp_dropped_stats_unit():
 
 
 def test_board_provenance_records_the_correction():
-    prov = BOARD.get("provenance", {}).get("projection_correctness_2026_08_16")
-    assert prov, "the applied correction must be recorded in board provenance"
-    assert "fix now" in prov["ruling"]
-    assert len(prov["def_rows_corrected"]) == 11
-    assert prov["fp_rows_corrected"] > 250
+    """The correction record, accepted from EITHER of its two honest homes.
+
+    Run 31948330004 (2026-08-16 12:58Z) refused a live candidate here: the
+    committed board carries the PROMOTION's hand stamp
+    (provenance.projection_correctness_2026_08_16, written by
+    apply_projection_correctness_2026_08_16.py with measured old/new rows),
+    but build.py never wrote that key — so every FRESH board, running the
+    fixed code paths and carrying correct values, failed `assert None`. That
+    refused NEW, not BAD. build.py now stamps the record natively at
+    provenance.projections.projection_correctness, re-derived from the same
+    payload its baseline was scored from. Whichever home is present is held
+    to its own soundness: the hand stamp to the capture-measured counts, the
+    native stamp to the ruling + the algorithms + agreement with the board's
+    own DEF baselines. A board carrying NEITHER is refused — the correction
+    silently vanishing is exactly what this test exists to catch."""
+    prov_root = BOARD.get("provenance", {})
+    hand = prov_root.get("projection_correctness_2026_08_16")
+    native = (prov_root.get("projections") or {}).get("projection_correctness")
+    assert hand or native, (
+        "the applied correction must be recorded in board provenance — "
+        "neither the promotion's hand stamp nor build.py's native stamp is present")
+    if hand:
+        assert "fix now" in hand["ruling"]
+        assert len(hand["def_rows_corrected"]) == 11
+        assert hand["fp_rows_corrected"] > 250
+    if native:
+        assert "fix now" in native["ruling"]
+        assert native["date_fixed"] == "2026-08-16"
+        assert "normalize_def_stat_line" in native["def_td_vocabulary"]["algorithm"]
+        assert "recover_fp_dropped_stats" in native["fp_dropped_stats"]["algorithm"]
+        # The stamp must agree with the board it rides: every corrected DEF row
+        # present on the board carries the corrected score as its baseline.
+        for row in native["def_td_vocabulary"]["def_rows_corrected"]:
+            if row["team"] in BOARD_DEFS:
+                assert BOARD_DEFS[row["team"]]["proj_baseline"] == pytest.approx(
+                    row["new"]), row
