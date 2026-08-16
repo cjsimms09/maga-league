@@ -16,10 +16,11 @@
 <link rel="stylesheet" href="/css/chronicle.css">
 <% } %>
 <%# The War Room design system (tokens + draft components) — same page-scoped
-    pattern as the Chronicle. The in-season pass (2026-08-15) widened this to
-    the surfaces that adopted the tokens: the side-bet book and pick'em live on
-    /bank and /pickem, and the matchup page carries the same card grammar. %>
-<% if (typeof currentPath !== 'undefined' && /^\/(admin\/(warroom|draft-sheet)|bank|pickem|matchup)(\/|$|\?)/.test(currentPath)) { %>
+    pattern as the Chronicle. The side-bet pass (2026-08-15) widened this to
+    /bank, /pickem and /matchup; the in-season commissioner pass (2026-08-16)
+    widens it again to the four tool pages that adopted the tokens: /lineup
+    (which also covers /lineup/accuracy), /waivers and /analyzer. %>
+<% if (typeof currentPath !== 'undefined' && /^\/(admin\/(warroom|draft-sheet)|bank|pickem|matchup|lineup|waivers|analyzer)(\/|$|\?)/.test(currentPath)) { %>
 <link rel="stylesheet" href="/css/warroom.css">
 <% } %>
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
@@ -54,7 +55,10 @@
     sim-state classes, idempotent). Neither may drop the other. %>
 <body class="<%= [
       (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '',
-      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : ''
+      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : '',
+      /* Desktop-first commissioner tools (doctrine §7, 2026-08-16): these four
+         pages widen the content column — side-by-side panels need the room. */
+      (typeof currentPath !== 'undefined' && /^\/(lineup|waivers|analyzer)(\/|$|\?)/.test(currentPath)) ? 'inseason-tools' : ''
     ].filter(Boolean).join(' ') %>">
 <%
   // Guard everything: the error page renders this header even when the

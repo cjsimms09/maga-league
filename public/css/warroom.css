@@ -296,6 +296,85 @@
   white-space: nowrap;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   IN-SEASON COMMISSIONER TOOLS — the 2026-08-16 design pass extends this file
+   per the war-room handoff ("extend, don't fork").
+
+   Four pages: /lineup (+ /lineup/accuracy), /waivers, /analyzer. Desktop is
+   Cory's PRIMARY surface for these (doctrine §7): the content column widens,
+   panels sit side by side where the phone forced stacking, and the density
+   gradient runs deeper. Phone 390 stays a first-class review surface — the
+   zero-horizontal-overflow bar still applies (shots-inseason.js asserts it).
+   Gold stays money-only; red stays alarm-only; numerals in columns align.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Desktop-first: the tool pages earn a wider column than the browse pages. */
+body.inseason-tools .wrap { max-width: 1280px; }
+
+/* The explainer contract without a JS layer: a <details> ⓘ. Same
+   .panel-explain body the war room renders; the summary is the collapsed ⓘ. */
+.wr-exp { margin: 0 0 var(--wr-s2); }
+.wr-exp > summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center;
+  gap: .3rem; font-size: var(--wr-fs-micro); font-weight: 700; color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px; padding: .12rem .55rem;
+  background: var(--wr-panel); user-select: none;
+}
+.wr-exp > summary::-webkit-details-marker { display: none; }
+.wr-exp[open] > summary { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+.wr-exp > .panel-explain { margin-top: var(--wr-s2); }
+
+/* Side-by-side panels on desktop; a single honest column below 1100px.
+   Wrappers are explicit (.is-col) so the phone keeps its editorial order. */
+.is-cols { display: block; }
+.is-cols > .is-col { min-width: 0; }
+@media (min-width: 1100px) {
+  .is-cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0 1.1rem; align-items: start; }
+  .is-cols.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* ── THE WAIVER VERDICT — the answer first: claim X, drop Y, net N ─────── */
+.wv-verdict .wv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.15; }
+.wv-verdict .wv-net { font-variant-numeric: tabular-nums; }
+.wv-derive summary { cursor: pointer; color: var(--wr-muted); font-size: var(--wr-fs-micro); font-weight: 700; }
+.wv-derive[open] summary { color: var(--wr-ink); }
+.wv-derive .panel-explain { margin-top: .35rem; }
+
+/* ── ANALYZER POSTURE BOARD — the answer as a board, the table as the data ── */
+.az-board { display: grid; gap: .7rem; grid-template-columns: 1fr; margin: 0 0 .3rem; }
+@media (min-width: 560px) { .az-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .az-board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.az-cell { border: 1px solid var(--wr-line); border-radius: 10px; background: var(--wr-panel); padding: var(--wr-s3); min-width: 0; }
+.az-cell-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+.az-cell-count { margin-left: auto; font-size: var(--wr-fs-micro); font-weight: 800; color: var(--wr-muted); }
+.az-cell-why { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 .45rem; }
+.az-cell-cut { font-size: var(--wr-fs-micro); color: var(--wr-muted); opacity: .85; }
+.az-row { display: flex; align-items: center; gap: .45rem; padding: .18rem 0; font-size: var(--wr-fs-sub); border-top: 1px dashed var(--wr-line); }
+.az-row:first-of-type { border-top: none; }
+.az-row b { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.az-row .pct { flex: 0 0 2.6rem; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.az-row .bar { flex: 0 0 3.4rem; height: 6px; border-radius: 3px; background: var(--wr-panel-soft); border: 1px solid var(--wr-line); overflow: hidden; }
+.az-row .bar i { display: block; height: 100%; background: var(--wr-chart-main); }
+.az-row.me b { color: var(--wr-structure); }
+.az-empty { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
+
+/* ── ACCURACY REPORT CARD — by-kind rows graded against real benchmarks ── */
+.acc-kind-bar { display: inline-flex; align-items: center; gap: .35rem; }
+.acc-kind-bar .track { position: relative; width: 4.2rem; height: 7px; border-radius: 3px;
+  background: var(--wr-panel-soft); border: 1px solid var(--wr-line); overflow: hidden; }
+.acc-kind-bar .track i { display: block; height: 100%; background: var(--wr-chart-main); }
+.acc-kind-bar .track .bench { position: absolute; top: -1px; bottom: -1px; left: 50%; width: 2px;
+  background: var(--wr-muted); opacity: .55; }
+.acc-thin td { color: var(--wr-muted); }
+.acc-thin td:first-child { color: var(--wr-ink); }
+
+/* ── LEAK CHART (proof face) — dollars per owner, three seasons summed ── */
+.lo-leak-chart .me-lbl { font-weight: 800; }
+
+/* Density gradient on the tool pages: the record zones tighten. */
+.is-zone3 .card .body { font-size: var(--wr-fs-sub); }
+.is-zone3 .card h2 { font-size: var(--wr-fs-title); }
+
 /* Motion: state changes only. Respect the doctrine — no ambient animation. */
 @media (prefers-reduced-motion: reduce) {
   .wr-chart * , .wrv * { transition: none !important; animation: none !important; }

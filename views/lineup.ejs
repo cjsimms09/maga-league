@@ -14,6 +14,7 @@
     'last-week': "last week's points (a stopgap until projections land)",
     none: 'no projection data yet',
   };
+  const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 
 <h1 class="page-title">🎯 Lineup Optimizer
@@ -102,8 +103,56 @@
             <span class="lo-verdict-tag"><%= posture.mode === 'chase' ? '🎯 CHASE' : posture.mode === 'pending' ? '⏳ PENDING' : '🛡️ PROTECT' %></span>
             <span class="lo-verdict-line"><%= posture.headline %></span>
           </div>
+          <%- include('partials/_wr_explain', { ex: G.posture }) %>
           <p class="lo-verdict-why"><%= posture.why %></p>
           <p class="muted lo-src">Projections: <%= SRC_LABEL[projSource] || 'unknown source' %>.<% if (!live.projPending && projSource && projSource !== 'sleeper') { %> <b>Treat the dollar figures as directional, not precise, until live projections land.</b><% } %><% if (!live.projPending && !live.oppKnown) { %> Opponent modelled as a <b>typical team score (<%= Math.round((live.assumptions && live.assumptions.oppMean) || 0) %>)</b> until theirs lands — not the week's winning score, which would make every week look like a long shot.<% } %></p>
+        </div>
+      </div>
+    <% } %>
+
+    <%# ── Desktop-first (doctrine §7, 2026-08-16): the DECIDE column (your
+        to-do list, the lineup, the model's moves) sits beside the RECORD
+        column (log / override / the Sunday alert). Phone stacks in the same
+        editorial order: act → verify → record. ─────────────────────────────── %>
+    <div class="is-cols">
+    <div class="is-col">
+
+    <%# ── YOUR LINEUP vs THE RECOMMENDATION — the actual to-do list ───────────
+        The card below this one compares the two MODEL lineups (recommended vs
+        highest-projection), which is a property of the optimizer and was being
+        read as a to-do list. It is empty exactly when the two optima agree —
+        including on a week when the lineup you have SET is wrong, because the
+        solver never received it. Bench your best receiver and the page said
+        "Nothing to change this week… the tool agrees with you."
+        `live.set` is the comparison against what is actually started. It leads,
+        because it is the only thing on this page you can act on. %>
+    <% if (live.set && !live.set.matches && live.set.changes.length) { %>
+      <div class="card lo-todo" style="margin-bottom:1.1rem; border-color:#d4242f">
+        <h2>⚠️ Your lineup isn't the recommended one
+          <%# BOTH NUMBERS, and the points one is not decoration. Dollars are
+              MODELLED — they depend on the opponent estimate and the weekly-high
+              band, both of which are inferences. Projected points are the number
+              you can check against Sleeper yourself in ten seconds, which is what
+              makes this auditable instead of merely confident. (It was computed
+              and carried and displayed nowhere — rule 14.) %>
+          <span class="sub"><%= live.set.changes.length %> change<%= live.set.changes.length === 1 ? '' : 's' %> to make<% if (live.set.points > 0.05) { %> · <b>+<%= live.set.points.toFixed(1) %> projected</b><% } %><% if (live.set.dollars > 0.5) { %> · worth <%= money0(live.set.dollars) %><% } %></span></h2>
+        <div class="body">
+          <%- include('partials/_wr_explain', { ex: G.todo }) %>
+          <% live.set.changes.forEach(c => { %>
+            <div class="lo-call">
+              <div class="lo-call-main">
+                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj != null ? c.startProj.toFixed(1) : '—' %>)</span></span>
+                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj != null ? c.sitProj.toFixed(1) : '—' %>)</span></span>
+              </div>
+              <div class="lo-call-price">
+                <span class="lo-dollars <%= c.dollars >= 0 ? 'money-up' : 'money-down' %>"><%= signed(c.dollars) %></span>
+                <span class="lo-split muted"><%= (c.startProj - c.sitProj) >= 0 ? '+' : '' %><%= (c.startProj - c.sitProj).toFixed(1) %> projected</span>
+              </div>
+            </div>
+          <% }) %>
+          <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+            Read off the lineup Sleeper currently has set for you. Make the swaps there — the site doesn't write to Sleeper.
+          </p>
         </div>
       </div>
     <% } %>
@@ -112,6 +161,7 @@
     <div class="card" style="margin-bottom:1.1rem">
       <h2>✅ Play This <span class="sub"><% if (live.projPending) { %>projections pending — probabilities light up at kickoff<% } else { %>projected <%= live.ev.mean.toFixed(1) %> · P($100) <%= Math.round(live.ev.pHigh * 100) %>%<% if (live.ev.pWin != null) { %> · P(win) <%= Math.round(live.ev.pWin * 100) %>%<% } %><% } %></span></h2>
       <div class="body tight">
+        <%- include('partials/_wr_explain', { ex: G.playthis }) %>
         <%# The variance play(s): every player the solver started OVER a higher-floor
             stud (the calls) is the ceiling bet. Mark them so "chase" is concrete —
             you see exactly who the boom is, not just that there is one. %>
@@ -141,45 +191,6 @@
         <% } %>
       </div>
     </div>
-
-    <%# ── YOUR LINEUP vs THE RECOMMENDATION — the actual to-do list ───────────
-        The card below this one compares the two MODEL lineups (recommended vs
-        highest-projection), which is a property of the optimizer and was being
-        read as a to-do list. It is empty exactly when the two optima agree —
-        including on a week when the lineup you have SET is wrong, because the
-        solver never received it. Bench your best receiver and the page said
-        "Nothing to change this week… the tool agrees with you."
-        `live.set` is the comparison against what is actually started. It leads,
-        because it is the only thing on this page you can act on. %>
-    <% if (live.set && !live.set.matches && live.set.changes.length) { %>
-      <div class="card lo-todo" style="margin-bottom:1.1rem; border-color:#d4242f">
-        <h2>⚠️ Your lineup isn't the recommended one
-          <%# BOTH NUMBERS, and the points one is not decoration. Dollars are
-              MODELLED — they depend on the opponent estimate and the weekly-high
-              band, both of which are inferences. Projected points are the number
-              you can check against Sleeper yourself in ten seconds, which is what
-              makes this auditable instead of merely confident. (It was computed
-              and carried and displayed nowhere — rule 14.) %>
-          <span class="sub"><%= live.set.changes.length %> change<%= live.set.changes.length === 1 ? '' : 's' %> to make<% if (live.set.points > 0.05) { %> · <b>+<%= live.set.points.toFixed(1) %> projected</b><% } %><% if (live.set.dollars > 0.5) { %> · worth <%= money0(live.set.dollars) %><% } %></span></h2>
-        <div class="body">
-          <% live.set.changes.forEach(c => { %>
-            <div class="lo-call">
-              <div class="lo-call-main">
-                <span class="lo-start">▲ Start <b><%= c.startName %></b> <span class="muted">(<%= c.startPos %>, proj <%= c.startProj != null ? c.startProj.toFixed(1) : '—' %>)</span></span>
-                <span class="lo-sit">▼ over <b><%= c.sitName %></b> <span class="muted">(<%= c.sitPos %>, proj <%= c.sitProj != null ? c.sitProj.toFixed(1) : '—' %>)</span></span>
-              </div>
-              <div class="lo-call-price">
-                <span class="lo-dollars <%= c.dollars >= 0 ? 'money-up' : 'money-down' %>"><%= signed(c.dollars) %></span>
-                <span class="lo-split muted"><%= (c.startProj - c.sitProj) >= 0 ? '+' : '' %><%= (c.startProj - c.sitProj).toFixed(1) %> projected</span>
-              </div>
-            </div>
-          <% }) %>
-          <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
-            Read off the lineup Sleeper currently has set for you. Make the swaps there — the site doesn't write to Sleeper.
-          </p>
-        </div>
-      </div>
-    <% } %>
 
     <%# ── What changed vs your studs — the priced moves, secondary ────────────
         MEASURED CONTEXT (A, 2026-08-10): the dual-objective optimizer deviates
@@ -216,6 +227,7 @@
       <div class="card" style="margin-bottom:1.1rem">
         <h2>🔀 What changed vs your studs <span class="sub">each move priced in dollars — a rare week</span></h2>
         <div class="body">
+          <%- include('partials/_wr_explain', { ex: G.calls }) %>
           <% live.calls.forEach(c => { %>
             <div class="lo-call">
               <div class="lo-call-main">
@@ -250,6 +262,9 @@
         </div>
       </div>
     <% } %>
+
+    </div><%# /is-col (decide) %>
+    <div class="is-col">
 
     <%# ── Log the decision (writes to the ledger with its counterfactual) ───── %>
     <form method="post" action="/lineup/log" class="card" style="margin-bottom:1rem">
@@ -366,12 +381,16 @@
         </div>
       </details>
     <% } %>
+
+    </div><%# /is-col (record) %>
+    </div><%# /is-cols %>
   <% } %>
 
 <% } else { %>
   <%# ══════════════════ THE PROOF ══════════════════ %>
   <div class="card lo-hero" style="margin-bottom:1.1rem">
     <div class="body">
+      <%- include('partials/_wr_explain', { ex: G.proof }) %>
       <p style="margin:0 0 .5rem"><b>This optimizer reproduces the certified leak measurement to the dollar</b> —
         the same numbers the Lab's cert-gated grader produces, computed here in the site's own engine.</p>
       <div class="lo-proof-grid">
@@ -400,7 +419,46 @@
     </div>
   </div>
 
+  <%# ── THE LEAK, DRAWN (2026-08-16 pass). A chart is ADDITIVE — it draws the
+      same per-owner dollars the tables below carry, summed across the analyzed
+      seasons, so "who leaves the most on the bench" is one glance instead of
+      three tables. Chart ink follows the war-room kit: one navy magnitude hue,
+      your own bar in the accent, dollars as direct labels. %>
+  <%
+    const leakBy = {};
+    (proof || []).forEach(s => (s.teams || []).forEach(t => {
+      const k = t.name || t.owner; if (!k) return;
+      leakBy[k] = (leakBy[k] || 0) + (t.totalLeak || 0);
+    }));
+    const leakRows = Object.entries(leakBy).sort((a, b) => b[1] - a[1]);
+    const maxLeak = leakRows.length ? Math.max(...leakRows.map(r => r[1])) : 0;
+  %>
+  <% if (leakRows.length) { %>
+    <div class="card" style="margin-bottom:1.1rem">
+      <h2>💸 Who leaves the most on the bench <span class="sub"><%= (proof || []).map(p => p.season).join(' + ') %>, per owner, in dollars</span></h2>
+      <div class="body">
+        <div class="wr-chart lo-leak-chart">
+          <svg viewBox="0 0 560 <%= leakRows.length * 22 + 8 %>" role="img"
+               aria-label="Total dollars left on the bench per owner across the analyzed seasons">
+            <% leakRows.forEach(([name, val], i) => {
+                 const y = i * 22 + 4;
+                 const w = maxLeak ? Math.max(2, Math.round((val / maxLeak) * 340)) : 2;
+                 const mine = name === (me && me.name); %>
+              <text x="86" y="<%= y + 12 %>" text-anchor="end" class="<%= mine ? 'lbl me-lbl' : 'lbl' %>"><%= name %></text>
+              <rect class="bar <%= mine ? 'me' : '' %>" x="92" y="<%= y + 3 %>" width="<%= w %>" height="12" rx="2"></rect>
+              <text x="<%= 92 + w + 6 %>" y="<%= y + 13 %>" class="wr-num"><%= money0(val) %></text>
+            <% }) %>
+          </svg>
+        </div>
+        <p class="wr-chart-cap">The same dollars as the efficiency tables below, summed per owner — the chart adds the
+          glance, the tables stay the record. Your bar is the blue one.</p>
+      </div>
+    </div>
+  <% } %>
+
   <%# Per-team efficiency (who leaves the most on the bench). %>
+  <div class="is-cols even is-zone3">
+  <div class="is-col">
   <div class="card" style="margin-bottom:1.1rem">
     <h2>🪑 Lineup Efficiency <span class="sub">realized ÷ optimal, regular season</span></h2>
     <div class="body tight scroll-x">
@@ -419,7 +477,9 @@
       <% }) %>
     </div>
   </div>
+  </div>
 
+  <div class="is-col">
   <%# Per-week drill-down. %>
   <div class="card" style="margin-bottom:1rem">
     <h2>🔎 A Week Up Close <span class="sub">what was started vs what was optimal</span></h2>
@@ -460,6 +520,8 @@
       <% } %>
     </div>
   </div>
+  </div>
+  </div><%# /is-cols %>
 <% } %>
 
 <p style="text-align:center; margin-top:1rem">
