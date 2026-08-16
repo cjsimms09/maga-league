@@ -8,7 +8,7 @@ because opportunity is a leading indicator, not a projection.
 from __future__ import annotations
 from statistics import mean, pstdev
 
-from scoring import score_stat_line
+from scoring import normalize_def_stat_line, score_stat_line
 
 # Week-to-week scoring volatility by position, as a fraction of season mean.
 # TEs and RBs swing harder per point than WRs (touchdown dependence and injury
@@ -101,12 +101,22 @@ def player_variance(p: dict, metrics: dict | None = None) -> tuple[float, list[s
 
 
 def baseline_from_projections(raw: dict, scoring: dict) -> dict[str, float]:
-    """Convert provider stat-line projections into our league's points."""
+    """Convert provider stat-line projections into our league's points.
+
+    Team-defense rows are vocabulary-normalized first (projection TD components
+    -> the aggregates the league prices; see scoring.DEF_PROJ_TD_ALIASES and
+    DECISIONS-NEEDED #0, fixed 2026-08-16 under Cory's "we fix now" ruling).
+    The gate is the id shape: Sleeper keys DSTs by team code, never a numeric
+    id — and individual returners' rows, which carry the same component keys
+    but must NOT be normalized (st_td prices 0.0 for them), are always numeric.
+    """
     out = {}
     for pid, line in (raw or {}).items():
         stats = line.get("stats") if isinstance(line, dict) and "stats" in line else line
         if not isinstance(stats, dict):
             continue
+        if not str(pid).isdigit():
+            stats = normalize_def_stat_line(stats)
         out[str(pid)] = score_stat_line(stats, scoring)
     return out
 

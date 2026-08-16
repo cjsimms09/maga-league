@@ -53,6 +53,17 @@ assert stale == [], stale"
 # it on" — flipped true, old false lines leaving the diff). ROOM_MIX_W is the
 # ruled switch's declared blend weight (0.25 = BUCKET_BLEND, pinned by
 # room_prior.test.js). Any OTHER CFG default moving still fails here.
+#
+# EXEMPTION ENTRY, 2026-08-16 — the PYTHON scoring-path change this gate does
+# not see, recorded here so the branch's proof surface names it: under Cory's
+# same-day ruling on DECISIONS #0/#000 (verbatim: "Don't agree with timelines
+# we fix now"), draft/scoring.py gained normalize_def_stat_line (DEF projection
+# TD components -> the aggregates the league prices; measured across all 32 DEF
+# rows), draft/adp.py gained the FP rec_rec/2pt_tds recovery, and the committed
+# board + baseline v18 were regenerated through the real generators. This gate
+# covers only the JS engine CFG surface, which did not move; the Python change
+# is pinned by draft/tests/test_projection_correctness.py (13 checks) and
+# documented in draft/audit/projection_correctness_2026-08-16.md.
 ck "no engine CFG default changed vs origin/main beyond Cory's three ruled flips" \
   bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js public/js/draft/survival.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP|ROOM_MIX_PRIOR): (false|true)' | grep -vE '^\+ *ROOM_MIX_W: 0.25,' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
 

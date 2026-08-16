@@ -16,17 +16,17 @@ _4 teams designated on Sleeper (their real slates supersede intel wholesale), 3 
 
 ### Pick 48
 - **TARGET**: Jaylen Waddle (WR, VORP 35.8, 30% survives)
-- fallback 1: Mike Evans (WR, VORP 28.9, 95% survives)
-- fallback 2: Jameson Williams (WR, VORP 26.5, 98% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 62% survives)
-- fallback 4: Tyler Warren (TE, VORP 24.3, 48% survives)
+- fallback 1: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 2: Mike Evans (WR, VORP 28.9, 95% survives)
+- fallback 3: Jameson Williams (WR, VORP 26.5, 98% survives)
+- fallback 4: Drake Maye (QB, VORP 26.0, 62% survives)
 
 ### Pick 53
-- **TARGET**: Mike Evans (WR, VORP 28.9, 81% survives)
-- fallback 1: Jameson Williams (WR, VORP 26.5, 77% survives)
-- fallback 2: Drake Maye (QB, VORP 26.0, 38% survives)
-- fallback 3: Tyler Warren (TE, VORP 24.3, 28% survives)
-- fallback 4: D'Andre Swift (RB, VORP 23.8, 26% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Mike Evans (WR, VORP 28.9, 81% survives)
+- fallback 2: Jameson Williams (WR, VORP 26.5, 77% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 38% survives)
+- fallback 4: Tyler Warren (TE, VORP 24.3, 28% survives)
 
 ## CONTINGENCY — the predicted-only slates bust
 _Only FACTS removed here (real designations + my three): every keeper we merely predict returns to the pool. If an undesignated team keeps less than predicted, this branch is the board you're actually looking at._
@@ -40,16 +40,16 @@ _Only FACTS removed here (real designations + my three): every keeper we merely 
 
 ### Pick 48
 - **TARGET**: Jaylen Waddle (WR, VORP 35.8, 30% survives)
-- fallback 1: Mike Evans (WR, VORP 28.9, 95% survives)
-- fallback 2: Jameson Williams (WR, VORP 26.5, 98% survives)
-- fallback 3: Drake Maye (QB, VORP 26.0, 62% survives)
-- fallback 4: Tyler Warren (TE, VORP 24.3, 48% survives)
+- fallback 1: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 2: Mike Evans (WR, VORP 28.9, 95% survives)
+- fallback 3: Jameson Williams (WR, VORP 26.5, 98% survives)
+- fallback 4: Drake Maye (QB, VORP 26.0, 62% survives)
 
 ### Pick 53
-- **TARGET**: Mike Evans (WR, VORP 28.9, 81% survives)
-- fallback 1: Jameson Williams (WR, VORP 26.5, 77% survives)
-- fallback 2: Drake Maye (QB, VORP 26.0, 38% survives)
-- fallback 3: Tyler Warren (TE, VORP 24.3, 28% survives)
-- fallback 4: D'Andre Swift (RB, VORP 23.8, 26% survives)
+- **TARGET**: Los Angeles Rams (DEF, VORP 29.0, 100% survives)
+- fallback 1: Mike Evans (WR, VORP 28.9, 81% survives)
+- fallback 2: Jameson Williams (WR, VORP 26.5, 77% survives)
+- fallback 3: Drake Maye (QB, VORP 26.0, 38% survives)
+- fallback 4: Tyler Warren (TE, VORP 24.3, 28% survives)
 
 _Regenerates on: slot assignment · keeper designations landing (picked up by the nightly draft-data rebuild) · every board rebuild. A stale fingerprint announces itself — never trust a script whose board hash is old._

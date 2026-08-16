@@ -48,6 +48,66 @@ def score_many(rows: dict[str, dict], scoring: dict) -> dict[str, float]:
     return {pid: score_stat_line(line, scoring) for pid, line in rows.items()}
 
 
+# --- DEF projection vocabulary normalization ----------------------------------
+#
+# Sleeper's PROJECTION rows for team defenses speak in TD *components* while its
+# REALIZED rows (and the league's scoring table) speak in *aggregates*. Measured
+# across ALL 32 DEF projection rows on 2026-08-16 (the committed raw capture:
+# draft/audit/proj_correctness_evidence_2026-08-16.json — key census):
+#
+#     projection vocabulary          rows    realized/priced aggregate
+#     def_fum_td  (fumble-return TD)   1     def_td     (league pays 6.0)
+#     pass_int_td (pick-six)           4     def_td     (league pays 6.0)
+#     def_kr_td   (DST kick-return TD) 4     def_st_td  (league pays 6.0)
+#     pr_td       (DST punt-return TD) 5     def_st_td  (league pays 6.0)
+#     def_td / def_int_td / def_st_td  0     — the aggregates NEVER appear
+#
+# Realized rows carry the aggregates (rule12_statlines.json, LAR 2025 prior
+# season: def_td 1.0, def_st_td 1.0 — no component keys), and the league's own
+# Sleeper scoring table prices the aggregates (def_td 6.0, def_st_td 6.0) while
+# zeroing the component duplicates (def_kr_td/def_pr_td 0.0 — that is how a
+# Sleeper league avoids double-paying an event that fires both keys, NOT a
+# decision that return TDs are worthless; def_st_td at 6.0 is the payment).
+# So `score_stat_line`, which correctly skips keys the table does not price,
+# silently scored every projected defensive TD at zero — DECISIONS-NEEDED #0,
+# fixed 2026-08-16 under Cory's ruling: "Don't agree with timelines we fix now".
+#
+# THE TRAP THE ORIGINAL FINDING NAMED, honored here: components SUM into their
+# aggregate only when the provider did not send the aggregate itself; when an
+# aggregate arrives it WINS outright and the components are dropped rather than
+# double-counted (first-writer-wins alias discipline — C's pass_int class).
+#
+# DEF ROWS ONLY. Individual returners' projection rows carry def_kr_td/pr_td
+# too (measured: 1 RB + 2 WR rows in the same capture) and the league prices an
+# individual special-teams TD at st_td 0.0 — normalizing those rows would
+# invent points. Callers gate on the row being a team defense (Sleeper keys
+# DSTs by team code, never a numeric id).
+DEF_PROJ_TD_ALIASES = {
+    "def_fum_td": "def_td", "def_int_td": "def_td", "pass_int_td": "def_td",
+    "def_kr_td": "def_st_td", "def_pr_td": "def_st_td",
+    "kr_td": "def_st_td", "pr_td": "def_st_td",
+}
+
+
+def normalize_def_stat_line(stats: dict) -> dict:
+    """A NEW stat line with projection TD components folded into the aggregates
+    the league prices. Rows without component keys pass through unchanged."""
+    if not isinstance(stats, dict) or not any(k in stats for k in DEF_PROJ_TD_ALIASES):
+        return stats
+    out = dict(stats)
+    sums: dict[str, float] = {}
+    for comp, agg in DEF_PROJ_TD_ALIASES.items():
+        v = out.pop(comp, None)
+        if v is None:
+            continue
+        if agg in stats:
+            continue  # aggregate arrived from the provider: it wins, component dropped
+        sums[agg] = sums.get(agg, 0.0) + float(v)
+    for agg, v in sums.items():
+        out[agg] = v
+    return out
+
+
 def per_game(points: float, games: float) -> float:
     return round(points / games, 2) if games else 0.0
 

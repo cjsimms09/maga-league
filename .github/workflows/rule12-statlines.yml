@@ -1,17 +1,14 @@
-name: Projection correctness — raw rows for DECISIONS #0 and #000
+name: Rule 12 — raw stat lines for the declared sample
 
-# WHY A WORKFLOW — same reason as rule12-statlines.yml, verbatim class: Sleeper
-# and FantasyPros egress are denied at the gateway from the dev sandbox (403 at
-# the proxy — a policy denial, not a TLS problem and not something to route
-# around). Cory's 2026-08-16 ruling ("Don't agree with timelines we fix now")
-# moved DECISIONS-NEEDED #0 (def_fum_td) and #000 (WR/TE FP scale) from
-# post-draft to NOW, and both fixes are gated on raw provider rows the sandbox
-# cannot fetch: all 32 DEF projection rows (the committed record has one) and
-# FP's 2026 stat lines as served (field names + FP's own fpts).
+# WHY A WORKFLOW. Sleeper egress is denied at the gateway from the dev sandbox
+# (403 at the proxy — a policy denial, not a TLS problem and not something to
+# route around). The rule 12 sample verified seven transformations, every one of
+# which STARTS at proj_baseline; verifying proj_baseline itself needs the
+# provider's raw projected stat line, which only CI can fetch.
 #
-# The probe deliberately does NOT score anything. The stat-line-to-points
-# conversion and the alias/component mapping are the things under audit, so the
-# file that fetches the inputs must not also produce the answer.
+# The probe deliberately does NOT score anything. The conversion from stat line
+# to points is the thing under audit, so the file that fetches the inputs must
+# not also produce the answer.
 on:
   workflow_dispatch:
 
@@ -19,21 +16,21 @@ permissions:
   contents: write
 
 jobs:
-  evidence:
+  statlines:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - name: Fetch the raw provider rows (all-32 DEF + FP-vs-Sleeper components)
-        run: python draft/proj_correctness_probe.py
-      - name: Commit the evidence
+      - name: Fetch the raw provider rows for the predeclared sample
+        run: python draft/rule12_statline_probe.py
+      - name: Commit the raw rows
         run: |
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/audit/proj_correctness_evidence_2026-08-16.json
+          git add draft/audit/rule12_statlines.json
           # `git commit` exits 1 with nothing staged; that is a no-op, not a
           # failure, and must not turn a clean run red.
           git diff --cached --quiet && echo "no change" && exit 0
-          git commit -m "projection correctness: raw provider rows for #0 + #000 [skip deploy]"
+          git commit -m "rule 12: raw provider stat lines for the declared sample [skip deploy]"
           git push
