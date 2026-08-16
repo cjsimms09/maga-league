@@ -111,8 +111,32 @@ jobs:
             if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
               git add draft/data/draft_pick_log_2026.jsonl
               git commit -m "[skip deploy] draft-night sync: pick log update" -q
-              git push -q
-              echo "logged and pushed a change to the pick log"
+              # PUSH-CONFLICT RECOVERY (external audit finding, 2026-08-16):
+              # if anything else lands on the branch between our checkout and
+              # this push, a bare push rejects and bash -e would kill the run
+              # — losing every pick captured in this runner. Rebase-and-retry
+              # instead: our commit touches only the pick log, so a rebase
+              # onto any concurrent commit is clean unless someone else edited
+              # THE SAME file (in which case failing loudly is correct — two
+              # writers on the pick log is the real emergency). 5 attempts,
+              # then keep polling anyway: picks keep accumulating locally and
+              # the next changed-poll retries the push rather than dying.
+              pushed=0
+              for i in 1 2 3 4 5; do
+                if git push -q; then pushed=1; break; fi
+                echo "push rejected (attempt $i) — rebasing onto the remote and retrying"
+                if ! git pull --rebase -q; then
+                  echo "REBASE CONFLICT on the pick log itself — a second writer exists; keeping local commits and retrying next poll"
+                  git rebase --abort 2>/dev/null || true
+                  break
+                fi
+                sleep $((i * 2))
+              done
+              if [ "$pushed" = "1" ]; then
+                echo "logged and pushed a change to the pick log"
+              else
+                echo "WARNING: pick log committed locally but NOT pushed yet — will retry on next changed poll"
+              fi
             fi
 
             # Done when the log is a contiguous run covering every pick the
