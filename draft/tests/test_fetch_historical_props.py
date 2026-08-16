@@ -418,3 +418,50 @@ def test_store_path_keeps_the_week1_draft_pull_off_the_18_week_file():
 
 def test_store_path_defaults_to_the_full_season_name():
     assert FHP.store_path(2024).name == "historical_props_2024.json"
+
+
+# ── the oddsFormat defect: 21-33x corruption, caught 2026-08-16 ───────────
+#
+# fetch_event_props omitted &oddsFormat=american, the vendor defaults to
+# DECIMAL, and american_to_prob then read a decimal odd as an American
+# moneyline. Shipped week-1 anytime-TD sums were 2002.6 / 1742.3 / 1426.2
+# expected touchdowns against a real nflverse count of 61 / 71 / 69.
+#
+# It survived a coverage check because the ROWS were real — 912 of them —
+# and only their VALUES were destroyed. Yardage was untouched because it
+# travels in `point`; only price-quoted markets were affected.
+
+
+def test_odds_url_pins_american_format():
+    # The one-line request fix. Without it the whole price path is garbage,
+    # so it is pinned rather than trusted to survive a future edit.
+    import inspect
+    src = inspect.getsource(FHP.fetch_event_props)
+    assert "oddsFormat=american" in src
+
+
+def test_american_to_prob_refuses_a_decimal_odd():
+    # 2.50 decimal is a real ~40% chance. Read as American it returns 0.976,
+    # which Poisson-inverts to ~3.7 expected TDs for one player.
+    with pytest.raises(FHP.DecimalOddsDetected):
+        FHP.american_to_prob(2.50)
+    with pytest.raises(FHP.DecimalOddsDetected):
+        FHP.american_to_prob(1.91)
+
+
+def test_american_to_prob_still_accepts_real_american_odds():
+    # The guard must not reject legitimate prices at the band edges.
+    assert FHP.american_to_prob(-110) == pytest.approx(0.5238, abs=1e-4)
+    assert FHP.american_to_prob(+900) == pytest.approx(0.1, abs=1e-9)
+    assert FHP.american_to_prob(-100) == pytest.approx(0.5, abs=1e-9)
+    assert FHP.american_to_prob(+100) == pytest.approx(0.5, abs=1e-9)
+
+
+def test_the_exact_corruption_is_now_impossible():
+    # Reproduce the real failure: a book quoting decimal, parsed as a price
+    # market. Before the guard this yielded ~3.7 expected TDs; now it raises
+    # rather than shipping a number that looks plausible in a JSON file.
+    m = {"key": "player_anytime_td", "outcomes": [
+        {"name": "Yes", "description": "Some Backup TE", "price": 2.50}]}
+    with pytest.raises(FHP.DecimalOddsDetected):
+        FHP.parse_price_market(m)

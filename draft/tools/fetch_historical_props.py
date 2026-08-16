@@ -242,11 +242,33 @@ def match_event_to_game(events: list, home_abbr: str, away_abbr: str) -> str | N
     return hits[0] if len(hits) == 1 else None
 
 
+#: An American moneyline never sits between -100 and +100 — those odds do not
+#: exist. Decimal odds, by contrast, live almost entirely in 1.01-30. So a
+#: "price" inside this band is proof the response is DECIMAL and the
+#: oddsFormat param was lost, which is exactly the 21-33x corruption the
+#: 2026-08-16 anytime-TD column shipped with. Refusing beats silently
+#: producing 3.7 expected touchdowns for a backup tight end.
+AMERICAN_IMPOSSIBLE_BAND = (-100.0, 100.0)
+
+
+class DecimalOddsDetected(ValueError):
+    """Raised when a price cannot be an American moneyline. See
+    AMERICAN_IMPOSSIBLE_BAND — the fix is `&oddsFormat=american` on the
+    request, not a conversion here, because a silent conversion would paper
+    over a request bug that also affects any future price-quoted market."""
+
+
 def american_to_prob(price: float) -> float:
     """American odds -> implied probability, vig INCLUDED. -150 -> 0.6,
     +200 -> 0.333. The book's own margin is still baked in here; de-vigging
     happens in `devig_pair` once both sides of the market are known."""
     p = float(price)
+    lo, hi = AMERICAN_IMPOSSIBLE_BAND
+    if lo < p < hi:
+        raise DecimalOddsDetected(
+            f"price {p} lies inside the impossible American band "
+            f"({lo}, {hi}) — the response is decimal, so the request lost "
+            f"&oddsFormat=american")
     if p < 0:
         return (-p) / ((-p) + 100.0)
     return 100.0 / (p + 100.0)
@@ -508,8 +530,22 @@ def fetch_week_events(api_key: str, date_iso: str) -> tuple[list, str | None]:
 def fetch_event_props(api_key: str, event_id: str, date_iso: str,
                        markets: tuple = MARKETS) -> tuple[dict, str | None]:
     mk = ",".join(markets)
+    # oddsFormat=american IS LOAD-BEARING, added 2026-08-16 after the
+    # season_props_draft_study agent caught the column it destroyed. The
+    # vendor DEFAULTS TO DECIMAL when this param is omitted, and it was
+    # omitted. `american_to_prob` then read a decimal odd (say 2.50, a real
+    # ~40% chance) as American +2.50 and returned 100/102.5 = 0.976, which
+    # Poisson-inverts to ~3.7 expected touchdowns for an ordinary player.
+    # Shipped week-1 sums were 2002.6 / 1742.3 / 1426.2 expected TDs against
+    # a real nflverse count of 61 / 71 / 69 — wrong by 21-33x.
+    #
+    # Yardage markets were untouched because they travel in `point`; only
+    # price-quoted markets (anytime-TD) were destroyed. That is exactly why
+    # the defect survived a coverage check: 912 rows really did arrive, and
+    # every one of them was garbage.
     url = (f"{HIST_BASE}/events/{event_id}/odds?apiKey={api_key}"
-           f"&regions={REGIONS}&markets={mk}&date={date_iso}")
+           f"&regions={REGIONS}&markets={mk}&date={date_iso}"
+           f"&oddsFormat=american")
     body, remaining = _get_json(url)
     return (parse_event_props(body, markets) if body else {}), remaining
 
