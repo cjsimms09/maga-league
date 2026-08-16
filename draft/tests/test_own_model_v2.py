@@ -110,11 +110,19 @@ def test_unmeasurable_position_blocks_the_bar():
     assert V2.promotion_verdict(h2h)["clears"] is False
 
 
+@pytest.mark.repo_parity
 def test_artifact_matches_regeneration_and_names_what_is_missing():
     """Once the results artifact exists it must equal a fresh run (same stores,
     same code ⇒ same numbers) and carry the named-unavailable features. Skipped
     while the prereg commit stands alone — the artifact lands in a LATER commit
-    by design."""
+    by design.
+
+    repo_parity: "same stores" includes public/draft_data.json (board_ages)
+    and player_positions.json, which the nightly workflow REBUILDS before its
+    publication gate runs — so there the regeneration moves with the fresh
+    board and this fails by construction against the committed artifact
+    (run 31926152660). The gate deselects it via `-m "not repo_parity"`;
+    every normal pytest run keeps it as the anti-hand-edit guard."""
     art_path = BT / "model_accuracy_v2.json"
     if not art_path.exists():
         pytest.skip("prereg stage: results artifact not generated yet (commit order is the proof)")
