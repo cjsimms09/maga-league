@@ -65,6 +65,12 @@ const PRODUCTION_INPUTS = {
   'draft-config.json': 'Draft-day configuration.',
   'state.json': 'Slot-picker UI state.',
   'ledger.csv': 'The decision ledger export.',
+  'controls.json': 'Cory\'s adaptation controls for the weekly own-projection '
+    + 'loop (draft/data/weekly_own/) — read by /admin/model-scoreboard to '
+    + 'DISPLAY adaptation state (the same page reads grades_<season>.json via '
+    + 'a templated name for the scoreboard numbers). Cory-only display; never '
+    + 'an input to a ranking or a member surface. Declared 2026-08-16 with '
+    + 'the weekly-own loop.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not

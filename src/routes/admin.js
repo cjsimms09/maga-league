@@ -1444,4 +1444,122 @@ router.get('/export', aw(async (req, res) => {
   res.json(dump);
 }));
 
+// ── THE MODEL SCOREBOARD + CONTROL PANEL (Cory-only) ─────────────────────────
+// Cory, 2026-08-16: "A scoreboard of some sort of the models on the actual
+// site for me only would be nice! Include sleeper and fantasy pro projections
+// so I can see if any models bearing those." And: "Make a way for me to easily
+// switch between models in the site! ... make sure it's easily understandable
+// for me so I know exactly what each thing means."
+//
+// READS, never recomputes: the weekly learning ledger
+// (draft/data/weekly_own/grades_<season>.json, written by the Tuesday grade
+// cron — included_files already ships draft/data/** to the function bundle)
+// and the committed adaptation controls (draft/data/weekly_own/controls.json).
+// Every number on the page IS the ledger's number.
+//
+// THE ONE LIVE CONTROL here writes the `model_controls` league doc, and the
+// ONLY consumer of that doc is src/proj_feed.js (sourceFromControls) — the
+// shared season-rate feed the in-season surfaces draw from. No fake knobs:
+// anything this page cannot provably wire is shown as state, with the honest
+// path to change it named on the page.
+
+const OWN_WEEKLY_SEASON = 2026;
+
+function readWeeklyOwn(file) {
+  const fs = require('fs'), path = require('path');
+  const dir = process.env.OWN_WEEKLY_DIR
+    || path.join(__dirname, '..', '..', 'draft', 'data', 'weekly_own');
+  try { return JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8')); }
+  catch (e) { return null; }
+}
+
+router.get('/model-scoreboard', requireCory, aw(async (req, res) => {
+  const PF = require('../proj_feed');
+  const season = OWN_WEEKLY_SEASON;
+  const ledger = readWeeklyOwn(`grades_${season}.json`);
+  const controls = readWeeklyOwn('controls.json') || {};
+  const mc = await getDoc('model_controls', {});
+  const source = PF.sourceFromControls(mc);
+
+  // ── flatten the ledger for the view: weeks ASC, one column set per arm ──
+  const weeks = [];
+  const armNames = new Set();
+  const provNames = new Set();
+  if (ledger && ledger.weeks) {
+    for (const wk of Object.keys(ledger.weeks).map(Number).sort((a, b) => a - b)) {
+      const e = ledger.weeks[String(wk)];
+      const own = {}, prov = {};
+      for (const [arm, cell] of Object.entries(e.own_arms || {})) {
+        armNames.add(arm); own[arm] = cell;
+      }
+      for (const [arm, block] of Object.entries(e.providers || {})) {
+        provNames.add(arm);
+        prov[arm] = {
+          own_population: block.own_population,
+          shared: (block.shared_with_ours || {})[arm] || null,
+          shared_n: (block.shared_with_ours || {}).n,
+          note: block.population_note,
+        };
+      }
+      weeks.push({
+        week: wk, champion_arm: e.champion_arm, formula: e.formula,
+        population: e.population, own, prov,
+        top_misses: e.top_misses || [], miss_pattern: e.miss_pattern || '',
+      });
+    }
+  }
+  const cum = {};
+  const mean = a => (a.length ? Math.round(a.reduce((s, x) => s + x, 0) / a.length * 1000) / 1000 : null);
+  for (const arm of armNames) {
+    const maes = weeks.map(w => (w.own[arm] || {}).mae).filter(v => v != null);
+    const rhos = weeks.map(w => (w.own[arm] || {}).spearman).filter(v => v != null);
+    cum[arm] = { kind: 'own', mae: mean(maes), spearman: mean(rhos), weeks: maes.length };
+  }
+  for (const arm of provNames) {
+    // Cumulative on the SHARED population — the only honest cross-arm column.
+    const maes = weeks.map(w => ((w.prov[arm] || {}).shared || {}).mae).filter(v => v != null);
+    const rhos = weeks.map(w => ((w.prov[arm] || {}).shared || {}).spearman).filter(v => v != null);
+    cum[arm] = { kind: 'provider', mae: mean(maes), spearman: mean(rhos), weeks: maes.length };
+  }
+
+  res.render('admin/model-scoreboard', {
+    season,
+    ledger,
+    weeks,
+    cum,
+    armNames: [...armNames].sort(),
+    provNames: [...provNames].sort(),
+    champion: (ledger && ledger.champion) || { version: 'own_weekly_v1', arm: 'v1' },
+    activeArms: (ledger && ledger.active_arms) || [],
+    promotions: (ledger && ledger.promotions) || [],
+    latest: weeks.length ? weeks[weeks.length - 1] : null,
+    controls: { auto_adapt: controls.auto_adapt !== false,
+      champion_override: controls.champion_override || null },
+    source,
+    sources: PF.PROJ_SOURCES,
+    saved: req.query.saved || null,
+  });
+}));
+
+// The switch (Cory's "easily switch between models in the site"). Writes the
+// model_controls doc; src/proj_feed.js is the one consumer, so the lineup /
+// waiver / matchup surfaces that draw from the feed all change together on
+// their next render. History kept in the doc — his switches are part of
+// "know if the model adapted and how".
+router.post('/model-scoreboard/source', requireCory, aw(async (req, res) => {
+  const PF = require('../proj_feed');
+  const want = String((req.body || {}).source || '');
+  if (PF.PROJ_SOURCES.indexOf(want) < 0) {
+    return res.redirect('/admin/model-scoreboard?saved=invalid');
+  }
+  const mc = await getDoc('model_controls', {});
+  mc.projection_source = want;
+  mc.history = (mc.history || []).concat([{
+    at: now(), by: (req.owner || {}).name || (req.owner || {}).username || 'cory',
+    set: { projection_source: want },
+  }]).slice(-50);
+  await setDoc('model_controls', mc);
+  res.redirect('/admin/model-scoreboard?saved=' + encodeURIComponent(want));
+}));
+
 module.exports = router;

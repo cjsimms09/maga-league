@@ -1,0 +1,92 @@
+name: Own weekly projection (Thursday, before kickoff)
+
+# OUR OWN weekly per-player number, committed BEFORE the week's first game.
+#
+# THE COMMITTED TIMESTAMP IS THE FORWARD GUARANTEE: a projection in git before
+# Thursday kickoff carries no researcher degree of freedom — the same rule
+# src/forecast_grade.js enforces on every other forecast in this repo. That is
+# why this job COMMITS the snapshot rather than uploading an artifact, and why
+# weekly_own_projection.py refuses to overwrite a snapshot once its week has
+# kicked off.
+#
+# Thursday 14:00 UTC — two hours AFTER the odds capture (odds-capture.yml,
+# Thu 12:00 UTC), so the freshest committed lines are on disk when this prices
+# the tilt. Zero network in the pricing itself: every input is a committed
+# file (board, odds snapshot, vegas store), so this can also be dry-run from
+# anywhere.
+#
+# DRY RUN FIRST (the draft-night-sync.yml lesson: a workflow that has never
+# fired is a workflow that does not work): dry_run=true writes the snapshot to
+# $RUNNER_TEMP and commits nothing, so the mechanics get verified end-to-end.
+# The same env-override path is unit-tested in
+# draft/tests/test_weekly_own_projection.py, so the relay session can dispatch
+# the real dry run after merge with the mechanics already proven.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Price for real but write to $RUNNER_TEMP and commit nothing'
+        required: false
+        default: false
+        type: boolean
+      week:
+        description: 'NFL week override (blank = computed from the date; preseason is a clean skip)'
+        required: false
+  schedule:
+    - cron: '0 14 * * 4'   # Thursdays 14:00 UTC, after the 12:00 odds capture
+
+permissions:
+  contents: write
+
+jobs:
+  price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Price the week (champion + challenger arms)
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          WEEK: ${{ github.event.inputs.week }}
+        run: |
+          set -uo pipefail
+          if [ "$DRY_RUN" = "true" ]; then
+            export OWN_WEEKLY_OUT_DIR="$RUNNER_TEMP/weekly-own-dry"
+            echo "DRY RUN: writing to $OWN_WEEKLY_OUT_DIR, committing nothing."
+          fi
+          # Assignments live in the if-tests on purpose — bash -e kills a bare
+          # failing assignment before its diagnostics print (the bug
+          # draft-night-sync.yml's first live firing found).
+          if [ -n "$WEEK" ]; then
+            if OUT="$(python3 draft/weekly_own_projection.py --week "$WEEK" 2>&1)"; then
+              echo "$OUT"
+            else
+              echo "$OUT"; exit 1
+            fi
+          else
+            if OUT="$(python3 draft/weekly_own_projection.py 2>&1)"; then
+              echo "$OUT"
+            else
+              echo "$OUT"; exit 1
+            fi
+          fi
+      - name: Commit the snapshot (the forward guarantee)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/weekly_own/
+          if git diff --cached --quiet; then
+            echo "no change (preseason skip or identical snapshot) — nothing to commit"
+            exit 0
+          fi
+          # Two -m flags, never a multi-line block scalar: an unindented
+          # continuation line inside a block scalar ends the block and
+          # invalidates the ENTIRE workflow YAML (odds-capture.yml found this
+          # the hard way this week).
+          git commit -m "Own weekly projection $(date -u +%F) [skip deploy]" \
+            -m "Committed BEFORE kickoff via own-weekly-proj.yml — the timestamp is the forward guarantee. Graded Tuesdays by own-weekly-grade.yml."
+          git push

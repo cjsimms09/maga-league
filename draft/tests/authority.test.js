@@ -101,7 +101,12 @@ function postBodies(src) {
   // matchup RESULT. Its path contains "matchup" so the substring scan flags it,
   // but it enters no points; exempt it explicitly. The doctrine the check
   // enforces (scores come from Sleeper, never a hand-entry route) is intact.
-  const SCORE_EXEMPT = new Set(['/matchup/trash']);
+  // /model-scoreboard/source (2026-08-16) trips the substring scan on the
+  // word "score" in SCOREBOARD. It writes the model_controls doc (which
+  // projection SOURCE the in-season feed derives from) — no score, matchup,
+  // result or point is entered anywhere near it. The doctrine (scores come
+  // from Sleeper, never a hand-entry route) is intact.
+  const SCORE_EXEMPT = new Set(['/matchup/trash', '/model-scoreboard/source']);
   const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p) && !SCORE_EXEMPT.has(p));
   check('scores (c): NO route exists that writes scores/matchups/results',
     scoreWriters.length === 0, JSON.stringify(scoreWriters));
