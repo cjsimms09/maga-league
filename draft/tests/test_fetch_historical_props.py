@@ -465,3 +465,54 @@ def test_the_exact_corruption_is_now_impossible():
         {"name": "Yes", "description": "Some Backup TE", "price": 2.50}]}
     with pytest.raises(FHP.DecimalOddsDetected):
         FHP.parse_price_market(m)
+
+
+# ── the values check the coverage check could not do ─────────────────────
+#
+# audit_doc's coverage checks ALL PASSED on the corrupt anytime-TD column:
+# 912 rows, 18 weeks, every market present. They were all garbage. A
+# coverage check cannot see a units bug by construction, because the rows
+# are there. audit_values compares the numbers against the world instead.
+
+
+def _td_doc(total, rows=900):
+    per = total / rows
+    return {"season": 2023, "weeks": [
+        {"week": 1, "players": {f"P{i}": {"any_td": per} for i in range(rows)}}]}
+
+
+def test_audit_values_catches_the_real_pre_fix_corruption():
+    # The number that actually shipped: 2002.6 expected TDs against 61.
+    r = FHP.audit_values(_td_doc(2002.6), realized_td=61)
+    assert r["plausible"] is False
+    assert r["factor"] > 30
+
+
+def test_audit_values_catches_corruption_even_without_a_benchmark():
+    # If nobody passes realized_td, the per-player ceiling must still fire —
+    # no NFL player averages a touchdown a game.
+    r = FHP.audit_values(_td_doc(2002.6), realized_td=None)
+    assert r["plausible"] is False
+    assert "a touchdown a game" in r["why"]
+
+
+def test_audit_values_flags_the_residual_vig_inflation():
+    # POST-FIX MEASURED STATE: 145.34 vs 61 realized = 2.38x. The units bug
+    # is gone (13.8x better) but a real overstatement remains, from
+    # single-sided quotes devig_pair cannot correct. A 3.0 threshold would
+    # have waved this through; it is not plausible, it is a known bias.
+    r = FHP.audit_values(_td_doc(145.34, rows=912), realized_td=61)
+    assert r["factor"] == 2.38
+    assert r["plausible"] is False
+
+
+def test_audit_values_passes_a_calibrated_total():
+    # A fully de-vigged set should sum NEAR the realized count.
+    r = FHP.audit_values(_td_doc(68.0, rows=912), realized_td=61)
+    assert r["plausible"] is True
+    assert r["why"] is None
+
+
+def test_audit_values_is_silent_when_there_is_nothing_to_judge():
+    r = FHP.audit_values({"weeks": [{"week": 1, "players": {}}]}, realized_td=61)
+    assert r["any_td_rows"] == 0 and r["plausible"] is True

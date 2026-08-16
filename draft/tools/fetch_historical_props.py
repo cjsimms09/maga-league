@@ -690,6 +690,81 @@ def summarize_health(health: dict) -> dict:
     }
 
 
+#: Summed expected touchdowns should land NEAR the touchdowns actually
+#: scored. In fact a well-calibrated, fully de-vigged set should sum a little
+#: BELOW the realized count, because some players score twice and P(>=1 TD)
+#: counts them once — Poisson inversion corrects for that, so a calibrated
+#: total lands close to parity.
+#:
+#: Set to 2.0 from a measured result, not a guess. After the oddsFormat fix
+#: the 2023 week-1 total fell from 2002.6 to 145.3 against 61 realized — a
+#: 13.8x improvement that still leaves a 2.38x overstatement. That residual
+#: is the documented single-sided-quote problem: `devig_pair` cannot strip
+#: vig when a book publishes only the Yes side, which is the normal case for
+#: the several hundred deep players this market quotes. A threshold of 3.0
+#: would have called that "plausible" and let a 2.4x systematic inflation
+#: into a projection. It is not plausible; it is a known, quantified,
+#: unresolved bias.
+TD_PLAUSIBILITY_FACTOR = 2.0
+
+
+def audit_values(doc: dict, realized_td: float | None = None) -> dict:
+    """Are the NUMBERS plausible, not just present?
+
+    THE CHECK THAT WAS MISSING. `audit_doc` verifies coverage — which weeks,
+    which markets, how many players — and every one of its checks PASSED on
+    the 2026-08-16 anytime-TD column while every value in it was wrong by
+    21-33x. 912 rows really did arrive; they were garbage. A coverage check
+    cannot see a units bug by construction, because the rows are all there.
+
+    `realized_td` is the touchdowns actually scored in the covered weeks,
+    from `component_stats_<season>.json` (rush_td + rec_td). Pass it and this
+    becomes a real comparison against the world; omit it and the check falls
+    back to a per-player ceiling, which still catches the catastrophic case
+    (no NFL player averages multiple touchdowns per game)."""
+    weeks = doc.get("weeks") or []
+    vals, players = [], 0
+    for e in weeks:
+        for row in (e.get("players") or {}).values():
+            players += 1
+            v = row.get("any_td")
+            if v is not None:
+                vals.append(float(v))
+    total = sum(vals)
+    per_player = (total / len(vals)) if vals else None
+    out = {
+        "any_td_rows": len(vals),
+        "any_td_total": round(total, 2),
+        "any_td_mean_per_player": round(per_player, 4) if per_player else None,
+        "realized_td": realized_td,
+        "factor": None,
+        "plausible": True,
+        "why": None,
+    }
+    if not vals:
+        out["why"] = "no any_td rows to judge"
+        return out
+    # A per-player mean above ~1 expected TD per game is impossible on its
+    # face: the league's best scorers sit far below that, and this set
+    # includes deep backups.
+    if per_player and per_player > 1.0:
+        out["plausible"] = False
+        out["why"] = (f"mean expected TDs per player-week is {per_player:.2f}; "
+                      "no NFL player averages a touchdown a game, let alone "
+                      "the median of a set that includes backups")
+    if realized_td:
+        factor = total / realized_td if realized_td else None
+        out["factor"] = round(factor, 2) if factor else None
+        if factor and (factor > TD_PLAUSIBILITY_FACTOR
+                       or factor < 1.0 / TD_PLAUSIBILITY_FACTOR):
+            out["plausible"] = False
+            out["why"] = (f"summed expected TDs {total:.0f} vs {realized_td:.0f} "
+                          f"actually scored — {factor:.1f}x. Books disagree "
+                          f"with outcomes; they do not disagree by this much. "
+                          f"Suspect a units bug (see oddsFormat).")
+    return out
+
+
 def audit_doc(doc: dict) -> dict:
     """Audit an ALREADY-WRITTEN props file, including the three pulled before
     per-week health existed (they carry no counters, so this falls back to
