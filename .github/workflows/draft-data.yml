@@ -273,14 +273,23 @@ jobs:
         # so the diagnosis runs HERE and lands in this log, which is
         # retrievable. Measures via board_activity's and vorp's own
         # functions; prints which exemption spares each unflagged retiree
-        # and the replacement-sensitivity move on this exact board.
+        # and the replacement-sensitivity behaviour on this exact board.
+        # [2026-08-16] The sensitivity section now NAMES THE ARM it measured
+        # (SMOOTH: allocation held, move = base x pct by construction; or
+        # STEP: a flex slot flipped, step derived from the allocation) —
+        # its old text asserted the STEP arm's sign as "the pinned
+        # expectation" and, on run 31926152660, misdiagnosed a board whose
+        # sensitivity test PASSED (+3.78 at +2% was correct smooth scaling;
+        # that run's real refusals were artifact-parity/field-purpose
+        # tests). See draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
         if: failure() && github.event.inputs.snapshot != 'true'
         run: python3 draft/tools/diagnose_refused_board.py || true
 
       - name: Preserve the refused candidate board for offline diagnosis
-        # Added 2026-08-15. The two failures still blocking auto-publish
+        # Added 2026-08-15. The failures that then blocked auto-publish
         # (a retired player unflagged by board_activity.dormant, the
-        # replacement-sensitivity sign flip) reproduce ONLY against the fresh
+        # replacement-sensitivity step — both measured CLEAN as of run
+        # 31926152660) reproduce ONLY against the fresh
         # candidate board built from live fetches — and the runner discarded
         # that board on every refused run, so every diagnosis attempt so far
         # has been done blind, against yesterday's committed board where both
