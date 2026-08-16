@@ -256,3 +256,75 @@ def test_market_to_stat_targets_are_frozen_scoring_table_keys():
     # silently swallowing a typo.
     scoring_keys = {"pass_yd", "pass_td", "rush_yd", "rush_td", "rec_yd", "rec"}
     assert set(FHP.MARKET_TO_STAT.values()) == scoring_keys
+
+
+# ── fetch health: the 2026-08-16 truncated-week / missing-market catch ────
+#
+# The first three real full-season pulls (2023/2024/2025, ~49k credits)
+# shipped four silently-truncated weeks and zero rows for one of the six
+# markets we were billed for. Neither failure left a trace in the artifact:
+# a week whose events-list snapshot resolved 2 of 15 games looked exactly
+# like a healthy week with a thin betting market. These tests pin the two
+# detectors added in response, using the REAL shapes those pulls produced.
+
+
+def test_summarize_health_flags_a_week_that_resolved_almost_no_events():
+    # 2025 wk3's real shape: 15 players off a 16-game slate, because one
+    # stale events-list snapshot could not match the rest of the week.
+    health = {
+        1: {"games_planned": 16, "events_matched": 16, "odds_ok": 16, "players": 199},
+        3: {"games_planned": 16, "events_matched": 2, "odds_ok": 2, "players": 15},
+    }
+    out = FHP.summarize_health(health)
+    assert out["complete"] is False
+    assert [s["week"] for s in out["suspect_weeks"]] == [3]
+    assert out["suspect_weeks"][0]["match_rate"] == 0.125
+
+
+def test_summarize_health_passes_a_fully_resolved_season():
+    health = {w: {"games_planned": 16, "events_matched": 16, "odds_ok": 16,
+                  "players": 200} for w in range(1, 19)}
+    out = FHP.summarize_health(health)
+    assert out["complete"] is True
+    assert out["suspect_weeks"] == []
+    assert out["games_planned"] == 288
+
+
+def _doc(counts, markets=("rec_yd", "rec", "rush_yd", "pass_yd", "pass_td", "rush_td")):
+    return {"season": 2024, "weeks": [
+        {"week": w, "players": {f"P{i}": {m: 1.0 for m in markets}
+                                for i in range(n)}}
+        for w, n in counts.items()]}
+
+
+def test_audit_doc_catches_the_real_2024_week7_truncation():
+    counts = {w: 190 for w in range(1, 19)}
+    counts[7] = 28                      # the real number that shipped
+    out = FHP.audit_doc(_doc(counts))
+    assert out["truncated_weeks"] == {7: 28}
+    assert out["complete"] is False
+
+
+def test_audit_doc_does_not_flag_legitimate_late_season_tapering():
+    # 2023 wk18 really did carry 110 players against a 218 median — fewer
+    # books quote a week where playoff seeds are already settled. That is a
+    # thin market, not a broken fetch, and must NOT trip the detector.
+    counts = {w: 218 for w in range(1, 18)}
+    counts[18] = 110
+    out = FHP.audit_doc(_doc(counts))
+    assert out["truncated_weeks"] == {}
+
+
+def test_audit_doc_catches_a_market_we_paid_for_that_never_landed():
+    # rush_td: billed on every one of the 272 calls per season (10 credits x
+    # 6 markets), zero rows returned across 7,019 real player-weeks.
+    got = ("rec_yd", "rec", "rush_yd", "pass_yd", "pass_td")
+    out = FHP.audit_doc(_doc({w: 200 for w in range(1, 19)}, markets=got))
+    assert out["markets_missing"] == ["rush_td"]
+    assert out["complete"] is False
+
+
+def test_audit_doc_passes_a_clean_file():
+    out = FHP.audit_doc(_doc({w: 200 for w in range(1, 19)}))
+    assert out["complete"] is True
+    assert out["markets_missing"] == []

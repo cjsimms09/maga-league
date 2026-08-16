@@ -366,3 +366,116 @@ attempted):**
   tested." Marked **COSTS REAL API CREDITS — do not auto-fire.**
 - `DECISIONS-NEEDED.md`: no ruling item added — there is nothing to rule
   on until real data exists and is graded. A short OPEN note points here.
+
+---
+
+## 9. THE REAL PULL LANDED — AND THE DATA HAS TWO HOLES (2026-08-16, later pass)
+
+Cory authorized the full spend ("do it all!"). All three seasons were
+fetched for real against the paid plan:
+
+| run | season | scope | commit | result |
+|---|---|---|---|---|
+| 31969492747 | 2024 | sample_week1 (pilot) | `b03c20c` | 1 week, 926 rows |
+| 31969492747 | 2023 | full_season | `46ffad7` | 18 weeks, 16,004 lines |
+| 31969692803 | 2024 | full_season | `ec5df34` | 18 weeks |
+| 31969876211 | 2025 | full_season | (main) | 18 weeks |
+
+A cheap `sample_week1` pilot (~962 credits) was run first to validate the
+real pipeline against real data before releasing the ~49,068. That
+sequencing was the relay session's own call, matching the RECOMMENDED
+SEQUENCE in the workflow's own header comment.
+
+**Then the landed data was audited rather than trusted — and it is not
+clean.** Two independent defects, both found by inspecting the artifacts
+before any grading ran, both since reproduced by the new `audit`
+subcommand:
+
+### 9a. `rush_td`: billed on every call, returned zero times
+
+Across **7,019 real player-week rows in 2023+2024** (and again in 2025),
+the `rush_td` key appears **zero** times. The other five markets appear in
+the thousands:
+
+| market | 2023 | 2024 | 2025 |
+|---|---|---|---|
+| `rec_yd` | 3,084 | 2,633 | 2,663 |
+| `rec` | 2,723 | 2,440 | 2,562 |
+| `rush_yd` | 1,397 | 1,277 | 1,262 |
+| `pass_td` | 548 | 452 | 428 |
+| `pass_yd` | 539 | 452 | 429 |
+| **`rush_td`** | **0** | **0** | **0** |
+
+The parser is NOT the bug — `MARKET_TO_STAT["player_rush_tds"] =
+"rush_td"` is present and `parse_event_props` would emit it. The vendor
+bills `10 x 6 markets x 1 region` per event whether or not the sixth
+market returns anything, so roughly **1/6 of the ~49,068 credits bought
+nothing**.
+
+Why this matters more than the money: rushing touchdowns are 6 points
+each and are the entire case for a goal-line back. `pass_td` DOES arrive,
+so a props-derived projection carries the QB touchdown component but not
+the RB one. That is an **asymmetric** bias — it would make the props arm
+look bad at RB for a reason that has nothing to do with whether betting
+markets are sharp, and would produce a plausible-looking but wrong
+verdict. **Not yet established** whether `player_rush_tds` is simply the
+wrong key (the vendor may express this as `player_anytime_td`) or is not
+served historically; a ~20-credit two-key probe on one historical event
+settles it. No cause is asserted here until that runs.
+
+### 9b. Four silently truncated weeks
+
+| season | week | players | season median |
+|---|---|---|---|
+| 2024 | 7 | 28 | 191 |
+| 2025 | 3 | 15 | 210 |
+| 2025 | 6 | 33 | 210 |
+| 2025 | 17 | 17 | 210 |
+
+Root cause, found by reading `fetch_season`'s loop: the events-list cache
+was **keyed by week**, so one snapshot — taken at whatever the first game
+in that week's plan happened to kick off — was reused to resolve every
+other game that week. `/v4/historical` is point-in-time; a Thursday-night
+snapshot does not necessarily carry Sunday's slate. Every game the stale
+snapshot failed to match hit a bare `continue` and vanished. Compounding
+it, `_get_json` swallowed **every** exception into `(None, None)` with no
+retry, so a single transient timeout on a week's events-list call erased
+that entire week.
+
+Neither failure left any trace: the week records carried only `week` and
+`players`, so a week that resolved 2 of 16 games was indistinguishable
+from a healthy week with a thin market.
+
+### 9c. Fixes landed in this pass
+
+1. **Events-list cache keyed by kickoff timestamp, not week.** Costs ~4-6
+   events-list calls/week instead of 1 (~150 extra credits/season against
+   a 16,320-credit odds spend — about 1% for correctness).
+2. **`_get_json` retries** transient failures (timeout, reset, 429, 5xx)
+   with exponential backoff, and deliberately does *not* retry 4xx, which
+   would only burn credits on a request that is wrong every time.
+3. **Per-week health counters** (`games_planned`, `events_matched`,
+   `odds_ok`, `odds_empty`, `players`) written into every week record, and
+   a `provenance.health` summary flagging any week resolving under
+   `MIN_EVENT_MATCH_RATE` (0.7) of its planned games.
+4. **`audit` subcommand** — zero network — auditing any already-written
+   file, including the three pulled before health counters existed. It
+   independently reproduces exactly the four truncated weeks and the one
+   missing market found by hand.
+
+`audit` verdicts on the three real files, all three `complete: false`:
+
+```
+2023  truncated_weeks {}                      markets_missing ['rush_td']
+2024  truncated_weeks {7: 28}                 markets_missing ['rush_td']
+2025  truncated_weeks {3: 15, 6: 33, 17: 17}  markets_missing ['rush_td']
+```
+
+### 9d. STILL NO VERDICT — and grading stays blocked
+
+`props_season_projection.py` has **not** been run against this data and
+must not be until 9a and 9b are closed. A verdict on "do betting markets
+beat `own_v6`" computed on data missing every rushing touchdown and ~7.4%
+of its weeks (4 of 54) is not a verdict. The honest state is: the pipeline
+works, the money was spent, the data is incomplete, and the incompleteness
+was caught before it could contaminate a result.

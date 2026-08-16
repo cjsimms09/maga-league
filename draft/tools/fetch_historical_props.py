@@ -321,17 +321,43 @@ def _download(url: str, dest: Path) -> bool:
         return False
 
 
-def _get_json(url: str) -> tuple[dict | None, str | None]:
-    """(body, x-requests-remaining) or (None, None) on any failure."""
+def _get_json(url: str, attempts: int = 4) -> tuple[dict | None, str | None]:
+    """(body, x-requests-remaining), or (None, None) once every attempt fails.
+
+    RETRIES, added 2026-08-16 after the first three real full-season pulls
+    came back with silently-truncated weeks (2024 wk7 = 28 players, 2025
+    wks 3/6/17 = 15/33/17, against a 168-258 norm). The original version
+    swallowed EVERY exception into a bare (None, None) with no retry, so a
+    single transient timeout or rate-limit on a week's events-list call
+    erased that entire week's slate — the caller could not tell "the vendor
+    has no data" apart from "the call fell over", and neither left a trace
+    in the artifact.
+
+    Deliberately does NOT retry a 4xx: a bad key or a malformed market list
+    fails the same way every time, and retrying it just burns credits. Only
+    transient classes (timeout, connection reset, 429, 5xx) are retried,
+    with exponential backoff."""
+    import time
+    import urllib.error
     import urllib.request
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "maga-league-props-fetch"})
-        with urllib.request.urlopen(req, timeout=30) as r:
-            body = json.load(r)
-            remaining = r.headers.get("x-requests-remaining")
-        return body, remaining
-    except Exception:
-        return None, None
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "maga-league-props-fetch"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = json.load(r)
+                remaining = r.headers.get("x-requests-remaining")
+            return body, remaining
+        except urllib.error.HTTPError as e:
+            # 429/5xx are worth another go; 4xx means the request itself is
+            # wrong and will stay wrong.
+            if e.code != 429 and e.code < 500:
+                return None, None
+        except Exception:
+            pass
+        if i < attempts - 1:
+            time.sleep(2 ** i)
+    return None, None
 
 
 def fetch_season_schedule(season: int, workdir: Path) -> list:
@@ -412,20 +438,47 @@ def fetch_season(api_key: str, season: int, scope: str, workdir: Path,
         return {"season": season, "status": "refused_over_budget",
                 "credit_estimate": est, "max_credits": max_credits}
 
-    events_by_week: dict[int, list] = {}
+    # EVENTS-LIST CACHE KEY: the game's own kickoff timestamp, NOT its week.
+    #
+    # The original keyed this cache by week, so one snapshot — taken at
+    # whatever the FIRST game in that week's plan happened to kick off —
+    # was reused to resolve every other game that week. /v4/historical is a
+    # point-in-time endpoint: a snapshot taken at Thursday 20:15 does not
+    # necessarily carry Sunday's slate. Every game the stale snapshot could
+    # not match hit the `continue` below and vanished with no record, which
+    # is how 2025 wk3 shipped 15 players and wk6 shipped 33.
+    #
+    # An NFL week has only a handful of distinct kickoff times (Thu, the
+    # Sunday windows, Mon), so keying by timestamp costs roughly 4-6
+    # events-list calls per week instead of 1 — about 150 extra credits per
+    # season against a 16,320-credit odds spend. Correctness is worth ~1%.
+    events_by_ts: dict[str, list] = {}
     weeks_out: dict[int, dict] = {}
+    health: dict[int, dict] = {}
     remaining = None
     for g in plan:
         wk = g["week"]
-        if wk not in events_by_week:
-            events_by_week[wk], remaining = fetch_week_events(api_key, g["commence_time"])
-        eid = match_event_to_game(events_by_week[wk], g["home"], g["away"])
+        h = health.setdefault(wk, {"games_planned": 0, "events_matched": 0,
+                                   "odds_ok": 0, "odds_empty": 0})
+        h["games_planned"] += 1
+        ts = g["commence_time"]
+        if ts not in events_by_ts:
+            events_by_ts[ts], remaining = fetch_week_events(api_key, ts)
+        eid = match_event_to_game(events_by_ts[ts], g["home"], g["away"])
+        weeks_out.setdefault(wk, {"week": wk, "players": {}})
         if not eid:
             continue
-        props, remaining = fetch_event_props(api_key, eid, g["commence_time"])
-        weeks_out.setdefault(wk, {"week": wk, "players": {}})
+        h["events_matched"] += 1
+        props, remaining = fetch_event_props(api_key, eid, ts)
+        if props:
+            h["odds_ok"] += 1
+        else:
+            h["odds_empty"] += 1
         for name, row in props.items():
             weeks_out[wk]["players"].setdefault(name, row)
+    for wk, h in health.items():
+        h["players"] = len(weeks_out.get(wk, {}).get("players", {}))
+        weeks_out.setdefault(wk, {"week": wk, "players": {}})["health"] = h
 
     doc = {
         "_territory": "TERRITORY: A — produced by draft/tools/fetch_historical_props.py",
@@ -443,10 +496,80 @@ def fetch_season(api_key: str, season: int, scope: str, workdir: Path,
             "scope": scope, "markets": list(MARKETS), "regions": REGIONS,
             "credit_estimate": est,
             "credits_remaining_last_seen": remaining,
+            "health": summarize_health(health),
         },
         "weeks": [weeks_out[w] for w in sorted(weeks_out)],
     }
     return {"season": season, "status": "written", "doc": doc}
+
+
+# ── pure: fetch-health auditing ──────────────────────────────────────────
+
+#: A REG week fields 13-16 games; anything resolving under this share of its
+#: planned games is a partial fetch, not a thin betting market. Set from the
+#: three real 2023-2025 pulls: healthy weeks matched every planned game,
+#: while the four broken ones (2024 wk7, 2025 wks 3/6/17) matched under a
+#: fifth of theirs. 0.7 sits well clear of both clusters.
+MIN_EVENT_MATCH_RATE = 0.7
+
+
+def summarize_health(health: dict) -> dict:
+    """Roll per-week fetch counters into a verdict the artifact carries with
+    it, so a truncated pull announces itself instead of looking like a quiet
+    week. `health` is {week: {games_planned, events_matched, odds_ok, ...}}."""
+    weeks = sorted(health)
+    suspect = []
+    for wk in weeks:
+        h = health[wk]
+        planned = h.get("games_planned") or 0
+        if not planned:
+            continue
+        rate = (h.get("events_matched") or 0) / planned
+        if rate < MIN_EVENT_MATCH_RATE:
+            suspect.append({"week": wk, "games_planned": planned,
+                            "events_matched": h.get("events_matched", 0),
+                            "match_rate": round(rate, 3),
+                            "players": h.get("players", 0)})
+    return {
+        "weeks_fetched": len(weeks),
+        "games_planned": sum((health[w].get("games_planned") or 0) for w in weeks),
+        "events_matched": sum((health[w].get("events_matched") or 0) for w in weeks),
+        "min_event_match_rate": MIN_EVENT_MATCH_RATE,
+        "suspect_weeks": suspect,
+        "complete": not suspect,
+        "per_week": {str(w): health[w] for w in weeks},
+    }
+
+
+def audit_doc(doc: dict) -> dict:
+    """Audit an ALREADY-WRITTEN props file, including the three pulled before
+    per-week health existed (they carry no counters, so this falls back to
+    the player-count distribution). Reports which weeks look truncated and
+    which requested markets never landed a single row — the two failure
+    modes the 2023-2025 pull actually hit."""
+    weeks = doc.get("weeks") or []
+    counts = {int(e["week"]): len(e.get("players") or {}) for e in weeks}
+    present = set()
+    for e in weeks:
+        for row in (e.get("players") or {}).values():
+            present.update(row)
+    expected = set(MARKET_TO_STAT.values())
+    median = (sorted(counts.values())[len(counts) // 2] if counts else 0)
+    # A week under a third of the season's median player count is truncated;
+    # real late-season tapering (2023 wk18 = 110 vs a 212 median) stays well
+    # above that, while the four known-broken weeks fall far below it.
+    thin = {w: n for w, n in counts.items() if median and n < median / 3}
+    return {
+        "season": doc.get("season"),
+        "weeks": len(weeks),
+        "median_players_per_week": median,
+        "players_per_week": dict(sorted(counts.items())),
+        "truncated_weeks": dict(sorted(thin.items())),
+        "markets_expected": sorted(expected),
+        "markets_present": sorted(present),
+        "markets_missing": sorted(expected - present),
+        "complete": not thin and not (expected - present),
+    }
 
 
 def main() -> int:
@@ -468,7 +591,16 @@ def main() -> int:
     p_fetch.add_argument("--max-credits", type=int, default=None)
     p_fetch.add_argument("--out-dir", type=str, default=None)
 
+    p_audit = sub.add_parser(
+        "audit", help="audit an already-written props file (no network at all)")
+    p_audit.add_argument("--file", type=str, required=True)
+
     args = ap.parse_args()
+
+    if args.cmd == "audit":
+        report = audit_doc(json.loads(Path(args.file).read_text()))
+        print(json.dumps(report, indent=1))
+        return 0 if report["complete"] else 1
     import os
     import tempfile
     workdir = Path(tempfile.mkdtemp(prefix="historical_props_"))
