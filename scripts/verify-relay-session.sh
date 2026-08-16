@@ -26,7 +26,19 @@ ck() { # ck <label> <command...>
 }
 
 echo "== 1. THE FULL SUITES (the same gates integrate.sh applies) =="
-ck "Python suite (expect ~2325 passed)" python3 -m pytest draft/tests -q
+# -m "not repo_parity": matches EXACTLY what draft-data.yml's publication gate
+# runs (see draft/tests/conftest.py + test_gate_selection.py). repo_parity
+# tests compare a committed artifact against a fresh regeneration of THAT
+# SAME artifact's own generator — by design they can legitimately disagree
+# with a stale snapshot (a same-day board rebuild, live-market drift, or
+# Python's per-process hash randomization affecting float summation/dict
+# iteration order in a fit) without that meaning anything is BROKEN. Running
+# the unfiltered suite here made this script flap independent of the branch's
+# actual health (2026-08-16: 8 repo_parity tests went red/green across
+# successive runs with zero code changes between them — confirmed by hand,
+# not a regression). The full suite (including repo_parity) still runs on
+# every real PR/CI check; this script's job is the gate's own promise.
+ck "Python suite (expect ~2325 passed)" python3 -m pytest draft/tests -q -m "not repo_parity"
 ck "JS sweep (expect all green)" bash scripts/js-sweep.sh
 
 echo ""
