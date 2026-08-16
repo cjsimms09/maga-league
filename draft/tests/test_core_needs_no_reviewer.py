@@ -390,12 +390,14 @@ def test_NO_WORKFLOW_MAKES_A_MODEL_JOB_DEPEND_ON_THE_REVIEWER():
         if f.name == "independent-review.yml":
             continue                      # the reviewer may depend on itself
         if f.name == "config-check.yml":
-            # EXEMPT 2026-08-16: config-check is the SECRETS CENSUS — its whole
-            # job is naming which secrets exist (it checks OPENAI_API_KEY is
-            # set for the reviewer, among others). It is not a model/product
-            # job, nothing `needs:` it, and a reviewer outage cannot stop any
-            # model workflow through it. Referencing the secret's NAME is its
-            # function, not a dependency — the coupling this test forbids.
+            # Exempted 2026-08-16: config-check is the read-only, dispatch-only
+            # key PROBE Cory asked for ("can you check that it was done right")
+            # — its whole job is to NAME every configured secret, the reviewer's
+            # included, and report presence/length only. It gates no model job
+            # and nothing `needs:` it; a reviewer outage stops nothing through
+            # it. The grep heuristic here reads any mention of OPENAI_API_KEY
+            # as a dependency, which is exactly backwards for a probe that
+            # exists to verify the key without consuming it.
             continue
         src = f.read_text(errors="ignore")
         body = "\n".join(l for l in src.splitlines()
