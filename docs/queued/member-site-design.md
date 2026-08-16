@@ -56,6 +56,23 @@ the Sleeper-fed projection surface, which is why it is league-visible.
    Modernize inside the identity — navy/gold/eagle stays; generic-SaaS
    look is a failure.
 
+## ORDERED FEATURES (Cory, 2026-08-16: "Tuesday matchup preview is cool,
+yes. Week nav yes. Charts yes, records watch yes, the races yes")
+
+The five below moved from ideas to ordered scope — the member pass builds
+them, not just considers them:
+
+1. **Tuesday matchup previews** — auto-generated per game: all-time h2h,
+   streaks, last meeting, rivalry label (h2h.js + rivalries.js).
+2. **Week navigation on matchups** — this week, any past week, upcoming
+   schedule ("when do I play Michael again" lives here, not Sleeper).
+3. **Charts, additively** — war-room chart kit + palette beside the data,
+   never replacing it.
+4. **Records watch** — live chips when someone approaches a franchise
+   record (weekly high, bad-beat, blowout — history-data carries them).
+5. **The races** — playoff race / points crown / toilet race, one page,
+   week-over-week movement (standings-movement.js).
+
 ## Engagement ideas on file (grounded, not corny — each builds on real data)
 
 - **The races, as races**: playoff race / points crown / toilet race with
