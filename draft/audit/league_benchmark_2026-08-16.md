@@ -1,6 +1,26 @@
 <!-- TERRITORY: A -->
 # THE LEAGUE BENCHMARK — does the tool lose to everyone, or just Cory? — 2026-08-16
 
+> ## ⚠️ AUDIT CORRECTION — 2026-08-16, later pass (data-integrity finding)
+>
+> **§4a's headline below — "rookie prior CLEARS, +25.1 = 38% of the pooled
+> Cory gap" — DOES NOT REPRODUCE and is FALSE.** A fresh, from-scratch run
+> of the exact code committed at `be3b2065` (the commit this doc and its
+> artifact shipped in) produces pooled optimal `cory_gap_change: +1.6`
+> (≈2.4% of the gap), not `+25.14`. Reproduced deterministically — 3 runs
+> of the live tree, 3 more at explicit `PYTHONHASHSEED` values 111/222/333,
+> and an independent run against an isolated `git archive` export of
+> `be3b2065` itself — always `+1.6`, never `+25.14`. **The layer FAILS its
+> own preregistered bar** (needed ≥25% / ≥16.4 pts, or a ≥2-seat pooled
+> league-position lift on the optimal arm; actual: 2.4% / +1.6 pts, 0-seat
+> lift). No code bug was found — see the forensics note, §9, for the full
+> investigation and the corrected numbers. **Nothing below in §4a, §4c, §6,
+> or §7 that quotes the +25.1/CLEARS result is true; each is annotated in
+> place, and the original text is kept, struck through, not deleted, per
+> this repo's standing correction discipline.** The prepared diff
+> `draft/tools/apply_rookie_prior_own_model_2026.py` is NOT validated by
+> any passing grade — see the corrected `DECISIONS-NEEDED.md` entry.
+
 ## 0. The questions, verbatim
 
 Cory, 2026-08-16, after reading the draft replay's verdict
@@ -233,44 +253,82 @@ exclusion so seat-1 parity with the committed replay is exact).
 
 ## 4. LAYER GRADES — against the §2d bar, no retuning
 
-### 4a. Rookie prior — **CLEARS (bar 1), with its concentration named**
+### 4a. Rookie prior — ~~CLEARS (bar 1), with its concentration named~~
 
-| year | Cory Δ baseline → layer | change | beats n | median Δ |
-|---|---|---|---|---|
-| 2025 | −16.9 → **+69.1** | **+86.0** | 0 → 4 | −187.4 → −116.3 |
-| 2024 | −58.0 → −68.6 | **−10.6** | 8 → 7 | +49.4 → +38.0 |
-| 2023 | −122.1 → −122.1 | 0.0 | 3 → 3 | unchanged |
-| pooled | −65.7 → **−40.5** | **+25.1** | 3 → 3 | |
+> **⚠️ CORRECTED 2026-08-16 (later pass) — the table and claims immediately
+> below THIS LINE never reproduced from the committed code; see §9. Struck
+> through and kept, not deleted. The corrected verdict is FAILS (both
+> bars), stated with real numbers in the box that follows.**
 
-+25.1 = **38% of the pooled Cory gap — clears the preregistered 25% bar.**
-Realistic arm agrees and adds league position: pooled Cory −6.5 → **+11.3**,
-beats **2 → 4** owners (2025 realistic Cory cell: **+141.5**). Honesty:
+~~| year | Cory Δ baseline → layer | change | beats n | median Δ |~~
+~~|---|---|---|---|---|~~
+~~| 2025 | −16.9 → **+69.1** | **+86.0** | 0 → 4 | −187.4 → −116.3 |~~
+~~| 2024 | −58.0 → −68.6 | **−10.6** | 8 → 7 | +49.4 → +38.0 |~~
+~~| 2023 | −122.1 → −122.1 | 0.0 | 3 → 3 | unchanged |~~
+~~| pooled | −65.7 → **−40.5** | **+25.1** | 3 → 3 | |~~
 
-- **The help is 2025-concentrated.** 2023 is a no-op (the 2021–22 fit's
-  cells are too cheap to out-VORP any veteran — top cell WR|1-10 at 176 but
-  QB|1-10 at a 3-row fallback of 70.9), and 2024 is slightly NEGATIVE even
-  though the layer did what it promised — the tool drafted MHJ, Nabers and
-  Odunze (rookies in: 592.6 actual pts; vets out: London/Allen/Godwin/
-  Ekeler, 565.9) but the swap converted to −10.6 in startable-lineup
-  points. Pricing rookies at the capital base rate gets the tool INTO the
-  rookie market without giving it Cory's 2024 selection (his five rookie
-  picks scored 1044).
-- Mechanically the 2025 lift is part direct (rookies drafted), part
+~~+25.1 = **38% of the pooled Cory gap — clears the preregistered 25% bar.**~~
+~~Realistic arm agrees and adds league position: pooled Cory −6.5 → **+11.3**,~~
+~~beats **2 → 4** owners (2025 realistic Cory cell: **+141.5**).~~ Honesty
+bullets below are likewise struck where they depended on the false table
+(the raw mechanics they describe — 85 rookies added, replacement shifting,
+Travis Hunter becoming visible — are real; only the point estimates of how
+much they moved the Cory gap were wrong):
+
+> **THE TRUE, REPRODUCIBLE TABLE (fresh regeneration of the exact committed
+> code, `python3 draft/tools/replay_all_seats.py`, deterministic — see §9):**
+>
+> | year | Cory Δ baseline → layer | change | beats n | median Δ |
+> |---|---|---|---|---|
+> | 2025 | −16.9 → **−1.5** | **+15.4** | 0 → 2 | −187.4 → −161.9 |
+> | 2024 | −58.0 → −68.6 | **−10.6** | 8 → 7 | +49.4 → +38.0 |
+> | 2023 | −122.1 → −122.1 | 0.0 | 3 → 3 | unchanged |
+> | pooled | −65.65 → **−64.05** | **+1.6** | 3 → 3 | |
+>
+> +1.6 = **2.4% of the pooled Cory gap — FAILS the preregistered 25% bar**
+> (needed ≥16.4 pts) **and FAILS bar 2** (pooled beats-n is 3 → 3 on the
+> optimal arm, no seat-position lift; the same three owners — cashworth,
+> Jreis, Richard2121 — are beaten baseline and layer alike). Realistic arm
+> does NOT agree: pooled Cory −6.53 → **−13.43** (worse, not better; 2025
+> realistic Cory cell **+67.4**, not +141.5). The realistic arm's beats-n
+> does lift 2 → 4, which is real, but the preregistered bar (§2d) is
+> defined on the OPTIMAL arm only, so this lift does not count toward
+> clearing.
+
+- **⚠️ CORRECTED:** the movement is still 2025-concentrated in DIRECTION,
+  but the TRUE 2025 move is +15.4, not the originally-claimed +86.0 — the
+  tool's rookie-layer Cory cell only climbs from −16.9 to −1.5 (still a
+  tool LOSS, never crosses zero), not to the falsely-claimed +69.1. 2023 is
+  a no-op for the reason originally given (the 2021–22 fit's cells are too
+  cheap to out-VORP any veteran — top cell WR|1-10 at 176 but QB|1-10 at a
+  3-row fallback of 70.9), and 2024 is slightly NEGATIVE for the reason
+  originally given too — that part of the story reproduces exactly, unlike
+  2025 (the tool drafted MHJ, Nabers and Odunze — rookies in: 592.6 actual
+  pts; vets out: London/Allen/Godwin/Ekeler, 565.9 — but the swap converted
+  to −10.6 in startable-lineup points). Pricing rookies at the capital base
+  rate gets the tool INTO the rookie market without giving it Cory's 2024
+  selection (his five rookie picks scored 1044) — true then, true now.
+- Mechanically the 2025 move is part direct (rookies drafted), part
   indirect (85 added players shift replacement levels and pick cascades,
-  and Travis Hunter becomes visible/gradeable).
-- 30 seat-year cells, one policy: this is evidence of a closed structural
-  hole, not a measured +25/season expectation for 2026.
+  and Travis Hunter becomes visible/gradeable) — the mechanism is real; its
+  effect on the Cory gap was 5-6x smaller than originally reported.
+- 30 seat-year cells, one policy: this is evidence of an opened structural
+  hole (the tool can now see and draft rookies) that on THIS measurement
+  does not translate into a closed performance gap — not a measured
+  +25/season expectation for 2026, and not even a measured +1.6/season one;
+  see §9 for why a point estimate this small shouldn't be over-read either.
 
-**Prepared, gated, NOT applied** (§2d consequence):
+**⚠️ CORRECTED — NOT "prepared, gated, NOT applied" as a §2d consequence,
+because §2d's consequence (a clearing grade) never happened.** The diff
 `draft/tools/apply_rookie_prior_own_model_2026.py` + the 2026-class store
-`draft/backtest/nflverse_draft_picks_2026.json`. The live 2026 board's
-market columns already price rookies (153 rookies carry `proj_mean`); the
-own-model column carries **0 of 153** — the same structural hole, live.
-The prepared diff fills `proj_ownmodel` for the 71 NFL-drafted board
-rookies from the 2021–25-fit prior (dry-run output in the script; UDFAs
-stay null, named), touches NO blend/VORP/rank field, refuses to run
-without Cory's recorded approval, and notes that wiring the value into the
-blend is a separate A-lane build decision. Queued in `DECISIONS-NEEDED.md`.
+`draft/backtest/nflverse_draft_picks_2026.json` still exist and still do
+what they say (the live 2026 board's own-model column carries **0 of 153**
+rookies; the market columns already price rookies; the diff fills
+`proj_ownmodel` for the 71 NFL-drafted board rookies from the 2021–25-fit
+prior, touches NO blend/VORP/rank field, refuses to run without Cory's
+recorded approval) — but they are **not backed by a passing clearing
+grade** and must not be presented to Cory as validated. Corrected framing
+and options are in `DECISIONS-NEEDED.md`.
 
 ### 4b. Year-2 escalator — **FAILS its own bar, and the measurement says why**
 
@@ -301,13 +359,24 @@ while the bottom half's were positive. A flat escalator cannot encode a
 selection skill. Reported as measured; layer dead under its own prereg;
 no diff prepared.
 
-### 4c. Both layers — negative interaction, named loudly
+### 4c. Both layers — ~~negative interaction, named loudly~~ mostly just the escalator's own (already-failing) effect
 
-Pooled optimal −1.1 (worse than rookie alone by 26 points): the
-escalator's QB/RB inflation (m up to 1.30/1.14) re-routes early-round
-picks and destroys most of the rookie layer's 2025 gain (Cory 2025:
-+86.0 rookie-alone → +7.3 both). Draft policies are cascades — layer
-grades DO NOT ADD. The clearing combination is rookie prior alone.
+**⚠️ CORRECTED 2026-08-16 (later pass) — the "both" numbers themselves are
+verified UNCHANGED and true** (pooled optimal `both` = −1.11, matches a
+fresh regeneration exactly; see §9) — **only the "rookie alone" side of
+this comparison was wrong**, and correcting it mostly dissolves the
+"negative interaction" finding rather than confirming it. Pooled optimal
+`both` = −1.11 vs the TRUE rookie-alone = **+1.6** (not +25.1) — a gap of
+only 2.7 points, not 26, and 2.7 is almost exactly the year-2 escalator's
+own solo pooled effect (−2.71, §4b) — i.e. once the rookie layer's real
+(tiny) effect is used, "both" reads as approximately "the escalator's
+already-failing effect, present," not as a meaningful negative interaction
+on top of a real rookie gain. 2025 in particular: **Cory 2025: +15.4
+rookie-alone → +7.3 both** (not +86.0 → +7.3) — the escalator still
+roughly halves the rookie layer's small 2025 move, but there isn't much
+left to halve. Draft policies are cascades — layer grades DO NOT ADD — that
+lesson still holds; it just isn't illustrated by a dramatic number anymore.
+**Neither config clears; there is no "clearing combination."**
 
 ## 5. LAYER (c) — roster-status: verified, already priced live
 
@@ -386,17 +455,27 @@ Reads, with per-owner nuance the group means hide:
 
 **"Make sure model can do that or better" — graded, and the answer today
 is NO.** The tool's pooled optimal deltas in the top-3 seats: Schmelley
-−161.7, MarianSaar −117.8, Cory −65.7 baseline; with the clearing rookie
-layer −146.1 / −91.1 / −40.5 — better in all three chairs, **still behind
-all three drafters**. The rookie layer closes part of the gap to the top 3;
-nothing built today closes it. That is the honest state of Cory's bar.
+−161.7, MarianSaar −117.8, Cory −65.7 baseline; ~~with the clearing rookie
+layer −146.1 / −91.1 / −40.5 — better in all three chairs~~. **⚠️ CORRECTED
+2026-08-16 (later pass):** with the rookie-prior config actually applied
+(it does not clear — §4a/§9), the TRUE pooled optimal deltas are Schmelley
+**−167.5** (worse, not better), MarianSaar **−91.1** (essentially
+unchanged), Cory **−64.1** (barely moved) — **still behind all three
+drafters, and not "better in all three chairs."** Nothing built today
+closes the gap to the top 3 in any seat, including Cory's. That is the
+honest state of Cory's bar.
 
 ## 7. What this licenses for the 22nd, and what it does not
 
 - License: "the tool must get better to beat most of this league" — Cory's
-  instinct is measured fact (§3). The rookie hole is real, closable, and
-  the ONE prepared diff (own-model rookie column, §4a) is on the queue.
-  The live engine's market arm already carries most of what the replay's
+  instinct is measured fact (§3). ~~The rookie hole is real, closable, and
+  the ONE prepared diff (own-model rookie column, §4a) is on the queue.~~
+  **⚠️ CORRECTED:** the rookie hole (0 rookies visible on the walk-forward
+  board) is real and the diff still fills a real structural gap in the
+  own-model column, but on the preregistered replay measurement it is NOT
+  shown to close performance (§4a/§9 — the layer fails its own bar); "the
+  rookie hole is closable" is not established by this doc's evidence. The
+  live engine's market arm already carries most of what the replay's
   baseline lacks — nothing in §3's walk-forward numbers transfers to the
   2026 engine as-is (same §6 caveat as the single-seat replay).
 - License: at the table, when Cory's read disagrees with the board on a
@@ -404,8 +483,11 @@ nothing built today closes it. That is the honest state of Cory's bar.
   read seriously; on a YEAR-2 trajectory player, the cohort data does NOT
   back an automatic escalation — his edge there, if any, is selection.
 - Not licensed: any "the tool now beats the top drafters" claim (§6 grade:
-  it does not, in any tested configuration), or quoting the +25.1 as a
-  2026 expectation (30 cells, one policy, walk-forward boards).
+  it does not, in any tested configuration), or quoting **the +25.1/CLEARS
+  result at all — it does not reproduce and was a data-integrity error,
+  corrected 2026-08-16 (later pass), see §9.** The true, reproducible
+  rookie-prior effect (+1.6 pooled, 2.4% of the gap) fails the preregistered
+  bar and licenses no 2026 expectation either.
 - The shadow ledger (`draft/data/draft_shadow_2026.jsonl` machinery)
   captures his 2026 disagreements pick-by-pick — the systematic record his
   "should we identify what things I did better" asks for, growing at
@@ -440,3 +522,119 @@ nothing built today closes it. That is the honest state of Cory's bar.
   per-seat fixed opponents; layer grades are non-additive (§4c); the
   drafter ranking is surplus = skill + luck at n≈31; prereg commit
   `a1ce5b43` precedes every grade in §3–§6.
+
+## 9. FORENSICS — the "CLEARS" claim did not reproduce (audit correction, 2026-08-16, later pass)
+
+**What was claimed, at commit `be3b2065`:** the rookie-capital-prior layer
+closes the pooled optimal-arm Cory gap from −65.7 to −40.5 (`cory_gap_change:
++25.14`), "38% of the pooled Cory gap — clears the preregistered 25% bar,"
+with a per-year table showing 2025 alone moving Cory's cell from −16.9 to
+**+69.1**. This was the basis for §4a's CLEARS verdict, the "better in all
+three chairs" line in §6, and `DECISIONS-NEEDED.md`'s ruling-ready framing
+of the prepared own-model diff.
+
+**What actually reproduces, checked by hand:** running
+`python3 draft/tools/replay_all_seats.py` fresh — against the live tree,
+against an isolated `git archive` export of `be3b2065` itself (so the
+board/data state is exactly what was committed, with zero influence from
+any later commit or any other in-progress worktree), and at three explicit
+`PYTHONHASHSEED` values (111, 222, 333, in addition to the default) —
+produces, **every single time, byte-identical**: pooled optimal
+`cory_mean_delta_layer: -64.05`, `cory_gap_change: +1.6` (≈2.4% of the
+gap). The 2025 Cory cell reproduces at **−1.46**, not +69.1. The `both`
+config (rookie + year-2 escalator) and the `year2_escalator` config alone
+both reproduce EXACTLY what was committed in every GRADED quantity —
+seat deltas, league tables, layer grades — unchanged; only the
+`rookie_prior`-alone configuration's 2025 numbers (and everything pooled
+that flows from them) fail to reproduce. (One benign, score-irrelevant
+side-note surfaced while checking this: the `baseline` config's
+`projection_coverage` diagnostic — a raw player-pool-size count, not a
+graded quantity — also runs 2-3 players higher on a fresh regeneration
+than committed, uniformly across all three years and ALL FOUR configs
+including the ones that otherwise reproduce exactly, and confirmed present
+even in the isolated `be3b2065` archive. This is further, independent
+evidence that the committed artifact does not match a byte-for-byte
+regeneration of the committed code — but it demonstrably does not by
+itself explain the score-affecting divergence, since `baseline`,
+`year2_escalator`, and `both` all reproduce their graded deltas exactly
+despite carrying the same 2-3-player pool difference.)
+
+**The investigation.** Per the working hypothesis list (non-determinism,
+an uncommitted intermediate state, or a genuine bug):
+
+1. **Not non-determinism.** Every function on the path — `fit_rookie_prior`,
+   `rookie_overlay`, `with_rookies`, `replacement_levels`, and
+   `replay_draft`'s pick loop — is a pure function of committed, unchanging
+   inputs. No `random`, no wall-clock, no `time.time()` anywhere on the
+   path (checked by grep). The one place iteration order could plausibly
+   matter, `replay_draft`'s BPA-by-VORP tie-break, explicitly breaks ties
+   by `(-value, -proj, player_id)` — deterministic by construction, not by
+   luck. Confirmed empirically too: identical output across three
+   `PYTHONHASHSEED` values, which is exactly the value that would move a
+   result if any `set()` iteration order were silently load-bearing (none
+   is).
+2. **Not a currently-live bug in `fit_rookie_prior`.** The fit is
+   byte-identical between the committed artifact's `meta.fit.cells` and a
+   fresh run's — same `fit_rows: 311`, same fit classes, same per-cell
+   `mean_pts`/`n`/`fallback` for all 20 (pos, bucket) cells, checked field
+   by field. The walk-forward guard (fit classes strictly `< replay_season`)
+   is satisfied. `rookies_added: 85` is identical too. So the fit and the
+   overlay's inputs are provably not the source.
+3. **Not a currently-live bug in `rookie_overlay` / `with_rookies` /
+   `config_boards`.** Cross-check: `rk` (the rookie-overlay dict) is the
+   SAME object applied to both the `rookie_prior` config
+   (`with_rookies(baseline, positions)`) and the `both` config
+   (`with_rookies(esc, positions)`), in the same function, same run. The
+   `both` config reproduces the committed artifact EXACTLY. If `rk` or
+   `baseline` were being computed differently between the graded run and
+   today, `both` (which uses the identical `rk` and a superset-derived
+   `esc = dict(baseline)`) would almost certainly show it too, and it does
+   not. `year2_escalator` alone reproduces exactly as well. Only the one
+   configuration — rookie prior with NO escalation — diverges, and only
+   for the 2025 replay year.
+4. **Where the roster actually differs.** In the 2025 `rookie_prior`
+   config, Cory's seat-1 tool roster committed one veteran, Keenan Allen
+   (`sleeper_id 1479`); the fresh run drafts a different veteran, Brian
+   Robinson Jr. (`sleeper_id 8154`) instead — a one-player swap, neither
+   player a member of the rookie-overlay set (both predate the 2025
+   class), that is enough to flip the seat from a large positive delta to
+   a small negative one. Since every input object on that path
+   (fit, overlay, baseline board, replacement levels) is proven identical
+   by the checks above, this swap cannot come from anything in the
+   currently-committed code running on currently-committed data.
+
+**Conclusion — root cause not fully recoverable, and that is stated
+plainly rather than papered over.** No commit exists between `0207e10b`
+(the prereg) and `be3b2065` (the grade + doc + artifact, all landed
+together in one commit) that could be diffed to show an intermediate
+version of `rookie_prior.py` or `replay_all_seats.py` — the grading and
+the final code were committed as one unit, so if the number that got
+written into the doc came from a since-simplified or since-fixed
+intermediate version of the "rookie prior alone" application path (the
+most likely explanation given everything above proves the CURRENT code is
+deterministic, current, and self-consistent across configs), that
+intermediate version was never itself committed and left no trace to
+recover. **Per this repo's standing house discipline (treat a fresh,
+reproducible regeneration as ground truth when a committed artifact can't
+be reconciled with the code that supposedly produced it — the same
+discipline `test_artifact_matches_regeneration` exists to enforce), the
+fresh regeneration is ground truth.** The true, current, reproducible
+effect of the rookie-capital-prior layer as prereg'd and as currently
+coded is **pooled optimal `cory_gap_change: +1.6` (2.4% of the gap)** —
+it **FAILS** its own clearing bar (needed ≥25% / ≥16.4 pts, or a ≥2-seat
+pooled league-position lift on the optimal arm; actual lift: 0 seats).
+
+**This is flagged explicitly as a caught data-integrity issue, not
+minimized.** A "CLEARS" claim — with a prepared, gated diff sitting in
+`DECISIONS-NEEDED.md` under ship-it framing — was about to be presented to
+Cory as a ruling-ready model improvement on evidence that does not exist.
+It was caught before that ruling was requested, by the same discipline
+(regenerate and diff against the committed artifact) this project applies
+to every other crew's work; §4a, §4c, §6, §7, `DECISIONS-NEEDED.md`, and
+`ROUTES.md` are corrected in place, dated, with the original false claims
+struck through and kept rather than deleted, and `draft/data/replay_league_table.json`
+is regenerated to the true, reproducible values (this correction pass does
+not add a new test, because no code was found to be wrong — the existing
+`test_replay_all_seats.py::test_artifact_matches_regeneration`, now
+passing against the corrected artifact, is exactly the guard that would
+catch this class of error recurring).
