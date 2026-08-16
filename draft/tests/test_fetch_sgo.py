@@ -68,6 +68,19 @@ def test_props_and_quarter_lines_dropped_raw_game_lines_kept():
     assert kept["points-home-game-sp-home"]["fairSpread"] == "-4"
 
 
+def test_player_props_banked_separately_trimmed_to_line_fields():
+    """Props leave the game-lines block but are BANKED under `props` (Cory's
+    weekly-props directive) — trimmed to the four line fields; a prop-free
+    event carries no `props` key at all (absent, not empty)."""
+    g = _snap([_event(FULL_ODDS)])["games"][0]
+    p = g["props"]["passing_yards-PATRICK_MAHOMES_1_NFL-game-ou-over"]
+    assert p == {"bookOverUnder": "285.5"}
+    assert "points-home-1q-sp-home" not in g["props"]   # quarter line: not a game prop
+    bare = _snap([_event({"points-all-game-ou-over":
+                          {"bookOverUnder": "44"}})])["games"][0]
+    assert "props" not in bare
+
+
 def test_provenance_territory_and_cost():
     s = _snap([_event(FULL_ODDS), _event({}, home="Detroit Lions",
                                          away="Green Bay Packers")])
