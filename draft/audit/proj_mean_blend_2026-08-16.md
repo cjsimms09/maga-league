@@ -7,7 +7,7 @@
 governs produced a number. Commit order is the proof: `20e30415` → `b5d6798e`
 → `b1970a41`.
 **Artifact:** `draft/backtest/proj_mean_blend.json`.
-**Runner:** `draft/backtest/proj_mean_blend.py`. **Tests:** 29 in
+**Runner:** `draft/backtest/proj_mean_blend.py`. **Tests:** 30 in
 `draft/tests/test_proj_mean_blend.py`, every gate two-armed.
 **Suites at this commit:** Python **2777 passed, 5 skipped, 6 deselected**;
 JS **307 entry points, 0 failures**.
@@ -445,6 +445,30 @@ The brief asked that these be kept distinct rather than duplicated. As shipped:
 - The blend logic that *was* written lives only in
   `draft/backtest/proj_mean_blend.py`, is off the build path, is imported by no
   shipped surface, and exists to be graded when the evidence arrives.
+
+**And the provenance now says which is which, because it did not.**
+`consensus_sources` was set to `2` inside the FantasyPros branch and never
+revisited when the own model became a third column — so a committed durable
+record has been asserting 2 while three sources attach. **No consumer reads the
+field**, so it was never a live defect; it was a record stating something untrue
+about the board's own projections. The name is the root of it: *"consensus
+sources"* reads equally as **sources inside `proj_mean`** (1) and **columns in
+the displayed consensus** (up to 3), and a field answering two questions answers
+neither. Both are now stated separately in `PROJECTION_PROVENANCE`:
+
+- **`proj_mean_composition`** — `sources: ["sleeper"]`, `blended: false`, the
+  formula, the REC-2 gate, **and Cory's override with its outcome** (`REFUSED`,
+  pointing at this document). A future reader learns what the board ranks on and
+  that the blend was ordered, tested and declined, without leaving the artifact.
+- **`display_consensus_sources`** — **per position**, because the uniform number
+  is the lie: **K and DEF are Sleeper-only by necessity** (FantasyPros' feed does
+  not cover them and the own model never has), and no rookie at any position
+  carries three. This is the K/DEF statement Cory asked to be explicit rather
+  than implied, and it is true whether or not anything is ever blended.
+
+`consensus_sources` is corrected in place rather than removed — nothing reads it,
+and a field that silently disappears is harder to notice than one that starts
+telling the truth.
 
 ## 8. REC-2 — Cory's override, recorded; the gate stands
 

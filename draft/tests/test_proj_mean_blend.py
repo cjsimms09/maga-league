@@ -349,5 +349,20 @@ def test_proj_mean_composition_is_unchanged_on_the_board():
     doc = json.loads(board.read_text())
     prov = (doc.get("provenance") or {}).get("projections") or {}
     assert prov.get("source") == "sleeper_projections"
-    assert "proj_mean_blend" not in json.dumps(prov), (
-        "a blend reached the board without this test being updated")
+    comp = prov.get("proj_mean_composition")
+    if comp is not None:            # present from the next rebuild onward
+        assert comp["blended"] is False
+        assert comp["sources"] == ["sleeper"]
+
+
+def test_provenance_separates_what_proj_mean_is_from_what_is_displayed():
+    """`consensus_sources` said 2 while three columns attached, and its name
+    reads equally as 'sources inside proj_mean' (1) and 'columns in the
+    displayed consensus' (up to 3). A field answering two questions answers
+    neither, so both are now stated separately."""
+    src = (ROOT / "build.py").read_text()
+    assert "proj_mean_composition" in src
+    assert "display_consensus_sources" in src
+    assert "by_position" in src, (
+        "display coverage must be per position — the uniform number is the "
+        "lie, because K/DEF are Sleeper-only and no rookie carries three")

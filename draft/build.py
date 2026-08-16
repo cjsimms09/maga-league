@@ -877,6 +877,69 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
         print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
 
+    # ── SAY WHAT proj_mean IS, AND SAY IT SEPARATELY FROM WHAT WE DISPLAY ───
+    #
+    # `consensus_sources` was set to 2 inside the FantasyPros branch and never
+    # revisited when the own model became a third column, so the provenance has
+    # been asserting 2 while three sources attach. Nothing reads the field, so
+    # this was never a live defect — but it is a durable record stating
+    # something untrue about the board's own projections, and the name is the
+    # reason: "consensus sources" reads equally as "sources inside proj_mean"
+    # and "sources in the displayed consensus", which are DIFFERENT NUMBERS
+    # (1 and up to 3). A field that answers two questions answers neither.
+    #
+    # So both are now stated explicitly and neither is inferable from the other:
+    #
+    #   proj_mean_composition        what the board RANKS ON. Single-source
+    #                                Sleeper. Entering a blend here stays gated
+    #                                on the January 2027 Sleeper grade (REC-2).
+    #                                Cory OVERRODE that gate on 2026-08-16 for a
+    #                                blend rather than a swap ("A blended
+    #                                proj_mean is a smaller, safer change than a
+    #                                swap ... Let's do it"); the study he ordered
+    #                                RAN and REFUSED — the control arm does not
+    #                                exist, so "does it make the board worse" is
+    #                                unanswerable, and all five coverage policies
+    #                                failed the preregistered rookie-bloc veto.
+    #                                Full verdict:
+    #                                draft/audit/proj_mean_blend_2026-08-16.md.
+    #   display_consensus_sources    how many raw columns consensus.js can
+    #                                average. PER POSITION, because it is not
+    #                                uniform and the uniform number is the lie:
+    #                                K and DEF are Sleeper-only BY NECESSITY —
+    #                                FantasyPros' feed does not cover them and
+    #                                the own model never has — and NO ROOKIE at
+    #                                any position carries three.
+    _cov: dict = {}
+    for _p in board:
+        _pos = _p.get("position") or "?"
+        _c = _cov.setdefault(_pos, {"n": 0, "sleeper": 0, "fantasypros": 0, "own": 0})
+        _c["n"] += 1
+        _c["sleeper"] += int(_p.get("proj_sleeper") is not None)
+        _c["fantasypros"] += int(_p.get("proj_fantasypros") is not None)
+        _c["own"] += int(_p.get("proj_ownmodel") is not None)
+    PROJECTION_PROVENANCE["proj_mean_composition"] = {
+        "sources": ["sleeper"],
+        "formula": "sleeper_baseline * (1 + opportunity_adj)",
+        "blended": False,
+        "gate": "REC-2 (January 2027 Sleeper grade)",
+        "override_ruled": "Cory 2026-08-16 — for a BLEND, not a swap",
+        "override_outcome": "REFUSED — draft/audit/proj_mean_blend_2026-08-16.md",
+    }
+    PROJECTION_PROVENANCE["display_consensus_sources"] = {
+        "note": ("count of RAW per-source columns available to consensus.js — a "
+                 "display sanity check beside the valuation, never an input to "
+                 "proj_mean. Partial and uneven by position; K/DEF are "
+                 "Sleeper-only by necessity."),
+        "by_position": _cov,
+    }
+    # Corrected in place rather than removed: no consumer reads it, and a field
+    # that silently disappears is harder to notice than one that starts telling
+    # the truth. It counts DISPLAY columns, which is the reading the FP branch
+    # meant when it wrote 2.
+    PROJECTION_PROVENANCE["consensus_sources"] = max(
+        [1] + [1 + int(c["fantasypros"] > 0) + int(c["own"] > 0) for c in _cov.values()])
+
     # ── THE POSITION RECORD IS **NOT** HELD, AND THAT IS DELIBERATE ─────────
     #
     # The prune above is off the build path. This stays on it, because it is not
