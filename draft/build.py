@@ -643,14 +643,15 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v4 since 2026-08-16 (Cory's
-    # written acceptance after it cleared the REC-3 bar: beat both naive
-    # baselines, all four positions, both metrics, held-out 2025). Same
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v6 since 2026-08-16 (Cory:
+    # "YES on V6", upgrading his same-day v4 acceptance; v6 = v4's QB arm +
+    # v5's component arms, cleared the REC-3 bar at all four positions: beat
+    # both naive baselines, both metrics, held-out 2025). Same
     # additive pattern as FantasyPros above: attach alongside, never a build
     # dependency, never touches proj_mean/proj_baseline/VORP/ranking — the
     # promotion swapped the ALGORITHM behind the labeled third-opinion column,
     # not its role; entering proj_mean's composition stays blocked on the
-    # January 2027 Sleeper grade (REC-2). The v4 path reads committed stores
+    # January 2027 Sleeper grade (REC-2). The v6 path reads committed stores
     # (zero egress, unlike v1's live fetches). Coverage: QB/RB/WR/TE with
     # prior-season NFL production; rookies and K/DEF carry no proj_ownmodel —
     # same "absent, not zero" discipline as proj_feed.js.
@@ -660,7 +661,7 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = own_diag
         attached_own = attach_own_model(board, own_proj)
         PROJECTION_PROVENANCE["own_model_attached"] = attached_own
-        print(f"  projections: own model (own_v4) 3rd source on "
+        print(f"  projections: own model (own_v6) 3rd source on "
               f"{attached_own} players")
     except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}

@@ -95,7 +95,11 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent))
 
-SEASONS = (2021, 2022, 2023, 2024, 2025)
+# 2026 appended 2026-08-16 for the v6 deployment (Cory: "YES on V6") — the
+# program doc §7 named the vegas store's week-1 lines for the deployment
+# season as a prerequisite. The 2026 COMPONENT store cannot exist yet (no
+# games played); only the vegas arm of the fetch gains a season.
+SEASONS = (2021, 2022, 2023, 2024, 2025, 2026)
 FIRST_WEEK, LAST_WEEK = 1, 18          # regular season only; consumers trim to 17
 POSITION_GROUPS = ("QB", "RB", "WR", "TE")
 
@@ -368,7 +372,7 @@ def fetch_vegas(workdir: Path, force: bool = False) -> dict:
     doc = {
         "_territory": "TERRITORY: A — produced by draft/backtest/fetch_component_stats.py",
         "_note": ("Per-game CLOSING spread_line/total_line, regular season, "
-                  "2021-2025, trimmed from the nflverse schedules dataset. "
+                  f"{SEASONS[0]}-{SEASONS[-1]}, trimmed from the nflverse schedules dataset. "
                   "spread_line is the expected HOME margin (verified: 2021 wk1 "
                   "TB -10 home vs DAL stored as +10.0), so implied_home = "
                   "total_line/2 + spread_line/2. A game with no line is "

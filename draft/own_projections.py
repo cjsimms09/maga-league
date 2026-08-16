@@ -84,7 +84,8 @@ def _store_year_available(year: int) -> bool:
 
 def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
                             prior_years: list[int] | None = None) -> tuple[dict, dict]:
-    """THE PROMOTED own_v4 PATH (Cory's acceptance, 2026-08-16). Returns
+    """THE PROMOTED own_v6 PATH (Cory's acceptance, 2026-08-16: "YES on V6",
+    upgrading his same-day v4 acceptance). Returns
     (proj_ownmodel: {sleeper_id: season_total_points}, diagnostics).
 
     Mirrors the GRADED construction advanced one season, importing the graded
@@ -97,7 +98,15 @@ def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
         draft market layer prices only when the season's draft record EXISTS
         in league_history (pre-draft: zero picks -> the no-market arm for
         every player, which is the deployment shape §7 of the audit named);
-      · v4's QB availability correction from y1's weekly actives.
+      · v4's QB availability correction from y1's weekly actives;
+      · v5's component layer (usage x efficiency x availability, with the
+        week-1 vegas tilt and target-share/pace features Cory mandated) for
+        the RB/WR/TE arms, from the committed component + vegas stores;
+      · v6's composition: QB stays v4's number byte for byte, RB/WR/TE take
+        v5's — the exact split model_accuracy_v6.json cleared REC-3 with at
+        all four positions. If week-1 lines for `season` are absent from the
+        vegas store the tilt degenerates to 1.0 by construction (the
+        pre-lines arm); diagnostics say which arm priced.
 
     Zero network: committed stores only. `cfg` is accepted for caller
     compatibility (build.py) — the stores are already scored in league terms.
@@ -112,6 +121,9 @@ def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
                               market_ranks, rank_curve)
     from own_model_v4 import (weekly_points, qb_active_games,          # noqa: E402
                               qb_availability_correction, build_v4)
+    from own_model_v5 import comp_opinion, build_v5                    # noqa: E402
+    from own_model_v6 import build_v6                                  # noqa: E402
+    import fetch_component_stats as FCS                                # noqa: E402
 
     if prior_years is None:
         prior_years = _discover_prior_years(_store_year_available, season, 2)
@@ -155,7 +167,16 @@ def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
     wk = weekly_points(y1)
     acts = qb_active_games(wk, positions)
     corr, mu_g = qb_availability_correction(acts)
-    proj = build_v4(v3_pred, blend, corr, positions)
+    v4_pred = build_v4(v3_pred, blend, corr, positions)
+
+    # v5's component layer for the RB/WR/TE arms, then v6's composition:
+    # QB keeps v4's number byte for byte. Week-1 lines only (the leakage
+    # rule the store itself documents); no lines for `season` -> the tilt
+    # degenerates to 1.0 by construction (the pre-lines arm).
+    implied = FCS.implied_team_totals(season, 1, 1)
+    comp = comp_opinion(season, (y2, y1), positions, ages, implied)
+    v5_pred = build_v5(v3_pred, comp, blend, corr, mrank, curve, positions)
+    proj = build_v6(v4_pred, v5_pred, positions)
 
     dampened = 0
     for pid, val in list(proj.items()):
@@ -173,13 +194,18 @@ def compute_own_projections(players: list[dict], cfg: dict, *, season: int,
         dampened += 1
 
     diag = {
-        "algorithm": "own_v4", "season": season,
+        "algorithm": "own_v6", "season": season,
         "prior_years_used": [y1, y2],
         "fit_transition": f"{y2}->{y1}",
         "market_arm": market_arm,
+        "vegas_arm": bool(implied),
+        "vegas_week1_teams": len(implied),
+        "component_priced": len(comp),
         "qb_availability_mu_g": mu_g,
         "projected": len(proj), "dampened": dampened,
-        "promotion": "REC-3 bar cleared by own_v4; Cory accepted 2026-08-16",
+        "promotion": ("REC-3 bar cleared by own_v6 at all four positions; "
+                      "Cory accepted 2026-08-16 ('YES on V6'), upgrading his "
+                      "same-day own_v4 acceptance"),
     }
     return proj, diag
 

@@ -1,6 +1,6 @@
 {
  "_territory": "TERRITORY: A \u2014 produced by draft/backtest/fetch_component_stats.py",
- "_note": "Per-game CLOSING spread_line/total_line, regular season, 2021-2025, trimmed from the nflverse schedules dataset. spread_line is the expected HOME margin (verified: 2021 wk1 TB -10 home vs DAL stored as +10.0), so implied_home = total_line/2 + spread_line/2. A game with no line is ABSENT, never stored as zeros. Leakage rule for season-Y season-total features: WEEK 1 lines only \u2014 they close before any season-Y game; deeper weeks are in-season information. Context every Vegas feature must be read against: EXP-WEEKLY-ENV's perfect-foresight team game-total ceiling was +0.23 weekly MAE.",
+ "_note": "Per-game CLOSING spread_line/total_line, regular season, 2021-2026, trimmed from the nflverse schedules dataset. spread_line is the expected HOME margin (verified: 2021 wk1 TB -10 home vs DAL stored as +10.0), so implied_home = total_line/2 + spread_line/2. A game with no line is ABSENT, never stored as zeros. Leakage rule for season-Y season-total features: WEEK 1 lines only \u2014 they close before any season-Y game; deeper weeks are in-season information. Context every Vegas feature must be read against: EXP-WEEKLY-ENV's perfect-foresight team game-total ceiling was +0.23 weekly MAE.",
  "provenance": {
   "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
   "tried": [
@@ -16,9 +16,10 @@
    "2022": 271,
    "2023": 272,
    "2024": 272,
-   "2025": 272
+   "2025": 272,
+   "2026": 67
   },
-  "games_without_lines_dropped": 0
+  "games_without_lines_dropped": 205
  },
  "seasons": {
   "2021": [
@@ -9542,6 +9543,477 @@
     "away": "CAR",
     "spread_line": 3.0,
     "total_line": 43.5
+   }
+  ],
+  "2026": [
+   {
+    "week": 1,
+    "home": "CAR",
+    "away": "CHI",
+    "spread_line": -2.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 1,
+    "home": "CIN",
+    "away": "TB",
+    "spread_line": 3.5,
+    "total_line": 51.5
+   },
+   {
+    "week": 1,
+    "home": "DET",
+    "away": "NO",
+    "spread_line": 7.0,
+    "total_line": 48.5
+   },
+   {
+    "week": 1,
+    "home": "HOU",
+    "away": "BUF",
+    "spread_line": -1.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 1,
+    "home": "IND",
+    "away": "BAL",
+    "spread_line": -3.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 1,
+    "home": "JAX",
+    "away": "CLE",
+    "spread_line": 7.5,
+    "total_line": 40.5
+   },
+   {
+    "week": 1,
+    "home": "KC",
+    "away": "DEN",
+    "spread_line": 3.0,
+    "total_line": 42.5
+   },
+   {
+    "week": 1,
+    "home": "LA",
+    "away": "SF",
+    "spread_line": 3.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 1,
+    "home": "LAC",
+    "away": "ARI",
+    "spread_line": 10.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 1,
+    "home": "LV",
+    "away": "MIA",
+    "spread_line": 3.5,
+    "total_line": 40.5
+   },
+   {
+    "week": 1,
+    "home": "MIN",
+    "away": "GB",
+    "spread_line": 1.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 1,
+    "home": "NYG",
+    "away": "DAL",
+    "spread_line": -2.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 1,
+    "home": "PHI",
+    "away": "WAS",
+    "spread_line": 4.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 1,
+    "home": "PIT",
+    "away": "ATL",
+    "spread_line": 3.0,
+    "total_line": 41.5
+   },
+   {
+    "week": 1,
+    "home": "SEA",
+    "away": "NE",
+    "spread_line": 3.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 1,
+    "home": "TEN",
+    "away": "NYJ",
+    "spread_line": 3.0,
+    "total_line": 38.5
+   },
+   {
+    "week": 2,
+    "home": "ARI",
+    "away": "SEA",
+    "spread_line": -10.0,
+    "total_line": 44.5
+   },
+   {
+    "week": 2,
+    "home": "ATL",
+    "away": "CAR",
+    "spread_line": 1.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 2,
+    "home": "BAL",
+    "away": "NO",
+    "spread_line": 7.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 2,
+    "home": "BUF",
+    "away": "DET",
+    "spread_line": 3.0,
+    "total_line": 52.5
+   },
+   {
+    "week": 2,
+    "home": "CHI",
+    "away": "MIN",
+    "spread_line": 3.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 2,
+    "home": "DAL",
+    "away": "WAS",
+    "spread_line": 4.5,
+    "total_line": 51.5
+   },
+   {
+    "week": 2,
+    "home": "DEN",
+    "away": "JAX",
+    "spread_line": 2.5,
+    "total_line": 43.5
+   },
+   {
+    "week": 2,
+    "home": "HOU",
+    "away": "CIN",
+    "spread_line": 2.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 2,
+    "home": "KC",
+    "away": "IND",
+    "spread_line": 6.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 2,
+    "home": "LA",
+    "away": "NYG",
+    "spread_line": 8.5,
+    "total_line": 48.5
+   },
+   {
+    "week": 2,
+    "home": "LAC",
+    "away": "LV",
+    "spread_line": 8.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 2,
+    "home": "NE",
+    "away": "PIT",
+    "spread_line": 4.5,
+    "total_line": 43.5
+   },
+   {
+    "week": 2,
+    "home": "NYJ",
+    "away": "GB",
+    "spread_line": -5.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 2,
+    "home": "SF",
+    "away": "MIA",
+    "spread_line": 10.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 2,
+    "home": "TB",
+    "away": "CLE",
+    "spread_line": 5.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 2,
+    "home": "TEN",
+    "away": "PHI",
+    "spread_line": -4.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 3,
+    "home": "BUF",
+    "away": "LAC",
+    "spread_line": 3.0,
+    "total_line": 48.5
+   },
+   {
+    "week": 3,
+    "home": "CHI",
+    "away": "PHI",
+    "spread_line": 1.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 3,
+    "home": "CLE",
+    "away": "CAR",
+    "spread_line": -1.5,
+    "total_line": 39.5
+   },
+   {
+    "week": 3,
+    "home": "DAL",
+    "away": "BAL",
+    "spread_line": -2.5,
+    "total_line": 51.5
+   },
+   {
+    "week": 3,
+    "home": "DEN",
+    "away": "LA",
+    "spread_line": -3.0,
+    "total_line": 45.5
+   },
+   {
+    "week": 3,
+    "home": "DET",
+    "away": "NYJ",
+    "spread_line": 9.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 3,
+    "home": "GB",
+    "away": "ATL",
+    "spread_line": 7.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 3,
+    "home": "IND",
+    "away": "HOU",
+    "spread_line": -1.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 3,
+    "home": "JAX",
+    "away": "NE",
+    "spread_line": 1.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 3,
+    "home": "MIA",
+    "away": "KC",
+    "spread_line": -7.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 3,
+    "home": "NO",
+    "away": "LV",
+    "spread_line": 3.5,
+    "total_line": 42.5
+   },
+   {
+    "week": 3,
+    "home": "NYG",
+    "away": "TEN",
+    "spread_line": 3.0,
+    "total_line": 44.5
+   },
+   {
+    "week": 3,
+    "home": "PIT",
+    "away": "CIN",
+    "spread_line": -1.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 3,
+    "home": "SF",
+    "away": "ARI",
+    "spread_line": 11.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 3,
+    "home": "TB",
+    "away": "MIN",
+    "spread_line": 1.5,
+    "total_line": 44.5
+   },
+   {
+    "week": 3,
+    "home": "WAS",
+    "away": "SEA",
+    "spread_line": -3.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 4,
+    "home": "BAL",
+    "away": "TEN",
+    "spread_line": 8.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 4,
+    "home": "BUF",
+    "away": "NE",
+    "spread_line": 3.0,
+    "total_line": 49.5
+   },
+   {
+    "week": 4,
+    "home": "CAR",
+    "away": "DET",
+    "spread_line": -3.0,
+    "total_line": 47.5
+   },
+   {
+    "week": 4,
+    "home": "CHI",
+    "away": "NYJ",
+    "spread_line": 8.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 4,
+    "home": "CIN",
+    "away": "JAX",
+    "spread_line": 2.5,
+    "total_line": 51.5
+   },
+   {
+    "week": 4,
+    "home": "CLE",
+    "away": "PIT",
+    "spread_line": -2.5,
+    "total_line": 40.5
+   },
+   {
+    "week": 4,
+    "home": "HOU",
+    "away": "DAL",
+    "spread_line": 2.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 4,
+    "home": "LV",
+    "away": "KC",
+    "spread_line": -5.5,
+    "total_line": 43.5
+   },
+   {
+    "week": 4,
+    "home": "MIN",
+    "away": "MIA",
+    "spread_line": 7.5,
+    "total_line": 43.5
+   },
+   {
+    "week": 4,
+    "home": "NO",
+    "away": "ATL",
+    "spread_line": 2.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 4,
+    "home": "NYG",
+    "away": "ARI",
+    "spread_line": 7.0,
+    "total_line": 45.5
+   },
+   {
+    "week": 4,
+    "home": "PHI",
+    "away": "LA",
+    "spread_line": -1.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 4,
+    "home": "SEA",
+    "away": "LAC",
+    "spread_line": 3.0,
+    "total_line": 45.5
+   },
+   {
+    "week": 4,
+    "home": "SF",
+    "away": "DEN",
+    "spread_line": 2.5,
+    "total_line": 46.5
+   },
+   {
+    "week": 4,
+    "home": "TB",
+    "away": "GB",
+    "spread_line": -1.5,
+    "total_line": 47.5
+   },
+   {
+    "week": 4,
+    "home": "WAS",
+    "away": "IND",
+    "spread_line": 1.5,
+    "total_line": 50.5
+   },
+   {
+    "week": 5,
+    "home": "DAL",
+    "away": "TB",
+    "spread_line": 3.5,
+    "total_line": 52.5
+   },
+   {
+    "week": 5,
+    "home": "JAX",
+    "away": "PHI",
+    "spread_line": -1.5,
+    "total_line": 45.5
+   },
+   {
+    "week": 5,
+    "home": "MIA",
+    "away": "CIN",
+    "spread_line": -6.0,
+    "total_line": 49.5
    }
   ]
  }

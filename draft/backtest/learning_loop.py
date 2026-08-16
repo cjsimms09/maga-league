@@ -330,18 +330,40 @@ def build_recommendations() -> dict:
         v4_cleared = bool(acc_v4 and (acc_v4.get("promotion_bar") or {}).get("clears"))
         if acc_v4 and acc_v4.get("promotion_bar"):
             promotion_bar["candidates"]["own_model_v4"] = acc_v4["promotion_bar"]
+        # v5/v6 — the projection program's candidates (2026-08-16, same day).
+        # v5 FAILS the bar on exactly the QB Spearman cell (its own prereg
+        # named the fragility) while beating v4 at RB/WR/TE; v6 (v4's QB arm
+        # + v5's component arms, nothing tuned) CLEARS at all four positions.
+        # Cory accepted v6 in writing the same day ("YES on V6"), upgrading
+        # his v4 acceptance: proj_ownmodel now runs the v6 construction,
+        # board label own_v6. The ROLE limit stands unchanged: display-only
+        # third opinion; composition entry vs Sleeper remains blocked on the
+        # January 2027 grade (REC-2). Honesty note carried from both preregs:
+        # 2025 has been read three times in this lineage.
+        acc_v5 = _load(HERE / "model_accuracy_v5.json")
+        if acc_v5 and acc_v5.get("promotion_bar"):
+            promotion_bar["candidates"]["own_model_v5"] = acc_v5["promotion_bar"]
+        acc_v6 = _load(HERE / "model_accuracy_v6.json")
+        v6_cleared = bool(acc_v6 and (acc_v6.get("promotion_bar") or {}).get("clears"))
+        if acc_v6 and acc_v6.get("promotion_bar"):
+            promotion_bar["candidates"]["own_model_v6"] = acc_v6["promotion_bar"]
+        any_applied = v4_cleared or v6_cleared
+        live_model = "own_model_v6" if v6_cleared else "own_model_v4"
         recs.append({
             "id": "REC-3-own-model-stays-display-only",
-            "status": "applied-2026-08-16" if v4_cleared else "standing-negative",
-            "summary": (("PROMOTED: own_model_v4 is the first candidate to clear the bar — "
-                         "beat BOTH naive baselines at ALL four positions on BOTH metrics "
-                         "(shared population, 2025, leak-free, preregistered). proj_ownmodel "
-                         "now runs the v4 construction under Cory's written acceptance "
-                         "('Yes on v4', 2026-08-16). Role unchanged: display-only third "
-                         "opinion; composition entry vs Sleeper stays evidence-blocked "
-                         "until the January 2027 grade (REC-2). Caveats on record: QB "
-                         "Spearman margin one rank-swap wide; QB constants rest on three "
-                         "folds from two seasons.") if v4_cleared else
+            "status": "applied-2026-08-16" if any_applied else "standing-negative",
+            "live_model": live_model if any_applied else None,
+            "summary": ((f"PROMOTED: {live_model} runs proj_ownmodel under Cory's written "
+                         "acceptance (2026-08-16: 'Yes on v4', upgraded same day by 'YES on "
+                         "V6' after v6 cleared the bar at ALL four positions — v4's QB arm "
+                         "byte for byte + v5's component arms at RB/WR/TE, nothing tuned in "
+                         "the composition). v5 alone failed exactly the QB Spearman cell, as "
+                         "its prereg predicted. Role unchanged: display-only third opinion; "
+                         "composition entry vs Sleeper stays evidence-blocked until the "
+                         "January 2027 grade (REC-2). Caveats on record: 2025 read three "
+                         "times in this lineage; RB/WR/TE margins rest on one held-out "
+                         "season; the vegas tilt uses last-season team assignment.")
+                        if any_applied else
                         ("proj_ownmodel (walk_forward) LOSES to the naive recency blend at "
                          f"{len(wf_loses)}/4 positions on MAE (shared population, 2025, "
                          "leak-free) and at 4/4 on rank correlation. It must stay a "
@@ -352,10 +374,15 @@ def build_recommendations() -> dict:
                          + (["draft/backtest/model_accuracy_v2.json — v2 graded under the same protocol"]
                             if acc_v2 else [])
                          + (["draft/backtest/model_accuracy_v4.json — head_to_head_shared_population",
-                             "draft/audit/projector_v4_2026-08-16.md"] if acc_v4 else [])),
-            "acceptance": (("ACCEPTED AND APPLIED — Cory, 2026-08-16, 'Yes on v4'. The applied "
-                            "change is the one-line reviewed swap in draft/own_projections.py "
-                            "(v1 core kept as the rollback path).") if v4_cleared else
+                             "draft/audit/projector_v4_2026-08-16.md"] if acc_v4 else [])
+                         + (["draft/backtest/model_accuracy_v5.json — v5 graded, QB cell fails",
+                             "draft/backtest/model_accuracy_v6.json — v6 clears all cells",
+                             "draft/audit/projection_program_2026-08-16.md"] if acc_v6 else [])),
+            "acceptance": (("ACCEPTED AND APPLIED — Cory, 2026-08-16: 'Yes on v4' then "
+                            "'YES on V6' the same day. The applied change is the reviewed "
+                            "v6 layer in draft/own_projections.py (v1 core kept as the "
+                            "rollback path; v4 recoverable by removing the v5/v6 layer).")
+                           if any_applied else
                            ("nothing to accept — this recommendation BLOCKS a change. It expires "
                             "only when a candidate clears the promotion bar above in the "
                             "walk-forward AND Cory accepts the written promotion decision.")),

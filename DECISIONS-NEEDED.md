@@ -33,22 +33,9 @@ evidence file. Detail lives in the evidence, not here.**
 so", v4 promotion "Yes on v4", ROOM_MIX_PRIOR "YES, turn it on" — ALL
 EXECUTED; records in "Settled" below.)*
 
-1. **Promote own_v6 as the own-model source?** The projection program's
-   composite: v4's QB arm (kept exactly as ruled in) + v5's component arms at
-   RB/WR/TE. **v6 clears REC-3 at all four positions**; v5 alone beat v4 at
-   RB/WR/TE but missed the QB Spearman cell by 0.0025 (the fragility its own
-   prereg predicted). Nothing tuned in v6 — its cells are arithmetically
-   implied by the two graded parents and verified bit-for-bit. Honesty note
-   quoted from both preregs: 2025 has now been read three times in this
-   lineage, so treat the margins as thinner than printed; January 2027 is the
-   first genuinely untouched evaluation. Gated switch: the prepared diff in
-   `draft/audit/projection_program_2026-08-16.md` §7 (REC-3 record + the
-   own_projections.py v6 layer — NOT applied). Evidence:
-   `draft/backtest/_own_model_v6.json`, the program doc's ablation ladder.
-   **Recommendation: YES** — same shape as the v4 promotion you already
-   ruled, strictly better at every position, and the draft is the 22nd.
-   RB/WR now sit ~0.6–0.7 MAE from FantasyPros' margin; QB stays v4's
-   (still ~7 from FP — the honest gap, carried, not hidden).
+*(none — every before-the-22nd call is ruled and executed; the seventh,
+own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
+same session: see Settled below)*
 
 ## Standing open (predate today; unresolved; details under OPEN below)
 
@@ -68,6 +55,21 @@ EXECUTED; records in "Settled" below.)*
 
 ## Settled today (rulings made; records, not questions)
 
+- **own_model_v6 PROMOTION — Cory 2026-08-16 "YES on V6" → APPLIED**
+  (upgrading his same-day v4 acceptance). v6 = v4's QB arm byte for byte +
+  v5's component arms at RB/WR/TE (usage x efficiency x availability, with
+  the week-1 vegas tilt and the target-share/pace features his addendum
+  mandated); cleared REC-3 at ALL four positions with nothing tuned in the
+  composition. v5 alone failed exactly the QB Spearman cell (+0.0006 fold
+  margin — the fragility its prereg named). Executed: own_projections.py v6
+  layer live; vegas store extended to 2026 (week-1 lines cover all 32
+  teams, the §7 deployment prerequisite); board column refreshed (424
+  players, provenance own_v6); REC-3 regenerated via learning_loop.py with
+  v5+v6 candidate records; opening script regenerated;
+  test_own_projections_v6_live.py repinned (arithmetic tripwire recomputes
+  the v5 ensemble by hand from V5_CONFIG). Role unchanged: display-only
+  third opinion; proj_mean composition stays blocked on REC-2 (January
+  2027). Honesty note carried: 2025 read three times in this lineage.
 - **ROOM_MIX_PRIOR — Cory 2026-08-16 "YES on room mix prior, turn it on" →
   flipped TRUE** (survival.js). Unprofiled-seat position probabilities now
   blend the league's measured bucket mix (forward-tested on 2025; per-owner
