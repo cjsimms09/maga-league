@@ -38,9 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch and snapshot
+      - name: Fetch and snapshot (either provider succeeding is a success)
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          SPORTSGAME_ODDS_API: ${{ secrets.SPORTSGAME_ODDS_API }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           set -uo pipefail
@@ -48,14 +49,27 @@ jobs:
             export ODDS_OUT_DIR="$RUNNER_TEMP/odds-dry"
             echo "DRY RUN: writing to $ODDS_OUT_DIR, committing nothing."
           fi
-          # The assignment lives in the if-test on purpose — bash -e kills a
-          # bare failing assignment before its diagnostics print (the real bug
-          # draft-night-sync.yml's first live firing found).
-          if OUT="$(python3 draft/tools/fetch_odds.py 2>&1)"; then
-            echo "$OUT"
+          ok=0
+          # SportsGameOdds first — the key the 2026-08-16 probe proved live
+          # (200). The Odds API arm stays wired for the day a real key lands
+          # under ODDS_API_KEY (the stored one 401s at every provider).
+          # Assignments live in the if-tests on purpose — bash -e kills a
+          # bare failing assignment before its diagnostics print (the real
+          # bug draft-night-sync.yml's first live firing found).
+          if OUT="$(python3 draft/tools/fetch_sgo.py 2>&1)"; then
+            echo "$OUT"; ok=1
           else
             echo "$OUT"
-            echo "fetch failed — no snapshot written, nothing committed"
+            echo "sportsgameodds fetch failed — continuing to the next provider"
+          fi
+          if OUT="$(python3 draft/tools/fetch_odds.py 2>&1)"; then
+            echo "$OUT"; ok=1
+          else
+            echo "$OUT"
+            echo "the-odds-api fetch failed (expected until a valid ODDS_API_KEY exists)"
+          fi
+          if [ "$ok" = "0" ]; then
+            echo "BOTH providers failed — no snapshot written, nothing committed"
             exit 1
           fi
       - name: Commit the snapshot
