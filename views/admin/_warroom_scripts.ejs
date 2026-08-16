@@ -78,6 +78,11 @@
     as a sanity check, labelled honestly by source count (Sleeper-only today, so it
     reads "Sleeper proj", never "consensus"). app.js renders it in the clock + recs. %>
 <script src="/js/draft/consensus.js"></script>
+<%# movers.js — ADP movers (Cory 2026-08-16): pure sort/label of the
+    adp_velocity / adp_stale fields build.py stamps from the retained daily
+    series. app.js renderAdpMovers prints its output in the Zone-2 rail card;
+    guarded, so a missing module leaves the card empty rather than throwing. %>
+<script src="/js/draft/movers.js"></script>
 <%# verdict.js — the ONE-VOICE chip (design pass 2026-08-15). Pure derivation
     from engine fields (confidence/contested/CFG bands) of the LOCK / LEAN /
     TOSS-UP / SPLIT verdict the page backs; renderVerdict prints its output.

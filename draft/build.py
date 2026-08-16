@@ -661,8 +661,13 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = own_diag
         attached_own = attach_own_model(board, own_proj)
         PROJECTION_PROVENANCE["own_model_attached"] = attached_own
-        print(f"  projections: own model (own_v6) 3rd source on "
-              f"{attached_own} players")
+        # The ALGORITHM NAME comes from the diag (own_projections.py stamps
+        # provenance["algorithm"]), never typed here: this line said "(own_v6)"
+        # verbatim, which is one promotion away from lying in the build log —
+        # the same class as the FFC footer credit (2026-08-10). Surfaces that
+        # name the algorithm read provenance; so does the log.
+        print(f"  projections: own model ({own_diag.get('algorithm', '?')}) "
+              f"3rd source on {attached_own} players")
     except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
         print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")

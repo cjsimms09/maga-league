@@ -373,6 +373,19 @@
       <div class="body"><div id="survival"></div></div>
     </div>
 
+    <%# ADP MOVERS (Cory, 2026-08-16: "a small screen on war room showing the
+        top 10 ADP movers up and top 10 down" — quick movement "could hint at
+        some new, movement, or development"). CONTEXT-RAIL placement, deliberate:
+        market motion informs a pick and never scores one, so it lives in the
+        Zone-2 rail with roster/byes/survival — below the decision surface,
+        never displacing the verdict. app.js renderAdpMovers fills it from the
+        adp_velocity/adp_stale fields build.py stamps off the retained daily
+        series; day one of a fresh series renders the honest shallow state. %>
+    <div class="card" id="adp-movers-card">
+      <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
+      <div class="body"><div id="adp-movers"></div></div>
+    </div>
+
     <%# STACK LINE — a quiet home for a LEAN. `stack` is classed weak / not
         installed; it earns a context-rail line (a human weighing a lean is a
         legitimate path) but NEVER Zone-1 prominence, and it always wears its

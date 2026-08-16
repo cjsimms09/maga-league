@@ -860,13 +860,19 @@
         + 'options sit inside the model\'s own tie threshold, so your preference IS the '
         + 'tiebreaker. SPLIT means the measured rule and the value board name different '
         + 'players — a real disagreement, priced in composite points. A lens marked '
-        + '"one term, not votes" is one argument repeated, never independent confirmation.',
+        + '"one term, not votes" is one argument repeated, never independent confirmation. '
+        + 'On a TOSS-UP a tie-break line prints FACTS the board already carries — ADP '
+        + 'velocity divergence, bye overlap with your picks, an age gap over 2 years, '
+        + 'starter vs committee — printed to break the tie with, never scored; a fact '
+        + 'whose inputs are absent is skipped, not zeroed.',
       do: 'LOCK: take it and bank the clock time. LEAN: take it unless you hold a real '
         + 'preference. TOSS-UP: the model cannot separate these — use your own read, and '
-        + 'log which you took so it grades. SPLIT: follow the rule unless you have a '
-        + 'reason; if you take the value pick, log why. The dollar magnitudes behind the '
-        + 'rule are lab-tier measurements, not season projections.',
-      src: 'verdict.js derive(); engine.js confidence() + CFG.TIE_THRESHOLD/COIN_FLIP_GAP/CLOSE_GAP/PATHS_BAND',
+        + 'log which you took so it grades; the tie-break facts under the why-line are '
+        + 'legitimate reasons (the backed pick does not move with them). SPLIT: follow '
+        + 'the rule unless you have a reason; if you take the value pick, log why. The '
+        + 'dollar magnitudes behind the rule are lab-tier measurements, not season '
+        + 'projections.',
+      src: 'verdict.js derive() + verdict.js tiebreakFacts(); engine.js confidence() + CFG.TIE_THRESHOLD/COIN_FLIP_GAP/CLOSE_GAP/PATHS_BAND',
     },
     recommendations: {
       what: 'The engine\'s ranked list for THIS pick: every candidate\'s composite '
@@ -953,6 +959,23 @@
         + 'drop to your next pick is steepest, wait on the flattest — that is the '
         + 'whole wait-vs-grab decision in two numbers.',
       src: 'engine.js branchForecast()/expectedBestAvailable()',
+    },
+    adp_movers: {
+      what: 'The market\'s fastest re-pricings: the top 10 ADP risers and top 10 '
+        + 'fallers from the board\'s own retained daily series. Velocity is slots '
+        + 'moved over the window (positive = rising toward an earlier pick), with '
+        + 'the per-day rate beside it.',
+      read: 'A sharp move means the market learned something — camp news, an injury, '
+        + 'a depth-chart change — that this board\'s nightly number may lag. A red '
+        + 'STALE flag is the alarm: that player moved a round or more, so treat his '
+        + 'board price as behind the market. Players with no measured velocity are '
+        + 'absent, not zero — a shallow series says so instead of printing zeros. '
+        + 'This is NOT a tested momentum edge; nothing here feeds any score.',
+      do: 'Names to investigate before your pick, not numbers to draft on: check a '
+        + 'riser\'s news before paying his old price, and ask why a faller is cheap '
+        + 'before calling him a bargain. If a mover is on your queue or in a tossup, '
+        + 'that is the moment this panel earns its space.',
+      src: 'movers.js movers() over build.py-stamped adp_velocity/adp_stale (draft/adp_series.py)',
     },
   };
 
@@ -2171,6 +2194,10 @@
     safeRender('roster', renderRoster);
     safeRender('plan', renderPlan);
     safeRender('byes', renderByes);
+    // Market movement is board-build context: the underlying series only
+    // changes nightly, but the panel re-renders with everything else so a
+    // mid-draft board reload (rebuild + refetch) is reflected immediately.
+    safeRender('adpMovers', renderAdpMovers);
     safeRender('checklist', renderChecklist);
     safeRender('rehearsalWatermark', renderRehearsalWatermark);
     safeRender('slotWatermark', renderSlotWatermark);
@@ -2537,8 +2564,13 @@
 
     let v;
     try {
+      // roster: tie-break FACTS only (bye overlap needs the picks already made).
+      // derive() computes them after the verdict and backed pick are final, so
+      // this input can never move the recommendation — pinned by
+      // ui_fidelity_tiebreak.test.js.
       v = DraftVerdict.derive({ cfg: E.CFG, scored: out.scored,
-        confidence: out.confidence, rule: rule, plan: plan, poll: poll });
+        confidence: out.confidence, rule: rule, plan: plan, poll: poll,
+        roster: state.myRoster || [] });
     } catch (e) {
       console.error('[verdict]', e && e.message);
       host.style.display = 'none'; host.innerHTML = ''; return;
@@ -2557,6 +2589,21 @@
           + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
         + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
         + '(+ = scores higher)</span></div>'
+      : '';
+    // TIE-BREAK FACTS (TOSS-UP only): the discriminator line Cory asked for —
+    // "especially in tie break scenarios". Facts the board already carries,
+    // printed to break a tie with; the derivation attaches them only when the
+    // chip is TOSS-UP, and an empty list renders as the honest "genuinely
+    // even" rather than silence pretending the check never ran.
+    const tbHtml = v.tiebreak
+      ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + (v.tiebreak.facts.length
+          ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
+          : '<div class="tb-even">nothing on the board separates '
+            + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
+            + ' — genuinely even; your read decides.</div>')
+        + '</div>'
       : '';
     const lensHtml = v.lenses.length
       ? '<div class="wrv-lenses">' + v.lenses.map(l =>
@@ -2577,6 +2624,7 @@
       + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
         + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
       + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
+      + tbHtml
       + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
         + '">\u2713 Take ' + escapeHtml(v.pick.name || 'him') + '</button>'
       + lensHtml + altHtml;
@@ -2671,6 +2719,10 @@
     opp_down: 'His projected usage is unusually LOW for his draft cost, measured '
       + 'against this board’s own mean — the market may be paying for a name. '
       + 'Feeds the risk term (−6) only when RISK is on; otherwise information only.',
+    adp_stale: s => 'The retained ADP series moved this player ' + s + ' — a round '
+      + 'or more — while the board’s number is from last night’s build. His board '
+      + 'price is STALE: check live ADP and the news before trusting it. The alarm '
+      + 'is draft/adp_series.py stale_flag() (threshold 8 slots); it prices nothing.',
   };
   function toggleFlagLegend(el) {
     const kind = el.getAttribute('data-flag-legend');
@@ -2804,7 +2856,9 @@
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
       + ' · ADP ' + Math.round(p.adjusted_adp);
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
-    // honestly by source (Sleeper-only today, so "Sleeper proj", never "consensus").
+    // honestly by source count (consensus.js: "Consensus (N src)" at ≥2 — today's
+    // board carries Sleeper+FP, plus our own model where it attaches — a single
+    // source's own name otherwise).
     // Placed prominently on the clock (the primary mobile surface), not tucked in a
     // detail row — the point is Cory NOTICES when our pick and the raw projection
     // disagree, which only works if both are in front of him at the moment of a pick.
@@ -3544,6 +3598,77 @@
             + '</span>'
           : '')
       + '</div>').join('');
+  }
+
+  /* ── ADP MOVERS — the market's fastest re-pricings, both directions ──────
+   * Cory (2026-08-16): "Do we have way to capture quick movement in ADPs …
+   * Maybe a small screen on war room showing the top 10 ADP movers up and top
+   * 10 down?" DraftMovers sorts what build.py already stamped (adp_velocity /
+   * adp_stale from the retained daily series); this prints it. Context-rail
+   * panel: it informs a pick, it never scores one, and it must not displace
+   * the verdict. Day one of a fresh series renders the honest shallow state —
+   * absent, not zero. Pinned by ui_fidelity_movers.test.js. */
+  function renderAdpMovers() {
+    const host = $('#adp-movers');
+    if (!host) return;
+    if (typeof DraftMovers === 'undefined' || !state.data) { host.innerHTML = ''; return; }
+    const notes = state.data.notes || {};
+    const span = notes.adp_series_span_days != null ? notes.adp_series_span_days : null;
+    const m = DraftMovers.movers(state.data.players || [], { span });
+    // ONE call site so panel_guide.test.js's caption census stays exact.
+    const explain = explainPanel('adp_movers');
+    const head = $('#movers-head');
+    if (head) {
+      head.textContent = m.state === 'ok'
+        ? (m.span != null ? m.span + '-day window · ' : '') + m.counted + ' measured'
+        : '';
+    }
+    if (m.state === 'shallow') {
+      // THE HONEST EMPTY STATE. Every velocity is None until the retained
+      // series has two days — that is the data being truthful, not a bug.
+      host.innerHTML = explain
+        + '<p class="muted wr-movers-empty">series too shallow — velocity means '
+        + 'nothing yet. The board keeps one ADP snapshot per day; movement '
+        + 'appears when there are two. Absent, not zero.</p>';
+      return;
+    }
+    const row = (r, dir) => {
+      const p = r.player;
+      const vel = (dir === 'up' ? '+' : '−') + Math.round(Math.abs(r.velocity));
+      const perDay = r.per_day != null
+        ? '<span class="wr-mover-rate wr-num">' + (dir === 'up' ? '+' : '−')
+          + Math.abs(r.per_day).toFixed(1) + '/day</span>'
+        : '';
+      // adp_stale is the series' own ALARM (moved ≥ a round while the board's
+      // nightly number sat still) — it wears the alarm color, nothing else here does.
+      const stale = r.stale
+        ? '<button type="button" class="wr-mover-stale" data-flag-legend="adp_stale" '
+          + 'data-flag-arg="' + escapeHtml(r.stale.direction + ' ' + r.stale.slots + ' slots in '
+          + r.stale.days + 'd') + '">STALE</button>'
+        : '';
+      return '<div class="wr-mover-row' + (r.stale ? ' is-stale' : '') + '">'
+        + '<span class="wr-mover-dir" aria-hidden="true">' + (dir === 'up' ? '▲' : '▼') + '</span>'
+        + '<span class="wr-mover-name">' + escapeHtml(shortName(p.name))
+        + ' <span class="rec-pos ' + p.position + '">' + p.position + '</span></span>'
+        + '<span class="wr-mover-adp wr-num" title="current ADP (market)">'
+        + (r.adp != null ? 'ADP ' + Math.round(r.adp) : 'ADP —') + '</span>'
+        + '<span class="wr-mover-vel wr-num" title="ADP slots moved over the window">'
+        + vel + '</span>' + perDay + stale
+        + '</div>';
+    };
+    const col = (label, rows, dir, emptyLine) =>
+      '<div class="wr-mover-col"><div class="wr-mover-colhead">' + label
+      + (rows.length ? ' — top ' + rows.length : '') + '</div>'
+      + (rows.length ? rows.map(r => row(r, dir)).join('')
+        : '<p class="muted wr-movers-empty">' + emptyLine + '</p>')
+      + '</div>';
+    host.innerHTML = explain
+      + '<div class="wr-movers">'
+      + col('▲ Rising', m.up, 'up', 'nobody rising over this window')
+      + col('▼ Falling', m.down, 'down', 'nobody falling over this window')
+      + '</div>'
+      + '<p class="wr-mover-cap muted">movement hints at news — check before you pay '
+      + 'the old price. Informational: feeds no score.</p>';
   }
 
   /* ── Pre-draft checklist ────────────────────────────────────────────────
@@ -4779,12 +4904,22 @@
   }
 
   /* C3 helpers — the raw projection + the disagreement line, shared by the recs
-   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so the
-   * label states the true source (Sleeper today; "Consensus (N)" only when >=2
-   * real sources land). Defensive if the module didn't load. */
+   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so
+   * the label states the true source COUNT — "Consensus (2 src)" on today's
+   * Sleeper+FantasyPros board, "(3 src)" where our own model also attaches, a
+   * single source's own name when only one lands. Never hardcoded (the audit
+   * caught this file's fallback still saying 'Sleeper proj' from the
+   * single-source era). Defensive if the module didn't load. */
   function recRawProj(p) {
     if (typeof DraftConsensus === 'undefined') {
-      return { value: p.proj_mean == null ? null : p.proj_mean, label: 'Sleeper proj', isConsensus: false };
+      // Module missing: label from the board's OWN provenance, never a
+      // hardcoded source name. This said 'Sleeper proj' verbatim — written
+      // when Sleeper was the only source, silently wrong the day FantasyPros
+      // landed as the second (model-representation audit, 2026-08-16).
+      const prov = ((state.data || {}).provenance || {}).projections || {};
+      const src = prov.source === 'sleeper_projections' || prov.source === 'sleeper'
+        ? 'Sleeper' : (prov.source || 'board');
+      return { value: p.proj_mean == null ? null : p.proj_mean, label: src + ' proj', isConsensus: false };
     }
     return DraftConsensus.rawProjection(p, (state.data || {}).provenance);
   }
@@ -5145,8 +5280,9 @@
             : '') +
           '<div class="rec-stats">' +
             '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            // C3 — the raw projection, labelled by its true source (Sleeper today,
-            // never "consensus" until a 2nd source lands), sat next to our VONA so a
+            // C3 — the raw projection, labelled by its true source count (the
+            // consensus.js contract: source names when single, "Consensus (N)"
+            // when ≥2 — 2–3 sources on today's board), sat next to our VONA so a
             // disagreement is visible on the card, not buried.
             '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
               + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'

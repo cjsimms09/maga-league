@@ -1,3 +1,4 @@
+// TERRITORY: A
 // UI-FIDELITY SUITE (charts) — EVERY MARK ENCODES AN ENGINE VALUE, EXACTLY.
 //
 // Cory asked for "charts or visual explanations"; the corollary of his

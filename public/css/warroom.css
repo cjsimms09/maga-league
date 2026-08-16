@@ -195,6 +195,47 @@
 .roll tr.onesie-demoted td { opacity: .62; }
 .board-onesie-note { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .3rem 0; }
 
+/* ══ ADP MOVERS — the market's re-pricings, Zone-2 rail (2026-08-16) ═════
+   Doctrine: velocity is INFORMATION, not money and not an alarm — so the
+   directions wear plain ink and only the STALE flag (a real board-number
+   alarm from adp_series.stale_flag) wears --wr-bad. Numeric columns align. */
+.wr-movers { display: grid; grid-template-columns: 1fr; gap: var(--wr-s2) var(--wr-s3); }
+@media (min-width: 560px) { .wr-movers { grid-template-columns: 1fr 1fr; } }
+.wr-mover-colhead {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .06em;
+  color: var(--wr-structure); margin: 0 0 .25rem;
+}
+.wr-mover-row {
+  display: flex; align-items: baseline; gap: .35rem; min-width: 0;
+  padding: .14rem 0; border-top: 1px dashed var(--wr-line);
+  font-size: var(--wr-fs-sub);
+}
+.wr-mover-col .wr-mover-row:first-of-type { border-top: none; }
+.wr-mover-dir { flex: 0 0 auto; font-size: .6rem; color: var(--wr-muted); }
+.wr-mover-name { flex: 1 1 auto; min-width: 0; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; color: var(--wr-ink); font-weight: 600; }
+.wr-mover-adp { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.wr-mover-vel { flex: 0 0 2.2rem; text-align: right; font-weight: 800; color: var(--wr-ink); }
+.wr-mover-rate { flex: 0 0 auto; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.wr-mover-stale {
+  flex: 0 0 auto; font-size: .58rem; font-weight: 800; letter-spacing: .06em;
+  color: #fff; background: var(--wr-bad); border: none; border-radius: 3px;
+  padding: .05rem .3rem; cursor: pointer; font-family: inherit; line-height: 1.3;
+}
+.wr-movers-empty { margin: 0; font-size: var(--wr-fs-sub); font-style: italic; }
+.wr-mover-cap { margin: .4rem 0 0; font-size: var(--wr-fs-micro); }
+
+/* ══ VERDICT TIE-BREAK FACTS — printed, never scored (2026-08-16) ═══════ */
+.wrv-tiebreak {
+  margin-top: var(--wr-s2); font-size: var(--wr-fs-sub); color: var(--wr-ink);
+  border-left: 2px solid var(--wr-line); background: var(--wr-panel-soft);
+  border-radius: 0 6px 6px 0; padding: .35rem .6rem;
+}
+.wrv-tiebreak .tb-note { color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.wrv-tiebreak ul { margin: .2rem 0 0; padding-left: 1.05rem; }
+.wrv-tiebreak li { margin: .1rem 0; line-height: 1.4; }
+.wrv-tiebreak .tb-even { color: var(--wr-muted); font-style: italic; margin-top: .15rem; }
+
 /* ══ STATUS RAIL — alarms aggregate instead of stacking ═════════════════ */
 .wr-alarm-rail { display: flex; flex-direction: column; gap: .4rem; margin: 0 0 .6rem; }
 .wr-alarm-rail .roast-banner, .wr-alarm-rail [id$='-note'] { margin: 0; }

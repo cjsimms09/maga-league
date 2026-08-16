@@ -1,3 +1,4 @@
+// TERRITORY: A
 /* WAR-ROOM SCREENSHOT HARNESS — the visual acceptance gate's camera.
  *
  * Cory's own acceptance order (docs/queued/warroom-v2-visual-design.md):
