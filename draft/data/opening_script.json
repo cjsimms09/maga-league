@@ -2,8 +2,8 @@
  "meta": {
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
-   "board_built_at": "2026-08-15T17:52:22Z",
-   "board_content_hash": "1f32298355d0",
+   "board_built_at": "2026-08-16T14:10:12Z",
+   "board_content_hash": "48285c980616",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2c3c05638a32",
@@ -62,35 +62,35 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 42.6,
-      "survival": 0.74
+      "survival": 0.71
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 38.0,
-      "survival": 0.92
+      "survival": 0.93
      },
      {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 38.0,
-      "survival": 0.77
+      "survival": 0.79
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.8,
-      "survival": 0.95
+      "survival": 0.97
      },
      {
       "player_id": "6801",
       "name": "Tee Higgins",
       "position": "WR",
       "vorp": 33.6,
-      "survival": 0.71
+      "survival": 0.75
      }
     ]
    },
@@ -102,7 +102,7 @@
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.8,
-      "survival": 0.3
+      "survival": 0.27
      },
      {
       "player_id": "LAR",
@@ -123,14 +123,14 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.98
+      "survival": 0.97
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.62
+      "survival": 0.58
      }
     ]
    },
@@ -163,14 +163,14 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.38
+      "survival": 0.34
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.29
+      "survival": 0.27
      }
     ]
    }
@@ -184,35 +184,35 @@
       "name": "Zay Flowers",
       "position": "WR",
       "vorp": 42.6,
-      "survival": 0.74
+      "survival": 0.71
      },
      {
       "player_id": "11635",
       "name": "Ladd McConkey",
       "position": "WR",
       "vorp": 38.0,
-      "survival": 0.92
+      "survival": 0.93
      },
      {
       "player_id": "12517",
       "name": "Colston Loveland",
       "position": "TE",
       "vorp": 38.0,
-      "survival": 0.77
+      "survival": 0.79
      },
      {
       "player_id": "7526",
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.8,
-      "survival": 0.95
+      "survival": 0.97
      },
      {
       "player_id": "6801",
       "name": "Tee Higgins",
       "position": "WR",
       "vorp": 33.6,
-      "survival": 0.71
+      "survival": 0.75
      }
     ]
    },
@@ -224,7 +224,7 @@
       "name": "Jaylen Waddle",
       "position": "WR",
       "vorp": 35.8,
-      "survival": 0.3
+      "survival": 0.27
      },
      {
       "player_id": "LAR",
@@ -245,14 +245,14 @@
       "name": "Jameson Williams",
       "position": "WR",
       "vorp": 26.5,
-      "survival": 0.98
+      "survival": 0.97
      },
      {
       "player_id": "11564",
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.62
+      "survival": 0.58
      }
     ]
    },
@@ -285,14 +285,14 @@
       "name": "Drake Maye",
       "position": "QB",
       "vorp": 26.0,
-      "survival": 0.38
+      "survival": 0.34
      },
      {
       "player_id": "12518",
       "name": "Tyler Warren",
       "position": "TE",
       "vorp": 24.3,
-      "survival": 0.29
+      "survival": 0.27
      }
     ]
    }
