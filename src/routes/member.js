@@ -2919,6 +2919,8 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
     me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
     liveStale: await liveFreshness(),
     captureError: req.query.captureError === '1',
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.waivers,
   });
 }));
 
@@ -3141,6 +3143,8 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     // if it just happened. Cleared BEFORE the render — cookie-session writes its
     // Set-Cookie on res.end, so a delete after render never reaches the browser.
     sendResult,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.lineup,
   });
 }));
 
@@ -3207,7 +3211,9 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   // honestly as awaiting grading.
   const captured = ACC.capturedOverrides(ledger);
   const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions, captured });
-  res.render('accuracy', { me: req.owner, season, view });
+  res.render('accuracy', { me: req.owner, season, view,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.accuracy });
 }));
 
 // THE ROSTER ANALYZER — league-wide projected rest-of-season: playoff odds,
@@ -3288,6 +3294,8 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
   res.render('analyzer', {
     me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
     validation, err, playoffSpots: projSpots,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.analyzer,
   });
 }));
 

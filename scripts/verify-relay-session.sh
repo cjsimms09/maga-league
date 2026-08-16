@@ -47,18 +47,20 @@ pred = json.load(open('draft/data/predicted_keepers.json'))
 script = json.load(open('draft/data/opening_script.json'))
 stale = OS.is_stale(script['meta'], OS.fingerprint(board, pred))
 assert stale == [], stale"
-# The exemption list IS the ruling record: VONA_WIRE_BENCH and
-# KOV_MEASURED_RAMP may appear in the diff in EITHER state because Cory ruled
-# on both 2026-08-16 ("1. Yes ... 3. Yes" — flipped true, with the old false
-# lines leaving the diff). Any OTHER CFG default moving still fails here.
-ck "no engine CFG default changed vs origin/main beyond Cory's two ruled flips" \
-  bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP): (false|true)' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
+# The exemption list IS the ruling record: VONA_WIRE_BENCH, KOV_MEASURED_RAMP
+# and ROOM_MIX_PRIOR may appear in the diff in EITHER state because Cory ruled
+# on all three 2026-08-16 ("1. Yes ... 3. Yes"; "YES on room mix prior, turn
+# it on" — flipped true, old false lines leaving the diff). ROOM_MIX_W is the
+# ruled switch's declared blend weight (0.25 = BUCKET_BLEND, pinned by
+# room_prior.test.js). Any OTHER CFG default moving still fails here.
+ck "no engine CFG default changed vs origin/main beyond Cory's three ruled flips" \
+  bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js public/js/draft/survival.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP|ROOM_MIX_PRIOR): (false|true)' | grep -vE '^\+ *ROOM_MIX_W: 0.25,' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
 
 echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the
-# refusal to EXACTLY the 23 documented files: a twenty-fourth trespass appearing later
+# refusal to EXACTLY the 26 documented files: a twenty-seventh trespass appearing later
 # fails HERE, so "expected refusal" can never quietly grow. The set SHRINKS as
 # authorised fixes reach main and stop diffing (test_board_pin.py first, then
 # the board_activity pair with the rebuild-blocker cherry-picks) and GREW
@@ -80,11 +82,14 @@ src/routes/lineup.js
 src/routes/member.js
 src/routes/trashtalk.js
 src/sidebets.js
+views/accuracy.ejs
 views/admin/warroom.ejs
+views/analyzer.ejs
 views/bank.ejs
 views/dashboard.ejs
 views/lineup.ejs
 views/partials/_side_bets.ejs
+views/partials/_wr_explain.ejs
 views/partials/header.ejs
 views/pickem.ejs
 views/scoreboard.ejs
@@ -97,7 +102,7 @@ views/waivers.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 23 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 26 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'
@@ -115,11 +120,10 @@ act as a mechanism: verify, merge locally, suites on the merged tree, and it
 STOPS before pushing."
 echo ""
 echo "THE DECISION QUEUE LIVES IN ONE PLACE: DECISIONS-NEEDED.md, top section"
-echo "('⚡ THE QUEUE'). ONE call still needs Cory before the 22nd — ROOM_MIX_PRIOR"
-echo "(flip only if the mock rehearsal is clean). Five are RULED AND EXECUTED"
+echo "('⚡ THE QUEUE'). ZERO calls open before the 22nd. Six are RULED AND EXECUTED"
 echo "2026-08-16: VONA_WIRE_BENCH true, ADP correction closed, KOV_MEASURED_RAMP"
-echo "true, seat-plan headline ownership, own_model_v4 promotion applied — the"
-echo "queue's Settled section carries"
+echo "true, seat-plan headline ownership, own_model_v4 promotion applied,"
+echo "ROOM_MIX_PRIOR true (baseline v17) — the queue's Settled section carries"
 echo "each record, and baseline v16 freezes the ruled behavior. This footer is"
 echo "a pointer, not a copy."
 exit $((fail > 0))
