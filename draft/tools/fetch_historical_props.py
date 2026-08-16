@@ -190,7 +190,18 @@ GAMES_PER_SEASON_NOMINAL = 272     # 32 teams x 17 games / 2 — the full-season
                                     # fetched schedule at dispatch time.
 
 
-def store_path(season: int) -> Path:
+def store_path(season: int, scope: str = "full_season") -> Path:
+    """Where one season's snapshot lands.
+
+    SCOPE-KEYED SINCE 2026-08-16. The week-1 pull feeds the DRAFT study
+    (season-total projections from preseason-only information) while the
+    18-week pull feeds the WEEKLY study — Cory's own distinction, and they
+    are different files on purpose. Writing both to one path would have let
+    a ~960-credit week-1 fetch silently overwrite ~11,800 credits of
+    already-paid 18-week data, which is exactly the kind of quiet
+    destruction this repo's artifact discipline exists to prevent."""
+    if scope == "sample_week1":
+        return BT / f"historical_props_week1_{season}.json"
     return BT / f"historical_props_{season}.json"
 
 
@@ -729,9 +740,12 @@ def main() -> int:
     if res["status"] == "written":
         out_dir = Path(args.out_dir) if args.out_dir else BT
         out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / f"historical_props_{args.season}.json"
+        path = out_dir / store_path(args.season, args.scope).name
         path.write_text(json.dumps(res["doc"], indent=1))
-        print(f"wrote {path} — {len(res['doc']['weeks'])} weeks")
+        health = res["doc"]["provenance"].get("health", {})
+        print(f"wrote {path} — {len(res['doc']['weeks'])} weeks; "
+              f"complete={health.get('complete')} "
+              f"suspect_weeks={health.get('suspect_weeks')}")
         return 0
     print(json.dumps({k: v for k, v in res.items() if k != "doc"}, indent=1))
     return 0 if res["status"] in ("dry_run",) else 1

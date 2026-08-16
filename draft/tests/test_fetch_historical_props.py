@@ -402,3 +402,19 @@ def test_parse_event_props_routes_anytime_td_through_the_price_path():
                 {"name": "No", "description": "CeeDee Lamb", "price": -110}]}]}])
     got = FHP.parse_event_props(doc)
     assert got["CeeDee Lamb"]["any_td"] == pytest.approx(0.69, abs=0.01)
+
+
+def test_store_path_keeps_the_week1_draft_pull_off_the_18_week_file():
+    # Cory's own distinction: the week-1 pull feeds the DRAFT study
+    # (preseason-only information -> season totals), the 18-week pull feeds
+    # the WEEKLY study. One path for both would let a ~960-credit week-1
+    # fetch silently overwrite ~11,800 credits of already-paid data.
+    wk1 = FHP.store_path(2023, "sample_week1")
+    full = FHP.store_path(2023, "full_season")
+    assert wk1 != full
+    assert wk1.name == "historical_props_week1_2023.json"
+    assert full.name == "historical_props_2023.json"
+
+
+def test_store_path_defaults_to_the_full_season_name():
+    assert FHP.store_path(2024).name == "historical_props_2024.json"
