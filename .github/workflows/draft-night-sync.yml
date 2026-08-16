@@ -111,6 +111,13 @@ jobs:
             if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
               git add draft/data/draft_pick_log_2026.jsonl
               git commit -m "[skip deploy] draft-night sync: pick log update" -q
+            fi
+            # Enter the push path whenever local HEAD is AHEAD of the remote —
+            # not only when this poll's tree was dirty (audit round 4: a
+            # commit whose push failed leaves a CLEAN tree, so keying on dirt
+            # orphaned it until the next pick; the final pick has no next).
+            AHEAD=$(git rev-list --count "origin/${GITHUB_REF_NAME}..HEAD" 2>/dev/null || echo 0)
+            if [ "$DRY_RUN" != "true" ] && [ "${AHEAD:-0}" -gt 0 ]; then
               # PUSH-CONFLICT RECOVERY (external audit finding, 2026-08-16):
               # if anything else lands on the branch between our checkout and
               # this push, a bare push rejects and bash -e would kill the run
@@ -150,6 +157,15 @@ jobs:
             if STATUS="$(python3 draft/log_draft_picks.py --status 2>&1)"; then :; fi
             echo "$STATUS"
             if printf '%s' "$STATUS" | grep -qE '^picks\s*: ([0-9]+) of \1 logged$'; then
+              # COMPLETION DURABILITY GATE (audit round 4): "complete" is a
+              # lie if the final pick's commit lives only on this ephemeral
+              # runner. Require local == remote before declaring victory.
+              AHEAD=$(git rev-list --count "origin/${GITHUB_REF_NAME}..HEAD" 2>/dev/null || echo 0)
+              if [ "$DRY_RUN" != "true" ] && [ "${AHEAD:-0}" -gt 0 ]; then
+                echo "::error::draft complete but $AHEAD commit(s) NOT pushed — pick log not durable; orphan HEAD $(git rev-parse HEAD). Retrying push before exit."
+                git pull --rebase -q || { git rebase --abort 2>/dev/null || true; }
+                git push -q || { echo "::error::final push failed — DO NOT trust the remote log; re-run --sync"; exit 1; }
+              fi
               echo "draft complete — every pick logged, stopping."
               exit 0
             fi
