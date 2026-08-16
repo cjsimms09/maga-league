@@ -197,3 +197,81 @@ with Cory's override quoted and the original rationale left visible.
 If the bar does not clear, or §2 refuses: **nothing in the board changes.**
 `proj_mean` stays Sleeper-only, the third-opinion columns stay display-only,
 REC-2 stays as written, and the null is the deliverable.
+
+---
+
+# AMENDMENT 1 — THE COVERAGE FALLBACK, RULED (2026-08-16)
+
+**Committed BEFORE the runner was executed. Nothing in this file has been
+changed; this is appended, per the strike-through-never-erase habit.** The
+runner existed in draft when this landed but had produced no artifact — the
+commit order still carries the proof.
+
+**Cory's question, verbatim:** *"Can we use sleeper or fantasy pros on
+rookies, k and def"*
+
+**The answer, and the correction that comes with it.** Yes — Sleeper and/or
+FantasyPros are the fallback for rookies, K and DEF, and those players are
+never dropped. But "fall back to whatever sources we have" **implements the
+hazard rather than avoiding it**, and the arithmetic is already in the repo:
+
+    own_v6 bias (2025):  QB +10.87  RB  +2.38  WR  +8.72  TE  +2.12
+    FantasyPros (2025):  QB +15.45  RB  -0.72  WR  -3.88  TE -12.48
+
+own_v6 OVER-projects WR by +8.72 while FP UNDER-projects WR by −3.88. A
+veteran WR averaged from (Sleeper, FP, own_v6) therefore sits systematically
+HIGHER against truth than a rookie WR averaged from (Sleeper, FP) alone —
+**not because either player's football changed, but because the veteran bloc
+caught a high-biased third source.** That is the rookie-vs-veteran ordering
+distortion §4 exists to prevent.
+
+## Two additional policies, both preregistered here, both measured
+
+- **`P4` — bias-corrected blending (Cory's option (a)).** Subtract each
+  source's measured per-position bias against realized points before
+  averaging, so every source enters on a common scale and a missing one
+  shifts nothing. own_v6's biases from `model_accuracy_v6.json`; FP's from
+  `exp_fp_hist_proj.json`, averaged across years under §3's weighting (2023
+  at 0.5).
+  **Its named weakness, stated before the result: Sleeper's own bias against
+  realized points is exactly the quantity that does not exist** (§2). P4 can
+  therefore de-bias FP and own_v6 to the truth scale but must leave Sleeper's
+  own correction at **0 by assumption** — an unmeasured term sitting inside
+  the correction that is supposed to remove unmeasured terms. Also: the
+  biases are measured on past seasons and may not hold for 2026.
+- **`P5` — rank-space blending (Cory's option (b)).** Per position, express
+  each source as a within-position percentile, average the percentiles a
+  player actually has, map the blended percentile back onto the control
+  (Sleeper) points distribution for that position.
+  **Population correction, declared here because the naive version has the
+  same bug it is meant to fix:** a percentile taken inside own_v6's coverage
+  (veterans with prior production) is not comparable to one taken inside
+  Sleeper's full coverage. So each non-Sleeper source contributes a
+  **percentile DISAGREEMENT measured on the shared population** it covers
+  with Sleeper — `δ_s(i) = pct_s(i) − pct_sleeper(i)`, both computed inside
+  `C_s = {players carrying Sleeper AND s}` — and the blended percentile is
+  Sleeper's global percentile plus the mean of the δ a player actually has.
+  δ is centred on the shared population by construction, so **a missing
+  source contributes exactly nothing to level.**
+  The back-map is an exact within-position permutation of the Sleeper
+  baseline values, which yields a property worth stating in advance:
+  **the multiset of `proj_baseline` at each position is unchanged, so
+  replacement level, the flex allocation and the cross-position dollar scale
+  cannot move — only ordering within a position can.** The residual at the
+  `proj_mean` layer (the per-player `opportunity_adj` rides on top and is not
+  permuted) is MEASURED and reported rather than assumed to be zero.
+
+## K and DEF — fixed here
+
+own_v6 has never covered K or DEF and no blend can. Those positions are
+**Sleeper/FP-only by necessity**, that is stated in `PROJECTION_PROVENANCE`
+rather than implied, and the runner reports **their replacement level and
+per-position value distribution before and after** under every policy, so a
+silent rescale of K/DEF dollars relative to QB/RB/WR/TE is caught rather than
+trusted.
+
+## What does NOT change
+
+The §4 rookie-bloc veto still governs every policy including P4 and P5, and
+still overrides any accuracy result. The §3 bar is still the ship criterion,
+and §2's refusal still means nothing ships.
