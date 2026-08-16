@@ -440,6 +440,81 @@ prices the hard cap at +27 to +81 pts/season on real history while the sim
 cell reads FREE — preparing a removal diff there would be exactly the
 "manufacture a decision the evidence says hold" pattern the roster-
 construction pass named.
+## ⚠️ THE OPPORTUNITY ADJUSTMENT IS UNGRADED AND, GRADED, IT DOES NOT ORDER — 2026-08-16
+
+**Full evidence: `draft/audit/opportunity_adjustment_2026-08-16.md`. Prereg:
+`draft/backtest/OPPORTUNITY-ADJ-PREREG.md` (committed first). Artifact:
+`draft/backtest/opportunity_adj_grade.json`. Tests: 21, green.**
+
+**WHAT WAS FOUND.** `draft/projections.py:blend()` multiplies every RB/WR/TE
+projection by `1 + opportunity_adj` (cap ±15%) before VORP, tiers or dollars
+see it. Nothing had ever graded it against realized points — the engine
+ablation's `opportunity` arm is graded by its own ruler and says so in its §6,
+and its replay cell reads "not period-computable (lookahead)". **That last part
+turned out to be wrong for this layer**: `opportunity_metrics()` is a pure
+function of nflfastR play-by-play, nflverse serves 2021–24, and the shipped
+code runs on it unmodified. Graded leak-free on 2023/2024/2025:
+
+- **ORDERING: NEUTRAL in 17 of 18 position × baseline cells.** Every pooled
+  |Δρ| ≤ 0.05, most ≤ 0.005, against a baseline ρ of 0.64–0.78.
+- **LEVEL: WORSE in 18 of 18 cells, every CI excluding zero.** ΔMAE +1.19 to
+  +8.03 pooled, +4.66 to +10.47 in the draftable region; bias moves **+4 to
+  +17 points upward** everywhere. The layer is a one-sided inflator (range
+  −0.071 to +0.150; the −15% floor is structurally unreachable).
+- **A SHUFFLED adjustment — same magnitudes, randomly reassigned — costs
+  0.003 rho. The real one gains 0.002.** 25 of 27 permutation p-values sit
+  between 0.10 and 0.88. It is adding noise-shaped scale, not player-specific
+  information.
+- **RB is the worst position for it** (only one negative on all three
+  baselines; weakest residual signal). TE is the only one leaning positive.
+
+**MAGNITUDE ON THE BOARD YOU ARE DRAFTING FROM.** The layer adds **+32.7 pts to
+the average top-12 RB, +31.2 to the average top-12 WR, +18.3 to top-12 TE, and
++0.0 to every QB, K and DEF** (`composite_z` handles WR/TE/RB only — all 88 QB,
+44 K and 32 DEF rows carry exactly 0.0000). Consequences, MEASURED by re-running
+`draft/vorp.py` read-only with the layer off: replacement rises +9.7 RB / +10.6
+WR / +15.6 TE / +0.0 QB; top-12 VORP mass +35% RB, +41% WR, +13% TE, +0% QB;
+**2.2 pp of the auction budget moves off QB and 1.7 pp off TE**; **51 of the top
+60 overall ranks change, and QB1 moves from overall rank 10 to 16.**
+
+**HONEST LIMIT, and it is the reason for the recommendation.** The shipped
+`proj_baseline` is Sleeper's preseason projection and **was never archived
+before 2026-08-09**, so it cannot be reconstructed for past seasons;
+FantasyPros' gated archive is proxy-blocked in this environment. The grade
+therefore rides on three reconstructed baselines (naive_prev, recency_blend,
+the league's own draft → rank curve), **all of which carry LESS usage
+information than a real projection source and therefore FLATTER the layer.**
+Every positive number is an upper bound. The negatives are not.
+
+**CONFIDENCE.** High on the level/bias result (18/18 cells, CI-clear, and it
+follows structurally from `ρ(opportunity_z, proj_baseline)` = +0.76 to +0.85).
+Medium on "ordering is neutral" — 3 seasons, reconstructed baselines. The
+cross-position magnitudes in §6 are exact arithmetic on the live board, not
+estimates.
+
+**COST OF INACTION.** The board keeps pricing RB/WR/TE ~10–15% hot against QB
+on a layer measured neutral-to-harmful. Cory drafts on it on the 22nd.
+
+**PREPARED DIFFS — none applied, all described in the audit §7:**
+- **D1** drop RB from `composite_z` (one `elif` branch → `continue`).
+- **D2** centre `adj` within position before applying — removes the entire bias
+  result by construction. Widest blast radius: every `proj_mean`, VORP, tier,
+  dollar.
+- **D3** shrink the cap toward 0.03–0.05. **Would need its own prereg** — this
+  study graded the shipped cap, not a sweep.
+- **D4** change nothing; record the layer as ungraded-on-Sleeper until REC-2
+  grades the real thing in January 2027.
+
+**RECOMMENDATION: D4 for the 22nd, D2 preregistered for after.** Six days out,
+no value-side diff is worth a measured-in-noise ordering gain, and the one
+change the evidence strongly licenses (D2) is the one that moves every dollar
+on the board. **The thing to act on now is not code: it is that QB1 sits at
+overall rank 16 instead of 10 because of an ungraded layer, and you should know
+that when you draft.**
+
+**CORY'S CALL:** _(unanswered)_
+
+---
 
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
 
