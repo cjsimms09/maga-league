@@ -173,3 +173,39 @@ def test_summarize_reports_thinness_rather_than_hiding_it():
     assert h["incoherent_ladders"] == 1
     assert h["ladders_with_any_price"] == 2
     assert h["total_open_interest"] == pytest.approx(1284.72)
+
+
+# ── the weekly series: self-activating, so nobody has to remember ─────────
+#
+# Cory, 2026-08-16: "Let's make sure the Kalshi weekly get built when it can!
+# Do not forget." Every game-level series was dormant that day, so the
+# not-forgetting is a daily poll that starts working by itself rather than a
+# note in a doc.
+
+
+def test_weekly_series_are_registered_and_separate_from_season_ones():
+    # Mixing them would let a per-game market join a season ladder, which
+    # would silently corrupt the distribution reconstruction.
+    assert not (set(FK.WEEKLY_SERIES) & set(FK.SERIES_TO_STAT))
+    for k in ("KXNFLANYTD", "KXNFLRSHATT", "KXNFLWEEKCOMPETE"):
+        assert k in FK.WEEKLY_SERIES
+
+
+def test_availability_markets_are_carried():
+    # These are the two no projection model we own can produce, and the
+    # start/sit study put QB — the slot most driven by availability — below a
+    # coin flip. Losing them to a tidy-up would be a real regression.
+    avail = [k for k, v in FK.WEEKLY_SERIES.items() if "availab" in v.lower()]
+    assert set(avail) == {"KXNFLWEEKCOMPETE", "KXNFLCOMPETE"}
+
+
+def test_rushing_attempts_is_kept_and_labelled_as_role():
+    assert "role" in FK.WEEKLY_SERIES["KXNFLRSHATT"].lower()
+
+
+def test_weekly_series_are_not_parsed_by_the_season_ladder_parser():
+    # fetch_weekly stores RAW on purpose: these markets' ticker grammar is
+    # unconfirmed while dormant, and inventing a parse for a shape nobody has
+    # seen is exactly how the anytime-TD column shipped wrong by 21-33x.
+    assert FK.parse_market({"ticker": "KXNFLANYTD-26SEP10-SBARKLEY26",
+                            "last_price_dollars": 0.55}) is None

@@ -50,8 +50,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Capture today's ladders
+      - name: Capture today's season ladders
         run: python3 draft/tools/fetch_kalshi.py fetch
+      - name: Poll the WEEKLY game-level series (self-activating)
+        # Cory: "Let's make sure the Kalshi weekly get built when it can! Do
+        # not forget." This is the not-forgetting. Every one of these series
+        # was dormant on 2026-08-16 — books post game markets days, not
+        # months, ahead — so this reports "no live markets yet" and writes
+        # nothing until they open, at which point it starts capturing on its
+        # own. No human has to remember a date.
+        run: python3 draft/tools/fetch_kalshi.py fetch-weekly
       - name: Commit the snapshot
         run: |
           set -euo pipefail
