@@ -108,31 +108,26 @@ def test_promotion_verdict_for_own_v4_requires_all_four_strictly():
 
 # ── the artifact contract ────────────────────────────────────────────────────
 
-@pytest.mark.repo_parity
-def test_artifact_matches_regeneration_and_reproduces_v3_bit_for_bit():
-    """repo_parity: regeneration reads the tree's board/positions rows, which
-    the nightly workflow rewrites before its publication gate — deselected
-    there (`-m "not repo_parity"`, see conftest.py), kept in every normal run.
-
-    Once the results artifact exists it must equal a fresh run, and prove
-    both identities: PROTOCOL identity — every own_v3 / own_v2 /
-    walk_forward_v1 / naive_prev / recency_blend shared-population cell equals
-    model_accuracy_v3.json bit for bit — and ARM identity — own_v4's RB/WR/TE
-    cells equal own_v3's exactly, because those arms are inherited unchanged.
-    Skipped while the prereg commit stands alone — the artifact lands in a
-    LATER commit by design."""
+# NOTE (2026-08-16, artifact-freshness infra): this used to be one test,
+# `test_artifact_matches_regeneration_and_reproduces_v3_bit_for_bit`, marked
+# @pytest.mark.repo_parity as a whole because it compared the committed
+# artifact to a fresh V4.run() (board/positions-sensitive). That comparison
+# is now covered by draft/data/artifact_registry.json + `draft/tools/
+# check_artifact_freshness.py` (entry "own_model_v4") instead of a bespoke
+# pytest function — see draft/audit/artifact_freshness_infra_2026-08-16.md.
+# The REST — static shape checks on the committed artifact alone, and the
+# protocol/arm-identity cross-checks against model_accuracy_v3.json (both are
+# COMMITTED, static files; this never depends on the board and was never the
+# repo_parity concern) — is preserved below as an unmarked, always-green test.
+def test_artifact_shape_and_protocol_and_arm_identity_with_v3():
     art_path = BT / "model_accuracy_v4.json"
     if not art_path.exists():
         pytest.skip("prereg stage: results artifact not generated yet (commit order is the proof)")
     art = json.loads(art_path.read_text())
     assert next(iter(art)) == "_territory"
-    fresh = V4.run()
-    assert art["status"] == fresh["status"]
     if art["status"] != "graded":
         assert art["status"] == "no_markers"  # refusal is the artifact
         return
-    assert art["arm_2025"] == fresh["arm_2025"]
-    assert art["promotion_bar"] == fresh["promotion_bar"]
     assert art["promotion_bar"]["candidate"] == "own_v4"
     assert art["marker_gate"]["status"] == "ok" and art["marker_gate"]["markers"]
     # the tuning years are named absences, never numbers

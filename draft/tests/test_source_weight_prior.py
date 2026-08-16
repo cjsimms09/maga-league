@@ -162,20 +162,17 @@ def test_g5_prior_only_when_nothing_measured():
 
 # ── the shipped verdict is the preregistered one, and it cannot drift ───────
 
-@pytest.mark.repo_parity
-def test_artifact_equals_regeneration():
-    """repo_parity: build_artifact() reads draft/data/proj_series.json and
-    player_positions.json, both of which the nightly workflow refreshes
-    before its publication gate — so there the regeneration carries today's
-    snapshot_dates against the committed artifact's (run 31926152660:
-    2026-08-16 vs 2026-08-15, TE median_gap 12.33 vs 11.78) and fails by
-    construction. The gate deselects it (`-m "not repo_parity"`); every
-    normal pytest run keeps it as the anti-hand-edit guard. The VERDICT
-    itself stays gate-checked date-free by
-    test_shipped_verdict_is_the_honest_negative below, which is unmarked."""
-    committed = json.loads((BACKTEST / "source_weight_prior.json").read_text())
-    assert committed == SWP.build_artifact(), \
-        "committed artifact differs from regeneration — rerun source_weight_prior.py"
+# NOTE (2026-08-16, artifact-freshness infra): the committed-artifact ==
+# regeneration pin that used to live here (`test_artifact_equals_
+# regeneration`, @pytest.mark.repo_parity) is now covered by draft/data/
+# artifact_registry.json + `draft/tools/check_artifact_freshness.py` (entry
+# "source_weight_prior") instead of a bespoke pytest function — see
+# draft/audit/artifact_freshness_infra_2026-08-16.md. That check runs
+# `SWP.build_artifact()` and diffs it against source_weight_prior.json
+# exactly as this test did; it is informational (FRESH/STALE), never a
+# pytest gate item, because the mismatch it reports is "the board moved on"
+# (proj_series.json's snapshot_dates advancing), not a code defect. The
+# VERDICT itself stays gate-checked date-free by the unmarked test below.
 
 
 def test_shipped_verdict_is_the_honest_negative():

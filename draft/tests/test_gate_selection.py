@@ -19,6 +19,13 @@ two new silent-failure lanes, and this file closes both:
      (yaml.safe_load, never a copy typed here) and the selection it produces
      is measured with pytest's own collector, so what is proved is what runs.
 
+2026-08-16, later the same day: eleven of the pins this file used to track
+were migrated OUT of pytest entirely into draft/data/artifact_registry.json +
+draft/tools/check_artifact_freshness.py (the permanent fix — see
+draft/audit/artifact_freshness_infra_2026-08-16.md), so this mechanism now
+guards a much smaller, real remainder. See REPO_PARITY_NODES below for what
+is still here and why each one does not fit the registry's shape.
+
 Run: python3 -m pytest draft/tests/test_gate_selection.py -q
 """
 import re
@@ -34,50 +41,46 @@ WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
 
 #: The complete repo_parity set — every pin whose failure says the repo /
 #: market state is NEW, never that the candidate board is BAD — and NOTHING
-#: else. Two incidents built it, each node classified one line at a time in
-#: rebuild_refusal_diagnosis_2026-08-16.md:
-#:   · §6, run 31926152660: the 7 committed-artifact == regeneration pins
-#:     whose regeneration inputs the nightly run itself rewrites (the other
-#:     9 refusals were soundness and remain unmarked, in the gate);
-#:   · §7, run 31948330004: the 2 playoff-SOS pins (committed artifact vs
-#:     the just-rebuilt board — object parity and player-set coverage), the
-#:     4 ADP-band ratchet params (keepers.py's shipped constant graded
-#:     against the morning's fetched market dispersion), and the weekly
-#:     workflow-YAML parse check (repo files + a gate venv without pyyaml).
+#: else.
+#:
+#: 2026-08-16, artifact-freshness infra (draft/audit/
+#: artifact_freshness_infra_2026-08-16.md): the ELEVEN committed-artifact ==
+#: regeneration pins that used to live here (model_accuracy_backtest,
+#: own_model_v2-v6, source_weight_prior, playoff_sos's object-parity pin,
+#: draft_replay_2025, replay_all_seats, props_season_projection's v6
+#: reproduction) are MIGRATED OUT of pytest entirely, into draft/data/
+#: artifact_registry.json + draft/tools/check_artifact_freshness.py — a
+#: single generic, informational (never-blocking) tool that replaces one
+#: bespoke test function per study. Their bespoke test_X_matches_regeneration
+#: functions and @pytest.mark.repo_parity decorators are REMOVED from their
+#: files (static shape / cross-artifact-identity assertions that were bundled
+#: into the same functions but do NOT depend on regeneration were kept, as
+#: new unmarked always-green tests, in the same files). Confirmed nothing was
+#: lost: `python3 draft/tools/check_artifact_freshness.py` reports the exact
+#: same STALE set the removed pytest tests used to fail on (10 of 11 STALE,
+#: replay_all_seats FRESH, zero errors — 2026-08-16, cross-checked against a
+#: full `pytest draft/tests -q` run on the same tree).
+#:
+#: What remains here is the species that does NOT fit "committed artifact vs
+#: regeneration of that SAME artifact" and so was deliberately left as a
+#: hand-marked pytest test (draft/data/artifact_registry.json's
+#: `_not_yet_migrated` section carries the same list with reasons):
+#:   · the 4 ADP-band ratchet params — keepers.py's shipped constant graded
+#:     against TODAY'S freshly fetched FFC market dispersion, not against a
+#:     committed artifact;
+#:   · playoff_sos's OTHER pin — committed-artifact COVERAGE of the live
+#:     board's player set (a partition, not a diff);
+#:   · the weekly workflow-YAML parse check — marked because the gate venv
+#:     carries no pyyaml, not because of board/artifact staleness.
 #: Adding a marker to any other test WILL fail this file until the addition
 #: is recorded here — that is the point, not an inconvenience.
 REPO_PARITY_NODES = {
-    "draft/tests/test_model_accuracy_backtest.py::test_the_COMMITTED_artifact_matches_regeneration",
-    "draft/tests/test_own_model_v2.py::test_artifact_matches_regeneration_and_names_what_is_missing",
-    "draft/tests/test_own_model_v3.py::test_artifact_matches_regeneration_and_reproduces_v2_baselines",
-    "draft/tests/test_own_model_v4.py::test_artifact_matches_regeneration_and_reproduces_v3_bit_for_bit",
-    "draft/tests/test_own_model_v5.py::test_artifact_matches_regeneration_and_reproduces_v4_bit_for_bit",
-    "draft/tests/test_own_model_v6.py::test_artifact_matches_regeneration_and_reproduces_both_parents",
-    "draft/tests/test_source_weight_prior.py::test_artifact_equals_regeneration",
-    # §7 additions — run 31948330004 (2026-08-16 12:58Z, 8 failed / 2479 passed)
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[100-150]",
-    "draft/tests/test_playoff_sos.py::test_committed_artifact_matches_a_fresh_run_of_the_tool",
     "draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
     "draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
-    # draft replay (2026-08-16): regeneration reads the tree's positions
-    # record and board ages, both refreshed by the nightly board rebuild —
-    # the same class as the own-model pins above.
-    "draft/tests/test_draft_replay_2025.py::test_artifact_matches_regeneration",
-    # all-seats league benchmark (2026-08-16): same class again — the
-    # regeneration reads the tree's positions record, board ages, AND the
-    # live board itself (roster-status verification + name map), all of
-    # which the nightly board rebuild legitimately refreshes.
-    "draft/tests/test_replay_all_seats.py::test_artifact_matches_regeneration",
-    # historical-props study (2026-08-16): the read-only reproduction of
-    # own_model_v6's construction (props_season_projection._v6_predictions)
-    # is graded against the COMMITTED model_accuracy_v6.json — same class as
-    # the own-model artifact-vs-regeneration pins above, since the
-    # reproduction reads positions_record()/board_ages(), both refreshed by
-    # the nightly board rebuild.
-    "draft/tests/test_props_season_projection.py::test_v6_reproduction_matches_committed_model_accuracy_v6",
 }
 
 

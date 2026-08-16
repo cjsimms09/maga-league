@@ -267,10 +267,14 @@ def test_one_replay_year_is_deterministic():
     assert a == b
 
 
-@pytest.mark.repo_parity
-def test_artifact_matches_regeneration(artifact):
-    """repo_parity: regeneration reads the tree's positions record, board
-    ages and the live board (roster-status verification + names), which the
-    nightly board rebuild legitimately refreshes — same class as the
-    draft-replay pin, excluded only in the publication gate."""
-    assert A.run() == artifact
+# NOTE (2026-08-16, artifact-freshness infra): the committed-artifact ==
+# regeneration pin that used to live here (`test_artifact_matches_
+# regeneration`, @pytest.mark.repo_parity) is now covered by draft/data/
+# artifact_registry.json + `draft/tools/check_artifact_freshness.py` (entry
+# "replay_all_seats") instead of a bespoke pytest function — see
+# draft/audit/artifact_freshness_infra_2026-08-16.md. That check runs
+# `A.run()` and diffs it against draft/data/replay_league_table.json exactly
+# as this test did; it is informational (FRESH/STALE), never a pytest gate
+# item, because the mismatch it reports is "the board moved on" (positions
+# record / board ages / live board refreshed by the nightly rebuild), not a
+# code defect.

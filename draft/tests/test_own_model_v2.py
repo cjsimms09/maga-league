@@ -110,27 +110,25 @@ def test_unmeasurable_position_blocks_the_bar():
     assert V2.promotion_verdict(h2h)["clears"] is False
 
 
-@pytest.mark.repo_parity
-def test_artifact_matches_regeneration_and_names_what_is_missing():
-    """Once the results artifact exists it must equal a fresh run (same stores,
-    same code ⇒ same numbers) and carry the named-unavailable features. Skipped
-    while the prereg commit stands alone — the artifact lands in a LATER commit
-    by design.
+# ── the artifact contract ────────────────────────────────────────────────────
+#
+# NOTE (2026-08-16, artifact-freshness infra): this used to be one test,
+# `test_artifact_matches_regeneration_and_names_what_is_missing`, marked
+# @pytest.mark.repo_parity as a whole because ONE of its assertions compared
+# the committed artifact to a fresh V2.run() (board/positions-sensitive). That
+# comparison is now covered by draft/data/artifact_registry.json + `draft/
+# tools/check_artifact_freshness.py` (entry "own_model_v2") instead of a
+# bespoke pytest function — see draft/audit/artifact_freshness_infra_2026-08-16.md.
+# The REST of the old test — static shape/content checks on the committed
+# artifact alone, which never depend on the board and were never actually the
+# repo_parity concern — are preserved below as an unmarked, always-green test.
 
-    repo_parity: "same stores" includes public/draft_data.json (board_ages)
-    and player_positions.json, which the nightly workflow REBUILDS before its
-    publication gate runs — so there the regeneration moves with the fresh
-    board and this fails by construction against the committed artifact
-    (run 31926152660). The gate deselects it via `-m "not repo_parity"`;
-    every normal pytest run keeps it as the anti-hand-edit guard."""
+
+def test_artifact_names_what_is_missing_and_never_masquerades_as_fitted():
     art_path = BT / "model_accuracy_v2.json"
     if not art_path.exists():
         pytest.skip("prereg stage: results artifact not generated yet (commit order is the proof)")
     art = json.loads(art_path.read_text())
-    fresh = V2.run()
-    assert art["arm_2025"] == fresh["arm_2025"]
-    assert art["arm_2024"] == fresh["arm_2024"]
-    assert art["promotion_bar"] == fresh["promotion_bar"]
     assert next(iter(art)) == "_territory"
     for k in ("usage_trends", "td_rate_regression", "team_change_flags",
               "blend_weight_refit"):
