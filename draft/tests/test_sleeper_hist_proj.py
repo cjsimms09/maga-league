@@ -348,6 +348,20 @@ def test_l5_passes_when_the_since_departed_are_present():
     assert res["status"] == "clean"
 
 
+def test_the_season_parameter_diagnostic_catches_a_reserved_file():
+    """POST-HOC and it gates nothing — but it can only ever refuse, never
+    rescue, which is why adding it after step 1 came back positive is not
+    moving the bar. If the endpoint ignored its season argument, every year
+    would grade identically and the exercise would be one number wearing three
+    dates."""
+    same = {"1": 100.0, "2": 200.0, "3": 300.0}
+    assert S.season_parameter_honored(same, dict(same))["status"].startswith(
+        "IDENTICAL")
+    other = {"1": 140.0, "2": 180.0, "3": 260.0}
+    assert S.season_parameter_honored(same, other)["status"] == "distinct"
+    assert S.season_parameter_honored({}, other)["status"] == "no_overlap"
+
+
 def test_l5_is_not_applicable_to_the_latest_store_year():
     g = S.gate_ghosts(["1"], {"1": 100.0}, {}, S.LATEST_STORE_YEAR)
     assert g["status"] == "not_applicable"

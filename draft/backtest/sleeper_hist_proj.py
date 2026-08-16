@@ -291,8 +291,9 @@ def gate_markers(markers: list, proj: dict) -> dict:
     """A preseason file still projects a season that died at full size; a
     post-hoc file already knows. Zero markers is UNDECIDABLE, not a pass."""
     if not markers:
-        return {"status": "no_markers", "n": 0, "verdicts": {}}
+        return {"status": "no_markers", "n": 0, "verdicts": {}, "detail": []}
     verdicts: dict[str, int] = {}
+    detail = []
     for m in markers:
         v = proj.get(m["pid"])
         if v is None:
@@ -304,13 +305,20 @@ def gate_markers(markers: list, proj: dict) -> dict:
         else:
             k = "ambiguous"
         verdicts[k] = verdicts.get(k, 0) + 1
+        # Per-marker detail is <= a handful of rows built from OUR committed
+        # stores plus one scored number. It is the evidence a reader needs to
+        # tell "the file already knew" from "the player had retired", and it
+        # is not a payload dump — the prereg's bar.
+        detail.append({**m, "projected": (round(float(v), 2) if v is not None
+                                          else None), "verdict": k})
     if verdicts.get("missing") or verdicts.get("leak_sized"):
         status = "leaked_markers"
     elif verdicts.get("ambiguous"):
         status = "ambiguous_markers"
     else:
         status = "pass"
-    return {"status": status, "n": len(markers), "verdicts": verdicts}
+    return {"status": status, "n": len(markers), "verdicts": verdicts,
+            "detail": detail}
 
 
 # ── L5: ghosts ───────────────────────────────────────────────────────────────
@@ -382,6 +390,30 @@ def evaluate_year(year: int, payload: dict, scoring: dict, realized: dict,
         return refuse("regenerated")
 
     return refuse("clean")
+
+
+# ── POST-HOC DIAGNOSTIC, ADDED AFTER STEP 1 CAME BACK POSITIVE, GATES NOTHING
+#    and it is labelled that way rather than slipped in as a gate. It can only
+#    ever REFUSE — it cannot rescue a year — which is why adding it after the
+#    fact is not moving the bar. ──────────────────────────────────────────────
+def season_parameter_honored(a: dict, b: dict) -> dict:
+    """Do two seasons' payloads actually differ, player by player?
+
+    If `/projections/nfl/regular/{season}` ignored its season argument, every
+    year would grade identically and the whole exercise would be one number
+    wearing three dates. Row counts already differ, but row counts are a weak
+    instrument: a re-served current-year file filtered to an old roster would
+    also differ in count. This asks the sharp question on the SHARED
+    population."""
+    shared = set(a) & set(b)
+    if not shared:
+        return {"status": "no_overlap", "shared": 0}
+    same = sum(1 for pid in shared if abs(a[pid] - b[pid]) <= 0.01)
+    frac = same / len(shared)
+    return {"status": ("IDENTICAL — the season argument is being ignored"
+                       if frac > 0.95 else "distinct"),
+            "shared": len(shared), "identical": same,
+            "identical_fraction": round(frac, 4)}
 
 
 # ── egress (CI only — the sandbox proxy answers api.sleeper.app with 000) ────
@@ -468,7 +500,12 @@ def egress_main() -> int:   # pragma: no cover
                           >= SCORED_ROWS_FLOOR else "FAIL")}
     print(f"  control: {control['status']} — {ctrl_counts}")
 
-    per_year = {}
+    # EVERYTHING IS PRINTED, because the uploaded-artifact host is egress-blocked
+    # by policy (SLEEPER-PROBE-PREDECLARATION: "a check whose answer required a
+    # download nobody in this sandbox can perform"), and a dispatch from a
+    # feature branch deliberately does not commit the JSON. If it is not on
+    # stdout it does not exist.
+    per_year, scored_by_year = {}, {}
     for year in YEARS:
         print(f"── {year} " + "─" * 40)
         try:
@@ -482,12 +519,45 @@ def egress_main() -> int:   # pragma: no cover
                             latest, census)
         res["key_census"] = census
         per_year[year] = res
-        print(f"  status: {res['status']}   counts: {res['counts']}")
+        scored_by_year[year] = score_payload(payload, scoring)[0]
+        print(f"  STATUS: {res['status']}")
+        print(f"  counts:     {res['counts']}")
+        print(f"  population: {res.get('population')}")
+        print(f"  markers derivable from committed stores: "
+              f"{len(derive_markers(prior.get(year) or {}, realized[year], positions[year]))}")
         for gname, g in res["gates"].items():
             print(f"    {gname}: {g.get('status')}")
-        if res["gates"].get("l2_rank_ceiling"):
-            for p, c in res["gates"]["l2_rank_ceiling"]["cells"].items():
-                print(f"      {p}: {c}")
+            if gname == "l1_identity":
+                print(f"      eligible={g['eligible']} matches={g['matches']} "
+                      f"fraction={g['fraction']} (ceiling {IDENTITY_FRAC_MAX})")
+            if gname == "l2_rank_ceiling":
+                for p, c in g["cells"].items():
+                    print(f"      {p}: {c}")
+                print(f"      over ceiling ({LEAK_RHO_MAX}) at binding "
+                      f"positions {BINDING_POSITIONS}: {g['over_ceiling']}")
+            if gname == "l3_provenance":
+                print(f"      keys present: {g['keys_present']}")
+                for h in g.get("hits", []):
+                    print(f"      HIT: {h}")
+            if gname == "l4_markers":
+                print(f"      n={g['n']} verdicts={g['verdicts']}")
+                for d in g.get("detail", []):
+                    print(f"      marker {d}")
+            if gname == "l5_ghosts":
+                print(f"      ghosts={g['ghost_count']} (floor {GHOST_MIN})")
+        print(f"  key census (keys x row counts, no values above "
+              f"{CENSUS_MAX_CARDINALITY} distinct):")
+        for k, e in census.items():
+            print(f"      {k}: {e}")
+
+    print("── POST-HOC DIAGNOSTIC — is the season argument honored? "
+          "(gates nothing) " + "─" * 5)
+    pairs = [(2023, 2024), (2024, 2025), (2023, 2025)]
+    season_param = {f"{a}_vs_{b}": season_parameter_honored(
+        scored_by_year.get(a) or {}, scored_by_year.get(b) or {})
+        for a, b in pairs}
+    for k, v in season_param.items():
+        print(f"  {k}: {v}")
 
     clean = [y for y, r in per_year.items() if r["status"] == "clean"]
     if control["status"] != "pass":
@@ -512,6 +582,7 @@ def egress_main() -> int:   # pragma: no cover
                   "The rho cells inside l2_rank_ceiling are the LEAK DIAGNOSTIC, "
                   "not a grade — a leaked arm's number must never be read as one."),
         "control": control,
+        "post_hoc_season_parameter": season_param,
         "years": {str(y): per_year[y] for y in YEARS},
         "clean_years": clean,
         "headline": headline,
