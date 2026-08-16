@@ -136,7 +136,7 @@ FAIL a gapped (non-contiguous) ranking is REJECTED -> "Standings saved."
 FAIL   and the message states the 1..N rule -> "Standings saved."
 FAIL   and nothing was written
 ...
-4 passed, 9 failed
+6 passed, 7 failed
 ```
 
 `"Standings saved."` on a nine-of-ten submission — the exact silent partial
