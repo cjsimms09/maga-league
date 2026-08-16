@@ -1,0 +1,199 @@
+<!-- TERRITORY: A -->
+# BLENDED `proj_mean` — PREREGISTRATION (2026-08-16)
+
+**Committed BEFORE the runner exists and before any number is produced. The
+commit order is the proof.** Precedent: `EXP-FP-HIST-PROJ-PREREG.md`,
+`SOURCE-WEIGHT-PRIOR-PREREG.md`, `draft/audit/edge_hunt_2026-08-16.md`.
+
+---
+
+## 0. The ruling this executes
+
+Cory, 2026-08-16, verbatim:
+
+> "What I think is defensible right now: not 'replace Sleeper with own_v6,'
+> which the gate correctly blocks — but blend. Averaging independent forecasts
+> is the single most reliable improvement in forecasting, it's the actual
+> mechanism behind FantasyPros' strength, and we already have three sources
+> attached to every player. A blended proj_mean is a smaller, safer change
+> than a swap, and it captures the one thing pros are doing that we
+> structurally can't buy. Let's do it"
+
+This is an EXECUTED ruling. It is implemented **if and only if** the grade
+below says it does not make the board worse. Cory ruled on the expectation
+that blending helps; a change that measurably hurts the board six days before
+his draft is worse than delivering nothing. **The bar is written here so it
+cannot be moved after a result is seen.**
+
+One factual correction to the ruling's premise, recorded here rather than
+discovered later: **"three sources attached to every player" is not true of
+this board.** Coverage is partial and unequal (§4). That is the hazard this
+preregistration is mostly about.
+
+## 1. What would change, precisely
+
+Today (`draft/build.py`, `draft/projections.py:blend`):
+
+    baseline := Sleeper season projection, rescored under our table
+    proj_mean := baseline x (1 + opportunity_adj)
+    proj_fantasypros, proj_ownmodel := attached alongside, DISPLAY ONLY
+
+The change under test replaces **`baseline`** — the input to
+`projections.blend()` — with a multi-source combination, leaving the
+opportunity adjustment, VORP, replacement, tiers and ranking machinery
+untouched. Nothing else in the pipeline moves. `proj_sleeper` continues to
+carry the raw unblended Sleeper number so the blend is always decomposable.
+
+## 2. THE CONSTRUCTIBILITY GATE — checked first, and a refusal is a verdict
+
+Every arm below requires **per-player preseason values for the graded
+season**. Aggregate MAE/rho cannot produce a blend: a blend is a per-player
+average, and its accuracy depends on the ERROR CORRELATION between sources,
+which no aggregate carries.
+
+Declared before the check, per arm:
+
+| arm | requires | where it would come from |
+|---|---|---|
+| Sleeper (control) | per-player 2023/24/25 preseason Sleeper projections | an archive |
+| FantasyPros | per-player 2023/24/25 archived FP rows | `exp_fp_hist_proj` egress |
+| own_v6 | committed weekly + component stores | `draft/backtest/own_model_v6.py` |
+
+**Status vocabulary, fixed here:** `graded`, `unconstructible:<arm>`,
+`no_control`. If the CONTROL arm (Sleeper alone) has no per-player historical
+source, the status is `no_control` and **the ship decision is REFUSE** —
+because with no control there is no measurement of "worse", and the ruling's
+own condition ("does it make the board worse") is unanswerable.
+
+**A substitute source is not the same test.** If Sleeper is unavailable, we
+do NOT silently swap in FantasyPros as "the professional consensus" and grade
+that instead while calling it the ruled test. Any substitution is reported as
+a SEPARATE, NAMED probe (§5) that explicitly cannot license the ship.
+
+## 3. THE GRADED TEST (primary — runs only if §2 passes)
+
+- **Seasons**: 2023, 2024, 2025. Leak-free: every arm's information set must
+  predate the graded season's week 1, proven by the marker gate already
+  preregistered in `EXP-FP-HIST-PROJ-PREREG.md` §1 (a preseason-frozen file
+  must still project a player whose season died in week 2 at full size).
+- **Year weighting, declared now and for a stated reason**: 2025 = 1.0,
+  2024 = 1.0, **2023 = 0.5**. FantasyPros' own measured accuracy degrades
+  sharply 2023 -> 2025 (WR rho 0.9243 -> 0.7621 in `exp_fp_hist_proj.json`),
+  which is a plausible signature of a 2023 archive revised after the fact.
+  Down-weighting 2023 is the conservative reading and is fixed here so it
+  cannot be chosen after seeing which way it helps.
+- **Population**: per season, players carrying a value from EVERY arm under
+  test AND ≥1 weekly row in that season's committed store AND a position in
+  QB/RB/WR/TE per `draft/data/player_positions.json` (the RECORD, not a live
+  board). Survivorship excluded-count travels with every cell, as in
+  `model_accuracy_backtest`.
+- **Cells**: per position. `n < 25` reports `unmeasurable`, never a number.
+- **Arms**:
+  - `A0` **Sleeper alone** — the control.
+  - `A1` **equal-weight blend** — arithmetic mean of the sources present.
+  - `A2` **accuracy-weighted blend** — weights per position ∝ `1 / MSE_src`,
+    with `MSE` estimated per the already-committed
+    `SOURCE-WEIGHT-PRIOR-PREREG.md` §2 normal approximation
+    (`MSE = (1.2533 x MAE)^2`), normalised over the sources present.
+    Weights are computed **leave-one-year-out**: the weights applied in year
+    Y are fitted only on the other years. No weight is fitted on the year it
+    grades.
+- **Metrics**:
+  - **PRIMARY — Spearman within position.** The board is ORDINAL: dollar
+    values, VORP and pick order are all monotone in within-position and
+    cross-position ranking. Rank is what a drafter consumes.
+  - **SECONDARY — top-12 / top-24 / top-48 precision within position**: the
+    share of the arm's top-N that lands in the realized top-N.
+  - **TERTIARY — MAE.** Reported, **not a ship criterion**: a pure level
+    shift moves MAE without moving a single pick.
+- **THE BAR (strict, fixed here, not weakenable after a result):**
+  1. On the year-weighted pooled grade, the blend arm's Spearman ≥ the
+     control's at **all four positions**; and
+  2. in **no single graded year** does the blend arm lose more than
+     **0.010** Spearman to the control at any position; and
+  3. top-24 precision ≥ control at **≥ 3 of 4** positions on the pooled
+     grade.
+  Missing any of 1–3 = **DOES NOT CLEAR**. Two blend arms may be tested; the
+  shipped arm is the one that clears, and if both clear, the one with the
+  higher pooled minimum-position Spearman margin. **If neither clears, the
+  deliverable is the null and nothing ships.**
+
+## 4. THE COVERAGE HAZARD (constructible regardless of §2 — the 2026 board)
+
+**The failure mode this section exists to prevent.** own_v6 covers only
+QB/RB/WR/TE with prior-season NFL production; rookies and K/DEF carry no
+`proj_ownmodel`. FantasyPros coverage is also partial. If sources are averaged
+naively, a veteran gets a 3-source average and a rookie gets Sleeper alone —
+so the two groups are measured on **different instruments with different
+level biases**, and the rookie/veteran ORDERING moves even when no individual
+projection changed. On a draft board that silently reorders the draft for a
+reason that has nothing to do with football.
+
+- **Census (declared before counting)**: per position x {rookie, veteran},
+  the count of players carrying 1 / 2 / 3 sources. Rookie := `years_exp == 0`
+  on the board. **Sleeper is counted from `proj_baseline`, not
+  `proj_sleeper`** — `proj_sleeper` is only stamped inside the FantasyPros
+  attach block, so it is absent wherever FP is absent and would undercount
+  Sleeper. Rows whose `proj_baseline` came from `projections._rank_fallback`
+  (ADP decay, no real Sleeper projection) are counted and reported
+  SEPARATELY: those carry zero real sources and must never be described as
+  Sleeper-covered.
+- **Candidate policies, all four declared now:**
+  - `P0` control — Sleeper alone (today's board).
+  - `P1` all-present-only — blend only where all three sources are present;
+    Sleeper alone everywhere else.
+  - `P2` level-corrected available-source blend — per position, each
+    non-Sleeper source is shifted by the **median(source − Sleeper) measured
+    on players carrying both**, then whatever is present is averaged. The
+    shift is what stops a missing source from moving a player's level.
+  - `P3` minimum-two-sources — blend where ≥2 present, Sleeper alone
+    otherwise.
+- **THE ROOKIE-BLOC BAR (fixed here, and it is a veto):** for a policy to be
+  eligible to ship, **both** must hold:
+  1. `|median Δ(board rank) for rookies − median Δ(board rank) for
+     veterans| < 3.0` rank positions, and
+  2. the same for the mean, `< 3.0`.
+  A policy that moves rookies as a bloc relative to veterans is **rejected
+  regardless of any accuracy result in §3.** That movement is a coverage
+  artifact, not a football opinion, and it is the bug this section names.
+- Also reported (descriptive, not a bar): overall rank churn, VORP churn,
+  count of players whose overall rank moves ≥ 5 and ≥ 10, and the ten largest
+  movers by name.
+
+## 5. THE MECHANISM PROBE (secondary, declared now, CANNOT license the ship)
+
+If §2 refuses, the shipped arms are ungradeable but the *mechanism* Cory
+named ("averaging independent forecasts is the single most reliable
+improvement") is still testable on arms that ARE per-player constructible
+offline for 2025: `own_v6`, `own_v5`, `own_v4`, `own_v3`, `own_v2`,
+`walk_forward_v1`, `recency_blend`, `naive_prev` — all reproducible from
+committed stores by `own_model_v6.run()`.
+
+- For every unordered pair of arms: build the equal-weight blend and the
+  inverse-MSE blend; measure per-position Spearman against realized 2025
+  points; record whether each blend beat the BETTER of the two parents.
+- Also measure, per pair, the **Pearson correlation of the two arms' signed
+  errors**. This is the quantity that decides whether averaging helps and it
+  is measured nowhere in this repo today.
+- **Declared before running: no outcome of this probe changes the ship
+  decision.** It prices the mechanism and locates the shipped sources'
+  error-correlation regime. It is reported as a probe and labelled as one.
+
+## 6. Artifacts
+
+- `draft/backtest/proj_mean_blend.py` — runner, refusal-first, pure gated core.
+- `draft/backtest/proj_mean_blend.json` — the graded result OR the named
+  refusal, gate evidence either way.
+- `draft/audit/proj_mean_blend_2026-08-16.md` — the verdict Cory reads.
+- `draft/tests/test_proj_mean_blend.py` — every gate two-armed.
+
+## 7. What ships, and what a refusal does NOT touch
+
+If the bar clears: the blend lands as the input to `projections.blend()`,
+behind **one named module-level constant** so it is reversible by one obvious
+edit, and the REC-2 gate documentation is struck through — **never deleted** —
+with Cory's override quoted and the original rationale left visible.
+
+If the bar does not clear, or §2 refuses: **nothing in the board changes.**
+`proj_mean` stays Sleeper-only, the third-opinion columns stay display-only,
+REC-2 stays as written, and the null is the deliverable.
