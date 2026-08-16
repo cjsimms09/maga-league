@@ -1294,7 +1294,22 @@ bar, QB fails; display-only) and the draft-behavior model
 (`draft/backtest/draft_behavior.py` + `CFG.ROOM_MIX_PRIOR: false` in
 `public/js/draft/survival.js`, A-owned, gated off; the flip is queue item 5).
 
-Refusal-set bookkeeping: the pinned set is now **22 files**
+**APPENDED 2026-08-16 (later), SAME AUTHORITY — the voting-booth request.**
+Cory verbatim: *"We also need to add a way to change or recend your vote on
+our vote page. It would also be nice to see how everyone voted for
+everyone."* One more B-lane crossing:
+
+  * `views/votes.ejs` — the roll call (every measure names its YES/NO voters
+    and the holdouts; closed measures keep the record with abstainers named;
+    punishment ideas name their backers) and the withdraw controls. The
+    route side lives in `src/routes/member.js` (already in the set):
+    changing a vote was always re-casting (the ballot doc overwrites);
+    RESCIND is new — deletes the ballot while the measure is open, refused
+    once closed, same courtesy on the punishment wall until it locks.
+    Pinned by `draft/tests/vote_surface.test.js` (16 checks, real HTTP).
+
+Refusal-set bookkeeping: the pinned set is now **23 files**
 (`scripts/verify-relay-session.sh` carries the exact list). No scoring/weight
-default moved in any pass; the merge remains A's or Cory's deliberate act
-via `scripts/merge-relay.sh`.
+default moved beyond Cory's two ruled flips (recorded in the verify gate's
+exemption itself); the merge remains A's or Cory's deliberate act via
+`scripts/merge-relay.sh`.

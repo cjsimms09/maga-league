@@ -1968,10 +1968,27 @@ router.get('/votes', aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   const threshold = H.voteThreshold(world.config);
+  // The roll call (Cory, 2026-08-16: "see how everyone voted for everyone"):
+  // ballots already carry name+choice from allVotes; the yet-to-vote list is
+  // derived here so the page can name the holdouts on open measures.
   const votes = (await H.allVotes(owners, threshold)).map(v => ({
     ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null,
+    not_voted: owners.filter(o => !v.ballots.some(b => b.owner_id === o.id))
+      .map(o => o.name).sort(),
   }));
   const punishments = await H.punishmentWall(owners, req.owner.id);
+  // Same transparency for the punishment wall: name each idea's backers.
+  {
+    const pvKeys = await H.store.listKeys('pvote:');
+    const pvDocs = await H.store.getMany(pvKeys);
+    const byIdea = {};
+    pvDocs.forEach((d, i) => {
+      if (!d) return;
+      const who = (H.ownerById(owners, Number(pvKeys[i].split(':')[1])) || {}).name;
+      if (who) (byIdea[d.punishment_id] = byIdea[d.punishment_id] || []).push(who);
+    });
+    punishments.forEach(pn => { pn.voter_names = (byIdea[pn.id] || []).sort(); });
+  }
   res.render('votes', {
     open: votes.filter(v => v.status === 'open'),
     closed: votes.filter(v => v.status === 'closed'),
@@ -2029,6 +2046,28 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
     await setDoc(`ballot:${vote.id}:${req.owner.id}`, { choice, cast_at: now() });
   }
   res.redirect('/votes');
+}));
+
+// Withdraw your ballot entirely while the measure is open (Cory, 2026-08-16:
+// "a way to change or rescind your vote"). Changing was always re-casting —
+// the ballot doc is keyed per owner and overwrites — but a RESCIND is not a
+// "no": not-voted and voted-no read differently on the roll call and in the
+// cast count the threshold sentence quotes. Closed measures refuse: the
+// record of a decided vote is a record.
+router.post('/votes/:id/rescind', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  if (vote && vote.status === 'open') {
+    await H.store.del(`ballot:${vote.id}:${req.owner.id}`);
+  }
+  res.redirect('/votes#vote-' + req.params.id);
+}));
+
+// The punishment wall gets the same courtesy — one vote each, changeable,
+// and now withdrawable until the wall locks.
+router.post('/punishments/rescind', aw(async (req, res) => {
+  if (req.world.config.punishments_locked) return res.redirect('/votes#punishments');
+  await H.store.del(`pvote:${req.owner.id}`);
+  res.redirect('/votes#punishments');
 }));
 
 // ---------- my team (live roster + stats from Sleeper) ----------

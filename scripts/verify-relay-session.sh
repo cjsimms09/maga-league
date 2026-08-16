@@ -58,7 +58,7 @@ echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the
-# refusal to EXACTLY the 22 documented files: a twenty-third trespass appearing later
+# refusal to EXACTLY the 23 documented files: a twenty-fourth trespass appearing later
 # fails HERE, so "expected refusal" can never quietly grow. The set SHRINKS as
 # authorised fixes reach main and stop diffing (test_board_pin.py first, then
 # the board_activity pair with the rebuild-blocker cherry-picks) and GREW
@@ -88,6 +88,7 @@ views/partials/_side_bets.ejs
 views/partials/header.ejs
 views/pickem.ejs
 views/scoreboard.ejs
+views/votes.ejs
 views/waivers.ejs"
 # awk on the LAST ": "-field, not a paren-matching regex — the C-file line
 # reads "TRESPASS (A touched C's file (declared in-file)): path" and nested
@@ -96,7 +97,7 @@ views/waivers.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 22 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 23 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'
