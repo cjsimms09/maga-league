@@ -1003,14 +1003,32 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   early/mid-draft pre-cap; does give a tested, history-grounded adjustment to
   when the cap relaxes. Awaiting Cory's go/no-go, not yet applied.
 
-## ROOKIE CAPITAL PRIOR → LIVE OWN-MODEL COLUMN — PREPARED, GATED, AWAITING CORY (A-lane league benchmark, 2026-08-16) 🔴 OPEN
+## ROOKIE CAPITAL PRIOR → LIVE OWN-MODEL COLUMN — ⚠️ NULL RESULT, NOT RULING-READY (A-lane league benchmark, corrected 2026-08-16) 🟡 OPEN, DOWNGRADED
 
-**The decision:** apply `draft/tools/apply_rookie_prior_own_model_2026.py`
+> **⚠️ AUDIT CORRECTION, 2026-08-16 (later pass) — this item was written as
+> a "clears, apply?" ruling-ready decision. It is not. The clearing claim
+> it was based on does not reproduce from the committed code — a
+> data-integrity finding, full forensics in
+> `draft/audit/league_benchmark_2026-08-16.md` §9. Fresh, deterministic,
+> repeatedly-reproduced regeneration of the exact committed replay code
+> gives pooled optimal `cory_gap_change: +1.6` (≈2.4% of the Cory gap),
+> not the originally-reported +25.1 (38%) — the layer FAILS its own
+> preregistered clearing bar (needed ≥25% / ≥16.4 pts, or a ≥2-seat pooled
+> league-position lift on the optimal arm; actual lift: 0 seats). No code
+> bug was found on investigation (fit and overlay both reproduce
+> byte-identically; the divergence traces to one seat-1 2025 draft-pick
+> swap between two veterans, neither a rookie, that cannot be reproduced
+> from any currently-committed input — see §9 for the full elimination).
+> **The prepared diff below is NOT backed by a passing grade.** The
+> original text is kept below, struck through, not deleted, per this
+> repo's standing correction discipline — do not act on it as written.
+
+~~**The decision:** apply `draft/tools/apply_rookie_prior_own_model_2026.py`
 to the committed board, or don't. **Prepared and refusing to run without
 your recorded approval** (`--cory-approved "<your words>"`), per the
-league benchmark's preregistered clearing bar.
+league benchmark's preregistered clearing bar.~~
 
-**Why it's on the queue:** your "does model lose to everyone or just mine"
+~~**Why it's on the queue:** your "does model lose to everyone or just mine"
 replay (`draft/audit/league_benchmark_2026-08-16.md`) graded three
 candidate layers through the all-seats replay under preregistered forms.
 The rookie draft-capital prior CLEARED (pooled optimal-arm Cory gap
@@ -1019,21 +1037,41 @@ league position 2/10 → 4/10 owners beaten) — with the help concentrated in
 the 2025 replay (+86) and 2024 slightly negative (−10.6), both in the doc.
 The other two layers did NOT clear (year-2 escalator failed its bar and
 its own measurement; roster-status is already priced on the live board —
-verified, nothing built).
+verified, nothing built).~~
 
-**What apply would change, exactly:** the live board's own-model column
-(`proj_ownmodel`) carries 0 of 153 rookies today. The script fills it for
-the 71 NFL-drafted board rookies from the capital prior fit on classes
-2021–25 (dry-run table in the script; UDFAs stay null, named). It touches
-NO blend/replacement/VORP/rank field — no pick recommendation moves.
-Wiring the value into the blend so the ENGINE consumes it is a separate
-A-lane build decision, only sensible after this one.
+**What's actually true, corrected:** the rookie draft-capital prior does
+NOT clear. Pooled optimal-arm Cory gap −65.65 → **−64.05**/season, change
+**+1.6 = 2.4%** of the gap (bar was 25% / ≥16.4 pts) — fails bar 1; pooled
+beats-n on the optimal arm stays **3 → 3** (no seat-position lift) — fails
+bar 2 too. (The realistic arm's beats-n does lift 2 → 4, but the
+preregistered bar is defined on the optimal arm only, so that doesn't
+count.) The other two layers' verdicts are unaffected by this correction
+and stand as originally reported: year-2 escalator did NOT clear (failed
+its bar and its own measurement); roster-status is already priced on the
+live board — verified, nothing built.
 
-**Options:** (1) approve the column patch (own-model column stops being
-silently blind to rookies, draft-night surfaces show an own-model rookie
-opinion); (2) approve + direct A to wire it into the blend (bigger, needs
-A); (3) leave it — the market columns already price rookies and the
-engine reads the blend, so declining costs no live pick quality today.
+**What apply would still change, mechanically, if approved anyway:** the
+live board's own-model column (`proj_ownmodel`) carries 0 of 153 rookies
+today. The script fills it for the 71 NFL-drafted board rookies from the
+capital prior fit on classes 2021–25 (dry-run table in the script; UDFAs
+stay null, named). It touches NO blend/replacement/VORP/rank field — no
+pick recommendation moves. This mechanical description was never wrong;
+what's wrong is presenting it as evidence-backed by a clearing grade — it
+is not.
+
+**Options, corrected:** (1) approve the column patch anyway, on the
+argument that a rookie-visible own-model column is a defensible thing to
+have regardless of this specific replay grade (own-model column stops
+being silently blind to rookies, draft-night surfaces show an own-model
+rookie opinion) — but this is a judgment call made WITHOUT the performance
+evidence originally claimed, and should be recorded as such if taken; (2)
+leave it — the market columns already price rookies and the engine reads
+the blend, so declining costs no live pick quality today, and this is now
+the evidence-consistent default; (3) treat the rookie hole as still open
+research — the layer's FORM (capital buckets, walk-forward fit) may not be
+the right one even though the underlying "no rookies on the board" defect
+is real; a re-prereg with a different form is a legitimate next step, not
+attempted here.
 
 ---
 

@@ -22,7 +22,7 @@
    "configs": {
     "baseline": {
      "meta": {},
-     "projection_coverage": 506,
+     "projection_coverage": 508,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -1488,15 +1488,15 @@
       },
       "rookies_added": 85
      },
-     "projection_coverage": 591,
+     "projection_coverage": 593,
      "seats": {
       "1": {
        "owner": "coryjsimms",
        "arms": {
         "optimal": {
-         "tool_total": 1526.36,
+         "tool_total": 1455.76,
          "owner_total": 1457.22,
-         "delta_tool_minus_owner": 69.14,
+         "delta_tool_minus_owner": -1.46,
          "head_to_head": {
           "tool_weeks_won": 10,
           "cory_weeks_won": 7,
@@ -1504,12 +1504,12 @@
          }
         },
         "realistic": {
-         "tool_total": 1417.84,
+         "tool_total": 1343.74,
          "owner_total": 1276.32,
-         "delta_tool_minus_owner": 141.52,
+         "delta_tool_minus_owner": 67.42,
          "head_to_head": {
-          "tool_weeks_won": 13,
-          "cory_weeks_won": 4,
+          "tool_weeks_won": 12,
+          "cory_weeks_won": 5,
           "ties": 0
          }
         }
@@ -1519,7 +1519,6 @@
         "11566",
         "11632",
         "12530",
-        "1479",
         "3163",
         "3198",
         "4018",
@@ -1527,7 +1526,8 @@
         "4217",
         "7564",
         "8136",
-        "8151"
+        "8151",
+        "8154"
        ],
        "shadowed_picks": 4,
        "forced_picks": 0,
@@ -1535,11 +1535,11 @@
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 10,
-        "value_over_slot": -228.76,
+        "value_over_slot": -306.26,
         "rookies_taken": 1,
         "year2_taken": 1,
         "late_101plus_n": 3,
-        "late_101plus_hits": 2,
+        "late_101plus_hits": 1,
         "first_QB_round": 4,
         "first_TE_round": 5
        }
@@ -1548,9 +1548,9 @@
        "owner": "ds7mmet",
        "arms": {
         "optimal": {
-         "tool_total": 1319.06,
+         "tool_total": 1227.96,
          "owner_total": 1379.14,
-         "delta_tool_minus_owner": -60.08,
+         "delta_tool_minus_owner": -151.18,
          "head_to_head": {
           "tool_weeks_won": 5,
           "cory_weeks_won": 12,
@@ -1558,12 +1558,12 @@
          }
         },
         "realistic": {
-         "tool_total": 1191.02,
+         "tool_total": 1121.02,
          "owner_total": 1171.54,
-         "delta_tool_minus_owner": 19.48,
+         "delta_tool_minus_owner": -50.52,
          "head_to_head": {
-          "tool_weeks_won": 8,
-          "cory_weeks_won": 9,
+          "tool_weeks_won": 7,
+          "cory_weeks_won": 10,
           "ties": 0
          }
         }
@@ -1573,7 +1573,6 @@
         "11566",
         "11584",
         "11631",
-        "11655",
         "12526",
         "1466",
         "1479",
@@ -1581,17 +1580,18 @@
         "4144",
         "4881",
         "5846",
+        "7528",
         "8136"
        ],
-       "shadowed_picks": 4,
+       "shadowed_picks": 5,
        "forced_picks": 0,
        "owner_rookie_picks_invisible_to_board": 0,
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 11,
-        "value_over_slot": -180.77,
+        "value_over_slot": -289.57,
         "rookies_taken": 1,
-        "year2_taken": 2,
+        "year2_taken": 1,
         "late_101plus_n": 3,
         "late_101plus_hits": 2,
         "first_QB_round": 3,
@@ -1602,22 +1602,22 @@
        "owner": "cashworth",
        "arms": {
         "optimal": {
-         "tool_total": 1549.14,
+         "tool_total": 1641.14,
          "owner_total": 1528.88,
-         "delta_tool_minus_owner": 20.26,
+         "delta_tool_minus_owner": 112.26,
          "head_to_head": {
-          "tool_weeks_won": 9,
-          "cory_weeks_won": 8,
+          "tool_weeks_won": 10,
+          "cory_weeks_won": 7,
           "ties": 0
          }
         },
         "realistic": {
-         "tool_total": 1340.92,
+         "tool_total": 1449.62,
          "owner_total": 1388.3,
-         "delta_tool_minus_owner": -47.38,
+         "delta_tool_minus_owner": 61.32,
          "head_to_head": {
-          "tool_weeks_won": 7,
-          "cory_weeks_won": 10,
+          "tool_weeks_won": 10,
+          "cory_weeks_won": 7,
           "ties": 0
          }
         }
@@ -1627,13 +1627,13 @@
         "11635",
         "12526",
         "1466",
-        "1479",
         "2216",
         "4018",
         "4137",
         "4217",
         "4881",
         "4984",
+        "7588",
         "8136",
         "9224"
        ],
@@ -1643,7 +1643,7 @@
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 13,
-        "value_over_slot": -93.23,
+        "value_over_slot": -3.03,
         "rookies_taken": 1,
         "year2_taken": 1,
         "late_101plus_n": 3,
@@ -1656,19 +1656,19 @@
        "owner": "Jreis",
        "arms": {
         "optimal": {
-         "tool_total": 1562.36,
+         "tool_total": 1463.86,
          "owner_total": 1550.28,
-         "delta_tool_minus_owner": 12.08,
+         "delta_tool_minus_owner": -86.42,
          "head_to_head": {
-          "tool_weeks_won": 11,
-          "cory_weeks_won": 6,
+          "tool_weeks_won": 7,
+          "cory_weeks_won": 10,
           "ties": 0
          }
         },
         "realistic": {
-         "tool_total": 1454.02,
+         "tool_total": 1411.12,
          "owner_total": 1363.68,
-         "delta_tool_minus_owner": 90.34,
+         "delta_tool_minus_owner": 47.44,
          "head_to_head": {
           "tool_weeks_won": 11,
           "cory_weeks_won": 6,
@@ -1680,24 +1680,24 @@
         "10222",
         "11566",
         "11604",
-        "1479",
         "4018",
         "4144",
         "4881",
         "5850",
         "5859",
+        "7528",
         "7594",
         "8136",
         "8138",
         "9756"
        ],
-       "shadowed_picks": 4,
+       "shadowed_picks": 5,
        "forced_picks": 0,
        "owner_rookie_picks_invisible_to_board": 0,
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 12,
-        "value_over_slot": -271.38,
+        "value_over_slot": -396.38,
         "rookies_taken": 0,
         "year2_taken": 2,
         "late_101plus_n": 3,
@@ -1872,9 +1872,9 @@
        "owner": "Richard2121",
        "arms": {
         "optimal": {
-         "tool_total": 1675.12,
+         "tool_total": 1745.52,
          "owner_total": 1944.1,
-         "delta_tool_minus_owner": -268.98,
+         "delta_tool_minus_owner": -198.58,
          "head_to_head": {
           "tool_weeks_won": 3,
           "cory_weeks_won": 14,
@@ -1882,12 +1882,12 @@
          }
         },
         "realistic": {
-         "tool_total": 1523.98,
+         "tool_total": 1577.78,
          "owner_total": 1667.0,
-         "delta_tool_minus_owner": -143.02,
+         "delta_tool_minus_owner": -89.22,
          "head_to_head": {
-          "tool_weeks_won": 4,
-          "cory_weeks_won": 13,
+          "tool_weeks_won": 6,
+          "cory_weeks_won": 11,
           "ties": 0
          }
         }
@@ -1900,7 +1900,7 @@
         "4892",
         "4983",
         "5927",
-        "7525",
+        "6790",
         "7569",
         "8130",
         "8136",
@@ -1912,7 +1912,7 @@
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 9,
-        "value_over_slot": -92.19,
+        "value_over_slot": -43.39,
         "rookies_taken": 1,
         "year2_taken": 1,
         "late_101plus_n": 2,
@@ -1925,22 +1925,22 @@
        "owner": "Schmelley",
        "arms": {
         "optimal": {
-         "tool_total": 1629.9,
+         "tool_total": 1565.7,
          "owner_total": 1856.34,
-         "delta_tool_minus_owner": -226.44,
+         "delta_tool_minus_owner": -290.64,
          "head_to_head": {
-          "tool_weeks_won": 3,
-          "cory_weeks_won": 14,
+          "tool_weeks_won": 2,
+          "cory_weeks_won": 15,
           "ties": 0
          }
         },
         "realistic": {
-         "tool_total": 1458.86,
+         "tool_total": 1476.86,
          "owner_total": 1458.78,
-         "delta_tool_minus_owner": 0.08,
+         "delta_tool_minus_owner": 18.08,
          "head_to_head": {
-          "tool_weeks_won": 9,
-          "cory_weeks_won": 8,
+          "tool_weeks_won": 8,
+          "cory_weeks_won": 9,
           "ties": 0
          }
         }
@@ -1948,25 +1948,25 @@
        "tool_roster": [
         "10222",
         "11566",
-        "1479",
         "4018",
         "4144",
         "4217",
         "4866",
         "4892",
         "5045",
+        "7528",
         "7611",
         "8136",
         "8155",
         "9493"
        ],
-       "shadowed_picks": 5,
+       "shadowed_picks": 6,
        "forced_picks": 0,
        "owner_rookie_picks_invisible_to_board": 0,
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 11,
-        "value_over_slot": -130.42,
+        "value_over_slot": -255.42,
         "rookies_taken": 0,
         "year2_taken": 1,
         "late_101plus_n": 3,
@@ -1979,31 +1979,31 @@
        "owner": "Sadbru",
        "arms": {
         "optimal": {
-         "tool_total": 1348.76,
+         "tool_total": 1405.06,
          "owner_total": 1592.6,
-         "delta_tool_minus_owner": -243.84,
+         "delta_tool_minus_owner": -187.54,
          "head_to_head": {
-          "tool_weeks_won": 5,
-          "cory_weeks_won": 12,
+          "tool_weeks_won": 3,
+          "cory_weeks_won": 14,
           "ties": 0
          }
         },
         "realistic": {
-         "tool_total": 1286.82,
+         "tool_total": 1331.92,
          "owner_total": 1404.58,
-         "delta_tool_minus_owner": -117.76,
+         "delta_tool_minus_owner": -72.66,
          "head_to_head": {
-          "tool_weeks_won": 7,
-          "cory_weeks_won": 10,
+          "tool_weeks_won": 9,
+          "cory_weeks_won": 8,
           "ties": 0
          }
         }
        },
        "tool_roster": [
         "11566",
+        "1466",
         "3321",
         "4018",
-        "4033",
         "4035",
         "4144",
         "4881",
@@ -2020,21 +2020,41 @@
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 12,
-        "value_over_slot": -447.87,
+        "value_over_slot": -367.17,
         "rookies_taken": 0,
         "year2_taken": 1,
         "late_101plus_n": 4,
         "late_101plus_hits": 1,
         "first_QB_round": 2,
-        "first_TE_round": 7
+        "first_TE_round": 6
        }
       }
      },
      "league_summary": {
       "optimal": {
        "owners_tool_beats": [
+        "MarianSaar",
+        "cashworth"
+       ],
+       "owners_beating_tool": [
+        "B8T3S",
+        "Jreis",
+        "Richard2121",
+        "Sadbru",
+        "Schmelley",
+        "coryjsimms",
+        "ds7mmet",
+        "mhagen"
+       ],
+       "beats_n_of_10": 2,
+       "median_owner_delta": -161.87,
+       "cory_delta": -1.46
+      },
+      "realistic": {
+       "owners_tool_beats": [
         "Jreis",
         "MarianSaar",
+        "Schmelley",
         "cashworth",
         "coryjsimms"
        ],
@@ -2042,32 +2062,12 @@
         "B8T3S",
         "Richard2121",
         "Sadbru",
-        "Schmelley",
         "ds7mmet",
         "mhagen"
        ],
-       "beats_n_of_10": 4,
-       "median_owner_delta": -116.32,
-       "cory_delta": 69.14
-      },
-      "realistic": {
-       "owners_tool_beats": [
-        "Jreis",
-        "MarianSaar",
-        "Schmelley",
-        "coryjsimms",
-        "ds7mmet"
-       ],
-       "owners_beating_tool": [
-        "B8T3S",
-        "Richard2121",
-        "Sadbru",
-        "cashworth",
-        "mhagen"
-       ],
        "beats_n_of_10": 5,
-       "median_owner_delta": -23.65,
-       "cory_delta": 141.52
+       "median_owner_delta": -16.22,
+       "cory_delta": 67.42
       }
      }
     },
@@ -2105,7 +2105,7 @@
       },
       "players_escalated": 51
      },
-     "projection_coverage": 506,
+     "projection_coverage": 508,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -2694,7 +2694,7 @@
       "rookies_added": 85,
       "players_escalated": 51
      },
-     "projection_coverage": 591,
+     "projection_coverage": 593,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -3296,7 +3296,7 @@
    "configs": {
     "baseline": {
      "meta": {},
-     "projection_coverage": 497,
+     "projection_coverage": 500,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -4763,7 +4763,7 @@
       },
       "rookies_added": 77
      },
-     "projection_coverage": 574,
+     "projection_coverage": 577,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -5381,7 +5381,7 @@
       },
       "players_escalated": 54
      },
-     "projection_coverage": 497,
+     "projection_coverage": 500,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -5971,7 +5971,7 @@
       "rookies_added": 77,
       "players_escalated": 54
      },
-     "projection_coverage": 574,
+     "projection_coverage": 577,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -6193,19 +6193,19 @@
        "owner": "B8T3S",
        "arms": {
         "optimal": {
-         "tool_total": 1733.98,
+         "tool_total": 1733.18,
          "owner_total": 1677.18,
-         "delta_tool_minus_owner": 56.8,
+         "delta_tool_minus_owner": 56.0,
          "head_to_head": {
-          "tool_weeks_won": 9,
-          "cory_weeks_won": 8,
+          "tool_weeks_won": 10,
+          "cory_weeks_won": 7,
           "ties": 0
          }
         },
         "realistic": {
-         "tool_total": 1531.16,
+         "tool_total": 1519.96,
          "owner_total": 1421.76,
-         "delta_tool_minus_owner": 109.4,
+         "delta_tool_minus_owner": 98.2,
          "head_to_head": {
           "tool_weeks_won": 10,
           "cory_weeks_won": 7,
@@ -6215,10 +6215,10 @@
        },
        "tool_roster": [
         "10859",
+        "11620",
         "1479",
         "1689",
         "2309",
-        "2374",
         "4663",
         "5844",
         "6130",
@@ -6228,14 +6228,14 @@
         "9221",
         "9758"
        ],
-       "shadowed_picks": 2,
+       "shadowed_picks": 3,
        "forced_picks": 0,
        "owner_rookie_picks_invisible_to_board": 0,
        "owner_unknown_position_excluded": [],
        "tool_behavior": {
         "n_live_picks": 10,
-        "value_over_slot": -48.5,
-        "rookies_taken": 0,
+        "value_over_slot": -26.1,
+        "rookies_taken": 1,
         "year2_taken": 2,
         "late_101plus_n": 3,
         "late_101plus_hits": 0,
@@ -6575,7 +6575,7 @@
    "configs": {
     "baseline": {
      "meta": {},
-     "projection_coverage": 478,
+     "projection_coverage": 481,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -8042,7 +8042,7 @@
       },
       "rookies_added": 80
      },
-     "projection_coverage": 558,
+     "projection_coverage": 561,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -8658,7 +8658,7 @@
       },
       "players_escalated": 27
      },
-     "projection_coverage": 478,
+     "projection_coverage": 481,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -9247,7 +9247,7 @@
       "rookies_added": 80,
       "players_escalated": 27
      },
-     "projection_coverage": 558,
+     "projection_coverage": 561,
      "seats": {
       "1": {
        "owner": "coryjsimms",
@@ -10044,76 +10044,76 @@
     "owner": "coryjsimms",
     "optimal": {
      "per_year": {
-      "2025": 69.14,
+      "2025": -1.46,
       "2024": -68.6,
       "2023": -122.08
      },
-     "mean_delta": -40.51
+     "mean_delta": -64.05
     },
     "realistic": {
      "per_year": {
-      "2025": 141.52,
+      "2025": 67.42,
       "2024": -7.94,
       "2023": -99.78
      },
-     "mean_delta": 11.27
+     "mean_delta": -13.43
     }
    },
    "2": {
     "owner": "ds7mmet",
     "optimal": {
      "per_year": {
-      "2025": -60.08,
+      "2025": -151.18,
       "2024": -128.68,
       "2023": -249.66
      },
-     "mean_delta": -146.14
+     "mean_delta": -176.51
     },
     "realistic": {
      "per_year": {
-      "2025": 19.48,
+      "2025": -50.52,
       "2024": -161.74,
       "2023": -285.02
      },
-     "mean_delta": -142.43
+     "mean_delta": -165.76
     }
    },
    "3": {
     "owner": "cashworth",
     "optimal": {
      "per_year": {
-      "2025": 20.26,
+      "2025": 112.26,
       "2024": 5.94,
       "2023": 24.68
      },
-     "mean_delta": 16.96
+     "mean_delta": 47.63
     },
     "realistic": {
      "per_year": {
-      "2025": -47.38,
+      "2025": 61.32,
       "2024": -66.96,
       "2023": 19.34
      },
-     "mean_delta": -31.67
+     "mean_delta": 4.57
     }
    },
    "4": {
     "owner": "Jreis",
     "optimal": {
      "per_year": {
-      "2025": 12.08,
+      "2025": -86.42,
       "2024": 231.8,
       "2023": 228.64
      },
-     "mean_delta": 157.51
+     "mean_delta": 124.67
     },
     "realistic": {
      "per_year": {
-      "2025": 90.34,
+      "2025": 47.44,
       "2024": 135.34,
       "2023": 223.54
      },
-     "mean_delta": 149.74
+     "mean_delta": 135.44
     }
    },
    "5": {
@@ -10177,69 +10177,69 @@
     "owner": "Richard2121",
     "optimal": {
      "per_year": {
-      "2025": -268.98,
+      "2025": -198.58,
       "2024": 256.98,
       "2023": 175.42
      },
-     "mean_delta": 54.47
+     "mean_delta": 77.94
     },
     "realistic": {
      "per_year": {
-      "2025": -143.02,
+      "2025": -89.22,
       "2024": 153.82,
       "2023": 137.68
      },
-     "mean_delta": 49.49
+     "mean_delta": 67.43
     }
    },
    "9": {
     "owner": "Schmelley",
     "optimal": {
      "per_year": {
-      "2025": -226.44,
+      "2025": -290.64,
       "2024": 100.02,
       "2023": -311.88
      },
-     "mean_delta": -146.1
+     "mean_delta": -167.5
     },
     "realistic": {
      "per_year": {
-      "2025": 0.08,
+      "2025": 18.08,
       "2024": 84.32,
       "2023": -191.24
      },
-     "mean_delta": -35.61
+     "mean_delta": -29.61
     }
    },
    "10": {
     "owner": "Sadbru",
     "optimal": {
      "per_year": {
-      "2025": -243.84,
+      "2025": -187.54,
       "2024": 60.8,
       "2023": -162.68
      },
-     "mean_delta": -115.24
+     "mean_delta": -96.47
     },
     "realistic": {
      "per_year": {
-      "2025": -117.76,
+      "2025": -72.66,
       "2024": 65.88,
       "2023": -155.24
      },
-     "mean_delta": -69.04
+     "mean_delta": -54.01
     }
    },
    "_summary": {
     "optimal": {
      "beats_n_of_10_pooled": 3,
-     "median_owner_mean_delta": -69.62,
-     "cory_mean_delta": -40.51
+     "median_owner_mean_delta": -77.59,
+     "cory_mean_delta": -64.05
     },
     "realistic": {
      "beats_n_of_10_pooled": 4,
-     "median_owner_mean_delta": -32.09,
-     "cory_mean_delta": 11.27
+     "median_owner_mean_delta": -21.52,
+     "cory_mean_delta": -13.43
     }
    }
   },
@@ -10529,18 +10529,18 @@
     "optimal": {
      "per_year": {
       "2025": -104.4,
-      "2024": 56.8,
+      "2024": 56.0,
       "2023": -101.28
      },
-     "mean_delta": -49.63
+     "mean_delta": -49.89
     },
     "realistic": {
      "per_year": {
       "2025": -68.72,
-      "2024": 109.4,
+      "2024": 98.2,
       "2023": 15.66
      },
-     "mean_delta": 18.78
+     "mean_delta": 15.05
     }
    },
    "6": {
@@ -10658,21 +10658,21 @@
     "2025": {
      "optimal": {
       "cory_delta_baseline": -16.86,
-      "cory_delta_layer": 69.14,
-      "cory_gap_change": 86.0,
+      "cory_delta_layer": -1.46,
+      "cory_gap_change": 15.4,
       "beats_n_baseline": 0,
-      "beats_n_layer": 4,
+      "beats_n_layer": 2,
       "median_owner_delta_baseline": -187.42,
-      "median_owner_delta_layer": -116.32
+      "median_owner_delta_layer": -161.87
      },
      "realistic": {
       "cory_delta_baseline": 77.92,
-      "cory_delta_layer": 141.52,
-      "cory_gap_change": 63.6,
+      "cory_delta_layer": 67.42,
+      "cory_gap_change": -10.5,
       "beats_n_baseline": 4,
       "beats_n_layer": 5,
       "median_owner_delta_baseline": -51.95,
-      "median_owner_delta_layer": -23.65
+      "median_owner_delta_layer": -16.22
      }
     },
     "2024": {
@@ -10719,15 +10719,15 @@
    "pooled": {
     "optimal": {
      "cory_mean_delta_baseline": -65.65,
-     "cory_mean_delta_layer": -40.51,
-     "cory_gap_change": 25.14,
+     "cory_mean_delta_layer": -64.05,
+     "cory_gap_change": 1.6,
      "beats_n_pooled_baseline": 3,
      "beats_n_pooled_layer": 3
     },
     "realistic": {
      "cory_mean_delta_baseline": -6.53,
-     "cory_mean_delta_layer": 11.27,
-     "cory_gap_change": 17.8,
+     "cory_mean_delta_layer": -13.43,
+     "cory_gap_change": -6.9,
      "beats_n_pooled_baseline": 2,
      "beats_n_pooled_layer": 4
     }
@@ -11046,11 +11046,11 @@
  ],
  "roster_status_verification": {
   "claim_verified": "the live 2026 board already carries roster status \u2014 the Brady-2023 pathology is a walk-forward artifact, not a live defect; this edge is already priced live and no layer is built for it",
-  "board_built_at": "2026-08-15T17:52:22Z",
-  "board_players": 677,
+  "board_built_at": "2026-08-16T14:10:12Z",
+  "board_players": 682,
   "players_with_null_team": 0,
   "teamless_players_carrying_projection": [],
-  "players_with_depth_chart_order": 538,
+  "players_with_depth_chart_order": 542,
   "verified": true
  },
  "drafter_study": {
