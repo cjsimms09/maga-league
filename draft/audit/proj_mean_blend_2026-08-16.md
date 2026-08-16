@@ -9,7 +9,7 @@ governs produced a number. Commit order is the proof: `20e30415` → `b5d6798e`
 **Artifact:** `draft/backtest/proj_mean_blend.json`.
 **Runner:** `draft/backtest/proj_mean_blend.py`. **Tests:** 30 in
 `draft/tests/test_proj_mean_blend.py`, every gate two-armed.
-**Suites at this commit:** Python **2777 passed, 5 skipped, 6 deselected**;
+**Suites at this commit:** Python **2783 passed, 5 skipped, 6 deselected**;
 JS **307 entry points, 0 failures**.
 
 ---
@@ -70,6 +70,13 @@ written it down three separate times, and each time drew the same consequence:
 exactly this reason.** The gate is not bureaucracy in the way of a good idea; it
 is a statement that the evidence does not exist yet, and running the test is what
 proved the gate right rather than merely quoting it.
+
+**Stated so no reader assumes they were quietly dropped: the preregistered
+metrics were never computed.** Spearman, top-12/24/48 precision and MAE — for
+arms A0 (Sleeper alone), A1 (equal-weight), A2 (accuracy-weighted) and A3
+(position-weighted) — have **no numbers in this document**, because there is no
+per-player data to compute them from. That is the refusal, not an omission. A
+table here would have had to be built from a substituted source.
 
 **What I did NOT do, deliberately:** substitute FantasyPros for Sleeper as "the
 professional consensus" and grade *that* while calling it the ruled test. The
@@ -442,6 +449,11 @@ The brief asked that these be kept distinct rather than duplicated. As shipped:
 - **There is NO valuation blend, and that is the outcome of this study.**
   `proj_mean` remains `Sleeper baseline × (1 + opportunity_adj)`. Nothing was
   duplicated because nothing was built.
+- **There is consequently no flag to revert and no rollback path to document.**
+  The brief required that a shipped blend be reversible by one obvious edit;
+  the reversibility question does not arise, because the build path never
+  gained a blend. The one behavioural change in this work is §6's added raw
+  column, whose reversal is deleting one call to `attach_sleeper_column`.
 - The blend logic that *was* written lives only in
   `draft/backtest/proj_mean_blend.py`, is off the build path, is imported by no
   shipped surface, and exists to be graded when the evidence arrives.
@@ -483,9 +495,13 @@ swap, in these words:
 > it captures the one thing pros are doing that we structurally can't buy. Let's
 > do it"*
 
-and, on coverage:
+on coverage:
 
 > *"Can we use sleeper or fantasy pros on rookies, k and def"*
+
+and on weighting:
+
+> *"I want to use whatever version of model has proven superior at this point!!"*
 
 **The override is recorded and it was executed — the work was done, the test was
 built, and the answer came back REFUSE.** Nothing in REC-2's documentation has
@@ -495,8 +511,12 @@ it**: REC-2 gates `proj_mean`'s composition on the January 2027 Sleeper grade
 precisely because Sleeper's skill is unmeasurable until then, and that is the
 exact wall this study hit.
 
-`proj_mean` stays single-source Sleeper. No provenance surface needs correcting,
-because none of them was made to say anything untrue.
+`proj_mean` stays single-source Sleeper. **No surface was made to say anything
+untrue by this work** — and one that was already saying something untrue before
+it (`consensus_sources`, asserting 2 while three columns attach) is corrected in
+§7, together with an explicit statement of what `proj_mean` is, so the record
+carries the override *and* its refusal rather than leaving a future reader to
+reconstruct them.
 
 ## 9. WHAT WOULD CHANGE THE ANSWER
 
