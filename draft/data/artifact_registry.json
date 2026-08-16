@@ -121,6 +121,22 @@
       "artifact_path": "draft/backtest/model_accuracy_v6.json",
       "compare_keys": ["arm_2025.models.own_v6.cells"],
       "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport props_season_projection as P\nfrom model_accuracy_backtest import positions_record\nfrom own_model_v2 import _grade_models, board_ages\npositions = positions_record()\nages = board_ages()\nv6_pred = P._v6_predictions(positions, ages)\ngot = _grade_models({'own_v6': v6_pred}, P.GRADED_SEASON, positions)\nprint(json.dumps({'arm_2025': {'models': {'own_v6': {'cells': got['models']['own_v6']['cells']}}}}))"]
+    },
+    {
+      "id": "pace_study",
+      "description": "Pace of play §3/§4/§4b: year-over-year persistence of eight team-pace metrics (the GATE that ended the study), their orthogonality to the week-1 implied team total, and the tempo->plays mechanism chain. Reads ONLY the committed team_pace and vegas stores and never the live board, so this entry is normally FRESH — a STALE here means one of those two stores moved, which is a different and louder event than nightly board drift.",
+      "owner_module": "draft/backtest/pace_study.py",
+      "artifact_path": "draft/backtest/pace_study.json",
+      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport pace_study as P\nprint(json.dumps(P.run()))"],
+      "timeout_s": 900
+    },
+    {
+      "id": "pace_arm",
+      "description": "Pace of play §5: own_v6 plus a tempo tilt at RB/WR/TE, graded on the 2025 fold. Depends on the LIVE board (positions and ages) through own_model_v2's features, so it drifts with the nightly rebuild exactly as own_model_v2-v6 do — STALE is expected here for the same reason it is expected there.",
+      "owner_module": "draft/backtest/pace_arm.py",
+      "artifact_path": "draft/backtest/pace_arm.json",
+      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport pace_arm as A\nprint(json.dumps(A.run()))"],
+      "timeout_s": 1800
     }
   ],
   "_not_yet_migrated": [
