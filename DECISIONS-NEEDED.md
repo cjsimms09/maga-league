@@ -73,6 +73,25 @@ same session: see Settled below)*
 - Historical-props season-total study: harness built and tested against
   fixtures, NO real data fetched yet, nothing to rule on — see § "HISTORICAL
   PLAYER-PROPS STUDY" below.
+- **[NEW 2026-08-16, weekly props study] `props_weekly_v1` is built,
+  fixture-tested, and merge-ready — NOT a ruling yet, OPEN note only.**
+  Cory's split ("one for season projections for draft and another for
+  weekly projections specific to that week?") is answered on the weekly
+  side: a new study arm prices a week directly from that week's fetched
+  player-prop O/U lines, graded through `weekly_own_grade.py`'s existing
+  provider-study pathway (own_population + shared_with_ours, never
+  auto-promoted). The pipeline is proven end-to-end against a synthetic
+  fixture with known injected answers; `draft/data/props/` is EMPTY —
+  **no real weekly MAE/Spearman exists, no verdict is being requested.**
+  The preregistered question (does `props_weekly_v1` beat the champion on
+  weekly MAE, by how much, by position) is stated in
+  `draft/audit/weekly_props_study_2026-08-16.md` §4, BEFORE any real
+  grading, per `draft/audit/league_benchmark_2026-08-16.md` §9's
+  evidence-quality bar (a recent "CLEARS" claim there did not reproduce —
+  this study preregisters rather than repeat that). The only ask: a human
+  dispatch of `weekly-props-fetch.yml` for real, coordinated with the
+  season-total props study so the two do not double-spend the shared
+  `ODDS_API_KEY` credit pool — see `ROUTES.md` TO:A.
 
 ## Settled today (rulings made; records, not questions)
 
