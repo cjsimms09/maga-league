@@ -84,6 +84,40 @@ SERIES_TO_STAT = {
     "KXNFLSEASONRSHTD": "rush_td",
 }
 
+#: GAME-LEVEL (weekly) player series. Cory, 2026-08-16: "Let's make sure the
+#: Kalshi weekly get built when it can! Do not forget."
+#:
+#: SELF-ACTIVATING BY DESIGN — this is the whole point. On 2026-08-16 every one
+#: of these carried ZERO current-season events (the only live KXNFLANYTD events
+#: were January 2026 playoff games), because books post game markets days, not
+#: months, ahead. Rather than leave a note for a human to remember in
+#: September, `fetch_weekly` runs against these EVERY DAY and records an honest
+#: empty capture until the events appear — at which point it simply starts
+#: returning data with no human action at all. A calendar reminder is a promise;
+#: a daily job that already works is a mechanism.
+#:
+#: These feed the WEEKLY loop (weekly_own_grade.py's champion/challenger), not
+#: the draft. Different question, different data — Cory's own distinction.
+WEEKLY_SERIES = {
+    "KXNFLANYTD": "anytime touchdown (per game)",
+    "KXNFLPASSYDS": "passing yards (per game)",
+    "KXNFLRSHYDS": "rushing yards (per game)",
+    "KXNFLPASSTDS": "passing touchdowns (per game)",
+    "KXNFLPASSCOMP": "passing completions (per game)",
+    "KXNFLPASSINT": "passing interceptions (per game)",
+    "KXNFLRSHATT": "rushing ATTEMPTS — pure volume, i.e. role",
+    "KXNFLGAMETD": "touchdowns (per game)",
+    "KXNFL2TD": "multiple touchdowns (per game)",
+    # THE TWO THAT MAY MATTER MOST, and that no projection model we own can
+    # produce: market-priced player AVAILABILITY. The 2026-08-16 start/sit
+    # study found QB is our worst slot (.4935 accuracy — below a coin flip —
+    # forfeiting ~390 of ~1,130 bench points), and QB outcomes hinge on who
+    # actually suits up. A live P(plays) aims straight at our measured
+    # weakest point.
+    "KXNFLWEEKCOMPETE": "will a player PLAY this week (availability)",
+    "KXNFLCOMPETE": "will a player compete in a game (availability)",
+}
+
 #: Deliberately EXCLUDED, with reasons, so a future reader does not "helpfully"
 #: add them back:
 #:   KXNFLFFLEADER / KXNFLFFTOP — "#1 ranked fantasy X" is a WINNER-TAKE-ALL
@@ -336,12 +370,80 @@ def fetch_all() -> dict:
     return out
 
 
+def fetch_weekly() -> dict:
+    """Game-level player markets, captured raw.
+
+    Runs every day and returns an HONEST EMPTY capture until Kalshi lists
+    current-season events — which is the mechanism that stops "build the
+    weekly capture in September" from depending on anyone remembering. When
+    the markets appear, this starts producing data by itself.
+
+    Deliberately does NOT reshape rows into ladders. The season series were
+    verified live and their ticker grammar is known; these were dormant when
+    this was written, so their real shape is UNCONFIRMED. Inventing a parse
+    for markets nobody has seen is exactly the error that cost us the
+    anytime-TD column today (a converter written against an assumed odds
+    format, shipped, and wrong by 21-33x). Store raw, parse once the real
+    shape is in front of us."""
+    out, errors = {}, {}
+    for series in sorted(WEEKLY_SERIES):
+        try:
+            body = _get(f"/markets?series_ticker={series}&limit=1000")
+        except Exception as e:  # noqa: BLE001
+            errors[series] = f"{type(e).__name__}: {e}"
+            continue
+        rows = body.get("markets") or []
+        out[series] = {
+            "description": WEEKLY_SERIES[series],
+            "market_count": len(rows),
+            "statuses": dict(collections.Counter(m.get("status") for m in rows)),
+            "markets": rows,
+        }
+    live = {k: v["market_count"] for k, v in out.items() if v["market_count"]}
+    return {
+        "_territory": "TERRITORY: A — produced by draft/tools/fetch_kalshi.py",
+        "_note": ("Kalshi GAME-LEVEL player markets, stored RAW and unparsed. "
+                  "Feeds the weekly loop, not the draft. An empty capture is a "
+                  "real result, not a failure: these series carry no events "
+                  "until the season is close."),
+        "captured_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+        "source": "api.elections.kalshi.com /trade-api/v2 (public, no key)",
+        "series_polled": sorted(WEEKLY_SERIES),
+        "series_with_markets": live,
+        "any_live": bool(live),
+        "errors": errors,
+        "by_series": out,
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("fetch", help="capture today's ladders (free, no key)")
+    p = sub.add_parser("fetch", help="capture today's season ladders (free)")
     p.add_argument("--out-dir", type=str, default=None)
+    pw = sub.add_parser("fetch-weekly",
+                        help="poll the game-level series; empty until they open")
+    pw.add_argument("--out-dir", type=str, default=None)
     args = ap.parse_args()
+
+    if args.cmd == "fetch-weekly":
+        doc = fetch_weekly()
+        out_dir = Path(args.out_dir) if args.out_dir else OUT_DIR
+        out_dir.mkdir(parents=True, exist_ok=True)
+        day = doc["captured_at"][:10]
+        if not doc["any_live"]:
+            # Do NOT write a file per day while dormant — that is 25 days of
+            # identical empty artifacts before the season. Report and exit 0;
+            # dormancy is the expected state, not an error.
+            print(f"weekly: no live markets yet ({len(doc['series_polled'])} series polled)")
+            if doc["errors"]:
+                print(f"  errors: {doc['errors']}")
+            return 0
+        path = out_dir / f"weekly_markets_{day}.json"
+        path.write_text(json.dumps(doc, indent=1))
+        print(f"WEEKLY MARKETS ARE LIVE — wrote {path}")
+        print(f"  series with markets: {doc['series_with_markets']}")
+        return 0
 
     if args.cmd == "fetch":
         doc = fetch_all()
