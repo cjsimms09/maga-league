@@ -23,20 +23,26 @@ acceptances (v4 then v6 — v6 = v4's QB arm + component-built RB/WR/TE arms,
 cleared the REC-3 bar at all four positions). Five design/model passes ran as
 agents and are merged on the relay branch: war room, in-season tools, member
 site, side bets, draft-behavior. Betting-market capture is LIVE (SportsGameOdds,
-Thu+Sun cron, first snapshot committed to main). The draft is **Saturday the
-22nd**; the weekly-grading cron deadline (~Sep 1) still stands RED in STATUS.md.
+Thu+Sun cron, first snapshot committed to main). A Cory-commissioned external
+persistence audit (2026-08-16) found 3 HIGH + 3 MEDIUM app-storage defects —
+all six are fixed red-then-green on the relay branch (lost-update races on the
+ledger/owners docs, the standings editor silently saving partial draft-order
+input, cron secrets in query strings, the seeding race, a starter-password
+census; `draft/audit/persistence_hardening_2026-08-16.md`). The draft is
+**Saturday the 22nd**; the weekly-grading cron deadline (~Sep 1) still stands
+RED in STATUS.md.
 
 ## 2. WHERE THE WORK LIVES
 
 - **Relay branch** `claude/fantasy-football-research-926y6z` — everything.
-  Suites green at tip: ~2380 Python / 287 JS entry points;
+  Suites green at tip: ~2430 Python / 298 JS entry points;
   `scripts/verify-relay-session.sh` is 7/7 and is the branch's own proof.
 - **Main** got only: board-rebuild fixes (authorised, recorded), config-check +
   key-probe workflows, and the odds capture (fetcher, workflow, tests,
   first snapshot). Nothing else was pushed to main.
 - **The record files:** `TODO.md` (current state), `DECISIONS-NEEDED.md`
   (rulings + queue — ZERO open calls), `TERRITORY.md` Override #5 (+appendices,
-  every one of the 39 B/C-lane crossings documented), audit docs under
+  every one of the 45 B/C-lane crossings documented), audit docs under
   `draft/audit/*_2026-08-16.md` (one per pass, with before/after screenshots
   under `draft/audit/screens/`).
 
@@ -48,7 +54,7 @@ Thu+Sun cron, first snapshot committed to main). The draft is **Saturday the
 2. The merge to main is YOUR deliberate act: `scripts/merge-relay.sh`
    (verify → local merge → suites on the merged tree → STOPS before push).
    The territory gate WILL refuse the branch — that refusal is correct and
-   is pinned to exactly the 39 documented files (Override #5). Bypassing it
+   is pinned to exactly the 45 documented files (Override #5). Bypassing it
    knowingly for this branch is the documented, Cory-authorised path.
 3. After merge: the relay keeps working per `RELAY-PROTOCOL.md` § post-merge —
    one-concern branches off fresh main, nothing lands without your review or
