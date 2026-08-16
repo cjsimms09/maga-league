@@ -101,6 +101,29 @@ def record(entry: dict) -> dict:
     """Append ONE pick. Refuses a duplicate rather than overwriting it."""
     fz = _freeze()
     rows = _rows()
+
+    # ── THE FREEZE CHANGED UNDER A LIVE LOG (chaos drill, 2026-08-16). ──────
+    #
+    # Before this guard, swapping the freeze mid-draft was SILENT at append
+    # time: `record` happily wrote new rows carrying the NEW sha into a log
+    # whose earlier rows carry the OLD one, and only `--status` — whose exit
+    # code nothing on the draft-night path enforces — would mention the mix
+    # afterwards. A log spanning two boards looks exactly like a good one and
+    # grades nothing, which is the precise failure the per-row sha exists to
+    # catch. So the mismatch now refuses AT THE MOMENT OF APPEND, where the
+    # operator is watching, instead of in a report nobody is required to read.
+    if rows:
+        prev_sha = rows[-1].get("freeze_sha256")
+        cur_sha = fz["_sha256_of_payload"]
+        if prev_sha and prev_sha != cur_sha:
+            raise SystemExit(
+                "REFUSING: the freeze on disk (sha %s…) is NOT the freeze this "
+                "log's %d existing rows are joined to (%s…). The freeze changed "
+                "mid-draft — a log spanning two boards looks fine and grades "
+                "nothing. Restore the original freeze, or move this log aside "
+                "and re-freeze, before logging another pick."
+                % (cur_sha[:12], len(rows), prev_sha[:12]))
+
     pick = int(entry["pick"])
 
     seen = {r["pick"] for r in rows}
@@ -209,10 +232,47 @@ def sync(picks: list, *, slot_to_roster: dict | None = None) -> dict:
     night.
     """
     fz = _freeze()
+
+    # ── A MALFORMED PAYLOAD MUST REFUSE BY NAME, NOT CRASH MID-EXPRESSION ──
+    #
+    # Chaos drill, 2026-08-16. Sleeper answering with an error object
+    # ({"error": ...} parses as JSON!) crashed here as
+    # `AttributeError: 'str' object has no attribute 'get'` — a traceback
+    # pointing at a dict-iteration accident three calls from the cause. A
+    # non-integer pick_no died the same way (`ValueError: invalid literal`).
+    # On draft night both surface in the workflow log as bare tracebacks that
+    # name neither Sleeper nor the offending entry. Refuse loudly instead;
+    # the poll loop retries, which is the correct response to a bad read.
+    if not isinstance(picks, list):
+        raise SystemExit(
+            "REFUSING: Sleeper's picks payload is %s, not a list of picks. An "
+            "error body ({\"error\": ...}) or a truncated/garbage response "
+            "parses as JSON too — it must not be treated as draft data. "
+            "Payload head: %r. The next poll retries."
+            % (type(picks).__name__, str(picks)[:200]))
+    bad_shape = [p for p in picks if not isinstance(p, dict)]
+    if bad_shape:
+        raise SystemExit(
+            "REFUSING: %d entr%s in Sleeper's picks payload are not pick "
+            "objects (first: %r). A half-garbage list is a broken read, not a "
+            "draft. The next poll retries."
+            % (len(bad_shape), "y" if len(bad_shape) == 1 else "ies",
+               str(bad_shape[0])[:120]))
+
+    def _pick_no(p: dict) -> int:
+        try:
+            return int(p["pick_no"])
+        except (TypeError, ValueError):
+            raise SystemExit(
+                "REFUSING: malformed Sleeper pick — pick_no=%r is not an "
+                "integer (player_id=%r). Refusing the whole payload rather "
+                "than guessing an order for it. The next poll retries."
+                % (p.get("pick_no"), p.get("player_id")))
+
     players = {str(p["player_id"]): p for p in fz["players"]}
-    have = {r["pick"] for r in _rows()}
-    incoming = sorted((p for p in picks if p.get("pick_no")),
-                      key=lambda p: int(p["pick_no"]))
+    # pick number -> the player the log already has there, for conflict checks.
+    have = {r["pick"]: str(r.get("player_id") or "") for r in _rows()}
+    incoming = sorted((p for p in picks if p.get("pick_no")), key=_pick_no)
 
     # ── DO NOT APPEND PAST A GAP. ───────────────────────────────────────────
     #
@@ -228,33 +288,78 @@ def sync(picks: list, *, slot_to_roster: dict | None = None) -> dict:
     # stops at the first hole, which is a wait rather than a failure: the next
     # poll brings the missing pick and the log resumes.
     stop_at = None
+    held_reason = None
     seq = []
+    queued = {}      # pick number -> player_id queued for append THIS pass
+    skipped = 0
+    conflicts = []
     expect = (max(have) + 1) if have else 1
     for p in incoming:
         e = _from_sleeper(p, slot_to_roster or {}, players)
         if e["pick"] in have:
+            skipped += 1
+            # ── SLEEPER CONTRADICTING THE LOG WAS SKIPPED SILENTLY (chaos
+            # drill, 2026-08-16): a re-served pick number carrying a DIFFERENT
+            # player (commissioner undo/redo on Sleeper's side) fell into this
+            # `continue` and vanished — the log stayed out of step with
+            # Sleeper's record forever, with nothing printed. The log is
+            # append-only, so nothing is rewritten here; the disagreement is
+            # REPORTED so the operator can append a correction row on purpose.
+            if have[e["pick"]] and e["player_id"] and have[e["pick"]] != e["player_id"]:
+                conflicts.append({
+                    "pick": e["pick"],
+                    "logged_player_id": have[e["pick"]],
+                    "sleeper_player_id": e["player_id"],
+                    "note": "Sleeper now reports a DIFFERENT player for this "
+                            "already-logged pick (undo/redo?). NOT rewritten — "
+                            "the log is append-only; if Sleeper is right, add "
+                            "a correction row with `supersedes` by hand.",
+                })
             continue
+        if e["pick"] in queued:
+            if queued[e["pick"]] == e["player_id"]:
+                skipped += 1           # the same event twice in one payload
+                continue
+            # Two different players on one pick number is corrupt data, not a
+            # gap — before 2026-08-16 this fell into the gap branch below and
+            # reported "pick N arrived while N+1 is still missing", a hole
+            # that does not exist (and `skipped` went NEGATIVE, a silently
+            # wrong number in the one tool whose job is refusing those).
+            stop_at = e["pick"]
+            held_reason = (
+                f"pick {e['pick']} appears TWICE in this payload with two "
+                f"different players ({queued[e['pick']]} vs {e['player_id']}). "
+                "That is corrupt data, not a gap — nothing at or after it can "
+                "be trusted, so the log holds here until Sleeper serves a "
+                "clean list.")
+            # WITHDRAW the contradicted pick from this pass's queue too:
+            # logging either of two players Sleeper cannot agree on is a
+            # guess, and "holds here" must mean BEFORE the ambiguity.
+            seq = [x for x in seq if x["pick"] < e["pick"]]
+            break
         if e["pick"] != expect:
             stop_at = e["pick"]
+            held_reason = (
+                f"pick {stop_at} arrived while {expect} is still missing. "
+                "Holding: logging past a hole makes the gone-set wrong for "
+                "every row after it. The next poll should fill it.")
             break
         seq.append(e)
+        queued[e["pick"]] = e["player_id"]
         expect += 1
 
     added = []
     for e in seq:
         added.append(record(e)["pick"])
 
-    skipped = len(incoming) - len(added) - (0 if stop_at is None else
-                                            sum(1 for p in incoming
-                                                if int(p["pick_no"]) >= stop_at))
     logged = sorted(r["pick"] for r in _rows())
     return {
         "added": len(added), "skipped": skipped, "logged_total": len(logged),
         "held_at_gap": stop_at,
-        "held_reason": None if stop_at is None else (
-            f"pick {stop_at} arrived while {expect} is still missing. Holding: "
-            "logging past a hole makes the gone-set wrong for every row after "
-            "it. The next poll should fill it."),
+        "held_reason": held_reason,
+        # Always present, usually empty — a missing key is an accident, and a
+        # surface cannot warn on a field that only exists when things go wrong.
+        "pick_conflicts": conflicts,
         "contiguous": logged == list(range(1, len(logged) + 1)),
     }
 
@@ -269,7 +374,13 @@ def sync_live(draft_id: str) -> dict:
     import sleeper_import as si
     drafts = si.fetch_drafts_by_id(draft_id) if hasattr(
         si, "fetch_drafts_by_id") else None
-    picks = si.fetch_draft_picks(draft_id)
+    # live=True BYPASSES sleeper_import's 1-hour on-disk cache. Chaos drill,
+    # 2026-08-16: without it, poll 1 cached the pick list and every poll for
+    # the next HOUR re-read that first snapshot from disk — the draft-night
+    # loop would trail the live draft by up to an hour while cheerfully
+    # reporting added:0, and the 2026-08-15 dry-run rehearsal could not see it
+    # because a COMPLETED draft's pick list never changes between polls.
+    picks = si.fetch_draft_picks(draft_id, live=True)
     if not picks:
         raise SystemExit(
             "REFUSING: Sleeper returned no picks for draft %s. An empty read is "
