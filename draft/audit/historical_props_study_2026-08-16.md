@@ -583,3 +583,86 @@ line — the median-of-`point` path would have silently dropped every row:
    contribution is recoverable; a wrong one is not.
 
 7 new tests pin this math, including the two deliberate approximations.
+
+---
+
+## 11. THE TOUCHDOWN HOLE IS CLOSED (2026-08-16, week-1 draft pull)
+
+Cory: *"We need to fix this"* — the props arm running with no rushing or
+receiving touchdowns. Fixed, and verified on real data rather than assumed.
+
+Budget context he supplied at the same time, which reframes the economics:
+**the ~$59 plan is a ONE-MONTH purchase to buy historical data.** 2026 live
+betting comes from a separate free source. So these credits do not need
+conserving for a future need — there isn't one — and any historical data we
+might ever want must be pulled before the month lapses. Unspent credits are
+wasted money, not saved money.
+
+### 11a. Three clean week-1 pulls
+
+| season | games | health.complete | teams | players | `any_td` rows | credits left |
+|---|---|---|---|---|---|---|
+| 2023 | 16/16 | true | 32/32 | 922 | 912 | 63,691 |
+| 2024 | 16/16 | true | 32/32 | 833 | 833 | 62,724 |
+| 2025 | 16/16 | true | 32/32 | 528 | 527 | 61,757 |
+
+Team coverage independently cross-checked: every quoted player name mapped to
+its team via nflverse rosters, compared against the real week-1 schedule.
+2024's previously-missing BAL/GB/PHI and 2025's DAL/KC/LAC are all present —
+the timestamp-keyed events cache (§9c) is doing its job.
+
+Total cost ~3,150 credits, ~967/season. Measured, not estimated.
+
+**2025 carries notably fewer players (528) than 2023 (922) or 2024 (833)**
+despite all three being 16/16 games and 32/32 teams. Cause unknown —
+possibly a thinner snapshot. Recorded as an observed difference, NOT
+diagnosed as a defect, and flagged to the study agent to temper confidence
+in 2025 rather than silently pooling it.
+
+### 11b. Written to a SEPARATE file, deliberately
+
+`store_path` is now scope-keyed: week-1 lands in
+`historical_props_week1_<season>.json`, the 18-week pull keeps
+`historical_props_<season>.json`. Both previously wrote the same path, so
+firing the ~967-credit week-1 fetch would have **silently overwritten
+~11,800 credits of already-paid 18-week data**. Caught before dispatch, and
+pinned by a test.
+
+This mirrors Cory's own distinction: the week-1 file feeds the DRAFT study
+(season totals from preseason-only information), the 18-week file feeds the
+WEEKLY study. Different questions, different data, different files.
+
+### 11c. The coverage asymmetry is the most interesting thing in the data
+
+```
+2023  any_td 912 | rec_yd 217 | rec 188 | rush_yd 95 | pass_td 36 | pass_yd 36
+2024  any_td 833 | rec_yd 204 | rec 182 | rush_yd 92 | pass_td 31 | pass_yd 31
+```
+
+**Anytime-TD covers roughly 4x more players than every yardage market
+combined.** Books quote a touchdown price on nearly anyone who might touch
+the ball; they quote yardage lines only on obvious starters.
+
+That maps directly onto Cory's stated draft thesis — *"fantasy is won by
+drafting stud players in later rounds"* — because the any_td-only population
+IS the later-round population. The yardage markets only describe players
+already known to be good, i.e. exactly where an edge is least likely. So the
+market that was silently missing all along is the one most likely to carry
+the edge, which makes this an upgrade rather than a patch.
+
+The study is therefore instructed to report metrics BOTH overall AND split by
+"had yardage lines" vs "any_td only".
+
+**Known bias, stated rather than buried:** deep/longshot players are often
+quoted one-sided (Yes only), so `devig_pair` has no No side to normalise
+against and their expected-TD values are biased HIGH. That bias lands
+disproportionately on the any_td-only group — the same group where an edge
+would be most interesting. Any edge found there must be checked against it.
+
+### 11d. What this does to the study's logic
+
+The earlier caveat (§10, and the study agent's original brief) was that a
+props LOSS would be inconclusive because touchdowns were missing. **That
+caveat is retired.** With touchdowns included the comparison is fair, so both
+a win and a loss are now real results, and a null may be published as a clean
+null.
