@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,8 +55,72 @@ FREEZE = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
 # that workflow's own comment) can verify the --sync polling/exit mechanics
 # for real against GitHub Actions without ever writing to the real 2026 pick
 # log — the default here is completely unchanged for every normal caller.
-LOG = Path(os.environ.get("DRAFT_PICK_LOG_PATH")
-           or str(ROOT / "draft" / "data" / "draft_pick_log_2026.jsonl"))
+_DEFAULT_LOG = ROOT / "draft" / "data" / "draft_pick_log_2026.jsonl"
+LOG = Path(os.environ.get("DRAFT_PICK_LOG_PATH") or str(_DEFAULT_LOG))
+
+# ── THE SHADOW LEDGER (Cory's ruling, 2026-08-16: "Do 2") ────────────────────
+#
+# Every --sync also records what the ENGINE would have recommended, for the
+# seat that was on the clock, at every pick — all ten teams, not just mine.
+# draft/tools/draft_shadow.js computes it from the shipped board + the pick
+# log's own gone-set and appends to draft/data/draft_shadow_2026.jsonl.
+# Wired HERE so draft night captures it with ZERO new operator steps: the
+# same poll that logs the pick shadows it, and the row's timestamp is the
+# forward guarantee (a January recompute would be a reconstruction).
+#
+# A shadow failure NEVER blocks pick capture — the pick log is the primary
+# record and outranks everything — but it is REPORTED in the sync result, not
+# swallowed, so a red shadow on draft night is visible on the very poll that
+# broke it.
+SHADOW_TOOL = ROOT / "draft" / "tools" / "draft_shadow.js"
+
+
+def _shadow_path() -> Path:
+    """Where the shadow rows go, resolved at CALL time so a monkeypatched or
+    env-overridden LOG carries its shadow with it (the dry_run isolation of
+    draft-night-sync.yml extends to the shadow without the workflow knowing
+    this file grew a second output)."""
+    env = os.environ.get("DRAFT_SHADOW_LOG_PATH")
+    if env:
+        return Path(env)
+    if str(LOG) == str(_DEFAULT_LOG):
+        return ROOT / "draft" / "data" / "draft_shadow_2026.jsonl"
+    return LOG.with_name(LOG.stem + "_shadow" + LOG.suffix)
+
+
+def _shadow_rows() -> list[dict]:
+    p = _shadow_path()
+    if not p.exists():
+        return []
+    return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+
+
+def shadow_sync() -> dict:
+    """Bring the shadow ledger up to the pick log. Idempotent; reported, never
+    raising — a lost recommendation is a hole in the January grading, a lost
+    PICK is a hole in everything, so the pick path must not die for this."""
+    if os.environ.get("DRAFT_SHADOW_DISABLE"):
+        return {"ok": True, "disabled": True,
+                "why": "DRAFT_SHADOW_DISABLE set (rehearsals that are not "
+                       "about the shadow — draft night never sets this)"}
+    logged = {r["pick"] for r in _rows()}
+    shadowed = {r["pick_no"] for r in _shadow_rows()}
+    if not (logged - shadowed):
+        return {"ok": True, "added": 0, "shadow_total": len(shadowed), "lag": 0}
+    try:
+        out = subprocess.run(
+            ["node", str(SHADOW_TOOL), "--sync",
+             "--pick-log", str(LOG), "--out", str(_shadow_path())],
+            capture_output=True, text=True, timeout=300, cwd=str(ROOT))
+    except Exception as e:  # noqa: BLE001 — reported, by design
+        return {"ok": False, "error": "shadow tool did not run: %s" % e}
+    if out.returncode != 0:
+        return {"ok": False, "error": (out.stderr or out.stdout)[-500:]}
+    try:
+        return json.loads(out.stdout.strip().splitlines()[-1])
+    except Exception:  # noqa: BLE001
+        return {"ok": False, "error": "unparseable shadow output: %r"
+                % out.stdout[-300:]}
 
 
 def _freeze() -> dict:
@@ -361,6 +426,9 @@ def sync(picks: list, *, slot_to_roster: dict | None = None) -> dict:
         # surface cannot warn on a field that only exists when things go wrong.
         "pick_conflicts": conflicts,
         "contiguous": logged == list(range(1, len(logged) + 1)),
+        # The tool's recommendation at every logged pick — captured on the same
+        # poll, reported in the same result. See shadow_sync's docstring.
+        "shadow": shadow_sync(),
     }
 
 
@@ -402,6 +470,10 @@ def status() -> int:
     print("picks       : %d of %d logged" % (len(rows), total))
     print("mine        : %d of %d" % (len(mine), len(fz["my_picks"])))
     print("with an availability prediction attached: %d" % len(scored))
+    shadowed = {r["pick_no"] for r in _shadow_rows()}
+    lag = len({r["pick"] for r in rows} - shadowed)
+    print("shadow rows (tool's rec at each pick): %d%s"
+          % (len(shadowed), "" if lag == 0 else "  ⚠ %d pick(s) unshadowed" % lag))
     bad = [r["pick"] for r in rows if r["freeze_sha256"] != fz["_sha256_of_payload"]]
     if bad:
         print("⚠ %d row(s) joined to a DIFFERENT freeze: %s" % (len(bad), bad[:8]))
@@ -414,7 +486,11 @@ def main() -> int:
         return status()
     if "--record" in sys.argv:
         payload = json.loads(sys.argv[sys.argv.index("--record") + 1])
-        print(json.dumps(record(payload), indent=1, sort_keys=True))
+        row = record(payload)
+        # The manual fallback path gets the same shadow capture as --sync —
+        # 8pm operator error must not decide whether a pick has its shadow.
+        row["shadow"] = shadow_sync()
+        print(json.dumps(row, indent=1, sort_keys=True))
         return 0
     if "--sync" in sys.argv:
         did = sys.argv[sys.argv.index("--sync") + 1]
