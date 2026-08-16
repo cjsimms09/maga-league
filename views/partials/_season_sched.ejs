@@ -14,7 +14,8 @@
             <a href="<%= r.week === weekNo ? '/matchup' : '/matchup?week=' + r.week %>">
               <span class="sched-wk">Wk <%= r.week %></span>
               <% if (!r.known) { %>
-                <span class="sched-opp muted"><%= r.state === 'future' ? 'schedule not posted yet' : 'no record of this week' %></span>
+                <span class="sched-opp muted"><%= r.state === 'future' ? 'schedule not posted yet' : (r.state === 'current' ? 'this week — no live matchup yet' : 'no record of this week') %></span>
+                <% if (r.state === 'current') { %><span class="sched-res now">this week</span><% } %>
               <% } else if (r.state === 'past') { %>
                 <span class="sched-opp">vs <b><%= r.oppName %></b></span>
                 <% if (r.result) { %><span class="sched-res <%= r.result %>"><%= r.result %></span>

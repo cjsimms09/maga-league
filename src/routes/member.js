@@ -2218,7 +2218,8 @@ async function renderMatchupWeek(req, res, ctx) {
       : ((g.aPts != null && g.bPts != null && g.aPts !== g.bPts) ? (g.aPts > g.bPts ? g.a.id : g.b.id) : null) }));
   const mySeason = await MW.ownerSeason(me.id, {
     seasonYear: nav.seasonYear, leagueId: nav.leagueId, curWeek: weekNo,
-    regWeeks: nav.regWeeks, nameOf: nav.nameOf, currentOppId: null,
+    regWeeks: nav.regWeeks, nameOf: nav.nameOf,
+    currentOppId: ctx.currentOppId != null ? ctx.currentOppId : null,
     scheduleDoc: nav.scheduleDoc,
   }).catch(() => null);
   res.render('matchup-week', {
@@ -2283,6 +2284,7 @@ router.get('/matchup', aw(async (req, res) => {
   if (viewWeek && viewWeek >= 1 && viewWeek <= nav.regWeeks && viewWeek !== weekNo) {
     return renderMatchupWeek(req, res, {
       world, owners, me, weekNo, viewWeek, nav, sData,
+      currentOppId: opp ? opp.id : null,
       goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
     });
   }
