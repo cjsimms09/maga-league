@@ -1,0 +1,79 @@
+name: Kalshi season-ladder capture (free, no key)
+
+# THE UNRECOVERABLE WINDOW, Kalshi edition. Cory, 2026-08-16: "Agreed on
+# Kalshi! Set it up for the future. Make sure we are happy about it 2027 and
+# not upset we didn't capture something."
+#
+# Kalshi runs season-long PLAYER threshold ladders for 2026-27 that The Odds
+# API does not sell at any price (every season-long market key 422s there,
+# key-probe run 31970500296). Verified live 2026-08-16 with real prices and
+# real open interest, e.g. Zay Flowers receiving yards:
+#
+#     750+ 0.69   1000+ 0.51 (OI 1004)   1250+ 0.33   1500+ 0.17 (OI 239)
+#
+# Monotone, so it is a genuine cumulative distribution over his season — not
+# a point estimate, and it yields P(breakout) directly.
+#
+# WHY A SCHEDULE AND NOT A ONE-OFF: a market's price on a given day is gone
+# the moment it moves. The August price is the one a DRAFTER could have acted
+# on; the September price is the one a week-1 lineup could have. Neither is
+# reconstructable later at any price. Same reasoning market-capture.yml
+# already runs on: "a snapshot not taken cannot be reconstructed."
+#
+# COSTS NOTHING. Kalshi's market data is public and needs no API key, so this
+# spends zero Odds API credits and has no rate budget to protect. That is why
+# it can run daily without a dry-run mode or a spend gate.
+#
+# NOT A BOARD INPUT. This captures only. Nothing here feeds proj_mean, VORP or
+# ranking. Wiring it anywhere is a separate, graded, promotable decision under
+# the same champion/challenger bar every other arm faces — and the grade
+# itself is not possible until these markets settle (2027-02-02), which is
+# precisely why the capture has to start now.
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Daily. Pre-draft the ladders are the draft-relevant signal; in-season
+    # they are the running market view of every player's season outcome. A
+    # free daily snapshot costs nothing and a missing day cannot be refetched.
+    - cron: '0 11 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Capture today's ladders
+        run: python3 draft/tools/fetch_kalshi.py fetch
+      - name: Commit the snapshot
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/kalshi/
+          if git diff --cached --quiet; then
+            echo "no change — nothing to commit"
+            exit 0
+          fi
+          git commit -m "Kalshi season-ladder snapshot $(date -u +%Y-%m-%d) [skip deploy]" \
+            -m "Free capture via kalshi-capture.yml. Point-in-time prices; unrecoverable once they move."
+          # Durable push, the draft-night-sync.yml lesson: a bare push loses
+          # to any commit that landed in between, and a lost snapshot is a
+          # lost day that cannot be refetched.
+          for i in 1 2 3 4; do
+            if git push; then
+              echo "pushed"; exit 0
+            fi
+            echo "push failed (attempt $i) — rebasing on remote and retrying"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || true
+            sleep $((2 ** i))
+          done
+          echo "::error::could not push the snapshot after 4 attempts"
+          exit 1
