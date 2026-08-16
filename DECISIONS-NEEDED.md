@@ -92,6 +92,26 @@ same session: see Settled below)*
   dispatch of `weekly-props-fetch.yml` for real, coordinated with the
   season-total props study so the two do not double-spend the shared
   `ODDS_API_KEY` credit pool — see `ROUTES.md` TO:A.
+- **[NEW 2026-08-16, Sleeper-vs-FP grade] CORY'S PROJECTION-SOURCE QUESTION IS
+  ANSWERED, and the answer is "keep Sleeper" — no ruling needed on that. Two
+  side-findings DO need him.** Full evidence:
+  `draft/audit/sleeper_vs_fp_grade_2026-08-16.md`. Full entry: § "SLEEPER vs
+  FANTASYPROS vs own_v6" below.
+  - **(a) CAPTURE, and it is time-sensitive** · gated switch: dispatch a
+    fetch that commits Sleeper's 2023/2024/2025 projection payloads to
+    `draft/backtest/`. Cost: one workflow run, one free API, no key. **The
+    archive is decaying in public** — measured hollow rate (rows present,
+    stat lines emptied) is **0.0 % for 2026, 7.1 % for 2025, 17.2 % for
+    2024, 25.4 % for 2023**, monotone in age. Every year we do not capture,
+    the next backtest has less to work with, permanently. Standing capture
+    principle: free, accessible now, unrecoverable later.
+  - **(b) SLEEPER OVER-PRICES WRs, MEASURED FOR THE FIRST TIME** · not a
+    six-days-out change · `proj_mean_blend_2026-08-16.md` §2 could only infer
+    this sideways and called it *"indicative, not a measurement."* It is now
+    measured on realized 2025 outcomes: **WR bias +13.63 points and the worst
+    WR MAE of any arm (40.50 vs 35.20–35.65)**, while Sleeper still *orders*
+    WRs best. **A ranking problem it is not; a DOLLAR problem it is**, because
+    VORP and dollars read the level, not the rank.
 
 ## Settled today (rulings made; records, not questions)
 
@@ -1449,3 +1469,16 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **ALSO IN THE SAME MEASUREMENT, no action proposed:** keeping paid overall (+23.5 mean over the forfeited round) but the round-1 keeper slot returned NEGATIVE (−11.7 mean, 39.3% positive, n=28) — the value of keeping three lives in slots 2-3. Worth knowing before keeper lock on the 21st; the current Chase+Henry+Walker slate was separately optimized (EXP-KEEPER-NABERS) and this does not reopen it.
 - **CAVEATS, stated:** two keep transitions, ~40 keep events; behavior-revealed (what managers chose to keep), not counterfactual-optimal; sub-n=10 cells reported but not trusted. That is why it ships OFF.
 - **COST OF INACTION:** the live keeper term keeps leaning late-round near-ties toward players whose keeper option, in three real seasons of this league, was never once exercised.
+
+## SLEEPER vs FANTASYPROS vs own_v6 — CORY'S QUESTION, ANSWERED (A, 2026-08-16) 🟢 NO RULING NEEDED ON THE MAIN QUESTION
+
+- **THE QUESTION, verbatim.** *"we still haven't answered why we're drafting are using sleeper projections vs fantasy pros vs a blend of both..."*
+- **THE ANSWER.** **Keep `proj_mean` on Sleeper.** On the only leak-free season measurable, Sleeper is the best single source at all four positions — beating FantasyPros by **+0.0295 ρ at QB, +0.0191 at RB, +0.0041 at WR, +0.0251 at TE**, and beating own_v6 everywhere (own_v6 won zero positions and is last at QB). An equal-weight three-source blend edges Sleeper by **+0.0064 RB / +0.0151 WR / +0.0122 TE** and *loses* **−0.0146 at QB** — but **Sleeper is ≥ the blend on top-12 AND top-24 precision at every position and strictly better in two cells** (WR top-24 0.6250 vs 0.5833, TE top-12 0.5000 vs 0.4167). **The blend buys its Spearman in the tail and pays for it in the draftable region.** Nothing shipped; nothing needs to.
+- **WHAT UNBLOCKED IT, and it is the finding worth remembering.** Four committed records asserted *"Sleeper's historical preseason skill is structurally unmeasurable until Jan 2027"* — `exp_fp_hist_proj.json`, `projection_skill_backtest_2026-08-15.md`, `SOURCE-WEIGHT-PRIOR-PREREG.md` §4, and `proj_mean_blend_2026-08-16.md` §1, which REFUSED at `no_control` on it. **`sleeper_import.fetch_projections(season)` had been season-parameterized the whole time and nobody had ever asked it for a past season.** It answers: 8970 / 9146 / 9289 rows for 2023 / 2024 / 2025. The claim was never dishonest — it was reasoning about a *capture* nobody made, not a *fetch* nobody attempted, and it propagated through four documents and gated a live decision.
+- **THE LEAK VERDICT.** 2025 passed every preregistered leak gate. **2023 and 2024 are REFUSED and were NOT graded.** The decisive positive evidence for 2025: Sleeper's "2025" file projects **203.5 points for James Conner (who scored 29.3) and 117.9 for Joe Mixon (who scored 0.0)** — both lost the season to injury, and no post-hoc file could still say that. Corroborated by `gp: 18` uniformly on every offensive row in every season, ADP fields on every row, an identity rate of 0.009, and ρ in FantasyPros' own measured 0.75–0.79 preseason band.
+- **A MIS-SPECIFIED GATE OF MY OWN, named not buried.** 2023/2024 refused on marker players who turn out to be **Tom Brady (retired), Marcus Mariota, Sam Howell and Joshua Dobbs (all demoted to backup)**. A preseason projection of 14–40 points for a backup QB is *correct*, not leaked — my gate cannot tell "his season died" from "he retired or lost his job." **The gate was not relaxed after seeing it fail** and those seasons stay refused.
+- **MAGNITUDE.** Zero for the 22nd — the recommendation is the status quo, reached by measurement instead of by default. The two side-items above ((a) capture, (b) WR level) are the only asks.
+- **CONFIDENCE.** Moderate, and bounded by **N = 1 season**. own_v6 exists only for 2025 (needs two prior weekly-points stores; 2021/2022 do not exist) and Sleeper's other seasons are refused. The Sleeper-vs-FantasyPros WR gap of 0.0041 is not distinguishable from nothing. The population is the **354-player three-way intersection**, which is clean for comparison and is not a board.
+- **THE MECHANISM, priced.** Sleeper-vs-FantasyPros **error correlation 0.87–0.97** on realized 2025 outcomes — independent confirmation of `exp_proj_source.json`'s ρ=0.9327 and `proj_mean_blend` §5's 0.9439. **Averaging the two professional sources is averaging a forecast with itself.** Every point of the blend's gain comes from own_v6, the only partially-independent arm (0.64–0.86) — and it pays only where own_v6 is close in skill (RB/WR/TE, within 0.008–0.022 ρ) and costs where it is not (QB, 0.085 ρ worse). Cory's mechanism is real; **it does not fire between the two sources he named.**
+- **COST OF INACTION.** Nil on the board. Real on capture — see (a): the archive hollows ~7 points a year and 2023 is already 25.4 % gone.
+- **RECOMMENDATION.** No change to `proj_mean`. Rule on (a) capture — recommended YES, it is one free dispatch — and note (b) for the post-draft dollar work.

@@ -70,8 +70,15 @@ arm's number must never be readable as a grade.
 
 ## 3. THE ONE-SENTENCE ANSWER TO CORY
 
-See §6 — it depends on the three-way grade, which **is now constructible for
-2025 and is preregistered separately** (`SLEEPER-VS-FP-PREREG.md`).
+> **Keep `proj_mean` on Sleeper: on the only leak-free season we can measure,
+> Sleeper is the best single source at all four positions — beating FantasyPros
+> by 0.030 ρ at QB, 0.019 at RB, 0.004 at WR and 0.025 at TE, and beating own_v6
+> everywhere — and while an equal-weight three-source blend edges it by
+> 0.006–0.015 ρ at RB/WR/TE, that blend is never better and twice worse in the
+> top-12/24 that a draft actually happens in, which is the opposite of a reason
+> to change the board six days out.**
+
+Full grade, its mechanism check and its failed prediction: §6.
 
 ---
 
@@ -274,6 +281,209 @@ it is labelled post-hoc because it can only ever REFUSE, never rescue.**
 
 ---
 
+# §6 — STEP 3: THE THREE-WAY GRADE
+
+**Preregistration:** `draft/backtest/SLEEPER-VS-FP-PREREG.md`, committed in its
+own commit (`85e126dd`) before the grader existed and before any three-way
+number existed. **Runner:** `draft/backtest/sleeper_vs_fp_grade.py`.
+**Workflow:** `.github/workflows/sleeper-vs-fp-grade.yml`, run `31977945901`.
+**Tests:** 16 in `draft/tests/test_sleeper_vs_fp_grade.py`.
+
+**Both of `proj_mean_blend` §1's blockers are gone.** Sleeper's per-player 2025
+is served and leak-gated clean (above); FantasyPros' per-player 2025 rows —
+*"deliberately not retained… re-fetching is CI-only egress and is unreachable
+from here"* — were re-fetched **from CI, which is where this runs.** §9.2 of
+that document asked for exactly this.
+
+**The re-fetch reproduces the committed FantasyPros run exactly:** 729 rows
+parsed, **716 crosswalked to Sleeper pids**, 13 unmatched and excluded — the
+same 729/716 the committed `exp_fp_hist_proj.json` recorded. Same URL, same
+counts. The arm is not a new quantity wearing an old name.
+
+## The population
+
+| | |
+|---|---:|
+| Sleeper arm | 638 players |
+| FantasyPros arm | 716 players (13 unmatched, **excluded and counted**) |
+| own_v6 arm | 508 players |
+| excluded — no position | 134 |
+| excluded — no 2025 weekly row | 220 |
+| **excluded — not in all three arms** | **174** |
+| **SHARED POPULATION** | **354** — QB 54 · RB 86 · WR 136 · TE 78 |
+
+The shared population is the primary denominator because it is the only one on
+which "source X beats source Y" is one quantity. **The intersection is
+expensive** — 354 of a union near 900 — and that is the honest price of removing
+the coverage channel that `proj_mean_blend` §2 showed can move a board for
+reasons that are not football.
+
+## Spearman — the headline, because a draft board is an ordering
+
+| arm | QB (54) | RB (86) | WR (136) | TE (78) |
+|---|---:|---:|---:|---:|
+| **sleeper** | **0.7782** | 0.7976 | 0.7319 | 0.7990 |
+| fantasypros | 0.7487 | 0.7785 | 0.7278 | 0.7739 |
+| own_v6 | 0.6932 | 0.7900 | 0.7244 | 0.7773 |
+| blend_equal | 0.7636 | **0.8040** | **0.7470** | **0.8112** |
+| blend_weighted | 0.7652 | 0.8007 | 0.7462 | 0.8105 |
+
+**Sleeper is the best SINGLE source at all four positions.** Margins over
+FantasyPros: **QB +0.0295, RB +0.0191, WR +0.0041, TE +0.0251**. Over own_v6:
++0.0850, +0.0076, +0.0075, +0.0217.
+
+**Winners under the preregistered rule** (highest ρ; ties inside 0.01 are TIED
+and are *not* broken by a metric chosen afterwards):
+
+| pos | verdict | detail |
+|---|---|---|
+| QB | **sleeper, clear** | margin 0.0130 over the runner-up |
+| RB | **TIED** | blend_equal / blend_weighted / sleeper all inside 0.01 |
+| WR | **TIED** | blend_equal / blend_weighted; sleeper 0.0151 back |
+| TE | **TIED** | blend_equal / blend_weighted; sleeper 0.0122 back |
+
+## MAE and bias — and P4, confirmed
+
+| arm | QB mae/bias | RB | WR | TE |
+|---|---|---|---|---|
+| sleeper | 62.69 / **+26.45** | 39.35 / +3.22 | **40.50** / **+13.63** | 23.24 / +1.25 |
+| fantasypros | 68.49 / +22.63 | 40.57 / −2.74 | 35.43 / −3.14 | 22.26 / −10.68 |
+| own_v6 | 75.97 / +13.24 | 40.50 / +1.17 | 35.65 / +8.39 | 24.78 / +1.97 |
+| blend_equal | 63.07 / +20.77 | **38.89** / +0.55 | **35.20** / +6.29 | **21.39** / −2.49 |
+
+**P4 HOLDS, and it is the first direct measurement of it.**
+`proj_mean_blend` §2 could only infer sideways that *"the shipped source
+over-projects WRs"* and called it *"indicative, not a measurement."* **It is now
+measured: Sleeper's WR bias is +13.63 and its WR MAE is the worst of any arm.**
+Sleeper orders WRs a hair better than FantasyPros and prices them materially
+worse. **For ranking that does not matter; for dollar values it does**, and
+that is a real, separable finding about the shipped board.
+
+## Top-12 / 24 / 48 precision — where the disagreement is, and it decides this
+
+The prereg fixed these as corroboration and said a disagreement with ρ must be
+**reported as a disagreement**. There is one, and it points the other way.
+
+| pos · N | sleeper | fantasypros | own_v6 | blend_equal | blend_weighted |
+|---|---:|---:|---:|---:|---:|
+| QB top12 | 0.5833 | 0.5833 | 0.5833 | 0.5833 | 0.5833 |
+| QB top24 | **0.8333** | 0.7917 | 0.7917 | 0.8333 | 0.8333 |
+| RB top12 | **0.8333** | 0.8333 | 0.7500 | 0.8333 | 0.8333 |
+| RB top24 | 0.7083 | **0.7500** | 0.6667 | 0.7083 | 0.7083 |
+| WR top12 | **0.4167** | 0.4167 | 0.3333 | 0.4167 | 0.4167 |
+| WR top24 | **0.6250** | **0.6250** | 0.5417 | 0.5833 | 0.5833 |
+| TE top12 | **0.5000** | **0.5000** | 0.4167 | 0.4167 | 0.4167 |
+| TE top24 | 0.7917 | 0.7917 | 0.7500 | 0.7917 | 0.7917 |
+
+**Sleeper is greater than or equal to the blend on top-12 AND top-24 at every
+position, and strictly better in two cells** — WR top-24 (0.6250 vs 0.5833, one
+player in 24) and TE top-12 (0.5000 vs 0.4167, one player in 12).
+
+**So the blend's Spearman edge is bought in the tail.** ρ counts all 136 WRs
+equally; a draft does not. **Where the picks actually happen, blending never
+helps and twice hurts.** That is the finding that turns a marginal ρ into a
+clear decision, and it is exactly the failure mode `proj_mean_blend` §4 named
+about its own bar — *"the movement lives in a tail nobody drafts"* — appearing
+this time in the metric rather than in the veto.
+
+## THE MECHANISM CHECK — mandatory, and the blend win IS consistent with it
+
+Per-position Pearson correlation of the arms' signed errors on the shared
+population:
+
+| pos | sleeper \| fantasypros | sleeper \| own_v6 | fantasypros \| own_v6 |
+|---|---:|---:|---:|
+| QB | **0.9295** | 0.6407 | 0.6461 |
+| RB | **0.9744** | 0.8602 | 0.9019 |
+| WR | **0.9384** | 0.8022 | 0.8911 |
+| TE | **0.8700** | 0.7706 | 0.8249 |
+
+**The two consensus products are 0.87–0.97 error-correlated** — an independent
+confirmation, on realized 2025 outcomes rather than on 2026 rank agreement, of
+`exp_proj_source.json`'s ρ = 0.9327 and `proj_mean_blend` §5's median 0.9439.
+**Averaging Sleeper with FantasyPros is averaging a forecast with itself.**
+
+**own_v6 is the only partially-independent arm** (0.64–0.86), and that is
+where every point of the blend's gain comes from. The prereg required this be
+stated explicitly if a blend won, so:
+
+> **The blend wins at RB/WR/TE and loses at QB, and the pattern follows the
+> diversification trade-off exactly.** Adding a partially-independent arm pays
+> only when it is not much worse than the best arm. At **RB/WR/TE own_v6 is
+> within 0.0076–0.0217 ρ of Sleeper** and its errors are 0.77–0.86 correlated —
+> close in skill, different in error, so the average gains a little. At **QB
+> own_v6 is 0.0850 ρ worse**, and there the average drags Sleeper down by
+> 0.0146. **Nothing here contradicts the 0.94 regime; it confirms it.** The
+> gain is not the mechanism Cory named ("averaging independent forecasts") firing
+> between the two professional sources — between those two it does not fire at
+> all. It is one different-in-kind model contributing diversification at three
+> positions and costing it at the fourth.
+
+**And the gain is at or inside the noise the prereg anticipated.** RB's +0.0064
+is *inside* the 0.01 tie band the rule declares undecidable. WR's +0.0151 and
+TE's +0.0122 clear it by less than the band's own width, **on one season, at
+n = 136 and n = 78.** Set against a blend that is worse where the draft happens,
+this is not a mechanism; it is a margin.
+
+**Position weighting did not rescue it either** — the same finding
+`proj_mean_blend` §5b reported. Cross-fit weights (2 folds, player holdout, so
+no player is graded under a weight his own error helped choose) came out close
+to flat: Sleeper 0.27–0.38, FantasyPros 0.28–0.39, own_v6 0.26–0.39. The
+weighted blend beat the equal blend at QB only, and lost to it at RB/WR/TE.
+
+## THE PREDICTIONS, SCORED
+
+| | prediction | outcome |
+|---|---|---|
+| **P1** | Sleeper and FantasyPros within 0.05 ρ at every position | **HOLDS.** 0.0295 / 0.0191 / 0.0041 / 0.0251 |
+| **P2** | no blend beats the better parent at more than one of four positions | **FAILS.** It beat at **three** (RB, WR, TE) |
+| **P3** | own_v6 wins at most one position, likely RB or TE; loses QB | **HOLDS on the letter, and own_v6 won ZERO** — it is last at QB (0.6932) and third at every other position |
+| **P4** | Sleeper's over-projection persists on the shared population | **HOLDS.** +26.45 QB, +3.22 RB, **+13.63 WR**, +1.25 TE |
+
+**P2 is a failed prediction and is recorded as one.** I expected the 0.94
+correlation regime to stop the blend outright; it did not, and the reason —
+own_v6's genuine partial independence — is a fact I did not weigh properly
+before the run. It changes the *explanation*, not the recommendation: the
+top-12/24 evidence, not the ρ, is what decides this.
+
+## THE LIMITATIONS, WHICH ARE LARGE
+
+1. **ONE SEASON.** own_v6 exists only for 2025 (it needs two prior
+   weekly-points stores and 2021/2022 do not exist) and Sleeper's 2023/2024 are
+   refused upstream. **N = 1.** Nothing here is a stationary measurement of a
+   source's skill, and the 0.004 ρ gap between Sleeper and FantasyPros at WR is
+   not distinguishable from nothing.
+2. **A 7.1 % hollow Sleeper file** means the shared population is easier than
+   the true one by an amount nobody can bound. Identical for every arm, so it
+   cannot flip the *comparison* — but it inflates every absolute number.
+3. **354 of ~900 players.** The intersection is where the comparison is clean;
+   it is not where a board lives. **Nothing here says what any source does with
+   the 174 players the other two do not cover — and own_v6 covers no rookie at
+   all** (`proj_mean_blend` §2).
+4. **own_v6 is rebuilt, not imported**, from its committed helpers via
+   `proj_mean_blend._probe_models` (that module's own reproduction check
+   applies, including its note that `own_model_v2.board_ages()` reads the live
+   board, so own_v6's graded population tracks the nightly rebuild).
+
+## THE RECOMMENDATION — Cory rules, nothing shipped
+
+**`proj_mean` stays Sleeper-only.** Not because the question was unanswerable —
+it is answered now — but because **the answer is that the shipped source is
+already the best single source at every position**, and the only thing that
+beats it does so in a region nobody drafts while losing in the region everybody
+does.
+
+**Two things ARE worth his ruling, and both are in `DECISIONS-NEEDED.md`:**
+
+1. **Capture Sleeper's 2023–2025 projection files now**, before they hollow
+   further. Cost: one dispatch. They are decaying in public at roughly 7 points
+   of hollowing per year and 2023 is already a quarter gone.
+2. **Sleeper's WR level is +13.63 high and its WR MAE is the worst of any arm.**
+   That is a *dollar* problem, not a *ranking* problem, and it is the first time
+   it has been measured rather than inferred. It is not a six-days-out change.
+
+---
+
 # WHAT WAS NOT DONE
 
 - **Nothing shipped.** No change to `proj_mean`, VORP, replacement, tiers,
@@ -284,6 +494,12 @@ it is labelled post-hoc because it can only ever REFUSE, never rescue.**
   `test_the_thresholds_match_the_preregistration`.
 - **2023 and 2024 were not graded**, despite believing their refusals are my
   gate's fault rather than Sleeper's.
+- **The blend was not shipped on a 0.006–0.015 ρ edge**, and the tie band was
+  not widened afterwards to make RB read as a blend win.
+- **No pairwise two-source blend was added** to sharpen §6's mechanism story.
+  It was not in the preregistration, it would have been chosen after seeing
+  which explanation I wanted, and the three-way error correlations already
+  carry the argument.
 - `draft/build.py`, `draft/own_model_v*.py`, `draft/own_projections.py`,
   `draft/backtest/fetch_component_stats.py`, `draft/tools/fetch_historical_props.py`
   and `draft/tools/fetch_kalshi.py` were imported read-only and never edited.
