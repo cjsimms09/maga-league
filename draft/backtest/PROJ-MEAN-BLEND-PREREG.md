@@ -275,3 +275,73 @@ trusted.
 The §4 rookie-bloc veto still governs every policy including P4 and P5, and
 still overrides any accuracy result. The §3 bar is still the ship criterion,
 and §2's refusal still means nothing ships.
+
+---
+
+# AMENDMENT 2 — "USE WHATEVER HAS PROVEN SUPERIOR" (2026-08-16)
+
+**Appended before the position-weighted arm was run. Nothing above is edited.**
+
+**Cory, verbatim:** *"I want to use whatever version of model has proven
+superior at this point!!"*
+
+## The thing that instruction cannot resolve, stated first
+
+What has been measured, per position, 2025:
+
+    QB   own_v6 72.29 / rho .7225    FP 63.70 / rho .7515   -> FP clearly better
+    RB   own_v6 37.54 / rho .7968    FP 37.63 / rho .7649   -> own better on order
+    WR   own_v6 33.63 / rho .7634    FP 31.05 / rho .7621   -> tie on order
+    TE   own_v6 23.33 / rho .7987    FP 22.50 / rho .7824   -> own better on order
+
+own_v6 is also the champion of its own lineage (Cory: "YES on V6") and the
+better DRAFT instrument against market-derived season projections (0 of 15
+head-to-head tests cleared for the market arm; own_v6 won top-24 .5833 vs
+.5417 and top-48 .7292 vs .6458).
+
+**And SLEEPER — the source the board actually ranks on — is the one arm in the
+comparison whose skill has never been measured and cannot be measured before
+January 2027.** So "use whatever has proven superior" cannot be executed as a
+swap: it would move the board toward a measured arm and away from an
+UNMEASURED one, which is a guess wearing evidence's clothes. That is the same
+wall §2 already hit, arrived at from the opposite direction.
+
+## (a) The position-weighted arm — added to §3
+
+- `A3` **position-weighted blend** — per position, weights ∝ measured inverse
+  MSE per source, so FP carries QB and own_v6 carries RB/TE rather than a flat
+  1/3 discarding the one consistent signal in the table.
+
+## (b) Leak discipline, and the consequence declared in advance
+
+Weights must be fitted on seasons OTHER than the one graded — fit on
+2023/2024, apply to 2025 — or they are the answer key.
+
+**Declared before checking: if that fit is not constructible leak-free, A3 is
+DROPPED, not reported.** A fitted-on-itself position weight would be the
+strongest-looking number in this study and would mean nothing.
+
+## §5's probe gains a position-weighted variant, with its limit named
+
+Inside the offline-constructible arms, the probe also compares an
+inverse-MSE **position-weighted** blend against the equal-weight blend and
+against the better parent, with weights fitted by **2-fold cross-fit over
+players** (fit on one half of the position's players, grade the other, both
+directions; halves split deterministically by player id).
+
+**This is a PLAYER holdout, NOT a season holdout, and that is a real
+limitation, declared here rather than discovered in review:** it cannot see
+whether weights transfer across seasons, which is the transfer that actually
+matters, because every offline arm can only predict 2025 (own-model arms need
+two prior seasons and the committed weekly stores are 2023/2024/2025 only).
+It is the friendly case. A position weighting that fails even here has failed
+in the easiest available test.
+
+**It still cannot license the ship** — §5's declaration is unchanged.
+
+## (c) The refusal condition, restated and strengthened
+
+If no blend arm beats Sleeper-alone on the §3 bar, **SHIP NOTHING**. Cory
+wants the superior model used; if the evidence does not identify one, the
+honest execution of that instruction is to say so, not to ship the arm that
+looked best by chance.
