@@ -108,6 +108,44 @@ same session: see Settled below)*
   green, verify 7/7. Records appended to #0/#000 below; evidence chains in
   `draft/audit/projection_correctness_2026-08-16.md`.
 
+- **BLENDED `proj_mean` — Cory 2026-08-16 "Let's do it" → EXECUTED, AND THE
+  ANSWER IS REFUSE. NOTHING SHIPPED; `proj_mean` STAYS SLEEPER-ONLY.** His
+  ruling ("not 'replace Sleeper with own_v6' … but blend … Averaging
+  independent forecasts is the single most reliable improvement in
+  forecasting"), his coverage follow-up ("Can we use sleeper or fantasy pros
+  on rookies, k and def") and his weighting follow-up ("I want to use whatever
+  version of model has proven superior at this point!!") were all executed:
+  preregistered first in three commits (`20e30415`, `b5d6798e`, `b1970a41`),
+  then run. **THE OVERRIDE OF REC-2 IS ON THE RECORD AND REC-2 IS UNTOUCHED —
+  because running the test is what proved REC-2 right.** Three independent
+  refusals: (1) **the control arm does not exist** — Sleeper archived no
+  pre-2026 preseason projections anywhere, `proj_series.json` starts
+  2026-08-09, and FP's per-player historical rows were never retained (only
+  aggregates), so "does the blend beat Sleeper alone" is unanswerable on
+  2023/24/25 — the exact wall REC-2 names; (2) **all five coverage policies
+  failed the preregistered rookie-bloc veto**, including both Cory named —
+  **no rookie on the board carries three sources at any position** (own_v6
+  covers 0 of 153 rookies), so the 3-source group IS the veteran group, and
+  even the policy that blends ONLY 3-source rows — changing no rookie's
+  projection at all — still drops the median rookie 5 board places against
+  veterans' 2; (3) **the mechanism's precondition fails** — our forecasts are
+  ~0.94 error-correlated and the average beat the better parent in 31/112
+  cells (37/112 even position-weighted out of sample). Position weighting DID
+  beat flat averaging 76/112, so his instinct there is confirmed; the shipped
+  position-weighted arm was **dropped rather than reported** because only one
+  season is gradeable leak-free, so its weights could only be fitted on the
+  season they grade. **P1–P4 also silently rescale K/DEF**: they drop
+  QB/RB/WR/TE replacement level 5–21 pts while K/DEF sit at 0, inflating every
+  skill-position dollar against them; only rank-space (P5) preserves
+  replacement — and P5 fails the bloc veto worst of all, because being
+  scale-free closes the level channel and leaves the ordering channel wide
+  open. **One live MATERIAL DEFECT found and fixed on the way:** `proj_sleeper`
+  was stamped only inside build.py's FantasyPros block, so 77 rows lost their
+  Sleeper number from every per-source surface — Kenneth Walker (ADP 17,
+  keeper) displayed 171.2 vs Sleeper's 225.5, labelled "Our model proj", and
+  memberweek's win odds were refusing starters Sleeper projects fine. Fixed at
+  the root (`build.attach_sleeper_column`), ADP-fallback rows refused. Full
+  verdict: `draft/audit/proj_mean_blend_2026-08-16.md`. Suites 2777 py / 307 js.
 - **own_model_v6 PROMOTION — Cory 2026-08-16 "YES on V6" → APPLIED**
   (upgrading his same-day v4 acceptance). v6 = v4's QB arm byte for byte +
   v5's component arms at RB/WR/TE (usage x efficiency x availability, with

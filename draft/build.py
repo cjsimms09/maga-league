@@ -47,6 +47,28 @@ ADP_PROVENANCE: dict = {}
 OPPORTUNITY_PROVENANCE: dict = {}
 PROJECTION_PROVENANCE: dict = {}
 
+
+def attach_sleeper_column(board: list[dict], baseline: dict) -> int:
+    """Stamp the raw Sleeper projection on every row Sleeper actually projected.
+
+    Returns how many rows this call stamped. See the call site in build_bundle
+    for the defect this closes (`proj_sleeper` was gated on FantasyPros).
+
+    `baseline` is the PRE-FALLBACK truth: a player absent from it has no Sleeper
+    projection, and `proj_baseline` will be carrying projections._rank_fallback's
+    ADP decay for him. Stamping that as `proj_sleeper` would put a fabricated
+    number under a source's name, so it is refused — absent is not zero and it is
+    not a guess either.
+    """
+    stamped = 0
+    for p in board:
+        if (p.get("proj_sleeper") is None
+                and baseline.get(str(p.get("player_id"))) is not None
+                and p.get("proj_baseline") is not None):
+            p["proj_sleeper"] = round(float(p["proj_baseline"]), 2)
+            stamped += 1
+    return stamped
+
 # Below this many players carrying non-zero projected points, the provider has
 # not published projections for the season yet and the baseline is worthless.
 PROJECTION_MIN_NONZERO = 100
@@ -655,6 +677,41 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
 
     opportunity = _rekey_opportunity(load_opportunity(cfg, offline), raw)
     board = proj_mod.blend(players, baseline, opportunity, cfg)
+
+    # ── THE FIELD NAMED AFTER ONE SOURCE WAS GATED ON A SECOND ──────────────
+    #
+    # `proj_sleeper` used to be stamped ONLY inside the FantasyPros block below,
+    # so a player FP missed lost his Sleeper number from every surface that reads
+    # the per-source columns. app.js:593 named this trap in prose — "'does this
+    # player have a Sleeper projection' cannot be answered by the field called
+    # proj_sleeper" — and left it standing. Measured on the shipped board while
+    # building the blend study (draft/audit/proj_mean_blend_2026-08-16.md):
+    # **77 rows** carried a real Sleeper projection with `proj_sleeper` absent,
+    # and it is not a tail problem —
+    #
+    #   · consensus.js averages whatever per-source fields are present, so those
+    #     rows rendered our own model ALONE under the raw-projection label.
+    #     Kenneth Walker (ADP 17, a keeper) displayed 171.2 where Sleeper says
+    #     225.5 — a 54-point understatement on a second-round player, labelled
+    #     "Our model proj" on the war room six days before the draft.
+    #   · memberweek.js derives the member-facing WIN ODDS from proj_sleeper and
+    #     correctly refuses a starter it thinks Sleeper does not project. It was
+    #     refusing on players Sleeper projects fine.
+    #
+    # Stamped here, from the SAME value the old line used (`proj_baseline`, raw
+    # and unmodelled), independent of any other source. The FP block below keeps
+    # its own assignment — it is now a no-op on these rows, and leaving it means
+    # this fix cannot be undone by an edit to FP's branch.
+    #
+    # ONLY WHERE SLEEPER ACTUALLY PROJECTED HIM. `proj_baseline` falls back to
+    # projections._rank_fallback (an ADP decay) when Sleeper has no number, and
+    # stamping THAT as `proj_sleeper` would replace a missing value with a
+    # fabricated one wearing a source's name — absent is not zero, and it is not
+    # a guess either. `baseline` is the pre-fallback truth and is still in scope
+    # here, which is why the stamp belongs at this line and not inside blend().
+    _sleeper_stamped = attach_sleeper_column(board, baseline)
+    PROJECTION_PROVENANCE["sleeper_column_attached"] = _sleeper_stamped
+    print(f"  projections: Sleeper raw column on {_sleeper_stamped} players")
 
     # SECOND PROJECTION SOURCE (C3 real consensus). The projection column is a check
     # on our OWN machinery, and a single-source check can be wrong in the same
