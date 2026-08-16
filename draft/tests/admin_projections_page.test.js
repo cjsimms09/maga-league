@@ -40,8 +40,23 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n)) : (fail++, cons
   const html = await res.text();
   ck('renders 200 for Cory', res.status === 200);
   ck('no template error', !/ReferenceError|is not defined|Cannot read/.test(html));
+  // DUAL-HOME PROVENANCE, NOT AN INFRA DEATH (diagnosed 2026-08-16, see
+  // draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern, §6 node 16
+  // and src/routes/admin.js:1225-1230). This dereferenced
+  // `artifact.provenance.own_model.algorithm` directly and threw
+  // `TypeError: Cannot read properties of undefined` on a fresh board — a
+  // full build() writes the own-model diag at
+  // `provenance.projections.own_model`; only a hand-stamped promotion
+  // artifact (or a `refresh`-only build) carries the top-level
+  // `provenance.own_model` this line assumed. The uncaught throw happened
+  // BEFORE any `ck()` ran, so js-sweep.sh (which only recognizes printed
+  // `FAIL` lines) misreported this as "died without asserting" infra rather
+  // than the code defect it actually is. The route already resolves both
+  // homes (`prov.own_model || prov.projections.own_model`); the test now
+  // does the same instead of trusting one hardcoded path.
+  const ownModelProv = artifact.provenance.own_model || (artifact.provenance.projections || {}).own_model || {};
   ck('names the live algorithm from provenance, not a hardcoded label',
-    new RegExp('<b>' + (artifact.provenance.own_model.algorithm) + '</b>').test(html));
+    !!ownModelProv.algorithm && new RegExp('<b>' + ownModelProv.algorithm + '</b>').test(html));
   ck('says the role out loud (display-only, members never see it)',
     /never moves Mean, VORP/.test(html) && /members never see it/.test(html));
   ck('renders all four position sections',

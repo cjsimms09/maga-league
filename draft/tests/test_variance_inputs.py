@@ -87,6 +87,19 @@ def test_artifact_class_cv_present_for_every_skill_position(artifact):
 
 
 def test_artifact_coverage_matches_board(artifact):
+    # COMMITTED-ARTIFACT DRIFT, NOT A CODE BUG (found 2026-08-16 verifying
+    # this suite after the board correction — see
+    # draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern).
+    # `variance_inputs_2026.json` was committed (62551aea) against an earlier
+    # snapshot of the board; the board has since grown by 2 RB / 2 WR / 1 TE
+    # (ordinary roster churn, the same "new signings" shape as
+    # test_playoff_sos's 677->682 finding), so `board_coverage.fallback`
+    # (== n_board - n_measured, mechanically, in variance_portfolio.py:111-
+    # 122) was stale by exactly that count while `measured` — the harder
+    # quantity, derived from real historical weekly game logs — was
+    # unchanged. Re-derived with `python3 draft/tools/variance_portfolio.py`
+    # against the current board and re-committed; this test's job (coverage
+    # buckets sum to the live board's count) is otherwise unchanged.
     board = json.loads((DRAFT.parent / "public"
                         / "draft_data.json").read_text())
     for pos in V.POSITIONS:
