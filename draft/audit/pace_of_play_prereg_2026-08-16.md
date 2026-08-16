@@ -273,3 +273,93 @@ and no finding will be manufactured.
 - Team-week pace exists in the store but is NOT used by §5 — a season-total
   projector consumes a season-grain feature, and a weekly arm is a different
   study.
+
+---
+
+# AMENDMENT 1 — 2026-08-16, written AFTER §3/§4 and BEFORE §5 is run
+
+Appended, never rewritten (the no-delete habit). Everything above stands as
+written; this records a departure from its letter and why, before the grading
+step it changes.
+
+## What the gate did
+
+§3 ran and **split the family**, which §3 as written did not anticipate:
+
+| metric | pooled Spearman, CI | verdict |
+|---|---|---|
+| `neutral_plays_per_game` — **§5's preregistered feature** | +0.062 [−0.154, +0.265] | **NOT PERSISTENT** |
+| `plays_per_game` (raw) | +0.141 [−0.082, +0.357] | NOT PERSISTENT |
+| `neutral_share` | +0.085 [−0.130, +0.291] | NOT PERSISTENT |
+| `lax_plays_per_game` | +0.218 [+0.007, +0.415] | weakly |
+| `proe` | +0.292 [+0.047, +0.521] | weakly |
+| `neutral_pass_rate` | +0.362 [+0.129, +0.571] | PERSISTENT |
+| **`neutral_sec_per_play`** | **+0.417 [+0.191, +0.602]** | **PERSISTENT** |
+| `neutral_sec_per_play_clockrunning` | +0.434 [+0.231, +0.602] | PERSISTENT |
+| *`implied_team_total_wk1` (CONTROL, not pace)* | *+0.302 [+0.097, +0.492]* | *PERSISTENT* |
+
+**The registered expectation was half wrong and it is recorded as such.** §3
+said *"I expect `neutral_plays_per_game` and `neutral_sec_per_play` to be MORE
+persistent than `plays_per_game`"*. Seconds-per-play, yes, decisively.
+Neutral plays per game is the LEAST persistent of the three — below the raw
+figure it was supposed to improve on. §3 also registered the reading to apply
+in that case (*"evidence the neutral filter is destroying signal rather than
+noise"*); the honest version is weaker than that, because both CIs include zero
+and the difference between +0.141 and +0.062 is not resolvable at n=32.
+
+## The substitution, and why it is not a free second look
+
+**§5's preregistered feature failed the gate, so the §5 arm as written is dead
+and is not run.** In its place §5 is run with **`neutral_sec_per_play`**, the
+metric that passed the gate. This is a departure from the letter of §5 and is
+declared here rather than discovered in the result.
+
+**Why it does not inflate the §5 test.** The gate is computed from pace against
+pace — 32 team-seasons correlated with 32 team-seasons. **It reads no fantasy
+outcome, no player, no projection and no graded season.** Selecting which
+feature to grade on a criterion that never touches the outcome cannot bias the
+outcome test. This is the same reason a power calculation may precede an
+experiment.
+
+**The multiplicity is still real and is priced.** Eight metrics were screened.
+Two of the eight cleared the PERSISTENT band; one is being carried forward.
+Every §5 number must be read as the survivor of an eight-way screen, and the
+verdict will say so in those words.
+
+**THE SIGN IS REGISTERED NOW, before grading, because a sign flip after the
+fact is a second free look.** Fewer seconds per play = faster = more snaps, so
+the tilt is written with tempo INVERTED:
+
+    v *= 1 + k · (mean_sec − sec_prev[team]) / mean_sec
+
+A fast team gets a positive tilt. If the winning `k` on the 2024 selection fold
+is the negative-control value, the arm is void, not inverted.
+
+## §4b — a link the original prereg did not name, and it is the load-bearing one
+
+Writing §5 exposed a chain the prereg only implied. A draft board needs
+`tempo(Y−1) → opportunity(Y)`. Tempo persisting is **necessary and not
+sufficient**: a perfectly persistent coaching habit that does not move next
+year's snap count is a fact about coaches, not an edge. §4b measures both links
+directly, and — like the gate — **reads no fantasy outcome at all**:
+
+| link | pooled Pearson, CI |
+|---|---|
+| tempo(Y) → `plays_per_game`(Y), same season | **−0.461 [−0.614, −0.315]** |
+| tempo(Y) → `neutral_plays_per_game`(Y), same season | −0.174 [−0.354, −0.013] |
+| tempo(Y−1) → `plays_per_game`(Y), next season | **−0.181 [−0.368, +0.014]** |
+| tempo(Y−1) → `neutral_plays_per_game`(Y), next season | **−0.114 [−0.304, +0.083]** |
+
+Correctly signed throughout. Strong within a season; **both forward links have
+CIs that include zero.** §4b is added to the record here, before §5, so it
+cannot be presented later as though it had been planned as a consolation.
+
+## What this does to §5's status
+
+§5 is still run, and the §5 success bar in the original text is unchanged and
+not weakened. But §5 is now a **CONFIRMATION of a null already established
+upstream by §4b**, not the primary evidence. If §5 clears the bar anyway on a
+feature whose forward mechanism link cannot be resolved from zero, that result
+is to be treated as a candidate for chance, not a finding — and it will be
+reported that way. Nothing about the model changes without Cory's ruling in
+either direction.
