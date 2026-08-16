@@ -49,3 +49,14 @@
 - **End of draft**: before closing the laptop, confirm the LAST pick's commit is
   visible on GitHub (same check as step 8). The workflow now refuses to declare
   completion with unpushed commits, but verify with your own eyes anyway.
+
+## Chaos-drill addendum (2026-08-16 — two operator checks changed)
+- **A green sync run does NOT mean the draft was captured.** The workflow also
+  ends green when `max_minutes` runs out (only a `::warning::` line differs).
+  Judge completion by the LAST LOG LINE — it must say
+  `draft complete — every pick logged, stopping.` — never by the green check.
+- **Never re-freeze after the draft starts.** The logger now REFUSES to append
+  the moment the freeze on disk stops matching the log's rows ("freeze changed
+  mid-draft", both shas named). If the sync log starts printing that, someone
+  rebuilt/re-froze the board mid-draft: restore the frozen file from git and
+  the capture resumes by itself on the next poll.

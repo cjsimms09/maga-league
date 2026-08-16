@@ -219,7 +219,7 @@ def test_an_empty_sleeper_read_REFUSES_rather_than_logging_an_untouched_board():
     """`or []` again: an empty response is a broken read, not an empty draft."""
     class _SI:
         @staticmethod
-        def fetch_draft_picks(_):
+        def fetch_draft_picks(_, **kw):     # accepts live=True like the real one
             return []
     sys.modules["sleeper_import"] = _SI
     try:

@@ -2473,6 +2473,15 @@
         notes.push({ level: 'warn', text: 'This board is ' + Math.round(hours)
           + ' hours old — consider rebuilding before you draft off it.' });
       }
+    } else {
+      // CHAOS DRILL 2026-08-16: a board whose built_at is missing or
+      // unparseable reported NOTHING here — 'unknown' fell through this guard
+      // entirely, so a corrupt artifact rendered with no age note at all while
+      // the checklist called the same board "never built". An age that cannot
+      // be verified is not fresh; on draft day it must read as loud as stale.
+      notes.push({ level: 'bad',
+        text: 'This board has NO readable built_at — its age cannot be verified. '
+          + 'Treat it as stale: rebuild before drafting off it.' });
     }
 
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
@@ -7006,6 +7015,10 @@
     const dot = (state.pickStateProblems || []).length ? '🔴'
       : (!seat || !seat.resolved) ? '🔴'
       : freshMvs.level === 'stale' ? '🔴'
+      // 'unknown' (no readable built_at) fell through to 🟢 before 2026-08-16
+      // — a green dot on a board whose age nothing can verify, disagreeing
+      // with the checklist's "never built" on the same screen.
+      : freshMvs.level === 'unknown' ? '🔴'
       : freshMvs.level === 'aging' ? '🟡' : '🟢';
     document.getElementById('mvs-status').innerHTML =
       '<b>' + esc(mode) + '</b> · ' + esc(seat ? DraftSeat.describe(seat) : 'seat —')
@@ -7286,6 +7299,10 @@
     // gate blocks it elsewhere.
     if (freshSS.level === 'stale') red.push('board ' + Math.round(ageH) + 'h old — STALE');
     else if (freshSS.level === 'aging') amber.push('board ' + Math.round(ageH) + 'h old');
+    // 'unknown' was neither red nor amber before 2026-08-16 — the strip showed
+    // a green dot for a board with no readable built_at. Unverifiable age is a
+    // red: every recommendation's freshness claim rests on that timestamp.
+    else if (freshSS.level === 'unknown') red.push('board age UNKNOWN — built_at missing or unreadable');
     if ((prov.adp || {}).fallback_count_in_play > 0) amber.push(prov.adp.fallback_count_in_play + ' ADP guessed');
 
     const tone = red.length ? 'bad' : amber.length ? 'warn' : 'ok';
