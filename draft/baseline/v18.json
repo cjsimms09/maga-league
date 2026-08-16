@@ -1,0 +1,428 @@
+{
+  "_what": "THE MEASURED CORE, FROZEN. Immutable reference — never edited in place.",
+  "_rule": "SESSION-A binding rule 6: a change to recommendation behaviour either updates this reference deliberately or declares itself a gated departure. There is no third state where the reference silently follows the code.",
+  "_language": "SESSION-A binding rule 7: THIS object is \"the measured core\". Everything running is \"live policy under continuous measurement\".",
+  "frozen_at": "2026-08-16T04:58:53.744Z",
+  "engine_policy": {
+    "MEASURED_WEIGHTS": {
+      "value": 1,
+      "tier": 0,
+      "need": 0,
+      "risk": 0,
+      "ceiling": 0,
+      "keeper": 1,
+      "bye": 0,
+      "stack": 1
+    },
+    "CFG": {
+      "COIN_FLIP_GAP": 1,
+      "CLOSE_GAP": 3.5,
+      "TIE_THRESHOLD": 2,
+      "CONSERVE_SURVIVAL_ON": true,
+      "DOCTRINE_TILT_ON": true,
+      "FLEX_DISCOUNT": true,
+      "ONESIE_DISCOUNT": true,
+      "ONESIE_NEED_DISCOUNT": true,
+      "ONESIE_NEED_INSURANCE": 0.5,
+      "CEILING_MAX_BONUS": 20,
+      "CEILING_TIEBREAK": true,
+      "RAIL_DEFAULT_POS_CAP": {
+        "QB": 3,
+        "K": 2,
+        "DEF": 2,
+        "TE": 3
+      },
+      "RAIL_RUNAWAY_RATIO": 3,
+      "STAGE2_CAP": false,
+      "VALUE_WEIGHT_FLOOR": 0.25,
+      "VONA_SLOT_AWARE": false,
+      "AUTO_ANCHOR_ROUNDS": 2,
+      "AUTO_BUILD_ROUNDS": 6,
+      "SURVIVOR_CUTOFF": 0.005,
+      "PATHS_CLIFF_URGENCY": 6,
+      "RAIL_ADP_AHEAD": 30,
+      "CEILING_SPREAD_SHARE": 0.15,
+      "CEILING_LATE_FROM": 0.6,
+      "RAIL_COMPONENT_RATIO": 1,
+      "AUTO_FILL_ROUNDS": 10,
+      "ONESIE_KEEP": 0.1,
+      "ONESIE_ENDGAME_PICKS": 2,
+      "ONESIE_EXTREME_ADP": 18,
+      "ONESIE_ELITE_RANK": 3,
+      "BENCH_CEILING_FLOOR": 0,
+      "BENCH_RISK_FLOOR": 0,
+      "BENCH_DISCOUNT": 0.35,
+      "FLEX_ALT_WEIGHT": 1,
+      "DOCTRINE_TILT": 2.5,
+      "ADP_SD_FLOOR": 3,
+      "ADP_SD_RATE": 0.15,
+      "ADP_SD_CAP": 15,
+      "RUN_WINDOW": 10,
+      "RUN_DAMPING": 0.5,
+      "RUN_MIN": 0.6,
+      "RUN_MAX": 1.8,
+      "RUN_BANNER_AT": 1.4,
+      "STAGE2_CAP_T": 4,
+      "RAIL_LATE_ROUNDS": 2,
+      "AUTO_TIGHT_PICKS": 4,
+      "THREAT_MIN_P": 0.01
+    },
+    "SURVIVAL_CFG": {
+      "DRIFT_MIN_PICKS": 15,
+      "DRIFT_DAMPING": 0.6,
+      "DRIFT_MAX_OFFSET": 12,
+      "DRIFT_MAX_SD_SCALE": 1.6,
+      "DRIFT_EXPECTED_MAD": 8,
+      "ADP_SD_FLOOR": 3,
+      "ADP_SD_RATE": 0.15,
+      "ADP_SD_CAP": 15,
+      "NEAR_HORIZON": 24,
+      "BLEND_DECAY": 12,
+      "WITHIN_POS_TEMP": 0.35,
+      "WITHIN_POS_CANDIDATES": 6,
+      "WITHIN_POS_TAIL_P": 0.01,
+      "DEFAULT_ALPHA_NEED": 1,
+      "DEFAULT_BETA_VALUE": 1,
+      "K_DST_FORCED_ROUNDS": 2,
+      "TENDENCY_STRENGTH": 0.35,
+      "TENDENCY_SIGMA": 1.5,
+      "TENDENCY_ERRATIC": 0.4,
+      "BUCKET_BLEND": 0.25,
+      "OPENING_BOOST": 0.5,
+      "RUN_FOLLOW_MARGIN": 0.1,
+      "RUN_FOLLOW_MAX": 0.5,
+      "AFFINITY": {
+        "2": 1.7,
+        "3": 2.4,
+        "4": 3
+      },
+      "ROOM_MIX_PRIOR": true,
+      "ROOM_MIX_W": 0.25,
+      "RUN_WINDOW": 10,
+      "LRM_SAFE_P": 0.85,
+      "RUN_DAMPING": 0.5,
+      "RUN_MIN": 0.6,
+      "RUN_MAX": 1.8,
+      "RUN_BANNER_AT": 1.4,
+      "RUN_Z_MIN": 1.5,
+      "RUN_Z_FULL": 3
+    },
+    "preset_keys": [
+      "measured",
+      "balanced",
+      "value",
+      "upside",
+      "safe"
+    ]
+  },
+  "_coverage": {
+    "engine_cfg_total": 74,
+    "engine_cfg_pinned": 46,
+    "survival_cfg_total": 34,
+    "survival_cfg_pinned": 34,
+    "weights_total": 8,
+    "weights_pinned": 8,
+    "not_pinned_and_why": "display depth and presentation counts (SHEET_*, PATHS_POOL/MAX, WEIGHT_DIFF_DEPTH, DG_*) where a change is visible on its face and cannot alter the ranking; and the opponent-model TELL_*/THREAT_* family, which cfg_sensitivity could not exercise. UNTESTED is not evidence either way, and pinning on no evidence is how a baseline becomes noise that gets re-frozen reflexively.",
+    "removed_2026_08_14": {
+      "BENCH_SCORE_FLOOR": "read by nothing — its only two mentions in engine.js are comments. Removed deliberately, not dropped."
+    }
+  },
+  "anchor_source": "fantasypros",
+  "surfaces": [
+    {
+      "state": "early-empty-roster",
+      "current_pick": 34,
+      "next_pick": 41,
+      "board_size": 644,
+      "top10": [
+        {
+          "player_id": "12517",
+          "name": "Colston Loveland",
+          "position": "TE",
+          "score": 17.184,
+          "survival_to_next": 0.7837
+        },
+        {
+          "player_id": "LAR",
+          "name": "Los Angeles Rams",
+          "position": "DEF",
+          "score": 13.983,
+          "survival_to_next": 0.9613
+        },
+        {
+          "player_id": "9997",
+          "name": "Zay Flowers",
+          "position": "WR",
+          "score": 8.661,
+          "survival_to_next": 0.5394
+        },
+        {
+          "player_id": "7543",
+          "name": "Travis Etienne",
+          "position": "RB",
+          "score": 5.522,
+          "survival_to_next": 0.5544
+        },
+        {
+          "player_id": "11564",
+          "name": "Drake Maye",
+          "position": "QB",
+          "score": 3.43,
+          "survival_to_next": 0.897
+        },
+        {
+          "player_id": "11533",
+          "name": "Brandon Aubrey",
+          "position": "K",
+          "score": 2.87,
+          "survival_to_next": 0.9862
+        },
+        {
+          "player_id": "11635",
+          "name": "Ladd McConkey",
+          "position": "WR",
+          "score": 0.525,
+          "survival_to_next": 0.5724
+        },
+        {
+          "player_id": "6790",
+          "name": "D'Andre Swift",
+          "position": "RB",
+          "score": -1.152,
+          "survival_to_next": 0.5837
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": -3.296,
+          "survival_to_next": 0.9876
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": -4.078,
+          "survival_to_next": 0.988
+        }
+      ],
+      "rule_headline": {
+        "player_id": "9997",
+        "name": "Zay Flowers",
+        "position": "WR",
+        "reason": "earliest by MARKET PRICE within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 3.201,
+      "confidence_level": "close",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "mid-two-rb-one-wr",
+      "current_pick": 74,
+      "next_pick": 81,
+      "board_size": 604,
+      "top10": [
+        {
+          "player_id": "9487",
+          "name": "Parker Washington",
+          "position": "WR",
+          "score": 21.312,
+          "survival_to_next": 0.4851
+        },
+        {
+          "player_id": "5967",
+          "name": "Tony Pollard",
+          "position": "RB",
+          "score": 5.847,
+          "survival_to_next": 0.6618
+        },
+        {
+          "player_id": "1466",
+          "name": "Travis Kelce",
+          "position": "TE",
+          "score": 4.324,
+          "survival_to_next": 0.7857
+        },
+        {
+          "player_id": "3294",
+          "name": "Dak Prescott",
+          "position": "QB",
+          "score": 3.761,
+          "survival_to_next": 0.8401
+        },
+        {
+          "player_id": "8183",
+          "name": "Brock Purdy",
+          "position": "QB",
+          "score": -1.48,
+          "survival_to_next": 0.8577
+        },
+        {
+          "player_id": "7021",
+          "name": "Rico Dowdle",
+          "position": "RB",
+          "score": -3.195,
+          "survival_to_next": 0.6984
+        },
+        {
+          "player_id": "4217",
+          "name": "George Kittle",
+          "position": "TE",
+          "score": -3.299,
+          "survival_to_next": 0.8135
+        },
+        {
+          "player_id": "5012",
+          "name": "Mark Andrews",
+          "position": "TE",
+          "score": -4.926,
+          "survival_to_next": 0.8118
+        },
+        {
+          "player_id": "5846",
+          "name": "DK Metcalf",
+          "position": "WR",
+          "score": -7.645,
+          "survival_to_next": 0.6057
+        },
+        {
+          "player_id": "7523",
+          "name": "Trevor Lawrence",
+          "position": "QB",
+          "score": -9.433,
+          "survival_to_next": 0.8836
+        }
+      ],
+      "rule_headline": {
+        "player_id": "9487",
+        "name": "Parker Washington",
+        "position": "WR",
+        "reason": "earliest by MARKET PRICE within your remaining need (WR); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 15.464,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    },
+    {
+      "state": "late-onesies-open",
+      "current_pick": 134,
+      "next_pick": 141,
+      "board_size": 544,
+      "top10": [
+        {
+          "player_id": "10219",
+          "name": "Chris Rodriguez",
+          "position": "RB",
+          "score": 21.143,
+          "survival_to_next": 0.8041
+        },
+        {
+          "player_id": "4943",
+          "name": "Sam Darnold",
+          "position": "QB",
+          "score": 7.633,
+          "survival_to_next": 0.9263
+        },
+        {
+          "player_id": "8121",
+          "name": "Romeo Doubs",
+          "position": "WR",
+          "score": 4.018,
+          "survival_to_next": 0.8995
+        },
+        {
+          "player_id": "12545",
+          "name": "Tyler Shough",
+          "position": "QB",
+          "score": 2.006,
+          "survival_to_next": 0.9258
+        },
+        {
+          "player_id": "11786",
+          "name": "Cam Little",
+          "position": "K",
+          "score": 2,
+          "survival_to_next": 0.6015
+        },
+        {
+          "player_id": "NE",
+          "name": "New England Patriots",
+          "position": "DEF",
+          "score": 1.149,
+          "survival_to_next": 0.6424
+        },
+        {
+          "player_id": "3214",
+          "name": "Hunter Henry",
+          "position": "TE",
+          "score": 0.585,
+          "survival_to_next": 0.9544
+        },
+        {
+          "player_id": "3451",
+          "name": "Ka'imi Fairbairn",
+          "position": "K",
+          "score": 0.417,
+          "survival_to_next": 0.6085
+        },
+        {
+          "player_id": "8134",
+          "name": "Khalil Shakir",
+          "position": "WR",
+          "score": -2.91,
+          "survival_to_next": 0.9106
+        },
+        {
+          "player_id": "9480",
+          "name": "Brenton Strange",
+          "position": "TE",
+          "score": -4.847,
+          "survival_to_next": 0.9622
+        }
+      ],
+      "rule_headline": {
+        "player_id": "8259",
+        "name": "Cameron Dicker",
+        "position": "K",
+        "reason": "earliest by MARKET PRICE within your remaining need (K); QB & DEF deferred (the market prices them well later)"
+      },
+      "gap_to_second": 13.51,
+      "confidence_level": "clear",
+      "firing_rates": {
+        "contested": 0,
+        "has_reasons": 1,
+        "survival_present": 1
+      },
+      "survival_mass": 7,
+      "opponent_picks_in_window": 7,
+      "conservation_ratio": 1,
+      "survival_layers": [
+        "adp",
+        "intervening"
+      ]
+    }
+  ],
+  "_why": "Cory ruling 2026-08-16 'Don't agree with timelines we fix now': DECISIONS #0 def_fum_td (+ the full DEF projection TD vocabulary, all-32 measured) and #000 FP dropped-receptions (rec_rec) fixes applied to the board — 11 DEF proj_mean corrected, DEF replacement 99->103, every DEF vorp moved, proj_fantasypros recovered on 309 players. Evidence: draft/audit/proj_correctness_evidence_2026-08-16.json; applied by draft/tools/apply_projection_correctness_2026_08_16.py; audit doc draft/audit/projection_correctness_2026-08-16.md."
+}

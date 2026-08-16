@@ -3,7 +3,7 @@
   "generated_from": "opening_script.py \u2014 derives from board + REAL designations (supersede) + predicted slates (fill); regenerate on any input change",
   "fingerprint": {
    "board_built_at": "2026-08-15T17:52:22Z",
-   "board_content_hash": "a6b83e21dbec",
+   "board_content_hash": "1f32298355d0",
    "my_slot": 8,
    "my_keepers_hash": "bbd8bddb8d18",
    "predicted_slates_hash": "2c3c05638a32",
@@ -105,6 +105,13 @@
       "survival": 0.3
      },
      {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
+     },
+     {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
@@ -124,19 +131,19 @@
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.62
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
-      "position": "TE",
-      "vorp": 24.3,
-      "survival": 0.48
      }
     ]
    },
    {
     "pick": 53,
     "candidates": [
+     {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
+     },
      {
       "player_id": "2216",
       "name": "Mike Evans",
@@ -164,13 +171,6 @@
       "position": "TE",
       "vorp": 24.3,
       "survival": 0.29
-     },
-     {
-      "player_id": "6790",
-      "name": "D'Andre Swift",
-      "position": "RB",
-      "vorp": 23.8,
-      "survival": 0.26
      }
     ]
    }
@@ -227,6 +227,13 @@
       "survival": 0.3
      },
      {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
+     },
+     {
       "player_id": "2216",
       "name": "Mike Evans",
       "position": "WR",
@@ -246,19 +253,19 @@
       "position": "QB",
       "vorp": 26.0,
       "survival": 0.62
-     },
-     {
-      "player_id": "12518",
-      "name": "Tyler Warren",
-      "position": "TE",
-      "vorp": 24.3,
-      "survival": 0.48
      }
     ]
    },
    {
     "pick": 53,
     "candidates": [
+     {
+      "player_id": "LAR",
+      "name": "Los Angeles Rams",
+      "position": "DEF",
+      "vorp": 29.0,
+      "survival": 1.0
+     },
      {
       "player_id": "2216",
       "name": "Mike Evans",
@@ -286,13 +293,6 @@
       "position": "TE",
       "vorp": 24.3,
       "survival": 0.29
-     },
-     {
-      "player_id": "6790",
-      "name": "D'Andre Swift",
-      "position": "RB",
-      "vorp": 23.8,
-      "survival": 0.26
      }
     ]
    }

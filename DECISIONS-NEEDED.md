@@ -39,12 +39,19 @@ same session: see Settled below)*
 
 ## Standing open (predate today; unresolved; details under OPEN below)
 
-- Two projection sources disagree by position, systematically (#000,
-  2026-08-12) — partially answered by today's FP-archive skill benchmark
-  (`projection_skill_backtest_2026-08-15.md`) + the Sleeper-vs-FP fork
-  measurement (`model_learning_audit` §1.7, preregistered for Jan grading).
-- DEF projections 12 points short — `def_fum_td` maps to nothing (#0,
-  2026-08-11).
+- ~~Two projection sources disagree by position, systematically (#000,
+  2026-08-12)~~ — **FIXED 2026-08-16 under Cory's ruling ("Don't agree with
+  timelines we fix now")**: FP's live payload serves receptions as `rec_rec`,
+  which `_FP_STAT_MAP` dropped — every FP number was scored without reception
+  points. Recovered exactly (not rescaled); record appended to #000 below;
+  evidence chain in `draft/audit/projection_correctness_2026-08-16.md`.
+  (The 2026-08-15 partial answers — FP-archive skill benchmark + §1.7 fork
+  measurement — stand; the archive endpoints serve `rec` and were never broken.)
+- ~~DEF projections 12 points short — `def_fum_td` maps to nothing (#0,
+  2026-08-11)~~ — **FIXED 2026-08-16 under the same ruling**, and the gap was
+  larger than documented: all-32 measurement found FOUR unmapped TD component
+  keys (`def_fum_td`, `pass_int_td`, `def_kr_td`, `pr_td`); 11 defenses were
+  short 6-18 points. Record appended to #0 below; same audit doc.
 - Regression/shrinkage weight over-regresses — $ arm pending (#2).
 - Simplify AUTO: mask + value is the whole measured edge (#3).
 - STREAMABLE_LATE defined, tested, never read (#000000, 2026-08-15).
@@ -54,6 +61,19 @@ same session: see Settled below)*
   fixtures clause awaiting authorization (A).
 
 ## Settled today (rulings made; records, not questions)
+
+- **PROJECTION CORRECTNESS #0 + #000 — Cory 2026-08-16 "Don't agree with
+  timelines we fix now" → BOTH FIXED, evidence-first, same session.** #0: all-32
+  DEF capture proved Sleeper's projection rows carry only TD *components*
+  (never the aggregates our table prices) — `normalize_def_stat_line` folds
+  them in with aggregate-wins/components-sum discipline; 11 DEFs corrected
+  +6..+18 (Rams 114→132), DEF replacement 99→103. #000: FP's payload serves
+  receptions as `rec_rec`, which the map dropped — every FP number lacked
+  reception points (WR 0.824/TE 0.810 → 1.039/1.059 after exact recovery; the
+  RB ~1.00 "control" was two errors cancelling). Board regenerated through the
+  real generators, baseline v18 frozen under the ruling, 13 new pins, suites
+  green, verify 7/7. Records appended to #0/#000 below; evidence chains in
+  `draft/audit/projection_correctness_2026-08-16.md`.
 
 - **own_model_v6 PROMOTION — Cory 2026-08-16 "YES on V6" → APPLIED**
   (upgrading his same-day v4 acceptance). v6 = v4's QB arm byte for byte +
@@ -304,6 +324,40 @@ almost immediately after it was written, as this whole session's `git push origi
   raw numbers before it ever reaches our scoring table — the same class of confound
   the anchor decision (#1) already found and resolved for ADP (MFL's full-PPR tilt).
   That is the first thing I would check, not a certainty.
+- **✅ FIXED WITH EVIDENCE 2026-08-16 — Cory's ruling, verbatim: "Don't agree
+  with timelines we fix now" (overriding this entry's own diagnose-don't-rescale
+  caution AND the network block).** The blocked diff was run for real: a CI
+  probe (`draft/proj_correctness_probe.py`, dispatched where egress works)
+  committed FP's raw 2026 payload alongside Sleeper's component rows
+  (`draft/audit/proj_correctness_evidence_2026-08-16.json`). **The mechanism is
+  neither of the entry's candidate stories:** FP serves receptions under the
+  field name `rec_rec` (all 437 receiving rows; `rec`/`receptions` appear
+  nowhere), `_FP_STAT_MAP` maps only `rec`/`receptions`, so every
+  `proj_fantasypros` was scored with receptions DROPPED. WR/TE lost ~19-25% of
+  their total (the measured 0.824/0.810); QBs had nothing to lose (1.001); and
+  the RB control that stalled this diagnosis was two effects cancelling — RBs
+  lost their reception points too, masked by FP's genuinely higher rushing
+  volumes (post-fix RB ratio 1.138). Proof the recovery is exact: mapped stats
+  + 0.5×rec_rec reproduces FP's OWN `points_half` with median error 0.00 (IQR
+  ±0.01) across 249 board WR/TE — receptions were the whole gap, and the fix is
+  FP's exact number recovered, NOT a rescale (a position factor would have
+  erased FP's real, independent reception opinions — e.g. Chase 121 vs
+  Sleeper's 109). Fix live in `draft/adp.py recover_fp_dropped_stats()`
+  (deliberately not a backtest-module edit — the FP ARCHIVE endpoints
+  exp_fp_hist_proj graded DO serve `rec`, which is why the historical grades
+  showed near-zero WR/TE bias while the live column was broken); board column
+  recovered on 309 players via
+  `draft/tools/apply_projection_correctness_2026_08_16.py` (double-preflighted:
+  refuses unless the evidence reproduces the committed board AND the offline
+  downstream re-run reproduces the build); 13 pins in
+  `draft/tests/test_projection_correctness.py`; baseline v18 frozen under the
+  ruling. New live ratios QB 1.001 · RB 1.138 · WR 1.039 · TE 1.059 — genuine
+  source disagreement on compatible units, averaged per this entry's own
+  standing rule, no further correction applied. **Caveat that outlives the
+  fix:** `proj_series.json`'s FP snapshots dated 2026-08-09..08-15 carry the
+  defect and are frozen/append-only — the January 2027 grade must use FP rows
+  from 08-16 onward or account for it. Full chain + top-30 consensus movement
+  table: `draft/audit/projection_correctness_2026-08-16.md`.
 
 ## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
 
@@ -362,6 +416,39 @@ almost immediately after it was written, as this whole session's `git push origi
   components-vs-aliases distinction from the original write-up still holds: sum
   real components, first-writer-wins on aliases, never both.
 - Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
+- **✅ FIXED WITH EVIDENCE 2026-08-16 — Cory's ruling, verbatim: "Don't agree
+  with timelines we fix now" (overriding this entry's own fix-it-AFTER-the-draft
+  recommendation).** The re-check's ready-to-run plan was executed exactly: a CI
+  probe fetched the raw projection rows for ALL 32 defenses and the full key
+  census (`draft/audit/proj_correctness_evidence_2026-08-16.json`), the capture
+  proven to be the build's own input record (all 32 rescore to the committed
+  board to the cent) before anything moved. **The census settles the trap this
+  entry recorded:** the aggregates `def_td` / `def_st_td` / `fum_rec_td` appear
+  in ZERO of the 32 projection rows — only components do (`def_fum_td` 1 row,
+  `pass_int_td` 4 — the predicted "def_int_td-style key", found under a
+  different spelling — `def_kr_td` 4, `pr_td` 5) — so mapping components into
+  the aggregates cannot double-count any row Sleeper serves, and the
+  aggregate-wins/components-sum discipline is pinned by test for the payload
+  that could. Also corrected from the 2026-08-15 re-check: `def_kr_td: 0.0` in
+  the league table is duplicate-suppression, not "this league does not reward
+  return TDs" — the league prices the AGGREGATE `def_st_td` at 6.0, so a
+  projected DST return TD is worth 6 and was also silently zero. Fix live in
+  `draft/scoring.py normalize_def_stat_line()` (+`DEF_PROJ_TD_ALIASES`) applied
+  by `projections.baseline_from_projections` to DST rows only (individual
+  returners carry the same keys and correctly stay at the league's st_td 0.0 —
+  measured, pinned). Board regenerated through the real generators
+  (`draft/tools/apply_projection_correctness_2026_08_16.py`, double-
+  preflighted): 11 defenses corrected +6..+18 (Rams 114 → **132** — the
+  original −12 plus a kick-return TD the one-row sample couldn't see), DEF
+  replacement 99.0 → 103.0, every DEF vorp moved, DEF order genuinely changed
+  (NE/MIN/JAX into the top six; PHI/DEN/BAL out). Rams recomputed by hand +
+  all-32 no-double-count sweep vs Sleeper's own implied totals:
+  `draft/tests/test_projection_correctness.py` (13 pins). Baseline v18 frozen
+  under the ruling. Full chain: `draft/audit/projection_correctness_2026-08-16.md`.
+  **Left on the record, not fixed here:** K/DEF remain single-source on the
+  board, but the same capture shows FantasyPros DOES serve full DEF projections
+  (def_td/def_sack/def_int/def_pa_* on 32 rows) — a second DEF opinion is now
+  demonstrably obtainable, unruled, unbuilt.
 
 ## 2. REGRESSION / SHRINKAGE WEIGHT: over-regresses — ACCURACY+OVERFITTING GATE CLEARED, $ pending (2026-08-10)
 - **✅ CV UPDATE (exp_regression_cv):** the gate exp35 set ("leave-one-season-out CV")

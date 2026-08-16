@@ -17,7 +17,13 @@ and records — to be precise: zero GATED RULINGS remain open before the 22nd;
 the standing RESEARCH items (projection-source disagreement, DEF def_fum_td
 gap, STREAMABLE_LATE, and the rest of DECISIONS-NEEDED.md's OPEN section)
 remain open on purpose and are listed there — 'clean queue' never meant
-'no known issues' (list + verbatim rulings: `DECISIONS-NEEDED.md` § Settled). The
+'no known issues' (list + verbatim rulings: `DECISIONS-NEEDED.md` § Settled).
+**[UPDATED 2026-08-16, later session: the first two of those standing items —
+#000 projection-source disagreement and #0 DEF def_fum_td — are now FIXED
+under a further Cory ruling ("Don't agree with timelines we fix now");
+records appended to both entries, evidence chains in
+`draft/audit/projection_correctness_2026-08-16.md`, merge-ready item on
+ROUTES TO:A. This paragraph kept as written per the no-delete habit.]** The
 projection program replaced the own-model twice in one day under his written
 acceptances (v4 then v6 — v6 = v4's QB arm + component-built RB/WR/TE arms,
 cleared the REC-3 bar at all four positions). Five design/model passes ran as
