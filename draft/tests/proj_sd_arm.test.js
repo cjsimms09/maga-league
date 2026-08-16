@@ -58,6 +58,38 @@ const bandSd = (pos, rank) => {
   return null;
 };
 
+// FULL-POPULATION RANK (board-rebuild finding, 2026-08-16 — see
+// draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern).
+// projections.blend() computes its calibration rank BEFORE the keeper split
+// (draft/build.py calls blend() on `players` around line 657; keepers are
+// extracted into `kept_players` afterward, around line 1452, and
+// vorp.assign_tiers recomputes the exported `pos_rank` field on what remains
+// AFTER that split). So the band blend() actually reads for a player is his
+// rank among players+kept_players, not his exported `pos_rank` — the two
+// differ by exactly the count of same-position keepers ranked above him
+// (here: Ja'Marr Chase shifts every other WR's pos_rank down by 1; Derrick
+// Henry and Kenneth Walker shift every other RB's down by 2). That offset has
+// always existed; it was invisible while every measured player's blend-time
+// rank and exported pos_rank fell in the SAME band tier. The corrected
+// projections (e993e1de: DEF TD vocabulary + FP dropped-receptions) moved
+// Amon-Ra St. Brown, Chase Brown, and Justin Jefferson enough to cross a
+// tier boundary, so `pos_rank` started naming the wrong band cell for them —
+// not a shipped-board defect (proj_sd == proj_mean × variance still holds,
+// and re-deriving with the rank blend() actually used matches every row
+// exactly). Re-derive that rank here instead of trusting the exported field.
+const fullPopRank = (() => {
+  const byPos = {};
+  (D.players || []).concat(D.kept_players || []).forEach(p => {
+    (byPos[p.position] = byPos[p.position] || []).push(p);
+  });
+  const rank = new Map();
+  Object.keys(byPos).forEach(pos => {
+    byPos[pos].slice().sort((a, b) => (b.proj_mean || 0) - (a.proj_mean || 0))
+      .forEach((p, i) => rank.set(p, i + 1));
+  });
+  return rank;
+})();
+
 // ── 0. THE PARAMETER REACHES A DECISION AT ALL ──────────────────────────
 // If nothing consumed proj_sd this whole file would be theatre.
 {
@@ -94,7 +126,7 @@ const bandSd = (pos, rank) => {
   const rebuilt = rows.filter(p => p.proj_sd_source === 'measured-2023-25-error').length
     > rows.length * 0.5;
   const changed = rows.filter(p => {
-    const sd = bandSd(p.position, p.pos_rank);
+    const sd = bandSd(p.position, fullPopRank.get(p));
     return sd != null && Math.abs(p.proj_mean * sd - (p.proj_sd || 0)) > 0.5;
   });
   if (!rebuilt) {
@@ -123,7 +155,7 @@ const bandSd = (pos, rank) => {
     ? 'post-REC-1 rebuild (' + declared.length + '/' + rows.length + ' rows declare the measured source)'
     : 'pre-REC-1 rebuild (constants still shipped)'));
   if (!rebuilt) {
-    const ratios = rows.map(p => bandSd(p.position, p.pos_rank) / (p.proj_sd / p.proj_mean))
+    const ratios = rows.map(p => bandSd(p.position, fullPopRank.get(p)) / (p.proj_sd / p.proj_mean))
       .filter(v => isFinite(v) && v > 0).sort((a, b) => a - b);
     const med = ratios[Math.floor(ratios.length / 2)];
     console.log('      measured ÷ shipped dispersion, median across the board: '
@@ -132,13 +164,13 @@ const bandSd = (pos, rank) => {
       + 'the direction of C\'s finding, re-derived rather than quoted', med > 1.05, med);
     ck('and it is not so extreme that something else is wrong — a 5× gap would '
       + 'mean the units disagree, not that the parameter is low', med < 3, med);
-    const below = rows.filter(p => bandSd(p.position, p.pos_rank) > p.proj_sd / p.proj_mean).length;
+    const below = rows.filter(p => bandSd(p.position, fullPopRank.get(p)) > p.proj_sd / p.proj_mean).length;
     ck('it is a TENDENCY, not a uniform offset — some of the board runs the other '
       + 'way, exactly as C reported', below > rows.length * 0.5 && below < rows.length,
     { below: below, of: rows.length });
   } else {
     const off = declared.filter(p =>
-      Math.abs(p.proj_sd - p.proj_mean * bandSd(p.position, p.pos_rank)) > 0.6);
+      Math.abs(p.proj_sd - p.proj_mean * bandSd(p.position, fullPopRank.get(p))) > 0.6);
     ck('every row that declares the measured source actually CARRIES the measured '
       + 'band sd — the declaration and the number cannot part ways',
     off.length === 0, off.slice(0, 3).map(p => p.name));
