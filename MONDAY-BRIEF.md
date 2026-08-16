@@ -13,7 +13,11 @@ detail file named.
 ## 1. WHAT HAPPENED (the one-paragraph version)
 
 Cory ruled on SEVEN gated calls and every one is EXECUTED with tests, baselines
-and records (list + verbatim rulings: `DECISIONS-NEEDED.md` § Settled). The
+and records — to be precise: zero GATED RULINGS remain open before the 22nd;
+the standing RESEARCH items (projection-source disagreement, DEF def_fum_td
+gap, STREAMABLE_LATE, and the rest of DECISIONS-NEEDED.md's OPEN section)
+remain open on purpose and are listed there — 'clean queue' never meant
+'no known issues' (list + verbatim rulings: `DECISIONS-NEEDED.md` § Settled). The
 projection program replaced the own-model twice in one day under his written
 acceptances (v4 then v6 — v6 = v4's QB arm + component-built RB/WR/TE arms,
 cleared the REC-3 bar at all four positions). Five design/model passes ran as
