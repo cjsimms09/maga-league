@@ -890,6 +890,38 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   early/mid-draft pre-cap; does give a tested, history-grounded adjustment to
   when the cap relaxes. Awaiting Cory's go/no-go, not yet applied.
 
+## ROOKIE CAPITAL PRIOR → LIVE OWN-MODEL COLUMN — PREPARED, GATED, AWAITING CORY (A-lane league benchmark, 2026-08-16) 🔴 OPEN
+
+**The decision:** apply `draft/tools/apply_rookie_prior_own_model_2026.py`
+to the committed board, or don't. **Prepared and refusing to run without
+your recorded approval** (`--cory-approved "<your words>"`), per the
+league benchmark's preregistered clearing bar.
+
+**Why it's on the queue:** your "does model lose to everyone or just mine"
+replay (`draft/audit/league_benchmark_2026-08-16.md`) graded three
+candidate layers through the all-seats replay under preregistered forms.
+The rookie draft-capital prior CLEARED (pooled optimal-arm Cory gap
+−65.7 → −40.5/season, +25.1 = 38% of the gap, bar was 25%; realistic-arm
+league position 2/10 → 4/10 owners beaten) — with the help concentrated in
+the 2025 replay (+86) and 2024 slightly negative (−10.6), both in the doc.
+The other two layers did NOT clear (year-2 escalator failed its bar and
+its own measurement; roster-status is already priced on the live board —
+verified, nothing built).
+
+**What apply would change, exactly:** the live board's own-model column
+(`proj_ownmodel`) carries 0 of 153 rookies today. The script fills it for
+the 71 NFL-drafted board rookies from the capital prior fit on classes
+2021–25 (dry-run table in the script; UDFAs stay null, named). It touches
+NO blend/replacement/VORP/rank field — no pick recommendation moves.
+Wiring the value into the blend so the ENGINE consumes it is a separate
+A-lane build decision, only sensible after this one.
+
+**Options:** (1) approve the column patch (own-model column stops being
+silently blind to rookies, draft-night surfaces show an own-model rookie
+opinion); (2) approve + direct A to wire it into the blend (bigger, needs
+A); (3) leave it — the market columns already price rookies and the
+engine reads the blend, so declining costs no live pick quality today.
+
 ---
 
 # RESOLVED / HISTORICAL — kept for the audit trail, not action items

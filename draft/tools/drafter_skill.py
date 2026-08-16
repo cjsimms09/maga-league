@@ -244,8 +244,10 @@ def study(positions: dict, owners_by_season: dict,
                    "position-less pick excluded (keeper leverage measured "
                    "separately)"),
         "seasons": list(SEASONS),
-        "round_means_by_season": {str(s): slates[s]["round_means"]
-                                  for s in SEASONS},
+        "round_means_by_season": {
+            str(s): {str(rd): v
+                     for rd, v in slates[s]["round_means"].items()}
+            for s in SEASONS},
         "excluded_unknown_position": {
             str(s): slates[s]["excluded_unknown_position"] for s in SEASONS},
         "ranking": ranked,

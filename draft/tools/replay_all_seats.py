@@ -286,16 +286,17 @@ def pooled_tables(years: dict, owners_2025: dict) -> dict:
                     "mean_delta": round(sum(ds) / len(ds), 2)}
             per_owner[str(rid)] = dict(
                 {"owner": owners_2025[str(rid)]}, **rows)
+        summary = {}
         for arm in ("optimal", "realistic"):
-            means = sorted(v[arm]["mean_delta"]
-                           for v in per_owner.values())
-            per_owner_summary = {
+            means = sorted(per_owner[str(rid)][arm]["mean_delta"]
+                           for rid in SEATS)
+            summary[arm] = {
                 "beats_n_of_10_pooled": sum(1 for m in means if m > 0),
                 "median_owner_mean_delta": round(
                     (means[4] + means[5]) / 2.0, 2),
                 "cory_mean_delta": per_owner["1"][arm]["mean_delta"],
             }
-            per_owner.setdefault("_summary", {})[arm] = per_owner_summary
+        per_owner["_summary"] = summary
         out[cfg] = per_owner
     return out
 

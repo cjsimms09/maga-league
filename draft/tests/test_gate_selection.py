@@ -66,6 +66,11 @@ REPO_PARITY_NODES = {
     # record and board ages, both refreshed by the nightly board rebuild —
     # the same class as the own-model pins above.
     "draft/tests/test_draft_replay_2025.py::test_artifact_matches_regeneration",
+    # all-seats league benchmark (2026-08-16): same class again — the
+    # regeneration reads the tree's positions record, board ages, AND the
+    # live board itself (roster-status verification + name map), all of
+    # which the nightly board rebuild legitimately refreshes.
+    "draft/tests/test_replay_all_seats.py::test_artifact_matches_regeneration",
 }
 
 

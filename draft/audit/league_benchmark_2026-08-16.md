@@ -164,4 +164,279 @@ path — NOT applied; Cory rules** (queued in `DECISIONS-NEEDED.md`).
   optimal-arm delta in each top-3 seat, baseline vs layered — did the
   layers move the tool past the top drafters in their own chairs?
 
-*(Sections §3+ appended after this prereg was committed.)*
+---
+
+*(Everything below was appended AFTER the prereg commit `a1ce5b43`; no form
+in §2 was touched.)*
+
+## 3. THE LEAGUE TABLE — the answer to "everyone or just me"
+
+**Direct answer: the tool loses to MOST of the league, not just Cory — and
+in two of the three years the tool sits BELOW the median owner.** Pooled
+across 2023–25 on the roster-quality (optimal) arm the tool beats **3 of 10
+owners**; the median owner beats it by **92 points/season — more than Cory's
+own 66**. Cory's framing was too kind to the tool: he is not the only owner
+out-drafting it, he is not even the owner out-drafting it hardest. "Better
+than most of the league" is currently false and is the right bar to chase.
+
+**Baseline, optimal arm (Δ = tool − owner, in that owner's seat, that
+owner's keepers; each cell one fixed-opponents counterfactual):**
+
+| seat | owner | 2025 | 2024 | 2023 | pooled mean |
+|---|---|---|---|---|---|
+| 1 | coryjsimms | −16.9 | −58.0 | −122.1 | **−65.7** |
+| 2 | ds7mmet | −168.2 | −129.3 | −249.7 | −182.4 |
+| 3 | cashworth | −24.9 | +37.9 | +24.7 | **+12.6** |
+| 4 | Jreis | −86.4 | +245.1 | +228.6 | **+129.1** |
+| 5 | B8T3S | −206.7 | +130.3 | −101.3 | −59.2 |
+| 6 | MarianSaar | −67.9 | +10.9 | −296.3 | −117.8 |
+| 7 | mhagen | −218.2 | +9.1 | −184.6 | −131.2 |
+| 8 | Richard2121 | −215.0 | +97.9 | +175.4 | +19.5 |
+| 9 | Schmelley | −290.6 | +117.5 | −311.9 | −161.7 |
+| 10 | Sadbru | −258.8 | +60.8 | −162.7 | −120.2 |
+
+| year | tool beats | median owner Δ | Cory Δ |
+|---|---|---|---|
+| 2025 | **0 / 10** | −187.4 | −16.9 |
+| 2024 | **8 / 10** | +49.4 | −58.0 |
+| 2023 | 3 / 10 | −142.4 | −122.1 |
+| pooled | **3 / 10** | −91.7 | −65.7 |
+
+Realistic arm, pooled: beats 2/10, median −31.4, Cory −6.5.
+
+The shape of the table is the finding: **the tool beats the league's bad
+drafters and loses to its good ones.** Its three pooled wins are exactly
+the bottom three of the skill ranking (§6: Jreis, cashworth, Richard2121
+rank 8–10), and the owners who beat it hardest (ds7mmet, Schmelley,
+mhagen, Sadbru, MarianSaar) include the ranking's top two. 2024 — the one
+year the tool is above median — is also the year §6 shows the ROOM drafted
+worst against its slots. And **2025 is a red flag: 0/10**, every owner's
+real roster beat the tool's, Cory's seat being the tool's *closest* year
+(−16.9). The 2025 board was the thinnest walk-forward board of the three
+(biggest rookie class contribution: 85 rookies added by the layer in §4,
+five invisible rookie picks in seat 2 alone) — which is exactly why the
+rookie layer moves 2025 most.
+
+**"Above-median, below-Cory" is TRUE for 2024 only.** The honest pooled
+headline is: **below-median, below-Cory, above only the league's bottom
+three drafters.**
+
+Fixed-opponents caveat, per seat: every row is one alternative history in
+which only that seat re-drafts; the ten rows cannot happen at once.
+
+Side-finding, for the record: the NFL draft-picks store identified the
+repo's one position-less pick — **2025 pick 64, pid 12530, is Travis
+Hunter (WR, JAX, NFL pick 2), 49.8 pts, out after week 7.** The store now
+gives him a position in the layered configs, and his rows stop being a
+grading hole there (named in the artifact; the baseline keeps the original
+exclusion so seat-1 parity with the committed replay is exact).
+
+## 4. LAYER GRADES — against the §2d bar, no retuning
+
+### 4a. Rookie prior — **CLEARS (bar 1), with its concentration named**
+
+| year | Cory Δ baseline → layer | change | beats n | median Δ |
+|---|---|---|---|---|
+| 2025 | −16.9 → **+69.1** | **+86.0** | 0 → 4 | −187.4 → −116.3 |
+| 2024 | −58.0 → −68.6 | **−10.6** | 8 → 7 | +49.4 → +38.0 |
+| 2023 | −122.1 → −122.1 | 0.0 | 3 → 3 | unchanged |
+| pooled | −65.7 → **−40.5** | **+25.1** | 3 → 3 | |
+
++25.1 = **38% of the pooled Cory gap — clears the preregistered 25% bar.**
+Realistic arm agrees and adds league position: pooled Cory −6.5 → **+11.3**,
+beats **2 → 4** owners (2025 realistic Cory cell: **+141.5**). Honesty:
+
+- **The help is 2025-concentrated.** 2023 is a no-op (the 2021–22 fit's
+  cells are too cheap to out-VORP any veteran — top cell WR|1-10 at 176 but
+  QB|1-10 at a 3-row fallback of 70.9), and 2024 is slightly NEGATIVE even
+  though the layer did what it promised — the tool drafted MHJ, Nabers and
+  Odunze (rookies in: 592.6 actual pts; vets out: London/Allen/Godwin/
+  Ekeler, 565.9) but the swap converted to −10.6 in startable-lineup
+  points. Pricing rookies at the capital base rate gets the tool INTO the
+  rookie market without giving it Cory's 2024 selection (his five rookie
+  picks scored 1044).
+- Mechanically the 2025 lift is part direct (rookies drafted), part
+  indirect (85 added players shift replacement levels and pick cascades,
+  and Travis Hunter becomes visible/gradeable).
+- 30 seat-year cells, one policy: this is evidence of a closed structural
+  hole, not a measured +25/season expectation for 2026.
+
+**Prepared, gated, NOT applied** (§2d consequence):
+`draft/tools/apply_rookie_prior_own_model_2026.py` + the 2026-class store
+`draft/backtest/nflverse_draft_picks_2026.json`. The live 2026 board's
+market columns already price rookies (153 rookies carry `proj_mean`); the
+own-model column carries **0 of 153** — the same structural hole, live.
+The prepared diff fills `proj_ownmodel` for the 71 NFL-drafted board
+rookies from the 2021–25-fit prior (dry-run output in the script; UDFAs
+stay null, named), touches NO blend/VORP/rank field, refuses to run
+without Cory's recorded approval, and notes that wiring the value into the
+blend is a separate A-lane build decision. Queued in `DECISIONS-NEEDED.md`.
+
+### 4b. Year-2 escalator — **FAILS its own bar, and the measurement says why**
+
+| year | Cory Δ change | beats n | pooled |
+|---|---|---|---|
+| 2025 | −8.1 | 0 → 0 | |
+| 2024 | 0.0 | 8 → 6 | |
+| 2023 | 0.0 | 3 → 3 | |
+| pooled | **−2.7** | 3 → 2 | realistic −3.0, beats 2 → 2 |
+
+The measured progression distribution (the deliverable that survives the
+layer): **the cohort-wide sophomore leap does not exist in this data.**
+Ratio of year-2 to year-1 points, league scoring, cohort = NFL-drafted
+skill players with ≥50 year-1 points:
+
+| transition | QB | RB | WR | TE |
+|---|---|---|---|---|
+| 2021→22 | 1.17 (n=6) | 0.74 (n=8) | 1.00 (n=10) | 0.70 (n=2) |
+| 2022→23 | 1.89 (n=2) | 1.39 (n=8) | 1.02 (n=10) | 0.74 (n=6) |
+| 2023→24 | 1.05 (n=5) | 1.35 (n=6) | 0.99 (n=16) | 0.81 (n=5) |
+| 2024→25 | 1.03 (n=5) | 0.45 (n=5) | 0.69 (n=12) | 1.16 (n=4) |
+
+WR — the position the single-seat replay's Olave/Pickens story pointed at —
+is ≈ 1.0 in three transitions and 0.69 in the fourth. **Cory's year-2 wins
+were SELECTION, not cohort membership**, and §6 agrees from the other
+side: the top-3 drafters' year-2 picks pooled NEGATIVE surplus (−82.8)
+while the bottom half's were positive. A flat escalator cannot encode a
+selection skill. Reported as measured; layer dead under its own prereg;
+no diff prepared.
+
+### 4c. Both layers — negative interaction, named loudly
+
+Pooled optimal −1.1 (worse than rookie alone by 26 points): the
+escalator's QB/RB inflation (m up to 1.30/1.14) re-routes early-round
+picks and destroys most of the rookie layer's 2025 gain (Cory 2025:
++86.0 rookie-alone → +7.3 both). Draft policies are cascades — layer
+grades DO NOT ADD. The clearing combination is rookie prior alone.
+
+## 5. LAYER (c) — roster-status: verified, already priced live
+
+Against the committed board (`public/draft_data.json`, built
+2026-08-15T17:52:22Z): **677 players, 0 with a null team, 0 teamless
+players carrying any projection**, 538 with a depth-chart slot,
+`injury_status` populated. The claim stands: **the Brady-2023 pathology is
+a walk-forward artifact, not a live defect — this edge is already priced
+on the live board and nothing was built for it.** (Pinned by test so a
+future board that regresses goes red:
+`test_roster_status_verification_is_true_and_reproducible`.)
+
+## 6. THE DRAFTER STUDY — who is actually good, and at what (addendum)
+
+**Value-over-slot ranking, pooled 2023–25** (tool-independent; n stated;
+adjacent ranks are inside noise — the group contrast is the quotable read):
+
+| rank | owner | surplus (3yr) | per pick | n |
+|---|---|---|---|---|
+| 1 | **Schmelley** | +705.0 | +22.7 | 31 |
+| 2 | **MarianSaar** | +548.7 | +17.7 | 31 |
+| 3 | **coryjsimms** | +290.8 | +9.4 | 31 |
+| 4 | ds7mmet | +78.9 | +2.6 | 31 |
+| 5 | mhagen | −13.8 | −0.5 | 30 |
+| 6 | Sadbru | −22.9 | −0.7 | 33 |
+| 7 | B8T3S | −213.6 | −6.9 | 31 |
+| 8 | Richard2121 | −233.3 | −7.8 | 30 |
+| 9 | Jreis | −507.6 | −14.5 | 35 |
+| 10 | cashworth | −632.6 | −19.2 | 33 |
+
+Cory is a top-3 drafter and NOT the best — consistent with §3, where
+ds7mmet/Schmelley/MarianSaar all beat the tool by more than he does.
+(Per-year: Schmelley's +705 is spread across 2023/2025; Cory's +291 is
+one huge 2024 (+481) against a negative 2025 (−202) — n=31 volatility,
+said plainly.)
+
+**What separates the top 3 — from the bottom half AND from the tool:**
+
+| behavior | top 3 | bottom half | tool (baseline, replayed) |
+|---|---|---|---|
+| rookie rate | 17.2% | 8.7% | **0% — structural** |
+| rookie surplus | +40.8 | −41.7 | n/a |
+| late-round (101+) surplus | +38.5 | −35.7 | ≈ owner-level (42/93 hits vs owners' 41/93) |
+| first QB round (mean) | 7.1 | 5.9 | earlier (VORP over-buys QB — known) |
+| first TE round | 5.6 | 7.0 | — |
+| year-2 rate / surplus | 16.2% / **−82.8** | 8.7% / +26.3 | — |
+| keeper leverage | +4.5 | +105.8 | mirrored (excluded) |
+
+Reads, with per-owner nuance the group means hide:
+
+1. **Rookie drafting separates on BOTH tests** — the top 3 do it twice as
+   often and profitably, the tool cannot do it at all → **the study
+   CONFIRMS the rookie layer's priority** (and §4a shows the layer clears).
+   Nuance: it is Cory (4/7 hits, +203) and Marian (4/6, +77) who win at
+   rookies; Schmelley's rookie picks went 0/3, −157.7.
+2. **Late-round hitting is Schmelley's edge** (#1 drafter: 5/9 late hits,
+   +322.6 — that IS most of his +705), and the group contrast separates
+   top-3 from bottom-half. But it does NOT separate from the tool: the
+   tool's replayed late-round hit rate (42/93) already matches the
+   owners' (41/93). A "late-round upside bias" layer is therefore the one
+   NEW candidate this study surfaces, with honestly mixed evidence — if
+   pursued it needs its own prereg cycle; NOT graded today (named per the
+   addendum's scope rule).
+3. **Later first QB** separates top-3 from bottom-half and from the tool —
+   independent confirmation of the replay's raw-VORP-over-buys-QB
+   mechanism (the onesie caps contain it; the timing preference is not
+   yet encoded).
+4. **Year-2 targeting is NOT a top-3 edge** (their year-2 surplus is
+   negative) — the study kills the same narrative the escalator's
+   measurement killed in §4b. Consistency from two independent directions.
+5. **Keeper leverage doesn't separate the top 3** — bottom-half owners
+   held better keeper value; drafting skill and keeper luck are different
+   axes here.
+6. **NOT computable, named:** ADP-deviation (reach/value-fall) behaviors —
+   no committed 2023–25 market. Absent, not approximated.
+
+**"Make sure model can do that or better" — graded, and the answer today
+is NO.** The tool's pooled optimal deltas in the top-3 seats: Schmelley
+−161.7, MarianSaar −117.8, Cory −65.7 baseline; with the clearing rookie
+layer −146.1 / −91.1 / −40.5 — better in all three chairs, **still behind
+all three drafters**. The rookie layer closes part of the gap to the top 3;
+nothing built today closes it. That is the honest state of Cory's bar.
+
+## 7. What this licenses for the 22nd, and what it does not
+
+- License: "the tool must get better to beat most of this league" — Cory's
+  instinct is measured fact (§3). The rookie hole is real, closable, and
+  the ONE prepared diff (own-model rookie column, §4a) is on the queue.
+  The live engine's market arm already carries most of what the replay's
+  baseline lacks — nothing in §3's walk-forward numbers transfers to the
+  2026 engine as-is (same §6 caveat as the single-seat replay).
+- License: at the table, when Cory's read disagrees with the board on a
+  ROOKIE, his measured record there (4/7 hits, +203 surplus) says take his
+  read seriously; on a YEAR-2 trajectory player, the cohort data does NOT
+  back an automatic escalation — his edge there, if any, is selection.
+- Not licensed: any "the tool now beats the top drafters" claim (§6 grade:
+  it does not, in any tested configuration), or quoting the +25.1 as a
+  2026 expectation (30 cells, one policy, walk-forward boards).
+- The shadow ledger (`draft/data/draft_shadow_2026.jsonl` machinery)
+  captures his 2026 disagreements pick-by-pick — the systematic record his
+  "should we identify what things I did better" asks for, growing at
+  draft speed from the 22nd on.
+
+## 8. Machinery, tests, honesty
+
+- Tools (all new; `draft_replay_2025.py` imported, untouched):
+  `draft/tools/replay_all_seats.py`, `rookie_prior.py`,
+  `year2_escalator.py`, `drafter_skill.py`,
+  `apply_rookie_prior_own_model_2026.py` (prepared, gated).
+- Stores: `draft/backtest/nflverse_draft_picks.json` (2021–25, provenance,
+  career columns dropped), `nflverse_draft_picks_2026.json` (2026 class,
+  input to the prepared diff only).
+- Artifact: `draft/data/replay_league_table.json` (`_territory` first;
+  league tables, layer grades, measured distributions, drafter study,
+  roster-status verification, honesty list).
+- Tests (55 new checks): `draft/tests/test_replay_all_seats.py` (seat-1
+  parity with the committed single-seat replay — exact, all years, both
+  arms; league-table/pooled/layer-grade arithmetic identities; per-seat
+  board legality + keeper coverage; drafter-study consistency +
+  hand-recomputed 2024 round means; roster-status re-derivation;
+  determinism; regeneration pin, `repo_parity`-marked and registered in
+  `test_gate_selection.py`), `test_rookie_prior.py` (store
+  period-correctness — career columns cannot survive; hand-computed cells,
+  fallback and bust-zero fixtures; bucket boundaries; walk-forward guard;
+  per-year leakage traces), `test_year2_escalator.py` (hand-computed
+  ratio-of-sums, both clips, min-n, cohort floor; walk-forward guard;
+  leakage traces; real-data pins).
+- Honesty (full list carried in the artifact): thirty seat-year cells are
+  thirty alternative histories of ONE policy family, not a distribution;
+  per-seat fixed opponents; layer grades are non-additive (§4c); the
+  drafter ranking is surplus = skill + luck at n≈31; prereg commit
+  `a1ce5b43` precedes every grade in §3–§6.
