@@ -48,6 +48,22 @@ same session: see Settled below)*
   itself the bigger Saturday finding). Full entry: § "THE 50/50 TIE-BREAK
   LEAN" below.
 
+- **[NEW 2026-08-16, empirical draft-value study] TWO CORRUPTED COMMITTED
+  STORES, and one finding that reframes what the draft is worth** — · gated
+  switches: (a) re-fetch the historical props stores, (b) fetch real historical
+  ADP in CI, (c) the TE replacement-bias question, (e) rebuild the 2025 weekly-
+  points store · evidence:
+  `draft/audit/empirical_draft_value_2026-08-16.md` §§11.3 and 17.
+  **The two defects are the part that needs you first: the `any_td` column in
+  `historical_props_week1_*.json` is the decimal-odds corruption the fetcher
+  now guards against (McCaffrey 2024 = "4.21 expected TDs in one game"), and
+  `nflverse_weekly_points_2025.json` drops zero-point rows so its row presence
+  means "scored something", not "played".** The headline finding needs no
+  ruling but changes the frame: the room's own draft order already captures
+  82–87% of perfect hindsight, no preseason ordering tested beats it — own_v6
+  included — and the whole remaining prize is 14.2 points/team/week. Full
+  entry: § "THE EMPIRICAL DRAFT-VALUE STUDY" below.
+
 ## Standing open (predate today; unresolved; details under OPEN below)
 
 - ~~Two projection sources disagree by position, systematically (#000,
@@ -222,6 +238,128 @@ same session: see Settled below)*
 ---
 
 # OPEN — needs a decision, or is blocked and waiting
+
+## 📉 THE EMPIRICAL DRAFT-VALUE STUDY — two corrupted stores, and the prize is smaller than we thought (A, 2026-08-16) 🔴 OPEN
+
+**Your ask, verbatim:** *"Stop worrying about 6 days.. I want the best possible
+draft strategy and board we can have based off the last 3 seasons. I don't feel
+like we've even looked into what that is.."* — plus the two later additions
+("do all in that order"): availability/games-played, and where ADP misprices
+this format.
+
+You were right that nobody had looked. Every draft study on this branch asks
+whether OUR model is good. This one asks what actually happened in 2023, 2024
+and 2025. Preregistered in two stages before any result existed; full document
+`draft/audit/empirical_draft_value_2026-08-16.md`; artifacts
+`draft/backtest/empirical_draft_value{,_additions}.json`; 39 tests.
+
+**THE FINDING THAT NEEDS NO RULING BUT CHANGES THE FRAME.** Your league's own
+draft order — the room, no model in it — captured **82–87% of the
+perfect-hindsight starter set** at every position. Perfect foresight from the
+moment the draft ended was worth **14.2 points per team per week**. That is the
+whole remaining prize. And **no preseason ordering tested beats the room**:
+own_v6 walk-forward, week-1 betting props and naive last-season points all sit
+further from hindsight than the board the room already produces. Nothing here
+says own_v6 is bad; it says the burden of proof has moved.
+
+**FOUR THINGS FOR YOU, in the order they matter:**
+
+**(a) 🚨 A COMMITTED STORE IS CORRUPTED — the props anytime-TD column.**
+`historical_props_week1_{2023,2024,2025}.json` carries `any_td` values that
+cannot be expected touchdowns: Christian McCaffrey 2024 = **4.21**, a
+cornerback = 1.68. This is the decimal-odds corruption
+`fetch_historical_props.py` now refuses via `AMERICAN_IMPOSSIBLE_BAND` (whose
+own comment names "the 21-33x corruption the 2026-08-16 anytime-TD column
+shipped with") — **the guard landed in the fetcher; the committed stores
+predate it.** Nothing that reads `any_td` from those files should be trusted.
+*Diff:* re-run the fixed fetcher for 2023–25, replace the three week-1 stores,
+and check the full-season `historical_props_*.json` for the same column. *Cost:*
+real API credits — your call, same as the props study's main fetch.
+
+**(b) 🚨 A SECOND COMMITTED STORE IS WRONG — 2025 weekly points drops
+zero-point rows.** Row presence agrees exactly between the weekly-points and
+component stores for 2023 (0 of 4775 player-weeks disagree) and 2024 (0 of
+4770), and diverges by **884 player-weeks and 54 whole skill players in 2025**;
+the store carries 297 and 306 exactly-zero rows in the first two seasons and
+**six** in 2025. Its row presence therefore means "scored something", not
+"played". **Your stage-2 numbers are unaffected — that was checked, not
+assumed: every missing player scored ≤2.7 points and none would crack any
+starter set** — but any games-played or availability derivation from that store
+is wrong and would report a 2025 injury spike that never happened. *Diff:*
+rebuild the 2025 store through the path that produced 2023/2024, or document it
+as scored-rows-only and route every availability consumer to the component
+store. Pinned red-on-change by `test_2025_points_store_drops_zero_point_rows`.
+
+**(c) FETCH REAL HISTORICAL ADP IN CI — the single largest upgrade available.**
+There is no national historical ADP in this repo, so every slot-shaped number in
+the study is your own 10-team league (150 picks/season, and rounds 1–3 are
+keeper rounds). `adp.fetch_adp("half-ppr", 10, year)` **does** take a year and
+FantasyFootballCalculator serves it — it is only egress-blocked from the agent
+sandbox (403 at the proxy, logged). *Diff:* one workflow step plus a committed
+store. It would let the value curves, the cliffs and the hit/bust rates be
+redone against a national market. Free.
+
+**(d) THE FORMAT MISPRICING IS REAL, STABLE AND QUANTIFIED — is anything in the
+live pipeline exposed to it?** Scoring the same players under your table (0.5
+PPR, 6-pt pass TD) and the market's (full PPR, 4-pt pass TD) — exactly two keys
+changed — the *within-position* reordering is almost nothing (0–2 starters turn
+over per position per season). The *between-position* repricing is not: relative
+to a full-PPR board this format is worth **WR −8.4 and TE −9.2 points of season
+value-over-replacement, three seasons out of three**, RB −2.8, QB +5.1 with the
+sign flipping. **A full-PPR-priced board overstates elite pass-catchers in your
+league every year.** Also worth knowing: **6-point passing TDs do NOT create QB
+value in VORP terms** — replacement rises +53.1 and the top-10 mean rises +58.3,
+so net VOR moves about zero (raw-points share goes 18.6% → 24.0% and VOR does
+not). *Diff:* none proposed — the board builds its own projections under the
+frozen table, so the exposure is only to any EXTERNAL ranking or ADP consumed at
+draft time. **The question is whether that exposure exists anywhere live.**
+
+**(e) A one-line data gap:** `player_positions.json` has no entry for player
+`12530`, whom you drafted at 2025 pick 64 and who scored 49.8 points over 7
+games. *Diff:* add the entry.
+
+**WHAT THE STUDY FOUND THAT YOU CAN USE ON SATURDAY** (no ruling needed, and
+every one of these carries its CI in the document):
+
+- **Rounds 1–6 are the draft.** They beat rounds 7–15 by ~55 points per pick in
+  all three seasons. Within rounds 7–15 **no round separates from any other** —
+  those nine rounds are interchangeable in expectation.
+- **Starter rate by band: 74.4% / 51.1% / 33.9% / 21.5%**, monotone every season,
+  non-overlapping intervals at the top.
+- **Late running backs are the worst picks in the draft.** Rounds 11–15 RB
+  produced **3 starters from 35 picks** (1, 1, 1 across the three seasons).
+  Every RB cell from round 8 on is significantly below replacement. Tight end is
+  the only position whose late cells are *not* measurably below replacement.
+- **"RB early" is NOT supported in this format:** RB minus WR over rounds 1–6 is
+  +20.0 points, **CI [−36.1, +65.7]**, sign flips across seasons, starter rates
+  64.2% vs 66.2%.
+- **Paying up for a QB did not pay:** first-three-QBs minus eighth-and-later is
+  +46.6, **CI [−47.1, +140.5]**, and 2025 flipped. In 2024 the best fantasy QB
+  (Burrow, 443.8) went at pick 61 and the QB taken at pick 115 returned 401.6.
+  **This independently corroborates `WAR-ROOM-SAID-TAKE-EARLY-QB.md` from the
+  outcomes side** — that document voided the doctrine on a design defect; the
+  results never supported it either.
+- **Volume, not efficiency.** Opportunity per game predicts next season about as
+  well as last season's points (WR 0.704, TE 0.712) and roughly twice as well as
+  efficiency (WR 0.322, TE 0.126 — noise). **Last year's efficiency predicts
+  DECLINE** (WR −0.284, TE −0.294).
+- **Nothing predicts beating your draft slot** at any position, with one
+  exception: **RB NFL draft capital** (ρ −0.427, 3/3 seasons).
+- **Availability**: if everyone had played 16 games the starter rate rises
+  10.8–15.6pp in *every* band — a level effect, not the late-round explanation.
+  **34.8% of misses in rounds 1–3 are pure absence against 9.6% in rounds
+  11–15**: early picks get hurt, late picks were not good enough. Durability
+  persists weakly (RB 0.274, WR 0.243, TE 0.310) and **not at all at QB**. The
+  **RB-durability folk wisdom is not supported** (RB−WR availability −0.029, CI
+  [−0.099, +0.033]), and availability explains *less* of RB season-points
+  variance (26.5%) than WR's, TE's or QB's.
+
+**NOTHING SHIPPED.** No model, board, config or policy change was made. Two
+preregistered instruments turned out to be wrong and are published as wrong
+rather than quietly repaired (the position-blind hit/bust definition breaks at
+QB; the raw-points allocator drafts fifteen quarterbacks). The
+roster-construction audit is **not** contradicted — the outcomes allocator
+cannot resolve differences that small and says so.
 
 ## 💰 HISTORICAL PLAYER-PROPS STUDY — harness built and tested, NO ruling needed yet (Fable, 2026-08-16)
 
