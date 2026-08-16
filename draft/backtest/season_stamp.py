@@ -302,6 +302,14 @@ BOARD_FIELD_SOURCES = {
     # so nothing downstream moves either way, and I matched the sibling rather
     # than invent a rule.
     "adp_sd_source": "seasonal",
+    # TERRITORY-GRANT: A proj_sd_source
+    # Same shape, same reasoning, same precedent as adp_sd_source directly
+    # above (Override #4): projections.py:310 writes proj_sd_source in the
+    # same dict literal as proj_sd (REC-1's calibration, bb1d115a) — the
+    # field names WHICH PATH produced proj_sd and travels with that fetch.
+    # Declared by the relay 2026-08-16 so the publication gate stops
+    # refusing fresh boards for carrying it; C — challenge freely.
+    "proj_sd_source": "seasonal",
     # ⚠️ ADDED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
     # THE A/C BOUNDARY. These three are A's per-player ADP season stamps
     # (`build.adp_season_stamps`), C's own gate implemented in A's lane. They
@@ -447,6 +455,7 @@ BOARD_FIELD_PURPOSE = {
     # provenance string riding alongside a fetched value. It is provenance ABOUT
     # a number and never an input to one — no ranking reads it, and none does.
     "adp_sd_source": LIVE_FEED,
+    "proj_sd_source": LIVE_FEED,   # TERRITORY-GRANT: A proj_sd_source (see above)
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it
     # already has. They are provenance about a number, never an input to one, so
