@@ -1117,3 +1117,295 @@ Unchanged from §3.7. Both additions are measured by one committed, tested modul
 and one committed artifact. **No model, board, config or policy change ships.**
 Real findings become `DECISIONS-NEEDED.md` items with described diffs, and Cory
 rules.
+
+---
+---
+
+# STAGE 4 — RESULTS FOR ADDITIONS A AND B
+
+_Appended 2026-08-16. §§0–14 unchanged. Produced by
+`draft/backtest/empirical_draft_value_additions.py` →
+`draft/backtest/empirical_draft_value_additions.json`, tests in
+`draft/tests/test_empirical_draft_value_additions.py` (15 tests)._
+
+## 15. ADDITION A — AVAILABILITY
+
+### 15.0 The answer, first
+
+**A1. Availability is a large share of what the draft produced, but it is NOT
+what makes late picks fail.** If every drafted player had played a full 16
+games at his own per-game rate, the starter rate would have risen by **10.8 to
+15.6 percentage points in every round band** — a big, uniform lift. But the
+*composition* of failure changes completely with round: **34.8% of misses in
+rounds 1–3 are pure absence, against 9.6% in rounds 11–15.** Early picks fail
+because they get hurt; late picks fail because they were not good enough.
+
+**A2. Availability does persist, so the ingredient an availability model would
+need does exist — modestly, and not at quarterback.** Restricted to players who
+already had a real role (the arm that matters — see §15.3), Spearman(availability
+Y−1 → Y) is **RB 0.274 [0.132, 0.413], WR 0.243 [0.088, 0.385], TE 0.310
+[0.122, 0.481]** — all three seasons the same sign at all three positions —
+and **QB 0.215 [−0.050, 0.441], not distinguishable from noise.**
+
+**A3. The RB-durability folk wisdom is not supported.** Among drafted picks, mean
+availability is RB 0.817 against WR 0.846 — difference **−0.029, 95% CI
+[−0.099, +0.033]**. Not distinguishable from noise, in either population.
+**And availability explains LESS of the season-points variance at running back
+(26.5%) than at receiver (43.6%), tight end (41.5%) or quarterback (63.1%).**
+
+**A4. Age does not predict availability at any position.** QB −0.102, RB +0.074,
+WR −0.029, TE +0.031 — every interval covers zero.
+
+### 15.1 What "availability" is and is not, restated at the table
+
+Every number below counts games from `component_stats_{Y}` (§12.1), credits a
+player against his own team's schedule (§12.2), and **cannot distinguish an
+injury from a healthy scratch or a depth-chart burial** (§12.3). Nothing here is
+an injury finding.
+
+### 15.2 A1 — the decomposition
+
+**Attribution of every drafted skill pick** (n = 388; ABSENCE = missed ≥4 games
+AND his own rate over 16 games would have made him a league starter; PRODUCTION
+= played >75% and was not good enough; BOTH = missed games and would have missed
+the cut anyway):
+
+| round band | n | starter | production | absence | both | **pure-absence share of the misses** |
+|---|---|---|---|---|---|---|
+| 1–3 | 90 | 74.4% | 7.8% | 8.9% | 8.9% | **34.8%** [18.8, 55.1] |
+| 4–6 | 90 | 51.1% | 24.4% | 12.2% | 12.2% | **25.0%** [14.6, 39.4] |
+| 7–10 | 115 | 33.9% | 39.1% | 7.8% | 19.1% | **11.8%** [6.4, 21.0] |
+| 11–15 | 93 | 21.5% | 44.1% | 7.5% | 26.9% | **9.6%** [4.7, 18.5] |
+
+| position | n | pure-absence share of misses | mean availability |
+|---|---|---|---|
+| TE | 42 | **34.8%** [18.8, 55.1] | 0.854 |
+| WR | 157 | 18.3% [11.4, 28.0] | 0.846 |
+| RB | 141 | 11.9% [6.6, 20.5] | 0.817 |
+| QB | 48 | 7.4% [2.1, 23.4] | 0.832 |
+
+**The "if nobody got hurt" counterfactual** — §7.1's table recomputed with
+`ppg × 16` in place of realized points:
+
+| round band | actual starter rate | if everyone played 16 | lift | per season (actual → if-16) |
+|---|---|---|---|---|
+| 1–3 | 74.4% [64.6, 82.3] | 85.6% [76.8, 91.4] | **+11.1** | .633→.833 / .800→.800 / .800→.933 |
+| 4–6 | 51.1% [41.0, 61.2] | 66.7% [56.4, 75.5] | **+15.6** | .500→.600 / .600→.733 / .433→.667 |
+| 7–10 | 33.9% [25.9, 43.0] | 46.1% [37.3, 55.2] | **+12.2** | .385→.487 / .256→.436 / .378→.459 |
+| 11–15 | 21.5% [14.4, 30.9] | 32.3% [23.6, 42.3] | **+10.8** | .161→.258 / .219→.344 / .267→.367 |
+
+**The lift is real and uniform, and it does not change the shape of the draft.**
+Even in perfect health, rounds 11–15 return a starter only about a third of the
+time and rounds 1–3 about six times out of seven. **Availability is a level
+effect on the whole draft, not the explanation for the late-round cliff.**
+
+**Variance decomposition** on `log(points) = log(games) + log(ppg)`, drafted
+picks, share attributable to games played:
+
+| position | n | games' share of log-variance | 95% CI | mean games | mean ppg |
+|---|---|---|---|---|---|
+| QB | 47 | **63.1%** | [36.4, 78.3] | 13.6 | 20.8 |
+| WR | 157 | 43.6% | [20.2, 62.2] | 13.6 | 10.6 |
+| TE | 42 | 41.5% | [22.5, 72.4] | 13.7 | 9.2 |
+| **RB** | 141 | **26.5%** | [14.5, 40.2] | 13.1 | 10.5 |
+
+**This runs directly against the folk wisdom.** Running back — the position
+everyone treats as the injury-risk position — is the position where availability
+explains the *least* of what a pick returned. The reason is visible in the same
+row: RB per-game production varies enormously between picks, so `ppg` dominates.
+At quarterback, where drafted passers are all roughly similar per game,
+availability is nearly two-thirds of the variance.
+
+### 15.3 A2 — persistence, and the robustness arm that halved it
+
+**Unrestricted, over all skill players** — Spearman(availability Y−1 →
+availability Y): QB 0.524 [0.335, 0.685], RB 0.506 [0.397, 0.597], WR 0.421
+[0.336, 0.498], TE 0.579 [0.472, 0.663]. All FINDINGS.
+
+**⚠️ THAT NUMBER IS INFLATED AND IT WOULD HAVE BEEN A FAKE FINDING.** Over all
+skill players, "availability" is dominated by **roster status, not durability** —
+mean availability across all skill players is only 0.51–0.63, because that
+population is mostly depth. A fourth receiver inactive twelve weeks in both
+seasons contributes a large positive correlation that has nothing to do with
+getting hurt. So a **post-hoc robustness arm** (labelled as post-hoc; it is not
+in §13.3) restricts to players whose prior-season availability was already
+≥ 0.75:
+
+| position | n | ρ unrestricted | **ρ established players only** | 95% CI | seasons same sign | verdict |
+|---|---|---|---|---|---|---|
+| RB | 168 | 0.506 | **0.274** | [0.132, 0.413] | 3/3 | **FINDING** |
+| WR | 260 | 0.421 | **0.243** | [0.088, 0.385] | 3/3 | **FINDING** |
+| TE | 111 | 0.579 | **0.310** | [0.122, 0.481] | 3/3 | **FINDING** |
+| QB | 70 | 0.524 | 0.215 | [−0.050, 0.441] | 3/3 | **not distinguishable from noise** |
+
+**Roughly half the unrestricted correlation was roster churn. What survives is a
+real but modest durability signal at RB, WR and TE, and nothing at QB.**
+
+**Does last year's availability predict the residual above naive carry-forward?**
+Unrestricted it is negative everywhere (QB −0.425, WR −0.351, RB −0.311, TE
+−0.288, all FINDINGS) — but that is **the same mean reversion §8.2 already
+found**, not new information: a player who was fully available last year has
+more to give back. Restricted to established players it survives only at RB
+(−0.168 [−0.320, −0.003]) and TE (−0.209 [−0.387, −0.030]), and washes out at
+WR and QB.
+
+**So, against §13.3's preregistered interpretation rule:** the persistence
+ingredient EXISTS at RB, WR and TE and does NOT exist at QB. An availability
+model is not ruled out for a draft — but at ρ ≈ 0.25–0.31 it would be a weak
+input, and §15.2 shows the thing it would buy is a level shift on all rounds
+rather than a fix for the late-round cliff.
+
+### 15.4 A3 — position and age
+
+| population | QB | RB | WR | TE |
+|---|---|---|---|---|
+| **drafted picks** mean availability | 0.832 [0.734, 0.920] | 0.817 [0.775, 0.856] | 0.846 [0.800, 0.891] | 0.854 [0.799, 0.903] |
+| drafted picks P(missed ≥4 games) | 29.2% [18.2, 43.2] | 29.8% [22.9, 37.8] | 24.8% [18.7, 32.1] | 28.6% [17.2, 43.6] |
+| all skill players mean availability | 0.512 | 0.607 | 0.632 | 0.584 |
+
+**RB minus WR availability: −0.029, CI [−0.099, +0.033]** among drafted picks
+(per season −0.083 / −0.002 / −0.002), **−0.025 [−0.082, +0.031]** across all
+skill players. **Not distinguishable from noise in either population.** Running
+backs drafted in this league did not miss meaningfully more games than
+receivers.
+
+**Age against availability**: QB −0.102 [−0.268, 0.059], RB +0.074 [−0.060,
+0.213], WR −0.029 [−0.130, 0.084], TE +0.031 [−0.163, 0.240]. **Nothing at any
+position**, and carrying GAP 3's coverage caveat besides.
+
+### 15.5 What this does and does not say about `robust_rb`
+
+`roster_construction_2026-08-16.md` limitation #6 ("no injury modeling, biased
+AGAINST depth-heavy archetypes") is why this addition was commissioned. What is
+established here: **the persistence an availability model would need exists at
+RB/WR/TE and is weak (ρ ≈ 0.25–0.31)**, and **availability is a uniform
++11 to +16 point level effect across all round bands, not a late-round-specific
+one**. A simulator that added availability would therefore move every archetype
+in the same direction rather than selectively rewarding depth — which is
+evidence *against* the hypothesis that missing injury modelling is what sank
+`robust_rb`, though it does not settle it. **Whether it settles it is a question
+about that simulator, not about these outcomes, and it is out of scope here per
+§13.5.**
+
+---
+
+## 16. ADDITION B — WHERE THIS FORMAT MISPRICES AGAINST THE MARKET'S
+
+### 16.0 The answer, first
+
+**B1. Half-PPR barely reorders anyone WITHIN a position.** Mean signed Δrank
+over each position's top 40 is **0.02 to 0.06 ranks**, every interval covering
+zero, and the starter set turns over by **0 to 2 players out of K per position
+per season**. The largest single mover in three seasons is seven ranks.
+
+**B2. The format's real effect is BETWEEN positions, and it is worth 8–14
+points of season value-over-replacement.** Relative to the market's format,
+this format changes each position's mean VOR over its starter set by:
+
+| position | VOR shift (this format − market's), per season | mean | seasons same sign |
+|---|---|---|---|
+| QB | −0.4 / +12.2 / +3.6 | **+5.1** | 2 of 3 — **sign flips, not stable** |
+| RB | −5.3 / −1.2 / −1.8 | **−2.8** | 3 of 3 |
+| WR | −6.5 / −7.2 / −11.5 | **−8.4** | 3 of 3 |
+| TE | −16.6 / −5.7 / −5.2 | **−9.2** | 3 of 3 |
+
+**A board priced for full PPR overstates elite receivers and tight ends by
+roughly 8–9 points of season VOR in this league, every year, and understates
+nothing.** That is the format mispricing, stated in the currency a board
+actually uses.
+
+**B3. Six-point passing touchdowns do NOT create quarterback value in VOR
+terms — they inflate the whole position equally.** QB replacement rises from
+264.7 / 283.0 / 285.7 under the market's format to **320.7 / 333.2 / 338.9**
+under this one (+53.1 points on average), and the top-10 QB mean rises by
+**+58.3**. Net change in QB mean VOR: **+5.1, with the sign flipping across
+seasons.** In *raw points* QBs go from 18.6% to 24.0% of all starter points; in
+*value over replacement* almost nothing happens. (Scope fence, §14.5: the QB
+pricing mechanics are a separate agent's pass. This is the outcomes-side
+statement and it stops here.)
+
+**B4. No evidence the room priced the wrong format — but the test has almost no
+power, and that is the honest reading.** Spearman(pick_no, MARKET rank) minus
+Spearman(pick_no, LEAGUE rank) is +0.009 / +0.006 / +0.005 / −0.016 at QB / RB /
+WR / TE, with intervals like [−0.33, +0.42]. **Because B1 found the two
+orderings are nearly identical, this test cannot distinguish them.** It is
+looking within positions, and B2 shows the mispricing lives between them.
+
+### 16.1 Positional share of starter points
+
+| position | share under THIS format | share under the market's | shift |
+|---|---|---|---|
+| QB | 0.240 | 0.186 | **+5.4 pts** |
+| RB | 0.304 | 0.307 | −0.3 |
+| WR | 0.357 | 0.395 | **−3.8 pts** |
+| TE | 0.099 | 0.113 | −1.4 |
+
+Read alongside B3: the raw-points share moves a lot at QB and the VOR does not.
+**This is exactly the trap a points-based board falls into**, and it is the same
+trap §10 found in the Q6 allocator.
+
+### 16.2 Who moves, by name — the mechanism, checkable by eye
+
+**Promoted by this format** (fewer receptions, more yardage per catch, or more
+passing TDs): 2025 Tee Higgins (WR22 → WR15), 2023 Deebo Samuel (14 → 9), 2023
+DK Metcalf (19 → 15), 2024 Jameson Williams (23 → 19); at RB the pure runners —
+2023 David Montgomery (18 → 14), 2024 Jonathan Taylor (18 → 14), 2023 Gus
+Edwards (22 → 19); at TE 2023 Taysom Hill (15 → 10); at QB the pocket passers —
+2025 Jared Goff (11 → 8), 2023 Matthew Stafford (15 → 13).
+
+**Demoted by this format** (reception-dependent): 2023 Garrett Wilson (WR23 →
+WR30, the largest move in the study), 2025 Stefon Diggs (14 → 20), 2023 Adam
+Thielen (15 → 19), 2025 Keenan Allen (29 → 33); at RB the pass-catchers — 2023
+Austin Ekeler (25 → 29), 2023 Jaylen Warren (20 → 24); at QB the runners — 2024
+Justin Fields (30 → 33), 2024 Anthony Richardson (23 → 26), 2025 Cam Ward
+(22 → 24).
+
+**The mechanism is exactly what the two rule changes predict**, which is the
+point of changing only two keys (§14.2) — and it is a check that the rescoring
+is not inverted, pinned in
+`test_market_scoring_moves_the_right_players_in_the_right_direction`.
+
+### 16.3 What Addition B could NOT answer
+
+**It still cannot say what CONSENSUS ADP did**, because GAP 1 stands: there is no
+historical consensus ADP in this repo and none is fetchable from this sandbox.
+Everything above is the format delta measured on realized outcomes plus the
+room's own draft order. **DECISIONS-NEEDED item (b) — fetching real historical
+ADP in CI — is what would close this**, and it would close it for §§5–7 at the
+same time.
+
+---
+
+## 17. ADDENDUM TO §11 — what the two additions add to the queue
+
+- **(e) `nflverse_weekly_points_2025.json` drops zero-point rows** (§12.1): 884
+  skill player-weeks and 54 whole skill players missing relative to the
+  component store; 6 exactly-zero rows against 297 and 306 in the two prior
+  seasons. **Stage 2 is unaffected** (checked: no missing player would crack any
+  starter set) **but any games-played or availability derivation from that store
+  is wrong, and would report a 2025 injury spike that never happened.** Diff:
+  rebuild the 2025 store through the path that produced 2023/2024, or document
+  the store as scored-rows-only and route every availability consumer to the
+  component store. Pinned red-on-change by
+  `test_2025_points_store_drops_zero_point_rows`.
+- **(f) The availability question is now scoped, not answered.** Persistence
+  exists at RB/WR/TE at ρ ≈ 0.25–0.31 and not at QB; the effect it would buy is
+  a uniform +11 to +16 point starter-rate lift across all round bands. Diff:
+  none proposed. Whether that is worth building before the 22nd is Cory's call,
+  and this study's own read is that it is not — it does not change the shape of
+  the draft.
+- **(g) The format mispricing is real, stable and quantified** (§16.0 B2):
+  a full-PPR-priced board overstates WR by ~8.4 and TE by ~9.2 points of season
+  VOR in this league, three seasons out of three. Diff: none proposed here —
+  the board already builds its own projections under the frozen table, so the
+  exposure is to any EXTERNAL ranking or ADP consumed at draft time. The
+  question for Cory is whether that exposure exists anywhere in the live
+  pipeline and, if so, whether a per-position correction of this size should be
+  applied to it.
+
+### 17.1 Reproduce the additions
+
+```
+python3 draft/backtest/empirical_draft_value_additions.py    # ~12s
+python3 -m pytest draft/tests/test_empirical_draft_value_additions.py -q
+```
