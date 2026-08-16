@@ -72,3 +72,29 @@ jobs:
             404) echo "WAIT  weights-read is not on the live site yet (404) — it deploys with the relay-branch merge; both GitHub values above are verified and nothing more is needed from a human";;
             *) echo "WARN  weights-read returned $code ($resp) — inconclusive; GitHub values above are still verified";;
           esac
+
+      # ── Added 2026-08-16: Cory added the OpenAI + odds keys and asked for a
+      # check ("openAI api key is in github already so so is the odds api").
+      # Same contract as above: presence + length only, never a value. The
+      # odds key is checked under BOTH plausible names since the instruction
+      # said ODDS_API_KEY but the tab autocompletes nothing — whichever is
+      # set passes, and the step names the one it found.
+      - name: OPENAI_API_KEY repository secret
+        env:
+          K: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$K" ]; then echo "FAIL  OPENAI_API_KEY secret is NOT set (Secrets tab, exact name)"; exit 1; fi
+          echo "PASS  OPENAI_API_KEY is set (${#K} chars)"
+          case "$K" in
+            sk-*) echo "PASS  it has the expected sk- prefix";;
+            *) echo "WARN  it does not start with sk- — double-check you pasted the key itself, not a label";;
+          esac
+
+      - name: Odds API repository secret (ODDS_API_KEY or THE_ODDS_API_KEY)
+        env:
+          K1: ${{ secrets.ODDS_API_KEY }}
+          K2: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          if [ -n "$K1" ]; then echo "PASS  ODDS_API_KEY is set (${#K1} chars)"; exit 0; fi
+          if [ -n "$K2" ]; then echo "PASS  THE_ODDS_API_KEY is set (${#K2} chars) — workflows will use this name"; exit 0; fi
+          echo "FAIL  neither ODDS_API_KEY nor THE_ODDS_API_KEY is set — check the Secrets tab spelling"; exit 1
