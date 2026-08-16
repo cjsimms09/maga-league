@@ -1351,7 +1351,7 @@ not move when our model moves. 130 new fidelity checks total; 44 before/after
 captures in draft/audit/screens/ms-*.png; deliverable doc
 draft/audit/member_site_design_pass_2026-08-16.md.
 
-Refusal-set bookkeeping: the pinned set is now **39 files**
+Refusal-set bookkeeping: the pinned set is now **42 files**
 (`scripts/verify-relay-session.sh` carries the exact list). Same terms as
 every appendix above: no scoring/weight default moved; the merge to main
 remains A's or Cory's deliberate act via `scripts/merge-relay.sh`.
@@ -1402,3 +1402,13 @@ projections easily as well"*) and were never entered into the pin — this
 pass's repin caught the drift and records them here. Same terms as every
 appendix above: no scoring/weight default moved; the merge to main remains
 A's or Cory's deliberate act via `scripts/merge-relay.sh`.
+
+
+**APPENDED 2026-08-16 (final relay night), SAME AUTHORITY — the weekly
+own-projection loop** (Cory: "We need to be making our own projections for
+every player, capturing, grading, and closing loop to learn!!" + the
+adaptation, scoreboard and controls addenda). One further B-lane crossing:
+`src/proj_feed.js` (the projection-source switch seam, cleared explicitly in
+the agent mandate) — the pinned set is now **42 files**; `src/routes/admin.js`
+and `views/admin/model-scoreboard.ejs` ride under already-pinned/appendixed
+admin surfaces. Same terms: merge stays A's or Cory's deliberate act.
