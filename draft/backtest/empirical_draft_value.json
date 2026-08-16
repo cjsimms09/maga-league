@@ -8780,9 +8780,9 @@
        "2025": -0.066
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02449,
+      "p_raw": 0.25305,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 17,
@@ -8796,9 +8796,9 @@
        "2024": -0.145
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01774,
+      "p_raw": 0.94028,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "wopr": {
       "n": 17,
@@ -8812,9 +8812,9 @@
        "2024": -0.143
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.07752,
+      "p_raw": 0.27743,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "ay_share": {
       "n": 17,
@@ -8828,9 +8828,9 @@
        "2024": -0.257
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.07407,
+      "p_raw": 0.25184,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 19,
@@ -8844,7 +8844,7 @@
        "2024": 0.429
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00517,
+      "p_raw": 0.00888,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -8861,7 +8861,7 @@
        "2025": 0.453
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00059,
+      "p_raw": 0.0026,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -8895,9 +8895,9 @@
        "2025": -0.198
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00866,
+      "p_raw": 0.05965,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "racr": {
       "n": 20,
@@ -8912,9 +8912,9 @@
        "2025": 0.178
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00681,
+      "p_raw": 0.97485,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 173,
@@ -8929,7 +8929,7 @@
        "2025": 0.243
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00058,
+      "p_raw": 0.00255,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -8946,7 +8946,7 @@
        "2025": 0.476
       },
       "same_sign_seasons": 3,
-      "p_raw": 1e-05,
+      "p_raw": 2e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -8963,7 +8963,7 @@
        "2025": -0.422
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00385,
+      "p_raw": 0.01028,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -8980,9 +8980,9 @@
        "2025": -0.205
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04382,
+      "p_raw": 0.25667,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "RB": {
@@ -9067,9 +9067,9 @@
        "2025": 0.066
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00799,
+      "p_raw": 0.87253,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 301,
@@ -9118,9 +9118,9 @@
        "2025": -0.022
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01607,
+      "p_raw": 0.23926,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 301,
@@ -9135,7 +9135,7 @@
        "2025": 0.08
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00222,
+      "p_raw": 0.01596,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -9152,9 +9152,9 @@
        "2025": -0.052
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00478,
+      "p_raw": 0.89765,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 16,
@@ -9168,9 +9168,9 @@
        "2024": 0.107
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02686,
+      "p_raw": 0.05502,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 9,
@@ -9189,9 +9189,9 @@
        "2025": 0.04
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01833,
+      "p_raw": 0.36207,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 309,
@@ -9223,7 +9223,7 @@
        "2025": 0.293
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 2e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -9240,7 +9240,7 @@
        "2025": -0.341
       },
       "same_sign_seasons": 3,
-      "p_raw": 1e-05,
+      "p_raw": 4e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -9257,9 +9257,9 @@
        "2025": 0.086
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01639,
+      "p_raw": 0.81862,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "WR": {
@@ -9344,9 +9344,9 @@
        "2025": -0.145
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00931,
+      "p_raw": 0.09765,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 433,
@@ -9429,9 +9429,9 @@
        "2025": -0.058
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01808,
+      "p_raw": 0.23872,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 53,
@@ -9446,9 +9446,9 @@
        "2025": 0.328
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0002,
+      "p_raw": 0.99863,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 35,
@@ -9463,9 +9463,9 @@
        "2025": 0.345
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04644,
+      "p_raw": 0.70595,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "racr": {
       "n": 433,
@@ -9480,7 +9480,7 @@
        "2025": 0.172
       },
       "same_sign_seasons": 3,
-      "p_raw": 8e-05,
+      "p_raw": 0.00047,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -9548,9 +9548,9 @@
        "2025": 0.098
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02544,
+      "p_raw": 0.39788,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "TE": {
@@ -9635,9 +9635,9 @@
        "2025": -0.043
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02009,
+      "p_raw": 0.23955,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 237,
@@ -9720,9 +9720,9 @@
        "2025": 0.275
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04815,
+      "p_raw": 0.62909,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 7,
@@ -9745,9 +9745,9 @@
        "2025": -0.029
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01366,
+      "p_raw": 0.73637,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 237,
@@ -9779,9 +9779,9 @@
        "2025": 0.135
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00659,
+      "p_raw": 0.05215,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "draft_round": {
       "n": 94,
@@ -9813,9 +9813,9 @@
        "2025": -0.01
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.03342,
+      "p_raw": 0.56739,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     }
    },
@@ -9885,9 +9885,9 @@
        "2025": -0.09
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01419,
+      "p_raw": 0.81449,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "age_Y": {
       "n": 141,
@@ -9902,9 +9902,9 @@
        "2025": -0.058
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00134,
+      "p_raw": 0.98319,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 17,
@@ -9918,9 +9918,9 @@
        "2024": -0.203
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.08615,
+      "p_raw": 0.54326,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "wopr": {
       "n": 17,
@@ -9934,9 +9934,9 @@
        "2024": -0.371
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.034,
+      "p_raw": 0.88121,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "ay_share": {
       "n": 17,
@@ -9950,9 +9950,9 @@
        "2024": -0.257
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.01335,
+      "p_raw": 0.95533,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 19,
@@ -9966,9 +9966,9 @@
        "2024": 0.333
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.07929,
+      "p_raw": 0.34768,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rush_epa_pg": {
       "n": 171,
@@ -9983,7 +9983,7 @@
        "2025": -0.068
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00482,
+      "p_raw": 0.02885,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10000,9 +10000,9 @@
        "2025": -0.243
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02237,
+      "p_raw": 0.25607,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 169,
@@ -10017,9 +10017,9 @@
        "2025": -0.112
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01966,
+      "p_raw": 0.19749,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "racr": {
       "n": 20,
@@ -10034,9 +10034,9 @@
        "2025": -0.089
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.07973,
+      "p_raw": 0.40259,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 173,
@@ -10051,7 +10051,7 @@
        "2025": -0.194
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00298,
+      "p_raw": 0.01631,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10068,7 +10068,7 @@
        "2025": -0.274
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00136,
+      "p_raw": 0.00655,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10085,9 +10085,9 @@
        "2025": -0.229
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0162,
+      "p_raw": 0.89785,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "nfl_exp": {
       "n": 46,
@@ -10102,9 +10102,9 @@
        "2025": 0.055
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04485,
+      "p_raw": 0.27014,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "RB": {
@@ -10138,7 +10138,7 @@
        "2025": -0.224
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 1e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10172,7 +10172,7 @@
        "2025": -0.078
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00265,
+      "p_raw": 0.01723,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10189,7 +10189,7 @@
        "2025": -0.244
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00188,
+      "p_raw": 0.0103,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10206,7 +10206,7 @@
        "2025": -0.194
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00045,
+      "p_raw": 0.00257,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10223,7 +10223,7 @@
        "2025": -0.129
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00124,
+      "p_raw": 0.00811,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10240,9 +10240,9 @@
        "2025": 0.165
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01792,
+      "p_raw": 0.32233,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 301,
@@ -10257,9 +10257,9 @@
        "2025": -0.056
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01809,
+      "p_raw": 0.48023,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rush_epa_pg": {
       "n": 301,
@@ -10274,9 +10274,9 @@
        "2025": -0.133
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01119,
+      "p_raw": 0.74711,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 16,
@@ -10290,9 +10290,9 @@
        "2024": -0.429
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.0817,
+      "p_raw": 0.28935,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 9,
@@ -10311,7 +10311,7 @@
        "2025": 0.164
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00024,
+      "p_raw": 0.00128,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10328,7 +10328,7 @@
        "2025": -0.127
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00013,
+      "p_raw": 0.00065,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10345,7 +10345,7 @@
        "2025": -0.269
       },
       "same_sign_seasons": 3,
-      "p_raw": 3e-05,
+      "p_raw": 0.00016,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10362,9 +10362,9 @@
        "2025": -0.012
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02256,
+      "p_raw": 0.16939,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "nfl_exp": {
       "n": 108,
@@ -10379,7 +10379,7 @@
        "2025": 0.008
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00307,
+      "p_raw": 0.01286,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      }
@@ -10449,9 +10449,9 @@
        "2025": -0.087
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01067,
+      "p_raw": 0.12712,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "age_Y": {
       "n": 302,
@@ -10466,7 +10466,7 @@
        "2025": -0.206
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 1e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10500,7 +10500,7 @@
        "2025": -0.238
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 1e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10517,7 +10517,7 @@
        "2025": -0.23
       },
       "same_sign_seasons": 3,
-      "p_raw": 2e-05,
+      "p_raw": 8e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10551,9 +10551,9 @@
        "2025": 0.092
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01536,
+      "p_raw": 0.6922,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 53,
@@ -10568,9 +10568,9 @@
        "2025": 0.204
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01621,
+      "p_raw": 0.88811,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 35,
@@ -10585,9 +10585,9 @@
        "2025": 0.407
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0382,
+      "p_raw": 0.15587,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "racr": {
       "n": 433,
@@ -10602,7 +10602,7 @@
        "2025": -0.125
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00065,
+      "p_raw": 0.00478,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10653,9 +10653,9 @@
        "2025": 0.175
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01776,
+      "p_raw": 0.16848,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "nfl_exp": {
       "n": 172,
@@ -10670,9 +10670,9 @@
        "2025": -0.047
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02262,
+      "p_raw": 0.26638,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "TE": {
@@ -10723,7 +10723,7 @@
        "2025": -0.266
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 1e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10740,9 +10740,9 @@
        "2025": -0.01
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02438,
+      "p_raw": 0.42004,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "age_Y": {
       "n": 197,
@@ -10757,7 +10757,7 @@
        "2025": -0.236
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00262,
+      "p_raw": 0.01517,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10774,7 +10774,7 @@
        "2025": -0.083
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00188,
+      "p_raw": 0.01144,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10791,7 +10791,7 @@
        "2025": -0.089
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00167,
+      "p_raw": 0.00999,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -10808,7 +10808,7 @@
        "2025": -0.124
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00264,
+      "p_raw": 0.01703,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10825,7 +10825,7 @@
        "2025": -0.339
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0,
+      "p_raw": 1e-05,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10842,9 +10842,9 @@
        "2025": 0.499
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01312,
+      "p_raw": 0.9225,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 7,
@@ -10867,9 +10867,9 @@
        "2025": -0.161
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01833,
+      "p_raw": 0.24243,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 237,
@@ -10884,7 +10884,7 @@
        "2025": -0.09
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00079,
+      "p_raw": 0.00425,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -10918,9 +10918,9 @@
        "2025": -0.223
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0257,
+      "p_raw": 0.18738,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "nfl_exp": {
       "n": 94,
@@ -10935,9 +10935,9 @@
        "2025": -0.025
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02304,
+      "p_raw": 0.75599,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     }
    },
@@ -10956,9 +10956,9 @@
        "2025": -0.196
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00912,
+      "p_raw": 0.94498,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_ppg": {
       "n": 44,
@@ -10973,9 +10973,9 @@
        "2025": -0.175
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04808,
+      "p_raw": 0.61056,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_games": {
       "n": 44,
@@ -10990,9 +10990,9 @@
        "2025": -0.087
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04554,
+      "p_raw": 0.64987,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior2_pts": {
       "n": 38,
@@ -11007,9 +11007,9 @@
        "2025": 0.608
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.03421,
+      "p_raw": 0.1404,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "age_Y": {
       "n": 44,
@@ -11024,9 +11024,9 @@
        "2025": 0.153
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0483,
+      "p_raw": 0.6067,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 8,
@@ -11057,9 +11057,9 @@
        "2025": -0.204
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02125,
+      "p_raw": 0.86944,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 44,
@@ -11074,9 +11074,9 @@
        "2025": -0.132
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04311,
+      "p_raw": 0.68119,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 43,
@@ -11091,9 +11091,9 @@
        "2025": -0.111
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04329,
+      "p_raw": 0.68546,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "racr": {
       "n": 9,
@@ -11112,9 +11112,9 @@
        "2025": -0.232
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01256,
+      "p_raw": 0.92367,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pts_per_opp": {
       "n": 43,
@@ -11129,9 +11129,9 @@
        "2025": 0.264
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.03369,
+      "p_raw": 0.77815,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "draft_round": {
       "n": 10,
@@ -11156,9 +11156,9 @@
        "2025": 0.194
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02984,
+      "p_raw": 0.34662,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_ppg": {
       "n": 121,
@@ -11173,9 +11173,9 @@
        "2025": 0.226
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02294,
+      "p_raw": 0.19218,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_games": {
       "n": 121,
@@ -11190,9 +11190,9 @@
        "2025": 0.124
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00199,
+      "p_raw": 0.97743,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior2_pts": {
       "n": 100,
@@ -11207,7 +11207,7 @@
        "2025": 0.412
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00676,
+      "p_raw": 0.03138,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -11224,9 +11224,9 @@
        "2025": -0.205
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02978,
+      "p_raw": 0.26144,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 121,
@@ -11241,7 +11241,7 @@
        "2025": 0.208
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0045,
+      "p_raw": 0.02157,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -11258,7 +11258,7 @@
        "2025": 0.33
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00158,
+      "p_raw": 0.00641,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -11275,9 +11275,9 @@
        "2025": 0.277
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02911,
+      "p_raw": 0.31958,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 121,
@@ -11292,9 +11292,9 @@
        "2025": -0.011
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.03064,
+      "p_raw": 0.39212,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rush_epa_pg": {
       "n": 121,
@@ -11309,9 +11309,9 @@
        "2025": -0.131
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.03026,
+      "p_raw": 0.36697,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 10,
@@ -11334,7 +11334,7 @@
        "2025": 0.233
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00217,
+      "p_raw": 0.00921,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -11351,9 +11351,9 @@
        "2025": 0.213
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01455,
+      "p_raw": 0.09555,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pts_per_opp": {
       "n": 121,
@@ -11368,9 +11368,9 @@
        "2025": -0.028
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02575,
+      "p_raw": 0.65222,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "draft_round": {
       "n": 56,
@@ -11385,7 +11385,7 @@
        "2025": -0.428
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00044,
+      "p_raw": 0.00103,
       "verdict": "FINDING",
       "bh_q10_survives": true
      },
@@ -11402,9 +11402,9 @@
        "2025": 0.006
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0435,
+      "p_raw": 0.32416,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      }
     },
     "WR": {
@@ -11421,9 +11421,9 @@
        "2025": -0.186
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02213,
+      "p_raw": 0.68704,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_ppg": {
       "n": 138,
@@ -11438,9 +11438,9 @@
        "2025": -0.029
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00122,
+      "p_raw": 0.98497,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_games": {
       "n": 138,
@@ -11455,9 +11455,9 @@
        "2025": -0.267
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02596,
+      "p_raw": 0.59848,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior2_pts": {
       "n": 113,
@@ -11472,9 +11472,9 @@
        "2025": 0.144
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02953,
+      "p_raw": 0.3012,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "age_Y": {
       "n": 125,
@@ -11489,9 +11489,9 @@
        "2025": -0.031
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00071,
+      "p_raw": 0.99175,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 138,
@@ -11506,9 +11506,9 @@
        "2025": 0.071
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02834,
+      "p_raw": 0.37294,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "wopr": {
       "n": 138,
@@ -11523,9 +11523,9 @@
        "2025": -0.138
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00678,
+      "p_raw": 0.91544,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "ay_share": {
       "n": 138,
@@ -11540,9 +11540,9 @@
        "2025": -0.273
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02782,
+      "p_raw": 0.53181,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 138,
@@ -11557,9 +11557,9 @@
        "2025": 0.016
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02576,
+      "p_raw": 0.60416,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rush_epa_pg": {
       "n": 95,
@@ -11574,9 +11574,9 @@
        "2025": 0.11
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01868,
+      "p_raw": 0.80797,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 31,
@@ -11591,9 +11591,9 @@
        "2025": 0.155
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.05777,
+      "p_raw": 0.61513,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "cpoe": {
       "n": 19,
@@ -11607,7 +11607,7 @@
        "2025": 0.857
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.01519,
+      "p_raw": 0.0306,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -11624,9 +11624,9 @@
        "2025": 0.249
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02789,
+      "p_raw": 0.34769,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 138,
@@ -11641,9 +11641,9 @@
        "2025": -0.001
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.02726,
+      "p_raw": 0.32185,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pts_per_opp": {
       "n": 138,
@@ -11658,9 +11658,9 @@
        "2025": -0.009
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.02374,
+      "p_raw": 0.2319,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "draft_round": {
       "n": 59,
@@ -11675,9 +11675,9 @@
        "2025": 0.142
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.04499,
+      "p_raw": 0.47744,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "nfl_exp": {
       "n": 59,
@@ -11692,7 +11692,7 @@
        "2025": 0.568
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00083,
+      "p_raw": 0.00211,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      }
@@ -11711,9 +11711,9 @@
        "2025": -0.247
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.00502,
+      "p_raw": 0.97243,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_ppg": {
       "n": 38,
@@ -11728,9 +11728,9 @@
        "2025": -0.434
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.05641,
+      "p_raw": 0.40949,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior_games": {
       "n": 38,
@@ -11745,9 +11745,9 @@
        "2025": 0.309
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.01939,
+      "p_raw": 0.06388,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "prior2_pts": {
       "n": 35,
@@ -11762,7 +11762,7 @@
        "2025": -0.636
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.00867,
+      "p_raw": 0.02254,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      },
@@ -11779,9 +11779,9 @@
        "2025": 0.006
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.0302,
+      "p_raw": 0.82164,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "tgt_share": {
       "n": 38,
@@ -11796,9 +11796,9 @@
        "2025": -0.165
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.0452,
+      "p_raw": 0.22367,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "wopr": {
       "n": 38,
@@ -11813,9 +11813,9 @@
        "2025": -0.121
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.04596,
+      "p_raw": 0.23092,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "ay_share": {
       "n": 38,
@@ -11830,9 +11830,9 @@
        "2025": 0.06
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.05658,
+      "p_raw": 0.48927,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rec_epa_pg": {
       "n": 38,
@@ -11847,9 +11847,9 @@
        "2025": -0.016
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.04894,
+      "p_raw": 0.6547,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "rush_epa_pg": {
       "n": 16,
@@ -11862,9 +11862,9 @@
        "2024": 0.371
       },
       "same_sign_seasons": 1,
-      "p_raw": 0.02865,
+      "p_raw": 0.90532,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pass_epa_pg": {
       "n": 1,
@@ -11887,9 +11887,9 @@
        "2025": -0.291
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.05229,
+      "p_raw": 0.60629,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "opp_pg": {
       "n": 38,
@@ -11904,9 +11904,9 @@
        "2025": -0.184
       },
       "same_sign_seasons": 3,
-      "p_raw": 0.04417,
+      "p_raw": 0.21423,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "pts_per_opp": {
       "n": 38,
@@ -11921,9 +11921,9 @@
        "2025": -0.143
       },
       "same_sign_seasons": 2,
-      "p_raw": 0.05001,
+      "p_raw": 0.64058,
       "verdict": "not distinguishable from noise",
-      "bh_q10_survives": true
+      "bh_q10_survives": false
      },
      "draft_round": {
       "n": 12,
@@ -11947,7 +11947,7 @@
       ],
       "per_season": {},
       "same_sign_seasons": 0,
-      "p_raw": 0.02522,
+      "p_raw": 0.04261,
       "verdict": "not distinguishable from noise",
       "bh_q10_survives": true
      }
@@ -12589,7 +12589,7 @@
    }
   },
   "bh_family_size": 187,
-  "bh_survivors": 186,
+  "bh_survivors": 89,
   "team_change_sensitivity": {
    "QB": {
     "n_changed": 66,

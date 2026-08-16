@@ -215,6 +215,35 @@ def test_wilson_beats_the_normal_approximation_where_it_matters():
     assert hi > 0.2
 
 
+def test_incomplete_beta_against_closed_form_cases():
+    """I_x(a,b) has exact answers at these arguments. The first implementation
+    of this function was an invented series that was simply wrong, and nothing
+    downstream noticed."""
+    assert abs(EDV.betainc(1, 1, 0.3) - 0.3) < 1e-9            # uniform
+    assert abs(EDV.betainc(0.5, 0.5, 0.5) - 0.5) < 1e-9        # arcsine, symmetric
+    assert abs(EDV.betainc(5, 5, 0.5) - 0.5) < 1e-9            # symmetric
+    assert abs(EDV.betainc(2, 3, 0.5) - 0.6875) < 1e-9         # polynomial
+    assert EDV.betainc(2, 3, 0.0) == 0.0
+    assert EDV.betainc(2, 3, 1.0) == 1.0
+
+
+def test_spearman_p_known_values():
+    """⚠️ THE REGRESSION TEST FOR A REAL SHIPPED BUG. The first version returned
+    p = 0.017 for rho = 0.02 on n = 44 — the true value is 0.90. A too-small p
+    makes BH more permissive, so the failure presented as '186 of 187 tests
+    survive FDR', which reads like a strong study instead of a broken screen."""
+    # a near-zero correlation on 44 points is nowhere near significant
+    assert 0.85 < EDV.spearman_p(0.02, 44) < 0.95
+    assert 0.15 < EDV.spearman_p(0.20, 44) < 0.25
+    assert EDV.spearman_p(0.50, 44) < 0.001
+    assert EDV.spearman_p(0.0, 100) == 1.0
+    # monotone: a bigger correlation on the same n cannot have a bigger p
+    ps = [EDV.spearman_p(r, 50) for r in (0.05, 0.15, 0.30, 0.60)]
+    assert ps == sorted(ps, reverse=True), ps
+    # and a t-distribution landmark, checked against the standard table
+    assert abs(EDV.betainc(5.0, 0.5, 10 / (10 + 2.228 ** 2)) - 0.05) < 0.001
+
+
 def test_benjamini_hochberg_known_case():
     # classic BH worked example: at q=0.10 the first three survive
     p = [0.001, 0.008, 0.02, 0.2, 0.6]

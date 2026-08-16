@@ -314,31 +314,76 @@ def bh_reject(pvals: list, q: float = BH_Q) -> list:
 def spearman_p(rho: float, n: int) -> float:
     """Two-sided p from the t approximation. Only ever used to FEED the BH
     screen; every reported verdict is the bootstrap CI, which does not assume
-    normality. Stated so nobody reads a p here as the primary evidence."""
+    normality. Stated so nobody reads a p here as the primary evidence.
+
+    ⚠️ THIS FUNCTION SHIPPED WRONG ONCE AND THE BUG WAS INVISIBLE IN THE
+    AGGREGATE. The first cut used a hand-rolled series for the incomplete beta
+    that was simply incorrect: it returned p = 0.017 for rho = 0.02 on n = 44,
+    where the true value is 0.90. Because a too-small p only ever makes BH more
+    permissive, the failure surfaced as "186 of 187 tests survive FDR" — a
+    result that looks like a strong study rather than a broken screen. It was
+    caught by evaluating the function on hand-checkable inputs, which is now a
+    test (`test_spearman_p_known_values`). Read that as the lesson: a
+    multiplicity screen that rejects almost nothing is evidence about the
+    screen, not about the data.
+    """
     if n < 4 or math.isnan(rho) or abs(rho) >= 1.0:
         return 1.0
     t = rho * math.sqrt((n - 2) / (1 - rho * rho))
-    x = (n - 2) / ((n - 2) + t * t)
-    return _betainc_half(x, (n - 2) / 2.0)
+    df = n - 2
+    return betainc(df / 2.0, 0.5, df / (df + t * t))
 
 
-def _betainc_half(x: float, a: float) -> float:
-    """Regularized incomplete beta I_x(a, 1/2) by series — enough precision for
-    an FDR screen, and it keeps this module scipy-free like the rest of the lab."""
-    if x <= 0:
-        return 0.0
-    if x >= 1:
-        return 1.0
-    b = 0.5
-    lbeta = (math.lgamma(a) + math.lgamma(b) - math.lgamma(a + b))
-    front = math.exp(a * math.log(x) + b * math.log(1 - x) - lbeta) / a
-    total, term = 1.0, 1.0
-    for n in range(0, 400):
-        term *= (n + 1 - b) * x / (a + n + 1) * (a + n) / (n + 1)
-        total += term
-        if abs(term) < 1e-12:
+def _betacf(a: float, b: float, x: float) -> float:
+    """Continued fraction for the incomplete beta (modified Lentz)."""
+    MAXIT, EPS, FPMIN = 300, 3.0e-16, 1.0e-300
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < FPMIN:
+        d = FPMIN
+    d = 1.0 / d
+    h = d
+    for m in range(1, MAXIT + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        if abs(d) < FPMIN:
+            d = FPMIN
+        c = 1.0 + aa / c
+        if abs(c) < FPMIN:
+            c = FPMIN
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < EPS:
             break
-    return min(1.0, max(0.0, front * total))
+    return h
+
+
+def betainc(a: float, b: float, x: float) -> float:
+    """Regularized incomplete beta I_x(a, b). Keeps this module scipy-free like
+    the rest of the lab, but by the standard continued fraction rather than an
+    invented series — see `spearman_p`."""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+    if x < (a + 1.0) / (a + b + 2.0):
+        front = math.exp(lbeta + a * math.log(x) + b * math.log(1.0 - x))
+        return min(1.0, max(0.0, front * _betacf(a, b, x) / a))
+    front = math.exp(lbeta + b * math.log(1.0 - x) + a * math.log(x))
+    return min(1.0, max(0.0, 1.0 - front * _betacf(b, a, 1.0 - x) / b))
 
 
 def ols(X: list, y: list) -> list:

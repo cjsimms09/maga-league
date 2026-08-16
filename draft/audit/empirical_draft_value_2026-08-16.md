@@ -661,6 +661,13 @@ only), `cpoe` 18.9%, `pass_epa_pg` 21.4%.
 Spearman ρ against realized season-Y points (all FDR-surviving, all three
 seasons same sign):
 
+> **[CORRECTED 2026-08-16, later the same session — see §18.](#18-correction-the-fdr-screen-was-broken-when-stage-2-shipped)**
+> "all FDR-surviving" is true of every cell in this table EXCEPT **TE points
+> per opportunity (ρ = 0.126, p = 0.052)**, which does not survive BH at
+> q = 0.10 — consistent with the cell's own label, which already read "noise".
+> The sentence is kept as written per the house no-delete habit. Every other
+> FDR claim in §§4–11 was re-verified against the fixed screen and holds.
+
 | position | opportunity/game | prior-season points | target share | WOPR | **points per opportunity** |
 |---|---|---|---|---|---|
 | WR | **0.704** [0.629, 0.766] | 0.728 | 0.714 | 0.718 | 0.322 [0.211, 0.428] |
@@ -1409,3 +1416,59 @@ same time.
 python3 draft/backtest/empirical_draft_value_additions.py    # ~12s
 python3 -m pytest draft/tests/test_empirical_draft_value_additions.py -q
 ```
+
+---
+---
+
+## 18. CORRECTION — the FDR screen was broken when stage 2 shipped
+
+_Appended 2026-08-16, after §§4–17. Recorded here rather than by editing the
+sections above, per the house no-delete habit._
+
+**What was wrong.** `spearman_p` fed the Benjamini–Hochberg screen through a
+hand-rolled series for the regularized incomplete beta, and that series was
+simply incorrect. It returned **p = 0.017 for ρ = 0.02 on n = 44**, where the
+true value is **0.90**. Every p it produced was far too small and the errors
+were not even monotone in ρ.
+
+**How it presented, and why that is the lesson.** A too-small p makes BH more
+permissive, so the failure did not look like a failure. It looked like a strong
+study: **186 of 187 tests "survived FDR"**. A multiplicity screen that rejects
+almost nothing is evidence about the screen, not about the data, and that should
+have been the tell before the arithmetic was checked.
+
+**How it was caught.** By evaluating the function on inputs whose answers can be
+checked by hand — not by anything in the results looking wrong. That check is
+now two tests (`test_incomplete_beta_against_closed_form_cases`,
+`test_spearman_p_known_values`), the second of which is explicitly the
+regression test for this bug.
+
+**The fix.** The standard continued-fraction incomplete beta (modified Lentz),
+verified against closed-form cases — `I_0.3(1,1) = 0.3`, `I_0.5(0.5,0.5) = 0.5`,
+`I_0.5(2,3) = 0.6875` — and against t-distribution landmarks (t = 2.228, df = 10
+→ p = 0.050; t = 2.0, df = 10 → p = 0.0734).
+
+**What changed in the results: the screen, and nothing that was published.**
+
+| | broken screen | fixed screen |
+|---|---|---|
+| BH family size | 187 | 187 |
+| survivors at q = 0.10 | **186** | **89** |
+
+**Every FDR claim made in §§4–11 was re-verified against the fixed screen and
+every one still holds** — the published findings sit at |ρ| ≈ 0.21–0.73 on
+n = 56–433, with true p-values from 0.009 down to below 1e-5, comfortably inside
+BH at q = 0.10. **Exactly one cell changed status**: TE points-per-opportunity
+(ρ = 0.126, p = 0.052) no longer survives, which agrees with what §8.1 already
+said about it in words ("not distinguishable from noise") and with its bootstrap
+interval [−0.042, 0.281]. **No verdict, no headline and no queue item moves.**
+
+**Why nothing else is at risk.** Every verdict in this study is decided by the
+season-clustered bootstrap interval plus the stability rule (§2.3), not by a
+p-value; BH was declared as a secondary multiplicity screen and reported
+alongside, never as the deciding test. That design is the reason a broken
+p-value could not corrupt a finding — but it is also what let the broken screen
+sit unnoticed, so it is written down here rather than quietly fixed.
+
+The stage-2 artifact committed at `3eb7954e` carries the broken
+`bh_q10_survives` column; the artifact at this commit carries the corrected one.
