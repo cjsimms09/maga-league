@@ -139,5 +139,72 @@ jobs:
             done
           fi
 
+          echo "== TRUE credit cost per call shape (Cory's 2026-08-16 question) =="
+          # Cory read the vendor's own pricing page — "1 market, 1 region:
+          # Cost 1" — and asked whether one pull can carry far more data
+          # than our 272-calls-per-season design. The examples on that page
+          # use /v4/sports/{sport}/odds, the BULK endpoint that returns every
+          # event in one response, whereas fetch_historical_props.py calls
+          # /events/{id}/odds once per game. If player props ride the bulk
+          # endpoint, one call replaces a whole slate.
+          #
+          # This MEASURES rather than assumes: x-requests-remaining before
+          # and after each call is the vendor's own ledger, so the delta is
+          # the true price of that call shape. Answers three things at once:
+          # does bulk carry props, what does bulk really cost, and does the
+          # per-event cost actually scale with market count.
+          if [ -n "$K_ODDS" ]; then
+            HB="https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl"
+            D="2024-09-08T17:00:00Z"
+            rem() { # prints x-requests-remaining using a 0-credit endpoint
+              curl -s -D /tmp/h -o /dev/null --max-time 20 \
+                "https://api.the-odds-api.com/v4/sports?apiKey=$K_ODDS"
+              grep -i '^x-requests-remaining:' /tmp/h | tr -d '\r' | awk '{print $2}'
+            }
+            measure() { # $1=label $2=url — prints HTTP, credit delta, payload shape
+              before=$(rem)
+              c=$(code "$2")
+              after=$(rem)
+              delta=$(( before - after ))
+              echo "  $1: HTTP $c | credits used: $delta"
+              if [ "$c" = "200" ]; then
+                python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          b = json.load(open('/tmp/body'))
+          d = b.get('data', b)
+          evs = d if isinstance(d, list) else [d]
+          mk, rows = set(), 0
+          for ev in evs:
+              if not isinstance(ev, dict):
+                  continue
+              for bk in ev.get('bookmakers', []):
+                  for m in bk.get('markets', []):
+                      mk.add(m.get('key'))
+                      rows += len(m.get('outcomes', []))
+          print(f"    events: {len(evs)}; markets: {sorted(mk) or 'NONE'}; outcome rows: {rows}")
+          PY
+              fi
+            }
+
+            echo " -- does the BULK historical endpoint serve player props? --"
+            measure "bulk /odds, 1 prop market" \
+              "$HB/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds&date=$D"
+            echo " -- bulk with a plain game market, as a control --"
+            measure "bulk /odds, h2h" \
+              "$HB/odds?apiKey=$K_ODDS&regions=us&markets=h2h&date=$D"
+
+            echo " -- per-event: does cost really scale with market count? --"
+            EID=$(curl -s --max-time 20 "$HB/events?apiKey=$K_ODDS&date=$D" \
+                  | python3 -c "import json,sys; d=json.load(sys.stdin).get('data') or []; print(d[0]['id'] if d else '')")
+            if [ -n "$EID" ]; then
+              measure "per-event, 1 market " \
+                "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds&date=$D"
+              measure "per-event, 6 markets" \
+                "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds,player_pass_tds,player_rush_yds,player_anytime_td,player_reception_yds,player_receptions&date=$D"
+            fi
+            echo " -- events-list call, for the per-season overhead line --"
+            measure "events list       " "$HB/events?apiKey=$K_ODDS&date=$D"
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
