@@ -1,31 +1,32 @@
 name: Free betting sources probe (Ball Don't Lie + Kalshi, read-only)
 
-# Cory, 2026-08-16: "Why don't we see what ball don't lie offers as well! We
-# just need free way to get all the info we need. Ensure we are getting as
-# robust betting info as we can and are using it, grading it and closing the
-# loop to possibly learn! This is incredibly important. Do the same with
-# Kalshi betting markets"
+# Cory, 2026-08-16: "Ensure we are getting as robust betting info as we can
+# and are using it, grading it and closing the loop to possibly learn! This
+# is incredibly important."
 #
-# WHY THIS EXISTS. The Odds API plan is a ONE-MONTH purchase for HISTORICAL
-# data; 2026 live betting has to come from free sources or it does not come
-# at all. Today only SportsGameOdds is actually wired (odds-capture.yml ->
-# fetch_sgo.py, Thu/Sun cron). BALL DON'T LIE has a valid key and NO fetcher
-# in the repo. KALSHI was probed once by draft/backtest/market_probe.py and
-# nothing was built on it. So we are very likely leaving free, usable
-# betting information on the floor.
+# WHY. The Odds API plan is a ONE-MONTH purchase for HISTORICAL data; 2026
+# live betting must come from free sources or not at all. Only
+# SportsGameOdds is wired today (odds-capture.yml -> fetch_sgo.py). BALL
+# DON'T LIE has a valid key and NO fetcher in the repo. KALSHI was probed
+# once by draft/backtest/market_probe.py and nothing was built on it.
 #
-# PROBE BEFORE DESIGNING — market_probe.py's own rule, and it applies here:
-# "Kalshi's API being free says nothing about whether it runs player-level
-# markets at meaningful volume, and a thin market carries little information
-# no matter how accessible it is." A clean negative is a useful result. This
-# workflow answers WHAT EXISTS and AT WHAT VOLUME, and draws no conclusion
-# the data does not support.
+# ROUND 1 (run 31970... ) established Kalshi's NFL SERIES CATALOG is large
+# and contains exactly the markets a fantasy drafter would want — season
+# player totals (KXNFLSEASONRECYDS / RSHYDS / PASSYDS / REC / RECTD /
+# RSHTD), player fantasy points (KXNFLFFPTS), anytime TD (KXNFLANYTD) — but
+# every ticker sampled returned ZERO OPEN markets in mid-August, and an
+# all-open-markets sample carried no NFL at all. Round 2 asks the question
+# that decides everything: are those markets CLOSED, UNOPENED, or simply
+# not listed under the default status filter — and if any carry prices, at
+# what volume?
 #
-# COSTS NOTHING. Ball Don't Lie is on its free tier; Kalshi's market data is
-# public and needs no key at all. No Odds API call appears anywhere here.
+# market_probe.py's rule still governs: "a thin market carries little
+# information no matter how accessible it is." A clean negative is a real
+# result and will be published as one.
 #
-# READ-ONLY: prints HTTP status, top-level shape, field names and volume
-# counts. Never commits, never writes to draft/data, never prints a key.
+# COSTS NOTHING. BDL free tier; Kalshi market data is public, no key. No
+# Odds API call appears anywhere. Read-only: status, shape, field names,
+# volume. Never commits, never prints a key.
 
 on:
   workflow_dispatch: {}
@@ -34,127 +35,130 @@ permissions:
   contents: read
 
 jobs:
-  probe:
+  balldontlie:
     runs-on: ubuntu-latest
     env:
       K_BDL: ${{ secrets.BALL_DONT_LIE_API }}
     steps:
-      - name: Ball Don't Lie — what does the NFL API actually serve?
+      - name: Ball Don't Lie — endpoint census, betting surfaces first
         run: |
           set -uo pipefail
           BASE="https://api.balldontlie.io/nfl/v1"
-          hit() { # $1=label $2=path — prints status + shape, never a full dump
+          hit() {
             code=$(curl -s -o /tmp/b -w "%{http_code}" --max-time 25 \
                    -H "Authorization: $K_BDL" "$BASE/$2" || echo 000)
-            echo "  $1 ($2): HTTP $code"
+            echo "  $1 -> HTTP $code"
             if [ "$code" = "200" ]; then
               python3 - <<'PY' || echo "    (parse failed)"
           import json
           b = json.load(open('/tmp/b'))
           data = b.get('data', b) if isinstance(b, dict) else b
-          meta = b.get('meta') if isinstance(b, dict) else None
           if isinstance(data, list):
               print(f"    rows: {len(data)}")
               if data and isinstance(data[0], dict):
-                  print(f"    fields: {sorted(data[0])[:18]}")
-                  # one row, field names + primitive values only
-                  row = {k: v for k, v in data[0].items()
-                         if not isinstance(v, (dict, list))}
-                  print(f"    sample: {json.dumps(row)[:400]}")
-                  nested = [k for k, v in data[0].items() if isinstance(v, (dict, list))]
-                  if nested:
-                      print(f"    nested: {nested}")
+                  print(f"    fields: {sorted(data[0])}")
+                  flat = {k: v for k, v in data[0].items()
+                          if not isinstance(v, (dict, list))}
+                  print(f"    sample: {json.dumps(flat)[:500]}")
           elif isinstance(data, dict):
-              print(f"    keys: {sorted(data)[:18]}")
-          if meta:
-              print(f"    meta: {meta}")
+              print(f"    keys: {sorted(data)}")
           PY
             else
-              head -c 220 /tmp/b; echo
+              echo "    body: $(head -c 200 /tmp/b)"
             fi
           }
+          if [ -z "$K_BDL" ]; then echo "no key"; exit 0; fi
 
-          if [ -z "$K_BDL" ]; then
-            echo "BALL_DONT_LIE_API not set — skipping"; exit 0
-          fi
-          echo "== Ball Don't Lie NFL: endpoint census =="
-          hit "teams          " "teams"
-          hit "players        " "players?per_page=2"
-          hit "games 2025     " "games?seasons[]=2025&per_page=2"
-          hit "player stats   " "stats?seasons[]=2025&per_page=2"
-          hit "season stats   " "season_stats?season=2025&per_page=2"
-          hit "standings      " "standings?season=2025"
-          hit "injuries       " "player_injuries?per_page=2"
+          echo "== BETTING SURFACES — these decide whether BDL can feed the weekly loop =="
+          hit "odds (season/week)  " "odds?season=2025&week=1"
+          hit "odds (by date)      " "odds?date=2025-09-07"
+          hit "player_props        " "player_props?season=2025&week=1"
+          hit "player props alt    " "player_odds?season=2025&week=1"
           echo
-          echo "== THE ONES THAT MATTER: betting/odds surfaces =="
-          hit "odds           " "odds?season=2025&week=1"
-          hit "odds by date   " "odds?date=2025-09-07"
-          hit "player props   " "player_props?season=2025&week=1"
-          hit "advanced stats " "advanced_stats?seasons[]=2025&per_page=2"
+          echo "== supporting data =="
+          hit "teams               " "teams"
+          hit "players             " "players?per_page=2"
+          hit "games 2025          " "games?seasons[]=2025&per_page=2"
+          hit "stats               " "stats?seasons[]=2025&per_page=2"
+          hit "season_stats        " "season_stats?season=2025&per_page=2"
+          hit "injuries            " "player_injuries?per_page=2"
+          hit "advanced_stats      " "advanced_stats?seasons[]=2025&per_page=2"
 
-      - name: Kalshi — do NFL markets exist at usable volume?
+  kalshi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kalshi — are the fantasy-relevant series actually tradeable?
         run: |
           set -uo pipefail
-          K="https://api.elections.kalshi.com/trade-api/v2"
-          echo "== Kalshi NFL series (public, no key) =="
-          code=$(curl -s -o /tmp/k -w "%{http_code}" --max-time 25 \
-                 "$K/series?category=Sports" || echo 000)
-          echo "series?category=Sports: HTTP $code"
-          if [ "$code" = "200" ]; then
-            python3 - <<'PY' || echo "  (parse failed)"
-          import json
-          b = json.load(open('/tmp/k'))
-          s = b.get('series') or b.get('data') or []
-          nfl = [x for x in s if 'NFL' in (x.get('ticker') or '').upper()]
-          print(f"  sports series total: {len(s)}; NFL-tickered: {len(nfl)}")
-          for x in nfl:
-              print(f"    {x.get('ticker'):<24} {(x.get('title') or '')[:64]}")
-          PY
-          fi
+          python3 - <<'PY'
+          import json, urllib.request, collections
+          K = "https://api.elections.kalshi.com/trade-api/v2"
 
-          echo
-          echo "== volume check: a thin market carries little information =="
-          # market_probe.py's own standard. Open interest + volume decide
-          # whether any of this is worth wiring, so print them explicitly.
-          for T in KXNFLRSHATT KXNFLGAMESACK KXNFLWINMARGIN; do
-            code=$(curl -s -o /tmp/m -w "%{http_code}" --max-time 25 \
-                   "$K/markets?series_ticker=$T&limit=100&status=open" || echo 000)
-            echo "  markets?series_ticker=$T: HTTP $code"
-            if [ "$code" = "200" ]; then
-              python3 - <<'PY' || echo "    (parse failed)"
-          import json
-          b = json.load(open('/tmp/m'))
-          ms = b.get('markets') or []
-          print(f"    open markets: {len(ms)}")
-          if ms:
-              print(f"    fields: {sorted(ms[0])[:20]}")
-              tot_v = sum((m.get('volume') or 0) for m in ms)
-              tot_oi = sum((m.get('open_interest') or 0) for m in ms)
-              print(f"    TOTAL volume: {tot_v}; TOTAL open interest: {tot_oi}")
-              top = sorted(ms, key=lambda m: -(m.get('volume') or 0))[:5]
+          def get(path):
+              try:
+                  req = urllib.request.Request(K + path, headers={"User-Agent": "maga-league-probe"})
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      return json.load(r)
+              except Exception as e:
+                  return {"_err": str(e)[:140]}
+
+          # The series round 1 surfaced that a fantasy drafter would actually
+          # want. Season-long PLAYER totals are the prize: The Odds API serves
+          # no such market at any price (422 on every candidate key), so if
+          # Kalshi runs these with real volume it is strictly better AND free.
+          want = {
+              "KXNFLSEASONRECYDS": "season receiving yards (PLAYER, season-long)",
+              "KXNFLSEASONRSHYDS": "season rushing yards (PLAYER, season-long)",
+              "KXNFLSEASONPASSYDS": "season passing yards (PLAYER, season-long)",
+              "KXNFLSEASONREC":    "season receptions (PLAYER, season-long)",
+              "KXNFLSEASONRECTD":  "season receiving TDs (PLAYER, season-long)",
+              "KXNFLSEASONRSHTD":  "season rushing TDs (PLAYER, season-long)",
+              "KXNFLFFPTS":        "player FANTASY POINTS",
+              "KXNFLFFLEADER":     "best in fantasy by position",
+              "KXNFLANYTD":        "anytime touchdown (weekly)",
+              "KXNFLRSHATT":       "rushing attempts (volume/role proxy)",
+          }
+          print(f"{'ticker':<20}{'mkts':>6}{'vol':>10}{'oi':>10}  statuses")
+          hits = {}
+          for t, desc in want.items():
+              b = get(f"/markets?series_ticker={t}&limit=200")
+              if "_err" in b:
+                  print(f"{t:<20}  ERR {b['_err']}")
+                  continue
+              ms = b.get("markets") or []
+              st = collections.Counter(m.get("status") for m in ms)
+              vol = sum((m.get("volume") or 0) for m in ms)
+              oi = sum((m.get("open_interest") or 0) for m in ms)
+              print(f"{t:<20}{len(ms):>6}{vol:>10}{oi:>10}  {dict(st)}   {desc}")
+              if ms:
+                  hits[t] = ms
+
+          print()
+          print("== detail on any series that returned markets ==")
+          for t, ms in hits.items():
+              top = sorted(ms, key=lambda m: -(m.get('volume') or 0))[:6]
+              print(f"\n  {t}  ({len(ms)} markets)")
+              print(f"    fields: {sorted(top[0])[:22]}")
               for m in top:
-                  print(f"      {(m.get('ticker') or '')[:34]:<34} "
-                        f"vol={m.get('volume')} oi={m.get('open_interest')} "
-                        f"yes_bid={m.get('yes_bid')} yes_ask={m.get('yes_ask')} "
-                        f"| {(m.get('title') or m.get('subtitle') or '')[:48]}")
-          PY
-            fi
-          done
+                  print(f"    {(m.get('ticker') or '')[:38]:<38} "
+                        f"status={m.get('status')} vol={m.get('volume')} "
+                        f"oi={m.get('open_interest')} "
+                        f"bid={m.get('yes_bid')} ask={m.get('yes_ask')} "
+                        f"close={str(m.get('close_time'))[:10]}")
+                  ttl = m.get('title') or m.get('subtitle') or m.get('yes_sub_title')
+                  if ttl:
+                      print(f"        {str(ttl)[:88]}")
 
-          echo
-          echo "== is any Kalshi market PLAYER-level? (the fantasy-relevant question) =="
-          code=$(curl -s -o /tmp/e -w "%{http_code}" --max-time 25 \
-                 "$K/markets?limit=200&status=open" || echo 000)
-          echo "markets?limit=200 (all open): HTTP $code"
-          if [ "$code" = "200" ]; then
-            python3 - <<'PY' || echo "  (parse failed)"
-          import json
-          b = json.load(open('/tmp/e'))
-          ms = b.get('markets') or []
-          nfl = [m for m in ms if 'NFL' in (m.get('ticker') or '').upper()]
-          print(f"  open markets sampled: {len(ms)}; NFL: {len(nfl)}")
-          for m in nfl[:15]:
-              print(f"    {(m.get('ticker') or '')[:40]:<40} vol={m.get('volume')} "
-                    f"| {(m.get('title') or '')[:56]}")
+          print()
+          print("== when do NFL markets open? (events carry open/close times) ==")
+          for t in ("KXNFLSEASONRECYDS", "KXNFLFFPTS", "KXNFLANYTD"):
+              b = get(f"/events?series_ticker={t}&limit=5")
+              if "_err" in b:
+                  print(f"  {t}: ERR {b['_err']}"); continue
+              evs = b.get("events") or []
+              print(f"  {t}: {len(evs)} events")
+              for e in evs[:3]:
+                  print(f"    {(e.get('event_ticker') or '')[:40]:<40} "
+                        f"{str(e.get('title'))[:44]} "
+                        f"strike={str(e.get('strike_date'))[:10]}")
           PY
-          fi
