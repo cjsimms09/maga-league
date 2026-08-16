@@ -319,21 +319,46 @@ def build_recommendations() -> dict:
         }
         if acc_v2 and acc_v2.get("promotion_bar"):
             promotion_bar["candidates"]["own_model_v2"] = acc_v2["promotion_bar"]
+        # own_v4 — the first candidate to CLEAR the bar (2026-08-16), accepted
+        # by Cory in writing ("Yes on v4") the same day and APPLIED:
+        # proj_ownmodel's algorithm is the v4 construction
+        # (draft/own_projections.py), board label own_v4. The recommendation
+        # flips from a standing negative to an applied promotion — its ROLE
+        # limit stands: display-only third opinion; composition entry vs
+        # Sleeper remains blocked on the January 2027 grade (REC-2).
+        acc_v4 = _load(HERE / "model_accuracy_v4.json")
+        v4_cleared = bool(acc_v4 and (acc_v4.get("promotion_bar") or {}).get("clears"))
+        if acc_v4 and acc_v4.get("promotion_bar"):
+            promotion_bar["candidates"]["own_model_v4"] = acc_v4["promotion_bar"]
         recs.append({
             "id": "REC-3-own-model-stays-display-only",
-            "status": "standing-negative",
-            "summary": ("proj_ownmodel (walk_forward) LOSES to the naive recency blend at "
-                        f"{len(wf_loses)}/4 positions on MAE (shared population, 2025, "
-                        "leak-free) and at 4/4 on rank correlation. It must stay a "
-                        "display-only third opinion; any promotion to the composition is "
-                        "evidence-blocked until a candidate clears the promotion bar."),
+            "status": "applied-2026-08-16" if v4_cleared else "standing-negative",
+            "summary": (("PROMOTED: own_model_v4 is the first candidate to clear the bar — "
+                         "beat BOTH naive baselines at ALL four positions on BOTH metrics "
+                         "(shared population, 2025, leak-free, preregistered). proj_ownmodel "
+                         "now runs the v4 construction under Cory's written acceptance "
+                         "('Yes on v4', 2026-08-16). Role unchanged: display-only third "
+                         "opinion; composition entry vs Sleeper stays evidence-blocked "
+                         "until the January 2027 grade (REC-2). Caveats on record: QB "
+                         "Spearman margin one rank-swap wide; QB constants rest on three "
+                         "folds from two seasons.") if v4_cleared else
+                        ("proj_ownmodel (walk_forward) LOSES to the naive recency blend at "
+                         f"{len(wf_loses)}/4 positions on MAE (shared population, 2025, "
+                         "leak-free) and at 4/4 on rank correlation. It must stay a "
+                         "display-only third opinion; any promotion to the composition is "
+                         "evidence-blocked until a candidate clears the promotion bar.")),
             "promotion_bar": promotion_bar,
             "evidence": (["draft/backtest/model_accuracy_2025.json — head_to_head_shared_population"]
                          + (["draft/backtest/model_accuracy_v2.json — v2 graded under the same protocol"]
-                            if acc_v2 else [])),
-            "acceptance": ("nothing to accept — this recommendation BLOCKS a change. It expires "
-                           "only when a candidate clears the promotion bar above in the "
-                           "walk-forward AND Cory accepts the written promotion decision."),
+                            if acc_v2 else [])
+                         + (["draft/backtest/model_accuracy_v4.json — head_to_head_shared_population",
+                             "draft/audit/projector_v4_2026-08-16.md"] if acc_v4 else [])),
+            "acceptance": (("ACCEPTED AND APPLIED — Cory, 2026-08-16, 'Yes on v4'. The applied "
+                            "change is the one-line reviewed swap in draft/own_projections.py "
+                            "(v1 core kept as the rollback path).") if v4_cleared else
+                           ("nothing to accept — this recommendation BLOCKS a change. It expires "
+                            "only when a candidate clears the promotion bar above in the "
+                            "walk-forward AND Cory accepts the written promotion decision.")),
         })
 
     # REC-4 — the weights wire, now READ: the weekly grade runner mirrors

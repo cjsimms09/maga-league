@@ -30,22 +30,10 @@ evidence file. Detail lives in the evidence, not here.**
 ## Needs Cory before the 22nd
 
 *(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
-so" — and EXECUTED the same day; records moved to "Settled" below. Two open
-calls:)*
+so", v4 promotion RULED "Yes on v4" — all EXECUTED; records in "Settled"
+below. One open call:)*
 
-1. **PROMOTE own_model_v4 as the proj_ownmodel source** — the first candidate
-   ever to clear your ratified REC-3 bar (beat BOTH baselines, ALL four
-   positions, BOTH metrics, preregistered, held-out 2025): QB 72.29 MAE /
-   0.7225 Spearman vs the blend's 74.09 / 0.7213; RB/WR/TE inherit v3's
-   cleared cells bit-for-bit. The promotion swaps the algorithm behind the
-   labeled third-opinion column only — it does NOT enter `proj_mean`'s
-   composition (that needs the January 2027 Sleeper grade; REC-2 unchanged).
-   Caveats travel with the call: the QB Spearman margin is one rank-swap
-   wide; the MAE margin (−1.80/QB) is real; constants rest on three folds
-   from two seasons. Relay recommendation: YES — this is the bar working as
-   you ratified it. → `draft/audit/projector_v4_2026-08-16.md` §7 (the exact
-   prepared diff) + `draft/backtest/model_accuracy_v4.json`.
-2. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
+1. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
    (survival.js, ships false)? The league's own positional draft behavior
    (fit 2023-24, 377 corrected decisions) beat the engine's ADP-plus-noise
    survival form on a preregistered 2025 forward test (pooled Brier 0.099
@@ -76,6 +64,14 @@ calls:)*
 
 ## Settled today (rulings made; records, not questions)
 
+- **own_model_v4 PROMOTION — Cory 2026-08-16 "Yes on v4" → APPLIED.** The
+  first REC-3 bar clear (all four positions, both metrics, preregistered).
+  `proj_ownmodel` now runs the v4 construction (`draft/own_projections.py`,
+  graded modules imported, zero network, v1 core kept as rollback), board
+  label own_v4, committed board column refreshed + verified against a fresh
+  run by test. Still display-only: composition entry vs Sleeper stays
+  blocked on the January 2027 grade (REC-2). Caveats on the record in
+  REC-3's regenerated entry.
 - **VONA_WIRE_BENCH — Cory 2026-08-16 "Yes" → flipped TRUE** (engine.js), test
   pins updated to the ruled state, baseline v16 frozen with the ruling as its
   `_why` (v15 stays on the books as the pre-ruling reference).

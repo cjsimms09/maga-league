@@ -84,9 +84,13 @@ def test_the_COMMITTED_artifact_matches_regeneration_and_honours_the_ruling():
     assert art["recommendations"] == fresh["recommendations"], (
         "model_update_recommendations.json does not match learning_loop's output — "
         "regenerate it in the same change that moved an input")
-    # REC-1 is applied UNDER CORY'S RECORDED RULING (2026-08-15, decision arm
-    # re-verified first); nothing else moved a default.
-    assert art["applied_under_ruling"] == ["REC-1-proj-sd-calibration"]
+    # Applied recommendations carry CORY'S RECORDED RULINGS, one each: REC-1
+    # (2026-08-15, decision arm re-verified first) and REC-3 (2026-08-16,
+    # "Yes on v4" — the first promotion-bar clear, proj_ownmodel's algorithm
+    # swapped to own_v4 with the v1 core kept as rollback). Nothing else
+    # moved a default.
+    assert art["applied_under_ruling"] == [
+        "REC-1-proj-sd-calibration", "REC-3-own-model-stays-display-only"]
     assert art["defaults_untouched_beyond_ruling"] is True
     assert next(iter(art)) == "_territory"
 
@@ -99,7 +103,7 @@ def test_every_recommendation_carries_an_acceptance_path():
         assert r.get("acceptance"), f"{r['id']} has no acceptance path"
         assert r.get("status") in ("ready-for-ruling", "blocked-until-2027-01",
                                    "standing-negative", "wiring-gap",
-                                   "applied-2026-08-15",
+                                   "applied-2026-08-15", "applied-2026-08-16",
                                    "wired-to-recommendation-artifact"), r["id"]
 
 

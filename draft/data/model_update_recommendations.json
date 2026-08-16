@@ -3,7 +3,8 @@
  "_note": "Measured grading \u2192 concrete model-update recommendations. A change is applied ONLY under a recorded ruling from Cory (REC-1: his 2026-08-15 'We need to fix!!!', decision arm re-verified first); everything else is untouched and acceptance stays a one-line reviewed change per recommendation.",
  "generated_by": "draft/backtest/learning_loop.py",
  "applied_under_ruling": [
-  "REC-1-proj-sd-calibration"
+  "REC-1-proj-sd-calibration",
+  "REC-3-own-model-stays-display-only"
  ],
  "defaults_untouched_beyond_ruling": true,
  "recommendations": [
@@ -137,8 +138,8 @@
   },
   {
    "id": "REC-3-own-model-stays-display-only",
-   "status": "standing-negative",
-   "summary": "proj_ownmodel (walk_forward) LOSES to the naive recency blend at 4/4 positions on MAE (shared population, 2025, leak-free) and at 4/4 on rank correlation. It must stay a display-only third opinion; any promotion to the composition is evidence-blocked until a candidate clears the promotion bar.",
+   "status": "applied-2026-08-16",
+   "summary": "PROMOTED: own_model_v4 is the first candidate to clear the bar \u2014 beat BOTH naive baselines at ALL four positions on BOTH metrics (shared population, 2025, leak-free, preregistered). proj_ownmodel now runs the v4 construction under Cory's written acceptance ('Yes on v4', 2026-08-16). Role unchanged: display-only third opinion; composition entry vs Sleeper stays evidence-blocked until the January 2027 grade (REC-2). Caveats on record: QB Spearman margin one rank-swap wide; QB constants rest on three folds from two seasons.",
    "promotion_bar": {
     "rule": "promotion of ANY own model (v1, v2, or successor) into the composition requires beating BOTH naive baselines (naive_prev AND recency_blend) at ALL four positions on BOTH metrics (MAE and Spearman) in the leak-free walk-forward protocol, then a reviewed promotion decision file for Cory \u2014 never an automatic flip. The bar Cory's ruling implies: until it earns it.",
     "candidates": {
@@ -180,14 +181,56 @@
        }
       },
       "consequence": "clears=false \u2192 proj_ownmodel and v2 stay display-only. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."
+     },
+     "own_model_v4": {
+      "bar": "beat BOTH naive baselines at ALL four positions on BOTH metrics (MAE and Spearman), shared population, leak-free walk-forward \u2014 REC-3, Cory-ratified, strict inequalities",
+      "candidate": "own_v4",
+      "clears": true,
+      "per_position": {
+       "QB": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "own_v4_mae": 72.29,
+        "best_baseline_mae": 74.09,
+        "own_v4_spearman": 0.7225,
+        "best_baseline_spearman": 0.7213
+       },
+       "RB": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "own_v4_mae": 38.66,
+        "best_baseline_mae": 41.86,
+        "own_v4_spearman": 0.7957,
+        "best_baseline_spearman": 0.7682
+       },
+       "WR": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "own_v4_mae": 34.05,
+        "best_baseline_mae": 36.82,
+        "own_v4_spearman": 0.753,
+        "best_baseline_spearman": 0.7344
+       },
+       "TE": {
+        "mae_beats_both": true,
+        "spearman_beats_both": true,
+        "own_v4_mae": 23.73,
+        "best_baseline_mae": 24.04,
+        "own_v4_spearman": 0.792,
+        "best_baseline_spearman": 0.7871
+       }
+      },
+      "consequence": "clears=false \u2192 v3 stays display-only beside v2. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."
      }
     }
    },
    "evidence": [
     "draft/backtest/model_accuracy_2025.json \u2014 head_to_head_shared_population",
-    "draft/backtest/model_accuracy_v2.json \u2014 v2 graded under the same protocol"
+    "draft/backtest/model_accuracy_v2.json \u2014 v2 graded under the same protocol",
+    "draft/backtest/model_accuracy_v4.json \u2014 head_to_head_shared_population",
+    "draft/audit/projector_v4_2026-08-16.md"
    ],
-   "acceptance": "nothing to accept \u2014 this recommendation BLOCKS a change. It expires only when a candidate clears the promotion bar above in the walk-forward AND Cory accepts the written promotion decision."
+   "acceptance": "ACCEPTED AND APPLIED \u2014 Cory, 2026-08-16, 'Yes on v4'. The applied change is the one-line reviewed swap in draft/own_projections.py (v1 core kept as the rollback path)."
   },
   {
    "id": "REC-4-evidence-weights-have-no-reader",
