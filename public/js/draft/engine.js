@@ -235,12 +235,14 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
-    /* WIRE-COMPARED BENCH BRANCH, OFF BY DEFAULT — same standing gate as
-     * VONA_SLOT_AWARE above: this changes what the model recommends, so it
-     * stays off until Cory rules on it, whatever the evidence looks like.
-     * See the bench branch of vona() below for the formula and its docstring
-     * for the evidence this was built on and what is still unresolved. */
-    VONA_WIRE_BENCH: false,
+    /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
+     * made with the evidence in front of him: the QB2 anomaly that blocked
+     * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
+     * and the wire branch's bench timing matches the league's real history
+     * (bench_wire_comparison_claim_2026-08-15.md + the 60-room 3-arm sim).
+     * See the bench branch of vona() below for the formula. The standing gate
+     * protocol is unchanged for every OTHER switch: off until Cory rules. */
+    VONA_WIRE_BENCH: true,
     /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
      * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
      * deleted the next day on my reading of Cory's "delete the cap" instruction.

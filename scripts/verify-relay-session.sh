@@ -47,8 +47,12 @@ pred = json.load(open('draft/data/predicted_keepers.json'))
 script = json.load(open('draft/data/opening_script.json'))
 stale = OS.is_stale(script['meta'], OS.fingerprint(board, pred))
 assert stale == [], stale"
-ck "no engine CFG default changed vs origin/main (the standing scoring gate)" \
-  bash -c "git diff origin/main -- public/js/draft/engine.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^\+ *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP): false' | grep -vE '^\+ *//' | { ! grep -q .; }"
+# The exemption list IS the ruling record: VONA_WIRE_BENCH and
+# KOV_MEASURED_RAMP may appear in the diff in EITHER state because Cory ruled
+# on both 2026-08-16 ("1. Yes ... 3. Yes" — flipped true, with the old false
+# lines leaving the diff). Any OTHER CFG default moving still fails here.
+ck "no engine CFG default changed vs origin/main beyond Cory's two ruled flips" \
+  bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP): (false|true)' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
 
 echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
@@ -110,10 +114,10 @@ act as a mechanism: verify, merge locally, suites on the merged tree, and it
 STOPS before pushing."
 echo ""
 echo "THE DECISION QUEUE LIVES IN ONE PLACE: DECISIONS-NEEDED.md, top section"
-echo "('⚡ THE QUEUE'). Five calls need Cory before the 22nd — VONA_WIRE_BENCH,"
-echo "the scoring-gap ADP correction, KOV_MEASURED_RAMP, pick-33 headline"
-echo "ownership, ROOM_MIX_PRIOR — each with its gated switch and evidence file named there,"
-echo "plus the standing older opens and today's already-settled rulings"
-echo "(REC-1 proj_sd live, the pre-draft survival filter) so the merge reads"
-echo "every applied change as intended. This footer is a pointer, not a copy."
+echo "('⚡ THE QUEUE'). ONE call still needs Cory before the 22nd — ROOM_MIX_PRIOR"
+echo "(flip only if the mock rehearsal is clean). Four were RULED AND EXECUTED"
+echo "2026-08-16: VONA_WIRE_BENCH true, ADP correction closed, KOV_MEASURED_RAMP"
+echo "true, seat-plan headline ownership — the queue's Settled section carries"
+echo "each record, and baseline v16 freezes the ruled behavior. This footer is"
+echo "a pointer, not a copy."
 exit $((fail > 0))

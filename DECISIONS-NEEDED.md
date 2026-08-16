@@ -29,35 +29,11 @@ evidence file. Detail lives in the evidence, not here.**
 
 ## Needs Cory before the 22nd
 
-1. **VONA_WIRE_BENCH ship/no-ship** — flip `CFG.VONA_WIRE_BENCH` (engine.js,
-   ships false)? The QB2 anomaly is resolved (it belongs to VONA_SLOT_AWARE,
-   not the wire branch; the wire branch's timing matches real history
-   exactly). → `draft/audit/vona_slot_aware_isolation_2026-08-15.md` +
-   `bench_wire_comparison_claim_2026-08-15.md`.
-2. **Scoring-gap ADP correction** — apply the 6pt-TD correction to ADP?
-   Report's own recommendation: NO (right size, $0.00 through the certified
-   grader; the room already prices the rule).
-   → `draft/audit/scoring_gap_correction_backtest_2026-08-15.md`.
-3. **KOV_MEASURED_RAMP** — flip `CFG.KOV_MEASURED_RAMP` (ships false)? The
-   LIVE keeper-option ramp is INVERSE to the league's own 450-pick history
-   (value lives rounds 4-6, not 10-15; 0 of 31 round-13-15 picks were ever
-   kept). Full entry at the bottom of this file (2026-08-15, roster audit).
-   → `draft/audit/roster_construction_audit_2026-08-15.md` §B.4.
-4. **Pick-33 headline ownership** — which surface owns the recommendation
-   when the value lens (Flowers) and the season-plan lens (Loveland TE)
-   disagree? Relay recommendation: the DP-backed seat plan owns the
-   headline; one keeper-assumption overlap must be verified first (the
-   data-audit pass is checking it). → ROUTES.md TO:A item 2026-08-15 🎯.
-   **EVIDENCE UPDATE (data audit + fix, 2026-08-15 night):** the
-   keeper-assumption check came back CONTRADICTED and is now FIXED at the
-   mechanism — real Sleeper designations supersede predictions in
-   `opening_script.py` (Marian freed Bowers into the pool; Jeanty + Chase
-   Brown are actually kept). The regenerated script's pick-33/48/53 slates
-   are UNCHANGED (every affected keeper fails the survival floor either
-   way), so this decision's inputs stand; the headline call itself is
-   still yours/A's. → `draft/audit/data_assumptions_audit_2026-08-15.md`
-   §1 + the opening_script commit of 2026-08-15 night.
-5. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
+*(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
+so" — and EXECUTED the same day; records moved to "Settled" below. One open
+call remains:)*
+
+1. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
    (survival.js, ships false)? The league's own positional draft behavior
    (fit 2023-24, 377 corrected decisions) beat the engine's ADP-plus-noise
    survival form on a preregistered 2025 forward test (pooled Brier 0.099
@@ -87,6 +63,21 @@ evidence file. Detail lives in the evidence, not here.**
   fixtures clause awaiting authorization (A).
 
 ## Settled today (rulings made; records, not questions)
+
+- **VONA_WIRE_BENCH — Cory 2026-08-16 "Yes" → flipped TRUE** (engine.js), test
+  pins updated to the ruled state, baseline v16 frozen with the ruling as its
+  `_why` (v15 stays on the books as the pre-ruling reference).
+- **Scoring-gap ADP correction — Cory 2026-08-16 "No" → CLOSED**, per the
+  report's own recommendation ($0.00 through the certified grader).
+- **KOV_MEASURED_RAMP — Cory 2026-08-16 "Yes" → flipped TRUE** (composite.js).
+  Keeper value now prices where this league actually keeps from (rounds 4-6
+  peak, zero in 10-15); every KOV test suite rewritten to the measured shape
+  with the rollback path still pinned behind the flag.
+- **Pick-33 headline ownership — Cory 2026-08-16 "Yes? If you think so" →
+  THE SEAT PLAN OWNS THE HEADLINE** wherever it speaks (verdict.js): a
+  personal-list pin first, then the plan's answer with the value pick always
+  printed as the priced second line, rule/value doctrine unchanged where the
+  plan is silent. 9 new fidelity pins (ui_fidelity_verdict 40/40).
 
 - Deploy policy — Cory's "find the happy medium" → DEPLOY-POLICY.md rewritten,
   blanket freeze retired.

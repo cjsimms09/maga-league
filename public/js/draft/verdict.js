@@ -16,10 +16,12 @@
  *     gap < CFG.TIE_THRESHOLD;
  *   · "the board cannot resolve this" is CFG.PATHS_BAND — the exact band the
  *     rule-headline's Two-Reads line already used for the same sentence;
- *   · the backed pick when rule and value disagree is THE RULE'S, because the
- *     page's own doctrine (rendered since the needrule shipped) is "follow the
- *     rule unless you have a reason not to — it is the one measured to earn
- *     money".
+ *   · the backed pick follows the ruled hierarchy (Cory, 2026-08-16, queue
+ *     item 4): a personal-list PIN first (his own hand), then THE SEAT PLAN's
+ *     answer wherever the plan speaks — it optimizes all his picks together —
+ *     with the value pick always printed as the explicit priced alternative;
+ *     where the plan is silent, the older doctrine stands (the rule's pick,
+ *     "measured to earn money", over value-now).
  *
  * The chip can therefore never say LOCK while the engine says contested: LOCK
  * requires level 'clear', which requires gap >= CFG.CLOSE_GAP (3.5), while
@@ -91,30 +93,68 @@
       : (cfg.COIN_FLIP_GAP == null ? 1 : cfg.COIN_FLIP_GAP) * 4;
 
     // ── Which player does the page back? ────────────────────────────────
-    // The rule's, when the rule speaks — that is the page's own measured
-    // doctrine, not a choice made here. Value top otherwise.
+    // THE SEAT PLAN'S, when the plan speaks — Cory's ruling, 2026-08-16
+    // (queue item 4, "pick-33 headline ownership": the DP-backed seat plan
+    // owns the headline; the value pick prints as the explicit second line).
+    // The plan optimizes ALL his picks together, which is strictly more
+    // context than value-now. Where the plan is silent the older doctrine
+    // stands: the rule's pick when the rule speaks, value top otherwise.
+    // A personal-list PIN still trumps everything — that is Cory's own hand.
     var rulePick = rule ? rule.pick : null;
     var ruleEntry = rulePick ? _entryFor(scored, rulePick.player_id) : null;
     var ruleDiffers = !!(rulePick && String(rulePick.player_id) !== String(top.player.player_id));
+    // The plan's concrete candidate: its own shortlist name when that player
+    // is on the scored board, else the best-scoring player at the wanted
+    // slot. A wanted slot with nobody scoreable leaves the plan silent.
+    var planEntry = null;
+    if (input.plan && input.plan.slot) {
+      if (input.plan.name) {
+        for (var pi = 0; pi < scored.length; pi++) {
+          if (scored[pi].player.name === input.plan.name) { planEntry = scored[pi]; break; }
+        }
+      }
+      if (!planEntry) {
+        for (var pj = 0; pj < scored.length; pj++) {
+          if (scored[pj].player.position === input.plan.slot) { planEntry = scored[pj]; break; }
+        }
+      }
+    }
+    var planDiffers = !!(planEntry
+      && String(planEntry.player.player_id) !== String(top.player.player_id));
+    var planGap = (planDiffers && planEntry.score != null && top.score != null)
+      ? (top.score - planEntry.score) : null;
     // The separation between the two answers, in the score's own units.
     var splitGap = (ruleDiffers && ruleEntry && ruleEntry.score != null && top.score != null)
       ? (top.score - ruleEntry.score) : null;
 
     var verdict, why;
     var backed = ruleDiffers ? (ruleEntry ? ruleEntry.player : rulePick) : top.player;
+    if (planEntry) backed = planEntry.player;
 
     if (conf.level === 'pinned') {
       verdict = 'PINNED';
       backed = top.player;
       why = conf.message; // the engine's own sentence — keep him on purpose, or take the other.
-    } else if (ruleDiffers && (splitGap == null || Math.abs(splitGap) >= band)) {
+    } else if (planDiffers && (planGap == null || Math.abs(planGap) >= band)) {
+      verdict = 'SPLIT';
+      why = 'The season plan owns this seat: take ' + _name(planEntry.player)
+        + ' (' + input.plan.slot + '). The value board prefers ' + _name(top.player)
+        + (planGap != null ? ' by ' + Math.abs(planGap).toFixed(1) + ' composite pts' : '')
+        + ' — that is your alternative if you have a reason; log it.';
+    } else if (planDiffers) {
+      verdict = 'TOSS-UP';
+      why = _name(planEntry.player) + ' (plan) and ' + _name(top.player)
+        + ' (value) are within what the board can resolve ('
+        + Math.abs(planGap).toFixed(1) + ' of ' + band
+        + ' composite pts) — these are inside the model’s noise. Your call; log which.';
+    } else if (!planEntry && ruleDiffers && (splitGap == null || Math.abs(splitGap) >= band)) {
       verdict = 'SPLIT';
       why = 'Two answers. The measured rule takes ' + _name(rulePick)
         + '; the value board prefers ' + _name(top.player)
         + (splitGap != null ? ' by ' + Math.abs(splitGap).toFixed(1) + ' composite pts' : '')
         + '. The rule is the one measured to earn money — take '
         + _name(top.player) + ' only with a reason, and log it.';
-    } else if (ruleDiffers) {
+    } else if (!planEntry && ruleDiffers) {
       // Rule and value disagree INSIDE the band the board itself cannot
       // resolve — that is a tossup between two right answers, not a split.
       verdict = 'TOSS-UP';

@@ -19,12 +19,13 @@
      * the round a pick was made is ~7 pts for rounds 4-6 (P(kept next)=11.7%,
      * mean return over the forfeited round +59.9 when kept), ~1.4 pts for
      * rounds 7-9, and ~0 or negative for rounds 10-15 (0 of 31 round-13-15
-     * picks were EVER kept). The shipped ramp gives those late rounds MAXIMUM
-     * weight and rounds 4-6 zero. When this flag is true, the measured shape
-     * replaces the reasoned one; when false (always, today), nothing changes.
-     * Small-sample caveat travels with the number: two keep transitions,
-     * ~40 keep events — which is why this is a gate, not a default. */
-    KOV_MEASURED_RAMP: false,
+     * picks were EVER kept). The OLD shipped ramp gave those late rounds
+     * MAXIMUM weight and rounds 4-6 zero — inverse to the measurement. ON by
+     * Cory's ruling, 2026-08-16 ("3. Yes"), with the small-sample caveat in
+     * front of him: two keep transitions, ~40 keep events. The measured shape
+     * now IS the shipped shape; flipping back to false restores the old
+     * reasoned ramp. */
+    KOV_MEASURED_RAMP: true,
     KOV_MEASURED_RAMP_TABLE: { '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 },
     KOV_BADGE_AT: 8,             // KOV points that earn a "KEEPER TARGET" badge
     // Age decay applied to next year's projection, by position. RBs fall off a

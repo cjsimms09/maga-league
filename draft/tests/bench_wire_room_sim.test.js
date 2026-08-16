@@ -113,9 +113,14 @@ function run(rooms, seed) {
     require(path.join(ROOT, 'public', 'js', 'draft', 'composite.js'));
     return require(p);
   })();
-  ck('engine defaults are untouched: VONA_SLOT_AWARE=false, VONA_WIRE_BENCH='
-    + 'false — the committed defaults the live app runs with',
-    E2.CFG.VONA_SLOT_AWARE === false && E2.CFG.VONA_WIRE_BENCH === false,
+  // The committed sim's "shipped" arm recorded the PRE-RULING defaults (both
+  // false) — it is the evidence the ruling was made on, kept as-recorded.
+  // The LIVE defaults are now Cory's 2026-08-16 ruling: WIRE_BENCH on (the
+  // sim's "on" arm is what ships), SLOT_AWARE still off (no ruling, stays
+  // gated).
+  ck('engine defaults match Cory\'s 2026-08-16 ruling: VONA_SLOT_AWARE=false '
+    + '(still gated), VONA_WIRE_BENCH=true (ruled on)',
+    E2.CFG.VONA_SLOT_AWARE === false && E2.CFG.VONA_WIRE_BENCH === true,
     { VONA_SLOT_AWARE: E2.CFG.VONA_SLOT_AWARE, VONA_WIRE_BENCH: E2.CFG.VONA_WIRE_BENCH });
 }
 

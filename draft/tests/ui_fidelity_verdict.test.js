@@ -216,6 +216,48 @@ ck('the chip-word table exists and names every verdict',
     captured.indexOf('data-verdict="TOSS-UP"') >= 0 && /your call/i.test(captured), captured.slice(0, 200));
 }
 
+// ── THE SEAT PLAN OWNS THE HEADLINE — Cory's ruling, 2026-08-16 (queue #4) ─
+// "Pick-33 headline ownership": when the DP season plan speaks for this seat
+// and disagrees with the value top, the PLAN's answer is the backed pick and
+// the value pick prints as the explicit priced alternative. Pinned here so
+// the hierarchy cannot silently revert to rule-first.
+{
+  const scored = mk(CFG.PATHS_BAND + 1);           // Alpha RB tops, Beta WR trails
+  const plan = { slot: 'WR', name: 'Beta' };       // the plan wants the WR seat
+  const v = V.derive({ cfg: CFG, scored, confidence: E.confidence(scored), plan });
+  ck('plan ≠ value beyond the band: SPLIT, and the PLAN\'s player is backed',
+    v.verdict === 'SPLIT' && v.pick && v.pick.player_id === '2', { v: v.verdict, pick: v.pick });
+  ck('  the why says the season plan owns the seat, in those words',
+    /season plan owns this seat/.test(v.why), v.why);
+  ck('  and prints the value pick as the priced second line',
+    /value board prefers Alpha/.test(v.why) && /composite pts/.test(v.why), v.why);
+  ck('  the value top appears among alternatives priced ahead of the backed pick',
+    v.alternatives.some(a => a.player.player_id === '1' && a.delta_pts > 0), v.alternatives);
+  ck('  the PLAN lens agrees with its own headline',
+    v.lenses.find(l => l.key === 'plan').stance === 'agrees', v.lenses);
+
+  // With a RULE present too, the plan still owns the headline; the rule reads
+  // as the differing lens rather than silently reclaiming the pick.
+  const rule = { pick: { player_id: '1', name: 'Alpha', position: 'RB' }, reason: 'r' };
+  const v2 = V.derive({ cfg: CFG, scored, confidence: E.confidence(scored), plan, rule });
+  ck('plan + rule both present: the plan still owns the headline',
+    v2.pick && v2.pick.player_id === '2', v2.pick);
+  ck('  and the rule lens honestly reads "differs" under the plan\'s pick',
+    v2.lenses.find(l => l.key === 'rule').stance === 'differs', v2.lenses);
+
+  // Inside the band the honest chip is TOSS-UP, in the noise words.
+  const close = mk(CFG.PATHS_BAND - 1);
+  const v3 = V.derive({ cfg: CFG, scored: close, confidence: E.confidence(close), plan });
+  ck('plan ≠ value INSIDE the band: TOSS-UP, "inside the model\'s noise"',
+    v3.verdict === 'TOSS-UP' && /noise/.test(v3.why), { v: v3.verdict, why: v3.why });
+
+  // A plan whose wanted slot has nobody scoreable stays silent — old flow.
+  const v4 = V.derive({ cfg: CFG, scored, confidence: E.confidence(scored),
+    plan: { slot: 'TE', name: 'Nobody Here' } });
+  ck('a plan wanting a slot with nobody scoreable is silent — value top backed',
+    v4.pick && v4.pick.player_id === '1', v4.pick);
+}
+
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');
 if (fail) { console.log('\nFAILED'); process.exit(1); }
 console.log('\nWHAT THIS GUARANTEES: the verdict chip is a pure derivation from the');

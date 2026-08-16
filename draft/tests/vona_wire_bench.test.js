@@ -24,9 +24,12 @@ let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   : (fail++, console.log('FAIL  ' + n + (d !== undefined ? '\n        -> ' + JSON.stringify(d) : ''))); };
 
-// ── 1. THE FLAG IS OFF BY DEFAULT — same standing gate as VONA_SLOT_AWARE ──
-ck('VONA_WIRE_BENCH defaults to false — committing this changes no live behavior',
-  E.CFG.VONA_WIRE_BENCH === false);
+// ── 1. THE FLAG STATE IS CORY'S RULING — flipped ON 2026-08-16 ("1. Yes"),
+// with the QB2 anomaly exonerated to VONA_SLOT_AWARE and the wire branch's
+// timing matched to real history. This pin exists so the default can never
+// drift silently in EITHER direction: changing it again is a new ruling.
+ck('VONA_WIRE_BENCH is true — Cory\'s 2026-08-16 ruling, pinned',
+  E.CFG.VONA_WIRE_BENCH === true);
 
 // ── 2. THE ARITHMETIC, DIRECTLY ─────────────────────────────────────────────
 {
