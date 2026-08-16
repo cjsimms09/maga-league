@@ -45,7 +45,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install deps
-        run: pip install --quiet pandas requests
+        run: pip install --quiet pandas requests pytest
       - name: Unit tests before any fetch
         run: python3 -m pytest draft/tests/test_sleeper_proj_archive.py -q
       - name: Capture
