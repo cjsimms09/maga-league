@@ -63,6 +63,49 @@ jobs:
             (grep -o '"ticker":"[^"]*"' /tmp/body | grep -i -m 12 'NFL' || echo "  none matching NFL in first page")
           fi
 
+          echo "== ODDS_API_KEY historical + player-props access (Cory upgraded the key, 2026-08-16) =="
+          # Confirms the PAID capability we actually need before spending real
+          # budget on a full historical pull: does this key's plan include
+          # (a) historical odds at all, (b) player-prop MARKETS specifically.
+          # Minimal cost: one historical event list (cheap) + one historical
+          # odds-with-one-market call (10 credits/market/region per the docs).
+          # A known-real game: 2024-09-08 early slate (2024 wk1 Sunday).
+          if [ -n "$K_ODDS" ]; then
+            DATE="2024-09-08T17:00:00Z"
+            c=$(code "https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl/events?apiKey=$K_ODDS&date=$DATE")
+            echo "historical events list ($DATE): HTTP $c"
+            if [ "$c" = "200" ]; then
+              EVENT_ID=$(python3 - <<'PY'
+          import json
+          try:
+              d = json.load(open('/tmp/body'))
+              evs = d.get('data') if isinstance(d, dict) else d
+              evs = evs or []
+              print(evs[0]['id'] if evs else '')
+          except Exception:
+              print('')
+          PY
+              )
+              if [ -n "$EVENT_ID" ]; then
+                c2=$(code "https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl/events/$EVENT_ID/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds&date=$DATE")
+                echo "historical PLAYER PROP odds (event $EVENT_ID, market player_pass_yds): HTTP $c2"
+                if [ "$c2" = "200" ]; then
+                  python3 - <<'PY' || echo "  parse failed — body kept out of logs"
+          import json
+          d = json.load(open('/tmp/body'))
+          books = (d.get('data') or {}).get('bookmakers') or []
+          have_market = any(m.get('key') == 'player_pass_yds' for bk in books for m in bk.get('markets', []))
+          print(f"  bookmakers returned: {len(books)}; player_pass_yds market present: {have_market}")
+          PY
+                fi
+              else
+                echo "  no event id parsed from the events list — cannot test the props endpoint"
+              fi
+            fi
+            echo "  (remaining-credits header, if present:)"
+            curl -sI --max-time 20 "https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl/events?apiKey=$K_ODDS&date=$DATE" 2>/dev/null | grep -i "x-requests-remaining" || true
+          fi
+
           echo "== SGO market census (1 object) — does the free tier carry player props? =="
           # Cory's QB hypothesis (2026-08-16) needs prop lines. Cost: limit=1
           # event = 1 object. Prints oddID stat prefixes + counts, no prices.
