@@ -57,8 +57,13 @@ def test_promotion_verdict_for_own_v6_requires_all_four_strictly():
 
 # ── the artifact contract ────────────────────────────────────────────────────
 
+@pytest.mark.repo_parity
 def test_artifact_matches_regeneration_and_reproduces_both_parents():
-    """Once the results artifact exists it must equal a fresh run and prove
+    """repo_parity: regeneration reads the tree's board/positions rows, which
+    the nightly workflow rewrites before its publication gate — deselected
+    there (`-m "not repo_parity"`, see conftest.py), kept in every normal run.
+
+    Once the results artifact exists it must equal a fresh run and prove
     the composition: every non-v6 cell equals model_accuracy_v5.json bit for
     bit (protocol identity), own_v6's QB cell equals own_v4's and its
     RB/WR/TE cells equal own_v5's (arm identity — the whole point of v6).

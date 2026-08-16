@@ -182,3 +182,119 @@ are a separate, structural concern routed to A via ROUTES.md; the refire
 of draft-data.yml after this merge will confirm the sensitivity/dormant
 lanes stay clean and will show exactly what still stands between the gate
 and a publish.
+
+---
+
+## 6. THE SIXTEEN, CLASSIFIED — and the gate rebuilt so it refuses BAD boards, not NEW ones (2026-08-16, second pass)
+
+The structural concern §5 routed is now diagnosed and fixed. The full job
+log (job 95113946059, retrieved via the GitHub API — the short summary the
+issue grep parsed hides the assertion bodies) shows the 16 failures are
+**not one failure mode but three**, and only one of them is the
+by-construction date problem:
+
+**(i) Seven `committed-artifact == regeneration` pins failed because THIS
+RUN's earlier steps rewrote the regeneration's own inputs.** The graded
+model modules regenerate from the tree: `own_model_v2.run()` reads
+`public/draft_data.json` (ages crosswalk) and
+`draft/data/player_positions.json`; `source_weight_prior.build_artifact()`
+reads `draft/data/proj_series.json` + `player_positions.json`. The workflow
+rebuilds all three before the gate runs, so regeneration moves with the
+fresh board (log: v2 WR cell n 151→150, mae 33.87→34.08; source_weight_prior
+`snapshot_dates` 2026-08-15→2026-08-16, TE `median_gap` 11.78→12.33) and the
+committed artifact — correct yesterday, regenerated from yesterday's inputs
+— mismatches BY CONSTRUCTION. These say the board is NEW, never that it is
+BAD.
+
+**(ii) Eight field-purpose failures were the gate WORKING.** All five
+`test_board_purpose` nodes and all three `test_season_stamp` nodes failed on
+one fact: the fresh board carries **`proj_sd_source`** (written
+unconditionally by `draft/projections.py:310` since REC-1 landed,
+`bb1d115a`, 2026-08-15T19:47Z) and `season_stamp`'s BOARD_FIELD_SOURCES /
+BOARD_FIELD_PURPOSE maps do not declare it. The committed board predates the
+wiring by two hours (built 17:52Z), which is the only reason these pass
+locally. This is the `adp_sd_source` incident (2026-08-14) happening again,
+and refusing it is the gate's exact purpose — nothing here gets excluded.
+
+**(iii) One test refused every fresh board for reading the wrong provenance
+HOME.** `test_committed_board_carries_the_promoted_numbers` asserted
+`provenance.own_model.algorithm == "own_v6"` — but that top-level key exists
+only because the v6 promotion (`ac40e383`) hand-stamped the committed
+artifact; `build.py` writes the own-model diag at
+`provenance.projections.own_model` (build.py:661 → :1533). So the CI
+candidate failed with `{} == 'own_v6'` while genuinely carrying v6 under the
+other key. (`ui_fidelity_own_model_label.test.js` already encodes this
+dual-home fact for the JS surfaces.)
+
+### The classification, one line each (16 nodes; C=gate keeps, P=gate excludes)
+
+| # | node | class | why |
+|---|------|-------|-----|
+| 1 | test_board_purpose::test_the_detector_FIRES_on_a_field_nobody_declared | **SOUNDNESS-kept** | failed because the fresh board's row 0 really carries undeclared `proj_sd_source` — detector working, board unsound |
+| 2 | test_board_purpose::test_EVERY_FIELD_ON_THE_LIVE_BOARD_HAS_A_DECLARED_PURPOSE[players] | **SOUNDNESS-kept** | 677 rows carry an unpurposed field; the adp_sd_source failure mode this test exists for |
+| 3 | test_board_purpose::test_EVERY_FIELD_ON_THE_LIVE_BOARD_HAS_A_DECLARED_PURPOSE[kept_players] | **SOUNDNESS-kept** | same field on the 3 keeper rows — the shape the map originally missed |
+| 4 | test_board_purpose::test_NO_EXPERIMENT_OUTPUT_REACHES_A_LIVE_ROW[players] | **SOUNDNESS-kept** | unmapped defaults to `experiment` BY DESIGN; a live surface may not act on an unvouched field |
+| 5 | test_board_purpose::test_NO_EXPERIMENT_OUTPUT_REACHES_A_LIVE_ROW[kept_players] | **SOUNDNESS-kept** | same rule on the rows whose keeper cost decides which picks exist |
+| 6 | test_season_stamp::test_EVERY_BOARD_FIELD_IS_CLASSIFIED_and_an_unknown_one_is_a_violation | **SOUNDNESS-kept** | season-provenance map has the same hole; the plant assertion surfaced the real undeclared field |
+| 7 | test_season_stamp::test_EVERY_BOARD_FIELD_HAS_A_PURPOSE_and_an_unknown_one_is_a_violation | **SOUNDNESS-kept** | purpose map, scanned to the last row — found the same real field |
+| 8 | test_season_stamp::test_the_LIVE_BOARD_carries_NO_experiment_data | **SOUNDNESS-kept** | unmapped-as-experiment fired on a genuinely unmapped field on the shipped shape |
+| 9 | test_model_accuracy_backtest::test_the_COMMITTED_artifact_matches_regeneration | **PARITY-excluded** | `grade()` regenerates via the just-rebuilt board's crosswalk (WR n 151→150) — refuses NEW, not BAD |
+| 10 | test_own_model_v2::test_artifact_matches_regeneration_and_names_what_is_missing | **PARITY-excluded** | `run()` reads board_ages() off the fresh board; committed artifact pinned yesterday's |
+| 11 | test_own_model_v3::test_artifact_matches_regeneration_and_reproduces_v2_baselines | **PARITY-excluded** | same inputs one lineage up — inherits v2's drift bit for bit |
+| 12 | test_own_model_v4::test_artifact_matches_regeneration_and_reproduces_v3_bit_for_bit | **PARITY-excluded** | same again; the bit-for-bit protocol identity makes any input drift total |
+| 13 | test_own_model_v5::test_artifact_matches_regeneration_and_reproduces_v4_bit_for_bit | **PARITY-excluded** | same again |
+| 14 | test_own_model_v6::test_artifact_matches_regeneration_and_reproduces_both_parents | **PARITY-excluded** | same again, against both parents |
+| 15 | test_source_weight_prior::test_artifact_equals_regeneration | **PARITY-excluded** | regenerates from proj_series.json whose `snapshot_dates` the run just advanced; the VERDICT stays gate-checked by the unmarked `test_shipped_verdict_is_the_honest_negative` |
+| 16 | test_own_projections_v6_live::test_committed_board_carries_the_promoted_numbers | **SPLIT** | every arm is soundness (board vs fresh v6 run from committed stores, zero fetch-date input) and ALL stay in the gate; the one repo-state pin — reading only the promotion's hand-stamped `provenance.own_model` home — was generalized to "every provenance home that declares an algorithm must declare own_v6, and at least one must", so a fresh build labeled by build.py passes, a failed attach or an older model's label still refuses |
+
+Nothing failing was excluded on faith: 8 of 16 refusals stand exactly as
+they were, 7 are excluded only where their comparison inputs were just
+rewritten (and still run everywhere else), 1 was fixed to test what it
+always meant to test.
+
+### What changed (this commit)
+
+1. **`draft/tests/conftest.py`** (new) — registers the `repo_parity`
+   marker; the docstring is the distinction: anti-hand-edit parity vs
+   candidate-board soundness.
+2. **The seven parity tests** carry `@pytest.mark.repo_parity`, each
+   docstring stating which rebuilt input breaks it in the gate and why the
+   gate excludes it. They run — and pass — in every normal pytest
+   invocation and in the workflow's advisory pre-build step, which
+   deliberately keeps the full suite (there the tree is as committed, so
+   parity is meaningful; that step is now the nightly anti-hand-edit home).
+3. **`draft/tests/test_own_projections_v6_live.py`** — the dual-home
+   provenance fix above; unmarked, fully in the gate.
+4. **`.github/workflows/draft-data.yml`** — the acceptance gate runs
+   `python -m pytest draft/tests -q -m "not repo_parity"` (yaml.safe_load
+   verified); comments on both pytest steps state which question each asks.
+5. **`draft/tests/test_gate_selection.py`** (new, 3 tests) — pins the
+   marked set to an explicit 7-node list and proves, with pytest's own
+   collector and the `-m` expression parsed out of the workflow file
+   itself, that the gate's selection excludes exactly that set and nothing
+   else; also proves the advisory step kept the full suite. A marker that
+   spreads to a soundness test, falls off a parity test, or a gate
+   expression that drifts — each fails a different assertion by name.
+
+Suite state: `pytest draft/tests -q` → **2448 passed, 5 skipped** (was
+2445/5; +3 gate-selection tests, all parity pins still running and green).
+Gate selection `-m "not repo_parity"` → **2441 passed, 5 skipped,
+7 deselected**.
+
+### Honest status: what still stands between the gate and a publish
+
+The gate now CAN pass on a fresh board — but the next refire will still
+refuse, correctly, on class (ii): the fresh board will carry
+`proj_sd_source` and the maps still do not declare it. The one-line-per-map
+fix belongs to `draft/backtest/season_stamp.py` (TERRITORY: C, with the
+documented TERRITORY-GRANT precedent from `adp_sd_source`): classify from
+what WRITES it — `projections.py:310` emits a provenance string
+(`"measured-2023-25-error"` | `"position_variance"`) in the same breath as
+`proj_sd` itself, the exact sibling shape of `adp_sd_source`
+(`"seasonal"` in BOARD_FIELD_SOURCES, `LIVE_FEED` in BOARD_FIELD_PURPOSE —
+though `derived` is arguable for the purpose axis, since it names which
+derivation produced `proj_sd`; both pass LIVE_ALLOWED, nothing downstream
+moves). This pass did not reach into that lane; the declaration is routed
+via ROUTES.md alongside the refire instruction. Once it lands, every known
+by-construction refusal is gone and the refire answers the end-to-end
+question for real.

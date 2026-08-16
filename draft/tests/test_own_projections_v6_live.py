@@ -134,10 +134,33 @@ def test_qb_carries_the_availability_correction():
 
 
 def test_committed_board_carries_the_promoted_numbers():
+    """SOUNDNESS of whatever board is present, kept in the publication gate
+    UNMARKED — every arm compares the board to a fresh own_v6 run from
+    committed stores (zero network), so nothing here is fetch-date-sensitive.
+
+    The label arm reads BOTH provenance homes, because the board has two
+    writers that stamp different ones: build.py stamps the own-model diag at
+    provenance.projections.own_model on every rebuild, while the 2026-08-16
+    promotion hand-stamped provenance.own_model on the committed board (same
+    dual-home fact ui_fidelity_own_model_label.test.js already encodes).
+    Reading only the hand-stamped home made this test refuse EVERY fresh
+    build — run 31926152660 failed here with `{} == 'own_v6'` while the
+    candidate board genuinely carried v6 under the other key. The rule now:
+    every home that declares an algorithm must declare own_v6, and at least
+    one must. A fresh board whose attach failed declares nothing -> refused;
+    a board labeled by an older model -> refused; both homes honest -> pass."""
     proj, diag = _run()
-    prov = (BOARD.get("provenance") or {}).get("own_model") or {}
-    assert prov.get("algorithm") == "own_v6", (
-        "board provenance does not say own_v6 — the column may still be an older model's numbers")
+    prov_root = BOARD.get("provenance") or {}
+    homes = {
+        "provenance.own_model": prov_root.get("own_model") or {},
+        "provenance.projections.own_model":
+            (prov_root.get("projections") or {}).get("own_model") or {},
+    }
+    declared = {home: d.get("algorithm") for home, d in homes.items()
+                if d.get("algorithm")}
+    assert set(declared.values()) == {"own_v6"}, (
+        "board provenance does not say own_v6 (declared: %r) — the column may "
+        "still be an older model's numbers" % (declared,))
     mismatch = [str(p["player_id"]) for p in BOARD["players"]
                 if p.get("proj_ownmodel") is not None
                 and abs(p["proj_ownmodel"] - proj.get(str(p["player_id"]), -1)) > 0.011]

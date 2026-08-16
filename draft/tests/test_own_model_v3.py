@@ -148,8 +148,13 @@ def test_unmeasurable_position_blocks_the_bar():
 
 # ── the artifact contract ────────────────────────────────────────────────────
 
+@pytest.mark.repo_parity
 def test_artifact_matches_regeneration_and_reproduces_v2_baselines():
-    """Once the results artifact exists it must equal a fresh run, name its
+    """repo_parity: regeneration reads the tree's board/positions rows, which
+    the nightly workflow rewrites before its publication gate — deselected
+    there (`-m "not repo_parity"`, see conftest.py), kept in every normal run.
+
+    Once the results artifact exists it must equal a fresh run, name its
     information set and absences, carry the marker gate's evidence, and — the
     protocol-identity proof — its naive_prev / recency_blend / walk_forward_v1
     / own_v2 shared-population cells must equal model_accuracy_v2.json's

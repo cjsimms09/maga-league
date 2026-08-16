@@ -94,6 +94,12 @@ jobs:
         # "Acceptance gate on the FRESH board" runs AFTER the build and DOES fail
         # the job. Nothing untested gets published; a broken board simply no
         # longer blocks its own repair.
+        # FULL SUITE HERE, DELIBERATELY — including the repo_parity pins the
+        # publication gate below deselects. At this point the tree is exactly
+        # as committed, so committed-artifact == regeneration is meaningful:
+        # this step is the nightly anti-hand-edit check. The gate excludes
+        # them only because it runs AFTER the build has rewritten the
+        # regeneration's inputs (see the gate step's comment).
         continue-on-error: true
         run: python -m pytest draft/tests -q
 
@@ -217,11 +223,30 @@ jobs:
         # blocks under `bash -e`, and without it `... | tee file` reports tee's
         # exit code, not pytest's, which would silently defeat this whole gate
         # (the exact class of bug draft-night-sync.yml hit earlier this session).
+        # `-m "not repo_parity"` — ADDED 2026-08-16 after run 31926152660: the
+        # gate refused a fresh board with 16 failures, of which 7 were
+        # committed-artifact == regeneration pins (model_accuracy, own-model
+        # v2-v6, source_weight_prior). Those regenerate from inputs THIS VERY
+        # RUN just rewrote (the fresh board's crosswalk rows, proj_series
+        # snapshot_dates, player_positions), so on any later day they fail BY
+        # CONSTRUCTION — refusing the board for being NEW, never for being
+        # BAD, and the gate could never pass on a genuinely fresh rebuild.
+        # They stay anti-hand-edit guards everywhere else: the advisory
+        # pre-build step above runs the FULL suite against committed state,
+        # and so does every local pytest. Only here, where the comparison's
+        # inputs were just rebuilt, are they deselected. Board-SOUNDNESS
+        # tests (field purpose, season stamps, dormant, sensitivity, the
+        # own-model column vs a fresh run from committed stores) are unmarked
+        # and still gate. draft/tests/test_gate_selection.py pins the marked
+        # set to an explicit 7-node list and proves this expression deselects
+        # exactly that set and nothing else; the classification of all 16 is
+        # in draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
         if: github.event.inputs.snapshot != 'true'
         run: |
           set -o pipefail
           echo "== the board about to be committed must pass the suite that reads it"
-          if ! python -m pytest draft/tests -q 2>&1 | tee /tmp/board_gate_output.txt; then
+          echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
+          if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
             echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
             echo "    The previously published board is untouched and still live."
             echo "    Fix the board (or whatever the suite is telling you about it)"

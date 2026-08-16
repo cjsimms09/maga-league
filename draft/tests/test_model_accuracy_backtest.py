@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 HERE = Path(__file__).resolve().parent
 BT = HERE.parent / "backtest"
 sys.path.insert(0, str(BT))
@@ -65,9 +67,19 @@ def _close(a, b, tol=0.002):
     return a == b
 
 
+@pytest.mark.repo_parity
 def test_the_COMMITTED_artifact_matches_regeneration():
     """The waiver_replacement.json pattern: the module drifting or the artifact
-    going stale both fail; pinning alone would only catch a hand-edit."""
+    going stale both fail; pinning alone would only catch a hand-edit.
+
+    repo_parity: `grade()` regenerates from the tree's stores AND the live
+    board's crosswalk rows, so this pins committed-artifact == regeneration
+    only while those inputs are the ones the artifact was built from. The
+    publication gate (draft-data.yml, `-m "not repo_parity"`) deselects it:
+    there the board and stores were just rebuilt, the regeneration
+    legitimately moves (run 31926152660: WR n 151→150 from overnight board
+    drift), and a mismatch refuses the board for being NEW, not BAD. Every
+    normal pytest run still includes it — the anti-hand-edit guard stands."""
     art = json.loads((BT / "model_accuracy_2025.json").read_text())
     fresh = MAB.grade()
     assert _close(art["models"], fresh["models"]), (
