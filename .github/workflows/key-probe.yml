@@ -1,0 +1,57 @@
+name: Key probe (read-only, which key opens which door)
+
+# Built 2026-08-16 after odds-capture's dry run got 401 from the-odds-api.com
+# using the stored ODDS_API_KEY (64 chars — The Odds API's own keys are 32 hex
+# chars, so the suspicion is a right key under a wrong name). Cory has now
+# supplied THREE odds-adjacent keys (ODDS_API_KEY, SPORTSGAME_ODDS_API,
+# BALL_DONT_LIE_API); this probes each against each provider's cheapest
+# endpoint and prints ONLY http status + key length — never a value. The
+# config-check.yml discipline: verify a human config step without revealing it.
+#
+# Costs: the-odds-api /sports is a free (0-credit) endpoint; sportsgameodds
+# /v2/sports and balldontlie /teams are the cheapest list endpoints on their
+# free tiers. One dispatch = at most a handful of objects.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      K_ODDS: ${{ secrets.ODDS_API_KEY }}
+      K_SGO: ${{ secrets.SPORTSGAME_ODDS_API }}
+      K_BDL: ${{ secrets.BALL_DONT_LIE_API }}
+    steps:
+      - name: Probe every key against every provider
+        run: |
+          set -uo pipefail
+          code() { curl -s -o /tmp/body -w "%{http_code}" --max-time 20 "$@" || echo 000; }
+
+          probe_theodds() { # $1=label $2=key — /sports costs 0 credits
+            c=$(code "https://api.the-odds-api.com/v4/sports?apiKey=$2")
+            echo "the-odds-api.com  <- $1 (${#2} chars): HTTP $c"
+          }
+          probe_sgo() { # $1=label $2=key
+            c=$(code -H "X-Api-Key: $2" "https://api.sportsgameodds.com/v2/sports/")
+            echo "sportsgameodds.com <- $1 (${#2} chars): HTTP $c"
+          }
+          probe_bdl() { # $1=label $2=key
+            c=$(code -H "Authorization: $2" "https://api.balldontlie.io/nfl/v1/teams")
+            echo "balldontlie.io     <- $1 (${#2} chars): HTTP $c"
+          }
+
+          echo "== each key vs its own named provider =="
+          [ -n "$K_ODDS" ] && probe_theodds ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_SGO" ]  && probe_sgo SPORTSGAME_ODDS_API "$K_SGO"
+          [ -n "$K_BDL" ]  && probe_bdl BALL_DONT_LIE_API "$K_BDL"
+
+          echo "== cross-checks (is ODDS_API_KEY really someone else's key?) =="
+          [ -n "$K_ODDS" ] && probe_sgo ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_ODDS" ] && probe_bdl ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_SGO" ]  && probe_theodds SPORTSGAME_ODDS_API "$K_SGO"
+
+          echo "== read 200 = that key opens that door; 401/403 = wrong door =="
+          true
