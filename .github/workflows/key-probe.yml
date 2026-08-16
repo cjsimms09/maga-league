@@ -206,5 +206,46 @@ jobs:
             measure "events list       " "$HB/events?apiKey=$K_ODDS&date=$D"
           fi
 
+          echo "== WHAT IS BUYABLE RIGHT NOW, 6 days before the 2026 draft? =="
+          # Cory, 2026-08-16: "We need to save credits for draft projection
+          # studies as well!! That one is important for draft." The measured
+          # costs above price the RETROSPECTIVE study; this prices the thing
+          # that can actually move the 8/22 draft board.
+          #
+          # /sports is 0 credits, so enumerating what exists is free. The
+          # question is whether any SEASON-LONG player market (season passing
+          # yards, season receiving yards, awards) is quotable today — those
+          # would be direct draft input. Regular-season game props do not
+          # exist yet in mid-August; that is the constraint to confirm rather
+          # than assume.
+          if [ -n "$K_ODDS" ]; then
+            LB="https://api.the-odds-api.com/v4/sports"
+            c=$(code "$LB/?apiKey=$K_ODDS&all=true")
+            echo "sports list (all=true, 0 credits): HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "  (parse failed)"
+          import json
+          rows = json.load(open('/tmp/body'))
+          nfl = [r for r in rows if 'americanfootball_nfl' in r.get('key','')]
+          print(f"  NFL-keyed entries: {len(nfl)}")
+          for r in nfl:
+              print(f"    {r.get('key'):<46} active={r.get('active')} outrights={r.get('has_outrights')}")
+          PY
+            fi
+
+            echo " -- are any NFL events quotable today (regular season not started)? --"
+            c=$(code "$LB/americanfootball_nfl/events?apiKey=$K_ODDS")
+            echo "  live events list (1 credit): HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "  (parse failed)"
+          import json, collections
+          evs = json.load(open('/tmp/body'))
+          print(f"  events listed: {len(evs)}")
+          for e in evs[:3]:
+              print(f"    {e.get('commence_time')}  {e.get('away_team')} @ {e.get('home_team')}")
+          PY
+            fi
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
