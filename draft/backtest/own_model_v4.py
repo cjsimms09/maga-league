@@ -20,13 +20,14 @@ report listed "per-week usage/TD stats" as a named absence and implied weekly
 grain was missing. Verified for v4: draft/data/league_history.json DOES carry
 per-player weekly fantasy points (seasons[].weeks[wk][].players_points, every
 roster, 2023-2025) — but for QBs it is a STRICT SUBSET of the committed
-nflverse weekly stores (2023: 0 league-history-only player-weeks vs 103
-nflverse-only among shared QBs; values agree within 0.05 pts on ~99% of
-overlapping weeks; its extra zero-point weeks are "rostered, didn't play" —
-the same availability fact the nflverse store encodes by row-absence).
-So the LEAGUE store corroborates the weekly grain but adds no new QB
-player-weeks; v4's features read the fuller nflverse store, and the artifact
-carries the corroboration audit. What remains genuinely absent is unchanged:
+nflverse weekly stores in every informative respect (2023: 0 QB players the
+league store has that nflverse lacks, vs 48 the other way; values agree
+within 0.05 pts on ~99% of overlapping weeks; the league store's only extra
+player-weeks are 0.0 "rostered, didn't play" entries — 40 in 2023, 31 in
+2024, every one of them — the same availability fact the nflverse store
+encodes by row-absence). So the LEAGUE store corroborates the weekly grain
+but adds no informative QB player-week; v4's features read the fuller
+nflverse store, and the artifact carries the corroboration audit. What remains genuinely absent is unchanged:
 usage splits, TD counts, team history, pre-2023 seasons.
 
 ════════════════════════════════════════════════════════════════════════════════

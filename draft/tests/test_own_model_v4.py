@@ -136,12 +136,17 @@ def test_artifact_matches_regeneration_and_reproduces_v3_bit_for_bit():
     for k in ("fp_archive_per_player", "usage_trends", "td_rate_regression",
               "team_change_flags", "pre_2023_stores"):
         assert k in art["features_unavailable_named"]
-    # the data-audit finding that triggered v4 is carried as evidence: for QBs
-    # league_history's weekly grain adds ZERO player-weeks over the nflverse
-    # stores in both tuning seasons
+    # the data-audit finding that triggered v4 is carried as evidence — the
+    # CORRECTED invariant (the prereg commit's version wrongly asserted zero
+    # lh-only player-weeks; the truth is zero lh-only PLAYERS, and every
+    # lh-only player-week is a 0.0 rostered-did-not-play entry, i.e. no
+    # information beyond what nflverse row-absence already encodes):
     lha = art["league_history_weekly_audit"]["seasons"]
     for season in ("2023", "2024"):
-        assert lha[season]["league_history_only_player_weeks"] == 0
+        cell = lha[season]
+        assert cell["qb_players"]["league_history_only"] == 0
+        assert (cell["league_history_only_player_weeks"]
+                == cell["rostered_did_not_play_weeks"])
     # the decomposition block covers every season the program touches
     assert set(art["qb_variance_decomposition"]) == {"2023", "2024", "2025"}
     for cell in art["qb_variance_decomposition"].values():
