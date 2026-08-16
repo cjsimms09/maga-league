@@ -281,5 +281,39 @@ jobs:
             fi
           fi
 
+          echo "== SEASON-LONG player markets? (Cory's draft priority, 2026-08-16) =="
+          # Cory: "I'm more worried about finding advantage in projected
+          # SEASON points right now as that could give us advantage in
+          # draft." A season-long player total ("X receiving yards O/U
+          # 1,250 for the year") IS the market's own season projection —
+          # a direct competitor to own_v6 for draft purposes, and far
+          # better evidence than extrapolating a week-1 line x17.
+          #
+          # Discovery is FREE: a 422 costs 0 credits (measured, run
+          # 31970500296), and this API's 422 body enumerates the markets it
+          # will accept. So we ask for a deliberately invalid market and
+          # read the rejection rather than paying to guess key names.
+          if [ -n "$K_ODDS" ]; then
+            LE="https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
+            EID1=$(curl -s --max-time 20 "$LE/events?apiKey=$K_ODDS" \
+                   | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['id'] if d else '')")
+            if [ -n "$EID1" ]; then
+              before=$(rem)
+              c=$(code "$LE/events/$EID1/odds?apiKey=$K_ODDS&regions=us&markets=__enumerate_me__")
+              after=$(rem)
+              echo "  invalid-market probe: HTTP $c | credits used: $(( before - after ))"
+              echo "  --- rejection body (market vocabulary, no prices) ---"
+              head -c 3000 /tmp/body; echo
+            fi
+            echo "  --- season-long candidates, if the vocabulary named any ---"
+            for M in player_pass_yds_season player_reception_yds_season \
+                     player_rush_yds_season player_season_pass_yds; do
+              before=$(rem)
+              c=$(code "$LE/events/$EID1/odds?apiKey=$K_ODDS&regions=us&markets=$M")
+              after=$(rem)
+              echo "    $M: HTTP $c | credits: $(( before - after ))"
+            done
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
