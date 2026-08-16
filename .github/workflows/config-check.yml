@@ -79,6 +79,40 @@ jobs:
       # odds key is checked under BOTH plausible names since the instruction
       # said ODDS_API_KEY but the tab autocompletes nothing — whichever is
       # set passes, and the step names the one it found.
+      # Name hunt (2026-08-16): the strict OPENAI_API_KEY check below came back
+      # EMPTY though Cory says both keys are in — so the names differ or the
+      # values landed in the Variables tab / another scope. Actions cannot
+      # enumerate secrets, but it CAN reference candidates: this prints which
+      # of the plausible names are set (never a value), so the fix is one
+      # rename instead of a guessing game.
+      - name: Which key names actually exist (diagnostic, never fails)
+        env:
+          S_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          S_OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          S_OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+          S_OPENAI: ${{ secrets.OPENAI }}
+          S_OPENAI_SECRET: ${{ secrets.OPENAI_SECRET }}
+          S_CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+          S_ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          S_THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          S_ODDS_API: ${{ secrets.ODDS_API }}
+          S_ODDSAPI_KEY: ${{ secrets.ODDSAPI_KEY }}
+          S_ODDS_KEY: ${{ secrets.ODDS_KEY }}
+          S_BETTING_API_KEY: ${{ secrets.BETTING_API_KEY }}
+          V_OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+          V_ODDS_API_KEY: ${{ vars.ODDS_API_KEY }}
+        run: |
+          found=0
+          for v in S_OPENAI_API_KEY S_OPENAI_KEY S_OPEN_AI_API_KEY S_OPENAI S_OPENAI_SECRET S_CHATGPT_API_KEY \
+                   S_ODDS_API_KEY S_THE_ODDS_API_KEY S_ODDS_API S_ODDSAPI_KEY S_ODDS_KEY S_BETTING_API_KEY \
+                   V_OPENAI_API_KEY V_ODDS_API_KEY; do
+            val="${!v}"
+            kind="secret"; case "$v" in V_*) kind="VARIABLE (wrong tab — move to Secrets)";; esac
+            name="${v#S_}"; name="${name#V_}"
+            if [ -n "$val" ]; then echo "FOUND  $name is set as a $kind (${#val} chars)"; found=1; fi
+          done
+          [ "$found" = "1" ] || echo "NONE of the candidate names are set in this repo's Actions secrets/variables — the keys may be in a different repo, or under Codespaces/Dependabot secrets instead of Actions secrets"
+
       - name: OPENAI_API_KEY repository secret
         env:
           K: ${{ secrets.OPENAI_API_KEY }}
