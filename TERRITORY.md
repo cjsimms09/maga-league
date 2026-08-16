@@ -1308,7 +1308,19 @@ everyone."* One more B-lane crossing:
     once closed, same courtesy on the punishment wall until it locks.
     Pinned by `draft/tests/vote_surface.test.js` (16 checks, real HTTP).
 
-Refusal-set bookkeeping: the pinned set is now **23 files**
+**APPENDED 2026-08-16 (later), SAME AUTHORITY — the in-season tools design
+pass** (Cory's original "war room and in season tools... very amatuerish"
+directive, desktop-first per doctrine §7). Three more B-lane crossings:
+`views/accuracy.ejs`, `views/analyzer.ejs` (report card + posture board),
+and `views/partials/_wr_explain.ejs` (NEW — the shared ⓘ explainer partial).
+Already-listed files also touched: lineup.ejs, waivers.ejs, header.ejs,
+member.js (render glue only), warroom.css. New unflagged B-adjacent file
+for B's review: `src/inseason_guide.js` (the 17-panel explainer table).
+Pinned by 111 new fidelity checks (inseason_explainers 71 + inseason_surface
+40); before/after captures in draft/audit/screens/is-*.png; deliverable doc
+draft/audit/inseason_design_pass_2026-08-16.md.
+
+Refusal-set bookkeeping: the pinned set is now **26 files**
 (`scripts/verify-relay-session.sh` carries the exact list). No scoring/weight
 default moved beyond Cory's two ruled flips (recorded in the verify gate's
 exemption itself); the merge remains A's or Cory's deliberate act via
