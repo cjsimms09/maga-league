@@ -144,7 +144,7 @@ act as a mechanism: verify, merge locally, suites on the merged tree, and it
 STOPS before pushing."
 echo ""
 echo "THE DECISION QUEUE LIVES IN ONE PLACE: DECISIONS-NEEDED.md, top section"
-echo "('⚡ THE QUEUE'). ZERO calls open before the 22nd. Seven are RULED AND"
+echo "('⚡ THE QUEUE'). ZERO gated rulings open before the 22nd (standing research items stay open in DECISIONS-NEEDED \u00a7OPEN). Seven are RULED AND"
 echo "EXECUTED 2026-08-16: VONA_WIRE_BENCH true, ADP correction closed,"
 echo "KOV_MEASURED_RAMP true, seat-plan headline ownership, own_model_v4"
 echo "promotion applied, ROOM_MIX_PRIOR true (baseline v17), and own_model_v6"

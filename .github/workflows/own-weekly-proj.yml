@@ -89,4 +89,26 @@ jobs:
           # the hard way this week).
           git commit -m "Own weekly projection $(date -u +%F) [skip deploy]" \
             -m "Committed BEFORE kickoff via own-weekly-proj.yml — the timestamp is the forward guarantee. Graded Tuesdays by own-weekly-grade.yml."
-          git push
+          # DURABLE PUSH (audit round 4: this workflow shipped with the exact
+          # bare-push race draft-night-sync had just fixed — the anti-hindsight
+          # guarantee IS the remote artifact, so an undurable snapshot is no
+          # snapshot). Rebase-retry x5, then verify the pushed SHA is the
+          # remote tip; anything less fails loudly with the orphan SHA.
+          n=0; pushed=0
+          until [ $n -ge 5 ]; do
+            if git push -q; then pushed=1; break; fi
+            n=$((n+1)); echo "push rejected (attempt $n) — rebasing and retrying"
+            git pull --rebase -q || { git rebase --abort 2>/dev/null || true; }
+            sleep $((n * 2))
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "::error::PUSH FAILED — artifact NOT durable on the remote; orphan commit $(git rev-parse HEAD)"
+            exit 1
+          fi
+          REMOTE=$(git ls-remote -q origin "$GITHUB_REF_NAME" | cut -f1)
+          if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
+            echo "remote artifact verified: $(git rev-parse HEAD) is the remote tip"
+          else
+            echo "::error::remote verify failed — local $(git rev-parse HEAD) vs remote $REMOTE"
+            exit 1
+          fi

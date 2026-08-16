@@ -1,3 +1,9 @@
+> **Scope of the conclusion (added after external audit):** BPA/VORP-adjacent
+> and the shipped policy lead *under the current simulation, measured-opponent
+> and replacement assumptions*; the study does not establish a universally
+> optimal strategy, and the wire-floor robustness arm shows the one apparent
+> CI-clear winner collapsing to zero under realistic replacement levels.
+
 <!-- TERRITORY: A -->
 # ROSTER-CONSTRUCTION ARCHETYPES, END TO END — 2026-08-16
 
