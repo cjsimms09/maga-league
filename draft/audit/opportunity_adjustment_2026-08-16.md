@@ -515,7 +515,8 @@ Needs network (nflverse pbp 2021–2024, `nfl_data_py.import_ids`,
 `PBP_DIR` at the top of the runner points at the cached parquet.
 
 **Suite at the time of writing:** `pytest draft/tests -q -m "not repo_parity"`
-→ **1 failed, 2174 passed, 6 skipped**. The failure is
+→ **1 failed, 2195 passed, 6 skipped** (2174 before this work, +21 added here).
+The failure is
 `test_core_needs_no_reviewer.py::test_NO_WORKFLOW_MAKES_A_MODEL_JOB_DEPEND_ON_THE_REVIEWER`
 (`config-check.yml` references the reviewer job) — **pre-existing on this
 branch and unrelated to this work**, which touches no workflow. Reported, not
