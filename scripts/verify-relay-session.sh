@@ -80,6 +80,24 @@ ck "no engine CFG default changed vs origin/main beyond Cory's three ruled flips
   bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js public/js/draft/survival.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP|ROOM_MIX_PRIOR): (false|true)' | grep -vE '^\+ *ROOM_MIX_W: 0.25,' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
 
 echo ""
+echo "== ARTIFACT FRESHNESS (informational, never blocks) =="
+# draft/data/artifact_registry.json + draft/tools/check_artifact_freshness.py
+# (2026-08-16, draft/audit/artifact_freshness_infra_2026-08-16.md): every
+# committed-artifact-vs-regeneration study registered there, in ONE place, so
+# nobody has to hunt pytest's full output for which repo_parity tests are red
+# because the board moved on today vs which (if any) errored for a real
+# reason. STALE is normal and expected; this section is not one of the
+# pass/fail checks above and never flips this script's exit code.
+python3 draft/tools/check_artifact_freshness.py
+FRESHNESS_EXIT=$?
+if [ "$FRESHNESS_EXIT" -ne 0 ]; then
+  echo ""
+  echo "NOTE: check_artifact_freshness.py exited nonzero — that means a"
+  echo "regenerate_command itself CRASHED (a real bug), not that anything is"
+  echo "merely stale. Read the ERROR lines above."
+fi
+
+echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the

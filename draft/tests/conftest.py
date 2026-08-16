@@ -50,6 +50,24 @@ failure, on a freshly built board, be caused by nothing but the world
 having moved since the artifact/calibration was committed? Yes -> marked.
 Any arm that asserts a value ON the candidate board stays unmarked.
 
+2026-08-16, artifact-freshness infra (draft/audit/
+artifact_freshness_infra_2026-08-16.md): species (a) — EVERY committed-
+artifact == regeneration pin, eleven of them by the time this landed — is
+now handled OUTSIDE pytest, by draft/data/artifact_registry.json +
+draft/tools/check_artifact_freshness.py: one central, append-only registry
+and one generic, informational (never-blocking) script, instead of a new
+bespoke `test_X_matches_regeneration` function and a new `repo_parity` mark
+for every study that produces a regeneratable artifact. That recurring,
+manual cost (own_model_v2 through v6, model_accuracy_backtest,
+source_weight_prior, playoff_sos, draft_replay_2025, replay_all_seats,
+props_season_projection — ten separate interventions for the same pattern)
+is the thing Cory's ruling ("we need to fix this permanently") targets.
+Species (b) and (c) do not fit the registry's committed-artifact-vs-
+regeneration shape (a coverage/partition check and two ratchet-vs-live-
+market checks, respectively) and remain hand-marked here — see
+test_gate_selection.py's REPO_PARITY_NODES and the registry's own
+`_not_yet_migrated` note for the current, smaller membership and why.
+
 `draft/tests/test_gate_selection.py` pins the marked set to an explicit
 list and proves the workflow's gate expression deselects exactly that set
 and nothing else.

@@ -241,20 +241,22 @@ def test_unpaired_player_weeks_are_counted_not_silently_dropped():
 # 5. The committed artifact matches a fresh run.
 # --------------------------------------------------------------------------
 
-@pytest.mark.repo_parity
-def test_committed_artifact_matches_a_fresh_run_of_the_tool():
-    """Recomputed end-to-end from the committed inputs (no network) and
-    compared as whole objects. MUTATION: hand-edit any number in the
-    committed JSON — this is the test that catches it.
-
-    repo_parity (run 31948330004, 2026-08-16): S.compute() reads BOARD_PATH,
-    which the nightly gate has just replaced with the fresh candidate — the
-    regeneration's own input was rewritten by the run, so the committed
-    artifact mismatches BY CONSTRUCTION on any later board (same shape as
-    the seven §6 pins). Anti-hand-edit parity stays enforced in every normal
-    pytest run and the workflow's advisory pre-build step, where the tree is
-    as committed."""
-    assert S.compute() == SOS
+# NOTE (2026-08-16, artifact-freshness infra): the committed-artifact ==
+# regeneration pin that used to live here (`test_committed_artifact_
+# matches_a_fresh_run_of_the_tool`, @pytest.mark.repo_parity) is now covered
+# by draft/data/artifact_registry.json + `draft/tools/
+# check_artifact_freshness.py` (entry "playoff_sos") instead of a bespoke
+# pytest function — see draft/audit/artifact_freshness_infra_2026-08-16.md.
+# That check runs `S.compute()` and diffs it against playoff_sos_2026.json
+# exactly as this test did (recomputed end-to-end from the committed inputs,
+# compared as whole objects — MUTATION: hand-edit any number in the
+# committed JSON and the freshness script reports it); it is informational
+# (FRESH/STALE), never a pytest gate item, because S.compute() reads
+# BOARD_PATH, which the nightly gate replaces with the fresh candidate, so a
+# mismatch there says the board is NEW, not BAD. The coverage pin below
+# (test_every_board_skill_player_is_ranked_or_honestly_absent) is a
+# different species — board vs artifact PARTITION, not artifact-vs-
+# regeneration — and stays a hand-marked repo_parity test.
 
 
 def test_committed_artifact_declares_territory_and_caveats_first():

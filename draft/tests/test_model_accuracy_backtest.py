@@ -52,41 +52,16 @@ def test_K_and_DEF_are_declared_unmeasurable_not_skipped():
         "backtest that grades projection accuracy")
 
 
-def _close(a, b, tol=0.002):
-    """walk_forward sums player rates in SET iteration order, so float totals
-    wobble in the ~1e-12 range between interpreter runs; a wobble that crosses
-    a rank tie moves Spearman in the 4th decimal. mae/bias/n must match
-    exactly; spearman within tol. A LOOSER tol would let a real drift hide —
-    0.002 is the observed wobble (0.0004) with headroom, not a shrug."""
-    if isinstance(a, dict) and isinstance(b, dict):
-        if set(a) != set(b):
-            return False
-        return all(_close(a[k], b[k], tol) for k in a)
-    if isinstance(a, float) and isinstance(b, float):
-        return abs(a - b) <= tol
-    return a == b
-
-
-@pytest.mark.repo_parity
-def test_the_COMMITTED_artifact_matches_regeneration():
-    """The waiver_replacement.json pattern: the module drifting or the artifact
-    going stale both fail; pinning alone would only catch a hand-edit.
-
-    repo_parity: `grade()` regenerates from the tree's stores AND the live
-    board's crosswalk rows, so this pins committed-artifact == regeneration
-    only while those inputs are the ones the artifact was built from. The
-    publication gate (draft-data.yml, `-m "not repo_parity"`) deselects it:
-    there the board and stores were just rebuilt, the regeneration
-    legitimately moves (run 31926152660: WR n 151→150 from overnight board
-    drift), and a mismatch refuses the board for being NEW, not BAD. Every
-    normal pytest run still includes it — the anti-hand-edit guard stands."""
-    art = json.loads((BT / "model_accuracy_2025.json").read_text())
-    fresh = MAB.grade()
-    assert _close(art["models"], fresh["models"]), (
-        "artifact does not match the module's output beyond the documented "
-        "spearman wobble — regenerate model_accuracy_2025.json")
-    assert _close(art["head_to_head_shared_population"],
-                  fresh["head_to_head_shared_population"])
+# NOTE (2026-08-16, artifact-freshness infra): the committed-artifact ==
+# regeneration pin that used to live here (`test_the_COMMITTED_artifact_
+# matches_regeneration`, @pytest.mark.repo_parity) is now covered by
+# draft/data/artifact_registry.json + `draft/tools/check_artifact_
+# freshness.py` (entry "model_accuracy_backtest") instead of a bespoke
+# pytest function — see draft/audit/artifact_freshness_infra_2026-08-16.md.
+# That check runs `MAB.grade()` and diffs it against model_accuracy_2025.json
+# exactly as this test did; it is informational (FRESH/STALE), never a
+# pytest gate item, because the mismatch it reports is "the board moved on",
+# not a code defect.
 
 
 def test_the_artifact_records_the_honest_negative():

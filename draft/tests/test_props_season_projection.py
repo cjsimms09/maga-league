@@ -3,13 +3,12 @@
 name matching and the graded comparison against own_v6, all tested against
 SYNTHETIC fixtures (no real historical props exist yet — see the module's
 own `run()`, which refuses honestly until draft/backtest/
-historical_props_2025.json is committed). The v6-reproduction parity test
-is the one check that touches real committed data: it pins this file's
-read-only reproduction of own_model_v6's construction against the ALREADY
-COMMITTED model_accuracy_v6.json, so a divergence between the two would be
-caught here rather than discovered inside a real grade.
+historical_props_2025.json is committed). This file's read-only reproduction
+of own_model_v6's construction is checked against the ALREADY COMMITTED
+model_accuracy_v6.json by draft/tools/check_artifact_freshness.py (registry
+entry "props_season_projection_v6_reproduction"), not by a pytest test here
+— see draft/audit/artifact_freshness_infra_2026-08-16.md.
 """
-import json
 import sys
 from pathlib import Path
 
@@ -22,8 +21,7 @@ sys.path.insert(0, str(DRAFT / "backtest"))
 sys.path.insert(0, str(DRAFT))
 
 import props_season_projection as P  # noqa: E402
-from model_accuracy_backtest import positions_record  # noqa: E402
-from own_model_v2 import POSITIONS, _grade_models, board_ages  # noqa: E402
+from own_model_v2 import POSITIONS  # noqa: E402
 
 SCORING = {"pass_yd": 0.04, "pass_td": 6.0, "rush_yd": 0.1, "rush_td": 6.0,
           "rec_yd": 0.1, "rec": 0.5, "fum_lost": -2.0}
@@ -191,25 +189,21 @@ def test_run_refuses_when_no_real_store_exists(monkeypatch, tmp_path):
 
 
 # ── PARITY: the read-only v6 reproduction matches the committed artifact ──
-
-@pytest.mark.repo_parity
-def test_v6_reproduction_matches_committed_model_accuracy_v6():
-    """This file's `_v6_predictions` must reproduce own_model_v6.run()'s
-    v6_2025 EXACTLY — graded alone (own coverage, not the multi-model
-    shared population), its per-position cells must equal the committed
-    model_accuracy_v6.json's `arm_2025.models.own_v6.cells` bit for bit.
-    A failure here means this file's read-only reproduction of v6 has
-    drifted from v6.py's own construction — fix the reproduction, never
-    v5.py/v6.py (read-only, per TERRITORY discipline)."""
-    committed = json.loads((DRAFT / "backtest" / "model_accuracy_v6.json").read_text())
-    want_cells = committed["arm_2025"]["models"]["own_v6"]["cells"]
-
-    positions = positions_record()
-    ages = board_ages()
-    v6_pred = P._v6_predictions(positions, ages)
-    got = _grade_models({"own_v6": v6_pred}, P.GRADED_SEASON, positions)
-    got_cells = got["models"]["own_v6"]["cells"]
-
-    for pos in POSITIONS:
-        assert got_cells[pos] == want_cells[pos], (
-            f"{pos}: reproduction {got_cells[pos]} != committed {want_cells[pos]}")
+#
+# NOTE (2026-08-16, artifact-freshness infra): the committed-artifact ==
+# regeneration pin that used to live here (`test_v6_reproduction_matches_
+# committed_model_accuracy_v6`, @pytest.mark.repo_parity) is now covered by
+# draft/data/artifact_registry.json + `draft/tools/check_artifact_
+# freshness.py` (entry "props_season_projection_v6_reproduction") instead of
+# a bespoke pytest function — see
+# draft/audit/artifact_freshness_infra_2026-08-16.md. That check reproduces
+# `_v6_predictions` + `_grade_models` exactly as this test did and diffs the
+# per-position cells against model_accuracy_v6.json's
+# `arm_2025.models.own_v6.cells`; it is informational (FRESH/STALE), never a
+# pytest gate item, because positions_record()/board_ages() move with the
+# nightly board rebuild — a mismatch says the board is NEW, not that this
+# file's reproduction has drifted from v6.py's construction. (A REAL drift
+# between the reproduction and v6.py would show up as a freshness-script
+# ERROR-free but perpetually-STALE entry even on an unchanged board; if that
+# is ever suspected, fix the reproduction here, never v5.py/v6.py — read-only
+# per TERRITORY discipline.)

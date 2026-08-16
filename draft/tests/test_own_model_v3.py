@@ -148,31 +148,26 @@ def test_unmeasurable_position_blocks_the_bar():
 
 # ── the artifact contract ────────────────────────────────────────────────────
 
-@pytest.mark.repo_parity
-def test_artifact_matches_regeneration_and_reproduces_v2_baselines():
-    """repo_parity: regeneration reads the tree's board/positions rows, which
-    the nightly workflow rewrites before its publication gate — deselected
-    there (`-m "not repo_parity"`, see conftest.py), kept in every normal run.
-
-    Once the results artifact exists it must equal a fresh run, name its
-    information set and absences, carry the marker gate's evidence, and — the
-    protocol-identity proof — its naive_prev / recency_blend / walk_forward_v1
-    / own_v2 shared-population cells must equal model_accuracy_v2.json's
-    bit for bit (same denominator, same metrics, same code path). Skipped
-    while the prereg commit stands alone — the artifact lands in a LATER
-    commit by design."""
+# NOTE (2026-08-16, artifact-freshness infra): this used to be one test,
+# `test_artifact_matches_regeneration_and_reproduces_v2_baselines`, marked
+# @pytest.mark.repo_parity as a whole because it compared the committed
+# artifact to a fresh V3.run() (board/positions-sensitive). That comparison
+# is now covered by draft/data/artifact_registry.json + `draft/tools/
+# check_artifact_freshness.py` (entry "own_model_v3") instead of a bespoke
+# pytest function — see draft/audit/artifact_freshness_infra_2026-08-16.md.
+# The REST — static shape checks on the committed artifact alone, and the
+# protocol-identity cross-check against model_accuracy_v2.json (both are
+# COMMITTED, static files; this never depends on the board and was never the
+# repo_parity concern) — is preserved below as an unmarked, always-green test.
+def test_artifact_shape_and_protocol_identity_with_v2_baselines():
     art_path = BT / "model_accuracy_v3.json"
     if not art_path.exists():
         pytest.skip("prereg stage: results artifact not generated yet (commit order is the proof)")
     art = json.loads(art_path.read_text())
     assert next(iter(art)) == "_territory"
-    fresh = V3.run()
-    assert art["status"] == fresh["status"]
     if art["status"] != "graded":
         assert art["status"] == "no_markers"  # refusal is the artifact
         return
-    assert art["arm_2025"] == fresh["arm_2025"]
-    assert art["promotion_bar"] == fresh["promotion_bar"]
     assert art["marker_gate"]["status"] == "ok" and art["marker_gate"]["markers"]
     for k in ("fp_archive_per_player", "usage_trends", "td_rate_regression",
               "team_change_flags", "pre_2023_stores"):
