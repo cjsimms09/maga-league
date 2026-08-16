@@ -143,6 +143,64 @@ same session: see Settled below)*
 
 # OPEN — needs a decision, or is blocked and waiting
 
+## 🪜 ENGINE ABLATION — the prepared off-flips await your ruling (A, 2026-08-16; experiment was your ask, removal is your call)
+
+**Your experiment, verbatim: "Take the current complete engine and decompose its
+advantage against a simple baseline using controlled ablations. Should we try
+this? And anything that doesn't hurt model could be removed?" It is run — two
+frames (120-paired-seed sim ladder under both replacement rulers +
+40-seed ADP-room robustness, and the 2023-25 draft-replay harness for the
+rails), every CFG-gated layer one at a time, full record in
+`draft/audit/engine_ablation_2026-08-16.md`. Nothing has been removed; the
+gated off-flip diffs are PREPARED in §8 of that doc, one per FREE/HURTS
+layer, and this item is the queue for your ruling on each.**
+
+1. **`VONA_WIRE_BENCH`** (your 2026-08-16 "1. Yes" ruling) — measured DEAD
+   CODE on the shipped scoring path: it lives inside `vona()`'s slot-aware
+   bench branch and `VONA_SLOT_AWARE` (a separately-ruled OFF flag) short-
+   circuits before ever reaching it. The flag you ruled on currently changes
+   nothing the engine recommends (0/120 rooms diverged, deltas exactly
+   0.0000, pinned by test). Two ways to resolve: flip it back off
+   (housekeeping — matches what it actually does today) or finish
+   `VONA_SLOT_AWARE` so the branch is reachable (it then measures HURTS in
+   this frame, §3/§4 — recommend against that path). **This needs your
+   ruling regardless of the rest of the queue.**
+2. **`KOV_MEASURED_RAMP`** (your 2026-08-16 "3. Yes" ruling) — FREE, sign
+   flips between the zero-replacement and wire-floor season rulers
+   (+0.48/−0.22 wk). The measured shape's real evidence (EXP-KEEPER-OPTION on
+   real keeper history) is untouched by this cell — reopening this ruling
+   should weigh that, not this measurement alone.
+3. **`ROOM_MIX_PRIOR`** (your 2026-08-16 "YES on room mix prior" ruling) —
+   FREE, and self-referentially so: the sim's opponent generator uses this
+   same prior, so ablating it here cannot measure real-room accuracy by
+   construction. The real evidence (2025 forward test, log-loss 1.408 vs
+   1.479) is unaffected.
+4. **`stack` weight (MEASURED_WEIGHTS.stack, D10)** — FREE, structurally
+   invisible to this season model (mean-only, constant sd) which cannot see
+   stack's measured correlation/ceiling payoff (exp6, +$196) by construction.
+5. **`CEILING_TIEBREAK`** — the one layer CI-clear HURTS on its own (not a
+   bracket artifact), but at ~0.01 wk — an order of magnitude below every
+   other row's resolution — and it disagrees with the 40-seed ADP room
+   (FREE there). Lowest-priority candidate.
+
+**Two layers earn their keep cleanly and are NOT in this queue** — recommend
+leaving `kov_term` (the whole keeper-option weight) and `opportunity` (the
+board-level nflfastR adjustment) exactly as shipped; both are CI-clear
+positive in every configuration this pass ran.
+
+**Read §6 of the audit before ruling on any of these:** several layers
+measure FREE in a frame that structurally cannot see their payoff
+(ROOM_MIX/conservation are priced against a room made of our own model; KOV
+pays next season; stack pays in correlation a mean-only season model can't
+see; run detection/drift/owner tendencies are dark insurance the sim never
+visits). FREE-in-frame is a necessary fact, not a sufficient one — the doc
+says which zeros are structural facts and which are frame limits, per layer.
+The onesie discount/cap deliberately have NO diff prepared: the replay frame
+prices the hard cap at +27 to +81 pts/season on real history while the sim
+cell reads FREE — preparing a removal diff there would be exactly the
+"manufacture a decision the evidence says hold" pattern the roster-
+construction pass named.
+
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
 
 > **✅ SUPERSEDED later the same day — the capture path now EXISTS and was
