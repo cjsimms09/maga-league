@@ -33,7 +33,22 @@ evidence file. Detail lives in the evidence, not here.**
 so", v4 promotion "Yes on v4", ROOM_MIX_PRIOR "YES, turn it on" — ALL
 EXECUTED; records in "Settled" below.)*
 
-*(none — every before-the-22nd call is ruled and executed)*
+1. **Promote own_v6 as the own-model source?** The projection program's
+   composite: v4's QB arm (kept exactly as ruled in) + v5's component arms at
+   RB/WR/TE. **v6 clears REC-3 at all four positions**; v5 alone beat v4 at
+   RB/WR/TE but missed the QB Spearman cell by 0.0025 (the fragility its own
+   prereg predicted). Nothing tuned in v6 — its cells are arithmetically
+   implied by the two graded parents and verified bit-for-bit. Honesty note
+   quoted from both preregs: 2025 has now been read three times in this
+   lineage, so treat the margins as thinner than printed; January 2027 is the
+   first genuinely untouched evaluation. Gated switch: the prepared diff in
+   `draft/audit/projection_program_2026-08-16.md` §7 (REC-3 record + the
+   own_projections.py v6 layer — NOT applied). Evidence:
+   `draft/backtest/_own_model_v6.json`, the program doc's ablation ladder.
+   **Recommendation: YES** — same shape as the v4 promotion you already
+   ruled, strictly better at every position, and the draft is the 22nd.
+   RB/WR now sit ~0.6–0.7 MAE from FantasyPros' margin; QB stays v4's
+   (still ~7 from FP — the honest gap, carried, not hidden).
 
 ## Standing open (predate today; unresolved; details under OPEN below)
 
