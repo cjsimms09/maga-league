@@ -62,6 +62,10 @@ REPO_PARITY_NODES = {
     "draft/tests/test_playoff_sos.py::test_committed_artifact_matches_a_fresh_run_of_the_tool",
     "draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
     "draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
+    # draft replay (2026-08-16): regeneration reads the tree's positions
+    # record and board ages, both refreshed by the nightly board rebuild —
+    # the same class as the own-model pins above.
+    "draft/tests/test_draft_replay_2025.py::test_artifact_matches_regeneration",
 }
 
 
