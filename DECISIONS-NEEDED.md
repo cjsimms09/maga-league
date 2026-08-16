@@ -37,6 +37,17 @@ EXECUTED; records in "Settled" below.)*
 own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
 same session: see Settled below)*
 
+- **[NEW 2026-08-16, edge hunt] The measured tie-break lean** — add a
+  late-season-trajectory fact FIRST in the war room's toss-up facts? · gated
+  switch: the PREPARED diff to `public/js/draft/verdict.js tiebreakFacts`
+  (+ its one board field) in `draft/audit/edge_hunt_2026-08-16.md` §3.1 —
+  prepared, NOT applied · evidence: `draft/data/fifty_fifty_study.json`
+  (in 176 historical toss-ups the hotter-finishing player won 58%, CI
+  51–65%; clears the preregistered rule, fails Bonferroni ×9 at p=0.31 —
+  a lean, not a law; the other eight features predicted NOTHING, which is
+  itself the bigger Saturday finding). Full entry: § "THE 50/50 TIE-BREAK
+  LEAN" below.
+
 ## Standing open (predate today; unresolved; details under OPEN below)
 
 - ~~Two projection sources disagree by position, systematically (#000,
@@ -285,6 +296,50 @@ almost immediately after it was written, as this whole session's `git push origi
 3. Until that's confirmed, default to **not deploying** — everything built this week
    is staged on the research branch specifically so it can wait for that check
    without costing anything.
+
+## THE 50/50 TIE-BREAK LEAN — one measured feature, one prepared diff (A, 2026-08-16) 🔴 OPEN
+
+- **WHAT WAS FOUND** (preregistered study, `draft/audit/edge_hunt_2026-08-16.md`
+  §1 prereg / §3 results; artifact `draft/data/fifty_fifty_study.json`; Cory's
+  mandate verbatim: *"Is it in the actual roster construction? Is it in the
+  50/50 picks? Find it, beat it, prove it, implement it."*). Across 259
+  historical near-tie picks (2023-25; 30 replay toss-ups + 229 the room's own
+  drafts revealed), **eight of nine pick-time-knowable features predicted the
+  winner of a 50/50 NOT AT ALL** — age (n=133, 48.9%), experience (n=101),
+  prior games missed (n=142), TD-share (n=195), team change (n=59), prior ppg
+  (n=195), weekly boom/bust cv (n=184), depth-chart proxy (n=79). **One
+  feature cleared the preregistered bar: last season's late-window trajectory
+  — in 176 toss-ups the hotter-finishing player won 58.0% (Wilson CI
+  50.6-65.0%).** Same direction in both pair sources and every band; it is
+  also the exact mechanism the draft replay measured from the other side
+  (walk-forward boards under-rank ascending players — where Cory's own reads
+  beat the model three years running).
+- **THE HONESTY LINE, both halves printed:** it clears the preregistered
+  per-feature rule (CI excludes .50, n ≥ 30) and it does NOT clear
+  multiplicity (nine features tested; two-sided p = .035, Bonferroni ×9 =
+  .31). The weeks-won secondary outcome sits at exactly .500. This is a
+  LEAN, not a law, and the prepared fact's own printed text says so.
+- **WHAT IT IMPLIES.** The war room's toss-up facts (market/byes/age/depth)
+  print nothing that measurably decides a 50/50; the one thing that measured
+  anything is not printed. The bigger half of the finding needs no ruling at
+  all: **50/50s are true coin flips on this league's record — stop sweating
+  them at the table.**
+- **MAGNITUDE.** A 58/42 lean applied to the ~2-4 genuine toss-ups a draft
+  produces — order of one better pick every couple of drafts. Small, priced
+  honestly, and free (the facts panel already exists).
+- **CONFIDENCE.** Preregistered, n stated everywhere, CI-clear once, fails
+  Bonferroni; both pair sources agree in direction. Medium-low.
+- **COST OF INACTION.** Zero measurable points; the panel keeps printing
+  unmeasured facts first.
+- **RECOMMENDATION.** Apply the prepared diff (§3.1 of the audit doc:
+  trajectory fact FIRST in `tiebreakFacts` + the one `late_trajectory` board
+  field) with its measured-strength wording, OR explicitly decline and keep
+  the null as the standing answer. Either ruling closes this. **Nothing is
+  applied until you say so.** — The companion variance-portfolio study
+  (same audit doc, §2/§4) came back NULL under its own prereg rule
+  (variance-tilting buys ~$5/season of weekly-high money, real but not
+  batch-stable; anti-tilt loses $7 CI-clear) — **no diff prepared there, no
+  ruling needed; recorded for the trail.**
 
 ## 000. THE TWO PROJECTION SOURCES DISAGREE BY POSITION, SYSTEMATICALLY (2026-08-12) 🔴 OPEN
 
