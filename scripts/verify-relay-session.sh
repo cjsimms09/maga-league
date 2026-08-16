@@ -60,7 +60,7 @@ echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the
-# refusal to EXACTLY the 42 documented files: a forty-second trespass appearing
+# refusal to EXACTLY the 45 documented files: a forty-sixth trespass appearing
 # later fails HERE, so "expected refusal" can never quietly grow. The set SHRINKS as
 # authorised fixes reach main and stop diffing (test_board_pin.py first, then
 # the board_activity pair with the rebuild-blocker cherry-picks) and GREW
@@ -76,8 +76,14 @@ echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # created by the Monday-brief commit 402419fc and never entered here — the
 # clarity pass itself added ZERO files to the set; it edited three files
 # already pinned) — each exit and entry is documented in Override #5's
-# bookkeeping notes.
-EXPECTED_TRESPASS="draft/tests/h2h_agreement.test.js
+# bookkeeping notes. GREW again 2026-08-16 with the persistence-hardening
+# pass (+3: src/ledger.js — the money ledger's writers migrated onto the new
+# atomic store.mutate seam, and the two cron workflows now sending the
+# Authorization: Bearer header — the external audit's findings 1/3/4;
+# red-then-green evidence in draft/audit/persistence_hardening_2026-08-16.md).
+EXPECTED_TRESPASS=".github/workflows/sunday-alert.yml
+.github/workflows/weekly-recap.yml
+draft/tests/h2h_agreement.test.js
 draft/tests/lineup_sanity.test.js
 draft/tests/scope_agreement.test.js
 draft/tests/sidebets.test.js
@@ -85,6 +91,7 @@ draft/tests/trashtalk.test.js
 draft/tests/waiver_surface.test.js
 public/css/style.css
 public/css/warroom.css
+src/ledger.js
 src/routes/accuracy.js
 src/routes/admin.js
 src/routes/lineup.js
@@ -126,7 +133,7 @@ views/watch.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 42 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 45 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'
