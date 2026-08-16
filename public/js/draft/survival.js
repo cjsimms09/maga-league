@@ -90,11 +90,12 @@
      * not detectably persist year over year (mean rho 0.074, perm p=0.56).
      * So this switch feeds the LEAGUE prior only, never per-owner terms.
      *
-     * OFF BY DEFAULT (the STAGE2_CAP / VONA_SLOT_AWARE pattern): shipping it
-     * on would be a silent behavior change; the flip is Cory's call via
-     * DECISIONS-NEEDED.md, with the applied-vs-shipped delta measured by
-     * draft/tools/room_prior_measure.js and recorded in the audit doc. */
-    ROOM_MIX_PRIOR: false,
+     * ON by Cory's ruling, 2026-08-16 ("YES on room mix prior, turn it on"),
+     * made with the forward-test evidence and the ≤3.1pp delta measurement
+     * (draft/tools/room_prior_measure.js) in front of him. The gate protocol
+     * is unchanged for other switches: off until ruled. Flipping back false
+     * restores the pure need/value softmax for unprofiled seats. */
+    ROOM_MIX_PRIOR: true,
     // Blend weight when ON. Deliberately the SAME magnitude as BUCKET_BLEND
     // above (0.25) — the existing "his observed mix is a rate, not a law"
     // weight — rather than a new tuned constant.

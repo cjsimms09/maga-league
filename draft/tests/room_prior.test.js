@@ -29,9 +29,9 @@ let pass = 0, fail = 0;
 const ck = (n, c, d) => { c ? (pass++, console.log('PASS ' + n))
   : (fail++, console.log('FAIL ' + n + (d ? '\n        -> ' + d : ''))); };
 
-// ── 1. shipped state ────────────────────────────────────────────────────────
-ck('CFG.ROOM_MIX_PRIOR ships FALSE (gated, the STAGE2_CAP pattern)',
-   S.CFG.ROOM_MIX_PRIOR === false, 'got ' + S.CFG.ROOM_MIX_PRIOR);
+// ── 1. shipped state — Cory's ruling, pinned so it can't drift either way ──
+ck('CFG.ROOM_MIX_PRIOR ships TRUE (Cory, 2026-08-16: "YES on room mix prior")',
+   S.CFG.ROOM_MIX_PRIOR === true, 'got ' + S.CFG.ROOM_MIX_PRIOR);
 ck('CFG.ROOM_MIX_W matches BUCKET_BLEND\'s magnitude (declared, not tuned)',
    S.CFG.ROOM_MIX_W === S.CFG.BUCKET_BLEND,
    'ROOM_MIX_W ' + S.CFG.ROOM_MIX_W + ' vs BUCKET_BLEND ' + S.CFG.BUCKET_BLEND);
@@ -67,11 +67,15 @@ function dist(pickNo) {
   return S.positionProbabilities(team, board, ctx);
 }
 
+// The shipped default is now ON (the ruling above), so the arms flip order:
+// compute the OFF world explicitly, toggle back to the ruled ON, and restore.
+S.CFG.ROOM_MIX_PRIOR = false;
 const offBefore = JSON.stringify(dist(45));
 S.CFG.ROOM_MIX_PRIOR = true;
 const on = dist(45);
 S.CFG.ROOM_MIX_PRIOR = false;
 const offAfter = JSON.stringify(dist(45));
+S.CFG.ROOM_MIX_PRIOR = true;   // restore the ruled default for later checks
 
 ck('flag off -> distribution identical before and after a toggle (OFF MEANS OFF)',
    offBefore === offAfter);

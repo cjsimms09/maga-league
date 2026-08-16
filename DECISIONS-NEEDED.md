@@ -30,21 +30,10 @@ evidence file. Detail lives in the evidence, not here.**
 ## Needs Cory before the 22nd
 
 *(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
-so", v4 promotion RULED "Yes on v4" — all EXECUTED; records in "Settled"
-below. One open call:)*
+so", v4 promotion "Yes on v4", ROOM_MIX_PRIOR "YES, turn it on" — ALL
+EXECUTED; records in "Settled" below.)*
 
-1. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
-   (survival.js, ships false)? The league's own positional draft behavior
-   (fit 2023-24, 377 corrected decisions) beat the engine's ADP-plus-noise
-   survival form on a preregistered 2025 forward test (pooled Brier 0.099
-   vs 0.503, and vs 0.206 even after widening the baseline's σ to honest
-   levels). Per-owner signatures did NOT persist (rho 0.074, p=0.56) and
-   are NOT in the feed — only the league-level bucket mix ships, bounded
-   at the existing 0.25 blend weight; survival moves ≤3.1pp. Agent's own
-   recommendation: flip for the 22nd only if mock rehearsals show no
-   surprises; leaving it off costs little.
-   → `draft/audit/draft_behavior_2026-08-15.md` §5 +
-   `draft/data/draft_behavior.json`.
+*(none — every before-the-22nd call is ruled and executed)*
 
 ## Standing open (predate today; unresolved; details under OPEN below)
 
@@ -64,6 +53,12 @@ below. One open call:)*
 
 ## Settled today (rulings made; records, not questions)
 
+- **ROOM_MIX_PRIOR — Cory 2026-08-16 "YES on room mix prior, turn it on" →
+  flipped TRUE** (survival.js). Unprofiled-seat position probabilities now
+  blend the league's measured bucket mix (forward-tested on 2025; per-owner
+  terms excluded as non-persistent) at the existing 0.25 weight; survival
+  moves ≤3.1pp. Baseline v17 frozen under the ruling; room_prior.test.js
+  repinned to the ruled default with the off-arm still proven.
 - **own_model_v4 PROMOTION — Cory 2026-08-16 "Yes on v4" → APPLIED.** The
   first REC-3 bar clear (all four positions, both metrics, preregistered).
   `proj_ownmodel` now runs the v4 construction (`draft/own_projections.py`,

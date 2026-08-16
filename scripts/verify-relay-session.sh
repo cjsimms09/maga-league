@@ -47,12 +47,14 @@ pred = json.load(open('draft/data/predicted_keepers.json'))
 script = json.load(open('draft/data/opening_script.json'))
 stale = OS.is_stale(script['meta'], OS.fingerprint(board, pred))
 assert stale == [], stale"
-# The exemption list IS the ruling record: VONA_WIRE_BENCH and
-# KOV_MEASURED_RAMP may appear in the diff in EITHER state because Cory ruled
-# on both 2026-08-16 ("1. Yes ... 3. Yes" — flipped true, with the old false
-# lines leaving the diff). Any OTHER CFG default moving still fails here.
-ck "no engine CFG default changed vs origin/main beyond Cory's two ruled flips" \
-  bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP): (false|true)' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
+# The exemption list IS the ruling record: VONA_WIRE_BENCH, KOV_MEASURED_RAMP
+# and ROOM_MIX_PRIOR may appear in the diff in EITHER state because Cory ruled
+# on all three 2026-08-16 ("1. Yes ... 3. Yes"; "YES on room mix prior, turn
+# it on" — flipped true, old false lines leaving the diff). ROOM_MIX_W is the
+# ruled switch's declared blend weight (0.25 = BUCKET_BLEND, pinned by
+# room_prior.test.js). Any OTHER CFG default moving still fails here.
+ck "no engine CFG default changed vs origin/main beyond Cory's three ruled flips" \
+  bash -c "git diff origin/main -- public/js/draft/engine.js public/js/draft/composite.js public/js/draft/survival.js | grep -E '^[-+] *[A-Z_]+:' | grep -vE '^[-+] *(VONA_WIRE_BENCH|KOV_MEASURED_RAMP|ROOM_MIX_PRIOR): (false|true)' | grep -vE '^\+ *ROOM_MIX_W: 0.25,' | grep -vE \"^\+ *KOV_MEASURED_RAMP_TABLE: \{ '4-6': 1.0, '7-9': 0.2, '10-12': 0.0, '13-15': 0.0 \}\" | grep -vE '^\+ *//' | { ! grep -q .; }"
 
 echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
@@ -115,11 +117,10 @@ act as a mechanism: verify, merge locally, suites on the merged tree, and it
 STOPS before pushing."
 echo ""
 echo "THE DECISION QUEUE LIVES IN ONE PLACE: DECISIONS-NEEDED.md, top section"
-echo "('⚡ THE QUEUE'). ONE call still needs Cory before the 22nd — ROOM_MIX_PRIOR"
-echo "(flip only if the mock rehearsal is clean). Five are RULED AND EXECUTED"
+echo "('⚡ THE QUEUE'). ZERO calls open before the 22nd. Six are RULED AND EXECUTED"
 echo "2026-08-16: VONA_WIRE_BENCH true, ADP correction closed, KOV_MEASURED_RAMP"
-echo "true, seat-plan headline ownership, own_model_v4 promotion applied — the"
-echo "queue's Settled section carries"
+echo "true, seat-plan headline ownership, own_model_v4 promotion applied,"
+echo "ROOM_MIX_PRIOR true (baseline v17) — the queue's Settled section carries"
 echo "each record, and baseline v16 freezes the ruled behavior. This footer is"
 echo "a pointer, not a copy."
 exit $((fail > 0))
