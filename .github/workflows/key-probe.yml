@@ -88,5 +88,56 @@ jobs:
             fi
           fi
 
+          echo "== which TD market does the-odds-api actually serve? (2026-08-16) =="
+          # The three real full-season pulls came back with ZERO rush_td rows
+          # across 7,019 player-weeks while the other five markets landed in
+          # the thousands (draft/audit/historical_props_study_2026-08-16.md
+          # §9a). The parser is not at fault, so either `player_rush_tds` is
+          # the wrong key or it is not served historically. This settles it
+          # rather than guessing: ask ONE historical event for each candidate
+          # and print which markets come back. Cost: 10 credits per market
+          # (10 x 1 market x 1 region), ~30 total — against a ~49,068-credit
+          # pull it is rounding error, and it decides whether a re-fetch is
+          # worth anything.
+          if [ -n "$K_ODDS" ]; then
+            HB="https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl"
+            D="2024-09-08T17:00:00Z"
+            c=$(code "$HB/events?apiKey=$K_ODDS&date=$D")
+            echo "historical events list: HTTP $c"
+            EID=""
+            if [ "$c" = "200" ]; then
+              EID=$(python3 - <<'PY'
+          import json
+          try:
+              b = json.load(open('/tmp/body'))
+              d = b.get('data') or []
+              print(d[0]['id'] if d else '')
+          except Exception:
+              print('')
+          PY
+          )
+            fi
+            echo "event id resolved: ${EID:+yes}${EID:-no}"
+            for M in player_rush_tds player_anytime_td player_pass_tds; do
+              if [ -n "$EID" ]; then
+                c=$(code "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=$M&date=$D")
+                echo "  market $M: HTTP $c"
+                if [ "$c" = "200" ]; then
+                  python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          b = json.load(open('/tmp/body'))
+          d = b.get('data') or {}
+          keys, n = set(), 0
+          for bk in d.get('bookmakers', []):
+              for m in bk.get('markets', []):
+                  keys.add(m.get('key'))
+                  n += len(m.get('outcomes', []))
+          print(f"    markets returned: {sorted(keys) or 'NONE'}; outcome rows: {n}")
+          PY
+                fi
+              fi
+            done
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
