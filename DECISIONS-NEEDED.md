@@ -30,10 +30,22 @@ evidence file. Detail lives in the evidence, not here.**
 ## Needs Cory before the 22nd
 
 *(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
-so" — and EXECUTED the same day; records moved to "Settled" below. One open
-call remains:)*
+so" — and EXECUTED the same day; records moved to "Settled" below. Two open
+calls:)*
 
-1. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
+1. **PROMOTE own_model_v4 as the proj_ownmodel source** — the first candidate
+   ever to clear your ratified REC-3 bar (beat BOTH baselines, ALL four
+   positions, BOTH metrics, preregistered, held-out 2025): QB 72.29 MAE /
+   0.7225 Spearman vs the blend's 74.09 / 0.7213; RB/WR/TE inherit v3's
+   cleared cells bit-for-bit. The promotion swaps the algorithm behind the
+   labeled third-opinion column only — it does NOT enter `proj_mean`'s
+   composition (that needs the January 2027 Sleeper grade; REC-2 unchanged).
+   Caveats travel with the call: the QB Spearman margin is one rank-swap
+   wide; the MAE margin (−1.80/QB) is real; constants rest on three folds
+   from two seasons. Relay recommendation: YES — this is the bar working as
+   you ratified it. → `draft/audit/projector_v4_2026-08-16.md` §7 (the exact
+   prepared diff) + `draft/backtest/model_accuracy_v4.json`.
+2. **ROOM_MIX_PRIOR (gated, off)** — flip `CFG.ROOM_MIX_PRIOR`
    (survival.js, ships false)? The league's own positional draft behavior
    (fit 2023-24, 377 corrected decisions) beat the engine's ADP-plus-noise
    survival form on a preregistered 2025 forward test (pooled Brier 0.099
