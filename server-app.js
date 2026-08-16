@@ -90,7 +90,9 @@ function createApp() {
         if (res.locals.betsWaiting && req.path !== '/bank') {
           res.locals.alerts = [{
             level: 'info',
-            message: `${res.locals.betsWaiting} side bet${res.locals.betsWaiting === 1 ? '' : 's'} waiting on you to accept or decline.`,
+            // awaiting() now also counts a pool draft blocked on your pick, so
+            // the copy names the set honestly rather than just accept/decline.
+            message: `${res.locals.betsWaiting} side bet${res.locals.betsWaiting === 1 ? '' : 's'} waiting on you — answer, confirm, or make your pick.`,
             href: '/bank?section=sidebets', linkText: 'Take a look →',
           }, ...res.locals.alerts];
         }

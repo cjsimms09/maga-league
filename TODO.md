@@ -1,6 +1,59 @@
 # TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
 # again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
+## ⭐ END-OF-DAY STATE, 2026-08-15 NIGHT — READ THIS FIRST, EVERYTHING ELSE IS HISTORY
+
+**A's Monday is three commands and four decisions.** The branch
+(`claude/fantasy-football-research-926y6z`) holds the entire day — 12 agent
+worktrees merged, every merge suite-verified, then two independent Fable
+review passes over the COMPOSED tree (cross-merge interactions re-measured:
+all hold; one real defect found and fixed — two tests were overwriting the
+real shipped board file in place).
+
+1. `bash scripts/lane-start.sh A` → `bash scripts/inbox.sh A` (triaged: decisions first)
+2. `bash scripts/verify-relay-session.sh` — 7/7 PASS at branch tip (suites
+   2286 Python / 268 JS entry points; artifact-generator consistency; no CFG
+   default moved; territory refusal pinned to the documented Override #5 set)
+3. `bash scripts/merge-relay.sh` — the Override #5 bypass as a mechanism:
+   re-verifies, merges into LOCAL main, runs both suites on the merged tree,
+   and STOPS with the push printed (the push stays your deliberate act; an
+   undocumented crossing aborts it). Merging DEPLOYS (served files
+   changed; deploy policy is settled in DEPLOY-POLICY.md — the blanket
+   [skip deploy] era is over). Post-merge the config-check workflow's last
+   cell goes green (weights-read ships with the merge; Cory's key config is
+   already verified on the GitHub side).
+
+**THE DECISION QUEUE LIVES IN ONE PLACE: `DECISIONS-NEEDED.md` → "⚡ THE
+QUEUE" (top section).** Four calls need Cory before the 22nd (wire-bench ·
+scoring-gap ADP · KOV ramp · pick-33 headline), the standing older opens are
+indexed under them, and today's already-settled rulings (REC-1 proj_sd live,
+the pre-draft survival filter, the player-week loop) are listed as records so
+the merge reads every applied change as intended. Everything here and in the
+runbook footer is a pointer to that section, never a second copy.
+
+**HONEST NEGATIVES FILED TODAY** (do not re-litigate without new evidence):
+own-model v2 beats v1 everywhere but fails the promotion bar (QB + TE
+rank-corr vs the recency blend) — display-only stands · the FP-archive
+Week-1 source-weight prior failed its own preregistered error-scale gate —
+flat start stands until January · the analyzer projection-prior hypothesis:
+no detectable improvement pooled (the one good-prior season helped weeks
+1-2; K≈1.5 diff proposal routed to B) · pace-of-play NULL · age tie-break
+NULL.
+
+**THE AUDIT INDEX for the day** (each self-contained, in draft/audit/):
+macro_tool_audit · model_learning_audit · roster_construction_audit ·
+composed_tree_review · loop_review · learning_loop_closure ·
+league_wide_player_loop · projection_skill_backtest (FP archives: 3/3
+authentic, FP beats naive everywhere — the projection layer's edge priced
+at 3-9 MAE pts/position) · analyzer_prior_hypothesis ·
+warroom_design_pass (in flight — war-room professional elevation with a
+UI-fidelity gate per Cory: "the design is actually implementing and
+explaining what the model says").
+
+**IN FLIGHT AT WRITE TIME:** the war-room design pass (Fable agent;
+screenshots for Cory's sign-off before merge); the in-season tools design
+pass queued behind it (adopts the same design system).
+
 _Regenerated from STATUS.md, PARKED.md, DECISIONS-NEEDED.md and this week's findings —
 not from memory. Draft is **Aug 22** (7 days out). **A and B are both unreachable until
 Monday** (weekly session limit) — everything below this line that isn't marked ✅ was
@@ -16,17 +69,19 @@ of this note said pushing to `main` never deploys on its own — THAT WAS WRONG,
 🚨 entry immediately below. Batching is now enforced by the commit message, not by an
 assumption about the gate.
 
-**🚨 READ THIS BEFORE TOUCHING A SERVED FILE (`public/`, `views/`, `src/`,
-`server-app.js`, `package*.json`, `netlify.toml`, `netlify/functions/`):** the deploy
-gate (`netlify-ignore.sh`) flipped to **opt-out on 2026-08-09** — it builds BY DEFAULT
-on any served-path change now, `[skip deploy]` is the ONLY suppressor. `DEPLOY-POLICY.md`
-still describes the OLD opt-in gate and is one day older than the flip; it has a
-correction banner now but still needs a real rewrite. **This was not caught in time** —
-two real, unintended deploys already fired today before the mistake was found (confirmed
-directly from `deploy-verify.yml`'s own logs, not inferred). Standing rule now: `[skip
-deploy]` on every commit, verified working (checked the actual gate output after adding
-it, three separate times, all skipped correctly) — nothing deploys again until Cory says
-go. The build-minute budget question (below) is still separately unresolved.
+**🚨 DEPLOY POLICY SETTLED (2026-08-15 evening, Cory: "fix the deploy freeze...
+find the happy medium").** The blanket-`[skip deploy]` freeze is RETIRED — it was
+fighting the opt-out gate and delivering both failure modes at once (fixes
+stranded AND deploys leaking whenever an unmarked bot push topped the branch;
+the macro audit found the live site current while policy said frozen).
+**`DEPLOY-POLICY.md` is REWRITTEN and is now the single authority**; policy and
+`netlify-ignore.sh` finally say the same thing. One-line version: served-path
+changes deploy when they land on `main` and every deploy path is now verified
+(deploy-verify on pushes; a new in-run poll in `draft-data.yml` for the bot's
+board push, which was the one deploy nothing checked); Lab/docs/data commits
+never build; `[skip deploy]` is reserved for a served change deliberately not
+ready, with the reason in the commit; Aug 20–22 the draft-week build reserve is
+untouchable and only draft-critical fixes deploy.
 
 ## LATER THE SAME DAY, 2026-08-15 — read this section first, everything below it is the morning/midday pass
 
@@ -34,7 +89,132 @@ Cory pushed hard on "actually fix things, in a way A will approve and push" and 
 deploy everything together in large sums." Real builds, all tested, all `[skip deploy]`,
 all on `main` right now — check `git log`, don't re-derive from this prose.
 
-**The single biggest finding of the day: our core projection formula was already
+**60-SECOND VERSION, for whoever reads this first.** Everything below is real, tested,
+and already on `main` (or this branch — check which). In priority order:
+
+1. **Fixed a real data-corruption bug that predates today** — every in-season capture
+   form (`/lineup/log`, `/lineup/override`, `/waivers/*`, `/stream/*`) was silently
+   mangling its own payload before this fix. See "🔴 A REAL BUG" below. If the site was
+   used for real before this shipped, **run `draft/tools/ledger_corruption_check.js`
+   against the live ledger** to check for damage — nobody with live access has done
+   this yet; it's a 5-minute job, instructions in the tool's own header.
+2. **Fixed a real bug in `draft-night-sync.yml`** (built today) that would have killed
+   its retry logic on the FIRST Sleeper hiccup during the actual draft — found and
+   fixed by firing the workflow for real, not by reading it. Verified working on real
+   CI. Nobody needs to do anything here except trigger it for real when the draft opens.
+3. **Own-model projections are live on the board**, additively, alongside Sleeper/FantasyPros.
+4. **The core projection formula was already audited and found to LOSE** to a naive
+   baseline (exp33) — a banner now surfaces this on the board. Read as: lean on tier
+   structure, not the point projection itself.
+5. Draft-night pick capture and in-season prediction capture (lineup/waiver/stream) are
+   now real and wired — `trade_eval` is the one kind still genuinely uncaptured.
+6. A dedicated security pass on everything built today came back clean — nothing to fix.
+7. **Backtested whether the lineup optimizer actually gives an edge — it does not, yet,
+   and found + fixed a real bug in the process that had been quietly deflating the
+   "certified" leak numbers since the file was written.** See "🔴 SECOND REAL BUG"
+   below. Short version: the tool's own fallback projection loses to what Cory actually
+   played (-14 to -18 pts/week, beats actual play only ~15-22% of weeks, all 3 seasons)
+   — the tool's live UI already says to "treat the dollar figures as directional" on
+   this exact fallback path, so this backtest confirms and quantifies that caveat
+   rather than contradicting it. Not shipped as an edge; not a regression either —
+   nothing changed about the live recommender, only about how honestly its historical
+   value is measured.
+8. **Three things need Cory's judgment, not more engineering** — none built or changed:
+   - `ONESIE_ENDGAME_PICKS` / the bench-branch VONA formula / `ONESIE_MAX_SPARE` —
+     scoring-logic prototypes, fully evidenced, held per standing policy this close to
+     the draft. Full writeups in `PARKED.md`.
+   - `trade_eval` — needs a product decision (whose trades, priced how) before any code.
+   - Whether `config-screen.js` is worth the same Playwright test `keeperui.js` just got
+     (cheap now that the pattern exists, just not urgent).
+
+**🔴 A REAL BUG, NOT A JUDGMENT CALL, FOUND AND FIXED: every in-season capture form
+was silently corrupting its own payload.** `views/lineup.ejs` and `views/waivers.ejs`
+built their hidden JSON fields as `JSON.stringify(...).replace(/"/g, '&quot;')` INSIDE
+an EJS `<%= %>` tag — which already HTML-escapes by default. The manual replace ran a
+SECOND time on top of that, so the real page contained `&amp;#34;` instead of `&#34;`.
+A browser decodes HTML entities in one non-recursive pass, so the value it actually
+SUBMITS still has the literal text `&#34;` where a quote belongs — not valid JSON.
+`safeJson()` on the server silently falls back to storing the mangled raw string.
+**This predates today** — it hit `/lineup/log`/`/lineup/override` (built earlier)
+exactly as much as the `/waivers` and `/stream` forms built today, and
+`override_capture.test.js` never caught it because it posts a hand-built body and
+renders the form separately, never combining the two. Found only because a NEW
+end-to-end test (render real HTML -> extract the real `value=` text -> POST exactly
+that -> read the ledger back) was built for the stream forms and failed. Fixed in
+7 places across 4 views; two new tests
+(`draft/tests/waiver_stream_surface.test.js`, `draft/tests/lineup_capture_escaping.test.js`)
+prove it round-trips correctly now, including with a player name carrying both an
+apostrophe and a literal double quote. Full JS + robot-mock + Python suites green after.
+
+**Follow-up, same finding: is any REAL captured data corrupted?** This sandbox has no
+access to the live site's Netlify Blobs store, so it can't check production directly.
+`draft/tools/ledger_corruption_check.js` is the one-command answer for whoever does:
+log in as commissioner, visit the already-shipped `/admin/api/ledger/predict?season=
+2026`, save the response, run the tool against it. It flags any entry whose
+recommended/counterfactual/chosen/drop is a raw string instead of parsed JSON (the
+exact signature the bug leaves) — deliberately NOT flagging `waiver_claim`'s
+`counterfactual`, which is a hardcoded `'hold priority'` string by design, not a bug.
+8/8 tests pass, including that exact false-positive trap. **Someone with real access
+needs to actually run this** — not done here, can't be from this sandbox.
+
+**🔴 SECOND REAL BUG, NOT A JUDGMENT CALL: `infer_positions()` was silently deflating
+every hindsight-optimal lineup calculation, in both the JS and Python originals, since
+before this session.** Found while directly answering Cory's question — "have we
+retested the lineup optimizer to prove it's giving an edge or at least not hurting" —
+by building `draft/tools/lineup_edge_backtest.js`, a leak-free replay of every real
+2023-25 team-week using only strictly-prior information (no lookahead). Its first run
+threw an impossible result: the TRUE OPTIMAL (perfect hindsight) scored LESS than what
+was actually played in real weeks. Traced to `inferPositions()`/`infer_positions()`
+(JS: `src/routes/lineup.js`, Python: `draft/backtest/roster_sim.py` — the JS is a
+direct port of the Python): a player who only ever started via a FLEX-type slot never
+got a position classified at all (its own docstring's excuse, "almost always caught in
+another week's dedicated slot," is false for 36 real players across 3 seasons), so
+`bestLineup()`/`best_lineup_points()` silently dropped him from any hindsight
+recomputation whenever he'd actually, legally started. Fixed in both languages using a
+remedy A already established for the identical defect class in `wire_level.js`: fall
+back to `draft/data/player_positions.json`'s ground truth for exactly the ids the
+starters-heuristic can't resolve.
+**This changes EFFICIENCY-LEAK.md's "certified" L0 numbers, and only upward** — the
+old figures were an undercount, not an overcount: leak $470/595/445 → **$520/637.50/520**
+(2023/24/25), Cory's 3-yr total $2,100 → **$2,400**, efficiency ~89-90% →
+**87-88%**. Regenerated via the file's own documented refresh (`python
+draft/backtest/lab.py`), propagated to `EFFICIENCY-LEAK.md` (old numbers struck through,
+not deleted), `LAB-REGISTRY.md`, `docs/queued/in-season-master.md`,
+`draft/DECISION-LOGIC-SPEC.md`, `docs/POST-DRAFT-LABEL-AUDIT.md`, and the code comments
+that cited the old figure. Full detail and what was deliberately left untouched (dated
+log entries in `STATUS.md`/`LAB-RUN-STATE.md`) is in `ROUTES.md`'s `## TO: A` section,
+2026-08-15 entry. New regression tests in both languages assert the per-row invariant
+directly (`optimal >= actual` on every team-week, not just in aggregate) so this can't
+silently regress. Full JS (256/256) and Python (2148 passed/6 skipped) suites green
+after **in this sandbox — caveat added 2026-08-15: this sandbox cannot reach Sleeper
+(confirmed 403 all session), so any test whose behavior differs live-vs-offline was
+never actually exercised on its live path here. The independent OpenAI review's own
+CI job (real network) caught exactly this: `h2h_agreement.test.js` red there. It
+shares no code path with anything in this change (h2h/rivalry/Sleeper-id resolution,
+nothing touching lineup/roster_sim/season_stamp), so it is very unlikely caused by
+this diff, but "full suite green" claims made from this sandbox should be read as
+"green on everything this sandbox's network can exercise," not an absolute
+statement — worth a real-network re-run by whoever has one.**
+**Then the actual question got answered, honestly, on the corrected numbers:** does
+following the live tool's own fallback projection (season-running-average — the path
+its own UI already flags as "directional, not precise" whenever it's not on a live
+Sleeper projection) beat what Cory actually played? **No.** Edge vs. actual play, in
+**FANTASY POINTS, not dollars — corrected 2026-08-15, caught by the independent
+OpenAI review (below): `lineup_edge_backtest.js` never calls the money grader, it
+only ever computed points, and the first write-up of this wrongly called them
+dollars**: 2023 -11.45 pts/wk (beats actual 22% of weeks), 2024 -14.51 pts/wk (20%),
+2025 -17.65 pts/wk (16%) — bye-week-corrected for 2023/24 via real nflverse schedule data
+(`draft/backtest/build_historical_byes.py`), uncorrected (structurally pessimistic) for
+2025 since nflverse doesn't have 2025 data yet. This is not a regression or a newly
+discovered defect in the live tool — the assignment logic itself is separately proven
+exhaustively optimal given a set of projections (`lineup_skill.test.js`, pre-existing);
+the gap is entirely in projection quality on the fallback path, which the tool's own UI
+already discloses. It quantifies an acknowledged limitation rather than revealing an
+undisclosed one. Not shipped as a claimed edge; nothing to fix here without better
+in-season projections, which is a separate, larger project.
+
+**The single biggest finding of the day about the MODEL (as opposed to the bug above):
+our core projection formula was already
 audited and found to LOSE, and nobody was ever told.** Experiment 33 (`EXP33.md`,
 reported 2026-08-09, six days before this was surfaced) — our blend loses to a naive
 prior-year+opportunity model on every metric, both tested seasons: top-decile hit rate
@@ -147,6 +327,81 @@ check. Full suite green after.
 **`trade_eval` remains genuinely unbuilt** — needs a real product decision first
 (whose trades get evaluated, priced how), no evaluator exists to attach a capture
 to. Belongs with the post-draft work, plan is in `PARKED.md`.
+
+**The 4 new capture routes only had hand verification — same gap as `attach_own_model`
+had, closed the same way.** `/waivers/log`, `/waivers/override`, `/stream/log`,
+`/stream/override` were checked by syntax, an EJS render test, and the full suite
+passing — never by actually POSTing to them and reading the ledger back.
+`draft/tests/inseason_capture_routes.test.js` now does exactly that: boots the real
+app, logs in as commissioner, hits all four, reads `predledger.readAll()` and checks
+kind/method/payload on each (21 checks, all pass). Also fixed a stale line in
+`app.js`'s "In-season instrumentation live" checklist — it still said `stream_call`
+was NOT YET captured after `stream_call` had already been built earlier the same day;
+now reads `lineup_call, waiver_claim, stream_call, inseason_override — logging` with
+only `trade_eval` flagged open. Full JS + Python suites green after (2135 passed / 6
+skipped, 0 failed).
+
+**`consensus.js` (contract C3) had zero dedicated test file — found while looking for
+more of the same class of gap.** It's the ONE shared projection-consensus derivation
+Cory asked for so the draft board / waivers / lineup tools can never label or value
+the same player differently. Only indirect coverage existed (`waivers.test.js`
+exercises it through `src/routes/waivers.js`'s delegation); nothing tested
+`proj_ownmodel` (today's third source) or `higherProjectionAlt()` at all.
+`draft/tests/consensus.test.js` now hits the module directly — 23 checks, all pass
+first run: 1/2/3-source averaging + honest labelling, the `proj_mean`+provenance
+fallback, `cleanSource`, and `higherProjectionAlt`'s same-position-only /
+self-exclusion / `withinTop`-window behavior.
+
+**Checked the rest of `public/js/draft/*.js` for the same "zero test hits" pattern —
+found two more, `config-screen.js` and `keeperui.js`.** First conclusion (below, then
+corrected same day): both are DOM-only IIFEs with no `module.exports`, so closing this
+looked like it needed a new jsdom-style test harness — not worth adding seven days
+before the draft without checking first. **That was wrong, and cheap to find out:**
+`draft/tests/rehearsal-mock3.js` already established Playwright + the pre-installed
+Chromium as a working pattern in this exact project. `draft/tests/rehearsal-keepers.js`
+now pins `keeperui.js`'s `guardFixture()` — the function that refuses to open the
+keeper editor against synthetic/offline data — using that same pattern, self-contained.
+6/6 checks pass, and building it found a real SECOND bug: `boot()`'s catch handler was
+unconditionally clobbering `guardFixture()`'s specific refusal message with a generic
+one the instant after it was written. Fixed in the same commit. `config-screen.js` got
+the same treatment right after (`draft/tests/rehearsal-config-screen.js`, 13/13 —
+proves the ★ CRITICAL scoring highlight actually discriminates and that a saved
+override really does win over an imported value, the page's own stated design; no bug
+found there, first real proof it works). **Every `public/js/draft/*.js` module the
+original sweep flagged is now covered.** Full story, including the correction, in
+`PARKED.md`'s "`config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE" entry.
+
+**`draft-night-sync.yml` (built earlier today) had never actually been fired — checked,
+and firing it blind wasn't safe, so this made it safe first.** Same "verify by
+execution" discipline as `weekly-proj-snapshot.yml` earlier, but that workflow only
+skips a write when it's not in season; this one, on a real trigger, `git commit`s +
+pushes straight into `draft/data/draft_pick_log_2026.jsonl` — the real live pick log
+this season's actual draft needs clean. Testing it blind, even against a completed
+historical draft_id, would have corrupted that file with the wrong season's data. Added
+a `dry_run` input that redirects `log_draft_picks.py`'s `LOG` constant (now
+`DRAFT_PICK_LOG_PATH`-overridable, default unchanged) to a `$RUNNER_TEMP` scratch file
+and skips the git block entirely, proven with 3 new tests
+(`draft/tests/test_log_draft_picks_path_override.py`).
+
+**Then actually fired it for real, twice, and found a genuine bug the first time.**
+Run 1 failed in 13 seconds with only "Process completed with exit code 1" in the log —
+GitHub Actions runs `run:` blocks under `bash -e`, and a bare `OUT="$(cmd)"` assignment
+is not one of the contexts `-e` exempts (an `if cmd; then` is). So the very first
+non-zero `--sync` exit killed the whole job before `echo "$OUT"` or the workflow's own
+documented "will retry on next poll rather than abort the whole night on one bad
+response" ever ran — dead code, invisible until fired for real. Same trap on the
+`--status` call right after it (`status()` deliberately returns 1 on a real, designed
+warning — a row joined to the wrong freeze — not a crash). Both fixed by moving the
+assignment into the `if` test. **Run 2, after the fix: the retry logic actually fired
+9 times over the full 3 minutes**, correctly logging "will retry" each time instead of
+dying, and the real underlying message was finally visible in the log — a legitimate
+`REFUSING: Sleeper returned no picks for draft ...` from `sync_live()`'s own `or []`
+guard (this specific archived draft_id doesn't serve picks via Sleeper's live picks
+endpoint; unrelated to anything touched here). `--status` printed correctly every
+iteration, dry-run wrote only to the scratch path (zero git activity anywhere in the
+log), and `max_minutes` gave up cleanly with the intended warning. **The actual
+draft-night mechanics — polling, retry-on-failure, clean give-up — are now verified
+working on real GitHub infrastructure, not assumed from reading the YAML.**
 
 ---
 

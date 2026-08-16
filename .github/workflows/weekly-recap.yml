@@ -30,7 +30,13 @@ jobs:
           fi
           BASE="${{ vars.SITE_URL }}"
           [ -n "$BASE" ] || BASE="https://makefbgreatagain.netlify.app"
-          curl -sS -m 60 "$BASE/api/weekly-recap?key=$KEY" | tee /tmp/recap.json
+          # Authorization: Bearer is the preferred credential (2026-08-16 audit:
+          # a secret in a query string lands in proxy/function logs). The ?key=
+          # is still sent DURING THE TRANSITION because this job hits the
+          # DEPLOYED site, which can lag the repo by one deploy — drop the
+          # query param once the header path is verified live.
+          curl -sS -m 60 -H "Authorization: Bearer $KEY" \
+            "$BASE/api/weekly-recap?key=$KEY" | tee /tmp/recap.json
           echo
           grep -q '"ok":true' /tmp/recap.json
           if grep -q '"sent":1' /tmp/recap.json; then

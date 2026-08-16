@@ -19,9 +19,244 @@ respects the same rule that already governs superseded headings in this file
 
 ---
 
+# ⚡ THE QUEUE — every open decision, one screen (2026-08-15 night)
+
+**This section is THE decision list. Every other surface (the Monday runbook's
+footer, TODO.md's state block, ROUTES items) POINTS here rather than keeping
+its own copy — one list, referenced everywhere, per Cory: "the decision list
+should live in one place." Each line: the call · the gated switch · the
+evidence file. Detail lives in the evidence, not here.**
+
+## Needs Cory before the 22nd
+
+*(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
+so", v4 promotion "Yes on v4", ROOM_MIX_PRIOR "YES, turn it on" — ALL
+EXECUTED; records in "Settled" below.)*
+
+*(none — every before-the-22nd call is ruled and executed; the seventh,
+own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
+same session: see Settled below)*
+
+- **[NEW 2026-08-16, edge hunt] The measured tie-break lean** — add a
+  late-season-trajectory fact FIRST in the war room's toss-up facts? · gated
+  switch: the PREPARED diff to `public/js/draft/verdict.js tiebreakFacts`
+  (+ its one board field) in `draft/audit/edge_hunt_2026-08-16.md` §3.1 —
+  prepared, NOT applied · evidence: `draft/data/fifty_fifty_study.json`
+  (in 176 historical toss-ups the hotter-finishing player won 58%, CI
+  51–65%; clears the preregistered rule, fails Bonferroni ×9 at p=0.31 —
+  a lean, not a law; the other eight features predicted NOTHING, which is
+  itself the bigger Saturday finding). Full entry: § "THE 50/50 TIE-BREAK
+  LEAN" below.
+
+## Standing open (predate today; unresolved; details under OPEN below)
+
+- ~~Two projection sources disagree by position, systematically (#000,
+  2026-08-12)~~ — **FIXED 2026-08-16 under Cory's ruling ("Don't agree with
+  timelines we fix now")**: FP's live payload serves receptions as `rec_rec`,
+  which `_FP_STAT_MAP` dropped — every FP number was scored without reception
+  points. Recovered exactly (not rescaled); record appended to #000 below;
+  evidence chain in `draft/audit/projection_correctness_2026-08-16.md`.
+  (The 2026-08-15 partial answers — FP-archive skill benchmark + §1.7 fork
+  measurement — stand; the archive endpoints serve `rec` and were never broken.)
+- ~~DEF projections 12 points short — `def_fum_td` maps to nothing (#0,
+  2026-08-11)~~ — **FIXED 2026-08-16 under the same ruling**, and the gap was
+  larger than documented: all-32 measurement found FOUR unmapped TD component
+  keys (`def_fum_td`, `pass_int_td`, `def_kr_td`, `pr_td`); 11 defenses were
+  short 6-18 points. Record appended to #0 below; same audit doc.
+- Regression/shrinkage weight over-regresses — $ arm pending (#2).
+- Simplify AUTO: mask + value is the whole measured edge (#3).
+- STREAMABLE_LATE defined, tested, never read (#000000, 2026-08-15).
+- The tool drafts 0.9 RBs per draft in every arm (#0000) · TE at 3.6 picks
+  undiagnosed (#00000).
+- Sunday alert fires before official inactives (B, #7) · self-referential
+  fixtures clause awaiting authorization (A).
+- Historical-props season-total study: harness built and tested against
+  fixtures, NO real data fetched yet, nothing to rule on — see § "HISTORICAL
+  PLAYER-PROPS STUDY" below.
+- **[NEW 2026-08-16, weekly props study] `props_weekly_v1` is built,
+  fixture-tested, and merge-ready — NOT a ruling yet, OPEN note only.**
+  Cory's split ("one for season projections for draft and another for
+  weekly projections specific to that week?") is answered on the weekly
+  side: a new study arm prices a week directly from that week's fetched
+  player-prop O/U lines, graded through `weekly_own_grade.py`'s existing
+  provider-study pathway (own_population + shared_with_ours, never
+  auto-promoted). The pipeline is proven end-to-end against a synthetic
+  fixture with known injected answers; `draft/data/props/` is EMPTY —
+  **no real weekly MAE/Spearman exists, no verdict is being requested.**
+  The preregistered question (does `props_weekly_v1` beat the champion on
+  weekly MAE, by how much, by position) is stated in
+  `draft/audit/weekly_props_study_2026-08-16.md` §4, BEFORE any real
+  grading, per `draft/audit/league_benchmark_2026-08-16.md` §9's
+  evidence-quality bar (a recent "CLEARS" claim there did not reproduce —
+  this study preregisters rather than repeat that). The only ask: a human
+  dispatch of `weekly-props-fetch.yml` for real, coordinated with the
+  season-total props study so the two do not double-spend the shared
+  `ODDS_API_KEY` credit pool — see `ROUTES.md` TO:A.
+
+## Settled today (rulings made; records, not questions)
+
+- **PROJECTION CORRECTNESS #0 + #000 — Cory 2026-08-16 "Don't agree with
+  timelines we fix now" → BOTH FIXED, evidence-first, same session.** #0: all-32
+  DEF capture proved Sleeper's projection rows carry only TD *components*
+  (never the aggregates our table prices) — `normalize_def_stat_line` folds
+  them in with aggregate-wins/components-sum discipline; 11 DEFs corrected
+  +6..+18 (Rams 114→132), DEF replacement 99→103. #000: FP's payload serves
+  receptions as `rec_rec`, which the map dropped — every FP number lacked
+  reception points (WR 0.824/TE 0.810 → 1.039/1.059 after exact recovery; the
+  RB ~1.00 "control" was two errors cancelling). Board regenerated through the
+  real generators, baseline v18 frozen under the ruling, 13 new pins, suites
+  green, verify 7/7. Records appended to #0/#000 below; evidence chains in
+  `draft/audit/projection_correctness_2026-08-16.md`.
+
+- **own_model_v6 PROMOTION — Cory 2026-08-16 "YES on V6" → APPLIED**
+  (upgrading his same-day v4 acceptance). v6 = v4's QB arm byte for byte +
+  v5's component arms at RB/WR/TE (usage x efficiency x availability, with
+  the week-1 vegas tilt and the target-share/pace features his addendum
+  mandated); cleared REC-3 at ALL four positions with nothing tuned in the
+  composition. v5 alone failed exactly the QB Spearman cell (+0.0006 fold
+  margin — the fragility its prereg named). Executed: own_projections.py v6
+  layer live; vegas store extended to 2026 (week-1 lines cover all 32
+  teams, the §7 deployment prerequisite); board column refreshed (424
+  players, provenance own_v6); REC-3 regenerated via learning_loop.py with
+  v5+v6 candidate records; opening script regenerated;
+  test_own_projections_v6_live.py repinned (arithmetic tripwire recomputes
+  the v5 ensemble by hand from V5_CONFIG). Role unchanged: display-only
+  third opinion; proj_mean composition stays blocked on REC-2 (January
+  2027). Honesty note carried: 2025 read three times in this lineage.
+- **ROOM_MIX_PRIOR — Cory 2026-08-16 "YES on room mix prior, turn it on" →
+  flipped TRUE** (survival.js). Unprofiled-seat position probabilities now
+  blend the league's measured bucket mix (forward-tested on 2025; per-owner
+  terms excluded as non-persistent) at the existing 0.25 weight; survival
+  moves ≤3.1pp. Baseline v17 frozen under the ruling; room_prior.test.js
+  repinned to the ruled default with the off-arm still proven.
+- **own_model_v4 PROMOTION — Cory 2026-08-16 "Yes on v4" → APPLIED.** The
+  first REC-3 bar clear (all four positions, both metrics, preregistered).
+  `proj_ownmodel` now runs the v4 construction (`draft/own_projections.py`,
+  graded modules imported, zero network, v1 core kept as rollback), board
+  label own_v4, committed board column refreshed + verified against a fresh
+  run by test. Still display-only: composition entry vs Sleeper stays
+  blocked on the January 2027 grade (REC-2). Caveats on the record in
+  REC-3's regenerated entry.
+- **VONA_WIRE_BENCH — Cory 2026-08-16 "Yes" → flipped TRUE** (engine.js), test
+  pins updated to the ruled state, baseline v16 frozen with the ruling as its
+  `_why` (v15 stays on the books as the pre-ruling reference).
+- **Scoring-gap ADP correction — Cory 2026-08-16 "No" → CLOSED**, per the
+  report's own recommendation ($0.00 through the certified grader).
+- **KOV_MEASURED_RAMP — Cory 2026-08-16 "Yes" → flipped TRUE** (composite.js).
+  Keeper value now prices where this league actually keeps from (rounds 4-6
+  peak, zero in 10-15); every KOV test suite rewritten to the measured shape
+  with the rollback path still pinned behind the flag.
+- **Pick-33 headline ownership — Cory 2026-08-16 "Yes? If you think so" →
+  THE SEAT PLAN OWNS THE HEADLINE** wherever it speaks (verdict.js): a
+  personal-list pin first, then the plan's answer with the value pick always
+  printed as the priced second line, rule/value doctrine unchanged where the
+  plan is silent. 9 new fidelity pins (ui_fidelity_verdict 40/40).
+
+- Deploy policy — Cory's "find the happy medium" → DEPLOY-POLICY.md rewritten,
+  blanket freeze retired.
+- Learning loop — Cory's "We need to fix!!!" → REC-1 measured proj_sd LIVE
+  (decision arm re-verified on the fresh board), read-side wired.
+- Pre-draft phantom availability — Cory's Nacua ruling → survival filter live.
+- FP-archive Week-1 source prior — Cory's "Yes! If it works" → preregistered
+  gates said NO (error scale doesn't transfer); flat start stands, negative
+  pinned.
+
+---
+
 # OPEN — needs a decision, or is blocked and waiting
 
+## 💰 HISTORICAL PLAYER-PROPS STUDY — harness built and tested, NO ruling needed yet (Fable, 2026-08-16)
+
+**Not a ruling item — an OPEN note, because there is nothing to rule on
+until real data exists and is graded.** Cory asked repeatedly whether
+paying for historical betting/player-props data would improve projections
+(verbatim in `draft/audit/historical_props_study_2026-08-16.md` §0); he has
+activated a paid ODDS_API_KEY. **Access is CONFIRMED LIVE** (`key-probe.yml`
+on `main`, run `31967817943`: historical events list AND the
+`player_pass_yds` player-prop market both returned HTTP 200 with real data,
+6 bookmakers, `x-requests-remaining: 99988` — confirms the ~100,000/mo
+plan). The FULL pipeline — fetch tool, GitHub Actions workflow, line->points
+conversion, season aggregation, and the graded comparison against `own_v6`
+— is built and tested against synthetic fixtures shaped exactly like the
+confirmed real API response. **NO real historical prop line has been
+fetched and NO real grade exists.** The real 3-season fetch costs real
+money (~49,068 credits total, ~49% of the confirmed 100K/mo plan) and is a
+human decision, queued at `ROUTES.md` TO:A, marked COSTS REAL API CREDITS —
+DO NOT AUTO-FIRE. Once dispatched, `python3 draft/tools/props_season_projection.py`
+is the entire remaining step to get a real, trustworthy verdict — already
+tested, one command. Full detail, the preregistered form, and the exact
+budget math: `draft/audit/historical_props_study_2026-08-16.md`.
+
+## 🪜 ENGINE ABLATION — the prepared off-flips await your ruling (A, 2026-08-16; experiment was your ask, removal is your call)
+
+**Your experiment, verbatim: "Take the current complete engine and decompose its
+advantage against a simple baseline using controlled ablations. Should we try
+this? And anything that doesn't hurt model could be removed?" It is run — two
+frames (120-paired-seed sim ladder under both replacement rulers +
+40-seed ADP-room robustness, and the 2023-25 draft-replay harness for the
+rails), every CFG-gated layer one at a time, full record in
+`draft/audit/engine_ablation_2026-08-16.md`. Nothing has been removed; the
+gated off-flip diffs are PREPARED in §8 of that doc, one per FREE/HURTS
+layer, and this item is the queue for your ruling on each.**
+
+1. **`VONA_WIRE_BENCH`** (your 2026-08-16 "1. Yes" ruling) — measured DEAD
+   CODE on the shipped scoring path: it lives inside `vona()`'s slot-aware
+   bench branch and `VONA_SLOT_AWARE` (a separately-ruled OFF flag) short-
+   circuits before ever reaching it. The flag you ruled on currently changes
+   nothing the engine recommends (0/120 rooms diverged, deltas exactly
+   0.0000, pinned by test). Two ways to resolve: flip it back off
+   (housekeeping — matches what it actually does today) or finish
+   `VONA_SLOT_AWARE` so the branch is reachable (it then measures HURTS in
+   this frame, §3/§4 — recommend against that path). **This needs your
+   ruling regardless of the rest of the queue.**
+2. **`KOV_MEASURED_RAMP`** (your 2026-08-16 "3. Yes" ruling) — FREE, sign
+   flips between the zero-replacement and wire-floor season rulers
+   (+0.48/−0.22 wk). The measured shape's real evidence (EXP-KEEPER-OPTION on
+   real keeper history) is untouched by this cell — reopening this ruling
+   should weigh that, not this measurement alone.
+3. **`ROOM_MIX_PRIOR`** (your 2026-08-16 "YES on room mix prior" ruling) —
+   FREE, and self-referentially so: the sim's opponent generator uses this
+   same prior, so ablating it here cannot measure real-room accuracy by
+   construction. The real evidence (2025 forward test, log-loss 1.408 vs
+   1.479) is unaffected.
+4. **`stack` weight (MEASURED_WEIGHTS.stack, D10)** — FREE, structurally
+   invisible to this season model (mean-only, constant sd) which cannot see
+   stack's measured correlation/ceiling payoff (exp6, +$196) by construction.
+5. **`CEILING_TIEBREAK`** — the one layer CI-clear HURTS on its own (not a
+   bracket artifact), but at ~0.01 wk — an order of magnitude below every
+   other row's resolution — and it disagrees with the 40-seed ADP room
+   (FREE there). Lowest-priority candidate.
+
+**Two layers earn their keep cleanly and are NOT in this queue** — recommend
+leaving `kov_term` (the whole keeper-option weight) and `opportunity` (the
+board-level nflfastR adjustment) exactly as shipped; both are CI-clear
+positive in every configuration this pass ran.
+
+**Read §6 of the audit before ruling on any of these:** several layers
+measure FREE in a frame that structurally cannot see their payoff
+(ROOM_MIX/conservation are priced against a room made of our own model; KOV
+pays next season; stack pays in correlation a mean-only season model can't
+see; run detection/drift/owner tendencies are dark insurance the sim never
+visits). FREE-in-frame is a necessary fact, not a sufficient one — the doc
+says which zeros are structural facts and which are frame limits, per layer.
+The onesie discount/cap deliberately have NO diff prepared: the replay frame
+prices the hard cap at +27 to +81 pts/season on real history while the sim
+cell reads FREE — preparing a removal diff there would be exactly the
+"manufacture a decision the evidence says hold" pattern the roster-
+construction pass named.
+
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
+
+> **✅ SUPERSEDED later the same day — the capture path now EXISTS and was
+> fired for real.** `.github/workflows/draft-night-sync.yml`: dispatch it when
+> the draft opens (paste the Sleeper draft_id), it polls every 20s and commits
+> each pick. Verified by two REAL runs in dry-run mode against a completed
+> historical draft — the first run caught a genuine bash -e bug that had made
+> its own retry logic dead code, fixed, re-verified. THE ONE REMAINING MANUAL
+> STEP, unchanged and worth repeating: **someone must dispatch it when the
+> draft opens on the 22nd** — deliberately not automatic (a snake draft's
+> start time isn't predictable). The heading is kept verbatim per this file's
+> no-delete rule; the body below is the state BEFORE the workflow existed.
 
 **Checked because Cory asked to "hammer down predictions, snapshots, grades, and
 closing the loop." The capture machinery for GRADING the draft after the fact is
@@ -70,6 +305,15 @@ a very small, very safe build once the budget question resolves — Cory's call 
 timing, not mine to just ship given the open budget interaction.
 
 ## 🚨 URGENT, SUPERSEDES THE ORIGINAL VERSION OF THIS ENTRY — THE DEPLOY GATE WAS BACKWARDS, TWO REAL DEPLOYS ALREADY HAPPENED (Cory research relay, 2026-08-15)
+
+> **✅ SETTLED later the same day, Cory's ruling ("find the happy medium") —
+> no decision remains here.** The blanket-[skip deploy] freeze this entry
+> instituted is RETIRED; `DEPLOY-POLICY.md` was rewritten from scratch and is
+> the single authority (served-path changes deploy when they land on main,
+> every deploy path verified — including the previously-unchecked nightly bot
+> push, which now polls its own deploy in-run; Aug 20-22 the build reserve is
+> untouchable). Kept verbatim below per the no-delete rule as the record of
+> WHY the rewrite happened.
 
 **The original version of this entry (below the line) said "no commit carries a
 [deploy] marker, nothing was pushed to main, the budget hasn't moved." That was
@@ -155,6 +399,50 @@ almost immediately after it was written, as this whole session's `git push origi
    is staged on the research branch specifically so it can wait for that check
    without costing anything.
 
+## THE 50/50 TIE-BREAK LEAN — one measured feature, one prepared diff (A, 2026-08-16) 🔴 OPEN
+
+- **WHAT WAS FOUND** (preregistered study, `draft/audit/edge_hunt_2026-08-16.md`
+  §1 prereg / §3 results; artifact `draft/data/fifty_fifty_study.json`; Cory's
+  mandate verbatim: *"Is it in the actual roster construction? Is it in the
+  50/50 picks? Find it, beat it, prove it, implement it."*). Across 259
+  historical near-tie picks (2023-25; 30 replay toss-ups + 229 the room's own
+  drafts revealed), **eight of nine pick-time-knowable features predicted the
+  winner of a 50/50 NOT AT ALL** — age (n=133, 48.9%), experience (n=101),
+  prior games missed (n=142), TD-share (n=195), team change (n=59), prior ppg
+  (n=195), weekly boom/bust cv (n=184), depth-chart proxy (n=79). **One
+  feature cleared the preregistered bar: last season's late-window trajectory
+  — in 176 toss-ups the hotter-finishing player won 58.0% (Wilson CI
+  50.6-65.0%).** Same direction in both pair sources and every band; it is
+  also the exact mechanism the draft replay measured from the other side
+  (walk-forward boards under-rank ascending players — where Cory's own reads
+  beat the model three years running).
+- **THE HONESTY LINE, both halves printed:** it clears the preregistered
+  per-feature rule (CI excludes .50, n ≥ 30) and it does NOT clear
+  multiplicity (nine features tested; two-sided p = .035, Bonferroni ×9 =
+  .31). The weeks-won secondary outcome sits at exactly .500. This is a
+  LEAN, not a law, and the prepared fact's own printed text says so.
+- **WHAT IT IMPLIES.** The war room's toss-up facts (market/byes/age/depth)
+  print nothing that measurably decides a 50/50; the one thing that measured
+  anything is not printed. The bigger half of the finding needs no ruling at
+  all: **50/50s are true coin flips on this league's record — stop sweating
+  them at the table.**
+- **MAGNITUDE.** A 58/42 lean applied to the ~2-4 genuine toss-ups a draft
+  produces — order of one better pick every couple of drafts. Small, priced
+  honestly, and free (the facts panel already exists).
+- **CONFIDENCE.** Preregistered, n stated everywhere, CI-clear once, fails
+  Bonferroni; both pair sources agree in direction. Medium-low.
+- **COST OF INACTION.** Zero measurable points; the panel keeps printing
+  unmeasured facts first.
+- **RECOMMENDATION.** Apply the prepared diff (§3.1 of the audit doc:
+  trajectory fact FIRST in `tiebreakFacts` + the one `late_trajectory` board
+  field) with its measured-strength wording, OR explicitly decline and keep
+  the null as the standing answer. Either ruling closes this. **Nothing is
+  applied until you say so.** — The companion variance-portfolio study
+  (same audit doc, §2/§4) came back NULL under its own prereg rule
+  (variance-tilting buys ~$5/season of weekly-high money, real but not
+  batch-stable; anti-tilt loses $7 CI-clear) — **no diff prepared there, no
+  ruling needed; recorded for the trail.**
+
 ## 000. THE TWO PROJECTION SOURCES DISAGREE BY POSITION, SYSTEMATICALLY (2026-08-12) 🔴 OPEN
 
 - **WHAT WAS FOUND.** Median per-player ratio of `proj_fantasypros` to
@@ -193,6 +481,40 @@ almost immediately after it was written, as this whole session's `git push origi
   raw numbers before it ever reaches our scoring table — the same class of confound
   the anchor decision (#1) already found and resolved for ADP (MFL's full-PPR tilt).
   That is the first thing I would check, not a certainty.
+- **✅ FIXED WITH EVIDENCE 2026-08-16 — Cory's ruling, verbatim: "Don't agree
+  with timelines we fix now" (overriding this entry's own diagnose-don't-rescale
+  caution AND the network block).** The blocked diff was run for real: a CI
+  probe (`draft/proj_correctness_probe.py`, dispatched where egress works)
+  committed FP's raw 2026 payload alongside Sleeper's component rows
+  (`draft/audit/proj_correctness_evidence_2026-08-16.json`). **The mechanism is
+  neither of the entry's candidate stories:** FP serves receptions under the
+  field name `rec_rec` (all 437 receiving rows; `rec`/`receptions` appear
+  nowhere), `_FP_STAT_MAP` maps only `rec`/`receptions`, so every
+  `proj_fantasypros` was scored with receptions DROPPED. WR/TE lost ~19-25% of
+  their total (the measured 0.824/0.810); QBs had nothing to lose (1.001); and
+  the RB control that stalled this diagnosis was two effects cancelling — RBs
+  lost their reception points too, masked by FP's genuinely higher rushing
+  volumes (post-fix RB ratio 1.138). Proof the recovery is exact: mapped stats
+  + 0.5×rec_rec reproduces FP's OWN `points_half` with median error 0.00 (IQR
+  ±0.01) across 249 board WR/TE — receptions were the whole gap, and the fix is
+  FP's exact number recovered, NOT a rescale (a position factor would have
+  erased FP's real, independent reception opinions — e.g. Chase 121 vs
+  Sleeper's 109). Fix live in `draft/adp.py recover_fp_dropped_stats()`
+  (deliberately not a backtest-module edit — the FP ARCHIVE endpoints
+  exp_fp_hist_proj graded DO serve `rec`, which is why the historical grades
+  showed near-zero WR/TE bias while the live column was broken); board column
+  recovered on 309 players via
+  `draft/tools/apply_projection_correctness_2026_08_16.py` (double-preflighted:
+  refuses unless the evidence reproduces the committed board AND the offline
+  downstream re-run reproduces the build); 13 pins in
+  `draft/tests/test_projection_correctness.py`; baseline v18 frozen under the
+  ruling. New live ratios QB 1.001 · RB 1.138 · WR 1.039 · TE 1.059 — genuine
+  source disagreement on compatible units, averaged per this entry's own
+  standing rule, no further correction applied. **Caveat that outlives the
+  fix:** `proj_series.json`'s FP snapshots dated 2026-08-09..08-15 carry the
+  defect and are frozen/append-only — the January 2027 grade must use FP rows
+  from 08-16 onward or account for it. Full chain + top-30 consensus movement
+  table: `draft/audit/projection_correctness_2026-08-16.md`.
 
 ## 0. DEF PROJECTIONS ARE 12 POINTS SHORT — `def_fum_td` maps to nothing (2026-08-11) 🔴 OPEN
 
@@ -251,6 +573,39 @@ almost immediately after it was written, as this whole session's `git push origi
   components-vs-aliases distinction from the original write-up still holds: sum
   real components, first-writer-wins on aliases, never both.
 - Full arithmetic: `draft/audit/rule12_statline_check_2026-08-11.md`.
+- **✅ FIXED WITH EVIDENCE 2026-08-16 — Cory's ruling, verbatim: "Don't agree
+  with timelines we fix now" (overriding this entry's own fix-it-AFTER-the-draft
+  recommendation).** The re-check's ready-to-run plan was executed exactly: a CI
+  probe fetched the raw projection rows for ALL 32 defenses and the full key
+  census (`draft/audit/proj_correctness_evidence_2026-08-16.json`), the capture
+  proven to be the build's own input record (all 32 rescore to the committed
+  board to the cent) before anything moved. **The census settles the trap this
+  entry recorded:** the aggregates `def_td` / `def_st_td` / `fum_rec_td` appear
+  in ZERO of the 32 projection rows — only components do (`def_fum_td` 1 row,
+  `pass_int_td` 4 — the predicted "def_int_td-style key", found under a
+  different spelling — `def_kr_td` 4, `pr_td` 5) — so mapping components into
+  the aggregates cannot double-count any row Sleeper serves, and the
+  aggregate-wins/components-sum discipline is pinned by test for the payload
+  that could. Also corrected from the 2026-08-15 re-check: `def_kr_td: 0.0` in
+  the league table is duplicate-suppression, not "this league does not reward
+  return TDs" — the league prices the AGGREGATE `def_st_td` at 6.0, so a
+  projected DST return TD is worth 6 and was also silently zero. Fix live in
+  `draft/scoring.py normalize_def_stat_line()` (+`DEF_PROJ_TD_ALIASES`) applied
+  by `projections.baseline_from_projections` to DST rows only (individual
+  returners carry the same keys and correctly stay at the league's st_td 0.0 —
+  measured, pinned). Board regenerated through the real generators
+  (`draft/tools/apply_projection_correctness_2026_08_16.py`, double-
+  preflighted): 11 defenses corrected +6..+18 (Rams 114 → **132** — the
+  original −12 plus a kick-return TD the one-row sample couldn't see), DEF
+  replacement 99.0 → 103.0, every DEF vorp moved, DEF order genuinely changed
+  (NE/MIN/JAX into the top six; PHI/DEN/BAL out). Rams recomputed by hand +
+  all-32 no-double-count sweep vs Sleeper's own implied totals:
+  `draft/tests/test_projection_correctness.py` (13 pins). Baseline v18 frozen
+  under the ruling. Full chain: `draft/audit/projection_correctness_2026-08-16.md`.
+  **Left on the record, not fixed here:** K/DEF remain single-source on the
+  board, but the same capture shows FantasyPros DOES serve full DEF projections
+  (def_td/def_sack/def_int/def_pa_* on 32 rows) — a second DEF opinion is now
+  demonstrably obtainable, unruled, unbuilt.
 
 ## 2. REGRESSION / SHRINKAGE WEIGHT: over-regresses — ACCURACY+OVERFITTING GATE CLEARED, $ pending (2026-08-10)
 - **✅ CV UPDATE (exp_regression_cv):** the gate exp35 set ("leave-one-season-out CV")
@@ -692,6 +1047,76 @@ window] → (4) betting LEVEL [lowest, only if movement proves out].
   early/mid-draft pre-cap; does give a tested, history-grounded adjustment to
   when the cap relaxes. Awaiting Cory's go/no-go, not yet applied.
 
+## ROOKIE CAPITAL PRIOR → LIVE OWN-MODEL COLUMN — ⚠️ NULL RESULT, NOT RULING-READY (A-lane league benchmark, corrected 2026-08-16) 🟡 OPEN, DOWNGRADED
+
+> **⚠️ AUDIT CORRECTION, 2026-08-16 (later pass) — this item was written as
+> a "clears, apply?" ruling-ready decision. It is not. The clearing claim
+> it was based on does not reproduce from the committed code — a
+> data-integrity finding, full forensics in
+> `draft/audit/league_benchmark_2026-08-16.md` §9. Fresh, deterministic,
+> repeatedly-reproduced regeneration of the exact committed replay code
+> gives pooled optimal `cory_gap_change: +1.6` (≈2.4% of the Cory gap),
+> not the originally-reported +25.1 (38%) — the layer FAILS its own
+> preregistered clearing bar (needed ≥25% / ≥16.4 pts, or a ≥2-seat pooled
+> league-position lift on the optimal arm; actual lift: 0 seats). No code
+> bug was found on investigation (fit and overlay both reproduce
+> byte-identically; the divergence traces to one seat-1 2025 draft-pick
+> swap between two veterans, neither a rookie, that cannot be reproduced
+> from any currently-committed input — see §9 for the full elimination).
+> **The prepared diff below is NOT backed by a passing grade.** The
+> original text is kept below, struck through, not deleted, per this
+> repo's standing correction discipline — do not act on it as written.
+
+~~**The decision:** apply `draft/tools/apply_rookie_prior_own_model_2026.py`
+to the committed board, or don't. **Prepared and refusing to run without
+your recorded approval** (`--cory-approved "<your words>"`), per the
+league benchmark's preregistered clearing bar.~~
+
+~~**Why it's on the queue:** your "does model lose to everyone or just mine"
+replay (`draft/audit/league_benchmark_2026-08-16.md`) graded three
+candidate layers through the all-seats replay under preregistered forms.
+The rookie draft-capital prior CLEARED (pooled optimal-arm Cory gap
+−65.7 → −40.5/season, +25.1 = 38% of the gap, bar was 25%; realistic-arm
+league position 2/10 → 4/10 owners beaten) — with the help concentrated in
+the 2025 replay (+86) and 2024 slightly negative (−10.6), both in the doc.
+The other two layers did NOT clear (year-2 escalator failed its bar and
+its own measurement; roster-status is already priced on the live board —
+verified, nothing built).~~
+
+**What's actually true, corrected:** the rookie draft-capital prior does
+NOT clear. Pooled optimal-arm Cory gap −65.65 → **−64.05**/season, change
+**+1.6 = 2.4%** of the gap (bar was 25% / ≥16.4 pts) — fails bar 1; pooled
+beats-n on the optimal arm stays **3 → 3** (no seat-position lift) — fails
+bar 2 too. (The realistic arm's beats-n does lift 2 → 4, but the
+preregistered bar is defined on the optimal arm only, so that doesn't
+count.) The other two layers' verdicts are unaffected by this correction
+and stand as originally reported: year-2 escalator did NOT clear (failed
+its bar and its own measurement); roster-status is already priced on the
+live board — verified, nothing built.
+
+**What apply would still change, mechanically, if approved anyway:** the
+live board's own-model column (`proj_ownmodel`) carries 0 of 153 rookies
+today. The script fills it for the 71 NFL-drafted board rookies from the
+capital prior fit on classes 2021–25 (dry-run table in the script; UDFAs
+stay null, named). It touches NO blend/replacement/VORP/rank field — no
+pick recommendation moves. This mechanical description was never wrong;
+what's wrong is presenting it as evidence-backed by a clearing grade — it
+is not.
+
+**Options, corrected:** (1) approve the column patch anyway, on the
+argument that a rookie-visible own-model column is a defensible thing to
+have regardless of this specific replay grade (own-model column stops
+being silently blind to rookies, draft-night surfaces show an own-model
+rookie opinion) — but this is a judgment call made WITHOUT the performance
+evidence originally claimed, and should be recorded as such if taken; (2)
+leave it — the market columns already price rookies and the engine reads
+the blend, so declining costs no live pick quality today, and this is now
+the evidence-consistent default; (3) treat the rookie hole as still open
+research — the layer's FORM (capital buckets, walk-forward fit) may not be
+the right one even though the underlying "no rookies on the board" defect
+is real; a re-prereg with a different form is a legitimate next step, not
+attempted here.
+
 ---
 
 # RESOLVED / HISTORICAL — kept for the audit trail, not action items
@@ -978,3 +1403,11 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
+
+## KOV RAMP SHAPE — MEASURED HISTORY INVERTS THE SHIPPED KEEPER RAMP (A, 2026-08-15) 🔴 OPEN
+
+- **THE QUESTION.** Flip `CFG.KOV_MEASURED_RAMP` (composite.js, built today, ships FALSE) or keep the reasoned ramp? The keeper term is LIVE at weight 1.0 in `MEASURED_WEIGHTS`, so this shapes real late-round tie-breaks on the 22nd.
+- **THE MEASUREMENT** (`draft/backtest/exp_keeper_option.py`, preregistered; the league's own 450 picks + keeper designations 2023-25, realized points under our scoring): keeper-option value by the round a pick was made = **+7.1 pts (rounds 4-6) / +1.4 (7-9) / −1.1 (10-12) / 0.0 (13-15 — zero of 31 such picks were EVER kept)**. The shipped ramp is the inverse: zero credit through round 6, maximum by round 12. Full working: `draft/audit/roster_construction_audit_2026-08-15.md` §B.4, artifact `draft/backtest/exp_keeper_option.json`.
+- **ALSO IN THE SAME MEASUREMENT, no action proposed:** keeping paid overall (+23.5 mean over the forfeited round) but the round-1 keeper slot returned NEGATIVE (−11.7 mean, 39.3% positive, n=28) — the value of keeping three lives in slots 2-3. Worth knowing before keeper lock on the 21st; the current Chase+Henry+Walker slate was separately optimized (EXP-KEEPER-NABERS) and this does not reopen it.
+- **CAVEATS, stated:** two keep transitions, ~40 keep events; behavior-revealed (what managers chose to keep), not counterfactual-optimal; sub-n=10 cells reported but not trusted. That is why it ships OFF.
+- **COST OF INACTION:** the live keeper term keeps leaning late-round near-ties toward players whose keeper option, in three real seasons of this league, was never once exercised.

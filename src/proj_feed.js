@@ -66,6 +66,58 @@ function reason(row, week, byeOf) {
   return null;
 }
 
+/* ── THE SOURCE SWITCH (Cory, 2026-08-16: "Make a way for me to easily switch
+ * between models in the site!") ──────────────────────────────────────────────
+ *
+ * The board carries THREE season totals per player (proj_mean = the blend the
+ * tools have always used, proj_sleeper, proj_fantasypros), all scored under the
+ * one scoring table at build time. The switch chooses which of them this feed's
+ * season rate derives from — set on /admin/model-scoreboard, stored in the
+ * `model_controls` league doc, read here and NOWHERE ELSE, so every consumer of
+ * the feed changes together. Default 'blend' IS current behavior. The basis
+ * string always names the source, so a January read can tell which regime
+ * priced any given week.
+ *
+ * What this deliberately is NOT: a switch of the draft board's proj_mean
+ * composition (REC-2 blocks that until the January 2027 grade) and not a live
+ * weekly provider feed — every option here is a season-total rate; true weekly
+ * provider numbers exist only in the Thursday archive, where they are GRADED
+ * (draft/weekly_own_grade.py) so this switch can one day be flipped on
+ * evidence instead of vibes.
+ */
+var PROJ_SOURCES = ['blend', 'sleeper', 'fantasypros', 'sleeper_fp_average'];
+
+/* The validated source out of a model_controls doc (or anything else).
+ * Unknown/absent -> 'blend', the default, out loud rather than by accident. */
+function sourceFromControls(doc) {
+  const s = doc && doc.projection_source;
+  return PROJ_SOURCES.indexOf(s) >= 0 ? s : 'blend';
+}
+
+/* The season total a source assigns this player: { value, from }. `from` names
+ * the actual field(s) used, because sleeper_fp_average degrades honestly: both
+ * present -> their mean; one present -> that one, SAYING SO; none -> absent. */
+function seasonTotal(player, source) {
+  if (source === 'sleeper') {
+    return { value: player.proj_sleeper == null ? null : Number(player.proj_sleeper),
+      from: 'proj_sleeper' };
+  }
+  if (source === 'fantasypros') {
+    return { value: player.proj_fantasypros == null ? null : Number(player.proj_fantasypros),
+      from: 'proj_fantasypros' };
+  }
+  if (source === 'sleeper_fp_average') {
+    const s = player.proj_sleeper == null ? null : Number(player.proj_sleeper);
+    const f = player.proj_fantasypros == null ? null : Number(player.proj_fantasypros);
+    if (s != null && f != null) return { value: (s + f) / 2, from: 'avg(proj_sleeper,proj_fantasypros)' };
+    if (s != null) return { value: s, from: 'avg:proj_sleeper_only' };
+    if (f != null) return { value: f, from: 'avg:proj_fantasypros_only' };
+    return { value: null, from: 'avg(proj_sleeper,proj_fantasypros)' };
+  }
+  return { value: player.proj_mean == null ? null : Number(player.proj_mean),
+    from: 'proj_mean' };
+}
+
 /* ONE PLAYER'S WEEKLY NUMBER.
  *
  * Returns { proj, basis, zeroed_because } — never a bare number, because a bare
@@ -77,8 +129,8 @@ function weekly(player, opts) {
   if (!player) return null;
   const why = reason(player, o.week, o.byeOf);
   if (why) return { proj: 0, basis: 'zeroed', zeroed_because: why };
-  const season = player.proj_mean;
-  if (season == null) {
+  const st = seasonTotal(player, sourceFromControls({ projection_source: o.source }));
+  if (st.value == null) {
     // NOT ZERO. A player the board has no projection for is unknown, and a zero
     // here would seat everyone else ahead of him for a reason the board never
     // stated. absent-is-not-zero, which this project has now been bitten by
@@ -86,8 +138,8 @@ function weekly(player, opts) {
     return { proj: null, basis: 'absent', zeroed_because: null };
   }
   return {
-    proj: Math.round((Number(season) / PROJ_GAMES) * 100) / 100,
-    basis: 'season_rate:proj_mean/' + PROJ_GAMES,
+    proj: Math.round((st.value / PROJ_GAMES) * 100) / 100,
+    basis: 'season_rate:' + st.from + '/' + PROJ_GAMES,
     zeroed_because: null,
   };
 }
@@ -119,6 +171,9 @@ function buildFeed(players, opts) {
   return {
     week: o.week == null ? null : Number(o.week),
     season: o.season == null ? null : String(o.season),
+    // The regime that priced this feed — set on /admin/model-scoreboard,
+    // stamped here so a January read never has to guess which switch was live.
+    source: sourceFromControls({ projection_source: o.source }),
     // COVERAGE IS FIRST-CLASS, not a log line. A feed that prices 40 of 1760 is
     // well-formed and useless, and the caller cannot tell without this.
     coverage: { priced: priced, zeroed: zeroed, absent: absent,
@@ -176,4 +231,5 @@ function matchupGap(mine, theirs) {
   };
 }
 
-module.exports = { PROJ_GAMES, CANNOT_PLAY, weekly, buildFeed, rosterProjections, matchupGap };
+module.exports = { PROJ_GAMES, CANNOT_PLAY, PROJ_SOURCES, sourceFromControls,
+  seasonTotal, weekly, buildFeed, rosterProjections, matchupGap };

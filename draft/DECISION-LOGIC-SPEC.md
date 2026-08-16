@@ -461,7 +461,7 @@ winning the head-to-head rewards a high floor. So the dollar-optimal lineup is
 it is priced in dollars per lineup call. **[MEASURED]** motivation: a
 `replayEfficiency()` backtest reproduces the league's realized-vs-optimal figures
 on 2023–25 to the decimal, and the optimal-in-hindsight lineup would have earned
-each team **$445–595/season more** than they actually collected in weekly-high +
+each team **$520–637.50/season more** than they actually collected in weekly-high +
 regular-season money. That is the size of the prize this tool chases.
 
 ### B1. Inputs
@@ -635,7 +635,7 @@ dollars:
 - **Stacking earns ~+$196/season at weight 0.5, on a measured QB↔WR ρ = 0.357** —
   the one constructive adjuster.
 - **Tier, risk, and bye are drag-or-null** and are turned off for that reason.
-- **In-season: hindsight-optimal lineups left $445–595/season on the table**, and
+- **In-season: hindsight-optimal lineups left $520–637.50/season on the table**, and
   the optimizer reproduces the historical efficiency figures to the decimal.
 
 The one thing we will not claim: that our *projections* are better than the public

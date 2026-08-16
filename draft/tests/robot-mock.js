@@ -1072,8 +1072,41 @@ if (!IS_FIXTURE) {
     check('R-doctrine: the announcement is framed in dollars and names the cause',
       announcements.length === 1 && /\+\$\d/.test(announcements[0].sentence)
       && /QB run/.test(announcements[0].sentence), (announcements[0] || {}).sentence);
+    // BOARD-VALUE DRIFT, NOT A HYSTERESIS BUG (diagnosed 2026-08-16, see
+    // draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern): this
+    // assertion used to also require b.switched === false, i.e. that the
+    // PRE-run pick (`a`, scoresFull, liveIndex 3, no QB owned) left the
+    // challenge counter at zero so the run needed two full post-run reads
+    // (b, c) to flip. e993e1de (FP-dropped-receptions fix; ratios
+    // WR 1.039 / TE 1.059 vs QB 1.001 "untouched") raised the unconstrained
+    // top-of-board price (an RB/WR) relative to the best available QB, so on
+    // THIS board early_qb already trails `balanced` by >noiseBand at `a`,
+    // before any run — the challenge counter is already 1 going into `b`.
+    // Verified this is real board arithmetic, not a state-machine defect: a
+    // FIRST-EVER call to DoctrineState#update can never switch by
+    // construction (picks starts at 1, minPicks=2 gates the flip), which is
+    // exactly what `a.switched === false` below still proves, board-
+    // independently. The switch legitimately lands on `b` now instead of
+    // `c` — still exactly minPicks (2) consecutive same-leader reads, just
+    // with the first of the two counted pre-run instead of post-run.
     check('R-doctrine: the switch waited out the hysteresis window (not the first pick)',
-      a.switched === false && b.switched === false);
+      a.switched === false);
+
+    // Board-independent regression guard for the property itself, so this
+    // doesn't need re-diagnosing every time the board's dollar landscape
+    // moves: a FRESH state never switches on its first update() no matter
+    // how large the lead, and switches on the minPicks-th CONSECUTIVE read
+    // that keeps naming the same challenger.
+    {
+      const fresh = new DD.DoctrineState('early_qb', { noiseBand: E.CFG.DG_NOISE_BAND, minPicks: 2 });
+      const synthetic = { early_qb: 50, balanced: 90 };  // gap 40, far past any noiseBand
+      const first = fresh.update(synthetic, 1);
+      const second = fresh.update(synthetic, 2);
+      check('R-doctrine: a synthetic landslide lead never switches on the first read',
+        first.switched === false, JSON.stringify(first));
+      check('R-doctrine: the same landslide lead switches on the minPicks-th consecutive read',
+        second.switched === true, JSON.stringify(second));
+    }
 
     // Decline: the owner's call wins, the prior doctrine survives, it is logged.
     const prior = 'early_qb';

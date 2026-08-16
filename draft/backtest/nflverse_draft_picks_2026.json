@@ -1,0 +1,811 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by apply_rookie_prior_own_model_2026.py fetch-2026",
+ "_note": "NFL draft class 2026, QB/RB/WR/TE, same trimmed period-correct schema as nflverse_draft_picks.json (career columns dropped). Input to the PREPARED, GATED own-model rookie patch \u2014 see that script's docstring; applying is Cory's call.",
+ "provenance": {
+  "url": "https://github.com/nflverse/nflverse-data/releases/download/draft_picks/draft_picks.csv",
+  "fetched": "2026-08-16",
+  "rows_kept": 80
+ },
+ "picks": [
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 1,
+   "team": "LVR",
+   "position": "QB",
+   "name": "Fernando Mendoza",
+   "gsis_id": "MEN516487",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 3,
+   "team": "ARI",
+   "position": "RB",
+   "name": "Jeremiyah Love",
+   "gsis_id": "LOV121782",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 4,
+   "team": "TEN",
+   "position": "WR",
+   "name": "Carnell Tate",
+   "gsis_id": "TAT143045",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 8,
+   "team": "NOR",
+   "position": "WR",
+   "name": "Jordyn Tyson",
+   "gsis_id": "TYS405541",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 13,
+   "team": "LAR",
+   "position": "QB",
+   "name": "Ty Simpson",
+   "gsis_id": "SIM639376",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 16,
+   "team": "NYJ",
+   "position": "TE",
+   "name": "Kenyon Sadiq",
+   "gsis_id": "SAD482340",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 20,
+   "team": "PHI",
+   "position": "WR",
+   "name": "Makai Lemon",
+   "gsis_id": "LEM694125",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 24,
+   "team": "CLE",
+   "position": "WR",
+   "name": "KC Concepcion",
+   "gsis_id": "CON046719",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 30,
+   "team": "NYJ",
+   "position": "WR",
+   "name": "Omar Cooper Jr.",
+   "gsis_id": "COO816508",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 1,
+   "pick": 32,
+   "team": "SEA",
+   "position": "RB",
+   "name": "Jadarian Price",
+   "gsis_id": "PRI206342",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 33,
+   "team": "SFO",
+   "position": "WR",
+   "name": "De'Zhaun Stribling",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 39,
+   "team": "CLE",
+   "position": "WR",
+   "name": "Denzel Boston",
+   "gsis_id": "BOS677861",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 47,
+   "team": "PIT",
+   "position": "WR",
+   "name": "Germie Bernard",
+   "gsis_id": "BER218265",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 54,
+   "team": "PHI",
+   "position": "TE",
+   "name": "Eli Stowers",
+   "gsis_id": "STO806346",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 56,
+   "team": "JAX",
+   "position": "TE",
+   "name": "Nate Boerkircher",
+   "gsis_id": "BOE586077",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 59,
+   "team": "HOU",
+   "position": "TE",
+   "name": "Marlin Klein",
+   "gsis_id": "KLE258860",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 2,
+   "pick": 61,
+   "team": "LAR",
+   "position": "TE",
+   "name": "Max Klare",
+   "gsis_id": "KLA269938",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 65,
+   "team": "ARI",
+   "position": "QB",
+   "name": "Carson Beck",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 69,
+   "team": "CHI",
+   "position": "TE",
+   "name": "Sam Roush",
+   "gsis_id": "ROU550040",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 71,
+   "team": "WAS",
+   "position": "WR",
+   "name": "Antonio Williams",
+   "gsis_id": "WIL143106",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 73,
+   "team": "NOR",
+   "position": "TE",
+   "name": "Oscar Delp",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 74,
+   "team": "NYG",
+   "position": "WR",
+   "name": "Malachi Fields",
+   "gsis_id": "FIE775129",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 75,
+   "team": "MIA",
+   "position": "WR",
+   "name": "Caleb Douglas",
+   "gsis_id": "DOU210628",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 76,
+   "team": "PIT",
+   "position": "QB",
+   "name": "Drew Allar",
+   "gsis_id": "ALL015451",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 79,
+   "team": "ATL",
+   "position": "WR",
+   "name": "Zachariah Branch",
+   "gsis_id": "BRA531428",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 80,
+   "team": "BAL",
+   "position": "WR",
+   "name": "Ja'Kobi Lane",
+   "gsis_id": "LAN311008",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 83,
+   "team": "CAR",
+   "position": "WR",
+   "name": "Chris Brazzell II",
+   "gsis_id": "BRA836631",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 84,
+   "team": "TAM",
+   "position": "WR",
+   "name": "Ted Hurst",
+   "gsis_id": "HUR541377",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 87,
+   "team": "MIA",
+   "position": "TE",
+   "name": "Will Kacmarek",
+   "gsis_id": "KAC282861",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 89,
+   "team": "CHI",
+   "position": "WR",
+   "name": "Zavion Thomas",
+   "gsis_id": "THO417520",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 90,
+   "team": "SFO",
+   "position": "RB",
+   "name": "Kaelon Black",
+   "gsis_id": "BLA097235",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 94,
+   "team": "MIA",
+   "position": "WR",
+   "name": "Chris Bell",
+   "gsis_id": "BEL267684",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 3,
+   "pick": 95,
+   "team": "NWE",
+   "position": "TE",
+   "name": "Eli Raridon",
+   "gsis_id": "RAR148318",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 105,
+   "team": "LAC",
+   "position": "WR",
+   "name": "Brenen Thompson",
+   "gsis_id": "THO495568",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 108,
+   "team": "DEN",
+   "position": "RB",
+   "name": "Jonah Coleman",
+   "gsis_id": "COL293648",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 110,
+   "team": "NYJ",
+   "position": "QB",
+   "name": "Cade Klubnik",
+   "gsis_id": "KLU066027",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 115,
+   "team": "BAL",
+   "position": "WR",
+   "name": "Elijah Sarratt",
+   "gsis_id": "SAR527100",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 121,
+   "team": "PIT",
+   "position": "WR",
+   "name": "Kaden Wetjen",
+   "gsis_id": "WET055619",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 122,
+   "team": "LVR",
+   "position": "RB",
+   "name": "Mike Washington Jr.",
+   "gsis_id": "WAS797326",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 125,
+   "team": "BUF",
+   "position": "WR",
+   "name": "Skyler Bell",
+   "gsis_id": "BEL597603",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 133,
+   "team": "BAL",
+   "position": "TE",
+   "name": "Matthew Hibner",
+   "gsis_id": "HIB564972",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 136,
+   "team": "NOR",
+   "position": "WR",
+   "name": "Bryce Lance",
+   "gsis_id": "LAN016345",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 4,
+   "pick": 140,
+   "team": "CIN",
+   "position": "WR",
+   "name": "Colbie Young",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 143,
+   "team": "ARI",
+   "position": "WR",
+   "name": "Reggie Virgil",
+   "gsis_id": "VIR271235",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 152,
+   "team": "DEN",
+   "position": "TE",
+   "name": "Justin Joly",
+   "gsis_id": "JOL735174",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 159,
+   "team": "MIN",
+   "position": "TE",
+   "name": "Max Bredeson",
+   "gsis_id": "BRE060106",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 161,
+   "team": "KAN",
+   "position": "RB",
+   "name": "Emmett Johnson",
+   "gsis_id": "JOH224817",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 164,
+   "team": "JAX",
+   "position": "TE",
+   "name": "Tanner Koziol",
+   "gsis_id": "KOZ404039",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 165,
+   "team": "TEN",
+   "position": "RB",
+   "name": "Nicholas Singleton",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 168,
+   "team": "DET",
+   "position": "WR",
+   "name": "Kendrick Law",
+   "gsis_id": "LAW090280",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 169,
+   "team": "PIT",
+   "position": "TE",
+   "name": "Riley Nowakowski",
+   "gsis_id": "NOW373761",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 170,
+   "team": "CLE",
+   "position": "TE",
+   "name": "Joe Royer",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 173,
+   "team": "BAL",
+   "position": "TE",
+   "name": "Josh Cuevas",
+   "gsis_id": "CUE040912",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 174,
+   "team": "BAL",
+   "position": "RB",
+   "name": "Adam Randall",
+   "gsis_id": "RAN022436",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 176,
+   "team": "KAN",
+   "position": "WR",
+   "name": "Cyrus Allen",
+   "gsis_id": "ALL092954",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 177,
+   "team": "MIA",
+   "position": "WR",
+   "name": "Kevin Coleman Jr.",
+   "gsis_id": "COL362413",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 178,
+   "team": "PHI",
+   "position": "QB",
+   "name": "Cole Payton",
+   "gsis_id": "PAY546690",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 5,
+   "pick": 180,
+   "team": "MIA",
+   "position": "TE",
+   "name": "Seydou Traore",
+   "gsis_id": "TRA291459",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 182,
+   "team": "CLE",
+   "position": "QB",
+   "name": "Taylen Green",
+   "gsis_id": "GRE361852",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 185,
+   "team": "TAM",
+   "position": "TE",
+   "name": "Bauer Sharp",
+   "gsis_id": "SHA375359",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 187,
+   "team": "WAS",
+   "position": "RB",
+   "name": "Kaytron Allen",
+   "gsis_id": "ALL532376",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 190,
+   "team": "NOR",
+   "position": "WR",
+   "name": "Barion Brown",
+   "gsis_id": "BRO268113",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 191,
+   "team": "JAX",
+   "position": "WR",
+   "name": "Josh Cameron",
+   "gsis_id": "CAM108646",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 195,
+   "team": "LVR",
+   "position": "WR",
+   "name": "Malik Benson",
+   "gsis_id": "BEN601117",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 197,
+   "team": "LAR",
+   "position": "WR",
+   "name": "CJ Daniels",
+   "gsis_id": "DAN490797",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 198,
+   "team": "MIN",
+   "position": "RB",
+   "name": "Demond Claiborne",
+   "gsis_id": "CLA041524",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 199,
+   "team": "SEA",
+   "position": "WR",
+   "name": "Emmanuel Henderson Jr.",
+   "gsis_id": "HEN199637",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 203,
+   "team": "JAX",
+   "position": "WR",
+   "name": "CJ Williams",
+   "gsis_id": "WIL189259",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 6,
+   "pick": 204,
+   "team": "HOU",
+   "position": "WR",
+   "name": "Lewis Bond",
+   "gsis_id": "BON235618",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 218,
+   "team": "DAL",
+   "position": "WR",
+   "name": "Anthony Smith",
+   "gsis_id": "SMI038569",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 221,
+   "team": "CIN",
+   "position": "TE",
+   "name": "Jack Endries",
+   "gsis_id": "END438361",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 223,
+   "team": "WAS",
+   "position": "QB",
+   "name": "Athan Kaliakmanis",
+   "gsis_id": "KAL252591",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 225,
+   "team": "TEN",
+   "position": "TE",
+   "name": "Jaren Kanak",
+   "gsis_id": "KAN023071",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 234,
+   "team": "NWE",
+   "position": "QB",
+   "name": "Behren Morton",
+   "gsis_id": "MOR767384",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 237,
+   "team": "IND",
+   "position": "RB",
+   "name": "Seth McGowan",
+   "gsis_id": "MCG547540",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 245,
+   "team": "NWE",
+   "position": "RB",
+   "name": "Jam Miller",
+   "gsis_id": "MIL303300",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 248,
+   "team": "CLE",
+   "position": "TE",
+   "name": "Carsen Ryan",
+   "gsis_id": "RYA022232",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 249,
+   "team": "KAN",
+   "position": "QB",
+   "name": "Garrett Nussmeier",
+   "gsis_id": "NUS440041",
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 254,
+   "team": "IND",
+   "position": "WR",
+   "name": "Deion Burks",
+   "gsis_id": null,
+   "sleeper_id": null
+  },
+  {
+   "season": 2026,
+   "round": 7,
+   "pick": 256,
+   "team": "DEN",
+   "position": "TE",
+   "name": "Dallen Bentley",
+   "gsis_id": "BEN687044",
+   "sleeper_id": null
+  }
+ ]
+}

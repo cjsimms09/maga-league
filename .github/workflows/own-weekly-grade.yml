@@ -1,0 +1,120 @@
+name: Own weekly grade (Tuesday — close the loop)
+
+# THE TUESDAY GRADE: every committed own_weekly snapshot not yet graded is
+# scored against real player stats (nflverse stats_player_week release — the
+# fetch pattern, gsis->sleeper crosswalk and frozen scoring table all reused
+# from draft/backtest/fetch_component_stats.py), for OUR arms AND the provider
+# study arms (sleeper / fantasypros / sleeper_fp_average, wherever the
+# Thursday provider archive carries them). The ledger
+# (draft/data/weekly_own/grades_<season>.json) is the learning artifact:
+# per-player rows, per-position MAE + rank correlation, top-5 misses by name.
+#
+# ADAPTATION + THE ALERT (Cory, 2026-08-16: "quick to adapt ... I'd also like
+# an alert or someway to know if model adapted and how"): the grader applies
+# the mechanical promotion rule (weekly_own_grade.decide_promotion — our own
+# arms only, providers are never auto-promoted) and, when the champion
+# changes (mechanically OR by manual override in controls.json), this job
+# opens a GitHub issue with the evidence table — issues email Cory.
+#
+# Tuesday 06:00 UTC: after Monday night ends (~04:30 UTC). If the stats
+# release does not yet carry the full week (>=200 players, >=20 teams), the
+# grader SKIPS it by name and the next Tuesday (or a manual dispatch) catches
+# it — a partial week is never half-graded.
+#
+# DRY RUN: grades for real but writes the ledger to $RUNNER_TEMP, commits
+# nothing, opens no issue.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Grade for real but write to $RUNNER_TEMP, commit nothing, open no issue'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: '0 6 * * 2'   # Tuesdays 06:00 UTC, after MNF
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Python deps (parquet + crosswalk for the actuals fetch)
+        run: pip install -q pandas fastparquet nfl_data_py
+      - name: Grade every ungraded week (all arms, one population)
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -uo pipefail
+          export OWN_WEEKLY_ISSUE_DIR="$RUNNER_TEMP/own-weekly-issue"
+          if [ "$DRY_RUN" = "true" ]; then
+            export OWN_WEEKLY_LEDGER_OUT="$RUNNER_TEMP/weekly-own-grade-dry/grades_dry.json"
+            echo "DRY RUN: ledger goes to $OWN_WEEKLY_LEDGER_OUT, no commit, no issue."
+          fi
+          # Assignment inside the if-test for bash -e safety (the
+          # draft-night-sync.yml lesson).
+          if OUT="$(python3 draft/weekly_own_grade.py 2>&1)"; then
+            echo "$OUT"
+          else
+            echo "$OUT"; exit 1
+          fi
+      - name: Commit the ledger
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/weekly_own/
+          if git diff --cached --quiet; then
+            echo "no change (nothing gradeable yet) — nothing to commit"
+            exit 0
+          fi
+          # Two -m flags, never a multi-line block scalar (the odds-capture.yml
+          # YAML lesson).
+          git commit -m "Own weekly grades $(date -u +%F) [skip deploy]" \
+            -m "Closed-loop grade via own-weekly-grade.yml: all arms, identical populations, top misses by name in the ledger."
+          # DURABLE PUSH (audit round 4: this workflow shipped with the exact
+          # bare-push race draft-night-sync had just fixed — the anti-hindsight
+          # guarantee IS the remote artifact, so an undurable snapshot is no
+          # snapshot). Rebase-retry x5, then verify the pushed SHA is the
+          # remote tip; anything less fails loudly with the orphan SHA.
+          n=0; pushed=0
+          until [ $n -ge 5 ]; do
+            if git push -q; then pushed=1; break; fi
+            n=$((n+1)); echo "push rejected (attempt $n) — rebasing and retrying"
+            git pull --rebase -q || { git rebase --abort 2>/dev/null || true; }
+            sleep $((n * 2))
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "::error::PUSH FAILED — artifact NOT durable on the remote; orphan commit $(git rev-parse HEAD)"
+            exit 1
+          fi
+          REMOTE=$(git ls-remote -q origin "$GITHUB_REF_NAME" | cut -f1)
+          if [ "$(git rev-parse HEAD)" = "$REMOTE" ]; then
+            echo "remote artifact verified: $(git rev-parse HEAD) is the remote tip"
+          else
+            echo "::error::remote verify failed — local $(git rev-parse HEAD) vs remote $REMOTE"
+            exit 1
+          fi
+      - name: Open the adaptation alert issue (emails Cory)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          D="$RUNNER_TEMP/own-weekly-issue"
+          if [ ! -f "$D/promotion_title.txt" ]; then
+            echo "no adaptation this run — no issue to open"
+            exit 0
+          fi
+          gh issue create \
+            --title "$(cat "$D/promotion_title.txt")" \
+            --body-file "$D/promotion_body.md" \
+            --repo "$GITHUB_REPOSITORY"

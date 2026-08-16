@@ -40,6 +40,9 @@
         No live score<%= configured ? ' for this game yet' : ' (Sleeper not connected)' %> — showing the all-time head-to-head.
       </p>
     <% } %>
+    <%# The Tuesday preview line — the pairing's history at a glance (the full
+        head-to-head card is right below; this is the one-breath version). %>
+    <%- include('partials/_preview_line', { prev: (typeof preview !== 'undefined' ? preview : null) }) %>
   </div>
 </div>
 
