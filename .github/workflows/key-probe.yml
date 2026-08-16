@@ -63,5 +63,20 @@ jobs:
             (grep -o '"ticker":"[^"]*"' /tmp/body | grep -i -m 12 'NFL' || echo "  none matching NFL in first page")
           fi
 
+          echo "== SGO market census (1 object) — does the free tier carry player props? =="
+          # Cory's QB hypothesis (2026-08-16) needs prop lines. Cost: limit=1
+          # event = 1 object. Prints oddID stat prefixes + counts, no prices.
+          if [ -n "$K_SGO" ]; then
+            c=$(code -H "X-Api-Key: $K_SGO" "https://api.sportsgameodds.com/v2/events?leagueID=NFL&oddsAvailable=true&limit=1")
+            echo "sgo events?limit=1: HTTP $c"
+            if [ "$c" = "200" ]; then
+              echo "distinct oddID stat prefixes in that one event:"
+              grep -o '"[a-z_+]*-[A-Z_0-9]*-game-[a-z]*-[a-z]*"' /tmp/body \
+                | cut -d'"' -f2 | cut -d- -f1 | sort | uniq -c | sort -rn | head -20
+              echo "player-entity odd rows (PLAYER_ID_1_NFL pattern):"
+              grep -o '"[a-z_+]*-[A-Z_]*_1_NFL-' /tmp/body | sort -u | head -12
+            fi
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
