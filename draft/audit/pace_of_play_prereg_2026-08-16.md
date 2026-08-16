@@ -363,3 +363,56 @@ feature whose forward mechanism link cannot be resolved from zero, that result
 is to be treated as a candidate for chance, not a finding — and it will be
 reported that way. Nothing about the model changes without Cory's ruling in
 either direction.
+
+---
+
+# AMENDMENT 2 — 2026-08-16, written AFTER building §5's harness and BEFORE it ran
+
+Appended, never rewritten. This one is forced by the data, not chosen.
+
+## The registered selection fold does not exist
+
+§5 registered: *"`k` is SELECTED on the 2024 grade (features from 2022/2023,
+outcomes from 2024, tempo from 2023) and applied **unchanged** to the 2025
+grade."* Building it raised `FileNotFoundError` on
+`draft/backtest/nflverse_weekly_points_2022.json`.
+
+**Traced rather than worked around.** A 2024 grade needs `season_totals(2022)`,
+which reads that store. The repo holds **`nflverse_weekly_points_2023.json`,
+`_2024.json` and `_2025.json` and nothing earlier.** Manufacturing the missing
+year is unavailable to this lane twice over: the file sits under C's `nflverse*`
+prefix in `scripts/territory-check.sh`, and a hand-built store would not be the
+one every committed artifact was graded against. **2025 is the only gradable
+fold in this repo** — which is also why `own_model_v4/v5/v6` all grade exactly
+that one season.
+
+## What replaces it, and why the replacement is HARDER to pass, not easier
+
+The whole declared grid `k ∈ {0.25, 0.50, 0.75, 1.00}` is graded on 2025, and
+§5's bar is evaluated against the grid's **best** member by §5's own criterion.
+
+**That member is an IN-SAMPLE OPTIMUM and is labelled as one everywhere it
+appears.** It is not a leak-free win and must never be quoted as one. Its single
+legitimate use is the direction it points:
+
+> **If the best `k` in the declared grid cannot clear §5's bar, no selection
+> rule could have rescued the arm.** A failure here is therefore a STRONGER null
+> than the registered protocol would have produced.
+
+The converse is registered with equal force, so it cannot be claimed later:
+**a pass would prove nothing.** An in-sample maximum over four arms on one
+season is exactly what a chance result looks like, and it would be reported as
+"unresolved, pending a second fold", never as a finding.
+
+**Everything else in §5 is unchanged.** The features remain strictly leak-free
+(2023/2024 features, 2024 tempo, 2025 outcomes — `_assert_no_leak` enforces it
+and would raise). The bar is not weakened. Both controls still run. The grid is
+not widened and no `k` outside the declared set is tried.
+
+## What would lift this limit
+
+One file: a weekly-points store for 2022 (and 2021 for a third fold), built by
+whoever owns `nflverse_*`. `pace_arm.py` keeps `SELECT_FOLD_UNAVAILABLE` as a
+named constant rather than deleting it, so the gap is visible in the code and
+not only in this prose — and so the registered protocol becomes runnable the day
+that store lands.

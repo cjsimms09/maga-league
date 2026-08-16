@@ -197,10 +197,28 @@ def test_no_transition_reads_a_season_at_or_after_the_one_it_predicts(study):
             assert row["pace_from"] < row["target_season"], m
 
 
-@pytest.mark.repo_parity
-def test_the_committed_study_equals_a_regeneration_from_the_committed_store(study):
-    """repo_parity: the anti-hand-edit guard. Both inputs (the pace store and
-    the vegas store) are committed, so this must reproduce exactly."""
+def test_both_pace_artifacts_are_in_the_freshness_REGISTRY_not_bespoke_tests():
+    """`draft/data/artifact_registry.json`'s `_pattern` is explicit for exactly
+    this situation: *"Add ONE entry ... Do NOT write a bespoke
+    `test_X_matches_regeneration` pytest function, and do NOT add
+    `@pytest.mark.repo_parity` anywhere."* Both were written here first and
+    both were replaced by registry entries — this test is what makes the
+    registration itself durable.
+    """
+    import json as _j
+    reg = _j.loads((HERE / "data" / "artifact_registry.json").read_text())
+    by_id = {e["id"]: e for e in reg["entries"]}
+    for name, path in (("pace_study", "draft/backtest/pace_study.json"),
+                       ("pace_arm", "draft/backtest/pace_arm.json")):
+        assert name in by_id, name
+        assert by_id[name]["artifact_path"] == path
+        assert (HERE.parent / path).exists()
+
+
+def test_the_registered_regeneration_command_actually_reproduces_the_study(study):
+    """A registry entry whose command does not reproduce its artifact is a
+    guard that exists and does not guard. Checked on the cheap slice rather
+    than the whole 10k-draw run: same inputs, same estimator, same answer."""
     assert S.persistence(metrics=("neutral_sec_per_play",)) == {
         "neutral_sec_per_play": study["persistence"]["neutral_sec_per_play"]}
     assert S.orthogonality(metrics=("neutral_sec_per_play",)) == {

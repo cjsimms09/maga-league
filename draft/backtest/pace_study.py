@@ -304,8 +304,12 @@ def mechanism(tempo="neutral_sec_per_play", volumes=MECHANISM_VOLUME) -> dict:
     return out
 
 
-def main() -> None:
-    doc = {
+def run() -> dict:
+    """The whole artifact, no arguments — the shape
+    `draft/data/artifact_registry.json` requires so
+    `draft/tools/check_artifact_freshness.py` can regenerate it. Split out of
+    `main()` after the checker refused this module by name for not having it."""
+    return {
         "_territory": "TERRITORY: A — produced by draft/backtest/pace_study.py",
         "_note": ("Pace of play, preregistered in "
                   "draft/audit/pace_of_play_prereg_2026-08-16.md (committed "
@@ -331,6 +335,10 @@ def main() -> None:
         "orthogonality": orthogonality(),
         "mechanism": mechanism(),
     }
+
+
+def main() -> None:
+    doc = run()
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.name}")
     print("\n§3 PERSISTENCE (pooled Spearman, cluster-bootstrap 95% CI):")
