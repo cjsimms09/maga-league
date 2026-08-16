@@ -1412,3 +1412,59 @@ adaptation, scoreboard and controls addenda). One further B-lane crossing:
 the agent mandate) — the pinned set is now **42 files**; `src/routes/admin.js`
 and `views/admin/model-scoreboard.ejs` ride under already-pinned/appendixed
 admin surfaces. Same terms: merge stays A's or Cory's deliberate act.
+
+**APPENDED 2026-08-16, SAME AUTHORITY — the persistence-hardening pass**
+(the Cory-commissioned external whole-repo audit of 2026-08-16: three HIGH
+app-persistence defects + three MEDIUMs, each fixed red-then-green — the
+full findings, the preserved red runs and the honest residual-risk statement
+are in `draft/audit/persistence_hardening_2026-08-16.md`). Three files ENTER
+the refusal set and two already-pinned files were edited again; every
+crossing is a data-integrity defect whose victim is the league's
+authoritative state, the same class as every entry above:
+
+  * `src/ledger.js` (B's lane, NEW in the set) — audit findings 1+3: the
+    money ledger is ONE doc and all four writers were bare
+    read-modify-write; two concurrent requests deterministically LOST an
+    entry (proven red: `haveA:false` on a plain Promise.all of two
+    addEntry calls), and settleAll racing an append lost the whole
+    settlement. Every writer migrated to the new `store.mutate` /
+    `mutateDoc` seam (shared-infra `src/store.js`/`src/data.js`, A-editable,
+    carry the primitive and its honest multi-instance limits — inspected
+    against @netlify/blobs 8.2.0, which has NO conditional write). Pinned by
+    `draft/tests/store_mutate_concurrency.test.js` (18 checks).
+  * `src/routes/member.js` (already pinned) — the owners-doc writers
+    (/reset, /profile, /password, /profile/pay, /profile/contact), the
+    alerts self-heal and the sleeper auto-map moved onto mutateDoc (finding
+    1's named race: a member's password change vs the commissioner's
+    record sync — proven surviving over real HTTP); plus finding 4: the
+    two cron endpoints now take `Authorization: Bearer` FIRST with `?key=`
+    kept alive for existing callers
+    (`draft/tests/cron_auth_header.test.js`, 19 checks).
+  * `src/routes/admin.js` (already pinned) — finding 2, the pre-draft
+    critical one: POST /standings (which SETS next year's draft order)
+    accepted a nine-of-ten save with "Standings saved."; it now rejects
+    anything but every-active-owner-exactly-once with ranks exactly 1..N,
+    naming who is missing (`standings_complete_rankings.test.js`, 13
+    checks). Also its owners/config/alerts/ledger writers onto mutateDoc,
+    and finding 6's starter-password census row in the automation panel
+    (`starter_password_census.test.js`, 8 checks; census not alarm — no
+    view file was touched, the panel renders rows generically).
+  * `.github/workflows/sunday-alert.yml`, `.github/workflows/weekly-recap.yml`
+    (B's lane by the workflows-follow-their-feature rule, NEW in the set) —
+    finding 4's callers: they now send the Bearer header, and send BOTH
+    header and query during the transition because they hit the DEPLOYED
+    site, which can lag the repo by one deploy. The cron schedules and the
+    verdict logic B's `sunday_cron.test.js` pins are byte-untouched.
+  * Shared-infra edits riding with it (no gate impact, listed for B's
+    review): `src/store.js` (mutate + the concurrency-limits header),
+    `src/data.js` (mutateDoc; ensureSeeded now idempotent under a
+    seed-lock mutation — finding 5, `seed_race.test.js` proved the double
+    seed red: 6 votes where 3 were seeded), `src/helpers.js` (loadWorld's
+    one-time migrations re-applied through mutateDoc so they can no longer
+    revert a concurrent member write).
+
+**Refusal-set bookkeeping: the pinned set is now 45 files**
+(`scripts/verify-relay-session.sh` carries the exact list). No scoring/
+weight default moved; draft/backtest and draft/tools/playoff* untouched;
+the merge to main remains A's or Cory's deliberate act via
+`scripts/merge-relay.sh`.

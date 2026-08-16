@@ -32,7 +32,7 @@ const notify = require('../notify');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { store, getDoc, setDoc, newId, now } = require('../data');
+const { store, getDoc, setDoc, mutateDoc, newId, now } = require('../data');
 const { hashPassword, verifyPassword, requireLogin, requireCommissioner, aw } = require('../auth');
 const { RULES, SCORING, ROSTER } = require('../seed-data');
 
@@ -148,9 +148,23 @@ router.get('/api/draft-config-status', aw(async (req, res) => {
  * stayed quiet in a word the workflow can branch on — so "off-season" and
  * "the recap has not gone out in three weeks" are never the same green run.
  */
+// ── CRON AUTH: Authorization: Bearer FIRST, ?key= kept alive ────────────────
+// (audit finding 4, 2026-08-16). A secret in a query string lands in proxy
+// logs, function logs and shell history; the header is the preferred path and
+// is checked first. The query param KEEPS WORKING because live callers exist
+// (the two GitHub workflows — updated in-repo to send the header, and they
+// send both during the deploy window since they hit the DEPLOYED site).
+// Either credential matching passes; no secret configured refuses everything.
+function cronAuthorized(req, secret) {
+  if (!secret) return false;
+  const m = /^Bearer\s+(.+)$/i.exec(String(req.headers.authorization || ''));
+  if (m && m[1].trim() === secret) return true;   // preferred path, checked first
+  return req.query.key === secret;                // legacy path, kept for existing callers
+}
+
 router.get('/api/weekly-recap', aw(async (req, res) => {
   const secret = process.env.WEEKLY_RECAP_KEY || process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
-  if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
+  if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   const season = String(H.currentSeason(world.seasons).year || new Date().getUTCFullYear());
@@ -195,7 +209,7 @@ router.get('/api/weekly-recap', aw(async (req, res) => {
 
 router.get('/api/sunday-alert', aw(async (req, res) => {
   const secret = process.env.SUNDAY_ALERT_KEY || process.env.CRON_SECRET;
-  if (!secret || req.query.key !== secret) return res.status(403).json({ ok: false, error: 'forbidden' });
+  if (!cronAuthorized(req, secret)) return res.status(403).json({ ok: false, error: 'forbidden' });
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   // THE COMMISSIONER IS RESOLVED ONCE, BY THE MAILER. This used to re-derive
@@ -341,13 +355,15 @@ router.post('/reset', aw(async (req, res) => {
   if (pw.length < 8 || pw !== req.body.confirm) {
     return res.status(400).render('reset', { token, error: 'Passwords must match and be at least 8 characters.' });
   }
-  const owners = await getDoc('owners', []);
-  const me = owners.find(o => o.id === rec.owner_id);
-  if (me) {
+  // mutateDoc, not read+write: `owners` is one doc with 4+ writers, and a
+  // whole-doc write here raced the commissioner's sync (audit finding 1).
+  await mutateDoc('owners', [], owners => {
+    const me = owners.find(o => o.id === rec.owner_id);
+    if (!me) return undefined;
     me.password_hash = hashPassword(pw);
     me.must_change_password = false;
-    await setDoc('owners', owners);
-  }
+    return owners;
+  });
   await H.store.del(`reset:${token}`);
   res.redirect('/login');
 }));
@@ -365,10 +381,12 @@ router.post('/profile', aw(async (req, res) => {
   if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return res.status(400).render('password', { error: 'That email does not look right.', forced: false });
   }
-  const owners = await getDoc('owners', []);
-  const me = owners.find(o => o.id === req.owner.id);
-  me.email = email;
-  await setDoc('owners', owners);
+  await mutateDoc('owners', [], owners => {
+    const me = owners.find(o => o.id === req.owner.id);
+    if (!me) return undefined;
+    me.email = email;
+    return owners;
+  });
   res.redirect('/password?saved=1');
 }));
 
@@ -388,11 +406,15 @@ router.post('/password', aw(async (req, res) => {
   if (newPw !== confirm) {
     return res.status(400).render('password', { error: 'New passwords do not match.', forced });
   }
-  const owners = await getDoc('owners', []);
-  const me = owners.find(o => o.id === req.owner.id);
-  me.password_hash = hashPassword(String(newPw));
-  me.must_change_password = false;
-  await setDoc('owners', owners);
+  // The audit's named race: this write vs the commissioner's Sleeper record
+  // sync, both whole-doc `owners` writers. mutateDoc serializes them.
+  await mutateDoc('owners', [], owners => {
+    const me = owners.find(o => o.id === req.owner.id);
+    if (!me) return undefined;
+    me.password_hash = hashPassword(String(newPw));
+    me.must_change_password = false;
+    return owners;
+  });
   res.redirect('/');
 }));
 
@@ -551,18 +573,27 @@ router.get('/', aw(async (req, res) => {
       if (pinned && draftInfo.passed) {
         // The draft happened. Retire it — reversibly: the commissioner can
         // re-activate it from the alerts admin, and the text is left intact so
-        // there is something to re-activate.
+        // there is something to re-activate. (mutateDoc re-reads inside the
+        // lock so this heal cannot revert a concurrent alerts edit.)
         if (pinned.active) {
-          pinned.active = false;
-          await setDoc('alerts', alerts);
+          await mutateDoc('alerts', [], as => {
+            const p = as.find(isDraftAlert);
+            if (!p || !p.active) return undefined;
+            p.active = false;
+            return as;
+          });
         }
         // Drop it from this request too, so it goes the moment the day turns.
         if (Array.isArray(res.locals.alerts)) {
           res.locals.alerts = res.locals.alerts.filter(a => !isDraftAlert(a));
         }
       } else if (pinned && pinned.message !== draftInfo.message) {
-        pinned.message = draftInfo.message; pinned.level = 'urgent'; pinned.active = true;
-        await setDoc('alerts', alerts);
+        await mutateDoc('alerts', [], as => {
+          const p = as.find(isDraftAlert);
+          if (!p || p.message === draftInfo.message) return undefined;
+          p.message = draftInfo.message; p.level = 'urgent'; p.active = true;
+          return as;
+        });
         // Patch this request's already-computed alert region so the fix shows now.
         for (const a of (res.locals.alerts || [])) {
           if (isDraftAlert(a)) a.message = draftInfo.message;
@@ -576,8 +607,14 @@ router.get('/', aw(async (req, res) => {
   if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
     const auto = sleeper.autoMap(sData, owners);
     if (Object.keys(auto).length) {
-      world.config.sleeper_map = auto;
-      await setDoc('config', world.config);
+      // mutateDoc: config has several writers (commissioner forms, this
+      // auto-map) and a whole-doc write-back of the request's copy could
+      // revert a setting saved in between (audit finding 1).
+      world.config = await mutateDoc('config', {}, cfg => {
+        if (Object.keys(cfg.sleeper_map || {}).length) return undefined;
+        cfg.sleeper_map = auto;
+        return cfg;
+      });
     }
   }
   const sStandings = sleeper.standings(sData, world.config.sleeper_map || {}, owners);
@@ -1844,12 +1881,15 @@ router.post('/profile/pay', aw(async (req, res) => {
   // fields PRESENT in the body, so a banner save can never wipe the paypal or
   // zelle entered on the other surface. Every reader (How to Pay, settlement,
   // side-bet rows, the commissioner nag) renders from this same owner record.
-  const world = req.world;
-  const owner = world.owners.find(o => o.id === req.owner.id);
-  if (owner) {
+  // mutateDoc on a FRESH read, not a write-back of req.world.owners: the world
+  // copy was read at request start, so writing it whole could revert another
+  // member's save landing in between (audit finding 1).
+  await mutateDoc('owners', [], owners => {
+    const owner = owners.find(o => o.id === req.owner.id);
+    if (!owner) return undefined;
     V.applyProfileUpdate(owner, req.body);
-    await setDoc('owners', world.owners);
-  }
+    return owners;
+  });
   res.redirect(req.body.back === 'home' ? '/' : '/bank#pay-directory');
 }));
 
@@ -1868,24 +1908,26 @@ function cleanPhone(v) {
   return String(v == null ? '' : v).replace(/[^\d+().\-\s]/g, '').trim().slice(0, 30);
 }
 router.post('/profile/contact', aw(async (req, res) => {
-  const world = req.world;
-  const owner = world.owners.find(o => o.id === req.owner.id);
-  if (owner) {
+  // Validate BEFORE the mutate so a rejection never enters the write path.
+  let email = null;
+  if (Object.prototype.hasOwnProperty.call(req.body, 'email')) {
+    email = String(req.body.email || '').trim().toLowerCase().slice(0, 120);
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      return res.redirect((req.body.back === 'home' ? '/' : '/bank') + '?contact=bademail');
+    }
+  }
+  await mutateDoc('owners', [], owners => {
+    const owner = owners.find(o => o.id === req.owner.id);
+    if (!owner) return undefined;
     // Venmo (and the other payment handles, if present) go through venmo.js's
     // own four-field allow-list — calling it, never widening it.
     V.applyProfileUpdate(owner, req.body);
-    if (Object.prototype.hasOwnProperty.call(req.body, 'email')) {
-      const email = String(req.body.email || '').trim().toLowerCase().slice(0, 120);
-      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        return res.redirect((req.body.back === 'home' ? '/' : '/bank') + '?contact=bademail');
-      }
-      owner.email = email;
-    }
+    if (email !== null) owner.email = email;
     if (Object.prototype.hasOwnProperty.call(req.body, 'phone')) {
       owner.phone = cleanPhone(req.body.phone);
     }
-    await setDoc('owners', world.owners);
-  }
+    return owners;
+  });
   res.redirect(req.body.back === 'home' ? '/' : '/bank#pay-directory');
 }));
 
