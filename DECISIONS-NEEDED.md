@@ -1462,7 +1462,6 @@ question (mock-calibration arm), not a pre-Aug-22 one.
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
 
-<<<<<<< HEAD
 ## KOV RAMP SHAPE — MEASURED HISTORY INVERTS THE SHIPPED KEEPER RAMP (A, 2026-08-15) 🔴 OPEN
 
 - **THE QUESTION.** Flip `CFG.KOV_MEASURED_RAMP` (composite.js, built today, ships FALSE) or keep the reasoned ramp? The keeper term is LIVE at weight 1.0 in `MEASURED_WEIGHTS`, so this shapes real late-round tie-breaks on the 22nd.
@@ -1483,7 +1482,6 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **THE MECHANISM, priced.** Sleeper-vs-FantasyPros **error correlation 0.87–0.97** on realized 2025 outcomes — independent confirmation of `exp_proj_source.json`'s ρ=0.9327 and `proj_mean_blend` §5's 0.9439. **Averaging the two professional sources is averaging a forecast with itself.** Every point of the blend's gain comes from own_v6, the only partially-independent arm (0.64–0.86) — and it pays only where own_v6 is close in skill (RB/WR/TE, within 0.008–0.022 ρ) and costs where it is not (QB, 0.085 ρ worse). Cory's mechanism is real; **it does not fire between the two sources he named.**
 - **COST OF INACTION.** Nil on the board. Real on capture — see (a): the archive hollows ~7 points a year and 2023 is already 25.4 % gone.
 - **RECOMMENDATION.** No change to `proj_mean`. Rule on (a) capture — recommended YES, it is one free dispatch — and note (b) for the post-draft dollar work.
-=======
 
 ## K0-RECHECK. THE KEEPER OPTIMIZER CANNOT SEE ITS OWN KEEPERS — and one intel claim is contradicted (A, 2026-08-16) 🔴 OPEN
 
@@ -1544,4 +1542,3 @@ when he kept Jeanty + Chase Brown).
 **COST OF INACTION.** (1) is a live trap with a deadline. (2) is a plan built
 on a premise that is currently false; the keeper decision itself is safe either
 way.
->>>>>>> worktree-agent-ad692fd436e1b4d42
