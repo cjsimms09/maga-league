@@ -886,3 +886,234 @@ allocation edge sitting unclaimed.
 python3 draft/backtest/empirical_draft_value.py     # ~2 min, writes the artifact
 python3 -m pytest draft/tests/test_empirical_draft_value.py -q
 ```
+
+---
+---
+
+# STAGE 3 — PREREGISTRATION ADDENDUM (additions A and B)
+
+_Appended 2026-08-16 after §§4–11 were committed. Cory added two questions
+("do all in that order") that need exactly the outcomes data this study already
+assembles, so they are folded in here rather than run as a parallel study._
+
+**This commit contains §§12–14 only: the inventory these two additions hinge on,
+and their complete preregistration. No result for either addition exists yet.**
+Stage 4 appends §§15–16 without editing §§0–14. Everything in §2 (survivorship,
+uncertainty, leakage, the stability rule, BH at q = 0.10) applies unchanged.
+
+---
+
+## 12. INVENTORY FOR ADDITION A — what an absent player-week actually means
+
+The coordinator's instruction was explicit: *"Absent != zero applies with full
+force here — a player with no row may have been injured, benched, or simply not
+in the store, and conflating those three would invent an injury signal that is
+really a coverage artifact. Establish which it is before drawing any
+conclusion."* This section is that, and it found a defect.
+
+### 12.1 ⚠️ THE 2025 WEEKLY-POINTS STORE CANNOT BE USED TO COUNT GAMES
+
+Row presence in the two independent stores was compared player-week by
+player-week, skill positions only, weeks 1–17:
+
+| season | player-weeks in BOTH stores | only in `nflverse_weekly_points` | only in `component_stats` |
+|---|---|---|---|
+| 2023 | 4775 | 0 | 0 |
+| 2024 | 4770 | 0 | 0 |
+| **2025** | **4564** | **0** | **884** |
+
+2023 and 2024 agree **exactly**. 2025 does not, and the mechanism is visible in
+a second measurement — the count of rows worth exactly 0.0 points:
+
+| season | skill player-weeks | rows worth exactly 0.0 |
+|---|---|---|
+| 2023 | 4775 | 297 (6.2%) |
+| 2024 | 4770 | 306 (6.4%) |
+| **2025** | **4564** | **6 (0.1%)** |
+
+**The 2025 store's build path drops zero-point rows.** Its row presence
+therefore measures "scored something", not "played" — 884 player-weeks and 54
+whole skill players are missing relative to the component store.
+
+**Does this invalidate stage 2? No, and that was checked rather than assumed.**
+Every one of the 54 missing 2025 players scored ≤ 2.7 points under component
+scoring, most are unmapped `gsis:` ids with no position, and **not one of them
+would crack any position's league starter set**. The stage-2 universes, curves,
+cliffs and starter rates are unaffected. (2023 has one such player at 0.0 points
+and no position; 2024 has none.)
+
+**But it makes games-played counts from that store non-comparable across
+seasons, and a naive availability study run on it would report a fake 2025
+injury spike.** So, preregistered: **this addition counts games from
+`component_stats_{Y}` for all three seasons**, which is the store that agrees
+with the points store where both are sound.
+
+This is a **material defect in a committed artifact** and goes to
+`DECISIONS-NEEDED.md` (§16).
+
+### 12.2 Byes are absent rows, and the schedule is on disk
+
+Maximum observed games in weeks 1–17 is **16** — a bye is an absent row, so a
+perfectly available player shows 16, not 17. (One 2025 player shows 17, having
+played for two teams across two different bye weeks.) `historical_byes.json`
+covers **only 2023 and 2024**, so this addition derives each team's bye
+directly from `vegas_lines_2021_2026.json` — the weeks 1–17 in which a team
+has no scheduled game — which covers all three seasons exactly (272 games =
+17 weeks × 16 games per season).
+
+### 12.3 What the data CANNOT separate, stated before any result
+
+Injury, healthy scratch, depth-chart burial and simply not being on a roster are
+**indistinguishable** in these stores. `DATA-INVENTORY.md` lists
+`import_injuries` and `import_snap_counts` as REACHABLE upstream, but **neither
+is committed to this repo**, and network egress is blocked here (§1.1 GAP 1).
+
+**Therefore every measure in Addition A is called AVAILABILITY, never injury**,
+and no result will be phrased as an injury finding. This matters most for the
+long left tail of the games distribution — 42–47 skill players per season
+recorded exactly one game, and those are overwhelmingly depth players who were
+never going to play, not injuries.
+
+---
+
+## 13. PREREGISTRATION — ADDITION A: availability and games played
+
+### 13.1 Definitions (fixed before any result)
+
+- `games(pid, Y)` — weeks 1–17 with a row in `component_stats_Y`.
+- `team_games(pid, Y)` — weeks 1–17 in which a team the player recorded a row
+  for had a scheduled game (union across teams if he moved), from `vegas_lines`.
+- `availability(pid, Y) = games / team_games`, in [0, 1].
+- `ppg(pid, Y) = points / games` (league scoring, weeks 1–17).
+- The identity everything rests on: **`points = games × ppg`**.
+
+### 13.2 A1 — how much of hit/bust is just availability
+
+**Bust attribution, preregistered.** For every drafted skill pick that was NOT a
+league starter under Definition B (§3.3), classify:
+
+- **ABSENCE-DRIVEN** — `availability ≤ 0.75` (missed ≥ ~4 games) AND
+  `ppg × 16` would have ranked at or above the position's starter cut. He was
+  good enough and did not play.
+- **PRODUCTION-DRIVEN** — `availability > 0.75`. He played and was not good
+  enough.
+- **BOTH** — `availability ≤ 0.75` and `ppg × 16` still misses the cut.
+
+Reported by position and round band with Wilson 95% intervals.
+
+**Variance decomposition.** On picks with points > 0, using
+`log(points) = log(games) + log(ppg)`:
+`Var(log points) = Var(log games) + Var(log ppg) + 2·Cov(log games, log ppg)`.
+Shares reported per position, season-clustered bootstrap CIs.
+
+**The "if nobody got hurt" counterfactual.** Recompute §7.1's starter-rate-by-
+round-band table with `ppg × 16` substituted for realized points. The difference
+between the two tables is availability's share of what the draft actually
+produced. **This is the headline number for Addition A.**
+
+### 13.3 A2 — does availability persist (the gating question)
+
+- Spearman(`availability` in Y−1, `availability` in Y) per position, over players
+  with a row in both seasons; season-clustered CI; stability rule.
+- Spearman(`availability` in Y−1, `points` in Y − `points` in Y−1) — does last
+  year's availability predict the residual, above the naive carry-forward.
+- **Preregistered interpretation rule, fixed now so it cannot be chosen after
+  the fact:** at any position where the persistence interval covers zero,
+  **no availability model can help a draft at that position, and that is the
+  finding.** It is published at full volume either way.
+
+### 13.4 A3 — availability by position and age
+
+- Mean `availability` and `P(availability ≤ 0.75)` per position, Wilson intervals.
+- **RB versus WR durability** (the folk wisdom): difference in mean availability
+  and in `P(availability ≤ 0.75)`, season-clustered CI, stability rule.
+- Spearman(`age_Y`, `availability`) per position — carrying GAP 3's 72.6%
+  survivorship-biased coverage, and not headlined.
+- Both populations reported separately: **all skill players** (the honest
+  population, but full of depth players who were never going to play) and
+  **drafted picks only** (n ≈ 388, the population a drafter actually faces).
+
+### 13.5 What Addition A explicitly does NOT claim
+
+It does not model injury, cannot separate injury from benching (§12.3), and does
+not propose an availability projection. `roster_construction_2026-08-16.md`
+limitation #6 ("no injury modeling, biased AGAINST depth-heavy archetypes") is
+the reason this was asked; whether that limitation actually explains
+`robust_rb`'s finish is a question about that simulator, not about these
+outcomes, and it is **out of scope here** — this addition only establishes
+whether the ingredient such a model would need (persistence) exists at all.
+
+---
+
+## 14. PREREGISTRATION — ADDITION B: where the format mismatches the market
+
+### 14.1 What can and cannot be asked, given GAP 1
+
+GAP 1 stands: **there is no historical consensus ADP in this repo and none is
+fetchable here**, so "did consensus ADP misprice this format" cannot be put to
+consensus ADP directly. Two things can be measured, and they are what this
+addition does:
+
+1. **The format delta itself** — how much this league's scoring reorders players
+   relative to the market's scoring, measured on realized outcomes. **This needs
+   no ADP at all**, which is why it is worth doing.
+2. **Which format the room's own board was pricing.** The room reads national
+   ADP. If the league's draft order tracks MARKET-format outcomes better than
+   LEAGUE-format outcomes, the room is pricing the wrong format, and that gap is
+   the exploitable edge — measurable with the draft order this study already has.
+
+### 14.2 The two tables — exactly two substitutions
+
+- **LEAGUE** = the frozen table (0.5 PPR, 6-point passing TD).
+- **MARKET** = the frozen table with `rec: 0.5 → 1.0` and `pass_td: 6.0 → 4.0`,
+  **and nothing else changed.**
+
+Every difference reported is attributable to those two rules and to nothing
+else. That is the point of changing only two keys.
+
+### 14.3 One source for both sides
+
+Both tables are scored from `component_stats_Y` through
+`fetch_component_stats.scored_weekly_points`. Parity was verified before
+preregistering: component-scored under the frozen table reproduces the committed
+weekly-points store **exactly** for 2023 and 2024 (max |diff| = 0.0 over 547 and
+556 common players). **2025 diverges — 102 players by more than 0.5 points,
+maximum 10.0** (the committed 2025 store's rebuild path undercounts 2-point
+conversions; pinned as a named finding in `test_component_stats.py`). Because
+both sides of every comparison below come from the same component source, that
+divergence **cancels inside the comparison**.
+
+### 14.4 Measures — per season and position, pooled with season-clustered CIs
+
+- **`Δrank(pid)` = rank under LEAGUE − rank under MARKET** within position
+  (negative = this format promotes him). Reported over each position's top 40 by
+  MARKET rank: mean signed Δrank, and counts of players moving ≥5 ranks each way.
+- **Starter-set turnover** — how many of the MARKET top-K are absent from the
+  LEAGUE top-K, K = the board's starter counts (RB 21, WR 29, QB 10, TE 10).
+- **Positional value share** — each position's share of the summed top-K starter
+  points, under each table, and the shift between them.
+- **Value-over-replacement shift** — `mean(top-K points) − replacement points`
+  per position under each table, and the change. This is the number that
+  translates into a board.
+- **Which format the room priced (the actionable test).**
+  Spearman(`pick_no`, LEAGUE-format realized rank) versus
+  Spearman(`pick_no`, MARKET-format realized rank), per position and season;
+  difference with a season-clustered CI. **A positive difference means the room's
+  board tracked the market's format better than its own.**
+- **Named movers** — the ten largest promotions and demotions per position, by
+  name, so the mechanism is checkable by eye and not just by statistic.
+
+### 14.5 Scope fence — do not duplicate the QB arbitrage pass
+
+A separate agent is running the QB scoring arbitrage in depth (points → VORP →
+pick guidance, including whether the edge survives QB's 341.72 replacement
+level). **This addition reports the all-position outcomes view and stops short
+of QB pick guidance.** Where a QB number appears it is one row of a
+four-position table, never a recommendation.
+
+### 14.6 Stopping rule
+
+Unchanged from §3.7. Both additions are measured by one committed, tested module
+and one committed artifact. **No model, board, config or policy change ships.**
+Real findings become `DECISIONS-NEEDED.md` items with described diffs, and Cory
+rules.
