@@ -62,12 +62,22 @@ this file cannot reach api.the-odds-api.com (network egress here is
 allowlisted to github.com's release CDN only; confirmed by every prior
 fetch tool's own docstring).
 
-MARKETS (six, matching Cory's ask verbatim — "passing/rushing/receiving
-yards, receptions, TDs"): player_pass_yds, player_pass_tds, player_rush_yds,
-player_rush_tds, player_reception_yds, player_receptions. Receiving TDs and
-anytime-TD moneylines are NAMED, NOT FETCHED — see the audit doc's scope
-note; adding them is a future, separately-budgeted extension, not silently
-folded in here.
+MARKETS (six): player_pass_yds, player_pass_tds, player_rush_yds,
+player_anytime_td, player_reception_yds, player_receptions.
+
+REVISED 2026-08-16 after the first three real pulls. The original list
+carried `player_rush_tds`, which the vendor ACCEPTS and never serves — zero
+rows across 7,019 real player-weeks while being billed on every call
+(key-probe run 31970300788: "markets returned: NONE, outcome rows: 0",
+against 185 rows for `player_anytime_td` on the same event). Anytime-TD
+replaces it and is strictly better for fantasy: it prices RECEIVING
+touchdowns too, which the original six had no market for at all.
+
+Anytime-TD is quoted as a PRICE, not a line, so it does not go through the
+median-of-`point` path — see `parse_price_market`: American odds -> implied
+probability -> de-vig against the No side when the book quotes one ->
+Poisson inversion to an EXPECTED touchdown count, since P(>=1 TD) and
+E[TD] are not the same number for the goal-line backs who matter most.
 
 LINE = MEDIAN EXPECTATION, NOT AN OUTCOME. An over/under prop line priced
 near even odds on both sides is the book's estimate of the stat's median —
@@ -97,6 +107,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -121,16 +132,33 @@ MARKET_TO_STAT = {
     "player_pass_yds": "pass_yd",
     "player_pass_tds": "pass_td",
     "player_rush_yds": "rush_yd",
-    "player_rush_tds": "rush_td",
+    # `player_rush_tds` was requested on all three 2023-2025 pulls and
+    # returned ZERO rows across 7,019 player-weeks while being billed on
+    # every call. key-probe run 31970300788 settled why: the vendor accepts
+    # the key (HTTP 200) and serves nothing — "markets returned: NONE,
+    # outcome rows: 0" — while `player_anytime_td` on the SAME event
+    # returned 185 rows. It is a phantom market. Replaced, not merely
+    # dropped: anytime-TD is strictly better for fantasy, because it prices
+    # RECEIVING touchdowns too, which the original six-market design had no
+    # market for at all.
+    "player_anytime_td": "any_td",
     "player_reception_yds": "rec_yd",
     "player_receptions": "rec",
 }
 MARKETS = tuple(sorted(MARKET_TO_STAT))          # 6 — the exact credit basis
 
+#: Markets quoted as a PRICE (American odds on a yes/no outcome) rather than
+#: an over/under `point`. These need odds -> probability, not a median line,
+#: so `parse_event_props` routes them down a different path entirely.
+PRICE_MARKETS = {"player_anytime_td"}
+
 CREDIT_PER_ODDS_CALL = 10          # vendor formula: 10 x markets x regions
-EVENTS_LIST_CREDIT_EST = 2         # empirically observed in the probe run,
-                                    # NOT vendor-documented — named as such
-                                    # everywhere it is used.
+EVENTS_LIST_CREDIT_EST = 1         # MEASURED, not inferred: key-probe run
+                                    # 31970500296 read x-requests-remaining
+                                    # either side of one events-list call and
+                                    # saw a delta of exactly 1. The earlier
+                                    # value of 2 was backed out of a bundled
+                                    # probe total and over-stated it.
 
 #: 32-team abbreviation -> the full name the Odds API's `home_team`/
 #: `away_team` fields use. Static and closed — never touches the network.
@@ -162,7 +190,18 @@ GAMES_PER_SEASON_NOMINAL = 272     # 32 teams x 17 games / 2 — the full-season
                                     # fetched schedule at dispatch time.
 
 
-def store_path(season: int) -> Path:
+def store_path(season: int, scope: str = "full_season") -> Path:
+    """Where one season's snapshot lands.
+
+    SCOPE-KEYED SINCE 2026-08-16. The week-1 pull feeds the DRAFT study
+    (season-total projections from preseason-only information) while the
+    18-week pull feeds the WEEKLY study — Cory's own distinction, and they
+    are different files on purpose. Writing both to one path would have let
+    a ~960-credit week-1 fetch silently overwrite ~11,800 credits of
+    already-paid 18-week data, which is exactly the kind of quiet
+    destruction this repo's artifact discipline exists to prevent."""
+    if scope == "sample_week1":
+        return BT / f"historical_props_week1_{season}.json"
     return BT / f"historical_props_{season}.json"
 
 
@@ -203,6 +242,72 @@ def match_event_to_game(events: list, home_abbr: str, away_abbr: str) -> str | N
     return hits[0] if len(hits) == 1 else None
 
 
+def american_to_prob(price: float) -> float:
+    """American odds -> implied probability, vig INCLUDED. -150 -> 0.6,
+    +200 -> 0.333. The book's own margin is still baked in here; de-vigging
+    happens in `devig_pair` once both sides of the market are known."""
+    p = float(price)
+    if p < 0:
+        return (-p) / ((-p) + 100.0)
+    return 100.0 / (p + 100.0)
+
+
+def devig_pair(p_yes: float, p_no: float | None) -> float:
+    """Strip the bookmaker's margin from a two-way market by normalising the
+    pair to sum to 1. A book quoting Yes -150 / No +120 implies 0.600/0.455
+    = 1.055 of probability; the extra 5.5% is the vig, and the fair estimate
+    is 0.600/1.055 = 0.569.
+
+    When only the Yes side is quoted (common for anytime-TD, where books
+    often publish just the affirmative), there is no pair to normalise
+    against. Rather than invent a No price, the raw implied probability is
+    returned UNCHANGED and is therefore biased HIGH by roughly the vig —
+    documented here and in the audit doc rather than hidden, because it
+    means single-sided anytime-TD rows slightly over-state TD expectation."""
+    if p_no is None or not (0 < p_yes < 1):
+        return p_yes
+    total = p_yes + p_no
+    return p_yes / total if total > 0 else p_yes
+
+
+def anytime_td_to_expected_tds(p_fair: float) -> float:
+    """P(scores at least one TD) -> EXPECTED touchdowns.
+
+    These are not the same number: a player who scores twice still counts
+    once in P(>=1). Treating TD counts as Poisson with mean L, P(>=1) =
+    1 - exp(-L), so L = -ln(1 - P). For a 0.30 anytime price that is 0.357
+    expected TDs — about 19% more than reading the probability directly,
+    and the gap widens for the goal-line backs and elite receivers who
+    matter most at the top of a draft board.
+
+    Poisson is an approximation (real TD counts are mildly over-dispersed),
+    but it is strictly better than the identity it replaces, and it is
+    documented as an approximation rather than presented as exact."""
+    p = min(max(float(p_fair), 0.0), 0.999)
+    return -math.log(1.0 - p) if p > 0 else 0.0
+
+
+def parse_price_market(market: dict) -> dict:
+    """One PRICE-quoted market (anytime-TD) -> {player_name: expected_tds}.
+    Pairs each player's Yes with its No when the book publishes both, de-vigs
+    the pair, then converts P(>=1 TD) to an expected count."""
+    yes: dict[str, float] = {}
+    no: dict[str, float] = {}
+    for o in market.get("outcomes", []):
+        name = o.get("description")
+        price = o.get("price")
+        if not name or price is None:
+            continue
+        side = str(o.get("name", "")).strip().lower()
+        (no if side in ("no", "under") else yes)[name] = float(price)
+    out = {}
+    for name, y in yes.items():
+        p = devig_pair(american_to_prob(y),
+                       american_to_prob(no[name]) if name in no else None)
+        out[name] = anytime_td_to_expected_tds(p)
+    return out
+
+
 def parse_event_props(doc: dict, markets: tuple = MARKETS) -> dict:
     """Historical event-odds response -> {player_name: {stat_key:
     consensus_point}}. Consensus = MEDIAN of the `point` field across every
@@ -219,6 +324,14 @@ def parse_event_props(doc: dict, markets: tuple = MARKETS) -> dict:
             key = m.get("key")
             stat = MARKET_TO_STAT.get(key)
             if not stat or key not in markets:
+                continue
+            if key in PRICE_MARKETS:
+                # Quoted as a price, not a line — no `point` field exists,
+                # so the over/under path below would silently drop every
+                # row of it. Route to the odds->probability->expected-count
+                # conversion instead.
+                for name, exp_td in parse_price_market(m).items():
+                    by_player.setdefault(name, {}).setdefault(stat, []).append(exp_td)
                 continue
             for o in m.get("outcomes", []):
                 name = o.get("description")
@@ -321,17 +434,43 @@ def _download(url: str, dest: Path) -> bool:
         return False
 
 
-def _get_json(url: str) -> tuple[dict | None, str | None]:
-    """(body, x-requests-remaining) or (None, None) on any failure."""
+def _get_json(url: str, attempts: int = 4) -> tuple[dict | None, str | None]:
+    """(body, x-requests-remaining), or (None, None) once every attempt fails.
+
+    RETRIES, added 2026-08-16 after the first three real full-season pulls
+    came back with silently-truncated weeks (2024 wk7 = 28 players, 2025
+    wks 3/6/17 = 15/33/17, against a 168-258 norm). The original version
+    swallowed EVERY exception into a bare (None, None) with no retry, so a
+    single transient timeout or rate-limit on a week's events-list call
+    erased that entire week's slate — the caller could not tell "the vendor
+    has no data" apart from "the call fell over", and neither left a trace
+    in the artifact.
+
+    Deliberately does NOT retry a 4xx: a bad key or a malformed market list
+    fails the same way every time, and retrying it just burns credits. Only
+    transient classes (timeout, connection reset, 429, 5xx) are retried,
+    with exponential backoff."""
+    import time
+    import urllib.error
     import urllib.request
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "maga-league-props-fetch"})
-        with urllib.request.urlopen(req, timeout=30) as r:
-            body = json.load(r)
-            remaining = r.headers.get("x-requests-remaining")
-        return body, remaining
-    except Exception:
-        return None, None
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "maga-league-props-fetch"})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = json.load(r)
+                remaining = r.headers.get("x-requests-remaining")
+            return body, remaining
+        except urllib.error.HTTPError as e:
+            # 429/5xx are worth another go; 4xx means the request itself is
+            # wrong and will stay wrong.
+            if e.code != 429 and e.code < 500:
+                return None, None
+        except Exception:
+            pass
+        if i < attempts - 1:
+            time.sleep(2 ** i)
+    return None, None
 
 
 def fetch_season_schedule(season: int, workdir: Path) -> list:
@@ -412,20 +551,47 @@ def fetch_season(api_key: str, season: int, scope: str, workdir: Path,
         return {"season": season, "status": "refused_over_budget",
                 "credit_estimate": est, "max_credits": max_credits}
 
-    events_by_week: dict[int, list] = {}
+    # EVENTS-LIST CACHE KEY: the game's own kickoff timestamp, NOT its week.
+    #
+    # The original keyed this cache by week, so one snapshot — taken at
+    # whatever the FIRST game in that week's plan happened to kick off —
+    # was reused to resolve every other game that week. /v4/historical is a
+    # point-in-time endpoint: a snapshot taken at Thursday 20:15 does not
+    # necessarily carry Sunday's slate. Every game the stale snapshot could
+    # not match hit the `continue` below and vanished with no record, which
+    # is how 2025 wk3 shipped 15 players and wk6 shipped 33.
+    #
+    # An NFL week has only a handful of distinct kickoff times (Thu, the
+    # Sunday windows, Mon), so keying by timestamp costs roughly 4-6
+    # events-list calls per week instead of 1 — about 150 extra credits per
+    # season against a 16,320-credit odds spend. Correctness is worth ~1%.
+    events_by_ts: dict[str, list] = {}
     weeks_out: dict[int, dict] = {}
+    health: dict[int, dict] = {}
     remaining = None
     for g in plan:
         wk = g["week"]
-        if wk not in events_by_week:
-            events_by_week[wk], remaining = fetch_week_events(api_key, g["commence_time"])
-        eid = match_event_to_game(events_by_week[wk], g["home"], g["away"])
+        h = health.setdefault(wk, {"games_planned": 0, "events_matched": 0,
+                                   "odds_ok": 0, "odds_empty": 0})
+        h["games_planned"] += 1
+        ts = g["commence_time"]
+        if ts not in events_by_ts:
+            events_by_ts[ts], remaining = fetch_week_events(api_key, ts)
+        eid = match_event_to_game(events_by_ts[ts], g["home"], g["away"])
+        weeks_out.setdefault(wk, {"week": wk, "players": {}})
         if not eid:
             continue
-        props, remaining = fetch_event_props(api_key, eid, g["commence_time"])
-        weeks_out.setdefault(wk, {"week": wk, "players": {}})
+        h["events_matched"] += 1
+        props, remaining = fetch_event_props(api_key, eid, ts)
+        if props:
+            h["odds_ok"] += 1
+        else:
+            h["odds_empty"] += 1
         for name, row in props.items():
             weeks_out[wk]["players"].setdefault(name, row)
+    for wk, h in health.items():
+        h["players"] = len(weeks_out.get(wk, {}).get("players", {}))
+        weeks_out.setdefault(wk, {"week": wk, "players": {}})["health"] = h
 
     doc = {
         "_territory": "TERRITORY: A — produced by draft/tools/fetch_historical_props.py",
@@ -443,10 +609,80 @@ def fetch_season(api_key: str, season: int, scope: str, workdir: Path,
             "scope": scope, "markets": list(MARKETS), "regions": REGIONS,
             "credit_estimate": est,
             "credits_remaining_last_seen": remaining,
+            "health": summarize_health(health),
         },
         "weeks": [weeks_out[w] for w in sorted(weeks_out)],
     }
     return {"season": season, "status": "written", "doc": doc}
+
+
+# ── pure: fetch-health auditing ──────────────────────────────────────────
+
+#: A REG week fields 13-16 games; anything resolving under this share of its
+#: planned games is a partial fetch, not a thin betting market. Set from the
+#: three real 2023-2025 pulls: healthy weeks matched every planned game,
+#: while the four broken ones (2024 wk7, 2025 wks 3/6/17) matched under a
+#: fifth of theirs. 0.7 sits well clear of both clusters.
+MIN_EVENT_MATCH_RATE = 0.7
+
+
+def summarize_health(health: dict) -> dict:
+    """Roll per-week fetch counters into a verdict the artifact carries with
+    it, so a truncated pull announces itself instead of looking like a quiet
+    week. `health` is {week: {games_planned, events_matched, odds_ok, ...}}."""
+    weeks = sorted(health)
+    suspect = []
+    for wk in weeks:
+        h = health[wk]
+        planned = h.get("games_planned") or 0
+        if not planned:
+            continue
+        rate = (h.get("events_matched") or 0) / planned
+        if rate < MIN_EVENT_MATCH_RATE:
+            suspect.append({"week": wk, "games_planned": planned,
+                            "events_matched": h.get("events_matched", 0),
+                            "match_rate": round(rate, 3),
+                            "players": h.get("players", 0)})
+    return {
+        "weeks_fetched": len(weeks),
+        "games_planned": sum((health[w].get("games_planned") or 0) for w in weeks),
+        "events_matched": sum((health[w].get("events_matched") or 0) for w in weeks),
+        "min_event_match_rate": MIN_EVENT_MATCH_RATE,
+        "suspect_weeks": suspect,
+        "complete": not suspect,
+        "per_week": {str(w): health[w] for w in weeks},
+    }
+
+
+def audit_doc(doc: dict) -> dict:
+    """Audit an ALREADY-WRITTEN props file, including the three pulled before
+    per-week health existed (they carry no counters, so this falls back to
+    the player-count distribution). Reports which weeks look truncated and
+    which requested markets never landed a single row — the two failure
+    modes the 2023-2025 pull actually hit."""
+    weeks = doc.get("weeks") or []
+    counts = {int(e["week"]): len(e.get("players") or {}) for e in weeks}
+    present = set()
+    for e in weeks:
+        for row in (e.get("players") or {}).values():
+            present.update(row)
+    expected = set(MARKET_TO_STAT.values())
+    median = (sorted(counts.values())[len(counts) // 2] if counts else 0)
+    # A week under a third of the season's median player count is truncated;
+    # real late-season tapering (2023 wk18 = 110 vs a 212 median) stays well
+    # above that, while the four known-broken weeks fall far below it.
+    thin = {w: n for w, n in counts.items() if median and n < median / 3}
+    return {
+        "season": doc.get("season"),
+        "weeks": len(weeks),
+        "median_players_per_week": median,
+        "players_per_week": dict(sorted(counts.items())),
+        "truncated_weeks": dict(sorted(thin.items())),
+        "markets_expected": sorted(expected),
+        "markets_present": sorted(present),
+        "markets_missing": sorted(expected - present),
+        "complete": not thin and not (expected - present),
+    }
 
 
 def main() -> int:
@@ -468,7 +704,16 @@ def main() -> int:
     p_fetch.add_argument("--max-credits", type=int, default=None)
     p_fetch.add_argument("--out-dir", type=str, default=None)
 
+    p_audit = sub.add_parser(
+        "audit", help="audit an already-written props file (no network at all)")
+    p_audit.add_argument("--file", type=str, required=True)
+
     args = ap.parse_args()
+
+    if args.cmd == "audit":
+        report = audit_doc(json.loads(Path(args.file).read_text()))
+        print(json.dumps(report, indent=1))
+        return 0 if report["complete"] else 1
     import os
     import tempfile
     workdir = Path(tempfile.mkdtemp(prefix="historical_props_"))
@@ -495,9 +740,12 @@ def main() -> int:
     if res["status"] == "written":
         out_dir = Path(args.out_dir) if args.out_dir else BT
         out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / f"historical_props_{args.season}.json"
+        path = out_dir / store_path(args.season, args.scope).name
         path.write_text(json.dumps(res["doc"], indent=1))
-        print(f"wrote {path} — {len(res['doc']['weeks'])} weeks")
+        health = res["doc"]["provenance"].get("health", {})
+        print(f"wrote {path} — {len(res['doc']['weeks'])} weeks; "
+              f"complete={health.get('complete')} "
+              f"suspect_weeks={health.get('suspect_weeks')}")
         return 0
     print(json.dumps({k: v for k, v in res.items() if k != "doc"}, indent=1))
     return 0 if res["status"] in ("dry_run",) else 1
