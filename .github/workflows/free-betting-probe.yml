@@ -118,7 +118,21 @@ jobs:
               "KXNFLANYTD":        "anytime touchdown (weekly)",
               "KXNFLRSHATT":       "rushing attempts (volume/role proxy)",
           }
-          print(f"{'ticker':<20}{'mkts':>6}{'vol':>10}{'oi':>10}  statuses")
+          # FIELD NAMES, CORRECTED. Round 2 read volume/open_interest/yes_bid
+          # and printed None for every market — NOT because the markets are
+          # empty but because this API returns a DOLLARS-denominated schema:
+          # last_price_dollars, yes_bid_dollars, no_bid_dollars,
+          # open_interest_fp, liquidity_dollars, notional_value_dollars.
+          # Reading the wrong key and concluding "thin market" would have
+          # killed a real lead on a typo.
+          def num(m, *keys):
+              for k in keys:
+                  v = m.get(k)
+                  if v not in (None, ""):
+                      return v
+              return None
+
+          print(f"{'ticker':<20}{'mkts':>6}{'priced':>8}{'liq$':>12}{'OI':>10}  statuses")
           hits = {}
           for t, desc in want.items():
               b = get(f"/markets?series_ticker={t}&limit=200")
@@ -127,38 +141,57 @@ jobs:
                   continue
               ms = b.get("markets") or []
               st = collections.Counter(m.get("status") for m in ms)
-              vol = sum((m.get("volume") or 0) for m in ms)
-              oi = sum((m.get("open_interest") or 0) for m in ms)
-              print(f"{t:<20}{len(ms):>6}{vol:>10}{oi:>10}  {dict(st)}   {desc}")
+              priced = sum(1 for m in ms if num(m, "last_price_dollars",
+                                                "yes_bid_dollars", "yes_ask_dollars"))
+              liq = sum(float(num(m, "liquidity_dollars") or 0) for m in ms)
+              oi = sum(float(num(m, "open_interest_fp", "open_interest") or 0) for m in ms)
+              print(f"{t:<20}{len(ms):>6}{priced:>8}{liq:>12.0f}{oi:>10.0f}  {dict(st)}   {desc}")
               if ms:
                   hits[t] = ms
 
           print()
-          print("== detail on any series that returned markets ==")
+          print("== THE LADDER: thresholds per player = an implied DISTRIBUTION ==")
+          # Each series is a ladder of yes/no thresholds (750+/1250+/1500+ rec
+          # yards). P(>=750), P(>=1250), P(>=1500) for one player IS a
+          # cumulative distribution over his season — strictly richer than the
+          # single mean projection own_v6 or FantasyPros produce, and it
+          # yields P(breakout) directly, which is what late-round picks are
+          # actually about.
           for t, ms in hits.items():
-              top = sorted(ms, key=lambda m: -(m.get('volume') or 0))[:6]
-              print(f"\n  {t}  ({len(ms)} markets)")
-              print(f"    fields: {sorted(top[0])[:22]}")
+              rungs = collections.Counter()
+              for m in ms:
+                  ev = (m.get("event_ticker") or "")
+                  rungs[ev.split("-")[-1] if "-" in ev else ev] += 1
+              print(f"\n  {t}: {len(ms)} markets across rungs {dict(rungs)}")
+              top = [m for m in ms if num(m, "last_price_dollars",
+                                          "yes_bid_dollars")][:6] or ms[:3]
               for m in top:
                   print(f"    {(m.get('ticker') or '')[:38]:<38} "
-                        f"status={m.get('status')} vol={m.get('volume')} "
-                        f"oi={m.get('open_interest')} "
-                        f"bid={m.get('yes_bid')} ask={m.get('yes_ask')} "
-                        f"close={str(m.get('close_time'))[:10]}")
-                  ttl = m.get('title') or m.get('subtitle') or m.get('yes_sub_title')
-                  if ttl:
-                      print(f"        {str(ttl)[:88]}")
+                        f"last={num(m,'last_price_dollars')} "
+                        f"bid={num(m,'yes_bid_dollars')} ask={num(m,'yes_ask_dollars')} "
+                        f"OI={num(m,'open_interest_fp','open_interest')} "
+                        f"liq={num(m,'liquidity_dollars')}")
 
           print()
-          print("== when do NFL markets open? (events carry open/close times) ==")
-          for t in ("KXNFLSEASONRECYDS", "KXNFLFFPTS", "KXNFLANYTD"):
-              b = get(f"/events?series_ticker={t}&limit=5")
-              if "_err" in b:
-                  print(f"  {t}: ERR {b['_err']}"); continue
-              evs = b.get("events") or []
-              print(f"  {t}: {len(evs)} events")
-              for e in evs[:3]:
-                  print(f"    {(e.get('event_ticker') or '')[:40]:<40} "
-                        f"{str(e.get('title'))[:44]} "
-                        f"strike={str(e.get('strike_date'))[:10]}")
+          print("== per-player ladder reconstruction, one worked example ==")
+          # Pull EVERY rung for a single well-known player to show the shape
+          # a projection would actually be built from.
+          for t in ("KXNFLSEASONRECYDS", "KXNFLSEASONRSHYDS"):
+              b = get(f"/markets?series_ticker={t}&limit=1000")
+              ms = b.get("markets") or []
+              bypl = collections.defaultdict(list)
+              for m in ms:
+                  tick = m.get("ticker") or ""
+                  who = tick.split("-")[-1]
+                  bypl[who].append(m)
+              multi = {k: v for k, v in bypl.items() if len(v) > 1}
+              print(f"  {t}: {len(bypl)} players, {len(multi)} with 2+ rungs")
+              for who, rows in list(sorted(multi.items(), key=lambda kv: -len(kv[1])))[:3]:
+                  print(f"    {who}:")
+                  for m in sorted(rows, key=lambda m: str(m.get('event_ticker'))):
+                      print(f"      {str(m.get('event_ticker'))[-8:]:<10} "
+                            f"last={num(m,'last_price_dollars')} "
+                            f"bid={num(m,'yes_bid_dollars')} "
+                            f"ask={num(m,'yes_ask_dollars')} "
+                            f"OI={num(m,'open_interest_fp','open_interest')}")
           PY
