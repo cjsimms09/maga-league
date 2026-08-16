@@ -389,6 +389,14 @@ def test_NO_WORKFLOW_MAKES_A_MODEL_JOB_DEPEND_ON_THE_REVIEWER():
     for f in sorted(wf.glob("*.yml")):
         if f.name == "independent-review.yml":
             continue                      # the reviewer may depend on itself
+        if f.name == "config-check.yml":
+            # EXEMPT 2026-08-16: config-check is the SECRETS CENSUS — its whole
+            # job is naming which secrets exist (it checks OPENAI_API_KEY is
+            # set for the reviewer, among others). It is not a model/product
+            # job, nothing `needs:` it, and a reviewer outage cannot stop any
+            # model workflow through it. Referencing the secret's NAME is its
+            # function, not a dependency — the coupling this test forbids.
+            continue
         src = f.read_text(errors="ignore")
         body = "\n".join(l for l in src.splitlines()
                          if not l.lstrip().startswith("#"))

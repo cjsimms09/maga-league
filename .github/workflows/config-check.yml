@@ -72,3 +72,78 @@ jobs:
             404) echo "WAIT  weights-read is not on the live site yet (404) — it deploys with the relay-branch merge; both GitHub values above are verified and nothing more is needed from a human";;
             *) echo "WARN  weights-read returned $code ($resp) — inconclusive; GitHub values above are still verified";;
           esac
+
+      # ── Added 2026-08-16: Cory added the OpenAI + odds keys and asked for a
+      # check ("openAI api key is in github already so so is the odds api").
+      # Same contract as above: presence + length only, never a value. The
+      # odds key is checked under BOTH plausible names since the instruction
+      # said ODDS_API_KEY but the tab autocompletes nothing — whichever is
+      # set passes, and the step names the one it found.
+      # Name hunt (2026-08-16): the strict OPENAI_API_KEY check below came back
+      # EMPTY though Cory says both keys are in — so the names differ or the
+      # values landed in the Variables tab / another scope. Actions cannot
+      # enumerate secrets, but it CAN reference candidates: this prints which
+      # of the plausible names are set (never a value), so the fix is one
+      # rename instead of a guessing game.
+      - name: Which key names actually exist (diagnostic, never fails)
+        env:
+          S_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          S_OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+          S_OPEN_AI_API_KEY: ${{ secrets.OPEN_AI_API_KEY }}
+          S_OPENAI: ${{ secrets.OPENAI }}
+          S_OPENAI_SECRET: ${{ secrets.OPENAI_SECRET }}
+          S_CHATGPT_API_KEY: ${{ secrets.CHATGPT_API_KEY }}
+          S_ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          S_THE_ODDS_API_KEY: ${{ secrets.THE_ODDS_API_KEY }}
+          S_ODDS_API: ${{ secrets.ODDS_API }}
+          S_ODDSAPI_KEY: ${{ secrets.ODDSAPI_KEY }}
+          S_ODDS_KEY: ${{ secrets.ODDS_KEY }}
+          S_BETTING_API_KEY: ${{ secrets.BETTING_API_KEY }}
+          S_SLEEPER_API_KEY: ${{ secrets.SLEEPER_API_KEY }}
+          S_SLEEPER_API: ${{ secrets.SLEEPER_API }}
+          S_SLEEPER_KEY: ${{ secrets.SLEEPER_KEY }}
+          S_SLEEPER: ${{ secrets.SLEEPER }}
+          S_BALL_DONT_LIE_API: ${{ secrets.BALL_DONT_LIE_API }}
+          S_BALLDONTLIE_API_KEY: ${{ secrets.BALLDONTLIE_API_KEY }}
+          S_BALL_DONT_LIE_API_KEY: ${{ secrets.BALL_DONT_LIE_API_KEY }}
+          S_BALLDONTLIE: ${{ secrets.BALLDONTLIE }}
+          S_SPORTSGAME_ODDS_API: ${{ secrets.SPORTSGAME_ODDS_API }}
+          S_SPORTSGAMEODDS_API_KEY: ${{ secrets.SPORTSGAMEODDS_API_KEY }}
+          S_SPORTS_GAME_ODDS_API: ${{ secrets.SPORTS_GAME_ODDS_API }}
+          S_SPORTSGAMEODDS: ${{ secrets.SPORTSGAMEODDS }}
+          V_OPENAI_API_KEY: ${{ vars.OPENAI_API_KEY }}
+          V_ODDS_API_KEY: ${{ vars.ODDS_API_KEY }}
+        run: |
+          found=0
+          for v in S_OPENAI_API_KEY S_OPENAI_KEY S_OPEN_AI_API_KEY S_OPENAI S_OPENAI_SECRET S_CHATGPT_API_KEY \
+                   S_ODDS_API_KEY S_THE_ODDS_API_KEY S_ODDS_API S_ODDSAPI_KEY S_ODDS_KEY S_BETTING_API_KEY \
+                   S_SLEEPER_API_KEY S_SLEEPER_API S_SLEEPER_KEY S_SLEEPER \
+                   S_BALL_DONT_LIE_API S_BALLDONTLIE_API_KEY S_BALL_DONT_LIE_API_KEY S_BALLDONTLIE \
+                   S_SPORTSGAME_ODDS_API S_SPORTSGAMEODDS_API_KEY S_SPORTS_GAME_ODDS_API S_SPORTSGAMEODDS \
+                   V_OPENAI_API_KEY V_ODDS_API_KEY; do
+            val="${!v}"
+            kind="secret"; case "$v" in V_*) kind="VARIABLE (wrong tab — move to Secrets)";; esac
+            name="${v#S_}"; name="${name#V_}"
+            if [ -n "$val" ]; then echo "FOUND  $name is set as a $kind (${#val} chars)"; found=1; fi
+          done
+          [ "$found" = "1" ] || echo "NONE of the candidate names are set in this repo's Actions secrets/variables — the keys may be in a different repo, or under Codespaces/Dependabot secrets instead of Actions secrets"
+
+      - name: OPENAI_API_KEY repository secret
+        env:
+          K: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$K" ]; then echo "FAIL  OPENAI_API_KEY secret is NOT set (Secrets tab, exact name)"; exit 1; fi
+          echo "PASS  OPENAI_API_KEY is set (${#K} chars)"
+          case "$K" in
+            sk-*) echo "PASS  it has the expected sk- prefix";;
+            *) echo "WARN  it does not start with sk- — double-check you pasted the key itself, not a label";;
+          esac
+
+      - name: Odds API repository secret (ODDS_API_KEY or THE_ODDS_API_KEY)
+        env:
+          K1: ${{ secrets.ODDS_API_KEY }}
+          K2: ${{ secrets.THE_ODDS_API_KEY }}
+        run: |
+          if [ -n "$K1" ]; then echo "PASS  ODDS_API_KEY is set (${#K1} chars)"; exit 0; fi
+          if [ -n "$K2" ]; then echo "PASS  THE_ODDS_API_KEY is set (${#K2} chars) — workflows will use this name"; exit 0; fi
+          echo "FAIL  neither ODDS_API_KEY nor THE_ODDS_API_KEY is set — check the Secrets tab spelling"; exit 1

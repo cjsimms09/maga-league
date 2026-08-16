@@ -70,6 +70,12 @@ const PRODUCTION_INPUTS = {
     + 'starters-array heuristic cannot classify — anyone who only ever started in a '
     + 'FLEX-type slot. About real historical rosters of THIS league, same as '
     + 'league_history.json, not a future-season signal.',
+  'controls.json': 'Cory\'s adaptation controls for the weekly own-projection '
+    + 'loop (draft/data/weekly_own/) — read by /admin/model-scoreboard to '
+    + 'DISPLAY adaptation state (the same page reads grades_<season>.json via '
+    + 'a templated name for the scoreboard numbers). Cory-only display; never '
+    + 'an input to a ranking or a member surface. Declared 2026-08-16 with '
+    + 'the weekly-own loop.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not
