@@ -53,5 +53,15 @@ jobs:
           [ -n "$K_ODDS" ] && probe_bdl ODDS_API_KEY "$K_ODDS"
           [ -n "$K_SGO" ]  && probe_theodds SPORTSGAME_ODDS_API "$K_SGO"
 
+          echo "== kalshi (public market data, no key — Cory's 2026-08-16 study ask) =="
+          c=$(code "https://api.elections.kalshi.com/trade-api/v2/exchange/status")
+          echo "kalshi exchange/status (unauthenticated): HTTP $c"
+          c=$(code "https://api.elections.kalshi.com/trade-api/v2/series?category=Sports")
+          echo "kalshi series?category=Sports: HTTP $c"
+          if [ "$c" = "200" ]; then
+            echo "NFL-ish series tickers visible (name+ticker only):"
+            (grep -o '"ticker":"[^"]*"' /tmp/body | grep -i -m 12 'NFL' || echo "  none matching NFL in first page")
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true
