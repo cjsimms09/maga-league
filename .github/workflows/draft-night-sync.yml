@@ -42,6 +42,11 @@ on:
         description: 'Give up after this many minutes if the draft never completes'
         required: false
         default: '240'
+      dry_run:
+        description: 'Write to a throwaway log and skip git commit/push — verifies the polling/exit mechanics against a real (e.g. completed, historical) draft_id without ever touching draft_pick_log_2026.jsonl'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -59,17 +64,40 @@ jobs:
         env:
           DRAFT_ID: ${{ github.event.inputs.draft_id }}
           MAX_MINUTES: ${{ github.event.inputs.max_minutes }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           set -uo pipefail
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
 
+          if [ "$DRY_RUN" = "true" ]; then
+            export DRAFT_PICK_LOG_PATH="$RUNNER_TEMP/draft_pick_log_dry_run.jsonl"
+            echo "DRY RUN: writing to $DRAFT_PICK_LOG_PATH, nothing will be committed or pushed."
+          fi
+
           deadline=$(( $(date +%s) + MAX_MINUTES * 60 ))
           echo "Syncing draft $DRAFT_ID, giving up after ${MAX_MINUTES}m if it never completes."
 
           while [ "$(date +%s)" -lt "$deadline" ]; do
-            OUT="$(python3 draft/log_draft_picks.py --sync "$DRAFT_ID" 2>&1)"
-            code=$?
+            # THE RETRY-ON-FAILURE PROMISE WAS DEAD CODE, found 2026-08-15 by
+            # actually firing this workflow for real (dry_run:true, a
+            # completed historical draft_id) rather than trusting the shell
+            # by reading it. GitHub Actions runs `run:` under `bash -e`, and
+            # a bare `OUT="$(cmd)"` assignment is NOT one of the contexts `-e`
+            # exempts (unlike `if cmd; then`) — so the very first non-zero
+            # --sync exit killed the whole job immediately, before `code=$?`
+            # or `echo "$OUT"` ever ran, silently defeating the "retry on
+            # next poll rather than abort the whole night on one bad
+            # response" this comment already promised, AND swallowing the
+            # actual error text from the log in the process (the real
+            # first-run failure showed only "Process completed with exit
+            # code 1", nothing else). Wrapping the assignment itself in the
+            # `if` is what actually gets bash's exemption.
+            if OUT="$(python3 draft/log_draft_picks.py --sync "$DRAFT_ID" 2>&1)"; then
+              code=0
+            else
+              code=$?
+            fi
             echo "$OUT"
             if [ $code -ne 0 ]; then
               echo "sync call failed (exit $code) — will retry on next poll rather than abort the whole night on one bad response"
@@ -77,18 +105,49 @@ jobs:
 
             # Commit only if the log actually changed — the common case is
             # polling between picks with nothing new, which must be a silent
-            # no-op, not noise in the history.
-            if ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
+            # no-op, not noise in the history. Skipped entirely in dry_run:
+            # the whole point is proving the polling/exit mechanics without
+            # ever committing or pushing anything.
+            if [ "$DRY_RUN" != "true" ] && ! git diff --quiet -- draft/data/draft_pick_log_2026.jsonl 2>/dev/null; then
               git add draft/data/draft_pick_log_2026.jsonl
               git commit -m "[skip deploy] draft-night sync: pick log update" -q
-              git push -q
-              echo "logged and pushed a change to the pick log"
+              # PUSH-CONFLICT RECOVERY (external audit finding, 2026-08-16):
+              # if anything else lands on the branch between our checkout and
+              # this push, a bare push rejects and bash -e would kill the run
+              # — losing every pick captured in this runner. Rebase-and-retry
+              # instead: our commit touches only the pick log, so a rebase
+              # onto any concurrent commit is clean unless someone else edited
+              # THE SAME file (in which case failing loudly is correct — two
+              # writers on the pick log is the real emergency). 5 attempts,
+              # then keep polling anyway: picks keep accumulating locally and
+              # the next changed-poll retries the push rather than dying.
+              pushed=0
+              for i in 1 2 3 4 5; do
+                if git push -q; then pushed=1; break; fi
+                echo "push rejected (attempt $i) — rebasing onto the remote and retrying"
+                if ! git pull --rebase -q; then
+                  echo "REBASE CONFLICT on the pick log itself — a second writer exists; keeping local commits and retrying next poll"
+                  git rebase --abort 2>/dev/null || true
+                  break
+                fi
+                sleep $((i * 2))
+              done
+              if [ "$pushed" = "1" ]; then
+                echo "logged and pushed a change to the pick log"
+              else
+                echo "WARNING: pick log committed locally but NOT pushed yet — will retry on next changed poll"
+              fi
             fi
 
             # Done when the log is a contiguous run covering every pick the
             # freeze expects — read from --status rather than re-deriving the
             # total here, so this can't drift from what the log itself checks.
-            STATUS="$(python3 draft/log_draft_picks.py --status 2>&1)"
+            # SAME bash -e trap as --sync above: status() deliberately returns
+            # 1 when rows joined to a DIFFERENT freeze than the current one —
+            # a real, designed warning (not a crash), that a bare `$(...)`
+            # assignment would have killed the job on before it was ever
+            # printed. Same fix, same reason.
+            if STATUS="$(python3 draft/log_draft_picks.py --status 2>&1)"; then :; fi
             echo "$STATUS"
             if printf '%s' "$STATUS" | grep -qE '^picks\s*: ([0-9]+) of \1 logged$'; then
               echo "draft complete — every pick logged, stopping."
