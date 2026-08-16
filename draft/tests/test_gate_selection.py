@@ -71,6 +71,13 @@ REPO_PARITY_NODES = {
     # live board itself (roster-status verification + name map), all of
     # which the nightly board rebuild legitimately refreshes.
     "draft/tests/test_replay_all_seats.py::test_artifact_matches_regeneration",
+    # historical-props study (2026-08-16): the read-only reproduction of
+    # own_model_v6's construction (props_season_projection._v6_predictions)
+    # is graded against the COMMITTED model_accuracy_v6.json — same class as
+    # the own-model artifact-vs-regeneration pins above, since the
+    # reproduction reads positions_record()/board_ages(), both refreshed by
+    # the nightly board rebuild.
+    "draft/tests/test_props_season_projection.py::test_v6_reproduction_matches_committed_model_accuracy_v6",
 }
 
 

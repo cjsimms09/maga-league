@@ -70,6 +70,9 @@ same session: see Settled below)*
   undiagnosed (#00000).
 - Sunday alert fires before official inactives (B, #7) · self-referential
   fixtures clause awaiting authorization (A).
+- Historical-props season-total study: harness built and tested against
+  fixtures, NO real data fetched yet, nothing to rule on — see § "HISTORICAL
+  PLAYER-PROPS STUDY" below.
 
 ## Settled today (rulings made; records, not questions)
 
@@ -142,6 +145,28 @@ same session: see Settled below)*
 ---
 
 # OPEN — needs a decision, or is blocked and waiting
+
+## 💰 HISTORICAL PLAYER-PROPS STUDY — harness built and tested, NO ruling needed yet (Fable, 2026-08-16)
+
+**Not a ruling item — an OPEN note, because there is nothing to rule on
+until real data exists and is graded.** Cory asked repeatedly whether
+paying for historical betting/player-props data would improve projections
+(verbatim in `draft/audit/historical_props_study_2026-08-16.md` §0); he has
+activated a paid ODDS_API_KEY. **Access is CONFIRMED LIVE** (`key-probe.yml`
+on `main`, run `31967817943`: historical events list AND the
+`player_pass_yds` player-prop market both returned HTTP 200 with real data,
+6 bookmakers, `x-requests-remaining: 99988` — confirms the ~100,000/mo
+plan). The FULL pipeline — fetch tool, GitHub Actions workflow, line->points
+conversion, season aggregation, and the graded comparison against `own_v6`
+— is built and tested against synthetic fixtures shaped exactly like the
+confirmed real API response. **NO real historical prop line has been
+fetched and NO real grade exists.** The real 3-season fetch costs real
+money (~49,068 credits total, ~49% of the confirmed 100K/mo plan) and is a
+human decision, queued at `ROUTES.md` TO:A, marked COSTS REAL API CREDITS —
+DO NOT AUTO-FIRE. Once dispatched, `python3 draft/tools/props_season_projection.py`
+is the entire remaining step to get a real, trustworthy verdict — already
+tested, one command. Full detail, the preregistered form, and the exact
+budget math: `draft/audit/historical_props_study_2026-08-16.md`.
 
 ## 🪜 ENGINE ABLATION — the prepared off-flips await your ruling (A, 2026-08-16; experiment was your ask, removal is your call)
 
