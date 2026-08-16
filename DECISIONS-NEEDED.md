@@ -978,3 +978,64 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
+
+
+## K0-RECHECK. THE KEEPER OPTIMIZER CANNOT SEE ITS OWN KEEPERS — and one intel claim is contradicted (A, 2026-08-16) 🔴 OPEN
+
+Full working: `draft/audit/keeper_slate_2026-08-16.md`.
+
+**THE HEADLINE IS NOT A DECISION — IT IS A CONFIRMATION.** The 2026 slate had
+never been re-run against the current board (the only recorded run is against
+`built_at 2026-08-07T09:08:24Z`, `adp_source ffc`; live is 2026-08-15 on
+fantasypros, two own-model promotions later). It has now been run.
+**KEEP CHASE / HENRY / WALKER — unchanged, +108.6 total surplus, +21.5 clear of
+the best alternative trio and +40.4 clear of keeping only two. No action needed
+before the lock; the standing Sleeper designation is already correct.** That
+holds under every opponent-keeper scenario and does not depend on forecasting
+the six teams that have not designated.
+
+**THE THINGS THAT DO NEED YOU:**
+
+**(1) A tool that answers the biggest pre-draft question with a confident wrong
+number. `draft/keeper_optimize.py` today prints "RECOMMENDED: keep 0 — nobody"
+and offers Cameron Dicker at round 1.** Not a finding — a silent join. The board
+now moves designated keepers out of `players` into `kept_players`, so the join
+at `keeper_optimize.py:36-43` misses all three and the bare `continue` at line 48
+drops them without a word; `kept_players` rows also carry no `vorp` field.
+Absent-is-not-zero, in the tool whose whole job is this decision. **I have NOT
+fixed it** — the brief for this pass was read-only on `keepers.py` /
+`keeper_optimize.py`, and a fix changes an answer. **Ruling wanted: fix it now
+(fall back to `kept_players`, recompute VORP from `proj_mean − replacement`, and
+REFUSE loudly rather than `continue` on any unjoinable roster player), or leave
+it and rely on the audit doc through the 22nd.** Three lesser defects are listed
+in the same doc (stale `league_history` roster read; `expected_best_available`
+ignores its `replacement_by_pos` argument entirely; the documented live-scale vs
+board-scale mismatch is live in that function). Cost of inaction: anyone who
+re-runs the tool before the draft — including a future session — gets "keep
+nobody" and it looks normal.
+
+**(2) `STATUS.md:505` says "MarianSaar keeps Bowers — HIGH confidence, source:
+Cory intel". Sleeper says otherwise.** MarianSaar has now designated **Justin
+Jefferson, De'Von Achane, Jaxon Smith-Njigba**. **Brock Bowers is NOT
+designated** — VORP 80.9, tier 1, tier_drop 24.94, surviving 85% to pick 8,
+71% to 13, 19% to 28, **8% to my first pick at 33**. `STATUS.md:507` builds the
+current PRIMARY pick-33 scenario ("⚡ THE TE FORK COLLAPSED … both-TEs-gone")
+on Bowers-kept AND McBride-kept; half of that is now contradicted and
+Richard2121 (the McBride half, logged as "LOCKED, certain, Cory intel") has not
+designated at all. **This does not touch the keeper answer** — Bowers is not
+Cory's to keep. It touches the opening plan. **Ruling wanted: was the Bowers
+intel wrong, or is Marian expected to change her designation before the lock?
+Your answer decides whether the pick-33 dossier needs rebuilding this week.**
+
+**CONFIDENCE.** The designations are read from live Sleeper
+(`draft/config/keepers.json`, `_designations_source: "sleeper"`, 4 of 10 teams,
+11 players). The slate is still `status: predicted` / `confirmed: false` —
+no commissioner placements exist yet, so designations can still move. The
+keeper-prediction model, graded for the first time against the three opponents
+who have since designated, is **5/8 players and 1/3 teams exact** (it nailed
+B8T3S 3/3, went 2/3 on MarianSaar, and predicted cashworth would keep nobody
+when he kept Jeanty + Chase Brown).
+
+**COST OF INACTION.** (1) is a live trap with a deadline. (2) is a plan built
+on a premise that is currently false; the keeper decision itself is safe either
+way.
