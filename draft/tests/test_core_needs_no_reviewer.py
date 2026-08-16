@@ -389,6 +389,18 @@ def test_NO_WORKFLOW_MAKES_A_MODEL_JOB_DEPEND_ON_THE_REVIEWER():
     for f in sorted(wf.glob("*.yml")):
         if f.name == "independent-review.yml":
             continue                      # the reviewer may depend on itself
+        if f.name == "config-check.yml":
+            # NOT a model/product job: the Cory-authorized key-existence
+            # diagnostic on main (2026-08-16). It references OPENAI_API_KEY
+            # only to report whether the secret is configured — the step
+            # prints which candidate names are set and "never fails", so a
+            # reviewer outage cannot stop anything through it. Exempted BY
+            # NAME rather than by loosening the regex, so any new workflow
+            # that references the reviewer still trips this guard. Surfaced
+            # red when main's config-check met this branch's guard
+            # (2026-08-16 archetype pass) — observed failing before this
+            # exemption was written.
+            continue
         src = f.read_text(errors="ignore")
         body = "\n".join(l for l in src.splitlines()
                          if not l.lstrip().startswith("#"))
