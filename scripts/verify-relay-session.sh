@@ -60,14 +60,17 @@ echo ""
 echo "== 3. THE TERRITORY GATE'S REFUSAL IS EXACTLY THE DOCUMENTED SET =="
 # integrate.sh WILL refuse this branch — that is expected and recorded as
 # Override #5 in TERRITORY.md (including its appendices). This check pins the
-# refusal to EXACTLY the 26 documented files: a twenty-seventh trespass appearing later
+# refusal to EXACTLY the 39 documented files: a fortieth trespass appearing later
 # fails HERE, so "expected refusal" can never quietly grow. The set SHRINKS as
 # authorised fixes reach main and stop diffing (test_board_pin.py first, then
 # the board_activity pair with the rebuild-blocker cherry-picks) and GREW
 # 2026-08-15 night with the war-room design pass (warroom.ejs, header.ejs,
 # warroom.css), the sidebets.test.js guard restatement (the edge advisor),
 # and the side-bet/member-site design pass (_side_bets.ejs rewrite, pickem,
-# scoreboard, style.css, sidebets.js — Cory's side-bet directive verbatim) —
+# scoreboard, style.css, sidebets.js — Cory's side-bet directive verbatim),
+# then 2026-08-16 with the member-site design pass (+13: memberweek/
+# recordswatch/whatwatch routes, week-nav + races + preview views/partials,
+# matchup/team/watch surfaces — Cory's five ordered features verbatim) —
 # each exit and entry is documented in Override #5's bookkeeping notes.
 EXPECTED_TRESPASS="draft/tests/h2h_agreement.test.js
 draft/tests/lineup_sanity.test.js
@@ -80,7 +83,10 @@ public/css/warroom.css
 src/routes/accuracy.js
 src/routes/lineup.js
 src/routes/member.js
+src/routes/memberweek.js
+src/routes/recordswatch.js
 src/routes/trashtalk.js
+src/routes/whatwatch.js
 src/sidebets.js
 views/accuracy.ejs
 views/admin/warroom.ejs
@@ -88,13 +94,23 @@ views/analyzer.ejs
 views/bank.ejs
 views/dashboard.ejs
 views/lineup.ejs
+views/matchup-spectator.ejs
+views/matchup-week.ejs
+views/matchup.ejs
+views/partials/_preview_line.ejs
+views/partials/_season_sched.ejs
 views/partials/_side_bets.ejs
+views/partials/_week_strip.ejs
 views/partials/_wr_explain.ejs
 views/partials/header.ejs
 views/pickem.ejs
+views/races.ejs
+views/scoreboard-week.ejs
 views/scoreboard.ejs
+views/team.ejs
 views/votes.ejs
-views/waivers.ejs"
+views/waivers.ejs
+views/watch.ejs"
 # awk on the LAST ": "-field, not a paren-matching regex — the C-file line
 # reads "TRESPASS (A touched C's file (declared in-file)): path" and nested
 # parens broke the first version of this extraction (its own dry run caught
@@ -102,7 +118,7 @@ views/waivers.ejs"
 ACTUAL=$(bash scripts/territory-check.sh A --range origin/main HEAD 2>&1 \
   | grep '^TRESPASS' | awk -F': ' '{print $NF}' | sort) || true
 if [ "$ACTUAL" == "$EXPECTED_TRESPASS" ]; then
-  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 26 files exactly"
+  pass=$((pass+1)); echo "PASS  gate refusal matches Override #5's 39 files exactly"
 else
   fail=$((fail+1)); echo "FAIL  gate refusal does NOT match the documented set:"
   diff <(echo "$EXPECTED_TRESPASS") <(echo "$ACTUAL") | sed 's/^/        /'

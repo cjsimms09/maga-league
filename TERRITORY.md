@@ -1320,8 +1320,38 @@ Pinned by 111 new fidelity checks (inseason_explainers 71 + inseason_surface
 40); before/after captures in draft/audit/screens/is-*.png; deliverable doc
 draft/audit/inseason_design_pass_2026-08-16.md.
 
-Refusal-set bookkeeping: the pinned set is now **26 files**
-(`scripts/verify-relay-session.sh` carries the exact list). No scoring/weight
-default moved beyond Cory's two ruled flips (recorded in the verify gate's
-exemption itself); the merge remains A's or Cory's deliberate act via
-`scripts/merge-relay.sh`.
+Refusal-set bookkeeping (superseded below): the pinned set was **26 files**
+after this pass. No scoring/weight default moved beyond Cory's two ruled
+flips (recorded in the verify gate's exemption itself); the merge remains
+A's or Cory's deliberate act via `scripts/merge-relay.sh`.
+
+**APPENDED 2026-08-16 (later still), SAME AUTHORITY — the member-site design
+pass** (Cory's charter, verbatim in docs/queued/member-site-design.md: *"The
+goal is to get people to use this site instead of sleeper for everything but
+setting their lineup"*, five features ruled in order: *"Tuesday matchup
+preview is cool, yes. Week nav yes. Charts yes, records watch yes, the races
+yes"*, with the HARD ACCESS RULE — win odds are *"sleeper info only, not our
+model for anyone but me"*). Thirteen more B-lane crossings, all member-facing
+surface, none touching capture payloads or `requireCommissioner` gates:
+
+  * NEW routes: `src/routes/memberweek.js` (previews + week nav + Sleeper-only
+    odds engine), `src/routes/recordswatch.js` (records book vs live season).
+  * Touched route: `src/routes/whatwatch.js` (league-wide swing framing).
+  * NEW views: `views/matchup-week.ejs`, `views/scoreboard-week.ejs`,
+    `views/races.ejs`, `views/partials/_week_strip.ejs`,
+    `views/partials/_preview_line.ejs`, `views/partials/_season_sched.ejs`.
+  * Touched views: `views/matchup.ejs`, `views/matchup-spectator.ejs`,
+    `views/team.ejs`, `views/watch.ejs` (already-listed: scoreboard.ejs,
+    dashboard.ejs, header.ejs, style.css, warroom.css, member.js).
+
+The access rule is not a promise but a FAIL-ARM: `member_access_rule.test.js`
+(53 checks) plants a tripwire `proj_ownmodel` on every board player and proves
+no member page renders it, and renders the odds line twice to prove it does
+not move when our model moves. 130 new fidelity checks total; 44 before/after
+captures in draft/audit/screens/ms-*.png; deliverable doc
+draft/audit/member_site_design_pass_2026-08-16.md.
+
+Refusal-set bookkeeping: the pinned set is now **39 files**
+(`scripts/verify-relay-session.sh` carries the exact list). Same terms as
+every appendix above: no scoring/weight default moved; the merge to main
+remains A's or Cory's deliberate act via `scripts/merge-relay.sh`.
