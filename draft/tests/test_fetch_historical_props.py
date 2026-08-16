@@ -150,13 +150,13 @@ def test_parse_event_props_multiple_markets_and_players():
 def test_parse_event_props_ignores_markets_outside_requested_set():
     doc = _event_odds_doc([
         {"key": "draftkings", "markets": [
-            {"key": "player_anytime_td", "outcomes": [
-                {"name": "Yes", "description": "Travis Kelce", "price": 150}]},
+            {"key": "player_field_goals", "outcomes": [
+                {"name": "Over", "description": "Harrison Butker", "point": 1.5}]},
             {"key": "player_pass_yds", "outcomes": [
                 {"name": "Over", "description": "Patrick Mahomes", "point": 260.5}]},
         ]}])
     got = FHP.parse_event_props(doc)
-    assert "Travis Kelce" not in got
+    assert "Harrison Butker" not in got
     assert got == {"Patrick Mahomes": {"pass_yd": 260.5}}
 
 
@@ -254,8 +254,13 @@ def test_market_to_stat_targets_are_frozen_scoring_table_keys():
     # every stat key this file emits must be a real scoring-table key so
     # props_season_projection.line_to_points can price it without a KeyError
     # silently swallowing a typo.
-    scoring_keys = {"pass_yd", "pass_td", "rush_yd", "rush_td", "rec_yd", "rec"}
+    # `rush_td` was dropped 2026-08-16: the vendor bills for
+    # player_rush_tds and serves nothing (0 rows / 7,019 player-weeks).
+    # `any_td` replaces it and is priced via props_season_projection's
+    # _any_td_rate, which refuses to guess when rush_td != rec_td.
+    scoring_keys = {"pass_yd", "pass_td", "rush_yd", "any_td", "rec_yd", "rec"}
     assert set(FHP.MARKET_TO_STAT.values()) == scoring_keys
+    assert "player_rush_tds" not in FHP.MARKET_TO_STAT
 
 
 # ── fetch health: the 2026-08-16 truncated-week / missing-market catch ────
@@ -290,7 +295,7 @@ def test_summarize_health_passes_a_fully_resolved_season():
     assert out["games_planned"] == 288
 
 
-def _doc(counts, markets=("rec_yd", "rec", "rush_yd", "pass_yd", "pass_td", "rush_td")):
+def _doc(counts, markets=("rec_yd", "rec", "rush_yd", "pass_yd", "pass_td", "any_td")):
     return {"season": 2024, "weeks": [
         {"week": w, "players": {f"P{i}": {m: 1.0 for m in markets}
                                 for i in range(n)}}
@@ -316,11 +321,10 @@ def test_audit_doc_does_not_flag_legitimate_late_season_tapering():
 
 
 def test_audit_doc_catches_a_market_we_paid_for_that_never_landed():
-    # rush_td: billed on every one of the 272 calls per season (10 credits x
-    # 6 markets), zero rows returned across 7,019 real player-weeks.
+    # The real 2023-2025 shape: five markets land, the sixth never does.
     got = ("rec_yd", "rec", "rush_yd", "pass_yd", "pass_td")
     out = FHP.audit_doc(_doc({w: 200 for w in range(1, 19)}, markets=got))
-    assert out["markets_missing"] == ["rush_td"]
+    assert out["markets_missing"] == ["any_td"]
     assert out["complete"] is False
 
 
@@ -328,3 +332,73 @@ def test_audit_doc_passes_a_clean_file():
     out = FHP.audit_doc(_doc({w: 200 for w in range(1, 19)}))
     assert out["complete"] is True
     assert out["markets_missing"] == []
+
+
+# ── anytime-TD: price -> probability -> expected touchdowns ──────────────
+#
+# player_rush_tds is billed and never served (key-probe 31970300788), so
+# player_anytime_td replaced it. That market quotes a PRICE, not a line, so
+# it needs a conversion the over/under path never had. These pin the math
+# rather than trusting it, including the two places it is deliberately
+# approximate.
+
+
+def test_american_to_prob_both_signs():
+    assert FHP.american_to_prob(-150) == pytest.approx(0.6, abs=1e-9)
+    assert FHP.american_to_prob(+200) == pytest.approx(1 / 3, abs=1e-9)
+    assert FHP.american_to_prob(+100) == pytest.approx(0.5, abs=1e-9)
+
+
+def test_devig_pair_strips_the_book_margin():
+    # -150 / +120 implies 0.600 + 0.4545 = 1.0545 — the 5.45% over-round is
+    # the book's take, and the fair number must be below the raw 0.600.
+    fair = FHP.devig_pair(FHP.american_to_prob(-150), FHP.american_to_prob(120))
+    assert fair == pytest.approx(0.6 / (0.6 + 100 / 220), abs=1e-9)
+    assert fair < 0.6
+
+
+def test_devig_pair_leaves_a_single_sided_quote_alone():
+    # Books often publish only the Yes side of anytime-TD. There is no pair
+    # to normalise against, so the value stays raw and is biased HIGH by
+    # roughly the vig — a documented limitation, not a silent correction.
+    assert FHP.devig_pair(0.42, None) == 0.42
+
+
+def test_expected_tds_exceeds_the_anytime_probability():
+    # P(>=1 TD) and E[TD] differ because multi-TD games exist. A 0.30
+    # anytime price is ~0.357 expected TDs; reading the probability
+    # directly would under-price exactly the goal-line backs who matter.
+    exp = FHP.anytime_td_to_expected_tds(0.30)
+    assert exp == pytest.approx(0.35667, abs=1e-4)
+    assert exp > 0.30
+
+
+def test_expected_tds_is_monotonic_and_bounded_at_zero():
+    assert FHP.anytime_td_to_expected_tds(0.0) == 0.0
+    vals = [FHP.anytime_td_to_expected_tds(p) for p in (0.05, 0.2, 0.5, 0.8)]
+    assert vals == sorted(vals)
+
+
+def test_parse_price_market_pairs_yes_with_no_and_converts():
+    m = {"key": "player_anytime_td", "outcomes": [
+        {"name": "Yes", "description": "Saquon Barkley", "price": -110},
+        {"name": "No", "description": "Saquon Barkley", "price": -110},
+        {"name": "Yes", "description": "Deep Reserve", "price": +900},
+    ]}
+    got = FHP.parse_price_market(m)
+    # -110/-110 de-vigs to exactly 0.5 -> E[TD] = -ln(0.5) = 0.693
+    assert got["Saquon Barkley"] == pytest.approx(0.69315, abs=1e-4)
+    # a +900 longshot stays small
+    assert got["Deep Reserve"] < 0.15
+
+
+def test_parse_event_props_routes_anytime_td_through_the_price_path():
+    # The over/under path reads `point`; an anytime-TD outcome has none, so
+    # before the split this market was silently dropped in full.
+    doc = _event_odds_doc([
+        {"key": "draftkings", "markets": [
+            {"key": "player_anytime_td", "outcomes": [
+                {"name": "Yes", "description": "CeeDee Lamb", "price": -110},
+                {"name": "No", "description": "CeeDee Lamb", "price": -110}]}]}])
+    got = FHP.parse_event_props(doc)
+    assert got["CeeDee Lamb"]["any_td"] == pytest.approx(0.69, abs=0.01)

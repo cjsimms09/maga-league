@@ -164,10 +164,30 @@ def line_to_points(week_stats: dict, scoring_cfg: dict) -> float:
     pts = 0.0
     for stat, val in week_stats.items():
         rate = scoring_cfg.get(stat)
+        if rate is None:
+            rate = _any_td_rate(scoring_cfg) if stat == "any_td" else None
         if rate is None or val is None:
             continue
         pts += float(val) * float(rate)
     return round(pts, 4)
+
+
+def _any_td_rate(scoring_cfg: dict) -> float | None:
+    """Points per EXPECTED anytime touchdown.
+
+    `any_td` exists because the vendor serves no rushing-TD market at all —
+    `player_rush_tds` is billed and returns nothing (key-probe run
+    31970300788), so `player_anytime_td` replaced it. That market does not
+    distinguish a rushing score from a receiving one, and this function is
+    only sound because THIS league prices both identically (rush_td =
+    rec_td = 6.0 in the frozen table). If they ever diverge, an anytime-TD
+    expectation can no longer be priced without knowing the split, and this
+    returns None rather than silently picking one — a missing contribution
+    is recoverable, a wrong one is not."""
+    rush, rec = scoring_cfg.get("rush_td"), scoring_cfg.get("rec_td")
+    if rush is None or rec is None or float(rush) != float(rec):
+        return None
+    return float(rush)
 
 
 def week_implied_points(week_players: dict, scoring_cfg: dict) -> dict:

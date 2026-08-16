@@ -479,3 +479,107 @@ beat `own_v6`" computed on data missing every rushing touchdown and ~7.4%
 of its weeks (4 of 54) is not a verdict. The honest state is: the pipeline
 works, the money was spent, the data is incomplete, and the incompleteness
 was caught before it could contaminate a result.
+
+---
+
+## 10. MEASURED CREDIT COSTS — and the finding that reframes the whole study
+
+Cory, reading the vendor's own pricing page ("1 market, 1 region: Cost 1"),
+asked whether one pull could carry far more data than our
+272-calls-per-season design, and then set the priority explicitly: *"We need
+to save credits for draft projection studies as well!! That one is important
+for draft."*
+
+Rather than reason from documentation, every number below is a **measured
+`x-requests-remaining` delta** — the vendor's own ledger, read either side of
+each call (key-probe runs `31970500296`, `31970615122`, `31970663659`).
+
+### 10a. There is no bulk shortcut for player props
+
+```
+bulk /odds, 1 prop market : HTTP 422 | credits used: 0    <- rejected outright
+bulk /odds, h2h (control) : HTTP 200 | credits used: 10   <- 225 events, 880 rows
+per-event, 1 market       : HTTP 200 | credits used: 10
+per-event, 6 markets      : HTTP 200 | credits used: 60   <- 895 rows
+events list               : HTTP 200 | credits used: 1
+```
+
+The bulk `/v4/sports/{sport}/odds` endpoint really does return 225 games for
+10 credits — but only for game markets. Ask it for a player prop and it
+422s. Player props are per-event only; the 272-calls-per-season shape is
+forced by the vendor, not a design mistake of ours.
+
+Two corrections fell out. Our `10 x markets x regions` formula is **confirmed
+exactly** (1 market = 10 credits, 6 markets = 60). And the events-list call
+costs **1 credit, not the 2** `EVENTS_LIST_CREDIT_EST` assumed — that 2 was
+backed out of a bundled probe total and over-stated it. Constant corrected.
+
+### 10b. 2026 week-1 player props are already live — at 1x, not 10x
+
+```
+live week-1 props: HTTP 200 | credits used: 2
+  books: 3; markets: ['player_anytime_td', 'player_pass_yds']; rows: 87
+```
+
+All 272 regular-season games are listed today, and week-1 player props are
+already priced — on a game kicking off 2026-09-10, probed on 2026-08-16.
+**Two markets cost 2 credits: live data carries no 10x historical
+multiplier.**
+
+| plan | credits | serves |
+|---|---|---|
+| **Week-1 props, 16 games, 6 markets** | **96** | **the 8/22 draft** |
+| Full 2026 season live, 18 weeks | 1,722 | in-season lineups/waivers |
+| Historical re-fetch, 1 season | 16,410 | retrospective validation only |
+| Historical re-fetch, 3 seasons | 49,230 | retrospective validation only |
+
+Against ~64,900 remaining, the two rows that actually affect results cost
+**1,818 combined — under 3% of the plan.**
+
+### 10c. Recommendation, REVERSED from §9
+
+§9 treated the historical pull as something to rescue with a re-fetch. On
+these numbers that is the wrong trade. The historical study answers "were
+betting markets historically better than `own_v6`?" — a question that
+**cannot change the 8/22 draft board**, because there is no responsible way
+to refit and re-promote a projection model on props inside six days. It is a
+post-draft project, and it will cost the same then.
+
+What week-1 props offer *before* the draft is different and more useful: the
+market's own read on ROLE. A receiving-yards line is a market-priced estimate
+of target share; an anytime-TD price is a market-priced estimate of red-zone
+role. Those are precisely what preseason projections get wrong.
+
+Named honestly: week-1 lines are ONE game, so they are a role signal, not a
+season-total projection; and only 3 books quote this far out versus the 6
+seen on historical data, so the consensus is thinner. A real input, not a
+silver bullet. **No historical re-fetch is proposed. The three condemned
+files stay condemned and unread.**
+
+### 10d. `player_anytime_td` replaces the phantom market (code landed)
+
+`MARKET_TO_STAT` now maps `player_anytime_td -> any_td` in place of the
+never-served `player_rush_tds`. This is an upgrade, not a patch: anytime-TD
+prices RECEIVING touchdowns too, which the original six-market design had no
+market for at all.
+
+It required real modeling, because anytime-TD is quoted as a PRICE, not a
+line — the median-of-`point` path would have silently dropped every row:
+
+1. `american_to_prob` — American odds to implied probability.
+2. `devig_pair` — normalise Yes/No to sum to 1, stripping the book's margin.
+   When only the Yes side is published (common for anytime-TD) there is no
+   pair to normalise against, so the value is returned RAW and is biased HIGH
+   by roughly the vig. Documented, not silently corrected.
+3. `anytime_td_to_expected_tds` — Poisson inversion, `L = -ln(1 - P)`.
+   P(>=1 TD) and E[TD] are not the same number: a 0.30 anytime price is 0.357
+   expected TDs, ~19% higher, and the gap widens exactly for the goal-line
+   backs and elite receivers who matter most early in a draft. Poisson is an
+   approximation (real TD counts are mildly over-dispersed) and is named as
+   one, but it strictly beats the identity it replaces.
+4. `props_season_projection._any_td_rate` — prices `any_td` at the league's
+   TD rate, and **returns None rather than guessing** if `rush_td` and
+   `rec_td` ever diverge from their current shared 6.0. A missing
+   contribution is recoverable; a wrong one is not.
+
+7 new tests pin this math, including the two deliberate approximations.

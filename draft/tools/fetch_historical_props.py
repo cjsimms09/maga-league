@@ -62,12 +62,22 @@ this file cannot reach api.the-odds-api.com (network egress here is
 allowlisted to github.com's release CDN only; confirmed by every prior
 fetch tool's own docstring).
 
-MARKETS (six, matching Cory's ask verbatim — "passing/rushing/receiving
-yards, receptions, TDs"): player_pass_yds, player_pass_tds, player_rush_yds,
-player_rush_tds, player_reception_yds, player_receptions. Receiving TDs and
-anytime-TD moneylines are NAMED, NOT FETCHED — see the audit doc's scope
-note; adding them is a future, separately-budgeted extension, not silently
-folded in here.
+MARKETS (six): player_pass_yds, player_pass_tds, player_rush_yds,
+player_anytime_td, player_reception_yds, player_receptions.
+
+REVISED 2026-08-16 after the first three real pulls. The original list
+carried `player_rush_tds`, which the vendor ACCEPTS and never serves — zero
+rows across 7,019 real player-weeks while being billed on every call
+(key-probe run 31970300788: "markets returned: NONE, outcome rows: 0",
+against 185 rows for `player_anytime_td` on the same event). Anytime-TD
+replaces it and is strictly better for fantasy: it prices RECEIVING
+touchdowns too, which the original six had no market for at all.
+
+Anytime-TD is quoted as a PRICE, not a line, so it does not go through the
+median-of-`point` path — see `parse_price_market`: American odds -> implied
+probability -> de-vig against the No side when the book quotes one ->
+Poisson inversion to an EXPECTED touchdown count, since P(>=1 TD) and
+E[TD] are not the same number for the goal-line backs who matter most.
 
 LINE = MEDIAN EXPECTATION, NOT AN OUTCOME. An over/under prop line priced
 near even odds on both sides is the book's estimate of the stat's median —
@@ -97,6 +107,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -121,16 +132,33 @@ MARKET_TO_STAT = {
     "player_pass_yds": "pass_yd",
     "player_pass_tds": "pass_td",
     "player_rush_yds": "rush_yd",
-    "player_rush_tds": "rush_td",
+    # `player_rush_tds` was requested on all three 2023-2025 pulls and
+    # returned ZERO rows across 7,019 player-weeks while being billed on
+    # every call. key-probe run 31970300788 settled why: the vendor accepts
+    # the key (HTTP 200) and serves nothing — "markets returned: NONE,
+    # outcome rows: 0" — while `player_anytime_td` on the SAME event
+    # returned 185 rows. It is a phantom market. Replaced, not merely
+    # dropped: anytime-TD is strictly better for fantasy, because it prices
+    # RECEIVING touchdowns too, which the original six-market design had no
+    # market for at all.
+    "player_anytime_td": "any_td",
     "player_reception_yds": "rec_yd",
     "player_receptions": "rec",
 }
 MARKETS = tuple(sorted(MARKET_TO_STAT))          # 6 — the exact credit basis
 
+#: Markets quoted as a PRICE (American odds on a yes/no outcome) rather than
+#: an over/under `point`. These need odds -> probability, not a median line,
+#: so `parse_event_props` routes them down a different path entirely.
+PRICE_MARKETS = {"player_anytime_td"}
+
 CREDIT_PER_ODDS_CALL = 10          # vendor formula: 10 x markets x regions
-EVENTS_LIST_CREDIT_EST = 2         # empirically observed in the probe run,
-                                    # NOT vendor-documented — named as such
-                                    # everywhere it is used.
+EVENTS_LIST_CREDIT_EST = 1         # MEASURED, not inferred: key-probe run
+                                    # 31970500296 read x-requests-remaining
+                                    # either side of one events-list call and
+                                    # saw a delta of exactly 1. The earlier
+                                    # value of 2 was backed out of a bundled
+                                    # probe total and over-stated it.
 
 #: 32-team abbreviation -> the full name the Odds API's `home_team`/
 #: `away_team` fields use. Static and closed — never touches the network.
@@ -203,6 +231,72 @@ def match_event_to_game(events: list, home_abbr: str, away_abbr: str) -> str | N
     return hits[0] if len(hits) == 1 else None
 
 
+def american_to_prob(price: float) -> float:
+    """American odds -> implied probability, vig INCLUDED. -150 -> 0.6,
+    +200 -> 0.333. The book's own margin is still baked in here; de-vigging
+    happens in `devig_pair` once both sides of the market are known."""
+    p = float(price)
+    if p < 0:
+        return (-p) / ((-p) + 100.0)
+    return 100.0 / (p + 100.0)
+
+
+def devig_pair(p_yes: float, p_no: float | None) -> float:
+    """Strip the bookmaker's margin from a two-way market by normalising the
+    pair to sum to 1. A book quoting Yes -150 / No +120 implies 0.600/0.455
+    = 1.055 of probability; the extra 5.5% is the vig, and the fair estimate
+    is 0.600/1.055 = 0.569.
+
+    When only the Yes side is quoted (common for anytime-TD, where books
+    often publish just the affirmative), there is no pair to normalise
+    against. Rather than invent a No price, the raw implied probability is
+    returned UNCHANGED and is therefore biased HIGH by roughly the vig —
+    documented here and in the audit doc rather than hidden, because it
+    means single-sided anytime-TD rows slightly over-state TD expectation."""
+    if p_no is None or not (0 < p_yes < 1):
+        return p_yes
+    total = p_yes + p_no
+    return p_yes / total if total > 0 else p_yes
+
+
+def anytime_td_to_expected_tds(p_fair: float) -> float:
+    """P(scores at least one TD) -> EXPECTED touchdowns.
+
+    These are not the same number: a player who scores twice still counts
+    once in P(>=1). Treating TD counts as Poisson with mean L, P(>=1) =
+    1 - exp(-L), so L = -ln(1 - P). For a 0.30 anytime price that is 0.357
+    expected TDs — about 19% more than reading the probability directly,
+    and the gap widens for the goal-line backs and elite receivers who
+    matter most at the top of a draft board.
+
+    Poisson is an approximation (real TD counts are mildly over-dispersed),
+    but it is strictly better than the identity it replaces, and it is
+    documented as an approximation rather than presented as exact."""
+    p = min(max(float(p_fair), 0.0), 0.999)
+    return -math.log(1.0 - p) if p > 0 else 0.0
+
+
+def parse_price_market(market: dict) -> dict:
+    """One PRICE-quoted market (anytime-TD) -> {player_name: expected_tds}.
+    Pairs each player's Yes with its No when the book publishes both, de-vigs
+    the pair, then converts P(>=1 TD) to an expected count."""
+    yes: dict[str, float] = {}
+    no: dict[str, float] = {}
+    for o in market.get("outcomes", []):
+        name = o.get("description")
+        price = o.get("price")
+        if not name or price is None:
+            continue
+        side = str(o.get("name", "")).strip().lower()
+        (no if side in ("no", "under") else yes)[name] = float(price)
+    out = {}
+    for name, y in yes.items():
+        p = devig_pair(american_to_prob(y),
+                       american_to_prob(no[name]) if name in no else None)
+        out[name] = anytime_td_to_expected_tds(p)
+    return out
+
+
 def parse_event_props(doc: dict, markets: tuple = MARKETS) -> dict:
     """Historical event-odds response -> {player_name: {stat_key:
     consensus_point}}. Consensus = MEDIAN of the `point` field across every
@@ -219,6 +313,14 @@ def parse_event_props(doc: dict, markets: tuple = MARKETS) -> dict:
             key = m.get("key")
             stat = MARKET_TO_STAT.get(key)
             if not stat or key not in markets:
+                continue
+            if key in PRICE_MARKETS:
+                # Quoted as a price, not a line — no `point` field exists,
+                # so the over/under path below would silently drop every
+                # row of it. Route to the odds->probability->expected-count
+                # conversion instead.
+                for name, exp_td in parse_price_market(m).items():
+                    by_player.setdefault(name, {}).setdefault(stat, []).append(exp_td)
                 continue
             for o in m.get("outcomes", []):
                 name = o.get("description")
