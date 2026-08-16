@@ -1355,3 +1355,50 @@ Refusal-set bookkeeping: the pinned set is now **39 files**
 (`scripts/verify-relay-session.sh` carries the exact list). Same terms as
 every appendix above: no scoring/weight default moved; the merge to main
 remains A's or Cory's deliberate act via `scripts/merge-relay.sh`.
+
+**APPENDED 2026-08-16 (later), SAME AUTHORITY — the war-room clarity pass**
+(three Cory directives, same day, verbatim in
+`draft/audit/warroom_clarity_pass_2026-08-16.md`: the war room as *"a clear
+representation of our model"* after the own_v6 promotion; *"a small screen
+on war room showing the top 10 ADP movers up and top 10 down"*; tie-break
+aids — *"Anything we should add to it that could help me, especially in tie
+break scenarios?"*). **Zero new files enter the refusal set** — the three
+B-lane files touched were already pinned crossings:
+
+  * `views/admin/warroom.ejs` — the ADP-movers card host in the Zone-2 rail
+    (context placement: market motion informs a pick, never scores one, and
+    must not displace the verdict).
+  * `public/css/warroom.css` — `.wr-movers*` and `.wrv-tiebreak` components
+    on the existing `--wr-*` tokens; the STALE chip is the one alarm-colored
+    mark (red stays alarm-only, velocity wears plain ink, gold stays money).
+  * `src/routes/admin.js` — the model-representation audit's worst finding:
+    `/admin/projections` read only top-level `provenance.own_model` (the
+    promotion refresh script's home) while a full build() writes the diag at
+    `provenance.projections.own_model`, so the page was one nightly rebuild
+    from "none attached" over a full own-model column. Now resolves both
+    homes. Pinned by `ui_fidelity_own_model_label.test.js` (19 checks,
+    including a rendered-EJS proof that a hypothetical own_v7 relabels the
+    page with zero template edits).
+
+  A-lane work riding with it (no gate impact, listed for review):
+  `public/js/draft/movers.js` (NEW, pure), `verdict.js tiebreakFacts()`
+  (printed facts on TOSS-UP only — the backed pick is byte-identical with
+  the feature on, swept and pinned), `app.js` (renderAdpMovers, tie-break
+  render, provenance-derived consensus fallback label, PANEL_GUIDE entries),
+  `build.py` (own-model log line reads the diag's `algorithm`, never a typed
+  name), `consensus.js` (stale "Sleeper only" / "walk_forward" comments
+  corrected), `panel_spec.js`, `_warroom_scripts.ejs` (A's seam),
+  `rehearsal-mock3.js` card census 18 → 19 (the movers card, measured),
+  three new fidelity suites (movers 35 / tiebreak 23 / own-model label 19),
+  and `// TERRITORY: A` headers added to the five design-pass test files the
+  gate flagged as undeclared.
+
+**Refusal-set bookkeeping: the pinned set is now 41 files.** The two
+additions are NOT from this pass: `src/routes/admin.js` and
+`views/admin/projections.ejs` were created by the 2026-08-16 Monday-brief /
+projections-page commit (402419fc) as B-lane crossings under the same
+authority (Cory: *"It might cool if I has an easy way to see 'our models'
+projections easily as well"*) and were never entered into the pin — this
+pass's repin caught the drift and records them here. Same terms as every
+appendix above: no scoring/weight default moved; the merge to main remains
+A's or Cory's deliberate act via `scripts/merge-relay.sh`.

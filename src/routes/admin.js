@@ -1150,7 +1150,13 @@ router.get('/projections', requireCory, aw(async (req, res) => {
   res.render('admin/projections', {
     byPos, posFilter,
     builtAt: artifact.built_at || null,
-    ownModel: prov.own_model || {},
+    // BOTH provenance homes, newest-authority first. The promotion's board
+    // refresh writes the diag at provenance.own_model (top level); a full
+    // build() writes it at provenance.projections.own_model. Reading only the
+    // top level stranded this page one nightly rebuild away from "none
+    // attached" while the column was full (model-representation audit,
+    // 2026-08-16) — the label must survive whichever writer ran last.
+    ownModel: prov.own_model || (prov.projections || {}).own_model || {},
     projProv: prov.projections || null,
   });
 }));

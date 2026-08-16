@@ -59,6 +59,87 @@
 
   function _name(p) { return (p && (p.name || p.player_id)) || '?'; }
 
+  /* ── TIE-BREAK FACTS — printed, never scored (Cory, 2026-08-16: "Anything we
+   * should add to it that could help me, especially in tie break scenarios?").
+   *
+   * When the verdict is TOSS-UP the board has already said it cannot separate
+   * the two names — so this adds NO new scoring weight and NEVER moves the
+   * backed pick. It prints FACTS the board already carries that a human can
+   * legitimately break a tie with:
+   *   (a) ADP velocity divergence — one rising, one falling (build.py stamps
+   *       adp_velocity from the retained series; positive = rising);
+   *   (b) bye-week overlap with the roster already drafted (a tie-breaker,
+   *       not a price — the bye adjuster stays measured-off);
+   *   (c) an age gap where meaningful (> 2 years);
+   *   (d) depth-chart security — a listed starter vs a committee/backup slot.
+   * A fact whose inputs are absent on either player is SKIPPED (absent ≠ zero
+   * — no fact is invented from a missing field). Returns [] when nothing on
+   * the board separates them, and the renderer says that honestly.
+   * ui_fidelity_tiebreak.test.js pins: facts render only on TOSS-UP, and the
+   * backed pick is byte-identical with and without the roster input. */
+  function tiebreakFacts(aEntry, bEntry, roster) {
+    var a = aEntry && aEntry.player, b = bEntry && bEntry.player;
+    if (!a || !b) return [];
+    var facts = [];
+
+    // (a) market divergence — only when the two move in OPPOSITE directions.
+    var va = a.adp_velocity, vb = b.adp_velocity;
+    if (va != null && vb != null && ((va > 0 && vb < 0) || (va < 0 && vb > 0))) {
+      var riser = va > 0 ? a : b;
+      var faller = va > 0 ? b : a;
+      var rv = Math.abs(va > 0 ? va : vb);
+      var fv = Math.abs(va > 0 ? vb : va);
+      facts.push('market: ' + _name(riser) + ' is rising (+' + Math.round(rv)
+        + ' ADP slots) while ' + _name(faller) + ' is falling (−'
+        + Math.round(fv) + ') — one of these moves may be news');
+    }
+
+    // (b) bye overlap with what is already drafted (keepers included).
+    if (roster && roster.length) {
+      var overlap = function (pl) {
+        if (pl.bye == null) return null;         // absent bye: no claim at all
+        var n = 0;
+        for (var i = 0; i < roster.length; i++) {
+          var r = roster[i];
+          if (!r || r.bye == null) continue;
+          if (String(r.player_id) === String(pl.player_id)) continue;
+          if (Number(r.bye) === Number(pl.bye)) n++;
+        }
+        return n;
+      };
+      var oa = overlap(a), ob = overlap(b);
+      if (oa != null && ob != null && oa !== ob) {
+        var stacked = oa > ob ? a : b;
+        var clear = oa > ob ? b : a;
+        var sn = Math.max(oa, ob), cn = Math.min(oa, ob);
+        facts.push('byes: ' + _name(stacked) + ' (wk ' + stacked.bye + ') stacks with '
+          + sn + ' of your picks; ' + _name(clear) + ' (wk ' + clear.bye + ') '
+          + (cn === 0 ? 'is clear' : 'stacks with ' + cn));
+      }
+    }
+
+    // (c) age, only where the gap is meaningful (> 2 years).
+    if (a.age != null && b.age != null && Math.abs(a.age - b.age) > 2) {
+      var younger = a.age < b.age ? a : b;
+      var older = a.age < b.age ? b : a;
+      facts.push('age: ' + _name(younger) + ' is ' + younger.age + ', '
+        + _name(older) + ' is ' + older.age + ' — '
+        + Math.round(Math.abs(a.age - b.age)) + ' years apart');
+    }
+
+    // (d) depth-chart security — a fact only when exactly one is the listed №1.
+    var da = a.depth_chart_order, db = b.depth_chart_order;
+    if (da != null && db != null && (Number(da) === 1) !== (Number(db) === 1)) {
+      var starter = Number(da) === 1 ? a : b;
+      var committee = Number(da) === 1 ? b : a;
+      facts.push('depth chart: ' + _name(starter) + ' is the listed starter; '
+        + _name(committee) + ' sits №' + (Number(da) === 1 ? db : da)
+        + ' — committee/backup risk');
+    }
+
+    return facts;
+  }
+
   /* derive(input) -> the one verdict.
    *
    * input:
@@ -69,10 +150,14 @@
    *   ruleOverfill true when the value top over-fills a position the rule caps
    *   plan        { slot, name } | null       (seat_plan seat: wanted position)
    *   poll        { agree, n, lead_name, lead_position, artifact, contested } | null
+   *   roster      [player…] | null — the picks already made (board player
+   *               objects; bye/age fields read for tie-break FACTS only —
+   *               nothing here changes scoring or the backed pick)
    *
    * returns:
    *   { verdict, pick, headline, why, confidence_note, gap_pts, gap_units,
-   *     lenses:[{key,label,optimizes,pick,stance,note}], alternatives:[{player,behind_pts}] }
+   *     lenses:[{key,label,optimizes,pick,stance,note}], alternatives:[{player,behind_pts}],
+   *     tiebreak: null | { a, b, facts:[…] }   (TOSS-UP only — printed facts) }
    */
   function derive(input) {
     var cfg = input.cfg;
@@ -84,7 +169,7 @@
     if (!scored.length) {
       return { verdict: 'NONE', pick: null, headline: 'Board is empty.',
         why: '', confidence_note: conf.message || '', gap_pts: null,
-        gap_units: 'composite pts', lenses: [], alternatives: [] };
+        gap_units: 'composite pts', lenses: [], alternatives: [], tiebreak: null };
     }
 
     var top = scored[0];
@@ -178,6 +263,27 @@
       }
     }
 
+    // ── Tie-break facts, TOSS-UP only — printed AFTER the verdict and the
+    // backed pick are both final, so they structurally cannot move either.
+    var tiebreak = null;
+    if (verdict === 'TOSS-UP') {
+      var backedEntry = _entryFor(scored, (backed || {}).player_id) || top;
+      // The other half of the tie is whichever answer the toss-up was between:
+      // plan-vs-value and rule-vs-value ties are against the value top;
+      // a plain contested/coin-flip board is #1 vs #2.
+      var rivalEntry = null;
+      if (planEntry && planDiffers) rivalEntry = top;
+      else if (!planEntry && ruleDiffers && ruleEntry) rivalEntry = top;
+      else rivalEntry = scored[1] || null;
+      if (rivalEntry && rivalEntry.player && backedEntry.player
+          && String(rivalEntry.player.player_id) !== String(backedEntry.player.player_id)) {
+        tiebreak = {
+          a: _name(backedEntry.player), b: _name(rivalEntry.player),
+          facts: tiebreakFacts(backedEntry, rivalEntry, input.roster || []),
+        };
+      }
+    }
+
     // ── The lenses: every voice, labeled by what it optimizes ───────────
     // Stance is measured against the BACKED pick — the lens that supplied the
     // answer must read as agreeing with it (Cory's capture showed the rule
@@ -239,10 +345,12 @@
       gap_units: 'composite pts',
       lenses: lenses,
       alternatives: alternatives,
+      tiebreak: tiebreak,
     };
   }
 
-  var api = { derive: derive, chipForConfidence: chipForConfidence };
+  var api = { derive: derive, chipForConfidence: chipForConfidence,
+    tiebreakFacts: tiebreakFacts };
   global.DraftVerdict = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

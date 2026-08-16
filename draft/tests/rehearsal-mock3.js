@@ -101,8 +101,11 @@ const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
    * (measured by running this rehearsal at 37b1a307 before the design pass —
    * the shell gained a card in the merged work, not in the redesign). The
    * design pass itself added ZERO cards: the verdict block, tier-cliff chart
-   * and help view are deliberately not .card so this census stays meaningful. */
-  check('nothing was deleted — 18 cards survive the restructure', layout.cards === 18, 'cards=' + layout.cards);
+   * and help view are deliberately not .card so this census stays meaningful.
+   * 18 → 19 (2026-08-16): the ADP-movers card (Cory: "a small screen on war
+   * room showing the top 10 ADP movers up and top 10 down") joined the Zone-2
+   * rail — one real card added by warroom.ejs, counted the day it landed. */
+  check('nothing was deleted — 19 cards survive the restructure', layout.cards === 19, 'cards=' + layout.cards);
 
   // ---- SEAT IDENTITY (mock #1 severity-1) ---------------------------------
   const seat = await page.evaluate(() => window.__wrDiag());

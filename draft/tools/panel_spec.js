@@ -218,6 +218,19 @@ const PANELS = [
   { fn: 'renderManagers', weight: 'CONTEXT', lines: null,
     question: 'Who else is in this draft?', means: 'The room, with tendencies.',
     changes_it: 'nothing during a draft', reads: ['manager_profiles'] },
+  { fn: 'renderAdpMovers', weight: 'CONTEXT', lines: null,
+    question: 'Whose price is the market moving fastest — and which way?',
+    means: 'Top 10 ADP risers and fallers from the retained daily series: slots '
+      + 'moved over the window, per-day rate, and the STALE alarm when the '
+      + 'board\'s own number is a round behind the market. Movement hints at '
+      + 'news; it is names to investigate, never a score input (adp_series.py: '
+      + 'momentum is recorded as blocked, not a tested edge).',
+    changes_it: 'only a board rebuild — the series appends nightly, so it is '
+      + 'inert within a draft',
+    reads: ['players[].adp_velocity', 'players[].adp_stale', 'notes.adp_series_span_days'],
+    note: 'ABSENT, NOT ZERO: day one of a fresh series renders "series too '
+      + 'shallow", never a wall of zeros. (Cory, 2026-08-16: "a small screen '
+      + 'on war room showing the top 10 ADP movers up and top 10 down.")' },
   { fn: 'renderThreatStrip', weight: 'CONTEXT', lines: null,
     question: 'Who is picking before me, in one line?',
     means: 'The same managers-between-me-and-my-turn as renderThreats, collapsed '

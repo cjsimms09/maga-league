@@ -1,3 +1,4 @@
+// TERRITORY: A
 // UI-FIDELITY SUITE (3/3) — EVERY EXPLAINER SENTENCE IS PINNED TO THE CODE IT
 // PARAPHRASES. Wrong-but-confident explainer text is worse than none: this
 // pass FOUND one live (the `lrm` guide entry described "the last recorded
