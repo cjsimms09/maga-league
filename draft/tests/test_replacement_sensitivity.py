@@ -37,6 +37,29 @@ broken. Highest silent-failure risk of anything in the valuation chain.
    on whatever board is present and asserts existence, direction, and
    discontinuity — the properties, not the coordinate.
 
+   [2026-08-16] THE STEP MAGNITUDE IS NOW DERIVED, NOT PINNED, and the
+   smooth arm is asserted too. Run 31926152660 (the 04:18Z nightly on the
+   relay ref) re-measured the knife edge to its exact width: the fresh
+   candidate (677 players, RB21=189.02, RB22=169.82, WR29=173.22) sat
+   0.0036 projection points on the SMOOTH side of the flex boundary at the
+   old +2% coordinate — RB22 x 1.02 = 173.2164 vs WR29 = 173.2200, so the
+   allocation held and the probe moved +3.78 = 189.02 x 0.02, pure scaling;
+   break-even on that board is +2.0021%, the flip lands at the +2.5% scan
+   point with step -18.73. THIS TEST PASSED on that board (the run's 16
+   refusals were artifact-parity/field-purpose tests, unrelated) — but the
+   in-run diagnosis tool still preached the retired coordinate pin ("the
+   pinned expectation is a STEP DOWN < -5.0") and misread the smooth arm
+   as the blocker. Two fixes: the diagnosis tool now names the arm it
+   measured, and this file's remaining hardcode (the -5.0 step floor,
+   itself borrowed from the 08-14 board's gap) is replaced by deriving the
+   expected step FROM THE ALLOCATION — replacement is by construction the
+   count-th ranked player scaled, so the step across the flip equals
+   RB[new_count] x (1+pct) - RB[old_count] x (1+pct-0.005), i.e.
+   -gap x (1+pct) + smooth_increment, negative exactly when the
+   inter-player gap the flip crosses exceeds one increment of smooth
+   drift. The test asserts that identity and its corollaries (sign,
+   discontinuity vs the smooth arm) rather than any remembered number.
+
 3. THE BOARD MOSTLY ABSORBS IT, AND WHERE IT DOES NOT IS THE INTERESTING PART.
    Measured through the real composite with base projections and only `vorp`
    recomputed — isolating the replacement channel:
@@ -202,16 +225,106 @@ def test_a_within_error_projection_shift_moves_replacement_by_a_step():
         f"rose +{pct:.1%} — the allocation is inverted"
     )
 
-    # Property 3: discontinuity. Across ONE 0.5% increment, smooth scaling
-    # can move the level by ~0.5% (~1 point); the flip moves it by a whole
-    # inter-player gap at replacement depth. On the committed 2026-08-14
-    # board: -15.80 (~8% of the level) at +2%.
+    # Property 3, RE-DERIVED 2026-08-16: the step is DERIVED FROM THE
+    # ALLOCATION, not pinned. (The old floor here, `step < -5.0`, was the
+    # 2026-08-14 board's inter-player gap wearing a tolerance — a coordinate
+    # pin in magnitude clothing, the same defect the +2% coordinate pin had
+    # in location. Run 31926152660's diagnosis quoted it as "the pinned
+    # expectation" while this test passed, which is what exposed it.)
+    #
+    # By construction (`_replacement_from_counts`), replacement IS the
+    # count-th ranked player at the position, so both arms are computable
+    # straight from the sorted pool and the allocation counts:
+    #     before the flip: RB[old_count] x (1 + pct - 0.005)
+    #     at the flip:     RB[new_count] x (1 + pct)
+    # and the step across the boundary is their difference:
+    #     step = -gap x (1+pct) + smooth_increment
+    # where gap = RB[old_count] - RB[new_count] (the inter-player gap the
+    # flip crosses) and smooth_increment = RB[old_count] x 0.005 (what one
+    # scan increment moves the level WITHOUT a flip).
+    rb_ranked = sorted((p["proj_mean"] for p in PLAYERS if p["position"] == "RB"),
+                       reverse=True)
+    prev_pct = pct - 0.005
+    derived_before = rb_ranked[base_rb - 1] * (1 + prev_pct)
+    derived_flip = rb_ranked[flip_rb - 1] * (1 + pct)
+    gap = rb_ranked[base_rb - 1] - rb_ranked[flip_rb - 1]
+    smooth_increment = rb_ranked[base_rb - 1] * 0.005
+
+    assert rep_before == pytest.approx(derived_before), (
+        f"pre-flip replacement {rep_before:.4f} is not the old count's "
+        f"({base_rb}) ranked player scaled ({derived_before:.4f}) — "
+        "replacement is no longer the count-th man and this derivation "
+        "(and _replacement_from_counts) needs re-reading"
+    )
+    assert flip_rep == pytest.approx(derived_flip), (
+        f"post-flip replacement {flip_rep:.4f} is not the new count's "
+        f"({flip_rb}) ranked player scaled ({derived_flip:.4f}) — the step "
+        "did not come from the allocation moving, something else moved it"
+    )
+
     step = flip_rep - rep_before
-    assert step < -5.0, (
+    derived_step = -gap * (1 + pct) + smooth_increment
+    assert step == pytest.approx(derived_step), (
+        f"measured step {step:+.4f} disagrees with the allocation-derived "
+        f"step {derived_step:+.4f} (-gap x (1+pct) + smooth_increment)"
+    )
+
+    # Corollary A — sign, with its reason attached: the step is DOWN exactly
+    # because the crossed gap outweighs one increment of smooth drift. Both
+    # sides are measured quantities of THIS board, no remembered constant.
+    assert gap * (1 + pct) > smooth_increment, (
+        f"the crossed gap ({gap:.2f} x {1 + pct:.3f}) does not exceed one "
+        f"smooth increment ({smooth_increment:.2f}) — the arithmetic then "
+        "implies a step UP, and the direction claim below is void"
+    )
+    assert step < 0, (
+        f"crossing +{pct:.1%} moved RB replacement {step:+.2f} UP despite "
+        "the gap dominating — the derivation above is inconsistent"
+    )
+
+    # Corollary B — discontinuity: the flip moves the level by more than the
+    # whole smooth motion of the increment that contains it. This is the
+    # step/smooth distinction itself, not a magnitude opinion.
+    assert -step > smooth_increment, (
         f"crossing +{pct:.1%} moved RB replacement by only {step:+.2f} "
-        f"(from {rep_before:.2f} to {flip_rep:.2f}) — that is not a step, "
+        f"(from {rep_before:.2f} to {flip_rep:.2f}), within one smooth "
+        f"increment ({smooth_increment:.2f}) — that is not a step, "
         "the discontinuity this file exists to record has vanished"
     )
+
+
+def test_below_the_flip_the_move_is_pure_smooth_scaling_the_arm_ci_measured():
+    """THE OTHER ARM, asserted — added 2026-08-16 after run 31926152660's
+    in-run diagnosis printed `move: +3.78` at +2% against "the pinned
+    expectation is a STEP DOWN < -5.0" and made a correct board look broken.
+    +3.78 IS the correct arithmetic on a board whose flex boundary sits past
+    the probe: while the allocation holds, replacement is the SAME ranked
+    player scaled, so the move must equal base x pct exactly (189.02 x 0.02
+    = 3.7804 on that board, which held the boundary by 0.0036 points —
+    break-even +2.0021%). Every scan point below the flip must sit on this
+    arm; the flip test above owns everything from the boundary on."""
+    base, base_diag = vorp.replacement_levels(PLAYERS, CFG)
+    base_rb = base_diag["starter_counts"]["RB"]
+
+    checked = 0
+    for i in range(1, 21):                       # +0.5% .. +10.0%
+        pct = i * 0.005
+        rep, diag = vorp.replacement_levels(_scaled("RB", pct), CFG)
+        if diag["starter_counts"]["RB"] != base_rb:
+            break                                # the step arm begins here
+        assert rep["RB"] == pytest.approx(base["RB"] * (1 + pct)), (
+            f"allocation held at +{pct:.1%} ({base_rb} RB starters) but the "
+            f"level moved to {rep['RB']:.4f}, not the smooth "
+            f"{base['RB'] * (1 + pct):.4f} — with no flip there is nothing "
+            "else that can legally move it"
+        )
+        checked += 1
+
+    # If the very first scan point already flips, the smooth arm is empty on
+    # this board — that is legitimate, and the step test covers it. But a
+    # board with NO flip anywhere is the step test's alarm, not a silent pass
+    # here.
+    assert checked > 0 or diag["starter_counts"]["RB"] != base_rb
 
 
 def test_the_step_is_counter_intuitive_in_direction_and_that_is_recorded():
