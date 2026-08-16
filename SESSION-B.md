@@ -1,5 +1,8 @@
 # SESSION B — the site & in-season lane (read this first, every time)
 
+> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+
+
 _Resume ritual: **"You are session B, read SESSION-B.md and STATUS.md, then continue."**
 Files are truth, not memory. If a rule changes, it changes HERE, in the same commit
 that changes the behaviour._

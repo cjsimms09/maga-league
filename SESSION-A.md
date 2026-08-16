@@ -1,5 +1,8 @@
 # SESSION A — the model & draft lane (read this first, every time)
 
+> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+
+
 _Resume ritual: **"You are session A, read SESSION-A.md and STATUS.md, then continue."**
 Files are truth, not memory. A rule changes HERE, in the commit that changes the
 behaviour — never only in chat._

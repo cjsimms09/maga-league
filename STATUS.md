@@ -1,5 +1,8 @@
 # STATUS — unattended run
 
+> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+
+
 > **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
 > pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
 > at repo root); the shared rules live there and change there. Access rule (tools vs
