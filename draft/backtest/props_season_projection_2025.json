@@ -1,0 +1,19 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/props_season_projection.py",
+ "status": "pending_real_data",
+ "why": "historical_props_2025.json does not exist \u2014 no real historical props have been fetched yet. Dispatching historical-props-fetch.yml (real ODDS_API_KEY credits) is a human decision (ROUTES.md TO:A); this refusal is the honest artifact until that store is committed.",
+ "tested_on_fixtures": [
+  "line_to_points",
+  "week_implied_points",
+  "season_implied_totals",
+  "normalize_name",
+  "match_player_name",
+  "crosswalk_props_to_pid",
+  "grade_props_vs_v6 (parity of the v6 reproduction against the committed model_accuracy_v6.json)"
+ ],
+ "pending_real_data": [
+  "draft/backtest/historical_props_2023.json",
+  "draft/backtest/historical_props_2024.json",
+  "draft/backtest/historical_props_2025.json"
+ ]
+}

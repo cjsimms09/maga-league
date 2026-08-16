@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Scoreboard — MFGA</title>
+<style>
+  /* Self-contained like admin/draft-sheet — desktop-first per Cory's doctrine,
+     no JS. Tooltips are pure CSS hover with keyboard focus as the fallback. */
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111; background: #fff; margin: 0; padding: 18px; font-size: 13px; line-height: 1.4; }
+  h1 { font-size: 19px; margin: 0 0 2px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 20px 0 6px;
+    border-bottom: 1.5px solid #111; padding-bottom: 3px; }
+  .meta { font-size: 11.5px; color: #444; margin: 2px 0 8px; max-width: 74em; }
+  .meta b, .card b { color: #111; }
+  table { border-collapse: collapse; font-variant-numeric: tabular-nums; margin: 4px 0 10px; }
+  th, td { padding: 2.5px 8px; text-align: right; border-bottom: 1px solid #e2e2e2; white-space: nowrap; }
+  th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #555;
+    border-bottom: 1.5px solid #111; }
+  td.nm, th.nm { text-align: left; }
+  .champ { background: #f4f1e8; font-weight: 700; }      /* the live champion column */
+  .prov  { background: #eef3f7; }                        /* provider study arms */
+  .abs { color: #999; }
+  .good { color: #0a6b2d; } .bad { color: #a01414; }
+  .card { border: 1.5px solid #111; padding: 10px 12px; margin: 8px 0; max-width: 74em; }
+  .ok { border-left: 5px solid #0a6b2d; }
+  .warn { border-left: 5px solid #b06d00; }
+  .confirm { background: #eaf6ec; border: 1px solid #0a6b2d; color: #0a4d20;
+    padding: 6px 10px; font-size: 12px; margin: 8px 0; max-width: 74em; }
+  form.src label { display: inline-block; margin: 3px 14px 3px 0; font-weight: 600; }
+  form.src button { font-weight: 700; padding: 3px 12px; margin-left: 6px; }
+  code { background: #f4f4f4; padding: 0 3px; font-size: 11.5px; }
+  /* ⓘ tooltips: hover on desktop, focus (tab / tap on the symbol) as fallback. */
+  .info { position: relative; display: inline-block; cursor: help; color: #1a5276;
+    font-weight: 700; margin-left: 3px; outline: none; }
+  .info .tip { display: none; position: absolute; z-index: 9; left: 0; top: 1.4em;
+    width: 26em; max-width: 70vw; background: #111; color: #fff; font-weight: 400;
+    font-size: 11.5px; line-height: 1.45; padding: 8px 10px; border-radius: 3px;
+    white-space: normal; text-align: left; text-transform: none; letter-spacing: 0; }
+  .info:hover .tip, .info:focus .tip { display: block; }
+</style>
+</head>
+<body>
+<h1>Model scoreboard &amp; controls</h1>
+<p class="meta">
+  Every number on this page IS the weekly learning ledger's number
+  (<code>draft/data/weekly_own/grades_<%= season %>.json</code>, written by the
+  Tuesday grade cron) — nothing is recomputed here. Our Thursday snapshot prices
+  every QB/RB/WR/TE <b>before kickoff</b>; the Tuesday grade scores every arm
+  against what actually happened, on the same players.
+  <span class="info" tabindex="0">&#9432;<span class="tip">WHAT: our own weekly
+  projection model plus its challenger variants and the provider study arms
+  (Sleeper, FantasyPros, their average), graded weekly on identical players.
+  READ: lower MAE = closer to what happened; higher rank correlation = better
+  ordering. DO: nothing is required — the loop adapts itself and opens a GitHub
+  issue (which emails you) whenever the champion changes.</span></span>
+</p>
+
+<% if (saved && saved !== 'invalid') { %>
+  <p class="confirm">Saved. The in-season projection feed
+  (<code>src/proj_feed.js</code>) now derives its season-rate from
+  <b><%= saved %></b> — every surface that reads the feed changes together on
+  its next render. This switch does <b>not</b> touch the draft board.</p>
+<% } else if (saved === 'invalid') { %>
+  <p class="confirm" style="background:#fbeeee;border-color:#a01414;color:#5a0d0d">
+  Not saved — that was not one of the known sources.</p>
+<% } %>
+
+<h2>Champion &amp; adaptation</h2>
+<div class="card <%= controls.champion_override ? 'warn' : 'ok' %>">
+  Current champion: <b><%= champion.version %></b> (arm <code><%= champion.arm %></code>)
+  <span class="info" tabindex="0">&#9432;<span class="tip">WHAT: the arm whose
+  number is the "our model" column everywhere. Its formula:
+  <%= (activeArms.find(a => a.name === champion.arm) || {}).formula || 'proj_ownmodel/17 with the vegas tilt (see README)' %>.
+  READ: the version bumps (v1 → v2 …) every time the champion changes, so
+  grades are never silently mixed across formulas. DO: normally nothing — the
+  Tuesday rule promotes the best challenger mechanically.</span></span>
+  <br>Auto-adaptation:
+  <% if (controls.champion_override) { %>
+    <b>PAUSED by manual override</b> — champion column pinned to
+    <code><%= controls.champion_override %></code> via
+    <code>draft/data/weekly_own/controls.json</code>.
+  <% } else if (controls.auto_adapt) { %>
+    <b>ON</b> — a challenger is promoted when it has ≥3 graded weeks, beat the
+    champion in ≥3 of the last 4, leads cumulative MAE, and gives up no more
+    than 0.02 rank correlation. Earliest possible switch: after week 3.
+  <% } else { %>
+    <b>PAUSED</b> (<code>auto_adapt: false</code> in
+    <code>draft/data/weekly_own/controls.json</code>) — grading continues,
+    promotions held.
+  <% } %>
+  <span class="info" tabindex="0">&#9432;<span class="tip">WHAT: whether the
+  Tuesday grader may switch champions on its own (your ruling: adapt often —
+  this data is not used for decisions in 2026, so a wrong switch costs
+  nothing and reverses itself). READ: every switch, mechanical or manual,
+  lands in the history below AND opens a GitHub issue that emails you. DO:
+  to pause adaptation or pin an arm by hand, edit
+  <code>draft/data/weekly_own/controls.json</code> in the repo (ask any
+  session) — a site button for this needs a bridge from the site to the CI
+  grader and is honestly not wired yet, so no button is shown.</span></span>
+</div>
+
+<h2>Live-tools projection source</h2>
+<p class="meta">
+  Which numbers the in-season surfaces (lineup / waivers / matchup gap) derive
+  their per-player weekly rate from. All options are the board's season totals
+  ÷ 17 — a <b>level, not a weekly forecast</b> — scored under our own table at
+  build time. The weekly ledger above is exactly the evidence for flipping
+  this: the <code>sleeper</code> / <code>fantasypros</code> /
+  <code>sleeper_fp_average</code> study arms answer "who is winning, and does
+  averaging beat both."
+  <span class="info" tabindex="0">&#9432;<span class="tip">WHAT: a real switch —
+  it writes the <code>model_controls</code> doc, and
+  <code>src/proj_feed.js</code> (the one shared feed) reads it; nothing else
+  does. READ: <b>blend</b> = proj_mean, the Sleeper+FP blend the tools have
+  always used (default = current behavior). <b>sleeper</b> / <b>fantasypros</b>
+  = that provider's season total alone. <b>sleeper_fp_average</b> = their
+  simple mean (when one side is missing a player, the feed uses the other and
+  says so in its basis string — never a silent zero). DO: read the cumulative
+  table first; switch only when an arm is clearly winning over several
+  weeks.</span></span>
+</p>
+<form class="src" method="post" action="/admin/model-scoreboard/source">
+  <% for (const s of sources) { %>
+    <label><input type="radio" name="source" value="<%= s %>"
+      <%= s === source ? 'checked' : '' %>> <%= s %><%= s === 'blend' ? ' (default)' : '' %></label>
+  <% } %>
+  <button type="submit">Set source</button>
+  <span class="meta">now: <b><%= source %></b></span>
+</form>
+<p class="meta">
+  Deliberately <b>not</b> a control here: the draft board's <code>proj_mean</code>
+  composition — evidence-blocked until the January 2027 grade of the frozen 2026
+  archive (REC-2) — and scoring weights, ever.
+</p>
+
+<% if (!weeks.length) { %>
+  <h2>Scoreboard</h2>
+  <div class="card">No grades yet — the first own-weekly snapshot commits
+  Thursday <b>Sep 10</b> (before kickoff) and the first real grades land
+  <b>~Sep 15</b>. Nothing is shown until then because nothing has been
+  measured; this page never fakes a row.</div>
+<% } else { %>
+
+<h2>Cumulative scoreboard <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: each arm's average weekly MAE (mean absolute error, points per player)
+  and rank correlation across all graded weeks. Provider rows are computed on
+  the players shared with our arms, so every row prices the same people.
+  READ: lowest MAE wins; correlation above ~0.5 means the ordering is real.
+  DO: this table is what the promotion rule reads — and your evidence for the
+  source switch above.</span></span></h2>
+<table>
+  <tr><th class="nm">arm</th><th>kind</th><th>weeks</th><th>MAE</th><th>rank corr</th></tr>
+  <% for (const arm of armNames.concat(provNames)) { const c = cum[arm]; if (!c) continue; %>
+  <tr class="<%= arm === champion.arm ? 'champ' : (c.kind === 'provider' ? 'prov' : '') %>">
+    <td class="nm"><%= arm %><%= arm === champion.arm ? ' ← champion' : '' %></td>
+    <td><%= c.kind === 'provider' ? 'study (never auto-promoted)' : 'ours' %></td>
+    <td><%= c.weeks %></td>
+    <td><%= c.mae == null ? '—' : c.mae %></td>
+    <td><%= c.spearman == null ? '—' : c.spearman %></td>
+  </tr>
+  <% } %>
+</table>
+
+<h2>Week by week (MAE) <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: each graded week's mean absolute error per arm — ours on the full
+  graded population, providers on the shared players. READ: a challenger that
+  beats the champion 3 of the last 4 weeks (and leads cumulative) gets
+  promoted automatically. DO: look for streaks, not single weeks — one week
+  is mostly noise.</span></span></h2>
+<table>
+  <tr><th>week</th>
+    <% for (const arm of armNames) { %><th><%= arm %></th><% } %>
+    <% for (const arm of provNames) { %><th><%= arm %></th><% } %>
+    <th class="nm">graded / projected</th></tr>
+  <% for (const w of weeks) { %>
+  <tr>
+    <td><%= w.week %></td>
+    <% for (const arm of armNames) { const c = w.own[arm]; %>
+      <td class="<%= arm === w.champion_arm ? 'champ' : '' %>"><%= c && c.mae != null ? c.mae : '—' %></td>
+    <% } %>
+    <% for (const arm of provNames) { const c = (w.prov[arm] || {}).shared; %>
+      <td class="prov"><%= c && c.mae != null ? c.mae : '—' %></td>
+    <% } %>
+    <td class="nm"><%= w.population.with_actual %> / <%= w.population.projected %>
+      <span class="info" tabindex="0">&#9432;<span class="tip">
+      <%= w.population.no_stat_row.count %> projected player(s) had no stat row
+      this week (inactive/injured) — they are counted here and excluded from
+      the error math, never scored as zero. Champion that week:
+      <%= w.champion_arm %> under <%= w.formula %>.</span></span></td>
+  </tr>
+  <% } %>
+</table>
+
+<% if (latest) { %>
+<h2>Biggest misses — week <%= latest.week %> <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: the champion arm's five largest absolute errors last week, by name.
+  err &gt; 0 = we projected points that never came (over); err &lt; 0 = a real
+  blow-up we missed (under). READ: this is WHY the model was wrong, in
+  players, not just a number. DO: patterns here are where new challenger arms
+  come from.</span></span></h2>
+<p class="meta"><%= latest.miss_pattern %></p>
+<table>
+  <tr><th class="nm">player</th><th>pos</th><th>proj</th><th>actual</th><th>err</th></tr>
+  <% for (const m of latest.top_misses) { %>
+  <tr>
+    <td class="nm"><%= m.name || m.player_id %></td>
+    <td><%= m.pos || '—' %></td>
+    <td><%= m.proj %></td>
+    <td><%= m.actual %></td>
+    <td class="<%= m.err > 0 ? 'bad' : 'good' %>"><%= m.err > 0 ? '+' : '' %><%= m.err %></td>
+  </tr>
+  <% } %>
+</table>
+<% } %>
+<% } %>
+
+<h2>Adaptation history <span class="info" tabindex="0">&#9432;<span class="tip">
+  WHAT: every champion change — mechanical promotions and manual overrides —
+  with the evidence it rode in on. Each one also opened a GitHub issue that
+  emailed you. READ: the version string tells you which formula produced any
+  week's numbers; nothing is ever silently mixed.</span></span></h2>
+<% if (!promotions.length) { %>
+  <p class="meta">None yet — the champion is still <b><%= champion.version %></b>
+  (arm <code><%= champion.arm %></code>). The earliest possible mechanical
+  switch is after three graded weeks (~early October).</p>
+<% } else { %>
+<table>
+  <tr><th>when</th><th class="nm">what</th><th class="nm">evidence</th></tr>
+  <% for (const p of promotions) { %>
+  <tr>
+    <td><%= p.promoted_at %></td>
+    <td class="nm"><%= p.type === 'manual_override' ? 'manual override' : 'mechanical promotion' %>:
+      <%= (p.from || {}).arm %> → <b><%= (p.to || {}).arm %></b>
+      (<%= (p.to || {}).version %>)</td>
+    <td class="nm"><% if (p.evidence) { %>won <%= p.evidence.recent_wins %>,
+      cum MAE <%= p.evidence.cum_mae %> vs <%= p.evidence.champion_cum_mae %>
+      over weeks <%= (p.evidence.weeks_used || []).join(', ') %><% } else { %>
+      <%= p.note || '—' %><% } %></td>
+  </tr>
+  <% } %>
+</table>
+<% } %>
+
+<p class="meta">
+  Loop contract, formulas and the verbatim promotion rule:
+  <code>draft/data/weekly_own/README.md</code>. Provider arms are STUDY arms —
+  graded, never auto-promoted; which provider feeds the live tools is the
+  switch above and stays your call.
+</p>
+</body>
+</html>

@@ -1,0 +1,142 @@
+name: Weekly player-props fetch (The Odds API historical, budget-aware)
+
+# THE WEEKLY (not season-total) props arm's fetch — Cory's 2026-08-16 split:
+# "one for season projections for draft and another for weekly projections
+# specific to that week?" This workflow feeds ONLY the weekly half:
+# draft/tools/fetch_weekly_props.py -> draft/data/props/weekly_props_<season>
+# _w<week>.json -> draft/weekly_props_arm.py -> weekly_own_grade.py's
+# props_weekly_v1 study arm. Full framing: draft/audit/weekly_props_study_2026-08-16.md.
+#
+# A SIBLING STUDY (a different agent) owns the SEASON-TOTAL props arm for the
+# draft board — draft/tools/fetch_historical_props.py and
+# .github/workflows/historical-props-fetch.yml, NOT this file. BOTH fetches
+# spend the SAME ODDS_API_KEY credit pool (confirmed 2026-08-16, key-probe
+# run 31967817943: x-requests-remaining 99988 of what is very likely a
+# 100,000-credit/mo plan). COORDINATE BEFORE EITHER FETCH RUNS FOR REAL —
+# check the credit balance (this workflow's dry_run prints
+# x-requests-remaining for a real events-list call) and the other study's
+# spend before dispatching, so the two do not double-spend one pool.
+#
+# EXACT BUDGET, the-odds-api.com's own documented pricing model: 10 credits
+# x (markets requested) x (regions requested) PER EVENT (game) CALL,
+# regardless of how many players' lines that call returns.
+#
+#   ONE WEEK, default 8 markets (pass yds/tds/int, rush yds/tds, receptions,
+#   reception yds/tds), 1 region (us):
+#     8 markets x 1 region x 10 credits = 80 credits PER GAME
+#     ~14-16 games/week (fewer on bye-heavy weeks) => ~1,120-1,280 credits/week
+#
+#   A FULL HISTORICAL BACKTEST, 2023-2025 regular seasons (272 games/season,
+#   32 teams x 17 games / 2, x 3 seasons = 816 games total), same market set:
+#     816 games x 80 credits/game = 65,280 credits TOTAL
+#     (against a ~100,000-credit/mo balance — a full 3-season backtest at the
+#     default market set is MOST of one month's budget in a single dispatch;
+#     narrowing --markets, or backtesting a subset of weeks first, are the
+#     two cheap levers if that number is too big)
+#
+# Only `player_pass_yds` is independently CONFIRMED present on this plan (the
+# key-probe run above); the other 7 default markets are the-odds-api.com's
+# documented market-key convention for the same endpoint, assumed not
+# reconfirmed one by one — a real dispatch's own log is the first place that
+# gets checked market by market (fetch_weekly_props.py's provenance records
+# markets_confirmed_live vs markets_assumed on every write).
+#
+# DRY RUN FIRST, the draft-night-sync.yml lesson repeated here: dry_run
+# fetches for real (spending the cheap events-list call only, when a date is
+# given) or runs the fixture-injection path (spending nothing) and writes to
+# $RUNNER_TEMP, committing nothing — the mechanics get verified before any
+# credit-spending event-odds call fires.
+#
+# THIS SESSION DOES NOT DISPATCH THIS WORKFLOW FOR REAL. draft/data/props/ is
+# empty on this branch; a human decides when the real fetch — and its real
+# credit cost — is worth making. See ROUTES.md TO:A and DECISIONS-NEEDED.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Fetch for real but write nothing (or run the fixture path if no date/events given) — verifies mechanics + shows credit balance'
+        required: false
+        default: true
+        type: boolean
+      season:
+        description: 'NFL season'
+        required: true
+        default: '2026'
+        type: string
+      week:
+        description: 'NFL week number'
+        required: true
+        default: '1'
+        type: string
+      date:
+        description: 'ISO8601 historical snapshot timestamp (e.g. 2026-09-10T17:00:00Z) — required for a REAL fetch; the vegas store carries no game dates so this cannot be derived for free'
+        required: false
+        default: ''
+        type: string
+      markets:
+        description: 'Comma-separated market keys (default: the 8 markets fetch_weekly_props.py knows how to price)'
+        required: false
+        default: 'player_pass_yds,player_pass_tds,player_pass_interceptions,player_rush_yds,player_rush_tds,player_receptions,player_reception_yds,player_reception_tds'
+        type: string
+      limit:
+        description: 'Cap the number of events fetched (bounded-cost smoke test) — leave blank for the full week'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch and price one week's player props
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          SEASON: ${{ github.event.inputs.season }}
+          WEEK: ${{ github.event.inputs.week }}
+          DATE: ${{ github.event.inputs.date }}
+          MARKETS: ${{ github.event.inputs.markets }}
+          LIMIT: ${{ github.event.inputs.limit }}
+        run: |
+          set -uo pipefail
+          ARGS="--season $SEASON --week $WEEK --markets $MARKETS"
+          if [ -n "$DATE" ]; then
+            ARGS="$ARGS --date $DATE"
+          fi
+          if [ -n "$LIMIT" ]; then
+            ARGS="$ARGS --limit $LIMIT"
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            export PROPS_WEEKLY_OUT_DIR="$RUNNER_TEMP/props-dry"
+            ARGS="$ARGS --dry-run"
+            echo "DRY RUN: writing nothing (out dir would have been $PROPS_WEEKLY_OUT_DIR)."
+          fi
+          if [ -z "$DATE" ]; then
+            echo "No --date given: this run will FAIL past the board-existence"
+            echo "check unless a real fetch is not being attempted (dry_run with"
+            echo "no date is the fixture-free smoke path — it will print the"
+            echo "'no PROPS_WEEKLY_EVENTS injected and no ODDS_API_KEY' refusal"
+            echo "if ODDS_API_KEY is unset, or attempt a real fetch with no date"
+            echo "and refuse by name if one is set. Supply --date to fetch for real."
+          fi
+          echo "== python3 draft/tools/fetch_weekly_props.py $ARGS =="
+          python3 draft/tools/fetch_weekly_props.py $ARGS
+      - name: Commit the snapshot
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          set -euo pipefail
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/data/props/
+          if git diff --cached --quiet; then
+            echo "no change (identical snapshot, or nothing written) — nothing to commit"
+            exit 0
+          fi
+          git commit -m "Weekly props snapshot: season ${{ github.event.inputs.season }} week ${{ github.event.inputs.week }} [skip deploy]" \
+            -m "Automated capture via weekly-props-fetch.yml (credit cost logged in the run output and the snapshot's own provenance)."
+          git push

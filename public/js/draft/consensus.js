@@ -13,11 +13,13 @@
  * HONEST LABELLING (Cory's rule): a number labelled "consensus" that comes from
  * one place is a small lie in exactly the spot he asked for a sanity check. So the
  * label states the truth: >=2 sources -> "Consensus (N src)"; 1 source ->
- * "<Source> proj" (e.g. "Sleeper proj 226"). TODAY IT IS SLEEPER ONLY — the
- * artifact's projection provenance is sleeper_projections, and the proj_series
- * archive carries only a Sleeper snapshot; FantasyPros projections are a CI fetch
- * not yet populated. So this renders "Sleeper proj", not "consensus", until a
- * second real source lands.
+ * "<Source> proj" (e.g. "Sleeper proj 226"). The label is derived per player
+ * from whichever per-source fields are actually present — on today's board
+ * that is Sleeper + FantasyPros (2 src), plus our own model where it attaches
+ * (3 src); players either source misses fall back honestly to fewer. (The
+ * "Sleeper only" era this header once described ended 2026-08-10 when the
+ * FantasyPros attach landed — the mechanism needed no change, which is the
+ * point of deriving the label instead of writing it.)
  *
  * ONE derivation for every tool (draft / waiver / lineup / standings) so the same
  * player shows the same raw projection everywhere.
@@ -47,10 +49,15 @@
     if (player.proj_fantasypros != null) perSource.push(['fantasypros', Number(player.proj_fantasypros)]);
     if (player.proj_ffc != null) perSource.push(['ffc', Number(player.proj_ffc)]);
     // THIRD SOURCE, ADDED 2026-08-15. proj_ownmodel is our own leak-free,
-    // self-derived model (walk_forward), attached by build.py the same additive
-    // way FantasyPros was — coverage is partial by design (needs prior-season
-    // production, so rookies carry none), which is exactly why it's an entry in
-    // an array that only includes what's present rather than a required field.
+    // self-derived model — WHICH algorithm is the board's business, not this
+    // file's: build.py stamps it in provenance own_model.algorithm (own_v6
+    // since Cory's 2026-08-16 promotion; this comment once said walk_forward
+    // and went stale within a day of the v4 promotion — the label 'Our model'
+    // is deliberately version-free so the next promotion cannot strand it).
+    // Attached by build.py the same additive way FantasyPros was — coverage is
+    // partial by design (needs prior-season production, so rookies carry
+    // none), which is exactly why it's an entry in an array that only includes
+    // what's present rather than a required field.
     if (player.proj_ownmodel != null) perSource.push(['ownmodel', Number(player.proj_ownmodel)]);
     if (perSource.length) {
       var sum = perSource.reduce(function (a, kv) { return a + kv[1]; }, 0);

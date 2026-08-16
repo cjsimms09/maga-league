@@ -1,0 +1,11 @@
+<%# ── THE TUESDAY PREVIEW LINE — one pairing's history, one compact strip.
+    Expects: prev (memberweek.previewFor result; may be null → renders nothing).
+    Neutral voice (names, never "you") so it reads right on any surface. %>
+<% if (typeof prev !== 'undefined' && prev) { %>
+  <div class="mu-prev">
+    <span class="mu-prev-lead">📜 <%= prev.leadLine %></span>
+    <% if (prev.streakLine) { %><span class="mu-prev-item"><%= prev.streakLine %><%= prev.streak && prev.streak.n >= 3 ? ' 🔥' : '' %></span><% } %>
+    <% if (prev.lastLine) { %><span class="mu-prev-item"><%= prev.lastLine %></span><% } %>
+    <% if (prev.playoffs) { %><span class="mu-prev-item"><%= prev.playoffs %> playoff meeting<%= prev.playoffs === 1 ? '' : 's' %></span><% } %>
+  </div>
+<% } %>

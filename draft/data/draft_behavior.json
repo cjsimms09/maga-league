@@ -1,0 +1,858 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/draft_behavior.py",
+ "_prereg": "draft/audit/draft_behavior_2026-08-15.md \u00a72 \u2014 fixed before any validation number",
+ "provenance": {
+  "source": "draft/data/league_history.json (seasons 2023-2025, main drafts)",
+  "keeper_rule": "is_keeper flag, PLUS the 2023 parallel keeper draft joined by (roster_id, player_id) \u2014 2023's main draft carries zero flags",
+  "n_decisions": {
+   "2023": 120,
+   "2024": 127,
+   "2025": 130
+  },
+  "n_keepers": {
+   "2023": 30,
+   "2024": 23,
+   "2025": 20
+  },
+  "decisions_without_position": [
+   {
+    "season": "2025",
+    "player_id": "12530",
+    "pick_no": 64
+   }
+  ],
+  "adp_note": "NO era-correct market ADP on file (audit doc \u00a71 walks every archive). Baselines use the room's prior-season pick order, labeled."
+ },
+ "owners": [
+  "Bates",
+  "Cory",
+  "David",
+  "Dylan",
+  "Jeremy",
+  "Justin",
+  "Marian",
+  "Michael",
+  "Richard",
+  "Sam"
+ ],
+ "league_bucket_mix": {
+  "early": {
+   "share": {
+    "QB": 0.0556,
+    "RB": 0.5,
+    "WR": 0.4444,
+    "TE": 0.0,
+    "K": 0.0,
+    "DEF": 0.0
+   },
+   "n": 18
+  },
+  "mid": {
+   "share": {
+    "QB": 0.1067,
+    "RB": 0.3202,
+    "WR": 0.4438,
+    "TE": 0.1236,
+    "K": 0.0,
+    "DEF": 0.0056
+   },
+   "n": 178
+  },
+  "late": {
+   "share": {
+    "QB": 0.1222,
+    "RB": 0.2556,
+    "WR": 0.2111,
+    "TE": 0.0833,
+    "K": 0.1722,
+    "DEF": 0.1556
+   },
+   "n": 180
+  }
+ },
+ "signatures": {
+  "Bates": {
+   "n_decisions": 37,
+   "position_share": {
+    "QB": 0.1081,
+    "RB": 0.2162,
+    "WR": 0.4054,
+    "TE": 0.1081,
+    "K": 0.0811,
+    "DEF": 0.0811
+   },
+   "first_round": {
+    "QB": 8.666666666666666,
+    "RB": 6.666666666666667,
+    "WR": 4.666666666666667,
+    "TE": 9.333333333333334,
+    "K": 11.666666666666666,
+    "DEF": 14.333333333333334
+   },
+   "run_follow": {
+    "rate": 0.5556,
+    "n_run_moments": 9
+   },
+   "need_fill": {
+    "rate": 0.4643,
+    "n": 28
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": 21.18,
+     "sd": 16.89,
+     "n": 5
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": 20.54,
+     "sd": 40.03,
+     "n": 8
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Cory": {
+   "n_decisions": 37,
+   "position_share": {
+    "QB": 0.1081,
+    "RB": 0.3784,
+    "WR": 0.2703,
+    "TE": 0.0811,
+    "K": 0.0811,
+    "DEF": 0.0811
+   },
+   "first_round": {
+    "QB": 7.333333333333333,
+    "RB": 4.333333333333333,
+    "WR": 6.666666666666667,
+    "TE": 5.333333333333333,
+    "K": 13.0,
+    "DEF": 15.0
+   },
+   "run_follow": {
+    "rate": 0.2667,
+    "n_run_moments": 15
+   },
+   "need_fill": {
+    "rate": 0.6538,
+    "n": 26
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": 11.25,
+     "sd": 21.07,
+     "n": 6
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": 7.16,
+     "sd": 24.66,
+     "n": 6
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "David": {
+   "n_decisions": 37,
+   "position_share": {
+    "QB": 0.1081,
+    "RB": 0.3514,
+    "WR": 0.3243,
+    "TE": 0.0541,
+    "K": 0.0811,
+    "DEF": 0.0811
+   },
+   "first_round": {
+    "QB": 4.0,
+    "RB": 5.0,
+    "WR": 5.0,
+    "TE": 12.666666666666666,
+    "K": 13.0,
+    "DEF": 12.0
+   },
+   "run_follow": {
+    "rate": 0.2222,
+    "n_run_moments": 9
+   },
+   "need_fill": {
+    "rate": 0.9286,
+    "n": 14
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": -2.62,
+     "sd": 18.67,
+     "n": 5
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": -2.96,
+     "sd": 30.74,
+     "n": 4
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Dylan": {
+   "n_decisions": 37,
+   "position_share": {
+    "QB": 0.1622,
+    "RB": 0.2973,
+    "WR": 0.3243,
+    "TE": 0.0541,
+    "K": 0.0811,
+    "DEF": 0.0811
+   },
+   "first_round": {
+    "QB": 7.0,
+    "RB": 4.666666666666667,
+    "WR": 4.666666666666667,
+    "TE": 10.333333333333334,
+    "K": 14.666666666666666,
+    "DEF": 13.333333333333334
+   },
+   "run_follow": {
+    "rate": 0.375,
+    "n_run_moments": 8
+   },
+   "need_fill": {
+    "rate": 0.6154,
+    "n": 26
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": 13.33,
+     "sd": 28.89,
+     "n": 8
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": -2.92,
+     "sd": 45.49,
+     "n": 9
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Jeremy": {
+   "n_decisions": 41,
+   "position_share": {
+    "QB": 0.122,
+    "RB": 0.2683,
+    "WR": 0.3171,
+    "TE": 0.1463,
+    "K": 0.0732,
+    "DEF": 0.0732
+   },
+   "first_round": {
+    "QB": 6.0,
+    "RB": 3.6666666666666665,
+    "WR": 3.0,
+    "TE": 6.333333333333333,
+    "K": 13.333333333333334,
+    "DEF": 11.333333333333334
+   },
+   "run_follow": {
+    "rate": 0.2857,
+    "n_run_moments": 7
+   },
+   "need_fill": {
+    "rate": 0.8636,
+    "n": 22
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": 5.16,
+     "sd": 37.52,
+     "n": 7
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": -12.27,
+     "sd": 38.86,
+     "n": 11
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Justin": {
+   "n_decisions": 39,
+   "position_share": {
+    "QB": 0.0513,
+    "RB": 0.359,
+    "WR": 0.3333,
+    "TE": 0.1026,
+    "K": 0.0769,
+    "DEF": 0.0769
+   },
+   "first_round": {
+    "QB": 12.666666666666666,
+    "RB": 3.6666666666666665,
+    "WR": 4.0,
+    "TE": 6.666666666666667,
+    "K": 13.333333333333334,
+    "DEF": 14.333333333333334
+   },
+   "run_follow": {
+    "rate": 0.2308,
+    "n_run_moments": 13
+   },
+   "need_fill": {
+    "rate": 0.7391,
+    "n": 23
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": 10.78,
+     "sd": 27.47,
+     "n": 5
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": -13.86,
+     "sd": 42.05,
+     "n": 9
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Marian": {
+   "n_decisions": 36,
+   "position_share": {
+    "QB": 0.1111,
+    "RB": 0.3333,
+    "WR": 0.3056,
+    "TE": 0.1111,
+    "K": 0.0833,
+    "DEF": 0.0556
+   },
+   "first_round": {
+    "QB": 7.0,
+    "RB": 5.0,
+    "WR": 6.0,
+    "TE": 8.0,
+    "K": 12.333333333333334,
+    "DEF": 14.0
+   },
+   "run_follow": {
+    "rate": 0.2,
+    "n_run_moments": 5
+   },
+   "need_fill": {
+    "rate": 0.5217,
+    "n": 23
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": -6.08,
+     "sd": 21.1,
+     "n": 6
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": 12.36,
+     "sd": 32.8,
+     "n": 9
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Michael": {
+   "n_decisions": 36,
+   "position_share": {
+    "QB": 0.0833,
+    "RB": 0.25,
+    "WR": 0.3611,
+    "TE": 0.1389,
+    "K": 0.0833,
+    "DEF": 0.0833
+   },
+   "first_round": {
+    "QB": 10.666666666666666,
+    "RB": 5.666666666666667,
+    "WR": 4.666666666666667,
+    "TE": 6.0,
+    "K": 14.0,
+    "DEF": 13.333333333333334
+   },
+   "run_follow": {
+    "rate": 0.3571,
+    "n_run_moments": 14
+   },
+   "need_fill": {
+    "rate": 0.8333,
+    "n": 18
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": -22.84,
+     "sd": 13.26,
+     "n": 7
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": -9.96,
+     "sd": 18.34,
+     "n": 8
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Richard": {
+   "n_decisions": 37,
+   "position_share": {
+    "QB": 0.1351,
+    "RB": 0.1892,
+    "WR": 0.4054,
+    "TE": 0.0811,
+    "K": 0.1081,
+    "DEF": 0.0811
+   },
+   "first_round": {
+    "QB": 10.666666666666666,
+    "RB": 6.333333333333333,
+    "WR": 4.333333333333333,
+    "TE": 9.333333333333334,
+    "K": 13.333333333333334,
+    "DEF": 14.0
+   },
+   "run_follow": {
+    "rate": 0.5,
+    "n_run_moments": 10
+   },
+   "need_fill": {
+    "rate": 0.6957,
+    "n": 23
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": -2.84,
+     "sd": 29.61,
+     "n": 7
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": 1.47,
+     "sd": 25.65,
+     "n": 9
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  },
+  "Sam": {
+   "n_decisions": 39,
+   "position_share": {
+    "QB": 0.1282,
+    "RB": 0.3333,
+    "WR": 0.2821,
+    "TE": 0.1026,
+    "K": 0.0769,
+    "DEF": 0.0769
+   },
+   "first_round": {
+    "QB": 7.333333333333333,
+    "RB": 3.0,
+    "WR": 4.666666666666667,
+    "TE": 7.666666666666667,
+    "K": 12.333333333333334,
+    "DEF": 11.0
+   },
+   "run_follow": {
+    "rate": 0.5,
+    "n_run_moments": 14
+   },
+   "need_fill": {
+    "rate": 0.7368,
+    "n": 19
+   },
+   "reach_room_relative": {
+    "2024_vs_2023_proxy": {
+     "mean_centered": -15.64,
+     "sd": 26.12,
+     "n": 9
+    },
+    "2025_vs_2023_24_proxy": {
+     "mean_centered": 5.08,
+     "sd": 35.62,
+     "n": 9
+    },
+    "label": "room-relative (prior-season pick order), NOT market ADP \u2014 none archived"
+   }
+  }
+ },
+ "run_chasing_league": {
+  "n_run_moments": 104,
+  "followed": 37,
+  "follow_rate": 0.3558,
+  "expected_by_base_rate": 0.2657
+ },
+ "keeper_need": {
+  "RB": {
+   "0": {
+    "mean_share_r4_6": 0.4,
+    "n_owner_seasons": 5
+   },
+   "1": {
+    "mean_share_r4_6": 0.3333,
+    "n_owner_seasons": 11
+   },
+   "2+": {
+    "mean_share_r4_6": 0.0,
+    "n_owner_seasons": 4
+   }
+  },
+  "WR": {
+   "0": {
+    "mean_share_r4_6": 0.4667,
+    "n_owner_seasons": 5
+   },
+   "1": {
+    "mean_share_r4_6": 0.4722,
+    "n_owner_seasons": 12
+   },
+   "2+": {
+    "mean_share_r4_6": 0.2222,
+    "n_owner_seasons": 3
+   }
+  },
+  "QB": {
+   "0": {
+    "mean_share_r4_6": 0.1765,
+    "n_owner_seasons": 17
+   },
+   "1": {
+    "mean_share_r4_6": 0.0,
+    "n_owner_seasons": 3
+   }
+  },
+  "TE": {
+   "0": {
+    "mean_share_r4_6": 0.1569,
+    "n_owner_seasons": 17
+   },
+   "1": {
+    "mean_share_r4_6": 0.0,
+    "n_owner_seasons": 3
+   }
+  }
+ },
+ "league_vs_market_mass": {
+  "note": "room = mean picks/season 2023-25 (keepers included: board composition); market = latest home ADP snapshot (Sleeper ids) top-150 laid onto a 10-team board. ERA MISMATCH on the market side \u2014 no archived market ADP exists in this repo.",
+  "bands": {
+   "r1_3": {
+    "room_mean_per_season": {
+     "QB": 2.3,
+     "RB": 12.7,
+     "WR": 13.3,
+     "TE": 1.7,
+     "K": 0.0,
+     "DEF": 0.0
+    },
+    "market_implied": {
+     "QB": 1,
+     "RB": 14,
+     "WR": 13,
+     "TE": 2,
+     "K": 0,
+     "DEF": 0
+    }
+   },
+   "r4_7": {
+    "room_mean_per_season": {
+     "QB": 5.7,
+     "RB": 12.7,
+     "WR": 15.7,
+     "TE": 5.7,
+     "K": 0.0,
+     "DEF": 0.0
+    },
+    "market_implied": {
+     "QB": 6,
+     "RB": 11,
+     "WR": 17,
+     "TE": 6,
+     "K": 0,
+     "DEF": 0
+    }
+   },
+   "r8_11": {
+    "room_mean_per_season": {
+     "QB": 2.0,
+     "RB": 15.0,
+     "WR": 16.0,
+     "TE": 4.0,
+     "K": 1.3,
+     "DEF": 1.7
+    },
+    "market_implied": {
+     "QB": 8,
+     "RB": 13,
+     "WR": 14,
+     "TE": 5,
+     "K": 0,
+     "DEF": 0
+    }
+   },
+   "r12_15": {
+    "room_mean_per_season": {
+     "QB": 6.0,
+     "RB": 7.0,
+     "WR": 7.3,
+     "TE": 2.7,
+     "K": 9.0,
+     "DEF": 8.0
+    },
+    "market_implied": {
+     "QB": 6,
+     "RB": 8,
+     "WR": 12,
+     "TE": 6,
+     "K": 3,
+     "DEF": 5
+    }
+   }
+  },
+  "market_rows_unmapped": 0
+ },
+ "stability": {
+  "pairs": {
+   "2023->2024": {
+    "per_feature": {
+     "f1_rb_share": 0.353,
+     "f2_wr_share": 0.383,
+     "f3_first_qb": 0.208,
+     "f4_first_te": -0.25,
+     "f5_first_k": 0.46,
+     "f6_run_follow": -0.16,
+     "f7_need_fill": -0.189
+    },
+    "mean_rho": 0.115,
+    "n_features_usable": 7
+   },
+   "2024->2025": {
+    "per_feature": {
+     "f1_rb_share": 0.465,
+     "f2_wr_share": 0.157,
+     "f3_first_qb": 0.05,
+     "f4_first_te": -0.345,
+     "f5_first_k": -0.088,
+     "f6_run_follow": -0.293,
+     "f7_need_fill": 0.573
+    },
+    "mean_rho": 0.074,
+    "n_features_usable": 7
+   },
+   "2023->2025": {
+    "per_feature": {
+     "f1_rb_share": 0.729,
+     "f2_wr_share": -0.074,
+     "f3_first_qb": -0.013,
+     "f4_first_te": 0.212,
+     "f5_first_k": 0.17,
+     "f6_run_follow": 0.463,
+     "f7_need_fill": -0.037
+    },
+    "mean_rho": 0.207,
+    "n_features_usable": 7
+   }
+  },
+  "permutation": {
+   "pair": "2024->2025",
+   "mean_rho": 0.074,
+   "p_two_sided": 0.563,
+   "n_perm": 1000
+  }
+ },
+ "forward_test": {
+  "train_seasons": [
+   "2023",
+   "2024"
+  ],
+  "target": "2025",
+  "n_decisions_target": 130,
+  "n_survival_observations": 41447,
+  "n_target_picks_without_proxy": 48,
+  "survival_brier": {
+   "model": {
+    "pooled": 0.09878,
+    "per_horizon": {
+     "6": 0.04424,
+     "12": 0.08435,
+     "18": 0.12143,
+     "24": 0.15531
+    }
+   },
+   "baseline": {
+    "pooled": 0.50293,
+    "per_horizon": {
+     "6": 0.40943,
+     "12": 0.49379,
+     "18": 0.54399,
+     "24": 0.57997
+    }
+   },
+   "model_beats_baseline": true
+  },
+  "calibration": {
+   "model": [
+    {
+     "bin": "0.0-0.1",
+     "mean_pred": 0.014,
+     "mean_actual": 0.079,
+     "n": 30576
+    },
+    {
+     "bin": "0.1-0.2",
+     "mean_pred": 0.145,
+     "mean_actual": 0.116,
+     "n": 3655
+    },
+    {
+     "bin": "0.2-0.3",
+     "mean_pred": 0.247,
+     "mean_actual": 0.087,
+     "n": 2321
+    },
+    {
+     "bin": "0.3-0.4",
+     "mean_pred": 0.346,
+     "mean_actual": 0.118,
+     "n": 1667
+    },
+    {
+     "bin": "0.4-0.5",
+     "mean_pred": 0.448,
+     "mean_actual": 0.158,
+     "n": 1295
+    },
+    {
+     "bin": "0.5-0.6",
+     "mean_pred": 0.548,
+     "mean_actual": 0.201,
+     "n": 971
+    },
+    {
+     "bin": "0.6-0.7",
+     "mean_pred": 0.644,
+     "mean_actual": 0.302,
+     "n": 632
+    },
+    {
+     "bin": "0.7-0.8",
+     "mean_pred": 0.74,
+     "mean_actual": 0.456,
+     "n": 309
+    },
+    {
+     "bin": "0.8-0.9",
+     "mean_pred": 0.82,
+     "mean_actual": 0.714,
+     "n": 21
+    },
+    {
+     "bin": "0.9-1.0",
+     "mean_pred": null,
+     "mean_actual": null,
+     "n": 0
+    }
+   ],
+   "baseline": [
+    {
+     "bin": "0.0-0.1",
+     "mean_pred": 0.032,
+     "mean_actual": 0.038,
+     "n": 6554
+    },
+    {
+     "bin": "0.1-0.2",
+     "mean_pred": 0.147,
+     "mean_actual": 0.049,
+     "n": 2732
+    },
+    {
+     "bin": "0.2-0.3",
+     "mean_pred": 0.248,
+     "mean_actual": 0.056,
+     "n": 2186
+    },
+    {
+     "bin": "0.3-0.4",
+     "mean_pred": 0.35,
+     "mean_actual": 0.06,
+     "n": 1902
+    },
+    {
+     "bin": "0.4-0.5",
+     "mean_pred": 0.453,
+     "mean_actual": 0.08,
+     "n": 1831
+    },
+    {
+     "bin": "0.5-0.6",
+     "mean_pred": 0.551,
+     "mean_actual": 0.099,
+     "n": 1631
+    },
+    {
+     "bin": "0.6-0.7",
+     "mean_pred": 0.649,
+     "mean_actual": 0.105,
+     "n": 1774
+    },
+    {
+     "bin": "0.7-0.8",
+     "mean_pred": 0.751,
+     "mean_actual": 0.108,
+     "n": 1906
+    },
+    {
+     "bin": "0.8-0.9",
+     "mean_pred": 0.852,
+     "mean_actual": 0.1,
+     "n": 2211
+    },
+    {
+     "bin": "0.9-1.0",
+     "mean_pred": 0.991,
+     "mean_actual": 0.13,
+     "n": 18720
+    }
+   ]
+  },
+  "next_pick_position": {
+   "n": 129,
+   "model": {
+    "top1_hit": 0.4496,
+    "logloss": 1.4283
+   },
+   "league_base": {
+    "top1_hit": 0.3798,
+    "logloss": 1.4786
+   },
+   "model_beats_base_logloss": true
+  },
+  "exact_player_top1": {
+   "n": 129,
+   "model": 0.031,
+   "baseline_room_proxy_bpa": 0.0233
+  }
+ },
+ "forward_test_diagnostics": {
+  "_label": "POST-PREREG, exploratory \u2014 decomposes the preregistered win; gates nothing on its own, but the doc reads the honest story from it",
+  "train_proxy_residual_sd_2023_to_2024": 28.74,
+  "robust_baseline_sd_widened": {
+   "survival_brier_baseline": 0.20561,
+   "model_beats_it": true
+  },
+  "ablation_league_mix_only": {
+   "survival_brier_model": 0.09831,
+   "survival_brier_baseline": 0.50293,
+   "pos_logloss_model": 1.4786,
+   "pos_top1_model": 0.3798
+  },
+  "ablation_league_mix_plus_need": {
+   "survival_brier_model": 0.09872,
+   "survival_brier_baseline": 0.50293,
+   "pos_logloss_model": 1.4076,
+   "pos_top1_model": 0.4651
+  },
+  "full_model": {
+   "survival_brier_model": 0.09878,
+   "survival_brier_baseline": 0.50293,
+   "pos_logloss_model": 1.4283,
+   "pos_top1_model": 0.4496
+  }
+ }
+}

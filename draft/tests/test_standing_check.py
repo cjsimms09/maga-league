@@ -95,27 +95,71 @@ def test_the_liveness_row_ignores_the_analysis_threshold(tmp_path, monkeypatch):
     d = tmp_path / "draft" / "market_snapshots"
     d.mkdir(parents=True)
     (d / "capture_health.json").write_text(json.dumps({"last_success_at": _stamp(0)}))
-    # Enough paired events that the ANALYSIS row escalates.
+    # Enough paired REGULAR-SEASON events that the ANALYSIS row escalates
+    # (the Signal-C bar counts only events that can answer the question).
     for i in range(2):
         (d / f"2026-08-0{i+1}T12:00:00Z.json").write_text(json.dumps(
-            {"events": [{"event_id": f"e{j}"} for j in range(SC.T["market_movement_events"])]}))
+            {"league": "usa-nfl",
+             "events": [{"event_id": f"e{j}"} for j in range(SC.T["market_movement_events"])]}))
     assert SC.check_market_snapshots()["state"] == "ESCALATE"
     assert SC.check_market_capture_alive()["state"] == "quiet"
 
 
-def test_enough_paired_events_escalates_signal_c(tmp_path, monkeypatch):
+def test_enough_paired_REGULAR_SEASON_events_escalates_signal_c(tmp_path, monkeypatch):
     monkeypatch.setattr(SC, "ROOT", tmp_path)
     d = tmp_path / "draft" / "market_snapshots"
     d.mkdir(parents=True)
     (d / "capture_health.json").write_text(json.dumps({"last_success_at": _stamp(0.1)}))
     events = [{"event_id": f"e{i}"} for i in range(SC.T["market_movement_events"] + 3)]
     for k in range(2):
-        (d / f"usa-nfl-preseason_2026-08-0{k + 1}T000000Z.json").write_text(
-            json.dumps({"events": events}))
+        (d / f"usa-nfl_2026-08-0{k + 1}T000000Z.json").write_text(
+            json.dumps({"league": "usa-nfl", "events": events}))
     row = SC.check_market_snapshots()
     assert row["state"] == "ESCALATE", row
     assert row["n"] >= SC.T["market_movement_events"]
     assert "Signal C is askable" in row["detail"]
+
+
+def test_FAIL_ARM_preseason_pairs_meeting_the_bar_do_NOT_escalate(tmp_path, monkeypatch):
+    """The live defect this gate retires: 32+ paired events, every one preseason,
+    escalated daily from 08-12 — a count that satisfied the bar with data that
+    cannot answer Signal C. Preseason pairs must be REPORTED (the mechanism is
+    proven) and must NOT escalate (the question is not askable)."""
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "market_snapshots"
+    d.mkdir(parents=True)
+    (d / "capture_health.json").write_text(json.dumps({"last_success_at": _stamp(0.1)}))
+    events = [{"event_id": f"e{i}",
+               "odds": {"league": {"slug": "usa-nfl-preseason"}}}
+              for i in range(SC.T["market_movement_events"] + 2)]
+    for k in range(2):
+        (d / f"usa-nfl-preseason_2026-08-0{k + 1}T000000Z.json").write_text(
+            json.dumps({"league": "usa-nfl-preseason", "events": events}))
+    row = SC.check_market_snapshots()
+    assert row["state"] == "quiet", row
+    assert row["n"] == 0, "regular-season pair count must be zero here"
+    # not silenced: the preseason pairing is still visible in the detail
+    assert "preseason 32" in row["detail"], row["detail"]
+    assert "cannot answer Signal C" in row["detail"]
+
+
+def test_an_unlabelled_event_counts_toward_NEITHER_side(tmp_path, monkeypatch):
+    """Absence of a league label is not evidence of a season type. An event
+    this process cannot classify must not satisfy the bar (that would recreate
+    the defect through a data gap) and must not be filed as preseason either —
+    it is reported as unlabelled."""
+    monkeypatch.setattr(SC, "ROOT", tmp_path)
+    d = tmp_path / "draft" / "market_snapshots"
+    d.mkdir(parents=True)
+    (d / "capture_health.json").write_text(json.dumps({"last_success_at": _stamp(0.1)}))
+    events = [{"event_id": f"e{i}"} for i in range(SC.T["market_movement_events"] + 2)]
+    for k in range(2):
+        # no snapshot-level league, no event-level league
+        (d / f"2026-08-0{k + 1}T000000Z.json").write_text(json.dumps({"events": events}))
+    row = SC.check_market_snapshots()
+    assert row["state"] == "quiet", row
+    assert row["n"] == 0
+    assert "unlabelled 32" in row["detail"], row["detail"]
 
 
 def test_one_observation_per_event_stays_quiet(tmp_path, monkeypatch):

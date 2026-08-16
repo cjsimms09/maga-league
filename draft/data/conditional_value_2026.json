@@ -1,0 +1,550 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/conditional_value.py; gated OFF, no board/composite/recommendation surface reads this (Cory rules on wiring)",
+ "generated_at_note": "rebuild: python3 draft/backtest/conditional_value.py",
+ "mandate": "docs/queued/conditional-value-program.md",
+ "seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "league": {
+  "weekly_high_dollars": 100,
+  "fantasy_weeks": 15,
+  "teams": 10,
+  "weekly_sd_source": "src/routes/champodds.js CFG.WEEKLY_SD = 21.3"
+ },
+ "stack_correlation_classes": {
+  "QB-TE1": {
+   "r_pooled": 0.3331,
+   "r_mean": 0.3038,
+   "r_sd_across_pairs": 0.3013,
+   "n_pairs": 142,
+   "n_weeks": 1759
+  },
+  "QB-WR1": {
+   "r_pooled": 0.4001,
+   "r_mean": 0.3715,
+   "r_sd_across_pairs": 0.2805,
+   "n_pairs": 151,
+   "n_weeks": 1992
+  },
+  "QB-WR2": {
+   "r_pooled": 0.389,
+   "r_mean": 0.3521,
+   "r_sd_across_pairs": 0.278,
+   "n_pairs": 139,
+   "n_weeks": 1749
+  },
+  "WR1-WR2": {
+   "r_pooled": 0.0136,
+   "r_mean": -0.0129,
+   "r_sd_across_pairs": 0.3153,
+   "n_pairs": 149,
+   "n_weeks": 1947
+  }
+ },
+ "stacks_for_cory": [
+  {
+   "label": "Joe Burrow + Ja'Marr Chase (kept)",
+   "cls": "QB-WR1",
+   "history": {
+    "per_season": [
+     {
+      "season": 2021,
+      "team": "CIN",
+      "n_weeks": 16,
+      "r": 0.6536
+     },
+     {
+      "season": 2022,
+      "team": "CIN",
+      "n_weeks": 11,
+      "r": 0.5362
+     },
+     {
+      "season": 2023,
+      "team": "CIN",
+      "n_weeks": 10,
+      "r": 0.4777
+     },
+     {
+      "season": 2024,
+      "team": "CIN",
+      "n_weeks": 16,
+      "r": 0.564
+     },
+     {
+      "season": 2025,
+      "team": "CIN",
+      "n_weeks": 7,
+      "r": -0.2445
+     }
+    ],
+    "r_pooled": 0.5194,
+    "n_seasons_pooled": 5,
+    "n_weeks": 60,
+    "a_ppw": 24.31,
+    "a_sd": 10.83,
+    "b_ppw": 17.07,
+    "b_sd": 10.87,
+    "co_active_rate": 0.759
+   },
+   "class_baseline": {
+    "r_pooled": 0.4001,
+    "r_mean": 0.3715,
+    "r_sd_across_pairs": 0.2805,
+    "n_pairs": 151,
+    "n_weeks": 1992
+   },
+   "cov_increment_pair": 122.29,
+   "cov_increment_class_rho": 94.2,
+   "sim_pair_rho": {
+    "pHighOn": 0.1209,
+    "pHighOff": 0.10155,
+    "dHigh": 0.01935,
+    "pLowOn": 0.1196,
+    "pLowOff": 0.0974,
+    "dLow": 0.0222,
+    "pBelow1SdOn": 0.18815,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": 0.0307,
+    "sdOn": 23.999577443780133,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": 2.757
+   },
+   "sim_class_rho": {
+    "pHighOn": 0.11695,
+    "pHighOff": 0.10155,
+    "dHigh": 0.0154,
+    "pLowOn": 0.1148,
+    "pLowOff": 0.0974,
+    "dLow": 0.0174,
+    "pBelow1SdOn": 0.18125,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": 0.0238,
+    "sdOn": 23.40707637489142,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": 2.301
+   },
+   "co_active_weeks_15": 11.4,
+   "premium_dollars_season": 22.06,
+   "premium_dollars_season_class_rho": 17.56,
+   "composite_pts_equiv_season": 31.4,
+   "bust_tail": {
+    "dLow": 0.0222,
+    "dBelow1Sd": 0.0307
+   },
+   "note": "the pair Cory owns half of"
+  },
+  {
+   "label": "Tee Higgins + Ja'Marr Chase (kept)",
+   "cls": "WR1-WR2",
+   "history": {
+    "per_season": [
+     {
+      "season": 2021,
+      "team": "CIN",
+      "n_weeks": 14,
+      "r": -0.1223
+     },
+     {
+      "season": 2022,
+      "team": "CIN",
+      "n_weeks": 9,
+      "r": -0.6747
+     },
+     {
+      "season": 2023,
+      "team": "CIN",
+      "n_weeks": 11,
+      "r": -0.2827
+     },
+     {
+      "season": 2024,
+      "team": "CIN",
+      "n_weeks": 11,
+      "r": -0.1883
+     },
+     {
+      "season": 2025,
+      "team": "CIN",
+      "n_weeks": 13,
+      "r": 0.1817
+     }
+    ],
+    "r_pooled": -0.1902,
+    "n_seasons_pooled": 5,
+    "n_weeks": 58,
+    "a_ppw": 12.69,
+    "a_sd": 8.38,
+    "b_ppw": 16.07,
+    "b_sd": 9.97,
+    "co_active_rate": 0.734
+   },
+   "class_baseline": {
+    "r_pooled": 0.0136,
+    "r_mean": -0.0129,
+    "r_sd_across_pairs": 0.3153,
+    "n_pairs": 149,
+    "n_weeks": 1947
+   },
+   "cov_increment_pair": -31.78,
+   "cov_increment_class_rho": 2.27,
+   "sim_pair_rho": {
+    "pHighOn": 0.0959,
+    "pHighOff": 0.10155,
+    "dHigh": -0.00565,
+    "pLowOn": 0.09145,
+    "pLowOff": 0.0974,
+    "dLow": -0.00595,
+    "pBelow1SdOn": 0.14865,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": -0.0088,
+    "sdOn": 20.54040195711856,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": -0.922
+   },
+   "sim_class_rho": {
+    "pHighOn": 0.1018,
+    "pHighOff": 0.10155,
+    "dHigh": 0.00025,
+    "pLowOn": 0.0979,
+    "pLowOff": 0.0974,
+    "dLow": 0.0005,
+    "pBelow1SdOn": 0.15805,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": 0.0006,
+    "sdOn": 21.35327895008165,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": 0.061
+   },
+   "co_active_weeks_15": 11.0,
+   "premium_dollars_season": -6.21,
+   "premium_dollars_season_class_rho": 0.28,
+   "composite_pts_equiv_season": -10.1,
+   "bust_tail": {
+    "dLow": -0.00595,
+    "dBelow1Sd": -0.0088
+   },
+   "note": "same-team WR pair, no QB leg"
+  },
+  {
+   "label": "Tee Higgins given Burrow drafted",
+   "cls": "QB-WR2",
+   "history": {
+    "per_season": [
+     {
+      "season": 2021,
+      "team": "CIN",
+      "n_weeks": 14,
+      "r": 0.403
+     },
+     {
+      "season": 2022,
+      "team": "CIN",
+      "n_weeks": 13,
+      "r": -0.1267
+     },
+     {
+      "season": 2023,
+      "team": "CIN",
+      "n_weeks": 7,
+      "r": 0.5622
+     },
+     {
+      "season": 2024,
+      "team": "CIN",
+      "n_weeks": 11,
+      "r": 0.6131
+     },
+     {
+      "season": 2025,
+      "team": "CIN",
+      "n_weeks": 5,
+      "r": 0.4974
+     }
+    ],
+    "r_pooled": 0.3495,
+    "n_seasons_pooled": 5,
+    "n_weeks": 50,
+    "a_ppw": 24.88,
+    "a_sd": 10.68,
+    "b_ppw": 13.28,
+    "b_sd": 8.26,
+    "co_active_rate": 0.633
+   },
+   "class_baseline": {
+    "r_pooled": 0.389,
+    "r_mean": 0.3521,
+    "r_sd_across_pairs": 0.278,
+    "n_pairs": 139,
+    "n_weeks": 1749
+   },
+   "cov_increment_pair": 61.66,
+   "cov_increment_class_rho": 68.63,
+   "sim_pair_rho": {
+    "pHighOn": 0.11115,
+    "pHighOff": 0.10155,
+    "dHigh": 0.0096,
+    "pLowOn": 0.1097,
+    "pLowOff": 0.0974,
+    "dLow": 0.0123,
+    "pBelow1SdOn": 0.1734,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": 0.01595,
+    "sdOn": 22.70139958680962,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": 1.438
+   },
+   "sim_class_rho": {
+    "pHighOn": 0.1119,
+    "pHighOff": 0.10155,
+    "dHigh": 0.01035,
+    "pLowOn": 0.1107,
+    "pLowOff": 0.0974,
+    "dLow": 0.0133,
+    "pBelow1SdOn": 0.1747,
+    "pBelow1SdOff": 0.15745,
+    "dBelow1Sd": 0.01725,
+    "sdOn": 22.854379676552153,
+    "sdOff": 21.3,
+    "sims": 20000,
+    "seed": 20260816,
+    "pointEquivalentWeekly": 1.572
+   },
+   "co_active_weeks_15": 9.5,
+   "premium_dollars_season": 9.12,
+   "premium_dollars_season_class_rho": 9.83,
+   "composite_pts_equiv_season": 13.7,
+   "bust_tail": {
+    "dLow": 0.0123,
+    "dBelow1Sd": 0.01595
+   },
+   "note": "the second leg of a double stack \u2014 only live if Burrow is on the roster"
+  }
+ ],
+ "handcuffs_for_cory": [
+  {
+   "starter": {
+    "pid": "3198",
+    "name": "Derrick Henry",
+    "team": "BAL",
+    "own_availability": {
+     "per_season": [
+      {
+       "season": 2021,
+       "team": "TEN",
+       "missed": 8,
+       "team_games": 16
+      },
+      {
+       "season": 2022,
+       "team": "TEN",
+       "missed": 1,
+       "team_games": 16
+      },
+      {
+       "season": 2023,
+       "team": "TEN",
+       "missed": 0,
+       "team_games": 16
+      },
+      {
+       "season": 2024,
+       "team": "BAL",
+       "missed": 0,
+       "team_games": 16
+      },
+      {
+       "season": 2025,
+       "team": "BAL",
+       "missed": 0,
+       "team_games": 16
+      }
+     ],
+     "missed_total": 9,
+     "team_games_total": 80,
+     "miss_rate": 0.1125,
+     "expected_missed_starts_15wk": 1.69
+    },
+    "class_availability": {
+     "n_rb1_seasons": 120,
+     "p_miss_ge1": 0.442,
+     "mean_missed_per_season": 1.02,
+     "miss_rate_per_team_game": 0.0636,
+     "expected_missed_starts_15wk": 0.95,
+     "missed_games_distribution": {
+      "0": 67,
+      "1": 19,
+      "2": 16,
+      "3": 9,
+      "4": 6,
+      "6": 2,
+      "8": 1
+     }
+    }
+   },
+   "backups": [
+    {
+     "pid": "5995",
+     "name": "Justice Hill",
+     "adp": 217.5,
+     "depth_chart_order": 2,
+     "proj_mean": 54.24,
+     "own_elevated_history": null,
+     "class_elevated_ppw": 12.5,
+     "class_elevated_sd": 7.6,
+     "class_n_elevated_weeks": 111,
+     "premium_pts_to_cory": 4.5,
+     "premium_pts_to_cory_own_availability": 7.9,
+     "premium_pts_to_field": 0.9
+    },
+    {
+     "pid": "13302",
+     "name": "Adam Randall",
+     "adp": 306.0,
+     "depth_chart_order": 3,
+     "proj_mean": 26.1,
+     "own_elevated_history": null,
+     "class_elevated_ppw": 12.5,
+     "class_elevated_sd": 7.6,
+     "class_n_elevated_weeks": 111,
+     "premium_pts_to_cory": 4.5,
+     "premium_pts_to_cory_own_availability": 7.9,
+     "premium_pts_to_field": 0.9
+    }
+   ]
+  },
+  {
+   "starter": {
+    "pid": "8151",
+    "name": "Kenneth Walker",
+    "team": "KC",
+    "own_availability": {
+     "per_season": [
+      {
+       "season": 2022,
+       "team": "SEA",
+       "missed": 2,
+       "team_games": 16
+      },
+      {
+       "season": 2023,
+       "team": "SEA",
+       "missed": 2,
+       "team_games": 16
+      },
+      {
+       "season": 2024,
+       "team": "SEA",
+       "missed": 5,
+       "team_games": 16
+      },
+      {
+       "season": 2025,
+       "team": "SEA",
+       "missed": 0,
+       "team_games": 16
+      }
+     ],
+     "missed_total": 9,
+     "team_games_total": 64,
+     "miss_rate": 0.1406,
+     "expected_missed_starts_15wk": 2.11
+    },
+    "class_availability": {
+     "n_rb1_seasons": 120,
+     "p_miss_ge1": 0.442,
+     "mean_missed_per_season": 1.02,
+     "miss_rate_per_team_game": 0.0636,
+     "expected_missed_starts_15wk": 0.95,
+     "missed_games_distribution": {
+      "0": 67,
+      "1": 19,
+      "2": 16,
+      "3": 9,
+      "4": 6,
+      "6": 2,
+      "8": 1
+     }
+    }
+   },
+   "backups": [
+    {
+     "pid": "13337",
+     "name": "Emmett Johnson",
+     "adp": 199.0,
+     "depth_chart_order": 3,
+     "proj_mean": 59.2,
+     "own_elevated_history": null,
+     "class_elevated_ppw": 12.5,
+     "class_elevated_sd": 7.6,
+     "class_n_elevated_weeks": 111,
+     "premium_pts_to_cory": 4.5,
+     "premium_pts_to_cory_own_availability": 9.9,
+     "premium_pts_to_field": 0.9
+    },
+    {
+     "pid": "11199",
+     "name": "Emari Demercado",
+     "adp": 313.0,
+     "depth_chart_order": 2,
+     "proj_mean": 31.43,
+     "own_elevated_history": null,
+     "class_elevated_ppw": 12.5,
+     "class_elevated_sd": 7.6,
+     "class_n_elevated_weeks": 111,
+     "premium_pts_to_cory": 4.5,
+     "premium_pts_to_cory_own_availability": 9.9,
+     "premium_pts_to_field": 0.9
+    }
+   ]
+  }
+ ],
+ "wr_conditional_class": {
+  "pos": "WR",
+  "n_starter_seasons": 120,
+  "elevated_ppw": 10.5,
+  "elevated_sd": 5.98,
+  "n_elevated_weeks": 65,
+  "present_ppw": 8.78,
+  "n_present_weeks": 1575
+ },
+ "rb_conditional_class": {
+  "pos": "RB",
+  "n_starter_seasons": 120,
+  "elevated_ppw": 12.5,
+  "elevated_sd": 7.6,
+  "n_elevated_weeks": 111,
+  "present_ppw": 6.71,
+  "n_present_weeks": 1482
+ },
+ "replacement": {
+  "wire_per_week": {
+   "QB": 23.38,
+   "RB": 7.8,
+   "WR": 11.1,
+   "TE": 11.6
+  },
+  "startable_rb_bar_ppw": 11.54
+ },
+ "caveats": [
+  "correlations come from 5 seasons of weekly rows and are NOISY \u2014 every class and pair above carries its n; pair-level r moves season to season (see per_season blocks) and the class-pooled rho is the stabler number",
+  "row-presence = 'was on a field' (the stores' rule): a healthy scratch and an injury read the same; for top-24 RB1s absence is overwhelmingly injury, but the availability numbers cannot distinguish",
+  "the stack premium prices VARIANCE into a 10-team equal-mean weekly-high contest at the champodds constant sd 21.3; a team whose mean is already above the field gains slightly less from variance than this prices, a below-mean team slightly more",
+  "the correlation raises BOTH tails: dLow and dBelow1Sd are the bust side and are reported, not netted away",
+  "handcuff class numbers pool ALL top-24-RB1 backups; a specific backup's talent/role can sit anywhere in that spread (the elevated_sd is the spread)"
+ ]
+}

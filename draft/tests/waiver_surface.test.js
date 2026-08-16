@@ -71,8 +71,16 @@ global.fetch = async (url, opts) => {
   // The artifact is the SOURCE OF TRUTH for projections and VORP (the live
   // adapter's own rule — recomputing VORP over the thin FA pool inflates it and
   // makes the waiver tool disagree with the draft on the same player).
-  const artifactPath = path.join(ROOT, 'public', 'draft_data.json');
-  const realArtifact = fs.readFileSync(artifactPath);
+  /* A SCRATCH artifact, not the real board. This test used to rewrite
+   * public/draft_data.json in place and restore it in the finally — which left
+   * the shipped board transiently fake for any concurrent reader and would
+   * leave it permanently fake on a hard crash. The route honors
+   * DRAFT_DATA_PATH exactly so tests can exercise the real read path without
+   * ever touching the real artifact. */
+  const artifactPath = path.join(
+    fs.mkdtempSync(path.join(require('os').tmpdir(), 'waiver-surface-artifact-')),
+    'draft_data.json');
+  process.env.DRAFT_DATA_PATH = artifactPath;
   const mkArt = wire => ({
     players: [...MINE, ...wire].map(([id, name, pos, proj]) => ({
       player_id: id, name, position: pos, proj_mean: proj, vorp: Math.round(proj * 0.4), bye: null })),
@@ -210,7 +218,8 @@ global.fetch = async (url, opts) => {
         /correct answer rather than an empty table/i.test(t));
     }
   } finally {
-    fs.writeFileSync(artifactPath, realArtifact);
+    delete process.env.DRAFT_DATA_PATH;
+    try { fs.rmSync(path.dirname(artifactPath), { recursive: true, force: true }); } catch (e) { /* scratch */ }
   }
 
   srv.close();

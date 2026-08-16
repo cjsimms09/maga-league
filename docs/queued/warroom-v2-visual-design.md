@@ -11,3 +11,22 @@ Filed 2026-08-08 (Cory). The information architecture is specced (`war-room-fina
 
 ## Acceptance gate (order matters)
 **Visual review PRECEDES mechanical verification.** After the design pass, **screenshot the full page at desktop width** for Cory and chat-Claude's ergonomics review **BEFORE** the robot acceptance run. Only after visual sign-off does the robot mechanical verification run.
+
+## 7. DESKTOP IS CORY'S PRIMARY SURFACE (filed 2026-08-16, Cory verbatim:
+"fyi I will be using this site from my desktop, so that site is more
+important. Also allows more room for the war room design to have more tools
+if useful.")
+
+What this changes for every future design pass on COMMISSIONER surfaces (war
+room, analyzer, edge report, pool advisor): design desktop-FIRST — the
+density gradient may run deeper, side-by-side tool panels are allowed where
+phone would have forced tabs, and a desktop-only extra lens is legitimate
+when it earns its space. Phone stays a first-class REVIEW surface for these
+pages (390px must still render without horizontal overflow — the fidelity
+suites keep asserting it) but is no longer the constraint that decides what
+ships.
+
+What this does NOT change: MEMBER surfaces (side-bet cards, pick'em,
+matchup tracking, dashboard) stay phone-first — the other nine owners are
+the Sleeper-app audience the member-site review targets, and they live on
+their phones.

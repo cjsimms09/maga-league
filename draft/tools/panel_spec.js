@@ -84,14 +84,16 @@ const PANELS = [
       + '-25% to +15% and the NAMES did not, so twelve names billed as a plan would '
       + 'be a confident list of the least robust thing in the file.' },
 
-  { fn: 'renderPositionRecs', weight: 'DECIDES', lines: 35,
+  { fn: 'renderPositionRecs', weight: 'CONTEXT', lines: 35,
     question: 'Who is the best man left at each position?',
     means: 'Top few per position, so a positional decision does not require '
       + 'scrolling the whole board.',
     changes_it: 'any pick at that position',
     reads: ['players[]', 'drafted'],
-    note: 'THE CLOSEST THING WE HAVE TO CORY\'S "10 next best players in easy '
-      + 'view" — currently 3 per position as chips rather than a ranked table.' },
+    note: 'RE-TIERED 2026-08-15: this is the DRILL-DOWN under renderBestAvailStrip '
+      + '(same question, one tap deeper via the position dropdown), and the '
+      + 'verdict block now occupies the decision fold. Two panels answering one '
+      + 'question cannot both be DECIDES — the strip glances, this one details.' },
 
   { fn: 'renderQueue', weight: 'DECIDES', lines: 52,
     question: 'Who have I pre-decided to take?',
@@ -216,6 +218,19 @@ const PANELS = [
   { fn: 'renderManagers', weight: 'CONTEXT', lines: null,
     question: 'Who else is in this draft?', means: 'The room, with tendencies.',
     changes_it: 'nothing during a draft', reads: ['manager_profiles'] },
+  { fn: 'renderAdpMovers', weight: 'CONTEXT', lines: null,
+    question: 'Whose price is the market moving fastest — and which way?',
+    means: 'Top 10 ADP risers and fallers from the retained daily series: slots '
+      + 'moved over the window, per-day rate, and the STALE alarm when the '
+      + 'board\'s own number is a round behind the market. Movement hints at '
+      + 'news; it is names to investigate, never a score input (adp_series.py: '
+      + 'momentum is recorded as blocked, not a tested edge).',
+    changes_it: 'only a board rebuild — the series appends nightly, so it is '
+      + 'inert within a draft',
+    reads: ['players[].adp_velocity', 'players[].adp_stale', 'notes.adp_series_span_days'],
+    note: 'ABSENT, NOT ZERO: day one of a fresh series renders "series too '
+      + 'shallow", never a wall of zeros. (Cory, 2026-08-16: "a small screen '
+      + 'on war room showing the top 10 ADP movers up and top 10 down.")' },
   { fn: 'renderThreatStrip', weight: 'CONTEXT', lines: null,
     question: 'Who is picking before me, in one line?',
     means: 'The same managers-between-me-and-my-turn as renderThreats, collapsed '
@@ -259,6 +274,23 @@ const PANELS = [
   // ══════════════════════════════════════════════════════════════════════
 
   // ── DECIDES ───────────────────────────────────────────────────────────
+  { fn: 'renderVerdict', weight: 'DECIDES', lines: null,
+    question: 'What does the page actually recommend, and how sure is it?',
+    means: 'ONE verdict over every voice on the screen: the backed pick, a '
+      + 'LOCK / LEAN / TOSS-UP / SPLIT / PINNED chip derived from the engine\'s '
+      + 'own confidence and contested fields (DraftVerdict.derive, thresholds = '
+      + 'CFG bands), one plain-English why with units, the take button, and a '
+      + 'lens row showing every OTHER voice (rule / value / plan / poll) labeled '
+      + 'by what it optimizes, with disagreement marked instead of competing.',
+    changes_it: 'any pick; the rule and the value board converging or splitting; '
+      + 'a personal pin; the strategy poll turning artifact',
+    reads: ['DraftVerdict.derive', 'E.CFG', 'out.scored', 'out.confidence',
+      'DraftNeedRule.recommend', 'seatForCurrentPick', 'DraftShadows.consensus'],
+    note: 'BUILT FROM CORY\'S REJECTION (2026-08-15 capture): four surfaces gave '
+      + 'four answers at one pick with no arbiter. This block owns the answer; '
+      + 'the rule headline demotes its duplicate take button and Two-Reads block '
+      + 'when it renders. The chip can never say LOCK while the engine says '
+      + 'contested — swept in ui_fidelity_verdict.test.js against the real CFG.' },
   { fn: 'renderPaths', weight: 'DECIDES', lines: null,
     question: 'What are my real OPTIONS here, and what does each one cost?',
     means: 'The top candidates grouped into coherent DIRECTIONS (position x '
@@ -414,6 +446,18 @@ const PANELS = [
     reads: ['state.clockMode'],
     note: 'A SECOND ANSWER TO "the screen is too busy", built before MVS and '
       + 'overlapping it. Two competing minimal views is one too many.' },
+  { fn: 'renderHelp', weight: 'CONTEXT', lines: null,
+    question: 'How do I run draft night with this page?',
+    means: 'The first-run manual: the night in one paragraph, the verdict-chip '
+      + 'glossary, and every decision panel\'s what/read/do — assembled from the '
+      + 'SAME PANEL_GUIDE table the ⓘ explainers read, so the manual cannot '
+      + 'drift from the captions.',
+    changes_it: 'editing PANEL_GUIDE or VERDICT_CHIP_WORDS — nothing else; it is '
+      + 'static per page load',
+    reads: ['PANEL_GUIDE', 'VERDICT_CHIP_WORDS'],
+    note: 'Collapsed one-liner at the bottom of Zone 1 (#help-card). Deliberately '
+      + 'not a .card — rehearsal-mock3 pins the card census. Content pinned by '
+      + 'ui_fidelity_explainers.test.js §3.' },
   { fn: 'renderRuleHeadline', weight: 'CONTEXT', lines: null,
     question: 'What does the needs-based rule say, in one line?',
     means: 'A one-line headline from the need rule, sitting above the '

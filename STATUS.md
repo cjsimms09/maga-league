@@ -1,5 +1,8 @@
 # STATUS — unattended run
 
+> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+
+
 > **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
 > pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
 > at repo root); the shared rules live there and change there. Access rule (tools vs
@@ -13,6 +16,7 @@
 > **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. **Both sessions now commit to `main` directly — no branches (TERRITORY.md § Branch protocol).**
 > **🔀 BRANCH PROTOCOL LANDED (2026-08-08):** the jwdvn7/xs2lv6 divergence is merged to `main` (both sides, STATUS.md unioned, nothing lost) and cannot recur — `scripts/branch-check.sh` gates commits to main, the Sunday audit asserts no stray branches + deployed==HEAD. **Session B: the protocol is in TERRITORY.md — pull main, commit there, push immediately.**
 
+> **🟡 UPDATE 2026-08-16 (relay): the cron below IS BUILT** — `netlify/functions/grade-cron.js`, scheduled Tuesdays 12:00 UTC in netlify.toml, grades forecasts + decisions, appends the calibration ledger, consumes it into evidence weights, era-stamped, smoke-testable via ?key=GRADE_CRON_KEY. It goes LIVE with the relay-branch merge to main — the merge is the only gate left on this deadline. After merge: run the smoke test once, then this banner goes green.
 > **🔴 HARD DEADLINE — WEEKLY GRADING CRON LIVE BEFORE ~SEP 1, 2026 (unrecoverable if missed).**
 > The learning half is the least-built part of the system (audit: `docs/queued/annual-button.md`
 > § LEARNING-HALF STATUS): forward predictions are emitted + recorded, but **nothing grades them

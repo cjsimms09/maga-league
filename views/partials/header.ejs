@@ -15,6 +15,15 @@
 <% if (typeof currentPath !== 'undefined' && /^\/history(\/|$|\?)/.test(currentPath) && !(typeof section !== 'undefined' && section)) { %>
 <link rel="stylesheet" href="/css/chronicle.css">
 <% } %>
+<%# The War Room design system (tokens + draft components) — same page-scoped
+    pattern as the Chronicle. The side-bet pass (2026-08-15) widened this to
+    /bank, /pickem and /matchup; the in-season commissioner pass (2026-08-16)
+    widened it to /lineup (which also covers /lineup/accuracy), /waivers and
+    /analyzer; the member-site pass (2026-08-16) widens it to the member
+    surfaces that adopted the tokens: /scoreboard, /watch, /races and /team. %>
+<% if (typeof currentPath !== 'undefined' && /^\/(admin\/(warroom|draft-sheet)|bank|pickem|matchup|lineup|waivers|analyzer|scoreboard|watch|races|team)(\/|$|\?)/.test(currentPath)) { %>
+<link rel="stylesheet" href="/css/warroom.css">
+<% } %>
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
 <%# Home-screen install. The manifest covers Android/Chrome; the apple-* tags
@@ -47,7 +56,10 @@
     sim-state classes, idempotent). Neither may drop the other. %>
 <body class="<%= [
       (typeof viewerIsChamp !== 'undefined' && viewerIsChamp) ? 'is-champ' : '',
-      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : ''
+      (typeof currentPath !== 'undefined' && /^\/admin\/warroom/.test(currentPath)) ? 'warroom-page' : '',
+      /* Desktop-first commissioner tools (doctrine §7, 2026-08-16): these four
+         pages widen the content column — side-by-side panels need the room. */
+      (typeof currentPath !== 'undefined' && /^\/(lineup|waivers|analyzer)(\/|$|\?)/.test(currentPath)) ? 'inseason-tools' : ''
     ].filter(Boolean).join(' ') %>">
 <%
   // Guard everything: the error page renders this header even when the
@@ -85,11 +97,21 @@
   // lives behind "More". Splitting the list in two places is how they drift.
   const _unread = typeof chatUnread !== 'undefined' ? chatUnread : 0;
   const _bets = typeof betsWaiting !== 'undefined' ? betsWaiting : 0;
+  // MEMBER-SITE PASS (2026-08-16): the phone tab bar is the season's shape now
+  // — Office / Matchup / Scores / Finances / Locker. "Scores" (the whole
+  // slate) replaces "Team" in the five: on a Sunday the league lives on the
+  // scoreboard, and My Team is one tap away from the matchup footer and More.
+  // The Races joins the nav (the new member page); week nav lives ON the
+  // matchup/scoreboard pages, not here.
   const _nav = [
     { href: '/',        label: 'League Office', short: 'Office',  icon: '🏛',  primary: true },
-    { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈',  primary: true },
-    { href: '/scoreboard', label: 'This Week',   short: 'Scores',  icon: '🏈', match: '/scoreboard' },
-    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup' },
+    // PRIMARY since the 2026-08-15 member-site review: the goal is tracking
+    // matchups HERE instead of on Sleeper, and Sleeper's whole pitch is the
+    // matchup one tap from anywhere.
+    { href: '/matchup', label: 'The Matchup',   short: 'Matchup', icon: '⚔️', match: '/matchup', primary: true },
+    { href: '/scoreboard', label: 'This Week',   short: 'Scores',  icon: '🏈', match: '/scoreboard', primary: true },
+    { href: '/races',   label: 'The Races',     short: 'Races',   icon: '🏁', match: '/races' },
+    { href: '/team',    label: 'My Team',       short: 'Team',    icon: '🏈' },
     { href: '/pickem',  label: "Pick'em",       short: "Pick'em", icon: '🗳️', match: '/pickem' },
     { href: '/watch',   label: 'What to Watch', short: 'Watch',   icon: '📺', match: '/watch' },
     { href: '/bank',    label: 'League Finances', short: 'Finances', icon: '💰',  primary: true, badge: _bets },
