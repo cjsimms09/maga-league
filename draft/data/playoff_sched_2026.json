@@ -1,0 +1,306 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/playoff_sos.py --fetch-schedule",
+ "_note": "NFL weeks [15, 16, 17] of the 2026 regular season \u2014 the fantasy playoff weeks \u2014 sliced verbatim (source team codes, e.g. LA for the Rams) from the same nflverse games.csv the vegas-lines fetcher downloads. The vegas store's 2026 season carries only games with posted lines (weeks 1-5 at fetch time), which is why this slice exists as its own committed file. A game absent here is absent from the source, never invented.",
+ "provenance": {
+  "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.csv",
+  "fetched": "2026-08-16",
+  "season": 2026,
+  "season_type": "REG",
+  "weeks": [
+   15,
+   16,
+   17
+  ],
+  "games": 48
+ },
+ "games": [
+  {
+   "week": 15,
+   "home": "ARI",
+   "away": "NYJ",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "BUF",
+   "away": "CHI",
+   "gameday": "2026-12-19"
+  },
+  {
+   "week": 15,
+   "home": "CAR",
+   "away": "CIN",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "GB",
+   "away": "MIA",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "HOU",
+   "away": "JAX",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "KC",
+   "away": "NE",
+   "gameday": "2026-12-21"
+  },
+  {
+   "week": 15,
+   "home": "LA",
+   "away": "DAL",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "LAC",
+   "away": "SF",
+   "gameday": "2026-12-17"
+  },
+  {
+   "week": 15,
+   "home": "LV",
+   "away": "DEN",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "MIN",
+   "away": "DET",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "NYG",
+   "away": "CLE",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "PHI",
+   "away": "SEA",
+   "gameday": "2026-12-19"
+  },
+  {
+   "week": 15,
+   "home": "PIT",
+   "away": "BAL",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "TB",
+   "away": "NO",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "TEN",
+   "away": "IND",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 15,
+   "home": "WAS",
+   "away": "ATL",
+   "gameday": "2026-12-20"
+  },
+  {
+   "week": 16,
+   "home": "ATL",
+   "away": "TB",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "BAL",
+   "away": "CLE",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "CHI",
+   "away": "GB",
+   "gameday": "2026-12-25"
+  },
+  {
+   "week": 16,
+   "home": "DAL",
+   "away": "JAX",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "DEN",
+   "away": "BUF",
+   "gameday": "2026-12-25"
+  },
+  {
+   "week": 16,
+   "home": "DET",
+   "away": "NYG",
+   "gameday": "2026-12-28"
+  },
+  {
+   "week": 16,
+   "home": "IND",
+   "away": "CIN",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "KC",
+   "away": "SF",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "LV",
+   "away": "TEN",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "MIA",
+   "away": "LAC",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "MIN",
+   "away": "WAS",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "NO",
+   "away": "ARI",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "NYJ",
+   "away": "NE",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "PHI",
+   "away": "HOU",
+   "gameday": "2026-12-24"
+  },
+  {
+   "week": 16,
+   "home": "PIT",
+   "away": "CAR",
+   "gameday": "2026-12-27"
+  },
+  {
+   "week": 16,
+   "home": "SEA",
+   "away": "LA",
+   "gameday": "2026-12-25"
+  },
+  {
+   "week": 17,
+   "home": "ARI",
+   "away": "LV",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "ATL",
+   "away": "NO",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "CAR",
+   "away": "SEA",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "CHI",
+   "away": "DET",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "CIN",
+   "away": "BAL",
+   "gameday": "2026-12-31"
+  },
+  {
+   "week": 17,
+   "home": "CLE",
+   "away": "IND",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "DAL",
+   "away": "NYG",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "GB",
+   "away": "HOU",
+   "gameday": "2027-01-04"
+  },
+  {
+   "week": 17,
+   "home": "JAX",
+   "away": "WAS",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "LAC",
+   "away": "KC",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "MIA",
+   "away": "BUF",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "NE",
+   "away": "DEN",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "NYJ",
+   "away": "MIN",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "SF",
+   "away": "PHI",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "TB",
+   "away": "LA",
+   "gameday": "2027-01-03"
+  },
+  {
+   "week": 17,
+   "home": "TEN",
+   "away": "PIT",
+   "gameday": "2027-01-03"
+  }
+ ]
+}
