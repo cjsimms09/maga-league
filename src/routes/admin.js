@@ -1113,6 +1113,48 @@ router.get('/draft-sheet', requireCory, aw(async (req, res) => {
   });
 }));
 
+// THE PROJECTION-SOURCE COMPARISON (Cory, 2026-08-16: "It might cool if I
+// has an easy way to see 'our models' projections easily as well. I'd like
+// to see the ones we're using (fantasy pros) but maybe an easy way for me to
+// see our models test projections also?"). Server-rendered off the same
+// draft_data.json artifact as the sheet above — every number on this page is
+// the board's own number, no recomputation. Cory-only like the sheet: the
+// own-model column is exactly what the member-site access rule keeps off
+// every member page.
+router.get('/projections', requireCory, aw(async (req, res) => {
+  const fs = require('fs'), path = require('path');
+  let artifact = {};
+  try { artifact = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8')); } catch (e) { artifact = {}; }
+  const POSITIONS = ['QB', 'RB', 'WR', 'TE'];
+  const posFilter = POSITIONS.includes(req.query.pos) ? req.query.pos : null;
+  const r1 = n => (n == null ? null : Math.round(Number(n) * 10) / 10);
+  const byPos = {};
+  for (const pos of (posFilter ? [posFilter] : POSITIONS)) {
+    byPos[pos] = (artifact.players || [])
+      .filter(p => p && p.position === pos && p.name
+        && (p.proj_mean != null || p.proj_ownmodel != null))
+      .slice().sort((a, b) => (b.proj_mean == null ? -1e9 : b.proj_mean)
+                            - (a.proj_mean == null ? -1e9 : a.proj_mean))
+      .slice(0, 40)
+      .map((p, i) => ({
+        rank: i + 1, name: p.name, team: p.team || '',
+        sleeper: r1(p.proj_sleeper), fpros: r1(p.proj_fantasypros),
+        own: r1(p.proj_ownmodel), mean: r1(p.proj_mean),
+        // own vs the number the tools actually use — the disagreement Cory
+        // reads this page for. Null when either side is absent.
+        delta: (p.proj_ownmodel != null && p.proj_mean != null)
+          ? r1(p.proj_ownmodel - p.proj_mean) : null,
+      }));
+  }
+  const prov = artifact.provenance || {};
+  res.render('admin/projections', {
+    byPos, posFilter,
+    builtAt: artifact.built_at || null,
+    ownModel: prov.own_model || {},
+    projProv: prov.projections || null,
+  });
+}));
+
 // ---------- CLAIM CORRECTION (commissioner-only, live during selection) ----
 // The fat-finger fix: reassign or void any owner's slot claim mid-process.
 // Atomic at the document level (one read-modify-write of the ONE claim doc),

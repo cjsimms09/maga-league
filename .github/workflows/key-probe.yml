@@ -63,5 +63,30 @@ jobs:
             (grep -o '"ticker":"[^"]*"' /tmp/body | grep -i -m 12 'NFL' || echo "  none matching NFL in first page")
           fi
 
+          echo "== SGO market census (1 object) — does the free tier carry player props? =="
+          # Cory's QB hypothesis (2026-08-16) needs prop lines. Cost: limit=1
+          # event = 1 object. Prints oddID stat prefixes + counts, no prices.
+          if [ -n "$K_SGO" ]; then
+            c=$(code -H "X-Api-Key: $K_SGO" "https://api.sportsgameodds.com/v2/events?leagueID=NFL&oddsAvailable=true&limit=1")
+            echo "sgo events?limit=1: HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "census parse failed (structure surprise — body kept out of logs)"
+          import json, collections
+          body = json.load(open('/tmp/body'))
+          evs = body.get('data') or []
+          print(f"events in body: {len(evs)}")
+          for ev in evs:
+              odds = ev.get('odds') or {}
+              stats = collections.Counter(oid.split('-')[0] for oid in odds)
+              ents = collections.Counter(
+                  'player' if '_1_NFL' in oid.split('-')[1] else oid.split('-')[1]
+                  for oid in odds if '-' in oid)
+              print(f"odd rows: {len(odds)}")
+              print("stat prefixes:", dict(stats.most_common(15)))
+              print("entity kinds:", dict(ents.most_common(8)))
+          PY
+            fi
+          fi
+
           echo "== read 200 = that key opens that door; 401/403 = wrong door =="
           true

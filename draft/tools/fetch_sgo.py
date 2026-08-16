@@ -111,6 +111,23 @@ def parse_snapshot_sgo(events: list, *, fetched_at: str) -> dict:
         # Raw game-level odd objects ride along so a parse gap loses nothing;
         # player props are already filtered out above.
         game["raw_game_lines"] = game_lines
+        # PLAYER PROPS, kept not dropped (Cory 2026-08-16: "Are we using
+        # weekly prop bets for weekly projections? We should look at that").
+        # The 2026-08-16 census saw zero props on an August event; this
+        # retention exists so that the WEEK the market starts posting them,
+        # the Thursday capture banks them without a code change — props have
+        # no free history anywhere, so the archive IS the capture. Trimmed to
+        # the line fields only to bound snapshot size.
+        props = {}
+        for oid, o in odds.items():
+            if not isinstance(o, dict) or "-game-" not in oid or oid.startswith("points-"):
+                continue
+            keep = {k: o[k] for k in ("bookOverUnder", "fairOverUnder",
+                                      "bookOdds", "fairOdds") if o.get(k) is not None}
+            if keep:
+                props[oid] = keep
+        if props:
+            game["props"] = props
         out_games.append(game)
 
     return {

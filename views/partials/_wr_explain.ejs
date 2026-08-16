@@ -1,0 +1,17 @@
+<%# THE EXPLAINER CONTRACT (war-room pass, inherited): what / read / DO / src.
+    Server-rendered pages carry no JS layer, so the ⓘ is a <details> disclosure
+    — same .panel-explain body the war room renders, same four halves, pinned
+    by draft/tests/inseason_explainers.test.js against src/inseason_guide.js.
+    `ex` is one entry of that table; absent (older direct-render fixtures pass
+    no guide) the partial renders nothing rather than a broken ⓘ. %>
+<% if (typeof ex !== 'undefined' && ex && ex.what) { %>
+<details class="wr-exp">
+  <summary aria-label="What this panel says, how to read it, and what to do with it">ⓘ how to read this</summary>
+  <div class="panel-explain">
+    <span class="pe-what"><%= ex.what %></span>
+    <span class="pe-read"><%= ex.read %></span>
+    <span class="pe-do"><%= ex.do %></span>
+    <span class="pe-src">source: <%= ex.src %></span>
+  </div>
+</details>
+<% } %>

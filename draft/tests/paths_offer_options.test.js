@@ -138,6 +138,7 @@ ck('PATHS_MIN exists and is a floor below the cap',
 // ── 1. THE FAIL ARM FIRST — the defect must be reproducible on today's board ─
 // If the old rule no longer produces one-option picks, the board moved and the
 // rest of this file is guarding something that is not happening any more.
+let SYNTH;   // §1's synthetic dedup repro; §3's control reads it too
 {
   const oldOnes = MY.filter(p => oldPathCount(p) <= 1);
   console.log('      OLD rule collapses to <=1 direction at: '
@@ -164,18 +165,57 @@ ck('PATHS_MIN exists and is a floor below the cap',
     + 'historical one', oldOnes.length > 1, { one_option_at: oldOnes, of: MY.length });
 
   /* THE SECOND DEFECT, which is the one the dedup actually fixes and which the
-   * old fail arm never tested: a repeated POSITION in the old in-band set. */
-  const oldDupes = MY.filter(p => {
+   * old fail arm never tested: a repeated POSITION in the old in-band set.
+   *
+   * ⚠ THE LIVE-BOARD REPRO IS GONE, AND CHASING IT WOULD REPEAT THE RETRACTED
+   * MISTAKE ABOVE. The original arm pinned pick 33's TE Loveland / RB Swift /
+   * RB Etienne trio; Cory's 2026-08-16 rulings (VONA_WIRE_BENCH and
+   * KOV_MEASURED_RAMP flipped on) legitimately moved the scores and no pick
+   * on the ruled board produces a natural duplicate any more (printed above —
+   * a future board may bring one back, and the print will say so). Hunting a
+   * new pick-specific repro would be fitting the arm to today's board a
+   * second time. Instead the defect is demonstrated SYNTHETICALLY against the
+   * SHIPPED clustering: a hand-built scored list where two same-position
+   * clusters (cliff + value) both land in band. The old rule provably renders
+   * the position twice; computePaths provably doesn't. Deterministic, board-
+   * drift-proof, and it exercises the exact shipped code path. */
+  const dupes = MY.filter(p => {
     const ps = oldPathKeys(p).map(k => k.split(':')[0]);
     return ps.length !== new Set(ps).size;
   });
-  console.log('      OLD rule repeats a position at: ' + (oldDupes.join(', ') || 'no pick'));
-  ck('FAIL ARM — and it really does offer the same DIRECTION twice somewhere on '
-    + 'his board, which is the defect the dedup removes', oldDupes.length >= 1,
-  oldDupes);
-  ck('at pick 33 specifically — his first pick, TE Loveland / RB Swift / RB '
-    + 'Etienne, two of the three the same direction', oldDupes.indexOf(33) >= 0,
-  oldPathKeys(33));
+  console.log('      OLD rule repeats a position at: ' + (dupes.join(', ') || 'no pick (ruled board)'));
+  SYNTH = (() => {
+    const mk = (id, pos, score, urg) => ({
+      player: { player_id: id, name: id, position: pos, tier: 1, adjusted_adp: 40, raw_adp: 40 },
+      score: score, components: { tier_urgency: urg },
+    });
+    // RB twice in band — once as a cliff, once as value — plus a WR in band.
+    const scored = [
+      mk('rbCliff', 'RB', 100, E.CFG.PATHS_CLIFF_URGENCY + 1),
+      mk('rbValue', 'RB', 100 - E.CFG.PATHS_BAND / 2, 0),
+      mk('wrValue', 'WR', 100 - E.CFG.PATHS_BAND / 2, 0),
+      mk('teFar', 'TE', 100 - E.CFG.PATHS_BAND * 3, 0),
+    ];
+    // The old band-as-gate derivation, verbatim shape from oldPathKeys above.
+    const seen = {}, order = [];
+    scored.slice(0, E.CFG.PATHS_POOL).forEach(e => {
+      const key = e.player.position
+        + (((e.components || {}).tier_urgency || 0) >= E.CFG.PATHS_CLIFF_URGENCY ? ':cliff' : ':value');
+      if (!seen[key]) { seen[key] = e.score; order.push(key); }
+    });
+    const oldKeys = order.filter(k => seen[k] >= scored[0].score - E.CFG.PATHS_BAND)
+      .slice(0, E.CFG.PATHS_MAX);
+    const newPaths = E.computePaths(ctxAt(MY[0]), scored) || [];
+    return { oldKeys, newPositions: newPaths.map(x => x.position) };
+  })();
+  ck('FAIL ARM (synthetic, shipped code path) — the old band-as-gate rule renders '
+    + 'the same DIRECTION twice when cliff and value clusters share a position',
+  SYNTH.oldKeys.map(k => k.split(':')[0]).filter(x => x === 'RB').length === 2,
+  SYNTH.oldKeys);
+  ck('...and computePaths on the SAME scored list offers distinct positions — '
+    + 'the dedup removes exactly that row',
+  new Set(SYNTH.newPositions).size === SYNTH.newPositions.length
+    && SYNTH.newPositions.length >= 2, SYNTH.newPositions);
 }
 
 // ── 2. THE FIX, AT EVERY PICK HE OWNS ───────────────────────────────────────
@@ -284,13 +324,30 @@ ck('PATHS_MIN exists and is a floor below the cap',
   ck('every DIRECTION that qualified under the old rule still renders, in the '
     + 'same position in the list, still in band — the collapsed duplicate is the '
     + 'only thing that disappears', broken.length === 0, broken.slice(0, 4));
-  ck('CONTROL — a pick really does lose a row to the dedup, or the clause above '
-    + 'is just the old assertion in new words',
-  MY.some(p => oldPathKeys(p).length
-    > new Set(oldPathKeys(p).map(k => k.split(':')[0])).size),
-  MY.map(p => ({ pick: p, keys: oldPathKeys(p).length,
+  /* CONTROL, restated 2026-08-16: on the RULED board no pick naturally loses a
+   * row to the dedup any more (the flips moved the scores — see the fail-arm
+   * note in §1), so "some live pick loses a row" would pin today's board the
+   * way the retracted thresholds did. The non-vacuity proof is the synthetic
+   * demonstration in §1 (old keys carry a duplicate, computePaths doesn't);
+   * HERE the control degrades to honesty about which world we're in: either a
+   * live pick still loses a row (print it), or none does and the preservation
+   * clause above is currently exercised only by order/band — stated, not
+   * hidden. */
+  const liveLosses = MY.map(p => ({ pick: p, keys: oldPathKeys(p).length,
     positions: new Set(oldPathKeys(p).map(k => k.split(':')[0])).size }))
-    .filter(x => x.keys !== x.positions));
+    .filter(x => x.keys !== x.positions);
+  console.log('      live picks losing a row to the dedup: '
+    + (liveLosses.map(x => x.pick).join(', ') || 'none on the ruled board'));
+  // Note the synthetic arm asserts the duplicate COLLAPSES, not that the row
+  // count drops — PATHS_MIN legitimately backfills the freed slot with the
+  // next distinct direction (TE, in the fixture), which is the panel working.
+  const synthDupCollapsed =
+    new Set(SYNTH.oldKeys.map(k => k.split(':')[0])).size < SYNTH.oldKeys.length
+    && new Set(SYNTH.newPositions).size === SYNTH.newPositions.length;
+  ck('CONTROL — the dedup provably collapses a duplicate somewhere: a live pick '
+    + 'when the board offers one, otherwise the synthetic shipped-path repro',
+  liveLosses.length >= 1 || synthDupCollapsed,
+  { live: liveLosses, synthetic: SYNTH });
 
   /* PRICES ARE MEASURED AGAINST THE TOP PATH. Widening the set must not
    * re-baseline them — computing bestScore off the widened set would shift every

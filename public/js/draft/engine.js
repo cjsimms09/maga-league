@@ -235,6 +235,14 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
+     * made with the evidence in front of him: the QB2 anomaly that blocked
+     * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
+     * and the wire branch's bench timing matches the league's real history
+     * (bench_wire_comparison_claim_2026-08-15.md + the 60-room 3-arm sim).
+     * See the bench branch of vona() below for the formula. The standing gate
+     * protocol is unchanged for every OTHER switch: off until Cory rules. */
+    VONA_WIRE_BENCH: true,
     /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
      * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
      * deleted the next day on my reading of Cory's "delete the cap" instruction.
@@ -851,7 +859,65 @@
      * destroyed ordering among players who cannot start, and every one of them
      * showed up as the board filling with one-start positions. */
     const rate = INJURY_RATE[player.position] || 0.15;
+    if (CFG.VONA_WIRE_BENCH) {
+      const wb = wireBenchValue(player, ctx, forgone, rate);
+      if (wb != null) return wb;
+      // No wire sample for this position (K/DEF -- nflverse is offense-only,
+      // see wire_level.js's own accounting) -- fall back to the vorp rule
+      // rather than inventing a floor with no evidence behind it.
+    }
     return rate * (player.vorp || 0) - forgone;
+  }
+
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15, OFF BY DEFAULT.
+   *
+   * Cory's design, stated directly: "once you're drafting for bench (not a
+   * starter slot), a duplicate shouldn't be compared to the best available in
+   * the DRAFT — it should be compared to what you can get FREE off waivers. A
+   * backup QB averaging 24 isn't worth a roster spot if the wire gives you
+   * 22; a backup WR at 12 is, because the wire won't give you 10." The
+   * INJURY_RATE*vorp formula above cannot express this: vorp compares to the
+   * last real STARTER leaguewide, never to the wire, so a backup QB and a
+   * backup RB with equal vorp price identically even though replacing the QB
+   * costs nothing (the wire is nearly as good) and replacing the RB costs a
+   * lot (the wire is much worse).
+   *
+   * MEASURED (draft/tools/wire_level.js, 422 real 2023-2025 acquisition-week
+   * scores, committed at draft/data/wire_level.json so this is not a number
+   * anyone has to trust from prose): weekly medians QB 23.38, RB 7.80,
+   * WR 11.10, TE 11.60. Real bench-QB candidates score far below what the
+   * wire already gives (weeklyMine - wireWeekly often negative -> edgePerWeek
+   * floors at 0, INJURY_RATE*0 - forgone = -forgone, a hard discount), while
+   * real bench-RB candidates clear the wire by enough to price as genuine
+   * insurance.
+   *
+   * PROVEN, NOT ASSUMED: draft/tests/vona_wire_bench.test.js checks the
+   * arithmetic directly (both hand-built numbers and a K/DEF fallback case)
+   * and draft/tools/bench_wire_room_sim.js is a real, committed, runnable
+   * multi-room simulation — run it and read its output rather than trusting
+   * a claim about what it showed.
+   *
+   * STILL UNRESOLVED, stated so it is not lost: the first prototype's ad-hoc
+   * 60-room run reported QB2 in 100% of simulated rooms vs. 57% in real
+   * history — higher than history and not explained. The committed simulator
+   * above is what settles whether that persists on a reproducible run.
+   *
+   * ctx.wireWeekly: {POS: weekly points}, threaded through the same
+   * survivalCtx object ctx.roster/ctx.league already ride on rather than a
+   * module-level constant — a hardcoded snapshot would silently go stale as
+   * more wire data accumulates in-season, with nothing to catch it. Absent
+   * or missing a position -> null, so the caller falls back to the vorp rule
+   * exactly as if VONA_WIRE_BENCH were off, rather than inventing a number.
+   */
+  function wireBenchValue(player, ctx, forgone, rate) {
+    const wireWeekly = (ctx && ctx.wireWeekly) || {};
+    const wire = wireWeekly[player.position];
+    if (wire == null) return null;
+    const games = player.games_expected || 15;
+    const weeklyMine = (player.proj_mean || 0) / games;
+    const edgePerWeek = Math.max(0, weeklyMine - wire);
+    const seasonEdge = edgePerWeek * games;
+    return rate * seasonEdge - forgone;
   }
 
   /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
@@ -2245,10 +2311,44 @@
     return 0;
   }
 
+  /**
+   * PRE-DRAFT ONLY: `ctx.board` before any pick — real or mock — has landed
+   * is the FULL undrafted pool, not a realistic one. `currentPick()` (app.js)
+   * already anchors ahead to the user's own first selection (the fix in
+   * predraft_anchor.test.js), so `ctx.currentPick` can read 33 while
+   * `ctx.board` still holds every player nobody has removed, because nobody
+   * has picked yet. The two agree on WHICH pick; nothing yet makes the board
+   * agree on WHO WOULD REALISTICALLY BE THERE.
+   *
+   * MEASURED, 2026-08-15, on the shipped board: Puka Nacua (adjusted_adp 3.0,
+   * adp_sd 0.4) survives to pick 33 at **0.000%** by the engine's OWN survival
+   * math — not a close call. Scoring him as a live pick-33 candidate anyway
+   * is not a value judgement the model is making; it is the model treating an
+   * event its own probability estimate says will not happen as though it
+   * already had. The macro audit's "empty room" rec-panel probe (Nacua, "ADP
+   * 3 · fell 30") is this exact defect, caught live.
+   *
+   * Filters candidates below the same negligible-mass floor VONA already
+   * uses elsewhere (`SURVIVOR_CUTOFF`) — not a new threshold invented for
+   * this. A live draft (`ctx.preDraftPrep` false, the default — set only by
+   * app.js's `context()` when zero picks, real or mock, have landed) is
+   * completely unaffected: there `ctx.board` IS ground truth (real
+   * removals), so every survivor is genuinely on the board and filtering
+   * would suppress the exact "he actually fell" signal the recommendation
+   * exists to catch — Cory's own instinct that a real value cliff must win
+   * is already how vona() scores every live pick, unchanged here.
+   */
+  function preDraftPool(board, ctx) {
+    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
+    const kept = board.filter(p => survival(p, ctx.currentPick, ctx) >= CFG.SURVIVOR_CUTOFF);
+    return kept.length ? kept : board;   // never recommend from an empty pool
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
-    const all = ctx.board.map(p => scorePlayer(p, ctx));
+    const pool = preDraftPool(ctx.board, ctx);
+    const all = pool.map(p => scorePlayer(p, ctx));
     all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
@@ -3776,9 +3876,9 @@
   global.DraftEngine = {
     CFG, DEFAULT_WEIGHTS,
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
-    expectedBestAvailable, vona,
+    expectedBestAvailable, vona, wireBenchValue,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, preDraftPool, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,

@@ -1,0 +1,507 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   WAR ROOM DESIGN SYSTEM — tokens + components (2026-08-15 design pass)
+
+   The law for feel is docs/queued/warroom-v2-visual-design.md:
+     1. ONE dominant number per card — everything else subordinate.
+     2. GOLD IS MONEY — the gold accent colors dollar figures and nothing else.
+     3. Americana identity (navy/gold/eagle/stars), never generic SaaS.
+     4. Motion only on state changes.
+     5. Density gradient: Zone 1 breathes, Zone 3 is dense.
+
+   This file is the WAR ROOM'S layer over /css/style.css (site tokens live
+   there: --navy, --gold, --ink, --muted, --line, --panel …). It defines the
+   scale tokens and component classes the draft renderers emit. The in-season
+   pass (lineup/waivers/matchup) adopts THIS file's tokens — extend, don't fork.
+
+   Naming: every token is --wr-*; every component class is .wr* or an existing
+   renderer hook (.rec-*, .ba-*, .threat-*) restyled here. Numeric columns use
+   .wr-num (tabular figures); hero figures deliberately do not.
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── type scale (major-second-ish, phone-first) ── */
+  --wr-fs-hero: 1.6rem;     /* THE pick's name / the one dominant number */
+  --wr-fs-big: 1.15rem;     /* dominant figure on a lesser card */
+  --wr-fs-title: .95rem;    /* card titles */
+  --wr-fs-body: .85rem;     /* prose */
+  --wr-fs-sub: .78rem;      /* subordinate context */
+  --wr-fs-micro: .7rem;     /* dense-zone rows, captions */
+
+  /* ── spacing scale ── */
+  --wr-s1: .25rem;
+  --wr-s2: .5rem;
+  --wr-s3: .75rem;
+  --wr-s4: 1rem;
+  --wr-s5: 1.5rem;
+
+  /* ── palette roles (mapped from site tokens; the DOCTRINE lives here) ── */
+  --wr-money: var(--gold);          /* DOLLAR FIGURES ONLY — nothing else */
+  --wr-structure: var(--navy);      /* headings, chrome, authority */
+  --wr-accent: var(--blue);         /* interactive / data accent (non-money) */
+  --wr-good: var(--green);          /* the ONE semantic pair … */
+  --wr-bad: var(--red);             /* … and its other half */
+  --wr-warn: #b45309;               /* amber prose warnings (not money-gold) */
+  --wr-ink: var(--ink);
+  --wr-muted: var(--muted);
+  --wr-line: var(--line);
+  --wr-panel: var(--panel);
+  --wr-panel-soft: var(--panel-soft);
+
+  /* ── chart ink (dataviz: one hue for magnitude, gray for context).
+     The two-series pair (market vs room) is VALIDATED: #2a5f9e / #eb6834
+     pass the six checks on the light surface (CVD worst pair ΔE 22.1,
+     normal-vision 33.7, contrast ≥3:1) — do not eyeball substitutes. ── */
+  --wr-chart-main: #2a5f9e;         /* navy-family series hue (market model) */
+  --wr-chart-room: #eb6834;         /* room-model series (validated pair) */
+  --wr-chart-dim: #b9c2cf;          /* de-emphasis series */
+  --wr-chart-grid: #e8e6df;         /* hairline grid, one step off paper */
+}
+
+/* Numbers that sit in columns align; hero numbers stay proportional. */
+.wr-num { font-variant-numeric: tabular-nums; }
+
+/* ══ VERDICT BLOCK — the one surface that owns the answer ═══════════════ */
+.wrv { margin: 0 0 var(--wr-s3); }
+.wrv-top { display: flex; align-items: center; gap: var(--wr-s2); flex-wrap: wrap; }
+.wrv-chip {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .08em;
+  padding: .22rem .55rem; border-radius: 999px; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.wrv-chip.lock   { background: var(--wr-structure); color: #fff; }
+.wrv-chip.lean   { background: var(--navy-soft); color: var(--wr-structure); border-color: var(--wr-structure); }
+.wrv-chip.tossup { background: transparent; color: var(--wr-muted); border-color: var(--wr-muted); border-style: dashed; }
+.wrv-chip.split  { background: transparent; color: var(--wr-warn); border-color: var(--wr-warn); }
+.wrv-chip.pinned { background: transparent; color: var(--wr-accent); border-color: var(--wr-accent); }
+.wrv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.1; }
+.wrv-name .rec-pos { vertical-align: .35em; }
+.wrv-why { font-size: var(--wr-fs-body); color: var(--wr-ink); margin: var(--wr-s1) 0 0; max-width: 62ch; }
+.wrv-conf { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin: var(--wr-s1) 0 0; }
+.btn.gold.wrv-take { display: block; width: 100%; margin: var(--wr-s2) 0 0; padding: .6rem;
+  font-size: 1rem;
+  /* The take action wears NAVY AUTHORITY, deliberately overriding .btn.gold:
+     on this page red = alarm, gold = money, and the one button that commits a
+     pick must read as neither an emergency nor a price. Selector carries
+     .btn.gold so it outweighs the site button rule it is overriding. */
+  background: var(--wr-structure); border-color: var(--wr-structure); color: #fff; }
+.btn.gold.wrv-take:hover { background: var(--navy-deep); }
+
+/* The lens row: every voice on this pick, labeled by what it optimizes.     */
+.wrv-lenses { display: flex; flex-wrap: wrap; gap: var(--wr-s1); margin-top: var(--wr-s2); }
+.wrv-lens {
+  font-size: var(--wr-fs-micro); line-height: 1.25; text-align: left;
+  border: 1px solid var(--wr-line); border-radius: 8px; background: var(--wr-panel);
+  padding: .3rem .5rem; cursor: pointer; font-family: inherit; color: var(--wr-ink);
+  flex: 1 1 8.5rem; min-width: 8rem;
+}
+.wrv-lens b { display: block; font-size: var(--wr-fs-micro); letter-spacing: .05em; }
+.wrv-lens .lens-opt { color: var(--wr-muted); display: block; }
+.wrv-lens .lens-pick { font-weight: 700; }
+.wrv-lens.differs { border-color: var(--wr-warn); }
+.wrv-lens.differs .lens-pick { color: var(--wr-warn); }
+.wrv-alts { margin-top: var(--wr-s2); font-size: var(--wr-fs-sub); }
+.wrv-alts .wr-num { font-weight: 700; }
+
+/* ══ EXPLAINER LAYER — ⓘ on every panel, legend on every badge ══════════ */
+.wr-info {
+  border: 1px solid var(--wr-line); background: var(--wr-panel); color: var(--wr-muted);
+  border-radius: 50%; width: 1.15rem; height: 1.15rem; line-height: 1;
+  font-size: .72rem; font-weight: 700; cursor: pointer; flex: 0 0 auto;
+  padding: 0; font-family: inherit;
+}
+.wr-info[aria-expanded="true"] { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+.panel-explain {
+  font-size: var(--wr-fs-sub); color: var(--wr-muted); line-height: 1.45;
+  border-left: 2px solid var(--wr-line); padding: .35rem .6rem; margin: 0 0 .6rem;
+  background: var(--wr-panel-soft); border-radius: 0 6px 6px 0;
+}
+.panel-explain[hidden] { display: none; }
+.panel-explain .pe-what { color: var(--wr-ink); }
+.panel-explain .pe-read { display: block; margin-top: .2rem; }
+.panel-explain .pe-do { display: block; margin-top: .2rem; color: var(--wr-ink); }
+.panel-explain .pe-do::before { content: 'Do: '; font-weight: 700; }
+.panel-explain .pe-src { display: block; margin-top: .2rem; font-size: var(--wr-fs-micro); opacity: .8; }
+
+/* Badges: compact chips whose tap opens the shared legend line. */
+.wr-flag {
+  display: inline-block; font-size: var(--wr-fs-micro); font-weight: 700;
+  letter-spacing: .03em; padding: .05rem .35rem; border-radius: 4px;
+  border: 1px solid var(--wr-line); color: var(--wr-muted); background: var(--wr-panel);
+  cursor: pointer; white-space: nowrap; font-family: inherit; line-height: 1.3;
+}
+.wr-flag.risk { color: var(--wr-bad); border-color: var(--wr-bad); }
+.wr-flag.up   { color: var(--wr-good); border-color: var(--wr-good); }
+.wr-flag-legend {
+  font-size: var(--wr-fs-sub); color: var(--wr-ink); background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); border-radius: 6px; padding: .4rem .6rem;
+  margin: .3rem 0; line-height: 1.4;
+}
+
+/* Dossier: the one-tap expansion under a shortlist row. */
+.rec-dossier { grid-column: 1 / -1; width: 100%;
+  border-top: 1px dashed var(--wr-line); margin-top: .45rem; padding-top: .45rem;
+  font-size: var(--wr-fs-sub); }
+.rec-dossier table { border-collapse: collapse; width: auto; }
+.rec-dossier td { padding: .08rem .6rem .08rem 0; }
+.rec-dossier td.wr-num { text-align: right; }
+.rec-dossier .dossier-why { margin: .3rem 0 0; color: var(--wr-muted); max-width: 70ch; }
+.rec-expand {
+  border: none; background: none; color: var(--wr-accent); cursor: pointer;
+  font-size: var(--wr-fs-micro); padding: .1rem .3rem; font-family: inherit;
+}
+
+/* ══ SHORTLIST CARDS — aligned numerals, one dominant figure ════════════ */
+.rec-stats { font-variant-numeric: tabular-nums; }
+.rec-stats span { font-size: var(--wr-fs-micro); }
+.rec-score { font-variant-numeric: tabular-nums; }
+
+/* ══ BEST-AVAILABLE STRIP — model-labeled survival ══════════════════════ */
+.ba-model-note { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+
+/* ══ CHARTS (dataviz: thin marks, hairline grid, emphasis > rainbow) ════ */
+.wr-chart { margin: .5rem 0; overflow-x: auto; }
+.wr-chart svg { display: block; max-width: 100%; height: auto; }
+.wr-chart .bar { fill: var(--wr-chart-main); }
+.wr-chart .bar.dim { fill: var(--wr-chart-dim); }
+.wr-chart .bar.me { fill: var(--wr-accent); }
+.wr-chart .grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.wr-chart .cliff { stroke: var(--wr-bad); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.wr-chart text { font-family: var(--font-body); fill: var(--wr-muted); font-size: 9px; }
+.wr-chart text.lbl { fill: var(--wr-ink); font-weight: 600; }
+.wr-chart-cap { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 0; }
+
+/* Branch delta grid (IF YOU TAKE…): compact matrix, sequential ink. */
+.wr-branch-grid { border-collapse: collapse; font-size: var(--wr-fs-sub); }
+.wr-branch-grid th { font-size: var(--wr-fs-micro); color: var(--wr-muted);
+  font-weight: 600; text-align: right; padding: .15rem .45rem; }
+.wr-branch-grid th:first-child { text-align: left; }
+.wr-branch-grid td { padding: .3rem .55rem; text-align: right; border: 2px solid var(--wr-panel); }
+.wr-branch-grid td.bg-take { text-align: left; font-weight: 700; color: var(--wr-ink); }
+.tier-cliff-wrap { margin: .5rem 0 0; }
+
+/* ══ BOARD TABLE — tier banding, aligned numerics, calm flags ═══════════ */
+/* The sticky header + name column were painted var(--navy-deep) — a dark-era
+   leftover that renders dark-on-dark ink on the light theme (invisible names,
+   caught in this pass's desktop capture). Sticky cells simply wear the panel
+   surface; opacity is what sticky needs, not navy. */
+#board thead th { background: var(--wr-panel); color: var(--wr-ink); }
+#board th:nth-child(2), #board td:nth-child(2) { background: var(--wr-panel); color: var(--wr-ink); }
+.roll td.num, .roll th.num { font-variant-numeric: tabular-nums; }
+.roll tr.tier-cliff td { border-top: 2px solid var(--wr-structure); }
+.roll td .tier-note {
+  display: inline-block; font-size: .62rem; font-weight: 700; letter-spacing: .04em;
+  color: var(--wr-structure); opacity: .75; white-space: nowrap;
+}
+.roll tr.onesie-demoted td { opacity: .62; }
+.board-onesie-note { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .3rem 0; }
+
+/* ══ STATUS RAIL — alarms aggregate instead of stacking ═════════════════ */
+.wr-alarm-rail { display: flex; flex-direction: column; gap: .4rem; margin: 0 0 .6rem; }
+.wr-alarm-rail .roast-banner, .wr-alarm-rail [id$='-note'] { margin: 0; }
+
+/* ══ DENSITY GRADIENT ═══════════════════════════════════════════════════ */
+.wr-zone1 > .card > .body { padding: var(--wr-s4); }
+.wr-zone3 .card .body { padding: var(--wr-s2) var(--wr-s3); font-size: var(--wr-fs-sub); }
+.wr-zone3 .card h2 { font-size: var(--wr-fs-title); }
+
+/* ══ HELP / FIRST-RUN VIEW ══════════════════════════════════════════════ */
+.wr-help { max-width: 74ch; }
+.wr-help h3 { margin: .9rem 0 .25rem; font-size: var(--wr-fs-title); color: var(--wr-structure); }
+.wr-help p { margin: .2rem 0; font-size: var(--wr-fs-body); line-height: 1.5; }
+.wr-help .pe-src { font-size: var(--wr-fs-micro); color: var(--wr-muted); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SIDE-BET CARD GRAMMAR — the in-season pass (2026-08-15) extends this file
+   per the war-room handoff ("extend, don't fork").
+
+   One card shape for every kind of bet, read top to bottom in the order a
+   bettor actually asks: WHAT'S THE BET (one plain line) → THE NUMBER (the
+   stake, dominant, and gold because gold is money) → WHO'S ON WHICH SIDE →
+   STATE (a chip, not a status word buried in a meta line) → THE CLOCK.
+   The engine's live read is a "score bug" strip; its working is one tap deeper.
+   State chip doctrine: navy = the site is waiting on YOU (action wears navy,
+   same as the war-room take button); green = live money; amber = waiting on
+   someone else; red = disputed (red stays alarm-only); muted = over.
+   ════════════════════════════════════════════════════════════════════════ */
+.bcard {
+  border: 1px solid var(--wr-line); border-radius: 12px; background: var(--wr-panel);
+  padding: var(--wr-s3); margin: 0 0 var(--wr-s3);
+}
+.bcard:last-child { margin-bottom: 0; }
+.bcard.needs { border-color: var(--wr-structure); box-shadow: 0 1px 3px rgba(12,26,43,.08); }
+.bcard.disputed { border-color: var(--wr-bad); }
+.bcard.done { background: var(--wr-panel-soft); }
+.bc-top { display: flex; align-items: center; gap: var(--wr-s2); flex-wrap: wrap; }
+.bc-kind {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  color: var(--wr-muted); border: 1px solid var(--wr-line); border-radius: 4px;
+  padding: .05rem .4rem; white-space: nowrap; background: var(--wr-panel-soft);
+}
+.bc-state {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  border-radius: 999px; padding: .14rem .55rem; white-space: nowrap;
+  border: 1.5px solid transparent;
+}
+.bc-state.needs { background: var(--wr-structure); color: #fff; }
+.bc-state.open { color: var(--wr-accent); border-color: var(--wr-accent); }
+.bc-state.live { color: var(--wr-good); border-color: var(--wr-good); }
+.bc-state.wait { color: var(--wr-warn); border-color: var(--wr-warn); border-style: dashed; }
+.bc-state.disputed { background: var(--wr-bad); color: #fff; }
+.bc-state.done { color: var(--wr-muted); border-color: var(--wr-line); }
+/* THE NUMBER — the stake is the card's one dominant figure, and it is money,
+   so it wears the money color. Nothing else on the card is gold. */
+.bc-stake { margin-left: auto; text-align: right; line-height: 1.05; white-space: nowrap; }
+.bc-stake b { font-size: var(--wr-fs-big); color: var(--wr-money); font-weight: 800; }
+.bc-stake small { display: block; font-size: var(--wr-fs-micro); color: var(--wr-muted); font-weight: 600; }
+.bc-what { font-weight: 700; color: var(--wr-ink); line-height: 1.35; margin: var(--wr-s2) 0 0; font-size: var(--wr-fs-body); }
+.bc-rule { font-size: var(--wr-fs-sub); color: var(--wr-muted); font-style: italic; margin: .2rem 0 0; }
+.bc-meta { font-size: var(--wr-fs-sub); color: var(--wr-muted); margin-top: .25rem; }
+.bc-clock {
+  display: inline-block; font-size: var(--wr-fs-micro); font-weight: 700;
+  color: var(--wr-warn); margin-top: .3rem;
+}
+.bc-clock.dead { color: var(--wr-muted); font-weight: 600; }
+/* The score bug: the engine's current read on a live bet — headline always
+   visible, the working one tap deeper. Never a settle switch: the buttons it
+   carries only DECLARE, and a human on the other side still confirms. */
+.bc-bug {
+  margin-top: var(--wr-s2); border-radius: 8px; padding: .45rem .6rem;
+  border: 1px solid var(--wr-line); background: var(--wr-panel-soft);
+  font-size: var(--wr-fs-sub);
+}
+.bc-bug.ready { border-color: var(--wr-good); background: rgba(15,138,77,.06); }
+.bc-bug-tag {
+  font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .07em;
+  color: var(--wr-muted); margin-right: .4rem;
+}
+.bc-bug.ready .bc-bug-tag { color: var(--wr-good); }
+.bc-bug-line { color: var(--wr-ink); font-weight: 600; }
+.bc-bug details { margin-top: .25rem; }
+.bc-bug summary { cursor: pointer; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.bc-bug .verdict-lines { margin: .25rem 0 0; padding-left: 1rem; }
+.bc-bug .verdict-lines li { font-size: var(--wr-fs-micro); color: var(--wr-muted); line-height: 1.5; }
+.bc-act { display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; margin-top: var(--wr-s2); }
+.bc-act .grow { flex: 1 1 auto; }
+/* The needs-you section header count. */
+.bc-count {
+  display: inline-block; min-width: 1.4em; text-align: center; font-size: .78rem;
+  font-weight: 800; background: var(--wr-structure); color: #fff; border-radius: 999px;
+  padding: .05rem .4rem; vertical-align: middle;
+}
+/* Paid-flow interim state: the payer says it's sent, the receiver hasn't
+   confirmed. Amber wait, same vocabulary as the state chips. */
+.leg-claimed {
+  font-size: var(--wr-fs-micro); font-weight: 700; color: var(--wr-warn);
+  border: 1px dashed var(--wr-warn); border-radius: 999px; padding: .1rem .5rem;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   IN-SEASON COMMISSIONER TOOLS — the 2026-08-16 design pass extends this file
+   per the war-room handoff ("extend, don't fork").
+
+   Four pages: /lineup (+ /lineup/accuracy), /waivers, /analyzer. Desktop is
+   Cory's PRIMARY surface for these (doctrine §7): the content column widens,
+   panels sit side by side where the phone forced stacking, and the density
+   gradient runs deeper. Phone 390 stays a first-class review surface — the
+   zero-horizontal-overflow bar still applies (shots-inseason.js asserts it).
+   Gold stays money-only; red stays alarm-only; numerals in columns align.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Desktop-first: the tool pages earn a wider column than the browse pages. */
+body.inseason-tools .wrap { max-width: 1280px; }
+
+/* The explainer contract without a JS layer: a <details> ⓘ. Same
+   .panel-explain body the war room renders; the summary is the collapsed ⓘ. */
+.wr-exp { margin: 0 0 var(--wr-s2); }
+.wr-exp > summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center;
+  gap: .3rem; font-size: var(--wr-fs-micro); font-weight: 700; color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px; padding: .12rem .55rem;
+  background: var(--wr-panel); user-select: none;
+}
+.wr-exp > summary::-webkit-details-marker { display: none; }
+.wr-exp[open] > summary { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+.wr-exp > .panel-explain { margin-top: var(--wr-s2); }
+
+/* Side-by-side panels on desktop; a single honest column below 1100px.
+   Wrappers are explicit (.is-col) so the phone keeps its editorial order. */
+.is-cols { display: block; }
+.is-cols > .is-col { min-width: 0; }
+@media (min-width: 1100px) {
+  .is-cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0 1.1rem; align-items: start; }
+  .is-cols.even { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+/* ── THE WAIVER VERDICT — the answer first: claim X, drop Y, net N ─────── */
+.wv-verdict .wv-name { font-size: var(--wr-fs-hero); font-weight: 800; color: var(--wr-ink); line-height: 1.15; }
+.wv-verdict .wv-net { font-variant-numeric: tabular-nums; }
+.wv-derive summary { cursor: pointer; color: var(--wr-muted); font-size: var(--wr-fs-micro); font-weight: 700; }
+.wv-derive[open] summary { color: var(--wr-ink); }
+.wv-derive .panel-explain { margin-top: .35rem; }
+
+/* ── ANALYZER POSTURE BOARD — the answer as a board, the table as the data ── */
+.az-board { display: grid; gap: .7rem; grid-template-columns: 1fr; margin: 0 0 .3rem; }
+@media (min-width: 560px) { .az-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .az-board { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.az-cell { border: 1px solid var(--wr-line); border-radius: 10px; background: var(--wr-panel); padding: var(--wr-s3); min-width: 0; }
+.az-cell-head { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+.az-cell-count { margin-left: auto; font-size: var(--wr-fs-micro); font-weight: 800; color: var(--wr-muted); }
+.az-cell-why { font-size: var(--wr-fs-micro); color: var(--wr-muted); margin: .15rem 0 .45rem; }
+.az-cell-cut { font-size: var(--wr-fs-micro); color: var(--wr-muted); opacity: .85; }
+.az-row { display: flex; align-items: center; gap: .45rem; padding: .18rem 0; font-size: var(--wr-fs-sub); border-top: 1px dashed var(--wr-line); }
+.az-row:first-of-type { border-top: none; }
+.az-row b { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.az-row .pct { flex: 0 0 2.6rem; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.az-row .bar { flex: 0 0 3.4rem; height: 6px; border-radius: 3px; background: var(--wr-panel-soft); border: 1px solid var(--wr-line); overflow: hidden; }
+.az-row .bar i { display: block; height: 100%; background: var(--wr-chart-main); }
+.az-row.me b { color: var(--wr-structure); }
+.az-empty { font-size: var(--wr-fs-micro); color: var(--wr-muted); font-style: italic; }
+
+/* ── ACCURACY REPORT CARD — by-kind rows graded against real benchmarks ── */
+.acc-kind-bar { display: inline-flex; align-items: center; gap: .35rem; }
+.acc-kind-bar .track { position: relative; width: 4.2rem; height: 7px; border-radius: 3px;
+  background: var(--wr-panel-soft); border: 1px solid var(--wr-line); overflow: hidden; }
+.acc-kind-bar .track i { display: block; height: 100%; background: var(--wr-chart-main); }
+.acc-kind-bar .track .bench { position: absolute; top: -1px; bottom: -1px; left: 50%; width: 2px;
+  background: var(--wr-muted); opacity: .55; }
+.acc-thin td { color: var(--wr-muted); }
+.acc-thin td:first-child { color: var(--wr-ink); }
+
+/* ── LEAK CHART (proof face) — dollars per owner, three seasons summed ── */
+.lo-leak-chart .me-lbl { font-weight: 800; }
+
+/* Density gradient on the tool pages: the record zones tighten. */
+.is-zone3 .card .body { font-size: var(--wr-fs-sub); }
+.is-zone3 .card h2 { font-size: var(--wr-fs-title); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MEMBER SITE — the 2026-08-16 member-site pass extends this file per the
+   standing handoff ("extend, don't fork"). Phone-first (doctrine §7: members
+   live on phones; 390 is the design width) — every row grammar here wraps
+   instead of overflowing. Gold stays money-only; red stays alarm-only; the
+   navy/gold/eagle identity carries, never generic SaaS.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE WEEK STRIP — matchup/scoreboard week navigation ─────────────────── */
+.wk-strip { display: flex; align-items: center; gap: .35rem; margin: 0 0 1rem; }
+.wk-strip .wk-arrow {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 1px solid var(--wr-line);
+  background: var(--wr-panel); color: var(--wr-structure); font-weight: 800;
+  text-decoration: none; font-size: 1rem;
+}
+.wk-pills { display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; padding: .15rem 0; min-width: 0; }
+.wk-pills::-webkit-scrollbar { display: none; }
+.wk-pill {
+  flex: 0 0 auto; font-size: var(--wr-fs-micro); font-weight: 700; white-space: nowrap;
+  padding: .28rem .6rem; border-radius: 999px; text-decoration: none;
+  border: 1px solid var(--wr-line); background: var(--wr-panel); color: var(--wr-muted);
+  font-variant-numeric: tabular-nums;
+}
+.wk-pill.past { color: var(--wr-ink); }
+.wk-pill.now { border-color: var(--wr-structure); color: var(--wr-structure); }
+.wk-pill.active { background: var(--wr-structure); color: #fff; border-color: var(--wr-structure); }
+
+/* ── THE TUESDAY PREVIEW LINE — one pairing's history in one strip ───────── */
+.mu-prev {
+  display: flex; flex-wrap: wrap; gap: .15rem .7rem; margin: .55rem 0 0;
+  font-size: var(--wr-fs-sub); color: var(--wr-muted); line-height: 1.4;
+}
+.mu-prev .mu-prev-lead { color: var(--wr-ink); font-weight: 700; }
+.mu-prev .mu-prev-item::before { content: '· '; color: var(--wr-line); }
+
+/* ── THE SLEEPER-FED WIN-ODDS LINE — labelled by source, pre-kick only ───── */
+.mu-odds { margin: .75rem 0 0; border-top: 1px dashed var(--wr-line); padding-top: .6rem; }
+.mu-odds-top { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; }
+.mu-odds-lbl { font-size: var(--wr-fs-sub); font-weight: 800; color: var(--wr-ink); }
+.mu-odds-src { font-weight: 600; color: var(--wr-muted); font-size: var(--wr-fs-micro); }
+.mu-odds-pct { font-size: var(--wr-fs-big); font-weight: 800; color: var(--wr-structure);
+  font-variant-numeric: tabular-nums; }
+.mu-odds-meter { height: 8px; border-radius: 4px; background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); overflow: hidden; margin: .35rem 0 0; }
+.mu-odds-meter i { display: block; height: 100%; background: var(--wr-chart-main); }
+.mu-odds-foot { font-size: var(--wr-fs-micro); margin-top: .3rem; }
+/* The scoreboard-card variant: one compact line per game. */
+.sb-odds { display: flex; flex-wrap: wrap; gap: .15rem .6rem; align-items: baseline;
+  margin: .45rem 0 0; font-size: var(--wr-fs-sub); }
+.sb-odds-lbl { font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--wr-muted); }
+.sb-odds-val { color: var(--wr-ink); font-variant-numeric: tabular-nums; }
+
+/* ── YOUR SEASON — the schedule list ("when do I play Michael again") ────── */
+.sched-list { list-style: none; margin: 0; padding: 0; }
+.sched-row a { display: flex; align-items: baseline; gap: .55rem; padding: .38rem .2rem;
+  text-decoration: none; color: var(--wr-ink); border-top: 1px dashed var(--wr-line);
+  font-size: var(--wr-fs-sub); min-width: 0; }
+.sched-row:first-child a { border-top: none; }
+.sched-wk { flex: 0 0 3.2rem; font-weight: 800; color: var(--wr-muted);
+  font-variant-numeric: tabular-nums; font-size: var(--wr-fs-micro); }
+.sched-opp { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sched-res { flex: 0 0 auto; font-weight: 800; font-size: var(--wr-fs-micro);
+  padding: .05rem .4rem; border-radius: 4px; }
+.sched-res.W { color: var(--wr-good); border: 1px solid var(--wr-good); }
+.sched-res.L { color: var(--wr-bad); border: 1px solid var(--wr-bad); }
+.sched-res.T { color: var(--wr-muted); border: 1px solid var(--wr-line); }
+.sched-res.now { background: var(--wr-structure); color: #fff; }
+.sched-score { flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+.sched-row.now a { background: var(--navy-soft, rgba(31,95,168,.07)); border-radius: 6px; }
+.sched-row.viewing a { box-shadow: inset 3px 0 0 var(--wr-structure); }
+.sched-cue { flex: 0 0 auto; font-size: var(--wr-fs-micro); }
+
+/* ── A NON-CURRENT WEEK'S SLATE — result rows with the preview riding on ─── */
+.wkslate { list-style: none; margin: 0; padding: 0; }
+.wkslate-row { padding: .5rem 0; border-top: 1px dashed var(--wr-line); }
+.wkslate-row:first-child { border-top: none; }
+.wkslate-teams { display: flex; align-items: baseline; gap: .45rem; flex-wrap: wrap;
+  font-size: var(--wr-fs-body); }
+.wkslate-teams .num { font-variant-numeric: tabular-nums; }
+.wkslate-win { color: var(--wr-good); }
+.wkslate-row .mu-prev { margin-top: .25rem; }
+
+/* ── THE RACES — one row grammar for all three races ─────────────────────── */
+.race-you {
+  display: flex; flex-direction: column; gap: .2rem; margin: 0 0 1rem;
+  border: 1px solid var(--wr-line); border-left: 4px solid var(--wr-structure);
+  border-radius: 10px; background: var(--wr-panel); padding: .65rem .8rem;
+}
+.race-you-kicker { font-size: var(--wr-fs-micro); font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--wr-muted); }
+.race-you-line { font-size: var(--wr-fs-body); color: var(--wr-ink); font-weight: 600; line-height: 1.45; }
+.race-list { list-style: none; margin: 0; padding: 0; }
+.race-row { display: flex; align-items: center; gap: .5rem; padding: .32rem 0;
+  border-top: 1px dashed var(--wr-line); font-size: var(--wr-fs-sub); min-width: 0; }
+.race-row:first-child { border-top: none; }
+.race-row.me { box-shadow: inset 3px 0 0 var(--wr-structure); padding-left: .45rem; }
+.race-rank { flex: 0 0 3.1rem; font-weight: 800; color: var(--wr-muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+.race-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.race-rec { flex: 0 0 auto; font-variant-numeric: tabular-nums; color: var(--wr-muted); }
+.race-meter { flex: 0 0 3.6rem; height: 7px; border-radius: 3px; background: var(--wr-panel-soft);
+  border: 1px solid var(--wr-line); overflow: hidden; }
+.race-meter.wide { flex: 0 0 5rem; }
+.race-meter i { display: block; height: 100%; background: var(--wr-chart-main); }
+.race-odds { flex: 0 0 auto; min-width: 3.4rem; text-align: right;
+  font-variant-numeric: tabular-nums; font-size: var(--wr-fs-sub); }
+.race-gap { font-size: var(--wr-fs-micro); }
+.race-cutline { padding: .18rem 0; font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--wr-bad); border-bottom: 1px dashed rgba(255,70,85,.5);
+  list-style: none; }
+@media (max-width: 430px) {
+  .race-meter { flex-basis: 2.6rem; }
+  .race-meter.wide { flex-basis: 3.4rem; }
+}
+
+/* ── THE SWING BOARD — the league-wide stake lines on /watch ─────────────── */
+.wtw-swing-head { margin: 0 0 .7rem; font-size: var(--wr-fs-sub); color: var(--wr-ink); }
+.wtw-stake { margin-top: .3rem; font-size: var(--wr-fs-micro); color: var(--wr-ink);
+  border-top: 1px dashed var(--wr-line); padding-top: .3rem; line-height: 1.45; }
+
+/* ── SEASON TREND chart extras (team page) ───────────────────────────────── */
+.wr-chart .med { stroke: var(--wr-ink); stroke-width: 1.5; opacity: .55; }
+
+/* Motion: state changes only. Respect the doctrine — no ambient animation. */
+@media (prefers-reduced-motion: reduce) {
+  .wr-chart * , .wrv * { transition: none !important; animation: none !important; }
+}

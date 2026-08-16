@@ -21,6 +21,17 @@
 const os = require('os'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'h2ha-'));
+// THE FLAKE, NAMED AND KILLED (independent review, 2026-08-15, required
+// action #2). The no-bundle arm below deletes `sleeper-cache` and hits
+// /matchup — whose sleeper.bundle(), finding no cache, tries a LIVE fetch.
+// This test never intended a network dependency, but it had one with a SIGN:
+// it passed only where api.sleeper.app was UNREACHABLE (the relay sandbox)
+// and flaked where CI runners could reach it and pulled a real bundle the
+// test never planted. Pointing SLEEPER_BASE at the discard port makes the
+// fetch fail fast and identically everywhere — the arm's premise ("no live
+// bundle exists") is now enforced rather than hoped. Must be set before any
+// require that loads src/sleeper.js, which reads it at module load.
+process.env.SLEEPER_BASE = 'http://127.0.0.1:9';
 const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
 const data = require(path.join(ROOT, 'src', 'data'));
 const { hashPassword } = require(path.join(ROOT, 'src', 'auth'));

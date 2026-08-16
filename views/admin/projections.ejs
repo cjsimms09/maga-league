@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projection Sources — MFGA</title>
+<style>
+  /* Self-contained like draft-sheet.ejs — desktop-first per Cory's doctrine
+     ("I will be using this site from my desktop"), no JS needed. */
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111; background: #fff; margin: 0; padding: 18px; font-size: 13px; line-height: 1.35; }
+  h1 { font-size: 19px; margin: 0 0 2px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 6px;
+    border-bottom: 1.5px solid #111; padding-bottom: 3px; }
+  .meta { font-size: 11px; color: #444; margin: 2px 0 8px; max-width: 70em; }
+  .meta b { color: #111; }
+  .nav a { margin-right: 10px; font-weight: 700; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 26px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 2px 7px; text-align: right; border-bottom: 1px solid #e2e2e2; }
+  th { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #555;
+    border-bottom: 1.5px solid #111; }
+  td.nm, th.nm { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 13em; }
+  td.rk { color: #777; }
+  .used { font-weight: 700; }
+  .own { background: #f4f1e8; }         /* our model's column, visibly ours */
+  .dpos { color: #0a6b2d; }             /* own model higher than the used number */
+  .dneg { color: #a01414; }             /* own model lower */
+  .abs { color: #999; }
+</style>
+</head>
+<body>
+<h1>Projection sources, side by side</h1>
+<p class="meta">
+  <b>Mean</b> is the number every tool actually uses (Sleeper + FantasyPros
+  blend with the opportunity adjustment — bolded).
+  <b>Own</b> is our model's test projection
+  (<b><%= ownModel.algorithm || 'none attached' %></b><% if (ownModel.promotion) { %> — <%= ownModel.promotion %><% } %>),
+  a display-only third opinion: it never moves Mean, VORP, or any ranking,
+  and members never see it. <b>Δ</b> = Own − Mean, the disagreement worth a
+  look. A blank cell is a source with no number for that player — absent,
+  never zero.
+  <% if (builtAt) { %>Board built <%= builtAt %>.<% } %>
+</p>
+<p class="nav meta">
+  <a href="/admin/projections">All</a>
+  <a href="/admin/projections?pos=QB">QB</a>
+  <a href="/admin/projections?pos=RB">RB</a>
+  <a href="/admin/projections?pos=WR">WR</a>
+  <a href="/admin/projections?pos=TE">TE</a>
+</p>
+<div class="grid">
+<% for (const pos of Object.keys(byPos)) { %>
+  <div>
+    <h2><%= pos %> — top <%= byPos[pos].length %> by the number we use</h2>
+    <table>
+      <tr>
+        <th></th><th class="nm">Player</th><th>Sleeper</th><th>FPros</th>
+        <th class="own">Own</th><th class="used">Mean</th><th>Δ</th>
+      </tr>
+      <% for (const r of byPos[pos]) { %>
+      <tr>
+        <td class="rk"><%= r.rank %></td>
+        <td class="nm"><%= r.name %> <span class="abs"><%= r.team %></span></td>
+        <td><% if (r.sleeper != null) { %><%= r.sleeper %><% } else { %><span class="abs">—</span><% } %></td>
+        <td><% if (r.fpros != null) { %><%= r.fpros %><% } else { %><span class="abs">—</span><% } %></td>
+        <td class="own"><% if (r.own != null) { %><%= r.own %><% } else { %><span class="abs">—</span><% } %></td>
+        <td class="used"><% if (r.mean != null) { %><%= r.mean %><% } else { %><span class="abs">—</span><% } %></td>
+        <td><% if (r.delta != null) { %><span class="<%= r.delta >= 0 ? 'dpos' : 'dneg' %>"><%= r.delta > 0 ? '+' : '' %><%= r.delta %></span><% } else { %><span class="abs">—</span><% } %></td>
+      </tr>
+      <% } %>
+    </table>
+  </div>
+<% } %>
+</div>
+</body>
+</html>

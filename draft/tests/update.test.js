@@ -115,13 +115,27 @@ const oldEarly = { player_id: 'a', position: 'RB', age: 30, years_exp: 8, vorp: 
 const youngLate = { player_id: 'b', position: 'WR', age: 23, years_exp: 1, vorp: 12,
   proj_mean: 150, adjusted_adp: 128, depth_chart_order: 1, opportunity_z: 1.2 };
 
+// The rounds here follow the MEASURED ramp (Cory's 2026-08-16 ruling): keeper
+// value lives rounds 4-6 in this league's real history; round 13+ measures
+// zero (0 of 31 round-13-15 picks ever kept). The old arms — "substantial in
+// round 13", "zero in round 2" — asserted the reasoned ramp the ruling
+// replaced. Age still decides WHO earns it; the round decides WHERE.
 const kovOldEarly = C.keeperOptionValue(oldEarly, { league: LEAGUE, board: B, currentPick: 15 });   // round 2
+// The measured peak prices a keeper at a REAL round-5 cost, so the profile
+// that earns substantial KOV there is a genuinely good young player — not the
+// round-13 lottery ticket the old ramp rewarded, whose surplus existed only
+// because his price was nearly free.
+const youngMid = Object.assign({}, youngLate, { adjusted_adp: 48, vorp: 55, proj_mean: 235 });
+const kovYoungMid = C.keeperOptionValue(youngMid, { league: LEAGUE, board: B, currentPick: 48 });   // round 5
 const kovYoungLate = C.keeperOptionValue(youngLate, { league: LEAGUE, board: B, currentPick: 128 }); // round 13
 
-check('KOV ~ 0 for a 30-year-old drafted in round 2',
-  Math.abs(kovOldEarly.value) < 0.01, `kov=${kovOldEarly.value.toFixed(2)} ramp=${kovOldEarly.ramp}`);
-check('KOV is substantial for a 23-year-old drafted in round 13',
-  kovYoungLate.value > 5, `kov=${kovYoungLate.value.toFixed(2)} p_keep=${kovYoungLate.p_keep.toFixed(2)}`);
+check('KOV earns a 30-year-old no keeper credit even where the ramp is open',
+  kovOldEarly.value <= 0.01, `kov=${kovOldEarly.value.toFixed(2)} ramp=${kovOldEarly.ramp}`);
+check('KOV is substantial for a good young player at round 5 (the measured 4-6 peak)',
+  kovYoungMid.value > 5, `kov=${kovYoungMid.value.toFixed(2)} p_keep=${kovYoungMid.p_keep.toFixed(2)}`);
+check('KOV is zero for the same profile in round 13 — nobody in this league ever kept from there',
+  kovYoungLate.value === 0 && kovYoungLate.ramp === 0,
+  `kov=${kovYoungLate.value.toFixed(2)} ramp=${kovYoungLate.ramp}`);
 check('the young late pick is far likelier to be kept',
   C.keepProbability(youngLate, 13, LEAGUE) > C.keepProbability(oldEarly, 2, LEAGUE) + 0.3,
   `young=${C.keepProbability(youngLate, 13, LEAGUE).toFixed(2)} old=${C.keepProbability(oldEarly, 2, LEAGUE).toFixed(2)}`);
@@ -187,11 +201,13 @@ check('new components are exposed for auditing',
 check('weighted breakdown includes the new terms',
   ['keeper', 'bye', 'stack'].every(k => typeof scored[0].components.weighted[k] === 'number'));
 
-// KOV weight actually moves late-round rankings
-const lateCtxFull = Object.assign({}, ctx, { currentPick: 128, nextPick: 140, myPicksLeft: 3 });
-const kovOff = E.recommend(Object.assign({}, lateCtxFull, { weights: Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 0 }) }));
-const kovOn = E.recommend(Object.assign({}, lateCtxFull, { weights: Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 3 }) }));
-check('the keeper weight changes late-round scoring',
+// KOV weight actually moves rankings WHERE THE MEASURED RAMP IS OPEN — round
+// 5, not round 13, per the 2026-08-16 ruling (late rounds now correctly carry
+// no keeper term to move).
+const midCtxFull = Object.assign({}, ctx, { currentPick: 48, nextPick: 60, myPicksLeft: 10 });
+const kovOff = E.recommend(Object.assign({}, midCtxFull, { weights: Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 0 }) }));
+const kovOn = E.recommend(Object.assign({}, midCtxFull, { weights: Object.assign({}, E.DEFAULT_WEIGHTS, { keeper: 3 }) }));
+check('the keeper weight changes mid-round scoring (the measured 4-6 window)',
   kovOff[0].score !== kovOn[0].score || kovOff[0].player.player_id !== kovOn[0].player.player_id);
 
 

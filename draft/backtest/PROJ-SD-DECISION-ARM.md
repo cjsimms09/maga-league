@@ -2,7 +2,11 @@
 
 **TERRITORY: A.** Answers C's `proj_sd` finding
 (`draft/backtest/PROJECTION-ERROR.md`) with a decision arm rather than an
-argument. **Nothing here is wired. Production is unchanged.**
+argument. When first written, nothing here was wired and production was
+unchanged. **DISPOSITION CHANGED 2026-08-15 — see the addendum at the bottom:
+Cory's ruling landed ("We need to fix!!!"), the arm was RE-RUN on the fresh
+86e42bc2 board and reproduced exactly, and REC-1 is now applied in
+`projections.blend()`.**
 
 ## The question, and why it needed answering rather than acting on
 
@@ -135,3 +139,47 @@ node draft/tools/draft_plan.js                    # baseline
 Guarded by `draft/tests/proj_sd_arm.test.js`, which re-derives the claim rather
 than pinning the table above — a decision arm whose numbers are remembered
 instead of recomputed is a screenshot, not evidence.
+
+---
+
+## ADDENDUM 2026-08-15 — the ruling landed, the arm was re-run, REC-1 is applied
+
+Cory's ruling on the learning-loop audit, verbatim: **"We need to fix!!!"** That
+is the ruling REC-1 (`draft/data/model_update_recommendations.json`) was
+waiting on. But the table above was measured on the 08-13 board, and the 08-15
+rebuild (`86e42bc2`, 677 players, first `proj_ownmodel` publish) moved the
+board underneath it — so the arm was RE-RUN on the fresh board before anything
+was wired, same protocol (isolated tree, `draft_plan.js` unmodified, C's
+measured band table applied to a copy, control asserting 455/527 rows actually
+moved).
+
+**Result: identical to the original measurement.** Roles unchanged at all
+twelve seats; zero starter seats move; the same four bench seats flip to the
+same four players (68 Stevenson→Pollard, 88 Reed→Sutton, 93 Purdy→Love,
+148 Higgins→Shakir); total value 1242.1 → 1261.7 (+1.6%, option value grows
+with dispersion). The application condition held, so:
+
+**WIRED:** `projections.blend()` now computes `proj_sd` via
+`projection_error.proj_sd_for(cal, position, rank, mean)` — C's calibration
+appliers finally have their production caller — with the `POSITION_VARIANCE`
+path as fallback for every unmeasured cell (K, DEF, unranked). Each board row
+declares which path priced it in `proj_sd_source`, `variance` is re-derived
+from the applied sd so `proj_sd == proj_mean × variance` keeps holding, and
+`variance_why` names the measured band. The board ships the measured table on
+its next rebuild.
+
+What the next rebuild does to a handful of named players (mean unchanged):
+
+| player | pos rk | sd old→new | ceiling old→new | floor old→new |
+|---|---|---|---|---|
+| Josh Allen | QB1 | 89→111 | 498→520 | 345→331 |
+| Jahmyr Gibbs | RB1 | 117→170 | 466→521 | 266→231 |
+| Puka Nacua | WR1 | 84→69 | 385→369 | 241→251 |
+| Jordan Love | QB17 | 71→185 | 396→514 | 275→198 |
+| Tony Pollard | RB24 | 61→103 | 231→275 | 127→98 |
+
+Nacua TIGHTENS — WR|1-3 is one of C's three cells that run the other way,
+carried as measured. Love is the streaming-range QB case the uncertainty audit
+named (ships ~70 against measured 145-185). The band-boundary caveat above
+(smooth-in-rank) still stands and rides with REC-1's record; the banded table
+is what was measured, so the banded table is what ships.

@@ -643,24 +643,25 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["consensus_sources"] = 1
         print(f"  ! FantasyPros projections skipped ({type(fppx).__name__}); single-source Sleeper")
 
-    # THIRD PROJECTION SOURCE — OUR OWN MODEL (2026-08-15). Same additive pattern as
-    # FantasyPros immediately above: attach alongside, never a build dependency,
-    # never touches proj_mean/proj_baseline/VORP/ranking. `walk_forward()` is
-    # leak-free and self-derived (never reads a provider's number), so it is a real
-    # third opinion rather than a re-blend of the same inputs. DECISIONS-NEEDED.md
-    # #6 is explicit that swapping the AUTHORITATIVE source needs a clean grade
-    # first — this has none yet, so it stays a display-only sanity-check column,
-    # exactly like FantasyPros before it earned anything more. Coverage today is
-    # partial by design: walk_forward() needs prior-season NFL production, so
-    # rookies and anyone without 2023-2024 usage carry no proj_ownmodel — same
-    # "absent, not zero" discipline as proj_feed.js.
+    # THIRD PROJECTION SOURCE — OUR OWN MODEL, own_v6 since 2026-08-16 (Cory:
+    # "YES on V6", upgrading his same-day v4 acceptance; v6 = v4's QB arm +
+    # v5's component arms, cleared the REC-3 bar at all four positions: beat
+    # both naive baselines, both metrics, held-out 2025). Same
+    # additive pattern as FantasyPros above: attach alongside, never a build
+    # dependency, never touches proj_mean/proj_baseline/VORP/ranking — the
+    # promotion swapped the ALGORITHM behind the labeled third-opinion column,
+    # not its role; entering proj_mean's composition stays blocked on the
+    # January 2027 Sleeper grade (REC-2). The v6 path reads committed stores
+    # (zero egress, unlike v1's live fetches). Coverage: QB/RB/WR/TE with
+    # prior-season NFL production; rookies and K/DEF carry no proj_ownmodel —
+    # same "absent, not zero" discipline as proj_feed.js.
     try:
         from own_projections import compute_own_projections, attach_own_model
         own_proj, own_diag = compute_own_projections(board, cfg, season=year_n)
         PROJECTION_PROVENANCE["own_model"] = own_diag
         attached_own = attach_own_model(board, own_proj)
         PROJECTION_PROVENANCE["own_model_attached"] = attached_own
-        print(f"  projections: own model (walk_forward) 3rd source on "
+        print(f"  projections: own model (own_v6) 3rd source on "
               f"{attached_own} players")
     except Exception as ownx:  # noqa: BLE001 — own model is an upgrade, never a dependency
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
@@ -722,6 +723,13 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
     # stores moved, and in each of those cases the dormant rows are back.
     # `test_board_activity` asserts no dormant row reaches a rank, a VORP or the
     # relevant board — a property that must hold whether or not this ran.
+    # Snapshot the PRE-prune board for the position record below. The record's
+    # own contract says "written from the board BEFORE any filter", but as
+    # first coded it iterated `board` AFTER the prune reassigned it — so a
+    # player seen for the FIRST time on a board that also prunes him would
+    # never enter the union, exactly the row the wire measurement needs.
+    # (2026-08-15 data audit; test_data_assumptions.py pins the contract.)
+    _pre_prune_board = list(board)
     try:
         _act = board_activity.dormant({"players": board})
         if _act["status"] == "measured" and _act["n"]:
@@ -759,7 +767,7 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         _prev = json.loads(_pp.read_text())if _pp.exists() else {}
         _pos = dict(_prev.get("positions") or {})
         _added = 0
-        for _p in board:
+        for _p in _pre_prune_board:
             _q = _p.get("position")
             if _q and str(_p.get("player_id")) not in _pos:
                 _pos[str(_p["player_id"])] = _q

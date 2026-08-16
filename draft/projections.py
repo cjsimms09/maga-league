@@ -210,20 +210,72 @@ def composite_z(metrics: dict[str, dict], players: list[dict]) -> dict[str, floa
     return out
 
 
+def _sd_calibration():
+    """C's measured 2023-25 projection-error calibration, with its own applier.
+
+    REC-1, APPLIED 2026-08-15 under Cory's ruling ("We need to fix!!!"), after the
+    decision arm was RE-RUN on the 86e42bc2 board (677 players) and reproduced the
+    original result exactly: roles identical at all twelve seats, the only movement
+    four bench players (PROJ-SD-DECISION-ARM.md, addendum). Returns
+    (projection_error module, loaded calibration) or None — and None means every
+    row falls back to the POSITION_VARIANCE path unchanged, which is the
+    pre-REC-1 behaviour, never a silent zero.
+    """
+    import sys
+    from pathlib import Path
+    bt = Path(__file__).resolve().parent / "backtest"
+    if str(bt) not in sys.path:
+        sys.path.insert(0, str(bt))
+    try:
+        import projection_error as PE
+        cal = PE.load()
+    except Exception:
+        return None
+    return (PE, cal) if (cal.get("cells")) else None
+
+
 def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, dict],
           cfg: dict) -> list[dict]:
-    """Apply the capped opportunity adjustment and derive floor/ceiling."""
+    """Apply the capped opportunity adjustment and derive floor/ceiling.
+
+    proj_sd comes from the MEASURED 2023-25 error calibration where a
+    (position, projection-rank band) cell was measured (REC-1, applied under
+    Cory's 2026-08-22 ruling), and from the POSITION_VARIANCE path everywhere
+    else — K/DEF and any band the calibration marks unmeasurable.
+    """
     cap = float(cfg.get("opportunity_cap", 0.15))
     z = composite_z(metrics, players) if metrics else {}
+    pe = _sd_calibration()
 
+    # First pass: the mean, so the second pass can rank within position. The
+    # rank MUST be the same ordering vorp.assign_tiers later writes as pos_rank
+    # (proj_mean desc within position) — the calibration was fitted on that
+    # band definition and a different rank here would read the wrong cell.
+    means: dict[int, float] = {}
     for p in players:
         pid = str(p["player_id"])
         base = baseline.get(pid)
         if base is None:
             base = p.get("proj_mean") or _rank_fallback(p)
-        # A z of +2 earns the full cap; linear in between, clamped both ways.
         adj = max(-cap, min(cap, (z.get(pid, 0.0) / 2.0) * cap))
-        mean_proj = base * (1 + adj)
+        means[id(p)] = base * (1 + adj)
+        p["_blend_base"] = base
+        p["_blend_adj"] = adj
+
+    rank_of: dict[int, int] = {}
+    by_pos: dict[str, list[dict]] = {}
+    for p in players:
+        by_pos.setdefault(p.get("position") or "", []).append(p)
+    for pos, group in by_pos.items():
+        ordered = sorted(group, key=lambda x: -means[id(x)])
+        for i, p in enumerate(ordered):
+            rank_of[id(p)] = i + 1
+
+    for p in players:
+        pid = str(p["player_id"])
+        base = p.pop("_blend_base")
+        adj = p.pop("_blend_adj")
+        mean_proj = means[id(p)]
 
         var, var_why = player_variance(p, metrics.get(pid) if metrics else None)
         games = EXPECTED_GAMES.get(p["position"], 15.0)
@@ -231,6 +283,22 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         # per-player is what stops ceiling - mean collapsing into a constant
         # multiple of the mean, which is what made UpsideBonus inert.
         season_sd = mean_proj * var
+        sd_source = "position_variance"
+        # REC-1: the measured cell overrides the hand-set constant wherever one
+        # was measured. `variance` is re-derived from the applied sd so the
+        # board identity proj_sd == proj_mean × variance keeps holding.
+        if pe is not None:
+            PE, cal = pe
+            rank = rank_of.get(id(p))
+            sd_m, status = PE.proj_sd_for(cal, p.get("position"), rank, mean_proj)
+            if status == "measured" and sd_m is not None and mean_proj > 0:
+                season_sd = sd_m
+                var = season_sd / mean_proj
+                band = PE.band_of(rank)
+                sd_source = "measured-2023-25-error"
+                var_why = ["sd from measured 2023-25 projection error, band "
+                           f"{p.get('position')}|{band} (REC-1, applied under "
+                           "Cory's ruling; PROJ-SD-DECISION-ARM.md addendum)"]
 
         p["proj_baseline"] = round(base, 2)
         p["opportunity_z"] = round(z.get(pid, 0.0), 2)
@@ -239,6 +307,7 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         p["proj_floor"] = round(max(0.0, mean_proj + FLOOR_Z * season_sd), 2)
         p["proj_ceiling"] = round(mean_proj + CEILING_Z * season_sd, 2)
         p["proj_sd"] = round(season_sd, 2)
+        p["proj_sd_source"] = sd_source
         p["variance"] = round(var, 4)
         p["variance_why"] = var_why
         p["weekly_sd"] = round(season_sd / (games ** 0.5), 2)

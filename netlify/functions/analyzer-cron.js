@@ -31,6 +31,27 @@
  * A job that emitted and resolved in one pass could settle a forecast it had
  * just made, which is the shape of every self-confirming result this project has
  * caught.
+ *
+ * ── THE RESOLUTION PASS (2026-08-15 — the arc that had both ends and no
+ *    middle). resolvePlayoff / resolveExpectedWins existed, buildCheckpoint-
+ *    Resolutions existed, and NOTHING EVER CALLED THEM on a schedule: every
+ *    checkpoint would have sat pending forever while grade-cron faithfully
+ *    Brier-scored an empty join — the exact class the loop-closure audit
+ *    named (an emitter, a grader, and no scheduled middle). The pass below
+ *    runs on every scheduled invocation:
+ *      · NOT FINAL YET → resolves nothing, reports the pending count by name
+ *        ("N pending, resolvable when the regular season is final ~Jan");
+ *      · FINAL (every regular-season week scored in the harvested history,
+ *        AND the live week is past playoff_week_start) → resolves the two
+ *        kinds over UNRESOLVED analyzer-checkpoint forecasts only — the same
+ *        forecast_key dedupe discipline claims-cron uses — so a re-run
+ *        appends nothing twice. Keys emitted by THIS run are excluded by
+ *        construction (a job must never settle a forecast it just made);
+ *        they are also unresolvable-by-timing, and both guards are stated.
+ *      · The playoff cut is read from each forecast's own subject.spots —
+ *        the rule pinned when the claim was made, exactly as its
+ *        resolution_rule promises — never the cut in force at resolution
+ *        time.
  */
 const store = require('../../src/store');
 const AC = require('../../src/analyzer_claims');
@@ -75,8 +96,68 @@ function buildCheckpointResolutions(forecasts, finalPlayoffRids, finalWinsByRid)
   return out;
 }
 
+/* ── the resolution pass's pure cores, exported for the test ──────────────── */
+
+/* Is the regular season FINAL in the harvested history? True iff EVERY
+ * regular-season week (1 .. playoff_week_start-1) carries scores. A missing
+ * week means "not final", never "assume final" — resolving early scores real
+ * forecasts against a standings table that can still move. */
+function seasonIsFinal(seasonObj) {
+  if (!seasonObj) return false;
+  const pw = Number((seasonObj.settings || {}).playoff_week_start || 15);
+  const scored = new Set(LO.regularSeasonWeeks(seasonObj));
+  for (let w = 1; w < pw; w++) {
+    if (!scored.has(w)) return false;
+  }
+  return pw > 1;
+}
+
+/* The unresolved analyzer-checkpoint forecasts in a ledger — the SAME dedupe
+ * join the rest of the rail uses (forecast_key), so a re-run after resolution
+ * finds nothing pending and appends nothing twice. */
+function pendingAnalyzerForecasts(entries) {
+  const resolved = new Set();
+  for (const e of entries || []) {
+    if (e && e.kind === 'forecast_resolution' && e.payload && e.payload.forecast_key) {
+      resolved.add(String(e.payload.forecast_key));
+    }
+  }
+  return (entries || [])
+    .filter(e => e && e.kind === 'forecast' && e.method === 'analyzer-checkpoint-v1'
+      && e.payload && e.payload.key && !resolved.has(String(e.payload.key)))
+    .map(e => e.payload);
+}
+
+/* Resolutions for a FINAL season, per-forecast pinned cut. Each probability
+ * forecast resolves against the top `subject.spots` of the final standings —
+ * the cut in force WHEN THE CLAIM WAS MADE, as its resolution_rule promises —
+ * so a mid-season change to playoff_teams cannot regrade old claims. */
+function buildFinalResolutions(pending, seasonObj) {
+  const rec = ST.actualStandings(seasonObj);
+  const order = ST.seedOrder(Object.values(rec));
+  const winsByRid = {};
+  for (const r of Object.values(rec)) winsByRid[String(r.rid)] = r.wins;
+  const out = [];
+  for (const f of pending || []) {
+    if (!f || !f.key) continue;
+    let r = null;
+    if (f.ftype === 'probability') {
+      const spots = Number((f.subject || {}).spots);
+      if (!(spots >= 1)) continue;   // no pinned cut, no resolution — never guess one
+      r = AC.resolvePlayoff(f, order.slice(0, spots).map(String));
+    } else if (f.ftype === 'point') {
+      r = AC.resolveExpectedWins(f, winsByRid);
+    }
+    if (r) out.push(r);
+  }
+  return out;
+}
+
 exports.buildCheckpoint = buildCheckpoint;
 exports.buildCheckpointResolutions = buildCheckpointResolutions;
+exports.seasonIsFinal = seasonIsFinal;
+exports.pendingAnalyzerForecasts = pendingAnalyzerForecasts;
+exports.buildFinalResolutions = buildFinalResolutions;
 
 exports.handler = async (event) => {
   store.initBlobs(event);
@@ -114,11 +195,45 @@ exports.handler = async (event) => {
         season, payload: c });
       emitted.push(c.key);
     }
+
+    /* ── THE RESOLUTION PASS — see the header. Runs every scheduled Sunday:
+     * counts pending until the regular season is final, then resolves the
+     * unresolved checkpoints ONCE (forecast_key dedupe; this run's own
+     * emissions excluded by construction). */
+    const emittedNow = new Set(emitted);
+    const ledgerKeys = (await store.listKeys(`pred:${season}:`)).sort();
+    const entries = [];
+    for (const k of ledgerKeys) {
+      const e = await store.get(k);
+      if (e) entries.push(e);
+    }
+    const pending = pendingAnalyzerForecasts(entries)
+      .filter(f => !emittedNow.has(f.key));
+    const pw = Number((seasonObj.settings || {}).playoff_week_start || 15);
+    // Belt and braces: the harvested history must show every regular week
+    // scored AND Sleeper's live week must be past the regular season — a
+    // half-harvested final week must not read as final.
+    const finalNow = seasonIsFinal(seasonObj) && liveWeek >= pw;
+    const resolvedKeys = [];
+    if (finalNow && pending.length) {
+      for (const r of buildFinalResolutions(pending, seasonObj)) {
+        await predledger.append(store, { kind: 'forecast_resolution',
+          method: 'analyzer-checkpoint-v1', season, payload: r });
+        resolvedKeys.push(r.forecast_key);
+      }
+    }
+
     return { statusCode: 200, body: JSON.stringify({ ok: true, season,
       through_week: throughWeek, spots, emitted: emitted.length,
       /* NAMED IN THE RESPONSE so a reader of the run log sees the refusals
        * rather than assuming the analyzer emitted everything it computes. */
-      not_emitted: Object.keys(AC.NOT_EMITTED) }) };
+      not_emitted: Object.keys(AC.NOT_EMITTED),
+      analyzer_resolution: finalNow
+        ? { season_final: true, resolved: resolvedKeys.length,
+            pending_after: pending.length - resolvedKeys.length }
+        : { season_final: false, pending: pending.length,
+            note: `analyzer checkpoints: ${pending.length} pending, resolvable `
+              + 'when the regular season is final (~Jan)' } }) };
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message) }) };
   }

@@ -1,0 +1,97 @@
+<%- include('partials/header', { title: 'Week ' + viewWeek + (past ? ' — the record' : ' — preview') }) %>
+<%
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
+%>
+
+<h1 class="page-title">⚔️ Week <%= viewWeek %>
+  <span class="sub" style="font-weight:600"><%= past ? (final ? 'final — how it went' : 'in the books, scores pending') : 'upcoming — the Tuesday preview' %></span>
+</h1>
+
+<%- include('partials/_week_strip', { base: '/matchup', cur: weekNo, view: viewWeek, regWeeks }) %>
+
+<% if (!known) { %>
+  <div class="card" style="margin-bottom:1.2rem"><div class="body">
+    <p class="muted" style="margin:0">
+      <% if (past) { %>No record of week <%= viewWeek %> — that week's slate was never frozen here<%= configured ? '' : ' (Sleeper is not connected)' %>. The box-score history lives in the <a href="/history">league history</a>.
+      <% } else { %>Week <%= viewWeek %>'s schedule isn't posted yet<%= configured ? ' — it lands here as soon as Sleeper publishes the pairings' : ' (Sleeper is not connected)' %>. No guessing: when we know who you play, it shows here.<% } %>
+    </p>
+  </div></div>
+<% } else { %>
+
+  <%# ── YOUR GAME that week ─────────────────────────────────────────────────── %>
+  <% if (opp && mine) { %>
+    <div class="card matchup-card" style="margin-bottom:1.2rem">
+      <h2><%= past ? '📼 Your game' : '🎬 Your game' %> <span class="sub">week <%= viewWeek %> — you vs <%= opp.name %></span></h2>
+      <div class="body">
+        <div class="mu">
+          <div class="mu-side <%= mine.result === 'W' ? 'up' : '' %>">
+            <span class="mu-team"><%= me.team_name || 'Your team' %></span>
+            <span class="mu-pts"><%= mine.myPts != null ? mine.myPts.toFixed(1) : '—' %></span>
+            <span class="mu-who">you<%- goat(me.id) %></span>
+          </div>
+          <div class="mu-vs"><%= past && mine.result ? (mine.result === 'W' ? 'beat' : mine.result === 'L' ? 'lost to' : 'tied') : 'vs' %></div>
+          <div class="mu-side <%= mine.result === 'L' ? 'up' : '' %>">
+            <span class="mu-team"><%= opp.team_name || opp.name + "'s team" %></span>
+            <span class="mu-pts"><%= mine.oppPts != null ? mine.oppPts.toFixed(1) : '—' %></span>
+            <span class="mu-who"><%= opp.name %><%- include('partials/_owner_badges', { name: opp.name }) %><%- goat(opp.id) %></span>
+          </div>
+        </div>
+        <%- include('partials/_preview_line', { prev: preview }) %>
+        <% if (!past) { %>
+          <p class="muted" style="margin:.6rem 0 0; font-size:.76rem">Betting opens when week <%= viewWeek %> is the live week — the one-tap bet lives on <a href="/matchup">this week's matchup</a>.</p>
+        <% } %>
+        <p style="margin:.7rem 0 0"><a class="h2h-full-link" href="/rivalry?b=<%= encodeURIComponent(opp.name) %>">📜 Every meeting, scored — the full rivalry →</a></p>
+      </div>
+    </div>
+
+    <%# The trash thread as it stood that week — the record, read-only. %>
+    <% if (past && trash && trash.length) { %>
+      <div class="card" style="margin-bottom:1.2rem">
+        <h2>🗣️ The Trash Talk <span class="sub">as it stood, week <%= viewWeek %> — on the record</span></h2>
+        <div class="body">
+          <ul class="tt-thread">
+            <% for (const p of trash) { %>
+              <li class="tt-post<%= p.owner_id === me.id ? ' mine' : '' %>">
+                <div class="tt-meta"><b class="tt-who"><%= nameOf(p.owner_id) %></b></div>
+                <div class="tt-body"><%= p.body %></div>
+              </li>
+            <% } %>
+          </ul>
+        </div>
+      </div>
+    <% } %>
+  <% } else { %>
+    <div class="card" style="margin-bottom:1.2rem"><div class="body">
+      <p class="muted" style="margin:0">You're not on the week-<%= viewWeek %> slate<%= past ? ' we have on file' : ' Sleeper has posted' %> — a bye, or a mapping gap. The full slate is below.</p>
+    </div></div>
+  <% } %>
+
+  <%# ── THE FULL SLATE that week, previews on every card ───────────────────── %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>🏈 The Week-<%= viewWeek %> Slate <span class="sub"><%= past ? (final ? 'every final' : 'every pairing on file') : 'every scheduled game, with the history' %></span></h2>
+    <div class="body tight">
+      <ul class="wkslate">
+        <% for (const c of slateCards) { %>
+          <li class="wkslate-row">
+            <span class="wkslate-teams">
+              <b class="<%= c.winnerId === c.a.id ? 'wkslate-win' : '' %>"><%= c.a.name %><%- goat(c.a.id) %></b>
+              <% if (c.aPts != null || c.bPts != null) { %>
+                <span class="num"><%= c.aPts != null ? c.aPts.toFixed(1) : '—' %></span>–<span class="num"><%= c.bPts != null ? c.bPts.toFixed(1) : '—' %></span>
+              <% } else { %><span class="muted">vs</span><% } %>
+              <b class="<%= c.winnerId === c.b.id ? 'wkslate-win' : '' %>"><%= c.b.name %><%- goat(c.b.id) %></b>
+            </span>
+            <%- include('partials/_preview_line', { prev: c.prev }) %>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+<% } %>
+
+<%- include('partials/_season_sched', { mySeason: (typeof mySeason !== 'undefined' ? mySeason : null), weekNo, viewingWeek: viewWeek }) %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn gold" href="/matchup">⚔️ Back to this week</a>
+  <a class="btn navy" href="/scoreboard<%= viewWeek === weekNo ? '' : '?week=' + viewWeek %>">🏈 The whole league, week <%= viewWeek %></a>
+</p>
+<%- include('partials/footer') %>

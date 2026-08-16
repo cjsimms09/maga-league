@@ -17,6 +17,8 @@ const OT = require('./oddstext');          // how a probability is printed — o
 const MK = require('./marks');             // auto badges — GOAT on Mahomes' owner, Chiefs mark on KC players
 const RIVN = require('./rivalries');       // named rivalries (German derby, Dylan-Sam, Bates-Richard)
 const MU = require('../matchup');          // slot-aligned matchup starters (QB vs QB, not row-vs-row)
+const MW = require('./memberweek');        // member week engine — previews, week nav, Sleeper-fed odds
+const RW = require('./recordswatch');      // records watch — chips when a franchise record is in play
 const DASH = require('../dashboard');      // dashboard model + the derived draft-day announcement
 const SET = require('./settlement');       // the settlement report — who pays whom, with Venmo
 const RD = require('./recap-data');        // the weekly recap: gather here, write in src/recap.js
@@ -652,6 +654,12 @@ router.get('/', aw(async (req, res) => {
         margin: anyScore ? Math.abs(Math.round((mePts - oppPts) * 10) / 10) : null,
         lineupWarn,
       };
+      // The Tuesday preview line on the hero — the record you're playing for,
+      // on the page you land on (member-site pass, 2026-08-16).
+      try {
+        const oppOwner = myGame.opp.owner;
+        weekHero.prev = oppOwner ? MW.previewFor(req.owner.name, oppOwner.name) : null;
+      } catch (e) { weekHero.prev = null; }
     }
   }
 
@@ -672,6 +680,25 @@ router.get('/', aw(async (req, res) => {
     wireRows = await sleeper.wire(world.config.sleeper_league_id, sData.week || 1, sData, playersDb);
   }
   const playoffTeams = PO.playoffCut(sData && sData.league);
+
+  // ── RECORDS WATCH, completed-week half (member-site pass, 2026-08-16):
+  // did last week's FINAL scores enter the franchise book? Read from the
+  // frozen week docs (works offline), compared against the same records the
+  // History page renders. Dormant when nothing landed — the normal case.
+  let recordBanners = [];
+  try {
+    if (reviewWeek && reviewWeek >= 1) {
+      const pwr = await MW.pastWeek(season.year, world.config.sleeper_league_id, reviewWeek);
+      if (pwr && pwr.final) {
+        const weekRows = [];
+        for (const g of pwr.games) {
+          if (g.aPts != null) weekRows.push({ ownerId: g.a.id, name: g.a.name, pts: g.aPts, oppPts: g.bPts });
+          if (g.bPts != null) weekRows.push({ ownerId: g.b.id, name: g.b.name, pts: g.bPts, oppPts: g.aPts });
+        }
+        recordBanners = RW.completedWatch(HIST.build().records, weekRows, reviewWeek);
+      }
+    }
+  } catch (e) { recordBanners = []; }
 
   // THE FOLDED COLUMNS — the playoff picture, folded into the standings: odds
   // with week-over-week movement + clinch/elimination markers. Derived (a seeded
@@ -756,7 +783,20 @@ router.get('/', aw(async (req, res) => {
     for (const it of items) { try { await DISPATCH.archive(it); } catch (e) { /* archive is best-effort */ } }
     dispatches = DISPATCH.pending(items, await DISPATCH.getSeen(req.owner.id));
   } catch (e) { /* the dispatch is a bonus; the dashboard renders without it */ }
+
+  // PICK'EM ON THE NEEDS-YOU STRIP (member-site review, 2026-08-15). The strip
+  // listed draft spot / votes / money but not the one thing with a hard weekly
+  // deadline — unpicked games vanish at kickoff. Cheap variant (no boards).
+  let pickemNudge = null;
+  try {
+    const pc = await pickemContext(world, req.owner, { wantBoards: false });
+    if (!pc.locked && pc.games.length && pc.picksMade < pc.games.length) {
+      pickemNudge = { made: pc.picksMade, total: pc.games.length };
+    }
+  } catch (e) { /* the nudge is a bonus; never break home */ }
+
   res.render('dashboard', {
+    pickemNudge,
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
     openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
     liveStale: await liveFreshness(),
@@ -765,6 +805,7 @@ router.get('/', aw(async (req, res) => {
     sleeperData: sData, sleeperStandings: sStandings, sleeperBoard: sBoard, roast,
     whBand, whRace, rivalryOfWeek, rivalryMore,
     review, reviewWeek, wireRows, playoffTeams, chatLatest, betMoney, owners, rankMoves, dispatches, playoffPicture,
+    recordBanners,
     // Venmo nag (venmo-handles.md §2): fires for a logged-in owner with no
     // handle; the commissioner also sees who is still missing theirs.
     venmoNag: V.needsNag(req.owner && world.owners.find(o => o.id === req.owner.id)),
@@ -1232,16 +1273,47 @@ router.get('/bank', aw(async (req, res) => {
   for (const b of bets) deadlines[b.id] = BL.acceptDeadline(b, gateCtx);
 
   // COMMISSIONER-ONLY franchise-pool advisor (the tools rule: analysis is the
-  // commissioner's). The VONA math is ready, but it needs A's MEASURED league-
-  // championship probabilities. Cory (2026-08-09): do NOT show a placeholder that
-  // looks authoritative — better "odds pending" than a number nobody measured. So
-  // until a real champProb model is wired here, the advisor renders a PENDING
-  // state, not fabricated percentages. When A ships it, replace `champModel` below.
+  // commissioner's). The VONA math consumes MEASURED league-championship
+  // probabilities from routes/champodds.js — the bracket Monte-Carlo forward-
+  // tested on 2023-25 (mean P(actual champion) ≈27% vs 10% uniform; see its
+  // test file and CLI readout). Cory's rule stands (2026-08-09: no placeholder
+  // odds), and the model honors it by construction: champProbLive returns null
+  // until real games exist (preseason) — the advisor renders PENDING then, and
+  // real measured odds from week 1 on. During the fantasy playoffs it goes
+  // back to pending: a half-played bracket isn't modelled (champodds header),
+  // and the bracket itself is the honest source by then.
   const poolAdvice = {};
+  const betEdges = {};
   if (req.owner.is_commissioner) {
     const PA = require('./pooladvisor');
+    const CH = require('./champodds');
+    const BE = require('../betedge');
     const nameOfId = id => (H.ownerById(owners, id) || {}).name || '?';
-    const champModel = null;   // ← A's measured { owner_id: p(win league) } goes here
+    let champModel = null;
+    try {
+      const week = (sBundle && sBundle.week) || 1;
+      const pwStart = Number(gateCtx.playoffWeek) || BL.CFG.PLAYOFF_WEEK_DEFAULT;
+      if (sBundle && week < pwStart) {
+        const rows = sleeper.standings(sBundle, world.config.sleeper_map || {}, owners)
+          .filter(r => r.owner_id != null);
+        champModel = CH.champProbLive(rows, Math.max(0, pwStart - week));
+        // THE EDGE ADVISOR — "if an open or proposed bet to me is advantageous,
+        // tell me" (Cory, 2026-08-15). Prices every bet the commissioner could
+        // still ACT on (take from the market, accept a proposal) plus his live
+        // ones, off the same measured context (src/betedge.js — refusals are
+        // honest, free-text bets say "can't price" rather than guessing).
+        const ectx = BE.contextFromRows(rows, Math.max(0, pwStart - week), { weekNow: week });
+        if (ectx) {
+          for (const b of bets) {
+            const actionable = b.status === SB.STATUS.OPEN ? !SB.isParty(b, req.owner.id)
+              : [SB.STATUS.PROPOSED, SB.STATUS.LOCKED].includes(b.status) && SB.isParty(b, req.owner.id);
+            if (!actionable) continue;
+            const priced = BE.priceBet(b, req.owner.id, ectx, nameOfId);
+            if (priced && priced.priceable) betEdges[b.id] = priced;
+          }
+        }
+      }
+    } catch (e) { champModel = null; /* pending beats a guessed number */ }
     for (const b of bets) {
       if (b.format === 'pool' && b.draft && SB.isParty(b, req.owner.id)) {
         poolAdvice[b.id] = champModel
@@ -1285,7 +1357,7 @@ router.get('/bank', aw(async (req, res) => {
   } catch (e) { career = null; /* reference numbers are a bonus, never break the page */ }
 
   res.render('bank', {
-    poolAdvice, career,
+    poolAdvice, betEdges, career,
     // Propose-from-anywhere: a ?betvs=<id> link (matchup, standings, franchise)
     // pre-selects that opponent in the bet builder.
     prefillParty: Number(req.query.betvs) || null,
@@ -1428,6 +1500,28 @@ function safeJson(v) {
   if (v == null) return null;
   if (typeof v === 'object') return v;
   try { return JSON.parse(String(v)); } catch (e) { return String(v).slice(0, 2000); }
+}
+
+// ── THE JOIN KEY EVERY IN-SEASON CAPTURE MUST CARRY (2026-08-15) ─────────────
+// Found by the commissioner's full-verification pass: none of the six in-season
+// capture routes wrote a payload.key, while the resolver
+// (src/forecast_grade.js buildInseasonResolutions) and the grader
+// (gradeDecisions) JOIN OUTCOMES BY KEY. Every test fixture carried one, so
+// the loop read closed in the tests and would have been unjoinable in the
+// data — a real captured decision could never meet its resolution. The grader
+// side also grew an entry-id fallback the same day, but the deterministic key
+// is the primary fix: it names the decision ("this owner's week-3 lineup
+// call") so a double-tap of the same form reuses one key instead of minting a
+// second decision, and a human reading the raw ledger can see what joins to
+// what. Deterministic from (surface, season, week, owner [, subject]) — never
+// a timestamp, which would defeat the dedupe silently.
+function decisionKey(surface, season, week, ownerId, subjectId) {
+  const wk = (week == null || week === '') ? 'x' : String(week);
+  return `${surface}|${season}|w${wk}|${ownerId}` + (subjectId != null ? `|${subjectId}` : '');
+}
+function subjectIdOf(obj) {
+  if (!obj || typeof obj !== 'object') return null;
+  return obj.id != null ? String(obj.id) : (obj.player_id != null ? String(obj.player_id) : null);
 }
 
 // Franchise-pool draft order: whoever finished HIGHER in the most recent
@@ -1660,9 +1754,13 @@ router.post('/sidebets/:id/decline', aw(async (req, res) => {
 
 router.post('/sidebets/:id/settle', aw(async (req, res) => {
   const bet = await SB.get(req.params.id);
-  // Only someone in the bet can record its result — or the commissioner, who
-  // ends up adjudicating anyway.
-  if (bet && (SB.isParty(bet, req.owner.id) || req.owner.is_commissioner)) {
+  // COMMISSIONER-ONLY since the 2026-08-15 pass. A party could previously
+  // one-tap a result straight to SETTLED here, skipping the other side —
+  // which contradicts the declare→confirm two-man rule everywhere else on the
+  // page. Parties settle by declaring (the other side confirms); this direct
+  // write exists to adjudicate a stuck dispute, and an adjudicator is what
+  // the commissioner is. Enforced here, not just hidden in the view.
+  if (bet && req.owner.is_commissioner) {
     const winners = [].concat(req.body.winner || []).map(Number).filter(Boolean);
     await SB.settle(req.params.id, winners, req.owner.id, req.owner.name, {
       push: req.body.push === '1',
@@ -1898,10 +1996,27 @@ router.get('/votes', aw(async (req, res) => {
   const world = req.world;
   const owners = H.activeOwners(world.owners);
   const threshold = H.voteThreshold(world.config);
+  // The roll call (Cory, 2026-08-16: "see how everyone voted for everyone"):
+  // ballots already carry name+choice from allVotes; the yet-to-vote list is
+  // derived here so the page can name the holdouts on open measures.
   const votes = (await H.allVotes(owners, threshold)).map(v => ({
     ...v, myChoice: (v.ballots.find(b => b.owner_id === req.owner.id) || {}).choice || null,
+    not_voted: owners.filter(o => !v.ballots.some(b => b.owner_id === o.id))
+      .map(o => o.name).sort(),
   }));
   const punishments = await H.punishmentWall(owners, req.owner.id);
+  // Same transparency for the punishment wall: name each idea's backers.
+  {
+    const pvKeys = await H.store.listKeys('pvote:');
+    const pvDocs = await H.store.getMany(pvKeys);
+    const byIdea = {};
+    pvDocs.forEach((d, i) => {
+      if (!d) return;
+      const who = (H.ownerById(owners, Number(pvKeys[i].split(':')[1])) || {}).name;
+      if (who) (byIdea[d.punishment_id] = byIdea[d.punishment_id] || []).push(who);
+    });
+    punishments.forEach(pn => { pn.voter_names = (byIdea[pn.id] || []).sort(); });
+  }
   res.render('votes', {
     open: votes.filter(v => v.status === 'open'),
     closed: votes.filter(v => v.status === 'closed'),
@@ -1961,6 +2076,28 @@ router.post('/votes/:id/ballot', aw(async (req, res) => {
   res.redirect('/votes');
 }));
 
+// Withdraw your ballot entirely while the measure is open (Cory, 2026-08-16:
+// "a way to change or rescind your vote"). Changing was always re-casting —
+// the ballot doc is keyed per owner and overwrites — but a RESCIND is not a
+// "no": not-voted and voted-no read differently on the roll call and in the
+// cast count the threshold sentence quotes. Closed measures refuse: the
+// record of a decided vote is a record.
+router.post('/votes/:id/rescind', aw(async (req, res) => {
+  const vote = await getDoc(`vote:${req.params.id}`, null);
+  if (vote && vote.status === 'open') {
+    await H.store.del(`ballot:${vote.id}:${req.owner.id}`);
+  }
+  res.redirect('/votes#vote-' + req.params.id);
+}));
+
+// The punishment wall gets the same courtesy — one vote each, changeable,
+// and now withdrawable until the wall locks.
+router.post('/punishments/rescind', aw(async (req, res) => {
+  if (req.world.config.punishments_locked) return res.redirect('/votes#punishments');
+  await H.store.del(`pvote:${req.owner.id}`);
+  res.redirect('/votes#punishments');
+}));
+
 // ---------- my team (live roster + stats from Sleeper) ----------
 router.get('/team', aw(async (req, res) => {
   const world = req.world;
@@ -1980,7 +2117,29 @@ router.get('/team', aw(async (req, res) => {
   // And what everyone else has riding on you, which you are not part of.
   const aboutMe = viewOwner.id === req.owner.id
     ? SB.betsAbout(allBets, req.owner.id, nameOf) : [];
-  res.render('team', { viewOwner, owners, roster, matchup, betWindow,
+  // ── SEASON TREND (member-site pass, 2026-08-16): this owner's weekly
+  // scores from the frozen week docs, beside the league median for the same
+  // week — the chart is ADDITIVE (its own table of the same numbers rides
+  // under it; nothing it draws is removed). Dormant until weeks finish.
+  const trend = [];
+  try {
+    const lid = world.config.sleeper_league_id;
+    const curWeek = (sData && sData.week) || 1;
+    for (let w = 1; w < curWeek; w++) {
+      const doc = await getDoc(`weekpoints:${lid}:${w}`, null);
+      const pts = doc && doc.points ? doc.points : null;
+      if (!pts) continue;
+      const mine = pts[String(viewOwner.id)];
+      if (mine == null) continue;
+      const all = Object.values(pts).map(Number).filter(n => Number.isFinite(n)).sort((a, b) => a - b);
+      const med = all.length ? all[Math.floor(all.length / 2)] : null;
+      trend.push({ week: w, pts: Math.round(mine * 10) / 10,
+        med: med != null ? Math.round(med * 10) / 10 : null,
+        top: all.length ? Math.round(all[all.length - 1] * 10) / 10 : null });
+    }
+  } catch (e) { /* the chart is a bonus */ }
+
+  res.render('team', { viewOwner, owners, roster, matchup, betWindow, trend,
     matchupPending, aboutMe, late: req.query.late === '1',
     // Roster is the default — it is what this page has always been, and it is
     // the half that works without a live matchup.
@@ -1988,6 +2147,88 @@ router.get('/team', aw(async (req, res) => {
     weekNo: (matchup && matchup.week) || (sData && sData.week) || 1,
     configured: !!world.config.sleeper_league_id });
 }));
+
+// ── WEEK-NAV CONTEXT — one gather for every surface that navigates weeks ────
+// (member-site pass, 2026-08-16). The schedule doc is refreshed best-effort
+// with a failure memory (see memberweek.js), so an outage costs one timeout
+// per six hours, not one per page load.
+async function weekNavContext(world, sData, owners, weekNo) {
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getFullYear();
+  const leagueId = world.config.sleeper_league_id;
+  const map = world.config.sleeper_map || {};
+  const regWeeks = (sData && sData.league && sData.league.settings
+      && sData.league.settings.playoff_week_start)
+    ? sData.league.settings.playoff_week_start - 1 : 14;
+  let scheduleDoc = null;
+  try {
+    scheduleDoc = await MW.futureSchedule(leagueId, seasonYear, weekNo, regWeeks, {
+      rosterToOwner: rid => { const v = map[String(rid)]; return v == null ? null : Number(v); },
+    });
+  } catch (e) { scheduleDoc = null; }
+  return { seasonYear, leagueId, regWeeks, scheduleDoc,
+    nameOf: id => (H.ownerById(owners, id) || {}).name || '?' };
+}
+
+// ── A NON-CURRENT WEEK'S MATCHUP PAGE ───────────────────────────────────────
+// Past week: the frozen slate + frozen scores (result, full slate, the trash
+// thread as it stood). Future week: the scheduled opponent + the Tuesday
+// preview. Either way the page says what it KNOWS and says so when it doesn't
+// — an unposted schedule renders as "not posted", never a guessed pairing.
+async function renderMatchupWeek(req, res, ctx) {
+  const { world, owners, me, weekNo, viewWeek, nav, goatId } = ctx;
+  const past = viewWeek < weekNo;
+  let myGame = null, slate = null, known = false, final = false;
+  if (past) {
+    const pw = await MW.pastWeek(nav.seasonYear, nav.leagueId, viewWeek);
+    if (pw) {
+      known = true; final = pw.final;
+      slate = pw.games;
+      myGame = pw.games.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+    }
+  } else {
+    const pairs = nav.scheduleDoc && nav.scheduleDoc.weeks && nav.scheduleDoc.weeks[String(viewWeek)];
+    if (pairs && pairs.length) {
+      known = true;
+      slate = pairs.map(p => ({ a: { id: Number(p[0]), name: nav.nameOf(Number(p[0])) },
+        b: { id: Number(p[1]), name: nav.nameOf(Number(p[1])) }, aPts: null, bPts: null }));
+      myGame = slate.find(g => g.a.id === me.id || g.b.id === me.id) || null;
+    }
+  }
+  let opp = null, mine = null;
+  if (myGame) {
+    const meSideA = myGame.a.id === me.id;
+    opp = H.ownerById(owners, meSideA ? myGame.b.id : myGame.a.id) || null;
+    mine = { myPts: meSideA ? myGame.aPts : myGame.bPts,
+      oppPts: meSideA ? myGame.bPts : myGame.aPts };
+    mine.result = (mine.myPts != null && mine.oppPts != null)
+      ? (mine.myPts > mine.oppPts ? 'W' : mine.myPts < mine.oppPts ? 'L' : 'T') : null;
+  }
+  const preview = opp ? MW.previewFor(me.name, opp.name) : null;
+  // The trash thread as it stood that week (read-only for a past game).
+  let trash = [];
+  if (opp && past) {
+    try { trash = await TT.forGame(nav.seasonYear, viewWeek, TT.gameId(me.id, opp.id)); }
+    catch (e) { trash = []; }
+  }
+  // Per-game previews for the whole slate, so any week reads like Tuesday.
+  const slateCards = (slate || []).map(g => ({ ...g,
+    prev: MW.previewFor(g.a.name, g.b.name),
+    winnerId: g.winnerId != null ? g.winnerId
+      : ((g.aPts != null && g.bPts != null && g.aPts !== g.bPts) ? (g.aPts > g.bPts ? g.a.id : g.b.id) : null) }));
+  const mySeason = await MW.ownerSeason(me.id, {
+    seasonYear: nav.seasonYear, leagueId: nav.leagueId, curWeek: weekNo,
+    regWeeks: nav.regWeeks, nameOf: nav.nameOf,
+    currentOppId: ctx.currentOppId != null ? ctx.currentOppId : null,
+    scheduleDoc: nav.scheduleDoc,
+  }).catch(() => null);
+  res.render('matchup-week', {
+    me, owners, weekNo, viewWeek, past, known, final,
+    opp, mine, preview, trash, slateCards, mySeason, regWeeks: nav.regWeeks,
+    nameOf: nav.nameOf, goatId,
+    configured: !!world.config.sleeper_league_id,
+  });
+}
 
 // ---------- the matchup, up close (dedicated page) ----------
 // The team page answers "who am I playing" in passing; this page is that
@@ -2032,6 +2273,34 @@ router.get('/matchup', aw(async (req, res) => {
 
   const weekNo = (liveMatchup && liveMatchup.week) || (sData && sData.week) || 1;
   const betWindow = BL.matchupWindow(liveMatchup);
+
+  // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
+  // "Matchup tracking, this week and other weeks" — ?week=N opens any past
+  // week (frozen slates + frozen points) or any upcoming week (the cached
+  // schedule doc), and the current page carries the season strip either way.
+  // "When do I play Michael again" lives here now, not on Sleeper.
+  const nav = await weekNavContext(world, sData, owners, weekNo);
+  const viewWeek = parseInt(req.query.week, 10) || null;
+  if (viewWeek && viewWeek >= 1 && viewWeek <= nav.regWeeks && viewWeek !== weekNo) {
+    return renderMatchupWeek(req, res, {
+      world, owners, me, weekNo, viewWeek, nav, sData,
+      currentOppId: opp ? opp.id : null,
+      goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
+    });
+  }
+
+  // The viewer's season, week by week — past results, this week, upcoming
+  // opponents — for the schedule card and the week strip. Defensive: the strip
+  // is navigation, never a reason the page fails.
+  let mySeason = null;
+  try {
+    mySeason = await MW.ownerSeason(me.id, {
+      seasonYear: (H.currentSeason(world.seasons) || {}).year || new Date().getFullYear(),
+      leagueId: world.config.sleeper_league_id,
+      curWeek: weekNo, regWeeks: nav.regWeeks, nameOf: nav.nameOf,
+      currentOppId: opp ? opp.id : null, scheduleDoc: nav.scheduleDoc,
+    });
+  } catch (e) { mySeason = null; }
 
   // An already-placed bet on THIS game, so the page shows the standing wager
   // instead of only offering to create another. A matchup bet between the two of
@@ -2104,6 +2373,8 @@ router.get('/matchup', aw(async (req, res) => {
       me, A, B, aPts, bPts, record: specRecord, weekNo,
       live: (aPts != null || bPts != null),
       trash: specTrash, nameOf: nameOfS,
+      // The Tuesday preview facts for the pairing being watched (neutral voice).
+      preview: MW.previewFor(A.name, B.name),
       goatId: MK.goatOwnerId(sData, map),
       configured: !!world.config.sleeper_league_id,
     });
@@ -2129,7 +2400,7 @@ router.get('/matchup', aw(async (req, res) => {
   // not by an independently-sorted row index. See src/matchup.js for why the old
   // index pairing was wrong. Needs the live bundle (starters + points) and the
   // player name DB; absent either, the card stays folded rather than half-drawn.
-  let starters = null, bench = null;
+  let starters = null, bench = null, odds = null;
   if (opp && live && sData && Array.isArray(sData.matchups) && liveMatchup && liveMatchup.me) {
     const myRid = liveMatchup.me.roster_id;
     const oppRid = liveMatchup.opp && liveMatchup.opp.roster_id;
@@ -2146,6 +2417,22 @@ router.get('/matchup', aw(async (req, res) => {
         bench = MU.benchRows(myRow, oppRow, playersDb, byeOpts);
       } catch (e) { starters = null; bench = null; /* the card is a bonus — never break the page */ }
     }
+    // ── THE SLEEPER-FED WIN-ODDS LINE (member-site pass, 2026-08-16) ────────
+    // Cory: "their odds of winning this week (sleeper info only, not our model
+    // for anyone but me)". Mean = Sleeper's own projections off the board;
+    // probability core = the /watch panel's (LO.pWin over Normal sums;
+    // memberweek.js documents the access-rule mechanics). PRE-KICK ONLY: once
+    // a point is on the board we cannot see who has played (the per-player
+    // feed is A's parked work), so an unmoving pre-kick number next to a live
+    // score would be a stale claim — the live surfaces take over there.
+    // A refusal (missing starter, no board) renders NOTHING, never a guess.
+    try {
+      const anyPts = PE.anyScoreOnBoard(sData);
+      if (!anyPts && myRow && oppRow && (myRow.starters || []).length && (oppRow.starters || []).length) {
+        const o = MW.matchupOdds(myRow.starters, oppRow.starters, { week: weekNo });
+        if (o.ok) odds = o;
+      }
+    } catch (e) { odds = null; /* the line is a bonus */ }
   }
 
   // The weekly-high TARGET, served now from the harvested band (a RESULT: what it
@@ -2212,7 +2499,9 @@ router.get('/matchup', aw(async (req, res) => {
   res.render('matchup', {
     liveStale,
     me, owners, opp, live, weekNo, matchup: liveMatchup, betWindow, record, recordKnown, rivalry,
-    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,     // The availability badge is derived from the optimizer's INACTIVE_INJURY set
+    starters, bench, matchupBet, proj, highBand, whBand, whRace, pickem, stakes, trash,
+    odds, mySeason, regWeeks: nav.regWeeks,
+    // The availability badge is derived from the optimizer's INACTIVE_INJURY set
     // (src/matchup.js), not from a second ladder in the template.
     injuryFlag: MU.injuryFlag,
     goatId: MK.goatOwnerId(sData, world.config.sleeper_map || {}),
@@ -2454,7 +2743,50 @@ router.get('/watch', aw(async (req, res) => {
     const anyScore = PE.anyScoreOnBoard(sData);
     if (anyScore) { rows = WW.panelRows(liveWatchEntries(sData, world.config.sleeper_map || {}, owners), bandSamples, req.owner.id); source = 'live'; }
   }
-  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview,
+
+  // ── THE LEAGUE-WIDE SWING LAYER (member-site pass, 2026-08-16) ────────────
+  // Cory's extension: the one-line STAKE per game across the whole slate, so
+  // everyone tracks everyone's matchups. Computed from real standings
+  // arithmetic (whatwatch.gameStake re-ranks the table under each result of
+  // this one game); dormant without standings; never breaks the panel.
+  let stakesOn = 0;
+  if (rows.length) {
+    try {
+      const sStand = sleeper.standings(sData, world.config.sleeper_map || {}, owners)
+        .filter(r => r.owner_id != null && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+      if (sStand.length >= 4) {
+        const names = {};
+        for (const o of owners) names[o.id] = o.name;
+        // The live $100 leader, off this week's board.
+        let whLeaderId = null;
+        if (sData && Array.isArray(sData.matchups)) {
+          const map2 = world.config.sleeper_map || {};
+          let top = 0;
+          for (const m of sData.matchups) {
+            const oid = Number(map2[String(m.roster_id)]);
+            const pts = Number(m.points) || 0;
+            if (oid && pts > top) { top = pts; whLeaderId = oid; }
+          }
+        }
+        const ctx = {
+          rows: sStand.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf })),
+          cut: PO.playoffCut(sData && sData.league), names, whLeaderId,
+        };
+        // Count GAMES, not per-owner rows — the panel is built from per-owner
+        // entries (each game arrives twice) and the header must say how many
+        // games can move a race, not how many rows carry the line.
+        const staked = new Set();
+        for (const r of rows) {
+          if (r.opp_id == null) continue;
+          r.stake = WW.gameStake(r.owner_id, r.opp_id, ctx);
+          if (r.stake) staked.add([Number(r.owner_id), Number(r.opp_id)].sort((a, b) => a - b).join('-'));
+        }
+        stakesOn = staked.size;
+      }
+    } catch (e) { /* the stake line is a bonus */ }
+  }
+
+  res.render('watch', { me: req.owner, rows, source, inWindow, weekNo, band, preview, stakesOn,
     liveStale: await liveFreshness() });
 }));
 
@@ -2491,6 +2823,41 @@ router.get('/scoreboard', aw(async (req, res) => {
   const games = PE.weekGames(sData, map, owners);
   const anyScore = PE.anyScoreOnBoard(sData);
   const locked = PE.isLocked({ week: weekNo, seasonStart, anyScore });
+
+  // ── WEEK NAVIGATION (member-site pass, 2026-08-16) ────────────────────────
+  // ?week=N opens any past week's full slate (frozen scores, final) or an
+  // upcoming week's scheduled pairings with their Tuesday previews. Honest
+  // when a week is unknown; the current week stays exactly this page.
+  const nav = await weekNavContext(world, sData, owners, weekNo);
+  const viewWeek = parseInt(req.query.week, 10) || null;
+  if (viewWeek && viewWeek >= 1 && viewWeek <= nav.regWeeks && viewWeek !== weekNo) {
+    const past = viewWeek < weekNo;
+    let rows = null, final = false;
+    if (past) {
+      const pw = await MW.pastWeek(seasonYear, world.config.sleeper_league_id, viewWeek);
+      if (pw) { rows = pw.games; final = pw.final; }
+    } else {
+      const pairs = nav.scheduleDoc && nav.scheduleDoc.weeks && nav.scheduleDoc.weeks[String(viewWeek)];
+      if (pairs && pairs.length) {
+        rows = pairs.map(p => ({ a: { id: Number(p[0]), name: nameOf(Number(p[0])) },
+          b: { id: Number(p[1]), name: nameOf(Number(p[1])) }, aPts: null, bPts: null, winnerId: null }));
+      }
+    }
+    const weekCards = (rows || []).map(g => ({
+      g: { id: PE.gameId(g.a.id, g.b.id), a: g.a, b: g.b },
+      aPts: g.aPts, bPts: g.bPts, final,
+      leader: g.winnerId != null ? (g.winnerId === g.a.id ? g.a : g.b) : null,
+      riv: RIVN.rivalryFor(g.a.name, g.b.name),
+      prev: MW.previewFor(g.a.name, g.b.name),
+    }));
+    const liveStaleW = await liveFreshness();
+    return res.render('scoreboard-week', {
+      liveStale: liveStaleW, me, owners, weekNo, viewWeek, past, final,
+      known: !!(rows && rows.length), cards: weekCards, regWeeks: nav.regWeeks,
+      goatId: MK.goatOwnerId(sData, map), nameOf,
+      configured: !!world.config.sleeper_league_id,
+    });
+  }
 
   // live points per owner (from the scoreboard)
   let livePts = null;
@@ -2543,6 +2910,40 @@ router.get('/scoreboard', aw(async (req, res) => {
   const etDay = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
   const primetime = etDay === 0 || etDay === 1;
 
+  // SIDE-BET MONEY ON THE GAME CARD (member-site review, 2026-08-15). Half the
+  // point of a matchup bet is watching the game with it in mind — and this is
+  // the Sunday screen. LOCKED bets only (a proposal is not money); the pair a
+  // bet names is the subject/target of a this-week condition, which is the same
+  // low-id-first key the pick'em games use, so it joins for free. Locked bets
+  // are league-visible (same rule as SB.betsAbout — gossip is the feature).
+  const betsByGame = {};
+  try {
+    for (const b of await SB.all()) {
+      if (b.status !== SB.STATUS.LOCKED) continue;
+      for (const c of (b.conditions || [])) {
+        if (String(c.when) !== 'week' || Number(c.week) !== Number(weekNo)) continue;
+        if (!c.subject_id || !c.target_id) continue;
+        const key = PE.gameId(c.subject_id, c.target_id);
+        const row = (betsByGame[key] ??= { total: 0, mine: false, pairs: [] });
+        row.total += b.stake;
+        if (SB.isParty(b, me.id)) row.mine = true;
+        const label = (b.parties || []).map(p => nameOf(p.owner_id)).join(' vs ');
+        if (!row.pairs.includes(label)) row.pairs.push(label);
+      }
+    }
+  } catch (e) { /* the chip is a bonus; the scoreboard renders without it */ }
+
+  // Starter ids per owner, for the pre-kick Sleeper odds line (memberweek.js).
+  const startersByOwner = {};
+  if (sData && Array.isArray(sData.matchups)) {
+    for (const m of sData.matchups) {
+      const oid = map[String(m.roster_id)];
+      if (oid != null && Array.isArray(m.starters) && m.starters.length) {
+        startersByOwner[String(oid)] = m.starters;
+      }
+    }
+  }
+
   const cards = games.map(g => {
     const aPts = livePts ? livePts[String(g.a.id)] : null;
     const bPts = livePts ? livePts[String(g.b.id)] : null;
@@ -2567,13 +2968,42 @@ router.get('/scoreboard', aw(async (req, res) => {
       const s = WW.sweat({ live: aPts, oppLive: bPts, remain: [], oppRemain: [], remainKnown: false });
       sweat = { ...WW.sweatLabel(s.pWin), leader: leader ? leader.name : null, margin: Math.abs(Math.round((aPts - bPts) * 10) / 10) };
     }
-    return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat };
+    // ── TUESDAY PREVIEW + SLEEPER ODDS, pre-kick only (member-site pass) ────
+    // Before any score exists this page IS the Tuesday preview: the all-time
+    // record, the streak, the last meeting, and the Sleeper-fed win odds per
+    // game. Once the ball is in the air the live chips above take over — an
+    // unmoving pre-game probability beside a live score would be stale.
+    let prev = null, gOdds = null;
+    if (!anyScore) {
+      prev = MW.previewFor(g.a.name, g.b.name);
+      try {
+        const sa = startersByOwner[String(g.a.id)], sb = startersByOwner[String(g.b.id)];
+        if (sa && sb) {
+          const o = MW.matchupOdds(sa, sb, { week: weekNo });
+          if (o.ok) gOdds = o;
+        }
+      } catch (e) { gOdds = null; }
+    }
+    return { g, aPts, bPts, hasScore, leader, split, riv, inWHRace, po, worth, sweat,
+             prev, odds: gOdds, wager: betsByGame[g.id] || null };
   });
+
+  // ── RECORDS WATCH (member-site pass): chips when someone is playing their
+  // way into the franchise book. Dormant by construction — a normal week
+  // renders nothing. Defensive: the book must never break the scoreboard.
+  let recordChips = [];
+  try {
+    if (anyScore) {
+      recordChips = RW.liveWatch(HIST.build().records,
+        cards.map(c => ({ a: c.g.a, b: c.g.b, aPts: c.aPts, bPts: c.bPts, g: c.g })));
+    }
+  } catch (e) { recordChips = []; }
 
   const liveStale = await liveFreshness();
   res.render('scoreboard', {
     liveStale,
-    me, owners, weekNo, cards, locked, whRace, whBand,
+    me, owners, weekNo, cards, locked, whRace, whBand, recordChips,
+    regWeeks: nav.regWeeks,
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: me.id,
     live: !!(livePts && Object.values(livePts).some(p => p > 0)),
     configured: !!world.config.sleeper_league_id,
@@ -2581,8 +3011,96 @@ router.get('/scoreboard', aw(async (req, res) => {
   });
 }));
 
+// ---------- THE RACES — playoff race / points crown / toilet race ----------
+// (member-site pass, 2026-08-16; Cory: "the races yes.") One page where every
+// member finds a race they're still in: the playoff race with week-over-week
+// odds movement, the points crown (best PF), and the toilet race — all
+// LEAGUE-VISIBLE (the races are RESULTS-in-progress, ACCESS-RULE.md; the odds
+// are the same seeded Monte-Carlo estimate the standings column already
+// carries, labelled, and never the commissioner's model). Dormant pre-season.
+router.get('/races', aw(async (req, res) => {
+  const world = req.world;
+  const owners = H.activeOwners(world.owners);
+  const me = req.owner;
+  const season = H.currentSeason(world.seasons);
+  const seasonYear = season ? season.year : new Date().getUTCFullYear();
+  const map = world.config.sleeper_map || {};
+  const sData = await sleeper.bundle(world.config.sleeper_league_id);
+  const weekNo = (sData && sData.week) || 1;
+  const nameOf = id => (H.ownerById(owners, id) || {}).name || '?';
+
+  const sStand = sleeper.standings(sData, map, owners);
+  const playedRows = sStand.filter(r => r.owner_id != null
+    && ((r.wins || 0) + (r.losses || 0) + (r.ties || 0)) > 0);
+  const started = !!(sData && playedRows.length >= 4);
+
+  let picture = null, gamesLeft = 0, regWeeks = 14;
+  const cut = PO.playoffCut(sData && sData.league);
+  let rankMoves = {};
+  if (started) {
+    try {
+      const rows = playedRows.map(r => ({ owner_id: r.owner_id, wins: r.wins, losses: r.losses, pf: r.pf }));
+      regWeeks = (sData.league.settings && sData.league.settings.playoff_week_start)
+        ? sData.league.settings.playoff_week_start - 1 : ((season && season.weeks) || 14);
+      gamesLeft = PO.gamesRemaining(weekNo, regWeeks);
+      const prev = await getDoc(`playoff-odds:${seasonYear}:${weekNo - 1}`, null);
+      picture = PO.picture(rows, gamesLeft, cut, prev ? prev.odds : null);
+    } catch (e) { picture = null; /* the odds column is a bonus */ }
+    // Movement arrows off the last completed week's FROZEN slate (works
+    // offline — same source the week nav reads), keyed back to roster ids.
+    try {
+      const pw = await MW.pastWeek(seasonYear, world.config.sleeper_league_id, weekNo - 1);
+      if (pw && pw.final) {
+        const rosterOf = {};
+        for (const [rid, oid] of Object.entries(map)) rosterOf[String(oid)] = Number(rid);
+        const weekMatchups = [];
+        pw.games.forEach((g, i) => {
+          if (rosterOf[String(g.a.id)] != null && g.aPts != null) weekMatchups.push({ roster_id: rosterOf[String(g.a.id)], matchup_id: i + 1, points: g.aPts });
+          if (rosterOf[String(g.b.id)] != null && g.bPts != null) weekMatchups.push({ roster_id: rosterOf[String(g.b.id)], matchup_id: i + 1, points: g.bPts });
+        });
+        rankMoves = MOVE.rankMovement(sStand, weekMatchups);
+      }
+    } catch (e) { rankMoves = {}; }
+  }
+
+  // The three races, from the one standings table.
+  const playoffRace = playedRows.map(r => {
+    const p = picture ? picture[r.owner_id] : null;
+    const cutRow = playedRows[cut - 1] || null;
+    return {
+      rank: r.rank, owner_id: r.owner_id, name: r.owner_name || r.team, team: r.team,
+      wins: r.wins, losses: r.losses, ties: r.ties, pf: r.pf,
+      odds: p ? p.odds : null, delta: p ? p.delta : null, status: p ? p.status : null,
+      move: rankMoves[r.owner_id] || null,
+      // Games back of the line: wins behind the current cut-holder (0 inside).
+      gb: cutRow ? Math.max(0, (cutRow.wins || 0) - (r.wins || 0)) : null,
+    };
+  });
+  const pointsCrown = [...playedRows].sort((a, b) => b.pf - a.pf).map((r, i, arr) => ({
+    rank: i + 1, owner_id: r.owner_id, name: r.owner_name || r.team,
+    pf: r.pf, gap: Math.round((arr[0].pf - r.pf) * 10) / 10,
+    perWeek: weekNo > 1 ? Math.round((r.pf / (weekNo - 1)) * 10) / 10 : null,
+  }));
+  const toilet = [...playedRows].reverse().slice(0, Math.min(4, playedRows.length)).map(r => ({
+    rank: r.rank, owner_id: r.owner_id, name: r.owner_name || r.team,
+    wins: r.wins, losses: r.losses, pf: r.pf,
+    // Wins clear of the bottom — 0 means you're holding the toilet.
+    clear: (r.wins || 0) - (playedRows[playedRows.length - 1].wins || 0),
+    move: rankMoves[r.owner_id] || null,
+  }));
+
+  res.render('races', {
+    me, owners, weekNo, started, cut, gamesLeft, regWeeks,
+    playoffRace, pointsCrown, toilet, nameOf,
+    goatId: MK.goatOwnerId(sData, map),
+    configured: !!world.config.sleeper_league_id,
+    liveStale: await liveFreshness(),
+  });
+}));
+
 // ---------- THE LINEUP OPTIMIZER (in-season, the measured leak) ----------
-// The tool that attacks $445–595/team/season left on the bench. Two faces:
+// The tool that attacks $520–637.50/team/season left on the bench (corrected
+// 2026-08-15 — see EFFICIENCY-LEAK.md). Two faces:
 //   • LIVE: your roster + projections → the dollar-optimal lineup and priced
 //     start/sit calls. Projections come from A's sleeper.js when they land; until
 //     then it runs on this season's per-game average (labelled), so it works now.
@@ -2730,8 +3248,18 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
       const playersDb = await sleeper.players();
       let artifact = {};
       try {
+        /* DRAFT_DATA_PATH override (2026-08-15, composed-tree review): the two
+         * waiver surface tests used to exercise this read by REWRITING the real
+         * public/draft_data.json in place and restoring it in a finally. That
+         * left the shipped board transiently fake for any concurrent reader
+         * (measured live: a roster-room audit run alongside js-sweep read the
+         * 15-player fixture board and produced silently different picks), and a
+         * hard crash between write and restore would leave the fake board as
+         * the real artifact. Tests now point this env var at a scratch file;
+         * production never sets it and reads the same path as before. */
         artifact = JSON.parse(fs.readFileSync(
-          path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
+          process.env.DRAFT_DATA_PATH
+            || path.join(__dirname, '..', '..', 'public', 'draft_data.json'), 'utf8'));
       } catch (e) { artifact = {}; }
       const inputs = W.waiverInputsFromBundle(sData, playersDb, artifact, myRid);
       if (inputs && inputs.myRoster.length) {
@@ -2774,6 +3302,9 @@ router.get('/waivers', requireCommissioner, aw(async (req, res) => {
   res.render('waivers', {
     me, season, weekNo, live, err, claims, drop, perPoint, streamClaims, currentKD,
     liveStale: await liveFreshness(),
+    captureError: req.query.captureError === '1',
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.waivers,
   });
 }));
 
@@ -2805,14 +3336,17 @@ router.post('/waivers/log', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
   try {
+    const chosen = safeJson(req.body.chosen);
     await predledger.append(store, {
       kind: 'waiver_claim',
       method: 'waiver-tool-v1',
       season,
       payload: {
+        // The join key the resolver + grader meet on — see decisionKey above.
+        key: decisionKey('waiver_claim', season, req.body.week, req.owner.id, subjectIdOf(chosen)),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
-        chosen: safeJson(req.body.chosen),
+        chosen,
         // REQUIRED: what I'd have done without the tool.
         counterfactual: 'hold priority',
         drop: safeJson(req.body.drop),
@@ -2820,8 +3354,18 @@ router.post('/waivers/log', requireCommissioner, aw(async (req, res) => {
         contested: req.body.contested === '1',
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?logged=1');
+    res.redirect('/waivers?logged=1');
+  } catch (e) {
+    // FIXED 2026-08-15 (re-audit): this used to redirect to ?logged=1
+    // UNCONDITIONALLY, outside the try/catch — so a real append() failure
+    // (a rejected entry, a store outage) looked identical to success on the
+    // redirect. lineup.ejs's "✅ Logged" banner would have shown even when
+    // nothing was actually written — the exact class of silent data loss
+    // this whole ledger exists to prevent. waivers.ejs does not render a
+    // banner for this route yet, but the redirect must stop lying regardless
+    // of whether anything currently reads it.
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
@@ -2833,6 +3377,8 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
       method: 'waiver-override-v1',
       season,
       payload: {
+        key: decisionKey('override:waiver', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.recommended))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         // What I went against. For an override the tool's claim is BOTH the
@@ -2840,12 +3386,21 @@ router.post('/waivers/override', requireCommissioner, aw(async (req, res) => {
         // /lineup/override immediately below.
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // WHAT WAS ACTUALLY DONE stays uncaptured HERE, deliberately and
+        // honestly: declining a claim means holding — but the page cannot see
+        // whether the human then claimed somebody else instead (the reason
+        // chip records the claim-someone-else case as intent only). With no
+        // player to sum, this kind's override stays unresolvable and is
+        // reported pending, never defaulted — the resolver skips entries
+        // without payload.actual (src/forecast_grade.js).
         gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?overrode=1');
+    res.redirect('/waivers?overrode=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 // ── STREAM CAPTURE (2026-08-15) — same waiver_claim pattern, deliberately NOT
@@ -2874,6 +3429,8 @@ router.post('/stream/log', requireCommissioner, aw(async (req, res) => {
       method: 'waiver-tool-stream-v1',
       season,
       payload: {
+        key: decisionKey('stream_call', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.chosen))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         chosen: safeJson(req.body.chosen),
@@ -2883,8 +3440,10 @@ router.post('/stream/log', requireCommissioner, aw(async (req, res) => {
         dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?streamed=1');
+    res.redirect('/waivers?streamed=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
@@ -2896,16 +3455,32 @@ router.post('/stream/override', requireCommissioner, aw(async (req, res) => {
       method: 'stream-override-v1',
       season,
       payload: {
+        key: decisionKey('override:stream', season, req.body.week, req.owner.id,
+          subjectIdOf(safeJson(req.body.recommended))),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // WHAT WAS ACTUALLY DONE (2026-08-15): declining a stream means keeping
+        // the K/DEF already rostered, and the page KNOWS who that is — the same
+        // `holding` object /stream/log records as its counterfactual. Captured
+        // here so the override is resolvable (human's kept player vs the tool's
+        // stream, both real players, one week). Absent on entries from before
+        // this fix; those stay pending rather than being guessed at.
+        // EXCEPT when the reason chip itself says the human streamed somebody
+        // the page cannot see — then `actual` is genuinely unknown and storing
+        // the kept player would grade a decision that was not made. Null, and
+        // the resolver leaves it pending.
+        actual: String(req.body.reason || '') === 'streamed someone else'
+          ? null : safeJson(req.body.actual),
         gap_dollars: req.body.dollars != null ? Number(req.body.dollars) : null,
         reason: String(req.body.reason || 'unstated').slice(0, 60),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/waivers?streamoverrode=1');
+    res.redirect('/waivers?streamoverrode=1');
+  } catch (e) {
+    res.redirect('/waivers?captureError=1');
+  }
 }));
 
 router.get('/lineup', requireCommissioner, aw(async (req, res) => {
@@ -2943,6 +3518,7 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     configured: !!world.config.sleeper_league_id,
     logged: req.query.logged === '1',
     overrode: req.query.overrode === '1',
+    captureError: req.query.captureError === '1',
     // The optimizer converts this data into a dollar recommendation, so it needs
     // the staleness banner at least as much as the pages that only display it.
     liveStale: await liveFreshness(),
@@ -2951,6 +3527,8 @@ router.get('/lineup', requireCommissioner, aw(async (req, res) => {
     // if it just happened. Cleared BEFORE the render — cookie-session writes its
     // Set-Cookie on res.end, so a delete after render never reaches the browser.
     sendResult,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.lineup,
   });
 }));
 
@@ -3017,7 +3595,9 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
   // honestly as awaiting grading.
   const captured = ACC.capturedOverrides(ledger);
   const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions, captured });
-  res.render('accuracy', { me: req.owner, season, view });
+  res.render('accuracy', { me: req.owner, season, view,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.accuracy });
 }));
 
 // THE ROSTER ANALYZER — league-wide projected rest-of-season: playoff odds,
@@ -3098,6 +3678,8 @@ router.get('/analyzer', requireCommissioner, aw(async (req, res) => {
   res.render('analyzer', {
     me: req.owner, rows, seasons, season: wanted, throughWeek, lastWeek,
     validation, err, playoffSpots: projSpots,
+    // The explainer contract (what/read/do/src per panel) — view-model only.
+    guide: require('../inseason_guide').GUIDE.analyzer,
   });
 }));
 
@@ -3147,6 +3729,9 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
       method: 'lineup-optimizer-v1',
       season,
       payload: {
+        // The join key the weekly resolver meets this entry on. One lineup
+        // call per owner-week by construction; a double-tap reuses the key.
+        key: decisionKey('lineup_call', season, req.body.week, req.owner.id),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         recommended: safeJson(req.body.recommended),
@@ -3157,8 +3742,17 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
         opp_mean: req.body.opp_mean != null ? Number(req.body.opp_mean) : null,
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/lineup?logged=1');
+    res.redirect('/lineup?logged=1');
+  } catch (e) {
+    // FIXED 2026-08-15 (re-audit, prompted by Cory asking to re-verify
+    // everything without the reduced gate): the redirect used to fire
+    // unconditionally, outside the try/catch, so a real append() failure
+    // looked exactly like success — the "✅ Logged" banner below would show
+    // even though nothing was written. Found by reading this route fresh
+    // rather than trusting that "the tests pass" meant the failure path was
+    // sound; nothing had ever exercised it.
+    res.redirect('/lineup?captureError=1');
+  }
 }));
 
 // THE OVERRIDE CAPTURE — the other half, and the half that was missing.
@@ -3177,9 +3771,18 @@ router.post('/lineup/log', requireCommissioner, aw(async (req, res) => {
 // after it. Reconstructing an override afterwards loses most of its value, so
 // the capture is never allowed to cost more than one press.
 //
-// WHAT IT DOES NOT CAPTURE, deliberately: the lineup actually played. That is
-// recoverable from Sleeper after the fact. The tool's recommendation AT THE
-// MOMENT is not recoverable from anything, which is why it is what gets written.
+// WHAT IT CAPTURES SINCE 2026-08-15 that it deliberately did not before: the
+// lineup AS ACTUALLY SET at the moment of the tap (`actual`, the same starter
+// rows the page's own optimizer just compared against). The original comment
+// here said the played lineup was "recoverable from Sleeper after the fact" —
+// true, but nothing was ever going to do that recovery, and a resolver cannot
+// invent it: every override sat permanently ungradeable because the entry
+// recorded the tool's rejected lineup TWICE and the human's actual play never.
+// The honest limitation rides with the field: `actual` is the lineup at
+// OVERRIDE TIME — if the human taps the chip and then edits the lineup on
+// Sleeper afterwards, the final played lineup can differ, and the resolution
+// grades what was set at the decision moment, which is the decision-time
+// record this whole ledger exists to keep.
 router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
   const season = String(H.currentSeason(req.world.seasons).year || new Date().getUTCFullYear());
   const predledger = require('../predledger');
@@ -3190,6 +3793,7 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
       method: 'lineup-override-v1',
       season,
       payload: {
+        key: decisionKey('override:lineup', season, req.body.week, req.owner.id),
         owner_id: req.owner.id,
         week: req.body.week ? Number(req.body.week) : null,
         // What I went against. For an override the tool's lineup is BOTH the
@@ -3197,6 +3801,8 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
         // done otherwise" is precisely what the tool told me to do.
         recommended: safeJson(req.body.recommended),
         counterfactual: safeJson(req.body.recommended),
+        // What was ACTUALLY set at the moment of the override — see the header.
+        actual: safeJson(req.body.actual),
         // THE GAP, raw. Stored as the dollar figure rather than only as a
         // contested/not flag, so a threshold can be re-drawn later without
         // having thrown away the number it was drawn from.
@@ -3210,8 +3816,10 @@ router.post('/lineup/override', requireCommissioner, aw(async (req, res) => {
         confidence: String(req.body.confidence || '').slice(0, 600),
       },
     });
-  } catch (e) { /* fail soft on the redirect; the API path surfaces errors */ }
-  res.redirect('/lineup?overrode=1');
+    res.redirect('/lineup?overrode=1');
+  } catch (e) {
+    res.redirect('/lineup?captureError=1');
+  }
 }));
 
 // ---------- the locker room ----------

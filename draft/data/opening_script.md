@@ -4,8 +4,8 @@ _board `2026-08-15T17:52:22Z` · slot **8** (site-claimed — Sleeper draft orde
 
 My live picks: **33, 48, 53, 68, 73, 88…**
 
-## PRIMARY — both TEs gone (the predicted board)
-_Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico (certain, intel): TE de-anchors — take one whenever; WR-feast and Early-QB gained the probability mass._
+## PRIMARY — the effective board (designations are facts, predictions fill the rest)
+_4 teams designated on Sleeper (their real slates supersede intel wholesale), 3 still run on predicted slates. Supersessions: cashworth: designated Ashton Jeanty, Chase Brown (prediction missed); MarianSaar: freed Brock Bowers (predicted kept — actually in the pool) · designated De'Von Achane (prediction missed)._
 
 ### Pick 33
 - **TARGET**: Zay Flowers (WR, VORP 42.6, 74% survives)
@@ -28,8 +28,8 @@ _Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico (certain, 
 - fallback 3: Tyler Warren (TE, VORP 24.3, 28% survives)
 - fallback 4: D'Andre Swift (RB, VORP 23.8, 26% survives)
 
-## CONTINGENCY — Bowers available (Marian keeps someone else)
-_The elite-TE-anchor question returns: watch the TE room's panic — survival to my next pick collapses if his ADP jumps on scarcity._
+## CONTINGENCY — the predicted-only slates bust
+_Only FACTS removed here (real designations + my three): every keeper we merely predict returns to the pool. If an undesignated team keeps less than predicted, this branch is the board you're actually looking at._
 
 ### Pick 33
 - **TARGET**: Zay Flowers (WR, VORP 42.6, 74% survives)

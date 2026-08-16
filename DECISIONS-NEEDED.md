@@ -19,9 +19,111 @@ respects the same rule that already governs superseded headings in this file
 
 ---
 
+# ⚡ THE QUEUE — every open decision, one screen (2026-08-15 night)
+
+**This section is THE decision list. Every other surface (the Monday runbook's
+footer, TODO.md's state block, ROUTES items) POINTS here rather than keeping
+its own copy — one list, referenced everywhere, per Cory: "the decision list
+should live in one place." Each line: the call · the gated switch · the
+evidence file. Detail lives in the evidence, not here.**
+
+## Needs Cory before the 22nd
+
+*(Items 1-4 RULED 2026-08-16 — "1. Yes, 2. No, 3. Yes, 4. Yes? If you think
+so", v4 promotion "Yes on v4", ROOM_MIX_PRIOR "YES, turn it on" — ALL
+EXECUTED; records in "Settled" below.)*
+
+*(none — every before-the-22nd call is ruled and executed; the seventh,
+own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
+same session: see Settled below)*
+
+## Standing open (predate today; unresolved; details under OPEN below)
+
+- Two projection sources disagree by position, systematically (#000,
+  2026-08-12) — partially answered by today's FP-archive skill benchmark
+  (`projection_skill_backtest_2026-08-15.md`) + the Sleeper-vs-FP fork
+  measurement (`model_learning_audit` §1.7, preregistered for Jan grading).
+- DEF projections 12 points short — `def_fum_td` maps to nothing (#0,
+  2026-08-11).
+- Regression/shrinkage weight over-regresses — $ arm pending (#2).
+- Simplify AUTO: mask + value is the whole measured edge (#3).
+- STREAMABLE_LATE defined, tested, never read (#000000, 2026-08-15).
+- The tool drafts 0.9 RBs per draft in every arm (#0000) · TE at 3.6 picks
+  undiagnosed (#00000).
+- Sunday alert fires before official inactives (B, #7) · self-referential
+  fixtures clause awaiting authorization (A).
+
+## Settled today (rulings made; records, not questions)
+
+- **own_model_v6 PROMOTION — Cory 2026-08-16 "YES on V6" → APPLIED**
+  (upgrading his same-day v4 acceptance). v6 = v4's QB arm byte for byte +
+  v5's component arms at RB/WR/TE (usage x efficiency x availability, with
+  the week-1 vegas tilt and the target-share/pace features his addendum
+  mandated); cleared REC-3 at ALL four positions with nothing tuned in the
+  composition. v5 alone failed exactly the QB Spearman cell (+0.0006 fold
+  margin — the fragility its prereg named). Executed: own_projections.py v6
+  layer live; vegas store extended to 2026 (week-1 lines cover all 32
+  teams, the §7 deployment prerequisite); board column refreshed (424
+  players, provenance own_v6); REC-3 regenerated via learning_loop.py with
+  v5+v6 candidate records; opening script regenerated;
+  test_own_projections_v6_live.py repinned (arithmetic tripwire recomputes
+  the v5 ensemble by hand from V5_CONFIG). Role unchanged: display-only
+  third opinion; proj_mean composition stays blocked on REC-2 (January
+  2027). Honesty note carried: 2025 read three times in this lineage.
+- **ROOM_MIX_PRIOR — Cory 2026-08-16 "YES on room mix prior, turn it on" →
+  flipped TRUE** (survival.js). Unprofiled-seat position probabilities now
+  blend the league's measured bucket mix (forward-tested on 2025; per-owner
+  terms excluded as non-persistent) at the existing 0.25 weight; survival
+  moves ≤3.1pp. Baseline v17 frozen under the ruling; room_prior.test.js
+  repinned to the ruled default with the off-arm still proven.
+- **own_model_v4 PROMOTION — Cory 2026-08-16 "Yes on v4" → APPLIED.** The
+  first REC-3 bar clear (all four positions, both metrics, preregistered).
+  `proj_ownmodel` now runs the v4 construction (`draft/own_projections.py`,
+  graded modules imported, zero network, v1 core kept as rollback), board
+  label own_v4, committed board column refreshed + verified against a fresh
+  run by test. Still display-only: composition entry vs Sleeper stays
+  blocked on the January 2027 grade (REC-2). Caveats on the record in
+  REC-3's regenerated entry.
+- **VONA_WIRE_BENCH — Cory 2026-08-16 "Yes" → flipped TRUE** (engine.js), test
+  pins updated to the ruled state, baseline v16 frozen with the ruling as its
+  `_why` (v15 stays on the books as the pre-ruling reference).
+- **Scoring-gap ADP correction — Cory 2026-08-16 "No" → CLOSED**, per the
+  report's own recommendation ($0.00 through the certified grader).
+- **KOV_MEASURED_RAMP — Cory 2026-08-16 "Yes" → flipped TRUE** (composite.js).
+  Keeper value now prices where this league actually keeps from (rounds 4-6
+  peak, zero in 10-15); every KOV test suite rewritten to the measured shape
+  with the rollback path still pinned behind the flag.
+- **Pick-33 headline ownership — Cory 2026-08-16 "Yes? If you think so" →
+  THE SEAT PLAN OWNS THE HEADLINE** wherever it speaks (verdict.js): a
+  personal-list pin first, then the plan's answer with the value pick always
+  printed as the priced second line, rule/value doctrine unchanged where the
+  plan is silent. 9 new fidelity pins (ui_fidelity_verdict 40/40).
+
+- Deploy policy — Cory's "find the happy medium" → DEPLOY-POLICY.md rewritten,
+  blanket freeze retired.
+- Learning loop — Cory's "We need to fix!!!" → REC-1 measured proj_sd LIVE
+  (decision arm re-verified on the fresh board), read-side wired.
+- Pre-draft phantom availability — Cory's Nacua ruling → survival filter live.
+- FP-archive Week-1 source prior — Cory's "Yes! If it works" → preregistered
+  gates said NO (error scale doesn't transfer); flat start stands, negative
+  pinned.
+
+---
+
 # OPEN — needs a decision, or is blocked and waiting
 
 ## 🚨 URGENT — NOTHING CAPTURES THE LIVE DRAFT RIGHT NOW, DRAFT IS 7 DAYS OUT (Cory research relay, 2026-08-15)
+
+> **✅ SUPERSEDED later the same day — the capture path now EXISTS and was
+> fired for real.** `.github/workflows/draft-night-sync.yml`: dispatch it when
+> the draft opens (paste the Sleeper draft_id), it polls every 20s and commits
+> each pick. Verified by two REAL runs in dry-run mode against a completed
+> historical draft — the first run caught a genuine bash -e bug that had made
+> its own retry logic dead code, fixed, re-verified. THE ONE REMAINING MANUAL
+> STEP, unchanged and worth repeating: **someone must dispatch it when the
+> draft opens on the 22nd** — deliberately not automatic (a snake draft's
+> start time isn't predictable). The heading is kept verbatim per this file's
+> no-delete rule; the body below is the state BEFORE the workflow existed.
 
 **Checked because Cory asked to "hammer down predictions, snapshots, grades, and
 closing the loop." The capture machinery for GRADING the draft after the fact is
@@ -70,6 +172,15 @@ a very small, very safe build once the budget question resolves — Cory's call 
 timing, not mine to just ship given the open budget interaction.
 
 ## 🚨 URGENT, SUPERSEDES THE ORIGINAL VERSION OF THIS ENTRY — THE DEPLOY GATE WAS BACKWARDS, TWO REAL DEPLOYS ALREADY HAPPENED (Cory research relay, 2026-08-15)
+
+> **✅ SETTLED later the same day, Cory's ruling ("find the happy medium") —
+> no decision remains here.** The blanket-[skip deploy] freeze this entry
+> instituted is RETIRED; `DEPLOY-POLICY.md` was rewritten from scratch and is
+> the single authority (served-path changes deploy when they land on main,
+> every deploy path verified — including the previously-unchecked nightly bot
+> push, which now polls its own deploy in-run; Aug 20-22 the build reserve is
+> untouchable). Kept verbatim below per the no-delete rule as the record of
+> WHY the rewrite happened.
 
 **The original version of this entry (below the line) said "no commit carries a
 [deploy] marker, nothing was pushed to main, the budget hasn't moved." That was
@@ -978,3 +1089,11 @@ question (mock-calibration arm), not a pre-Aug-22 one.
 - **WHAT I WILL NOT DO EITHER WAY.** Relax F4 to reach a number. F7 already says a short
   sample reports the number and changes nothing, and that case has arrived as a
   measurement.
+
+## KOV RAMP SHAPE — MEASURED HISTORY INVERTS THE SHIPPED KEEPER RAMP (A, 2026-08-15) 🔴 OPEN
+
+- **THE QUESTION.** Flip `CFG.KOV_MEASURED_RAMP` (composite.js, built today, ships FALSE) or keep the reasoned ramp? The keeper term is LIVE at weight 1.0 in `MEASURED_WEIGHTS`, so this shapes real late-round tie-breaks on the 22nd.
+- **THE MEASUREMENT** (`draft/backtest/exp_keeper_option.py`, preregistered; the league's own 450 picks + keeper designations 2023-25, realized points under our scoring): keeper-option value by the round a pick was made = **+7.1 pts (rounds 4-6) / +1.4 (7-9) / −1.1 (10-12) / 0.0 (13-15 — zero of 31 such picks were EVER kept)**. The shipped ramp is the inverse: zero credit through round 6, maximum by round 12. Full working: `draft/audit/roster_construction_audit_2026-08-15.md` §B.4, artifact `draft/backtest/exp_keeper_option.json`.
+- **ALSO IN THE SAME MEASUREMENT, no action proposed:** keeping paid overall (+23.5 mean over the forfeited round) but the round-1 keeper slot returned NEGATIVE (−11.7 mean, 39.3% positive, n=28) — the value of keeping three lives in slots 2-3. Worth knowing before keeper lock on the 21st; the current Chase+Henry+Walker slate was separately optimized (EXP-KEEPER-NABERS) and this does not reopen it.
+- **CAVEATS, stated:** two keep transitions, ~40 keep events; behavior-revealed (what managers chose to keep), not counterfactual-optimal; sub-n=10 cells reported but not trusted. That is why it ships OFF.
+- **COST OF INACTION:** the live keeper term keeps leaning late-round near-ties toward players whose keeper option, in three real seasons of this league, was never once exercised.
