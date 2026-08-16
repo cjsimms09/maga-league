@@ -69,8 +69,11 @@ jobs:
             echo "no change (identical snapshot) — nothing to commit"
             exit 0
           fi
-          git commit -m "Odds snapshot $(date -u +%F) [skip deploy]
-
-Automated capture via odds-capture.yml (3 credits; balance in the
-snapshot's provenance)."
+          # Two -m flags, not a multi-line string: an unindented continuation
+          # line inside this block scalar ends the block and invalidates the
+          # ENTIRE workflow YAML — GitHub registers the file but can't parse
+          # it, so workflow_dispatch 422s. The dry-run discipline caught this
+          # before the first scheduled firing silently never happened.
+          git commit -m "Odds snapshot $(date -u +%F) [skip deploy]" \
+            -m "Automated capture via odds-capture.yml (3 credits; balance in the snapshot's provenance)."
           git push
