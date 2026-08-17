@@ -1227,6 +1227,7 @@
     loadWeights();
     loadFrozenBaseline();
     loadSeatPlan();
+    loadConditionalValue();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -1477,11 +1478,31 @@
    *              so the rule exists ONCE on this side; the Python keeper-
    *              placement verification asserts the same law on the artifact.
    */
-  function pickState() {
-    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
-    const pickEvents = state.sync
+  /* THE ONE DERIVATION OF "how many picks have we observed".
+   *
+   * Added 2026-08-17 (relay) because `main` went red on
+   * test_shared_state_audit's `current_pick` budget: the room-switch
+   * confirm-first feature (2fe8e0e2) needed this count and re-derived the
+   * expression inline, making three copies of a canonical fact whose budget is
+   * two. The guard is right — every severity-1 in this project came from a
+   * shared fact derived in more than one place — so the fix is to give the
+   * derivation an owner rather than to widen the budget.
+   *
+   * NOT COSMETIC: the two copies were already drifting in meaning. One asks
+   * "how far along is the draft" for the clock; the other asks "have we
+   * recorded anything worth protecting before switching rooms". They agree
+   * today only because they were written the same way, which is precisely the
+   * condition that stops being true later.
+   */
+  function observedPickCount() {
+    return state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
+  }
+
+  function pickState() {
+    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
+    const pickEvents = observedPickCount();
     // COORDINATE SYSTEM [placements]: kept, never drafted. Not an event.
     const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
     const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
@@ -2489,6 +2510,19 @@
       notes.push({ level: 'bad',
         text: 'This board has NO readable built_at — its age cannot be verified. '
           + 'Treat it as stale: rebuild before drafting off it.' });
+    }
+
+    /* CONDITIONAL-VALUE LAYER, absent case (ruling 2026-08-17): one honest
+     * line, never a zero presented as a measurement. Silence while the fetch
+     * is still in flight; silence when loaded (the chips carry their own
+     * provenance label). */
+    if (state.condValueLoaded && !state.condValue) {
+      notes.push({ level: 'warn',
+        text: (typeof CondValue !== 'undefined' && CondValue.absentNote)
+          ? CondValue.absentNote()
+          : 'Conditional-value artifact (stack/handcuff premiums) did not load — '
+            + 'premium chips are ABSENT, not zero. Board value is unaffected: '
+            + 'the composite never reads this layer.' });
     }
 
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
@@ -4156,6 +4190,9 @@
               + (gone >= 60 ? ' — <b>take him now or lose him</b>' : ' — he can probably wait')
               + '</span>')
         + (why ? '<br><span class="muted" style="font-size:.75rem">' + escapeHtml(why) + '</span>' : '')
+        /* conditional-value chip (ruling 2026-08-17) — same separate line the
+         * shortlist prints; annotation only, absent when there is no premium. */
+        + condValueChip(p)
         + '</li>';
     }).join('') + '</ol>';
   }
@@ -5445,6 +5482,11 @@
             ? '<div class="rec-context">' + s.context.map(escapeHtml).join(' · ') + '</div>'
             : '') +
           stackBadge(p) +
+          /* CONDITIONAL-VALUE CHIP (Cory's ruling 2026-08-17): the stack/
+           * handcuff premium TO CORY'S ROSTER, printed as its own labelled
+           * line beside the board value — annotation, never a second
+           * recommendation, never a term of the score to its right. */
+          condValueChip(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
@@ -6415,6 +6457,64 @@
     // the class name is the real hook B will style.
     return '<div class="rec-stack-badge" style="font-size:.78rem;color:#f5c445;margin-top:.2rem">⚡ '
       + verb + ' ' + escapeHtml(r.anchor) + ' stack' + tag + '</div>';
+  }
+
+  /* ══ THE CONDITIONAL-VALUE LAYER (stack + handcuff premiums) ══════════════
+   *
+   * WIRED BY CORY'S RULING, 2026-08-17 (verbatim: "Yes!"), on the evidence in
+   * draft/audit/conditional_value_2026-08-16.md. The layer was measured,
+   * priced, tested and GATED OFF by construction awaiting exactly that ruling.
+   *
+   * DISPLAY ONLY — the contract from docs/queued/conditional-value-program.md:
+   * "board value + stack premium + handcuff premium, EACH PRINTED SEPARATELY."
+   * The artifact is fetched here the same way the board is; the join, the chip
+   * and the drill readout are CondValue's (conditional_value.js, pure,
+   * node-tested). NOTHING here feeds context(), the engine, or any score —
+   * test_conditional_value.py keeps the scoring side gated, and the chip
+   * itself says "not in the score" so a reader never mistakes the annotation
+   * for a term of the composite.
+   *
+   * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
+   * note — absent is never rendered as zero. */
+  function loadConditionalValue() {
+    fetch('/conditional_value_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.condValue = a || null; })
+      .catch(function (e) {
+        console.warn('[conditional-value] artifact not loaded: ' + (e && e.message)
+          + ' — premium chips absent (not zero)');
+        state.condValue = null;
+      })
+      .then(function () {
+        state.condValueLoaded = true;
+        // The board usually wins the race; when it doesn't, repaint so the
+        // chips (or the honest absence note) appear without a pick event.
+        if (state.data) { try { renderAll(); } catch (e) { /* never blocks */ } }
+      });
+  }
+  function condValueIndex() {
+    if (typeof CondValue === 'undefined' || !state.condValue) return null;
+    if (!state._cvIdx || state._cvIdx.src !== state.condValue) {
+      try { state._cvIdx = { src: state.condValue, idx: CondValue.index(state.condValue) }; }
+      catch (e) { console.error('[conditional-value]', e && e.message); return null; }
+    }
+    return state._cvIdx.idx;
+  }
+  function condRosterPids() {
+    return (state.myRoster || []).map(function (p) { return String(p.player_id); });
+  }
+  /* The chip beside board value — one labelled line per live premium, '' for
+   * everyone else. Guarded: a missing module or artifact costs the chip, never
+   * the row, and never prints a zero. */
+  function condValueChip(p) {
+    try {
+      var idx = condValueIndex();
+      if (!idx) return '';
+      return CondValue.chipHtml(String(p.player_id), idx, condRosterPids());
+    } catch (e) { return ''; }
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
@@ -9707,6 +9807,35 @@
     }, 1500); }
   }
 
+  /* THE DEAD-ROOM BANNER — one tap from a poisoned board back to a working one.
+   *
+   * Fired by sync.onDeadRoom after 3 consecutive 404s on a draft that HAD been
+   * answering: Sleeper deletes mock rooms when they end, so this is the normal
+   * end-of-mock state, and the failure it prevents was captured live
+   * (2026-08-17): the dead room's picks kept pricing the board, every list
+   * showed the leftovers of a finished draft, and the recovery lived behind
+   * two taps in a different tab. The banner is idempotent and the button runs
+   * endDraft() — the tested clear; keepers, targets and weights survive. */
+  function showDeadRoomBanner() {
+    if (document.getElementById('dead-room-banner')) return;
+    var d = document.createElement('div');
+    d.id = 'dead-room-banner';
+    d.setAttribute('style', 'background:#7f1d1d;color:#fff;padding:12px 16px;'
+      + 'border-radius:8px;margin:8px 0;display:flex;gap:12px;align-items:center;'
+      + 'flex-wrap:wrap;font-weight:600;');
+    var s = document.createElement('span');
+    s.textContent = '🪦 This mock room no longer exists at Sleeper — mock lobbies '
+      + 'are deleted when they end. Its picks are still pricing your board.';
+    d.appendChild(s);
+    var b = document.createElement('button');
+    b.className = 'btn small gold';
+    b.textContent = 'CLEAR IT — fresh board';
+    b.addEventListener('click', function () { d.remove(); endDraft(); });
+    d.appendChild(b);
+    var anchor = document.querySelector('.wrap') || document.body;
+    anchor.insertBefore(d, anchor.firstChild);
+  }
+
   function endDraft() {
     // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
     // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
@@ -9835,6 +9964,17 @@
           pickBoard: ((state.data || {}).pick_order || {}).picks || null,
         });
       } catch (e) { return null; }
+    },
+    /* Conditional-value drill readout (ruling 2026-08-17) — a finished HTML
+     * string so the cockpit layer stays a pure presenter: the artifact, the
+     * join and the roster all resolve HERE, off the same state the chips use.
+     * '' when the player carries no premium or the artifact is absent. */
+    conditionalDrillHtml: function (pid) {
+      try {
+        var idx = condValueIndex();
+        if (!idx) return '';
+        return CondValue.drillHtml(String(pid), idx, condRosterPids());
+      } catch (e) { return ''; }
     },
   };
 
@@ -10098,9 +10238,7 @@
        * No picks recorded = nothing to protect = connect straight through. */
       const prevRoomId = (state.sync && state.sync.draftId)
         || (state.session && state.session.draftId) || null;
-      const recordedPicks = state.sync
-        ? Math.max(0, state.sync.currentPickNumber() - 1)
-        : (state.recentPicks || []).length;
+      const recordedPicks = observedPickCount();
       if (recordedPicks > 0 && prevRoomId !== parsed.id) {
         const pending = state._pendingRoomSwitch;
         const confirmed = pending && pending.id === parsed.id
@@ -10149,6 +10287,10 @@
           return onSyncPicks(picks);
         },
         onStatus: setStatus,
+        onDeadRoom: showDeadRoomBanner,
+        /* A reload's resumed sync has never succeeded, so lastOkAt cannot
+         * witness that the id used to work — the resumed picks can. */
+        resumedWithPicks: (state.recentPicks || []).length > 0,
       });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.

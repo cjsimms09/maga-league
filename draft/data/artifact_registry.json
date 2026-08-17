@@ -155,6 +155,30 @@
    "timeout_s": 300
   },
   {
+   "id": "replay_league_restated",
+   "description": "Restated league table: the all-seats proxy with the deterministic roster-status filter on the walk-forward board, plus the room_draftable_pool cell promoted to the quoted bracket and computed for every seat. Quotes the original beside itself; never overwrites it.",
+   "owner_module": "draft/tools/replay_league_restated.py",
+   "artifact_path": "draft/data/replay_league_table_restated.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport replay_league_restated as RR\nprint(json.dumps(RR.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
+   "id": "roster_status_exclusions",
+   "description": "Deterministic roster-status exclusions per replay season over the board-agnostic population (any player with a committed game before Y). One list for every replay harness; rule and error directions live in draft_replay_2025.roster_status_exclusions.",
+   "owner_module": "draft/tools/roster_status_exclusions_store.py",
+   "artifact_path": "draft/data/roster_status_exclusions.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport roster_status_exclusions_store as RS\nprint(json.dumps(RS.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
    "id": "props_season_projection_v6_reproduction",
    "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
    "owner_module": "draft/tools/props_season_projection.py",
@@ -211,6 +235,28 @@
     "limits"
    ],
    "timeout_s": 900
+  },
+  {
+   "id": "opponent_need_2026",
+   "description": "Opponent-need survival layer: need-conditioned tendency tables and the walk-forward calibration delta vs the engine-form baseline (2024-25 real pick gaps). Legitimately drifts when keeper slates (keepers.json / predicted_keepers.json) or the board's position map move \u2014 regenerate after the 08-20 keeper lock.",
+   "owner_module": "draft/backtest/opponent_need_model.py",
+   "artifact_path": "draft/data/opponent_need_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport opponent_need_model as O\nprint(json.dumps(O.build_artifact()))"
+   ]
+  },
+  {
+   "id": "replay_waiver_2023_25",
+   "description": "The WAIVER ARM of the pre-registered three-season replay: ACTUAL / LINEUP_ONLY / NAIVE_WAIVER / TOOL_WAIVER per seat-season 2023-25, graded through money_grade.grade_substituted, with the waiver slice isolated, the season-pool leak detector, and the planted fail-arm. Drives the REAL src/routes/waivers.js via waiver_tool_runner.js (needs node).",
+   "owner_module": "draft/backtest/replay_waiver.py",
+   "artifact_path": "draft/data/replay_waiver_2023_25.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport replay_waiver as RW\nprint(json.dumps(RW.run_all(verbose=False)))"
+   ]
   }
  ],
  "_not_yet_migrated": [

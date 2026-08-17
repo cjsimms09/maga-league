@@ -166,7 +166,26 @@ const draftMeta = () => ({
   await page.goto(BASE + '/admin/warroom#tab=draft', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(3500);
   await snap('after reload — auto-resume state');
-  await page.screenshot({ path: path.join(__dirname, 'repro-resume.png'), fullPage: true });
+
+  // DEAD-ROOM BANNER: the resumed sync 404s against the deleted room; after 3
+  // consecutive 404s (backoff ~8+16+32s) the one-tap recovery banner must
+  // appear, and its button must clear the dead room's picks.
+  await page.waitForTimeout(70000);
+  const banner = await page.evaluate(() => {
+    const b = document.getElementById('dead-room-banner');
+    return b ? b.textContent.slice(0, 80) : null;
+  });
+  console.log('dead-room banner:', JSON.stringify(banner));
+  if (banner) {
+    await page.click('#dead-room-banner button');
+    await page.waitForTimeout(1500);
+    const cleared = await page.evaluate(() => ({
+      banner: !!document.getElementById('dead-room-banner'),
+      recent: (window.__wrDiag && window.__wrDiag().recentPicks) || 'n/a',
+      sync: (document.querySelector('#sync-status') || {}).textContent,
+    }));
+    console.log('after CLEAR tap:', JSON.stringify(cleared));
+  }
 
   await page.goto(BASE + '/admin/warroom#tab=intel', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
@@ -175,7 +194,12 @@ const draftMeta = () => ({
   await page.click('#start-sync');
   await page.waitForTimeout(1000);
   console.log('after 1st click:', await page.evaluate(() => (document.querySelector('#sync-status') || {}).textContent));
-  await page.click('#start-sync');   // confirm the room switch
+  // The confirm click is only offered when old picks survived to be protected —
+  // the dead-room banner's CLEAR removes them, so the first click connects
+  // straight through and the button is already "Syncing…".
+  const needsConfirm = await page.evaluate(() =>
+    (document.getElementById('start-sync') || {}).textContent === 'Connect NEW room');
+  if (needsConfirm) await page.click('#start-sync');
   await page.waitForTimeout(5000);
   await page.evaluate(() => {
     const t = document.querySelector('[data-tab=draft], a[href="#tab=draft"]');

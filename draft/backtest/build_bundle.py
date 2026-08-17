@@ -195,6 +195,15 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
     # is missing the real picks is not a smaller board, it is a wrong one.
     draft = store.draft()
     picks = sorted(draft.get("picks") or [], key=lambda pp: pp.get("pick_no") or 0)
+    # STAMP KEEPERS FROM THE SEASON-WIDE UNION. 2023's main draft carries no
+    # is_keeper flags (its keepers live in a separate 30-pick ledger draft),
+    # so a replay reading only the main draft's flags decided keeper slots as
+    # live picks. store.keepers() now unions the season's drafts; the emitted
+    # picks carry the flag replay.js actually reads. Copies, not mutations —
+    # the history dict is not ours to edit.
+    keeper_ids = {str(k.get("player_id")) for k in store.keepers()}
+    picks = [dict(pp, is_keeper=bool(pp.get("is_keeper"))
+                  or str(pp.get("player_id")) in keeper_ids) for pp in picks]
     drafted_ids = {str(pp.get("player_id")) for pp in picks}
     pick_no_by_id = {str(pp.get("player_id")): pp.get("pick_no") for pp in picks}
 

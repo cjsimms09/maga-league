@@ -107,7 +107,24 @@ class AsOfDataStore:
         return None
 
     def keepers(self) -> list:
-        return [p for p in (self.draft().get("picks") or []) if p.get("is_keeper")]
+        """Keeper picks, unioned across ALL the season's draft records.
+
+        NOT just the main draft's flags: 2023 keeps its keepers in a
+        SEPARATE 30-pick ledger draft whose picks all carry is_keeper, while
+        the 150-pick main draft carries none — so reading only draft() gave
+        2023 an empty keeper slate and every 2023 replay decided keeper
+        slots as if they were live picks (found by the live-edge engine
+        replay's keeper-consistency pin, 2026-08-17). The union covers both
+        shapes, exactly as draft_replay_2025.season_draft already does.
+        Knowable pre-draft either way — that is what a keeper IS."""
+        out, seen = [], set()
+        for d in (self._season_row.get("drafts") or []):
+            for p in (d.get("picks") or []):
+                pid = str(p.get("player_id"))
+                if p.get("is_keeper") and pid not in seen:
+                    seen.add(pid)
+                    out.append(p)
+        return out
 
     def adp(self, teams: int, fmt: str = "half-ppr") -> dict:
         """FFC's ADP as published for THIS season — the year parameter."""

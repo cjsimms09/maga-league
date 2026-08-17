@@ -222,9 +222,9 @@
       "why": "2, and UNRESOLVED: the UI says waivers clear 2 AM WED, which matches 2 only if Sleeper counts Monday as 0. Nothing reads it, so nothing is wrong today \u2014 but it must not be read until the convention is confirmed against a real clear."
     },
     "waiver_type": {
-      "disposition": "imported_unread",
-      "evidence": "reaches league_config.waivers and nothing reads it",
-      "why": "1 = reverse standings, confirmed against the UI. valuation.js's waiverPriorityDepletes() turns exactly this code into depletes:false, but nothing wires the imported value into it \u2014 the rule and its input are both built and not connected."
+      "disposition": "imported",
+      "evidence": "read at draft/backtest/replay_waiver.py:_decide_tool (settings.waiver_type -> waiver_tool_runner.js -> valuation.js waiverPriorityDepletes)",
+      "why": "1 = reverse standings, confirmed against the UI. The waiver-arm replay (replay_waiver.py) reads the season's real waiver_type off the league_history bundle and wires it into valuation.js's waiverPriorityDepletes() through waiver_tool_runner.js, so the stopping rule runs under the league's actual regime instead of a remembered one. The LIVE route still does not wire it \u2014 the rule and its input are connected in the replay only; replay_waiver_2023_25.json's live-defect report carries that gap."
     }
   }
 }

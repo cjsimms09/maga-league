@@ -49,6 +49,17 @@
     this.idError = parsed.error;
     this.onPicks = opts.onPicks || function () {};
     this.onStatus = opts.onStatus || function () {};
+    /* Fires when a draft that WAS answering starts 404ing repeatedly — the
+     * signature of a Sleeper mock room being deleted after it ends (captured
+     * live 2026-08-17: the page retried a garbage-collected mock forever while
+     * its dead picks kept pricing the board). Optional: undefined keeps the
+     * old retry-only behavior. */
+    this.onDeadRoom = opts.onDeadRoom || null;
+    /* After a page reload the resumed sync has never succeeded (lastOkAt null)
+     * even though the BOARD carries the resumed picks — the caller passes this
+     * hint so a deleted room is still recognized as "gone", not "bad id". */
+    this.resumedWithPicks = !!opts.resumedWithPicks;
+    this.dead404s = 0;
     this.transport = null;     // 'direct' | 'proxy' — decided on first success
     this.timer = null;
     this.failures = 0;
@@ -167,6 +178,7 @@
           return;
         }
         self.failures = 0;
+        self.dead404s = 0;
         // LAST-GOOD TIME, so a caller can render AGE rather than a bare "synced".
         // On draft night a stalled sync looks identical to a working one: the
         // status line freezes on its last message and the board keeps
@@ -211,6 +223,14 @@
           // lie there too; the parse error already names both ends and why.
           message: (err.nonJson
               ? err.message + ' Retrying in ' + Math.round(wait / 1000) + 's.'
+              : err.status === 404 && (self.lastOkAt || self.resumedWithPicks)
+              /* A 404 AFTER the id worked is not a rate limit — the draft is
+               * GONE. Sleeper deletes mock rooms when they end, so this is the
+               * normal end-of-mock signature, and the honest message is "this
+               * room no longer exists", not "retrying will fix it". */
+              ? 'This draft no longer exists at Sleeper (mock rooms are deleted '
+                + 'when they end). The board still holds its ' + self.picks.length
+                + ' picks — clear them before connecting your next room.'
               : err.status >= 400 && err.status < 500
               ? (self.lastOkAt
                   ? 'Rejected by ' + err.message + ' AFTER the sync had been working — '
@@ -220,6 +240,14 @@
               : 'Sleeper unreachable (' + err.message + '). Retrying in ' + Math.round(wait / 1000) + 's.')
             + ' You can enter picks by hand meanwhile.',
         });
+        if (err.status === 404 && (self.lastOkAt || self.resumedWithPicks)) {
+          self.dead404s++;
+          if (self.dead404s >= 3 && self.onDeadRoom) {
+            try { self.onDeadRoom(self.dead404s); } catch (e) { /* never break the poll */ }
+          }
+        } else {
+          self.dead404s = 0;
+        }
         self.timer = setTimeout(function () { self.poll(); }, wait);
       });
   };

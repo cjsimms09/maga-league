@@ -1,0 +1,5403 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/replay_league_restated.py",
+ "_note": "RESTATED league table: the committed all-seats proxy benchmark (draft/data/replay_league_table.json \u2014 quoted beside, never overwritten) re-run with the deterministic roster-status filter on the walk-forward board, plus the room_draftable_pool sensitivity cell promoted from the single-seat grid and computed for every seat. An information correction with zero fitted parameters. The policy is unchanged: BPA-by-VORP over own_v6_nomarket boards \u2014 a WEAKENED PROXY for the live engine, not the engine; the engine-driving measurement lives in draft/backtest/replay.js and its own artifact.",
+ "mechanism": "the proxy's losses partly priced players who were retired, unsigned or out before the replayed draft, because the walk-forward stores carry production and not roster status; the live 2026 board carries that status, so the uncorrected table understates the live tool relative to drafters who had the news",
+ "estimand": {
+  "optimal": "mean tool-minus-owner season total of actual points under the hindsight-optimal weekly lineup, skill slots only, fixed-opponents counterfactual \u2014 the preregistered primary arm",
+  "realistic": "mean tool-minus-owner season total under start-of-week information lineups (season-to-date pts/game rank, row-absence benched) \u2014 the tool's best case, never quotable alone"
+ },
+ "status_filter_rule": "excluded iff zero recorded games in every committed season Y..2025 AND (Y<2025, corroborated by at least one later zero-game season) OR (Y=2025, absent from or teamless on the committed 2026 live board); indeterminable status STAYS on the board and is listed. Committed stores only \u2014 no new fetches. Full rule and both error directions: draft_replay_2025.roster_status_exclusions.",
+ "original_artifact": "draft/data/replay_league_table.json",
+ "original_summary_quoted": {
+  "pooled_baseline": {
+   "optimal": {
+    "beats_n_of_10_pooled": 3,
+    "median_owner_mean_delta": -91.71,
+    "cory_mean_delta": -65.65
+   },
+   "realistic": {
+    "beats_n_of_10_pooled": 2,
+    "median_owner_mean_delta": -31.37,
+    "cory_mean_delta": -6.53
+   }
+  },
+  "per_year_baseline": {
+   "2025": {
+    "optimal": {
+     "owners_tool_beats": [],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "cashworth",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 0,
+     "median_owner_delta": -187.42,
+     "cory_delta": -16.86
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "Jreis",
+      "MarianSaar",
+      "Schmelley",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Richard2121",
+      "Sadbru",
+      "cashworth",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 4,
+     "median_owner_delta": -51.95,
+     "cory_delta": 77.92
+    }
+   },
+   "2024": {
+    "optimal": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "cashworth",
+      "mhagen"
+     ],
+     "owners_beating_tool": [
+      "coryjsimms",
+      "ds7mmet"
+     ],
+     "beats_n_of_10": 8,
+     "median_owner_delta": 49.37,
+     "cory_delta": -58.0
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "cashworth",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 7,
+     "median_owner_delta": 21.75,
+     "cory_delta": 2.26
+    }
+   },
+   "2023": {
+    "optimal": {
+     "owners_tool_beats": [
+      "Jreis",
+      "Richard2121",
+      "cashworth"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "MarianSaar",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 3,
+     "median_owner_delta": -142.38,
+     "cory_delta": -122.08
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "Richard2121",
+      "cashworth"
+     ],
+     "owners_beating_tool": [
+      "MarianSaar",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 4,
+     "median_owner_delta": -99.77,
+     "cory_delta": -99.78
+    }
+   }
+  }
+ },
+ "summary_bracket": {
+  "optimal": {
+   "cory_mean_delta": {
+    "original_unfiltered": -65.65,
+    "restated_status_filtered": 7.48,
+    "room_draftable_pool": -19.81
+   },
+   "beats_n_of_10_pooled": {
+    "original_unfiltered": 3,
+    "restated_status_filtered": 4,
+    "room_draftable_pool": 3
+   },
+   "median_owner_mean_delta": {
+    "original_unfiltered": -91.71,
+    "restated_status_filtered": -24.23,
+    "room_draftable_pool": -28.64
+   }
+  },
+  "realistic": {
+   "cory_mean_delta": {
+    "original_unfiltered": -6.53,
+    "restated_status_filtered": 41.24
+   },
+   "beats_n_of_10_pooled": {
+    "original_unfiltered": 2,
+    "restated_status_filtered": 6
+   },
+   "median_owner_mean_delta": {
+    "original_unfiltered": -31.37,
+    "restated_status_filtered": 9.02
+   }
+  }
+ },
+ "years": {
+  "2025": {
+   "season": 2025,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "board": {
+    "projection_coverage_unfiltered": 510,
+    "projection_coverage_restated": 406,
+    "excluded": [
+     {
+      "player_id": "2028",
+      "name": "Derek Carr",
+      "pos": "QB",
+      "proj": 206.76,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4018",
+      "name": "Joe Mixon",
+      "pos": "RB",
+      "proj": 182.5,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10866",
+      "name": "Aidan O'Connell",
+      "pos": "QB",
+      "proj": 126.22,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2309",
+      "name": "Amari Cooper",
+      "pos": "WR",
+      "proj": 125.25,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5987",
+      "name": "Alexander Mattison",
+      "pos": "RB",
+      "proj": 110.07,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6845",
+      "name": "Zack Moss",
+      "pos": "RB",
+      "proj": 106.47,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5937",
+      "name": "Diontae Johnson",
+      "pos": "WR",
+      "proj": 88.96,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8162",
+      "name": "Sam Howell",
+      "pos": "QB",
+      "proj": 86.45,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5248",
+      "name": "Gus Edwards",
+      "pos": "RB",
+      "proj": 79.43,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8159",
+      "name": "Desmond Ridder",
+      "pos": "QB",
+      "proj": 73.34,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3225",
+      "name": "Tyler Boyd",
+      "pos": "WR",
+      "proj": 69.86,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3164",
+      "name": "Ezekiel Elliott",
+      "pos": "RB",
+      "proj": 69.68,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4068",
+      "name": "Mike Williams",
+      "pos": "WR",
+      "proj": 65.95,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4111",
+      "name": "D'Onta Foreman",
+      "pos": "RB",
+      "proj": 56.26,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8220",
+      "name": "Sincere McCormick",
+      "pos": "RB",
+      "proj": 53.2,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2325",
+      "name": "Nelson Agholor",
+      "pos": "WR",
+      "proj": 46.93,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7593",
+      "name": "Trey Sermon",
+      "pos": "RB",
+      "proj": 45.42,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5032",
+      "name": "Jordan Akins",
+      "pos": "TE",
+      "proj": 44.04,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1352",
+      "name": "Robert Woods",
+      "pos": "WR",
+      "proj": 41.93,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9492",
+      "name": "Trey Palmer",
+      "pos": "WR",
+      "proj": 39.01,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4149",
+      "name": "Jamaal Williams",
+      "pos": "RB",
+      "proj": 37.36,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11619",
+      "name": "Ja'Lynn Polk",
+      "pos": "WR",
+      "proj": 36.94,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3258",
+      "name": "3258",
+      "pos": "TE",
+      "proj": 34.87,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6963",
+      "name": "Patrick Taylor",
+      "pos": "RB",
+      "proj": 33.41,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1535",
+      "name": "Cordarrelle Patterson",
+      "pos": "RB",
+      "proj": 32.95,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2410",
+      "name": "Jamison Crowder",
+      "pos": "WR",
+      "proj": 31.54,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11582",
+      "name": "Carson Steele",
+      "pos": "RB",
+      "proj": 31.13,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11378",
+      "name": "Jordan Mims",
+      "pos": "RB",
+      "proj": 30.46,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11748",
+      "name": "Bub Means",
+      "pos": "WR",
+      "proj": 28.93,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11592",
+      "name": "Erick All",
+      "pos": "TE",
+      "proj": 28.18,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4089",
+      "name": "Gerald Everett",
+      "pos": "TE",
+      "proj": 28.01,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7438",
+      "name": "7438",
+      "pos": "WR",
+      "proj": 25.97,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11568",
+      "name": "Blake Watson",
+      "pos": "RB",
+      "proj": 25.5,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11640",
+      "name": "Jermaine Burton",
+      "pos": "WR",
+      "proj": 25.17,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2711",
+      "name": "Taylor Heinicke",
+      "pos": "QB",
+      "proj": 24.98,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6996",
+      "name": "JaMycal Hasty",
+      "pos": "RB",
+      "proj": 24.24,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10216",
+      "name": "Kenny McIntosh",
+      "pos": "RB",
+      "proj": 24.06,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5284",
+      "name": "Jeff Wilson",
+      "pos": "RB",
+      "proj": 22.81,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8202",
+      "name": "Michael Woods",
+      "pos": "WR",
+      "proj": 22.36,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5880",
+      "name": "Parris Campbell",
+      "pos": "WR",
+      "proj": 22.28,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6598",
+      "name": "Trenton Irwin",
+      "pos": "WR",
+      "proj": 21.24,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10223",
+      "name": "Eric Gray",
+      "pos": "RB",
+      "proj": 20.37,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4973",
+      "name": "Hayden Hurst",
+      "pos": "TE",
+      "proj": 19.65,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11590",
+      "name": "Jase McClellan",
+      "pos": "RB",
+      "proj": 19.35,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9495",
+      "name": "Rakim Jarrett",
+      "pos": "WR",
+      "proj": 19.1,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4951",
+      "name": "DJ Chark",
+      "pos": "WR",
+      "proj": 18.97,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2471",
+      "name": "Michael Burton",
+      "pos": "RB",
+      "proj": 18.64,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9505",
+      "name": "Deuce Vaughn",
+      "pos": "RB",
+      "proj": 18.44,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6798",
+      "name": "Jalen Reagor",
+      "pos": "WR",
+      "proj": 18.19,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10862",
+      "name": "Dorian Thompson-Robinson",
+      "pos": "QB",
+      "proj": 17.72,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6973",
+      "name": "J.J. Taylor",
+      "pos": "RB",
+      "proj": 17.33,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4029",
+      "name": "Dalvin Cook",
+      "pos": "RB",
+      "proj": 17.3,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8118",
+      "name": "David Bell",
+      "pos": "WR",
+      "proj": 16.6,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1992",
+      "name": "Allen Robinson",
+      "pos": "WR",
+      "proj": 16.18,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2446",
+      "name": "MyCole Pruitt",
+      "pos": "TE",
+      "proj": 15.87,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8255",
+      "name": "8255",
+      "pos": "RB",
+      "proj": 15.63,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7565",
+      "name": "Terrace Marshall",
+      "pos": "WR",
+      "proj": 15.49,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10215",
+      "name": "Jake Haener",
+      "pos": "QB",
+      "proj": 15.24,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5257",
+      "name": "Tim Boyle",
+      "pos": "QB",
+      "proj": 15.03,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7599",
+      "name": "Jermar Jefferson",
+      "pos": "RB",
+      "proj": 14.87,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2750",
+      "name": "DeAndre Carter",
+      "pos": "WR",
+      "proj": 14.66,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8414",
+      "name": "Britain Covey",
+      "pos": "WR",
+      "proj": 14.3,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7064",
+      "name": "Darrynton Evans",
+      "pos": "RB",
+      "proj": 13.76,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11636",
+      "name": "Johnny Wilson",
+      "pos": "WR",
+      "proj": 13.54,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8211",
+      "name": "Tyrion Davis-Price",
+      "pos": "RB",
+      "proj": 12.48,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10221",
+      "name": "Ronnie Bell",
+      "pos": "WR",
+      "proj": 11.75,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6814",
+      "name": "Laviska Shenault",
+      "pos": "WR",
+      "proj": 11.4,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5209",
+      "name": "Mike Boone",
+      "pos": "RB",
+      "proj": 11.05,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7597",
+      "name": "Kenny Yeboah",
+      "pos": "TE",
+      "proj": 10.78,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11615",
+      "name": "Ainias Smith",
+      "pos": "WR",
+      "proj": 10.58,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7357",
+      "name": "7357",
+      "pos": "WR",
+      "proj": 10.51,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5013",
+      "name": "Anthony Miller",
+      "pos": "WR",
+      "proj": 10.13,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8756",
+      "name": "Brandon Johnson",
+      "pos": "WR",
+      "proj": 10.09,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11024",
+      "name": "Grant DuBose",
+      "pos": "WR",
+      "proj": 8.87,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7087",
+      "name": "Jonathan Ward",
+      "pos": "RB",
+      "proj": 8.84,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6885",
+      "name": "Ke'Shawn Vaughn",
+      "pos": "RB",
+      "proj": 8.65,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3357",
+      "name": "Brandon Allen",
+      "pos": "QB",
+      "proj": 8.36,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4038",
+      "name": "John Ross",
+      "pos": "WR",
+      "proj": 8.06,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8206",
+      "name": "Skylar Thompson",
+      "pos": "QB",
+      "proj": 7.88,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9490",
+      "name": "Tyler Scott",
+      "pos": "WR",
+      "proj": 7.4,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7606",
+      "name": "Kadarius Toney",
+      "pos": "WR",
+      "proj": 7.24,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8114",
+      "name": "Erik Ezukanma",
+      "pos": "WR",
+      "proj": 6.97,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7521",
+      "name": "Chris Blair",
+      "pos": "WR",
+      "proj": 6.44,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8809",
+      "name": "Aaron Shampklin",
+      "pos": "RB",
+      "proj": 6.27,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11808",
+      "name": "Jha'Quan Jackson",
+      "pos": "WR",
+      "proj": 6.01,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6857",
+      "name": "Collin Johnson",
+      "pos": "WR",
+      "proj": 5.66,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10228",
+      "name": "Charlie Jones",
+      "pos": "WR",
+      "proj": 4.79,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6970",
+      "name": "Stephen Sullivan",
+      "pos": "TE",
+      "proj": 4.58,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "111",
+      "name": "Marcedes Lewis",
+      "pos": "TE",
+      "proj": 4.44,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8140",
+      "name": "Justyn Ross",
+      "pos": "WR",
+      "proj": 4.36,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11645",
+      "name": "Javon Baker",
+      "pos": "WR",
+      "proj": 4.13,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7559",
+      "name": "Ihmir Smith-Marsette",
+      "pos": "WR",
+      "proj": 3.79,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11606",
+      "name": "Dallin Holker",
+      "pos": "TE",
+      "proj": 3.7,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6402",
+      "name": "Steven Sims",
+      "pos": "WR",
+      "proj": 3.47,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11467",
+      "name": "John Samuel Shenker",
+      "pos": "TE",
+      "proj": 3.26,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2755",
+      "name": "Eric Tomlinson",
+      "pos": "TE",
+      "proj": 3.24,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9998",
+      "name": "Hendon Hooker",
+      "pos": "QB",
+      "proj": 2.68,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7943",
+      "name": "Zach Davidson",
+      "pos": "TE",
+      "proj": 2.39,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8861",
+      "name": "Irv Charles",
+      "pos": "WR",
+      "proj": 2.36,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11304",
+      "name": "E.J. Jenkins",
+      "pos": "TE",
+      "proj": 1.06,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11897",
+      "name": "Jermaine Jackson",
+      "pos": "WR",
+      "proj": 0.72,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "12256",
+      "name": "Baylor Cupp",
+      "pos": "TE",
+      "proj": 0.64,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7605",
+      "name": "Kyle Trask",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9499",
+      "name": "Bryce Ford-Wheaton",
+      "pos": "WR",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2025
+      ],
+      "team_2026": null
+     }
+    ],
+    "kept_indeterminate_zero_game_players": [
+     {
+      "player_id": "11292",
+      "name": "Tommy DeVito",
+      "pos": "QB",
+      "proj": 42.13
+     },
+     {
+      "player_id": "11581",
+      "name": "MarShawn Lloyd",
+      "pos": "RB",
+      "proj": 23.85
+     },
+     {
+      "player_id": "11583",
+      "name": "Jonathon Brooks",
+      "pos": "RB",
+      "proj": 17.5
+     },
+     {
+      "player_id": "11616",
+      "name": "Jacob Cowing",
+      "pos": "WR",
+      "proj": 14.45
+     },
+     {
+      "player_id": "11651",
+      "name": "Isaac Guerendo",
+      "pos": "RB",
+      "proj": 78.26
+     },
+     {
+      "player_id": "2078",
+      "name": "Odell Beckham",
+      "pos": "WR",
+      "proj": 27.61
+     },
+     {
+      "player_id": "4017",
+      "name": "Deshaun Watson",
+      "pos": "QB",
+      "proj": 106.65
+     },
+     {
+      "player_id": "6803",
+      "name": "Brandon Aiyuk",
+      "pos": "WR",
+      "proj": 77.96
+     },
+     {
+      "player_id": "7568",
+      "name": "Brevin Jordan",
+      "pos": "TE",
+      "proj": 11.94
+     },
+     {
+      "player_id": "8116",
+      "name": "Pierre Strong",
+      "pos": "RB",
+      "proj": 32.34
+     },
+     {
+      "player_id": "9502",
+      "name": "Tank Dell",
+      "pos": "WR",
+      "proj": 121.64
+     },
+     {
+      "player_id": "9999",
+      "name": "Will Levis",
+      "pos": "QB",
+      "proj": 137.61
+     }
+    ]
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1596.86,
+       "owner_total": 1440.72,
+       "delta_tool_minus_owner": 156.14,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1470.54,
+       "owner_total": 1257.72,
+       "delta_tool_minus_owner": 212.82,
+       "head_to_head": {
+        "tool_weeks_won": 13,
+        "cory_weeks_won": 4,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "11566",
+      "11632",
+      "1466",
+      "1479",
+      "3163",
+      "3198",
+      "4217",
+      "7528",
+      "7564",
+      "8136",
+      "8151",
+      "8154"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1481.56,
+      "delta_tool_minus_owner": 40.84,
+      "head_to_head": {
+       "tool_weeks_won": 10,
+       "cory_weeks_won": 7,
+       "ties": 0
+      }
+     }
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1408.56,
+       "owner_total": 1379.14,
+       "delta_tool_minus_owner": 29.42,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1236.92,
+       "owner_total": 1171.54,
+       "delta_tool_minus_owner": 65.38,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "10859",
+      "11566",
+      "11584",
+      "11631",
+      "11655",
+      "1466",
+      "1479",
+      "4881",
+      "6819",
+      "7528",
+      "7588",
+      "8136"
+     ],
+     "shadowed_picks": 6,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1285.96,
+      "delta_tool_minus_owner": -93.18,
+      "head_to_head": {
+       "tool_weeks_won": 5,
+       "cory_weeks_won": 12,
+       "ties": 0
+      }
+     }
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1568.74,
+       "owner_total": 1528.88,
+       "delta_tool_minus_owner": 39.86,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1403.42,
+       "owner_total": 1388.3,
+       "delta_tool_minus_owner": 15.12,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "10859",
+      "11635",
+      "1479",
+      "2216",
+      "4137",
+      "4217",
+      "4881",
+      "4984",
+      "7528",
+      "7588",
+      "8136",
+      "9224"
+     ],
+     "shadowed_picks": 6,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1558.04,
+      "delta_tool_minus_owner": 29.16,
+      "head_to_head": {
+       "tool_weeks_won": 7,
+       "cory_weeks_won": 10,
+       "ties": 0
+      }
+     }
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1631.76,
+       "owner_total": 1550.28,
+       "delta_tool_minus_owner": 81.48,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1491.22,
+       "owner_total": 1363.68,
+       "delta_tool_minus_owner": 127.54,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "11566",
+      "11604",
+      "1466",
+      "4881",
+      "5850",
+      "5859",
+      "7528",
+      "7588",
+      "7594",
+      "8136",
+      "8138",
+      "9756"
+     ],
+     "shadowed_picks": 6,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1511.26,
+      "delta_tool_minus_owner": -39.02,
+      "head_to_head": {
+       "tool_weeks_won": 9,
+       "cory_weeks_won": 8,
+       "ties": 0
+      }
+     }
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1600.06,
+       "owner_total": 1820.02,
+       "delta_tool_minus_owner": -219.96,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1467.42,
+       "owner_total": 1650.32,
+       "delta_tool_minus_owner": -182.9,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "10859",
+      "11566",
+      "11624",
+      "1479",
+      "4144",
+      "4881",
+      "6813",
+      "7528",
+      "8112",
+      "8136",
+      "8146",
+      "9221"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1531.06,
+      "delta_tool_minus_owner": -288.96,
+      "head_to_head": {
+       "tool_weeks_won": 6,
+       "cory_weeks_won": 11,
+       "ties": 0
+      }
+     }
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 1762.34,
+       "owner_total": 1612.08,
+       "delta_tool_minus_owner": 150.26,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1567.8,
+       "owner_total": 1433.98,
+       "delta_tool_minus_owner": 133.82,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "11566",
+      "11604",
+      "11628",
+      "1466",
+      "1479",
+      "4892",
+      "6794",
+      "7528",
+      "7588",
+      "8136",
+      "9226",
+      "9488"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1682.34,
+      "delta_tool_minus_owner": 70.26,
+      "head_to_head": {
+       "tool_weeks_won": 13,
+       "cory_weeks_won": 4,
+       "ties": 0
+      }
+     }
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1811.2,
+       "owner_total": 1966.64,
+       "delta_tool_minus_owner": -155.44,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1627.28,
+       "owner_total": 1784.14,
+       "delta_tool_minus_owner": -156.86,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "10859",
+      "11566",
+      "1466",
+      "1479",
+      "4034",
+      "4984",
+      "5892",
+      "6783",
+      "6801",
+      "7528",
+      "7547",
+      "8136"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1787.3,
+      "delta_tool_minus_owner": -179.34,
+      "head_to_head": {
+       "tool_weeks_won": 4,
+       "cory_weeks_won": 13,
+       "ties": 0
+      }
+     }
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1739.62,
+       "owner_total": 1944.1,
+       "delta_tool_minus_owner": -204.48,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 14,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1565.88,
+       "owner_total": 1667.0,
+       "delta_tool_minus_owner": -101.12,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "11566",
+      "4144",
+      "4892",
+      "4983",
+      "5927",
+      "6790",
+      "7525",
+      "7569",
+      "8130",
+      "8136",
+      "9509"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1720.92,
+      "delta_tool_minus_owner": -223.18,
+      "head_to_head": {
+       "tool_weeks_won": 2,
+       "cory_weeks_won": 15,
+       "ties": 0
+      }
+     }
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1699.7,
+       "owner_total": 1856.34,
+       "delta_tool_minus_owner": -156.64,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1497.36,
+       "owner_total": 1458.78,
+       "delta_tool_minus_owner": 38.58,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "11566",
+      "1466",
+      "1479",
+      "4217",
+      "4866",
+      "4892",
+      "5045",
+      "7528",
+      "7611",
+      "8136",
+      "8155",
+      "9493"
+     ],
+     "shadowed_picks": 6,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1654.6,
+      "delta_tool_minus_owner": -201.74,
+      "head_to_head": {
+       "tool_weeks_won": 6,
+       "cory_weeks_won": 11,
+       "ties": 0
+      }
+     }
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1454.16,
+       "owner_total": 1592.6,
+       "delta_tool_minus_owner": -138.44,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1301.02,
+       "owner_total": 1404.58,
+       "delta_tool_minus_owner": -103.56,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "11566",
+      "1466",
+      "1479",
+      "3321",
+      "4035",
+      "4144",
+      "4881",
+      "6786",
+      "6819",
+      "7528",
+      "8136",
+      "8150",
+      "9997"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1348.16,
+      "delta_tool_minus_owner": -244.44,
+      "head_to_head": {
+       "tool_weeks_won": 4,
+       "cory_weeks_won": 13,
+       "ties": 0
+      }
+     }
+    }
+   },
+   "league_summary_restated": {
+    "optimal": {
+     "owners_tool_beats": [
+      "Jreis",
+      "MarianSaar",
+      "cashworth",
+      "coryjsimms",
+      "ds7mmet"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "mhagen"
+     ],
+     "beats_n_of_10": 5,
+     "median_owner_delta": -54.51,
+     "cory_delta": 156.14
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "Jreis",
+      "MarianSaar",
+      "Schmelley",
+      "cashworth",
+      "coryjsimms",
+      "ds7mmet"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Richard2121",
+      "Sadbru",
+      "mhagen"
+     ],
+     "beats_n_of_10": 6,
+     "median_owner_delta": 26.85,
+     "cory_delta": 212.82
+    }
+   },
+   "league_summary_room_pool_optimal": {
+    "beats_n_of_10": 3,
+    "median_owner_delta": -136.26,
+    "cory_delta": 40.84
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "board": {
+    "projection_coverage_unfiltered": 501,
+    "projection_coverage_restated": 403,
+    "excluded": [
+     {
+      "player_id": "1049",
+      "name": "Ryan Tannehill",
+      "pos": "QB",
+      "proj": 143.79,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3199",
+      "name": "Michael Thomas",
+      "pos": "WR",
+      "proj": 97.38,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8157",
+      "name": "Bailey Zappe",
+      "pos": "QB",
+      "proj": 94.43,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1476",
+      "name": "Latavius Murray",
+      "pos": "RB",
+      "proj": 94.28,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6185",
+      "name": "6185",
+      "pos": "QB",
+      "proj": 86.31,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2251",
+      "name": "Logan Thomas",
+      "pos": "TE",
+      "proj": 84.56,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2161",
+      "name": "Jerick McKinnon",
+      "pos": "RB",
+      "proj": 77.32,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5038",
+      "name": "Michael Gallup",
+      "pos": "WR",
+      "proj": 76.47,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5046",
+      "name": "Royce Freeman",
+      "pos": "RB",
+      "proj": 61.51,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2319",
+      "name": "DeVante Parker",
+      "pos": "WR",
+      "proj": 56.72,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6824",
+      "name": "Donovan Peoples-Jones",
+      "pos": "WR",
+      "proj": 55.49,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7561",
+      "name": "Elijah Mitchell",
+      "pos": "RB",
+      "proj": 47.05,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6074",
+      "name": "Donald Parham",
+      "pos": "TE",
+      "proj": 46.59,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2320",
+      "name": "Melvin Gordon",
+      "pos": "RB",
+      "proj": 44.67,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5000",
+      "name": "Chase Edmonds",
+      "pos": "RB",
+      "proj": 44.12,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6918",
+      "name": "Salvon Ahmed",
+      "pos": "RB",
+      "proj": 43.34,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6886",
+      "name": "Chase Claypool",
+      "pos": "WR",
+      "proj": 41.09,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5890",
+      "name": "Damien Harris",
+      "pos": "RB",
+      "proj": 40.48,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2549",
+      "name": "Trevor Siemian",
+      "pos": "QB",
+      "proj": 39.17,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3433",
+      "name": "Alex Erickson",
+      "pos": "WR",
+      "proj": 39.11,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4455",
+      "name": "Matt Breida",
+      "pos": "RB",
+      "proj": 38.94,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3969",
+      "name": "Leonard Fournette",
+      "pos": "RB",
+      "proj": 38.57,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "947",
+      "name": "Julio Jones",
+      "pos": "WR",
+      "proj": 38.37,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6984",
+      "name": "Tony Jones",
+      "pos": "RB",
+      "proj": 35.83,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10863",
+      "name": "A.T. Perry",
+      "pos": "WR",
+      "proj": 35.14,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4197",
+      "name": "Isaiah McKenzie",
+      "pos": "WR",
+      "proj": 35.11,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5137",
+      "name": "Richie James",
+      "pos": "WR",
+      "proj": 33.41,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "616",
+      "name": "Jimmy Graham",
+      "pos": "TE",
+      "proj": 33.22,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6126",
+      "name": "Irv Smith",
+      "pos": "TE",
+      "proj": 32.9,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6453",
+      "name": "D.J. Montgomery",
+      "pos": "WR",
+      "proj": 31.53,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5199",
+      "name": "Byron Pringle",
+      "pos": "WR",
+      "proj": 30.8,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1346",
+      "name": "Marquise Goodwin",
+      "pos": "WR",
+      "proj": 30.48,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7551",
+      "name": "Deon Jackson",
+      "pos": "RB",
+      "proj": 29.31,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9227",
+      "name": "Israel Abanikanda",
+      "pos": "RB",
+      "proj": 29.22,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4335",
+      "name": "P.J. Walker",
+      "pos": "QB",
+      "proj": 28.91,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "928",
+      "name": "Randall Cobb",
+      "pos": "WR",
+      "proj": 28.49,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6421",
+      "name": "Jalen Guyton",
+      "pos": "WR",
+      "proj": 28.28,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8171",
+      "name": "Kyle Philips",
+      "pos": "WR",
+      "proj": 28.19,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4985",
+      "name": "Rashaad Penny",
+      "pos": "RB",
+      "proj": 28.01,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4127",
+      "name": "C.J. Beathard",
+      "pos": "QB",
+      "proj": 27.11,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6234",
+      "name": "Deonte Harty",
+      "pos": "WR",
+      "proj": 27.02,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1067",
+      "name": "Marvin Jones",
+      "pos": "WR",
+      "proj": 26.86,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2399",
+      "name": "Ty Montgomery",
+      "pos": "RB",
+      "proj": 26.26,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8174",
+      "name": "Kevin Harris",
+      "pos": "RB",
+      "proj": 24.78,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7529",
+      "name": "7529",
+      "pos": "RB",
+      "proj": 23.62,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2460",
+      "name": "C.J. Uzomah",
+      "pos": "TE",
+      "proj": 23.28,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11114",
+      "name": "Elijah Dotson",
+      "pos": "RB",
+      "proj": 23.16,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3242",
+      "name": "Kenyan Drake",
+      "pos": "RB",
+      "proj": 23.1,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5122",
+      "name": "Boston Scott",
+      "pos": "RB",
+      "proj": 22.26,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5089",
+      "name": "Mike White",
+      "pos": "QB",
+      "proj": 21.62,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8221",
+      "name": "Keaontay Ingram",
+      "pos": "RB",
+      "proj": 20.66,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8194",
+      "name": "8194",
+      "pos": "RB",
+      "proj": 20.24,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6955",
+      "name": "James Robinson",
+      "pos": "RB",
+      "proj": 19.3,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6878",
+      "name": "Anthony McFarland",
+      "pos": "RB",
+      "proj": 18.36,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5323",
+      "name": "Equanimeous St. Brown",
+      "pos": "WR",
+      "proj": 16.94,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5134",
+      "name": "Keith Kirkwood",
+      "pos": "WR",
+      "proj": 16.35,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6894",
+      "name": "Mitchell Wilcox",
+      "pos": "TE",
+      "proj": 16.32,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7771",
+      "name": "Jake Funk",
+      "pos": "RB",
+      "proj": 15.79,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8214",
+      "name": "Cole Turner",
+      "pos": "TE",
+      "proj": 15.79,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4319",
+      "name": "Zach Pascal",
+      "pos": "WR",
+      "proj": 15.06,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2422",
+      "name": "Blake Bell",
+      "pos": "TE",
+      "proj": 14.65,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6037",
+      "name": "Brett Rypien",
+      "pos": "QB",
+      "proj": 11.35,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7009",
+      "name": "Trishton Jackson",
+      "pos": "WR",
+      "proj": 11.32,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5116",
+      "name": "Nick Bawden",
+      "pos": "RB",
+      "proj": 11.26,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8484",
+      "name": "Ko Kieft",
+      "pos": "TE",
+      "proj": 10.82,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7944",
+      "name": "Michael Strachan",
+      "pos": "WR",
+      "proj": 10.08,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6753",
+      "name": "Derrick Gore",
+      "pos": "RB",
+      "proj": 10.03,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6202",
+      "name": "Jakob Johnson",
+      "pos": "RB",
+      "proj": 9.36,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6379",
+      "name": "Khari Blasingame",
+      "pos": "RB",
+      "proj": 9.03,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8227",
+      "name": "Teagan Quitoriano",
+      "pos": "TE",
+      "proj": 8.91,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3312",
+      "name": "Jonathan Williams",
+      "pos": "RB",
+      "proj": 8.82,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2673",
+      "name": "Damiere Byrd",
+      "pos": "WR",
+      "proj": 8.64,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1737",
+      "name": "1737",
+      "pos": "QB",
+      "proj": 8.31,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6239",
+      "name": "Malik Taylor",
+      "pos": "WR",
+      "proj": 7.99,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9222",
+      "name": "Zach Evans",
+      "pos": "RB",
+      "proj": 7.99,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2334",
+      "name": "Phillip Dorsett",
+      "pos": "WR",
+      "proj": 7.87,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1911",
+      "name": "Willie Snead",
+      "pos": "WR",
+      "proj": 7.62,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6171",
+      "name": "Cody Thompson",
+      "pos": "WR",
+      "proj": 7.21,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4218",
+      "name": "Trent Taylor",
+      "pos": "WR",
+      "proj": 6.7,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5965",
+      "name": "Miles Boykin",
+      "pos": "WR",
+      "proj": 6.41,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6908",
+      "name": "La'Mical Perine",
+      "pos": "RB",
+      "proj": 5.9,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4226",
+      "name": "Alex Armah",
+      "pos": "RB",
+      "proj": 5.5,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7216",
+      "name": "Giovanni Ricci",
+      "pos": "TE",
+      "proj": 4.97,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6181",
+      "name": "Trevon Wesco",
+      "pos": "TE",
+      "proj": 4.89,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11046",
+      "name": "Colton Dowell",
+      "pos": "WR",
+      "proj": 4.51,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "11053",
+      "name": "Antoine Green",
+      "pos": "WR",
+      "proj": 4.39,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8435",
+      "name": "Kwamie Lassiter",
+      "pos": "WR",
+      "proj": 4.04,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8840",
+      "name": "Cole Fotheringham",
+      "pos": "TE",
+      "proj": 3.33,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6075",
+      "name": "Jesper Horsted",
+      "pos": "TE",
+      "proj": 3.31,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5565",
+      "name": "Jason Cabinda",
+      "pos": "RB",
+      "proj": 3.24,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5171",
+      "name": "Kevin Rader",
+      "pos": "TE",
+      "proj": 3.01,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "9231",
+      "name": "Jaren Hall",
+      "pos": "QB",
+      "proj": 2.12,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5235",
+      "name": "David Wells",
+      "pos": "TE",
+      "proj": 1.37,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "10983",
+      "name": "Sean Clifford",
+      "pos": "QB",
+      "proj": 1.28,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1338",
+      "name": "Matt Barkley",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1895",
+      "name": "AJ McCarron",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4183",
+      "name": "Nathan Peterman",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "862",
+      "name": "Blaine Gabbert",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2024,
+       2025
+      ],
+      "team_2026": null
+     }
+    ],
+    "kept_indeterminate_zero_game_players": []
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1979.08,
+       "owner_total": 2037.08,
+       "delta_tool_minus_owner": -58.0,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1743.58,
+       "owner_total": 1741.32,
+       "delta_tool_minus_owner": 2.26,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1426",
+      "1479",
+      "1689",
+      "2374",
+      "3198",
+      "4037",
+      "4217",
+      "4663",
+      "4984",
+      "5844",
+      "6904",
+      "7564",
+      "8112"
+     ],
+     "shadowed_picks": 8,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 2016.08,
+      "delta_tool_minus_owner": -21.0,
+      "head_to_head": {
+       "tool_weeks_won": 6,
+       "cory_weeks_won": 11,
+       "ties": 0
+      }
+     }
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1716.14,
+       "owner_total": 1845.42,
+       "delta_tool_minus_owner": -129.28,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1513.48,
+       "owner_total": 1663.22,
+       "delta_tool_minus_owner": -149.74,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 13,
+        "ties": 1
+       }
+      }
+     },
+     "tool_roster": [
+      "1426",
+      "1466",
+      "1689",
+      "2374",
+      "3294",
+      "4981",
+      "5844",
+      "5859",
+      "5927",
+      "6819",
+      "6904",
+      "8150",
+      "8151"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1945.64,
+      "delta_tool_minus_owner": 100.22,
+      "head_to_head": {
+       "tool_weeks_won": 10,
+       "cory_weeks_won": 7,
+       "ties": 0
+      }
+     }
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1744.66,
+       "owner_total": 1706.72,
+       "delta_tool_minus_owner": 37.94,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1492.16,
+       "owner_total": 1568.72,
+       "delta_tool_minus_owner": -76.56,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1426",
+      "1479",
+      "1689",
+      "2216",
+      "2374",
+      "4018",
+      "4046",
+      "4217",
+      "5844",
+      "5947",
+      "5967",
+      "6904",
+      "7526"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1793.16,
+      "delta_tool_minus_owner": 86.44,
+      "head_to_head": {
+       "tool_weeks_won": 10,
+       "cory_weeks_won": 7,
+       "ties": 0
+      }
+     }
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1988.38,
+       "owner_total": 1743.28,
+       "delta_tool_minus_owner": 245.1,
+       "head_to_head": {
+        "tool_weeks_won": 13,
+        "cory_weeks_won": 4,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1720.28,
+       "owner_total": 1609.34,
+       "delta_tool_minus_owner": 110.94,
+       "head_to_head": {
+        "tool_weeks_won": 13,
+        "cory_weeks_won": 4,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "2449",
+      "4035",
+      "4039",
+      "4217",
+      "4984",
+      "5844",
+      "5850",
+      "5872",
+      "6904",
+      "7525",
+      "7547",
+      "8205"
+     ],
+     "shadowed_picks": 6,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1997.28,
+      "delta_tool_minus_owner": 254.0,
+      "head_to_head": {
+       "tool_weeks_won": 13,
+       "cory_weeks_won": 4,
+       "ties": 0
+      }
+     }
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1807.48,
+       "owner_total": 1677.18,
+       "delta_tool_minus_owner": 130.3,
+       "head_to_head": {
+        "tool_weeks_won": 12,
+        "cory_weeks_won": 5,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1547.98,
+       "owner_total": 1421.76,
+       "delta_tool_minus_owner": 126.22,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10859",
+      "1479",
+      "1689",
+      "2309",
+      "2374",
+      "3163",
+      "4663",
+      "5844",
+      "6130",
+      "6813",
+      "6904",
+      "8146",
+      "9221"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1908.18,
+      "delta_tool_minus_owner": 231.0,
+      "head_to_head": {
+       "tool_weeks_won": 12,
+       "cory_weeks_won": 5,
+       "ties": 0
+      }
+     }
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 2050.02,
+       "owner_total": 2039.1,
+       "delta_tool_minus_owner": 10.92,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1823.26,
+       "owner_total": 1819.08,
+       "delta_tool_minus_owner": 4.18,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10229",
+      "1689",
+      "2374",
+      "4037",
+      "4217",
+      "4881",
+      "5844",
+      "6794",
+      "6904",
+      "8138",
+      "8144",
+      "8154",
+      "9226",
+      "9997"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 2062.92,
+      "delta_tool_minus_owner": 23.82,
+      "head_to_head": {
+       "tool_weeks_won": 7,
+       "cory_weeks_won": 10,
+       "ties": 0
+      }
+     }
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1674.96,
+       "owner_total": 1665.82,
+       "delta_tool_minus_owner": 9.14,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1443.76,
+       "owner_total": 1482.88,
+       "delta_tool_minus_owner": -39.12,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "10222",
+      "1689",
+      "2374",
+      "4034",
+      "4037",
+      "4217",
+      "4984",
+      "5844",
+      "6790",
+      "6803",
+      "6904",
+      "7547",
+      "9502"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1732.16,
+      "delta_tool_minus_owner": 66.34,
+      "head_to_head": {
+       "tool_weeks_won": 11,
+       "cory_weeks_won": 6,
+       "ties": 0
+      }
+     }
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1809.82,
+       "owner_total": 1711.88,
+       "delta_tool_minus_owner": 97.94,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1599.36,
+       "owner_total": 1560.04,
+       "delta_tool_minus_owner": 39.32,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "2374",
+      "3294",
+      "4983",
+      "5844",
+      "5947",
+      "6826",
+      "6904",
+      "7525",
+      "7547",
+      "7569",
+      "8155",
+      "9509"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1810.66,
+      "delta_tool_minus_owner": 98.78,
+      "head_to_head": {
+       "tool_weeks_won": 9,
+       "cory_weeks_won": 8,
+       "ties": 0
+      }
+     }
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1943.28,
+       "owner_total": 1825.76,
+       "delta_tool_minus_owner": 117.52,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1663.88,
+       "owner_total": 1577.66,
+       "delta_tool_minus_owner": 86.22,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "2133",
+      "2374",
+      "3163",
+      "4217",
+      "4866",
+      "5844",
+      "5846",
+      "5947",
+      "6904",
+      "7528",
+      "7543",
+      "9493"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1831.44,
+      "delta_tool_minus_owner": 5.68,
+      "head_to_head": {
+       "tool_weeks_won": 8,
+       "cory_weeks_won": 9,
+       "ties": 0
+      }
+     }
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1763.76,
+       "owner_total": 1702.96,
+       "delta_tool_minus_owner": 60.8,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1556.5,
+       "owner_total": 1490.62,
+       "delta_tool_minus_owner": 65.88,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "2374",
+      "2449",
+      "3294",
+      "3321",
+      "4033",
+      "5844",
+      "5892",
+      "6786",
+      "6904",
+      "7547",
+      "8136",
+      "9756"
+     ],
+     "shadowed_picks": 3,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1875.56,
+      "delta_tool_minus_owner": 172.6,
+      "head_to_head": {
+       "tool_weeks_won": 13,
+       "cory_weeks_won": 4,
+       "ties": 0
+      }
+     }
+    }
+   },
+   "league_summary_restated": {
+    "optimal": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "cashworth",
+      "mhagen"
+     ],
+     "owners_beating_tool": [
+      "coryjsimms",
+      "ds7mmet"
+     ],
+     "beats_n_of_10": 8,
+     "median_owner_delta": 49.37,
+     "cory_delta": -58.0
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "cashworth",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 7,
+     "median_owner_delta": 21.75,
+     "cory_delta": 2.26
+    }
+   },
+   "league_summary_room_pool_optimal": {
+    "beats_n_of_10": 9,
+    "median_owner_delta": 92.61,
+    "cory_delta": -21.0
+   }
+  },
+  "2023": {
+   "season": 2023,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "board": {
+    "projection_coverage_unfiltered": 481,
+    "projection_coverage_restated": 398,
+    "excluded": [
+     {
+      "player_id": "167",
+      "name": "Tom Brady",
+      "pos": "QB",
+      "proj": 323.33,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "24",
+      "name": "Matt Ryan",
+      "pos": "QB",
+      "proj": 208.37,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5110",
+      "name": "Russell Gage",
+      "pos": "WR",
+      "proj": 87.88,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4036",
+      "name": "Corey Davis",
+      "pos": "WR",
+      "proj": 87.05,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3664",
+      "name": "J.D. McKissic",
+      "pos": "RB",
+      "proj": 67.59,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6951",
+      "name": "Eno Benjamin",
+      "pos": "RB",
+      "proj": 66.59,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1825",
+      "name": "Jarvis Landry",
+      "pos": "WR",
+      "proj": 64.94,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "533",
+      "name": "Colt McCoy",
+      "pos": "QB",
+      "proj": 64.83,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5536",
+      "name": "Dontrell Hilliard",
+      "pos": "RB",
+      "proj": 64.63,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "956",
+      "name": "Mark Ingram",
+      "pos": "RB",
+      "proj": 63.13,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4962",
+      "name": "Sony Michel",
+      "pos": "RB",
+      "proj": 53.59,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "830",
+      "name": "A.J. Green",
+      "pos": "WR",
+      "proj": 51.76,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6989",
+      "name": "Marquez Callaway",
+      "pos": "WR",
+      "proj": 50.13,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5026",
+      "name": "Tre'Quan Smith",
+      "pos": "WR",
+      "proj": 45.92,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1817",
+      "name": "Sammy Watkins",
+      "pos": "WR",
+      "proj": 43.49,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5549",
+      "name": "Darrel Williams",
+      "pos": "RB",
+      "proj": 39.25,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2214",
+      "name": "Cameron Brate",
+      "pos": "TE",
+      "proj": 36.91,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "147",
+      "name": "DeSean Jackson",
+      "pos": "WR",
+      "proj": 32.5,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6849",
+      "name": "Denzel Mims",
+      "pos": "WR",
+      "proj": 32.36,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5170",
+      "name": "Phillip Lindsay",
+      "pos": "RB",
+      "proj": 30.94,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4055",
+      "name": "O.J. Howard",
+      "pos": "TE",
+      "proj": 30.76,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4741",
+      "name": "Dan Arnold",
+      "pos": "TE",
+      "proj": 30.71,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4622",
+      "name": "Keelan Cole",
+      "pos": "WR",
+      "proj": 30.05,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6805",
+      "name": "KJ Hamler",
+      "pos": "WR",
+      "proj": 29.7,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2431",
+      "name": "Mike Davis",
+      "pos": "RB",
+      "proj": 27.72,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6156",
+      "name": "Benny Snell",
+      "pos": "RB",
+      "proj": 27.48,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1110",
+      "name": "T.Y. Hilton",
+      "pos": "WR",
+      "proj": 26.76,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7809",
+      "name": "Avery Williams",
+      "pos": "RB",
+      "proj": 25.36,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1144",
+      "name": "Cole Beasley",
+      "pos": "WR",
+      "proj": 24.99,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3155",
+      "name": "Laquon Treadwell",
+      "pos": "WR",
+      "proj": 23.69,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4131",
+      "name": "Kenny Golladay",
+      "pos": "WR",
+      "proj": 22.94,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5878",
+      "name": "N'Keal Harry",
+      "pos": "TE",
+      "proj": 22.01,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6018",
+      "name": "Zach Gentry",
+      "pos": "TE",
+      "proj": 21.7,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7533",
+      "name": "Anthony Schwartz",
+      "pos": "WR",
+      "proj": 21.31,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5052",
+      "name": "Ronald Jones",
+      "pos": "RB",
+      "proj": 20.94,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6557",
+      "name": "Jeff Smith",
+      "pos": "WR",
+      "proj": 20.3,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "2382",
+      "name": "Duke Johnson",
+      "pos": "RB",
+      "proj": 20.02,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6895",
+      "name": "Quintez Cephus",
+      "pos": "WR",
+      "proj": 18.27,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8428",
+      "name": "Zander Horvath",
+      "pos": "RB",
+      "proj": 17.99,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3362",
+      "name": "Jeff Driskel",
+      "pos": "QB",
+      "proj": 17.5,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7335",
+      "name": "Bryce Perkins",
+      "pos": "QB",
+      "proj": 17.44,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "4651",
+      "name": "Corey Clement",
+      "pos": "RB",
+      "proj": 16.78,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7583",
+      "name": "Sam Ehlinger",
+      "pos": "QB",
+      "proj": 16.48,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6529",
+      "name": "Chris Myarick",
+      "pos": "TE",
+      "proj": 15.78,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5220",
+      "name": "Godwin Igwebuike",
+      "pos": "RB",
+      "proj": 15.29,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8179",
+      "name": "Snoop Conner",
+      "pos": "RB",
+      "proj": 14.91,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7427",
+      "name": "Tyler Mabry",
+      "pos": "TE",
+      "proj": 14.75,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6247",
+      "name": "Jason Moore",
+      "pos": "WR",
+      "proj": 14.58,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8928",
+      "name": "Daylen Baldwin",
+      "pos": "WR",
+      "proj": 14.16,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8665",
+      "name": "Armani Rogers",
+      "pos": "TE",
+      "proj": 13.68,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7554",
+      "name": "Tre' McKitty",
+      "pos": "TE",
+      "proj": 13.55,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8475",
+      "name": "Montrell Washington",
+      "pos": "WR",
+      "proj": 13.5,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3391",
+      "name": "Dwayne Washington",
+      "pos": "RB",
+      "proj": 13.48,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6662",
+      "name": "Parker Hesse",
+      "pos": "TE",
+      "proj": 12.76,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "943",
+      "name": "Kyle Rudolph",
+      "pos": "TE",
+      "proj": 12.1,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5806",
+      "name": "John Wolford",
+      "pos": "QB",
+      "proj": 11.19,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6450",
+      "name": "David Blough",
+      "pos": "QB",
+      "proj": 11.09,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8745",
+      "name": "Lance McCutcheon",
+      "pos": "WR",
+      "proj": 11.08,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7609",
+      "name": "Demetric Felton",
+      "pos": "RB",
+      "proj": 10.79,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7032",
+      "name": "Tyrie Cleveland",
+      "pos": "WR",
+      "proj": 10.0,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8176",
+      "name": "Danny Gray",
+      "pos": "WR",
+      "proj": 9.27,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7793",
+      "name": "Racey McMath",
+      "pos": "WR",
+      "proj": 9.19,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5915",
+      "name": "Andy Isabella",
+      "pos": "WR",
+      "proj": 8.85,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5974",
+      "name": "Trace McSorley",
+      "pos": "QB",
+      "proj": 8.12,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8820",
+      "name": "Troy Hairston",
+      "pos": "RB",
+      "proj": 7.64,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7956",
+      "name": "Cade Johnson",
+      "pos": "WR",
+      "proj": 7.19,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7131",
+      "name": "Tyler Davis",
+      "pos": "TE",
+      "proj": 6.97,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6778",
+      "name": "Chris Streveler",
+      "pos": "QB",
+      "proj": 6.91,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1029",
+      "name": "Nick Foles",
+      "pos": "QB",
+      "proj": 6.9,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6081",
+      "name": "Kendall Blanton",
+      "pos": "TE",
+      "proj": 6.78,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "5024",
+      "name": "James Washington",
+      "pos": "WR",
+      "proj": 6.42,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8178",
+      "name": "Braylon Sanders",
+      "pos": "WR",
+      "proj": 6.29,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7703",
+      "name": "Jacob Harris",
+      "pos": "WR",
+      "proj": 5.75,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6063",
+      "name": "Tyron Billy-Johnson",
+      "pos": "WR",
+      "proj": 5.69,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8921",
+      "name": "8921",
+      "pos": "WR",
+      "proj": 5.36,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "1244",
+      "name": "Josh Gordon",
+      "pos": "WR",
+      "proj": 4.51,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6069",
+      "name": "Stanley Morgan",
+      "pos": "WR",
+      "proj": 3.83,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "89",
+      "name": "Chad Henne",
+      "pos": "QB",
+      "proj": 0.77,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7404",
+      "name": "Noah Togiai",
+      "pos": "TE",
+      "proj": 0.72,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "7854",
+      "name": "Miller Forristall",
+      "pos": "TE",
+      "proj": 0.68,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "8241",
+      "name": "Anthony Brown",
+      "pos": "QB",
+      "proj": 0.14,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "3343",
+      "name": "Nate Sudfeld",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     },
+     {
+      "player_id": "6823",
+      "name": "Jacob Eason",
+      "pos": "QB",
+      "proj": 0.0,
+      "zero_game_seasons": [
+       2023,
+       2024,
+       2025
+      ],
+      "team_2026": null
+     }
+    ],
+    "kept_indeterminate_zero_game_players": []
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1619.18,
+       "owner_total": 1694.88,
+       "delta_tool_minus_owner": -75.7,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1399.42,
+       "owner_total": 1490.78,
+       "delta_tool_minus_owner": -91.36,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1166",
+      "1689",
+      "2133",
+      "3164",
+      "3969",
+      "4029",
+      "4149",
+      "4217",
+      "4381",
+      "5892",
+      "6797",
+      "7526",
+      "7564"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1615.62,
+      "delta_tool_minus_owner": -79.26,
+      "head_to_head": {
+       "tool_weeks_won": 5,
+       "cory_weeks_won": 12,
+       "ties": 0
+      }
+     }
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1647.2,
+       "owner_total": 1762.56,
+       "delta_tool_minus_owner": -115.36,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1372.38,
+       "owner_total": 1561.06,
+       "delta_tool_minus_owner": -188.68,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1166",
+      "1466",
+      "1689",
+      "3164",
+      "3969",
+      "4029",
+      "4381",
+      "5846",
+      "5859",
+      "5927",
+      "5967",
+      "6130",
+      "6797"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1643.1,
+      "delta_tool_minus_owner": -119.46,
+      "head_to_head": {
+       "tool_weeks_won": 7,
+       "cory_weeks_won": 10,
+       "ties": 0
+      }
+     }
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1683.48,
+       "owner_total": 1571.12,
+       "delta_tool_minus_owner": 112.36,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1493.3,
+       "owner_total": 1483.62,
+       "delta_tool_minus_owner": 9.68,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "2216",
+      "2449",
+      "3164",
+      "3969",
+      "4018",
+      "4029",
+      "4046",
+      "4149",
+      "4381",
+      "4988",
+      "5844",
+      "6797"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1669.46,
+      "delta_tool_minus_owner": 98.34,
+      "head_to_head": {
+       "tool_weeks_won": 11,
+       "cory_weeks_won": 6,
+       "ties": 0
+      }
+     }
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1687.2,
+       "owner_total": 1402.82,
+       "delta_tool_minus_owner": 284.38,
+       "head_to_head": {
+        "tool_weeks_won": 15,
+        "cory_weeks_won": 2,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1479.28,
+       "owner_total": 1264.16,
+       "delta_tool_minus_owner": 215.12,
+       "head_to_head": {
+        "tool_weeks_won": 15,
+        "cory_weeks_won": 2,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "3164",
+      "3969",
+      "4029",
+      "4381",
+      "4663",
+      "4950",
+      "4984",
+      "5850",
+      "6130",
+      "6797",
+      "7525",
+      "7528"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1658.18,
+      "delta_tool_minus_owner": 255.36,
+      "head_to_head": {
+       "tool_weeks_won": 14,
+       "cory_weeks_won": 3,
+       "ties": 0
+      }
+     }
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1529.62,
+       "owner_total": 1496.6,
+       "delta_tool_minus_owner": 33.02,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1296.6,
+       "owner_total": 1184.6,
+       "delta_tool_minus_owner": 112.0,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1166",
+      "1689",
+      "3164",
+      "3969",
+      "4029",
+      "4381",
+      "4950",
+      "4983",
+      "6790",
+      "6797",
+      "6801",
+      "6813",
+      "8146"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1563.2,
+      "delta_tool_minus_owner": 66.6,
+      "head_to_head": {
+       "tool_weeks_won": 9,
+       "cory_weeks_won": 8,
+       "ties": 0
+      }
+     }
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 1648.68,
+       "owner_total": 1898.6,
+       "delta_tool_minus_owner": -249.92,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1466.86,
+       "owner_total": 1580.68,
+       "delta_tool_minus_owner": -113.82,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1166",
+      "3164",
+      "3198",
+      "3969",
+      "4029",
+      "4035",
+      "4381",
+      "4950",
+      "6794",
+      "6797",
+      "6819",
+      "8144",
+      "8151"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1647.06,
+      "delta_tool_minus_owner": -251.54,
+      "head_to_head": {
+       "tool_weeks_won": 2,
+       "cory_weeks_won": 15,
+       "ties": 0
+      }
+     }
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1886.7,
+       "owner_total": 2015.52,
+       "delta_tool_minus_owner": -128.82,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1689.18,
+       "owner_total": 1791.56,
+       "delta_tool_minus_owner": -102.38,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "2309",
+      "3164",
+      "3969",
+      "4029",
+      "4034",
+      "4149",
+      "4381",
+      "4950",
+      "4984",
+      "5872",
+      "5937",
+      "6797",
+      "7547"
+     ],
+     "shadowed_picks": 4,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1990.48,
+      "delta_tool_minus_owner": -25.04,
+      "head_to_head": {
+       "tool_weeks_won": 9,
+       "cory_weeks_won": 8,
+       "ties": 0
+      }
+     }
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1638.14,
+       "owner_total": 1462.72,
+       "delta_tool_minus_owner": 175.42,
+       "head_to_head": {
+        "tool_weeks_won": 14,
+        "cory_weeks_won": 3,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1447.9,
+       "owner_total": 1310.22,
+       "delta_tool_minus_owner": 137.68,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "3164",
+      "3969",
+      "4029",
+      "4037",
+      "4039",
+      "4068",
+      "4381",
+      "4950",
+      "4984",
+      "5001",
+      "6904",
+      "8155"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1538.0,
+      "delta_tool_minus_owner": 75.28,
+      "head_to_head": {
+       "tool_weeks_won": 12,
+       "cory_weeks_won": 5,
+       "ties": 0
+      }
+     }
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1549.12,
+       "owner_total": 1726.7,
+       "delta_tool_minus_owner": -177.58,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1384.34,
+       "owner_total": 1479.24,
+       "delta_tool_minus_owner": -94.9,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1166",
+      "1689",
+      "2374",
+      "3164",
+      "3969",
+      "4029",
+      "4381",
+      "4866",
+      "4950",
+      "5012",
+      "6797",
+      "7543",
+      "7611"
+     ],
+     "shadowed_picks": 5,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1596.46,
+      "delta_tool_minus_owner": -130.24,
+      "head_to_head": {
+       "tool_weeks_won": 5,
+       "cory_weeks_won": 12,
+       "ties": 0
+      }
+     }
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1686.36,
+       "owner_total": 1700.38,
+       "delta_tool_minus_owner": -14.02,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1464.7,
+       "owner_total": 1513.74,
+       "delta_tool_minus_owner": -49.04,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "tool_roster": [
+      "1689",
+      "3164",
+      "3321",
+      "3969",
+      "4029",
+      "4381",
+      "4950",
+      "5001",
+      "6130",
+      "6151",
+      "6770",
+      "6786",
+      "6797"
+     ],
+     "shadowed_picks": 2,
+     "forced_picks": 0,
+     "room_draftable_pool_optimal": {
+      "tool_total": 1591.98,
+      "delta_tool_minus_owner": -108.4,
+      "head_to_head": {
+       "tool_weeks_won": 7,
+       "cory_weeks_won": 10,
+       "ties": 0
+      }
+     }
+    }
+   },
+   "league_summary_restated": {
+    "optimal": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "Richard2121",
+      "cashworth"
+     ],
+     "owners_beating_tool": [
+      "MarianSaar",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 4,
+     "median_owner_delta": -44.86,
+     "cory_delta": -75.7
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "Richard2121",
+      "cashworth"
+     ],
+     "owners_beating_tool": [
+      "MarianSaar",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 4,
+     "median_owner_delta": -70.2,
+     "cory_delta": -91.36
+    }
+   },
+   "league_summary_room_pool_optimal": {
+    "beats_n_of_10": 4,
+    "median_owner_delta": -52.15,
+    "cory_delta": -79.26
+   }
+  }
+ },
+ "pooled": {
+  "1": {
+   "owner": "coryjsimms",
+   "optimal": {
+    "per_year": {
+     "2025": 156.14,
+     "2024": -58.0,
+     "2023": -75.7
+    },
+    "mean_delta": 7.48
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 212.82,
+     "2024": 2.26,
+     "2023": -91.36
+    },
+    "mean_delta": 41.24
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": 40.84,
+     "2024": -21.0,
+     "2023": -79.26
+    },
+    "mean_delta": -19.81
+   }
+  },
+  "2": {
+   "owner": "ds7mmet",
+   "optimal": {
+    "per_year": {
+     "2025": 29.42,
+     "2024": -129.28,
+     "2023": -115.36
+    },
+    "mean_delta": -71.74
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 65.38,
+     "2024": -149.74,
+     "2023": -188.68
+    },
+    "mean_delta": -91.01
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -93.18,
+     "2024": 100.22,
+     "2023": -119.46
+    },
+    "mean_delta": -37.47
+   }
+  },
+  "3": {
+   "owner": "cashworth",
+   "optimal": {
+    "per_year": {
+     "2025": 39.86,
+     "2024": 37.94,
+     "2023": 112.36
+    },
+    "mean_delta": 63.39
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 15.12,
+     "2024": -76.56,
+     "2023": 9.68
+    },
+    "mean_delta": -17.25
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": 29.16,
+     "2024": 86.44,
+     "2023": 98.34
+    },
+    "mean_delta": 71.31
+   }
+  },
+  "4": {
+   "owner": "Jreis",
+   "optimal": {
+    "per_year": {
+     "2025": 81.48,
+     "2024": 245.1,
+     "2023": 284.38
+    },
+    "mean_delta": 203.65
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 127.54,
+     "2024": 110.94,
+     "2023": 215.12
+    },
+    "mean_delta": 151.2
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -39.02,
+     "2024": 254.0,
+     "2023": 255.36
+    },
+    "mean_delta": 156.78
+   }
+  },
+  "5": {
+   "owner": "B8T3S",
+   "optimal": {
+    "per_year": {
+     "2025": -219.96,
+     "2024": 130.3,
+     "2023": 33.02
+    },
+    "mean_delta": -18.88
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -182.9,
+     "2024": 126.22,
+     "2023": 112.0
+    },
+    "mean_delta": 18.44
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -288.96,
+     "2024": 231.0,
+     "2023": 66.6
+    },
+    "mean_delta": 2.88
+   }
+  },
+  "6": {
+   "owner": "MarianSaar",
+   "optimal": {
+    "per_year": {
+     "2025": 150.26,
+     "2024": 10.92,
+     "2023": -249.92
+    },
+    "mean_delta": -29.58
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 133.82,
+     "2024": 4.18,
+     "2023": -113.82
+    },
+    "mean_delta": 8.06
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": 70.26,
+     "2024": 23.82,
+     "2023": -251.54
+    },
+    "mean_delta": -52.49
+   }
+  },
+  "7": {
+   "owner": "mhagen",
+   "optimal": {
+    "per_year": {
+     "2025": -155.44,
+     "2024": 9.14,
+     "2023": -128.82
+    },
+    "mean_delta": -91.71
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -156.86,
+     "2024": -39.12,
+     "2023": -102.38
+    },
+    "mean_delta": -99.45
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -179.34,
+     "2024": 66.34,
+     "2023": -25.04
+    },
+    "mean_delta": -46.01
+   }
+  },
+  "8": {
+   "owner": "Richard2121",
+   "optimal": {
+    "per_year": {
+     "2025": -204.48,
+     "2024": 97.94,
+     "2023": 175.42
+    },
+    "mean_delta": 22.96
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -101.12,
+     "2024": 39.32,
+     "2023": 137.68
+    },
+    "mean_delta": 25.29
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -223.18,
+     "2024": 98.78,
+     "2023": 75.28
+    },
+    "mean_delta": -16.37
+   }
+  },
+  "9": {
+   "owner": "Schmelley",
+   "optimal": {
+    "per_year": {
+     "2025": -156.64,
+     "2024": 117.52,
+     "2023": -177.58
+    },
+    "mean_delta": -72.23
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 38.58,
+     "2024": 86.22,
+     "2023": -94.9
+    },
+    "mean_delta": 9.97
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -201.74,
+     "2024": 5.68,
+     "2023": -130.24
+    },
+    "mean_delta": -108.77
+   }
+  },
+  "10": {
+   "owner": "Sadbru",
+   "optimal": {
+    "per_year": {
+     "2025": -138.44,
+     "2024": 60.8,
+     "2023": -14.02
+    },
+    "mean_delta": -30.55
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -103.56,
+     "2024": 65.88,
+     "2023": -49.04
+    },
+    "mean_delta": -28.91
+   },
+   "room_draftable_pool_optimal": {
+    "per_year": {
+     "2025": -244.44,
+     "2024": 172.6,
+     "2023": -108.4
+    },
+    "mean_delta": -60.08
+   }
+  },
+  "_summary": {
+   "optimal": {
+    "beats_n_of_10_pooled": 4,
+    "median_owner_mean_delta": -24.23,
+    "cory_mean_delta": 7.48
+   },
+   "realistic": {
+    "beats_n_of_10_pooled": 6,
+    "median_owner_mean_delta": 9.02,
+    "cory_mean_delta": 41.24
+   },
+   "room_draftable_pool_optimal": {
+    "beats_n_of_10_pooled": 3,
+    "median_owner_mean_delta": -28.64,
+    "cory_mean_delta": -19.81
+   }
+  }
+ },
+ "honesty": [
+  "deterministic information correction, not a fit: one preregistered-form rule, no configuration search, nothing selected on outcome",
+  "over-exclusion direction (flatters the tool): a player lost AFTER season Y's draft who never returned in committed stores is excluded even though drafters could not have known \u2014 every excluded player is listed by name per season for audit",
+  "under-exclusion direction (flatters the human): a player publicly out at Y's draft who later logged any committed game, or (2025) whose 2026 board row carries a team, STAYS on the board \u2014 his blindness persists in the restated number and is listed, not guessed at",
+  "room_draftable_pool imports the room's curation of the exact event being replayed (news knowledge AND value opinions) \u2014 bracket edge, never the primary; optimal arm only, as originally computed",
+  "the candidate-layer grades (rookie_prior/year2_escalator) are NOT restated \u2014 the filter is orthogonal to their fits; they live in the original artifact only",
+  "owner rosters and their grading are untouched by the filter \u2014 only the tool's candidate pool changes",
+  "everything the original table's honesty list says still applies: fixed opponents per seat, thirty samples of a policy, season-vintage no-market boards"
+ ]
+}
