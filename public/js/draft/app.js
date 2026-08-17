@@ -10289,8 +10289,9 @@
         onStatus: setStatus,
         onDeadRoom: showDeadRoomBanner,
         /* A reload's resumed sync has never succeeded, so lastOkAt cannot
-         * witness that the id used to work — the resumed picks can. */
-        resumedWithPicks: (state.recentPicks || []).length > 0,
+         * witness that the id used to work — the resumed picks can. Routed
+         * through the pick-count owner (shared-state audit, current_pick). */
+        resumedWithPicks: observedPickCount() > 0,
       });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.
