@@ -1,0 +1,1501 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by draft/backtest/tiered_outcome_model.py",
+ "_note": "Tiered outcome model. Preregistered in draft/backtest/TIERED-OUTCOME-PREREG.md, committed FIRST. OpenFPL's four names are evaluation strata on the realized outcome, not predicted classes \u2014 predicting the distribution is our step, not theirs.",
+ "preregistration": "draft/backtest/TIERED-OUTCOME-PREREG.md",
+ "arm": {
+  "k_slots": {
+   "QB": 10,
+   "RB": 21,
+   "WR": 29,
+   "TE": 10
+  },
+  "survivorship_zero": false
+ },
+ "derivation_gate": {
+  "2023": {
+   "player_weeks_compared": 5055,
+   "only_in_points_store": 27,
+   "only_in_component_store": 1,
+   "max_abs_difference": 0.0,
+   "exact": true
+  },
+  "2024": {
+   "player_weeks_compared": 4984,
+   "only_in_points_store": 31,
+   "only_in_component_store": 0,
+   "max_abs_difference": 0.0,
+   "exact": true
+  },
+  "gate": "pass"
+ },
+ "scoring_fingerprints": {
+  "2023": [
+   "bd8f3e50bd67a9ce"
+  ],
+  "2024": [
+   "bd8f3e50bd67a9ce"
+  ],
+  "2025": [
+   "bd8f3e50bd67a9ce"
+  ]
+ },
+ "label_sources": {
+  "2023": "weekly points store",
+  "2024": "weekly points store",
+  "2025": "weekly points store",
+  "2021": "derived from component_stats (gated)",
+  "2022": "derived from component_stats (gated)"
+ },
+ "population_diagnostics": {
+  "2022": {
+   "feature_season": 2021,
+   "second_prior_season": 2020,
+   "players_with_prior_row": 601,
+   "unpositioned_players_dropped": 0,
+   "by_position": {
+    "QB": {
+     "field_size": 79,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 348.26,
+     "points_at_replacement_K": 319.0
+    },
+    "RB": {
+     "field_size": 156,
+     "K": 21,
+     "league_winner_cut": 11,
+     "points_at_league_winner_cut": 203.4,
+     "points_at_replacement_K": 160.7
+    },
+    "WR": {
+     "field_size": 222,
+     "K": 29,
+     "league_winner_cut": 15,
+     "points_at_league_winner_cut": 180.9,
+     "points_at_replacement_K": 141.8
+    },
+    "TE": {
+     "field_size": 117,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 135.7,
+     "points_at_replacement_K": 108.6
+    }
+   },
+   "excluded_no_season_row": 163,
+   "population": 438
+  },
+  "2023": {
+   "feature_season": 2022,
+   "second_prior_season": 2021,
+   "players_with_prior_row": 574,
+   "unpositioned_players_dropped": 23,
+   "by_position": {
+    "QB": {
+     "field_size": 78,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 360.52,
+     "points_at_replacement_K": 320.74
+    },
+    "RB": {
+     "field_size": 149,
+     "K": 21,
+     "league_winner_cut": 11,
+     "points_at_league_winner_cut": 195.5,
+     "points_at_replacement_K": 171.1
+    },
+    "WR": {
+     "field_size": 208,
+     "K": 29,
+     "league_winner_cut": 15,
+     "points_at_league_winner_cut": 190.9,
+     "points_at_replacement_K": 162.6
+    },
+    "TE": {
+     "field_size": 112,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 160.7,
+     "points_at_replacement_K": 119.12
+    }
+   },
+   "excluded_no_season_row": 162,
+   "population": 412
+  },
+  "2024": {
+   "feature_season": 2023,
+   "second_prior_season": 2022,
+   "players_with_prior_row": 548,
+   "unpositioned_players_dropped": 26,
+   "by_position": {
+    "QB": {
+     "field_size": 73,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 401.6,
+     "points_at_replacement_K": 333.16
+    },
+    "RB": {
+     "field_size": 142,
+     "K": 21,
+     "league_winner_cut": 11,
+     "points_at_league_winner_cut": 228.0,
+     "points_at_replacement_K": 174.0
+    },
+    "WR": {
+     "field_size": 224,
+     "K": 29,
+     "league_winner_cut": 15,
+     "points_at_league_winner_cut": 183.4,
+     "points_at_replacement_K": 158.4
+    },
+    "TE": {
+     "field_size": 117,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 147.9,
+     "points_at_replacement_K": 117.3
+    }
+   },
+   "excluded_no_season_row": 137,
+   "population": 411
+  },
+  "2025": {
+   "feature_season": 2024,
+   "second_prior_season": 2023,
+   "players_with_prior_row": 556,
+   "unpositioned_players_dropped": 17,
+   "by_position": {
+    "QB": {
+     "field_size": 77,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 364.88,
+     "points_at_replacement_K": 336.3
+    },
+    "RB": {
+     "field_size": 142,
+     "K": 21,
+     "league_winner_cut": 11,
+     "points_at_league_winner_cut": 225.3,
+     "points_at_replacement_K": 167.4
+    },
+    "WR": {
+     "field_size": 216,
+     "K": 29,
+     "league_winner_cut": 15,
+     "points_at_league_winner_cut": 164.4,
+     "points_at_replacement_K": 144.08
+    },
+    "TE": {
+     "field_size": 118,
+     "K": 10,
+     "league_winner_cut": 5,
+     "points_at_league_winner_cut": 150.4,
+     "points_at_replacement_K": 135.8
+    }
+   },
+   "excluded_no_season_row": 133,
+   "population": 422
+  }
+ },
+ "per_season": {
+  "2023": {
+   "status": "measured",
+   "n_train": 438,
+   "n_test": 412,
+   "train_seasons": [
+    2022
+   ],
+   "tier_counts_test": {
+    "BUST": 289,
+    "REPLACEMENT": 62,
+    "STARTER": 28,
+    "LEAGUE-WINNER": 33
+   },
+   "ordering_spearman_within_position": {
+    "naive_prev": {
+     "QB": 0.5517,
+     "RB": 0.6462,
+     "WR": 0.7476,
+     "TE": 0.7162
+    },
+    "recency_blend": {
+     "QB": 0.5504,
+     "RB": 0.6527,
+     "WR": 0.7643,
+     "TE": 0.7264
+    },
+    "market": {
+     "QB": 0.5333,
+     "RB": 0.6374,
+     "WR": 0.6934,
+     "TE": 0.5579
+    },
+    "tiered_expected_points": {
+     "QB": 0.5425,
+     "RB": 0.6619,
+     "WR": 0.7695,
+     "TE": 0.7194
+    },
+    "tiered_p_league_winner": {
+     "QB": 0.5425,
+     "RB": 0.6619,
+     "WR": 0.7695,
+     "TE": 0.7194
+    }
+   },
+   "draftable_region_precision_on_vorp": {
+    "naive_prev": {
+     "top12": 0.3333,
+     "top24": 0.4167,
+     "top48": 0.4792
+    },
+    "recency_blend": {
+     "top12": 0.25,
+     "top24": 0.4583,
+     "top48": 0.5
+    },
+    "market": {
+     "top12": 0.25,
+     "top24": 0.375,
+     "top48": 0.5208
+    },
+    "tiered_expected_points": {
+     "top12": 0.3333,
+     "top24": 0.4167,
+     "top48": 0.5208
+    },
+    "tiered_p_league_winner": {
+     "top12": 0.3333,
+     "top24": 0.4583,
+     "top48": 0.5
+    }
+   },
+   "late_round_cell": {
+    "n": 59,
+    "n_true_league_winners": 8,
+    "naive_prev": {
+     "hits_at_10": 2,
+     "hits_at_20": 4
+    },
+    "recency_blend": {
+     "hits_at_10": 2,
+     "hits_at_20": 4
+    },
+    "market": {
+     "hits_at_10": 3,
+     "hits_at_20": 4
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 3,
+     "hits_at_20": 4
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 3,
+     "hits_at_20": 4
+    }
+   }
+  },
+  "2024": {
+   "status": "measured",
+   "n_train": 850,
+   "n_test": 411,
+   "train_seasons": [
+    2022,
+    2023
+   ],
+   "tier_counts_test": {
+    "BUST": 284,
+    "REPLACEMENT": 64,
+    "STARTER": 32,
+    "LEAGUE-WINNER": 31
+   },
+   "ordering_spearman_within_position": {
+    "naive_prev": {
+     "QB": 0.6032,
+     "RB": 0.7552,
+     "WR": 0.7209,
+     "TE": 0.702
+    },
+    "recency_blend": {
+     "QB": 0.6548,
+     "RB": 0.7604,
+     "WR": 0.7164,
+     "TE": 0.7112
+    },
+    "market": {
+     "QB": 0.6298,
+     "RB": 0.7411,
+     "WR": 0.6555,
+     "TE": 0.4992
+    },
+    "tiered_expected_points": {
+     "QB": 0.5851,
+     "RB": 0.795,
+     "WR": 0.7124,
+     "TE": 0.6923
+    },
+    "tiered_p_league_winner": {
+     "QB": 0.5851,
+     "RB": 0.795,
+     "WR": 0.7124,
+     "TE": 0.6923
+    }
+   },
+   "draftable_region_precision_on_vorp": {
+    "naive_prev": {
+     "top12": 0.1667,
+     "top24": 0.2917,
+     "top48": 0.4375
+    },
+    "recency_blend": {
+     "top12": 0.25,
+     "top24": 0.2917,
+     "top48": 0.4792
+    },
+    "market": {
+     "top12": 0.25,
+     "top24": 0.3333,
+     "top48": 0.6458
+    },
+    "tiered_expected_points": {
+     "top12": 0.0833,
+     "top24": 0.3333,
+     "top48": 0.4167
+    },
+    "tiered_p_league_winner": {
+     "top12": 0.0833,
+     "top24": 0.2917,
+     "top48": 0.4375
+    }
+   },
+   "late_round_cell": {
+    "n": 57,
+    "n_true_league_winners": 5,
+    "naive_prev": {
+     "hits_at_10": 0,
+     "hits_at_20": 1
+    },
+    "recency_blend": {
+     "hits_at_10": 1,
+     "hits_at_20": 2
+    },
+    "market": {
+     "hits_at_10": 2,
+     "hits_at_20": 2
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 1,
+     "hits_at_20": 1
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 0,
+     "hits_at_20": 1
+    }
+   }
+  },
+  "2025": {
+   "status": "measured",
+   "n_train": 1261,
+   "n_test": 422,
+   "train_seasons": [
+    2022,
+    2023,
+    2024
+   ],
+   "tier_counts_test": {
+    "BUST": 302,
+    "REPLACEMENT": 57,
+    "STARTER": 29,
+    "LEAGUE-WINNER": 34
+   },
+   "ordering_spearman_within_position": {
+    "naive_prev": {
+     "QB": 0.7085,
+     "RB": 0.7783,
+     "WR": 0.7527,
+     "TE": 0.7516
+    },
+    "recency_blend": {
+     "QB": 0.7213,
+     "RB": 0.7848,
+     "WR": 0.7579,
+     "TE": 0.7865
+    },
+    "market": {
+     "QB": 0.509,
+     "RB": 0.6849,
+     "WR": 0.653,
+     "TE": 0.5278
+    },
+    "tiered_expected_points": {
+     "QB": 0.7455,
+     "RB": 0.8156,
+     "WR": 0.7876,
+     "TE": 0.7534
+    },
+    "tiered_p_league_winner": {
+     "QB": 0.7455,
+     "RB": 0.8156,
+     "WR": 0.7876,
+     "TE": 0.7534
+    },
+    "own_v6": {
+     "QB": 0.7225,
+     "RB": 0.7872,
+     "WR": 0.7611,
+     "TE": 0.794
+    }
+   },
+   "draftable_region_precision_on_vorp": {
+    "naive_prev": {
+     "top12": 0.3333,
+     "top24": 0.5,
+     "top48": 0.4792
+    },
+    "recency_blend": {
+     "top12": 0.3333,
+     "top24": 0.4583,
+     "top48": 0.4792
+    },
+    "market": {
+     "top12": 0.3333,
+     "top24": 0.5833,
+     "top48": 0.5208
+    },
+    "tiered_expected_points": {
+     "top12": 0.1667,
+     "top24": 0.375,
+     "top48": 0.4792
+    },
+    "tiered_p_league_winner": {
+     "top12": 0.1667,
+     "top24": 0.3333,
+     "top48": 0.5
+    },
+    "own_v6": {
+     "top12": 0.25,
+     "top24": 0.4583,
+     "top48": 0.4792
+    }
+   },
+   "late_round_cell": {
+    "n": 54,
+    "n_true_league_winners": 8,
+    "naive_prev": {
+     "hits_at_10": 1,
+     "hits_at_20": 1
+    },
+    "recency_blend": {
+     "hits_at_10": 1,
+     "hits_at_20": 1
+    },
+    "market": {
+     "hits_at_10": 2,
+     "hits_at_20": 3
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 1,
+     "hits_at_20": 2
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 0,
+     "hits_at_20": 2
+    },
+    "own_v6": {
+     "hits_at_10": 1,
+     "hits_at_20": 2
+    }
+   }
+  }
+ },
+ "pooled": {
+  "n_graded_player_seasons": 1245,
+  "overall_spearman_within_position_expected_points": {
+   "QB": 0.6241,
+   "RB": 0.7423,
+   "WR": 0.7511,
+   "TE": 0.7147
+  },
+  "calibration_p_league_winner": {
+   "buckets": [
+    {
+     "bucket": "[0.00,0.05)",
+     "n": 844,
+     "mean_predicted": 0.0123,
+     "observed": 0.0095,
+     "observed_ci90": [
+      0.0053,
+      0.0167
+     ],
+     "predicted_inside_observed_ci": true
+    },
+    {
+     "bucket": "[0.05,0.10)",
+     "n": 125,
+     "mean_predicted": 0.0717,
+     "observed": 0.088,
+     "observed_ci90": [
+      0.0546,
+      0.1389
+     ],
+     "predicted_inside_observed_ci": true
+    },
+    {
+     "bucket": "[0.10,0.20)",
+     "n": 111,
+     "mean_predicted": 0.1422,
+     "observed": 0.1712,
+     "observed_ci90": [
+      0.1204,
+      0.2376
+     ],
+     "predicted_inside_observed_ci": true
+    },
+    {
+     "bucket": "[0.20,0.35)",
+     "n": 86,
+     "mean_predicted": 0.2678,
+     "observed": 0.2791,
+     "observed_ci90": [
+      0.2072,
+      0.3644
+     ],
+     "predicted_inside_observed_ci": true
+    },
+    {
+     "bucket": "[0.35,1.00)",
+     "n": 79,
+     "mean_predicted": 0.5542,
+     "observed": 0.4557,
+     "observed_ci90": [
+      0.3665,
+      0.5478
+     ],
+     "predicted_inside_observed_ci": false
+    }
+   ],
+   "buckets_missing_their_interval": 1,
+   "verdict": "calibration bar met"
+  },
+  "late_round_cell": {
+   "n": 170,
+   "n_true_league_winners": 21,
+   "base_rate": 0.1235,
+   "per_season_n": {
+    "2023": 59,
+    "2024": 57,
+    "2025": 54
+   },
+   "per_season_true_league_winners": {
+    "2023": 8,
+    "2024": 5,
+    "2025": 8
+   },
+   "market": {
+    "hits_at_10": 7,
+    "hits_at_20": 9,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 3.71
+   },
+   "naive_prev": {
+    "hits_at_10": 3,
+    "hits_at_20": 6,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 3.71
+   },
+   "own_v6": {
+    "hits_at_10": 1,
+    "hits_at_20": 2,
+    "seasons_contributing": [
+     2025
+    ],
+    "chance_expectation_at_10": 1.48
+   },
+   "recency_blend": {
+    "hits_at_10": 4,
+    "hits_at_20": 7,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 3.71
+   },
+   "tiered_expected_points": {
+    "hits_at_10": 5,
+    "hits_at_20": 7,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 3.71
+   },
+   "tiered_p_league_winner": {
+    "hits_at_10": 3,
+    "hits_at_20": 7,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 3.71
+   },
+   "best_mean_baseline_at_10": "market",
+   "bootstrap_p_lw_minus_best_mean": {
+    "k10": {
+     "status": "measured",
+     "mean_diff": -4.144,
+     "ci90": [
+      -8.0,
+      0.0
+     ],
+     "excludes_zero": false
+    },
+    "k20": {
+     "status": "measured",
+     "mean_diff": -3.49,
+     "ci90": [
+      -7.0,
+      0.0
+     ],
+     "excludes_zero": false
+    }
+   },
+   "chance_expectation_at_10": 3.71,
+   "one_list_across_seasons_not_used_for_the_verdict": {
+    "market": {
+     "hits_at_10": 2,
+     "hits_at_20": 6
+    },
+    "naive_prev": {
+     "hits_at_10": 0,
+     "hits_at_20": 1
+    },
+    "recency_blend": {
+     "hits_at_10": 0,
+     "hits_at_20": 3
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 0,
+     "hits_at_20": 2
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 1,
+     "hits_at_20": 1
+    }
+   }
+  },
+  "late_round_cell_widened_to_undrafted": {
+   "n": 1074,
+   "n_true_league_winners": 30,
+   "base_rate": 0.0279,
+   "per_season_n": {
+    "2023": 355,
+    "2024": 353,
+    "2025": 366
+   },
+   "per_season_true_league_winners": {
+    "2023": 10,
+    "2024": 8,
+    "2025": 12
+   },
+   "naive_prev": {
+    "hits_at_10": 2,
+    "hits_at_20": 5,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 0.84
+   },
+   "own_v6": {
+    "hits_at_10": 1,
+    "hits_at_20": 4,
+    "seasons_contributing": [
+     2025
+    ],
+    "chance_expectation_at_10": 0.33
+   },
+   "recency_blend": {
+    "hits_at_10": 2,
+    "hits_at_20": 8,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 0.84
+   },
+   "tiered_expected_points": {
+    "hits_at_10": 3,
+    "hits_at_20": 8,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 0.84
+   },
+   "tiered_p_league_winner": {
+    "hits_at_10": 2,
+    "hits_at_20": 4,
+    "seasons_contributing": [
+     2023,
+     2024,
+     2025
+    ],
+    "chance_expectation_at_10": 0.84
+   },
+   "best_mean_baseline_at_10": "tiered_expected_points",
+   "bootstrap_p_lw_minus_best_mean": {
+    "k10": {
+     "status": "measured",
+     "mean_diff": 0.086,
+     "ci90": [
+      -3.0,
+      3.0
+     ],
+     "excludes_zero": false
+    },
+    "k20": {
+     "status": "measured",
+     "mean_diff": -2.279,
+     "ci90": [
+      -7.0,
+      2.0
+     ],
+     "excludes_zero": false
+    }
+   },
+   "chance_expectation_at_10": 0.84
+  },
+  "redundancy_vs_mean": {
+   "recency_blend": {
+    "QB": 0.9368,
+    "RB": 0.9446,
+    "WR": 0.9471,
+    "TE": 0.9174,
+    "pooled_min_abs": 0.9174,
+    "pooled_mean": 0.9365
+   },
+   "naive_prev": {
+    "QB": 0.9563,
+    "RB": 0.9481,
+    "WR": 0.9519,
+    "TE": 0.9304,
+    "pooled_min_abs": 0.9304,
+    "pooled_mean": 0.9467
+   },
+   "expected_points": {
+    "QB": 0.9966,
+    "RB": 0.9988,
+    "WR": 0.9989,
+    "TE": 0.9667,
+    "pooled_min_abs": 0.9667,
+    "pooled_mean": 0.9902
+   }
+  },
+  "verdict": {
+   "headline": "REDUNDANT",
+   "cory_thesis_confirmed": false,
+   "late_round_hits_at_10": {
+    "tiered_p_league_winner": 3,
+    "tiered_expected_points": 5,
+    "recency_blend": 4,
+    "naive_prev": 3,
+    "market": 7
+   },
+   "beats_every_mean_baseline_at_10": false,
+   "bootstrap_excludes_zero": false,
+   "redundancy_pooled_mean_spearman": {
+    "recency_blend": 0.9365,
+    "naive_prev": 0.9467,
+    "expected_points": 0.9902
+   },
+   "redundant_at_the_0_95_bar": true,
+   "calibration_buckets_missing_their_interval": 1,
+   "reading": "headline is taken in the preregistered order: MISCALIBRATED leads if >=2 of 5 reliability buckets miss, then CONFIRMED, then REDUNDANT, then NULL"
+  }
+ },
+ "baselines_unavailable": {
+  "sleeper": "UNMEASURABLE \u2014 no pre-2026 Sleeper or FantasyPros projection was ever archived (proj_series.json starts 2026-08-09) and a retroactive fetch leaks (exp33).",
+  "own_v6": {
+   "2023": "unavailable \u2014 own_v6 needs two prior weekly-points stores; only 2023+2024 exist, so 2025 is its only buildable season",
+   "2024": "unavailable \u2014 own_v6 needs two prior weekly-points stores; only 2023+2024 exist, so 2025 is its only buildable season",
+   "2025": "rebuilt from own_model_v6.build_v6; covers 387 of 422 graded players, 35 without a forecast ranked last"
+  }
+ },
+ "sensitivity_S2_dedicated_slots_only": {
+  "arm": {
+   "k_slots": {
+    "QB": 10,
+    "RB": 20,
+    "WR": 20,
+    "TE": 10
+   },
+   "survivorship_zero": false
+  },
+  "pooled": {
+   "n_graded_player_seasons": 1245,
+   "overall_spearman_within_position_expected_points": {
+    "QB": 0.6138,
+    "RB": 0.7408,
+    "WR": 0.7471,
+    "TE": 0.7113
+   },
+   "calibration_p_league_winner": {
+    "buckets": [
+     {
+      "bucket": "[0.00,0.05)",
+      "n": 892,
+      "mean_predicted": 0.0107,
+      "observed": 0.0078,
+      "observed_ci90": [
+       0.0043,
+       0.0144
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.05,0.10)",
+      "n": 109,
+      "mean_predicted": 0.0728,
+      "observed": 0.1376,
+      "observed_ci90": [
+       0.0921,
+       0.2007
+      ],
+      "predicted_inside_observed_ci": false
+     },
+     {
+      "bucket": "[0.10,0.20)",
+      "n": 115,
+      "mean_predicted": 0.1399,
+      "observed": 0.113,
+      "observed_ci90": [
+       0.0731,
+       0.1708
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.20,0.35)",
+      "n": 71,
+      "mean_predicted": 0.2626,
+      "observed": 0.3099,
+      "observed_ci90": [
+       0.228,
+       0.4057
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.35,1.00)",
+      "n": 58,
+      "mean_predicted": 0.5613,
+      "observed": 0.431,
+      "observed_ci90": [
+       0.3295,
+       0.5387
+      ],
+      "predicted_inside_observed_ci": false
+     }
+    ],
+    "buckets_missing_their_interval": 2,
+    "verdict": "MISCALIBRATED"
+   },
+   "late_round_cell": {
+    "n": 170,
+    "n_true_league_winners": 15,
+    "base_rate": 0.0882,
+    "per_season_n": {
+     "2023": 59,
+     "2024": 57,
+     "2025": 54
+    },
+    "per_season_true_league_winners": {
+     "2023": 6,
+     "2024": 3,
+     "2025": 6
+    },
+    "market": {
+     "hits_at_10": 4,
+     "hits_at_20": 6,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 2.65
+    },
+    "naive_prev": {
+     "hits_at_10": 2,
+     "hits_at_20": 3,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 2.65
+    },
+    "own_v6": {
+     "hits_at_10": 1,
+     "hits_at_20": 2,
+     "seasons_contributing": [
+      2025
+     ],
+     "chance_expectation_at_10": 1.11
+    },
+    "recency_blend": {
+     "hits_at_10": 4,
+     "hits_at_20": 5,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 2.65
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 4,
+     "hits_at_20": 5,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 2.65
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 1,
+     "hits_at_20": 3,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 2.65
+    },
+    "best_mean_baseline_at_10": "tiered_expected_points",
+    "bootstrap_p_lw_minus_best_mean": {
+     "k10": {
+      "status": "measured",
+      "mean_diff": -1.678,
+      "ci90": [
+       -5.0,
+       1.0
+      ],
+      "excludes_zero": false
+     },
+     "k20": {
+      "status": "measured",
+      "mean_diff": -2.127,
+      "ci90": [
+       -6.0,
+       1.0
+      ],
+      "excludes_zero": false
+     }
+    },
+    "chance_expectation_at_10": 2.65,
+    "one_list_across_seasons_not_used_for_the_verdict": {
+     "market": {
+      "hits_at_10": 1,
+      "hits_at_20": 4
+     },
+     "naive_prev": {
+      "hits_at_10": 0,
+      "hits_at_20": 1
+     },
+     "recency_blend": {
+      "hits_at_10": 0,
+      "hits_at_20": 3
+     },
+     "tiered_expected_points": {
+      "hits_at_10": 0,
+      "hits_at_20": 2
+     },
+     "tiered_p_league_winner": {
+      "hits_at_10": 0,
+      "hits_at_20": 1
+     }
+    }
+   },
+   "late_round_cell_widened_to_undrafted": {
+    "n": 1074,
+    "n_true_league_winners": 22,
+    "base_rate": 0.0205,
+    "per_season_n": {
+     "2023": 355,
+     "2024": 353,
+     "2025": 366
+    },
+    "per_season_true_league_winners": {
+     "2023": 8,
+     "2024": 5,
+     "2025": 9
+    },
+    "naive_prev": {
+     "hits_at_10": 2,
+     "hits_at_20": 5,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.61
+    },
+    "own_v6": {
+     "hits_at_10": 1,
+     "hits_at_20": 4,
+     "seasons_contributing": [
+      2025
+     ],
+     "chance_expectation_at_10": 0.25
+    },
+    "recency_blend": {
+     "hits_at_10": 2,
+     "hits_at_20": 8,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.61
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 1,
+     "hits_at_20": 7,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.61
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 1,
+     "hits_at_20": 2,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.61
+    },
+    "best_mean_baseline_at_10": "recency_blend",
+    "bootstrap_p_lw_minus_best_mean": {
+     "k10": {
+      "status": "measured",
+      "mean_diff": -1.741,
+      "ci90": [
+       -5.0,
+       1.0
+      ],
+      "excludes_zero": false
+     },
+     "k20": {
+      "status": "measured",
+      "mean_diff": -5.306,
+      "ci90": [
+       -10.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     }
+    },
+    "chance_expectation_at_10": 0.61
+   },
+   "redundancy_vs_mean": {
+    "recency_blend": {
+     "QB": 0.9325,
+     "RB": 0.9351,
+     "WR": 0.9414,
+     "TE": 0.9135,
+     "pooled_min_abs": 0.9135,
+     "pooled_mean": 0.9306
+    },
+    "naive_prev": {
+     "QB": 0.9533,
+     "RB": 0.9387,
+     "WR": 0.9457,
+     "TE": 0.9265,
+     "pooled_min_abs": 0.9265,
+     "pooled_mean": 0.941
+    },
+    "expected_points": {
+     "QB": 0.9971,
+     "RB": 0.9993,
+     "WR": 0.994,
+     "TE": 0.9651,
+     "pooled_min_abs": 0.9651,
+     "pooled_mean": 0.9889
+    }
+   },
+   "verdict": {
+    "headline": "MISCALIBRATED",
+    "cory_thesis_confirmed": false,
+    "late_round_hits_at_10": {
+     "tiered_p_league_winner": 1,
+     "tiered_expected_points": 4,
+     "recency_blend": 4,
+     "naive_prev": 2,
+     "market": 4
+    },
+    "beats_every_mean_baseline_at_10": false,
+    "bootstrap_excludes_zero": false,
+    "redundancy_pooled_mean_spearman": {
+     "recency_blend": 0.9306,
+     "naive_prev": 0.941,
+     "expected_points": 0.9889
+    },
+    "redundant_at_the_0_95_bar": true,
+    "calibration_buckets_missing_their_interval": 2,
+    "reading": "headline is taken in the preregistered order: MISCALIBRATED leads if >=2 of 5 reliability buckets miss, then CONFIRMED, then REDUNDANT, then NULL"
+   }
+  }
+ },
+ "sensitivity_S1_survivorship_absent_as_zero": {
+  "arm": {
+   "k_slots": {
+    "QB": 10,
+    "RB": 21,
+    "WR": 29,
+    "TE": 10
+   },
+   "survivorship_zero": true
+  },
+  "pooled": {
+   "n_graded_player_seasons": 1677,
+   "overall_spearman_within_position_expected_points": {
+    "QB": 0.6419,
+    "RB": 0.7101,
+    "WR": 0.7524,
+    "TE": 0.7217
+   },
+   "calibration_p_league_winner": {
+    "buckets": [
+     {
+      "bucket": "[0.00,0.05)",
+      "n": 1282,
+      "mean_predicted": 0.0085,
+      "observed": 0.007,
+      "observed_ci90": [
+       0.0041,
+       0.012
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.05,0.10)",
+      "n": 121,
+      "mean_predicted": 0.0695,
+      "observed": 0.1488,
+      "observed_ci90": [
+       0.1033,
+       0.2096
+      ],
+      "predicted_inside_observed_ci": false
+     },
+     {
+      "bucket": "[0.10,0.20)",
+      "n": 109,
+      "mean_predicted": 0.14,
+      "observed": 0.0917,
+      "observed_ci90": [
+       0.0556,
+       0.1476
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.20,0.35)",
+      "n": 89,
+      "mean_predicted": 0.2655,
+      "observed": 0.2921,
+      "observed_ci90": [
+       0.2199,
+       0.3766
+      ],
+      "predicted_inside_observed_ci": true
+     },
+     {
+      "bucket": "[0.35,1.00)",
+      "n": 76,
+      "mean_predicted": 0.5559,
+      "observed": 0.4605,
+      "observed_ci90": [
+       0.3695,
+       0.5543
+      ],
+      "predicted_inside_observed_ci": false
+     }
+    ],
+    "buckets_missing_their_interval": 2,
+    "verdict": "MISCALIBRATED"
+   },
+   "late_round_cell": {
+    "n": 171,
+    "n_true_league_winners": 21,
+    "base_rate": 0.1228,
+    "per_season_n": {
+     "2023": 59,
+     "2024": 57,
+     "2025": 55
+    },
+    "per_season_true_league_winners": {
+     "2023": 8,
+     "2024": 5,
+     "2025": 8
+    },
+    "market": {
+     "hits_at_10": 7,
+     "hits_at_20": 9,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 3.69
+    },
+    "naive_prev": {
+     "hits_at_10": 2,
+     "hits_at_20": 6,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 3.69
+    },
+    "own_v6": {
+     "hits_at_10": 1,
+     "hits_at_20": 2,
+     "seasons_contributing": [
+      2025
+     ],
+     "chance_expectation_at_10": 1.45
+    },
+    "recency_blend": {
+     "hits_at_10": 4,
+     "hits_at_20": 7,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 3.69
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 4,
+     "hits_at_20": 7,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 3.69
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 3,
+     "hits_at_20": 5,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 3.69
+    },
+    "best_mean_baseline_at_10": "market",
+    "bootstrap_p_lw_minus_best_mean": {
+     "k10": {
+      "status": "measured",
+      "mean_diff": -4.093,
+      "ci90": [
+       -8.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "k20": {
+      "status": "measured",
+      "mean_diff": -3.873,
+      "ci90": [
+       -8.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     }
+    },
+    "chance_expectation_at_10": 3.69,
+    "one_list_across_seasons_not_used_for_the_verdict": {
+     "market": {
+      "hits_at_10": 2,
+      "hits_at_20": 6
+     },
+     "naive_prev": {
+      "hits_at_10": 0,
+      "hits_at_20": 1
+     },
+     "recency_blend": {
+      "hits_at_10": 0,
+      "hits_at_20": 2
+     },
+     "tiered_expected_points": {
+      "hits_at_10": 0,
+      "hits_at_20": 1
+     },
+     "tiered_p_league_winner": {
+      "hits_at_10": 1,
+      "hits_at_20": 2
+     }
+    }
+   },
+   "late_round_cell_widened_to_undrafted": {
+    "n": 1506,
+    "n_true_league_winners": 30,
+    "base_rate": 0.0199,
+    "per_season_n": {
+     "2023": 517,
+     "2024": 490,
+     "2025": 499
+    },
+    "per_season_true_league_winners": {
+     "2023": 10,
+     "2024": 8,
+     "2025": 12
+    },
+    "naive_prev": {
+     "hits_at_10": 2,
+     "hits_at_20": 4,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.6
+    },
+    "own_v6": {
+     "hits_at_10": 1,
+     "hits_at_20": 4,
+     "seasons_contributing": [
+      2025
+     ],
+     "chance_expectation_at_10": 0.24
+    },
+    "recency_blend": {
+     "hits_at_10": 2,
+     "hits_at_20": 8,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.6
+    },
+    "tiered_expected_points": {
+     "hits_at_10": 1,
+     "hits_at_20": 7,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.6
+    },
+    "tiered_p_league_winner": {
+     "hits_at_10": 3,
+     "hits_at_20": 4,
+     "seasons_contributing": [
+      2023,
+      2024,
+      2025
+     ],
+     "chance_expectation_at_10": 0.6
+    },
+    "best_mean_baseline_at_10": "recency_blend",
+    "bootstrap_p_lw_minus_best_mean": {
+     "k10": {
+      "status": "measured",
+      "mean_diff": 0.231,
+      "ci90": [
+       -3.0,
+       4.0
+      ],
+      "excludes_zero": false
+     },
+     "k20": {
+      "status": "measured",
+      "mean_diff": -2.6,
+      "ci90": [
+       -8.0,
+       3.0
+      ],
+      "excludes_zero": false
+     }
+    },
+    "chance_expectation_at_10": 0.6
+   },
+   "redundancy_vs_mean": {
+    "recency_blend": {
+     "QB": 0.9043,
+     "RB": 0.91,
+     "WR": 0.9216,
+     "TE": 0.9153,
+     "pooled_min_abs": 0.9043,
+     "pooled_mean": 0.9128
+    },
+    "naive_prev": {
+     "QB": 0.9507,
+     "RB": 0.9374,
+     "WR": 0.9459,
+     "TE": 0.9392,
+     "pooled_min_abs": 0.9374,
+     "pooled_mean": 0.9433
+    },
+    "expected_points": {
+     "QB": 0.9948,
+     "RB": 0.999,
+     "WR": 0.9948,
+     "TE": 0.8946,
+     "pooled_min_abs": 0.8946,
+     "pooled_mean": 0.9708
+    }
+   },
+   "verdict": {
+    "headline": "MISCALIBRATED",
+    "cory_thesis_confirmed": false,
+    "late_round_hits_at_10": {
+     "tiered_p_league_winner": 3,
+     "tiered_expected_points": 4,
+     "recency_blend": 4,
+     "naive_prev": 2,
+     "market": 7
+    },
+    "beats_every_mean_baseline_at_10": false,
+    "bootstrap_excludes_zero": false,
+    "redundancy_pooled_mean_spearman": {
+     "recency_blend": 0.9128,
+     "naive_prev": 0.9433,
+     "expected_points": 0.9708
+    },
+    "redundant_at_the_0_95_bar": true,
+    "calibration_buckets_missing_their_interval": 2,
+    "reading": "headline is taken in the preregistered order: MISCALIBRATED leads if >=2 of 5 reliability buckets miss, then CONFIRMED, then REDUNDANT, then NULL"
+   }
+  }
+ }
+}
