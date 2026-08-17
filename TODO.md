@@ -34,6 +34,36 @@ mistakes in our info!!"** This is what closed and what is still open.
 - **Playoff-SOS artifact regenerated** — my own board rebuild had added 5 deep
   Sleeper rows (ADP 502-919) the artifact predated, breaking its partition test.
 
+### ALSO CLOSED, LATER THE SAME DAY
+
+- **The backtest HARNESS was still manufacturing the ceiling defect.**
+  `build_bundle.py` wrote `proj_ceiling = 1.35 x proj_mean` and
+  `proj_sd = 0.25 x proj_mean` as GLOBAL constants on every bundle ever built,
+  so re-running the ceiling experiment would have reproduced the original answer
+  for the original reason. Now measured p90/p10/sd per (position, band) through
+  production's own appliers, `proj_floor` attached for the first time,
+  leave-one-season-out enforced by `calibrate(exclude_season=)` raising rather
+  than warning. No fallback: an unmeasured cell writes nothing. **Known cost:**
+  the calibration spans 2023-25 and the `1-3` band has n=9, so holding a season
+  out drops it under min_n — the top three per position carry NO ceiling on a
+  rebuilt bundle. That is a refusal, and it is the region where a fabricated
+  number would do most harm. Real bundles build in CI; the pure functions and
+  wiring are tested here, the full rebuild runs there.
+- **THE MONEY PROXY HARDCODED KEEPER VARIANCE — and it biased today's headline.**
+  `cory_conditional.load_world` read the board for pool rows and then used a flat
+  `"weekly_sd": 8.0` for kept players. Cory's three keepers measure **17.63 /
+  25.81 / 32.46**, so team weekly sd was understated **11.1%** (83.44 vs 93.81).
+  Weekly high pays here, so understating variance UNDERSTATES THE VALUE OF
+  VARIANCE — the proxy was answering "is upside worth paying for?" while tilted
+  against upside. It feeds `policy_tournament`, `stack_sweep`, `frontier`,
+  `exp_need_phase`, `exp_ceiling_replicate`, `sim_validation`.
+  **Re-ran the tuning study on the corrected proxy: headline moved $1.17**
+  (+65.50 → +64.33, CI [+35.67,+94.17]), every non-zero endgame ceiling still
+  worse with CIs excluding zero. Correcting a bias that should have helped the
+  upside arms did not help them, so the "upside late loses" result is now
+  STRONGER, on its fourth independent line.
+  (`draft/audit/retune_after_keeper_variance_fix_2026-08-17.md`)
+
 ### OPEN — AND ONE NEEDS CORY
 
 - **DECISION FOR CORY: the ADP-sd ratchet fired.**
