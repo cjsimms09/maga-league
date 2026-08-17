@@ -1546,10 +1546,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('measured: stack at 1.0 (the one adjuster that earned — D10 as ruled)',
     m.stack === 1.0, String(m.stack));
   check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
-  check('measured: ceiling SETTLED TO ZERO — the ledger measured -4.8 [-26,+17], a sign we '
-    + 'cannot distinguish from zero, yet at 0.65 it decided a third of late #1s (flip diag). '
-    + 'The weekly-payout lean lives in the same-tier tiebreak + Ceiling Chase doctrine now.',
-    m.ceiling === 0, String(m.ceiling));
+  check('measured: ceiling at 0.45 — RULED 2026-08-17 (Cory: "IS THIS STUDIES? IF SO, YES"). '
+    + 'The old -4.8 [-26,+17] zero was measured on a proj_mean-x-constant board (rank-identical '
+    + 'to value, Spearman 1.0000); three preregistered runs on real ceilings beat zero 3/3 seeds, '
+    + 'separably, at every value 0.15-0.65. 0.45 is the exp-21 inverted-U PEAK — "should it be '
+    + 'higher?" is answered NO by the provably negative heavy-tilt arm. Full record at '
+    + 'MEASURED_WEIGHTS in engine.js.',
+    m.ceiling === 0.45, String(m.ceiling));
   check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
   // it must be a real, selectable preset AND the thing matchPreset names it
   const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');

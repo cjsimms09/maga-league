@@ -129,13 +129,15 @@ check('mean deviation magnitude is pinned (frozen pool)',
   Math.abs(r.meanMagnitude - 15.9) < 3,
   'magnitude=' + r.meanMagnitude.toFixed(1));
 
-// A SCOPE NOTE ADDED 2026-08-12, so "ceiling: dead" is not read as a global
-// truth: ceiling is dead in the STARTER branch by arithmetic (its weight is 0),
-// and it is NOT dead in the bench branch any more — CFG.BENCH_CEILING_FLOOR
-// gives it 0.25 there regardless of the slider. This metric still reports it
-// dead because on THIS frozen pool the perturbation does not reach a
-// bench-branch decision. The label is accurate for the pool and narrower than
-// it sounds, which is the same caveat the seat-freeze note makes.
+// A SCOPE NOTE ADDED 2026-08-12 (and OVERTAKEN TWICE since — kept as history):
+// it said ceiling was dead in the STARTER branch by arithmetic (weight 0) and
+// alive in the bench branch via CFG.BENCH_CEILING_FLOOR (then 0.25). The floor
+// was retired to 0 on 2026-08-14, and on 2026-08-17 Cory ruled the weight
+// itself to 0.45 — so ceiling is now LIVE by arithmetic and correctly absent
+// from the measured dead list below. Nothing here pins ceiling either way:
+// ZERO_WEIGHTED is derived from MEASURED_WEIGHTS and the dead set is
+// re-measured on the frozen pool every run, which is why this suite survived
+// the ruling without a re-pin.
 //
 // THE DEAD-WEIGHT FINDING, split into the two things it was conflating.
 //

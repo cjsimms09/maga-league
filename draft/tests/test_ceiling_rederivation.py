@@ -152,15 +152,29 @@ def test_a_favourable_seed_cannot_carry_a_column_on_its_own():
     assert E.summarise(ps)[0].startswith("UNSIGNABLE")
 
 
-def test_the_live_weight_quoted_is_the_one_engine_js_ships():
-    """The defect that made 'keep 0.65' readable as reassurance. Read the engine
-    rather than trusting a second literal."""
+def test_the_control_arm_is_frozen_and_the_engine_ships_the_ruling():
+    """RE-PINNED 2026-08-17 EVENING. This used to assert that the experiment's
+    LIVE_CEILING_WEIGHT matched what engine.js ships — the defect that made
+    'keep 0.65' readable as reassurance. Cory then ruled the weight to 0.45
+    ("IS THIS STUDIES? IF SO, YES" — this experiment IS the studies), so the
+    two numbers legitimately diverged and each must now be pinned for what it
+    is: LIVE_CEILING_WEIGHT stays 0.0 because it is the experiment's CONTROL
+    ARM — the weight that shipped when the runs were made, recorded in every
+    stored artifact (live_ceiling_weight: 0.0). Moving it to follow the engine
+    would silently rewrite what the experiment compared against. And the
+    engine ships the ruled 0.45 (record at MEASURED_WEIGHTS), read from the
+    source rather than trusted from a second literal — the original point."""
     src = open(os.path.join(os.path.dirname(os.path.dirname(HERE)),
                             "public", "js", "draft", "engine.js"), encoding="utf8").read()
     i = src.index("const MEASURED_WEIGHTS")
     block = src[i:i + 200]
-    assert "ceiling: 0.0" in block, block
-    assert E.LIVE_CEILING_WEIGHT == 0.0
+    assert "ceiling: 0.45" in block, block
+    assert E.LIVE_CEILING_WEIGHT == 0.0, (
+        "the control arm moved — that rewrites what every stored run compared "
+        "against; a new experiment against the 0.45 baseline is a NEW file")
+    d = json.load(open(RESULT))
+    assert d["live_ceiling_weight"] == E.LIVE_CEILING_WEIGHT, (
+        "the stored artifact and the script disagree about the control arm")
 
 
 # ------------------------------------------------------------- the stored result

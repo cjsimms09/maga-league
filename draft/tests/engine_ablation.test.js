@@ -294,17 +294,27 @@ const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
 {
   const out = JSON.parse(fs.readFileSync(TEST_OUT + '.a', 'utf8'));
   // CONTROL — ablations that must reach the picks on these seeds do.
-  /* minus_opportunity MOVED to the zero-divergence side, RE-PINNED 2026-08-17:
-   * Cory's "Remove 1" ruling set opportunity_cap to 0.0, so the 08-17 board
-   * ships with the layer already off — every opportunity_adj is 0 and
-   * proj_mean == proj_baseline. Stripping the layer from a board that does
-   * not carry it is a no-op BY THE RULING, so this arm's divergence control
-   * inverted: rooms_diverged > 0 would now mean the strip is inventing
-   * differences that are not there. It joins minus_wire_bench under the
-   * exact-zero identity below, which is the STRONGER check — and it flips
-   * back to the divergence side the day the reserved reversal restores the
-   * layer, which is exactly when it should. */
-  ['baseline_bpa', 'stripped', 'minus_conserve'].forEach(a => {
+  /* minus_opportunity MOVED to the zero-divergence side on 2026-08-17 morning
+   * (Cory's "Remove 1" ruling: opportunity_cap 0.0, so every opportunity_adj
+   * is 0 and proj_mean == proj_baseline — stripping the ADJUSTMENT limb is a
+   * no-op by the ruling, and it stayed one: the board still carries zero
+   * adjusted rows, pinned above on the live board).
+   *
+   * AND MOVED BACK the same evening, for a DIFFERENT limb than the block
+   * predicted. strip_opportunity also deletes `opportunity_z`, the layer's
+   * other limb, which feeds keeperOptionValue's breakout term (composite.js:
+   * `0.35 * clamp(opportunity_z)` inside the keep-probability sigmoid; keeper
+   * weight 1.0). Under ceiling 0 that difference existed but flipped no pick
+   * on these seeds — the value anchor decided everything the z-limb could
+   * touch. The ceiling term going live at 0.45 (Cory's same-day ruling — the
+   * record is at MEASURED_WEIGHTS in engine.js) re-spread near-ties, and the
+   * z-limb now decides real picks (measured here: 1/2 smoke rooms, first
+   * divergence at my-pick index 1, cascading). So the arm returns to the
+   * divergence CONTROLS: rooms_diverged === 0 would now mean the ablation
+   * stopped reaching a choice the shipped config demonstrably makes. The
+   * adjustment limb's no-op stays pinned separately (no-adjusted-row, above);
+   * the divergence here is ENTIRELY the z-limb through KOV. */
+  ['baseline_bpa', 'stripped', 'minus_conserve', 'minus_opportunity'].forEach(a => {
     ck('CONTROL — ' + a + ' diverges from its control on the smoke seeds '
       + '(the ablation provably reaches the choice)',
       out.paired_vs_control[a].rooms_diverged > 0,
@@ -314,8 +324,6 @@ const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
   // EXACTLY zero deltas — pairing and season-memo accounting are exact.
   const zeroArms = [
     ['minus_wire_bench', 'the dead-code finding at driver level'],
-    ['minus_opportunity', 'the "Remove 1" ruling at driver level: stripping a '
-      + 'layer the board no longer carries changes no pick'],
   ];
   zeroArms.forEach(([name, why]) => {
     const wb = out.paired_vs_control[name];
