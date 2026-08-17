@@ -382,8 +382,28 @@ def spread_from_dispersion(row: dict, *, total_drafts=None) -> dict:
     """MFL's published min/max pick -> an estimated sd of that player's pick, or None.
 
     THE READER FOR TOMORROW'S DATA, and rule 14 on my own newest work. A's item #1
-    is that 94.6% of the board's `adp_sd` sits on two values — 1,418 players at
-    exactly 30.0 and 246 at exactly 15.0, 71 distinct values across 1,759 players.
+    is that the board's `adp_sd` collapses onto two clamp values, 30.0 and 15.0.
+
+    ⚠ THE FIGURES THAT USED TO SIT HERE WERE WRITTEN AS "the board today" AND THE
+    BOARD REBUILDS NIGHTLY. Dated instead, because a bare number in a docstring is
+    a measurement pretending to be a constant:
+
+        2026-08-13   1,841 players    74 distinct   94.8% on the top two
+        2026-08-17     682 players   140 distinct   68.8%
+
+    AND MOST BUT NOT ALL OF THAT IMPROVEMENT IS REAL, which the two rows alone do
+    not show: the board was PRUNED from 1,841 to 682, and pruning drops exactly the
+    deep players who carry the 30.0 clamp, so some of the fall is population rather
+    than dispersion. Holding the population fixed to the 672 players on both boards
+    separates them — 85.7% -> 68.3%, so of the 26.0-point fall about 9.1 is pruning
+    and 17.4 is real. Comparing the two `ALL` rows straight across would have
+    credited the clamp fix with the pruning's share.
+
+    Re-measure rather than trust this block:
+        python3 -c "import json,collections; d=json.load(open('public/draft_data.json')); \
+c=collections.Counter(p['adp_sd'] for p in d['players']); \
+print(len(d['players']), len(c), c.most_common(2))"
+
     My answer was to capture MFL's real dispersion. CAPTURING IS NOT FIXING: the
     spread lands tomorrow and nothing reads it.
 
@@ -611,10 +631,19 @@ def spread_summary(dispersion: dict) -> dict:
     """A whole day's spreads — because the claim under test is about a DAY.
 
     "Does a real spread beat the clamp" is not answerable one player at a time. The
-    board today carries 71 distinct `adp_sd` values across 1,759 players with 94.6%
-    on two of them, so the number that decides whether tomorrow is any better is
-    DISTINCT VALUES — not a mean, which a fully collapsed distribution reports
-    perfectly healthily, and which is how the clamp survived this long.
+    board's `adp_sd` piles onto two clamp values, so the number that decides whether
+    tomorrow is any better is DISTINCT VALUES — not a mean, which a fully collapsed
+    distribution reports perfectly healthily, and which is how the clamp survived
+    this long.
+
+    ⚠ NO COUNT IS QUOTED HERE ON PURPOSE. This sentence used to read "the board
+    today carries 71 distinct values across 1,759 players with 94.6% on two of
+    them", and the board rebuilds nightly: measured 74/1,841/94.8% on 2026-08-13
+    and 140/682/68.8% on 2026-08-17, having moved again in between. The CLAIM is
+    what this function rests on and the claim holds — dispersion is clamp-dominated
+    and distinct values is the metric that sees it. The arithmetic belongs to
+    whichever board is on disk, and `spread_from_dispersion` carries the dated
+    series and the one-liner that reproduces it.
 
     UNTIL TOMORROW THE ESTIMATOR IS UNVALIDATED AGAINST REAL DATA, and there is no
     stored feed carrying both a published sd and min/max to check it against. This
