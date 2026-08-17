@@ -182,7 +182,24 @@ def fetch_and_join(year: int = YEAR) -> dict:  # pragma: no cover  (egress; CI o
     import raw_capture as RAW
     import sleeper_import as SL
 
-    players = SL.fetch_players()
+    # ⚠ `SL.fetch_players()` RAISES ON FAILURE, UNLIKE `fetch_projections()`.
+    # `_get` catches per-endpoint and returns falsy for the projection paths
+    # (`_best_payload`), but `fetch_players` calls `_get` directly with no
+    # guard, and `_get` itself raises `RuntimeError` once every retry is spent
+    # and there is no stale cache. Found by running THIS module for real: it
+    # crashed with an uncaught traceback rather than reaching the `if not
+    # players` check below — a workflow step failing loudly is fine, but a
+    # crash never writes `OUT`, so there is no VOID document saying why, only
+    # a stack trace in the log. Every fetch boundary is guarded the same way
+    # now, on the assumption that any of them could raise rather than return
+    # falsy — the two functions do not share a failure contract and this
+    # module must not bet on which one it got.
+    try:
+        players = SL.fetch_players()
+    except Exception as exc:                              # noqa: BLE001
+        return _void("Sleeper player index unreachable — a fact about the "
+                     "runner, not about either source",
+                    error="%s: %s" % (type(exc).__name__, exc))
     if not players:
         return _void("Sleeper player index unreachable — a fact about the "
                      "runner, not about either source")
@@ -194,7 +211,12 @@ def fetch_and_join(year: int = YEAR) -> dict:  # pragma: no cover  (egress; CI o
                                                   (p or {}).get("last_name")]))
               for pid, p in players.items()}
 
-    sl_raw = SL.fetch_projections(str(year))
+    try:
+        sl_raw = SL.fetch_projections(str(year))
+    except Exception as exc:                              # noqa: BLE001
+        return _void("Sleeper projections egress failed — a fact about the "
+                     "runner, not about the source",
+                    error="%s: %s" % (type(exc).__name__, exc))
     if not sl_raw:
         return _void("Sleeper projections egress failed — a fact about the "
                      "runner, not about the source")
@@ -205,7 +227,12 @@ def fetch_and_join(year: int = YEAR) -> dict:  # pragma: no cover  (egress; CI o
                      "changed again; see sleeper_import._PROJECTION_PATHS",
                     sleeper_rows_before_filter=len(sl_raw))
 
-    text, url, diag = FP.fetch_projections(year)
+    try:
+        text, url, diag = FP.fetch_projections(year)
+    except Exception as exc:                              # noqa: BLE001
+        return _void("FantasyPros egress failed — a fact about the runner, "
+                     "not about the source",
+                    error="%s: %s" % (type(exc).__name__, exc))
     if not text:
         return _void("FantasyPros egress failed — a fact about the runner, "
                      "not about the source", fp_diag=diag)

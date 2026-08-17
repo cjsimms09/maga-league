@@ -156,3 +156,63 @@ def test_void_CARRIES_A_REASON_AND_NEVER_LOOKS_LIKE_A_CLEAN_EMPTY_RESULT():
 def test_void_PASSES_THROUGH_EXTRA_DIAGNOSTIC_FIELDS():
     d = M._void("parsed to zero rows", fp_diag={"api_tried": []})
     assert d["fp_diag"] == {"api_tried": []}
+
+
+# ── fetch_and_join: a RAISED exception is VOID, never an uncaught crash ─────
+# `pragma: no cover` on fetch_and_join itself (it reaches the network), so
+# these monkeypatch the module-level names it imports at call time and assert
+# on the returned document — no real egress, matching every other test here.
+
+def test_A_RAISING_fetch_players_PRODUCES_VOID_not_a_crash():
+    """⚠ FOUND BY RUNNING THE REAL CLI, NOT BY READING THE CODE. `sleeper_import
+    .fetch_players()` calls `_get()` directly with no guard, and `_get` RAISES
+    `RuntimeError` once retries are spent and there is no stale cache — unlike
+    `fetch_projections()`, which catches per-endpoint via `_best_payload` and
+    degrades to `{}`. The two functions do not share a failure contract.
+    Running this module for real against the (sandbox-blocked) network crashed
+    with an uncaught traceback: `OUT` was never written, so there was no VOID
+    document explaining why — only a stack trace in the CI log.
+
+    MUTATION: drop the try/except around `SL.fetch_players()` and this test
+    fails with the same uncaught RuntimeError instead of a VOID document."""
+    import sleeper_import as SL
+    orig = SL.fetch_players
+    SL.fetch_players = lambda: (_ for _ in ()).throw(RuntimeError("Sleeper unreachable for /players/nfl: boom"))
+    try:
+        doc = M.fetch_and_join(2025)
+    finally:
+        SL.fetch_players = orig
+    assert doc["status"] == "VOID", doc
+    assert "Sleeper player index unreachable" in doc["reason"]
+    assert "RuntimeError" in doc["error"]
+
+
+def test_A_RAISING_sleeper_fetch_projections_PRODUCES_VOID_not_a_crash():
+    import sleeper_import as SL
+    orig_players, orig_proj = SL.fetch_players, SL.fetch_projections
+    SL.fetch_players = lambda: {"4984": {"full_name": "Josh Allen", "position": "QB", "team": "BUF"}}
+    SL.fetch_projections = lambda season, week="season": (_ for _ in ()).throw(RuntimeError("boom"))
+    try:
+        doc = M.fetch_and_join(2025)
+    finally:
+        SL.fetch_players, SL.fetch_projections = orig_players, orig_proj
+    assert doc["status"] == "VOID", doc
+    assert "Sleeper projections egress failed" in doc["reason"]
+
+
+def test_A_RAISING_fp_fetch_projections_PRODUCES_VOID_not_a_crash():
+    import sleeper_import as SL
+    import fantasypros_adp as FP
+    orig_players = SL.fetch_players
+    orig_sl_proj = SL.fetch_projections
+    orig_fp_proj = FP.fetch_projections
+    SL.fetch_players = lambda: {"4984": {"full_name": "Josh Allen", "position": "QB", "team": "BUF"}}
+    SL.fetch_projections = lambda season, week="season": {"4984": {"stats": {"pass_yd": 1}}}
+    FP.fetch_projections = lambda year, timeout=30: (_ for _ in ()).throw(RuntimeError("boom"))
+    try:
+        doc = M.fetch_and_join(2025)
+    finally:
+        SL.fetch_players, SL.fetch_projections = orig_players, orig_sl_proj
+        FP.fetch_projections = orig_fp_proj
+    assert doc["status"] == "VOID", doc
+    assert "FantasyPros egress failed" in doc["reason"]
