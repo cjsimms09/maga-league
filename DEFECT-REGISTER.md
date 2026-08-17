@@ -41,6 +41,9 @@ or date · `CLOSED` = fixed and verified, kept for the record.
 | 9 | **2025 cannot be graded** — lateral handling in the pbp rebuild. The 2-point gap is fixed (mean_abs 0.489 → 0.149); laterals are what still blocks. | **A** | OPEN | Unlocks a second grading fold. Post-draft. |
 | 10 | **No weekly-points store for 2022 / 2021.** The single reason every own-model artifact grades exactly one season. | **C** | IN HAND | Build `nflverse_weekly_points_2022.json`. |
 | 11 | **Board-derived artifacts are not in the freshness registry** — 13 entries, none of them the ones that refuse publication. This is the whack-a-mole. | **A** | OPEN | Register only the genuinely derived ones. **Never** auto-regenerate a board assertion (rows 2, 3). |
+| 13 | **`snap_counts` feeds `projections.py` and NOTHING grades its contribution.** We cannot say whether it helps, hurts, or does nothing — the same shape as a weight set by an experiment that could not fail. | **A** | OPEN | Grade the snap-share contribution, or state why it is unmeasurable. `DATA-LIFECYCLE.md` step 6. |
+| 14 | **`routes_*` is captured WEEKLY and reaches no prediction.** A scheduled job paying forever for data nothing consumes. | **A** | OPEN | Decide: wire it (prereg first) or stop the weekly job. Not both open. |
+| 15 | **`advanced_stats_*` (air yards / EPA / CPOE) and `historical_props_*`** — studies ran, wiring was never decided either way. | **A** | OPEN | Record a decision with a measurement behind it, the way pace and Vegas were closed. |
 | 12 | **`config_confirmed` and every local ruling were being wiped on each build.** `build.py --league-id` rebuilt the config from Sleeper and kept only two keys. | relay | **CLOSED 08-17** | `preserve_local_rulings()` + 6 tests. Verified: the shipped config still carries the ruling. |
 
 ## 🟢 CHECKED AND CLEAN — recorded so nobody re-investigates

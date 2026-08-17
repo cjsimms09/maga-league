@@ -31,6 +31,12 @@ logic concern that could change a number Cory drafts or starts on, each with an
 owner and a next action. Four blocking rows today. A row with no owner is itself
 a defect — `test_defect_register.py` fails on it.
 
+**🔗 "WE DON'T HAVE IT" IS NOT AN ANSWER — `DATA-LIFECYCLE.md`.** Eight
+questions every data gap must walk: why not, can we get it, should we capture it
+consistently, does it predict, should it, is it graded, should it be, does the
+grade move the weights. Measured today: **two of ten stores complete the chain;
+four stop at step 4 or 6 with no recorded reason.**
+
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection
 model twice (own_v6 live), and merged five design passes.
