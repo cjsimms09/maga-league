@@ -15,6 +15,7 @@ This file is short on purpose. If it grows past one screen it has failed.
 | **A** | **gatekeeper & decider** | reviews, rules, merges to `main`, deploys | grunt work, chasing, re-deriving context |
 | **B** | site & in-season lane | builds surfaces, in-season tools | touch model/draft or ingest files |
 | **C** | external ingest lane | fetches, crosswalks, stores | touch engine, Lab, valuation, views |
+| **D** | data stewardship | is it correct, used, graded, does the grade move anything | fetch (C's) or decide what a number means (A's) |
 | **PM** (relay) | integration & verification | CI health, cross-cutting sweeps, keeping the record honest, prepping A's decisions | decide anything A should decide |
 
 **A's time is the scarcest thing in the project.** Everything below exists to
