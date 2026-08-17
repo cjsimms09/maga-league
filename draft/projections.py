@@ -281,6 +281,43 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         for i, p in enumerate(ordered):
             rank_of[id(p)] = i + 1
 
+    # ── CELL-AVERAGE PLAYER MULTIPLIER, for the compose path below ─────────
+    #
+    # Cory, 2026-08-17: "The ceiling shouldn't be a calculated value?? It should
+    # be different depending on the player. That makes no sense."
+    #
+    # He was right and this is the pre-pass that lets it be fixed. REC-1's
+    # measured band sd was OVERWRITING player_variance rather than composing
+    # with it, so every player in a (position, rank-band) cell ended up with the
+    # SAME relative upside. Measured on the live board: within-cell variation in
+    # relative upside was 0.0006 — i.e. none. The bell-cow and the committee
+    # back the function above is written to separate had identical ceilings.
+    #
+    # The two quantities measure different things and belong multiplied:
+    #   * the band ratio sets the LEVEL   (how wrong projections are for a WR
+    #     ranked 33+ — measured, 1,304 player-seasons, worth keeping);
+    #   * player_variance sets the SPREAD (which players inside that band are
+    #     volatile — structural, and what was being destroyed).
+    #
+    # Normalising by the CELL AVERAGE is what keeps this honest: the mean sd
+    # inside every cell is preserved exactly, so the calibration is not
+    # overridden, only redistributed. We are not claiming to know better than
+    # the measurement about the level — only that the level is not the whole
+    # story about a player.
+    _cell_mults: dict[tuple, list[float]] = {}
+    _player_mult: dict[int, float] = {}
+    if pe is not None:
+        PE, _cal = pe
+        for p in players:
+            pid_ = str(p["player_id"])
+            v_, _w = player_variance(p, metrics.get(pid_) if metrics else None)
+            base_v = POSITION_VARIANCE.get(p.get("position") or "", 0.30)
+            m_ = (v_ / base_v) if base_v else 1.0
+            _player_mult[id(p)] = m_
+            _cell_mults.setdefault(
+                (p.get("position"), PE.band_of(rank_of.get(id(p)))), []).append(m_)
+    _cell_mean = {k: (sum(v) / len(v)) for k, v in _cell_mults.items() if v}
+
     for p in players:
         pid = str(p["player_id"])
         base = p.pop("_blend_base")
@@ -303,13 +340,32 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
             rank = rank_of.get(id(p))
             sd_m, status = PE.proj_sd_for(cal, p.get("position"), rank, mean_proj)
             if status == "measured" and sd_m is not None and mean_proj > 0:
-                season_sd = sd_m
-                var = season_sd / mean_proj
                 band = PE.band_of(rank)
+                season_sd = sd_m
                 sd_source = "measured-2023-25-error"
-                var_why = ["sd from measured 2023-25 projection error, band "
-                           f"{p.get('position')}|{band} (REC-1, applied under "
-                           "Cory's ruling; PROJ-SD-DECISION-ARM.md addendum)"]
+                band_why = ("sd level from measured 2023-25 projection error, "
+                            f"band {p.get('position')}|{band} (REC-1, applied "
+                            "under Cory's ruling; PROJ-SD-DECISION-ARM.md)")
+                # COMPOSE, DON'T CLOBBER — Cory's 2026-08-17 fix. Scale the
+                # measured band level by this player's own multiplier relative
+                # to his cell, so the cell mean is unchanged and the players
+                # inside it stop being interchangeable. Gated with the ceiling
+                # work: both are ungraded changes to a field engine.js reads.
+                rel = None
+                if cfg.get("player_spread_in_sd"):
+                    cmean = _cell_mean.get((p.get("position"), band))
+                    if cmean:
+                        rel = _player_mult.get(id(p), 1.0) / cmean
+                if rel:
+                    season_sd = sd_m * rel
+                    sd_source = "measured-band-x-player-spread"
+                    # The REASONS SURVIVE, which is half the point. They feed
+                    # the war room's Why? panel, and clobbering them left it
+                    # asserting a high ceiling with no account of why.
+                    var_why = [band_why] + [f"spread: {w}" for w in var_why]
+                else:
+                    var_why = [band_why]
+                var = season_sd / mean_proj
             # THE OTHER HALF OF REC-1, WHICH WAS NEVER WIRED (found 2026-08-17).
             # `proj_sd_for` was applied above the day REC-1 landed; its sibling
             # `proj_ceiling_for` — measured, shipped, and carrying a docstring
