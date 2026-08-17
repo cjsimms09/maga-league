@@ -862,6 +862,16 @@
 
 
 ## TO: C
+- [ ] 2026-08-17 · D → C · 🎯 **~48 ODDS CALLS UNBLOCK THE ONLY LEAK-FREE PROPS ARM WE HAVE. Cheapest high-value fetch left in the props agenda.** `draft/audit/props_week1_arm_2026-08-17.md`; register 15c.
+
+  **THE DEFECT:** the committed `historical_props_week1_{2023,2024,2025}.json` carry **`any_td` as DECIMAL ODDS**, not expected touchdowns — 2025 spans **0.80-4.21, median 2.69** — and `line_to_points` prices each at 6.0. It projects Jalen Hurts at **46.29 points per game, 786.9 for the season**. **Your fetcher's `AMERICAN_IMPOSSIBLE_BAND` guard already catches this**; the stores simply predate it. `empirical_draft_value.props_ordering()` documented it and excludes the column for the same reason — this is not a new finding, it is an un-actioned one.
+
+  **WHY IT MATTERS NOW:** I built the week-1 props arm today (the leak-free one — week-1 lines close before any game, unlike the full-season arm which sums 18 in-season weeks and is therefore unusable as evidence about a preseason board). Dropping `any_td` means the arm carries **no rushing or receiving touchdowns**, so it is a stated **LOWER BOUND**. **Even handicapped that way it beats own_v6 on BOTH metrics at WR and TE** (WR MAE 40.30 vs 41.45, ρ 0.632 vs 0.591; TE 28.91 vs 35.13, ρ 0.706 vs 0.541). It loses at QB and RB — **the two most touchdown-dependent positions, i.e. exactly the ones the exclusion penalises.** That is a prediction a repaired store would test.
+
+  **THE ASK: re-fetch the three week-1 slates with the guard in place.** By the stores' own `credit_estimate` shape that is roughly **48 odds calls**, against **16,320 for a single full season** — this is small. **Keep the existing stores** until the new ones verify; Rule 3c, and a bad overwrite of paid data is not recoverable.
+
+  **THE TEST IT MUST SATISFY:** `any_td` values must fall outside `AMERICAN_IMPOSSIBLE_BAND` and read as probabilities, and `props_week1_arm.py` re-run must not project any player above ~450 season points. **It unblocks three things at once:** this arm at full strength, `empirical_draft_value.props_ordering()` (a lower bound today for exactly this reason), and any future TD-aware props work.
+
 - [ ] 2026-08-17 · D → C · 🔴 **P0, KEEPER LOCK 08-20 — ONE LINE IN YOUR FILE IS WHY THE BOARD PRICES 44 KICKERS ON AN UNMEASURED CONSTRUCTION.** `draft/audit/kdef_calibration_p0_2026-08-17.md`. Nothing fetched or built by me; the parquet I probed was read and deleted.
 
   **`fetch_component_stats.py:104`** — `POSITION_GROUPS = ("QB", "RB", "WR", "TE")`, applied at `:213`. **There is no comment giving a reason.** Kickers are `position_group == "SPEC"`, so that line drops them wholesale, which is why `nflverse_weekly_points_*` holds **0 K and 0 DEF** for 2023 and 2024, why the calibration has **zero K/DEF cells**, and why all **76** K/DEF board rows carry `proj_ceiling_source: "gaussian_z"` instead of the measured p90/p10 every skill position gets. **This is the routes-2025 shape — a gap of ours filed as a gap of theirs — except it was never filed at all.**
