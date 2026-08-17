@@ -139,7 +139,38 @@ DEFAULT:  Filed. Not draft-critical: this feeds opponent SUMMARIES and the
           Post-08-22 unless A disagrees.
 ```
 
-**Scope limit, stated:** I have not checked whether `homer_index` or the
-positional-timing metrics have the same period problem. They read `meta`-backed
-fields (`team`, `position`, `round`), so they look sound — but *"look sound"* is
-not *"checked"*, and I am saying which one this is.
+**Scope limit, now CLOSED rather than left standing.** I originally wrote that
+`homer_index` and the positional-timing metrics *"look sound, but 'look sound' is
+not 'checked'"*. I checked. **They are not degenerate — only `rookie_affinity`
+is**, and the contrast is what makes this a specific defect rather than a
+systemic one:
+
+| metric | values across the 10 managers |
+|---|---|
+| `homer_index.rate` | 0.056 – 0.094, **7 distinct** |
+| `homer_index.team` | **9 distinct teams** |
+| `bpa_vs_need.bpa_rate` | 0.247 – 0.370, **all 10 distinct** |
+| positional `consistency` | present on **10 of 10** |
+| **`rookie_affinity.rate`** | **0.0 on 10 of 10** |
+
+And the summaries discriminate in plain language, which is the point of the
+whole module:
+
+> *"Reaches ~7 picks early. Takes QB early (round 5 on average, 1.4 rounds before
+> the league). Takes TE early (round 5 on average, 1.8 rounds before the
+> league)."*
+> *"Drafts near market value. Waits on QB (round 8). Waits on TE (round 8)."*
+
+**So three of the four legs carry weight and one is sawn off.** That is better
+news than the alternative and it sharpens the ask: the fix is to one metric, not
+to the module.
+
+**One residual asymmetry, observed but NOT a finding.** `position` carries an
+explicit `pos_coverage` measure and a `"?"` sentinel so a caller *"must be able
+to tell 'he has no tendency' from 'we could not see his picks'"*. `team`, which
+`_homer` depends on, has no equivalent coverage measure — it silently falls back
+from contemporaneous `meta` to today's `info`, so a player who changed teams
+between the draft and now would be attributed to the wrong one. **The homer
+numbers look right** (7 distinct rates, 9 distinct teams, 2–3× the 1/32 random
+baseline), so nothing suggests it is actually misfiring — I am recording the
+missing guard, not claiming a defect behind it.
