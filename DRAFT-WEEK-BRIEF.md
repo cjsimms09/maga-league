@@ -110,6 +110,39 @@ its favour first (endgame ceiling 0.0 best, **+64.33** CI [+35.67, +94.17]; the
 keeper-variance fix moved the headline $1.17). That refutes a BLANKET tilt, not
 a targeted swing on an identified player — do not let the two be conflated.
 
+## 4b. THE GRADING PATH — one fix, one revert, and the lesson is the revert
+
+`draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md`.
+
+**Why anyone cares:** every strategy finding rests on **N=2 graded seasons**,
+because 2025 cannot be graded — the play-by-play recovery path is REFUSED for
+failing its own cross-validation against 2024. Unlocking it would take N=2 to
+N=3, the threshold the report's own selection rule is written against.
+
+**FIXED:** `weekly_from_pbp` emitted no two-point-conversion field while our
+scoring prices `pass_2pt`/`rec_2pt`/`rush_2pt` at 2.0 each — seven of the eight
+worst 2024 disagreements were exactly `2 x (that player's 2pt count)`. Fixing it
+cut `mean_abs_diff` 0.489 → 0.149.
+
+**REVERTED, AND THIS IS THE PART TO REMEMBER:** the blocker is Jameson Williams,
+off by exactly 11.0, whose two lateral receptions total exactly the 50 missing
+yards and one missing TD. Crediting the lateral receiver fixed him **to the
+point** — and broke Jahmyr Gibbs (+8.0) and Josh Allen (+6.7) the other way.
+Gibbs' structurally identical lateral touchdown shows `receptions=0,
+receiving_yards=0.0, targets=0` in the official feed: the library credits the
+lateral player **nothing**. **Williams' exact arithmetic match was a coincidence
+over-read as a rule.** A hypothesis that fits one case perfectly and is refuted
+by the second is the shape of most of what went wrong this week.
+
+**And the gate caught a self-inflicted break during the revert** (the edit
+deleted the passing block; `cross_validate` reported `worst_diff` 444.04
+immediately). The strictness that refuses 2025 is the same strictness that made
+a bad edit impossible to miss — which is why **the 0.5 tolerance must not be
+loosened.**
+
+**Still open:** the gate still refuses 2024 at 11.0. Laterals need the library's
+real aggregation semantics, not another guess.
+
 ## 5. THE GATES THAT NOW EXIST (and what they do NOT cover)
 
 - `constant_multiple_sweep.py` — finds fields that are a rescaled copy of
@@ -155,7 +188,7 @@ instrument than a known one.
 
 ---
 
-**Suites at hand-off:** Python publication gate (what CI runs) **3,277 passed,
+**Suites at hand-off:** Python publication gate (what CI runs) **3,283 passed,
 10 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
 deliberate red flags — the ADP-sd ratchet and the stale freeze — which are
 evidence awaiting a human, not broken builds.
