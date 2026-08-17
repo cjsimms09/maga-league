@@ -17,10 +17,17 @@
 
   // ---- config knobs (every magic number lives here, with its reasoning) ----
   const CFG = {
-    // Mirrors survival.js — a source-provided sd always wins over both.
-    ADP_SD_FLOOR: 3.0,        // nobody is unsure about pick 1
-    ADP_SD_RATE: 0.15,        // was 0.22; see survival.js for why, and for why
-    ADP_SD_CAP: 15.0,         // this is an interim, not a calibration
+    /* Mirrors survival.js — a source-provided sd always wins over both.
+     * READ FROM survival.js RATHER THAN RETYPED (2026-08-17): this used to be
+     * a hand-copied 0.15/3.0/15.0, and when Cory's adp_sd ruling moved the
+     * real constants to 0.11/2.0 (SHIPPED block in keepers.py; parity held by
+     * test_survival_parity.py) the copy silently kept the OLD pair — a mirror
+     * that can drift is a second source of truth wearing the first one's name.
+     * adpSd itself is S.adpSd, so these keys were documentation; now they are
+     * documentation that cannot lie. */
+    ADP_SD_FLOOR: S.CFG.ADP_SD_FLOOR,
+    ADP_SD_RATE: S.CFG.ADP_SD_RATE,
+    ADP_SD_CAP: S.CFG.ADP_SD_CAP,
     RUN_WINDOW: 10,           // picks of history the Bayesian update looks at
     RUN_DAMPING: 0.5,         // how hard observed rates move the hazard
     RUN_MIN: 0.6,             // clamp: a cold position can't go below this

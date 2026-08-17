@@ -163,7 +163,7 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * a hard 59.3 would go red on a projection refresh, which is the model being
    * punished for the data changing. The band is wide enough to survive a rebuild
    * and narrow enough that 78% — the empty-roster artifact — fails it. */
-  ck('and its share matches the ~59% the document states, on a band that the '
+  ck('and its share matches the ~55-59% the document states, on a band that the '
     + 'empty-roster artifact (78%) would fail',
   pct('value') >= 50 && pct('value') <= 70, pct('value').toFixed(1));
   ck('onesie is live and material rather than a rounding term — the reason it had '
@@ -171,17 +171,25 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '
     + 'of 0.0% was an artifact and not a measurement', pct('stack') > 0,
   pct('stack').toFixed(1));
-  /* RE-DERIVED 2026-08-15: this asserted the full order value > keeper >
-   * onesie > stack — the 2026-08-14 board's order — and the first fresh
-   * nightly rebuild swapped the middle pair (keeper 14.3 vs onesie 16.8).
-   * The document now states explicitly that the middle ranks are
-   * board-dependent (the two run within a few points), so the check pins
-   * the STABLE claims the reader actually acts on: value first, stack last.
-   * The middle pair going ABOVE value or BELOW stack still fails. */
-  ck('the document\'s table order holds where it is stable — value largest, '
-    + 'stack smallest — which is the part a reader acts on',
+  /* RE-DERIVED 2026-08-15, AND AGAIN 2026-08-17: this asserted the full order
+   * value > keeper > onesie > stack — the 2026-08-14 board's order — and the
+   * first fresh nightly rebuild swapped the middle pair (keeper 14.3 vs
+   * onesie 16.8), which retired the middle ranks to "board-dependent". Then
+   * the 08-17 rebuild — executing Cory's same-day rulings (opportunity layer
+   * removed, K/DEF demoted, measured p90 ceilings) — re-spread the top-fives
+   * and dropped keeper's share from 14.3% to 6.7%, BELOW stack: "stack
+   * smallest" turned out to be a board-dependent claim too, it had just not
+   * moved yet. The document's table now records the 08-17 shares and retires
+   * the smallest-term rank alongside the middle ones. What a reader can
+   * still act on, pinned here: value is the largest term against EVERY other
+   * term, and each of keeper/onesie/stack is a real nonzero participant once
+   * a roster exists — any of them going above value, or to zero, fails. */
+  ck('the document\'s table order holds where it is stable — value largest '
+    + 'against every other term, the rest nonzero but unranked — which is the '
+    + 'part a reader acts on',
   pct('value') > pct('keeper') && pct('value') > pct('onesie')
-    && pct('keeper') > pct('stack') && pct('onesie') > pct('stack'),
+    && pct('value') > pct('stack')
+    && pct('keeper') > 0 && pct('onesie') > 0 && pct('stack') > 0,
   ['value', 'keeper', 'onesie', 'stack'].map(k => k + ':' + pct(k).toFixed(1)));
   ck('and the document SAYS the middle ranks are board-dependent, so the '
     + 'relaxation above is the document\'s claim rather than a quiet test edit',

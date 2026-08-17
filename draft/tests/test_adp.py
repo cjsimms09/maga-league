@@ -162,17 +162,32 @@ def test_published_sd_is_used_when_present():
 
 
 def test_fitted_sd_is_tighter_than_the_old_heuristic():
-    """Old rule: max(3, 0.22*adp) -> 22.0 at adp=100, roughly double reality."""
+    """Old rule: max(3, 0.22*adp) -> 22.0 at adp=100, roughly double reality.
+
+    Re-pinned 2026-08-17, Cory's adp_sd ruling (0.11/2.0): at the shipped rate
+    the cap no longer binds at adp=100 (it binds from CAP/RATE ~ 136), so the
+    probe reads the LINEAR region there and the clamp is asserted separately
+    below, at a point derived from the constants instead of hard-coded — a
+    literal probe point is how this pin went stale when the ruling landed.
+    The 0.22 literal stays: it reconstructs the OLD heuristic on purpose, as
+    the fail-arm this test exists to keep dead.
+    """
     sd, src = adp.fitted_sd(100.0, None)
     old = max(3.0, 0.22 * 100.0)
     assert sd < old
-    assert sd == pytest.approx(15.0)   # clamped
+    assert sd == pytest.approx(adp._K.ADP_SD_RATE * 100.0)   # linear here now
     assert src == "clamped-linear"
+    cap_from = adp._K.ADP_SD_CAP / adp._K.ADP_SD_RATE
+    assert adp.fitted_sd(cap_from + 10.0, None)[0] == adp._K.ADP_SD_CAP
 
 
 def test_fitted_sd_floor_and_ceiling():
-    assert adp.fitted_sd(1.0, None)[0] == 3.0        # floor
-    assert adp.fitted_sd(300.0, None)[0] == 15.0     # ceiling
+    # Symbolic, not literal — the 3.0/15.0 literals stranded this pin when the
+    # 2026-08-17 ruling moved the floor to 2.0. The VALUES are pinned once,
+    # with the citation, in test_acceptance/test_survival_parity's chain back
+    # to keepers.py's SHIPPED block.
+    assert adp.fitted_sd(1.0, None)[0] == adp._K.ADP_SD_FLOOR     # floor
+    assert adp.fitted_sd(300.0, None)[0] == adp._K.ADP_SD_CAP     # ceiling
 
 
 # --- fallback provenance ----------------------------------------------------

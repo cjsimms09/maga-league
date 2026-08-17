@@ -69,7 +69,14 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * still reads v6.json against the v5 board, and the suite goes green on a
  * comparison nobody intended. Both paths derive from this constant, and the
  * regression test imports it rather than repeating the literal. */
-const ACTIVE_VERSION = 'v20';
+/* v20 -> v21, 2026-08-17, DOC-MIRROR KEYS ONLY: engine.js's CFG.ADP_SD_
+ * {FLOOR,RATE} now read survival.js's CFG instead of hand-copying it, and the
+ * live values moved 3.0/0.15 -> 2.0/0.11 — the pair Cory's adp_sd ruling had
+ * already shipped in survival.js/keepers.py. v20 froze the STALE copy the same
+ * day the ruling landed, so the reference was preserving exactly the drift the
+ * delegation removes. No recommendation surface moved: SURVIVAL_CFG and every
+ * frozen surface are identical to v20 (same pinned board, byte-identical). */
+const ACTIVE_VERSION = 'v21';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.

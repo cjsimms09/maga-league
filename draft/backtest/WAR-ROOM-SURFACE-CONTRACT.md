@@ -50,23 +50,27 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-15 board) |
+| term | share of movement (2026-08-17 board) |
 |---|---|
-| `value` (VONA) | **59.0%** |
-| **`onesie`** | **16.8%** |
-| `keeper` | 14.3% |
-| `stack` | 9.9% |
+| `value` (VONA) | **55.3%** |
+| **`onesie`** | **23.6%** |
+| `stack` | 14.4% |
+| `keeper` | 6.7% |
 
 **`onesie` is a top-three driver of the recommendation and a reader of the
 old sentence would not have known it exists.** The shares move with the nightly
 rebuild and the MIDDLE RANKS are board-dependent: on the 2026-08-14 board the
-table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6, and the
+table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6; the
 first fresh rebuild after the pipeline was unblocked (2026-08-15, 677 players)
-swapped `keeper` and `onesie` — they run within a few points of each other and
-their order is not a stable claim. The claims that ARE stable, and that the
-test pins: `value` is the largest term, `onesie` is material (top-three, never
-a rounding term), and `stack` is the smallest of the four yet nonzero once a
-roster exists.
+swapped `keeper` and `onesie`; and the 2026-08-17 rebuild — the one that
+executed Cory's same-day rulings (opportunity layer removed, K/DEF demoted,
+measured p90 ceilings) — re-spread the top-fives again and dropped `keeper`
+from 14.3% to 6.7%, below `stack`. "`stack` is the smallest" was therefore a
+board-dependent claim wearing a stable claim's clothes, and this table has now
+retired it. The claims that ARE stable, and that the test pins: `value` is the
+largest term by a wide margin, `onesie` is material (top-three, never a
+rounding term), and every one of the other three is nonzero once a roster
+exists — their ORDER among themselves is not a claim a reader should act on.
 
 **⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
 harness the suites used, the same decomposition returns `value 77.9% / keeper
@@ -117,9 +121,10 @@ term reports 0 rather than a number — **that is correct and must stay correct.
 ### 2. VONA
 
 **IS:** `proj_mean(p) − E[best available at p's position at MY next pick]`, in
-projection points. **59% of what moves the composite** — the largest single term
-by a factor of three, re-measured today over the top five at each of his twelve
-picks with the roster accumulating from his real keepers.
+projection points. **~55-59% of what moves the composite** (55.3% on the
+2026-08-17 board; 59.0% on 2026-08-15) — the largest single term by better than
+a factor of two, re-measured over the top five at each of his twelve picks with
+the roster accumulating from his real keepers.
 
 > This figure read **62%** and was carried in prose with no computation behind it
 > anywhere in the repo. Re-derived, it is 59.3% — so the number was approximately
@@ -302,7 +307,7 @@ non-positive route is not offered.
 **⚠ `stack` IS NOT ONLY STACKING.** `correlationAdjustment` carries three effects:
 the pairing bonus, the same-team competition penalty, and **a playoff-schedule
 bump from round 6** worth up to ±4 × sos — which nobody would guess from the term
-name, and which the §1 table counts inside `stack`'s 10.6%. It has **never
+name, and which the §1 table counts inside `stack`'s share. It has **never
 fired**: `playoff_sos` is null on all 686 board rows. Asserted, so the day that
 field lands the suite goes red instead of the behaviour appearing in a pick.
 
@@ -395,8 +400,8 @@ reaching.** It also contradicts this document's own standard in §2 — *"three
 drafts give a direction, not a magnitude"* — quoted here to one decimal place.
 
 **⚠ THIS IS NOT DISPLAY-ONLY.** `reach_delta.mean` feeds `withinPrecision` in
-`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 59% of
-the composite. The two least-supported estimates get the largest adjustment
+`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → ~55-59%
+of the composite. The two least-supported estimates get the largest adjustment
 (`−0.02 × mean`).
 
 **NOTHING WAS RE-FITTED.** The tell still fires, with the same text and weight,
