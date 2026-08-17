@@ -58,7 +58,13 @@ TEAMS = 10
 ROUNDS = 15
 # the shipped board's own starter counts (public/draft_data.json:replacement)
 STARTER_RANK = {"RB": 21, "WR": 29, "QB": 10, "TE": 10}
-BOARD_REPLACEMENT_2026 = {"RB": 189.10, "WR": 173.27, "QB": 341.72, "TE": 151.95}
+BOARD_REPLACEMENT_2026 = {"RB": 179.30, "WR": 162.60, "QB": 341.72, "TE": 136.40}
+# ^ RE-DERIVED 2026-08-17 from the first board published under the rulings
+#   (opportunity layer off, K/DEF demoted). RB/WR/TE all fell — the +15%
+#   cap that was inflating elite skill projections also propped up the
+#   replacement levels beneath them. QB unchanged: the killed layer never
+#   touched QBs (composite_z is WR/TE/RB-only), which was half the reason
+#   Cory killed it.
 CLIFF_WINDOW = {"RB": 48, "WR": 48, "QB": 30, "TE": 30}
 CLIFF_DROP_MULT = 2.0          # prereg §3.2 detector 1
 HIT_MULT = 1.25                # prereg §3.3 definition A
