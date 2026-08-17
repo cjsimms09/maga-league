@@ -88,6 +88,50 @@ check('daysUntil: after the draft goes negative', D.daysUntil('2026-08-22', '202
   check('draftAnnouncement: no date + no season year → configured:false, no message', none.configured === false && none.message === null && none.date === null);
 }
 
+// ── keeperDeadlineAnnouncement — expires on the DEADLINE INSTANT, not the day ─
+{
+  // Fallback DATE derives its year from the season; default 6pm CDT.
+  const ki = D.keeperDeadlineAnnouncement({}, '2026-08-20T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: fallback is the season-year deadline, Fri 8/21 6pm CDT',
+    ki.message === "KEEPER DEADLINE: Friday August 21 at 6:00 PM CDT — set your keeper before it locks.");
+  check('keeperDeadlineAnnouncement: deadline instant is 23:00 UTC (6pm CDT = UTC-5)',
+    ki.deadlineISO === '2026-08-21T23:00:00.000Z');
+  check('keeperDeadlineAnnouncement: fallback year FOLLOWS the season (2027 → 2027)',
+    D.keeperDeadlineAnnouncement({}, '2027-01-01T00:00:00Z', 2027).date === '2027-08-21');
+  // 35 hours out (1 day 11h) — whole-day-plus-hours phrasing.
+  check('keeperDeadlineAnnouncement: 35 hours out reads "1 day left"',
+    ki.hoursLeft === 35 && ki.countdownText === '1 day left' && ki.passed === false);
+  // Inside 24h — hour-granularity phrasing, and the view's "today" trigger.
+  const soon = D.keeperDeadlineAnnouncement({}, '2026-08-21T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: 11 hours out reads "11 hours left"',
+    soon.hoursLeft === 11 && soon.countdownText === '11 hours left');
+  // Inside the last hour — collapses to a single phrase rather than "1 hour left" then "0 hours left".
+  const last = D.keeperDeadlineAnnouncement({}, '2026-08-21T22:30:00Z', 2026);
+  check('keeperDeadlineAnnouncement: under an hour reads "less than an hour left"',
+    last.countdownText === 'less than an hour left');
+  // THE CENTRAL CONTRACT: it expires at the INSTANT, not at local midnight —
+  // 1am the day after the deadline date is well past a 6pm deadline the day before.
+  const after = D.keeperDeadlineAnnouncement({}, '2026-08-22T00:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: an hour past the deadline instant is passed', after.passed === true);
+  check('keeperDeadlineAnnouncement: passed → no countdown text (the banner/alert both hide on passed)',
+    after.countdownText === null);
+  // Config overrides date + time + timezone (CST, the non-DST Central offset).
+  const over = D.keeperDeadlineAnnouncement(
+    { keeper_deadline_date: '2026-08-21', keeper_deadline_time: '5:30 PM', keeper_deadline_tz: 'CST' },
+    '2026-08-20T12:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: config overrides date + time + tz',
+    over.message === 'KEEPER DEADLINE: Friday August 21 at 5:30 PM CST — set your keeper before it locks.');
+  check('keeperDeadlineAnnouncement: CST is UTC-6, not UTC-5', over.deadlineISO === '2026-08-21T23:30:00.000Z');
+  // No config date AND no season year → unconfigured (banner hides, no throw).
+  const noneK = D.keeperDeadlineAnnouncement({}, '2026-08-10T00:00:00Z');
+  check('keeperDeadlineAnnouncement: no date + no season year → configured:false, no message',
+    noneK.configured === false && noneK.message === null && noneK.date === null);
+  // A bad configured date does not throw and falls back to the raw string.
+  const bad = D.keeperDeadlineAnnouncement({ keeper_deadline_date: 'nonsense' }, '2026-08-10T00:00:00Z', 2026);
+  check('keeperDeadlineAnnouncement: a bad configured date does not throw',
+    bad.longDate === 'nonsense' && bad.passed === false);
+}
+
 // ── buildModel on the fixture ──────────────────────────────────────────────
 {
   const m = D.buildModel({ statusText: FIX_STATUS, decText: FIX_DEC,

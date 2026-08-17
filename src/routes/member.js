@@ -602,6 +602,45 @@ router.get('/', aw(async (req, res) => {
     } catch (e) { /* the banner still renders even if the alert heal fails */ }
   }
 
+  // ── KEEPER-SET DEADLINE — same self-deriving, self-expiring shape as the
+  // draft-day alert just above, and the same reason: one edit (config) moves
+  // the banner and the pinned alert together. It EXPIRES — the banner and the
+  // alert both stop rendering the instant `keeperInfo.passed` flips, no
+  // separate cleanup step, and it never shows once keepers are already locked
+  // for the season (admin's manual `keepers_locked` flag wins if it fires early).
+  const isKeeperAlert = a => a.id === 'keeperdeadline' || /^KEEPER DEADLINE/i.test(a.message || '');
+  const keeperInfo = DASH.keeperDeadlineAnnouncement(world.config, new Date().toISOString(), season && season.year);
+  if (season && season.keepers_locked) keeperInfo.passed = true;
+  if (keeperInfo.configured && keeperInfo.message) {
+    try {
+      const alerts = await getDoc('alerts', []);
+      const pinned = alerts.find(isKeeperAlert);
+      if (pinned && keeperInfo.passed) {
+        if (pinned.active) {
+          await mutateDoc('alerts', [], as => {
+            const p = as.find(isKeeperAlert);
+            if (!p || !p.active) return undefined;
+            p.active = false;
+            return as;
+          });
+        }
+        if (Array.isArray(res.locals.alerts)) {
+          res.locals.alerts = res.locals.alerts.filter(a => !isKeeperAlert(a));
+        }
+      } else if (pinned && pinned.message !== keeperInfo.message) {
+        await mutateDoc('alerts', [], as => {
+          const p = as.find(isKeeperAlert);
+          if (!p || p.message === keeperInfo.message) return undefined;
+          p.message = keeperInfo.message; p.level = 'urgent'; p.active = true;
+          return as;
+        });
+        for (const a of (res.locals.alerts || [])) {
+          if (isKeeperAlert(a)) a.message = keeperInfo.message;
+        }
+      }
+    } catch (e) { /* the banner still renders even if the alert heal fails */ }
+  }
+
   // Sleeper live data (site works fine when unconfigured/unreachable).
   const sData = await sleeper.bundle(world.config.sleeper_league_id);
   if (sData && !Object.keys(world.config.sleeper_map || {}).length) {
@@ -835,7 +874,7 @@ router.get('/', aw(async (req, res) => {
   res.render('dashboard', {
     pickemNudge,
     season, payouts: H.payoutTable(season), buyins, weekly, awards, standings, draft,
-    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, weekHero,
+    openVotes, CATEGORY_LABELS: H.CATEGORY_LABELS, myBalance, draftInfo, keeperInfo, weekHero,
     liveStale: await liveFreshness(),
     // The money scoreboard: banked dollars + rank this season, from the ledger.
     moneyBoard: L.moneyStandings(world.ledger, owners, season), meId: req.owner.id,

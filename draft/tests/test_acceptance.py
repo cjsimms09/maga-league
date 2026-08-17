@@ -466,6 +466,29 @@ def test_provenance_agreeing_with_data_passes_and_records_both():
     assert art2["provenance"]["opportunity_observed_in_data"] is False
 
 
+def test_the_RULED_cap_zero_board_is_buildable():
+    """Run 32042127531: the first build ever to carry Cory's opportunity_cap
+    0.0 (every earlier nightly had the cap erased back to 0.15 by the
+    config-rewrite bug). blend() ran and wrote adj == 0.0 on every player —
+    the adjustment reached every projection, multiplying by 1+0.0 — and the
+    metrics status was honestly "ok". The asserter's truthiness read called
+    the zeros "never ran" and refused the ruled state as a provenance lie.
+    A falsy value is a decision, not an absence — the same rule
+    test_config_local_rulings_survive pins for config keys."""
+    import build as B
+    art = {"provenance": {"opportunity_adjustment": "ok"}}
+    ruled_off = [{"player_id": "1", "opportunity_adj": 0.0},
+                 {"player_id": "2", "opportunity_adj": 0.0}]
+    B._assert_provenance_matches_data(ruled_off, art)      # must NOT raise
+    assert art["provenance"]["opportunity_observed_in_data"] is True
+
+    # The refusal this asserter exists for still fires: claims ok, field
+    # genuinely absent (blend never ran).
+    never_ran = [{"player_id": "1", "opportunity_adj": None}]
+    with pytest.raises(SystemExit):
+        B._assert_provenance_matches_data(never_ran, {"provenance": {"opportunity_adjustment": "ok"}})
+
+
 def test_opportunity_applied_reads_the_field_that_proves_it():
     """`opportunity_z` is the INPUT to the adjustment, not evidence of it.
 
