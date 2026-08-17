@@ -55,10 +55,19 @@ OUT = HERE / "source_blend_2025.json"
 def season_totals(store: dict) -> dict:
     """Realized season points per sleeper pid. Same semantics as
     exp_fp_hist_proj.season_totals — a shared derivation, not a second one."""
+    # SHAPE, CHECKED RATHER THAN ASSUMED: `weeks` is a LIST of
+    # {season, week, points:{pid: pts}} — not a dict keyed by week. The first
+    # version of this function read it as a dict and would have summed NOTHING,
+    # producing an empty realized set and a VOID run that looked like an egress
+    # problem. Found by measuring the store instead of trusting the memory of it.
     out: dict[str, float] = {}
-    for week in (store.get("weeks") or {}).values():
-        for pid, pts in (week or {}).items():
-            out[str(pid)] = out.get(str(pid), 0.0) + float(pts or 0.0)
+    weeks = store.get("weeks") or []
+    if isinstance(weeks, dict):          # tolerate the other shape if it appears
+        weeks = list(weeks.values())
+    for wk in weeks:
+        pts = (wk or {}).get("points") or {}
+        for pid, v in pts.items():
+            out[str(pid)] = out.get(str(pid), 0.0) + float(v or 0.0)
     return out
 
 

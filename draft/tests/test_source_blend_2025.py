@@ -123,3 +123,31 @@ def test_void_is_not_a_negative_result():
     import inspect
     src = inspect.getsource(SB.void)
     assert "VOID is not a negative result" in src
+
+
+# ── the store shape, checked rather than remembered ─────────────────────────
+
+def test_season_totals_reads_the_real_store_shape():
+    """REGRESSION. The first version read `weeks` as a dict keyed by week.
+
+    It is a LIST of {season, week, points:{pid: pts}}. The dict version summed
+    nothing, so the run would have produced an empty realized set and written
+    VOID — which would have read as an egress failure and sent someone chasing
+    the proxy. Found by measuring the store instead of trusting a memory of it.
+    """
+    store = json.loads((ROOT / "draft" / "backtest"
+                        / "nflverse_weekly_points_2025.json").read_text())
+    totals = SB.season_totals(store)
+    assert len(totals) > 400, f"only {len(totals)} realized players — shape misread"
+    assert all(v > 0 for v in list(totals.values())[:50])
+
+
+def test_season_totals_tolerates_the_other_shape():
+    """Known-positive control on the tolerance branch, so it is not dead code."""
+    as_dict = {"weeks": {"1": {"points": {"7": 10.0}}, "2": {"points": {"7": 5.0}}}}
+    assert SB.season_totals(as_dict) == {"7": 15.0}
+
+
+def test_season_totals_is_empty_on_an_empty_store():
+    """Control: the function CAN return nothing, so a real total means something."""
+    assert SB.season_totals({"weeks": []}) == {}
