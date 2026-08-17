@@ -86,7 +86,7 @@ what it invalidated.
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
 | **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
-| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 17.63 / 25.81 / 32.46. Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
+| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.33 / 22.44 / 28.52 (Chase / Henry / Walker, re-read off the 08-17 rebuilt board). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
 
@@ -114,7 +114,7 @@ Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 **Volatility persists at ~two thirds the strength of scoring LEVEL.** Compare
 snap-share volatility at +0.19, pulled the same day.
 
-**Its boundary is sharp and non-random.** 131 of 157 draftable players have it.
+**Its boundary is sharp and non-random.** 129 of 155 draftable players have it.
 Of the 26 without, only 8 are rookies — **the rest are veterans who missed 2025**
 (Nabers ADP 32, Garrett Wilson 45, Daniels 59, Evans 62). Any wiring that fills
 a gap with a positional mean hands the steadiest reading to the injury-return
