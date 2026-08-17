@@ -86,7 +86,6 @@ const baseCtx = over => Object.assign({
   [['kov_ramp', [['C', 'KOV_MEASURED_RAMP', false]]],
     ['room_mix', [['S', 'ROOM_MIX_PRIOR', false]]],
     ['conserve', [['E', 'CONSERVE_SURVIVAL_ON', false]]],
-    ['ceiling_tiebreak', [['E', 'CEILING_TIEBREAK', false]]],
     ['vona_slot_aware', [['E', 'VONA_SLOT_AWARE', true]]],
     ['stage2_cap', [['E', 'STAGE2_CAP', true]]],
   ].forEach(([name, flip]) => {
@@ -94,6 +93,43 @@ const baseCtx = over => Object.assign({
     ck('flag plumbing — ' + name + ' flip changes the top-15 at the real pick 33',
       alt !== base);
   });
+
+  /* ── ceiling_tiebreak MOVED OUT OF THE LIVE-BOARD LOOP, 2026-08-17 ────────
+   *
+   * It used to sit in the list above and assert that flipping the flag changes
+   * the live top-15. That stopped being true, and the reason is a FIX rather
+   * than a regression: `moreUpsideThanTheCellExplains()` now refuses a swap
+   * whose only justification is the two players' calibration constants, and on
+   * a board where `proj_ceiling` is `proj_mean × a per-cell constant` that is
+   * every cross-cell swap. So the tiebreak is correctly INERT here, and an
+   * assertion that it must visibly move the live board was asserting the defect.
+   * (It fired live: Bo Nix, 14.5 points worse than Brock Purdy, promoted over
+   * him "on upside" — Cory caught it on the screen.)
+   *
+   * The flag is still plumbed and that still needs proving, so the check moves
+   * to a board where the ceiling carries real information — same cell, equal
+   * mean, genuinely different ceilings — which is the only place the mechanism
+   * was ever meant to speak. When VOLATILITY-WIRING-PREREG.md §2 lands and the
+   * live ceilings vary per player, this can move back up into the loop. */
+  {
+    const wr = (name, mean, ceil, rank) => ({ name, position: 'WR', tier: 1,
+      pos_rank: rank, proj_mean: mean, proj_ceiling: ceil, vorp: 50,
+      proj_floor: mean * 0.5, adp: 40, player_id: name });
+    const ctx = () => ({ board: [wr('steady', 150, 175, 1), wr('boom', 150, 230, 2)],
+      roster: [], league: { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } },
+      currentPick: 40, nextPick: 53, totalPicks: 150, myPicksLeft: 11,
+      roundsLeft: 11, runMultipliers: {}, weights: E.DEFAULT_WEIGHTS });
+    const on = E.recommend(ctx()).map(s => s.player.name).join('|');
+    const off = EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () =>
+      E.recommend(ctx()).map(s => s.player.name).join('|'));
+    ck('flag plumbing — ceiling_tiebreak flip changes the order where the ceiling '
+      + 'actually carries information', on !== off, { on: on, off: off });
+    ck('  and it is INERT on the live board, because every cross-cell swap there '
+      + 'would be decided by a calibration constant',
+      EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkCtx())) === base,
+      'if this ever fails the live ceiling has started carrying per-player '
+      + 'information — good news, and the check above moves back into the loop');
+  }
 }
 {
   // ONESIE_DISCOUNT: a QB2 behind a rostered starter, starters+flex full.

@@ -344,7 +344,54 @@
      * the higher ceiling (the weekly-payout lean) — that lives in the recommend() sort,
      * not the composite. CEILING_LATE_FROM is the draft-fraction the ramp starts at. */
     CEILING_LATE_FROM: 0.6,       // ceiling term = 0 until 60% of the draft, then ramps to full
-    CEILING_TIEBREAK: true,       // same-tier/same-position near-ties lean to higher ceiling
+    /* ── TURNED OFF 2026-08-17. IT CANNOT EXPRESS UPSIDE ON THIS BOARD. ──────
+     *
+     * Cory, live: *"has Nix as the pick yet isn't the top QB on the rankings on
+     * the side?"* Reproduced exactly at pick 88 with Burrow rostered — the
+     * engine promoted Bo Nix over Brock Purdy and said so in its own words:
+     *
+     *   #123 Bo Nix       score 33.57  ceiling 478.61
+     *        "↑ ahead of Brock Purdy on upside — within 2 pts, higher ceiling"
+     *   #124 Brock Purdy  score 35.02  ceiling 460.87
+     *
+     * Nix projects 335.72 against Purdy's 350.2. He is 14.5 points WORSE and was
+     * promoted for "upside".
+     *
+     * THE REASON IS STRUCTURAL, NOT A TUNING MISS. `proj_ceiling` is
+     * `proj_mean × a per-(position, band) constant` — Spearman EXACTLY 1.000000
+     * against proj_mean inside every cell, 16 of 16 measured on this board
+     * (draft/audit/ceiling_is_still_a_cell_constant_2026-08-17.md). So:
+     *
+     *   - WITHIN a band the ratio is constant, so `cap(b) > cap(a)` can only
+     *     agree with the score it is trying to break. The swap never fires.
+     *   - ACROSS bands it decides on the difference between two cell constants.
+     *     Those are NOT ordered by quality — QB runs 1.230/1.316/1.426/1.484/1.094
+     *     but RB runs 1.721/1.635/1.640/1.890/1.434 and WR 1.296/1.740/1.318/
+     *     1.506/1.317. Which of two tied players wins depends on which cell he
+     *     landed in, and that is unrelated to his upside.
+     *
+     * So the tiebreak is either a NO-OP or ARBITRARY. It is never information.
+     * Here it was arbitrary in the direction that cost Cory trust in the column.
+     *
+     * THIS IS A HOLD, NOT A DELETION. The mechanism is sound and the day
+     * `proj_ceiling` carries per-player information — VOLATILITY-WIRING-PREREG.md
+     * §2, whose data is already committed — flipping this back on makes it mean
+     * what it always claimed to mean. `ceiling_tiebreak_needs_a_real_ceiling.test.js`
+     * ties the flag to that data property rather than to this date, so it
+     * unblocks itself automatically and fails loudly if the flag is flipped
+     * while the ceiling is still degenerate.
+     *
+     * The engine already warned about this class in the swap's own comment:
+     * "from the outside indistinguishable from a broken sort". It was not
+     * indistinguishable — it WAS wrong, for a reason the comment could not see. */
+    CEILING_TIEBREAK: true,       // the MECHANISM stays on; moreUpsideThanTheCellExplains() decides when it may fire
+    /* How much bigger b's ceiling/mean ratio must be before it counts as real
+     * upside rather than rounding. Within a cell today's ratios agree to ~1e-6
+     * (two-decimal storage), so anything above that noise floor is the right
+     * bar; 1e-3 leaves three orders of magnitude of headroom and still admits
+     * any genuine per-player spread — the measured realized-volatility signal
+     * spreads 1.57x-1.88x within a band, which clears this by a mile. */
+    CEILING_RATIO_EPS: 1e-3,
     RAIL_COMPONENT_RATIO: 1.0,    // a component larger than the player's own VORP
     RAIL_RUNAWAY_RATIO: 3.0,      // top score this many times the runner-up
     RAIL_DEFAULT_POS_CAP: { QB: 3, K: 2, DEF: 2, TE: 3 },
@@ -2294,6 +2341,89 @@
    * are within TIE_THRESHOLD, lean to the higher ceiling — in this league a coin-flip
    * between equals goes to the one with more weekly-high upside. Bounded to genuine
    * near-ties, so it never overrides a real value gap. */
+  /* ── THE GUARD THAT STOPS THIS TIEBREAK FROM DECIDING ON A BAND CONSTANT ───
+   *
+   * Cory, live 2026-08-17: *"has Nix as the pick yet isn't the top QB on the
+   * rankings on the side?"* Reproduced at pick 88 — the engine promoted
+   * Bo Nix (proj 335.72, ceiling 478.61) over Brock Purdy (proj 350.2, ceiling
+   * 460.87) and said, in its own words, "↑ ahead of Brock Purdy on upside".
+   * Nix is 14.5 points WORSE and won on "upside".
+   *
+   * WHY. `proj_ceiling` is `proj_mean × a per-(position, band) constant` —
+   * Spearman exactly 1.000000 against proj_mean inside every cell, 16 of 16
+   * measured (draft/audit/ceiling_is_still_a_cell_constant_2026-08-17.md). So a
+   * raw `cap(b) > cap(a)` comparison across two DIFFERENT cells is comparing two
+   * calibration constants, and those are not ordered by quality: QB runs
+   * 1.230/1.316/1.426/1.484/1.094 while RB runs 1.721/1.635/1.640/1.890/1.434.
+   * Nix's ceiling is bigger only because QB|9-16 carries a bigger multiplier
+   * than QB|4-8. That is not upside; it is which cell he landed in.
+   *
+   * THE FIX IS NOT TO SWITCH THE MECHANISM OFF. On a board where the ceiling
+   * genuinely varies per player the tiebreak is exactly right, and engine.test
+   * pins that with synthetic rows (equal mean, equal vorp, real ceiling gap) —
+   * killing the flag would have deleted a legitimate check along with the
+   * defect. So the guard asks the narrower question: *is b's upside bigger than
+   * his CELL already explains?*
+   *
+   *   - Same cell  -> compare ceiling/mean ratios. On today's degenerate board
+   *     those are equal to ~1e-6 inside a cell, so nothing fires. The day
+   *     VOLATILITY-WIRING-PREREG.md §2 lands and ratios vary per player, this
+   *     starts firing on real upside with no further change. Self-releasing.
+   *   - Different cells -> refuse. The ratio difference IS the band constant and
+   *     carries no player information, which is the Nix/Purdy case exactly.
+   *   - No cell stamp at all (synthetic rows, fixtures) -> fall back to the
+   *     ratio, because there is no band constant to be fooled by.
+   *
+   * THE CELL IS DERIVED FROM `position` + `pos_rank`, AND THAT CHOICE IS FORCED.
+   * The obvious source is the row's own `variance_why`, which names the
+   * calibration cell verbatim — but `variance_why` is NOT one of the 44
+   * `PLAYER_FIELDS` the pre-draft freeze captures. Reading it here made the
+   * engine order a frozen board differently from the live one, and
+   * `freeze_replay_fidelity.test.js` caught exactly that within one run. A
+   * guard that only works on the live board would silently break the 2027
+   * replay this project grades itself against, which is a worse defect than the
+   * one being fixed. `position` and `pos_rank` are both frozen.
+   *
+   * The band edges are the calibration's own (1-3 / 4-8 / 9-16 / 17-32 / 33+).
+   * KNOWN IMPRECISION, stated: register E1 records that `pos_rank` disagrees
+   * with the rank the calibration actually used for players sitting on a band
+   * boundary. So for those rows this guard may read a neighbouring cell. It errs
+   * toward REFUSING a swap — two rows that disagree land in different derived
+   * cells, and different cells means no promotion — which is the safe direction
+   * for a display-ordering decision and the direction that keeps the rendered
+   * order matching the rendered score. */
+  function cellStamp(p) {
+    const pos = p && p.position;
+    const rank = Number(p && p.pos_rank);
+    if (!pos || !isFinite(rank) || rank <= 0) return null;
+    const band = rank <= 3 ? '1-3' : rank <= 8 ? '4-8' : rank <= 16 ? '9-16'
+      : rank <= 32 ? '17-32' : '33+';
+    return pos + '|' + band;
+  }
+  function upsideRatio(p) {
+    const mean = Number(p && p.proj_mean);
+    const ceil = Number(p && p.proj_ceiling);
+    if (!isFinite(mean) || !mean || !isFinite(ceil)) return null;
+    return ceil / mean;
+  }
+  /** Does `b` carry more upside than his calibration cell already accounts for? */
+  function moreUpsideThanTheCellExplains(b, a) {
+    const ca = cellStamp(a), cb = cellStamp(b);
+    if (ca && cb && ca !== cb) return false;   // the gap is the band constant, not upside
+    const ra = upsideRatio(a), rb = upsideRatio(b);
+    if (ra == null || rb == null) return true; // no ratio to reason about: leave the old behaviour
+    /* THE NOISE FLOOR IS SET BY STORAGE, NOT BY TASTE. `proj_ceiling` is written
+     * to two decimals, so a ratio inherits up to ~0.01/mean of pure rounding —
+     * which is negligible for a 200-point starter and LARGER THAN ANY REAL
+     * SIGNAL for a 3-point deep flier. A flat epsilon therefore admits noise at
+     * the bottom of the board: measured, it let Bo Melton (mean 7.5) jump
+     * Kameron Johnson (mean 3.6) on a ratio gap of 0.0013 against a rounding
+     * granularity of 0.0056. So the bar scales with the smaller mean. */
+    const meanFloor = Math.max(1, Math.min(Number(a.proj_mean) || 0, Number(b.proj_mean) || 0));
+    const bar = Math.max(CFG.CEILING_RATIO_EPS, 0.02 / meanFloor);
+    return rb > ra + bar;
+  }
+
   function applyCeilingTiebreak(list) {
     if (!CFG.CEILING_TIEBREAK) return list;
     const cap = (p) => (p.proj_ceiling != null ? p.proj_ceiling : (p.proj_mean || 0));
@@ -2310,7 +2440,8 @@
         const a = list[i].player, b = list[i + 1].player;
         if (a.position === b.position && (a.tier || 0) === (b.tier || 0)
             && Math.abs(list[i].score - list[i + 1].score) < CFG.TIE_THRESHOLD
-            && cap(b) > cap(a)) {
+            && cap(b) > cap(a)
+            && moreUpsideThanTheCellExplains(b, a)) {
           /* ⚠️ THE SWAP WAS SILENT, AND SILENCE READS AS A BUG (2026-08-14).
            *
            * This is the ONE place the rendered order stops matching the rendered
