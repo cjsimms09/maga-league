@@ -86,7 +86,6 @@ const baseCtx = over => Object.assign({
   [['kov_ramp', [['C', 'KOV_MEASURED_RAMP', false]]],
     ['room_mix', [['S', 'ROOM_MIX_PRIOR', false]]],
     ['conserve', [['E', 'CONSERVE_SURVIVAL_ON', false]]],
-    ['ceiling_tiebreak', [['E', 'CEILING_TIEBREAK', false]]],
     ['vona_slot_aware', [['E', 'VONA_SLOT_AWARE', true]]],
     ['stage2_cap', [['E', 'STAGE2_CAP', true]]],
   ].forEach(([name, flip]) => {
@@ -94,6 +93,28 @@ const baseCtx = over => Object.assign({
     ck('flag plumbing — ' + name + ' flip changes the top-15 at the real pick 33',
       alt !== base);
   });
+  /* CEILING_TIEBREAK moved OUT of the pick-33 list, RE-PINNED 2026-08-17 as
+   * the suite's own two-halves pattern. The tiebreak only fires inside a
+   * TIE_THRESHOLD near-tie, and the 08-17 rebuild — the opportunity layer
+   * zeroed by ruling and proj_ceiling switched to the measured p90
+   * (use_measured_ceiling) — re-spread the early board: the pick-33 top-15 no
+   * longer contains a tie for the flag to break, so a flip there changes
+   * nothing. That is the board being decisive, not the flag being dead: on
+   * the SAME artifact the flip still reorders the top-15 from pick 68 on.
+   * Both halves pinned — inert where the board is spread, live where it is
+   * tied — so the plumbing stays proven without demanding a tie exist at a
+   * pick where the rebuilt board does not have one. */
+  {
+    const alt33 = EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkCtx()));
+    ck('flag plumbing — ceiling_tiebreak flip is INERT at pick 33 on the 08-17 '
+      + 'board (no near-tie in the top-15 to break) — the finding, pinned',
+    alt33 === base);
+    const mkLate = () => { const c2 = LC.liveContext({ currentPick: 68, nextPick: 73 }); c2.wireWeekly = WIRE; return c2; };
+    const late = topN(mkLate());
+    const altLate = EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkLate()));
+    ck('…and LIVE at the real pick 68, where the board still carries a near-tie '
+      + '— the mechanism, proven on the same artifact', altLate !== late);
+  }
 }
 {
   // ONESIE_DISCOUNT: a QB2 behind a rostered starter, starters+flex full.
@@ -193,9 +214,29 @@ const baseCtx = over => Object.assign({
 }
 {
   // Board transforms: real changes, no mutation of the canonical row.
+  /* RE-PINNED 2026-08-17. This block used to FIND its row on the live board
+   * (`opportunity_adj && |proj_mean - proj_baseline| > 1`) — and Cory's
+   * "Remove 1" ruling set opportunity_cap to 0.0 the same day, so the 08-17
+   * artifact carries opportunity_adj 0.0000 on every row and proj_mean equals
+   * proj_baseline everywhere. No such row exists to find any more; the find()
+   * returned undefined and the whole suite crashed. The live board now pins
+   * the ruling (no adjusted row exists), and the transform's arithmetic is
+   * proven on a CONSTRUCTED adjusted row — stripping an adjustment the board
+   * no longer carries must keep working, because strip_opportunity is exactly
+   * the arm the ablation harness would use to measure the layer if the
+   * ruling's reserved reversal ever restores it. */
   const data = LC.loadBoard();
-  const row = data.players.find(p => p.opportunity_adj && p.depth_chart_order > 0
-    && Math.abs(p.proj_mean - p.proj_baseline) > 1);
+  ck('the live board carries NO opportunity-adjusted row — Cory\'s "Remove 1" '
+    + 'ruling (opportunity_cap 0.0) is in force in the artifact',
+  !data.players.some(p => p.opportunity_adj
+      && Math.abs(p.proj_mean - p.proj_baseline) > 1e-9));
+  const real = data.players.find(p => p.opportunity_z != null && p.depth_chart_order > 0
+    && p.proj_baseline != null && p.vorp != null);
+  const row = Object.assign({}, real, {
+    // A synthetic +5% opportunity adjustment on a real row's fields.
+    opportunity_adj: 0.05, opportunity_z: 1.0,
+    proj_mean: Math.round(real.proj_baseline * 1.05 * 100) / 100,
+  });
   const so = EA.stripOpportunity(row);
   ck('strip_opportunity reverts proj_mean to proj_baseline and shifts vorp by the same delta',
     so.proj_mean === row.proj_baseline
@@ -253,7 +294,17 @@ const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
 {
   const out = JSON.parse(fs.readFileSync(TEST_OUT + '.a', 'utf8'));
   // CONTROL — ablations that must reach the picks on these seeds do.
-  ['baseline_bpa', 'stripped', 'minus_opportunity', 'minus_conserve'].forEach(a => {
+  /* minus_opportunity MOVED to the zero-divergence side, RE-PINNED 2026-08-17:
+   * Cory's "Remove 1" ruling set opportunity_cap to 0.0, so the 08-17 board
+   * ships with the layer already off — every opportunity_adj is 0 and
+   * proj_mean == proj_baseline. Stripping the layer from a board that does
+   * not carry it is a no-op BY THE RULING, so this arm's divergence control
+   * inverted: rooms_diverged > 0 would now mean the strip is inventing
+   * differences that are not there. It joins minus_wire_bench under the
+   * exact-zero identity below, which is the STRONGER check — and it flips
+   * back to the divergence side the day the reserved reversal restores the
+   * layer, which is exactly when it should. */
+  ['baseline_bpa', 'stripped', 'minus_conserve'].forEach(a => {
     ck('CONTROL — ' + a + ' diverges from its control on the smoke seeds '
       + '(the ablation provably reaches the choice)',
       out.paired_vs_control[a].rooms_diverged > 0,
@@ -261,12 +312,19 @@ const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
   });
   // The zero-divergence identity: an arm whose rooms never diverged must have
   // EXACTLY zero deltas — pairing and season-memo accounting are exact.
-  const wb = out.paired_vs_control.minus_wire_bench;
-  ck('minus_wire_bench never diverges (the dead-code finding at driver level) '
-    + 'and its paired deltas are EXACTLY zero in both season models',
+  const zeroArms = [
+    ['minus_wire_bench', 'the dead-code finding at driver level'],
+    ['minus_opportunity', 'the "Remove 1" ruling at driver level: stripping a '
+      + 'layer the board no longer carries changes no pick'],
+  ];
+  zeroArms.forEach(([name, why]) => {
+    const wb = out.paired_vs_control[name];
+    ck(name + ' never diverges (' + why + ') '
+      + 'and its paired deltas are EXACTLY zero in both season models',
     wb.rooms_diverged === 0
-    && ['zero', 'wire'].every(m => ['mean_weekly', 'champ_prob'].every(k =>
-      wb[m][k].mean === 0 && wb[m][k].ci95[0] === 0 && wb[m][k].ci95[1] === 0)));
+      && ['zero', 'wire'].every(m => ['mean_weekly', 'champ_prob'].every(k =>
+        wb[m][k].mean === 0 && wb[m][k].ci95[0] === 0 && wb[m][k].ci95[1] === 0)));
+  });
   // Artifact discipline.
   ck('_territory is the artifact\'s first key; question verbatim; layers + '
     + 'dark layers enumerated; classification rule recorded',

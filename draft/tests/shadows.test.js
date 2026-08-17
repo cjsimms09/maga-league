@@ -238,7 +238,9 @@ function ctxAt(pick, board) {
  * READS them — and nothing did. Rule 14 on the one field whose job is to stop
  * the misread the strip invites.
  *
- * MEASURED ON THE LIVE BOARD AT PICK 33, CORY'S FIRST PICK:
+ * MEASURED ON THE 2026-08-14 LIVE BOARD AT PICK 33, CORY'S FIRST PICK
+ * (HISTORY — the 08-17 rebuild flipped this case to a live-driven consensus;
+ * see the re-pin at the bottom of this block):
  *
  *     rec list #1     Colston Loveland (TE) 17.3
  *     shadow strip    "7 of 7 -> Zay Flowers"   (no contested flag)
@@ -308,13 +310,33 @@ function ctxAt(pick, board) {
   check('CONTROL — pick 33 really is a high-agreement consensus, or there is '
     + 'nothing here to mislabel', c33.agree >= Math.ceil(c33.n * 0.75),
   c33.agree + '/' + c33.n);
-  check('and it IS flagged — the strongest agreement the strip can express is '
-    + 'the one that needed qualifying',
-  c33.driver_zero_weighted === true || c33.driver_is_artifact === true,
+  /* RE-PINNED 2026-08-17: the measured case FLIPPED with the board, and the
+   * flip is the flag working in the other direction. On the 08-14 board the
+   * 7/7 was Zay Flowers driven by `need` — one zero-weighted computation
+   * seven times, correctly flagged (the story in the block comment above,
+   * kept as history). The 08-17 rebuild, which executed Cory's same-day
+   * rulings (opportunity layer removed, K/DEF demoted, measured p90
+   * ceilings), re-spread the pick-33 board: the shadows now agree 6/7 on
+   * Colston Loveland driven by `keeper` — a term MEASURED_WEIGHTS carries at
+   * 1, i.e. real agreement about a term the board actually uses — so the
+   * strip must NOT qualify it. A warning that fires on genuine consensus is
+   * the same failure as one that misses hollow consensus, one level up. The
+   * synthetic rows above keep the flag's firing side pinned; this pins the
+   * quiet side on the live board, plus the fail-arm that `keeper` really is
+   * live-weighted (zero it and this goes red, which is when the flag SHOULD
+   * fire here again). */
+  check('and it is NOT flagged — the live board\'s strongest agreement is now '
+    + 'driven by a term the board really uses, and the strip stays quiet on '
+    + 'real agreement',
+  c33.driver_zero_weighted === false && c33.driver_is_artifact === false,
   'driver ' + c33.lead_driver);
-  check('CONTROL — `contested` does NOT catch it, which is why a separate signal '
-    + 'was needed rather than reusing that flag', c33.contested === false,
-  String(c33.contested));
+  check('FAIL ARM — the lead driver is genuinely nonzero in MEASURED_WEIGHTS, '
+    + 'or the quiet strip above would be the exact mislabel this section exists '
+    + 'to catch', (E2.MEASURED_WEIGHTS[c33.lead_driver] || 0) !== 0,
+  c33.lead_driver + '=' + E2.MEASURED_WEIGHTS[c33.lead_driver]);
+  check('CONTROL — `contested` does not catch the distinction either way, which '
+    + 'is why the separate signal exists rather than reusing that flag',
+  c33.contested === false, String(c33.contested));
 }
 
 console.log(`\n${pass}/${pass + fail} shadow-roster checks passed`);
