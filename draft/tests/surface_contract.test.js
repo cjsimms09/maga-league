@@ -62,18 +62,36 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   const prov = E.WEIGHT_PROVENANCE || {};
   ck('the engine records provenance per weight, so the distinction exists in '
     + 'code rather than only in prose', Object.keys(prov).length >= 8, Object.keys(prov).length);
-  ck('`ceiling` is recorded as UNMEASURED, not as measured-zero',
-    /UNMEASURED/.test(String(prov.ceiling)), prov.ceiling);
-  ck('`risk` likewise', /UNMEASURED/.test(String(prov.risk)), prov.risk);
+  /* THERE ARE NOW THREE KINDS OF ZERO ON THIS SCREEN, NOT TWO — 2026-08-17.
+   * "measured inert" (tier, need, bye) and "could not be measured" (risk) were
+   * the original pair. The ceiling re-derivation created a third: MEASURED,
+   * CONTRADICTED, AND HELD ANYWAY until after the draft
+   * (EXP-CEILING-REDERIVATION.md). It is the most misreadable of the three,
+   * because the screen shows the same 0 for all of them while this one is the
+   * only zero we now believe is wrong. */
+  ck('`risk` is recorded as UNMEASURED, not as measured-zero',
+    /UNMEASURED/.test(String(prov.risk)), prov.risk);
+  ck('`ceiling` is no longer recorded as unmeasured — it was measured 2026-08-17',
+    !/UNMEASURED/.test(String(prov.ceiling)) && /MEASURED/.test(String(prov.ceiling)),
+    prov.ceiling);
+  ck('  and its entry says the shipped zero is a HELD decision, not a finding',
+    /CONTRADICTS/i.test(String(prov.ceiling)) && /2026-08-22/.test(String(prov.ceiling)),
+    prov.ceiling);
   ck('while `tier` and `need` are recorded as MEASURED',
     /measured/i.test(String(prov.tier)) && !/UNMEASURED/.test(String(prov.tier))
       && /measured/i.test(String(prov.need)) && !/UNMEASURED/.test(String(prov.need)),
     { tier: prov.tier, need: prov.need });
-  ck('and the document keeps the two apart rather than calling them all "zero"',
-    /measured inert/.test(doc) && /UNMEASURED/.test(doc));
-  ck('the unsignable ceiling interval is quoted with its sign ambiguity, which '
-    + 'is the reason the weight is 0',
-  /−4\.8/.test(doc) && /\[−26, \+17\] interval\*\*: unsignable/.test(doc));
+  ck('and the document keeps all three apart rather than calling them all "zero"',
+    /measured inert/.test(doc) && /UNMEASURED/.test(doc)
+    && /NOW KNOWN TO BE WRONG/.test(doc), 'the doc must name the third state');
+  /* The old assertion required the doc to quote "−4.8 ... unsignable" as THE
+   * REASON the weight is 0. That reason is retired: the interval was produced by
+   * a degenerate board. The doc must still carry the number — deleting it would
+   * erase why the weight sat at zero for a week — but it may no longer be
+   * presented as the standing justification. */
+  ck('the retired −4.8 interval is still recorded as HISTORY, not as the reason',
+    /−4\.8/.test(doc) && /used to read/.test(doc) && /could not have come out any other way/.test(doc),
+    'the doc must keep the old number and mark it superseded');
 }
 
 // ── 2b. THE COMPOSITE IS NOT ONLY THE WEIGHT VECTOR ─────────────────────

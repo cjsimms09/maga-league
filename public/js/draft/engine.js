@@ -577,16 +577,23 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'UNMEASURED — the backtest board no longer MANUFACTURES the ceiling '
-      + '(build_bundle.py wrote proj_ceiling = 1.35 x proj_mean, a global '
-      + 'constant, until 2026-08-17; it now carries the measured p90 per '
-      + '(position, band), fitted leave-one-season-out). So the experiment is '
-      + 'RUNNABLE for the first time and has NOT been run — this zero is '
-      + 'un-re-derived, not refuted. NOTE the collinearity is REDUCED, NOT '
+    ceiling: 'MEASURED 2026-08-17 AND IT CONTRADICTS THIS ZERO — held at 0 '
+      + 'through the 2026 draft on purpose, not on evidence. The old zero came '
+      + 'from a -4.8 [-26,+17] result taken on a board where proj_ceiling was '
+      + 'proj_mean x a constant, making the ceiling term rank-identical to the '
+      + 'value term (Spearman 1.0000); it could not have come out any other way. '
+      + 'Re-derived on the first real-ceiling board (505 distinct ceiling/mean '
+      + 'ratios where there was 1): a ceiling weight of 0.65 beat the shipped '
+      + 'zero by +$35.5, positive in 3/3 seeds and separable in 3/3. WHY IT IS '
+      + 'STILL ZERO: measured once, on the money proxy rather than a graded '
+      + 'replay, on a grid whose winner was its own SMALLEST tested weight — so '
+      + 'the optimum is not bracketed. Both preregs forbid a shipped weight '
+      + 'change before 2026-08-22. NOTE the collinearity is REDUCED, NOT '
       + 'REMOVED: the measured ceiling is still proj_mean x a per-CELL constant, '
-      + 'varying between bands and not within them, so any weight fitted on it '
-      + 'measures cross-band dispersion differences only. Prereg: '
-      + 'draft/backtest/HARNESS-DISPERSION-PREREG.md',
+      + 'varying between bands and not within them, so this prices cross-band '
+      + 'dispersion only and says nothing about whether THIS player has upside. '
+      + 'Prereg: draft/backtest/CEILING-REDERIVATION-PREREG.md. Result: '
+      + 'draft/backtest/EXP-CEILING-REDERIVATION.md',
   };
 
   /* Named strategies, as weight sets.
@@ -618,11 +625,18 @@
         + 'is full. The mask that does know runs on the needrule card, not here — filling '
         + 'QB and TE moves this top 70 by zero players. Cross-check the card before taking '
         + 'a second one-start starter. '
-        + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
-        + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
-        + 'so both experiments were incapable of returning anything but zero. They stay at '
-        + 'zero as a default, not as a finding — a null measurement is no reason to turn '
-        + 'something on either.',
+        + 'RISK IS OFF AND WAS NEVER MEASURED: the backtest board carries none of its '
+        + 'five inputs, so that experiment was incapable of returning anything but zero. '
+        + 'It stays at zero as a default, not as a finding. '
+        + 'CEILING IS THE ONE SLIDER ON THIS PANEL KNOWN TO BE SET WRONG. Its zero came '
+        + 'from the same kind of broken experiment — the board\'s ceiling used to be a '
+        + 'fixed 1.35x of the projection, so raising the ceiling slider was arithmetically '
+        + 'the same as raising value. Re-run 2026-08-17 on a board with real per-player '
+        + 'ceilings, a ceiling of 0.65 beat this zero in all three seeds. IT IS HELD AT '
+        + 'ZERO THROUGH THIS DRAFT DELIBERATELY: measured once, on a simulation rather '
+        + 'than a graded season, on a grid whose best point was its own lowest — five days '
+        + 'out, a weight measured once is a worse instrument than a known one. First thing '
+        + 'to revisit after 8/22.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares

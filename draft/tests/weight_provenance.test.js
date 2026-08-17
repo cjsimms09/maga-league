@@ -46,12 +46,32 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
     pk.every(k => wk.indexOf(k) >= 0), pk.filter(k => wk.indexOf(k) < 0));
 }
 
-// ── THE TWO KNOWN-UNMEASURED WEIGHTS STAY DECLARED ─────────────────────────
+// ── THE UNMEASURED WEIGHTS STAY DECLARED ───────────────────────────────────
+/* THIS BLOCK USED TO REQUIRE BOTH risk AND ceiling TO SAY "UNMEASURED", and on
+ * 2026-08-17 that became the wrong invariant. The ceiling experiment was re-run
+ * on the first board in this project's history whose proj_ceiling was not a
+ * constant multiple of proj_mean, and it came back positive and separable in
+ * 3/3 seeds (EXP-CEILING-REDERIVATION.md). The zero survives as a DELIBERATE
+ * HOLD through the draft, not as a finding.
+ *
+ * Continuing to call it unmeasured would be the same defect this file was
+ * written to catch, pointed the other way: the panel telling Cory a number is
+ * unmeasured when it has in fact been measured and contradicted. */
 {
   const unmeasured = Object.keys(P || {}).filter(k => /UNMEASURED/.test(P[k]));
-  ck('risk and ceiling are still declared UNMEASURED',
-    unmeasured.indexOf('risk') >= 0 && unmeasured.indexOf('ceiling') >= 0,
-    unmeasured);
+  ck('risk is still declared UNMEASURED', unmeasured.indexOf('risk') >= 0, unmeasured);
+
+  ck('ceiling is NO LONGER declared unmeasured — it was measured 2026-08-17',
+    unmeasured.indexOf('ceiling') < 0, P.ceiling);
+
+  /* And the replacement has to say the two things that keep it honest: that the
+   * measurement contradicts the shipped number, and that the shipped number is
+   * a held decision with a date rather than a result. A provenance string that
+   * says only "measured" would read as "measured and endorsed". */
+  ck('  and says the measurement CONTRADICTS the zero it still ships',
+    /MEASURED/.test(P.ceiling) && /CONTRADICTS/i.test(P.ceiling), P.ceiling);
+  ck('  and gives the date the hold expires rather than an open-ended "later"',
+    /2026-08-22/.test(P.ceiling), P.ceiling);
 
   /* NOT AN ASSERTION THAT THEY ARE ZERO — that is a decision, not an invariant,
    * and a later run may legitimately move them. The invariant is that whoever
@@ -75,9 +95,21 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
   ck('  and no longer cites ceiling\'s collinear interval as its reason',
     !/-4\.8|\[-26/.test(why), why);
 
-  ck('  and names risk and ceiling as unmeasured rather than measured',
-    /never (been )?measured|were never measured|incapable/i.test(why)
-    && /risk/i.test(why) && /ceiling/i.test(why), why);
+  ck('  and still names risk as never measured',
+    /never measured|incapable/i.test(why) && /risk/i.test(why), why);
+
+  /* CEILING'S ENTRY IN THE PANEL COPY CHANGED CATEGORY on 2026-08-17 and the
+   * copy has to change with it. Saying "risk and ceiling were never measured"
+   * is now a false statement about ceiling — the same Rule 16 failure this file
+   * exists to catch, inverted. The copy must instead tell Cory the slider is
+   * known to be set wrong and is being held on purpose, because that is the
+   * thing that could make him want to override it. */
+  ck('  and tells Cory ceiling is known to be set wrong, not unmeasured',
+    /ceiling/i.test(why) && /set wrong|known to be wrong/i.test(why)
+    && !/risk and ceiling are off but were never measured/i.test(why), why);
+
+  ck('  and says the hold is deliberate and dated rather than open-ended',
+    /held at zero|deliberat/i.test(why) && /8\/22|2026-08-22/.test(why), why);
 
   /* NON-VACUITY. If `why` were empty or the preset missing, every assertion
    * above would pass trivially. It has to be real prose that really mentions
@@ -146,13 +178,24 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
     'a synthetic dispersion constant is back in build_bundle.py — every weight '
     + 'experiment on a bundle is collinear again');
 
-  /* The provenance must say WHICH of the two states the zero is in. "Collinear
-   * on the backtest board" was true until the harness fix and is now false;
-   * "measured and refuted" is not true either. The honest word is UNMEASURED,
-   * plus the fact that the experiment is now runnable. */
-  ck('  and the ceiling provenance reflects the fixed harness, not the old one',
-    /UNMEASURED/.test(E.WEIGHT_PROVENANCE.ceiling)
-    && !/collinear with value on the backtest board/.test(E.WEIGHT_PROVENANCE.ceiling),
+  /* The provenance must say WHICH state the zero is in, and there have now been
+   * three. "Collinear on the backtest board" was true until the harness fix.
+   * "UNMEASURED, the experiment is runnable and has not been run" was true for
+   * the few hours between the harness fix and the re-run. Since the re-run the
+   * honest description is MEASURED, CONTRADICTED, AND HELD — and none of the
+   * three earlier phrasings may survive, because each of them would tell Cory
+   * the number is unexamined when it has in fact been examined and disagreed
+   * with. */
+  ck('  and the ceiling provenance reflects the RE-RUN, not either earlier state',
+    !/collinear with value on the backtest board/.test(E.WEIGHT_PROVENANCE.ceiling)
+    && !/has NOT been run/.test(E.WEIGHT_PROVENANCE.ceiling)
+    && !/un-re-derived/.test(E.WEIGHT_PROVENANCE.ceiling),
+    E.WEIGHT_PROVENANCE.ceiling);
+
+  /* NON-VACUITY FOR THE ABOVE: three negative assertions pass trivially against
+   * an empty string, so require the positive claim too. */
+  ck('  CONTROL: and actually cites the re-derivation it replaced them with',
+    /EXP-CEILING-REDERIVATION\.md/.test(E.WEIGHT_PROVENANCE.ceiling),
     E.WEIGHT_PROVENANCE.ceiling);
 
   /* And it must NOT oversell the fix. The measured ceiling is still
