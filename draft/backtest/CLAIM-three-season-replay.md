@@ -1,3 +1,4 @@
+<!-- TERRITORY: A -->
 # CLAIM UNDER TEST — the three-season replay DESIGN
 
 Reviewing a DESIGN, before any harness exists. Nothing has been run.

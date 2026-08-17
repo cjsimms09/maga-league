@@ -1,3 +1,4 @@
+<!-- TERRITORY: A -->
 # PRE-REGISTRATION — the three-season replay
 
 **Written before the harness exists.** Every threshold, arm and exclusion below
