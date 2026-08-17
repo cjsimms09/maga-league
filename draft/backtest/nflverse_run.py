@@ -135,13 +135,67 @@ def plan(measurement: str, seasons=SEASONS) -> list:
     return out
 
 
-def fetch(url: str, kind: str, season, timeout: int = 120):  # pragma: no cover
+def head_status(url: str, timeout: int = 60):  # pragma: no cover
+    """An HTTP status for `diagnose_missing`, or None if we could not ask.
+
+    ⚠ None IS A REAL ANSWER HERE AND IT MEANS "WE DID NOT LEARN ANYTHING". A
+    connection failure returning 404 by accident would let our own outage be
+    written down as nflverse lacking the season — the defect this whole path
+    exists to prevent — so anything that is not a status is None.
+    """
+    import urllib.error
+    import urllib.request
+
+    req = urllib.request.Request(url, headers={"User-Agent": REL.USER_AGENT})
+    req.get_method = lambda: "HEAD"
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return int(r.status)
+    except urllib.error.HTTPError as e:
+        return int(e.code)
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
+def failure_message(kind: str, season, code, probe,
+                    season_played_through=None) -> str:
+    """The sentence a failed fetch raises — PURE, so it can be exercised.
+
+    ⚠ SPLIT OUT OF `fetch` DELIBERATELY. `fetch` is `pragma: no cover` because
+    it reaches the network, and a branch that only exists inside an untestable
+    function is a branch nobody has run. This module's own docstring makes that
+    argument about `nflverse_release`; the same argument applies here, and the
+    404 path is exactly the one that has been wrong three times.
+    """
+    msg = REL.describe_failure(kind, season, code)
+    if int(code) != 404:
+        return msg
+    d = REL.diagnose_missing(kind, season, probe,
+                             season_played_through=season_played_through)
+    return "%s\n  DIAGNOSIS [%s]: %s" % (msg, d["verdict"], d["why"])
+
+
+def fetch(url: str, kind: str, season, timeout: int = 120,
+          season_played_through=None):  # pragma: no cover
     """Bytes, or a RuntimeError whose message says what WE asked for.
 
     The whole reason this wrapper exists rather than a bare urlopen: a 404 here
     must never reach the caller as "no data". `describe_failure` names the release
     and the file, and gives a 403 a different sentence, because a naming failure
     and a routing failure point in opposite directions.
+
+    ⚠ AND ON A 404 IT NOW RUNS THE CHECK RATHER THAN DESCRIBING IT.
+    `describe_failure` writes a sentence telling a reader to verify the release
+    name; `diagnose_missing` verifies it. The difference is not academic — the
+    advice was available, in this file's own docstring, for the fortnight 2025
+    spent recorded as unpublished, and again on 2026-08-15 when
+    `build_historical_byes.py` wrote the same conclusion about the same season.
+    Three times now the sentence was there and nobody re-ran it. Rule 9: a
+    mechanism that only produces advice is a dashboard.
+
+    The verdict is appended to the error, so the message says both what we asked
+    for AND which of the two things went wrong — and `not_published` cannot
+    appear at all unless the caller passed the calendar.
     """
     import urllib.error
     import urllib.request
@@ -151,7 +205,9 @@ def fetch(url: str, kind: str, season, timeout: int = 120):  # pragma: no cover
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.read()
     except urllib.error.HTTPError as e:
-        raise RuntimeError(REL.describe_failure(kind, season, e.code)) from e
+        raise RuntimeError(failure_message(
+            kind, season, e.code, head_status,
+            season_played_through=season_played_through)) from e
     except Exception as e:                               # noqa: BLE001
         raise RuntimeError(
             "nflverse fetch of %s failed before any status came back (%s: %s) — "
