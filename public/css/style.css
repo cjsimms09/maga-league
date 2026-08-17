@@ -3529,6 +3529,20 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
      regression back to position:fixed is exactly the bug this fix removes. */
   .wr-arm { position: static; }
 }
+/* At the 900px floor (the compressed-grid range, before the toolbar's own
+   overflow-x:auto scroll is needed) the full "Arm my-turn alert" label pushes
+   Lineup/Accuracy/Analyzer/Office past the visible edge — reproduced live at
+   900px, clean by 1050px. Icon-only in that one range: font-size:0 collapses
+   the real text node (no markup edit — warroom.ejs is on hold tonight for the
+   stack/handcuff merge), ::before restores just the bell glyph at readable
+   size. The title= attribute still carries the full label for a hover/AT. */
+@media (min-width: 900px) and (max-width: 1049px) {
+  /* .wr-arm.btn (not bare .wr-arm) to out-specificity .btn.small's own
+     font-size — a bare-class version of this rule left the label visible
+     underneath the icon, confirmed via a live screenshot before shipping. */
+  .wr-arm.btn { font-size: 0; padding: .35rem .45rem; }
+  .wr-arm.btn::before { content: "🔔"; font-size: .85rem; }
+}
 /* It is SETUP, not an alert — arm audio once and it removes itself. A full-width
    red bar made it read as the most urgent thing on screen, above the actual pick.
    Calm it to a quiet outlined chip so it is noticeable but never competes with a
