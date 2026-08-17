@@ -3628,15 +3628,20 @@ router.get('/lineup/accuracy', requireCommissioner, aw(async (req, res) => {
     rawCount = keys.length;
     for (const k of keys) { const e = await store.get(k); if (e) ledger.push(e); }
   } catch (e) { /* count is a bonus */ }
-  // THE OVERRIDES AS CAPTURED, not as graded. The grader's decision join reads
-  // the DRAFT kinds (recommendation/pick/override); the in-season kinds this site
-  // writes — lineup_call and inseason_override — aren't in that join yet (parked
-  // for A). Without this the page would show nothing all season while the ledger
-  // filled up, which is the same "measured but never surfaced" failure the
-  // override card was built to fix. Read straight off the ledger and label it
-  // honestly as awaiting grading.
+  // THE OVERRIDES AS CAPTURED, not as graded. Read straight off the ledger so
+  // the page shows something the moment a decision is logged, days before its
+  // week resolves — the graded half (decisions.inseason, below) is the
+  // complement once outcomes exist, not a replacement for this.
+  //
+  // ⚠️ CORRECTED 2026-08-17: this comment used to say the grader's join
+  // "doesn't cover lineup_call/inseason_override yet (parked for A)". That
+  // stopped being true on 2026-08-15 — forecast_grade.gradeDecisions()'s
+  // `.inseason` block joins all four in-season kinds today, tie-safe, and
+  // grade-cron writes it into every snapshot. It was simply never read on
+  // this side of the seam; passed through below as `inseason`.
   const captured = ACC.capturedOverrides(ledger);
-  const view = ACC.buildAccuracyView(calibration, attribution, rawCount, { series, decisions, captured });
+  const view = ACC.buildAccuracyView(calibration, attribution, rawCount,
+    { series, decisions, captured, inseason: decisions && decisions.inseason });
   res.render('accuracy', { me: req.owner, season, view,
     // The explainer contract (what/read/do/src per panel) — view-model only.
     guide: require('../inseason_guide').GUIDE.accuracy });

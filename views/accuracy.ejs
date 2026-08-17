@@ -187,7 +187,7 @@
 <% const D = v.decisions; %>
 <% if (D && D.n > 0) { %>
   <div class="card" style="margin-bottom:1.2rem">
-    <h2>⚖️ Graded decisions <span class="sub">where an outcome is joined to the recommendation</span></h2>
+    <h2>⚖️ Graded decisions <span class="sub">draft picks — where an outcome is joined to the recommendation</span></h2>
     <div class="body">
       <div class="acc-ov">
         <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
@@ -201,9 +201,52 @@
         <% } else if (D.scored < 8) { %>
           <b>Too few to read as a verdict</b> (<%= D.scored %> scored). This is the honest sample, not a judgement — it takes a season to mean anything.
         <% } else { %>
-          Across <%= D.scored %> scored overrides you were right <b><%= D.rate %>%</b> of the time. Nothing else in the system measures whether the human is adding value on top of the model.
+          Across <%= D.scored %> scored overrides you were right <b><%= D.rate %>%</b> of the time. This is the DRAFT half of that question — the in-season half is below.
         <% } %>
       </p>
+    </div>
+  </div>
+<% } %>
+
+<%# ── IN-SEASON DECISION ACCURACY — start/sit, waiver and streaming calls
+    against their modelled counterfactual, plus overrides against the tool's
+    rejected recommendation. Computed every grade-cron run since 2026-08-15;
+    this is the first render of it. A tie counts toward "scored" but not
+    toward either side's rate — the rate is read over the DECIDED subset,
+    same discipline as the draft card above. %>
+<% const ID = v.inseasonDecisions; %>
+<% if (ID) { %>
+  <div class="card" style="margin-bottom:1.2rem">
+    <h2>📅 In-season decisions <span class="sub">start/sit, waivers and streaming — tool vs. what you'd have done without it</span></h2>
+    <div class="body">
+      <div class="acc-ov">
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= ID.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= ID.scored %></span><span class="acc-ov-lbl">scored so far</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num <%= ID.tool.rate != null && ID.tool.rate >= 50 ? 'pos' : '' %>"><%= ID.tool.rate != null ? ID.tool.rate + '%' : '—' %></span><span class="acc-ov-lbl">tool beat the alternative</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num <%= ID.human.rate != null && ID.human.rate >= 50 ? 'pos' : '' %>"><%= ID.human.rate != null ? ID.human.rate + '%' : '—' %></span><span class="acc-ov-lbl">you beat the tool</span></div>
+      </div>
+      <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
+        <% if (!ID.scored) { %>
+          Nothing scored yet — a week's calls grade once that week resolves. The count above is what's captured and waiting.
+        <% } else { %>
+          <% if (!ID.tool.readable && !ID.human.readable) { %>
+            <b>Too few decided (non-tied) results to read as a verdict</b> — <%= ID.tool.decided %> tool-side, <%= ID.human.decided %> override-side. The honest sample, not a judgement yet.
+          <% } else { %>
+            <% if (ID.tool.readable) { %>Over <%= ID.tool.decided %> decided start/sit, waiver and streaming calls, the tool's pick beat what you'd have done without it <b><%= ID.tool.rate %>%</b> of the time.<% } %>
+            <% if (ID.human.readable) { %> Over <%= ID.human.decided %> decided overrides, you beat the tool's rejected recommendation <b><%= ID.human.rate %>%</b> of the time.<% } %>
+          <% } %>
+          <% if (ID.n - ID.scored > 0) { %> <%= ID.n - ID.scored %> more await their week's resolution.<% } %>
+        <% } %>
+      </p>
+      <% if (ID.byKind && ID.byKind.length) { %>
+        <div class="scroll-x" style="margin-top:.6rem"><table class="roll">
+          <tr><th>Kind</th><th class="num">Logged</th><th class="num">Scored</th><th class="num">Decided</th><th class="num">Won</th></tr>
+          <% for (const k of ID.byKind) { %>
+            <tr><td><%= k.label %></td><td class="num"><%= k.n %></td><td class="num"><%= k.scored %></td>
+              <td class="num"><%= k.decided %></td><td class="num"><%= k.won %></td></tr>
+          <% } %>
+        </table></div>
+      <% } %>
     </div>
   </div>
 <% } %>
