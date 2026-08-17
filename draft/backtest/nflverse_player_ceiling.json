@@ -1,0 +1,9268 @@
+{
+ "_territory": "TERRITORY: C \u2014 produced by nflverse_player_ceiling.py",
+ "_note": "Per-player empirical p10/p50/p90 of realized weekly points, scored under OUR table, across (2021, 2022, 2023, 2024, 2025). Complementary to projection_error.py's pooled (position, rank-band) calibration, not a replacement \u2014 see module docstring for the risk-category distinction. NOT wired to the board.",
+ "seasons": [
+  2021,
+  2022,
+  2023,
+  2024,
+  2025
+ ],
+ "min_n": 8,
+ "summary": {
+  "players": 1156,
+  "measured": 765,
+  "unmeasurable": 391,
+  "measured_fraction": 0.6618
+ },
+ "players": {
+  "1034": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.5,
+   "p50": 3.5,
+   "p90": 9.38,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "1049": {
+   "status": "measured",
+   "n": 38,
+   "p10": 4.08,
+   "p50": 16.3,
+   "p90": 23.36,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "1067": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.6,
+   "p50": 5.6,
+   "p90": 14.14,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "1071": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.7,
+   "p50": 2.5,
+   "p90": 6.07,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "111": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.16,
+   "p50": 2.0,
+   "p90": 6.66,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "1144": {
+   "status": "measured",
+   "n": 20,
+   "p10": 1.36,
+   "p50": 5.15,
+   "p90": 15.37,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "1166": {
+   "status": "measured",
+   "n": 65,
+   "p10": 7.28,
+   "p50": 18.46,
+   "p90": 31.51,
+   "basis": "65 of this player's own realized weeks"
+  },
+  "1234": {
+   "status": "measured",
+   "n": 61,
+   "p10": 8.48,
+   "p50": 18.76,
+   "p90": 30.98,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "1329": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "1339": {
+   "status": "measured",
+   "n": 66,
+   "p10": 1.7,
+   "p50": 7.9,
+   "p90": 14.1,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "1346": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 8.52,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "1352": {
+   "status": "measured",
+   "n": 54,
+   "p10": 1.16,
+   "p50": 4.5,
+   "p90": 11.7,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "1379": {
+   "status": "measured",
+   "n": 71,
+   "p10": 0.9,
+   "p50": 2.7,
+   "p90": 7.7,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "138": {
+   "status": "measured",
+   "n": 16,
+   "p10": 9.67,
+   "p50": 14.62,
+   "p90": 26.13,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "1386": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.85,
+   "p50": 1.85,
+   "p90": 10.47,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "1387": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.68,
+   "p50": 3.8,
+   "p90": 11.18,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "1425": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 5.4,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "1426": {
+   "status": "measured",
+   "n": 67,
+   "p10": 1.66,
+   "p50": 7.9,
+   "p90": 17.82,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "1466": {
+   "status": "measured",
+   "n": 88,
+   "p10": 3.52,
+   "p50": 11.1,
+   "p90": 20.64,
+   "basis": "88 of this player's own realized weeks"
+  },
+  "147": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.4,
+   "p50": 2.0,
+   "p90": 8.4,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "1476": {
+   "status": "measured",
+   "n": 44,
+   "p10": 1.78,
+   "p50": 6.25,
+   "p90": 13.63,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "1479": {
+   "status": "measured",
+   "n": 72,
+   "p10": 4.52,
+   "p50": 10.6,
+   "p90": 21.61,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "1535": {
+   "status": "measured",
+   "n": 54,
+   "p10": 0.56,
+   "p50": 5.8,
+   "p90": 17.68,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "1592": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "1619": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "167": {
+   "status": "measured",
+   "n": 34,
+   "p10": 11.49,
+   "p50": 21.44,
+   "p90": 36.18,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "1689": {
+   "status": "measured",
+   "n": 68,
+   "p10": 1.92,
+   "p50": 7.3,
+   "p90": 20.14,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "1706": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.2,
+   "p50": 2.9,
+   "p90": 9.82,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "1817": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 4.55,
+   "p90": 10.88,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "1825": {
+   "status": "measured",
+   "n": 21,
+   "p10": 2.4,
+   "p50": 6.2,
+   "p90": 14.9,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "1833": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.06,
+   "p50": 1.65,
+   "p90": 13.04,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "1837": {
+   "status": "measured",
+   "n": 37,
+   "p10": 1.34,
+   "p50": 15.9,
+   "p90": 23.55,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "1848": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "1911": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 1.92,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "1992": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.21,
+   "p50": 3.4,
+   "p90": 8.87,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "2025": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.35,
+   "p50": 2.7,
+   "p90": 5.4,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "2028": {
+   "status": "measured",
+   "n": 59,
+   "p10": 7.9,
+   "p50": 18.44,
+   "p90": 26.42,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "2073": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.23,
+   "p50": 0.95,
+   "p90": 3.09,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "2118": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 2.15,
+   "p90": 8.64,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "2133": {
+   "status": "measured",
+   "n": 81,
+   "p10": 4.9,
+   "p50": 13.1,
+   "p90": 29.1,
+   "basis": "81 of this player's own realized weeks"
+  },
+  "2152": {
+   "status": "measured",
+   "n": 24,
+   "p10": -0.07,
+   "p50": 12.31,
+   "p90": 24.14,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "2197": {
+   "status": "measured",
+   "n": 69,
+   "p10": 2.42,
+   "p50": 6.8,
+   "p90": 15.78,
+   "basis": "69 of this player's own realized weeks"
+  },
+  "2216": {
+   "status": "measured",
+   "n": 72,
+   "p10": 4.13,
+   "p50": 11.7,
+   "p90": 25.6,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "2251": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.2,
+   "p50": 5.9,
+   "p90": 11.83,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "2257": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.7,
+   "p50": 1.6,
+   "p90": 6.8,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "2306": {
+   "status": "measured",
+   "n": 29,
+   "p10": -0.23,
+   "p50": 12.24,
+   "p90": 34.16,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "2307": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.26,
+   "p50": 13.32,
+   "p90": 25.06,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "2309": {
+   "status": "measured",
+   "n": 64,
+   "p10": 2.25,
+   "p50": 8.0,
+   "p90": 21.87,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "2319": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.23,
+   "p50": 6.4,
+   "p90": 14.11,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "2320": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.77,
+   "p50": 8.75,
+   "p90": 16.62,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "2325": {
+   "status": "measured",
+   "n": 61,
+   "p10": 0.0,
+   "p50": 3.1,
+   "p90": 11.1,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "2342": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2359": {
+   "status": "measured",
+   "n": 68,
+   "p10": 0.37,
+   "p50": 2.4,
+   "p90": 12.63,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "2360": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "2374": {
+   "status": "measured",
+   "n": 80,
+   "p10": 1.87,
+   "p50": 7.15,
+   "p90": 19.3,
+   "basis": "80 of this player's own realized weeks"
+  },
+  "2378": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.7,
+   "p50": 4.1,
+   "p90": 8.96,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "2381": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 8.05,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "2390": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.02,
+   "p50": 2.2,
+   "p90": 4.74,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "2391": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.72,
+   "p50": 4.9,
+   "p90": 7.64,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "2399": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.0,
+   "p50": 0.9,
+   "p90": 6.52,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "24": {
+   "status": "measured",
+   "n": 29,
+   "p10": 5.34,
+   "p50": 13.28,
+   "p90": 26.97,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "2422": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.0,
+   "p50": 0.9,
+   "p90": 5.8,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "2431": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.31,
+   "p50": 3.8,
+   "p90": 11.1,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "2449": {
+   "status": "measured",
+   "n": 81,
+   "p10": 4.3,
+   "p50": 11.5,
+   "p90": 19.9,
+   "basis": "81 of this player's own realized weeks"
+  },
+  "2460": {
+   "status": "measured",
+   "n": 35,
+   "p10": 1.04,
+   "p50": 3.2,
+   "p90": 8.44,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "2471": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.0,
+   "p50": 0.5,
+   "p90": 2.91,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "2476": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "2505": {
+   "status": "measured",
+   "n": 39,
+   "p10": 3.44,
+   "p50": 7.6,
+   "p90": 16.22,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "2545": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.0,
+   "p50": 1.3,
+   "p90": 7.44,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "2583": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2588": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.08,
+   "p50": 2.6,
+   "p90": 7.36,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "2673": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.0,
+   "p50": 2.4,
+   "p90": 12.41,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "2711": {
+   "status": "measured",
+   "n": 34,
+   "p10": 2.37,
+   "p50": 14.32,
+   "p90": 24.05,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "2749": {
+   "status": "measured",
+   "n": 57,
+   "p10": 0.7,
+   "p50": 5.6,
+   "p90": 18.98,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "2822": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.92,
+   "p50": 2.4,
+   "p90": 6.64,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "3048": {
+   "status": "measured",
+   "n": 23,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 2.58,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "3161": {
+   "status": "measured",
+   "n": 33,
+   "p10": 6.56,
+   "p50": 16.74,
+   "p90": 29.41,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "3163": {
+   "status": "measured",
+   "n": 86,
+   "p10": 8.83,
+   "p50": 19.76,
+   "p90": 32.28,
+   "basis": "86 of this player's own realized weeks"
+  },
+  "3164": {
+   "status": "measured",
+   "n": 64,
+   "p10": 1.42,
+   "p50": 9.25,
+   "p90": 17.05,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "3198": {
+   "status": "measured",
+   "n": 77,
+   "p10": 6.76,
+   "p50": 17.0,
+   "p90": 29.42,
+   "basis": "77 of this player's own realized weeks"
+  },
+  "3200": {
+   "status": "measured",
+   "n": 46,
+   "p10": 1.0,
+   "p50": 4.0,
+   "p90": 9.95,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "3202": {
+   "status": "measured",
+   "n": 79,
+   "p10": 1.0,
+   "p50": 3.0,
+   "p90": 8.14,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "3209": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.75,
+   "p50": 7.0,
+   "p90": 14.35,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "3214": {
+   "status": "measured",
+   "n": 82,
+   "p10": 1.43,
+   "p50": 6.7,
+   "p90": 14.19,
+   "basis": "82 of this player's own realized weeks"
+  },
+  "3225": {
+   "status": "measured",
+   "n": 64,
+   "p10": 2.09,
+   "p50": 5.55,
+   "p90": 14.98,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "3242": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.35,
+   "p50": 4.6,
+   "p90": 17.3,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "3257": {
+   "status": "measured",
+   "n": 46,
+   "p10": 0.2,
+   "p50": 13.92,
+   "p90": 24.23,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "3271": {
+   "status": "measured",
+   "n": 63,
+   "p10": 1.38,
+   "p50": 6.4,
+   "p90": 12.46,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "3286": {
+   "status": "measured",
+   "n": 72,
+   "p10": 0.61,
+   "p50": 3.75,
+   "p90": 12.1,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "3294": {
+   "status": "measured",
+   "n": 71,
+   "p10": 6.62,
+   "p50": 22.88,
+   "p90": 36.06,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "3321": {
+   "status": "measured",
+   "n": 72,
+   "p10": 4.42,
+   "p50": 13.15,
+   "p90": 26.14,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "333": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "3332": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "3423": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 2.9,
+   "p90": 12.64,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "3496": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 1.45,
+   "p90": 4.15,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "3582": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.35,
+   "p50": 2.05,
+   "p90": 7.65,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "3634": {
+   "status": "measured",
+   "n": 71,
+   "p10": 0.9,
+   "p50": 4.2,
+   "p90": 11.4,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "3652": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 3.0,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "3664": {
+   "status": "measured",
+   "n": 19,
+   "p10": 1.12,
+   "p50": 6.3,
+   "p90": 15.56,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "367": {
+   "status": "measured",
+   "n": 16,
+   "p10": 3.45,
+   "p50": 6.25,
+   "p90": 10.25,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "3803": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 2.1,
+   "p90": 8.1,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "3832": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.1,
+   "p50": 1.35,
+   "p90": 6.34,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "3969": {
+   "status": "measured",
+   "n": 32,
+   "p10": 3.73,
+   "p50": 10.35,
+   "p90": 21.15,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "4018": {
+   "status": "measured",
+   "n": 63,
+   "p10": 7.12,
+   "p50": 13.6,
+   "p90": 25.48,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "4029": {
+   "status": "measured",
+   "n": 47,
+   "p10": 1.3,
+   "p50": 7.6,
+   "p90": 21.62,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "4033": {
+   "status": "measured",
+   "n": 68,
+   "p10": 2.04,
+   "p50": 6.9,
+   "p90": 15.7,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "4034": {
+   "status": "measured",
+   "n": 66,
+   "p10": 8.5,
+   "p50": 20.15,
+   "p90": 29.0,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "4035": {
+   "status": "measured",
+   "n": 66,
+   "p10": 5.2,
+   "p50": 13.2,
+   "p90": 23.9,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "4036": {
+   "status": "measured",
+   "n": 22,
+   "p10": 1.82,
+   "p50": 6.1,
+   "p90": 15.84,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "4037": {
+   "status": "measured",
+   "n": 64,
+   "p10": 5.15,
+   "p50": 9.75,
+   "p90": 20.44,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "4039": {
+   "status": "measured",
+   "n": 72,
+   "p10": 3.31,
+   "p50": 12.05,
+   "p90": 25.27,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "4040": {
+   "status": "measured",
+   "n": 60,
+   "p10": 0.99,
+   "p50": 4.15,
+   "p90": 11.96,
+   "basis": "60 of this player's own realized weeks"
+  },
+  "4046": {
+   "status": "measured",
+   "n": 87,
+   "p10": 13.29,
+   "p50": 23.24,
+   "p90": 37.02,
+   "basis": "87 of this player's own realized weeks"
+  },
+  "4054": {
+   "status": "measured",
+   "n": 64,
+   "p10": 0.0,
+   "p50": 2.05,
+   "p90": 9.24,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "4068": {
+   "status": "measured",
+   "n": 46,
+   "p10": 2.0,
+   "p50": 6.65,
+   "p90": 20.95,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "4080": {
+   "status": "measured",
+   "n": 51,
+   "p10": 1.0,
+   "p50": 4.8,
+   "p90": 14.0,
+   "basis": "51 of this player's own realized weeks"
+  },
+  "4089": {
+   "status": "measured",
+   "n": 54,
+   "p10": 0.49,
+   "p50": 5.55,
+   "p90": 10.44,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "4098": {
+   "status": "measured",
+   "n": 74,
+   "p10": 2.06,
+   "p50": 8.2,
+   "p90": 18.14,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "4131": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 3.75,
+   "p90": 8.56,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "4137": {
+   "status": "measured",
+   "n": 60,
+   "p10": 5.2,
+   "p50": 13.9,
+   "p90": 24.33,
+   "basis": "60 of this player's own realized weeks"
+  },
+  "4144": {
+   "status": "measured",
+   "n": 75,
+   "p10": 0.9,
+   "p50": 4.3,
+   "p90": 12.26,
+   "basis": "75 of this player's own realized weeks"
+  },
+  "4146": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.21,
+   "p50": 1.4,
+   "p90": 2.6,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "4147": {
+   "status": "measured",
+   "n": 82,
+   "p10": 0.84,
+   "p50": 3.9,
+   "p90": 11.46,
+   "basis": "82 of this player's own realized weeks"
+  },
+  "4149": {
+   "status": "measured",
+   "n": 56,
+   "p10": 1.15,
+   "p50": 5.4,
+   "p90": 20.1,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "4189": {
+   "status": "measured",
+   "n": 32,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 6.0,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "4197": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.48,
+   "p50": 2.2,
+   "p90": 9.82,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "4199": {
+   "status": "measured",
+   "n": 75,
+   "p10": 4.28,
+   "p50": 10.8,
+   "p90": 20.3,
+   "basis": "75 of this player's own realized weeks"
+  },
+  "421": {
+   "status": "measured",
+   "n": 80,
+   "p10": 9.66,
+   "p50": 19.54,
+   "p90": 33.52,
+   "basis": "80 of this player's own realized weeks"
+  },
+  "4217": {
+   "status": "measured",
+   "n": 74,
+   "p10": 3.13,
+   "p50": 11.4,
+   "p90": 21.49,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "4219": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.73,
+   "p50": 3.15,
+   "p90": 8.94,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "4273": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "4319": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 1.4,
+   "p90": 7.2,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "4344": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "4351": {
+   "status": "measured",
+   "n": 41,
+   "p10": 1.3,
+   "p50": 3.6,
+   "p90": 12.4,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "4353": {
+   "status": "measured",
+   "n": 32,
+   "p10": 0.0,
+   "p50": 0.95,
+   "p90": 4.04,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "4381": {
+   "status": "measured",
+   "n": 65,
+   "p10": 0.5,
+   "p50": 6.0,
+   "p90": 18.33,
+   "basis": "65 of this player's own realized weeks"
+  },
+  "4435": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.9,
+   "p50": 1.6,
+   "p90": 5.58,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "4443": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 1.8,
+   "p90": 4.42,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "4454": {
+   "status": "measured",
+   "n": 65,
+   "p10": 1.54,
+   "p50": 4.7,
+   "p90": 16.34,
+   "basis": "65 of this player's own realized weeks"
+  },
+  "4455": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.3,
+   "p50": 2.0,
+   "p90": 9.32,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "4571": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "4602": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.36,
+   "p50": 2.0,
+   "p90": 10.6,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "4663": {
+   "status": "measured",
+   "n": 64,
+   "p10": 4.47,
+   "p50": 13.5,
+   "p90": 27.52,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "4741": {
+   "status": "measured",
+   "n": 20,
+   "p10": 1.27,
+   "p50": 2.7,
+   "p90": 8.28,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "4866": {
+   "status": "measured",
+   "n": 80,
+   "p10": 5.79,
+   "p50": 14.5,
+   "p90": 30.43,
+   "basis": "80 of this player's own realized weeks"
+  },
+  "4881": {
+   "status": "measured",
+   "n": 74,
+   "p10": 10.17,
+   "p50": 25.07,
+   "p90": 40.65,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "4892": {
+   "status": "measured",
+   "n": 80,
+   "p10": 6.91,
+   "p50": 19.26,
+   "p90": 29.8,
+   "basis": "80 of this player's own realized weeks"
+  },
+  "491": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.91,
+   "p50": 3.5,
+   "p90": 16.97,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "4943": {
+   "status": "measured",
+   "n": 66,
+   "p10": 0.27,
+   "p50": 16.14,
+   "p90": 29.86,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "4950": {
+   "status": "measured",
+   "n": 67,
+   "p10": 1.1,
+   "p50": 8.4,
+   "p90": 16.92,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "4951": {
+   "status": "measured",
+   "n": 33,
+   "p10": 1.42,
+   "p50": 4.1,
+   "p90": 15.52,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "4962": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.16,
+   "p50": 4.2,
+   "p90": 14.46,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "4973": {
+   "status": "measured",
+   "n": 41,
+   "p10": 1.1,
+   "p50": 3.6,
+   "p90": 9.1,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "4981": {
+   "status": "measured",
+   "n": 46,
+   "p10": 2.15,
+   "p50": 7.7,
+   "p90": 19.85,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "4983": {
+   "status": "measured",
+   "n": 86,
+   "p10": 3.35,
+   "p50": 9.3,
+   "p90": 21.94,
+   "basis": "86 of this player's own realized weeks"
+  },
+  "4984": {
+   "status": "measured",
+   "n": 89,
+   "p10": 14.4,
+   "p50": 26.98,
+   "p90": 42.55,
+   "basis": "89 of this player's own realized weeks"
+  },
+  "4985": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.8,
+   "p50": 5.4,
+   "p90": 26.87,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "4988": {
+   "status": "measured",
+   "n": 58,
+   "p10": 2.07,
+   "p50": 8.3,
+   "p90": 22.03,
+   "basis": "58 of this player's own realized weeks"
+  },
+  "4993": {
+   "status": "measured",
+   "n": 77,
+   "p10": 0.0,
+   "p50": 4.1,
+   "p90": 13.0,
+   "basis": "77 of this player's own realized weeks"
+  },
+  "4995": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.0,
+   "p50": 1.4,
+   "p90": 4.39,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "5000": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.78,
+   "p50": 4.3,
+   "p90": 12.78,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "5001": {
+   "status": "measured",
+   "n": 87,
+   "p10": 1.74,
+   "p50": 6.8,
+   "p90": 15.12,
+   "basis": "87 of this player's own realized weeks"
+  },
+  "5008": {
+   "status": "measured",
+   "n": 60,
+   "p10": 0.0,
+   "p50": 1.55,
+   "p90": 6.01,
+   "basis": "60 of this player's own realized weeks"
+  },
+  "5009": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "5010": {
+   "status": "measured",
+   "n": 62,
+   "p10": 0.91,
+   "p50": 2.9,
+   "p90": 10.59,
+   "basis": "62 of this player's own realized weeks"
+  },
+  "5012": {
+   "status": "measured",
+   "n": 79,
+   "p10": 2.4,
+   "p50": 8.9,
+   "p90": 20.48,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "5022": {
+   "status": "measured",
+   "n": 72,
+   "p10": 3.4,
+   "p50": 8.25,
+   "p90": 17.36,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "5024": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 8.7,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "5032": {
+   "status": "measured",
+   "n": 56,
+   "p10": 0.0,
+   "p50": 2.55,
+   "p90": 9.2,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "5038": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.79,
+   "p50": 5.55,
+   "p90": 12.38,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "5045": {
+   "status": "measured",
+   "n": 84,
+   "p10": 1.99,
+   "p50": 9.6,
+   "p90": 17.3,
+   "basis": "84 of this player's own realized weeks"
+  },
+  "5052": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.39,
+   "p50": 3.65,
+   "p90": 9.78,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "5086": {
+   "status": "measured",
+   "n": 69,
+   "p10": 0.0,
+   "p50": 3.2,
+   "p90": 12.76,
+   "basis": "69 of this player's own realized weeks"
+  },
+  "5110": {
+   "status": "measured",
+   "n": 26,
+   "p10": 1.95,
+   "p50": 6.95,
+   "p90": 18.9,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "5113": {
+   "status": "measured",
+   "n": 50,
+   "p10": 1.2,
+   "p50": 3.75,
+   "p90": 10.39,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "5121": {
+   "status": "measured",
+   "n": 49,
+   "p10": 0.0,
+   "p50": 2.3,
+   "p90": 8.46,
+   "basis": "49 of this player's own realized weeks"
+  },
+  "5123": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5131": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.2,
+   "p50": 3.3,
+   "p90": 9.04,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "5133": {
+   "status": "measured",
+   "n": 72,
+   "p10": 1.2,
+   "p50": 5.1,
+   "p90": 10.95,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "515": {
+   "status": "measured",
+   "n": 12,
+   "p10": 2.91,
+   "p50": 12.55,
+   "p90": 19.61,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "5154": {
+   "status": "measured",
+   "n": 47,
+   "p10": 0.48,
+   "p50": 1.4,
+   "p90": 7.5,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "5170": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.08,
+   "p50": 2.8,
+   "p90": 7.54,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "5185": {
+   "status": "measured",
+   "n": 62,
+   "p10": 1.1,
+   "p50": 5.5,
+   "p90": 15.5,
+   "basis": "62 of this player's own realized weeks"
+  },
+  "5199": {
+   "status": "measured",
+   "n": 36,
+   "p10": 0.45,
+   "p50": 3.0,
+   "p90": 10.35,
+   "basis": "36 of this player's own realized weeks"
+  },
+  "5347": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.09,
+   "p50": 2.8,
+   "p90": 10.36,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "536": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "538": {
+   "status": "measured",
+   "n": 14,
+   "p10": 3.0,
+   "p50": 5.95,
+   "p90": 16.71,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "5432": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.0,
+   "p50": 1.75,
+   "p90": 6.39,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "5549": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.93,
+   "p50": 6.35,
+   "p90": 21.56,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "5565": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 0.4,
+   "p90": 2.0,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "5844": {
+   "status": "measured",
+   "n": 70,
+   "p10": 2.09,
+   "p50": 7.8,
+   "p90": 15.07,
+   "basis": "70 of this player's own realized weeks"
+  },
+  "5846": {
+   "status": "measured",
+   "n": 81,
+   "p10": 4.4,
+   "p50": 10.5,
+   "p90": 18.4,
+   "basis": "81 of this player's own realized weeks"
+  },
+  "5848": {
+   "status": "measured",
+   "n": 61,
+   "p10": 2.3,
+   "p50": 7.3,
+   "p90": 17.1,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "5849": {
+   "status": "measured",
+   "n": 55,
+   "p10": 12.53,
+   "p50": 20.1,
+   "p90": 32.55,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "5850": {
+   "status": "measured",
+   "n": 79,
+   "p10": 6.0,
+   "p50": 14.3,
+   "p90": 24.68,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "5857": {
+   "status": "measured",
+   "n": 73,
+   "p10": 1.44,
+   "p50": 4.7,
+   "p90": 11.62,
+   "basis": "73 of this player's own realized weeks"
+  },
+  "5859": {
+   "status": "measured",
+   "n": 80,
+   "p10": 2.39,
+   "p50": 11.95,
+   "p90": 24.83,
+   "basis": "80 of this player's own realized weeks"
+  },
+  "5870": {
+   "status": "measured",
+   "n": 56,
+   "p10": 4.88,
+   "p50": 17.67,
+   "p90": 29.98,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "5872": {
+   "status": "measured",
+   "n": 77,
+   "p10": 3.4,
+   "p50": 10.9,
+   "p90": 21.8,
+   "basis": "77 of this player's own realized weeks"
+  },
+  "5880": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.12,
+   "p50": 3.2,
+   "p90": 10.88,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "5890": {
+   "status": "measured",
+   "n": 32,
+   "p10": 1.51,
+   "p50": 9.55,
+   "p90": 17.19,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "5892": {
+   "status": "measured",
+   "n": 78,
+   "p10": 4.81,
+   "p50": 11.85,
+   "p90": 19.96,
+   "basis": "78 of this player's own realized weeks"
+  },
+  "5906": {
+   "status": "measured",
+   "n": 76,
+   "p10": 1.0,
+   "p50": 4.9,
+   "p90": 12.2,
+   "basis": "76 of this player's own realized weeks"
+  },
+  "5916": {
+   "status": "measured",
+   "n": 26,
+   "p10": 2.7,
+   "p50": 9.75,
+   "p90": 16.05,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "5917": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.73,
+   "p50": 3.75,
+   "p90": 12.07,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "5927": {
+   "status": "measured",
+   "n": 81,
+   "p10": 4.1,
+   "p50": 10.1,
+   "p90": 19.1,
+   "basis": "81 of this player's own realized weeks"
+  },
+  "5937": {
+   "status": "measured",
+   "n": 59,
+   "p10": 2.2,
+   "p50": 9.2,
+   "p90": 17.08,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "5947": {
+   "status": "measured",
+   "n": 78,
+   "p10": 4.9,
+   "p50": 8.75,
+   "p90": 17.16,
+   "basis": "78 of this player's own realized weeks"
+  },
+  "5955": {
+   "status": "measured",
+   "n": 46,
+   "p10": 1.2,
+   "p50": 4.9,
+   "p90": 16.0,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "5967": {
+   "status": "measured",
+   "n": 82,
+   "p10": 4.8,
+   "p50": 9.15,
+   "p90": 20.11,
+   "basis": "82 of this player's own realized weeks"
+  },
+  "5973": {
+   "status": "measured",
+   "n": 57,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 8.8,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "5980": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.72,
+   "p50": 5.2,
+   "p90": 16.96,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "5987": {
+   "status": "measured",
+   "n": 63,
+   "p10": 0.84,
+   "p50": 5.1,
+   "p90": 14.9,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "6018": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.16,
+   "p50": 1.4,
+   "p90": 5.31,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "6039": {
+   "status": "measured",
+   "n": 70,
+   "p10": 0.69,
+   "p50": 3.55,
+   "p90": 13.37,
+   "basis": "70 of this player's own realized weeks"
+  },
+  "6063": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "6074": {
+   "status": "measured",
+   "n": 31,
+   "p10": 0.0,
+   "p50": 2.4,
+   "p90": 11.4,
+   "basis": "31 of this player's own realized weeks"
+  },
+  "6109": {
+   "status": "measured",
+   "n": 46,
+   "p10": 0.0,
+   "p50": 1.45,
+   "p90": 4.35,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "6130": {
+   "status": "measured",
+   "n": 84,
+   "p10": 1.56,
+   "p50": 7.0,
+   "p90": 17.08,
+   "basis": "84 of this player's own realized weeks"
+  },
+  "6149": {
+   "status": "measured",
+   "n": 72,
+   "p10": 1.2,
+   "p50": 4.8,
+   "p90": 12.89,
+   "basis": "72 of this player's own realized weeks"
+  },
+  "6151": {
+   "status": "measured",
+   "n": 60,
+   "p10": 1.76,
+   "p50": 6.15,
+   "p90": 15.61,
+   "basis": "60 of this player's own realized weeks"
+  },
+  "616": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 3.4,
+   "p90": 9.3,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "6234": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.64,
+   "p50": 2.8,
+   "p90": 11.14,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "6239": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6395": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "6421": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.12,
+   "p50": 2.5,
+   "p90": 10.54,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "6557": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 4.9,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "6768": {
+   "status": "measured",
+   "n": 69,
+   "p10": 6.64,
+   "p50": 16.84,
+   "p90": 30.5,
+   "basis": "69 of this player's own realized weeks"
+  },
+  "6770": {
+   "status": "measured",
+   "n": 67,
+   "p10": 10.06,
+   "p50": 23.24,
+   "p90": 38.76,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "6783": {
+   "status": "measured",
+   "n": 74,
+   "p10": 2.43,
+   "p50": 7.4,
+   "p90": 15.4,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "6786": {
+   "status": "measured",
+   "n": 79,
+   "p10": 5.74,
+   "p50": 14.2,
+   "p90": 27.08,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "6789": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "6790": {
+   "status": "measured",
+   "n": 79,
+   "p10": 4.98,
+   "p50": 10.7,
+   "p90": 20.54,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "6794": {
+   "status": "measured",
+   "n": 79,
+   "p10": 4.18,
+   "p50": 13.9,
+   "p90": 26.36,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "6797": {
+   "status": "measured",
+   "n": 82,
+   "p10": 8.85,
+   "p50": 21.08,
+   "p90": 33.92,
+   "basis": "82 of this player's own realized weeks"
+  },
+  "6798": {
+   "status": "measured",
+   "n": 43,
+   "p10": 0.0,
+   "p50": 1.9,
+   "p90": 6.38,
+   "basis": "43 of this player's own realized weeks"
+  },
+  "6801": {
+   "status": "measured",
+   "n": 67,
+   "p10": 3.06,
+   "p50": 11.7,
+   "p90": 24.24,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "6804": {
+   "status": "measured",
+   "n": 61,
+   "p10": 2.6,
+   "p50": 18.72,
+   "p90": 32.3,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "6805": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.8,
+   "p50": 3.3,
+   "p90": 6.22,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "6813": {
+   "status": "measured",
+   "n": 69,
+   "p10": 6.36,
+   "p50": 15.4,
+   "p90": 30.58,
+   "basis": "69 of this player's own realized weeks"
+  },
+  "6814": {
+   "status": "measured",
+   "n": 43,
+   "p10": 0.62,
+   "p50": 3.1,
+   "p90": 8.64,
+   "basis": "43 of this player's own realized weeks"
+  },
+  "6819": {
+   "status": "measured",
+   "n": 82,
+   "p10": 3.0,
+   "p50": 10.25,
+   "p90": 17.85,
+   "basis": "82 of this player's own realized weeks"
+  },
+  "6820": {
+   "status": "measured",
+   "n": 43,
+   "p10": 0.5,
+   "p50": 3.4,
+   "p90": 17.34,
+   "basis": "43 of this player's own realized weeks"
+  },
+  "6824": {
+   "status": "measured",
+   "n": 42,
+   "p10": 0.07,
+   "p50": 5.05,
+   "p90": 12.31,
+   "basis": "42 of this player's own realized weeks"
+  },
+  "6826": {
+   "status": "measured",
+   "n": 81,
+   "p10": 1.1,
+   "p50": 5.2,
+   "p90": 12.7,
+   "basis": "81 of this player's own realized weeks"
+  },
+  "6828": {
+   "status": "measured",
+   "n": 55,
+   "p10": 1.32,
+   "p50": 7.2,
+   "p90": 17.02,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "6843": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 3.6,
+   "p90": 9.2,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "6847": {
+   "status": "measured",
+   "n": 47,
+   "p10": 0.12,
+   "p50": 2.7,
+   "p90": 8.36,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "6849": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 4.6,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "6850": {
+   "status": "measured",
+   "n": 49,
+   "p10": 0.0,
+   "p50": 2.8,
+   "p90": 7.02,
+   "basis": "49 of this player's own realized weeks"
+  },
+  "6853": {
+   "status": "measured",
+   "n": 71,
+   "p10": 0.5,
+   "p50": 3.9,
+   "p90": 10.7,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "6866": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6869": {
+   "status": "measured",
+   "n": 64,
+   "p10": 0.0,
+   "p50": 2.25,
+   "p90": 8.44,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "6870": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 3.3,
+   "p90": 10.54,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "6886": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.48,
+   "p50": 6.1,
+   "p90": 13.74,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "6895": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "6904": {
+   "status": "measured",
+   "n": 84,
+   "p10": 11.32,
+   "p50": 24.63,
+   "p90": 34.74,
+   "basis": "84 of this player's own realized weeks"
+  },
+  "6918": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.63,
+   "p50": 2.3,
+   "p90": 9.07,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "6927": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.0,
+   "p50": 3.6,
+   "p90": 11.34,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "6931": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.1,
+   "p50": 1.55,
+   "p90": 7.23,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "6943": {
+   "status": "measured",
+   "n": 61,
+   "p10": 0.3,
+   "p50": 5.4,
+   "p90": 19.0,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "6945": {
+   "status": "measured",
+   "n": 69,
+   "p10": 1.88,
+   "p50": 6.9,
+   "p90": 16.58,
+   "basis": "69 of this player's own realized weeks"
+  },
+  "6955": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.75,
+   "p50": 7.4,
+   "p90": 19.75,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "6960": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.16,
+   "p50": 3.5,
+   "p90": 8.76,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "6984": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.47,
+   "p50": 2.4,
+   "p90": 7.63,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "6989": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.66,
+   "p50": 4.5,
+   "p90": 12.34,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "6996": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.2,
+   "p50": 2.5,
+   "p90": 10.68,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "7002": {
+   "status": "measured",
+   "n": 73,
+   "p10": 0.74,
+   "p50": 5.6,
+   "p90": 12.9,
+   "basis": "73 of this player's own realized weeks"
+  },
+  "7066": {
+   "status": "measured",
+   "n": 55,
+   "p10": 0.88,
+   "p50": 3.6,
+   "p90": 15.64,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "7090": {
+   "status": "measured",
+   "n": 73,
+   "p10": 1.52,
+   "p50": 5.4,
+   "p90": 16.38,
+   "basis": "73 of this player's own realized weeks"
+  },
+  "7098": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.31,
+   "p50": 2.65,
+   "p90": 12.28,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "7135": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.24,
+   "p50": 2.6,
+   "p90": 9.54,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "7318": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "7496": {
+   "status": "measured",
+   "n": 63,
+   "p10": 0.9,
+   "p50": 4.2,
+   "p90": 13.16,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "7523": {
+   "status": "measured",
+   "n": 78,
+   "p10": 8.76,
+   "p50": 18.59,
+   "p90": 29.17,
+   "basis": "78 of this player's own realized weeks"
+  },
+  "7525": {
+   "status": "measured",
+   "n": 86,
+   "p10": 3.15,
+   "p50": 10.95,
+   "p90": 20.1,
+   "basis": "86 of this player's own realized weeks"
+  },
+  "7526": {
+   "status": "measured",
+   "n": 79,
+   "p10": 4.26,
+   "p50": 9.7,
+   "p90": 20.48,
+   "basis": "79 of this player's own realized weeks"
+  },
+  "7527": {
+   "status": "measured",
+   "n": 64,
+   "p10": 0.31,
+   "p50": 13.63,
+   "p90": 26.1,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "7528": {
+   "status": "measured",
+   "n": 73,
+   "p10": 4.34,
+   "p50": 11.3,
+   "p90": 21.2,
+   "basis": "73 of this player's own realized weeks"
+  },
+  "7529": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.08,
+   "p50": 2.1,
+   "p90": 6.38,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "7533": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.0,
+   "p50": 0.55,
+   "p90": 9.61,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "7537": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.1,
+   "p50": 3.0,
+   "p90": 8.0,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "7538": {
+   "status": "measured",
+   "n": 36,
+   "p10": 1.91,
+   "p50": 10.67,
+   "p90": 23.22,
+   "basis": "36 of this player's own realized weeks"
+  },
+  "7540": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.3,
+   "p50": 2.4,
+   "p90": 4.05,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "7547": {
+   "status": "measured",
+   "n": 85,
+   "p10": 4.66,
+   "p50": 14.1,
+   "p90": 25.0,
+   "basis": "85 of this player's own realized weeks"
+  },
+  "7553": {
+   "status": "measured",
+   "n": 78,
+   "p10": 2.18,
+   "p50": 6.05,
+   "p90": 13.2,
+   "basis": "78 of this player's own realized weeks"
+  },
+  "7561": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.68,
+   "p50": 6.7,
+   "p90": 17.94,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "7564": {
+   "status": "measured",
+   "n": 78,
+   "p10": 5.47,
+   "p50": 14.6,
+   "p90": 29.15,
+   "basis": "78 of this player's own realized weeks"
+  },
+  "7565": {
+   "status": "measured",
+   "n": 38,
+   "p10": 0.0,
+   "p50": 2.35,
+   "p90": 7.49,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "7567": {
+   "status": "measured",
+   "n": 88,
+   "p10": 1.0,
+   "p50": 4.5,
+   "p90": 13.8,
+   "basis": "88 of this player's own realized weeks"
+  },
+  "7569": {
+   "status": "measured",
+   "n": 71,
+   "p10": 3.7,
+   "p50": 9.9,
+   "p90": 21.7,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "7572": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "7574": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.28,
+   "p50": 1.05,
+   "p90": 3.67,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "7587": {
+   "status": "measured",
+   "n": 56,
+   "p10": 0.0,
+   "p50": 2.45,
+   "p90": 9.2,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "7588": {
+   "status": "measured",
+   "n": 71,
+   "p10": 3.2,
+   "p50": 9.0,
+   "p90": 18.6,
+   "basis": "71 of this player's own realized weeks"
+  },
+  "7591": {
+   "status": "measured",
+   "n": 60,
+   "p10": 3.37,
+   "p50": 17.19,
+   "p90": 30.19,
+   "basis": "60 of this player's own realized weeks"
+  },
+  "7594": {
+   "status": "measured",
+   "n": 76,
+   "p10": 1.4,
+   "p50": 8.3,
+   "p90": 18.8,
+   "basis": "76 of this player's own realized weeks"
+  },
+  "7596": {
+   "status": "measured",
+   "n": 67,
+   "p10": 0.9,
+   "p50": 4.7,
+   "p90": 12.94,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "7600": {
+   "status": "measured",
+   "n": 77,
+   "p10": 2.08,
+   "p50": 5.9,
+   "p90": 12.12,
+   "basis": "77 of this player's own realized weeks"
+  },
+  "7601": {
+   "status": "measured",
+   "n": 39,
+   "p10": 1.38,
+   "p50": 4.6,
+   "p90": 12.54,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "7606": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.42,
+   "p50": 2.6,
+   "p90": 10.54,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "7607": {
+   "status": "measured",
+   "n": 61,
+   "p10": 0.8,
+   "p50": 5.3,
+   "p90": 13.5,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "7610": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.27,
+   "p50": 4.48,
+   "p90": 18.82,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "7611": {
+   "status": "measured",
+   "n": 74,
+   "p10": 2.33,
+   "p50": 10.85,
+   "p90": 20.66,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "7612": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 3.92,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "7670": {
+   "status": "measured",
+   "n": 68,
+   "p10": 1.58,
+   "p50": 4.7,
+   "p90": 12.83,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "7944": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 0.0,
+   "p90": 4.68,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "8085": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "827": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.38,
+   "p50": 10.91,
+   "p90": 22.02,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "829": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.17,
+   "p50": 12.4,
+   "p90": 25.63,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "830": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.72,
+   "p50": 4.3,
+   "p90": 14.0,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "928": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.0,
+   "p50": 3.6,
+   "p90": 12.78,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "943": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 2.35,
+   "p90": 7.33,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "947": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.96,
+   "p50": 4.4,
+   "p90": 13.1,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "956": {
+   "status": "measured",
+   "n": 24,
+   "p10": 1.21,
+   "p50": 4.35,
+   "p90": 11.34,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "96": {
+   "status": "measured",
+   "n": 68,
+   "p10": 6.34,
+   "p50": 19.61,
+   "p90": 30.59,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "1718": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2161": {
+   "status": "measured",
+   "n": 37,
+   "p10": 1.42,
+   "p50": 4.1,
+   "p90": 16.44,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "2168": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.85,
+   "p50": 7.75,
+   "p90": 16.15,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "2214": {
+   "status": "measured",
+   "n": 25,
+   "p10": 1.3,
+   "p50": 3.2,
+   "p90": 7.34,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "2446": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.48,
+   "p50": 2.2,
+   "p90": 7.9,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "2750": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.36,
+   "p50": 2.45,
+   "p90": 11.61,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "2821": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 0.9,
+   "p90": 3.48,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "3155": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 3.3,
+   "p90": 9.35,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "3297": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.15,
+   "p50": 2.1,
+   "p90": 6.07,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "3327": {
+   "status": "measured",
+   "n": 11,
+   "p10": 1.2,
+   "p50": 4.4,
+   "p90": 14.8,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "3328": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.03,
+   "p50": 3.55,
+   "p90": 8.3,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "3342": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "3594": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.24,
+   "p50": 3.0,
+   "p90": 11.3,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "3976": {
+   "status": "measured",
+   "n": 30,
+   "p10": -0.21,
+   "p50": 1.7,
+   "p90": 14.87,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "4055": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 1.55,
+   "p90": 4.72,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "4152": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.12,
+   "p50": 1.95,
+   "p90": 14.34,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "4198": {
+   "status": "measured",
+   "n": 32,
+   "p10": 0.01,
+   "p50": 2.6,
+   "p90": 12.74,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "4362": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4531": {
+   "status": "measured",
+   "n": 11,
+   "p10": 1.3,
+   "p50": 4.5,
+   "p90": 8.4,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "4863": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "4878": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.96,
+   "p50": 2.9,
+   "p90": 8.22,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "5241": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "5323": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.0,
+   "p50": 2.05,
+   "p90": 6.8,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "5938": {
+   "status": "measured",
+   "n": 42,
+   "p10": 0.0,
+   "p50": 2.65,
+   "p90": 10.18,
+   "basis": "42 of this player's own realized weeks"
+  },
+  "5985": {
+   "status": "measured",
+   "n": 57,
+   "p10": 0.92,
+   "p50": 3.9,
+   "p90": 10.56,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "6012": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.3,
+   "p50": 2.5,
+   "p90": 6.25,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "6146": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6148": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "6156": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.05,
+   "p50": 0.65,
+   "p90": 3.55,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "627": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "6271": {
+   "status": "measured",
+   "n": 76,
+   "p10": 1.0,
+   "p50": 3.6,
+   "p90": 11.2,
+   "basis": "76 of this player's own realized weeks"
+  },
+  "6427": {
+   "status": "measured",
+   "n": 36,
+   "p10": 0.0,
+   "p50": 2.15,
+   "p90": 7.3,
+   "basis": "36 of this player's own realized weeks"
+  },
+  "6662": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.0,
+   "p50": 1.3,
+   "p90": 2.58,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "6665": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 1.45,
+   "p90": 7.1,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "6744": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "6803": {
+   "status": "measured",
+   "n": 59,
+   "p10": 3.96,
+   "p50": 9.4,
+   "p90": 18.14,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "6823": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6845": {
+   "status": "measured",
+   "n": 48,
+   "p10": 0.57,
+   "p50": 6.7,
+   "p90": 17.08,
+   "basis": "48 of this player's own realized weeks"
+  },
+  "6973": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.06,
+   "p50": 1.5,
+   "p90": 4.86,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7049": {
+   "status": "measured",
+   "n": 76,
+   "p10": 0.9,
+   "p50": 5.3,
+   "p90": 14.85,
+   "basis": "76 of this player's own realized weeks"
+  },
+  "7204": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.08,
+   "p50": 1.2,
+   "p90": 3.26,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "7210": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 2.5,
+   "p90": 7.3,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "7439": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7585": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.1,
+   "p50": 10.32,
+   "p90": 23.96,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "7593": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.58,
+   "p50": 1.85,
+   "p90": 8.83,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "7609": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 7.6,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "7794": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.34,
+   "p50": 2.2,
+   "p90": 11.92,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "7842": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.58,
+   "p50": 1.25,
+   "p90": 3.12,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "812": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "862": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.81,
+   "p50": 0.24,
+   "p90": 7.48,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "1555": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "1737": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.3,
+   "p50": 0.24,
+   "p90": 15.04,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "2078": {
+   "status": "measured",
+   "n": 38,
+   "p10": 0.42,
+   "p50": 3.5,
+   "p90": 12.76,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "2334": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 1.4,
+   "p90": 7.0,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "3157": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "3354": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.13,
+   "p50": 0.7,
+   "p90": 4.69,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "3433": {
+   "status": "measured",
+   "n": 12,
+   "p10": 1.43,
+   "p50": 2.5,
+   "p90": 7.43,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "4066": {
+   "status": "measured",
+   "n": 75,
+   "p10": 1.7,
+   "p50": 6.0,
+   "p90": 12.22,
+   "basis": "75 of this player's own realized weeks"
+  },
+  "4226": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.2,
+   "p50": 0.65,
+   "p90": 3.03,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "4234": {
+   "status": "measured",
+   "n": 50,
+   "p10": 0.72,
+   "p50": 4.15,
+   "p90": 15.08,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "4421": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "4491": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "4622": {
+   "status": "measured",
+   "n": 23,
+   "p10": 0.2,
+   "p50": 3.2,
+   "p90": 10.38,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "4651": {
+   "status": "measured",
+   "n": 9,
+   "p10": 1.04,
+   "p50": 3.0,
+   "p90": 13.04,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "5013": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "5046": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.45,
+   "p50": 2.55,
+   "p90": 8.91,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "5096": {
+   "status": "measured",
+   "n": 58,
+   "p10": 0.67,
+   "p50": 3.1,
+   "p90": 9.96,
+   "basis": "58 of this player's own realized weeks"
+  },
+  "5122": {
+   "status": "measured",
+   "n": 32,
+   "p10": 0.5,
+   "p50": 2.3,
+   "p90": 11.49,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "5130": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "5289": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "5773": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.0,
+   "p50": 1.8,
+   "p90": 7.8,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "5828": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "5902": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.0,
+   "p50": 0.95,
+   "p90": 2.09,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "6137": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 5.13,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "6290": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 7.42,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "6334": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6694": {
+   "status": "measured",
+   "n": 46,
+   "p10": 0.05,
+   "p50": 1.9,
+   "p90": 7.8,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "6857": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.4,
+   "p90": 3.55,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "6957": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 5.52,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "7039": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.49,
+   "p50": 2.65,
+   "p90": 7.53,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "7050": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.88,
+   "p50": 1.7,
+   "p90": 6.79,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "7694": {
+   "status": "measured",
+   "n": 66,
+   "p10": 0.65,
+   "p50": 2.55,
+   "p90": 8.8,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "7713": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 0.8,
+   "p90": 3.0,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "7771": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "7793": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.32,
+   "p50": 0.0,
+   "p90": 2.0,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7828": {
+   "status": "measured",
+   "n": 74,
+   "p10": 0.7,
+   "p50": 2.8,
+   "p90": 6.67,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "1408": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.04,
+   "p50": 4.05,
+   "p90": 8.84,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "1567": {
+   "status": "measured",
+   "n": 11,
+   "p10": 1.0,
+   "p50": 1.7,
+   "p90": 9.1,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "2410": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.98,
+   "p50": 3.5,
+   "p90": 13.62,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "3391": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "4038": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 8.9,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "4082": {
+   "status": "measured",
+   "n": 61,
+   "p10": 0.6,
+   "p50": 4.5,
+   "p90": 14.5,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "4085": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "4150": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "4171": {
+   "status": "measured",
+   "n": 53,
+   "p10": 1.06,
+   "p50": 4.6,
+   "p90": 13.4,
+   "basis": "53 of this player's own realized weeks"
+  },
+  "4314": {
+   "status": "measured",
+   "n": 45,
+   "p10": 0.84,
+   "p50": 1.8,
+   "p90": 5.6,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "4718": {
+   "status": "measured",
+   "n": 53,
+   "p10": 0.4,
+   "p50": 1.6,
+   "p90": 8.2,
+   "basis": "53 of this player's own realized weeks"
+  },
+  "5269": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5285": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.08,
+   "p50": 1.3,
+   "p90": 8.35,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "533": {
+   "status": "measured",
+   "n": 11,
+   "p10": -0.2,
+   "p50": 2.54,
+   "p90": 18.26,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "5854": {
+   "status": "measured",
+   "n": 19,
+   "p10": -0.51,
+   "p50": 7.32,
+   "p90": 19.8,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "5878": {
+   "status": "measured",
+   "n": 15,
+   "p10": 1.14,
+   "p50": 2.4,
+   "p90": 5.88,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "6108": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6181": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 0.8,
+   "p90": 2.6,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "6598": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.94,
+   "p50": 3.0,
+   "p90": 12.12,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "7101": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7531": {
+   "status": "measured",
+   "n": 10,
+   "p10": -0.2,
+   "p50": 0.1,
+   "p90": 0.44,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "7602": {
+   "status": "measured",
+   "n": 56,
+   "p10": 0.0,
+   "p50": 2.05,
+   "p90": 6.95,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "7608": {
+   "status": "measured",
+   "n": 50,
+   "p10": 0.5,
+   "p50": 4.85,
+   "p90": 16.13,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "1077": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "1244": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 0.0,
+   "p90": 2.23,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "1373": {
+   "status": "measured",
+   "n": 68,
+   "p10": 6.93,
+   "p50": 17.21,
+   "p90": 28.38,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "1559": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "3269": {
+   "status": "measured",
+   "n": 45,
+   "p10": 0.98,
+   "p50": 3.8,
+   "p90": 10.46,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "3445": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.0,
+   "p50": 1.05,
+   "p90": 6.54,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "3868": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.8,
+   "p50": 2.1,
+   "p90": 3.79,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "4177": {
+   "status": "measured",
+   "n": 74,
+   "p10": 0.0,
+   "p50": 4.65,
+   "p90": 12.28,
+   "basis": "74 of this player's own realized weeks"
+  },
+  "4183": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "4252": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 7.79,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "4274": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.0,
+   "p50": 2.3,
+   "p90": 12.52,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "4468": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "4994": {
+   "status": "measured",
+   "n": 8,
+   "p10": -0.09,
+   "p50": 0.15,
+   "p90": 2.01,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "6001": {
+   "status": "measured",
+   "n": 45,
+   "p10": 0.18,
+   "p50": 1.6,
+   "p90": 5.22,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "6075": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "6865": {
+   "status": "measured",
+   "n": 66,
+   "p10": 0.7,
+   "p50": 3.2,
+   "p90": 10.55,
+   "basis": "66 of this player's own realized weeks"
+  },
+  "7045": {
+   "status": "measured",
+   "n": 38,
+   "p10": 0.2,
+   "p50": 2.5,
+   "p90": 7.43,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "7075": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.0,
+   "p50": 1.15,
+   "p90": 2.47,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "7288": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "7751": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.05,
+   "p50": 1.05,
+   "p90": 2.65,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "1110": {
+   "status": "measured",
+   "n": 13,
+   "p10": 2.44,
+   "p50": 4.9,
+   "p90": 10.96,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "3357": {
+   "status": "measured",
+   "n": 10,
+   "p10": -0.29,
+   "p50": 0.51,
+   "p90": 10.59,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "4323": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "4992": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.0,
+   "p50": 3.0,
+   "p90": 9.8,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "5209": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.31,
+   "p50": 1.25,
+   "p90": 3.85,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "5569": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "5781": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "5806": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "5965": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 1.05,
+   "p90": 1.25,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "6144": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.34,
+   "p50": 1.0,
+   "p90": 3.82,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "6588": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 2.1,
+   "p90": 6.64,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "7083": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.92,
+   "p50": 10.68,
+   "p90": 17.88,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "7087": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.7,
+   "p50": 1.1,
+   "p90": 3.1,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "7535": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.0,
+   "p50": 1.55,
+   "p90": 4.16,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "7571": {
+   "status": "measured",
+   "n": 63,
+   "p10": 1.3,
+   "p50": 5.0,
+   "p90": 14.28,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "7603": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 9.02,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "7716": {
+   "status": "measured",
+   "n": 55,
+   "p10": 0.0,
+   "p50": 1.9,
+   "p90": 5.24,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "2238": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "2312": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "2463": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "345": {
+   "status": "measured",
+   "n": 8,
+   "p10": -0.16,
+   "p50": 2.05,
+   "p90": 5.41,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "3503": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4335": {
+   "status": "measured",
+   "n": 16,
+   "p10": -0.05,
+   "p50": 3.2,
+   "p90": 15.65,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "4647": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5007": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5026": {
+   "status": "measured",
+   "n": 19,
+   "p10": 1.26,
+   "p50": 4.8,
+   "p90": 12.42,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "5076": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5089": {
+   "status": "measured",
+   "n": 15,
+   "p10": -1.28,
+   "p50": 3.6,
+   "p90": 25.46,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "5128": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "5134": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 0.6,
+   "p90": 3.16,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "5163": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5277": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6068": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "6154": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.8,
+   "p50": 1.7,
+   "p90": 8.52,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "6202": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.45,
+   "p50": 0.75,
+   "p90": 1.95,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "6699": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 0.9,
+   "p90": 7.32,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "6753": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.11,
+   "p50": 2.7,
+   "p90": 12.3,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "6885": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.4,
+   "p50": 1.5,
+   "p90": 7.74,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "6951": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.3,
+   "p50": 3.3,
+   "p90": 10.48,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "7032": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7064": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.5,
+   "p50": 2.8,
+   "p90": 7.2,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "89": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "2549": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.45,
+   "p50": 12.48,
+   "p90": 23.13,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "260": {
+   "status": "measured",
+   "n": 12,
+   "p10": -0.09,
+   "p50": 0.69,
+   "p90": 22.62,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "3306": {
+   "status": "measured",
+   "n": 8,
+   "p10": 1.85,
+   "p50": 6.75,
+   "p90": 14.48,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "3894": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4050": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "4574": {
+   "status": "measured",
+   "n": 35,
+   "p10": -0.15,
+   "p50": 1.24,
+   "p90": 20.06,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "5220": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.08,
+   "p50": 1.1,
+   "p90": 8.16,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "5271": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6011": {
+   "status": "measured",
+   "n": 38,
+   "p10": -0.16,
+   "p50": 12.18,
+   "p90": 22.71,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "6165": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.84,
+   "p50": 4.9,
+   "p90": 12.03,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "6223": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 0.0,
+   "p90": 2.76,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "6311": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6450": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6878": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "6908": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7005": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7559": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 10.28,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "7568": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.89,
+   "p50": 2.2,
+   "p90": 9.88,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "7599": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "7757": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.0,
+   "p50": 2.4,
+   "p90": 8.52,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "7946": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.9,
+   "p50": 1.2,
+   "p90": 2.88,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "963": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "184": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "2755": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 6.06,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "4111": {
+   "status": "measured",
+   "n": 44,
+   "p10": 0.5,
+   "p50": 5.65,
+   "p90": 18.16,
+   "basis": "44 of this player's own realized weeks"
+  },
+  "4127": {
+   "status": "measured",
+   "n": 12,
+   "p10": -0.29,
+   "p50": 0.22,
+   "p90": 8.89,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "5171": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "6778": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6964": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 0.65,
+   "p90": 4.0,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "6985": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "7351": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7502": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7583": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "7720": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.04,
+   "p50": 0.9,
+   "p90": 3.22,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "19": {
+   "status": "measured",
+   "n": 33,
+   "p10": 1.18,
+   "p50": 16.36,
+   "p90": 31.75,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "4061": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4972": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.12,
+   "p50": 11.22,
+   "p90": 21.5,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "5284": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.82,
+   "p50": 4.5,
+   "p90": 13.66,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "6081": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "6963": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.63,
+   "p50": 1.9,
+   "p90": 7.81,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "7131": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 0.8,
+   "p90": 2.88,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7530": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "7729": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "7891": {
+   "status": "measured",
+   "n": 45,
+   "p10": 0.0,
+   "p50": 2.3,
+   "p90": 9.6,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "954": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "2331": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 10.98,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "2382": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "2474": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "3258": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.0,
+   "p50": 1.5,
+   "p90": 7.48,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "5116": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "5257": {
+   "status": "measured",
+   "n": 11,
+   "p10": -0.92,
+   "p50": 3.76,
+   "p90": 11.48,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "5536": {
+   "status": "measured",
+   "n": 18,
+   "p10": 1.3,
+   "p50": 5.6,
+   "p90": 16.05,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "5863": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6002": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "6040": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6069": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "6529": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 6.6,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "7244": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7551": {
+   "status": "measured",
+   "n": 17,
+   "p10": -0.12,
+   "p50": 1.3,
+   "p90": 12.26,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "7554": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 3.67,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "3278": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 0.95,
+   "p90": 2.54,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "4420": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "6089": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6379": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 0.2,
+   "p90": 1.0,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "6553": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7085": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7316": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7595": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.0,
+   "p50": 1.35,
+   "p90": 3.83,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8025": {
+   "status": "measured",
+   "n": 27,
+   "p10": 0.0,
+   "p50": 0.5,
+   "p90": 1.9,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "3309": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "3852": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4208": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5107": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6380": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7597": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.3,
+   "p90": 4.9,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "8058": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "3312": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.18,
+   "p50": 2.2,
+   "p90": 5.1,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "490": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "5127": {
+   "status": "measured",
+   "n": 13,
+   "p10": -0.2,
+   "p50": -0.2,
+   "p90": 8.57,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "5142": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5260": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6453": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6659": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.5,
+   "p50": 3.2,
+   "p90": 10.8,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "7337": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7863": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7993": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8041": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.09,
+   "p50": 2.4,
+   "p90": 6.29,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "2229": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4221": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4464": {
+   "status": "measured",
+   "n": 18,
+   "p10": -0.2,
+   "p50": 1.56,
+   "p90": 20.71,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "5915": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "6822": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "6926": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.1,
+   "p50": 1.5,
+   "p90": 5.39,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "7216": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 1.3,
+   "p90": 3.8,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7586": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "1029": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "3614": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "3895": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5162": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5196": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5695": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 6.96,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "6247": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6970": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.0,
+   "p50": 1.8,
+   "p90": 3.7,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "7234": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7466": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7589": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2394": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2751": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5970": {
+   "status": "measured",
+   "n": 51,
+   "p10": 0.8,
+   "p50": 3.2,
+   "p90": 13.5,
+   "basis": "51 of this player's own realized weeks"
+  },
+  "6007": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6037": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "7438": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7534": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7581": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "1546": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "2146": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "4218": {
+   "status": "measured",
+   "n": 11,
+   "p10": -0.2,
+   "p50": 1.0,
+   "p90": 4.2,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "5004": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6386": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "6894": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.4,
+   "p50": 1.5,
+   "p90": 3.78,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "6938": {
+   "status": "measured",
+   "n": 41,
+   "p10": 1.3,
+   "p50": 6.1,
+   "p90": 11.7,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "7107": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8005": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8068": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "3199": {
+   "status": "measured",
+   "n": 13,
+   "p10": 2.52,
+   "p50": 8.5,
+   "p90": 14.74,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "3362": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.85,
+   "p50": 1.17,
+   "p90": 13.17,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "5137": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.28,
+   "p50": 2.6,
+   "p90": 12.84,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "5374": {
+   "status": "measured",
+   "n": 55,
+   "p10": 0.0,
+   "p50": 3.0,
+   "p90": 7.16,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "5974": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "5995": {
+   "status": "measured",
+   "n": 57,
+   "p10": 0.86,
+   "p50": 4.1,
+   "p90": 12.54,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "6126": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.49,
+   "p50": 2.85,
+   "p90": 9.12,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "6323": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.0,
+   "p50": 0.8,
+   "p90": 6.61,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "7106": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 2.7,
+   "p90": 8.5,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7404": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7543": {
+   "status": "measured",
+   "n": 67,
+   "p10": 4.52,
+   "p50": 10.5,
+   "p90": 21.62,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "7562": {
+   "status": "measured",
+   "n": 48,
+   "p10": 1.04,
+   "p50": 4.7,
+   "p90": 11.42,
+   "basis": "48 of this player's own realized weeks"
+  },
+  "7809": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.56,
+   "p50": 1.5,
+   "p90": 3.55,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "7812": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 6.42,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "8112": {
+   "status": "measured",
+   "n": 62,
+   "p10": 2.77,
+   "p50": 9.5,
+   "p90": 20.48,
+   "basis": "62 of this player's own realized weeks"
+  },
+  "8119": {
+   "status": "measured",
+   "n": 56,
+   "p10": 0.0,
+   "p50": 3.15,
+   "p90": 14.4,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "8121": {
+   "status": "measured",
+   "n": 62,
+   "p10": 2.3,
+   "p50": 7.5,
+   "p90": 16.87,
+   "basis": "62 of this player's own realized weeks"
+  },
+  "8126": {
+   "status": "measured",
+   "n": 54,
+   "p10": 2.5,
+   "p50": 7.35,
+   "p90": 15.39,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "8129": {
+   "status": "measured",
+   "n": 41,
+   "p10": 0.4,
+   "p50": 3.4,
+   "p90": 14.2,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "8131": {
+   "status": "measured",
+   "n": 57,
+   "p10": 0.9,
+   "p50": 4.2,
+   "p90": 15.0,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "8135": {
+   "status": "measured",
+   "n": 31,
+   "p10": 1.0,
+   "p50": 3.2,
+   "p90": 9.0,
+   "basis": "31 of this player's own realized weeks"
+  },
+  "8136": {
+   "status": "measured",
+   "n": 68,
+   "p10": 3.01,
+   "p50": 8.05,
+   "p90": 18.31,
+   "basis": "68 of this player's own realized weeks"
+  },
+  "8137": {
+   "status": "measured",
+   "n": 67,
+   "p10": 2.24,
+   "p50": 9.5,
+   "p90": 21.42,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "8138": {
+   "status": "measured",
+   "n": 73,
+   "p10": 3.66,
+   "p50": 10.9,
+   "p90": 25.98,
+   "basis": "73 of this player's own realized weeks"
+  },
+  "8142": {
+   "status": "measured",
+   "n": 63,
+   "p10": 0.0,
+   "p50": 5.6,
+   "p90": 16.56,
+   "basis": "63 of this player's own realized weeks"
+  },
+  "8144": {
+   "status": "measured",
+   "n": 55,
+   "p10": 4.26,
+   "p50": 10.8,
+   "p90": 18.76,
+   "basis": "55 of this player's own realized weeks"
+  },
+  "8146": {
+   "status": "measured",
+   "n": 57,
+   "p10": 3.6,
+   "p50": 10.6,
+   "p90": 19.72,
+   "basis": "57 of this player's own realized weeks"
+  },
+  "8155": {
+   "status": "measured",
+   "n": 56,
+   "p10": 4.75,
+   "p50": 12.35,
+   "p90": 24.9,
+   "basis": "56 of this player's own realized weeks"
+  },
+  "8167": {
+   "status": "measured",
+   "n": 50,
+   "p10": 1.36,
+   "p50": 7.3,
+   "p90": 19.17,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "8168": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.0,
+   "p50": 1.9,
+   "p90": 5.38,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "8171": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.02,
+   "p50": 1.35,
+   "p90": 8.68,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8205": {
+   "status": "measured",
+   "n": 58,
+   "p10": 1.8,
+   "p50": 7.45,
+   "p90": 15.57,
+   "basis": "58 of this player's own realized weeks"
+  },
+  "8210": {
+   "status": "measured",
+   "n": 64,
+   "p10": 1.03,
+   "p50": 4.9,
+   "p90": 11.58,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "8228": {
+   "status": "measured",
+   "n": 67,
+   "p10": 2.46,
+   "p50": 7.9,
+   "p90": 14.5,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "8428": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.0,
+   "p50": 0.4,
+   "p90": 6.96,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "8665": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "8801": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8820": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "4854": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.0,
+   "p50": 2.3,
+   "p90": 7.52,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "5409": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.96,
+   "p50": 3.2,
+   "p90": 7.6,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "7233": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "7536": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.0,
+   "p50": 1.9,
+   "p90": 7.27,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "7741": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.38,
+   "p50": 2.7,
+   "p90": 8.78,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8111": {
+   "status": "measured",
+   "n": 61,
+   "p10": 2.0,
+   "p50": 5.3,
+   "p90": 14.0,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "8118": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 7.44,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "8123": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.13,
+   "p50": 1.45,
+   "p90": 6.37,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8132": {
+   "status": "measured",
+   "n": 67,
+   "p10": 1.86,
+   "p50": 5.4,
+   "p90": 15.3,
+   "basis": "67 of this player's own realized weeks"
+  },
+  "8134": {
+   "status": "measured",
+   "n": 64,
+   "p10": 1.0,
+   "p50": 7.65,
+   "p90": 14.76,
+   "basis": "64 of this player's own realized weeks"
+  },
+  "8139": {
+   "status": "measured",
+   "n": 37,
+   "p10": -0.1,
+   "p50": 1.2,
+   "p90": 9.24,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "8145": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.3,
+   "p50": 2.0,
+   "p90": 4.12,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "8151": {
+   "status": "measured",
+   "n": 61,
+   "p10": 3.6,
+   "p50": 11.6,
+   "p90": 22.3,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "8161": {
+   "status": "measured",
+   "n": 19,
+   "p10": -0.45,
+   "p50": 3.74,
+   "p90": 17.67,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "8176": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "8211": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "8225": {
+   "status": "measured",
+   "n": 41,
+   "p10": 1.0,
+   "p50": 2.6,
+   "p90": 8.1,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "8475": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.02,
+   "p50": 0.5,
+   "p90": 1.1,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "8917": {
+   "status": "measured",
+   "n": 47,
+   "p10": 0.42,
+   "p50": 3.2,
+   "p90": 9.66,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "6806": {
+   "status": "measured",
+   "n": 33,
+   "p10": 4.52,
+   "p50": 10.7,
+   "p90": 19.36,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "7854": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8110": {
+   "status": "measured",
+   "n": 59,
+   "p10": 1.28,
+   "p50": 6.3,
+   "p90": 13.74,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "8117": {
+   "status": "measured",
+   "n": 41,
+   "p10": 0.0,
+   "p50": 3.9,
+   "p90": 11.7,
+   "basis": "41 of this player's own realized weeks"
+  },
+  "8177": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.21,
+   "p50": 2.55,
+   "p90": 7.72,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "8189": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "8197": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 1.25,
+   "p90": 6.33,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "8219": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.74,
+   "p50": 3.8,
+   "p90": 12.98,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "8408": {
+   "status": "measured",
+   "n": 45,
+   "p10": 1.1,
+   "p50": 5.3,
+   "p90": 12.42,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "8698": {
+   "status": "measured",
+   "n": 12,
+   "p10": 1.27,
+   "p50": 6.55,
+   "p90": 13.57,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "4229": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6956": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "8013": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.0,
+   "p50": 1.5,
+   "p90": 2.7,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "8076": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.45,
+   "p90": 6.16,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "8130": {
+   "status": "measured",
+   "n": 59,
+   "p10": 3.28,
+   "p50": 9.1,
+   "p90": 19.54,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "8157": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.42,
+   "p50": 7.96,
+   "p90": 21.29,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "8160": {
+   "status": "measured",
+   "n": 37,
+   "p10": -0.24,
+   "p50": 11.02,
+   "p90": 16.74,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "8180": {
+   "status": "measured",
+   "n": 35,
+   "p10": 1.0,
+   "p50": 4.7,
+   "p90": 15.0,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "8484": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 6.7,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "4551": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6920": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.0,
+   "p50": 3.55,
+   "p90": 12.27,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "8154": {
+   "status": "measured",
+   "n": 61,
+   "p10": 2.1,
+   "p50": 8.1,
+   "p90": 16.7,
+   "basis": "61 of this player's own realized weeks"
+  },
+  "8181": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.23,
+   "p50": 2.1,
+   "p90": 6.88,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "8183": {
+   "status": "measured",
+   "n": 54,
+   "p10": 4.34,
+   "p50": 20.42,
+   "p90": 33.39,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "8188": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.0,
+   "p50": 3.1,
+   "p90": 12.18,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "8206": {
+   "status": "measured",
+   "n": 9,
+   "p10": -1.41,
+   "p50": 3.6,
+   "p90": 6.82,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "8214": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.0,
+   "p50": 1.3,
+   "p90": 3.39,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8223": {
+   "status": "measured",
+   "n": 23,
+   "p10": 0.0,
+   "p50": 1.0,
+   "p90": 5.82,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "8849": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 3.03,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "6402": {
+   "status": "measured",
+   "n": 17,
+   "p10": -0.12,
+   "p50": 1.6,
+   "p90": 4.06,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "8116": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.5,
+   "p50": 2.0,
+   "p90": 7.16,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "8172": {
+   "status": "measured",
+   "n": 24,
+   "p10": 1.6,
+   "p50": 4.35,
+   "p90": 11.47,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8174": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.22,
+   "p50": 1.9,
+   "p90": 8.52,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "8195": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.5,
+   "p50": 1.85,
+   "p90": 6.14,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "8202": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 2.0,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "8221": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.06,
+   "p50": 0.6,
+   "p90": 4.0,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "8676": {
+   "status": "measured",
+   "n": 53,
+   "p10": 1.38,
+   "p50": 6.0,
+   "p90": 16.92,
+   "basis": "53 of this player's own realized weeks"
+  },
+  "5248": {
+   "status": "measured",
+   "n": 40,
+   "p10": 1.59,
+   "p50": 5.65,
+   "p90": 18.7,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "7436": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "7989": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.68,
+   "p50": 2.45,
+   "p90": 7.49,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8153": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.23,
+   "p50": 1.15,
+   "p90": 3.55,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "8235": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.16,
+   "p50": 1.2,
+   "p90": 4.32,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "8255": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.1,
+   "p50": 1.8,
+   "p90": 8.0,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "6136": {
+   "status": "measured",
+   "n": 9,
+   "p10": -0.12,
+   "p50": 9.62,
+   "p90": 19.01,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "7867": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8170": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.93,
+   "p50": 2.1,
+   "p90": 3.98,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8178": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8800": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.42,
+   "p50": 3.8,
+   "p90": 10.54,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "8921": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5100": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7789": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8227": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 2.15,
+   "p90": 7.55,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "7335": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "8150": {
+   "status": "measured",
+   "n": 59,
+   "p10": 5.22,
+   "p50": 14.5,
+   "p90": 25.14,
+   "basis": "59 of this player's own realized weeks"
+  },
+  "8416": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "8583": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.0,
+   "p50": 2.6,
+   "p90": 5.78,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8756": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.0,
+   "p50": 4.1,
+   "p90": 12.84,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "7703": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8122": {
+   "status": "measured",
+   "n": 19,
+   "p10": 1.3,
+   "p50": 5.7,
+   "p90": 14.38,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "8179": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "8745": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "3343": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "4017": {
+   "status": "measured",
+   "n": 19,
+   "p10": 5.3,
+   "p50": 14.64,
+   "p90": 23.4,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "7746": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "8143": {
+   "status": "measured",
+   "n": 47,
+   "p10": 0.64,
+   "p50": 5.9,
+   "p90": 16.8,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "8148": {
+   "status": "measured",
+   "n": 52,
+   "p10": 0.13,
+   "p50": 8.9,
+   "p90": 20.87,
+   "basis": "52 of this player's own realized weeks"
+  },
+  "8254": {
+   "status": "measured",
+   "n": 16,
+   "p10": 0.2,
+   "p50": 1.2,
+   "p90": 3.05,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "8241": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6387": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8159": {
+   "status": "measured",
+   "n": 24,
+   "p10": 1.63,
+   "p50": 9.7,
+   "p90": 22.39,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8253": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.05,
+   "p50": 1.45,
+   "p90": 3.7,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "8928": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4179": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.92,
+   "p50": 12.48,
+   "p90": 27.22,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "7427": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7956": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7605": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "8114": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "8127": {
+   "status": "measured",
+   "n": 23,
+   "p10": 0.9,
+   "p50": 2.2,
+   "p90": 8.22,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "8162": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.31,
+   "p50": 19.18,
+   "p90": 29.57,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "8208": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.49,
+   "p50": 1.85,
+   "p90": 3.94,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "8230": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.55,
+   "p50": 2.35,
+   "p90": 10.2,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "8527": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "8931": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4163": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "6111": {
+   "status": "measured",
+   "n": 16,
+   "p10": -0.1,
+   "p50": 14.69,
+   "p90": 26.42,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "7021": {
+   "status": "measured",
+   "n": 51,
+   "p10": 2.0,
+   "p50": 7.9,
+   "p90": 18.4,
+   "basis": "51 of this player's own realized weeks"
+  },
+  "6817": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8140": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "8489": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 7.94,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8125": {
+   "status": "measured",
+   "n": 46,
+   "p10": 0.85,
+   "p50": 3.0,
+   "p90": 12.95,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "10983": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "9486": {
+   "status": "measured",
+   "n": 48,
+   "p10": 0.0,
+   "p50": 3.9,
+   "p90": 11.39,
+   "basis": "48 of this player's own realized weeks"
+  },
+  "9220": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "11210": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.0,
+   "p50": 2.1,
+   "p90": 6.8,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "11306": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 6.45,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "9509": {
+   "status": "measured",
+   "n": 51,
+   "p10": 8.0,
+   "p50": 17.1,
+   "p90": 27.8,
+   "basis": "51 of this player's own realized weeks"
+  },
+  "9488": {
+   "status": "measured",
+   "n": 54,
+   "p10": 3.3,
+   "p50": 11.05,
+   "p90": 22.93,
+   "basis": "54 of this player's own realized weeks"
+  },
+  "9754": {
+   "status": "measured",
+   "n": 46,
+   "p10": 1.5,
+   "p50": 7.0,
+   "p90": 19.0,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "9225": {
+   "status": "measured",
+   "n": 40,
+   "p10": 0.4,
+   "p50": 2.3,
+   "p90": 10.9,
+   "basis": "40 of this player's own realized weeks"
+  },
+  "10232": {
+   "status": "measured",
+   "n": 46,
+   "p10": 1.45,
+   "p50": 6.7,
+   "p90": 17.1,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "10234": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.29,
+   "p50": 1.05,
+   "p90": 4.37,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "9504": {
+   "status": "measured",
+   "n": 35,
+   "p10": 1.18,
+   "p50": 4.4,
+   "p90": 15.0,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "10219": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.45,
+   "p50": 4.55,
+   "p90": 14.1,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "10218": {
+   "status": "measured",
+   "n": 46,
+   "p10": 0.0,
+   "p50": 1.95,
+   "p90": 6.05,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "9501": {
+   "status": "measured",
+   "n": 49,
+   "p10": 1.46,
+   "p50": 5.4,
+   "p90": 11.32,
+   "basis": "49 of this player's own realized weeks"
+  },
+  "9505": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.8,
+   "p50": 1.7,
+   "p90": 3.7,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "11439": {
+   "status": "measured",
+   "n": 43,
+   "p10": 0.6,
+   "p50": 3.7,
+   "p90": 8.86,
+   "basis": "43 of this player's own realized weeks"
+  },
+  "9495": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.08,
+   "p50": 1.4,
+   "p90": 4.49,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "10236": {
+   "status": "measured",
+   "n": 47,
+   "p10": 2.02,
+   "p50": 6.7,
+   "p90": 13.68,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "9497": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.0,
+   "p50": 1.4,
+   "p90": 7.46,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "9490": {
+   "status": "measured",
+   "n": 14,
+   "p10": -0.05,
+   "p50": 1.8,
+   "p90": 4.09,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "9506": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.17,
+   "p50": 2.8,
+   "p90": 9.29,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "9494": {
+   "status": "measured",
+   "n": 49,
+   "p10": 0.44,
+   "p50": 2.7,
+   "p90": 17.68,
+   "basis": "49 of this player's own realized weeks"
+  },
+  "9502": {
+   "status": "measured",
+   "n": 24,
+   "p10": 2.98,
+   "p50": 8.25,
+   "p90": 21.74,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "9756": {
+   "status": "measured",
+   "n": 46,
+   "p10": 3.4,
+   "p50": 8.55,
+   "p90": 19.65,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "9500": {
+   "status": "measured",
+   "n": 47,
+   "p10": 2.62,
+   "p50": 6.8,
+   "p90": 15.04,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "10235": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.6,
+   "p50": 4.6,
+   "p90": 11.16,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "9508": {
+   "status": "measured",
+   "n": 42,
+   "p10": 1.89,
+   "p50": 5.8,
+   "p90": 15.62,
+   "basis": "42 of this player's own realized weeks"
+  },
+  "9492": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.8,
+   "p50": 3.7,
+   "p90": 8.26,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "10225": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.0,
+   "p50": 3.05,
+   "p90": 7.37,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "9997": {
+   "status": "measured",
+   "n": 52,
+   "p10": 2.69,
+   "p50": 9.8,
+   "p90": 18.37,
+   "basis": "52 of this player's own realized weeks"
+  },
+  "10859": {
+   "status": "measured",
+   "n": 46,
+   "p10": 3.55,
+   "p50": 9.35,
+   "p90": 17.95,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "10229": {
+   "status": "measured",
+   "n": 31,
+   "p10": 6.2,
+   "p50": 10.4,
+   "p90": 21.0,
+   "basis": "31 of this player's own realized weeks"
+  },
+  "9493": {
+   "status": "measured",
+   "n": 50,
+   "p10": 5.69,
+   "p50": 16.2,
+   "p90": 28.6,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "9221": {
+   "status": "measured",
+   "n": 53,
+   "p10": 7.02,
+   "p50": 16.7,
+   "p90": 32.0,
+   "basis": "53 of this player's own realized weeks"
+  },
+  "9481": {
+   "status": "measured",
+   "n": 34,
+   "p10": 0.66,
+   "p50": 2.8,
+   "p90": 7.34,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "10222": {
+   "status": "measured",
+   "n": 42,
+   "p10": 2.16,
+   "p50": 8.85,
+   "p90": 17.65,
+   "basis": "42 of this player's own realized weeks"
+  },
+  "9228": {
+   "status": "measured",
+   "n": 47,
+   "p10": 3.06,
+   "p50": 12.52,
+   "p90": 26.64,
+   "basis": "47 of this player's own realized weeks"
+  },
+  "9758": {
+   "status": "measured",
+   "n": 52,
+   "p10": 7.91,
+   "p50": 16.34,
+   "p90": 27.33,
+   "basis": "52 of this player's own realized weeks"
+  },
+  "9229": {
+   "status": "measured",
+   "n": 17,
+   "p10": 3.36,
+   "p50": 13.5,
+   "p90": 30.08,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "9753": {
+   "status": "measured",
+   "n": 50,
+   "p10": 1.59,
+   "p50": 7.2,
+   "p90": 16.48,
+   "basis": "50 of this player's own realized weeks"
+  },
+  "5235": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6855": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "8147": {
+   "status": "measured",
+   "n": 39,
+   "p10": 0.58,
+   "p50": 2.6,
+   "p90": 6.9,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "10220": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 6.06,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "10871": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 7.16,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "10213": {
+   "status": "measured",
+   "n": 46,
+   "p10": 1.2,
+   "p50": 4.35,
+   "p90": 12.8,
+   "basis": "46 of this player's own realized weeks"
+  },
+  "10228": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "9224": {
+   "status": "measured",
+   "n": 43,
+   "p10": 3.16,
+   "p50": 12.1,
+   "p90": 23.64,
+   "basis": "43 of this player's own realized weeks"
+  },
+  "11053": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11199": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.32,
+   "p50": 3.0,
+   "p90": 10.94,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "10867": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.64,
+   "p50": 1.4,
+   "p90": 7.24,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "11435": {
+   "status": "measured",
+   "n": 42,
+   "p10": 0.72,
+   "p50": 2.55,
+   "p90": 11.28,
+   "basis": "42 of this player's own realized weeks"
+  },
+  "11114": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9226": {
+   "status": "measured",
+   "n": 45,
+   "p10": 4.44,
+   "p50": 16.5,
+   "p90": 27.2,
+   "basis": "45 of this player's own realized weeks"
+  },
+  "9482": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.06,
+   "p50": 2.2,
+   "p90": 10.21,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "6333": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9757": {
+   "status": "measured",
+   "n": 20,
+   "p10": 1.48,
+   "p50": 3.8,
+   "p90": 11.15,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "10221": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 9.14,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "11370": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.38,
+   "p50": 2.1,
+   "p90": 5.94,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "11371": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.0,
+   "p50": 1.3,
+   "p90": 3.65,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "11510": {
+   "status": "measured",
+   "n": 30,
+   "p10": 0.0,
+   "p50": 1.5,
+   "p90": 5.15,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "11433": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.45,
+   "p50": 1.55,
+   "p90": 7.73,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "9480": {
+   "status": "measured",
+   "n": 32,
+   "p10": 0.65,
+   "p50": 3.85,
+   "p90": 11.98,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "1113": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "5161": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6171": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6909": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.28,
+   "p50": 1.4,
+   "p90": 4.46,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "7693": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9479": {
+   "status": "measured",
+   "n": 35,
+   "p10": 1.0,
+   "p50": 1.7,
+   "p90": 6.72,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "10866": {
+   "status": "measured",
+   "n": 21,
+   "p10": 2.08,
+   "p50": 10.42,
+   "p90": 23.6,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "10862": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.22,
+   "p50": 1.24,
+   "p90": 7.06,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "10212": {
+   "status": "measured",
+   "n": 28,
+   "p10": 0.42,
+   "p50": 1.6,
+   "p90": 6.91,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "11046": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "10444": {
+   "status": "measured",
+   "n": 31,
+   "p10": 0.8,
+   "p50": 2.8,
+   "p90": 13.7,
+   "basis": "31 of this player's own realized weeks"
+  },
+  "9484": {
+   "status": "measured",
+   "n": 38,
+   "p10": 2.5,
+   "p50": 7.9,
+   "p90": 14.6,
+   "basis": "38 of this player's own realized weeks"
+  },
+  "8435": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "10223": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.14,
+   "p50": 1.4,
+   "p90": 3.22,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "10226": {
+   "status": "measured",
+   "n": 39,
+   "p10": 1.0,
+   "p50": 4.4,
+   "p90": 12.98,
+   "basis": "39 of this player's own realized weeks"
+  },
+  "11082": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.0,
+   "p50": 0.85,
+   "p90": 4.05,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "1202": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11256": {
+   "status": "measured",
+   "n": 11,
+   "p10": -0.3,
+   "p50": 1.78,
+   "p90": 14.88,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "10860": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "10227": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.26,
+   "p50": 2.3,
+   "p90": 7.96,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "9222": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "5314": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7009": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "9511": {
+   "status": "measured",
+   "n": 21,
+   "p10": 1.3,
+   "p50": 4.8,
+   "p90": 10.1,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "10217": {
+   "status": "measured",
+   "n": 13,
+   "p10": -1.52,
+   "p50": 0.16,
+   "p90": 3.33,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "10231": {
+   "status": "measured",
+   "n": 37,
+   "p10": 0.5,
+   "p50": 2.3,
+   "p90": 5.98,
+   "basis": "37 of this player's own realized weeks"
+  },
+  "5908": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11292": {
+   "status": "measured",
+   "n": 11,
+   "p10": 2.7,
+   "p50": 10.7,
+   "p90": 19.42,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "9231": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "9999": {
+   "status": "measured",
+   "n": 21,
+   "p10": -0.5,
+   "p50": 13.48,
+   "p90": 20.18,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "8194": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8249": {
+   "status": "measured",
+   "n": 20,
+   "p10": 0.0,
+   "p50": 1.95,
+   "p90": 4.16,
+   "basis": "20 of this player's own realized weeks"
+  },
+  "10863": {
+   "status": "measured",
+   "n": 8,
+   "p10": 1.14,
+   "p50": 4.65,
+   "p90": 13.2,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11034": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.46,
+   "p50": 2.0,
+   "p90": 5.12,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "445": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6125": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7796": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9227": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11257": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7467": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8334": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11311": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "10214": {
+   "status": "measured",
+   "n": 26,
+   "p10": 0.0,
+   "p50": 3.1,
+   "p90": 7.8,
+   "basis": "26 of this player's own realized weeks"
+  },
+  "7750": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8207": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.21,
+   "p50": 0.8,
+   "p90": 8.44,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "8538": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9487": {
+   "status": "measured",
+   "n": 35,
+   "p10": 0.74,
+   "p50": 6.8,
+   "p90": 16.56,
+   "basis": "35 of this player's own realized weeks"
+  },
+  "1895": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "6185": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "6950": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "1506": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8204": {
+   "status": "measured",
+   "n": 24,
+   "p10": 0.36,
+   "p50": 1.9,
+   "p90": 9.59,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "8885": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.65,
+   "p50": 1.25,
+   "p90": 1.97,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "11139": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "1565": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7307": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8414": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "8840": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "1338": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6032": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "7200": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7807": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4654": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8861": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8500": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.7,
+   "p50": 1.35,
+   "p90": 3.79,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "8523": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11277": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11378": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.21,
+   "p50": 2.35,
+   "p90": 4.72,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "7787": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "1800": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5520": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "10994": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.42,
+   "p50": 1.3,
+   "p90": 3.34,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "10215": {
+   "status": "measured",
+   "n": 8,
+   "p10": -0.23,
+   "p50": 0.33,
+   "p90": 6.37,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11636": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.0,
+   "p50": 0.0,
+   "p90": 4.21,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "11582": {
+   "status": "measured",
+   "n": 12,
+   "p10": 0.3,
+   "p50": 1.2,
+   "p90": 3.52,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "11632": {
+   "status": "measured",
+   "n": 19,
+   "p10": 5.48,
+   "p50": 10.6,
+   "p90": 25.88,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "11604": {
+   "status": "measured",
+   "n": 29,
+   "p10": 5.48,
+   "p50": 11.1,
+   "p90": 21.2,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "11626": {
+   "status": "measured",
+   "n": 30,
+   "p10": 1.25,
+   "p50": 4.7,
+   "p90": 12.34,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "11650": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.4,
+   "p50": 2.4,
+   "p90": 9.24,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "11600": {
+   "status": "measured",
+   "n": 25,
+   "p10": 0.36,
+   "p50": 2.8,
+   "p90": 8.5,
+   "basis": "25 of this player's own realized weeks"
+  },
+  "11584": {
+   "status": "measured",
+   "n": 28,
+   "p10": 4.81,
+   "p50": 12.4,
+   "p90": 21.6,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "11579": {
+   "status": "measured",
+   "n": 18,
+   "p10": 1.04,
+   "p50": 3.75,
+   "p90": 11.49,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "11655": {
+   "status": "measured",
+   "n": 32,
+   "p10": 2.72,
+   "p50": 7.5,
+   "p90": 19.41,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "11748": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11834": {
+   "status": "measured",
+   "n": 23,
+   "p10": 1.56,
+   "p50": 5.2,
+   "p90": 11.72,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "11994": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11895": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.12,
+   "p50": 2.0,
+   "p90": 5.84,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "11563": {
+   "status": "measured",
+   "n": 36,
+   "p10": 9.69,
+   "p50": 19.42,
+   "p90": 36.27,
+   "basis": "36 of this player's own realized weeks"
+  },
+  "11576": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.6,
+   "p50": 3.3,
+   "p90": 9.2,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "11597": {
+   "status": "measured",
+   "n": 24,
+   "p10": 1.59,
+   "p50": 5.4,
+   "p90": 12.12,
+   "basis": "24 of this player's own realized weeks"
+  },
+  "11628": {
+   "status": "measured",
+   "n": 28,
+   "p10": 2.25,
+   "p50": 8.4,
+   "p90": 16.65,
+   "basis": "28 of this player's own realized weeks"
+  },
+  "11618": {
+   "status": "measured",
+   "n": 18,
+   "p10": 1.45,
+   "p50": 4.95,
+   "p90": 17.52,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "11575": {
+   "status": "measured",
+   "n": 33,
+   "p10": 0.3,
+   "p50": 2.4,
+   "p90": 13.44,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "11625": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.0,
+   "p50": 3.0,
+   "p90": 9.3,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "11631": {
+   "status": "measured",
+   "n": 32,
+   "p10": 4.24,
+   "p50": 10.1,
+   "p90": 20.32,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "11624": {
+   "status": "measured",
+   "n": 32,
+   "p10": 3.27,
+   "p50": 7.85,
+   "p90": 18.71,
+   "basis": "32 of this player's own realized weeks"
+  },
+  "11637": {
+   "status": "measured",
+   "n": 30,
+   "p10": 2.15,
+   "p50": 5.45,
+   "p90": 12.34,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "11619": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 1.1,
+   "p90": 6.26,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "11566": {
+   "status": "measured",
+   "n": 27,
+   "p10": 7.24,
+   "p50": 24.24,
+   "p90": 33.94,
+   "basis": "27 of this player's own realized weeks"
+  },
+  "11635": {
+   "status": "measured",
+   "n": 34,
+   "p10": 3.18,
+   "p50": 11.25,
+   "p90": 19.26,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "11560": {
+   "status": "measured",
+   "n": 36,
+   "p10": 7.29,
+   "p50": 19.61,
+   "p90": 31.52,
+   "basis": "36 of this player's own realized weeks"
+  },
+  "11620": {
+   "status": "measured",
+   "n": 30,
+   "p10": 1.98,
+   "p50": 5.9,
+   "p90": 17.66,
+   "basis": "30 of this player's own realized weeks"
+  },
+  "11589": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.4,
+   "p50": 2.5,
+   "p90": 8.85,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "6523": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11024": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11599": {
+   "status": "measured",
+   "n": 21,
+   "p10": 0.0,
+   "p50": 2.0,
+   "p90": 4.2,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "11651": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 2.2,
+   "p90": 16.54,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "11729": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "11593": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.21,
+   "p50": 1.3,
+   "p90": 5.54,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "11586": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.03,
+   "p50": 2.9,
+   "p90": 11.94,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "11623": {
+   "status": "measured",
+   "n": 19,
+   "p10": 1.08,
+   "p50": 3.2,
+   "p90": 9.62,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "11640": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11581": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11592": {
+   "status": "measured",
+   "n": 8,
+   "p10": 1.4,
+   "p50": 3.8,
+   "p90": 4.92,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11595": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11627": {
+   "status": "measured",
+   "n": 33,
+   "p10": 1.4,
+   "p50": 3.8,
+   "p90": 12.48,
+   "basis": "33 of this player's own realized weeks"
+  },
+  "11643": {
+   "status": "measured",
+   "n": 22,
+   "p10": 0.31,
+   "p50": 1.75,
+   "p90": 8.3,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "11617": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.7,
+   "p50": 1.5,
+   "p90": 3.84,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "10216": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12171": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11603": {
+   "status": "measured",
+   "n": 34,
+   "p10": 1.0,
+   "p50": 4.2,
+   "p90": 12.04,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "11571": {
+   "status": "measured",
+   "n": 23,
+   "p10": 0.78,
+   "p50": 2.5,
+   "p90": 12.54,
+   "basis": "23 of this player's own realized weeks"
+  },
+  "11564": {
+   "status": "measured",
+   "n": 34,
+   "p10": 11.95,
+   "p50": 20.43,
+   "p90": 29.38,
+   "basis": "34 of this player's own realized weeks"
+  },
+  "8749": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8809": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11201": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.0,
+   "p50": 0.6,
+   "p90": 4.48,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "11646": {
+   "status": "measured",
+   "n": 22,
+   "p10": 1.53,
+   "p50": 5.35,
+   "p90": 15.76,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "11610": {
+   "status": "measured",
+   "n": 29,
+   "p10": 0.98,
+   "p50": 4.3,
+   "p90": 9.76,
+   "basis": "29 of this player's own realized weeks"
+  },
+  "6093": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7819": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11168": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.75,
+   "p50": 2.05,
+   "p90": 8.1,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "9499": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11157": {
+   "status": "measured",
+   "n": 8,
+   "p10": 1.0,
+   "p50": 2.6,
+   "p90": 5.46,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11716": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "1205": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9998": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11421": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.5,
+   "p50": 3.5,
+   "p90": 8.52,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "11562": {
+   "status": "measured",
+   "n": 15,
+   "p10": 5.45,
+   "p50": 13.72,
+   "p90": 17.24,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "11647": {
+   "status": "measured",
+   "n": 22,
+   "p10": 1.51,
+   "p50": 3.1,
+   "p90": 19.01,
+   "basis": "22 of this player's own realized weeks"
+  },
+  "11574": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11783": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.64,
+   "p50": 4.8,
+   "p90": 10.52,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "11921": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "12412": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11616": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11590": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11806": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11577": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.0,
+   "p50": 1.2,
+   "p90": 6.12,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "11728": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11596": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.04,
+   "p50": 1.7,
+   "p90": 6.4,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "11638": {
+   "status": "measured",
+   "n": 19,
+   "p10": 0.4,
+   "p50": 6.6,
+   "p90": 15.74,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "11559": {
+   "status": "measured",
+   "n": 14,
+   "p10": 1.81,
+   "p50": 12.1,
+   "p90": 27.92,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "3383": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5087": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "5519": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7224": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11467": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11808": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11608": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.61,
+   "p50": 3.95,
+   "p90": 7.22,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "2869": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8783": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11273": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11605": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11885": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11898": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11897": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11615": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "3272": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7419": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8200": {
+   "status": "measured",
+   "n": 12,
+   "p10": 1.35,
+   "p50": 2.8,
+   "p90": 5.68,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "12062": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11959": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "7943": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8359": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8397": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11633": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.0,
+   "p50": 1.6,
+   "p90": 2.78,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "6555": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7677": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8220": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11583": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11645": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "7357": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12048": {
+   "status": "measured",
+   "n": 8,
+   "p10": 0.54,
+   "p50": 1.4,
+   "p90": 5.95,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "12256": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11606": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12357": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "5015": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11629": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11570": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.0,
+   "p50": 1.7,
+   "p90": 3.2,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "11762": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "5876": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "7521": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11568": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12115": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8869": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "9230": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "11304": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11377": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.83,
+   "p50": 3.15,
+   "p90": 13.76,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "11963": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11820": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "8714": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8413": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "8250": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "8395": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11320": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "10224": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11557": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "12374": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11900": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11644": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8486": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11056": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12476": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.74,
+   "p50": 4.6,
+   "p90": 10.74,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12658": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.08,
+   "p50": 2.5,
+   "p90": 6.96,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "12530": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12544": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.54,
+   "p50": 1.4,
+   "p90": 1.98,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "12526": {
+   "status": "measured",
+   "n": 18,
+   "p10": 4.41,
+   "p50": 9.8,
+   "p90": 16.33,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "12490": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.3,
+   "p50": 4.45,
+   "p90": 11.25,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "12531": {
+   "status": "measured",
+   "n": 10,
+   "p10": -1.64,
+   "p50": 0.8,
+   "p90": 3.31,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12469": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.28,
+   "p50": 3.4,
+   "p90": 11.74,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "12506": {
+   "status": "measured",
+   "n": 16,
+   "p10": 3.8,
+   "p50": 8.9,
+   "p90": 16.45,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "12503": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.84,
+   "p50": 2.2,
+   "p90": 7.2,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "12472": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "12501": {
+   "status": "measured",
+   "n": 14,
+   "p10": 1.36,
+   "p50": 2.75,
+   "p90": 10.83,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "12482": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.17,
+   "p50": 1.05,
+   "p90": 4.16,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12535": {
+   "status": "measured",
+   "n": 9,
+   "p10": 2.16,
+   "p50": 7.8,
+   "p90": 12.56,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12484": {
+   "status": "measured",
+   "n": 18,
+   "p10": 0.97,
+   "p50": 6.45,
+   "p90": 12.07,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "12474": {
+   "status": "measured",
+   "n": 18,
+   "p10": 2.54,
+   "p50": 6.5,
+   "p90": 15.73,
+   "basis": "18 of this player's own realized weeks"
+  },
+  "12536": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.58,
+   "p50": 1.8,
+   "p90": 9.52,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "12507": {
+   "status": "measured",
+   "n": 10,
+   "p10": 2.69,
+   "p50": 11.85,
+   "p90": 22.21,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12509": {
+   "status": "measured",
+   "n": 15,
+   "p10": 1.64,
+   "p50": 3.3,
+   "p90": 7.0,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "12527": {
+   "status": "measured",
+   "n": 17,
+   "p10": 5.46,
+   "p50": 10.9,
+   "p90": 25.0,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12541": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12483": {
+   "status": "measured",
+   "n": 9,
+   "p10": 2.14,
+   "p50": 2.8,
+   "p90": 5.84,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12529": {
+   "status": "measured",
+   "n": 21,
+   "p10": 1.7,
+   "p50": 6.2,
+   "p90": 27.5,
+   "basis": "21 of this player's own realized weeks"
+  },
+  "12547": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.5,
+   "p50": 1.7,
+   "p90": 11.6,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "12518": {
+   "status": "measured",
+   "n": 17,
+   "p10": 4.06,
+   "p50": 7.3,
+   "p90": 15.06,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12495": {
+   "status": "measured",
+   "n": 16,
+   "p10": -0.15,
+   "p50": 1.2,
+   "p90": 10.15,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "12471": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11565": {
+   "status": "measured",
+   "n": 10,
+   "p10": 2.59,
+   "p50": 12.52,
+   "p90": 26.53,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12534": {
+   "status": "measured",
+   "n": 19,
+   "p10": 2.28,
+   "p50": 6.2,
+   "p90": 16.92,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "12517": {
+   "status": "measured",
+   "n": 17,
+   "p10": 3.04,
+   "p50": 7.5,
+   "p90": 19.08,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12519": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.52,
+   "p50": 5.6,
+   "p90": 14.16,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12481": {
+   "status": "measured",
+   "n": 8,
+   "p10": 7.22,
+   "p50": 12.15,
+   "p90": 23.77,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "12533": {
+   "status": "measured",
+   "n": 17,
+   "p10": 2.3,
+   "p50": 4.6,
+   "p90": 18.36,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12641": {
+   "status": "measured",
+   "n": 11,
+   "p10": 0.5,
+   "p50": 2.1,
+   "p90": 4.9,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "12504": {
+   "status": "measured",
+   "n": 10,
+   "p10": 0.07,
+   "p50": 0.4,
+   "p90": 1.84,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12498": {
+   "status": "measured",
+   "n": 13,
+   "p10": 0.92,
+   "p50": 3.8,
+   "p90": 10.76,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "12510": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12521": {
+   "status": "measured",
+   "n": 9,
+   "p10": 1.0,
+   "p50": 1.5,
+   "p90": 6.3,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12514": {
+   "status": "measured",
+   "n": 17,
+   "p10": 3.04,
+   "p50": 6.5,
+   "p90": 20.94,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12522": {
+   "status": "measured",
+   "n": 17,
+   "p10": 5.61,
+   "p50": 12.2,
+   "p90": 21.43,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12502": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.5,
+   "p50": 3.35,
+   "p90": 8.7,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "12489": {
+   "status": "measured",
+   "n": 19,
+   "p10": 3.06,
+   "p50": 7.9,
+   "p90": 19.78,
+   "basis": "19 of this player's own realized weeks"
+  },
+  "12540": {
+   "status": "measured",
+   "n": 17,
+   "p10": 0.38,
+   "p50": 2.7,
+   "p90": 12.9,
+   "basis": "17 of this player's own realized weeks"
+  },
+  "12499": {
+   "status": "measured",
+   "n": 16,
+   "p10": 2.15,
+   "p50": 5.75,
+   "p90": 11.75,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "13075": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12539": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.28,
+   "p50": 1.0,
+   "p90": 2.08,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12473": {
+   "status": "measured",
+   "n": 11,
+   "p10": 1.1,
+   "p50": 3.4,
+   "p90": 6.9,
+   "basis": "11 of this player's own realized weeks"
+  },
+  "12512": {
+   "status": "measured",
+   "n": 14,
+   "p10": 3.32,
+   "p50": 9.2,
+   "p90": 18.66,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "12486": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12492": {
+   "status": "measured",
+   "n": 13,
+   "p10": 1.44,
+   "p50": 4.8,
+   "p90": 9.9,
+   "basis": "13 of this player's own realized weeks"
+  },
+  "11068": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "12508": {
+   "status": "measured",
+   "n": 14,
+   "p10": 0.1,
+   "p50": 23.12,
+   "p90": 29.75,
+   "basis": "14 of this player's own realized weeks"
+  },
+  "12455": {
+   "status": "measured",
+   "n": 15,
+   "p10": 0.4,
+   "p50": 1.8,
+   "p90": 7.52,
+   "basis": "15 of this player's own realized weeks"
+  },
+  "12497": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "11630": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12897": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11299": {
+   "status": "measured",
+   "n": 9,
+   "p10": 0.84,
+   "p50": 2.5,
+   "p90": 7.08,
+   "basis": "9 of this player's own realized weeks"
+  },
+  "12543": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "12496": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12775": {
+   "status": "unmeasurable",
+   "n": 7,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 7 of this player's own weeks; min_n is 8"
+  },
+  "12493": {
+   "status": "measured",
+   "n": 16,
+   "p10": 1.55,
+   "p50": 4.8,
+   "p90": 13.45,
+   "basis": "16 of this player's own realized weeks"
+  },
+  "11237": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12485": {
+   "status": "measured",
+   "n": 12,
+   "p10": 1.01,
+   "p50": 4.85,
+   "p90": 13.52,
+   "basis": "12 of this player's own realized weeks"
+  },
+  "8293": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12457": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "12523": {
+   "status": "measured",
+   "n": 10,
+   "p10": 1.17,
+   "p50": 1.95,
+   "p90": 4.26,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12889": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12487": {
+   "status": "measured",
+   "n": 8,
+   "p10": 2.01,
+   "p50": 5.05,
+   "p90": 11.28,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11744": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "13101": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "12670": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "12718": {
+   "status": "measured",
+   "n": 8,
+   "p10": 1.14,
+   "p50": 2.05,
+   "p90": 5.95,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "12500": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "13121": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12634": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12787": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12545": {
+   "status": "measured",
+   "n": 10,
+   "p10": 7.56,
+   "p50": 19.72,
+   "p90": 23.98,
+   "basis": "10 of this player's own realized weeks"
+  },
+  "12470": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "11821": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "8423": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8517": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11065": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "5328": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "957": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12699": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12524": {
+   "status": "measured",
+   "n": 8,
+   "p10": 2.88,
+   "p50": 11.85,
+   "p90": 21.06,
+   "basis": "8 of this player's own realized weeks"
+  },
+  "11481": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11649": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12928": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11942": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11676": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "13120": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11474": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11648": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "13150": {
+   "status": "unmeasurable",
+   "n": 6,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 6 of this player's own weeks; min_n is 8"
+  },
+  "12520": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11384": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8374": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "6452": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12538": {
+   "status": "unmeasurable",
+   "n": 5,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 5 of this player's own weeks; min_n is 8"
+  },
+  "5351": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "11588": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "12491": {
+   "status": "unmeasurable",
+   "n": 4,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 4 of this player's own weeks; min_n is 8"
+  },
+  "331": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "11533": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12516": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "12860": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "13079": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12542": {
+   "status": "unmeasurable",
+   "n": 3,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 3 of this player's own weeks; min_n is 8"
+  },
+  "12639": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12076": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12480": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8089": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4390": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12738": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12935": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "4331": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8838": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12505": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "8002": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12045": {
+   "status": "unmeasurable",
+   "n": 2,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 2 of this player's own weeks; min_n is 8"
+  },
+  "11573": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  },
+  "12467": {
+   "status": "unmeasurable",
+   "n": 1,
+   "p10": null,
+   "p50": null,
+   "p90": null,
+   "basis": "only 1 of this player's own weeks; min_n is 8"
+  }
+ }
+}
