@@ -31,12 +31,22 @@ def _chooser(w, st):
     return lambda b, i, r: [max(B0.startable_cap_filter(b, r), key=lambda p: P.score(p, r, ww, st))]
 
 
-def race(n_rooms, seed):
+def race(n_rooms, seed, weights=None):
+    """Paired race of `core` (ceiling 0) against one arm per candidate weight.
+
+    `weights` is additive and defaults to this file's grid, so the replication
+    run is bit-identical with or without it. EVERY ARM REPLAYS THE SAME RNG
+    STATES — `opp_state` and `grade_state` depend on (seed, room) only, never on
+    which arms are present — so adding or removing a candidate weight cannot
+    move any other arm's numbers. That property is what lets
+    `exp_ceiling_bracket.py` re-run w=0.65 alongside a finer grid and use it as a
+    reproduction control rather than a second, differently-conditioned estimate.
+    """
     pool, my_keepers, opp_keepers, my_picks = CC.load_world()
     P.enrich(pool)
     st = P.board_stats(pool)
     arms = {"core": _chooser(0.0, st)}
-    for w in WEIGHTS:
+    for w in (weights or WEIGHTS):
         arms[f"c{w}"] = _chooser(w, st)
     totals = {k: [] for k in arms}
     for s in range(n_rooms):
