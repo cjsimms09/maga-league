@@ -7,7 +7,35 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+      # ⚠️ fetch-depth: 0 IS NOT COSMETIC — TWO GUARDS DEPEND ON IT.
+      #
+      # actions/checkout@v4 defaults to fetch-depth: 1, so the runner had ONE
+      # commit and no parents. That silently did two different kinds of damage,
+      # both diagnosed 2026-08-17 from run 32059003700 and run 32055856888:
+      #
+      #   1. IT MADE main RED. test_core_needs_no_reviewer.py's NORMAL-path arm
+      #      shells out to `independent_review.py --base HEAD~1 --head HEAD`.
+      #      HEAD~1 does not resolve on a depth-1 clone, the reviewer refuses an
+      #      empty diff and exits 1, and the assertion "an unavailable NORMAL
+      #      review must stay non-blocking (exit 0)" went red. The test was
+      #      RIGHT and the checkout was wrong: reproduced exactly by cloning
+      #      this repo --depth 1 and running the same command, where the
+      #      reviewer's own refusal text already names the cause ("or the
+      #      checkout is shallow").
+      #
+      #   2. IT MADE A GUARD LIE — the worse half. The merge-completeness step
+      #      below is gated on `git rev-parse -q --verify HEAD^2`. On a depth-1
+      #      clone HEAD^2 never resolves, so on a REAL merge commit the step
+      #      printed "not a merge commit — merge-completeness check N/A" and
+      #      passed. Proven, not inferred: ac4b2253 on main has two parents, and
+      #      its own run printed exactly that line. A half-landed merge could
+      #      not have been caught by the check that exists to catch it — the
+      #      "a check that cannot fail, reported as a check that passed" family.
+      #
+      # Do not remove this. tools/test_ci_checkout_depth.py fails if it goes.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with: { node-version: "20" }
       - uses: actions/setup-python@v5

@@ -76,6 +76,41 @@ decided by the order somebody typed the grid.
 1. **Real draft results must load for all three seasons**, with pick counts
    reported. Fewer than three usable seasons → the run reports what it has and
    says so; it does not silently grade on one.
+
+   > **✅ GATE 1 CHECKED 2026-08-17 BY THE RELAY, BEFORE ANY ARM WAS FETCHED AND
+   > BEFORE ANY NUMBER EXISTS.** This records only what is on disk — no arm has
+   > been pulled, nothing has been graded, and no metric below is affected.
+   >
+   > **The results were already committed and nobody had looked.**
+   > `draft/data/league_history.json` → `seasons[].drafts[].picks` carries
+   > **2023, 2024 and 2025 at 150 picks each, status `complete`**, with `round`,
+   > `pick_no`, `roster_id`, `player_id`, `is_keeper`. The gate is MET. **Do not
+   > re-fetch these.**
+   >
+   > **TWO POPULATION TRAPS FOUND DURING THE CHECK, NAMED HERE SO THE TREATMENT
+   > IS FIXED BEFORE ANY NUMBER CAN INFLUENCE IT** — which is the entire point of
+   > writing a prereg:
+   >
+   > **(a) KEEPERS OCCUPY PICK SLOTS NO MARKET PREDICTED.** 2025 pick 1.01 is
+   > `is_keeper: true`. Grading a source on a slot that a keeper rule pre-assigned
+   > measures the keeper rule, not the source. **RULED HERE, in advance: keeper
+   > picks are EXCLUDED from the graded population, and the count dropped per
+   > season is reported beside the coverage table.** The question Cory actually
+   > asks on the clock is about *draftable* players.
+   >
+   > **(b) 2023 CARRIES TWO DRAFTS.** `1001232801791856640` (150 picks) and
+   > `990840142107619329` (30 picks, `is_keeper: true` on pick 1 — apparently a
+   > separate keeper/startup event). **RULED HERE: the 150-pick draft is the
+   > graded event, and the artifact must state which `draft_id` it used.**
+   > Silently taking `drafts[0]` is how a season gets graded against the wrong
+   > event.
+   >
+   > **(c) A HINDSIGHT LEAK SPECIFIC TO ONE ARM.** Sleeper `search_rank` is a
+   > CURRENT field with no history. **Substituting today's `search_rank` onto a
+   > 2023 draft leaks three years of hindsight** into the arm the board actually
+   > uses below pick 150 — it would win, for the wrong reason. **RULED HERE: if a
+   > season-vintage `search_rank` cannot be sourced, that arm is reported
+   > `UNAVAILABLE` for that season. It is never back-filled with today's ranks.**
 2. **`LAST_YEAR` must lose.** If it wins, the harness or the crosswalk is broken,
    not the sources. VOID, per the blend run's precedent — a control that only
    ever passes is decoration.
