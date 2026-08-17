@@ -54,6 +54,14 @@ direct call to `upsideBonus` returned zero for every player at every pick number
 but `_ceilingScales` is initialised inside `recommend()`, so that path proves
 nothing — **no known-positive control, therefore not a finding.** Owner: relay.
 
+## CORY RULED 2026-08-17 (evening)
+
+| # | ruling | what it means |
+|---|---|---|
+| ⑦ | **`ceiling` weight → NON-ZERO. "IS THIS STUDIES? IF SO, YES."** | Yes, studies: three preregistered runs, two independent seed sets, every value 0.15–0.65 beats zero, 3/3 separable. **"Should it be higher?" — NO, and there is evidence.** `FRONTIER.md` exp 21 found an INVERTED-U across 150 paired rooms on his real keeper base: λ=0.25 **+$44/season**, λ=0.5 **+$56** (CI [33, 78]), λ=2 **−$18**, λ=3 **−$27** with CI excluding zero. `POLICY-TOURNAMENT.md` §5 reproduced the shape independently. **0.45 sits at the measured peak; higher moves toward the negative arm.** Caveat that stands: both ran in the simulated-room proxy on the v1 money model, not held-out seasons. |
+| ⑧ | **E owns input policy — "YES"** | Confirmed rather than inherited from the relay. E decides which sources feed the board and at what weight, subject to Cory; A keeps correctness and merges. |
+| ⑨ | **EDGE IS DEFINED** — beat his own drafting or top 4 · more money · title >3/10 · playoffs ≥50% · PF > league average. **Any one counts.** | `EDGE-DEFINITION.md`. **This is the target nobody had written down.** It exposes that almost everything we measure is ACCURACY (MAE, Spearman) and not one of his five is. Three of the five are reachable with machinery that already exists. |
+
 ## OPEN — Cory has not got this yet
 
 | # | what Cory asked for | owner | status | what "done" looks like |
