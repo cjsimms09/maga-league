@@ -37,6 +37,26 @@ EXECUTED; records in "Settled" below.)*
 own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
 same session: see Settled below)*
 
+- **[NEW 2026-08-17, rookie-WR pass — ⚠️ EXPLORATORY, NOT RULING-READY] Show
+  NFL draft round on rookie board rows?** · gated switch: a war-room **column**
+  (`nfl_draft_round` + tier), **no weight touched, no diff prepared** ·
+  evidence: `draft/audit/rookie_wr_capital_2026-08-17.md`. Your question
+  ("quantify why I think they have upside"). Every NFL rookie WR 2023–25 vs the
+  **WR wire (124.1)**: **rd1** n=15, +7.4 **[−19.7, +34.3]**, **53%** hit a
+  150-pt season · **rd2** −33.1, 25% · **rd3** −73.9 **[−91.0, −53.8]**, **0/17**
+  · **rd4–7** −99.4 **[−108.6, −88.6]**, **1/55** (and that one is Puka Nacua —
+  the base rate IS the famous example). **KC Concepcion is rd1 pk24; Cyrus Allen
+  is rd5 pk176** — your two examples are the top and bottom of the table.
+  **Read the claim precisely: rd1's interval SPANS ZERO. The finding is "the
+  only tier not measurably worse than streaming the spot", NOT "beats it".**
+  Why no existing null covers this: barbell's audit never split rookies out
+  (the word appears zero times), and the opportunity cell contains zero rookies
+  by construction. **Why this is NOT ruling-ready:** it was computed before any
+  preregistration, n=15 on the headline tier, and the projection-layer version
+  of this idea already FAILED its bar (+1.6 vs a required +16.4) — which is
+  exactly why the proposal is a column and not a weight. §6 lists what a
+  confirmatory pass needs.
+
 - **[NEW 2026-08-17, barbell pass] A late-round backup QB is the worst pick in
   the draft — should the war room say so?** · gated switch: a one-line rail from
   round 11 (copy only; **no diff prepared, no weight touched**) · evidence:

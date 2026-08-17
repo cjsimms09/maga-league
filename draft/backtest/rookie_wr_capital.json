@@ -1,0 +1,557 @@
+{
+ "_territory": "TERRITORY: A",
+ "status": "EXPLORATORY \u2014 computed before any preregistration existed",
+ "cannot_ship": "Hypothesis-generating only. A confirmatory pass must be preregistered in its own earlier commit before any board or model change is made on this.",
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "tail_threshold": 150.0,
+ "bootstrap": 5000,
+ "seed": 20260817,
+ "wire_bar": 124.1,
+ "tiers": {
+  "rd1": {
+   "n": 15,
+   "mean": 131.5,
+   "median": 150.7,
+   "vs_wire": 7.4,
+   "ci95_vs_wire": [
+    -19.7,
+    34.3
+   ],
+   "clearly_below_wire": false,
+   "clearly_above_wire": false,
+   "tail_hits": 8,
+   "tail_rate": 0.533,
+   "played": 15,
+   "played_only_mean": 131.5,
+   "by_season": {
+    "2023": 131.9,
+    "2024": 144.7,
+    "2025": 108.2
+   },
+   "tail_names": [
+    [
+     "Brian Thomas",
+     226.7
+    ],
+    [
+     "Emeka Egbuka",
+     160.9
+    ],
+    [
+     "Jordan Addison",
+     172.6
+    ],
+    [
+     "Malik Nabers",
+     204.2
+    ],
+    [
+     "Marvin Harrison Jr.",
+     150.7
+    ],
+    [
+     "Tetairoa McMillan",
+     167.9
+    ]
+   ]
+  },
+  "rd2": {
+   "n": 12,
+   "mean": 91.0,
+   "median": 77.7,
+   "vs_wire": -33.1,
+   "ci95_vs_wire": [
+    -62.3,
+    0.0
+   ],
+   "clearly_below_wire": false,
+   "clearly_above_wire": false,
+   "tail_hits": 3,
+   "tail_rate": 0.25,
+   "played": 12,
+   "played_only_mean": 91.0,
+   "by_season": {
+    "2023": 115.9,
+    "2024": 86.7,
+    "2025": 70.3
+   },
+   "tail_names": [
+    [
+     "Jayden Reed",
+     172.0
+    ],
+    [
+     "Ladd McConkey",
+     185.9
+    ],
+    [
+     "Rashee Rice",
+     173.0
+    ]
+   ]
+  },
+  "rd3": {
+   "n": 17,
+   "mean": 50.2,
+   "median": 47.8,
+   "vs_wire": -73.9,
+   "ci95_vs_wire": [
+    -91.0,
+    -53.8
+   ],
+   "clearly_below_wire": true,
+   "clearly_above_wire": false,
+   "tail_hits": 0,
+   "tail_rate": 0.0,
+   "played": 16,
+   "played_only_mean": 53.4,
+   "by_season": {
+    "2023": 78.0,
+    "2024": 28.9,
+    "2025": 40.3
+   },
+   "tail_names": []
+  },
+  "rd4-7": {
+   "n": 55,
+   "mean": 24.7,
+   "median": 9.8,
+   "vs_wire": -99.4,
+   "ci95_vs_wire": [
+    -108.6,
+    -88.6
+   ],
+   "clearly_below_wire": true,
+   "clearly_above_wire": false,
+   "tail_hits": 1,
+   "tail_rate": 0.018,
+   "played": 44,
+   "played_only_mean": 30.8,
+   "by_season": {
+    "2023": 36.0,
+    "2024": 13.6,
+    "2025": 24.4
+   },
+   "tail_names": [
+    [
+     "Puka Nacua",
+     233.9
+    ]
+   ]
+  }
+ },
+ "board_2026": [
+  {
+   "name": "Carnell Tate",
+   "team": "TEN",
+   "nfl_round": 1,
+   "nfl_pick": 4,
+   "tier": "rd1",
+   "matched": true,
+   "adp": 71.67,
+   "proj_mean": 154.8,
+   "overall_rank": 142
+  },
+  {
+   "name": "Jordyn Tyson",
+   "team": "NOR",
+   "nfl_round": 1,
+   "nfl_pick": 8,
+   "tier": "rd1",
+   "matched": true,
+   "adp": 86.33,
+   "proj_mean": 133.8,
+   "overall_rank": 190
+  },
+  {
+   "name": "Makai Lemon",
+   "team": "PHI",
+   "nfl_round": 1,
+   "nfl_pick": 20,
+   "tier": "rd1",
+   "matched": true,
+   "adp": 101.0,
+   "proj_mean": 138.5,
+   "overall_rank": 185
+  },
+  {
+   "name": "KC Concepcion",
+   "team": "CLE",
+   "nfl_round": 1,
+   "nfl_pick": 24,
+   "tier": "rd1",
+   "matched": true,
+   "adp": 147.0,
+   "proj_mean": 127.4,
+   "overall_rank": 196
+  },
+  {
+   "name": "Omar Cooper Jr.",
+   "team": "NYJ",
+   "nfl_round": 1,
+   "nfl_pick": 30,
+   "tier": "rd1",
+   "matched": true,
+   "adp": 178.0,
+   "proj_mean": 104.6,
+   "overall_rank": 217
+  },
+  {
+   "name": "De'Zhaun Stribling",
+   "team": "SFO",
+   "nfl_round": 2,
+   "nfl_pick": 33,
+   "tier": "rd2",
+   "matched": true,
+   "adp": 155.67,
+   "proj_mean": 105.4,
+   "overall_rank": 216
+  },
+  {
+   "name": "Denzel Boston",
+   "team": "CLE",
+   "nfl_round": 2,
+   "nfl_pick": 39,
+   "tier": "rd2",
+   "matched": true,
+   "adp": 167.67,
+   "proj_mean": 99.9,
+   "overall_rank": 224
+  },
+  {
+   "name": "Germie Bernard",
+   "team": "PIT",
+   "nfl_round": 2,
+   "nfl_pick": 47,
+   "tier": "rd2",
+   "matched": true,
+   "adp": 259.5,
+   "proj_mean": 80.9,
+   "overall_rank": 256
+  },
+  {
+   "name": "Antonio Williams",
+   "team": "WAS",
+   "nfl_round": 3,
+   "nfl_pick": 71,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 227.0,
+   "proj_mean": 61.2,
+   "overall_rank": 291
+  },
+  {
+   "name": "Malachi Fields",
+   "team": "NYG",
+   "nfl_round": 3,
+   "nfl_pick": 74,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 232.0,
+   "proj_mean": 67.6,
+   "overall_rank": 285
+  },
+  {
+   "name": "Caleb Douglas",
+   "team": "MIA",
+   "nfl_round": 3,
+   "nfl_pick": 75,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 247.5,
+   "proj_mean": 26.5,
+   "overall_rank": 399
+  },
+  {
+   "name": "Zachariah Branch",
+   "team": "ATL",
+   "nfl_round": 3,
+   "nfl_pick": 79,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 198.0,
+   "proj_mean": 82.1,
+   "overall_rank": 253
+  },
+  {
+   "name": "Ja'Kobi Lane",
+   "team": "BAL",
+   "nfl_round": 3,
+   "nfl_pick": 80,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 187.5,
+   "proj_mean": 74.1,
+   "overall_rank": 271
+  },
+  {
+   "name": "Chris Brazzell II",
+   "team": "CAR",
+   "nfl_round": 3,
+   "nfl_pick": 83,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 919.0,
+   "proj_mean": 0.0,
+   "overall_rank": 550
+  },
+  {
+   "name": "Ted Hurst",
+   "team": "TAM",
+   "nfl_round": 3,
+   "nfl_pick": 84,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 256.5,
+   "proj_mean": 79.9,
+   "overall_rank": 258
+  },
+  {
+   "name": "Zavion Thomas",
+   "team": "CHI",
+   "nfl_round": 3,
+   "nfl_pick": 89,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 355.0,
+   "proj_mean": 47.2,
+   "overall_rank": 325
+  },
+  {
+   "name": "Chris Bell",
+   "team": "MIA",
+   "nfl_round": 3,
+   "nfl_pick": 94,
+   "tier": "rd3",
+   "matched": true,
+   "adp": 265.5,
+   "proj_mean": 74.7,
+   "overall_rank": 270
+  },
+  {
+   "name": "Brenen Thompson",
+   "team": "LAC",
+   "nfl_round": 4,
+   "nfl_pick": 105,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 312.0,
+   "proj_mean": 32.0,
+   "overall_rank": 372
+  },
+  {
+   "name": "Elijah Sarratt",
+   "team": "BAL",
+   "nfl_round": 4,
+   "nfl_pick": 115,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 259.0,
+   "proj_mean": 73.1,
+   "overall_rank": 274
+  },
+  {
+   "name": "Kaden Wetjen",
+   "team": "PIT",
+   "nfl_round": 4,
+   "nfl_pick": 121,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 575.0,
+   "proj_mean": 3.2,
+   "overall_rank": 523
+  },
+  {
+   "name": "Skyler Bell",
+   "team": "BUF",
+   "nfl_round": 4,
+   "nfl_pick": 125,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 306.0,
+   "proj_mean": 76.2,
+   "overall_rank": 269
+  },
+  {
+   "name": "Bryce Lance",
+   "team": "NOR",
+   "nfl_round": 4,
+   "nfl_pick": 136,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 378.0,
+   "proj_mean": 31.2,
+   "overall_rank": 377
+  },
+  {
+   "name": "Colbie Young",
+   "team": "CIN",
+   "nfl_round": 4,
+   "nfl_pick": 140,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 408.0,
+   "proj_mean": 25.5,
+   "overall_rank": 409
+  },
+  {
+   "name": "Reggie Virgil",
+   "team": "ARI",
+   "nfl_round": 5,
+   "nfl_pick": 143,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 542.0,
+   "proj_mean": 5.1,
+   "overall_rank": 508
+  },
+  {
+   "name": "Kendrick Law",
+   "team": "DET",
+   "nfl_round": 5,
+   "nfl_pick": 168,
+   "tier": "rd4-7",
+   "matched": false,
+   "adp": null,
+   "proj_mean": null,
+   "overall_rank": null
+  },
+  {
+   "name": "Cyrus Allen",
+   "team": "KAN",
+   "nfl_round": 5,
+   "nfl_pick": 176,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 228.5,
+   "proj_mean": 30.2,
+   "overall_rank": 380
+  },
+  {
+   "name": "Kevin Coleman Jr.",
+   "team": "MIA",
+   "nfl_round": 5,
+   "nfl_pick": 177,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 399.0,
+   "proj_mean": 26.4,
+   "overall_rank": 401
+  },
+  {
+   "name": "Barion Brown",
+   "team": "NOR",
+   "nfl_round": 6,
+   "nfl_pick": 190,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 404.0,
+   "proj_mean": 26.0,
+   "overall_rank": 404
+  },
+  {
+   "name": "Josh Cameron",
+   "team": "JAX",
+   "nfl_round": 6,
+   "nfl_pick": 191,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 352.0,
+   "proj_mean": 49.1,
+   "overall_rank": 319
+  },
+  {
+   "name": "Malik Benson",
+   "team": "LVR",
+   "nfl_round": 6,
+   "nfl_pick": 195,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 919.0,
+   "proj_mean": 0.0,
+   "overall_rank": 566
+  },
+  {
+   "name": "CJ Daniels",
+   "team": "LAR",
+   "nfl_round": 6,
+   "nfl_pick": 197,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 375.0,
+   "proj_mean": 31.8,
+   "overall_rank": 375
+  },
+  {
+   "name": "Emmanuel Henderson Jr.",
+   "team": "SEA",
+   "nfl_round": 6,
+   "nfl_pick": 199,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 919.0,
+   "proj_mean": 0.0,
+   "overall_rank": 555
+  },
+  {
+   "name": "CJ Williams",
+   "team": "JAX",
+   "nfl_round": 6,
+   "nfl_pick": 203,
+   "tier": "rd4-7",
+   "matched": false,
+   "adp": null,
+   "proj_mean": null,
+   "overall_rank": null
+  },
+  {
+   "name": "Lewis Bond",
+   "team": "HOU",
+   "nfl_round": 6,
+   "nfl_pick": 204,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 919.0,
+   "proj_mean": 0.0,
+   "overall_rank": 572
+  },
+  {
+   "name": "Anthony Smith",
+   "team": "DAL",
+   "nfl_round": 7,
+   "nfl_pick": 218,
+   "tier": "rd4-7",
+   "matched": false,
+   "adp": null,
+   "proj_mean": null,
+   "overall_rank": null
+  },
+  {
+   "name": "Deion Burks",
+   "team": "IND",
+   "nfl_round": 7,
+   "nfl_pick": 254,
+   "tier": "rd4-7",
+   "matched": true,
+   "adp": 439.0,
+   "proj_mean": 22.6,
+   "overall_rank": 440
+  }
+ ],
+ "unmatched_2026": [
+  "Kendrick Law",
+  "CJ Williams",
+  "Anthony Smith"
+ ],
+ "limitations": [
+  "n=15 for rd1 over three seasons. The rd1 interval SPANS ZERO \u2014 'not measurably worse than the wire' is the finding, NOT 'beats it'.",
+  "Absent counted as zero (a roster spot that returned nothing); played_only_mean is reported beside it, and for rd1 they are equal.",
+  "The 2026 join is BY NAME \u2014 the capital store carries no sleeper_id for this class.",
+  "Capital is not unpriced: the board's own projections already order the 2026 rookie WRs roughly monotonically by NFL pick, so this is a claim about which tier is worth a late spot, not a mispricing.",
+  "One hit carries the entire rd4-7 tier (Puka Nacua, 1 of 55) \u2014 the single most-cited late rookie WR outcome in recent memory, which is exactly the availability trap the base rate corrects."
+ ]
+}
