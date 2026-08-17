@@ -111,6 +111,26 @@ REPO_PARITY_NODES = {
     "draft/tests/test_draft_week_brief_numbers.py::test_the_volatility_coverage_numbers_match_the_live_board",
     "draft/tests/test_draft_week_brief_numbers.py::test_the_keeper_variance_numbers_match_the_live_board",
     "draft/tests/test_draft_week_brief_numbers.py::test_the_named_injury_return_adps_match_the_live_board",
+    # Added 2026-08-17, and it is the one member of this set whose exclusion is
+    # not about artifact freshness at all — it is about not building a deadlock.
+    #
+    # It fails when the PUBLISHED board is more than three days old, which on
+    # 08-17 had been true on `main` since the 15th without anything in the repo
+    # saying so (draft/audit/board_publish_stall_2026-08-17.md). Every session
+    # runs pytest; none reads the issue tracker, so the fact had to live here.
+    #
+    # WHY IT MUST NEVER REACH THE PUBLICATION GATE: a staleness check that can
+    # refuse a publish guarantees the condition it warns about — the board is
+    # stale, therefore we may not replace it. draft-data.yml learned that on
+    # 08-14 ("failing the job because the CURRENT board is broken is backwards;
+    # a rebuild is exactly what repairs it") and made its pre-build suite
+    # advisory for the same reason. This node runs there, and locally, and never
+    # in the gate.
+    #
+    # Its failure says the PIPELINE stopped, never that the candidate board is
+    # bad — which is this set's defining property, arrived at from a third
+    # direction.
+    "draft/tests/test_published_board_is_not_stale.py::test_the_published_board_is_not_stale",
 }
 
 

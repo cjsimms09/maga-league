@@ -120,6 +120,39 @@ Routes run matters because it is the DENOMINATOR for target-per-route-run: 60
 targets on 300 routes is a different player from 60 on 600, and target share
 alone cannot separate them. Nothing consumes it yet.
 
+## 3c. 🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15. READ THIS FIRST.
+
+`draft/audit/board_publish_stall_2026-08-17.md`. Found 08-17 by checking whether
+the nightly pipeline was healthy, not by anything prompting it.
+
+**Every scheduled rebuild since 08-15T17:49Z has refused to publish** — 08-16
+twice, 08-17 this morning. The board on `main` is built **2026-08-15T17:52:22Z,
+677 players**. The gate is behaving correctly (build succeeds, gate refuses,
+previous board stays live) and the workflow files and comments on issue #8 every
+night. **The failure was that nobody read it for two days.**
+
+**The repair is a MERGE, not a change.** Both refusing tests are already fixed on
+this branch and have been for a day; what separates the branches is one line —
+this branch's gate runs `-m "not repo_parity"`, `main`'s does not, so `main` runs
+the parity pins inside the publication gate, which is exactly what they are not
+for. **A merge to `main` unblocks the nightly rebuild with no new code.** It was
+deliberately NOT done by the session that found it: pushing to `main` was outside
+its authorization and a merge five days out is a human's call.
+
+**What the freeze costs, measured.** Inside the top 200, only 2 of 201 players
+moved 10+ ADP spots in the first day — but both fell off a cliff, which is the
+dangerous direction: **John Metchie 120.6 → 364.2** and **Miami DEF 187.8 →
+338.2**. A stale board does not merely lag; it offers those two at a price the
+market has withdrawn. It compounds daily until 08-22.
+
+**Guard added** (`test_published_board_is_not_stale.py`), and its limit is
+stated rather than oversold: at a 3-day threshold it would have gone red on
+**08-19**, not on 08-17. Every session runs pytest and none reads the issue
+tracker, so this is a backstop that guarantees discovery from inside the normal
+workflow — not a replacement for the alerting, which worked. It is
+`repo_parity`-marked so it can never block a rebuild, which would guarantee the
+thing it warns about.
+
 ## 4. FOR CORY, BEFORE AND ON DRAFT DAY
 
 **One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
