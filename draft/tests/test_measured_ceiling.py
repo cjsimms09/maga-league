@@ -38,15 +38,29 @@ def _cfg(**over):
     return base
 
 
-def test_the_gate_is_off_by_default_in_the_shipped_config():
+def test_the_measured_ceiling_is_ON_and_its_sibling_is_not():
+    """AMENDED 2026-08-17. This asserted the flag ships OFF. Cory ruled it on —
+    "We absolutely need to change draft board if we aren't considering upside" —
+    after the delta was measured: the bench branch, which ranks on
+    ceiling - mean, had Jordan Love / Baker Mayfield / Tyler Shough / Sam
+    Darnold as the highest-upside players on the board, because a QB's raw
+    spread is the largest absolute number almost by construction. engine.js's
+    own comment says that "measures SCALE, NOT UPSIDE".
+
+    The two flags stay INDEPENDENT and the pairing is the point: the p90 is
+    MEASURED (1,304 graded player-seasons), the per-player spread modifiers are
+    HAND-SET constants a permutation test could not resolve between 0.33 and
+    5.65. One is a correctness fix, the other is a guess, and they must not
+    travel together."""
     cfg = json.loads((ROOT / "config" / "league_config.json").read_text())
-    assert not cfg.get("use_measured_ceiling"), (
-        "the measured ceiling must ship OFF until the harness has graded it — "
-        "proj_ceiling drives engine.js's bench branch, so turning it on is a "
-        "live behaviour change, not a correctness no-op")
+    assert cfg.get("use_measured_ceiling") is True
+    assert not cfg.get("player_spread_in_sd"), (
+        "the UNMEASURED half must not have been switched on alongside the "
+        "measured one")
+    assert cfg.get("_use_measured_ceiling_why"), "the ruling must carry its reason"
 
 
-def test_off_by_default_the_ceiling_is_the_gaussian():
+def test_with_the_flag_off_the_ceiling_is_still_the_gaussian():
     out = projections.blend(_players(), {}, {}, _cfg())
     for p in out:
         assert p["proj_ceiling_source"] == "gaussian_z"
