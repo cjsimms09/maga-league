@@ -106,3 +106,39 @@ same leak, not a discovery.
 - Weekly/in-season prediction — that is the full-season arm, already graded.
 - Any construction other than the single one specified above.
 - 2023/2024 (named above; not silently excluded).
+
+---
+
+## AMENDMENT 2 — 2026-08-17, replication across three seasons
+
+**The declared trigger above has fired.** The 2025 result rests on one season and
+small n (QB 29, TE 37, RB 46, WR 86); the prereg named *"re-test when 2023 and
+2024 can be graded"* as the condition. Both stores are on disk.
+
+**One substitution, and it is a WEAKER comparison, stated as such.** `own_v6`
+cannot be reproduced off 2025 without editing `props_season_projection.py`'s
+`_v6_predictions`, which hardcodes `GRADED_SEASON`, `PRIOR_SEASONS` and a
+`2024 / (2023,)` transition fit — A's file, and its parity test only licenses
+the 2025 reproduction. **So the replication grades against the house baselines
+`naive_prev` and `recency_blend`** (`baselines_of(season, priors)`, already
+season-parameterised), which are what v2–v6 were all measured against.
+
+**This is a lower bar than own_v6 and no win against it may be reported as a win
+against own_v6.** What it can establish is the thing one season cannot:
+**whether the WR/TE result is consistent or a fluke.**
+
+**Declared before running:**
+
+- Seasons **2023, 2024, 2025**; priors `(Y-2, Y-1)` per season.
+- Same construction, same `GAMES = 17`, same `any_td` exclusion, same
+  absent-stays-absent rule, same recorded crosswalk loss.
+- **The read is CONSISTENCY, not the win rate.** WR and TE beating both
+  baselines in **3 of 3** seasons is the outcome that would make the 2025 result
+  credible; **1 of 3 kills it**; 2 of 3 is one season of evidence and stays that.
+- **A win at QB or RB here would be SUSPICIOUS**, not encouraging — they lost to
+  own_v6 on both metrics in 2025 and the `any_td` exclusion penalises them most,
+  so a sudden reversal against an easier baseline points at the baseline, not
+  the signal.
+- **Per-season crosswalk loss above 5% invalidates that season's cell.** The
+  2023/2024 name index is built from today's Sleeper roster and older seasons
+  will match worse.
