@@ -130,7 +130,9 @@ was wrong.** The war room sits behind auth (`/admin/warroom` returns 302
 unauthenticated) and this sandbox holds no credentials — but the rehearsal never
 needed real ones. `rehearsal-keepers.js` had the pattern all along: temp
 `DATA_DIR`, seed the store, set a known password, serve in-process. That is now
-`draft/tests/rehearsal-serve.js`, so the check runs anywhere Chromium does:
+`draft/tests/rehearsal-serve.js`, so the check runs anywhere Chromium does — a
+claim that was **not actually true when it was first written here** and is now:
+see the CI note below.
 
 ```
 node draft/tests/rehearsal-serve.js &
@@ -146,6 +148,40 @@ The other two rehearsals also pass after all of 08-17's changes:
 rendered) and `rehearsal-config-screen.js` 13/13 (the CRITICAL scoring highlight
 discriminates rather than starring everything). **All three screens are now
 verified against today's board.**
+
+**They also now run unattended — `.github/workflows/rehearsals.yml`, daily at
+12:30 UTC, after the nightly board rebuild.** Deliberately NOT a publish gate:
+`draft-data.yml` decides whether a board is fit to publish, this asks the
+different question of whether the screens still work against it, and putting a
+browser job between Cory and his board days before a draft is the worse trade.
+
+**Putting them in CI immediately found a defect that had been invisible for
+months.** All eight browser scripts launched with a hardcoded
+`executablePath: '/opt/pw-browsers/chromium'` — a symlink the research sandbox
+ships and nothing else has. `npx playwright install` puts the browser in
+`~/.cache/ms-playwright`, so on a runner every rehearsal would have thrown on
+`launch()` right after a green install step. That is the same shape as the
+08-17 dispersion defect: a check that could not fail, because it was only ever
+asked the question it already knew the answer to. Fixed by
+`draft/tests/rehearsal-browser.js` (use the sandbox symlink when it is really
+there, otherwise let Playwright resolve what it installed) and pinned by
+`rehearsal_browser_portability.test.js`, 10/10, which exercises BOTH branches on
+one machine via an injected existence check and sweeps the directory for the
+hardcoded path behind a known-positive control.
+
+**HONEST LIMIT: the CI half of that fix is reasoned and tested, not yet
+observed.** Two things block observing it from here, and neither is worth
+routing around. `npx playwright install` cannot run in this sandbox —
+`cdn.playwright.dev` is refused by the egress proxy (403, not on the
+allowlist), and a policy denial is to be reported rather than worked around.
+And `rehearsals.yml` cannot be `workflow_dispatch`ed from a feature branch:
+GitHub only registers dispatchable workflows that exist on the default branch,
+confirmed by the workflow list returning 52 entries, all resolving to
+`/blob/main/`, with `rehearsals.yml` absent. So the sandbox branch is proven end
+to end (19/19, 13/13, 6/6 after the refactor) and the runner branch is proven
+only by construction until the first scheduled run after merge. If it is wrong,
+it fails loudly — Playwright refuses with "Executable doesn't exist" rather than
+skipping — so the failure mode is a red run, never a silent green.
 
 **His rookie-WR question is answered** —
 `draft/audit/rookie_wr_upside_for_draft_day_2026-08-17.md`. Concepcion (NFL rd1
