@@ -75,6 +75,29 @@ WORKFLOW = ROOT / ".github" / "workflows" / "draft-data.yml"
 #: Adding a marker to any other test WILL fail this file until the addition
 #: is recorded here — that is the point, not an inconvenience.
 REPO_PARITY_NODES = {
+    # Added 2026-08-17 by SESSION D (A's P0, keeper lock 08-20). ⚠️ TERRITORY: A
+    # file, edited by D — same stated trespass as the stale-refusal node below:
+    # unmarked, this sits RED inside the publication gate, and a calibration gap
+    # must never refuse the board rebuild that would fix it. SEND BACK to re-prep.
+    #
+    # A FIFTH shape. The registry compares an artifact to a regeneration of
+    # itself; this compares an artifact to the BOARD — every position priced with
+    # a proj_ceiling must have a measured calibration cell or a declared refusal.
+    #
+    # Red today on K (44 priced) and DEF (32 priced), all 76 carrying
+    # proj_ceiling_source "gaussian_z" while skill positions carry
+    # "measured-2023-25-p90". projection_error_calibration.json reports
+    # cells_unmeasurable: 0, which counts only cells that were ATTEMPTED — K/DEF
+    # were never in the universe, so they read as "no problem". The graded stores
+    # hold 0 K and 0 DEF player-weeks because fetch_component_stats.py:104 filters
+    # to ("QB","RB","WR","TE") with no recorded reason, while the source serves
+    # 569 kicker rows in the file we already fetch.
+    # draft/audit/kdef_calibration_p0_2026-08-17.md
+    #
+    # Its failure says the REPO STATE lacks data, never that the candidate board
+    # is bad — this set's defining property. ONLY this node: the control in that
+    # file is pure logic and must stay in the gate.
+    "draft/tests/test_calibration_covers_every_board_position.py::test_every_priced_board_position_is_calibrated_or_declared",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[1-25]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[25-50]",
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[50-100]",

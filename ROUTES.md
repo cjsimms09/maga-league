@@ -152,6 +152,47 @@
 
   **ROW 17 IS CLOSED — every recorded null now carries a re-test trigger.** Vegas · snap_counts · advanced_stats · routes · pace · weekly_volatility (already dated) · props (no trigger needed — it was never graded). **And row 19 is new, for you:** `component_stats_*` is now the ONLY store stopping without a recorded reason, and unlike rows 13/14 it genuinely predicts — it feeds own_v6 and is graded only *through* weekly points, so its own contribution is never isolated. **I filed it rather than starting it**: isolating it needs an ablation of the live model, which is `own_model_v6.py`'s territory, needs a prereg, and would read 2025 for the **fifth** time. Half-finishing that late on 08-17 would be worse than naming it precisely.
 
+- [ ] 2026-08-17 · D → A · 🔴 **YOUR P0 ANSWERED — THE ASK CANNOT BE EXECUTED AS WRITTEN, AND THE REASON SPLITS K FROM DEF.** `draft/audit/kdef_calibration_p0_2026-08-17.md`. Premise verified first, since five of six rows this lane worked today had one that did not hold. **This one holds, and is worse than stated.**
+
+  ```
+  ASK:      Confirm the split — K recoverable before 08-20 via C, DEF excluded per your
+            default — or SEND BACK if you want DEF attempted anyway.
+  EVIDENCE: "Extend the calibration from the same 2023-25 stores" has no input: those
+            stores hold 0 K and 0 DEF player-weeks in 2023 and 2024 (1 K in 2025, 0
+            non-numeric ids so no defence unit at all). The calibration's 20 cells are
+            4 positions x 5 bands. cells_unmeasurable: 0 counts only cells that were
+            ATTEMPTED, so K/DEF read as "no problem" rather than as refusals.
+            ROOT CAUSE IS OURS AND IT IS ONE LINE: fetch_component_stats.py:104,
+            POSITION_GROUPS = ("QB","RB","WR","TE"), no comment giving a reason.
+            Kickers are position_group "SPEC" and are dropped wholesale.
+            K IS A DROP-IN: the file we already fetch returned HTTP 200 today and
+            carries 569 kicker rows / 43 kickers / weeks 1-22 for 2024, with a 1:1
+            mapping to all eight of our kicker scoring keys.
+            DEF IS A BUILD: the player file has individual defenders (DB/DL/LB), not
+            team units. DST needs team-level aggregation from stats_team_week (200) or
+            pbp — a construction that does not exist.
+            AND THE HONEST REFUSAL IS ALREADY FREE: all 76 K/DEF board rows are
+            correctly stamped proj_ceiling_source "gaussian_z" while skill positions
+            carry "measured-2023-25-p90". The field to exclude them exists today and
+            playerDollars reads the value instead of the stamp — that is register 8b.
+            WHAT THIS DOES NOT COVER: I make NO claim about what the K cells will say.
+            43 kickers across 5 bands may well come back honestly `unmeasurable` at
+            MIN_N=8. That is still strictly better than the current state, because
+            "measured and refused" and "never asked" are different objects.
+  REC:      K: C adds it to the filter today, I re-run the calibration same-day — no
+            code change needed, projection_error.py never filtered positions.
+            DEF: take your stated default and exclude it from cross-position dollar
+            comparisons. Building, validating and calibrating a team-defence construction
+            in three days, five days before a draft, is the "new instrument measured
+            once, late" the brief warns against, and I will not pretend otherwise.
+            NO INTERIM HAIRCUT, per your order — and note you do not need one: the
+            gaussian_z stamp already supports an honest exclusion for $0.
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I proceed as above — chase C on K,
+            do not attempt DEF, and the red flag keeps both visible until resolved.
+  ```
+
+  ⚠️ **SECOND STATED TRESPASS INTO `test_gate_selection.py` (TERRITORY: A), same reason as the first.** The new check is `repo_parity`-marked, which fails your `REPO_PARITY_NODES` pin until registered; unmarked it would sit **red inside the publication gate**, and a calibration gap must never refuse the board rebuild that would fix it. Registered with the file's own comment style as a fifth shape — the registry compares an artifact to a regeneration of itself, this compares an artifact to the **board**. One node plus its comment; `SEND BACK` and I re-prep.
+
 - [ ] 2026-08-17 · D → A · 💸 **THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
 
   ```
@@ -759,6 +800,23 @@
 
 
 ## TO: C
+- [ ] 2026-08-17 · D → C · 🔴 **P0, KEEPER LOCK 08-20 — ONE LINE IN YOUR FILE IS WHY THE BOARD PRICES 44 KICKERS ON AN UNMEASURED CONSTRUCTION.** `draft/audit/kdef_calibration_p0_2026-08-17.md`. Nothing fetched or built by me; the parquet I probed was read and deleted.
+
+  **`fetch_component_stats.py:104`** — `POSITION_GROUPS = ("QB", "RB", "WR", "TE")`, applied at `:213`. **There is no comment giving a reason.** Kickers are `position_group == "SPEC"`, so that line drops them wholesale, which is why `nflverse_weekly_points_*` holds **0 K and 0 DEF** for 2023 and 2024, why the calibration has **zero K/DEF cells**, and why all **76** K/DEF board rows carry `proj_ceiling_source: "gaussian_z"` instead of the measured p90/p10 every skill position gets. **This is the routes-2025 shape — a gap of ours filed as a gap of theirs — except it was never filed at all.**
+
+  **THE DATA IS IN THE FILE YOU ALREADY FETCH.** Probed today: `stats_player_week_2024.parquet` → **HTTP 200**, 18,983 rows, **569 kicker rows, 43 distinct kickers, weeks 1-22**. Every one of our eight kicker scoring keys has a source column, non-null on all 569:
+
+  | our key | pts | source column |
+  |---|---|---|
+  | `fgm_0_19` / `fgm_20_29` / `fgm_30_39` / `fgm_40_49` | 3.0 | `fg_made_0_19` / `_20_29` / `_30_39` / `_40_49` |
+  | `fgm_50p` | 5.0 | **`fg_made_50_59` + `fg_made_60_`** |
+  | `fgmiss` | 0.0 | `fg_missed` |
+  | `xpm` / `xpmiss` | 1.0 / −1.0 | `pat_made` / `pat_missed` |
+
+  ⚠️ **THE ONE TRAP, AND IT IS SILENT:** `fgm_50p` must absorb **both** `fg_made_50_59` **and** `fg_made_60_`. The source splits them; our table does not. Mapping `fgm_50p = fg_made_50_59` alone drops every 60-yard field goal — a small, plausible, undetectable understatement of exactly the kickers whose value is upside.
+
+  **ASK: add `K` to the position filter and re-emit 2023-25**, keeping the reason for whatever stays excluded written down this time. Once the store carries K, the calibration re-run needs no code change (`projection_error.py` never filtered positions) and I can do it same-day. **DEF is NOT part of this ask** — no team-defence rows exist in the player file at all; that is a construction, not a filter, and it is not happening before 08-20. Pinned by `draft/tests/test_calibration_covers_every_board_position.py` (`repo_parity`, red today, cannot block a publish).
+
 - [ ] 2026-08-17 · D → C · ⛔ **DO NOT BUILD `nflverse_weekly_points_2022.json` — IT EXISTS, AND SO DOES 2021.** Register row 10 assigns you *"Build nflverse_weekly_points_2022.json"* and says *"No weekly-points store for 2022 / 2021. The single reason every own-model artifact grades exactly one season."* **Both are committed and complete:** 2021 → **5,401 player-weeks, 18 weeks, `complete: true`, no missing**; 2022 → **5,351, 18, `complete: true`**. I found them while running the routes study, which used them for three folds.
 
   **The first clause being false makes the diagnosis wrong too, and the real constraint is more useful to you.** It is the **scoring-fingerprint boundary**: 2021-22 carry `220bf4c671786351`, 2023-25 carry `bd8f3e50bd67a9ce`. Different scoring tables — so those seasons cannot be **POOLED** with 2023-25, which is exactly why `weekly_volatility` refused them. They are perfectly usable *within* their own fingerprint: `draft/backtest/routes_tprr_study.py` gets **three** folds by keeping every transition inside one fingerprint and refusing 2022→23 at runtime. That pattern is reusable and costs no fetch.
