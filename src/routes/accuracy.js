@@ -304,6 +304,84 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
     // grader's join covers the in-season kinds. Always shown when there is
     // anything to show; the graded half sits alongside it when it exists.
     captured: extra.captured || null,
+
+    // ── IN-SEASON DECISION ACCURACY, computed every grade-cron run and never
+    // rendered until now. `decisions.inseason` (forecast_grade.gradeDecisions'
+    // return) already answers "is the human adding value on top of the tool"
+    // for lineup/waiver/stream calls (tool vs. counterfactual) and overrides
+    // (human vs. tool) — the exact question the DRAFT-only card above says
+    // "nothing else measures". It was sitting one property over, unread.
+    //
+    // COMPUTED HERE RATHER THAN VIA forecast_grade.decisionByKind(), which is
+    // NOT used: that helper's per-kind `accuracy` is `wins / scored`, and
+    // `scored` counts every resolved row INCLUDING exact ties (edge === 0) —
+    // so a tie silently deflates the shown rate as if it were a loss, the same
+    // defect class this page's own draft-side code was built to avoid
+    // elsewhere. Not a mine-to-fix: forecast_grade.js is A's file, currently
+    // unused by any live render, and changing what `accuracy` means moves
+    // every historical snapshot's numbers — routed, not patched blind.
+    // Recomputed here straight off `inseason.rows` with the SAME rule the
+    // top-level tool_won/counterfactual_won already use: a tie lands in
+    // NEITHER bucket, and the rate is read over the DECIDED subset only.
+    inseasonDecisions: inseasonDecisionsView(extra.inseason),
+  };
+}
+
+// Minimum decided (non-tied) rows before a rate is shown as a verdict rather
+// than a raw count — same threshold calibration_report.js uses for a forecast
+// verdict, applied here to the newer surface.
+const MIN_DECIDED_FOR_READ = 10;
+
+function inseasonDecisionsView(inseason) {
+  if (!inseason) return null;
+  const rows = inseason.rows || [];
+  if (!rows.length) return null;
+  // Two separate ledgers, never pooled: for lineup_call/waiver_claim/stream_call
+  // `chosen` IS the tool's call, so a win there is the TOOL beating the
+  // human's counterfactual. For inseason_override `chosen` is the HUMAN's
+  // action overriding the tool, so a win there is the human beating the tool —
+  // the mirror image. Crediting one to the other's bucket is the exact defect
+  // forecast_grade.js's own header warns about; kept apart here for the
+  // same reason.
+  const byKind = {};
+  const bucket = k => byKind[k] || (byKind[k] = { n: 0, scored: 0, decided: 0, won: 0, lost: 0 });
+  let toolDecided = 0, toolWon = 0, humanDecided = 0, humanWon = 0, missingCf = 0;
+  for (const r of rows) {
+    const b = bucket(r.kind);
+    b.n += 1;
+    if (r.counterfactual_missing) missingCf += 1;
+    if (r.edge == null) continue;
+    b.scored += 1;
+    const isOverride = r.kind === 'inseason_override';
+    // A tie (edge === 0) is counted as scored above and nowhere else — it is
+    // neither a win nor a loss, the same rule the top-level tallies use.
+    if (r.edge > 0) {
+      b.decided += 1; b.won += 1;
+      if (isOverride) { humanDecided += 1; humanWon += 1; } else { toolDecided += 1; toolWon += 1; }
+    } else if (r.edge < 0) {
+      b.decided += 1; b.lost += 1;
+      if (isOverride) { humanDecided += 1; } else { toolDecided += 1; }
+    }
+  }
+  const rate = (won, decided) => decided >= MIN_DECIDED_FOR_READ
+    ? Math.round((won / decided) * 100) : null;
+  return {
+    n: rows.length,
+    scored: rows.filter(r => r.edge != null).length,
+    missingCounterfactual: missingCf,
+    // Tool vs. the modelled counterfactual — lineup/waiver/stream calls.
+    tool: { decided: toolDecided, won: toolWon,
+      readable: toolDecided >= MIN_DECIDED_FOR_READ, rate: rate(toolWon, toolDecided) },
+    // Human vs. the tool's rejected recommendation — overrides only.
+    human: { decided: humanDecided, won: humanWon,
+      readable: humanDecided >= MIN_DECIDED_FOR_READ, rate: rate(humanWon, humanDecided) },
+    byKind: Object.keys(byKind).map(k => Object.assign({ kind: k,
+      // `inseason_override` isn't in KIND_LABELS (that list is forecast kinds
+      // plus the three tool-side in-season kinds); given its own label here
+      // rather than added there, since KIND_LABELS also drives byKindRows()
+      // and scope_agreement.test.js pins its membership.
+      label: k === 'inseason_override' ? 'Overrides'
+        : (KIND_LABELS.find(([key]) => key === k) || [null, k])[1] }, byKind[k])),
   };
 }
 
