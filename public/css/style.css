@@ -2594,8 +2594,13 @@ body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 /* ---------- B7 COMPARE TRAY (Part 2 §2) — the dollar gap as the dominant number.
    Per the visual-design directive: money is GOLD, one dominant figure per card,
    everything else subordinate. A floating overlay, phone-friendly. ---------- */
+/* Same collision as .override-reason-toast (see its comment): #undo-toast is
+   fixed/bottom-center/z-index:200, and this tray's old bottom:1rem put its
+   own search input directly under the undo toast whenever a pick was marked
+   while the tray was open — reproduced live, the "Search a player" box was
+   fully covered. Raised to the same clearance the reason toast uses. */
 .compare-tray {
-  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: 5.5rem; transform: translateX(-50%);
   width: min(560px, 94vw); z-index: 90;
   /* Field Office (light): paper tray, dark ink — was dark navy with a mix of
      white and dark-remapped text, half of it unreadable. */
