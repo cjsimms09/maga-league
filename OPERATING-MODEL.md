@@ -373,6 +373,42 @@ defect and it belongs in the register with `relay` in the owner column.
 **Both were found by asking a second question about a finding that already
 looked complete.** That is the whole rule.
 
+## RULE 3h — D AND E FIND; SOMEONE ELSE ACTS. THE HOP IS THE RELAY'S.
+
+**Cory, 2026-08-17:** *"A isn't acting on E or Ds actions. Does it know it's
+supposed to?"*
+
+**Measured the same day: NO, and it could not have.** Of A's 60 open inbox items,
+**48 were unattributed and 12 came from the relay. ZERO came from D or E.** This
+file contained **no** `D → A` or `E → A` path at all. Rule 3e said E's findings
+*"enter the same queue"* and never said HOW.
+
+**So eleven open register rows owned by D and E had never been seen by the lane
+that can act on them** — the whole Vegas thread, every captured-but-ungraded
+store, the ADP-disagreement population, and the "we can only grade one season"
+correction.
+
+### THE RULE
+
+**D and E do not merge and do not gate — that is deliberate and stays.** But a
+finding that never reaches an actor is a finding that did not happen. So:
+
+* **D and E file to `DEFECT-REGISTER.md` with an owner, as now.** Nothing changes
+  for them; they should not have to know who merges what.
+* **THE RELAY CARRIES EVERY D/E FINDING TO THE ACTING LANE'S INBOX.** Not "makes
+  it available" — puts it in front of the lane that can act, in that lane's own
+  one-ask header if it outranks what is there.
+* **A dropped hop is a RELAY defect** and belongs in the register with `relay` in
+  the owner column, exactly like a dropped follow-up under 3g.
+
+### WHY IT IS NOT "D AND E SHOULD ROUTE IT THEMSELVES"
+
+Because that is what was implied for weeks and produced zero routed items. A lane
+whose job is to look at output has no reason to know the merge topology, and
+making the finder responsible for the hop is how the hop stops happening. **The
+relay is the only role that reads every inbox; the hop belongs where the
+information already is.**
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and

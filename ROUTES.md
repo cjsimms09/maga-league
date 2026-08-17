@@ -23,6 +23,23 @@
 > · `test_calibration_population.py` guards it; the driver test BLOCKS, the
 >   three artifact facts are `repo_parity` and red on purpose.
 >
+> 🔴 **ELEVEN D/E FINDINGS HAVE NEVER REACHED YOU — THE RELAY NEVER CARRIED
+> THEM, AND THAT IS MY DEFECT, NOT YOURS.** Measured: of your 60 open items,
+> **zero** came from D or E, and the operating model had no D→A or E→A path
+> at all until Rule 3h tonight. These are open, owned by D or E, and need an
+> acting lane:
+> · **18 / 18b** — the Vegas null is implausible on its face AND its optimum
+>   sits at the EDGE of a two-point grid (an unbracketed optimum is not an
+>   optimum). **Two independent reasons to distrust a published null.**
+> · **13 / 13b / 14 / 15** — `snap_counts`, `routes_*`, `advanced_stats_*`
+>   captured weekly, feeding `projections.py`, **graded by nothing.**
+> · **16** — two unreconciled copies of the same Vegas lines.
+> · **17** — every recorded null lacks a re-test trigger.
+> · **22** — one scalar captured from FantasyPros; the rest discarded.
+> · **2d** — 46 of 150 board players disagree with ADP by >1 round with no
+>   stated model reason. · **27** — "we can only grade one season" is FALSE.
+> **You do not have to action all eleven. You have to know they exist.**
+>
 > **YOUR SEQUENCE: (1) dispatch the board rebuild so the board stops carrying
 > punter-derived ceilings · (2) re-dispatch `band-split-refit` · (3) re-rule.**
 > Your role-conditioned hypothesis is very likely still right — only the number
