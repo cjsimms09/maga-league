@@ -356,15 +356,27 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                     cmean = _cell_mean.get((p.get("position"), band))
                     if cmean:
                         rel = _player_mult.get(id(p), 1.0) / cmean
+                # THE REASONS SURVIVE UNCONDITIONALLY, and that is separate from
+                # whether the sd moves. Clobbering var_why was a pure
+                # information loss with no statistical claim attached to it —
+                # the war room's Why? panel was left asserting a ceiling with no
+                # account of why — so restoring it needs no measurement and is
+                # not gated. The MAGNITUDES are a different question and they
+                # are gated, because they are a claim.
+                #
+                # The wording distinguishes the two states on purpose. With the
+                # flag off these traits are TRUE OF THE PLAYER but NOT IN THE
+                # NUMBER, and a bare "spread: rookie" beside an unchanged sd
+                # would imply otherwise.
+                player_why = list(var_why)
                 if rel:
                     season_sd = sd_m * rel
                     sd_source = "measured-band-x-player-spread"
-                    # The REASONS SURVIVE, which is half the point. They feed
-                    # the war room's Why? panel, and clobbering them left it
-                    # asserting a high ceiling with no account of why.
-                    var_why = [band_why] + [f"spread: {w}" for w in var_why]
+                    var_why = [band_why] + [f"spread: {w}" for w in player_why]
                 else:
-                    var_why = [band_why]
+                    var_why = [band_why] + [
+                        f"not in the sd (modifier unmeasured): {w}"
+                        for w in player_why]
                 var = season_sd / mean_proj
             # THE OTHER HALF OF REC-1, WHICH WAS NEVER WIRED (found 2026-08-17).
             # `proj_sd_for` was applied above the day REC-1 landed; its sibling

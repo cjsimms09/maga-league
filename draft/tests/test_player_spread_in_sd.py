@@ -137,3 +137,43 @@ def test_the_hand_set_modifiers_are_declared_as_unmeasured():
         assert hasattr(PJ, name)
     # Bounded, so a bad prior cannot run away with the board.
     assert PJ.VAR_MULT_MIN >= 0.5 and PJ.VAR_MULT_MAX <= 2.0
+
+
+# ── after the modifier fit came back underpowered (2026-08-17) ──────────────
+
+def test_the_reasons_are_restored_even_with_the_magnitudes_gated_off():
+    """The clobbering had two separable halves and only one is a claim.
+
+    The MAGNITUDES are unmeasured (variance_modifiers_2026-08-17.md: permutation
+    null [0.33, 5.65], 2 usable cells) and stay gated. The REASONS are facts the
+    build already computes, so losing them was pure information loss and
+    restoring them needs no measurement.
+    """
+    off = PJ.blend(_players(), {}, {}, _cfg())
+    rookie = [p for p in off if p["player_id"] == "0"][0]
+    why = rookie["variance_why"]
+    assert any("rookie" in w for w in why), (
+        "the player-specific reasons must survive even when the sd does not move")
+
+
+def test_the_wording_says_the_spread_is_NOT_in_the_number_when_gated_off():
+    """A bare 'spread: rookie' beside an unchanged sd would imply the modifier
+    was applied. The two states must read differently."""
+    off = PJ.blend(_players(), {}, {}, _cfg())
+    on = PJ.blend(_players(), {}, {}, _cfg(player_spread_in_sd=True))
+    off_why = [p for p in off if p["player_id"] == "0"][0]["variance_why"]
+    on_why = [p for p in on if p["player_id"] == "0"][0]["variance_why"]
+    assert any("not in the sd" in w for w in off_why), off_why
+    assert not any("not in the sd" in w for w in on_why), on_why
+    assert any(w.startswith("spread:") for w in on_why)
+
+
+def test_restoring_the_reasons_moved_no_number():
+    """The information fix must be provably free of any numeric consequence —
+    that is what let it ship ungated five days before the draft."""
+    off = PJ.blend(_players(), {}, {}, _cfg())
+    for p in off:
+        assert p["proj_sd_source"] == "measured-2023-25-error"
+        # sd is still the band constant: ratio identical across the band
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in off}
+    assert len(ratios) <= 5
