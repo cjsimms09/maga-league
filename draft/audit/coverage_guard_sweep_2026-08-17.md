@@ -86,10 +86,24 @@ been bounded. For a DRAFT tool it is not a rounding error: a player projected fo
 200 points who never takes a snap is a total loss to the drafter, and excluding
 him flatters every model that projected him.
 
-**Not fixed here, and not because it is small.** Bounding it means choosing what
-an absent season *counts* as, which is a modelling decision that belongs in a
-prereg, not in a sweep. Recorded as open. The comparison between models is
-unaffected (§3); what is unmeasured is the absolute level.
+**Not fixed here, and not because it is small.** Measured while writing this:
+**own_v6, the live model, has 115 of its 506 forecasts excluded — 22.7%** —
+and `walk_forward_v1` 211 of 737 (28.6%). Nearly a quarter of the live model's
+forecasts do not appear in its own accuracy score.
+
+Bounding it means choosing what an absent season *counts* as, which is a
+modelling decision that belongs in a prereg rather than in a sweep. **That prereg
+is now written: `draft/backtest/SURVIVORSHIP-BOUND-PREREG.md`**, to be run after
+the draft. It declares three treatments (drop / score-zero-as-a-BOUND /
+score-zero-only-for-rostered-players), and makes the headline **ranking
+stability** rather than a corrected MAE — because the scoreboard's job is to say
+which model ships, and the caveat only matters if it changes that answer.
+
+The sharp part is declared there in advance: own_v2 through own_v6 all exclude
+**exactly 115 of exactly 506**, so they almost certainly exclude the same players
+and any treatment nearly cancels between them. `walk_forward_v1` is the one model
+whose position can move. The comparison between models is unaffected today (§3);
+what is unmeasured is the absolute level.
 
 ## 5. WHAT THE SWEEP DID NOT FIND
 
