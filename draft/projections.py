@@ -297,6 +297,7 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         # REC-1: the measured cell overrides the hand-set constant wherever one
         # was measured. `variance` is re-derived from the applied sd so the
         # board identity proj_sd == proj_mean × variance keeps holding.
+        ceiling_m, ceiling_source = None, "gaussian_z"
         if pe is not None:
             PE, cal = pe
             rank = rank_of.get(id(p))
@@ -309,13 +310,56 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                 var_why = ["sd from measured 2023-25 projection error, band "
                            f"{p.get('position')}|{band} (REC-1, applied under "
                            "Cory's ruling; PROJ-SD-DECISION-ARM.md addendum)"]
+            # THE OTHER HALF OF REC-1, WHICH WAS NEVER WIRED (found 2026-08-17).
+            # `proj_sd_for` was applied above the day REC-1 landed; its sibling
+            # `proj_ceiling_for` — measured, shipped, and carrying a docstring
+            # that states this exact defect — was left uncalled, so the ceiling
+            # went on being `mean + 1.036*sd`. That is a SYMMETRIC Gaussian over
+            # a distribution the same calibration measures as violently skewed,
+            # and the skew runs the opposite way in the deep bands: QB|33+ has
+            # p50 0.165 and p90 1.094, so a big sd manufactures a huge ceiling
+            # for players whose realized outcomes pile up near zero.
+            #
+            # MEASURED CONSEQUENCE of wiring it, on this board (533 rows move):
+            #     band 1-3    median  +16.7      band 17-32  median  +14.7
+            #     band 4-8    median  +29.6      band 33+    median   -7.5
+            # The Gaussian was INVENTING upside for deep players and hiding it
+            # in the early ones — which independently reproduces the barbell
+            # pass's finding that anchors out-ceiling swings with zero overlap,
+            # and supplies the mechanism for it.
+            #
+            # NONE OF THIS MOVES A RECOMMENDATION TODAY: engine.js ships
+            # `ceiling: 0.0`. It is a correctness fix to the field, and the
+            # question of whether the weight should come off zero is Cory's,
+            # gated on the harness arm — deliberately kept separate, because
+            # fixing a number and then acting on it in one step means never
+            # learning which of the two did the work.
+            # GATED OFF BY DEFAULT, AND NOT OUT OF TIMIDITY — proj_ceiling is
+            # NOT an inert field. engine.js's bench branch ranks on
+            # `proj_ceiling - proj_mean`, so changing this number changes real
+            # bench recommendations even though the composite's `ceiling` WEIGHT
+            # is 0.0. Landing it hot would let the nightly rebuild ship a
+            # behaviour change five days before the draft with nobody having
+            # graded it. Flip `use_measured_ceiling` in league_config.json to
+            # turn it on — one value, same reversibility pattern as
+            # opportunity_cap.
+            if cfg.get("use_measured_ceiling"):
+                cm, cstatus = PE.proj_ceiling_for(cal, p.get("position"), rank, mean_proj)
+                if cstatus == "measured" and cm is not None and mean_proj > 0:
+                    ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
 
         p["proj_baseline"] = round(base, 2)
         p["opportunity_z"] = round(z.get(pid, 0.0), 2)
         p["opportunity_adj"] = round(adj, 4)
         p["proj_mean"] = round(mean_proj, 2)
         p["proj_floor"] = round(max(0.0, mean_proj + FLOOR_Z * season_sd), 2)
-        p["proj_ceiling"] = round(mean_proj + CEILING_Z * season_sd, 2)
+        # Absent stays absent: an unmeasured band keeps the Gaussian rather than
+        # silently receiving a filled-in p90, and `proj_ceiling_source` is how a
+        # consumer tells the two apart — the same rule proj_sd_source follows,
+        # and the rule whose absence let `0.25 * proj_mean` reach the board once.
+        p["proj_ceiling"] = round(
+            ceiling_m if ceiling_m is not None else mean_proj + CEILING_Z * season_sd, 2)
+        p["proj_ceiling_source"] = ceiling_source
         p["proj_sd"] = round(season_sd, 2)
         p["proj_sd_source"] = sd_source
         p["variance"] = round(var, 4)

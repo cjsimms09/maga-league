@@ -363,6 +363,9 @@ BOARD_FIELD_SOURCES = {
     # which is why it can be carried forward without a freshness worry. That is
     # a property of THIS field, not a general licence.
     "nfl_draft_round": "historical", "nfl_draft_pick": "historical",
+    # Sibling of proj_sd_source: says whether proj_ceiling is the measured
+    # 2023-25 p90 or the Gaussian fallback for an unmeasured band.
+    "proj_ceiling_source": "derived",
     # Pure functions of the two above (draft_capital.tier_of, and the capital
     # season vs the board season), so they inherit the derived label.
     "capital_tier": "derived", "is_nfl_rookie": "derived",
@@ -512,6 +515,7 @@ BOARD_FIELD_PURPOSE = {
     # these fields. If a ceiling boost ever keys on capital_tier, this
     # classification is where the change must be argued.
     "nfl_draft_round": HISTORICAL_PRIOR, "nfl_draft_pick": HISTORICAL_PRIOR,
+    "proj_ceiling_source": DERIVED_PURPOSE,
     "capital_tier": DERIVED_PURPOSE, "is_nfl_rookie": DERIVED_PURPOSE,
     # declared in config or code rather than measured from a feed
     "variance": MODEL_CONSTANT, "variance_why": MODEL_CONSTANT,
