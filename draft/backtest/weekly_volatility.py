@@ -57,12 +57,33 @@ measurement that leaning on it PAYS, and this repo has spent a week learning
 that difference the expensive way. Wiring it is a separate, preregistered
 decision, and not before the 2026-08-22 draft.
 
-TWO LIMITS, STATED HERE RATHER THAN DISCOVERED LATER:
+THREE LIMITS, STATED HERE RATHER THAN DISCOVERED LATER:
   1. Only two transitions survive the fingerprint guard. Two is enough to
      refuse a null twice and not enough to call the coefficient precise.
   2. This is REALIZED volatility. Using it prospectively is licensed by the
      persistence above and by nothing else — which is exactly why the
      persistence, not the level, is the headline.
+  3. **WHO IS MISSING IS NOT RANDOM, AND THIS IS THE ONE THAT WILL BITE.**
+     Measured on the 2026 board: 131 of 157 draftable players (83%) have a 2025
+     volatility; 26 do not. Only 8 of those 26 are rookies. **The rest are
+     veterans who missed most of 2025 — an INJURY-SELECTED group**, and it
+     includes Malik Nabers (ADP 32), Garrett Wilson (45), Jayden Daniels (59)
+     and Mike Evans (62): early picks, not deep fliers.
+
+     So any future wiring must treat a missing volatility as ABSENT, never as
+     average. Filling the gap with a positional mean would hand the steadiest
+     available reading to precisely the players whose last season was
+     interrupted — a bias pointing the wrong way, on some of the most expensive
+     picks on the board. Same discipline as `opportunity_share` and
+     `attach_capital`: absent is absent.
+
+     AND IT MEANS THIS INSTRUMENT CANNOT ANSWER CORY'S ORIGINAL QUESTION.
+     He asked about KC Concepcion and Cyrus Allen — ROOKIE WRs. A rookie has no
+     prior weekly record, so his volatility is not small or uncertain, it is
+     undefined. The signal is real and it is silent on exactly the players the
+     question was about; a per-player upside number for a rookie has to come
+     from somewhere else (draft capital, opportunity, the depth chart) or not
+     be claimed at all.
 
 Run:
     python3 draft/backtest/weekly_volatility.py            # measure + write

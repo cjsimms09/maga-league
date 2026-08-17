@@ -120,6 +120,26 @@ def test_the_module_does_not_license_a_weight():
     assert "not evidence that leaning on it pays" in note
 
 
+def test_the_missing_population_is_documented_as_injury_selected():
+    """THE CAVEAT MOST LIKELY TO BE LOST, so it is pinned.
+
+    On the 2026 board 26 of 157 draftable players have no 2025 volatility, and
+    only 8 are rookies — the rest are veterans who MISSED most of last season.
+    That is an injury-selected group containing Nabers (ADP 32), Garrett Wilson
+    (45) and Mike Evans (62): early picks, not deep fliers.
+
+    A future wiring that fills a missing volatility with a positional mean would
+    hand the steadiest available reading to exactly the players whose last
+    season was interrupted — a bias pointing the wrong way on the most expensive
+    picks. If this warning is ever deleted, this fails first."""
+    src = open(os.path.join(ROOT, "draft", "backtest",
+                            "weekly_volatility.py")).read()
+    assert "INJURY-SELECTED" in src
+    assert "never as\n     average" in src or "never as average" in src
+    # and the honest statement that it cannot answer the rookie question
+    assert "Concepcion" in src and "undefined" in src
+
+
 def test_the_artifact_records_which_seasons_it_refused():
     """A refusal that leaves no trace is indistinguishable from data that never
     existed. The artifact must say which seasons were dropped and why, or a
