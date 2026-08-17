@@ -9,6 +9,13 @@
 ## TO: A
 
 > ### ⚡ ONE ASK — everything below is evidence, not instructions
+> 🔴 **YOUR NO-SHIP RULING RESTS ON A CONTAMINATED FIT — RE-RUN IT.** `cli.py`
+> never passes `positions`, so the band-split refit was fitted on **punters, DBs,
+> linebackers and a tackle**, with skill positions down ~30% (graded 1,304→910,
+> 15 of 32 cells unmeasurable). Deep 1.3378 vs shallow 1.7197 cannot support
+> NO SHIP *or* SHIP. Artifact reverted in `88b58a5d`; the **pipeline defect is
+> still live**. Register **4r**. Fix the filter, re-dispatch, re-rule.
+>
 > **MERGE `claude/fantasy-football-research-926y6z`.** It carries the CI fix that
 > unbroke `main`, the freeze's `engine_policy`, the drift check's positional split,
 > the recheck enforcer, and the band-split hook + workflow. Gate green, 3,859 tests.
