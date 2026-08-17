@@ -28,11 +28,14 @@ real defects before a single decision was made:
 
 ── THE FINDING: TWO CEILINGS, AND THE PUBLISHED ONE IS NOT LINEUP-ONLY ────────
 
-EFFICIENCY-LEAK.md reports $470/$595/$445 per team and calls it "the ceiling of
-a roster, perfect bench decisions". Reproducing lab.py's L0 exactly matches
-those figures — so the plumbing here is correct — but L0 draws its player pool
-from `_season_players`, the UNION of everyone the roster held all season (~35
-players) rather than who was on it that week (~16).
+L0 publishes a per-team dollars-left-on-table figure (lab-results.json,
+`L0-lineup-ceiling-money` — $520/$637.50/$520 after the 2026-08-15 flex-gap
+fix widened infer_positions; the pre-fix figures were $470/$595/$445 and
+undercounted because 36 flex-only starters were silently dropped from the
+hindsight pool). Reproducing lab.py's L0 exactly matches the registry — so the
+plumbing here is correct — but L0 draws its player pool from `_season_players`,
+the UNION of everyone the roster held all season (~35 players) rather than who
+was on it that week (~16).
 
 That ceiling therefore includes ACQUISITION TIMING: it may start in week 3 a
 player acquired in week 10. It is a legitimate quantity and it is NOT
@@ -40,8 +43,8 @@ lineup-only, while the prose describes lineup-only.
 
 **BOTH ARE KEPT, BECAUSE THEY BOUND DIFFERENT ARMS:**
 
-    per-week ceiling   $280/$355/$268   bounds the LINEUP arm (roster fixed)
-    season-pool ceiling $470/$595/$445  bounds LINEUP+WAIVER (roster moves)
+    per-week ceiling    (smaller)        bounds the LINEUP arm (roster fixed)
+    season-pool ceiling (L0 registry)    bounds LINEUP+WAIVER (roster moves)
 
 Assigning the season-pool ceiling to the lineup arm would give that arm 65-70%
 more headroom than it can legitimately use, and a leak could hide inside the
@@ -62,7 +65,21 @@ import replay_lineup as RL      # noqa: E402
 import roster_sim as RS         # noqa: E402
 
 SEASONS = ("2023", "2024", "2025")
-PUBLISHED = {"2023": 470, "2024": 595, "2025": 445}   # EFFICIENCY-LEAK.md
+
+
+def _published_leak():
+    """The season-pool ceiling this suite must reproduce, read from the L0 row
+    of lab-results.json rather than hard-coded — a hard-coded copy went stale
+    the first time the certified layer legitimately moved (the 2026-08-15
+    flex-gap fix raised $470/$595/$445 to $520/$637.50/$520, and this suite
+    reported the CORRECTED layer as broken)."""
+    import json
+    rows = json.loads((ROOT / "draft" / "backtest" / "lab-results.json").read_text())["results"]
+    l0 = next(r for r in rows if r.get("id") == "L0-lineup-ceiling-money")
+    return {p["season"]: float(p["mean_dollars_left_on_table"]) for p in l0["per_season"]}
+
+
+PUBLISHED = _published_leak()
 
 
 @pytest.fixture(scope="module")
@@ -128,8 +145,8 @@ def test_CEILING_never_scores_below_ACTUAL_in_any_week(ctx, season):
 
 @pytest.mark.parametrize("season", SEASONS)
 def test_the_SEASON_POOL_ceiling_reproduces_the_published_figure(ctx, season):
-    """Reproducing lab.py's L0 must match EFFICIENCY-LEAK.md, or this module's
-    understanding of the certified layer is wrong."""
+    """Reproducing lab.py's L0 must match the figure the lab registry publishes,
+    or this module's understanding of the certified layer is wrong."""
     h, p, _pos = ctx
     s = MG.season_of(h, season)
     lpos = RS.infer_positions(s)
@@ -141,7 +158,7 @@ def test_the_SEASON_POOL_ceiling_reproduces_the_published_figure(ctx, season):
         r = act["per_roster"][rid]
         leaks.append((sub["weekly_high"] - r["weekly_high"])
                      + (sub["regular_season"] - r["regular_season"]))
-    assert round(mean(leaks)) == PUBLISHED[season]
+    assert mean(leaks) == pytest.approx(PUBLISHED[season], abs=0.51)
 
 
 @pytest.mark.parametrize("season", SEASONS)
