@@ -510,3 +510,368 @@ their own cell:
   `draft/vorp.py`, `draft/projections.py`,
   `draft/backtest/fetch_component_stats.py`, `draft/tools/fetch_*.py` or
   `.github/workflows/*` is edited; all are imported read-only or not at all.
+
+---
+---
+
+# STAGE 2 — THE RESULTS
+
+_Appended 2026-08-17. §§0–6 above are unchanged from the preregistration commit
+`f4ed0c05`. Produced by `draft/backtest/opportunity_inheritance.py` →
+`draft/backtest/opportunity_inheritance.json`, tests in
+`draft/tests/test_opportunity_inheritance.py`._
+
+## 7. THE ANSWER, FIRST
+
+**1. NULL. Inherited opportunity does not predict the breakout — and the reason
+is that "inherited" is not the part doing the work.** Departed volume above a
+player DOES predict his improvement over naive carry-forward: RB ρ = **+0.237**
+[0.113, 0.341], WR **+0.199** [0.089, 0.305], QB **+0.158** [0.013, 0.298], all
+three seasons the same sign, all surviving FDR. **The preregistered negative
+control destroys it.** Volume above him held by players who **STAYED** predicts
+the same residual just as well or better, and volume above him **regardless of
+whether anyone left at all** beats the vacated version at **every position in
+every arm — 12 cells of 12**:
+
+| position | departed above him | **PRESENT** above him | **all** above him (departure-blind) |
+|---|---|---|---|
+| QB | +0.158 | +0.325 | **+0.412** |
+| RB | +0.237 | +0.154 | **+0.293** |
+| WR | +0.199 | +0.175 | **+0.246** |
+| TE | +0.089 | +0.203 | **+0.208** |
+
+_(V_ALL shown; V_MOVED and V_INSEASON give the same ordering. The artifact's
+`negative_control` block carries all 12 cells; its verdict string reads
+`THE WORD 'VACATED' DOES NO WORK`.)_
+
+**What is actually being measured is mean reversion.** `own_share_y1` predicts
+DECLINE at every position (QB **−0.403**, WR **−0.317**, RB **−0.291**, TE
+**−0.241**), and "volume above you" is the arithmetic complement of "volume you
+had". A buried player has nowhere to go but up. **Whether the man above him left
+is not the information.** Within terciles of the player's own prior share, every
+vacancy interval covers zero (RB low/mid/high ρ = +0.019 / +0.231 / +0.142; WR
++0.110 / +0.085 / −0.106).
+
+**2. THE INTERACTION IS NULL — the age flag is dead a third time, and the
+conditional form is dead with it.** Youth × vacancy is not distinguishable from
+zero at **QB, RB, WR and TE, in all three vacancy arms**. One cell fires — the
+position-POOLED regression in the quarantined V_ALL arm (β = **+12.63**
+[+0.24, +23.46], youth main effect covering zero) — and it **fails this study's
+own §3.2 cross-arm rule**: it does not survive in V_MOVED (the injury-clean arm)
+or in V_INSEASON, and pooling positions mixes QB's 6-point-passing-TD scale with
+RB's. **Reported as what it is: an artifact of one quarantined arm and a mixed
+scale, not a finding.**
+
+**And the 2 × 2 runs the WRONG WAY, which is the more useful half.**
+LEAGUE-WINNER rates, Wilson 95%:
+
+| | volume vacated above him | none vacated above him |
+|---|---|---|
+| **young** (NFL exp ≤ 2) | **2.4%** (3/126) [0.8, 6.8] | **11.8%** (22/187) [7.9, 17.2] |
+| **not young** | **0.0%** (0/42) [0.0, 8.4] | **19.1%** (16/84) [12.1, 28.7] |
+
+**A player with volume vacated above him is LESS likely to become a
+league-winner, not more — at both ages.** The difference-in-differences is
+**+0.097, 95% CI [−0.074, +0.213]**, covering zero in all three arms. The naive
+reading of "walking into vacated volume" gets the sign backwards on outcomes,
+because *having volume above you at all* means you were behind somebody — a
+worse starting point than being the man who already had the ball.
+
+**3. THE GRADED CELL: NULL. Nothing beat the room.** On the identical pick-61+
+cell (n = **170**, LEAGUE-WINNERs **21**, chance@10 = **3.71**, market = **7** —
+all reproduced exactly, pinned by a test):
+
+| ranking | V_ALL | V_MOVED | **V_INSEASON (leak-free)** | verdict |
+|---|---|---|---|---|
+| R1 team vacancy share | **6** | **7** | 2 | beats chance, loses to the room |
+| R2 vacated volume above him | 4 | 4 | 0 | beats chance, loses to the room |
+| R3 young × vacated | 3 | 3 | 1 | NULL |
+| R4 naive + vacated overlay | 3 | 3 | 1 | NULL |
+| R5 contingent (§10) | 3 | 3 | 4 | NULL |
+| R6 naive + contingent | 2 | 2 | 2 | NULL |
+| R7 combined | 3 | 3 | 3 | NULL |
+| naive prior points | 3 | 3 | 3 | NULL |
+| **the market — the league's own draft order** | **7** | **7** | **7** | the bar |
+
+**Not one ranking cleared the bar.** R1's best number (7, V_MOVED) **ties** the
+market where the bar required strictly more with a CI excluding zero; its paired
+bootstrap difference is **−0.10, 90% CI [−5, +4]**. And **R1 collapses to 2 in
+the only arm that reads no season-Y byte** — the arm that would have to hold for
+any of it to be usable at a draft.
+
+For scale against what has already been graded on this same cell: the tiered
+outcome model's expected points scored 5, its `P(LEAGUE-WINNER)` 3, naive prior
+points 3, own_v6 1 (2025 only). **R1's 6 is the highest any non-market ranking
+has reached here — and it still loses to the room, and it is a bet on four to
+seven teams rather than ten players (§9).**
+
+**4. THE CONTINGENT ARM IS UNBUYABLE, AND THAT IS THE STUDY'S MOST DECISIVE
+RESULT.** Cory's "injury opportunity" is real as a phenomenon and dead as a
+draft strategy, for a reason `conditional_value.py` never tested: **you cannot
+name the inheritor in advance, at any position.**
+
+| position | cases | depth-2 hit rate | chance (from real eligible bodies) | identifiable? |
+|---|---|---|---|---|
+| QB | 49 | 24.5% [14.6, 38.1] | **50.5%** | **NO — worse than chance** |
+| RB | 44 | 34.1% [21.9, 48.9] | 23.9% | **NO — interval covers chance** |
+| WR | 37 | 21.6% [11.4, 37.2] | 15.4% | **NO** |
+| TE | 41 | 31.7% [19.6, 47.0] | 31.0% | **NO** |
+
+Not one position's interval excludes its own chance rate. Per §5.2's
+pre-committed rule: **the inheritor is not identifiable in advance, therefore the
+contingent arm is unbuyable at the draft, however large the premium.** Widening
+to "the actual inheritor was depth 2 OR depth 3" reaches RB 54.5% [40.1, 68.3]
+and TE 43.9% — better, and still a coin flip you must pay a pick for.
+
+**5. And the starter's absence is not forecastable either — except at QB, where
+the QB result is half benchings.** P(misses ≥ 4 games | missed ≥ 4 last year)
+against P(… | missed 0–1 last year), starters only:
+
+| position | high prior absence | low prior absence | difference | forecastable? |
+|---|---|---|---|---|
+| QB | 63.0% (17/27) | 36.2% (17/47) | **+0.268 [+0.024, +0.501]** | fires |
+| RB | 40.0% (4/10) | 21.3% (13/61) | +0.187 [−0.113, +0.522] | **NO** |
+| WR | 12.5% (1/8) | 28.2% (20/71) | −0.157 [−0.352, +0.136] | **NO** |
+| TE | 45.0% (9/20) | 29.5% (13/44) | +0.155 [−0.091, +0.418] | **NO** |
+
+**The one position that fires is the one where "missed games" most likely means
+BENCHED.** Measured: in **22 of 42** QB1 seasons with ≥ 4 missed games
+(**52.4%**), another quarterback on the same team covered **every** missed week —
+the signature of a benching, which these stores cannot separate from an injury.
+The QB result is therefore a *performance* signal wearing an availability
+costume, and **is not evidence that injury risk is forecastable.** **RB — the
+position the entire handcuff thesis lives on — is explicitly NOT forecastable**
+(n = 10 high-absence RB1 seasons; the interval is 63 points wide).
+
+This is consistent with, and sharper than, `empirical_draft_value_2026-08-16.md`
+§15.0's availability persistence (RB 0.274, WR 0.243, TE 0.310, QB noise): a ρ
+near 0.27 sounds usable and, converted into the decision a drafter actually
+makes, is not.
+
+**6. THE PICK-61+ CELL CANNOT SEE ROOKIES AT ALL — a structural finding about
+the bar, not about rookies.** Zero of the 170 are NFL rookies, because the shared
+population requires a prior-season stat row. The league drafted **37** rookies at
+pick 61+ across the three seasons and **all 37 are invisible to every model ever
+graded on this cell** — the tiered model's 3-of-21, the market's 7, own_v6's 1.
+Graded separately (§11), NFL draft capital took **4 of the 5** rookie
+league-winners inside its top 5 against a chance of 1.9 and the market's 2 —
+**but 3 of those 4 are one draft class (2024), the 2023 class produced zero
+league-winners from ten picks, and n = 5 events.** Pre-declared underpowered, and
+it stays that way.
+
+**NOTHING SHIPS. No board, model, config, projection or policy change is
+proposed.** §13 lists what goes to `DECISIONS-NEEDED.md` for Cory's ruling.
+
+---
+
+## 8. THE DEPARTURE INFERENCE RULE — what it caught and what it cannot
+
+**The rule, as preregistered and as executed:** *q DEPARTED T for Y iff q
+recorded ≥ 1 component row for T in weeks 1–17 of Y−1 AND zero component rows
+for T in weeks 1–17 of Y.*
+
+**What the store actually contains, counted rather than characterised:**
+
+| season | stayed | moved to another team | **absent from season Y entirely** |
+|---|---|---|---|
+| 2023 | 298 | 130 | **170** |
+| 2024 | 296 | 121 | **143** |
+| 2025 | 320 | 127 | **122** |
+
+**THE AMBIGUOUS BUCKET IS THE BIGGEST ONE.** In 2023, 170 of the 300 apparent
+departures are "no rows anywhere in season Y" — retirement, a season-long injury,
+a practice-squad year, and never taking an offensive snap, all reading
+identically. **A player who missed season Y through injury is not a departure**,
+and this rule cannot tell him from one who retired. That is what V_MOVED brackets
+from below: its vacancy shares run **0.234 / 0.244 / 0.177** against V_ALL's
+**0.315 / 0.326 / 0.257**, so roughly a quarter to a third of V_ALL's measured
+vacancy is the ambiguous bucket.
+
+**Its other failure modes, all live:**
+
+- **Season-Y team labels come from an in-season file.** Real-world preseason
+  knowledge, in-season source — the `team_change` quarantine of
+  `empirical_draft_value_2026-08-16.md` §2.4. V_ALL and V_MOVED are flagged
+  `quarantined: true` in the artifact; V_INSEASON reads no season-Y byte, and a
+  test proves it by spying on the store loader rather than trusting the claim.
+- **The leak-free team assignment is wrong for ~29% of players** — a player's
+  Y−1 modal team differs from his Y modal team for **29.4% / 29.2% / 28.1%** of
+  those present in both seasons (n = 412 / 411 / 438). Every leak-free
+  inheritance number here is attenuated by that.
+- **V_INSEASON is blind to offseason departures**, which are most of them: mean
+  vacancy share **0.106 / 0.072 / 0.079** against V_ALL's 0.315 / 0.326 / 0.257.
+  It is the clean arm and the weak one, and that is not a coincidence.
+- **Mid-season trades inside Y−1 are handled correctly** — the store's `team`
+  field is per player-week, so a traded player's volume splits across both teams
+  rather than landing on one.
+- **Red-zone vacancy is not measured at all** (GAP A). A vacated touchdown is an
+  outcome, not an opportunity; substituting it would manufacture the efficiency
+  signal §0.3 says is a trap. A test asserts no `rz`/`td` key appears in the
+  vacancy table.
+- **Depth is a Y−1 volume proxy, not an NFL depth chart** (GAP B).
+
+---
+
+## 9. WHAT THE VACANCY ARMS ACTUALLY SAW
+
+Most-vacated teams by `vac_opp_share` — a face-validity check anyone can audit
+from memory:
+
+| arm | 2023 | 2024 | 2025 |
+|---|---|---|---|
+| V_ALL | CAR, DET, DEN (max .670) | LAC, NYG, NE (max .778) | PIT, HOU, CLE (max .648) |
+| V_MOVED | CAR, DET, MIN (max .608) | LAC, CIN, NE (max .502) | PIT, DEN, LAC (max .564) |
+| V_INSEASON | LA, ARI, DEN (max .330) | NE, ARI, GB (max .327) | SF, CAR, NO (max .321) |
+
+The quarantined arms name teams that plainly did turn over their skill volume.
+The leak-free arm names teams whose season *broke* — which is what it is built to
+see, and a different thing.
+
+**R1's 6-and-7 is a bet on four to seven teams, not a ranking of ten players.**
+`vac_opp_share` is a TEAM score, so every player on a team ties. Its top 10 held
+**4 / 5 / 4** distinct teams (V_ALL) and **4 / 7 / 5** (V_MOVED); its per-season
+hits were **2 / 3 / 1** and **1 / 3 / 3**. Read its aggregate as "picked a couple
+of teams and got some of them right" — which is how thin an n = 21 count
+statistic is.
+
+---
+
+## 10. THE CONTINGENT ARM AGAINST WHAT WAS ALREADY KNOWN
+
+`conditional_value_2026-08-16.md` is **taken as established and not recomputed**;
+`handcuff_premium()` is imported from `conditional_value.py` and reproduces
+**+0.95 season points** over the RB28 startable bar at the class rate. Its
+findings stand: P(an RB1 misses ≥ 1 game) = 44%, elevated backup production 12.5
+pts/wk against a startable bar of 11.5, premium ≈ 4.5 season points to the
+starter's owner against 0.9 to the field, **no WR handcuff at all**.
+
+**This study adds the three things that audit did not test, and all three are
+negative:**
+
+1. **The premium's own input is not forecastable at RB** (§7.5). That audit used
+   each starter's *own* historical miss rate — Henry 9/80, Walker 9/64 — without
+   ever testing that a personal rate predicts. On this data, at RB, it does not.
+2. **The inheritor is not identifiable** (§7.4). Even a correct premium cannot be
+   addressed to a pick.
+3. **Contingent opportunity does not find late-round league-winners** — R5 scores
+   3 / 3 / 4 hits@10 against the market's 7.
+
+**None of this contradicts that audit's ruling; it narrows it.** Its own
+conclusion was already *"the absolute premium is small: 5–10 season points …
+a 14th/15th-round price, never a mid-round one"*, with both relevant handcuffs
+free at market (ADP 199 and 217, outside a 150-pick draft). **This study says the
+same thing from the other side: there is no version of the handcuff worth a pick,
+because the two things you would have to know in advance are both unmeasurable
+from anything committed here.**
+
+**On `robust_rb`, and this was written before the answer was known.**
+`roster_construction_2026-08-16.md` found the RB-depth archetype CI-clear WORST
+in all four configurations, and its own limitation #6 says nobody gets hurt in
+that simulator, so depth can never be rewarded there. **§1.2 recorded in advance
+that this arm fills exactly that gap and that a positive result would have been
+genuinely informative rather than contradictory.** There is no positive result.
+**The injury-modelling gap in that simulator is real and worth closing on its own
+merits — but closing it would not have rescued `robust_rb` on this evidence**,
+because the drafter cannot buy the contingency even where it exists.
+
+---
+
+## 11. THE ROOKIE CELL — declared separately, declared underpowered, and it stays that way
+
+**37 picks, 5 LEAGUE-WINNERs (13.5%)**: 10 picks / **0** winners in 2023,
+13 / **4** in 2024, 14 / **1** in 2025. Winners by name: Jayden Daniels, Brock
+Bowers, Brian Thomas, Ladd McConkey, Tetairoa McMillan.
+
+| ranking | hits@5 (chance 1.90) | hits@10 (chance 3.79) |
+|---|---|---|
+| **NFL draft capital** | **4** | **5** |
+| capital × team vacancy | **4** | **5** |
+| team vacancy alone | 3 | 4 |
+| the market — the league's own pick order | 2 | 4 |
+
+**Read the season split before the totals.** Top 5 by NFL capital, per class:
+
+- **2023** — Bryce Young, Anthony Richardson, Jaxon Smith-Njigba, Quentin
+  Johnston, Zay Flowers → **0 league-winners**, and the whole 2023 rookie cell
+  produced none.
+- **2024** — Caleb Williams, **Jayden Daniels ✔**, Rome Odunze, **Brock
+  Bowers ✔**, **Brian Thomas ✔** → 3 of the top 5.
+- **2025** — Travis Hunter, **Tetairoa McMillan ✔**, Colston Loveland, Tyler
+  Warren, Emeka Egbuka → 1.
+
+**So capital's 4-of-5 is three quarters one draft class.** Under §6.3 this
+**cannot be a FINDING** and is not reported as one. What it is consistent with —
+the only reason it is worth writing down — is the empirical study's single
+surviving slot-beating feature, **RB NFL draft capital ρ = −0.427**. Two studies,
+different populations, same direction: **when a player has no prior-season
+profile at all, the NFL's own draft-night opinion is the least-bad thing
+available.** That is a hypothesis for a properly-powered test, not a result.
+
+**The structural point is the one that matters.** Every model this repo has
+graded on the pick-61+ cell — the tiered outcome model, own_v6, this study's
+seven rankings — is scored on a population from which **all 37 rookie picks are
+structurally excluded**. When Cory asks about "upside for rookies", the bar we
+have been grading against **cannot answer him**, and nobody had noticed.
+
+---
+
+## 12. WHAT I COULD NOT DO
+
+1. **Separate an injury from a retirement, a benching or a practice-squad year.**
+   `DATA-INVENTORY.md` lists `import_injuries`, `import_snap_counts`, depth
+   charts and rosters as REACHABLE upstream; **none is committed to this repo**,
+   and egress is blocked from this sandbox. This is the single biggest constraint
+   on the contingent arm, and it is fixable in CI (§13a).
+2. **Measure red-zone or goal-line vacancy** (GAP A) — no committed store has it.
+   Not proxied.
+3. **Use a real historical depth chart** (GAP B) — `depth_chart_order` is
+   2026-only. Every depth statement here is a Y−1 volume proxy. B2 — the result
+   that killed the contingent arm — is the test most likely to move under a real
+   chart, in either direction.
+4. **Know a player's season-Y team leak-free** (GAP D) — wrong ~29% of the time,
+   which attenuates every leak-free number toward zero. R1's collapse from 6–7 to
+   2 in V_INSEASON is partly this and partly that arm's blindness to offseason
+   moves; **the two cannot be separated with what is committed.**
+5. **Grade rookies with power.** 37 picks, 5 events, one dominant class.
+6. **Say anything at n < 12** — reported as `insufficient_n`, never estimated.
+7. **Test whether a properly-built props or national-ADP board changes any of
+   this** — GAP 1 of the empirical study stands; there is still no historical
+   national ADP in this repo.
+8. **Distinguish "R1 found something" from "R1 got lucky with four teams"** —
+   §9 gives the team counts so the reader can see the problem; three seasons
+   cannot settle it.
+
+---
+
+## 13. GOING TO `DECISIONS-NEEDED.md` — described diffs, Cory rules, nothing shipped
+
+- **(a) Commit `import_injuries` and `import_snap_counts` for 2021–25 in CI**,
+  where nflverse is reachable. Diff: one workflow step plus two committed stores.
+  **This is the single change that would make the contingent arm testable rather
+  than unmeasurable** — it separates injury from benching (§7.5's 52.4% problem)
+  and gives B2 a real availability signal. No board change. **Recommendation:
+  after the 22nd** — it cannot change the draft board and nothing about it
+  decays.
+- **(b) Commit historical NFL depth charts** (`import_depth_charts`, listed
+  REACHABLE in `DATA-INVENTORY.md`). Diff: one store. The direct fix for GAP B,
+  and the input B2 most needs. **Recommendation: after the 22nd.**
+- **(c) THE GRADED CELL EXCLUDES ROOKIES, AND EVERY VERDICT TAKEN ON IT INHERITS
+  THAT.** Not a data fix — a scope statement. Diff: add the exclusion, in these
+  words, to `tiered_outcome_model.json`'s late-round cell and to
+  `draft/audit/tiered_outcome_model_2026-08-16.md` §1, so that "the model
+  captured 3 of 21 and the market 7" is never again read as a statement about
+  late-round drafting in general. **Recommendation: do this one now** — it is a
+  one-paragraph correction to a claim currently being carried forward, and it
+  costs nothing.
+- **(d) Nothing else.** The vacancy features are not proposed as board columns;
+  the contingent score is not proposed as a handcuff surface; no age or
+  second-year flag is proposed in any form. All of them failed.
+
+---
+
+## 14. REPRODUCE IT
+
+```
+python3 draft/backtest/opportunity_inheritance.py     # ~9 min, writes the artifact
+python3 -m pytest draft/tests/test_opportunity_inheritance.py -q
+```

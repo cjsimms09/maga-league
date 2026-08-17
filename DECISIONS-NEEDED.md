@@ -1814,3 +1814,72 @@ when he kept Jeanty + Chase Brown).
 **COST OF INACTION.** (1) is a live trap with a deadline. (2) is a plan built
 on a premise that is currently false; the keeper decision itself is safe either
 way.
+
+## 🔎 OPPORTUNITY INHERITANCE — NULL on both arms, and ONE SCOPE CORRECTION WORTH TAKING NOW (A, 2026-08-17)
+
+Verdict: `draft/audit/opportunity_inheritance_2026-08-17.md` (preregistration
+`f4ed0c05`, committed before any result existed). Code
+`draft/backtest/opportunity_inheritance.py` → `opportunity_inheritance.json`,
+21 tests in `draft/tests/test_opportunity_inheritance.py`.
+
+**THE ANSWER, so nothing below is read as a proposal.** Cory's "vacated
+opportunity" and "injury opportunity" were both studied and **both returned
+NULL on the pick-61+ cell** (n=170, 21 LEAGUE-WINNERs, chance@10 3.71, market 7).
+Best ranking reached **6–7 hits@10, never strictly above the market**, and
+**collapsed to 2 in the only leak-free arm**. The youth × vacancy INTERACTION —
+the one form the two dead age flags had not tried — is **not distinguishable
+from zero at any position in any arm**, and its 2×2 runs the *wrong way*
+(players with vacated volume above them were LESS likely to become
+league-winners: 2.4% vs 11.8% among the young). **NOTHING IS PROPOSED AS A BOARD
+OR MODEL CHANGE. No third age flag, no vacancy column, no handcuff surface.**
+
+**Three items need your ruling; only (c) has any urgency, and it is free.**
+
+**(c) 🔴 THE PICK-61+ GRADED CELL CONTAINS ZERO ROOKIES, AND EVERY VERDICT TAKEN
+ON IT INHERITS THAT.** The cell requires a prior-season stat row, which no NFL
+rookie has. **The league drafted 37 rookies at pick 61+ across 2023–25 and all 37
+are invisible to every model ever graded there** — the tiered model's "3 of 21",
+own_v6's 1, the market's 7. So "the model is at chance in the late rounds and the
+room beats it" is true of *late-round veterans*, not of late-round drafting, and
+it is currently being carried forward as if it were the latter.
+**DESCRIBED DIFF:** add that exclusion sentence to `tiered_outcome_model.json`'s
+late-round cell and to `draft/audit/tiered_outcome_model_2026-08-16.md` §1.
+No code, no board, no number changes. **MAGNITUDE:** corrects the reading of the
+single most-quoted late-round result on this branch. **CONFIDENCE:** certain —
+it is a counted structural fact (0/59, 0/57, 0/54), pinned by a test.
+**COST OF INACTION:** the claim keeps being repeated in a stronger form than the
+evidence supports. **RECOMMENDATION: TAKE IT NOW.** It is a paragraph.
+*(Cross-lane note: `tiered_outcome_model.*` is C's. Not touched — this is a
+routed request, not an edit.)*
+
+**(a) COMMIT `import_injuries` + `import_snap_counts` FOR 2021–25 IN CI.**
+**DESCRIBED DIFF:** one workflow step plus two committed stores; no board change.
+**WHY:** the contingent arm is currently *unmeasurable*, not merely unmeasured.
+The stores cannot separate an injury from a benching — measured: in **22 of 42**
+QB1 seasons with ≥4 missed games (52.4%) another QB covered *every* missed week,
+which is what a benching looks like. That is why the one position where absence
+looked forecastable is the one position the result cannot be trusted at.
+**CONFIDENCE:** high that it makes the question answerable; unknown which way.
+**RECOMMENDATION: BUILD AFTER THE 22nd** — it cannot change the draft board and
+nothing about it decays.
+
+**(b) COMMIT HISTORICAL NFL DEPTH CHARTS** (`import_depth_charts`, listed
+REACHABLE in `DATA-INVENTORY.md`). **DESCRIBED DIFF:** one store.
+**WHY:** the result that killed the contingent arm — *you cannot name the
+inheritor in advance* (depth-2 hit rates QB 24.5% vs a 50.5% chance rate, RB
+34.1% [21.9, 48.9] vs 23.9%, WR 21.6%, TE 31.7%; **not one interval excludes its
+own chance rate**) — was measured against a **Y−1 volume PROXY**, because
+`depth_chart_order` exists only on the 2026 board. A real chart is the input most
+likely to move that verdict, in either direction.
+**RECOMMENDATION: BUILD AFTER THE 22nd.**
+
+**WHAT THIS DOES *NOT* CONTRADICT.** `conditional_value_2026-08-16.md` stands
+unchanged and was imported, not recomputed — its handcuff premium reproduces at
++0.95 season points over the RB28 bar. This narrows it from the other side: its
+own conclusion was already *"a 14th/15th-round price, never a mid-round one"*,
+and this study says there is no version worth a pick at all, because both inputs
+a drafter would need are unmeasurable from what is committed.
+`roster_construction_2026-08-16.md`'s `robust_rb` verdict also stands — its
+limitation #6 (no injury modelling) is real and worth fixing on its own merits,
+but **fixing it would not have rescued `robust_rb` on this evidence.** That was
+recorded in the preregistration, before the answer was known.
