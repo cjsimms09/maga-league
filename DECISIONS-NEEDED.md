@@ -1387,6 +1387,65 @@ research — the layer's FORM (capital buckets, walk-forward fit) may not be
 the right one even though the underlying "no rookies on the board" defect
 is real; a re-prereg with a different form is a legitimate next step, not
 attempted here.
+## 📈 THE 2021/2022 WEEKLY-POINTS STORES ARE BUILDABLE OFFLINE TODAY — the standing "own_v6 can only be graded on 2025" limit is true of the STORE, not of the DATA (C, 2026-08-16)
+
+**WHAT WAS FOUND, and it was found by accident while building the tiered outcome
+model.** Every artifact in the projection programme carries the same limitation:
+own_v4/v5/v6 can be graded on **2025 alone**, because the chain needs two prior
+weekly-points stores and `nflverse_weekly_points_*.json` starts at 2023. That is
+the binding constraint on the whole programme — one graded season, read three
+times (v4, v5, v6), with the honesty note about it written into `own_model_v6.py`
+itself.
+
+**The data for 2021 and 2022 is already committed.** `component_stats_2021.json`
+and `component_stats_2022.json` carry every offensive scoring component the
+weekly store needs (`pass_yd, pass_td, pass_int, pass_2pt, rush_yd, rush_td,
+rush_2pt, rec, rec_yd, rec_td, rec_2pt, fum_lost`), at the same player-week grain
+and under the same nflverse release family (`player_stats_*.parquet`) as 2023 and
+2024.
+
+**PROVEN, not assumed — the derivation reproduces the committed store BIT FOR
+BIT on both seasons where both exist.** Re-scoring every component row with
+`draft.scoring.score_stat_line` under the store's own scoring table
+(fingerprint `bd8f3e50bd67a9ce`):
+
+| season | player-weeks compared | max absolute difference |
+|---|---|---|
+| 2023 | 5,055 | **0.00** |
+| 2024 | 4,984 | **0.00** |
+
+Reproduced by `draft/tests/test_tiered_outcome_model.py::test_the_derivation_gate_still_passes`
+and recorded in `draft/backtest/tiered_outcome_model.json` → `derivation_gate`.
+
+**THE DESCRIBED DIFF.** `draft/backtest/nflverse_weekly_store.py` carries
+`# TERRITORY: C`, so this is C's file and C can execute on a ruling:
+add an offline ingest path that builds `nflverse_weekly_points_2021.json` and
+`nflverse_weekly_points_2022.json` from the committed component stores instead of
+from the network, stamped with the SAME scoring fingerprint (the store already
+refuses a second table at `append_week`, so a mismatch cannot land silently), and
+gated on the exact-reproduction check above running green for 2023 and 2024 in
+the same execution. No existing store is touched, no model changes, no board
+changes. What it unlocks is A's to use or not: own_v4/v5/v6 become gradeable on
+**2023 and 2024** as well as 2025.
+
+**MAGNITUDE:** turns a one-season evaluation into a three-season one for the
+model that currently sets the board's projections. **CONFIDENCE:** high on the
+derivation (exact, two seasons, 10,039 player-weeks); unknown on whether the
+extra seasons flatter or damage v6 — which is the point.
+**COST OF INACTION:** the projection programme keeps making promotion decisions
+on one season that has now been read three times.
+**RECOMMENDATION: BUILD IT — but AFTER the 22nd.** It cannot change the draft
+board and the draft-path code freeze is the higher priority; nothing about it
+decays. **NOT BUILT. Nothing was touched.**
+
+⚠️ **ONE CAVEAT THAT MUST TRAVEL WITH IT: the same check FAILS for 2025.**
+`component_stats_2025.json` was fetched from a different nflverse release
+(`stats_player_week_2025.parquet`, where 2021-24 used `player_stats_*.parquet`);
+it carries **1,067 player-weeks the points store does not have** and **120 of the
+4,685 shared rows differ, 101 of them by exactly −2.0** — a `fum_lost` the points
+store scores and the component store dropped. So the derivation is proven for the
+`player_stats_*` family only, which is exactly the family 2021 and 2022 come
+from. Routed to A separately (the component stores are A-lane files).
 
 ---
 
