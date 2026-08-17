@@ -1,6 +1,6 @@
 {
   "_territory": "TERRITORY: C \u2014 produced by draft/backtest/projection_error.py",
-  "_note": "Measured projection error by position and PROJECTION RANK BAND. Apply with projection_error.proj_sd_for / proj_ceiling_for \u2014 a band with status `unmeasurable` returns None, and None must stay None: a fallback constant is how 0.25 * proj_mean reached the board.",
+  "_note": "Measured projection error by position and PROJECTION RANK BAND. Apply with projection_error.proj_sd_for / proj_ceiling_for \u2014 a band with status `unmeasurable` returns None, and None must stay None: a fallback constant is how 0.25 * proj_mean reached the board. AND READ `positions_not_measured`: `cells_unmeasurable` counts only cells that were ATTEMPTED, so a position that never entered the universe reads as no problem rather than as a refusal.",
   "version": "projection-error/v1",
   "seasons": [
     2023,
@@ -14,6 +14,22 @@
   "cells_unmeasurable": 0,
   "caveat": "OPTIMISTIC BY AN UNMEASURED AMOUNT. Players with no weekly rows at all are excluded (a season that ended before week 1 leaves nothing to grade), while a player who broke down in week 1 is kept near zero. Every band here is therefore fitted on players who reached the field \u2014 survivorship, and it biases the spread tighter than reality. `ungraded` is the size of the excluded set.",
   "band_note": "Bands are PROJECTION RANK WITHIN POSITION, not ADP. We hold no archived ADP before 2026-08-09 and a retroactive fetch leaks (exp33); a realized pick number cannot be known before the draft it comes from.",
+  "positions_not_measured": {
+    "K": {
+      "reason": "No kicker rows reach the graded stores: fetch_component_stats.py filters to POSITION_GROUPS = (QB, RB, WR, TE) and kickers are position_group 'SPEC'. Not a source gap \u2014 the file we already fetch served 569 kicker rows / 43 kickers / weeks 1-22 for 2024 (HTTP 200, probed 2026-08-17), with a 1:1 map to all eight of our kicker scoring keys.",
+      "unblocked_by": "C adding K to that filter and re-emitting 2023-25. The calibration then needs no code change \u2014 this module has never filtered positions. NOTE fgm_50p must absorb BOTH fg_made_50_59 and fg_made_60_, or every 60-yard field goal is silently dropped.",
+      "owner": "C",
+      "recheck": "2026-08-19",
+      "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md"
+    },
+    "DEF": {
+      "reason": "No team-defence rows exist in the nflverse player file at all \u2014 it carries individual defenders (DB/DL/LB), not units. DST scoring needs a team-level aggregation (sacks, INTs, fumble recoveries, return TDs, points allowed) that does not exist here.",
+      "unblocked_by": "A team-week defence construction from stats_team_week or pbp, built and graded. NOT attempted before the 2026-08-20 keeper lock: a new instrument measured once, late, is a worse instrument than a declared absence.",
+      "owner": "A",
+      "recheck": "post-2026-08-22",
+      "audit": "draft/audit/kdef_calibration_p0_2026-08-17.md"
+    }
+  },
   "cells": {
     "QB|17-32": {
       "n": 42,

@@ -18,11 +18,17 @@ nothing reads (DEFECT-REGISTER 8b).
 the difference visible, because the artifact currently reports the second as if
 it were neither.
 
-RED TODAY, DELIBERATELY, and `repo_parity`-marked so it can never refuse a board
-publish — a calibration gap must not block the rebuild that would fix it. It
-clears when either the K/DEF cells exist or the artifact declares them
-unmeasured with a reason. Root cause, source availability and the exact column
-mapping: draft/audit/kdef_calibration_p0_2026-08-17.md.
+RESOLVED 2026-08-17 by the second of the two legitimate routes: the artifact now
+declares K and DEF in `positions_not_measured`, each with a reason, an unblock
+condition, an owner and a recheck date. Nothing was estimated for them — a
+declared refusal is the answer and a guessed discount would be fitting.
+
+It stays `repo_parity` even though it is green. The marker is not about being
+red; it is about never being able to REFUSE A BOARD PUBLISH. This check compares
+an artifact to the board, so a future board carrying a new position would fail
+it — and blocking the rebuild over a calibration gap is the worst available
+response to one. Root cause, source availability and the exact column mapping:
+draft/audit/kdef_calibration_p0_2026-08-17.md.
 
 Run: python -m pytest draft/tests/test_calibration_covers_every_board_position.py -q
 """
@@ -73,26 +79,22 @@ def test_KNOWN_POSITIVE_the_detector_finds_the_positions_that_are_calibrated():
 
 @pytest.mark.repo_parity
 def test_every_priced_board_position_is_calibrated_or_declared():
-    """DELIBERATE RED FLAG — evidence awaiting a human, not a broken build.
+    """K and DEF are priced on the unmeasured gaussian_z construction while the
+    skill positions carry measured-2023-25-p90. This was RED until the artifact
+    declared them; it is green now because the refusal is written down, not
+    because anything was estimated.
 
-    RED TODAY on K (44 priced) and DEF (32 priced), every one of them carrying
-    proj_ceiling_source "gaussian_z" while the skill positions carry
-    "measured-2023-25-p90".
+    `repo_parity` pins REPO STATE and — the load-bearing half — guarantees this
+    can never refuse a board publish. The publication gate runs
+    `-m "not repo_parity"`, so a calibration gap cannot block the rebuild that
+    would fix it, which days before a draft would be the worst available
+    response.
 
-    `repo_parity` for the same reason as the other members of that set: it pins
-    REPO STATE, and clearing it means acquiring data or writing a declaration,
-    not fixing code. The publication gate runs `-m "not repo_parity"`, so a
-    calibration gap can never refuse the board rebuild — which would be the
-    worst possible response to it, days before a draft.
-
-    IT CLEARS TWO WAYS, and both are legitimate:
-      1. the K cells get measured — the source serves 569 kicker rows in the
-         file we already fetch (2024, 43 kickers), and fetch_component_stats.py
-         drops them at line 104 with no recorded reason; or
-      2. the artifact declares them unmeasured WITH a reason, which is the
-         honest outcome for DEF, since no team-defence rows exist in the player
-         file at all and building one before 08-20 would be a new instrument
-         measured once, late.
+    IT GOES RED AGAIN, correctly, if the declaration is deleted, if a position
+    is dropped from it while still unmeasured, or if a future board prices a
+    position nobody has considered. The route OUT of the declaration is
+    measurement: the source serves 569 kicker rows in the file we already fetch
+    (2024, 43 kickers), dropped at fetch_component_stats.py:104.
     """
     cal = json.loads(CALIBRATION.read_text())
     declared = set(cal.get(DECLARATION_KEY) or {})

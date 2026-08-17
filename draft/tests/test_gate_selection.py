@@ -84,14 +84,16 @@ REPO_PARITY_NODES = {
     # itself; this compares an artifact to the BOARD — every position priced with
     # a proj_ceiling must have a measured calibration cell or a declared refusal.
     #
-    # Red today on K (44 priced) and DEF (32 priced), all 76 carrying
+    # It was red on K (44 priced) and DEF (32 priced), all 76 carrying
     # proj_ceiling_source "gaussian_z" while skill positions carry
-    # "measured-2023-25-p90". projection_error_calibration.json reports
-    # cells_unmeasurable: 0, which counts only cells that were ATTEMPTED — K/DEF
-    # were never in the universe, so they read as "no problem". The graded stores
-    # hold 0 K and 0 DEF player-weeks because fetch_component_stats.py:104 filters
-    # to ("QB","RB","WR","TE") with no recorded reason, while the source serves
-    # 569 kicker rows in the file we already fetch.
+    # "measured-2023-25-p90"; cells_unmeasurable: 0 counted only cells that were
+    # ATTEMPTED, so K/DEF read as "no problem". GREEN since 2026-08-17: the
+    # artifact declares both in positions_not_measured with a reason, an unblock
+    # condition, an owner and a recheck date. Nothing was estimated.
+    #
+    # THE MARK IS NOT ABOUT BEING RED. It is that this check compares an artifact
+    # to the BOARD, so a future board pricing a new position would fail it — and
+    # a calibration gap must never refuse the rebuild that would fix it.
     # draft/audit/kdef_calibration_p0_2026-08-17.md
     #
     # Its failure says the REPO STATE lacks data, never that the candidate board
