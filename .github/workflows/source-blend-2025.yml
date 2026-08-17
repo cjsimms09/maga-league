@@ -52,7 +52,13 @@ jobs:
           fi
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/backtest/source_blend_2025.json draft/backtest/raw/ 2>/dev/null || true
+          # ADD EACH PATH SEPARATELY. `git add a b` fails entirely when b does
+          # not exist, and `|| true` then swallowed it — so the 08-17 run computed
+          # a real verdict, printed it, staged nothing and pushed nothing. The
+          # answer survived only because someone read the log, which is exactly
+          # the failure register row 23 already names.
+          git add draft/backtest/source_blend_2025.json || echo "::warning::no verdict file to add"
+          [ -d draft/backtest/raw ] && git add draft/backtest/raw/ || true
           if ! git diff --cached --quiet; then
             git commit -m "SOURCE-BLEND-2025: graded verdict on Sleeper vs FP vs blend [skip deploy]"
             for i in 1 2 3; do

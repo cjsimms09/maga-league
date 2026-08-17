@@ -54,6 +54,43 @@ direct call to `upsideBonus` returned zero for every player at every pick number
 but `_ceilingScales` is initialised inside `recommend()`, so that path proves
 nothing — **no known-positive control, therefore not a finding.** Owner: relay.
 
+## ✅ ANSWERED 2026-08-17 — SLEEPER vs FANTASYPROS vs BLEND
+
+**Cory asked this four times over two days. Here is the measurement.**
+Run `32051713260`, dispatched from `main`, matched population **376 players**,
+Spearman within position (higher is better):
+
+| arm | QB | RB | WR | TE |
+|---|---|---|---|---|
+| **SLEEPER** | **.7860** | **.7896** | .7385 | **.7964** |
+| **FantasyPros** | .7531 | .7753 | .7409 | .7710 |
+| BLEND-0.25 | .7709 | .7802 | .7444 | .7814 |
+| BLEND-0.50 *(Cory's 50/50)* | .7812 | .7902 | .7439 | .7914 |
+| BLEND-0.75 | .7899 | .7896 | **.7442** | .7937 |
+| NAIVE *(control — must lose)* | .7018 | .7326 | .6961 | .7592 |
+
+> **VERDICT: NO SEPARATION.** The best blend (w=0.75) beats both sources in only
+> **2 of 4** positions; the prereg required 3. **The board keeps Sleeper.**
+
+**What it means, stated plainly:**
+
+1. **Sleeper alone beats FantasyPros at QB, RB and TE.** FP wins only WR, by
+   .0024. **Using Sleeper was the right default — it was simply never a decision
+   anyone made, which is what Cory was angry about, and rightly.**
+2. **Blending helps but not enough.** BLEND-0.75 is the best WR arm on the board
+   and edges both sources at QB and WR. Two positions, not three.
+3. **The control passed cleanly** — NAIVE lost at every position by a wide
+   margin, so the harness is sound and these numbers mean something.
+4. **⚠️ THE BEST BLEND SITS AT THE EDGE OF THE GRID.** 0.75 is the top of
+   {0.25, 0.50, 0.75}. **The optimum is not bracketed** — it plausibly sits at
+   0.80–0.90, which was never tested. That is a live edge candidate with a cheap
+   test, and the prereg's own edge-of-grid rule says so rather than letting us
+   quietly call 0.75 "the answer."
+
+**NEXT (post-08-22, per the prereg's shipping cap):** extend the grid to
+0.80/0.85/0.90 and re-run. One season, n≈376 — the most this licenses is
+"adopt for 2026 and re-test when 2023/2024 become gradeable."
+
 ## CORY RULED 2026-08-17 (evening)
 
 | # | ruling | what it means |
