@@ -877,6 +877,44 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["own_model"] = {"error": f"{type(ownx).__name__}: {ownx}"}
         print(f"  ! own-model projections skipped ({type(ownx).__name__}: {ownx})")
 
+    # ── NFL DRAFT CAPITAL — AN INFORMATIONAL COLUMN, NOT A PROJECTION ──────
+    #
+    # Cory 2026-08-17: "I'd want to give these players a boost due to upside
+    # potential especially in dead rounds." This is STEP 0 of that and only
+    # step 0 — nothing can key on "first-round rookie WR" until a board row
+    # carries the NFL round. It changes no projection, no ranking and no
+    # weight; draft/tests/test_draft_capital.py proves the attach is additive
+    # rather than trusting this comment.
+    #
+    # WHY IT IS NOT A BOOST YET. The evidence
+    # (draft/audit/rookie_wr_capital_2026-08-17.md, EXPLORATORY) is that rd1
+    # rookie WRs are the only tier NOT MEASURABLY WORSE than streaming the
+    # spot — +7.4 vs the wire on n=15, interval [-19.7, +34.3], which spans
+    # zero. The decisive rows are rd3 (0 of 17 reached 150 pts) and rd4-7
+    # (-99.4, 1 of 55, and that one is Puka Nacua). What that licenses today is
+    # a WARNING about the bottom tiers, not a boost for the top one, and the
+    # boost itself is gated on the harness arm that graded the other ten
+    # strategy ideas.
+    #
+    # Wrapped like the own-model attach above: an upgrade, never a dependency.
+    try:
+        from draft_capital import attach_capital, load_capital
+        cap_diag = attach_capital(board, load_capital(), season=year_n)
+        PROJECTION_PROVENANCE["draft_capital"] = cap_diag
+        _unm = cap_diag["unmatched_this_class"]
+        print(f"  draft capital: attached to {cap_diag['attached']} players "
+              f"({cap_diag['matched_by_id']} by id, "
+              f"{cap_diag['matched_by_name']} by name)")
+        if _unm:
+            # PRINTED, NOT COUNTED. A rookie missing from this column reads to
+            # every consumer as "not a rookie", so the names have to be visible
+            # in the build log where a human will see them.
+            print(f"  ! {len(_unm)} of this year's class did not join the "
+                  f"board by name: {', '.join(_unm)}")
+    except Exception as capx:  # noqa: BLE001
+        PROJECTION_PROVENANCE["draft_capital"] = {"error": f"{type(capx).__name__}: {capx}"}
+        print(f"  ! draft-capital column skipped ({type(capx).__name__}: {capx})")
+
     # ── SAY WHAT proj_mean IS, AND SAY IT SEPARATELY FROM WHAT WE DISPLAY ───
     #
     # `consensus_sources` was set to 2 inside the FantasyPros branch and never

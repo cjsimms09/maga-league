@@ -111,6 +111,22 @@ PLAYER_FIELDS = (
     # no data, a number means measured. Both are frozen so the distinction
     # survives into September instead of being re-derived from memory.
     "opportunity_z", "opportunity_share", "opportunity_adj",
+    # ⚠️ NFL DRAFT CAPITAL — INERT TODAY, AND FROZEN FOR EXACTLY THAT REASON.
+    # No shipped weight reads these (added 2026-08-17 as an informational
+    # column), which by this tuple's own standing rule is the one argument that
+    # CANNOT justify dropping a field: the freeze exists to answer "would a
+    # DIFFERENT valuation have chosen differently", and the live open question
+    # is whether a ceiling boost keyed on `capital_tier` should exist at all.
+    # Without these four, the September regression that settles it would have
+    # to re-derive draft capital from a store that may have moved.
+    #
+    # ABSENT IS NOT UNDRAFTED. `attach_capital` leaves an unmatched player
+    # completely untouched rather than writing None, so a missing key means
+    # "our name join did not find him" and never "he went undrafted" — the same
+    # distinction `opportunity_share` draws above, and it matters more here
+    # because this year's class joins by NAME (its capital store carries no
+    # sleeper_id at all).
+    "nfl_draft_round", "nfl_draft_pick", "capital_tier", "is_nfl_rookie",
 )
 
 

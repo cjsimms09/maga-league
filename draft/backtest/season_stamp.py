@@ -349,6 +349,24 @@ BOARD_FIELD_SOURCES = {
     # red, rather than assuming the first fix was complete.
     "proj_ownmodel": "historical",
 
+    # NFL DRAFT CAPITAL (draft_capital.attach_capital, 2026-08-17). Declared
+    # HISTORICAL rather than seasonal, and the reason is that the column spans
+    # both: for this year's rookie class the NFL round IS 2026 information, but
+    # for the ~250 veterans who also carry it, it is a fact from 2021-2025.
+    # Labelling the whole column "seasonal" would assert current-season
+    # provenance for rows where that is simply false, and this registry exists
+    # to stop exactly that. "historical" is the honest label for a mixed column
+    # and it is also the conservative one — it forces the field to be NAMED as
+    # prior-season information rather than waved through.
+    #
+    # It does not decay the way a projection does: draft capital is permanent,
+    # which is why it can be carried forward without a freshness worry. That is
+    # a property of THIS field, not a general licence.
+    "nfl_draft_round": "historical", "nfl_draft_pick": "historical",
+    # Pure functions of the two above (draft_capital.tier_of, and the capital
+    # season vs the board season), so they inherit the derived label.
+    "capital_tier": "derived", "is_nfl_rookie": "derived",
+
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
     # RUNTIME on the base (build.py:340 can swap in prior-season actuals) AND
@@ -479,6 +497,22 @@ BOARD_FIELD_PURPOSE = {
     # classified" gate correctly refused an undeclared field rather than
     # trusting it silently.
     "proj_ownmodel": HISTORICAL_PRIOR,
+    # NFL DRAFT CAPITAL — a RECORDED FACT, not an estimate, which is the one
+    # place it sits awkwardly under HISTORICAL_PRIOR ("estimated from prior
+    # seasons"). Filed here anyway because the alternative labels are worse:
+    # it is not LIVE_FEED (most rows describe a prior year), not
+    # MODEL_CONSTANT (it is fetched, not declared), and emphatically not
+    # EXPERIMENT — nflverse's draft_picks release is source data, and the
+    # STUDY that made us interested in it (rookie_wr_capital_2026-08-17) is a
+    # separate artifact that this column does not carry.
+    #
+    # The distinction matters because EXPERIMENT means "never prices a
+    # recommendation", and the open question Cory has posed is precisely
+    # whether this SHOULD price one. Today it does not: no shipped weight reads
+    # these fields. If a ceiling boost ever keys on capital_tier, this
+    # classification is where the change must be argued.
+    "nfl_draft_round": HISTORICAL_PRIOR, "nfl_draft_pick": HISTORICAL_PRIOR,
+    "capital_tier": DERIVED_PURPOSE, "is_nfl_rookie": DERIVED_PURPOSE,
     # declared in config or code rather than measured from a feed
     "variance": MODEL_CONSTANT, "variance_why": MODEL_CONSTANT,
     "replacement": MODEL_CONSTANT,
