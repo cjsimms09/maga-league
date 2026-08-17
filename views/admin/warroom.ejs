@@ -1,8 +1,28 @@
-<%# TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
-    ("work with B, make warroom how I want it and deploy"). Scope: the redesign's
-    class hooks + disclosure-host edits in this shell (the #tiebreak host became a
-    <div> so it can hold a <details>; #recs-card gained the .wr-reccard hook). The
-    shell, its ids and its layout stay B's. %>
+<%# ══════════════════════════════════════════════════════════════════════════
+    THE DRAFT COCKPIT REBUILD — Cory's direct order, 2026-08-17 (verbatim: "no
+    charts, not organized, not clear, doesnt give me lots of info in small
+    space, not built/look like a professional draft buddy. no places to click
+    for more info, not easy to quickly navigate between tools, big board, top
+    10 players at each position left, its unacceptable.")
+
+    The 21-page vertical scroll becomes FIVE TABS behind one sticky tool bar:
+
+      DRAFT      the cockpit: left rail (top-10 per position), center (ONE
+                 answer → alternatives → ranked shortlist), right rail (charts:
+                 running-out tiles, tier cliffs, survival, roster shape)
+      BIG BOARD  per-position columns with tier-cliff lines + the full table
+      ROSTERS    my roster, byes, opponents, survival, picks feed, shadows
+      ADJUSTERS  weights, presets, targets/never
+      INTEL      setup + sync, checklist, provenance, audits, help
+
+    Tabs are pure show/hide (class toggling on #warroom[data-wrtab], hash-
+    persisted #tab=…) — EVERY existing element id stays in the DOM at its old
+    depth or shallower, so app.js renderers keep writing into them even while a
+    panel is hidden. The tab wiring + rails + charts live in
+    /js/draft/warroom_charts.js (loaded after app.js; zero external libraries).
+
+    Alarms that invalidate a recommendation (keeper lock, unrecorded picks,
+    reconciled picks, runs) stay ABOVE the tabs — visible on every tab. %>
 <%- include('../partials/header', { title: 'War Room' }) %>
 
 <h1 class="page-title">🧠 The War Room</h1>
@@ -12,25 +32,457 @@
 
 <div id="stale-gate" style="display:none"></div>
 
-<div id="warroom" style="display:none">
+<div id="warroom" style="display:none" data-wrtab="draft">
 
-  <%# ── ONE STATUS STRIP ──────────────────────────────────────────────────
-      Six stacked banners used to push the decision surface below the fold on a
-      phone. The tool must START at the top of the screen. Everything that was
-      a banner is now one line — state · seat · board freshness · health dot —
-      with the detail one tap away.
-
-      The health dot is the contract: it goes RED and force-opens the detail on
-      anything that invalidates a recommendation (keeper mismatch, unusable ADP,
-      an unverified slot). Collapsing noise is only safe if the thing that must
-      not be missed can still shout. %>
+  <%# ── ONE STATUS STRIP — state · seat · board freshness · health dot. The
+      health dot goes RED and force-opens the detail (in INTEL) on anything
+      that invalidates a recommendation. %>
   <div id="system-strip" class="system-strip" style="display:none"></div>
-  <%# The war room hides the site chrome (masthead + bottom tab bar) so a fixed
-      element can never cover the recommendation or the Take button. This is the
-      one always-visible way back out — shares the Details row, so it costs no
-      vertical space above the decision surface. %>
+
+  <%# ── THE TOOL BAR — sticky tab navigation + compact external tools.
+      warroom_charts.js wires the tabs; the buttons are inert without JS but
+      every panel's content still exists in the document. %>
+  <nav class="wr-tabbar" id="wr-tabbar" aria-label="War-room tools">
+    <button type="button" class="wr-tab active" data-wrtab-btn="draft">🎯 DRAFT</button>
+    <button type="button" class="wr-tab" data-wrtab-btn="board">📋 BIG BOARD</button>
+    <button type="button" class="wr-tab" data-wrtab-btn="rosters">🏈 ROSTERS</button>
+    <button type="button" class="wr-tab" data-wrtab-btn="adjust">🎛 ADJUSTERS</button>
+    <button type="button" class="wr-tab" data-wrtab-btn="intel">🛠 INTEL</button>
+    <span class="wr-tab-links">
+      <a href="/lineup" title="Lineup Optimizer">⚡Lineup</a>
+      <a href="/lineup/accuracy" title="Model Accuracy">📈Accuracy</a>
+      <a href="/analyzer" title="Analyzer">📊Analyzer</a>
+      <a class="wr-exit" href="/" title="Leave the war room">🏛 Office</a>
+    </span>
+  </nav>
+
+  <%# ── ALARMS ABOVE THE TABS — each of these invalidates recommendations, so
+      none may hide behind a tab. KEEPER-LOCK is SEVERITY-1 and BLOCKING: the
+      slate is the one input that can be wrong while every derived number still
+      looks normal; it renders as a thin red strip with the detail one tap in.
+      app.js fills all four by id — placement is the shell's. %>
+  <div id="keeper-lock-note" style="display:none"></div>
+  <div id="unrecorded-note" style="display:none"></div>
+  <div id="reconciled-note" style="display:none"></div>
+  <div id="run-banner" class="roast-banner" style="display:none"></div>
+
+  <%# Retained hosts: renderChecklist() writes these; the visible checklist
+      lives in INTEL. Watermarks keep driving body classes via app.js. %>
+  <span id="checklist" style="display:none"></span>
+  <span id="check-count" style="display:none"></span>
+  <div id="rehearsal-watermark" class="rehearsal-watermark" style="display:none">REHEARSAL — not the real draft</div>
+  <div id="slot-watermark" class="slot-watermark" style="display:none">Slot unverified — pick numbers &amp; timing are provisional until Sleeper confirms your seat</div>
+  <%# B7 compare tray — floating dollar-gap overlay; tap ⚖️ on any two players. %>
+  <div id="compare-tray" class="compare-tray" style="display:none"></div>
+  <%# In-page typed confirm for END DRAFT (window.prompt is suppressible). %>
+  <div id="end-confirm" class="end-confirm" style="display:none"></div>
+  <span id="prefs-sync" style="display:none;font-size:.68rem;color:var(--muted);position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
+  <%# THE DRILL-DOWN HOST — one reusable slide-over; clicking any player name
+      anywhere (rails, shortlist, board columns) fills it. warroom_charts.js
+      renders into it; dismissible, never modal-trapping. %>
+  <div id="wr-drill" class="wr-drill" hidden></div>
+  <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
+
+  <%# ════════════════════════ DRAFT — THE COCKPIT ═══════════════════════════
+      ≥1000px: 3 columns (~240px | 1fr | 300px). Stacked on a phone. %>
+  <section class="wr-tabpanel" id="wr-tab-draft" data-wrpanel="draft">
+  <div class="wr-cockpit">
+
+    <%# LEFT RAIL — top 10 at each position, ultra-compact. Rendered by
+        warroom_charts.js from the same scored board app.js holds. %>
+    <aside class="wr-rail wr-rail-left" id="wr-rail-left" aria-label="Top players left by position">
+      <div id="wr-posrails"><p class="wr-railwait">Board loading…</p></div>
+    </aside>
+
+    <%# CENTER — the decide surface. Source order is app.js's contract; CSS
+        `order` on .wr-zone1 (style.css) arranges: search · slip · pick bar ·
+        THE ANSWER · context strips · deadline · branches · queue. %>
+    <div class="wr-zone1" id="wr-center">
+      <%# One-answer focus mode (⏱): swaps in for the recs card. %>
+      <div class="card clock-card" id="clock-card" style="display:none">
+        <div class="body">
+          <div class="clock-eyebrow">On the clock — pick <span id="clock-pick">—</span></div>
+          <div class="clock-name" id="clock-name">—</div>
+          <div class="clock-meta" id="clock-meta"></div>
+          <div class="clock-why" id="clock-why"></div>
+          <div class="clock-confidence" id="clock-confidence"></div>
+          <div class="clock-actions">
+            <button class="btn gold" id="clock-take" data-draft-me="">✓ Take him</button>
+            <button class="btn small navy" id="clock-next">Show the next one</button>
+            <button class="btn small ghost" id="clock-off">Full board</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wr-search">
+        <span class="wr-search-icon" aria-hidden="true">🔎</span>
+        <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
+      </div>
+      <div id="search-tail" hidden></div>
+      <%# QUEUE SLIP ALERT — in-flow, filled when a queued player is ~a turn from gone. %>
+      <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
+
+      <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
+
+      <%# ── THE ANSWER CARD — ONE VOICE, THEN STRUCTURED DISSENT.
+          #verdict-block (DraftVerdict.derive — the seat-plan-owns-headline
+          adjudication) is the ONE primary "TAKE <name>". The paths beneath it
+          are ALTERNATIVES, each priced against the pick (−N vs top) with its
+          FOR/AGAINST case one ⓘ tap in; the ranked shortlist is the follow-
+          through table. The card never emits a second unmarked answer. %>
+      <div class="card wr-reccard" id="recs-card">
+        <h2>🎯 The Pick
+          <span class="sub">one answer · alternatives priced against it</span>
+          <button class="btn small ghost" data-cmp-open="1" style="flex:0 0 auto" title="Compare two players — the dollar gap">⚖️ Compare</button>
+          <button class="btn small gold" id="clock-on" style="flex:0 0 auto">⏱ One answer</button>
+        </h2>
+        <div class="body">
+          <div id="verdict-block" class="wrv" style="display:none"></div>
+          <div id="confidence-note"></div>
+          <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
+          <div id="paths-panel" class="paths-panel"></div>
+          <div id="movement-line" class="movement-line" style="display:none"></div>
+          <details id="recs-details" class="recs-details" open>
+            <summary>Ranked shortlist — top 10</summary>
+            <div id="recs"></div>
+          </details>
+          <div id="best-avail-strip" class="best-avail-strip"></div>
+          <details id="tier-cliff-wrap" class="tier-cliff-wrap">
+            <summary style="font-size:.78rem;cursor:pointer">📉 Tier cliffs — where each position falls off</summary>
+            <div id="tier-cliff-chart"></div>
+          </details>
+          <div id="pos-recs-wrap" style="margin-top:.9rem; border-top:1px solid var(--line,#2a2a2a); padding-top:.7rem">
+            <label class="field" style="margin-bottom:.25rem">Best available by position — detail</label>
+            <select id="pos-recs" style="width:auto">
+              <option value="">— pick a position —</option>
+              <option value="QB">QB</option><option value="RB">RB</option>
+              <option value="WR">WR</option><option value="TE">TE</option>
+              <option value="K">K</option><option value="DEF">DEF</option>
+              <option value="FLEX">FLEX (RB/WR/TE)</option>
+            </select>
+            <div id="pos-recs-out" style="margin-top:.5rem"></div>
+          </div>
+          <%# A <div>, not a <p>: the against-case renders a <details>. %>
+          <div id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></div>
+        </div>
+      </div>
+
+      <%# Context strips — populated by app.js; CSS order drops them under the
+          answer. The doctrine banner is THE PLAN, the legality strip is WATCH. %>
+      <div id="doctrine-banner" class="doctrine-banner" style="display:none">
+        <div class="db-main">
+          <div class="db-name" id="db-name">—</div>
+          <div class="db-creed" id="db-creed"></div>
+        </div>
+        <div class="db-side">
+          <div class="db-confidence" id="db-confidence"></div>
+          <div class="db-alt" id="db-alt"></div>
+        </div>
+      </div>
+      <div id="doctrine-switch" class="doctrine-switch" style="display:none">
+        <span id="db-switch-text"></span>
+        <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
+      </div>
+      <div id="legality-strip" class="legality-strip" style="display:none"></div>
+
+      <%# Minimum-viable summary — retained host (hidden on warroom by CSS). %>
+      <div id="mvs" class="mvs" style="display:none">
+        <div class="mvs-line" id="mvs-status"></div>
+        <div class="mvs-line" id="mvs-plan"></div>
+        <div class="mvs-line mvs-rec" id="mvs-rec"></div>
+        <div class="mvs-line" id="mvs-alts"></div>
+        <div class="mvs-line" id="mvs-roster"></div>
+        <div class="mvs-line mvs-absent" id="mvs-absent"></div>
+      </div>
+      <div id="shadow-projection" class="shadow-proj" style="display:none">
+        <div class="shadow-proj-line" id="shadow-proj-line"></div>
+        <details id="shadow-proj-details">
+          <summary>what each strategy would take →</summary>
+          <div id="shadow-proj-body"></div>
+        </details>
+      </div>
+
+      <%# The LRM deadline strip — "elite QB gone by 41" changes what you do NOW. %>
+      <div class="card" id="lrm-card">
+        <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
+      </div>
+
+      <%# The waits matrix — what each option costs at your next pick, as the
+          branch delta heatmap (darker = worse; DraftCharts.branchGrid). %>
+      <div class="card" id="branch-card" style="display:none">
+        <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
+        <div class="body tight scroll-x"><div id="branches"></div></div>
+      </div>
+
+      <%# THE QUEUE — the list you read when the clock is at 8 seconds. %>
+      <div class="card wr-queue-card" id="queue-card">
+        <h2>📋 Queue <span class="sub" id="queue-head"></span></h2>
+        <div class="body">
+          <div id="queue"></div>
+          <div class="queue-actions">
+            <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
+            <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
+            <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
+            <button class="btn small ghost" id="queue-tidy" hidden></button>
+          </div>
+          <p style="margin:.55rem 0 0"><a class="btn small navy" href="/admin/draft-sheet" target="_blank" rel="noopener" title="Server-rendered board + the rule + a manual pick log — works with no network, prints on paper">🖨 Full board fallback sheet →</a></p>
+          <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
+        </div>
+      </div>
+    </div><%# /wr-zone1 %>
+
+    <%# RIGHT RAIL — CHARTS (inline SVG, warroom_charts.js; pure functions,
+        unit-tested in draft/tests/warroom_charts.test.js). %>
+    <aside class="wr-rail wr-rail-right" id="wr-rail-right" aria-label="Charts">
+      <div class="wr-railcard" id="wr-tiles-card">
+        <h3 class="wr-railhead">⏳ Running out <button type="button" class="wr-info" data-railinfo="tiles" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="tiles" hidden>One tile per position: ■ startable players left before the tier cliff, □ startable after it. The word is the timing verdict — TAKE NOW means waiting to your next pick costs the most points you can still collect; "can wait" means the seat refills cheaply.</p>
+        <div id="wr-pos-tiles"></div>
+      </div>
+      <div class="wr-railcard" id="wr-cliff-card">
+        <h3 class="wr-railhead">📉 Tier cliffs <button type="button" class="wr-info" data-railinfo="cliff" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="cliff" hidden>Season projection vs positional rank for the players still on the board. Red dashes mark tier cliffs; the shaded band is who will probably be GONE before your next pick. A cliff inside the shade = take now or lose the tier.</p>
+        <div id="wr-cliff-chips" class="wr-chips"></div>
+        <div id="wr-chart-cliff"></div>
+      </div>
+      <div class="wr-railcard" id="wr-surv-card">
+        <h3 class="wr-railhead">🔮 Survival <button type="button" class="wr-info" data-railinfo="surv" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="surv" hidden>P(still available) for the shortlist across your next three picks — falling lines. A line that dives to ~0 by your next pick is a now-or-never player.</p>
+        <div id="wr-chart-survival"></div>
+      </div>
+      <div class="wr-railcard" id="wr-shape-card">
+        <h3 class="wr-railhead">🧩 Roster shape <button type="button" class="wr-info" data-railinfo="shape" title="What this shows">ⓘ</button></h3>
+        <p class="wr-railexp" data-railexp="shape" hidden>Your starting slots: filled ones carry the player, empty ones are what the draft still owes you.</p>
+        <div id="wr-chart-roster"></div>
+      </div>
+      <details class="wr-railmore">
+        <summary>position timing — the full working</summary>
+        <div id="timing-panel"></div>
+      </details>
+    </aside>
+  </div><%# /wr-cockpit %>
+  </section>
+
+  <%# ════════════════════════ BIG BOARD ═════════════════════════════════════ %>
+  <section class="wr-tabpanel" id="wr-tab-board" data-wrpanel="board">
+    <div class="wr-boardbar">
+      <div class="wr-search wr-search-board">
+        <span class="wr-search-icon" aria-hidden="true">🔎</span>
+        <input type="text" id="board-search" placeholder="Search the board" autocomplete="off">
+      </div>
+      <div class="wr-chips" id="wr-pos-chips"></div>
+    </div>
+    <%# The columnar board — per-position side-scrolling columns, tier cliffs
+        drawn as red lines, count in each header. warroom_charts.js renders. %>
+    <div id="wr-board-columns" class="wr-board-columns"><p class="wr-railwait">Board loading…</p></div>
+
+    <details class="wr-fulltable" id="wr-fulltable">
+      <summary class="layer-sum">Full table — flags, news overrides, queue &amp; take controls</summary>
+      <div class="card" style="margin-top:.6rem">
+        <h2>
+          Draft Board <span class="sub" id="board-count"></span>
+          <span style="display:flex; gap:.4rem">
+            <select id="pos-filter" style="width:auto">
+              <option value="ALL">All</option>
+              <% for (const p of ['QB','RB','WR','TE','K','DEF']) { %><option value="<%= p %>"><%= p %></option><% } %>
+            </select>
+          </span>
+        </h2>
+        <div class="body tight scroll-x">
+          <table class="roll" id="board">
+            <thead><tr>
+              <th>#</th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Bye</th>
+              <th class="num">Proj</th><th class="num">VORP</th><th class="num">Tier</th>
+              <th class="num">Adj ADP</th><th class="num">Raw</th><th>Flags</th><th title="Manual news override">News</th><th></th>
+            </tr></thead>
+            <tbody id="board-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <%# ════════════════════════ ROSTERS ═══════════════════════════════════════ %>
+  <section class="wr-tabpanel" id="wr-tab-rosters" data-wrpanel="rosters">
+  <details id="layer-2" open>
+    <summary class="layer-sum">Opponents, roster, byes, survival</summary>
+  <aside class="wr-zone2">
+    <div class="card">
+      <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
+      <div class="body"><div id="managers" class="mgr-grid"></div></div>
+    </div>
+    <div class="card">
+      <h2>My Roster <span class="sub">starting slots first</span></h2>
+      <div class="body">
+        <div id="plan-note"></div>
+        <div id="roster-slots" class="slot-grid"></div>
+        <ul id="roster-list" style="margin:.8rem 0 0; padding-left:1.1rem"></ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🗓 Bye Weeks <span class="sub" id="bye-head">weeks your starters are off</span></h2>
+      <div class="body"><div id="byes"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
+      <div id="survival-conservation" style="display:none"></div>
+      <div class="body"><div id="survival"></div></div>
+    </div>
+
+    <div class="card" id="adp-movers-card">
+      <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
+      <div class="body"><div id="adp-movers"></div></div>
+    </div>
+
+    <div class="card" id="stack-card" style="display:none">
+      <h2>🔗 Stacks <span class="sub" id="stack-class">LEAN, not installed</span></h2>
+      <div class="body"><div id="stack-line" class="stack-line"></div></div>
+    </div>
+
+    <div class="card">
+      <h2>🎯 Before your pick <span class="sub">will your guy make it back?</span></h2>
+      <div class="body">
+        <details class="wr-exp"><summary>ⓘ how to read this</summary>
+        <p class="muted panel-explain" style="margin:0 0 .55rem; font-size:.78rem">
+          Everyone who picks between now and your next turn. Each row is one
+          seat: their pick number, who they are, the player(s) they're most
+          likely to take, and the starting slot they still need.
+          <b>How to use it:</b> if a player you want is listed as someone's
+          likely pick, take him now — he probably won't come back to you. If
+          nobody ahead needs his position, you can safely wait a round.
+          The lines up top summarize it: <i>“3/4 need RB”</i> is a run about to
+          happen; <i>“still need a starter — QB 2 (low = wait)”</i> means only
+          two teams still need a QB, so that position is safe to hold off on.
+        </p>
+        </details>
+        <div id="threat-strip" class="threat-strip"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔮 Survival odds — will your targets last? <span class="sub" id="threats-head"></span></h2>
+      <div class="body">
+        <details class="wr-exp"><summary>ⓘ how to read this</summary>
+        <p class="muted panel-explain" style="margin:0 0 .6rem; font-size:.78rem">
+          The full answer to “can I wait on this guy?” for every seat between now
+          and your next turn.
+          <b>“Most likely to be gone”</b> lists the players at highest risk and,
+          where one stands out, the seat that will probably grab them —
+          if your target is near the top, take him now.
+          Below that, one row per seat before you: their pick number, the
+          <b>positions they’ll likely target</b> (with odds), the specific
+          <b>names</b> they tend to take, and their <b>draft tendency</b> —
+          all built from <b>their own past drafts on Sleeper</b>. No history →
+          modelled as league-average, and it says so, so you can overrule it.
+        </p>
+        </details>
+        <div id="threats"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Picks <span class="sub">league-wide</span></h2>
+      <div class="body"><ul id="picks-feed" style="margin:0; padding-left:1.1rem"></ul></div>
+    </div>
+
+    <div id="shadow-strip" class="card" style="display:none">
+      <h2>👥 Shadow standings <span class="sub">every strategy drafts silently at your slots — the 2026 season grades them in dollars</span></h2>
+      <div class="body" id="shadow-strip-body"></div>
+    </div>
+  </aside><%# /wr-zone2 %>
+  </details><%# /layer-2 %>
+  </section>
+
+  <%# ════════════════════════ ADJUSTERS ═════════════════════════════════════ %>
+  <section class="wr-tabpanel" id="wr-tab-adjust" data-wrpanel="adjust">
+  <div class="wr-zone3 grid cols-2">
+    <div class="card">
+      <h2>🎛 Adjusters <span class="sub">how the board weighs things — saved on this device</span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+          Every recommendation is a weighted sum of seven things. These are the
+          weights. <b>1.0 is normal, 0 turns it off, 3 makes it dominant.</b>
+          Pick a strategy below, or move one slider and watch what it does to
+          the top five — if nothing changes, that factor wasn't deciding
+          anything anyway.
+        </p>
+        <div class="preset-row" id="presets"></div>
+        <p class="preset-why" id="preset-why"></p>
+        <div id="auto-note" hidden></div>
+        <%
+           /* MEASURED DEFAULTS (3rd tuple field), not a flat 1.0. These mirror
+              engine.js MEASURED_WEIGHTS — the core the tool loads on. The static
+              value= is a FALLBACK behind syncSliders() (which overwrites it from
+              state.weights on load); hardcoding it measured-accurate means the
+              panel never lies even if the JS never runs. */
+           const sliders = [
+             ['value', 'Raw value (VONA)', 1.0,
+              'How much the board’s own value gap drives the pick. This is the biggest term in the score.',
+              'Leave it at 1. This is roughly HALF the entire measured edge — the participation test cost the board about −$362 when it was dropped. Raising it takes the best player available and ignores roster shape; there is no measured reason to lower it.'],
+             ['tier', 'Tier cliff urgency', 0.0,
+              'How hard to chase the last good player at a position before the drop-off.',
+              'OFF by default — the Lab measured tier-chasing as a net DRAG on dollars, not a gain. Raise it only if you specifically want the last man in an emptying tier and accept that measured cost.'],
+             ['need', 'Starting-lineup need', 0.0,
+              'How much an empty starting slot outranks another bench body.',
+              'OFF by default — the always-on startable-capacity MASK already refuses any pick that cannot start, so an explicit need term was redundant and measured as null. The mask does this job whether this slider is up or down.'],
+             ['risk', 'Risk penalty', 0.0,
+              'Age, injury history, a crowded depth chart.',
+              'OFF by default — measured as a DRAG, like tier. Raise it only if your keepers already carry the team and you want the draft merely not to blow up, knowing it costs expected points.'],
+             ['ceiling', 'Upside bonus', 0.0,
+              'Rewards the wide range of outcomes over the safe median.',
+              'OFF by default — ceiling COULD NOT BE SIGNED: the measurement was −4.8 with a [−26, +17] interval straddling zero, so it no longer decides late picks. Raise it if you are deliberately chasing rather than protecting a lead, but know it is unmeasured.'],
+             ['keeper', 'Keeper option value', 1.0,
+              'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
+              'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],
+             ['bye', 'Bye collision penalty', 0.0,
+              'What it costs to stack your starters on the same bye week.',
+              'OFF by default — bye-collision came back a null in the Lab. Raise it after round 8 if you want the board to avoid stacking starters on one bye; before that it is noise (check the bye card instead).'],
+             ['stack', 'Correlation / stacking', 1.0,
+              'Your QB with his own receiver; two receivers competing for the same targets.',
+              'The ONE adjuster that earned in testing (+$196), so it ships at 1.0 (not off). This label read 0.5 until 2026-08-17 while the engine shipped 1.0 — the THIRD copy of that stale literal, after engine.js\'s own doc block was corrected on 08-13. Raise it if you like correlated boom weeks; drop to 0 if you think stacking is overrated — plenty of people do.'] ]; %>
+        <% for (const [key, label, def, hint, when] of sliders) { %>
+          <label class="field" style="margin-bottom:.1rem"><%= label %> — <span id="w-<%= key %>"><%= def.toFixed(1) %></span></label>
+          <input class="weight-slider" type="range" min="0" max="3" step="0.1" value="<%= def %>" data-weight="<%= key %>" style="width:100%">
+          <p class="muted" style="margin:.1rem 0 .1rem; font-size:.72rem"><%= hint %></p>
+          <%# The doctrine essay is ONE TAP AWAY, never inline (cockpit rebuild,
+              owner's order 2026-08-17) — same text, behind a disclosure. %>
+          <details class="wr-when"><summary>when to move it</summary>
+            <p class="slider-when" style="margin:0 0 .55rem"><b>When to move it:</b> <%= when %></p>
+          </details>
+        <% } %>
+        <button class="btn small navy" id="reset-weights">Reset to live policy</button>
+        <%# RULE 7: the FROZEN baseline is the only thing called "the measured core";
+            what the sliders hold is live policy. app.js fills this host. %>
+        <div id="baseline-restore" style="margin-top:.4rem"></div>
+        <p class="muted" id="weights-effect" style="margin:.5rem 0 0; font-size:.76rem; min-height:1.1em"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⭐ Targets &amp; 🚫 Never <span class="sub">your own read — saved on this device</span></h2>
+      <div class="body">
+        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
+          A star nudges a player up a close call. It will not drag a worse player
+          to the top — that is deliberate. <b>Never</b> removes them from every
+          recommendation, full stop.
+        </p>
+        <div id="lists"></div>
+        <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">
+          Star or block anyone from the ⭐ / 🚫 buttons on the draft board.
+        </p>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <%# ════════════════════════ INTEL — setup, checklist, audits ══════════════ %>
+  <section class="wr-tabpanel" id="wr-tab-intel" data-wrpanel="intel">
+  <details id="layer-3" open>
+    <summary class="layer-sum">Setup, sync, checklist &amp; audits</summary>
   <div class="wr-toprow">
-  <details class="system-details" id="system-details">
+  <details class="system-details" id="system-details" open>
     <summary>Details &amp; checklist</summary>
     <div class="sd-body">
       <div id="check-count-inline" class="sd-count"></div>
@@ -47,10 +499,6 @@
       <div id="mock-note" style="display:none"></div>
       <div id="rehearsal-keeper-note" style="display:none"></div>
       <div id="reconcile-note" style="display:none"></div>
-      <%# SETUP + CONNECT live here now. "On the clock" already renders in the
-          pinned status bar, and slot/sync/nav are pre-draft controls touched
-          once — so they sit one tap away rather than occupying the fold that
-          the decision surface needs. %>
   <div class="hero" style="margin-bottom:1rem">
     <div class="hero-item">
       <span class="hero-label">On the Clock</span>
@@ -80,7 +528,7 @@
       <div class="fit"><a class="btn small ghost" href="/admin/warroom/rehearsal" title="How to test all this against a Sleeper mock">🎬 Rehearse</a></div>
       <div class="fit"><a class="btn small ghost" href="/admin/status" title="Build progress, decisions, and the draft countdown at a glance">📊 Status</a></div>
       <div class="fit"><a class="btn small gold" href="/admin/slot-picker" title="Private: which draft slot to claim, live as claims land">🎯 Slot Picker</a></div>
-        <%# §D.1 — END DRAFT moved off the primary flow, away from CONNECT, and requires a typed confirm. %>
+        <%# §D.1 — END DRAFT off the primary flow, away from CONNECT, typed confirm. %>
         <div class="fit" style="margin-left:auto"><button class="btn small ghost" id="hard-reset" title="Unlink sync and return to idle. Works even when sync is wedged; your picks, targets and weights are untouched.">⏻ Hard reset</button></div>
         <div class="fit"><button class="btn small ghost danger-quiet" id="end-draft" title="Clear every pick (keeps targets, weights, news overrides) — asks you to type END">⏹ End draft</button></div>
       </div>
@@ -90,481 +538,16 @@
   </div>
     </div>
   </details>
-  <a class="wr-exit" href="/" title="Leave the war room">🏛 Office</a>
   </div><%# /wr-toprow %>
-  <%# The run banner stays OUT of the fold-away: a positional run is live
-      decision input, not status. %>
-  <%# MISSED-MARK RECOVERY. Both stay OUT of the fold-away: an unrecorded pick
-      makes every recommendation below it wrong, and a reconciled pick is a
-      roster change I did not make myself. Neither is status. %>
-  <div id="unrecorded-note" style="display:none"></div>
-  <div id="reconciled-note" style="display:none"></div>
-  <%# KEEPER-LOCK banner — SEVERITY-1 and BLOCKING: the slate is the one input
-      that can be wrong while every derived number (adjusted ADP, pick order, my
-      pick numbers) still looks normal. It was buried fourth in the collapsed
-      "Details & checklist" stack behind advisory warnings; moved OUT of the
-      fold-away to sit first and alone above the decision surface, alongside the
-      other rec-invalidating banners. app.js fills it by id — placement is the
-      shell's. (Cory, war-room review item 2.) %>
-  <div id="keeper-lock-note" style="display:none"></div>
-  <div id="run-banner" class="roast-banner" style="display:none"></div>
-  <%# Retained hosts: the checklist summary is now inline in the details panel,
-      but these ids are still written to by renderChecklist(). Keeping them as
-      hidden spans is cheaper and safer than threading null-guards through a
-      path that runs on every render during a live draft. %>
-  <span id="checklist" style="display:none"></span>
-  <span id="check-count" style="display:none"></span>
-  <%# B7 compare tray — a floating dollar-gap overlay; tap ⚖️ on any two players. %>
-  <div id="compare-tray" class="compare-tray" style="display:none"></div>
-  <%# Watermarks retained as hidden hosts: their CONTENT now renders in the
-      strip, but renderRehearsalWatermark()/renderSlotWatermark() still drive
-      the body classes that mark slot-derived numbers as provisional. %>
-  <div id="rehearsal-watermark" class="rehearsal-watermark" style="display:none">REHEARSAL — not the real draft</div>
-  <div id="slot-watermark" class="slot-watermark" style="display:none">Slot unverified — pick numbers &amp; timing are provisional until Sleeper confirms your seat</div>
 
-
-  <%# ── One answer ────────────────────────────────────────────────────────
-      Draft day is sixty seconds and a room full of noise. Everything below
-      this is for the minute before you're on the clock; THIS is for the minute
-      you are. One name, one sentence, and an honest line about whether the
-      board can actually separate it from the next one. %>
-  <div class="card clock-card" id="clock-card" style="display:none">
-    <div class="body">
-      <div class="clock-eyebrow">On the clock — pick <span id="clock-pick">—</span></div>
-      <div class="clock-name" id="clock-name">—</div>
-      <div class="clock-meta" id="clock-meta"></div>
-      <div class="clock-why" id="clock-why"></div>
-      <div class="clock-confidence" id="clock-confidence"></div>
-      <%# THE TAKE BUTTON — the single most important control, and it was MISSING
-          from this view (only the full-board recs cards had it), so the ONE ANSWER
-          screen recommended a player with no way to draft him. app.js sets its
-          data-draft-me + label to the shown player each render (SEV1, live mock). %>
-      <div class="clock-actions">
-        <button class="btn gold" id="clock-take" data-draft-me="">✓ Take him</button>
-        <button class="btn small navy" id="clock-next">Show the next one</button>
-        <button class="btn small ghost" id="clock-off">Full board</button>
-      </div>
-    </div>
-  </div>
-
-  <%# THE PLAN (doctrine banner), WATCH (legality strip) and the pick-bar status
-      moved DOWN into the decide surface as context BELOW the recommendation
-      (Cory: the recommendation + Take buttons come first, before scrolling). Their
-      hosts now live inside .wr-zone1 and CSS `order` arranges them under the
-      recs card. Ids/classes unchanged, so app.js renders into them as before. %>
-
-  <%# In-page typed confirm for END DRAFT. window.prompt was the mock-#1
-      swallowing mechanism — Chrome suppresses repeated dialogs and a suppressed
-      prompt returns null silently, so the button read as dead. %>
-  <div id="end-confirm" class="end-confirm" style="display:none"></div>
-  <span id="prefs-sync" style="display:none;font-size:.68rem;color:var(--muted);position:absolute;top:2px;right:8px;z-index:5" title="prefs sync state"></span>
-  <%# Position lives in CSS (.wr-arm) so it can lift ABOVE the mobile tab bar —
-      at bottom:16px it sat on top of LOCKER and MORE (z-index 150 > the bar's
-      90) and ate those taps. id + onclick are A's contract, untouched. %>
-  <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
-
-  <%# ── Part 2 §2 — THREE-ZONE LAYOUT ──────────────────────────────────────
-       Zone 1 DECIDE (left ~60%): the Paths panel + ranked list + branch forecast.
-       Zone 2 CONTEXT (right rail ~40%): roster, byes, LRM, survival.
-       Zone 3 DEPTH (full width below): adjusters, opponents, queue, lists, board.
-       The compare tray is a floating overlay, so it lives outside the zones. %>
-  <div class="wr-decide">
-  <div class="wr-zone1">
-  <%# ── SEARCH, always one tap (Cory) — type a name and act from the results.
-      The #search input + #search-tail results host moved up here from the draft
-      board header; app.js binds them by id and its handlers are delegated, so the
-      board still filters and the results still render — they just live where the
-      hand already is on the clock. #pos-filter stays on the board. %>
-  <div class="wr-search">
-    <span class="wr-search-icon" aria-hidden="true">🔎</span>
-    <input type="text" id="search" placeholder="Search any player — take, queue or compare" autocomplete="off">
-  </div>
-  <div id="search-tail" hidden></div>
-  <%# QUEUE SLIP ALERT (Cory: "impossible to miss when my guy is slipping"). An
-      IN-FLOW banner — never floating — that app.js fills when a queued player is
-      about a turn from gone (the LRM/branch survival math it already runs).
-      Hidden when nothing is slipping so it never becomes furniture. %>
-  <div id="queue-slip" class="queue-slip" role="status" aria-live="polite" style="display:none"></div>
-
-  <%# CONTEXT STRIPS — THE PLAN, WATCH, pick-bar. In the DOM here, but CSS `order`
-      (on .wr-zone1) places them BELOW the recommendation card. Populated by
-      app.js renderDoctrine()/renderLegality()/renderStatusBar(). %>
-  <div id="doctrine-banner" class="doctrine-banner" style="display:none">
-    <div class="db-main">
-      <div class="db-name" id="db-name">—</div>
-      <div class="db-creed" id="db-creed"></div>
-    </div>
-    <div class="db-side">
-      <div class="db-confidence" id="db-confidence"></div>
-      <div class="db-alt" id="db-alt"></div>
-    </div>
-  </div>
-  <div id="doctrine-switch" class="doctrine-switch" style="display:none">
-    <span id="db-switch-text"></span>
-    <button class="btn small ghost" id="db-decline" title="Keep the prior doctrine — my draft, my call">Decline — keep the plan</button>
-  </div>
-  <div id="legality-strip" class="legality-strip" style="display:none"></div>
-  <div id="wr-statusbar" class="wr-statusbar" style="display:flex"></div>
-
-  <%# ── THE MINIMUM VIABLE SURFACE ────────────────────────────────────────
-      Five truthful lines, and TWO MARKED EXPLICITLY ABSENT.
-
-      The absent pair is the point. SOURCE needs the decision tree's stages and
-      NEAR-MISS needs its thresholds; neither exists. Rendering them as empty
-      containers would mean rehearsing a layout whose two most information-dense
-      elements are placeholders — so they say what they are instead, and mock #4
-      rehearses something real.
-
-      Every line here composes data that already exists. Nothing below invents a
-      number. %>
-  <div id="mvs" class="mvs" style="display:none">
-    <div class="mvs-line" id="mvs-status"></div>
-    <div class="mvs-line" id="mvs-plan"></div>
-    <div class="mvs-line mvs-rec" id="mvs-rec"></div>
-    <div class="mvs-line" id="mvs-alts"></div>
-    <div class="mvs-line" id="mvs-roster"></div>
-    <div class="mvs-line mvs-absent" id="mvs-absent"></div>
-  </div>
-  <%# THE STRATEGY-SPLIT PANEL — what each strategy would take from the board RIGHT
-      NOW, projected live (shadows.js project()). One line by default (the split),
-      the full per-strategy list one tap away. When the strategies disagree that is
-      the contested-decision signal — the pick worth slowing down for — so a split
-      lights the panel up instead of sitting quiet. Context zone: below the
-      recommendation, above the deadline strip; never competing with Zone 1. %>
-  <div id="shadow-projection" class="shadow-proj" style="display:none">
-    <div class="shadow-proj-line" id="shadow-proj-line"></div>
-    <details id="shadow-proj-details">
-      <summary>what each strategy would take →</summary>
-      <div id="shadow-proj-body"></div>
-    </details>
-  </div>
-  <%# LAYER 1, FIRST: the LRM strip is a DEADLINE — "elite QB gone by 41"
-      changes what you do RIGHT NOW. It sat in the right rail, and then at the
-      bottom of Layer 1 at 1676px; a deadline below the fold is a deadline you
-      read after it passed. One thin line, above the decision surface. %>
-  <div class="card" id="lrm-card" style="margin-bottom:.6rem">
-    <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
-  </div>
-  <%# .wr-reccard (redesign 2026-08-17): the border/accent moved out of this
-      inline style into /css/warroom.css so the sheet can own the surface. %>
-  <div class="card wr-reccard" style="margin-bottom:1rem" id="recs-card">
-    <h2>🎯 Take This Player
-      <span class="sub">2–4 priced directions · the ranked list is underneath</span>
-      <button class="btn small ghost" data-cmp-open="1" style="flex:0 0 auto" title="Compare two players — the dollar gap">⚖️ Compare</button>
-      <button class="btn small gold" id="clock-on" style="flex:0 0 auto">⏱ One answer</button>
-    </h2>
-    <div class="body">
-      <%# THE VERDICT — the one surface that owns the answer (design pass
-          2026-08-15). Four voices used to argue unmarked on this screen (rule
-          headline, paths panel, seat plan, strategy poll). renderVerdict fills
-          this from DraftVerdict.derive — the chip (LOCK/LEAN/TOSS-UP/SPLIT),
-          the backed name, one plain-English why, and the lens row that shows
-          every other voice labeled by what it optimizes. Everything below it
-          is detail on this answer, not a competing one. %>
-      <div id="verdict-block" class="wrv" style="display:none"></div>
-      <div id="confidence-note"></div>
-      <%# Part 2 §1 — the Paths panel: the primary decision surface. The flat
-          ranked list below it stays for the "who exactly" follow-through. %>
-      <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
-      <div id="paths-panel" class="paths-panel"></div>
-      <%# THE MOVEMENT LINE — one thin line, replaced never accumulated: is the
-          model changing its mind as the board moves, and why. Hidden when steady. %>
-      <div id="movement-line" class="movement-line" style="display:none"></div>
-      <details id="recs-details" class="recs-details">
-        <summary>Full ranked list</summary>
-        <div id="recs"></div>
-      </details>
-      <%# Best available at a position you choose. The main list answers "who
-          should I take"; this answers "I want a WR \u2014 which one, and what
-          does waiting cost me". %>
-      <%# §2(d) — always-visible best-available strip (cross-position glance). %>
-      <div id="best-avail-strip" class="best-avail-strip"></div>
-      <%# Tier-cliff small multiples (design pass 2026-08-15, Cory: "no charts
-          or visual explanations"). Collapsed one-liner; renderRecommendations
-          fills it from the same scored board via DraftCharts.tierCliffChart. %>
-      <details id="tier-cliff-wrap" class="tier-cliff-wrap">
-        <summary style="font-size:.78rem;cursor:pointer">📉 Tier cliffs — where each position falls off</summary>
-        <div id="tier-cliff-chart"></div>
-      </details>
-      <div id="pos-recs-wrap" style="margin-top:.9rem; border-top:1px solid var(--line,#2a2a2a); padding-top:.7rem">
-        <label class="field" style="margin-bottom:.25rem">Best available by position — detail</label>
-        <select id="pos-recs" style="width:auto">
-          <option value="">— pick a position —</option>
-          <option value="QB">QB</option><option value="RB">RB</option>
-          <option value="WR">WR</option><option value="TE">TE</option>
-          <option value="K">K</option><option value="DEF">DEF</option>
-          <option value="FLEX">FLEX (RB/WR/TE)</option>
-        </select>
-        <div id="pos-recs-out" style="margin-top:.5rem"></div>
-      </div>
-      <%# A <div>, not a <p>: the against-case renders as a <details> disclosure
-          now (redesign 2026-08-17) and a <p> cannot legally contain one. Same id
-          — app.js writes into it by id. %>
-      <div id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></div>
-    </div>
-  </div>
-
-  <%# ── What each option costs you at your next pick ──────────────────────── %>
-  <div class="card" id="branch-card" style="margin-bottom:1rem; display:none">
-    <h2>🔀 If You Take… <span class="sub" id="branch-head">what's likely left at your next pick</span></h2>
-    <div class="body tight scroll-x"><div id="branches"></div></div>
-  </div>
-
-  <%# ── THE QUEUE — promoted from Layer 3 to the decide surface (Cory). The list
-      you read when the clock is at 8 seconds; you watch it every pick, so it sits
-      here under the recommendation, always visible, not two taps down by the
-      audits. Ids unchanged (#queue, #queue-head, the action buttons) so app.js
-      renders into it exactly as before. %>
-  <div class="card wr-queue-card" id="queue-card">
-    <h2>📋 Queue <span class="sub" id="queue-head"></span></h2>
-    <div class="body">
-      <div id="queue"></div>
-      <div class="queue-actions">
-        <button class="btn small navy" id="queue-fill" title="Append the board's top 15, then reorder">✨ Fill from board</button>
-        <button class="btn small ghost" id="queue-copy" title="Plain text on the clipboard">📋 Copy</button>
-        <button class="btn small ghost" id="queue-print" title="One page, designed for paper">🖨 Print sheet</button>
-        <button class="btn small ghost" id="queue-tidy" hidden></button>
-      </div>
-      <%# THE DRAFT-DAY FALLBACK — a server-rendered, no-JS printable board that
-          works even if this war room won't load. Print it the night before. %>
-      <p style="margin:.55rem 0 0"><a class="btn small navy" href="/admin/draft-sheet" target="_blank" rel="noopener" title="Server-rendered board + the rule + a manual pick log — works with no network, prints on paper">🖨 Full board fallback sheet →</a></p>
-      <p class="muted" id="sheet-note" style="margin:.5rem 0 0; font-size:.74rem"></p>
-      <p class="muted" style="margin:.35rem 0 0; font-size:.72rem">
-        Your order, never re-sorted — the decision already made. Add anyone with the ➕ on any row or the board. Print it the night before; if the wifi dies at the table, paper still works.
-      </p>
-    </div>
-  </div>
-  <%# FIRST-RUN / HELP — "how to run your draft night with this page", assembled
-      by renderHelp() from the SAME PANEL_GUIDE table the ⓘ explainers read, so
-      the manual and the captions cannot drift apart. Collapsed; costs one line.
-      Deliberately NOT classed .card — rehearsal-mock3 pins the card census. %>
+  <%# FIRST-RUN / HELP — assembled by renderHelp() from PANEL_GUIDE. %>
   <details class="wr-help-wrap" id="help-card">
     <summary class="layer-sum">❓ How to run draft night with this page</summary>
     <div class="wr-help" id="wr-help"></div>
   </details>
-  </div><%# /wr-zone1 %>
-
-  <%# ── LAYER 2 (one tap) ─────────────────────────────────────────────────
-      Roster, byes, survival, opponents. Everything a decision LEANS on but does
-      not need in the same glance. Open by default on desktop where the rail is
-      free; collapsed on a phone where it would push Layer 1 off the screen.
-      Nothing is deleted — demotion is a change of depth, not of existence. %>
-  <details class="wr-layer2" id="layer-2" open>
-    <summary class="layer-sum">Layer 2 — opponents, roster, byes, survival</summary>
-  <aside class="wr-zone2">
-    <%# KNOW YOUR LEAGUE — the most valuable panel on the page: real read on the
-        nine people you're drafting against. Was buried at the bottom of the
-        collapsed Layer 3, below survival and targets; lifted to the top of the
-        always-open Layer 2 so opponent intelligence sits right under the decision.
-        app.js fills #managers by id — placement is the shell's. (Cory review 6a.) %>
-    <div class="card">
-      <h2>🕵️ Know Your League <span class="sub" id="managers-head"></span></h2>
-      <div class="body"><div id="managers" class="mgr-grid"></div></div>
-    </div>
-    <div class="card">
-      <h2>My Roster <span class="sub">starting slots first</span></h2>
-      <div class="body">
-        <div id="plan-note"></div>
-        <div id="roster-slots" class="slot-grid"></div>
-        <ul id="roster-list" style="margin:.8rem 0 0; padding-left:1.1rem"></ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>🗓 Bye Weeks <span class="sub" id="bye-head">weeks your starters are off</span></h2>
-      <div class="body"><div id="byes"></div></div>
-    </div>
-
-    <div class="card">
-      <h2>Survival Odds <span class="sub" id="survival-head"></span></h2>
-      <%# Conservation alarm: only as many players can go as there are picks. Filled
-          by app.js renderSurvival; hidden unless the sum genuinely violates it. %>
-      <div id="survival-conservation" style="display:none"></div>
-      <div class="body"><div id="survival"></div></div>
-    </div>
-
-    <%# ADP MOVERS (Cory, 2026-08-16: "a small screen on war room showing the
-        top 10 ADP movers up and top 10 down" — quick movement "could hint at
-        some new, movement, or development"). CONTEXT-RAIL placement, deliberate:
-        market motion informs a pick and never scores one, so it lives in the
-        Zone-2 rail with roster/byes/survival — below the decision surface,
-        never displacing the verdict. app.js renderAdpMovers fills it from the
-        adp_velocity/adp_stale fields build.py stamps off the retained daily
-        series; day one of a fresh series renders the honest shallow state. %>
-    <div class="card" id="adp-movers-card">
-      <h2>📈 ADP Movers <span class="sub" id="movers-head"></span></h2>
-      <div class="body"><div id="adp-movers"></div></div>
-    </div>
-
-    <%# STACK LINE — a quiet home for a LEAN. `stack` is classed weak / not
-        installed; it earns a context-rail line (a human weighing a lean is a
-        legitimate path) but NEVER Zone-1 prominence, and it always wears its
-        class so decoration never reads as an installed edge. Hidden when there
-        are no live routes. %>
-    <div class="card" id="stack-card" style="display:none">
-      <h2>🔗 Stacks <span class="sub" id="stack-class">LEAN, not installed</span></h2>
-      <div class="body"><div id="stack-line" class="stack-line"></div></div>
-    </div>
-
-    <%# §2(d) — condensed opponent strip (the full breakdown stays in Zone 3). %>
-    <div class="card">
-      <h2>🎯 Before your pick <span class="sub">will your guy make it back?</span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .55rem; font-size:.78rem">
-          Everyone who picks between now and your next turn. Each row is one
-          seat: their pick number, who they are, the player(s) they're most
-          likely to take, and the starting slot they still need.
-          <b>How to use it:</b> if a player you want is listed as someone's
-          likely pick, take him now — he probably won't come back to you. If
-          nobody ahead needs his position, you can safely wait a round.
-          The lines up top summarize it: <i>“3/4 need RB”</i> is a run about to
-          happen; <i>“still need a starter — QB 2 (low = wait)”</i> means only
-          two teams still need a QB, so that position is safe to hold off on.
-        </p>
-        <div id="threat-strip" class="threat-strip"></div>
-      </div>
-    </div>
-  </aside><%# /wr-zone2 %>
-  </details>
-  </div><%# /wr-decide %>
-
-  <%# ── LAYER 3 (one more tap) ────────────────────────────────────────────
-      Full board, adjusters, shadow standings, Know Your League, queue/paper,
-      every audit and explainer. Reachable always, in the way never. %>
-  <details class="wr-layer3" id="layer-3">
-    <summary class="layer-sum">Layer 3 — board, adjusters, audits &amp; every explainer</summary>
-  <div id="shadow-strip" class="card" style="display:none;margin:0 0 1rem">
-    <h2>👥 Shadow standings <span class="sub">every strategy drafts silently at your slots — the 2026 season grades them in dollars</span></h2>
-    <div class="body" id="shadow-strip-body"></div>
-  </div>
-  <div class="wr-zone3 grid cols-2">
-    <div class="card">
-      <h2>🎛 Adjusters <span class="sub">how the board weighs things — saved on this device</span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          Every recommendation is a weighted sum of seven things. These are the
-          weights. <b>1.0 is normal, 0 turns it off, 3 makes it dominant.</b>
-          Pick a strategy below, or move one slider and watch what it does to
-          the top five — if nothing changes, that factor wasn't deciding
-          anything anyway.
-        </p>
-        <div class="preset-row" id="presets"></div>
-        <p class="preset-why" id="preset-why"></p>
-        <div id="auto-note" hidden></div>
-        <%
-           /* MEASURED DEFAULTS (3rd tuple field), not a flat 1.0. These mirror
-              engine.js MEASURED_WEIGHTS — the core the tool loads on. The static
-              value= is a FALLBACK behind syncSliders() (which overwrites it from
-              state.weights on load); hardcoding it measured-accurate means the
-              panel never lies even if the JS never runs. */
-           const sliders = [
-             ['value', 'Raw value (VONA)', 1.0,
-              'How much the board\u2019s own value gap drives the pick. This is the biggest term in the score.',
-              'Leave it at 1. This is roughly HALF the entire measured edge \u2014 the participation test cost the board about \u2212$362 when it was dropped. Raising it takes the best player available and ignores roster shape; there is no measured reason to lower it.'],
-             ['tier', 'Tier cliff urgency', 0.0,
-              'How hard to chase the last good player at a position before the drop-off.',
-              'OFF by default — the Lab measured tier-chasing as a net DRAG on dollars, not a gain. Raise it only if you specifically want the last man in an emptying tier and accept that measured cost.'],
-             ['need', 'Starting-lineup need', 0.0,
-              'How much an empty starting slot outranks another bench body.',
-              'OFF by default — the always-on startable-capacity MASK already refuses any pick that cannot start, so an explicit need term was redundant and measured as null. The mask does this job whether this slider is up or down.'],
-             ['risk', 'Risk penalty', 0.0,
-              'Age, injury history, a crowded depth chart.',
-              'OFF by default — measured as a DRAG, like tier. Raise it only if your keepers already carry the team and you want the draft merely not to blow up, knowing it costs expected points.'],
-             ['ceiling', 'Upside bonus', 0.0,
-              'Rewards the wide range of outcomes over the safe median.',
-              'OFF by default — ceiling COULD NOT BE SIGNED: the measurement was −4.8 with a [−26, +17] interval straddling zero, so it no longer decides late picks. Raise it if you are deliberately chasing rather than protecting a lead, but know it is unmeasured.'],
-             ['keeper', 'Keeper option value', 1.0,
-              'A late pick who becomes next year\'s cheap keeper is worth more than his projection.',
-              'Raise it once you are out of the running for this year, or in the last four rounds when the marginal starter is worthless anyway.'],
-             ['bye', 'Bye collision penalty', 0.0,
-              'What it costs to stack your starters on the same bye week.',
-              'OFF by default — bye-collision came back a null in the Lab. Raise it after round 8 if you want the board to avoid stacking starters on one bye; before that it is noise (check the bye card instead).'],
-             ['stack', 'Correlation / stacking', 1.0,
-              'Your QB with his own receiver; two receivers competing for the same targets.',
-              'The ONE adjuster that earned in testing (+$196), so it ships at 1.0 (not off). This label read 0.5 until 2026-08-17 while the engine shipped 1.0 — the THIRD copy of that stale literal, after engine.js\'s own doc block was corrected on 08-13. Raise it if you like correlated boom weeks; drop to 0 if you think stacking is overrated — plenty of people do.'] ]; %>
-        <% for (const [key, label, def, hint, when] of sliders) { %>
-          <label class="field" style="margin-bottom:.1rem"><%= label %> — <span id="w-<%= key %>"><%= def.toFixed(1) %></span></label>
-          <input class="weight-slider" type="range" min="0" max="3" step="0.1" value="<%= def %>" data-weight="<%= key %>" style="width:100%">
-          <p class="muted" style="margin:.1rem 0 .1rem; font-size:.72rem"><%= hint %></p>
-          <p class="slider-when" style="margin:0 0 .55rem"><b>When to move it:</b> <%= when %></p>
-        <% } %>
-        <button class="btn small navy" id="reset-weights">Reset to live policy</button>
-        <%# RULE 7: the FROZEN baseline is the only thing called "the measured core";
-            what the sliders hold is live policy. app.js fills this host. %>
-        <div id="baseline-restore" style="margin-top:.4rem"></div>
-        <p class="muted" id="weights-effect" style="margin:.5rem 0 0; font-size:.76rem; min-height:1.1em"></p>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>🔮 Survival odds — will your targets last? <span class="sub" id="threats-head"></span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          The full answer to “can I wait on this guy?” for every seat between now
-          and your next turn.
-          <b>“Most likely to be gone”</b> lists the players at highest risk and,
-          where one stands out, the seat that will probably grab them —
-          if your target is near the top, take him now.
-          Below that, one row per seat before you: their pick number, the
-          <b>positions they’ll likely target</b> (with odds), the specific
-          <b>names</b> they tend to take, and their <b>draft tendency</b> —
-          all built from <b>their own past drafts on Sleeper</b>. No history →
-          modelled as league-average, and it says so, so you can overrule it.
-        </p>
-        <div id="threats"></div>
-      </div>
-    </div>
-
-    <%# The Queue moved UP to the decide surface (Cory: it's what you touch every
-        pick, it was buried next to the audits). It now lives at the bottom of
-        Zone 1, always visible under the recommendation — see #queue there. %>
-
-    <div class="card">
-      <h2>⭐ Targets &amp; 🚫 Never <span class="sub">your own read — saved on this device</span></h2>
-      <div class="body">
-        <p class="muted" style="margin:0 0 .6rem; font-size:.78rem">
-          A star nudges a player up a close call. It will not drag a worse player
-          to the top — that is deliberate. <b>Never</b> removes them from every
-          recommendation, full stop.
-        </p>
-        <div id="lists"></div>
-        <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">
-          Star or block anyone from the ⭐ / 🚫 buttons on the draft board below.
-        </p>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Recent Picks <span class="sub">league-wide</span></h2>
-      <div class="body"><ul id="picks-feed" style="margin:0; padding-left:1.1rem"></ul></div>
-    </div>
-  </div>
-
-
-  <div class="card" style="margin-top:1rem">
-    <h2>
-      Draft Board <span class="sub" id="board-count"></span>
-      <span style="display:flex; gap:.4rem">
-        <select id="pos-filter" style="width:auto">
-          <option value="ALL">All</option>
-          <% for (const p of ['QB','RB','WR','TE','K','DEF']) { %><option value="<%= p %>"><%= p %></option><% } %>
-        </select>
-        <%# player search moved to the top of the decide surface (#search); the
-            board keeps its position filter. %>
-      </span>
-    </h2>
-    <div class="body tight scroll-x">
-      <table class="roll" id="board">
-        <thead><tr>
-          <th>#</th><th>Player</th><th>Pos</th><th>Team</th><th class="num">Bye</th>
-          <th class="num">Proj</th><th class="num">VORP</th><th class="num">Tier</th>
-          <th class="num">Adj ADP</th><th class="num">Raw</th><th>Flags</th><th title="Manual news override">News</th><th></th>
-        </tr></thead>
-        <tbody id="board-body"></tbody>
-      </table>
-    </div>
-  </div>
   </details><%# /layer-3 %>
+  </section>
+
 </div>
 
 <script>
@@ -580,12 +563,15 @@
     _warroom_scripts.ejs so A loads its modules without editing B's shell. See
     TERRITORY.md § war-room presentation split. %>
 <%- include('_warroom_scripts') %>
+<%# THE COCKPIT LAYER (rebuild 2026-08-17): tabs, rails, charts, drill-down.
+    Loaded AFTER app.js — it reads the narrow WarRoomData accessor app.js
+    exposes and renders the surfaces this shell hosts. Inline SVG only; no
+    external libraries. %>
+<script src="/js/draft/warroom_charts.js"></script>
 
 <%# The ADP credit is FILLED BY app.js from the board's own provenance (id
-    adp-credit), never hardcoded: this line said "Fantasy Football Calculator"
-    while the anchor had swapped to FantasyPros and the checklist said so — the
-    footer/checklist/warning three-way disagreement Cory caught 2026-08-10. The
-    static text below is the no-JS fallback and names both sources honestly. %>
+    adp-credit), never hardcoded. The static text below is the no-JS fallback
+    and names both sources honestly. %>
 <p class="muted" style="text-align:center; font-size:.7rem; margin-top:1.2rem">
   <span id="adp-credit">ADP from <a href="https://www.fantasypros.com/nfl/adp/half-point-ppr-overall.php" rel="noopener">FantasyPros</a>
   (half-PPR, our format), gap-filled from <a href="https://fantasyfootballcalculator.com/adp" rel="noopener">Fantasy Football Calculator</a></span>

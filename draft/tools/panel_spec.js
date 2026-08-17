@@ -32,6 +32,31 @@
  * into prose beside the data it describes is the defect this repo keeps
  * shipping, and a spec is the last place it belongs.
  *
+ * ── THE SURFACE MAP (cockpit rebuild, 2026-08-17 — Cory's order) ──────────
+ *
+ * The 21-page scroll became a tabbed cockpit. WHERE a panel renders changed;
+ * WHAT each panel means (this file) did not, and every render function below
+ * still paints into the same ids. The map, so a reader can find a panel:
+ *
+ *   DRAFT (default) — the cockpit grid. LEFT RAIL: top-10 per position
+ *     (warroom_charts.js, off the same scored board). CENTER: the verdict
+ *     (ONE answer, DraftVerdict's seat-plan-owns-headline adjudication), the
+ *     paths as priced alternatives, the ranked shortlist, LRM, branches,
+ *     queue. RIGHT RAIL: running-out tiles, tier-cliff chart, survival
+ *     sparklines, roster shape (+ #timing-panel behind a disclosure — this
+ *     shell is the FIRST to host it, so renderTiming now paints).
+ *   BIG BOARD — per-position columns with tier-cliff lines + the full table.
+ *   ROSTERS — managers, roster, byes, survival, threats, movers, picks feed,
+ *     shadow standings.  ADJUSTERS — weights, presets, targets/never.
+ *   INTEL — setup/sync, checklist, provenance, audits, help.
+ *
+ * The tab/rail/chart layer lives in public/js/draft/warroom_charts.js — it is
+ * NOT a panel in this spec's sense (it computes nothing; it re-renders reads
+ * from the WarRoomData accessor), and this file's inventory deliberately
+ * stays scoped to app.js's render* functions, which is what the suite checks
+ * both ways. The pure chart builders are pinned separately in
+ * draft/tests/warroom_charts.test.js.
+ *
  * ── AND THE PART I HAVE TO OWN — NOW PAID (2026-08-17) ────────────────────
  *
  * `renderRecommendations` was 436 LINES doing six jobs — a headline, a
