@@ -22,6 +22,8 @@ information.**
 That single fact caused three separate conclusions we had believed:
 
 - the composite `ceiling` weight measured collinear with `value` and was zeroed
+  — **the first of the three to be re-run, and it reversed: a non-zero ceiling
+  weight beats the shipped zero in 3/3 seeds, separably. §7b.**
 - the phase grid could only discover that double-counting the projection hurts —
   and that null was written up as *"upside late is REFUTED"*
 - the variance modifiers came back unmeasurable
@@ -305,9 +307,9 @@ pool fallbacks, `source_weight_prior`'s sign flip, and Pearsall's zero projectio
    reading to the injury-return group; and it needs its own
    `proj_ceiling_source` value, because one field name holding two
    constructions is the error the `_source` stamps exist to prevent.
-2. **Re-derive the composite `ceiling` weight** — the harness is honest now, so
-   the experiment is RUNNABLE for the first time. Needs a CI bundle rebuild.
-   Prereg exists: `HARNESS-DISPERSION-PREREG.md`.
+2. ~~**Re-derive the composite `ceiling` weight**~~ — **DONE 2026-08-17, and it
+   came back against us.** See §7b below; what remains is bracketing and
+   replication, not the derivation.
 3. **The `need` study** — preregistered (`NEED-WEIGHT-PREREG.md`). Cheaper than
    it looks: `live_context.js:126` already accepts a weights override, so it is a
    `--need-weight` axis on `archetype_rooms.js`, not new machinery.
@@ -316,6 +318,44 @@ pool fallbacks, `source_weight_prior`'s sign flip, and Pearsall's zero projectio
 
 **Nothing in 1-5 ships before 08-22.** A weight measured once, late, is a worse
 instrument than a known one.
+
+---
+
+## 7b. THE CEILING WEIGHT IS SET WRONG, AND IT STAYS WRONG THROUGH THE DRAFT
+
+Prereg `CEILING-REDERIVATION-PREREG.md`, result
+`draft/backtest/EXP-CEILING-REDERIVATION.md`.
+
+**The tool ships `ceiling = 0`. That zero came from a −4.8 [−26, +17]
+measurement taken on a board where `proj_ceiling` was `proj_mean × a constant`,
+which made the ceiling term rank-identical to the value term (Spearman
+1.0000).** Raising the ceiling slider was arithmetically the same as raising the
+value slider. **It was never a measured setting.**
+
+Re-run on the first real-ceiling board (505 distinct ceiling/mean ratios where
+there was 1), 400 paired rooms × 3 fixed seeds, against a `core` arm that IS the
+shipped configuration:
+
+| | w=0.65 | w=1.0 | w=1.5 |
+|---|---|---|---|
+| pre-fix (degenerate) | +0.1 · 0/3 separable | +10.3 · 0/3 | +28.9 · 1/3 |
+| **post-fix (real ceilings)** | **+35.5 · 3/3 separable** | +21.1 · 1/3 | +19.9 · 1/3 |
+
+**w=0.65 clears the preregistered bar at 3/3 and 3/3.** And the shape inverted:
+on the broken board the effect ROSE with the weight, on the real one it FALLS —
+which is what a second copy of the value term should look like, and is the
+clearest single demonstration that the old grid was measuring the defect.
+
+**It does not ship before 08-22, deliberately.** Measured once, on the money
+proxy rather than a graded season, on a grid whose winner is its own smallest
+tested weight — so the optimum is not bracketed and could be lower still. What
+this changes today is the *account*, not the number: three places told Cory the
+term was unmeasured, and all three now say it is measured, contradicted, and
+held. **The Live-policy panel says so in his words on the screen.**
+
+Order after the draft: bracket (w ∈ {0.15, 0.3, 0.45, 0.65}, own prereg first) →
+replicate on fresh seeds → then the per-player question, which none of this
+touches and which is the one he has actually been asking: `weekly_volatility.py`.
 
 ---
 
