@@ -15,6 +15,15 @@ answered with numbers, and the mechanism is measured rather than guessed.
 
 ---
 
+> **⚠️ SUPERSEDED IN PART, SAME DAY — AMENDMENT 1.** The 2022→23 fold refused
+> below was refused on a false premise: the scoring-fingerprint split is a
+> float32/float64 artifact, not a different scoring table
+> (`draft/audit/scoring_fingerprint_artifact_2026-08-17.md`). The fold is
+> restored, giving **four** E2 folds; the restored fold returns **+0.142** and
+> beats its null. **The verdict is unchanged — `clears: false` either way** — and
+> everything below about collinearity being the mechanism still stands. The E2
+> table in §1 is the original three-fold run, kept as the record.
+
 ## 1. THE RESULT
 
 ### E1 — persistence: TPRR carries, strongly

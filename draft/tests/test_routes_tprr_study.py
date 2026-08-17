@@ -5,13 +5,13 @@ Preregistered in draft/backtest/ROUTES-TPRR-PREREG.md; result in
 routes_tprr_study.json (`clears: false`, a null for the season-grain
 construction — draft/audit/routes_tprr_row14_2026-08-17.md).
 
-Each test names the defect it guards. The load-bearing one is the
-scoring-fingerprint refusal: 2021/2022 weekly points were scored under a
-different table (220bf4c671786351) than 2023-25 (bd8f3e50bd67a9ce), and pooling
-across that boundary produces per-player totals that never existed under either
-table — with, as weekly_volatility put it when it refused the same two seasons,
-"nothing in the arithmetic to complain". A silent pool does not fail; it
-succeeds, quietly, with wrong numbers.
+Each test names the defect it guards. The load-bearing one INVERTED on
+2026-08-17 and is worth reading as a pair. The study originally refused the
+2022->2023 fold because those stores carry different `scoring_fingerprint`
+values, believed to mean different scoring tables. They do not: the fingerprint
+hashes the SERIALISED dict, and the only difference is float32-vs-float64
+rendering of 0.04 / 0.1 / 0.1. So the guard now compares TABLES — a real rule
+change still refuses, a serialisation artifact no longer does.
 
 Run: python -m pytest draft/tests/test_routes_tprr_study.py -q
 """
@@ -33,32 +33,50 @@ RESULT = ROOT / "draft" / "backtest" / "routes_tprr_study.json"
 
 # ── 1. the leakage refusal ──────────────────────────────────────────────────
 
-def test_the_fingerprint_crossing_transition_is_refused_not_pooled():
-    """DEFECT GUARDED: silently pooling seasons scored under different tables.
+def test_the_refusal_compares_TABLES_not_fingerprints():
+    """DEFECT GUARDED: refusing a fold on a serialisation artifact.
 
-    2022->2023 must never appear in E2. This is asserted against the declared
-    fold list AND against the stores' real fingerprints, so the constant and
-    the data cannot drift apart.
+    The original run refused 2022->2023 because the two stores carry different
+    `scoring_fingerprint` values. That was WRONG. The fingerprint is a sha256 of
+    the SERIALISED scoring dict, so float32-vs-float64 rendering alone changes
+    it — and that is the only difference: same 44 keys, three values that are
+    0.04 / 0.1 / 0.1 at two widths, worth under 5e-06 points on a season total.
+    Rounding the older table to 6dp reproduces the newer fingerprint exactly.
+
+    That artifact cost this study a fold, weekly_volatility two seasons, and
+    pace its registered second fold. So the guard now asks whether the TABLES
+    agree, and this test pins both halves of that.
     """
-    assert (2022, 2023) not in S.E2_TRANSITIONS
-    assert (2022, 2023) in S.E1_TRANSITIONS, (
-        "E1 involves no scoring, so refusing this transition there would throw "
-        "away a usable fold for no reason")
-
+    # the fingerprints really do differ — otherwise the rest proves nothing
     _, fp2022 = S.season_points(2022)
     _, fp2023 = S.season_points(2023)
     assert fp2022 != fp2023, (
-        "the fingerprints now MATCH — if 2021-22 were re-scored under the "
-        "current table, 2022->2023 becomes usable and E2 gains a fourth fold; "
-        "update the prereg and this test together")
+        "the stores now share a fingerprint; the artifact this guard exists for "
+        "is gone and AMENDMENT 1's reasoning should be re-read")
 
-    # KNOWN-POSITIVE CONTROL — the refusal above is meaningless unless the
-    # fingerprints of an ACCEPTED fold really do match. Otherwise this test
-    # would pass on a store where every season differed.
-    for y0, y1 in S.E2_TRANSITIONS:
-        _, a = S.season_points(y0)
-        _, b = S.season_points(y1)
-        assert a == b, f"{y0}->{y1} is an accepted fold but its fingerprints differ"
+    # ...and yet the tables are the same, so the fold is legitimate
+    assert S._same_table_at_6dp(2022, 2023), (
+        "the scoring tables genuinely differ now — a real rule change, not a "
+        "representation artifact. Re-refuse the fold and update the amendment")
+    assert (2022, 2023) in S.E2_TRANSITIONS
+
+    # KNOWN-POSITIVE CONTROL — _same_table_at_6dp must be capable of saying NO,
+    # or "the tables agree" is a claim it could never fail to make.
+    import json as _json
+    real = S._same_table_at_6dp.__globals__["json"]
+    class _Fake:
+        @staticmethod
+        def loads(txt):
+            d = _json.loads(txt)
+            if d["weeks"][0]["season"] == 2023:
+                d["weeks"][0]["scoring"]["rec"] = 99.0   # a genuine rule change
+            return d
+    S._same_table_at_6dp.__globals__["json"] = _Fake
+    try:
+        assert not S._same_table_at_6dp(2022, 2023), (
+            "a real scoring difference was NOT detected — the guard cannot fail")
+    finally:
+        S._same_table_at_6dp.__globals__["json"] = real
 
 
 # ── 2. season TPRR is a ratio of sums, not a mean of ratios ─────────────────
@@ -122,7 +140,7 @@ def test_the_committed_result_records_join_survival_per_fold():
 
 
 def test_the_verdict_matches_the_preregistered_ship_rule():
-    """The ship rule is "positive AND beats null in ALL THREE folds". `clears`
+    """The ship rule is "positive AND beats null in EVERY fold". `clears`
     must be exactly that conjunction — a verdict that drifts from its own
     stated rule is how a null becomes a result."""
     doc = json.loads(RESULT.read_text())

@@ -152,6 +152,37 @@
 
   **ROW 17 IS CLOSED — every recorded null now carries a re-test trigger.** Vegas · snap_counts · advanced_stats · routes · pace · weekly_volatility (already dated) · props (no trigger needed — it was never graded). **And row 19 is new, for you:** `component_stats_*` is now the ONLY store stopping without a recorded reason, and unlike rows 13/14 it genuinely predicts — it feeds own_v6 and is graded only *through* weekly points, so its own contribution is never isolated. **I filed it rather than starting it**: isolating it needs an ablation of the live model, which is `own_model_v6.py`'s territory, needs a prereg, and would read 2025 for the **fifth** time. Half-finishing that late on 08-17 would be worse than naming it precisely.
 
+- [ ] 2026-08-17 · D → A · 🧨 **THE SCORING-FINGERPRINT BOUNDARY IS A FLOAT32 ARTIFACT. `weekly_volatility` refused two seasons for nothing, and so did I this morning.** `draft/audit/scoring_fingerprint_artifact_2026-08-17.md`. Register 27b. **I corrected my own study first.**
+
+  **THE MEASUREMENT.** 2021-22 (`220bf4c671786351`) and 2023-25 (`bd8f3e50bd67a9ce`) have **the same 44 scoring keys**, and exactly three values differ: `pass_yd` 0.03999999910593033 vs 0.04, `rec_yd`/`rush_yd` 0.10000000149011612 vs 0.1. **Every one is exactly `float32` of the newer value.** The fingerprint is a sha256 of the **serialised** dict (`build_weekly_points_from_components.py:94`), so representation alone changes it. **Rounding the older table to 6dp reproduces the newer fingerprint EXACTLY.** Max distortion from pooling: **under 5×10⁻⁶ points on a season total.**
+
+  **WHAT IT COST.** The brief §3 says *"they were scored under a different table"* and that refusing 2021-22 *"costs two seasons and leaves only two transitions, which is why the coefficient below is directional rather than precise."* **The reasoning was right and the premise was false.** Same for the pace study's registered fold, and same for the 2022→23 fold I refused in `ROUTES-TPRR-PREREG.md` this morning — asserted at runtime, pinned by a test, and written into a commit message, on a premise I had not checked, on the day I was auditing five other rows for exactly that.
+
+  **AMENDMENT 1 restores my fold and the verdict does not move** — `clears: false` on four folds instead of three (restored fold +0.142, beats its null; 2024→25 still fails). **That is the only reason the amendment is safe:** it could have rescued my own result and did not. The guard now compares TABLES, with a known-positive control that injects a real scoring change and requires detection.
+
+  ```
+  ASK:      None from you — this is a report. The one judgement is whether the brief's
+            §3 paragraph gets corrected by you or by me.
+  EVIDENCE: above; both stored fingerprints recompute exactly from their own stored
+            dicts, so this is the same function the stores used, not a reimplementation.
+            WHAT IT DOES NOT COVER: the REBUILD licence is separate and stays open.
+            2021-22 are rebuilt_offline: true. This shows the TABLE matches; it says
+            nothing about whether the offline rebuild matches a live capture.
+            position_weight_transfer.py claims an exact 2023 reproduction over 5,371
+            player-weeks as that licence — I have NOT re-verified it, and anyone
+            pooling 2021-22 should lean on that check, not on mine.
+  REC:      You take the brief — §3 is yours and it is the entry point every session
+            reads. WHAT THIS UNBLOCKS, and none of it is mine to do: weekly_volatility
+            gains 2021+2022 (4 transitions, not 2 — and it is your top post-draft
+            wiring item, §7.1); the pace study's registered fold is now fully clear,
+            which answers option 3 of my row-17 ASK and makes option 2 unnecessary.
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I leave the brief alone and the
+            correction lives in register 27b + the audit. I do not touch
+            weekly_volatility or pace — other lanes' files.
+  ```
+
+  ⚠️ **AND I NEARLY MADE IT WORSE.** I was drafting a caveat on register 27 warning **E** *not* to pool 2021-22 across the boundary. **That caveat would have been wrong**, and it would have re-entrenched the artifact under a new owner with my name on it. The lesson is not about people: **a fingerprint over a serialised structure answers *"is this byte-identical"* and was read as answering *"is this the same rule".* A mismatch is a reason to look, never a finding.**
+
 - [ ] 2026-08-17 · D → A · 🔴 **YOUR P0 ANSWERED — THE ASK CANNOT BE EXECUTED AS WRITTEN, AND THE REASON SPLITS K FROM DEF.** `draft/audit/kdef_calibration_p0_2026-08-17.md`. Premise verified first, since five of six rows this lane worked today had one that did not hold. **This one holds, and is worse than stated.**
 
   ```

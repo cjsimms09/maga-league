@@ -149,3 +149,33 @@ Declared now so it cannot be reverse-engineered from a disappointing number:
 - Weekly/in-season prediction (this is season→season, the draft-board question).
 - QBs (absent from the store by design).
 - Any construction other than the single one specified above.
+
+
+---
+
+## AMENDMENT 1 — 2026-08-17, after the original three-fold run
+
+**The 2022→2023 exclusion above was factually wrong and the fold is RESTORED.**
+
+The refusal rested on the two seasons carrying different `scoring_fingerprint`
+values, read as different scoring tables. **They are the same table.** The
+fingerprint is a sha256 of the *serialised* dict
+(`build_weekly_points_from_components.py:94`), so representation alone changes
+it — and representation is the only difference: 44 identical keys, with
+`pass_yd`, `rec_yd` and `rush_yd` stored as float32 in 2021-22 and float64 in
+2023-25. **Rounding the older table to 6dp reproduces the newer fingerprint
+exactly**, and the maximum distortion from pooling is **under 5 × 10⁻⁶ points on
+a season total**.
+
+**Why this amendment is legitimate and most are not.** A prereg amended after
+seeing results is worthless unless the reason is a *fact* rather than a
+preference. The correction here is a measurement, and — the part that matters —
+**it did not rescue the result.** `clears: false` on four folds as on three; the
+restored fold beats its null (+0.142) and the 2024→25 fold still fails. Had the
+amendment flipped the verdict, it would have needed a fresh prereg instead.
+
+**Both verdicts are reported** in `routes_tprr_study.json` and the audit. The
+runtime guard now compares TABLES rather than fingerprints, with a
+known-positive control that injects a real scoring change and requires detection.
+
+`draft/audit/scoring_fingerprint_artifact_2026-08-17.md`

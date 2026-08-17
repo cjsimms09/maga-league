@@ -73,6 +73,19 @@
    "null_p95": 0.1272,
    "beats_null_p95": true
   },
+  "2022->2023": {
+   "scoring_fingerprint": "bd8f3e50bd67a9ce",
+   "population": {
+    "eligible_both_seasons": 143,
+    "also_present_in_points_store": 143,
+    "lost_at_points_join": 0
+   },
+   "partial_rho_tprr_given_targets": 0.1421,
+   "control_rho_next_points_vs_prior_targets": 0.4581,
+   "raw_rho_next_points_vs_prior_tprr": 0.4342,
+   "null_p95": 0.1281,
+   "beats_null_p95": true
+  },
   "2023->2024": {
    "scoring_fingerprint": "bd8f3e50bd67a9ce",
    "population": {
@@ -83,7 +96,7 @@
    "partial_rho_tprr_given_targets": 0.1708,
    "control_rho_next_points_vs_prior_targets": 0.3666,
    "raw_rho_next_points_vs_prior_tprr": 0.3924,
-   "null_p95": 0.1313,
+   "null_p95": 0.1236,
    "beats_null_p95": true
   },
   "2024->2025": {
@@ -96,7 +109,7 @@
    "partial_rho_tprr_given_targets": 0.026,
    "control_rho_next_points_vs_prior_targets": 0.3814,
    "raw_rho_next_points_vs_prior_tprr": 0.3048,
-   "null_p95": 0.1412,
+   "null_p95": 0.1217,
    "beats_null_p95": false
   }
  },

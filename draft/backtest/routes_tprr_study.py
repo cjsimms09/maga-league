@@ -8,11 +8,22 @@ projection, no board, no production surface. Nothing here puts a number in
 front of Cory, and nothing installs from it either way — a positive routes to a
 separate, gated wiring decision that is A's and Cory's.
 
-THE FINGERPRINT DISCIPLINE, STATED WHERE THE CODE IS: E2's outcome is fantasy
-points, and 2021/2022 were scored under a different table (fingerprint
-220bf4c671786351) than 2023-25 (bd8f3e50bd67a9ce). The 2022->2023 transition is
-REFUSED rather than silently pooled, and the refusal is asserted at runtime, not
-left to a comment.
+THE FINGERPRINT DISCIPLINE, AND THE CORRECTION IT NEEDED. E2's outcome is
+fantasy points, and 2021/2022 carry a different `scoring_fingerprint`
+(220bf4c671786351) from 2023-25 (bd8f3e50bd67a9ce). The original run REFUSED the
+2022->2023 transition on that basis.
+
+THAT REFUSAL WAS WRONG, and AMENDMENT 1 restores the fold. The fingerprint is a
+sha256 of the SERIALISED scoring dict, so representation alone changes it — and
+representation is the only thing that differs. The two tables have the same 44
+keys, and the three unequal values are float32 vs float64 renderings of 0.04,
+0.1 and 0.1, worth under 5e-06 points on a season total. Rounding the older
+table to 6dp reproduces the newer fingerprint EXACTLY.
+
+So the runtime guard now compares TABLES, not fingerprints: a genuine rule
+change still refuses, a serialisation artifact no longer does. The verdict is
+unchanged with the fold restored (clears: false on four folds instead of three),
+which is the point of reporting both. draft/audit/scoring_fingerprint_artifact_2026-08-17.md
 
 Run: python3 draft/backtest/routes_tprr_study.py
 """
@@ -28,7 +39,17 @@ HERE = Path(__file__).resolve().parent
 # ── preregistered constants (ROUTES-TPRR-PREREG.md) ─────────────────────────
 SEASONS = (2021, 2022, 2023, 2024, 2025)
 E1_TRANSITIONS = ((2021, 2022), (2022, 2023), (2023, 2024), (2024, 2025))
-E2_TRANSITIONS = ((2021, 2022), (2023, 2024), (2024, 2025))   # 2022->23 refused
+# AMENDMENT 1 (2026-08-17, after the original 3-fold run): 2022->2023 is
+# RESTORED. The prereg refused it because the two seasons carry different
+# `scoring_fingerprint` values and were believed to be scored under different
+# tables. They are not: the tables are byte-identical once the older one is
+# rounded to 6dp, and rounding it reproduces the newer fingerprint exactly
+# (bd8f3e50bd67a9ce). The three differing values are float32 vs float64
+# representations of 0.04 / 0.1 / 0.1, worth <5e-06 points on a season total.
+# The refusal was factually wrong, not a judgement changed after seeing results;
+# both the 3-fold and 4-fold verdicts are reported.
+# draft/audit/scoring_fingerprint_artifact_2026-08-17.md
+E2_TRANSITIONS = ((2021, 2022), (2022, 2023), (2023, 2024), (2024, 2025))
 MIN_ROUTES = 200
 PERMUTATIONS = 400
 SEED = 20260817
@@ -154,6 +175,22 @@ def eligible_pairs(a: dict, b: dict):
     return pids
 
 
+
+def _same_table_at_6dp(y0: int, y1: int) -> bool:
+    """Two stores are scored under the SAME table if their scoring dicts agree
+    once rounded to 6dp. A bare fingerprint comparison does NOT establish a real
+    difference: the fingerprint hashes the serialised dict, so float32-vs-float64
+    representation alone changes it. 2021/2022 vs 2023-25 differ ONLY that way —
+    0.04 and 0.1 stored at two widths, worth under 5e-06 points on a season
+    total — and that artifact cost this study a fold, weekly_volatility two
+    seasons, and pace its registered second fold."""
+    def table(y):
+        doc = json.loads((HERE / f"nflverse_weekly_points_{y}.json").read_text())
+        return {k: (round(v, 6) if isinstance(v, float) else v)
+                for k, v in doc["weeks"][0]["scoring"].items()}
+    return table(y0) == table(y1)
+
+
 def run_e1(rng):
     out = {}
     for y0, y1 in E1_TRANSITIONS:
@@ -192,10 +229,10 @@ def run_e2(rng):
         a, b = season_routes(y0), season_routes(y1)
         pts0, fp0 = season_points(y0)
         pts1, fp1 = season_points(y1)
-        if fp0 != fp1:
+        if fp0 != fp1 and not _same_table_at_6dp(y0, y1):
             raise SystemExit(
-                f"REFUSED {y0}->{y1}: scoring fingerprints differ ({fp0} vs {fp1}). "
-                "Pooling would compare totals scored under different tables.")
+                f"REFUSED {y0}->{y1}: scoring tables genuinely differ. "
+                "Pooling would compare totals scored under different rules.")
 
         pids = [p for p in eligible_pairs(a, b) if p in pts1]
         joined = len(pids)
