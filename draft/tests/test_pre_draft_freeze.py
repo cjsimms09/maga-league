@@ -174,7 +174,11 @@ def test_the_freeze_declares_itself_PROVISIONAL_until_the_slate_locks():
     """5f: the pre-lock run is a rehearsal against the predicted pool. A freeze
     that did not say so would be read in September as the real baseline."""
     assert FZ["status"] == "PROVISIONAL"
-    assert "20 August" in FZ["status_reason"]
+    # The reason is DERIVED from the keeper slate (_slate_status carries the
+    # slate's own words so the two cannot drift), so pin the MECHANISM — the
+    # reason must name the missing precondition — not the hand-written
+    # "20 August" sentence this asserted before the derivation existed.
+    assert "keeper lock has not passed" in FZ["status_reason"], FZ["status_reason"]
     assert FZ["keepers_on_board_at_freeze"] == 3, FZ["keepers_on_board_at_freeze"]
 
 
