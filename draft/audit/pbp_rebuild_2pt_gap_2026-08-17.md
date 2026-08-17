@@ -1,7 +1,8 @@
 <!-- TERRITORY: A -->
 # WHY 2025 CANNOT BE GRADED — diagnosed, and it is two defects, not one
 
-**2026-08-17. Diagnosis only. Nothing changed — see §5 for why.**
+**2026-08-17. Diagnosed, then PARTLY FIXED — see §7 for what shipped, what was
+reverted, and what is still open.**
 
 ---
 
@@ -140,3 +141,45 @@ one. Do not hand-check a few players and call it done.
 
 **The prize is real:** unlocking 2025 takes every strategy finding from N=2 to
 N=3, which is the threshold the report's own selection rule is written against.
+
+
+---
+
+## 7. WHAT ACTUALLY SHIPPED (appended after acting on §6)
+
+**Defect one is FIXED and verified.** `weekly_from_pbp` now emits
+`pass_2pt` / `rec_2pt` / `rush_2pt` on `two_point_conv_result == "success"`.
+Measured on 2024: **`mean_abs_diff` 0.489 → 0.149**, a 70% cut. Six tests pin it,
+including that a FAILED conversion credits nobody and that a conversion smuggles
+in no reception (a 2pt catch is worth 2.0, not 2.5).
+
+**Defect two was attempted and REVERTED THE SAME HOUR.** Crediting
+`lateral_receiver_player_id` with `lateral_receiving_yards` fixed Jameson
+Williams to the point — and broke **Jahmyr Gibbs (+8.0)** and **Josh Allen
+(+6.7)** in the opposite direction, now over-credited.
+
+**The rule is not what §4 concluded.** Gibbs' week-3 play is structurally
+identical to Williams' week-17 one — same passer, same primary receiver, lateral,
+touchdown — and Gibbs' official weekly row for that week reads
+`receptions=0, receiving_yards=0.0, targets=0`. The library credits him
+**nothing**. So nflverse does not simply add lateral yardage to the lateral
+player, and **Williams' exact 50-yard match was a coincidence I over-read as a
+rule.** §4's arithmetic is correct; its causal conclusion was not.
+
+Reverted, with the finding left in `grade.py` as a comment so the next person
+does not repeat the afternoon. Fixing it needs the library's actual aggregation
+semantics, not a hypothesis fitted to one player.
+
+**AND I BROKE THE PASSING BLOCK WHILE REVERTING.** The string surgery that
+removed the lateral block sliced from it to the 2pt block — and the *passing*
+block sat between them. `cross_validate` caught it instantly and unmistakably:
+`mean_abs_diff` 17.115, `worst_diff` 444.04, `players_compared` 574 → 565.
+Restored; the final diff is +41 lines with zero deletions. The gate that refuses
+the rebuilt path is also the thing that caught a self-inflicted error inside the
+attempt to improve it, which is the best argument for not loosening it.
+
+**NET: the gate still refuses 2024** at `worst_diff_top200` 11.0, so 2025 is
+still ungradeable and every strategy finding still rests on N=2. Defect one was
+worth fixing on its own merits — a priced category the parser never produced —
+but it does not buy the third season. Only laterals do, and laterals need real
+understanding first.
