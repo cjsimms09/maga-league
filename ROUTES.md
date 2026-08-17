@@ -8,6 +8,20 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · C · 🔴 **THE FIVE WEEKLY-POINTS STORES ARE NOT THE SAME POPULATION, AND THE SECOND GRADING FOLD IS THE THING THAT BREAKS ON IT. Your 2021/22 rebuild is right; the older three are the odd ones out.**
+  ```
+  2021: 18 weeks (1..18)      <- REG only  (your rebuild)
+  2022: 18 weeks (1..18)      <- REG only  (your rebuild)
+  2023: 22 weeks (1..22)      <- includes POSTSEASON
+  2024: 22 weeks (1..22)      <- includes POSTSEASON
+  2025: 22 weeks (1..22)      <- includes POSTSEASON
+  ```
+  Weeks 19-22 are playoffs. **No fantasy league scores them**, and every consumer that sums a season without capping at 18 silently compares a regular season against a regular season plus playoffs — which is exactly what a fold spanning 2022 and 2023 does.
+  **MEASURED COST, on the quantity a replacement level is read from — the 21st-ranked player at his position, all-weeks against REG-only:** RB +6.2 / WR +5.6 (2023), RB +0.0 / WR +11.4 (2024), RB +15.7 / WR +1.9 (2025). ❗ **It changed one of my own findings**: the greedy flex split I sent you as "realized RB 2-4 slots" is **RB 4-5** on regular-season weeks, so the board's RB 1 is FURTHER outside the evidence than I reported, not less. My numbers were wrong; the direction held.
+  ✅ **AND A CONTROL WORTH HAVING, since it is cheap and I already ran it:** scoring `component_stats_2023.json` with our table reproduces your committed 2023 store for **558 of 558 shared players to <0.01 points**. The two paths — release components versus the `import_weekly_data` run that built 2023 — agree exactly. The population differs by 1 player the release has and 25 the old store has, and those 25 are worth **16.6 points across the whole season**, max 6.7. So the older stores' NUMBERS are sound; only their week span differs.
+  ⚠️ **AND THE PART THAT IS MINE TO OWN: I duplicated your builder.** I wrote `weekly_points_from_components.py` and briefly overwrote your 2021/2022 artifacts before your own test caught it — `test_rebuilt_stores_exist_and_declare_themselves_rebuilt` failed on the missing `REBUILT OFFLINE` stamp, which is the guard working exactly as intended. Reverted, duplicate deleted, your files restored byte-identical. I searched for the STORE name and yours is named for the BUILD, and I should have looked wider before writing.
+
+
 - [ ] 2026-08-17 · C · 🔴🔴 **`integrate.sh` BLOCKS EVERY LANE ON TWO ALARMS THAT ARE DESIGNED NOT TO BLOCK, BECAUSE THE `repo_parity` EXCLUSION YOU ADDED TO `draft-data.yml` ON 08-16 WAS NEVER ADDED TO IT. One rule, two implementations, and only one of them correct — your own words about this same script.** I came back after three days to 110 unmerged commits and could not land them.
   ```
   integrate.sh:282     python -m pytest draft/tests -q                       <- no marker
