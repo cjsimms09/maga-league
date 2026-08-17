@@ -344,6 +344,73 @@ def build_projections(replay_season: int, positions: dict,
             for pid in sorted(v5nm)}
 
 
+# ── deterministic roster-status filter (2026-08-17, the live-edge order) ─────
+#
+# THE BLINDNESS THIS CORRECTS, named in the second STRUCTURAL LIMIT above: the
+# walk-forward board prices a player off his prior seasons even when his
+# career was already over before season Y's draft (Brady 2023 at 323 projected
+# points). That knowledge was public pre-draft and the LIVE board verifiably
+# carries it (replay_all_seats.roster_status_verification), so leaving such
+# players on the replay board is a HARNESS information gap, not a model
+# property. The filter below removes exactly the players COMMITTED data can
+# prove never played again — zero fitted parameters, one deterministic rule.
+
+LAST_COMMITTED_SEASON = 2025   # newest committed weekly store
+
+
+def team_2026_map() -> dict:
+    """{pid: team-or-None} from the committed 2026 live board. 'FA'/empty
+    count as teamless. Reporting/corroboration only — never a projection
+    input."""
+    d = json.loads((ROOT / "public" / "draft_data.json").read_text())
+    out = {}
+    for p in d["players"]:
+        team = p.get("team")
+        out[str(p["player_id"])] = team if team and team != "FA" else None
+    return out
+
+
+def roster_status_exclusions(season: int, proj: dict) -> tuple[dict, list]:
+    """(excluded, kept_indeterminate) for season Y's walk-forward board.
+
+    THE RULE, verbatim: a projected player is excluded iff he has ZERO
+    recorded games in EVERY committed season Y..2025, AND — when Y is 2025,
+    where no later season exists to corroborate — he is also absent from or
+    teamless on the committed 2026 live board. A player whose status cannot
+    be determined this way STAYS on the board and is returned in
+    `kept_indeterminate` (zero games Y..2025 but a 2026 team recorded).
+
+    BOTH ERROR DIRECTIONS, named:
+      · over-exclusion (flatters the tool): a player lost for season Y AFTER
+        Y's draft who never returned in any committed season is excluded even
+        though his absence was not knowable at draft time. Every excluded
+        player is listed by name in the artifact so this is auditable.
+      · under-exclusion (flatters the human): a player publicly retired,
+        unsigned or out-for-season at Y's draft who nonetheless logged any
+        later committed game (the Fournette-2023 pattern), or whose 2026
+        board row carries a team (the kept_indeterminate list), stays on the
+        board — the original status blindness persists for him and is
+        recorded rather than guessed at. NO new network fetches; committed
+        stores only.
+    """
+    played: set[str] = set()
+    for s in range(season, LAST_COMMITTED_SEASON + 1):
+        played |= set(weekly_points_of(s))
+    zero = [pid for pid in proj if pid not in played]
+    excluded, kept = {}, []
+    t26 = team_2026_map() if season == LAST_COMMITTED_SEASON else None
+    for pid in sorted(zero):
+        if t26 is not None and t26.get(pid):
+            kept.append(pid)
+            continue
+        excluded[pid] = {
+            "zero_game_seasons": list(range(season,
+                                            LAST_COMMITTED_SEASON + 1)),
+            "team_2026": (t26 or {}).get(pid) if t26 is not None else None,
+        }
+    return excluded, kept
+
+
 # ── the season's real draft, from league history ─────────────────────────────
 
 def season_record(season: int) -> dict:

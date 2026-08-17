@@ -155,6 +155,18 @@
    "timeout_s": 300
   },
   {
+   "id": "replay_league_restated",
+   "description": "Restated league table: the all-seats proxy with the deterministic roster-status filter on the walk-forward board, plus the room_draftable_pool cell promoted to the quoted bracket and computed for every seat. Quotes the original beside itself; never overwrites it.",
+   "owner_module": "draft/tools/replay_league_restated.py",
+   "artifact_path": "draft/data/replay_league_table_restated.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport replay_league_restated as RR\nprint(json.dumps(RR.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
    "id": "props_season_projection_v6_reproduction",
    "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
    "owner_module": "draft/tools/props_season_projection.py",

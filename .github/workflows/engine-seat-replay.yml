@@ -1,0 +1,48 @@
+name: Engine seat replay
+# THE LIVE-EDGE MEASUREMENT's choice side (ROUTES.md 2026-08-17). Assembles
+# the same era-appropriate bundles backtest.yml does — here and not in the
+# agent sandbox because FFC's historical `year` endpoint and Sleeper are
+# refused at CONNECT there — then drives the REAL engine.js/survival.js
+# through every seat's fixed-opponents counterfactual and commits the CHOICE
+# file (no outcomes) back to the dispatching branch. Grading joins the
+# committed weekly stores afterwards, offline, via replay_seats_grade.py.
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: "Comma-separated seasons (blank = all replayable)"
+        required: false
+        default: ""
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: Install
+        run: pip install -r draft/requirements.txt
+      - name: Assemble era-appropriate bundles
+        run: python draft/backtest/cli.py --seasons "${{ inputs.seasons }}" --out draft/backtest/bundles.json
+      - name: Seat-level engine replay (choices only)
+        run: node draft/backtest/replay_seats.js --in draft/backtest/bundles.json --out draft/backtest/engine_seat_choices.json
+      - name: Commit the choice file to the dispatching branch
+        run: |
+          git config user.name Claude
+          git config user.email noreply@anthropic.com
+          # The bundles are large and carry the whole player universe; the
+          # choice file is the deliverable and carries no outcome data.
+          git add draft/backtest/engine_seat_choices.json
+          git diff --cached --quiet && { echo "no changes to commit"; exit 0; }
+          git commit -m "Engine seat replay: choice file from CI bundle assembly [skip deploy]"
+          for i in 1 2 3 4 5; do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}" || { echo "REBASE CONFLICT — reporting, not forcing"; exit 1; }
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then echo "pushed"; exit 0; fi
+            echo "push race, retry $i"; sleep 3
+          done
+          echo "CHOICE FILE COULD NOT BE PUSHED after retries"; exit 1
