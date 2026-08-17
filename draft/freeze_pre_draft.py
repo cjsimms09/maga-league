@@ -66,6 +66,42 @@ sys.path.insert(0, str(ROOT / "draft"))
 import keepers as K  # noqa: E402
 
 ARTIFACT = ROOT / "public" / "draft_data.json"
+ENGINE_JS = ROOT / "public" / "js" / "draft" / "engine.js"
+
+
+def engine_policy() -> dict:
+    """The weights the engine ACTUALLY SHIPS, read out of engine.js itself.
+
+    PARSED, NEVER TYPED. A hand-copied dict here would be a second source of
+    truth for the policy — the "two places" disease this repo has been bitten
+    by repeatedly (the ceiling weight sat at 0.65 in the loaded core for weeks
+    after the ledger measured it at -4.8, and nothing failed). Reading the
+    literal means the freeze cannot disagree with the engine: if the parse
+    fails it returns {} and the caller's guard keeps the old, honest behaviour
+    of omitting the control rather than freezing a wrong policy.
+
+    Returns {"MEASURED_WEIGHTS": {...}, "source": "..."} or {} on any failure.
+    A partial or guessed policy is worse than none: the whole point of the
+    field is that a replay can trust it.
+    """
+    import re
+    try:
+        src = ENGINE_JS.read_text()
+    except OSError:
+        return {}
+    m = re.search(r"const\s+MEASURED_WEIGHTS\s*=\s*\{(.*?)\}", src, re.S)
+    if not m:
+        return {}
+    weights = {}
+    for key, val in re.findall(r"([A-Za-z_]\w*)\s*:\s*(-?\d+(?:\.\d+)?)", m.group(1)):
+        weights[key] = float(val)
+    if not weights:
+        return {}
+    return {
+        "MEASURED_WEIGHTS": weights,
+        "source": "parsed from public/js/draft/engine.js at freeze time — never "
+                  "hand-copied, so the freeze cannot disagree with the engine",
+    }
 _DEFAULT_OUT = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
 # OVERRIDABLE SO THE ONE IRREVERSIBLE ACTION CAN BE REHEARSED — added
 # 2026-08-17, the same pattern and for the same reason as
@@ -333,6 +369,36 @@ def build() -> dict:
                     "season", "reversal_round")},
         "my_picks": my_picks,
         "pick_order": po,
+
+        # ── engine_policy: THE FREEZE MUST RECORD THE POLICY IT FROZE ──────
+        #
+        # Added 2026-08-17 (relay, register 4i). The freeze's own claim is that
+        # every valuation path is "recomputable from inputs" — and the WEIGHTS
+        # are an input. Without them the artifact pins what the board said but
+        # not the policy that said it, so a replay can reproduce the numbers
+        # only by trusting whatever weights happen to be loaded today. That is
+        # the one thing an immutable reference exists to prevent.
+        #
+        # IT ALSO HAS A VISIBLE CONSEQUENCE TODAY. The war room's
+        # "⏮ Restore the measured core" control is guarded by
+        # `if (!b || !b.engine_policy) { host.innerHTML = ''; return; }`
+        # (app.js renderBaselineControl), so with no engine_policy IN THE
+        # FREEZE the control never renders at all. A built feature has been
+        # invisible for the life of this artifact, and nothing failed — the
+        # guard is correct, the data was simply never there.
+        #
+        # (The relay first reported this as a button that renders and silently
+        # does nothing. That was wrong: the guard above means it is absent, not
+        # dead. Corrected here rather than left as the more alarming version.)
+        #
+        # WHY THIS LANDS NOW, FOUR DAYS BEFORE THE DRAFT, RATHER THAN AFTER:
+        # `freeze_pre_draft` REFUSES to overwrite and has no --force, so the
+        # committed 08-14 freeze cannot gain this field. But that freeze is
+        # ALREADY slated for a hand re-take after the final board build (it
+        # predates fourteen of its own declared fields —
+        # test_freeze_not_stale). This change costs nothing until that re-take
+        # and is carried by it. It changes no number on the board.
+        "engine_policy": engine_policy(),
 
         # ── 4c: the keeper slate AS ACTUALLY APPLIED ──────────────────────
         # Not what the slate SAID — what the board was built with. The

@@ -41,7 +41,7 @@ what he actually did — not where he went.
 | **BASE** | today's calibration: `ceiling = f(position, proj_mean)`. **The incumbent, and it must be beaten, not tied.** |
 | **+EXP** | BASE × a fitted function of `years_exp` — **617/617 coverage, 19 distinct values** |
 | **+AGE** | BASE × a fitted function of `age` — 587/617, 22 distinct |
-| **+MARKET** | BASE × a fitted function of **`adp_sd`** — **617/617, 131 distinct** |
+| **+MARKET** | BASE × a fitted function of **`adp_sd`** — ⚠️ **DOWNGRADED 08-17, SAME DAY, BEFORE ANY RUN: `PARTIAL` and probably unusable.** The 617/617 coverage is real and the 131 distinct values are real, **but 369 players sit at exactly `30.0` and 108 at exactly `15.0`, and the per-position MAD is 0.0000 for QB, WR and TE.** Only RB carries a distribution. **I named this the arm to watch off a distinct-count without checking the shape — the exact post-hoc reasoning a prereg exists to prevent, committed inside the prereg.** Register 4n. It stays as an arm only if 4n shows the saturation is real market behaviour rather than a default fill. |
 | **+ROLE** | BASE × a fitted function of `target_share` — 446/617, 164 distinct ⚠️ `PARTIAL` |
 | **SHUFFLE** | the winning arm's player-specific term **randomly permuted across players within position**. **KNOWN-POSITIVE CONTROL.** |
 
