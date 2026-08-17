@@ -1,5 +1,5 @@
 {
- "_territory": "TERRITORY: C — written by draft/backtest/mutation_gate.record",
+ "_territory": "TERRITORY: C \u2014 written by draft/backtest/mutation_gate.record",
  "_note": "Verified mutation kills. Each entry is a mutation that was APPLIED and whose NAMED test failed, with a green baseline and an unchanged collection count. draft/tests/test_mutation_manifest.py checks these cheaply on every run; re-running them for real is run_all().",
  "version": 1,
  "modules": {
@@ -272,7 +272,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) — the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
+     "old": "        note = note + (\" | DISPERSION PARSE FAILED (%s: %s) \u2014 the day's ADP is \"\n                       \"captured, the spread is not\" % (type(e).__name__, e))",
      "new": "        note = note",
      "must_fail": [
       "test_a_FAILED_SPREAD_NAMES_ITSELF_IN_THE_NOTE_AND_IN_THE_LOG"
@@ -748,8 +748,8 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if _priced(p):\n            continue",
-     "new": "        if False:\n            continue",
+     "old": "        if market_vouches(p):\n            continue                                  # the market DRAFTABLY prices him",
+     "new": "        if False:\n            continue                                  # the market DRAFTABLY prices him",
      "must_fail": [
       "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
      ],
@@ -1214,7 +1214,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "    head = (\"recorded %d/%d source(s)\" % (len(got), len(verdicts))) if got else \\\n        (\"NO SOURCE CAPTURED — nothing written; the day's MFL snapshot is \"\n         \"committed and unaffected\")",
+     "old": "    head = (\"recorded %d/%d source(s)\" % (len(got), len(verdicts))) if got else \\\n        (\"NO SOURCE CAPTURED \u2014 nothing written; the day's MFL snapshot is \"\n         \"committed and unaffected\")",
      "new": "    head = \"recorded %d/%d source(s)\" % (len(got), len(verdicts))",
      "must_fail": [
       "test_NOTHING_CAPTURED_SAYS_SO_rather_than_reading_as_success"
@@ -1362,7 +1362,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value — FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
+     "old": "        note=\"real human drafts at our reception scoring and league size, but NOT \"\n             \"at our passing TD value \u2014 FFC exposes no such parameter, so this is \"\n             \"4.0 and we score 6.0; crosswalked by draft/adp.py:build_adp_table, \"\n             \"the same one the board uses\")",
      "new": "        note=\"real human drafts at our exact format and league size; crosswalked \"\n             \"by draft/adp.py:build_adp_table, the same one the board uses\")",
      "must_fail": [
       "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"
@@ -1370,7 +1370,7 @@
      "verdict": "KILLED"
     },
     {
-     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it — this source is \"\n                    \"4.0 like every other public source\"],",
+     "old": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],\n                \"format_axes_unmatched\": [\n                    \"passing TD value: our league scores 6.0, the market default \"\n                    \"is 4.0, and FFC serves no parameter for it \u2014 this source is \"\n                    \"4.0 like every other public source\"],",
      "new": "                \"format_axes_matched\": [\"reception scoring\", \"teams\"],",
      "must_fail": [
       "test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE"

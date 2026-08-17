@@ -68,11 +68,23 @@
       e.viaProxy = where === 'this site';
       throw e;
     });
+    // A 200 whose body is not JSON (an outage page, a block page) used to
+    // surface as "Sleeper unreachable (Unexpected token <...)" — the same lie
+    // in the other direction: Sleeper WAS reached, it just did not answer with
+    // data. Classified here so the status line can say which failure happened.
+    const parse = (where, r) => r.json().catch(() => {
+      const e = new Error(where + ' answered HTTP ' + r.status
+        + ' with a body that is not JSON — an outage or block page, not pick data.');
+      e.status = r.status;
+      e.nonJson = true;
+      e.viaProxy = where === 'this site';
+      throw e;
+    });
     const tryDirect = () => fetch(DIRECT + path, { mode: 'cors' })
-      .then(r => { if (!r.ok) return fail('Sleeper', r); return r.json(); })
+      .then(r => { if (!r.ok) return fail('Sleeper', r); return parse('Sleeper', r); })
       .then(j => { this.transport = 'direct'; return j; });
     const tryProxy = () => fetch(PROXY + encodeURIComponent(path))
-      .then(r => { if (!r.ok) return fail('this site', r); return r.json(); })
+      .then(r => { if (!r.ok) return fail('this site', r); return parse('this site', r); })
       .then(j => { this.transport = 'proxy'; return j; });
 
     if (this.transport === 'direct') return tryDirect().catch(tryProxy);
@@ -110,6 +122,50 @@
     const self = this;
     this.fetchJson('/draft/' + this.draftId + '/picks')
       .then(picks => {
+        /* ⚠️ TWO 200-OK RESPONSES THAT ARE NOT A PICK LIST, BOTH SILENT UNTIL
+         * THE 2026-08-16 CHAOS DRILL.
+         *
+         * 1. A NON-ARRAY BODY ({"error": ...} is valid JSON) fell through the
+         *    old `if (Array.isArray(picks))` with NO status message at all —
+         *    and worse, `lastOkAt` had already been refreshed above it and
+         *    `failures` reset. So while Sleeper served garbage, the sync-age
+         *    readout said FRESH, the system strip's "SYNC STALE" red channel
+         *    could never fire, and the board sat frozen with full confidence.
+         *    A silent wrong number in the one field every staleness surface
+         *    trusts.
+         *
+         * 2. AN EMPTY ARRAY MID-DRAFT wiped the board: `self.picks = []` with
+         *    40 picks in rewinds the clock to pick 1, and every survival
+         *    window and recommendation is computed as if nobody had drafted —
+         *    while the status line said "Synced — 0 picks in", state 'live'.
+         *    The Python logger REFUSES an empty read for exactly this reason
+         *    (`or []` is a broken read, not an empty draft); the war room now
+         *    holds its picks and says so. A genuinely empty pre-draft room
+         *    (picks 0 -> 0) still reads as live sync, unchanged.
+         *
+         * Neither updates lastOkAt: "the picks last came back GOOD" is the
+         * quantity every age surface renders, and garbage is not good. */
+        if (!Array.isArray(picks) || (picks.length === 0 && self.picks.length > 0)) {
+          self.failures++;
+          const wait = Math.min(BACKOFF_MAX, POLL_MS * Math.pow(2, self.failures));
+          const shape = Array.isArray(picks) ? 'an EMPTY pick list'
+            : picks === null ? 'null'
+            : typeof picks === 'object' ? 'an object'
+              + (picks.error ? ' ("' + picks.error + '")' : '')
+            : 'a ' + typeof picks;
+          self.onStatus({
+            state: 'error',
+            lastOkAt: self.lastOkAt || null,
+            message: 'Sleeper answered the pick poll with ' + shape
+              + (Array.isArray(picks)
+                ? ' while ' + self.picks.length + ' picks are on the board — a broken read, not an undrafted room.'
+                : ' instead of a pick list.')
+              + ' KEEPING the ' + self.picks.length + ' picks already in. Retrying in '
+              + Math.round(wait / 1000) + 's. You can enter picks by hand meanwhile.',
+          });
+          self.timer = setTimeout(function () { self.poll(); }, wait);
+          return;
+        }
         self.failures = 0;
         // LAST-GOOD TIME, so a caller can render AGE rather than a bare "synced".
         // On draft night a stalled sync looks identical to a working one: the
@@ -119,17 +175,22 @@
         // the module that knows — deriving it in each surface is how one surface
         // ends up honest and the next does not.
         self.lastOkAt = Date.now();
-        if (Array.isArray(picks)) {
-          const before = self.picks.length;
-          self.picks = picks;
-          self.onStatus({
-            state: 'live',
-            message: 'Synced via ' + self.transport + ' — ' + picks.length + ' picks in',
-            newPicks: picks.length - before,
-            lastOkAt: self.lastOkAt,
-          });
-          self.onPicks(self.allPicks());
-        }
+        const before = self.picks.length;
+        self.picks = picks;
+        self.onStatus({
+          state: 'live',
+          // A SHRINKING list is accepted (a commissioner CAN undo a pick on
+          // Sleeper, and Sleeper's full list is the record) but it is never
+          // silent: the board following an undo looks identical to the board
+          // losing picks, and only one of those is fine.
+          message: picks.length < before
+            ? 'Pick list SHRANK from ' + before + ' to ' + picks.length
+              + ' (a pick undone on Sleeper?) — following Sleeper\'s list.'
+            : 'Synced via ' + self.transport + ' — ' + picks.length + ' picks in',
+          newPicks: picks.length - before,
+          lastOkAt: self.lastOkAt,
+        });
+        self.onPicks(self.allPicks());
         self.timer = setTimeout(function () { self.poll(); }, POLL_MS);
       })
       .catch(err => {
@@ -140,10 +201,22 @@
           // Carried on the ERROR path too: how long since the board was last
           // right matters more than how long the current failure has lasted.
           lastOkAt: self.lastOkAt || null,
-          // A 4xx will not fix itself by waiting — it means the id or the path
-          // is wrong. Saying "retrying" there just wastes somebody's draft.
-          message: (err.status >= 400 && err.status < 500
-              ? 'Rejected by ' + err.message + '. Check the draft ID — that will not fix itself by retrying.'
+          // A 4xx at the START will not fix itself by waiting — it means the id
+          // or the path is wrong. But a 4xx AFTER the sync has been working
+          // (chaos drill, 2026-08-16: a mid-draft 403 rate-limit/block) is NOT
+          // a bad draft id — the id already proved itself — and sending Cory
+          // off to re-check a working id mid-draft is a misdirection. lastOkAt
+          // is the witness: null means the id never worked, set means it did.
+          // A non-JSON 200 is its own case (err.nonJson) — "unreachable" was a
+          // lie there too; the parse error already names both ends and why.
+          message: (err.nonJson
+              ? err.message + ' Retrying in ' + Math.round(wait / 1000) + 's.'
+              : err.status >= 400 && err.status < 500
+              ? (self.lastOkAt
+                  ? 'Rejected by ' + err.message + ' AFTER the sync had been working — '
+                    + 'a rate limit or block, not a bad draft ID. Retrying in '
+                    + Math.round(wait / 1000) + 's.'
+                  : 'Rejected by ' + err.message + '. Check the draft ID — that will not fix itself by retrying.')
               : 'Sleeper unreachable (' + err.message + '). Retrying in ' + Math.round(wait / 1000) + 's.')
             + ' You can enter picks by hand meanwhile.',
         });
@@ -159,6 +232,11 @@
      * retirement is reversible and the row can still be inspected. A real pick
      * arriving out of order un-retires nothing — the watermark only rises. */
     const dead = new Set(this.supersededManual ? this.supersededManual() : []);
+    /* Recomputed PER PASS, like pickNoCollisions below — before 2026-08-16 this
+     * accumulated across renders, so one id-less pick read as "47 dropped"
+     * after 47 renders. The count is the state of THIS list, not a lifetime
+     * tally, or the number itself becomes the wrong number. */
+    this.droppedNoId = 0;
     this.picks.concat(this.manual.filter(m => !dead.has(String(m.player_id))))
       .forEach(p => {
       const id = String(p.player_id || (p.metadata && p.metadata.player_id) || '');
@@ -178,7 +256,7 @@
        * counted, because that is a pick the room made that this board cannot
        * represent. */
       if (!id) {
-        this.droppedNoId = (this.droppedNoId || 0) + 1;
+        this.droppedNoId += 1;
         return;
       }
       if (seen.has(id)) return;

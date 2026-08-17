@@ -320,6 +320,49 @@ async function append(store, raw, { now } = {}) {
 }
 
 /**
+ * Append MANY entries in one pass — the player-week emitter writes hundreds of
+ * rows a week, and append()'s per-call listKeys makes that O(n²) against a
+ * season's ledger. Same validation, same write path, same append-only
+ * invariant; the difference is ONE key listing and ONE seq-block reservation.
+ *
+ * THE COUNTER IS RESERVED BEFORE ANY ENTRY IS WRITTEN, deliberately: a crash
+ * mid-batch then leaves a gap in the seq stream (harmless — readAll filters
+ * nulls) rather than a counter BEHIND the max written key, which would make
+ * every later append() collide with an existing key and refuse forever.
+ */
+async function appendBatch(store, raws, { now } = {}) {
+  if (!raws || !raws.length) return [];
+  const nowIso = (now ? new Date(now) : new Date()).toISOString();
+  const season = String(raws[0].season);
+  for (const raw of raws) {
+    if (raw == null || raw.season == null) throw new Error('ledger entry needs a season');
+    if (String(raw.season) !== season) {
+      throw new Error('appendBatch: one batch, one season — mixed seasons would '
+        + 'interleave two counters and corrupt both');
+    }
+    buildEntry(raw, { nowIso, seq: 0 });   // validate BEFORE reserving any seq
+  }
+  const ck = counterKey(season);
+  const existing = await store.listKeys(`pred:${season}:`);
+  let cur = await store.get(ck);
+  if (cur == null) {
+    cur = existing.reduce((m, k) => Math.max(m, Number(k.split(':').pop()) || 0), 0);
+  }
+  cur = Number(cur);
+  await store.set(ck, cur + raws.length);   // reserve the block FIRST (see above)
+  const out = [];
+  for (const raw of raws) {
+    cur += 1;
+    const entry = buildEntry(raw, { nowIso, seq: cur });
+    const key = seqKey(season, cur);
+    assertFreshKey(existing, key);
+    await store.set(key, entry);
+    out.push(entry);
+  }
+  return out;
+}
+
+/**
  * Read the whole ledger for a season, sorted by seq. READ-ONLY — this is the
  * path grading and verification use, and it performs no writes, ever.
  */
@@ -333,5 +376,5 @@ module.exports = {
   KINDS, COUNTERFACTUAL_KINDS, FORECAST_TYPES,
   assertCounterfactual, assertForecast,
   seqKey, counterKey, buildEntry, assertFreshKey,
-  nextSeq, append, readAll,
+  nextSeq, append, appendBatch, readAll,
 };

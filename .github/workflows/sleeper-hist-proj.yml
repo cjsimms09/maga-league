@@ -1,0 +1,180 @@
+name: SLEEPER-HIST-PROJ — does Sleeper serve historical PRESEASON projections, and are they real?
+
+# WHY THIS EXISTS. Cory, 2026-08-16: "we still haven't answered why we're
+# drafting are using sleeper projections vs fantasy pros vs a blend of both".
+# The board's proj_mean is Sleeper-derived and has never been graded against
+# anything, because three separate records assert the same blocking claim —
+# "Sleeper's own historical preseason skill is unmeasurable until Jan 2027" —
+# and NONE of them ever asked the API. sleeper_import.fetch_projections is
+# season-parameterized and probes three endpoint shapes; nobody has asked it
+# for 2023/2024/2025. One dispatch of this job answers, per year:
+#   1. does Sleeper serve anything at all for a past season,
+#   2. how many of those rows carry a stat line that scores NONZERO under our
+#      frozen scoring table,
+#   3. is what came back genuinely PRESEASON — decided by preregistered leak
+#      gates (identity with the realized total; a WR/RB rank ceiling calibrated
+#      on FantasyPros' measured 0.75-0.79; a payload-provenance census; marker
+#      players whose seasons died must still be projected full-size; and
+#      since-departed ghosts) — or a post-hoc revision, in which case the year
+#      is REFUSED as leaked and that refusal is the filed verdict.
+#
+# WHY A WORKFLOW. api.sleeper.app answers 000 from the dev sandbox — the same
+# proxy denial that forces exp-fp-hist-proj.yml, proj-correctness-probe.yml and
+# rule12-statlines.yml into CI. Not a TLS problem and not something to route
+# around.
+#
+# NO GRADE COMES OUT OF THIS JOB. It decides feasibility and leakage only. If a
+# season comes back clean, the three-way grade (Sleeper vs FantasyPros vs
+# own_v6 vs blends) gets its OWN preregistration in its own commit before any
+# number exists. Grading a leaked forecast flatters it, and a flattering number
+# about the source the board already ranks on is the most dangerous artifact
+# this probe could emit.
+#
+# MANUAL ONLY, DELIBERATELY. This is a QUESTION, not a feed.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sleeper-hist-proj
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # The runner image does not carry pytest (external-odds-probe run 1
+      # proved that the expensive way).
+      - name: Install the test runner
+        run: pip install pytest -q
+
+      # THE PREREGISTRATION MUST PRE-EXIST THE FETCH. If it is not in the
+      # checkout, the gates were not fixed before the data was seen, and any
+      # verdict this job produced would be the post-hoc judgement the probe
+      # exists to refuse.
+      - name: Preregistration precedes the fetch
+        run: |
+          if [ ! -f draft/backtest/SLEEPER-HIST-PROJ-PREREG.md ]; then
+            echo "::error::SLEEPER-HIST-PROJ-PREREG.md missing — the gates were"
+            echo "::error::not preregistered; refusing to fetch anything."
+            exit 1
+          fi
+
+      # THE PURE HALF IS TESTED BEFORE THE EGRESS HALF RUNS. Every gate is
+      # two-armed. "The gate failed" and "the gate could not run" are different
+      # facts — collect first, and say which happened.
+      - name: The gates are tested before anything is asked
+        run: |
+          if ! python3 -m pytest draft/tests/test_sleeper_hist_proj.py \
+                 --collect-only -q > /dev/null 2>&1; then
+            echo "::error::THE GATE COULD NOT RUN — the test file did not even"
+            echo "::error::collect. A fact about the job, not a test failure."
+            python3 -m pytest draft/tests/test_sleeper_hist_proj.py --collect-only -q
+            exit 1
+          fi
+          python3 -m pytest draft/tests/test_sleeper_hist_proj.py -q
+
+      - name: Probe Sleeper's historical projections, gated
+        id: probe
+        timeout-minutes: 25
+        run: |
+          set -o pipefail
+          rc=0
+          {
+            echo "## SLEEPER-HIST-PROJ — feasibility, then leakage"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/sleeper_hist_proj.py \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f draft/backtest/sleeper_hist_proj.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/sleeper_hist_proj.json"))
+          c = r["control"]
+          print("**%s**" % r["headline"])
+          print()
+          print("- positive control %s: **%s** (%s)"
+                % (c["year"], c["status"], c["counts"]))
+          print()
+          print("| year | verdict | rows | with stats | scored nonzero | graded pop |")
+          print("|---|---|---:|---:|---:|---:|")
+          for y, yr in sorted(r["years"].items()):
+              n = yr.get("counts") or {}
+              pop = (yr.get("population") or {}).get("graded", "—")
+              print("| %s | **%s** | %s | %s | %s | %s |"
+                    % (y, yr.get("status"), n.get("rows", "—"),
+                       n.get("rows_with_stats", "—"),
+                       n.get("rows_scored_nonzero", "—"), pop))
+          for y, yr in sorted(r["years"].items()):
+              gates = yr.get("gates") or {}
+              if not gates:
+                  continue
+              print()
+              print("**%s — gates in preregistered order**" % y)
+              for name, g in gates.items():
+                  print("- `%s` → **%s**" % (name, g.get("status")))
+                  if name == "l1_identity":
+                      print("  - eligible %s · within %.1f pts of the outcome: %s (%s)"
+                            % (g.get("eligible"), 0.5, g.get("matches"),
+                               g.get("fraction")))
+                  if name == "l2_rank_ceiling":
+                      for p, cell in (g.get("cells") or {}).items():
+                          print("  - %s: %s" % (p, cell))
+                  if name == "l3_provenance":
+                      print("  - keys present: %s" % (g.get("keys_present"),))
+                      for h in (g.get("hits") or []):
+                          print("  - HIT %s" % (h,))
+                  if name == "l4_markers":
+                      print("  - %s markers → %s" % (g.get("n"), g.get("verdicts")))
+                  if name == "l5_ghosts":
+                      print("  - ghosts: %s" % g.get("ghost_count"))
+              print()
+              print("  population: %s" % (yr.get("population") or {},))
+              print("  key census: %s" % sorted((yr.get("key_census") or {}).keys()))
+          PY
+          else
+            echo "**PROBE WROTE NO ARTIFACT** — a statement about the run, not about Sleeper." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$rc"
+
+      # THE ANSWER IS COMMITTED WHETHER IT IS A HIT, A NULL OR A REFUSAL. A
+      # refusal that lives only in a job log gets re-asked in three weeks by
+      # somebody who was not here.
+      - name: Commit the answer, including a refusal
+        if: always()
+        run: |
+          # A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main (this step
+          # ends `git push origin HEAD:main`, and on a branch checkout HEAD is
+          # the branch tip). The answer still lands in the step summary above.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the answer is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — answer not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/sleeper_hist_proj.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "SLEEPER-HIST-PROJ: gated verdict on Sleeper's historical projections [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::VERDICT NOT PUSHED — the fetch is spent and the answer is lost."
+              exit 1
+            fi
+          fi

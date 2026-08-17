@@ -6,6 +6,8 @@ proj_mean`. Both synthetic, so spread is a constant multiple of the mean, ceilin
 rank-identical to value, and `ceiling: 0` in MEASURED_WEIGHTS is an experiment that
 could not have returned anything else. Risk is PARTIAL for the same reason.
 
+**CORRECTED 2026-08-17: `build_bundle.py` NO LONGER WRITES THOSE CONSTANTS.** The paragraph above describes the state this module was written into and is kept because it is the reason the module exists. Dispersion on a bundle is now the measured p90/p10/sd per (position, band), fitted leave-one-season-out, and absent off an unmeasured cell rather than filled in. The collinearity is REDUCED, NOT REMOVED — the measured spread is still `proj_mean x a per-CELL` constant, varying between bands and not within them — so `ceiling: 0` remains UNMEASURED rather than refuted, and the experiment is runnable for the first time. See draft/backtest/HARNESS-DISPERSION-PREREG.md.
+
 WHY IT IS NOT COSMETIC, IN ONE LINE: **a starting lineup is a MAX over startable
 players**, so variance changes the answer even when means are identical. With a
 synthetic sd the model is not estimating its own objective.

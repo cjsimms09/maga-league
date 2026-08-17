@@ -52,9 +52,21 @@
 <% } else { %>
 
   <div class="card pk-slate-card" style="margin-bottom:1.2rem">
-    <h2>The Slate
-      <span class="sub"><% if (locked) { %>🔒 locked — Week <%= weekNo %> is on<% } else { %>picks lock <%= fmtLock(lockAt) %> · <%= picksMade %>/<%= games.length %> picked<% } %></span>
-    </h2>
+    <h2>The Slate <span class="sub">week <%= weekNo %> — tap a side in every game</span></h2>
+    <%# The slate's STATE as a chip + the lock clock, worn on the card the way a
+        bet card wears them (the .bc-state grammar) — not buried in a .sub. %>
+    <div class="pk-lockrow">
+      <% if (locked) { %>
+        <span class="bc-state live">🔒 LOCKED</span>
+        <span>Week <%= weekNo %> is on — the split's public, results grade themselves.</span>
+      <% } else if (picksMade >= games.length) { %>
+        <span class="bc-state open">✓ ALL PICKED</span>
+        <span>Change your mind until <span class="wr-num"><%= fmtLock(lockAt) %></span> — then they lock.</span>
+      <% } else { %>
+        <span class="bc-state needs">YOUR PICKS</span>
+        <span><span class="wr-num" id="pk-progress"><%= picksMade %>/<%= games.length %></span> picked · locks <span class="wr-num"><%= fmtLock(lockAt) %></span></span>
+      <% } %>
+    </div>
     <div class="body tight">
       <form method="post" action="/pickem" id="pk-form">
         <% for (const g of games) {
@@ -86,6 +98,9 @@
                   <% if (locked && myPick === side.id) { %>
                     <span class="pk-opt-tag"><%= (winner != null && winner !== 'tie') ? (winner === side.id ? '✓ your pick' : '✗ your pick') : 'your pick' %></span>
                   <% } %>
+                  <% if (!locked && myPick === side.id) { %>
+                    <span class="pk-opt-tag">✓ saved</span>
+                  <% } %>
                 </label>
               <% } %>
             </div>
@@ -102,13 +117,44 @@
 
         <% if (!locked) { %>
           <div class="pk-save">
-            <button class="btn gold" type="submit">Lock in my picks</button>
-            <span class="muted" style="font-size:.75rem">You can change them until <%= fmtLock(lockAt) %>.</span>
+            <button class="btn gold" type="submit" id="pk-save-btn">Save my picks</button>
+            <span class="muted" style="font-size:.75rem" id="pk-save-hint">You can change them until <%= fmtLock(lockAt) %>.</span>
           </div>
         <% } %>
       </form>
     </div>
   </div>
+
+  <% if (!locked) { %>
+  <script>
+  /* Tap feedback + the live count. Progressive enhancement: without this the
+     form still saves; with it a tap moves the gold immediately (the server's
+     .picked class yields to the checked radio) and the header count follows. */
+  (function () {
+    var form = document.getElementById('pk-form');
+    if (!form) return;
+    var total = <%= games.length %>;
+    function refresh() {
+      form.querySelectorAll('.pk-teams').forEach(function (t) {
+        var any = t.querySelector('input:checked');
+        t.querySelectorAll('.pk-opt').forEach(function (o) {
+          o.classList.toggle('picked', !!(o.querySelector('input:checked')));
+          // A saved tag on a side you just tapped away from would lie.
+          var tag = o.querySelector('.pk-opt-tag');
+          if (tag && any && !o.querySelector('input:checked')) tag.remove();
+        });
+      });
+      var n = form.querySelectorAll('input:checked').length;
+      var prog = document.getElementById('pk-progress');
+      if (prog) prog.textContent = n + '/' + total;
+      var btn = document.getElementById('pk-save-btn');
+      if (btn) btn.textContent = n >= total ? 'Save my picks — all ' + total + ' in' : 'Save my picks (' + n + ' of ' + total + ')';
+    }
+    form.addEventListener('change', refresh);
+    refresh();
+  })();
+  </script>
+  <% } %>
 
   <%# who had your back this week ─────────────────────────────────────────────── %>
   <% if (locked && myGame) { const s = splits[myGame.id];

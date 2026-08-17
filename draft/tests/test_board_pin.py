@@ -185,14 +185,51 @@ def test_THE_RECOVERY_PATH_ACTUALLY_REPRODUCES_THE_PINNED_BYTES():
         return                                    # nothing to pin in this checkout
     sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root,
                          capture_output=True, text=True).stdout.strip()
+    if not sha:
+        return                                    # not a git checkout — nothing to recover FROM
     raw = (root / path).read_bytes()
     pinned = B.pin(raw, sha, "2026-08-12", path=path)
     rec = subprocess.run(["git", "show", "%s:%s" % (sha, path)], cwd=root,
                          capture_output=True)
     assert rec.returncode == 0, rec.stderr[:200]
-    assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
-        "the pin's own recover_with does not reproduce the pinned bytes")
-    assert len(rec.stdout) == len(raw)
+
+    # THE PREMISE, CHECKED INSTEAD OF ASSUMED — fixed 2026-08-15. This test
+    # blocked the nightly board rebuild twice (runs 39 and 40) and got filed
+    # as "needs live data to diagnose". It didn't. The acceptance gate runs
+    # pytest AFTER build.py rewrites public/draft_data.json and BEFORE the
+    # commit step, so on every night the live fetch actually changed the
+    # board, the working-tree bytes pinned here did not exist at HEAD yet —
+    # and recovery from HEAD "failed" precisely because the rebuild
+    # SUCCEEDED. The CI evidence names the mechanism exactly: the recovered
+    # digest was byte-identical across both failing runs (HEAD's committed
+    # board, unchanged on main) while the pinned digest differed per run
+    # (each night's fresh build). A pin naming HEAD for bytes HEAD does not
+    # contain is a lie, and asserting the recovery of a lie proves nothing
+    # about the recovery path.
+    dirty = subprocess.run(["git", "hash-object", "--", path], cwd=root,
+                           capture_output=True, text=True).stdout.strip() != \
+        subprocess.run(["git", "rev-parse", "%s:%s" % (sha, path)], cwd=root,
+                       capture_output=True, text=True).stdout.strip()
+    if not dirty:
+        # CLEAN TREE — the real contract, unchanged from the original: the
+        # pin's own recover_with instruction reproduces the pinned bytes.
+        assert hashlib.sha256(rec.stdout).hexdigest() == pinned["sha256"], (
+            "the pin's own recover_with does not reproduce the pinned bytes")
+        assert len(rec.stdout) == len(raw)
+    else:
+        # MID-REBUILD (the nightly gate's normal state on a data-refresh
+        # night): the equality contract is untestable, but the run is NOT
+        # vacuous — assert the digest DISCRIMINATES: a pin of bytes that are
+        # genuinely not at HEAD must fail verification against HEAD. That is
+        # the pin system's tamper-evidence doing its job, demonstrated on a
+        # real divergence rather than a synthetic one.
+        assert hashlib.sha256(rec.stdout).hexdigest() != pinned["sha256"], (
+            "the working tree differs from HEAD (hash-object says so) yet the "
+            "recovered bytes hash equal to the pin — the digest is not "
+            "discriminating and the pin proves nothing")
+        print("UNCHECKED (equality contract): %s differs from HEAD — a freshly "
+              "rebuilt board cannot be recovered from history until committed. "
+              "Discrimination arm ran instead." % path)
 
 
 def test_the_pin_series_carries_its_own_field_population():

@@ -151,12 +151,28 @@ def test_THE_DIVERGENCE_IS_RECORDED_WHERE_THE_CONSTANT_LIVES():
         "nothing tells the next reader that 0.15 is known to be ~25% wide")
 
 
+@pytest.mark.repo_parity
 @pytest.mark.parametrize("lo,hi", [(1, 25), (25, 50), (50, 100), (100, 150)])
 def test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error(lo, hi):
     """A RATCHET, NOT AN ENDORSEMENT. Today's rule is wide; these bounds are
     today's measured error plus headroom, so the rule cannot get WORSE while the
     decision is open. Tightening them is the fix; widening them to make a red go
-    away is the thing this repo keeps catching itself doing."""
+    away is the thing this repo keeps catching itself doing.
+
+    repo_parity (runs 31936912289 + 31948330004, 2026-08-16): the ratio is
+    fitted (keepers.py's shipped CONSTANT, pure repo code) over the day's
+    freshly fetched FFC-published dispersion. In the publication gate the
+    board file carries that morning's market, so a market move — the sds
+    tightening ~5% is enough to push a band's median past 1.35 — refuses the
+    candidate although no BOARD value is asserted anywhere in this test (the
+    board's own adp_sd on these rows IS the published measurement, taken
+    as-is). It refuses the market for being NEW, not the board for being
+    BAD. The ratchet stays enforced against committed state in every normal
+    pytest run and the advisory pre-build step, where its 2026-08-14
+    calibration is meaningful. NOTE: test_FAIL_ARM below is the same
+    fetch-sensitive shape in the opposite direction and is deliberately NOT
+    marked — it has not refused a board, and pre-excluding it without an
+    observed failure is the on-faith exclusion §6 forbids."""
     band = [p for p in MEASURED if lo <= p["adp"] < hi]
     if len(band) < 10:
         pytest.skip(f"n={len(band)} in {lo}-{hi}")

@@ -10,26 +10,26 @@
     {
       "seed": 20268727,
       "w0.65": {
-        "edge": -9.62,
+        "edge": 27.56,
         "ci95": [
-          -30.94,
-          12.06
+          6.56,
+          49.44
         ],
-        "separable": false
+        "separable": true
       },
       "w1.0": {
-        "edge": 5.94,
+        "edge": 13.56,
         "ci95": [
-          -14.62,
-          25.44
+          -8.06,
+          35.25
         ],
         "separable": false
       },
       "w1.5": {
-        "edge": 22.69,
+        "edge": 15.56,
         "ci95": [
-          -0.25,
-          45.38
+          -5.56,
+          36.5
         ],
         "separable": false
       }
@@ -37,58 +37,77 @@
     {
       "seed": 20365537,
       "w0.65": {
-        "edge": -8.81,
+        "edge": 52.5,
         "ci95": [
-          -29.56,
-          13.31
+          31.38,
+          73.31
         ],
-        "separable": false
+        "separable": true
       },
       "w1.0": {
-        "edge": 7.31,
+        "edge": 40.81,
         "ci95": [
-          -16.12,
-          30.94
+          19.62,
+          60.44
         ],
-        "separable": false
+        "separable": true
       },
       "w1.5": {
-        "edge": 13.75,
+        "edge": 35.38,
         "ci95": [
-          -9.88,
-          39.12
+          14.81,
+          55.38
         ],
-        "separable": false
+        "separable": true
       }
     },
     {
       "seed": 21560517,
       "w0.65": {
-        "edge": 18.81,
+        "edge": 26.56,
         "ci95": [
-          -3.12,
-          41.25
+          5.69,
+          47.06
         ],
-        "separable": false
+        "separable": true
       },
       "w1.0": {
-        "edge": 17.62,
+        "edge": 9.0,
         "ci95": [
-          -8.06,
-          41.56
+          -11.81,
+          30.31
         ],
         "separable": false
       },
       "w1.5": {
-        "edge": 50.38,
+        "edge": 8.69,
         "ci95": [
-          26.5,
-          73.62
+          -12.5,
+          29.5
         ],
-        "separable": true
+        "separable": false
       }
     }
   ],
-  "mean_w1_0": 10.3,
-  "verdict": "LEANS positive \u2014 w=1.0 positive in all seeds (mean +$10.3) but separable in only 0/3. Directional; keep 0.65, treat 1.0 as favored-but-thin."
+  "columns": {
+    "0.65": {
+      "mean": 35.5,
+      "n_pos": 3,
+      "n_sep": 3
+    },
+    "1.0": {
+      "mean": 21.1,
+      "n_pos": 3,
+      "n_sep": 1
+    },
+    "1.5": {
+      "mean": 19.9,
+      "n_pos": 3,
+      "n_sep": 1
+    }
+  },
+  "board_distinct_ceiling_ratios": 505,
+  "live_ceiling_weight": 0.0,
+  "mean_w1_0": 21.1,
+  "verdict": "REPLICATES at w=0.65 \u2014 positive in all 3 fresh seeds (mean +$35.5), separable in 3/3, against a CORE arm whose ceiling weight is the shipped 0.0. A non-zero ceiling weight beats the shipped zero. THE GRID DOES NOT BRACKET THE OPTIMUM: w=0.65 is the smallest weight tested, so the peak lies at or beyond the edge and this run cannot locate it."
 }

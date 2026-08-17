@@ -302,6 +302,14 @@ BOARD_FIELD_SOURCES = {
     # so nothing downstream moves either way, and I matched the sibling rather
     # than invent a rule.
     "adp_sd_source": "seasonal",
+    # TERRITORY-GRANT: A proj_sd_source
+    # Same shape, same reasoning, same precedent as adp_sd_source directly
+    # above (Override #4): projections.py:310 writes proj_sd_source in the
+    # same dict literal as proj_sd (REC-1's calibration, bb1d115a) — the
+    # field names WHICH PATH produced proj_sd and travels with that fetch.
+    # Declared by the relay 2026-08-16 so the publication gate stops
+    # refusing fresh boards for carrying it; C — challenge freely.
+    "proj_sd_source": "seasonal",
     # ⚠️ ADDED BY A, 2026-08-13, WITH CORY'S AUTHORISATION — SECOND OVERRIDE OF
     # THE A/C BOUNDARY. These three are A's per-player ADP season stamps
     # (`build.adp_season_stamps`), C's own gate implemented in A's lane. They
@@ -328,7 +336,45 @@ BOARD_FIELD_SOURCES = {
     # A BLEND of [season-1, season-2] at recency_weights [0.7, 0.3], NOT one year.
     "target_share": "historical", "opportunity_share": "historical",
     "wopr": "historical", "opportunity_z": "historical",
+    # The six that opportunity_metrics computed and the board dropped until
+    # 2026-08-17. Same [season-1, season-2] blend as their three siblings above,
+    # so the same honest label: prior-season measurements, deliberately carried.
+    "air_yards_share": "historical", "adot": "historical",
+    "rz_share": "historical", "rz_targets": "historical",
+    "carries": "historical", "gl_carries": "historical",
     "opportunity_adj": "historical",
+    # own_projections.compute_own_projections: a walk_forward model fit over
+    # prior-season nflverse data (own_projections.py's own default
+    # prior_years, discovered backward from season-1). Same axis as the four
+    # above -- these ARE prior-season values on a 2026 board, legitimately.
+    # SECOND HALF OF THE SAME FIX AS BOARD_FIELD_PURPOSE below: this is a
+    # SEPARATE registry (the season axis, not the purpose axis) and
+    # registering proj_ownmodel in only one of the two still failed the
+    # nightly rebuild -- found 2026-08-15 by firing the real rebuild after
+    # the first fix and watching test_EVERY_BOARD_FIELD_IS_CLASSIFIED still
+    # red, rather than assuming the first fix was complete.
+    "proj_ownmodel": "historical",
+
+    # NFL DRAFT CAPITAL (draft_capital.attach_capital, 2026-08-17). Declared
+    # HISTORICAL rather than seasonal, and the reason is that the column spans
+    # both: for this year's rookie class the NFL round IS 2026 information, but
+    # for the ~250 veterans who also carry it, it is a fact from 2021-2025.
+    # Labelling the whole column "seasonal" would assert current-season
+    # provenance for rows where that is simply false, and this registry exists
+    # to stop exactly that. "historical" is the honest label for a mixed column
+    # and it is also the conservative one — it forces the field to be NAMED as
+    # prior-season information rather than waved through.
+    #
+    # It does not decay the way a projection does: draft capital is permanent,
+    # which is why it can be carried forward without a freshness worry. That is
+    # a property of THIS field, not a general licence.
+    "nfl_draft_round": "historical", "nfl_draft_pick": "historical",
+    # Sibling of proj_sd_source: says whether proj_ceiling is the measured
+    # 2023-25 p90 or the Gaussian fallback for an unmeasured band.
+    "proj_ceiling_source": "derived", "proj_floor_source": "derived",
+    # Pure functions of the two above (draft_capital.tier_of, and the capital
+    # season vs the board season), so they inherit the derived label.
+    "capital_tier": "derived", "is_nfl_rookie": "derived",
 
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
@@ -436,6 +482,7 @@ BOARD_FIELD_PURPOSE = {
     # provenance string riding alongside a fetched value. It is provenance ABOUT
     # a number and never an input to one — no ranking reads it, and none does.
     "adp_sd_source": LIVE_FEED,
+    "proj_sd_source": LIVE_FEED,   # TERRITORY-GRANT: A proj_sd_source (see above)
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it
     # already has. They are provenance about a number, never an input to one, so
@@ -447,7 +494,43 @@ BOARD_FIELD_PURPOSE = {
     # and named, because the failure is a prior read as a current measurement.
     "opportunity_adj": HISTORICAL_PRIOR, "opportunity_share": HISTORICAL_PRIOR,
     "opportunity_z": HISTORICAL_PRIOR, "target_share": HISTORICAL_PRIOR,
+    # Retained 2026-08-17. rz_share is the one that cost a study: it was
+    # computed from play-by-play and consumed in the composite while reaching
+    # zero board rows, so opportunity_inheritance had to report red-zone
+    # vacancy as unmeasurable when it had in fact been measured.
+    "air_yards_share": HISTORICAL_PRIOR, "adot": HISTORICAL_PRIOR,
+    "rz_share": HISTORICAL_PRIOR, "rz_targets": HISTORICAL_PRIOR,
+    "carries": HISTORICAL_PRIOR, "gl_carries": HISTORICAL_PRIOR,
     "wopr": HISTORICAL_PRIOR, "games_expected": HISTORICAL_PRIOR,
+    # own_projections.compute_own_projections: a walk_forward season-total model
+    # fit over prior-season nflverse data (own_projections.py), same class as the
+    # other prior-season estimates above. NOT derived from other board fields (it
+    # is fetched/computed independently) and NOT yet an input to proj_mean/vorp/
+    # ranking -- attach_own_model()'s own docstring guarantees additive-only, a
+    # display field for comparison, not a pricing input. Missing this
+    # classification is what blocked the 2026-08-15 08:36 UTC nightly rebuild
+    # (draft-data.yml) from publishing at all -- the "every board field is
+    # classified" gate correctly refused an undeclared field rather than
+    # trusting it silently.
+    "proj_ownmodel": HISTORICAL_PRIOR,
+    # NFL DRAFT CAPITAL — a RECORDED FACT, not an estimate, which is the one
+    # place it sits awkwardly under HISTORICAL_PRIOR ("estimated from prior
+    # seasons"). Filed here anyway because the alternative labels are worse:
+    # it is not LIVE_FEED (most rows describe a prior year), not
+    # MODEL_CONSTANT (it is fetched, not declared), and emphatically not
+    # EXPERIMENT — nflverse's draft_picks release is source data, and the
+    # STUDY that made us interested in it (rookie_wr_capital_2026-08-17) is a
+    # separate artifact that this column does not carry.
+    #
+    # The distinction matters because EXPERIMENT means "never prices a
+    # recommendation", and the open question Cory has posed is precisely
+    # whether this SHOULD price one. Today it does not: no shipped weight reads
+    # these fields. If a ceiling boost ever keys on capital_tier, this
+    # classification is where the change must be argued.
+    "nfl_draft_round": HISTORICAL_PRIOR, "nfl_draft_pick": HISTORICAL_PRIOR,
+    "proj_ceiling_source": DERIVED_PURPOSE,
+    "proj_floor_source": DERIVED_PURPOSE,
+    "capital_tier": DERIVED_PURPOSE, "is_nfl_rookie": DERIVED_PURPOSE,
     # declared in config or code rather than measured from a feed
     "variance": MODEL_CONSTANT, "variance_why": MODEL_CONSTANT,
     "replacement": MODEL_CONSTANT,

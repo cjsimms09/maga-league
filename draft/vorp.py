@@ -45,6 +45,12 @@ MAX_FLEX_PASSES = 5   # converges in 2-3 in practice; cap guards a pathological 
 CONVERGE_EPS = 0.01   # replacement points move less than this -> stable
 
 
+#: Positions whose cross-position VORP is not a draft signal: only 32 and 44
+#: options exist, they cluster tightly, and they are streamable all season.
+#: Ranked among themselves, demoted below the skill positions. See apply_vorp.
+ONESIE_POSITIONS = ("K", "DEF")
+
+
 def replacement_levels(players: list[dict], cfg: dict) -> tuple[dict, dict]:
     """Compute replacement projection per position.
 
@@ -123,7 +129,35 @@ def apply_vorp(players: list[dict], cfg: dict) -> tuple[list[dict], dict]:
         base = replacement.get(p["position"], 0.0)
         p["replacement"] = round(base, 2)
         p["vorp"] = round(float(p.get("proj_mean", 0)) - base, 2)
-    players.sort(key=lambda p: p.get("vorp", 0), reverse=True)
+    # K AND DEF ARE DEMOTED OUT OF THE CROSS-POSITION ORDER (Cory's ruling,
+    # 2026-08-17: "Remove 1, 3"). VORP is only comparable across positions when
+    # the distributions are. Measured on the live board:
+    #
+    #   pos   n    VORP@1   depth20   <- points lost by waiting 20 more picks
+    #   WR   238   124.6      32.7       deep: waiting is nearly free
+    #   DEF   32    29.0      30.0       waiting costs the whole position's VORP
+    #   K     44    10.0      35.0       waiting costs MORE than it is worth
+    #
+    # A defence's VORP of 29 says "29 better than DEF10" — but you can still get
+    # a defence 30 points below replacement twenty picks later, so those 29
+    # points were never purchasable. They are an artifact of measuring against a
+    # floor you would never actually be forced down to. That put the LA Rams at
+    # overall 35 against an ADP of 127 — the engine recommending a 4th-round
+    # defence.
+    #
+    # public/js/draft/app.js already demoted them IN THE BOARD VIEW
+    # (`demoteOnesies`, on by default) with the note "streamable all season, so
+    # their cross-position rank is not a draft signal". This moves that truth
+    # into the ARTIFACT so every consumer inherits it — keeperui.js sorts on
+    # overall_rank with no such guard, and any future reader would have had to
+    # rediscover this.
+    #
+    # NOT dropped, NOT unranked: they keep a real vorp and a real pos_rank, and
+    # they sort among themselves by VORP. Only their position in the
+    # CROSS-position order changes, which is the only place the comparison was
+    # invalid.
+    players.sort(key=lambda p: (p.get("position") in ONESIE_POSITIONS,
+                                -(p.get("vorp") or 0.0)))
     for i, p in enumerate(players, start=1):
         p["overall_rank"] = i
     return players, diag

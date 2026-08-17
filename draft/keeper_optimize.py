@@ -21,7 +21,35 @@ def main() -> int:
     cfg = json.load(open(os.path.join(ROOT, "draft", "config", "league_config.json")))
     art = json.load(open(os.path.join(ROOT, "public", "draft_data.json")))
     hist = json.load(open(os.path.join(ROOT, "draft", "data", "league_history.json")))
+    # KEPT PLAYERS ARE IN A DIFFERENT LIST, and missing them broke this tool
+    # completely. Fixed 2026-08-16, six days before the draft, after running it
+    # and reading: "RECOMMENDED: keep 0 — nobody", best offer Cameron Dicker (a
+    # KICKER, VORP 0) at round 1. Cory's three real designations — Chase, Henry,
+    # Walker — did not appear at all.
+    #
+    # Cause: build.py moves designated keepers out of `players[]` into
+    # `kept_players[]`, so a board that indexes only `players[]` cannot see the
+    # very players this tool exists to price. The loop below then hit a bare
+    # `continue` and dropped them in silence, which is how a decision tool came
+    # to recommend the opposite of the right answer without any error.
+    #
+    # `kept_players` rows carry `proj_mean` but NOT `vorp` (the prune runs
+    # before VORP is assigned), so the value is recovered the same way
+    # vorp.apply_vorp computes it: proj_mean minus the position's replacement
+    # level, both read from this same artifact. A keeper that still cannot be
+    # priced is REFUSED LOUDLY below rather than skipped.
     by_id = {str(p["player_id"]): p for p in art["players"]}
+    _rep = ((art.get("replacement") or {}).get("replacement_points") or {})
+    for kp in (art.get("kept_players") or []):
+        pid = str(kp.get("player_id"))
+        if pid in by_id:
+            continue
+        row = dict(kp)
+        if row.get("vorp") is None and row.get("proj_mean") is not None:
+            base = _rep.get(row.get("position"))
+            if base is not None:
+                row["vorp"] = round(float(row["proj_mean"]) - float(base), 2)
+        by_id[pid] = row
 
     # My roster from the current-season final_rosters.
     season = max(hist["seasons"], key=lambda s: int(s["season"]))
@@ -42,10 +70,15 @@ def main() -> int:
                     if pid not in earliest or yr < earliest[pid][0]:
                         earliest[pid] = (yr, rnd)
 
-    eligible = []
+    eligible, unpriced = [], []
     for pid in roster_ids:
         p = by_id.get(pid)
-        if not p:
+        # REFUSE LOUDLY, never `continue`. A silently dropped roster player is
+        # how this tool recommended "keep nobody" while holding three real
+        # keepers. A missing player is UNKNOWN, not worthless, and the person
+        # about to make a keeper decision has to be told which ones vanished.
+        if not p or p.get("vorp") is None:
+            unpriced.append((pid, (p or {}).get("name") or "unknown"))
             continue
         orig = earliest.get(pid, (None, None))[1]
         eligible.append({
@@ -78,6 +111,15 @@ def main() -> int:
     lines.append("artifact built_at " + str(art.get("built_at")) + " · adp_source "
                  + str(((art.get("provenance") or {}).get("adp") or {}).get("adp_source")))
     lines.append("")
+    if unpriced:
+        # Loud, above the recommendation, because a recommendation computed
+        # without some of your roster is not a recommendation.
+        lines.append("!! %d ROSTER PLAYER(S) COULD NOT BE PRICED and are EXCLUDED "
+                     "from every option below:" % len(unpriced))
+        for pid, nm in unpriced:
+            lines.append("     %s (%s)" % (nm, pid))
+        lines.append("   The recommendation is incomplete until these are priced.")
+        lines.append("")
     lines.append("RECOMMENDED: keep %d — %s  (total surplus %.1f)" % (
         out["recommended_keep"], ", ".join(out["recommended_players"]) or "nobody",
         out["recommended_surplus"]))

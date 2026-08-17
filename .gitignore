@@ -1,4 +1,10 @@
 node_modules/
+# Isolated git worktrees for background subagents (Claude Code's Agent tool,
+# isolation:"worktree") — full duplicate checkouts, local and ephemeral,
+# often still being written to by an in-progress agent. Never a source
+# artifact; committing one would dump a second copy of the whole repo into
+# history and risk corrupting the running agent's own work.
+.claude/worktrees/
 # Local dev store for the site (seeded per machine). Not the draft pipeline's
 # data directory, which is a committed artifact — see the negation below.
 data/
@@ -20,3 +26,7 @@ draft/backtest/bridge-results.json
 draft/backtest/tournament-results.json
 draft/data/bbm/*.csv
 .scan_receipt.json
+
+# Background-agent worktrees (Claude Code Agent tool) — full duplicate
+# checkouts; never repo content. Same line the relay branch carries.
+.claude/worktrees/

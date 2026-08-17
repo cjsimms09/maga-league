@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -65,7 +66,21 @@ sys.path.insert(0, str(ROOT / "draft"))
 import keepers as K  # noqa: E402
 
 ARTIFACT = ROOT / "public" / "draft_data.json"
-OUT = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+_DEFAULT_OUT = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+# OVERRIDABLE SO THE ONE IRREVERSIBLE ACTION CAN BE REHEARSED — added
+# 2026-08-17, the same pattern and for the same reason as
+# log_draft_picks.LOG / DRAFT_PICK_LOG_PATH (2026-08-15).
+#
+# The draft-day action is "delete the stale freeze, re-run this". Until now the
+# ONLY way to find out whether that command works was to delete the real
+# artifact and run it — on draft day, on the clock, with no way back if it
+# failed. The file whose header calls itself "the only irreversible item in the
+# plan" was the one file in the repo that could not be rehearsed.
+#
+# The default is completely unchanged for every normal caller, and `main()`'s
+# refusal-to-overwrite still applies to whatever path is in force: this makes the
+# rehearsal possible, not the overwrite easy.
+OUT = Path(os.environ.get("PRE_DRAFT_FREEZE_PATH") or str(_DEFAULT_OUT))
 
 #: Fields a replay needs to recompute ANY valuation, not just the two that exist
 #: today. `vorp` and `proj_mean` are the old path's inputs; `replacement` and the
@@ -111,6 +126,33 @@ PLAYER_FIELDS = (
     # no data, a number means measured. Both are frozen so the distinction
     # survives into September instead of being re-derived from memory.
     "opportunity_z", "opportunity_share", "opportunity_adj",
+    # ⚠️ NFL DRAFT CAPITAL — INERT TODAY, AND FROZEN FOR EXACTLY THAT REASON.
+    # No shipped weight reads these (added 2026-08-17 as an informational
+    # column), which by this tuple's own standing rule is the one argument that
+    # CANNOT justify dropping a field: the freeze exists to answer "would a
+    # DIFFERENT valuation have chosen differently", and the live open question
+    # is whether a ceiling boost keyed on `capital_tier` should exist at all.
+    # Without these four, the September regression that settles it would have
+    # to re-derive draft capital from a store that may have moved.
+    #
+    # ABSENT IS NOT UNDRAFTED. `attach_capital` leaves an unmatched player
+    # completely untouched rather than writing None, so a missing key means
+    # "our name join did not find him" and never "he went undrafted" — the same
+    # distinction `opportunity_share` draws above, and it matters more here
+    # because this year's class joins by NAME (its capital store carries no
+    # sleeper_id at all).
+    "nfl_draft_round", "nfl_draft_pick", "capital_tier", "is_nfl_rookie",
+    # ⚠️ WHAT THE FLOOR AND CEILING ACTUALLY MEAN. Added 2026-08-17, the day
+    # both fields changed MEANING: proj_ceiling went from `mean + 1.036*sd` (a
+    # Gaussian over the mean, carrying no player information) to the measured
+    # p90 of realized outcomes, and proj_floor likewise to the measured p10.
+    #
+    # The VALUES were already frozen. The SOURCES were not, which means a board
+    # frozen yesterday and one frozen today hold two different quantities under
+    # one field name with nothing to distinguish them. A replay in 2027 would
+    # compare them as if they were the same measurement — the exact silent,
+    # plausible-looking error this whole freeze exists to prevent.
+    "proj_floor_source", "proj_ceiling_source",
 )
 
 

@@ -1,0 +1,1102 @@
+{
+  "budget": {
+    "limit": 100,
+    "remaining": 59,
+    "reserve": 20,
+    "reset_at": "2026-08-16T14:28:42Z",
+    "spendable": 39,
+    "spent_this_run": 40
+  },
+  "complete": true,
+  "coverage": 1.0,
+  "deferred_count": 0,
+  "events": [
+    {
+      "away": "Cleveland Browns",
+      "captured_at": "2026-08-16T13:28:42Z",
+      "event_id": 71548108,
+      "home": "Chicago Bears",
+      "odds": {
+        "away": "Cleveland Browns",
+        "awayId": 4417,
+        "bookmakers": {},
+        "date": "2026-08-15T17:00:00Z",
+        "home": "Chicago Bears",
+        "homeId": 4391,
+        "id": 71548108,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Minnesota Vikings",
+      "captured_at": "2026-08-16T13:28:42Z",
+      "event_id": 71548110,
+      "home": "New York Giants",
+      "odds": {
+        "away": "Minnesota Vikings",
+        "awayId": 4423,
+        "bookmakers": {},
+        "date": "2026-08-15T17:00:00Z",
+        "home": "New York Giants",
+        "homeId": 4426,
+        "id": 71548110,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Carolina Panthers",
+      "captured_at": "2026-08-16T13:28:42Z",
+      "event_id": 71548112,
+      "home": "Buffalo Bills",
+      "odds": {
+        "away": "Carolina Panthers",
+        "awayId": 4415,
+        "bookmakers": {},
+        "date": "2026-08-15T17:00:00Z",
+        "home": "Buffalo Bills",
+        "homeId": 4376,
+        "id": 71548112,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Los Angeles Rams",
+      "captured_at": "2026-08-16T13:28:42Z",
+      "event_id": 71548116,
+      "home": "Kansas City Chiefs",
+      "odds": {
+        "away": "Los Angeles Rams",
+        "awayId": 4387,
+        "bookmakers": {},
+        "date": "2026-08-15T20:00:00Z",
+        "home": "Kansas City Chiefs",
+        "homeId": 4422,
+        "id": 71548116,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T20:00:00Z"
+    },
+    {
+      "away": "Jacksonville Jaguars",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548114,
+      "home": "New Orleans Saints",
+      "odds": {
+        "away": "Jacksonville Jaguars",
+        "awayId": 4386,
+        "bookmakers": {},
+        "date": "2026-08-15T20:00:00Z",
+        "home": "New Orleans Saints",
+        "homeId": 4425,
+        "id": 71548114,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T20:00:00Z"
+    },
+    {
+      "away": "Philadelphia Eagles",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548118,
+      "home": "Baltimore Ravens",
+      "odds": {
+        "away": "Philadelphia Eagles",
+        "awayId": 4428,
+        "bookmakers": {},
+        "date": "2026-08-15T23:00:00Z",
+        "home": "Baltimore Ravens",
+        "homeId": 4413,
+        "id": 71548118,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T23:00:00Z"
+    },
+    {
+      "away": "Dallas Cowboys",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548120,
+      "home": "Seattle Seahawks",
+      "odds": {
+        "away": "Dallas Cowboys",
+        "awayId": 4392,
+        "bookmakers": {},
+        "date": "2026-08-16T00:00:00Z",
+        "home": "Seattle Seahawks",
+        "homeId": 4430,
+        "id": 71548120,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-16T00:00:00Z"
+    },
+    {
+      "away": "Las Vegas Raiders",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548122,
+      "home": "Houston Texans",
+      "odds": {
+        "away": "Las Vegas Raiders",
+        "awayId": 4390,
+        "bookmakers": {},
+        "date": "2026-08-21T00:00:00Z",
+        "home": "Houston Texans",
+        "homeId": 4324,
+        "id": 71548122,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T00:00:00Z"
+    },
+    {
+      "away": "San Francisco 49ers",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548124,
+      "home": "Los Angeles Chargers",
+      "odds": {
+        "away": "San Francisco 49ers",
+        "awayId": 4389,
+        "bookmakers": {},
+        "date": "2026-08-21T02:00:00Z",
+        "home": "Los Angeles Chargers",
+        "homeId": 4429,
+        "id": 71548124,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T02:00:00Z"
+    },
+    {
+      "away": "New York Jets",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548126,
+      "home": "Pittsburgh Steelers",
+      "odds": {
+        "away": "New York Jets",
+        "awayId": 4427,
+        "bookmakers": {},
+        "date": "2026-08-21T23:00:00Z",
+        "home": "Pittsburgh Steelers",
+        "homeId": 4345,
+        "id": 71548126,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T23:00:00Z"
+    },
+    {
+      "away": "Carolina Panthers",
+      "captured_at": "2026-08-16T13:28:43Z",
+      "event_id": 71548128,
+      "home": "Jacksonville Jaguars",
+      "odds": {
+        "away": "Carolina Panthers",
+        "awayId": 4415,
+        "bookmakers": {},
+        "date": "2026-08-21T23:30:00Z",
+        "home": "Jacksonville Jaguars",
+        "homeId": 4386,
+        "id": 71548128,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T23:30:00Z"
+    },
+    {
+      "away": "Green Bay Packers",
+      "captured_at": "2026-08-16T13:28:44Z",
+      "event_id": 71548134,
+      "home": "Denver Broncos",
+      "odds": {
+        "away": "Green Bay Packers",
+        "awayId": 4420,
+        "bookmakers": {},
+        "date": "2026-08-22T01:00:00Z",
+        "home": "Denver Broncos",
+        "homeId": 4418,
+        "id": 71548134,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T01:00:00Z"
+    },
+    {
+      "away": "Washington Commanders",
+      "captured_at": "2026-08-16T13:28:44Z",
+      "event_id": 71548140,
+      "home": "Detroit Lions",
+      "odds": {
+        "away": "Washington Commanders",
+        "awayId": 4432,
+        "bookmakers": {},
+        "date": "2026-08-22T16:00:00Z",
+        "home": "Detroit Lions",
+        "homeId": 4419,
+        "id": 71548140,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T16:00:00Z"
+    },
+    {
+      "away": "Buffalo Bills",
+      "captured_at": "2026-08-16T13:28:44Z",
+      "event_id": 71548130,
+      "home": "Cleveland Browns",
+      "odds": {
+        "away": "Buffalo Bills",
+        "awayId": 4376,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Cleveland Browns",
+        "homeId": 4417,
+        "id": 71548130,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "Baltimore Ravens",
+      "captured_at": "2026-08-16T13:28:44Z",
+      "event_id": 71548132,
+      "home": "Minnesota Vikings",
+      "odds": {
+        "away": "Baltimore Ravens",
+        "awayId": 4413,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Minnesota Vikings",
+        "homeId": 4423,
+        "id": 71548132,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "Atlanta Falcons",
+      "captured_at": "2026-08-16T13:28:44Z",
+      "event_id": 71548136,
+      "home": "Indianapolis Colts",
+      "odds": {
+        "away": "Atlanta Falcons",
+        "awayId": 4393,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Indianapolis Colts",
+        "homeId": 4421,
+        "id": 71548136,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "New Orleans Saints",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548142,
+      "home": "Los Angeles Rams",
+      "odds": {
+        "away": "New Orleans Saints",
+        "awayId": 4425,
+        "bookmakers": {},
+        "date": "2026-08-22T20:00:00Z",
+        "home": "Los Angeles Rams",
+        "homeId": 4387,
+        "id": 71548142,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T20:00:00Z"
+    },
+    {
+      "away": "New York Giants",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548144,
+      "home": "Miami Dolphins",
+      "odds": {
+        "away": "New York Giants",
+        "awayId": 4426,
+        "bookmakers": {},
+        "date": "2026-08-22T20:00:00Z",
+        "home": "Miami Dolphins",
+        "homeId": 4287,
+        "id": 71548144,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T20:00:00Z"
+    },
+    {
+      "away": "Philadelphia Eagles",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548146,
+      "home": "New England Patriots",
+      "odds": {
+        "away": "Philadelphia Eagles",
+        "awayId": 4428,
+        "bookmakers": {},
+        "date": "2026-08-22T23:00:00Z",
+        "home": "New England Patriots",
+        "homeId": 4424,
+        "id": 71548146,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:00:00Z"
+    },
+    {
+      "away": "Chicago Bears",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548148,
+      "home": "Cincinnati Bengals",
+      "odds": {
+        "away": "Chicago Bears",
+        "awayId": 4391,
+        "bookmakers": {},
+        "date": "2026-08-22T23:00:00Z",
+        "home": "Cincinnati Bengals",
+        "homeId": 4416,
+        "id": 71548148,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:00:00Z"
+    },
+    {
+      "away": "Kansas City Chiefs",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548150,
+      "home": "Tampa Bay Buccaneers",
+      "odds": {
+        "away": "Kansas City Chiefs",
+        "awayId": 4422,
+        "bookmakers": {},
+        "date": "2026-08-22T23:30:00Z",
+        "home": "Tampa Bay Buccaneers",
+        "homeId": 4388,
+        "id": 71548150,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:30:00Z"
+    },
+    {
+      "away": "Dallas Cowboys",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548138,
+      "home": "Arizona Cardinals",
+      "odds": {
+        "away": "Dallas Cowboys",
+        "awayId": 4392,
+        "bookmakers": {},
+        "date": "2026-08-23T02:00:00Z",
+        "home": "Arizona Cardinals",
+        "homeId": 4412,
+        "id": 71548138,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-23T02:00:00Z"
+    },
+    {
+      "away": "Seattle Seahawks",
+      "captured_at": "2026-08-16T13:28:45Z",
+      "event_id": 71548152,
+      "home": "Tennessee Titans",
+      "odds": {
+        "away": "Seattle Seahawks",
+        "awayId": 4430,
+        "bookmakers": {},
+        "date": "2026-08-24T00:00:00Z",
+        "home": "Tennessee Titans",
+        "homeId": 367364,
+        "id": 71548152,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-24T00:00:00Z"
+    },
+    {
+      "away": "Pittsburgh Steelers",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548156,
+      "home": "Buffalo Bills",
+      "odds": {
+        "away": "Pittsburgh Steelers",
+        "awayId": 4345,
+        "bookmakers": {},
+        "date": "2026-08-27T23:00:00Z",
+        "home": "Buffalo Bills",
+        "homeId": 4376,
+        "id": 71548156,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-27T23:00:00Z"
+    },
+    {
+      "away": "San Francisco 49ers",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548154,
+      "home": "Las Vegas Raiders",
+      "odds": {
+        "away": "San Francisco 49ers",
+        "awayId": 4389,
+        "bookmakers": {},
+        "date": "2026-08-28T00:00:00Z",
+        "home": "Las Vegas Raiders",
+        "homeId": 4390,
+        "id": 71548154,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T00:00:00Z"
+    },
+    {
+      "away": "New England Patriots",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548158,
+      "home": "Cleveland Browns",
+      "odds": {
+        "away": "New England Patriots",
+        "awayId": 4424,
+        "bookmakers": {},
+        "date": "2026-08-28T00:00:00Z",
+        "home": "Cleveland Browns",
+        "homeId": 4417,
+        "id": 71548158,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T00:00:00Z"
+    },
+    {
+      "away": "Los Angeles Rams",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548160,
+      "home": "Los Angeles Chargers",
+      "odds": {
+        "away": "Los Angeles Rams",
+        "awayId": 4387,
+        "bookmakers": {},
+        "date": "2026-08-28T02:00:00Z",
+        "home": "Los Angeles Chargers",
+        "homeId": 4429,
+        "id": 71548160,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T02:00:00Z"
+    },
+    {
+      "away": "Washington Commanders",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548166,
+      "home": "Baltimore Ravens",
+      "odds": {
+        "away": "Washington Commanders",
+        "awayId": 4432,
+        "bookmakers": {},
+        "date": "2026-08-28T22:00:00Z",
+        "home": "Baltimore Ravens",
+        "homeId": 4413,
+        "id": 71548166,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T22:00:00Z"
+    },
+    {
+      "away": "Atlanta Falcons",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548162,
+      "home": "Miami Dolphins",
+      "odds": {
+        "away": "Atlanta Falcons",
+        "awayId": 4393,
+        "bookmakers": {},
+        "date": "2026-08-28T23:00:00Z",
+        "home": "Miami Dolphins",
+        "homeId": 4287,
+        "id": 71548162,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:00:00Z"
+    },
+    {
+      "away": "Houston Texans",
+      "captured_at": "2026-08-16T13:28:46Z",
+      "event_id": 71548164,
+      "home": "Carolina Panthers",
+      "odds": {
+        "away": "Houston Texans",
+        "awayId": 4324,
+        "bookmakers": {},
+        "date": "2026-08-28T23:00:00Z",
+        "home": "Carolina Panthers",
+        "homeId": 4415,
+        "id": 71548164,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:00:00Z"
+    },
+    {
+      "away": "New York Giants",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548168,
+      "home": "New York Jets",
+      "odds": {
+        "away": "New York Giants",
+        "awayId": 4426,
+        "bookmakers": {},
+        "date": "2026-08-28T23:30:00Z",
+        "home": "New York Jets",
+        "homeId": 4427,
+        "id": 71548168,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:30:00Z"
+    },
+    {
+      "away": "Tampa Bay Buccaneers",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548170,
+      "home": "Jacksonville Jaguars",
+      "odds": {
+        "away": "Tampa Bay Buccaneers",
+        "awayId": 4388,
+        "bookmakers": {},
+        "date": "2026-08-28T23:30:00Z",
+        "home": "Jacksonville Jaguars",
+        "homeId": 4386,
+        "id": 71548170,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:30:00Z"
+    },
+    {
+      "away": "Seattle Seahawks",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548172,
+      "home": "Kansas City Chiefs",
+      "odds": {
+        "away": "Seattle Seahawks",
+        "awayId": 4430,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Kansas City Chiefs",
+        "homeId": 4422,
+        "id": 71548172,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Cincinnati Bengals",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548174,
+      "home": "Philadelphia Eagles",
+      "odds": {
+        "away": "Cincinnati Bengals",
+        "awayId": 4416,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Philadelphia Eagles",
+        "homeId": 4428,
+        "id": 71548174,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "New Orleans Saints",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548176,
+      "home": "Dallas Cowboys",
+      "odds": {
+        "away": "New Orleans Saints",
+        "awayId": 4425,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Dallas Cowboys",
+        "homeId": 4392,
+        "id": 71548176,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Arizona Cardinals",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548178,
+      "home": "Green Bay Packers",
+      "odds": {
+        "away": "Arizona Cardinals",
+        "awayId": 4412,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Green Bay Packers",
+        "homeId": 4420,
+        "id": 71548178,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Minnesota Vikings",
+      "captured_at": "2026-08-16T13:28:47Z",
+      "event_id": 71548180,
+      "home": "Denver Broncos",
+      "odds": {
+        "away": "Minnesota Vikings",
+        "awayId": 4423,
+        "bookmakers": {},
+        "date": "2026-08-29T01:00:00Z",
+        "home": "Denver Broncos",
+        "homeId": 4418,
+        "id": 71548180,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T01:00:00Z"
+    },
+    {
+      "away": "Detroit Lions",
+      "captured_at": "2026-08-16T13:28:48Z",
+      "event_id": 71548184,
+      "home": "Indianapolis Colts",
+      "odds": {
+        "away": "Detroit Lions",
+        "awayId": 4419,
+        "bookmakers": {},
+        "date": "2026-08-29T17:00:00Z",
+        "home": "Indianapolis Colts",
+        "homeId": 4421,
+        "id": 71548184,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T17:00:00Z"
+    },
+    {
+      "away": "Chicago Bears",
+      "captured_at": "2026-08-16T13:28:48Z",
+      "event_id": 71548182,
+      "home": "Tennessee Titans",
+      "odds": {
+        "away": "Chicago Bears",
+        "awayId": 4391,
+        "bookmakers": {},
+        "date": "2026-08-29T22:00:00Z",
+        "home": "Tennessee Titans",
+        "homeId": 367364,
+        "id": 71548182,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T22:00:00Z"
+    }
+  ],
+  "events_captured": 39,
+  "events_deferred_for_budget": [],
+  "events_listed": 39,
+  "failures": [],
+  "filters": {
+    "cutoff": "2026-08-30T13:28:42Z",
+    "dropped_beyond_horizon": 0,
+    "dropped_ids": [],
+    "events_after_horizon": 39,
+    "events_before_horizon": 39,
+    "filter_version": "v1 (2026-08-11) \u2014 first registration. Supersedes an UNREGISTERED horizon of 14 days that was chosen after observing usa-nfl returns 134 events (rule 4 violation, no data affected \u2014 see the module docstring).",
+    "horizon_days": 14,
+    "keep_undated": true
+  },
+  "finished_at": "2026-08-16T13:28:48Z",
+  "horizon_days": 14,
+  "league": "usa-nfl-preseason",
+  "read_only": true,
+  "retried": [],
+  "started_at": "2026-08-16T13:28:42Z",
+  "touchdown_finding": {
+    "books_requested": [
+      "DraftKings",
+      "FanDuel"
+    ],
+    "could_have_shown_a_positive": false,
+    "markets_requested": null,
+    "matched_terms": [],
+    "note": "if present, the coverage arithmetic must be RE-RUN \u2014 the 23.3/29.1/47.5% uncovered figures were measured against a two-book, no-TD assumption",
+    "payload_bytes": 325,
+    "verdict": "unknown",
+    "why": "NO TD TERMS, BUT THE REQUEST COULD NOT HAVE CARRIED THEM \u2014 2 book(s), no prop market(s) requested, 325 byte payload. A fact about the query, NOT about the provider. Do not record it as coverage."
+  },
+  "visibility": "post_draft_only"
+}

@@ -7,6 +7,8 @@ constants, so spread is a fixed multiple of the mean, `proj_ceiling` is
 RANK-IDENTICAL to `proj_mean`, and `ceiling: 0` in MEASURED_WEIGHTS is an experiment
 that could not have returned anything else. Risk is PARTIAL for the same reason.
 
+**CORRECTED 2026-08-17: `build_bundle.py` NO LONGER WRITES THOSE CONSTANTS.** The paragraph above describes the state this module was written into and is kept because it is the reason the module exists. Dispersion on a bundle is now the measured p90/p10/sd per (position, band), fitted leave-one-season-out, and absent off an unmeasured cell rather than filled in. The collinearity is REDUCED, NOT REMOVED — the measured spread is still `proj_mean x a per-CELL` constant, varying between bands and not within them — so `ceiling: 0` remains UNMEASURED rather than refuted, and the experiment is runnable for the first time. See draft/backtest/HARNESS-DISPERSION-PREREG.md.
+
 WHY THIS AND NOT WEEKLY VARIANCE — they are different risks and only one is the
 drafter's. `nflverse_variance` measures IN-SEASON VOLATILITY: how much a player
 bounces week to week, given how his season went. This measures ESTIMATION ERROR: how
@@ -299,6 +301,30 @@ def proj_sd_for(cal, position, rank, proj_mean):
     if not c or c["status"] != "measured" or c["sd_ratio"] is None:
         return None, "unmeasurable"
     return round(float(proj_mean or 0.0) * c["sd_ratio"], 3), "measured"
+
+
+def proj_floor_for(cal, position, rank, proj_mean):
+    """`(floor, status)` from the MEASURED p10 of the realized ratio.
+
+    EXACT SIBLING of proj_ceiling_for, added 2026-08-17 (TERRITORY A addition to
+    a TERRITORY C module, mirroring an existing function rather than inventing a
+    shape). It existed for the ceiling and not the floor, so the floor went on
+    being `mean - 0.674*sd` — a symmetric Gaussian over a distribution this same
+    calibration measures as violently ASYMMETRIC.
+
+    The error is larger than the ceiling's and runs the same direction: measured
+    against the 20 cells, the Gaussian floor is off by more than 0.15 of the
+    projection in SIXTEEN of them, and the deep bands are not close. A WR ranked
+    33+ is told his floor is 0.656 x projection; the measured 10th percentile is
+    0.049 — essentially zero. QB|33+ is told 0.584 against a measured -0.001.
+
+    That is what made late-round fliers look SAFE. The same formula inflated
+    their ceilings, so the board flattered deep players on BOTH tails at once.
+    """
+    c = _cell(cal, position, rank)
+    if not c or c["status"] != "measured" or c.get("p10_ratio") is None:
+        return None, "unmeasurable"
+    return round(float(proj_mean or 0.0) * c["p10_ratio"], 3), "measured"
 
 
 def proj_ceiling_for(cal, position, rank, proj_mean):

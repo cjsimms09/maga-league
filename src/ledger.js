@@ -6,7 +6,14 @@
 // settles it (money actually changed hands). Settled entries stay forever as
 // the running tally. Balances therefore carry across seasons automatically —
 // built for multi-year tabs like the Germany situation.
-const { getDoc, setDoc, newId, now } = require('./data');
+//
+// CONCURRENCY (audit finding 1+3, 2026-08-16): the ledger is ONE doc and this
+// file had four read-modify-write writers — two racing requests could silently
+// erase each other's entries (a settle racing an append lost one of them).
+// Every writer below now goes through mutateDoc, which serializes the whole
+// read→modify→write per key at the store seam. Never add a writer here that
+// does a bare getDoc('ledger') + setDoc('ledger').
+const { getDoc, mutateDoc, newId, now } = require('./data');
 
 const TYPE_LABELS = {
   buy_in: 'Buy-in',
@@ -26,33 +33,33 @@ async function allEntries() {
 }
 
 async function addEntry({ owner_id, year, type, amount, desc, week = null, category = null, settled = false }) {
-  const ledger = await allEntries();
   const entry = {
     id: newId(), owner_id: Number(owner_id), year: Number(year), type,
     amount: Number(amount), desc, week, category,
     settled: !!settled, created_at: now(), settled_at: settled ? now() : null,
     audit: [{ at: now(), what: `Created${settled ? ' (already settled)' : ''}` }],
   };
-  ledger.push(entry);
-  await setDoc('ledger', ledger);
+  await mutateDoc('ledger', [], ledger => { ledger.push(entry); return ledger; });
   return entry;
 }
 
 async function updateEntry(id, patch, auditNote) {
-  const ledger = await allEntries();
-  const e = ledger.find(x => x.id === id);
-  if (!e) return null;
-  Object.assign(e, patch);
-  if (auditNote) {
-    e.audit = [...(e.audit || []), { at: now(), what: auditNote }].slice(-20);
-  }
-  await setDoc('ledger', ledger);
-  return e;
+  let out = null;
+  await mutateDoc('ledger', [], ledger => {
+    const e = ledger.find(x => x.id === id);
+    if (!e) return undefined;   // nothing to change — deliberate no-write
+    Object.assign(e, patch);
+    if (auditNote) {
+      e.audit = [...(e.audit || []), { at: now(), what: auditNote }].slice(-20);
+    }
+    out = e;
+    return ledger;
+  });
+  return out;
 }
 
 async function removeEntry(id) {
-  const ledger = await allEntries();
-  await setDoc('ledger', ledger.filter(x => x.id !== id));
+  await mutateDoc('ledger', [], ledger => ledger.filter(x => x.id !== id));
 }
 
 async function setSettled(id, settled, note, by) {
@@ -65,17 +72,19 @@ async function setSettled(id, settled, note, by) {
 
 // Settle every open entry for one owner in one shot ("we squared up").
 async function settleAll(owner_id) {
-  const ledger = await allEntries();
   const t = now();
   let n = 0;
-  for (const e of ledger) {
-    if (e.owner_id === Number(owner_id) && !e.settled) {
-      e.settled = true; e.settled_at = t;
-      e.audit = [...(e.audit || []), { at: t, what: 'Settled in a square-up' }].slice(-20);
-      n++;
+  await mutateDoc('ledger', [], ledger => {
+    n = 0;
+    for (const e of ledger) {
+      if (e.owner_id === Number(owner_id) && !e.settled) {
+        e.settled = true; e.settled_at = t;
+        e.audit = [...(e.audit || []), { at: t, what: 'Settled in a square-up' }].slice(-20);
+        n++;
+      }
     }
-  }
-  await setDoc('ledger', ledger);
+    return ledger;
+  });
   return n;
 }
 

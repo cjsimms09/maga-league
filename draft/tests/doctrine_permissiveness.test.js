@@ -83,10 +83,29 @@ function boardAt(pk) {
     det.late_qb.binds && det.late_qb.declined.position === 'QB',
     det.late_qb);
 
-  /* THE NUMBER IS REAL AND THE SENTENCE WAS NOT. $21 of decline is a true
-   * measurement of one half of a two-sided trade. */
+  /* THE NUMBER IS REAL AND THE SENTENCE WAS NOT. The decline is a true
+   * measurement of one half of a two-sided trade.
+   *
+   * THRESHOLD LOWERED 15 -> 5 ON 2026-08-17, and the reason matters more than
+   * the number. It was calibrated at ~$21 against a proj_ceiling that was
+   * `mean + 1.036 * sd` over a per-BAND sd — i.e. a monotone transform of the
+   * mean, which inflated QB ceilings hardest because a QB's raw spread is the
+   * largest absolute number on the board almost by construction (engine.js:
+   * "measures SCALE, NOT UPSIDE"). With the MEASURED p90 the same decline is
+   * $7.42.
+   *
+   * That fall is the fix working, not a regression, and three independent
+   * results already said so: the QB scoring arbitrage does not survive
+   * replacement (+4.00, not +43.67), a late-round backup QB is the worst pick
+   * measured anywhere (-76.1 vs the wire), and measured QB replacement and the
+   * QB waiver wire are the same number. A board that thought skipping a QB was
+   * expensive was wrong, and it was wrong because of this field.
+   *
+   * The test's INTENT survives untouched: material, not a rounding artifact,
+   * and distinguishable from the CONTROL below where every non-binding
+   * doctrine reports EXACTLY 0. */
   ck('the decline is material — this is not a rounding artifact',
-    det.late_qb.forgone > 15, det.late_qb.forgone);
+    det.late_qb.forgone > 5, det.late_qb.forgone);
 
   ck('CONTROL — every non-binding doctrine reports forgone exactly 0, so `binds` '
     + 'is not just "has a constraint"',
@@ -163,7 +182,7 @@ function boardAt(pk) {
       && fixed.deferrals[0].declined.position === 'QB', fixed.deferrals);
   ck('the deferral still carries its dollar decline — the fix does not hide the '
     + 'cost, it stops calling the cost a ranking',
-  fixed.deferrals[0].forgone > 15, fixed.deferrals[0]);
+  fixed.deferrals[0].forgone > 5, fixed.deferrals[0]);   // 15 -> 5, see the note above
   ck('and a deferring doctrine is NOT offered as the live alternative',
     fixed.alternative_key !== 'late_qb', fixed.alternative_key);
 
@@ -172,7 +191,7 @@ function boardAt(pk) {
     .update(scores, MY[0], {});
   ck('FAIL ARM — without the detail the old sentence comes back: Late-QB '
     + 'Patience presented as an alternative that TRAILS by a dollar figure',
-  old.neutral === false && old.alternative === 'Late-QB Patience' && old.gap > 15,
+  old.neutral === false && old.alternative === 'Late-QB Patience' && old.gap > 5,
   { neutral: old.neutral, alternative: old.alternative, gap: old.gap });
   ck('FAIL ARM — and the old confidence line called that pick "on script" rather '
     + 'than doctrine-free', /on script/.test(old.confidence), old.confidence);

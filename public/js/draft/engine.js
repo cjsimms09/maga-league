@@ -235,6 +235,14 @@
      * needs a bench value that is small AND strictly ordered, which floors and
      * multiplicative crushes both fail to give (a crush moves negatives UP). */
     VONA_SLOT_AWARE: false,  // price VONA against the slot he would actually fill
+    /* WIRE-COMPARED BENCH BRANCH — ON by Cory's ruling, 2026-08-16 ("1. Yes"),
+     * made with the evidence in front of him: the QB2 anomaly that blocked
+     * this was exonerated (it belongs to VONA_SLOT_AWARE, which stays false),
+     * and the wire branch's bench timing matches the league's real history
+     * (bench_wire_comparison_claim_2026-08-15.md + the 60-room 3-arm sim).
+     * See the bench branch of vona() below for the formula. The standing gate
+     * protocol is unchanged for every OTHER switch: off until Cory rules. */
+    VONA_WIRE_BENCH: true,
     /* THE STRUCTURAL CAP, RESTORED 2026-08-13. It was added 2026-08-12 after the
      * roster-construction run, MEASURED (modal draft QB3 TE3 -> QB2 TE2), and
      * deleted the next day on my reading of Cory's "delete the cap" instruction.
@@ -374,6 +382,10 @@
     // length of the list on screen — reporting a change below the fold would be
     // reporting a change you cannot see.
     WEIGHT_DIFF_DEPTH: 5,
+    /* The DEEPER window rankDiff also reports, so "no change to the top 5"
+     * cannot be read as "no change" — see the note in rankDiff. 25 because that
+     * is the candidate depth the war room actually renders. */
+    WEIGHT_DIFF_DEEP: 25,
 
     // --- auto-adjusting weights by draft phase ---
     // Round boundaries for the four phases. Not fitted — three prior drafts is
@@ -565,7 +577,31 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'UNMEASURED — collinear with value on the backtest board',
+    ceiling: 'MEASURED 2026-08-17 AND IT CONTRADICTS THIS ZERO — held at 0 '
+      + 'through the 2026 draft on purpose, not on evidence. The old zero came '
+      + 'from a -4.8 [-26,+17] result taken on a board where proj_ceiling was '
+      + 'proj_mean x a constant, making the ceiling term rank-identical to the '
+      + 'value term (Spearman 1.0000); it could not have come out any other way. '
+      + 'Re-derived on the first real-ceiling board (505 distinct ceiling/mean '
+      + 'ratios where there was 1): a ceiling weight of 0.65 beat the shipped '
+      + 'zero by +$35.5, positive in 3/3 seeds and separable in 3/3. A second '
+      + 'preregistered run bracketed it over w in {0.15, 0.3, 0.45, 0.65} and '
+      + 'ALL TWELVE seed x weight cells came back positive and separable, with '
+      + '0.3/0.45/0.65 indistinguishable (means within $0.6) — so this is a '
+      + 'zero-versus-non-zero result and does NOT depend on picking a value. '
+      + 'A THIRD run replicated it on three seeds sharing nothing with the '
+      + 'first two (w=0.45, +$35.9, 3/3 positive and 3/3 separable), so the '
+      + 'finding no longer rests on one seed set, one weight or one run. '
+      + 'WHY IT IS STILL ZERO: the promotion bar is cleared, and a cleared bar '
+      + 'makes the change AVAILABLE after 2026-08-22 rather than making it — '
+      + 'all four preregs fixed that date before any of them produced a '
+      + 'number, and a result landing the way we hoped is the worst reason to '
+      + 'relax it. NOTE the collinearity is REDUCED, NOT '
+      + 'REMOVED: the measured ceiling is still proj_mean x a per-CELL constant, '
+      + 'varying between bands and not within them, so this prices cross-band '
+      + 'dispersion only and says nothing about whether THIS player has upside. '
+      + 'Prereg: draft/backtest/CEILING-REDERIVATION-PREREG.md. Result: '
+      + 'draft/backtest/EXP-CEILING-REDERIVATION.md',
   };
 
   /* Named strategies, as weight sets.
@@ -597,11 +633,20 @@
         + 'is full. The mask that does know runs on the needrule card, not here — filling '
         + 'QB and TE moves this top 70 by zero players. Cross-check the card before taking '
         + 'a second one-start starter. '
-        + 'RISK AND CEILING ARE OFF BUT WERE NEVER MEASURED: the backtest board carries '
-        + 'none of risk\'s five inputs, and its ceiling is a fixed 1.35x of the projection, '
-        + 'so both experiments were incapable of returning anything but zero. They stay at '
-        + 'zero as a default, not as a finding — a null measurement is no reason to turn '
-        + 'something on either.',
+        + 'RISK IS OFF AND WAS NEVER MEASURED: the backtest board carries none of its '
+        + 'five inputs, so that experiment was incapable of returning anything but zero. '
+        + 'It stays at zero as a default, not as a finding. '
+        + 'CEILING IS THE ONE SLIDER ON THIS PANEL KNOWN TO BE SET WRONG. Its zero came '
+        + 'from the same kind of broken experiment — the board\'s ceiling used to be a '
+        + 'fixed 1.35x of the projection, so raising the ceiling slider was arithmetically '
+        + 'the same as raising value. Re-run 2026-08-17 on a board with real per-player '
+        + 'ceilings, EVERY setting tested from 0.15 to 0.65 beat this zero in all three '
+        + 'seeds — so the model is ignoring upside it should be paying for, and the exact '
+        + 'amount barely matters — and a third run on independent seeds replicated it. '
+        + 'IT IS HELD AT ZERO THROUGH THIS DRAFT DELIBERATELY: the measurement is a '
+        + 'simulation rather than a graded season, and the no-change-before-8/22 rule was '
+        + 'fixed before any of these runs produced a number — a result landing the way we '
+        + 'hoped is the worst reason to relax it. First thing to revisit after 8/22.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares
@@ -661,7 +706,7 @@
     depth = depth || CFG.WEIGHT_DIFF_DEPTH;
     const a = (before || []).slice(0, depth).map(s => s.player.name);
     const b = (after || []).slice(0, depth).map(s => s.player.name);
-    if (!a.length || !b.length) return { changed: false, message: '' };
+    if (!a.length || !b.length) return { changed: false, deepMoved: 0, message: '' };
     if (a[0] !== b[0]) {
       return { changed: true, topChanged: true,
         message: 'Now recommends ' + b[0] + ' over ' + a[0] + '.' };
@@ -675,9 +720,37 @@
           + (dropped.length ? dropped.join(', ') + ' out' : '') + '.' };
     }
     const moved = b.some((n, i) => a[i] !== n);
-    return { changed: moved, topChanged: false,
-      message: moved ? 'Reordered the top ' + depth + ', same names.'
-                     : 'No change to the top ' + depth + '.' };
+    /* ⚠️ "NO CHANGE" WAS A LIE ABOUT A DEEPER BOARD (2026-08-17).
+     *
+     * Cory: "All of our adjustment bars seemed to have no affect." Measured on
+     * the live board, that is what the tool TOLD him, and it was wrong:
+     *
+     *   tier  @ pick 33    9 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 33   16 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 120  17 of the top 25 reordered   -> "No change to the top 5."
+     *
+     * In 5 of 12 measured cells substantial movement was reported as nothing.
+     * The bars were never dead; this sentence was. A man who moves a slider,
+     * reads "No change", and concludes the adjuster does nothing has been
+     * misled by his own tool — and then stops using the adjusters, which is the
+     * expensive part.
+     *
+     * WEIGHT_DIFF_DEPTH stays 5 for the HEADLINE, because "did my actual pick
+     * change" is the first question and the top 5 is the right window for it.
+     * What changes is that a quiet top 5 no longer implies a quiet board: the
+     * deeper count is measured and reported beside it. Both facts, neither
+     * standing in for the other. */
+    const deepA = (before || []).map(s => s.player.name);
+    const deepB = (after || []).map(s => s.player.name);
+    const deepN = Math.min(CFG.WEIGHT_DIFF_DEEP || 25, deepA.length, deepB.length);
+    let deepMoved = 0;
+    for (let i = 0; i < deepN; i++) if (deepA[i] !== deepB[i]) deepMoved++;
+    const deeper = deepMoved
+      ? ' ' + deepMoved + ' of the top ' + deepN + ' reordered below it.' : '';
+    return { changed: moved || deepMoved > 0, topChanged: false,
+      deepMoved: deepMoved, deepDepth: deepN,
+      message: (moved ? 'Reordered the top ' + depth + ', same names.'
+                      : 'No change to the top ' + depth + '.') + deeper };
   }
 
   // Positional injury rates -> how much bye/injury insurance a bench body is worth.
@@ -851,7 +924,65 @@
      * destroyed ordering among players who cannot start, and every one of them
      * showed up as the board filling with one-start positions. */
     const rate = INJURY_RATE[player.position] || 0.15;
+    if (CFG.VONA_WIRE_BENCH) {
+      const wb = wireBenchValue(player, ctx, forgone, rate);
+      if (wb != null) return wb;
+      // No wire sample for this position (K/DEF -- nflverse is offense-only,
+      // see wire_level.js's own accounting) -- fall back to the vorp rule
+      // rather than inventing a floor with no evidence behind it.
+    }
     return rate * (player.vorp || 0) - forgone;
+  }
+
+  /* WIRE-COMPARED BENCH VALUE — PROTOTYPED 2026-08-14/15, OFF BY DEFAULT.
+   *
+   * Cory's design, stated directly: "once you're drafting for bench (not a
+   * starter slot), a duplicate shouldn't be compared to the best available in
+   * the DRAFT — it should be compared to what you can get FREE off waivers. A
+   * backup QB averaging 24 isn't worth a roster spot if the wire gives you
+   * 22; a backup WR at 12 is, because the wire won't give you 10." The
+   * INJURY_RATE*vorp formula above cannot express this: vorp compares to the
+   * last real STARTER leaguewide, never to the wire, so a backup QB and a
+   * backup RB with equal vorp price identically even though replacing the QB
+   * costs nothing (the wire is nearly as good) and replacing the RB costs a
+   * lot (the wire is much worse).
+   *
+   * MEASURED (draft/tools/wire_level.js, 422 real 2023-2025 acquisition-week
+   * scores, committed at draft/data/wire_level.json so this is not a number
+   * anyone has to trust from prose): weekly medians QB 23.38, RB 7.80,
+   * WR 11.10, TE 11.60. Real bench-QB candidates score far below what the
+   * wire already gives (weeklyMine - wireWeekly often negative -> edgePerWeek
+   * floors at 0, INJURY_RATE*0 - forgone = -forgone, a hard discount), while
+   * real bench-RB candidates clear the wire by enough to price as genuine
+   * insurance.
+   *
+   * PROVEN, NOT ASSUMED: draft/tests/vona_wire_bench.test.js checks the
+   * arithmetic directly (both hand-built numbers and a K/DEF fallback case)
+   * and draft/tools/bench_wire_room_sim.js is a real, committed, runnable
+   * multi-room simulation — run it and read its output rather than trusting
+   * a claim about what it showed.
+   *
+   * STILL UNRESOLVED, stated so it is not lost: the first prototype's ad-hoc
+   * 60-room run reported QB2 in 100% of simulated rooms vs. 57% in real
+   * history — higher than history and not explained. The committed simulator
+   * above is what settles whether that persists on a reproducible run.
+   *
+   * ctx.wireWeekly: {POS: weekly points}, threaded through the same
+   * survivalCtx object ctx.roster/ctx.league already ride on rather than a
+   * module-level constant — a hardcoded snapshot would silently go stale as
+   * more wire data accumulates in-season, with nothing to catch it. Absent
+   * or missing a position -> null, so the caller falls back to the vorp rule
+   * exactly as if VONA_WIRE_BENCH were off, rather than inventing a number.
+   */
+  function wireBenchValue(player, ctx, forgone, rate) {
+    const wireWeekly = (ctx && ctx.wireWeekly) || {};
+    const wire = wireWeekly[player.position];
+    if (wire == null) return null;
+    const games = player.games_expected || 15;
+    const weeklyMine = (player.proj_mean || 0) / games;
+    const edgePerWeek = Math.max(0, weeklyMine - wire);
+    const seasonEdge = edgePerWeek * games;
+    return rate * seasonEdge - forgone;
   }
 
   /* The flex-eligible slice of the board, cached per scoring pass. Eligibility
@@ -2245,10 +2376,44 @@
     return 0;
   }
 
+  /**
+   * PRE-DRAFT ONLY: `ctx.board` before any pick — real or mock — has landed
+   * is the FULL undrafted pool, not a realistic one. `currentPick()` (app.js)
+   * already anchors ahead to the user's own first selection (the fix in
+   * predraft_anchor.test.js), so `ctx.currentPick` can read 33 while
+   * `ctx.board` still holds every player nobody has removed, because nobody
+   * has picked yet. The two agree on WHICH pick; nothing yet makes the board
+   * agree on WHO WOULD REALISTICALLY BE THERE.
+   *
+   * MEASURED, 2026-08-15, on the shipped board: Puka Nacua (adjusted_adp 3.0,
+   * adp_sd 0.4) survives to pick 33 at **0.000%** by the engine's OWN survival
+   * math — not a close call. Scoring him as a live pick-33 candidate anyway
+   * is not a value judgement the model is making; it is the model treating an
+   * event its own probability estimate says will not happen as though it
+   * already had. The macro audit's "empty room" rec-panel probe (Nacua, "ADP
+   * 3 · fell 30") is this exact defect, caught live.
+   *
+   * Filters candidates below the same negligible-mass floor VONA already
+   * uses elsewhere (`SURVIVOR_CUTOFF`) — not a new threshold invented for
+   * this. A live draft (`ctx.preDraftPrep` false, the default — set only by
+   * app.js's `context()` when zero picks, real or mock, have landed) is
+   * completely unaffected: there `ctx.board` IS ground truth (real
+   * removals), so every survivor is genuinely on the board and filtering
+   * would suppress the exact "he actually fell" signal the recommendation
+   * exists to catch — Cory's own instinct that a real value cliff must win
+   * is already how vona() scores every live pick, unchanged here.
+   */
+  function preDraftPool(board, ctx) {
+    if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
+    const kept = board.filter(p => survival(p, ctx.currentPick, ctx) >= CFG.SURVIVOR_CUTOFF);
+    return kept.length ? kept : board;   // never recommend from an empty pool
+  }
+
   function recommend(ctx) {
     // Position scales BEFORE anything is scored — upsideBonus reads them.
     _ceilingScales = computeCeilingScales(ctx.board);
-    const all = ctx.board.map(p => scorePlayer(p, ctx));
+    const pool = preDraftPool(ctx.board, ctx);
+    const all = pool.map(p => scorePlayer(p, ctx));
     all.sort(byScoreRefusedLast);
     applyCeilingTiebreak(all);   // same-tier/same-position near-ties lean to higher ceiling
     // Stage 2 anchor (crude, pre-registered, OFF by default) reorders BEFORE
@@ -3776,9 +3941,9 @@
   global.DraftEngine = {
     CFG, DEFAULT_WEIGHTS,
     normalCdf, adpSd, survival, runMultipliers, detectRuns,
-    expectedBestAvailable, vona,
+    expectedBestAvailable, vona, wireBenchValue,
     tierCliffUrgency, starterSlotMarginal, riskAdjustment, upsideBonus,
-    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, mandatoryGaps, applyRosterLegality, plausibilityRails,
+    scorePlayer, onesieState, positionRank, doctrineTilt, doctrineReport, recommend, preDraftPool, mandatoryGaps, applyRosterLegality, plausibilityRails,
     demoteFlaggedOnesies, computeRailBudget, railFireSig, bestFlexAlt, liveStackRoutes, movementLine,
     confidence, branchForecast, computePaths, dollarGap, playerDollars, applyPersonalLists, onTheClock, rosterPlan, byeGrid,
     cheatSheet, sheetText, managerTells, threatBoard,

@@ -553,6 +553,101 @@ def build_fantasypros_table(sleeper_players: dict, *, year: int, half_ppr: bool 
     return rows, diag
 
 
+def recover_fp_dropped_stats(text: str, parsed: list[dict], scoring: dict) -> dict:
+    """Recover stat fields FantasyPros serves under names `_FP_STAT_MAP` does not
+    know, injecting them into `parsed` entries' stats IN PLACE. Returns a diag.
+
+    THE DEFECT THIS FIXES (DECISIONS-NEEDED #000, fixed 2026-08-16 under Cory's
+    ruling "Don't agree with timelines we fix now"): FP's live 2026 projections
+    payload serves receptions as `rec_rec` — measured across the full payload in
+    the committed raw capture (draft/audit/proj_correctness_evidence_2026-08-16
+    .json: raw_key_census shows `rec_rec` on all 437 receiving rows and `rec`/
+    `receptions` on none). The map knows only `rec`/`receptions`, so every FP
+    projection was scored WITHOUT reception points: WR/TE landed ~19% short
+    (the measured 0.82/0.81 FP-vs-Sleeper ratios), QBs were untouched (1.00),
+    and RBs' missing reception points were masked by FP's genuinely higher
+    rushing volumes. Adding back 0.5 x rec_rec puts 249 of 249 sampled WR/TE
+    within +-0.01 of FP's OWN half-PPR total (`points_half`) — receptions were
+    the whole gap, and the recovery is FP's exact number, not a rescale.
+
+    Also recovered: `2pt_tds` (FP's combined two-point conversions) — injected
+    only when the league prices pass_2pt/rush_2pt/rec_2pt IDENTICALLY, because
+    FP does not say which kind and only equal pricing makes the sum exact.
+
+    WHY HERE and not in `_FP_STAT_MAP` itself: draft/backtest is a read-only
+    record of graded experiments in this pass (and the FP ARCHIVE endpoints the
+    historical grades parsed DO serve `rec` — exp_fp_hist_proj graded 2023-25
+    with near-zero WR/TE bias, so their parses must not be touched). The live
+    build's attach point is this module, so the live fix lives here.
+
+    ALIAS DISCIPLINE (same class as scoring.DEF_PROJ_TD_ALIASES): a recovered
+    field is injected only when the mapped key is ABSENT — if a future payload
+    serves both `rec` and `rec_rec`, the map's key wins and nothing doubles.
+    """
+    diag = {"rec_recovered": 0, "twopt_recovered": 0, "skipped_dup_name": 0,
+            "raw_rows": 0}
+    try:
+        data = json.loads((text or "").strip())
+    except (ValueError, TypeError):
+        diag["reason"] = "raw payload is not clean JSON; nothing recovered"
+        return diag
+    raw_rows = data.get("players") if isinstance(data, dict) else data
+    if not isinstance(raw_rows, list):
+        diag["reason"] = "raw payload has no players list; nothing recovered"
+        return diag
+
+    def _norm(name):
+        return " ".join(str(name or "").lower().replace(".", "").replace("'", "")
+                        .replace("-", " ").split())
+
+    by_name: dict[str, list[dict]] = {}
+    for o in raw_rows:
+        if not isinstance(o, dict):
+            continue
+        name = ((o.get("player") or {}).get("name") or o.get("name")
+                or o.get("player_name"))
+        if not name:
+            continue
+        src = o.get("stats") if isinstance(o.get("stats"), dict) else o
+        by_name.setdefault(_norm(name), []).append(src)
+    diag["raw_rows"] = sum(len(v) for v in by_name.values())
+
+    twopt_ok = len({float(scoring.get(k, 0.0))
+                    for k in ("pass_2pt", "rush_2pt", "rec_2pt")}) == 1
+    diag["twopt_pricing_uniform"] = twopt_ok
+
+    def _num(v):
+        try:
+            return float(str(v).replace(",", ""))
+        except (TypeError, ValueError):
+            return None
+
+    for entry in parsed:
+        cands = by_name.get(_norm(entry.get("name")))
+        if not cands:
+            continue
+        if len(cands) > 1:
+            # Two raw rows share the name: recovery cannot know which one this
+            # entry is. Skip — the crosswalk's own collision logic will drop
+            # contested names later anyway; an ambiguous recovery must not guess.
+            diag["skipped_dup_name"] += 1
+            continue
+        src = cands[0]
+        stats = entry.setdefault("stats", {})
+        rec = _num(src.get("rec_rec"))
+        if rec is not None and "rec" not in stats:
+            stats["rec"] = rec
+            diag["rec_recovered"] += 1
+        two = _num(src.get("2pt_tds"))
+        if (twopt_ok and two and "rush_2pt" not in stats and "pass_2pt" not in stats
+                and "rec_2pt" not in stats):
+            # FP aggregates all three kinds; with uniform pricing any single key
+            # scores the sum exactly. rush_2pt chosen as the carrier.
+            stats["rush_2pt"] = two
+            diag["twopt_recovered"] += 1
+    return diag
+
+
 def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: dict,
                                   min_rows: int = 60) -> tuple[dict | None, dict]:
     """FantasyPros SEASON PROJECTIONS, scored under OUR league scoring and crosswalked to
@@ -579,7 +674,11 @@ def build_fantasypros_projections(sleeper_players: dict, *, year: int, scoring: 
 
     text, url, fdiag = FP.fetch_projections(year)
     parsed = FP.parse_projections(text) if text else []
-    diag = {"fp_proj_url": url, "fp_proj_rows_parsed": len(parsed), "fp_proj_fetch": fdiag}
+    # Recover the fields the map drops (rec_rec receptions, 2pt_tds) BEFORE
+    # scoring — the WR/TE ~20% undercount fix (#000, Cory's 2026-08-16 ruling).
+    rdiag = recover_fp_dropped_stats(text, parsed, scoring) if parsed else {}
+    diag = {"fp_proj_url": url, "fp_proj_rows_parsed": len(parsed), "fp_proj_fetch": fdiag,
+            "fp_proj_recovered": rdiag}
     if len(parsed) < min_rows:
         diag["reason"] = f"only {len(parsed)} FP projection rows parsed (< {min_rows}); single-source"
         return None, diag

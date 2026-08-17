@@ -114,18 +114,22 @@ function sameMembers(label, aName, a, bName, b) {
 
 // ── 4) THE ACCURACY PAGE'S KIND LABELS mix two vocabularies.
 // `KIND_LABELS` carries forecast KEY PREFIXES (survival, room_seat) and ledger
-// KINDS (lineup_call, waiver_claim, stream_call, trade_eval) in one list. Only
-// key prefixes can ever reach it — grading covers `kind === 'forecast'` records,
-// so `kindOf` yields a key namespace, never a ledger kind. The four ledger-kind
-// labels can never fire. Harmless to the numbers (unlabelled kinds still render)
-// and NOT harmless to the reader, who sees a table that looks like it covers
-// in-season decisions it cannot yet cover. This is the same confusion A hit
-// writing survival/room_seat as ledger kinds; it is recorded rather than deleted
-// because the labels become live the day the grader's join covers those kinds.
+// KINDS (lineup_call, waiver_claim, stream_call, trade_eval) in one list.
+// Key prefixes reach the table through `kindOf` over graded forecast records;
+// since 2026-08-15 the in-season decision kinds reach it through the
+// calibration doc's `by_kind` map, which grade-cron writes by merging
+// deriveByKind(graded) with forecast_grade.js's decisionByKind — resolvers
+// exist for lineup_call/waiver_claim/stream_call and claims-cron runs them
+// weekly (proven end-to-end in loop_closure_live.test.js). The one label that
+// still cannot fire is trade_eval: no capture surface, no resolver, nothing
+// writes one. PENDING_KINDS must name exactly that set — no more (a live label
+// declared pending hides real coverage) and no less (a dead label undeclared
+// dresses the table up as covering what it does not).
 {
   const ACC = require(path.join(__dirname, '..', '..', 'src', 'routes', 'accuracy.js'));
   const labels = ACC.KIND_LABELS.map(k => k[0]);
-  const reachable = ['survival', 'room_seat', 'forecast'];
+  const reachable = ['survival', 'room_seat', 'forecast',
+    'lineup_call', 'waiver_claim', 'stream_call'];
   const dead = labels.filter(l => !reachable.includes(l));
   ck('KIND_LABELS declares which of its entries are not yet reachable',
     typeof ACC.PENDING_KINDS !== 'undefined', 'no PENDING_KINDS export');
@@ -133,6 +137,18 @@ function sameMembers(label, aName, a, bName, b) {
     sameMembers('the labels that cannot fire yet are exactly the ones declared pending',
       'unreachable', dead, 'declared_pending', ACC.PENDING_KINDS);
   }
+  // The reachability claim above is itself checkable: every in-season kind we
+  // call reachable must have a resolver branch in buildInseasonResolutions,
+  // read straight off the source so this list cannot outlive the code.
+  const fgSrc = require('fs').readFileSync(
+    path.join(__dirname, '..', '..', 'src', 'forecast_grade.js'), 'utf8');
+  const resolverBody = (fgSrc.match(/function buildInseasonResolutions[\s\S]*?\n}\n/) || [''])[0];
+  for (const k of ['lineup_call', 'waiver_claim', 'stream_call']) {
+    ck(`"${k}" declared reachable actually has a resolver branch`,
+      resolverBody.includes(`'${k}'`), k);
+  }
+  ck('CONTROL — trade_eval has NO resolver branch, which is why it stays pending',
+    !resolverBody.includes(`'trade_eval'`));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

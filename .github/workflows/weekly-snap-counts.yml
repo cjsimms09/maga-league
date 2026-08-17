@@ -1,0 +1,72 @@
+name: Weekly snap counts
+
+# THE PER-PLAYER DISPERSION FEED, KEPT CURRENT.
+#
+# Cory, 2026-08-17: "Let pull all the data we need first, make sure we're
+# pulling it in weekly and the data is correct!"
+#
+# WHY WEEKLY RATHER THAN ONCE. The value of this feed is `share_volatility` —
+# how much a player's snap share MOVES week to week. That is a quantity you can
+# only build out of a week-by-week series, and a series with holes in it
+# measures a different thing than one without. Unlike the projection snapshot,
+# nflverse does not overwrite history, so a missed week is recoverable rather
+# than lost — which is why this runs Wednesday rather than racing kickoff.
+#
+# WEDNESDAY. nflverse publishes after the week's games are final, and Monday
+# night football lands Tuesday morning UTC. Wednesday 11:00 UTC gives the feed
+# a full day to settle, so a run never half-captures a week that is still
+# being written.
+#
+# BEFORE WEEK 1 THIS EXITS GREEN AND SAYS SO. There is no snap_counts_2026.csv
+# until the season starts; the fetcher raises NotPublished and main() treats it
+# as the expected state rather than an error. A job that goes red every week
+# until September is a job we would learn to ignore.
+#
+# Egress: nflverse is reachable from CI; this runs here for the same reason
+# every other probe does.
+on:
+  schedule:
+    - cron: '0 11 * * 3'      # Wednesdays 11:00 UTC — after the week is final
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to fetch (space-separated; blank = current season only)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  snap-counts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install the crosswalk dependency
+        # The pfr -> gsis -> sleeper join needs nfl_data_py for the second hop;
+        # players.csv carries ZERO rows with a sleeper_id, so there is no
+        # single-source join and this is not optional.
+        run: pip install nfl_data_py
+      - name: Fetch snap counts
+        env:
+          SEASONS: ${{ github.event.inputs.seasons }}
+        run: |
+          set -uo pipefail
+          if [ -n "$SEASONS" ]; then
+            # shellcheck disable=SC2086
+            python3 draft/backtest/fetch_snap_counts.py --seasons $SEASONS
+          else
+            python3 draft/backtest/fetch_snap_counts.py --seasons "$(date -u +%Y)"
+          fi
+      - name: Commit the week
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/snap_counts_*.json
+          # Nothing staged means either the season is not published yet or this
+          # week was already captured. Both are no-ops, not failures — same
+          # reasoning as weekly-proj-snapshot.yml.
+          git diff --cached --quiet && echo "no change — nothing new to capture" && exit 0
+          git commit -m "weekly snap counts [skip deploy]"
+          git push

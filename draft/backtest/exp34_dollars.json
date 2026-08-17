@@ -754,10 +754,10 @@
     }
   },
   "correlation_arm": {
-    "diff_mean": 0.141,
+    "diff_mean": 0.14,
     "diff_ci": [
-      0.053,
-      0.224
+      0.052,
+      0.223
     ],
     "verdict": "beat",
     "n_picks": 26

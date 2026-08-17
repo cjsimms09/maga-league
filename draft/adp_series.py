@@ -25,13 +25,30 @@ MAX_DAYS = 60          # bound the series; 60 days spans the whole draft-season 
 TOP_N = 300            # only the draftable region — deep-board ADP is noise and bloat
 
 
-def append_snapshot(series, date, adp_by_id, top_n=TOP_N, max_days=MAX_DAYS):
+def append_snapshot(series, date, adp_by_id, top_n=TOP_N, max_days=MAX_DAYS,
+                    situation_by_id=None):
     """series: [{date, adp:{id:adp}}] oldest→newest. Returns a NEW list with `date`'s snapshot
     added (or replaced if the date already exists), keeping only the top_n lowest-ADP players
-    and the most recent max_days dates. Deterministic; no clock (date is passed in)."""
+    and the most recent max_days dates. Deterministic; no clock (date is passed in).
+
+    SITUATION + n_offered ADDED 2026-08-17, the same fix proj_series got that
+    morning and this sibling did not. Until now this stored `{pid: 1.33}` for
+    300 players — a bare float, with no way to tell whether a missing player was
+    withheld by the source or cut by our own top_n, and no record of the roster
+    state that made an ADP move. An ADP series without the situation can say
+    "he rose 40 spots" and never "he rose 40 spots the week the starter ahead of
+    him went on IR", which is the only version of that fact worth having.
+
+    Fields come from proj_series.SITUATION_FIELDS so the two captures cannot
+    drift apart and a reader learns one vocabulary, not two.
+    """
     trimmed = {pid: float(a) for pid, a in sorted(adp_by_id.items(), key=lambda kv: kv[1])[:top_n]}
     kept = [s for s in (series or []) if s.get("date") != date]
-    kept.append({"date": date, "adp": trimmed})
+    snap = {"date": date, "adp": trimmed, "n_offered": len(adp_by_id)}
+    if situation_by_id:
+        snap["situation"] = {pid: situation_by_id[pid]
+                             for pid in trimmed if pid in situation_by_id}
+    kept.append(snap)
     kept.sort(key=lambda s: s["date"])
     return kept[-max_days:]
 

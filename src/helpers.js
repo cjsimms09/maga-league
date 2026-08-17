@@ -1,4 +1,4 @@
-const { store, getDoc, setDoc, ensureSeeded, now } = require('./data');
+const { store, getDoc, setDoc, mutateDoc, ensureSeeded, now } = require('./data');
 const ledgerLib = require('./ledger');
 const seedData = require('./seed-data');
 
@@ -42,30 +42,47 @@ function money(n) {
 }
 
 // One parallel fetch of the docs almost every page needs.
+//
+// THE MIGRATION WRITES BELOW GO THROUGH mutateDoc (audit finding 1,
+// 2026-08-16). They are flag-guarded and effectively one-time, but until the
+// flag lands they run on EVERY request — and a whole-doc `setDoc('owners')`
+// here raced a member's concurrent password change and could silently revert
+// it. Each block still CHECKS on the cheap already-loaded copy (the hot path
+// stays one read per doc) and only enters the serialized mutate when there is
+// something to migrate; inside the mutate it re-reads and re-applies, so a
+// concurrent writer's update survives.
 async function loadWorld() {
   await ensureSeeded();
-  const [config, owners, seasons, ledger, alerts, history] = await Promise.all([
+  let [config, owners, seasons, ledger, alerts, history] = await Promise.all([
     getDoc('config', {}), getDoc('owners', []), getDoc('seasons', {}),
     getDoc('ledger', []), getDoc('alerts', []), getDoc('history', { winnings: {}, awards: {}, weekly: {} }),
   ]);
   // Light migrations for deployments seeded by an earlier version.
   if (!config.sleeper_league_id && !config.sleeper_touched && seedData.SLEEPER_LEAGUE_ID) {
-    config.sleeper_league_id = seedData.SLEEPER_LEAGUE_ID;
-    await setDoc('config', config);
+    config = await mutateDoc('config', {}, c => {
+      if (c.sleeper_league_id || c.sleeper_touched) return undefined;
+      c.sleeper_league_id = seedData.SLEEPER_LEAGUE_ID;
+      return c;
+    });
   }
-  let ownersDirty = false;
-  for (const o of owners) if (o.email === undefined) { o.email = ''; ownersDirty = true; }
-  if (ownersDirty) await setDoc('owners', owners);
+  if (owners.some(o => o.email === undefined)) {
+    owners = await mutateDoc('owners', [], os => {
+      let dirty = false;
+      for (const o of os) if (o.email === undefined) { o.email = ''; dirty = true; }
+      return dirty ? os : undefined;
+    });
+  }
   // One-time: starter password is now 'imabitch' — rehash anyone who has
   // never logged in (owners who already set their own password keep it).
   if (!config.starter_pw_v2) {
     const { hashPassword } = require('./auth');
     const fresh = hashPassword(process.env.DEFAULT_PASSWORD || 'imabitch');
-    let n = 0;
-    for (const o of owners) if (o.must_change_password) { o.password_hash = fresh; n++; }
-    if (n) await setDoc('owners', owners);
-    config.starter_pw_v2 = true;
-    await setDoc('config', config);
+    owners = await mutateDoc('owners', [], os => {
+      let n = 0;
+      for (const o of os) if (o.must_change_password) { o.password_hash = fresh; n++; }
+      return n ? os : undefined;
+    });
+    config = await mutateDoc('config', {}, c => { c.starter_pw_v2 = true; return c; });
   }
   // One-time: reclassify carried-forward balances.
   //
@@ -79,39 +96,42 @@ async function loadWorld() {
   // alone — guessing at what somebody meant by "credit" is how you silently
   // rewrite their books.
   if (!config.carryover_v1) {
-    let n = 0;
-    for (const e of ledger) {
-      if (e.type === 'adjustment' && /winnings credit carried on the books/i.test(e.desc || '')) {
-        e.type = 'carryover';
-        e.audit = [...(e.audit || []), { at: now(), what: 'Reclassified as a carried-over balance' }];
-        n++;
+    ledger = await mutateDoc('ledger', [], entries => {
+      let n = 0;
+      for (const e of entries) {
+        if (e.type === 'adjustment' && /winnings credit carried on the books/i.test(e.desc || '')) {
+          e.type = 'carryover';
+          e.audit = [...(e.audit || []), { at: now(), what: 'Reclassified as a carried-over balance' }];
+          n++;
+        }
       }
-    }
-    if (n) await setDoc('ledger', ledger);
-    config.carryover_v1 = true;
-    await setDoc('config', config);
+      return n ? entries : undefined;
+    });
+    config = await mutateDoc('config', {}, c => { c.carryover_v1 = true; return c; });
   }
   // One-time: pin the 2026 draft-day announcement.
   if (!config.draft_day_alert_2026) {
-    const alerts = await getDoc('alerts', []);
     const DRAFT_DAY = 'DRAFT DAY IS SET: 08/22/26 at 5:00 PM. Be there.';
-    // Dedupe by message, not just id: a fresh seed already includes this alert,
-    // so keying only on the config flag posted it twice on new installs.
-    if (!alerts.some(a => a.message === DRAFT_DAY)) {
-      alerts.unshift({ id: 'draftday2026', message: DRAFT_DAY,
-        level: 'urgent', active: true, created_at: new Date().toISOString() });
-    }
-    const seen = new Set();
-    await setDoc('alerts', alerts.filter(a => {
-      if (seen.has(a.message)) return false;
-      seen.add(a.message);
-      return true;
-    }));
-    config.draft_day_alert_2026 = true;
-    await setDoc('config', config);
+    alerts = await mutateDoc('alerts', [], as => {
+      // Dedupe by message, not just id: a fresh seed already includes this
+      // alert, so keying only on the config flag posted it twice on new installs.
+      if (!as.some(a => a.message === DRAFT_DAY)) {
+        as.unshift({ id: 'draftday2026', message: DRAFT_DAY,
+          level: 'urgent', active: true, created_at: new Date().toISOString() });
+      }
+      const seen = new Set();
+      return as.filter(a => {
+        if (seen.has(a.message)) return false;
+        seen.add(a.message);
+        return true;
+      });
+    });
+    config = await mutateDoc('config', {}, c => { c.draft_day_alert_2026 = true; return c; });
   }
   // One-time: the 2026 draft-spot selection happens live on the site (the old
   // spreadsheet had it pre-filled). Clear any chosen spots and open the room.
+  // (draft:<year> and seasons stay on setDoc: single-writer docs by the layout
+  // contract in data.js — the multi-writer docs are the ones migrated.)
   if (!config.draft2026_reopened) {
     const doc = await getDoc('draft:2026', { order: [] });
     if (doc.order.length) {
@@ -119,8 +139,7 @@ async function loadWorld() {
       await setDoc('draft:2026', doc);
     }
     if (seasons[2026]) { seasons[2026].draft_open = true; await setDoc('seasons', seasons); }
-    config.draft2026_reopened = true;
-    await setDoc('config', config);
+    config = await mutateDoc('config', {}, c => { c.draft2026_reopened = true; return c; });
   }
   return { config, owners, seasons, ledger, alerts, history };
 }
@@ -330,7 +349,7 @@ const pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
 module.exports = {
   CATEGORY_LABELS, CATEGORIES, money, loadWorld, activeOwners, ownerById, currentSeason,
   payoutTable, winningsGrid, gridYears, careerTotals, accolades, draftState, keepersForYear,
-  allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, store,
+  allVotes, activeAlerts, pickRandom, chatFeed, punishmentWall, getDoc, setDoc, mutateDoc, store,
   voteThreshold, careerRecord, sleeperEraByOwner, chatUnread,
   ROASTS: seedData.ROASTS, QUIPS: seedData.QUIPS,
 };

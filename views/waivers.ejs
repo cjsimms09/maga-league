@@ -3,35 +3,27 @@
 <%
   const money0 = n => '$' + Math.round(Number(n || 0)).toLocaleString('en-US');
   const top = claims && claims.length ? claims[0] : null;
+  const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 
 <h1 class="page-title">📋 Waiver Wire
   <span class="sub" style="font-weight:600">what the wire adds — and what this tool cannot tell you</span></h1>
 
-<%# ── THE THING THIS PAGE MUST NOT PAPER OVER ──────────────────────────────────
-    Our league runs PRIORITY waivers, not FAAB. Priority is a depleting resource:
-    one good claim and you drop to the bottom. So the decision is never "is this
-    player good" — it is "is he worth spending my CURRENT POSITION on, or do I
-    hold for something better". That is a stopping problem.
-
-    The engine does not model it. It prices what a claim adds to the starting
-    lineup, which is the NUMERATOR of the stopping rule and not the rule. A
-    ranked list presented as the answer would be answering a question nobody
-    asked, and the one thing worse than a tool that cannot decide is a tool that
-    looks like it did. So the gap leads, once, and is not repeated. ────────── %>
-<div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
-  <div class="body">
-    <p style="margin:0"><b>This tool prices the player. It does not decide the claim.</b></p>
-    <p class="muted" style="margin:.45rem 0 0; font-size:.86rem">
-      We run <b>priority waivers</b>, so a claim costs your position in the order and one good
-      claim drops you to the bottom. The real question is <i>“is he worth my current spot, or do
-      I hold for something better”</i> — which depends on how many weeks are left, where you sit
-      in the order, and what is likely to hit the wire later. <b>None of that is modelled here.</b>
-      What is below is what each claim would add to your starting lineup, in points and dollars.
-      Treat it as the number you weigh, not the answer.
-    </p>
+<%# Found 2026-08-15 (re-audit): /waivers/log, /waivers/override, /stream/log,
+    /stream/override redirected to a "success" query param UNCONDITIONALLY —
+    on the SAME line whether predledger.append() succeeded or threw. This page
+    never even read that param (no banner existed either way, success or
+    failure), so nothing here was actively lying to anyone — but the redirect
+    itself was, and the next person who wired a success banner off it would
+    have inherited a false-positive. Fixed at the source (member.js) and this
+    is the banner that should have existed from the start: real failure,
+    actually shown. %>
+<% if (typeof captureError !== 'undefined' && captureError) { %>
+  <div class="alert-banner" style="margin-bottom:1.1rem; border-color:rgba(176,0,32,.6)">
+    <span class="tag">⚠</span><span>That didn't save. The claim/stream/override was NOT recorded to the
+    ledger — try again, or note it manually for now.</span>
   </div>
-</div>
+<% } %>
 
 <% if (err) { %>
   <div class="card"><div class="body"><p class="error-note">Couldn't read the wire: <%= err %></p></div></div>
@@ -49,6 +41,7 @@
       manufacturing a recommendation. And on this one question the stopping rule
       IS decidable: a claim worth nothing is never worth a priority position. %>
   <div class="card lo-nochange"><div class="body">
+    <span class="wrv-chip lock" style="float:right">✋ HOLD</span>
     <p style="margin:0"><b>✅ Nothing on the wire improves your lineup this week.</b></p>
     <p class="muted" style="margin:.45rem 0 0">
       Every available player scores at or below what you would have to drop, so no claim would
@@ -58,70 +51,254 @@
     </p>
   </div></div>
 <% } else { %>
-  <div class="card" style="margin-bottom:1.1rem">
-    <h2>🔼 What the wire would add
-      <span class="sub"><%= claims.length %> claim<%= claims.length === 1 ? '' : 's' %> that reach your lineup<% if (drop) { %> · you would drop <b><%= drop.name %></b><% } %></span></h2>
-    <div class="body">
-      <% claims.forEach((c, i) => { %>
-        <div class="lo-call">
-          <div class="lo-call-main">
-            <span class="lo-start">▲ Claim <b><%= c.name %></b>
-              <span class="muted">(<%= c.position %><% if (c.consensus_projection != null) { %>, <%= c.consensus_label %> <%= c.consensus_projection %><% } %>)</span></span>
-            <span class="lo-sit">▼ drop <b><%= c.drop ? c.drop.name : '—' %></b>
-              <span class="muted"><%= c.why %></span></span>
+  <%# ── THE ANSWER FIRST (2026-08-16 pass): claim X, drop Y, net N pts — the
+      war-room verdict grammar with this page's honesty kept load-bearing: the
+      one thing the engine can rank is priced up top, the one thing it cannot
+      decide (your priority spot) is said in the same breath, and the working
+      is one tap deeper. On desktop the doctrine sits beside the verdict. ── %>
+  <div class="is-cols" style="margin-bottom:0">
+    <div class="is-col">
+      <div class="card wv-verdict" style="margin-bottom:1.1rem">
+        <div class="body">
+          <div class="wrv-top">
+            <span class="wrv-chip lean">📋 BEST CLAIM</span>
+            <% if (top.contested) { %><span class="wrv-chip split">⚔ CONTESTED</span><% } %>
           </div>
-          <div class="lo-call-price">
-            <%# POINTS FIRST. Dollars are modelled — they run through the weekly-high
-                band and an opponent estimate. Points are the number you can check
-                against your own lineup, which is what makes this auditable. %>
-            <span class="lo-dollars money-up">+<%= c.net_value.toFixed(1) %> pts</span>
-            <span class="lo-split muted"><%= money0(c.dollars) %> at <%= perPoint.toFixed(2) %>/pt</span>
+          <div class="wv-name" style="margin-top:.35rem">
+            Claim <b><%= top.name %></b> <span class="muted" style="font-size:.9rem">(<%= top.position %>)</span>
+            <% if (top.drop) { %>— drop <b><%= top.drop.name %></b><% } %>
           </div>
-          <%# CONTESTED IS SHOWN AND EXPLICITLY NOT PRICED. The engine computes who
-              else is short at the position and then values the claim identically
-              whether three teams want him or nobody does. In a PRIORITY league
-              that is backwards — contested is when spending your spot is
-              justified, uncontested is when you can wait — so the fact is
-              surfaced with the caveat attached rather than folded into a number
-              that would then be wrong. %>
-          <div class="lo-note" style="grid-column:1/-1; margin-top:.35rem">
-            <%# POSTURE IS NOT KNOWN, SO IT IS NOT CLAIMED.
-                This line first read "including N contending or desperate", and
-                that was false the moment it rendered: the route computes no
-                postures, whoElseNeeds defaults a missing posture to eager (a
-                sensible CONSERVATIVE default inside the engine), and the page
-                turned that unknown into a statement about nine teams' competitive
-                state. Absent is not a value. What IS established is the count of
-                teams with an open startable slot at the position, so that is all
-                that is said. %>
-            <% const known = c.rivals.filter(r => r.posture); %>
-            <% if (c.contested) { %>
-              <b style="color:#d4242f">⚔ <%= c.rivals.length %> other team<%= c.rivals.length === 1 ? '' : 's' %></b>
-              <%= c.rivals.length === 1 ? 'has' : 'have' %> an open <%= c.position %> slot<% if (known.length) { %>, <%= known.length %> of them contending or desperate<% } %>.
-              <span class="muted">Whether they would actually spend their priority on him is <b>not modelled</b>. And it is <b>not in the dollar figure above</b> — the price is the same whether he is contested or not.</span>
-            <% } else { %>
-              <span class="muted">No other team has an open <%= c.position %> slot. He may still be there next week — which is the case for holding, and again, not priced above.</span>
-            <% } %>
-          </div>
+          <p style="margin:.4rem 0 0; font-size:1.02rem">
+            <b class="wv-net">+<%= top.net_value.toFixed(1) %> pts</b> to your starting lineup this week
+            <span class="muted">· <span class="money-gold" style="font-weight:800"><%= money0(top.dollars) %></span> at <%= perPoint.toFixed(2) %>/pt</span>
+          </p>
+          <p class="muted" style="margin:.45rem 0 0; font-size:.8rem">
+            Worth your <b>priority spot</b>? Not modelled — your call. The next card says why.
+          </p>
+          <details class="wv-derive" style="margin-top:.5rem">
+            <summary>how +<%= top.net_value.toFixed(1) %> pts and <%= money0(top.dollars) %> were computed</summary>
+            <div class="panel-explain">
+              <span class="pe-what"><b>Net points</b>: best lineup from (your roster − <%= top.drop ? top.drop.name : 'the drop' %> + <%= top.name %>) minus best lineup from your roster today — both through the same <code>bestLineup()</code> solver the optimizer uses. One baseline, never clamped: a claim that would make your lineup worse shows negative, and a pure bench add shows 0.</span>
+              <span class="pe-read"><b>Dollars</b>: <%= top.net_value.toFixed(1) %> pts × $<%= perPoint.toFixed(2) %>/pt = <%= money0(top.dollars) %>. The rate prices what ONE marginal lineup point does to P(win) (× $110 of playoff equity) and P(clear the weekly high) (× $100) at your current lineup mean.</span>
+              <span class="pe-do">Contested is shown on the claim and deliberately NOT in the price — in a priority league, contested is when spending your spot is justified, and folding it into the number would be wrong.</span>
+              <span class="pe-src">source: src/routes/waivers.js evaluateClaims() → V.claimValue (shared valuation, contract C1) · dollarsPerPoint()</span>
+            </div>
+          </details>
         </div>
-      <% }) %>
+      </div>
+    </div>
+    <div class="is-col">
+      <%# ── THE THING THIS PAGE MUST NOT PAPER OVER ──────────────────────────
+          Our league runs PRIORITY waivers, not FAAB. Priority is a depleting
+          resource: one good claim and you drop to the bottom. So the decision is
+          never "is this player good" — it is "is he worth spending my CURRENT
+          POSITION on, or do I hold for something better". That is a stopping
+          problem. The engine does not model it. It prices what a claim adds to
+          the starting lineup, which is the NUMERATOR of the stopping rule and
+          not the rule. The gap leads, once, and is not repeated. ──────────── %>
+      <div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
+        <div class="body">
+          <p style="margin:0"><b>This tool prices the player. It does not decide the claim.</b></p>
+          <p class="muted" style="margin:.45rem 0 0; font-size:.86rem">
+            We run <b>priority waivers</b>, so a claim costs your position in the order and one good
+            claim drops you to the bottom. The real question is <i>“is he worth my current spot, or do
+            I hold for something better”</i> — which depends on how many weeks are left, where you sit
+            in the order, and what is likely to hit the wire later. <b>None of that is modelled here.</b>
+            What is below is what each claim would add to your starting lineup, in points and dollars.
+            Treat it as the number you weigh, not the answer.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>What you would be spending</h2>
-    <div class="body">
-      <p style="margin:0">
-        The best claim is worth <b><%= top.net_value.toFixed(1) %> points</b> (<%= money0(top.dollars) %>) for one week of your lineup.
-      </p>
-      <p class="muted" style="margin:.5rem 0 0; font-size:.86rem">
-        Against that you are spending a waiver position you get back slowly, and this tool has no
-        model of what the rest of the season puts on the wire. If you want the stopping rule
-        properly — claim when the value beats what you would expect to see before your priority
-        recovers — that needs the arrival distribution of wire talent, and it is not built.
-        It is written up in <code>LEARNING-ARCHITECTURE.md</code> §1 as buildable, and until it
-        exists this page is deliberately one number short of a decision.
-      </p>
+  <div class="is-cols">
+    <div class="is-col">
+      <div class="card" style="margin-bottom:1.1rem">
+        <h2>🔼 What the wire would add
+          <span class="sub"><%= claims.length %> claim<%= claims.length === 1 ? '' : 's' %> that reach your lineup<% if (drop) { %> · you would drop <b><%= drop.name %></b><% } %></span></h2>
+        <div class="body">
+          <%- include('partials/_wr_explain', { ex: G.claims }) %>
+          <% claims.forEach((c, i) => { %>
+            <div class="lo-call">
+              <div class="lo-call-main">
+                <span class="lo-start">▲ Claim <b><%= c.name %></b>
+                  <span class="muted">(<%= c.position %><% if (c.consensus_projection != null) { %>, <%= c.consensus_label %> <%= c.consensus_projection %><% } %>)</span></span>
+                <span class="lo-sit">▼ drop <b><%= c.drop ? c.drop.name : '—' %></b>
+                  <span class="muted"><%= c.why %></span></span>
+              </div>
+              <div class="lo-call-price">
+                <%# POINTS FIRST. Dollars are modelled — they run through the weekly-high
+                    band and an opponent estimate. Points are the number you can check
+                    against your own lineup, which is what makes this auditable. %>
+                <span class="lo-dollars money-up wr-num">+<%= c.net_value.toFixed(1) %> pts</span>
+                <span class="lo-split muted"><%= money0(c.dollars) %> at <%= perPoint.toFixed(2) %>/pt</span>
+              </div>
+              <%# CONTESTED IS SHOWN AND EXPLICITLY NOT PRICED. The engine computes who
+                  else is short at the position and then values the claim identically
+                  whether three teams want him or nobody does. In a PRIORITY league
+                  that is backwards — contested is when spending your spot is
+                  justified, uncontested is when you can wait — so the fact is
+                  surfaced with the caveat attached rather than folded into a number
+                  that would then be wrong. %>
+              <div class="lo-note" style="grid-column:1/-1; margin-top:.35rem">
+                <%# POSTURE IS NOT KNOWN, SO IT IS NOT CLAIMED.
+                    This line first read "including N contending or desperate", and
+                    that was false the moment it rendered: the route computes no
+                    postures, whoElseNeeds defaults a missing posture to eager (a
+                    sensible CONSERVATIVE default inside the engine), and the page
+                    turned that unknown into a statement about nine teams' competitive
+                    state. Absent is not a value. What IS established is the count of
+                    teams with an open startable slot at the position, so that is all
+                    that is said. %>
+                <% const known = c.rivals.filter(r => r.posture); %>
+                <% if (c.contested) { %>
+                  <b style="color:#d4242f">⚔ <%= c.rivals.length %> other team<%= c.rivals.length === 1 ? '' : 's' %></b>
+                  <%= c.rivals.length === 1 ? 'has' : 'have' %> an open <%= c.position %> slot<% if (known.length) { %>, <%= known.length %> of them contending or desperate<% } %>.
+                  <span class="muted">Whether they would actually spend their priority on him is <b>not modelled</b>. And it is <b>not in the dollar figure above</b> — the price is the same whether he is contested or not.</span>
+                <% } else { %>
+                  <span class="muted">No other team has an open <%= c.position %> slot. He may still be there next week — which is the case for holding, and again, not priced above.</span>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <div class="is-col">
+      <div class="card" style="margin-bottom:1.1rem">
+        <h2>What you would be spending</h2>
+        <div class="body">
+          <%- include('partials/_wr_explain', { ex: G.spend }) %>
+          <p style="margin:0">
+            The best claim is worth <b><%= top.net_value.toFixed(1) %> points</b> (<%= money0(top.dollars) %>) for one week of your lineup.
+          </p>
+          <p class="muted" style="margin:.5rem 0 0; font-size:.86rem">
+            Against that you are spending a waiver position you get back slowly, and this tool has no
+            model of what the rest of the season puts on the wire. If you want the stopping rule
+            properly — claim when the value beats what you would expect to see before your priority
+            recovers — that needs the arrival distribution of wire talent, and it is not built.
+            It is written up in <code>LEARNING-ARCHITECTURE.md</code> §1 as buildable, and until it
+            exists this page is deliberately one number short of a decision.
+          </p>
+        </div>
+      </div>
+
+      <%# ── Log the decision (writes to the ledger with its counterfactual) ─────
+          Same pattern as /lineup/log + /lineup/override: two forms, one records
+          agreement with the tool's own alternative as the counterfactual, the
+          other records going another way with the tool's pick AS the
+          counterfactual. This page has no "submit the claim" action of its own
+          (the real claim happens on Sleeper) so this tap IS the decision moment -
+          it says "this is what I'm doing", not just "this is what I saw". %>
+      <form method="post" action="/waivers/log" class="card" style="margin-bottom:1.1rem">
+        <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
+          <div>
+            <b>Making this claim?</b>
+            <span class="muted" style="font-size:.82rem">Logs it against holding your priority, so the rest of the season can grade the difference.</span>
+          </div>
+          <input type="hidden" name="week" value="<%= weekNo || '' %>">
+          <input type="hidden" name="dollars" value="<%= top.dollars %>">
+          <input type="hidden" name="contested" value="<%= top.contested ? '1' : '0' %>">
+          <%# double-escape bug fixed 2026-08-15 — see lineup.ejs's note by the same fix
+              for the full mechanism. Was .replace(/"/g,'&quot;') stacked on EJS's own
+              output escaping, so a real browser submitted unparseable text instead of JSON. %>
+          <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
+          <input type="hidden" name="drop" value="<%= JSON.stringify(top.drop || {}) %>">
+          <button class="btn gold" type="submit">Log this claim</button>
+        </div>
+      </form>
+
+      <form method="post" action="/waivers/override" class="card lo-override" style="margin-bottom:1.1rem">
+        <div class="body">
+          <div style="margin-bottom:.55rem">
+            <b>Holding, or claiming someone else?</b>
+            <span class="muted" style="font-size:.82rem">One tap says why. The tool's pick was worth <b><%= money0(top.dollars) %></b>.</span>
+          </div>
+          <input type="hidden" name="week" value="<%= weekNo || '' %>">
+          <input type="hidden" name="dollars" value="<%= top.dollars %>">
+          <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: top.player_id, name: top.name, pos: top.position, net_value: top.net_value }) %>">
+          <div class="lo-ov-chips">
+            <button class="btn small ghost" type="submit" name="reason" value="held priority">✋ Held priority</button>
+            <button class="btn small ghost" type="submit" name="reason" value="claimed someone else">🔀 Claimed someone else</button>
+            <button class="btn small ghost" type="submit" name="reason" value="injury news">🏥 Injury news</button>
+            <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+            <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+          </div>
+          <p class="muted" style="margin:.55rem 0 0; font-size:.74rem">
+            What you actually claimed is readable from Sleeper afterwards. What the tool told you
+            <i>right now</i> isn't recoverable from anything, so that's what gets written down.
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+<% } %>
+
+<%# ── STREAMING (K/DEF) — independent of the claims block above: a stream can
+    be worth doing even in a week with no priority claim worth spending, and
+    vice versa. Same evaluateClaims ranking as the claims above, filtered to
+    K/DEF, HONESTLY LABELLED as season-value rather than matchup-tuned — no
+    new scoring logic was built for this, on purpose. %>
+<% if (live && !err && streamClaims && streamClaims.length) { %>
+  <% const s = streamClaims[0]; %>
+  <% const holding = (currentKD || []).find(p => p.position === s.position); %>
+  <div class="is-cols">
+    <div class="is-col">
+      <div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
+        <h2>🔁 Streaming (<%= s.position %>)
+          <span class="sub">season-value ranking, not matchup-tuned — a real limit, not hidden</span></h2>
+        <div class="body">
+          <%- include('partials/_wr_explain', { ex: G.stream }) %>
+          <p style="margin:0">
+            <b><%= s.name %></b> ranks <b class="wr-num"><%= s.net_value.toFixed(1) %> pts</b> above
+            <% if (holding) { %> your current <%= s.position %>, <b><%= holding.name %></b><% } else { %> what you're currently starting<% } %>
+            for this week — <%= money0(s.dollars) %>.
+          </p>
+          <p class="muted" style="margin:.5rem 0 0; font-size:.82rem">
+            This is the same season-value model as the claims above, not a matchup read (no
+            opponent-defense or weather signal is built into it yet). A stream costs no waiver
+            priority — the alternative here is simply keeping who you already have, not holding
+            a position in line.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="is-col">
+      <form method="post" action="/stream/log" class="card" style="margin-bottom:1.1rem">
+        <div class="body" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap">
+          <div><b>Streaming this?</b>
+            <span class="muted" style="font-size:.82rem">Logs it against who you already have, so the season can grade the difference.</span></div>
+          <input type="hidden" name="week" value="<%= weekNo || '' %>">
+          <input type="hidden" name="dollars" value="<%= s.dollars %>">
+          <input type="hidden" name="chosen" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
+          <input type="hidden" name="counterfactual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }) %>">
+          <button class="btn gold" type="submit">Log this stream</button>
+        </div>
+      </form>
+
+      <form method="post" action="/stream/override" class="card lo-override" style="margin-bottom:1.1rem">
+        <div class="body">
+          <div style="margin-bottom:.55rem"><b>Not streaming?</b>
+            <span class="muted" style="font-size:.82rem">One tap says why.</span></div>
+          <input type="hidden" name="week" value="<%= weekNo || '' %>">
+          <input type="hidden" name="dollars" value="<%= s.dollars %>">
+          <input type="hidden" name="recommended" value="<%= JSON.stringify({ id: s.player_id, name: s.name, pos: s.position, net_value: s.net_value }) %>">
+          <%# WHAT DECLINING THE STREAM ACTUALLY MEANS (2026-08-15): keeping the
+              K/DEF already rostered — the same `holding` object the log form above
+              records as its counterfactual. Captured so the override is gradeable:
+              the kept player's real week vs the recommended stream's real week. %>
+          <input type="hidden" name="actual" value="<%= JSON.stringify(holding || { note: 'no current ' + s.position + ' on roster' }) %>">
+          <div class="lo-ov-chips">
+            <button class="btn small ghost" type="submit" name="reason" value="kept current">✋ Kept who I have</button>
+            <button class="btn small ghost" type="submit" name="reason" value="streamed someone else">🔀 Streamed someone else</button>
+            <button class="btn small ghost" type="submit" name="reason" value="don't buy the projection">📉 Don't buy the projection</button>
+            <button class="btn small ghost" type="submit" name="reason" value="unstated">Just record it</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 <% } %>

@@ -31,12 +31,22 @@ def _chooser(w, st):
     return lambda b, i, r: [max(B0.startable_cap_filter(b, r), key=lambda p: P.score(p, r, ww, st))]
 
 
-def race(n_rooms, seed):
+def race(n_rooms, seed, weights=None):
+    """Paired race of `core` (ceiling 0) against one arm per candidate weight.
+
+    `weights` is additive and defaults to this file's grid, so the replication
+    run is bit-identical with or without it. EVERY ARM REPLAYS THE SAME RNG
+    STATES — `opp_state` and `grade_state` depend on (seed, room) only, never on
+    which arms are present — so adding or removing a candidate weight cannot
+    move any other arm's numbers. That property is what lets
+    `exp_ceiling_bracket.py` re-run w=0.65 alongside a finer grid and use it as a
+    reproduction control rather than a second, differently-conditioned estimate.
+    """
     pool, my_keepers, opp_keepers, my_picks = CC.load_world()
     P.enrich(pool)
     st = P.board_stats(pool)
     arms = {"core": _chooser(0.0, st)}
-    for w in WEIGHTS:
+    for w in (weights or WEIGHTS):
         arms[f"c{w}"] = _chooser(w, st)
     totals = {k: [] for k in arms}
     for s in range(n_rooms):
@@ -57,37 +67,120 @@ def _paired(totals, arm, seed):
             "separable": bool(lo > 0 or hi < 0)}
 
 
+LIVE_CEILING_WEIGHT = 0.0                           # MEASURED_WEIGHTS.ceiling, engine.js
+
+
+def summarise(per_seed, weights=None):
+    """Score every weight column against the PREREGISTERED bar and phrase it.
+
+    Returns (verdict, cols). Split out of main() 2026-08-17 for the same reason
+    `attach_dispersion_loso` was split out of the harness CLI: the judgement was
+    reachable only by a 3.5-minute simulation, so the branch that decides whether
+    a result ships had never been executed against a case it should REFUSE. A
+    verdict function that has only ever seen one outcome is not a verdict
+    function, it is a caption.
+    """
+    # THE VERDICT USED TO READ ONE COLUMN AND CITE A WEIGHT THE TOOL DOES NOT SHIP.
+    # Corrected 2026-08-17, AFTER the re-derivation run (CEILING-REDERIVATION-PREREG.md),
+    # which is why the prereg says the instrument is left untouched *before* it.
+    #
+    # Two defects, and the run is what exposed them. (1) It judged the whole
+    # experiment on `w=1.0` alone, so a weight that replicated in a DIFFERENT
+    # column could not be reported however clean it was — and on the fixed board
+    # the replicating column is w=0.65, which this logic would have summarised as
+    # "leans positive, separable in only 1/3". (2) Every branch spoke of "the live
+    # ceiling weight 0.65", but MEASURED_WEIGHTS.ceiling is 0.0 and has been since
+    # the -4.8 [-26,+17] measurement. "Keep 0.65" named a setting that does not
+    # exist, which turns a null result into a false reassurance.
+    #
+    # A summariser that can only see one arm is the same defect class as a board
+    # field that can only take one value: it cannot report what it cannot look at.
+    WEIGHTS_ = list(weights or WEIGHTS)
+    n_seeds = len(per_seed)
+    cols = {}
+    for w in WEIGHTS_:
+        xs = [s[f"w{w}"] for s in per_seed]
+        cols[w] = {"mean": round(sum(x["edge"] for x in xs) / len(xs), 1),
+                   "n_pos": sum(1 for x in xs if x["edge"] > 0),
+                   "n_sep": sum(1 for x in xs if x["separable"])}
+    # PREREGISTERED BAR: sign holds in ALL seeds AND separable in at least two.
+    repl = [w for w in WEIGHTS_ if cols[w]["n_pos"] == n_seeds and cols[w]["n_sep"] >= 2]
+    if repl:
+        best = max(repl, key=lambda w: cols[w]["mean"])
+        c = cols[best]
+        # A ONE-POINT GRID IS NOT AN UNBRACKETED OPTIMUM, IT IS NOT AN ATTEMPT TO
+        # BRACKET ONE. Found 2026-08-17 by the fresh-seed replication, which
+        # tests a single declared weight: with len(WEIGHTS_) == 1 the winner is
+        # trivially both the smallest and the largest, so this clause fired and
+        # told a reader the run had "failed to locate the peak" when locating the
+        # peak was not the question. A warning that cannot distinguish "the grid
+        # ran out" from "there is no grid" is the same defect as a field that can
+        # only hold one value.
+        edge_of_grid = len(WEIGHTS_) > 1 and (best == min(WEIGHTS_) or best == max(WEIGHTS_))
+        verdict = (f"REPLICATES at w={best} — positive in all {n_seeds} fresh seeds "
+                   f"(mean +${c['mean']}), separable in {c['n_sep']}/{n_seeds}, against a "
+                   f"CORE arm whose ceiling weight is the shipped {LIVE_CEILING_WEIGHT}. A non-zero "
+                   f"ceiling weight beats the shipped zero.")
+        if edge_of_grid:
+            verdict += (f" THE GRID DOES NOT BRACKET THE OPTIMUM: w={best} is the "
+                        f"{'smallest' if best == min(WEIGHTS_) else 'largest'} weight tested, so the "
+                        f"peak lies at or beyond the edge and this run cannot locate it.")
+    else:
+        pos_all = [w for w in WEIGHTS_ if cols[w]["n_pos"] == n_seeds]
+        if pos_all:
+            best = max(pos_all, key=lambda w: cols[w]["mean"])
+            verdict = (f"LEANS positive — w={best} positive in all seeds (mean "
+                       f"+${cols[best]['mean']}) but separable in only {cols[best]['n_sep']}/"
+                       f"{n_seeds}. Directional only; the shipped {LIVE_CEILING_WEIGHT} stands.")
+        else:
+            # `+${mean}` glued a plus onto negatives and printed "+$-3.3". The
+            # branch that reports a FAILURE is the one nobody proofreads.
+            verdict = (f"UNSIGNABLE — no weight held its sign across all {n_seeds} seeds "
+                       f"(means: " + ", ".join(
+                           f"w{w} {'+' if cols[w]['mean'] >= 0 else '-'}${abs(cols[w]['mean'])}"
+                           for w in WEIGHTS_)
+                       + f"). The shipped {LIVE_CEILING_WEIGHT} stands.")
+    return verdict, cols
+
+
 def main():
     n = int(sys.argv[sys.argv.index("--rooms") + 1]) if "--rooms" in sys.argv else 400
     per_seed = []
     for seed in SEEDS:
         totals = race(n, seed)
         per_seed.append({"seed": seed, **{f"w{w}": _paired(totals, f"c{w}", seed) for w in WEIGHTS}})
-    # replication verdict: does w=1.0 stay POSITIVE (and mostly separable) across all seeds?
-    w1 = [s["w1.0"] for s in per_seed]
-    all_pos = all(x["edge"] > 0 for x in w1)
-    n_sep = sum(1 for x in w1 if x["separable"])
-    mean_w1 = round(sum(x["edge"] for x in w1) / len(w1), 1)
-    if all_pos and n_sep >= 2:
-        verdict = (f"REPLICATES — ceiling w=1.0 positive in all {len(SEEDS)} fresh seeds "
-                   f"(mean +${mean_w1}, separable in {n_sep}/{len(SEEDS)}). The interior positive is "
-                   f"real, not a single-seed artifact → raise the live ceiling weight 0.65 → 1.0.")
-    elif all_pos:
-        verdict = (f"LEANS positive — w=1.0 positive in all seeds (mean +${mean_w1}) but separable "
-                   f"in only {n_sep}/{len(SEEDS)}. Directional; keep 0.65, treat 1.0 as favored-but-thin.")
-    else:
-        verdict = (f"DID NOT REPLICATE — ceiling w=1.0 changed sign across seeds (mean +${mean_w1}). "
-                   f"The single-seed +$23 was noise; keep ceiling at 0.65, drop the 1.0 idea.")
+    verdict, cols = summarise(per_seed)
+    mean_w1 = cols[1.0]["mean"]                     # kept: consumers read mean_w1_0
+    # STAMP THE BOARD THIS RAN AGAINST. Until 2026-08-17 every player's ceiling
+    # was proj_mean x one constant, so the ceiling term was rank-identical to the
+    # value term and this experiment could not have separated them. A future
+    # reader must be able to tell a real-ceiling run from a degenerate one from
+    # the artifact alone, without dating it — 1 distinct ratio means the run is
+    # void whatever its verdict says.
+    _pool = CC.load_world()[0]
+    ratios = {round(p["proj_ceiling"] / p["proj_mean"], 6)
+              for p in _pool if (p.get("proj_mean") or 0) > 0}
     out = {"experiment": "ceiling replication across fresh seeds", "rooms": n, "seeds": SEEDS,
-           "per_seed": per_seed, "mean_w1_0": mean_w1, "verdict": verdict}
+           "per_seed": per_seed, "columns": {str(w): cols[w] for w in WEIGHTS},
+           "board_distinct_ceiling_ratios": len(ratios),
+           "live_ceiling_weight": LIVE_CEILING_WEIGHT,
+           "mean_w1_0": mean_w1, "verdict": verdict}
     (HERE / "exp_ceiling_replicate.json").write_text(json.dumps(out, indent=2))
     (HERE / "EXP-CEILING-REPLICATE.md").write_text(
-        "# CEILING REPLICATION — does the w≈1.0 positive hold across fresh seeds?\n\n"
-        f"_{n} paired rooms × {len(SEEDS)} fresh seeds · core = mask + value anchor_\n\n"
+        "# CEILING WEIGHT vs THE SHIPPED ZERO — does it hold across fresh seeds?\n\n"
+        f"_{n} paired rooms × {len(SEEDS)} fresh seeds · core = mask + value anchor, "
+        f"ceiling weight {LIVE_CEILING_WEIGHT} (the shipped setting)_\n\n"
+        f"_Board: **{len(ratios)}** distinct `proj_ceiling/proj_mean` ratios over the pool. "
+        "**1 would VOID this experiment** — a constant-multiple ceiling is rank-identical to "
+        "`proj_mean`, so no run against one can separate the ceiling weight from the value "
+        "weight, whatever the table below says._\n\n"
         "| seed | w=0.65 | w=1.0 | w=1.5 |\n|---|---|---|---|\n"
         + "".join(f"| {s['seed']} | {s['w0.65']['edge']:+.0f}{'*' if s['w0.65']['separable'] else ''} "
                  f"| {s['w1.0']['edge']:+.0f}{'*' if s['w1.0']['separable'] else ''} "
                  f"| {s['w1.5']['edge']:+.0f}{'*' if s['w1.5']['separable'] else ''} |\n" for s in per_seed)
+        + "| **mean** | "
+        + " | ".join(f"**{cols[w]['mean']:+.1f}** ({cols[w]['n_sep']}/{len(SEEDS)} sep)"
+                     for w in WEIGHTS) + " |\n"
         + f"\n_* = CI excludes 0._\n\n**Verdict:** {verdict}\n")
     for s in per_seed:
         print(f"seed {s['seed']}: " + "  ".join(

@@ -1,7 +1,9 @@
 {
   "teams": [
     {
-      "draft_slot": 4,
+      "draft_slot": 8,
+      "slot_provisional": false,
+      "owner_id": "434915673219526656",
       "keepers": [
         {
           "player_id": "3198",
@@ -25,9 +27,90 @@
           "years_kept": 1
         }
       ]
+    },
+    {
+      "draft_slot": 1,
+      "slot_provisional": true,
+      "owner_id": "434921916734631936",
+      "keepers": [
+        {
+          "player_id": "12527",
+          "name": "Ashton Jeanty",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9224",
+          "name": "Chase Brown",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 2,
+      "slot_provisional": true,
+      "owner_id": "439662843298574336",
+      "keepers": [
+        {
+          "player_id": "6813",
+          "name": "Jonathan Taylor",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "8112",
+          "name": "Drake London",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9221",
+          "name": "Jahmyr Gibbs",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
+    },
+    {
+      "draft_slot": 3,
+      "slot_provisional": true,
+      "owner_id": "461443264013135872",
+      "keepers": [
+        {
+          "player_id": "6794",
+          "name": "Justin Jefferson",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9226",
+          "name": "De'Von Achane",
+          "position": "RB",
+          "original_round": 1,
+          "years_kept": 1
+        },
+        {
+          "player_id": "9488",
+          "name": "Jaxon Smith-Njigba",
+          "position": "WR",
+          "original_round": 1,
+          "years_kept": 1
+        }
+      ]
     }
   ],
-  "_note": "generated from final_rosters keeper designations; regenerate as teams designate and draft slots are assigned",
-  "_placed_teams": 1,
-  "_unplaced_designations": 1
+  "_note": "generated from final_rosters keeper designations. Slots marked slot_provisional=true are placeholders: the COUNT is real and drives the pool and my pick numbers correctly, but WHICH seat that team occupies is not known until the draft order is set.",
+  "_placed_teams": 4,
+  "_provisional_slots": 3,
+  "_total_keepers": 11,
+  "_designating_teams": 4,
+  "_designations_source": "sleeper",
+  "_problems": []
 }

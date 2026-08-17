@@ -1,0 +1,2983 @@
+{
+  "budget": {
+    "limit": 100,
+    "remaining": 58,
+    "reserve": 20,
+    "reset_at": "2026-08-15T14:27:52Z",
+    "spendable": 38,
+    "spent_this_run": 41
+  },
+  "complete": true,
+  "coverage": 1.0,
+  "deferred_count": 0,
+  "events": [
+    {
+      "away": "Denver Broncos",
+      "captured_at": "2026-08-15T13:27:52Z",
+      "event_id": 71548100,
+      "home": "Atlanta Falcons",
+      "odds": {
+        "away": "Denver Broncos",
+        "awayId": 4418,
+        "bookmakers": {},
+        "date": "2026-08-14T23:00:00Z",
+        "home": "Atlanta Falcons",
+        "homeId": 4393,
+        "id": 71548100,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-14T23:00:00Z"
+    },
+    {
+      "away": "Tampa Bay Buccaneers",
+      "captured_at": "2026-08-15T13:27:52Z",
+      "event_id": 71548098,
+      "home": "New York Jets",
+      "odds": {
+        "away": "Tampa Bay Buccaneers",
+        "awayId": 4388,
+        "bookmakers": {},
+        "date": "2026-08-14T23:00:00Z",
+        "home": "New York Jets",
+        "homeId": 4427,
+        "id": 71548098,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-14T23:00:00Z"
+    },
+    {
+      "away": "Miami Dolphins",
+      "captured_at": "2026-08-15T13:27:52Z",
+      "event_id": 71548102,
+      "home": "Washington Commanders",
+      "odds": {
+        "away": "Miami Dolphins",
+        "awayId": 4287,
+        "bookmakers": {},
+        "date": "2026-08-14T23:00:00Z",
+        "home": "Washington Commanders",
+        "homeId": 4432,
+        "id": 71548102,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "settled",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-14T23:00:00Z"
+    },
+    {
+      "away": "Cleveland Browns",
+      "captured_at": "2026-08-15T13:27:53Z",
+      "event_id": 71548108,
+      "home": "Chicago Bears",
+      "odds": {
+        "away": "Cleveland Browns",
+        "awayId": 4417,
+        "bookmakerIds": {
+          "DraftKings": "34240143",
+          "FanDuel": "35913474"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.60",
+                  "home": "2.40"
+                }
+              ],
+              "updatedAt": "2026-08-15T11:21:36.01Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.89",
+                  "hdp": 3,
+                  "home": "1.92"
+                }
+              ],
+              "updatedAt": "2026-08-15T11:21:36.01Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 40.5,
+                  "over": "1.98",
+                  "under": "1.84"
+                }
+              ],
+              "updatedAt": "2026-08-15T02:51:37.723Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.595",
+                  "home": "2.420"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:14:07.863Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.962",
+                  "hdp": 3.5,
+                  "home": "1.847"
+                }
+              ],
+              "updatedAt": "2026-08-15T02:49:40.688Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 40.5,
+                  "over": "1.909",
+                  "under": "1.909"
+                },
+                {
+                  "hdp": 35.5,
+                  "over": "1.400",
+                  "under": "2.820"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "1.465",
+                  "under": "2.580"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "1.575",
+                  "under": "2.300"
+                },
+                {
+                  "hdp": 38.5,
+                  "over": "1.633",
+                  "under": "2.180"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "1.725",
+                  "under": "2.040"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.000",
+                  "under": "1.758"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "2.080",
+                  "under": "1.694"
+                },
+                {
+                  "hdp": 43.5,
+                  "over": "2.280",
+                  "under": "1.581"
+                },
+                {
+                  "hdp": 44.5,
+                  "over": "2.460",
+                  "under": "1.505"
+                },
+                {
+                  "hdp": 45.5,
+                  "over": "2.620",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 46.5,
+                  "over": "2.780",
+                  "under": "1.408"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:13:31.671Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 22.5,
+                  "over": "2.720",
+                  "under": "1.444"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.400",
+                  "under": "2.900"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.435",
+                  "under": "2.760"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.575",
+                  "under": "2.360"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.781",
+                  "under": "2.000"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.833",
+                  "under": "1.943"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.980",
+                  "under": "1.800"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.340",
+                  "under": "1.581"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.540",
+                  "under": "1.500"
+                },
+                {
+                  "hdp": 309.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:13:31.671Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 18.5,
+                  "over": "1.444",
+                  "under": "2.720"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "1.725",
+                  "under": "2.080"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "1.833",
+                  "under": "1.943"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "1.926",
+                  "under": "1.847"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.417",
+                  "under": "2.820"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.521",
+                  "under": "2.460"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.180",
+                  "under": "1.667"
+                },
+                {
+                  "hdp": 24.5,
+                  "over": "2.480",
+                  "under": "1.521"
+                },
+                {
+                  "hdp": 25.5,
+                  "over": "2.580",
+                  "under": "1.488"
+                },
+                {
+                  "hdp": 26.5,
+                  "over": "2.860",
+                  "under": "1.408"
+                },
+                {
+                  "hdp": 334.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:13:31.671Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T17:00:00Z",
+        "home": "Chicago Bears",
+        "homeId": 4391,
+        "id": 71548108,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240143",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913474"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Minnesota Vikings",
+      "captured_at": "2026-08-15T13:27:53Z",
+      "event_id": 71548110,
+      "home": "New York Giants",
+      "odds": {
+        "away": "Minnesota Vikings",
+        "awayId": 4423,
+        "bookmakerIds": {
+          "DraftKings": "34240144",
+          "FanDuel": "35913476"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.74",
+                  "home": "2.14"
+                }
+              ],
+              "updatedAt": "2026-08-14T04:10:11.465Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "hdp": 1.5,
+                  "home": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T09:43:17.519Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 42.5,
+                  "over": "1.92",
+                  "under": "1.89"
+                }
+              ],
+              "updatedAt": "2026-08-15T06:13:12.669Z"
+            },
+            {
+              "name": "ML HT",
+              "odds": [
+                {
+                  "away": "1.83",
+                  "home": "1.90"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Spread HT",
+              "odds": [
+                {
+                  "away": "1.90",
+                  "hdp": 0.5,
+                  "home": "1.83"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Totals HT",
+              "odds": [
+                {
+                  "hdp": 21.5,
+                  "over": "1.86",
+                  "under": "1.86"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.735",
+                  "home": "2.160"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:21:21.57Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.909",
+                  "hdp": 2.5,
+                  "home": "1.909"
+                }
+              ],
+              "updatedAt": "2026-08-14T13:56:54.124Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 35.5,
+                  "over": "1.370",
+                  "under": "2.940"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "1.962",
+                  "under": "1.781"
+                },
+                {
+                  "hdp": 43.5,
+                  "over": "2.140",
+                  "under": "1.658"
+                },
+                {
+                  "hdp": 44.5,
+                  "over": "2.300",
+                  "under": "1.575"
+                },
+                {
+                  "hdp": 45.5,
+                  "over": "2.440",
+                  "under": "1.515"
+                },
+                {
+                  "hdp": 46.5,
+                  "over": "2.620",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 47.5,
+                  "over": "2.880",
+                  "under": "1.385"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "1.909",
+                  "under": "1.909"
+                },
+                {
+                  "hdp": 38.5,
+                  "over": "1.562",
+                  "under": "2.320"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "1.649",
+                  "under": "2.160"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "1.417",
+                  "under": "2.740"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "1.505",
+                  "under": "2.460"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "1.758",
+                  "under": "2.000"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:21:48.949Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "1.769",
+                  "under": "2.020"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.340",
+                  "under": "1.581"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.680",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.455",
+                  "under": "2.680"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.617",
+                  "under": "2.260"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.649",
+                  "under": "2.200"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.040",
+                  "under": "1.758"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.220",
+                  "under": "1.641"
+                },
+                {
+                  "hdp": 319.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:22:48.126Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 17.5,
+                  "over": "1.444",
+                  "under": "2.720"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "1.769",
+                  "under": "2.020"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "1.980",
+                  "under": "1.800"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.260",
+                  "under": "1.617"
+                },
+                {
+                  "hdp": 24.5,
+                  "over": "2.620",
+                  "under": "1.476"
+                },
+                {
+                  "hdp": 25.5,
+                  "over": "2.720",
+                  "under": "1.444"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "1.885",
+                  "under": "1.885"
+                },
+                {
+                  "hdp": 334.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.465",
+                  "under": "2.640"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.543",
+                  "under": "2.420"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:23:30.639Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T17:00:00Z",
+        "home": "New York Giants",
+        "homeId": 4426,
+        "id": 71548110,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240144",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913476"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Carolina Panthers",
+      "captured_at": "2026-08-15T13:27:53Z",
+      "event_id": 71548112,
+      "home": "Buffalo Bills",
+      "odds": {
+        "away": "Carolina Panthers",
+        "awayId": 4415,
+        "bookmakerIds": {
+          "DraftKings": "34240140",
+          "FanDuel": "35913473"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.30",
+                  "home": "1.64"
+                }
+              ],
+              "updatedAt": "2026-08-15T12:13:14.332Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.89",
+                  "hdp": -3,
+                  "home": "1.92"
+                }
+              ],
+              "updatedAt": "2026-08-15T12:15:12.679Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 38.5,
+                  "over": "1.89",
+                  "under": "1.92"
+                }
+              ],
+              "updatedAt": "2026-08-14T04:05:40.525Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.340",
+                  "home": "1.633"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:17:18.89Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.820",
+                  "hdp": -3.5,
+                  "home": "2.000"
+                }
+              ],
+              "updatedAt": "2026-08-13T18:51:14.816Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 38.5,
+                  "over": "1.769",
+                  "under": "1.980"
+                },
+                {
+                  "hdp": 43.5,
+                  "over": "2.540",
+                  "under": "1.476"
+                },
+                {
+                  "hdp": 45.5,
+                  "over": "2.940",
+                  "under": "1.370"
+                },
+                {
+                  "hdp": 35.5,
+                  "over": "1.500",
+                  "under": "2.480"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "1.581",
+                  "under": "2.280"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "1.694",
+                  "under": "2.080"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "2.040",
+                  "under": "1.725"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.180",
+                  "under": "1.633"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "1.926",
+                  "under": "1.893"
+                },
+                {
+                  "hdp": 34.5,
+                  "over": "1.444",
+                  "under": "2.640"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "2.320",
+                  "under": "1.562"
+                },
+                {
+                  "hdp": 44.5,
+                  "over": "2.780",
+                  "under": "1.408"
+                },
+                {
+                  "hdp": 33.5,
+                  "over": "1.400",
+                  "under": "2.820"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:16:39.479Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 22.5,
+                  "over": "2.080",
+                  "under": "1.725"
+                },
+                {
+                  "hdp": 24.5,
+                  "over": "2.760",
+                  "under": "1.435"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.377",
+                  "under": "1.377"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.510",
+                  "under": "2.520"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.538",
+                  "under": "2.460"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.617",
+                  "under": "2.260"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "1.870",
+                  "under": "1.885"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "1.980",
+                  "under": "1.800"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.400",
+                  "under": "1.556"
+                },
+                {
+                  "hdp": 25.5,
+                  "over": "2.900",
+                  "under": "1.400"
+                },
+                {
+                  "hdp": 328.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:16:39.479Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "2.120",
+                  "under": "1.704"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.900",
+                  "under": "1.400"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.500",
+                  "under": "1.515"
+                },
+                {
+                  "hdp": 13.5,
+                  "over": "1.385",
+                  "under": "2.960"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.465",
+                  "under": "2.640"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.510",
+                  "under": "2.520"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.641",
+                  "under": "2.220"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.943",
+                  "under": "1.833"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.680",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 307.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.885",
+                  "under": "1.885"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:16:39.479Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T17:00:00Z",
+        "home": "Buffalo Bills",
+        "homeId": 4376,
+        "id": 71548112,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240140",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913473"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T17:00:00Z"
+    },
+    {
+      "away": "Jacksonville Jaguars",
+      "captured_at": "2026-08-15T13:27:53Z",
+      "event_id": 71548114,
+      "home": "New Orleans Saints",
+      "odds": {
+        "away": "Jacksonville Jaguars",
+        "awayId": 4386,
+        "bookmakerIds": {
+          "DraftKings": "34240147",
+          "FanDuel": "35913485"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.10",
+                  "home": "1.76"
+                }
+              ],
+              "updatedAt": "2026-08-13T14:01:33.415Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.89",
+                  "hdp": -2.5,
+                  "home": "1.92"
+                }
+              ],
+              "updatedAt": "2026-08-14T03:57:49.688Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 35.5,
+                  "over": "1.92",
+                  "under": "1.89"
+                }
+              ],
+              "updatedAt": "2026-08-14T04:25:31.472Z"
+            },
+            {
+              "name": "ML HT",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "home": "1.86"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Spread HT",
+              "odds": [
+                {
+                  "away": "1.80",
+                  "hdp": -0.5,
+                  "home": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Totals HT",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "1.95",
+                  "under": "1.80"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.140",
+                  "home": "1.746"
+                }
+              ],
+              "updatedAt": "2026-08-14T18:09:40.648Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.870",
+                  "hdp": -2.5,
+                  "home": "1.952"
+                }
+              ],
+              "updatedAt": "2026-08-14T18:09:40.648Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 35.5,
+                  "over": "1.893",
+                  "under": "1.926"
+                },
+                {
+                  "hdp": 30.5,
+                  "over": "1.426",
+                  "under": "2.720"
+                },
+                {
+                  "hdp": 31.5,
+                  "over": "1.476",
+                  "under": "2.540"
+                },
+                {
+                  "hdp": 32.5,
+                  "over": "1.556",
+                  "under": "2.340"
+                },
+                {
+                  "hdp": 33.5,
+                  "over": "1.676",
+                  "under": "2.120"
+                },
+                {
+                  "hdp": 34.5,
+                  "over": "1.758",
+                  "under": "2.000"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "2.020",
+                  "under": "1.735"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "2.200",
+                  "under": "1.625"
+                },
+                {
+                  "hdp": 38.5,
+                  "over": "2.340",
+                  "under": "1.556"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "2.540",
+                  "under": "1.476"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "2.740",
+                  "under": "1.417"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.980",
+                  "under": "2.980"
+                }
+              ],
+              "updatedAt": "2026-08-14T21:45:39.099Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 13.5,
+                  "over": "1.385",
+                  "under": "2.960"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.455",
+                  "under": "2.680"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.500",
+                  "under": "2.540"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.649",
+                  "under": "2.200"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.870",
+                  "under": "1.901"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.901",
+                  "under": "1.870"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.080",
+                  "under": "1.725"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.440",
+                  "under": "1.538"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.620",
+                  "under": "1.476"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.800",
+                  "under": "1.426"
+                }
+              ],
+              "updatedAt": "2026-08-14T21:45:39.099Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 13.5,
+                  "over": "1.510",
+                  "under": "2.520"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.588",
+                  "under": "2.320"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.641",
+                  "under": "2.220"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.847",
+                  "under": "1.926"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "2.100",
+                  "under": "1.714"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "2.160",
+                  "under": "1.676"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.380",
+                  "under": "1.562"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.860",
+                  "under": "1.408"
+                }
+              ],
+              "updatedAt": "2026-08-14T21:45:39.099Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T20:00:00Z",
+        "home": "New Orleans Saints",
+        "homeId": 4425,
+        "id": 71548114,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240147",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913485"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T20:00:00Z"
+    },
+    {
+      "away": "Los Angeles Rams",
+      "captured_at": "2026-08-15T13:27:53Z",
+      "event_id": 71548116,
+      "home": "Kansas City Chiefs",
+      "odds": {
+        "away": "Los Angeles Rams",
+        "awayId": 4387,
+        "bookmakerIds": {
+          "DraftKings": "34240146",
+          "FanDuel": "35913480"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.10",
+                  "home": "1.76"
+                }
+              ],
+              "updatedAt": "2026-08-14T17:41:34.935Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "hdp": -2.5,
+                  "home": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T00:53:52.801Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 35.5,
+                  "over": "1.89",
+                  "under": "1.92"
+                }
+              ],
+              "updatedAt": "2026-08-15T00:53:52.801Z"
+            },
+            {
+              "name": "ML HT",
+              "odds": [
+                {
+                  "away": "2.00",
+                  "home": "1.76"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Spread HT",
+              "odds": [
+                {
+                  "away": "1.83",
+                  "hdp": -0.5,
+                  "home": "1.90"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Totals HT",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "1.80",
+                  "under": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.100",
+                  "home": "1.769"
+                }
+              ],
+              "updatedAt": "2026-08-15T03:29:28.103Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.870",
+                  "hdp": -2.5,
+                  "home": "1.952"
+                }
+              ],
+              "updatedAt": "2026-08-15T03:29:28.103Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 36.5,
+                  "over": "1.952",
+                  "under": "1.870"
+                },
+                {
+                  "hdp": 31.5,
+                  "over": "1.435",
+                  "under": "2.680"
+                },
+                {
+                  "hdp": 32.5,
+                  "over": "1.500",
+                  "under": "2.480"
+                },
+                {
+                  "hdp": 33.5,
+                  "over": "1.625",
+                  "under": "2.200"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "2.400",
+                  "under": "1.532"
+                },
+                {
+                  "hdp": 30.5,
+                  "over": "1.400",
+                  "under": "2.820"
+                },
+                {
+                  "hdp": 34.5,
+                  "over": "1.714",
+                  "under": "2.060"
+                },
+                {
+                  "hdp": 35.5,
+                  "over": "1.781",
+                  "under": "1.962"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "2.100",
+                  "under": "1.685"
+                },
+                {
+                  "hdp": 38.5,
+                  "over": "2.220",
+                  "under": "1.617"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "2.620",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.820",
+                  "under": "1.400"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "2.980",
+                  "under": "2.980"
+                }
+              ],
+              "updatedAt": "2026-08-15T03:29:15.976Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 14.5,
+                  "over": "1.400",
+                  "under": "2.900"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.444",
+                  "under": "2.720"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.588",
+                  "under": "2.320"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.800",
+                  "under": "1.980"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.847",
+                  "under": "1.926"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.020",
+                  "under": "1.769"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.400",
+                  "under": "1.556"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.580",
+                  "under": "1.488"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.760",
+                  "under": "1.435"
+                },
+                {
+                  "hdp": 298.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                }
+              ],
+              "updatedAt": "2026-08-15T03:28:29.825Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 13.5,
+                  "over": "1.444",
+                  "under": "2.720"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.532",
+                  "under": "2.460"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.575",
+                  "under": "2.360"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.758",
+                  "under": "2.040"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "2.020",
+                  "under": "1.769"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "2.060",
+                  "under": "1.735"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.260",
+                  "under": "1.617"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.720",
+                  "under": "1.444"
+                },
+                {
+                  "hdp": 294.5,
+                  "over": "1.877",
+                  "under": "1.877"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.960",
+                  "under": "1.385"
+                }
+              ],
+              "updatedAt": "2026-08-15T03:29:15.976Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T20:00:00Z",
+        "home": "Kansas City Chiefs",
+        "homeId": 4422,
+        "id": 71548116,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240146",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913480"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T20:00:00Z"
+    },
+    {
+      "away": "Philadelphia Eagles",
+      "captured_at": "2026-08-15T13:27:54Z",
+      "event_id": 71548118,
+      "home": "Baltimore Ravens",
+      "odds": {
+        "away": "Philadelphia Eagles",
+        "awayId": 4428,
+        "bookmakerIds": {
+          "DraftKings": "34240148",
+          "FanDuel": "35913490"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.55",
+                  "home": "2.50"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:10:12.071Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "hdp": 3.5,
+                  "home": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:10:12.071Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 36.5,
+                  "over": "1.90",
+                  "under": "1.90"
+                }
+              ],
+              "updatedAt": "2026-08-15T08:42:07.732Z"
+            },
+            {
+              "name": "ML HT",
+              "odds": [
+                {
+                  "away": "1.60",
+                  "home": "2.30"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Spread HT",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "hdp": 2.5,
+                  "home": "1.86"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Totals HT",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "1.95",
+                  "under": "1.80"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "1.515",
+                  "home": "2.620"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:03:11.228Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.893",
+                  "hdp": 3.5,
+                  "home": "1.926"
+                }
+              ],
+              "updatedAt": "2026-08-15T12:44:53.379Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 38.5,
+                  "over": "2.140",
+                  "under": "1.658"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "2.300",
+                  "under": "1.575"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "2.520",
+                  "under": "1.488"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.740",
+                  "under": "1.417"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "2.880",
+                  "under": "1.385"
+                },
+                {
+                  "hdp": 31.5,
+                  "over": "1.400",
+                  "under": "2.820"
+                },
+                {
+                  "hdp": 32.5,
+                  "over": "1.455",
+                  "under": "2.620"
+                },
+                {
+                  "hdp": 33.5,
+                  "over": "1.562",
+                  "under": "2.320"
+                },
+                {
+                  "hdp": 34.5,
+                  "over": "1.649",
+                  "under": "2.160"
+                },
+                {
+                  "hdp": 35.5,
+                  "over": "1.735",
+                  "under": "2.020"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "2.020",
+                  "under": "1.735"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "1.909",
+                  "under": "1.909"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:03:11.228Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 13.5,
+                  "over": "1.562",
+                  "under": "2.380"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.649",
+                  "under": "2.200"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.725",
+                  "under": "2.080"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "2.320",
+                  "under": "1.588"
+                },
+                {
+                  "hdp": 12.5,
+                  "over": "1.377",
+                  "under": "1.377"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.943",
+                  "under": "1.833"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "2.260",
+                  "under": "1.617"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.540",
+                  "under": "1.500"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:01:54.508Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 16.5,
+                  "over": "1.455",
+                  "under": "2.680"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.160",
+                  "under": "1.676"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.280",
+                  "under": "1.610"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.640",
+                  "under": "1.465"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.588",
+                  "under": "2.320"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.625",
+                  "under": "2.240"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.758",
+                  "under": "2.040"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.020",
+                  "under": "1.769"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:01:54.508Z"
+            }
+          ]
+        },
+        "date": "2026-08-15T23:00:00Z",
+        "home": "Baltimore Ravens",
+        "homeId": 4413,
+        "id": 71548118,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240148",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913490"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-15T23:00:00Z"
+    },
+    {
+      "away": "Dallas Cowboys",
+      "captured_at": "2026-08-15T13:27:54Z",
+      "event_id": 71548120,
+      "home": "Seattle Seahawks",
+      "odds": {
+        "away": "Dallas Cowboys",
+        "awayId": 4392,
+        "bookmakerIds": {
+          "DraftKings": "34240149",
+          "FanDuel": "35913496"
+        },
+        "bookmakers": {
+          "DraftKings": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.30",
+                  "home": "1.64"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:11:45.381Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.86",
+                  "hdp": -3,
+                  "home": "1.95"
+                }
+              ],
+              "updatedAt": "2026-08-15T00:31:45.546Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 37.5,
+                  "over": "1.95",
+                  "under": "1.86"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:20:45.194Z"
+            },
+            {
+              "name": "ML HT",
+              "odds": [
+                {
+                  "away": "2.20",
+                  "home": "1.64"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Spread HT",
+              "odds": [
+                {
+                  "away": "1.83",
+                  "hdp": -1.5,
+                  "home": "1.90"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            },
+            {
+              "name": "Totals HT",
+              "odds": [
+                {
+                  "hdp": 19.5,
+                  "over": "1.90",
+                  "under": "1.83"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:44.844Z"
+            }
+          ],
+          "FanDuel": [
+            {
+              "name": "ML",
+              "odds": [
+                {
+                  "away": "2.300",
+                  "home": "1.649"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:31.627Z"
+            },
+            {
+              "name": "Spread",
+              "odds": [
+                {
+                  "away": "1.952",
+                  "hdp": -2.5,
+                  "home": "1.870"
+                }
+              ],
+              "updatedAt": "2026-08-15T12:50:11.297Z"
+            },
+            {
+              "name": "Totals",
+              "odds": [
+                {
+                  "hdp": 44.5,
+                  "over": "2.980",
+                  "under": "2.980"
+                },
+                {
+                  "hdp": 38.5,
+                  "over": "1.926",
+                  "under": "1.820"
+                },
+                {
+                  "hdp": 39.5,
+                  "over": "2.040",
+                  "under": "1.725"
+                },
+                {
+                  "hdp": 42.5,
+                  "over": "2.540",
+                  "under": "1.476"
+                },
+                {
+                  "hdp": 37.5,
+                  "over": "1.870",
+                  "under": "1.952"
+                },
+                {
+                  "hdp": 32.5,
+                  "over": "1.370",
+                  "under": "2.940"
+                },
+                {
+                  "hdp": 33.5,
+                  "over": "1.465",
+                  "under": "2.580"
+                },
+                {
+                  "hdp": 34.5,
+                  "over": "1.521",
+                  "under": "2.420"
+                },
+                {
+                  "hdp": 35.5,
+                  "over": "1.581",
+                  "under": "2.280"
+                },
+                {
+                  "hdp": 36.5,
+                  "over": "1.685",
+                  "under": "2.100"
+                },
+                {
+                  "hdp": 40.5,
+                  "over": "2.200",
+                  "under": "1.625"
+                },
+                {
+                  "hdp": 41.5,
+                  "over": "2.400",
+                  "under": "1.532"
+                },
+                {
+                  "hdp": 43.5,
+                  "over": "2.780",
+                  "under": "1.408"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:26:10.772Z"
+            },
+            {
+              "name": "Team Total Home",
+              "odds": [
+                {
+                  "hdp": 16.5,
+                  "over": "1.455",
+                  "under": "2.680"
+                },
+                {
+                  "hdp": 23.5,
+                  "over": "2.680",
+                  "under": "1.455"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.602",
+                  "under": "2.300"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.633",
+                  "under": "2.240"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "1.758",
+                  "under": "2.040"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.040",
+                  "under": "1.758"
+                },
+                {
+                  "hdp": 21.5,
+                  "over": "2.200",
+                  "under": "1.649"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.320",
+                  "under": "1.588"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:25:39.655Z"
+            },
+            {
+              "name": "Team Total Away",
+              "odds": [
+                {
+                  "hdp": 21.5,
+                  "over": "2.760",
+                  "under": "1.435"
+                },
+                {
+                  "hdp": 22.5,
+                  "over": "2.960",
+                  "under": "1.385"
+                },
+                {
+                  "hdp": 13.5,
+                  "over": "1.385",
+                  "under": "2.960"
+                },
+                {
+                  "hdp": 14.5,
+                  "over": "1.465",
+                  "under": "2.640"
+                },
+                {
+                  "hdp": 15.5,
+                  "over": "1.515",
+                  "under": "2.500"
+                },
+                {
+                  "hdp": 16.5,
+                  "over": "1.667",
+                  "under": "2.180"
+                },
+                {
+                  "hdp": 17.5,
+                  "over": "1.885",
+                  "under": "1.885"
+                },
+                {
+                  "hdp": 18.5,
+                  "over": "1.943",
+                  "under": "1.833"
+                },
+                {
+                  "hdp": 19.5,
+                  "over": "2.120",
+                  "under": "1.704"
+                },
+                {
+                  "hdp": 20.5,
+                  "over": "2.520",
+                  "under": "1.510"
+                }
+              ],
+              "updatedAt": "2026-08-15T13:25:39.655Z"
+            }
+          ]
+        },
+        "date": "2026-08-16T00:00:00Z",
+        "home": "Seattle Seahawks",
+        "homeId": 4430,
+        "id": 71548120,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {
+          "DraftKings": "https://sportsbook.draftkings.com/event/34240149",
+          "FanDuel": "https://sportsbook.fanduel.com/event/35913496"
+        }
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-16T00:00:00Z"
+    },
+    {
+      "away": "Las Vegas Raiders",
+      "captured_at": "2026-08-15T13:27:54Z",
+      "event_id": 71548122,
+      "home": "Houston Texans",
+      "odds": {
+        "away": "Las Vegas Raiders",
+        "awayId": 4390,
+        "bookmakers": {},
+        "date": "2026-08-21T00:00:00Z",
+        "home": "Houston Texans",
+        "homeId": 4324,
+        "id": 71548122,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T00:00:00Z"
+    },
+    {
+      "away": "San Francisco 49ers",
+      "captured_at": "2026-08-15T13:27:54Z",
+      "event_id": 71548124,
+      "home": "Los Angeles Chargers",
+      "odds": {
+        "away": "San Francisco 49ers",
+        "awayId": 4389,
+        "bookmakers": {},
+        "date": "2026-08-21T02:00:00Z",
+        "home": "Los Angeles Chargers",
+        "homeId": 4429,
+        "id": 71548124,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T02:00:00Z"
+    },
+    {
+      "away": "New York Jets",
+      "captured_at": "2026-08-15T13:27:55Z",
+      "event_id": 71548126,
+      "home": "Pittsburgh Steelers",
+      "odds": {
+        "away": "New York Jets",
+        "awayId": 4427,
+        "bookmakers": {},
+        "date": "2026-08-21T23:00:00Z",
+        "home": "Pittsburgh Steelers",
+        "homeId": 4345,
+        "id": 71548126,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T23:00:00Z"
+    },
+    {
+      "away": "Carolina Panthers",
+      "captured_at": "2026-08-15T13:27:55Z",
+      "event_id": 71548128,
+      "home": "Jacksonville Jaguars",
+      "odds": {
+        "away": "Carolina Panthers",
+        "awayId": 4415,
+        "bookmakers": {},
+        "date": "2026-08-21T23:30:00Z",
+        "home": "Jacksonville Jaguars",
+        "homeId": 4386,
+        "id": 71548128,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-21T23:30:00Z"
+    },
+    {
+      "away": "Green Bay Packers",
+      "captured_at": "2026-08-15T13:27:55Z",
+      "event_id": 71548134,
+      "home": "Denver Broncos",
+      "odds": {
+        "away": "Green Bay Packers",
+        "awayId": 4420,
+        "bookmakers": {},
+        "date": "2026-08-22T01:00:00Z",
+        "home": "Denver Broncos",
+        "homeId": 4418,
+        "id": 71548134,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T01:00:00Z"
+    },
+    {
+      "away": "Washington Commanders",
+      "captured_at": "2026-08-15T13:27:55Z",
+      "event_id": 71548140,
+      "home": "Detroit Lions",
+      "odds": {
+        "away": "Washington Commanders",
+        "awayId": 4432,
+        "bookmakers": {},
+        "date": "2026-08-22T16:00:00Z",
+        "home": "Detroit Lions",
+        "homeId": 4419,
+        "id": 71548140,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T16:00:00Z"
+    },
+    {
+      "away": "Buffalo Bills",
+      "captured_at": "2026-08-15T13:27:55Z",
+      "event_id": 71548130,
+      "home": "Cleveland Browns",
+      "odds": {
+        "away": "Buffalo Bills",
+        "awayId": 4376,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Cleveland Browns",
+        "homeId": 4417,
+        "id": 71548130,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "Baltimore Ravens",
+      "captured_at": "2026-08-15T13:27:56Z",
+      "event_id": 71548132,
+      "home": "Minnesota Vikings",
+      "odds": {
+        "away": "Baltimore Ravens",
+        "awayId": 4413,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Minnesota Vikings",
+        "homeId": 4423,
+        "id": 71548132,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "Atlanta Falcons",
+      "captured_at": "2026-08-15T13:27:56Z",
+      "event_id": 71548136,
+      "home": "Indianapolis Colts",
+      "odds": {
+        "away": "Atlanta Falcons",
+        "awayId": 4393,
+        "bookmakers": {},
+        "date": "2026-08-22T17:00:00Z",
+        "home": "Indianapolis Colts",
+        "homeId": 4421,
+        "id": 71548136,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T17:00:00Z"
+    },
+    {
+      "away": "New Orleans Saints",
+      "captured_at": "2026-08-15T13:27:56Z",
+      "event_id": 71548142,
+      "home": "Los Angeles Rams",
+      "odds": {
+        "away": "New Orleans Saints",
+        "awayId": 4425,
+        "bookmakers": {},
+        "date": "2026-08-22T20:00:00Z",
+        "home": "Los Angeles Rams",
+        "homeId": 4387,
+        "id": 71548142,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T20:00:00Z"
+    },
+    {
+      "away": "New York Giants",
+      "captured_at": "2026-08-15T13:27:56Z",
+      "event_id": 71548144,
+      "home": "Miami Dolphins",
+      "odds": {
+        "away": "New York Giants",
+        "awayId": 4426,
+        "bookmakers": {},
+        "date": "2026-08-22T20:00:00Z",
+        "home": "Miami Dolphins",
+        "homeId": 4287,
+        "id": 71548144,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T20:00:00Z"
+    },
+    {
+      "away": "Philadelphia Eagles",
+      "captured_at": "2026-08-15T13:27:57Z",
+      "event_id": 71548146,
+      "home": "New England Patriots",
+      "odds": {
+        "away": "Philadelphia Eagles",
+        "awayId": 4428,
+        "bookmakers": {},
+        "date": "2026-08-22T23:00:00Z",
+        "home": "New England Patriots",
+        "homeId": 4424,
+        "id": 71548146,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:00:00Z"
+    },
+    {
+      "away": "Chicago Bears",
+      "captured_at": "2026-08-15T13:27:57Z",
+      "event_id": 71548148,
+      "home": "Cincinnati Bengals",
+      "odds": {
+        "away": "Chicago Bears",
+        "awayId": 4391,
+        "bookmakers": {},
+        "date": "2026-08-22T23:00:00Z",
+        "home": "Cincinnati Bengals",
+        "homeId": 4416,
+        "id": 71548148,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:00:00Z"
+    },
+    {
+      "away": "Kansas City Chiefs",
+      "captured_at": "2026-08-15T13:27:57Z",
+      "event_id": 71548150,
+      "home": "Tampa Bay Buccaneers",
+      "odds": {
+        "away": "Kansas City Chiefs",
+        "awayId": 4422,
+        "bookmakers": {},
+        "date": "2026-08-22T23:30:00Z",
+        "home": "Tampa Bay Buccaneers",
+        "homeId": 4388,
+        "id": 71548150,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-22T23:30:00Z"
+    },
+    {
+      "away": "Dallas Cowboys",
+      "captured_at": "2026-08-15T13:27:57Z",
+      "event_id": 71548138,
+      "home": "Arizona Cardinals",
+      "odds": {
+        "away": "Dallas Cowboys",
+        "awayId": 4392,
+        "bookmakers": {},
+        "date": "2026-08-23T02:00:00Z",
+        "home": "Arizona Cardinals",
+        "homeId": 4412,
+        "id": 71548138,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-23T02:00:00Z"
+    },
+    {
+      "away": "Seattle Seahawks",
+      "captured_at": "2026-08-15T13:27:58Z",
+      "event_id": 71548152,
+      "home": "Tennessee Titans",
+      "odds": {
+        "away": "Seattle Seahawks",
+        "awayId": 4430,
+        "bookmakers": {},
+        "date": "2026-08-24T00:00:00Z",
+        "home": "Tennessee Titans",
+        "homeId": 367364,
+        "id": 71548152,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-24T00:00:00Z"
+    },
+    {
+      "away": "Pittsburgh Steelers",
+      "captured_at": "2026-08-15T13:27:58Z",
+      "event_id": 71548156,
+      "home": "Buffalo Bills",
+      "odds": {
+        "away": "Pittsburgh Steelers",
+        "awayId": 4345,
+        "bookmakers": {},
+        "date": "2026-08-27T23:00:00Z",
+        "home": "Buffalo Bills",
+        "homeId": 4376,
+        "id": 71548156,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-27T23:00:00Z"
+    },
+    {
+      "away": "San Francisco 49ers",
+      "captured_at": "2026-08-15T13:27:58Z",
+      "event_id": 71548154,
+      "home": "Las Vegas Raiders",
+      "odds": {
+        "away": "San Francisco 49ers",
+        "awayId": 4389,
+        "bookmakers": {},
+        "date": "2026-08-28T00:00:00Z",
+        "home": "Las Vegas Raiders",
+        "homeId": 4390,
+        "id": 71548154,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T00:00:00Z"
+    },
+    {
+      "away": "New England Patriots",
+      "captured_at": "2026-08-15T13:27:58Z",
+      "event_id": 71548158,
+      "home": "Cleveland Browns",
+      "odds": {
+        "away": "New England Patriots",
+        "awayId": 4424,
+        "bookmakers": {},
+        "date": "2026-08-28T00:00:00Z",
+        "home": "Cleveland Browns",
+        "homeId": 4417,
+        "id": 71548158,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T00:00:00Z"
+    },
+    {
+      "away": "Los Angeles Rams",
+      "captured_at": "2026-08-15T13:27:59Z",
+      "event_id": 71548160,
+      "home": "Los Angeles Chargers",
+      "odds": {
+        "away": "Los Angeles Rams",
+        "awayId": 4387,
+        "bookmakers": {},
+        "date": "2026-08-28T02:00:00Z",
+        "home": "Los Angeles Chargers",
+        "homeId": 4429,
+        "id": 71548160,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T02:00:00Z"
+    },
+    {
+      "away": "Washington Commanders",
+      "captured_at": "2026-08-15T13:27:59Z",
+      "event_id": 71548166,
+      "home": "Baltimore Ravens",
+      "odds": {
+        "away": "Washington Commanders",
+        "awayId": 4432,
+        "bookmakers": {},
+        "date": "2026-08-28T22:00:00Z",
+        "home": "Baltimore Ravens",
+        "homeId": 4413,
+        "id": 71548166,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T22:00:00Z"
+    },
+    {
+      "away": "Atlanta Falcons",
+      "captured_at": "2026-08-15T13:27:59Z",
+      "event_id": 71548162,
+      "home": "Miami Dolphins",
+      "odds": {
+        "away": "Atlanta Falcons",
+        "awayId": 4393,
+        "bookmakers": {},
+        "date": "2026-08-28T23:00:00Z",
+        "home": "Miami Dolphins",
+        "homeId": 4287,
+        "id": 71548162,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:00:00Z"
+    },
+    {
+      "away": "Houston Texans",
+      "captured_at": "2026-08-15T13:27:59Z",
+      "event_id": 71548164,
+      "home": "Carolina Panthers",
+      "odds": {
+        "away": "Houston Texans",
+        "awayId": 4324,
+        "bookmakers": {},
+        "date": "2026-08-28T23:00:00Z",
+        "home": "Carolina Panthers",
+        "homeId": 4415,
+        "id": 71548164,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:00:00Z"
+    },
+    {
+      "away": "New York Giants",
+      "captured_at": "2026-08-15T13:28:00Z",
+      "event_id": 71548168,
+      "home": "New York Jets",
+      "odds": {
+        "away": "New York Giants",
+        "awayId": 4426,
+        "bookmakers": {},
+        "date": "2026-08-28T23:30:00Z",
+        "home": "New York Jets",
+        "homeId": 4427,
+        "id": 71548168,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:30:00Z"
+    },
+    {
+      "away": "Tampa Bay Buccaneers",
+      "captured_at": "2026-08-15T13:28:00Z",
+      "event_id": 71548170,
+      "home": "Jacksonville Jaguars",
+      "odds": {
+        "away": "Tampa Bay Buccaneers",
+        "awayId": 4388,
+        "bookmakers": {},
+        "date": "2026-08-28T23:30:00Z",
+        "home": "Jacksonville Jaguars",
+        "homeId": 4386,
+        "id": 71548170,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-28T23:30:00Z"
+    },
+    {
+      "away": "Seattle Seahawks",
+      "captured_at": "2026-08-15T13:28:00Z",
+      "event_id": 71548172,
+      "home": "Kansas City Chiefs",
+      "odds": {
+        "away": "Seattle Seahawks",
+        "awayId": 4430,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Kansas City Chiefs",
+        "homeId": 4422,
+        "id": 71548172,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Cincinnati Bengals",
+      "captured_at": "2026-08-15T13:28:00Z",
+      "event_id": 71548174,
+      "home": "Philadelphia Eagles",
+      "odds": {
+        "away": "Cincinnati Bengals",
+        "awayId": 4416,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Philadelphia Eagles",
+        "homeId": 4428,
+        "id": 71548174,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "New Orleans Saints",
+      "captured_at": "2026-08-15T13:28:01Z",
+      "event_id": 71548176,
+      "home": "Dallas Cowboys",
+      "odds": {
+        "away": "New Orleans Saints",
+        "awayId": 4425,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Dallas Cowboys",
+        "homeId": 4392,
+        "id": 71548176,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Arizona Cardinals",
+      "captured_at": "2026-08-15T13:28:01Z",
+      "event_id": 71548178,
+      "home": "Green Bay Packers",
+      "odds": {
+        "away": "Arizona Cardinals",
+        "awayId": 4412,
+        "bookmakers": {},
+        "date": "2026-08-29T00:00:00Z",
+        "home": "Green Bay Packers",
+        "homeId": 4420,
+        "id": 71548178,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T00:00:00Z"
+    },
+    {
+      "away": "Minnesota Vikings",
+      "captured_at": "2026-08-15T13:28:01Z",
+      "event_id": 71548180,
+      "home": "Denver Broncos",
+      "odds": {
+        "away": "Minnesota Vikings",
+        "awayId": 4423,
+        "bookmakers": {},
+        "date": "2026-08-29T01:00:00Z",
+        "home": "Denver Broncos",
+        "homeId": 4418,
+        "id": 71548180,
+        "league": {
+          "name": "USA - NFL Preseason",
+          "slug": "usa-nfl-preseason"
+        },
+        "sport": {
+          "name": "American Football",
+          "slug": "american-football"
+        },
+        "status": "pending",
+        "urls": {}
+      },
+      "source": "odds-api.io/DraftKings,FanDuel",
+      "starts_at": "2026-08-29T01:00:00Z"
+    }
+  ],
+  "events_captured": 40,
+  "events_deferred_for_budget": [],
+  "events_listed": 40,
+  "failures": [],
+  "filters": {
+    "cutoff": "2026-08-29T13:27:52Z",
+    "dropped_beyond_horizon": 2,
+    "dropped_ids": [
+      71548184,
+      71548182
+    ],
+    "events_after_horizon": 40,
+    "events_before_horizon": 42,
+    "filter_version": "v1 (2026-08-11) \u2014 first registration. Supersedes an UNREGISTERED horizon of 14 days that was chosen after observing usa-nfl returns 134 events (rule 4 violation, no data affected \u2014 see the module docstring).",
+    "horizon_days": 14,
+    "keep_undated": true
+  },
+  "finished_at": "2026-08-15T13:28:01Z",
+  "horizon_days": 14,
+  "league": "usa-nfl-preseason",
+  "read_only": true,
+  "retried": [],
+  "started_at": "2026-08-15T13:27:51Z",
+  "touchdown_finding": {
+    "books_requested": [
+      "DraftKings",
+      "FanDuel"
+    ],
+    "could_have_shown_a_positive": false,
+    "markets_requested": null,
+    "matched_terms": [],
+    "note": "if present, the coverage arithmetic must be RE-RUN \u2014 the 23.3/29.1/47.5% uncovered figures were measured against a two-book, no-TD assumption",
+    "payload_bytes": 325,
+    "verdict": "unknown",
+    "why": "NO TD TERMS, BUT THE REQUEST COULD NOT HAVE CARRIED THEM \u2014 2 book(s), no prop market(s) requested, 325 byte payload. A fact about the query, NOT about the provider. Do not record it as coverage."
+  },
+  "visibility": "post_draft_only"
+}

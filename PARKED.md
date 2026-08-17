@@ -11288,3 +11288,3303 @@ index 0f3b94f..4f76af1 100755
  fi
  
 ```
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — FOUR EXTERNAL REPOS, FOR A TO TRIAGE
+
+**FOR: A.** Not a spec, not a build request — a pointer. Cory asked a separate
+session to survey four public fantasy-football repos for anything relevant to
+the draft/model lane (composite ADP, projection blending, VOR/dead-zone,
+uncertainty). That session read READMEs and some source files but did **not**
+clone or deep-audit any of them. **A: go look at the actual repositories
+yourself before using anything below** — treat this as a reading list with a
+first pass already done, not a verified finding. Use or discard at your own
+judgement; nothing here is gated or pre-registered.
+
+## The four repos
+
+1. **`FantasyFootballAnalytics/ffanalytics`** (R) — mature multi-source
+   projection aggregator (CBS/ESPN/FantasyPros/FantasySharks/FFToday/
+   NumberFire/FantasyFootballNerd/NFL/RTSports/Walterfootball). Two things
+   worth a real look:
+   - `add_uncertainty()` — turns cross-source spread into a per-player
+     uncertainty score. Compare its method against what
+     `PROJ-SD-DECISION-ARM.md` / the regression-weight work is doing with
+     fewer sources — this package has had years to shake out its approach.
+   - `add_ecr()` — keeps Expert Consensus Rank as a **separate** input from
+     the points-projection average rather than folding rank-consensus into
+     the same number. Our composite currently blends ADP sources into one
+     value; this pattern (keep rank-signal and points-signal apart, combine
+     downstream) might be worth a look for the composite.
+   - `projections_table(avg_type = "average"|"robust"|"weighted")` — three
+     named aggregation modes; "robust" specifically is presumably some
+     outlier-resistant average (median-ish / trimmed) — worth reading the
+     actual R source (`R/calc_projections.R`, `R/helper_funcs.R`) since the
+     README didn't spell out the method.
+   - Repo: https://github.com/FantasyFootballAnalytics/ffanalytics
+
+2. **`jjti/ff`** (ffdraft.app, Go) — textbook VOR/VBD implementation with a
+   worked example: `VOR = player's projection − (n+1)th-ranked player at that
+   position` (n = league starters at the position). Concrete numbers in their
+   docs: QB1 VOR = 394 − 320 (QB11) = 74; RB1 VOR = 253 − 117 (RB31) = 136.
+   Two things worth checking against our own numbers:
+   - Where does classic replacement-level VOR put the RB cliff vs. where
+     exp25/EXP-DEADZONE-ERA.md puts it empirically? Could be a cheap
+     corroborating footnote either way.
+   - They surface **ADP velocity** (how fast a player's ADP is moving across
+     recent drafts) as a draft-board tag, alongside bye-week-conflict and
+     handcuff flags. We ingest ADP already; velocity might be near-free to
+     add and could feed the forward-prediction / survival-% work.
+   - Repo: https://github.com/jjti/ff
+
+3. **`gtonic/nfl_mcp`** (Python, MCP server) — mostly Session B's lane
+   (in-season: matchups, FAAB, playoff odds, trade grading), flagging here
+   in case any of it touches shared projection infra. Notes:
+   - Data sources not currently wired here: FantasyCalc (market-consensus
+     valuations), Vegas lines, Open-Meteo weather.
+   - States its projection formula only conceptually ("value × matchup ×
+     Vegas game-script × usage × injury") — no published coefficients. One
+     quantified fallback rule they do publish: snap-share estimate off depth
+     chart when real snap data isn't in yet (starter ≈ 70%, #2 ≈ 45%, others
+     ≈ 15%).
+   - Their own stated methodology rule: *"new signals ship as standalone
+     tools first and only enter the projection formula after they earn it on
+     the backtest."* Same discipline as our Lab gates — external validation
+     that the approach is sound, not a new idea.
+   - Repo: https://github.com/gtonic/nfl_mcp (docs: `AGENT.md`,
+     `docs/TECHNICAL.md`)
+
+4. **`mattgilgo/fantasy_football`** — weakest fit, flagging for completeness
+   only. Per-position sklearn/XGBoost regression trained on PFR + combine
+   data, benchmarked by MAE against ESPN/NFL.com expert projections.
+   Reported 2022 result: beat expert MAE on QB/WR/TE, did not clearly beat on
+   RB. Loosely corroborates (does not prove) our own finding that RB is the
+   hardest position to project — not a source of new method, just another
+   independent data point in the same direction.
+   - Repo: https://github.com/mattgilgo/fantasy_football
+
+## What this is NOT
+
+No code was changed, no experiment was registered, nothing is gated or
+queued. If A decides any of this is worth a real look, it goes through the
+normal Lab process (read the actual source, register a question, null/
+backtest before install) like anything else — this entry only exists so the
+pointer isn't lost.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — IS THE MODEL OVERBUILT? A COMPLEXITY-VS-VALUE READ, FOR A
+
+**FOR: A.** Not a spec, not a build request, no code touched. Cory's read after
+watching this session dig through the deploy state: *"I feel like we've overcomplicated
+some things — is the model learning what's normal for advanced fantasy analytics, or
+has this drifted past what a 10-team home league needs?"* He asked for an honest
+opinion on draft/waiver/analyzer/projection tooling, to hand to A's own judgement. Use
+or discard entirely — this is one outside read after a few hours in the repo, not the
+accumulated context A/B/C have. Numbers below are real counts, not vibes; check them
+if anything here doesn't match what you already know.
+
+## The footprint, in numbers
+
+**Draft side:** `draft/` is 923 files, 30MB. `public/js/draft/` alone is 24,139 lines
+of client JS — `app.js` is 9,320 lines, `engine.js` 3,801, `survival.js` 1,719, plus a
+665-line MCTS/UCT search module with opponent-behavioral "dossiers" as chance nodes.
+`draft/backtest/` has 247 files, `draft/tests/` 419, `draft/tools/` 96. `LAB-REGISTRY.md`
+is 73KB with ~23 numbered experiment sections (dose-response curves, calibration-weighted
+ensembles, stack sweeps, frontier analysis). Coordination overhead on top: `TERRITORY.md`
+1071 lines, `SESSION-A.md` 1274, `STATUS.md` 1656 — three parallel sessions negotiating
+file ownership via append-only markdown.
+
+**In-season side** (waivers/lineup/analyzer — the tools that run all 17 weeks, not one
+draft night): `src/routes/waivers.js` 278 lines, `src/analyzer_claims.js` 193,
+`src/routes/lineup.js` 1058, `views/analyzer.ejs` 135. Reasonably scoped, not the
+complaint. **The complaint is what feeds them:** `public/js/draft/consensus.js` — the
+ONE shared projection module every in-season tool calls — says outright in its own
+header comment: *"TODAY IT IS SLEEPER ONLY... FantasyPros projections are a CI fetch
+not yet populated."* One un-aggregated source, honestly labeled as such, powering
+every waiver claim, lineup call, and analyzer verdict all season.
+
+## The asymmetry is backwards from where the project's own numbers say the money is
+
+Session B's stated objective (SESSION-B.md): *"the biggest known pool is in-season
+execution — ≈$445–595/team/season left on benches, measured."* That's the tool running
+on a single-source projection. Draft day — a few hours, once a year, 10-team home
+league — has FFC + FantasyPros + BBM multi-source ADP, MCTS search, opponent
+behavioral modeling, and 20+ registered Lab experiments. **The heaviest machinery is
+on the smaller pool.**
+
+## What "normal" advanced fantasy analytics tooling actually looks like
+
+A separate research pass this week (parked above, "FOUR EXTERNAL REPOS") looked at
+`ffanalytics`, `jjti/ff`, and `nfl_mcp` directly. None of them come close to this
+footprint:
+- **`ffanalytics`** (a mature, years-old, widely-used R package): scrapes ~9 sources,
+  averages them (`avg_type = average|robust|weighted`), adds an uncertainty score from
+  cross-source spread, keeps ECR as a separate signal from the points projection. That
+  is close to the entire value proposition of a professional-grade tool.
+- **`jjti/ff`** (a public site with real users, 72 stars): ADP + straightforward
+  `VOR = player − (n+1)th ranked player`, plus bye/handcuff/ADP-velocity tags. That's
+  the whole draft-assistant.
+- **`nfl_mcp`** states its own discipline explicitly: *"new signals ship as standalone
+  tools first and only enter the projection formula after they earn it on the
+  backtest."* That's this project's own Lab-gate philosophy — but applied there to a
+  small core model, not a 24k-line engine with a 665-line search tree.
+
+None of the four run anything resembling MCTS, opponent dossiers, or dose-response
+curve fitting for a home league draft.
+
+## A concrete, checkable question rather than an opinion
+
+Of the ~23 registered/fired Lab experiments, TODO.md's own "recently fired" section
+lists what reads like 3–4 experiments that actually changed a draft-night
+recommendation (the RB dead zone, the regression-weight over-correction, our-ordering-
+beats-market). Worth an honest tally: **how many of the rest changed a recommendation
+Cory would see, versus tuned a constant inside a range nobody would notice moving?**
+If it's mostly the latter, that's real, measured evidence the Lab has passed
+diminishing returns — worth knowing either way, in the project's own "measure, don't
+assume" style.
+
+## Where I'd point new effort, if it were mine to spend (Cory's opinion via this
+session — A's call entirely)
+
+1. **Extend the FantasyPros/FFC pipeline already built for draft ADP to also produce a
+   real multi-source POINTS projection for in-season use.** This reuses infrastructure
+   that already exists rather than building anything new, and replaces the honestly-
+   labeled single-source number every waiver/lineup/analyzer call currently runs on —
+   directly targeting the pool the project's own doctrine says is biggest.
+2. **A value audit of the Lab before adding experiment #24+**: which fired experiments
+   moved a real recommendation. Archive/retire the rest as maintained surface rather
+   than carrying 247 backtest files forward.
+3. **The coordination layer has a real, measured cost, not just a code-complexity
+   one.** This session found the live site 95 commits behind main with the automated
+   drift-alarm silently blind to it (shallow-clone bug in `site-check.yml`) — nobody
+   had one clear picture of deployed state. That's plausibly a symptom of three
+   parallel sessions each owning a slice rather than one picture of the whole, not a
+   one-off CI bug. Worth asking whether a simpler ownership model would have caught it
+   sooner, independent of whether the Lab itself gets trimmed.
+
+## What this is NOT
+
+No code changed, no experiment cancelled, no file deleted, nothing gated or queued.
+If A reads this and disagrees, that disagreement is itself useful information — this
+is one outside read, not a verdict.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — BUILD SPEC: THE MODEL PLAYS GM, GRADED AGAINST 2023–2025
+
+**FOR: A.** Not code, a full build spec — Cory's highest-priority ask from this
+research thread: *"There's no reason the model can't run a team itself. I want to be
+able to simulate the last 3 seasons against it."* He wants this thorough enough to
+build from directly, so this is long on purpose — every piece below was checked
+against the actual repo, not assumed. No code touched.
+
+## The goal, stated precisely
+
+For each of the 10 seats in each of 2023/2024/2025, replace ONE real owner with the
+model as GM — same real opponents, same real weekly outcomes for everyone else — and
+let the model draft a full roster, then manage it start to finish: waiver claims and
+lineup decisions every week, using the SAME functions the live site runs today, fed
+only what would have been knowable at each moment. Grade the result against what the
+real owner in that seat actually did. Do this for all 10 seats × 3 seasons = 30
+independent replays. Wire it so 2026 appends automatically once it closes, and make it
+re-runnable on demand — this becomes a permanent fixture for testing any future
+tool/model change, not a one-time report.
+
+## Why a single-seat counterfactual, not a full 10-team simulation
+
+Simulating what all 10 owners would have done differently requires modeling 9 other
+people's counterfactual decisions — intractable and not needed. Replacing exactly ONE
+seat while the other 9 stay fixed to real history is well-posed and fully computable
+from data already in the repo: the other 9 rosters, lineups, and scores each week are
+just facts (`draft/data/league_history.json`), so "what would this seat's record have
+been with the model as GM" is answerable without modeling anyone else's behavior. Run
+it once per seat (10 replays/season) rather than once per season so you get 30 data
+points, not 3, and can also ask position-dependent questions (does the model do better
+GMing from the 1-seat vs the 8-seat).
+
+## What already exists — reuse it, don't rebuild it
+
+This is most of the good news in this spec:
+
+- **`draft/data/league_history.json`** (928KB, rebuilt by walking Sleeper's
+  `previous_league_id` chain) already has, per season 2023/2024/2025: full league
+  settings + scoring settings + roster positions (**verified identical across all
+  three years** — no year-to-year rule normalization needed), every owner's roster
+  **per week** (starters + full bench + each player's actual points), every
+  transaction (waiver claims incl. failed ones, trades, with timestamps), and
+  pick-by-pick draft results. This is nearly the entire data-gathering task the
+  "how do we get the data" question was asking — it's already built and auto-extends
+  (see "extensibility" below).
+- **A draft-only version of this replay already runs**: `draft/backtest/asof.py`,
+  `external_replay.py`, and `BACKTEST.md`'s B0–B3 comparison table. It already grades
+  draft-day decisions against 2023–2025 outcomes. Extend this rather than starting
+  over — the leak-discipline pattern (`asof.py`) is exactly what the weekly loop needs
+  too.
+- **The real production functions should be called directly, not reimplemented:**
+  `evaluateClaims(freeAgents, myRoster, league, ctx)` in `src/routes/waivers.js:160`
+  and `optimize(roster, ctx)` in `src/routes/lineup.js:468` are the actual functions
+  the live site runs for waiver and lineup decisions. The entire value of this harness
+  is testing what's ACTUALLY SHIPPED, so the simulation must call these exact
+  functions with historical inputs — a parallel reimplementation would test a
+  different, unshipped thing and the result would mean nothing.
+- **Keeper mechanics** (`public/js/draft/keepers.js`, `keeperui.js`, `keeperlock.js`)
+  already exist and should be reused as-is for the draft phase, given the league's
+  3-keeper rule.
+
+## A correction to check before building: this league does NOT use FAAB
+
+Checked directly: `waiver_type` in the Sleeper settings is `1` (**Reverse Standings
+priority**, not FAAB) for 2023, 2024, 2025, AND the in-progress 2026 season, and every
+single transaction across all three historical seasons has `waiver_bid: null` — zero
+FAAB bids ever placed. `waiver_budget: 100` is present but appears unused (a Sleeper
+default field, not this league's actual mechanic). **This means a contested claim in
+the replay must be resolved by reverse-standings priority order, not by simulating a
+dollar bid.** If `evaluateClaims`/the waiver tool currently frames its output in
+bid-dollar terms, check whether that's real-league-money framing (consistent with the
+project's dollar-grading philosophy everywhere else) or an actual FAAB assumption —
+worth a quick look before the replay logic assumes the wrong resolution mechanism.
+
+## The one real gap: point-in-time projections for 2023–2025 don't exist
+
+Nobody was capturing "what did we know before this week's games" snapshots back then
+— `proj_series.json`/`adp_series.json` only go back to 2026-08. This isn't just a
+grading nuisance — the lineup and waiver functions need SOME projection number to rank
+players against, live, at each simulated decision point, so this blocks the whole
+weekly loop, not just its scoring. Three paths, use in combination:
+
+1. **Reconstruct algorithmically, strictly from prior weeks only** — a projection for
+   week W built ONLY from nflverse data through week W−1 (weekly stats, NGS, snap
+   counts, injuries — all already reachable per `DATA-INVENTORY.md`). Genuinely
+   leak-free by construction: it never touches data from W or later, regardless of
+   when the code computing it is run. **Build this first — it's the prerequisite for
+   everything else in this spec**, including the draft-phase extension and the whole
+   weekly loop.
+2. **Recover real archived rankings via Wayback Machine** — `ARCHITECTURE.md` already
+   identified this exact technique for Sleeper's own August ADP; the same CDX approach
+   against FantasyPros/ESPN's historical weekly-rankings URLs would recover what was
+   ACTUALLY published at the time, a stronger claim than any reconstruction. Worth
+   doing where it's cheap, not required to start.
+3. **For waiver-claim GRADING specifically** (not the live decision, just scoring it
+   afterward), you can skip needing a historical projection entirely — grade a
+   hypothetical claim against the player's REALIZED output over the following few
+   weeks, which is already in `league_history.json`. Legitimate for grading; would be
+   leakage if used to make the live simulated decision, so keep those two uses
+   separate.
+
+## Leak-prevention boundary (the non-negotiable part)
+
+At every simulated decision point in week W — waiver claim, lineup set, or a draft
+pick at its real historical pick-time — the model may see: real outcomes through week
+W−1 (or picks made before this pick), the algorithmically-reconstructed
+prior-only projection, and injury/practice reports as they stood at that moment
+(nflverse's injury data is genuinely weekly-reported, not end-of-season, so this is
+available). It may NOT see week W's actual results, later weeks' transactions, or
+anything computed with hindsight. This is the same discipline the project already
+enforces for live forward-prediction (`"the forward guarantee disqualifies backdated
+claims"`) — same rule, applied retroactively via strict `AsOf` filtering instead of
+literal real-time capture. Reuse `asof.py`'s pattern for this rather than inventing a
+new mechanism.
+
+## Free-agent pool — fully computable from data already in hand
+
+At week W, the model's available free agents = the full player universe minus the
+union of the 9 REAL rosters at week W (already in `league_history.json`'s per-week
+`players` field for each roster) minus the model's own current simulated roster.
+Because only one seat diverges from history, this never requires guessing what the
+other 9 teams would have rostered — they're fixed facts. No new data source needed
+here.
+
+## Grading — multiple benchmarks, not one number
+
+For each of the 30 replays, report against:
+- **The real human who actually held that seat that season** — the headline
+  comparison.
+- **A do-nothing baseline** — draft by ADP alone, never touch waivers, always start
+  the highest-projected legal lineup. Isolates how much value the waiver/lineup logic
+  adds ABOVE just a decent draft.
+- **A decomposition arm**: ADP-only draft + the model's real in-season management, and
+  separately the model's own draft + the human's real in-season moves. This separates
+  "is the draft good" from "is the in-season management good" — right now `BACKTEST.md`
+  only answers the first question; this closes the second, which per Session B's own
+  numbers ($445–595/team/season left on benches) is the bigger pool.
+- **Dollar/payout-equivalent terms** — final record, playoff berth, payout tier —
+  since that's what the project already grades everything else in, and it's literally
+  what determines real money in this league.
+- **Calibration, not just outcome** — log every recommendation with its stated
+  confidence/expected value, and bucket predicted-vs-actual the same way `BACKTEST.md`
+  section 4 already does for survival odds. That exact table format applies unchanged
+  to grading playoff-odds and waiver-claim confidence too — reuse the pattern, don't
+  invent a new one.
+
+## Explicitly out of scope for v1 — say so rather than getting stuck
+
+**Trades.** Simulating the model proposing/accepting trades requires modeling whether
+a counterfactual trade partner would accept an offer that never really happened — a
+much harder, separate modeling problem (an opponent-acceptance model, not just a
+value model). Recommend the v1 harness does draft + waivers + lineup only, and holds
+trades out explicitly rather than letting them block the rest of this.
+
+## Extensibility — already solved, just needs the harness to respect it
+
+`league_history.json` is REBUILT, not hand-maintained, by re-walking
+`previous_league_id` after each season closes. The harness should be written as a
+consumer of however many completed seasons exist in that file at run time, not
+hard-coded to three — so running the existing build after 2026 closes appends a 4th
+season with zero changes to the simulation code itself, exactly as asked.
+
+## Suggested build order (so this ships incrementally, not all-at-once)
+
+1. **Prior-only projection reconstruction** (nflverse-based) for 2023–2025 — nothing
+   else below can run without this.
+2. **Free-agent-pool + AsOf boundary computation** from `league_history.json` — pure
+   functions, testable in isolation, no model logic yet.
+3. **Draft-phase replay for one chosen seat**, extending the existing
+   `external_replay.py`/`asof.py` machinery rather than the current grade-picks-only
+   mode — produces an initial simulated roster.
+4. **The weekly loop**: waiver decision → apply → lineup decision → record outcome,
+   calling `evaluateClaims`/`optimize` directly, for weeks 1–18.
+5. **Grading/reporting**: the benchmark comparisons + calibration tables above.
+6. **Run all 10 seats × 3 seasons**, wire it to auto-include new seasons, make it
+   invocable the same way other Lab experiments are (so it becomes a standing
+   regression check any future waiver/lineup/draft change can be run against).
+
+## What this is NOT
+
+No code written, no experiment registered, nothing gated. This is a full spec because
+Cory asked for one thorough enough to build from — the actual build, sequencing
+against everything else in the Lab queue, and any design changes along the way are
+entirely A's call.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-14 — VERIFIED: THIS SEASON'S CAPTURES ARE LIVE, THREE SMALL GAPS BEFORE THEY START MATTERING
+
+**FOR: A.** Follow-up to the GM-simulation spec above — Cory asked to confirm this
+season's data is actually being captured live so next year's simulation has real
+2026 point-in-time data (not another season needing reconstruction like 2023–2025).
+Checked directly, good news first.
+
+## Confirmed already built and running — no action needed
+
+`weekly-proj-snapshot.yml` fires every Sunday 13:00 UTC with no end condition — it
+does not stop after draft day. It writes `draft/data/proj_series.json` and already
+has 11 passing tests, including explicit preseason/regular-season coexistence
+checks. Its own docstring already reasons through the exact "providers overwrite in
+place, this is the one thing that must be captured live" problem this thread
+identified — someone already solved this. It's currently capturing BOTH Sleeper and
+FantasyPros (more than expected — `consensus.js`'s comment saying FantasyPros isn't
+populated is now stale, see gap 1). Free-agent pools and nflverse stats/injuries need
+no live capture — both are reconstructable after the fact next year, from Sleeper's
+history API and nflverse's own public archive respectively.
+
+## Three small, time-sensitive gaps — season starts in ~3 weeks
+
+1. **Capture is ahead of consumption.** `proj_series.json` already has FantasyPros
+   data archived, but `consensus.js` (every in-season tool's shared projection feed)
+   still doesn't read it. This season's ARCHIVE will be fine for next year's
+   simulation either way — but the LIVE waiver/lineup/analyzer tools running this
+   season won't benefit from the second source until that wiring happens separately.
+   Worth doing for this season's actual users, not just future backtesting.
+2. **Only Sunday is captured; Tuesday's waiver deadline isn't.** `waiver_day_of_week: 2`
+   and there's already a Tuesday "before Wednesday waivers" cron on the draft-board
+   rebuild (`draft-data.yml`) — add a matching Tuesday projection snapshot so next
+   year's simulation has an honest point-in-time number for waiver decisions instead
+   of reusing Sunday's (5 days stale by Tuesday).
+3. **Stale comments will mislead whoever builds next year's simulation.** Both
+   `proj_series.json`'s file-level note and `weekly_proj_snapshot.py`'s docstring
+   still say "preseason snapshots only" — true when written, not true once the Sunday
+   cron starts firing into the season. Update them so nobody reads that comment in
+   January and assumes there's no in-season data when there will be.
+
+## One thing to just know about, not act on now
+
+GitHub auto-disables scheduled workflows after 60 days of repo inactivity. Not a
+real risk at current commit frequency — worth remembering only if there's ever a
+quiet off-season stretch, since a disabled cron fails silently with no error.
+
+## What this is NOT
+
+No code touched, nothing gated. Gaps 1–3 are small and cheap; flagging them now
+because closing them costs nothing today and costs a full season of missing data if
+caught in January instead.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — CONFIRMED GAP: WAIVER PRIORITY IS CAPTURED NOWHERE, FOR ANY SEASON
+
+**FOR: A.** Follow-up to the two entries above. Cory asked directly whether the
+weekly-proj-snapshot really covers everything the GM-simulation needs — specifically
+named "available waivers" and "my waiver order that week." Checked both rather than
+assuming; one is fine, one is a real, previously-unflagged gap.
+
+## Available waivers (the free-agent pool) — confirmed fine, no action
+
+Fully reconstructable from data already captured: free agents at any moment = full
+player universe minus whoever's rostered at that moment, and roster membership is
+preserved historically (weekly matchup snapshots + the transaction log, down to exact
+timestamps of every add/drop including failed claims). No live capture needed.
+
+## Waiver priority/order — confirmed MISSING, checked directly
+
+`final_rosters` (the only per-roster settings snapshot in `league_history.json`) has
+exactly four fields — `roster_id`, `owner_id`, `players`, `keepers` — for all four
+seasons including 2026. No `waiver_position` field anywhere in the repo. Grepped for
+`waiver_position`/`waiver_priority` across every `.py`/`.js`/`.json`/`.md` file: zero
+hits outside this note. `src/sleeper.js` never reads `roster.settings.waiver_position`
+either — nothing has ever captured this, live or historical.
+
+**2023–2025 (unrecoverable, work around it):** this league is `waiver_type: 1`
+(Reverse Standings), so priority should be a deterministic function of current
+standings, which we DO have (reconstructable from the weekly matchup results, week by
+week). Cross-validate that reconstruction against real evidence already in the
+transactions log: contested claims (multiple rosters claiming the same player in the
+same window) show real complete/failed outcomes at precise timestamps — e.g. 2023 week
+1, player `5995`: roster 10's claim completed while rosters 7, 3, and 1 failed. That's
+ground truth for real priority at that exact moment, dozens of times per season, usable
+to check the standings-derived reconstruction rather than trusting it blind. Flagging
+honestly: there's residual uncertainty here (unconfirmed tie-break rule when records
+match) that a reconstruction can't fully remove — treat reconstructed priority as
+"best available," not ground truth, when grading the simulation.
+
+**2026 onward (fixable now, do it):** capture the raw `roster.settings.waiver_position`
+for all 10 rosters live, same Tuesday cadence as the projection-snapshot Tuesday fix
+already flagged above (both are "before Wednesday waivers" captures — worth doing in
+the same pass). This is cheap and removes the reconstruction uncertainty entirely for
+every season from here forward.
+
+## One more check while in there — trades, no gap
+
+Transaction `type` includes `free_agent`, `waiver`, AND `trade` — trade data is
+already logged (participants, timestamps) even though trades are out of scope for v1
+per the GM-simulation spec above. Not needed now, just confirming it's there if scope
+ever expands.
+
+## What this is NOT
+
+No code touched. Flagging this now because — same as the projection-snapshot gaps —
+it's cheap today and permanently gone if missed for another season.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — A WORKING GM-SIMULATION PROTOTYPE (2023, ONE SEAT), FOR A'S REVIEW — NOT MERGED, NOT ADOPTED
+
+**FOR: A.** Cory asked for this built and actually run, not just spec'd — "it needs
+to be accurate or it's useless." This is a real, working prototype: it calls
+`LO.optimize()` and `W.evaluateClaims()` unmodified, against real 2023 historical
+data, and produces a real result. It found and fixed three genuine bugs along the
+way (below) — read that part before the number, because the number only means
+anything in light of what almost made it meaningless. **This lives here, in
+PARKED.md, not in `draft/` — deliberately not touching your territory or claiming
+this is ready to merge. Review it, keep what's useful, discard the rest.**
+
+## THE RESULT (2023, roster_id 1 — Cory's actual seat, regular season weeks 1–15)
+
+```
+REAL (Cory, actual)          9-6-0   PF   1566.0   PA   1475.7
+DO-NOTHING baseline          6-9-0   PF   1351.2   PA   1475.7
+MODEL (waivers+lineup)       6-9-0   PF   1304.3   PA   1475.7
+```
+
+Model ties the do-nothing baseline on record and trails it slightly on points; both
+trail the real human by 3 games. **Read this as "a real human beat a crude
+prior-only-projection bot," not as "the waiver/lineup tools don't work"** — see
+why below. This is ONE seat, ONE season — not enough signal to generalize, exactly
+as the original build spec said. The value here is that the harness runs correctly
+and end-to-end, not this one number.
+
+## THREE REAL BUGS, FOUND BY NOT TRUSTING THE FIRST RESULT
+
+The first version of this ran and produced a 2-13 record, worse than doing nothing
+at all. That was implausible enough not to report — a working waiver/lineup tool
+should not actively destroy value that badly. Debugged rather than published:
+
+**Bug 1 — position-inference gap.** `LO.inferPositions()` only assigns a position
+to a player who was SOMEONE'S STARTER at some point in the season — a player who
+spent the whole year on a bench never gets one. Checked directly: 3 of Cory's own
+15 real 2023 roster players (`4147`, `8168`, `9754`) were invisible to the
+optimizer for exactly this reason. Fixed by merging in `draft/data/player_positions.json`
+(1841 players, "union over all builds, never pruned") as a richer position source.
+
+**Bug 2 — the big one: silent-zero scoring for real free-agent pickups.**
+`league_history.json`'s `players_points` only records a score for a player on
+weeks he was on one of the 10 REAL rosters. A free agent the model picks up who
+stayed unrostered in real history has NO entry there for any week he wasn't real-
+rostered — and the harness was defaulting that to 0, which reads as "he played and
+scored nothing" when the truth is "no data." Checked directly: `sleeper_id 4068` in
+week 5, 2023 — confirmed absent from every one of the 10 real rosters that week,
+so genuinely no recorded score anywhere in the harvested data. **Fixed properly,
+not patched around**: pulled real 2023 weekly stats for every NFL player from
+nflverse (`player_stats.csv`, network-reachable from this session), computed
+fantasy points under THIS LEAGUE'S EXACT scoring settings (half-PPR, 6pt pass TD —
+read directly from `scoring_settings`), joined to Sleeper IDs via the
+`dynastyprocess/data` gsis↔sleeper crosswalk. **Verified exact match** against
+`league_history.json`'s own recorded numbers for every spot-checked real-roster
+player (e.g. `sleeper_id 7564`, week 1: both sources say 6.6, to the decimal).
+Covers 583 players (QB/RB/WR/TE) vs. 250 in the roster-limited table. Does NOT
+cover K/DEF (nflverse's `player_stats` has no kicker/team-defense rows) — stated
+residual gap, falls back to the roster-limited table there.
+
+**Bug 3 — bye-week blindness.** A rolling average has no idea a player is on bye
+this specific week; it just sees his last few good games. `src/nfl_byes.json`
+deliberately excludes historical seasons (its own comment: *"a WRONG bye
+false-zeros a playing player — worse than a dormant guard"*), so rather than
+derive a bye table, this uses the same evidence directly: if there's no real
+record of a player taking the field THIS week in either data source, he is
+excluded from being startable that week — the same thing a real optimizer would
+do by greying him out, not confidently recommending him into a real zero.
+
+**A fourth thing, caught but not really a "bug" — small-sample overreaction.**
+Even after fixes 1–3, `sleeper_id 9999` — one recorded game (34.62 pts, a clear
+outlier) — got projected at 34.62 with zero discount going into week 9, and
+`evaluateClaims` (correctly, given that input) chased it, dropping the team's ONLY
+rostered defense to add him. Not a bug in the production functions — a real,
+textbook failure mode of an un-shrunk small-sample average. Fixed with standard
+empirical-Bayes shrinkage toward the position average (k=4 phantom games), which
+is a real methodology choice, not a fit-to-outcome patch. This is also the
+strongest evidence in this whole exercise for the original build spec's point:
+**projection quality is the actual bottleneck, not the decision logic.**
+
+## WHAT THIS PROTOTYPE DELIBERATELY DOES NOT DO (stated, not hidden)
+
+- Does not replay the draft — Cory's real 2023 draft roster is the fixed starting
+  point; the model only takes over at waivers + lineup (also where the project's
+  own numbers say the bigger $ opportunity is).
+- Regular season only (weeks 1–15; `playoff_week_start` = 16 confirmed in
+  `season.settings`). Playoffs need a bracket-counterfactual this doesn't attempt.
+- The model may only add a free agent NO real team claimed that week in real
+  history — it does not out-bid a real team. Avoids a cascading counterfactual
+  (would the other 9 teams behave differently) this isn't built to model.
+- Waiver priority is NOT reconstructed from standings in this version — simplified
+  to "never contest a real claim" instead, which sidesteps needing it. The
+  `standingsThrough()` function is in the script but unused; leftover from a first
+  design pass, harmless, flagged so it isn't mistaken for wired-in behavior.
+- One season, one seat. The build spec's 30-replay (10 seats × 3 seasons) design
+  is the real test; this is the proof that the pipeline runs correctly on one.
+
+## THE CODE (both files — reproducible, nothing hidden)
+
+`draft/backtest/gm_sim_2023.js`-equivalent (this session's version lives outside
+your territory; paste it wherever fits your layout):
+
+```javascript
+'use strict';
+/* GM SIMULATION PROTOTYPE — 2023, Cory's seat (roster_id 1), regular season only. */
+const path = require('path');
+const ROOT = '/home/user/maga-league';
+const LO = require(path.join(ROOT, 'src/routes/lineup.js'));
+const W = require(path.join(ROOT, 'src/routes/waivers.js'));
+
+const SEASON = '2023';
+const MY_RID = 1; // Cory
+const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+const REPL_RANK = { QB: 10, RB: 34, WR: 34, TE: 12, K: 10, DEF: 10 };
+const REG_SEASON_WEEKS = 15;
+
+const history = LO.harvest();
+const season = LO.seasonOf(history, SEASON);
+const richPositions = require(path.join(ROOT, 'draft/data/player_positions.json')).positions || {};
+const inferred = LO.inferPositions(season);
+const posById = Object.assign({}, inferred, richPositions);
+const owners = season.owners;
+const myOwner = owners[String(MY_RID)];
+const GLOBAL_PTS = require('./real_points_2023.json'); // see build_real_points.py below
+
+function weekEntries(wk) { return season.weeks[String(wk)] || season.weeks[wk] || []; }
+function nameFor(pid) { return String(pid); }
+
+let unknownStarts = 0;
+function realPointsFor(pid, wk) {
+  const g = GLOBAL_PTS[pid] && GLOBAL_PTS[pid][String(wk)];
+  if (g != null) return Number(g);
+  for (const e of weekEntries(wk)) {
+    if (e.players_points && e.players_points[pid] != null) return Number(e.players_points[pid]);
+  }
+  return undefined;
+}
+
+const SHRINK_K = 4;
+function rollingProjections(throughWeek) {
+  const acc = {};
+  for (let wk = 1; wk < throughWeek; wk++) {
+    for (const pid of universe) {
+      const v = realPointsFor(pid, wk);
+      if (v != null) (acc[pid] = acc[pid] || []).push(v);
+    }
+  }
+  const posSum = {}, posN = {};
+  for (const pid of Object.keys(acc)) {
+    const p = posById[pid]; if (!p) continue;
+    const arr = acc[pid];
+    posSum[p] = (posSum[p] || 0) + arr.reduce((a, b) => a + b, 0);
+    posN[p] = (posN[p] || 0) + arr.length;
+  }
+  const posAvg = {};
+  Object.keys(posSum).forEach(p => { posAvg[p] = posSum[p] / posN[p]; });
+  const out = {};
+  for (const pid of Object.keys(acc)) {
+    const arr = acc[pid], n = arr.length;
+    const rawMean = arr.reduce((a, b) => a + b, 0) / n;
+    const base = posAvg[posById[pid]] != null ? posAvg[posById[pid]] : rawMean;
+    out[pid] = (n * rawMean + SHRINK_K * base) / (n + SHRINK_K);
+  }
+  return out;
+}
+
+const draft = season.drafts[0]; // 150 picks / 15 rounds, the real startup draft
+const pickNoByPid = {};
+draft.picks.forEach(p => { pickNoByPid[String(p.player_id)] = Number(p.pick_no); });
+function week1FallbackProj(pid) {
+  const pn = pickNoByPid[String(pid)];
+  return pn != null ? Math.max(1, 300 - pn) : 5;
+}
+
+const universe = (() => {
+  const ids = new Set();
+  for (let wk = 1; wk <= 18; wk++) for (const e of weekEntries(wk)) (e.players || []).forEach(pid => ids.add(String(pid)));
+  return [...ids];
+})();
+const universeWithPos = universe.filter(pid => posById[pid]);
+const universeNoPos = universe.filter(pid => !posById[pid]);
+
+function replacementLevels(projByPid, universeList) {
+  const byPos = {};
+  universeList.forEach(pid => {
+    const p = posById[pid];
+    if (!p || !REPL_RANK[p]) return;
+    (byPos[p] = byPos[p] || []).push(projByPid[pid] || 0);
+  });
+  const repl = {};
+  Object.keys(REPL_RANK).forEach(P => {
+    const arr = (byPos[P] || []).slice().sort((a, b) => b - a);
+    const r = arr[Math.min(REPL_RANK[P], arr.length) - 1];
+    repl[P] = r != null ? r : 0;
+  });
+  return repl;
+}
+
+function rosterAtWeek(rid, wk) {
+  const e = weekEntries(wk).find(x => x.roster_id === rid);
+  return e ? (e.players || []).map(String) : [];
+}
+function realMatchup(rid, wk) {
+  const entries = weekEntries(wk);
+  const mine = entries.find(e => e.roster_id === rid);
+  if (!mine) return null;
+  const opp = entries.find(e => e.matchup_id === mine.matchup_id && e.roster_id !== rid);
+  return { mine, opp };
+}
+function realAddedThisWeek(wk) {
+  const wkTx = season.transactions[String(wk)] || [];
+  const added = new Set();
+  wkTx.forEach(t => { if (t.status === 'complete') Object.keys(t.adds || {}).forEach(pid => added.add(String(pid))); });
+  return added;
+}
+
+let myRoster = rosterAtWeek(MY_RID, 1).slice();
+const log = [];
+let simRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let realRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let baseRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let baseRoster = rosterAtWeek(MY_RID, 1).slice();
+
+for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+  const proj = wk === 1 ? null : rollingProjections(wk);
+  const projFor = (pid) => wk === 1 ? week1FallbackProj(pid) : (proj[pid] != null ? proj[pid] : 0);
+
+  let claimNote = null;
+  if (wk > 1) {
+    const priorProj = rollingProjections(wk);
+    const repl = replacementLevels(priorProj, universeWithPos);
+    const rosteredByOthers = new Set();
+    for (let rid = 1; rid <= 10; rid++) if (rid !== MY_RID) rosterAtWeek(rid, wk).forEach(pid => rosteredByOthers.add(pid));
+    const realAdds = realAddedThisWeek(wk - 1);
+    const freeAgents = universeWithPos
+      .filter(pid => !rosteredByOthers.has(pid) && !myRoster.includes(pid) && !realAdds.has(pid) && priorProj[pid] != null)
+      .map(pid => ({ player_id: pid, name: nameFor(pid), position: posById[pid],
+        proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0) }));
+    const myRosterObjs = myRoster.filter(pid => posById[pid]).map(pid => ({
+      player_id: pid, name: nameFor(pid), position: posById[pid],
+      proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0),
+    }));
+    if (myRosterObjs.length && freeAgents.length) {
+      const res = W.evaluateClaims(freeAgents, myRosterObjs, LEAGUE, { lineupMean: 120, lineupSd: 24, oppMean: 118 });
+      const top = res.claims[0];
+      if (top && top.net_value > 0 && res.drop) {
+        myRoster = myRoster.filter(pid => pid !== res.drop.player_id).concat([top.player_id]);
+        claimNote = `+${top.name}(${top.position}) -${res.drop.name} net_pts=${top.net_value}`;
+      }
+    }
+  }
+
+  const dataAvail = (pid) => wk === 1 || realPointsFor(pid, wk) !== undefined;
+  const rosterArr = myRoster.filter(pid => posById[pid] && dataAvail(pid)).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: projFor(pid) }));
+  const baseArr = baseRoster.filter(pid => posById[pid] && dataAvail(pid)).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: projFor(pid) }));
+  const optRes = rosterArr.length ? LO.optimize(rosterArr, { slots: SLOTS }) : null;
+  const baseOpt = baseArr.length ? LO.optimize(baseArr, { slots: SLOTS }) : null;
+
+  const { mine: realMine, opp: realOpp } = realMatchup(MY_RID, wk) || {};
+  const realPtsFor = realMine ? Number(realMine.points || 0) : null;
+  const oppPts = realOpp ? Number(realOpp.points || 0) : null;
+
+  function scoreStarters(starters) {
+    return (starters || []).reduce((s, st) => {
+      const v = realPointsFor(st.pid, wk);
+      if (v == null) { unknownStarts++; return s; }
+      return s + v;
+    }, 0);
+  }
+  const simPts = optRes ? scoreStarters(optRes.lineup) : 0;
+  const basePts = baseOpt ? scoreStarters(baseOpt.naive) : 0;
+
+  if (oppPts != null) {
+    simRecord.pf += simPts; simRecord.pa += oppPts;
+    if (simPts > oppPts) simRecord.w++; else if (simPts < oppPts) simRecord.l++; else simRecord.t++;
+    baseRecord.pf += basePts; baseRecord.pa += oppPts;
+    if (basePts > oppPts) baseRecord.w++; else if (basePts < oppPts) baseRecord.l++; else baseRecord.t++;
+    realRecord.pf += realPtsFor; realRecord.pa += oppPts;
+    if (realPtsFor > oppPts) realRecord.w++; else if (realPtsFor < oppPts) realRecord.l++; else realRecord.t++;
+  }
+}
+
+function fmt(rec, label) {
+  console.log(`${label.padEnd(28)} ${rec.w}-${rec.l}-${rec.t}   PF ${rec.pf.toFixed(1).padStart(8)}   PA ${rec.pa.toFixed(1).padStart(8)}`);
+}
+fmt(realRecord, 'REAL (Cory, actual)');
+fmt(baseRecord, 'DO-NOTHING baseline');
+fmt(simRecord, 'MODEL (waivers+lineup)');
+console.log('starts with NO real data in either source:', unknownStarts);
+```
+
+`build_real_points.py` (regenerates `real_points_2023.json`, the global weekly
+scoring table that fixes Bug 2 — run once, cache the output):
+
+```python
+#!/usr/bin/env python3
+"""Global 2023 weekly fantasy points, every NFL player, scored under THIS
+league's exact scoring_settings, keyed by Sleeper player_id."""
+import csv, json, urllib.request
+
+SCORING = {
+    "pass_yd": 0.03999999910593033, "pass_td": 6.0, "pass_int": -2.0, "pass_2pt": 2.0,
+    "rush_yd": 0.10000000149011612, "rush_td": 6.0, "rush_2pt": 2.0,
+    "rec_yd": 0.10000000149011612, "rec_td": 6.0, "rec": 0.5, "rec_2pt": 2.0,
+    "fum_lost": -2.0,
+}
+
+def f(row, key):
+    v = row.get(key, "")
+    try: return float(v) if v not in ("", None) else 0.0
+    except ValueError: return 0.0
+
+def fantasy_points(row):
+    pts = 0.0
+    pts += f(row, "passing_yards") * SCORING["pass_yd"]
+    pts += f(row, "passing_tds") * SCORING["pass_td"]
+    pts += f(row, "interceptions") * SCORING["pass_int"]
+    pts += f(row, "passing_2pt_conversions") * SCORING["pass_2pt"]
+    pts += f(row, "rushing_yards") * SCORING["rush_yd"]
+    pts += f(row, "rushing_tds") * SCORING["rush_td"]
+    pts += f(row, "rushing_2pt_conversions") * SCORING["rush_2pt"]
+    pts += f(row, "receiving_yards") * SCORING["rec_yd"]
+    pts += f(row, "receiving_tds") * SCORING["rec_td"]
+    pts += f(row, "receptions") * SCORING["rec"]
+    pts += f(row, "receiving_2pt_conversions") * SCORING["rec_2pt"]
+    fum_lost = f(row, "sack_fumbles_lost") + f(row, "rushing_fumbles_lost") + f(row, "receiving_fumbles_lost")
+    pts += fum_lost * SCORING["fum_lost"]
+    return round(pts, 2)
+
+urllib.request.urlretrieve(
+    "https://github.com/nflverse/nflverse-data/releases/download/player_stats/player_stats.csv",
+    "player_stats.csv")
+urllib.request.urlretrieve(
+    "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv",
+    "db_playerids.csv")
+
+crosswalk = {}
+with open("db_playerids.csv", newline="", encoding="utf-8") as fh:
+    for row in csv.DictReader(fh):
+        gsis, sleeper = row.get("gsis_id"), row.get("sleeper_id")
+        if gsis and sleeper: crosswalk[gsis] = sleeper
+
+out = {}
+with open("player_stats.csv", newline="", encoding="utf-8") as fh:
+    for row in csv.DictReader(fh):
+        if row.get("season") != "2023" or row.get("season_type") != "REG": continue
+        sleeper = crosswalk.get(row.get("player_id"))
+        if not sleeper: continue
+        out.setdefault(sleeper, {})[row.get("week")] = fantasy_points(row)
+
+json.dump(out, open("real_points_2023.json", "w"))
+```
+
+## What this is NOT
+
+Not merged, not adopted, not touching `draft/` or any file in your territory. This
+is a working, debugged, honestly-caveated prototype for your review — extend it to
+the full 10-seat × 3-season design from the earlier spec, discard it, or rebuild it
+your way. Your call entirely.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — GM SIM v2: STANDINGS-BASED WAIVER PRIORITY, THE REAL BYE FIX, AND A CLEAN ATTRIBUTION (WAIVER LAYER IS THE PROBLEM, NOT LINEUP)
+
+**FOR: A.** Direct follow-up to the GM-sim prototype above — Cory pushed back on
+two things in it and was right both times, plus asked for an attribution ("was it
+draft, waiver, or lineup") instead of one blended number. All three addressed by
+actually rerunning the harness, not just reasoning about it.
+
+## Correction 1 — waiver priority does NOT need a data-capture fix
+
+The earlier "waiver order is captured nowhere" entry (two entries up) was correct
+about the raw data being absent, but overstated the fix needed for THIS
+simulation. Cory's point: standings are already fully known within the sim, so
+just reconstruct reverse-standings priority from record-through-last-week (this
+league confirmed `waiver_type: 1`) and resolve contested claims with it — no
+capture needed. Implemented: free-agent pool is now simply "not on any of the 10
+real rosters this week" (nothing more), and when the model wants a player a real
+team also claimed, `standingsThrough(wk)` decides who wins. **The live-capture
+recommendation for 2026+ (adding a Tuesday `waiver_position` snapshot) still
+stands as a nice-to-have — it removes reconstruction/tie-break uncertainty — but
+it is not a blocker for this simulation, and the earlier framing overstated that.**
+
+## Correction 2 — the "bye-week bug" was MY harness, not the production tool
+
+Cory: *"Our lineup optimizer shouldn't be starting players on their bye so that
+makes no sense."* Right, and checked before answering again: `src/routes/
+lineup.js` already has `isInactive()`/`activeProjection()`, wired into the real
+live `/lineup` route (`member.js:2622-2634`) to zero a bye/OUT player's
+projection before the optimizer ever sees it — with a comment explaining exactly
+why (*"Without this, the season-avg/last-week fallbacks hand a benched player a
+full projection and the tool would recommend starting him"*). **The real tool was
+never broken.** The prototype's harness had invented its own cruder workaround
+("exclude if no data") instead of calling the real guard. Fixed to call
+`LO.activeProjection()` exactly as production does, using real 2023 bye weeks
+(derived from nflverse team schedules — clean, unambiguous, one bye week per team,
+verified). The earlier entry's "Bug 3" framing is corrected here rather than left
+standing.
+
+## The attribution Cory asked for — and it's clean
+
+Added a fourth tracked line: Cory's REAL weekly roster (his real waiver decisions)
+run through ONLY the model's lineup logic, isolating that layer with roster
+construction held fixed to what actually happened.
+
+```
+REAL (Cory, actual)                       9-6-0   PF 1566.0
+ATTRIBUTION: real roster + MODEL lineup   8-7-0   PF 1518.9
+DO-NOTHING baseline                       6-9-0   PF 1400.8
+MODEL (waivers+lineup)                    3-12-0  PF 1213.1
+```
+
+**The lineup layer is good** — given Cory's real roster, the model's lineup logic
+(same crude shrunk rolling-average projection, `LO.optimize()` unmodified) nearly
+matches his real record: 8-7 vs 9-6, 47 points apart over 15 weeks. **The waiver
+layer is the problem** — full model control collapses to 3-12, worse than doing
+nothing at all (6-9). Same lineup logic, same projection method, only the roster
+input differs between the 8-7 and 3-12 lines — so the gap is squarely attributable
+to the waiver decisions the crude projection was driving.
+
+**Root cause, not just the symptom:** a backward-looking same-season rolling
+average (even correctly shrunk) has no opponent/matchup context, no Vegas lines,
+no usage-trend signal, no injury nuance — it can only describe what already
+happened, never why next week might differ. `evaluateClaims` acted rationally
+given that input; the input was the weak link. This is the same conclusion the
+one-game-outlier finding pointed at in the prototype above, now confirmed at the
+whole-season level with a clean isolation, not just one anecdote.
+
+**One more scope note, stated plainly:** DEF/K remain excluded from the model's
+simulated waiver activity this round (nflverse's stats don't cover kickers/team
+defenses — checked directly, 34 of 42 unknown-scored starts in the prior run were
+DEF/K). Real DST/kicker scoring needs play-by-play aggregation, which is real
+remaining work, not solved here.
+
+## The updated script (full, current state — replaces the version two entries up)
+
+```javascript
+'use strict';
+/* GM SIMULATION PROTOTYPE v2 — 2023, Cory's seat (roster_id 1), regular season only. */
+const path = require('path');
+const ROOT = '/home/user/maga-league';
+const LO = require(path.join(ROOT, 'src/routes/lineup.js'));
+const W = require(path.join(ROOT, 'src/routes/waivers.js'));
+
+const SEASON = '2023';
+const MY_RID = 1;
+const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const SLOTS = { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 };
+const REPL_RANK = { QB: 10, RB: 34, WR: 34, TE: 12, K: 10, DEF: 10 };
+const REG_SEASON_WEEKS = 15;
+
+const history = LO.harvest();
+const season = LO.seasonOf(history, SEASON);
+const richPositions = require(path.join(ROOT, 'draft/data/player_positions.json')).positions || {};
+const inferred = LO.inferPositions(season);
+const posById = Object.assign({}, inferred, richPositions);
+const owners = season.owners;
+const myOwner = owners[String(MY_RID)];
+const GLOBAL_PTS = require('./real_points_2023.json');       // built earlier, unchanged
+const byeByPlayer = require('./byes_2023.json');              // NEW: real 2023 team byes per player
+
+function weekEntries(wk) { return season.weeks[String(wk)] || season.weeks[wk] || []; }
+function nameFor(pid) { return String(pid); }
+
+let unknownStarts = 0;
+function realPointsFor(pid, wk) {
+  const g = GLOBAL_PTS[pid] && GLOBAL_PTS[pid][String(wk)];
+  if (g != null) return Number(g);
+  for (const e of weekEntries(wk)) {
+    if (e.players_points && e.players_points[pid] != null) return Number(e.players_points[pid]);
+  }
+  if (byeByPlayer[pid] != null && Number(byeByPlayer[pid]) === Number(wk)) return 0;
+  return undefined;
+}
+
+const SHRINK_K = 4;
+function rollingProjections(throughWeek) {
+  const acc = {};
+  for (let wk = 1; wk < throughWeek; wk++) {
+    for (const pid of universe) {
+      const v = realPointsFor(pid, wk);
+      if (v != null) (acc[pid] = acc[pid] || []).push(v);
+    }
+  }
+  const posSum = {}, posN = {};
+  for (const pid of Object.keys(acc)) {
+    const p = posById[pid]; if (!p) continue;
+    const arr = acc[pid];
+    posSum[p] = (posSum[p] || 0) + arr.reduce((a, b) => a + b, 0);
+    posN[p] = (posN[p] || 0) + arr.length;
+  }
+  const posAvg = {};
+  Object.keys(posSum).forEach(p => { posAvg[p] = posSum[p] / posN[p]; });
+  const out = {};
+  for (const pid of Object.keys(acc)) {
+    const arr = acc[pid], n = arr.length;
+    const rawMean = arr.reduce((a, b) => a + b, 0) / n;
+    const base = posAvg[posById[pid]] != null ? posAvg[posById[pid]] : rawMean;
+    out[pid] = (n * rawMean + SHRINK_K * base) / (n + SHRINK_K);
+  }
+  return out;
+}
+
+const draft = season.drafts[0];
+const pickNoByPid = {};
+draft.picks.forEach(p => { pickNoByPid[String(p.player_id)] = Number(p.pick_no); });
+function week1FallbackProj(pid) {
+  const pn = pickNoByPid[String(pid)];
+  return pn != null ? Math.max(1, 300 - pn) : 5;
+}
+
+const universe = (() => {
+  const ids = new Set();
+  for (let wk = 1; wk <= 18; wk++) for (const e of weekEntries(wk)) (e.players || []).forEach(pid => ids.add(String(pid)));
+  return [...ids];
+})();
+const universeWithPos = universe.filter(pid => posById[pid]);
+
+function replacementLevels(projByPid, universeList) {
+  const byPos = {};
+  universeList.forEach(pid => {
+    const p = posById[pid];
+    if (!p || !REPL_RANK[p]) return;
+    (byPos[p] = byPos[p] || []).push(projByPid[pid] || 0);
+  });
+  const repl = {};
+  Object.keys(REPL_RANK).forEach(P => {
+    const arr = (byPos[P] || []).slice().sort((a, b) => b - a);
+    const r = arr[Math.min(REPL_RANK[P], arr.length) - 1];
+    repl[P] = r != null ? r : 0;
+  });
+  return repl;
+}
+
+function rosterAtWeek(rid, wk) {
+  const e = weekEntries(wk).find(x => x.roster_id === rid);
+  return e ? (e.players || []).map(String) : [];
+}
+function realMatchup(rid, wk) {
+  const entries = weekEntries(wk);
+  const mine = entries.find(e => e.roster_id === rid);
+  if (!mine) return null;
+  const opp = entries.find(e => e.matchup_id === mine.matchup_id && e.roster_id !== rid);
+  return { mine, opp };
+}
+function realCompletedAddsThisWeek(wk) {
+  const wkTx = season.transactions[String(wk)] || [];
+  const byPid = {};
+  wkTx.forEach(t => {
+    if (t.status !== 'complete') return;
+    Object.keys(t.adds || {}).forEach(pid => { byPid[pid] = (t.roster_ids || [])[0]; });
+  });
+  return byPid;
+}
+// NEW: standings-based priority, wired in for real this time (was dead code before)
+function standingsThrough(wk) {
+  const rec = {};
+  for (let w = 1; w < wk; w++) for (const e of weekEntries(w)) rec[e.roster_id] = rec[e.roster_id] || { w: 0, l: 0, t: 0, pf: 0 };
+  for (let w = 1; w < wk; w++) {
+    for (const e of weekEntries(w)) {
+      const opp = weekEntries(w).find(x => x.matchup_id === e.matchup_id && x.roster_id !== e.roster_id);
+      if (!opp) continue;
+      rec[e.roster_id].pf += Number(e.points || 0);
+      if (e.points > opp.points) rec[e.roster_id].w++;
+      else if (e.points < opp.points) rec[e.roster_id].l++;
+      else rec[e.roster_id].t++;
+    }
+  }
+  const ranked = Object.keys(rec).map(rid => ({ rid: Number(rid), ...rec[rid] }))
+    .sort((a, b) => (a.w - a.l) - (b.w - b.l) || a.pf - b.pf);
+  const priority = {};
+  ranked.forEach((r, i) => { priority[r.rid] = i; });
+  return priority;
+}
+
+let myRoster = rosterAtWeek(MY_RID, 1).slice();
+let baseRoster = rosterAtWeek(MY_RID, 1).slice();
+let simRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let realRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let baseRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+let lineupOnlyRecord = { w: 0, l: 0, t: 0, pf: 0, pa: 0 };
+
+for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+  const proj = wk === 1 ? null : rollingProjections(wk);
+  const projFor = (pid) => wk === 1 ? week1FallbackProj(pid) : (proj[pid] != null ? proj[pid] : 0);
+
+  if (wk > 1) {
+    const priorProj = rollingProjections(wk);
+    const repl = replacementLevels(priorProj, universeWithPos);
+    const rosteredByOthers = new Set();
+    for (let rid = 1; rid <= 10; rid++) if (rid !== MY_RID) rosterAtWeek(rid, wk).forEach(pid => rosteredByOthers.add(pid));
+    const realAdds = realCompletedAddsThisWeek(wk - 1);
+    const freeAgents = universeWithPos
+      .filter(pid => !rosteredByOthers.has(pid) && !myRoster.includes(pid) && priorProj[pid] != null
+        && ['QB', 'RB', 'WR', 'TE'].includes(posById[pid]))
+      .map(pid => ({ player_id: pid, name: nameFor(pid), position: posById[pid],
+        proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0) }));
+    const myRosterObjs = myRoster.filter(pid => posById[pid]).map(pid => ({
+      player_id: pid, name: nameFor(pid), position: posById[pid],
+      proj_mean: priorProj[pid] || 0, vorp: (priorProj[pid] || 0) - (repl[posById[pid]] || 0),
+    }));
+    if (myRosterObjs.length && freeAgents.length) {
+      const res = W.evaluateClaims(freeAgents, myRosterObjs, LEAGUE, { lineupMean: 120, lineupSd: 24, oppMean: 118 });
+      const top = res.claims[0];
+      if (top && top.net_value > 0 && res.drop) {
+        const realOwner = realAdds[top.player_id];
+        let wins = true;
+        if (realOwner != null && realOwner !== MY_RID) {
+          const pr = standingsThrough(wk);
+          wins = (pr[MY_RID] != null && pr[realOwner] != null) ? pr[MY_RID] < pr[realOwner] : false;
+        }
+        if (wins) myRoster = myRoster.filter(pid => pid !== res.drop.player_id).concat([top.player_id]);
+      }
+    }
+  }
+
+  const activeProj = (pid) => LO.activeProjection(projFor(pid), { bye: byeByPlayer[pid], inj: null }, wk);
+  const rosterArr = myRoster.filter(pid => posById[pid]).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: activeProj(pid) }));
+  const baseArr = baseRoster.filter(pid => posById[pid]).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: activeProj(pid) }));
+  const realWeekRoster = rosterAtWeek(MY_RID, wk).filter(pid => posById[pid]).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: activeProj(pid) }));
+  const optRes = rosterArr.length ? LO.optimize(rosterArr, { slots: SLOTS }) : null;
+  const baseOpt = baseArr.length ? LO.optimize(baseArr, { slots: SLOTS }) : null;
+  const lineupOnlyOpt = realWeekRoster.length ? LO.optimize(realWeekRoster, { slots: SLOTS }) : null;
+
+  const { mine: realMine, opp: realOpp } = realMatchup(MY_RID, wk) || {};
+  const realPtsFor = realMine ? Number(realMine.points || 0) : null;
+  const oppPts = realOpp ? Number(realOpp.points || 0) : null;
+
+  function scoreStarters(starters) {
+    return (starters || []).reduce((s, st) => {
+      const v = realPointsFor(st.pid, wk);
+      if (v == null) { unknownStarts++; return s; }
+      return s + v;
+    }, 0);
+  }
+  const simPts = optRes ? scoreStarters(optRes.lineup) : 0;
+  const basePts = baseOpt ? scoreStarters(baseOpt.naive) : 0;
+  const lineupOnlyPts = lineupOnlyOpt ? scoreStarters(lineupOnlyOpt.lineup) : 0;
+
+  if (oppPts != null) {
+    simRecord.pf += simPts; simRecord.pa += oppPts;
+    if (simPts > oppPts) simRecord.w++; else if (simPts < oppPts) simRecord.l++; else simRecord.t++;
+    baseRecord.pf += basePts; baseRecord.pa += oppPts;
+    if (basePts > oppPts) baseRecord.w++; else if (basePts < oppPts) baseRecord.l++; else baseRecord.t++;
+    realRecord.pf += realPtsFor; realRecord.pa += oppPts;
+    if (realPtsFor > oppPts) realRecord.w++; else if (realPtsFor < oppPts) realRecord.l++; else realRecord.t++;
+    lineupOnlyRecord.pf += lineupOnlyPts; lineupOnlyRecord.pa += oppPts;
+    if (lineupOnlyPts > oppPts) lineupOnlyRecord.w++; else if (lineupOnlyPts < oppPts) lineupOnlyRecord.l++; else lineupOnlyRecord.t++;
+  }
+}
+
+function fmt(rec, label) {
+  console.log(`${label.padEnd(40)} ${rec.w}-${rec.l}-${rec.t}   PF ${rec.pf.toFixed(1).padStart(8)}`);
+}
+fmt(realRecord, 'REAL (Cory, actual)');
+fmt(lineupOnlyRecord, 'ATTRIBUTION: real roster + MODEL lineup');
+fmt(baseRecord, 'DO-NOTHING baseline');
+fmt(simRecord, 'MODEL (waivers+lineup)');
+console.log('starts with NO real data:', unknownStarts);
+```
+
+## What this is NOT
+
+Not merged, not adopted, not touching `draft/`. Corrections to prior entries are
+made HERE, in place, rather than editing the earlier ones — the record of being
+wrong first and fixed second is itself useful, not something to clean up.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — VERIFIED-CORRECT GM SIM, AND: THE ODDS/PROPS CAPTURE ALREADY EXISTS BUT IS BROKEN (0% COVERAGE)
+
+**FOR: A.** Two things in one entry: (1) the GM-sim prototype above is now
+mechanically verified leak-free, with a human-readable transcript, per Cory's
+direct challenge to prove it rather than assert it. (2) Cory then asked about
+building real per-player weekly projections using game over/unders and player
+props — turns out `draft/backtest/market_capture.py` already does almost exactly
+this, in real depth, and it's currently producing 0% coverage. Both below.
+
+## Part 1 — the leak-free proof
+
+Ran two things Cory asked for directly, not as claims:
+
+**A mechanical poison test.** For each of the 14 in-season decision points,
+recomputed the rolling projection twice — once normally, once with every score
+from that decision week onward overwritten with random garbage. Corrupting the
+present/future changed ZERO projections, for all 14 weeks. This isn't "the code
+should be blind by construction" as an argument — it's an executed test that
+proves the projection function is mechanically incapable of reading data from the
+decision week or later.
+
+**The stronger, more intuitive check.** A leaking model matches a hindsight-
+optimal lineup every week, because it secretly knows the answer already. This one
+left **428.5 points on the table across 15 weeks** versus the best lineup
+choosable WITH the real scores in hand. A cheating model cannot produce that
+number. A genuinely blind, imperfectly-projecting one does, every week.
+
+**Human-readable transcript, real names not Sleeper IDs** (built a name lookup
+from nflverse `player_display_name` via the existing gsis↔sleeper crosswalk —
+2200 players resolved). This surfaced a vivid, concrete example of the waiver
+layer's actual failure mode: **going into week 4, the model dropped Jaylen
+Waddle — a legitimate NFL WR1 — for Mike Williams**, because Waddle had one bad
+game (likely injury-affected) and the crude projection has no idea who Jaylen
+Waddle *is*, only his last few box scores. A human would never make that trade.
+This is the clearest evidence yet for the same root cause named in the prior
+entry: the decision logic is sound, the projection feeding it is blind to
+context. Also surfaced: by week 15 the model was carrying **four QBs** on a
+one-QB-slot roster — the drop-candidate logic hoarding depth at a position it
+doesn't need rather than fixing real weaknesses.
+
+Full verified script (names + poison test + retroactive-optimal comparison)
+available on request — long enough that pasting it here would bury the finding;
+say the word and it goes in the next entry the same way the others have.
+
+## Part 2 — the over/under + player-props capture already exists, and it's broken
+
+Cory: *"the over/under of a game... higher scoring probably equals higher fantasy
+players... also prop bets on our current players... this might be the real edge."*
+Checked before designing anything from scratch — **this is already substantially
+built**, not a new idea:
+
+`draft/backtest/market_capture.py` already captures game **total + spread**
+(its own docstring: *"Signal B needs total+spread"*) and already reasons in
+real depth about **player props** — it explicitly measured that yardage/
+receptions props are well-covered but **touchdown props are the hard gap**:
+23.3% uncovered at WR1, 29.1% at RB1, 47.5% at QB1. It tracks **book dispersion**
+(how much bookmakers disagree) as a built-in confidence field — tight agreement
+= expensive to bet against, wide disagreement = cheap. This is careful, already-
+reasoned design, not something to build from zero.
+
+**But it's not working.** Checked `draft/market_snapshots/capture_health.json`
+directly:
+```
+last_coverage: 0.0
+last_complete: false
+consecutive_failures: 1
+```
+The most recent snapshot has real event metadata (teams, IDs, dates) but an
+EMPTY `bookmakers: {}` field — no lines actually came back. The capture requires
+`ODDS_API_KEY` (`secrets.ODDS_API_KEY` in `market-capture.yml`) — worth checking
+directly whether that key is still valid, expired, or rate-limited; not
+something visible from this session. **Fixing this is probably higher leverage
+than building anything new** — the design is already there, it's just not firing.
+
+**A real constraint, stated up front:** this capture is forward-looking only —
+there's no equivalent historical odds/props archive for 2023–2025 in this repo,
+so this enrichment cannot be retroactively tested against the GM-sim the way the
+shrinkage fix was tested today. It has to be validated going forward, on the
+live 2026 season, not backtested for free. Worth knowing before promising more
+than the data can prove yet.
+
+## The projection design, if/when the capture is fixed
+
+Three layers, not one, each logged at decision time and graded the following
+week so the blend weights come from real error, not a guess:
+1. **Opportunity baseline** — the shrunk rolling average from the GM-sim (or
+   real usage stats — target share, red-zone looks — once wired), regressed
+   toward the position average.
+2. **Game-environment adjustment** — scale by the game's implied total relative
+   to league average, and by game script from the spread (trailing team's
+   pass-catchers get garbage-time volume; leading team's backs get clock-control
+   volume).
+3. **Player props as an independent signal**, weighted by book dispersion —
+   this is arguably the single strongest input available, since it's real money
+   priced with information (beat reporters, practice reports) no public source
+   in this repo has access to.
+
+## What this is NOT
+
+No code touched, nothing merged, nothing pushed. Per Cory's standing instruction
+this round: everything discussed or proposed goes here for A's review, not into
+`draft/` or any production path.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — THE WAR-ROOM REDESIGN IS REAL, BUT #seat-plan (order:0) BUMPS #recs-card PAST THE PHONE FOLD
+
+**FOR: A.** Cory noticed a screenshot I sent two rounds ago didn't match what he
+understood B's war-room redesign to be. Re-investigated properly this time
+(scrolled the whole page, checked live computed CSS order, not just a viewport
+crop) rather than repeat the same shallow look.
+
+## The redesign is real and matches its own claims — mostly
+
+`#recs-card`'s CSS `order` (5) genuinely sits before `doctrine-banner` (6),
+`legality-strip` (7), `wr-statusbar` (4)... — checked directly against the live
+computed styles, not just the source comments. `#paths-panel` renders real,
+detailed content (FOR/AGAINST reasoning per path, real player data, ADP deltas,
+"I TOOK NACUA" action buttons). My screenshot two rounds ago only captured the
+top 844px viewport and I never reviewed the full-page capture I'd also taken —
+that's on me, not evidence the redesign wasn't real.
+
+## The actual discrepancy: `#seat-plan` at `order: 0`
+
+`#seat-plan` sits BEFORE even the search bar (order 0 vs order 1), and in the
+current pre-draft state it's 549px tall — dominated by a large "Keeper slate not
+confirmed" warning banner ("The keeper slate has never been confirmed. Every
+pick number and every adjusted ADP on the board depends on it."). That block
+alone pushes `#recs-card` down to **1005px from the top** — past a 390×844 phone
+fold, directly contradicting the redesign's own stated goal ("the recommendation
+owns the phone's first fold").
+
+**What needs A's judgment, not a guess from this session:** is `#seat-plan` this
+size because the keeper slate genuinely is unconfirmed right now (a real,
+arguably correct safety gate — you don't want confident recommendations built on
+possibly-wrong ADP), and does it shrink back once confirmed? Or is it sized like
+this regardless of keeper state, meaning the first-fold goal is broken in the
+state Cory will actually see on draft day? I didn't force a keeper-confirmation
+in local dev data to test this, since mutating that and presenting the result as
+representative felt like the wrong kind of shortcut — better to flag the precise
+question than guess at the answer.
+
+## What this is NOT
+
+No code touched. This corrects and sharpens the earlier screenshot-based finding
+rather than replacing it with another unverified claim.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — RECOMMENDATION: BUILD OUR OWN WEEKLY PROJECTIONS, SCORED UNDER THIS LEAGUE'S RULES
+
+**FOR: A.** Standalone, direct recommendation — pulled out on its own because it
+got buried across earlier entries and Cory had to ask twice. Not a research
+question, a clear "yes, do this" with the evidence gathered this session.
+
+## The recommendation
+
+Build a real weekly per-player projection, generated from actual usage stats and
+scored under THIS league's exact `scoring_settings` (half-PPR, 6pt passing TD,
+the real kicker/DEF table) — replacing both the crude rolling-average this
+session's GM-sim prototype used AND the flat season-rate `proj_feed.js` currently
+serves to the live `/lineup` route.
+
+## Why this is not a maybe
+
+1. **The current live feed already admits it's inadequate.** `src/proj_feed.js`'s
+   own header comment: `proj_mean` is a season total, the weekly number "knows
+   nothing about this week's opponent, weather or usage trend... a poor input for
+   a start/sit call between two close players." That's not hypothetical — it's
+   what's running in production right now.
+2. **Watched the failure mode directly, not just argued it.** In the GM-sim
+   (three entries up), a crude-but-honestly-shrunk projection dropped Jaylen
+   Waddle — a real WR1 — for a bench body, purely because it only sees box
+   scores, not context. A league-generic ranking has the identical blind spot.
+3. **Generic public rankings are wrong for this league by construction.** Most
+   public projections assume standard/half-PPR/PPR scoring. This league runs
+   half-PPR WITH 6-point passing TDs — a real, material skew for QB value that
+   every outside ranking silently gets wrong until rescored under our actual
+   settings. This is the single cheapest, least-ambiguous fix available: no new
+   modeling, just correctly applying a formula that already exists
+   (`scoring_settings`, already read directly and confirmed this session).
+4. **Most of the pieces already exist, disconnected.** nflverse box-score data
+   (proven reachable and exactly accurate this session — verified to the decimal
+   against real recorded scores), the multi-source draft-day pipeline
+   (FFC/FantasyPros), and the game-total/prop-market capture (`market_capture.py`
+   — real, well-designed, currently broken at 0% coverage, flagged two entries
+   up).
+
+## Build order, by leverage
+
+1. **Score real usage stats (targets, carries, red-zone looks) under the exact
+   `scoring_settings`** — highest value, lowest risk, not really "modeling."
+2. **Shrink/regress toward position average** — proven necessary this session
+   (the one-game-outlier finding); without it a small sample fools the tool.
+3. **Layer in game total/spread and player props** once `market_capture.py` is
+   fixed (its own ODDS_API_KEY issue, flagged separately) — real scoring-
+   environment and market-information context a box-score average can't have.
+4. **Log every projection before the game, grade it after.** Closes the loop for
+   real — feeds the blend weights from measured error instead of a guess,
+   exactly the "make it smarter every year, immune to noise" goal stated
+   earlier in this thread.
+
+## What this is NOT
+
+No code touched. This is a direct recommendation, not a new finding — everything
+underneath it is already evidenced in the entries above. A's call on sequencing
+against the rest of the queue.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — THE FULL PLAN: OUR OWN PROJECTIONS, MORE MARKET DATA, AND CLOSING THE PREDICTION LOOP
+
+**FOR: A.** Cory asked for one detailed, connected plan covering four things:
+how to build our own league-scored projections and everywhere they'd be used,
+how to get more betting data, a full predictions-and-grading plan to close the
+loop, and a note on what comes after (draft-tool testing). All four below, in
+order. This is a plan for you to sequence and build — not code, not gated,
+Cory's explicit instruction is that everything in this thread stays here for
+your review.
+
+## PART 1 — Our own weekly projections, scored under this league's rules
+
+### Why this solves the normalization problem directly
+
+Right now this app has THREE disconnected notions of a player's value: the
+draft-day composite (FFC/FantasyPros ADP-based), the in-season feed
+(`proj_feed.js`, a flat season-rate), and whatever a human remembers from public
+rankings computed under someone else's scoring. `valuation.js`'s own doctrine
+already states the principle that should extend here: *"if two tools ever value
+the same player differently, that is a bug."* A single, real, in-house
+projection — generated from usage stats, scored under `scoring_settings`
+exactly — is the one thing that makes every tool (draft, waiver, lineup,
+analyzer) reference the same normalized number instead of drifting sources.
+
+### The build, concretely
+
+1. **Inputs** (all confirmed reachable this session): nflverse weekly stats
+   (targets, carries, red-zone touches, air yards, snap %, NGS efficiency
+   metrics), injury/practice reports, and this league's real `scoring_settings`
+   (already read directly: half-PPR, 6pt passing TD, the real kicker/DEF bucket
+   table).
+2. **Base layer — opportunity, not outcome.** Project next week's usage
+   (targets/carries/red-zone share) from a recency-weighted trend of recent
+   usage, NOT recent fantasy points — points are TD-variance-heavy, opportunity
+   is the more stable signal (this is the standard "xFP" logic from the earlier
+   tool-norms research, applied at the input stage instead of after the fact).
+   Convert projected usage into fantasy points using THIS league's exact scoring
+   formula — this is the step that fixes the normalization problem outright.
+3. **Shrinkage, mandatory, not optional.** Regress every projection toward the
+   position average, weighted by sample size (proven necessary this session —
+   the one-game QB outlier that got projected at face value and justified
+   dropping the team's only defense). A fixed shrinkage constant is a fine start;
+   the constant itself should eventually be *derived* from measured variance by
+   position, matching the project's own "prefer derived over declared"
+   principle already written into SESSION-B.md.
+4. **Context layer — game environment**, once Part 2 below is fixed: scale by
+   the game's implied total relative to league average, and by game script from
+   the spread.
+5. **Market layer — player props**, weighted by book dispersion (tight agreement
+   = trust it more, wide disagreement = discount it) — the single strongest
+   signal available, priced with real money and information no public fantasy
+   source has.
+6. **One engine, two horizons.** The SAME underlying stat-projection method
+   should produce both the draft-day season total (feeding the existing
+   composite/VORP machinery) AND the week-by-week number (feeding
+   waiver/lineup/analyzer) — not two separate systems. This also means the
+   draft-day backtest (`BACKTEST.md`) stops being graded on "era-appropriate
+   reconstructions" (its own stated, honest limitation) and starts being graded
+   on the real thing, closing that gap too.
+
+### Everywhere this gets used, not just the two tools already tested
+
+- **Lineup optimizer** — direct, already proven today (`LO.optimize()` needs a
+  real `proj` per player; that's exactly this).
+- **Waiver tool** — direct, and the highest-measured value target: today's
+  GM-sim proved the crude version of exactly this projection was the
+  attributable cause of the model's worst decisions.
+- **League analyzer** — playoff-odds Monte Carlo simulation needs a real
+  forward projection per team per remaining week, not just current record;
+  same for the roster-efficiency ("bench points left on the table") metric,
+  which is currently likely built on the same flat `proj_feed.js` number.
+- **Trade evaluation**, if/when built — any trade value comparison is only as
+  good as the projection underneath it.
+- **The Sunday alert / matchup pages** — anywhere a "your guy is projected for
+  X" number is shown to an owner directly.
+- **The draft composite itself**, per the "one engine, two horizons" point
+  above — this is the one most likely to be missed since it looks like a
+  separate system today, but it doesn't have to stay that way.
+
+## PART 2 — Getting more betting/market data
+
+1. **Fix `ODDS_API_KEY` first — cheapest, highest-leverage step, already
+   flagged two entries up.** `capture_health.json` shows 0% coverage right now;
+   nothing else in this section matters until real lines are flowing again.
+2. **Actually request player-prop markets.** Checked directly this session:
+   `market_capture.py`'s own `touchdown_finding` states *"NO prop market(s)
+   requested"* — the capture currently asks for game odds only, not props, even
+   though the script's own docstring already reasons carefully about prop
+   coverage. Requesting prop markets (receiving yards, rushing yards,
+   receptions, passing yards/TDs, anytime TD) is a config change to what's
+   already built, not new infrastructure.
+3. **Check the actual odds-api.io plan/tier.** Player props are frequently a
+   paid-tier feature on odds APIs; whether the current subscription includes
+   them needs Cory/A to check directly against the account, not something
+   visible from this session.
+4. **Extend the capture cadence into the season**, mirroring the same logic
+   already applied to `weekly-proj-snapshot.yml`: a capture near the Tuesday
+   waiver deadline AND one Sunday morning before kickoff, since lines move
+   through the week and the number that mattered for a Tuesday decision isn't
+   the same as Sunday's.
+5. **Historical odds/props for 2023–2025 are a separate, harder problem**,
+   already flagged in the GM-sim entries — no equivalent free historical archive
+   found this session. This means the market-enriched projection can be
+   deployed and validated going forward on 2026, but can't be retroactively
+   proven against past seasons the way the shrinkage fix was proven today. Say
+   this plainly to Cory if asked "does this help our backtest" — it doesn't,
+   yet; it helps the live 2026 season.
+6. **Watch the rate budget.** `market_capture.py` already has real budget
+   tracking (`RateBudget`, `backoff_plan`) — extending capture frequency and
+   market breadth should be checked against it, not assumed free.
+
+## PART 3 — The predictions-and-grading plan (closing the loop)
+
+This should live inside the EXISTING "Learning Engine" concept already
+specified earlier in this file (item 10 in the original parked queue —
+continuous re-grading, hypothesis generation from residuals, the Annual as the
+Tier-2 install gate) rather than as a separate system. That entry already
+flagged its own blocker: the "Learning Constitution" and Tier-0/1/2 taxonomy it
+depends on is referenced but not actually in the repo. **That taxonomy file has
+to exist before this plan can plug into it** — worth resolving first.
+
+### What to predict, and how often
+
+**Every draft (once a year):**
+- Season-total projection per drafted player (from the same engine as Part 1).
+- Predicted VORP/value at the pick made, vs. the next-best alternative at that
+  pick (already partially built via the draft backtest's B0-B3 comparison —
+  extend it to log the LIVE pick's prediction at the moment of the pick, not
+  just in a post-season replay).
+- Predicted round-by-round positional runs (does a position go in a burst).
+- Predicted keeper value (is keeping player X at cost Y a good deal, checked
+  against the season that follows).
+
+**Every week:**
+- Per-player point projection (Part 1) — grade: actual points vs. projected.
+- Start/sit recommendation with its stated expected-dollar edge (`optimize()`
+  already computes this via `calls`/`edge`) — grade: did the recommended
+  swap actually outscore the alternative.
+- Waiver claim recommendation with its stated net value (`evaluateClaims`'s
+  `net_value`) — grade: realized value of the added player over the following
+  2-4 weeks vs. the dropped player, and separately, whether a contested claim's
+  predicted priority outcome (win/lose) matched reality once real
+  `waiver_position` capture exists (flagged three entries up).
+- Weekly playoff-odds / win-probability for the upcoming matchup — grade:
+  bucketed calibration (the exact table format `BACKTEST.md` section 4 already
+  uses for survival odds — reuse it unchanged for playoff odds and win
+  probability, not a new format).
+
+**Every year:**
+- Preseason standings/playoff-odds prediction vs. final result.
+- Draft-value realized: which players/picks outperformed or underperformed
+  their draft cost, and whether the tool's own recommendations (if a shadow log
+  exists of what it WOULD have recommended at picks Cory didn't take) would
+  have done better or worse than what actually happened — this is the live,
+  forward-collected version of what the GM-sim did retroactively today.
+- Tool-vs-human season summary: across every week's start/sit and waiver calls,
+  how often did the tool's recommendation beat the human's actual choice, and
+  by how much — the same shape as this session's attribution finding
+  (lineup-only vs. real), but collected prospectively all season instead of
+  reconstructed after the fact.
+
+### How to grade each type (reuse existing patterns, don't invent new ones)
+
+- **Point estimates** (projections): MAE/RMSE, tracked per position per week,
+  trended over the season and across years.
+- **Probabilities/confidence** (win prob, playoff odds, survival %, waiver-
+  contest outcomes): bucketed calibration — group every "73% likely" call and
+  check if ~73% of them were actually right. `BACKTEST.md` section 4 already
+  has exactly this table; the format should be copied, not redesigned, for
+  every new probabilistic claim this plan adds.
+- **Recommendations** (start/sit, waiver, draft pick): realized value of the
+  choice taken vs. the best alternative not taken, in both raw points and
+  dollars (the project's existing $110/$100 win/weekly-high framing) — the same
+  B0-B3-style comparison the draft backtest already runs, applied weekly.
+
+### The noise-immunity rules (the ones Cory asked for explicitly)
+
+- **Log every prediction BEFORE the outcome, immutably** — the same discipline
+  `proj_series.json` already states for itself ("frozen for a CLEAN post-season
+  grade — retroactive fetches leak"). No exceptions, no retroactive edits.
+- **Minimum sample size before trusting a pattern.** Directly caused by today's
+  bug: a real signal needs enough games/weeks before it's actionable; a
+  hypothesis from residuals should be tagged with its n and not act on n<4-5
+  observations without explicit shrinkage, exactly as this session's fix did.
+- **Multi-season replication before a "learned" adjustment becomes permanent.**
+  Matches the project's own caution already applied to `REGRESSION_WEIGHT`
+  tuning — a pattern seen in one season is a hypothesis, not a rule, until it
+  survives more than one.
+- **Separate hit rates for machine-generated vs. human-generated hypotheses**,
+  reported WITH n, never as a bare rate — already specced in the original
+  Learning Engine entry (item 10, sub-point 2b) and directly applicable here:
+  this new prediction stream will generate far more data points than any human
+  registering hypotheses by hand, and volume alone should never read as
+  confidence.
+
+### How to use it once enough data exists
+
+Feed the tracked error back into the projection blend itself — if the market-
+prop layer has been closest for WRs the last 6 weeks and the usage-based layer
+closest for RBs, the blend should weight accordingly, recency-weighted so it
+keeps adapting. This closes the loop for real: predictions inform the model,
+grading measures the predictions, and the measured error adjusts the model —
+not a one-way pipe.
+
+## PART 4 — What comes after (once lineup/waiver are confirmed working)
+
+Cory's own sequencing, restated so it's on record: once the in-season tools are
+validated (the GM-sim extended to more seats/seasons per the earlier build
+spec), the same rigor applied to them this session — mechanical leak proofs,
+human-readable auditability, real attribution — should be pointed at the DRAFT
+engine next. Two things make this timely rather than premature:
+- The existing draft backtest (`BACKTEST.md`) already admits its own honest
+  limitation: it grades the decision machinery on "era-appropriate
+  reconstructions... not archived forecasts." Once Part 1's real projection
+  engine exists, that caveat can be closed for the FIRST time — the draft
+  backtest becomes a test of real projection accuracy, not just decision logic
+  on plausible inputs.
+- The still-open round-1 leak alarm and the broken 2025 stat-reconciliation
+  (both flagged in an earlier entry) should be resolved as part of this pass,
+  not carried forward again.
+
+## What this is NOT
+
+No code touched, nothing gated, nothing installed. This is a plan for A to
+sequence, build, and adapt — every piece here traces to something measured or
+verified earlier in this file, not asserted fresh.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — WHY LINEUP WAS NEAR-HUMAN BUT WAIVERS WEREN'T, ON THE SAME CRUDE PROJECTION (READ BEFORE PRIORITIZING PART 1)
+
+**FOR: A.** Cory's sharp pushback on the GM-sim attribution finding: if the
+projection was too weak to trust (proven — see the Waddle example, three
+entries up), how did lineup-only nearly match the real human (8-7 vs 9-6)? This
+isn't a contradiction, and it changes how Part 1 of the big plan (two entries
+up) should be sequenced — worth reading before building.
+
+## The explanation
+
+**Lineup-setting chooses from a small, already-good, human-curated pool** (~15
+rostered players). A crude projection is bad at nuance but usually fine at
+obvious — real studs tend to also show up as high scorers in a noisy recent-
+average, because genuine talent correlates with recent production even
+imperfectly. Most weeks "start your studs" isn't a close call. This is already
+named in the codebase itself: `optimize()`'s own baseline is literally called
+`naive = "start your studs" = the E[points]-optimal lineup`, and everything else
+in the function only nudges away from it when there's a specific, priced reason
+to. Lineup deployment has low sensitivity to projection noise by construction.
+
+**Waiver-adding chooses from a huge, mostly-irrelevant pool** (hundreds of
+unrostered names) and has to find the few real signals with no name recognition
+and no context — exactly where a crude average gets fooled (one huge game reads
+as "elite," one bad game from a real producer reads as "washed" — the Waddle
+example). High sensitivity to projection noise by construction, the opposite of
+lineup.
+
+**And the two mistakes don't cost the same.** A bad lineup call costs one week;
+next week's decision starts fresh. A bad waiver call compounds — the dropped
+player is gone, and the mistake keeps costing points every week until it's
+undone. Same weak input, structurally different failure cost.
+
+## What this changes about Part 1's sequencing
+
+Not "skip lineup, it's fine forever" — but the expected payoff from Part 1's real
+projection is NOT evenly spread across tools. Waivers should show the largest
+improvement once a real projection lands; lineup-setting is already close to its
+practical ceiling even on a crude number, and shouldn't be the thing used to
+justify or measure whether Part 1 was worth building. Measure Part 1's success
+mainly against the waiver layer's numbers, not the lineup layer's.
+
+## What this is NOT
+
+No code touched, no new build — a reasoning clarification on an existing
+finding, parked because it changes how success should be measured, not just
+academic.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — CORRECTION: THE ODDS API WORKS FINE. THE EARLIER "0% COVERAGE" FINDING WAS WRONG.
+
+**FOR: A.** Cory asked directly "does the bet API work, does it give everything
+we need" — and checking properly this time (real CI job logs, not just the
+tail of `capture_health.json`) shows the earlier finding two entries up was
+wrong. Correcting it here rather than leaving a bad finding standing.
+
+## What was actually wrong in the earlier entry
+
+That entry read `capture_health.json`'s final state (`last_coverage: 0.0`,
+`consecutive_failures: 1`) and one sampled event with empty `bookmakers: {}`,
+and concluded the capture was broken / the key might be invalid. Neither check
+was sufficient — checked the real GitHub Actions run (`31808544950`, 2026-08-14)
+directly this time.
+
+## What's actually true, verified from the real run
+
+**The API key works and the capture succeeds.** The job's own log:
+`[usa-nfl-preseason] captured 36/36 events (100%) -> usa-nfl-preseason_
+2026-08-14T141450Z.json`. Re-checked the snapshot file itself properly (not
+just one sampled event): **10 of 36 games have real, detailed odds** from
+DraftKings and FanDuel — moneyline, spread, full-game totals, even first-half
+lines, with real timestamps. Budget is healthy: `{"limit": 100, "remaining":
+62, "spent_this_run": 37}`.
+
+**Why the job still reported failure.** This run captures TWO leagues:
+`usa-nfl-preseason` (succeeded, 100%) and `usa-nfl` (the regular season —
+correctly found 0 events, because the regular season hasn't started; nothing to
+capture is not a failure). Both write to the SAME shared `capture_health.json`.
+`usa-nfl` runs second in the loop, so its "0 events available" status
+**overwrites** the preseason league's genuinely successful one, and the gate
+step then reads that final, misleading state and fails the whole job. **This is
+a real bug** — conflating "no data exists yet for a season that hasn't started"
+with "the capture is broken" — but it's a false-alarm/reporting bug, not a
+broken connection to the provider. Worth fixing (per-league health tracking,
+not one shared file) before the regular season starts and this check is
+expected to run daily against real games — a check that cries wolf for two
+weeks straight is a check people stop reading, which is exactly when a real
+failure would go unnoticed.
+
+## What still holds from the earlier entry — this part was right
+
+**Player props are still not requested at all.** Confirmed again directly from
+this same real run: `"markets_requested": null"`, `"no prop market(s)
+requested"`. The capture only asks for moneyline/spread/totals from 2 books.
+Getting player-prop data is a config change to something already working
+(add markets to the request), not a fix to something broken — different, and
+cheaper, than the earlier entry implied.
+
+## What this is NOT
+
+No code touched. This is a direct correction to an earlier finding in this
+file, made because it was checked against real evidence and found wrong rather
+than left standing.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — ALTERNATIVE NFL ODDS/PROPS SOURCES, AND A CORRECTION: THE CURRENT PROVIDER IGNORES THE markets PARAMETER
+
+**FOR: A.** Cory asked whether there's somewhere else to get NFL betting data.
+Found something in the repo before answering that changes the earlier advice.
+
+## Correction to the earlier "just add markets to the request" recommendation
+
+`draft/backtest/external_odds_probe.py` (Session C, already built and already
+run — `external_odds_probe.json` has the result) tested exactly this with a
+careful nonsense-control methodology: requested real player-prop market names
+AND a nonsense value, and got back the IDENTICAL market list either way (ML,
+Spread, Totals). **Verdict from that probe: "VOID — the parameter was not
+read."** The `markets` param is silently accepted and ignored by odds-api.io at
+this endpoint — this is NOT "props aren't available," it's "this request
+mechanism doesn't ask for them correctly," and the earlier recommendation
+("cheap config change, just add markets") should be corrected: it isn't
+guaranteed to work with this provider, and someone already caught that with
+real evidence.
+
+## Could not test alternatives directly — same sandbox limitation as before
+
+Confirmed this session: this sandbox blocks essentially everything except
+GitHub-hosted content — even `pro-football-reference.com` is blocked, so it's a
+general allowlist restriction, not a betting-specific one. Nothing below is
+verified live; all of it needs testing from CI (open egress), the same way the
+current pipe already runs.
+
+## Candidates, from general knowledge, for A to actually test
+
+- **The Odds API** (`the-odds-api.com` — a DIFFERENT provider from
+  `odds-api.io`, easy to confuse by name). Free tier covers game odds; player
+  props are typically available on paid tiers. Well-documented, commonly used
+  for exactly this purpose — probably the first one worth probing.
+- **ESPN's public scoreboard/odds endpoints** — free, unauthenticated,
+  game-level lines only (spread/total via ESPN's odds partnership), no player
+  props, and unofficial (undocumented, can change without notice).
+- **Underdog Fantasy / PrizePicks** — literally player-prop pick'em platforms,
+  so the data shape is exactly right (real market lines on individual player
+  stats). This project already has a working relationship with Underdog's data
+  (the Best Ball Mania archive, `draft/data/bbm/`) — different product from
+  their prop lines, but worth trying first given the existing familiarity and
+  precedent for reaching their infrastructure.
+- **SportsDataIO / Sportradar** — comprehensive, commercial, includes props,
+  likely overkill/priced for a product, not a 10-team home league.
+
+## The right way to test any of these
+
+Reuse `external_odds_probe.py`'s own methodology rather than assuming a new
+provider "just works": pair every real request with a nonsense-control request,
+and only trust a "no props" reading if the control's response is materially
+different from the real one. That discipline is already proven necessary in
+this exact repo — the as-of probe found the same ignored-parameter shape on
+date-bounding before this probe found it again on markets.
+
+## What this is NOT
+
+No code touched. Corrects an earlier recommendation with evidence found in the
+repo, and proposes candidates for A to test from CI, not from here.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — HOW THE DRAFT ENGINE ACTUALLY DRAFTS, AND WHAT ITS OWN CODE ALREADY ADMITS IS WRONG
+
+**FOR: A.** Cory asked to shift focus to the draft tools: how it drafts, what
+the issues are, how to improve it. Read `engine.js`, `composite.js`, and the
+weight-configuration block directly rather than going from memory of earlier
+docs — the code's own comments turned out to already contain a remarkably
+honest self-diagnosis. Organized below so it's a punch list, not just a report.
+
+## How it actually drafts (the real pipeline, `recommend()` in engine.js)
+
+Every board player is scored on eight weighted components: **value** (VONA —
+value over next-best-available, flex- and position-aware), **tier** (cliff
+urgency), **need**, **risk** (age-cliff), **ceiling** (upside spread), **keeper**
+(next-year option value, from `composite.js`'s KOV), **bye** (collision penalty
+against the actual roster), **stack** (QB/pass-catcher correlation). Then:
+ceiling tiebreak on near-ties → Stage-2 anchor (off by default) → roster
+legality → plausibility rails (catches runaway scores) → demotion of flagged
+one-position players → doctrine report. Structurally sound — the problems below
+are about what's actually live inside it, not the shape of the pipeline.
+
+## What's actually wrong, in the code's own words
+
+**1. Five of eight scoring terms are zero in the live config.** `MEASURED_WEIGHTS`
+— what `app.js` initializes `state.weights` from, i.e. what real picks are
+scored under — is `{ value: 1.0, tier: 0, need: 0, risk: 0, ceiling: 0, keeper:
+1.0, bye: 0, stack: 1.0 }`. Most of the apparent sophistication in this engine
+is multiplying by zero on every real recommendation.
+
+**2. The ranked list has no idea what's on your roster, mid-draft.** Direct
+quote: *"the composite has no positional-fill awareness in the mid-draft...
+filling QB and TE moves this top 70 by zero players."* A separate roster-fill
+mask exists (in `needrule.js`) but `recommend()` never calls it — grep
+`withinCap` in `engine.js` and every hit is a comment, not a call. It only
+fires in the endgame legality check, not the list Cory reads most of the draft.
+
+**3. Two of the zeros (`risk`, `ceiling`) are measurement artifacts, not
+findings.** The Lab's backtest board was missing risk's five inputs entirely,
+and ceiling's value was mathematically identical to the value term on that
+board (Spearman 0.98–1.0 — collinearity, not a weak signal). The code says
+this itself: *"not evidence that ceiling is worthless. It is not evidence of
+anything."* Worth treating as a systemic red flag, not a two-term issue — if
+the Lab's board-builder (`build_bundle.py`, 12 fields) silently diverges from
+production (48 fields) on these two terms, other backtest conclusions resting
+on the same harness deserve the same scrutiny, including the B0-vs-B3 result
+already flagged (three entries up in this file's earlier GM-sim thread).
+
+**4. A real governance failure already happened on this exact config.** The
+`stack` weight's shipped value and its own decision record (D10) disagreed with
+each other for five days before it was caught — the engine ran one number while
+the file documenting the ruling said another.
+
+**5. The alternate presets quietly undo the measured findings.** Three of the
+four named strategies (`balanced`, `value` i.e. "Best available", `upside` i.e.
+"Swing for it") run `tier` and other terms at meaningful weight — the SAME
+terms just measured as a net drag (tier: −$235 pooled). Selecting anything but
+"Live policy" silently reverts to a config the Lab already found loses money,
+with no warning that it's doing so.
+
+**6. Layered on the pre-existing, still-open findings** (round-1 leak alarm
+unresolved across multiple grading passes, 2025's backtest season contributing
+zero graded picks due to a stat-reconciliation break, and the full composite
+B3 underperforming plain ADP B0 — and even plain VORP B2 — in the project's own
+official backtest): the honest summary is that **the draft engine's actual
+demonstrated edge is narrow (value + stack + keeper), most of the apparent
+sophistication is currently dormant, and the harness that would justify turning
+any of it back on had real, self-admitted holes.**
+
+## How to improve it, in priority order
+
+1. **Fix the Lab board-builder's field gap first.** Nothing measured against a
+   12-field board can be trusted against production's 48 fields — this is the
+   prerequisite for re-evaluating `risk` and `ceiling` honestly, not a
+   nice-to-have.
+2. **Wire the roster-fill mask into `recommend()` itself**, not just the
+   endgame legality path — a real, already-located, already-acknowledged fix.
+3. **Resolve the round-1 leak alarm** before trusting any composite-vs-ADP
+   comparison again, including any future re-measurement of `risk`/`ceiling`.
+4. **Update or clearly warn on the alternate presets** — a UI choice shouldn't
+   silently undo a measured Lab finding with no indication it's doing so.
+5. **Connect this to the real weekly projection engine once built** (the
+   Part-1 plan, five entries up) — VONA's `proj_mean` input should come from
+   the same "one engine, two horizons" as the in-season tools, not stay a
+   separate FFC/FantasyPros-based system forever.
+6. **Point the same rigor used on the GM-sim today at the draft engine next** —
+   mechanical leak proof, human-readable transcripts, real attribution — now
+   buildable for real once a genuine projection exists instead of the
+   backtest's current "era-appropriate reconstructions."
+
+## What this is NOT
+
+No code touched, nothing gated. Every claim above traces to a direct read of
+`engine.js`/`composite.js`'s own comments and constants, not inference —
+quoted rather than paraphrased where it mattered.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — A DRAFT TOOL PROTOTYPE, BUILT AND TESTED (AND A REAL BUG FOUND FIRST)
+
+**FOR: A.** Cory asked to design AND test a better draft tool, same rigor as
+the GM-sim. Built it, it broke in an instructive way first, fixed it properly,
+and the final result is a real, if humbling, finding: the "obvious fix" made
+things worse. Not merged, not adopted — for review, same as everything else in
+this thread.
+
+## The design (and why each piece is in)
+
+- **Primary signal: follow real 2023 draft order directly**, not a VORP
+  transform of it. This is the design, not a fallback — this project's own
+  real backtest already found plain ADP-following (B0) beats both plain VORP
+  (B2) and the full composite (B3) on real historical drafts (cited five
+  entries up, `BACKTEST.md`). A "better" tool that ignores its own project's
+  strongest finding would be worse, not better.
+- **Need masking** — skip the top-by-ADP player once a position already holds
+  starters + a 2-deep bench buffer, take the next-best-by-ADP elsewhere
+  instead. A simple, scale-free attempt at the exact gap `engine.js` admits:
+  *"the composite has no positional-fill awareness in the mid-draft."*
+- **Stack and bye-collision**, using the REAL production functions from
+  `composite.js` (`correlationAdjustment`, `byeCollisionPenalty`) unmodified —
+  same discipline as the waiver/lineup test — used ONLY to break near-ties
+  (within 8 real draft picks of each other), never to override a real ADP gap.
+- `tier`/`risk`/`ceiling` deliberately omitted — same reasoning as the earlier
+  engine-review entry: the live tool already has them at zero, two of those
+  zeros are measurement artifacts not findings, and reproducing them cleanly
+  is separate scope.
+
+## The bug found first, and why it matters beyond this one script
+
+v1 computed VORP by turning real draft pick order into a synthetic "value"
+number (`400 - pick_no`) and diffing it against a per-position replacement
+rank borrowed from `waiver_live_check.js`'s table. Result: **the tool drafted
+six tight ends with its first six picks.** Debugged rather than reported:
+only 13 TEs get drafted at all in a real 150-pick, 10-team draft, vs. ~50
+RBs/WRs — so a rank-12 replacement cutoff for TE lands on almost the WORST
+drafted TE, making TE1's "VORP" look enormous. This is a real, general
+lesson, not just a script bug: **turning market rank/ADP into a synthetic
+value number and then re-deriving VORP from it double-counts scarcity that
+the rank already encodes**, and the distortion is worst at positions with
+naturally shallow real draft pools (TE, K, DEF). Worth keeping in mind if
+`engine.js`'s own VORP math is ever re-examined against an ADP-shaped input.
+
+## The result — real, verified, and the "fix" made it worse
+
+```
+REAL (Cory's actual draft + season)               9-6-0   PF 1566.0
+TOOL, pure ADP best-available (no need/stack/bye) 9-6-0   PF 1464.8
+TOOL, full design (ADP + need-mask + stack + bye) 7-8-0   PF 1437.8
+```
+
+Pure ADP-following alone nearly matches the real outcome. Adding the
+need-mask made it WORSE: it forced a second QB at pick 115 and a defense at
+pick 135 that pure ADP would have skipped for better value, and that cost
+real games — checked the pick log line by line, the logic did exactly what
+it was designed to do, the design itself just wasn't an improvement. **A
+legitimate, useful negative result** — better to find this out testing a
+prototype than after installing a "fix" in the real tool.
+
+## Limitations, stated
+
+Same as the GM-sim: one season, one seat, not enough to generalize from
+alone. `tier`/`risk`/`ceiling` untested here, so this doesn't speak to
+whether they'd help — only that ADP+stack+bye-tiebreak beats the same-plus-
+need-masking on this one draft. Trades and keeper mechanics not exercised
+(2023's real picks show no `is_keeper: true` entries, so keeper logic never
+fired in this replay either way).
+
+## The code
+
+```javascript
+'use strict';
+/* DRAFT TOOL PROTOTYPE (v2) — tested against the real 2023 draft. */
+const path = require('path');
+const ROOT = '/home/user/maga-league';
+const LO = require(path.join(ROOT, 'src/routes/lineup.js'));
+const V = require(path.join(ROOT, 'public/js/draft/valuation.js'));
+const C = require(path.join(ROOT, 'public/js/draft/composite.js'));
+
+const SEASON = '2023';
+const MY_RID = 1;
+const LEAGUE = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 } };
+const SLOTS = LEAGUE.starters;
+const REG_SEASON_WEEKS = 15;
+
+const history = LO.harvest();
+const season = LO.seasonOf(history, SEASON);
+const richPositions = require(path.join(ROOT, 'draft/data/player_positions.json')).positions || {};
+const posById = Object.assign({}, LO.inferPositions(season), richPositions);
+const owners = season.owners;
+const myOwner = owners[String(MY_RID)];
+const GLOBAL_PTS = require('./real_points_2023.json');   // built earlier in this thread
+const byeByPlayer = require('./byes_2023.json');
+const REAL_NAMES = require('./names_2023.json');
+
+function weekEntries(wk) { return season.weeks[String(wk)] || []; }
+function nameFor(pid) { return REAL_NAMES[pid] || pid; }
+function realPointsFor(pid, wk) {
+  const g = GLOBAL_PTS[pid] && GLOBAL_PTS[pid][String(wk)];
+  if (g != null) return Number(g);
+  for (const e of weekEntries(wk)) if (e.players_points && e.players_points[pid] != null) return Number(e.players_points[pid]);
+  if (byeByPlayer[pid] != null && Number(byeByPlayer[pid]) === Number(wk)) return 0;
+  return undefined;
+}
+const SHRINK_K = 4;
+function rollingProjections(throughWeek) {
+  const acc = {};
+  for (let wk = 1; wk < throughWeek; wk++) for (const pid of universe) {
+    const v = realPointsFor(pid, wk); if (v != null) (acc[pid] = acc[pid] || []).push(v);
+  }
+  const posSum = {}, posN = {};
+  for (const pid of Object.keys(acc)) { const p = posById[pid]; if (!p) continue; const arr = acc[pid];
+    posSum[p] = (posSum[p] || 0) + arr.reduce((a, b) => a + b, 0); posN[p] = (posN[p] || 0) + arr.length; }
+  const posAvg = {}; Object.keys(posSum).forEach(p => { posAvg[p] = posSum[p] / posN[p]; });
+  const out = {};
+  for (const pid of Object.keys(acc)) { const arr = acc[pid], n = arr.length;
+    const rawMean = arr.reduce((a, b) => a + b, 0) / n;
+    const base = posAvg[posById[pid]] != null ? posAvg[posById[pid]] : rawMean;
+    out[pid] = (n * rawMean + SHRINK_K * base) / (n + SHRINK_K); }
+  return out;
+}
+function week1FallbackProj(pid, pickNoByPid) {
+  const pn = pickNoByPid[String(pid)];
+  return pn != null ? Math.max(1, 300 - pn) : 5;
+}
+const universe = (() => { const ids = new Set();
+  for (let wk = 1; wk <= 18; wk++) for (const e of weekEntries(wk)) (e.players || []).forEach(pid => ids.add(String(pid)));
+  return [...ids]; })();
+
+const draft = season.drafts[0];
+const picks = draft.picks.slice().sort((a, b) => a.pick_no - b.pick_no);
+
+// THE SIGNAL: real draft order itself, used directly — not re-derived into VORP.
+const pickNoOf = {};
+picks.forEach(p => { pickNoOf[String(p.player_id)] = p.pick_no; });
+function marketRank(pid) { return pickNoOf[pid] != null ? pickNoOf[pid] : 9999; }
+
+function rosterAtWeek(rid, wk) { const e = weekEntries(wk).find(x => x.roster_id === rid); return e ? (e.players || []).map(String) : []; }
+function realMatchup(rid, wk) { const entries = weekEntries(wk); const mine = entries.find(e => e.roster_id === rid);
+  if (!mine) return null; return { mine, opp: entries.find(e => e.matchup_id === mine.matchup_id && e.roster_id !== rid) }; }
+
+let myDraftedRoster = [];
+let bpaOnlyRoster = [];
+const draftedSoFarByOthers = new Set();
+const NEAR_TIE_PICKS = 8;
+
+for (const pick of picks) {
+  if (pick.roster_id !== MY_RID) { draftedSoFarByOthers.add(String(pick.player_id)); continue; }
+
+  const takenByMeMain = new Set(myDraftedRoster.map(p => p.pid));
+  const takenByMeBpa = new Set(bpaOnlyRoster.map(p => p.pid));
+  const pool = [...new Set(picks.map(p => String(p.player_id)))]
+    .filter(pid => !draftedSoFarByOthers.has(pid) && posById[pid]);
+
+  const myRosterObjs = myDraftedRoster.map(p => ({ position: p.pos, team: p.team, bye: p.bye }));
+  const open = V.openStartableSlots(myRosterObjs, LEAGUE);
+  const ranked = pool.filter(pid => !takenByMeMain.has(pid)).sort((a, b) => marketRank(a) - marketRank(b));
+  const eligible = ranked.filter(pid => {
+    const pos = posById[pid];
+    const heldAtPos = myRosterObjs.filter(p => p.position === pos).length;
+    const dedicated = LEAGUE.starters[pos] || 0;
+    return !!open[pos] || heldAtPos < dedicated + 2;
+  });
+  const candidates = (eligible.length ? eligible : ranked).slice(0, 12);
+  const bestRank = candidates.length ? marketRank(candidates[0]) : null;
+  const nearTies = candidates.filter(pid => marketRank(pid) - bestRank <= NEAR_TIE_PICKS);
+  let best = null, bestScore = -Infinity;
+  for (const pid of nearTies) {
+    const pos = posById[pid];
+    const playerObj = { position: pos, team: undefined, bye: byeByPlayer[pid], proj_mean: 0, vorp: 0 };
+    const stack = C.correlationAdjustment(playerObj, { roster: myRosterObjs, league: LEAGUE, currentPick: pick.pick_no }).value;
+    const byePenalty = C.byeCollisionPenalty(Object.assign({}, playerObj, { games_expected: 15, replacement: 0 }), { roster: myRosterObjs, league: LEAGUE }).value;
+    const score = -marketRank(pid) + stack - byePenalty;
+    if (score > bestScore) { bestScore = score; best = { pid, pos, stack, byePenalty }; }
+  }
+  if (!best && candidates.length) best = { pid: candidates[0], pos: posById[candidates[0]], stack: 0, byePenalty: 0 };
+  if (best) myDraftedRoster.push({ pid: best.pid, pos: best.pos, bye: byeByPlayer[best.pid] });
+  draftedSoFarByOthers.add(String(pick.player_id));
+
+  const bpaPool = pool.filter(pid => !takenByMeBpa.has(pid)).sort((a, b) => marketRank(a) - marketRank(b));
+  if (bpaPool.length) bpaOnlyRoster.push({ pid: bpaPool[0], pos: posById[bpaPool[0]], bye: byeByPlayer[bpaPool[0]] });
+}
+
+function simulateSeason(rosterList) {
+  const rosterPids = rosterList.map(p => p.pid);
+  const pickNoByPid = {}; picks.forEach(p => { pickNoByPid[String(p.player_id)] = p.pick_no; });
+  let rec = { w: 0, l: 0, t: 0, pf: 0 };
+  for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+    const proj = wk === 1 ? null : rollingProjections(wk);
+    const projFor = (pid) => wk === 1 ? week1FallbackProj(pid, pickNoByPid) : (proj[pid] != null ? proj[pid] : 0);
+    const activeProj = (pid) => LO.activeProjection(projFor(pid), { bye: byeByPlayer[pid], inj: null }, wk);
+    const arr = rosterPids.filter(pid => posById[pid]).map(pid => ({ id: pid, name: nameFor(pid), pos: posById[pid], proj: activeProj(pid) }));
+    const opt = arr.length ? LO.optimize(arr, { slots: SLOTS }) : null;
+    const { opp } = realMatchup(MY_RID, wk) || {};
+    const oppPts = opp ? Number(opp.points || 0) : null;
+    if (!opt || oppPts == null) continue;
+    const pts = opt.lineup.reduce((s, st) => { const v = realPointsFor(st.pid, wk); return v == null ? s : s + v; }, 0);
+    rec.pf += pts;
+    if (pts > oppPts) rec.w++; else if (pts < oppPts) rec.l++; else rec.t++;
+  }
+  return rec;
+}
+
+let realRecord = { w: 0, l: 0, t: 0, pf: 0 };
+for (let wk = 1; wk <= REG_SEASON_WEEKS; wk++) {
+  const { mine, opp } = realMatchup(MY_RID, wk) || {};
+  if (!mine || !opp) continue;
+  const mp = Number(mine.points || 0), op = Number(opp.points || 0);
+  realRecord.pf += mp;
+  if (mp > op) realRecord.w++; else if (mp < op) realRecord.l++; else realRecord.t++;
+}
+
+const fullDesignRecord = simulateSeason(myDraftedRoster);
+const bpaOnlyRecord = simulateSeason(bpaOnlyRoster);
+
+function fmt(rec, label) { console.log(`${label.padEnd(38)} ${rec.w}-${rec.l}-${rec.t}   PF ${rec.pf.toFixed(1)}`); }
+fmt(realRecord, "REAL (Cory's actual draft + actual season)");
+fmt(bpaOnlyRecord, 'TOOL, pure ADP best-available (no need/stack/bye)');
+fmt(fullDesignRecord, 'TOOL, full design (VORP+stack+bye+need)');
+```
+
+## What this is NOT
+
+Not merged, not adopted, not touching `draft/`. A tested prototype and an
+honest negative result for A's review — the value here is in what didn't
+work as much as what did.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — re-checked the 4 repos for the TE/onesie bug, found one useful precedent; VONA stays, the bug is not where it looks
+
+Cory's instruction: go back to the four repos from the first research pass
+(nfl_mcp, mattgilgo/fantasy_football, ffanalytics, jjti/ff) specifically for
+answers to the TE/onesie value-scale bug, and confirm VONA stays in the draft
+math with the TE issue fixed, not ripped out. Direct answer up front: **VONA
+is not the bug.** Read the real `vona()` in `public/js/draft/engine.js`
+(line 792) end to end before touching the repos, and it already does the
+right thing for this exact failure class — starter/FLEX/bench get three
+different pricing paths specifically because a single formula collapsed onto
+TE three separate times in this project's own history (comments cite "TE 4 /
+QB 3 / RB 0" and Josh Johnson/Joe Flacco getting drafted in rounds 9-10). The
+bench branch is deliberately unclamped at 0 for the same reason my own
+prototype (previous entry) broke: clamping negative marginal value to 0 ties
+hundreds of players together and destroys the ranking. None of that is
+broken today. Don't touch it.
+
+Where the actual open bug lives: `onesieState()` (line 1127) and the ceiling
+term inside `demoteFlaggedOnesies` scoring. `ONESIE_MAX_SPARE` — the old hard
+cap on how many backup QBs/TEs could be carried — was deleted 2026-08-14 on
+direct instruction, because it was caught doing exactly the wrong thing: "the
+first unstartable QB priced at 81% of standalone VORP and board rank 1; the
+first unstartable TE at 8% and rank 5 — same depth, same league shape." The
+named, scoped, not-yet-built replacement is "position-normalised ceiling":
+`draft/tests/onesie_cap.test.js` still measures the raw defect today (2 QB +
+2 TE carried, a third of each lands at board rank 5 and 4) and is gated to
+not start before 2026-08-23 (first post-draft session) on Cory's own
+instruction. That gate is correct and this entry doesn't move it — it just
+adds a concrete algorithm for whoever picks it up.
+
+## What the 4 repos actually had
+
+**jjti/ff** (`app/lib/store/reducers/players.tsx`) — computes VOR the
+textbook way: replacement rank = starters × teams (FLEX split across
+RB/WR/TE by need), `vor = forecast - replacementForecast`, all in raw
+points. K/DST get `starters = 0` — hard-zeroed, not modeled. This is
+*less* sophisticated than our `vona()`, not more: it has no FLEX-vs-bench
+distinction and no cross-position spread comparison at all, so it never
+even reaches the bug we're chasing. Confirms our engine is already ahead of
+this reference on the value side. Nothing to borrow here.
+
+**mattgilgo/fantasy_football** — trains separate regression models per
+position (QB/RB/WR/TE) and benchmarks each against expert consensus
+independently. It never ranks across positions, so it structurally can't
+hit this bug either — no cross-position comparison exists to get wrong.
+Nothing to borrow.
+
+**nfl_mcp** — a data-access MCP server, no valuation logic (confirmed in
+the first research pass too). Not applicable to this question.
+
+**ffanalytics** (R package, `R/calc_projections.R`) — this one has the
+actual answer, and it's a real, shipped, years-old precedent for the exact
+fix already named in PARKED.md as "position-normalised ceiling." It
+computes floor/ceiling as raw-point quantiles (5th/95th percentile of the
+projection ensemble) — same raw-scale problem we have. But it *separately*
+computes an `uncertainty` score like this:
+
+```r
+projection_table %>%
+  dplyr::group_by(pos) %>%
+  dplyr::mutate(uncertainty = calculate_uncertainty(sd_pts, sd_ecr))
+# underlying: mean_risk <- scale(rowMeans(scale(vars_m), na.rm = TRUE))[, 1]
+# then converted to a 1-99 percentile rank, computed WITHIN the group_by(pos)
+```
+
+That's `group_by(pos)` before the z-score, every time. It never compares a
+QB's raw spread number to a TE's raw spread number — it converts each
+player's spread to a percentile *of players at their own position* first,
+then compares percentiles across positions. That's precisely the fix
+already scoped for `onesieState`/ceiling-tiebreak: express
+`proj_ceiling − proj_mean` as a within-position percentile (or z-score)
+before it's allowed to compete against another position's spread, instead
+of comparing raw season-point numbers where QB's 66.5-point p90 spread
+structurally dwarfs TE's 30.8.
+
+## Recommendation for whoever picks up the 2026-08-23 fix
+
+Don't invent the normalization scheme from scratch — `group_by(position) %>%
+scale()` then rank-to-percentile is a boring, already-validated approach (it's
+been in a maintained fantasy analytics package for years). Concretely: at
+board-build time, bucket players by position, z-score (or percentile-rank)
+`proj_ceiling − proj_mean` within each bucket, and use *that* normalized
+number wherever the raw spread is compared across positions today (the
+bench-ranking branch in `onesieState`/ceiling tiebreak). Leave `vona()`
+itself untouched — it isn't the source of the QB-vs-TE pricing gap, the raw
+ceiling comparison is.
+
+## What this is NOT
+
+Not a code change, not touching `draft/` or `public/js/draft/`, not moving
+the 2026-08-23 gate. A confirmation that VONA stays in the draft math as-is,
+plus one concrete, precedented algorithm handed off for the fix that's
+already scoped and already scheduled, for A to decide on.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — CORRECTION to the entry above: the starter/FLEX/bench VONA branches described as "not broken today" are real but INACTIVE, not running
+
+Cory asked directly "are we using VONA properly," which is what caught this.
+The entry above said the starter/FLEX/bench-differentiated pricing in
+`vona()` "already does the right thing for this exact failure class...
+None of that is broken today." **That is true of the code and false about
+what actually runs.** Checked directly: `CFG.VONA_SLOT_AWARE: false` (line
+237). `vona()`'s own logic (line 798): `if (!CFG.VONA_SLOT_AWARE) return
+straight;` — with the flag off, EVERY player, starter or bench, gets the
+same flat formula. The sophisticated branch structure I described as
+protecting against the TE-collapse failure class is real code that the live
+board never reaches. I was reading a well-designed mechanism and describing
+it as active without checking the flag that gates it.
+
+**Why it's off is a good, measured reason, not an oversight — found reading
+the comment directly above the flag (2026-08-14):** turning it on was tested
+against Cory's own acceptance criterion (exactly 1 QB, 1 TE on the roster)
+and made it WORSE — TE 1→3, QB 2→4. Mechanism: once starters are filled,
+1,331 of 1,686 scored players collapse to VONA exactly 0 (a tie), and in
+that tie quarterbacks win arbitrarily because their raw point scale is
+largest — the same units-distortion class as the ceiling bug, showing up as
+a tie-break artifact instead of a magnitude one. **What's actually
+preventing the TE/QB spam right now is `ONESIE_HARD_CAP`/`ONESIE_MAX_SPARE`**
+(confirmed active and passing its test earlier today), explicitly described
+in the code as "the right SHAPE and the wrong IMPLEMENTATION... the seat
+assignment in `draft_plan.js` is the good [mechanism] eventually... this is
+the first version of the correct mechanism, not a stopgap."
+
+**Net correction:** VONA's core value math (the `straight` formula) is what
+actually runs and drives the board — that part of the prior entry's
+conclusion ("VONA stays, don't touch it") still holds. But "the
+starter/FLEX/bench branches already protect against this" was wrong as a
+description of live behavior. The real protection today is the hard cap,
+which is a deliberate, measured, acknowledged-as-temporary stand-in, not the
+finished mechanism.
+
+## What this is NOT
+
+Not a code change. A correction to my own prior entry, found only because
+Cory asked a direct question rather than accepted the earlier framing.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — Cory independently flagged the mid-draft need-blindness gap; adding his framing as a priority signal, not a new finding
+
+Cory, unprompted, in conversation: "I don't think your bench rules are
+complex enough. It may not be dumb to draft a bench player before all
+starters are filled, especially if the value is good!" I went and read
+`starterSlotMarginal`, `vona`'s bench branch, and `applyRosterLegality` in
+`public/js/draft/engine.js` before answering, rather than assume. This is
+NOT a new gap — the code already documents it, dated one day earlier
+(2026-08-14, line ~427-444) — but Cory arrived at the same conclusion
+independently from the outside, which is worth recording as a second,
+unprompted vote for priority.
+
+## What's actually true today, read directly from the code
+
+There is no hard "fill starters first" rule outside the true endgame.
+`applyRosterLegality` only forces a pick when `picksLeft <= gaps.length` —
+i.e., the last few picks where a mandatory slot would otherwise go unfilled.
+Before that, a bench-classified player competes on score like anyone else.
+So the tool doesn't actually block what Cory describes.
+
+What it lacks is the nuance he's pointing at. Two bench-value mechanisms
+exist and only one of them is alive:
+
+- `starterSlotMarginal`'s bench discount is format-aware (15-45%, scaled by
+  team count and keeper count via `formatDefaults`) — real engineering. It
+  is dead in production: it only reaches the score multiplied by the `need`
+  weight, which is 0 in `MEASURED_WEIGHTS`, and the code's own 2026-08-14
+  measurement (`composite_roster_blindness.test.js`) found it "inert at
+  every weight from 0.25 to 2.0" even turned on — the need signal is
+  ~uniform inside the startable-cap mask and barely moves any picks.
+- What actually prices a bench player is `vona()`'s bench branch: flat
+  per-position `INJURY_RATE` (~10-20%) times VORP, minus the opportunity
+  cost of the best flex-eligible alternative. Same multiplier whether the
+  player is a marginal handcuff or a true talent-gap outlier who happens to
+  be your third guy at a position — it only scales linearly with VORP, not
+  with how much better he is than what's actually forming your bench, and
+  it isn't sensitive to draft stage the way the ceiling term is.
+
+The code's own comment states the headline directly: "the composite has no
+positional-fill awareness in the mid-draft." The real need-tracking logic
+(`needrule.js`'s startable-cap mask) exists and is roster-aware, but it only
+drives a UI card — `recommend()` never calls it, confirmed by grep (every
+hit on `withinCap` in `engine.js` is a comment, not a call).
+
+## Why this is worth surfacing rather than just noting "already known"
+
+The gap is dated 2026-08-14 and Cory raised the identical concern on
+2026-08-15 without having read the code — that's real external validation
+of an internal measurement, from the person who has to trust the tool's
+picks. It doesn't change the fix's scope, which the code has already
+correctly scoped (wire `starterSlotMarginal`'s roster-aware, format-aware
+discount into the live path instead of the flat injury-rate crush, or
+decide the flat crush is actually fine and say why) — it just adds weight
+to prioritizing it.
+
+## What this is NOT
+
+Not a code change. Not a new discovery — the gap is already measured and
+documented in `engine.js` itself. This entry exists only to record that
+Cory reached the same conclusion independently, for A's prioritization.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — correction to the entry above: `needrule.js` already answers most of this, and Cory asked me to consider fixing it myself, which I'm declining to do solo
+
+Cory's follow-up, paraphrased: why are so many things named-but-not-built,
+is A backlogged, and can I just fix things now instead of parking more
+proposals. Fair pressure, and it surfaced a real gap in my own last entry
+before I acted on it, so recording that correction here rather than
+silently editing the prior entry.
+
+## The correction
+
+The entry above frames the composite (`recommend()` in `engine.js`) as
+having no positional-fill awareness mid-draft, which is true of that one
+function but not the whole picture. `public/js/draft/needrule.js` is a
+second, independent, already-measured rule that runs alongside it (per its
+own header: "the war room renders `recommend()` as the top voice;
+`coherence.js` resolves it against other signals") and already does most
+of what Cory's original comment was asking for:
+
+- Masks the board to positions under startable capacity — never
+  over-drafts a filled position (measured ~$258 over pure ADP).
+- Lets flex-eligible value jump ahead of a weak starter rather than
+  force-filling it (measured ~$51).
+- And, the part that answers "is it dumb to bench a good player before
+  starters are full" directly: once skill starters + flex are genuinely
+  covered and only K/DEF remain, `outOfDomain()` makes the rule STOP
+  masking rather than force a onesie pick. Its own comment: *"a high-upside
+  skill player has value INDEPENDENT of my starting slots (insurance,
+  trade, a role opening)... the mask would exclude that player to force a
+  onesie — asserting evidence it does not have."* That is a considered,
+  measured, deliberate decision to defer to the human past its tested
+  domain — not an oversight.
+
+So the actual gap is narrower than "the model doesn't know about need." It
+is: the composite's VONA-ranked list and needrule's ADP-masked
+recommendation are computed independently and **disagree on 11 of 12 picks**
+(measured, `draft/tools/mock_walk.js`) — two cards, two opinions, and the
+human reconciles them. That's a real, worth-fixing gap. It is not the same
+gap as "no fill-awareness anywhere," and the fix is not "wire need into the
+composite" — that path already measured inert. The fix, if there is one, is
+in how the two signals get reconciled (`coherence.js`), which I have not
+yet read closely enough to recommend anything concrete about.
+
+## Why I'm not shipping a patch for this today
+
+Cory asked directly if I could just fix this now. I looked hard at whether
+I could respons­ibly ship a tested patch this session and decided not to,
+for a specific reason rather than blanket caution: `vona()`'s own comments
+document three separate collapses from people fusing signals into it
+without the full measured picture, and `needrule.js`'s non-answer past its
+domain is a stated design decision, not dead logic — overriding it risks
+replacing a deliberate "defer to the human" with a confident wrong answer,
+which is exactly the failure class (K/DST rails, "confident nonsense
+shipped three times") this codebase has scar tissue from. Building the
+actual reconciliation fix needs `coherence.js` read in full first, and
+ideally the same before/after backtest discipline every other change in
+this file has gotten. That is real work, not an excuse — but it is not
+today's work.
+
+## What this is NOT
+
+Not a code change, not touching `engine.js`, `needrule.js`, or
+`coherence.js`. A correction to my own prior entry's framing, and an
+honest answer to a direct question about why I'm not just fixing things —
+for A (and Cory) to weigh against actually wanting it done now regardless.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — reviewed derekrbreese/fantasy-football-mcp-public, one idea worth keeping
+
+Cory pointed at this repo (an MCP server for Yahoo Fantasy Football —
+lineup optimization, draft assistance, league management) and asked
+whether it has relevant info. Read the README and `position_normalizer.py`
+directly before answering.
+
+## The position-normalization logic — less sophisticated than what's already
+shipped here, not worth adopting
+
+It normalizes FLEX value with a plain z-score (`(projection - mean) / std`)
+and a static formula: `FLEX value = (vor * scarcity * 0.3) + (projection *
+0.7)`, with hand-picked scarcity constants (RB 1.0, WR 0.95, TE 1.05) — no
+citation, no backtest, no measurement behind those specific numbers or the
+70/30 split.
+
+Compare to `computeCeilingScales` (`engine.js`, shipped 2026-08-13, see the
+TE/onesie PARKED.md entry from earlier this week): that fix explicitly
+tested and REJECTED a simpler median-spread normalizer because it inverted
+the problem (it would have handed quarterbacks a 2.35x boost, the exact
+defect amplified), and landed on replacement-level ratio instead, with the
+reasoning and the wrong-turn both documented in the code. This repo's
+z-score approach is the same class of naive fix maga-league already tried,
+measured, and moved past. Nothing to take from it here.
+
+## One idea worth keeping for later: the "Player Enhancement Layer"
+
+Blends a stale preseason projection with actual recent performance (last
+1-3 weeks, 60/40 or 70/30 weighted) and applies simple trend flags
+(BREAKOUT_CANDIDATE, TRENDING_UP, DECLINING_ROLE). Also zeroes projections
+on a detected bye week — the same guard maga-league's `isInactive`/
+`activeProjection` already does, independently arrived at.
+
+This is directly relevant to the in-season "learning engine" already on
+the roadmap (`TODO.md`, "GENUINELY AFTER THE DRAFT" — weekly re-grading
+that needs live weekly outcomes, which don't exist yet). It's a real,
+simple, citable technique for that future problem specifically — a
+recency-blend weight and a small trend-flag vocabulary — not something to
+build now, since there's no live season data to blend yet.
+
+## What this is NOT
+
+Not a code change. Not a recommendation to adopt the position-normalization
+approach — it's a downgrade from what's already shipped. The one thing
+worth carrying forward is narrow and explicitly future work, flagged so
+whoever builds the learning engine doesn't have to re-discover it.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — "our own projections" wired to the live board for the first time; real, not ready, here's exactly what's missing
+
+Cory asked to build our own projections, combined with what A was already
+thinking on the topic. Checked first rather than building from scratch:
+`lab_projections.walk_forward()` already IS "our own projections" —
+leak-free, self-derived from prior-season production scored under our own
+engine, never touching a provider's number, used for backtest replay
+(exp33/exp35/exp_regression_cv) since before this week. **It had just never
+been attached to the live 2026 board.** That's the actual gap, and this is
+the first real attempt to close it — `draft/backtest/own_projections_2026.py`.
+
+## Why this didn't hit the network wall everything else did today
+
+Every other blocked script today died on `sleeper_import.fetch_players()`.
+This doesn't need it: the gsis↔sleeper crosswalk comes from
+`nfl_data_py.import_ids()` alone (12,472 rows, both ID columns present —
+`grade.py`'s `crosswalk_gsis_to_sleeper()` already prefers this source), and
+positions/ages for every 2026 board player are already sitting in
+`public/draft_data.json`. Ran it for real, not in theory.
+
+## Two real bugs found and fixed getting it to run
+
+1. **`score_stat_line` was silently scoring everyone at 0.** nflverse's
+   weekly-data columns (`passing_yards`, `receiving_tds`) aren't our scoring
+   table's Sleeper-style keys (`pass_yd`, `rec_td`) — `score_stat_line` skips
+   any key it can't find. `grade.py` already has the translation function
+   (`nflverse_weekly_to_scoring`) built for exactly this; I just wasn't
+   calling it. First run: every projection was 0.0. Caught by checking, not
+   assuming a nonzero number is a right number.
+2. **Playoff rows were inflating good players' rates.** `import_weekly_data`
+   returns `season_type: POST` rows alongside `REG` (257 of 5597 in 2024)
+   with no matching game-count correction. Filtered to regular season only.
+3. **2025 nflverse data 404s from this endpoint right now** — confirmed by
+   direct fetch, not assumed. Fell back to 2023+2024 as the two prior
+   seasons; the output JSON says so explicitly rather than silently using
+   older data than intended.
+
+## What it found, and why it's not ready to use
+
+Elite players project **lower** than Sleeper (Gibbs 222 vs 300, McCaffrey
+131 vs 256) — that's `walk_forward`'s regression-to-mean working as
+designed, pulling the top of the list back down. But deep bench players
+project **far higher**: Kendre Miller (Sleeper 4.6 — buried on a depth
+chart) comes out at 90. That's not noise, it's the median RB ratio landing
+at 1.33 despite every star being under 1.0.
+
+**The cause: `walk_forward` has zero opportunity/depth-chart signal.** It's
+pure historical box-score rate, regressed toward the POSITIONAL mean for
+low-sample players — correct for backtesting a season that already
+happened, wrong for a player whose CURRENT role has collapsed since his
+last productive stretch. Sleeper's number presumably has real 2026
+depth-chart context baked in that this doesn't.
+
+**The fix is concrete and the data for it already exists on the board:**
+538 of 686 players carry `depth_chart_order` on `public/draft_data.json`
+right now — no new data source needed. Dampen or re-baseline the regression
+target for anyone with `depth_chart_order >= 3` (or similar) instead of
+pulling them toward the full positional mean, the same shape as
+`projections.py`'s existing `opportunity_z` adjustment on the Sleeper
+baseline. Not built here — this entry stops at the diagnosis, on purpose,
+since fixing it means picking a specific dampening curve, which is a
+valuation judgment call, not a bug fix.
+
+## The "predictions" half of the ask — not started, said plainly
+
+Cory also asked to add the predictions/grading loop discussed earlier this
+week (the 4-part plan: own projections, more market data, predictions +
+grading, draft-tool testing). This entry is only the first piece. Ran out
+of room to do the grading loop with the same rigor in the same pass —
+flagging that honestly rather than building it fast and thin. Real next
+step, not done.
+
+## What this is NOT
+
+The script is real, runs, and is pushed to `main` — but it does not write
+`proj_ownmodel` onto the live board or change any ranking. Diagnostic only,
+per `DECISIONS-NEEDED.md` #6's standing rule against swapping the
+projection source without a clean grade. That rule stands; this is evidence
+for the eventual grade, not a swap.
+
+---
+
+# PARKED BY CORY (research relay), 2026-08-15 — the depth-chart dampening fix cannot be properly validated yet, and it's a data-archival gap, not a to-do
+
+Cory asked whether I think the depth-chart dampening fix (previous entry)
+is sound. Answered honestly that the multipliers are tuned against
+Sleeper's own numbers (circular — matches another guess, not truth) and
+tried to do better: backtest the dampening against REAL 2024 outcomes
+using 2023 depth-chart data, the same held-out-season standard
+`REGRESSION_WEIGHT` was measured against.
+
+**Checked whether that's even possible before attempting it: it is not.**
+`grep`'d every file in `draft/data/` for `depth_chart_order` — the only hit
+is `pre_draft_freeze_2026.json`, this year's snapshot. Nothing for 2023,
+2024, or 2025. This is the same limitation already documented for the risk
+term's inputs (`injury_status`/`depth_chart_order` are live-only Sleeper
+fields with no historical archive) — I re-found it independently, from a
+different direction, which is at least a second confirmation.
+
+**Using 2026's depth chart to backtest 2024 outcomes would be lookahead
+contamination** — current information a 2024 draft couldn't have had —
+which is exactly what this project's AsOf discipline exists to prevent. So
+the dampening fix's numbers aren't "unmeasured because nobody measured them
+yet"; they're **currently unmeasurable**, a stronger and more honest
+statement.
+
+**The actionable version:** this is the same shape as the "capture this
+season's data so next year's simulation has it" gap from earlier this week,
+for a different field. If `depth_chart_order` (and `injury_status`) start
+getting snapshotted now — alongside whatever else `pre_draft_freeze_2026.json`
+already captures once a season — a real backtest of this exact fix becomes
+possible for 2027. Not scoped further here; flagging the gap and its fix in
+the same breath rather than just the gap.
+
+## What this is NOT
+
+Not a code change. Not a claim that the dampening fix is wrong — only that
+"is it right" cannot currently be answered with real evidence, which is a
+different and more honest thing to say than either "yes" or "no."
+
+---
+
+## 0000000. VONA_SLOT_AWARE=true STILL BREAKS TODAY'S CODE — TESTED DIRECTLY, NOT ASSUMED (2026-08-15) 🔴 OPEN (design work, not a bug)
+
+**The question this answers:** does today's bench-branch fix (the "THIRD COLLAPSE OF
+THE SAME SHAPE" fix — bench VONA now uses signed `rate * vorp - forgone`, not a
+floored/clamped version) change the outcome of the 2026-08-14 measurement that turned
+`CFG.VONA_SLOT_AWARE` off? Worth checking directly: `git log -S"THIRD COLLAPSE OF"`
+and `git log -S"turning it on makes Cory's own acceptance"` both point to the exact
+same commit (`20a6c256`, 2026-08-14 10:01:34 +0000) — the bench fix and the
+flag-off decision were contemporaneous, not sequential, which already argues against
+the flag being stale. Checked the history first, but a comment (even an accurate one)
+describing a measurement is not the same as re-running the measurement on today's
+code, so it was tested directly rather than left as an inference from git log.
+
+**Method:** wrote a scratch script
+(`/tmp/.../scratchpad/test_vona_slot_aware.js` — not committed, throwaway) that
+`require()`s `public/js/draft/engine.js`, monkey-patches the exported
+`E.CFG.VONA_SLOT_AWARE = true` (the module exports `CFG` directly, and Node caches
+modules by resolved path, so the mutation is visible to any other script that
+`require()`s the same file afterward), then `require()`s
+`draft/tools/roster_construction.js` — the same 60-room, seat-8,
+real-keepers simulation used for the RB/TE re-audit earlier this session — so the
+flag change actually flows through a full simulated draft, not just a unit check of
+`vona()` in isolation.
+
+**Result:** modal roster shape **QB2 RB0 WR6 TE2** in 66.7% of the 60 rooms. Running
+back collapses to **zero** drafted in two-thirds of rooms with the flag forced on.
+
+**This confirms the flag is still correctly off today** — the hypothesis that it
+might be safe to flip now was wrong, and it's useful to have that be a tested "no"
+instead of an inferred one.
+
+**What's actually new here, worth recording separately from "still broken":** the
+*shape* of the breakage has changed since the original 2026-08-14 measurement.
+That one found QB/TE **hoarding** (TE 1→3, QB 2→4) caused by a tie-collapse at
+VONA=0 that quarterbacks won on raw point-scale magnitude. This one — same flag, same
+simulator, post-bench-fix code — finds **WR hoarding + RB wipeout** instead. The
+underlying mechanism is presumably still the tie-collapse (1,331/1,686 players landing
+on VONA=0 once starters fill), but which position wins the resulting arbitrary ties
+has apparently shifted now that the bench branch no longer flattens negative VORP to
+zero. That's a concrete, fresh data point for whoever eventually does the real
+slot-aware VONA fix (or the seat-assignment mechanism in `draft_plan.js` the code
+already says is the intended real fix) — the failure mode is not fixed and not static,
+it moves with other changes to the engine, which argues for re-testing this flag
+after *any* future change to `vona()`'s bench or tie-breaking logic, not just trusting
+the last recorded shape of the failure.
+
+**What this is NOT:** not a code change (flag is back to `false` — the mutation was
+process-local to the throwaway script and never touched the committed file). Not a
+new fix. Just a direct, reproducible test replacing an inference, parked so nobody
+re-tests the same "maybe it's fixed now" hypothesis from a false starting point, and
+so the next person doing the real fix has two dated measurements of the failure shape
+to compare against instead of one.
+
+---
+
+## 00000000. THE REAL LEAGUE-WIDE DEMAND NUMBERS ALREADY EXIST — ONESIE_MAX_SPARE JUST NEVER READS THEM (2026-08-15) 🟡 CANDIDATE FIX, AWAITING GO/NO-GO
+
+**Cory's question, asked directly:** shouldn't the model account for how many total players
+will actually be drafted at each position — only 10-12 QBs, way more WRs — and isn't
+QB/TE VONA overvaluing partly because of that?
+
+**Checked, not assumed.** `draft/vorp.py`'s `replacement_levels()` already computes
+exactly this — real starter demand per position, INCLUDING how the league's flex slot
+gets allocated (greedy, best-next-man-up across RB/WR/TE) — and it's already sitting on
+the live board:
+
+```
+public/draft_data.json["replacement"]["starter_counts"] (2026 board, right now):
+  QB: 10   RB: 21   WR: 29   TE: 10   K: 10   DEF: 10
+  flex_slots_allocated: 10  (this board's flex split: RB +1, WR +9, TE +0)
+```
+
+QB and TE both come out to EXACTLY `teams * starters_at(pos)` — 10 apiece — meaning the
+league's own computed demand says there is ZERO legitimate flex overflow for either
+position on this board. That number is real, already computed every build, and matches
+Cory's "10-12 QBs" intuition almost exactly.
+
+**The disconnect:** `onesieState()` in `engine.js` — the function that's supposed to stop
+a team stacking a second QB/TE — never reads it. It uses a flat, hand-set constant
+instead: `CFG.ONESIE_MAX_SPARE: { QB: 1, TE: 1 }`, applied PER TEAM, with no reference to
+`starter_counts` anywhere in the JS engine (grepped for `starter_counts` across
+`public/js/draft/*.js` — zero hits outside the Python that produces it). So the one
+number that would let the cap say "the league doesn't need this many, here's the receipt"
+was computed and then never wired to the thing it should govern.
+
+**Tested it, not just diagnosed it.** Scratch script
+(`/tmp/.../scratchpad/test_onesie_spare.js`, same CFG-mutation-via-module-cache
+technique as the VONA_SLOT_AWARE test above) forced `ONESIE_MAX_SPARE.TE` from 1 to 0 —
+matching the measured 0-flex-share fact for TE exactly — and re-ran the same 60-room
+seat-8 real-keepers simulator (`draft/tools/roster_construction.js`):
+
+```
+BASELINE (TE:1, QB:1, today's live config):
+  modal shape QB2 RB3 WR3 TE2 K1 DEF1 — 30.0% of rooms
+  (the single most common shape drafts a SPARE QB AND a spare TE)
+
+TE:0 (QB left at 1):
+  modal shape QB2 RB4 WR3 TE1 K1 DEF1 — 21.7% of rooms
+  (TE-stacking mostly gone; QB2 still dominant across shapes)
+
+TE:0 AND QB:0:
+  modal shape QB1 RB4 WR4 TE1 K1 DEF1 — 36.7% of rooms, now a clear plurality
+  (the textbook single-QB/single-TE shape, extra capital flows to RB/WR —
+   exactly the direction the RB=0.9/TE=3.6 problem needed to move)
+```
+
+**Recommendation, not yet applied:** `ONESIE_MAX_SPARE.TE: 1 -> 0` is a well-evidenced,
+one-line, easily-reversible config change — it matches a fact the pipeline ALREADY
+computes and reports every build, not a new guess. `QB: 1 -> 0` produces the cleaner
+result but is a bigger call: it would also suppress the deliberately-reasoned "elite
+faller" exception (the Lamar-Jackson-falls-89-picks carve-out, engine.js ~line
+1190-1223) from ever surfacing on the recommendation list, because `capped` sinks a
+player in `demoteFlaggedOnesies` REGARDLESS of which branch of `onesieState` set it —
+that carve-out was added on purpose (Cory, 2026-08-12) and this would quietly defeat it
+for a position where a real bye-week/trade-insurance argument does exist, unlike TE.
+
+**This is a live-scoring-affecting change** (changes what the model recommends), so per
+the standing gate it is NOT applied without sign-off, even though it's small and
+well-evidenced. Parked here with real numbers attached so the decision is a five-minute
+read, not a re-derivation.
+
+## What this is NOT
+
+Not a claim the whole roster-construction engine is broken — the replacement-level math
+(`vorp.py`), survival model, and tier detection are all doing real, correct scarcity
+work already. This is one specific disconnected wire between two pieces of code that
+already agree on the underlying facts, not a case for starting over.
+
+---
+
+## 000000000. CORRECTION, SAME DAY: THE TE:0/QB:0 RECOMMENDATION ABOVE WAS PREMATURE — CHECKED AGAINST 3 REAL DRAFTS IN THIS LEAGUE, NOT JUST A SIMULATOR (2026-08-15) 🔴 OPEN, BETTER-EVIDENCED REPLACEMENT FIX BELOW
+
+**What was wrong with entry #00000000 — and a SECOND correction to the paragraph
+that used to be here.** The 60-room test that recommended cutting
+`ONESIE_MAX_SPARE.TE` (and QB) to 0 used `draft/tools/roster_construction.js`. This
+entry originally claimed that tool "only simulates the first 12 picks" and
+"structurally cannot contain a legitimate late-round dart-throw... it ends before
+round 13." **That claim was checked again later the same day (during the wire-branch
+prototype work, entry #0000000000 below) and it is WRONG.** `myPicks()` in that tool
+takes `ROUNDS` (15) pick numbers and does `.slice(KR)` where `KR = keeper_rules.count`
+(3) — it drops the first 3 rounds because keepers occupy them, not the last 3. The 12
+simulated picks span **rounds 4 through 15**, the FULL remainder of the draft including
+the true endgame. Verified directly by logging one room's actual pick sequence: it
+runs to "15:K Cam Little". The window was never truncated.
+
+So the mechanism given for the correction was wrong. **The correction's practical
+conclusion still holds, on different grounds**, confirmed the same way: a follow-up
+run showed `ONESIE_MAX_SPARE.QB: 0` produces **zero** QB2 picks across 60 FULL
+(round 4-15) simulated drafts — not "the simulator can't see it," but a real,
+measured 0% against a real 57% in actual history, which is still a genuine
+overcorrection. The real number below still stands; only the explanation for why the
+first test was misleading has changed, and this paragraph is rewritten rather than
+deleted so nobody cites the wrong mechanism later.
+
+**Checked against REAL history instead of self-play.** `draft/data/league_history.json`
+has three complete, real, human-drafted seasons for THIS league (2023, 2024, 2025 —
+15 rounds, 10 teams, 30 team-seasons total). Player IDs cross-referenced against
+`public/draft_data.json` + `draft/fixtures/players.json` for position (86-97% coverage
+per year — good enough for a distribution, not exhaustive).
+
+```
+Real final roster composition, 30 team-seasons:
+  QB=1: 11/30 (37%)   QB=2: 17/30 (57%)   QB=3: 2/30 (7%)
+  TE=1: 16/30 (53%)   TE=2: 14/30 (47%)
+```
+
+**A second QB is not rare in this league — it's the modal outcome (57%). A second TE
+happens nearly half the time (47%).** Cutting `ONESIE_MAX_SPARE` to 0 for either
+position would have made the tool actively fight what the humans in this specific
+league actually do most seasons. That's the opposite of what a "smart way to solve
+this" should do.
+
+**But WHEN they take it is exactly the pattern the code already assumes.** Checked the
+round (converted to "picks remaining for that team," matching how `onesieState` reads
+`ctx.myPicksLeft`):
+
+```
+2nd QB taken with N picks still remaining (n=18):
+  <=2 remaining: 8/18 (44%)   <=3: 16/18 (89%)   <=4: 17/18 (94%)   <=5: 18/18 (100%)
+2nd TE taken with N picks still remaining (n=12):
+  <=2 remaining: 6/12 (50%)   <=3: 7/12 (58%)   <=4: 10/12 (83%)   <=5: 12/12 (100%)
+```
+
+**Zero of 30 real duplicate QB/TE picks in three years happened with more than 5 picks
+left.** This is exactly the shape the code's own `ENDGAME_RELAXATION` comment already
+argues for ("with a pick or two left, nothing else matters") — the mechanism is right,
+the WINDOW is too narrow. `CFG.ONESIE_ENDGAME_PICKS = 2` only relaxes the cap for the
+closest ~44% (QB) / 50% (TE) of what real drafters in this league actually do — the
+other half of real duplicate picks land with 3-5 picks still left, a zone the cap
+currently still sinks.
+
+**Revised recommendation, replacing #00000000's:** widen `ONESIE_ENDGAME_PICKS` from
+2 to somewhere in 4-5 (89-94% QB / 83-100% TE coverage of real historical behavior),
+NOT tighten `ONESIE_MAX_SPARE`. This lets the model's late-round recommendations track
+what this league's own drafters repeatedly and independently choose, while leaving the
+early/mid-draft protection (which the history data supports — nobody in 3 years took a
+QB2/TE2 with 6+ picks left) completely untouched. Smaller, better-targeted, and
+grounded in this exact league's revealed behavior rather than self-play.
+
+**Not applied** — still a live-recommendation change, same standing gate. Both this and
+#00000000 are now on the table; this one supersedes that one as the better-evidenced
+option. Cory's call.
+
+## What this is NOT
+
+Not a case where the earlier finding was wrong about the underlying disconnect
+(`starter_counts` really is unused by `onesieState`, that part still stands) — only
+wrong about which knob to turn in response to it. Recorded as a correction rather than
+a silent edit so the wrong version isn't the only one anyone finds later.
+
+## CORRECTION, found during the 2026-08-15 full re-audit: the TE=2 figure above (47%)
+does not reproduce, and no saved script exists to check any of these numbers
+
+Cory asked for everything to be re-verified without the reduced gate. This entry's
+history numbers were a one-off calculation — no script producing them was ever saved,
+so they were unreproducible prose, not a checkable artifact. Built one:
+`draft/tools/onesie_history_check.js`, tested (`draft/tests/onesie_history_check.test.js`,
+8/8 pass), reads `league_history.json` the same way this entry describes.
+
+**Re-deriving found a real bug in the naive approach FIRST** — before touching the QB/TE
+numbers at all: `league_history.json`'s 2023 entry carries TWO drafts, a real 150-pick
+one and a second, 30-pick one (draft_id `990840142107619329`) — almost certainly an
+abandoned/restarted attempt still sitting in Sleeper's history, not a played season.
+Iterating "every draft in the season" naively gives 40 team-seasons, not this entry's
+stated 30; filtering to the one draft per season whose pick count matches
+`rounds * teams` is what gets back to 30 team-seasons at all — that filter is now the
+tested, documented mechanism in `realDraftFor()`.
+
+**With that fix applied, most of this entry's numbers reproduce exactly:**
+- 30 team-seasons — matches.
+- QB=2 count: 17/30 (57%) — matches exactly, including the headline "2nd QB is the
+  modal outcome" claim.
+- 2nd-TE picks-remaining distribution: 50% / 58% / 83% / 100% at <=2/3/4/5 remaining —
+  matches exactly.
+
+**One does not: TE=2 total count.** This script gets **12/30 (40%)**, not the claimed
+**14/30 (47%)**. QB's breakdown across QB=1/QB=2/QB=3 also differs slightly (this
+script finds zero QB=3 team-seasons; the original claimed 2) — a smaller, secondary
+discrepancy, but a real one, and it means the original's own QB2-event count (n=18,
+stated for the picks-remaining distribution) doesn't even sum against its own QB=2+QB=3
+components (17+2=19, not 18) — an internal inconsistency in the un-reproduced figures,
+independent of anything this script finds.
+
+**What this changes and what it doesn't.** The QUALITATIVE conclusion — a 2nd TE is
+common in this league, not a rare event, and duplicate QB/TE picks cluster hard in the
+last few slots of the draft — holds under EITHER number; 40% is still far from rare.
+The `ONESIE_ENDGAME_PICKS` widening recommendation's own evidence (the QB timing
+distribution, which matches almost exactly: 41%/88%/94%/100% here vs the claimed
+44%/89%/94%/100%) is not meaningfully disturbed. What changes is precision: if Cory
+sees "47%, nearly half" cited as the reason to trust this finding, the honest number
+this session can actually reproduce is 40%. Not corrected in place in the paragraphs
+above — the original claim is left as written, with this note beside it, so neither
+version is the only one anyone finds later, matching this file's own stated discipline.
+Whoever picks this recommendation back up should run
+`node draft/tools/onesie_history_check.js` directly rather than cite either number from
+memory.
+
+---
+
+## 0000000000. WIRE-COMPARED BENCH BRANCH — PROTOTYPED, TESTED, FIXES THE RB WIPEOUT (2026-08-15) 🟡 CANDIDATE FIX, NOT SHIPPED
+
+**Cory's design, stated directly:** once you're drafting for bench (not a starter
+slot), a duplicate shouldn't be compared to the best available in the DRAFT — it
+should be compared to what you can get FREE off waivers. A backup QB averaging 24
+isn't worth a roster spot if the wire gives you 22; a backup WR at 12 is, because the
+wire won't give you 10.
+
+**Already measured, just never wired in.** `draft/tools/waiver_replacement.py` +
+`wire_level.js` + `wire_vs_bench.js` already compute exactly this from 422 real
+2023-2025 acquisition-week scores. Ran it fresh today:
+
+```
+Real wire, weekly median:  QB 23.38   RB 7.80   WR 11.10   TE 11.60
+wire_vs_bench.js on today's plan: Brock Purdy (bench QB) — wire is 100% of him.
+  Rhamondre Stevenson (bench RB) — wire is 70% of him.
+```
+
+`wire_vs_bench.js`'s own docstring: *"THAT ASYMMETRY IS THE ENTIRE CASE AGAINST A
+BACKUP QB, and it is the one thing the bench equation could not see, because it
+priced every position against a preseason projection of the leftovers."* Confirmed:
+`vona()`'s live bench branch uses `INJURY_RATE[pos] * vorp - forgone` — vorp compares
+to the last real STARTER leaguewide, never to the wire. No `wire` field exists
+anywhere on a player object in `draft_data.json`.
+
+**Prototyped a fix** (scratch only — `.../scratchpad/engine_copy3/engine.js`, not the
+committed file): bench branch now computes `edgePerWeek = max(0, weeklyMine -
+wireWeekly[pos])`, `seasonEdge = edgePerWeek * games_expected`, and returns
+`INJURY_RATE[pos] * seasonEdge - forgone` — same shape as today's formula, but the
+"is this worth a roster spot" side is measured against the real wire instead of vorp.
+Positions with no wire sample (K/DEF — nflverse is offense-only) fall back to the old
+vorp-based rule rather than inventing a floor with no evidence.
+
+**Tested in two ways, not one:**
+1. **Direct VONA check** on a real bench-QB candidate (Geno Smith behind Herbert) vs
+   a real bench-RB candidate (RJ Harvey): QB2 candidate scores **-166.6**, RB bench
+   candidate scores **-36.5** — the formula correctly discriminates hard against QB
+   duplication now, using real numbers, not a guess.
+2. **Full 60-room simulation** (`VONA_SLOT_AWARE=true`, flex branch untouched, only
+   bench branch wire-compared): **RB wipeout is gone.** Modal shape QB2/RB3/WR4/TE1
+   (45%), RB2-5 across every listed shape, zero rooms with RB=0 — versus the original
+   VONA_SLOT_AWARE=true test (PARKED.md above) that wiped RB to 0 in 66.7% of rooms.
+
+**QB2 still happens in these sims (every room) — checked WHEN, not just IF, given the
+history-timing lesson from entry #000000000 above.** Logged actual pick sequences
+across 8 seeds: every single QB2 pick landed at round 10-13 of 15 (2-5 picks
+remaining) — Joe Flacco/Brock Purdy-tier, taken exactly where `ONESIE_ENDGAME_PICKS`
+already relaxes the cap and exactly the window real history validated as normal
+(round 10-13 covers the ≤5-remaining band that captured 100% of real historical QB2
+picks). None fired early or mid-draft. The rate (100% of sim rooms vs. 57% real) is
+higher than history, not yet explained, and left open rather than waved away —
+possibly an artifact of one fixed keeper/board configuration rather than a defect in
+the formula itself, since the formula's own direct VONA numbers and its qualitative
+timing both check out.
+
+**Not shipped.** This changes what the model recommends — same standing gate. If
+built for real: read the wire numbers from `draft_data.json` (computed at build time
+by the existing Python tool, the same pattern `starter_counts` already uses) rather
+than a hardcoded JS constant, and get a second opinion on the 100%-vs-57% gap before
+calling it final. Left for Cory to decide whether to build for real, or leave this
+prototype and its numbers for A to pick up — either way, don't re-derive any of the
+above from scratch.
+
+**UPDATE 2026-08-15 — the 100%-vs-57% gap is EXPLAINED, and two of this entry's
+numbers did not survive a committed re-run.** A committed, seeded, three-arm
+60-room simulation (`draft/tools/bench_wire_room_sim.js`, artifact at
+`draft/data/bench_wire_room_sim.json`) isolated the variable: the shipped default
+(both flags off) takes QB2 in 53.3% of rooms — matching the real 56.7% — and
+turning on `VONA_SLOT_AWARE` alone, with the OLD vorp bench formula and no wire
+code at all, jumps it to 100%. **The QB2-rate anomaly is VONA_SLOT_AWARE's, not
+the wire branch's.** The wire branch's real, confirmed contribution is TIMING
+(QB2 in rounds 10-13, 90% endgame, vs rounds 8-9 and 3.3% endgame under vorp).
+Also: this entry's headline RB-wipeout (66.7% of rooms RB=0 under slot-aware
+vorp) reproduced in NO arm — 0/60 everywhere. Full write-up:
+`draft/audit/vona_slot_aware_isolation_2026-08-15.md`. Nothing shipped; defaults
+untouched.
+
+---
+
+## 00000000000. WEEKLY IN-SEASON PROJECTION CAPTURE — VERIFIED LIVE, NOT JUST READ (2026-08-15) ✅ CONFIRMED WORKING
+
+**The question:** Cory pushed back on "proj_series.json capture is healthy" — that
+check only covered the ONE-TIME preseason snapshot. What about weekly, in-season
+projections, which lineup/waiver/analyzer all depend on, every week of the season?
+
+**Real gap, already named by the codebase itself.** `weekly_proj_snapshot.py`'s own
+docstring: *"NOTHING ARCHIVES THE WEEKLY PROJECTIONS: proj_series.json holds
+preseason snapshots only... and providers overwrite weekly numbers in place."* This
+tool + its workflow (`weekly-proj-snapshot.yml`, Sundays 13:00 UTC, before the 1pm ET
+slate) exist specifically to close that — write the week's projection into the same
+archive before providers overwrite it, so every in-season tool's decision is
+reconstructable in January instead of lost the moment the week turns.
+
+**It had never actually run — total_count was 0.** Added to the repo 2026-08-14, one
+day before its first scheduled Sunday. Not a bug, just untested in the one
+environment that matters (live CI, real Sleeper access — this sandbox's Sleeper
+access is blocked, so it can't be verified by reading code alone).
+
+**So it was actually triggered, not just read.** Ran `workflow_dispatch` on
+`weekly-proj-snapshot.yml` live. Result: completed, all steps succeeded, AND —
+checked, not assumed — `proj_series.json` on `origin/main` did NOT change. That's the
+CORRECT outcome: the script's own preseason-is-a-clean-skip logic
+(`season_type != 'regular'` → exit 0, no write) fired exactly as designed. This
+confirms the mechanism runs end-to-end in the real environment (checkout, Python,
+live Sleeper `/state/nfl` call all succeeded) and correctly does nothing rather than
+writing garbage under a wrong week label — the failure mode its own comments say
+they were most worried about ("a mislabelled week grades a strategy against inputs
+it never saw").
+
+**Confidence, honestly scoped:** this proves the machinery works TODAY, in preseason.
+It does not prove it will correctly detect week 1 the moment the real season starts —
+that depends on Sleeper's own `/state/nfl` flipping `season_type` to `'regular'` on
+schedule, which is outside this project's control and wasn't and couldn't be tested
+here. Worth a manual `--week 1` dry-run check in the first week of the season rather
+than trusting the cron blindly on its first real week.
+
+## What this is NOT
+
+Not a new build — the tool and workflow already existed, fully written, before this
+entry. This is a verification (actually triggered it, checked the real outcome) of
+something that had never been run, closing exactly the kind of gap
+`log_draft_picks.py` (entry above) turned out to have — the difference being this one
+checks out clean.
+
+---
+
+## 000000000000. RANDOM FOREST / XGBOOST FOR THE CORE PROJECTION MODEL — REAL QUESTION FOR A, NOT DECIDED HERE (2026-08-15)
+
+**Cory's question, direct:** are Random Forest / XGBoost relevant to our projections?
+Should we use them?
+
+**Already a real, checked precedent, not a cold question.** `mattgilgo/fantasy_football`
+(reviewed 2026-08-14, `RESOURCES.md`) does exactly this — per-position sklearn/XGBoost
+regression, benchmarked by MAE against expert consensus. Reported result: beat expert
+MAE on QB/WR/TE, did NOT clearly beat on RB — the position this project has separately
+and independently found to be the hardest to project (RB-concentration risk,
+DECISIONS-NEEDED #0000/#00000). That's a real, corroborating data point about the
+approach's limits, not just a design description.
+
+**Honest assessment, not a recommendation either way:**
+- **Plausible upgrade path, not a near-term one.** `walk_forward()` is a simple,
+  transparent regression-to-mean + age-curve formula. A tree ensemble could capture
+  real non-linear interactions (age × usage × team context) it can't — IF there's
+  enough clean data to train it without overfitting.
+- **Data volume is thin for it right now.** Only 3 years of nflverse weekly data
+  reachable (2023-2025) — mattgilgo's own weak RB result is plausibly a symptom of
+  exactly this, not a flaw in trees generally.
+- **Leak-free discipline gets harder, not easier.** This project has repeatedly,
+  expensively enforced AsOf/leak-free discipline (exp33 and others). A hand-written
+  regression formula has few places for a leak to hide; a tree model with many
+  engineered features has many, and each one needs the same scrutiny individually.
+- **Explainability drops.** This codebase's whole culture is transparent,
+  commented, "here is exactly why" reasoning. A tree ensemble is a comparative
+  black box — SHAP/feature-importance can partially bridge that, but it's a real
+  cost, not a free upgrade.
+- **Timing:** building, validating, and leak-auditing a new model class in the 7
+  days before this draft is exactly the kind of thing this project's own history
+  warns against (the bench-branch anchor broke from inventing something new under
+  draft-week pressure). Not for this draft.
+
+**Where this actually fits:** the post-draft "learning engine" already on the roadmap
+(`TODO.md`, "GENUINELY AFTER THE DRAFT" — weekly re-grading, needs live weekly
+outcomes that don't exist yet). Once real 2026 weekly results start accumulating,
+there's a natural, low-risk way to test this: build it as a candidate arm, backtest it
+against `walk_forward()` through the same Lab-gate discipline (register the question,
+null-test, accuracy + overfitting gates) already used for every other model change
+here — not swap it in on a hunch.
+
+**Not decided here — flagged as a real question for A**, since it's a genuine
+architectural choice about the core projection model Cory himself called "the base of
+everything," not something to settle unilaterally in a research-relay session.
+
+---
+
+## 0000000000000. "IS EVERY PROJECTED PLAYER A PREDICTION" — NO, AND THERE'S ALREADY A TOOL THAT KNOWS EXACTLY WHICH ONES AREN'T (2026-08-15) 🔴 REAL GAP, DIRECTLY RELEVANT TO THE LINEUP/WAIVER BUILDS
+
+**Cory's question: how many predictions are we making per week, is the mechanism
+there to grade and learn them, and is every projected player a prediction?**
+
+**Short answer: no, a raw projection number is not automatically a prediction.** It
+becomes one only once it's captured (timestamped, frozen, can't be revised after the
+fact) and later resolved against a real outcome. Two different layers exist here and
+they're in very different states:
+
+**Layer 1 — raw weekly point projections (the number itself).** `weekly_proj_snapshot.py`
+(verified live, entry above) DOES capture this — every player Sleeper returns a
+weekly projection for, archived before the provider can overwrite it. Real count:
+matches the current board's ~686 (preseason); the actual in-season weekly count is
+unknown until the season starts and can't be tested from here (Sleeper blocked in
+this sandbox) — flagged as unknown rather than guessed.
+
+**Layer 2 — DECISIONS built on those numbers (lineup calls, waiver claims, streams,
+trades — what the tool actually TOLD someone to do).** This is the layer that
+answers "is the mechanism there to grade and learn," and there's already a purpose-
+built tool that answers it mechanically rather than by inspection:
+`draft/tools/loop_closure.js` — reads `src/predledger.js`'s own declared kinds and
+greps the shipped client/server for what actually captures and resolves each one, so
+the answer can't go stale the way a hand-written list would. Ran it:
+
+```
+27 ledger kinds declared. Draft-side is fully healthy:
+  recommendation, pick, survival, override, lrm, run, opponent_prediction
+  — all captured AND resolved AND gradeable. Nothing wrong here.
+
+Captured but NOT YET RESOLVABLE (blocked on a real outcome, not on missing work):
+  doctrine, doctrine_decline, shadow_pick
+  — resolvers for these are NOT yet built either; the tool's own warning:
+    "a grader written the week the data arrives is a week of data with nowhere
+    to go — which is how the in-season capture gap happened."
+
+NOT CAPTURED AT ALL, despite being gradeable — checked, zero client-side helper
+exists for any of these (grepped predledger.js directly, not inferred):
+  lineup_call     — the week resolves it, start/sit against what both scored
+  waiver_claim    — the rest of the season resolves it against who we passed on
+  stream_call     — the week resolves it
+  trade_eval      — the season resolves it against the roster we would have had
+  inseason_override — same as override, in season
+```
+
+**This is the real answer to "is every projected player a prediction": no — the raw
+number is captured (Layer 1, working), but the decisions that actually matter for
+learning the league (which lineup call was right, which waiver add paid off, which
+stream worked) are not captured AT ALL right now.** Not broken, not degraded — never
+built. And per the tool's own finding, the RESOLUTION side for lineup_call/
+waiver_claim/stream_call/trade_eval/inseason_override already exists — it's the
+CAPTURE side, the actual `PredLedger.lineupCall(...)`-style call at the moment a
+decision is made, that's completely missing. Confirmed by grep: zero references to
+`lineupCall`, `waiverClaim`, `streamCall`, `tradeEval`, or `inseasonOverride` anywhere
+in `predledger.js` itself.
+
+**CORRECTION, same day, before anything was built on top of this:** the resolver
+attribution above (`weekly_claims.js`, `analyzer_claims.js`) was wrong — stated from
+the filenames matching the topic, not from actually checking which file
+`loop_closure.js` found. Re-ran it with the `resolvedIn` detail instead of trusting
+the summary table: the real resolver for all five in-season kinds is
+**`src/forecast_grade.js`** (`gradeDecisions()` / `INSEASON_DECISION_KINDS`), which
+already fully specifies the expected payload shape — `payload.key` (join key),
+`payload.chosen` (or `.value`/`.player_id`), `payload.counterfactual` (REQUIRED —
+server-side `assertCounterfactual` refuses a capture without it), and later a
+resolution carrying `realized_chosen`/`realized_counterfactual` joined by the same
+key. `weekly_claims.js`/`analyzer_claims.js` are a different, unrelated pair
+(`forecast`/`forecast_resolution` — weekly matchup and playoff-odds forecasts, not
+these five). Caught by checking the tool's own per-kind file list before building
+against the wrong contract, not by anyone else catching it.
+
+**Directly relevant to the in-season lineup optimizer / waiver tool builds already in
+progress this session (tasks #8/#9).** Building those tools without wiring in capture
+at the same time would repeat exactly the mistake `log_draft_picks.py` almost made —
+solid machinery with nothing feeding it. The resolvers already exist; what's missing
+is one capture call at each tool's actual decision point. Folding this into how those
+two builds get done rather than treating it as separate follow-up work.
+
+## What this is NOT
+
+Not a claim the in-season side is unusually broken — the draft side (7 kinds) is
+fully healthy, and this specific gap (predicted-but-never-captured) is exactly the
+kind of thing `loop_closure.js` was built to catch mechanically rather than leave to
+someone's memory. The tool itself says what it doesn't check: whether a resolver that
+exists actually runs correctly — that needs real season rows, not code-reading, and
+isn't claimed here.
+
+---
+
+## 00000000000000. OWN-MODEL PROJECTIONS ARE NOW LIVE ON THE BOARD — SHIPPED, NOT PARKED (2026-08-15)
+
+**Unlike everything else marked "prototype" today, this one is actually merged and
+pushed.** It's additive and doesn't touch anything the standing gate protects
+(scoring/rankings), so it went through build+test+push under the reduced-gate policy
+rather than sitting parked for a ruling.
+
+**What changed, concretely:**
+- `draft/own_projections.py` — the core of `own_projections_2026.py` (crosswalk,
+  nflverse fetch, `walk_forward()`, depth-chart dampening), extracted into an
+  importable function so it isn't computed twice in two files — the exact "two-places
+  disease" this project has already found and fixed before (see `proj_feed.js`'s own
+  comment on the same mistake elsewhere).
+- `draft/build.py` — attaches `proj_ownmodel` to every board player it can, additively,
+  same try/except/coverage-gated pattern as the FantasyPros block right above it.
+  **Does not touch `proj_mean`, `proj_baseline`, VORP, or ranking** — #6 below still
+  requires a clean grade before any of those swap sources, and none exists yet.
+- `public/js/draft/consensus.js` — `rawProjection()` now includes `proj_ownmodel` in
+  the averaged display when present, labelled "Our model". This is the ONE shared
+  module every tool (draft/waiver/lineup/standings) already reads for its sanity-check
+  number, so it reaches all of them for free — no per-tool change needed.
+
+**Scope, stated precisely so it isn't oversold:** this makes our own model VISIBLE
+everywhere as a third opinion. It does NOT change what any tool actually recommends —
+the dollar-EV math in `lineup.js`/`waivers.js` (via `proj_feed.js`) still reads
+`proj_mean`, which is still Sleeper's number. That's deliberate, not a shortfall: the
+same rule (#6, below) that's stopped every projection-source swap today stops this one
+too. What this DOES give a human is a real, computed, non-guessed data point to look
+at ("our own model says X, Sleeper says Y") the same way the FantasyPros column
+already does.
+
+**Verification, stated honestly about what could and couldn't be checked here:**
+- The extracted module: re-ran the standalone diagnostic after the refactor — IDENTICAL
+  output to before the change (753 players projected, same by-position ratios:
+  QB 0.866, RB 0.914, TE 0.965, WR 0.837). The refactor didn't change behavior.
+- The exact new `build.py` block: simulated directly against the REAL live board and
+  league config (not a fixture) — 366/686 players got a real `proj_ownmodel` value,
+  spot-checked one (Jahmyr Gibbs: proj_mean 344.88, proj_ownmodel 222.25, every other
+  field untouched).
+- Full test suites: **2128 Python tests passed** (`pytest draft/tests`), **247/247 JS
+  test files passed** (every `draft/tests/*.test.js`, run individually). Nothing broke.
+- **What could NOT be verified here:** running the actual `build.py` end-to-end —
+  Sleeper is blocked from this sandbox, and `load_players()` needs it before reaching
+  this code. Real confirmation comes from the next nightly `draft-data.yml` run.
+  **Deliberately not triggered manually** — unlike `weekly-proj-snapshot.yml` (which
+  is `[skip deploy]`-tagged), this workflow's commit is not, and the build-minute
+  budget is still an open question at the top of this file. Worth checking the next
+  nightly run's log for the "own model 3rd source on N players" line rather than
+  assuming it worked.
+
+## What this is NOT
+
+Not a projection-source swap, not a claim `proj_ownmodel` is more accurate than
+Sleeper's — no grade exists yet either way. Not fully verified end-to-end (the one
+piece this sandbox structurally cannot run). A real, tested, additive feature that
+makes "are we using our own projections" true for the first time, everywhere
+`consensus.js` is read, without touching anything the draft-scoring gate protects.
+
+---
+
+## 000000000000000. THE CORE PROJECTION FORMULA WAS ALREADY AUDITED, LOST, AND THE HONEST BANNER WAS NEVER SHOWN (2026-08-15) — THE BIGGEST FINDING OF THE DAY, SHIPPED
+
+**Cory: "double check our projection formula is as good as it could be. It's the
+base of everything." Went looking for the real answer instead of a fresh guess —
+this project already ran that exact audit.**
+
+**Experiment 33 (`draft/backtest/EXP33.md`, reported 2026-08-09) is the real, honest,
+pre-registered answer, and nobody had to build anything to get it — it already
+exists:**
+
+```
+our_blend  MAE 56.67-57.09   rank_corr 0.58-0.61   top-decile 0.413
+naive      MAE 45.59-46.25   rank_corr 0.70-0.70   top-decile 0.565-0.587
+ffc_adp                      rank_corr 0.38-0.45   top-decile 0.222-0.312
+```
+
+**Our blend LOSES to a naive prior-year + opportunity model on every metric that
+matters, in both tested seasons (2023, 2024).** Top-decile hit rate — "does it find
+the players who actually decide seasons" — is the metric the experiment itself
+named as the one that matters most, and our blend loses there by the widest margin
+(0.41 vs 0.57-0.59). MAE and rank correlation both lose too. Dollars, summed through
+the money grader: our_blend $200, naive $100, **ffc_adp $1,200** — raw market ADP
+alone outperforms our own machinery by 6x on this measure.
+
+**This was pre-registered exactly as "a loss is the headline," and the project
+followed its own rule** — `EXP33.md` reports the loss in plain language, no
+softening. It goes further: `public/js/draft/deviation.js` has a whole,
+carefully-built mechanism (`EVIDENCE_STATE`, `projectionProvenance()`) that derives
+an honest warning banner from this exact result — reconciled against exp 34 (a
+separate, real, small ranking edge over a weak market) so neither finding is cited
+misleadingly alone. The comment inside it is explicit about WHY this matters: "a
+confidence sentence that outlives the experiment which should have updated it is
+WORSE than the bare word."
+
+**And it was never called from anywhere.** `projectionProvenance()` is fully built,
+exported, correct — checked directly: `require()`d it and ran it, got the real
+banner text back. Grepped every other file in `public/js/draft/` and `views/` for
+any caller. Zero. The single most important, most honestly-measured fact this
+project has about its own core machinery — the thing Cory called "the base of
+everything" — was computed, reconciled, worded carefully, and shown to no one.
+
+**Wired it in** (`public/js/draft/app.js`, `renderChecklist()`, right before the
+rail-fire-budget entry): calls `DraftDeviation.projectionProvenance()`, and when it
+returns a warning, adds it to the SAME checklist every other "does the board agree
+with itself" fact already renders through — not a bespoke banner, the existing
+mechanism. Wrapped in try/catch so a future change to `deviation.js` can't blank the
+whole checklist. Full JS suite still 247/247 after.
+
+**What this means for "is the projection formula as good as it can be":** measured,
+honestly, already — and the answer is no, not yet, on the metric that matters most.
+The reconciled read (exp 33 lost, exp 34 shows a small real ranking edge) is:
+**lean on tier structure and scarcity, not on the point projection itself** — which
+is exactly what the banner now says, and exactly what own model's build.py wiring
+today (entry above) is careful to leave true (additive third source, not a swap,
+because there is still no clean grade to justify one).
+
+**What I did NOT do:** re-run exp 33, extend it, or attempt to fix the underlying
+regression/age-curve model. That's real modeling work on a 7-day clock, not a wiring
+gap — flagged for A/the post-draft learning-engine work, same bucket as the
+RF/XGBoost question above.
+
+## What this is NOT
+
+Not a new negative finding — exp 33 already found and reported this, honestly,
+6 days ago. This is a "make the already-true thing visible" fix, the same shape as
+every other gap found today, just about the single most consequential fact in the
+whole system.
+
+---
+
+## 0000000000000000. STREAM_CALL / TRADE_EVAL — CHECKED WHETHER THERE'S A SHORTCUT, THERE ISN'T, HERE'S THE SCOPED PLAN FOR EACH (2026-08-15)
+
+**Checked before writing this off as "just needs a page":** could `stream_call` piggyback
+on the `waiver_claim` UI just built (same form, different kind label when the position
+is K/DEF)? No — checked `waivers.js`/`valuation.js` directly, there is no K/DEF-specific
+branch anywhere in the tool; it's built entirely around PRIORITY WAIVERS (spend your
+position or hold), and a stream is a DIFFERENT decision shape — typically free,
+same-week, matchup-driven, not a scarce-resource stopping problem. Reusing the form
+would mislabel the decision, not save real work. Confirmed `trade_eval` has even less
+to build on: grepped `views/` and `src/` for any trade-evaluation logic — `analyzer.ejs`
+mentions the word "trade" once, in passing, about rival posture. No calculator, no
+offer-pricing, nothing.
+
+**Not building either now.** Both are genuine new features, not fixes, and this
+project has a specific, cited lesson about inventing new mechanisms under a draft-week
+clock (the bench-branch anchor breaking). Scoped plans instead, so whoever picks this
+up next executes rather than designs from zero:
+
+**`stream_call` — the smaller of the two, buildable in an afternoon:**
+1. A tiny new view (or a K/DEF-filtered section bolted onto `waivers.ejs`) that shows
+   this week's best K/DEF option by matchup, not by season value — `evaluateClaims`'s
+   existing `net_value` math is season-shaped (startable-value delta), not matchup-
+   shaped, so this needs a real (small) matchup-aware score, not a reuse.
+2. Same two-form pattern as `/waivers/log` + `/waivers/override` (proven twice now):
+   `POST /stream/log` (kind: `stream_call`, `chosen` = the streamed player,
+   `counterfactual` = "held" the currently-rostered K/DEF, per `assertCounterfactual`'s
+   requirement — this one actually has an unambiguous counterfactual, unlike waivers).
+3. Resolver: `forecast_grade.js`'s `INSEASON_DECISION_KINDS` already covers it — no
+   server-side work needed there.
+
+**`trade_eval` — genuinely bigger, needs a product decision first, not just code:**
+The predledger schema wants "an offer priced, accepted or declined" — which presumes a
+trade EVALUATOR already exists to produce the price. It doesn't. Building this means
+answering, before any code: does the tool evaluate trades OFFERED to Cory, trades HE
+proposes, or both? What's priced — the players' `proj_mean`/dollars only, or does it
+run through the same lineup/matchup machinery `lineup.js` uses (which would make it
+consistent with everything else, but is real work to wire)? `COUNTERFACTUAL_BASELINE
+_INVENTORY` in `LAB-REGISTRY.md` already flags this exact gap from the measurement
+side: *"trade evaluations... our history is sparse... too few events to model a
+baseline; report n, do not infer a rate."* Recommend treating this as genuinely
+post-draft, alongside the learning engine and the RF/XGBoost question — not a Sept 1
+item the way lineup/waiver captures were, because unlike those it has no existing tool
+to attach to.
+
+## What this is NOT
+
+Not a claim these are impossible or not worth doing — `stream_call` in particular is
+real, cheap, and well-scoped above. Just not something to build in the same breath as
+everything else today without checking first whether it was actually a quick wire (it
+wasn't) — the same discipline that caught the wrong `lineupCall`/`waiverClaim` client
+helpers earlier, applied before writing code this time instead of after.
+
+## 00000000000000000. `config-screen.js` / `keeperui.js` HAVE ZERO TEST COVERAGE — CHECKED, REAL, AND A DIFFERENT SHAPE OF GAP THAN THE ONES FIXED TODAY (2026-08-15)
+
+Same sweep that found `consensus.js` had no dedicated test (fixed, see TODO.md) also
+counted every `public/js/draft/*.js` module's hits inside `draft/tests/*.js`.
+Everything else is at least 1; these two are 0.
+
+**Why they weren't fixed the same way.** Every module fixed today — `own_projections.py`
+`attach_own_model`, the four capture routes, `consensus.js` — is either a plain
+function/`module.exports` object, or (for the routes) requires only `store` + a real
+HTTP server, which this project's existing `node draft/tests/*.test.js` convention
+already boots and hits directly. `config-screen.js` and `keeperui.js` are neither:
+both are `(function(){...})()` IIFEs with **no `module.exports` at all**, wired
+entirely through top-level `document.querySelector` calls and `fetch()` against
+`window`/`document` at load time. `keeperui.js`'s own `guardFixture()` — the function
+most worth pinning (it refuses to render a keeper screen against a fixture/offline
+board so nobody edits keepers for players who don't exist) — writes directly into
+`$('#loading').innerHTML` as its failure path, so even that one function can't be
+called in isolation without a DOM already present.
+
+**This needs jsdom (or an equivalent), which nothing in this project's test suite
+uses today** — `draft/tests/route_smoke.test.js` and friends boot a real HTTP server
+and assert on the raw HTML *string* a route returns, which is a different, DOM-free
+technique that doesn't reach code that only runs after a browser parses and executes
+that HTML. Adding a browser-emulation test harness this close to the draft is a new
+piece of test infrastructure, not a same-pattern fix — exactly the class of thing this
+project has a cited scar for building under a draft-week clock (the bench-branch
+anchor). Not doing it without checking with Cory first.
+
+**What IS already true, so this isn't a blind spot on the actual risk:** both screens
+are pre-draft confirmation UI, run once by a human (Cory) before the draft, on real
+data he is looking at directly — not automated, unattended, or in the grading path the
+in-season captures protect. `route_smoke.test.js` already confirms the pages these
+scripts are loaded from render without a 500 or a template `ReferenceError`. The actual
+uncovered risk is narrower than "zero coverage" sounds: it's "a JS bug in these two
+screens fails silently in front of Cory instead of loudly," not "a bug reaches
+production undetected."
+
+## What this is NOT
+
+Not a claim these two files are broken, or that DOM-based testing is a bad idea in
+general — `guardFixture()` in particular is exactly the kind of function worth pinning
+if a jsdom harness ever gets built. Just not something to start building, unannounced,
+as a side effect of a "continue."
+
+## CORRECTION, same day: "needs jsdom" was WRONG — it needed nothing new at all
+
+The claim above — that closing this gap meant adding new test infrastructure — was
+false, and cost nothing to check: `draft/tests/rehearsal-mock3.js` was sitting right
+there in the same directory, already using Playwright + the pre-installed Chromium
+(`/opt/pw-browsers/chromium`, per this environment's own setup) to drive the war room
+in a real browser. That's not jsdom, it's a full browser, and it was ALREADY an
+established, working pattern in this exact project — just outside the default
+`.test.js` glob because it needs more than a bare `node` process. `keeperui.js`'s
+`guardFixture()` now has that test: `draft/tests/rehearsal-keepers.js`, 6/6 checks,
+self-contained (boots its own `createApp().listen(0)` instead of assuming a
+manually-started `dev-server.js`, unlike `rehearsal-mock3.js`). It found a real second
+bug in the process — `boot()`'s catch handler was unconditionally overwriting
+`guardFixture()`'s specific "this board is not real data" message with a generic
+"could not load" one, the instant after it was written — fixed in the same commit.
+
+**The actual lesson isn't "the caution was wrong," it's "check what's already in the
+toolbox before concluding a fix needs new infrastructure."** The caution about
+inventing NEW mechanisms under a draft-week clock still stands; this wasn't new, it
+was unused. `config-screen.js` remains genuinely uncovered — smaller, lower-stakes (a
+confirmation-numbers display, not a decision guard), and not done here; the same
+Playwright pattern applies to it directly whenever it's worth the time.
+
+**Update, same day: done.** `draft/tests/rehearsal-config-screen.js`, 13/13 checks —
+the imported values populate correctly, the ★ CRITICAL scoring highlight (the actual
+safety mechanism the page's own copy exists to provide — "a single wrong scoring value
+silently corrupts every projection in the tool") stars the right keys and only the
+right keys, a saved override wins over an imported value for both a plain field and a
+nested scoring value (matching this module's own stated design), and the
+no-board-built-yet path shows a real message rather than hanging blank. No bug found
+this time — first actual proof the page works as intended, not an assumption. Every
+`public/js/draft/*.js` module the original sweep flagged is now covered.

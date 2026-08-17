@@ -1,0 +1,319 @@
+name: Key probe (read-only, which key opens which door)
+
+# Built 2026-08-16 after odds-capture's dry run got 401 from the-odds-api.com
+# using the stored ODDS_API_KEY (64 chars — The Odds API's own keys are 32 hex
+# chars, so the suspicion is a right key under a wrong name). Cory has now
+# supplied THREE odds-adjacent keys (ODDS_API_KEY, SPORTSGAME_ODDS_API,
+# BALL_DONT_LIE_API); this probes each against each provider's cheapest
+# endpoint and prints ONLY http status + key length — never a value. The
+# config-check.yml discipline: verify a human config step without revealing it.
+#
+# Costs: the-odds-api /sports is a free (0-credit) endpoint; sportsgameodds
+# /v2/sports and balldontlie /teams are the cheapest list endpoints on their
+# free tiers. One dispatch = at most a handful of objects.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      K_ODDS: ${{ secrets.ODDS_API_KEY }}
+      K_SGO: ${{ secrets.SPORTSGAME_ODDS_API }}
+      K_BDL: ${{ secrets.BALL_DONT_LIE_API }}
+    steps:
+      - name: Probe every key against every provider
+        run: |
+          set -uo pipefail
+          code() { curl -s -o /tmp/body -w "%{http_code}" --max-time 20 "$@" || echo 000; }
+
+          probe_theodds() { # $1=label $2=key — /sports costs 0 credits
+            c=$(code "https://api.the-odds-api.com/v4/sports?apiKey=$2")
+            echo "the-odds-api.com  <- $1 (${#2} chars): HTTP $c"
+          }
+          probe_sgo() { # $1=label $2=key
+            c=$(code -H "X-Api-Key: $2" "https://api.sportsgameodds.com/v2/sports/")
+            echo "sportsgameodds.com <- $1 (${#2} chars): HTTP $c"
+          }
+          probe_bdl() { # $1=label $2=key
+            c=$(code -H "Authorization: $2" "https://api.balldontlie.io/nfl/v1/teams")
+            echo "balldontlie.io     <- $1 (${#2} chars): HTTP $c"
+          }
+
+          echo "== each key vs its own named provider =="
+          [ -n "$K_ODDS" ] && probe_theodds ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_SGO" ]  && probe_sgo SPORTSGAME_ODDS_API "$K_SGO"
+          [ -n "$K_BDL" ]  && probe_bdl BALL_DONT_LIE_API "$K_BDL"
+
+          echo "== cross-checks (is ODDS_API_KEY really someone else's key?) =="
+          [ -n "$K_ODDS" ] && probe_sgo ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_ODDS" ] && probe_bdl ODDS_API_KEY "$K_ODDS"
+          [ -n "$K_SGO" ]  && probe_theodds SPORTSGAME_ODDS_API "$K_SGO"
+
+          echo "== kalshi (public market data, no key — Cory's 2026-08-16 study ask) =="
+          c=$(code "https://api.elections.kalshi.com/trade-api/v2/exchange/status")
+          echo "kalshi exchange/status (unauthenticated): HTTP $c"
+          c=$(code "https://api.elections.kalshi.com/trade-api/v2/series?category=Sports")
+          echo "kalshi series?category=Sports: HTTP $c"
+          if [ "$c" = "200" ]; then
+            echo "NFL-ish series tickers visible (name+ticker only):"
+            (grep -o '"ticker":"[^"]*"' /tmp/body | grep -i -m 12 'NFL' || echo "  none matching NFL in first page")
+          fi
+
+          echo "== SGO market census (1 object) — does the free tier carry player props? =="
+          # Cory's QB hypothesis (2026-08-16) needs prop lines. Cost: limit=1
+          # event = 1 object. Prints oddID stat prefixes + counts, no prices.
+          if [ -n "$K_SGO" ]; then
+            c=$(code -H "X-Api-Key: $K_SGO" "https://api.sportsgameodds.com/v2/events?leagueID=NFL&oddsAvailable=true&limit=1")
+            echo "sgo events?limit=1: HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "census parse failed (structure surprise — body kept out of logs)"
+          import json, collections
+          body = json.load(open('/tmp/body'))
+          evs = body.get('data') or []
+          print(f"events in body: {len(evs)}")
+          for ev in evs:
+              odds = ev.get('odds') or {}
+              stats = collections.Counter(oid.split('-')[0] for oid in odds)
+              ents = collections.Counter(
+                  'player' if '_1_NFL' in oid.split('-')[1] else oid.split('-')[1]
+                  for oid in odds if '-' in oid)
+              print(f"odd rows: {len(odds)}")
+              print("stat prefixes:", dict(stats.most_common(15)))
+              print("entity kinds:", dict(ents.most_common(8)))
+          PY
+            fi
+          fi
+
+          echo "== which TD market does the-odds-api actually serve? (2026-08-16) =="
+          # The three real full-season pulls came back with ZERO rush_td rows
+          # across 7,019 player-weeks while the other five markets landed in
+          # the thousands (draft/audit/historical_props_study_2026-08-16.md
+          # §9a). The parser is not at fault, so either `player_rush_tds` is
+          # the wrong key or it is not served historically. This settles it
+          # rather than guessing: ask ONE historical event for each candidate
+          # and print which markets come back. Cost: 10 credits per market
+          # (10 x 1 market x 1 region), ~30 total — against a ~49,068-credit
+          # pull it is rounding error, and it decides whether a re-fetch is
+          # worth anything.
+          if [ -n "$K_ODDS" ]; then
+            HB="https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl"
+            D="2024-09-08T17:00:00Z"
+            c=$(code "$HB/events?apiKey=$K_ODDS&date=$D")
+            echo "historical events list: HTTP $c"
+            EID=""
+            if [ "$c" = "200" ]; then
+              EID=$(python3 - <<'PY'
+          import json
+          try:
+              b = json.load(open('/tmp/body'))
+              d = b.get('data') or []
+              print(d[0]['id'] if d else '')
+          except Exception:
+              print('')
+          PY
+          )
+            fi
+            echo "event id resolved: ${EID:+yes}${EID:-no}"
+            for M in player_rush_tds player_anytime_td player_pass_tds; do
+              if [ -n "$EID" ]; then
+                c=$(code "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=$M&date=$D")
+                echo "  market $M: HTTP $c"
+                if [ "$c" = "200" ]; then
+                  python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          b = json.load(open('/tmp/body'))
+          d = b.get('data') or {}
+          keys, n = set(), 0
+          for bk in d.get('bookmakers', []):
+              for m in bk.get('markets', []):
+                  keys.add(m.get('key'))
+                  n += len(m.get('outcomes', []))
+          print(f"    markets returned: {sorted(keys) or 'NONE'}; outcome rows: {n}")
+          PY
+                fi
+              fi
+            done
+          fi
+
+          echo "== TRUE credit cost per call shape (Cory's 2026-08-16 question) =="
+          # Cory read the vendor's own pricing page — "1 market, 1 region:
+          # Cost 1" — and asked whether one pull can carry far more data
+          # than our 272-calls-per-season design. The examples on that page
+          # use /v4/sports/{sport}/odds, the BULK endpoint that returns every
+          # event in one response, whereas fetch_historical_props.py calls
+          # /events/{id}/odds once per game. If player props ride the bulk
+          # endpoint, one call replaces a whole slate.
+          #
+          # This MEASURES rather than assumes: x-requests-remaining before
+          # and after each call is the vendor's own ledger, so the delta is
+          # the true price of that call shape. Answers three things at once:
+          # does bulk carry props, what does bulk really cost, and does the
+          # per-event cost actually scale with market count.
+          if [ -n "$K_ODDS" ]; then
+            HB="https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl"
+            D="2024-09-08T17:00:00Z"
+            rem() { # prints x-requests-remaining using a 0-credit endpoint
+              curl -s -D /tmp/h -o /dev/null --max-time 20 \
+                "https://api.the-odds-api.com/v4/sports?apiKey=$K_ODDS"
+              grep -i '^x-requests-remaining:' /tmp/h | tr -d '\r' | awk '{print $2}'
+            }
+            measure() { # $1=label $2=url — prints HTTP, credit delta, payload shape
+              before=$(rem)
+              c=$(code "$2")
+              after=$(rem)
+              delta=$(( before - after ))
+              echo "  $1: HTTP $c | credits used: $delta"
+              if [ "$c" = "200" ]; then
+                python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          b = json.load(open('/tmp/body'))
+          d = b.get('data', b)
+          evs = d if isinstance(d, list) else [d]
+          mk, rows = set(), 0
+          for ev in evs:
+              if not isinstance(ev, dict):
+                  continue
+              for bk in ev.get('bookmakers', []):
+                  for m in bk.get('markets', []):
+                      mk.add(m.get('key'))
+                      rows += len(m.get('outcomes', []))
+          print(f"    events: {len(evs)}; markets: {sorted(mk) or 'NONE'}; outcome rows: {rows}")
+          PY
+              fi
+            }
+
+            echo " -- does the BULK historical endpoint serve player props? --"
+            measure "bulk /odds, 1 prop market" \
+              "$HB/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds&date=$D"
+            echo " -- bulk with a plain game market, as a control --"
+            measure "bulk /odds, h2h" \
+              "$HB/odds?apiKey=$K_ODDS&regions=us&markets=h2h&date=$D"
+
+            echo " -- per-event: does cost really scale with market count? --"
+            EID=$(curl -s --max-time 20 "$HB/events?apiKey=$K_ODDS&date=$D" \
+                  | python3 -c "import json,sys; d=json.load(sys.stdin).get('data') or []; print(d[0]['id'] if d else '')")
+            if [ -n "$EID" ]; then
+              measure "per-event, 1 market " \
+                "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds&date=$D"
+              measure "per-event, 6 markets" \
+                "$HB/events/$EID/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds,player_pass_tds,player_rush_yds,player_anytime_td,player_reception_yds,player_receptions&date=$D"
+            fi
+            echo " -- events-list call, for the per-season overhead line --"
+            measure "events list       " "$HB/events?apiKey=$K_ODDS&date=$D"
+          fi
+
+          echo "== WHAT IS BUYABLE RIGHT NOW, 6 days before the 2026 draft? =="
+          # Cory, 2026-08-16: "We need to save credits for draft projection
+          # studies as well!! That one is important for draft." The measured
+          # costs above price the RETROSPECTIVE study; this prices the thing
+          # that can actually move the 8/22 draft board.
+          #
+          # /sports is 0 credits, so enumerating what exists is free. The
+          # question is whether any SEASON-LONG player market (season passing
+          # yards, season receiving yards, awards) is quotable today — those
+          # would be direct draft input. Regular-season game props do not
+          # exist yet in mid-August; that is the constraint to confirm rather
+          # than assume.
+          if [ -n "$K_ODDS" ]; then
+            LB="https://api.the-odds-api.com/v4/sports"
+            c=$(code "$LB/?apiKey=$K_ODDS&all=true")
+            echo "sports list (all=true, 0 credits): HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "  (parse failed)"
+          import json
+          rows = json.load(open('/tmp/body'))
+          nfl = [r for r in rows if 'americanfootball_nfl' in r.get('key','')]
+          print(f"  NFL-keyed entries: {len(nfl)}")
+          for r in nfl:
+              print(f"    {r.get('key'):<46} active={r.get('active')} outrights={r.get('has_outrights')}")
+          PY
+            fi
+
+            echo " -- are any NFL events quotable today (regular season not started)? --"
+            c=$(code "$LB/americanfootball_nfl/events?apiKey=$K_ODDS")
+            echo "  live events list (1 credit): HTTP $c"
+            if [ "$c" = "200" ]; then
+              python3 - <<'PY' || echo "  (parse failed)"
+          import json, collections
+          evs = json.load(open('/tmp/body'))
+          print(f"  events listed: {len(evs)}")
+          for e in evs[:3]:
+              print(f"    {e.get('commence_time')}  {e.get('away_team')} @ {e.get('home_team')}")
+          PY
+            fi
+          fi
+
+          echo " -- THE DECISIVE ONE: are player props quotable on a 2026 week-1 game yet? --"
+          # All 272 regular-season games are already listed (above), but a
+          # listed game is not a priced one — books post player props days,
+          # not weeks, before kickoff. If week-1 props ARE live today, a
+          # props-informed draft board costs 16 games x 6 markets x 1 (LIVE
+          # pricing, not the 10x historical multiplier) = ~96 credits, and
+          # the whole retrospective argument becomes optional. If they are
+          # not, that is a hard constraint on the 8/22 draft and worth
+          # knowing now rather than discovering on draft night.
+          if [ -n "$K_ODDS" ]; then
+            LE="https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
+            EID1=$(curl -s --max-time 20 "$LE/events?apiKey=$K_ODDS" \
+                   | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['id'] if d else '')")
+            if [ -n "$EID1" ]; then
+              before=$(rem)
+              c=$(code "$LE/events/$EID1/odds?apiKey=$K_ODDS&regions=us&markets=player_pass_yds,player_anytime_td&date=")
+              after=$(rem)
+              echo "  live week-1 props: HTTP $c | credits used: $(( before - after ))"
+              if [ "$c" = "200" ]; then
+                python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          d = json.load(open('/tmp/body'))
+          mk, rows = set(), 0
+          for bk in d.get('bookmakers', []):
+              for m in bk.get('markets', []):
+                  mk.add(m.get('key')); rows += len(m.get('outcomes', []))
+          print(f"    books: {len(d.get('bookmakers', []))}; markets: {sorted(mk) or 'NONE'}; rows: {rows}")
+          PY
+              else
+                echo "    (body suppressed; non-200 means not priced yet or market unavailable)"
+              fi
+            fi
+          fi
+
+          echo "== SEASON-LONG player markets? (Cory's draft priority, 2026-08-16) =="
+          # Cory: "I'm more worried about finding advantage in projected
+          # SEASON points right now as that could give us advantage in
+          # draft." A season-long player total ("X receiving yards O/U
+          # 1,250 for the year") IS the market's own season projection —
+          # a direct competitor to own_v6 for draft purposes, and far
+          # better evidence than extrapolating a week-1 line x17.
+          #
+          # Discovery is FREE: a 422 costs 0 credits (measured, run
+          # 31970500296), and this API's 422 body enumerates the markets it
+          # will accept. So we ask for a deliberately invalid market and
+          # read the rejection rather than paying to guess key names.
+          if [ -n "$K_ODDS" ]; then
+            LE="https://api.the-odds-api.com/v4/sports/americanfootball_nfl"
+            EID1=$(curl -s --max-time 20 "$LE/events?apiKey=$K_ODDS" \
+                   | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['id'] if d else '')")
+            if [ -n "$EID1" ]; then
+              before=$(rem)
+              c=$(code "$LE/events/$EID1/odds?apiKey=$K_ODDS&regions=us&markets=__enumerate_me__")
+              after=$(rem)
+              echo "  invalid-market probe: HTTP $c | credits used: $(( before - after ))"
+              echo "  --- rejection body (market vocabulary, no prices) ---"
+              head -c 3000 /tmp/body; echo
+            fi
+            echo "  --- season-long candidates, if the vocabulary named any ---"
+            for M in player_pass_yds_season player_reception_yds_season \
+                     player_rush_yds_season player_season_pass_yds; do
+              before=$(rem)
+              c=$(code "$LE/events/$EID1/odds?apiKey=$K_ODDS&regions=us&markets=$M")
+              after=$(rem)
+              echo "    $M: HTTP $c | credits: $(( before - after ))"
+            done
+          fi
+
+          echo "== read 200 = that key opens that door; 401/403 = wrong door =="
+          true
