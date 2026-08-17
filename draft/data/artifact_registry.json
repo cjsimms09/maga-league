@@ -193,6 +193,26 @@
    "timeout_s": 1800
   },
   {
+   "id": "lineup_capture",
+   "description": "EXP-35 lineup capture-rate instrument (LAB-REGISTRY row 35): TOOL (the LIVE src/routes/lineup.js optimize(), driven via node) and NAIVE (season-to-date PPG) against the certified per-week hindsight CEILING, dollar-graded through grade_substituted. Inputs are the frozen league_history.json, so drift here means the live lineup module's decision logic changed, not that the board moved. Regeneration needs node on PATH (the runner drives the real JS module, never a port).",
+   "owner_module": "draft/backtest/lineup_capture.py",
+   "artifact_path": "draft/data/lineup_capture_2023_25.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport lineup_capture as LC\nprint(json.dumps(LC.run()))"
+   ],
+   "compare_keys": [
+    "rows",
+    "per_season",
+    "invariants",
+    "headline",
+    "arms_why",
+    "limits"
+   ],
+   "timeout_s": 900
+  },
+  {
    "id": "replay_waiver_2023_25",
    "description": "The WAIVER ARM of the pre-registered three-season replay: ACTUAL / LINEUP_ONLY / NAIVE_WAIVER / TOOL_WAIVER per seat-season 2023-25, graded through money_grade.grade_substituted, with the waiver slice isolated, the season-pool leak detector, and the planted fail-arm. Drives the REAL src/routes/waivers.js via waiver_tool_runner.js (needs node).",
    "owner_module": "draft/backtest/replay_waiver.py",

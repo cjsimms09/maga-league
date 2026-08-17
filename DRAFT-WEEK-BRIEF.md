@@ -45,7 +45,17 @@ composition hold; names the v7 decline term), and the human rookie edge is
 August news, not draft capital (inventory routed to D).
 
 Evening items 1 (wrong-seat computation) and 3 (proj_mean is Sleeper-only, and
-the blend question) remain OPEN — 3 is running with the relay's blend pipeline.
+the blend question) — 1 remains OPEN; **3 is ANSWERED (20:40): the blend run
+graded NO SEPARATION** (`source_blend_2025.json`, `44cff5ad`). Best blend
+w=0.75 beats both sources in only 2/4 positions against a prereg bar of 3;
+Cory's exact 50/50 also 2/4; NAIVE control correctly lost, so the run could
+have detected a winner. **Sleeper stays — measured, not assumed.** January
+re-test extends the grid past 0.75 (best_w sat on the edge).
+
+**AND WITH THE BLEND NULL, THE KEEPER SLATE IS FINAL (chain steps 1–2 closed):
+keep all three — Chase R1 (+43), Henry R2 (+10), Walker R3 (+32), surplus
++86.3** on the survival-fixed, rulings-live board; every keep-fewer option is
+strictly worse. Cory confirms at the 08-20 lock; the board re-derives then.
 
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 

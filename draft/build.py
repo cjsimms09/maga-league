@@ -957,6 +957,28 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         PROJECTION_PROVENANCE["draft_capital"] = {"error": f"{type(capx).__name__}: {capx}"}
         print(f"  ! draft-capital column skipped ({type(capx).__name__}: {capx})")
 
+    # ── LATE-SEASON TRAJECTORY (F7) — THE ONE MEASURED 50/50 TIE-BREAKER ───
+    #
+    # edge_hunt_2026-08-16 §3: of nine pick-time-knowable features graded over
+    # 259 historical near-ties, eight predicted NOTHING; the hotter-prior-
+    # season-finish side won 58.0% of 176 (Wilson 95% CI [.506, .650]; p=.035,
+    # Bonferroni x9=.31 — a lean, not a law). A ruled 2026-08-17: APPLY the
+    # prepared diff — trajectory fact FIRST in verdict.js tiebreakFacts (that
+    # half is PREPARED at draft/patches/tiebreak_facts_bake.patch; a sibling
+    # worktree owns app.js/verdict.js today) plus this board field, its data
+    # plumbing. Informational column, same contract as draft capital above:
+    # no projection, ranking or weight reads it, absence stays absence, and
+    # test_late_trajectory.py proves the attach is additive.
+    try:
+        from late_trajectory import attach_late_trajectory, compute_late_trajectory
+        lt_diag = attach_late_trajectory(board, compute_late_trajectory(year_n))
+        PROJECTION_PROVENANCE["late_trajectory"] = lt_diag
+        print(f"  late trajectory: attached to {lt_diag['attached']} players "
+              f"(F7 from the {year_n - 1} component store)")
+    except Exception as ltx:  # noqa: BLE001 — an upgrade, never a dependency
+        PROJECTION_PROVENANCE["late_trajectory"] = {"error": f"{type(ltx).__name__}: {ltx}"}
+        print(f"  ! late-trajectory column skipped ({type(ltx).__name__}: {ltx})")
+
     # ── SAY WHAT proj_mean IS, AND SAY IT SEPARATELY FROM WHAT WE DISPLAY ───
     #
     # `consensus_sources` was set to 2 inside the FantasyPros branch and never
