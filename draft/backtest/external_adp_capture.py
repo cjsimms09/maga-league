@@ -2310,6 +2310,27 @@ def players_of(obj) -> dict:
         return load_players(obj)
     if isinstance(obj, dict):
         return obj.get("players") or {}
+    if isinstance(obj, list):
+        # ⚠ THE ONE SHAPE THE DOCSTRING ABOVE PROMISES AND CANNOT DELIVER, and
+        # it is the shape production passed. The key lives on the archive
+        # WRAPPER; a list of snapshots provably cannot carry it, so returning
+        # {} here was not a fact about the archive — it was a fact about the
+        # argument, silently formatted as an empty answer.
+        #
+        # IT HAS NOW COST TWO SEPARATE CALLERS. The capture workflow printed
+        # "Decode: 0.0%" off `players_of(load())` and was fixed in place to
+        # pass `C.SERIES`. `ingest_run.adp_id_map` was left alone because it
+        # "already refuses an empty key by name" — but it unions the archive
+        # key with the LIVE MFL export, so the union was never empty, the
+        # refusal never fired, and the archive's own 712-entry key was simply
+        # never used. A guard that only catches BOTH halves missing does not
+        # catch one half missing.
+        raise TypeError(
+            "players_of() was handed the series LIST, which cannot carry a "
+            "decode key — the key lives on the archive wrapper alongside it. "
+            "Returning {} here reads as 'the archive has no key' when it means "
+            "'you passed the wrong object'. Pass the archive dict, or the path "
+            "(external_adp_capture.SERIES), not load().")
     return {}
 
 
