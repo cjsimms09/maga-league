@@ -43,6 +43,8 @@ clothes, and a consumer pricing off it proceeds confidently.
 """
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 from statistics import pstdev
 
@@ -52,6 +54,41 @@ import field_population as FP
 #: chosen to match how a roster is actually filled — the starter, the flex-worthy
 #: second, the bench, the dart — not fitted to make any band look tight.
 BAND_EDGES = (3, 8, 16, 32)
+
+# ── OVERRIDABLE SO THE BAND SPLIT CAN BE MEASURED WITHOUT EDITING THIS FILE ──
+#
+# Added 2026-08-17 (relay, register 4q). Measured: these four edges put
+# **935 of 1,304 graded players into a single `33+` cell per position** while
+# ranks 1-32 get four bands (36 / 59 / 94 / 180). Ranks 33 to 300+ therefore
+# share one number — which is every player Cory drafts from round 4 on — and
+# inside a cell `proj_ceiling` is a constant multiple of `proj_mean`. That is
+# the mechanism behind the board telling him a round-12 flier has
+# proportionally LESS upside than a first-rounder (median ceiling/mean by ADP
+# band: 1.640 -> 1.506 -> 1.434 -> 1.434 -> 1.434 -> 1.317).
+#
+# THE OVERRIDE EXISTS SO THE FIX CAN BE MEASURED BEFORE IT IS BELIEVED. The
+# refit has to run where Sleeper is reachable (Actions; the sandbox gets a 403),
+# and a workflow cannot vary a module constant. Rather than edit this file for
+# an experiment, `PROJECTION_BAND_EDGES=3,8,16,32,48,72,100,150` sets it for one
+# run, into a SIDE artifact, so the live calibration is untouched until someone
+# has seen both slopes side by side.
+#
+# DEFAULT IS COMPLETELY UNCHANGED. Absent or unparseable env var -> the four
+# edges above, exactly as before. Same reversibility pattern as
+# DRAFT_PICK_LOG_PATH and PRE_DRAFT_FREEZE_PATH: it makes the experiment
+# possible, not the change easy.
+#
+# MIN_N below still governs. A split that over-reaches degrades a thin cell to
+# `unmeasurable` rather than to a confident wrong number — which is why finer
+# edges are safe to TRY even though shipping them is Cory's call.
+_edges_env = os.environ.get("PROJECTION_BAND_EDGES", "").strip()
+if _edges_env:
+    try:
+        _parsed = tuple(int(x) for x in _edges_env.split(",") if x.strip())
+        if _parsed and list(_parsed) == sorted(set(_parsed)) and _parsed[0] > 0:
+            BAND_EDGES = _parsed
+    except ValueError:
+        pass  # keep the declared edges; a typo must never silently reband the model
 
 #: Below this many graded players a band reports `unmeasurable` rather than a number.
 MIN_N = 8
