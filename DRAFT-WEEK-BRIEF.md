@@ -12,6 +12,55 @@ make sure we don't have other mistakes in our info!!"*
 
 ---
 
+## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
+
+*Added by the relay so these reach lanes without waiting on a merge. Cory today:
+**"are you following up and delegating appropriately so nothing gets missed."**
+They were in the register and the register is not what people read first.*
+
+**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
+Its own banner says so: 3 keepers mean Cory owns 12 picks, the board gives 15,
+the seat belongs to someone with 0 keepers, and *"every pick number, survival %
+and timing call on this page is computed for the wrong seat."* **That build was
+sent to Cory as a demo.** Fix the seat, or make the page REFUSE to compute.
+
+**2. CORY DRAFTS ON DESKTOP. A's LIVE ORDER TO B SAYS PHONE-FIRST** (4d).
+`7ee6f993`, 16:06 today, specifies *phone-first* and *the 390px column*. The
+assumption dates to 08-13 and was reasonable until this morning. **Desktop is the
+surface that must be right on 08-22.**
+
+**3. `proj_mean` IS SLEEPER, SCALED — FANTASYPROS ENTERS NOTHING** (21).
+`proj_baseline == proj_sleeper`, **422 of 422**; `build.py:1003` states the
+formula. FP (422 players) and own_v6 (416) are carried and DISPLAYED but reach no
+number. **Nobody decided this** — it is a default. No surface may call `proj_mean`
+a "consensus" or a "blend" (21b).
+
+**4. TWO WEIGHT SYSTEMS DISAGREE ABOUT UPSIDE, AND A BROWSER TOGGLE PICKS** (25).
+`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`). `autoWeights()` ships **0.45
+Anchor / 0.6 Build / 0.8 Fill** (`engine.js:3386`). State lives in `localStorage`
+and **no surface says which is active.** "The model ignores upside" is true only
+with Auto OFF. This reframes the ceiling ruling: not zero-vs-non-zero, but *which
+system is authoritative.*
+
+**5. THE SLEEPER-HISTORY BLOCKER WAS FALSE, AND THE PROOF SAT IN A LOG FOR A DAY**
+(24). Three committed files called it "permanently unmeasurable"; none had asked
+the API. **2025 passed every leak gate.** The 08-16 run was dispatched off a
+worktree branch and the push guard discarded its answer. Re-dispatched from
+`main` today — verdict committed as `0f9ecbe2`.
+
+**THE BLEND IS NOW RUNNABLE AND HAS NEVER BEEN RUN.**
+`SOURCE-BLEND-2025-PREREG.md` is committed (before any number, per house rules).
+The remaining blocker is a **fetch** — neither artifact carries per-player rows —
+and fetching is C's lane, not A's. That mis-route is the relay's.
+
+**THE ADJUSTERS WERE NEVER FITTED, AND THE STATED REASON IS A CHOICE** (26).
+`autoWeights` says three drafts is too few. That n=3 is *"one league, ONE SEAT"*
+(`PRE-REGISTRATION-three-season-replay.md:362`), and line 396 of the same prereg
+lists the fix: *"SEAT — 10 managers, not 1."* ~30 draft-seasons, and `replay.js`
+already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
+
+---
+
 ## 1. THE ONE THING TO UNDERSTAND
 
 Every dispersion field on the board — `proj_ceiling`, `proj_floor`, `proj_sd`,
