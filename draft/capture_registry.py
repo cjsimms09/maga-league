@@ -194,7 +194,11 @@ CAPTURES: dict[str, dict] = {
                   "Hill 0.282, Diggs 0.266, and a median TPRR of 0.188 in both "
                   "2021 and 2024. THE PBP JOIN IS REQUIRED AND WAS MEASURED: "
                   "participation carries no play_type, and the best "
-                  "participation-only pass proxy inflates the denominator 12%."),
+                  "participation-only pass proxy inflates the denominator 12%. "
+                  "WEEKLY via .github/workflows/weekly-routes.yml, Wednesdays "
+                  "11:30 UTC — staggered 30 minutes after weekly-snap-counts so "
+                  "two jobs are not pulling ~50 MB from one host at the same "
+                  "minute."),
     },
     "snap_counts": {
         "module": "draft/backtest/fetch_snap_counts.py",

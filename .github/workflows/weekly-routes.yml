@@ -1,0 +1,71 @@
+name: Weekly routes run
+
+# THE SECOND PER-PLAYER OPPORTUNITY FEED, KEPT CURRENT.
+#
+# Cory, 2026-08-17: "make sure we're pulling it in weekly and the data is
+# correct!" — the same standing instruction that put snap counts on a schedule.
+#
+# WHY WEEKLY. Routes run is the DENOMINATOR for target-per-route-run, and both
+# halves are per-week quantities. Unlike the projection snapshot nflverse does
+# not overwrite history, so a missed week is recoverable rather than lost —
+# which is why this runs Wednesday rather than racing kickoff.
+#
+# WEDNESDAY 11:30 UTC, THIRTY MINUTES AFTER SNAP COUNTS. Same reasoning (the
+# week is final, Monday night has landed and settled) and deliberately staggered
+# so two jobs are not pulling ~50 MB from the same host at the same minute.
+#
+# IT NEEDS BOTH FEEDS. `pbp_participation` carries no `play_type`, so pass plays
+# come from the play-by-play — measured, not assumed: the best
+# participation-only pass proxy inflates the route denominator by 12%, and a
+# denominator inflated by a tenth makes every efficiency number quietly wrong.
+#
+# A SEASON THE SOURCE HAS NOT PUBLISHED EXITS GREEN. `NotPublished` covers both
+# the participation file and the weekly data the position map needs — 2025
+# currently fails the latter, which is the same 404 that leaves it ungradeable
+# in the backtest. A job that goes red for an upstream gap is a job we learn to
+# ignore, so it reports and moves on.
+on:
+  schedule:
+    - cron: '30 11 * * 3'      # Wednesdays 11:30 UTC — after the week is final
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to fetch (space-separated; blank = current season only)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  routes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        # nfl_data_py supplies the play-by-play (for play_type) and the weekly
+        # data (for the position map); pandas parses the participation CSV.
+        run: pip install nfl_data_py pandas
+      - name: Fetch routes run
+        env:
+          SEASONS: ${{ github.event.inputs.seasons }}
+        run: |
+          set -uo pipefail
+          if [ -n "$SEASONS" ]; then
+            # shellcheck disable=SC2086
+            python3 draft/backtest/fetch_routes.py --seasons $SEASONS
+          else
+            python3 draft/backtest/fetch_routes.py --seasons "$(date -u +%Y)"
+          fi
+      - name: Commit the week
+        run: |
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/routes_*.json
+          # Nothing staged means the season is unpublished or the week was
+          # already captured. Both are no-ops, not failures — same reasoning as
+          # weekly-snap-counts.yml and weekly-proj-snapshot.yml.
+          git diff --cached --quiet && echo "no change — nothing new to capture" && exit 0
+          git commit -m "weekly routes run [skip deploy]"
+          git push
