@@ -125,13 +125,21 @@ def main() -> None:
         arm_b = {b["seeds"]: b["champ_prob"] for b in primary["batches"][arm]}
         diffs = [round(arm_b[k] - base[k], 4) for k in sorted(base)]
         three = all(d > 0 for d in diffs) or all(d < 0 for d in diffs)
+        # An arm that produced IDENTICAL rosters has batch diffs of exactly 0
+        # and is neither stable nor flipping — it never ran as an arm at all.
+        # Printing "SIGN FLIPS" there would read as instability where the truth
+        # is that the constraint never bound once in 1440 picks.
+        identical = all(d == 0 for d in diffs)
+        stability = ("IDENTICAL to the control — the constraint never bound"
+                     if identical else
+                     "stable" if three else "SIGN FLIPS ACROSS BATCHES")
         verdict = ("BEATS the shipped policy" if (one and two and three)
+                   else "NO EFFECT — same rosters as the control" if identical
                    else ("FREE AT BEST" if signs[0] == "0" and "-" not in signs[1:]
                          else "LOSES" if "-" in signs else
                          "NOT DISTINGUISHABLE FROM NOISE"))
-        print("  %-14s champ-CI signs %s   batch diffs %s   %s%s"
-              % (arm, "".join(signs), diffs,
-                 "stable" if three else "SIGN FLIPS ACROSS BATCHES", ""))
+        print("  %-14s champ-CI signs %s   batch diffs %s   %s"
+              % (arm, "".join(signs), diffs, stability))
         print("  %-14s -> %s" % ("", verdict))
 
     print("\n" + "=" * 78)

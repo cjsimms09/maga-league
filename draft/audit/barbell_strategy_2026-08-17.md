@@ -442,6 +442,25 @@ information — does not hold anywhere:
 | 7–10 | 430 | **+77.7** [+63.9, +91.6] | ABOVE |
 | 11–15 | 396 | +83.7 [+56.5, +110.7] | ABOVE |
 
+**6. A barbell allocation LOSES to the shipped policy in the same harness that
+rejected eight archetypes — and the loss is entirely in the late half.** 120
+paired rooms from Cory's real seat: **−0.50 weekly points [−0.688, −0.309] and
+−1.49 points of championship probability [−1.94, −1.03]**, sign stable in all
+three seed batches, CI-clear negative again under the wire floor. The
+`upside_late` arm produced **byte-identical rosters to `barbell` in 120 of 120
+rooms** — the phase timing is the whole strategy. **The harness's record against
+roster-construction archetypes is now ten for ten.** §8.
+
+**7. The shipped policy is ALREADY barbelled, and the measurement is exact.**
+Over 1440 picks with nobody telling it to have a shape: **rounds 4–8 are 100%
+ANCHOR, 600 of 600 picks**, and **2 picks in 1440 (0.14%) are DEAD**. The
+`no_deadweight` and `anchor_early` arms produced rosters identical to the
+control in **120 of 120 rooms** — there was never anything to exclude and never
+an anchor it was not already taking. And from round 9 the tool leans the OTHER
+way: at round 11 anchors are 31% of what is available and it takes one **61%**
+of the time. **It is barbelled at the end where the barbell is right and
+deliberately anti-barbelled at the end where the barbell is wrong.** §9.
+
 **No board, model, config or policy change ships from this document.** §10 lists
 what goes to `DECISIONS-NEEDED.md` for Cory's ruling.
 
@@ -559,3 +578,412 @@ arms.**
 5. **QB and TE cannot be separated on the flat-vs-dead axis at all**, because at
    both positions the wire IS replacement (§6 finding 4). The distinction this
    study exists to draw only has room to operate at RB and WR.
+
+---
+
+## 8. Q3 — DOES A BARBELL ALLOCATION BEAT THE SHIPPED POLICY?
+
+**No. It loses, CI-clear, in the primary configuration, and the loss is
+entirely in the late half of Cory's sentence.**
+
+### 8.1 THE INSTRUMENT CHECK FIRST — what the overlay could ever have done
+
+§5.2 fixed this ordering in advance, and it turns out to carry the pass's most
+useful single table. The mean class mix of the **engine's own top-25 candidate
+slice** at each of my picks, primary configuration, 120 rooms:
+
+| round | ANCHOR | SWING | DEAD | K/DEF |
+|---|---|---|---|---|
+| 4 | **25.0** | 0.0 | **0.0** | 0.0 |
+| 5 | 24.9 | 0.1 | **0.0** | 0.0 |
+| 6 | 24.5 | 0.5 | **0.0** | 0.0 |
+| 7 | 20.0 | 5.0 | **0.0** | 0.0 |
+| 8 | 18.1 | 6.8 | **0.0** | 0.0 |
+| 9 | 13.4 | 11.6 | **0.0** | 0.0 |
+| 10 | 11.0 | 14.0 | **0.0** | 0.0 |
+| 11 | 7.8 | 17.2 | **0.0** | 0.0 |
+| 12 | 6.4 | 18.5 | **0.1** | 0.0 |
+| 13 | 4.1 | 18.5 | **0.7** | 1.7 |
+| 14 | 0.2 | 0.1 | **0.0** | 24.6 |
+| 15 | 0.1 | 0.3 | **0.5** | 23.8 |
+
+**The engine's candidate list is essentially free of "no upside" players at
+every round of the draft.** Out of 25 candidates it offers, the count classified
+DEAD never exceeds 0.7 and is exactly 0.0 through round 11. Two consequences,
+and the first is a limitation on this pass while the second is the answer to
+Q4:
+
+1. **`anti_barbell`, the pre-declared control, is UNDERPOWERED rather than
+   informative** — it had almost nothing to seek. It diverged on 12 picks out of
+   1440 and its champ delta is −0.0002 [−0.0006, +0.0002].
+2. **The shipped engine already excludes dead weight, completely, without being
+   told to.** §9.
+
+### 8.2 ⚠️ A DECLARED DEPARTURE FROM THE PREREGISTRATION
+
+§4.3 fixed this refusal: *"If `anti_barbell` does not lose, this document
+reports that the instrument is inert and reports NO arm result."* **By the
+letter, that refusal is triggered — `anti_barbell` did not lose.** The arm
+results are reported anyway, and the override is recorded here rather than
+glossed over.
+
+The reason: that clause existed to catch an INERT CLASSIFIER, and the
+classifier is measurably not inert. `barbell` diverged from the control on
+**388 of 1440 picks**, gave up **79.2 points of VORP per room**, changed the
+modal roster shape (QB1/RB6/WR4/TE2 against the control's QB1/RB6/WR5/TE1), and
+moved championship probability by **−1.49 points, CI-clear**. An inert label
+cannot do that. The control failed to be a control for a specific, measured
+reason — the class it was told to seek is not on the engine's board — and that
+reason is itself §9's finding.
+
+**Stated plainly so a reader can disagree with the call rather than have it
+hidden: the pre-declared condition fired, and I overrode it on the ground that
+its purpose was served by stronger evidence.**
+
+### 8.3 The paired deltas — four configurations
+
+Paired seeds throughout: the same seed drives the same opponent randomness in
+every arm, so a difference is attributable to the overlay and not to a
+different room.
+
+| configuration | arm | Δ weekly pts [95% CI] | Δ champ [95% CI] | Δ playoff |
+|---|---|---|---|---|
+| **PRIMARY** measured room / designated keepers / 120 seeds | **barbell** | **−0.50** [−0.688, −0.309] | **−0.0149** [−0.0194, −0.0103] | −0.0208 |
+| | no_deadweight | **+0.00** [0, 0] | **+0.0000** [0, 0] | 0 |
+| | anchor_early | **+0.00** [0, 0] | **+0.0000** [0, 0] | 0 |
+| | upside_late | −0.50 [−0.688, −0.309] | −0.0149 [−0.0194, −0.0103] | −0.0208 |
+| | anti_barbell | −0.01 [−0.018, +0.006] | −0.0002 [−0.0006, +0.0002] | −0.0005 |
+| **WIRE FLOOR** streaming priced / 120 seeds | **barbell** | **−0.14** [−0.202, −0.081] | **−0.0044** [−0.0060, −0.0028] | −0.0075 |
+| | no_deadweight / anchor_early | +0.00 [0, 0] | +0.0000 [0, 0] | 0 |
+| | anti_barbell | +0.00 [0, 0] | −0.0001 [−0.0001, 0] | −0.0001 |
+| **ADP ROOM** noisy-ADP opponents / 40 seeds | **barbell** | **−0.27** [−0.444, −0.089] | +0.0018 [−0.0145, +0.0181] | +0.0011 |
+| | no_deadweight | −0.00 [−0.004, +0.001] | +0.0007 [−0.0006, +0.0020] | +0.0003 |
+| | anti_barbell | −0.22 [−0.352, −0.081] | +0.0024 [−0.0105, +0.0152] | +0.0036 |
+| **MINE-ONLY** unconfirmed keeper slate / 40 seeds | **barbell** | −0.21 [−0.549, +0.119] | −0.0048 [−0.0133, +0.0038] | −0.0048 |
+| | no_deadweight / anchor_early | +0.00 [0, 0] | +0.0000 [0, 0] | 0 |
+| | anti_barbell | −0.00 [−0.005, +0.002] | −0.0002 [−0.0006, +0.0002] | +0.0000 |
+
+**The barbell's point estimate is negative in all four configurations and
+CI-clear negative in both 120-seed ones.** The two 40-seed arms cover zero on
+championship probability — 40 paired rooms cannot resolve a 0.5pp effect — but
+the ADP room is CI-clear negative on weekly points, so it is not evidence in the
+barbell's favour either.
+
+### 8.4 The preregistered bar (§5.1), applied
+
+**BEATS** requires all three of: champ CI-clear positive in the primary; not
+CI-clear negative in any other configuration; the same sign in all three
+40-seed batches of the primary.
+
+| arm | champ-CI signs (primary / wire / ADP / mine-only) | primary batch diffs | verdict |
+|---|---|---|---|
+| **barbell** | **− − 0 0** | −0.0098 / −0.0184 / −0.0165 — stable | **LOSES** |
+| **upside_late** | − − 0 0 | identical to `barbell` | **LOSES** |
+| **no_deadweight** | 0 0 0 0 | 0.0 / 0.0 / 0.0 | **NO EFFECT — same rosters as the control** |
+| **anchor_early** | 0 0 0 0 | 0.0 / 0.0 / 0.0 | **NO EFFECT — same rosters as the control** |
+| anti_barbell | 0 0 0 0 | −0.0001 / +0.0001 / −0.0007 | **FREE AT BEST** (and underpowered, §8.1) |
+
+**No arm beats the shipped policy. The harness's record against
+roster-construction archetypes is now ten for ten.**
+
+### 8.5 The mechanism, located
+
+`barbell` and `upside_late` produced **byte-identical rosters in 120 of 120
+rooms.** `no_deadweight` and `anchor_early` produced **byte-identical rosters to
+the shipped control in 120 of 120 rooms.** So the four arms collapse to two
+distinct policies, and the whole barbell effect is one thing:
+
+> **In rounds 9–12, the barbell refuses the ANCHOR the engine wants and takes a
+> SWING instead. That is the entire strategy, and it costs −0.50 weekly points
+> and −1.49 points of championship probability.**
+
+Divergent picks by round: **R9 117, R10 116, R11 101, R12 54** of 120 rooms
+each. What the engine wanted at those picks: WR 219, RB 118, QB 33, TE 18. What
+the barbell took instead: RB 237, WR 118, TE 28, QB 5.
+
+**A third of the divergence is a quarterback the barbell will not take.** When
+the engine's round-9 recommendation is a QB1 — an ANCHOR by definition, since
+6-point passing TDs put a startable QB's median well above the 330.1 outcome-
+space replacement — the barbell's "seek SWING" rule refuses him. That makes a
+sizeable slice of this arm a rediscovery of `late_qb`, which
+`roster_construction_2026-08-16.md` already measured at −1.33 weekly points.
+**The two instruments agree, which is worth more than either alone.**
+
+### 8.6 THE MECHANISM UNDERNEATH THE MECHANISM — why a swing cannot pay here
+
+The preregistered variance probe (§5.2, run and reported below) turned up the
+structural reason, and it is the most useful thing in this document.
+
+**Cory's sentence assumes a TRADE-OFF: give up median to buy ceiling. On the
+measured error distribution that trade-off does not exist at the two deep
+positions.** A swing's ratio upside is larger — but it multiplies a smaller
+projection, and the product loses:
+
+| position | ANCHOR p90 range (realized points) | SWING p90 range | overlap |
+|---|---|---|---|
+| **RB** | 315.5 – 593.5 | 178.6 – 309.9 | **none** |
+| **WR** | 254.4 – 439.1 | 167.8 – 219.4 | **none** |
+| TE | 190.8 – 340.5 | 136.7 – 228.3 | 3 swings |
+| QB | 452.3 – 498.8 | 355.0 – 478.7 | 2 swings |
+
+**At running back and receiver, not one swing's top-decile season reaches even
+the WEAKEST anchor's.** And the same holds for volatility itself: mean
+`weekly_sd` is ANCHOR 31.1 against SWING 25.0 at RB, 21.2 against 19.4 at WR,
+17.5 against 14.3 at TE. **An anchor is the safer pick AND the higher-ceiling
+pick AND the more volatile pick.** Only at quarterback are swings genuinely more
+volatile (40.7 against 33.3), which is the one place the barbell's instinct has
+any measured footing — and it is the position where a wire add already returns
+replacement level for free (§6 finding 4).
+
+The classes are **ordered, not a menu.** That single fact explains every result
+in this pass: why the barbell loses in the harness, why the late band produced
+FEWER league-winners in three real seasons (§6 finding 3), and why "take upside
+late" cannot work on a board where a lower projection compresses the whole
+outcome distribution, ceiling included.
+
+**Pinned by test**, with a QB control where the ordering does overlap, so the
+RB/WR result cannot be passing for a trivial reason.
+
+### 8.7 The variance probe — §5.2's requirement, discharged
+
+The preregistration demanded this before the run: the harness's only channel is
+mean weekly points at a constant league sd (21.3 for every team), a barbell
+trades mean for right-tail mass, so a barbell losing there might be a fact about
+the instrument rather than about the strategy.
+
+**It is not.** `draft/tools/barbell_variance_probe.js` — ⚠️ *a new,
+unvalidated instrument, explicitly post-hoc, no verdict rests on it*:
+
+| | starting-lineup weekly sd (quadrature) | vs shipped |
+|---|---|---|
+| shipped / no_deadweight / anchor_early / anti_barbell | 67.70 | — |
+| barbell / upside_late | 68.55 | **+1.3%** |
+
+**A barbell roster carries 1.3% more weekly spread.** And when that spread is
+priced — the champodds bracket re-run on the same final rosters, with every team
+held at the SAME mean so the variance channel is isolated and the barbell's mean
+penalty is discarded entirely, which is as generous as this can possibly be
+made — it buys **+0.0001 championship probability [−0.0002, +0.0003].**
+
+**The harness is not blind to the barbell. The barbell barely buys variance**,
+for exactly the reason §8.6 gives. The −1.49pp loss is a mean-channel loss and
+it is real inside the model.
+
+---
+
+## 9. Q4 — THE SHIPPED POLICY IS ALREADY BARBELLED, AND THE MEASUREMENT IS EXACT
+
+This is the satisfying half of the answer and it was pre-declared as such
+(§4.4) so it could not be presented as a discovery after a null.
+
+The class of the shipped engine's own recommendation at each pick, 120 rooms,
+1440 picks, nobody telling it to have a shape:
+
+| round | picks | ANCHOR | SWING | DEAD |
+|---|---|---|---|---|
+| 4 | 120 | **100%** | 0% | **0** |
+| 5 | 120 | **100%** | 0% | **0** |
+| 6 | 120 | **100%** | 0% | **0** |
+| 7 | 120 | **100%** | 0% | **0** |
+| 8 | 120 | **100%** | 0% | **0** |
+| 9 | 120 | 98% | 2% | **0** |
+| 10 | 120 | 86% | 14% | **0** |
+| 11 | 120 | 61% | 39% | **0** |
+| 12 | 120 | 38% | 62% | **0** |
+| 13 | 120 | 11% | 82% | **2** |
+| 14 | 120 | 2% | 1% | **0** (98% K/DEF) |
+| 15 | 120 | 2% | 1% | **0** (97% K/DEF) |
+
+**Cory's instinct is confirmed and already implemented:**
+
+- **Rounds 4–8: 100% ANCHOR, 600 picks out of 600, no exceptions.** "A starter
+  who is average or above, in the first 8 rounds" is not a change to the tool —
+  it is a description of what the tool already does, every time.
+- **Dead weight: 2 picks out of 1440 (0.14%), both in round 13.** The
+  `no_deadweight` arm produced rosters identical to the control in all 120
+  rooms because there was never anything to exclude.
+- The ANCHOR share then falls monotonically from round 9 (98%) to round 13
+  (11%) as anchors leave the board.
+
+### 9.1 How much of that shape is CHOSEN and how much is FORCED
+
+This is the honest question and the slice census in §8.1 answers it.
+
+**In rounds 4–6 the shape is FORCED.** The engine's top-25 slice is 25.0 / 24.9
+/ 24.5 ANCHOR out of 25 — there is essentially nothing else on offer, so
+"anchors early" is availability, not judgement.
+
+The arithmetic behind that is worth stating on its own, because it reframes the
+early half of Cory's sentence: **the 2026 board carries 94 ANCHORs for a
+10-team league that makes about 90 picks in nine rounds.** The anchor supply
+does not run out until somewhere around round 10 — the slice still holds 7.8 of
+them at round 11. So *"take a proven starter in the first 8 rounds"* is not a
+strategy anybody has to adopt in this format. **It is a description of what is
+on the board.** You would have to work at it to do otherwise, and the
+`anchor_early` arm's result — identical rosters to the control in 120 of 120
+rooms — is that fact measured.
+
+**From round 9 on it is CHOSEN, and it is chosen AGAINST the barbell.** At round
+11 the slice holds 7.8 anchors and 17.2 swings — 31% of what is available is an
+anchor — and the shipped policy's top recommendation is an anchor **61%** of the
+time, twice its share of the board. At round 12 the slice is 26% anchor and the
+top pick is one 38% of the time. **The composite ranks anchors above swings far
+more often than availability alone would produce**, which is not mysterious —
+composite value tracks projected points and an anchor has more of them — but it
+means the shipped tool leans the OPPOSITE way to Cory's sentence in exactly the
+phase where his sentence is a real choice, rather than merely taking what is
+left. **That lean is what the barbell arm gives up to lose 1.49 points of
+championship probability.**
+
+So the full answer to Q4 is sharper than "already barbelled": **the tool is
+barbelled at the end where the barbell is right, and deliberately anti-barbelled
+at the end where the barbell is wrong.**
+
+---
+
+## 10. WHAT THIS CONTRADICTS, WHAT IT COULD NOT DO, AND WHAT GOES TO CORY
+
+### 10.1 Contradicted, corroborated, and one thing sharpened
+
+- **CORROBORATES `roster_construction_2026-08-16.md` at full strength.** That
+  document's verdict — *no construction shape beats pick-level value* — now
+  survives a ninth and tenth challenger. And the barbell's loss arrives partly
+  through the same channel as `late_qb`'s (−1.33 wk there, and a third of this
+  arm's divergence is a QB it refuses), so the two instruments agree.
+- **CORROBORATES the early-QB withdrawal from a third direction, and extends
+  it.** `WAR-ROOM-SAID-TAKE-EARLY-QB.md` voided the doctrine on a design defect;
+  `empirical_draft_value` §4.6 found no outcome support for paying up early.
+  This pass adds the other end: **a late-round backup QB is the single worst
+  cell in the draft against the wire (−76.1 [−147.3, −15.6])**, because at
+  quarterback the wire IS replacement level.
+- **SHARPENS `empirical_draft_value` §10 rather than contradicting it.** Its
+  "sixteen cells below replacement, twelve of them RB/WR in rounds 8–15" is
+  correct and unchanged. What is added is the denominator: measured against what
+  the roster spot could otherwise have returned, **none of those RB/WR cells is
+  CI-clear dead** and the middle band as a whole is at parity with the wire.
+  Below replacement and below the alternative are different statements.
+- **CONTRADICTS the late half of Cory's hypothesis on three independent
+  measurements** — realized value against the wire (rounds 9–15, −15.1
+  [−31.4, −1.5]), realized league-winner rate (late below middle in all three
+  seasons), and the room simulation (−1.49pp champ, CI-clear).
+- **AGREES with the early half on two** — realized value against the wire
+  (rounds 4–8, +19.2 [+4.8, +33.2]) and the shipped policy's own behaviour
+  (100% ANCHOR in 600 of 600 picks).
+
+### 10.2 What this pass could NOT do
+
+1. **It could not test the barbell on a board where the trade-off exists.**
+   §8.6 shows it does not exist at RB/WR on this board. Everything downstream of
+   that is conditional on `proj_mean`'s ordering being roughly right — and
+   `empirical_draft_value` §4.2 measured own_v6 as WORSE than the room's own
+   draft order at all four positions. **If the projection is wrong about which
+   players are anchors, the classifier is wrong in the same places.**
+2. **The `anti_barbell` control never got to be a control** (§8.1–8.2). The
+   class it was told to seek is not on the engine's board.
+3. **It could not separate the barbell from a rank overlay as cleanly as it
+   should.** §3.2 flagged in advance that the class is nearly monotone in ADP.
+   It is not entirely — the shipped policy's late-round anchor preference
+   operates on players the slice offers simultaneously — but a reader is
+   entitled to read part of the barbell's loss as "took a worse player".
+4. **Nothing here models in-season behaviour.** The wire comparison prices the
+   ALTERNATIVE to a pick; it does not simulate actually working the wire, and
+   `wire_level.json` cannot say which adds were reachable in a given room.
+5. **Three seasons, 450 picks, one 10-team league.** Every band-level number
+   rests on 90–115 picks and every round-level number on ~30. §7.2 is explicit
+   that at round resolution nothing separates.
+6. **The harness limitations carry over unchanged** —
+   `roster_construction_2026-08-16.md` §7, all seven of them: conditioned on
+   `proj_mean`, opponent-model fidelity, constant weekly sd, inflated absolute
+   levels, an unconfirmed keeper slate, bench value only through byes, and the
+   seat plan's positions rather than its names.
+
+### 10.3 Going to `DECISIONS-NEEDED.md` — described diffs, Cory rules, nothing ships
+
+- **(a) `proj_ceiling` is a symmetric Gaussian over a violently skewed measured
+  distribution.** `projections.py:318` writes `mean + CEILING_Z × proj_sd`. The
+  calibration that now supplies `proj_sd` also publishes `p10_ratio` and
+  `p90_ratio` per (position × rank band), and they are wildly asymmetric —
+  RB|33+ is p10 0.021 / p50 0.345 / p90 1.434 about a mean of 0.573. **Diff:
+  write `proj_floor = proj_mean × p10_ratio` and `proj_ceiling = proj_mean ×
+  p90_ratio` where a cell is measured, keeping the Gaussian path only where it
+  is not.** This is the same REC-1 move already made for `proj_sd`, applied to
+  the two fields beside it. **Consequence to weigh before ruling: `ceiling` sits
+  at 0 in `MEASURED_WEIGHTS`, so nothing on the board consumes it today** — this
+  is a correctness fix to a displayed field, not a scoring change, unless Cory
+  also wants the weight revisited. Not proposed here.
+- **(b) A late-round quarterback is the worst pick in the draft and the war room
+  does not say so.** Rounds 11–15 QB: −76.1 [−147.3, −15.6] against a held wire
+  add, the only CI-clear-below cell at any position, because measured QB
+  replacement (330.1) and the measured QB wire (330.8) are **the same number**.
+  **Diff: none proposed to the engine** — it already takes QB1 early enough that
+  this rarely binds (§9's table shows QB anchors going in rounds 9–12). The
+  question for Cory is whether the war room should carry a one-line rail at
+  rounds 11+ saying a second QB costs a roster spot the wire fills for free.
+  **This is the one finding in the pass with a plausible draft-night action.**
+- **(c) The middle band is at parity with the wire, not dead.** No diff. It is
+  a reading correction to how `empirical_draft_value` §10's below-replacement
+  table should be quoted, and it matters because that table is the most
+  quotable thing in that document.
+- **(d) `upside_class.js` is Lab-only and should stay that way unless Cory wants
+  it on the board.** The classifier is a genuinely new, measured, three-way
+  label over the board. It shipped as a research module with no production
+  reader, deliberately. If it were ever surfaced, the caveat in §10.2(1) travels
+  with it: it inherits every error in `proj_mean`.
+
+### 10.4 Rule 10, discharged this session
+
+**Nine deliberate breaks, nine catches** — after one silence was found and
+closed. Each was applied through `draft/tools/rule10_break.sh` (bounded,
+trap-restored) and observed red by name:
+
+| break | caught by |
+|---|---|
+| the wire reads the CHURNED level where it declares the HELD one | `test_wire_levels_are_the_committed_bytes_not_a_copy` |
+| `board_state` never removes a taken player | `test_board_state_pool_shrinks_monotonically_within_a_season` |
+| LEAGUE-WINNER cut off by one (`ceil` → `int`) | **initially a SILENCE** — see below |
+| `classify` calls an unpriced row DEAD instead of UNMEASURED | `barbell_policy.test.js` |
+| the class threshold reads projection-space replacement | `barbell_policy.test.js` CONTROL |
+| `banClass` also bans UNMEASURED | `barbell_policy.test.js` |
+| the phase boundary moves one round (8 → 9) | `barbell_policy.test.js` |
+| a barbell arm silently runs the control with no classifier | `barbell_policy.test.js` |
+| the driver stops passing `classOf` to the overlay | the run itself throws |
+
+**The silence, recorded because it is the useful one.** Breaking
+`tiered_outcome_model`'s `ceil(k/2)` to `int(k/2)` left the guard GREEN — the
+test read the COMMITTED artifact, and nothing re-ran the producer. **A guard
+that only checks a stored copy cannot see its producer drift.** Closed by
+re-deriving the cut live, with a non-vacuity check that at least one position's
+K is odd so ceil and floor actually differ. Re-broken afterwards: red by name.
+
+**And three guards went red on their own, before any deliberate break, each
+catching a real defect in this pass:**
+
+1. `UNMEASURED === 0` on the shipped board — wrong; 76 skill rows carry
+   `proj_mean == 0.0`, and calling them "no upside" would have been a coverage
+   gap wearing a finding's clothes.
+2. `_verdict` counted `max(positive, negative)` seasons instead of seasons
+   agreeing with the POOLED sign, so a CI-clear positive with two negative
+   seasons was being called replicated.
+3. `replacement − wire > 20` at every position — wrong twice, at QB then TE, and
+   the two reds together are §6's finding 4.
+
+## 11. Reproduce
+
+```
+node draft/tests/barbell_policy.test.js
+python3 draft/backtest/barbell_middle.py
+python3 -m pytest draft/tests/test_barbell_middle.py -q
+node draft/tools/archetype_rooms.js --rooms 120 --seed 1 \
+  --arms shipped,barbell,no_deadweight,anchor_early,upside_late,anti_barbell
+python3 draft/tools/barbell_report.py
+node draft/tools/barbell_variance_probe.js
+```
+
+**No board, model, config or policy change shipped from this document.**
+Everything new is Lab tooling (`draft/tools/upside_class.js`,
+`barbell_report.py`, `barbell_variance_probe.js`, five arms in
+`archetype_policy.js`, per-pick class/slice/give-up columns in
+`archetype_rooms.js`), one backtest module (`draft/backtest/barbell_middle.py`),
+committed research artifacts, tests, and this document. The four committed
+artifacts of `roster_construction_2026-08-16.md` are untouched — the barbell
+arms write to `archetype_rooms_barbell*.json`.
