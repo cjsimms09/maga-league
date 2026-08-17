@@ -45,24 +45,47 @@ dispersion identity **is** his cell membership. Change the cell, change the only
 thing the field says about him. James Cook moving `4-8 → 1-3` is not a tweak; it
 is the whole number.
 
-## WHAT THIS MEANS FOR E1
+## WHAT THIS MEANS FOR E1 — computed, after I first asserted it
 
-**E1 does not fix itself at lock, and it does not get worse — it changes
-identity.** The defect is a mismatch between the rank basis `blend()` uses
-(`players + kept_players`) and the pool the board publishes (`players` only), so
-its size is governed by **Cory's three keepers**, not by the other teams'. Those
-three stay in `kept_players` through lock, so the mismatch stays about three
-slots wide.
+**I first wrote that E1 "stays about three slots wide" and changes only which
+nine players it lands on. That was an assertion, so I computed it, and it was
+directionally right and numerically wrong.** Re-running E1's own comparison —
+the band implied by the published rank against the band implied by `blend()`'s
+rank basis — on both pools:
 
-**But the nine players it lands on will be a different nine**, because every
-boundary moves. The E1 table in `band_edge_misread_2026-08-17.md` — Chase Brown,
-Javonte Williams, Swift, Mason, Monangai, St. Brown, Jefferson, McMillan,
-Pierce — **should be treated as correct for today's board and re-derived, not
-re-read, after 08-20.** A fix applied to those nine by name would fix the wrong
-nine.
+| | misreads | overlap with today |
+|---|---|---|
+| **today** (reproduces E1 exactly) | **9** | — |
+| **after keeper lock** (predicted slate) | **11** | **1** |
 
-**That is an argument for fixing the mechanism rather than the rows**, which is
-what E1 already asks for.
+**Today's nine, reproduced:** St. Brown, Chase Brown, Jefferson, McMillan,
+Javonte Williams, Swift, Pierce, Mason, Monangai.
+
+**After lock, eleven — and only Chase Brown is on both lists:**
+
+```
+ovr  13  Chase Brown        RB   published  3 (1-3)   vs blend  4 (4-8)
+ovr  17  George Pickens     WR   published  3 (1-3)   vs blend  4 (4-8)
+ovr  28  Jaylen Waddle      WR   published  8 (4-8)   vs blend  9 (9-16)
+ovr  32  Kyren Williams     RB   published  7 (4-8)   vs blend  9 (9-16)
+ovr  37  Travis Etienne     RB   published  8 (4-8)   vs blend 10 (9-16)
+ovr  47  Terry McLaurin     WR   published 16 (9-16)  vs blend 17 (17-32)
+ovr  71  Quinshon Judkins   RB   published 15 (9-16)  vs blend 17 (17-32)
+ovr  83  Cam Skattebo       RB   published 16 (9-16)  vs blend 18 (17-32)
+ovr 142  Carnell Tate       WR   published 32 (17-32) vs blend 33 (33+)
+ovr 208  RJ Harvey          RB   published 31 (17-32) vs blend 33 (33+)
+ovr 209  Chris Rodriguez    RB   published 32 (17-32) vs blend 34 (33+)
+```
+
+**So the correction to my own claim: the defect gets slightly WIDER (9 → 11), not
+identical, and the turnover is near-total — 8 of today's 9 drop out and 10 new
+players appear.** Five of the newcomers sit inside the top 50: Pickens (17),
+Waddle (28), Kyren Williams (32), Etienne (37), McLaurin (47).
+
+**The conclusion I drew stands and is now demonstrated rather than argued: fixing
+E1 by naming today's nine rows would fix the wrong players.** Eight of nine would
+be irrelevant by 08-20 and ten genuinely affected players would be untouched.
+The mechanism is the only thing worth fixing.
 
 ## HONEST LIMITS — this is directional, not exact
 
@@ -96,11 +119,15 @@ ASK:      none new -- this is evidence for E1, which is already open and
 EVIDENCE: 46 players change calibration cell when the other teams' keepers
           leave the pool, 37 inside the top 150, with four moving into the
           1-3 band. Sweep 7 established proj_ceiling is mean x a per-cell
-          constant, so cell membership IS the dispersion figure.
-REC:      Fix E1's mechanism, not its nine named rows -- the rows will be a
-          different nine on 08-20. And treat the 08-20 re-check as required
-          rather than tidy: any floor/ceiling figure noted from today's
-          board is stale the moment the slate confirms.
+          constant, so cell membership IS the dispersion figure. And
+          re-running E1's own comparison post-lock gives 11 misreads against
+          today's 9, with ONLY Chase Brown on both lists.
+REC:      Fix E1's MECHANISM, not its nine named rows -- demonstrated, not
+          argued: 8 of today's 9 would be irrelevant by 08-20 and 10
+          genuinely affected players would go untouched, 5 of them inside
+          the top 50. And treat the 08-20 re-check as required rather than
+          tidy: any floor/ceiling figure noted from today's board is stale
+          the moment the slate confirms.
 DEFAULT:  Filed against E1's existing row. I have not touched anything and
           cannot re-run blend().
 ```
