@@ -767,3 +767,556 @@ body.warroom-page .wr-zone3 .card .body { padding: .5rem .65rem; }
     transition: none !important; animation: none !important;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE COCKPIT PASS (2026-08-17) — Cory's rejection, verbatim: "no charts, not
+   organized, not clear, doesnt give me lots of info in small space, not
+   built/look like a professional draft buddy. no places to click for more
+   info, not easy to quickly navigate between tools, big board, top 10 players
+   at each position left, its unacceptable."
+
+   The war room becomes a SINGLE-SCREEN DRAFT COCKPIT behind a sticky tool
+   bar: DRAFT · BIG BOARD · ROSTERS · ADJUSTERS · INTEL. The clock-card's dark
+   navy board (the one surface he called professional) is extended to the
+   WHOLE page — scoped under body.warroom-page by re-mapping the site tokens,
+   so every token-driven component flips at once. Doctrine holds: gold is
+   money/decision only, red is alarm only, mono numerals in columns, hairline
+   separators, 12–13px table type. Shell: views/admin/warroom.ejs; renderers:
+   app.js + warroom_charts.js (inline SVG, zero libraries).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── THE DARK BOOK — site tokens re-mapped for this page only ───────────── */
+body.warroom-page {
+  --bg: #0a1422;
+  --panel: #101f33;
+  --panel-soft: #182a42;
+  --line: #24384f;
+  --ink: #e9eef6;
+  --navy: #dce6f4;            /* heading ink token on the dark board */
+  --navy-deep: #0a1322;
+  --navy-soft: rgba(122, 162, 247, .14);
+  --muted: #93a5bc;
+  --gold: #f0c052;
+  --gold-bright: #ffd873;
+  --red: #ff5a66;
+  --red-bright: #ff707a;
+  --green: #3ecf8e;
+  --blue: #6ea8fe;
+  --paper: #101f33;
+  --cream: #0a1422;
+  --wr-warn: #e8a23d;
+  --wr-chart-main: #6ea8fe;
+  --wr-chart-room: #ff9d6b;
+  --wr-chart-dim: #3c516e;
+  --wr-chart-grid: #22344c;
+  /* The --wr-* role aliases at the top of this file are DECLARED ON :root, so
+     their var() references resolved against the LIGHT site tokens at :root —
+     re-mapping --panel on body cannot reach them (custom properties substitute
+     at the declaring element, then inherit as resolved values). Re-declared
+     here so the roles resolve against the board's own palette. */
+  --wr-money: var(--gold);
+  --wr-structure: #7aa2f7;
+  --wr-accent: var(--blue);
+  --wr-good: var(--green);
+  --wr-bad: var(--red);
+  --wr-ink: var(--ink);
+  --wr-muted: var(--muted);
+  --wr-line: var(--line);
+  --wr-panel: var(--panel);
+  --wr-panel-soft: var(--panel-soft);
+  background: #0a1422;
+  background-image:
+    radial-gradient(1000px 500px at 85% -10%, rgba(110, 168, 254, .07), transparent 60%),
+    radial-gradient(900px 480px at 10% 0%, rgba(240, 192, 82, .05), transparent 60%);
+  background-attachment: fixed;
+  color: var(--ink);
+  font-size: 14px;
+}
+body.warroom-page .wrap { max-width: 1440px; }
+/* The cockpit owns the screen: the site nav joins the masthead/tabbar the war
+   room already hides (warroom_mobile.test.js pins the tabbar one). The way
+   out is the 🏛 Office link on the sticky tool bar. */
+body.warroom-page .navbar { display: none; }
+body.warroom-page .page-sub { display: none; }
+body.warroom-page .card { box-shadow: 0 1px 3px rgba(0, 0, 0, .35); }
+body.warroom-page a { color: var(--gold); }
+/* hardcoded light-theme inks that would vanish on the board */
+body.warroom-page .btn.navy { color: var(--ink); }
+body.warroom-page .layer-sum:hover { color: var(--ink); }
+body.warroom-page .conf-note.close { color: var(--muted); }
+body.warroom-page .branch-head { color: var(--muted); }
+body.warroom-page .branch-rows li { color: var(--ink); }
+body.warroom-page .clock-why { color: #eef1f6; }
+body.warroom-page input::placeholder, body.warroom-page textarea::placeholder { color: #6b7d95; }
+/* legacy charts (DraftCharts emits light-surface fills as attributes; CSS
+   properties beat presentation attributes, so the board re-inks them) */
+body.warroom-page .wr-chart text { fill: var(--muted); }
+body.warroom-page .wr-chart text[font-weight="700"],
+body.warroom-page .wr-chart text[font-weight="600"] { fill: var(--ink); }
+body.warroom-page .wr-chart line[stroke="#e8e6df"] { stroke: var(--wr-chart-grid); }
+body.warroom-page .wr-chart path[fill="#2a5f9e"],
+body.warroom-page .wr-chart rect[fill="#2a5f9e"] { fill: var(--wr-chart-main); }
+body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
+
+/* ── THE TOOL BAR — sticky tab navigation ───────────────────────────────── */
+.wr-tabbar {
+  position: sticky; top: 0; z-index: 70;
+  display: flex; align-items: center; gap: .25rem;
+  padding: .35rem .35rem;
+  margin: 0 0 .5rem;
+  background: rgba(10, 20, 34, .94);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: 10px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.wr-tabbar::-webkit-scrollbar { display: none; }
+.wr-tab {
+  flex: 0 0 auto; font-family: var(--font-mono);
+  font-size: .68rem; font-weight: 800; letter-spacing: .08em;
+  color: var(--muted); background: transparent;
+  border: 1px solid transparent; border-radius: 7px;
+  padding: .42rem .6rem; cursor: pointer; white-space: nowrap;
+}
+.wr-tab:hover { color: var(--ink); background: var(--panel-soft); }
+.wr-tab.active { color: #0a1422; background: var(--gold); border-color: var(--gold); }
+.wr-tab-links {
+  margin-left: auto; display: inline-flex; gap: .15rem; align-items: center;
+  flex: 0 0 auto;
+}
+.wr-tab-links a {
+  font-size: .66rem; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: .35rem .45rem; border-radius: 6px; white-space: nowrap;
+}
+.wr-tab-links a:hover { color: var(--ink); background: var(--panel-soft); }
+.wr-tab-links a.wr-exit { border-left: 1px solid var(--line); border-radius: 0 6px 6px 0; }
+
+/* ── TAB PANELS — pure show/hide; every host stays in the DOM ───────────── */
+.wr-tabpanel { display: none; }
+#warroom[data-wrtab="draft"]   #wr-tab-draft,
+#warroom[data-wrtab="board"]   #wr-tab-board,
+#warroom[data-wrtab="rosters"] #wr-tab-rosters,
+#warroom[data-wrtab="adjust"]  #wr-tab-adjust,
+#warroom[data-wrtab="intel"]   #wr-tab-intel { display: block; }
+
+/* ── ALARM STRIPS above the tabs stay thin ──────────────────────────────── */
+body.warroom-page #keeper-lock-note > * { margin: 0 0 .4rem; }
+body.warroom-page .roast-banner { margin: 0 0 .4rem; }
+
+/* ── THE COCKPIT GRID — 240 | 1fr | 300 on desktop, stacked on phone ────── */
+.wr-cockpit { display: block; }
+@media (min-width: 1000px) {
+  .wr-cockpit {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr) 300px;
+    gap: .6rem; align-items: start;
+  }
+  /* SINGLE SCREEN: each cockpit column is its own scroll region, so the PAGE
+     holds still at one viewport on the DRAFT tab — the cockpit contract. */
+  .wr-rail { position: sticky; top: 48px; max-height: calc(100vh - 134px); overflow-y: auto;
+    scrollbar-width: thin; }
+  body.warroom-page .wr-cockpit > .wr-zone1 {
+    max-height: calc(100vh - 134px); overflow-y: auto; scrollbar-width: thin;
+    padding-right: .2rem;
+  }
+}
+@media (max-width: 999px) {
+  /* phone: the decision surface first, then the rails */
+  .wr-cockpit { display: flex; flex-direction: column; }
+  .wr-cockpit > .wr-zone1 { order: 1; }
+  .wr-cockpit > .wr-rail-right { order: 2; }
+  .wr-cockpit > .wr-rail-left { order: 3; }
+  /* the position rails turn sideways on a phone: four side-scrolling columns
+     instead of four stacked cards — same ten names, one block tall. */
+  #wr-posrails { display: flex; gap: .4rem; overflow-x: auto;
+    -webkit-overflow-scrolling: touch; padding-bottom: .3rem; }
+  #wr-posrails .wr-posrail { flex: 0 0 172px; margin-bottom: 0; }
+}
+
+/* ── DENSITY: the decide column tightens ────────────────────────────────── */
+body.warroom-page .wr-zone1 > .card { margin-bottom: .45rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card { margin-bottom: .35rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card .body { padding: .35rem .6rem; }
+body.warroom-page #clock-card { order: 0; }
+body.warroom-page .wr-statusbar { margin-bottom: .35rem; font-size: .68rem; padding: .3rem .6rem; }
+body.warroom-page .wr-search { margin-bottom: .35rem; }
+body.warroom-page .wr-search input { padding: .5rem 0; font-size: .85rem; }
+
+/* ── LEFT RAIL — top 10 per position ────────────────────────────────────── */
+.wr-rail { min-width: 0; }
+.wr-railwait { color: var(--muted); font-size: .74rem; font-style: italic; margin: .3rem; }
+.wr-posrail {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .4rem .5rem .3rem; margin-bottom: .45rem;
+}
+.wr-posrail.collapsed { padding: 0; }
+.wr-posrail.collapsed > summary {
+  list-style: none; cursor: pointer; padding: .4rem .55rem;
+  font-size: .7rem; font-weight: 800; letter-spacing: .06em; color: var(--muted);
+}
+.wr-posrail.collapsed > summary::-webkit-details-marker { display: none; }
+.wr-posrail.collapsed > summary::before { content: '▸ '; }
+.wr-posrail.collapsed[open] > summary::before { content: '▾ '; }
+.wr-posrail.collapsed .wr-pr-list { padding: 0 .5rem .3rem; }
+.wr-pr-head {
+  display: flex; align-items: baseline; gap: .4rem;
+  font-size: .72rem; letter-spacing: .06em; color: var(--ink);
+  border-bottom: 1px solid var(--line); padding-bottom: .25rem; margin-bottom: .15rem;
+}
+.wr-pr-head b { font-size: .78rem; font-weight: 900; }
+.wr-pr-left { color: var(--muted); font-size: .62rem; font-family: var(--font-mono); }
+.wr-pr-cap { margin-left: auto; color: var(--muted); font-size: .58rem; letter-spacing: .04em; }
+.wr-pr-list { list-style: none; margin: 0; padding: 0; }
+.wr-pr-row {
+  display: flex; align-items: baseline; gap: .35rem;
+  padding: .16rem 0; border-top: 1px solid rgba(36, 56, 79, .5);
+  font-size: .74rem; line-height: 1.25; cursor: pointer; min-width: 0;
+}
+.wr-pr-row:first-child { border-top: none; }
+.wr-pr-row:hover { background: var(--panel-soft); }
+.wr-pr-rank { flex: 0 0 1.1rem; text-align: right; color: var(--muted);
+  font-family: var(--font-mono); font-size: .64rem; }
+.wr-pr-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: var(--ink); font-weight: 600; }
+.wr-pr-tier { flex: 0 0 .95rem; text-align: center; font-size: .58rem; font-weight: 800;
+  color: var(--muted); border: 1px solid var(--line); border-radius: 3px; line-height: 1.4; }
+.wr-pr-gone { flex: 0 0 2.3rem; text-align: right; font-family: var(--font-mono);
+  font-size: .66rem; color: var(--muted); }
+.wr-pr-gone.hot { color: var(--red); font-weight: 800; }
+.wr-pr-gone.warm { color: var(--wr-warn); font-weight: 700; }
+.wr-pr-gone.cool { color: var(--green); }
+
+/* ── RIGHT RAIL — chart cards ───────────────────────────────────────────── */
+.wr-railcard {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .45rem .55rem .4rem; margin-bottom: .45rem;
+}
+.wr-railhead {
+  display: flex; align-items: center; gap: .35rem; margin: 0 0 .3rem;
+  font-size: .66rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);
+}
+.wr-railhead .wr-info { margin-left: auto; }
+.wr-railexp {
+  font-size: .7rem; color: var(--muted); line-height: 1.4; margin: 0 0 .35rem;
+  border-left: 2px solid var(--line); padding: .25rem .45rem;
+  background: var(--panel-soft); border-radius: 0 5px 5px 0;
+}
+.wr-railmore { margin: .1rem 0 .45rem; }
+.wr-railmore > summary {
+  cursor: pointer; font-size: .66rem; color: var(--muted); font-weight: 700;
+  padding: .3rem .2rem; list-style: none;
+}
+.wr-railmore > summary::-webkit-details-marker { display: none; }
+.wr-railmore > summary::before { content: '▸ '; }
+.wr-railmore[open] > summary::before { content: '▾ '; }
+
+/* honest empty state for every chart */
+.wr-chart-empty { margin: .2rem 0; font-size: .7rem; color: var(--muted); font-style: italic; }
+
+/* ── RUNNING-OUT TILES ──────────────────────────────────────────────────── */
+.wr-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
+.wr-tile {
+  border: 1px solid var(--line); border-radius: 7px; background: var(--panel-soft);
+  padding: .3rem .35rem; min-width: 0; cursor: default;
+}
+.wr-tile-pos { font-size: .66rem; font-weight: 900; letter-spacing: .06em; color: var(--ink); }
+.wr-tile-sq { display: flex; flex-wrap: wrap; gap: 2px; margin: .2rem 0; min-height: 8px; }
+.wr-tile-sq i { width: 7px; height: 7px; border-radius: 1.5px; background: var(--wr-chart-main); }
+.wr-tile-sq i.hollow { background: transparent; border: 1px solid var(--wr-chart-dim); }
+.wr-sq-more { font-size: .56rem; color: var(--muted); font-style: normal; }
+.wr-tile-verdict { font-size: .6rem; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); }
+.wr-tile-cost { font-size: .58rem; font-family: var(--font-mono); color: var(--muted); }
+.wr-tile.urgent { border-color: var(--red); background: rgba(255, 90, 102, .12); }
+.wr-tile.urgent .wr-tile-verdict { color: var(--red); }
+.wr-tile.urgent .wr-tile-cost { color: var(--ink); }
+.wr-tile.calm .wr-tile-verdict { color: var(--green); }
+.wr-tile.dead { opacity: .55; }
+
+/* ── COCKPIT CHART MARKS (new SVG, token-inked) ─────────────────────────── */
+.wr-cliffchart svg { display: block; width: 100%; height: auto; }
+.wr-grid { stroke: var(--wr-chart-grid); stroke-width: 1; }
+.wr-axis { fill: var(--muted); font-size: 8px; font-family: var(--font-mono); }
+.wr-cliff-line { stroke: var(--wr-chart-main); stroke-width: 1.6; }
+.wr-cliff-dot { fill: var(--wr-chart-main); }
+.wr-cliff-mark { stroke: var(--red); stroke-width: 1.4; stroke-dasharray: 3 2; }
+.wr-cliff-lbl { fill: var(--ink); font-size: 8px; font-weight: 600; }
+.wr-cliff-shade { fill: rgba(255, 90, 102, .10); }
+.wr-cliff-key { color: var(--red); }
+.wr-chips { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 .3rem; }
+.wr-chip {
+  font-family: var(--font-mono); font-size: .62rem; font-weight: 800;
+  color: var(--muted); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: .2rem .55rem; cursor: pointer;
+}
+.wr-chip:hover { color: var(--ink); }
+.wr-chip.active { background: var(--wr-chart-main); border-color: var(--wr-chart-main); color: #0a1422; }
+
+/* survival sparklines */
+#wr-chart-survival svg { display: block; width: 100%; height: auto; }
+.wr-spark-name { fill: var(--ink); font-size: 9px; }
+.wr-spark-line { stroke: var(--wr-chart-main); stroke-width: 1.5; }
+.wr-spark-line.dying { stroke: var(--red); }
+.wr-spark-pct { fill: var(--muted); font-size: 9px; font-family: var(--font-mono); }
+.wr-spark-pct.dying { fill: var(--red); font-weight: 700; }
+
+/* roster shape */
+.wr-shape { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem; }
+.wr-slot {
+  border: 1px dashed var(--line); border-radius: 6px; padding: .22rem .3rem; min-width: 0;
+}
+.wr-slot.filled { border-style: solid; border-color: var(--wr-chart-main); background: var(--navy-soft); }
+.wr-slot-lbl { display: block; font-size: .56rem; font-weight: 800; letter-spacing: .06em;
+  color: var(--muted); }
+.wr-slot-name { display: block; font-size: .64rem; color: var(--ink); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.wr-shape-cap { margin: .3rem 0 0; font-size: .64rem; color: var(--muted); }
+
+/* ── THE RANGE BAR on shortlist rows ────────────────────────────────────── */
+.wr-range { display: block; margin: .1rem 0 .15rem; line-height: 0; }
+.wr-range svg { display: block; }
+.wr-range-rail { stroke: var(--line); stroke-width: 1; }
+.wr-range-band { fill: rgba(110, 168, 254, .28); }
+.wr-range.lead .wr-range-band { fill: rgba(240, 192, 82, .38); }
+.wr-range-tick { stroke: var(--ink); stroke-width: 1.6; }
+.wr-range.lead .wr-range-tick { stroke: var(--gold-bright); }
+
+/* FALLING chip — value sliding past its price */
+.wr-falling {
+  display: inline-block; font-size: .56rem; font-weight: 900; letter-spacing: .06em;
+  color: #0a1422; background: var(--green); border-radius: 3px;
+  padding: .05rem .3rem; margin-left: .3rem; vertical-align: middle; cursor: help;
+}
+
+/* clickable names everywhere */
+.rec-nm { cursor: pointer; text-decoration: underline dotted rgba(147, 165, 188, .5); text-underline-offset: 2px; }
+.rec-nm:hover { color: var(--gold-bright); }
+
+/* ── THE ONE VOICE — verdict dominates, alternatives are rows ───────────── */
+body.warroom-page .wrv-name { font-size: 1.65rem; letter-spacing: -.01em; }
+body.warroom-page .wrv-why { font-size: .8rem; }
+body.warroom-page .btn.gold.wrv-take { background: var(--gold); border-color: var(--gold);
+  color: #0a1422; font-weight: 900; }
+body.warroom-page .btn.gold.wrv-take:hover { background: var(--gold-bright); }
+body.warroom-page .wrv-lens { background: var(--panel-soft); }
+body.warroom-page .wrv-chip.lock { background: var(--gold); color: #0a1422; }
+body.warroom-page .wrv-chip.lean { background: var(--navy-soft); color: var(--ink); border-color: var(--wr-chart-main); }
+
+/* path cards → ONE DENSE ROW EACH; the essays live behind the ⓘ */
+body.warroom-page .paths-panel { display: block; margin: .35rem 0 0; }
+body.warroom-page .path-card {
+  /* style.css builds this as a COLUMN card; the cockpit flattens it to ONE
+     dense row (name · price · score · take), essays behind the ⓘ. */
+  display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
+  gap: .2rem .5rem;
+  padding: .3rem .55rem; margin: 0 0 .3rem; border-radius: 8px;
+  background: var(--panel-soft); border: 1px solid var(--line);
+}
+body.warroom-page .path-card.top { border-color: var(--gold); background: rgba(240, 192, 82, .08); box-shadow: none; }
+body.warroom-page .path-head { display: inline-flex; align-items: baseline; gap: .4rem; flex: 1 1 12rem; min-width: 0; }
+body.warroom-page .path-name { font-size: .68rem; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+body.warroom-page .path-price { font-family: var(--font-mono); font-size: .66rem; color: var(--wr-warn); white-space: nowrap; }
+body.warroom-page .path-price.top { color: var(--gold-bright); }
+body.warroom-page .path-pick { display: inline-flex; align-items: baseline; gap: .45rem; flex: 1 1 11rem; min-width: 0; margin: 0; }
+body.warroom-page .path-player { font-size: .86rem; font-weight: 700; color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+body.warroom-page .path-score { font-family: var(--font-mono); font-size: .8rem; font-weight: 800; color: var(--ink); }
+body.warroom-page .path-actions { display: inline-flex; gap: .3rem; margin: 0; flex: 0 0 auto; }
+body.warroom-page .path-info { flex: 1 1 100%; order: 9; margin: 0; }
+body.warroom-page .path-info > summary {
+  list-style: none; display: inline-block; cursor: pointer;
+  font-size: .62rem; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: .08rem .5rem;
+}
+body.warroom-page .path-info > summary::-webkit-details-marker { display: none; }
+body.warroom-page .path-info[open] > summary { background: var(--panel); color: var(--ink); }
+.wr-procon { display: grid; grid-template-columns: 1fr; gap: .3rem; margin: .35rem 0 0; }
+@media (min-width: 640px) { .wr-procon { grid-template-columns: 1fr 1fr; } }
+.wr-procon .path-when, .wr-procon .path-against {
+  margin: 0; padding: .3rem .45rem; font-size: .7rem; line-height: 1.4;
+  border-left: 2px solid var(--green); background: rgba(62, 207, 142, .06); border-radius: 0 5px 5px 0;
+}
+.wr-procon .path-against { border-left-color: var(--red); background: rgba(255, 90, 102, .06); }
+.wr-pc-list { margin: .15rem 0 0; padding-left: 1rem; }
+.wr-pc-list li { margin: .1rem 0; color: var(--ink); }
+body.warroom-page .path-plan { font-size: .66rem; color: var(--muted); margin: .3rem 0 0; }
+body.warroom-page .path-distinction { margin: .25rem 0 0; }
+
+/* shortlist rows tighten further (table-density type) */
+body.warroom-page .rec-card { padding: .35rem .5rem; margin-bottom: .3rem; }
+body.warroom-page .rec-name { font-size: .9rem; line-height: 1.25; }
+body.warroom-page .rec-why {
+  font-size: .72rem; line-height: 1.35;
+  /* the full sentence survives in the dossier + Why?; the ROW is a table row */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.warroom-page .rec-context {
+  font-size: .66rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+body.warroom-page .rec-score { font-size: 1.1rem; font-family: var(--font-mono); }
+body.warroom-page .recs-details > summary { margin-bottom: .25rem; }
+body.warroom-page #recs-card .body { padding: .55rem .65rem .65rem; }
+
+/* the rule-headline detail line (app-mounted, inline gold wash) tightens */
+body.warroom-page #rule-headline { font-size: .74rem; padding: .4rem .55rem !important; }
+body.warroom-page #rule-headline .rh-why { font-size: .74rem !important; }
+
+/* the keeper-slate alarm is a THIN RED STRIP, detail one tap in (the link) */
+body.warroom-page #keeper-lock-note .stale-block {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .7rem;
+  padding: .35rem .7rem; margin: 0 0 .4rem;
+  border: 1px solid var(--red); border-left: 4px solid var(--red);
+  border-radius: 8px; background: rgba(255, 90, 102, .10);
+}
+body.warroom-page #keeper-lock-note .stale-block h3 {
+  margin: 0; font-size: .74rem; color: var(--red); letter-spacing: .03em;
+}
+body.warroom-page #keeper-lock-note .stale-block p {
+  margin: 0; font-size: .68rem; color: var(--muted); line-height: 1.3;
+}
+body.warroom-page #keeper-lock-note .stale-block p:nth-of-type(1) {
+  flex: 1 1 22rem; min-width: 0; color: var(--ink);
+}
+body.warroom-page #keeper-lock-note .stale-block .btn { white-space: nowrap; }
+
+/* the seat plan compresses to its lead rows; the full look-ahead scrolls */
+body.warroom-page #seat-plan { font-size: .74rem; max-height: 170px; overflow-y: auto;
+  border: 1px solid var(--line); border-radius: 8px; padding: .35rem .55rem;
+  background: var(--panel); margin-bottom: .45rem; scrollbar-width: thin; }
+
+/* app-mounted context strips shrink to strip size */
+body.warroom-page #doctrine-picker { font-size: .72rem; }
+body.warroom-page .legality-strip { font-size: .7rem; }
+body.warroom-page .lrm-strip { font-size: .72rem; }
+body.warroom-page .best-avail-strip { font-size: .72rem; }
+
+/* ── BIG BOARD tab ──────────────────────────────────────────────────────── */
+.wr-boardbar { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin: 0 0 .5rem; }
+.wr-boardbar .wr-search { flex: 1 1 240px; margin: 0; }
+.wr-cols {
+  display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .4rem;
+  -webkit-overflow-scrolling: touch;
+}
+.wr-col {
+  flex: 0 0 170px; min-width: 0;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: .4rem .45rem;
+}
+.wr-col-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  font-size: .74rem; color: var(--ink); border-bottom: 1px solid var(--line);
+  padding-bottom: .25rem; margin-bottom: .15rem;
+}
+.wr-col-head b { font-weight: 900; letter-spacing: .05em; }
+.wr-col-head span { color: var(--muted); font-size: .62rem; font-family: var(--font-mono); }
+.wr-col-list { list-style: none; margin: 0; padding: 0; }
+.wr-col-row {
+  display: flex; align-items: baseline; gap: .3rem; padding: .13rem 0;
+  font-size: .72rem; line-height: 1.25; cursor: pointer; min-width: 0;
+}
+.wr-col-row:hover { background: var(--panel-soft); }
+.wr-col-rank { flex: 0 0 1.2rem; text-align: right; color: var(--muted);
+  font-family: var(--font-mono); font-size: .62rem; }
+.wr-col-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; color: var(--ink); font-weight: 600; }
+.wr-col-proj { flex: 0 0 auto; font-family: var(--font-mono); font-size: .66rem; color: var(--muted); }
+.wr-cliffline { height: 0; border-top: 2px solid var(--red); margin: .12rem 0; list-style: none; }
+.wr-fulltable > summary { margin-top: .3rem; }
+body.warroom-page .roll { font-size: .76rem; }
+body.warroom-page .roll td, body.warroom-page .roll th { padding: .22rem .4rem; }
+
+/* ── THE DRILL-DOWN — one reusable slide-over ───────────────────────────── */
+.wr-drill { position: fixed; inset: 0; z-index: 200; background: rgba(4, 10, 18, .55); }
+.wr-drill-panel {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: min(400px, 92vw); overflow-y: auto;
+  background: var(--panel); border-left: 1px solid var(--line);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, .5);
+  padding: .9rem .9rem 1.2rem;
+}
+.wr-drill-close {
+  position: absolute; top: .5rem; right: .6rem;
+  background: none; border: 1px solid var(--line); border-radius: 6px;
+  color: var(--muted); font-size: .8rem; padding: .2rem .5rem; cursor: pointer;
+}
+.wr-drill-close:hover { color: var(--ink); }
+.wr-drill-name { font-size: 1.15rem; font-weight: 800; color: var(--ink); margin: 0 1.8rem .4rem 0; }
+.wr-drill-gone { font-size: .6rem; font-weight: 900; color: #fff; background: var(--red);
+  border-radius: 3px; padding: .1rem .35rem; vertical-align: middle; }
+.wr-drill-range { margin: .2rem 0 .5rem; }
+.wr-drill-facts { border-collapse: collapse; width: 100%; font-size: .76rem; }
+.wr-drill-facts td { padding: .22rem 0; border-top: 1px solid rgba(36, 56, 79, .5); color: var(--muted); }
+.wr-drill-facts td.wr-num { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wr-pos-delta { color: var(--green); font-size: .66rem; }
+.wr-neg-delta { color: var(--wr-warn); font-size: .66rem; }
+.wr-drill-h { font-size: .6rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 .2rem; }
+.wr-drill-surv { margin: .6rem 0 0; }
+.wr-drill-surv-row { display: flex; align-items: center; gap: .45rem; font-size: .72rem;
+  color: var(--muted); padding: .12rem 0; }
+.wr-drill-surv-row > span { flex: 0 0 4.2rem; }
+.wr-drill-surv-bar { flex: 1 1 auto; height: 6px; border-radius: 3px; background: var(--panel-soft);
+  border: 1px solid var(--line); overflow: hidden; }
+.wr-drill-surv-bar i { display: block; height: 100%; background: var(--wr-chart-main); }
+.wr-drill-surv-row b { flex: 0 0 2.6rem; text-align: right; color: var(--ink);
+  font-family: var(--font-mono); font-size: .7rem; }
+.wr-drill-surv-row b.dying { color: var(--red); }
+.wr-drill-why { margin: .6rem 0 0; font-size: .74rem; color: var(--ink); line-height: 1.45; }
+.wr-drill-ctx { margin: .4rem 0 0; font-size: .66rem; color: var(--muted); }
+.wr-drill-actions { display: flex; gap: .35rem; flex-wrap: wrap; margin: .7rem 0 0; }
+
+/* ── ADJUSTERS tab: the doctrine essays fold ────────────────────────────── */
+.wr-when { margin: 0 0 .5rem; }
+.wr-when > summary {
+  list-style: none; display: inline-block; cursor: pointer;
+  font-size: .62rem; font-weight: 700; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: .05rem .5rem;
+}
+.wr-when > summary::-webkit-details-marker { display: none; }
+.wr-when[open] > summary { background: var(--panel-soft); color: var(--ink); }
+.wr-when .slider-when { padding: .3rem 0 0; }
+
+/* ── phone rhythm for the cockpit ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .wr-tabbar { margin-left: -.2rem; margin-right: -.2rem; }
+  .wr-tab { font-size: .62rem; padding: .38rem .45rem; }
+  .wr-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wr-drill-panel { width: 94vw; }
+  body.warroom-page .path-actions .btn.small { min-height: 36px; }
+  /* ≤3 phone screens: the row prose tightens to one line each — the full
+     sentence is one tap away (dossier / drill-down / Why?). */
+  body.warroom-page .rec-why { -webkit-line-clamp: 1; }
+  body.warroom-page .rec-card { padding: .3rem .45rem; }
+  body.warroom-page #rule-headline { font-size: .7rem; }
+  body.warroom-page #seat-plan { max-height: 130px; }
+  /* Long lists become THEIR OWN scroll regions on a phone — everything stays
+     reachable, the page stays inside the screen budget. */
+  body.warroom-page #recs { max-height: 420px; overflow-y: auto; }
+  body.warroom-page #wr-posrails .wr-pr-list { max-height: 132px; overflow-y: auto; }
+  body.warroom-page #queue-card .body > #queue { max-height: 180px; overflow-y: auto; }
+  body.warroom-page #branches { max-height: 170px; overflow-y: auto; }
+  body.warroom-page #doctrine-picker { max-height: 110px; overflow-y: auto; }
+  body.warroom-page .lrm-strip { max-height: 120px; overflow-y: auto; display: block; }
+  /* Redundant WITH THE COCKPIT on a phone (the left rail carries the same
+     per-position answer, the tiles carry the wait cost): the strip and the
+     select-detail hide at this width only — same precedent as #mvs. */
+  body.warroom-page .best-avail-strip { display: none; }
+  body.warroom-page #pos-recs-wrap { display: none; }
+  body.warroom-page .path-doctrine { display: none; }
+  body.warroom-page .path-name { font-size: .6rem; }
+  body.warroom-page .wrv-name { font-size: 1.35rem; }
+  body.warroom-page #recs { max-height: 340px; }
+  body.warroom-page #rule-headline { max-height: 150px; overflow-y: auto; }
+  body.warroom-page .wrv-tiebreak { max-height: 100px; overflow-y: auto; }
+  body.warroom-page .path-card { padding: .25rem .45rem; gap: .15rem .4rem; }
+  /* roster shape is redundant on a phone — the ROSTERS tab carries the full
+     slot grid; hiding the CARD (id stays in the DOM) buys back a block. */
+  body.warroom-page #wr-shape-card { display: none; }
+}
+
+/* Motion doctrine: state changes only. */
+@media (prefers-reduced-motion: reduce) {
+  .wr-drill-panel, .wr-tab, .wr-tile { transition: none !important; animation: none !important; }
+}
