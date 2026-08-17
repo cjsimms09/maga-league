@@ -1,0 +1,184 @@
+# TERRITORY: A
+"""WHAT EVERY CAPTURE KEEPS, WHAT IT DROPS, AND WHY — enforced, not documented.
+
+Cory, 2026-08-17: *"Nothing in here about getting all fantasy pros data that we
+can and retaining? Also fixing all these things for future pulls?"*
+
+The second half is the important one. `data_holes_2026-08-17.md` found FIVE
+instances of the same defect in one day — FantasyPros rows computed and thrown
+away, `proj_series` storing a bare float, `rz_share` consumed and never
+persisted, the Sleeper verdict printed to a log, `proj_ceiling_for` shipped and
+never called. A list of five one-time fixes does not stop the sixth.
+
+**So this is the gate, modelled on the one that already works.**
+`season_stamp.BOARD_FIELD_SOURCES` makes an unclassified board field a test
+failure, and it caught the draft-capital column the same morning it was added —
+proof the shape is right. This does the same job one layer up, for CAPTURES:
+
+    a capture must DECLARE what it retains, what it knowingly drops, and
+    whether it keeps the raw payload — and the declaration is CHECKED against
+    the code and the config rather than believed.
+
+THE CHECK THAT MATTERS MOST is `fantasypros.unreachable_scored_keys`. It is
+computed from `_FP_STAT_MAP` against the live scoring table, so if anyone adds
+a scoring category, or FantasyPros starts serving a stat we do not map, the
+test fails and someone has to decide. That is the difference between a comment
+that goes stale and a gate that does not.
+
+RAW PAYLOAD RETENTION IS THE OTHER HALF, and it is the cheaper insurance. A
+parser is a whitelist; every whitelist loses whatever nobody anticipated.
+Keeping the response means a question asked in 2027 can be answered by
+RE-PARSING rather than RE-FETCHING — and re-fetching a preseason projection is
+exactly what leaks (exp33), so for some sources it is the difference between an
+answer and no answer.
+"""
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+
+#: A capture whose `raw_retained` is False must carry a reason. "We only parse
+#: what we need" is NOT a reason — that is the defect this registry exists for.
+CAPTURES: dict[str, dict] = {
+    "fantasypros_adp": {
+        "module": "draft/backtest/fantasypros_adp.py",
+        "parser": "parse_adp",
+        "retains": ["name", "position", "team", "adp"],
+        "knowingly_drops": {
+            "rank_min / rank_max / rank_std": (
+                "expert RANK DISPERSION per player — a genuine per-player "
+                "uncertainty signal, in a response we already pay for. Dropped "
+                "today; queued for capture (data_completeness_plan §3 phase 2 "
+                "item 8). It is NOT an outcome ceiling and must not be used as "
+                "one — it measures how much experts disagree about where to "
+                "draft him, not how big his season can be."),
+        },
+        "raw_retained": False,
+        "raw_why_not": "QUEUED — phase 1. This is a defect, not a decision.",
+    },
+    "fantasypros_projections": {
+        "module": "draft/backtest/fantasypros_adp.py",
+        "parser": "parse_projections",
+        "retains": ["name", "position", "team", "stats", "fp_fpts"],
+        "knowingly_drops": {
+            "any stat key outside _FP_STAT_MAP": (
+                "the parser's own docstring says 'unknown stat keys are "
+                "dropped', silently. The map is a 12-entry whitelist, so a "
+                "stat FantasyPros starts serving tomorrow vanishes without a "
+                "trace. `unreachable_scored_keys` below is the measured cost."),
+        },
+        "raw_retained": False,
+        "raw_why_not": "QUEUED — phase 1. This is a defect, not a decision.",
+        "scoring_note": (
+            "fp_fpts is FP's number in FP's scoring and is NEVER the value; "
+            "`stats` is re-scored through our table (score_stat_line), which is "
+            "what makes the column league-normalised."),
+    },
+    "sleeper_projections": {
+        "module": "draft/sleeper_import.py",
+        "parser": "fetch_projections",
+        "retains": ["full stat line per player"],
+        "knowingly_drops": {},
+        "raw_retained": True,
+        "raw_why_not": None,
+        "scoring_note": (
+            "Sleeper serves STAT LINES; baseline_from_projections re-scores "
+            "them through cfg['scoring']. We never take a provider's points."),
+    },
+    "proj_series": {
+        "module": "draft/proj_series.py",
+        "parser": "append_snapshot",
+        "retains": ["proj", "situation", "n_offered", "date", "source", "week"],
+        "knowingly_drops": {},
+        "raw_retained": True,
+        "raw_why_not": None,
+        "fixed": "2026-08-17 — was a bare float per player until then",
+    },
+    "adp_series": {
+        "module": "draft/adp_series.py",
+        "parser": "append_snapshot",
+        "retains": ["adp", "date"],
+        "knowingly_drops": {
+            "situation / n_offered": (
+                "STILL A BARE FLOAT, 300 players. proj_series was fixed on "
+                "2026-08-17 and its sibling was not. Same hole, still open — "
+                "declared here so it cannot be forgotten again."),
+        },
+        "raw_retained": False,
+        "raw_why_not": "QUEUED — phase 1, same fix as proj_series.",
+    },
+    "opportunity_metrics": {
+        "module": "draft/projections.py",
+        "parser": "opportunity_metrics",
+        "retains": ["target_share", "wopr", "opportunity_share"],
+        "knowingly_drops": {
+            "rz_share": (
+                "COMPUTED from play-by-play and CONSUMED in the opportunity "
+                "composite, then persisted nowhere — 0 of 682 board rows. This "
+                "is why opportunity_inheritance had to report 'red-zone vacancy "
+                "is not measured at all'. It was measured. It was not kept."),
+            "snap_share / air_yards_share / adot / xfp_delta": (
+                "named in the function's own return contract, absent from the "
+                "artifact — either not computed or dropped at attach; from a "
+                "consumer's seat those are the same defect."),
+        },
+        "raw_retained": False,
+        "raw_why_not": "QUEUED — phase 1 item 2, pure retention of existing work.",
+    },
+}
+
+
+def fp_stat_map() -> dict:
+    """Read `_FP_STAT_MAP` from the source rather than importing it, so this
+    registry does not depend on the fetcher's egress-only imports."""
+    src = (HERE / "backtest" / "fantasypros_adp.py").read_text()
+    body = re.search(r"_FP_STAT_MAP = \{(.*?)\n\}", src, re.S)
+    if not body:
+        return {}
+    return dict(re.findall(r'"([a-z0-9_]+)":\s*"([a-z0-9_]+)"', body.group(1)))
+
+
+def priced_categories(cfg_path: Path | None = None) -> set:
+    cfg = json.loads((cfg_path or HERE / "config" / "league_config.json").read_text())
+    return {k for k, v in (cfg.get("scoring") or {}).items() if v}
+
+
+def unreachable_scored_keys(cfg_path: Path | None = None) -> list:
+    """Priced categories FantasyPros CANNOT populate — computed, never asserted.
+
+    This is the honest answer to "are we sure it's all normalised to our 6-point
+    passing TD, 0.5 PPR league?". The SCORING is ours on both columns. The
+    INPUTS are not equal: Sleeper serves a full stat line, FP serves whatever
+    the 12-entry map catches, so any category outside it contributes zero to the
+    FP column and the two are not measuring the same player.
+    """
+    return sorted(priced_categories(cfg_path) - set(fp_stat_map().values()))
+
+
+def audit(cfg_path: Path | None = None) -> dict:
+    """Everything a reader needs to see the state of capture completeness."""
+    unreachable = unreachable_scored_keys(cfg_path)
+    # The subset that actually bites a skill player. K/DEF are already known to
+    # be Sleeper-only by necessity (FP's feed does not cover them), so their
+    # categories are an expected absence rather than a silent loss.
+    skill_biting = [k for k in unreachable
+                    if k.endswith("_2pt")]
+    return {
+        "captures": CAPTURES,
+        "raw_retained": {k: v["raw_retained"] for k, v in CAPTURES.items()},
+        "captures_missing_raw": sorted(k for k, v in CAPTURES.items()
+                                       if not v["raw_retained"]),
+        "fp_map_size": len(fp_stat_map()),
+        "fp_reachable_scored_keys": sorted(set(fp_stat_map().values())),
+        "unreachable_scored_keys": unreachable,
+        "unreachable_biting_skill_positions": skill_biting,
+        "_note": ("A capture with raw_retained False is a DEFECT with a queue "
+                  "position, never a settled design. A parser is a whitelist "
+                  "and every whitelist loses what nobody anticipated; keeping "
+                  "the response means a 2027 question can be answered by "
+                  "RE-PARSING rather than RE-FETCHING, and re-fetching a "
+                  "preseason projection is exactly what leaks."),
+    }
