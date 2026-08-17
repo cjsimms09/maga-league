@@ -334,7 +334,14 @@ def test_the_step_is_counter_intuitive_in_direction_and_that_is_recorded():
     base, _ = vorp.replacement_levels(PLAYERS, CFG)
     for pos in ("RB", "WR"):
         bumped, _ = vorp.replacement_levels(_scaled(pos, 0.10), CFG)
-        assert bumped[pos] < base[pos] * 1.10, (
+        # <= with a float tolerance, not strict <: EXACT equality is the
+        # legitimate boundary where the +10% bump moved no flex slots, so the
+        # replacement player is the same man scaled by exactly 1.10. The
+        # first board built under the 2026-08-17 rulings landed there for WR
+        # (178.86 == 162.60 x 1.10 to the cent, run 32043426901) and the
+        # strict < read a no-allocation-change board as having LOST slots.
+        # Only rising MORE than the scaling violates the recorded principle.
+        assert bumped[pos] <= base[pos] * 1.10 + 1e-6, (
             f"{pos} replacement rose by MORE than the projection scaling, which "
             "would mean it lost flex slots as it got better"
         )

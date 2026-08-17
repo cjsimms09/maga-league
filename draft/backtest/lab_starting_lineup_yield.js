@@ -251,6 +251,7 @@ console.log('');
 const out = {};
 Object.keys(ARMS).forEach(name => { out[name] = runArm(ARMS[name]); });
 
+
 const W = 22;
 const row = (label, get) => console.log('  ' + label.padEnd(W)
   + Object.keys(ARMS).map(n => String(get(out[n])).padStart(14)).join(''));

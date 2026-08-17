@@ -42,7 +42,11 @@ jobs:
           print('all workflow YAML parses')
           PY
       - name: Python deps
-        run: pip install pytest
+        # numpy + pandas: test_barbell_middle / test_tiered_outcome_model /
+        # test_pbp_two_point import them at collection time, so without them
+        # pytest aborts the WHOLE Python step at collection (exit 2, run
+        # 32038354284) and every other Python suite silently goes unrun.
+        run: pip install pytest numpy pandas
       # ┌─────────────────────────────────────────────────────────────────────┐
       # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
       # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │

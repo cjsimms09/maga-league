@@ -118,6 +118,22 @@ KNOWN_PARTICIPANTS = {
     # adjusted_adp is ADP with small adjustments applied, so it tracks ADP
     # closely by design; the aliases of ADP come along with it
     "adjusted_adp", "adp", "consensus_rank", "raw_adp", "pool_rank",
+    # INVESTIGATED 2026-08-17 (issue #8, run 32035071758). With
+    # opportunity_cap ruled to 0.0 the adjustment is inert, so proj_mean ==
+    # proj_baseline exactly, and the blend's SOURCE column couples to the
+    # family it feeds: where Sleeper is the only projection source the
+    # per-cell ratio proj_baseline/proj_sleeper is a blend constant. A source
+    # input being coupled to the blend built from it is construction, not a
+    # hidden dependency.
+    "proj_sleeper",
+    # DELIBERATELY NOT ADDED: opportunity_adj / opportunity_z. Their joining
+    # in run 32035071758 was a REAL DEFECT this gate caught — build.py's
+    # config rewrite erased the ruled `opportunity_cap: 0.0`, the layer came
+    # back at its 0.15 default, and adj = (z/2)*cap (projections.py:277) is
+    # an exact rescale of z wherever unclamped. The erasure is fixed
+    # (test_config_keys_survive_rebuild.py); if these two fields ever join
+    # again, the killed layer is BACK and this test going red is the alarm
+    # working. Do not quiet it by listing them here.
 }
 
 

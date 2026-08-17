@@ -161,7 +161,54 @@
    */
   function keeperOptionValue(player, ctx) {
     const raw = keeperOptionValueRaw(player, ctx);
-    if (raw.value <= 0) return Object.assign({}, raw, { raw_value: raw.value, bar: 0, displaced: null });
+    /* ⚠️ AN OPTION CANNOT BE WORTH LESS THAN ZERO, AND THIS PATH RETURNED
+     * NEGATIVE VALUES ALL THE WAY TO −138.85.
+     *
+     * The docstring above states the contract: KOV_marginal = max(0, raw − bar).
+     * The positive path below implements it. THIS early return did not — it
+     * passed `raw.value` straight through — so every player whose next-year
+     * projection sits below what the forfeited pick would return came back
+     * NEGATIVE, at weight 1.0.
+     *
+     * MEASURED at pick 128: 556 of 559 board players carried a negative keeper
+     * value. Exactly two were positive, and they were a defense and a kicker.
+     *
+     * WHY NEGATIVE IS WRONG AND NOT MERELY UNTIDY. A keeper is an OPTION
+     * exercised next August with full information. If the player is not worth
+     * keeping you decline, and the option is worth ZERO — never less. The
+     * negative branch was charging today for a decision nobody will make.
+     *
+     * WHAT IT WAS ACTUALLY COMPUTING: `next_vorp` for a fringe QB is −382.7,
+     * which is not an option price at all — it is "he is not a starting QB",
+     * restated. `value` (VONA) already prices that. So this was an unscaled
+     * second VORP term wearing the keeper term's name and weight.
+     *
+     * FIXED AS A CONTRACT VIOLATION, NOT AS AN IMPROVEMENT. The objective
+     * evidence is a NULL: starting-lineup points move 1998.4 -> 2003.4 in one
+     * deterministic room, the same magnitude as the `need` null that was
+     * refused promotion, measured by a lab that cannot see injury insurance.
+     * The case for this change is that the code contradicts its own stated
+     * contract, which is true independent of any measurement. */
+    /* THE FLOOR IS APPLIED. It was HELD while both premises of the hold were
+     * true; KOV_MEASURED_RAMP invalidated both, so the hold ended.
+     *
+     * The hold rested on: (1) flooring would leave the keeper term dead —
+     * under the OLD ramp its entire live contribution was this negative
+     * branch; (2) Cory's first three picks were unaffected in both states —
+     * the old ramp kept the term at zero through round 6.
+     *
+     * The measured ramp (Cory's ruling, 2026-08-17) reverses the ramp's
+     * shape: rounds 1-6 now carry weight 1.0 and rounds 10-15 carry 0. On
+     * the shipped board that put this unfloored branch at FULL strength on
+     * the early picks — measured at pick 17: 586 of 587 published scores
+     * carried a negative keeper term, minimum −118.69, at weight 1.0 —
+     * while genuine positive option values (up to +38 at pick 17) now
+     * exist and SURVIVE the floor, so the term stays live after flooring.
+     * Neither premise held; the ruling that flipped the ramp never ruled
+     * to price early picks down by −100+, and the docstring's contract —
+     * max(0, raw − bar) — says this branch must clamp. raw_value preserves
+     * the unfloored quantity for diagnosis. */
+    if (raw.value <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: 0, displaced: null });
 
     const slots = keeperSlots(ctx);
     if (slots <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: Infinity, displaced: null });

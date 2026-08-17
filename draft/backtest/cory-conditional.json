@@ -7,10 +7,10 @@
  "leaderboard": [
   {
    "archetype": "late_qb",
-   "mean_edge": 22.25,
+   "mean_edge": 22.0,
    "ci95": [
-    -8.88,
-    57.38
+    -7.75,
+    53.38
    ],
    "mean_divergence": 6.2,
    "verdict": "parked: CI includes $0"
@@ -67,13 +67,13 @@
   },
   {
    "archetype": "elite_te",
-   "mean_edge": -21.88,
+   "mean_edge": -10.62,
    "ci95": [
-    -40.75,
-    -4.88
+    -27.12,
+    5.12
    ],
    "mean_divergence": 2.2,
-   "verdict": "LOSER \u2014 significantly worse than the control"
+   "verdict": "parked: CI includes $0"
   }
  ],
  "head_to_head": null,

@@ -1809,7 +1809,8 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
             # `opportunity_adj` is set only by projections.blend(), in the same
             # statement that applies the adjustment to the projection. It cannot
             # be non-null unless the adjustment actually happened.
-            "opportunity_applied": any(p.get("opportunity_adj") for p in available),
+            "opportunity_applied": any(p.get("opportunity_adj") is not None
+                                       for p in available),
             "opportunity_adj_coverage": round(
                 sum(1 for p in available if p.get("opportunity_adj") is not None)
                 / max(1, len(available)), 3),
@@ -1884,7 +1885,18 @@ def _assert_provenance_matches_data(players: list, artifact: dict) -> None:
     prov = artifact["provenance"]
     claimed = str(prov.get("opportunity_adjustment", "unknown"))
     claims_ok = claimed == "ok"
-    observed = any(p.get("opportunity_adj") for p in players)
+    # `is not None`, NOT truthiness — the same rule _assert_opportunity_coverage
+    # below already states for opportunity_z. Under Cory's ruled
+    # `opportunity_cap: 0.0` blend() runs and writes adj == 0.0 on every
+    # player: the adjustment reached every projection (multiplying by 1+0.0)
+    # and the metrics status is honestly "ok". A truthiness read called those
+    # zeros "never ran" and killed the FIRST build that ever carried the
+    # ruling (run 32042127531 — every earlier nightly had the cap erased back
+    # to 0.15 by the config-rewrite bug, so this line was never exercised at
+    # cap 0). The docstring above this field's writer already said "cannot be
+    # non-null unless the adjustment actually happened" — the code just
+    # didn't test what the comment said.
+    observed = any(p.get("opportunity_adj") is not None for p in players)
 
     prov["opportunity_claimed_ok"] = claims_ok
     prov["opportunity_observed_in_data"] = observed
