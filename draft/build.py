@@ -1489,7 +1489,15 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
             series = doc.get("series", []) if isinstance(doc, dict) else (doc or [])
         except (ValueError, OSError):
             series = []
-    series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id)
+    # THE SITUATION TRAVELS WITH THE NUMBER (2026-08-17). Until today this froze
+    # a bare float per player, so a January 2027 grade could have said "we
+    # projected 415.88, he scored 380" and never "he was QB2 carrying a
+    # Questionable tag when we wrote that". Every field in SITUATION_FIELDS is
+    # LIVE STATE — true today and therefore never recoverable for today again —
+    # which is why this could not wait until after the draft.
+    situation = proj_series_mod.situation_from_board(players)
+    series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id,
+                                             situation_by_id=situation)
     froze = ["sleeper(%d)" % len(proj_by_id)]
     # SECOND SOURCE, frozen the same day (2026-08-10): the projection-source grade
     # is only clean if EVERY source is frozen preseason, not just Sleeper — a FP
@@ -1500,7 +1508,8 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
     fp_by_id = {str(p["player_id"]): p["proj_fantasypros"]
                 for p in players if p.get("proj_fantasypros") is not None}
     if fp_by_id:
-        series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id)
+        series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id,
+                                                 situation_by_id=situation)
         froze.append("fantasypros(%d)" % len(fp_by_id))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(

@@ -72,6 +72,28 @@ LATEST_STORE_YEAR = 2025       # the "still exists" reference for the ghost gate
 
 OUT = HERE / "exp_fp_hist_proj.json"
 
+#: PER-PLAYER ROW RETENTION, ADDED 2026-08-17. Cory: "why can't we also pull in
+#: the fantasy pros data again and keep all data this time?"
+#:
+#: He is right and the cost of not doing it has already been paid twice. This
+#: module graded 2023/2024/2025, passed every authenticity gate, and committed
+#: 10.7 KB of PER-POSITION AGGREGATES — n, spearman, mae, bias. The per-player
+#: rows existed in memory and were dropped on the floor. Consequences, both
+#: real and both his own questions going unanswered:
+#:
+#:   * proj_mean_blend_2026-08-16.md was REFUSED for want of a control arm. A
+#:     blend is a per-player average and whether it beats its best component is
+#:     decided by the ERROR CORRELATION between sources — a quantity no
+#:     aggregate MAE can carry.
+#:   * position_weight_transfer could only test own-model arms against each
+#:     other, never Sleeper against FantasyPros.
+#:
+#: Neither was blocked by the world. Both were blocked by this retention
+#: decision. `our_pts` on each row is FP's stat line scored under OUR league
+#: table, so what is retained is already league-normalised — which is the other
+#: half of what Cory asked for.
+ROWS_OUT = HERE / "fp_hist_rows.json"
+
 
 # ── realized totals (same semantics as model_accuracy_backtest.season_totals,
 #    but takes the loaded store dict so fixtures can stand in) ────────────────
@@ -332,6 +354,11 @@ def evaluate_year(year: int, adp_rows: list, proj_rows: list, scoring: dict,
         return refuse("no_adp_anchor")
 
     valued, coverage = value_rows(proj_rows, scoring)
+    # Carried out under a private key so the caller can RETAIN them (2026-08-17)
+    # without changing evaluate_year's signature or any of its pure-function
+    # tests. Popped before the verdict is written, so the graded artifact keeps
+    # its old shape and the rows live in their own file.
+    res["_rows"] = valued
     names = proj_by_name(valued)
     res["statline_coverage"] = round(coverage, 3)
     mode = "statline" if coverage >= STATLINE_COVERAGE_MIN else "points_only_rank_order"
@@ -412,6 +439,7 @@ def egress_main() -> int:   # pragma: no cover  (CI only — the sandbox has no 
     index = ADP.build_index(SL.fetch_players())
 
     per_year = {}
+    retained = {}
     for year in YEARS:
         print(f"── {year} " + "─" * 40)
         adp_text, adp_url, adp_diag = FP.fetch(year)
@@ -441,7 +469,22 @@ def egress_main() -> int:   # pragma: no cover  (CI only — the sandbox has no 
                             "rows": len(proj_rows),
                             "tried": (proj_diag or {}).get("api_tried", [])},
         }
+        year_rows = year_res.pop("_rows", [])
         per_year[year] = year_res
+        # RETAIN THE ROWS, INCLUDING FOR A REFUSED YEAR. A refusal is a
+        # statement about whether the year may be GRADED, not about whether the
+        # rows are worth keeping — the rows are the evidence for the refusal,
+        # and re-fetching to inspect one costs another live fetch that may not
+        # be available later. The gate status is stamped on every row set so a
+        # future consumer cannot grade a leaked year by accident.
+        retained[str(year)] = {
+            "status": year_res["status"],
+            "gradeable": year_res["status"] == "graded",
+            "scoring_note": ("our_pts = FP's stat line scored under OUR league "
+                             "table; fp_fpts = FP's own printed number, which is "
+                             "in THEIR scoring and must not be compared directly"),
+            "rows": year_rows,
+        }
         print(f"  status: {year_res['status']}  "
               f"(adp {len(adp_rows)} rows, proj {len(proj_rows)} rows)")
 
@@ -462,7 +505,22 @@ def egress_main() -> int:   # pragma: no cover  (CI only — the sandbox has no 
                      "are the filed verdict (exp33 discipline held)"),
     }
     OUT.write_text(json.dumps(out, indent=1))
+    ROWS_OUT.write_text(json.dumps({
+        "_territory": "TERRITORY: A — produced by exp_fp_hist_proj.py",
+        "_note": ("PER-PLAYER FantasyPros historical projection rows, retained "
+                  "2026-08-17 after they were dropped on every prior run. "
+                  "`our_pts` is the row's stat line scored under OUR league "
+                  "table (league-normalised); `fp_fpts` is FP's own printed "
+                  "number in THEIR scoring and is NOT comparable to it. A year "
+                  "whose `gradeable` is false failed an authenticity gate — its "
+                  "rows are kept as the EVIDENCE for that refusal and must not "
+                  "be graded."),
+        "years": retained,
+    }, indent=1))
+    kept = sum(len(v["rows"]) for v in retained.values())
     print(f"wrote {OUT.name} — {out['headline']}")
+    print(f"wrote {ROWS_OUT.name} — {kept} per-player rows retained across "
+          f"{len(retained)} year(s)")
     return 0
 
 

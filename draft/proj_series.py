@@ -38,8 +38,54 @@ MAX_SNAPS = 400          # bound the archive; plenty for weekly preseason snapsh
 TOP_N = 700
 
 
+#: Situational fields captured ALONGSIDE the projection, added 2026-08-17.
+#:
+#: Cory: "What other massive hole like that do we have in our data?? That's
+#: ridiculous.. wtf" — asked after VAR_BACKUP and VAR_INJURED came back
+#: unmeasurable because depth charts and injury designations exist only for
+#: today. The sweep (draft/audit/data_holes_2026-08-17.md) found that THIS FILE
+#: was digging the same hole: a snapshot built expressly to make a clean 2027
+#: grade possible stored `{"11563": 415.88}` and nothing else.
+#:
+#: So in January 2027 we could have said "we projected 415.88, he scored 380"
+#: and STILL not "he was QB2 on the depth chart carrying a Questionable tag when
+#: we wrote that." The projection without the situation cannot answer WHY it was
+#: wrong, which is the only question worth asking of a graded projection.
+#:
+#: Every field here is LIVE STATE — true today and therefore never recoverable
+#: for today again. That is the whole argument for capturing it now rather than
+#: after the draft: unlike a model, a fact about this moment expires.
+SITUATION_FIELDS = ("injury_status", "depth_chart_order", "team", "years_exp",
+                    "adp", "position")
+
+
+def situation_from_board(players, fields=SITUATION_FIELDS):
+    """{player_id: {field: value}} for the board rows, ABSENT-NOT-NULL.
+
+    A field the source did not serve is OMITTED rather than written as None, so
+    "Sleeper reported no injury designation" (healthy) stays distinguishable
+    from "our fetch did not carry the field" (unknown). Those are different
+    facts and one null would merge them — the same distinction
+    `opportunity_share` draws on the board and `attach_capital` draws for draft
+    capital.
+    """
+    out = {}
+    for p in players or []:
+        pid = str(p.get("player_id") or "")
+        if not pid:
+            continue
+        row = {}
+        for f in fields:
+            v = p.get("adp") if f == "adp" else p.get(f)
+            if v is not None and v != "":
+                row[f] = v
+        if row:
+            out[pid] = row
+    return out
+
+
 def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX_SNAPS,
-                    week=None):
+                    week=None, situation_by_id=None):
     """series: [{date, source, proj:{id:points}}] oldest->newest. Returns a NEW list with this
     (date, source, week) snapshot added or REPLACED (a same-day re-run of the same source and
     week overwrites, never doubles), keeping the top_n highest-projection players and the most
@@ -63,6 +109,18 @@ def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX
             if not (s.get("date") == date and s.get("source") == source
                     and s.get("week") == week)]
     snap = {"date": date, "source": source, "proj": trimmed}
+    # WHY A PLAYER IS ABSENT, RECORDED RATHER THAN GUESSED. 787 players appear
+    # in at least one Sleeper snapshot and only 400 in every one, so 49% of
+    # them have a gap — and a reader could not tell whether a gap meant "the
+    # source did not serve him" or "our own top_n cut him". `n_offered` makes
+    # the two recoverable: offered > len(proj) means WE trimmed, offered ==
+    # len(proj) means the source is the limit.
+    snap["n_offered"] = len(proj_by_id)
+    if situation_by_id:
+        # Same population as `proj`, so the situation can never describe a
+        # player the snapshot does not price.
+        snap["situation"] = {pid: situation_by_id[pid]
+                             for pid in trimmed if pid in situation_by_id}
     if week is not None:
         snap["week"] = int(week)
     kept.append(snap)
