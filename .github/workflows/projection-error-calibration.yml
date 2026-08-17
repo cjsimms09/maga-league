@@ -1,0 +1,87 @@
+name: Projection error calibration — regenerate proj_ceiling/proj_floor/proj_sd
+
+# Cory, 2026-08-17: "why are floor and ceiling value still stale??" — answered
+# in register row 4k (ROUTES.md TO:C): projection_error_calibration.json,
+# the source of every proj_ceiling/proj_floor/proj_sd on the board, was built
+# once by hand on 08-14 and never since. Nothing regenerated it and it was
+# not even in artifact_registry.json, so check_artifact_freshness.py had
+# never looked at it.
+#
+# THIS WORKFLOW IS THE MISSING REGENERATION STEP. Row 4k's fix (this repo,
+# same date) gave projection_error.py a real no-args entry point
+# (regenerate()) and registered the artifact for informational staleness
+# checking — it deliberately did NOT commit a fresh calibration, because
+# regenerating moves every ceiling and floor on the board, and the standing
+# no-change-before-08-22 rule was assumed to hold.
+#
+# CORY RESCINDED THAT HOLD THE SAME NIGHT, EXPLICITLY: "if it makes the
+# model more correct we are changing NOW" (ROUTES.md, the ceiling-weight
+# ship item), and separately, directly: "fix!!!! floors and ceilings need
+# to be corrected like I have agreed to." This workflow exists so that
+# authorization can actually be executed — CI has the egress this sandbox
+# does not (Sleeper, FantasyFootballCalculator and nflverse are all
+# proxy-blocked here, measured today, same shape as every other fetch this
+# session).
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH. Every other fetch
+# workflow built today carries the same guard for the same reason: the
+# 08-16 Sleeper history probe was dispatched from a feature branch, the
+# push guard correctly refused to write to main, and the answer was lost
+# for a day.
+#
+# WHAT THIS DOES NOT DO: touch the board build, engine.js, or
+# MEASURED_WEIGHTS.ceiling (a different "ceiling" — an engine WEIGHT, not
+# these per-player VALUES; that is a separate, already-ruled item). It
+# writes one file, projection_error_calibration.json. Whatever consumes it
+# (the board build) picks it up on its own next run.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: projection-error-calibration
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install
+        run: pip install pandas nfl_data_py pytest
+
+      - name: The regeneration logic is tested before any real fetch runs
+        run: python3 -m pytest draft/tests/test_projection_error.py -q
+
+      - name: Regenerate the calibration from real historical outcomes
+        run: python3 draft/backtest/projection_error.py
+
+      - name: Commit the calibration
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::regenerated calibration is in this run's log and is"
+            echo "::warning::deliberately NOT committed. Re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — calibration NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/projection_error_calibration.json
+          if ! git diff --cached --quiet; then
+            git commit -m "projection_error: regenerate calibration on real 2023-2025 outcomes — Cory ruled, moves every proj_ceiling/proj_floor/proj_sd on the board [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::CALIBRATION NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — the calibration already matches what was on disk"

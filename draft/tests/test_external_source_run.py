@@ -426,10 +426,42 @@ def test_the_ARCHIVE_DOES_NOT_CLAIM_A_FORMAT_MATCH_IT_DOES_NOT_HAVE(monkeypatch)
     r = R.capture_ffc(SLEEPER, 2026, 10, "half-ppr")
     assert "exact format" not in r["note"], r["note"]
     assert "passing TD" in r["note"]
+    # ⚠ AND THE TWO VALUES ARE READ, NOT ASSERTED. The note used to carry the
+    # literals "4.0 and we score 6.0"; written into every archived row, a literal
+    # that outlives a rescoring becomes a false claim beside real numbers — worse
+    # than no claim, because a year later it is indistinguishable from a
+    # measurement. The market side is a constant about the MARKET; ours comes from
+    # `league_config.json`.
+    assert str(R.MARKET_PASS_TD) in r["note"], r["note"]
+    ours = R._our_pass_td()
+    assert ours is not None, "the league config must be readable for this to mean anything"
+    assert str(ours) in r["note"], (ours, r["note"])
     # NAMED AXES, NOT PROSE. What is matched and what is not, as data.
     assert r["params"]["format_axes_matched"] == ["reception scoring", "teams"]
     un = " ".join(r["params"]["format_axes_unmatched"])
     assert "passing TD" in un and "6.0" in un and "4.0" in un
+
+
+def test_OUR_SCORING_IN_THE_ARCHIVED_NOTE_IS_READ_not_a_literal(monkeypatch):
+    """⚠ ASSERTING THE CURRENT VALUE APPEARS IS NOT ENOUGH, and the mutation gate
+    proved it: replacing `% (MARKET_PASS_TD, _our_pass_td())` with `% (4.0, 6.0)`
+    SURVIVED, because 4.0 and 6.0 are exactly what the config says today. A test
+    that cannot tell a read from a coincidence is testing nothing.
+
+    So the config is MOVED and the note must follow it. This is the difference
+    that matters: `note` is written into every archived row and read a year from
+    now, and a literal that outlives a rescoring becomes a false claim sitting
+    beside real prices.
+
+    MUTATION: put the literals back — the league rescores, every future row keeps
+    saying 6.0, and the one axis this archive exists to document is wrong in the
+    archive itself."""
+    import adp as A
+    monkeypatch.setattr(A, "fetch_adp", lambda fmt, teams, year: FFC_PAYLOAD)
+    monkeypatch.setattr(R, "_our_pass_td", lambda: 4.5)
+    r = R.capture_ffc(SLEEPER, 2026, 10, "half-ppr")
+    assert "4.5" in r["note"], r["note"]
+    assert "we score 6.0" not in r["note"], r["note"]
 
 
 def test_FANTASYPROS_CARRIES_THE_SAME_UNMATCHED_AXIS(monkeypatch):

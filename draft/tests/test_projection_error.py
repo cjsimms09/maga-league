@@ -28,6 +28,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "backtest"))
+sys.path.insert(0, str(HERE.parent))
 
 import projection_error as PE  # noqa: E402
 
@@ -309,3 +310,129 @@ def test_the_DEFAULT_min_n_is_the_declared_one_and_actually_bites():
     assert cell["status"] == "unmeasurable", (
         "three players in the 1-3 band passed the DEFAULT min_n — the default does "
         "not bite and thin cells reach the artifact as measurements")
+
+
+# ── regenerate()'s no-args entry point: main() must not report success on VOID ──
+
+def test_main_REPORTS_FAILURE_AND_DOES_NOT_SAVE_ON_A_VOID_REGENERATE(monkeypatch, tmp_path):
+    """`regenerate()` reaches the network and cannot be exercised for real here
+    (egress-blocked in this sandbox, same as every other CI-only fetch this
+    session). What IS testable without network: `main()` must not call `save()`
+    or report success when `regenerate()` comes back VOID — the same VOID
+    discipline every other fetch module in this repo follows.
+
+    MUTATION: drop the `status == "VOID"` check and `main()` calls `save()`
+    on a VOID document, writing a calibration artifact that looks measured
+    but carries none of the caveats a real VOID would explain."""
+    saved = []
+    monkeypatch.setattr(PE, "regenerate",
+                        lambda: {"status": "VOID", "reason": "no nflverse weekly "
+                                                             "data reachable"})
+    monkeypatch.setattr(PE, "save", lambda cal, path=None: saved.append(cal))
+    rc = PE.main()
+    assert rc == 1
+    assert saved == [], "a VOID regeneration must never be saved as a calibration"
+
+
+def test_main_SAVES_AND_SUCCEEDS_on_a_real_regenerate(monkeypatch):
+    saved = []
+    fake_cal = {"status": "measured", "cells_measured": 5, "cells_unmeasurable": 2,
+               "seasons": [2023, 2024, 2025]}
+    monkeypatch.setattr(PE, "regenerate", lambda: dict(fake_cal))
+    monkeypatch.setattr(PE, "save", lambda cal, path=None: saved.append(cal))
+    rc = PE.main()
+    assert rc == 0
+    assert len(saved) == 1 and saved[0]["seasons"] == [2023, 2024, 2025]
+
+
+def test_CALIBRATION_SEASONS_MATCHES_THE_REAL_COMMITTED_DRAFTS():
+    """Pinned against `league_history.json` directly rather than restated as a
+    literal — the three seasons with a real, complete draft on record, checked
+    2026-08-17. 2026 is the season being drafted and has no realized outcomes
+    yet, so it cannot be a fitting season; asserting that explicitly here is
+    what would catch a 2026 entry sneaking into the fit."""
+    import json
+    from pathlib import Path
+    history = json.loads((Path(PE.__file__).resolve().parent.parent
+                          / "data" / "league_history.json").read_text())
+    complete = sorted(
+        int(s["season"]) for s in history.get("seasons", [])
+        if any(len(d.get("picks") or []) >= 100 for d in (s.get("drafts") or [])))
+    # Every declared calibration season must actually have a complete draft
+    # on record, and 2026 (pre_draft, no realized outcomes) must never be one.
+    assert set(PE.CALIBRATION_SEASONS).issubset(set(complete))
+    assert 2026 not in PE.CALIBRATION_SEASONS
+
+
+# ── document(): the shape check_artifact_freshness.py's regenerate_command
+# must print, extracted so save() and the registry entry share ONE definition
+# rather than two that could drift ─────────────────────────────────────────
+
+def test_document_IS_EXACTLY_WHAT_save_WRITES_TO_DISK(tmp_path):
+    """⚠ THE WHOLE POINT OF THE REFACTOR. `check_artifact_freshness.py` diffs
+    `regenerate_command`'s printed JSON against the COMMITTED FILE — if the
+    registry called `regenerate()` directly, it would print calibrate()'s raw
+    tuple-keyed cells with no envelope, compare that against save()'s
+    string-keyed, enveloped output, and report this artifact stale on every
+    single run forever, whether or not it actually is.
+
+    MUTATION: have `save()` build its own dict again instead of calling
+    `document()`, and a future edit to one could drift from the other with
+    nothing to catch it."""
+    import json
+    cal = {"cells": {("QB", "1-3"): {"n": 10, "status": "measured",
+                                     "sd_ratio": 0.2, "mean_ratio": 1.0,
+                                     "p10_ratio": 0.8, "p50_ratio": 1.0,
+                                     "p90_ratio": 1.3, "basis": "10 graded"}},
+          "seasons": [2023, 2024, 2025], "min_n": 8, "graded": 10, "ungraded": 2,
+          "cells_measured": 1, "cells_unmeasurable": 0,
+          "caveat": "x", "band_note": "y"}
+    path = tmp_path / "cal.json"
+    PE.save(cal, path=path)
+    on_disk = json.loads(path.read_text())
+    assert on_disk == PE.document(cal)
+
+
+def test_document_KEYS_CELLS_AS_JOINED_STRINGS_not_python_tuples():
+    """A tuple key silently serialises to `"('QB', '1-3')"` and `load()`'s
+    `partition(KEY_SEP)` would then match nothing on the way back in — every
+    band would read `unmeasurable` and nothing would say why."""
+    cal = {"cells": {("QB", "1-3"): {"status": "measured"}}}
+    doc = PE.document(cal)
+    assert list(doc["cells"].keys()) == ["QB" + PE.KEY_SEP + "1-3"]
+
+
+# ── regenerate()'s fetch guard: a RAISED exception is VOID, never a crash ───
+
+def test_regenerate_CATCHES_A_RAISING_fetch_players_not_a_crash(monkeypatch):
+    """⚠ FOUND BY RUNNING THE REAL COMMAND, NOT BY READING THE CODE — twice
+    this session now. `sleeper_import.fetch_players()` raises `RuntimeError`
+    on failure rather than returning falsy; `regenerate()`'s first version
+    called it unguarded and crashed with an uncaught traceback the moment it
+    was actually run against the (blocked-here) network, exactly the same
+    shape `external_source_projections.py` hit earlier today.
+
+    MUTATION: drop the try/except around `SL.fetch_players()` and this test's
+    RuntimeError propagates uncaught instead of a clean VOID."""
+    import sleeper_import as SL
+    orig = SL.fetch_players
+    SL.fetch_players = lambda: (_ for _ in ()).throw(RuntimeError("boom"))
+    try:
+        cal = PE.regenerate()
+    finally:
+        SL.fetch_players = orig
+    assert cal["status"] == "VOID", cal
+    assert "Sleeper player index unreachable" in cal["reason"]
+    assert "RuntimeError" in cal["error"]
+
+
+def test_regenerate_ON_AN_EMPTY_PLAYER_INDEX_IS_ALSO_VOID(monkeypatch):
+    import sleeper_import as SL
+    orig = SL.fetch_players
+    SL.fetch_players = lambda: {}
+    try:
+        cal = PE.regenerate()
+    finally:
+        SL.fetch_players = orig
+    assert cal["status"] == "VOID"
+    assert "unreachable" in cal["reason"]

@@ -241,3 +241,68 @@ def test_verify_manifest_RE_RUNS_and_reports_per_mutation(tmp_path):
     assert bad["all_killed"] is False
     assert bad["regressed"] and bad["regressed"][0]["must_fail"] == ["test_doubles"], bad
     assert bad["regressed"][0]["verdict"] == "SURVIVED"
+
+def _stale_must_fail(man):
+    """[(module, [names])] for every recorded `must_fail` pytest cannot collect."""
+    out = []
+    for mod, entry in sorted((man.get("modules") or {}).items()):
+        tests = entry.get("tests") or []
+        names = sorted({n for m in (entry.get("mutations") or [])
+                        for n in (m.get("must_fail") or [])})
+        if not names:
+            continue
+        assert tests, "%s records mutations but no test paths — nothing to run" % mod
+        missing = MG._missing_tests(names, tests)
+        if missing:
+            out.append((mod, missing))
+    return out
+
+
+def test_A_STALE_must_fail_IS_DETECTED_the_positive_control():
+    """⚠ WITHOUT THIS THE CHECK BELOW IS UNFALSIFIABLE TODAY. The real manifest
+    currently has ZERO stale names across 258, so disabling the scan changes
+    nothing and the mutation gate reported SURVIVED — a check that can only ever
+    say "nothing yet" has not looked (rule 13f). This plants one.
+
+    MUTATION: drop the scan — the planted name is not reported, and the check
+    below goes on passing on a manifest where every assertion has been renamed
+    away."""
+    planted = {"modules": {"draft/backtest/mutation_gate.py": {
+        "tests": ["draft/tests/test_mutation_gate.py"],
+        "mutations": [{"old": "x", "new": "y",
+                       "must_fail": ["test_a_name_nothing_collects_at_all"]}]}}}
+    got = _stale_must_fail(planted)
+    assert got, "a planted stale name must be reported"
+    assert got[0][1] == ["test_a_name_nothing_collects_at_all"], got
+    # AND A REAL NAME IN THE SAME SHAPE MUST NOT BE — pointed at THIS file,
+    # because that is where this test's own name is collected from. The first
+    # version aimed it at the gate's test file and the control failed itself,
+    # which is the check working on its author.
+    real = {"modules": {"draft/backtest/mutation_gate.py": {
+        "tests": [str(Path(__file__).resolve())],
+        "mutations": [{"old": "x", "new": "y",
+                       "must_fail": ["test_A_STALE_must_fail_IS_DETECTED_the_positive_control"]}]}}}
+    assert _stale_must_fail(real) == []
+
+
+def test_EVERY_RECORDED_must_fail_STILL_COLLECTS():
+    """A `must_fail` naming a test that no longer exists is filed KILLED evidence
+    for an assertion nobody can run. The gate refuses one at RUN time now
+    (`MUST_FAIL_NOT_COLLECTED`); this asks the same question of the DURABLE
+    record, which was written before that guard existed.
+
+    ⚠ THE FAILURE MODE IS SILENT AND IT HAS HAPPENED TWICE. KILLED requires the
+    named test among the failures, so a stale name can only ever produce SURVIVED
+    — and SURVIVED is the actionable verdict, sending the next person to write a
+    test for a hole that is really a typo. Both instances today came from renames:
+    one a manifest that outlived the rename, one a blanket helper rename that also
+    rewrote a test's OWN name because it ended in the same characters.
+
+    Its falsifiability lives in the positive control above, not here — on a clean
+    manifest this assertion cannot fail, and that is the point of the control.
+    """
+    stale = _stale_must_fail(json.loads(MANIFEST.read_text()))
+    assert not stale, (
+        "these recorded must_fail names are not collected by their own test paths, "
+        "so the kills filed against them cannot be re-verified and would report "
+        "SURVIVED if re-run: %s" % stale)

@@ -257,6 +257,18 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport replay_waiver as RW\nprint(json.dumps(RW.run_all(verbose=False)))"
    ]
+  },
+  {
+   "id": "projection_error_calibration",
+   "description": "Empirical proj_sd/proj_ceiling/proj_floor by (position, projection-rank band), fitted on realized 2023/2024/2025 outcomes. Register row 4k: built 2026-08-14 and never since, and was not in this registry at all until now \u2014 check_artifact_freshness.py had never looked at it. Pulls real historical bundles + nflverse weekly data (with a play-by-play rebuild fallback for seasons import_weekly_data 404s on) each run, same as draft_replay_2025/replay_all_seats \u2014 STALE is expected between board-affecting inputs changing, not a defect by itself. REGISTERED, NOT REGENERATED: regenerating moves every proj_ceiling and proj_floor on the board, held until after 2026-08-22 per the no-change-before-draft rule.",
+   "owner_module": "draft/backtest/projection_error.py",
+   "artifact_path": "draft/backtest/projection_error_calibration.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
+   ],
+   "timeout_s": 1800
   }
  ],
  "_not_yet_migrated": [

@@ -452,7 +452,7 @@ def league_passthrough(picks, mfl_players, board_index, series, year, adp_ids=No
     }
 
 
-def adp_id_map(series, mfl_players, board_index) -> tuple:
+def adp_id_map(series, mfl_players, board_index, archive_key=None) -> tuple:
     """The archive's MFL ids -> our board's ids, with the crosswalk report.
 
     THE DECODE KEY IS THE ARCHIVE'S OWN, UNIONED WITH THE LIVE EXPORT. Preferring
@@ -461,8 +461,21 @@ def adp_id_map(series, mfl_players, board_index) -> tuple:
     Neither alone is enough and picking one would make the run silently wrong in
     one direction or the other.
     """
-    from external_adp_capture import crosswalk_map, merge_players, players_of
-    key = merge_players(players_of(series), mfl_players or {})
+    from external_adp_capture import (SERIES, crosswalk_map, merge_players,
+                                      players_of)
+    # ⚠ `series` IS A LIST AND A LIST CANNOT CARRY THE KEY, so this used to
+    # read `players_of(series)` and get {} every run — the archive half of the
+    # union was never present and the docstring above was describing an
+    # intention rather than the behaviour. The live export alone kept the union
+    # non-empty, so the refusal below never fired and nothing ever said so.
+    #
+    # WHAT IT COSTS IS THE WHOLE POINT OF THE ARCHIVE. `crosswalk_map` opens
+    # "OFFLINE, AND THAT IS THE WHOLE POINT ... the archive decoded only while
+    # MFL was up, precisely the window an archive exists to outlive." Reading
+    # the key from the archive is what makes that true. With MFL's export down
+    # this run previously died with 712 decodable ids sitting on disk.
+    archive = archive_key if archive_key is not None else players_of(SERIES)
+    key = merge_players(archive, mfl_players or {})
     if not key:
         raise RuntimeError(
             "no decode key for the ADP archive: it holds MFL's player ids and "

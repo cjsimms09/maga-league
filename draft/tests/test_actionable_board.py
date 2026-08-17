@@ -431,6 +431,16 @@ def test_THE_PROJECTED_DEEP_POOL_IS_ORDERED_not_one_constant():
     where every one of them is 917.0."""
     b = board()
     built = b.get("built_at")
+    # ⚠️ A BOARD THAT WILL NOT SAY WHEN IT WAS BUILT CANNOT BE CERTIFIED STALE.
+    # `raw_adp_order_required(None)` returns False — correct for the ratchet, which
+    # is A's granted symbol and whose contract I am not touching — but read as a
+    # verdict it means "an absent timestamp switches this gate off forever". The
+    # skip arm below is only honest while the staleness claim is grounded in an
+    # observed build time, so the guard belongs HERE, at the decision, not in the
+    # predicate. Null-as-absence is the defect class this repo keeps paying for.
+    assert built, (
+        "the board carries no `built_at`, so 'this board predates the fix' is "
+        "unfalsifiable and the skip below would be a free pass with no expiry")
     unpriced = [p for p in (b.get("players") or [])
                 if p.get("adp_source") in (None, "search_rank")]
     projected = [p for p in unpriced if (p.get("proj_mean") or 0) > 0]
