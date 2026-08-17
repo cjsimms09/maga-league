@@ -1236,10 +1236,51 @@
         + '<table class="spa-table"><tbody>' + rows + '</tbody></table></details>';
     })();
 
+    /* ── THE PLAN IS ROSTER-BLIND, AND UNTIL NOW THE PANEL WAS TOO ───────────
+     *
+     * Cory, live 2026-08-17: *"model still overrecommending QBs. I have joe
+     * burrow and it recommends Bo nix in the 9th.. thats rediculous"*.
+     *
+     * `seat_plan.json` asserts `slot: "QB", is_starter_seat: true` at pick 73
+     * and names another QB at 93. It is solved ONCE before the draft from the
+     * KEEPERS ALONE — its own header says *"It does NOT re-solve live"* — so it
+     * cannot know Burrow was taken at an intervening pick. Worse, the seat's own
+     * `fallback_rule` reads *"Take the best remaining player ELIGIBLE FOR QB,
+     * not the best player on the board"*, so the panel was actively steering
+     * toward a second QB at a seat that no longer exists.
+     *
+     * The plan is not wrong — it answered the pre-draft question correctly. What
+     * was wrong is rendering a pre-draft answer as a live instruction. So the
+     * panel now asks the roster, using the ENGINE'S OWN `mandatoryGaps()` rather
+     * than a second copy of the slot arithmetic: if this seat's slot is no
+     * longer an unfilled starter slot, the seat is spent and says so.
+     *
+     * The shortlist is still shown underneath rather than hidden — "the plan
+     * named nobody" and "the plan named men you no longer need" are different
+     * facts, and suppressing the second would make the artifact look cleaner
+     * than the evidence is (the same reasoning `supLine` above already uses). */
+    const seatSpent = (function () {
+      if (!seat.is_starter_seat || !seat.slot) return null;
+      let gaps;
+      try { gaps = E.mandatoryGaps(context()); } catch (e) { return null; }
+      if (!Array.isArray(gaps) || gaps.indexOf(seat.slot) !== -1) return null;
+      const held = (state.myRoster || []).filter(p => p && p.position === seat.slot);
+      return { by: held.map(p => p.name).filter(Boolean) };
+    })();
+    const spentLine = !seatSpent ? ''
+      : '<div class="sp-spent"><b>SEAT ALREADY FILLED</b> — you have '
+        + (seatSpent.by.length
+          ? escapeHtml(seatSpent.by.join(', ')) + ' at ' + escapeHtml(seat.slot)
+          : 'no open ' + escapeHtml(seat.slot) + ' starter slot')
+        + '. This plan was solved before the draft and does not re-solve, so the '
+        + 'names below answer a question you have already answered — treat them as '
+        + 'history, not as the pick.</div>';
+
     host.innerHTML =
-      '<div class="sp-head">THE PLAN WANTS <b>' + escapeHtml(seat.slot) + '</b> at '
+      '<div class="sp-head">THE PLAN ' + (seatSpent ? 'WANTED' : 'WANTS') + ' <b>' + escapeHtml(seat.slot) + '</b> at '
         + escapeHtml(roundLabel(seat.pick)) + ' (overall ' + seat.pick + ')' + (seat.is_starter_seat ? '' : ' <span class="sp-note">(no seat asserted)</span>') + '</div>'
-      + '<ol class="sp-list">' + rows + '</ol>'
+      + spentLine
+      + '<ol class="sp-list' + (seatSpent ? ' sp-list-spent' : '') + '">' + rows + '</ol>'
       + staleLine
       + gapLine
       + supLine
