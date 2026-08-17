@@ -131,3 +131,70 @@ def test_the_join_floor_is_high_because_the_denominator_is_the_point():
     player's row, but a missing PASS PLAY silently shrinks the denominator for
     every receiver who was on the field for it."""
     assert FR.MIN_JOIN_RATE >= 0.95
+
+
+# ── THE POSITION SOURCE, AND THE SEASON IT WAS SILENTLY COSTING US ──────────
+# Added 2026-08-17. `positions_for` read `import_weekly_data`, which has a row
+# only for players who RECORDED a statistic — so it could not classify 1,097 of
+# the 1,708 players actually on the field in 2024, and dropped 56 route-runners
+# a season. Its 404 on 2025 was also written up as "nflverse serves no data for
+# 2025" when the participation file is served (HTTP 200, 49MB): a gap of ours
+# filed as a gap of theirs.
+# Audit: draft/audit/routes_position_source_2026-08-17.md
+import json  # noqa: E402
+
+BACKTEST = os.path.join(ROOT, "draft", "backtest")
+
+
+def test_every_season_including_2025_is_present():
+    """2025 was absent for a reason that was never true. If a future change
+    drops a season again it must be because the SOURCE lacks it, and that has to
+    be re-argued rather than inherited."""
+    for season in FR.SEASONS:
+        p = os.path.join(BACKTEST, f"routes_{season}.json")
+        assert os.path.exists(p), f"routes_{season}.json missing"
+
+
+def test_no_stored_season_has_unclassified_players_on_the_field():
+    """This counter sat near 400 in every file and was read as an inherent limit
+    of the join. It was a property of the position source. Zero is the bar now,
+    and a regression here means the weaker source came back."""
+    for season in FR.SEASONS:
+        d = json.load(open(os.path.join(BACKTEST, f"routes_{season}.json")))
+        assert d["join"]["on_field_without_a_position"] == 0, (season, d["join"])
+
+
+def test_every_season_stamps_the_position_source():
+    """A routes count means nothing without the population it was taken over.
+    The stamp lets a consumer tell them apart without dating the file."""
+    for season in FR.SEASONS:
+        d = json.load(open(os.path.join(BACKTEST, f"routes_{season}.json")))
+        assert d.get("position_source") == FR.POSITION_SOURCE, (season, d.get("position_source"))
+
+
+def test_the_kupp_control_still_holds_exactly():
+    """The figure this fetcher was validated on when it was written. A source
+    change that moved it would mean the rebuild changed the measurement rather
+    than its coverage."""
+    d = json.load(open(os.path.join(BACKTEST, "routes_2021.json")))
+    routes = sum(w["4039"]["routes"] for w in d["weeks"].values() if "4039" in w)
+    targets = sum(w["4039"]["targets"] for w in d["weeks"].values() if "4039" in w)
+    assert (routes, targets) == (775, 234), (routes, targets)
+    assert round(targets / routes, 4) == 0.3019
+
+
+def test_the_route_population_did_not_shrink_anywhere():
+    """The rebuild's whole claim is BROADER coverage. Every season must carry
+    more players than the weekly-source build did, or the claim is wrong."""
+    before = {2021: 524, 2022: 504, 2023: 476, 2024: 491}   # the shipped counts
+    for season, was in before.items():
+        d = json.load(open(os.path.join(BACKTEST, f"routes_{season}.json")))
+        now = len({p for w in d["weeks"].values() for p in w})
+        assert now > was, (season, was, now)
+
+
+def test_qbs_are_still_excluded_from_route_positions():
+    """CONTROL. The fix widened who counts; it must not have widened it to
+    quarterbacks, which is the one exclusion this metric is built on."""
+    assert "QB" not in FR.ROUTE_POSITIONS
+    assert set(FR.ROUTE_POSITIONS) == {"WR", "TE", "RB", "FB"}

@@ -73,7 +73,19 @@ group. **Absent must stay absent.**
 
 ## 3b. ROUTES RUN — the second per-player feed, and what it is NOT
 
-`draft/backtest/fetch_routes.py`, `routes_2021..2024.json`, weekly, gated.
+`draft/backtest/fetch_routes.py`, `routes_2021..2025.json`, weekly, gated.
+
+**2025 was missing for a reason that was never true, and finding out why turned
+up a bigger one** — `draft/audit/routes_position_source_2026-08-17.md`. The
+header said nflverse served no 2025 data; the 2025 participation file is served
+(HTTP 200, 49MB). What 404s is `import_weekly_data`, used here *only to look up
+positions* — **a gap of ours filed as a gap of theirs**, unexamined because the
+explanation was already written down. And that source has a row only for players
+who **recorded a statistic**: of the 1,708 players actually on the field in 2024
+it could classify 611 and left **1,097 unknown**, dropping **56 route-runners a
+season** — precisely the blocking TE / zero-target decoy a routes metric exists
+to see. Rebuilt on seasonal rosters: **0 unclassified in every season**, +35-38
+players each, and 2025 exists. Kupp's control held to four decimals.
 
 **There is NO routes feed in nflverse.** `routes/routes_YYYY.csv` 404s and
 `ftn_charting` is play-level with no player ids. True routes run is a PFF /

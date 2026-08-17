@@ -53,11 +53,17 @@ despite arriving alphabetically sorted — 0 mismatches on 2024. It is unused
 anyway; a fact that must be re-verified per season is a fact waiting to be
 wrong.)
 
-── SEASON COVERAGE: 2021-2024, AND 2025 IS BLOCKED FOR A FAMILIAR REASON ─────
+── SEASON COVERAGE: 2021-2025. 2025 WAS NEVER BLOCKED UPSTREAM. ──────────────
 
-2025 raises `NotPublished` — nflverse serves no weekly data for it, which is the
-SAME 404 that leaves the season ungradeable in the backtest. One gap, two
-consequences. See draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md.
+This header said "2025 raises NotPublished — nflverse serves no weekly data for
+it". Checked on 2026-08-17 instead of repeated: the 2025 participation file is
+served, 49MB, HTTP 200. What 404s is `import_weekly_data`, which this file used
+only to look up POSITIONS. **A gap of ours was recorded as a gap of theirs**,
+and the season sat absent for a reason nobody re-tested.
+
+Fixed by taking positions from `seasonal_rosters`, which covers all five seasons
+— and which turns out to be the better source everywhere, not merely the one
+that works for 2025. See `positions_for` for the measurement.
 
 Run:
     python3 draft/backtest/fetch_routes.py --check
@@ -121,40 +127,64 @@ def load_pbp(season: int):
     return nfl.import_pbp_data([season], downcast=True)
 
 
+#: What `positions_for` reads. Stamped into every season file so a consumer can
+#: tell which population a routes count was taken over, without dating the file.
+POSITION_SOURCE = "nflverse seasonal_rosters"
+
+
 def positions_for(season: int, pbp=None) -> dict:
-    """{gsis_id: position} for the season, from the WEEKLY DATA, not the file.
+    """{gsis_id: position} for the season, from the SEASONAL ROSTERS.
 
     WHY NOT `offense_positions`, WHICH THE FILE SOMETIMES HAS. It exists for
     2023-2025 (26 columns) and NOT for 2021-2022 (20 columns) — the participation
     schema changed. Branching on that would run two different code paths over two
     different populations and call the result one dataset, which is the shape of
-    error this repo keeps finding.
+    error this repo keeps finding. It also arrives sorted alphabetically, and
+    although it WAS verified index-aligned with `offense_players` on 2024, a fact
+    that has to be re-verified per season is a fact waiting to be wrong.
 
-    So position comes from one source for every season. It also removes the
-    alignment question entirely: `offense_positions` arrives sorted
-    alphabetically, and although it WAS verified index-aligned with
-    `offense_players` on 2024, a fact that has to be re-verified per season is a
-    fact waiting to be wrong.
+    That reasoning stands. WHAT CHANGED ON 2026-08-17 IS WHICH SINGLE SOURCE.
+
+    This read `import_weekly_data`, which has a stat line only for players who
+    RECORDED something. Measured on 2024: of the 1,708 distinct players who
+    actually appear on the field in the participation file, that source can
+    classify **611 and leaves 1,097 unknown**, and it finds **494** route
+    positions where the roster finds **550**. So 57 real route-runners per season
+    were being dropped — not mis-classified, dropped — and every one of them was
+    a skill player who was on the field for pass plays and never recorded a
+    counting stat. That is precisely the population a ROUTES metric exists to
+    see: the blocking tight end, the decoy, the man who ran twenty routes for
+    zero targets.
+
+    `import_seasonal_rosters` covers all five seasons (2,960 / 3,133 / 3,089 /
+    3,215 / 3,134 rows, 100% with a usable position) and leaves **zero** on-field
+    players unclassified on 2024. It is the same single source for every season,
+    so the docstring's own principle is better served, not abandoned.
+
+    THE DISAGREEMENTS ARE ALMOST ALL INERT. Where both sources classify the same
+    player, they differ on 40 of 612 (6.5%) on 2024, of which 11 involve a route
+    position, and 10 of those 11 are FB<->RB — both in ROUTE_POSITIONS, so who
+    counts as running a route does not move. Exactly one player (00-0038489)
+    changes inclusion, FB under weekly and LB under the roster.
+
+    AND IT UNBLOCKED 2025, WHICH WAS NEVER ACTUALLY BLOCKED UPSTREAM. This
+    function's 404 was written up as "nflverse serves no data for 2025". The
+    participation file for 2025 is served, 49MB, HTTP 200 — it was the POSITION
+    lookup that 404'd, and a gap of ours was recorded as a gap of theirs.
     """
     import nfl_data_py as nfl
     try:
-        wk = nfl.import_weekly_data([season], downcast=True)
+        ro = nfl.import_seasonal_rosters([season])
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            # THE SAME 404 THAT BLOCKS 2025 GRADING, arriving here. nflverse
-            # serves no weekly data for 2025, which is why the backtest cannot
-            # grade it and why routes cannot be built for it either. Reported as
-            # NotPublished rather than crashing, because "the source has not
-            # published this season" is an expected state, not a bug — and
-            # because a season that dies here should not take the other four
-            # with it.
-            raise NotPublished(
-                f"no weekly data for {season} — the same gap that leaves the "
-                "season ungradeable (draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md)"
-            ) from e
+            # A season nflverse has genuinely not published YET is an expected
+            # state, not a bug, and must not take the other seasons down with
+            # it. Kept from the original: only the SOURCE changed, not the
+            # discipline about absence.
+            raise NotPublished(f"no seasonal roster for {season}") from e
         raise
     out = {}
-    for pid, pos in zip(wk["player_id"], wk["position"]):
+    for pid, pos in zip(ro["player_id"], ro["position"]):
         if isinstance(pid, str) and pid and isinstance(pos, str):
             out[pid] = pos
     return out
@@ -195,10 +225,17 @@ def build_season(season: int, crosswalk: dict, part=None, pbp=None,
         for gsis in str(ids).split(";"):
             pos = positions.get(gsis)
             if pos is None:
-                # ABSENT, NOT GUESSED. A player with no weekly row has no
+                # ABSENT, NOT GUESSED. A player with no roster row has no
                 # position we can assert; counting him as a route-runner would
                 # invent a denominator, and counting him as not one would be an
                 # equally unsupported claim. He is recorded and skipped.
+                #
+                # This set used to be large and was read as unavoidable. It was
+                # not: under the weekly-stats source it held 1,097 of the 1,708
+                # players on the field in 2024, because that source only knows
+                # players who recorded a stat. Under the roster source it is
+                # empty. A number that looks like an inherent limit is worth
+                # measuring against a second source before believing it.
                 no_position.add(gsis)
                 continue
             if pos not in ROUTE_POSITIONS:
@@ -216,6 +253,7 @@ def build_season(season: int, crosswalk: dict, part=None, pbp=None,
                            if row["routes"] >= MIN_ROUTES_FOR_TPRR else None)
     total = joined + unjoined
     return {"season": season, "weeks": weeks,
+            "position_source": POSITION_SOURCE,
             "join": {"participation_rows": total, "joined_to_pbp": joined,
                      "unjoined": unjoined,
                      "join_rate": round(joined / total, 4) if total else 0.0,

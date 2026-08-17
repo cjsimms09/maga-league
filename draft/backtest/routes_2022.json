@@ -187,6 +187,11 @@
     "targets": 0,
     "tprr": null
    },
+   "4381": {
+    "routes": 4,
+    "targets": 1,
+    "tprr": null
+   },
    "8144": {
     "routes": 31,
     "targets": 4,
@@ -274,6 +279,11 @@
    },
    "4111": {
     "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
+   "2463": {
+    "routes": 2,
     "targets": 0,
     "tprr": null
    },
@@ -1009,6 +1019,11 @@
    },
    "4455": {
     "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
+   "7852": {
+    "routes": 4,
     "targets": 0,
     "tprr": null
    },
@@ -1889,6 +1904,11 @@
     "targets": 9,
     "tprr": 0.1957
    },
+   "7597": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "7596": {
     "routes": 43,
     "targets": 5,
@@ -1918,6 +1938,11 @@
     "routes": 13,
     "targets": 3,
     "tprr": 0.2308
+   },
+   "2463": {
+    "routes": 5,
+    "targets": 0,
+    "tprr": null
    },
    "7533": {
     "routes": 4,
@@ -2208,6 +2233,11 @@
     "routes": 30,
     "targets": 2,
     "tprr": 0.0667
+   },
+   "4381": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
    },
    "7002": {
     "routes": 35,
@@ -2564,6 +2594,11 @@
     "targets": 0,
     "tprr": null
    },
+   "8663": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "5284": {
     "routes": 10,
     "targets": 2,
@@ -2760,6 +2795,11 @@
     "tprr": null
    },
    "7794": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
+   "7021": {
     "routes": 1,
     "targets": 0,
     "tprr": null
@@ -3179,6 +3219,11 @@
     "targets": 0,
     "tprr": null
    },
+   "7852": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "8123": {
     "routes": 14,
     "targets": 1,
@@ -3470,6 +3515,11 @@
     "routes": 29,
     "targets": 7,
     "tprr": 0.2414
+   },
+   "3328": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
    },
    "5026": {
     "routes": 24,
@@ -4196,12 +4246,22 @@
     "targets": 0,
     "tprr": null
    },
+   "5171": {
+    "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
    "6202": {
     "routes": 4,
     "targets": 0,
     "tprr": null
    },
    "8123": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
+   "7852": {
     "routes": 1,
     "targets": 0,
     "tprr": null
@@ -4635,6 +4695,11 @@
     "routes": 12,
     "targets": 2,
     "tprr": 0.1667
+   },
+   "8663": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
    },
    "7612": {
     "routes": 6,
@@ -5113,6 +5178,11 @@
     "targets": 3,
     "tprr": 0.2
    },
+   "3695": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "6989": {
     "routes": 30,
     "targets": 6,
@@ -5151,6 +5221,11 @@
    "5026": {
     "routes": 7,
     "targets": 2,
+    "tprr": null
+   },
+   "4381": {
+    "routes": 5,
+    "targets": 0,
     "tprr": null
    },
    "3391": {
@@ -5508,6 +5583,11 @@
     "targets": 0,
     "tprr": null
    },
+   "3328": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "5038": {
     "routes": 23,
     "targets": 3,
@@ -5828,6 +5908,11 @@
     "targets": 0,
     "tprr": null
    },
+   "6960": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "4962": {
     "routes": 7,
     "targets": 3,
@@ -5931,6 +6016,16 @@
    "8210": {
     "routes": 4,
     "targets": 3,
+    "tprr": null
+   },
+   "7852": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
+   },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "5137": {
@@ -7090,6 +7185,11 @@
     "targets": 1,
     "tprr": 0.0588
    },
+   "6960": {
+    "routes": 12,
+    "targets": 0,
+    "tprr": 0.0
+   },
    "1387": {
     "routes": 9,
     "targets": 3,
@@ -7345,6 +7445,11 @@
     "targets": 1,
     "tprr": null
    },
+   "6233": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "6989": {
     "routes": 20,
     "targets": 3,
@@ -7364,6 +7469,11 @@
     "routes": 20,
     "targets": 4,
     "tprr": 0.2
+   },
+   "4381": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
    },
    "6869": {
     "routes": 14,
@@ -7419,6 +7529,11 @@
     "routes": 16,
     "targets": 2,
     "tprr": 0.125
+   },
+   "3695": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
    },
    "956": {
     "routes": 4,
@@ -7735,6 +7850,16 @@
     "targets": 3,
     "tprr": 0.1304
    },
+   "7852": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
+   "7729": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "8210": {
     "routes": 6,
     "targets": 1,
@@ -7747,6 +7872,11 @@
    },
    "8665": {
     "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
+   "5171": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -8036,6 +8166,11 @@
     "tprr": 0.0
    },
    "7703": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
+   "7771": {
     "routes": 1,
     "targets": 0,
     "tprr": null
@@ -8464,6 +8599,11 @@
    },
    "2378": {
     "routes": 8,
+    "targets": 0,
+    "tprr": null
+   },
+   "1911": {
+    "routes": 3,
     "targets": 0,
     "tprr": null
    },
@@ -8937,10 +9077,20 @@
     "targets": 6,
     "tprr": 0.1935
    },
+   "3695": {
+    "routes": 9,
+    "targets": 0,
+    "tprr": null
+   },
    "5026": {
     "routes": 26,
     "targets": 3,
     "tprr": 0.1154
+   },
+   "4381": {
+    "routes": 8,
+    "targets": 0,
+    "tprr": null
    },
    "7794": {
     "routes": 3,
@@ -9069,6 +9219,11 @@
    },
    "5409": {
     "routes": 3,
+    "targets": 0,
+    "tprr": null
+   },
+   "2474": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -9358,6 +9513,11 @@
     "tprr": null
    },
    "5970": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
+   "5111": {
     "routes": 4,
     "targets": 0,
     "tprr": null
@@ -9714,6 +9874,11 @@
     "targets": 9,
     "tprr": 0.2727
    },
+   "4381": {
+    "routes": 11,
+    "targets": 1,
+    "tprr": 0.0909
+   },
    "956": {
     "routes": 16,
     "targets": 3,
@@ -9762,6 +9927,11 @@
    "8221": {
     "routes": 9,
     "targets": 2,
+    "tprr": null
+   },
+   "3695": {
+    "routes": 2,
+    "targets": 0,
     "tprr": null
    },
    "2312": {
@@ -9822,6 +9992,11 @@
    "5973": {
     "routes": 6,
     "targets": 1,
+    "tprr": null
+   },
+   "2474": {
+    "routes": 2,
+    "targets": 0,
     "tprr": null
    },
    "6847": {
@@ -10359,6 +10534,11 @@
     "targets": 9,
     "tprr": 0.1915
    },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "2545": {
     "routes": 6,
     "targets": 1,
@@ -10491,6 +10671,11 @@
    },
    "7716": {
     "routes": 7,
+    "targets": 0,
+    "tprr": null
+   },
+   "4226": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -11231,6 +11416,11 @@
     "targets": 1,
     "tprr": 0.0714
    },
+   "2474": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "5995": {
     "routes": 7,
     "targets": 0,
@@ -11711,6 +11901,11 @@
     "targets": 1,
     "tprr": null
    },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "7496": {
     "routes": 13,
     "targets": 0,
@@ -11961,6 +12156,11 @@
     "targets": 3,
     "tprr": 0.3
    },
+   "3695": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "6989": {
     "routes": 12,
     "targets": 1,
@@ -11980,6 +12180,11 @@
     "routes": 11,
     "targets": 0,
     "tprr": 0.0
+   },
+   "4381": {
+    "routes": 12,
+    "targets": 2,
+    "tprr": 0.1667
    },
    "6075": {
     "routes": 1,
@@ -12211,6 +12416,11 @@
     "targets": 0,
     "tprr": null
    },
+   "8414": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "6813": {
     "routes": 15,
     "targets": 1,
@@ -12306,6 +12516,11 @@
     "targets": 0,
     "tprr": 0.0
    },
+   "8595": {
+    "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
    "8154": {
     "routes": 4,
     "targets": 0,
@@ -12375,6 +12590,16 @@
     "routes": 8,
     "targets": 1,
     "tprr": null
+   },
+   "8250": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
+   "1911": {
+    "routes": 13,
+    "targets": 0,
+    "tprr": 0.0
    },
    "7757": {
     "routes": 20,
@@ -13423,6 +13648,11 @@
     "targets": 5,
     "tprr": 0.3846
    },
+   "6909": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
    "5170": {
     "routes": 4,
     "targets": 1,
@@ -13536,6 +13766,11 @@
    "6557": {
     "routes": 2,
     "targets": 1,
+    "tprr": null
+   },
+   "7597": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "7066": {
@@ -13943,6 +14178,11 @@
     "targets": 1,
     "tprr": null
    },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "2381": {
     "routes": 3,
     "targets": 1,
@@ -13967,6 +14207,11 @@
     "routes": 31,
     "targets": 4,
     "tprr": 0.129
+   },
+   "4381": {
+    "routes": 11,
+    "targets": 1,
+    "tprr": 0.0909
    },
    "8676": {
     "routes": 3,
@@ -14047,6 +14292,11 @@
     "routes": 18,
     "targets": 5,
     "tprr": 0.2778
+   },
+   "2474": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
    }
   },
   "10": {
@@ -14429,6 +14679,11 @@
     "routes": 20,
     "targets": 2,
     "tprr": 0.1
+   },
+   "6395": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
    },
    "8170": {
     "routes": 7,
@@ -14850,6 +15105,11 @@
     "targets": 4,
     "tprr": 0.1739
    },
+   "4381": {
+    "routes": 11,
+    "targets": 0,
+    "tprr": 0.0
+   },
    "6018": {
     "routes": 9,
     "targets": 1,
@@ -14969,6 +15229,11 @@
     "routes": 23,
     "targets": 2,
     "tprr": 0.087
+   },
+   "5171": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
    },
    "8210": {
     "routes": 10,
@@ -15617,6 +15882,11 @@
     "targets": 0,
     "tprr": null
    },
+   "7852": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
    "1535": {
     "routes": 10,
     "targets": 2,
@@ -16132,6 +16402,11 @@
     "targets": 1,
     "tprr": 0.0909
    },
+   "6040": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "7551": {
     "routes": 11,
     "targets": 4,
@@ -16144,6 +16419,11 @@
    },
    "6845": {
     "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
+   "8107": {
+    "routes": 2,
     "targets": 0,
     "tprr": null
    },
@@ -16237,6 +16517,11 @@
     "targets": 1,
     "tprr": null
    },
+   "8732": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "6557": {
     "routes": 1,
     "targets": 0,
@@ -16261,6 +16546,11 @@
     "routes": 22,
     "targets": 5,
     "tprr": 0.2273
+   },
+   "4381": {
+    "routes": 9,
+    "targets": 1,
+    "tprr": null
    },
    "8144": {
     "routes": 20,
@@ -17614,6 +17904,11 @@
     "targets": 5,
     "tprr": 0.3846
    },
+   "2474": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
+   },
    "8013": {
     "routes": 2,
     "targets": 0,
@@ -17929,6 +18224,11 @@
     "targets": 0,
     "tprr": null
    },
+   "8435": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
    "8123": {
     "routes": 6,
     "targets": 0,
@@ -17937,6 +18237,11 @@
    "6144": {
     "routes": 6,
     "targets": 1,
+    "tprr": null
+   },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "6956": {
@@ -18364,6 +18669,11 @@
     "targets": 1,
     "tprr": null
    },
+   "7541": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "6926": {
     "routes": 10,
     "targets": 2,
@@ -18388,6 +18698,11 @@
     "routes": 22,
     "targets": 7,
     "tprr": 0.3182
+   },
+   "4381": {
+    "routes": 15,
+    "targets": 2,
+    "tprr": 0.1333
    },
    "5872": {
     "routes": 36,
@@ -18569,6 +18884,11 @@
     "targets": 1,
     "tprr": 0.1
    },
+   "6040": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "7567": {
     "routes": 13,
     "targets": 1,
@@ -18671,6 +18991,11 @@
    },
    "6699": {
     "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
+   "8107": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -19561,6 +19886,11 @@
     "targets": 4,
     "tprr": 0.3077
    },
+   "6040": {
+    "routes": 6,
+    "targets": 0,
+    "tprr": null
+   },
    "5536": {
     "routes": 16,
     "targets": 2,
@@ -19621,7 +19951,17 @@
     "targets": 3,
     "tprr": 0.2143
    },
+   "8414": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "8254": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
+   "5171": {
     "routes": 2,
     "targets": 0,
     "tprr": null
@@ -20016,6 +20356,11 @@
     "targets": 3,
     "tprr": 0.25
    },
+   "4421": {
+    "routes": 3,
+    "targets": 0,
+    "tprr": null
+   },
    "8076": {
     "routes": 10,
     "targets": 1,
@@ -20196,6 +20541,11 @@
     "targets": 3,
     "tprr": 0.1667
    },
+   "8249": {
+    "routes": 7,
+    "targets": 0,
+    "tprr": null
+   },
    "8676": {
     "routes": 22,
     "targets": 4,
@@ -20205,6 +20555,11 @@
     "routes": 9,
     "targets": 2,
     "tprr": null
+   },
+   "4381": {
+    "routes": 14,
+    "targets": 3,
+    "tprr": 0.2143
    },
    "6869": {
     "routes": 21,
@@ -20217,6 +20572,11 @@
     "tprr": 0.3846
    },
    "943": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
+   "7351": {
     "routes": 4,
     "targets": 0,
     "tprr": null
@@ -20823,6 +21183,11 @@
     "targets": 5,
     "tprr": 0.2273
    },
+   "6040": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "5122": {
     "routes": 4,
     "targets": 1,
@@ -20967,6 +21332,11 @@
     "routes": 27,
     "targets": 5,
     "tprr": 0.1852
+   },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
    },
    "7496": {
     "routes": 41,
@@ -21660,6 +22030,11 @@
     "targets": 1,
     "tprr": null
    },
+   "1911": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "5902": {
     "routes": 2,
     "targets": 1,
@@ -21755,6 +22130,11 @@
     "targets": 1,
     "tprr": null
    },
+   "8523": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "5987": {
     "routes": 11,
     "targets": 0,
@@ -21763,6 +22143,11 @@
    "6798": {
     "routes": 5,
     "targets": 2,
+    "tprr": null
+   },
+   "8107": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "7609": {
@@ -22905,6 +23290,11 @@
     "targets": 2,
     "tprr": 0.2
    },
+   "4381": {
+    "routes": 11,
+    "targets": 0,
+    "tprr": 0.0
+   },
    "8676": {
     "routes": 20,
     "targets": 4,
@@ -23497,6 +23887,11 @@
     "targets": 3,
     "tprr": 0.2727
    },
+   "3894": {
+    "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
    "4111": {
     "routes": 4,
     "targets": 0,
@@ -23657,6 +24052,11 @@
     "targets": 0,
     "tprr": 0.0
    },
+   "4381": {
+    "routes": 6,
+    "targets": 0,
+    "tprr": null
+   },
    "8676": {
     "routes": 14,
     "targets": 5,
@@ -23679,6 +24079,11 @@
    },
    "6869": {
     "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
+   "7351": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -24090,6 +24495,11 @@
    "8820": {
     "routes": 2,
     "targets": 1,
+    "tprr": null
+   },
+   "5171": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "2251": {
@@ -24827,6 +25237,11 @@
     "targets": 0,
     "tprr": null
    },
+   "8107": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "7551": {
     "routes": 8,
     "targets": 3,
@@ -24928,6 +25343,11 @@
     "routes": 13,
     "targets": 5,
     "tprr": 0.3846
+   },
+   "5171": {
+    "routes": 7,
+    "targets": 0,
+    "tprr": null
    },
    "8254": {
     "routes": 10,
@@ -25624,6 +26044,11 @@
     "targets": 1,
     "tprr": null
    },
+   "6233": {
+    "routes": 1,
+    "targets": 0,
+    "tprr": null
+   },
    "6918": {
     "routes": 2,
     "targets": 1,
@@ -25754,6 +26179,11 @@
     "targets": 0,
     "tprr": null
    },
+   "4381": {
+    "routes": 10,
+    "targets": 1,
+    "tprr": 0.1
+   },
    "5022": {
     "routes": 38,
     "targets": 6,
@@ -25797,6 +26227,11 @@
    "8025": {
     "routes": 6,
     "targets": 1,
+    "tprr": null
+   },
+   "7351": {
+    "routes": 2,
+    "targets": 0,
     "tprr": null
    },
    "5122": {
@@ -26836,6 +27271,11 @@
     "targets": 0,
     "tprr": null
    },
+   "6233": {
+    "routes": 2,
+    "targets": 0,
+    "tprr": null
+   },
    "7611": {
     "routes": 21,
     "targets": 7,
@@ -27256,6 +27696,11 @@
     "targets": 9,
     "tprr": 0.3
    },
+   "8185": {
+    "routes": 5,
+    "targets": 0,
+    "tprr": null
+   },
    "5046": {
     "routes": 5,
     "targets": 1,
@@ -27308,6 +27753,11 @@
    },
    "6427": {
     "routes": 8,
+    "targets": 0,
+    "tprr": null
+   },
+   "8107": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -27406,6 +27856,11 @@
     "targets": 0,
     "tprr": null
    },
+   "7597": {
+    "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
    "6918": {
     "routes": 3,
     "targets": 0,
@@ -27455,6 +27910,11 @@
     "routes": 19,
     "targets": 1,
     "tprr": 0.0526
+   },
+   "4381": {
+    "routes": 8,
+    "targets": 1,
+    "tprr": null
    },
    "2391": {
     "routes": 6,
@@ -27524,6 +27984,11 @@
    "7694": {
     "routes": 8,
     "targets": 1,
+    "tprr": null
+   },
+   "6148": {
+    "routes": 1,
+    "targets": 0,
     "tprr": null
    },
    "4455": {
@@ -28018,6 +28483,11 @@
    },
    "3155": {
     "routes": 4,
+    "targets": 0,
+    "tprr": null
+   },
+   "6834": {
+    "routes": 1,
     "targets": 0,
     "tprr": null
    },
@@ -29446,12 +29916,13 @@
    }
   }
  },
+ "position_source": "nflverse seasonal_rosters",
  "join": {
   "participation_rows": 50150,
   "joined_to_pbp": 47985,
   "unjoined": 2165,
   "join_rate": 0.9568,
-  "on_field_without_a_position": 407
+  "on_field_without_a_position": 0
  },
  "_note": "ROUTES RUN IS A PROXY AND AN UPPER BOUND: every skill player on the field for a PASS play is counted, so a blocking TE or back is included. nflverse publishes no true routes feed. `tprr` is targets/routes and is None below 10 routes, because a ratio of two small integers is not an efficiency. QBs are excluded by design."
 }
