@@ -184,6 +184,37 @@ on in the next 24 hours that looks wrong. That goes to A marked
 `NO DEFAULT — BLOCKED` and to the relay in the same breath. Speed beats protocol
 when the board is live.
 
+## RULE 2b — A RULING REQUEST TO CORY CARRIES FIVE LINES, NOT FOUR
+
+**Cory, 2026-08-17:** *"when asking for a ruling on me you need to explain what I
+am deciding, what that means, how it affects model, and recommendation."*
+
+`ASK/EVIDENCE/REC/DEFAULT` is the format for **A**, who has the context. **Cory
+does not, and should not have to reconstruct it.** So anything routed to Cory
+uses this instead:
+
+```
+DECIDING:   the choice, in one line — the actual options, not the topic
+MEANS:      what it is in plain English, no jargon, no field names
+EFFECT:     what changes on the board, WITH NUMBERS — and say plainly
+            which parts are measured and which are not
+REC:        what I would do, and why
+IF SILENT:  what happens if you say nothing
+```
+
+**`EFFECT` is the line that gets faked, so it is the one to hold hardest.** If
+the blast radius has not been measured, the honest text is "unmeasured — here is
+who is measuring it and when," never a plausible-sounding estimate. A proxy is
+allowed only when it is labelled a proxy **and its confounds are named in the
+same breath** — a directional number presented as a finding is the defect this
+project keeps paying for.
+
+**And Cory sends work to the relay, not to a lane.** He should not have to know
+who owns what; routing is the relay's job and a single entry point is what stops
+an ask going missing. **The one exception: when a lane has asked Cory directly
+for something, he answers that lane directly** — the relay picks it up from
+`ROUTES.md`. Waiting on a middleman to deliver a screenshot is a day lost.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and

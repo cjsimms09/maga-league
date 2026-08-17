@@ -25,7 +25,7 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 | # | what Cory asked for | owner | status | what "done" looks like |
 |---|---|---|---|---|
-| A1 | **War room redesign.** *"too busy and wordy… needs to look like a professional draft buddy."* Does not match reference screenshots Cory was sent. | **B** | 🔴 DELEGATED — draft-critical, 08-22 | B gets the screenshots FROM CORY first, then a clean, dense, low-word war room. Fix by hierarchy, NOT by deleting data. Register row 4b. |
+| A1 | **War room redesign**, *"too busy and wordy… a professional draft buddy"* — **and it must be the DESKTOP screen**, which is where Cory drafts. | **B** | 🔴 DELEGATED — draft-critical, 08-22 | Desktop-first. Fix density by hierarchy, NOT by deleting data. **Four truth defects found in B's own screenshot are blocking regardless of the redesign** — register rows 4c–4f, of which 4c (every pick number computed for the wrong seat) invalidates the page. |
 | A2 | **Decide the projection source: Sleeper, FantasyPros, or a mix.** | **A** | 🔴 DELEGATED — needs a ruling | A rules on source policy. The finding that forces it: `proj_mean` is Sleeper × adjuster, and FP never enters it (register row 21). |
 | A3 | **Capture ALL the FantasyPros data** — projected points, ceilings, ranges, everything — not just one scalar. | **D** | DELEGATED | FP's per-player range fields walked through the eight questions. They are a real per-player upside signal, which this project has been missing entirely. Register row 22. |
 | A4 | **Every session asks more questions and stops moving past things.** *"common logic shouldve told us that everyone having the same ceiling makes no sense."* | relay | **DELIVERED — verify at next surprising result** | Rule 3d shipped (`OPERATING-MODEL.md`), routed to all four lanes, and applied immediately: it reopened the Vegas null (row 18) and caught the FP-vs-FP comparison (row 19). VERIFIED only once a lane other than the relay applies it unprompted. |
@@ -35,10 +35,72 @@ it does what Cory asked · `CORY` = waiting on Cory, nobody else can move it.
 
 ## WAITING ON CORY — nobody else can move these
 
-| # | what | why it is Cory's |
-|---|---|---|
-| C1 | **`MEASURED_WEIGHTS.ceiling` — ship non-zero or hold?** | Three preregistered runs, two independent seed sets, every value 0.15–0.65 beats the shipped zero. Register row 5. |
-| C2 | **ADP-sd ratchet fired** — leave it or re-fit? | Our constant did not drift; the market tightened. Blast radius 1 player. Register row 6. |
+**Format per Cory's 08-17 instruction** (`OPERATING-MODEL.md` Rule 2b): what he
+is deciding, what it means, how it affects the model, a recommendation, and what
+happens if he says nothing.
+
+---
+
+### C1 — the `ceiling` weight: does the model get to care about upside at all?
+
+**DECIDING:** leave the composite's `ceiling` weight at **0**, or set it to a
+non-zero value (anywhere in **0.15–0.65**; the exact number matters far less than
+zero-vs-non-zero).
+
+**MEANS:** right now, when the tool compares two players, **it gives no credit
+whatsoever for upside.** Two players projected for the same points rank
+identically — even if one of them realistically could go for 250 and the other
+tops out near his projection. The model is currently blind to the boom side.
+
+**EFFECT — split honestly into measured and not:**
+- ✅ **MEASURED:** three preregistered runs across **two independent seed sets**
+  say a non-zero weight beats zero — **3 of 3 seeds, separably, at every value
+  from 0.15 to 0.65.** The old zero came from a measurement that could not have
+  come out any other way (every player's ceiling was `proj_mean × a constant`, so
+  the term carried no player-specific information — there was nothing for a
+  non-zero weight to *do*). That defect is fixed; the zero it produced is not.
+- ✅ **MEASURED:** the composite's "roster blindness" is an artifact of this zero,
+  not a design property.
+- ❌ **NOT MEASURED — the blast radius on your actual pick order.** Nobody has
+  counted how many players move how far. A quick proxy suggested 62–83 of the top
+  120 move ≥5 spots, **but every large mover was a QB, which is the signature of
+  a scale artifact rather than a real signal** — QBs score more, so their raw
+  `ceiling − mean` is largest. **I do not trust that number and you should not
+  either.** Owner: relay, before you rule.
+
+**REC:** **ship it non-zero, at 0.45.** The evidence is as strong as this project
+produces, and the framing that matters is that the model ignores upside entirely
+— the exact value is a detail. The only thing that held it at zero was a
+no-change-before-08-22 rule you have since overruled ("if it makes the model more
+correct we are changing NOW"). **But rule after I hand you the real rank blast
+radius, not before** — you should see who moves before it moves.
+
+**IF SILENT:** it stays at 0 through the draft, and the model drafts blind to
+upside. That is a real cost, not a neutral default.
+
+---
+
+### C2 — the ADP-sd ratchet: it fired, do we re-fit or leave it?
+
+**DECIDING:** leave our ADP-dispersion constant where it is, or re-fit it to the
+market's current, tighter numbers.
+
+**MEANS:** we hold an assumption about how much the draft market disagrees with
+itself on a player. A guard fired saying our assumption no longer matches
+reality. **The important part: our number did not drift — the market genuinely
+tightened.** So this is the guard doing its job, not a bug.
+
+**EFFECT:** **blast radius is one player.** Our constant sits at **1.39×** FFC's
+published dispersion in the 50–100 ADP band. Re-fitting now means fitting to a
+single point in time, which is how a guard becomes a rubber stamp: fit it to
+today, and it fires on ordinary variation next month and gets widened again.
+
+**REC:** **leave it, revisit post-season.** One player of blast radius does not
+justify re-fitting a guard five days before your draft, and re-fitting to current
+data is exactly the failure mode that makes the guard meaningless later.
+
+**IF SILENT:** it stays as-is, which is the recommendation — so silence is a fine
+answer here.
 
 ## DELIVERED AND VERIFIED
 
