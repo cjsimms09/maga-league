@@ -81,7 +81,7 @@
 
   /* ── LEFT RAIL — top N at each position ──────────────────────────────────
    * groups: [{ pos, total, collapsed, rows: [{ id, name, gone (0-100|null),
-   * tier, team }] }]. gone is the SAME market number the shortlist prints
+   * tier, team }] }]. gone is the SAME market+room number the shortlist prints
    * (1 − survival_to_next). Row click = drill-down (data-drill).             */
   function posRails(groups) {
     groups = (groups || []).filter(function (g) { return g && g.pos; });
@@ -96,7 +96,7 @@
           + '<span class="wr-pr-rank">' + (i + 1) + '</span>'
           + '<span class="wr-pr-name">' + esc(shortName(p.name)) + '</span>'
           + '<span class="wr-pr-tier t' + ((p.tier || 1) - 1) % 6 + '" title="tier ' + esc(p.tier) + '">' + esc(p.tier || '·') + '</span>'
-          + '<span class="wr-pr-gone' + goneCls(p.gone) + '" title="chance GONE by your next pick (market model)">'
+          + '<span class="wr-pr-gone' + goneCls(p.gone) + '" title="chance GONE by your next pick (market+room — the score’s number)">'
           + (p.gone == null ? '—' : p.gone + '%') + '</span>'
           + '</li>';
       }).join('');
@@ -227,11 +227,38 @@
     });
     if (!rows.length) return '<p class="wr-chart-empty">no shortlist to track yet</p>';
     var W = opts.w || 280, rowH = 26, padL = 84, padR = 40, padT = 14;
-    var H = padT + rows.length * rowH + 4;
     var plotW = W - padL - padR;
     var maxPts = 1;
     rows.forEach(function (r) { if (r.points.length > maxPts) maxPts = r.points.length; });
     var x = function (i) { return padL + (maxPts === 1 ? plotW : (i / (maxPts - 1)) * plotW); };
+
+    /* EVERY COLUMN CARRIES ITS NUMBER, NOT ONLY THE TERMINAL ONE (Cory's
+     * capture, 2026-08-17: six lines all labelled "0%" — the terminal p68
+     * value — while the p48 values, the ones a decision needs, went unprinted).
+     * A column where EVERY value rounds to 0% is collapsed to ONE line
+     * ("all likely gone by pN") instead of N zero labels: past that pick the
+     * market model has one claim about the whole shortlist, so the chart makes
+     * it once. Later all-~0 columns are implied by the first (survival is
+     * monotone declining) and stay silent. */
+    var GONE_EPS = 0.005;                       // rounds to the printed "0%"
+    var allGoneAt = [];
+    for (var ci = 0; ci < maxPts; ci++) {
+      var seen = false, all = true;
+      rows.forEach(function (r) {
+        var pt = r.points[ci];
+        if (!pt) return;
+        seen = true;
+        if (!(pt.p < GONE_EPS)) all = false;
+      });
+      allGoneAt.push(seen && all);
+    }
+    var firstAllGone = -1;
+    for (var gi = 0; gi < allGoneAt.length; gi++) {
+      if (allGoneAt[gi]) { firstAllGone = gi; break; }
+    }
+    var footH = firstAllGone >= 0 ? 12 : 0;
+    var H = padT + rows.length * rowH + 4 + footH;
+
     var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" '
       + 'aria-label="chance each shortlist player is still available at your upcoming picks">';
     // pick labels along the top, from the first row's picks
@@ -244,13 +271,31 @@
       var yy = function (p) { return top + 3 + (1 - Math.max(0, Math.min(1, p))) * (rowH - 8); };
       var pts = r.points.map(function (pt, i) { return x(i).toFixed(1) + ',' + yy(pt.p).toFixed(1); });
       var lastP = r.points[r.points.length - 1].p;
+      var lastI = r.points.length - 1;
       svg += '<text class="wr-spark-name" x="' + (padL - 5) + '" y="' + (top + rowH / 2 + 2)
         + '" text-anchor="end">' + esc(lastName(r.name)) + '</text>'
         + '<polyline class="wr-spark-line' + (lastP < 0.25 ? ' dying' : '') + '" fill="none" points="'
-        + pts.join(' ') + '"/>'
-        + '<text class="wr-spark-pct' + (lastP < 0.25 ? ' dying' : '') + '" x="' + (W - padR + 4)
-        + '" y="' + (top + rowH / 2 + 2) + '">' + Math.round(lastP * 100) + '%</text>';
+        + pts.join(' ') + '"/>';
+      // per-column value labels — the terminal one keeps its right-edge seat.
+      r.points.forEach(function (pt, i) {
+        if (allGoneAt[i]) return;               // the collapsed note carries it
+        if (i === lastI) {
+          svg += '<text class="wr-spark-pct' + (lastP < 0.25 ? ' dying' : '') + '" x="' + (W - padR + 4)
+            + '" y="' + (top + rowH / 2 + 2) + '">' + Math.round(lastP * 100) + '%</text>';
+        } else {
+          svg += '<text class="wr-spark-val wr-axis" x="' + (x(i) + (i === 0 ? 2 : 0)).toFixed(1)
+            + '" y="' + (yy(pt.p) - 2.5).toFixed(1)
+            + '" text-anchor="' + (i === 0 ? 'start' : 'middle') + '">'
+            + Math.round(pt.p * 100) + '%</text>';
+        }
+      });
     });
+    if (firstAllGone >= 0) {
+      var gonePick = (rows[0].points[firstAllGone] || {}).pick;
+      svg += '<text class="wr-spark-allgone wr-axis" x="' + (W - padR + 4)
+        + '" y="' + (H - 4) + '" text-anchor="end">all likely gone'
+        + (gonePick != null ? ' by p' + esc(gonePick) : '') + '</text>';
+    }
     svg += '</svg>';
     return '<div class="wr-chart" data-chart="survival-spark">' + svg
       + '<p class="wr-chart-cap">P(still available) at each of your next picks — a line that dives is a now-or-never player</p></div>';

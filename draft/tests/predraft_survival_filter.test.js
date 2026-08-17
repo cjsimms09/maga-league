@@ -68,13 +68,35 @@ function ctxAt(pick, overrides) {
   }, overrides);
 }
 
+/* THE UNCONDITIONAL MEASUREMENT CONTEXT — preDraftPool's own construction,
+ * verbatim. Pre-draft, zero picks have landed, so "survives to pick 33" is
+ * measured FROM THE START (currentPick 0), on the raw model (no board, so no
+ * conservation tilt — there is nothing to conserve against before a single
+ * pick exists). Passing the anchored ctx instead would ask
+ * P(taken by 33 | alive at 33) — a zero-width window that is correctly 0 since
+ * the survival.js empty-window fix (the 41%-wall root cause; see
+ * survival_fallen_uniform.test.js). Before that fix the anchored call only
+ * LOOKED right: the far-tail guard said "gone" for players with F ≥ 0.999
+ * while declaring everyone else certain to survive, so a 91%-taken ADP-25
+ * player sailed through the same filter that cut Nacua. */
+const unconditional = () => ({ currentPick: 0, runMultipliers: {},
+  pickBoard: (D.pick_order || {}).picks || null });
+
 // ── 1. THE MEASUREMENT THAT MOTIVATES THE FIX ───────────────────────────
 const nacua = D.players.find(p => p.name === 'Puka Nacua');
 ck('CONTROL — Nacua is really on the board with a tight ADP spread',
   !!nacua && nacua.adjusted_adp != null && nacua.adp_sd != null,
   nacua && { adp: nacua.adjusted_adp, sd: nacua.adp_sd });
 {
-  const s = E.survival(nacua, FIRST, ctxAt(FIRST));
+  /* UNCONDITIONAL, matching preDraftPool's own construction. Pre-draft, zero
+   * picks have landed, so "survives to pick 33" is measured FROM THE START —
+   * currentPick 0, not the pick-33 anchor. Passing the anchored ctx would ask
+   * P(taken by 33 | alive at 33), a zero-width window that is correctly 0
+   * since the survival.js empty-window fix (the 41%-wall root cause,
+   * survival_fallen_uniform.test.js) — before that fix this call only looked
+   * right because the far-tail guard fired for players with F ≥ 0.999 while
+   * every other player was declared certain to survive. */
+  const s = E.survival(nacua, FIRST, unconditional());
   ck('his measured survival to my first pick is negligible — not a close call',
     s < E.CFG.SURVIVOR_CUTOFF, s);
 }
@@ -107,7 +129,7 @@ ck('CONTROL — Nacua is really on the board with a tight ADP spread',
   scored.slice(0, 3).map(e => e.player && e.player.name));
   ck('the top recommendation is someone the model believes is REALLY there '
     + '(survival >= the cutoff)',
-  scored[0] && E.survival(scored[0].player, FIRST, ctxAt(FIRST)) >= E.CFG.SURVIVOR_CUTOFF,
+  scored[0] && E.survival(scored[0].player, FIRST, unconditional()) >= E.CFG.SURVIVOR_CUTOFF,
   scored[0] && scored[0].player.name);
 }
 
