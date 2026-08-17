@@ -77,6 +77,51 @@ detectable by eye once you know them: a field that is a constant multiple of
 another; a value identical across many players; a confidence interval that
 includes zero next to a confident label; a source column shown but not used.
 
+## THE WAR ROOM — you review it, but only half of it
+
+The war room is the surface Cory actually drafts on, so it is squarely an output
+and squarely yours. **But your review covers two things and deliberately not a
+third.**
+
+| you judge | you do NOT judge |
+|---|---|
+| **Truth** — does a number on screen match the artifact, and does its label say what it actually is? | **Taste** — layout, spacing, colour, "this feels cluttered" |
+| **Findability under pressure** — can the number be located in the seconds a pick allows? | which of two clean designs is nicer |
+
+**Why the line is there.** Cory rejected the war room on 08-17 because it was
+designed from someone's taste instead of from reference screenshots he had sent.
+**A second session offering taste is the same failure with more voices** — and B
+would then have two masters whose preferences differ, which is how a surface
+ships pleasing nobody. **Cory and his screenshots are the design authority.
+Full stop.**
+
+**Truth defects are always in scope, and there is a live one right now:** the
+board's `proj_mean` is Sleeper × an adjuster — FantasyPros and own_v6 are
+displayed but never enter it (register 21/21b). **Any surface labelling that
+number a "consensus" or a "blend" is telling Cory something false.** That is
+exactly your finding to make, and it is not a design opinion.
+
+### Turn "too busy" into something B can actually hit
+
+This is the most useful thing you can do for that lane. "Too busy" is
+unactionable; a stopwatch is not. **Run findability drills and report times:**
+
+> *At pick 4.7, 30 seconds on the clock: locate the top available RB, his
+> projected points, and his dollar value. Result: 3 of 3 found, 19s — but the
+> dollar figure took 11s of it because it sits below the fold.*
+
+That gives B a target instead of an opinion, and it gives Cory a number instead
+of an argument. **Design the drills around real draft moments** — your pick is
+two away, someone just took the last of a tier, you are deciding between a
+keeper and the board.
+
+### Sequencing — do not start yet
+
+**B is mid-redesign and is blocked on getting the screenshots from Cory.** Firing
+feedback into that now produces churn against a target that is about to change.
+**Until B ships the redesign: truth defects only.** Once it ships: full review,
+truth + findability drills.
+
 ## HOW YOU COMMUNICATE
 
 **Inbox is `ROUTES.md` → `## TO: E`.** Post to another lane under their heading.

@@ -168,6 +168,14 @@ IS the routing; I read `ROUTES.md` every session, chase what stalls, and put it
 in the register. **E finds and files. The relay chases and holds to account. A
 rules. E never does the last two.**
 
+**On SURFACES, E reviews truth and findability — never taste.** Does a number
+match the artifact, does its label say what it actually is, and can it be found
+in the seconds a pick allows. **Layout, density and style are Cory's call and
+Cory's alone** — the war room failed on 08-17 because it was designed from
+someone's taste rather than his reference screenshots, and a second taste-haver
+is that failure with more voices. E converts "too busy" into timed findability
+drills, which give B a target instead of an argument.
+
 **What triggers a sweep:** a new board publish · any weight or formula change
 reaching `main` · a full pass before draft day. Not a schedule — an event.
 
