@@ -45,6 +45,14 @@ what it invalidated.
 and the data was committed here the whole time.** `nflverse_variance.py` was
 written to measure it and was never run and never consumed.
 
+**It is 2023-25 because 2021, 2022 were REFUSED, not because that is all we
+have.** Those two seasons carry a different `scoring_fingerprint` — they were
+scored under a different table — and pooling them would produce per-player
+totals that never existed under either table, with (in the store's own words)
+"nothing in the arithmetic to complain". That refusal costs two seasons and
+leaves only two transitions, which is why the coefficient below is directional
+rather than precise.
+
 Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 
 - within a fixed mean band, cv spreads **1.57x-1.88x** (a `mean x constant`
@@ -82,7 +90,11 @@ git commit                                   # say why
 **His rookie-WR question is answered** —
 `draft/audit/rookie_wr_upside_for_draft_day_2026-08-17.md`. Concepcion (NFL rd1
 pk24) and Allen (NFL rd5 pk176) are 152 draft picks apart. Tail rate (150+ pt
-season) by capital: rd1 **53.3%**, rd2 25.0%, rd3 0.0%, rd4-7 **1.8%**. His
+season) by capital: rd1 **53.3%**, rd2 25.0%, rd3 0.0%, rd4-7 **1.8%**.
+**Caveat that must travel with that 53.3%:** n=15 for rd1 and its MEAN interval
+SPANS ZERO, so the honest claim is *"not measurably worse than the wire"*, NOT
+*"beats it"* — the tail RATE is the interesting number, and it rests on 15
+players in an artifact marked EXPLORATORY. His
 instinct on Concepcion is supported; Allen is a different bet entirely.
 
 **"Upside late" lost a fourth time** — and this run corrected a bias that ran in
@@ -135,7 +147,7 @@ instrument than a known one.
 
 ---
 
-**Suites at hand-off:** Python publication gate (what CI runs) **3,271 passed,
-7 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
+**Suites at hand-off:** Python publication gate (what CI runs) **3,277 passed,
+10 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
 deliberate red flags — the ADP-sd ratchet and the stale freeze — which are
 evidence awaiting a human, not broken builds.

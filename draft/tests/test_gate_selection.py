@@ -100,6 +100,17 @@ REPO_PARITY_NODES = {
     # them in here was refused by this very test, in the right words:
     # "soundness tests the gate would silently skip".
     "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # Added 2026-08-17. DRAFT-WEEK-BRIEF.md is what CLAUDE.md points every
+    # session at, so its numbers are trusted without re-derivation — which makes
+    # a drifted number there costlier than one anywhere else. These three check
+    # the brief against the LIVE BOARD (coverage counts, keeper weekly_sd, the
+    # named injury-return ADPs), which is rebuilt nightly, so a failure says the
+    # BOARD is new rather than the brief is wrong. The brief's other numbers
+    # come from committed artifacts and are pinned as ordinary tests that must
+    # hold in CI — same split as test_freeze_not_stale, and for the same reason.
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_volatility_coverage_numbers_match_the_live_board",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_keeper_variance_numbers_match_the_live_board",
+    "draft/tests/test_draft_week_brief_numbers.py::test_the_named_injury_return_adps_match_the_live_board",
 }
 
 
