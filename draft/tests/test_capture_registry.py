@@ -66,14 +66,21 @@ def test_the_fp_scoring_gap_is_COMPUTED_against_the_live_config():
     assert unreachable, "no gap at all would mean the map or the config failed to load"
 
 
-def test_the_two_point_conversions_are_flagged_as_biting_skill_positions():
-    """K and DEF being unreachable is an EXPECTED absence — FP's feed does not
-    cover them and the board records that. The 2-point conversions are the ones
-    that silently understate a real skill-position FP column against Sleeper's
-    full stat line, so they are surfaced separately."""
+def test_the_two_point_conversions_are_reachable_and_the_biting_set_is_empty():
+    """RE-PINNED 2026-08-17 (stale against the same-day scoring-parity fix,
+    c0e1fe03 / verified in a99c5270). This used to pin the 2-point conversions
+    as UNREACHABLE biting gaps — true while _FP_STAT_MAP covered 9 of 32 priced
+    categories. The map was then extended to all 14 priced skill categories and
+    the parity re-run came back identical to four decimals: FantasyPros does not
+    publish 2-point conversions at all, so there was never anything to drop —
+    the concern was real in principle and zero in fact. The pin inverts to the
+    fixed state: the 2pt keys are REACHABLE through the map (non-vacuous — they
+    must actually be in it) and no skill-biting gap remains."""
+    reachable = set(CR.fp_stat_map().values())
+    assert {"pass_2pt", "rush_2pt", "rec_2pt"} <= reachable, reachable
     a = CR.audit()
-    assert set(a["unreachable_biting_skill_positions"]) == {
-        "pass_2pt", "rush_2pt", "rec_2pt"}
+    assert a["unreachable_biting_skill_positions"] == [], (
+        a["unreachable_biting_skill_positions"])
 
 
 def test_sleeper_and_fp_are_both_scored_through_OUR_table_not_the_providers():

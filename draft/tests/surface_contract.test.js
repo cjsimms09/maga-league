@@ -43,15 +43,22 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
     + '"five of eight are zero" claim true of PRODUCTION and not of a default',
   /weights: Object\.assign\(\{\}, E\.MEASURED_WEIGHTS/.test(app));
 
+  /* RE-PINNED 2026-08-17: ceiling left the zeroed set on Cory's ruling
+   * ("IS THIS STUDIES? IF SO, YES" — 0.45, the exp-21 inverted-U peak; full
+   * record at MEASURED_WEIGHTS in engine.js). Five zeros became four. */
   const zeroed = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] === 0);
-  ck('exactly five terms are zeroed', zeroed.length === 5, zeroed);
-  ck('and they are the five the document names',
+  ck('exactly four terms are zeroed (five until the 2026-08-17 ceiling ruling)',
+    zeroed.length === 4, zeroed);
+  ck('and they are the four the document names',
     JSON.stringify(zeroed.slice().sort())
-      === JSON.stringify(['bye', 'ceiling', 'need', 'risk', 'tier']), zeroed);
+      === JSON.stringify(['bye', 'need', 'risk', 'tier']), zeroed);
   const live = Object.keys(E.MEASURED_WEIGHTS).filter(k => E.MEASURED_WEIGHTS[k] !== 0);
-  ck('the three that survive are value, keeper and stack — the whole composite',
-    JSON.stringify(live.slice().sort()) === JSON.stringify(['keeper', 'stack', 'value']), live);
-  ck('the document says so', /`value \+ keeper \+ stack`/.test(doc));
+  ck('the four that survive are value, ceiling, keeper and stack — the whole composite',
+    JSON.stringify(live.slice().sort())
+      === JSON.stringify(['ceiling', 'keeper', 'stack', 'value']), live);
+  ck('the document says so', /`value \+ ceiling \+ keeper \+ stack`/.test(doc));
+  ck('  and the ceiling it names is the ruled 0.45, matching the engine',
+    /0\.45/.test(doc) && E.MEASURED_WEIGHTS.ceiling === 0.45, E.MEASURED_WEIGHTS.ceiling);
 }
 
 // ── 2. THE ZEROS ARE HONEST, AND THE DOC SAYS WHICH KIND ────────────────
@@ -62,28 +69,33 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
   const prov = E.WEIGHT_PROVENANCE || {};
   ck('the engine records provenance per weight, so the distinction exists in '
     + 'code rather than only in prose', Object.keys(prov).length >= 8, Object.keys(prov).length);
-  /* THERE ARE NOW THREE KINDS OF ZERO ON THIS SCREEN, NOT TWO — 2026-08-17.
+  /* THE THIRD KIND OF ZERO EXISTED FOR PART OF ONE DAY — 2026-08-17.
    * "measured inert" (tier, need, bye) and "could not be measured" (risk) were
-   * the original pair. The ceiling re-derivation created a third: MEASURED,
-   * CONTRADICTED, AND HELD ANYWAY until after the draft
-   * (EXP-CEILING-REDERIVATION.md). It is the most misreadable of the three,
-   * because the screen shows the same 0 for all of them while this one is the
-   * only zero we now believe is wrong. */
+   * the original pair. The ceiling re-derivation created a third that morning:
+   * MEASURED, CONTRADICTED, AND HELD ANYWAY (EXP-CEILING-REDERIVATION.md).
+   * Then Cory ruled the same day ("IS THIS STUDIES? IF SO, YES") and the held
+   * zero became a shipped 0.45 — so the zeros on this screen are back to two
+   * honest kinds, and ceiling's entry must say RULED, with the date, because a
+   * non-zero that reads as a tuner's whim invites exactly the wrong override. */
   ck('`risk` is recorded as UNMEASURED, not as measured-zero',
     /UNMEASURED/.test(String(prov.risk)), prov.risk);
   ck('`ceiling` is no longer recorded as unmeasured — it was measured 2026-08-17',
     !/UNMEASURED/.test(String(prov.ceiling)) && /MEASURED/.test(String(prov.ceiling)),
     prov.ceiling);
-  ck('  and its entry says the shipped zero is a HELD decision, not a finding',
-    /CONTRADICTS/i.test(String(prov.ceiling)) && /2026-08-22/.test(String(prov.ceiling)),
-    prov.ceiling);
+  ck('  and its entry says the shipped 0.45 is RULED, dated, with the prereg '
+    + 'deviation recorded rather than read as drift',
+    /RULED/i.test(String(prov.ceiling)) && /2026-08-17/.test(String(prov.ceiling))
+    && /PREREG DEVIATION/i.test(String(prov.ceiling)), prov.ceiling);
   ck('while `tier` and `need` are recorded as MEASURED',
     /measured/i.test(String(prov.tier)) && !/UNMEASURED/.test(String(prov.tier))
       && /measured/i.test(String(prov.need)) && !/UNMEASURED/.test(String(prov.need)),
     { tier: prov.tier, need: prov.need });
-  ck('and the document keeps all three apart rather than calling them all "zero"',
+  ck('and the document keeps the kinds apart — inert, unmeasured, and the ruled '
+    + 'non-zero with its history preserved',
     /measured inert/.test(doc) && /UNMEASURED/.test(doc)
-    && /NOW KNOWN TO BE WRONG/.test(doc), 'the doc must name the third state');
+    && /RULED BY CORY 2026-08-17/.test(doc)
+    && /NOW KNOWN TO BE WRONG/.test(doc), // the held-zero state stays as history
+    'the doc must name the states and keep the held-zero as history');
   /* The old assertion required the doc to quote "−4.8 ... unsignable" as THE
    * REASON the weight is 0. That reason is retired: the interval was produced by
    * a degenerate board. The doc must still carry the number — deleting it would
@@ -163,9 +175,17 @@ const app = fs.readFileSync(path.join(ROOT, 'public', 'js', 'draft', 'app.js'), 
    * a hard 59.3 would go red on a projection refresh, which is the model being
    * punished for the data changing. The band is wide enough to survive a rebuild
    * and narrow enough that 78% — the empty-roster artifact — fails it. */
-  ck('and its share matches the ~55-59% the document states, on a band that the '
+  /* RE-DERIVED A THIRD TIME, 2026-08-17 EVENING: the ceiling term went live at
+   * 0.45 per Cory's ruling and now carries ~16% of top-five movement, taken
+   * mostly out of value's share (55.3 → 49.0 on the same board — one weight,
+   * not a rebuild). The band moves down with the mechanism stated; it stays
+   * narrow enough that the empty-roster artifact (78%) still fails it. */
+  ck('and its share matches the ~49-59% the document states, on a band that the '
     + 'empty-roster artifact (78%) would fail',
-  pct('value') >= 50 && pct('value') <= 70, pct('value').toFixed(1));
+  pct('value') >= 42 && pct('value') <= 65, pct('value').toFixed(1));
+  ck('and ceiling is live and material — the ruled 0.45 is a participant, not '
+    + 'a decoration (zero would mean the ruling did not ship)',
+  pct('ceiling') >= 2, pct('ceiling').toFixed(1));
   ck('onesie is live and material rather than a rounding term — the reason it had '
     + 'to be named', pct('onesie') >= 5, pct('onesie').toFixed(1));
   ck('and stack is NOT zero once a roster exists, so the old empty-roster reading '

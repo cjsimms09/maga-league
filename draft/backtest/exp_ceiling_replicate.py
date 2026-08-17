@@ -67,7 +67,13 @@ def _paired(totals, arm, seed):
             "separable": bool(lo > 0 or hi < 0)}
 
 
-LIVE_CEILING_WEIGHT = 0.0                           # MEASURED_WEIGHTS.ceiling, engine.js
+# THE CONTROL ARM, FROZEN — this was MEASURED_WEIGHTS.ceiling when the runs
+# were made and is what every stored artifact compared against. It deliberately
+# does NOT track the engine: Cory ruled the live weight to 0.45 on 2026-08-17
+# (on this experiment's evidence — record at MEASURED_WEIGHTS in engine.js),
+# and following that here would silently rewrite the stored comparisons. A run
+# against the 0.45 baseline is a NEW experiment, not an edit to this constant.
+LIVE_CEILING_WEIGHT = 0.0
 
 
 def summarise(per_seed, weights=None):
