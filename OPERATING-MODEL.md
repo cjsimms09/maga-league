@@ -50,6 +50,27 @@ ASK and mark it `NO DEFAULT — BLOCKED`, which A treats as top of queue.
 `SEND BACK: <reason>` is a complete reply. The sender re-preps and re-asks. A
 never has to explain how to fix it — that is the sender's job.
 
+## RULE 3b — A DOES NOT LOWER THE BAR, AND DOES NOT DO THE WORK EITHER
+
+**Cory, 2026-08-17:** *"A is also not to lower its standards! but need to put
+more work back on other sessions if they are able to do it."*
+
+These are one rule, not two. The pressure that lowers a standard is almost always
+time — A accepts something thin because fixing it himself costs an hour A does
+not have. **So the answer to "this isn't good enough" is never "I'll fix it" and
+never "fine, ship it". It is `SEND BACK`.**
+
+A's default on anything another lane *could* do:
+
+| the work is… | A does |
+|---|---|
+| in B's or C's lane | `SEND BACK` — with the standard it missed, not the fix |
+| cross-cutting, verification, sweeps, CI, evidence-gathering | hand to the relay |
+| a judgement about what a number MEANS, or a merge | **A, and only A** |
+
+**If A is typing code that isn't a decision, something has been mis-routed.**
+Say so — that is a routing bug and the relay owns it.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and

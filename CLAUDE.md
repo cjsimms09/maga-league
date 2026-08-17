@@ -26,6 +26,11 @@ Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
 silence is consent to the default and nobody idles waiting. A can reply
 `SEND BACK: <reason>` and that is a complete answer.
 
+**🧾 NOTHING GETS LEFT BEHIND — `DEFECT-REGISTER.md`.** Every open data or
+logic concern that could change a number Cory drafts or starts on, each with an
+owner and a next action. Four blocking rows today. A row with no owner is itself
+a defect — `test_defect_register.py` fails on it.
+
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection
 model twice (own_v6 live), and merged five design passes.

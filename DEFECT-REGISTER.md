@@ -1,0 +1,63 @@
+# DEFECT REGISTER — every open data/logic concern, with an owner
+
+**Cory, 2026-08-17:** *"it's also your job to make sure nothing gets left behind
+or not chased down, especially potential data or logic errors or anything that
+messes with our models draft or inseason tools."*
+
+Every row has an **owner** and a **next action**. A row with neither is a defect
+in this file. `draft/tests/test_defect_register.py` fails if one appears.
+
+**Status words mean one thing each:** `OPEN` = nobody has looked since it was
+filed · `IN HAND` = someone is on it now · `WAITING` = blocked on a named person
+or date · `CLOSED` = fixed and verified, kept for the record.
+
+---
+
+## 🔴 BLOCKING — draft-critical, this week
+
+| # | what | owner | status | next action |
+|---|---|---|---|---|
+| 1 | **Board has not published since 08-15.** Gate refuses the fresh board. | **A** | IN HAND | Build fresh board; confirm rows 2 and 3 below before regenerating anything. |
+| 2 | **A new field joined the constant-multiple family** on the fresh board. This is the ceiling-defect class by name — a field that is a rescaled copy of another cannot be weighted independently. | **A** | OPEN | Run `test_constant_multiple_sweep` on a fresh board; NAME the field. Do not regenerate to green. |
+| 3 | **Board's published ranks disagree with its own vorp ordering** (`test_A_ZERO_BONUS_REPRODUCES_THE_BOARDS_OWN_RANKS`). No artifact involved — internal inconsistency in the board Cory drafts from. | **A** | OPEN | Same fresh board; identify which players' ranks disagree. |
+| 4 | **`main` CI red** on `matchup_placed_bet` (3) and `trashtalk` (3), since 08-16 23:01. A red main means the gate has confirmed nothing for anybody. | **B** | OPEN | Verify whether B's `/matchup` fix cleared it; if not, fix. |
+
+## 🟠 CORRECTNESS — known wrong, deliberately held
+
+| # | what | owner | status | next action |
+|---|---|---|---|---|
+| 5 | **`MEASURED_WEIGHTS.ceiling = 0` is contradicted by measurement.** Three preregistered runs, two independent seed sets, every value 0.15–0.65 beats the shipped zero, 3/3 separable. | **Cory** | WAITING (after 08-22) | Cory rules. Framing: the model ignores upside entirely; the exact amount hardly matters. |
+| 6 | **ADP-sd ratchet fired** — shipped rule is 1.39× FFC's published dispersion in the 50–100 band. Our constant did not drift; the market tightened. Blast radius: 1 player. | **Cory** | WAITING | Recommendation: leave it, revisit post-season. |
+| 7 | **`risk` weight is UNMEASURED** and the term is PARTIAL on backtest boards (age only, 6 of production's 11–13 distinct values). | **A** | OPEN | No date. Needs a prereg before any measurement, or an explicit "stays zero" ruling. |
+| 8 | **own_v6 — the live model — has 22.7% of its forecasts excluded from its own accuracy score** (115 of 506; walk_forward 211 of 737). MAE is optimistic by an unmeasured amount. | **A** | WAITING (after 08-22) | Prereg written: `SURVIVORSHIP-BOUND-PREREG.md`. Headline is ranking stability, not a corrected MAE. |
+
+## 🟡 DATA — stores and coverage
+
+| # | what | owner | status | next action |
+|---|---|---|---|---|
+| 9 | **2025 cannot be graded** — lateral handling in the pbp rebuild. The 2-point gap is fixed (mean_abs 0.489 → 0.149); laterals are what still blocks. | **A** | OPEN | Unlocks a second grading fold. Post-draft. |
+| 10 | **No weekly-points store for 2022 / 2021.** The single reason every own-model artifact grades exactly one season. | **C** | IN HAND | Build `nflverse_weekly_points_2022.json`. |
+| 11 | **Board-derived artifacts are not in the freshness registry** — 13 entries, none of them the ones that refuse publication. This is the whack-a-mole. | **A** | OPEN | Register only the genuinely derived ones. **Never** auto-regenerate a board assertion (rows 2, 3). |
+| 12 | **`config_confirmed` and every local ruling were being wiped on each build.** `build.py --league-id` rebuilt the config from Sleeper and kept only two keys. | relay | **CLOSED 08-17** | `preserve_local_rulings()` + 6 tests. Verified: the shipped config still carries the ruling. |
+
+## 🟢 CHECKED AND CLEAN — recorded so nobody re-investigates
+
+| what | finding |
+|---|---|
+| **Do the model-scoreboard actuals inherit the weak `import_weekly_data` coverage?** (611 of 1,708 on-field players classified) | **No.** `fetch_component_stats.py` pulls the nflverse `player_stats` release files directly by URL and never calls `import_weekly_data`. The exclusions resolve to row 8, not a new defect. Checked 2026-08-17. |
+| **Are per-model exclusion counts (115 vs 211) an unfair comparison?** | **No.** `model_accuracy_backtest.py` already computes `head_to_head_shared_population` over the intersection. The ranking that decides which model ships is on a matched denominator. |
+| **Do other interval labellers carry the "CI includes $0" bug?** | Swept at artifact level. Three instances found and fixed (`frontier`, `cory_conditional`, `stack_sweep`); 42 co-located pairs across 6 artifacts now consistent. Scope limit stated in the test. |
+| **Are the snap-count stores partial?** | No — join 0.971–0.992. But the refusal floor was 0.70, 27 points below anything observed, and is now 0.95. |
+
+## 🔵 VERIFICATION OWED — things believed true but not observed
+
+| what | owner | next action |
+|---|---|---|
+| `npx playwright install --with-deps chromium` on a real runner — the browser rehearsals' one untested line. | relay | Observed on the first scheduled `rehearsals.yml` run after it reaches `main`. |
+| The board's structural properties on a *published* board (health 100%, replacement-sensitivity) — currently only seen on a refused candidate. | relay | Confirm on the first successful publish. |
+
+---
+
+**Rule for adding a row:** anything that could change a number Cory drafts or
+starts on. When in doubt, add it — a row costs a line, a missed defect costs a
+season.
