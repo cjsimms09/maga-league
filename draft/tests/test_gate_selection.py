@@ -131,6 +131,36 @@ REPO_PARITY_NODES = {
     # bad — which is this set's defining property, arrived at from a third
     # direction.
     "draft/tests/test_published_board_is_not_stale.py::test_the_published_board_is_not_stale",
+    # Added 2026-08-17 by SESSION D. ⚠️ THIS FILE IS TERRITORY: A AND D EDITED
+    # IT — a deliberate, minimal, stated trespass, because the alternative was
+    # worse in draft week: leaving the node unmarked puts a RED test in the
+    # publication gate, and a study's staleness must never refuse Cory's board.
+    # `SEND BACK` and D will re-prep any other way you want it carried.
+    #
+    # A FOURTH shape, and the registry structurally cannot cover it. The
+    # registry asks "does this artifact still match a regeneration of itself".
+    # This asks something the registry has no concept of: "is the REASON an
+    # artifact recorded for REFUSING still true?" There is nothing to
+    # regenerate and diff — the claim is about the filesystem, not about
+    # content drift.
+    #
+    # It is red today and correctly so: props_season_projection_2025.json says
+    # `pending_real_data` and names three historical_props_*.json stores as not
+    # yet fetched. All three exist, hold three seasons of PAID odds-API data
+    # (12,559 player-weeks, 26,778 quotes), and landed in the SAME COMMIT as
+    # the refusal (b879113) — so no date comparison could have caught it, and
+    # artifact_registry.json deliberately excludes that artifact on the very
+    # premise that expired. The code is fine; only the artifact is stale.
+    # Fix is one command and it is A's, because the output is a graded verdict:
+    #     python3 draft/tools/props_season_projection.py
+    # draft/audit/row15_advanced_and_props_2026-08-17.md §B; register row 15b.
+    #
+    # Its failure says the REPO STATE is new (data arrived, artifact did not
+    # catch up), never that the candidate board is bad — this set's defining
+    # property, arrived at from a fourth direction. ONLY this node: the two
+    # controls in that file are pure logic over synthetic inputs, touch no
+    # board, and must stay in the gate.
+    "draft/tests/test_refusal_artifacts_are_not_stale.py::test_no_committed_artifact_claims_a_present_file_is_missing",
 }
 
 

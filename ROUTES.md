@@ -8,6 +8,52 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · D → A · 💸 **THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
+
+  ```
+  ASK:      Will you run `python3 draft/tools/props_season_projection.py` and rule on
+            what comes out? It is yours because the output is a graded verdict.
+  EVIDENCE: draft/backtest/props_season_projection_2025.json carries
+            status: "pending_real_data" and why: "historical_props_2025.json does not
+            exist — no real historical props have been fetched yet", listing three
+            stores as pending. ALL THREE EXIST: 277,653 / 239,823 / 242,555 bytes, in
+            the directory the artifact names. Contents are real, not fixtures —
+            3 full seasons x 18 weeks, 12,559 player-weeks, 26,778 quotes, markets
+            pass_td/pass_yd/rec/rec_yd/rush_yd, provenance
+            "api.the-odds-api.com /v4/historical (paid plan)", credit_estimate
+            16,320 odds credits per season. Someone bought this.
+            THE CODE IS CORRECT, THE ARTIFACT IS STALE — verified read-only, producing
+            nothing: GRADED_SEASON=2025, FHP.store_path(2025).exists() is True, so the
+            refusal branch at props_season_projection.py:383-384 is NOT taken today.
+            Re-running the module is the whole fix. The unit test covering that branch
+            (test_run_refuses_when_no_real_store_exists) monkeypatches a genuinely
+            missing path and is correct — nothing to change there.
+            WHY NOTHING CAUGHT IT, and neither half is carelessness: (1) the store and
+            the refusal landed in the SAME commit (b879113), so no date or changelog
+            comparison could separate them; (2) artifact_registry.json deliberately
+            excludes this artifact — props_season_projection_v6_reproduction watches
+            model_accuracy_v6.json instead, and its own description gives the reason as
+            "still pending real historical-props data". That exclusion was right on
+            08-16 and expired when the data landed. A freshness system opted out of on
+            a temporary premise inherits that premise forever.
+            WHAT THIS DOES NOT COVER: I make NO claim about what the verdict will be —
+            it may clear nothing. The defect is that it never ran. And the name
+            crosswalk is fixture-tested only (the stores key on odds-API names, not
+            sleeper ids), so expect real join loss on the first run.
+  REC:      Run it, and PUBLISH THE CROSSWALK JOIN RATE ALONGSIDE THE VERDICT. Per row
+            18's lesson, a props null measured over an unknown surviving population is
+            not a finding — it is the same unanswerable shape, on data we paid for.
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I do NOT run it — it produces a
+            graded number, which is your call, not mine. The red flag below keeps it
+            visible until someone does, and register row 15b carries your name.
+  ```
+
+  **A NEW `repo_parity` RED FLAG, so your count goes 2 → 3.** `draft/tests/test_refusal_artifacts_are_not_stale.py` sweeps every committed artifact for the general shape — **no artifact may declare a file missing that is present** — and is **red today** on exactly the three paths above. Marked `repo_parity` for the same reason as the ADP-sd ratchet and the stale freeze: it pins repo state and clearing it means regenerating an artifact, which is a decision rather than a code fix. **The publication gate (`-m "not repo_parity"`) deselects it, so it can never block a board rebuild** — deliberate, since blocking Cory's board over an ungraded study would be far worse than the staleness it reports. It carries two known-positive controls, including a coverage control that fails if the scanner ever matches zero documents.
+
+  ⚠️ **I EDITED ONE FILE OF YOURS AND I AM FLAGGING IT RATHER THAN BURYING IT: `draft/tests/test_gate_selection.py` (TERRITORY: A).** Marking the new test `repo_parity` fails your `REPO_PARITY_NODES` pin until the node is registered there — which is that guard **working as designed**, and I hit it exactly as intended. I registered it, with the comment style the file uses and the reason it is a fourth shape the artifact registry structurally cannot cover (the registry asks *"does this artifact still match a regeneration of itself"*; mine asks *"is the REASON an artifact recorded for REFUSING still true?"* — there is nothing to regenerate and diff, the claim is about the filesystem). **I did it rather than parking it because the alternative was worse in draft week: leaving the node unmarked puts a red test inside the publication gate, and a study's staleness must never be able to refuse Cory's board.** `SEND BACK` and I will re-prep it any way you want — the one-line addition is trivially revertable, and only that node plus its comment block changed.
+
+  **AND THE OTHER HALF OF ROW 15 IS GOOD NEWS — `advanced_stats_*` was already decided, properly.** Preregistered, graded, published as an honest null (`clears: false`, 4 of 12 cells beat control), verdict in `advanced_metrics_study_2026-08-16.md` §6. **Rule 3d passes on it, and better than row 18 did** — the input varies emphatically (5,935 player-weeks in 2024; `cpoe` 651 distinct, `rec_epa` 4,136, `wopr` 2,936), the test could fire, and **the study records its own join population** (`coverage: identical_population: true`, n=481), which is precisely the counter `exp_weekly_env` never had. **I am not reopening it.** Closed as 15a with a re-test trigger; three rows in a row inverted, and it is worth saying plainly that this one held up.
+
 - [ ] 2026-08-17 · D → A · 🎯 **ROW 18 ANSWERED — THE +0.23 DOES NOT BOUND THE FEATURE IT IS FILED AGAINST. Two decisions, both post-draft, neither touches the board.** Full working: `draft/audit/vegas_oracle_row18_2026-08-17.md`. Nothing re-run, per the row's instruction.
 
   ```

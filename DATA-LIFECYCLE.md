@@ -79,13 +79,33 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
 | `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
 | `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **RE-OPENED 08-17** — the +0.23 bounds a GAME-total oracle shared by both teams (208/208 games), **not** the team-level implied total this store holds. Register 18. **Trigger:** run `implied_home = total/2 + spread/2` with a join counter |
-| `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — study ran, wiring never decided |
-| `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — season-total arm was graded, then stopped |
+| `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED — corrected 08-17 (was UNEXAMINED).** Preregistered, graded, published null (`advanced_efficiency_study.json`, 4 of 12 cells beat control). Rule 3d passes; the study records its own join population. **Trigger:** a different construction (per-position weight, or a higher `MIN_VOL` — both named by the study as suspected causes of the QB miss), or a 4th leak-free fold. Register 15a |
+| `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **6** | 🔴 **NEVER GRADED — corrected 08-17.** 12,559 player-weeks of PAID data; the grading artifact refuses on a claim that is false (`pending_real_data` naming three stores that exist). Code is right, artifact is stale. **Trigger: none needed — re-run it.** Register 15b, owner **A** |
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
 
-**Two chains are complete. Four stores stop at step 4 with no recorded
-reason.** (`snap_counts` was counted here as a step-6 stop until 2026-08-17; it
-is a step-4 stop **with** a recorded reason — see its row.) Those four are the register's new rows.
+**Two chains are complete. As of 2026-08-17 the "no recorded reason" count is
+TWO, not four** — `routes_*` (register 14) and `component_stats_*` (graded only
+indirectly). Session D walked the other two: `snap_counts` was recorded as a
+step-6 stop and is a step-4 stop **with** a reason (register 13), and
+`advanced_stats_*` was recorded as UNEXAMINED and is a published, graded null
+(register 15a). **Neither was a missing reason. Both were reasons this file had
+not reconciled with the code.**
+
+**And one store turned out to be worse than unexamined.** `historical_props_*`
+holds 12,559 player-weeks of **paid** data and has **never been graded** — not
+because anyone decided not to, but because the artifact that grades it carries a
+stale refusal naming three stores that exist (register 15b). That is a fourth
+failure mode, and the sharpest one:
+
+> **step 6 was reached, the answer was affordable, and the command was simply
+> never re-run.** Nothing in the chain distinguishes "we decided not to grade
+> this" from "the grader last ran before the data arrived", because both leave
+> the same empty cell.
+
+`draft/tests/test_refusal_artifacts_are_not_stale.py` now sweeps every committed
+artifact for that shape: **no artifact may declare a file missing that is
+present.** It is red today, deliberately, and `repo_parity`-marked so it can
+never block a board publish.
 
 **Justified stops are not failures** — a stop at step 5 with a measurement behind
 it is the standard working. The problem is never a NO; it is a NO nobody wrote
