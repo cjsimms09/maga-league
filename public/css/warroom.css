@@ -901,6 +901,22 @@ body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
 /* ── ALARM STRIPS above the tabs stay thin ──────────────────────────────── */
 body.warroom-page #keeper-lock-note > * { margin: 0 0 .4rem; }
 body.warroom-page .roast-banner { margin: 0 0 .4rem; }
+/* Cory, live: "alerts are blocking things I need to see i.e the run on kicker
+   is blocking things up top." Reproduced at a realistic laptop viewport
+   height (1050x750): keeper-lock + unrecorded + reconciled + run, stacked,
+   pushed THE PICK's take button to the very bottom edge — on a real window
+   with browser chrome eating more of that height, it goes fully out of view.
+   These CAN genuinely co-occur (an unrecorded pick, a reconcile note and a
+   run are independent conditions), so the fix is per-strip compactness, not
+   hoping they rarely stack. `.roast-banner` (the run alert) was the largest —
+   still built for a single full-width hero banner, not a stack member. */
+body.warroom-page .roast-banner {
+  padding: .5rem .7rem; font-size: .82rem; box-shadow: none;
+}
+body.warroom-page #unrecorded-note.prov-note,
+body.warroom-page #reconciled-note.prov-note {
+  padding: .45rem .7rem; margin: 0 0 .35rem; font-size: .78rem; line-height: 1.35;
+}
 
 /* ── THE COCKPIT GRID — rails | center | charts, stacked ONLY under 900px ──
    Layout is decided by these media queries ALONE: the wrappers are server-
