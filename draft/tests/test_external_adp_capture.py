@@ -3724,12 +3724,28 @@ def _dd_rows(*adps):
     return {str(1000 + i): a for i, a in enumerate(adps)}
 
 
+#: A player present on BOTH days, so `later` is never empty.
+#:
+#: ⚠ THESE FIXTURES USED `{}` FOR `later` AS SHORTHAND FOR "all of them went".
+#: Since 2026-08-17 an empty side is `unknown`, because in production an empty
+#: snapshot means OUR capture failed rather than the board losing everyone —
+#: so the old shorthand was a shape that cannot legitimately occur. Keeping one
+#: survivor makes each fixture a board that lost SOME players, which is what is
+#: actually under test, and stops these cases from depending on a shape the
+#: function is now required to refuse.
+_DD_KEEP = {"9999": 5.0}
+
+
+def _dd_later(*_unused):
+    return dict(_DD_KEEP)
+
+
 def test_drop_depth_OUTSIDE_the_draft_is_named_as_such():
     """The live case, 2026-08-12 -> 08-13, in miniature.
 
     MUTATION: return `outside_draft` unconditionally — every drop reads harmless
     including the one that takes a startable player off the board."""
-    out = C.drop_depth(_dd_rows(170.0, 300.0, 441.0), {}, 150)
+    out = C.drop_depth({**_dd_rows(170.0, 300.0, 441.0), **_DD_KEEP}, _dd_later(), 150)
     assert out["verdict"] == "outside_draft", out
     assert out["lost"] == 3 and out["lost_inside_draft"] == 0
     assert out["shallowest_lost"] == 170.0
@@ -3742,7 +3758,7 @@ def test_drop_depth_INSIDE_the_draft_is_the_arm_that_must_fire():
 
     MUTATION: `elif not inside` -> `elif True` — the alarming arm becomes
     unreachable and every drop, at any depth, reports as harmless."""
-    out = C.drop_depth(_dd_rows(12.0, 300.0), {}, 150)
+    out = C.drop_depth({**_dd_rows(12.0, 300.0), **_DD_KEEP}, _dd_later(), 150)
     assert out["verdict"] == "inside_draft", out
     assert out["lost_inside_draft"] == 1
     assert out["note"].startswith("⚠")
@@ -3755,7 +3771,7 @@ def test_drop_depth_REFUSES_to_reassure_when_it_cannot_read_the_rows():
     reassuring possible answer produced by a schema nobody could parse.
 
     MUTATION: count unparseable rows and then ignore the count."""
-    out = C.drop_depth({"a": {"no_pick_field": 1}, "b": 12.0}, {}, 150)
+    out = C.drop_depth({"a": {"no_pick_field": 1}, "b": 12.0, **_DD_KEEP}, _dd_later(), 150)
     assert out["verdict"] == "unknown", out
     assert out["unparseable"] == 1
     assert "reassuring possible lie" in out["note"]
@@ -3764,7 +3780,7 @@ def test_drop_depth_REFUSES_to_reassure_when_it_cannot_read_the_rows():
 def test_drop_depth_WITHOUT_a_config_says_unknown_and_never_zero():
     """MUTATION: default `draftable` to 150 — a guessed draft range produces a
     confident "none were draftable" on a league nobody read."""
-    out = C.drop_depth(_dd_rows(12.0, 300.0), {}, None)
+    out = C.drop_depth({**_dd_rows(12.0, 300.0), **_DD_KEEP}, _dd_later(), None)
     assert out["verdict"] == "unknown", out
     assert out["lost_inside_draft"] is None
     assert out["draftable_picks"] is None
@@ -4068,3 +4084,41 @@ def test_an_UNDATED_census_row_is_flagged_in_the_note(monkeypatch):
                           rostered={"WR"}, draftable=150, census=dated)
     assert "CARRIES NO DATE" not in out2["note"]
     assert "2026-08-12" in out2["note"], out2["note"]
+
+
+def test_AN_EMPTY_SNAPSHOT_IS_UNKNOWN_not_a_reassuring_none_lost():
+    """⚠ A DAY WE CAPTURED NOTHING MUST NOT READ AS A QUIET DAY.
+
+    Measured against the live series 2026-08-17: `drop_depth({}, full, 150)`
+    returned `none_lost` with the note "no players left the board between these
+    two days" — the most reassuring sentence available for a total capture
+    failure. The opposite direction (today empty) already alarmed loudly, so
+    the hole had never surfaced: only the silent side was broken.
+
+    It is reachable because the caller passes `.get("rows") or {}` — a snapshot
+    missing its `rows` key becomes an empty dict instead of raising. That is
+    the `|| var=""` shape one function downstream.
+
+    MUTATION: drop the guard and an empty earlier side reports `none_lost`
+    again — a suppressed alarm, which is the bug class itself."""
+    full = {str(i): {"adp": float(i)} for i in range(1, 685)}
+
+    gone = C.drop_depth({}, full, 150)
+    assert gone["verdict"] == "unknown", gone
+    assert "EARLIER snapshot carries no rows" in gone["note"]
+    assert "not 'nothing was lost'" in gone["note"]
+    assert gone["lost_inside_draft"] is None
+
+    today = C.drop_depth(full, {}, 150)
+    assert today["verdict"] == "unknown", today
+    assert "LATER snapshot carries no rows" in today["note"]
+
+    both = C.drop_depth({}, {}, 150)
+    assert both["verdict"] == "unknown"
+    assert "neither snapshot" in both["note"]
+
+    # AND A REAL DAY STILL MEASURES. Without this the guard could pass by
+    # making every verdict `unknown`, which is the other way to be useless.
+    real = C.drop_depth(full, {k: v for k, v in full.items() if int(k) < 600}, 150)
+    assert real["verdict"] == "outside_draft", real
+    assert real["lost"] == 85 and real["lost_inside_draft"] == 0

@@ -2028,6 +2028,35 @@ def drop_depth(earlier: dict, later: dict, draftable=None) -> dict:
     `draftable=None` means the league config could not be read, and the verdict
     is then `unknown` rather than a reassuring zero.
     """
+    # ⚠ AN EMPTY SIDE IS NOT A QUIET DAY, AND THE FAILURE IS ASYMMETRIC.
+    # Measured 2026-08-17 against the live series: with `earlier` empty and
+    # `later` full this returned `none_lost` — "no players left the board
+    # between these two days" — which is the most reassuring sentence available
+    # for a day on which we captured NOTHING. The other direction already
+    # alarms, so nothing had ever surfaced the hole.
+    #
+    # The call site is `drop_depth(mine[i - 1].get("rows") or {}, ...)`, so a
+    # snapshot with no `rows` key arrives here as `{}` rather than raising —
+    # the `|| var=""` shape exactly, one function further along.
+    #
+    # Vacuously true is not true enough: nothing can be said to have left a
+    # board that was never observed, so the verdict is `unknown`.
+    if not earlier or not later:
+        which = ("neither snapshot carries any rows" if not earlier and not later
+                 else "the EARLIER snapshot carries no rows" if not earlier
+                 else "the LATER snapshot carries no rows")
+        return {
+            "lost": 0, "gained": 0, "unparseable": 0,
+            "draftable_picks": draftable, "lost_inside_draft": None,
+            "shallowest_lost": None, "median_lost": None,
+            "verdict": "unknown",
+            "note": "%s, so what the board lost between them cannot be "
+                    "measured. This is a fact about OUR capture, not about the "
+                    "board — and it is emphatically not 'nothing was lost', "
+                    "which is what an empty earlier side reported until "
+                    "2026-08-17." % which,
+        }
+
     lost = [p for p in earlier if p not in later]
     vals, unparseable = [], 0
     for p in lost:
