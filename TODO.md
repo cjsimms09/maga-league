@@ -34,6 +34,49 @@ mistakes in our info!!"** This is what closed and what is still open.
 - **Playoff-SOS artifact regenerated** — my own board rebuild had added 5 deep
   Sleeper rows (ADP 502-919) the artifact predated, breaking its partition test.
 
+### ⭐ THE HEADLINE OF 08-17: THE PER-PLAYER SIGNAL EXISTS, AND WE ALREADY HAD IT
+
+`draft/backtest/weekly_volatility.py` + `weekly_volatility.json`.
+
+Cory has asked all week to *"quantify why I think they have upside"*. The
+answer: **yes — realized weekly volatility is a strongly persistent per-player
+trait, and the data has been committed in this repo the whole time.**
+
+`nflverse_variance.py` was written to measure exactly this and was **never run
+and never consumed** — a module with no caller, the "computed and thrown away"
+family the capture registry exists for. `nflverse_weekly_points_2021..2025.json`
+were already here.
+
+Measured on 2023-25 (`cv = sd/mean` of realized weekly points, our scoring):
+
+| | result |
+|---|---|
+| within-band spread of cv | **1.57x-1.88x** p10→p90 (a `mean x constant` field has NONE) |
+| 2023→2024 persistence | **rho +0.482**, null [-0.132,+0.150] — SIGNAL |
+| 2024→2025 persistence | **rho +0.605**, null [-0.146,+0.140] — SIGNAL |
+| control (mean carryover) | +0.740 / +0.781 |
+
+**Volatility persists at ~two thirds the strength of scoring LEVEL.** It is
+nearly as much a property of the player as how good he is — a different class of
+finding from snap-share volatility (+0.19), pulled the same day.
+
+**The scoring-table guard fired before any number was computed:** 2021-22 carry
+a different `scoring_fingerprint` than 2023-25, so they are REFUSED, not pooled.
+That costs two seasons and is the correct price — pooling would produce totals
+that never existed under either table, and "nothing in the arithmetic would
+complain".
+
+**IT SETS NO WEIGHT AND CHANGES NO BOARD, and a test enforces that.** A signal
+existing is not evidence that leaning on it pays; this repo learned that
+difference expensively (the zeroed ceiling, the unearned phase-grid null).
+Limits: only two transitions survive the guard — enough to refuse a null twice,
+not enough to call the coefficient precise — and this is REALIZED volatility, so
+prospective use is licensed by the persistence and by nothing else.
+
+**QUEUE EFFECT:** wiring this is now the top post-draft item, ABOVE snap share,
+which measures a weaker proxy for the same thing. Needs a prereg and a real
+backtest before any weight moves.
+
 ### ALSO CLOSED, LATER THE SAME DAY
 
 - **The backtest HARNESS was still manufacturing the ceiling defect.**
