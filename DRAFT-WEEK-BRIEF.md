@@ -139,6 +139,23 @@ for. **A merge to `main` unblocks the nightly rebuild with no new code.** It was
 deliberately NOT done by the session that found it: pushing to `main` was outside
 its authorization and a merge five days out is a human's call.
 
+**The merge is VERIFIED, not assumed — and it is not clean.** Dry-run in an
+isolated worktree: **7 conflicts, all generated artifacts**, resolved by taking
+the branch's side; the exact gate command then passes on the merged tree
+(**3336 passed, 0 failed**). Recipe in the audit.
+
+**The dry run found a THIRD defect neither branch has alone**, which is why it
+was worth doing. Resolving toward `main`'s lab artifacts — newer, from its
+08-17T04:18Z automated run — produced: `flat_l2.0`, CI **[-99.5, -29.33]**,
+labelled **"parked: CI includes $0"**. The interval does not include zero. Both
+artifacts carry identical numbers; only the label differs. **`main`'s file is
+newer but was written by the OLDER labeller** — "prefer the newer file" is the
+wrong rule for an output, where the question is which *code* produced it. And
+`test_frontier_verdicts.py` is new here, so `main` cannot catch it: its nightly
+lab report keeps writing mislabelled verdicts until the merge lands. Same shape
+as everything else this week, pointed the other way — a decisive measurement
+presented as no conclusion.
+
 **What the freeze costs, measured.** Inside the top 200, only 2 of 201 players
 moved 10+ ADP spots in the first day — but both fell off a cliff, which is the
 dangerous direction: **John Metchie 120.6 → 364.2** and **Miami DEF 187.8 →
