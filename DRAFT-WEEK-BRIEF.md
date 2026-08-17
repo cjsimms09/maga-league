@@ -106,8 +106,15 @@ must come from the roster because the participation schema gained position
 columns only in 2023 — branching on that would have run two code paths over two
 populations and called the result one dataset.
 
-**2025 is refused**: no weekly data, so no position map — the same 404 that
-leaves 2025 ungradeable. One gap, two consequences.
+~~**2025 is refused**: no weekly data, so no position map.~~ **That was wrong and
+2025 is now built** — the participation file is served (HTTP 200, 49MB); only the
+POSITION lookup 404'd. See the note in the header above and
+`draft/audit/routes_position_source_2026-08-17.md`.
+
+Note what this paragraph did while it was wrong: it said *"position must come from
+the roster"* — which is what the code does **now**, and was not what it did then.
+The prose described the right design and the code used a different one, for long
+enough that the prose was quoted as evidence the design was sound.
 
 Routes run matters because it is the DENOMINATOR for target-per-route-run: 60
 targets on 300 routes is a different player from 60 on 600, and target share
@@ -124,10 +131,24 @@ the file's own doctrine. **Recommendation: leave it, revisit post-season.**
 **One action on draft day** — re-take the pre-draft freeze AFTER the final board
 build. `draft/data/pre_draft_freeze_2026.json` is from 08-14 and is missing
 **fourteen** declared fields. It is NOT the draft board (the war room boots from
-live `draft_data.json`), it is the record 2027 grades against.
+live `draft_data.json`), it is the record 2027 grades against — and it is the
+only irreversible item in the plan, because the board is overwritten nightly.
+
+**Rehearse it first. This deletes nothing**, and was impossible before 08-17:
+```
+PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json python3 draft/freeze_pre_draft.py
+PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json python3 draft/freeze_pre_draft.py --verify
+```
+Expect a player count and `freeze intact`. **Rehearsed on 08-17 against that
+day's board: 682 players × 12 picks, all 44 declared fields present, 0 missing**
+— so a fresh take does close the fourteen-field gap. **If the rehearsal fails,
+delete nothing**: the stale freeze is still the best record that exists.
+
+Then, and only then:
 ```
 rm draft/data/pre_draft_freeze_2026.json    # by hand; the module refuses to overwrite
 python3 draft/freeze_pre_draft.py
+python3 draft/freeze_pre_draft.py --verify   # must print "freeze intact"
 git commit                                   # say why
 ```
 
@@ -307,6 +328,27 @@ Four things checked and CLEARED are recorded in `TODO.md` so nobody
 re-investigates them: the `CFG.WEEKLY_SD` metadata fields, the `weekly_sd or 6.0`
 pool fallbacks, `source_weight_prior`'s sign flip, and Pearsall's zero projection
 (he is on IR).
+
+**A SECOND SWEEP, FOR A SECOND CLASS** —
+`draft/audit/coverage_guard_sweep_2026-08-17.md`. The constant sweep answers
+*"what is computed off a constant"*. The routes defect was not that: it was **a
+source whose coverage is silently partial, with a loss counter read as
+inherent**. Nothing swept for that, so every stored artifact was scanned for its
+own loss counters and each non-zero one chased to a reason.
+
+Two fixes, one confirmation, one open item. Snap counts' `MIN_JOIN_RATE` was
+**0.70 against observed rates of 0.971-0.992** — twenty-seven points of slack in
+which the crosswalk could lose a quarter of the league and still write a green
+store, and **the test agreed with it**, opening with *"a floor set low enough to
+never trigger is decoration"* and then asserting `>= 0.70`. Raised to 0.95 and
+pinned against the stored rates. The model scoreboard's per-model exclusion
+counts (115 vs 211) look like the same defect and are **not** — a
+shared-population block already handles it, recorded so it is not re-opened. Left
+open: **own_v6, the live model, has 22.7% of its forecasts excluded from its own
+accuracy score**; prereg written (`SURVIVORSHIP-BOUND-PREREG.md`), runs after the
+draft.
+
+**The class is real and was worth sweeping for; it was not endemic.**
 
 ## 7. WHAT IS STILL OPEN, IN ORDER
 

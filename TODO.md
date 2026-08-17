@@ -16,8 +16,10 @@ mistakes in our info!!"** This is what closed and what is still open.
   dead ends: `ceiling` measuring collinear with `value`, the phase grid finding
   only that double-counting the projection hurts, and the variance modifiers
   coming back unmeasurable. Two-hop join (pfr -> gsis -> sleeper), 97.1-99.2%,
-  loss reported per hop, `MIN_JOIN_RATE = 0.70` refuses rather than writes a
-  partial store. **Effect size measured, not asserted: within-cell spread 8x,
+  loss reported per hop, `MIN_JOIN_RATE = 0.95` refuses rather than writes a
+  partial store (**raised from 0.70 on 08-17** — a floor twenty-seven points
+  below every observed rate is decoration, and the test that blessed it said so
+  in its own first sentence; `draft/audit/coverage_guard_sweep_2026-08-17.md`). **Effect size measured, not asserted: within-cell spread 8x,
   and year-over-year carryover clears a permutation null 4/4 (rho +0.19 to
   +0.33). Read that as WEAK-BUT-REAL — it must not be weighted as though it
   were strong.** Nothing consumes it yet, deliberately, five days out.
@@ -232,9 +234,16 @@ The 08-14 freeze stays recoverable in git history either way.
   production MEASURED_WEIGHTS". Verified true via that `liveContext` default.
   Not a defect.
 - **Routes run — BUILT 2026-08-17** (`draft/backtest/fetch_routes.py`,
-  `routes_2021..2024.json`, 8 tests, registry-gated). **2025 is REFUSED**:
-  nflverse serves no weekly data for it, so no position map exists — the SAME
-  404 that leaves 2025 ungradeable. One gap, two consequences.
+  `routes_2021..2025.json`, 14 tests, registry-gated). ~~**2025 is REFUSED**:
+  nflverse serves no weekly data for it.~~ **THAT WAS OUR GAP, NOT THEIRS** —
+  the 2025 participation file is served (HTTP 200, 49MB); only the POSITION
+  lookup 404'd. Rebuilt on `seasonal_rosters`, which turned out to be the better
+  source everywhere: the old one classified 611 of the 1,708 players actually on
+  the field in 2024 and left **1,097 unknown**, dropping ~56 route-runners a
+  season — the blocking TE and the zero-target decoy, exactly what a routes
+  metric exists to see. All five seasons now 0 unclassified. Cost, named: Taysom
+  Hill 2023 (239 routes) is excluded because the NFL roster lists him QB.
+  `draft/audit/routes_position_source_2026-08-17.md`.
   **Validated against known reality, not just shape:** Cooper Kupp 2021
   reproduces at 775 routes / 234 targets / **TPRR 0.302** — his triple-crown
   season and the figure reported for it — with Kelce 0.23, Hill 0.282, Diggs
