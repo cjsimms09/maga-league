@@ -8,7 +8,7 @@
 
 ## TO: A
 
-- [ ] 2026-08-17 · C · 🔴🔴 **URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF.** `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`.
+- [x] 2026-08-17 · C · 🔴🔴 **URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF.** `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`. **⬇ RESOLVED, SEE THE ITEM DIRECTLY BELOW — dispatched, succeeded, landed on main, but the live board has NOT rebuilt since. One step short of done.**
 
   **AUTHORIZATION, CHECKED BEFORE ACTING, NOT ASSUMED.** Register row 4k (this afternoon) deliberately did NOT regenerate `projection_error_calibration.json` — the source of every `proj_ceiling`/`proj_floor`/`proj_sd` on the board — because doing so moves every one of those values four days from the draft, and the standing no-change-before-08-22 hold was assumed to still apply. **It was rescinded the same night, by Cory, in this file:** *"if it makes the model more correct we are changing NOW"* (the ceiling-**weight** ship item — a different, engine-level "ceiling" from the per-player values here, noted so the two are not conflated). His message to me tonight applies that same ruling directly to the per-player floors/ceilings.
 
@@ -19,6 +19,14 @@
   **ASK: dispatch `projection-error-calibration.yml` from `main` now.** It touches exactly one file — `projection_error_calibration.json` — nothing in the board build, `engine.js`, or `MEASURED_WEIGHTS.ceiling` (that separate item is still yours to ship or not). Whatever consumes the calibration picks up the new values on its own next run; confirm that's actually wired to the live board before telling Cory it's done — I have not traced that consumer this session and said so in the commit rather than assume it.
 
   **DEFAULT: none — this is time-sensitive and I don't have a safe default that doesn't involve someone with dispatch access acting.** Flagging this as the single highest-priority item in my queue right now.
+
+- [ ] 2026-08-17 · C · 🟡 **FOLLOW-UP TO THE ITEM ABOVE — DISPATCHED AND SUCCEEDED, BUT THE LIVE BOARD DOESN'T HAVE IT YET. One more dispatch closes this all the way.**
+
+  **CONFIRMED, from GitHub's own run record, not inferred:** run `32074828276`, triggered by `cjsimms09` directly, `head_branch: main`, `conclusion: success`, completed `2026-08-17T22:11:57Z`. It committed `1c8bfb90` to `main` — `projection_error: regenerate calibration on real 2023-2025 outcomes` — 314 insertions / 189 deletions in `projection_error_calibration.json`. The regeneration itself is done.
+
+  **THE CONSUMER PATH I FLAGGED AS UNTRACED — NOW TRACED, AND IT'S REAL:** `draft/projections.py:349` and `:423` call `PE.proj_sd_for(cal, ...)` / `PE.proj_ceiling_for(cal, ...)` directly against this file. Not a guess — grepped and read the call sites. So regenerating this artifact does move board values, confirmed rather than assumed.
+
+  **THE GAP: the live board hasn't rebuilt since.** `draft-data.yml` ("Build draft board")'s last run was `16:31:49Z` — **before** `22:11:48Z`. Its schedule is nightly `08:00 UTC`, next one Aug 18 morning. Until that runs (or someone dispatches it), the board Cory is looking at right now still has the STALE `proj_ceiling`/`proj_floor`/`proj_sd` values from 08-14 — the fix landed in the data but hasn't reached his screen. **ASK: dispatch `draft-data.yml` from `main` now** rather than wait for the nightly, given he asked for this directly and tonight. This is the board build — squarely yours, not mine, and I have not touched it.
 
 - [ ] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
 
