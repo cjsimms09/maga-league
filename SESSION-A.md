@@ -1,6 +1,43 @@
 # SESSION A — the model & draft lane (read this first, every time)
 
-> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+> **📣 READ `DRAFT-WEEK-BRIEF.md` BEFORE THIS FILE** (08-17; `MONDAY-BRIEF.md`
+> is still accurate but superseded as the entry point). Four things you need
+> before you touch anything:
+>
+> 1. **🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15 AND THE DRAFT IS 08-22.**
+>    Every nightly rebuild since has refused to publish. The board *builds*
+>    fine; the acceptance gate rejects it. **The repair is a MERGE of
+>    `claude/fantasy-football-research-926y6z` into `main`, not a code change** —
+>    both refusing tests are already fixed there. The merge is NOT clean (7
+>    conflicts, all generated artifacts) and the resolution is **verified**, not
+>    guessed: take the branch's side for all seven, after which the exact gate
+>    command passes (3336 passed, 0 failed). Recipe:
+>    `draft/audit/board_publish_stall_2026-08-17.md`. **This is waiting on a
+>    human's go-ahead — do not perform it on your own initiative, and do not
+>    "fix" it by widening the gate or hand-editing the board.**
+> 2. **The `ceiling` weight is set wrong and is held at zero on purpose.** Three
+>    preregistered runs across two independent seed sets say a non-zero weight
+>    beats the shipped zero — 3/3 seeds, separably, at every value from 0.15 to
+>    0.65. It does **not** ship before 08-22; that date was fixed in all four
+>    preregs before any produced a number. Brief §7b. **This is Cory's call, not
+>    yours.**
+> 3. **The one draft-day action is now rehearsable and rehearsed** — re-take the
+>    pre-draft freeze after the final board build. `PRE_DRAFT_FREEZE_PATH=` lets
+>    you prove the command works without deleting the real artifact. Rehearsed
+>    08-17: 682 players, all 44 declared fields, 0 missing. Brief §4.
+> 4. **Four preregs are written and gated to AFTER the draft** by their own text
+>    (volatility wiring, `need`, survivorship bound, the ceiling shipping
+>    decision). Running one early because you have capacity is the drift they
+>    exist to prevent. **Writing a new prereg is always allowed; running a gated
+>    one is not.**
+>
+> The through-line of 08-17, and the thing to carry into whatever you pick up:
+> **every defect found that day was a claim that could not fail** — a dispersion
+> field that was `proj_mean × a constant`, a ceiling experiment that could only
+> return collinear, a join floor twenty-seven points below anything observed, a
+> verdict labelled "CI includes $0" over intervals that exclude zero, a routes
+> gap filed as the upstream's when it was ours. When something has been green
+> for a long time, ask what would have to be true for it to go red.
 
 
 _Resume ritual: **"You are session A, read SESSION-A.md and STATUS.md, then continue."**
