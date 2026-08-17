@@ -33,6 +33,42 @@ RHO = 0.35          # within-team weekly correlation (the shared game script)
 DOSES = [0.0, 0.5, 1.0, 1.5, 2.0, 3.0]
 
 
+def verdict_for(lo: float, hi: float, mean: float) -> str:
+    """THE LABEL MUST MATCH THE INTERVAL — the third instance of this bug.
+
+    `frontier.py` and `cory_conditional.py` were both fixed for saying
+    "CI includes $0" about intervals that do not include zero. This file had the
+    same defect from the OTHER side and was missed by both fixes: it carried only
+    THREE branches, so the fall-through read
+
+        WINNER if lo > 0 and mean > BAND
+        else HARMFUL if hi < 0
+        else "parked: CI includes $0"
+
+    and a dose with `lo > 0` but a mean inside the even-money band lands on that
+    last branch. Its interval is entirely ABOVE zero. The label says zero is
+    inside it. Same false claim as the frontier bug, reached by walking off the
+    positive end instead of the negative one — which is why grepping for the
+    fixed predicate `lo <= 0 <= hi` did not find it: the predicate here was
+    missing, not wrong.
+
+    LATENT, NOT MANIFEST, and worth saying so: all five rows of the shipped
+    `stack-sweep.json` are decisive winners (CIs from +266 to +540), so this
+    branch has never fired on real output. It is a correctness fix, not a
+    correction to a published number.
+
+    Four branches, matching frontier.verdict_for. Zero is inside [lo, hi] only
+    when lo <= 0 <= hi; everything else is a real verdict.
+    """
+    if lo > 0 and mean > CC.EVEN_MONEY_BAND:
+        return "WINNER — dose pays"
+    if hi < 0:
+        return "HARMFUL — CI excludes 0 below"
+    if lo <= 0 <= hi:
+        return "parked: CI includes $0"
+    return f"parked: inside the ${CC.EVEN_MONEY_BAND} even-money band"
+
+
 def stack_chooser(dose):
     """VORP + dose × (stack bonus): a candidate sharing a team with someone I
     already roster is worth more, scaled by the dose under test."""
@@ -121,8 +157,7 @@ def main():
         lo, hi = CC.bootstrap_ci(deltas, rng)
         rows.append({"dose": d, "edge": round(mean, 2), "ci95": [round(lo, 2), round(hi, 2)],
                      "max_same_team": round(sum(stacked[d]) / len(stacked[d]), 2),
-                     "verdict": "WINNER — dose pays" if (lo > 0 and mean > CC.EVEN_MONEY_BAND)
-                     else ("HARMFUL — CI excludes 0 below" if hi < 0 else "parked: CI includes $0")})
+                     "verdict": verdict_for(lo, hi, mean)})
     best = max(rows, key=lambda r: r["edge"]) if rows else None
     pays = [r for r in rows if r["verdict"].startswith("WINNER")]
     result = {"experiment": "6 — stack/correlation dose-response", "rooms": args.rooms,
