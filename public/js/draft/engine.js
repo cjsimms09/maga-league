@@ -577,7 +577,16 @@
     bye: 'measured (null)',
     risk: 'UNMEASURED — term is PARTIAL on the backtest board (age only, '
       + '6 of production\'s 11 distinct values)',
-    ceiling: 'UNMEASURED — collinear with value on the backtest board',
+    ceiling: 'UNMEASURED — the backtest board no longer MANUFACTURES the ceiling '
+      + '(build_bundle.py wrote proj_ceiling = 1.35 x proj_mean, a global '
+      + 'constant, until 2026-08-17; it now carries the measured p90 per '
+      + '(position, band), fitted leave-one-season-out). So the experiment is '
+      + 'RUNNABLE for the first time and has NOT been run — this zero is '
+      + 'un-re-derived, not refuted. NOTE the collinearity is REDUCED, NOT '
+      + 'REMOVED: the measured ceiling is still proj_mean x a per-CELL constant, '
+      + 'varying between bands and not within them, so any weight fitted on it '
+      + 'measures cross-band dispersion differences only. Prereg: '
+      + 'draft/backtest/HARNESS-DISPERSION-PREREG.md',
   };
 
   /* Named strategies, as weight sets.

@@ -127,9 +127,41 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
   ck('  so the Lab risk term is PARTIAL, and the provenance says so',
     /PARTIAL/.test(E.WEIGHT_PROVENANCE.risk), E.WEIGHT_PROVENANCE.risk);
 
-  ck('  and still manufactures proj_ceiling from proj_mean',
-    /"proj_ceiling"\s*:\s*round\(\(pm[^)]*\)\s*\*\s*1\.35/.test(src),
-    'if this fails, ceiling may now be measurable and its provenance must be re-derived');
+  /* THIS TRIPWIRE FIRED ON 2026-08-17 AND IT WAS RIGHT.
+   *
+   * It used to assert that build_bundle.py STILL manufactured proj_ceiling as
+   * `1.35 * proj_mean`, with the note "if this fails, ceiling may now be
+   * measurable and its provenance must be re-derived". The harness was fixed
+   * that day — dispersion now comes from the measured p90/p10/sd per
+   * (position, band), fitted leave-one-season-out — so the assertion failed,
+   * exactly as designed, and caught a WEIGHT_PROVENANCE.ceiling string that had
+   * silently become false ("collinear with value on the backtest board").
+   *
+   * It now guards the opposite direction, which is the live risk from here:
+   * that someone reintroduces a synthetic constant and re-collinearises every
+   * backtest board without noticing. */
+  ck('  and NO LONGER manufactures proj_ceiling from proj_mean',
+    !/"proj_ceiling"\s*:\s*round\(\(pm[^)]*\)\s*\*\s*1\.35/.test(src)
+    && !/"proj_sd"\s*:\s*round\(\(pm[^)]*\)\s*\*\s*0\.25/.test(src),
+    'a synthetic dispersion constant is back in build_bundle.py — every weight '
+    + 'experiment on a bundle is collinear again');
+
+  /* The provenance must say WHICH of the two states the zero is in. "Collinear
+   * on the backtest board" was true until the harness fix and is now false;
+   * "measured and refuted" is not true either. The honest word is UNMEASURED,
+   * plus the fact that the experiment is now runnable. */
+  ck('  and the ceiling provenance reflects the fixed harness, not the old one',
+    /UNMEASURED/.test(E.WEIGHT_PROVENANCE.ceiling)
+    && !/collinear with value on the backtest board/.test(E.WEIGHT_PROVENANCE.ceiling),
+    E.WEIGHT_PROVENANCE.ceiling);
+
+  /* And it must NOT oversell the fix. The measured ceiling is still
+   * proj_mean x a per-cell constant; a reader who takes "the harness is fixed"
+   * to mean "the ceiling is now per-player" will over-trust any weight fitted
+   * on it. constant_multiple_sweep says so on the live board today. */
+  ck('  and does not oversell it — the collinearity is reduced, not removed',
+    /REDUCED, NOT REMOVED/.test(E.WEIGHT_PROVENANCE.ceiling),
+    E.WEIGHT_PROVENANCE.ceiling);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
