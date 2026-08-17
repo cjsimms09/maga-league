@@ -312,6 +312,67 @@ E red-teams **outputs**, the relay chases — **no seat generated hypotheses.**
 `draft/tests/test_open_questions.py` enforces both, with known-positive controls
 on each. A rule that lives only in a document did not stop either failure.
 
+## RULE 3g — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS
+
+**Cory, 2026-08-17:** *"nothing should just be dropped, or not followed up on…
+too much finding and not enough fixing and following up and correcting and
+looking for new ways to find an edge."*
+
+**He is describing a real hole and it was the relay's.** In one evening the
+relay filed six register rows and ten queue items and ACTED on almost none of
+them. Every lane has been rewarded for producing findings and nobody was on the
+hook for what happens next.
+
+### THE RULE
+
+**Every finding carries a follow-up, and the follow-up is a QUESTION, not a
+status.** Three specific ones, because these are the three that kept going
+unasked:
+
+1. **Does this failure imply another one we have not looked for?**
+2. **Does it invalidate a test, a number, or a conclusion we already trust?**
+3. **Is the lane that can act on it the lane it was routed to?**
+
+**A row with an owner and a next action but no follow-up question is HALF a
+finding.** The register's own standard already demanded a measurement, an
+unblock condition, an owner and a recheck date; this adds the only part that
+generates new work rather than closing old work.
+
+### IT IS ENFORCED IN TWO PLACES, NOT PROMISED
+
+* **`draft/tools/register_recheck_check.js`** fails the build on any row still
+  OPEN past its own recheck date. **Every open row now carries a date.** Acting
+  on it clears the check; **re-dating it WITH A REASON also clears it**; silence
+  does not.
+* **`OPEN-QUESTIONS.md`** already requires one new question per lane per
+  session, and `test_open_questions.py` fails if a lane has none.
+
+### WHO OWNS FOLLOW-THROUGH: THE RELAY, BY NAME
+
+Not "everyone", which is how it went unowned. **The relay owns the question
+"what else does this mean, and who can act on it" for every finding in the
+project, including its own.** If a finding is dropped, that is the relay's
+defect and it belongs in the register with `relay` in the owner column.
+
+### TWO WORKED EXAMPLES, BOTH 08-17, SO THE RULE IS NOT ABSTRACT
+
+* **A test failure that meant more than it said.** B's room-switch feature
+  re-derived `current_pick` inline and reddened `main`. Fixing it was half the
+  job; asking *"is this a one-off?"* measured the budgets repo-wide and found
+  them **already exhausted** — `current_pick` 2/2, `seat` 9/10. The next lane to
+  touch either would have broken the build the same way. The check now prints
+  remaining headroom on every green run, so the next lane is warned instead of
+  surprised.
+* **A check that could not answer the question it was assigned.** Register 2c
+  told E to re-run the ADP drift check after shipping `ceiling = 0.45`. Asking
+  *"can this tool even see that?"* found it ranks on `vorp`, which carries no
+  weight — so it would have returned "no movement" regardless, **and that null
+  would have been read as evidence against the one edge decision Cory ruled
+  on.** Caught before anyone ran it.
+
+**Both were found by asking a second question about a finding that already
+looked complete.** That is the whole rule.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and

@@ -12,7 +12,16 @@ sends back."* He was right. Roles are now defined by what you SHIP.
 | **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
 | **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
 | **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
-| **relay** | **every lane has what it needs; nothing is lost** | an idle lane, a dropped ask, a finding nobody saw |
+| **relay** | **every lane has what it needs; nothing is lost — AND every finding gets FOLLOWED UP** | an idle lane, a dropped ask, a finding nobody acted on |
+
+**⚡ RULE 3g, added 08-17 — A FINDING IS NOT FINISHED UNTIL SOMEONE ASKS WHAT ELSE IT MEANS.**
+Cory: *"too much finding and not enough fixing and following up and correcting."*
+Every finding now carries three follow-up QUESTIONS — does this imply another
+failure we have not looked for · does it invalidate something we already trust ·
+is this routed to the lane that can actually act. **The relay owns that question
+for every finding in the project, its own included.** Enforced, not promised:
+`register_recheck_check.js` fails the build on any row still OPEN past its own
+recheck date, and **every open row now carries one.**
 
 **Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
 
