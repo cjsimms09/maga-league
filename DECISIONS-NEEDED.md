@@ -37,6 +37,19 @@ EXECUTED; records in "Settled" below.)*
 own_v6 promotion, was RULED 2026-08-16 — "YES on V6" — and EXECUTED the
 same session: see Settled below)*
 
+- **[NEW 2026-08-17, barbell pass] A late-round backup QB is the worst pick in
+  the draft — should the war room say so?** · gated switch: a one-line rail from
+  round 11 (copy only; **no diff prepared, no weight touched**) · evidence:
+  `draft/audit/barbell_strategy_2026-08-17.md` §6 finding 4 — rounds 11–15 QB
+  returns **−76.1 [−147.3, −15.6]** against a held waiver-wire add, the only
+  CI-clear-below cell at any position, because measured QB replacement (330.1)
+  and the measured QB wire (330.8) are **the same number**. Second item in the
+  same entry, no rush: `proj_ceiling` is a symmetric Gaussian over a measured
+  distribution that is violently skewed — a correctness fix to a field nothing
+  currently consumes. **Your hypothesis itself: early half CONFIRMED and already
+  implemented (600/600 picks), late half CONTRADICTED three ways.** Full entry:
+  § "CORY'S BARBELL" below.
+
 - **[NEW 2026-08-16, edge hunt] The measured tie-break lean** — add a
   late-season-trajectory fact FIRST in the war room's toss-up facts? · gated
   switch: the PREPARED diff to `public/js/draft/verdict.js tiebreakFacts`
@@ -238,6 +251,120 @@ same session: see Settled below)*
 ---
 
 # OPEN — needs a decision, or is blocked and waiting
+
+## 🏋️ CORY'S BARBELL — half confirmed, half contradicted, and one draft-night rail worth ruling on (A, 2026-08-17) 🔴 OPEN
+
+**Cory, 2026-08-17, verbatim:** *"It almost feels like it's useful to draft
+middle tier players with no upside.. either they're a starter who is average or
+above (go in first 8 rounds) or you need to draft upside or injury
+opportunity?"*
+
+Full evidence: `draft/audit/barbell_strategy_2026-08-17.md`, preregistered in a
+separate commit before any result. **Nothing shipped. No board field, no weight,
+no engine behaviour changed.**
+
+**THE ANSWER IN THREE LINES.** The early half is right and the tool already does
+it. The late half is wrong on three independent measurements. The middle is
+FLAT, not dead — it is at parity with what the waiver wire would have returned.
+
+| what was claimed | measured | verdict |
+|---|---|---|
+| proven starter in the first 8 rounds | rounds 4–8 return **+19.2 [+4.8, +33.2]** over a held wire add; the shipped engine's top recommendation is an ANCHOR in **600 of 600** picks in rounds 4–8 | **CONFIRMED, ALREADY IMPLEMENTED** |
+| the middle is dead weight | rounds 7–10 return **+9.9 [−4.7, +24.3]** over the wire — at parity — and choosing inside the band beats a blind draw by +77.7 | **FLAT, NOT DEAD** |
+| draft upside late | rounds 9–15 return **−15.1 [−31.4, −1.5]**; P(LEAGUE-WINNER) is LOWER late (10.8%) than in the middle (13.9%), all three seasons; the barbell arm loses **−1.49pp champ, CI-clear** in the same harness that rejected eight archetypes | **CONTRADICTED, three ways** |
+
+**WHY, and this is the part worth reading.** The sentence assumes a trade-off:
+give up median to buy ceiling. On the measured 2023–25 projection-error
+distribution that trade-off does not exist at the deep positions — a late
+player's ratio upside is bigger, but it multiplies a smaller projection:
+
+```
+RB   ANCHOR p90 315.5-593.5  |  SWING p90 178.6-309.9    ZERO OVERLAP
+WR   ANCHOR p90 254.4-439.1  |  SWING p90 167.8-219.4    ZERO OVERLAP
+```
+
+**Not one late-round swing's top-decile season reaches even the weakest
+anchor's**, and anchors carry MORE absolute weekly volatility than swings at
+RB/WR/TE. The classes are ordered, not a menu.
+
+### 🎯 (b) THE ONE ITEM WITH A DRAFT-NIGHT ACTION — a late-round backup QB
+
+**Rounds 11–15 QB is the worst cell in the draft: −76.1 [−147.3, −15.6] against
+a held wire add, the only CI-clear-below cell at any position.** The mechanism is
+an exact coincidence, found by a test going red:
+
+| | measured replacement (realized pts) | a held wire add over 17 weeks |
+|---|---|---|
+| **QB** | **330.1** | **330.8** |
+| TE | 124.1 | 115.6 |
+| WR | 155.0 | 124.1 |
+| RB | 170.8 | 100.3 |
+
+**At quarterback the waiver wire IS replacement level.** The split is exactly
+onesie-versus-deep — QB and TE need 10 starters in a 10-team league, RB and WR
+need 21 and 29. A second QB late buys, for a roster spot, what the wire hands
+you for nothing.
+
+**THE DECISION:** should the war room carry a one-line rail from round 11 saying
+a second quarterback costs a roster spot the wire fills for free?
+**Diff:** none prepared — the engine already takes QB1 in rounds 9–12 and this
+rarely binds, so it is a surfacing question, not a scoring one.
+**Magnitude:** one pick, ~76 points of season value in the years it fires.
+**Confidence:** CI-clear and replicated, but n = 21 picks over three seasons,
+which is thin.
+**Cost of inaction:** one wasted late pick when it happens.
+**Recommendation:** surface it as a rail; change no weight.
+
+*(Third independent confirmation of the early-QB withdrawal —
+`WAR-ROOM-SAID-TAKE-EARLY-QB.md` voided the doctrine on a design defect,
+`empirical_draft_value` §4.6 found no outcome support for paying up early, and
+this pass extends it to the other end of the draft.)*
+
+### 📐 (a) `proj_ceiling` IS NOT MEASURED, AND IT IS THE FIELD "UPSIDE" LIVES IN
+
+`proj_sd` **is** measured now (`proj_sd_source == "measured-2023-25-error"`, 530
+of 682 rows, from `projection_error_calibration.json` under the REC-1 ruling).
+But `proj_ceiling` is still `mean + CEILING_Z × proj_sd`
+(`projections.py:318`) — a **symmetric Gaussian** laid over a distribution the
+same calibration shows is violently right-skewed. RB|33+ measures p10 **0.021**,
+p50 **0.345**, p90 **1.434** about a mean of 0.573: the median late back returns
+a third of his projection and the tenth one returns 1.4×. **A Gaussian ceiling
+cannot represent that, and upside is exactly what it flattens.**
+
+**Diff:** where a cell is measured, write `proj_floor = proj_mean × p10_ratio`
+and `proj_ceiling = proj_mean × p90_ratio`, keeping the Gaussian path only where
+it is not — the same REC-1 move already made for `proj_sd`, applied to the two
+fields beside it.
+**Magnitude:** large on the fields themselves, **zero on the board today** —
+`ceiling` sits at 0 in `MEASURED_WEIGHTS`, so nothing consumes it.
+**Confidence:** high; 1,304 graded player-seasons, 0 unmeasurable cells.
+**Cost of inaction:** a displayed field that misdescribes the measured
+distribution, and any future experiment that turns the `ceiling` weight on would
+be experimenting on a Gaussian artifact.
+**Recommendation:** make it as a correctness fix to a displayed field; do NOT
+revisit the weight in the same change.
+
+### 📖 (c) HOW `empirical_draft_value` §10's TABLE SHOULD BE QUOTED — no diff
+
+That study's "sixteen cells below replacement, twelve of them RB/WR in rounds
+8–15" is correct and unchanged. **Replacement is the starter-rank level, a much
+higher bar than what the roster spot could otherwise return.** Measured against
+the wire, **none of those RB/WR cells is CI-clear dead** — middle-round RB is
+−44.3 below replacement AND +26.2 above the wire. Both true; only the second is
+a reason not to spend the pick, and it does not say don't. No change to either
+document beyond this note; it matters because that table is the most quotable
+thing in the most-read study on the branch.
+
+### 🔒 (d) `upside_class.js` STAYS LAB-ONLY unless you want it on the board
+
+The three-way ANCHOR / SWING / DEAD label is new and measured, and it shipped
+with no production reader on purpose. **If it were ever surfaced, one caveat
+travels with it: it inherits every error in `proj_mean`,** and
+`empirical_draft_value` §4.2 measured own_v6 as WORSE than the room's own draft
+order at all four positions. If the projection is wrong about who is an anchor,
+the label is wrong in the same places.
+
+---
 
 ## 📉 THE EMPIRICAL DRAFT-VALUE STUDY — two corrupted stores, and the prize is smaller than we thought (A, 2026-08-16) 🔴 OPEN
 

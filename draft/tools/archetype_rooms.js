@@ -79,6 +79,7 @@ require(path.join(ROOT, 'public', 'js', 'draft', 'needrule.js'));
 const LC = require(path.join(ROOT, 'draft', 'tools', 'live_context.js'));
 const AP = require(path.join(ROOT, 'draft', 'tools', 'archetype_policy.js'));
 const AS = require(path.join(ROOT, 'draft', 'tools', 'archetype_season.js'));
+const UC = require(path.join(ROOT, 'draft', 'tools', 'upside_class.js'));
 const CH = require(path.join(ROOT, 'src', 'routes', 'champodds.js'));
 
 const args = process.argv.slice(2);
@@ -309,11 +310,33 @@ function runRoom(seed, armName) {
       t.roster.forEach(p => { posCounts[p.position] = (posCounts[p.position] || 0) + 1; });
       const chosen = AP.choosePick(armName, recs,
         { round, picksLeft: MY_PICKS.length - myPickIndex, posCounts,
-          planSlot: PLAN_SLOT[overall] || null });
+          planSlot: PLAN_SLOT[overall] || null, classOf: UC.classify });
       if (chosen !== recs[0]) overlayDiverged++;
       const p = chosen.player;
+      // The upside class of BOTH the taken player and the engine's own top
+      // candidate rides in the log. The second is what answers "is the shipped
+      // policy already barbelled?" without re-running anything: every arm's
+      // engine_top column is the same shipped recommendation.
+      // WHAT THE OVERLAY COULD HAVE DONE — the §5.2 instrument diagnostic,
+      // added after the preregistration commit and for the reason that commit
+      // named: when a result is an absence, state what the instrument would
+      // have shown if the thing were present. `slice_census` is the class mix
+      // of the engine's own top-25 candidates at this pick, so an arm that
+      // barely diverges can be told apart from an arm whose constraint was
+      // never on offer. `given_up` prices the trade the overlay actually made.
+      const slice = AP.candidates(recs).map(r => r.player);
+      const num = v => (v == null ? null : Number(v));
       picksLog.push({ pick: overall, round, name: p.name, pos: p.position,
-        engine_top: recs[0].player.name, overlay: chosen !== recs[0] });
+        cls: UC.classify(p),
+        engine_top: recs[0].player.name,
+        engine_top_pos: recs[0].player.position,
+        engine_top_cls: UC.classify(recs[0].player),
+        overlay: chosen !== recs[0],
+        slice_census: UC.census(slice),
+        vorp_given_up: (num(recs[0].player.vorp) == null || num(p.vorp) == null)
+          ? null : Math.round((num(recs[0].player.vorp) - num(p.vorp)) * 100) / 100,
+        proj_given_up: (num(recs[0].player.proj_mean) == null || num(p.proj_mean) == null)
+          ? null : Math.round((num(recs[0].player.proj_mean) - num(p.proj_mean)) * 100) / 100 });
       drafted.add(String(p.player_id));
       t.roster.push(p);
       myPickIndex++;
@@ -407,6 +430,52 @@ function summarizeArm(rooms) {
     shapes[key] = (shapes[key] || 0) + 1;
   });
   out.shape_distribution = shapes;
+  // Upside-class profile BY ROUND — the barbell shape made measurable. `taken`
+  // is this arm's picks; `engine_top` is the shipped recommendation at the same
+  // pick in the same room, so the shipped arm's own barbell-ness is readable
+  // from every arm's rows and the two agree by construction on the control.
+  const byRound = {};
+  const bump = (bucket, round, cls) => {
+    const k = 'R' + round;
+    const b = (byRound[k] || (byRound[k] = { taken: {}, engine_top: {}, picks: 0 }));
+    if (bucket === 'taken') b.picks += 1;
+    b[bucket][cls] = (b[bucket][cls] || 0) + 1;
+  };
+  ok.forEach(r => (r.picksLog || []).forEach(pk => {
+    bump('taken', pk.round, pk.cls);
+    bump('engine_top', pk.round, pk.engine_top_cls);
+  }));
+  out.class_by_round = byRound;
+  // Could this arm's constraint ever have bound? The mean class mix of the
+  // engine's own candidate slice, by round. An arm whose target class is
+  // absent from the slice is UNDERPOWERED, not inert — a distinction that
+  // decides whether a null is about the strategy or about the harness.
+  const sliceByRound = {};
+  let gaveUpVorp = 0, gaveUpProj = 0, diverged = 0;
+  ok.forEach(r => (r.picksLog || []).forEach(pk => {
+    const k = 'R' + pk.round;
+    const b = (sliceByRound[k] || (sliceByRound[k] = { n: 0, ANCHOR: 0, SWING: 0,
+      DEAD: 0, UNMEASURED: 0, NA: 0 }));
+    b.n += 1;
+    Object.keys(pk.slice_census || {}).forEach(c => { b[c] += pk.slice_census[c]; });
+    if (pk.overlay) {
+      diverged += 1;
+      if (pk.vorp_given_up != null) gaveUpVorp += pk.vorp_given_up;
+      if (pk.proj_given_up != null) gaveUpProj += pk.proj_given_up;
+    }
+  }));
+  Object.keys(sliceByRound).forEach(k => {
+    const b = sliceByRound[k];
+    ['ANCHOR', 'SWING', 'DEAD', 'UNMEASURED', 'NA'].forEach(c => {
+      b[c] = Math.round(100 * b[c] / Math.max(1, b.n)) / 100;   // mean per pick
+    });
+  });
+  out.slice_class_mean_by_round = sliceByRound;
+  out.overlay_gave_up = { picks: diverged,
+    vorp_total: Math.round(gaveUpVorp * 100) / 100,
+    proj_total: Math.round(gaveUpProj * 100) / 100,
+    vorp_per_room: ok.length ? Math.round(100 * gaveUpVorp / ok.length) / 100 : null,
+    proj_per_room: ok.length ? Math.round(100 * gaveUpProj / ok.length) / 100 : null };
   return out;
 }
 // Paired deltas vs the shipped control, same seed.
@@ -462,6 +531,11 @@ const out = {
   weekly_sd: CH.CFG.WEEKLY_SD,
   opp_keeper_teams: OPP_KEEPERS.size,
   plan_seats_loaded: Object.keys(PLAN_SLOT).length,
+  // Non-vacuity readout for the barbell family: what the measured classifier
+  // says about the board it is about to constrain picks on. A census with an
+  // empty class would make every barbell arm a relabelled control.
+  upside_census: UC.census(ALL),
+  upside_replacement: UC.replacement(),
   generated_at: new Date().toISOString(),
   note: 'SIMULATION throughout: season outcomes are model outcomes conditioned on '
     + 'proj_mean, the opponent model, and a constant measured weekly sd — not measurements.',
