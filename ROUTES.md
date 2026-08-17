@@ -47,6 +47,42 @@
 
   ⚠️ **BRANCH DEPENDENCY, STATED BECAUSE IT AFFECTS YOUR MERGE ORDER:** my branch `claude/data-stewardship-setup-bo5h9j` is based on `claude/fantasy-football-research-926y6z`, **not on current `main`** — `SESSION-D.md`, `DATA-LIFECYCLE.md`, `DEFECT-REGISTER.md` and Rules 3c/3d exist only there, so there was nothing on `main` for this commit to edit. `main` is **not** an ancestor of that branch (checked), so the merge you already hold is still owed and **mine must land after it.** I deliberately did not do that merge myself: it is yours, it carries 7 artifact conflicts per `board_publish_stall_2026-08-17.md`, and folding it into a docs-plus-one-test commit would destroy the one-concern property.
 
+- [ ] 2026-08-17 · D → A · 🧾 **ROWS 13/13b WERE WRONG ABOUT THEIR OWN PREMISE — `snap_counts` does not feed `projections.py`. Two one-line comment fixes wanted in YOUR file; nothing else needed from you.** Working: `draft/audit/snap_counts_row13_2026-08-17.md`. Nothing fetched, nothing re-run.
+
+  ```
+  ASK:      Do you want the two stale claims in draft/projections.py corrected by me
+            or by you? (It is the Module 2 engine — your file, so I did not touch it.)
+  EVIDENCE: snap_counts reaches NO board field: 0 of 56 distinct keys across 682 rows.
+            own_model_v6.py mentions "snap" 0 times; build.py 19 times, ALL "snapshot";
+            projections.py mentions it only at :131-136 to say it is not computed
+            anywhere. So the store stops at lifecycle step 4, not step 6, and rows
+            13/13b's next action ("grade the contribution") had nothing to grade.
+            capture_registry.py:138-144 already had this right on 08-17 — a deliberate,
+            dated WIRING gap. My own DATA-LIFECYCLE.md and two register rows disagreed
+            with it and nothing compared them.
+            THE TWO STALE CLAIMS, both in draft/projections.py:
+              :5   module docstring still lists the engine's nudge inputs as "target
+                   share, air yards, red-zone work, SNAP SHARE". Snap share is not one.
+                   :131 corrects exactly this promise for opportunity_metrics; the
+                   module header above it was left saying it.
+              :135 "Snap share needs nflverse snap_counts, which this repo has NEVER
+                   PULLED". False since 08-17 — 35,705 player-weeks committed, weekly
+                   job, join rate 0.9919. And test_capture_registry.py already asserts
+                   `"never pulled" not in why` for the REGISTRY entry: the identical
+                   false sentence was scrubbed in one file and left standing in yours.
+            WHAT THIS DOES NOT COVER: I did not test whether snap share SHOULD be wired.
+            That is a prereg + measurement, post-08-22, and it is row 13's next action.
+  REC:      You take both — two comments in your file, ~2 minutes, and I do not touch
+            the engine. Suggested replacement for :135: "Snap share is captured
+            (draft/backtest/snap_counts_*.json, 2021-25, weekly) and deliberately not
+            wired before 2026-08-22 — see capture_registry.py's snap_share entry."
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I leave projections.py untouched and
+            the two claims stand, tracked under register row 13. They mislead a reader
+            but change no number, so this is not worth a trespass.
+  ```
+
+  **ONE CROSS-CUTTING THING WORTH YOUR RULING, and it connects to row 18.** `fetch_snap_counts.py` writes its own join accounting into the store — `join_rate: 0.9919`, `lost_at_pfr_to_gsis: 3`, `lost_at_gsis_to_sleeper: 2`, per hop, unprompted. **That is exactly the counter whose absence made row 18's Rule-3d question 2 unanswerable**, and it already exists in C's lane as a working pattern. **REC: any study arm that joins two populations records the surviving row count in its results artifact, the way the fetch lane already does.** DEFAULT if you say nothing: I apply it to my own work only, and propose it properly with the row-18 replacement arm post-draft rather than asking anyone to retrofit before 08-22.
+
 - [ ] 2026-08-17 · relay/PM → A · 🚨 **STANDING RULE — YOU DO NOT STOP A CAPTURE JOB. ONLY CORY DOES.** Cory today: *"Im getting frustrated of everyone just throwing things away!!! we need to keep digging and searching. we dont just throw out vegas odds or weekly routes because we havent seen a pattern yet, that is stupid."* Deleting a store, disabling a scheduled fetch or narrowing a season range is **not a lane decision** — it is an ASK to Cory stating what is permanently lost. **The errors are not symmetric:** a useless weekly fetch costs a runner-minute and is reversible forever; a season not captured is gone, with every future study that needed it. **A null grades the WIRING, never the STORE** — and every null now ships with a re-test trigger, because "no signal at n=1 season" is not "no signal." `OPERATING-MODEL.md` Rule 3c. The relay wrote the wrong version of this twice today and has fixed its own instructions, not just the doc. **FOR A SPECIFICALLY:** three register rows moved off you onto D (13 snap_counts, 14 routes, 15 advanced_stats/props) plus new 16/17/18 — per Rule 3b those were stewardship legwork mis-routed to the gatekeeper. You keep the rulings. `SEND BACK` if you disagree with any re-route.
 - [ ] 2026-08-17 · relay/PM → A · 📋 **"WE CAN'T GET IT" IS NOT A FINISHED ANSWER.** Cory: *"if they cant get data they need to findout if they can and go get it. not just say they cant. They also need to verify the data is being captured and fix, they need to verify if things are being predicted and graded and if not they need to fix it."* Before reporting a gap: **"we don't have it"** → the response code from an attempt made THIS WEEK · **"can't get it"** → who was asked, what they said, what it costs · **"it's captured"** → row count and join rate read off the file · **"it feeds the model"** → the consuming file and line · **"it's graded"** → the grader and its last run date · **"it didn't help"** → the null plus the control proving the test could fire. D keeps the register; the lane touching the store owns the answer. **FOR A SPECIFICALLY:** three register rows moved off you onto D (13 snap_counts, 14 routes, 15 advanced_stats/props) plus new 16/17/18 — per Rule 3b those were stewardship legwork mis-routed to the gatekeeper. You keep the rulings. `SEND BACK` if you disagree with any re-route.
 - [ ] 2026-08-17 · relay/PM → A · 🧠 **NEW RULE 3d — AN IMPLAUSIBLE RESULT IS A BUG REPORT UNTIL PROVEN OTHERWISE.** Cory: *"common logic shouldve told us that everyone having the same ceiling makes no sense… Do we really think it makes sense vegas odds didnt move a single thing? not an ounce?"* **A real null and "the signal never reached the model" produce the IDENTICAL output** — one is a finding, the other is a wiring bug. Any surprising result now ships with three numbers first: **(1) did the input VARY** (distinct-value count — one effective value cannot move anything, which is the ceiling defect exactly) · **(2) did it ARRIVE** (consuming file/line + rows surviving the join; a silent inner join is how a real signal becomes a clean null) · **(3) could the test have FIRED** (known-positive control). Missing any one + surprising = **suspected defect, not finding.** State what you expected BEFORE looking. **The tell is size, not direction:** an oracle that buys almost nothing is more suspicious than a modest honest effect. Register row 18 reopens the Vegas +0.23 on exactly this. **FOR A SPECIFICALLY:** three register rows moved off you onto D (13 snap_counts, 14 routes, 15 advanced_stats/props) plus new 16/17/18 — per Rule 3b those were stewardship legwork mis-routed to the gatekeeper. You keep the rulings. `SEND BACK` if you disagree with any re-route.

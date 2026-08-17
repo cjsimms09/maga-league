@@ -74,7 +74,7 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 |---|---|---|---|---|---|---|
 | `nflverse_weekly_points_*` | ✅ 2021-25 | ✅ | ✅ | ✅ | **8** | this is the one complete chain |
 | `component_stats_*` | ✅ 2021-25 | ✅ | ✅ (own_v6) | via weekly points | 6-7 | **UNEXAMINED** — graded only indirectly |
-| `snap_counts_*` | ✅ 2021-25 | ✅ Wed | ✅ (projections) | ❌ | **6** | **UNEXAMINED** — feeds predictions, nothing grades its contribution |
+| `snap_counts_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **CORRECTED 08-17 (was recorded as step 6).** It reaches NO board field — 0 of 56 keys over 682 rows; `own_model_v6`/`build.py` never mention it; `projections.py` names it only to say it is not computed. **Reason already recorded** in `capture_registry.py:138`: a wiring gap, deliberate, *"a new input wired live five days before the draft is a worse instrument than a known one."* **Trigger:** prereg a snap-share feature, post-08-22. Register 13/13b |
 | `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **UNEXAMINED** — captured weekly, reaches nothing |
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
 | `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
@@ -83,8 +83,9 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — season-total arm was graded, then stopped |
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
 
-**Two chains are complete. Four stores stop at step 4 or 6 with no recorded
-reason.** Those four are the register's new rows.
+**Two chains are complete. Four stores stop at step 4 with no recorded
+reason.** (`snap_counts` was counted here as a step-6 stop until 2026-08-17; it
+is a step-4 stop **with** a recorded reason — see its row.) Those four are the register's new rows.
 
 **Justified stops are not failures** — a stop at step 5 with a measurement behind
 it is the standard working. The problem is never a NO; it is a NO nobody wrote
@@ -123,6 +124,23 @@ finished thinking — which would trade a runner-minute for a season we can neve
 get back.
 
 And the reverse: **when a store reaches a prediction, step 6 becomes mandatory.**
-`snap_counts` feeds `projections.py` today and nothing grades its contribution —
-so we cannot say whether it helps, hurts, or does nothing. That is the same shape
-as a weight set by an experiment that could not fail.
+A store that feeds a projection with nothing grading its contribution is the same
+shape as a weight set by an experiment that could not fail — we cannot say
+whether it helps, hurts, or does nothing.
+
+**This paragraph used to name `snap_counts` as that example, and it was wrong.**
+Session D checked it on 2026-08-17
+(`draft/audit/snap_counts_row13_2026-08-17.md`): snap counts reach **no board
+field** — 0 of 56 keys across 682 rows — so the store is at step 4, not step 6,
+and there is no contribution to grade. `capture_registry.py:138` had it right the
+same day; this file and two register rows were written against the wrong version
+and nothing compared them.
+
+**Which is the lesson worth keeping, and it is about this file.** The table above
+is the artifact D's lane is judged on, and it asserted a wiring the board
+contradicted. **The claim is now checked rather than trusted** —
+`draft/tests/test_data_lifecycle_predicts_column.py` reads the "→ predicts"
+column against the real board, with a known-positive control proving the
+detector can find fields that are genuinely there. A step number in this table
+is now a testable claim, the same way `test_defect_register.py` made the
+register's owner column one.
