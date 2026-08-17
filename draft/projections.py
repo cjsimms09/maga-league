@@ -342,6 +342,7 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         # was measured. `variance` is re-derived from the applied sd so the
         # board identity proj_sd == proj_mean × variance keeps holding.
         ceiling_m, ceiling_source = None, "gaussian_z"
+        floor_m, floor_source = None, "gaussian_z"
         if pe is not None:
             PE, cal = pe
             rank = rank_of.get(id(p))
@@ -422,12 +423,29 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
                 cm, cstatus = PE.proj_ceiling_for(cal, p.get("position"), rank, mean_proj)
                 if cstatus == "measured" and cm is not None and mean_proj > 0:
                     ceiling_m, ceiling_source = cm, "measured-2023-25-p90"
+                # THE FLOOR HAS THE SAME DEFECT AND IT IS WORSE. `mean - 0.674*sd`
+                # is a symmetric Gaussian over an asymmetric distribution, wrong by
+                # more than 0.15 of the projection in 16 of 20 measured cells. The
+                # deep bands are not close: WR|33+ is told his floor is 0.656 x
+                # projection against a measured 10th percentile of 0.049, and
+                # QB|33+ 0.584 against -0.001. Since the same formula also inflated
+                # their ceilings, the board flattered deep players on BOTH tails —
+                # which is precisely what makes a late flier look like a free roll.
+                # Rides the same flag: one construction, one defect, one switch.
+                fm, fstatus = PE.proj_floor_for(cal, p.get("position"), rank, mean_proj)
+                if fstatus == "measured" and fm is not None and mean_proj > 0:
+                    floor_m, floor_source = fm, "measured-2023-25-p10"
 
         p["proj_baseline"] = round(base, 2)
         p["opportunity_z"] = round(z.get(pid, 0.0), 2)
         p["opportunity_adj"] = round(adj, 4)
         p["proj_mean"] = round(mean_proj, 2)
-        p["proj_floor"] = round(max(0.0, mean_proj + FLOOR_Z * season_sd), 2)
+        # max(0, ...) stays: a negative floor is not a football outcome. Note the
+        # measured p10 for QB|33+ is itself -0.001, i.e. the clamp is doing real
+        # work rather than decorating.
+        p["proj_floor"] = round(max(0.0, floor_m if floor_m is not None
+                                    else mean_proj + FLOOR_Z * season_sd), 2)
+        p["proj_floor_source"] = floor_source
         # Absent stays absent: an unmeasured band keeps the Gaussian rather than
         # silently receiving a filled-in p90, and `proj_ceiling_source` is how a
         # consumer tells the two apart — the same rule proj_sd_source follows,

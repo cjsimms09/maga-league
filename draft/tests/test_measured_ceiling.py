@@ -151,3 +151,55 @@ def test_the_new_field_is_registered_on_both_season_stamp_axes(field):
     import season_stamp as SS
     assert field in SS.BOARD_FIELD_SOURCES
     assert field in SS.BOARD_FIELD_PURPOSE
+
+
+# ── FLOORS: the same defect, larger, found 2026-08-17 ───────────────────────
+
+def test_the_gaussian_floor_is_wrong_in_most_measured_cells():
+    """Cory: "What about floors?" — the same construction, and worse.
+
+    `mean - 0.674*sd` is a symmetric Gaussian over a distribution this same
+    calibration measures as violently asymmetric. Pinned as arithmetic so the
+    claim cannot rot into a comment."""
+    cal = PE.load()
+    bad = 0
+    for (_pos, _band), c in cal["cells"].items():
+        if c["status"] != "measured":
+            continue
+        gaussian = 1 - 0.674 * c["sd_ratio"]
+        if abs(c["p10_ratio"] - gaussian) > 0.15:
+            bad += 1
+    assert bad >= 15, (
+        "the gaussian floor stopped being badly wrong — the audit's claim that "
+        "16 of 20 cells miss by >0.15 of the projection needs revisiting")
+
+
+def test_the_deep_bands_were_told_they_had_a_floor_they_do_not_have():
+    """THE PART THAT MATTERS FOR DRAFTING. This is what made a late flier look
+    like a free roll: a floor of two thirds of his projection, when the measured
+    10th percentile is essentially nothing."""
+    cal = PE.load()
+    for pos in ("QB", "RB", "WR", "TE"):
+        c = cal["cells"][(pos, "33+")]
+        gaussian = 1 - 0.674 * c["sd_ratio"]
+        assert gaussian > 0.5, f"{pos}|33+ gaussian floor was not the flattering one"
+        assert c["p10_ratio"] < 0.10, (
+            f"{pos}|33+ measured p10 is no longer near zero — recheck the audit")
+
+
+def test_the_floor_rides_the_same_flag_as_the_ceiling():
+    """One construction, one defect, one switch. Splitting them would let a
+    board ship with a measured ceiling and a fantasy floor."""
+    off = projections.blend(_players(), {}, {}, _cfg())
+    on = projections.blend(_players(), {}, {}, _cfg(use_measured_ceiling=True))
+    assert {p["proj_floor_source"] for p in off} == {"gaussian_z"}
+    assert "measured-2023-25-p10" in {p["proj_floor_source"] for p in on}
+
+
+def test_the_floor_is_never_negative_but_the_clamp_is_doing_real_work():
+    """QB|33+'s measured p10 is itself below zero, so max(0, ...) is not
+    decoration — without it the board would print a negative floor."""
+    on = projections.blend(_players(), {}, {}, _cfg(use_measured_ceiling=True))
+    assert all(p["proj_floor"] >= 0 for p in on)
+    cal = PE.load()
+    assert cal["cells"][("QB", "33+")]["p10_ratio"] < 0

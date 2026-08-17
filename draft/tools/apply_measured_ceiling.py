@@ -37,7 +37,8 @@ sys.path.insert(0, str(ROOT / "draft"))
 sys.path.insert(0, str(ROOT / "draft" / "backtest"))
 
 BOARD = ROOT / "public" / "draft_data.json"
-CHANGED = {"proj_ceiling", "proj_ceiling_source"}
+CHANGED = {"proj_ceiling", "proj_ceiling_source",
+           "proj_floor", "proj_floor_source"}
 
 
 def main() -> int:
@@ -66,6 +67,14 @@ def main() -> int:
         if not mean or mean <= 0:
             continue
         c, status = PE.proj_ceiling_for(cal, p.get("position"), rank[id(p)], mean)
+        f, fstatus = PE.proj_floor_for(cal, p.get("position"), rank[id(p)], mean)
+        if fstatus == "measured" and f is not None:
+            # max(0, ...) mirrors projections.blend — a negative floor is not a
+            # football outcome, and QB|33+'s measured p10 is genuinely below zero.
+            p["proj_floor"] = round(max(0.0, float(f)), 2)
+            p["proj_floor_source"] = "measured-2023-25-p10"
+        else:
+            p.setdefault("proj_floor_source", "gaussian_z")
         if status == "measured" and c is not None:
             p["proj_ceiling"] = round(float(c), 2)
             p["proj_ceiling_source"] = "measured-2023-25-p90"
