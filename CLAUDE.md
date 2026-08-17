@@ -1,5 +1,31 @@
 # Every session starts here
 
+## 🪪 WHO OWNS WHAT — you own an OUTCOME, not a checklist
+
+**Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
+sends back."* He was right. Roles are now defined by what you SHIP.
+
+| you are | **the outcome you own** | if it breaks, it is your name |
+|---|---|---|
+| **A** | **`main` is correct and green, and the board publishes** | a red gate, an unpublished board |
+| **B** | **Cory drafts on a war room that WORKS (desktop), and the site works** | a wrong number on screen, a page he cannot read at 8s/pick |
+| **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
+| **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
+| **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
+| **relay** | **every lane has what it needs; nothing is lost** | an idle lane, a dropped ask, a finding nobody saw |
+
+**Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
+
+**`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md`, `OPEN-QUESTIONS.md` push
+STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code.
+
+**The standard, one line:** a "no" is finished only with a measurement, an unblock
+condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
+when someone finally checked the disk.**
+
+**Where the edge stands, measured:** the draft tool **ties Cory (−6.5) and loses
+to the league's best drafter (−163)**. That is the number to beat.
+
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
 on the board was `proj_mean x a per-band constant` — zero player-specific
@@ -25,6 +51,17 @@ gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
 Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
 silence is consent to the default and nobody idles waiting. A can reply
 `SEND BACK: <reason>` and that is a complete answer.
+
+**🧾 NOTHING GETS LEFT BEHIND — `DEFECT-REGISTER.md`.** Every open data or
+logic concern that could change a number Cory drafts or starts on, each with an
+owner and a next action. Four blocking rows today. A row with no owner is itself
+a defect — `test_defect_register.py` fails on it.
+
+**🔗 "WE DON'T HAVE IT" IS NOT AN ANSWER — `DATA-LIFECYCLE.md`.** Eight
+questions every data gap must walk: why not, can we get it, should we capture it
+consistently, does it predict, should it, is it graded, should it be, does the
+grade move the weights. Measured today: **two of ten stores complete the chain;
+four stop at step 4 or 6 with no recorded reason.**
 
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection
