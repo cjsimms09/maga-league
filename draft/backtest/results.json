@@ -1,7 +1,9 @@
 {
  "meta": {
-  "git_head": "3578be1ac53d69f4049393eab7e93be3de9a348f",
-  "uncommitted_when_run": [],
+  "git_head": "7888328f6d5d1a1337b1c1f7cb4870908476e3f6",
+  "uncommitted_when_run": [
+   " M draft/backtest/DIAGNOSTICS.txt"
+  ],
   "seasons": [
    2023,
    2024,
@@ -12,12 +14,12 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5965
+    "spearman": 0.5969
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5324
+    "spearman": 0.5326
    },
    {
     "season": 2025,
@@ -26,276 +28,277 @@
    }
   ],
   "caveats": [
-   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.489, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.149, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
    "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
    "2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline",
+   "Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED per-(position,band) calibration fitted leave-one-season-out, not the former 1.35x/0.25x constants. It is still proj_mean x a per-CELL constant, so it varies between bands and not within them: a ceiling weight fitted here measures cross-band dispersion differences only.",
    "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
    "Seasons replayed: [2023, 2024, 2025]"
   ]
  },
  "headline": {
-  "b0_mean": 219.13,
-  "b1_mean": 203.64,
+  "b0_mean": 219.63,
+  "b1_mean": 218.86,
   "b2_mean": 139.09,
-  "b3_mean": 122.11,
-  "mean_gain_per_pick": -97.02,
-  "ci95_per_pick": 38.53,
-  "mean_gain_per_draft": -902.29,
-  "ci95_per_draft": 498.75,
+  "b3_mean": 94.94,
+  "mean_gain_per_pick": -124.69,
+  "ci95_per_pick": 25.36,
+  "mean_gain_per_draft": -1259.39,
+  "ci95_per_draft": 165.94,
   "drafts_counted": 20
  },
  "disagreement": {
-  "n": 183,
-  "share_of_picks": 0.984,
-  "win_rate": 0.23,
-  "mean_gain": -98.61,
-  "ci95": 39.12
+  "n": 190,
+  "share_of_picks": 0.941,
+  "win_rate": 0.163,
+  "mean_gain": -132.57,
+  "ci95": 26.57
  },
  "per_round": [
   {
    "round": 1,
    "n": 11,
-   "mean_gain": 288.98,
-   "ci95": 128.61
+   "mean_gain": -7.02,
+   "ci95": 13.76
   },
   {
    "round": 2,
    "n": 12,
-   "mean_gain": 358.55,
-   "ci95": 191.8
+   "mean_gain": 87.84,
+   "ci95": 92.12
   },
   {
    "round": 3,
    "n": 14,
-   "mean_gain": 143.15,
-   "ci95": 188.53
+   "mean_gain": 180.76,
+   "ci95": 159.01
   },
   {
    "round": 4,
-   "n": 17,
-   "mean_gain": -80.44,
-   "ci95": 51.66
+   "n": 20,
+   "mean_gain": -62.49,
+   "ci95": 40.95
   },
   {
    "round": 5,
-   "n": 12,
-   "mean_gain": -259.69,
-   "ci95": 124.77
+   "n": 17,
+   "mean_gain": -225.24,
+   "ci95": 74.83
   },
   {
    "round": 6,
    "n": 14,
-   "mean_gain": -48.54,
-   "ci95": 104.35
+   "mean_gain": -95.76,
+   "ci95": 58.47
   },
   {
    "round": 7,
    "n": 15,
-   "mean_gain": -59.42,
-   "ci95": 66.18
+   "mean_gain": -93.36,
+   "ci95": 49.15
   },
   {
    "round": 8,
-   "n": 17,
-   "mean_gain": -104.7,
-   "ci95": 53.6
+   "n": 19,
+   "mean_gain": -101.59,
+   "ci95": 52.63
   },
   {
    "round": 9,
-   "n": 18,
-   "mean_gain": -154.69,
-   "ci95": 44.7
+   "n": 20,
+   "mean_gain": -148.17,
+   "ci95": 44.13
   },
   {
    "round": 10,
-   "n": 19,
-   "mean_gain": -286.61,
-   "ci95": 52.03
+   "n": 20,
+   "mean_gain": -243.71,
+   "ci95": 53.13
   },
   {
    "round": 11,
-   "n": 18,
-   "mean_gain": -319.33,
-   "ci95": 9.14
+   "n": 20,
+   "mean_gain": -275.3,
+   "ci95": 36.49
   },
   {
    "round": 12,
-   "n": 19,
-   "mean_gain": -300.98,
-   "ci95": 23.42
+   "n": 20,
+   "mean_gain": -280.09,
+   "ci95": 28.54
   }
  ],
  "value_cut": {
   "headline": {
-   "b0_mean": -16.57,
-   "b1_mean": -138.27,
+   "b0_mean": -14.45,
+   "b1_mean": -123.28,
    "b2_mean": -197.94,
-   "b3_mean": -145.07,
-   "mean_gain_per_pick": -128.49,
-   "ci95_per_pick": 32,
-   "mean_gain_per_draft": -1194.99,
-   "ci95_per_draft": 585.53,
+   "b3_mean": -109.7,
+   "mean_gain_per_pick": -95.25,
+   "ci95_per_pick": 20.58,
+   "mean_gain_per_draft": -962.01,
+   "ci95_per_draft": 257.38,
    "drafts_counted": 20
   },
   "per_round": [
    {
     "round": 1,
     "n": 11,
-    "mean_gain": 130.24,
-    "ci95": 129.04
+    "mean_gain": -7.02,
+    "ci95": 13.76
    },
    {
     "round": 2,
     "n": 12,
-    "mean_gain": 194.46,
-    "ci95": 190.97
+    "mean_gain": 85.11,
+    "ci95": 93.07
    },
    {
     "round": 3,
     "n": 14,
-    "mean_gain": 2.6,
-    "ci95": 189.03
+    "mean_gain": 85.17,
+    "ci95": 122.15
    },
    {
     "round": 4,
-    "n": 17,
-    "mean_gain": -162.53,
-    "ci95": 78.92
+    "n": 20,
+    "mean_gain": -84.83,
+    "ci95": 46.2
    },
    {
     "round": 5,
-    "n": 12,
-    "mean_gain": -286.34,
-    "ci95": 106.5
+    "n": 17,
+    "mean_gain": -196.71,
+    "ci95": 72.25
    },
    {
     "round": 6,
     "n": 14,
-    "mean_gain": -104.79,
-    "ci95": 104.33
+    "mean_gain": -133.93,
+    "ci95": 86.87
    },
    {
     "round": 7,
     "n": 15,
-    "mean_gain": -91.1,
-    "ci95": 86.05
+    "mean_gain": -105.93,
+    "ci95": 78.33
    },
    {
     "round": 8,
-    "n": 17,
-    "mean_gain": -124.02,
-    "ci95": 61.12
+    "n": 19,
+    "mean_gain": -111.1,
+    "ci95": 58.44
    },
    {
     "round": 9,
-    "n": 18,
-    "mean_gain": -173.85,
-    "ci95": 34.8
+    "n": 20,
+    "mean_gain": -141.72,
+    "ci95": 38.37
    },
    {
     "round": 10,
-    "n": 19,
-    "mean_gain": -225.97,
-    "ci95": 42.89
+    "n": 20,
+    "mean_gain": -129.62,
+    "ci95": 54.65
    },
    {
     "round": 11,
-    "n": 18,
-    "mean_gain": -246.12,
-    "ci95": 29.77
+    "n": 20,
+    "mean_gain": -122.29,
+    "ci95": 40.1
    },
    {
     "round": 12,
-    "n": 19,
-    "mean_gain": -247.82,
-    "ci95": 32.03
+    "n": 20,
+    "mean_gain": -144.43,
+    "ci95": 15.7
    }
   ],
   "disagreement": {
-   "n": 183,
-   "share_of_picks": 0.984,
-   "win_rate": 0.235,
-   "mean_gain": -130.6,
-   "ci95": 32.44
+   "n": 190,
+   "share_of_picks": 0.941,
+   "win_rate": 0.221,
+   "mean_gain": -101.26,
+   "ci95": 21.6
   }
  },
  "vs_human": {
-  "n": 173,
-  "win_rate": 0.243,
-  "mean_gain": -55.5,
-  "ci95": 30.34
+  "n": 185,
+  "win_rate": 0.184,
+  "mean_gain": -83.55,
+  "ci95": 21.99
  },
  "calibration": [
   {
    "bucket": "0-10%",
    "predicted_mid": 0.05,
-   "n": 526,
-   "actual_rate": 0.413,
-   "error": 0.363
+   "n": 730,
+   "actual_rate": 0.475,
+   "error": 0.425
   },
   {
    "bucket": "10-20%",
    "predicted_mid": 0.15,
-   "n": 170,
-   "actual_rate": 0.588,
-   "error": 0.438
+   "n": 143,
+   "actual_rate": 0.671,
+   "error": 0.521
   },
   {
    "bucket": "20-30%",
    "predicted_mid": 0.25,
-   "n": 135,
-   "actual_rate": 0.607,
-   "error": 0.357
+   "n": 100,
+   "actual_rate": 0.71,
+   "error": 0.46
   },
   {
    "bucket": "30-40%",
    "predicted_mid": 0.35,
-   "n": 143,
-   "actual_rate": 0.671,
-   "error": 0.321
+   "n": 95,
+   "actual_rate": 0.779,
+   "error": 0.429
   },
   {
    "bucket": "40-50%",
    "predicted_mid": 0.45,
-   "n": 128,
-   "actual_rate": 0.742,
-   "error": 0.292
+   "n": 85,
+   "actual_rate": 0.835,
+   "error": 0.385
   },
   {
    "bucket": "50-60%",
    "predicted_mid": 0.55,
-   "n": 167,
-   "actual_rate": 0.766,
-   "error": 0.216
+   "n": 109,
+   "actual_rate": 0.807,
+   "error": 0.257
   },
   {
    "bucket": "60-70%",
    "predicted_mid": 0.65,
-   "n": 189,
-   "actual_rate": 0.688,
-   "error": 0.038
+   "n": 117,
+   "actual_rate": 0.812,
+   "error": 0.162
   },
   {
    "bucket": "70-80%",
    "predicted_mid": 0.75,
-   "n": 227,
-   "actual_rate": 0.758,
-   "error": 0.008
+   "n": 121,
+   "actual_rate": 0.876,
+   "error": 0.126
   },
   {
    "bucket": "80-90%",
    "predicted_mid": 0.85,
-   "n": 356,
-   "actual_rate": 0.77,
-   "error": -0.08
+   "n": 204,
+   "actual_rate": 0.828,
+   "error": -0.022
   },
   {
    "bucket": "90-100%",
    "predicted_mid": 0.95,
-   "n": 2483,
-   "actual_rate": 0.944,
-   "error": -0.006
+   "n": 2820,
+   "actual_rate": 0.959,
+   "error": 0.009
   }
  ],
- "graded_picks": 186
+ "graded_picks": 202
 }

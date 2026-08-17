@@ -12,14 +12,14 @@
       Jalen Hurts = 458
       Jayden Daniels = 488
   round-1 picks (actual / B0 / B3, name=points):
-    2023  actual Cooper Kupp=154  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Jonathan Taylor=238  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Christian McCaffrey=40  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Austin Ekeler=136  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Ja'Marr Chase=340  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Stefon Diggs=98  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Saquon Barkley=433  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Travis Kelce=177  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Tyreek Hill=178  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2023  actual Justin Jefferson=274  | B0 Justin Jefferson=274  | B3 Josh Allen=502
-    2024  actual Josh Jacobs=295  | B0 Derrick Henry=372  | B3 Carson Wentz=5
+    2023  actual Cooper Kupp=154  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Jonathan Taylor=238  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Christian McCaffrey=40  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Austin Ekeler=136  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Ja'Marr Chase=340  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Stefon Diggs=98  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Saquon Barkley=433  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Travis Kelce=177  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Tyreek Hill=178  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2023  actual Justin Jefferson=274  | B0 Justin Jefferson=274  | B3 Justin Jefferson=274
+    2024  actual Josh Jacobs=295  | B0 Derrick Henry=372  | B3 Josh Jacobs=295

@@ -1,0 +1,5232 @@
+{
+ "_territory": "TERRITORY: A — produced by draft/backtest/replay_seats.js",
+ "_note": "CHOICES ONLY — no outcome data enters this file. Grading joins committed weekly stores afterwards via replay_seats_grade.py. Engine: the shipped engine.js/survival.js at the recorded head, MEASURED_WEIGHTS (the War Room configuration), fixed-opponents counterfactual per seat, K/DEF mirrored, keepers as history recorded them.",
+ "meta": {
+  "git_head": "7888328f6d5d1a1337b1c1f7cb4870908476e3f6",
+  "weights": "MEASURED_WEIGHTS",
+  "weights_values": {
+   "value": 1,
+   "tier": 0,
+   "need": 0,
+   "risk": 0,
+   "ceiling": 0.45,
+   "keeper": 1,
+   "bye": 0,
+   "stack": 1
+  },
+  "qb_detail_seat": 1,
+  "qb_detail_through_round": 9,
+  "bundles": [
+   {
+    "season": 2023,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5969,
+    "players_on_board": 841,
+    "picks": 150
+   },
+   {
+    "season": 2024,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5326,
+    "players_on_board": 812,
+    "picks": 150
+   },
+   {
+    "season": 2025,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5436,
+    "players_on_board": 801,
+    "picks": 150
+   }
+  ],
+  "caveats": [
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.149, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
+   "2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline",
+   "Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED per-(position,band) calibration fitted leave-one-season-out, not the former 1.35x/0.25x constants. It is still proj_mean x a per-CELL constant, so it varies between bands and not within them: a ceiling weight fitted here measures cross-band dispersion differences only.",
+   "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
+   "Seasons replayed: [2023, 2024, 2025]"
+  ]
+ },
+ "seasons": {
+  "2023": {
+   "seats": {
+    "1": {
+     "roster": [
+      "2133",
+      "3164",
+      "3969",
+      "4199",
+      "4217",
+      "4258",
+      "4984",
+      "515",
+      "536",
+      "5850",
+      "6120",
+      "7042",
+      "7526",
+      "7564",
+      "KC"
+     ],
+     "records": [
+      {
+       "pick_no": 5,
+       "round": 1,
+       "actual": "7564",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 24.19,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "4984",
+        "name": "Josh Allen",
+        "engine_rank": 5,
+        "score": 10.05,
+        "score_gap_to_chosen": 14.14,
+        "survival_to_next": 0.999,
+        "weighted": {
+         "value": 8.13,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 1.92,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 24.19,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 16.06
+        }
+       },
+       "chosen_name": "Josh Jacobs",
+       "chosen_survival_to_next": 0.887
+      },
+      {
+       "pick_no": 16,
+       "round": 2,
+       "actual": "7526",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 35.68,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "4984",
+        "name": "Josh Allen",
+        "engine_rank": 1,
+        "score": 35.68,
+        "score_gap_to_chosen": 0,
+        "survival_to_next": 0.399,
+        "weighted": {
+         "value": 33.54,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 2.13,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 33.54,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 2.13,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 0
+        }
+       },
+       "chosen_name": "Josh Allen",
+       "chosen_survival_to_next": 0.399
+      },
+      {
+       "pick_no": 26,
+       "round": 3,
+       "actual": "2133",
+       "chosen": "7564",
+       "chosen_pos": "WR",
+       "chosen_score": 34.35,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "4881",
+        "name": "Lamar Jackson",
+        "engine_rank": 13,
+        "score": 0.46,
+        "score_gap_to_chosen": 33.89,
+        "survival_to_next": 0.45,
+        "weighted": {
+         "value": 4.58,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.12,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 27.52,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 6.83,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 22.94
+        }
+       },
+       "chosen_name": "Ja'Marr Chase",
+       "chosen_survival_to_next": 0.32
+      },
+      {
+       "pick_no": 38,
+       "round": 4,
+       "actual": "4199",
+       "chosen": "2133",
+       "chosen_pos": "WR",
+       "chosen_score": 27.9,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "4881",
+        "name": "Lamar Jackson",
+        "engine_rank": 11,
+        "score": 0.46,
+        "score_gap_to_chosen": 27.43,
+        "survival_to_next": 0.441,
+        "weighted": {
+         "value": 4.61,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.15,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 27.9,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 23.29
+        }
+       },
+       "chosen_name": "Davante Adams",
+       "chosen_survival_to_next": 0.435
+      },
+      {
+       "pick_no": 46,
+       "round": 5,
+       "actual": "4217",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 11.98,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 11,
+        "score": 0.49,
+        "score_gap_to_chosen": 11.48,
+        "survival_to_next": 0.996,
+        "weighted": {
+         "value": 4.95,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.45,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 11.98,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 7.03
+        }
+       },
+       "chosen_name": "Rob Gronkowski",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 55,
+       "round": 6,
+       "actual": "6797",
+       "chosen": "4217",
+       "chosen_pos": "TE",
+       "chosen_score": 10.11,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 11,
+        "score": 0.49,
+        "score_gap_to_chosen": 9.62,
+        "survival_to_next": 0.927,
+        "weighted": {
+         "value": 4.94,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.44,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 10.11,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 5.17
+        }
+       },
+       "chosen_name": "George Kittle",
+       "chosen_survival_to_next": 0.542
+      },
+      {
+       "pick_no": 66,
+       "round": 7,
+       "actual": "8138",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 10,
+        "score": 0.49,
+        "score_gap_to_chosen": 7.82,
+        "survival_to_next": 0.789,
+        "weighted": {
+         "value": 4.91,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.42,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 8.31,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 4.42
+        }
+       },
+       "chosen_name": "Conor McDermott",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 75,
+       "round": 8,
+       "actual": "7588",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 21.79,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 9,
+        "score": 0.49,
+        "score_gap_to_chosen": 21.3,
+        "survival_to_next": 0.613,
+        "weighted": {
+         "value": 4.92,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.43,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 21.79,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 16.87
+        }
+       },
+       "chosen_name": "Leonard Fournette",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 86,
+       "round": 9,
+       "actual": "5892",
+       "chosen": "7526",
+       "chosen_pos": "WR",
+       "chosen_score": 10.89,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 14,
+        "score": 0.5,
+        "score_gap_to_chosen": 10.39,
+        "survival_to_next": 0.616,
+        "weighted": {
+         "value": 4.99,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -4.49,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 9.76,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 1.13,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 4.77
+        }
+       },
+       "chosen_name": "Jaylen Waddle",
+       "chosen_survival_to_next": 0.58
+      },
+      {
+       "pick_no": 95,
+       "round": 10,
+       "actual": "8137",
+       "chosen": "536",
+       "chosen_pos": "WR",
+       "chosen_score": 14.75,
+       "how": "engine"
+      },
+      {
+       "pick_no": 106,
+       "round": 11,
+       "actual": "9754",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 115,
+       "round": 12,
+       "actual": "4147",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 9.09,
+       "how": "engine"
+      },
+      {
+       "pick_no": 126,
+       "round": 13,
+       "actual": "7042",
+       "chosen": "7042",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 135,
+       "round": 14,
+       "actual": "8168",
+       "chosen": "4199",
+       "chosen_pos": "RB",
+       "chosen_score": 10.74,
+       "how": "engine"
+      },
+      {
+       "pick_no": 146,
+       "round": 15,
+       "actual": "KC",
+       "chosen": "KC",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 5
+    },
+    "2": {
+     "roster": [
+      "1379",
+      "1466",
+      "2747",
+      "3164",
+      "3969",
+      "4258",
+      "4984",
+      "515",
+      "5846",
+      "5850",
+      "5859",
+      "5967",
+      "6120",
+      "6130",
+      "DAL"
+     ],
+     "records": [
+      {
+       "pick_no": 8,
+       "round": 1,
+       "actual": "1466",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 23.34,
+       "how": "engine"
+      },
+      {
+       "pick_no": 13,
+       "round": 2,
+       "actual": "5859",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 26.51,
+       "how": "engine"
+      },
+      {
+       "pick_no": 23,
+       "round": 3,
+       "actual": "5967",
+       "chosen": "1466",
+       "chosen_pos": "TE",
+       "chosen_score": 23.9,
+       "how": "engine"
+      },
+      {
+       "pick_no": 35,
+       "round": 4,
+       "actual": "7591",
+       "chosen": "5859",
+       "chosen_pos": "WR",
+       "chosen_score": 16.04,
+       "how": "engine"
+      },
+      {
+       "pick_no": 43,
+       "round": 5,
+       "actual": "5846",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 11.19,
+       "how": "engine"
+      },
+      {
+       "pick_no": 58,
+       "round": 6,
+       "actual": "6938",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 63,
+       "round": 7,
+       "actual": "5927",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 78,
+       "round": 8,
+       "actual": "9756",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 17.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 83,
+       "round": 9,
+       "actual": "8136",
+       "chosen": "5967",
+       "chosen_pos": "RB",
+       "chosen_score": 10.3,
+       "how": "engine"
+      },
+      {
+       "pick_no": 98,
+       "round": 10,
+       "actual": "8154",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 5.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 103,
+       "round": 11,
+       "actual": "DAL",
+       "chosen": "DAL",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 118,
+       "round": 12,
+       "actual": "1373",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 9.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 123,
+       "round": 13,
+       "actual": "9225",
+       "chosen": "6130",
+       "chosen_pos": "RB",
+       "chosen_score": 12.18,
+       "how": "engine"
+      },
+      {
+       "pick_no": 138,
+       "round": 14,
+       "actual": "2747",
+       "chosen": "2747",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 143,
+       "round": 15,
+       "actual": "8148",
+       "chosen": "5846",
+       "chosen_pos": "WR",
+       "chosen_score": 5.8,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 3
+    },
+    "3": {
+     "roster": [
+      "10937",
+      "2133",
+      "2449",
+      "3164",
+      "3969",
+      "4018",
+      "4046",
+      "4258",
+      "4984",
+      "4988",
+      "515",
+      "5844",
+      "5850",
+      "6120",
+      "NE"
+     ],
+     "records": [
+      {
+       "pick_no": 6,
+       "round": 1,
+       "actual": "2449",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 24.07,
+       "how": "engine"
+      },
+      {
+       "pick_no": 15,
+       "round": 2,
+       "actual": "4046",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 27.82,
+       "how": "engine"
+      },
+      {
+       "pick_no": 25,
+       "round": 3,
+       "actual": "4988",
+       "chosen": "2133",
+       "chosen_pos": "WR",
+       "chosen_score": 22.68,
+       "how": "engine"
+      },
+      {
+       "pick_no": 36,
+       "round": 4,
+       "actual": "4018",
+       "chosen": "2449",
+       "chosen_pos": "WR",
+       "chosen_score": 15.81,
+       "how": "engine"
+      },
+      {
+       "pick_no": 45,
+       "round": 5,
+       "actual": "5844",
+       "chosen": "4046",
+       "chosen_pos": "QB",
+       "chosen_score": 8.68,
+       "how": "engine"
+      },
+      {
+       "pick_no": 50,
+       "round": 5,
+       "actual": "1426",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 51,
+       "round": 6,
+       "actual": "5987",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 16.29,
+       "how": "engine"
+      },
+      {
+       "pick_no": 76,
+       "round": 8,
+       "actual": "2216",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 12.84,
+       "how": "engine"
+      },
+      {
+       "pick_no": 85,
+       "round": 9,
+       "actual": "7606",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 96,
+       "round": 10,
+       "actual": "6945",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 6.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 105,
+       "round": 11,
+       "actual": "4040",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 13.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 116,
+       "round": 12,
+       "actual": "9753",
+       "chosen": "4988",
+       "chosen_pos": "RB",
+       "chosen_score": 26.87,
+       "how": "engine"
+      },
+      {
+       "pick_no": 125,
+       "round": 13,
+       "actual": "5890",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 10.84,
+       "how": "engine"
+      },
+      {
+       "pick_no": 136,
+       "round": 14,
+       "actual": "NE",
+       "chosen": "NE",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 145,
+       "round": 15,
+       "actual": "10937",
+       "chosen": "10937",
+       "how": "mirror_K"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 6
+    },
+    "4": {
+     "roster": [
+      "3969",
+      "4258",
+      "4663",
+      "4984",
+      "5001",
+      "5095",
+      "515",
+      "536",
+      "5849",
+      "5850",
+      "6120",
+      "6794",
+      "7525",
+      "7528",
+      "SF"
+     ],
+     "records": [
+      {
+       "pick_no": 4,
+       "round": 1,
+       "actual": "4663",
+       "chosen": "6794",
+       "chosen_pos": "WR",
+       "chosen_score": 25.71,
+       "how": "engine"
+      },
+      {
+       "pick_no": 17,
+       "round": 2,
+       "actual": "5850",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 36.2,
+       "how": "engine"
+      },
+      {
+       "pick_no": 27,
+       "round": 3,
+       "actual": "7525",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 20.21,
+       "how": "engine"
+      },
+      {
+       "pick_no": 32,
+       "round": 4,
+       "actual": "7528",
+       "chosen": "4663",
+       "chosen_pos": "RB",
+       "chosen_score": 33.35,
+       "how": "engine"
+      },
+      {
+       "pick_no": 47,
+       "round": 5,
+       "actual": "4981",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 20.15,
+       "how": "engine"
+      },
+      {
+       "pick_no": 54,
+       "round": 6,
+       "actual": "2505",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 60,
+       "round": 6,
+       "actual": "4017",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 74,
+       "round": 8,
+       "actual": "4029",
+       "chosen": "5001",
+       "chosen_pos": "TE",
+       "chosen_score": 7.52,
+       "how": "engine"
+      },
+      {
+       "pick_no": 87,
+       "round": 9,
+       "actual": "9488",
+       "chosen": "536",
+       "chosen_pos": "WR",
+       "chosen_score": 8.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 94,
+       "round": 10,
+       "actual": "SF",
+       "chosen": "SF",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 107,
+       "round": 11,
+       "actual": "4033",
+       "chosen": "7525",
+       "chosen_pos": "WR",
+       "chosen_score": 11.58,
+       "how": "engine"
+      },
+      {
+       "pick_no": 114,
+       "round": 12,
+       "actual": "3199",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 11.54,
+       "how": "engine"
+      },
+      {
+       "pick_no": 127,
+       "round": 13,
+       "actual": "5095",
+       "chosen": "5095",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 134,
+       "round": 14,
+       "actual": "7561",
+       "chosen": "5849",
+       "chosen_pos": "QB",
+       "chosen_score": 23.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 147,
+       "round": 15,
+       "actual": "1166",
+       "chosen": "7528",
+       "chosen_pos": "RB",
+       "chosen_score": 13.72,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 5
+    },
+    "5": {
+     "roster": [
+      "1264",
+      "3969",
+      "4018",
+      "4258",
+      "4984",
+      "515",
+      "536",
+      "5849",
+      "6120",
+      "6130",
+      "6790",
+      "6794",
+      "6801",
+      "6813",
+      "BAL"
+     ],
+     "records": [
+      {
+       "pick_no": 2,
+       "round": 1,
+       "actual": "6813",
+       "chosen": "6794",
+       "chosen_pos": "WR",
+       "chosen_score": 33.46,
+       "how": "engine"
+      },
+      {
+       "pick_no": 19,
+       "round": 2,
+       "actual": "6801",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 38.46,
+       "how": "engine"
+      },
+      {
+       "pick_no": 29,
+       "round": 3,
+       "actual": "8146",
+       "chosen": "6813",
+       "chosen_pos": "RB",
+       "chosen_score": 11.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 34,
+       "round": 4,
+       "actual": "9221",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 9.36,
+       "how": "engine"
+      },
+      {
+       "pick_no": 49,
+       "round": 5,
+       "actual": "4983",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 20.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 67,
+       "round": 7,
+       "actual": "6803",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 69,
+       "round": 7,
+       "actual": "8205",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 72,
+       "round": 8,
+       "actual": "6790",
+       "chosen": "6801",
+       "chosen_pos": "WR",
+       "chosen_score": 8.96,
+       "how": "engine"
+      },
+      {
+       "pick_no": 89,
+       "round": 9,
+       "actual": "2197",
+       "chosen": "536",
+       "chosen_pos": "WR",
+       "chosen_score": 13.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 92,
+       "round": 10,
+       "actual": "9997",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 18.18,
+       "how": "engine"
+      },
+      {
+       "pick_no": 109,
+       "round": 11,
+       "actual": "1264",
+       "chosen": "1264",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 112,
+       "round": 12,
+       "actual": "96",
+       "chosen": "6790",
+       "chosen_pos": "RB",
+       "chosen_score": 26.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 129,
+       "round": 13,
+       "actual": "BAL",
+       "chosen": "BAL",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 132,
+       "round": 14,
+       "actual": "6826",
+       "chosen": "5849",
+       "chosen_pos": "QB",
+       "chosen_score": 23.59,
+       "how": "engine"
+      },
+      {
+       "pick_no": 149,
+       "round": 15,
+       "actual": "7596",
+       "chosen": "6130",
+       "chosen_pos": "RB",
+       "chosen_score": 15.79,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 5
+    },
+    "6": {
+     "roster": [
+      "3198",
+      "3969",
+      "4035",
+      "4258",
+      "4984",
+      "5001",
+      "515",
+      "536",
+      "5850",
+      "6120",
+      "6130",
+      "6794",
+      "7839",
+      "8151",
+      "BUF"
+     ],
+     "records": [
+      {
+       "pick_no": 10,
+       "round": 1,
+       "actual": "6794",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 22.06,
+       "how": "engine"
+      },
+      {
+       "pick_no": 11,
+       "round": 2,
+       "actual": "3198",
+       "chosen": "6794",
+       "chosen_pos": "WR",
+       "chosen_score": 36.45,
+       "how": "engine"
+      },
+      {
+       "pick_no": 21,
+       "round": 3,
+       "actual": "8144",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 69.46,
+       "how": "engine"
+      },
+      {
+       "pick_no": 40,
+       "round": 4,
+       "actual": "4881",
+       "chosen": "3198",
+       "chosen_pos": "RB",
+       "chosen_score": 14.07,
+       "how": "engine"
+      },
+      {
+       "pick_no": 41,
+       "round": 5,
+       "actual": "8151",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 8.72,
+       "how": "engine"
+      },
+      {
+       "pick_no": 52,
+       "round": 6,
+       "actual": "7553",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 61,
+       "round": 7,
+       "actual": "4035",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 80,
+       "round": 8,
+       "actual": "6819",
+       "chosen": "5001",
+       "chosen_pos": "TE",
+       "chosen_score": 7.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 81,
+       "round": 9,
+       "actual": "8119",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 18.51,
+       "how": "engine"
+      },
+      {
+       "pick_no": 100,
+       "round": 10,
+       "actual": "9226",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 24.91,
+       "how": "engine"
+      },
+      {
+       "pick_no": 101,
+       "round": 11,
+       "actual": "5045",
+       "chosen": "536",
+       "chosen_pos": "WR",
+       "chosen_score": 9.9,
+       "how": "engine"
+      },
+      {
+       "pick_no": 120,
+       "round": 12,
+       "actual": "BUF",
+       "chosen": "BUF",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 121,
+       "round": 13,
+       "actual": "7839",
+       "chosen": "7839",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 140,
+       "round": 14,
+       "actual": "6768",
+       "chosen": "4035",
+       "chosen_pos": "RB",
+       "chosen_score": 12.76,
+       "how": "engine"
+      },
+      {
+       "pick_no": 141,
+       "round": 15,
+       "actual": "7567",
+       "chosen": "6130",
+       "chosen_pos": "RB",
+       "chosen_score": 15.72,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 5
+    },
+    "7": {
+     "roster": [
+      "3164",
+      "3969",
+      "4018",
+      "4034",
+      "4137",
+      "4149",
+      "4258",
+      "4666",
+      "4984",
+      "5001",
+      "515",
+      "6120",
+      "6794",
+      "7547",
+      "NYJ"
+     ],
+     "records": [
+      {
+       "pick_no": 3,
+       "round": 1,
+       "actual": "4034",
+       "chosen": "6794",
+       "chosen_pos": "WR",
+       "chosen_score": 28.37,
+       "how": "engine"
+      },
+      {
+       "pick_no": 18,
+       "round": 2,
+       "actual": "7547",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 37.37,
+       "how": "engine"
+      },
+      {
+       "pick_no": 28,
+       "round": 3,
+       "actual": "5872",
+       "chosen": "4034",
+       "chosen_pos": "RB",
+       "chosen_score": 16.58,
+       "how": "engine"
+      },
+      {
+       "pick_no": 33,
+       "round": 4,
+       "actual": "4984",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 9.36,
+       "how": "engine"
+      },
+      {
+       "pick_no": 48,
+       "round": 5,
+       "actual": "6806",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 20.15,
+       "how": "engine"
+      },
+      {
+       "pick_no": 53,
+       "round": 6,
+       "actual": "2309",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 68,
+       "round": 7,
+       "actual": "4137",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 73,
+       "round": 8,
+       "actual": "4066",
+       "chosen": "5001",
+       "chosen_pos": "TE",
+       "chosen_score": 7.56,
+       "how": "engine"
+      },
+      {
+       "pick_no": 88,
+       "round": 9,
+       "actual": "5937",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 23.32,
+       "how": "engine"
+      },
+      {
+       "pick_no": 93,
+       "round": 10,
+       "actual": "10236",
+       "chosen": "4137",
+       "chosen_pos": "RB",
+       "chosen_score": 10.54,
+       "how": "engine"
+      },
+      {
+       "pick_no": 108,
+       "round": 11,
+       "actual": "4149",
+       "chosen": "4149",
+       "chosen_pos": "RB",
+       "chosen_score": 6.96,
+       "how": "engine"
+      },
+      {
+       "pick_no": 113,
+       "round": 12,
+       "actual": "6943",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 8.78,
+       "how": "engine"
+      },
+      {
+       "pick_no": 128,
+       "round": 13,
+       "actual": "NYJ",
+       "chosen": "NYJ",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 133,
+       "round": 14,
+       "actual": "4666",
+       "chosen": "4666",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 148,
+       "round": 15,
+       "actual": "3163",
+       "chosen": "7547",
+       "chosen_pos": "WR",
+       "chosen_score": 6.32,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 5
+    },
+    "8": {
+     "roster": [
+      "1379",
+      "3164",
+      "3969",
+      "4037",
+      "4039",
+      "4195",
+      "4258",
+      "4984",
+      "4985",
+      "5001",
+      "515",
+      "6120",
+      "6130",
+      "8155",
+      "NO"
+     ],
+     "records": [
+      {
+       "pick_no": 1,
+       "round": 1,
+       "actual": "4039",
+       "chosen": "4039",
+       "chosen_pos": "WR",
+       "chosen_score": 33.69,
+       "how": "engine"
+      },
+      {
+       "pick_no": 20,
+       "round": 2,
+       "actual": "6904",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 38.67,
+       "how": "engine"
+      },
+      {
+       "pick_no": 30,
+       "round": 3,
+       "actual": "8155",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 31,
+       "round": 4,
+       "actual": "9509",
+       "chosen": "8155",
+       "chosen_pos": "RB",
+       "chosen_score": 19.84,
+       "how": "engine"
+      },
+      {
+       "pick_no": 56,
+       "round": 6,
+       "actual": "6783",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 20.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 65,
+       "round": 7,
+       "actual": "4068",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 70,
+       "round": 7,
+       "actual": "7600",
+       "chosen": "5001",
+       "chosen_pos": "TE",
+       "chosen_score": 7.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 71,
+       "round": 8,
+       "actual": "4037",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 5.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 90,
+       "round": 9,
+       "actual": "5086",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 21.78,
+       "how": "engine"
+      },
+      {
+       "pick_no": 91,
+       "round": 10,
+       "actual": "5185",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 6.06,
+       "how": "engine"
+      },
+      {
+       "pick_no": 110,
+       "round": 11,
+       "actual": "2161",
+       "chosen": "4985",
+       "chosen_pos": "RB",
+       "chosen_score": 12.38,
+       "how": "engine"
+      },
+      {
+       "pick_no": 111,
+       "round": 12,
+       "actual": "2078",
+       "chosen": "6130",
+       "chosen_pos": "RB",
+       "chosen_score": 12,
+       "how": "engine"
+      },
+      {
+       "pick_no": 130,
+       "round": 13,
+       "actual": "NO",
+       "chosen": "NO",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 131,
+       "round": 14,
+       "actual": "4195",
+       "chosen": "4195",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 150,
+       "round": 15,
+       "actual": "9228",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 5.34,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 6
+    },
+    "9": {
+     "roster": [
+      "1379",
+      "1479",
+      "2133",
+      "3969",
+      "4258",
+      "4866",
+      "4984",
+      "5012",
+      "5119",
+      "515",
+      "536",
+      "5850",
+      "6120",
+      "7611",
+      "GB"
+     ],
+     "records": [
+      {
+       "pick_no": 7,
+       "round": 1,
+       "actual": "4866",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 23.81,
+       "how": "engine"
+      },
+      {
+       "pick_no": 14,
+       "round": 2,
+       "actual": "5012",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 28.34,
+       "how": "engine"
+      },
+      {
+       "pick_no": 24,
+       "round": 3,
+       "actual": "7611",
+       "chosen": "2133",
+       "chosen_pos": "WR",
+       "chosen_score": 27.41,
+       "how": "engine"
+      },
+      {
+       "pick_no": 37,
+       "round": 4,
+       "actual": "7543",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 44,
+       "round": 5,
+       "actual": "1479",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 57,
+       "round": 6,
+       "actual": "7523",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 6.62,
+       "how": "engine"
+      },
+      {
+       "pick_no": 64,
+       "round": 7,
+       "actual": "8167",
+       "chosen": "5012",
+       "chosen_pos": "TE",
+       "chosen_score": 22.99,
+       "how": "engine"
+      },
+      {
+       "pick_no": 77,
+       "round": 8,
+       "actual": "2374",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 5.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 84,
+       "round": 9,
+       "actual": "5848",
+       "chosen": "536",
+       "chosen_pos": "WR",
+       "chosen_score": 6.84,
+       "how": "engine"
+      },
+      {
+       "pick_no": 97,
+       "round": 10,
+       "actual": "7608",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 6.85,
+       "how": "engine"
+      },
+      {
+       "pick_no": 104,
+       "round": 11,
+       "actual": "2749",
+       "chosen": "4866",
+       "chosen_pos": "RB",
+       "chosen_score": 6.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 117,
+       "round": 12,
+       "actual": "9229",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 23.7,
+       "how": "engine"
+      },
+      {
+       "pick_no": 124,
+       "round": 13,
+       "actual": "8132",
+       "chosen": "7611",
+       "chosen_pos": "RB",
+       "chosen_score": 12.72,
+       "how": "engine"
+      },
+      {
+       "pick_no": 137,
+       "round": 14,
+       "actual": "GB",
+       "chosen": "GB",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 144,
+       "round": 15,
+       "actual": "5119",
+       "chosen": "5119",
+       "how": "mirror_K"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 6
+    },
+    "10": {
+     "roster": [
+      "1379",
+      "3164",
+      "3294",
+      "3321",
+      "3969",
+      "4227",
+      "4258",
+      "4984",
+      "515",
+      "5850",
+      "6120",
+      "6770",
+      "6786",
+      "8129",
+      "PHI"
+     ],
+     "records": [
+      {
+       "pick_no": 9,
+       "round": 1,
+       "actual": "3321",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 22.68,
+       "how": "engine"
+      },
+      {
+       "pick_no": 12,
+       "round": 2,
+       "actual": "6786",
+       "chosen": "4984",
+       "chosen_pos": "QB",
+       "chosen_score": 24.64,
+       "how": "engine"
+      },
+      {
+       "pick_no": 22,
+       "round": 3,
+       "actual": "6770",
+       "chosen": "3321",
+       "chosen_pos": "WR",
+       "chosen_score": 18.49,
+       "how": "engine"
+      },
+      {
+       "pick_no": 39,
+       "round": 4,
+       "actual": "8129",
+       "chosen": "6786",
+       "chosen_pos": "WR",
+       "chosen_score": 18.06,
+       "how": "engine"
+      },
+      {
+       "pick_no": 42,
+       "round": 5,
+       "actual": "6151",
+       "chosen": "515",
+       "chosen_pos": "TE",
+       "chosen_score": 11.83,
+       "how": "engine"
+      },
+      {
+       "pick_no": 59,
+       "round": 6,
+       "actual": "8112",
+       "chosen": "4258",
+       "chosen_pos": "OL",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 62,
+       "round": 7,
+       "actual": "5022",
+       "chosen": "6120",
+       "chosen_pos": "DT",
+       "chosen_score": 8.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 79,
+       "round": 8,
+       "actual": "6828",
+       "chosen": "3969",
+       "chosen_pos": "RB",
+       "chosen_score": 15.12,
+       "how": "engine"
+      },
+      {
+       "pick_no": 82,
+       "round": 9,
+       "actual": "4950",
+       "chosen": "8129",
+       "chosen_pos": "RB",
+       "chosen_score": 9.52,
+       "how": "engine"
+      },
+      {
+       "pick_no": 99,
+       "round": 10,
+       "actual": "3294",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 5.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 102,
+       "round": 11,
+       "actual": "4227",
+       "chosen": "4227",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 119,
+       "round": 12,
+       "actual": "PHI",
+       "chosen": "PHI",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 122,
+       "round": 13,
+       "actual": "4985",
+       "chosen": "3164",
+       "chosen_pos": "RB",
+       "chosen_score": 8.78,
+       "how": "engine"
+      },
+      {
+       "pick_no": 139,
+       "round": 14,
+       "actual": "3164",
+       "chosen": "6770",
+       "chosen_pos": "QB",
+       "chosen_score": 28.04,
+       "how": "engine"
+      },
+      {
+       "pick_no": 142,
+       "round": 15,
+       "actual": "5001",
+       "chosen": "3294",
+       "chosen_pos": "QB",
+       "chosen_score": 15.25,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 5
+    }
+   }
+  },
+  "2024": {
+   "seats": {
+    "1": {
+     "roster": [
+      "1379",
+      "1479",
+      "3161",
+      "3198",
+      "4068",
+      "5119",
+      "5844",
+      "5947",
+      "6125",
+      "6806",
+      "7564",
+      "7611",
+      "8154",
+      "9502",
+      "PHI"
+     ],
+     "records": [
+      {
+       "pick_no": 15,
+       "round": 2,
+       "actual": "11628",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3161",
+        "name": "Carson Wentz",
+        "engine_rank": 5,
+        "score": 8.02,
+        "score_gap_to_chosen": 4.26,
+        "survival_to_next": 1,
+        "weighted": {
+         "value": 8.02,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 12.28,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 4.26
+        }
+       },
+       "chosen_name": "Kyle Juszczyk",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 26,
+       "round": 3,
+       "actual": "3198",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 12.09,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3161",
+        "name": "Carson Wentz",
+        "engine_rank": 1,
+        "score": 12.09,
+        "score_gap_to_chosen": 0,
+        "survival_to_next": 1,
+        "weighted": {
+         "value": 12.09,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 12.09,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 0
+        }
+       },
+       "chosen_name": "Carson Wentz",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 35,
+       "round": 4,
+       "actual": "8112",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 15.33,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "6904",
+        "name": "Jalen Hurts",
+        "engine_rank": 7,
+        "score": 2.16,
+        "score_gap_to_chosen": 13.17,
+        "survival_to_next": 0.373,
+        "weighted": {
+         "value": 13.18,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 8.41,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -19.43,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 11.33,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 4,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 19.43
+        }
+       },
+       "chosen_name": "T.J. Hockenson",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 46,
+       "round": 5,
+       "actual": "11632",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 8.74,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "6904",
+        "name": "Jalen Hurts",
+        "engine_rank": 8,
+        "score": 2.16,
+        "score_gap_to_chosen": 6.58,
+        "survival_to_next": 0.519,
+        "weighted": {
+         "value": 14.78,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 6.82,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -19.43,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 6.38,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 2.37,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 19.43
+        }
+       },
+       "chosen_name": "Tank Dell",
+       "chosen_survival_to_next": 0.578
+      },
+      {
+       "pick_no": 55,
+       "round": 6,
+       "actual": "7611",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.09,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3294",
+        "name": "Dak Prescott",
+        "engine_rank": 5,
+        "score": 2.52,
+        "score_gap_to_chosen": 13.57,
+        "survival_to_next": 0.505,
+        "weighted": {
+         "value": 25.24,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -22.72,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 16.09,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 22.72
+        }
+       },
+       "chosen_name": "Keenan Allen",
+       "chosen_survival_to_next": 0.595
+      },
+      {
+       "pick_no": 66,
+       "round": 7,
+       "actual": "7553",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 13.53,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "5849",
+        "name": "Kyler Murray",
+        "engine_rank": 9,
+        "score": 0.48,
+        "score_gap_to_chosen": 13.05,
+        "survival_to_next": 0.64,
+        "weighted": {
+         "value": 0.81,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 4,
+         "onesie": -4.33,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 10.89,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 2.64,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 10.08
+        }
+       },
+       "chosen_name": "Mike Williams",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 75,
+       "round": 8,
+       "actual": "11583",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "5849",
+        "name": "Kyler Murray",
+        "engine_rank": 9,
+        "score": 0.5,
+        "score_gap_to_chosen": 7.94,
+        "survival_to_next": 0.564,
+        "weighted": {
+         "value": 1.03,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 4,
+         "onesie": -4.53,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 8.44,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 7.41
+        }
+       },
+       "chosen_name": "Jeffery Simmons",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 86,
+       "round": 9,
+       "actual": "7588",
+       "chosen": "8154",
+       "chosen_pos": "RB",
+       "chosen_score": 3.55,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "7591",
+        "name": "Justin Fields",
+        "engine_rank": 10,
+        "score": 0.3,
+        "score_gap_to_chosen": 3.25,
+        "survival_to_next": 0.998,
+        "weighted": {
+         "value": 1.93,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 1.03,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -2.66,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 3.55,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 2.66
+        }
+       },
+       "chosen_name": "Brian Robinson",
+       "chosen_survival_to_next": 0.774
+      },
+      {
+       "pick_no": 95,
+       "round": 10,
+       "actual": "9224",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 5.76,
+       "how": "engine"
+      },
+      {
+       "pick_no": 106,
+       "round": 11,
+       "actual": "11560",
+       "chosen": "5947",
+       "chosen_pos": "WR",
+       "chosen_score": 16.18,
+       "how": "engine"
+      },
+      {
+       "pick_no": 115,
+       "round": 12,
+       "actual": "11566",
+       "chosen": "7611",
+       "chosen_pos": "RB",
+       "chosen_score": 8.58,
+       "how": "engine"
+      },
+      {
+       "pick_no": 126,
+       "round": 13,
+       "actual": "9488",
+       "chosen": "3198",
+       "chosen_pos": "RB",
+       "chosen_score": 10.92,
+       "how": "engine"
+      },
+      {
+       "pick_no": 135,
+       "round": 14,
+       "actual": "5119",
+       "chosen": "5119",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 146,
+       "round": 15,
+       "actual": "PHI",
+       "chosen": "PHI",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 4
+    },
+    "2": {
+     "roster": [
+      "1379",
+      "1466",
+      "1479",
+      "3161",
+      "3451",
+      "4068",
+      "5844",
+      "5859",
+      "6806",
+      "6819",
+      "6904",
+      "8150",
+      "8151",
+      "9502",
+      "KC"
+     ],
+     "records": [
+      {
+       "pick_no": 34,
+       "round": 4,
+       "actual": "8151",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 16.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 47,
+       "round": 5,
+       "actual": "6904",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 20.06,
+       "how": "engine"
+      },
+      {
+       "pick_no": 54,
+       "round": 6,
+       "actual": "6819",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 15.29,
+       "how": "engine"
+      },
+      {
+       "pick_no": 67,
+       "round": 7,
+       "actual": "5927",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.26,
+       "how": "engine"
+      },
+      {
+       "pick_no": 74,
+       "round": 8,
+       "actual": "4981",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 13.9,
+       "how": "engine"
+      },
+      {
+       "pick_no": 87,
+       "round": 9,
+       "actual": "4988",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 94,
+       "round": 10,
+       "actual": "11589",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 16.01,
+       "how": "engine"
+      },
+      {
+       "pick_no": 107,
+       "round": 11,
+       "actual": "11631",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 9.76,
+       "how": "engine"
+      },
+      {
+       "pick_no": 114,
+       "round": 12,
+       "actual": "7594",
+       "chosen": "6819",
+       "chosen_pos": "WR",
+       "chosen_score": 12.75,
+       "how": "engine"
+      },
+      {
+       "pick_no": 127,
+       "round": 13,
+       "actual": "KC",
+       "chosen": "KC",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 134,
+       "round": 14,
+       "actual": "3451",
+       "chosen": "3451",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 147,
+       "round": 15,
+       "actual": "11582",
+       "chosen": "6904",
+       "chosen_pos": "QB",
+       "chosen_score": 41.31,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 4,
+     "first_TE_round": 5
+    },
+    "3": {
+     "roster": [
+      "1379",
+      "1479",
+      "2216",
+      "4018",
+      "4046",
+      "4068",
+      "4666",
+      "5844",
+      "5947",
+      "5967",
+      "6125",
+      "6801",
+      "7526",
+      "9502",
+      "SEA"
+     ],
+     "records": [
+      {
+       "pick_no": 32,
+       "round": 4,
+       "actual": "7526",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 12.92,
+       "how": "engine"
+      },
+      {
+       "pick_no": 49,
+       "round": 5,
+       "actual": "6801",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 52,
+       "round": 6,
+       "actual": "4137",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 14.29,
+       "how": "engine"
+      },
+      {
+       "pick_no": 69,
+       "round": 7,
+       "actual": "4066",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.24,
+       "how": "engine"
+      },
+      {
+       "pick_no": 72,
+       "round": 8,
+       "actual": "5967",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 10.85,
+       "how": "engine"
+      },
+      {
+       "pick_no": 89,
+       "round": 9,
+       "actual": "6845",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 92,
+       "round": 10,
+       "actual": "5848",
+       "chosen": "7526",
+       "chosen_pos": "WR",
+       "chosen_score": 8.22,
+       "how": "engine"
+      },
+      {
+       "pick_no": 109,
+       "round": 11,
+       "actual": "8110",
+       "chosen": "5947",
+       "chosen_pos": "WR",
+       "chosen_score": 8.48,
+       "how": "engine"
+      },
+      {
+       "pick_no": 112,
+       "round": 12,
+       "actual": "1426",
+       "chosen": "6801",
+       "chosen_pos": "WR",
+       "chosen_score": 13.33,
+       "how": "engine"
+      },
+      {
+       "pick_no": 129,
+       "round": 13,
+       "actual": "4666",
+       "chosen": "4666",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 132,
+       "round": 14,
+       "actual": "8134",
+       "chosen": "5967",
+       "chosen_pos": "RB",
+       "chosen_score": 10.86,
+       "how": "engine"
+      },
+      {
+       "pick_no": 149,
+       "round": 15,
+       "actual": "SEA",
+       "chosen": "SEA",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": null,
+     "first_TE_round": 4
+    },
+    "4": {
+     "roster": [
+      "11533",
+      "1379",
+      "1479",
+      "3161",
+      "4035",
+      "4068",
+      "5844",
+      "5850",
+      "5872",
+      "5947",
+      "6125",
+      "6806",
+      "8205",
+      "9502",
+      "SF"
+     ],
+     "records": [
+      {
+       "pick_no": 1,
+       "round": 1,
+       "actual": "5850",
+       "chosen": "5850",
+       "chosen_pos": "RB",
+       "chosen_score": 18.09,
+       "how": "engine"
+      },
+      {
+       "pick_no": 20,
+       "round": 2,
+       "actual": "8205",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 21,
+       "round": 3,
+       "actual": "5872",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 19.19,
+       "how": "engine"
+      },
+      {
+       "pick_no": 40,
+       "round": 4,
+       "actual": "4035",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 14.54,
+       "how": "engine"
+      },
+      {
+       "pick_no": 41,
+       "round": 5,
+       "actual": "4039",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 14.69,
+       "how": "engine"
+      },
+      {
+       "pick_no": 60,
+       "round": 6,
+       "actual": "4217",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 15.98,
+       "how": "engine"
+      },
+      {
+       "pick_no": 61,
+       "round": 7,
+       "actual": "6770",
+       "chosen": "8205",
+       "chosen_pos": "RB",
+       "chosen_score": 11.65,
+       "how": "engine"
+      },
+      {
+       "pick_no": 80,
+       "round": 8,
+       "actual": "11620",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 81,
+       "round": 9,
+       "actual": "SF",
+       "chosen": "SF",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 100,
+       "round": 10,
+       "actual": "11637",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 5.58,
+       "how": "engine"
+      },
+      {
+       "pick_no": 101,
+       "round": 11,
+       "actual": "5248",
+       "chosen": "4035",
+       "chosen_pos": "RB",
+       "chosen_score": 17.06,
+       "how": "engine"
+      },
+      {
+       "pick_no": 120,
+       "round": 12,
+       "actual": "3164",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 8.53,
+       "how": "engine"
+      },
+      {
+       "pick_no": 121,
+       "round": 13,
+       "actual": "11533",
+       "chosen": "11533",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 140,
+       "round": 14,
+       "actual": "5022",
+       "chosen": "5872",
+       "chosen_pos": "WR",
+       "chosen_score": 9.59,
+       "how": "engine"
+      },
+      {
+       "pick_no": 141,
+       "round": 15,
+       "actual": "96",
+       "chosen": "5947",
+       "chosen_pos": "WR",
+       "chosen_score": 9.25,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 4
+    },
+    "5": {
+     "roster": [
+      "10859",
+      "1264",
+      "1379",
+      "1479",
+      "2309",
+      "3161",
+      "4068",
+      "4663",
+      "5844",
+      "6125",
+      "6813",
+      "8146",
+      "9221",
+      "9502",
+      "PIT"
+     ],
+     "records": [
+      {
+       "pick_no": 31,
+       "round": 4,
+       "actual": "10859",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 18.98,
+       "how": "engine"
+      },
+      {
+       "pick_no": 50,
+       "round": 5,
+       "actual": "9758",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 51,
+       "round": 6,
+       "actual": "2309",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 16.11,
+       "how": "engine"
+      },
+      {
+       "pick_no": 70,
+       "round": 7,
+       "actual": "1479",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 71,
+       "round": 8,
+       "actual": "11624",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 13.26,
+       "how": "engine"
+      },
+      {
+       "pick_no": 90,
+       "round": 9,
+       "actual": "4663",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 11.54,
+       "how": "engine"
+      },
+      {
+       "pick_no": 91,
+       "round": 10,
+       "actual": "6130",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 110,
+       "round": 11,
+       "actual": "11586",
+       "chosen": "4663",
+       "chosen_pos": "RB",
+       "chosen_score": 21.86,
+       "how": "engine"
+      },
+      {
+       "pick_no": 111,
+       "round": 12,
+       "actual": "1264",
+       "chosen": "1264",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 130,
+       "round": 13,
+       "actual": "5937",
+       "chosen": "2309",
+       "chosen_pos": "WR",
+       "chosen_score": 4.9,
+       "how": "engine"
+      },
+      {
+       "pick_no": 131,
+       "round": 14,
+       "actual": "5045",
+       "chosen": "10859",
+       "chosen_pos": "TE",
+       "chosen_score": 26.35,
+       "how": "engine"
+      },
+      {
+       "pick_no": 150,
+       "round": 15,
+       "actual": "PIT",
+       "chosen": "PIT",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 4,
+     "first_TE_round": 8
+    },
+    "6": {
+     "roster": [
+      "1379",
+      "1479",
+      "3161",
+      "4068",
+      "4227",
+      "4881",
+      "5844",
+      "6125",
+      "6794",
+      "8138",
+      "8144",
+      "8154",
+      "9226",
+      "9502",
+      "PIT"
+     ],
+     "records": [
+      {
+       "pick_no": 33,
+       "round": 4,
+       "actual": "8138",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 22.99,
+       "how": "engine"
+      },
+      {
+       "pick_no": 48,
+       "round": 5,
+       "actual": "4881",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 16.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 53,
+       "round": 6,
+       "actual": "9997",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 13.58,
+       "how": "engine"
+      },
+      {
+       "pick_no": 68,
+       "round": 7,
+       "actual": "10229",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.25,
+       "how": "engine"
+      },
+      {
+       "pick_no": 73,
+       "round": 8,
+       "actual": "11604",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 13.53,
+       "how": "engine"
+      },
+      {
+       "pick_no": 88,
+       "round": 9,
+       "actual": "4037",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 93,
+       "round": 10,
+       "actual": "8154",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 108,
+       "round": 11,
+       "actual": "4227",
+       "chosen": "4227",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 113,
+       "round": 12,
+       "actual": "9508",
+       "chosen": "8154",
+       "chosen_pos": "RB",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 128,
+       "round": 13,
+       "actual": "7021",
+       "chosen": "8138",
+       "chosen_pos": "RB",
+       "chosen_score": 16.39,
+       "how": "engine"
+      },
+      {
+       "pick_no": 133,
+       "round": 14,
+       "actual": "11627",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 32.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 148,
+       "round": 15,
+       "actual": "4381",
+       "chosen": "PIT",
+       "chosen_pos": "DEF",
+       "chosen_score": null,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 4,
+     "first_TE_round": 5
+    },
+    "7": {
+     "roster": [
+      "1379",
+      "1479",
+      "3161",
+      "4034",
+      "4068",
+      "4195",
+      "4984",
+      "5844",
+      "5947",
+      "6125",
+      "6790",
+      "6803",
+      "7547",
+      "9502",
+      "CLE"
+     ],
+     "records": [
+      {
+       "pick_no": 37,
+       "round": 4,
+       "actual": "6803",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 44,
+       "round": 5,
+       "actual": "10236",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 13.59,
+       "how": "engine"
+      },
+      {
+       "pick_no": 57,
+       "round": 6,
+       "actual": "6790",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 9.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 64,
+       "round": 7,
+       "actual": "9502",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.34,
+       "how": "engine"
+      },
+      {
+       "pick_no": 77,
+       "round": 8,
+       "actual": "2749",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 8.8,
+       "how": "engine"
+      },
+      {
+       "pick_no": 84,
+       "round": 9,
+       "actual": "10222",
+       "chosen": "6803",
+       "chosen_pos": "WR",
+       "chosen_score": 9.69,
+       "how": "engine"
+      },
+      {
+       "pick_no": 97,
+       "round": 10,
+       "actual": "11635",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 104,
+       "round": 11,
+       "actual": "9753",
+       "chosen": "5947",
+       "chosen_pos": "WR",
+       "chosen_score": 11.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 117,
+       "round": 12,
+       "actual": "3163",
+       "chosen": "6790",
+       "chosen_pos": "RB",
+       "chosen_score": 24.75,
+       "how": "engine"
+      },
+      {
+       "pick_no": 124,
+       "round": 13,
+       "actual": "4195",
+       "chosen": "4195",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 137,
+       "round": 14,
+       "actual": "CLE",
+       "chosen": "CLE",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 144,
+       "round": 15,
+       "actual": "11625",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 51.3,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 15,
+     "first_TE_round": 5
+    },
+    "8": {
+     "roster": [
+      "1379",
+      "1479",
+      "3161",
+      "4983",
+      "5844",
+      "6125",
+      "6806",
+      "6826",
+      "7042",
+      "7525",
+      "7569",
+      "8155",
+      "9502",
+      "9509",
+      "DAL"
+     ],
+     "records": [
+      {
+       "pick_no": 22,
+       "round": 3,
+       "actual": "7569",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 19.96,
+       "how": "engine"
+      },
+      {
+       "pick_no": 39,
+       "round": 4,
+       "actual": "4983",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 14.2,
+       "how": "engine"
+      },
+      {
+       "pick_no": 42,
+       "round": 5,
+       "actual": "8130",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 59,
+       "round": 6,
+       "actual": "9229",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 9.15,
+       "how": "engine"
+      },
+      {
+       "pick_no": 62,
+       "round": 7,
+       "actual": "7525",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 13.34,
+       "how": "engine"
+      },
+      {
+       "pick_no": 79,
+       "round": 8,
+       "actual": "4950",
+       "chosen": "6826",
+       "chosen_pos": "TE",
+       "chosen_score": 9.95,
+       "how": "engine"
+      },
+      {
+       "pick_no": 82,
+       "round": 9,
+       "actual": "8228",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 99,
+       "round": 10,
+       "actual": "8143",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 19.52,
+       "how": "engine"
+      },
+      {
+       "pick_no": 102,
+       "round": 11,
+       "actual": "6804",
+       "chosen": "7569",
+       "chosen_pos": "WR",
+       "chosen_score": 4.85,
+       "how": "engine"
+      },
+      {
+       "pick_no": 119,
+       "round": 12,
+       "actual": "5001",
+       "chosen": "4983",
+       "chosen_pos": "WR",
+       "chosen_score": 7.53,
+       "how": "engine"
+      },
+      {
+       "pick_no": 122,
+       "round": 13,
+       "actual": "7042",
+       "chosen": "7042",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 139,
+       "round": 14,
+       "actual": "DAL",
+       "chosen": "DAL",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 142,
+       "round": 15,
+       "actual": "1689",
+       "chosen": "7525",
+       "chosen_pos": "WR",
+       "chosen_score": 8.24,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 4
+    },
+    "9": {
+     "roster": [
+      "10937",
+      "1379",
+      "1479",
+      "3161",
+      "4068",
+      "4866",
+      "5012",
+      "5844",
+      "6125",
+      "6806",
+      "6826",
+      "7528",
+      "7543",
+      "9493",
+      "BAL"
+     ],
+     "records": [
+      {
+       "pick_no": 36,
+       "round": 4,
+       "actual": "2133",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 14.59,
+       "how": "engine"
+      },
+      {
+       "pick_no": 45,
+       "round": 5,
+       "actual": "5012",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 17.14,
+       "how": "engine"
+      },
+      {
+       "pick_no": 56,
+       "round": 6,
+       "actual": "5846",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 65,
+       "round": 7,
+       "actual": "7528",
+       "chosen": "1479",
+       "chosen_pos": "WR",
+       "chosen_score": 16.3,
+       "how": "engine"
+      },
+      {
+       "pick_no": 76,
+       "round": 8,
+       "actual": "8137",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 85,
+       "round": 9,
+       "actual": "5849",
+       "chosen": "5012",
+       "chosen_pos": "TE",
+       "chosen_score": 10.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 96,
+       "round": 10,
+       "actual": "8167",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 7.86,
+       "how": "engine"
+      },
+      {
+       "pick_no": 105,
+       "round": 11,
+       "actual": "6806",
+       "chosen": "7528",
+       "chosen_pos": "RB",
+       "chosen_score": 22.2,
+       "how": "engine"
+      },
+      {
+       "pick_no": 116,
+       "round": 12,
+       "actual": "6768",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 7.18,
+       "how": "engine"
+      },
+      {
+       "pick_no": 125,
+       "round": 13,
+       "actual": "BAL",
+       "chosen": "BAL",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 136,
+       "round": 14,
+       "actual": "10937",
+       "chosen": "10937",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 145,
+       "round": 15,
+       "actual": "7608",
+       "chosen": "6826",
+       "chosen_pos": "TE",
+       "chosen_score": 20.61,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 4,
+     "first_TE_round": 5
+    },
+    "10": {
+     "roster": [
+      "1379",
+      "2449",
+      "3161",
+      "3294",
+      "3321",
+      "4068",
+      "5844",
+      "5892",
+      "5947",
+      "6125",
+      "6786",
+      "7839",
+      "8136",
+      "9502",
+      "NYJ"
+     ],
+     "records": [
+      {
+       "pick_no": 23,
+       "round": 3,
+       "actual": "8136",
+       "chosen": "3161",
+       "chosen_pos": "QB",
+       "chosen_score": 18.62,
+       "how": "engine"
+      },
+      {
+       "pick_no": 38,
+       "round": 4,
+       "actual": "5892",
+       "chosen": "5844",
+       "chosen_pos": "TE",
+       "chosen_score": 14.45,
+       "how": "engine"
+      },
+      {
+       "pick_no": 43,
+       "round": 5,
+       "actual": "2449",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 58,
+       "round": 6,
+       "actual": "4199",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 8.44,
+       "how": "engine"
+      },
+      {
+       "pick_no": 63,
+       "round": 7,
+       "actual": "3294",
+       "chosen": "9502",
+       "chosen_pos": "WR",
+       "chosen_score": 14.14,
+       "how": "engine"
+      },
+      {
+       "pick_no": 78,
+       "round": 8,
+       "actual": "4033",
+       "chosen": "4068",
+       "chosen_pos": "WR",
+       "chosen_score": 8.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 83,
+       "round": 9,
+       "actual": "8139",
+       "chosen": "2449",
+       "chosen_pos": "WR",
+       "chosen_score": 8.79,
+       "how": "engine"
+      },
+      {
+       "pick_no": 98,
+       "round": 10,
+       "actual": "9756",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 9.69,
+       "how": "engine"
+      },
+      {
+       "pick_no": 103,
+       "round": 11,
+       "actual": "NYJ",
+       "chosen": "NYJ",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 118,
+       "round": 12,
+       "actual": "8183",
+       "chosen": "5892",
+       "chosen_pos": "RB",
+       "chosen_score": 19.66,
+       "how": "engine"
+      },
+      {
+       "pick_no": 123,
+       "round": 13,
+       "actual": "7839",
+       "chosen": "7839",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 138,
+       "round": 14,
+       "actual": "8148",
+       "chosen": "3294",
+       "chosen_pos": "QB",
+       "chosen_score": 32.4,
+       "how": "engine"
+      },
+      {
+       "pick_no": 143,
+       "round": 15,
+       "actual": "8121",
+       "chosen": "5947",
+       "chosen_pos": "WR",
+       "chosen_score": 8.61,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 4
+    }
+   }
+  },
+  "2025": {
+   "seats": {
+    "1": {
+     "roster": [
+      "10229",
+      "11632",
+      "1379",
+      "3198",
+      "4037",
+      "4217",
+      "6770",
+      "7564",
+      "8136",
+      "8151",
+      "8154",
+      "8183",
+      "8259",
+      "9756",
+      "DET"
+     ],
+     "records": [
+      {
+       "pick_no": 37,
+       "round": 4,
+       "actual": "4217",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 27.17,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "6770",
+        "name": "Joe Burrow",
+        "engine_rank": 5,
+        "score": 7.25,
+        "score_gap_to_chosen": 19.92,
+        "survival_to_next": 0.396,
+        "weighted": {
+         "value": 1.25,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 6,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 27.17,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 25.92
+        }
+       },
+       "chosen_name": "Rashee Rice",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 44,
+       "round": 5,
+       "actual": "6770",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 15.06,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "6770",
+        "name": "Joe Burrow",
+        "engine_rank": 3,
+        "score": 13.57,
+        "score_gap_to_chosen": 1.49,
+        "survival_to_next": 0.321,
+        "weighted": {
+         "value": 7.57,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 6,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 13.91,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 1.16,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 6.34
+        }
+       },
+       "chosen_name": "Chris Godwin",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 57,
+       "round": 6,
+       "actual": "8151",
+       "chosen": "6770",
+       "chosen_pos": "QB",
+       "chosen_score": 31.29,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "6770",
+        "name": "Joe Burrow",
+        "engine_rank": 1,
+        "score": 31.29,
+        "score_gap_to_chosen": 0,
+        "survival_to_next": 0.51,
+        "weighted": {
+         "value": 25.29,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 6,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 25.29,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 6,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 0
+        }
+       },
+       "chosen_name": "Joe Burrow",
+       "chosen_survival_to_next": 0.51
+      },
+      {
+       "pick_no": 64,
+       "round": 7,
+       "actual": "12530",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.44,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "11563",
+        "name": "Bo Nix",
+        "engine_rank": 13,
+        "score": 0.21,
+        "score_gap_to_chosen": 14.23,
+        "survival_to_next": 0.415,
+        "weighted": {
+         "value": 1.19,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0.9,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -1.88,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 14.44,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 13.25
+        }
+       },
+       "chosen_name": "Kenneth Walker",
+       "chosen_survival_to_next": 0.389
+      },
+      {
+       "pick_no": 77,
+       "round": 8,
+       "actual": "5872",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "11563",
+        "name": "Bo Nix",
+        "engine_rank": 11,
+        "score": 0.28,
+        "score_gap_to_chosen": 12.27,
+        "survival_to_next": 0.541,
+        "weighted": {
+         "value": 1.87,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0.9,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -2.49,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 12.55,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "value",
+         "advantage": 10.68
+        }
+       },
+       "chosen_name": "Kyle Juszczyk",
+       "chosen_survival_to_next": 1
+      },
+      {
+       "pick_no": 84,
+       "round": 9,
+       "actual": "8144",
+       "chosen": "9756",
+       "chosen_pos": "WR",
+       "chosen_score": 11.68,
+       "how": "engine",
+       "top_qb": {
+        "player_id": "3163",
+        "name": "Jared Goff",
+        "engine_rank": 12,
+        "score": 1.5,
+        "score_gap_to_chosen": 10.19,
+        "survival_to_next": 0.689,
+        "weighted": {
+         "value": 14.08,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0.9,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": -13.48,
+         "doctrine": 0
+        },
+        "chosen_weighted": {
+         "value": 10.99,
+         "tier": 0,
+         "need": 0,
+         "risk": 0,
+         "ceiling": 0.69,
+         "keeper": 0,
+         "bye": 0,
+         "stack": 0,
+         "onesie": 0,
+         "doctrine": 0
+        },
+        "chosen_largest_term_advantage": {
+         "term": "onesie",
+         "advantage": 13.48
+        }
+       },
+       "chosen_name": "Jordan Addison",
+       "chosen_survival_to_next": 0.749
+      },
+      {
+       "pick_no": 97,
+       "round": 10,
+       "actual": "8154",
+       "chosen": "4217",
+       "chosen_pos": "TE",
+       "chosen_score": 21.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 104,
+       "round": 11,
+       "actual": "12533",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 10.56,
+       "how": "engine"
+      },
+      {
+       "pick_no": 117,
+       "round": 12,
+       "actual": "8259",
+       "chosen": "8259",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 124,
+       "round": 13,
+       "actual": "11576",
+       "chosen": "8154",
+       "chosen_pos": "RB",
+       "chosen_score": 13.4,
+       "how": "engine"
+      },
+      {
+       "pick_no": 137,
+       "round": 14,
+       "actual": "11637",
+       "chosen": "8183",
+       "chosen_pos": "QB",
+       "chosen_score": 16.57,
+       "how": "engine"
+      },
+      {
+       "pick_no": 144,
+       "round": 15,
+       "actual": "DET",
+       "chosen": "DET",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 6,
+     "first_TE_round": 10
+    },
+    "2": {
+     "roster": [
+      "10229",
+      "10994",
+      "11533",
+      "11584",
+      "11631",
+      "1379",
+      "4033",
+      "4037",
+      "4881",
+      "6125",
+      "8136",
+      "8151",
+      "8183",
+      "9756",
+      "DEN"
+     ],
+     "records": [
+      {
+       "pick_no": 23,
+       "round": 3,
+       "actual": "4881",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 47.39,
+       "how": "engine"
+      },
+      {
+       "pick_no": 38,
+       "round": 4,
+       "actual": "5846",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 27.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 43,
+       "round": 5,
+       "actual": "12489",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 58,
+       "round": 6,
+       "actual": "1466",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 13.02,
+       "how": "engine"
+      },
+      {
+       "pick_no": 63,
+       "round": 7,
+       "actual": "12504",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 78,
+       "round": 8,
+       "actual": "11655",
+       "chosen": "4033",
+       "chosen_pos": "TE",
+       "chosen_score": 10.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 83,
+       "round": 9,
+       "actual": "12514",
+       "chosen": "9756",
+       "chosen_pos": "WR",
+       "chosen_score": 10.26,
+       "how": "engine"
+      },
+      {
+       "pick_no": 98,
+       "round": 10,
+       "actual": "4039",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 103,
+       "round": 11,
+       "actual": "11533",
+       "chosen": "11533",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 118,
+       "round": 12,
+       "actual": "DEN",
+       "chosen": "DEN",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 123,
+       "round": 13,
+       "actual": "12484",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 18.69,
+       "how": "engine"
+      },
+      {
+       "pick_no": 138,
+       "round": 14,
+       "actual": "12495",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 143,
+       "round": 15,
+       "actual": "3214",
+       "chosen": "8183",
+       "chosen_pos": "QB",
+       "chosen_score": 14.11,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 5,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 8
+    },
+    "3": {
+     "roster": [
+      "10229",
+      "10994",
+      "11635",
+      "1379",
+      "1945",
+      "2216",
+      "4018",
+      "4033",
+      "4881",
+      "4892",
+      "5015",
+      "6125",
+      "8151",
+      "9224",
+      "WAS"
+     ],
+     "records": [
+      {
+       "pick_no": 8,
+       "round": 1,
+       "actual": "12527",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 37.96,
+       "how": "engine"
+      },
+      {
+       "pick_no": 13,
+       "round": 2,
+       "actual": "9224",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 27.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 28,
+       "round": 3,
+       "actual": "11635",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 33,
+       "round": 4,
+       "actual": "2216",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 48,
+       "round": 5,
+       "actual": "4137",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 10.1,
+       "how": "engine"
+      },
+      {
+       "pick_no": 53,
+       "round": 6,
+       "actual": "4892",
+       "chosen": "4033",
+       "chosen_pos": "TE",
+       "chosen_score": 9.33,
+       "how": "engine"
+      },
+      {
+       "pick_no": 68,
+       "round": 7,
+       "actual": "4018",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 73,
+       "round": 8,
+       "actual": "4066",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 88,
+       "round": 9,
+       "actual": "11638",
+       "chosen": "5015",
+       "chosen_pos": "DE",
+       "chosen_score": 5.92,
+       "how": "engine"
+      },
+      {
+       "pick_no": 93,
+       "round": 10,
+       "actual": "2449",
+       "chosen": "11635",
+       "chosen_pos": "WR",
+       "chosen_score": 7.31,
+       "how": "engine"
+      },
+      {
+       "pick_no": 108,
+       "round": 11,
+       "actual": "7588",
+       "chosen": "2216",
+       "chosen_pos": "WR",
+       "chosen_score": 22.53,
+       "how": "engine"
+      },
+      {
+       "pick_no": 113,
+       "round": 12,
+       "actual": "1945",
+       "chosen": "1945",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 128,
+       "round": 13,
+       "actual": "3163",
+       "chosen": "9224",
+       "chosen_pos": "RB",
+       "chosen_score": 7.74,
+       "how": "engine"
+      },
+      {
+       "pick_no": 133,
+       "round": 14,
+       "actual": "WAS",
+       "chosen": "WAS",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 148,
+       "round": 15,
+       "actual": "12457",
+       "chosen": "4892",
+       "chosen_pos": "QB",
+       "chosen_score": 31.27,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 1,
+     "first_TE_round": 6
+    },
+    "4": {
+     "roster": [
+      "10229",
+      "11786",
+      "1379",
+      "4037",
+      "4881",
+      "5012",
+      "5850",
+      "5859",
+      "6125",
+      "7594",
+      "8136",
+      "8138",
+      "8151",
+      "9756",
+      "SF"
+     ],
+     "records": [
+      {
+       "pick_no": 16,
+       "round": 2,
+       "actual": "8138",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 40.15,
+       "how": "engine"
+      },
+      {
+       "pick_no": 25,
+       "round": 3,
+       "actual": "5859",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 23.77,
+       "how": "engine"
+      },
+      {
+       "pick_no": 36,
+       "round": 4,
+       "actual": "7594",
+       "chosen": "8138",
+       "chosen_pos": "RB",
+       "chosen_score": 23.27,
+       "how": "engine"
+      },
+      {
+       "pick_no": 45,
+       "round": 5,
+       "actual": "11566",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 56,
+       "round": 6,
+       "actual": "10229",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 65,
+       "round": 7,
+       "actual": "5012",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 11.37,
+       "how": "engine"
+      },
+      {
+       "pick_no": 76,
+       "round": 8,
+       "actual": "11620",
+       "chosen": "7594",
+       "chosen_pos": "RB",
+       "chosen_score": 11.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 85,
+       "round": 9,
+       "actual": "9756",
+       "chosen": "5859",
+       "chosen_pos": "WR",
+       "chosen_score": 12.65,
+       "how": "engine"
+      },
+      {
+       "pick_no": 96,
+       "round": 10,
+       "actual": "4037",
+       "chosen": "9756",
+       "chosen_pos": "WR",
+       "chosen_score": 12.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 105,
+       "round": 11,
+       "actual": "12481",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 13.84,
+       "how": "engine"
+      },
+      {
+       "pick_no": 116,
+       "round": 12,
+       "actual": "9225",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 125,
+       "round": 13,
+       "actual": "5022",
+       "chosen": "5012",
+       "chosen_pos": "TE",
+       "chosen_score": 6.5,
+       "how": "engine"
+      },
+      {
+       "pick_no": 136,
+       "round": 14,
+       "actual": "11786",
+       "chosen": "11786",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 145,
+       "round": 15,
+       "actual": "SF",
+       "chosen": "SF",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 13
+    },
+    "5": {
+     "roster": [
+      "10229",
+      "11539",
+      "11563",
+      "1379",
+      "4018",
+      "4033",
+      "4037",
+      "4881",
+      "6806",
+      "6813",
+      "8112",
+      "8136",
+      "8151",
+      "9221",
+      "MIN"
+     ],
+     "records": [
+      {
+       "pick_no": 21,
+       "round": 3,
+       "actual": "8112",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 48.45,
+       "how": "engine"
+      },
+      {
+       "pick_no": 40,
+       "round": 4,
+       "actual": "8146",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 27.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 41,
+       "round": 5,
+       "actual": "2133",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 60,
+       "round": 6,
+       "actual": "11624",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 61,
+       "round": 7,
+       "actual": "8205",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 12.4,
+       "how": "engine"
+      },
+      {
+       "pick_no": 80,
+       "round": 8,
+       "actual": "4981",
+       "chosen": "4033",
+       "chosen_pos": "TE",
+       "chosen_score": 10.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 81,
+       "round": 9,
+       "actual": "11563",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 13.01,
+       "how": "engine"
+      },
+      {
+       "pick_no": 100,
+       "round": 10,
+       "actual": "9484",
+       "chosen": "8112",
+       "chosen_pos": "WR",
+       "chosen_score": 9.66,
+       "how": "engine"
+      },
+      {
+       "pick_no": 101,
+       "round": 11,
+       "actual": "6806",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 7.38,
+       "how": "engine"
+      },
+      {
+       "pick_no": 120,
+       "round": 12,
+       "actual": "11539",
+       "chosen": "11539",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 121,
+       "round": 13,
+       "actual": "7553",
+       "chosen": "6806",
+       "chosen_pos": "RB",
+       "chosen_score": 24.86,
+       "how": "engine"
+      },
+      {
+       "pick_no": 140,
+       "round": 14,
+       "actual": "7591",
+       "chosen": "11563",
+       "chosen_pos": "QB",
+       "chosen_score": 11.26,
+       "how": "engine"
+      },
+      {
+       "pick_no": 141,
+       "round": 15,
+       "actual": "MIN",
+       "chosen": "MIN",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 6,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 3,
+     "first_TE_round": 8
+    },
+    "6": {
+     "roster": [
+      "10229",
+      "10994",
+      "11604",
+      "1379",
+      "3163",
+      "4037",
+      "4227",
+      "5015",
+      "6125",
+      "6794",
+      "8136",
+      "8151",
+      "8183",
+      "9226",
+      "KC"
+     ],
+     "records": [
+      {
+       "pick_no": 34,
+       "round": 4,
+       "actual": "11628",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 24.85,
+       "how": "engine"
+      },
+      {
+       "pick_no": 47,
+       "round": 5,
+       "actual": "9488",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 54,
+       "round": 6,
+       "actual": "12529",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 14.11,
+       "how": "engine"
+      },
+      {
+       "pick_no": 67,
+       "round": 7,
+       "actual": "12526",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 74,
+       "round": 8,
+       "actual": "4199",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 87,
+       "round": 9,
+       "actual": "7543",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 94,
+       "round": 10,
+       "actual": "12518",
+       "chosen": "3163",
+       "chosen_pos": "QB",
+       "chosen_score": 13.78,
+       "how": "engine"
+      },
+      {
+       "pick_no": 107,
+       "round": 11,
+       "actual": "4663",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 15.39,
+       "how": "engine"
+      },
+      {
+       "pick_no": 114,
+       "round": 12,
+       "actual": "5849",
+       "chosen": "5015",
+       "chosen_pos": "DE",
+       "chosen_score": 5.92,
+       "how": "engine"
+      },
+      {
+       "pick_no": 127,
+       "round": 13,
+       "actual": "4227",
+       "chosen": "4227",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 134,
+       "round": 14,
+       "actual": "KC",
+       "chosen": "KC",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 147,
+       "round": 15,
+       "actual": "10222",
+       "chosen": "8183",
+       "chosen_pos": "QB",
+       "chosen_score": 10.48,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 10,
+     "first_TE_round": null
+    },
+    "7": {
+     "roster": [
+      "10229",
+      "10859",
+      "10994",
+      "1379",
+      "4018",
+      "4034",
+      "4037",
+      "4984",
+      "6125",
+      "6650",
+      "6801",
+      "7547",
+      "8151",
+      "8183",
+      "BAL"
+     ],
+     "records": [
+      {
+       "pick_no": 35,
+       "round": 4,
+       "actual": "6801",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 24.61,
+       "how": "engine"
+      },
+      {
+       "pick_no": 46,
+       "round": 5,
+       "actual": "10859",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 55,
+       "round": 6,
+       "actual": "5892",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 66,
+       "round": 7,
+       "actual": "8137",
+       "chosen": "4018",
+       "chosen_pos": "RB",
+       "chosen_score": 10.75,
+       "how": "engine"
+      },
+      {
+       "pick_no": 75,
+       "round": 8,
+       "actual": "6783",
+       "chosen": "6801",
+       "chosen_pos": "WR",
+       "chosen_score": 10.28,
+       "how": "engine"
+      },
+      {
+       "pick_no": 86,
+       "round": 9,
+       "actual": "8228",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 27.35,
+       "how": "engine"
+      },
+      {
+       "pick_no": 95,
+       "round": 10,
+       "actual": "8134",
+       "chosen": "10859",
+       "chosen_pos": "TE",
+       "chosen_score": 9.75,
+       "how": "engine"
+      },
+      {
+       "pick_no": 106,
+       "round": 11,
+       "actual": "12517",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 115,
+       "round": 12,
+       "actual": "7090",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 126,
+       "round": 13,
+       "actual": "BAL",
+       "chosen": "BAL",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 135,
+       "round": 14,
+       "actual": "12490",
+       "chosen": "8183",
+       "chosen_pos": "QB",
+       "chosen_score": 14.16,
+       "how": "engine"
+      },
+      {
+       "pick_no": 146,
+       "round": 15,
+       "actual": "6650",
+       "chosen": "6650",
+       "how": "mirror_K"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 14,
+     "first_TE_round": 10
+    },
+    "8": {
+     "roster": [
+      "10229",
+      "10994",
+      "1379",
+      "3163",
+      "3678",
+      "4037",
+      "4666",
+      "6125",
+      "6790",
+      "7569",
+      "8130",
+      "8136",
+      "8151",
+      "9509",
+      "BUF"
+     ],
+     "records": [
+      {
+       "pick_no": 39,
+       "round": 4,
+       "actual": "5927",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 27.17,
+       "how": "engine"
+      },
+      {
+       "pick_no": 42,
+       "round": 5,
+       "actual": "4983",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 59,
+       "round": 6,
+       "actual": "6790",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 62,
+       "round": 7,
+       "actual": "7525",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 14.35,
+       "how": "engine"
+      },
+      {
+       "pick_no": 79,
+       "round": 8,
+       "actual": "12512",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 82,
+       "round": 9,
+       "actual": "5947",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 99,
+       "round": 10,
+       "actual": "9753",
+       "chosen": "3163",
+       "chosen_pos": "QB",
+       "chosen_score": 10.67,
+       "how": "engine"
+      },
+      {
+       "pick_no": 102,
+       "round": 11,
+       "actual": "11560",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 12.82,
+       "how": "engine"
+      },
+      {
+       "pick_no": 119,
+       "round": 12,
+       "actual": "9758",
+       "chosen": "6790",
+       "chosen_pos": "RB",
+       "chosen_score": 18.2,
+       "how": "engine"
+      },
+      {
+       "pick_no": 122,
+       "round": 13,
+       "actual": "4666",
+       "chosen": "4666",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 139,
+       "round": 14,
+       "actual": "3678",
+       "chosen": "3678",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 142,
+       "round": 15,
+       "actual": "BUF",
+       "chosen": "BUF",
+       "how": "mirror_DEF"
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 10,
+     "first_TE_round": null
+    },
+    "9": {
+     "roster": [
+      "10229",
+      "10994",
+      "1379",
+      "4033",
+      "4037",
+      "4866",
+      "4892",
+      "5015",
+      "6125",
+      "6904",
+      "7839",
+      "8136",
+      "8155",
+      "9493",
+      "PIT"
+     ],
+     "records": [
+      {
+       "pick_no": 29,
+       "round": 3,
+       "actual": "12507",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 22.6,
+       "how": "engine"
+      },
+      {
+       "pick_no": 32,
+       "round": 4,
+       "actual": "8155",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 49,
+       "round": 5,
+       "actual": "5045",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 12.01,
+       "how": "engine"
+      },
+      {
+       "pick_no": 52,
+       "round": 6,
+       "actual": "6904",
+       "chosen": "4892",
+       "chosen_pos": "QB",
+       "chosen_score": 22.21,
+       "how": "engine"
+      },
+      {
+       "pick_no": 69,
+       "round": 7,
+       "actual": "8148",
+       "chosen": "8155",
+       "chosen_pos": "RB",
+       "chosen_score": 25.07,
+       "how": "engine"
+      },
+      {
+       "pick_no": 72,
+       "round": 8,
+       "actual": "7526",
+       "chosen": "4033",
+       "chosen_pos": "TE",
+       "chosen_score": 10.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 89,
+       "round": 9,
+       "actual": "12501",
+       "chosen": "6125",
+       "chosen_pos": "DT",
+       "chosen_score": 7.23,
+       "how": "engine"
+      },
+      {
+       "pick_no": 92,
+       "round": 10,
+       "actual": "4033",
+       "chosen": "10994",
+       "chosen_pos": "DT",
+       "chosen_score": 14.88,
+       "how": "engine"
+      },
+      {
+       "pick_no": 109,
+       "round": 11,
+       "actual": "8408",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 15.22,
+       "how": "engine"
+      },
+      {
+       "pick_no": 112,
+       "round": 12,
+       "actual": "3294",
+       "chosen": "5015",
+       "chosen_pos": "DE",
+       "chosen_score": 5.92,
+       "how": "engine"
+      },
+      {
+       "pick_no": 129,
+       "round": 13,
+       "actual": "PIT",
+       "chosen": "PIT",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 132,
+       "round": 14,
+       "actual": "7611",
+       "chosen": "6904",
+       "chosen_pos": "QB",
+       "chosen_score": 39.65,
+       "how": "engine"
+      },
+      {
+       "pick_no": 149,
+       "round": 15,
+       "actual": "7839",
+       "chosen": "7839",
+       "how": "mirror_K"
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 6,
+     "first_TE_round": 8
+    },
+    "10": {
+     "roster": [
+      "10229",
+      "1379",
+      "3321",
+      "3451",
+      "4033",
+      "4037",
+      "4046",
+      "4881",
+      "6786",
+      "8136",
+      "8150",
+      "8151",
+      "8183",
+      "9997",
+      "PHI"
+     ],
+     "records": [
+      {
+       "pick_no": 11,
+       "round": 2,
+       "actual": "8150",
+       "chosen": "4881",
+       "chosen_pos": "QB",
+       "chosen_score": 41.67,
+       "how": "engine"
+      },
+      {
+       "pick_no": 30,
+       "round": 3,
+       "actual": "3321",
+       "chosen": "8150",
+       "chosen_pos": "RB",
+       "chosen_score": 33.05,
+       "how": "engine"
+      },
+      {
+       "pick_no": 31,
+       "round": 4,
+       "actual": "4035",
+       "chosen": "10229",
+       "chosen_pos": "WR",
+       "chosen_score": 25.19,
+       "how": "engine"
+      },
+      {
+       "pick_no": 50,
+       "round": 5,
+       "actual": "4046",
+       "chosen": "8151",
+       "chosen_pos": "RB",
+       "chosen_score": 14.43,
+       "how": "engine"
+      },
+      {
+       "pick_no": 51,
+       "round": 6,
+       "actual": "9997",
+       "chosen": "4037",
+       "chosen_pos": "WR",
+       "chosen_score": 14.09,
+       "how": "engine"
+      },
+      {
+       "pick_no": 70,
+       "round": 7,
+       "actual": "5967",
+       "chosen": "1379",
+       "chosen_pos": "FB",
+       "chosen_score": 12.55,
+       "how": "engine"
+      },
+      {
+       "pick_no": 71,
+       "round": 8,
+       "actual": "5844",
+       "chosen": "4033",
+       "chosen_pos": "TE",
+       "chosen_score": 10.89,
+       "how": "engine"
+      },
+      {
+       "pick_no": 90,
+       "round": 9,
+       "actual": "6819",
+       "chosen": "3321",
+       "chosen_pos": "WR",
+       "chosen_score": 12.98,
+       "how": "engine"
+      },
+      {
+       "pick_no": 91,
+       "round": 10,
+       "actual": "PHI",
+       "chosen": "PHI",
+       "how": "mirror_DEF"
+      },
+      {
+       "pick_no": 110,
+       "round": 11,
+       "actual": "7528",
+       "chosen": "9997",
+       "chosen_pos": "WR",
+       "chosen_score": 7.63,
+       "how": "engine"
+      },
+      {
+       "pick_no": 111,
+       "round": 12,
+       "actual": "7049",
+       "chosen": "8136",
+       "chosen_pos": "RB",
+       "chosen_score": 10.49,
+       "how": "engine"
+      },
+      {
+       "pick_no": 130,
+       "round": 13,
+       "actual": "3451",
+       "chosen": "3451",
+       "how": "mirror_K"
+      },
+      {
+       "pick_no": 131,
+       "round": 14,
+       "actual": "6797",
+       "chosen": "4046",
+       "chosen_pos": "QB",
+       "chosen_score": 20.61,
+       "how": "engine"
+      },
+      {
+       "pick_no": 150,
+       "round": 15,
+       "actual": "8676",
+       "chosen": "8183",
+       "chosen_pos": "QB",
+       "chosen_score": 12.78,
+       "how": "engine"
+      }
+     ],
+     "shadowed_picks": 5,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round": 2,
+     "first_TE_round": 8
+    }
+   }
+  }
+ }
+}

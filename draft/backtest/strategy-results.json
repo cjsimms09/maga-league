@@ -1,15 +1,16 @@
 {
  "meta": {
-  "git_head": "3578be1ac53d69f4049393eab7e93be3de9a348f",
+  "git_head": "7888328f6d5d1a1337b1c1f7cb4870908476e3f6",
   "seasons": [
    2023,
    2024,
    2025
   ],
   "caveats": [
-   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.489, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.149, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
    "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
    "2025: replayed but NOTHING could be graded — its picks contribute nothing to the headline",
+   "Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED per-(position,band) calibration fitted leave-one-season-out, not the former 1.35x/0.25x constants. It is still proj_mean x a per-CELL constant, so it varies between bands and not within them: a ceiling weight fitted here measures cross-band dispersion differences only.",
    "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
    "Seasons replayed: [2023, 2024, 2025]"
   ]
@@ -51,22 +52,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -324.75,
+      "mean": 9.51,
       "n": 10,
-      "ci95": 112,
-      "beats": false
+      "ci95": 126.76,
+      "beats": true
      },
      "2024": {
-      "mean": 161.01,
+      "mean": -31.23,
       "n": 10,
-      "ci95": 111.87,
-      "beats": true
+      "ci95": 62.06,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": -81.87,
+     "mean": -10.86,
      "n": 20,
-     "ci95": 133.65,
+     "ci95": 69.3,
      "beats": false
     },
     "seasons_won": 1,
@@ -80,22 +81,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -175.13,
+      "mean": 14.72,
       "n": 10,
-      "ci95": 148.22,
-      "beats": false
+      "ci95": 32.21,
+      "beats": true
      },
      "2024": {
-      "mean": 51.82,
+      "mean": -28.1,
       "n": 10,
-      "ci95": 32.48,
-      "beats": true
+      "ci95": 34.55,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": -61.65,
+     "mean": -6.69,
      "n": 20,
-     "ci95": 89.76,
+     "ci95": 24.92,
      "beats": false
     },
     "seasons_won": 1,
@@ -109,22 +110,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -83.18,
+      "mean": -20.04,
       "n": 10,
-      "ci95": 111.37,
+      "ci95": 130.11,
       "beats": false
      },
      "2024": {
-      "mean": 43.8,
+      "mean": 10.02,
       "n": 10,
-      "ci95": 63.1,
+      "ci95": 91.26,
       "beats": true
      }
     },
     "pooled": {
-     "mean": -19.69,
+     "mean": -5.01,
      "n": 20,
-     "ci95": 68.53,
+     "ci95": 77.64,
      "beats": false
     },
     "seasons_won": 1,
@@ -138,25 +139,25 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 275.72,
+      "mean": -79.58,
       "n": 10,
-      "ci95": 196.16,
-      "beats": true
+      "ci95": 109.23,
+      "beats": false
      },
      "2024": {
-      "mean": 184.87,
+      "mean": -78.84,
       "n": 10,
-      "ci95": 69.13,
-      "beats": true
+      "ci95": 51.17,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": 230.29,
+     "mean": -79.21,
      "n": 20,
-     "ci95": 103.26,
-     "beats": true
+     "ci95": 58.7,
+     "beats": false
     },
-    "seasons_won": 2,
+    "seasons_won": 0,
     "seasons_total": 2
    }
   },
@@ -167,23 +168,23 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -33.27,
+      "mean": 20.49,
       "n": 10,
-      "ci95": 65.21,
-      "beats": false
+      "ci95": 38.37,
+      "beats": true
      },
      "2024": {
-      "mean": 45.74,
+      "mean": -27.45,
       "n": 10,
-      "ci95": 51.74,
-      "beats": true
+      "ci95": 61.47,
+      "beats": false
      }
     },
     "pooled": {
-     "mean": 6.24,
+     "mean": -3.48,
      "n": 20,
-     "ci95": 44.24,
-     "beats": true
+     "ci95": 36.88,
+     "beats": false
     },
     "seasons_won": 1,
     "seasons_total": 2
@@ -196,22 +197,22 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -65.34,
+      "mean": 0,
       "n": 10,
-      "ci95": 87.37,
+      "ci95": 0,
       "beats": false
      },
      "2024": {
-      "mean": -87.43,
+      "mean": 0,
       "n": 10,
-      "ci95": 62.21,
+      "ci95": 0,
       "beats": false
      }
     },
     "pooled": {
-     "mean": -76.39,
+     "mean": 0,
      "n": 20,
-     "ci95": 52.43,
+     "ci95": 0,
      "beats": false
     },
     "seasons_won": 0,
@@ -251,47 +252,11 @@
  "selection": {
   "n_seasons": 2,
   "rule": "win-both (N<3, bar tightened by data availability)",
-  "winner": {
-   "key": "upside_late",
-   "name": "Upside-Late",
-   "note": "ceiling ramps with the round — safe early, lottery tickets late",
-   "vs_default": {
-    "per_season": {
-     "2023": {
-      "mean": 275.72,
-      "n": 10,
-      "ci95": 196.16,
-      "beats": true
-     },
-     "2024": {
-      "mean": 184.87,
-      "n": 10,
-      "ci95": 69.13,
-      "beats": true
-     }
-    },
-    "pooled": {
-     "mean": 230.29,
-     "n": 20,
-     "ci95": 103.26,
-     "beats": true
-    },
-    "seasons_won": 2,
-    "seasons_total": 2
-   }
-  }
+  "winner": null
  },
  "sweep": {
-  "ran": true,
-  "samples": 40,
-  "jitter": 0.25,
-  "fraction_beating_default": 1,
-  "survive_threshold": 0.75,
-  "edge_p25": 196.33,
-  "edge_median": 223.77,
-  "edge_p75": 250.83,
-  "edge_min": 11.59,
-  "survives": true
+  "ran": false,
+  "reason": "no winner cleared the selection rule"
  },
- "install": true
+ "install": false
 }
