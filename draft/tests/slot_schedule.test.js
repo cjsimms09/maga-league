@@ -168,19 +168,48 @@ const OUT = execFileSync('node', [TOOL], { encoding: 'utf8', maxBuffer: 8 * 1024
 
 // ── 6. THE COUNTERFACTUAL IS STILL PRICED ───────────────────────────────
 // This is the number Cory actually acts on: what does moving the QB up cost?
+/* RE-PINNED 2026-08-17. These pins measured the QB-at-73 plan: four earlier
+ * owned picks in the table, one of them an equal-optimum zero. The 08-17
+ * board rebuild (executing Cory's same-day rulings — opportunity layer
+ * removed, measured p90 ceilings, refreshed projections) lifted the QB
+ * shelf and the DP moved the quarterback from pick 73 to pick 48, Cory's
+ * SECOND pick — so exactly ONE earlier pick remains to price and the
+ * printed table (which by construction lists only picks BEFORE the chosen
+ * one) can no longer contain a zero row. `costs.length >= 3` was really
+ * pinning "the QB goes late", which is the board's answer, not the tool's
+ * property. The properties that are the tool's: the table prices EVERY
+ * owned pick before the chosen one (completeness, now exact instead of
+ * >=3), and the chosen pick itself re-solves to a cost of exactly zero —
+ * asserted through the tool's own exported solver, since the ruling board
+ * moved that row out of the printed table. */
 {
   const costs = [...OUT.matchAll(/QB at pick\s+(\d+)\s+costs\s+([\d.]+)/g)]
     .map(m => ({ pick: +m[1], cost: +m[2] }));
-  ck('the cost of taking the QB earlier is priced at each earlier pick',
-    costs.length >= 3, costs);
+  const planQB = +(OUT.match(/^\s+(\d+)\s+QB\s/m) || [])[1];
+  const before = PO.my_picks.filter(p => p < planQB);
+  ck('the DP\'s QB pick is readable from the plan (or nothing below means anything)',
+    Number.isFinite(planQB) && PO.my_picks.includes(planQB), planQB);
+  ck('the cost of taking the QB earlier is priced at EVERY owned pick before '
+    + 'the chosen one — the table is complete, however many rows the board '
+    + 'leaves it', before.length >= 1
+    && costs.map(c => c.pick).join(',') === before.join(','),
+  { priced: costs.map(c => c.pick), owned_before: before });
   ck('every one of those picks is a pick Cory owns',
     costs.every(c => PO.my_picks.includes(c.pick)), costs.map(c => c.pick));
   ck('taking the QB at his FIRST pick carries a real, non-zero cost — the old '
     + 'schedule made that the plan', (costs.find(c => c.pick === PO.my_picks[0]) || {}).cost > 0,
   costs.find(c => c.pick === PO.my_picks[0]));
+  // The zero lives AT the chosen pick, by the solver's own arithmetic: pin the
+  // QB slot there and re-solve — the total must be the optimum exactly.
+  const M = require(TOOL);
+  const qbSlot = M.open.findIndex(o => o.slot === 'QB');
+  const chosen = M.plan.find(p => p.slot === 'QB');
+  const forced = M.solve(M.valueMatrix(0, null),
+    { slotIdx: qbSlot, pickIdx: M.SCHED.indexOf(chosen.pick) });
   ck('and the cost falls to zero at the pick the DP actually chose, which is '
     + 'what makes the table a decision rather than a warning',
-  costs.some(c => c.cost === 0), costs);
+  chosen.pick === planQB && Math.abs(M.best - forced.total) < 1e-9,
+  { chosen: chosen.pick, best: M.best, forced: forced.total });
 }
 
 console.log('\n' + pass + '/' + (pass + fail) + ' checks passed');

@@ -161,6 +161,31 @@ REPO_PARITY_NODES = {
     # controls in that file are pure logic over synthetic inputs, touch no
     # board, and must stay in the gate.
     "draft/tests/test_refusal_artifacts_are_not_stale.py::test_no_committed_artifact_claims_a_present_file_is_missing",
+    # Added 2026-08-17, triaging issue #8's six refusals (run 32035071758).
+    # Three of the six were this set's species and had simply never struck
+    # the gate before:
+    #   · EDV's BOARD_REPLACEMENT_2026 pin — the study's committed constants
+    #     against the fresh build's replacement levels, which move with the
+    #     morning's market (RB 189.10 -> 189.17 crossed the 0.05 tolerance).
+    #     Same shape as the ADP-band ratchet already in this set: a shipped
+    #     constant graded against today's data.
+    #   · variance_inputs coverage — committed artifact partitioning the
+    #     live board's player set; the fresh board's QB pool had grown to 90
+    #     against the artifact's 88. The same species as test_playoff_sos's
+    #     coverage pin, three lines up.
+    #   · variance_inputs regeneration — committed artifact vs regeneration
+    #     from the board the nightly just rewrote; belongs in
+    #     artifact_registry.json eventually (noted at the node), marked here
+    #     until it migrates.
+    # The OTHER three refusals in that run were real defects and are NOT
+    # here: the config-key erasure (fixed in build.py, pinned by
+    # test_config_keys_survive_rebuild.py), the resurrected opportunity
+    # layer the constant-multiple sweep caught (same root), and the QB-
+    # arbitrage helper not following the board's K/DEF demotion (fixed by
+    # detecting the board's own convention).
+    "draft/tests/test_empirical_draft_value.py::test_board_replacement_constants_match_the_shipped_board",
+    "draft/tests/test_variance_inputs.py::test_artifact_coverage_matches_board",
+    "draft/tests/test_variance_inputs.py::test_committed_artifact_matches_regeneration",
 }
 
 

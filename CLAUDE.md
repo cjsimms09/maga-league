@@ -1,5 +1,31 @@
 # Every session starts here
 
+## 🪪 WHO OWNS WHAT — you own an OUTCOME, not a checklist
+
+**Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
+sends back."* He was right. Roles are now defined by what you SHIP.
+
+| you are | **the outcome you own** | if it breaks, it is your name |
+|---|---|---|
+| **A** | **`main` is correct and green, and the board publishes** | a red gate, an unpublished board |
+| **B** | **Cory drafts on a war room that WORKS (desktop), and the site works** | a wrong number on screen, a page he cannot read at 8s/pick |
+| **C** | **the data we need is here, on time, correct** | a missing store, a stale fetch, a bad crosswalk |
+| **D** | **the learning loop produces CHANGES** | a grade that moved nothing, a store that predicts nothing |
+| **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md`) | a board that makes no football sense; no answer to "where is the edge" |
+| **relay** | **every lane has what it needs; nothing is lost** | an idle lane, a dropped ask, a finding nobody saw |
+
+**Cory owns:** what "edge" means · whether a capture job stops · any call he wants.
+
+**`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md`, `OPEN-QUESTIONS.md` push
+STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code.
+
+**The standard, one line:** a "no" is finished only with a measurement, an unblock
+condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
+when someone finally checked the disk.**
+
+**Where the edge stands, measured:** the draft tool **ties Cory (−6.5) and loses
+to the league's best drafter (−163)**. That is the number to beat.
+
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
 on the board was `proj_mean x a per-band constant` — zero player-specific

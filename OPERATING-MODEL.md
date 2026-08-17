@@ -8,15 +8,50 @@ This file is short on purpose. If it grows past one screen it has failed.
 
 ---
 
-## THE FOUR ROLES
+## THE ROLES — DEFINED BY WHAT YOU SHIP, NOT BY WHAT YOU CHECK
 
-| | role | does | does NOT |
+**Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
+sends back. no one owns everything."*
+
+**He is right, and it was a design error by the relay.** The first version of this
+table gave every lane a "does NOT" column and none of them a "ships this" column.
+That is a review organisation. Reviews do not draft a team.
+
+**So ownership is now by OUTCOME. You own a working thing, end to end — deciding,
+building and shipping it — and you are accountable when it does not work.**
+
+| | **YOU OWN THIS OUTCOME** | you decide, inside it | you still cannot |
 |---|---|---|---|
-| **A** | **gatekeeper & decider** | reviews, rules, merges to `main`, deploys | grunt work, chasing, re-deriving context |
-| **B** | site & in-season lane | builds surfaces, in-season tools | touch model/draft or ingest files |
-| **C** | external ingest lane | fetches, crosswalks, stores | touch engine, Lab, valuation, views |
-| **D** | data stewardship | is it correct, used, graded, does the grade move anything | fetch (C's) or decide what a number means (A's) |
-| **PM** (relay) | integration & verification | CI health, cross-cutting sweeps, keeping the record honest, prepping A's decisions | decide anything A should decide |
+| **A** | **`main` is correct and green, and the board publishes** | anything about correctness; the merge | override E on input policy or Cory on anything |
+| **B** | **Cory drafts on a war room that works, and the site works** | layout within Cory's spec, all surface code | change model numbers |
+| **C** | **the data we need is here, on time, and correct** | sources, fetch design, schedules | decide what a number means |
+| **D** | **the learning loop actually produces changes** | what gets graded, how, and what the grade implies | fetch, or set input policy |
+| **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md` E1-E5) | input policy, what we study next, board sanity | merge, or overturn a measurement |
+| **relay** | **every lane has what it needs and nothing is lost** | routing, sequencing, what I build when a lane stalls | decide what A or E decides |
+
+**The test of ownership: if it breaks, whose name is on it?** If the answer is
+"we would have to discuss it," it is not owned.
+
+**A is a MERGE GATE, not the decider on everything.** A stops incorrect things
+reaching `main`. A does not decide what the model should use — that is E — or how
+a surface should look — that is Cory and B. **`SEND BACK` is for correctness.**
+An A that sends back on preference has become a bottleneck with taste.
+
+## RULE 1b — `ROUTES.md` GOES STRAIGHT TO `main`. IT IS A MAILBOX, NOT CODE.
+
+**The relay wrote Rule 1 to stop collisions, and it became the reason nothing
+reaches anyone.** On 08-17 thirty-five commits of routing, findings and rules sat
+on a branch while C went idle for want of work that was already assigned to it,
+and B was one merge away from building the wrong device.
+
+**A communication channel that requires a merge is not a channel.**
+
+So: **`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md` and `OPEN-QUESTIONS.md`
+are pushed directly to `main` by any lane.** They carry no executable code, and
+the machinery for concurrent edits already exists and is tested —
+`scripts/routes-merge.py` is section-aware and `routes_integrity.test.js` carries
+fail arms for duplication, orphaning, conflict markers and one-sided merges.
+**Push the mailbox; branch the code.**
 
 **A's time is the scarcest thing in the project.** Everything below exists to
 spend less of it.
@@ -144,6 +179,139 @@ more suspicious than a modest honest effect: perfect foresight of something that
 obviously matters should be worth a lot, so a near-zero oracle result usually
 means the oracle never got through. Register row 18 is exactly this, reopened.
 
+## RULE 3e — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
+
+**E does not gate anything and nothing waits on E.** A is the bottleneck; a
+review step in front of the gatekeeper slows the whole project down. So E runs
+**in parallel, on published output**, and its findings enter the same queue as
+everyone else's.
+
+```
+  A merges ──▶ board publishes ──▶ Cory drafts
+                     │
+                     └──▶ E sweeps the PUBLISHED board (never blocks the publish)
+                              │
+                              ├──▶ mechanical//data cause ──▶ ROUTES.md → owning lane
+                              ├──▶ needs a ruling          ──▶ ROUTES.md → A  (ASK/EVIDENCE/REC/DEFAULT)
+                              └──▶ every finding, always   ──▶ ROUTES.md → relay (chases + registers)
+```
+
+**E posts directly to the owning lane — it does NOT route through the relay
+first.** A hop through me is a day of latency five days before a draft. The post
+IS the routing; I read `ROUTES.md` every session, chase what stalls, and put it
+in the register. **E finds and files. The relay chases and holds to account. A
+rules. E never does the last two.**
+
+**On SURFACES, E reviews truth and findability — never taste.** Does a number
+match the artifact, does its label say what it actually is, and can it be found
+in the seconds a pick allows. **Layout, density and style are Cory's call and
+Cory's alone** — the war room failed on 08-17 because it was designed from
+someone's taste rather than his reference screenshots, and a second taste-haver
+is that failure with more voices. E converts "too busy" into timed findability
+drills, which give B a target instead of an argument.
+
+**What triggers a sweep:** a new board publish · any weight or formula change
+reaching `main` · a full pass before draft day. Not a schedule — an event.
+
+**The one thing E may escalate straight past everyone:** a number Cory could act
+on in the next 24 hours that looks wrong. That goes to A marked
+`NO DEFAULT — BLOCKED` and to the relay in the same breath. Speed beats protocol
+when the board is live.
+
+## RULE 2b — A RULING REQUEST TO CORY CARRIES FIVE LINES, NOT FOUR
+
+**Cory, 2026-08-17:** *"when asking for a ruling on me you need to explain what I
+am deciding, what that means, how it affects model, and recommendation."*
+
+`ASK/EVIDENCE/REC/DEFAULT` is the format for **A**, who has the context. **Cory
+does not, and should not have to reconstruct it.** So anything routed to Cory
+uses this instead:
+
+```
+DECIDING:   the choice, in one line — the actual options, not the topic
+MEANS:      what it is in plain English, no jargon, no field names
+EFFECT:     what changes on the board, WITH NUMBERS — and say plainly
+            which parts are measured and which are not
+REC:        what I would do, and why
+IF SILENT:  what happens if you say nothing
+```
+
+**`EFFECT` is the line that gets faked, so it is the one to hold hardest.** If
+the blast radius has not been measured, the honest text is "unmeasured — here is
+who is measuring it and when," never a plausible-sounding estimate. A proxy is
+allowed only when it is labelled a proxy **and its confounds are named in the
+same breath** — a directional number presented as a finding is the defect this
+project keeps paying for.
+
+**And Cory sends work to the relay, not to a lane.** He should not have to know
+who owns what; routing is the relay's job and a single entry point is what stops
+an ask going missing. **The one exception: when a lane has asked Cory directly
+for something, he answers that lane directly** — the relay picks it up from
+`ROUTES.md`. Waiting on a middleman to deliver a screenshot is a day lost.
+
+## RULE 5b — WHICH MODEL EACH LANE RUNS ON
+
+Keep the strongest model where **judgment is scarce and volume is low**; drop to
+Sonnet where the work is **well-specified and high-volume**. That moves most of
+the usage with the least quality lost.
+
+| lane | model | why |
+|---|---|---|
+| **A** | **Opus** | last line before `main`, and rules on what numbers MEAN. Every defect this project has eaten was subtle-judgment failure. Do not economize here. |
+| **E** | **Opus** | pure judgment, tiny volume — the best quality-per-token in the setup |
+| **D** | **Opus**, revisit in ~3 weeks | telling a real null from a wiring bug is the reasoning that produced our worst defects |
+| **B** | **Sonnet** | highest-volume lane, and now spec-bound — it builds against Cory's screenshots, not its own invention |
+| **C** | **Sonnet** (Haiku for routine re-fetches) | fetchers, parsers, crosswalks: mechanical and well-tested |
+| **relay** | **Opus**, and the next honest cut after B and C | chasing needs skepticism, but the volume is high |
+
+**Never Haiku for D or E.** Both lanes exist to catch subtle wrongness; a model
+that misses it makes them *worse* than absent, because they report
+"checked, looks fine."
+
+## RULE 5c — TWO NUMBERS THE RELAY WATCHES, BECAUSE BOTH GREW SILENTLY
+
+**Boot cost.** Measured 2026-08-17: `ROUTES.md` **48,350 words**, `STATUS.md`
+**27,834**, `SESSION-A.md` **14,968**, `TODO.md` **9,500**. A's boot is ~48k words
+*before* its inbox — roughly **130k tokens to say hello**, paid by every lane at
+every session start. Docs are how this project stays honest, so the fix is
+archiving closed material, never writing less down.
+
+**A's queue.** Also measured today: **A 80 open items, B 52, C 13, D 5, E 5 — and
+13 items closed in the project's entire history.** A is supposed to answer in one
+word. Eighty items is not a queue, it is a wall, and by Rule 3b **a mis-routed
+item is the relay's defect, not A's.** The relay triages A's inbox down to
+decisions only, and anything that is really work goes to the lane that can do it.
+
+## RULE 3f — A REFUSAL IS NOT AN ENDING, AND "WHAT NEXT" IS EVERYONE'S JOB
+
+**Cory, 2026-08-17:** *"WE NEED BE ASKING WHAT SHOULD WE STUDY NEXT, WE ALSO NEED
+TO STOP TREATING REFUSAL AS ENDING. FIX BOTH THESE PROBLEMS FOR GOOD!"*
+
+Both are dated failures, not hypotheticals.
+
+**a) EVERY REFUSAL SHIPS THREE THINGS:**
+
+```
+REFUSED — unblocked by <condition>, owner <lane>, recheck <date>
+```
+
+**A refusal without all three is an open defect, not an answer.** This project
+refuses beautifully — `no_control`, `failed-gate`, `leaked_markers`,
+`INSUFFICIENT-N` — and every one of those was correct. But on 08-16
+`proj_mean_blend` refused for want of Sleeper history while `sleeper_hist_proj`
+proved that history exists **the same day**, and nobody connected them for a day.
+Both artifacts were right. **The silence between them was the defect.**
+
+**b) EVERY LANE ADDS ONE OPEN QUESTION PER SESSION** to `OPEN-QUESTIONS.md` — a
+thing we have not tested, with a cost band. Not a defect, not an assignment.
+
+Every material finding in the week of 08-17 came from Cory. That is an org-chart
+hole rather than a diligence failure: A rules, B builds, C fetches, D stewards,
+E red-teams **outputs**, the relay chases — **no seat generated hypotheses.**
+
+`draft/tests/test_open_questions.py` enforces both, with known-positive controls
+on each. A rule that lives only in a document did not stop either failure.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and
@@ -165,6 +333,8 @@ not fix another lane's code.
 
 ## WHERE THINGS LIVE — one place each, no duplicates
 
+- **what Cory asked for, and whether he has it** → `CORY-ASKS.md` (delegating is
+  not delivering; an ask sits there until it is verified)
 - **what is true now** → `DRAFT-WEEK-BRIEF.md`
 - **your assignments** → `ROUTES.md` → `## TO: <lane>`
 - **who owns which file** → `TERRITORY.md` (the authority)

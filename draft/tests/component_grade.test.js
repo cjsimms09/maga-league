@@ -172,21 +172,48 @@ function build(weeks, per, errA, errB) {
 }
 
 // ── THE CLAMP IS A DISTRIBUTIONAL QUESTION, ANSWERABLE WITHOUT OUTCOMES ────
+/* RE-PINNED 2026-08-17. This block asserted `at_cap > 0` against the live
+ * board — true for as long as the opportunity layer was ON, where 32 players
+ * sat pinned at ±0.15. Cory's same-day ruling ("Remove 1", recorded in
+ * league_config.json's `_opportunity_cap_why`) set `opportunity_cap` to 0.0
+ * after the layer graded NEUTRAL on ordering and WORSE on level with a
+ * shuffled control performing identically — so the 08-17 rebuild ships every
+ * `opportunity_adj` at exactly 0 and a live-board at_cap of 0 is the ruling
+ * IN FORCE, not a stale pin. The live-board check now pins the ruling (and
+ * goes red the day the layer is quietly turned back on without this test
+ * hearing about it); clampReport's own mechanics keep a non-vacuous check on
+ * a constructed universe, because a reporter that only ever sees zeros is a
+ * reporter nobody has tested. */
 {
   const fs = require('fs');
   const p = path.join(__dirname, '..', '..', 'public', 'draft_data.json');
   if (fs.existsSync(p)) {
     const art = JSON.parse(fs.readFileSync(p, 'utf8'));
     const uni = (art.players || []).concat(art.kept_players || []);
+    const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config',
+      'league_config.json'), 'utf8'));
+    ck('the shipped opportunity_cap is 0.0 — Cory\'s "Remove 1" ruling, 2026-08-17',
+      cfg.opportunity_cap === 0.0, cfg.opportunity_cap);
     const c = G.clampReport(uni, 0.15);
-    ck('the clamp report counts how many players sit ON the cap', c.at_cap > 0, c);
-    ck('  and reports it as a SHARE, because a cap that binds broadly is not a cap',
-      c.share_at_cap != null && c.share_at_cap < 0.5, c);
-    console.log('        live board: ' + c.at_cap + '/' + c.n + ' at the ±0.15 cap ('
-      + (c.share_at_cap * 100).toFixed(1) + '%), ' + c.at_upper + ' upper / ' + c.at_lower + ' lower');
+    ck('and the board agrees: NOBODY carries a nonzero opportunity_adj, at the '
+      + 'old ±0.15 cap or anywhere else — the layer is off in the artifact, '
+      + 'not just in the config',
+    c.n > 0 && c.at_cap === 0
+      && uni.every(x => !x.opportunity_adj || Math.abs(x.opportunity_adj) < 1e-12), c);
+    console.log('        live board: ' + c.at_cap + '/' + c.n + ' at the retired ±0.15 cap'
+      + ' (layer off by ruling)');
   } else {
     console.log('SKIP  no built board');
   }
+  // The reporter itself, on a universe where the cap DOES bind — the check the
+  // live board can no longer provide while the ruling stands.
+  const synth = [{ opportunity_adj: 0.15 }, { opportunity_adj: -0.15 },
+    { opportunity_adj: 0.07 }, { opportunity_adj: -0.02 }, { opportunity_adj: 0.0 }];
+  const cs = G.clampReport(synth, 0.15);
+  ck('the clamp report counts how many players sit ON the cap',
+    cs.at_cap === 2 && cs.at_upper === 1 && cs.at_lower === 1, cs);
+  ck('  and reports it as a SHARE, because a cap that binds broadly is not a cap',
+    cs.share_at_cap === 0.4 && cs.share_at_cap < 0.5, cs);
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

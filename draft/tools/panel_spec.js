@@ -32,23 +32,57 @@
  * into prose beside the data it describes is the defect this repo keeps
  * shipping, and a spec is the last place it belongs.
  *
- * ── AND THE PART I HAVE TO OWN ────────────────────────────────────────────
+ * ── THE SURFACE MAP (cockpit rebuild, 2026-08-17 — Cory's order) ──────────
  *
- * `renderRecommendations` is 436 LINES. A third of the decision surface is one
- * function emitting a headline, a rationale, a timing block, a tier-cliff card,
- * an against-case and a chip grid. Cory read the same player appearing in three
- * of those as "Gibbs listed twice". That is not a layout problem B can solve by
- * moving things; it is one function doing six jobs, and splitting it is mine.
+ * The 21-page scroll became a tabbed cockpit. WHERE a panel renders changed;
+ * WHAT each panel means (this file) did not, and every render function below
+ * still paints into the same ids. The map, so a reader can find a panel:
  *
- * ── AND IT IS GROWING, WHICH IS THE HONEST WAY TO REPORT THIS BUMP ────────
+ *   DRAFT (default) — the cockpit grid. LEFT RAIL: top-10 per position
+ *     (warroom_charts.js, off the same scored board). CENTER: the verdict
+ *     (ONE answer, DraftVerdict's seat-plan-owns-headline adjudication), the
+ *     paths as priced alternatives, the ranked shortlist, LRM, branches,
+ *     queue. RIGHT RAIL: running-out tiles, tier-cliff chart, survival
+ *     sparklines, roster shape (+ #timing-panel behind a disclosure — this
+ *     shell is the FIRST to host it, so renderTiming now paints).
+ *   BIG BOARD — per-position columns with tier-cliff lines + the full table.
+ *   ROSTERS — managers, roster, byes, survival, threats, movers, picks feed,
+ *     shadow standings.  ADJUSTERS — weights, presets, targets/never.
+ *   INTEL — setup/sync, checklist, provenance, audits, help.
+ *
+ * The tab/rail/chart layer lives in public/js/draft/warroom_charts.js — it is
+ * NOT a panel in this spec's sense (it computes nothing; it re-renders reads
+ * from the WarRoomData accessor), and this file's inventory deliberately
+ * stays scoped to app.js's render* functions, which is what the suite checks
+ * both ways. The pure chart builders are pinned separately in
+ * draft/tests/warroom_charts.test.js.
+ *
+ * ── AND THE PART I HAVE TO OWN — NOW PAID (2026-08-17) ────────────────────
+ *
+ * `renderRecommendations` was 436 LINES doing six jobs — a headline, a
+ * rationale, a timing block, a tier-cliff card, an against-case and a chip
+ * grid — and Cory read the same player appearing in three of those as "Gibbs
+ * listed twice". The war-room redesign split it: each job is its own small
+ * function (renderRecHeadline / renderRecRationale / renderRecTiming /
+ * renderRecTierCliff / renderRecChips / renderRecAgainstCase, described
+ * below), and the NAME renders once above the fold — the verdict headline
+ * owns it; the against-case and chip grid sit behind disclosures.
+ *
+ * WHAT THE COMPOSER DELIBERATELY KEEPS, so the lines number stays big: the
+ * ledger capture, the REC_ROWS slice, the reconcile-halt short-circuit, the
+ * decisive-term readout and the ranked card emission — rec_rows.test.js,
+ * decisive_readout.test.js and capture_cannot_blank_board.test.js pin those
+ * as behaviour contracts inside it, and a pinned contract outranks a tidier
+ * extraction.
+ *
+ * ── THE NUMBER'S HISTORY, kept because it is a lesson ─────────────────────
  *
  * This said 377 until 2026-08-14 and `panel_spec.test.js` went red on it, which
- * is exactly what that assertion is for. I bumped the number because the code
- * really did grow — the `.rec-promoted` mark for ceiling tiebreaks — but a
- * staleness guard that I satisfy by editing the claim every time is a guard I am
- * training myself to ignore. So: +59 lines since the split was called mine, and
- * NONE of them were the split. Recorded here rather than in a task list, because
- * the next person to bump this number should have to read that sentence first.
+ * is exactly what that assertion is for. It was bumped to 436 as the code grew
+ * (+59 lines, none of them the split), and dropped to 362 on 2026-08-17 when
+ * the split finally landed. A staleness guard satisfied by editing the claim
+ * every time is a guard being trained into silence — the next person to bump
+ * this number should have to read that sentence first.
  *
  * Run: node draft/tools/panel_spec.js            (human-readable)
  *      node draft/tools/panel_spec.js --json     (for B to build from)
@@ -60,14 +94,73 @@
  * that is cheap to move from one that is wired to a lot. */
 const PANELS = [
   // ── DECIDES ───────────────────────────────────────────────────────────
-  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 436,
+  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 362,
     question: 'Who should I take right now?',
     means: 'A ranked list of available players scored on projection, positional '
       + 'scarcity and what survives to my next pick. The top row is the model\'s pick.',
     changes_it: 'a player leaving the board; my roster filling a slot; my next pick moving',
     reads: ['players[].proj_mean', 'survival', 'pick_order.my_picks', 'myRoster'],
-    note: 'DOING SIX JOBS. Headline, rationale, timing, tier-cliff, against-case, '
-      + 'chip grid. This is the busy screen. Splitting it is A\'s, not B\'s.' },
+    note: 'WAS DOING SIX JOBS at 436 lines — that split was A\'s, not layout, and '
+      + 'it landed 2026-08-17: the six blocks are their own functions below, and '
+      + 'this composer keeps only the guarded capture + ranked-card emission the '
+      + 'suites pin. THE NAME RENDERS ONCE — the verdict headline owns it.' },
+
+  // ── the six jobs of the old monolith, split 2026-08-17 ────────────────
+  { fn: 'renderRecHeadline', weight: 'CONTEXT', lines: null,
+    question: 'Which surface owns the recommended NAME?',
+    means: 'The headline pair: the verdict block (the one answer, with its chip '
+      + 'and take button) plus the rule headline as its demoted detail lens. '
+      + 'This is the ONLY place the recommended player\'s name renders above '
+      + 'the fold — every other block says "him" or sits behind a tap.',
+    changes_it: 'any pick; the verdict failing to render (the rule un-demotes)',
+    reads: ['renderVerdict', 'renderRuleHeadline', 'state.verdictShown'],
+    note: 'ORDER IS THE CONTRACT: the verdict sets state.verdictShown, which is '
+      + 'what makes the rule headline drop its duplicate name + take button.' },
+  { fn: 'renderRecRationale', weight: 'TRUSTS', lines: null,
+    question: 'Can every row below legally start, or is the list masked?',
+    means: 'The preamble over the ranked list: the FORCED legality banner when '
+      + 'only legal starters are shown, the amber warning when legality is '
+      + 'merely at risk, nothing when the board is clean.',
+    changes_it: 'roster slots filling; the startable-capacity mask engaging',
+    reads: ['scored[0].legality', 'scored[0].legality_warning'] },
+  { fn: 'renderRecTiming', weight: 'TIMES', lines: null,
+    question: 'Did every timing and context surface move with THIS pick?',
+    means: 'The satellite sequencer: confidence, branches, clock, doctrine, '
+      + 'paths, position timing, MVS, strategy split, best-available and the '
+      + 'queue-slip alert, all fed the SAME scored board as the ranked list so '
+      + 'no surface can disagree with the panel beneath it.',
+    changes_it: 'any pick; any of its ten satellites failing (each is isolated)',
+    reads: ['out.scored', 'out.confidence', 'out.branches', 'out.paths'],
+    note: 'A SEQUENCER, not a computer — it calls the panels already described '
+      + 'in this file and adds no derivation of its own. The stack and movement '
+      + 'lines stay in the composer (app-wiring.test.js pins that seam).' },
+  { fn: 'renderRecTierCliff', weight: 'TIMES', lines: null,
+    question: 'Where does each position fall off a cliff?',
+    means: 'The collapsed tier-cliff small multiples — the same scored board '
+      + 'drawn as where each position\'s value drops, one tap open.',
+    changes_it: 'a tier emptying; any pick at that position',
+    reads: ['DraftCharts.tierCliffChart', 'out.scored'] },
+  { fn: 'renderRecChips', weight: 'CONTEXT', lines: null,
+    question: 'What are the numbers behind this one row?',
+    means: 'One row\'s stat chips — VONA, the raw projection with its true '
+      + 'source label, tier, price, the market\'s gone-by-next, the dossier '
+      + 'expander — collapsed behind one tap ("Feel free to compact things '
+      + 'more … I can click for more info").',
+    changes_it: 'the row\'s player; the shared numbers-open preference',
+    reads: ['s.components.vona', 'recRawProj', 'adjusted_adp', 'survival_to_next'],
+    note: 'ONE SHARED PREFERENCE, persisted (wr-disclosures-v1): opening the '
+      + 'numbers on any row opens them on all, so ten cards never become the '
+      + 'wall of chips Cory was compacting away from. Never carries the name.' },
+  { fn: 'renderRecAgainstCase', weight: 'CONTEXT', lines: null,
+    question: 'What is the case against the pick, and how do I act on it?',
+    means: 'The coin-flip / pinned-override disclosure under the ranked list: '
+      + 'the gap in points, and the one-tap take control for the alternative '
+      + '(the same data-draft-me mechanism as every other take).',
+    changes_it: 'the top two closing inside the tie threshold; a personal pin',
+    reads: ['scored[0].contested', 'scored[0].gap_to_second'],
+    note: 'NAME-ONCE: the summary names nobody — the alternative\'s name and '
+      + 'button sit behind the disclosure, so the headline stays the only name '
+      + 'above the fold.' },
 
   { fn: 'renderSeatPlan', weight: 'DECIDES', lines: 121,
     question: 'Which SEAT am I filling at this pick — and what is the plan for the rest?',
@@ -560,10 +653,10 @@ if (process.argv.indexOf('--json') >= 0) {
   console.log('  seats — which is the "look ahead to the rest of the draft" Cory asked');
   console.log('  for and already has.');
   const busiest = PANELS.slice().filter(p => p.lines).sort((a, b) => b.lines - a.lines)[0];
-  console.log('\n  AND THE ONE THING B CANNOT FIX BY MOVING ANYTHING: ' + busiest.fn
-    + ' is ' + busiest.lines + ' lines');
-  console.log('  emitting six different things. Cory read the same player in three of');
-  console.log('  them as "Gibbs listed twice". Splitting it is A\'s job, not layout.');
+  console.log('\n  THE OLD MONOLITH: ' + busiest.fn + ' is ' + busiest.lines + ' lines,');
+  console.log('  down from 436 — the six jobs split out 2026-08-17 ("Gibbs listed');
+  console.log('  twice" was one function doing six jobs; the name renders once now).');
+  console.log('  What remains inside it is pinned there by the suites, deliberately.');
 }
 
 module.exports = { PANELS, ORDER };

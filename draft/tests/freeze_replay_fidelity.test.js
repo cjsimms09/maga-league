@@ -176,16 +176,40 @@ function run(players, league, w) {
   ck('FAIL ARM: dropping `starters` DESTROYS the replay under DEFAULT weights — '
     + 'this is the state the shipped freeze was in', same < 25, same + '/25');
 
-  // ...AND IS INVISIBLE UNDER THE SHIPPED WEIGHTS. The whole reason it survived.
-  const c = run(frozenPlayers, noStarters, E.MEASURED_WEIGHTS);
-  const d = run(live, D.league, E.MEASURED_WEIGHTS);
+  /* ...AND WAS INVISIBLE UNDER THE WEIGHTS THAT SHIPPED AT THE TIME. The whole
+   * reason it survived: every term that reads the lineup shape was multiplied
+   * by zero. RE-PINNED 2026-08-17 EVENING — the ceiling ruling (0.45, Cory,
+   * record at MEASURED_WEIGHTS) put a lineup-shape reader back into the
+   * shipped vector: upsideBonus's bench branch keys off the starters-filled
+   * condition, so the SAME broken freeze now shows through MEASURED too
+   * (measured here: 6/25). The lesson this arm exists for is unchanged and is
+   * now pinned on the vector that actually demonstrates it: a weight set that
+   * zeroes the roster-reading terms is BLIND to this breakage, which is why a
+   * capture test must never run under only one weight set. */
+  const blind = Object.assign({}, E.MEASURED_WEIGHTS, { ceiling: 0 });
+  const c = run(frozenPlayers, noStarters, blind);
+  const d = run(live, D.league, blind);
   const cn = c.slice(0, 25).map(x => x.player.name);
   const dn = d.slice(0, 25).map(x => x.player.name);
   let same2 = 0;
   for (let i = 0; i < 25; i++) if (cn[i] === dn[i]) same2++;
-  ck('FAIL ARM: ...and under MEASURED weights the SAME broken freeze looks '
-    + 'PERFECT — which is why a capture test must not run only under the '
-    + 'weights that ship', same2 === 25, same2 + '/25');
+  ck('FAIL ARM: ...and under the pre-ruling shipped vector (ceiling 0 — the '
+    + 'historical MEASURED) the SAME broken freeze looks PERFECT — a '
+    + 'roster-blind weight set cannot see it, which is why a capture test must '
+    + 'not run only under the weights that ship', same2 === 25, same2 + '/25');
+
+  // And the CURRENT shipped vector is no longer roster-blind: the live ceiling
+  // term reads the lineup shape, so the breakage now shows under MEASURED too.
+  const e2 = run(frozenPlayers, noStarters, E.MEASURED_WEIGHTS);
+  const f2 = run(live, D.league, E.MEASURED_WEIGHTS);
+  let same3 = 0;
+  for (let i = 0; i < 25; i++) {
+    if (e2[i] && f2[i] && e2[i].player.name === f2[i].player.name) same3++;
+  }
+  ck('CONTROL: under the CURRENT shipped MEASURED (ceiling 0.45, ruled '
+    + '2026-08-17) the broken freeze is VISIBLE — the blind spot this arm '
+    + 'documents belongs to the ceiling-0 era, not to today\'s config',
+  same3 < 25, same3 + '/25');
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

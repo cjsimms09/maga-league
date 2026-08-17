@@ -27,8 +27,14 @@ def ck(name, cond, detail=""):
 loaded = G.loaded_weights()
 ck("reads MEASURED_WEIGHTS out of engine.js", len(loaded) >= 6, loaded)
 ck("value is loaded at 1.0 (the measured core)", loaded.get("value") == 1.0, loaded.get("value"))
-ck("ceiling is loaded at 0 (Cory's 2026-08-10 decision)", loaded.get("ceiling") == 0.0,
-   loaded.get("ceiling"))
+# RE-PINNED 2026-08-17: Cory ruled ceiling non-zero ("IS THIS STUDIES? IF SO,
+# YES") after three preregistered runs on real-ceiling boards beat the shipped
+# zero 3/3 seeds, separably, at every value 0.15-0.65. 0.45 is the exp-21
+# inverted-U peak. The 2026-08-10 zero this line used to pin was measured on a
+# proj_mean-x-constant board and could not have come out any other way. Full
+# record at MEASURED_WEIGHTS in engine.js.
+ck("ceiling is loaded at 0.45 (Cory's 2026-08-17 ruling)",
+   loaded.get("ceiling") == 0.45, loaded.get("ceiling"))
 
 # ── An instrument that says it cannot measure the thing gets no vote ───────
 limited = {"build_up_from_core": {

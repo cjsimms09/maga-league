@@ -86,7 +86,18 @@ def test_artifact_class_cv_present_for_every_skill_position(artifact):
         assert 0.2 < cls["cv_mean"] < 1.5, pos     # a cv outside this is a bug
 
 
+@pytest.mark.repo_parity
 def test_artifact_coverage_matches_board(artifact):
+    # repo_parity (2026-08-17, issue #8 run 32035071758): the fresh board's
+    # QB pool had grown to 90 against the artifact's 49+39 — the same
+    # roster-churn shape as below, striking the publication gate this time.
+    # A committed artifact partitioning a board built minutes earlier fails
+    # for the board being NEW, never for it being BAD — the same species as
+    # test_playoff_sos's coverage pin, which is already in
+    # test_gate_selection.py's set. Still enforced against committed state
+    # in every normal pytest run, where red means: re-run
+    # variance_portfolio.py against the published board and re-commit.
+    #
     # COMMITTED-ARTIFACT DRIFT, NOT A CODE BUG (found 2026-08-16 verifying
     # this suite after the board correction — see
     # draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern).
@@ -124,7 +135,16 @@ def test_run_is_deterministic():
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
+@pytest.mark.repo_parity
 def test_committed_artifact_matches_regeneration():
+    # repo_parity (2026-08-17, issue #8 run 32035071758): V.run() reads the
+    # live board, which the nightly rebuilds minutes before this gate runs —
+    # the exact committed-artifact-vs-regeneration-from-rewritten-inputs
+    # shape the 08-16 gate-selection fix classified. The permanent home for
+    # this species is draft/data/artifact_registry.json (see
+    # artifact_freshness_infra_2026-08-16.md); until it migrates there it is
+    # marked, stays red in normal pytest when stale, and the fix is the same
+    # re-run + re-commit as the coverage node above.
     committed = json.loads(ARTIFACT.read_text())
     assert json.dumps(committed, sort_keys=True) \
         == json.dumps(V.run(), sort_keys=True)

@@ -141,16 +141,33 @@ def test_MORE_BONUS_NEVER_MOVES_A_QUARTERBACK_DOWN(board):
     assert ranks == sorted(ranks, reverse=True), ranks
 
 
-def test_THE_NAIVE_AND_HONEST_ANSWERS_DISAGREE_BY_A_FULL_ROUND_AT_QB1(board):
-    """The pinned contrast. Treating the raw gap as VORP moves the board's QB1 by
-    more than a round; the replacement-corrected number moves him by a fraction
-    of one. If these two ever converge, one of them has been broken."""
+def test_THE_NAIVE_AND_HONEST_ANSWERS_DISAGREE_LARGELY_AT_QB1(board):
+    """The pinned contrast. Treating the raw gap as VORP moves the board's QB1
+    by SEVERAL TIMES what the replacement-corrected number moves him. If these
+    two ever converge, one of them has been broken.
+
+    RE-DERIVED TWICE 2026-08-17, and the second time is the lesson. The
+    original pin demanded a literal full round from the naive arm —
+    calibrated on the pre-ruling board (1.2 rounds); the ruled board seats
+    QB1 higher, the same bonus moves him 0.7 rounds, and the pin refused a
+    board whose contrast was intact (run 32043426901). My first re-pin then
+    GUESSED the ruled board's honest arm at <=2 slots and demanded a 3x
+    ratio; the ruled board measures honest=3, naive=7, and the guessed
+    ratio refused it too (run 32044307209) — the fitted-bound mistake,
+    committed while fixing the fitted-bound mistake.
+
+    So the pin is now the DIFFERENCE, measured on both boards rather than
+    guessed on either: pre-ruling 12 vs 2 slots (gap 10), ruled 7 vs 3
+    (gap 4). The claim this test protects — treating the raw scoring gap as
+    VORP materially misprices QB1 relative to the replacement-corrected
+    read — is a several-slot separation plus a bounded honest arm, not any
+    one board's exact figures."""
     qb1 = QA.qb_board(board)[0]
     naive = QA.slots_moved(board, 43.67, [qb1["player_id"]])[0]
     honest = QA.slots_moved(board, 4.00, [qb1["player_id"]])[0]
-    assert naive["rounds_earlier"] >= 1.0, naive
+    assert naive["slots_earlier"] - honest["slots_earlier"] >= 2, (naive, honest)
+    assert naive["slots_earlier"] >= 5, naive
     assert honest["rounds_earlier"] <= 0.5, honest
-    assert naive["slots_earlier"] > honest["slots_earlier"]
 
 
 def test_BREAKEVEN_IS_A_REFUSAL_NOT_A_CLAMP_WHEN_UNREACHABLE(board):

@@ -1,15 +1,15 @@
 # PARTICIPATION — REGIONAL DISAGGREGATION (disaggregate before you discard)
 
-_400 paired rooms · core = mask + value anchor ($754) · bands = {'early_r4_6': 'rounds 4-6', 'mid_r7_10': 'rounds 7-10', 'late_r11_15': 'rounds 11-15'} · n=400; each cell is the full room set gated to a band, ~±25 CI, as powered as the pooled figure._
+_400 paired rooms · core = mask + value anchor ($686) · bands = {'early_r4_6': 'rounds 4-6', 'mid_r7_10': 'rounds 7-10', 'late_r11_15': 'rounds 11-15'} · n=400; each cell is the full room set gated to a band, ~±25 CI, as powered as the pooled figure._
 
 Each term participates ONLY on picks in a band (default weight there, 0 elsewhere), vs core.
 
 | term | early r4-6 | mid r7-10 | late r11-15 | reading |
 |---|---|---|---|---|
-| need | -22 [-39.81,-1.94]* | -4 [-8.38,-0.06]* | +0 [0.0,0.0] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
-| tier | -206 [-230.62,-179.0]* | -115 [-138.25,-92.81]* | -35 [-54.31,-15.88]* | uniformly hurts across all bands — pooled 'drop it' stands |
-| risk | -135 [-159.06,-111.5]* | -18 [-31.0,-3.5]* | -17 [-34.69,1.38] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
-| ceiling | -16 [-34.69,2.5] | +9 [-8.44,26.0] | -19 [-34.19,-4.06]* | hurts in late_r11_15, neutral elsewhere — drop in those bands |
-| bye | -2 [-9.94,7.0] | -10 [-24.38,3.44] | -26 [-44.06,-8.31]* | hurts in late_r11_15, neutral elsewhere — drop in those bands |
+| need | +0 [-6.75,8.44] | -0 [-1.94,1.19] | +0 [0.0,0.0] | flat/neutral across all bands — no regional structure |
+| tier | -70 [-93.19,-48.94]* | -59 [-81.0,-37.12]* | -5 [-22.69,12.31] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
+| risk | -55 [-75.62,-34.94]* | -24 [-41.75,-5.5]* | +3 [-12.81,19.75] | hurts in early_r4_6, mid_r7_10, neutral elsewhere — drop in those bands |
+| ceiling | -2 [-20.38,16.06] | -18 [-33.0,-4.56]* | -6 [-22.94,9.75] | hurts in mid_r7_10, neutral elsewhere — drop in those bands |
+| bye | +0 [-2.88,2.25] | -8 [-23.69,6.81] | -10 [-26.56,6.69] | flat/neutral across all bands — no regional structure |
 
 _* = CI excludes 0. Compare with the pooled figures in EXP-PARTICIPATION.md._

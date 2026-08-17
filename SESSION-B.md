@@ -1,4 +1,12 @@
 # SESSION B — the site & in-season lane (read this first, every time)
+<!-- TERRITORY: B -->
+<!-- The file's own header already said B owns this in prose ("edit it in
+     place, do not recreate it") — this line makes that grant MACHINE-READABLE
+     rather than only readable. Added 2026-08-17 in the same commit that used
+     it: territory-check.sh's _declared_owner() only reads a marker inside the
+     first 5 lines, and without one this file fell through to the default
+     pattern (A), which is how its own territory-detail correction below would
+     have refused itself. -->
 
 > **📣 READ `DRAFT-WEEK-BRIEF.md` BEFORE THIS FILE** (08-17; `MONDAY-BRIEF.md`
 > is still accurate but superseded as the entry point). Three things that change
@@ -71,8 +79,15 @@ isolation.
 
 You own, and are the only one who edits:
 
-- `views/**` **except `views/admin/warroom.ejs`** (that file is the draft surface — it
-  is A's, by substance).
+- `views/**` **except `views/admin/_warroom_scripts.ejs`** (A's module-include seam —
+  the war-room SHELL itself, `views/admin/warroom.ejs`, is B's: layout, hierarchy,
+  CSS, mobile. A owns `app.js` and the markup it emits into that shell. **Corrected
+  2026-08-17** — this file previously named `warroom.ejs` as the exclusion, which
+  contradicted `scripts/territory-check.sh`'s actual `b_owns()` rule (checked
+  directly: `views/admin/warroom.ejs) return 0  # B owns the shell`, dated back to
+  the 2026-08-09 presentation split) and every `ROUTES.md` item describing the same
+  A-emits/B-arranges division. The gate is the authority; this prose had drifted
+  from it.
 - `src/routes/**` — the site's routing/controllers.
 - The **site-feature `src/*.js` modules**: `src/sidebets.js`, `src/betlogic.js`,
   `src/venmo.js`, `src/dashboard.js`, `src/ledger.js`, `src/notify.js` (reassigned to

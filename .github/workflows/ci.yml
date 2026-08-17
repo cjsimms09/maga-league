@@ -42,7 +42,11 @@ jobs:
           print('all workflow YAML parses')
           PY
       - name: Python deps
-        run: pip install pytest
+        # numpy + pandas: test_barbell_middle / test_tiered_outcome_model /
+        # test_pbp_two_point import them at collection time, so without them
+        # pytest aborts the WHOLE Python step at collection (exit 2, run
+        # 32038354284) and every other Python suite silently goes unrun.
+        run: pip install pytest numpy pandas
       # ┌─────────────────────────────────────────────────────────────────────┐
       # │ SESSION A: READ BEFORE EDITING THIS BLOCK (B, 2026-08-10)            │
       # │ The npm-install-ordering bug is ALREADY FIXED here — deps install in │
@@ -152,7 +156,27 @@ jobs:
         # excluded file per tree, so exempting a second would widen exactly what
         # its CONTROL says cannot widen. The file moved instead; this keeps it
         # running every build rather than only when the reviewer is invoked.
-        run: python -m pytest draft/tests tools -q
+        # `-m "not repo_parity"` ADDED 2026-08-17 (A's ruling on the relay's
+        # routed item). The marked nodes are red-by-design against live state
+        # — the ADP-sd ratchet awaiting Cory's rate decision, the freeze
+        # staleness alarm before a re-take — so with them in THIS step main's
+        # CI was permanently red, and a permanently red gate confirms
+        # nothing: B's matchup_placed_bet/trashtalk failures sat unnoticed
+        # for fifteen hours inside the standing red. The pins still run, in
+        # the next step, where their red is VISIBLE but cannot repaint the
+        # whole run. The marked set is pinned to an explicit node list by
+        # test_gate_selection.py, so this exclusion cannot silently widen.
+        run: python -m pytest draft/tests tools -q -m "not repo_parity"
+
+      - name: Standing state alarms — repo_parity pins, allowed red, never silent
+        # These fire when repo/market STATE is new or old, never because a
+        # commit is bad. continue-on-error keeps them from repainting main
+        # red; the log keeps them visible; the silent-skip guard below
+        # verifies this step RAN.
+        id: parity_pins
+        if: always()
+        continue-on-error: true
+        run: python -m pytest draft/tests -q -m "repo_parity"
 
       - name: Baseline regression — live engine vs the FROZEN measured core
         # EVERY RUN, NO FILE FILTER, by explicit instruction. This week's
@@ -230,7 +254,7 @@ jobs:
         # than run at all — which would otherwise leave the run green-looking.
         run: |
           bad=0
-          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}"; do
+          for pair in "JS:${{ steps.js.conclusion }}" "Python:${{ steps.py.conclusion }}" "ParityPins:${{ steps.parity_pins.conclusion }}"; do
             name="${pair%%:*}"; res="${pair##*:}"
             if [ "$res" = "skipped" ] || [ "$res" = "cancelled" ] || [ -z "$res" ]; then
               echo "SILENT SKIP: the $name suite did not run (conclusion='$res')"; bad=1

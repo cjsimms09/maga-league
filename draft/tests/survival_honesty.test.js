@@ -433,9 +433,19 @@ if (block) {
      JSON.stringify(noRun.byId) !== JSON.stringify(inRun.byId),
      'a run on the same board, same window served cached pre-run numbers');
 
-  const driftA = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+  /* TARGET 44, NOT 32, since the empty-window fix (the 41%-wall root cause).
+   * At target 32 the intervening picks (20-31) cover the WHOLE window, Layer 2
+   * is fully trusted there (w = 1), and Layer 2 prices picks by need/value —
+   * it never reads ADP, so drift legitimately cannot move the number. Before
+   * the fix, drift only reached target 32 through the BUG: the zero-width
+   * remainder leg returned taken = 1 for players whose (drift-shifted) F
+   * crossed 0.999, so shifting the offset moved WHICH players were flattened.
+   * A target past the modelled window keeps a real Layer-1 remainder —
+   * effectiveAdp/effectiveSd, the actual drift consumers — inside the number,
+   * which is the honest configuration for this key check. */
+  const driftA = S.conservedSurvival(bb, 44, Object.assign({}, runBase,
     { runMultipliers: {}, drift: null }));
-  const driftB = S.conservedSurvival(bb, 32, Object.assign({}, runBase,
+  const driftB = S.conservedSurvival(bb, 44, Object.assign({}, runBase,
     // The REAL drift shape: effectiveAdp reads {applied, offset} and effectiveSd
     // reads {applied, sdScale}. `{mean: 4.5}` — my first guess — is inert, and the
     // test correctly went red on it. A fixture invented rather than read from the

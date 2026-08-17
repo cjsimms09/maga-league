@@ -12,6 +12,55 @@ make sure we don't have other mistakes in our info!!"*
 
 ---
 
+## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
+
+*Added by the relay so these reach lanes without waiting on a merge. Cory today:
+**"are you following up and delegating appropriately so nothing gets missed."**
+They were in the register and the register is not what people read first.*
+
+**1. THE WAR ROOM COMPUTES EVERY PICK NUMBER FOR THE WRONG SEAT** (register 4c).
+Its own banner says so: 3 keepers mean Cory owns 12 picks, the board gives 15,
+the seat belongs to someone with 0 keepers, and *"every pick number, survival %
+and timing call on this page is computed for the wrong seat."* **That build was
+sent to Cory as a demo.** Fix the seat, or make the page REFUSE to compute.
+
+**2. CORY DRAFTS ON DESKTOP. A's LIVE ORDER TO B SAYS PHONE-FIRST** (4d).
+`7ee6f993`, 16:06 today, specifies *phone-first* and *the 390px column*. The
+assumption dates to 08-13 and was reasonable until this morning. **Desktop is the
+surface that must be right on 08-22.**
+
+**3. `proj_mean` IS SLEEPER, SCALED — FANTASYPROS ENTERS NOTHING** (21).
+`proj_baseline == proj_sleeper`, **422 of 422**; `build.py:1003` states the
+formula. FP (422 players) and own_v6 (416) are carried and DISPLAYED but reach no
+number. **Nobody decided this** — it is a default. No surface may call `proj_mean`
+a "consensus" or a "blend" (21b).
+
+**4. TWO WEIGHT SYSTEMS DISAGREE ABOUT UPSIDE, AND A BROWSER TOGGLE PICKS** (25).
+`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`). `autoWeights()` ships **0.45
+Anchor / 0.6 Build / 0.8 Fill** (`engine.js:3386`). State lives in `localStorage`
+and **no surface says which is active.** "The model ignores upside" is true only
+with Auto OFF. This reframes the ceiling ruling: not zero-vs-non-zero, but *which
+system is authoritative.*
+
+**5. THE SLEEPER-HISTORY BLOCKER WAS FALSE, AND THE PROOF SAT IN A LOG FOR A DAY**
+(24). Three committed files called it "permanently unmeasurable"; none had asked
+the API. **2025 passed every leak gate.** The 08-16 run was dispatched off a
+worktree branch and the push guard discarded its answer. Re-dispatched from
+`main` today — verdict committed as `0f9ecbe2`.
+
+**THE BLEND IS NOW RUNNABLE AND HAS NEVER BEEN RUN.**
+`SOURCE-BLEND-2025-PREREG.md` is committed (before any number, per house rules).
+The remaining blocker is a **fetch** — neither artifact carries per-player rows —
+and fetching is C's lane, not A's. That mis-route is the relay's.
+
+**THE ADJUSTERS WERE NEVER FITTED, AND THE STATED REASON IS A CHOICE** (26).
+`autoWeights` says three drafts is too few. That n=3 is *"one league, ONE SEAT"*
+(`PRE-REGISTRATION-three-season-replay.md:362`), and line 396 of the same prereg
+lists the fix: *"SEAT — 10 managers, not 1."* ~30 draft-seasons, and `replay.js`
+already drives the real `engine.js`. Post-08-22 — a fit, not a hotfix.
+
+---
+
 ## 1. THE ONE THING TO UNDERSTAND
 
 Every dispersion field on the board — `proj_ceiling`, `proj_floor`, `proj_sd`,
@@ -37,7 +86,7 @@ what it invalidated.
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
 | **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
-| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 17.63 / 25.81 / 32.46. Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
+| **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 15.33 / 22.44 / 28.52 (Chase / Henry / Walker, re-read off the 08-17 rebuilt board). Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
 
@@ -65,7 +114,7 @@ Realized weekly volatility (`cv = sd/mean`, our scoring), 2023-25:
 **Volatility persists at ~two thirds the strength of scoring LEVEL.** Compare
 snap-share volatility at +0.19, pulled the same day.
 
-**Its boundary is sharp and non-random.** 131 of 157 draftable players have it.
+**Its boundary is sharp and non-random.** 129 of 155 draftable players have it.
 Of the 26 without, only 8 are rookies — **the rest are veterans who missed 2025**
 (Nabers ADP 32, Garrett Wilson 45, Daniels 59, Evans 62). Any wiring that fills
 a gap with a positional mean hands the steadiest reading to the injury-return

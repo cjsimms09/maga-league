@@ -38,9 +38,10 @@ sentence true?**
 ### 1. The score column on a rec row
 
 **IS:** a weighted sum, in projection points, of the terms the tool currently
-weights — `value + keeper + stack` under the shipped weights (`MEASURED_WEIGHTS`,
-`app.js:52`) — **plus two adjustments applied AFTER that sum, which are not in the
-weight vector at all.**
+weights — `value + ceiling + keeper + stack` under the shipped weights
+(`MEASURED_WEIGHTS`, `app.js:52`; `ceiling` joined at **0.45** on Cory's
+2026-08-17 ruling, see the entry below) — **plus two adjustments applied AFTER
+that sum, which are not in the weight vector at all.**
 
 **THE "AND NOTHING ELSE" IN THIS LINE WAS FALSE UNTIL 2026-08-14, AND IT IS THE
 THIRD INSTANCE OF THE CLASS THIS DOCUMENT EXISTS TO CATCH — found in the document
@@ -50,23 +51,33 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement (2026-08-15 board) |
+| term | share of movement (2026-08-17 board, ceiling live at 0.45) |
 |---|---|
-| `value` (VONA) | **59.0%** |
-| **`onesie`** | **16.8%** |
-| `keeper` | 14.3% |
-| `stack` | 9.9% |
+| `value` (VONA) | **49.0%** |
+| **`onesie`** | **21.8%** |
+| `ceiling` | 16.1% |
+| `stack` | 7.5% |
+| `keeper` | 5.6% |
+
+*(Earlier the same day, before the ceiling ruling shipped, the table read
+`value` 55.3 / `onesie` 23.6 / `stack` 14.4 / `keeper` 6.7 — the ceiling term
+live at 0.45 per Cory's ruling now carries ~16% of top-five movement and
+diluted every other share proportionally. Same board, one weight.)*
 
 **`onesie` is a top-three driver of the recommendation and a reader of the
 old sentence would not have known it exists.** The shares move with the nightly
 rebuild and the MIDDLE RANKS are board-dependent: on the 2026-08-14 board the
-table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6, and the
+table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6; the
 first fresh rebuild after the pipeline was unblocked (2026-08-15, 677 players)
-swapped `keeper` and `onesie` — they run within a few points of each other and
-their order is not a stable claim. The claims that ARE stable, and that the
-test pins: `value` is the largest term, `onesie` is material (top-three, never
-a rounding term), and `stack` is the smallest of the four yet nonzero once a
-roster exists.
+swapped `keeper` and `onesie`; and the 2026-08-17 rebuild — the one that
+executed Cory's same-day rulings (opportunity layer removed, K/DEF demoted,
+measured p90 ceilings) — re-spread the top-fives again and dropped `keeper`
+from 14.3% to 6.7%, below `stack`. "`stack` is the smallest" was therefore a
+board-dependent claim wearing a stable claim's clothes, and this table has now
+retired it. The claims that ARE stable, and that the test pins: `value` is the
+largest term by a wide margin, `onesie` is material (top-three, never a
+rounding term), and every one of the other three is nonzero once a roster
+exists — their ORDER among themselves is not a claim a reader should act on.
 
 **⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
 harness the suites used, the same decomposition returns `value 77.9% / keeper
@@ -79,47 +90,58 @@ same one this document draws about `ceiling`.
 **IS NOT:** a dollar figure, a probability, or a season projection. It is not
 comparable to the `$` numbers anywhere else on the screen.
 
-**FIVE OF THE EIGHT TERMS ARE ZERO IN PRODUCTION** — `tier`, `need`, `risk`,
-`ceiling`, `bye`. That is deliberate and it is the honest reading of the
-measurement, not an oversight:
+**FOUR OF THE EIGHT TERMS ARE ZERO IN PRODUCTION** — `tier`, `need`, `risk`,
+`bye`. That is deliberate and it is the honest reading of the measurement, not
+an oversight:
 
 - `tier`, `need`, `bye` — **measured inert.** They were tested and moved nothing.
 - `risk` — **UNMEASURED.** Weighting a term that measurement cannot sign is how
   a model starts drifting on noise.
-- `ceiling` — **ZERO, AND NOW KNOWN TO BE WRONG. Ships at zero through the
-  2026 draft anyway, deliberately.** This entry used to read "UNMEASURED,
-  −4.8 with a [−26, +17] interval: unsignable". That measurement was taken
-  against a board where `proj_ceiling` was `proj_mean × a constant`, making the
-  ceiling term rank-identical to the value term (Spearman **1.0000**) — it could
-  not have come out any other way, so the zero standing on it was never a
-  measured setting.
+- `ceiling` — **0.45, RULED BY CORY 2026-08-17** ("IS THIS STUDIES? IF SO,
+  YES"). This entry used to read "ZERO, AND NOW KNOWN TO BE WRONG — ships at
+  zero through the 2026 draft anyway, deliberately", and before that
+  "UNMEASURED, −4.8 with a [−26, +17] interval: unsignable". That first
+  measurement was taken against a board where `proj_ceiling` was `proj_mean × a
+  constant`, making the ceiling term rank-identical to the value term (Spearman
+  **1.0000**) — it could not have come out any other way, so the zero standing
+  on it was never a measured setting.
 
   Re-derived 2026-08-17 on the first real-ceiling board (505 distinct
-  ceiling/mean ratios where there was 1), preregistered:
-  **w=0.65 beats the shipped zero by +$35.5, positive in 3/3 seeds and separable
-  in 3/3.** On the old degenerate board the effect *rose* with the weight; on the
-  real one it *falls* — the old grid's slope was the defect, not a signal.
-  Results: `EXP-CEILING-REDERIVATION.md`. Prereg:
-  `CEILING-REDERIVATION-PREREG.md`.
+  ceiling/mean ratios where there was 1), preregistered: three runs, two
+  independent seed sets, **every value tested from 0.15 to 0.65 beats zero,
+  3/3 seeds, separable in 3/3.** Results: `EXP-CEILING-REDERIVATION.md`.
+  Prereg: `CEILING-REDERIVATION-PREREG.md`.
 
-  **It does not ship before 2026-08-22**, per both preregs: measured once, on a
-  money proxy, on a grid whose winner is its own smallest tested weight, so the
-  optimum is not bracketed. A weight measured once, five days out, is a worse
-  instrument than a known one. **What is NOT honest any more is calling this
-  term unmeasured** — it is measured, it is non-zero, and the shipped value is a
-  deliberate hold rather than a finding.
+  **Why 0.45 and not higher:** `FRONTIER.md` exp 21 (150 paired rooms, Cory's
+  real keeper base) measured an **inverted-U** — λ=0.25 +$44/season, λ=0.5 +$56
+  (CI [33, 78]), λ=2 −$18, λ=3 −$27 (CI excludes zero); `POLICY-TOURNAMENT.md`
+  §5 reproduced the shape from a different control. 0.45 sits at the measured
+  peak; higher moves toward the provably negative arm.
+
+  **This shipped before 2026-08-22 on a ruled, dated prereg deviation:** all
+  four preregs fixed the no-change-before-08-22 hold before producing numbers,
+  and Cory as owner explicitly overrode that hold on 2026-08-17. The caveat
+  travels with the weight (recorded at `MEASURED_WEIGHTS` in `engine.js`):
+  under the measured-p90 ceilings the term saturates at `CEILING_MAX_BONUS`
+  for ~79 players, near-binary at QB/TE — the 3/3-seed evidence embeds that
+  saturation, and September's quantile re-run certifies or reverts. Measured
+  blast radius through `recommend()`: top-60 unchanged at picks 33–68, bench
+  ordering shifts from ~pick 100, the top recommendation never changes.
 
 **THE MISREAD TO WATCH:** a component breakdown listing eight terms invites "the
-model considered all of these". It considered three. The engine already
+model considered all of these". It considered four. The engine already
 multiplies each component by its weight before reporting it, so a zero-weight
 term reports 0 rather than a number — **that is correct and must stay correct.**
 
 ### 2. VONA
 
 **IS:** `proj_mean(p) − E[best available at p's position at MY next pick]`, in
-projection points. **59% of what moves the composite** — the largest single term
-by a factor of three, re-measured today over the top five at each of his twelve
-picks with the roster accumulating from his real keepers.
+projection points. **~49-59% of what moves the composite** (49.0% on the
+2026-08-17 board with `ceiling` live at 0.45 per Cory's same-day ruling —
+the new term took its ~16% share mostly out of this one; 55.3% earlier that day
+at ceiling 0; 59.0% on 2026-08-15) — the largest single term by better than a
+factor of two, re-measured over the top five at each of his twelve picks with
+the roster accumulating from his real keepers.
 
 > This figure read **62%** and was carried in prose with no computation behind it
 > anywhere in the repo. Re-derived, it is 59.3% — so the number was approximately
@@ -185,11 +207,13 @@ so the look-ahead the panel is built on does not exist.
 keepers."*
 
 - **Keepers ARE priced in the composite** — `keeper` weight 1.0, measured.
-- **Upside is NOT priced in the composite** — `ceiling` weight 0, because the
-  measurement could not sign it.
-- **Upside acts as a TIEBREAK, which is precisely the ask**: same position, same
-  tier, within 2 points, higher ceiling gets promoted. That is "when value is
-  close, take the upside", implemented exactly as stated.
+- **Upside IS priced in the composite since 2026-08-17** — `ceiling` weight
+  0.45, Cory's ruling at the exp-21 inverted-U peak (see §1). It is late-gated
+  (`CEILING_LATE_FROM` and the bench branch), so what it moves is bench
+  ordering from ~pick 100, never the early board.
+- **Upside ALSO acts as a TIEBREAK, which is precisely the ask**: same position,
+  same tier, within 2 points, higher ceiling gets promoted. That is "when value
+  is close, take the upside", implemented exactly as stated.
 
 **The tiebreak is the one place the list is deliberately not in score order**, and
 a reader who cannot tell a deliberate promotion from a broken sort stops trusting
@@ -302,7 +326,7 @@ non-positive route is not offered.
 **⚠ `stack` IS NOT ONLY STACKING.** `correlationAdjustment` carries three effects:
 the pairing bonus, the same-team competition penalty, and **a playoff-schedule
 bump from round 6** worth up to ±4 × sos — which nobody would guess from the term
-name, and which the §1 table counts inside `stack`'s 10.6%. It has **never
+name, and which the §1 table counts inside `stack`'s share. It has **never
 fired**: `playoff_sos` is null on all 686 board rows. Asserted, so the day that
 field lands the suite goes red instead of the behaviour appearing in a pick.
 
@@ -395,8 +419,8 @@ reaching.** It also contradicts this document's own standard in §2 — *"three
 drafts give a direction, not a magnitude"* — quoted here to one decimal place.
 
 **⚠ THIS IS NOT DISPLAY-ONLY.** `reach_delta.mean` feeds `withinPrecision` in
-`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → 59% of
-the composite. The two least-supported estimates get the largest adjustment
+`survival.js`, shaping the opponent softmax → Layer 2 survival → VONA → ~49-59%
+of the composite (the band widened when the ceiling ruling took its share). The two least-supported estimates get the largest adjustment
 (`−0.02 × mean`).
 
 **NOTHING WAS RE-FITTED.** The tell still fires, with the same text and weight,

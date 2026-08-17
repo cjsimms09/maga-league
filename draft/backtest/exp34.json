@@ -18,15 +18,15 @@
     "n_picks": 26,
     "rho_our_mean": 0.408,
     "rho_our_ci": [
-      0.334,
+      0.335,
       0.482
     ],
-    "rho_market_mean": 0.267,
+    "rho_market_mean": 0.268,
     "rho_market_ci": [
-      0.199,
-      0.328
+      0.201,
+      0.329
     ],
-    "diff_mean": 0.141,
+    "diff_mean": 0.14,
     "diff_ci": [
       0.053,
       0.224

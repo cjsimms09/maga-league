@@ -1,3 +1,14 @@
+// TERRITORY: A
+//
+// ⚠️ ADDED BY B — one comment line, and it takes nothing from A. A wrote the
+// TERRITORY-GRANT below and it could never fire: territory-check.sh consults a
+// grant only inside the `_declared_owner` branch (:704), and this file declared
+// no owner, so it fell through to the pattern branch and reported a flat
+// trespass with the grant sitting four lines under it, unread. Declaring the
+// file A's is what makes A's own grant reachable — it asserts A's ownership
+// rather than weakening it, and it has to live inside the first five lines
+// because that is all `_declared_owner` reads.
+//
 // Sleeper's public read-only API (no key required): https://docs.sleeper.com
 // Everything here fails soft — the site must work fine when Sleeper is
 // unreachable or unconfigured. Base URL is overridable for tests.
@@ -100,9 +111,22 @@ async function bundle(leagueId) {
       fetchJson(`/v1/league/${leagueId}/users`),
       fetchJson(`/v1/league/${leagueId}/rosters`),
     ]);
-    const week = Math.max(1, Math.min(state.week || 1, 18));
+    /* SEASON TYPE DECIDES WHETHER state.week MEANS ANYTHING.
+     *
+     * Sleeper's /v1/state/nfl reports `week` for whatever phase it is in, so
+     * during PRESEASON it counts preseason weeks — on 2026-08-17 it returned 2
+     * and the matchup tab rendered "Week 2" for a regular season that had not
+     * started. Cory caught it on the live site.
+     *
+     * `week` is only a regular-season week when season_type is 'regular'.
+     * Anything else clamps to week 1, which is the next week that will actually
+     * be played, and `preseason` is exposed so a surface can say so rather than
+     * quietly showing a number that is wrong. */
+    const seasonType = state.season_type || 'regular';
+    const preseason = seasonType !== 'regular' && seasonType !== 'post';
+    const week = preseason ? 1 : Math.max(1, Math.min(state.week || 1, 18));
     const matchups = await fetchJson(`/v1/league/${leagueId}/matchups/${week}`);
-    const data = { state, league, users, rosters, matchups, week };
+    const data = { state, league, users, rosters, matchups, week, preseason, season_type: seasonType };
     const stamped = { league_id: leagueId, fetched_at: Date.now(), data, cached: now() };
     await setDoc('sleeper-cache', stamped);
     return withFreshness(data, stamped, 'live');
@@ -158,7 +182,17 @@ function myMatchup(data, sleeperMap, ownerId, owners) {
   const myRoster = Number(mine[0]);
   const row = data.matchups.find(m => Number(m.roster_id) === myRoster);
   if (!row) return null;
-  const opp = data.matchups.find(m => m.matchup_id === row.matchup_id && Number(m.roster_id) !== myRoster);
+  // ⚠️ CROSS-LANE FIX BY B — granted in writing by A above, applied here.
+  // A NULL matchup_id IS NOT AN IDENTIFIER, and matching on it invents fixtures.
+  // Sleeper returns a row per roster with `matchup_id: null` for a week whose
+  // schedule is not posted yet. With every id null, `m.matchup_id ===
+  // row.matchup_id` is null === null — TRUE — so this returned whichever roster
+  // came next in the array as your opponent. In week 1 before the slate is up,
+  // /matchup rendered "Cory 0.00 you vs Marian 0.00" complete with the real
+  // all-time head-to-head, a trash thread, and a one-tap side bet against a
+  // person you are not playing. Found by driving the unposted-slate state.
+  const opp = row.matchup_id == null ? null
+    : data.matchups.find(m => m.matchup_id === row.matchup_id && Number(m.roster_id) !== myRoster);
   const ownerFor = rosterId => {
     const id = (sleeperMap || {})[String(rosterId)];
     return (owners || []).find(o => o.id === Number(id)) || null;

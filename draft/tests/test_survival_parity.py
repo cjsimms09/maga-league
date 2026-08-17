@@ -90,8 +90,13 @@ def test_the_fallback_sd_agrees_across_the_whole_adp_range():
 
 
 def test_survival_agrees_on_the_four_players_C_measured():
-    """The exact rows from C's report, which is what regression means here."""
-    cases = [(44.3, 0.001), (73.0, 0.034), (101.0, 0.091), (141.7, 0.091)]
+    """The exact rows from C's report, re-derived 2026-08-17 under the shipped
+    0.11/2.0 pair (Cory's ruling; keepers.py SHIPPED block). C's originals —
+    0.001/0.034/0.091/0.091 — were computed at 0.15/3.0 and remain in this
+    line as the record of what the over-wide rule used to claim: it gave a
+    player at adp 73 a 3.4% chance of surviving 20 more picks when the
+    market-calibrated rule says 0.6%."""
+    cases = [(44.3, 0.0000), (73.0, 0.0064), (101.0, 0.0359), (141.7, 0.0912)]
     for adp, expected_js in cases:
         got = K.survival_probability(adp, adp + 20)
         want = 1.0 - NormalDist(mu=adp, sigma=_js_sd(adp)).cdf(adp + 20)

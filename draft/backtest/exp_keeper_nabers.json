@@ -10,114 +10,34 @@
   "candidates": {
     "Chase": {
       "pos": "WR",
-      "proj_mean": 295.1,
-      "vorp": 121.92,
+      "proj_mean": 256.6,
+      "vorp": 94.0,
       "adp": 3.0,
       "years_exp": 5
     },
     "Henry": {
       "pos": "RB",
-      "proj_mean": 274.2,
-      "vorp": 85.28,
-      "adp": 19.7,
+      "proj_mean": 238.4,
+      "vorp": 59.1,
+      "adp": 19.3,
       "years_exp": 10
     },
     "Walker": {
       "pos": "RB",
-      "proj_mean": 256.4,
-      "vorp": 67.52,
-      "adp": 17.3,
+      "proj_mean": 225.5,
+      "vorp": 46.2,
+      "adp": 16.7,
       "years_exp": 4
     },
     "Nabers": {
       "pos": "WR",
-      "proj_mean": 200.2,
-      "vorp": 27.08,
-      "adp": 29.0,
+      "proj_mean": 186.3,
+      "vorp": 23.7,
+      "adp": 28.1,
       "years_exp": 2
     }
   },
   "surplus_ranked": [
-    {
-      "slate": [
-        "Chase",
-        "Henry",
-        "Walker"
-      ],
-      "k": 3,
-      "keeper_vorp": 274.72,
-      "cost_vorp": 202.19,
-      "surplus": 72.53,
-      "has_nabers": false,
-      "rb_kept": 2,
-      "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Chase",
-        "Henry"
-      ],
-      "k": 2,
-      "keeper_vorp": 207.2,
-      "cost_vorp": 165.99,
-      "surplus": 41.21,
-      "has_nabers": false,
-      "rb_kept": 1,
-      "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Chase",
-        "Henry",
-        "Nabers"
-      ],
-      "k": 3,
-      "keeper_vorp": 234.28,
-      "cost_vorp": 202.19,
-      "surplus": 32.09,
-      "has_nabers": true,
-      "rb_kept": 1,
-      "wr_kept": 2
-    },
-    {
-      "slate": [
-        "Chase",
-        "Walker"
-      ],
-      "k": 2,
-      "keeper_vorp": 189.44,
-      "cost_vorp": 165.99,
-      "surplus": 23.45,
-      "has_nabers": false,
-      "rb_kept": 1,
-      "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Chase"
-      ],
-      "k": 1,
-      "keeper_vorp": 121.92,
-      "cost_vorp": 103.91,
-      "surplus": 18.01,
-      "has_nabers": false,
-      "rb_kept": 0,
-      "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Chase",
-        "Walker",
-        "Nabers"
-      ],
-      "k": 3,
-      "keeper_vorp": 216.52,
-      "cost_vorp": 202.19,
-      "surplus": 14.33,
-      "has_nabers": true,
-      "rb_kept": 1,
-      "wr_kept": 2
-    },
     {
       "slate": [],
       "k": 0,
@@ -130,15 +50,94 @@
     },
     {
       "slate": [
+        "Chase",
         "Henry",
         "Walker"
       ],
-      "k": 2,
-      "keeper_vorp": 152.8,
-      "cost_vorp": 165.99,
-      "surplus": -13.19,
+      "k": 3,
+      "keeper_vorp": 199.3,
+      "cost_vorp": 202.19,
+      "surplus": -2.89,
       "has_nabers": false,
       "rb_kept": 2,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase"
+      ],
+      "k": 1,
+      "keeper_vorp": 94.0,
+      "cost_vorp": 103.91,
+      "surplus": -9.91,
+      "has_nabers": false,
+      "rb_kept": 0,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Henry"
+      ],
+      "k": 2,
+      "keeper_vorp": 153.1,
+      "cost_vorp": 165.99,
+      "surplus": -12.89,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Henry",
+        "Nabers"
+      ],
+      "k": 3,
+      "keeper_vorp": 176.8,
+      "cost_vorp": 202.19,
+      "surplus": -25.39,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 2
+    },
+    {
+      "slate": [
+        "Chase",
+        "Walker"
+      ],
+      "k": 2,
+      "keeper_vorp": 140.2,
+      "cost_vorp": 165.99,
+      "surplus": -25.79,
+      "has_nabers": false,
+      "rb_kept": 1,
+      "wr_kept": 1
+    },
+    {
+      "slate": [
+        "Chase",
+        "Walker",
+        "Nabers"
+      ],
+      "k": 3,
+      "keeper_vorp": 163.9,
+      "cost_vorp": 202.19,
+      "surplus": -38.29,
+      "has_nabers": true,
+      "rb_kept": 1,
+      "wr_kept": 2
+    },
+    {
+      "slate": [
+        "Henry"
+      ],
+      "k": 1,
+      "keeper_vorp": 59.1,
+      "cost_vorp": 103.91,
+      "surplus": -44.81,
+      "has_nabers": false,
+      "rb_kept": 1,
       "wr_kept": 0
     },
     {
@@ -147,23 +146,36 @@
         "Nabers"
       ],
       "k": 2,
-      "keeper_vorp": 149.0,
+      "keeper_vorp": 117.7,
       "cost_vorp": 165.99,
-      "surplus": -16.99,
+      "surplus": -48.29,
       "has_nabers": true,
       "rb_kept": 0,
       "wr_kept": 2
     },
     {
       "slate": [
-        "Henry"
+        "Walker"
       ],
       "k": 1,
-      "keeper_vorp": 85.28,
+      "keeper_vorp": 46.2,
       "cost_vorp": 103.91,
-      "surplus": -18.63,
+      "surplus": -57.71,
       "has_nabers": false,
       "rb_kept": 1,
+      "wr_kept": 0
+    },
+    {
+      "slate": [
+        "Henry",
+        "Walker"
+      ],
+      "k": 2,
+      "keeper_vorp": 105.3,
+      "cost_vorp": 165.99,
+      "surplus": -60.69,
+      "has_nabers": false,
+      "rb_kept": 2,
       "wr_kept": 0
     },
     {
@@ -173,24 +185,24 @@
         "Nabers"
       ],
       "k": 3,
-      "keeper_vorp": 179.88,
+      "keeper_vorp": 129.0,
       "cost_vorp": 202.19,
-      "surplus": -22.31,
+      "surplus": -73.19,
       "has_nabers": true,
       "rb_kept": 2,
       "wr_kept": 1
     },
     {
       "slate": [
-        "Walker"
+        "Nabers"
       ],
       "k": 1,
-      "keeper_vorp": 67.52,
+      "keeper_vorp": 23.7,
       "cost_vorp": 103.91,
-      "surplus": -36.39,
-      "has_nabers": false,
-      "rb_kept": 1,
-      "wr_kept": 0
+      "surplus": -80.21,
+      "has_nabers": true,
+      "rb_kept": 0,
+      "wr_kept": 1
     },
     {
       "slate": [
@@ -198,9 +210,9 @@
         "Nabers"
       ],
       "k": 2,
-      "keeper_vorp": 112.36,
+      "keeper_vorp": 82.8,
       "cost_vorp": 165.99,
-      "surplus": -53.63,
+      "surplus": -83.19,
       "has_nabers": true,
       "rb_kept": 1,
       "wr_kept": 1
@@ -211,35 +223,23 @@
         "Nabers"
       ],
       "k": 2,
-      "keeper_vorp": 94.6,
+      "keeper_vorp": 69.9,
       "cost_vorp": 165.99,
-      "surplus": -71.39,
+      "surplus": -96.09,
       "has_nabers": true,
       "rb_kept": 1,
-      "wr_kept": 1
-    },
-    {
-      "slate": [
-        "Nabers"
-      ],
-      "k": 1,
-      "keeper_vorp": 27.08,
-      "cost_vorp": 103.91,
-      "surplus": -76.83,
-      "has_nabers": true,
-      "rb_kept": 0,
       "wr_kept": 1
     }
   ],
   "nabers_breakeven_vorp": {
-    "displace_Walker": 67.52,
-    "displace_Henry": 85.28,
-    "current_nabers_vorp": 27.08
+    "displace_Walker": 46.2,
+    "displace_Henry": 59.1,
+    "current_nabers_vorp": 23.7
   },
   "nabers_market_implied_vorp": {
-    "implied_vorp": 33.58,
-    "adp_rank": 29,
-    "model_vorp": 27.08
+    "implied_vorp": 26.6,
+    "adp_rank": 28,
+    "model_vorp": 23.7
   },
   "draft_mc": {
     "rooms": 200,
@@ -251,7 +251,7 @@
           "Henry",
           "Walker"
         ],
-        "mean_dollars": 715.75,
+        "mean_dollars": 616.75,
         "vs_current": {
           "mean": 0.0,
           "ci95": [
@@ -261,15 +261,15 @@
           "beats": false
         },
         "rb_kept": 2,
-        "rb_drafted_mean": 1.75,
-        "rb_drafted_mean_vorp": -42.1,
+        "rb_drafted_mean": 2.12,
+        "rb_drafted_mean_vorp": -55.7,
         "avg_roster_comp": {
-          "DEF": 1.4,
-          "K": 1.4,
-          "QB": 1.5,
-          "RB": 3.8,
-          "TE": 2.9,
-          "WR": 4.1
+          "DEF": 1.5,
+          "K": 1.3,
+          "QB": 1.4,
+          "RB": 4.1,
+          "TE": 2.7,
+          "WR": 3.9
         }
       },
       {
@@ -278,25 +278,25 @@
           "Henry",
           "Nabers"
         ],
-        "mean_dollars": 610.12,
+        "mean_dollars": 537.38,
         "vs_current": {
-          "mean": -105.62,
+          "mean": -79.38,
           "ci95": [
-            -137.0,
-            -76.12
+            -103.25,
+            -56.88
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.75,
-        "rb_drafted_mean_vorp": -42.7,
+        "rb_drafted_mean": 3.12,
+        "rb_drafted_mean_vorp": -52.0,
         "avg_roster_comp": {
-          "DEF": 1.4,
-          "K": 1.4,
-          "QB": 1.5,
-          "RB": 3.8,
-          "TE": 2.9,
-          "WR": 4.1
+          "DEF": 1.5,
+          "K": 1.3,
+          "QB": 1.4,
+          "RB": 4.1,
+          "TE": 2.7,
+          "WR": 4.0
         }
       },
       {
@@ -305,25 +305,25 @@
           "Nabers",
           "Walker"
         ],
-        "mean_dollars": 576.88,
+        "mean_dollars": 526.75,
         "vs_current": {
-          "mean": -138.88,
+          "mean": -90.0,
           "ci95": [
-            -172.5,
-            -106.38
+            -116.75,
+            -65.0
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.75,
-        "rb_drafted_mean_vorp": -42.7,
+        "rb_drafted_mean": 3.12,
+        "rb_drafted_mean_vorp": -51.7,
         "avg_roster_comp": {
-          "DEF": 1.4,
-          "K": 1.4,
-          "QB": 1.5,
-          "RB": 3.8,
-          "TE": 2.9,
-          "WR": 4.1
+          "DEF": 1.5,
+          "K": 1.3,
+          "QB": 1.4,
+          "RB": 4.1,
+          "TE": 2.7,
+          "WR": 4.0
         }
       },
       {
@@ -331,25 +331,25 @@
           "Chase",
           "Henry"
         ],
-        "mean_dollars": 513.62,
+        "mean_dollars": 508.5,
         "vs_current": {
-          "mean": -202.12,
+          "mean": -108.25,
           "ci95": [
-            -238.38,
-            -165.38
+            -146.5,
+            -70.62
           ],
           "beats": false
         },
         "rb_kept": 1,
-        "rb_drafted_mean": 2.81,
-        "rb_drafted_mean_vorp": -44.6,
+        "rb_drafted_mean": 2.83,
+        "rb_drafted_mean_vorp": -46.9,
         "avg_roster_comp": {
-          "DEF": 1.2,
+          "DEF": 1.4,
           "K": 1.3,
-          "QB": 1.3,
+          "QB": 1.4,
           "RB": 3.8,
-          "TE": 2.7,
-          "WR": 3.7
+          "TE": 2.5,
+          "WR": 3.6
         }
       }
     ]
@@ -362,30 +362,30 @@
     },
     "Chase|Henry|Nabers": {
       "vs_current_no_oppkeepers": {
-        "mean": -95.0,
+        "mean": -30.5,
         "ci95": [
-          -135.75,
-          -57.75
+          -52.0,
+          -6.75
         ],
         "beats": false
       }
     },
     "Chase|Nabers|Walker": {
       "vs_current_no_oppkeepers": {
-        "mean": -151.25,
+        "mean": -53.0,
         "ci95": [
-          -193.75,
-          -111.0
+          -82.0,
+          -26.0
         ],
         "beats": false
       }
     },
     "Chase|Henry": {
       "vs_current_no_oppkeepers": {
-        "mean": -153.5,
+        "mean": -171.5,
         "ci95": [
-          -205.25,
-          -105.25
+          -222.5,
+          -124.0
         ],
         "beats": false
       }
@@ -393,20 +393,20 @@
   },
   "experience_bias_probe": {
     "rookie(0)": {
-      "n": 47,
-      "mean_rank_gap_vorp_minus_adp": 38.3
+      "n": 82,
+      "mean_rank_gap_vorp_minus_adp": 6.7
     },
     "2nd-yr(1)": {
-      "n": 54,
-      "mean_rank_gap_vorp_minus_adp": 48.5
+      "n": 88,
+      "mean_rank_gap_vorp_minus_adp": 12.0
     },
     "3rd-yr(2)": {
-      "n": 52,
-      "mean_rank_gap_vorp_minus_adp": 51.4
+      "n": 63,
+      "mean_rank_gap_vorp_minus_adp": 17.3
     },
     "vet(3+)": {
-      "n": 236,
-      "mean_rank_gap_vorp_minus_adp": 27.7
+      "n": 343,
+      "mean_rank_gap_vorp_minus_adp": -7.8
     }
   },
   "caveats": [

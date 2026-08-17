@@ -37,20 +37,33 @@ check('survival at ADP is ~50%', approx(E.survival(guy, 40), 0.5, 0.02));
 // assert the constant's VALUE once, with a citation for where the value comes
 // from. Then re-tuning touches exactly one line, and that line says why.
 //
-// SPEC: WORKORDERv3.md, adp_sd interim — "clamp(0.15 x adp, 3.0, 15.0)",
-// standing in for real per-player ADP dispersion until FFC's sd is reachable
-// (blocked at CONNECT by the network policy; see the allowlist note).
-check('the sd coefficients are the ones the work order specifies',
-  E.CFG.ADP_SD_RATE === 0.15 && E.CFG.ADP_SD_FLOOR === 3.0
+// SPEC, superseding WORKORDERv3.md's interim "clamp(0.15 x adp, 3.0, 15.0)":
+// re-pinned 2026-08-17, Cory's adp_sd ruling (0.11/2.0) — "SHIP, ORDER BACKTEST
+// AND RESERVE RIGHT TO CHANGE IF BACKTEST SHOWS DIFFERENT DATA". The rate is
+// the two-estimator measurement (LSQ 0.1083 / median 0.1099, n=173) and the
+// floor moved WITH it; derivation in keepers.py's SHIPPED block. The cap is
+// deliberately unchanged (undetermined, n=30 above adp 200). E.CFG now READS
+// these from survival.js's CFG rather than mirroring them by hand, and
+// test_survival_parity.py holds survival.js equal to keepers.py — so this one
+// literal line is the only place the VALUE is asserted, per the rule above.
+check('the sd coefficients are the shipped ruling pair',
+  E.CFG.ADP_SD_RATE === 0.11 && E.CFG.ADP_SD_FLOOR === 2.0
     && E.CFG.ADP_SD_CAP === 15.0,
   JSON.stringify([E.CFG.ADP_SD_RATE, E.CFG.ADP_SD_FLOOR, E.CFG.ADP_SD_CAP]));
 check('adpSd floors, rather than going to zero at the top of the board',
   approx(E.adpSd(5), E.CFG.ADP_SD_FLOOR));
 check('adpSd grows linearly with ADP between the floor and the cap',
   approx(E.adpSd(50), 50 * E.CFG.ADP_SD_RATE));
+/* The cap probes sit ABOVE where the cap starts to bind, DERIVED rather than
+ * typed: at the old 0.15 rate the cap bound from adp 100; at the shipped 0.11
+ * it binds from adp ~136 (CAP/RATE), so a hard-coded probe at 100 was really
+ * asserting the old rate — the exact strand-the-next-ruling failure the rule
+ * above exists to prevent. */
+const capFrom = E.CFG.ADP_SD_CAP / E.CFG.ADP_SD_RATE;
 check('and is capped, so a late-round ADP does not flatten the curve entirely',
-  approx(E.adpSd(100), E.CFG.ADP_SD_CAP) && approx(E.adpSd(200), E.CFG.ADP_SD_CAP),
-  String(E.adpSd(200)));
+  approx(E.adpSd(capFrom + 10), E.CFG.ADP_SD_CAP)
+    && approx(E.adpSd(capFrom * 2), E.CFG.ADP_SD_CAP),
+  String(E.adpSd(capFrom * 2)));
 check('a source-provided sd always beats the heuristic',
   E.adpSd(170, 6.5) === 6.5);
 check('and the cap never fires below the floor',
@@ -1533,10 +1546,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   check('measured: stack at 1.0 (the one adjuster that earned — D10 as ruled)',
     m.stack === 1.0, String(m.stack));
   check('measured: need at 0 (inert by mask redundancy — settled)', m.need === 0, String(m.need));
-  check('measured: ceiling SETTLED TO ZERO — the ledger measured -4.8 [-26,+17], a sign we '
-    + 'cannot distinguish from zero, yet at 0.65 it decided a third of late #1s (flip diag). '
-    + 'The weekly-payout lean lives in the same-tier tiebreak + Ceiling Chase doctrine now.',
-    m.ceiling === 0, String(m.ceiling));
+  check('measured: ceiling at 0.45 — RULED 2026-08-17 (Cory: "IS THIS STUDIES? IF SO, YES"). '
+    + 'The old -4.8 [-26,+17] zero was measured on a proj_mean-x-constant board (rank-identical '
+    + 'to value, Spearman 1.0000); three preregistered runs on real ceilings beat zero 3/3 seeds, '
+    + 'separably, at every value 0.15-0.65. 0.45 is the exp-21 inverted-U PEAK — "should it be '
+    + 'higher?" is answered NO by the provably negative heavy-tilt arm. Full record at '
+    + 'MEASURED_WEIGHTS in engine.js.',
+    m.ceiling === 0.45, String(m.ceiling));
   check('measured: bye OFF (a real null)', m.bye === 0, String(m.bye));
   // it must be a real, selectable preset AND the thing matchPreset names it
   const preset = E.WEIGHT_PRESETS.find(p => p.key === 'measured');

@@ -13,8 +13,8 @@ grader). Pre-registered: if naive wins, REPLACE the input; ships nothing (gate f
 
 ## DOLLARS (value-greedy roster per source)
 
-- 2025: blend $100.0 · naive $0.0 · adp $100.0 (naive−blend $-100.0)
-- 2024: blend $200.0 · naive $100.0 · adp $400.0 (naive−blend $-100.0)
+- 2025: blend $100.0 · naive $0.0 · adp $200.0 (naive−blend $-100.0)
+- 2024: blend $200.0 · naive $100.0 · adp $1025.0 (naive−blend $-100.0)
 - 2023: blend $0.0 · naive $0.0 · adp $800.0 (naive−blend $0.0)
 - **naive − blend, summed: $-200.0**
 

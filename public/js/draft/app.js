@@ -897,14 +897,14 @@
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
-      what: 'The chance each player is still on the board at your next pick, from '
-        + 'the market (ADP) model: ADP, its dispersion, and a conservation tilt so '
-        + 'only as many players can go as there are picks.',
-      read: 'Under ~50% treat him as gone and plan the seat without him. Identical '
-        + 'percentages on several elites are the tilt\'s redistribution floor — the '
-        + 'market cannot split players already past their ADP; the room model in '
-        + 'Most-likely-to-be-gone can, and it names the seat.',
-      do: 'Plan with the market number (it is what the score uses), but when you '
+      what: 'The chance each player is still on the board at your next pick: the '
+        + 'market (ADP) model blended with the room model for the picks in between, '
+        + 'through a conservation tilt so only as many players can go as there are picks.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. For players '
+        + 'already past their ADP the market alone has nothing left to say — the room '
+        + 'model is what splits them, so identical percentages on several elites only '
+        + 'appear before the draft order is known; Most-likely-to-be-gone names the seat.',
+      do: 'Plan with this number (it is what the score uses), but when you '
         + 'need WHO goes first among the elites, read the room model instead. A run '
         + 'at a position breaks both — re-read after any run banner.',
       src: 'survival.js survivalProbability()/conservedSurvival(); engine.js survival() accessor',
@@ -2225,6 +2225,13 @@
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
     try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
+    /* THE COCKPIT LAYER (rebuild 2026-08-17, Cory's order): tabs, position
+     * rails, right-rail charts and the drill-down live in warroom_charts.js,
+     * loaded AFTER this file. It reads the narrow WarRoomData accessor below
+     * and re-renders on every board update. Guarded — a missing or throwing
+     * cockpit never blocks the clock. */
+    try { if (typeof WarRoomCockpit !== 'undefined') WarRoomCockpit.refresh(); }
+    catch (e) { console.error('[cockpit]', (e && e.message) || e); }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
     // and disappear with rehearsal/slot state). Measured again on the next
@@ -2855,13 +2862,14 @@
     const clockNameEl = $('#clock-name');
     clockNameEl.innerHTML = escapeHtml(p.name)
       + '<span class="rec-pos ' + p.position + '">' + p.position + '</span>';
-    // LEGIBILITY HOTFIX (phone, 2026-08-10): style.css sets .clock-name to #fff
-    // (white) — a dark-theme leftover — but the clock-card renders on a light,
-    // gold-tinted PAPER background, so the player's name was white-on-white and
-    // unreadable (the "text I could not read"). Force the theme ink inline so it
-    // is legible now; this overrides the bug without touching B's stylesheet.
-    // B: the real fix is `.clock-name { color: var(--ink); }` in style.css.
-    clockNameEl.style.color = 'var(--ink, #17263a)';
+    // The 2026-08-10 legibility hotfix (`style.color = var(--ink)` inline) is
+    // GONE, deliberately: it existed because style.css once painted .clock-name
+    // white on the light card, and inline color would now defeat the stylesheet
+    // permanently. The redesign (2026-08-17) gave the clock card the dark navy
+    // board and warroom.css owns .clock-name's color there — an inline ink
+    // color on that surface is exactly the dark-on-dark bug in reverse. The
+    // stylesheet is the single owner of this color now; do not re-add inline.
+    clockNameEl.style.color = '';
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
       + ' · ADP ' + Math.round(p.adjusted_adp);
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
@@ -4063,23 +4071,22 @@
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
-    /* THE 42% WALL, DIAGNOSED (Cory's capture: eight chips all reading 42%,
-     * while MOST LIKELY TO BE GONE said 73% for the same player on the same
-     * screen). Both numbers are engine outputs answering different questions:
-     *   · THIS strip prints survival_to_next — the ADP-market model through
-     *     the conservation tilt, the number the SCORE uses. Every elite
-     *     already past his ADP has raw survival ~0 and the tilt lifts them all
-     *     to the SAME redistributed value — the uniformity is the tilt's
-     *     documented artifact ("fixes the total, not the ordering within it").
-     *   · The threats panel prints the ROOM model — seat-by-seat behavior,
-     *     which genuinely differentiates players and names the likely seat.
-     * One page, two numbers, one caption was the defect. Each now wears its
-     * model's name, and the strip points at the room model for WHO. Pinned by
-     * ui_fidelity_numbers.test.js. */
+    /* THE 42%/41% WALL — DIAGNOSED TWICE, THE SECOND TIME TO THE ROOT
+     * (survival.js layer1TakenGivenAvailable, 2026-08-17). The first diagnosis
+     * blamed the conservation tilt's redistribution and captioned the
+     * uniformity as a market property ("the market can't split them"). The
+     * root was upstream: a zero-width remainder window returned P(taken)=1 for
+     * every player past his ADP, which zeroed raw survival and ERASED the room
+     * model's differentiated answer before the tilt ever saw it — the tilt
+     * then handed every fallen elite the identical exp(−λ). With that fixed,
+     * survival_to_next carries market + room THROUGH the tilt (the number the
+     * score uses), and identical %s on fallen elites only appear when the room
+     * model has no seat data to add (no intervening picks known — pre-import).
+     * Pinned by ui_fidelity_numbers.test.js and survival_fallen_uniform.test.js. */
     host.innerHTML = rows
       ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your '
-        + 'next pick, market (ADP) model — the number the score uses. Identical %s mean the '
-        + 'market can’t split them; the room model under Survival Odds can. · tap to compare</span></div>' + rows
+        + 'next pick (market+room blend) — the number the score uses. Identical %s only mean no '
+        + 'seat data yet — the room model under Survival Odds still names WHO. · tap to compare</span></div>' + rows
       : '';
   }
 
@@ -4566,23 +4573,36 @@
           '<span class="path-name">' + escapeHtml(p.name) + '</span>' + doctrineBadge + priceBadge +
         '</div>' +
         '<div class="path-pick">' +
-          '<span class="path-player">' + escapeHtml(pl.name) +
+          '<span class="path-player"><span class="rec-nm" data-drill="' + pl.player_id + '" title="Full dossier">' + escapeHtml(pl.name) + '</span>' +
             '<span class="rec-pos ' + pl.position + '">' + pl.position + '</span></span>' +
           '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
         '</div>' +
-        (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         devHtml +
-        (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
-        '<div class="path-when"><span class="path-lbl">FOR</span> '
-          + escapeHtml(p.when_right) + '</div>' +
+        /* DENSITY (cockpit rebuild 2026-08-17, Cory's order): the card-essays
+         * live ONE TAP AWAY behind the ⓘ, as STRUCTURED pro/con lists — the
+         * same machine-derived content (when_right, pathAgainst, the branch
+         * plan), itemised instead of freetexted. The visible row is name ·
+         * price-vs-top · score · take. */
         (function () {
           var ag = pathAgainst(p);
-          return ag.length
-            ? '<div class="path-against"><span class="path-lbl">AGAINST</span> '
-              + escapeHtml(ag.join('; ')) + '</div>'
-            : '';
+          var forItems = [p.when_right].concat(
+            p.pick.why ? [p.pick.why] : [],
+            (p.pick.context || []).slice(0, 2));
+          var chip = function (t) { return '<li>' + escapeHtml(t) + '</li>'; };
+          return '<details class="path-info"><summary>ⓘ for / against'
+            + (ag.length ? ' (' + ag.length + ')' : '') + '</summary>'
+            + (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '')
+            + '<div class="wr-procon">'
+            + '<div class="path-when"><span class="path-lbl">FOR</span><ul class="wr-pc-list">'
+              + forItems.map(chip).join('') + '</ul></div>'
+            + (ag.length
+                ? '<div class="path-against"><span class="path-lbl">AGAINST</span><ul class="wr-pc-list">'
+                  + ag.map(chip).join('') + '</ul></div>'
+                : '')
+            + '</div>'
+            + (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '')
+            + '</details>';
         })() +
-        (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
         '<div class="path-actions">' +
           '<button class="btn small gold" data-draft-me="' + pl.player_id
             + '" data-path-key="' + escapeHtml(p.key) + '">I took ' + escapeHtml(pl.name.split(' ').slice(-1)[0]) + '</button>' +
@@ -4945,16 +4965,169 @@
       + '. Both shown so you can judge the machinery.</div>';
   }
 
+  /* ── THE SIX JOBS, SPLIT (war-room redesign, 2026-08-17) ─────────────────
+   *
+   * panel_spec.js carried the audit for days: the recommendations renderer was
+   * one 436-line function "emitting a headline, a rationale, a timing block, a
+   * tier-cliff card, an against-case and a chip grid", and Cory read the same
+   * player surfacing from three of those jobs at once as a bug ("Gibbs listed
+   * twice"). Each job is now one small function; the composer below sequences
+   * them.
+   *
+   * WHAT DELIBERATELY STAYS IN THE COMPOSER: the ledger capture (its guard
+   * text is pinned by capture_cannot_blank_board.test.js), the REC_ROWS slice,
+   * the reconcile-halt short-circuit, the decisive-term readout and the ranked
+   * card emission — rec_rows.test.js and decisive_readout.test.js pin those as
+   * behaviour contracts INSIDE the composer (the halt fires before any row
+   * draws; the readout is read-only; the promotion mark sits beside the score).
+   * Conforming to a pinned contract outranks a tidier extraction.
+   *
+   * THE NAME RENDERS ONCE ABOVE THE FOLD. The headline (verdict block) owns
+   * the player's name. Everything else the composer paints either says "him",
+   * says nothing, or sits behind a tap: the against-case is a <details>
+   * disclosure, the per-row stat chips are a <details> whose open state is one
+   * shared persisted preference, and the ranked list keeps its own summary. */
+
+  /* Job 1 — THE HEADLINE. The one surface that owns the answer AND the name.
+   * VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
+   * button and Two-Reads block only when the verdict actually rendered this
+   * cycle, so it must know — state.verdictShown is set here, read there. */
+  function renderRecHeadline(out) {
+    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
+    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
+  }
+
+  /* Job 2 — THE RATIONALE PREAMBLE for the ranked list. Roster legality comes
+   * first and in plain language: on the clock, a red bar saying "you have no
+   * kicker" beats a re-sorted list every time. Returns html for the composer.
+   * It never names the recommended player — the headline owns the name. */
+  function renderRecRationale(scored) {
+    const lg = scored[0].legality, lw = scored[0].legality_warning;
+    if (lg) {
+      return '<div class="forced-banner">⛔ ' + escapeHtml(lg.message)
+        + ' Only players who can legally start are shown.</div>';
+    }
+    if (lw) return '<div class="forced-banner warn">⚠️ ' + escapeHtml(lw) + '</div>';
+    return '';
+  }
+
+  /* Job 3 — THE TIMING + CONTEXT SATELLITES. Every call reads the SAME scored
+   * board as the ranked list — never a second computation, so no surface can
+   * disagree with the panel beneath it — and none may block the clock. */
+  function renderRecTiming(out) {
+    renderConfidence(out.confidence);
+    renderBranches(out.branches);
+    renderClock(out);
+    // The doctrine banner runs FIRST so the path cards can tag themselves with
+    // the doctrine as of THIS pick rather than the previous one (§4:
+    // everything speaks the same vocabulary).
+    try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
+    renderPaths(out.scored);
+    try { renderTiming(out.scored); } catch (e) { console.error('[timing]', e && e.message); }
+    // THE MVS RIDES THE SAME RENDER — a surface that recomputes its own
+    // numbers is a surface that can disagree with the panel beneath it.
+    try { renderMVS(out.scored, out.paths); } catch (e) { console.error('[mvs]', e && e.message); }
+    // The strategy-split panel — projected from the live board, never blank.
+    try { renderShadowProjection(); } catch (e) { console.error('[shadow-proj]', e && e.message); }
+    renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
+    renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
+  }
+
+  /* Job 4 — THE TIER-CLIFF CARD (collapsed small multiples, design pass
+   * 2026-08-15). Same scored board, never a second computation. */
+  function renderRecTierCliff(scored) {
+    try {
+      const tcHost = document.getElementById('tier-cliff-chart');
+      if (tcHost && typeof DraftCharts !== 'undefined') {
+        tcHost.innerHTML = DraftCharts.tierCliffChart(scored);
+      }
+    } catch (e) { console.error('[tier-cliff]', e && e.message); }
+  }
+
+  /* Job 5 — THE CHIP GRID: one row's stat chips (VONA, the raw projection, the
+   * tier, the price, the market's gone-by-next, the dossier). Collapsed behind
+   * one tap by default — Cory asked for ten candidates "compacted … I can
+   * click for more info", and ten open chip rows were the wall. ONE shared
+   * preference, not per-card state: opening the numbers on any row opens them
+   * on every row, and the choice persists on this device (wr-disclosures-v1).
+   * The chips never carry the player's name — the row's name cell owns it. */
+  function renderRecChips(s, pct) {
+    const p = s.player;
+    const rp = recRawProj(p);
+    return '<details class="rec-chips"' + (state.chipsOpen ? ' open' : '') + '>'
+      + '<summary data-chips-toggle="1" title="The numbers behind this row — opens on every row and stays put">'
+        + (state.chipsOpen ? '▾ numbers' : '▸ numbers') + '</summary>'
+      + '<div class="rec-stats">'
+      + '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>'
+      // C3 — the raw projection, labelled by its true source count (the
+      // consensus.js contract: source names when single, "Consensus (N)" when
+      // ≥2), sat next to our VONA so a disagreement is visible on the card.
+      + '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
+        + escapeHtml(rp.label.replace(/ proj$/, '')) + ' <b>'
+        + (rp.value == null ? '—' : Math.round(rp.value)) + '</b></span>'
+      + '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>'
+      + '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>'
+      + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="market+room estimate — the number the score uses">~' + pct + '% gone by next</span>' : '')
+      // One tap deeper: the full dossier of engine fields for this row.
+      + '<button class="rec-expand" data-dossier="' + p.player_id + '">'
+        + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>'
+      + '</div></details>';
+  }
+  function toggleRecChips() {
+    state.chipsOpen = !state.chipsOpen;
+    saveDisclosure('rec-chips', state.chipsOpen);
+    renderRecommendations();
+  }
+
+  /* Job 6 — THE AGAINST-CASE: the coin-flip / override disclosure under the
+   * ranked list. A distance is never negative: a negative gap_to_second means
+   * a pinned personal-list pick sits below the board's own top — an override,
+   * not a coin flip (2026-08-10 critique: "within -1.9 pts").
+   *
+   * ⚠️ THE ALTERNATIVE IS A CONTROL, NOT A SENTENCE. Naming the coin flip with
+   * no way to act on it made taking the OTHER player cost more taps than
+   * taking the recommendation — highest friction exactly where the tool is
+   * least sure, and coin-flip overrides are the most informative class in the
+   * ledger. It reuses `data-draft-me`, the ONE take mechanism the whole app is
+   * bound to at the document level — never a second take path.
+   *
+   * NAME-ONCE (redesign 2026-08-17): the summary line names nobody; the
+   * alternative's name and its one-tap take control sit behind the disclosure,
+   * so the headline stays the only name above the fold. */
+  function renderRecAgainstCase(scored) {
+    const top = scored[0];
+    const tb = $('#tiebreak');
+    tb.style.display = top && top.contested ? '' : 'none';
+    if (!(top && top.contested)) return;
+    const g = top.gap_to_second;
+    const alt = scored[1] && scored[1].player;
+    let body;
+    if (g < 0) {
+      body = 'Your pinned pick scores ' + Math.abs(g).toFixed(1)
+        + ' pts below the board top — a deliberate override, not a coin flip.';
+    } else {
+      body = 'Top two are within <b>' + g.toFixed(1)
+        + '</b> pts — effectively a coin flip.'
+        + (alt
+            ? ' <button class="btn small gold tb-alt" data-draft-me="'
+              + escapeHtml(String(alt.player_id)) + '">Take '
+              + escapeHtml(alt.name || 'the other') + ' instead</button>'
+            : '');
+    }
+    tb.innerHTML = '<details class="rec-against">'
+      + '<summary>' + (g < 0 ? '⚖ Your override — the board disagrees'
+                             : '⚖ Coin flip — the case against') + '</summary>'
+      + '<div class="ra-body">' + body + '</div></details>';
+  }
+
   function renderRecommendations() {
     // One call so the recommendation, the confidence line and the branch
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
-    // VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
-    // button and Two-Reads block only when the verdict actually rendered this
-    // cycle, so it must know — state.verdictShown is set here, read there.
-    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
-    try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
+    // Job 1 — the headline (verdict + demoted rule detail) owns the NAME.
+    renderRecHeadline(out);
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
     // capture. Deduped in PredLedger so re-renders don't flood.
@@ -5102,45 +5275,17 @@
       } catch (e) { console.error('[forecast]', e && e.message); }
     }
 
-    renderConfidence(out.confidence);
-    renderBranches(out.branches);
-    renderClock(out);
-    // The doctrine banner reads the SAME scored board — the plan and the paths
-    // must never be arguing from two different boards. It runs FIRST so the
-    // path cards can tag themselves with the doctrine as of THIS pick rather
-    // than the previous one (§4: everything speaks the same vocabulary).
-    try { renderDoctrine(out.scored); } catch (e) { /* never blocks the clock */ }
-    // Paths panel derives from the same scored board the list uses.
-    renderPaths(out.scored);
-    /* Same scored board as the paths panel, so the thinking and the routes can
-     * never be computed from two different boards. */
-    try { renderTiming(out.scored); } catch (e) { console.error('[timing]', e && e.message); }
-    // THE MVS RIDES THE SAME RENDER, never a second computation — a surface
-    // that recomputes its own numbers is a surface that can disagree with the
-    // panel beneath it.
-    try { renderMVS(out.scored, out.paths); }
-    catch (e) { console.error('[mvs]', e && e.message); }
-    // The strategy-split panel rides the same render — projected from the live
-    // board, so it is populated at every pick and never blank.
-    try { renderShadowProjection(); }
-    catch (e) { console.error('[shadow-proj]', e && e.message); }
-    renderBestAvailStrip(out.scored, (context() || {}).nextPick);
-    // Tier-cliff small multiples — same scored board, never a second computation.
-    try {
-      const tcHost = document.getElementById('tier-cliff-chart');
-      if (tcHost && typeof DraftCharts !== 'undefined') {
-        tcHost.innerHTML = DraftCharts.tierCliffChart(out.scored);
-      }
-    } catch (e) { console.error('[tier-cliff]', e && e.message); }
-    renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
+    // Jobs 3 + 4 — the timing/context satellites and the tier-cliff card, all
+    // off the SAME scored board (never a second computation).
+    renderRecTiming(out);
+    renderRecTierCliff(out.scored);
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
-    // route map. Same scored board — never a second computation.
+    // route map; the movement line diffs this pick's top against the last
+    // pick's. Both stay HERE in the composer — app-wiring.test.js pins this
+    // seam (the render loop itself must invoke them). Same scored board.
     try { renderStackLine(out.scored); } catch (e) { console.error('[stack]', e && e.message); }
-    // The movement line diffs this pick's top against the last pick's. Same
-    // scored board; never blocks the clock.
     try { updateMovement(currentPick(), out.scored); }
     catch (e) { console.error('[movement]', e && e.message); }
-    renderCompareTray();   // keep the dollar-gap overlay fresh as the board changes
     const all = out.scored;
     /* TEN, NOT FIVE — asked for twice, in these words (Cory, 2026-08-13):
      *   "Need top 5 recommended players so I can compare options."
@@ -5168,16 +5313,8 @@
     }
     if (!scored.length) { host.innerHTML = '<p class="muted">Board is empty.</p>'; return; }
 
-    // Roster legality comes first and in plain language: on the clock, a red bar
-    // saying "you have no kicker" beats a re-sorted list every time.
-    let head = '';
-    const lg = scored[0].legality, lw = scored[0].legality_warning;
-    if (lg) {
-      head = '<div class="forced-banner">\u26d4 ' + escapeHtml(lg.message)
-        + ' Only players who can legally start are shown.</div>';
-    } else if (lw) {
-      head = '<div class="forced-banner warn">\u26a0\ufe0f ' + escapeHtml(lw) + '</div>';
-    }
+    // Job 2 \u2014 the rationale preamble (roster legality, plain language).
+    const head = renderRecRationale(scored);
 
     /* WHICH TERM DECIDED THIS PICK, BEFORE IT IS MADE.
      *
@@ -5253,16 +5390,41 @@
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
+    /* Range-bar scale (cockpit rebuild 2026-08-17): floor→ceiling bands share
+     * ONE scale across the shortlist, or the bars are not comparable. Pure
+     * builder lives in warroom_charts.js (loaded after this file — guarded, so
+     * a missing module costs the bar, never the row). */
+    const rbScale = (function () {
+      let lo = Infinity, hi = -Infinity;
+      scored.forEach(x => {
+        const q = x.player;
+        if (q.proj_floor != null && q.proj_floor < lo) lo = q.proj_floor;
+        if (q.proj_ceiling != null && q.proj_ceiling > hi) hi = q.proj_ceiling;
+      });
+      return (lo < hi) ? { min: lo, max: hi } : null;
+    })();
+    const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
     host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
+      /* FALLING (Cory, cockpit steering): value sliding past its market price —
+       * he is on the board 10+ picks after the market expected him gone. */
+      const falling = (curPickNo != null && p.adjusted_adp != null
+        && p.adp_source !== 'search_rank' && (curPickNo - p.adjusted_adp) >= 10);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
-          '<div class="rec-name">' + escapeHtml(p.name) +
+          '<div class="rec-name"><span class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</span>' +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
+            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
+              + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
+              + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
           '</div>' +
+          ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
+            ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
+                { min: rbScale.min, max: rbScale.max, lead: i === 0 })
+            : '') +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
           /* ⚠️ CONTEXT IS RENDERED SEPARATELY, AND IT HAD TO BE.
@@ -5287,22 +5449,8 @@
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
             : '') +
-          '<div class="rec-stats">' +
-            '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            // C3 — the raw projection, labelled by its true source count (the
-            // consensus.js contract: source names when single, "Consensus (N)"
-            // when ≥2 — 2–3 sources on today's board), sat next to our VONA so a
-            // disagreement is visible on the card, not buried.
-            '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
-              + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'
-              + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
-            '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
-            '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
-            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="ADP-model estimate — the number the score uses">~' + pct + '% gone by next (mkt)</span>' : '') +
-            // One tap deeper: the full dossier of engine fields for this row.
-            '<button class="rec-expand" data-dossier="' + p.player_id + '">'
-              + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>' +
-          '</div>' +
+          // Job 5 — the chip grid, one tap away (shared, persisted open state).
+          renderRecChips(s, pct) +
           // The disagreement line on the TOP card: if a same-position candidate
           // projects higher than the one we're recommending, say so — that is the
           // moment both numbers matter (machinery found something, or it's broken).
@@ -5357,46 +5505,9 @@
       '</div>';
     }).join('');
 
-    const top = scored[0];
-    $('#tiebreak').style.display = top && top.contested ? '' : 'none';
-    if (top && top.contested) {
-      // A distance is never negative: a negative gap_to_second means a pinned
-      // personal-list pick sits below the board's own top — an override, not a
-      // coin flip (2026-08-10 critique: "within -1.9 pts").
-      const g = top.gap_to_second;
-      /* ⚠️ THE ALTERNATIVE IS NOW A CONTROL, NOT A SENTENCE.
-       *
-       * This line named the coin flip and gave no way to act on it, so taking
-       * the OTHER player cost more taps than taking the recommendation —
-       * highest friction exactly where the tool is least sure. That biases the
-       * sample in the worst possible direction: coin-flip overrides are the most
-       * informative class in the ledger (the tool has no opinion, so the record
-       * is pure human signal), and they would have been recorded LESS often than
-       * they were made.
-       *
-       * It reuses `data-draft-me`, the ONE take mechanism the whole app is bound
-       * to at the document level — not a second take path, which is how two
-       * surfaces come to disagree about what "taking a player" means.
-       *
-       * ROUTED TO B: the affordance is here and the RUNG is not mine to pick. B
-       * has the four take-affordance treatments mapped; this ships as a plain
-       * button so it is tappable today, and B decides where on the ladder it
-       * belongs. */
-      const alt = scored[1] && scored[1].player;
-      const tb = $('#tiebreak');
-      if (g < 0) {
-        tb.textContent = 'Your pinned pick scores ' + Math.abs(g).toFixed(1)
-          + ' pts below the board top — a deliberate override, not a coin flip.';
-      } else {
-        tb.innerHTML = 'Top two are within <b>' + g.toFixed(1)
-          + '</b> pts — effectively a coin flip.'
-          + (alt
-              ? ' <button class="btn small gold tb-alt" data-draft-me="'
-                + escapeHtml(String(alt.player_id)) + '">Take '
-                + escapeHtml(alt.name || 'the other') + ' instead</button>'
-              : '');
-      }
-    }
+    // Job 6 — the against-case, one tap away and never a second name above
+    // the fold.
+    renderRecAgainstCase(scored);
   }
 
   /* ⚠️ THE SEARCH DEMANDED A CONTIGUOUS SUBSTRING OF THE FULL NAME, which is
@@ -5536,7 +5647,7 @@
         + ((tierBreak ? ' class="tier-cliff"' : '')
           || (onesieRow ? ' class="onesie-demoted"' : '')) + '>' +
         '<td class="num">' + p.overall_rank + '</td>' +
-        '<td><b>' + escapeHtml(p.name) + '</b>'
+        '<td><b class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</b>'
           + (lastOfTier[p.player_id]
             ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
@@ -6947,7 +7058,39 @@
     el.dataset.userOpened = '1';
   }
 
+  /* ── DISCLOSURE MEMORY (war-room redesign, 2026-08-17) ───────────────────
+   * The ranked list, the tier-cliff card and the per-row chip grids ship
+   * COLLAPSED — the fold belongs to the one answer. A deliberate tap is a
+   * preference, so it persists on this device. Same localStorage pattern as
+   * LISTS_KEY / AUTO_KEY: try/catch, because private mode must never throw
+   * inside the render path. */
+  const DISCLOSE_KEY = 'wr-disclosures-v1';
+  function loadDisclosures() {
+    try { return JSON.parse(localStorage.getItem(DISCLOSE_KEY) || '{}') || {}; }
+    catch (e) { return {}; }
+  }
+  function saveDisclosure(id, open) {
+    try {
+      const d = loadDisclosures(); d[id] = open ? 1 : 0;
+      localStorage.setItem(DISCLOSE_KEY, JSON.stringify(d));
+    } catch (e) { /* private mode */ }
+  }
+  function initDisclosures() {
+    const saved = loadDisclosures();
+    // The chip-grid preference is read at render time (renderRecChips).
+    state.chipsOpen = !!saved['rec-chips'];
+    ['recs-details', 'tier-cliff-wrap'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el || el.dataset.discWired) return;
+      el.dataset.discWired = '1';
+      // Default stays the shell's (collapsed); only a recorded choice differs.
+      if (saved[id] != null) el.open = !!saved[id];
+      el.addEventListener('toggle', () => saveDisclosure(id, el.open));
+    });
+  }
+
   function initLayers() {
+    initDisclosures();
     const l2 = document.getElementById('layer-2');
     if (!l2 || l2.dataset.wired) return;
     l2.dataset.wired = '1';
@@ -9659,6 +9802,42 @@
     };
   }
 
+  /* ── THE COCKPIT ACCESSOR (rebuild 2026-08-17) ──────────────────────────
+   * ONE narrow, read-only window onto app state for warroom_charts.js (the
+   * tab/rail/chart layer, loaded after this file). It exposes DERIVED reads,
+   * never the state object itself, so the cockpit cannot become a second
+   * writer — every mutation still goes through the delegated controls
+   * (data-draft-me / data-queue / data-compare) this file already owns.
+   * Every function is guarded: an early call (before the board loads) answers
+   * with an honest empty rather than a throw. */
+  window.WarRoomData = {
+    scored: function () { return (state.lastClock && state.lastClock.scored) || []; },
+    board: function () { return state.board || []; },
+    players: function () { return (state.data && state.data.players) || []; },
+    roster: function () { return state.myRoster || []; },
+    starters: function () { return (((state.data || {}).league) || {}).starters || {}; },
+    timing: function () { return state.lastTiming || null; },
+    verdict: function () { return state.lastVerdict || null; },
+    paths: function () { return state.lastPaths || []; },
+    queue: function () { return (state.lists && state.lists.queue) || []; },
+    drafted: function () { return state.drafted || new Set(); },
+    currentPick: function () { try { return currentPick(); } catch (e) { return null; } },
+    myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
+    onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
+    playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },
+    /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
+     * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
+     * a context, pickBoard keeps ADP on the board's own scale). */
+    survivalTo: function (p, pick) {
+      try {
+        return E.survival(p, pick, {
+          currentPick: currentPick(), runMultipliers: state.runMults,
+          pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+        });
+      } catch (e) { return null; }
+    },
+  };
+
   // ----------------------------------------------------------------- wiring
   function wireControls() {
     const apply = $('#slot-apply'), slotIn = $('#slot-input');
@@ -9783,6 +9962,11 @@
       if (lens) { ev.preventDefault(); return revealLens(lens.getAttribute('data-lens')); }
       const doss = ev.target.closest('[data-dossier]');
       if (doss) { ev.preventDefault(); return toggleDossier(doss.getAttribute('data-dossier')); }
+      /* Chip-grid disclosure (job 5 of the split): ONE shared preference across
+       * every rec card. Native toggle is prevented; the re-render paints every
+       * card with the new state, and it persists (wr-disclosures-v1). */
+      const chips = ev.target.closest('[data-chips-toggle]');
+      if (chips) { ev.preventDefault(); return toggleRecChips(); }
       const flg = ev.target.closest('[data-flag-legend]');
       if (flg) { ev.preventDefault(); return toggleFlagLegend(flg); }
       const info = ev.target.closest('[data-explain-toggle]');

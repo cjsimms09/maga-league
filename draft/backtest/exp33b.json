@@ -36,20 +36,20 @@
       "dollars": {
         "blend": 100.0,
         "naive": 0.0,
-        "adp": 100.0
+        "adp": 200.0
       },
       "naive_minus_blend": -100.0,
-      "naive_minus_adp": -100.0
+      "naive_minus_adp": -200.0
     },
     {
       "season": 2024,
       "dollars": {
         "blend": 200.0,
         "naive": 100.0,
-        "adp": 400.0
+        "adp": 1025.0
       },
       "naive_minus_blend": -100.0,
-      "naive_minus_adp": -300.0
+      "naive_minus_adp": -925.0
     },
     {
       "season": 2023,

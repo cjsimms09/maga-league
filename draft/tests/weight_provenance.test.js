@@ -51,8 +51,9 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
  * 2026-08-17 that became the wrong invariant. The ceiling experiment was re-run
  * on the first board in this project's history whose proj_ceiling was not a
  * constant multiple of proj_mean, and it came back positive and separable in
- * 3/3 seeds (EXP-CEILING-REDERIVATION.md). The zero survives as a DELIBERATE
- * HOLD through the draft, not as a finding.
+ * 3/3 seeds (EXP-CEILING-REDERIVATION.md). The zero first survived as a
+ * DELIBERATE HOLD, then — later the same day — Cory as owner overrode the hold
+ * and ruled 0.45 (the exp-21 inverted-U peak); the weight ships non-zero.
  *
  * Continuing to call it unmeasured would be the same defect this file was
  * written to catch, pointed the other way: the panel telling Cory a number is
@@ -64,14 +65,21 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
   ck('ceiling is NO LONGER declared unmeasured — it was measured 2026-08-17',
     unmeasured.indexOf('ceiling') < 0, P.ceiling);
 
-  /* And the replacement has to say the two things that keep it honest: that the
-   * measurement contradicts the shipped number, and that the shipped number is
-   * a held decision with a date rather than a result. A provenance string that
-   * says only "measured" would read as "measured and endorsed". */
-  ck('  and says the measurement CONTRADICTS the zero it still ships',
-    /MEASURED/.test(P.ceiling) && /CONTRADICTS/i.test(P.ceiling), P.ceiling);
-  ck('  and gives the date the hold expires rather than an open-ended "later"',
-    /2026-08-22/.test(P.ceiling), P.ceiling);
+  /* RE-PINNED 2026-08-17, SAME DAY: Cory ruled the weight non-zero ("IS THIS
+   * STUDIES? IF SO, YES") and the hold this block used to pin was explicitly
+   * overridden by its owner. The two things that keep the entry honest have
+   * changed with the state: it must say the number is MEASURED AND RULED (not
+   * merely measured — a ruling is a decision someone can be asked about), and
+   * it must record the PREREG DEVIATION as dated and owned rather than letting
+   * an early ship read as drift. */
+  ck('  and says the shipped number is MEASURED AND RULED, with the ruling date',
+    /MEASURED/.test(P.ceiling) && /RULED/i.test(P.ceiling)
+    && /2026-08-17/.test(P.ceiling), P.ceiling);
+  ck('  and records the prereg deviation as an explicit owner override, dated',
+    /PREREG DEVIATION/i.test(P.ceiling) && /overrode|override/i.test(P.ceiling)
+    && /08-22/.test(P.ceiling), P.ceiling);
+  ck('  and still carries the caveat the ruling shipped with (saturation, Sept re-run)',
+    /saturat/i.test(P.ceiling) && /September|quantile/i.test(P.ceiling), P.ceiling);
 
   /* NOT AN ASSERTION THAT THEY ARE ZERO — that is a decision, not an invariant,
    * and a later run may legitimately move them. The invariant is that whoever
@@ -98,18 +106,24 @@ ck('WEIGHT_PROVENANCE is exported at all', P && typeof P === 'object');
   ck('  and still names risk as never measured',
     /never measured|incapable/i.test(why) && /risk/i.test(why), why);
 
-  /* CEILING'S ENTRY IN THE PANEL COPY CHANGED CATEGORY on 2026-08-17 and the
-   * copy has to change with it. Saying "risk and ceiling were never measured"
-   * is now a false statement about ceiling — the same Rule 16 failure this file
-   * exists to catch, inverted. The copy must instead tell Cory the slider is
-   * known to be set wrong and is being held on purpose, because that is the
-   * thing that could make him want to override it. */
-  ck('  and tells Cory ceiling is known to be set wrong, not unmeasured',
-    /ceiling/i.test(why) && /set wrong|known to be wrong/i.test(why)
+  /* CEILING'S ENTRY IN THE PANEL COPY CHANGED CATEGORY TWICE on 2026-08-17.
+   * First from "unmeasured" to "known to be set wrong and held" (the morning
+   * re-derivation), then — the same day — to "on at 0.45, ruled" when Cory
+   * overrode the prereg hold ("IS THIS STUDIES? IF SO, YES"). The copy must
+   * tell Cory the slider is ON at the ruled value, whose ruling that is, and
+   * that 0.45 is the measured peak — because "should it be higher?" was his
+   * own question and the panel is where he would reach for the answer. */
+  ck('  and tells Cory ceiling is ON at the ruled 0.45, and whose ruling that is',
+    /ceiling/i.test(why) && /0\.45/.test(why) && /ruled|Cory/i.test(why)
+    && !/set wrong|known to be wrong/i.test(why)
     && !/risk and ceiling are off but were never measured/i.test(why), why);
 
-  ck('  and says the hold is deliberate and dated rather than open-ended',
-    /held at zero|deliberat/i.test(why) && /8\/22|2026-08-22/.test(why), why);
+  ck('  and says higher is NOT better (the inverted-U), so the ruling\'s own '
+    + '"should it be higher?" is answered on the surface',
+    /higher/i.test(why) && /inverted-U|NEGATIVE|not better/i.test(why), why);
+
+  ck('  and records the early ship as a ruled, dated deviation from the 8/22 hold',
+    /8\/22|2026-08-22/.test(why) && /override|deviation|ruled/i.test(why), why);
 
   /* NON-VACUITY. If `why` were empty or the preset missing, every assertion
    * above would pass trivially. It has to be real prose that really mentions

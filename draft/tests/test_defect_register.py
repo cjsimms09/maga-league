@@ -53,7 +53,7 @@ def test_every_tracked_row_names_an_owner():
     for cells in rows():
         # owner column is the one before status in every table here
         owner = next((c for c in cells if re.search(
-            r"\b(A|B|C|D|Cory|relay)\b", c) and len(c) < 40), None)
+            r"\b(A|B|C|D|E|Cory|relay)\b", c) and len(c) < 40), None)
         if not owner or PLACEHOLDERS.search(owner):
             bad.append(" | ".join(c[:40] for c in cells))
     assert not bad, "rows with no owner:\n" + "\n".join(bad)
