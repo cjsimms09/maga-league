@@ -237,7 +237,13 @@ def main() -> int:
     if naive >= sl_m and naive >= fp_m:
         return void(f"NAIVE (prev-season points, mean {PRIMARY} {naive:.4f}) beat BOTH "
                     f"professional sources (Sleeper {sl_m:.4f}, FP {fp_m:.4f}). That is a "
-                    "broken harness, not a finding about the sources.")
+                    "broken harness, not a finding about the sources.",
+                    {"matched_population": len(matched), "drops": drops,
+                     "sleeper_scored": len(sleeper), "fp_scored_and_matched": len(fp),
+                     "realized": len(realized), "prior": len(prior),
+                     "positions_known": sum(1 for v in position_of.values() if v),
+                     "cells": {k: {p: c.get("status") or c.get("n")
+                                   for p, c in v.items()} for k, v in arms.items()}})
 
     verdict = decide(arms)
     OUT.write_text(json.dumps({
@@ -258,7 +264,7 @@ def main() -> int:
     return 0
 
 
-def void(reason: str) -> int:
+def void(reason: str, diag: dict | None = None) -> int:
     """A run that could not be completed is VOID, never a negative result.
 
     The prereg names egress failure and a lost known-positive control as VOID
@@ -272,8 +278,15 @@ def void(reason: str) -> int:
         "_territory": "TERRITORY: A — produced by draft/backtest/source_blend_2025.py",
         "_note": ("VOID is not a negative result. Nothing here licenses any claim "
                   "about Sleeper, FantasyPros or a blend."),
+        # THE DIAGNOSTICS SURVIVE THE REFUSAL. The 08-17 run voided correctly and
+        # told us nothing about WHERE the join failed, so the refusal cost a whole
+        # dispatch. A refusal that discards its own evidence makes you pay twice.
+        "diagnostics": diag or {},
     }, indent=1) + "\n")
     print(f"VOID — {reason}")
+    if diag:
+        for k, v in diag.items():
+            print(f"   {k}: {v}")
     return 1
 
 
