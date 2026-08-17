@@ -41,6 +41,7 @@ import io
 import json
 import statistics as st
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -66,6 +67,19 @@ def _get(url: str, timeout: int = 120) -> str:
         return r.read().decode("utf-8", "replace")
 
 
+class NotPublished(Exception):
+    """nflverse has no file for this season YET — distinct from a broken fetch.
+
+    THIS DISTINCTION IS THE WHOLE REASON THE CLASS EXISTS. The weekly job runs
+    from now through the season, and before week 1 there is no
+    `snap_counts_2026.csv` at all. "Not published yet" is the EXPECTED state for
+    a job scheduled ahead of kickoff, and it must exit green — a red run every
+    week until September trains us to ignore the one job whose entire value is
+    that it ran. A genuine failure (network, auth, malformed CSV) must still go
+    red, so the two are never collapsed into one silent success.
+    """
+
+
 def crosswalk() -> tuple[dict, dict]:
     """(pfr_id -> gsis_id, gsis_id -> sleeper_id) with per-hop counts."""
     rows = list(csv.DictReader(io.StringIO(_get(PLAYERS_URL))))
@@ -82,7 +96,13 @@ def crosswalk() -> tuple[dict, dict]:
 
 
 def season_rows(season: int) -> list[dict]:
-    return list(csv.DictReader(io.StringIO(_get(SNAP_URL.format(season=season)))))
+    try:
+        text = _get(SNAP_URL.format(season=season))
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            raise NotPublished(f"nflverse has no snap_counts_{season}.csv yet") from e
+        raise
+    return list(csv.DictReader(io.StringIO(text)))
 
 
 def build_season(season: int, pfr_to_gsis: dict, gsis_to_sleeper: dict) -> dict:
@@ -161,7 +181,13 @@ def main() -> int:
 
     ok = True
     for season in args.seasons:
-        doc = build_season(season, pfr_to_gsis, gsis_to_sleeper)
+        try:
+            doc = build_season(season, pfr_to_gsis, gsis_to_sleeper)
+        except NotPublished as e:
+            # Green, and LOUD about why. See NotPublished's own docstring: this
+            # is the expected state of the in-season job before week 1.
+            print(f"{season}: {e} — nothing to write yet (expected before week 1)")
+            continue
         j = doc["join"]
         vol = season_share_volatility(doc)
         doc["share_volatility"] = vol

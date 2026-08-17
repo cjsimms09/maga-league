@@ -129,10 +129,42 @@ def test_rz_share_is_now_retained_and_the_history_is_recorded():
     assert "unmeasurable" in (c.get("fixed") or "")
 
 
-def test_snap_share_is_declared_a_real_gap_not_an_implied_field():
+def test_xfp_delta_is_declared_a_real_gap_not_an_implied_field():
     """The docstring promised snap_share and xfp_delta and the function never
     computed either. The fix was to correct the contract, not invent the
     fields — and the remaining gap is filed where it can be acted on."""
-    why = CR.CAPTURES["opportunity_metrics"]["knowingly_drops"]["snap_share / xfp_delta"]
+    why = CR.CAPTURES["opportunity_metrics"]["knowingly_drops"]["xfp_delta"]
     assert "NOT COMPUTED ANYWHERE" in why
-    assert "snap_counts" in why
+
+
+def test_snap_share_gap_narrowed_from_data_to_wiring_when_the_source_landed():
+    """THIS TEST IS THE REGISTRY DOING ITS JOB ON ITSELF.
+
+    Until 2026-08-17 the honest entry was "snap_counts, which this repo has
+    never pulled: a real gap". The pull landed the same day, and at that moment
+    the entry became FALSE — the data existed and the registry still called it
+    missing. A registry that goes stale is precisely the defect it was built to
+    prevent, so the split is pinned: snap_share is still dropped, but for a
+    different and smaller reason, and the reason has to name which one.
+    """
+    drops = CR.CAPTURES["opportunity_metrics"]["knowingly_drops"]
+    why = drops["snap_share"]
+    assert "WIRING gap" in why, "the reason must name what is actually missing now"
+    assert "never pulled" not in why, "the source WAS pulled; this claim is stale"
+    # And the source it points at must actually be registered, so the pointer
+    # cannot outlive the thing it points to.
+    assert "snap_counts" in CR.CAPTURES
+
+
+def test_snap_counts_declares_its_strength_honestly_not_just_its_existence():
+    """A capture entry that only says "we have it" invites the next reader to
+    weight it as though it were strong. This one measured +0.19 year-over-year
+    carryover — real, and small. Both halves are load-bearing, so both are
+    pinned here: drop the caveat and this test fails."""
+    c = CR.CAPTURES["snap_counts"]
+    assert c["raw_retained"] is True and c["raw_why_not"] is None
+    added = c["added"]
+    assert "permutation null" in added, "the claim must cite how it was tested"
+    assert "WEAK-BUT-REAL" in added, "the size of the effect must survive in the record"
+    # The reason it is worth having at all is the comparison to what exists.
+    assert "Spearman 1.0000" in added

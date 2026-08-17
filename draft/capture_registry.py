@@ -135,12 +135,19 @@ CAPTURES: dict[str, dict] = {
                     "air_yards_share", "adot", "rz_share", "rz_targets",
                     "carries", "gl_carries"],
         "knowingly_drops": {
-            "snap_share / xfp_delta": (
-                "NOT COMPUTED ANYWHERE — the docstring promised them and the "
-                "function never produced them; the contract was corrected "
-                "2026-08-17 rather than the fields invented. snap_share needs "
-                "nflverse snap_counts, which this repo has never pulled: a real "
-                "gap, filed as one instead of implied by a stale docstring."),
+            "snap_share": (
+                "STILL NOT ON THE BOARD, but no longer a data gap — the source "
+                "was pulled 2026-08-17 (see the `snap_counts` capture). What "
+                "remains is a WIRING gap: nothing joins snap share onto a board "
+                "row yet, deliberately, because a new input wired live five days "
+                "before the draft is a worse instrument than a known one. Filed "
+                "as the narrower thing it now is."),
+            "xfp_delta": (
+                "NOT COMPUTED ANYWHERE — the docstring promised it and the "
+                "function never produced it; the contract was corrected "
+                "2026-08-17 rather than the field invented. Expected fantasy "
+                "points from opportunity needs a per-opportunity value model we "
+                "have not built. A real gap, filed as one."),
         },
         "raw_retained": True,
         "raw_why_not": None,
@@ -148,6 +155,38 @@ CAPTURES: dict[str, dict] = {
                   "board's edge; rz_share among them, which is why "
                   "opportunity_inheritance reported red-zone vacancy as "
                   "unmeasurable when it had in fact been measured"),
+    },
+    "snap_counts": {
+        "module": "draft/backtest/fetch_snap_counts.py",
+        "parser": "build_season",
+        "retains": ["snaps", "pct", "share_volatility"],
+        "knowingly_drops": {
+            "defense_snaps / st_snaps": (
+                "DEFENSIVE AND SPECIAL-TEAMS snap counts, served in the same "
+                "response. Dropped because this is a 0.5-PPR offensive-skill "
+                "league and neither contributes to a skill player's scoring. "
+                "The RAW payload is retained, so if K/DEF modelling ever wants "
+                "them the answer is a re-parse rather than a re-fetch."),
+        },
+        "raw_retained": True,
+        "raw_why_not": None,
+        "added": ("2026-08-17 — THE FIRST PER-PLAYER DISPERSION SIGNAL ON THIS "
+                  "BOARD. Every existing one (proj_ceiling, proj_floor, "
+                  "proj_sd, weekly_sd) is proj_mean x a per-band constant, i.e. "
+                  "Spearman 1.0000 against the projection and therefore exactly "
+                  "zero player-specific information. That single fact is the "
+                  "common cause of three dead ends: `ceiling` measuring "
+                  "collinear with `value` and getting zeroed, the phase grid "
+                  "being able to discover only that double-counting the "
+                  "projection is bad, and the variance modifiers coming back "
+                  "unmeasurable. 35,869 skill player-weeks, 2021-2025. "
+                  "MEASURED, NOT ASSUMED: within a fixed mean_pct band sd_pct "
+                  "spans 8x (p10 0.022 to p90 0.186) in an interpretable "
+                  "inverted-U, and year-over-year carryover clears a 400-draw "
+                  "permutation null in 4 of 4 transitions (rho +0.19 to +0.33). "
+                  "READ THAT AS WEAK-BUT-REAL: rho ~0.19 explains a small slice "
+                  "of next year's volatility and must not be weighted as though "
+                  "it were strong."),
     },
 }
 
