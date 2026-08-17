@@ -69,6 +69,36 @@ Of the 26 without, only 8 are rookies — **the rest are veterans who missed 202
 a gap with a positional mean hands the steadiest reading to the injury-return
 group. **Absent must stay absent.**
 
+## 3b. ROUTES RUN — the second per-player feed, and what it is NOT
+
+`draft/backtest/fetch_routes.py`, `routes_2021..2024.json`, weekly, gated.
+
+**There is NO routes feed in nflverse.** `routes/routes_YYYY.csv` 404s and
+`ftn_charting` is play-level with no player ids. True routes run is a PFF /
+Fantasy Points Data product we do not have. So this is a PROXY from
+`pbp_participation` — every skill player on the field for a pass play — and an
+**UPPER BOUND**, because a tight end who stayed in to block is counted. A test
+pins that caveat so nothing downstream drifts into treating it as a measurement.
+
+**Validated against known reality, not just shape:** Cooper Kupp 2021 reproduces
+at 775 routes / 234 targets / **TPRR 0.302** — his triple-crown season and the
+figure reported for it. Kelce 0.23, Hill 0.282, Diggs 0.266; median TPRR
+**0.188** in both 2021 and 2024.
+
+**Two things the build forced, both measured rather than assumed:** the
+play-by-play join is REQUIRED (participation has no play type, and the best
+participation-only proxy inflates the route DENOMINATOR by 12%), and position
+must come from the roster because the participation schema gained position
+columns only in 2023 — branching on that would have run two code paths over two
+populations and called the result one dataset.
+
+**2025 is refused**: no weekly data, so no position map — the same 404 that
+leaves 2025 ungradeable. One gap, two consequences.
+
+Routes run matters because it is the DENOMINATOR for target-per-route-run: 60
+targets on 300 routes is a different player from 60 on 600, and target share
+alone cannot separate them. Nothing consumes it yet.
+
 ## 4. FOR CORY, BEFORE AND ON DRAFT DAY
 
 **One decision is waiting on him** — `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`.
@@ -152,6 +182,13 @@ real aggregation semantics, not another guess.
   the artifact. Self-maintaining: reads `PLAYER_FIELDS`, not a copy.
 - `weight_provenance.test.js` — re-aimed; now fails if a synthetic dispersion
   constant is REINTRODUCED to `build_bundle.py`.
+- `harness_divergence.py` — the AST check that reads build_bundle's real field
+  list rather than a mirrored copy. **It was itself wrong for a few hours**: the
+  dispersion fields moved into a second pass, invisible to its parse, so it
+  reported `proj_ceiling` as corrupting a backtest number the morning that
+  stopped being true. Fixed by declaring `DISPERSION_FIELDS` ONCE in
+  build_bundle and having the tool read it — one declaration, two readers, and a
+  refusal if it disappears.
 
 **Honest limit:** of the real defects found on 08-17, only some were caught by
 machinery, and one of those was machinery written the same day. The gates cover
