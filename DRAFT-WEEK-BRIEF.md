@@ -173,7 +173,14 @@ pool fallbacks, `source_weight_prior`'s sign flip, and Pearsall's zero projectio
 ## 7. WHAT IS STILL OPEN, IN ORDER
 
 1. **Wire realized weekly volatility** — top post-draft item, above snap share
-   (which measures a weaker proxy for the same thing). Needs a prereg.
+   (a weaker proxy for the same thing). **PREREGISTERED:
+   `VOLATILITY-WIRING-PREREG.md`.** Three decisions are fixed there so they
+   cannot be chosen after seeing results: `f` must preserve the cell mean (or
+   the change is a level shift in disguise); a player with NO volatility keeps
+   his CELL constant — never the positional mean, which would hand the steadiest
+   reading to the injury-return group; and it needs its own
+   `proj_ceiling_source` value, because one field name holding two
+   constructions is the error the `_source` stamps exist to prevent.
 2. **Re-derive the composite `ceiling` weight** — the harness is honest now, so
    the experiment is RUNNABLE for the first time. Needs a CI bundle rebuild.
    Prereg exists: `HARNESS-DISPERSION-PREREG.md`.

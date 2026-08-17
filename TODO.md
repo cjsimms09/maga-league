@@ -74,8 +74,13 @@ not enough to call the coefficient precise — and this is REALIZED volatility, 
 prospective use is licensed by the persistence and by nothing else.
 
 **QUEUE EFFECT:** wiring this is now the top post-draft item, ABOVE snap share,
-which measures a weaker proxy for the same thing. Needs a prereg and a real
-backtest before any weight moves.
+which measures a weaker proxy for the same thing. **Preregistered 2026-08-17:
+`draft/backtest/VOLATILITY-WIRING-PREREG.md`** — written while no outcome data
+existed, which is the only moment a prereg is worth anything. It fixes in
+advance the three things that would otherwise be chosen after seeing results:
+the mean-preserving constraint on `f`, what happens to the 17% with no
+volatility (they keep their CELL constant — NOT the positional mean, which would
+flatter the injury-return group), and a distinct `proj_ceiling_source`.
 
 ### ALSO CLOSED, LATER THE SAME DAY
 
