@@ -36,7 +36,7 @@
   "league_id": "1374848328470102016",
   "league_name": "Make Football Great Again",
   "my_draft_slot": 8,
-  "opportunity_cap": 0.15,
+  "opportunity_cap": 0.0,
   "original_rounds": {},
   "playoff_teams": 4,
   "playoff_week_start": 16,
@@ -364,5 +364,6 @@
     "day_of_week": 2,
     "is_faab": false,
     "type_code": 1
-  }
+  },
+  "_opportunity_cap_why": "0.0 = LAYER OFF, Cory's ruling 2026-08-17 ('Remove 1'), after draft/audit/opportunity_adjustment_2026-08-16.md graded it for the first time: NEUTRAL on ordering in 17 of 18 cells, WORSE on level in 18 of 18 with every CI clear, and a SHUFFLED control (same magnitudes, randomly reassigned within position) performed identically \u2014 so it was carrying scale, not player information. It was also structurally one-sided: composite_z handles WR/TE/RB only, so QB/K/DEF carried exactly 0.0000 while RB/WR/TE reached +0.15, lifting three positions against three others in a VORP that compares across positions. Measured effect of turning it off on the live board: 51 of the top 60 overall ranks move and QB1 goes from rank 16 to 10. CENTRING it instead moved QB1 by ONE, because the distortion is the SPREAD (elite RB/WR/TE pinned at the cap while replacement sits near zero), not the level. HONEST LIMIT: the grade ran on reconstructed baselines that FLATTER the layer, so every positive number was an upper bound; its performance against Sleeper's own preseason baseline is unmeasurable until REC-2 grades it in January 2027. REVERSIBLE: restore 0.15 here, nothing else changes."
 }

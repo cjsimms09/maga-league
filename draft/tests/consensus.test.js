@@ -35,15 +35,28 @@ const ck = (n, c, d) => { c ? (pass++, console.log('PASS  ' + n))
   ck('exactly 2 sources -> "Consensus (2 src)", averaged',
     two.label === 'Consensus (2 src)' && two.isConsensus === true && two.value === 226, two);
 
-  // THE NEW PATH — proj_ownmodel, added 2026-08-15, never directly tested before now.
-  const three = C.rawProjection({ proj_sleeper: 200, proj_fantasypros: 210, proj_ownmodel: 190 });
-  ck('3 sources including our own model -> "Consensus (3 src)", averaged over all 3',
-    three.label === 'Consensus (3 src)' && three.isConsensus === true && three.value === 200, three);
-  ck('  ownmodel is counted in sources[]', three.sources.indexOf('ownmodel') !== -1, three.sources);
+  // OWN_V6 WITHDRAWN FROM DISPLAY, 2026-08-17 (Cory: "don't show v6 but keep
+  // improving it and grading"). These three checks previously asserted the
+  // OPPOSITE — that proj_ownmodel joined the average as a third source — so they
+  // are the tests that must flip, and they are inverted rather than deleted so
+  // the withdrawal stays pinned and a silent re-entry fails here.
+  ck('the display flag is off — v6 is computed and graded, not shown',
+    C.DISPLAY_OWNMODEL === false, C.DISPLAY_OWNMODEL);
 
-  const onlyOwn = C.rawProjection({ proj_ownmodel: 150 });
-  ck('proj_ownmodel ALONE -> labelled "Our model proj", not "consensus" (a rookie with no prior-year data has only this)',
-    onlyOwn.label === 'Our model proj' && onlyOwn.isConsensus === false && onlyOwn.value === 150, onlyOwn);
+  const three = C.rawProjection({ proj_sleeper: 200, proj_fantasypros: 210, proj_ownmodel: 190 });
+  ck('our own model does NOT enter the displayed average: 2 src, not 3',
+    three.label === 'Consensus (2 src)' && three.isConsensus === true && three.value === 205, three);
+  ck('  ownmodel is absent from sources[]', three.sources.indexOf('ownmodel') === -1, three.sources);
+
+  // A player carrying ONLY proj_ownmodel must not become invisible — the honest
+  // answer is the artifact's own proj_mean, labelled by provenance, exactly as
+  // for any player with no per-source columns at all.
+  const onlyOwn = C.rawProjection({ proj_ownmodel: 150, proj_mean: 148 });
+  ck('proj_ownmodel ALONE falls through to proj_mean rather than showing v6 or nothing',
+    onlyOwn.value === 148 && onlyOwn.sources.indexOf('ownmodel') === -1 && onlyOwn.isConsensus === false, onlyOwn);
+  const onlyOwnNoMean = C.rawProjection({ proj_ownmodel: 150 });
+  ck('  and with no proj_mean either -> null, never the v6 number in disguise',
+    onlyOwnNoMean.value === null, onlyOwnNoMean);
 
   const withFfc = C.rawProjection({ proj_sleeper: 100, proj_ffc: 120 });
   ck('proj_ffc participates in the average like any other source',

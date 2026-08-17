@@ -31,6 +31,36 @@
     fantasypros: 'FantasyPros', ffc: 'FFC', consensus: 'Consensus',
     ownmodel: 'Our model' };
 
+  /* OWN_V6 IS COMPUTED AND GRADED, BUT NOT DISPLAYED. Cory, 2026-08-17:
+   * "don't show v6 but keep improving it and grading."
+   *
+   * The reason it had to come out of THIS file specifically, rather than being
+   * deleted anywhere: the consensus column is the SANITY CHECK ON OUR OWN
+   * VALUATION (see the header). Averaging our own model into it makes the check
+   * partly self-referential — the number that is supposed to be able to
+   * disagree with us is moved toward us. Two measured facts make that worse
+   * rather than merely inelegant:
+   *
+   *   1. own_v6 loses to Sleeper at ALL FOUR positions on the leak-free
+   *      walk-forward grade. Equal-weighting it into a displayed average drags
+   *      the sanity check toward the weaker forecaster.
+   *   2. Its coverage is PARTIAL (it needs prior-season production, so no
+   *      rookie carries one). So it moved some players' displayed number and
+   *      not others' — the contamination was uneven, which is the hardest kind
+   *      to reason about at the table.
+   *
+   * NOT REMOVED FROM THE ARTIFACT. build.py still attaches proj_ownmodel, the
+   * admin scoreboard (/admin/model-scoreboard, src/routes/admin.js) still reads
+   * it, and every backtest still grades it. This flag governs ONE thing: whether
+   * it participates in the number shown next to a valuation. Flip it to true to
+   * put it back — that is the whole change, in one place, which is why it is a
+   * flag and not a deletion.
+   *
+   * NOTE it was never inside proj_mean: the blend study Cory ordered RAN and
+   * REFUSED (draft/audit/proj_mean_blend_2026-08-16.md), so the board's RANKING
+   * never contained v6 and this is purely a display change. */
+  var DISPLAY_OWNMODEL = false;
+
   function cleanSource(s) {
     if (!s) return 'proj';
     return SOURCE_LABELS[String(s).toLowerCase()] || String(s);
@@ -48,17 +78,10 @@
     if (player.proj_sleeper != null) perSource.push(['sleeper', Number(player.proj_sleeper)]);
     if (player.proj_fantasypros != null) perSource.push(['fantasypros', Number(player.proj_fantasypros)]);
     if (player.proj_ffc != null) perSource.push(['ffc', Number(player.proj_ffc)]);
-    // THIRD SOURCE, ADDED 2026-08-15. proj_ownmodel is our own leak-free,
-    // self-derived model — WHICH algorithm is the board's business, not this
-    // file's: build.py stamps it in provenance own_model.algorithm (own_v6
-    // since Cory's 2026-08-16 promotion; this comment once said walk_forward
-    // and went stale within a day of the v4 promotion — the label 'Our model'
-    // is deliberately version-free so the next promotion cannot strand it).
-    // Attached by build.py the same additive way FantasyPros was — coverage is
-    // partial by design (needs prior-season production, so rookies carry
-    // none), which is exactly why it's an entry in an array that only includes
-    // what's present rather than a required field.
-    if (player.proj_ownmodel != null) perSource.push(['ownmodel', Number(player.proj_ownmodel)]);
+    // THIRD SOURCE, ADDED 2026-08-15, WITHDRAWN FROM DISPLAY 2026-08-17. See
+    // DISPLAY_OWNMODEL above for why, and for what is deliberately unchanged
+    // (the artifact field, the admin scoreboard, and every grade still exist).
+    if (DISPLAY_OWNMODEL && player.proj_ownmodel != null) perSource.push(['ownmodel', Number(player.proj_ownmodel)]);
     if (perSource.length) {
       var sum = perSource.reduce(function (a, kv) { return a + kv[1]; }, 0);
       var srcs = perSource.map(function (kv) { return kv[0]; });
@@ -106,7 +129,7 @@
   }
 
   var api = { rawProjection: rawProjection, higherProjectionAlt: higherProjectionAlt,
-    cleanSource: cleanSource };
+    cleanSource: cleanSource, DISPLAY_OWNMODEL: DISPLAY_OWNMODEL };
   global.DraftConsensus = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

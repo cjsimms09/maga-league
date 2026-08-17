@@ -88,14 +88,22 @@ ck('app.js no longer hardcodes the single-source fallback label '
 // consensus.js: the shared derivation labels our model version-free — 'Our
 // model' survives every promotion — and computes the label from what is
 // present, never from a typed source list at the call site.
+//
+// AMENDED 2026-08-17 (Cory: "don't show v6 but keep improving it and grading").
+// The own model no longer enters the DISPLAYED consensus, so the two checks that
+// asserted it did are now the wrong assertion here. What this file is actually
+// about — no algorithm literal on any surface — is unaffected and still checked:
+// the version-free label now lives on cleanSource, which the admin scoreboard
+// (the surface that DOES still show the model) resolves through.
 {
   const C = require(path.join(ROOT, 'public', 'js', 'draft', 'consensus.js'));
-  const solo = C.rawProjection({ proj_ownmodel: 200 }, prov);
-  ck("consensus.js labels the own model version-free ('Our model proj')",
-    solo.label === 'Our model proj' && solo.value === 200, solo);
+  ck("consensus.js still labels the own model version-free ('Our model'), for "
+    + 'the admin surfaces that do display it',
+    C.cleanSource('ownmodel') === 'Our model', C.cleanSource('ownmodel'));
   const three = C.rawProjection({ proj_sleeper: 100, proj_fantasypros: 110, proj_ownmodel: 120 }, prov);
-  ck('three sources present → "Consensus (3 src)" — the count is derived, not typed',
-    three.label === 'Consensus (3 src)' && three.value === 110, three);
+  ck('the own model is withheld from the displayed consensus → "Consensus (2 src)" '
+    + '— the count is still derived from what participates, not typed',
+    three.label === 'Consensus (2 src)' && three.value === 105, three);
 }
 
 // ── 5. THE BUILD LOG READS THE DIAG, NOT A TYPED NAME ───────────────────
