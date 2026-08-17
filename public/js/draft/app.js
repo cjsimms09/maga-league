@@ -2225,6 +2225,13 @@
     try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
     try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
     try { renderLegality(); } catch (e) { /* never blocks the clock */ }
+    /* THE COCKPIT LAYER (rebuild 2026-08-17, Cory's order): tabs, position
+     * rails, right-rail charts and the drill-down live in warroom_charts.js,
+     * loaded AFTER this file. It reads the narrow WarRoomData accessor below
+     * and re-renders on every board update. Guarded — a missing or throwing
+     * cockpit never blocks the clock. */
+    try { if (typeof WarRoomCockpit !== 'undefined') WarRoomCockpit.refresh(); }
+    catch (e) { console.error('[cockpit]', (e && e.message) || e); }
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
     // and disappear with rehearsal/slot state). Measured again on the next
@@ -4567,23 +4574,36 @@
           '<span class="path-name">' + escapeHtml(p.name) + '</span>' + doctrineBadge + priceBadge +
         '</div>' +
         '<div class="path-pick">' +
-          '<span class="path-player">' + escapeHtml(pl.name) +
+          '<span class="path-player"><span class="rec-nm" data-drill="' + pl.player_id + '" title="Full dossier">' + escapeHtml(pl.name) + '</span>' +
             '<span class="rec-pos ' + pl.position + '">' + pl.position + '</span></span>' +
           '<span class="path-score">' + p.pick.score.toFixed(1) + '</span>' +
         '</div>' +
-        (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '') +
         devHtml +
-        (p.pick.why ? '<div class="path-why">' + escapeHtml(p.pick.why) + '</div>' : '') +
-        '<div class="path-when"><span class="path-lbl">FOR</span> '
-          + escapeHtml(p.when_right) + '</div>' +
+        /* DENSITY (cockpit rebuild 2026-08-17, Cory's order): the card-essays
+         * live ONE TAP AWAY behind the ⓘ, as STRUCTURED pro/con lists — the
+         * same machine-derived content (when_right, pathAgainst, the branch
+         * plan), itemised instead of freetexted. The visible row is name ·
+         * price-vs-top · score · take. */
         (function () {
           var ag = pathAgainst(p);
-          return ag.length
-            ? '<div class="path-against"><span class="path-lbl">AGAINST</span> '
-              + escapeHtml(ag.join('; ')) + '</div>'
-            : '';
+          var forItems = [p.when_right].concat(
+            p.pick.why ? [p.pick.why] : [],
+            (p.pick.context || []).slice(0, 2));
+          var chip = function (t) { return '<li>' + escapeHtml(t) + '</li>'; };
+          return '<details class="path-info"><summary>ⓘ for / against'
+            + (ag.length ? ' (' + ag.length + ')' : '') + '</summary>'
+            + (p.distinction ? '<div class="path-distinction">' + escapeHtml(p.distinction) + '</div>' : '')
+            + '<div class="wr-procon">'
+            + '<div class="path-when"><span class="path-lbl">FOR</span><ul class="wr-pc-list">'
+              + forItems.map(chip).join('') + '</ul></div>'
+            + (ag.length
+                ? '<div class="path-against"><span class="path-lbl">AGAINST</span><ul class="wr-pc-list">'
+                  + ag.map(chip).join('') + '</ul></div>'
+                : '')
+            + '</div>'
+            + (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '')
+            + '</details>';
         })() +
-        (plan ? '<div class="path-plan">next turn cost if you wait: ' + escapeHtml(plan) + '</div>' : '') +
         '<div class="path-actions">' +
           '<button class="btn small gold" data-draft-me="' + pl.player_id
             + '" data-path-key="' + escapeHtml(p.key) + '">I took ' + escapeHtml(pl.name.split(' ').slice(-1)[0]) + '</button>' +
@@ -5371,16 +5391,41 @@
         + 'unavailable (' + escapeHtml(String((e && e.message) || 'error')) + ')</div>';
     }
 
+    /* Range-bar scale (cockpit rebuild 2026-08-17): floor→ceiling bands share
+     * ONE scale across the shortlist, or the bars are not comparable. Pure
+     * builder lives in warroom_charts.js (loaded after this file — guarded, so
+     * a missing module costs the bar, never the row). */
+    const rbScale = (function () {
+      let lo = Infinity, hi = -Infinity;
+      scored.forEach(x => {
+        const q = x.player;
+        if (q.proj_floor != null && q.proj_floor < lo) lo = q.proj_floor;
+        if (q.proj_ceiling != null && q.proj_ceiling > hi) hi = q.proj_ceiling;
+      });
+      return (lo < hi) ? { min: lo, max: hi } : null;
+    })();
+    const curPickNo = (function () { try { return currentPick(); } catch (e) { return null; } })();
     host.innerHTML = explainPanel('recommendations') + head + decisiveLine + scored.map((s, i) => {
       const p = s.player;
       const pct = survivalPct(1 - (s.survival_to_next || 0));
+      /* FALLING (Cory, cockpit steering): value sliding past its market price —
+       * he is on the board 10+ picks after the market expected him gone. */
+      const falling = (curPickNo != null && p.adjusted_adp != null
+        && p.adp_source !== 'search_rank' && (curPickNo - p.adjusted_adp) >= 10);
       return '<div class="rec-card' + (i === 0 ? ' top' : '') + (s.demoted ? ' demoted' : '') + '">' +
         '<div class="rec-rank">' + (s.demoted ? '↓' : (i + 1)) + '</div>' +
         '<div class="rec-main">' +
-          '<div class="rec-name">' + escapeHtml(p.name) +
+          '<div class="rec-name"><span class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</span>' +
             '<span class="rec-pos ' + p.position + '">' + p.position + '</span>' +
             '<span class="muted">' + escapeHtml(p.team || '') + (p.bye ? ' · bye ' + p.bye : '') + '</span>' +
+            (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
+              + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
+              + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
           '</div>' +
+          ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
+            ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
+                { min: rbScale.min, max: rbScale.max, lead: i === 0 })
+            : '') +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
           /* ⚠️ CONTEXT IS RENDERED SEPARATELY, AND IT HAD TO BE.
@@ -5603,7 +5648,7 @@
         + ((tierBreak ? ' class="tier-cliff"' : '')
           || (onesieRow ? ' class="onesie-demoted"' : '')) + '>' +
         '<td class="num">' + p.overall_rank + '</td>' +
-        '<td><b>' + escapeHtml(p.name) + '</b>'
+        '<td><b class="rec-nm" data-drill="' + p.player_id + '" title="Full dossier">' + escapeHtml(p.name) + '</b>'
           + (lastOfTier[p.player_id]
             ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
@@ -9757,6 +9802,42 @@
       state: state,
     };
   }
+
+  /* ── THE COCKPIT ACCESSOR (rebuild 2026-08-17) ──────────────────────────
+   * ONE narrow, read-only window onto app state for warroom_charts.js (the
+   * tab/rail/chart layer, loaded after this file). It exposes DERIVED reads,
+   * never the state object itself, so the cockpit cannot become a second
+   * writer — every mutation still goes through the delegated controls
+   * (data-draft-me / data-queue / data-compare) this file already owns.
+   * Every function is guarded: an early call (before the board loads) answers
+   * with an honest empty rather than a throw. */
+  window.WarRoomData = {
+    scored: function () { return (state.lastClock && state.lastClock.scored) || []; },
+    board: function () { return state.board || []; },
+    players: function () { return (state.data && state.data.players) || []; },
+    roster: function () { return state.myRoster || []; },
+    starters: function () { return (((state.data || {}).league) || {}).starters || {}; },
+    timing: function () { return state.lastTiming || null; },
+    verdict: function () { return state.lastVerdict || null; },
+    paths: function () { return state.lastPaths || []; },
+    queue: function () { return (state.lists && state.lists.queue) || []; },
+    drafted: function () { return state.drafted || new Set(); },
+    currentPick: function () { try { return currentPick(); } catch (e) { return null; } },
+    myNextPicks: function () { try { return myNextPicks(); } catch (e) { return []; } },
+    onTheClock: function () { try { return onTheClock(); } catch (e) { return false; } },
+    playerById: function (id) { try { return playerById(id); } catch (e) { return null; } },
+    /* Survival to an arbitrary future pick — the SAME engine call the LRM strip
+     * makes (full ctx shape: runMultipliers keeps normalizeCtx reading this as
+     * a context, pickBoard keeps ADP on the board's own scale). */
+    survivalTo: function (p, pick) {
+      try {
+        return E.survival(p, pick, {
+          currentPick: currentPick(), runMultipliers: state.runMults,
+          pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+        });
+      } catch (e) { return null; }
+    },
+  };
 
   // ----------------------------------------------------------------- wiring
   function wireControls() {

@@ -10,12 +10,12 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 
 | cascade | sim run share | runs/draft | |err| vs real |
 |---|---|---|---|
-| 0.0 | 40% | 19.17 | 0.064 |
-| 1.0 | 43% | 20.21 | 0.035 |
-| 2.0 | 43% | 20.25 | 0.033 |
-| 4.0 | 45% | 20.88 | 0.013 ← fitted |
-| 8.0 | 49% | 21.79 | 0.026 |
-| 16.0 | 56% | 24.62 | 0.099 |
+| 0.0 | 40% | 19.33 | 0.063 |
+| 1.0 | 41% | 19.67 | 0.052 |
+| 2.0 | 43% | 20.17 | 0.033 |
+| 4.0 | 45% | 20.92 | 0.014 ← fitted |
+| 8.0 | 50% | 22.17 | 0.032 |
+| 16.0 | 55% | 24.29 | 0.09 |
 
 **Fitted magnitude: 4.0** — the value whose run frequency best matches the real drafts (real 46% vs fitted 45%). Fitted from OUR data, not chosen for taste.
 
@@ -23,18 +23,18 @@ Experiment 2 §6 reported `run_pressure` at **0% incidence**. That is a **MODEL 
 
 | statistic | real | sim (fitted) | tol | reproduces? |
 |---|---|---|---|---|
-| run_share | 0.463 | 0.45 | ±0.05 | ✅ |
-| runs_per_draft | 19.33 | 20.88 | ±1.5 | ❌ |
-| mean_run_len | 3.15 | 3.24 | ±0.5 | ✅ |
-| timing_q1_RB | 0.316 | 0.3 | ±0.15 | ✅ |
-| timing_q1_WR | 0.468 | 0.357 | ±0.15 | ✅ |
-| timing_q1_QB | 0.089 | 0.154 | ±0.15 | ✅ |
-| timing_q3_RB | 0.329 | 0.304 | ±0.15 | ✅ |
-| timing_q3_WR | 0.316 | 0.356 | ±0.15 | ✅ |
+| run_share | 0.463 | 0.449 | ±0.05 | ✅ |
+| runs_per_draft | 19.33 | 20.92 | ±1.5 | ❌ |
+| mean_run_len | 3.15 | 3.22 | ±0.5 | ✅ |
+| timing_q1_RB | 0.316 | 0.289 | ±0.15 | ✅ |
+| timing_q1_WR | 0.468 | 0.371 | ±0.15 | ✅ |
+| timing_q1_QB | 0.089 | 0.15 | ±0.15 | ✅ |
+| timing_q3_RB | 0.329 | 0.294 | ±0.15 | ✅ |
+| timing_q3_WR | 0.316 | 0.36 | ±0.15 | ✅ |
 | timing_q3_QB | 0.127 | 0.146 | ±0.15 | ✅ |
-| timing_q5_RB | 0.25 | 0.29 | ±0.15 | ✅ |
-| timing_q5_WR | 0.325 | 0.354 | ±0.15 | ✅ |
-| timing_q5_QB | 0.1 | 0.156 | ±0.15 | ✅ |
+| timing_q5_RB | 0.25 | 0.282 | ±0.15 | ✅ |
+| timing_q5_WR | 0.325 | 0.358 | ±0.15 | ✅ |
+| timing_q5_QB | 0.1 | 0.157 | ±0.15 | ✅ |
 
 ## ⚠️ STANDING LIMITATION — states these experiments CANNOT test
 

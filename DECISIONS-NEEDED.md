@@ -1146,13 +1146,19 @@ almost immediately after it was written, as this whole session's `git push origi
   - **Stack** stays at 1.0, not the "~0.5" this entry suggests — you personally resolved this
     exact conflict on 2026-08-13 (D10 correction): the code was right, an earlier record was
     wrong, and 1.0 is what was always meant to ship.
-  - **Ceiling** stays at 0, not the "0.65" this entry recommends — you ruled it to 0 on
-    **2026-08-10**, a day AFTER this entry's revision, specifically rejecting 0.65 (a "flip
+  - ~~**Ceiling** stays at 0, not the "0.65" this entry recommends~~ **SUPERSEDED 2026-08-17
+    by Cory's own ruling — ceiling is set to 0.45.** The history, kept because each step was
+    right on its evidence: you ruled it to 0 on **2026-08-10**, rejecting 0.65 (the "flip
     diagnostic" showed it deciding a third of the late board on a term with "no defensible
-    sign"). A 2026-08-14 follow-up found the underlying measurement this entry cites was itself
-    flawed (collinear with the value term, not real evidence either way) and explicitly kept
-    ceiling at 0 rather than move it on broken evidence — "UNCHANGED AND THAT IS DELIBERATE" in
-    the code's own words.
+    sign"); a 2026-08-14 follow-up found that measurement collinear with the value term
+    (Spearman 1.0000 — not evidence either way) and kept 0 rather than move on broken evidence;
+    the 2026-08-17 re-derivation on the first real-ceiling board reversed it (three
+    preregistered runs, two independent seed sets, every value 0.15–0.65 beats zero, 3/3
+    separable), and you ruled **"IS THIS STUDIES? IF SO, YES"** the same day, explicitly
+    overriding the preregs' before-08-22 hold. 0.45 is the exp-21 inverted-U peak — your
+    "SHOULD IT BE HIGHER?" is answered NO by the provably negative heavy-tilt arm. Full
+    record at `MEASURED_WEIGHTS` in `engine.js`; baseline v22 froze the post-ruling surface
+    (v21 keeps the pre-ruling reference).
   - value/need/tier/risk/bye/keeper already match what this entry recommends.
   - **I almost implemented the 0.65 change before finding this** — caught only because the
     code's own provenance comment carries the full decision history and I read it before editing

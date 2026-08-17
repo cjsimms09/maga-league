@@ -188,22 +188,35 @@ def test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error(lo, hi):
         "which manufactures urgency that is not in the market.")
 
 
-def test_FAIL_ARM_the_shipped_rate_IS_measurably_wrong():
-    """The finding, asserted so it cannot be quietly dropped. If 0.15 ever
-    tracked the published dispersion, the note in keepers.py would be false and
-    this file would be arguing for nothing."""
-    off = []
+def test_the_SHIPPED_rate_tracks_the_market_and_the_OLD_one_provably_did_not():
+    """INVERTED 2026-08-17, exactly as its own failure message prescribed: the
+    measured pair (rate 0.11, floor 2.0) shipped on Cory's ruling ("SHIP,
+    ORDER BACKTEST AND RESERVE RIGHT TO CHANGE"), so the finding this arm
+    preserved is now production. Two halves: the shipped rule tracks the
+    published dispersion in every band, and the RETIRED 0.15/3.0 pair is
+    reconstructed to show it would not — so neither the ruling nor the defect
+    it fixed can be quietly dropped."""
+    shipped_off, old_off = [], []
     for lo, hi in [(1, 25), (25, 50), (50, 100), (100, 150)]:
         band = [p for p in MEASURED if lo <= p["adp"] < hi]
         if len(band) < 10:
             continue
         r = st.median(_fitted(p["adp"]) / p["adp_sd"] for p in band)
         if not (0.85 <= r <= 1.15):
-            off.append((lo, hi, round(r, 2)))
-    assert off, (
-        "the shipped rate now tracks published dispersion within 15% in every "
-        "band — the divergence recorded in keepers.py is stale and that note "
-        "must be retracted rather than left standing")
+            shipped_off.append((lo, hi, round(r, 2)))
+        r_old = st.median(
+            min(K.ADP_SD_CAP, max(3.0, 0.15 * p["adp"])) / p["adp_sd"]
+            for p in band)
+        if not (0.85 <= r_old <= 1.15):
+            old_off.append((lo, hi, round(r_old, 2)))
+    assert not shipped_off, (
+        f"the shipped 0.11/2.0 pair no longer tracks the market: {shipped_off}. "
+        "Either the market regime moved (the reserved-reversion case — take it "
+        "to Cory with the backtest) or someone changed the constants.")
+    assert old_off, (
+        "the retired 0.15/3.0 pair now TRACKS the market — the regime has "
+        "moved back toward the old constants and the ordered backtest verdict "
+        "matters more, not less")
 
 
 def test_THIS_FILE_CANNOT_BE_SATISFIED_BY_THE_TWO_SIDES_AGREEING():

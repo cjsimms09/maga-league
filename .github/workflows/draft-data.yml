@@ -106,6 +106,25 @@ jobs:
       # The JS suites are not optional extras: keepers.test.js is the only thing
       # that catches the Python and browser keeper implementations diverging,
       # and a divergence there corrupts every pick number invisibly.
+      - name: ADP drift — does the board still make football sense?
+        # ADVISORY, NEVER BLOCKING. Cory, 2026-08-17: "BIG BOARD MAKE FOOTBALL
+        # SENSE (SHOULDNT STRAY TOO MUCH FROM ADP OR SOMETHING PROBABLY WRONG,
+        # IF WRONG SOMEONE NEEDS TO FIND AND FIX)."
+        #
+        # It runs on every build so a regression surfaces without anyone
+        # remembering to look — the check existed and fired once, by hand, which
+        # is how a check becomes a thing nobody runs.
+        #
+        # It does NOT gate the board. The two failures it reports are opposite:
+        # straying too far means we are probably wrong, straying too LITTLE means
+        # we are reproducing the consensus and have no edge at all. Neither is a
+        # reason to refuse a publish; both are reasons to look. Gating on it would
+        # make somebody widen the threshold at 2am on draft night.
+        continue-on-error: true
+        run: |
+          node draft/tests/adp_drift_check.test.js
+          node draft/tools/adp_drift_check.js | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Run engine and parity tests
         run: |
           node draft/tests/engine.test.js
