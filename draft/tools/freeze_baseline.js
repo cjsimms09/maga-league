@@ -76,7 +76,16 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * day the ruling landed, so the reference was preserving exactly the drift the
  * delegation removes. No recommendation surface moved: SURVIVAL_CFG and every
  * frozen surface are identical to v20 (same pinned board, byte-identical). */
-const ACTIVE_VERSION = 'v21';
+/* v21 -> v22, 2026-08-17, THE CEILING RULING: MEASURED_WEIGHTS.ceiling
+ * 0 -> 0.45 on Cory's explicit ruling ("IS THIS STUDIES? IF SO, YES") — three
+ * preregistered runs, two independent seed sets, every value 0.15-0.65 beats
+ * zero 3/3 seeds separably; 0.45 is the exp-21 inverted-U peak, and the
+ * before-08-22 prereg hold was explicitly overridden by its owner, dated. The
+ * full record lives at MEASURED_WEIGHTS in engine.js. Unlike v21 this one
+ * MOVES a surface: the late-onesies-open state re-orders (bench ordering is
+ * where the term lives), early/mid stay put. v21 remains the pre-ruling
+ * reference. */
+const ACTIVE_VERSION = 'v22';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
