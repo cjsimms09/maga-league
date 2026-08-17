@@ -897,14 +897,14 @@
       src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
-      what: 'The chance each player is still on the board at your next pick, from '
-        + 'the market (ADP) model: ADP, its dispersion, and a conservation tilt so '
-        + 'only as many players can go as there are picks.',
-      read: 'Under ~50% treat him as gone and plan the seat without him. Identical '
-        + 'percentages on several elites are the tilt\'s redistribution floor — the '
-        + 'market cannot split players already past their ADP; the room model in '
-        + 'Most-likely-to-be-gone can, and it names the seat.',
-      do: 'Plan with the market number (it is what the score uses), but when you '
+      what: 'The chance each player is still on the board at your next pick: the '
+        + 'market (ADP) model blended with the room model for the picks in between, '
+        + 'through a conservation tilt so only as many players can go as there are picks.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. For players '
+        + 'already past their ADP the market alone has nothing left to say — the room '
+        + 'model is what splits them, so identical percentages on several elites only '
+        + 'appear before the draft order is known; Most-likely-to-be-gone names the seat.',
+      do: 'Plan with this number (it is what the score uses), but when you '
         + 'need WHO goes first among the elites, read the room model instead. A run '
         + 'at a position breaks both — re-read after any run banner.',
       src: 'survival.js survivalProbability()/conservedSurvival(); engine.js survival() accessor',
@@ -4071,23 +4071,22 @@
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
-    /* THE 42% WALL, DIAGNOSED (Cory's capture: eight chips all reading 42%,
-     * while MOST LIKELY TO BE GONE said 73% for the same player on the same
-     * screen). Both numbers are engine outputs answering different questions:
-     *   · THIS strip prints survival_to_next — the ADP-market model through
-     *     the conservation tilt, the number the SCORE uses. Every elite
-     *     already past his ADP has raw survival ~0 and the tilt lifts them all
-     *     to the SAME redistributed value — the uniformity is the tilt's
-     *     documented artifact ("fixes the total, not the ordering within it").
-     *   · The threats panel prints the ROOM model — seat-by-seat behavior,
-     *     which genuinely differentiates players and names the likely seat.
-     * One page, two numbers, one caption was the defect. Each now wears its
-     * model's name, and the strip points at the room model for WHO. Pinned by
-     * ui_fidelity_numbers.test.js. */
+    /* THE 42%/41% WALL — DIAGNOSED TWICE, THE SECOND TIME TO THE ROOT
+     * (survival.js layer1TakenGivenAvailable, 2026-08-17). The first diagnosis
+     * blamed the conservation tilt's redistribution and captioned the
+     * uniformity as a market property ("the market can't split them"). The
+     * root was upstream: a zero-width remainder window returned P(taken)=1 for
+     * every player past his ADP, which zeroed raw survival and ERASED the room
+     * model's differentiated answer before the tilt ever saw it — the tilt
+     * then handed every fallen elite the identical exp(−λ). With that fixed,
+     * survival_to_next carries market + room THROUGH the tilt (the number the
+     * score uses), and identical %s on fallen elites only appear when the room
+     * model has no seat data to add (no intervening picks known — pre-import).
+     * Pinned by ui_fidelity_numbers.test.js and survival_fallen_uniform.test.js. */
     host.innerHTML = rows
       ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your '
-        + 'next pick, market (ADP) model — the number the score uses. Identical %s mean the '
-        + 'market can’t split them; the room model under Survival Odds can. · tap to compare</span></div>' + rows
+        + 'next pick (market+room blend) — the number the score uses. Identical %s only mean no '
+        + 'seat data yet — the room model under Survival Odds still names WHO. · tap to compare</span></div>' + rows
       : '';
   }
 
@@ -5069,7 +5068,7 @@
         + (rp.value == null ? '—' : Math.round(rp.value)) + '</b></span>'
       + '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>'
       + '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>'
-      + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="ADP-model estimate — the number the score uses">~' + pct + '% gone by next (mkt)</span>' : '')
+      + (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="market+room estimate — the number the score uses">~' + pct + '% gone by next</span>' : '')
       // One tap deeper: the full dossier of engine fields for this row.
       + '<button class="rec-expand" data-dossier="' + p.player_id + '">'
         + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>'
