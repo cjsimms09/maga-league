@@ -36,14 +36,31 @@ weekly-MAE ceiling). **The problem is never a NO. It is a NO nobody wrote down.*
 1. **`snap_counts` feeds `projections.py` and nothing grades its contribution.**
    We cannot say whether it helps, hurts, or does nothing — the same shape as a
    weight set by an experiment that could not fail.
-2. **`routes_*` is captured weekly and reaches no prediction.** Decide: wire it
-   (prereg first) or stop the job. Not both open.
+2. **`routes_*` is captured weekly and reaches no prediction.** Prereg a feature
+   and measure it. **The weekly job keeps running either way** — see below.
 3. **`advanced_stats_*` and `historical_props_*`** — studies ran, wiring was
    never decided either way.
-4. **The standing rule:** no store gets a scheduled capture job until steps 4-8
-   have answers, even if the answer is a prereg and a date. A weekly job for data
-   nothing consumes is a commitment to pay forever for something we never decided
-   to use.
+4. **Every recorded null is missing its re-test trigger**, including the two
+   filed as justified (pace, Vegas +0.23).
+
+## THE RULE YOU WILL BE MOST TEMPTED TO BREAK
+
+**You do not stop a capture job. Nobody in any lane does — only Cory.**
+
+Your lane's whole job is finding stores that reach nothing, and the obvious
+tidy-minded conclusion is to turn them off. **That conclusion is wrong and it is
+the one mistake here that cannot be undone.** A weekly fetch costs a
+runner-minute and is reversible forever. A season we did not capture is gone, and
+so is every future study that needed it.
+
+**A null grades the WIRING, never the STORE.** Nearly every null we hold was
+measured on one season at low n with one method — "no signal at n=1" is not "no
+signal." So every null you write ships with a re-test trigger: a season count, an
+event, a method, or a date. **A null with no trigger is abandoned, not answered**,
+and finding those is item 4 above.
+
+If you believe a job genuinely should stop, that is an ASK to Cory stating the
+cost of keeping it and what is permanently lost by stopping. Not a lane call.
 
 ## HOW YOU COMMUNICATE
 
