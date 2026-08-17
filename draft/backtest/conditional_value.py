@@ -66,6 +66,10 @@ TOP_RB1 = 24                # "startable RB1" class: top-24 RBs by season points
 CATCHER_MIN_GAMES = 6       # a WR1/WR2/TE1 rank needs a real season behind it
 
 ARTIFACT = HERE.parent / "data" / "conditional_value_2026.json"
+# The war-room display fetches the SAME artifact over HTTP (Cory's ruling
+# 2026-08-17); public/ is the web root, so the builder writes both copies in
+# one pass and the test suite pins them byte-identical — no hand copy to drift.
+PUBLIC_ARTIFACT = HERE.parent.parent / "public" / "conditional_value_2026.json"
 BOARD = HERE.parent.parent / "public" / "draft_data.json"
 KEEPERS = HERE.parent / "config" / "keepers.json"
 WIRE = HERE.parent / "data" / "wire_level.json"
@@ -536,23 +540,37 @@ def build_artifact(seasons=SEASONS, sims=20000, write=True):
     higgins_chase = named_pair_history("6801", chase, seasons)
     burrow_higgins = named_pair_history("6770", "6801", seasons)
 
+    # ── DISPLAY JOIN KEYS (Cory's ruling 2026-08-17, "Yes!"): each stack
+    # carries the pids the war-room display joins by — `board` is the
+    # DRAFTABLE leg the chip annotates, `partner` the leg that makes the
+    # premium conditional (must be ON Cory's roster for the chip to show),
+    # `superseded_when_on_roster` retires the WR-pair case the moment the
+    # double-stack case goes live. Join keys only — no number changes.
     stacks = []
-    for label, pair_hist, cls, legs_note in (
+    for label, pair_hist, cls, pids, legs_note in (
         ("Joe Burrow + Ja'Marr Chase (kept)", burrow_chase, "QB-WR1",
+         {"board": "6770", "partner": chase, "partner_kept": True,
+          "superseded_when_on_roster": None},
          "the pair Cory owns half of"),
         ("Tee Higgins + Ja'Marr Chase (kept)", higgins_chase, "WR1-WR2",
+         {"board": "6801", "partner": chase, "partner_kept": True,
+          "superseded_when_on_roster": "6770"},
          "same-team WR pair, no QB leg"),
         ("Tee Higgins given Burrow drafted", burrow_higgins, "QB-WR2",
+         {"board": "6801", "partner": "6770", "partner_kept": False,
+          "superseded_when_on_roster": None},
          "the second leg of a double stack — only live if Burrow is on the roster"),
     ):
         if pair_hist is None:
-            stacks.append({"label": label, "cls": cls, "history": None,
+            stacks.append({"label": label, "cls": cls, "pids": pids,
+                           "history": None,
                            "note": "no shared store history — premium is "
                                    "ABSENT, not zero"})
             continue
         rho = pair_hist["r_pooled"]
         if rho is None or pair_hist["a_sd"] is None or pair_hist["b_sd"] is None:
-            stacks.append({"label": label, "cls": cls, "history": pair_hist,
+            stacks.append({"label": label, "cls": cls, "pids": pids,
+                           "history": pair_hist,
                            "note": "correlation not computable — absent"})
             continue
         dv = covariance_increment([(rho, pair_hist["a_sd"], pair_hist["b_sd"])])
@@ -564,7 +582,7 @@ def build_artifact(seasons=SEASONS, sims=20000, write=True):
         # reproduce from the printed inputs by eye
         co15 = round((pair_hist["co_active_rate"] or 0) * FANTASY_WEEKS, 1)
         stacks.append({
-            "label": label, "cls": cls, "history": pair_hist,
+            "label": label, "cls": cls, "pids": pids, "history": pair_hist,
             "class_baseline": classes[cls],
             "cov_increment_pair": round(dv, 2),
             "cov_increment_class_rho": None if dv_cls is None else round(dv_cls, 2),
@@ -627,8 +645,11 @@ def build_artifact(seasons=SEASONS, sims=20000, write=True):
 
     doc = {
         "_territory": "TERRITORY: A — produced by draft/backtest/"
-                      "conditional_value.py; gated OFF, no board/composite/"
-                      "recommendation surface reads this (Cory rules on wiring)",
+                      "conditional_value.py; DISPLAY-WIRED to the war room "
+                      "per Cory's ruling 2026-08-17 ('Yes!') — chips + "
+                      "drill-down read this, printed separately; the SCORING "
+                      "side stays gated: engine/composite/vorp/build never "
+                      "read it and the composite never contains these numbers",
         "generated_at_note": "rebuild: python3 draft/backtest/conditional_value.py",
         "mandate": "docs/queued/conditional-value-program.md",
         "seasons": list(seasons),
@@ -663,7 +684,9 @@ def build_artifact(seasons=SEASONS, sims=20000, write=True):
         ],
     }
     if write:
-        ARTIFACT.write_text(json.dumps(doc, indent=1) + "\n")
+        payload = json.dumps(doc, indent=1) + "\n"
+        ARTIFACT.write_text(payload)
+        PUBLIC_ARTIFACT.write_text(payload)
     return doc
 
 

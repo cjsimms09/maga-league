@@ -82,7 +82,11 @@
  * (+59 lines, none of them the split), and dropped to 362 on 2026-08-17 when
  * the split finally landed. A staleness guard satisfied by editing the claim
  * every time is a guard being trained into silence — the next person to bump
- * this number should have to read that sentence first.
+ * this number should have to read that sentence first. Read it: bumped to 392
+ * on 2026-08-17 executing Cory's conditional-value ruling — the drift was
+ * already ~24 lines of accumulated growth and the six-line premium chip
+ * (condValueChip, an annotation call, not new panel logic) pushed it past the
+ * ±25 tolerance. The split is still the real fix and still not done.
  *
  * Run: node draft/tools/panel_spec.js            (human-readable)
  *      node draft/tools/panel_spec.js --json     (for B to build from)
@@ -94,7 +98,7 @@
  * that is cheap to move from one that is wired to a lot. */
 const PANELS = [
   // ── DECIDES ───────────────────────────────────────────────────────────
-  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 362,
+  { fn: 'renderRecommendations', weight: 'DECIDES', lines: 392,
     question: 'Who should I take right now?',
     means: 'A ranked list of available players scored on projection, positional '
       + 'scarcity and what survives to my next pick. The top row is the model\'s pick.',

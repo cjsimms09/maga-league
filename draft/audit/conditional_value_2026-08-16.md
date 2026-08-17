@@ -154,3 +154,42 @@ backup's elevated week can be anywhere from ~5 to ~20 pts.
   seat plan, or any recommendation surface. The war-room surface that would
   read the artifact is routed TO:A in ROUTES.md; wiring the layer in is
   **Cory's ruling**, per the queued doc's own rule.
+
+---
+
+## 6. POSTSCRIPT — Cory ruled, and the display is wired (2026-08-17)
+
+**The ruling, verbatim: "Yes!"** (2026-08-17, on this doc's evidence). Executed
+on branch `conditional-value-wire`, exactly at the scope §5 reserved for it:
+
+- **What renders.** On the war-room DRAFT tab, any player carrying a nonzero
+  conditional premium for Cory's roster shows it as its own labelled chip
+  beside board value — `stack +$18–22/season (Burrow×Chase r=0.52, n=60 wks)`
+  style, always with the n — on the shortlist rec cards and the
+  best-available-by-position detail. The drill-down panel carries the full
+  readout: premium, mechanism, correlation (pair + class baseline, each with
+  its n), the bust tail, the round-15-or-wire handcuff verdict, the KC
+  market-vs-depth-chart flag, and the honest caveat that pricing ran on the
+  v1 money model in the simulated-room proxy. Higgins' chip is roster-live:
+  −$6 (no roster-fit case) without Burrow, +$9–10 (double stack) the moment
+  Burrow is rostered.
+- **What did NOT change.** No engine, composite, VORP, or build change — the
+  composite score does not contain these numbers and every chip says "not in
+  the score". The chip annotates; the adjudicated TAKE still owns the
+  headline (no take control, no second name — pinned by test).
+- **The gate, re-pinned deliberately.**
+  `test_gated_by_construction_nothing_on_the_board_reads_this` fired exactly
+  as designed and was replaced by the wired-state pair: the display half is
+  pinned ON (a lost script tag or dropped fetch goes red), and the scoring
+  half is PERMANENT — engine/composite/vorp/build/src may never read this
+  layer. Separate print is the contract.
+- **Plumbing.** The artifact gained display join keys (`pids` per stack —
+  join by player_id, same key as the board); the builder writes a second
+  byte-identical copy to `public/` (the web root) and the test suite pins the
+  two together. Declared in `data_separation.test.js` as the named
+  research-to-display promotion this ruling is.
+- **Suites:** `test_conditional_value.py` 39 · `conditional_value_display.test.js`
+  53 (new) · `conditional_value_sim.test.js` 22 (untouched) · cockpit
+  contracts (rec_rows, app-wiring, panel_spec, warroom_mobile, robot-mock)
+  green · `scripts/js-sweep.sh` 319 entry points all green.
+  Screens: `draft/audit/screens/stack-wired-*.png` (1440×950).
