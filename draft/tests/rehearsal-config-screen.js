@@ -24,7 +24,7 @@ const store = require(path.join(ROOT, 'src', 'store')); store.initFiles();
 const data = require(path.join(ROOT, 'src', 'data'));
 const { hashPassword } = require(path.join(ROOT, 'src', 'auth'));
 const { createApp } = require(path.join(ROOT, 'server-app'));
-const { chromium } = require('playwright');
+const { launchChromium } = require('./rehearsal-browser');
 
 const R = [];
 const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
@@ -54,7 +54,7 @@ const BOARD = {
   await new Promise(r => srv.once('listening', r));
   const base = `http://127.0.0.1:${srv.address().port}`;
 
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const b = await launchChromium();
   try {
     const ctx = await b.newContext();
     const page = await ctx.newPage();

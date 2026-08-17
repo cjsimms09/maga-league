@@ -25,7 +25,7 @@ const SB = require(path.join(ROOT, 'src', 'sidebets'));
 const PE = require(path.join(ROOT, 'src', 'routes', 'pickem'));
 const { hashPassword } = require(path.join(ROOT, 'src', 'auth'));
 const { createApp } = require(path.join(ROOT, 'server-app'));
-const { chromium } = require('playwright');
+const { launchChromium } = require('./rehearsal-browser');
 
 const TAG = process.env.SHOT_TAG || 'sb-shot';
 const OUT = path.join(__dirname, '..', 'audit', 'screens');
@@ -196,7 +196,7 @@ const SEASON_START = '2026-09-10';   // week 8 "now", week 9 kickoff still ahead
   await new Promise(r => server.once('listening', r));
   const base = `http://127.0.0.1:${server.address().port}`;
 
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const b = await launchChromium();
   const errs = [];
   async function shoot(viewport, label, paths) {
     const ctx = await b.newContext({ viewport });

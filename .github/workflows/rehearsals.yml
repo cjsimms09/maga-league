@@ -54,6 +54,17 @@ jobs:
       - name: Install Chromium
         # Only chromium — the rehearsals use nothing else, and the other engines
         # are a slow download for no coverage.
+        #
+        # THIS PUTS THE BROWSER IN ~/.cache/ms-playwright, NOT /opt/pw-browsers.
+        # That distinction broke the first version of this workflow: every
+        # rehearsal launched with a hardcoded `executablePath:
+        # '/opt/pw-browsers/chromium'`, a symlink that exists only in the
+        # research sandbox, so all three steps below would have thrown on
+        # launch() right after this step went green. They now go through
+        # draft/tests/rehearsal-browser.js, which uses the sandbox symlink when
+        # it is actually present and otherwise lets Playwright resolve what it
+        # installed here. Held down by rehearsal_browser_portability.test.js in
+        # the ordinary CI suite, so it cannot regress silently.
         run: npx playwright install --with-deps chromium
       - name: Keeper slate
         run: node draft/tests/rehearsal-keepers.js

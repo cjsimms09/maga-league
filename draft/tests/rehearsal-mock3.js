@@ -26,14 +26,14 @@
  * were hiding behind noise that "everybody knew about". Classify precisely, or
  * the filter you add to quiet a known problem silences the unknown one too.
  */
-const { chromium } = require('playwright');
+const { launchChromium } = require('./rehearsal-browser');
 const BASE = process.env.WR_BASE || 'http://localhost:8925';
 
 const R = [];
 const check = (name, cond, detail) => R.push({ name, ok: !!cond, detail });
 
 (async () => {
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const b = await launchChromium();
   const ctx = await b.newContext({ viewport: { width: 1440, height: 950 } });
   const page = await ctx.newPage();
   const errs = [];

@@ -13,7 +13,7 @@
  *   WR_BASE=http://localhost:8931 SHOT_TAG=before node draft/tests/shots-warroom.js
  */
 'use strict';
-const { chromium } = require('playwright');
+const { launchChromium } = require('./rehearsal-browser');
 const path = require('path');
 const fs = require('fs');
 
@@ -23,7 +23,7 @@ const OUT = path.join(__dirname, '..', 'audit', 'screens');
 fs.mkdirSync(OUT, { recursive: true });
 
 (async () => {
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const b = await launchChromium();
   const errs = [];
   async function capture(viewport, label, confirmKeepers) {
     const ctx = await b.newContext({ viewport });

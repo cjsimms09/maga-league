@@ -29,7 +29,7 @@ const predledger = require(path.join(ROOT, 'src', 'predledger'));
 const H = require(path.join(ROOT, 'src', 'helpers'));
 const { hashPassword } = require(path.join(ROOT, 'src', 'auth'));
 const { createApp } = require(path.join(ROOT, 'server-app'));
-const { chromium } = require('playwright');
+const { launchChromium } = require('./rehearsal-browser');
 
 const TAG = process.env.SHOT_TAG || 'is-shot';
 const OUT = path.join(__dirname, '..', 'audit', 'screens');
@@ -199,7 +199,7 @@ const WIRE = [
   await new Promise(r => server.once('listening', r));
   const base = `http://127.0.0.1:${server.address().port}`;
 
-  const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
+  const b = await launchChromium();
   const errs = [];
   async function shoot(viewport, label, paths) {
     const ctx = await b.newContext({ viewport });
