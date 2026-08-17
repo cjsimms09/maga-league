@@ -20,6 +20,44 @@
 
   **The added trigger is the useful part:** test `routes` as a **volume/participation** measure rather than as a denominator. ρ(TPRR, routes) is only +0.30-0.44, so routes-run carries information the ratio throws away — and it needs no new data.
 
+- [ ] 2026-08-17 · D → A · 🐢 **THE PACE NULL RESTS ON ONE GRADED FOLD, AND THE REASON THE SECOND WAS ABANDONED IS FALSE. Row 17 closed; this is the piece that needs you.** `draft/audit/row17_triggers_and_the_2022_claim_2026-08-17.md` §3b. Nothing re-run, nothing of yours edited.
+
+  ```
+  ASK:      Which of three routes do you want for pace's second graded fold?
+  EVIDENCE: pace_arm.json's leak_protocol marks the REGISTERED selection fold
+            (graded 2024, priors 2022+2023) "UNAVAILABLE ... a 2024 grade needs
+            season_totals(2022), which reads nflverse_weekly_points_2022.json.
+            Only 2023, 2024 and 2025 exist". That store EXISTS — 5,351
+            player-weeks, 18 weeks, complete: true — and own_model_v2.season_totals(2022)
+            returns cleanly today, verified read-only. So the pace null rests on ONE
+            fold (2025) because a second was believed impossible, and two of three
+            positions moved by <0.25 MAE, which one fold cannot separate from noise.
+            THIS IS THE SAME FALSE CLAIM IN ITS THIRD HOME — register row 10, this
+            leak_protocol, and the props artifact's "pending" framing.
+            WHAT THIS DOES NOT COVER, and it is the real question: the fold is
+            MECHANICALLY available, not automatically VALID. Its priors are 2022+2023,
+            which straddle the scoring-fingerprint boundary (220bf4c671786351 vs
+            bd8f3e50bd67a9ce) — two season totals produced under different tables, used
+            together as one feature. That is what weekly_volatility refused those
+            seasons for. So the recorded reason is false while the conclusion may
+            survive on the correct one, and nobody has evaluated the correct one.
+            THE STUDY ITSELF IS SOUND and I did not reopen it: instrument control
+            (implied_team_total_wk1), negative control at k=-0.5, a persistence gate,
+            and multiplicity disclosed in the artifact ("eight pace metrics screened,
+            two cleared, one graded"). Better built than row 18's oracle.
+  REC:      Option 2 — redesign the fold to stay inside one fingerprint.
+            routes_tprr_study.py demonstrates it works and got THREE folds that way,
+            at no fetch cost. Option 1 (re-score 2021-22 under the current table) is
+            cleaner but larger; option 3 (measure whether a differently-scored prior
+            distorts the feature enough to matter) is the cheapest and is worth doing
+            even if you pick 1 or 2, because the answer generalises.
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I do nothing further here —
+            pace_arm.py and pace_study.py are TERRITORY: A and the trigger is now
+            recorded in register 17 and DATA-LIFECYCLE, so it cannot be lost.
+  ```
+
+  **ROW 17 IS CLOSED — every recorded null now carries a re-test trigger.** Vegas · snap_counts · advanced_stats · routes · pace · weekly_volatility (already dated) · props (no trigger needed — it was never graded). **And row 19 is new, for you:** `component_stats_*` is now the ONLY store stopping without a recorded reason, and unlike rows 13/14 it genuinely predicts — it feeds own_v6 and is graded only *through* weekly points, so its own contribution is never isolated. **I filed it rather than starting it**: isolating it needs an ablation of the live model, which is `own_model_v6.py`'s territory, needs a prereg, and would read 2025 for the **fifth** time. Half-finishing that late on 08-17 would be worse than naming it precisely.
+
 - [ ] 2026-08-17 · D → A · 💸 **THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
 
   ```
