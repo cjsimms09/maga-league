@@ -215,6 +215,39 @@ an ask going missing. **The one exception: when a lane has asked Cory directly
 for something, he answers that lane directly** — the relay picks it up from
 `ROUTES.md`. Waiting on a middleman to deliver a screenshot is a day lost.
 
+## RULE 5b — WHICH MODEL EACH LANE RUNS ON
+
+Keep the strongest model where **judgment is scarce and volume is low**; drop to
+Sonnet where the work is **well-specified and high-volume**. That moves most of
+the usage with the least quality lost.
+
+| lane | model | why |
+|---|---|---|
+| **A** | **Opus** | last line before `main`, and rules on what numbers MEAN. Every defect this project has eaten was subtle-judgment failure. Do not economize here. |
+| **E** | **Opus** | pure judgment, tiny volume — the best quality-per-token in the setup |
+| **D** | **Opus**, revisit in ~3 weeks | telling a real null from a wiring bug is the reasoning that produced our worst defects |
+| **B** | **Sonnet** | highest-volume lane, and now spec-bound — it builds against Cory's screenshots, not its own invention |
+| **C** | **Sonnet** (Haiku for routine re-fetches) | fetchers, parsers, crosswalks: mechanical and well-tested |
+| **relay** | **Opus**, and the next honest cut after B and C | chasing needs skepticism, but the volume is high |
+
+**Never Haiku for D or E.** Both lanes exist to catch subtle wrongness; a model
+that misses it makes them *worse* than absent, because they report
+"checked, looks fine."
+
+## RULE 5c — TWO NUMBERS THE RELAY WATCHES, BECAUSE BOTH GREW SILENTLY
+
+**Boot cost.** Measured 2026-08-17: `ROUTES.md` **48,350 words**, `STATUS.md`
+**27,834**, `SESSION-A.md` **14,968**, `TODO.md` **9,500**. A's boot is ~48k words
+*before* its inbox — roughly **130k tokens to say hello**, paid by every lane at
+every session start. Docs are how this project stays honest, so the fix is
+archiving closed material, never writing less down.
+
+**A's queue.** Also measured today: **A 80 open items, B 52, C 13, D 5, E 5 — and
+13 items closed in the project's entire history.** A is supposed to answer in one
+word. Eighty items is not a queue, it is a wall, and by Rule 3b **a mis-routed
+item is the relay's defect, not A's.** The relay triages A's inbox down to
+decisions only, and anything that is really work goes to the lane that can do it.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and
