@@ -64,6 +64,40 @@ mistakes in our info!!"** This is what closed and what is still open.
   STRONGER, on its fourth independent line.
   (`draft/audit/retune_after_keeper_variance_fix_2026-08-17.md`)
 
+### ⏰ DO THIS ON DRAFT DAY (2026-08-21/22) — RE-TAKE THE PRE-DRAFT FREEZE
+
+`draft/data/pre_draft_freeze_2026.json` was written **2026-08-14** and it
+**predates every fix from 08-17**. Checked: all 157 draftable rows carry
+`proj_ceiling_source: None` (it was frozen before the source stamps existed),
+its ceiling/floor are the OLD Gaussian construction, and it has no
+`nfl_draft_round` column.
+
+**This is NOT a draft-night problem.** The war room boots from live
+`/draft_data.json` (`app.js:1230`), which carries all of today's fixes; the
+freeze is not the draft board. It is the **learning-signal capture** — the one
+thing Cory called irreversible, the record that lets January 2027 ask "did the
+board say he'd be gone by pick 48, and was he?"
+
+**That is exactly why the staleness matters.** A freeze describing the 08-14
+board would grade a board Cory never drafted from — wrong ceilings, wrong
+floors, no draft capital. The 2027 grade would be of the broken model.
+
+**Not re-taken today, deliberately:** ADP moves daily, so a freeze taken on
+08-17 is stale by 08-22 too. The right capture is as close to the draft as
+possible.
+
+**The procedure, because the module refuses to overwrite on purpose** ("an
+overwrite that a script can perform is an overwrite a nightly run will
+perform" — there is no `--force`):
+
+```
+rm draft/data/pre_draft_freeze_2026.json      # by hand, on purpose
+python3 draft/freeze_pre_draft.py             # after the final board build
+git commit                                    # SAY WHY in the message
+```
+
+The 08-14 freeze stays recoverable in git history either way.
+
 ### OPEN — AND ONE NEEDS CORY
 
 - **DECISION FOR CORY: the ADP-sd ratchet fired.**
