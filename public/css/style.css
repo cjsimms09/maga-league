@@ -748,6 +748,27 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .recs-details { margin-top: .3rem; }
 .recs-details > summary { cursor: pointer; color: var(--muted); font-size: .8rem; margin-bottom: .5rem; }
 
+/* Other directions — same collapsed-disclosure grammar as .recs-details /
+   .tier-cliff-wrap (war-room shell rebuild, 2026-08-17). Distinct summary
+   styling (bordered, not bare text) since this one gates 2-4 full cards
+   rather than a flat list, and deserves a slightly louder invitation to open. */
+.paths-wrap { margin: var(--wr-s2, .5rem) 0 .7rem; }
+.paths-wrap > summary {
+  list-style: none; cursor: pointer; font-size: var(--wr-fs-sub, .78rem);
+  font-weight: 700; color: var(--wr-muted, var(--muted));
+  border: 1px solid var(--wr-line, var(--line)); border-radius: 999px;
+  padding: .3rem .7rem; display: inline-flex; align-items: center; gap: .3rem;
+  background: var(--wr-panel, var(--panel));
+}
+.paths-wrap > summary::-webkit-details-marker { display: none; }
+.paths-wrap > summary::before { content: '▸'; font-size: .7rem; }
+.paths-wrap[open] > summary::before { content: '▾'; }
+.paths-wrap[open] > summary {
+  background: var(--wr-structure, var(--navy)); color: #fff; border-color: var(--wr-structure, var(--navy));
+}
+.paths-wrap > .paths-coinflip,
+.paths-wrap > .paths-panel { margin-top: .6rem; }
+
 .rec-card {
   display: flex; gap: .8rem; align-items: center;
   padding: .7rem .8rem; border: 1px solid var(--line); border-radius: 12px;

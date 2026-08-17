@@ -102,6 +102,20 @@
 .wrv-alts { margin-top: var(--wr-s2); font-size: var(--wr-fs-sub); }
 .wrv-alts .wr-num { font-weight: 700; }
 
+/* ══ VERDICT PAIRED-ORDER SLOTS — the two pieces the verdict never had a
+   dedicated home for (ROUTES.md → TO: A, 2026-08-17). Same clock/alert
+   vocabulary as everywhere else on this page (.bc-clock, .roast-banner) so a
+   new slot does not introduce a new visual dialect. ═══════════════════════ */
+.wr-verdict-timing {
+  display: inline-block; font-size: var(--wr-fs-micro); font-weight: 700;
+  color: var(--wr-warn); margin: var(--wr-s1) 0 0;
+}
+.wr-verdict-tier {
+  font-size: var(--wr-fs-sub); font-weight: 700; color: var(--wr-bad);
+  border-left: 2px solid var(--wr-bad); background: rgba(212,36,47,.06);
+  border-radius: 0 6px 6px 0; padding: .3rem .55rem; margin: var(--wr-s2) 0 0;
+}
+
 /* ══ EXPLAINER LAYER — ⓘ on every panel, legend on every badge ══════════ */
 .wr-info {
   border: 1px solid var(--wr-line); background: var(--wr-panel); color: var(--wr-muted);

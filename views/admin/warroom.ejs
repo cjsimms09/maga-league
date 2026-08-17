@@ -255,11 +255,39 @@
           every other voice labeled by what it optimizes. Everything below it
           is detail on this answer, not a competing one. %>
       <div id="verdict-block" class="wrv" style="display:none"></div>
+      <%# THE PAIRED-ORDER SLOTS (ROUTES.md → TO: A, 2026-08-17) — empty until
+          renderRecommendations' six-way split targets them; harmless no-ops
+          until then, so this ships without waiting on that split to land.
+          #verdict-block keeps ownership of the name/why/take/lens content it
+          renders today — nothing above moves until the split does. These three
+          are net-new real estate for the two pieces the verdict never had a
+          dedicated home for, plus the disclosure item 5 asks for. %>
+      <div id="wr-verdict-timing" class="wr-verdict-timing" style="display:none"></div>
+      <div id="wr-verdict-tier" class="wr-verdict-tier" style="display:none"></div>
+      <details id="wr-verdict-detail" class="paths-wrap" style="display:none">
+        <summary>The full working — every lens, the rule's reasoning, the wait cost</summary>
+        <div id="wr-verdict-detail-body"></div>
+      </details>
       <div id="confidence-note"></div>
-      <%# Part 2 §1 — the Paths panel: the primary decision surface. The flat
-          ranked list below it stays for the "who exactly" follow-through. %>
-      <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
-      <div id="paths-panel" class="paths-panel"></div>
+      <%# THE OTHER DIRECTIONS — collapsed by default (war-room shell rebuild,
+          2026-08-17, Cory: "war room still looks like shit… promised weeks
+          ago"). This used to render 2-4 FULL sibling cards, each with its own
+          big player name and its own gold Take button, directly under the
+          verdict — so a player already named as the verdict's OWN alternative
+          (its lens row, its "other options" line) got a second, equally loud,
+          full-card re-render right below it. Cory read that as a bug and he
+          was right: one player's name belongs on this screen once above the
+          fold, and everything that disagrees with the verdict is detail on
+          THAT answer, not a competing headline. Same disclosure pattern the
+          page already uses for "Full ranked list" / "Tier cliffs" below —
+          this was the one sibling section that had never been folded in.
+          renderRecommendations still owns and fills #paths-panel exactly as
+          before; only its wrapper changed. %>
+      <details id="paths-wrap" class="paths-wrap">
+        <summary>Other directions — priced alternatives to the verdict above</summary>
+        <div id="paths-coinflip" class="paths-coinflip" style="display:none"></div>
+        <div id="paths-panel" class="paths-panel"></div>
+      </details>
       <%# THE MOVEMENT LINE — one thin line, replaced never accumulated: is the
           model changing its mind as the board moves, and why. Hidden when steady. %>
       <div id="movement-line" class="movement-line" style="display:none"></div>
