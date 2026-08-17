@@ -12,8 +12,10 @@ and — this is why nothing caught it — LANDED IN THE SAME COMMIT as the refus
 registry deliberately excludes that artifact on the very premise that expired
 (`draft/audit/row15_advanced_and_props_2026-08-17.md` §B4).
 
-So a paid dataset has never been graded, and the write-up's "no real verdict
-exists yet" reads as a finding when it is an un-run command.
+RESOLVED 2026-08-17: the module was re-run and the paid data is graded (register
+15b, draft/audit/props_first_grade_2026-08-17.md). The sweep stays, because the
+CLASS is general — any artifact recording "X is absent" is a claim with a shelf
+life — and it was verified to go red again on a reintroduced stale refusal.
 
 The class is general — any artifact that records "X is absent" is a claim with a
 shelf life — so this sweeps every committed JSON rather than pinning one file.
@@ -77,18 +79,23 @@ def stale_claims(refusals) -> list[str]:
 
 # ── controls first: the sweep below is worthless without them ───────────────
 
-def test_the_scanner_finds_refusal_artifacts_at_all():
-    """COVERAGE CONTROL. The assertion in the final test is of the form "no
-    stale claims found", which passes perfectly on a scanner that scanned
-    nothing — if PENDING_KEYS drifts, or the search dirs move, the sweep would
-    go quietly green while covering zero documents. So require it to find at
-    least one real refusal in the committed tree.
+def test_the_scanner_actually_reads_the_committed_tree():
+    """COVERAGE CONTROL. The sweep asserts "no stale claims found", which passes
+    perfectly on a scanner that scanned nothing — if the search dirs move or the
+    JSON loader breaks, it goes quietly green over zero documents.
+
+    THIS CONTROL WAS WRONG UNTIL 2026-08-17 and the lesson is worth keeping. It
+    used to require at least one REFUSAL to exist in the tree, which tied "the
+    scanner works" to "the repo is still broken" — so fixing the only stale
+    refusal (props_season_projection, register 15b) turned this red for the best
+    possible reason. A control must prove the DETECTOR works, never that the
+    defect is still present; the synthetic case below does that job.
     """
-    refusals = find_refusals(_iter_committed_json())
-    assert refusals, (
-        "no committed artifact matched any of PENDING_KEYS — either the refusal "
-        "vocabulary changed or the search paths did; until this finds something, "
-        "the sweep below proves nothing")
+    docs = list(_iter_committed_json())
+    assert len(docs) > 20, (
+        f"the scanner read only {len(docs)} committed JSON documents — the search "
+        f"paths {SEARCH_DIRS} moved, or the loader is swallowing everything; "
+        "until it reads the tree, the sweep below proves nothing")
 
 
 def test_KNOWN_POSITIVE_a_synthetic_stale_refusal_is_detected():
@@ -119,14 +126,10 @@ def test_no_committed_artifact_claims_a_present_file_is_missing():
     board rebuild — which is deliberate, since blocking the board over an
     ungraded study would be far worse than the staleness it reports.
 
-    IT IS RED TODAY, on `props_season_projection_2025.json`. The fix is one
-    command and it is A's, because the output is a graded number A rules on:
-
-        python3 draft/tools/props_season_projection.py
-
-    The refusal branch (props_season_projection.py:383-384) is verified NOT
-    taken today — FHP.store_path(2025) exists — so this is a stale snapshot,
-    not a live refusal, and not a code defect. See ROUTES.md -> TO: A.
+    GREEN since 2026-08-17: props_season_projection.py was re-run and its
+    artifact now carries a real grade instead of a refusal naming three files
+    that existed. Verified it still fails on purpose by reintroducing a stale
+    `pending_real_data` claim.
     """
     bad = stale_claims(find_refusals(_iter_committed_json()))
     assert not bad, (

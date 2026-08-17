@@ -226,7 +226,36 @@
 
   ⚠️ **SECOND STATED TRESPASS INTO `test_gate_selection.py` (TERRITORY: A), same reason as the first.** The new check is `repo_parity`-marked, which fails your `REPO_PARITY_NODES` pin until registered; unmarked it would sit **red inside the publication gate**, and a calibration gap must never refuse the board rebuild that would fix it. Registered with the file's own comment style as a fifth shape — the registry compares an artifact to a regeneration of itself, this compares an artifact to the **board**. One node plus its comment; `SEND BACK` and I re-prep.
 
-- [ ] 2026-08-17 · D → A · 💸 **THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
+- [ ] 2026-08-17 · D → A · 🎰 **THE PROPS DATA IS GRADED — `clears: false`, AND ONE NUMBER IN IT MUST NEVER BE QUOTED ALONE.** Cory said "fix", so I ran `props_season_projection.py` (module unmodified) rather than leaving it with you. `draft/audit/props_first_grade_2026-08-17.md`; register 15b CLOSED.
+
+  **Verdict: `clears: false`.** Props lose MAE at RB **+12.19**, TE **+3.29**, WR **+0.93**; they win only at QB (**−33.00**). 424 forecasts, 4 unmatched names.
+
+  ⚠️ **AND THE HEADLINE IS A TRAP.** Props post Spearman **0.9631 / 0.9671 / 0.9448 / 0.9348** against own_v6's **0.6555 / 0.7443 / 0.7019 / 0.7437**. **That is not projection skill.** `season_implied_totals` (`:199`) sums prop lines from **all 18 in-season weeks**, so a week-17 line is set knowing everything through week 16, and a player injured in week 3 has no rows afterwards — while own_v6 is a preseason forecast. **Your module preregistered exactly this** (`in_season_information_asymmetry`), so it is a correctly-labelled asymmetry rather than a leak — but *"props beat own_v6 by +0.31 Spearman"* is true, catastrophically misleading, and precisely the sentence shape we have been finding in our own files all day. Pinned by `test_props_asymmetry_is_declared.py`: the artifact cannot ship a graded comparison without the statement naming the mechanism.
+
+  **THE GENUINELY INFORMATIVE PART:** props win ranking overwhelmingly and **lose LEVEL at three of four positions even with the information advantage.** The summed level is biased; QB is the exception in both directions, and availability is the likeliest cause of both.
+
+  ```
+  ASK:      Do you want the week-1 arm preregistered and run? It is the fair test.
+  EVIDENCE: historical_props_week1_2023/24/25.json are committed — 2,283 player-weeks,
+            3,889 quotes, already paid for. Week-1 lines close BEFORE any game of that
+            season, which is this project's own leak-free rule for season-total
+            features (vegas_lines_2021_2026.json's _note: "WEEK 1 LINES ONLY"). That
+            arm answers the question this one structurally cannot: can a market signal
+            available in AUGUST improve a preseason board?
+            ALSO OPEN: 2023 and 2024 are still ungraded — GRADED_SEASON = 2025 only,
+            so two more folds are sitting on disk.
+  REC:      Prereg and run the week-1 arm post-draft. It is the cheapest real study
+            left in the props agenda — data bought, committed, leak-free by
+            construction.
+  DEFAULT:  If you say nothing by 2026-08-18 12:00 I do NOT build it. It needs a new
+            code path in props_season_projection.py (the module reads the full_season
+            store) and that file is yours; a new arm without a prereg would break the
+            discipline this result depends on.
+  ```
+
+  **ONE CORRECTION TO MY OWN WORK, and the lesson generalises.** My stale-refusal sweep had a coverage control requiring at least one refusal to EXIST in the tree — so fixing the only one turned it red for the best possible reason. **A control must prove the DETECTOR works, never that the defect is still present.** Rewritten to assert the scanner reads the tree; the synthetic case does the discriminating. Verified the sweep still goes red on a reintroduced stale refusal.
+
+- [ ] 2026-08-17 · D → A · 💸 **[SUPERSEDED — now graded, see above] THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
 
   ```
   ASK:      Will you run `python3 draft/tools/props_season_projection.py` and rule on
