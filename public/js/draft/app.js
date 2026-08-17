@@ -1477,11 +1477,31 @@
    *              so the rule exists ONCE on this side; the Python keeper-
    *              placement verification asserts the same law on the artifact.
    */
-  function pickState() {
-    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
-    const pickEvents = state.sync
+  /* THE ONE DERIVATION OF "how many picks have we observed".
+   *
+   * Added 2026-08-17 (relay) because `main` went red on
+   * test_shared_state_audit's `current_pick` budget: the room-switch
+   * confirm-first feature (2fe8e0e2) needed this count and re-derived the
+   * expression inline, making three copies of a canonical fact whose budget is
+   * two. The guard is right — every severity-1 in this project came from a
+   * shared fact derived in more than one place — so the fix is to give the
+   * derivation an owner rather than to widen the budget.
+   *
+   * NOT COSMETIC: the two copies were already drifting in meaning. One asks
+   * "how far along is the draft" for the clock; the other asks "have we
+   * recorded anything worth protecting before switching rooms". They agree
+   * today only because they were written the same way, which is precisely the
+   * condition that stops being true later.
+   */
+  function observedPickCount() {
+    return state.sync
       ? Math.max(0, state.sync.currentPickNumber() - 1)
       : (state.recentPicks || []).length;
+  }
+
+  function pickState() {
+    // COORDINATE SYSTEM [pick-events]: count of picks OBSERVED this draft.
+    const pickEvents = observedPickCount();
     // COORDINATE SYSTEM [placements]: kept, never drafted. Not an event.
     const keeperPlacements = (state.myRoster || []).filter(p => p.is_keeper).length;
     const rehearsalRemovals = (state.rehearsalKeepers || {}).removed || 0;
@@ -10098,9 +10118,7 @@
        * No picks recorded = nothing to protect = connect straight through. */
       const prevRoomId = (state.sync && state.sync.draftId)
         || (state.session && state.session.draftId) || null;
-      const recordedPicks = state.sync
-        ? Math.max(0, state.sync.currentPickNumber() - 1)
-        : (state.recentPicks || []).length;
+      const recordedPicks = observedPickCount();
       if (recordedPicks > 0 && prevRoomId !== parsed.id) {
         const pending = state._pendingRoomSwitch;
         const confirmed = pending && pending.id === parsed.id
