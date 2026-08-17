@@ -382,6 +382,10 @@
     // length of the list on screen — reporting a change below the fold would be
     // reporting a change you cannot see.
     WEIGHT_DIFF_DEPTH: 5,
+    /* The DEEPER window rankDiff also reports, so "no change to the top 5"
+     * cannot be read as "no change" — see the note in rankDiff. 25 because that
+     * is the candidate depth the war room actually renders. */
+    WEIGHT_DIFF_DEEP: 25,
 
     // --- auto-adjusting weights by draft phase ---
     // Round boundaries for the four phases. Not fitted — three prior drafts is
@@ -669,7 +673,7 @@
     depth = depth || CFG.WEIGHT_DIFF_DEPTH;
     const a = (before || []).slice(0, depth).map(s => s.player.name);
     const b = (after || []).slice(0, depth).map(s => s.player.name);
-    if (!a.length || !b.length) return { changed: false, message: '' };
+    if (!a.length || !b.length) return { changed: false, deepMoved: 0, message: '' };
     if (a[0] !== b[0]) {
       return { changed: true, topChanged: true,
         message: 'Now recommends ' + b[0] + ' over ' + a[0] + '.' };
@@ -683,9 +687,37 @@
           + (dropped.length ? dropped.join(', ') + ' out' : '') + '.' };
     }
     const moved = b.some((n, i) => a[i] !== n);
-    return { changed: moved, topChanged: false,
-      message: moved ? 'Reordered the top ' + depth + ', same names.'
-                     : 'No change to the top ' + depth + '.' };
+    /* ⚠️ "NO CHANGE" WAS A LIE ABOUT A DEEPER BOARD (2026-08-17).
+     *
+     * Cory: "All of our adjustment bars seemed to have no affect." Measured on
+     * the live board, that is what the tool TOLD him, and it was wrong:
+     *
+     *   tier  @ pick 33    9 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 33   16 of the top 25 reordered   -> "No change to the top 5."
+     *   risk  @ pick 120  17 of the top 25 reordered   -> "No change to the top 5."
+     *
+     * In 5 of 12 measured cells substantial movement was reported as nothing.
+     * The bars were never dead; this sentence was. A man who moves a slider,
+     * reads "No change", and concludes the adjuster does nothing has been
+     * misled by his own tool — and then stops using the adjusters, which is the
+     * expensive part.
+     *
+     * WEIGHT_DIFF_DEPTH stays 5 for the HEADLINE, because "did my actual pick
+     * change" is the first question and the top 5 is the right window for it.
+     * What changes is that a quiet top 5 no longer implies a quiet board: the
+     * deeper count is measured and reported beside it. Both facts, neither
+     * standing in for the other. */
+    const deepA = (before || []).map(s => s.player.name);
+    const deepB = (after || []).map(s => s.player.name);
+    const deepN = Math.min(CFG.WEIGHT_DIFF_DEEP || 25, deepA.length, deepB.length);
+    let deepMoved = 0;
+    for (let i = 0; i < deepN; i++) if (deepA[i] !== deepB[i]) deepMoved++;
+    const deeper = deepMoved
+      ? ' ' + deepMoved + ' of the top ' + deepN + ' reordered below it.' : '';
+    return { changed: moved || deepMoved > 0, topChanged: false,
+      deepMoved: deepMoved, deepDepth: deepN,
+      message: (moved ? 'Reordered the top ' + depth + ', same names.'
+                      : 'No change to the top ' + depth + '.') + deeper };
   }
 
   // Positional injury rates -> how much bye/injury insurance a bench body is worth.
