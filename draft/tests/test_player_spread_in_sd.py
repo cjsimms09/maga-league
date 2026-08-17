@@ -63,23 +63,46 @@ def test_the_gate_ships_off():
         "until the harness has graded it")
 
 
+def _split_by_band(rows):
+    """2026-08-17, calibration regenerated on Cory's ruling: WR|1-3 is now
+    honestly `unmeasurable` (n=6 < min_n 8, all ratios null), so this synthetic
+    pool's top-3 rows fall back to position_variance BY DESIGN — None must stay
+    None, a fallback constant is how 0.25*proj_mean reached the board. The
+    band-interchangeability claims below apply to the MEASURED rows (rank 4+);
+    the 1-3 fallback is pinned separately and exactly."""
+    ranked = sorted(rows, key=lambda p: -p["proj_mean"])
+    return ranked[:3], ranked[3:]
+
+
 def test_off_every_player_in_a_band_has_identical_relative_upside():
     """THE DEFECT, pinned. If this ever stops being true with the flag OFF,
     something else started varying the sd and the comparison below is no longer
-    measuring what it claims."""
+    measuring what it claims.
+
+    Pin moved 2026-08-17: old pin had ALL rows on measured-2023-25-error; the
+    regenerated calibration nulls WR|1-3, so exactly the 3 top-ranked rows now
+    carry position_variance and the per-band-constant claim is asserted on the
+    measured remainder."""
     rows = PJ.blend(_players(), {}, {}, _cfg())
-    assert {p["proj_sd_source"] for p in rows} == {"measured-2023-25-error"}
+    top3, measured = _split_by_band(rows)
+    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}, (
+        "the unmeasurable WR|1-3 cell must fall back honestly, not be filled in")
+    assert {p["proj_sd_source"] for p in measured} == {"measured-2023-25-error"}
     # Within one band, the ratio sd/mean must be a single constant.
-    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in rows}
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in measured}
     assert len(ratios) <= 5, (
         "with the flag off the sd ratio is a per-BAND constant, so at most one "
         "value per band should appear")
 
 
 def test_on_players_in_the_same_band_stop_being_interchangeable():
+    # 2026-08-17: same 3-row WR|1-3 fallback as the off-arm — the flag composes
+    # with MEASURED cells only, an unmeasurable cell has no level to spread.
     on = PJ.blend(_players(), {}, {}, _cfg(player_spread_in_sd=True))
-    assert {p["proj_sd_source"] for p in on} == {"measured-band-x-player-spread"}
-    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in on}
+    top3, measured = _split_by_band(on)
+    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}
+    assert {p["proj_sd_source"] for p in measured} == {"measured-band-x-player-spread"}
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in measured}
     assert len(ratios) > 5, "the flag flipped but the sd is still a band constant"
 
 
@@ -117,9 +140,14 @@ def test_the_projection_itself_is_never_touched():
 def test_the_reasons_survive_composition():
     """Clobbering var_why left the war room's Why? panel asserting a high
     ceiling with no account of why. Both halves must be present: the measured
-    level AND the player-specific spread terms."""
+    level AND the player-specific spread terms.
+
+    2026-08-17: the probe row moves from id 0 to id 5 — id 0 is rank 1, and the
+    regenerated calibration refuses WR|1-3 (n=6 < min_n 8), so id 0 no longer
+    carries a measured level to explain. Id 5 is the next rookie (i % 5 == 0)
+    and sits at rank 6, in the measured WR|4-8 cell."""
     on = PJ.blend(_players(), {}, {}, _cfg(player_spread_in_sd=True))
-    rookie = [p for p in on if p["player_id"] == "0"][0]
+    rookie = [p for p in on if p["player_id"] == "5"][0]
     why = rookie["variance_why"]
     assert any("measured 2023-25" in w for w in why), "the measured level is unexplained"
     assert any(w.startswith("spread:") for w in why), "the player terms were dropped"
@@ -158,11 +186,16 @@ def test_the_reasons_are_restored_even_with_the_magnitudes_gated_off():
 
 def test_the_wording_says_the_spread_is_NOT_in_the_number_when_gated_off():
     """A bare 'spread: rookie' beside an unchanged sd would imply the modifier
-    was applied. The two states must read differently."""
+    was applied. The two states must read differently.
+
+    2026-08-17: probe row moved from id 0 to id 5, same mechanism as above —
+    id 0 (rank 1) fell into the regenerated calibration's unmeasurable WR|1-3
+    cell, where there is no measured sd for the wording to disclaim. Id 5 is
+    the next rookie and sits in measured WR|4-8."""
     off = PJ.blend(_players(), {}, {}, _cfg())
     on = PJ.blend(_players(), {}, {}, _cfg(player_spread_in_sd=True))
-    off_why = [p for p in off if p["player_id"] == "0"][0]["variance_why"]
-    on_why = [p for p in on if p["player_id"] == "0"][0]["variance_why"]
+    off_why = [p for p in off if p["player_id"] == "5"][0]["variance_why"]
+    on_why = [p for p in on if p["player_id"] == "5"][0]["variance_why"]
     assert any("not in the sd" in w for w in off_why), off_why
     assert not any("not in the sd" in w for w in on_why), on_why
     assert any(w.startswith("spread:") for w in on_why)
@@ -170,10 +203,16 @@ def test_the_wording_says_the_spread_is_NOT_in_the_number_when_gated_off():
 
 def test_restoring_the_reasons_moved_no_number():
     """The information fix must be provably free of any numeric consequence —
-    that is what let it ship ungated five days before the draft."""
+    that is what let it ship ungated five days before the draft.
+
+    2026-08-17: re-pinned on the measured rows only — the regenerated
+    calibration's unmeasurable WR|1-3 cell leaves the top-3 rows on
+    position_variance (old pin: every row measured-2023-25-error)."""
     off = PJ.blend(_players(), {}, {}, _cfg())
-    for p in off:
+    top3, measured = _split_by_band(off)
+    assert {p["proj_sd_source"] for p in top3} == {"position_variance"}
+    for p in measured:
         assert p["proj_sd_source"] == "measured-2023-25-error"
         # sd is still the band constant: ratio identical across the band
-    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in off}
+    ratios = {round(p["proj_sd"] / p["proj_mean"], 6) for p in measured}
     assert len(ratios) <= 5

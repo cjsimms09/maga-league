@@ -129,13 +129,13 @@ const draftMeta = () => ({
   };
 
   await snap('pick 31 synced (his screenshot state)');
-  await page.screenshot({ path: path.join(__dirname, 'repro-p31.png'), fullPage: false });
+  await page.screenshot({ path: path.join(require('os').tmpdir(), 'repro-p31.png'), fullPage: false });
 
   // advance: room reaches his pick 33 and he does nothing; sleeper autopicks him; go to 60
   served = 60;
   await page.waitForTimeout(6000);
   await snap('pick 60 synced');
-  await page.screenshot({ path: path.join(__dirname, 'repro-p60.png'), fullPage: false });
+  await page.screenshot({ path: path.join(require('os').tmpdir(), 'repro-p60.png'), fullPage: false });
 
   // deep: 100
   served = 100;
@@ -213,7 +213,7 @@ const draftMeta = () => ({
     return { rail, short, syncStatus: (document.querySelector('#sync-status') || {}).textContent };
   });
   console.log('post-switch names:', JSON.stringify(names, null, 1));
-  await page.screenshot({ path: path.join(__dirname, 'repro-newmock.png'), fullPage: true });
+  await page.screenshot({ path: path.join(require('os').tmpdir(), 'repro-newmock.png'), fullPage: true });
 
   console.log('page errors:', JSON.stringify(errs.slice(0, 20), null, 1));
   await b.close();

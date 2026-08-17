@@ -84,3 +84,41 @@ def test_drafted_players_are_removed_from_available():
     players = [_p("gone", "TE", 233, 45, drop=26), _p("here", "TE", 190, 70)]
     rep = G.report(players, {"gone"}, roster=[], my_remaining=[34, 54], cfg=CFG, positions=("TE",))
     assert rep["positions"][0]["best_now"]["player_id"] == "here"
+
+# ── WIRE-COVERED ONESIE CAP — parity with grabby.js onesieCap (2026-08-17) ──
+# Cory: "Model still recommended QB too often." The measured basis and the rule
+# live in grab_by.py's WIRE_COVERED block; these tests drive both arms.
+
+def _qb_board():
+    return [
+        {"player_id": "1", "name": "QB30", "position": "QB", "proj_mean": 360, "raw_adp": 30},
+        {"player_id": "2", "name": "QB55", "position": "QB", "proj_mean": 340, "raw_adp": 55},
+        {"player_id": "3", "name": "QB120", "position": "QB", "proj_mean": 320, "raw_adp": 120},
+        {"player_id": "4", "name": "QB130", "position": "QB", "proj_mean": 315, "raw_adp": 130},
+    ]
+
+
+def test_FAIL_ARM_without_lrm_bounds_the_old_myopic_verdict_fires():
+    rep = G.report(_qb_board(), set(), [{"position": "RB"}], [33, 48], CFG, positions=("QB",))
+    assert rep["positions"][0]["verdict"] in ("TAKE-NOW", "GRAB-SOON")
+
+
+def test_the_cap_reads_the_lrm_boundary_and_waits():
+    rep = G.report(_qb_board(), set(), [{"position": "RB"}], [33, 48], CFG,
+                   positions=("QB",), lrm_bounds={"QB": 93})
+    row = rep["positions"][0]
+    assert row["verdict"] == "WAIT"
+    assert "replacement-level" in row["wire_covered"]
+    assert row["grab_by_pick"] == 48
+
+
+def test_a_boundary_inside_the_window_leaves_urgency_alone():
+    base = G.report(_qb_board(), set(), [{"position": "RB"}], [33, 48], CFG, positions=("QB",))
+    tight = G.report(_qb_board(), set(), [{"position": "RB"}], [33, 48], CFG,
+                     positions=("QB",), lrm_bounds={"QB": 20})
+    assert tight["positions"][0]["verdict"] == base["positions"][0]["verdict"]
+
+
+def test_TE_is_not_wire_covered():
+    assert "TE" not in G.WIRE_COVERED and set(G.WIRE_COVERED) == {"QB", "K", "DEF"}
+

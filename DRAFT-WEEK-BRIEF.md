@@ -12,6 +12,40 @@ make sure we don't have other mistakes in our info!!"*
 
 ---
 
+## 🎯 08-17 NIGHT — THE TAKE-A-SWING PACKAGE (Cory's ruling, verbatim in
+## league_config.rookie_capital_prior; every layer MEASURED before it shipped)
+
+Cory: *"fix this model, even if we need to lower our standards for this year
+only... give me a draft tool that gives me a chance at edge... lets at least
+take a swing."* Shipped under that ruling, each with its receipt:
+
+1. **Rookie capital prior — ON, in the build** (`build.py`, gated on the
+   preserved config ruling so no rebuild erases it). Preregistered, cleared
+   its 25% bar on the 3-season all-seats replay: **+25.1 pooled optimal (38%
+   of the Cory gap), realistic-arm league position 2/10 → 4/10**; 2025 +86,
+   2024 −10.6 (concentration stated). 74 board rookies gain an own-model
+   value from Prior(pos, NFL-capital bucket), classes 2021-25.
+2. **Opponent-need survival layer — ON** (`survival.js OPPONENT_NEED_LAYER`,
+   artifact published + app loader wired). Pooled ΔBrier **−0.0039
+   [−0.0067, −0.0015]** vs the engine baseline, never significantly worse in
+   any slice; 2025 engine-sd slice null, stated. Sharpens the grab-by /
+   gone-by numbers with per-owner need-conditioned tendencies.
+3. **Study facts baked into the tie-break voice** (patch applied): trajectory
+   lean first (58% of 176, CI 51-65, "a lean not a law"), volume-over-
+   efficiency (WR share ρ .704 vs efficiency .322), RB draft capital
+   (ρ −0.427, 3/3 seasons), and the coin-flip truth on the other 8 facts.
+4. **Floors/ceilings corrected** — the calibration regenerated on real
+   2023-25 outcomes (Cory's direct order); board rebuild carries it live,
+   plus the late-trajectory field. One finding en route: **RB top-decile
+   ratio is flat across rank bands (~1.8×)** — real by the Rule-3d screen,
+   C cross-checks the method by 08-19 (register 31).
+
+**The honest frame:** the restated 3-season replay already had the tool at
+**+7.48/season pooled optimal over Cory's own drafting** (the −65.7 headline
+was status-blindness in the harness, not the tool); the rookie prior's
++25.1 stacks on the same yardstick. That is the swing: every gated layer
+with a measured win is now live, none of it invented tonight.
+
 ## ⚡ 08-17 LATE NIGHT — what landed after the evening section (A, gatekeeper)
 
 **All three of Cory's rulings are IN THE LIVE ENGINE:** adp_sd 0.11/2.0 (every

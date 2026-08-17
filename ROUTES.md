@@ -630,6 +630,8 @@
 
 
 ## TO: C
+- [ ] 2026-08-17 · A · 🔴 **REGISTER 31 — cross-check your regenerated calibration's RB flatness BEFORE 08-19.** The regeneration Cory ordered ran green and its band structure passes the Rule-3d screen at QB/WR/TE, but **RB p90_ratio came out flat across every band (1.81/1.79/1.77/1.79)** where the artifact it replaced carried separation, and RB|33+ (1.794) now exceeds the Gaussian construction (1.762) — one audit claim inverted. ASK: diff your `regenerate()` grading basis (population join, grading window, season weighting) against the superseded artifact's derivation; corroborate RB flatness as real or name the method delta. EVIDENCE: `draft/backtest/projection_error_calibration.json` current vs git history; register row 31. REC: if flatness is real, it is a genuine finding (RB outcome variance is rank-invariant) worth stating on the board's ceiling caption. DEFAULT: unanswered by 08-19 09:00 UTC the calibration stands as measured (it is already the shipped source) and the caption ships without the claim.
+
 
 - [ ] 2026-08-17 · relay/PM → C · 🔴🔴🔴 **CORY: "I dont want to ignore it, I want to fix it." THE FIX IS SPECIFIED, THE BLOCKER IS EGRESS, AND IT IS A WORKFLOW DISPATCH — YOUR LANE EXACTLY. Register 4q.**
   **THE DEFECT, measured:** `projection_error_calibration.json` puts **935 of 1,304 graded players into ONE band per position (`33+`)** while ranks 1-32 get four (36 / 59 / 94 / 180). **Ranks 33 → 300+ share a single cell — that is every player Cory drafts from round 4 on.** Inside a cell `proj_ceiling` is a constant multiple of `proj_mean`, which is why ADP bands 61-100 / 101-150 / 151-250 all showed the identical ratio **1.434** (all RB|33+), and why the board cannot tell a round-5 breakout from a round-15 dart throw.

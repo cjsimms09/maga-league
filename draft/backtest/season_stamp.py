@@ -382,6 +382,16 @@ BOARD_FIELD_SOURCES = {
     # Sibling of proj_sd_source: says whether proj_ceiling is the measured
     # 2023-25 p90 or the Gaussian fallback for an unmeasured band.
     "proj_ceiling_source": "derived", "proj_floor_source": "derived",
+    # PROVENANCE STAMP for the own-model column's algorithm, PER ROW
+    # (2026-08-17). Written by apply_rookie_prior_own_model_2026.fill_players
+    # (build.py calls it gated on league_config.rookie_capital_prior — Cory's
+    # take-a-swing ruling, verbatim in that config key) as
+    # "rookie_capital_prior_2026" on exactly the rookie rows the layer fills;
+    # walk-forward own_v6 rows carry no stamp. "derived" for the same reason
+    # as adp_sd_source/proj_ceiling_source: nothing fetches it, the build
+    # writes it about a value it just computed, and it is never an input to a
+    # number.
+    "proj_ownmodel_source": "derived",
     # Pure functions of the two above (draft_capital.tier_of, and the capital
     # season vs the board season), so they inherit the derived label.
     "capital_tier": "derived", "is_nfl_rookie": "derived",
@@ -531,7 +541,18 @@ BOARD_FIELD_PURPOSE = {
     # classified" gate correctly refused an undeclared field rather than
     # trusting it silently.
     "proj_ownmodel": HISTORICAL_PRIOR,
-    # NFL DRAFT CAPITAL — a RECORDED FACT, not an estimate, which is the one
+    # PROVENANCE STAMP for the own-model column's algorithm, per row
+    # (2026-08-17): "rookie_capital_prior_2026" on the 74 rookie rows the
+    # Cory-ruled rookie_capital_prior layer fills (his verbatim approval lives
+    # in league_config.rookie_capital_prior and in the board's applied_layers
+    # record); absent on walk-forward own_v6 rows. The stamp is how a reader
+    # separates the two populations. NOT an exempt wildcard and NOT
+    # EXPERIMENT: the layer is a RULED live layer — preregistered, graded
+    # (cleared its 25% bar on the 3-season all-seats replay) and applied on
+    # Cory's word — and the stamp itself is DERIVED by the same criterion as
+    # adp_sd_source: the build writes it about a value it just computed, and
+    # nothing ranks on it.
+    "proj_ownmodel_source": DERIVED_PURPOSE,
     # place it sits awkwardly under HISTORICAL_PRIOR ("estimated from prior
     # seasons"). Filed here anyway because the alternative labels are worse:
     # it is not LIVE_FEED (most rows describe a prior year), not

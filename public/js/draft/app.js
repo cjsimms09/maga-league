@@ -1228,6 +1228,7 @@
     loadFrozenBaseline();
     loadSeatPlan();
     loadConditionalValue();
+    loadOpponentNeed();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -2061,6 +2062,11 @@
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
+      /* OPPONENT-NEED LAYER input (Cory's take-a-swing ruling, 2026-08-17).
+       * survival.js's gated blend reads ctx.opponentNeed; the artifact loads
+       * beside the board (loadOpponentNeed) and null degrades to no tilt —
+       * absent is never a guessed distribution. */
+      opponentNeed: state.opponentNeed || null,
     };
   }
 
@@ -2647,12 +2653,16 @@
     // even" rather than silence pretending the check never ran.
     const tbHtml = v.tiebreak
       ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
-        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged. '
+        + 'On this league’s 2023–25 record 50/50s are true coin flips: 8 of 9 '
+        + 'printed facts predicted nothing in 259 near-ties; trajectory is the one '
+        + 'measured lean, 58% of 176)</span>'
         + (v.tiebreak.facts.length
           ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
           : '<div class="tb-even">nothing on the board separates '
             + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
-            + ' — genuinely even; your read decides.</div>')
+            + ' — genuinely even; your read decides. A true coin flip on this '
+            + 'league’s own record (259 near-ties, 2023–25) — stop sweating it.</div>')
         + '</div>'
       : '';
     const lensHtml = v.lenses.length
@@ -4937,7 +4947,24 @@
     // pre-draft snapshot. QB/TE surfaced explicitly since they're the timing calls.
     if (typeof DraftGrabBy !== 'undefined') {
       try {
-        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {});
+        /* LRM startable boundaries feed the wire-covered-onesie cap (Cory,
+         * 2026-08-17: QB urgency was contradicting the LRM strip on the same
+         * screen). One derivation: computeLRM's startable_by IS the boundary
+         * the strip prints, so the two surfaces cannot disagree again. */
+        let lrmBounds = null;
+        try {
+          const picks = myNextPicks();
+          (computeLRM(picks) || []).forEach(function (r) {
+            /* no_deadline = startable options outlast the DRAFT (K/DEF men who
+             * go undrafted) — the strongest wire coverage, boundary infinite. */
+            if (r.no_deadline) { (lrmBounds = lrmBounds || {})[r.position] = Infinity; }
+            else if (r.startable_by != null) {
+              (lrmBounds = lrmBounds || {})[r.position] = r.startable_by;
+            }
+          });
+        } catch (e) { lrmBounds = null; }
+        const gb = DraftGrabBy.report(board, roster, myNextPicks(), state.data.league || {},
+          null, lrmBounds);
         if (gb && gb.headline) {
           const pill = v => v === 'TAKE-NOW' ? '#ff8a8a' : (v === 'GRAB-SOON' ? '#f5c445' : '#8ac6ff');
           const line = pos => {
@@ -6476,6 +6503,24 @@
    *
    * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
    * note — absent is never rendered as zero. */
+  /* OPPONENT-NEED artifact — same degrade-honestly pattern as the conditional
+   * value fetch below: a missing artifact means the survival blend runs
+   * without the need tilt (survival.js treats null ctx.opponentNeed as OFF),
+   * never a guessed one. */
+  function loadOpponentNeed() {
+    fetch('/opponent_need_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.opponentNeed = a || null; })
+      .catch(function (e) {
+        console.warn('[opponent-need] artifact not loaded: ' + (e && e.message)
+          + ' — survival runs without the need tilt (not a guessed one)');
+        state.opponentNeed = null;
+      });
+  }
+
   function loadConditionalValue() {
     fetch('/conditional_value_2026.json', { cache: 'no-cache' })
       .then(function (r) {

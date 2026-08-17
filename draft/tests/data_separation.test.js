@@ -88,6 +88,17 @@ const PRODUCTION_INPUTS = {
     + 'warning ("a displayed number on a decision surface IS an input, '
     + 'because Cory reads it while picking") is TRUE here and is the point — '
     + 'Cory ruled to read it.',
+  'opponent_need_2026.json': 'Need-conditioned opponent pick tendencies for '
+    + 'THIS league, fitted on its own 2023-25 drafts (league_history.json) by '
+    + 'draft/backtest/opponent_need_model.py — declared 2026-08-17 when the '
+    + 'survival need-tilt landed. NOT display-only and declared as such: '
+    + 'survival.js (CFG.OPPONENT_NEED_LAYER) tilts pick-survival odds with it, '
+    + 'on the measured evidence in draft/audit/opponent_need_2026-08-17.md '
+    + '(Brier −0.0039 vs base, cluster-bootstrap CI95 [−0.0067, −0.0015], '
+    + 'excluding zero) — pinned by test_opponent_need.py and registered in '
+    + 'artifact_registry.json (id: opponent_need_2026). Degrades honestly: a '
+    + 'missing artifact means the blend runs WITHOUT the tilt, never a '
+    + 'guessed one.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not
