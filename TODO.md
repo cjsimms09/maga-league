@@ -165,8 +165,39 @@ The 08-14 freeze stays recoverable in git history either way.
   **Checked while scoping:** `archetype_rooms.js`'s header claims it runs "under
   production MEASURED_WEIGHTS". Verified true via that `liveContext` default.
   Not a defect.
-- Routes-run not yet pulled. Other `public/js/draft/*.js` (value, mcts, doctrine,
-  grabby) and `src/routes` not yet swept for the same defect class.
+- Routes-run (the nflverse route-participation feed) not yet pulled — the second
+  per-player opportunity signal after snap share. Post-draft.
+
+### ✅ THE CONSTANT-STAND-IN SWEEP IS COMPLETE — every surface, one real find
+
+Cory: *"what other data are we missing or calculating off a constant when we
+shouldn't be"*. Answered across all four surfaces rather than left open:
+
+| surface | how | result |
+|---|---|---|
+| production board | `constant_multiple_sweep.py` (cell-aware, known-positive control) | the dispersion family only — documented, gated |
+| backtest harness | read `build_bundle.py` | **FIXED** — was `1.35x`/`0.25x` global constants |
+| study code | grep for hardcoded dispersion fallbacks | **ONE REAL BUG** — money proxy's keeper `weekly_sd: 8.0` vs real 17.6/25.8/32.5 |
+| live draft JS + `src/` | grep every per-player field for non-zero fallbacks | **CLEAN** |
+
+**Live JS detail:** every hit across `public/js/draft/*.js` and `src/` is either
+`|| 0` (honest absent) or a sort comparator. The only non-zero constant is
+`games_expected || 15` (`engine.js:948`, `composite.js:252-253`) — and
+`games_expected` is present on all 682 board rows with 6 distinct values, so it
+never fires. Verified rather than assumed.
+
+**Also checked and cleared, so nobody re-investigates them:**
+- `archetype_rooms.js` / `engine_ablation.js` `weekly_sd: CH.CFG.WEEKLY_SD` —
+  metadata fields recording which league sd a run used, not per-player writes.
+- `weekly_sd or 6.0` in `exp_participation` / `cory_conditional` pool rows —
+  reads the production board, which carries the field on all 682 rows.
+- `source_weight_prior`'s RB/TE median_gap sign flip — its "sleeper" column is
+  the `proj_series` snapshot built from `proj_baseline` (bit-identical to
+  `proj_sleeper`), so the own_v6 blend did NOT contaminate it. Legitimate
+  snapshot turnover; consumer is a Jan-2027 recommendation off the draft path.
+- Ricky Pearsall, WR, ADP 111, `proj_mean 0` — he is on **IR**, so Sleeper
+  serves no projection. Board correctly ranks him 541st; `engine.js:1057`
+  surfaces "listed IR" so the reason is visible.
 
 ## ⭐⭐ SUPERSEDES THE 08-15 STATE BELOW — 2026-08-16/17 RESEARCH DAY, EIGHT NULLS AND FOUR REAL FIXES
 
