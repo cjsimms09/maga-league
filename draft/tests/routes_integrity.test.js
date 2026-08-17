@@ -99,7 +99,7 @@ const isHeading = l => /^## TO: /.test(l);
   ck('CONTROL — the file really is organised by addressee', heads.length >= 2,
     heads.map(h => h.trim()));
   const lanes = heads.map(h => h.replace('## TO: ', '').trim());
-  ck('and every heading names a known lane', lanes.every(x => ['A', 'B', 'C'].indexOf(x) >= 0),
+  ck('and every heading names a known lane', lanes.every(x => ['A', 'B', 'C', 'D', 'E'].indexOf(x) >= 0),
     lanes);
   ck('no lane has TWO headings — a second one splits an inbox in half and each '
     + 'half looks complete', new Set(lanes).size === lanes.length, lanes);
