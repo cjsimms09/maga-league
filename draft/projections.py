@@ -124,9 +124,16 @@ def baseline_from_projections(raw: dict, scoring: dict) -> dict[str, float]:
 def opportunity_metrics(pbp, weekly, seasons: list[int], weights: list[float]) -> dict[str, dict]:
     """Recency-weighted opportunity composite per player from nflfastR data.
 
-    Returns {player_id: {wopr, target_share, air_yards_share, adot,
-                         opportunity_share, rz_share, snap_share, xfp_delta}}.
+    Returns {player_id: {target_share, air_yards_share, adot, wopr, rz_targets,
+                         carries, opportunity_share, gl_carries, rz_share}}.
     Tolerates missing columns — feeds change shape between seasons.
+
+    THE CONTRACT USED TO PROMISE `snap_share` AND `xfp_delta` AND NEITHER IS
+    COMPUTED ANYWHERE (corrected 2026-08-17). A docstring naming a field the
+    function does not produce is worse than silence: a reader plans around it,
+    and the absence looks like a data gap rather than a missing feature. Snap
+    share needs nflverse snap_counts, which this repo has never pulled — it is
+    a real gap and it is filed as one, not implied here.
     """
     import pandas as pd  # imported here so the module loads without pandas
 
@@ -434,10 +441,31 @@ def blend(players: list[dict], baseline: dict[str, float], metrics: dict[str, di
         p["variance_why"] = var_why
         p["weekly_sd"] = round(season_sd / (games ** 0.5), 2)
         p["games_expected"] = games
+        # EVERY COMPUTED OPPORTUNITY FIELD IS RETAINED (2026-08-17). This block
+        # used to write THREE of the NINE that opportunity_metrics computes, so
+        # air_yards_share, adot, rz_targets, carries, gl_carries and rz_share
+        # were derived from play-by-play, consumed inside composite_z, and then
+        # dropped at the board's edge — 0 of 682 rows.
+        #
+        # The most expensive one is rz_share. Because it never reached an
+        # artifact, opportunity_inheritance_2026-08-17.md had to report that
+        # "red-zone vacancy is not measured at all" and drop that arm. It WAS
+        # measured. It was not kept. Retaining it costs nothing and is the
+        # difference between a study that can run and one that cannot.
+        #
+        # ABSENT STAYS ABSENT: a player with no play-by-play row gets None on
+        # every field rather than 0.0, because a rookie with no NFL snaps and a
+        # veteran measured at exactly zero share are different facts. (The three
+        # legacy fields keep their 0.0-when-present behaviour so no existing
+        # consumer changes; only their absence is now honest.)
         m = metrics.get(pid, {})
         p["wopr"] = round(m.get("wopr", 0.0), 3) if m else None
         p["target_share"] = round(m.get("target_share", 0.0), 3) if m else None
         p["opportunity_share"] = round(m.get("opportunity_share", 0.0), 3) if m else None
+        for _k, _nd in (("air_yards_share", 3), ("adot", 2), ("rz_share", 3),
+                        ("rz_targets", 2), ("carries", 2), ("gl_carries", 2)):
+            _v = m.get(_k) if m else None
+            p[_k] = round(float(_v), _nd) if _v is not None else None
     return players
 
 

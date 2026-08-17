@@ -1547,7 +1547,11 @@ def _update_adp_series(artifact: dict, *, today: str, path: Path = ADP_SERIES_PA
         except (ValueError, OSError):
             series = []      # corrupt/missing series starts fresh, loudly below
 
-    series = adp_series_mod.append_snapshot(series, today, adp_by_id)
+    # Same situational capture as the projection freeze (2026-08-17). An ADP
+    # move is only interpretable next to the roster state that caused it.
+    series = adp_series_mod.append_snapshot(
+        series, today, adp_by_id,
+        situation_by_id=proj_series_mod.situation_from_board(players))
     span = adp_series_mod.span_days(series)
 
     stamped = 0

@@ -336,6 +336,12 @@ BOARD_FIELD_SOURCES = {
     # A BLEND of [season-1, season-2] at recency_weights [0.7, 0.3], NOT one year.
     "target_share": "historical", "opportunity_share": "historical",
     "wopr": "historical", "opportunity_z": "historical",
+    # The six that opportunity_metrics computed and the board dropped until
+    # 2026-08-17. Same [season-1, season-2] blend as their three siblings above,
+    # so the same honest label: prior-season measurements, deliberately carried.
+    "air_yards_share": "historical", "adot": "historical",
+    "rz_share": "historical", "rz_targets": "historical",
+    "carries": "historical", "gl_carries": "historical",
     "opportunity_adj": "historical",
     # own_projections.compute_own_projections: a walk_forward model fit over
     # prior-season nflverse data (own_projections.py's own default
@@ -488,6 +494,13 @@ BOARD_FIELD_PURPOSE = {
     # and named, because the failure is a prior read as a current measurement.
     "opportunity_adj": HISTORICAL_PRIOR, "opportunity_share": HISTORICAL_PRIOR,
     "opportunity_z": HISTORICAL_PRIOR, "target_share": HISTORICAL_PRIOR,
+    # Retained 2026-08-17. rz_share is the one that cost a study: it was
+    # computed from play-by-play and consumed in the composite while reaching
+    # zero board rows, so opportunity_inheritance had to report red-zone
+    # vacancy as unmeasurable when it had in fact been measured.
+    "air_yards_share": HISTORICAL_PRIOR, "adot": HISTORICAL_PRIOR,
+    "rz_share": HISTORICAL_PRIOR, "rz_targets": HISTORICAL_PRIOR,
+    "carries": HISTORICAL_PRIOR, "gl_carries": HISTORICAL_PRIOR,
     "wopr": HISTORICAL_PRIOR, "games_expected": HISTORICAL_PRIOR,
     # own_projections.compute_own_projections: a walk_forward season-total model
     # fit over prior-season nflverse data (own_projections.py), same class as the

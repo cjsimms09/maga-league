@@ -83,16 +83,29 @@ def test_sleeper_and_fp_are_both_scored_through_OUR_table_not_the_providers():
     assert "NEVER the value" in CR.CAPTURES["fantasypros_projections"]["scoring_note"]
 
 
-def test_the_known_open_holes_are_all_present_so_none_can_be_forgotten():
-    """Each of these was found on 2026-08-17 and is still open. Removing one
-    from the registry without fixing it should be hard, so the test names them."""
+def test_the_still_open_holes_are_named_so_none_can_be_forgotten():
+    """AMENDED 2026-08-17, later the same day. This first asserted that four
+    captures were missing raw retention; two of them (adp_series,
+    opportunity_metrics) were then FIXED, so the test went red — which is the
+    tripwire working, not a regression. The assertion moves to the new truth
+    rather than being deleted.
+
+    The two that remain are the FantasyPros parsers, and they are the ones that
+    need a fetcher change rather than an attach change."""
     a = CR.audit()
     missing_raw = set(a["captures_missing_raw"])
-    for expected in ("adp_series", "opportunity_metrics",
-                     "fantasypros_adp", "fantasypros_projections"):
-        assert expected in missing_raw, (
-            f"{expected} was dropped from the open-hole list — was it actually "
-            "fixed, or just removed from the registry?")
+    assert missing_raw == {"fantasypros_adp", "fantasypros_projections"}, (
+        "the open-hole list moved — either something was fixed (update this "
+        f"test deliberately) or something regressed: {sorted(missing_raw)}")
+
+
+def test_the_captures_fixed_today_record_that_they_were_fixed():
+    """A capture that silently starts passing teaches a future reader nothing.
+    Each fix carries its date and what it replaced."""
+    for name in ("proj_series", "adp_series", "opportunity_metrics"):
+        c = CR.CAPTURES[name]
+        assert c["raw_retained"] is True, name
+        assert "2026-08-17" in (c.get("fixed") or ""), name
 
 
 def test_proj_series_is_recorded_as_fixed_rather_than_quietly_passing():
@@ -102,8 +115,21 @@ def test_proj_series_is_recorded_as_fixed_rather_than_quietly_passing():
     assert "situation" in c["retains"]
 
 
-def test_rz_share_is_named_as_computed_then_discarded():
-    """The most expensive instance: it made a committed study report that
-    red-zone vacancy 'is not measured at all' when it was measured."""
-    why = CR.CAPTURES["opportunity_metrics"]["knowingly_drops"]["rz_share"]
-    assert "CONSUMED" in why and "0 of 682" in why
+def test_rz_share_is_now_retained_and_the_history_is_recorded():
+    """The most expensive instance of the discard pattern: it made a committed
+    study report that red-zone vacancy 'is not measured at all' when it had in
+    fact been measured. Now retained — and the registry keeps the story, because
+    the next reader needs to know that study's limitation is lifted."""
+    c = CR.CAPTURES["opportunity_metrics"]
+    assert "rz_share" in c["retains"]
+    assert "rz_share" not in (c["knowingly_drops"] or {})
+    assert "unmeasurable" in (c.get("fixed") or "")
+
+
+def test_snap_share_is_declared_a_real_gap_not_an_implied_field():
+    """The docstring promised snap_share and xfp_delta and the function never
+    computed either. The fix was to correct the contract, not invent the
+    fields — and the remaining gap is filed where it can be acted on."""
+    why = CR.CAPTURES["opportunity_metrics"]["knowingly_drops"]["snap_share / xfp_delta"]
+    assert "NOT COMPUTED ANYWHERE" in why
+    assert "snap_counts" in why

@@ -100,33 +100,33 @@ CAPTURES: dict[str, dict] = {
     "adp_series": {
         "module": "draft/adp_series.py",
         "parser": "append_snapshot",
-        "retains": ["adp", "date"],
-        "knowingly_drops": {
-            "situation / n_offered": (
-                "STILL A BARE FLOAT, 300 players. proj_series was fixed on "
-                "2026-08-17 and its sibling was not. Same hole, still open — "
-                "declared here so it cannot be forgotten again."),
-        },
-        "raw_retained": False,
-        "raw_why_not": "QUEUED — phase 1, same fix as proj_series.",
+        "retains": ["adp", "situation", "n_offered", "date"],
+        "knowingly_drops": {},
+        "raw_retained": True,
+        "raw_why_not": None,
+        "fixed": ("2026-08-17 — was a bare float for 300 players; shares "
+                  "proj_series.SITUATION_FIELDS so the two cannot drift"),
     },
     "opportunity_metrics": {
         "module": "draft/projections.py",
         "parser": "opportunity_metrics",
-        "retains": ["target_share", "wopr", "opportunity_share"],
+        "retains": ["target_share", "wopr", "opportunity_share",
+                    "air_yards_share", "adot", "rz_share", "rz_targets",
+                    "carries", "gl_carries"],
         "knowingly_drops": {
-            "rz_share": (
-                "COMPUTED from play-by-play and CONSUMED in the opportunity "
-                "composite, then persisted nowhere — 0 of 682 board rows. This "
-                "is why opportunity_inheritance had to report 'red-zone vacancy "
-                "is not measured at all'. It was measured. It was not kept."),
-            "snap_share / air_yards_share / adot / xfp_delta": (
-                "named in the function's own return contract, absent from the "
-                "artifact — either not computed or dropped at attach; from a "
-                "consumer's seat those are the same defect."),
+            "snap_share / xfp_delta": (
+                "NOT COMPUTED ANYWHERE — the docstring promised them and the "
+                "function never produced them; the contract was corrected "
+                "2026-08-17 rather than the fields invented. snap_share needs "
+                "nflverse snap_counts, which this repo has never pulled: a real "
+                "gap, filed as one instead of implied by a stale docstring."),
         },
-        "raw_retained": False,
-        "raw_why_not": "QUEUED — phase 1 item 2, pure retention of existing work.",
+        "raw_retained": True,
+        "raw_why_not": None,
+        "fixed": ("2026-08-17 — six of nine computed fields were dropped at the "
+                  "board's edge; rz_share among them, which is why "
+                  "opportunity_inheritance reported red-zone vacancy as "
+                  "unmeasurable when it had in fact been measured"),
     },
 }
 
