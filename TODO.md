@@ -1,6 +1,89 @@
 # TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
 # again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
+## ⭐⭐ SUPERSEDES THE 08-15 STATE BELOW — 2026-08-16/17 RESEARCH DAY, EIGHT NULLS AND FOUR REAL FIXES
+
+**Read this first. The 08-15 entry below is still accurate about the branch's
+shape; this is what happened to the MODEL since.**
+
+### THE HEADLINE: the projection layer is close to tapped out
+
+Three independent lines of evidence, none of which we had yesterday:
+
+- **Sleeper is the best single source at all four positions** (2025, the only
+  leak-free season): QB .7782 / RB .7976 / WR .7319 / TE .7990. It beats
+  FantasyPros everywhere and **own_v6 won ZERO cells**. `proj_mean` stays on
+  Sleeper — reached by measurement, not by default.
+  (`draft/audit/sleeper_vs_fp_grade_2026-08-16.md`)
+- **The room's own draft order already captures 82-87% of perfect hindsight.**
+  The entire remaining prize is 14.2 pts/team/week, and own_v6, props and naive
+  all sit FURTHER from hindsight than the market.
+  (`draft/audit/empirical_draft_value_2026-08-16.md`)
+- **Eight studies, eight nulls**: EPA/air-yards/CPOE, variance tilt, rookie
+  capital prior, season-total props, every roster archetype, the projection
+  blend, QB scoring arbitrage, tiered-outcome (OpenFPL-style) model.
+
+**The decision logic is NOT the problem.** VONA (value over next available)
+ranks picks, accounts for roster need, positional scarcity, what survives and
+what will be gone, and **grades itself on Brier within a handful of picks**.
+Distrust the inputs, not the engine.
+
+### FOUR REAL DEFECTS FOUND AND FIXED
+
+1. **The keeper optimizer could not see its own keepers.** Ran live and printed
+   `RECOMMENDED: keep 0 — nobody`, best offer a KICKER at round 1. `build.py`
+   moves designated keepers into `kept_players[]`; the tool indexed only
+   `players[]` and a bare `continue` dropped them silently. Fixed; now
+   recommends keep-3 at **+108.7**, independently matching the study's +108.6.
+2. **`oddsFormat` was never sent** to the odds API, which defaults to DECIMAL.
+   Anytime-TD values were wrong by **21-33x** (2,002 expected TDs vs 61 real).
+   Fixed, guarded, and a values-plausibility check added — the coverage check
+   passed the corrupt column because the ROWS were all there.
+3. **`player_rush_tds` is a phantom market** — billed on every call, zero rows
+   across 7,019 player-weeks. Replaced with `player_anytime_td`, which also
+   prices receiving TDs the original design had no market for.
+4. **STATUS.md's "both elite TEs kept" primary scenario is false.** Bowers and
+   McBride are both UNDESIGNATED on live Sleeper. Corrected in place.
+
+### THE LIVE DISTORTIONS A SHOULD KNOW BEFORE THE 22nd
+
+- **The opportunity adjustment is noise-shaped scale.** Neutral on ordering
+  (17/18 cells), worse on level (18/18, every CI clear), and a SHUFFLED control
+  performs identically. QB/K/DEF carry exactly 0.0000 while RB/WR/TE reach
+  +0.15, so it lifts three positions against three others. Turning it off moves
+  51 of the top 60 ranks and QB1 from 16 to 10; CENTRING it moves QB1 by ONE.
+  Nothing applied — the grade ran on reconstructed baselines that flatter it.
+- **Replacement sits above realized at every position**, spread 16.3 pts, TE
+  most inflated (+27.9) vs QB (+11.6). The differential distorts cross-position
+  VORP; a uniform bias would not.
+- **K and DEF are priced by machinery built for skill positions** — 32 and 44
+  options run through replacement and uncertainty models calibrated on 152-238.
+  The board already demotes them in the ranking view; the sd column does not.
+
+### WHAT UNBLOCKED
+
+**The 2021/2022 weekly-points stores now exist** (`build_weekly_points_from_
+components.py`), rebuilt offline and licensed by an EXACT reproduction of the
+committed 2023 store — 5,371 player-weeks, 0 disagreements. The standing
+"own_v6 can only be graded on 2025" limit, which bound nearly every verdict
+above, is gone.
+
+### TWO BLOCKING CLAIMS FOUND STALE — treat every "we can't do X" as a hypothesis
+
+- "Sleeper's historical skill is unmeasurable until Jan 2027" — asserted in
+  FOUR committed records. All four were reasoning about a CAPTURE nobody made,
+  not a FETCH nobody attempted. It fetches fine.
+- "the pbp pull is egress-blocked" (`nflverse_pace.py`) — returns HTTP 200,
+  20MB, all five seasons.
+
+### STILL RUNNING AT HANDOFF
+
+Barbell strategy and contingent ("injury") opportunity — the two studies that
+test STRATEGY rather than projections, which after eight nulls is the only
+place left with room in it.
+
+---
+
 ## ⭐ END-OF-DAY STATE, 2026-08-15 NIGHT — READ THIS FIRST, EVERYTHING ELSE IS HISTORY
 
 **A's Monday is three commands and four decisions.** The branch
