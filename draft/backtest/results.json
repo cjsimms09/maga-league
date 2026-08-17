@@ -1,9 +1,7 @@
 {
  "meta": {
-  "git_head": "7888328f6d5d1a1337b1c1f7cb4870908476e3f6",
-  "uncommitted_when_run": [
-   " M draft/backtest/DIAGNOSTICS.txt"
-  ],
+  "git_head": "b18a74b73d545b85c01b926f983ae6b814acd552",
+  "uncommitted_when_run": [],
   "seasons": [
    2023,
    2024,
@@ -14,12 +12,12 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5969
+    "spearman": 0.5968
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5326
+    "spearman": 0.533
    },
    {
     "season": 2025,
