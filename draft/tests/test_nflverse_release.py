@@ -202,3 +202,239 @@ def test_THE_TOLERANCE_IS_EXPLICIT_and_absolute():
     import nflverse_run as RUN
     r = RUN.compare_rows({"a": {"x": 1.0004}}, {"a": {"x": 1.0}}, ("x",), tol=0.01)
     assert r["ok"] is True and r["tolerance"] == 0.01
+
+
+# ── THE CHECK, NOT THE ADVICE: does upstream lack it, or did we ask wrong? ───
+#
+# `describe_failure` tells a reader to verify the release name. These pin the
+# function that VERIFIES it, because the record shows what advice is worth:
+# the same sentence was available for the whole fortnight 2025 spent filed as
+# unpublished, and for however long `nflverse_pace.py` claimed the pbp pull was
+# egress-blocked when it returns 200 in about a second.
+
+def _probe(table, log=None):
+    """A probe with no network: {url_suffix_match: status}. `None` = could not ask."""
+    def go(url):
+        if log is not None:
+            log.append(url)
+        for frag, status in table.items():
+            if frag in url:
+                return status
+        return 404
+    return go
+
+
+def test_A_RENAMED_RELEASE_THAT_STILL_SERVES_OLD_SEASONS_IS_NOT_not_published():
+    """⚠ THE CASE THAT DEFEATED THE FIRST VERSION OF THIS FUNCTION, and the exact
+    case the module exists for.
+
+    Measured against the real host 2026-08-17: nflverse renamed `player_stats`
+    to `stats_player` and LEFT THE OLD RELEASE IN PLACE, frozen after 2024.
+
+        player_stats/player_stats_2023.parquet   200   <- control passes
+        player_stats/player_stats_2024.parquet   200
+        player_stats/player_stats_2025.parquet   404
+        stats_player/stats_player_week_2025.parquet  200
+
+    So the dead name serves the control season, the template "works", and the
+    first version of `diagnose_missing` returned `not_published` — reproducing
+    the original fortnight with a checker written to prevent it. It is also why
+    the original story was believed: four seasons worked and one 404'd, which
+    is precisely what a season not being out yet looks like.
+
+    MUTATION: let a passing control alone mean `not_published` — which is what
+    it meant an hour ago — and this season is filed under nflverse's
+    publication schedule while it is being served."""
+    R.RELEASES["dead_name"] = ("player_stats", "player_stats_%d.parquet", True)
+    R.FAMILY["dead_name"] = "weekly_stats"       # a rival NAME for the same data
+    try:
+        d = R.diagnose_missing(
+            "dead_name", 2025,
+            _probe({"player_stats/player_stats_2025": 404,
+                    "player_stats/player_stats_": 200,
+                    "stats_player/stats_player_week_2025": 200}),
+            season_played_through=2025)
+    finally:
+        del R.RELEASES["dead_name"]
+        del R.FAMILY["dead_name"]
+    assert d["control_status"] == 200, "the control must PASS or this proves nothing"
+    assert d["verdict"] == "served_elsewhere", d
+    assert d["served_as"] == "weekly_stats"
+    assert d["verdict"] != "not_published"
+    assert "whole time" in d["why"] or "our name" in d["why"]
+
+
+def test_A_PLAYED_SEASON_MISSING_UNDER_EVERY_KNOWN_NAME_IS_ambiguous_never_absent():
+    """No verified name serves it AND the season has been played. That is still
+    not evidence nflverse lacks it — a rename we have not found yet looks
+    identical from here. The honest verdict is `ambiguous`.
+
+    MUTATION: return `not_published` for the tidy-looking case and the module
+    is back to making claims about the world out of facts about our URLs.
+
+    ⚠ AND THE OTHER FAMILIES ARE SERVED HERE, WHICH IS THE POINT. An earlier
+    fixture 404'd every other kind, so it could not tell "no rival NAME for this
+    data" from "no other asset at all" — and the real host does the opposite:
+    2026 rosters are served months before a snap. Run live, that fixture's code
+    reported `pbp` 2026 as `served_elsewhere` on the strength of a roster."""
+    d = R.diagnose_missing(
+        "weekly_stats", 2024,
+        _probe({"stats_player_week_2024": 404, "stats_player_week_": 200,
+                # every OTHER family serves 2024 — none of them is weekly stats
+                "play_by_play_2024": 200, "roster_2024": 200,
+                "roster_weekly_2024": 200, "players.parquet": 200}),
+        season_played_through=2025)
+    assert d["verdict"] == "ambiguous", d
+    assert "renamed" in d["why"]
+    assert "IS within the played range" in d["why"]
+
+
+def test_A_DIFFERENT_FAMILY_MAY_NOT_ANSWER_FOR_THE_MISSING_ONE():
+    """⚠ MEASURED LIVE, NOT IMAGINED. `pbp/play_by_play_2026.parquet` 404s
+    because the 2026 season has not been played — while
+    `rosters/roster_2026.parquet` is served, as it is every year long before
+    week 1. Cross-checking any kind that merely TAKES A SEASON therefore
+    concluded the play-by-play "was there the whole time".
+
+    A roster is not play-by-play. Only a rival name for the SAME data counts.
+
+    MUTATION: drop the family gate and 2026 pbp comes back `served_elsewhere`,
+    pointing at a roster — a gap of theirs recorded as a gap of ours, which is
+    the same defect as the original wearing the opposite sign."""
+    d = R.diagnose_missing(
+        "pbp", 2026,
+        _probe({"play_by_play_2026": 404, "play_by_play_": 200,
+                "roster_2026": 200, "roster_weekly_2026": 200,
+                "players.parquet": 200}),
+        season_played_through=2025)
+    assert d["verdict"] == "not_published", d
+    assert d.get("served_as") is None
+    assert "has not been played" in d["why"]
+
+
+def test_AN_UNREGISTERED_KIND_IS_ITS_OWN_FAMILY_not_a_wildcard():
+    """`family()` defaults an unknown kind to ITSELF, and the default is the
+    whole safety of the fallback: two kinds added ad hoc without family entries
+    must not start answering for one another.
+
+    ⚠ FOUND BY THE GATE AS A SURVIVOR. Mutating the default to a shared
+    constant left every assertion green, because every kind in the other tests
+    is registered — so the claim in `family`'s docstring was carried by nothing.
+
+    MUTATION: `FAMILY.get(kind, "any")`. Two unrelated new kinds collapse into
+    one family and a missing asset is answered by whatever else happens to be
+    served."""
+    assert R.family("no_such_kind_at_all") == "no_such_kind_at_all"
+    assert R.family("another_unknown") != R.family("no_such_kind_at_all")
+
+    R.RELEASES["odd_a"] = ("alpha", "alpha_%d.parquet", True)
+    R.RELEASES["odd_b"] = ("beta", "beta_%d.parquet", True)
+    try:
+        d = R.diagnose_missing(
+            "odd_a", 2024,
+            _probe({"alpha/alpha_2024": 404, "alpha/alpha_": 200,
+                    "beta/beta_2024": 200}),      # a DIFFERENT unregistered kind
+            season_played_through=2025)
+    finally:
+        del R.RELEASES["odd_a"], R.RELEASES["odd_b"]
+    assert d["verdict"] == "ambiguous", d
+    assert d.get("served_as") is None, "beta must not answer for alpha"
+
+
+def test_not_published_REQUIRES_THE_CALENDAR_and_is_refused_without_it():
+    """The ONLY sound `not_published`: the season has not been played. That is a
+    fact no renamed release can imitate — and it does not come from a probe.
+
+    MUTATION: default `season_played_through` to anything at all, and an
+    unstated calendar silently starts licensing the verdict it cannot support."""
+    table = {"play_by_play_2026": 404, "play_by_play_": 200}
+    unstated = R.diagnose_missing("pbp", 2026, _probe(table))
+    assert unstated["verdict"] == "ambiguous", unstated
+    assert "did not say" in unstated["why"]
+
+    stated = R.diagnose_missing("pbp", 2026, _probe(table), season_played_through=2025)
+    assert stated["verdict"] == "not_published", stated
+    assert "has not been played" in stated["why"]
+
+
+def test_A_BROKEN_TEMPLATE_IS_OURS_and_the_control_is_what_shows_it():
+    """The control 404s too, so the template — not the season — is wrong."""
+    d = R.diagnose_missing(
+        "pbp", 2025, _probe({"play_by_play_": 404}), season_played_through=2025)
+    assert d["verdict"] == "we_asked_wrong", d
+    assert d["control_status"] == 404
+
+
+def test_AN_UNREACHABLE_CONTROL_IS_unknown_and_NEVER_not_published():
+    """⚠ THE BRANCH THE WHOLE MODULE IS FOR. If we could not ask, we did not
+    learn anything — and writing our own outage down as nflverse lacking the
+    data is the gap-of-ours-recorded-as-a-gap-of-theirs defect itself.
+
+    MUTATION: treat a None control as absent data. Every network blip then
+    becomes a permanent, plausible, written-down claim about upstream."""
+    for bad in (None, 500, 403):
+        d = R.diagnose_missing(
+            "pbp", 2026,
+            _probe({"play_by_play_2026": 404, "play_by_play_": bad}),
+            season_played_through=2025)
+        assert d["verdict"] == "unknown", (bad, d)
+        assert "must not be recorded" in d["why"]
+
+
+def test_AN_UNKNOWN_KIND_IS_we_asked_wrong_WITHOUT_TOUCHING_THE_NETWORK():
+    """`player_stats` is not a verified kind. There was never a URL to 404, so
+    no request may be made and no fact about nflverse may be inferred."""
+    log = []
+    d = R.diagnose_missing("player_stats", 2025, _probe({}, log),
+                           season_played_through=2025)
+    assert d["verdict"] == "we_asked_wrong" and d["checked"] is False
+    assert log == [], "an unverified name must not become a request"
+
+
+def test_THE_CONTROL_MAY_NOT_BE_THE_SEASON_UNDER_TEST():
+    """Probing the asked-for URL as its own control can only agree with itself,
+    manufacturing `we_asked_wrong` out of the test design."""
+    d = R.diagnose_missing("pbp", R.CONTROL_SEASON, _probe({"play_by_play_": 404}),
+                           season_played_through=2025)
+    assert d["verdict"] == "unknown", d
+    assert "IS the season asked for" in d["why"]
+
+
+# ── A FETCH THAT CAME BACK SHORT: the count, and whether the shape excuses it ─
+
+def test_A_HOLE_IS_NOT_A_PUBLICATION_SCHEDULE():
+    """⚠ THE DISCRIMINATION. A schedule can only be missing a contiguous TAIL.
+    Weeks 1-4 and 6-18 present with 5 absent is not something upstream does, so
+    it is our join, our filter, or a real defect — never 'not published yet'.
+
+    MUTATION: report any shortfall as a tail and an interior hole becomes
+    invisible behind an explanation that cannot apply to it."""
+    hole = R.shortfall(got=[w for w in range(1, 19) if w != 5],
+                       expected=range(1, 19), unit="week")
+    assert hole["verdict"] == "interior", hole
+    assert hole["n_missing"] == 1 and hole["missing"] == [5]
+    assert "cannot leave a hole" in hole["why"]
+    assert "must not be recorded" in hole["why"]
+
+    tail = R.shortfall(got=range(1, 15), expected=range(1, 19), unit="week")
+    assert tail["verdict"] == "tail", tail
+    assert tail["n_missing"] == 4 and tail["missing"] == [15, 16, 17, 18]
+    # CONSISTENT WITH, not cleared — a truncated download has the same shape.
+    assert "CONSISTENT WITH" in tail["why"] and "Not proof" in tail["why"]
+
+
+def test_A_SHORTFALL_ALWAYS_CARRIES_THE_COUNT():
+    """Cory's rule, verbatim: write down the count, the reason, and the check."""
+    for r in (R.shortfall(got=[1, 2], expected=range(1, 19)),
+              R.shortfall(got=[1, 3], expected=range(1, 4))):
+        assert r["n_missing"] == r["n_expected"] - r["n_got"]
+        assert r["missing"] and r["why"]
+    assert R.shortfall(got=range(1, 19), expected=range(1, 19))["verdict"] == "complete"
+
+
+def test_AN_EMPTY_EXPECTATION_IS_unknown_not_complete():
+    """A check that expected nothing found nothing. Rule 13f: that has not
+    looked, and it must not read as a clean bill."""
+    r = R.shortfall(got=[], expected=[])
+    assert r["verdict"] == "unknown", r
+    assert "not the same as the fetch being complete" in r["why"]
