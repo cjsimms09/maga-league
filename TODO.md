@@ -67,10 +67,25 @@ mistakes in our info!!"** This is what closed and what is still open.
 ### ⏰ DO THIS ON DRAFT DAY (2026-08-21/22) — RE-TAKE THE PRE-DRAFT FREEZE
 
 `draft/data/pre_draft_freeze_2026.json` was written **2026-08-14** and it
-**predates every fix from 08-17**. Checked: all 157 draftable rows carry
-`proj_ceiling_source: None` (it was frozen before the source stamps existed),
-its ceiling/floor are the OLD Gaussian construction, and it has no
-`nfl_draft_round` column.
+**predates every fix from 08-17**. I first found three missing fields by hand;
+the gate I then wrote (`draft/tests/test_freeze_not_stale.py`) found **fourteen**:
+
+```
+capital_tier        consensus_rank      depth_chart_order   is_nfl_rookie
+nfl_draft_pick      nfl_draft_round     pool_rank           proj_ceiling_source
+proj_floor_source   tier_rank           tier_size           variance
+weekly_sd           years_exp
+```
+
+Every one of them is present on the LIVE board (603-682 rows each), so a fresh
+freeze captures all fourteen — the declaration is right, the artifact is just
+old. Its ceiling/floor are still the OLD Gaussian construction.
+
+**The gate is self-maintaining:** it reads `freeze_pre_draft.PLAYER_FIELDS`
+rather than carrying its own copy, so the next field added to the freeze fails
+it until the freeze is re-taken, with no one needing to remember. Marked
+`repo_parity` (same as the ADP-sd ratchet) so it does not block a board publish
+— it is evidence awaiting a human action.
 
 **This is NOT a draft-night problem.** The war room boots from live
 `/draft_data.json` (`app.js:1230`), which carries all of today's fixes; the
