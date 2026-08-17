@@ -174,3 +174,93 @@ between the draft and now would be attributed to the wrong one. **The homer
 numbers look right** (7 distinct rates, 9 distinct teams, 2–3× the 1/32 random
 baseline), so nothing suggests it is actually misfiring — I am recording the
 missing guard, not claiming a defect behind it.
+
+---
+
+# APPENDIX — a hypothesis that did NOT survive, and an assumption nobody has checked
+
+**I nearly filed a much bigger finding here and stopped because the evidence did
+not support it.** Recording both halves, because the near-miss is the useful part.
+
+## The hypothesis: "`meta` is empty everywhere, so every *then* field is really *now*"
+
+`managers.py` is written around a contemporaneous-first fallback:
+
+```python
+"position": (meta.get("position") or info.get("position") or "?").upper(),
+"team":     (meta.get("team")     or info.get("team")     or "").upper(),
+```
+
+If `meta` were always empty, both would silently degrade to **today's** values —
+and `_homer` would be measuring *which NFL teams a manager's old picks play for
+now*, not which teams he drafted from. `"loves SF (7% of picks)"` would then
+describe nothing the manager ever did. That would be far worse than E13, because
+`homer_index` **does** vary and therefore looks trustworthy.
+
+**And the only copy of historical picks I can inspect supports it:**
+
+```
+league_history.json — 480 historical draft picks
+  carrying metadata.team     : 0  (0.0%)
+  carrying metadata.position : 0  (0.0%)
+```
+
+**Zero of 480.** Every pick's `metadata` is an empty object.
+
+## Why I did not file it
+
+**`league_history.json` is not what `managers.py` reads.** The production path is
+`build.py:1493` → `si.all_drafts(league_id)` → `fetch_draft_picks()` →
+`_get("/draft/{id}/picks")`, which returns **Sleeper's raw payload**. Sleeper's
+draft-picks endpoint is documented to return a per-pick `metadata` object
+carrying `position` and `team`. **So `meta` is probably populated in production,
+and the stripped `league_history.json` is a different store built by a different
+exporter.**
+
+**Probably. I could not check**, and per the standing rule that *"we can't get
+it" is not a finished answer*, here is the response code from an attempt made
+today rather than a claim about the past:
+
+```
+GET https://api.sleeper.app/v1/league/1374848328470102016      HTTP 000
+GET https://api.sleeper.app/v1/draft/1248121522766217216/picks HTTP 000
+```
+
+Sleeper is unreachable from this sandbox, so the hypothesis is **unverified, not
+refuted.**
+
+## What that leaves — an assumption under three metrics, and a one-line check
+
+**`homer_index`, positional timing and `bpa_vs_need` all rest on `meta` being
+populated, and nobody has ever confirmed it.** The code is *written* as though
+`meta` normally wins; there is no coverage measure for it, and no test asserts
+it. Contrast `position`, which carries an explicit `pos_coverage` figure and a
+`"?"` sentinel precisely so a caller *"must be able to tell 'he has no tendency'
+from 'we could not see his picks'"* — **that guard measures whether a position
+was resolved, not whether it was resolved from the right era.**
+
+**The check costs one line to anyone with egress:**
+
+```python
+picks = si.fetch_draft_picks("<a completed draft_id>")
+print(sum(1 for p in picks if (p.get("metadata") or {}).get("team")), "of", len(picks))
+```
+
+If that prints `0 of N`, `homer_index` is measuring today's rosters and the
+`"loves <TEAM>"` line in every opponent summary is wrong. If it prints `N of N`,
+this appendix closes and only E13 stands.
+
+**Filed as E14 — an unverified assumption, not a defect.** I am deliberately not
+calling it broken: the one store I can read says one thing and the store the code
+actually uses is out of reach, and saying "broken" on that evidence is the error
+this lane exists to prevent.
+
+## One correction to E13 above, while I am here
+
+E13 says `years_exp` is read *"from today's payload, with no contemporaneous
+fallback."* True of the code — but worth sharpening so nobody tries the obvious
+fix: **Sleeper's pick metadata carries no `years_exp` field at all**, so
+`meta.get("years_exp")` would be `None` for every row and would change nothing.
+**The fix has to be derivation — draft season minus rookie season — which is what
+E13's REC already says.** There is no fallback to add.
+
