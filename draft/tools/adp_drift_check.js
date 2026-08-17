@@ -45,14 +45,24 @@ function reasonFor(p) {
 }
 
 function analyse(board) {
-  const players = (board.players || []).filter(p => p.vorp != null && p.adp != null);
-  const byBoard = players.slice().sort((a, b) => b.vorp - a.vorp);
+  /* BOARD RANK IS COMPUTED OVER THE WHOLE BOARD, NOT OVER THE JOINED SUBSET.
+   *
+   * The first version filtered to players having BOTH vorp and adp before
+   * ranking, so every player without an ADP silently lifted everyone else's
+   * board rank — Darren Waller (vorp −52, genuinely outside the top 200) came
+   * out as board rank 136 and looked like a +126 disagreement with the market.
+   * That is the shrunken-population join this project keeps flagging in others,
+   * committed inside the tool written to catch it. Rank on everything; compare
+   * only where both numbers exist. */
+  const all = (board.players || []).filter(p => p.vorp != null);
+  const byBoard = all.slice().sort((a, b) => b.vorp - a.vorp);
+  const players = all.filter(p => p.adp != null);
   const byAdp = players.slice().sort((a, b) => a.adp - b.adp);
 
   const boardRank = new Map(byBoard.map((p, i) => [p.player_id, i + 1]));
   const adpRank = new Map(byAdp.map((p, i) => [p.player_id, i + 1]));
 
-  const rows = byBoard.slice(0, TOP_N).map(p => {
+  const rows = byBoard.slice(0, TOP_N).filter(p => p.adp != null).map(p => {
     const br = boardRank.get(p.player_id), ar = adpRank.get(p.player_id);
     return { name: p.name, pos: p.position, boardRank: br, adpRank: ar,
              drift: ar - br, reasons: reasonFor(p) };
