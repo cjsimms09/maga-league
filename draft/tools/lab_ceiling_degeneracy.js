@@ -1,7 +1,8 @@
 /* WHAT THE LAB WAS ACTUALLY MEASURING WHEN IT MEASURED THE CEILING WEIGHT.
  *
  * harness_divergence.py flagged proj_ceiling as SYNTHETIC: build_bundle.py
- * writes `round((pm or 0.0) * 1.35, 2)`, so on every backtest board
+ * wrote `round((pm or 0.0) * 1.35, 2)` UNTIL 2026-08-17, so on every backtest
+ * board built before that day
  *
  *     proj_ceiling = 1.35 * proj_mean            exactly, for every player
  *
