@@ -131,6 +131,37 @@ def test_engine_rosters_are_legal_and_carry_the_seats_keepers(artifact,
             assert set(roster) <= ch
 
 
+def test_status_filtered_arm_rides_beside_never_instead(artifact):
+    """The diagnostic board arm must never replace the as-run arm: both are
+    present per seat, its exclusions come from the committed restated table,
+    and its pooled summary is an identity of its own rows."""
+    store = DRAFT / "data" / "roster_status_exclusions.json"
+    if not artifact.get("pooled_status_filtered"):
+        pytest.skip("choice file predates the status-filtered arm")
+    excl = json.loads(store.read_text())
+    seasons = sorted(artifact["years"], reverse=True)
+    for s in seasons:
+        banned = {e["player_id"] for e in excl["years"][s]["excluded"]}
+        for rid in map(str, range(1, 11)):
+            seat = artifact["years"][s]["seats"][rid]
+            assert "arms" in seat and "status_filtered" in seat
+            roster = {p["player_id"]
+                      for p in seat["status_filtered"]["engine_roster"]}
+            assert not (roster & banned), (s, rid, roster & banned)
+    pool = artifact["pooled_status_filtered"]
+    for arm in ("optimal", "realistic"):
+        for rid in map(str, range(1, 11)):
+            per = [artifact["years"][s]["seats"][rid]["status_filtered"]
+                   ["arms"][arm]["delta_tool_minus_owner"] for s in seasons]
+            assert pool[rid][arm]["mean_delta"] == \
+                round(sum(per) / len(per), 2)
+        s_ = pool["_summary"][arm]
+        means = sorted(pool[str(rid)][arm]["mean_delta"]
+                       for rid in range(1, 11))
+        assert s_["median_owner_mean_delta"] == round(
+            (means[4] + means[5]) / 2.0, 2)
+
+
 def test_qb_question_quotes_the_committed_benchmark(artifact):
     lt = json.loads(LEAGUE_TABLE.read_text())
     ds = lt["drafter_study"]["top3_vs_bottom_half"]["first_QB_round_mean"]

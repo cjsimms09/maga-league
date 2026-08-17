@@ -229,16 +229,19 @@ function gitHead() {
 
 function loadStatusExclusions() {
   // The committed deterministic exclusion lists (rule + both error
-  // directions: draft_replay_2025.roster_status_exclusions). Absent file =>
-  // the filtered arm is skipped and says why, never silently.
-  const p = path.join(__dirname, '..', 'data', 'replay_league_table_restated.json');
+  // directions: draft_replay_2025.roster_status_exclusions), over the
+  // BOARD-AGNOSTIC population — the restated table's lists are scoped to
+  // the proxy board (a Y-1-season population) and missed bundle-only
+  // players like Gronkowski-2023, which made the first filtered arm filter
+  // nothing. Absent file => the arm is skipped and says why, never silently.
+  const p = path.join(__dirname, '..', 'data', 'roster_status_exclusions.json');
   try {
     const d = JSON.parse(fs.readFileSync(p, 'utf8'));
     const out = {};
     Object.keys(d.years || {}).forEach(s => {
-      out[s] = new Set((d.years[s].board.excluded || []).map(e => String(e.player_id)));
+      out[s] = new Set((d.years[s].excluded || []).map(e => String(e.player_id)));
     });
-    return { by_season: out, source: 'draft/data/replay_league_table_restated.json' };
+    return { by_season: out, source: 'draft/data/roster_status_exclusions.json' };
   } catch (e) {
     return { by_season: null, source: null, why: String(e && e.message || e) };
   }

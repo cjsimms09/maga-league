@@ -411,6 +411,24 @@ def roster_status_exclusions(season: int, proj: dict) -> tuple[dict, list]:
     return excluded, kept
 
 
+FIRST_COMMITTED_SEASON = 2021  # oldest committed store a board can price from
+
+
+def roster_status_exclusions_all(season: int) -> tuple[dict, list]:
+    """The SAME rule as roster_status_exclusions, over the BOARD-AGNOSTIC
+    population: every player with at least one recorded game in a committed
+    season strictly before Y. Needed because different walk-forward boards
+    price different populations — the proxy board requires a Y-1 season, but
+    the backtest bundle board projects off Y-2 as well, so a 2023 bundle
+    carries players (Gronkowski, retired after 2021) the proxy board never
+    saw and the board-scoped exclusion list therefore missed. Same sources,
+    same corroboration, same both-directions honesty."""
+    prior: set[str] = set()
+    for s in range(FIRST_COMMITTED_SEASON, season):
+        prior |= set(weekly_points_of(s))
+    return roster_status_exclusions(season, {p: 0.0 for p in prior})
+
+
 # ── the season's real draft, from league history ─────────────────────────────
 
 def season_record(season: int) -> dict:

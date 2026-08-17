@@ -314,9 +314,10 @@ def run() -> dict:
                             "what the harness produces today"),
             "status_filtered": ("DIAGNOSTIC: the same bundles minus the "
                                 "committed deterministic roster-status "
-                                "exclusions (replay_league_table_restated); "
-                                "same rule, zero fitted parameters, "
-                                "nothing selected"),
+                                "exclusions (draft/data/"
+                                "roster_status_exclusions.json, the "
+                                "board-agnostic population); same rule, "
+                                "zero fitted parameters, nothing selected"),
         },
         "proxy_context_quoted": proxy_ctx,
         "years": years,

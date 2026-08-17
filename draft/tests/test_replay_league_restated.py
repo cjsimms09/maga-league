@@ -137,6 +137,29 @@ def test_status_filter_is_deterministic_and_names_brady(artifact):
     assert again == excluded
 
 
+def test_board_agnostic_exclusion_store_supersets_the_board_scoped_lists(
+        artifact):
+    """The committed roster_status_exclusions.json (the list the engine
+    replay's filtered arm consumes) must contain every board-scoped
+    exclusion the restated table names, plus the bundle-only career-enders
+    the proxy board never priced (Gronkowski-2023), and never a player who
+    logged a later committed game (Fournette-2023)."""
+    store = json.loads(
+        (DRAFT / "data" / "roster_status_exclusions.json").read_text())
+    names23 = {e["player_id"]: e["name"]
+               for e in store["years"]["2023"]["excluded"]}
+    assert "167" in names23                     # Brady
+    assert "Leonard Fournette" not in names23.values()  # played later 2023
+    assert {"Rob Gronkowski", "Antonio Brown"} <= set(names23.values())
+    for s in ("2023", "2024", "2025"):
+        board_scoped = {e["player_id"]
+                        for e in artifact["years"][s]["board"]["excluded"]}
+        agnostic = {e["player_id"]
+                    for e in store["years"][s]["excluded"]}
+        assert board_scoped <= agnostic, (s, board_scoped - agnostic)
+    assert names23  # non-vacuity
+
+
 def test_excluded_players_never_on_restated_tool_rosters(artifact):
     for s, y in artifact["years"].items():
         excluded = {e["player_id"] for e in y["board"]["excluded"]}

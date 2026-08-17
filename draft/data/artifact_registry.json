@@ -167,6 +167,18 @@
    "timeout_s": 300
   },
   {
+   "id": "roster_status_exclusions",
+   "description": "Deterministic roster-status exclusions per replay season over the board-agnostic population (any player with a committed game before Y). One list for every replay harness; rule and error directions live in draft_replay_2025.roster_status_exclusions.",
+   "owner_module": "draft/tools/roster_status_exclusions_store.py",
+   "artifact_path": "draft/data/roster_status_exclusions.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport roster_status_exclusions_store as RS\nprint(json.dumps(RS.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
    "id": "props_season_projection_v6_reproduction",
    "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
    "owner_module": "draft/tools/props_season_projection.py",
