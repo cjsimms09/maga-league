@@ -183,13 +183,37 @@ def main() -> int:
     if not sl_raw:
         return void("Sleeper projections egress failed — a fact about the runner, "
                     "not about the source")
+    # SLEEPER'S PAYLOAD IS A DICT KEYED BY PID, NOT A LIST AND NOT {players:[...]}.
+    # It serves two ROW shapes too: {pid: {stat: v}} gives the stat line directly,
+    # {pid: {player_id, stats:{...}}} nests it. Same rule as
+    # sleeper_hist_proj.stat_line and sleeper_import._rows_with_stats — one
+    # derivation, not a third that merely resembles them.
+    #
+    # The first version read sl_raw.get("players", []), which returns [] against a
+    # pid-keyed dict. The 2026-08-17 run fetched 8,625 rows with stats and scored
+    # ZERO of them, and the NAIVE control caught it: without that gate this would
+    # have published a confident "no separation" verdict computed on an empty
+    # population.
+    def _stat_line(row):
+        if not isinstance(row, dict):
+            return {}
+        inner = row.get("stats") if "stats" in row else row
+        return inner if isinstance(inner, dict) else {}
+
     sleeper = {}
-    for row in (sl_raw if isinstance(sl_raw, list) else sl_raw.get("players", [])):
-        pid, stats = str(row.get("player_id") or ""), row.get("stats") or {}
-        if pid and stats:
-            v = score_stat_line(stats, scoring)
-            if v:
-                sleeper[pid] = float(v)
+    rows = sl_raw.items() if isinstance(sl_raw, dict) else (
+        (str((r or {}).get("player_id") or ""), r) for r in (sl_raw or []))
+    for pid, row in rows:
+        stats = _stat_line(row)
+        if not pid or not stats:
+            continue
+        v = score_stat_line(stats, scoring)
+        if v:
+            sleeper[str(pid)] = float(v)
+    if not sleeper:
+        return void("Sleeper returned rows but NONE scored — the row shape changed",
+                    {"raw_type": type(sl_raw).__name__,
+                     "raw_len": len(sl_raw) if hasattr(sl_raw, "__len__") else None})
 
     # ── FANTASYPROS, crosswalked through the SAME index exp_fp_hist_proj uses ─
     text, url, diag = FP.fetch_projections(YEAR)
