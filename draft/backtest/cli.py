@@ -17,6 +17,7 @@ import sleeper_import as SL
 from backtest.asof import AsOfDataStore
 from backtest import build_bundle as BB
 from backtest import grade as GR
+from backtest import projection_error as PE
 
 
 def main() -> int:
@@ -182,6 +183,52 @@ def main() -> int:
 
     if not bundles:
         print("\nNO BUNDLES — nothing to replay."); return 1
+
+    # ── SECOND PASS: MEASURED DISPERSION, LEAVE-ONE-SEASON-OUT ───────────────
+    #
+    # Until 2026-08-17 every bundle carried `proj_ceiling = 1.35 * proj_mean`
+    # and `proj_sd = 0.25 * proj_mean` — GLOBAL constants — so the engine's
+    # ceiling term was a fixed multiple of its value term (Spearman 1.0000) and
+    # no experiment run on a bundle could ever separate the two. That is why
+    # MEASURED_WEIGHTS.ceiling is 0.
+    #
+    # IT IS A SECOND PASS AND THAT IS NOT CIRCULAR. The calibration is fitted
+    # from proj_mean and ACTUALS only — it never reads dispersion — so bundles
+    # must exist before it can be fitted, and the spread is attached after.
+    #
+    # ONE CALIBRATION PER SEASON, EACH FITTED WITHOUT THAT SEASON. A spread
+    # fitted on the season being graded is foreknowledge the drafter did not
+    # have — the exp33 leak, one level down. `calibrate(exclude_season=)` RAISES
+    # if it is handed the excluded season, so this cannot leak by being
+    # forgotten. A season with no other season to fit on gets NO dispersion
+    # rather than a leaked one.
+    print("\n--- measured dispersion (leave-one-season-out) ---")
+    for b in bundles:
+        s = b.get("season")
+        others = [(o, actual.get(str(o.get("season")), {})) for o in bundles
+                  if str(o.get("season")) != str(s)]
+        others = [(o, a) for o, a in others if a]
+        if not others:
+            print(f"  {s}: no other graded season to fit on — dispersion left ABSENT")
+            b.setdefault("notes", {})["dispersion"] = {
+                "attached": None, "why": "no out-of-season data to fit on"}
+            continue
+        cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
+                           exclude_season=s)
+        rep = BB.attach_dispersion(b.get("players") or [], cal)
+        b.setdefault("notes", {})["dispersion"] = rep
+        b["notes"]["dispersion"]["fitted_without_season"] = s
+        a = rep["attached"]
+        print(f"  {s}: ceiling {a['proj_ceiling']}, floor {a['proj_floor']}, "
+              f"sd {a['proj_sd']} attached over {rep['players']} players "
+              f"({rep['players_with_no_measured_cell']} off any measured cell)")
+
+    caveats.append("Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED "
+                   "per-(position,band) calibration fitted leave-one-season-out, "
+                   "not the former 1.35x/0.25x constants. It is still "
+                   "proj_mean x a per-CELL constant, so it varies between bands "
+                   "and not within them: a ceiling weight fitted here measures "
+                   "cross-band dispersion differences only.")
     caveats.append("Historical FFC ADP is name-matched against TODAY'S Sleeper "
                    "player list, so a player who has since changed teams or "
                    "retired may match differently than he would have that year.")
