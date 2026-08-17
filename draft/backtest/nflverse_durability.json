@@ -1,0 +1,6905 @@
+{
+ "_territory": "TERRITORY: C \u2014 draft/backtest/nflverse_durability.py",
+ "_what": "Realized availability 2023-2025 for every player priced inside pick 150 on the 2026 board, against the board's `games_expected`.",
+ "_source": "nflverse weekly ROSTERS, status == ACT \u2014 the availability record. NOT the weekly stats file: an active player who records nothing has no stats row, and that happens on 39.4% of active QB weeks and 27.4% of TE weeks league-wide, so the stats file answers 'did he record anything' rather than 'was he available'. Measured both ways inside the top 150 and the choice moves each position by <= 0.27 games, because these are starters \u2014 but the check had to be run, not assumed.",
+ "_route": "stats_player / roster_weekly parquets fetched DIRECTLY from the nflverse release. `nfl_data_py.import_weekly_data` 404s for 2025 because the release is named `stats_player`, not `player_stats`; the data was there the whole time.",
+ "_caveats": [
+  "SURVIVORSHIP: the cut conditions on being priced inside pick 150 on the 2026 board, so players whose careers ended are absent. That biases realized games UPWARD, i.e. AGAINST the conclusion below, so the real over-statement is if anything larger.",
+  "Mean of per-season means \u2014 a one-season player weighs as much as a three-season one.",
+  "K n=3. Do not lean on the kicker figure.",
+  "11 of 146 draftable players have no NFL history at all (rookies) and are ABSENT rather than zero."
+ ],
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "report": {
+  "usable": true,
+  "seasons": [
+   2023,
+   2024,
+   2025
+  ],
+  "last_week": 17,
+  "players": 2415,
+  "spells": 7149
+ },
+ "matched": 135,
+ "draftable": 146,
+ "unmatched_names": [
+  "Jeremiyah Love",
+  "Los Angeles Rams",
+  "Houston Texans",
+  "Seattle Seahawks",
+  "Philadelphia Eagles",
+  "Denver Broncos",
+  "Carnell Tate",
+  "Jordyn Tyson",
+  "Jadarian Price",
+  "Makai Lemon",
+  "KC Concepcion"
+ ],
+ "by_position": {
+  "K": {
+   "n": 3,
+   "mean_games": 15.22,
+   "median_games": 16.0,
+   "board_games_expected": 16.5,
+   "gap": -1.28
+  },
+  "QB": {
+   "n": 20,
+   "mean_games": 14.46,
+   "median_games": 15.17,
+   "board_games_expected": 15.5,
+   "gap": -1.04
+  },
+  "RB": {
+   "n": 43,
+   "mean_games": 14.1,
+   "median_games": 15.0,
+   "board_games_expected": 14.2,
+   "gap": -0.1
+  },
+  "TE": {
+   "n": 17,
+   "mean_games": 14.51,
+   "median_games": 14.67,
+   "board_games_expected": 14.8,
+   "gap": -0.29
+  },
+  "WR": {
+   "n": 52,
+   "mean_games": 13.71,
+   "median_games": 14.42,
+   "board_games_expected": 15.0,
+   "gap": -1.29
+  }
+ },
+ "players": {
+  "9221": {
+   "name": "Jahmyr Gibbs",
+   "position": "RB",
+   "adp": 1.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 14.2
+  },
+  "9509": {
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "adp": 2.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "9493": {
+   "name": "Puka Nacua",
+   "position": "WR",
+   "adp": 4.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 11,
+    "2025": 15
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.0
+  },
+  "4034": {
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "adp": 5.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 4,
+    "2025": 16
+   },
+   "mean_games": 12.0,
+   "board_games_expected": 14.2
+  },
+  "6813": {
+   "name": "Jonathan Taylor",
+   "position": "RB",
+   "adp": 7.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 9,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 12.67,
+   "board_games_expected": 14.2
+  },
+  "9488": {
+   "name": "Jaxon Smith-Njigba",
+   "position": "WR",
+   "adp": 6.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.0
+  },
+  "8138": {
+   "name": "James Cook",
+   "position": "RB",
+   "adp": 9.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "7547": {
+   "name": "Amon-Ra St. Brown",
+   "position": "WR",
+   "adp": 8.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 15.0
+  },
+  "11604": {
+   "name": "Brock Bowers",
+   "position": "TE",
+   "adp": 21.67,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 12
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.8
+  },
+  "6786": {
+   "name": "CeeDee Lamb",
+   "position": "WR",
+   "adp": 11.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 13
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "4866": {
+   "name": "Saquon Barkley",
+   "position": "RB",
+   "adp": 13.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.2
+  },
+  "12527": {
+   "name": "Ashton Jeanty",
+   "position": "RB",
+   "adp": 11.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "9224": {
+   "name": "Chase Brown",
+   "position": "RB",
+   "adp": 14.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 11,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 14.2
+  },
+  "5859": {
+   "name": "A.J. Brown",
+   "position": "WR",
+   "adp": 22.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "7569": {
+   "name": "Nico Collins",
+   "position": "WR",
+   "adp": 24.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 11,
+    "2025": 15
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 15.0
+  },
+  "4984": {
+   "name": "Josh Allen",
+   "position": "QB",
+   "adp": 20.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "8137": {
+   "name": "George Pickens",
+   "position": "WR",
+   "adp": 24.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.0
+  },
+  "8130": {
+   "name": "Trey McBride",
+   "position": "TE",
+   "adp": 21.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.8
+  },
+  "6794": {
+   "name": "Justin Jefferson",
+   "position": "WR",
+   "adp": 11.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 9,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 13.67,
+   "board_games_expected": 15.0
+  },
+  "8112": {
+   "name": "Drake London",
+   "position": "WR",
+   "adp": 18.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 11
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.0
+  },
+  "9226": {
+   "name": "De'Von Achane",
+   "position": "RB",
+   "adp": 13.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 10,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.2
+  },
+  "8144": {
+   "name": "Chris Olave",
+   "position": "WR",
+   "adp": 28.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 8,
+    "2025": 16
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 15.0
+  },
+  "7525": {
+   "name": "DeVonta Smith",
+   "position": "WR",
+   "adp": 33.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.0
+  },
+  "9997": {
+   "name": "Zay Flowers",
+   "position": "WR",
+   "adp": 38.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.0
+  },
+  "12517": {
+   "name": "Colston Loveland",
+   "position": "TE",
+   "adp": 42.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 15
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.8
+  },
+  "11635": {
+   "name": "Ladd McConkey",
+   "position": "WR",
+   "adp": 44.33,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.5,
+   "board_games_expected": 15.0
+  },
+  "8155": {
+   "name": "Breece Hall",
+   "position": "RB",
+   "adp": 33.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "7526": {
+   "name": "Jaylen Waddle",
+   "position": "WR",
+   "adp": 48.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 14,
+    "2025": 16
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "6801": {
+   "name": "Tee Higgins",
+   "position": "WR",
+   "adp": 39.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 12,
+    "2024": 11,
+    "2025": 14
+   },
+   "mean_games": 12.33,
+   "board_games_expected": 15.0
+  },
+  "12507": {
+   "name": "Omarion Hampton",
+   "position": "RB",
+   "adp": 15.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 9
+   },
+   "mean_games": 9.0,
+   "board_games_expected": 14.2
+  },
+  "12526": {
+   "name": "Tetairoa McMillan",
+   "position": "WR",
+   "adp": 39.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.0
+  },
+  "8150": {
+   "name": "Kyren Williams",
+   "position": "RB",
+   "adp": 29.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 12,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 14.2
+  },
+  "12514": {
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "adp": 39.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.0
+  },
+  "4881": {
+   "name": "Lamar Jackson",
+   "position": "QB",
+   "adp": 37.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 12
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.5
+  },
+  "2216": {
+   "name": "Mike Evans",
+   "position": "WR",
+   "adp": 61.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 7
+   },
+   "mean_games": 12.0,
+   "board_games_expected": 15.0
+  },
+  "7543": {
+   "name": "Travis Etienne",
+   "position": "RB",
+   "adp": 40.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 14.2
+  },
+  "8146": {
+   "name": "Garrett Wilson",
+   "position": "WR",
+   "adp": 44.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 7
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 15.0
+  },
+  "11632": {
+   "name": "Malik Nabers",
+   "position": "WR",
+   "adp": 32.0,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 14,
+    "2025": 4
+   },
+   "mean_games": 9.0,
+   "board_games_expected": 15.0
+  },
+  "8148": {
+   "name": "Jameson Williams",
+   "position": "WR",
+   "adp": 59.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 12,
+    "2024": 14,
+    "2025": 16
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.0
+  },
+  "11564": {
+   "name": "Drake Maye",
+   "position": "QB",
+   "adp": 52.0,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "5850": {
+   "name": "Josh Jacobs",
+   "position": "RB",
+   "adp": 28.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 16,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 14.2
+  },
+  "7588": {
+   "name": "Javonte Williams",
+   "position": "RB",
+   "adp": 31.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "12518": {
+   "name": "Tyler Warren",
+   "position": "TE",
+   "adp": 51.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.8
+  },
+  "6790": {
+   "name": "D'Andre Swift",
+   "position": "RB",
+   "adp": 51.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 15
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "5927": {
+   "name": "Terry McLaurin",
+   "position": "WR",
+   "adp": 54.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 9
+   },
+   "mean_games": 13.67,
+   "board_games_expected": 15.0
+  },
+  "11620": {
+   "name": "Rome Odunze",
+   "position": "WR",
+   "adp": 64.0,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 13
+   },
+   "mean_games": 14.5,
+   "board_games_expected": 15.0
+  },
+  "6770": {
+   "name": "Joe Burrow",
+   "position": "QB",
+   "adp": 51.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 10,
+    "2024": 16,
+    "2025": 7
+   },
+   "mean_games": 11.0,
+   "board_games_expected": 15.5
+  },
+  "9487": {
+   "name": "Parker Washington",
+   "position": "WR",
+   "adp": 79.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 8,
+    "2024": 16,
+    "2025": 15
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 15.0
+  },
+  "10859": {
+   "name": "Sam LaPorta",
+   "position": "TE",
+   "adp": 73.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 9
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 14.8
+  },
+  "10229": {
+   "name": "Rashee Rice",
+   "position": "WR",
+   "adp": 30.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 4,
+    "2025": 8
+   },
+   "mean_games": 9.33,
+   "board_games_expected": 15.0
+  },
+  "8167": {
+   "name": "Christian Watson",
+   "position": "WR",
+   "adp": 67.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 9,
+    "2024": 14,
+    "2025": 10
+   },
+   "mean_games": 11.0,
+   "board_games_expected": 15.0
+  },
+  "5892": {
+   "name": "David Montgomery",
+   "position": "RB",
+   "adp": 50.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 14,
+    "2025": 16
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 14.2
+  },
+  "11631": {
+   "name": "Brian Thomas",
+   "position": "WR",
+   "adp": 73.67,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 13
+   },
+   "mean_games": 14.5,
+   "board_games_expected": 15.0
+  },
+  "3294": {
+   "name": "Dak Prescott",
+   "position": "QB",
+   "adp": 81.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 8,
+    "2025": 16
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 15.5
+  },
+  "11533": {
+   "name": "Brandon Aubrey",
+   "position": "K",
+   "adp": 118.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 16.5
+  },
+  "8183": {
+   "name": "Brock Purdy",
+   "position": "QB",
+   "adp": 107.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 8
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 15.5
+  },
+  "11584": {
+   "name": "Bucky Irving",
+   "position": "RB",
+   "adp": 45.67,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 9
+   },
+   "mean_games": 12.5,
+   "board_games_expected": 14.2
+  },
+  "7553": {
+   "name": "Kyle Pitts",
+   "position": "TE",
+   "adp": 74.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.8
+  },
+  "2133": {
+   "name": "Davante Adams",
+   "position": "WR",
+   "adp": 57.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 14
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 15.0
+  },
+  "12506": {
+   "name": "Harold Fannin",
+   "position": "TE",
+   "adp": 68.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.8
+  },
+  "3451": {
+   "name": "Ka'imi Fairbairn",
+   "position": "K",
+   "adp": 146.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 11,
+    "2024": 16,
+    "2025": 14
+   },
+   "mean_games": 13.67,
+   "board_games_expected": 16.5
+  },
+  "1466": {
+   "name": "Travis Kelce",
+   "position": "TE",
+   "adp": 97.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.8
+  },
+  "12512": {
+   "name": "Quinshon Judkins",
+   "position": "RB",
+   "adp": 46.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 14
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.2
+  },
+  "11560": {
+   "name": "Caleb Williams",
+   "position": "QB",
+   "adp": 75.67,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "6904": {
+   "name": "Jalen Hurts",
+   "position": "QB",
+   "adp": 62.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 15.5
+  },
+  "7523": {
+   "name": "Trevor Lawrence",
+   "position": "QB",
+   "adp": 85.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 10,
+    "2025": 16
+   },
+   "mean_games": 13.67,
+   "board_games_expected": 15.5
+  },
+  "4217": {
+   "name": "George Kittle",
+   "position": "TE",
+   "adp": 97.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 10
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 14.8
+  },
+  "12481": {
+   "name": "Cam Skattebo",
+   "position": "RB",
+   "adp": 37.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 8
+   },
+   "mean_games": 8.0,
+   "board_games_expected": 14.2
+  },
+  "11566": {
+   "name": "Jayden Daniels",
+   "position": "QB",
+   "adp": 59.33,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 7
+   },
+   "mean_games": 11.5,
+   "board_games_expected": 15.5
+  },
+  "5846": {
+   "name": "DK Metcalf",
+   "position": "WR",
+   "adp": 83.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 14,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "5012": {
+   "name": "Mark Andrews",
+   "position": "TE",
+   "adp": 116.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 10,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.8
+  },
+  "8259": {
+   "name": "Cameron Dicker",
+   "position": "K",
+   "adp": 146.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 16.5
+  },
+  "12519": {
+   "name": "Luther Burden",
+   "position": "WR",
+   "adp": 50.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 14
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.0
+  },
+  "11628": {
+   "name": "Marvin Harrison",
+   "position": "WR",
+   "adp": 77.33,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 12
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.0
+  },
+  "9484": {
+   "name": "Tucker Kraft",
+   "position": "TE",
+   "adp": 66.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 8
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 14.8
+  },
+  "6797": {
+   "name": "Justin Herbert",
+   "position": "QB",
+   "adp": 77.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.5
+  },
+  "8142": {
+   "name": "Alec Pierce",
+   "position": "WR",
+   "adp": 89.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 14
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.0
+  },
+  "11563": {
+   "name": "Bo Nix",
+   "position": "QB",
+   "adp": 106.67,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "5045": {
+   "name": "Courtland Sutton",
+   "position": "WR",
+   "adp": 89.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 15.0
+  },
+  "3163": {
+   "name": "Jared Goff",
+   "position": "QB",
+   "adp": 115.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "421": {
+   "name": "Matthew Stafford",
+   "position": "QB",
+   "adp": 106.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 15.5
+  },
+  "3214": {
+   "name": "Hunter Henry",
+   "position": "TE",
+   "adp": 150.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 14.8
+  },
+  "10236": {
+   "name": "Dalton Kincaid",
+   "position": "TE",
+   "adp": 105.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 13,
+    "2025": 11
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 14.8
+  },
+  "4046": {
+   "name": "Patrick Mahomes",
+   "position": "QB",
+   "adp": 102.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 14
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 15.5
+  },
+  "10222": {
+   "name": "Jayden Reed",
+   "position": "WR",
+   "adp": 114.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 6
+   },
+   "mean_games": 12.33,
+   "board_games_expected": 15.0
+  },
+  "4983": {
+   "name": "DJ Moore",
+   "position": "WR",
+   "adp": 52.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.0
+  },
+  "12508": {
+   "name": "Jaxson Dart",
+   "position": "QB",
+   "adp": 89.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 14
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 15.5
+  },
+  "8110": {
+   "name": "Jake Ferguson",
+   "position": "TE",
+   "adp": 112.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.8
+  },
+  "9756": {
+   "name": "Jordan Addison",
+   "position": "WR",
+   "adp": 110.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 13
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 15.0
+  },
+  "8131": {
+   "name": "Isaiah Likely",
+   "position": "TE",
+   "adp": 106.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 13
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 14.8
+  },
+  "9500": {
+   "name": "Josh Downs",
+   "position": "WR",
+   "adp": 111.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "8228": {
+   "name": "Jaylen Warren",
+   "position": "RB",
+   "adp": 69.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 15
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.2
+  },
+  "6804": {
+   "name": "Jordan Love",
+   "position": "QB",
+   "adp": 141.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 15
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.5
+  },
+  "10232": {
+   "name": "Michael Wilson",
+   "position": "WR",
+   "adp": 87.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 12,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "12529": {
+   "name": "TreVeyon Henderson",
+   "position": "RB",
+   "adp": 51.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "6819": {
+   "name": "Michael Pittman",
+   "position": "WR",
+   "adp": 108.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 15.0
+  },
+  "5967": {
+   "name": "Tony Pollard",
+   "position": "RB",
+   "adp": 81.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "7611": {
+   "name": "Rhamondre Stevenson",
+   "position": "RB",
+   "adp": 76.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 12,
+    "2024": 15,
+    "2025": 13
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 14.2
+  },
+  "8126": {
+   "name": "Wan'Dale Robinson",
+   "position": "WR",
+   "adp": 119.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 15.0
+  },
+  "7594": {
+   "name": "Chuba Hubbard",
+   "position": "RB",
+   "adp": 78.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 14
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.2
+  },
+  "9754": {
+   "name": "Quentin Johnston",
+   "position": "WR",
+   "adp": 106.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 14,
+    "2025": 14
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "8121": {
+   "name": "Romeo Doubs",
+   "position": "WR",
+   "adp": 146.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.0
+  },
+  "7021": {
+   "name": "Rico Dowdle",
+   "position": "RB",
+   "adp": 79.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 14.2
+  },
+  "5947": {
+   "name": "Jakobi Meyers",
+   "position": "WR",
+   "adp": 121.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 14,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "5022": {
+   "name": "Dallas Goedert",
+   "position": "TE",
+   "adp": 120.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 9,
+    "2025": 15
+   },
+   "mean_games": 12.33,
+   "board_games_expected": 14.8
+  },
+  "4892": {
+   "name": "Baker Mayfield",
+   "position": "QB",
+   "adp": 142.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "11624": {
+   "name": "Xavier Worthy",
+   "position": "WR",
+   "adp": 134.0,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 14
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 15.0
+  },
+  "12490": {
+   "name": "Bhayshul Tuten",
+   "position": "RB",
+   "adp": 56.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 14
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.2
+  },
+  "6806": {
+   "name": "J.K. Dobbins",
+   "position": "RB",
+   "adp": 89.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 1,
+    "2024": 12,
+    "2025": 10
+   },
+   "mean_games": 7.67,
+   "board_games_expected": 14.2
+  },
+  "4037": {
+   "name": "Chris Godwin",
+   "position": "WR",
+   "adp": 92.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 7,
+    "2025": 8
+   },
+   "mean_games": 10.33,
+   "board_games_expected": 15.0
+  },
+  "8408": {
+   "name": "Jordan Mason",
+   "position": "RB",
+   "adp": 109.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 12,
+    "2025": 15
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 14.2
+  },
+  "12501": {
+   "name": "Matthew Golden",
+   "position": "WR",
+   "adp": 142.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 13
+   },
+   "mean_games": 13.0,
+   "board_games_expected": 15.0
+  },
+  "12493": {
+   "name": "Oronde Gadsden",
+   "position": "TE",
+   "adp": 147.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 14
+   },
+   "mean_games": 14.0,
+   "board_games_expected": 14.8
+  },
+  "5872": {
+   "name": "Deebo Samuel",
+   "position": "WR",
+   "adp": 143.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 15,
+    "2025": 15
+   },
+   "mean_games": 14.67,
+   "board_games_expected": 15.0
+  },
+  "2449": {
+   "name": "Stefon Diggs",
+   "position": "WR",
+   "adp": 122.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 8,
+    "2025": 16
+   },
+   "mean_games": 13.33,
+   "board_games_expected": 15.0
+  },
+  "4943": {
+   "name": "Sam Darnold",
+   "position": "QB",
+   "adp": 149.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 15.5
+  },
+  "12534": {
+   "name": "Kyle Monangai",
+   "position": "RB",
+   "adp": 87.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "5849": {
+   "name": "Kyler Murray",
+   "position": "QB",
+   "adp": 134.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 7,
+    "2024": 16,
+    "2025": 5
+   },
+   "mean_games": 9.33,
+   "board_games_expected": 15.5
+  },
+  "7567": {
+   "name": "Kenny Gainwell",
+   "position": "RB",
+   "adp": 107.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "11586": {
+   "name": "Blake Corum",
+   "position": "RB",
+   "adp": 93.33,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "8676": {
+   "name": "Rashid Shaheed",
+   "position": "WR",
+   "adp": 147.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 6,
+    "2025": 17
+   },
+   "mean_games": 12.33,
+   "board_games_expected": 15.0
+  },
+  "4199": {
+   "name": "Aaron Jones",
+   "position": "RB",
+   "adp": 116.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 10,
+    "2024": 16,
+    "2025": 12
+   },
+   "mean_games": 12.67,
+   "board_games_expected": 14.2
+  },
+  "12489": {
+   "name": "RJ Harvey",
+   "position": "RB",
+   "adp": 81.33,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "12533": {
+   "name": "Jacory Croskey-Merritt",
+   "position": "RB",
+   "adp": 107.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "8136": {
+   "name": "Rachaad White",
+   "position": "RB",
+   "adp": 111.33,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 15,
+    "2025": 16
+   },
+   "mean_games": 15.67,
+   "board_games_expected": 14.2
+  },
+  "11655": {
+   "name": "Tyrone Tracy",
+   "position": "RB",
+   "adp": 143.33,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 16,
+    "2025": 14
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.2
+  },
+  "11583": {
+   "name": "Jonathon Brooks",
+   "position": "RB",
+   "adp": 96.0,
+   "seasons": 1,
+   "games_by_season": {
+    "2024": 3
+   },
+   "mean_games": 3.0,
+   "board_games_expected": 14.2
+  },
+  "12474": {
+   "name": "Woody Marks",
+   "position": "RB",
+   "adp": 149.67,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 15
+   },
+   "mean_games": 15.0,
+   "board_games_expected": 14.2
+  },
+  "8132": {
+   "name": "Tyler Allgeier",
+   "position": "RB",
+   "adp": 144.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 16,
+    "2024": 16,
+    "2025": 16
+   },
+   "mean_games": 16.0,
+   "board_games_expected": 14.2
+  },
+  "12860": {
+   "name": "Theo Wease",
+   "position": "WR",
+   "adp": 132.8,
+   "seasons": 1,
+   "games_by_season": {
+    "2025": 2
+   },
+   "mean_games": 2.0,
+   "board_games_expected": 15.0
+  },
+  "9753": {
+   "name": "Zach Charbonnet",
+   "position": "RB",
+   "adp": 133.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 16,
+    "2025": 15
+   },
+   "mean_games": 15.33,
+   "board_games_expected": 14.2
+  },
+  "8154": {
+   "name": "Brian Robinson",
+   "position": "RB",
+   "adp": 146.67,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 14,
+    "2024": 13,
+    "2025": 16
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 14.2
+  },
+  "4035": {
+   "name": "Alvin Kamara",
+   "position": "RB",
+   "adp": 142.0,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 13,
+    "2024": 14,
+    "2025": 11
+   },
+   "mean_games": 12.67,
+   "board_games_expected": 14.2
+  },
+  "8147": {
+   "name": "John Metchie",
+   "position": "WR",
+   "adp": 122.8,
+   "seasons": 3,
+   "games_by_season": {
+    "2023": 15,
+    "2024": 12,
+    "2025": 16
+   },
+   "mean_games": 14.33,
+   "board_games_expected": 15.0
+  },
+  "11638": {
+   "name": "Ricky Pearsall",
+   "position": "WR",
+   "adp": 112.0,
+   "seasons": 2,
+   "games_by_season": {
+    "2024": 10,
+    "2025": 9
+   },
+   "mean_games": 9.5,
+   "board_games_expected": 15.0
+  }
+ },
+ "absence_shape": {
+  "_what": "WHY the positions differ in availability: frequency vs duration, measured separately because a single games-played number cannot distinguish them and the two imply different draft-day risks.",
+  "_finding": "DURATION IS FLAT. League-wide the mean COMPLETED absence is 3.67 weeks at QB, 3.35 RB, 3.24 TE, 3.12 WR \u2014 a 0.55-week spread across four positions on 320-1111 spells each \u2014 and 21-24% of spells run to the end of the season at every position. FREQUENCY is where the positions part company.",
+  "weeks_out_when_out": {
+   "OL": {
+    "status": "unmeasurable",
+    "n": 3,
+    "completed_n": 2,
+    "censored_n": 1,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 3 spell(s); min_n is 8"
+   },
+   "QB": {
+    "status": "measured",
+    "n": 320,
+    "completed_n": 243,
+    "censored_n": 77,
+    "mean_completed": 3.667,
+    "censored_fraction": 0.2406,
+    "caveat": "mean_completed uses only absences observed to END. 77 of 320 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "K": {
+    "status": "measured",
+    "n": 112,
+    "completed_n": 85,
+    "censored_n": 27,
+    "mean_completed": 3.518,
+    "censored_fraction": 0.2411,
+    "caveat": "mean_completed uses only absences observed to END. 27 of 112 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "TE": {
+    "status": "measured",
+    "n": 527,
+    "completed_n": 415,
+    "censored_n": 112,
+    "mean_completed": 3.241,
+    "censored_fraction": 0.2125,
+    "caveat": "mean_completed uses only absences observed to END. 112 of 527 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "DL": {
+    "status": "measured",
+    "n": 1313,
+    "completed_n": 1030,
+    "censored_n": 283,
+    "mean_completed": 3.175,
+    "censored_fraction": 0.2155,
+    "caveat": "mean_completed uses only absences observed to END. 283 of 1313 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "WR": {
+    "status": "measured",
+    "n": 1111,
+    "completed_n": 871,
+    "censored_n": 240,
+    "mean_completed": 3.124,
+    "censored_fraction": 0.216,
+    "caveat": "mean_completed uses only absences observed to END. 240 of 1111 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "P": {
+    "status": "measured",
+    "n": 55,
+    "completed_n": 39,
+    "censored_n": 16,
+    "mean_completed": 4.128,
+    "censored_fraction": 0.2909,
+    "caveat": "mean_completed uses only absences observed to END. 16 of 55 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "DB": {
+    "status": "measured",
+    "n": 1819,
+    "completed_n": 1441,
+    "censored_n": 378,
+    "mean_completed": 3.002,
+    "censored_fraction": 0.2078,
+    "caveat": "mean_completed uses only absences observed to END. 378 of 1819 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "LB": {
+    "status": "measured",
+    "n": 1173,
+    "completed_n": 932,
+    "censored_n": 241,
+    "mean_completed": 3.241,
+    "censored_fraction": 0.2055,
+    "caveat": "mean_completed uses only absences observed to END. 241 of 1173 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "RB": {
+    "status": "measured",
+    "n": 713,
+    "completed_n": 550,
+    "censored_n": 163,
+    "mean_completed": 3.345,
+    "censored_fraction": 0.2286,
+    "caveat": "mean_completed uses only absences observed to END. 163 of 713 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "LS": {
+    "status": "unmeasurable",
+    "n": 3,
+    "completed_n": 2,
+    "censored_n": 1,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 3 spell(s); min_n is 8"
+   }
+  },
+  "weeks_out_when_out_draftable": {
+   "QB": {
+    "status": "measured",
+    "n": 28,
+    "completed_n": 17,
+    "censored_n": 11,
+    "mean_completed": 2.647,
+    "censored_fraction": 0.3929,
+    "caveat": "mean_completed uses only absences observed to END. 11 of 28 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "TE": {
+    "status": "measured",
+    "n": 31,
+    "completed_n": 23,
+    "censored_n": 8,
+    "mean_completed": 1.739,
+    "censored_fraction": 0.2581,
+    "caveat": "mean_completed uses only absences observed to END. 8 of 31 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "WR": {
+    "status": "measured",
+    "n": 120,
+    "completed_n": 103,
+    "censored_n": 17,
+    "mean_completed": 2.369,
+    "censored_fraction": 0.1417,
+    "caveat": "mean_completed uses only absences observed to END. 17 of 120 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   },
+   "K": {
+    "status": "unmeasurable",
+    "n": 2,
+    "completed_n": 2,
+    "censored_n": 0,
+    "mean_completed": null,
+    "censored_fraction": null,
+    "caveat": "only 2 spell(s); min_n is 8"
+   },
+   "RB": {
+    "status": "measured",
+    "n": 69,
+    "completed_n": 52,
+    "censored_n": 17,
+    "mean_completed": 2.481,
+    "censored_fraction": 0.2464,
+    "caveat": "mean_completed uses only absences observed to END. 17 of 69 spells are RIGHT-CENSORED \u2014 they were still running when the season stopped, so their true length is unknown and at least what is recorded. Pooling them into one mean biases E[weeks out] low, worst for the severe injuries this term prices."
+   }
+  },
+  "frequency_league_wide": {
+   "QB": {
+    "player_seasons": 271,
+    "spells_per_season": 1.181,
+    "weeks_out_per_season": 4.46,
+    "clean_season_pct": 41.0
+   },
+   "RB": {
+    "player_seasons": 483,
+    "spells_per_season": 1.476,
+    "weeks_out_per_season": 5.29,
+    "clean_season_pct": 29.2
+   },
+   "TE": {
+    "player_seasons": 409,
+    "spells_per_season": 1.289,
+    "weeks_out_per_season": 4.38,
+    "clean_season_pct": 34.5
+   },
+   "WR": {
+    "player_seasons": 738,
+    "spells_per_season": 1.505,
+    "weeks_out_per_season": 5.11,
+    "clean_season_pct": 24.7
+   }
+  },
+  "frequency_draftable": {
+   "QB": {
+    "player_seasons": 54,
+    "spells_per_season": 0.519,
+    "weeks_out_per_season": 1.56,
+    "clean_season_pct": 66.7
+   },
+   "RB": {
+    "player_seasons": 104,
+    "spells_per_season": 0.663,
+    "weeks_out_per_season": 1.68,
+    "clean_season_pct": 51.0
+   },
+   "TE": {
+    "player_seasons": 42,
+    "spells_per_season": 0.738,
+    "weeks_out_per_season": 1.62,
+    "clean_season_pct": 50.0
+   },
+   "WR": {
+    "player_seasons": 139,
+    "spells_per_season": 0.863,
+    "weeks_out_per_season": 2.17,
+    "clean_season_pct": 41.7
+   }
+  }
+ },
+ "where_the_constant_is_furthest_from_the_player": {
+  "_what": "Draftable players with >=2 seasons of history, ranked by how far their OWN realized availability sits from the single positional constant the board assigns them.",
+  "_how_to_read_it": "THIS IS HISTORY, NOT A FORECAST, and the difference matters. It does not say these players will miss games in 2026; it says the board currently assumes they will play the positional average and their own record says otherwise. That is an argument for a PER-PLAYER prior, not for fading these names. Two-season players regress hardest \u2014 Nabers is 14 then 4, which is one injured season out of two, and a mean of 9.0 carries almost no information about a third.",
+  "_min_seasons": 2,
+  "n": 114,
+  "most_optimistic": [
+   {
+    "name": "J.K. Dobbins",
+    "pos": "RB",
+    "adp": 89.33,
+    "seasons": 3,
+    "realized": 7.67,
+    "board": 14.2,
+    "gap": -6.53,
+    "by_season": {
+     "2023": 1,
+     "2024": 12,
+     "2025": 10
+    }
+   },
+   {
+    "name": "Kyler Murray",
+    "pos": "QB",
+    "adp": 134.67,
+    "seasons": 3,
+    "realized": 9.33,
+    "board": 15.5,
+    "gap": -6.17,
+    "by_season": {
+     "2023": 7,
+     "2024": 16,
+     "2025": 5
+    }
+   },
+   {
+    "name": "Malik Nabers",
+    "pos": "WR",
+    "adp": 32.0,
+    "seasons": 2,
+    "realized": 9.0,
+    "board": 15.0,
+    "gap": -6.0,
+    "by_season": {
+     "2024": 14,
+     "2025": 4
+    }
+   },
+   {
+    "name": "Rashee Rice",
+    "pos": "WR",
+    "adp": 30.0,
+    "seasons": 3,
+    "realized": 9.33,
+    "board": 15.0,
+    "gap": -5.67,
+    "by_season": {
+     "2023": 16,
+     "2024": 4,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Ricky Pearsall",
+    "pos": "WR",
+    "adp": 112.0,
+    "seasons": 2,
+    "realized": 9.5,
+    "board": 15.0,
+    "gap": -5.5,
+    "by_season": {
+     "2024": 10,
+     "2025": 9
+    }
+   },
+   {
+    "name": "Chris Godwin",
+    "pos": "WR",
+    "adp": 92.0,
+    "seasons": 3,
+    "realized": 10.33,
+    "board": 15.0,
+    "gap": -4.67,
+    "by_season": {
+     "2023": 16,
+     "2024": 7,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Joe Burrow",
+    "pos": "QB",
+    "adp": 51.67,
+    "seasons": 3,
+    "realized": 11.0,
+    "board": 15.5,
+    "gap": -4.5,
+    "by_season": {
+     "2023": 10,
+     "2024": 16,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Christian Watson",
+    "pos": "WR",
+    "adp": 67.0,
+    "seasons": 3,
+    "realized": 11.0,
+    "board": 15.0,
+    "gap": -4.0,
+    "by_season": {
+     "2023": 9,
+     "2024": 14,
+     "2025": 10
+    }
+   },
+   {
+    "name": "Jayden Daniels",
+    "pos": "QB",
+    "adp": 59.33,
+    "seasons": 2,
+    "realized": 11.5,
+    "board": 15.5,
+    "gap": -4.0,
+    "by_season": {
+     "2024": 16,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Mike Evans",
+    "pos": "WR",
+    "adp": 61.67,
+    "seasons": 3,
+    "realized": 12.0,
+    "board": 15.0,
+    "gap": -3.0,
+    "by_season": {
+     "2023": 16,
+     "2024": 13,
+     "2025": 7
+    }
+   },
+   {
+    "name": "Ka'imi Fairbairn",
+    "pos": "K",
+    "adp": 146.0,
+    "seasons": 3,
+    "realized": 13.67,
+    "board": 16.5,
+    "gap": -2.83,
+    "by_season": {
+     "2023": 11,
+     "2024": 16,
+     "2025": 14
+    }
+   },
+   {
+    "name": "Tee Higgins",
+    "pos": "WR",
+    "adp": 39.33,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 12,
+     "2024": 11,
+     "2025": 14
+    }
+   },
+   {
+    "name": "Jayden Reed",
+    "pos": "WR",
+    "adp": 114.33,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 15,
+     "2024": 16,
+     "2025": 6
+    }
+   },
+   {
+    "name": "Rashid Shaheed",
+    "pos": "WR",
+    "adp": 147.0,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 15.0,
+    "gap": -2.67,
+    "by_season": {
+     "2023": 14,
+     "2024": 6,
+     "2025": 17
+    }
+   },
+   {
+    "name": "Brock Purdy",
+    "pos": "QB",
+    "adp": 107.0,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.5,
+    "gap": -2.5,
+    "by_season": {
+     "2023": 16,
+     "2024": 15,
+     "2025": 8
+    }
+   },
+   {
+    "name": "Dallas Goedert",
+    "pos": "TE",
+    "adp": 120.67,
+    "seasons": 3,
+    "realized": 12.33,
+    "board": 14.8,
+    "gap": -2.47,
+    "by_season": {
+     "2023": 13,
+     "2024": 9,
+     "2025": 15
+    }
+   },
+   {
+    "name": "Christian McCaffrey",
+    "pos": "RB",
+    "adp": 5.0,
+    "seasons": 3,
+    "realized": 12.0,
+    "board": 14.2,
+    "gap": -2.2,
+    "by_season": {
+     "2023": 16,
+     "2024": 4,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Dak Prescott",
+    "pos": "QB",
+    "adp": 81.67,
+    "seasons": 3,
+    "realized": 13.33,
+    "board": 15.5,
+    "gap": -2.17,
+    "by_season": {
+     "2023": 16,
+     "2024": 8,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Chris Olave",
+    "pos": "WR",
+    "adp": 28.67,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.0,
+    "gap": -2.0,
+    "by_season": {
+     "2023": 15,
+     "2024": 8,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Garrett Wilson",
+    "pos": "WR",
+    "adp": 44.33,
+    "seasons": 3,
+    "realized": 13.0,
+    "board": 15.0,
+    "gap": -2.0,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 7
+    }
+   }
+  ],
+  "understated": [
+   {
+    "name": "Kenny Gainwell",
+    "pos": "RB",
+    "adp": 107.67,
+    "seasons": 3,
+    "realized": 15.67,
+    "board": 14.2,
+    "gap": 1.47,
+    "by_season": {
+     "2023": 15,
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Rachaad White",
+    "pos": "RB",
+    "adp": 111.33,
+    "seasons": 3,
+    "realized": 15.67,
+    "board": 14.2,
+    "gap": 1.47,
+    "by_season": {
+     "2023": 16,
+     "2024": 15,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Bijan Robinson",
+    "pos": "RB",
+    "adp": 2.0,
+    "seasons": 3,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Blake Corum",
+    "pos": "RB",
+    "adp": 93.33,
+    "seasons": 2,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2024": 16,
+     "2025": 16
+    }
+   },
+   {
+    "name": "Tyler Allgeier",
+    "pos": "RB",
+    "adp": 144.0,
+    "seasons": 3,
+    "realized": 16.0,
+    "board": 14.2,
+    "gap": 1.8,
+    "by_season": {
+     "2023": 16,
+     "2024": 16,
+     "2025": 16
+    }
+   }
+  ]
+ },
+ "per_player_prior": {
+  "_what": "`expected_games` run for real: a per-player expected-games prior at three shrinkage settings, which is the object that would replace one constant per position.",
+  "_the_decision_is_shrink_k": "k weights the position prior in SEASON UNITS: k=1 says one observed season is worth as much as the prior. DECLARED, NOT FITTED \u2014 I have not tuned it to make any number come out, and it is a parameter because choosing it prices the board, which is not the ingest's job. k=None is the raw history and is NOT a drop-in: it takes Jonathon Brooks (one rookie season, three games, torn ACL) to 3.00 against an RB prior of 14.2.",
+  "_even_at_k_1_the_one_season_players_move_most": "Theo Wease -6.50 and Jonathon Brooks -5.60 on a SINGLE season each. That is the case this function's own docstring warns about, and it is unresolved at every k tried \u2014 it argues for weighting by seasons observed rather than for a different global k, which is again A's call.",
+  "settings": {
+   "shrink_k=None": {
+    "n": 135,
+    "median_abs_delta": 1.0,
+    "pct_over_1_game": 45.9,
+    "pct_over_3_games": 9.6,
+    "players": {
+     "9221": {
+      "name": "Jahmyr Gibbs",
+      "position": "RB",
+      "adp": 1.0,
+      "expected_games": 15.33,
+      "position_prior": 14.2,
+      "delta": 1.13,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "9509": {
+      "name": "Bijan Robinson",
+      "position": "RB",
+      "adp": 2.0,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "9493": {
+      "name": "Puka Nacua",
+      "position": "WR",
+      "adp": 4.0,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "4034": {
+      "name": "Christian McCaffrey",
+      "position": "RB",
+      "adp": 5.0,
+      "expected_games": 12.0,
+      "position_prior": 14.2,
+      "delta": -2.2,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "measured"
+     },
+     "6813": {
+      "name": "Jonathan Taylor",
+      "position": "RB",
+      "adp": 7.0,
+      "expected_games": 12.67,
+      "position_prior": 14.2,
+      "delta": -1.53,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "measured"
+     },
+     "9488": {
+      "name": "Jaxon Smith-Njigba",
+      "position": "WR",
+      "adp": 6.0,
+      "expected_games": 16.0,
+      "position_prior": 15.0,
+      "delta": 1.0,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8138": {
+      "name": "James Cook",
+      "position": "RB",
+      "adp": 9.33,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "7547": {
+      "name": "Amon-Ra St. Brown",
+      "position": "WR",
+      "adp": 8.0,
+      "expected_games": 15.67,
+      "position_prior": 15.0,
+      "delta": 0.67,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "11604": {
+      "name": "Brock Bowers",
+      "position": "TE",
+      "adp": 21.67,
+      "expected_games": 14.0,
+      "position_prior": 14.8,
+      "delta": -0.8,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "6786": {
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "adp": 11.67,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "4866": {
+      "name": "Saquon Barkley",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 15.0,
+      "position_prior": 14.2,
+      "delta": 0.8,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "12527": {
+      "name": "Ashton Jeanty",
+      "position": "RB",
+      "adp": 11.33,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "9224": {
+      "name": "Chase Brown",
+      "position": "RB",
+      "adp": 14.67,
+      "expected_games": 14.33,
+      "position_prior": 14.2,
+      "delta": 0.13,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "5859": {
+      "name": "A.J. Brown",
+      "position": "WR",
+      "adp": 22.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "7569": {
+      "name": "Nico Collins",
+      "position": "WR",
+      "adp": 24.0,
+      "expected_games": 13.33,
+      "position_prior": 15.0,
+      "delta": -1.67,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "4984": {
+      "name": "Josh Allen",
+      "position": "QB",
+      "adp": 20.67,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8137": {
+      "name": "George Pickens",
+      "position": "WR",
+      "adp": 24.33,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "8130": {
+      "name": "Trey McBride",
+      "position": "TE",
+      "adp": 21.0,
+      "expected_games": 15.67,
+      "position_prior": 14.8,
+      "delta": 0.87,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "6794": {
+      "name": "Justin Jefferson",
+      "position": "WR",
+      "adp": 11.0,
+      "expected_games": 13.67,
+      "position_prior": 15.0,
+      "delta": -1.33,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "measured"
+     },
+     "8112": {
+      "name": "Drake London",
+      "position": "WR",
+      "adp": 18.33,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "9226": {
+      "name": "De'Von Achane",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 14.0,
+      "position_prior": 14.2,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "8144": {
+      "name": "Chris Olave",
+      "position": "WR",
+      "adp": 28.67,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "7525": {
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "adp": 33.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "9997": {
+      "name": "Zay Flowers",
+      "position": "WR",
+      "adp": 38.33,
+      "expected_games": 16.0,
+      "position_prior": 15.0,
+      "delta": 1.0,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12517": {
+      "name": "Colston Loveland",
+      "position": "TE",
+      "adp": 42.67,
+      "expected_games": 15.0,
+      "position_prior": 14.8,
+      "delta": 0.2,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "11635": {
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 15.5,
+      "position_prior": 15.0,
+      "delta": 0.5,
+      "seasons_observed": 2,
+      "observed_games": 15.5,
+      "status": "measured"
+     },
+     "8155": {
+      "name": "Breece Hall",
+      "position": "RB",
+      "adp": 33.0,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "7526": {
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "adp": 48.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "6801": {
+      "name": "Tee Higgins",
+      "position": "WR",
+      "adp": 39.33,
+      "expected_games": 12.33,
+      "position_prior": 15.0,
+      "delta": -2.67,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "measured"
+     },
+     "12507": {
+      "name": "Omarion Hampton",
+      "position": "RB",
+      "adp": 15.33,
+      "expected_games": 9.0,
+      "position_prior": 14.2,
+      "delta": -5.2,
+      "seasons_observed": 1,
+      "observed_games": 9.0,
+      "status": "measured"
+     },
+     "12526": {
+      "name": "Tetairoa McMillan",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 16.0,
+      "position_prior": 15.0,
+      "delta": 1.0,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8150": {
+      "name": "Kyren Williams",
+      "position": "RB",
+      "adp": 29.0,
+      "expected_games": 14.67,
+      "position_prior": 14.2,
+      "delta": 0.47,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "12514": {
+      "name": "Emeka Egbuka",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 16.0,
+      "position_prior": 15.0,
+      "delta": 1.0,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "4881": {
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "adp": 37.67,
+      "expected_games": 14.67,
+      "position_prior": 15.5,
+      "delta": -0.83,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "2216": {
+      "name": "Mike Evans",
+      "position": "WR",
+      "adp": 61.67,
+      "expected_games": 12.0,
+      "position_prior": 15.0,
+      "delta": -3.0,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "measured"
+     },
+     "7543": {
+      "name": "Travis Etienne",
+      "position": "RB",
+      "adp": 40.67,
+      "expected_games": 15.33,
+      "position_prior": 14.2,
+      "delta": 1.13,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "8146": {
+      "name": "Garrett Wilson",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "11632": {
+      "name": "Malik Nabers",
+      "position": "WR",
+      "adp": 32.0,
+      "expected_games": 9.0,
+      "position_prior": 15.0,
+      "delta": -6.0,
+      "seasons_observed": 2,
+      "observed_games": 9.0,
+      "status": "measured"
+     },
+     "8148": {
+      "name": "Jameson Williams",
+      "position": "WR",
+      "adp": 59.0,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "11564": {
+      "name": "Drake Maye",
+      "position": "QB",
+      "adp": 52.0,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "5850": {
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "adp": 28.67,
+      "expected_games": 14.67,
+      "position_prior": 14.2,
+      "delta": 0.47,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "7588": {
+      "name": "Javonte Williams",
+      "position": "RB",
+      "adp": 31.0,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "12518": {
+      "name": "Tyler Warren",
+      "position": "TE",
+      "adp": 51.67,
+      "expected_games": 16.0,
+      "position_prior": 14.8,
+      "delta": 1.2,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "6790": {
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "5927": {
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "adp": 54.0,
+      "expected_games": 13.67,
+      "position_prior": 15.0,
+      "delta": -1.33,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "measured"
+     },
+     "11620": {
+      "name": "Rome Odunze",
+      "position": "WR",
+      "adp": 64.0,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "measured"
+     },
+     "6770": {
+      "name": "Joe Burrow",
+      "position": "QB",
+      "adp": 51.67,
+      "expected_games": 11.0,
+      "position_prior": 15.5,
+      "delta": -4.5,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "measured"
+     },
+     "9487": {
+      "name": "Parker Washington",
+      "position": "WR",
+      "adp": 79.33,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "10859": {
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "adp": 73.67,
+      "expected_games": 13.33,
+      "position_prior": 14.8,
+      "delta": -1.47,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "10229": {
+      "name": "Rashee Rice",
+      "position": "WR",
+      "adp": 30.0,
+      "expected_games": 9.33,
+      "position_prior": 15.0,
+      "delta": -5.67,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "measured"
+     },
+     "8167": {
+      "name": "Christian Watson",
+      "position": "WR",
+      "adp": 67.0,
+      "expected_games": 11.0,
+      "position_prior": 15.0,
+      "delta": -4.0,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "measured"
+     },
+     "5892": {
+      "name": "David Montgomery",
+      "position": "RB",
+      "adp": 50.0,
+      "expected_games": 14.33,
+      "position_prior": 14.2,
+      "delta": 0.13,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "11631": {
+      "name": "Brian Thomas",
+      "position": "WR",
+      "adp": 73.67,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "measured"
+     },
+     "3294": {
+      "name": "Dak Prescott",
+      "position": "QB",
+      "adp": 81.67,
+      "expected_games": 13.33,
+      "position_prior": 15.5,
+      "delta": -2.17,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "11533": {
+      "name": "Brandon Aubrey",
+      "position": "K",
+      "adp": 118.67,
+      "expected_games": 16.0,
+      "position_prior": 16.5,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8183": {
+      "name": "Brock Purdy",
+      "position": "QB",
+      "adp": 107.0,
+      "expected_games": 13.0,
+      "position_prior": 15.5,
+      "delta": -2.5,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "11584": {
+      "name": "Bucky Irving",
+      "position": "RB",
+      "adp": 45.67,
+      "expected_games": 12.5,
+      "position_prior": 14.2,
+      "delta": -1.7,
+      "seasons_observed": 2,
+      "observed_games": 12.5,
+      "status": "measured"
+     },
+     "7553": {
+      "name": "Kyle Pitts",
+      "position": "TE",
+      "adp": 74.0,
+      "expected_games": 16.0,
+      "position_prior": 14.8,
+      "delta": 1.2,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "2133": {
+      "name": "Davante Adams",
+      "position": "WR",
+      "adp": 57.0,
+      "expected_games": 14.33,
+      "position_prior": 15.0,
+      "delta": -0.67,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "12506": {
+      "name": "Harold Fannin",
+      "position": "TE",
+      "adp": 68.33,
+      "expected_games": 16.0,
+      "position_prior": 14.8,
+      "delta": 1.2,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "3451": {
+      "name": "Ka'imi Fairbairn",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 13.67,
+      "position_prior": 16.5,
+      "delta": -2.83,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "measured"
+     },
+     "1466": {
+      "name": "Travis Kelce",
+      "position": "TE",
+      "adp": 97.33,
+      "expected_games": 15.67,
+      "position_prior": 14.8,
+      "delta": 0.87,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "12512": {
+      "name": "Quinshon Judkins",
+      "position": "RB",
+      "adp": 46.0,
+      "expected_games": 14.0,
+      "position_prior": 14.2,
+      "delta": -0.2,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "11560": {
+      "name": "Caleb Williams",
+      "position": "QB",
+      "adp": 75.67,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "6904": {
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "adp": 62.0,
+      "expected_games": 15.67,
+      "position_prior": 15.5,
+      "delta": 0.17,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "7523": {
+      "name": "Trevor Lawrence",
+      "position": "QB",
+      "adp": 85.67,
+      "expected_games": 13.67,
+      "position_prior": 15.5,
+      "delta": -1.83,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "measured"
+     },
+     "4217": {
+      "name": "George Kittle",
+      "position": "TE",
+      "adp": 97.0,
+      "expected_games": 13.33,
+      "position_prior": 14.8,
+      "delta": -1.47,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "12481": {
+      "name": "Cam Skattebo",
+      "position": "RB",
+      "adp": 37.33,
+      "expected_games": 8.0,
+      "position_prior": 14.2,
+      "delta": -6.2,
+      "seasons_observed": 1,
+      "observed_games": 8.0,
+      "status": "measured"
+     },
+     "11566": {
+      "name": "Jayden Daniels",
+      "position": "QB",
+      "adp": 59.33,
+      "expected_games": 11.5,
+      "position_prior": 15.5,
+      "delta": -4.0,
+      "seasons_observed": 2,
+      "observed_games": 11.5,
+      "status": "measured"
+     },
+     "5846": {
+      "name": "DK Metcalf",
+      "position": "WR",
+      "adp": 83.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "5012": {
+      "name": "Mark Andrews",
+      "position": "TE",
+      "adp": 116.0,
+      "expected_games": 14.0,
+      "position_prior": 14.8,
+      "delta": -0.8,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "8259": {
+      "name": "Cameron Dicker",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 16.0,
+      "position_prior": 16.5,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12519": {
+      "name": "Luther Burden",
+      "position": "WR",
+      "adp": 50.67,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "11628": {
+      "name": "Marvin Harrison",
+      "position": "WR",
+      "adp": 77.33,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "9484": {
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "adp": 66.33,
+      "expected_games": 13.33,
+      "position_prior": 14.8,
+      "delta": -1.47,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "6797": {
+      "name": "Justin Herbert",
+      "position": "QB",
+      "adp": 77.67,
+      "expected_games": 15.0,
+      "position_prior": 15.5,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "8142": {
+      "name": "Alec Pierce",
+      "position": "WR",
+      "adp": 89.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "11563": {
+      "name": "Bo Nix",
+      "position": "QB",
+      "adp": 106.67,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "5045": {
+      "name": "Courtland Sutton",
+      "position": "WR",
+      "adp": 89.67,
+      "expected_games": 15.67,
+      "position_prior": 15.0,
+      "delta": 0.67,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "3163": {
+      "name": "Jared Goff",
+      "position": "QB",
+      "adp": 115.33,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "421": {
+      "name": "Matthew Stafford",
+      "position": "QB",
+      "adp": 106.33,
+      "expected_games": 15.67,
+      "position_prior": 15.5,
+      "delta": 0.17,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "3214": {
+      "name": "Hunter Henry",
+      "position": "TE",
+      "adp": 150.0,
+      "expected_games": 15.33,
+      "position_prior": 14.8,
+      "delta": 0.53,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "10236": {
+      "name": "Dalton Kincaid",
+      "position": "TE",
+      "adp": 105.33,
+      "expected_games": 13.0,
+      "position_prior": 14.8,
+      "delta": -1.8,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "4046": {
+      "name": "Patrick Mahomes",
+      "position": "QB",
+      "adp": 102.0,
+      "expected_games": 15.33,
+      "position_prior": 15.5,
+      "delta": -0.17,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "10222": {
+      "name": "Jayden Reed",
+      "position": "WR",
+      "adp": 114.33,
+      "expected_games": 12.33,
+      "position_prior": 15.0,
+      "delta": -2.67,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "measured"
+     },
+     "4983": {
+      "name": "DJ Moore",
+      "position": "WR",
+      "adp": 52.67,
+      "expected_games": 16.0,
+      "position_prior": 15.0,
+      "delta": 1.0,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12508": {
+      "name": "Jaxson Dart",
+      "position": "QB",
+      "adp": 89.0,
+      "expected_games": 14.0,
+      "position_prior": 15.5,
+      "delta": -1.5,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "8110": {
+      "name": "Jake Ferguson",
+      "position": "TE",
+      "adp": 112.33,
+      "expected_games": 15.0,
+      "position_prior": 14.8,
+      "delta": 0.2,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "9756": {
+      "name": "Jordan Addison",
+      "position": "WR",
+      "adp": 110.0,
+      "expected_games": 14.33,
+      "position_prior": 15.0,
+      "delta": -0.67,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "8131": {
+      "name": "Isaiah Likely",
+      "position": "TE",
+      "adp": 106.67,
+      "expected_games": 14.67,
+      "position_prior": 14.8,
+      "delta": -0.13,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "9500": {
+      "name": "Josh Downs",
+      "position": "WR",
+      "adp": 111.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "8228": {
+      "name": "Jaylen Warren",
+      "position": "RB",
+      "adp": 69.67,
+      "expected_games": 15.0,
+      "position_prior": 14.2,
+      "delta": 0.8,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "6804": {
+      "name": "Jordan Love",
+      "position": "QB",
+      "adp": 141.0,
+      "expected_games": 15.0,
+      "position_prior": 15.5,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "10232": {
+      "name": "Michael Wilson",
+      "position": "WR",
+      "adp": 87.67,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "12529": {
+      "name": "TreVeyon Henderson",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "6819": {
+      "name": "Michael Pittman",
+      "position": "WR",
+      "adp": 108.0,
+      "expected_games": 15.33,
+      "position_prior": 15.0,
+      "delta": 0.33,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "5967": {
+      "name": "Tony Pollard",
+      "position": "RB",
+      "adp": 81.0,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "7611": {
+      "name": "Rhamondre Stevenson",
+      "position": "RB",
+      "adp": 76.33,
+      "expected_games": 13.33,
+      "position_prior": 14.2,
+      "delta": -0.87,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "8126": {
+      "name": "Wan'Dale Robinson",
+      "position": "WR",
+      "adp": 119.0,
+      "expected_games": 15.33,
+      "position_prior": 15.0,
+      "delta": 0.33,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "7594": {
+      "name": "Chuba Hubbard",
+      "position": "RB",
+      "adp": 78.0,
+      "expected_games": 15.0,
+      "position_prior": 14.2,
+      "delta": 0.8,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "9754": {
+      "name": "Quentin Johnston",
+      "position": "WR",
+      "adp": 106.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "8121": {
+      "name": "Romeo Doubs",
+      "position": "WR",
+      "adp": 146.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "7021": {
+      "name": "Rico Dowdle",
+      "position": "RB",
+      "adp": 79.0,
+      "expected_games": 15.33,
+      "position_prior": 14.2,
+      "delta": 1.13,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "5947": {
+      "name": "Jakobi Meyers",
+      "position": "WR",
+      "adp": 121.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "5022": {
+      "name": "Dallas Goedert",
+      "position": "TE",
+      "adp": 120.67,
+      "expected_games": 12.33,
+      "position_prior": 14.8,
+      "delta": -2.47,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "measured"
+     },
+     "4892": {
+      "name": "Baker Mayfield",
+      "position": "QB",
+      "adp": 142.0,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "11624": {
+      "name": "Xavier Worthy",
+      "position": "WR",
+      "adp": 134.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "12490": {
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "adp": 56.33,
+      "expected_games": 14.0,
+      "position_prior": 14.2,
+      "delta": -0.2,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "6806": {
+      "name": "J.K. Dobbins",
+      "position": "RB",
+      "adp": 89.33,
+      "expected_games": 7.67,
+      "position_prior": 14.2,
+      "delta": -6.53,
+      "seasons_observed": 3,
+      "observed_games": 7.67,
+      "status": "measured"
+     },
+     "4037": {
+      "name": "Chris Godwin",
+      "position": "WR",
+      "adp": 92.0,
+      "expected_games": 10.33,
+      "position_prior": 15.0,
+      "delta": -4.67,
+      "seasons_observed": 3,
+      "observed_games": 10.33,
+      "status": "measured"
+     },
+     "8408": {
+      "name": "Jordan Mason",
+      "position": "RB",
+      "adp": 109.67,
+      "expected_games": 14.33,
+      "position_prior": 14.2,
+      "delta": 0.13,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "12501": {
+      "name": "Matthew Golden",
+      "position": "WR",
+      "adp": 142.67,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 1,
+      "observed_games": 13.0,
+      "status": "measured"
+     },
+     "12493": {
+      "name": "Oronde Gadsden",
+      "position": "TE",
+      "adp": 147.0,
+      "expected_games": 14.0,
+      "position_prior": 14.8,
+      "delta": -0.8,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "measured"
+     },
+     "5872": {
+      "name": "Deebo Samuel",
+      "position": "WR",
+      "adp": 143.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "measured"
+     },
+     "2449": {
+      "name": "Stefon Diggs",
+      "position": "WR",
+      "adp": 122.33,
+      "expected_games": 13.33,
+      "position_prior": 15.0,
+      "delta": -1.67,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "measured"
+     },
+     "4943": {
+      "name": "Sam Darnold",
+      "position": "QB",
+      "adp": 149.67,
+      "expected_games": 16.0,
+      "position_prior": 15.5,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12534": {
+      "name": "Kyle Monangai",
+      "position": "RB",
+      "adp": 87.33,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "5849": {
+      "name": "Kyler Murray",
+      "position": "QB",
+      "adp": 134.67,
+      "expected_games": 9.33,
+      "position_prior": 15.5,
+      "delta": -6.17,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "measured"
+     },
+     "7567": {
+      "name": "Kenny Gainwell",
+      "position": "RB",
+      "adp": 107.67,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "11586": {
+      "name": "Blake Corum",
+      "position": "RB",
+      "adp": 93.33,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8676": {
+      "name": "Rashid Shaheed",
+      "position": "WR",
+      "adp": 147.0,
+      "expected_games": 12.33,
+      "position_prior": 15.0,
+      "delta": -2.67,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "measured"
+     },
+     "4199": {
+      "name": "Aaron Jones",
+      "position": "RB",
+      "adp": 116.0,
+      "expected_games": 12.67,
+      "position_prior": 14.2,
+      "delta": -1.53,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "measured"
+     },
+     "12489": {
+      "name": "RJ Harvey",
+      "position": "RB",
+      "adp": 81.33,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12533": {
+      "name": "Jacory Croskey-Merritt",
+      "position": "RB",
+      "adp": 107.0,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "8136": {
+      "name": "Rachaad White",
+      "position": "RB",
+      "adp": 111.33,
+      "expected_games": 15.67,
+      "position_prior": 14.2,
+      "delta": 1.47,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "measured"
+     },
+     "11655": {
+      "name": "Tyrone Tracy",
+      "position": "RB",
+      "adp": 143.33,
+      "expected_games": 15.0,
+      "position_prior": 14.2,
+      "delta": 0.8,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "11583": {
+      "name": "Jonathon Brooks",
+      "position": "RB",
+      "adp": 96.0,
+      "expected_games": 3.0,
+      "position_prior": 14.2,
+      "delta": -11.2,
+      "seasons_observed": 1,
+      "observed_games": 3.0,
+      "status": "measured"
+     },
+     "12474": {
+      "name": "Woody Marks",
+      "position": "RB",
+      "adp": 149.67,
+      "expected_games": 15.0,
+      "position_prior": 14.2,
+      "delta": 0.8,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "measured"
+     },
+     "8132": {
+      "name": "Tyler Allgeier",
+      "position": "RB",
+      "adp": 144.0,
+      "expected_games": 16.0,
+      "position_prior": 14.2,
+      "delta": 1.8,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "measured"
+     },
+     "12860": {
+      "name": "Theo Wease",
+      "position": "WR",
+      "adp": 132.8,
+      "expected_games": 2.0,
+      "position_prior": 15.0,
+      "delta": -13.0,
+      "seasons_observed": 1,
+      "observed_games": 2.0,
+      "status": "measured"
+     },
+     "9753": {
+      "name": "Zach Charbonnet",
+      "position": "RB",
+      "adp": 133.0,
+      "expected_games": 15.33,
+      "position_prior": 14.2,
+      "delta": 1.13,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "measured"
+     },
+     "8154": {
+      "name": "Brian Robinson",
+      "position": "RB",
+      "adp": 146.67,
+      "expected_games": 14.33,
+      "position_prior": 14.2,
+      "delta": 0.13,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "4035": {
+      "name": "Alvin Kamara",
+      "position": "RB",
+      "adp": 142.0,
+      "expected_games": 12.67,
+      "position_prior": 14.2,
+      "delta": -1.53,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "measured"
+     },
+     "8147": {
+      "name": "John Metchie",
+      "position": "WR",
+      "adp": 122.8,
+      "expected_games": 14.33,
+      "position_prior": 15.0,
+      "delta": -0.67,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "measured"
+     },
+     "11638": {
+      "name": "Ricky Pearsall",
+      "position": "WR",
+      "adp": 112.0,
+      "expected_games": 9.5,
+      "position_prior": 15.0,
+      "delta": -5.5,
+      "seasons_observed": 2,
+      "observed_games": 9.5,
+      "status": "measured"
+     }
+    }
+   },
+   "shrink_k=1": {
+    "n": 135,
+    "median_abs_delta": 0.65,
+    "pct_over_1_game": 34.1,
+    "pct_over_3_games": 7.4,
+    "players": {
+     "9221": {
+      "name": "Jahmyr Gibbs",
+      "position": "RB",
+      "adp": 1.0,
+      "expected_games": 15.05,
+      "position_prior": 14.2,
+      "delta": 0.85,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "9509": {
+      "name": "Bijan Robinson",
+      "position": "RB",
+      "adp": 2.0,
+      "expected_games": 15.55,
+      "position_prior": 14.2,
+      "delta": 1.35,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "9493": {
+      "name": "Puka Nacua",
+      "position": "WR",
+      "adp": 4.0,
+      "expected_games": 14.25,
+      "position_prior": 15.0,
+      "delta": -0.75,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "4034": {
+      "name": "Christian McCaffrey",
+      "position": "RB",
+      "adp": 5.0,
+      "expected_games": 12.55,
+      "position_prior": 14.2,
+      "delta": -1.65,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "shrunk"
+     },
+     "6813": {
+      "name": "Jonathan Taylor",
+      "position": "RB",
+      "adp": 7.0,
+      "expected_games": 13.05,
+      "position_prior": 14.2,
+      "delta": -1.15,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "9488": {
+      "name": "Jaxon Smith-Njigba",
+      "position": "WR",
+      "adp": 6.0,
+      "expected_games": 15.75,
+      "position_prior": 15.0,
+      "delta": 0.75,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8138": {
+      "name": "James Cook",
+      "position": "RB",
+      "adp": 9.33,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7547": {
+      "name": "Amon-Ra St. Brown",
+      "position": "WR",
+      "adp": 8.0,
+      "expected_games": 15.5,
+      "position_prior": 15.0,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11604": {
+      "name": "Brock Bowers",
+      "position": "TE",
+      "adp": 21.67,
+      "expected_games": 14.27,
+      "position_prior": 14.8,
+      "delta": -0.53,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "6786": {
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "adp": 11.67,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "4866": {
+      "name": "Saquon Barkley",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "12527": {
+      "name": "Ashton Jeanty",
+      "position": "RB",
+      "adp": 11.33,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "9224": {
+      "name": "Chase Brown",
+      "position": "RB",
+      "adp": 14.67,
+      "expected_games": 14.3,
+      "position_prior": 14.2,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "5859": {
+      "name": "A.J. Brown",
+      "position": "WR",
+      "adp": 22.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "7569": {
+      "name": "Nico Collins",
+      "position": "WR",
+      "adp": 24.0,
+      "expected_games": 13.75,
+      "position_prior": 15.0,
+      "delta": -1.25,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "4984": {
+      "name": "Josh Allen",
+      "position": "QB",
+      "adp": 20.67,
+      "expected_games": 15.88,
+      "position_prior": 15.5,
+      "delta": 0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8137": {
+      "name": "George Pickens",
+      "position": "WR",
+      "adp": 24.33,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8130": {
+      "name": "Trey McBride",
+      "position": "TE",
+      "adp": 21.0,
+      "expected_games": 15.45,
+      "position_prior": 14.8,
+      "delta": 0.65,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "6794": {
+      "name": "Justin Jefferson",
+      "position": "WR",
+      "adp": 11.0,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "8112": {
+      "name": "Drake London",
+      "position": "WR",
+      "adp": 18.33,
+      "expected_games": 14.25,
+      "position_prior": 15.0,
+      "delta": -0.75,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "9226": {
+      "name": "De'Von Achane",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 14.05,
+      "position_prior": 14.2,
+      "delta": -0.15,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8144": {
+      "name": "Chris Olave",
+      "position": "WR",
+      "adp": 28.67,
+      "expected_games": 13.5,
+      "position_prior": 15.0,
+      "delta": -1.5,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "7525": {
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "adp": 33.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9997": {
+      "name": "Zay Flowers",
+      "position": "WR",
+      "adp": 38.33,
+      "expected_games": 15.75,
+      "position_prior": 15.0,
+      "delta": 0.75,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12517": {
+      "name": "Colston Loveland",
+      "position": "TE",
+      "adp": 42.67,
+      "expected_games": 14.9,
+      "position_prior": 14.8,
+      "delta": 0.1,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11635": {
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 15.33,
+      "position_prior": 15.0,
+      "delta": 0.33,
+      "seasons_observed": 2,
+      "observed_games": 15.5,
+      "status": "shrunk"
+     },
+     "8155": {
+      "name": "Breece Hall",
+      "position": "RB",
+      "adp": 33.0,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7526": {
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "adp": 48.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "6801": {
+      "name": "Tee Higgins",
+      "position": "WR",
+      "adp": 39.33,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "12507": {
+      "name": "Omarion Hampton",
+      "position": "RB",
+      "adp": 15.33,
+      "expected_games": 11.6,
+      "position_prior": 14.2,
+      "delta": -2.6,
+      "seasons_observed": 1,
+      "observed_games": 9.0,
+      "status": "shrunk"
+     },
+     "12526": {
+      "name": "Tetairoa McMillan",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 15.5,
+      "position_prior": 15.0,
+      "delta": 0.5,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8150": {
+      "name": "Kyren Williams",
+      "position": "RB",
+      "adp": 29.0,
+      "expected_games": 14.55,
+      "position_prior": 14.2,
+      "delta": 0.35,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "12514": {
+      "name": "Emeka Egbuka",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 15.5,
+      "position_prior": 15.0,
+      "delta": 0.5,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "4881": {
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "adp": 37.67,
+      "expected_games": 14.88,
+      "position_prior": 15.5,
+      "delta": -0.62,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "2216": {
+      "name": "Mike Evans",
+      "position": "WR",
+      "adp": 61.67,
+      "expected_games": 12.75,
+      "position_prior": 15.0,
+      "delta": -2.25,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "shrunk"
+     },
+     "7543": {
+      "name": "Travis Etienne",
+      "position": "RB",
+      "adp": 40.67,
+      "expected_games": 15.05,
+      "position_prior": 14.2,
+      "delta": 0.85,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "8146": {
+      "name": "Garrett Wilson",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 13.5,
+      "position_prior": 15.0,
+      "delta": -1.5,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "11632": {
+      "name": "Malik Nabers",
+      "position": "WR",
+      "adp": 32.0,
+      "expected_games": 11.0,
+      "position_prior": 15.0,
+      "delta": -4.0,
+      "seasons_observed": 2,
+      "observed_games": 9.0,
+      "status": "shrunk"
+     },
+     "8148": {
+      "name": "Jameson Williams",
+      "position": "WR",
+      "adp": 59.0,
+      "expected_games": 14.25,
+      "position_prior": 15.0,
+      "delta": -0.75,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11564": {
+      "name": "Drake Maye",
+      "position": "QB",
+      "adp": 52.0,
+      "expected_games": 15.83,
+      "position_prior": 15.5,
+      "delta": 0.33,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5850": {
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "adp": 28.67,
+      "expected_games": 14.55,
+      "position_prior": 14.2,
+      "delta": 0.35,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "7588": {
+      "name": "Javonte Williams",
+      "position": "RB",
+      "adp": 31.0,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "12518": {
+      "name": "Tyler Warren",
+      "position": "TE",
+      "adp": 51.67,
+      "expected_games": 15.4,
+      "position_prior": 14.8,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6790": {
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "5927": {
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "adp": 54.0,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "11620": {
+      "name": "Rome Odunze",
+      "position": "WR",
+      "adp": 64.0,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "shrunk"
+     },
+     "6770": {
+      "name": "Joe Burrow",
+      "position": "QB",
+      "adp": 51.67,
+      "expected_games": 12.12,
+      "position_prior": 15.5,
+      "delta": -3.38,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "shrunk"
+     },
+     "9487": {
+      "name": "Parker Washington",
+      "position": "WR",
+      "adp": 79.33,
+      "expected_games": 13.5,
+      "position_prior": 15.0,
+      "delta": -1.5,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "10859": {
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "adp": 73.67,
+      "expected_games": 13.7,
+      "position_prior": 14.8,
+      "delta": -1.1,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "10229": {
+      "name": "Rashee Rice",
+      "position": "WR",
+      "adp": 30.0,
+      "expected_games": 10.75,
+      "position_prior": 15.0,
+      "delta": -4.25,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "shrunk"
+     },
+     "8167": {
+      "name": "Christian Watson",
+      "position": "WR",
+      "adp": 67.0,
+      "expected_games": 12.0,
+      "position_prior": 15.0,
+      "delta": -3.0,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "shrunk"
+     },
+     "5892": {
+      "name": "David Montgomery",
+      "position": "RB",
+      "adp": 50.0,
+      "expected_games": 14.3,
+      "position_prior": 14.2,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "11631": {
+      "name": "Brian Thomas",
+      "position": "WR",
+      "adp": 73.67,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "shrunk"
+     },
+     "3294": {
+      "name": "Dak Prescott",
+      "position": "QB",
+      "adp": 81.67,
+      "expected_games": 13.88,
+      "position_prior": 15.5,
+      "delta": -1.62,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "11533": {
+      "name": "Brandon Aubrey",
+      "position": "K",
+      "adp": 118.67,
+      "expected_games": 16.12,
+      "position_prior": 16.5,
+      "delta": -0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8183": {
+      "name": "Brock Purdy",
+      "position": "QB",
+      "adp": 107.0,
+      "expected_games": 13.62,
+      "position_prior": 15.5,
+      "delta": -1.88,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "11584": {
+      "name": "Bucky Irving",
+      "position": "RB",
+      "adp": 45.67,
+      "expected_games": 13.07,
+      "position_prior": 14.2,
+      "delta": -1.13,
+      "seasons_observed": 2,
+      "observed_games": 12.5,
+      "status": "shrunk"
+     },
+     "7553": {
+      "name": "Kyle Pitts",
+      "position": "TE",
+      "adp": 74.0,
+      "expected_games": 15.7,
+      "position_prior": 14.8,
+      "delta": 0.9,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "2133": {
+      "name": "Davante Adams",
+      "position": "WR",
+      "adp": 57.0,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "12506": {
+      "name": "Harold Fannin",
+      "position": "TE",
+      "adp": 68.33,
+      "expected_games": 15.4,
+      "position_prior": 14.8,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "3451": {
+      "name": "Ka'imi Fairbairn",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 14.38,
+      "position_prior": 16.5,
+      "delta": -2.12,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "1466": {
+      "name": "Travis Kelce",
+      "position": "TE",
+      "adp": 97.33,
+      "expected_games": 15.45,
+      "position_prior": 14.8,
+      "delta": 0.65,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "12512": {
+      "name": "Quinshon Judkins",
+      "position": "RB",
+      "adp": 46.0,
+      "expected_games": 14.1,
+      "position_prior": 14.2,
+      "delta": -0.1,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11560": {
+      "name": "Caleb Williams",
+      "position": "QB",
+      "adp": 75.67,
+      "expected_games": 15.83,
+      "position_prior": 15.5,
+      "delta": 0.33,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6904": {
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "adp": 62.0,
+      "expected_games": 15.62,
+      "position_prior": 15.5,
+      "delta": 0.12,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7523": {
+      "name": "Trevor Lawrence",
+      "position": "QB",
+      "adp": 85.67,
+      "expected_games": 14.12,
+      "position_prior": 15.5,
+      "delta": -1.38,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "4217": {
+      "name": "George Kittle",
+      "position": "TE",
+      "adp": 97.0,
+      "expected_games": 13.7,
+      "position_prior": 14.8,
+      "delta": -1.1,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "12481": {
+      "name": "Cam Skattebo",
+      "position": "RB",
+      "adp": 37.33,
+      "expected_games": 11.1,
+      "position_prior": 14.2,
+      "delta": -3.1,
+      "seasons_observed": 1,
+      "observed_games": 8.0,
+      "status": "shrunk"
+     },
+     "11566": {
+      "name": "Jayden Daniels",
+      "position": "QB",
+      "adp": 59.33,
+      "expected_games": 12.83,
+      "position_prior": 15.5,
+      "delta": -2.67,
+      "seasons_observed": 2,
+      "observed_games": 11.5,
+      "status": "shrunk"
+     },
+     "5846": {
+      "name": "DK Metcalf",
+      "position": "WR",
+      "adp": 83.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "5012": {
+      "name": "Mark Andrews",
+      "position": "TE",
+      "adp": 116.0,
+      "expected_games": 14.2,
+      "position_prior": 14.8,
+      "delta": -0.6,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8259": {
+      "name": "Cameron Dicker",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 16.12,
+      "position_prior": 16.5,
+      "delta": -0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12519": {
+      "name": "Luther Burden",
+      "position": "WR",
+      "adp": 50.67,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11628": {
+      "name": "Marvin Harrison",
+      "position": "WR",
+      "adp": 77.33,
+      "expected_games": 14.33,
+      "position_prior": 15.0,
+      "delta": -0.67,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "9484": {
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "adp": 66.33,
+      "expected_games": 13.7,
+      "position_prior": 14.8,
+      "delta": -1.1,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "6797": {
+      "name": "Justin Herbert",
+      "position": "QB",
+      "adp": 77.67,
+      "expected_games": 15.12,
+      "position_prior": 15.5,
+      "delta": -0.38,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8142": {
+      "name": "Alec Pierce",
+      "position": "WR",
+      "adp": 89.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11563": {
+      "name": "Bo Nix",
+      "position": "QB",
+      "adp": 106.67,
+      "expected_games": 15.83,
+      "position_prior": 15.5,
+      "delta": 0.33,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5045": {
+      "name": "Courtland Sutton",
+      "position": "WR",
+      "adp": 89.67,
+      "expected_games": 15.5,
+      "position_prior": 15.0,
+      "delta": 0.5,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "3163": {
+      "name": "Jared Goff",
+      "position": "QB",
+      "adp": 115.33,
+      "expected_games": 15.88,
+      "position_prior": 15.5,
+      "delta": 0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "421": {
+      "name": "Matthew Stafford",
+      "position": "QB",
+      "adp": 106.33,
+      "expected_games": 15.62,
+      "position_prior": 15.5,
+      "delta": 0.12,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "3214": {
+      "name": "Hunter Henry",
+      "position": "TE",
+      "adp": 150.0,
+      "expected_games": 15.2,
+      "position_prior": 14.8,
+      "delta": 0.4,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "10236": {
+      "name": "Dalton Kincaid",
+      "position": "TE",
+      "adp": 105.33,
+      "expected_games": 13.45,
+      "position_prior": 14.8,
+      "delta": -1.35,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "4046": {
+      "name": "Patrick Mahomes",
+      "position": "QB",
+      "adp": 102.0,
+      "expected_games": 15.38,
+      "position_prior": 15.5,
+      "delta": -0.12,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "10222": {
+      "name": "Jayden Reed",
+      "position": "WR",
+      "adp": 114.33,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4983": {
+      "name": "DJ Moore",
+      "position": "WR",
+      "adp": 52.67,
+      "expected_games": 15.75,
+      "position_prior": 15.0,
+      "delta": 0.75,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12508": {
+      "name": "Jaxson Dart",
+      "position": "QB",
+      "adp": 89.0,
+      "expected_games": 14.75,
+      "position_prior": 15.5,
+      "delta": -0.75,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8110": {
+      "name": "Jake Ferguson",
+      "position": "TE",
+      "adp": 112.33,
+      "expected_games": 14.95,
+      "position_prior": 14.8,
+      "delta": 0.15,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9756": {
+      "name": "Jordan Addison",
+      "position": "WR",
+      "adp": 110.0,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "8131": {
+      "name": "Isaiah Likely",
+      "position": "TE",
+      "adp": 106.67,
+      "expected_games": 14.7,
+      "position_prior": 14.8,
+      "delta": -0.1,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "9500": {
+      "name": "Josh Downs",
+      "position": "WR",
+      "adp": 111.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "8228": {
+      "name": "Jaylen Warren",
+      "position": "RB",
+      "adp": 69.67,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "6804": {
+      "name": "Jordan Love",
+      "position": "QB",
+      "adp": 141.0,
+      "expected_games": 15.12,
+      "position_prior": 15.5,
+      "delta": -0.38,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "10232": {
+      "name": "Michael Wilson",
+      "position": "WR",
+      "adp": 87.67,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "12529": {
+      "name": "TreVeyon Henderson",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6819": {
+      "name": "Michael Pittman",
+      "position": "WR",
+      "adp": 108.0,
+      "expected_games": 15.25,
+      "position_prior": 15.0,
+      "delta": 0.25,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "5967": {
+      "name": "Tony Pollard",
+      "position": "RB",
+      "adp": 81.0,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7611": {
+      "name": "Rhamondre Stevenson",
+      "position": "RB",
+      "adp": 76.33,
+      "expected_games": 13.55,
+      "position_prior": 14.2,
+      "delta": -0.65,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "8126": {
+      "name": "Wan'Dale Robinson",
+      "position": "WR",
+      "adp": 119.0,
+      "expected_games": 15.25,
+      "position_prior": 15.0,
+      "delta": 0.25,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "7594": {
+      "name": "Chuba Hubbard",
+      "position": "RB",
+      "adp": 78.0,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9754": {
+      "name": "Quentin Johnston",
+      "position": "WR",
+      "adp": 106.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "8121": {
+      "name": "Romeo Doubs",
+      "position": "WR",
+      "adp": 146.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "7021": {
+      "name": "Rico Dowdle",
+      "position": "RB",
+      "adp": 79.0,
+      "expected_games": 15.05,
+      "position_prior": 14.2,
+      "delta": 0.85,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "5947": {
+      "name": "Jakobi Meyers",
+      "position": "WR",
+      "adp": 121.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "5022": {
+      "name": "Dallas Goedert",
+      "position": "TE",
+      "adp": 120.67,
+      "expected_games": 12.95,
+      "position_prior": 14.8,
+      "delta": -1.85,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4892": {
+      "name": "Baker Mayfield",
+      "position": "QB",
+      "adp": 142.0,
+      "expected_games": 15.88,
+      "position_prior": 15.5,
+      "delta": 0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "11624": {
+      "name": "Xavier Worthy",
+      "position": "WR",
+      "adp": 134.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "12490": {
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "adp": 56.33,
+      "expected_games": 14.1,
+      "position_prior": 14.2,
+      "delta": -0.1,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "6806": {
+      "name": "J.K. Dobbins",
+      "position": "RB",
+      "adp": 89.33,
+      "expected_games": 9.3,
+      "position_prior": 14.2,
+      "delta": -4.9,
+      "seasons_observed": 3,
+      "observed_games": 7.67,
+      "status": "shrunk"
+     },
+     "4037": {
+      "name": "Chris Godwin",
+      "position": "WR",
+      "adp": 92.0,
+      "expected_games": 11.5,
+      "position_prior": 15.0,
+      "delta": -3.5,
+      "seasons_observed": 3,
+      "observed_games": 10.33,
+      "status": "shrunk"
+     },
+     "8408": {
+      "name": "Jordan Mason",
+      "position": "RB",
+      "adp": 109.67,
+      "expected_games": 14.3,
+      "position_prior": 14.2,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "12501": {
+      "name": "Matthew Golden",
+      "position": "WR",
+      "adp": 142.67,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 1,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "12493": {
+      "name": "Oronde Gadsden",
+      "position": "TE",
+      "adp": 147.0,
+      "expected_games": 14.4,
+      "position_prior": 14.8,
+      "delta": -0.4,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "5872": {
+      "name": "Deebo Samuel",
+      "position": "WR",
+      "adp": 143.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "2449": {
+      "name": "Stefon Diggs",
+      "position": "WR",
+      "adp": 122.33,
+      "expected_games": 13.75,
+      "position_prior": 15.0,
+      "delta": -1.25,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "4943": {
+      "name": "Sam Darnold",
+      "position": "QB",
+      "adp": 149.67,
+      "expected_games": 15.88,
+      "position_prior": 15.5,
+      "delta": 0.38,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12534": {
+      "name": "Kyle Monangai",
+      "position": "RB",
+      "adp": 87.33,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5849": {
+      "name": "Kyler Murray",
+      "position": "QB",
+      "adp": 134.67,
+      "expected_games": 10.88,
+      "position_prior": 15.5,
+      "delta": -4.62,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "shrunk"
+     },
+     "7567": {
+      "name": "Kenny Gainwell",
+      "position": "RB",
+      "adp": 107.67,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11586": {
+      "name": "Blake Corum",
+      "position": "RB",
+      "adp": 93.33,
+      "expected_games": 15.4,
+      "position_prior": 14.2,
+      "delta": 1.2,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8676": {
+      "name": "Rashid Shaheed",
+      "position": "WR",
+      "adp": 147.0,
+      "expected_games": 13.0,
+      "position_prior": 15.0,
+      "delta": -2.0,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4199": {
+      "name": "Aaron Jones",
+      "position": "RB",
+      "adp": 116.0,
+      "expected_games": 13.05,
+      "position_prior": 14.2,
+      "delta": -1.15,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "12489": {
+      "name": "RJ Harvey",
+      "position": "RB",
+      "adp": 81.33,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12533": {
+      "name": "Jacory Croskey-Merritt",
+      "position": "RB",
+      "adp": 107.0,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8136": {
+      "name": "Rachaad White",
+      "position": "RB",
+      "adp": 111.33,
+      "expected_games": 15.3,
+      "position_prior": 14.2,
+      "delta": 1.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11655": {
+      "name": "Tyrone Tracy",
+      "position": "RB",
+      "adp": 143.33,
+      "expected_games": 14.73,
+      "position_prior": 14.2,
+      "delta": 0.53,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11583": {
+      "name": "Jonathon Brooks",
+      "position": "RB",
+      "adp": 96.0,
+      "expected_games": 8.6,
+      "position_prior": 14.2,
+      "delta": -5.6,
+      "seasons_observed": 1,
+      "observed_games": 3.0,
+      "status": "shrunk"
+     },
+     "12474": {
+      "name": "Woody Marks",
+      "position": "RB",
+      "adp": 149.67,
+      "expected_games": 14.6,
+      "position_prior": 14.2,
+      "delta": 0.4,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8132": {
+      "name": "Tyler Allgeier",
+      "position": "RB",
+      "adp": 144.0,
+      "expected_games": 15.55,
+      "position_prior": 14.2,
+      "delta": 1.35,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12860": {
+      "name": "Theo Wease",
+      "position": "WR",
+      "adp": 132.8,
+      "expected_games": 8.5,
+      "position_prior": 15.0,
+      "delta": -6.5,
+      "seasons_observed": 1,
+      "observed_games": 2.0,
+      "status": "shrunk"
+     },
+     "9753": {
+      "name": "Zach Charbonnet",
+      "position": "RB",
+      "adp": 133.0,
+      "expected_games": 15.05,
+      "position_prior": 14.2,
+      "delta": 0.85,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "8154": {
+      "name": "Brian Robinson",
+      "position": "RB",
+      "adp": 146.67,
+      "expected_games": 14.3,
+      "position_prior": 14.2,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "4035": {
+      "name": "Alvin Kamara",
+      "position": "RB",
+      "adp": 142.0,
+      "expected_games": 13.05,
+      "position_prior": 14.2,
+      "delta": -1.15,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "8147": {
+      "name": "John Metchie",
+      "position": "WR",
+      "adp": 122.8,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "11638": {
+      "name": "Ricky Pearsall",
+      "position": "WR",
+      "adp": 112.0,
+      "expected_games": 11.33,
+      "position_prior": 15.0,
+      "delta": -3.67,
+      "seasons_observed": 2,
+      "observed_games": 9.5,
+      "status": "shrunk"
+     }
+    }
+   },
+   "shrink_k=2": {
+    "n": 135,
+    "median_abs_delta": 0.52,
+    "pct_over_1_game": 21.5,
+    "pct_over_3_games": 3.7,
+    "players": {
+     "9221": {
+      "name": "Jahmyr Gibbs",
+      "position": "RB",
+      "adp": 1.0,
+      "expected_games": 14.88,
+      "position_prior": 14.2,
+      "delta": 0.68,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "9509": {
+      "name": "Bijan Robinson",
+      "position": "RB",
+      "adp": 2.0,
+      "expected_games": 15.28,
+      "position_prior": 14.2,
+      "delta": 1.08,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "9493": {
+      "name": "Puka Nacua",
+      "position": "WR",
+      "adp": 4.0,
+      "expected_games": 14.4,
+      "position_prior": 15.0,
+      "delta": -0.6,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "4034": {
+      "name": "Christian McCaffrey",
+      "position": "RB",
+      "adp": 5.0,
+      "expected_games": 12.88,
+      "position_prior": 14.2,
+      "delta": -1.32,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "shrunk"
+     },
+     "6813": {
+      "name": "Jonathan Taylor",
+      "position": "RB",
+      "adp": 7.0,
+      "expected_games": 13.28,
+      "position_prior": 14.2,
+      "delta": -0.92,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "9488": {
+      "name": "Jaxon Smith-Njigba",
+      "position": "WR",
+      "adp": 6.0,
+      "expected_games": 15.6,
+      "position_prior": 15.0,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8138": {
+      "name": "James Cook",
+      "position": "RB",
+      "adp": 9.33,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7547": {
+      "name": "Amon-Ra St. Brown",
+      "position": "WR",
+      "adp": 8.0,
+      "expected_games": 15.4,
+      "position_prior": 15.0,
+      "delta": 0.4,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11604": {
+      "name": "Brock Bowers",
+      "position": "TE",
+      "adp": 21.67,
+      "expected_games": 14.4,
+      "position_prior": 14.8,
+      "delta": -0.4,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "6786": {
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "adp": 11.67,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "4866": {
+      "name": "Saquon Barkley",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 14.68,
+      "position_prior": 14.2,
+      "delta": 0.48,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "12527": {
+      "name": "Ashton Jeanty",
+      "position": "RB",
+      "adp": 11.33,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "9224": {
+      "name": "Chase Brown",
+      "position": "RB",
+      "adp": 14.67,
+      "expected_games": 14.28,
+      "position_prior": 14.2,
+      "delta": 0.08,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "5859": {
+      "name": "A.J. Brown",
+      "position": "WR",
+      "adp": 22.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "7569": {
+      "name": "Nico Collins",
+      "position": "WR",
+      "adp": 24.0,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "4984": {
+      "name": "Josh Allen",
+      "position": "QB",
+      "adp": 20.67,
+      "expected_games": 15.8,
+      "position_prior": 15.5,
+      "delta": 0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8137": {
+      "name": "George Pickens",
+      "position": "WR",
+      "adp": 24.33,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8130": {
+      "name": "Trey McBride",
+      "position": "TE",
+      "adp": 21.0,
+      "expected_games": 15.32,
+      "position_prior": 14.8,
+      "delta": 0.52,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "6794": {
+      "name": "Justin Jefferson",
+      "position": "WR",
+      "adp": 11.0,
+      "expected_games": 14.2,
+      "position_prior": 15.0,
+      "delta": -0.8,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "8112": {
+      "name": "Drake London",
+      "position": "WR",
+      "adp": 18.33,
+      "expected_games": 14.4,
+      "position_prior": 15.0,
+      "delta": -0.6,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "9226": {
+      "name": "De'Von Achane",
+      "position": "RB",
+      "adp": 13.67,
+      "expected_games": 14.08,
+      "position_prior": 14.2,
+      "delta": -0.12,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8144": {
+      "name": "Chris Olave",
+      "position": "WR",
+      "adp": 28.67,
+      "expected_games": 13.8,
+      "position_prior": 15.0,
+      "delta": -1.2,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "7525": {
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "adp": 33.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9997": {
+      "name": "Zay Flowers",
+      "position": "WR",
+      "adp": 38.33,
+      "expected_games": 15.6,
+      "position_prior": 15.0,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12517": {
+      "name": "Colston Loveland",
+      "position": "TE",
+      "adp": 42.67,
+      "expected_games": 14.87,
+      "position_prior": 14.8,
+      "delta": 0.07,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11635": {
+      "name": "Ladd McConkey",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 15.25,
+      "position_prior": 15.0,
+      "delta": 0.25,
+      "seasons_observed": 2,
+      "observed_games": 15.5,
+      "status": "shrunk"
+     },
+     "8155": {
+      "name": "Breece Hall",
+      "position": "RB",
+      "adp": 33.0,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7526": {
+      "name": "Jaylen Waddle",
+      "position": "WR",
+      "adp": 48.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "6801": {
+      "name": "Tee Higgins",
+      "position": "WR",
+      "adp": 39.33,
+      "expected_games": 13.4,
+      "position_prior": 15.0,
+      "delta": -1.6,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "12507": {
+      "name": "Omarion Hampton",
+      "position": "RB",
+      "adp": 15.33,
+      "expected_games": 12.47,
+      "position_prior": 14.2,
+      "delta": -1.73,
+      "seasons_observed": 1,
+      "observed_games": 9.0,
+      "status": "shrunk"
+     },
+     "12526": {
+      "name": "Tetairoa McMillan",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 15.33,
+      "position_prior": 15.0,
+      "delta": 0.33,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8150": {
+      "name": "Kyren Williams",
+      "position": "RB",
+      "adp": 29.0,
+      "expected_games": 14.48,
+      "position_prior": 14.2,
+      "delta": 0.28,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "12514": {
+      "name": "Emeka Egbuka",
+      "position": "WR",
+      "adp": 39.0,
+      "expected_games": 15.33,
+      "position_prior": 15.0,
+      "delta": 0.33,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "4881": {
+      "name": "Lamar Jackson",
+      "position": "QB",
+      "adp": 37.67,
+      "expected_games": 15.0,
+      "position_prior": 15.5,
+      "delta": -0.5,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "2216": {
+      "name": "Mike Evans",
+      "position": "WR",
+      "adp": 61.67,
+      "expected_games": 13.2,
+      "position_prior": 15.0,
+      "delta": -1.8,
+      "seasons_observed": 3,
+      "observed_games": 12.0,
+      "status": "shrunk"
+     },
+     "7543": {
+      "name": "Travis Etienne",
+      "position": "RB",
+      "adp": 40.67,
+      "expected_games": 14.88,
+      "position_prior": 14.2,
+      "delta": 0.68,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "8146": {
+      "name": "Garrett Wilson",
+      "position": "WR",
+      "adp": 44.33,
+      "expected_games": 13.8,
+      "position_prior": 15.0,
+      "delta": -1.2,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "11632": {
+      "name": "Malik Nabers",
+      "position": "WR",
+      "adp": 32.0,
+      "expected_games": 12.0,
+      "position_prior": 15.0,
+      "delta": -3.0,
+      "seasons_observed": 2,
+      "observed_games": 9.0,
+      "status": "shrunk"
+     },
+     "8148": {
+      "name": "Jameson Williams",
+      "position": "WR",
+      "adp": 59.0,
+      "expected_games": 14.4,
+      "position_prior": 15.0,
+      "delta": -0.6,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11564": {
+      "name": "Drake Maye",
+      "position": "QB",
+      "adp": 52.0,
+      "expected_games": 15.75,
+      "position_prior": 15.5,
+      "delta": 0.25,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5850": {
+      "name": "Josh Jacobs",
+      "position": "RB",
+      "adp": 28.67,
+      "expected_games": 14.48,
+      "position_prior": 14.2,
+      "delta": 0.28,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "7588": {
+      "name": "Javonte Williams",
+      "position": "RB",
+      "adp": 31.0,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "12518": {
+      "name": "Tyler Warren",
+      "position": "TE",
+      "adp": 51.67,
+      "expected_games": 15.2,
+      "position_prior": 14.8,
+      "delta": 0.4,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6790": {
+      "name": "D'Andre Swift",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "5927": {
+      "name": "Terry McLaurin",
+      "position": "WR",
+      "adp": 54.0,
+      "expected_games": 14.2,
+      "position_prior": 15.0,
+      "delta": -0.8,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "11620": {
+      "name": "Rome Odunze",
+      "position": "WR",
+      "adp": 64.0,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "shrunk"
+     },
+     "6770": {
+      "name": "Joe Burrow",
+      "position": "QB",
+      "adp": 51.67,
+      "expected_games": 12.8,
+      "position_prior": 15.5,
+      "delta": -2.7,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "shrunk"
+     },
+     "9487": {
+      "name": "Parker Washington",
+      "position": "WR",
+      "adp": 79.33,
+      "expected_games": 13.8,
+      "position_prior": 15.0,
+      "delta": -1.2,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "10859": {
+      "name": "Sam LaPorta",
+      "position": "TE",
+      "adp": 73.67,
+      "expected_games": 13.92,
+      "position_prior": 14.8,
+      "delta": -0.88,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "10229": {
+      "name": "Rashee Rice",
+      "position": "WR",
+      "adp": 30.0,
+      "expected_games": 11.6,
+      "position_prior": 15.0,
+      "delta": -3.4,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "shrunk"
+     },
+     "8167": {
+      "name": "Christian Watson",
+      "position": "WR",
+      "adp": 67.0,
+      "expected_games": 12.6,
+      "position_prior": 15.0,
+      "delta": -2.4,
+      "seasons_observed": 3,
+      "observed_games": 11.0,
+      "status": "shrunk"
+     },
+     "5892": {
+      "name": "David Montgomery",
+      "position": "RB",
+      "adp": 50.0,
+      "expected_games": 14.28,
+      "position_prior": 14.2,
+      "delta": 0.08,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "11631": {
+      "name": "Brian Thomas",
+      "position": "WR",
+      "adp": 73.67,
+      "expected_games": 14.75,
+      "position_prior": 15.0,
+      "delta": -0.25,
+      "seasons_observed": 2,
+      "observed_games": 14.5,
+      "status": "shrunk"
+     },
+     "3294": {
+      "name": "Dak Prescott",
+      "position": "QB",
+      "adp": 81.67,
+      "expected_games": 14.2,
+      "position_prior": 15.5,
+      "delta": -1.3,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "11533": {
+      "name": "Brandon Aubrey",
+      "position": "K",
+      "adp": 118.67,
+      "expected_games": 16.2,
+      "position_prior": 16.5,
+      "delta": -0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8183": {
+      "name": "Brock Purdy",
+      "position": "QB",
+      "adp": 107.0,
+      "expected_games": 14.0,
+      "position_prior": 15.5,
+      "delta": -1.5,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "11584": {
+      "name": "Bucky Irving",
+      "position": "RB",
+      "adp": 45.67,
+      "expected_games": 13.35,
+      "position_prior": 14.2,
+      "delta": -0.85,
+      "seasons_observed": 2,
+      "observed_games": 12.5,
+      "status": "shrunk"
+     },
+     "7553": {
+      "name": "Kyle Pitts",
+      "position": "TE",
+      "adp": 74.0,
+      "expected_games": 15.52,
+      "position_prior": 14.8,
+      "delta": 0.72,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "2133": {
+      "name": "Davante Adams",
+      "position": "WR",
+      "adp": 57.0,
+      "expected_games": 14.6,
+      "position_prior": 15.0,
+      "delta": -0.4,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "12506": {
+      "name": "Harold Fannin",
+      "position": "TE",
+      "adp": 68.33,
+      "expected_games": 15.2,
+      "position_prior": 14.8,
+      "delta": 0.4,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "3451": {
+      "name": "Ka'imi Fairbairn",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 14.8,
+      "position_prior": 16.5,
+      "delta": -1.7,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "1466": {
+      "name": "Travis Kelce",
+      "position": "TE",
+      "adp": 97.33,
+      "expected_games": 15.32,
+      "position_prior": 14.8,
+      "delta": 0.52,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "12512": {
+      "name": "Quinshon Judkins",
+      "position": "RB",
+      "adp": 46.0,
+      "expected_games": 14.13,
+      "position_prior": 14.2,
+      "delta": -0.07,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11560": {
+      "name": "Caleb Williams",
+      "position": "QB",
+      "adp": 75.67,
+      "expected_games": 15.75,
+      "position_prior": 15.5,
+      "delta": 0.25,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6904": {
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "adp": 62.0,
+      "expected_games": 15.6,
+      "position_prior": 15.5,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7523": {
+      "name": "Trevor Lawrence",
+      "position": "QB",
+      "adp": 85.67,
+      "expected_games": 14.4,
+      "position_prior": 15.5,
+      "delta": -1.1,
+      "seasons_observed": 3,
+      "observed_games": 13.67,
+      "status": "shrunk"
+     },
+     "4217": {
+      "name": "George Kittle",
+      "position": "TE",
+      "adp": 97.0,
+      "expected_games": 13.92,
+      "position_prior": 14.8,
+      "delta": -0.88,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "12481": {
+      "name": "Cam Skattebo",
+      "position": "RB",
+      "adp": 37.33,
+      "expected_games": 12.13,
+      "position_prior": 14.2,
+      "delta": -2.07,
+      "seasons_observed": 1,
+      "observed_games": 8.0,
+      "status": "shrunk"
+     },
+     "11566": {
+      "name": "Jayden Daniels",
+      "position": "QB",
+      "adp": 59.33,
+      "expected_games": 13.5,
+      "position_prior": 15.5,
+      "delta": -2.0,
+      "seasons_observed": 2,
+      "observed_games": 11.5,
+      "status": "shrunk"
+     },
+     "5846": {
+      "name": "DK Metcalf",
+      "position": "WR",
+      "adp": 83.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "5012": {
+      "name": "Mark Andrews",
+      "position": "TE",
+      "adp": 116.0,
+      "expected_games": 14.32,
+      "position_prior": 14.8,
+      "delta": -0.48,
+      "seasons_observed": 3,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8259": {
+      "name": "Cameron Dicker",
+      "position": "K",
+      "adp": 146.0,
+      "expected_games": 16.2,
+      "position_prior": 16.5,
+      "delta": -0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12519": {
+      "name": "Luther Burden",
+      "position": "WR",
+      "adp": 50.67,
+      "expected_games": 14.67,
+      "position_prior": 15.0,
+      "delta": -0.33,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "11628": {
+      "name": "Marvin Harrison",
+      "position": "WR",
+      "adp": 77.33,
+      "expected_games": 14.5,
+      "position_prior": 15.0,
+      "delta": -0.5,
+      "seasons_observed": 2,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "9484": {
+      "name": "Tucker Kraft",
+      "position": "TE",
+      "adp": 66.33,
+      "expected_games": 13.92,
+      "position_prior": 14.8,
+      "delta": -0.88,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "6797": {
+      "name": "Justin Herbert",
+      "position": "QB",
+      "adp": 77.67,
+      "expected_games": 15.2,
+      "position_prior": 15.5,
+      "delta": -0.3,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8142": {
+      "name": "Alec Pierce",
+      "position": "WR",
+      "adp": 89.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11563": {
+      "name": "Bo Nix",
+      "position": "QB",
+      "adp": 106.67,
+      "expected_games": 15.75,
+      "position_prior": 15.5,
+      "delta": 0.25,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5045": {
+      "name": "Courtland Sutton",
+      "position": "WR",
+      "adp": 89.67,
+      "expected_games": 15.4,
+      "position_prior": 15.0,
+      "delta": 0.4,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "3163": {
+      "name": "Jared Goff",
+      "position": "QB",
+      "adp": 115.33,
+      "expected_games": 15.8,
+      "position_prior": 15.5,
+      "delta": 0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "421": {
+      "name": "Matthew Stafford",
+      "position": "QB",
+      "adp": 106.33,
+      "expected_games": 15.6,
+      "position_prior": 15.5,
+      "delta": 0.1,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "3214": {
+      "name": "Hunter Henry",
+      "position": "TE",
+      "adp": 150.0,
+      "expected_games": 15.12,
+      "position_prior": 14.8,
+      "delta": 0.32,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "10236": {
+      "name": "Dalton Kincaid",
+      "position": "TE",
+      "adp": 105.33,
+      "expected_games": 13.72,
+      "position_prior": 14.8,
+      "delta": -1.08,
+      "seasons_observed": 3,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "4046": {
+      "name": "Patrick Mahomes",
+      "position": "QB",
+      "adp": 102.0,
+      "expected_games": 15.4,
+      "position_prior": 15.5,
+      "delta": -0.1,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "10222": {
+      "name": "Jayden Reed",
+      "position": "WR",
+      "adp": 114.33,
+      "expected_games": 13.4,
+      "position_prior": 15.0,
+      "delta": -1.6,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4983": {
+      "name": "DJ Moore",
+      "position": "WR",
+      "adp": 52.67,
+      "expected_games": 15.6,
+      "position_prior": 15.0,
+      "delta": 0.6,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12508": {
+      "name": "Jaxson Dart",
+      "position": "QB",
+      "adp": 89.0,
+      "expected_games": 15.0,
+      "position_prior": 15.5,
+      "delta": -0.5,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "8110": {
+      "name": "Jake Ferguson",
+      "position": "TE",
+      "adp": 112.33,
+      "expected_games": 14.92,
+      "position_prior": 14.8,
+      "delta": 0.12,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9756": {
+      "name": "Jordan Addison",
+      "position": "WR",
+      "adp": 110.0,
+      "expected_games": 14.6,
+      "position_prior": 15.0,
+      "delta": -0.4,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "8131": {
+      "name": "Isaiah Likely",
+      "position": "TE",
+      "adp": 106.67,
+      "expected_games": 14.72,
+      "position_prior": 14.8,
+      "delta": -0.08,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "9500": {
+      "name": "Josh Downs",
+      "position": "WR",
+      "adp": 111.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "8228": {
+      "name": "Jaylen Warren",
+      "position": "RB",
+      "adp": 69.67,
+      "expected_games": 14.68,
+      "position_prior": 14.2,
+      "delta": 0.48,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "6804": {
+      "name": "Jordan Love",
+      "position": "QB",
+      "adp": 141.0,
+      "expected_games": 15.2,
+      "position_prior": 15.5,
+      "delta": -0.3,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "10232": {
+      "name": "Michael Wilson",
+      "position": "WR",
+      "adp": 87.67,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "12529": {
+      "name": "TreVeyon Henderson",
+      "position": "RB",
+      "adp": 51.67,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "6819": {
+      "name": "Michael Pittman",
+      "position": "WR",
+      "adp": 108.0,
+      "expected_games": 15.2,
+      "position_prior": 15.0,
+      "delta": 0.2,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "5967": {
+      "name": "Tony Pollard",
+      "position": "RB",
+      "adp": 81.0,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "7611": {
+      "name": "Rhamondre Stevenson",
+      "position": "RB",
+      "adp": 76.33,
+      "expected_games": 13.68,
+      "position_prior": 14.2,
+      "delta": -0.52,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "8126": {
+      "name": "Wan'Dale Robinson",
+      "position": "WR",
+      "adp": 119.0,
+      "expected_games": 15.2,
+      "position_prior": 15.0,
+      "delta": 0.2,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "7594": {
+      "name": "Chuba Hubbard",
+      "position": "RB",
+      "adp": 78.0,
+      "expected_games": 14.68,
+      "position_prior": 14.2,
+      "delta": 0.48,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "9754": {
+      "name": "Quentin Johnston",
+      "position": "WR",
+      "adp": 106.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "8121": {
+      "name": "Romeo Doubs",
+      "position": "WR",
+      "adp": 146.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 3,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "7021": {
+      "name": "Rico Dowdle",
+      "position": "RB",
+      "adp": 79.0,
+      "expected_games": 14.88,
+      "position_prior": 14.2,
+      "delta": 0.68,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "5947": {
+      "name": "Jakobi Meyers",
+      "position": "WR",
+      "adp": 121.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "5022": {
+      "name": "Dallas Goedert",
+      "position": "TE",
+      "adp": 120.67,
+      "expected_games": 13.32,
+      "position_prior": 14.8,
+      "delta": -1.48,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4892": {
+      "name": "Baker Mayfield",
+      "position": "QB",
+      "adp": 142.0,
+      "expected_games": 15.8,
+      "position_prior": 15.5,
+      "delta": 0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "11624": {
+      "name": "Xavier Worthy",
+      "position": "WR",
+      "adp": 134.0,
+      "expected_games": 15.0,
+      "position_prior": 15.0,
+      "delta": 0.0,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "12490": {
+      "name": "Bhayshul Tuten",
+      "position": "RB",
+      "adp": 56.33,
+      "expected_games": 14.13,
+      "position_prior": 14.2,
+      "delta": -0.07,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "6806": {
+      "name": "J.K. Dobbins",
+      "position": "RB",
+      "adp": 89.33,
+      "expected_games": 10.28,
+      "position_prior": 14.2,
+      "delta": -3.92,
+      "seasons_observed": 3,
+      "observed_games": 7.67,
+      "status": "shrunk"
+     },
+     "4037": {
+      "name": "Chris Godwin",
+      "position": "WR",
+      "adp": 92.0,
+      "expected_games": 12.2,
+      "position_prior": 15.0,
+      "delta": -2.8,
+      "seasons_observed": 3,
+      "observed_games": 10.33,
+      "status": "shrunk"
+     },
+     "8408": {
+      "name": "Jordan Mason",
+      "position": "RB",
+      "adp": 109.67,
+      "expected_games": 14.28,
+      "position_prior": 14.2,
+      "delta": 0.08,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "12501": {
+      "name": "Matthew Golden",
+      "position": "WR",
+      "adp": 142.67,
+      "expected_games": 14.33,
+      "position_prior": 15.0,
+      "delta": -0.67,
+      "seasons_observed": 1,
+      "observed_games": 13.0,
+      "status": "shrunk"
+     },
+     "12493": {
+      "name": "Oronde Gadsden",
+      "position": "TE",
+      "adp": 147.0,
+      "expected_games": 14.53,
+      "position_prior": 14.8,
+      "delta": -0.27,
+      "seasons_observed": 1,
+      "observed_games": 14.0,
+      "status": "shrunk"
+     },
+     "5872": {
+      "name": "Deebo Samuel",
+      "position": "WR",
+      "adp": 143.0,
+      "expected_games": 14.8,
+      "position_prior": 15.0,
+      "delta": -0.2,
+      "seasons_observed": 3,
+      "observed_games": 14.67,
+      "status": "shrunk"
+     },
+     "2449": {
+      "name": "Stefon Diggs",
+      "position": "WR",
+      "adp": 122.33,
+      "expected_games": 14.0,
+      "position_prior": 15.0,
+      "delta": -1.0,
+      "seasons_observed": 3,
+      "observed_games": 13.33,
+      "status": "shrunk"
+     },
+     "4943": {
+      "name": "Sam Darnold",
+      "position": "QB",
+      "adp": 149.67,
+      "expected_games": 15.8,
+      "position_prior": 15.5,
+      "delta": 0.3,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12534": {
+      "name": "Kyle Monangai",
+      "position": "RB",
+      "adp": 87.33,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "5849": {
+      "name": "Kyler Murray",
+      "position": "QB",
+      "adp": 134.67,
+      "expected_games": 11.8,
+      "position_prior": 15.5,
+      "delta": -3.7,
+      "seasons_observed": 3,
+      "observed_games": 9.33,
+      "status": "shrunk"
+     },
+     "7567": {
+      "name": "Kenny Gainwell",
+      "position": "RB",
+      "adp": 107.67,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11586": {
+      "name": "Blake Corum",
+      "position": "RB",
+      "adp": 93.33,
+      "expected_games": 15.1,
+      "position_prior": 14.2,
+      "delta": 0.9,
+      "seasons_observed": 2,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8676": {
+      "name": "Rashid Shaheed",
+      "position": "WR",
+      "adp": 147.0,
+      "expected_games": 13.4,
+      "position_prior": 15.0,
+      "delta": -1.6,
+      "seasons_observed": 3,
+      "observed_games": 12.33,
+      "status": "shrunk"
+     },
+     "4199": {
+      "name": "Aaron Jones",
+      "position": "RB",
+      "adp": 116.0,
+      "expected_games": 13.28,
+      "position_prior": 14.2,
+      "delta": -0.92,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "12489": {
+      "name": "RJ Harvey",
+      "position": "RB",
+      "adp": 81.33,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12533": {
+      "name": "Jacory Croskey-Merritt",
+      "position": "RB",
+      "adp": 107.0,
+      "expected_games": 14.8,
+      "position_prior": 14.2,
+      "delta": 0.6,
+      "seasons_observed": 1,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "8136": {
+      "name": "Rachaad White",
+      "position": "RB",
+      "adp": 111.33,
+      "expected_games": 15.08,
+      "position_prior": 14.2,
+      "delta": 0.88,
+      "seasons_observed": 3,
+      "observed_games": 15.67,
+      "status": "shrunk"
+     },
+     "11655": {
+      "name": "Tyrone Tracy",
+      "position": "RB",
+      "adp": 143.33,
+      "expected_games": 14.6,
+      "position_prior": 14.2,
+      "delta": 0.4,
+      "seasons_observed": 2,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "11583": {
+      "name": "Jonathon Brooks",
+      "position": "RB",
+      "adp": 96.0,
+      "expected_games": 10.47,
+      "position_prior": 14.2,
+      "delta": -3.73,
+      "seasons_observed": 1,
+      "observed_games": 3.0,
+      "status": "shrunk"
+     },
+     "12474": {
+      "name": "Woody Marks",
+      "position": "RB",
+      "adp": 149.67,
+      "expected_games": 14.47,
+      "position_prior": 14.2,
+      "delta": 0.27,
+      "seasons_observed": 1,
+      "observed_games": 15.0,
+      "status": "shrunk"
+     },
+     "8132": {
+      "name": "Tyler Allgeier",
+      "position": "RB",
+      "adp": 144.0,
+      "expected_games": 15.28,
+      "position_prior": 14.2,
+      "delta": 1.08,
+      "seasons_observed": 3,
+      "observed_games": 16.0,
+      "status": "shrunk"
+     },
+     "12860": {
+      "name": "Theo Wease",
+      "position": "WR",
+      "adp": 132.8,
+      "expected_games": 10.67,
+      "position_prior": 15.0,
+      "delta": -4.33,
+      "seasons_observed": 1,
+      "observed_games": 2.0,
+      "status": "shrunk"
+     },
+     "9753": {
+      "name": "Zach Charbonnet",
+      "position": "RB",
+      "adp": 133.0,
+      "expected_games": 14.88,
+      "position_prior": 14.2,
+      "delta": 0.68,
+      "seasons_observed": 3,
+      "observed_games": 15.33,
+      "status": "shrunk"
+     },
+     "8154": {
+      "name": "Brian Robinson",
+      "position": "RB",
+      "adp": 146.67,
+      "expected_games": 14.28,
+      "position_prior": 14.2,
+      "delta": 0.08,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "4035": {
+      "name": "Alvin Kamara",
+      "position": "RB",
+      "adp": 142.0,
+      "expected_games": 13.28,
+      "position_prior": 14.2,
+      "delta": -0.92,
+      "seasons_observed": 3,
+      "observed_games": 12.67,
+      "status": "shrunk"
+     },
+     "8147": {
+      "name": "John Metchie",
+      "position": "WR",
+      "adp": 122.8,
+      "expected_games": 14.6,
+      "position_prior": 15.0,
+      "delta": -0.4,
+      "seasons_observed": 3,
+      "observed_games": 14.33,
+      "status": "shrunk"
+     },
+     "11638": {
+      "name": "Ricky Pearsall",
+      "position": "WR",
+      "adp": 112.0,
+      "expected_games": 12.25,
+      "position_prior": 15.0,
+      "delta": -2.75,
+      "seasons_observed": 2,
+      "observed_games": 9.5,
+      "status": "shrunk"
+     }
+    }
+   }
+  }
+ },
+ "_provenance": {
+  "_what": "Which nflverse assets these numbers came from. nflverse REVISES completed seasons occasionally \u2014 its own census says so \u2014 and without this there is no way to tell which revision a figure was measured on. Byte size and row count are two independent handles on that.",
+  "_fetched": "2026-08-14",
+  "assets": {
+   "pbp/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2023.parquet",
+    "bytes": 20534088,
+    "rows": 49665,
+    "columns": 372,
+    "sha256_12": "bd3484731408"
+   },
+   "pbp/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2024.parquet",
+    "bytes": 20597560,
+    "rows": 49492,
+    "columns": 372,
+    "sha256_12": "3fd2896bc0b9"
+   },
+   "pbp/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+    "bytes": 20337029,
+    "rows": 48771,
+    "columns": 372,
+    "sha256_12": "c6ecedd6d678"
+   },
+   "weekly_stats/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2023.parquet",
+    "bytes": 846050,
+    "rows": 18643,
+    "columns": 150,
+    "sha256_12": "ac776fbd7c9f"
+   },
+   "weekly_stats/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2024.parquet",
+    "bytes": 849243,
+    "rows": 18983,
+    "columns": 150,
+    "sha256_12": "847569d194ca"
+   },
+   "weekly_stats/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.parquet",
+    "bytes": 855077,
+    "rows": 19422,
+    "columns": 150,
+    "sha256_12": "2a461becaa9a"
+   },
+   "weekly_rosters/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2023.parquet",
+    "bytes": 794392,
+    "rows": 45655,
+    "columns": 36,
+    "sha256_12": "0fa5abf9b462"
+   },
+   "weekly_rosters/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2024.parquet",
+    "bytes": 829272,
+    "rows": 46579,
+    "columns": 36,
+    "sha256_12": "4b144e8eda5a"
+   },
+   "weekly_rosters/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2025.parquet",
+    "bytes": 850871,
+    "rows": 46849,
+    "columns": 36,
+    "sha256_12": "a8764c947bfe"
+   },
+   "player_ids": {
+    "url": "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv",
+    "bytes": 2625771,
+    "sha256_12": "76f7438517ec"
+   }
+  },
+  "reproduced": {
+   "when": "2026-08-14",
+   "result": "EXACT. Re-derived `durability` from the weekly-roster assets recorded above and compared against this file: 135 of 135 draftable players, 0 differences in mean games or seasons observed, and the by_position summary recomputed from the player rows agrees with the stored one.",
+   "_caveat": "Needs the parquet assets, which are not in the repo, so it runs where they are rather than in CI. `projection_spread_vs_realized` has NOT been reproduced this way \u2014 it depends on the scoring mapper as well as the roster, and the fumble gap parked for A sits inside that path."
+  }
+ }
+}

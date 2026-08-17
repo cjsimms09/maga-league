@@ -240,20 +240,25 @@ CELL_FIELDS = ["position", "band", "n", "status", "sd_ratio", "mean_ratio",
 KEY_SEP = "|"
 
 
-def save(cal: dict, path=None) -> None:
-    """Write the calibration where another lane and another run can read it.
+def document(cal: dict) -> dict:
+    """The ON-DISK shape, as a dict — PURE, and the single definition of it.
 
-    WITH ITS FIELD POPULATION, per Cory's standing rule: a `sd_ratio` column at 0%
-    sitting in the manifest is what makes a reader ask why before concluding the
-    method produces nothing.
+    ⚠ EXTRACTED FROM `save()` SO THE FRESHNESS REGISTRY HAS SOMETHING TO CALL.
+    `check_artifact_freshness.py` runs `regenerate_command`, expects it to
+    PRINT the fresh document as JSON, and diffs that print against the
+    COMMITTED file — not against whatever `calibrate()` returns internally.
+    `calibrate()`'s cells are keyed by TUPLE (JSON has no tuple key) and carry
+    no `_territory`/`_note`/`population` envelope; the committed file's cells
+    are `KEY_SEP`-joined strings inside that envelope. Registering
+    `regenerate()`'s raw return as the check would diff two different shapes
+    forever and report this artifact stale on every run regardless of whether
+    it actually is — a false alarm is the same bug class as a suppressed one.
+    `save()` and the registry entry now both call this, so there is one
+    definition of the shape rather than two that could drift (rule 11).
     """
-    import json
-
-    p = Path(path or CALIBRATION)
-    p.parent.mkdir(parents=True, exist_ok=True)
     rows = [dict(v, position=k[0], band=k[1]) for k, v in (cal.get("cells") or {}).items()]
     rows.sort(key=lambda r: (str(r["position"]), str(r["band"])))
-    p.write_text(json.dumps({
+    return {
         "_territory": "TERRITORY: C — produced by draft/backtest/projection_error.py",
         "_note": "Measured projection error by position and PROJECTION RANK BAND. "
                  "Apply with projection_error.proj_sd_for / proj_ceiling_for — a band "
@@ -268,7 +273,187 @@ def save(cal: dict, path=None) -> None:
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
         "population": FP.of_records(rows, fields=CELL_FIELDS),
-    }, indent=2) + "\n")
+    }
+
+
+def save(cal: dict, path=None) -> None:
+    """Write the calibration where another lane and another run can read it.
+
+    WITH ITS FIELD POPULATION, per Cory's standing rule: a `sd_ratio` column at 0%
+    sitting in the manifest is what makes a reader ask why before concluding the
+    method produces nothing.
+    """
+    import json
+
+    p = Path(path or CALIBRATION)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(document(cal), indent=2) + "\n")
+
+
+#: Seasons with a real, complete draft on record — the population `calibrate`
+#: fits on. Matches `league_history.json` exactly (checked 2026-08-17): 2023,
+#: 2024, 2025 each carry a 150-pick complete draft; 2026 is the season being
+#: drafted and has no realized outcomes yet, so it cannot be a fitting season.
+CALIBRATION_SEASONS = (2023, 2024, 2025)
+
+
+def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
+    """The no-args entry point `artifact_registry.json` calls. Assembles real
+    bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
+    of them, `exclude_season=None` — this is the PRODUCTION calibration
+    applied to 2026, not a leave-one-out skill test, so nothing is held out.
+
+    ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.
+    `cli.py` already builds exactly this shape of bundle+actual pair, per
+    season, with leak-free `AsOfDataStore` semantics, era-appropriate ADP
+    (`adp.build_adp_table` through the AsOf adapter, not today's board), and
+    the weekly-stats-with-pbp-fallback recovery for seasons `import_weekly_
+    data` 404s on. Rebuilding that from scratch here would be a second
+    definition of "how do you get a leak-free historical bundle" — exactly
+    the two-places-that-drift shape rule 11 warns about — so this imports and
+    calls the same functions `cli.py` calls, in the same order, rather than
+    inventing a parallel path. Nothing in `cli.py`, `asof.py`, `build_bundle
+    .py`, `adp.py`, `sleeper_import.py` or `grade.py` is edited to make this
+    work — all of them are TERRITORY: A or shared/core, called read-only.
+
+    ⚠ NOT RUN AS PART OF THIS COMMIT, DELIBERATELY. Registering the artifact
+    is what makes its staleness visible; regenerating it moves every
+    `proj_ceiling` and `proj_floor` on the board, and the no-change-before-
+    08-22 rule holds regardless of what unblocks it. `main()` below is the
+    entry point CI (or a human, after the 22nd) invokes.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+    root = _Path(__file__).resolve().parent.parent
+    for p in (str(root), str(root / "backtest")):
+        if p not in _sys.path:
+            _sys.path.insert(0, p)
+
+    import pandas as pd
+    import nfl_data_py as nfl
+    import adp as ADP
+    import sleeper_import as SL
+    from backtest.asof import AsOfDataStore
+    from backtest import build_bundle as BB
+    from backtest import grade as GR
+
+    history = __import__("json").loads(
+        (root / "data" / "league_history.json").read_text())
+
+    # ⚠ `SL.fetch_players()` RAISES ON FAILURE, NOT A FALSY RETURN — verified
+    # live against the real (blocked-here) network before this guard existed:
+    # it crashed with an uncaught RuntimeError instead of ever reaching a VOID
+    # return. Same finding, same fix, as external_source_projections.py
+    # earlier this session — two separate modules made the same wrong
+    # assumption about the same function, which is exactly why this is
+    # checked again here rather than trusted from having been checked once.
+    try:
+        players_raw = SL.fetch_players()
+    except Exception as exc:                                # noqa: BLE001
+        return {"status": "VOID", "reason": "Sleeper player index unreachable "
+                                            "— a fact about the runner, not "
+                                            "about any historical season",
+               "error": "%s: %s" % (type(exc).__name__, exc)}
+    if not players_raw:
+        return {"status": "VOID", "reason": "Sleeper player index unreachable "
+                                            "— a fact about the runner, not "
+                                            "about any historical season"}
+    players_meta = [{"player_id": str(pid), "name": p.get("full_name"),
+                     "position": p.get("position"), "team": p.get("team"),
+                     "age": p.get("age"), "gsis_id": p.get("gsis_id")}
+                    for pid, p in players_raw.items() if p.get("position")]
+    try:
+        ids_df = nfl.import_ids()
+    except Exception:                                       # noqa: BLE001
+        ids_df = None
+    crosswalk = GR.crosswalk_gsis_to_sleeper(players_meta, ids_df)
+
+    need = sorted({y for s in CALIBRATION_SEASONS for y in (s - 2, s - 1, s)}
+                 & set(range(2018, 2027)))
+    frames, missing = [], []
+    for y in need:
+        try:
+            frames.append(nfl.import_weekly_data([y]))
+        except Exception:                                   # noqa: BLE001
+            missing.append(y)
+    if not frames:
+        return {"status": "VOID", "reason": "no nflverse weekly data reachable "
+                                            "for any needed season"}
+    weekly = pd.concat(frames, ignore_index=True)
+
+    # SAME PBP-RECOVERY GATE cli.py USES: rebuild only what the library 404s
+    # on, and only after a same-mechanism season agrees within rounding.
+    if missing:
+        have = sorted(set(need) - set(missing))
+        control = have[-1] if have else None
+        if control is not None:
+            try:
+                pbp = nfl.import_pbp_data(
+                    sorted(set(missing) | {control}), downcast=True)
+            except Exception:                                # noqa: BLE001
+                pbp = None
+            if pbp is not None:
+                scoring_for_xval = __import__("json").loads(
+                    (root / "config" / "league_config.json").read_text())["scoring"]
+                xval = GR.cross_validate(pbp, weekly, control, scoring_for_xval, crosswalk)
+                if xval.get("agrees"):
+                    rebuilt = GR.weekly_from_pbp(pbp, missing)
+                    if rebuilt:
+                        weekly = pd.concat([weekly, pd.DataFrame(rebuilt)],
+                                           ignore_index=True)
+
+    def _adp(fmt, teams, year):
+        table = ADP.build_adp_table(players_raw, fmt=fmt, teams=teams,
+                                    year=year, strict_top_n=10 ** 9)
+        return {"players": [{"sleeper_id": pid, "adp": r["adp"]}
+                            for pid, r in table["adp"].items()]}
+
+    bundles, actual, skipped = [], [], []
+    for season in CALIBRATION_SEASONS:
+        store = AsOfDataStore(season, history, adp_loader=_adp)
+        try:
+            bundle, _notes = BB.build(store, players_meta=players_meta,
+                                      weekly_df=weekly, crosswalk=crosswalk,
+                                      prior_seasons=[season - 2, season - 1])
+        # ⚠ `SystemExit` TOO, NOT JUST `Exception` — `_adp` above calls
+        # `ADP.build_adp_table`, which `raise SystemExit`s on a broken
+        # accounting identity (confirmed this session: SystemExit is a
+        # BaseException, `except Exception` does not catch it). A bare
+        # `except Exception` here would let one season's ADP defect kill the
+        # whole regeneration instead of skipping that season and continuing.
+        except (Exception, SystemExit) as exc:              # noqa: BLE001
+            skipped.append({"season": season, "reason":
+                           "%s: %s" % (type(exc).__name__, exc)})
+            continue
+        cfg = store.league_config()
+        act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
+        if not act:
+            skipped.append({"season": season, "reason": "nothing gradeable"})
+            continue
+        bundles.append(bundle)
+        actual.append(act)
+
+    if not bundles:
+        return {"status": "VOID", "reason": "no season produced both a "
+                                            "bundle and a gradeable actual "
+                                            "set", "skipped": skipped}
+
+    cal = calibrate(bundles, actual, exclude_season=None)
+    cal["skipped_seasons"] = skipped
+    return cal
+
+
+def main() -> int:  # pragma: no cover  (egress; CI only)
+    cal = regenerate()
+    if cal.get("status") == "VOID":
+        print("VOID — %s" % cal.get("reason"))
+        return 1
+    save(cal)
+    print("measured %d/%d cells over seasons %s; wrote %s"
+         % (cal.get("cells_measured", 0),
+            cal.get("cells_measured", 0) + cal.get("cells_unmeasurable", 0),
+            cal.get("seasons"), CALIBRATION.name))
+    return 0
 
 
 def load(path=None) -> dict:
@@ -338,3 +523,7 @@ def proj_ceiling_for(cal, position, rank, proj_mean):
     if not c or c["status"] != "measured" or c["p90_ratio"] is None:
         return None, "unmeasurable"
     return round(float(proj_mean or 0.0) * c["p90_ratio"], 3), "measured"
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

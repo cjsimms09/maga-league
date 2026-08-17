@@ -301,6 +301,16 @@ BOARD_FIELD_SOURCES = {
     # would have called it "derived" instead, change it; both pass LIVE_ALLOWED
     # so nothing downstream moves either way, and I matched the sibling rather
     # than invent a rule.
+    #
+    # ⚠️ C, ANSWERING THE QUESTION IN THE LINE ABOVE — "if you would have called
+    # it derived instead, change it". I would, and I did, and the reason is this
+    # table's own stated criterion rather than resemblance to its siblings:
+    # `fitted_sd` RETURNS this string ("ffc" where the provider published a
+    # stdev, "clamped-linear" where we fitted one), so NOTHING FETCHES IT — the
+    # build computes it from the source it already has. `adp_source` and
+    # `bye_source` ride alongside a value that came off the wire; this one is
+    # produced by our own arithmetic about that value. Both pass LIVE_ALLOWED so
+    # nothing downstream moves, exactly as A said.
     "adp_sd_source": "seasonal",
     # TERRITORY-GRANT: A proj_sd_source
     # Same shape, same reasoning, same precedent as adp_sd_source directly
@@ -477,11 +487,19 @@ BOARD_FIELD_PURPOSE = {
     "sleeper_rank": LIVE_FEED, "bye": LIVE_FEED, "bye_source": LIVE_FEED,
     "adp": LIVE_FEED, "raw_adp": LIVE_FEED, "adjusted_adp": LIVE_FEED,
     "adp_sd": LIVE_FEED, "adp_source": LIVE_FEED, "consensus_rank": LIVE_FEED,
-    # See the note in BOARD_FIELD_SOURCES. LIVE_FEED to match `adp_source` and
-    # `bye_source`, the two fields of exactly this kind already declared here: a
-    # provenance string riding alongside a fetched value. It is provenance ABOUT
-    # a number and never an input to one — no ranking reads it, and none does.
-    "adp_sd_source": LIVE_FEED,
+    # DERIVED, NOT LIVE_FEED, and by this table's own stated criterion rather than
+    # by resemblance: `fitted_sd` RETURNS it ("ffc" where the provider published a
+    # stdev, "clamped-linear" where we fitted one), so nothing fetches it — the
+    # build computes it from the source it already has. It is provenance ABOUT a
+    # number and never an input to one, which is exactly the reasoning written for
+    # the ADP season stamps below. No ranking may read it and none does.
+    "adp_sd_source": DERIVED_PURPOSE,
+    # ⚠ `proj_sd_source` IS A'S, KEPT VERBATIM FROM main AND DELIBERATELY NOT
+    # CHANGED TO MATCH. It is the same SHAPE as `adp_sd_source` above — a
+    # provenance string about a number nothing ranks — so by the reasoning
+    # directly above it would also be DERIVED. It carries A's TERRITORY-GRANT,
+    # so the call is A's and I have left it alone rather than making the table
+    # self-consistent by trespass. Flagged to A instead.
     "proj_sd_source": LIVE_FEED,   # TERRITORY-GRANT: A proj_sd_source (see above)
     # A's ADP season stamps — see the note in BOARD_FIELD_SOURCES. DERIVED, not
     # LIVE_FEED: nothing fetches them, the build computes them from the source it

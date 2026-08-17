@@ -253,12 +253,37 @@ def staleness(series, today) -> dict:
     if any(b in (None, "") for _d, b in stamps):
         measurable = False
     else:
-        last_rebuild = ser[0].get("observed_at")
+        # ⚠ DATED BY `built_at`, NOT BY THE PIN. Caught by simulating tomorrow's
+        # report on today's data, and it is this file's own recurring class — a
+        # measurement about the past computed through the present.
+        #
+        # The real numbers: pins on 08-12 (built 08-12T09:19) and 08-13 (built
+        # 08-13T09:20), then the nightly ran at 08-13T23:13, AFTER that day's pin.
+        # So even if the 08-14 rebuild never fires, the 08-14 pin carries a
+        # built_at that ADVANCED — and dating it by `observed_at` reported
+        # "last_rebuild 2026-08-14, zero days ago". On the exact morning a rebuild
+        # fails, the instrument built to catch a stalled rebuild would have
+        # reported perfect freshness.
+        #
+        # `observed_at` dates the OBSERVATION; `built_at` dates the BUILD.
+        # NO ADVANCE FOUND -> THE NEWEST BUILD WE HAVE SEEN.
+        #
+        # ⚠ PROVABLY THE SAME AS `ser[0]`, and the gate is what established it: I
+        # tried to plant `ser[0].built_at` as a mutation and it SURVIVED, because
+        # the loop only falls through when the sequence never increases — and the
+        # first element of a non-increasing sequence IS its maximum. So the two
+        # spellings cannot differ in any reachable state, and the mutation was
+        # dropped rather than paired with a test that could never fail.
+        #
+        # `max` is kept anyway: it says what the value MEANS instead of relying on
+        # a property of the loop above it, and it stays correct if that loop is
+        # ever reordered.
+        last_rebuild = max(str(p.get("built_at"))[:10] for p in ser)
         for i in range(len(ser) - 1, 0, -1):
             # ADVANCED, not merely different. A board rebuilt from an older
             # snapshot, or a clock that goes backwards, is not progress.
             if str(ser[i].get("built_at")) > str(ser[i - 1].get("built_at")):
-                last_rebuild = ser[i].get("observed_at")
+                last_rebuild = str(ser[i].get("built_at"))[:10]
                 break
 
     if measurable and str(last.get("built_at")) > str(prev.get("built_at")):

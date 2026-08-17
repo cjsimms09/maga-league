@@ -1,0 +1,181 @@
+# TERRITORY: C
+name: Which source predicted OUR ROOM's picks — the grade Cory asked for
+
+# WHY THIS EXISTS. Cory pushed back on "the test that settles which source
+# predicted our 450 real picks is unrunnable because we hold no historical ADP
+# for our own four drafts" — and he was right. Everything it needs is already
+# here: `league_history.json` carries the picks, and `external_source_run`'s
+# capture functions already fetch a YEAR's board keyed by our Sleeper id. The
+# blocker was never the data, it was the outcome variable: `exp_source_grade`
+# computes Spearman(-adp, REALIZED POINTS) — which source orders VALUE. This
+# grades against `pick_no` — where our ten managers actually took people.
+#
+# ⚠ MANUAL ONLY, AND THAT IS THE POINT RATHER THAN AN OVERSIGHT. Whether this
+# result is produced, and whether it moves anything before the 22nd, is A's
+# decision and was routed as such. A cron here would be me making that call by
+# building it. My own recommendation, routed with it: evidence for 2027, not an
+# input to this draft — it has never been run against real data, and a quantity
+# nobody has watched settle should not move a draft.
+#
+# ⚠ IT CANNOT COST THE DAILY CAPTURE ANYTHING. Separate workflow, no shared
+# concurrency group with external-adp-capture.yml, and it writes one artifact
+# that nothing else reads. It fetches historical years, so it cannot disturb the
+# 2026 archive even by accident.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Comma-separated seasons to grade (we hold 2023,2024,2025)'
+        required: false
+        default: '2023,2024,2025'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-pick-prediction
+  cancel-in-progress: false
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Install the test runner
+        run: pip install pytest -q
+
+      # THE PURE HALVES ARE TESTED BEFORE THE EGRESS HALF RUNS, and the two files
+      # gated here are the two places this run can quietly lie:
+      #   `picks_of`      — 2023 records its keepers as a SECOND draft, and the
+      #                     exclusion missed all thirty of them until 63d941e. It
+      #                     reported `keepers_excluded: 30` while excluding none,
+      #                     so 2023 would have been graded on a population with
+      #                     every keeper in it against two seasons without theirs.
+      #   `sources_from`  — `compare` grades on the INTERSECTION, so one failed
+      #                     fetch empties the shared set and the season reports
+      #                     `unmeasured` with nothing naming the cause.
+      #
+      # ⚠ "THE GATE FAILED" AND "THE GATE COULD NOT RUN" ARE DIFFERENT FACTS.
+      # Both skip the run and turn the job red, and the second says nothing at all
+      # about the code. The odds probe learned this the hard way on its first
+      # dispatch (`No module named pytest`, one second, looked like a test
+      # failure), so the collect step is separate and says which happened.
+      - name: The arithmetic is tested before anything is fetched
+        run: |
+          FILES="draft/tests/test_external_pick_prediction.py draft/tests/test_external_pick_run.py"
+          if ! python3 -m pytest $FILES --collect-only -q > /dev/null 2>&1; then
+            echo "::error::THE GATE COULD NOT RUN — the test files did not even"
+            echo "::error::collect. This says nothing about the grade's arithmetic;"
+            echo "::error::it is a fact about the job. Not a test failure."
+            python3 -m pytest $FILES --collect-only -q
+            exit 1
+          fi
+          python3 -m pytest $FILES -q
+
+      - name: Grade every source against where our room actually took people
+        id: grade
+        run: |
+          set -o pipefail
+          rc=0
+          {
+            echo "## Which source predicted OUR ROOM's picks"
+            echo ""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          python3 draft/backtest/external_pick_run.py \
+            --seasons "${{ github.event.inputs.seasons || '2023,2024,2025' }}" \
+            --json-out draft/backtest/external_pick_prediction.json \
+            2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || rc=$?
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          # ⚠ THE CAVEATS ARE PRINTED WITH THE RESULT, NOT FILED BESIDE IT. Both
+          # of them push every coefficient in the same direction — up — and a
+          # reader who sees rho without them will read a contaminated number as a
+          # clean one. They are structural: no amount of care in the run removes
+          # either, so the only honest place for them is next to the figure.
+          if [ -f draft/backtest/external_pick_prediction.json ]; then
+            python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("draft/backtest/external_pick_prediction.json"))
+          print("")
+          print("| season | source | rho | n shared | total_drafts | crosswalked |")
+          print("|---|---|---|---|---|---|")
+          for season, rep in sorted((r.get("seasons") or {}).items()):
+              if rep.get("status") != "measured":
+                  print("| %s | — | UNMEASURED | %d | | %s |"
+                        % (season, rep.get("shared_n", 0), rep.get("note", "")[:60]))
+                  continue
+              for name, v in sorted((rep.get("sources") or {}).items()):
+                  print("| %s | %s | %+.4f | %d | %s | %s |"
+                        % (season, name, v["rho"], v["n"],
+                           v["total_drafts"], (rep.get("matched") or {}).get(name)))
+          print("")
+          for season, rep in sorted((r.get("seasons") or {}).items()):
+              if rep.get("assembly_note"):
+                  print("- ⚠ **%s** %s" % (season, rep["assembly_note"]))
+              if rep.get("dropped_sources"):
+                  for d in rep["dropped_sources"]:
+                      print("- **%s %s DROPPED** — %s"
+                            % (season, d["source"], d["reason"][:160]))
+          print("")
+          print("**READ THE ORDERING, NEVER THE ABSOLUTE VALUE.** Two things inflate "
+                "every rho here and neither is fixable by running it again. (1) A "
+                "year-scoped ADP is the ACCUMULATED season and contains drafts that "
+                "happened after ours — and the accumulation windows differ per "
+                "source, so the crowd that drafts latest gains the most. (2) The "
+                "crosswalk matches a historical board against TODAY'S Sleeper pool, "
+                "so a player whose listing changed can fail to match, at different "
+                "rates per source and per year — which is why `crosswalked` is in "
+                "the table and why everything is graded on the intersection.")
+          print("")
+          print("`rho` is Spearman(adp, pick_no) and is NOT negated. The sibling "
+                "experiment negates it because its outcome is realized POINTS; here "
+                "the outcome is a PICK NUMBER and the two run the same way. Copying "
+                "the sign across returned -0.81 for a source that predicts almost "
+                "perfectly.")
+          PY
+          else
+            echo "**THE GRADE WROTE NO ARTIFACT** — a statement about the run, not about the sources." \
+              >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$rc"
+
+      # THE RESULT IS COMMITTED, INCLUDING AN UNMEASURED ONE. A grade that lives
+      # only in a job log gets re-asked by somebody who was not here, and the
+      # re-ask costs another full historical fetch of every source and season.
+      - name: Commit the grade, including an unmeasured one
+        if: always()
+        run: |
+          # ⚠ A DISPATCH FROM A FEATURE BRANCH MUST NOT REACH main. This step ends
+          # `git push origin HEAD:main`, and on a branch checkout HEAD is the
+          # BRANCH TIP — so testing this workflow from a branch would push that
+          # whole branch to main and bypass integration entirely. The answer still
+          # lands in the step summary, so a branch dispatch is still useful; it
+          # just cannot write.
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "Dispatched from '$GITHUB_REF_NAME', not main — the grade is in"
+            echo "the step summary above and is deliberately NOT committed."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — grade not committed._" \
+              >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "lab-bot"; git config user.email "actions@github.com"
+          git add draft/backtest/external_pick_prediction.json || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Pick prediction: which source priced our room's picks [skip deploy]"
+            pushed=0
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then pushed=1; break; fi
+              sleep $((i*5))
+            done
+            if [ "$pushed" != 1 ]; then
+              echo "::error::GRADE NOT PUSHED — the fetch is spent and the result is lost."
+              exit 1
+            fi
+          fi

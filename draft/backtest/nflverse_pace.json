@@ -1,0 +1,607 @@
+{
+ "_territory": "TERRITORY: C \u2014 draft/backtest/nflverse_pace.py",
+ "_what": "Team offensive volume 2024+2025, raw and neutral-script, per game.",
+ "_why": "A share is a share OF something. Two backs with identical target shares on offences running 68 and 58 plays a game are not the same player, and pace was the one signal on Cory's list with no data behind it.",
+ "_caveat": "RAW volume is contaminated by game script \u2014 a team that trails throws to catch up. Both are reported and NEITHER is blended. Games include playoffs, so the deepest teams carry more games.",
+ "seasons": [
+  2024,
+  2025
+ ],
+ "report": {
+  "usable": true,
+  "seasons": [
+   2024,
+   2025
+  ],
+  "teams": 32,
+  "teams_measured": 32,
+  "min_games": 4,
+  "neutral_margin": 14,
+  "note": "plays_per_game is RAW volume and is contaminated by game script; neutral_plays_per_game counts only snaps within 14 points. They are reported separately on purpose \u2014 a single blended number hides which half is doing the work."
+ },
+ "raw_vs_neutral_rank_rho": 0.5326,
+ "teams": {
+  "ARI": {
+   "plays": 2105,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 61.912,
+   "neutral_plays_per_game": 48.176,
+   "neutral_share": 0.7781,
+   "pass_rate": 0.609,
+   "neutral_pass_rate": 0.6062,
+   "basis": "2105 scrimmage plays over 34 games"
+  },
+  "BUF": {
+   "plays": 2405,
+   "games": 39,
+   "status": "measured",
+   "games_with_plays": 39,
+   "games_without_plays": 0,
+   "plays_per_game": 61.667,
+   "neutral_plays_per_game": 52.385,
+   "neutral_share": 0.8495,
+   "pass_rate": 0.5173,
+   "neutral_pass_rate": 0.5301,
+   "basis": "2405 scrimmage plays over 39 games"
+  },
+  "BAL": {
+   "plays": 2123,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 58.972,
+   "neutral_plays_per_game": 52.028,
+   "neutral_share": 0.8822,
+   "pass_rate": 0.4776,
+   "neutral_pass_rate": 0.4944,
+   "basis": "2123 scrimmage plays over 36 games"
+  },
+  "KC": {
+   "plays": 2277,
+   "games": 37,
+   "status": "measured",
+   "games_with_plays": 37,
+   "games_without_plays": 0,
+   "plays_per_game": 61.541,
+   "neutral_plays_per_game": 57.432,
+   "neutral_share": 0.9332,
+   "pass_rate": 0.6017,
+   "neutral_pass_rate": 0.6047,
+   "basis": "2277 scrimmage plays over 37 games"
+  },
+  "NO": {
+   "plays": 2090,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 61.471,
+   "neutral_plays_per_game": 51.206,
+   "neutral_share": 0.833,
+   "pass_rate": 0.5866,
+   "neutral_pass_rate": 0.5767,
+   "basis": "2090 scrimmage plays over 34 games"
+  },
+  "CAR": {
+   "plays": 2046,
+   "games": 35,
+   "status": "measured",
+   "games_with_plays": 35,
+   "games_without_plays": 0,
+   "plays_per_game": 58.457,
+   "neutral_plays_per_game": 46.514,
+   "neutral_share": 0.7957,
+   "pass_rate": 0.5758,
+   "neutral_pass_rate": 0.562,
+   "basis": "2046 scrimmage plays over 35 games"
+  },
+  "DAL": {
+   "plays": 2199,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 64.676,
+   "neutral_plays_per_game": 52.324,
+   "neutral_share": 0.809,
+   "pass_rate": 0.6048,
+   "neutral_pass_rate": 0.5964,
+   "basis": "2199 scrimmage plays over 34 games"
+  },
+  "CLE": {
+   "plays": 2149,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 63.206,
+   "neutral_plays_per_game": 51.088,
+   "neutral_share": 0.8083,
+   "pass_rate": 0.6249,
+   "neutral_pass_rate": 0.6016,
+   "basis": "2149 scrimmage plays over 34 games"
+  },
+  "SEA": {
+   "plays": 2203,
+   "games": 37,
+   "status": "measured",
+   "games_with_plays": 37,
+   "games_without_plays": 0,
+   "plays_per_game": 59.541,
+   "neutral_plays_per_game": 51.865,
+   "neutral_share": 0.8711,
+   "pass_rate": 0.5679,
+   "neutral_pass_rate": 0.5847,
+   "basis": "2203 scrimmage plays over 37 games"
+  },
+  "DEN": {
+   "plays": 2283,
+   "games": 37,
+   "status": "measured",
+   "games_with_plays": 37,
+   "games_without_plays": 0,
+   "plays_per_game": 61.703,
+   "neutral_plays_per_game": 54.649,
+   "neutral_share": 0.8857,
+   "pass_rate": 0.5865,
+   "neutral_pass_rate": 0.5984,
+   "basis": "2283 scrimmage plays over 37 games"
+  },
+  "GB": {
+   "plays": 2144,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 59.556,
+   "neutral_plays_per_game": 52.306,
+   "neutral_share": 0.8783,
+   "pass_rate": 0.5159,
+   "neutral_pass_rate": 0.5125,
+   "basis": "2144 scrimmage plays over 36 games"
+  },
+  "PHI": {
+   "plays": 2408,
+   "games": 39,
+   "status": "measured",
+   "games_with_plays": 39,
+   "games_without_plays": 0,
+   "plays_per_game": 61.744,
+   "neutral_plays_per_game": 54.897,
+   "neutral_share": 0.8891,
+   "pass_rate": 0.4842,
+   "neutral_pass_rate": 0.4988,
+   "basis": "2408 scrimmage plays over 39 games"
+  },
+  "IND": {
+   "plays": 2045,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 60.147,
+   "neutral_plays_per_game": 53.029,
+   "neutral_share": 0.8817,
+   "pass_rate": 0.5501,
+   "neutral_pass_rate": 0.5502,
+   "basis": "2045 scrimmage plays over 34 games"
+  },
+  "HOU": {
+   "plays": 2393,
+   "games": 38,
+   "status": "measured",
+   "games_with_plays": 38,
+   "games_without_plays": 0,
+   "plays_per_game": 62.974,
+   "neutral_plays_per_game": 57.711,
+   "neutral_share": 0.9164,
+   "pass_rate": 0.583,
+   "neutral_pass_rate": 0.5764,
+   "basis": "2393 scrimmage plays over 38 games"
+  },
+  "MIA": {
+   "plays": 2018,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 59.353,
+   "neutral_plays_per_game": 49.441,
+   "neutral_share": 0.833,
+   "pass_rate": 0.5714,
+   "neutral_pass_rate": 0.5538,
+   "basis": "2018 scrimmage plays over 34 games"
+  },
+  "JAX": {
+   "plays": 2119,
+   "games": 35,
+   "status": "measured",
+   "games_with_plays": 35,
+   "games_without_plays": 0,
+   "plays_per_game": 60.543,
+   "neutral_plays_per_game": 49.943,
+   "neutral_share": 0.8249,
+   "pass_rate": 0.5748,
+   "neutral_pass_rate": 0.5715,
+   "basis": "2119 scrimmage plays over 35 games"
+  },
+  "LA": {
+   "plays": 2407,
+   "games": 39,
+   "status": "measured",
+   "games_with_plays": 39,
+   "games_without_plays": 0,
+   "plays_per_game": 61.718,
+   "neutral_plays_per_game": 55.846,
+   "neutral_share": 0.9049,
+   "pass_rate": 0.5862,
+   "neutral_pass_rate": 0.5973,
+   "basis": "2407 scrimmage plays over 39 games"
+  },
+  "DET": {
+   "plays": 2215,
+   "games": 35,
+   "status": "measured",
+   "games_with_plays": 35,
+   "games_without_plays": 0,
+   "plays_per_game": 63.286,
+   "neutral_plays_per_game": 54.543,
+   "neutral_share": 0.8619,
+   "pass_rate": 0.5612,
+   "neutral_pass_rate": 0.5715,
+   "basis": "2215 scrimmage plays over 35 games"
+  },
+  "LAC": {
+   "plays": 2191,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 60.861,
+   "neutral_plays_per_game": 53.889,
+   "neutral_share": 0.8854,
+   "pass_rate": 0.5714,
+   "neutral_pass_rate": 0.5747,
+   "basis": "2191 scrimmage plays over 36 games"
+  },
+  "LV": {
+   "plays": 1996,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 58.706,
+   "neutral_plays_per_game": 49.118,
+   "neutral_share": 0.8367,
+   "pass_rate": 0.6318,
+   "neutral_pass_rate": 0.6102,
+   "basis": "1996 scrimmage plays over 34 games"
+  },
+  "NYG": {
+   "plays": 2130,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 62.647,
+   "neutral_plays_per_game": 54.294,
+   "neutral_share": 0.8667,
+   "pass_rate": 0.5709,
+   "neutral_pass_rate": 0.559,
+   "basis": "2130 scrimmage plays over 34 games"
+  },
+  "MIN": {
+   "plays": 2043,
+   "games": 35,
+   "status": "measured",
+   "games_with_plays": 35,
+   "games_without_plays": 0,
+   "plays_per_game": 58.371,
+   "neutral_plays_per_game": 50.943,
+   "neutral_share": 0.8727,
+   "pass_rate": 0.5844,
+   "neutral_pass_rate": 0.5861,
+   "basis": "2043 scrimmage plays over 35 games"
+  },
+  "CIN": {
+   "plays": 2118,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 62.294,
+   "neutral_plays_per_game": 54.618,
+   "neutral_share": 0.8768,
+   "pass_rate": 0.6506,
+   "neutral_pass_rate": 0.6613,
+   "basis": "2118 scrimmage plays over 34 games"
+  },
+  "NE": {
+   "plays": 2289,
+   "games": 38,
+   "status": "measured",
+   "games_with_plays": 38,
+   "games_without_plays": 0,
+   "plays_per_game": 60.237,
+   "neutral_plays_per_game": 50.053,
+   "neutral_share": 0.8309,
+   "pass_rate": 0.5579,
+   "neutral_pass_rate": 0.5515,
+   "basis": "2289 scrimmage plays over 38 games"
+  },
+  "NYJ": {
+   "plays": 2023,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 59.5,
+   "neutral_plays_per_game": 47.088,
+   "neutral_share": 0.7914,
+   "pass_rate": 0.5976,
+   "neutral_pass_rate": 0.5759,
+   "basis": "2023 scrimmage plays over 34 games"
+  },
+  "SF": {
+   "plays": 2194,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 60.944,
+   "neutral_plays_per_game": 53.833,
+   "neutral_share": 0.8833,
+   "pass_rate": 0.562,
+   "neutral_pass_rate": 0.5635,
+   "basis": "2194 scrimmage plays over 36 games"
+  },
+  "ATL": {
+   "plays": 2109,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 62.029,
+   "neutral_plays_per_game": 56.794,
+   "neutral_share": 0.9156,
+   "pass_rate": 0.55,
+   "neutral_pass_rate": 0.5458,
+   "basis": "2109 scrimmage plays over 34 games"
+  },
+  "PIT": {
+   "plays": 2141,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 59.472,
+   "neutral_plays_per_game": 55.194,
+   "neutral_share": 0.9281,
+   "pass_rate": 0.56,
+   "neutral_pass_rate": 0.5611,
+   "basis": "2141 scrimmage plays over 36 games"
+  },
+  "TEN": {
+   "plays": 2025,
+   "games": 34,
+   "status": "measured",
+   "games_with_plays": 34,
+   "games_without_plays": 0,
+   "plays_per_game": 59.559,
+   "neutral_plays_per_game": 45.971,
+   "neutral_share": 0.7719,
+   "pass_rate": 0.5951,
+   "neutral_pass_rate": 0.5624,
+   "basis": "2025 scrimmage plays over 34 games"
+  },
+  "CHI": {
+   "plays": 2314,
+   "games": 36,
+   "status": "measured",
+   "games_with_plays": 36,
+   "games_without_plays": 0,
+   "plays_per_game": 64.278,
+   "neutral_plays_per_game": 55.667,
+   "neutral_share": 0.866,
+   "pass_rate": 0.5756,
+   "neutral_pass_rate": 0.5679,
+   "basis": "2314 scrimmage plays over 36 games"
+  },
+  "TB": {
+   "plays": 2193,
+   "games": 35,
+   "status": "measured",
+   "games_with_plays": 35,
+   "games_without_plays": 0,
+   "plays_per_game": 62.657,
+   "neutral_plays_per_game": 54.829,
+   "neutral_share": 0.8751,
+   "pass_rate": 0.5622,
+   "neutral_pass_rate": 0.5597,
+   "basis": "2193 scrimmage plays over 35 games"
+  },
+  "WAS": {
+   "plays": 2287,
+   "games": 37,
+   "status": "measured",
+   "games_with_plays": 37,
+   "games_without_plays": 0,
+   "plays_per_game": 61.811,
+   "neutral_plays_per_game": 50.649,
+   "neutral_share": 0.8194,
+   "pass_rate": 0.5251,
+   "neutral_pass_rate": 0.5336,
+   "basis": "2287 scrimmage plays over 37 games"
+  }
+ },
+ "does_it_predict": {
+  "_question": "Whether pace is worth WIRING, as opposed to whether it is measurable. Handing over a number with no evidence it matters is not much use.",
+  "_answer": "REAL IN-SEASON, NOT USABLE PRE-DRAFT. Supersedes the flat 'no' recorded above.",
+  "same_season": {
+   "_what": "Spearman(x, season fantasy points), 875 player-seasons, >=20 touches.",
+   "RB": {
+    "n": 300,
+    "share": 0.9619,
+    "share_x_neutral": 0.9611,
+    "delta": -0.0007
+   },
+   "WR": {
+    "n": 403,
+    "share": 0.9189,
+    "share_x_neutral": 0.9173,
+    "delta": -0.0015
+   },
+   "TE": {
+    "n": 172,
+    "share": 0.9134,
+    "share_x_neutral": 0.9135,
+    "delta": 0.0001
+   },
+   "_caveat": "Same-season share is an OUTCOME, not a prior \u2014 on draft day you do not know it. This is why the lagged test below is the one that decides anything."
+  },
+  "lagged": {
+   "_what": "Prior-season usage and prior-season team pace predicting the FOLLOWING season's points \u2014 the shape of the actual draft-day question. 588 player-season pairs.",
+   "RB": {
+    "n": 167,
+    "prior_share": 0.686,
+    "share_x_neutral": 0.6859,
+    "delta": -0.0001,
+    "pace_alone": 0.0569
+   },
+   "WR": {
+    "n": 244,
+    "prior_share": 0.6496,
+    "share_x_neutral": 0.6506,
+    "delta": 0.0011,
+    "pace_alone": 0.0706
+   },
+   "TE": {
+    "n": 106,
+    "prior_share": 0.6201,
+    "share_x_neutral": 0.6277,
+    "delta": 0.0077,
+    "pace_alone": 0.0563
+   }
+  },
+  "why": {
+   "_what": "Year-over-year persistence of team pace, all 32 teams.",
+   "2023_to_2024": {
+    "neutral": 0.194,
+    "raw": 0.165
+   },
+   "2024_to_2025": {
+    "neutral": 0.024,
+    "raw": -0.065
+   },
+   "_reading": "A team's pace this year says almost nothing about its pace next year. That is the whole explanation for the null above: a draft-day tiebreak on last season's pace is using a number that will not describe the team being drafted."
+  },
+  "_what_this_does_NOT_refute": "IN-SEASON use, where you know the current team's current pace and no persistence is required. Nothing measured here speaks against that, and the raw-vs-neutral distinction (rho 0.53 between the two orderings) stands on its own: if pace is ever used, the neutral figure is the one to use.",
+  "_which_evidence_is_load_bearing": {
+   "_correction_to_my_own_framing": "I led with the rho DELTA (share x pace vs share alone, ~0.001) and that is the WEAKER half. Measured on 2025: team neutral pace spans 42.1 to 61.1, a 1.45x spread, while usage share across players spans 0.024 to 0.303 at p05/p95 \u2014 a 12.7x spread. A multiplier varying by 1.45x cannot move a whole-population rank correlation against a factor varying by 12.7x, so a null delta is partly a statement about the TEST'S POWER and not only about pace.",
+   "pace_spread_2025": 1.45,
+   "usage_share_spread_p05_p95": 12.7,
+   "_what_is_load_bearing": "PERSISTENCE. Last season's team pace correlates with the next season's at rho +0.194 and +0.024. That is what rules pace out as a DRAFT-DAY input, and it does so regardless of whether pace matters at all: a number that does not describe the team being drafted cannot inform the pick. The delta is consistent with that conclusion; it does not carry it.",
+   "_what_would_settle_the_remaining_question": "Whether pace matters at all is best asked WITHIN near-ties \u2014 two players at similar usage on differently-paced offences \u2014 where a 1.45x multiplier has room to decide something and a whole-population rho does not. That is a different experiment and it is not run here."
+  },
+  "within_near_ties": {
+   "_what": "The test the whole-population delta had no power to run: residual of season points after removing usage share, correlated with team neutral pace; and the same inside tight usage bands, which is the near-tie question directly.",
+   "residual_rho": {
+    "RB": 0.1695,
+    "WR": 0.1648,
+    "TE": 0.2197
+   },
+   "within_band_mean_rho": {
+    "RB": 0.1435,
+    "WR": 0.1543,
+    "TE": 0.145
+   },
+   "bands_positive": "17 of 18",
+   "_reading": "Pace DOES carry information about production beyond usage share \u2014 consistently, across positions and bands. At least part of that is mechanical rather than a discovery: share x team plays IS absolute touches, so a residual-after-share correlating with pace is close to restating 'volume beats share'. It confirms the module's premise \u2014 a share is a share OF something \u2014 rather than adding to it.",
+   "_but": "It does not survive the trip to draft day. Pace persists at rho +0.194 and +0.024 year over year, so last season's figure does not describe the team being drafted. The mechanism is real and the pre-draft OBSERVABILITY is what fails."
+  }
+ },
+ "_provenance": {
+  "_what": "Which nflverse assets these numbers came from. nflverse REVISES completed seasons occasionally \u2014 its own census says so \u2014 and without this there is no way to tell which revision a figure was measured on. Byte size and row count are two independent handles on that.",
+  "_fetched": "2026-08-14",
+  "assets": {
+   "pbp/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2023.parquet",
+    "bytes": 20534088,
+    "rows": 49665,
+    "columns": 372,
+    "sha256_12": "bd3484731408"
+   },
+   "pbp/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2024.parquet",
+    "bytes": 20597560,
+    "rows": 49492,
+    "columns": 372,
+    "sha256_12": "3fd2896bc0b9"
+   },
+   "pbp/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2025.parquet",
+    "bytes": 20337029,
+    "rows": 48771,
+    "columns": 372,
+    "sha256_12": "c6ecedd6d678"
+   },
+   "weekly_stats/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2023.parquet",
+    "bytes": 846050,
+    "rows": 18643,
+    "columns": 150,
+    "sha256_12": "ac776fbd7c9f"
+   },
+   "weekly_stats/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2024.parquet",
+    "bytes": 849243,
+    "rows": 18983,
+    "columns": 150,
+    "sha256_12": "847569d194ca"
+   },
+   "weekly_stats/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2025.parquet",
+    "bytes": 855077,
+    "rows": 19422,
+    "columns": 150,
+    "sha256_12": "2a461becaa9a"
+   },
+   "weekly_rosters/2023": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2023.parquet",
+    "bytes": 794392,
+    "rows": 45655,
+    "columns": 36,
+    "sha256_12": "0fa5abf9b462"
+   },
+   "weekly_rosters/2024": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2024.parquet",
+    "bytes": 829272,
+    "rows": 46579,
+    "columns": 36,
+    "sha256_12": "4b144e8eda5a"
+   },
+   "weekly_rosters/2025": {
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/weekly_rosters/roster_weekly_2025.parquet",
+    "bytes": 850871,
+    "rows": 46849,
+    "columns": 36,
+    "sha256_12": "a8764c947bfe"
+   },
+   "player_ids": {
+    "url": "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv",
+    "bytes": 2625771,
+    "sha256_12": "76f7438517ec"
+   }
+  },
+  "reproduced": {
+   "when": "2026-08-14",
+   "result": "EXACT. Re-derived `team_pace` from the pbp assets recorded above and compared field by field against this file: 32/32 teams, 0 differences on plays, games, plays_per_game, neutral_plays_per_game, neutral_share, pass_rate and neutral_pass_rate, and the headline raw-vs-neutral rho matches at 0.5326.",
+   "_why_it_was_worth_doing": "These numbers were produced by commands typed into a shell. 'The pure functions are tested' is not the same claim as 'this file is what they produce', and the gap between those two is where a hand-run artifact drifts from its own module. Now checked once, against named assets with recorded shas, so a future disagreement has something to point at.",
+   "_caveat": "The check needs the ~60MB of parquet, which is not in the repo, so it runs where the assets are rather than in CI. Only `pace` has been reproduced so far; durability and the spread work have not."
+  }
+ }
+}

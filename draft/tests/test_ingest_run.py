@@ -232,7 +232,12 @@ def test_the_passthrough_REFUSES_a_run_whose_ADP_ARCHIVE_CANNOT_BE_DECODED():
     import ingest_run as IR
     series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"13589": 3.0}}]
     try:
-        IR.adp_id_map(series, {}, {})
+        # ⚠ `archive_key={}` STATES THE CONDITION INSTEAD OF INHERITING IT. This
+        # used to pass `series` alone and rely on the real archive on disk being
+        # undecodable — it never was, so what actually made the refusal fire was
+        # `players_of(a list)` returning {}. The test passed for the reason the
+        # code was broken.
+        IR.adp_id_map(series, {}, {}, archive_key={})
     except RuntimeError as e:
         assert "decode key" in str(e) and "F4.no_pre_draft_adp" in str(e)
     else:
@@ -1318,3 +1323,50 @@ def test_the_pooled_crosswalk_carries_the_shortfalls_SHAPE_not_just_its_size():
     miss_rb = uc["by_pos"]["RB"] / sum(uc["by_pos"].values())
     hit_rb = mc["by_pos"]["RB"] / sum(mc["by_pos"].values())
     assert miss_rb > hit_rb, (miss_rb, hit_rb)
+
+
+def test_THE_ARCHIVE_S_OWN_KEY_IS_USED_not_only_the_live_MFL_export():
+    """⚠ THE OFFLINE PROPERTY, WHICH WAS NOT IN EFFECT. `crosswalk_map` opens
+    "OFFLINE, AND THAT IS THE WHOLE POINT ... the archive decoded only while MFL
+    was up and still serving that season — precisely the window an archive
+    exists to outlive."
+
+    It was not true. `adp_id_map` read the archive half of its union with
+    `players_of(series)`, and `series` is a LIST, which cannot carry the key —
+    so the archive half was {} on every run and the decode came entirely from
+    the live MFL export. Nothing said so, because the union with the live
+    export was never empty and the refusal above only fires when BOTH halves
+    are missing.
+
+    Draft-night consequence: with MFL's export down, the run died with a
+    perfectly good decode key sitting on disk.
+
+    MUTATION: go back to `players_of(series)` for the archive half — this
+    decodes nothing and the run is live-export-only again."""
+    import ingest_run as IR
+    archive = {"13589": {"name": "Josh Allen", "position": "QB", "team": "BUF"}}
+    board = [{"player_id": "4984", "name": "Josh Allen",
+              "position": "QB", "team": "BUF", "sleeper_rank": 1}]
+    series = [{"year": "2026", "observed_at": "2026-08-09", "rows": {"13589": 3.0}}]
+
+    # MFL's export is DOWN — the archive alone must still decode.
+    ids, rep = IR.adp_id_map(series, {}, board, archive_key=archive)
+    assert ids.get("13589") == "4984", (ids, rep)
+    assert rep.get("crosswalked") == 1
+
+
+def test_players_of_REFUSES_THE_SERIES_LIST_rather_than_answering_empty():
+    """A list cannot carry the key, so {} was a fact about the ARGUMENT reported
+    as a fact about the archive. It cost two callers: the capture workflow
+    printed "Decode: 0.0%", and adp_id_map silently dropped the archive half.
+
+    MUTATION: return {} for a list and both failures come back silent."""
+    import external_adp_capture as CAP
+    import pytest
+    with pytest.raises(TypeError) as e:
+        CAP.players_of([{"year": "2026", "rows": {}}])
+    assert "wrong object" in str(e.value)
+    assert "SERIES" in str(e.value)
+    # The shapes that CAN carry it still work, so the guard is not a blanket refusal.
+    assert CAP.players_of({"players": {"1": {"name": "X"}}}) == {"1": {"name": "X"}}
+    assert CAP.players_of(None) == {}
