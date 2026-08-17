@@ -69,7 +69,7 @@ const BASELINE_DIR = path.join(ROOT, 'draft', 'baseline');
  * still reads v6.json against the v5 board, and the suite goes green on a
  * comparison nobody intended. Both paths derive from this constant, and the
  * regression test imports it rather than repeating the literal. */
-const ACTIVE_VERSION = 'v19';
+const ACTIVE_VERSION = 'v20';
 const BASELINE_PATH = path.join(BASELINE_DIR, ACTIVE_VERSION + '.json');
 
 /* CANONICAL STATES — THREE PICK REGIMES, and the count is deliberately three.
