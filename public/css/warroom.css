@@ -927,6 +927,16 @@ body.warroom-page .roast-banner { margin: 0 0 .4rem; }
     max-height: calc(100vh - 134px); overflow-y: auto; scrollbar-width: thin;
     padding-right: .2rem;
   }
+  /* ⚠️ THE CRUSH (captured live 2026-08-17, Cory mid-mock: "no players are
+     showing up under THE PICK or WATCH"). `.wr-zone1` is a FLEX COLUMN
+     (style.css — kept for the card-order rules), and a flex column inside a
+     max-height box SHRINKS its children to fit: every center card was crushed
+     to share one viewport — THE PICK rendered 34px tall with ~3,400px of
+     content clipped under `.card { overflow:hidden }`, which reads as an empty
+     card, not a squeezed one. Cards keep their natural height; the COLUMN is
+     what scrolls. Print never showed it (no viewport max-height on paper),
+     which is why the defect hid behind healthy-looking PDFs. */
+  body.warroom-page .wr-cockpit > .wr-zone1 > * { flex-shrink: 0; }
 }
 @media (min-width: 1200px) {
   .wr-cockpit { grid-template-columns: 240px minmax(0, 1fr) 300px; }

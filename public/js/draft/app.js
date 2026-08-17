@@ -9787,6 +9787,35 @@
     }, 1500); }
   }
 
+  /* THE DEAD-ROOM BANNER — one tap from a poisoned board back to a working one.
+   *
+   * Fired by sync.onDeadRoom after 3 consecutive 404s on a draft that HAD been
+   * answering: Sleeper deletes mock rooms when they end, so this is the normal
+   * end-of-mock state, and the failure it prevents was captured live
+   * (2026-08-17): the dead room's picks kept pricing the board, every list
+   * showed the leftovers of a finished draft, and the recovery lived behind
+   * two taps in a different tab. The banner is idempotent and the button runs
+   * endDraft() — the tested clear; keepers, targets and weights survive. */
+  function showDeadRoomBanner() {
+    if (document.getElementById('dead-room-banner')) return;
+    var d = document.createElement('div');
+    d.id = 'dead-room-banner';
+    d.setAttribute('style', 'background:#7f1d1d;color:#fff;padding:12px 16px;'
+      + 'border-radius:8px;margin:8px 0;display:flex;gap:12px;align-items:center;'
+      + 'flex-wrap:wrap;font-weight:600;');
+    var s = document.createElement('span');
+    s.textContent = '🪦 This mock room no longer exists at Sleeper — mock lobbies '
+      + 'are deleted when they end. Its picks are still pricing your board.';
+    d.appendChild(s);
+    var b = document.createElement('button');
+    b.className = 'btn small gold';
+    b.textContent = 'CLEAR IT — fresh board';
+    b.addEventListener('click', function () { d.remove(); endDraft(); });
+    d.appendChild(b);
+    var anchor = document.querySelector('.wrap') || document.body;
+    anchor.insertBefore(d, anchor.firstChild);
+  }
+
   function endDraft() {
     // Phase H req 3: freeze means freeze. Stamp every shadow roster (strategy,
     // weight hash, built_at, rehearsal) and ledger the final rosters BEFORE the
@@ -10240,6 +10269,10 @@
           return onSyncPicks(picks);
         },
         onStatus: setStatus,
+        onDeadRoom: showDeadRoomBanner,
+        /* A reload's resumed sync has never succeeded, so lastOkAt cannot
+         * witness that the id used to work — the resumed picks can. */
+        resumedWithPicks: (state.recentPicks || []).length > 0,
       });
       // Slots first, then picks: a pick attributed to the wrong seat is worse
       // than a pick arriving a second later.

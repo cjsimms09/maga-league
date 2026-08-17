@@ -246,7 +246,11 @@ ck('sync.poll re-arms itself on the FAILURE path too, or "keeps retrying" is '
   // 900 -> 2200 (2026-08-16): the chaos drill widened the catch-branch's status
   // message (mid-draft 4xx vs bad-id, non-JSON bodies), which pushed the re-arm
   // farther from `.catch(` without changing the property this pins.
-  /\.catch\(err => \{[\s\S]{0,2200}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
+  // 2200 -> 3600 (2026-08-17): the dead-room classification (404-after-working
+  // = a garbage-collected mock, with its counter and onDeadRoom hook) grew the
+  // same branch again. The property is unchanged: the failure path ends by
+  // re-arming the poll.
+  /\.catch\(err => \{[\s\S]{0,3600}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
     .test(SYNC_SRC));
 ck('CONTROL — and it distinguishes a 4xx, which retrying cannot fix, so this is '
   + 'not blind hammering', /will not fix itself by retrying/.test(SYNC_SRC));
