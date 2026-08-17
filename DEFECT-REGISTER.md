@@ -7,6 +7,10 @@ messes with our models draft or inseason tools."*
 Every row has an **owner** and a **next action**. A row with neither is a defect
 in this file. `draft/tests/test_defect_register.py` fails if one appears.
 
+**This file tracks what is BROKEN. `CORY-ASKS.md` tracks what CORY ASKED FOR and
+whether he has it** — a defect row and a promise row are different things, and an
+ask with no defect behind it used to fall between them.
+
 **Status words mean one thing each:** `OPEN` = nobody has looked since it was
 filed · `IN HAND` = someone is on it now · `WAITING` = blocked on a named person
 or date · `CLOSED` = fixed and verified, kept for the record.

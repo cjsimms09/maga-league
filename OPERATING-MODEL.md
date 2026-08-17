@@ -16,6 +16,7 @@ This file is short on purpose. If it grows past one screen it has failed.
 | **B** | site & in-season lane | builds surfaces, in-season tools | touch model/draft or ingest files |
 | **C** | external ingest lane | fetches, crosswalks, stores | touch engine, Lab, valuation, views |
 | **D** | data stewardship | is it correct, used, graded, does the grade move anything | fetch (C's) or decide what a number means (A's) |
+| **E** | **red team** | reads the published board, flags what makes no football sense | change any number, chase, assign, or overrule a measurement |
 | **PM** (relay) | integration & verification | CI health, cross-cutting sweeps, keeping the record honest, prepping A's decisions | decide anything A should decide |
 
 **A's time is the scarcest thing in the project.** Everything below exists to
@@ -144,6 +145,37 @@ more suspicious than a modest honest effect: perfect foresight of something that
 obviously matters should be worth a lot, so a near-zero oracle result usually
 means the oracle never got through. Register row 18 is exactly this, reopened.
 
+## RULE 3e — WHERE E SITS: BESIDE THE PIPELINE, NEVER INSIDE IT
+
+**E does not gate anything and nothing waits on E.** A is the bottleneck; a
+review step in front of the gatekeeper slows the whole project down. So E runs
+**in parallel, on published output**, and its findings enter the same queue as
+everyone else's.
+
+```
+  A merges ──▶ board publishes ──▶ Cory drafts
+                     │
+                     └──▶ E sweeps the PUBLISHED board (never blocks the publish)
+                              │
+                              ├──▶ mechanical//data cause ──▶ ROUTES.md → owning lane
+                              ├──▶ needs a ruling          ──▶ ROUTES.md → A  (ASK/EVIDENCE/REC/DEFAULT)
+                              └──▶ every finding, always   ──▶ ROUTES.md → relay (chases + registers)
+```
+
+**E posts directly to the owning lane — it does NOT route through the relay
+first.** A hop through me is a day of latency five days before a draft. The post
+IS the routing; I read `ROUTES.md` every session, chase what stalls, and put it
+in the register. **E finds and files. The relay chases and holds to account. A
+rules. E never does the last two.**
+
+**What triggers a sweep:** a new board publish · any weight or formula change
+reaching `main` · a full pass before draft day. Not a schedule — an event.
+
+**The one thing E may escalate straight past everyone:** a number Cory could act
+on in the next 24 hours that looks wrong. That goes to A marked
+`NO DEFAULT — BLOCKED` and to the relay in the same breath. Speed beats protocol
+when the board is live.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and
@@ -165,6 +197,8 @@ not fix another lane's code.
 
 ## WHERE THINGS LIVE — one place each, no duplicates
 
+- **what Cory asked for, and whether he has it** → `CORY-ASKS.md` (delegating is
+  not delivering; an ask sits there until it is verified)
 - **what is true now** → `DRAFT-WEEK-BRIEF.md`
 - **your assignments** → `ROUTES.md` → `## TO: <lane>`
 - **who owns which file** → `TERRITORY.md` (the authority)

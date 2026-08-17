@@ -33,7 +33,7 @@ LANE_FACING = [
     "SESSION-D.md",
 ]
 
-LANES = ["A", "B", "C", "D"]
+LANES = ["A", "B", "C", "D", "E"]
 
 # Imperative phrasings that tell someone to end a capture. The exact shapes the
 # relay used, plus the near neighbours.
