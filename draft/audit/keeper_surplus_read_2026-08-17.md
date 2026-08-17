@@ -9,83 +9,107 @@ he is keeping, which is the largest single decision still open.
 
 ---
 
-## FINDING 9 — two of the three keeps are clear wins; Derrick Henry's is not
+## FINDING 9 — ~~two of the three keeps are clear wins; Derrick Henry's is not~~
 
-Cory's slot is 8 in a 10-team snake, so the picks a keep costs are **R1 = 8,
-R2 = 13, R3 = 28**. Valuing each keeper on the board's own `proj_mean` against
-his position's replacement level, and inserting him into the board's own VORP
-ordering:
+> ### 🔴 CORRECTED 2026-08-17, SAME DAY, BEFORE ANY DECISION WAS TAKEN
+>
+> **The finding below was framed wrongly and its headline was wrong.** Cory asked
+> whether to keep Malik Nabers instead of Henry, and working that question
+> exposed the error in my own arithmetic. The corrected reading is here; the
+> original is kept underneath, struck through, because a red-team lane that
+> quietly edits its own misses is worth less than one that shows them.
+>
+> **What I got wrong.** I read each keeper's `cost_round` label — Henry 1,
+> Chase 2, Walker 3 — as meaning Henry costs pick 8, and reported his surplus as
+> **−1 pick**. But the board's own `arithmetic_check` says the picks forfeited
+> depend on **how many** you keep, not which:
+> `first_pick_by_my_keeper_count: {0: 8, 1: 13, 2: 28, 3: 33}`. The label is a
+> Sleeper designation slot, not an economic price. **Keeping any three players
+> forfeits rounds 1-3 and starts you at 33**, so attributing pick 8 to Henry
+> specifically is an artifact of which slot he happens to occupy.
+>
+> **The corrected reading.** The three keeps are a **set**: picks 8, 13 and 28
+> buy players worth roughly **ovr 4, 9 and 14**. That is a large net win, and the
+> marginal cost of the *third* keeper is **pick 28** — so Henry at ~ovr 9 is a
+> clear win at that price, **not break-even**.
+>
+> | keeper | vorp | worth ~ovr | |
+> |---|---|---|---|
+> | Ja'Marr Chase | 121.82 | 4 | |
+> | Derrick Henry | 85.06 | 9 | |
+> | Kenneth Walker | 67.60 | 14 | |
+> | | | | **for picks 8, 13, 28** |
+>
+> **What survives from the original.** Henry is still the keep with the most
+> against it on the margins — age 32, the largest `own_v6` gap of the three
+> (+0.478, 64th percentile), and an age-risk clause sitting behind a weight of
+> 0.0. Those observations stand. **What does not stand is calling the keep
+> break-even.** It is not.
+>
+> **The lesson, recorded because it is the same class this project keeps
+> hitting:** I took a labelled field (`cost_round`) as an economic quantity
+> without checking it against the arithmetic sitting three keys away in the same
+> file. That is the stale-citation shape from brief §5, committed by the lane
+> whose job is to catch it.
 
-| keeper | proj_mean | vorp | would rank | costs | surplus |
-|---|---|---|---|---|---|
-| **Ja'Marr Chase** | 295.1 | 121.82 | ~ovr **4** | R2 = pick 13 | **+9 picks** |
-| **Kenneth Walker** | 256.7 | 67.60 | ~ovr **14** | R3 = pick 28 | **+14 picks** |
-| **Derrick Henry** | 274.2 | 85.06 | ~ovr **9** | R1 = pick **8** | **−1 pick** |
+### The Nabers question, answered with the corrected arithmetic
 
-**Chase and Walker are strongly positive. Henry is the one keep that returns
-roughly what it costs** — the board says he is the ninth-best player available
-and he is being bought with the eighth pick.
+Nabers **is** keeper-eligible — he is on the 2026 roster (`league_history.json`,
+roster_id 1), drafted round 5 in 2024 and already kept once at round 2 in 2025.
+So the swap was a real option, not a hypothetical.
 
-Three things sit on top of that, none of which is an argument on its own:
+**It is also cost-neutral**, by the same count-based rule above: keep any three
+and you start at 33.
 
-- **He is 32,** with 10 years of service — the oldest player anywhere near the
-  top of this board.
-- **`own_v6` disagrees with him hardest of the three keepers:** 143.2 against the
-  board's 274.2, a **+0.478** relative gap, the 64th percentile of disagreement
-  boardwide, against Chase's +0.133 (30th percentile).
-- **The board's own risk term would dock him and cannot.** `engine.js:1083`
-  subtracts for age past a positional cliff — but `MEASURED_WEIGHTS.risk = 0.0`,
-  so the age clause reaches no recommendation. `WEIGHT_PROVENANCE` already calls
-  that term *"UNMEASURED"* (register row 7).
+| | Henry | Nabers | |
+|---|---|---|---|
+| board vorp | **85.06** | 27.09 | +57.97 Henry |
+| FantasyPros vorp | **74.79** | 24.88 | +49.91 Henry |
+| market ADP | **19.33** | 31.67 | 12.3 picks earlier |
 
-**What I am NOT saying.** I am not saying drop Henry — that is Cory's call and
-nobody else's, the way C1 and C2 are, and a −1 pick surplus is a *neutral* keep
-rather than a bad one. Nor is the board's number necessarily right about him;
-sweep 5 showed the opportunity term is a veteran bonus, and Henry carries
-`opportunity_z 3.03` at the **0.15 cap**, which is precisely the population that
-finding says the board flatters. **Those two point in opposite directions and I
-cannot resolve them from the board.**
+**And it survives this lane's own case against it.** Sweep 5 argued the
+opportunity term is a veteran bonus inflating exactly Henry's profile — he sits
+at the **0.15 cap** (`opportunity_z 3.03`) while Nabers gets **0.0755**. Applying
+that correction at its maximum in Nabers' favour — strip Henry's bonus entirely,
+give Nabers the full cap he is denied — gives **Henry 49.30 against Nabers
+40.97, still Henry by +8.33.** The strongest argument I have found against
+Henry's number does not flip the decision.
 
-**What I am saying is that the three keeps are not equivalent decisions, and
-nothing on the board says so.** Chase and Walker are not close calls. Henry is,
-and it is the one that costs the first-round pick.
+**The one argument the board cannot price:** Nabers is 23 and Henry is 32, and
+Nabers already carries keeper history. Multi-year option value is real in a
+league with `max_years`, and **the board values a single season and models none
+of it.** That is Cory's weighting, not a measurement, and it is the only live
+argument for the swap.
 
-### Honest limits
-
-- **The replacement levels were computed on a pool that excludes all keepers**, so
-  inserting the three back would shift replacement slightly and my implied ranks
-  are approximate — good to a few spots, not to one.
-- **The real alternative to keeping Henry is not "the player ranked 9th"** — it is
-  whoever is actually on the board at pick 8 after other teams' keepers resolve,
-  and `keeper_slate.safe_to_treat_as_truth` is **false** with 6 of 10 teams
-  undesignated. That uncertainty runs in both directions and I have not modelled
-  it.
-- `predicted_keepers` carries a **different cost_round for Chase (1, against the
-  live slate's 2)**. That file is explicitly `"MOCK/REHEARSAL ONLY"` and says so,
-  so it is not a defect — noted only so nobody reads a surplus off the wrong file.
-
-### ASK / EVIDENCE / REC / DEFAULT → **A**, for routing to Cory before 08-20
-
-```
-ASK:      Does Cory know the three keeps are not equivalent -- that two are
-          strongly positive and the third is roughly break-even on the
-          board's own numbers?
-EVIDENCE: Chase ~ovr 4 for pick 13 (+9); Walker ~ovr 14 for pick 28 (+14);
-          Henry ~ovr 9 for pick 8 (-1). Henry is 32, own_v6 143.2 vs the
-          board's 274.2, and the age-risk clause that would dock him sits
-          behind a weight of 0.0.
-REC:      Surface the per-keeper surplus, not a recommendation. This is
-          Cory's decision in the same class as C1 and C2, and it locks
-          08-20. My read is genuinely two-sided: sweep 5 says the board
-          FLATTERS exactly Henry's profile, which would make the true
-          surplus worse than -1; but the same board is the only measured
-          thing available and it says neutral, not bad.
-DEFAULT:  Filed today so it reaches him with three days left rather than
-          one. I do not touch the keeper slate and I am not asking for a
-          number to change.
-```
+**Against Nabers on top of that:** `injury_status: Questionable`, and he is one
+of the players who missed 2025 (brief §3 names him among the 26 draftable
+players with no 2025 volatility data), so his usage figures are stale and his
+`own_v6` of 82.92 is degraded enough not to lean on in either direction.
 
 ---
+
+<details>
+<summary><b>ORIGINAL TEXT, SUPERSEDED — kept for the record</b></summary>
+
+~~Cory's slot is 8 in a 10-team snake, so the picks a keep costs are R1 = 8,
+R2 = 13, R3 = 28. Valuing each keeper on the board's own `proj_mean`:~~
+
+| ~~keeper~~ | ~~proj_mean~~ | ~~vorp~~ | ~~would rank~~ | ~~costs~~ | ~~surplus~~ |
+|---|---|---|---|---|---|
+| ~~Ja'Marr Chase~~ | ~~295.1~~ | ~~121.82~~ | ~~~ovr 4~~ | ~~R2 = pick 13~~ | ~~+9 picks~~ |
+| ~~Kenneth Walker~~ | ~~256.7~~ | ~~67.60~~ | ~~~ovr 14~~ | ~~R3 = pick 28~~ | ~~+14 picks~~ |
+| ~~Derrick Henry~~ | ~~274.2~~ | ~~85.06~~ | ~~~ovr 9~~ | ~~R1 = pick 8~~ | ~~−1 pick~~ |
+
+~~**Chase and Walker are strongly positive. Henry is the one keep that returns
+roughly what it costs.**~~ **← this is the wrong framing; see the correction
+above.**
+
+The supporting observations about Henry — age 32, `own_v6` 143.2 against the
+board's 274.2 at the 64th percentile of disagreement, and the age-risk clause
+behind `MEASURED_WEIGHTS.risk = 0.0` — were correct and are carried into the
+corrected section.
+
+</details>
 
 ## HALF-DIED — Kenneth Walker carries no projection SOURCE, but his number is sound
 
