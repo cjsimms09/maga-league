@@ -1,4 +1,4 @@
-name: External ADP historical — genuine FFC + FantasyPros, 2023-2026
+name: External ADP historical — genuine FFC + FantasyPros, 2023-2026, and the source-study join
 
 # A's 08-17 load order (1), highest priority: "GENUINE FFC PULL + PER-YEAR
 # HISTORICAL ADP STORES — unblocks TWO rulings." The probe that justified
@@ -8,6 +8,13 @@ name: External ADP historical — genuine FFC + FantasyPros, 2023-2026
 # This gets a REAL FFC snapshot, named for what it holds, plus per-year
 # historical stores for 2023/2024/2025 so the honest re-run and the ADP
 # source study (relay/PM, ADP-SOURCE-2026-PREREG.md) both have real rows.
+#
+# ALSO BUILDS THE SOURCE-STUDY JOIN, IN THE SAME RUN. `external_adp_source_
+# study.py` needs exactly what this job just fetched plus the real draft
+# results already committed in league_history.json (gate 1, met on disk,
+# per the relay/PM's ADP-SOURCE-2026-PREREG.md) — running it as a separate,
+# later-dispatched workflow would mean a second review cycle for no reason;
+# the two artifacts belong to the same fetch and are committed together.
 #
 # WHY A WORKFLOW. fantasyfootballcalculator.com and www.fantasypros.com are
 # proxy-blocked from the dev sandbox — measured 2026-08-17, same policy-denial
@@ -41,10 +48,11 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
 
-      - name: The join/distinctness logic is tested before any real fetch runs
+      - name: Both modules' logic is tested before any real fetch runs
         run: |
           python3 -m pip install -q pytest
-          python3 -m pytest draft/tests/test_external_adp_historical.py -q
+          python3 -m pytest draft/tests/test_external_adp_historical.py \
+                            draft/tests/test_external_adp_source_study.py -q
 
       - name: Fetch FFC + FantasyPros for each requested year
         env:
@@ -57,6 +65,9 @@ jobs:
           else
             python3 draft/backtest/external_adp_historical.py
           fi
+
+      - name: Build the ADP-source-study matched population from what was just fetched
+        run: python3 draft/backtest/external_adp_source_study.py
 
       - name: Commit the stores
         run: |
@@ -71,9 +82,10 @@ jobs:
           fi
           git config user.name lab-bot
           git config user.email lab-bot@users.noreply.github.com
-          git add draft/backtest/external_adp_historical.json 2>/dev/null || true
+          git add draft/backtest/external_adp_historical.json \
+                  draft/backtest/external_adp_source_study.json 2>/dev/null || true
           if ! git diff --cached --quiet; then
-            git commit -m "external ADP historical: FFC + FantasyPros, 2023-2026 [skip deploy]"
+            git commit -m "external ADP historical + source-study population: FFC + FantasyPros, 2023-2026 [skip deploy]"
             for i in 1 2 3; do
               git fetch origin main || true
               git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
