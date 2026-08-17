@@ -310,5 +310,237 @@
    2024
   ],
   "why": "grade_props_vs_v6 reproduces own_v6 for GRADED_SEASON only; extending it means touching A's model code. The stores are on disk \u2014 two more folds, named rather than dropped."
+ },
+ "replication_vs_house_baselines": {
+  "_amendment": "AMENDMENT 2 of PROPS-WEEK1-PREREG.md",
+  "bar": "props_week1 beats BOTH naive_prev and recency_blend on BOTH metrics \u2014 a LOWER bar than own_v6, which cannot be reproduced off 2025 without editing A's file. No win here is a win against own_v6; the read is CONSISTENCY across seasons.",
+  "seasons": {
+   "2023": {
+    "status": "measured",
+    "priors": [
+     2021,
+     2022
+    ],
+    "week_one_only": true,
+    "forecasts": 220,
+    "crosswalk_loss_rate": 0.0536,
+    "cell_valid": false,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 117.09,
+       "spearman": 0.1364
+      },
+      "naive_prev": {
+       "mae": 92.98,
+       "spearman": 0.539
+      },
+      "recency_blend": {
+       "mae": 88.16,
+       "spearman": 0.5363
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 57.7,
+       "spearman": 0.3821
+      },
+      "naive_prev": {
+       "mae": 49.73,
+       "spearman": 0.6164
+      },
+      "recency_blend": {
+       "mae": 48.89,
+       "spearman": 0.6258
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 42.73,
+       "spearman": 0.6948
+      },
+      "naive_prev": {
+       "mae": 35.37,
+       "spearman": 0.7319
+      },
+      "recency_blend": {
+       "mae": 34.31,
+       "spearman": 0.7486
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 32.76,
+       "spearman": 0.5544
+      },
+      "naive_prev": {
+       "mae": 26.01,
+       "spearman": 0.7189
+      },
+      "recency_blend": {
+       "mae": 26.17,
+       "spearman": 0.7344
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   },
+   "2024": {
+    "status": "measured",
+    "priors": [
+     2022,
+     2023
+    ],
+    "week_one_only": true,
+    "forecasts": 239,
+    "crosswalk_loss_rate": 0.0042,
+    "cell_valid": true,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 98.49,
+       "spearman": 0.2752
+      },
+      "naive_prev": {
+       "mae": 81.36,
+       "spearman": 0.6014
+      },
+      "recency_blend": {
+       "mae": 72.6,
+       "spearman": 0.6528
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 61.95,
+       "spearman": 0.5944
+      },
+      "naive_prev": {
+       "mae": 44.62,
+       "spearman": 0.7422
+      },
+      "recency_blend": {
+       "mae": 44.58,
+       "spearman": 0.7475
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 39.83,
+       "spearman": 0.672
+      },
+      "naive_prev": {
+       "mae": 41.2,
+       "spearman": 0.7215
+      },
+      "recency_blend": {
+       "mae": 40.25,
+       "spearman": 0.7213
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 33.8,
+       "spearman": 0.6196
+      },
+      "naive_prev": {
+       "mae": 27.63,
+       "spearman": 0.7134
+      },
+      "recency_blend": {
+       "mae": 26.73,
+       "spearman": 0.7215
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   },
+   "2025": {
+    "status": "measured",
+    "priors": [
+     2023,
+     2024
+    ],
+    "week_one_only": true,
+    "forecasts": 228,
+    "crosswalk_loss_rate": 0.0087,
+    "cell_valid": true,
+    "per_position": {
+     "QB": {
+      "props": {
+       "mae": 97.98,
+       "spearman": 0.2302
+      },
+      "naive_prev": {
+       "mae": 78.89,
+       "spearman": 0.708
+      },
+      "recency_blend": {
+       "mae": 74.09,
+       "spearman": 0.7213
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "RB": {
+      "props": {
+       "mae": 60.7,
+       "spearman": 0.639
+      },
+      "naive_prev": {
+       "mae": 42.01,
+       "spearman": 0.7648
+      },
+      "recency_blend": {
+       "mae": 41.5,
+       "spearman": 0.7711
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "WR": {
+      "props": {
+       "mae": 39.43,
+       "spearman": 0.6266
+      },
+      "naive_prev": {
+       "mae": 37.28,
+       "spearman": 0.7401
+      },
+      "recency_blend": {
+       "mae": 36.44,
+       "spearman": 0.7406
+      },
+      "beats_both_baselines_on_both_metrics": false
+     },
+     "TE": {
+      "props": {
+       "mae": 29.46,
+       "spearman": 0.7098
+      },
+      "naive_prev": {
+       "mae": 26.73,
+       "spearman": 0.744
+      },
+      "recency_blend": {
+       "mae": 24.04,
+       "spearman": 0.7871
+      },
+      "beats_both_baselines_on_both_metrics": false
+     }
+    }
+   }
+  },
+  "consistency": {
+   "QB": 0,
+   "RB": 0,
+   "WR": 0,
+   "TE": 0
+  },
+  "valid_cells": 2
  }
 }

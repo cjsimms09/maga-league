@@ -39,6 +39,8 @@ sys.path.insert(0, str(HERE.parent / "tools"))
 import fetch_historical_props as FHP        # noqa: E402
 import props_season_projection as PSP       # noqa: E402
 import fetch_component_stats as FCS         # noqa: E402
+from draft_replay_2025 import baselines_of, season_totals_of  # noqa: E402
+from own_model_v2 import _grade_models, positions_record  # noqa: E402
 
 # ── preregistered constants (PROPS-WEEK1-PREREG.md) ─────────────────────────
 GRADED_SEASON = PSP.GRADED_SEASON           # 2025, matching the full-season arm
@@ -117,6 +119,79 @@ def season_projection(weeks: list, scoring_cfg: dict) -> dict:
     return {k: round(v * GAMES, 2) for k, v in per_game.items()}
 
 
+def replicate() -> dict:
+    """AMENDMENT 2: the same arm over 2023, 2024 and 2025 against the HOUSE
+    BASELINES rather than own_v6.
+
+    own_v6 cannot be reproduced off 2025 without editing A's _v6_predictions
+    (it hardcodes GRADED_SEASON, PRIOR_SEASONS and a 2024/(2023,) transition
+    fit, and its parity test licenses only the 2025 case). naive_prev and
+    recency_blend ARE season-parameterised and are what v2-v6 were all measured
+    against — a LOWER bar, and no win here is a win against own_v6.
+
+    What three folds can settle, and one cannot: whether the WR/TE result
+    replicates or was a fluke.
+    """
+    scoring_cfg = FCS.frozen_scoring_table()
+    positions = positions_record()
+    name_idx = PSP.build_name_index()
+    out = {}
+
+    for season in SEASONS_AVAILABLE:
+        weeks = week1_weeks(season)
+        if not weeks:
+            out[str(season)] = {"status": "no week-1 store"}
+            continue
+        c1 = control_store_is_week_one_only(weeks)
+        by_name = season_projection(weeks, scoring_cfg)
+
+        matched, unmatched = {}, []
+        for name, pts in by_name.items():
+            pid = PSP.match_player_name(name, name_idx)
+            (unmatched.append(name) if pid is None else matched.__setitem__(pid, pts))
+        loss = round(len(unmatched) / max(len(by_name), 1), 4)
+
+        priors = (season - 2, season - 1)
+        # baselines_of returns the RECENCY BLEND itself ({pid: points}), not a
+        # dict of named baselines; naive_prev is simply the prior season's
+        # totals. Both are the house baseline class v2-v6 were measured against.
+        recency_blend = baselines_of(season, priors)
+        naive_prev = season_totals_of(season - 1)[0]
+        graded = _grade_models({"props_week1": matched,
+                                "naive_prev": naive_prev,
+                                "recency_blend": recency_blend},
+                               season, positions)
+        cells = graded["models"]
+        entry = {
+            "status": "measured",
+            "priors": list(priors),
+            "week_one_only": c1["is_week_one_only"],
+            "forecasts": len(matched),
+            "crosswalk_loss_rate": loss,
+            # PREREGISTERED INVALIDATION, applied rather than noted
+            "cell_valid": loss <= 0.05 and c1["is_week_one_only"],
+            "per_position": {},
+        }
+        for pos in ("QB", "RB", "WR", "TE"):
+            p_ = (cells.get("props_week1", {}).get("cells") or {}).get(pos)
+            n_ = (cells.get("naive_prev", {}).get("cells") or {}).get(pos)
+            r_ = (cells.get("recency_blend", {}).get("cells") or {}).get(pos)
+            if not (p_ and n_ and r_):
+                entry["per_position"][pos] = {"status": "unmeasurable"}
+                continue
+            beats_both = (p_["mae"] < n_["mae"] and p_["mae"] < r_["mae"]
+                          and p_["spearman"] > n_["spearman"]
+                          and p_["spearman"] > r_["spearman"])
+            entry["per_position"][pos] = {
+                "props": {"mae": p_["mae"], "spearman": p_["spearman"]},
+                "naive_prev": {"mae": n_["mae"], "spearman": n_["spearman"]},
+                "recency_blend": {"mae": r_["mae"], "spearman": r_["spearman"]},
+                "beats_both_baselines_on_both_metrics": beats_both,
+            }
+        out[str(season)] = entry
+    return out
+
+
 def main() -> dict:
     weeks = week1_weeks(GRADED_SEASON)
     if not weeks:
@@ -187,6 +262,22 @@ def main() -> dict:
                    "extending it means touching A's model code. The stores are "
                    "on disk — two more folds, named rather than dropped."},
     }
+    rep = replicate()
+    result["replication_vs_house_baselines"] = {
+        "_amendment": "AMENDMENT 2 of PROPS-WEEK1-PREREG.md",
+        "bar": "props_week1 beats BOTH naive_prev and recency_blend on BOTH "
+               "metrics — a LOWER bar than own_v6, which cannot be reproduced "
+               "off 2025 without editing A's file. No win here is a win "
+               "against own_v6; the read is CONSISTENCY across seasons.",
+        "seasons": rep,
+        "consistency": {
+            pos: sum(1 for s_ in rep.values()
+                     if s_.get("cell_valid")
+                     and (s_.get("per_position", {}).get(pos) or {})
+                     .get("beats_both_baselines_on_both_metrics"))
+            for pos in ("QB", "RB", "WR", "TE")},
+        "valid_cells": sum(1 for s_ in rep.values() if s_.get("cell_valid")),
+    }
     (HERE / "props_week1_arm.json").write_text(json.dumps(result, indent=1) + "\n")
     print(f"wrote {HERE / 'props_week1_arm.json'}")
     print(f"CONTROL week-1 only: {c1['is_week_one_only']}  weeks={c1['week_numbers']}")
@@ -200,7 +291,17 @@ def main() -> dict:
         print(f"  {pos}: n={v['n']:3d}  props MAE {v['props_season']['mae']:7.2f} "
               f"vs v6 {v['own_v6']['mae']:7.2f}   "
               f"rho {v['props_season']['spearman']:.4f} vs {v['own_v6']['spearman']:.4f}")
-    print(f"CLEARS: {verdict['clears']}")
+    print(f"CLEARS (vs own_v6, 2025): {verdict['clears']}")
+    r = result["replication_vs_house_baselines"]
+    print(f"\nAMENDMENT 2 — vs house baselines, {r['valid_cells']}/3 seasons valid:")
+    for season, e in r["seasons"].items():
+        if e.get("status") != "measured":
+            print(f"  {season}: {e.get('status')}"); continue
+        wins = [p for p, v in e["per_position"].items()
+                if v.get("beats_both_baselines_on_both_metrics")]
+        print(f"  {season}: n={e['forecasts']:3d} loss={e['crosswalk_loss_rate']:.1%} "
+              f"valid={e['cell_valid']}  beats both baselines at: {wins or 'none'}")
+    print(f"  CONSISTENCY (of valid seasons): {r['consistency']}")
     return result
 
 

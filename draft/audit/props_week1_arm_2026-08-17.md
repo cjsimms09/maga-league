@@ -1,13 +1,27 @@
-# WEEK-1 PROPS: the fair test, and it beats own_v6 at WR and TE
+# WEEK-1 PROPS: the fair test, and it is a NULL
 
 _TERRITORY: D — data stewardship. Written 2026-08-17._
 
 Preregistered in `PROPS-WEEK1-PREREG.md`, committed in its own commit (`9cbd9fa`)
 **before** `props_week1_arm.py` existed. Result: `props_week1_arm.json`.
 
-**`clears: false` on the preregistered bar — but props beat own_v6 on BOTH
-metrics at WR and TE, and the arm is a stated LOWER BOUND.** The two positions it
-loses are exactly the ones the lower bound penalises hardest.
+> ## ⚠️ VERDICT AFTER AMENDMENT 2 — THIS IS A NULL, AND §1's WR/TE WIN DOES NOT SURVIVE
+>
+> The 2025 WR/TE win over own_v6 below is real and reproduces. **It is not
+> evidence that week-1 props carry usable signal**, because adding a second,
+> simpler comparator kills it: **props beat NEITHER `naive_prev` NOR
+> `recency_blend` at ANY position, in EITHER valid season.** Consistency across
+> the preregistered read: **QB 0, RB 0, WR 0, TE 0 of 2 valid seasons.** The
+> prereg said 1 of 3 kills it.
+>
+> **A win against one model is not a win against the baseline it should have
+> beaten first**, and that is the whole reason Amendment 2 required a second
+> comparator before the WR/TE result could be believed. §8 has the numbers and
+> the correction.
+
+**`clears: false` on the preregistered bar.** Props beat own_v6 on both metrics
+at WR and TE (§1) — **and lose to the simple house baselines everywhere (§8),
+which is what settles it.**
 
 **And the first run of this arm was wrong.** It reported MAE 249–362 against
 own_v6's 23–83. That was not a null; it was a known store defect I walked into
@@ -87,12 +101,17 @@ stays absent — they are excluded, not zeroed — and crosswalk loss fell from
 
 ## 4. WHAT THIS DOES AND DOES NOT SUPPORT
 
-**Supports:** a market signal available in **August** — before any game — orders
-WR and TE better than own_v6 and is closer on level, **while handicapped by
-carrying no touchdowns.** That is the first evidence in this project that
-betting data might be worth something to a *preseason* board, and it is
-categorically different from the full-season arm's 0.93–0.97, which was an
-in-season-information artifact.
+> ⚠️ **THIS SECTION WAS WRITTEN BEFORE AMENDMENT 2 AND ITS "SUPPORTS" CLAIM IS
+> WITHDRAWN — see §8/§9.** It is kept rather than deleted because the reasoning
+> was the error, and the error is the point: a win against one model was read as
+> evidence about the input, before the trivial baseline had been checked.
+
+**~~Supports:~~ WITHDRAWN.** The original claim here was that a market signal
+available in August orders WR and TE better than own_v6, and that this was the
+first evidence betting data might help a preseason board. **Amendment 2 refutes
+it:** props lose to `naive_prev` and `recency_blend` at every position in both
+valid seasons. What survives is narrower and is a question about own_v6, not
+about props — §8.
 
 **Does not support:**
 
@@ -138,3 +157,81 @@ props work. **Parked to C** — fetching is their lane.
   this arm; a control that cannot fail would make it worthless.
 - **`test_absent_stays_absent`** — a player with no `point`-quoted market is
   excluded, never zeroed.
+
+
+---
+
+## 8. AMENDMENT 2 — THE REPLICATION, AND IT KILLS THE HEADLINE
+
+Preregistered before running (`PROPS-WEEK1-PREREG.md`, Amendment 2, commit
+`73aef44`): three seasons, house baselines instead of own_v6 — **a weaker bar,
+declared as such** — and the read is **consistency, not win rate**.
+
+| season | n | crosswalk loss | cell valid | positions beating BOTH baselines on BOTH metrics |
+|---|---|---|---|---|
+| 2023 | 220 | **5.4%** | ❌ **invalidated** | — |
+| 2024 | 239 | 0.4% | ✅ | **none** |
+| 2025 | 228 | 0.9% | ✅ | **none** |
+
+**Consistency: QB 0, RB 0, WR 0, TE 0 — of two valid seasons.** The prereg's
+rule was *"1 of 3 kills it"*. This is 0 of 2.
+
+**The 2023 cell was invalidated by the preregistered rule, not by judgement.**
+Crosswalk loss 5.4% exceeds the declared 5% ceiling — the name index is built
+from today's Sleeper roster and the oldest season matches worst, exactly as
+Amendment 2 predicted. The guard fired on its own terms.
+
+### What this means, stated carefully
+
+**Props lose to `naive_prev` — last season's totals carried forward — at every
+position, in both valid seasons.** A signal that cannot beat carry-forward is not
+a signal, and the WR/TE win over own_v6 in §1 cannot rescue it: **beating one
+model while losing to the trivial baseline that model is supposed to beat is a
+statement about the comparison, not about the input.**
+
+### AND THE OBVIOUS WORRY IS WRONG — own_v6 is fine
+
+If props beat own_v6 but lose to `naive_prev`, the natural inference is that
+own_v6 loses to `naive_prev` too. **Checked, and it does not.** On the
+full-season arm's 2025 population:
+
+| position | n | own_v6 MAE | naive | blend | own_v6 ρ | naive | blend | v6 beats both |
+|---|---|---|---|---|---|---|---|---|
+| QB | 45 | 78.38 | 87.51 | 80.61 | 0.6555 | 0.6148 | 0.6559 | ✗ (ρ ties blend) |
+| RB | 78 | **41.84** | 49.52 | 48.26 | **0.7443** | 0.6675 | 0.6964 | ✅ |
+| WR | 129 | **35.88** | 40.95 | 39.94 | **0.7019** | 0.6532 | 0.6581 | ✅ |
+| TE | 68 | **26.73** | 31.19 | 27.89 | **0.7437** | 0.6719 | 0.7312 | ✅ |
+
+**own_v6 beats both baselines at RB, WR and TE.** So the §1 result is a
+**population effect**: this arm's universe is the ~230 players the market prices
+with week-1 point-quoted props, and own_v6 scores materially worse there (WR ρ
+**0.591**) than on the wider set (WR ρ **0.702**). Props edge it on that narrow,
+market-covered subset — while still losing to carry-forward on the same subset.
+
+**That is a real and useful thing to know about own_v6** — its advantage is
+thinner on heavily-market-covered players — but it is a question for A about
+own_v6, not a case for wiring props.
+
+## 9. CORRECTION TO MY OWN EARLIER REPORT
+
+I described §1 as *"the first real evidence that betting data might be worth
+something to a preseason board."* **That claim does not survive Amendment 2 and I
+withdraw it.** The evidence for it was a win against a single model; against the
+baseline that model is measured on, the arm loses everywhere.
+
+**The method is what caught it**, and it caught it because the amendment was
+preregistered *before* the second comparator ran — not chosen after the first
+result looked good. The declared consistency rule (1 of 3 kills it) and the
+declared crosswalk ceiling (5%) both fired on their own terms.
+
+## 10. WHAT REMAINS TRUE, AND WHAT STILL WANTS DOING
+
+- **The `any_td` store defect is unchanged and still worth fixing** (register
+  15c, routed to C, ~48 odds calls). This arm is a stated LOWER BOUND without it,
+  and the two positions it loses to own_v6 are the touchdown-dependent ones. **A
+  repaired store is the one thing that could still change this verdict** — and
+  the re-test trigger is now: *re-run Amendment 2's three folds with TDs
+  restored, and require the same consistency bar.*
+- **The null is DATED, not permanent** (Rule 3c). One construction, flat ×17, no
+  touchdowns, two valid seasons.
+- **Nothing installs, and nothing was going to.** `clears: false` on both bars.
