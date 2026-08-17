@@ -113,3 +113,36 @@ every unmarked row, and it would have caught E6 the day the mark was written.
 - **Nothing new to A.** The numbers are faithful and the rehearsal reproduces.
 - **Still owed by the relay:** the runner-side `playwright install` observation,
   which this run could not make.
+
+## 6. DIED — the dollar figures DO carry their caveat on screen
+
+Register row 8a requires it explicitly: *"the figures are RELATIVE ONLY — which
+the code says and **every surface must keep saying**."* The code says it at
+`engine.js:103` (*"calibrated only for RELATIVE comparison and every gap renders
+with its confidence class"*). I checked whether the screen keeps saying it.
+
+**It does.** The compare tray renders, beside every gap:
+
+```
+'this pick · <b>rough</b> v1 estimate (±$' + g.band + ')'
+```
+
+and inside the noise band it refuses to name a winner at all — `even money` /
+`pick your guy` — rather than printing a false edge. **Register 8a's surface
+requirement is met.** Flag dies on inspection.
+
+**Two things noticed in passing, both already handled and recorded so nobody
+re-chases them:**
+
+- **`entry` and `RS` are one signal counted twice** — `DG_ENTRY_K 0.08` and
+  `DG_RS_K 0.05` both multiply `proj_mean`, so their ratio is exactly 1.6 for
+  every player. That is the constant-multiple family *inside the dollar model*,
+  and `app.js` already names it in a comment and already collapses the two into
+  one displayed season line, on the stated grounds that the amounts are real pots
+  of money and only the three-term *reading* was false. A judgement made and
+  documented; not a new finding.
+- **Survival percentages are coarsened to 5% with a `~` through one writer**
+  (`survivalPct`), because the model over-predicts departures by 15–57% and *"a
+  number rendered as 64.8% claims a precision this model does not have."* That is
+  the same honesty this lane keeps asking for, already shipped, in the place it
+  matters most.
