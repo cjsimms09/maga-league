@@ -7,6 +7,8 @@ constants, so spread is a fixed multiple of the mean, `proj_ceiling` is
 RANK-IDENTICAL to `proj_mean`, and `ceiling: 0` in MEASURED_WEIGHTS is an experiment
 that could not have returned anything else. Risk is PARTIAL for the same reason.
 
+**CORRECTED 2026-08-17: `build_bundle.py` NO LONGER WRITES THOSE CONSTANTS.** The paragraph above describes the state this module was written into and is kept because it is the reason the module exists. Dispersion on a bundle is now the measured p90/p10/sd per (position, band), fitted leave-one-season-out, and absent off an unmeasured cell rather than filled in. The collinearity is REDUCED, NOT REMOVED — the measured spread is still `proj_mean x a per-CELL` constant, varying between bands and not within them — so `ceiling: 0` remains UNMEASURED rather than refuted, and the experiment is runnable for the first time. See draft/backtest/HARNESS-DISPERSION-PREREG.md.
+
 WHY THIS AND NOT WEEKLY VARIANCE — they are different risks and only one is the
 drafter's. `nflverse_variance` measures IN-SEASON VOLATILITY: how much a player
 bounces week to week, given how his season went. This measures ESTIMATION ERROR: how
