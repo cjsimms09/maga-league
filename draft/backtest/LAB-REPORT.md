@@ -1,6 +1,6 @@
 # THE LAB — report
 
-_git HEAD `c0e1fe034954063c4af525a7108c5ef0fb99dbc6` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `e115129cb7b7cd503b8688067b9e911773684c32` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
 
 ## 🚨 INTERVENTION RATE — the headline number
 
