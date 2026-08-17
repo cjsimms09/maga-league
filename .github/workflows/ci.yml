@@ -257,6 +257,26 @@ jobs:
       # A silently-SKIPPED step reads as success. This sentinel runs last, always,
       # and fails if any critical suite step did not actually run (skipped/cancelled)
       # — the guard Cory asked for against a step vanishing rather than failing.
+      - name: Register rechecks — a finding nobody acted on turns this RED
+        # Cory, 2026-08-17: "I feel like we are still make tons of findings but
+        # no one is following up or acting on any of them.. that needs to change."
+        #
+        # He is right, and the relay was the biggest contributor — it filed six
+        # register rows and nine queue items in one evening and acted on almost
+        # none of them. The register ALREADY carried the right field: every row
+        # has an owner and a "recheck MM-DD". Nothing read them. A recheck date
+        # that no build enforces is indistinguishable from a row nobody intends
+        # to look at again.
+        #
+        # Same mechanism this repo already trusts for commitments — a date, and
+        # a check that fires when it passes — pointed at DEFECT-REGISTER.md. One
+        # check covers every finding ever filed, including the ones not written
+        # yet. It fails on exactly one thing: a row still OPEN after the date its
+        # own author promised to look again. Changing the date and saying why is
+        # a legitimate way to clear it. Silence is not.
+        if: always()
+        run: node draft/tools/register_recheck_check.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that
