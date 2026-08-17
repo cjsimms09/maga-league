@@ -253,6 +253,29 @@ instrument than a known one.
 
 ---
 
+## 8. KEEPING THIS FILE HONEST — a process note, not a gate
+
+`draft/tests/test_draft_week_brief_numbers.py` pins the NUMBERS in this file
+against the artifacts they came from, so a figure here cannot silently drift.
+**Coverage is not gated, and it decayed within hours of being written**: routes
+run — a whole per-player feed, built, validated, weekly and registry-gated —
+appeared ZERO times here until it was added late on 08-17. The numbers were
+guarded and stayed true; what was missing was an entire subject.
+
+**A keyword gate was tried and NOT shipped.** Matching registry keys against
+this prose flags 7 of 8 captures as absent when only one truly was — `snap
+counts` is covered here in plain English, not as `fetch_snap_counts`. A check
+needing an ignore-list for seven of eight entries is theatre, and a noisy gate
+manufactures confidence, which is worse than the gap.
+
+**So the check is manual and takes a minute:** before trusting this file, run
+`python3 -c "import sys; sys.path.insert(0,'draft'); import capture_registry as
+CR; print(list(CR.CAPTURES))"` and confirm every capture added or fixed since
+this was written has a home above. `CAPTURES` is the maintained list; this file
+is the thing that falls behind it.
+
+---
+
 **Suites at hand-off:** Python publication gate (what CI runs) **3,283 passed,
 10 deselected**; JS **309/309**. The deselected `repo_parity` set includes two
 deliberate red flags — the ADP-sd ratchet and the stale freeze — which are
