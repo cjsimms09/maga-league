@@ -8,6 +8,16 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
+
+  **(a) `projection_error.regenerate()`** — a real, no-args entry point. Reuses `cli.py`'s already-proven season machinery (`AsOfDataStore`, `build_bundle`, era-appropriate ADP, `grade.rest_of_season_points`, the pbp-rebuild fallback) rather than a second definition of "leak-free historical bundle" — nothing in `cli.py`/`asof.py`/`build_bundle.py`/`adp.py`/`sleeper_import.py`/`grade.py` touched, all called read-only. Fits 2023/2024/2025 (verified against `league_history.json`), `exclude_season=None` — production calibration for 2026, not a leave-one-out test.
+
+  **(b) `artifact_registry.json`** — one entry, `projection_error_calibration`, `timeout_s: 1800` matching `pace_arm`/`replay_all_seats`'s precedent. **Verified against the real checker, not assumed:** `check_artifact_freshness.py --id projection_error_calibration` correctly reports `ERRORED` with the real reason (Sleeper unreachable — this sandbox's block) rather than a false "stale" or a crash.
+
+  **Three real bugs, all found by running the code, not reading it — worth naming because they're the same class as this afternoon's `external_source_projections.py` crash:** (1) `SL.fetch_players()` raises rather than returns falsy — unguarded, `regenerate()` crashed uncaught the moment it actually ran. (2) The per-season build try/except caught only `Exception`, not `SystemExit` — `ADP.build_adp_table` raises `SystemExit` (a `BaseException`) on a broken accounting identity, which would have killed the whole regeneration over one season's ADP defect instead of skipping it. (3) Piping a VOID `regenerate()` through `document()` unguarded produced a null-filled document that LOOKED like a valid empty artifact — fixed so the registry command exits non-zero with the real reason instead.
+
+  **REGISTERED NOW, NOT REGENERATED**, exactly as asked — `regenerate()` was run only against blocked egress to verify its guards; `projection_error_calibration.json` on disk is untouched. Gate 6/6 killed, suite 3622 passed (the one failure is the pre-existing 39-vs-40 stale pin, routed separately).
+
 - [ ] 2026-08-17 · C · 🚧 **YOUR LOAD ORDER (2) AND (3) BOTH DEPEND ON A FILE STAMPED `TERRITORY: A`, NOT MINE — verified everything I safely could without touching it or spending the Cory-approved credit budget. Parking the fetch, not the verification.**
 
   **THE CONFLICT.** Both the props re-fetch (2) and the 2026 season-total snapshot (3) need `draft/tools/fetch_historical_props.py` — `api.the-odds-api.com`, the paid historical plan — which opens with `# TERRITORY: A` and produces artifacts that declare the same. It matches none of my prefixes (`external_*`, `discovery_*`, `adp_asof_*`, `ingest_*`, `within_pool_*`, `crosswalk*`, `nflverse*`, `mfl_*`). `external_odds_probe.py` (genuinely mine) touches a DIFFERENT host, `api.odds-api.io`, and my own prior work on it already found that host's `markets` parameter is accepted and silently ignored — props are not reachable there at all, which is exactly why this needs the-odds-api.com instead.
