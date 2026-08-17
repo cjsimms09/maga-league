@@ -244,6 +244,23 @@ _FP_STAT_MAP = {
     "rush_yds": "rush_yd", "rush_tds": "rush_td", "rush_att": "rush_att",
     "rec": "rec", "receptions": "rec", "rec_yds": "rec_yd", "rec_tds": "rec_td",
     "fumbles": "fum_lost", "fumbles_lost": "fum_lost",
+    # PRICED SKILL CATEGORIES THE MAP SILENTLY DROPPED (added 2026-08-17).
+    # Cory asked whether FP projections were scored under OUR league table before
+    # being compared to Sleeper. They were — but this whitelist covered 9 of the
+    # 32 priced categories, and while 18 of the gaps are K/DEF (irrelevant to a
+    # QB/RB/WR/TE grade), FIVE are skill categories Sleeper's payload carries and
+    # FP's did not. So every FP skill player was scored a few points light and
+    # Sleeper was not: a systematic tilt against FP in a head-to-head that
+    # reported Sleeper winning 3 of 4 positions.
+    #
+    # A parser is a whitelist and every whitelist loses what nobody anticipated —
+    # this file's own comment says so about the retained raw bytes. The loss was
+    # invisible because a dropped key looks identical to a zero.
+    "pass_2pt": "pass_2pt", "pass_2pts": "pass_2pt",
+    "rush_2pt": "rush_2pt", "rush_2pts": "rush_2pt",
+    "rec_2pt": "rec_2pt", "rec_2pts": "rec_2pt",
+    "fum_rec": "fum_rec", "fumbles_rec": "fum_rec",
+    "fum_rec_td": "fum_rec_td", "fumbles_rec_td": "fum_rec_td",
 }
 
 _PROJ_API_CANDIDATES = [
