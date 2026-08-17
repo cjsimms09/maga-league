@@ -1,6 +1,26 @@
 # SESSION B — the site & in-season lane (read this first, every time)
 
-> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+> **📣 READ `DRAFT-WEEK-BRIEF.md` BEFORE THIS FILE** (08-17; `MONDAY-BRIEF.md`
+> is still accurate but superseded as the entry point). Three things that change
+> what you do:
+>
+> 1. **`main` was publishing a frozen board and is fixed.** Every nightly rebuild
+>    from 08-15 to 08-17 refused to publish; `main` served an 08-15 board while
+>    the branch had 08-16. Merged 08-17 and the rebuild refired. **If any surface
+>    you own reads `public/draft_data.json` and looked stale this week, that is
+>    why — it was not your bug.**
+> 2. **Your inbox is honest again.** `ROUTES.md` → `## TO: B` had 40 items all
+>    rendering as open, of which 4 were already resolved in their own text. Those
+>    are ticked. **36 genuinely open.**
+> 3. **The composite `ceiling` weight is known to be set wrong and is held at
+>    zero through the draft on purpose** (brief §7b). If a surface you own
+>    explains the weights to Cory, it must not describe `ceiling` as unmeasured —
+>    that copy is corrected in `engine.js` and the war-room surface contract, and
+>    any view that restates it needs the same correction.
+>
+> **The lane contract is in `TERRITORY.md`, and C now boots from `SESSION-C.md`**
+> (it previously booted from nothing). If you need something in A's or C's lane,
+> park it — do not reach across.
 
 
 _Resume ritual: **"You are session B, read SESSION-B.md and STATUS.md, then continue."**

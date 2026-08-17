@@ -4,17 +4,50 @@
 > is still accurate but superseded as the entry point). Four things you need
 > before you touch anything:
 >
-> 1. **🔴 THE BOARD `main` PUBLISHES IS FROZEN AT 08-15 AND THE DRAFT IS 08-22.**
->    Every nightly rebuild since has refused to publish. The board *builds*
->    fine; the acceptance gate rejects it. **The repair is a MERGE of
->    `claude/fantasy-football-research-926y6z` into `main`, not a code change** —
->    both refusing tests are already fixed there. The merge is NOT clean (7
->    conflicts, all generated artifacts) and the resolution is **verified**, not
->    guessed: take the branch's side for all seven, after which the exact gate
->    command passes (3336 passed, 0 failed). Recipe:
->    `draft/audit/board_publish_stall_2026-08-17.md`. **This is waiting on a
->    human's go-ahead — do not perform it on your own initiative, and do not
->    "fix" it by widening the gate or hand-editing the board.**
+> 1. **🔴 P0 — THE BOARD `main` PUBLISHES IS FROZEN AT 08-15, THE DRAFT IS 08-22,
+>    AND CORY HAS ASSIGNED THIS TO YOU (2026-08-17).** Nothing else you could do
+>    this week outranks it: a frozen board on the 22nd means Cory drafts off
+>    week-old ADP and every other improvement is invisible.
+>
+>    **The merge is DONE — do not redo it.** The two original refusals (the
+>    ADP-sd band ratchet, `config-check.yml`) were fixed on the relay branch and
+>    merged to `main` as `be528c64`, verified end to end first. The refire then
+>    got further than any run since the 15th: **board builds clean, 693 players,
+>    dormant health 100%, replacement-sensitivity properties HOLD.**
+>
+>    **It now refuses on SIX artifact-parity tests** —
+>    `test_constant_multiple_sweep::test_no_new_field_has_joined_the_constant_multiple_family`,
+>    `test_empirical_draft_value::test_board_replacement_constants_match_the_shipped_board`,
+>    `test_measured_ceiling::test_the_measured_ceiling_is_ON_and_its_sibling_is_not`,
+>    `test_qb_scoring_arbitrage::test_A_ZERO_BONUS_REPRODUCES_THE_BOARDS_OWN_RANKS`,
+>    `test_variance_inputs::test_artifact_coverage_matches_board`,
+>    `test_variance_inputs::test_committed_artifact_matches_regeneration`.
+>    They pass locally because locally the board IS the committed one; only a real
+>    rebuild surfaces them. **This is the same thing as your own 08-16 inbox item
+>    "10 OF 11 REGISTERED ARTIFACTS ARE STALE" — it is not tidiness, it is the
+>    publication blocker.**
+>
+>    **CHECK BEFORE YOU REGENERATE.** Four of the six read the BOARD, not a
+>    committed artifact. Confirm they are staleness and not a genuine board
+>    change first. The board moved 682 → 693 players and the CI diagnosis says
+>    healthy, so a real defect is unlikely — **and unlikely is not checked.** That
+>    distinction is what the ceiling error was made of.
+>
+>    **TWO PATHS, both written up in `ROUTES.md → TO: A` and
+>    `draft/audit/board_publish_stall_2026-08-17.md`.** Path A: regenerate the six
+>    against a fresh board, commit, refire — about an hour, needs egress. Path B
+>    (recommended): these artifacts derive from a board that rebuilds NIGHTLY, so
+>    Path A recurs forever; `artifact_registry.json` already carries a
+>    `regenerate_command` per entry and `check_artifact_freshness.py` already
+>    regenerates and diffs — **the six are simply not registered.** Register them
+>    and regenerate inside `draft-data.yml` between the build and the gate.
+>
+>    **The relay cannot do this and it is not a preference:** Sleeper and FFC both
+>    return HTTP 000 from its sandbox, and the proxy refuses the preserved
+>    `refused-candidate-board` artifact with a 403. It has no way to obtain or
+>    build a fresh board. **Do not "fix" this by widening the gate or hand-editing
+>    `public/draft_data.json`** — the gate is the only thing that has been working.
+>    Issue #8 tracks it and auto-closes on the first clean rebuild.
 > 2. **The `ceiling` weight is set wrong and is held at zero on purpose.** Three
 >    preregistered runs across two independent seed sets say a non-zero weight
 >    beats the shipped zero — 3/3 seeds, separably, at every value from 0.15 to
