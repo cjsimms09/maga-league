@@ -184,9 +184,13 @@ The 08-14 freeze stays recoverable in git history either way.
   of the eight worst top-200 disagreements are `2 x (2pt count)` exactly.
   Systematic, and harmless today only because the rebuilt path is REFUSED and
   nothing consumes it.
-  (b) Jameson Williams is missing ONE 50-yard TD reception (50 yd = 5.0 plus
-  1 TD = 6.0 = the observed 11.0). He has ZERO 2pt conversions, so (a) does not
-  touch him — and because the gate is **worst-case** on the top 200, **fixing
+  (b) **LATERALS — the parser models none of them.** Jameson Williams has two
+  lateral receptions in 2024 (wk11 9 yd, wk17 41 yd + TD): 9+41 = exactly the 50
+  missing yards, and the wk17 play is exactly the missing TD (his id is in
+  `td_player_id` and `lateral_receiver_player_id`, NOT `receiver_player_id` —
+  the receiver there is St. Brown). nflverse ships 18 lateral columns; the
+  string "lateral" appears in `grade.py` **zero times**. He has ZERO 2pt
+  conversions, so (a) does not touch him — and because the gate is **worst-case** on the top 200, **fixing
   (a) alone will NOT unlock 2025.**
   Do NOT loosen the 0.5 tolerance: that is the ADP-sd refusal again.
 - **`need` — CORRECTING MY OWN EARLIER FRAMING.** I described this as "shipping

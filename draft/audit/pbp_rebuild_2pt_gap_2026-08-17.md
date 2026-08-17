@@ -75,10 +75,28 @@ receiving_yards   official 1020   rebuilt 970   (-50)
 receiving_tds     official    7   rebuilt   6   ( -1)
 ```
 
-50 yards at 0.1 = 5.0, plus one TD at 6.0 = **11.0 exactly**. The rebuild is
-missing **one 50-yard touchdown reception**. A single play — most likely one
-whose receiver attribution differs in the pbp (a lateral, or a play whose
-scoring row does not carry `receiver_player_id`).
+50 yards at 0.1 = 5.0, plus one TD at 6.0 = **11.0 exactly**.
+
+**CAUSE FOUND — IT IS LATERALS, AND THE PARSER HANDLES NONE OF THEM.** Williams
+has exactly two lateral receptions in 2024:
+
+```
+wk11   lateral_receiving_yards =  9.0   td = 0
+wk17   lateral_receiving_yards = 41.0   td = 1
+       "(10:17) 16-J.Goff pass short right to 14-A.St. Brown to SF 41 for 1 yard.
+        Lateral to 9-Ja.Williams for 41 yards, TOUCHDOWN."
+```
+
+9 + 41 = **exactly the 50 missing yards**, and the week-17 play is **exactly the
+missing TD**. It is the only one of his nine touchdowns where his id is absent
+from `receiver_player_id` — on that play the receiver is St. Brown, and Williams
+appears only in `td_player_id` and `lateral_receiver_player_id`.
+
+`weekly_from_pbp` keys receiving off `receiver_player_id`. nflverse ships
+**eighteen** lateral columns (`lateral_receiver_player_id`,
+`lateral_receiving_yards`, `lateral_rusher_player_id`, `lateral_rushing_yards`,
+and the return/recovery family). **The string "lateral" appears in `grade.py`
+zero times.** The rebuild does not model laterals at all.
 
 **THIS IS THE LOAD-BEARING ONE.** Because the gate is worst-case on the top 200,
 fixing the 2pt gap alone would NOT unlock 2025: Williams' 11.0 would still
@@ -109,9 +127,16 @@ exactly why both are written down here.
 
 1. Add 2pt conversions to `weekly_from_pbp` (three fields; the scoring engine
    already prices them). Cheap, correct, and closes a priced-category gap.
-2. Diagnose the Williams play directly — find the pbp row for that 50-yard TD
-   and see which id field it lands in. That single play is what stands between
-   the harness and a third graded season.
+2. Teach `weekly_from_pbp` about laterals — at minimum
+   `lateral_receiver_player_id` + `lateral_receiving_yards` and the rushing
+   pair, and credit a touchdown to `td_player_id` when it differs from the
+   receiver/rusher. This is the one that stands between the harness and a third
+   graded season, and it is now a known edit rather than an investigation.
+
+**A CAUTION FOR WHOEVER DOES (2):** laterals are rare, so a bug here is nearly
+invisible. Fix it, then re-run `cross_validate` on 2024 and require
+`worst_diff_top200 <= 0.5` — the existing gate is the test, and it is a good
+one. Do not hand-check a few players and call it done.
 
 **The prize is real:** unlocking 2025 takes every strategy finding from N=2 to
 N=3, which is the threshold the report's own selection rule is written against.
