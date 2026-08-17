@@ -1,0 +1,66 @@
+name: SOURCE-BLEND-2025 — Sleeper vs FantasyPros vs blend, one matched population
+
+# Cory, 2026-08-17: "GETTING ANNOYED WITH FANTASY PRO, SLEEPER, VS BLEND ISSUE,
+# THIS IS INCREDIBLY IMPORTANT AND DEFINITELY EFFECTS DRAFT RECOMMENDATIONS."
+#
+# The question has been open since 08-16 and could not run because both APIs are
+# proxy-blocked from the dev sandbox (403 CONNECT, measured 08-17) and because
+# three committed files wrongly asserted Sleeper had no gradeable history.
+#
+# DISPATCH THIS FROM `main`. The 08-16 sleeper-hist-proj runs were dispatched
+# from a worktree branch; the push guard correctly refused to write to main, the
+# verdict printed to a log, and the answer was lost for a day. Same guard here,
+# same reason, and the failure mode is called out in the step itself.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  blend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: The preregistration precedes the run
+        run: |
+          test -f draft/backtest/SOURCE-BLEND-2025-PREREG.md \
+            || { echo "::error::no prereg — a result without one is inadmissible"; exit 1; }
+          echo "prereg present, committed $(git log -1 --format=%ad -- draft/backtest/SOURCE-BLEND-2025-PREREG.md)"
+
+      - name: The decision rule is tested before any real number exists
+        run: |
+          python3 -m pip install -q pytest
+          python3 -m pytest draft/tests/test_source_blend_2025.py -q
+
+      - name: Run the blend, gated
+        run: python3 draft/backtest/source_blend_2025.py
+
+      - name: Commit the verdict, including a VOID
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The answer is"
+            echo "::warning::in the log above and is deliberately NOT committed. This is"
+            echo "::warning::exactly how the 08-16 Sleeper verdict was lost for a day —"
+            echo "::warning::re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — verdict NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/source_blend_2025.json draft/backtest/raw/ 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "SOURCE-BLEND-2025: graded verdict on Sleeper vs FP vs blend [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::VERDICT NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
