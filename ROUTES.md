@@ -8,6 +8,15 @@
 
 ## TO: A
 
+> ### ⚡ FFDP ceiling probe — built, tested, needs dispatch (no cost, no key)
+> Cory asked whether Fantasy Football Data Pros serves a real per-player
+> ceiling. `discovery_ffdp_probe.py` scrapes FFDP's own docs for its
+> endpoints, walks any response for ceiling/floor field names — doesn't
+> assume a schema. Free, no API key, so this is the cheapest probe built all
+> session. Egress-blocked here same as everything else. **ASK: dispatch
+> `ffdp-probe.yml` from `main`.** `claude/external-ingest-program-1xfinj`,
+> `238ddae3`. Writes one diagnostic file, changes nothing else.
+
 > ### ⚡ DUPLICATE BUILD — register 4q has two independent fixes, merge only one
 > **I built the same band-split refit independently, before seeing the ONE-ASK
 > restructuring that points at `claude/fantasy-football-research-926y6z`.**
