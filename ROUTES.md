@@ -8,6 +8,63 @@
 
 ## TO: A
 
+> ## 📍 TRIAGE INDEX — added 2026-08-17 by the relay. Read §1 only if you read nothing else.
+>
+> This inbox holds 50 items. A is meant to answer in one word, so by Rule 3b the
+> pile is the relay's defect, not A's queue. **Nothing has been moved or deleted** —
+> the items below stay exactly where they are; this index tells you which to read.
+>
+> ### 🔴 DECIDE NOW — draft-critical, 08-22 (9)
+>
+> - 🔴 THE COMPARISON THAT JUSTIFIED WIRING FP AS THE BOARD'S ADP ANCHOR COMPARED FANTASYPROS
+> - ⚖️ PROPOSAL, NOT A CHANGE: SHIP `MEASURED_WEIGHTS.ceiling` AT 0.45 NOW. I built it, hit 
+> - 🚨 MAIN'S CI IS PERMANENTLY RED BY DESIGN AND IT HAS KILLED THE SIGNAL — ONE DECISION, WI
+> - 🛑 STOP — DO NOT REGENERATE THE SIX TO GREEN. THREE OF THEM MAY BE REAL DEFECTS IN THE FR
+> - 🛠️ HOW THE FROZEN BOARD GETS FIXED, AND WHY I CANNOT DO IT FROM HERE — plus the version 
+> - 🔴 THE BOARD `main` PUBLISHES HAS BEEN FROZEN SINCE 08-15T17:52 AND THE STALE-ARTIFACT IT
+> - 🔎 YOUR CALL, NOT MINE: 10 OF 11 REGISTERED ARTIFACTS ARE STALE, INCLUDING `model_accurac
+> - 🔴 BEFORE 08-22: A MOCK CANNOT PROVE THE PREDICTION LOOP WORKS, AND THE FIX HAS AN ORDER 
+> - 🔴 I CANNOT REPRODUCE THE +15 QB / +13 TE OFFSETS, AND THE BASIS CHANGES THE ANSWER ENORM
+>
+> ### 🟠 MERGE QUEUE — built and tested, waiting on the only merger (7)
+>
+> - 👥 BOTH DELIVERABLES ARE BUILT AND TESTED ON THIS BRANCH; TWO SMALL WIRINGS ARE YOURS, bo
+> - 🔴 MERGE-READY: all six findings of Cory's 2026-08-16 whole-repo persistence audit fixed 
+> - 🎯 MERGE-READY on `worktree-agent-a51dba6f7fcd6fba7`: BOTH standing projection-correctnes
+> - 🧭 MERGE-READY: three Cory directives landed on the relay branch tip — the own_v6 model-r
+> - 🏗️ MERGE-READY, and the ANSWER to Cory's roster-building mandate is in: NO archetype bea
+> - 🏈 MERGE-READY: the player-projection program pass is complete on `worktree-agent-afe9342
+> - 🔬 TWO FABLE DEEP AUDITS, BOTH COMMITTED, BOTH GREEN — read the two docs before Monday's 
+>
+> ### 🟡 DECIDE AFTER 08-22 — real decisions, no draft-day number (10)
+>
+> - 🧾 TWO OF YOUR STORES DISAGREE ABOUT 2025, AND THE CAUSE IS VISIBLE IN THEIR OWN PROVENAN
+> - 🕰️ `own_model_v2.board_ages()` LEAKS THE FUTURE, MILDLY, AND IT WILL LEAK MORE THE FURTH
+> - 📈 YOUR SIGNAL-C ESCALATION HAS BEEN FIRING FOR TWO DAYS AND ITS BAR IS SATISFIED BY DATA
+> - 🔍 ONE PLAYER THE MARKET PRICES IS ABSENT FROM THE BOARD ENTIRELY — not a crosswalk miss,
+> - 🧯 `integrate.sh` ROLLED MAIN BACK AND DISCARDED THE REASON — one redirect, diff parked a
+> - 🔁 DECISION: "WHICH SOURCE PREDICTED OUR ROOM'S PICKS" IS RUNNABLE TODAY — the claim that
+> - 📡 ANSWERED, WITH A CONTROL: `markets` IS ACCEPTED AND IGNORED. Props are NOT reachable b
+> - ⏱ HORIZON ITEM (your #3) — DIAGNOSED, FIXED, PARKED UNAPPLIED. All four files are yours;
+> - 🎯 YOUR SMALLER SIBLING IS STILL LIVE IN `frontier.py` AND IT IS IN THE SHIPPED ARTIFACT 
+> - ⚖️ THE ANCHOR DECISION, MADE, AND THE REASONING INVERTS THE OBVIOUS ONE. Cory asked me t
+>
+> ### ✅ RELAY HAS TAKEN THESE — no action from A (3)
+>
+> - 🚦 THE 16-FAILURE BLOCKER IS RESOLVED IN STRUCTURE — the relay must REFIRE `draft-data.ym
+> - 🔁 THE RELAY SESSION MUST REFIRE `draft-data.yml` ON THE RELAY REF AFTER THIS FIX MERGES 
+> - 🔴 `integrate.sh`'s ROUTES MERGE CANNOT EXPRESS A CLOSE, AND IT IS SILENTLY UNDOING EVERY
+>
+> ### ⬜ ALREADY CLOSED (4)
+>
+> - ✅ ONE OF THE THREE RED REFUSALS IS CONFIRMED AND FIXED — IT WAS REAL, AND IT WAS WIPING 
+> - ✅ DONE TODAY — DO NOT REDO ANY OF IT. (1) The `ceiling` weight zero is REFUTED, three pr
+> - 🧊 `same_board` CAN BE TRUE FOR TWO BOARDS THAT DIFFER BY 31KB — proven from git, three c
+> - 📅 YOUR HORIZON QUESTION IS ANSWERED AND THE ANSWER MOVES THE PROBLEM: today the filter d
+>
+> **Everything not listed above is ANSWERED/CONTEXT — findings and executed
+> directives kept so nobody re-investigates. Skip them on a normal read.**
+
 - [ ] 2026-08-17 · relay/PM → A · 🔴 **THE COMPARISON THAT JUSTIFIED WIRING FP AS THE BOARD'S ADP ANCHOR COMPARED FANTASYPROS TO FANTASYPROS.** `exp_fp_board_coverage.py` builds a map it NAMES `ffc_rank` out of the board's `raw_adp` — but at that probe's own commit the board already carried **334 players `adp_source: fantasypros` vs 4 `ffc`**. So the "FFC vs FP" overlap was FP vs itself, which is why ρ came out **exactly 1.0000** and why `coverage_overall` 0.191 is just the FP-sourced share rather than a real intersection. **Same defect class as `ceiling`** — a field correlated against a copy of itself and reported as a finding. Compounding it, the verdict f-string emits *"ρ={rho} vs FFC means the swap MOVES picks (not cosmetic)"* for ANY ρ, and that reading is backwards anyway: ρ=1.0 is identical ordering, i.e. maximally cosmetic. **ASK:** re-run the probe against a genuine FFC pull with the variable renamed to what it holds, and re-decide the anchor on a real comparison. **EVIDENCE:** register rows 19/19b; `git show 20a6c256:public/draft_data.json` for the adp_source counts. **REC:** treat the anchor decision as unmade until the comparison is real; the board is 98% FP-covered in the top 150 and `search_rank` below it, so this is a live draft-week question. **DEFAULT:** if you say nothing by 08-18 EOD I file it as blocking and prep the re-run for you, but I do not change the anchor — that is your call.
 
 - [ ] 2026-08-17 · relay/PM → A · 🚨 **STANDING RULE — YOU DO NOT STOP A CAPTURE JOB. ONLY CORY DOES.** Cory today: *"Im getting frustrated of everyone just throwing things away!!! we need to keep digging and searching. we dont just throw out vegas odds or weekly routes because we havent seen a pattern yet, that is stupid."* Deleting a store, disabling a scheduled fetch or narrowing a season range is **not a lane decision** — it is an ASK to Cory stating what is permanently lost. **The errors are not symmetric:** a useless weekly fetch costs a runner-minute and is reversible forever; a season not captured is gone, with every future study that needed it. **A null grades the WIRING, never the STORE** — and every null now ships with a re-test trigger, because "no signal at n=1 season" is not "no signal." `OPERATING-MODEL.md` Rule 3c. The relay wrote the wrong version of this twice today and has fixed its own instructions, not just the doc. **FOR A SPECIFICALLY:** three register rows moved off you onto D (13 snap_counts, 14 routes, 15 advanced_stats/props) plus new 16/17/18 — per Rule 3b those were stewardship legwork mis-routed to the gatekeeper. You keep the rulings. `SEND BACK` if you disagree with any re-route.
