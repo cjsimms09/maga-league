@@ -79,8 +79,39 @@ def main() -> int:
     if len(sys.argv) < 3:
         print(__doc__)
         return 2
-    cur = slope(_players(json.loads(Path(sys.argv[1]).read_text())))
-    new = slope(_players(json.loads(Path(sys.argv[2]).read_text())))
+    cur_players = _players(json.loads(Path(sys.argv[1]).read_text()))
+    new_players = _players(json.loads(Path(sys.argv[2]).read_text()))
+
+    # ── REFUSE A CONTAMINATED FIT RATHER THAN REPORT A SLOPE FROM IT ────────
+    #
+    # 2026-08-17, register 4r. A ruled NO SHIP on this exact comparison using
+    # numbers produced by a run whose calibration had been fitted on punters,
+    # DBs, a linebacker and a tackle, with the skill population down ~30%. The
+    # REASONING was fine; the input was not, and nothing in the pipeline said
+    # so. A tool that reports a number from a population it did not check is
+    # how a good decision-maker gets handed a bad decision.
+    #
+    # So this refuses instead of printing. A verdict withheld costs one
+    # re-dispatch; a verdict believed costs a draft.
+    for label, pl in (("current", cur_players), ("split", new_players)):
+        seen = {p.get("position") for p in pl if p.get("position")}
+        intruders = sorted(seen - set(SKILL))
+        if intruders:
+            print(f"REFUSING — the {label} run's population contains positions this "
+                  f"league does not roster: {', '.join(intruders)}.\n"
+                  "  A slope measured on this is not about football. Cause when this\n"
+                  "  last happened: cli.py called PE.calibrate() without `positions`\n"
+                  "  (register 4r). Fix the filter, re-dispatch, then read the slope.")
+            return 1
+        n_skill = sum(1 for p in pl if p.get("position") in SKILL)
+        if n_skill < 400:
+            print(f"REFUSING — the {label} run graded only {n_skill} skill players. "
+                  "The healthy population is ~1,300;\n  910 was the contaminated run. "
+                  "A slope from a third of the data is not a verdict.")
+            return 1
+
+    cur = slope(cur_players)
+    new = slope(new_players)
     if not cur or not new:
         print("REFUSING: one side has no gradeable players — that is a pipeline "
               "failure, not a result about bands.")

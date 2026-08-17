@@ -9,7 +9,26 @@
 ## TO: A
 
 > ### ⚡ ONE ASK — everything below is evidence, not instructions
-> 🔴 **YOUR NO-SHIP RULING RESTS ON A CONTAMINATED FIT — RE-RUN IT.** `cli.py`
+> 🔴 **RE-RUN YOUR NO-SHIP RULING — AND THE PATH IS CLEARED, HERE IS THE ORDER.**
+> Your reasoning was fine; the input was not, and nothing told you. `cli.py`
+> called `PE.calibrate()` with no `positions`, so the fit included **punters,
+> DBs, a linebacker and a tackle** with skill players down ~30% (1,304→910,
+> 15 of 32 cells unmeasurable). Deep 1.3378 vs shallow 1.7197 came from that.
+>
+> **DONE FOR YOU, so you do not have to re-derive any of it:**
+> · `cli.py` now passes the position filter — the next dispatch is clean.
+> · `compare_band_slopes.py` now **REFUSES** rather than printing a slope if a
+>   non-rostered position or a collapsed population appears (proved both ways:
+>   one synthetic punter → exit 1).
+> · `test_calibration_population.py` guards it; the driver test BLOCKS, the
+>   three artifact facts are `repo_parity` and red on purpose.
+>
+> **YOUR SEQUENCE: (1) dispatch the board rebuild so the board stops carrying
+> punter-derived ceilings · (2) re-dispatch `band-split-refit` · (3) re-rule.**
+> Your role-conditioned hypothesis is very likely still right — only the number
+> under NO SHIP is void. Register **4r**.
+>
+> ~~**YOUR NO-SHIP RULING RESTS ON A CONTAMINATED FIT — RE-RUN IT.**~~ `cli.py`
 > never passes `positions`, so the band-split refit was fitted on **punters, DBs,
 > linebackers and a tackle**, with skill positions down ~30% (graded 1,304→910,
 > 15 of 32 cells unmeasurable). Deep 1.3378 vs shallow 1.7197 cannot support
