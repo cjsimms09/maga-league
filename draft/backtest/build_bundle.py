@@ -61,7 +61,7 @@ def weekly_points_by_season(weekly_df, seasons, scoring_cfg, crosswalk):
 #: need them and a hand-mirrored second copy is what went stale six times on
 #: 2026-08-17.
 #:
-#: `harness_divergence.py` AST-parses the `players.append({...})` literal to
+#: `harness_divergence.py` AST-parses the board dict literal appended below to
 #: learn what a bundle board holds. These fields are attached in a SECOND PASS
 #: (they need a calibration the bundle must exist before you can fit), so they
 #: are invisible to that parse — and the tool duly reported `proj_ceiling` as
