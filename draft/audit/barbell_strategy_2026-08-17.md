@@ -347,3 +347,215 @@ Three consequences, all fixed now:
   node draft/tools/archetype_rooms.js --rooms 120 --seed 1 \
     --arms shipped,barbell,no_deadweight,anchor_early,upside_late,anti_barbell
   ```
+
+---
+---
+
+# STAGE 2 — THE RESULTS
+
+_Appended 2026-08-17. §§0–5 above are unchanged from the preregistration commit
+`e4de31c5`. Produced by `draft/backtest/barbell_middle.py` →
+`barbell_middle.json` (17 tests) and `draft/tools/archetype_rooms.js` → four
+`archetype_rooms_barbell*.json` artifacts (43 tests), read by
+`draft/tools/barbell_report.py`._
+
+## 6. THE ANSWER, FIRST
+
+**1. Cory's hypothesis is HALF RIGHT, and the half that fails is the half the
+whole barbell rests on.** Measured against the alternative use of the roster
+spot — the waiver wire, from 422 real scored acquisitions over 2023–25 — the
+early phase of his sentence is confirmed and the late phase is contradicted by
+its own outcomes:
+
+| band | n | mean realized | vs a HELD wire add | verdict |
+|---|---|---|---|---|
+| 1–3 (keeper ledger) | 90 | 208.0 | **+78.3** [+55.3, +99.4] | ABOVE |
+| 4–6 EARLY | 90 | 172.2 | **+22.4** [+2.1, +44.1] | **ABOVE** |
+| **7–10 MIDDLE** | 115 | 133.9 | **+9.9** [−4.7, +24.3] | **at parity — not distinguishable from noise** |
+| **11–15 LATE** | 93 | 133.0 | **−27.8** [−52.5, −6.5] | **BELOW** |
+
+Under Cory's own phase split: **rounds 4–8 return +19.2 [+4.8, +33.2] over the
+wire; rounds 9–15 return −15.1 [−31.4, −1.5].** Three seasons, same sign, both
+bands. **"Proven starter in the first 8 rounds" is measured and true. "Draft
+upside after that" is measured and false — the late rounds are where the dead
+weight actually is.**
+
+**2. THE MIDDLE IS FLAT, NOT DEAD, AND THE DIFFERENCE IS ENTIRELY IN WHAT YOU
+COMPARE IT TO.** The empirical study's headline — sixteen (round × position)
+cells below replacement, twelve of them RB/WR in rounds 8–15 — is correct, and
+it reads as "these picks are worthless". It is not that claim. **Replacement is
+the STARTER-RANK level; the alternative use of a roster spot is the waiver wire,
+and the wire sits far below replacement at the deep positions.** The clearest
+single cell:
+
+> Middle-round RB (rounds 7–10, n = 39): **−44.3 below replacement** (CI-clear)
+> and **+26.2 above the held wire** [−4.6, +58.2]. Both are true. Only the
+> second is a reason not to spend the pick, and it does not say don't.
+
+**3. There is no late-round upside tail. It runs the other way.**
+P(LEAGUE-WINNER) — top ⌈K/2⌉ at the position over the season's full realized
+field, the committed `tiered_outcome_model` definition, reused unmodified:
+
+| band | n | league-winners | P(LEAGUE-WINNER) | per season |
+|---|---|---|---|---|
+| 1–3 | 90 | 44 | 0.489 [0.388, 0.590] | — |
+| 4–6 | 90 | 26 | **0.289** [0.205, 0.390] | .367 / .300 / .200 |
+| 7–10 | 115 | 16 | **0.139** [0.087, 0.214] | .154 / .128 / .135 |
+| 11–15 | 93 | 10 | **0.108** [0.059, 0.187] | .065 / .125 / .133 |
+
+**Late minus middle: −0.032 [−0.129, +0.068], negative in all three seasons.**
+Not distinguishable from noise, and pointing the wrong way for the hypothesis.
+By Cory's phase split it is starker: rounds 4–8 produce a league-winner
+**24.3%** of the time, rounds 9–15 **10.7%**. **The upside is in the early
+rounds too.** Nothing in three seasons of this league supports trading a round-9
+starter for a round-9 lottery ticket.
+
+**4. The most actionable single cell: a late-round quarterback is the worst pick
+in the draft, and the reason arrived as a test going red.** Rounds 11–15 QB
+returns **−76.1 [−147.3, −15.6]** against the wire — the only CI-clear-below
+cell at any position:
+
+| position | outcome-space replacement | a HELD wire add over 17 weeks | gap |
+|---|---|---|---|
+| QB | 330.1 | **330.8** | **−0.7** |
+| TE | 124.1 | 115.6 | +8.5 |
+| WR | 155.0 | 124.1 | +30.9 |
+| RB | 170.8 | 100.3 | +70.5 |
+
+**At quarterback the waiver wire IS replacement level.** The split is exactly
+onesie-versus-deep: QB and TE need 10 starters in a 10-team league, so the wire
+holds essentially replacement-quality players at both; RB and WR need 21 and 29,
+so the wire is far below. **This is an independent third confirmation of the
+early-QB withdrawal** (`WAR-ROOM-SAID-TAKE-EARLY-QB.md` voided it on a design
+defect; `empirical_draft_value` §4.6 found no outcome support for it) — and it
+extends the doctrine to the other end of the draft: do not spend a late pick on
+a backup quarterback either.
+
+**5. Choosing inside every band beat a blind draw, including the middle.** The
+second, independent sense of "dead" — that picking in this range carries no
+information — does not hold anywhere:
+
+| band | mean pool still available | realized minus the pool mean | verdict |
+|---|---|---|---|
+| 1–3 | 494 | +137.1 [+117.2, +156.9] | ABOVE |
+| 4–6 | 464 | +108.9 [+89.8, +129.2] | ABOVE |
+| 7–10 | 430 | **+77.7** [+63.9, +91.6] | ABOVE |
+| 11–15 | 396 | +83.7 [+56.5, +110.7] | ABOVE |
+
+**No board, model, config or policy change ships from this document.** §10 lists
+what goes to `DECISIONS-NEEDED.md` for Cory's ruling.
+
+---
+
+## 7. Q1 IN FULL — DEAD, FLAT, OR NEITHER
+
+### 7.1 The three benchmarks, and why the wire is the one that decides
+
+"Flat" was already established: `empirical_draft_value` §5.1 found every round
+from 7 to 15 has a mean inside every other round's 95% interval. **"Dead" is a
+different claim and needs a different denominator.**
+
+- **Replacement** (outcome space, the level at each position's starter rank) is
+  what the empirical study used. It answers *"is this pick a starter?"*
+- **The waiver wire** answers *"was this roster spot worth a pick at all?"* —
+  which is the question Cory's hypothesis actually asks.
+- **The remaining pool** answers *"did choosing here carry any information?"*
+
+Both wire levels published in `wire_level.json` are used as a **bracket**,
+because they bound the truth from opposite sides:
+
+| | QB | RB | WR | TE | what it is |
+|---|---|---|---|---|---|
+| **held** (primary) | 19.46 | 5.90 | 7.30 | 6.80 | median of the three weeks AFTER acquisition — a held add. Its own caveat: excludes weeks the player did not play, so it slightly OVERSTATES. |
+| **churned** (upper bound) | 23.38 | 7.80 | 11.10 | 11.60 | acquisition-week median over adds that were actually STARTED — selection-biased upward by construction. |
+
+**THE COUNTERFACTUAL IS THE ARGUABLE PART AND IS STATED RATHER THAN BURIED.**
+`wire × 17` assumes the spot could have been streamed from week 1. That is what
+"alternative use of the roster spot" means, and it is not what any manager
+literally does. Under the aggressive `churned` bound **everything from round 4
+on is below the alternative**, the early band included (−34.4 [−56.1, −13.5]).
+The honest reading is the bracket: the early band is above the wire on the
+primary measure and below it on the upper bound; the middle band is at parity on
+the primary and below on the bound; **the late band is below on both.** Only the
+late band's verdict survives the whole bracket, and that is why it is the one
+headlined.
+
+K and DEF have no measured wire level (nflverse is offence-only). They are
+**excluded from every wire comparison, not compared against zero** — a kicker
+scored against a wire of 0.0 would read as a spectacular pick.
+
+### 7.2 By round — the curve crossing the wire
+
+Value over a held wire add, per round, 30 picks each where K/DEF do not thin it:
+
+| round | n | mean | vs held wire | verdict |
+|---|---|---|---|---|
+| 1 | 30 | 208.3 | +97.5 [+68.0, +131.3] | ABOVE |
+| 2 | 30 | 226.9 | +83.4 [+50.3, +119.6] | ABOVE |
+| 3 | 30 | 188.7 | +54.0 [+14.1, +97.3] | ABOVE |
+| 4 | 30 | 170.3 | +37.2 [−0.3, +71.8] | noise |
+| 5 | 30 | 180.0 | +20.2 [−24.6, +54.2] | noise |
+| 6 | 30 | 166.3 | +9.9 [−38.4, +46.8] | noise |
+| 7 | 28 | 147.1 | +16.5 [−15.3, +43.6] | noise |
+| 8 | 30 | 126.7 | +11.9 [−14.2, +39.3] | noise |
+| 9 | 29 | 135.2 | +5.0 [−18.9, +31.4] | noise |
+| 10 | 28 | 127.0 | +6.1 [−16.2, +29.5] | noise |
+| 11 | 24 | 136.1 | +1.1 [−24.3, +29.7] | noise |
+| 12 | 23 | 156.8 | −50.6 [−119.9, +5.4] | noise |
+| 13 | 12 | 114.6 | −13.4 [−60.6, +39.6] | noise |
+| 14 | 16 | 131.9 | −22.4 [−56.8, +12.5] | noise |
+| 15 | 18 | 111.6 | **−51.7** [−75.7, −26.9] | **BELOW** |
+
+**Round 15 is the only single round that is CI-clear dead.** Everything from 4
+to 14 is individually indistinguishable from the wire — the same flatness the
+empirical study found, now measured against the right denominator. The
+BAND-level verdicts in §6 are sharper only because pooling four or five rounds
+buys the n that 30 picks does not. **Read that honestly: at round resolution
+this study cannot tell round 7 from round 14 either.**
+
+### 7.3 By position — where the middle actually costs something
+
+Value over a held wire add, by band × position (Arm E):
+
+| cell | n | mean | vs held wire | vs replacement |
+|---|---|---|---|---|
+| 4–6 RB | 29 | 155.2 | **+54.9** [+19.3, +96.8] ABOVE | −15.6 noise |
+| 4–6 WR | 34 | 151.1 | **+27.0** [+7.0, +54.2] ABOVE | −3.9 noise |
+| 4–6 TE | 12 | 135.2 | +19.6 [−4.1, +41.3] noise | +11.1 noise |
+| 4–6 QB | 15 | 282.4 | −48.4 [−108.9, +17.1] noise | −47.7 noise |
+| 7–10 RB | 39 | 126.5 | +26.2 [−4.6, +58.2] noise | **−44.3 BELOW** |
+| 7–10 WR | 57 | 129.4 | +5.3 [−8.3, +19.4] noise | **−25.6 BELOW** |
+| 7–10 TE | 14 | 105.8 | −9.8 [−27.4, +16.7] noise | −18.3 noise |
+| 7–10 QB | 5 | 320.7 | −10.1 [−96.9, +60.1] noise | −9.3 noise |
+| 11–15 RB | 35 | 84.5 | −15.8 [−37.9, +10.6] noise | **−86.4 BELOW** |
+| 11–15 WR | 26 | 105.9 | −18.2 [−46.3, +11.3] noise | **−49.2 BELOW** |
+| 11–15 TE | 11 | 119.1 | +3.5 [−33.7, +32.1] noise | −5.0 noise |
+| **11–15 QB** | **21** | **254.7** | **−76.1** [−147.3, −15.6] **BELOW** | **−75.3 BELOW** |
+
+**Every RB and WR cell from round 7 on is CI-clear below replacement and NONE of
+them is CI-clear below the wire.** That contrast is the whole of finding 2 in one
+table. The only cell dead on both measures is the late quarterback.
+
+### 7.4 Survivorship — both arms, and they agree
+
+Exactly one drafted skill player in 450 never took a snap (Joe Mixon, 2025 pick
+68). Arm E (exclude) and Arm Z (zero) therefore differ by almost nothing, and a
+test pins it: every band's wire delta agrees in sign and moves by less than 15
+points. Arm Z: early **+22.4** [+2.1, +44.1], middle **+8.9** [−5.2, +23.7],
+late **−27.8** [−52.5, −6.5]. **Every finding in this section holds under both
+arms.**
+
+### 7.5 What Q1 could NOT answer
+
+1. **Whether the wire counterfactual is the right one.** §7.1. It is a bracket,
+   not a point estimate, and its two ends disagree about the early and middle
+   bands.
+2. **Anything at round resolution.** §7.2 — 30 picks a round is not enough.
+3. **Anything about rounds 1–3 as a market.** 72 of those 90 picks are keepers
+   (`empirical_draft_value` GAP 2). Reported, never pooled into a claim.
+4. **Whether the wire itself is priced right.** `wire_level.json` is a median of
+   real acquisitions, but which acquisitions a manager *could* have made depends
+   on the room, and nothing here models that.
+5. **QB and TE cannot be separated on the flat-vs-dead axis at all**, because at
+   both positions the wire IS replacement (§6 finding 4). The distinction this
+   study exists to draw only has room to operate at RB and WR.
