@@ -118,6 +118,48 @@ IDENTITY_PATH = HERE / "config" / "identity_map.json"
 MY_REAL_NAME = "Cory"
 
 
+def preserve_local_rulings(existing: dict, fetched: dict) -> dict:
+    """Sleeper owns what it RETURNS. Every other committed key is a local ruling.
+
+    THE BUG THIS CLOSES, found 2026-08-17 from the publication gate. The nightly
+    always runs `build.py --league-id ...`, and that path rebuilt the config from
+    `si.import_league()` and saved it verbatim, carrying over exactly two keys by
+    hand: `keepers` and `my_draft_slot`. **Everything else the commissioner or
+    Cory had decided was destroyed on every build**, because Sleeper has never
+    heard of it.
+
+    What that wiped, the same day Cory ruled on it: `use_measured_ceiling`. His
+    words were "We absolutely need to change draft board if we aren't considering
+    upside", the flag went on, and the next nightly turned it back off —
+    reverting the board to the Gaussian ceiling the ruling had overturned.
+    `test_measured_ceiling::test_the_measured_ceiling_is_ON_and_its_sibling_is_not`
+    caught it and refused to publish. **The gate was right and the refusal was the
+    system working.**
+
+    `my_draft_slot` was already special-cased here, with a comment about a
+    hardcoded slot 4 silently undoing a slot change. So this exact class had bitten
+    once before and was fixed ONE KEY AT A TIME. That is why this is a rule about
+    provenance rather than a third named key: the next local ruling to be added
+    would otherwise be wiped in the same silence.
+
+    THE RULE. A key Sleeper supplies is Sleeper's — it wins, because the league's
+    structure is not ours to remember. A key only the committed file has is a
+    decision made here, and a fetch that does not mention it is not evidence that
+    it was revoked. Absence is not a retraction.
+
+    NOTE THE ONE THING THIS GIVES UP, because it is a real trade: if Sleeper stops
+    returning a key it used to return, the last committed value now persists
+    instead of disappearing. That is the safer direction — a stale league setting
+    is visible on the board and in provenance, whereas a silently reverted local
+    ruling looks exactly like a board that was never configured.
+    """
+    out = dict(fetched)
+    for key, value in existing.items():
+        if key not in out:
+            out[key] = value
+    return out
+
+
 def adp_season_stamps(adp_source: str | None, year: int) -> dict:
     """Season stamps for the ADP columns, chosen by WHERE THE VALUE CAME FROM.
 
@@ -2019,16 +2061,7 @@ def main() -> None:
         cfg_raw = si.import_league(args.league_id, keeper_rules=existing.get("keepers"))
         if existing.get("my_draft_slot"):
             cfg_raw["my_draft_slot"] = existing["my_draft_slot"]
-        # Keys the import does not itself produce are HUMAN-SET and must
-        # survive the rebuild. This carried over only my_draft_slot until
-        # 2026-08-17, when the nightly (run 32035071758) silently ERASED
-        # `use_measured_ceiling` — Cory's ruling of that morning — because
-        # the fresh import rebuilt the config from Sleeper alone and this
-        # block dropped everything else. The import wins for every key it
-        # writes (league facts stay fresh); nothing else is discarded.
-        for key, val in existing.items():
-            if key not in cfg_raw:
-                cfg_raw[key] = val
+        cfg_raw = preserve_local_rulings(existing, cfg_raw)
         config_schema.save(config_schema.validate(cfg_raw), CONFIG_PATH)
     if not CONFIG_PATH.exists():
         raise SystemExit(f"no league config at {CONFIG_PATH} — run with --league-id first")

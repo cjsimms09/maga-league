@@ -131,13 +131,25 @@ twice, 08-17 this morning. The board on `main` is built **2026-08-15T17:52:22Z,
 previous board stays live) and the workflow files and comments on issue #8 every
 night. **The failure was that nobody read it for two days.**
 
-**The repair is a MERGE, not a change.** Both refusing tests are already fixed on
-this branch and have been for a day; what separates the branches is one line —
-this branch's gate runs `-m "not repo_parity"`, `main`'s does not, so `main` runs
-the parity pins inside the publication gate, which is exactly what they are not
-for. **A merge to `main` unblocks the nightly rebuild with no new code.** It was
-deliberately NOT done by the session that found it: pushing to `main` was outside
-its authorization and a merge five days out is a human's call.
+**~~The repair is a MERGE~~ — the merge is DONE (`be528c64`, 08-17) and the
+blocker MOVED.** Both original refusals are gone. The refire got further than any
+run since the 15th — **board builds clean, 693 players, health 100%, structural
+properties hold** — and then refused on **six artifact-parity tests** (the two
+`test_variance_inputs`, `test_constant_multiple_sweep`,
+`test_empirical_draft_value`, `test_measured_ceiling`,
+`test_qb_scoring_arbitrage`). They pass locally because locally the board IS the
+committed one; only a real rebuild surfaces them.
+
+**This is the same problem as the standing "10 of 11 registered artifacts are
+stale" item — not tidiness, the publication blocker.** Assigned to **A** by Cory
+on 08-17. Two paths in `board_publish_stall_2026-08-17.md`: regenerate the six by
+hand (recurs nightly), or register them in `artifact_registry.json` — which
+already carries a `regenerate_command` per entry — and regenerate inside
+`draft-data.yml` between the build and the gate, which ends the class.
+
+**Four of the six read the BOARD rather than a committed artifact, so confirm
+staleness before regenerating anything.** Unlikely to be a real defect; unlikely
+is not checked.
 
 **The merge is VERIFIED, not assumed — and it is not clean.** Dry-run in an
 isolated worktree: **7 conflicts, all generated artifacts**, resolved by taking

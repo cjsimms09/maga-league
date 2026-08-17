@@ -1,6 +1,34 @@
 # SESSION B — the site & in-season lane (read this first, every time)
+<!-- TERRITORY: B -->
+<!-- The file's own header already said B owns this in prose ("edit it in
+     place, do not recreate it") — this line makes that grant MACHINE-READABLE
+     rather than only readable. Added 2026-08-17 in the same commit that used
+     it: territory-check.sh's _declared_owner() only reads a marker inside the
+     first 5 lines, and without one this file fell through to the default
+     pattern (A), which is how its own territory-detail correction below would
+     have refused itself. -->
 
-> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+> **📣 READ `DRAFT-WEEK-BRIEF.md` BEFORE THIS FILE** (08-17; `MONDAY-BRIEF.md`
+> is still accurate but superseded as the entry point). Three things that change
+> what you do:
+>
+> 1. **`main` was publishing a frozen board and is fixed.** Every nightly rebuild
+>    from 08-15 to 08-17 refused to publish; `main` served an 08-15 board while
+>    the branch had 08-16. Merged 08-17 and the rebuild refired. **If any surface
+>    you own reads `public/draft_data.json` and looked stale this week, that is
+>    why — it was not your bug.**
+> 2. **Your inbox is honest again.** `ROUTES.md` → `## TO: B` had 40 items all
+>    rendering as open, of which 4 were already resolved in their own text. Those
+>    are ticked. **36 genuinely open.**
+> 3. **The composite `ceiling` weight is known to be set wrong and is held at
+>    zero through the draft on purpose** (brief §7b). If a surface you own
+>    explains the weights to Cory, it must not describe `ceiling` as unmeasured —
+>    that copy is corrected in `engine.js` and the war-room surface contract, and
+>    any view that restates it needs the same correction.
+>
+> **The lane contract is in `TERRITORY.md`, and C now boots from `SESSION-C.md`**
+> (it previously booted from nothing). If you need something in A's or C's lane,
+> park it — do not reach across.
 
 
 _Resume ritual: **"You are session B, read SESSION-B.md and STATUS.md, then continue."**
@@ -51,8 +79,15 @@ isolation.
 
 You own, and are the only one who edits:
 
-- `views/**` **except `views/admin/warroom.ejs`** (that file is the draft surface — it
-  is A's, by substance).
+- `views/**` **except `views/admin/_warroom_scripts.ejs`** (A's module-include seam —
+  the war-room SHELL itself, `views/admin/warroom.ejs`, is B's: layout, hierarchy,
+  CSS, mobile. A owns `app.js` and the markup it emits into that shell. **Corrected
+  2026-08-17** — this file previously named `warroom.ejs` as the exclusion, which
+  contradicted `scripts/territory-check.sh`'s actual `b_owns()` rule (checked
+  directly: `views/admin/warroom.ejs) return 0  # B owns the shell`, dated back to
+  the 2026-08-09 presentation split) and every `ROUTES.md` item describing the same
+  A-emits/B-arranges division. The gate is the authority; this prose had drifted
+  from it.
 - `src/routes/**` — the site's routing/controllers.
 - The **site-feature `src/*.js` modules**: `src/sidebets.js`, `src/betlogic.js`,
   `src/venmo.js`, `src/dashboard.js`, `src/ledger.js`, `src/notify.js` (reassigned to
