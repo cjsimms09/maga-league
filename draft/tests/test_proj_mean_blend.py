@@ -252,14 +252,38 @@ def test_probe_cannot_license_the_ship():
 
 def test_position_weighted_arm_is_dropped_not_fitted_on_itself():
     """Cory's (b): weights fitted on the season they grade are the answer key.
-    Only 2025 is predictable leak-free from the committed stores, so the shipped
-    arm must be DROPPED rather than reported."""
+
+    AMENDED 2026-08-17. This used to assert `seasons_predictable_leak_free ==
+    [2025]` — deliberately, so that a second gradeable season would FAIL here
+    and force a re-evaluation instead of leaving A3 dropped behind a comment
+    that had gone stale. It fired exactly as designed when
+    nflverse_weekly_points_{2021,2022}.json were rebuilt offline, and the
+    re-evaluation it demanded happened: see
+    draft/backtest/POSITION-WEIGHT-TRANSFER-PREREG.md and
+    draft/audit/position_weight_transfer_2026-08-17.md.
+
+    So the assertion moves rather than relaxes. A3 is still DROPPED, but now for
+    ONE reason (no per-player Sleeper/FP series) where there were two, and this
+    test now pins BOTH halves of that: the reason that survived, and the fact
+    that the leak-free season list grew.
+    """
     a3 = PMB.constructibility_gate()["position_weighted_arm_A3"]
     assert a3["verdict"] == "DROPPED"
-    assert a3["constructible"] is False
-    assert a3["seasons_predictable_leak_free"] == [2025], (
-        "if a second season becomes gradeable, A3 must be RE-EVALUATED "
-        "deliberately rather than left dropped by an out-of-date comment")
+    assert a3["constructible"] is False, (
+        "the surviving block is the per-player source history, which no store "
+        "rebuild can supply")
+    assert a3["dropped_for_reasons"] == ["no_per_player_source_history"], (
+        "if this list ever changes, the why_dropped prose must change with it — "
+        "the two must not be able to drift apart")
+    assert 2025 in a3["seasons_predictable_leak_free"]
+    assert len(a3["seasons_predictable_leak_free"]) >= 2, (
+        "the 2021/2022 rebuild made a fit-on-one-season / grade-on-another "
+        "weight constructible; a regression to a single season would mean a "
+        "committed store went missing")
+    assert a3["fit_seasons_available"] >= 1
+    assert "DISSOLVED" in a3["why_dropped"], (
+        "the prose must say which of the two original blocks is gone, or a "
+        "reader inherits the stale two-reason story")
 
 
 def test_cross_fit_weights_are_never_fitted_on_the_graded_player():

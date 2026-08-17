@@ -194,16 +194,34 @@ def constructibility_gate() -> dict:
                              and arms["fantasypros"]["per_player_history"]
                              and len(predictable) >= 2),
         "verdict": "DROPPED",
+        "dropped_for_reasons": ["no_per_player_source_history"],
         "why_dropped": (
-            "Two independent blocks, either of which is sufficient. (1) The same "
+            "ONE block now, where there were two. (1) STILL BINDING: the same "
             "per-player history gap as A1/A2 — there is no Sleeper or FantasyPros "
-            "per-player series to weight. (2) Even setting that aside, only ONE "
-            "season is predictable leak-free from the committed stores (2025 needs "
-            "2023+2024; grading 2024 would need 2022, which is not committed), so a "
-            "position weight could only ever be fitted on the season it grades. "
-            "Amendment 2 (b), declared before this check: that arm is DROPPED, not "
-            "reported. A fitted-on-itself position weight would be the "
-            "strongest-looking number in this study and would mean nothing."),
+            "per-player series to weight, so a position weight between THOSE "
+            "sources cannot be fitted on any season. (2) DISSOLVED 2026-08-17: "
+            "this used to also say only ONE season was predictable leak-free "
+            "(2025 needs 2023+2024; grading 2024 needed 2022, which was not "
+            "committed). nflverse_weekly_points_{2021,2022}.json were then "
+            "rebuilt offline from the committed component stores — licensed by an "
+            "exact reproduction of the committed 2023 store, 5,371 player-weeks "
+            "and 0 disagreements — so `seasons_predictable_leak_free` is now "
+            "[2023, 2024, 2025] and a fit-on-2023+2024 / grade-on-2025 weight IS "
+            "constructible. The arm stays dropped on (1) alone."),
+        "reason_2_was_tested_separately": (
+            "Amendment 2 (b) predicted a fitted-on-itself position weight would be "
+            "'the strongest-looking number in this study and would mean nothing'. "
+            "Once reason (2) dissolved that became checkable rather than merely "
+            "asserted, and it was checked on the own-model arms in "
+            "draft/backtest/position_weight_transfer.py (prereg: "
+            "POSITION-WEIGHT-TRANSFER-PREREG.md, verdict: "
+            "draft/audit/position_weight_transfer_2026-08-17.md). The precaution "
+            "was still right to take, but the measured leak is worth a MEDIAN OF "
+            "0.00000 rho and a maximum of 0.0058 — the answer-key arm is not the "
+            "strongest-looking number, because inverse-MSE weighting between two "
+            "similar arms is too insensitive for even the answer key to exploit. "
+            "The mechanism itself came back NULL, so (1) dissolving would not "
+            "resurrect this arm either."),
     }
 
     return {"status": status, "why": why, "arms": arms,
