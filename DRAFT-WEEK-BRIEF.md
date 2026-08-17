@@ -34,7 +34,7 @@ what it invalidated.
 | | |
 |---|---|
 | **production ceiling/floor** | measured p90/p10 per (position, band), replacing a Gaussian over the mean |
-| **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell |
+| **the BACKTEST HARNESS** | `build_bundle.py` wrote `1.35 x mean` / `0.25 x mean` as GLOBAL constants — every weight experiment ever run on a bundle was collinear. Now measured, leave-one-season-out, absent off an unmeasured cell. VERIFIED END TO END in CI run 32002876691: ~706 of 841 players attached per season, 98-135 correctly refused |
 | **the money proxy** | `cory_conditional` hardcoded keeper `weekly_sd = 8.0`; real values are 17.63 / 25.81 / 32.46. Understated team weekly sd by 11.1%, **biased toward the conclusion it was being used to draw** |
 | **snap counts** | 35,869 skill player-weeks pulled, 2021-25, weekly job, registry-gated |
 | **playoff-SOS artifact** | regenerated (my board rebuild had added 5 rows it predated) |
@@ -97,7 +97,15 @@ SPANS ZERO, so the honest claim is *"not measurably worse than the wire"*, NOT
 players in an artifact marked EXPLORATORY. His
 instinct on Concepcion is supported; Allen is a different bet entirely.
 
-**"Upside late" lost a fourth time** — and this run corrected a bias that ran in
+**"Upside late" lost a FIFTH time, and the fifth is on a FIXED board** —
+the CI run that verified the harness graded every weight profile and Upside-Late
+lost BOTH seasons (pooled -79.21, CI [-137.9, -20.5]; -79.58 and -78.84, not one
+bad draft). Every earlier refutation ran against `proj_ceiling = 1.35 x mean`,
+where the arm could not express anything but "double-count the projection".
+N=2 graded seasons, so it is another consistent line, not a precise coefficient.
+(`draft/audit/harness_fix_verified_in_ci_2026-08-17.md`)
+
+**The fourth** — and this run corrected a bias that ran in
 its favour first (endgame ceiling 0.0 best, **+64.33** CI [+35.67, +94.17]; the
 keeper-variance fix moved the headline $1.17). That refutes a BLANKET tilt, not
 a targeted swing on an identified player — do not let the two be conflated.
