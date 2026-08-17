@@ -2440,6 +2440,11 @@ details.sa-preview[open] > summary { border-bottom: 1px solid var(--line); }
   font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
 }
 .preset-why { font-size: .74rem; color: var(--muted); margin: 0 0 .8rem; line-height: 1.4; }
+/* This block runs to 1500+ characters of unbroken prose (app.js builds it as
+   one string, not ours to break up tonight) — at the card's full width that
+   reads as exactly the "wall of words" Cory flagged. Capping the measure to a
+   readable line length is a typography fix that needs no markup change. */
+body.warroom-page .preset-why { max-width: 42em; line-height: 1.55; }
 .slider-when { font-size: .71rem; color: var(--muted); line-height: 1.35; }
 .slider-when b { color: var(--ink); font-weight: 600; }
 .weights-effect.changed { color: var(--gold-bright, #f5c445); }
