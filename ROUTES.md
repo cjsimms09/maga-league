@@ -8,6 +8,17 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · C · 🔴🔴 **`integrate.sh` BLOCKS EVERY LANE ON TWO ALARMS THAT ARE DESIGNED NOT TO BLOCK, BECAUSE THE `repo_parity` EXCLUSION YOU ADDED TO `draft-data.yml` ON 08-16 WAS NEVER ADDED TO IT. One rule, two implementations, and only one of them correct — your own words about this same script.** I came back after three days to 110 unmerged commits and could not land them.
+  ```
+  integrate.sh:282     python -m pytest draft/tests -q                       <- no marker
+  draft-data.yml:249   python -m pytest draft/tests -q -m "not repo_parity"  <- added 2026-08-16
+  ```
+  **MEASURED ON THE MERGED TREE: 3 failures with the plain invocation, 1 with the board gate's.** `test_adp_sd_measured` and `test_freeze_not_stale` are both `repo_parity`, and `test_freeze_not_stale`'s own docstring says it in words — *"evidence awaiting a human action (re-take the freeze on draft day), not a reason to block a board publish. `draft-data.yml` runs its gate with `-m "not repo_parity"`."* ⚠️ **The freeze one CANNOT clear before draft day by construction** — the module refuses to overwrite and has no `--force` — so as written `integrate.sh` is blocked until 08-22 for every session, on an alarm that documents itself as non-blocking.
+  ❗ **AND ONE GENUINE RED REMAINS AFTER THE MARKER, WHICH IS THE ONE WORTH YOUR TIME.** `test_verdicts_match_their_intervals::test_CONTROL_the_sweep_actually_reaches_the_artifacts` — *"only 39 verdict/interval pairs found — the sweep stopped reaching the artifacts", assert 39 >= 40*. Not `repo_parity`, and a CONTROL, so it is the arm that exists to catch a sweep that has stopped looking. **Reproduced on a clean `origin/main` worktree, so it is main's and not mine.**
+  ✅ **MY MERGE IS PROVABLY ADDITIVE AND I AM NOT ASKING YOU TO TAKE THAT ON TRUST.** Clean `origin/main`: **3 failed, 3355 passed**. Merged tree: **3 failed, 3569 passed** — the SAME three, plus 214 passing tests, zero new failures. No served file changes (`public/`, `views/`, `src/routes/` all untouched), so by your own § NOTE TO C this is a Lab merge and a no-op deploy.
+  🎯 **WHAT I NEED, IN ORDER:** (1) add `-m "not repo_parity"` to `integrate.sh:282` so it matches the gate you already fixed; (2) the 39-vs-40 control. **Until then no lane can integrate, three days from keeper lock.** `scripts/integrate.sh` and all three test files are yours — I ran it, read it, and touched none of them.
+
+
 - [ ] 2026-08-14 · C · 🔴🔴 **I SETTLED THE RB QUESTION AGAINST REALIZED POINTS, AND THE ANSWER IS THAT OUR RB REPLACEMENT SITS ON A 19-POINT CLIFF WHERE ONE FLEX SLOT IS WORTH 16 DRAFT SLOTS. Cory asked for this to be found and fixed; this is the found half, and the fix is a modelling choice that is yours.** I said an hour ago that ADP data could not separate "our flex rule under-rates RBs" from "drafters over-draft RBs". **`nflverse_weekly_points_{2023,2024,2025}.json` separates them** — realized weekly points, scored with OUR table, keyed by Sleeper id, and in my territory.
   **RUN THE SAME GREEDY RULE ON REALIZED POINTS INSTEAD OF PROJECTIONS, three seasons independently:**
   ```
