@@ -59,10 +59,15 @@ const esc = s => String(s).replace(/[&<>"]/g, c =>
   render(scored, 48);
   ck('chip % equals round((1−survival_to_next)×100) — the engine field, exactly',
     captured.indexOf('>42%<') >= 0 && captured.indexOf('>3%<') >= 0, captured.slice(0, 200));
-  ck('the caption NAMES THE MODEL — "market (ADP) model … the number the score uses"',
-    /market \(ADP\) model/.test(captured) && /the number the score uses/.test(captured));
-  ck('and explains the identical-% artifact instead of leaving it to read as a bug',
-    /Identical %s/.test(captured) && /room model/.test(captured), captured.slice(0, 400));
+  ck('the caption NAMES THE MODEL — "market+room blend … the number the score uses"',
+    /market\+room blend/.test(captured) && /the number the score uses/.test(captured));
+  // The 41%-wall root fix (survival.js zero-width-window conditional) means the
+  // room model now splits fallen elites INSIDE this number, so the caption must
+  // NOT present identical %s as a market property — the only remaining cause is
+  // missing seat data, and the caption says exactly that.
+  ck('and scopes the identical-% case to its only remaining cause (no seat data)',
+    /Identical %s only mean no\s*seat data yet/.test(captured) && /room model/.test(captured),
+    captured.slice(0, 400));
 }
 
 // ── 2. THREATS: room model named; unassigned seats collapse to one line ───

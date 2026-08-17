@@ -902,12 +902,21 @@ body.warroom-page .wr-branch-grid td { color: var(--ink) !important; }
 body.warroom-page #keeper-lock-note > * { margin: 0 0 .4rem; }
 body.warroom-page .roast-banner { margin: 0 0 .4rem; }
 
-/* ── THE COCKPIT GRID — 240 | 1fr | 300 on desktop, stacked on phone ────── */
+/* ── THE COCKPIT GRID — rails | center | charts, stacked ONLY under 900px ──
+   Layout is decided by these media queries ALONE: the wrappers are server-
+   rendered in warroom.ejs and no JS class gates the columns. The gate was
+   min-width:1000px, and the owner's desktop rendered the stacked fallback
+   because his EFFECTIVE CSS viewport (window chrome + OS/browser zoom
+   shrinking CSS pixels) sat just under it — the harness at exactly 1280/1440
+   passed while his real window did not. So the grid now engages from 900px
+   with compressed columns (200 | 1fr | 260) and relaxes to the full
+   240 | 1fr | 300 from 1200px; the phone stack is only for genuinely
+   narrow screens. */
 .wr-cockpit { display: block; }
-@media (min-width: 1000px) {
+@media (min-width: 900px) {
   .wr-cockpit {
     display: grid;
-    grid-template-columns: 240px minmax(0, 1fr) 300px;
+    grid-template-columns: 200px minmax(0, 1fr) 260px;
     gap: .6rem; align-items: start;
   }
   /* SINGLE SCREEN: each cockpit column is its own scroll region, so the PAGE
@@ -919,7 +928,17 @@ body.warroom-page .roast-banner { margin: 0 0 .4rem; }
     padding-right: .2rem;
   }
 }
-@media (max-width: 999px) {
+@media (min-width: 1200px) {
+  .wr-cockpit { grid-template-columns: 240px minmax(0, 1fr) 300px; }
+}
+/* OVERFLOW GUARD: a grid child's min-width defaults to auto, so ONE wide
+   chart/table could force the whole grid to wrap. Children clamp to their
+   track, and everything wide inside a rail scrolls within its own card. */
+.wr-cockpit > .wr-rail, .wr-cockpit > .wr-zone1 { min-width: 0; }
+.wr-railcard { min-width: 0; }
+.wr-railcard > div, #wr-posrails, #timing-panel { max-width: 100%; overflow-x: auto; }
+.wr-rail table { max-width: 100%; }
+@media (max-width: 899.98px) {
   /* phone: the decision surface first, then the rails */
   .wr-cockpit { display: flex; flex-direction: column; }
   .wr-cockpit > .wr-zone1 { order: 1; }
@@ -1163,23 +1182,45 @@ body.warroom-page #recs-card .body { padding: .55rem .65rem .65rem; }
 body.warroom-page #rule-headline { font-size: .74rem; padding: .4rem .55rem !important; }
 body.warroom-page #rule-headline .rh-why { font-size: .74rem !important; }
 
-/* the keeper-slate alarm is a THIN RED STRIP, detail one tap in (the link) */
+/* the keeper-slate alarm is a THIN SINGLE-LINE RED STRIP: the warning + the
+   review link only — the full explanation and the designated-count live one
+   tap behind that existing link (/admin/keepers). */
 body.warroom-page #keeper-lock-note .stale-block {
-  display: flex; align-items: center; flex-wrap: wrap; gap: .3rem .7rem;
-  padding: .35rem .7rem; margin: 0 0 .4rem;
+  display: flex; align-items: center; flex-wrap: nowrap; gap: .3rem .7rem;
+  padding: .3rem .7rem; margin: 0 0 .4rem;
   border: 1px solid var(--red); border-left: 4px solid var(--red);
   border-radius: 8px; background: rgba(255, 90, 102, .10);
 }
 body.warroom-page #keeper-lock-note .stale-block h3 {
   margin: 0; font-size: .74rem; color: var(--red); letter-spacing: .03em;
+  flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap;
 }
-body.warroom-page #keeper-lock-note .stale-block p {
-  margin: 0; font-size: .68rem; color: var(--muted); line-height: 1.3;
+/* the two prose paragraphs (the essay + the N-of-10 count) fold behind the link */
+body.warroom-page #keeper-lock-note .stale-block p { display: none; }
+body.warroom-page #keeper-lock-note .stale-block p:last-of-type {
+  display: block; margin: 0; flex: 0 0 auto;
 }
-body.warroom-page #keeper-lock-note .stale-block p:nth-of-type(1) {
-  flex: 1 1 22rem; min-width: 0; color: var(--ink);
+body.warroom-page #keeper-lock-note .stale-block .btn {
+  white-space: nowrap; margin: 0; padding: .2rem .55rem; font-size: .66rem;
 }
-body.warroom-page #keeper-lock-note .stale-block .btn { white-space: nowrap; }
+@media (max-width: 640px) {
+  body.warroom-page #keeper-lock-note .stale-block { flex-wrap: wrap; }
+  body.warroom-page #keeper-lock-note .stale-block h3 { white-space: normal; }
+}
+
+/* the resumed-draft line (app.js injects #resume-banner at the top of .wrap)
+   joins the ticker grammar: one compact mono strip, not an unstyled block. */
+body.warroom-page .resume-note {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .2rem .55rem;
+  font-family: var(--font-mono); font-size: .68rem; line-height: 1.3;
+  color: var(--muted); background: var(--panel);
+  border: 1px solid var(--line); border-left: 3px solid var(--wr-structure);
+  border-radius: 8px; padding: .28rem .6rem; margin: 0 0 .35rem;
+}
+body.warroom-page .resume-note b { color: var(--ink); }
+body.warroom-page .resume-note .resume-warn { color: var(--wr-warn); }
+body.warroom-page .resume-note .btn { margin-left: auto; padding: .15rem .5rem; font-size: .64rem; }
 
 /* the seat plan compresses to its lead rows; the full look-ahead scrolls */
 body.warroom-page #seat-plan { font-size: .74rem; max-height: 170px; overflow-y: auto;

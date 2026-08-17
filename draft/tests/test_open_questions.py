@@ -57,6 +57,23 @@ def rows(path, section=None):
     return out
 
 
+def _is_closed(cells):
+    """True only when the row's STATUS CELL says CLOSED.
+
+    Deliberately narrow. The register's columns are `# | what | owner | status |
+    next action`, so the status is the second-from-last cell — and reading ONLY
+    that cell is what stops a row from exempting itself by mentioning the word
+    "closed" somewhere in its prose. A status-word exemption that could be
+    triggered from free text would be a hole, not a scope fix.
+
+    Falls back to False on any row shaped unexpectedly: an unrecognised row is
+    treated as OPEN, so a malformed row gets MORE scrutiny rather than less.
+    """
+    if len(cells) < 4:
+        return False
+    return "closed" in cells[-2].lower()
+
+
 def open_questions():
     text = QUESTIONS.read_text()
     start = text.index("## OPEN")
@@ -123,6 +140,8 @@ def test_every_refusal_row_in_the_register_carries_an_unblock_condition():
     """
     bad = []
     for cells in rows(REGISTER):
+        if _is_closed(cells):
+            continue
         joined = " ".join(cells)
         if not any(w.lower() in joined.lower() for w in REFUSAL_WORDS):
             continue
@@ -133,6 +152,45 @@ def test_every_refusal_row_in_the_register_carries_an_unblock_condition():
         + "\n".join(bad)
         + "\n\nA refusal without those three is an open defect, not an answer."
     )
+
+
+def test_the_closed_exemption_cannot_hide_an_OPEN_refusal():
+    """THE CONTROL ON THE EXEMPTION ABOVE, and it is the whole reason the
+    exemption is allowed to exist.
+
+    2026-08-17: closing row 4h tripped this check. The row is CLOSED — `main` is
+    green, verified on the runner — and it matched only because the PROSE
+    describing the fix contains the word "refused" (the reviewer refusing an
+    empty diff). Demanding an unblock condition there asks a question that no
+    longer applies.
+
+    THE CHEAP FIX WAS TO TYPE THE WORD "owner" INTO THE ROW UNTIL THE REGEX WENT
+    QUIET. That is regenerating to green, which this project treats as the
+    defect and not the fix, so the SCOPE was corrected instead: the rule is
+    about refusals that are still OPEN.
+
+    But an exemption keyed on a status word is exactly the shape that rots —
+    "mark it CLOSED and the guard stops asking" is a real failure mode. So:
+      · the status must be in the STATUS CELL, not anywhere in the prose, and
+      · an OPEN refusal row missing its markers must still fail.
+    Both are asserted here with synthetic rows, so the exemption ships with
+    proof of what it does NOT let through."""
+    open_row = ["9z", "the fetch REFUSED and nothing says why", "C", "OPEN",
+                "have a look sometime"]
+    assert not _is_closed(open_row), "an OPEN row must never be exempt"
+
+    prose_dodge = ["9y", "REFUSED — we CLOSED the loop on this ages ago", "C",
+                   "OPEN", "have a look sometime"]
+    assert not _is_closed(prose_dodge), (
+        "the word CLOSED appearing in the PROSE must not exempt a row — the "
+        "status cell is the only thing that counts, or any row can talk its "
+        "way out of the guard")
+
+    closed_row = ["9x", "the reviewer REFUSED an empty diff; fixed", "relay",
+                  "✅ CLOSED", "shipped as dea76e46"]
+    assert _is_closed(closed_row), (
+        "a genuinely CLOSED row must be exempt, or closing a defect honestly "
+        "becomes harder than leaving it open")
 
 
 def test_the_refusal_check_can_fail():

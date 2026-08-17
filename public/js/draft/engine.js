@@ -2465,7 +2465,21 @@
    */
   function preDraftPool(board, ctx) {
     if (!ctx.preDraftPrep || !ctx.currentPick || ctx.currentPick <= 1) return board;
-    const kept = board.filter(p => survival(p, ctx.currentPick, ctx) >= CFG.SURVIVOR_CUTOFF);
+    /* UNCONDITIONAL, EXPLICITLY — the anchored ctx would ask the wrong question.
+     * `ctx.currentPick` here is the pre-draft ANCHOR (my first selection), not a
+     * pick anyone has reached: zero picks have landed, so "will he be there at
+     * 33" is measured FROM THE START of the draft, exactly the 0.000% figure in
+     * the header. Passing the anchored ctx through would evaluate
+     * P(taken by 33 | alive at 33) — a zero-width window, correctly 0 since the
+     * survival.js empty-window fix (2026-08-17) — and the filter would keep
+     * everyone. Before that fix this call only APPEARED to work: the far-tail
+     * guard returned "gone" for players with F ≥ 0.999 and the conditional
+     * returned "certain to survive" for everyone else, so a 91%-taken player at
+     * ADP 25 sailed through the same filter that cut Nacua. The unconditional
+     * form is the one the filter's own definition wants, for every player. */
+    const uncond = { currentPick: 0, runMultipliers: ctx.runMultipliers || {},
+      pickBoard: ctx.pickBoard || null, drift: ctx.drift || null };
+    const kept = board.filter(p => survival(p, ctx.currentPick, uncond) >= CFG.SURVIVOR_CUTOFF);
     return kept.length ? kept : board;   // never recommend from an empty pool
   }
 

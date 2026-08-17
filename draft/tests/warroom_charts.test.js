@@ -105,12 +105,38 @@ const ck = (n, c, d) => {
   lines.every(ys => ys.every((y, i) => i === 0 || y > ys[i - 1])), lines);
   ck('the end-of-line label is the LAST pick\'s probability',
     />10%</.test(svg) && />5%</.test(svg));
+  /* EVERY COLUMN CARRIES ITS NUMBER (Cory's capture 2026-08-17: only the
+   * terminal p68 label rendered, six lines all reading "0%", while the p48
+   * values a decision needs went unprinted). */
+  ck('EVERY column is labelled, not just the terminal one — p33 and p48 values '
+    + 'appear on each line',
+  />90%</.test(svg) && />50%</.test(svg) && />60%</.test(svg) && />30%</.test(svg), svg);
   ck('a player about to be gone is marked dying',
     /wr-spark-line dying/.test(svg));
   ck('pick numbers label the columns', /p33</.test(svg) && /p61</.test(svg));
   ck('EMPTY → honest empty state',
     /wr-chart-empty/.test(C.survivalSpark([]))
     && /wr-chart-empty/.test(C.survivalSpark([{ name: 'X', points: [] }])));
+
+  /* THE ALL-ZERO COLUMN COLLAPSES TO ONE HONEST LINE. Six "0%" labels carry
+   * exactly as much information as one; the chart says "all likely gone by pN"
+   * once at the FIRST such column (survival is monotone declining, so later
+   * all-zero columns are implied) and suppresses the per-row zeros. */
+  const zrows = [
+    { name: 'Jahmyr Gibbs', points: [{ pick: 33, p: 0.59 }, { pick: 48, p: 0.001 }, { pick: 61, p: 0 }] },
+    { name: 'Puka Nacua', points: [{ pick: 33, p: 0.41 }, { pick: 48, p: 0 }, { pick: 61, p: 0 }] },
+  ];
+  const zsvg = C.survivalSpark(zrows);
+  ck('an all-~0 column collapses to ONE "all likely gone by pN" note, at the '
+    + 'first such column',
+  /all likely gone by p48/.test(zsvg), zsvg);
+  ck('…and the per-row zero labels are suppressed (no "0%" text anywhere)',
+    !/>0%</.test(zsvg), zsvg);
+  ck('…while the live column keeps its per-line labels',
+    />59%</.test(zsvg) && />41%</.test(zsvg), zsvg);
+  // A chart with NO all-zero column prints no such note.
+  ck('the note never appears when every column has live values',
+    !/all likely gone/.test(svg));
 }
 
 // ── 4. RUNNING-OUT TILES ──────────────────────────────────────────────────

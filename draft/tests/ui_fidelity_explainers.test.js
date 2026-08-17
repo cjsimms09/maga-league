@@ -94,9 +94,18 @@ ck('PATHS: the band\'s derivation is cited (COIN_FLIP_GAP × 4) and still true i
   /COIN_FLIP_GAP × 4/.test(G.paths.src) && E.CFG.PATHS_BAND === E.CFG.COIN_FLIP_GAP * 4);
 ck('SURVIVAL: claims a conservation tilt; survival.js still ships conservedSurvival()',
   /conservation tilt/.test(G.survival.what) && /function conservedSurvival/.test(SURV));
-ck('SURVIVAL: the identical-% explanation matches the tilt\'s own caveat '
-  + '("fixes the total, not the ordering")',
-  /redistribution floor/.test(G.survival.read) && /fixes the total, not the ordering/.test(ENG));
+/* RE-PINNED after the 41%-wall root fix (survival.js empty-window conditional,
+ * survival_fallen_uniform.test.js). The old explanation — identical %s are
+ * "the tilt's redistribution floor", a market property — described the BUG:
+ * the zero-width remainder leg zeroed every fallen player's raw survival, so
+ * the tilt received identical weights and the room model's split never reached
+ * the number. Post-fix the room model splits fallen elites INSIDE this number,
+ * and the only remaining cause of identical %s is having no seat data yet —
+ * which is what the explainer must now say. */
+ck('SURVIVAL: the identical-% explanation is scoped to its only remaining cause '
+  + '(no draft order yet), and credits the room model with the split',
+/identical percentages on several elites only\s+appear before the draft order is known/
+  .test(G.survival.read) && /room\s+model is what splits them/.test(G.survival.read));
 ck('THREATS: "their own past Sleeper drafts" — threatBoard still reads team.profile',
   /past Sleeper drafts/.test(G.threats.what) && /team\.profile/.test(ENG));
 ck('BRANCHES: "rows under one point are hidden" — the renderer\'s filter is still loss > 1',
