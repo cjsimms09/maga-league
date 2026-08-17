@@ -12,6 +12,41 @@ make sure we don't have other mistakes in our info!!"*
 
 ---
 
+## ⚡ 08-17 LATE NIGHT — what landed after the evening section (A, gatekeeper)
+
+**All three of Cory's rulings are IN THE LIVE ENGINE:** adp_sd 0.11/2.0 (every
+band 0.95-1.02x market; backtest ordered, reversion armed), ceiling weight
+0.45 (measured inverted-U peak; top rec verified unchanged at Cory's picks),
+the ruled board itself published (first since 08-15; issue #8 auto-closed).
+
+**The war room is the tabbed COCKPIT, desktop-first, deployed and probe-verified**
+— one adjudicated TAKE, position rails, range bars, running-out tiles, tier-cliff
+chart, drill-downs. Evening item 2 (desktop-first): **RESOLVED** — executed in the
+cockpit spec. Evening item 4 (two weight systems): **RESOLVED in substance** —
+MEASURED.ceiling now 0.45, aligned with autoWeights' build phase at the measured
+peak, so the toggle no longer changes the model; which mode Cory drafts under is
+his rehearsal decision (AUTO defaults OFF — the routed "on by default" claim was
+false, corrected in the 0.45 commit).
+
+**Cory personally caught a live model defect from a screenshot** — every fallen
+elite showing "41% gone." Verdict: guard-order bug (empty-window survival asked
+after the far-tail guard answered "certainly taken"), which erased the room
+model's differentiated survivals and had silently CUT NACUA from the pre-draft
+pool. Fixed same-day with the algebra pinned (`survival_fallen_uniform.test.js`);
+deployed.
+
+**The "tool ties its user" headline was mis-attributed:** the all-seats table
+graded a weakened PROXY (BPA-by-VORP, market arm removed, no engine terms) and
+~70% of its losses were board-vintage status blindness the live board verifiably
+does not have. The live tool's edge is UNMEASURED; the real-engine replay via
+`draft/backtest/replay.js` is running now (queue: TO: A, live-edge item).
+Surviving findings: own_v6 overprices declining veterans (evidence FOR the REC-2
+composition hold; names the v7 decline term), and the human rookie edge is
+August news, not draft capital (inventory routed to D).
+
+Evening items 1 (wrong-seat computation) and 3 (proj_mean is Sleeper-only, and
+the blend question) remain OPEN — 3 is running with the relay's blend pipeline.
+
 ## 🔴 08-17 EVENING — FIVE FINDINGS EVERY LANE NEEDS, AND FOUR ARE DRAFT-CRITICAL
 
 *Added by the relay so these reach lanes without waiting on a merge. Cory today:
