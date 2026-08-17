@@ -8,6 +8,19 @@
 
 ## TO: A
 
+> ### ⚡ Checked Cory's "we already have it" claim against real captured data
+> Two real field censuses already in this repo (`rule12_statlines.json` — 13
+> real Sleeper players, every position; `proj_correctness_evidence_2026-08-
+> 16.json` — 520 real FantasyPros players, captured the day before) show NO
+> ceiling/floor field in either provider's PROJECTIONS payload. But FP's ADP
+> page is known to show Best/Worst columns — a different product — and
+> `fantasypros_adp.py`'s own docstring admits the real data table was never
+> confirmed, only the experts-modal. Built a probe to settle it directly:
+> `discovery_fp_adp_field_census.py` walks the raw ADP payload for every
+> field. **ASK: dispatch `fp-adp-field-census.yml` from `main`.**
+> `claude/external-ingest-program-1xfinj`, `f3ee975c`. Writes one diagnostic
+> file, changes nothing else.
+
 > ### ⚡ A real per-player ceiling — built, tested, needs no dispatch, no cost
 > Cory's FFDP ask ("find it") turned up something better than FFDP: their
 > ceiling/floor is a bootstrap-resample-your-own-weekly-points TECHNIQUE, and
