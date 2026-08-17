@@ -143,6 +143,32 @@ def harness_board_fields(src_text=None):
             + str(BUNDLE_PY) + ". The harness board is built some other way now; "
             "this sweep is measuring nothing and must be updated, not trusted.")
 
+    # ── FIELDS ATTACHED IN A SECOND PASS, WHICH THE DICT LITERAL CANNOT SHOW ──
+    #
+    # Added 2026-08-17, the day this tool started lying about the field it was
+    # most needed for. Dispersion moved out of the append literal and into
+    # `attach_dispersion`, because it needs a calibration that cannot be fitted
+    # until the bundles exist. The AST parse above sees only the literal, so it
+    # reported `proj_ceiling` as LAB-BLIND — "CORRUPTS A BACKTEST NUMBER" —
+    # hours after the harness had started carrying a measured one.
+    #
+    # It reads build_bundle's OWN declaration rather than a second hand-mirrored
+    # list here. Six comments went stale that day by keeping their own copy of
+    # another module's constants; this tool is the one that is supposed to be
+    # immune to that, so it must not acquire the habit.
+    m = re.search(r"^DISPERSION_FIELDS\s*=\s*\(([^)]*)\)", src, re.M)
+    # The requirement applies to the REAL file only. This function is also
+    # called with a small hand-written fixture by the self-test below, and that
+    # fixture legitimately has no module-level declarations — failing on it
+    # would make the tool refuse to start rather than refuse to lie.
+    if not m and src_text is None:
+        raise SystemExit(
+            "DISPERSION_FIELDS MISSING from " + str(BUNDLE_PY) + ". It is the "
+            "declaration this sweep reads to learn which fields a bundle gains "
+            "in its second pass. Without it every one of them reads LAB-BLIND "
+            "and this sweep reports a corruption that does not exist.")
+    second_pass = re.findall(r"[\"\']([a-z_]+)[\"\']", m.group(1)) if m else []
+
     keys, d = best
     out = {}
     for k, v in zip(d.keys, d.values):
@@ -161,6 +187,14 @@ def harness_board_fields(src_text=None):
         else:
             cls = "SOURCED"
         out[k.value] = (text, cls)
+    # The second-pass fields, injected here rather than into the key list: the
+    # classification loop above reads the Dict NODE, so a name appended to the
+    # parsed key list is silently ignored (it was, on the first attempt at this
+    # fix). They are SOURCED — attach_dispersion writes a measured calibration
+    # value, not a literal — which is exactly what distinguishes them from the
+    # 1.35/0.25 constants they replaced.
+    for k in second_pass:
+        out.setdefault(k, ("attach_dispersion(players, calibration)", "SOURCED"))
     return out
 
 

@@ -57,6 +57,19 @@ def weekly_points_by_season(weekly_df, seasons, scoring_cfg, crosswalk):
     return out, games
 
 
+#: The dispersion fields a bundle carries, DECLARED ONCE because two readers
+#: need them and a hand-mirrored second copy is what went stale six times on
+#: 2026-08-17.
+#:
+#: `harness_divergence.py` AST-parses the `players.append({...})` literal to
+#: learn what a bundle board holds. These fields are attached in a SECOND PASS
+#: (they need a calibration the bundle must exist before you can fit), so they
+#: are invisible to that parse — and the tool duly reported `proj_ceiling` as
+#: LAB-BLIND, i.e. "corrupts a backtest number", hours after it stopped being
+#: true. The declaration below is what it reads instead of guessing.
+DISPERSION_FIELDS = ("proj_ceiling", "proj_floor", "proj_sd")
+
+
 def attach_dispersion(players, calibration):
     """Put the MEASURED spread on bundle rows, or leave the fields off entirely.
 
@@ -107,9 +120,9 @@ def attach_dispersion(players, calibration):
         for rank, p in enumerate(rows, start=1):
             mean = p.get("proj_mean") or 0.0
             got = False
-            for field, fn in (("proj_ceiling", PE.proj_ceiling_for),
-                              ("proj_floor", PE.proj_floor_for),
-                              ("proj_sd", PE.proj_sd_for)):
+            for field, fn in zip(DISPERSION_FIELDS,
+                                 (PE.proj_ceiling_for, PE.proj_floor_for,
+                                  PE.proj_sd_for)):
                 val, status = fn(calibration, pos, rank, mean)
                 if status == "measured" and val is not None:
                     p[field] = val
