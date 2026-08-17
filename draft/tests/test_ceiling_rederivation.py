@@ -164,6 +164,74 @@ def test_the_archived_pre_fix_run_is_kept_and_is_distinguishable():
     assert old["seeds"] == new["seeds"], "same seeds, or it is not a like-for-like comparison"
 
 
+# --------------------------------------------------------------- the bracket run
+BRACKET = os.path.join(BACKTEST, "exp_ceiling_bracket.json")
+
+
+def test_the_bracket_run_passed_its_anchor_control():
+    """The bracket carries w=0.65 over from the re-derivation and must reproduce
+    its edges exactly. A flat grid produced by a DRIFTED instrument looks the
+    same as a flat grid produced by a flat effect; this is the only thing that
+    tells them apart, so the artifact may not be trusted without it."""
+    d = json.load(open(BRACKET))
+    assert d["anchor_control"]["reproduced"] is True, d["anchor_control"]
+
+
+def test_the_bracket_anchor_matches_the_published_rederivation_edges():
+    """And the control's target must be the number actually published, not a
+    value quietly relaxed to make the control pass."""
+    b = json.load(open(BRACKET))
+    r = json.load(open(RESULT))
+    published = {s["seed"]: s["w0.65"]["edge"] for s in r["per_seed"]}
+    expected = {int(k): v for k, v in b["anchor_control"]["expected"].items()}
+    assert expected == published, {"control_targets": expected, "published": published}
+
+
+def test_every_non_zero_weight_in_the_bracket_beats_the_shipped_zero():
+    """The claim the write-up rests on: it is a zero-versus-non-zero result, not
+    a claim about which non-zero value."""
+    d = json.load(open(BRACKET))
+    for w, c in d["columns"].items():
+        assert c["n_pos"] == 3, (w, c)
+        assert c["n_sep"] == 3, (w, c)
+
+
+def test_the_flat_plateau_is_genuinely_within_noise():
+    """Guards the write-up's refusal to name an optimum. If 0.30/0.45/0.65 ever
+    separate by more than a fraction of their own CI width, 'indistinguishable'
+    stops being true and the prose must change with it."""
+    d = json.load(open(BRACKET))
+    means = [d["columns"][w]["mean"] for w in ("0.3", "0.45", "0.65")]
+    spread = max(means) - min(means)
+    widths = [s[f"w{w}"]["ci95"][1] - s[f"w{w}"]["ci95"][0]
+              for s in d["per_seed"] for w in ("0.3", "0.45", "0.65")]
+    typical = sorted(widths)[len(widths) // 2]
+    assert spread < 0.1 * typical, {"spread": spread, "typical_ci_width": typical}
+
+
+def test_the_bracket_is_stamped_with_a_non_degenerate_board():
+    d = json.load(open(BRACKET))
+    assert d["board_distinct_ceiling_ratios"] > 1, d["board_distinct_ceiling_ratios"]
+
+
+def test_the_bracket_verdict_is_derived_not_written():
+    d = json.load(open(BRACKET))
+    assert E.summarise(d["per_seed"], weights=d["weights"])[0] == d["verdict"]
+
+
+def test_adding_grid_arms_cannot_move_an_arm_they_share():
+    """The property the anchor control depends on, asserted against the code
+    rather than inferred from the two runs agreeing: every room's RNG state is a
+    function of (seed, room) only. If `race` ever derives a state from the arm
+    set, the control silently becomes a tautology."""
+    import inspect
+    src = inspect.getsource(E.race)
+    assert "random.Random(seed + s)" in src
+    assert "random.Random(seed * 7 + s)" in src
+    # and the states are taken BEFORE the per-arm loop, not inside it
+    assert src.index("grade_state = ") < src.index("for k, ch in arms.items()")
+
+
 @pytest.mark.parametrize("w", ["0.65", "1.0", "1.5"])
 def test_the_generated_doc_matches_the_stored_numbers(w):
     d = json.load(open(RESULT))

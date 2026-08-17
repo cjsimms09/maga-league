@@ -346,16 +346,29 @@ on the broken board the effect ROSE with the weight, on the real one it FALLS �
 which is what a second copy of the value term should look like, and is the
 clearest single demonstration that the old grid was measuring the defect.
 
-**It does not ship before 08-22, deliberately.** Measured once, on the money
-proxy rather than a graded season, on a grid whose winner is its own smallest
-tested weight — so the optimum is not bracketed and could be lower still. What
+**A second preregistered run bracketed it** (`CEILING-BRACKET-PREREG.md` →
+`EXP-CEILING-BRACKET-RESULT.md`), over w ∈ {0.15, 0.30, 0.45, 0.65}, with w=0.65
+carried across as a control that had to reproduce its earlier edges exactly or
+kill the run. **It reproduced, and all twelve seed × weight cells came back
+positive with a CI excluding zero.** 0.30/0.45/0.65 are indistinguishable (means
+within **$0.6**); 0.15 is lower (+$24.0) but still separable in 3/3. So the
+answer is **zero versus non-zero** — it does not depend on picking a value, and
+naming "the optimum" off a $0.6 gap is forbidden by that prereg.
+
+**It does not ship before 08-22, deliberately.** Both runs share the same three
+seeds, the same money proxy and the same board — one experiment measured twice,
+not two experiments — so a **fresh-seed replication is owed** before any weight
+moves. What
 this changes today is the *account*, not the number: three places told Cory the
 term was unmeasured, and all three now say it is measured, contradicted, and
 held. **The Live-policy panel says so in his words on the screen.**
 
-Order after the draft: bracket (w ∈ {0.15, 0.3, 0.45, 0.65}, own prereg first) →
-replicate on fresh seeds → then the per-player question, which none of this
-touches and which is the one he has actually been asking: `weekly_volatility.py`.
+Order after the draft: ~~bracket~~ **done** → **replicate on fresh seeds** (the
+one outstanding blocker on moving the weight) → Cory's shipping call, framed as
+*"the model is ignoring upside entirely; measurement says it should not, and says
+the exact amount hardly matters"* rather than *"set it to 0.30"* → then the
+per-player question, which none of this touches and which is the one he has
+actually been asking: `weekly_volatility.py`.
 
 ---
 
