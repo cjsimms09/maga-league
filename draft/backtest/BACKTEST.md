@@ -3,7 +3,7 @@
 HISTORICAL BACKTEST — does the composite beat ADP on our own drafts?
 ==============================================================================
 
-git HEAD        b18a74b73d545b85c01b926f983ae6b814acd552
+git HEAD        32835a80163a43503b34699f59920c05b785354d
 seasons         2023, 2024, 2025
 graded picks    202  (rounds 1-12)
 
