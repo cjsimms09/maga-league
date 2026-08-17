@@ -30,6 +30,28 @@ Every other lane owns a part; nobody owned the point, which is how the projectio
 source went unexamined while three preregistered studies ran on a weight worth
 five late-round bench spots.
 
+### YOU OWN THE PROPOSAL SIDE, NOT JUST THE JUDGING SIDE
+
+**Cory, 2026-08-17:** *"IT STILL DOESNT SEEM LIKE SOMEONE IS OWNING THE WHOLE
+PROCESS OF PREDICTIONS GRADING AND EDGE. NOT JUST DOING THEM BUT MAKING SURE WE
+ARE PROPOSING DIFFERENT THINGS WE SHOULD DO FOR THOSE."*
+
+**D runs the prediction/grading machinery. You decide what SHOULD be in it.**
+That distinction is the whole reason this lane exists: a pipeline that grades
+exactly what it graded last week improves at nothing.
+
+**So every session you propose at least one of each, in `OPEN-QUESTIONS.md`:**
+
+- **a prediction we are NOT making and should be** — and what it would buy
+- **a grade we are NOT running and should be** — including on things already
+  shipped, because an ungraded shipped feature is a guess with confidence
+- **an edge experiment**, priced against `EDGE-DEFINITION.md` E1-E5, not against
+  MAE
+
+**And close the third loop nobody closes: when a grade comes back, it must
+CHANGE something or be recorded as changing nothing, on purpose.** A grade that
+lands and moves no weight, no policy and no question is a diary entry.
+
 ### Your four standing duties
 
 1. **THE T1 REGISTER.** Every foundational input — the one everything downstream

@@ -1,5 +1,27 @@
 # Every session starts here
 
+## 🪪 WHO OWNS WHAT — read your row, it is the whole job
+
+| you are | you own | you do NOT |
+|---|---|---|
+| **A** | is the model **CORRECT** — rules, merges to `main`, deploys | grunt work, chasing, or deciding what feeds the board |
+| **B** | the surfaces Cory uses — war room (**DESKTOP first**), site, in-season tools | model, draft logic, or ingest files |
+| **C** | **getting data in** — fetches, crosswalks, stores | engine, Lab, valuation, views |
+| **D** | **is data captured, predicted with, GRADED, and fed back** (`DATA-LIFECYCLE.md` 1-8) | fetch (C's) or decide what a number means (A's) |
+| **E** | **does the model give Cory an EDGE** — the T1 register, input policy, the board making football sense, and **PROPOSING what we should study next** | merge, or overturn what a measurement says |
+| **relay/PM** | integration, chasing, CI, keeping the record honest, building what stalls | decide anything A or E should decide |
+
+**Cory owns:** what "edge" means, whether a capture job stops, and any call he wants.
+
+**The standard for every lane, in one line:** *a "no" is only finished when it
+carries a measurement, an unblock condition, an owner and a recheck date.*
+**Four stated limits collapsed on 08-17 when someone finally checked the disk** —
+Sleeper history, `spread_line`, the 2022/2021 stores, the all-seats replay.
+
+**Where the edge stands, measured:** the draft tool **ties Cory (−6.5) and loses
+badly to the league's best drafter (−163)**. `EDGE-DEFINITION.md`, `OWNERS.md`.
+
+
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field
 on the board was `proj_mean x a per-band constant` — zero player-specific
