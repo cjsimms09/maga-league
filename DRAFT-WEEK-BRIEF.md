@@ -153,9 +153,30 @@ real aggregation semantics, not another guess.
 - `weight_provenance.test.js` — re-aimed; now fails if a synthetic dispersion
   constant is REINTRODUCED to `build_bundle.py`.
 
-**Honest limit:** of the four real defects found on 08-17, only two were caught
-by machinery, and one of those was machinery written the same day. The gates
-cover the shapes we know about. The rest are still found by reading.
+**Honest limit:** of the real defects found on 08-17, only some were caught by
+machinery, and one of those was machinery written the same day. The gates cover
+the shapes we know about. The rest are still found by reading.
+
+**AND ONE CLASS RESISTED GATING — recorded because the next person will try.**
+Six of the day's findings were stale CITATIONS: a comment asserting another
+module's constant (`build_bundle.py writes 1.35 x proj_mean`,
+`HARNESS_CEILING_RATIO = 1.35; // build_bundle.py:132, verbatim`). I built a
+sweep for it and **deleted it**, because it failed its own known-positive
+control and the reason is structural, not tuning:
+
+- the constant usually lives in CODE and the citation in the trailing COMMENT,
+  so a comment-body reader cannot see the number at all; and
+- fixing that still fails, because the test "is the cited number still present
+  in the cited file?" is defeated by **this repo's own good habit** — we keep
+  the history, so `build_bundle.py` still contains the string `1.35` in the
+  comments explaining what it used to do.
+
+Textual presence cannot distinguish "the constant is still there" from "the
+constant's obituary is still there". A real check would have to parse the cited
+file and compare live VALUES, which is `harness_divergence.py`'s AST approach —
+that is the direction, if someone wants it. Until then this class is caught by
+reading, and that is stated rather than papered over with a tool that reports
+zero and proves nothing.
 
 ## 6. THE SWEEP IS CLOSED
 
