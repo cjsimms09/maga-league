@@ -639,12 +639,40 @@
       + '>' + marker + '</span>';
   }
 
+  /* THE CONDITION HERE WAS INVERTED, AND ITS ABSENCE ASSERTED A SECOND OPINION
+   * THAT DOES NOT EXIST (session E, 2026-08-17; register E6).
+   *
+   * It used to read `if (p.proj_fantasypros != null) return '';` — i.e. carrying
+   * a FantasyPros number was treated as evidence that `proj_mean` had more than
+   * one source behind it. It is not. `proj_baseline == proj_sleeper` for 427 of
+   * 427 rows carrying both, and build.py:1003 declares the formula outright:
+   * "sleeper_baseline * (1 + opportunity_adj)". FantasyPros is carried and
+   * DISPLAYED and never enters `proj_mean` (register 21).
+   *
+   * So the old mark divided the board exactly backwards. Measured on the live
+   * screen: 127 rows rendered with NO caveat and all 127 were Sleeper-only,
+   * while the 65 that carried it were the rows where FP simply does not exist.
+   * Every one of the 682 is single-source. The absence of a mark was the lie.
+   *
+   * EVERY ROW IS MARKED NOW, because every row earns it. What stays per-player
+   * is the thing that genuinely varies and is the more useful fact anyway:
+   * whether a second source EXISTS and is being ignored (427 rows) or is simply
+   * absent (255). Cory asked for a sanity check on our own valuation; "we hold a
+   * second opinion and did not use it" is exactly that check. */
   function projSourceMark(p) {
     if (!p || p.proj_mean == null) return '';
-    if (p.proj_fantasypros != null) return '';
-    return caveatOnce('single_source', '¹',
-      'single-source projection (Sleeper only) — FantasyPros does not cover this '
-      + 'position, so there is no second opinion behind this number');
+    const prov = (state.data || {}).provenance || {};
+    const src = (prov.projections && prov.projections.source) || 'sleeper';
+    const name = /fantasypros/i.test(src) ? 'FantasyPros'
+      : /sleeper/i.test(src) ? 'Sleeper' : String(src);
+    if (p.proj_fantasypros != null) {
+      return caveatOnce('unused_second_source', '¹',
+        name + ' only — a FantasyPros projection exists for this player ('
+        + Math.round(p.proj_fantasypros) + ') and does NOT enter this number');
+    }
+    return caveatOnce('no_second_source', '²',
+      name + ' only — no second source covers this player, so there is no '
+      + 'second opinion available behind this number');
   }
 
   const OV_FIELDS = ['proj_mean', 'proj_ceiling', 'proj_floor', 'vorp'];
