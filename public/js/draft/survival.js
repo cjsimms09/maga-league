@@ -314,9 +314,36 @@
    * produces. Bayes:  P(taken by n | survived to c) = (F(n) - F(c)) / (1 - F(c))
    */
   function layer1TakenGivenAvailable(player, pick, currentPick, ctx) {
+    /* ⚠ AN EMPTY WINDOW CONTAINS NO PICKS, AND THIS CHECK MUST COME BEFORE THE
+     * FAR-TAIL GUARD BELOW — the ordering was THE 41% WALL (Cory's capture,
+     * 2026-08-17: every fallen elite at every position printing one identical
+     * "gone by your next pick" number).
+     *
+     * The chain: survivalProbability's remainder leg asks for P(taken between
+     * windowEnd and targetPick | alive at windowEnd), and whenever Layer 2
+     * covers the whole window those two picks are EQUAL — the window is
+     * [48, 48), zero picks, so the true conditional is
+     * (F(48) − F(48)) / (1 − F(48)) = 0. But every player 25+ picks past his
+     * ADP has F ≥ 0.999 at ANY current pick, so the guard fired first and
+     * returned 1: "certainly taken inside a window in which nobody picks".
+     * That single impossibility multiplied survival by zero —
+     * 1 − survivesWindow × (1 − 1) = 1 — so the ROOM model's differentiated
+     * answer (Layer 2, which genuinely splits these players) was computed and
+     * then discarded for exactly the players the shortlist leads with. Every
+     * fallen player's raw survival became EXACTLY 0, the conservation tilt got
+     * identical weights w_i = 1, and exp(−λ·1) handed them all one number.
+     * Pinned by survival_fallen_uniform.test.js, which reproduces the board
+     * state from the capture. */
+    if (currentPick != null && currentPick > 0 && pick <= currentPick) return 0;
     const fN = layer1Taken(player, pick, ctx);
     if (currentPick == null || currentPick <= 0) return fN;
     const fC = layer1Taken(player, currentPick, ctx);
+    /* Far past his ADP over a REAL (non-empty) window, the guard is the honest
+     * limit of this model, not a shortcut: P(alive at n | alive at c) for a
+     * normal is Q(z_n)/Q(z_c) ≈ exp(−(z_n²−z_c²)/2)·(z_c/z_n), which is ~0 for
+     * any n > c once z_c ≥ 3 — the market model genuinely converges to "gone",
+     * and the float arithmetic underflows (0/0) before the formula can say so.
+     * The same test proves the convergence with this closed form. */
     if (fC >= 0.999) return 1;           // he should already be gone; treat as gone
     return Math.max(0, Math.min(1, (fN - fC) / (1 - fC)));
   }

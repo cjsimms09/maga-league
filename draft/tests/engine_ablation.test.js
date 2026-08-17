@@ -109,10 +109,17 @@ const baseCtx = over => Object.assign({
     ck('flag plumbing — ceiling_tiebreak flip is INERT at pick 33 on the 08-17 '
       + 'board (no near-tie in the top-15 to break) — the finding, pinned',
     alt33 === base);
-    const mkLate = () => { const c2 = LC.liveContext({ currentPick: 68, nextPick: 73 }); c2.wireWeekly = WIRE; return c2; };
+    /* RE-PINNED 68 → 98 on 2026-08-17 evening, same pattern as the 08-17
+     * morning move out of pick 33: the survival empty-window fix (the 41%-wall
+     * root cause, survival_fallen_uniform.test.js) gave fallen players their
+     * room-model survival back, which re-spread VONA — and with it the
+     * mid-board near-ties. Probed on the same artifact across picks 68-118:
+     * inert through 93, live from 98 on. The board being decisive at 68 is,
+     * again, the finding; the flag's plumbing is proven where a tie exists. */
+    const mkLate = () => { const c2 = LC.liveContext({ currentPick: 98, nextPick: 103 }); c2.wireWeekly = WIRE; return c2; };
     const late = topN(mkLate());
     const altLate = EA.withFlags([['E', 'CEILING_TIEBREAK', false]], () => topN(mkLate()));
-    ck('…and LIVE at the real pick 68, where the board still carries a near-tie '
+    ck('…and LIVE at the real pick 98, where the board still carries a near-tie '
       + '— the mechanism, proven on the same artifact', altLate !== late);
   }
 }
@@ -314,12 +321,30 @@ const FAST = '--rooms 2 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
    * stopped reaching a choice the shipped config demonstrably makes. The
    * adjustment limb's no-op stays pinned separately (no-adjusted-row, above);
    * the divergence here is ENTIRELY the z-limb through KOV. */
-  ['baseline_bpa', 'stripped', 'minus_conserve', 'minus_opportunity'].forEach(a => {
+  ['baseline_bpa', 'stripped', 'minus_opportunity'].forEach(a => {
     ck('CONTROL — ' + a + ' diverges from its control on the smoke seeds '
       + '(the ablation provably reaches the choice)',
       out.paired_vs_control[a].rooms_diverged > 0,
       out.paired_vs_control[a]);
   });
+  /* minus_conserve MOVED to a dedicated seed on 2026-08-17 evening — same
+   * two-halves pattern as minus_opportunity's history above, and for the same
+   * class of reason: an upstream fix legitimately re-spread the numbers. The
+   * survival empty-window fix (the 41%-wall root cause,
+   * survival_fallen_uniform.test.js) stopped zeroing fallen players' raw
+   * survival, so the conservation tilt now receives DIFFERENTIATED weights and
+   * applies a smooth, rank-preserving correction instead of jolting a block of
+   * players from 0 to exp(−λ). A smooth correction flips fewer argmaxes:
+   * measured across seeds 9001-9006, the tilt still flips a real pick in 1/6
+   * rooms — at seed 9003 — but no longer on 9001/9002. The control stays
+   * non-vacuous by running the seed where the tilt demonstrably reaches a
+   * choice; rooms_diverged === 0 THERE would mean the tilt died. */
+  run('--rooms 1 --seed 9003 --sims 200 --arms full,minus_conserve');
+  const conserveOut = readOut();
+  ck('CONTROL — minus_conserve diverges from its control on its dedicated seed '
+    + '(9003 — the ablation provably reaches the choice)',
+  conserveOut.paired_vs_control.minus_conserve.rooms_diverged > 0,
+  conserveOut.paired_vs_control.minus_conserve);
   // The zero-divergence identity: an arm whose rooms never diverged must have
   // EXACTLY zero deltas — pairing and season-memo accounting are exact.
   const zeroArms = [
