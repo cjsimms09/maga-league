@@ -1,0 +1,86 @@
+name: External ADP historical — genuine FFC + FantasyPros, 2023-2026
+
+# A's 08-17 load order (1), highest priority: "GENUINE FFC PULL + PER-YEAR
+# HISTORICAL ADP STORES — unblocks TWO rulings." The probe that justified
+# anchoring the board on FantasyPros built a lookup it *named* `ffc_rank` out
+# of the board's own `raw_adp`, which was already FantasyPros — so the
+# FP-vs-FFC comparison it shipped was FP compared to itself (register row 19).
+# This gets a REAL FFC snapshot, named for what it holds, plus per-year
+# historical stores for 2023/2024/2025 so the honest re-run and the ADP
+# source study (relay/PM, ADP-SOURCE-2026-PREREG.md) both have real rows.
+#
+# WHY A WORKFLOW. fantasyfootballcalculator.com and www.fantasypros.com are
+# proxy-blocked from the dev sandbox — measured 2026-08-17, same policy-denial
+# shape as MFL and Sleeper. Both are reachable from GitHub Actions, which is
+# where every FantasyPros artifact this repo holds was actually fetched.
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH. The 08-16 Sleeper history
+# probe was dispatched from a feature branch; the push guard correctly refused
+# to write to main and the verdict was lost for a day. Same guard, same
+# reason, named loudly rather than silently discarded.
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: 'Seasons to fetch (space-separated; blank = 2023 2024 2025 2026)'
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-adp-historical
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: The join/distinctness logic is tested before any real fetch runs
+        run: |
+          python3 -m pip install -q pytest
+          python3 -m pytest draft/tests/test_external_adp_historical.py -q
+
+      - name: Fetch FFC + FantasyPros for each requested year
+        env:
+          YEARS: ${{ github.event.inputs.years }}
+        run: |
+          set -uo pipefail
+          if [ -n "$YEARS" ]; then
+            # shellcheck disable=SC2086
+            python3 draft/backtest/external_adp_historical.py --years $YEARS
+          else
+            python3 draft/backtest/external_adp_historical.py
+          fi
+
+      - name: Commit the stores
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::fetched rows are in this run's log and are"
+            echo "::warning::deliberately NOT committed. This is exactly how"
+            echo "::warning::the 08-16 Sleeper verdict was lost for a day —"
+            echo "::warning::re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — rows NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/external_adp_historical.json 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "external ADP historical: FFC + FantasyPros, 2023-2026 [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::ROWS NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing new to commit"
