@@ -1,0 +1,87 @@
+name: External source projections — Sleeper + FantasyPros, joined, RAW ROWS ONLY
+
+# Cory has been asking since 08-16 whether the board should draft off Sleeper,
+# FantasyPros, or a blend — "GETTING ANNOYED WITH FANTASY PRO, SLEEPER, VS
+# BLEND ISSUE, THIS IS INCREDIBLY IMPORTANT AND DEFINITELY EFFECTS DRAFT
+# RECOMMENDATIONS." The question could not be answered because three committed
+# files said Sleeper had no gradeable per-player history and none of them had
+# asked the API. `sleeper_hist_proj.json` (committed 0f9ecbe2 on main) shows
+# 2025 passed every leak gate. The blocker was false.
+#
+# THIS WORKFLOW DOES NOT ANSWER THAT QUESTION. It gets the rows — per-player
+# raw stat lines from both sources, joined on our sleeper_id via the same
+# crosswalk exp_fp_hist_proj already uses — and commits them. Nothing here is
+# scored, compared to a realized outcome, or graded; that is TERRITORY: A's
+# call (draft/backtest/source_blend_2025.py, SOURCE-BLEND-2025-PREREG.md).
+#
+# WHY A WORKFLOW. api.sleeper.app and api.fantasypros.com / www.fantasypros.com
+# are proxy-blocked from the dev sandbox — measured 2026-08-17, gateway 403 to
+# CONNECT on all three, a policy denial rather than either source being down.
+# Both are reachable from GitHub Actions, which is where every FantasyPros
+# artifact this repo already holds was fetched.
+#
+# DISPATCH THIS FROM `main`, NOT A WORKTREE BRANCH. The 08-16 Sleeper history
+# probe was dispatched from a feature branch; the push guard correctly refused
+# to write to main, the verdict printed to a log, and the answer was lost for
+# a day. Same guard here, same reason, and the failure mode is named in the
+# step itself so a rerun from the wrong ref cannot be mistaken for a clean one.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Season to fetch preseason projections for'
+        required: false
+        default: '2025'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: external-source-projections
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: The join logic is tested before any real fetch runs
+        run: |
+          python3 -m pip install -q pytest
+          python3 -m pytest draft/tests/test_external_source_projections.py -q
+
+      - name: Fetch Sleeper + FantasyPros, join, write the raw rows
+        run: |
+          python3 draft/backtest/external_source_projections.py \
+            --year "${{ github.event.inputs.year || '2025' }}"
+
+      - name: Commit the rows
+        run: |
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::warning::Dispatched from '$GITHUB_REF_NAME', not main. The"
+            echo "::warning::fetched rows are in this run's log/artifact and are"
+            echo "::warning::deliberately NOT committed. This is exactly how the"
+            echo "::warning::08-16 Sleeper verdict was lost for a day —"
+            echo "::warning::re-dispatch from main."
+            echo "_Dispatched from \`$GITHUB_REF_NAME\` — rows NOT committed._" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name lab-bot
+          git config user.email lab-bot@users.noreply.github.com
+          git add draft/backtest/external_source_projections_*.json draft/data/raw/ 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m "external source projections: Sleeper + FantasyPros, joined [skip deploy]"
+            for i in 1 2 3; do
+              git fetch origin main || true
+              git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+              if git push origin HEAD:main; then exit 0; fi
+              sleep $((i * 5))
+            done
+            echo "::error::ROWS NOT PUSHED — the fetch is spent and the answer is lost."
+            exit 1
+          fi
+          echo "no change — nothing new to commit"
