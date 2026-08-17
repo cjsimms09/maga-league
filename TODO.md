@@ -175,6 +175,20 @@ The 08-14 freeze stays recoverable in git history either way.
   values against production's 13, 46% of range on backtest boards); re-derive the
   composite `ceiling` weight (its zero was to stand "until a real-ceiling board
   re-runs the experiment" — **the harness is now fixed, so that board exists**).
+- **UNLOCK 2025 IN THE BACKTEST — it would take every strategy finding from N=2
+  to N=3**, the threshold the report's own selection rule is written against.
+  Diagnosed 2026-08-17 (`draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md`).
+  **TWO defects, and both must be fixed or the gate still refuses:**
+  (a) `grade.weekly_from_pbp` emits NO two-point-conversion field, while
+  `pass_2pt`/`rec_2pt`/`rush_2pt` are each priced at 2.0 in our league — SEVEN
+  of the eight worst top-200 disagreements are `2 x (2pt count)` exactly.
+  Systematic, and harmless today only because the rebuilt path is REFUSED and
+  nothing consumes it.
+  (b) Jameson Williams is missing ONE 50-yard TD reception (50 yd = 5.0 plus
+  1 TD = 6.0 = the observed 11.0). He has ZERO 2pt conversions, so (a) does not
+  touch him — and because the gate is **worst-case** on the top 200, **fixing
+  (a) alone will NOT unlock 2025.**
+  Do NOT loosen the 0.5 tolerance: that is the ADP-sd refusal again.
 - **`need` — CORRECTING MY OWN EARLIER FRAMING.** I described this as "shipping
   at 0.0 off a measurement taken with a malformed league object". That is wrong
   and the distinction matters. The malformed-object error was in MY bar audit
