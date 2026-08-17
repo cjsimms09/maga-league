@@ -248,6 +248,36 @@ word. Eighty items is not a queue, it is a wall, and by Rule 3b **a mis-routed
 item is the relay's defect, not A's.** The relay triages A's inbox down to
 decisions only, and anything that is really work goes to the lane that can do it.
 
+## RULE 3f — A REFUSAL IS NOT AN ENDING, AND "WHAT NEXT" IS EVERYONE'S JOB
+
+**Cory, 2026-08-17:** *"WE NEED BE ASKING WHAT SHOULD WE STUDY NEXT, WE ALSO NEED
+TO STOP TREATING REFUSAL AS ENDING. FIX BOTH THESE PROBLEMS FOR GOOD!"*
+
+Both are dated failures, not hypotheticals.
+
+**a) EVERY REFUSAL SHIPS THREE THINGS:**
+
+```
+REFUSED — unblocked by <condition>, owner <lane>, recheck <date>
+```
+
+**A refusal without all three is an open defect, not an answer.** This project
+refuses beautifully — `no_control`, `failed-gate`, `leaked_markers`,
+`INSUFFICIENT-N` — and every one of those was correct. But on 08-16
+`proj_mean_blend` refused for want of Sleeper history while `sleeper_hist_proj`
+proved that history exists **the same day**, and nobody connected them for a day.
+Both artifacts were right. **The silence between them was the defect.**
+
+**b) EVERY LANE ADDS ONE OPEN QUESTION PER SESSION** to `OPEN-QUESTIONS.md` — a
+thing we have not tested, with a cost band. Not a defect, not an assignment.
+
+Every material finding in the week of 08-17 came from Cory. That is an org-chart
+hole rather than a diligence failure: A rules, B builds, C fetches, D stewards,
+E red-teams **outputs**, the relay chases — **no seat generated hypotheses.**
+
+`draft/tests/test_open_questions.py` enforces both, with known-positive controls
+on each. A rule that lives only in a document did not stop either failure.
+
 ## RULE 4 — LANES ARE FILE-SCOPED AND ENFORCED
 
 `scripts/territory-check.sh` decides ownership by **file**, not directory, and
