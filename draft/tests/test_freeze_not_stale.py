@@ -63,6 +63,7 @@ def frozen():
     return json.loads(open(FREEZE).read())
 
 
+@pytest.mark.repo_parity
 def test_the_freeze_carries_every_field_it_declares(frozen):
     """THE GATE. A declared field that appears on ZERO rows means the artifact
     was written before that field existed — the freeze predates its own
@@ -114,4 +115,10 @@ def test_a_freeze_that_predates_a_field_is_detected(tmp_path):
                 if not any(p.get(f) is not None for p in fresh["players"])]
 
 
-pytestmark = pytest.mark.repo_parity
+# ONLY the artifact-reading test above is `repo_parity`, and that distinction
+# was not free: this file first carried a module-level `pytestmark`, which
+# marked all three. `test_gate_selection.py` refused it in the exact words that
+# matter — "extra exclusions (soundness tests the gate would silently skip)".
+# The two tests below it touch no artifact and no board; they are pure logic and
+# must run in the publication gate like any other soundness test. A blanket
+# marker on a file is how a real test quietly stops running.

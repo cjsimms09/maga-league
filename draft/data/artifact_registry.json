@@ -1,165 +1,229 @@
 {
-  "_territory": "TERRITORY: A",
-  "_pattern": [
-    "THE PATTERN, FOR THE NEXT STUDY THAT PRODUCES A REGENERATABLE ARTIFACT",
-    "(read draft/audit/artifact_freshness_infra_2026-08-16.md for the full",
-    "history; this is the two-sentence version to keep in your head):",
-    "",
-    "1. Your study writes a committed JSON artifact from a Python function",
-    "   that takes no required arguments (a `run()` / `compute()` /",
-    "   `build_artifact()` / `grade()` — whatever name reads naturally) and",
-    "   is called with no args by your module's own `main()`.",
-    "2. Add ONE entry to the `entries` list below: {id, description,",
-    "   owner_module, artifact_path, regenerate_command}. That is the whole",
-    "   registration. Do NOT write a bespoke",
-    "   `test_X_matches_regeneration` pytest function, and do NOT add",
-    "   `@pytest.mark.repo_parity` anywhere — `draft/tools/",
-    "   check_artifact_freshness.py` now covers every entry here",
-    "   automatically, informationally, every time it is run (including",
-    "   from scripts/verify-relay-session.sh).",
-    "3. If your artifact only needs to be compared against a SUBSET of the",
-    "   committed file (e.g. you're grading a reproduction against another",
-    "   study's already-committed artifact, not writing your own), add",
-    "   `compare_keys`: a list of dotted paths into both documents; the",
-    "   checker extracts and diffs only those subtrees. See the",
-    "   `props_season_projection_v6_reproduction` entry for a worked example.",
-    "",
-    "WHY THIS EXISTS: `pytest draft/tests` used to carry one bespoke",
-    "`test_X_matches_regeneration` function per artifact-producing study,",
-    "each hand-marked `@pytest.mark.repo_parity` and hand-added to the pinned",
-    "node list in test_gate_selection.py, because a committed artifact",
-    "legitimately drifts from a fresh regeneration every time the board or",
-    "its inputs move (that is not a bug — see conftest.py's docstring). This",
-    "happened, individually, for own_model_v2 through v6, model_accuracy_",
-    "backtest, source_weight_prior, playoff_sos, draft_replay_2025,",
-    "replay_all_seats, and props_season_projection — ten separate manual",
-    "interventions for the exact same underlying pattern, diagnosed across",
-    "five separate passes in draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.",
-    "Cory's ruling: fix it permanently. This registry plus",
-    "check_artifact_freshness.py is that fix — freshness is now checked by ONE",
-    "generic, informational tool instead of N bespoke, hand-maintained pytest",
-    "gate items. See draft/tests/conftest.py for the code-correctness-vs-",
-    "artifact-freshness distinction this replaces the STALE half of."
-  ],
-  "entries": [
-    {
-      "id": "model_accuracy_backtest",
-      "description": "Season backtest of the shared-population baseline models (naive_prev, recency_blend, walk_forward) against 2025 season totals.",
-      "owner_module": "draft/backtest/model_accuracy_backtest.py",
-      "artifact_path": "draft/backtest/model_accuracy_2025.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport model_accuracy_backtest as M\nprint(json.dumps(M.grade()))"]
-    },
-    {
-      "id": "own_model_v2",
-      "description": "own_model_v2 preregistered projection arm, graded against the 2025 season.",
-      "owner_module": "draft/backtest/own_model_v2.py",
-      "artifact_path": "draft/backtest/model_accuracy_v2.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v2 as V2\nprint(json.dumps(V2.run()))"]
-    },
-    {
-      "id": "own_model_v3",
-      "description": "own_model_v3 (market-machinery + ensemble) projection arm, graded against the 2025 season.",
-      "owner_module": "draft/backtest/own_model_v3.py",
-      "artifact_path": "draft/backtest/model_accuracy_v3.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v3 as V3\nprint(json.dumps(V3.run()))"]
-    },
-    {
-      "id": "own_model_v4",
-      "description": "own_model_v4 (QB availability layer over v3) projection arm, graded against the 2025 season.",
-      "owner_module": "draft/backtest/own_model_v4.py",
-      "artifact_path": "draft/backtest/model_accuracy_v4.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v4 as V4\nprint(json.dumps(V4.run()))"]
-    },
-    {
-      "id": "own_model_v5",
-      "description": "own_model_v5 (component-opinion ensemble) projection arm, graded against the 2025 season.",
-      "owner_module": "draft/backtest/own_model_v5.py",
-      "artifact_path": "draft/backtest/model_accuracy_v5.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v5 as V5\nprint(json.dumps(V5.run()))"]
-    },
-    {
-      "id": "own_model_v6",
-      "description": "own_model_v6 (QB from v4, RB/WR/TE from v5 composition), the live promoted model, graded against the 2025 season.",
-      "owner_module": "draft/backtest/own_model_v6.py",
-      "artifact_path": "draft/backtest/model_accuracy_v6.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v6 as V6\nprint(json.dumps(V6.run()))"]
-    },
-    {
-      "id": "source_weight_prior",
-      "description": "Source-weight prior gates (G1-G5) grading FantasyPros vs Sleeper skill signal against measured season totals.",
-      "owner_module": "draft/backtest/source_weight_prior.py",
-      "artifact_path": "draft/backtest/source_weight_prior.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport source_weight_prior as SWP\nprint(json.dumps(SWP.build_artifact()))"]
-    },
-    {
-      "id": "playoff_sos",
-      "description": "Playoff-weeks (15-17) strength-of-schedule tilt-breaker artifact, computed from the committed schedule/vegas/component stores and the live board.",
-      "owner_module": "draft/tools/playoff_sos.py",
-      "artifact_path": "draft/data/playoff_sos_2026.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft')\nimport playoff_sos as S\nprint(json.dumps(S.compute()))"]
-    },
-    {
-      "id": "draft_replay_2025",
-      "description": "\"Would the tool have drafted Cory a better team\" replay across 2023-2025, seat 1 (Cory) only.",
-      "owner_module": "draft/tools/draft_replay_2025.py",
-      "artifact_path": "draft/data/draft_replay_2025.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport draft_replay_2025 as R\nprint(json.dumps(R.run()))"],
-      "timeout_s": 300
-    },
-    {
-      "id": "replay_all_seats",
-      "description": "League-relative benchmark: the draft_replay_2025 arm re-run for every seat, pooled and per-seat.",
-      "owner_module": "draft/tools/replay_all_seats.py",
-      "artifact_path": "draft/data/replay_league_table.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport replay_all_seats as A\nprint(json.dumps(A.run()))"],
-      "timeout_s": 300
-    },
-    {
-      "id": "props_season_projection_v6_reproduction",
-      "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
-      "owner_module": "draft/tools/props_season_projection.py",
-      "artifact_path": "draft/backtest/model_accuracy_v6.json",
-      "compare_keys": ["arm_2025.models.own_v6.cells"],
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport props_season_projection as P\nfrom model_accuracy_backtest import positions_record\nfrom own_model_v2 import _grade_models, board_ages\npositions = positions_record()\nages = board_ages()\nv6_pred = P._v6_predictions(positions, ages)\ngot = _grade_models({'own_v6': v6_pred}, P.GRADED_SEASON, positions)\nprint(json.dumps({'arm_2025': {'models': {'own_v6': {'cells': got['models']['own_v6']['cells']}}}}))"]
-    },
-    {
-      "id": "pace_study",
-      "description": "Pace of play §3/§4/§4b: year-over-year persistence of eight team-pace metrics (the GATE that ended the study), their orthogonality to the week-1 implied team total, and the tempo->plays mechanism chain. Reads ONLY the committed team_pace and vegas stores and never the live board, so this entry is normally FRESH — a STALE here means one of those two stores moved, which is a different and louder event than nightly board drift.",
-      "owner_module": "draft/backtest/pace_study.py",
-      "artifact_path": "draft/backtest/pace_study.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport pace_study as P\nprint(json.dumps(P.run()))"],
-      "timeout_s": 900
-    },
-    {
-      "id": "pace_arm",
-      "description": "Pace of play §5: own_v6 plus a tempo tilt at RB/WR/TE, graded on the 2025 fold. Depends on the LIVE board (positions and ages) through own_model_v2's features, so it drifts with the nightly rebuild exactly as own_model_v2-v6 do — STALE is expected here for the same reason it is expected there.",
-      "owner_module": "draft/backtest/pace_arm.py",
-      "artifact_path": "draft/backtest/pace_arm.json",
-      "regenerate_command": ["python3", "-c", "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport pace_arm as A\nprint(json.dumps(A.run()))"],
-      "timeout_s": 1800
-    }
-  ],
-  "_not_yet_migrated": [
-    "These repo_parity-marked tests are a DIFFERENT species (ratchet-vs-",
-    "today's-market, coverage-vs-live-board, or a repo-workflow-file parse",
-    "check needing a library the gate venv lacks) and do not fit this",
-    "registry's committed-artifact-vs-regeneration shape. They stay as",
-    "hand-marked pytest tests, pinned in test_gate_selection.py's",
-    "REPO_PARITY_NODES, per the classification in",
-    "draft/audit/rebuild_refusal_diagnosis_2026-08-16.md §6/§7:",
-    "  - draft/tests/test_adp_sd_measured.py (4 params) — grades keepers.py's",
-    "    shipped dispersion constant against TODAY'S fetched FFC market, not",
-    "    against a committed artifact.",
-    "  - draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
-    "    — coverage/partition of the LIVE board's player set, not an",
-    "    artifact-equals-regeneration diff.",
-    "  - draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
-    "    — parses repo workflow YAML files; marked because the gate venv",
-    "    carries no pyyaml, not because of board staleness.",
-    "Also explicitly OUT OF SCOPE for this pass: anything fetch_weekly_props.py-",
-    "adjacent (the weekly-props study was still in flight 2026-08-16 per",
-    "ROUTES.md) — none of its tests currently carry repo_parity, so there is",
-    "nothing to migrate yet, but a future pass should check again once that",
-    "study lands before assuming it is clear."
-  ]
+ "_territory": "TERRITORY: A",
+ "_pattern": [
+  "THE PATTERN, FOR THE NEXT STUDY THAT PRODUCES A REGENERATABLE ARTIFACT",
+  "(read draft/audit/artifact_freshness_infra_2026-08-16.md for the full",
+  "history; this is the two-sentence version to keep in your head):",
+  "",
+  "1. Your study writes a committed JSON artifact from a Python function",
+  "   that takes no required arguments (a `run()` / `compute()` /",
+  "   `build_artifact()` / `grade()` \u2014 whatever name reads naturally) and",
+  "   is called with no args by your module's own `main()`.",
+  "2. Add ONE entry to the `entries` list below: {id, description,",
+  "   owner_module, artifact_path, regenerate_command}. That is the whole",
+  "   registration. Do NOT write a bespoke",
+  "   `test_X_matches_regeneration` pytest function, and do NOT add",
+  "   `@pytest.mark.repo_parity` anywhere \u2014 `draft/tools/",
+  "   check_artifact_freshness.py` now covers every entry here",
+  "   automatically, informationally, every time it is run (including",
+  "   from scripts/verify-relay-session.sh).",
+  "3. If your artifact only needs to be compared against a SUBSET of the",
+  "   committed file (e.g. you're grading a reproduction against another",
+  "   study's already-committed artifact, not writing your own), add",
+  "   `compare_keys`: a list of dotted paths into both documents; the",
+  "   checker extracts and diffs only those subtrees. See the",
+  "   `props_season_projection_v6_reproduction` entry for a worked example.",
+  "",
+  "WHY THIS EXISTS: `pytest draft/tests` used to carry one bespoke",
+  "`test_X_matches_regeneration` function per artifact-producing study,",
+  "each hand-marked `@pytest.mark.repo_parity` and hand-added to the pinned",
+  "node list in test_gate_selection.py, because a committed artifact",
+  "legitimately drifts from a fresh regeneration every time the board or",
+  "its inputs move (that is not a bug \u2014 see conftest.py's docstring). This",
+  "happened, individually, for own_model_v2 through v6, model_accuracy_",
+  "backtest, source_weight_prior, playoff_sos, draft_replay_2025,",
+  "replay_all_seats, and props_season_projection \u2014 ten separate manual",
+  "interventions for the exact same underlying pattern, diagnosed across",
+  "five separate passes in draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.",
+  "Cory's ruling: fix it permanently. This registry plus",
+  "check_artifact_freshness.py is that fix \u2014 freshness is now checked by ONE",
+  "generic, informational tool instead of N bespoke, hand-maintained pytest",
+  "gate items. See draft/tests/conftest.py for the code-correctness-vs-",
+  "artifact-freshness distinction this replaces the STALE half of."
+ ],
+ "entries": [
+  {
+   "id": "model_accuracy_backtest",
+   "description": "Season backtest of the shared-population baseline models (naive_prev, recency_blend, walk_forward) against 2025 season totals.",
+   "owner_module": "draft/backtest/model_accuracy_backtest.py",
+   "artifact_path": "draft/backtest/model_accuracy_2025.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport model_accuracy_backtest as M\nprint(json.dumps(M.grade()))"
+   ]
+  },
+  {
+   "id": "own_model_v2",
+   "description": "own_model_v2 preregistered projection arm, graded against the 2025 season.",
+   "owner_module": "draft/backtest/own_model_v2.py",
+   "artifact_path": "draft/backtest/model_accuracy_v2.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v2 as V2\nprint(json.dumps(V2.run()))"
+   ]
+  },
+  {
+   "id": "own_model_v3",
+   "description": "own_model_v3 (market-machinery + ensemble) projection arm, graded against the 2025 season.",
+   "owner_module": "draft/backtest/own_model_v3.py",
+   "artifact_path": "draft/backtest/model_accuracy_v3.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v3 as V3\nprint(json.dumps(V3.run()))"
+   ]
+  },
+  {
+   "id": "own_model_v4",
+   "description": "own_model_v4 (QB availability layer over v3) projection arm, graded against the 2025 season.",
+   "owner_module": "draft/backtest/own_model_v4.py",
+   "artifact_path": "draft/backtest/model_accuracy_v4.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v4 as V4\nprint(json.dumps(V4.run()))"
+   ]
+  },
+  {
+   "id": "own_model_v5",
+   "description": "own_model_v5 (component-opinion ensemble) projection arm, graded against the 2025 season.",
+   "owner_module": "draft/backtest/own_model_v5.py",
+   "artifact_path": "draft/backtest/model_accuracy_v5.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v5 as V5\nprint(json.dumps(V5.run()))"
+   ]
+  },
+  {
+   "id": "own_model_v6",
+   "description": "own_model_v6 (QB from v4, RB/WR/TE from v5 composition), the live promoted model, graded against the 2025 season.",
+   "owner_module": "draft/backtest/own_model_v6.py",
+   "artifact_path": "draft/backtest/model_accuracy_v6.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport own_model_v6 as V6\nprint(json.dumps(V6.run()))"
+   ]
+  },
+  {
+   "id": "source_weight_prior",
+   "description": "Source-weight prior gates (G1-G5) grading FantasyPros vs Sleeper skill signal against measured season totals.",
+   "owner_module": "draft/backtest/source_weight_prior.py",
+   "artifact_path": "draft/backtest/source_weight_prior.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport source_weight_prior as SWP\nprint(json.dumps(SWP.build_artifact()))"
+   ]
+  },
+  {
+   "id": "playoff_sos",
+   "description": "Playoff-weeks (15-17) strength-of-schedule tilt-breaker artifact, computed from the committed schedule/vegas/component stores and the live board.",
+   "owner_module": "draft/tools/playoff_sos.py",
+   "artifact_path": "draft/data/playoff_sos_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft')\nimport playoff_sos as S\nprint(json.dumps(S.compute()))"
+   ]
+  },
+  {
+   "id": "draft_replay_2025",
+   "description": "\"Would the tool have drafted Cory a better team\" replay across 2023-2025, seat 1 (Cory) only.",
+   "owner_module": "draft/tools/draft_replay_2025.py",
+   "artifact_path": "draft/data/draft_replay_2025.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport draft_replay_2025 as R\nprint(json.dumps(R.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
+   "id": "replay_all_seats",
+   "description": "League-relative benchmark: the draft_replay_2025 arm re-run for every seat, pooled and per-seat.",
+   "owner_module": "draft/tools/replay_all_seats.py",
+   "artifact_path": "draft/data/replay_league_table.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport replay_all_seats as A\nprint(json.dumps(A.run()))"
+   ],
+   "timeout_s": 300
+  },
+  {
+   "id": "props_season_projection_v6_reproduction",
+   "description": "props_season_projection's read-only reproduction of own_model_v6's construction (_v6_predictions + _grade_models), checked against own_model_v6's OWN committed artifact rather than props_season_projection's own (which is still pending real historical-props data).",
+   "owner_module": "draft/tools/props_season_projection.py",
+   "artifact_path": "draft/backtest/model_accuracy_v6.json",
+   "compare_keys": [
+    "arm_2025.models.own_v6.cells"
+   ],
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/tools')\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport props_season_projection as P\nfrom model_accuracy_backtest import positions_record\nfrom own_model_v2 import _grade_models, board_ages\npositions = positions_record()\nages = board_ages()\nv6_pred = P._v6_predictions(positions, ages)\ngot = _grade_models({'own_v6': v6_pred}, P.GRADED_SEASON, positions)\nprint(json.dumps({'arm_2025': {'models': {'own_v6': {'cells': got['models']['own_v6']['cells']}}}}))"
+   ]
+  },
+  {
+   "id": "pace_study",
+   "description": "Pace of play \u00a73/\u00a74/\u00a74b: year-over-year persistence of eight team-pace metrics (the GATE that ended the study), their orthogonality to the week-1 implied team total, and the tempo->plays mechanism chain. Reads ONLY the committed team_pace and vegas stores and never the live board, so this entry is normally FRESH \u2014 a STALE here means one of those two stores moved, which is a different and louder event than nightly board drift.",
+   "owner_module": "draft/backtest/pace_study.py",
+   "artifact_path": "draft/backtest/pace_study.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport pace_study as P\nprint(json.dumps(P.run()))"
+   ],
+   "timeout_s": 900
+  },
+  {
+   "id": "pace_arm",
+   "description": "Pace of play \u00a75: own_v6 plus a tempo tilt at RB/WR/TE, graded on the 2025 fold. Depends on the LIVE board (positions and ages) through own_model_v2's features, so it drifts with the nightly rebuild exactly as own_model_v2-v6 do \u2014 STALE is expected here for the same reason it is expected there.",
+   "owner_module": "draft/backtest/pace_arm.py",
+   "artifact_path": "draft/backtest/pace_arm.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport pace_arm as A\nprint(json.dumps(A.run()))"
+   ],
+   "timeout_s": 1800
+  }
+ ],
+ "_not_yet_migrated": [
+  "These repo_parity-marked tests are a DIFFERENT species (ratchet-vs-",
+  "today's-market, coverage-vs-live-board, or a repo-workflow-file parse",
+  "check needing a library the gate venv lacks) and do not fit this",
+  "registry's committed-artifact-vs-regeneration shape. They stay as",
+  "hand-marked pytest tests, pinned in test_gate_selection.py's",
+  "REPO_PARITY_NODES, per the classification in",
+  "draft/audit/rebuild_refusal_diagnosis_2026-08-16.md \u00a76/\u00a77:",
+  "  - draft/tests/test_adp_sd_measured.py (4 params) \u2014 grades keepers.py's",
+  "    shipped dispersion constant against TODAY'S fetched FFC market, not",
+  "    against a committed artifact.",
+  "  - draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
+  "    \u2014 coverage/partition of the LIVE board's player set, not an",
+  "    artifact-equals-regeneration diff.",
+  "  - draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
+  "    \u2014 parses repo workflow YAML files; marked because the gate venv",
+  "    carries no pyyaml, not because of board staleness.",
+  "  - draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+  "    (2026-08-17) \u2014 the pre-draft freeze MUST NEVER be regenerated to diff",
+  "    against: a freeze regenerated today is precisely the thing it exists to",
+  "    prevent, and freeze_pre_draft refuses to overwrite (no --force) for that",
+  "    reason. So this registry's artifact-vs-regeneration shape cannot cover",
+  "    it. The check is instead artifact-vs-its-OWN-DECLARATION: every field in",
+  "    freeze_pre_draft.PLAYER_FIELDS must appear on at least one frozen row.",
+  "    Red today and correctly so \u2014 the 08-14 freeze predates fourteen declared",
+  "    fields, all of which the live board carries; the fix is a dated draft-day",
+  "    re-freeze, not a code change.",
+  "Also explicitly OUT OF SCOPE for this pass: anything fetch_weekly_props.py-",
+  "adjacent (the weekly-props study was still in flight 2026-08-16 per",
+  "ROUTES.md) \u2014 none of its tests currently carry repo_parity, so there is",
+  "nothing to migrate yet, but a future pass should check again once that",
+  "study lands before assuming it is clear."
+ ]
 }

@@ -81,6 +81,25 @@ REPO_PARITY_NODES = {
     "draft/tests/test_adp_sd_measured.py::test_MEASURE_each_ADP_band_and_hold_the_line_at_todays_error[100-150]",
     "draft/tests/test_playoff_sos.py::test_every_board_skill_player_is_ranked_or_honestly_absent",
     "draft/tests/test_weekly_own_projection.py::test_own_weekly_workflow_yamls_parse_and_carry_dry_run",
+    # Added 2026-08-17. A THIRD shape again, and the registry's
+    # committed-artifact-vs-regeneration check structurally cannot cover it:
+    # the pre-draft freeze must NEVER be regenerated to compare against — a
+    # freeze regenerated today IS the thing it exists to protect against, and
+    # `freeze_pre_draft` refuses to overwrite for exactly that reason (no
+    # --force). So the check is committed-artifact-vs-its-OWN-DECLARATION:
+    # every field in PLAYER_FIELDS must appear on at least one frozen row.
+    #
+    # It is red today and correctly so — the 08-14 freeze predates FOURTEEN of
+    # its declared fields, all fourteen of which the live board carries. Its
+    # failure says the ARTIFACT is old, never that the candidate board is bad,
+    # which is this set's defining property. The fix is a dated draft-day
+    # action (delete by hand, re-freeze after the final board build).
+    #
+    # ONLY this node. The other two tests in that file are pure logic — they
+    # touch no artifact and no board — and a module-level pytestmark that swept
+    # them in here was refused by this very test, in the right words:
+    # "soundness tests the gate would silently skip".
+    "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
 }
 
 
