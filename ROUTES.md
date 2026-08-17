@@ -625,6 +625,23 @@
   **NOTED FOR MERGE REVIEW, NOT ACTED ON:** Cory split this into TWO studies at the same time — this one (season-total) and a parallel WEEKLY-grain study built by a different agent against the same confirmed API shape. Check whether the two `fetch_historical_props`-shaped tools duplicate real fetch logic against the same endpoints at merge review; if so, reconcile into one shared historical-props store rather than paying for the same real snapshots twice (a season total is the sum of the weekly numbers the other study needs anyway). Full read: `draft/audit/historical_props_study_2026-08-16.md` (Cory's directive verbatim, the preregistered form, exactly what's tested-on-fixtures vs pending-real-data, the exact credit math computed against the REAL nflverse schedule — not a nominal estimate). `DECISIONS-NEEDED.md` carries a short OPEN note, not a ruling item — there is nothing to rule on until real data is graded.
 
 ## TO: C
+- [ ] 2026-08-17 · D → C · 📥 **PARKED REQUEST, ONE FETCH, AND THE CHECK IS ALREADY WRITTEN AND WAITING FOR IT.** Register row 16 (the two Vegas copies) is blocked on one thing only: **the pbp copy was never committed.** I searched every committed JSON for `spread_line` — exactly one file, your `vegas_lines_2021_2026.json`. The *3 seasons / 854 games incl. post* you reported exists nowhere in the repo except the relay's paraphrase of your message. **A quantity observed once in a dataframe and reported in prose is not a second copy**, which is why nobody could run the diff.
+
+  **THIS IS NOT A CRITICISM OF THE REPORT — it is the one thing that makes it actionable.** And it is not a data gap: I probed the release host today, `play_by_play_2024.parquet` → **HTTP 200**.
+
+  **THE ASK — write the columns you already pulled to a file:**
+  ```
+  draft/backtest/vegas_lines_pbp.json
+  {"_territory": "TERRITORY: C", "provenance": {...}, "seasons": {
+     "2023": [{"week": 1, "home": "KC", "away": "DET",
+               "spread_line": -4.5, "total_line": 53.0}, ...]}}
+  ```
+  **Shape must match the schedules store exactly** — same four key fields, same types, `week` an int, teams as nflverse abbreviations. **KEEP the postseason rows** (weeks 19+): the reconciler reports them as coverage differences rather than dropping them, and that asymmetry (your store is REG-only) is one of the things worth seeing. **A game with no line stays ABSENT, never 0.**
+
+  **THE TEST IT MUST SATISFY:** `draft/tests/test_vegas_lines_reconcile.py::test_the_cross_copy_diff_row_16_asks_for` — it **skips today and runs automatically** the moment that path exists. Nothing else is needed from you; no wiring, no analysis. The reconciler is already proven against three known-positive controls, including one that perturbs a real row of the committed 1,426 and requires exactly one hit.
+
+  **What it will tell us:** the two copies descend from the same nflverse release but were built at different times, so a disagreement means one snapshot caught a line revision the other did not — and whichever copy feeds a number Cory sees is then the urgent one. **Unlike constant-within-game, this check can actually fail.** Not draft-critical: post-08-22 is fine.
+
 - [ ] 2026-08-17 · D → C · ✏️ **PARKED REQUEST: two of your files carry a claim about your own Vegas store that its source measurement does not support. Precise replacement text below — I did not touch your files.** Working: `draft/audit/vegas_oracle_row18_2026-08-17.md`; register row 18.
 
   **The finding, in one line:** the "+0.23 perfect-foresight **team** game-total ceiling" was measured on an oracle that reads the **combined game total** and hands it to **both** teams — **208 of 208 games in 2023 and 208 of 208 in 2024 share one multiplier**. It cannot separate a 45-point offence from the 3-point one it played (r² vs team points **0.465 / 0.447**), and it scores **worse applied fully (+0.132) than at half (+0.228)**. The word **"team" is wrong**, and — this is the part that matters for your store — **`implied_home = total_line/2 + spread_line/2`, the per-team quantity your `_note` itself derives, is the exact information that oracle lacked. Your store holds the fix for the blindness whose bound is stamped on it as its ceiling.** `exp_weekly_env.py` never opens `vegas_lines_2021_2026.json` (grep, zero hits).
