@@ -156,6 +156,46 @@ CAPTURES: dict[str, dict] = {
                   "opportunity_inheritance reported red-zone vacancy as "
                   "unmeasurable when it had in fact been measured"),
     },
+    "routes": {
+        "module": "draft/backtest/fetch_routes.py",
+        "parser": "build_season",
+        "retains": ["routes", "targets", "tprr"],
+        "knowingly_drops": {
+            "true routes run": (
+                "THERE IS NO SUCH FEED. nflverse publishes no routes file and "
+                "ftn_charting is PLAY-level with no player ids; real routes run "
+                "is a PFF / Fantasy Points Data product we do not have. What is "
+                "stored is a PROXY — every skill player on the field for a pass "
+                "play — and it is an UPPER BOUND, because a tight end who stayed "
+                "in to block is counted. Nothing downstream may treat it as a "
+                "measured route count."),
+            "2025": (
+                "REFUSED: nflverse serves no weekly data for 2025, so no "
+                "position map can be built. That is the SAME 404 that leaves "
+                "2025 ungradeable in the backtest — one gap, two consequences "
+                "(draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md). Absent, not "
+                "estimated."),
+            "defense_players / offense_formation / coverage": (
+                "on every participation row and not parsed. Defensive usage and "
+                "scheme are a different study; the RAW file is re-fetchable, so "
+                "the answer is a re-parse rather than a lost observation."),
+        },
+        "raw_retained": True,
+        "raw_why_not": None,
+        "added": ("2026-08-17 — the second per-player opportunity feed after "
+                  "snap share. Routes run is the DENOMINATOR for "
+                  "target-per-route-run, the cleanest receiving-efficiency "
+                  "measure: 60 targets on 300 routes is a different player from "
+                  "60 on 600, and target share alone cannot separate them. "
+                  "2021-2024 (2025 refused above). VALIDATED AGAINST KNOWN "
+                  "REALITY, not just for shape: Cooper Kupp 2021 reproduces at "
+                  "775 routes / 234 targets / TPRR 0.302 — his triple-crown "
+                  "season and the figure reported for it — with Kelce 0.23, "
+                  "Hill 0.282, Diggs 0.266, and a median TPRR of 0.188 in both "
+                  "2021 and 2024. THE PBP JOIN IS REQUIRED AND WAS MEASURED: "
+                  "participation carries no play_type, and the best "
+                  "participation-only pass proxy inflates the denominator 12%."),
+    },
     "snap_counts": {
         "module": "draft/backtest/fetch_snap_counts.py",
         "parser": "build_season",

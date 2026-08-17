@@ -226,8 +226,22 @@ The 08-14 freeze stays recoverable in git history either way.
   **Checked while scoping:** `archetype_rooms.js`'s header claims it runs "under
   production MEASURED_WEIGHTS". Verified true via that `liveContext` default.
   Not a defect.
-- **Routes run — SCOPED 2026-08-17, and the answer is "not directly, but a proxy
-  is available for all five seasons".**
+- **Routes run — BUILT 2026-08-17** (`draft/backtest/fetch_routes.py`,
+  `routes_2021..2024.json`, 8 tests, registry-gated). **2025 is REFUSED**:
+  nflverse serves no weekly data for it, so no position map exists — the SAME
+  404 that leaves 2025 ungradeable. One gap, two consequences.
+  **Validated against known reality, not just shape:** Cooper Kupp 2021
+  reproduces at 775 routes / 234 targets / **TPRR 0.302** — his triple-crown
+  season and the figure reported for it — with Kelce 0.23, Hill 0.282, Diggs
+  0.266, and a median TPRR of **0.188** in both 2021 and 2024.
+  Two things the build forced: the pbp join is REQUIRED (participation has no
+  `play_type`; the best participation-only proxy inflates the denominator 12%),
+  and position must come from the ROSTER because `offense_positions` exists for
+  2023-25 and not 2021-22 — branching on that would have run two code paths over
+  two populations and called it one dataset.
+  Nothing consumes it yet. Original scoping below, kept because it is still the
+  honest description of what this is:
+- **Routes run — the answer is "not directly, but a proxy is available".**
   There is NO routes feed in nflverse: `routes/routes_YYYY.csv` 404s, and
   `ftn_charting` is PLAY-level (motion, play-action, blitzers) with no player
   ids and no route counts. True routes run is a PFF / Fantasy Points Data
