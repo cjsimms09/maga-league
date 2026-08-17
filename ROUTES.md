@@ -8,6 +8,19 @@
 
 ## TO: A
 
+> ### ⚡ A real per-player ceiling — built, tested, needs no dispatch, no cost
+> Cory's FFDP ask ("find it") turned up something better than FFDP: their
+> ceiling/floor is a bootstrap-resample-your-own-weekly-points TECHNIQUE, and
+> we already hold that raw ingredient — `nflverse_weekly_points_2021-25.json`,
+> OUR scoring, already committed. `nflverse_player_ceiling.py` computes each
+> player's own empirical p10/p50/p90. **Proven on real data:** two real
+> players with medians 6.10 vs 6.25 have p90s 10.25 vs 21.56+ — today's
+> pooled band gives them the same ceiling. Complementary to register 4q, not
+> a substitute — this is per-PLAYER, that fix is per-(position,rank-band).
+> **NOT wired to the board.** No network dependency, ran and verified locally.
+> `claude/external-ingest-program-1xfinj`, `5b1f8d61`. Whether/how to combine
+> this with the measured calibration is yours to call.
+
 > ### ⚡ FFDP ceiling probe — built, tested, needs dispatch (no cost, no key)
 > Cory asked whether Fantasy Football Data Pros serves a real per-player
 > ceiling. `discovery_ffdp_probe.py` scrapes FFDP's own docs for its
