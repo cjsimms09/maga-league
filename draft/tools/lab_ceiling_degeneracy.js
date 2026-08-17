@@ -31,7 +31,16 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'draft_data.json'), 'utf8'));
-const HARNESS_CEILING_RATIO = 1.35;   // build_bundle.py:132, verbatim
+/* HISTORICAL, NOT CURRENT — corrected 2026-08-17. This was `build_bundle.py:132,
+ * verbatim` until that day, when the harness stopped manufacturing dispersion: a
+ * bundle now carries the measured p90/p10/sd per (position, band), fitted
+ * leave-one-season-out, verified end to end in CI run 32002876691 (706 of 841
+ * players attached on 2023, 135 correctly refused off unmeasured cells).
+ *
+ * The arm is KEPT, because it is the counterfactual that gives this lab its
+ * point: it shows what every weight experiment before 08-17 was actually run
+ * against. It is no longer a description of the harness. */
+const HARNESS_CEILING_RATIO = 1.35;
 
 function ranks(xs) {
   const idx = xs.map((v, i) => [v, i]).sort((a, b) => a[0] - b[0]);
@@ -75,7 +84,7 @@ console.log('  population: ' + pool.length + ' players with a non-zero projectio
 console.log('  ceiling term = (proj_ceiling || proj_mean) - proj_mean      [engine.js:810]\n');
 console.log('  Spearman(ceiling spread, proj_mean)');
 console.log('    production board (real per-player ceilings)   ' + rProd.toFixed(4));
-console.log('    harness board    (proj_ceiling = 1.35*mean)   ' + rLab.toFixed(4));
+console.log('    PRE-08-17 harness (proj_ceiling = 1.35*mean)  ' + rLab.toFixed(4));
 
 const distinctProd = new Set(pool.map(p => Math.round(
   (Number(p.proj_ceiling) / Number(p.proj_mean)) * 1e6))).size;
@@ -113,9 +122,21 @@ if (!degenerate) {
   console.log('    is small, just not zero. SO THE HONEST POSITION IS THAT WE DO NOT KNOW');
   console.log('    WHAT THE CEILING WEIGHT IS WORTH. The measurement that set it to zero');
   console.log('    was incapable of measuring it, and nothing here replaces that');
-  console.log('    measurement. MEASURED_WEIGHTS.ceiling = 0 should stay until a');
-  console.log('    real-ceiling board re-runs the experiment; it is now an UNMEASURED');
-  console.log('    setting rather than a measured one, and must be labelled that way.');
+  console.log('    measurement. MEASURED_WEIGHTS.ceiling = 0 WAS to stay until a');
+  console.log('    real-ceiling board re-ran the experiment; it is an UNMEASURED');
+  console.log('    setting rather than a measured one, and is labelled that way.');
+  console.log('');
+  console.log('    *** THAT CONDITION IS NOW MET (2026-08-17). build_bundle.py no');
+  console.log('    longer manufactures the ceiling: a bundle carries the measured');
+  console.log('    p90/p10/sd per (position, band), leave-one-season-out, verified');
+  console.log('    end to end in CI. The re-derivation is RUNNABLE for the first');
+  console.log('    time and has NOT been run, so the zero is UN-RE-DERIVED rather');
+  console.log('    than refuted. Prereg: draft/backtest/HARNESS-DISPERSION-PREREG.md.');
+  console.log('    AND IT WILL NOT SETTLE THE QUESTION ALONE: the measured ceiling');
+  console.log('    is still proj_mean x a per-CELL constant, so a weight fitted on');
+  console.log('    it measures CROSS-BAND dispersion only. A per-PLAYER ceiling');
+  console.log('    needs weekly_volatility.py wired in — see');
+  console.log('    draft/backtest/VOLATILITY-WIRING-PREREG.md.');
 }
 
 /* CONTROL. If spearman() returned 1.0 for any pair of series this would all be
