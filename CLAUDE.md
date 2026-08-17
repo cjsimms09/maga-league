@@ -19,6 +19,13 @@ So there are now **TWO decisions waiting on Cory** (the ADP-sd ratchet, and the
 ceiling weight after 08-22) and the ONE action for draft day. The brief carries
 all three.
 
+
+**⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** A is the
+gatekeeper and the only one who merges to `main`; B, C and the relay feed A.
+Every request to A carries an ASK, EVIDENCE, a RECOMMENDATION and a DEFAULT, so
+silence is consent to the default and nobody idles waiting. A can reply
+`SEND BACK: <reason>` and that is a complete answer.
+
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection
 model twice (own_v6 live), and merged five design passes.
