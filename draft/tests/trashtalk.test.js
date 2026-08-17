@@ -1,6 +1,28 @@
 'use strict';
 // TRASH TALK — posts welded to a specific game (season+week+owner pair),
 // permanent, archived. Pure engine + the HTTP round trip over the real app.
+//
+// ── RED ON main SINCE 2026-08-16 ~23:01, CI ONLY, THREE OF SIX HTTP CLAUSES ─
+//
+// Same fix as `matchup_placed_bet.test.js`, and the verified mechanism is the
+// SAME root cause, not a second bug: the posts below go to `week: 1`, and
+// `/matchup`'s trash-talk read is keyed on `weekNo`, which falls through
+// `liveMatchup.week || sData.week || 1`. The moment `sleeper.bundle()`
+// returns anything, a real `/v1/state/nfl` week overrides the `1` fallback
+// and the thread lookup reads a week nobody posted to. No owner mapping is
+// involved and the opponent pairing was never the problem — the posts
+// themselves land in the right game every time (the engine assertions above
+// are network-independent and stayed green); only the PAGE's read of "this
+// week's thread" was looking at the wrong week.
+//
+// `src/seed-data.js` hardcodes a real league id identical in every
+// environment, so the only thing that differs is whether the fetch reaches
+// the network. REPRODUCED locally with a mock `/v1/state/nfl` reporting
+// `week: 3`: same 24-passed/3-failed split as the CI logs, same three names.
+//
+// SLEEPER_BASE MUST BE SET BEFORE THE REQUIRE — `sleeper.js` reads
+// `process.env.SLEEPER_BASE` once, at module load.
+process.env.SLEEPER_BASE = 'http://127.0.0.1:1';
 const os = require('os'), fs = require('fs'), path = require('path');
 const ROOT = path.join(__dirname, '..', '..');
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'trash-'));
