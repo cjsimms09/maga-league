@@ -87,6 +87,20 @@ Spearman within position (higher is better):
    test, and the prereg's own edge-of-grid rule says so rather than letting us
    quietly call 0.75 "the answer."
 
+**✅ SCORING PARITY VERIFIED (Cory asked: *"and we made sure fantasy pros
+projections were for our league scoring before comparing?"*).** Both sources are
+scored from STATLINES through `score_stat_line` against our house table — neither
+provider's own points are used. But `_FP_STAT_MAP` covered only 9 of 32 priced
+categories. Eighteen gaps were K/DEF and irrelevant to a QB/RB/WR/TE grade; five
+were skill categories Sleeper carries (`pass_2pt`, `rush_2pt`, `rec_2pt`,
+`fum_rec`, `fum_rec_td`) — a systematic tilt against FP inside a head-to-head that
+had FP losing. **The map was extended to all 14 priced skill categories and the
+run repeated: EVERY NUMBER IS IDENTICAL to four decimals.** FantasyPros does not
+publish those fields at all, so there was nothing to drop. **The concern was real
+in principle and zero in fact — and the verdict now rests on a scoring map proven
+complete rather than assumed complete.** `test_fp_stat_map_coverage.py` fails if a
+priced skill category ever goes unparsed again.
+
 **NEXT (post-08-22, per the prereg's shipping cap):** extend the grid to
 0.80/0.85/0.90 and re-run. One season, n≈376 — the most this licenses is
 "adopt for 2026 and re-test when 2023/2024 become gradeable."
