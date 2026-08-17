@@ -241,6 +241,16 @@
     <%# RIGHT RAIL — CHARTS (inline SVG, warroom_charts.js; pure functions,
         unit-tested in draft/tests/warroom_charts.test.js). %>
     <aside class="wr-rail wr-rail-right" id="wr-rail-right" aria-label="Charts">
+      <%# Cory, live: "it might be nice to be able to easily see the last 5-8
+          picks." This card already existed (app.js's renderPicksFeed writes
+          #picks-feed, 12 most recent, league-wide) but lived on the ROSTERS
+          tab — a tab switch away from the decide surface. Moved here, first
+          in the right rail, so it's visible without leaving the DRAFT tab
+          mid-decision. Same element id; app.js needs no change. %>
+      <div class="wr-railcard" id="wr-picks-card">
+        <h3 class="wr-railhead">🕓 Recent picks <span class="sub" style="font-weight:400;text-transform:none;letter-spacing:normal">league-wide</span></h3>
+        <ul id="picks-feed" style="margin:0; padding-left:1.1rem; max-height:11rem; overflow-y:auto"></ul>
+      </div>
       <div class="wr-railcard" id="wr-tiles-card">
         <h3 class="wr-railhead">⏳ Running out <button type="button" class="wr-info" data-railinfo="tiles" title="What this shows">ⓘ</button></h3>
         <p class="wr-railexp" data-railexp="tiles" hidden>One tile per position: ■ startable players left before the tier cliff, □ startable after it. The word is the timing verdict — TAKE NOW means waiting to your next pick costs the most points you can still collect; "can wait" means the seat refills cheaply.</p>
@@ -387,11 +397,6 @@
         </details>
         <div id="threats"></div>
       </div>
-    </div>
-
-    <div class="card">
-      <h2>Recent Picks <span class="sub">league-wide</span></h2>
-      <div class="body"><ul id="picks-feed" style="margin:0; padding-left:1.1rem"></ul></div>
     </div>
 
     <div id="shadow-strip" class="card" style="display:none">
