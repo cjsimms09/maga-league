@@ -165,7 +165,8 @@ def test_a_2024_LEFTOVER_IS_CAUGHT_even_though_he_played_recently():
 
 @pytest.mark.parametrize("kw,why", [
     ({"years_exp": 0}, "a rookie's blank history is the correct history"),
-    ({"adp_source": "fantasypros"}, "the market prices him, which outranks my absence"),
+    ({"adp_source": "fantasypros"}, "the market prices him with NO adp number — fail-safe spare"),
+    ({"adp_source": "fantasypros", "raw_adp": 150.0}, "the market prices him inside draftable depth"),
     ({"proj_mean": 3.2}, "a projection is a positive claim that he exists in 2026"),
 ])
 def test_the_DETECTOR_SPARES_anyone_something_else_vouches_for(kw, why):
@@ -175,6 +176,26 @@ def test_the_DETECTOR_SPARES_anyone_something_else_vouches_for(kw, why):
     MUTATION: remove any one of these guards — the accused set grows by exactly
     the players who had a reason to be there."""
     assert BA.dormant(_synthetic([_row(**kw)]))["rows"] == [], why
+
+
+def test_a_DEEP_TABLE_GHOST_PRICE_does_not_vouch():
+    """THE GRONKOWSKI CASE, pinned from the first in-run diagnosis of a refused
+    nightly board (draft/tools/diagnose_refused_board.py, CI run 31897110098):
+    FantasyPros' consensus table carried Rob Gronkowski — retired since 2021 —
+    at ADP 298.0 with proj_mean 0.0, and the unconditional market exemption
+    spared him, blocking the publish. An ADP beyond MARKET_SPARE_DEPTH (1.5x
+    the 150-pick draft) is a feed artifact, not "somebody is drafting him".
+
+    Both directions pinned so the bound cannot drift into deleting somebody
+    real: 298 -> dormant, 225 (exactly the bound) -> spared, and the predicate
+    is ONE exported function (market_vouches) shared with the prune audit."""
+    ghost = _row(adp_source="fantasypros", raw_adp=298.0)
+    assert [p["name"] for p in BA.dormant(_synthetic([ghost]))["rows"]] == ["Somebody"], (
+        "a 298.0 ADP in a 150-pick draft vouched for an unprojected veteran")
+    at_bound = _row(adp_source="fantasypros", raw_adp=BA.MARKET_SPARE_DEPTH)
+    assert BA.dormant(_synthetic([at_bound]))["rows"] == [], (
+        "a price exactly at MARKET_SPARE_DEPTH must still spare")
+    assert BA.market_vouches(at_bound) and not BA.market_vouches(ghost)
 
 
 # ── the guarantee ──────────────────────────────────────────────────────────
@@ -309,8 +330,15 @@ def test_PRUNING_A_BOARD_REMOVES_NOTHING_ACTIONABLE(which):
          [p for p in gone if (num(p.get("vorp")) or 0) > 0]),
         ("inside the relevant board",
          [p for p in gone if relevant and (num(p.get("adp")) or 10 ** 9) <= relevant]),
-        ("priced by the market",
-         [p for p in gone if p.get("adp_source") not in (None, "search_rank")]),
+        # DRAFTABLY priced — BA.market_vouches, the same single predicate the
+        # spare rule uses, deliberately not a re-implementation (one definition,
+        # so the audit and the spare can never drift apart). Changed 2026-08-15
+        # with the MARKET_SPARE_DEPTH bound: a FantasyPros deep-table ghost row
+        # (Gronkowski at ADP 298.0 on the refused candidate board, CI run
+        # 31897110098) is prunable; anyone priced inside 1.5x the draft's
+        # depth is not.
+        ("draftably priced by the market",
+         [p for p in gone if BA.market_vouches(p)]),
         ("carrying a projection",
          [p for p in gone if (num(p.get("proj_mean")) or 0) > 0]),
         ("a rookie",

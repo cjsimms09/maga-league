@@ -50,15 +50,23 @@ published as deltas in `components.weighted`. Measured share of what separates t
 top five candidates, over Cory's twelve picks, with his real keepers and the
 roster accumulating as the model picks:
 
-| term | share of movement |
+| term | share of movement (2026-08-15 board) |
 |---|---|
-| `value` (VONA) | **59.3%** |
-| `keeper` | 16.1% |
-| **`onesie`** | **13.9%** |
-| `stack` | 10.6% |
+| `value` (VONA) | **59.0%** |
+| **`onesie`** | **16.8%** |
+| `keeper` | 14.3% |
+| `stack` | 9.9% |
 
-**`onesie` is the third-largest driver of the recommendation and a reader of the
-old sentence would not have known it exists.**
+**`onesie` is a top-three driver of the recommendation and a reader of the
+old sentence would not have known it exists.** The shares move with the nightly
+rebuild and the MIDDLE RANKS are board-dependent: on the 2026-08-14 board the
+table read `value` 59.3 / `keeper` 16.1 / `onesie` 13.9 / `stack` 10.6, and the
+first fresh rebuild after the pipeline was unblocked (2026-08-15, 677 players)
+swapped `keeper` and `onesie` — they run within a few points of each other and
+their order is not a stable claim. The claims that ARE stable, and that the
+test pins: `value` is the largest term, `onesie` is material (top-three, never
+a rounding term), and `stack` is the smallest of the four yet nonzero once a
+roster exists.
 
 **⚠ AND THE MEASUREMENT ONLY WORKS WITH A ROSTER.** Run on the empty-roster
 harness the suites used, the same decomposition returns `value 77.9% / keeper
@@ -76,9 +84,30 @@ comparable to the `$` numbers anywhere else on the screen.
 measurement, not an oversight:
 
 - `tier`, `need`, `bye` — **measured inert.** They were tested and moved nothing.
-- `risk`, `ceiling` — **UNMEASURED.** `ceiling` came out at **−4.8 with a
-  [−26, +17] interval**: unsignable. Weighting a term that measurement cannot
-  sign is how a model starts drifting on noise.
+- `risk` — **UNMEASURED.** Weighting a term that measurement cannot sign is how
+  a model starts drifting on noise.
+- `ceiling` — **ZERO, AND NOW KNOWN TO BE WRONG. Ships at zero through the
+  2026 draft anyway, deliberately.** This entry used to read "UNMEASURED,
+  −4.8 with a [−26, +17] interval: unsignable". That measurement was taken
+  against a board where `proj_ceiling` was `proj_mean × a constant`, making the
+  ceiling term rank-identical to the value term (Spearman **1.0000**) — it could
+  not have come out any other way, so the zero standing on it was never a
+  measured setting.
+
+  Re-derived 2026-08-17 on the first real-ceiling board (505 distinct
+  ceiling/mean ratios where there was 1), preregistered:
+  **w=0.65 beats the shipped zero by +$35.5, positive in 3/3 seeds and separable
+  in 3/3.** On the old degenerate board the effect *rose* with the weight; on the
+  real one it *falls* — the old grid's slope was the defect, not a signal.
+  Results: `EXP-CEILING-REDERIVATION.md`. Prereg:
+  `CEILING-REDERIVATION-PREREG.md`.
+
+  **It does not ship before 2026-08-22**, per both preregs: measured once, on a
+  money proxy, on a grid whose winner is its own smallest tested weight, so the
+  optimum is not bracketed. A weight measured once, five days out, is a worse
+  instrument than a known one. **What is NOT honest any more is calling this
+  term unmeasured** — it is measured, it is non-zero, and the shipped value is a
+  deliberate hold rather than a finding.
 
 **THE MISREAD TO WATCH:** a component breakdown listing eight terms invites "the
 model considered all of these". It considered three. The engine already

@@ -235,7 +235,10 @@ ck('FAIL ARM — the detector FIRES on the teardown that shipped, so the three '
 // stops trying — which is the half that was broken.
 ck('sync.poll re-arms itself on the FAILURE path too, or "keeps retrying" is '
   + 'a claim about a function that returns',
-  /\.catch\(err => \{[\s\S]{0,900}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
+  // 900 -> 2200 (2026-08-16): the chaos drill widened the catch-branch's status
+  // message (mid-draft 4xx vs bad-id, non-JSON bodies), which pushed the re-arm
+  // farther from `.catch(` without changing the property this pins.
+  /\.catch\(err => \{[\s\S]{0,2200}?self\.timer = setTimeout\(function \(\) \{ self\.poll\(\); \}, wait\);/
     .test(SYNC_SRC));
 ck('CONTROL — and it distinguishes a 4xx, which retrying cannot fix, so this is '
   + 'not blind hammering', /will not fix itself by retrying/.test(SYNC_SRC));

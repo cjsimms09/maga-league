@@ -13,11 +13,13 @@
  * HONEST LABELLING (Cory's rule): a number labelled "consensus" that comes from
  * one place is a small lie in exactly the spot he asked for a sanity check. So the
  * label states the truth: >=2 sources -> "Consensus (N src)"; 1 source ->
- * "<Source> proj" (e.g. "Sleeper proj 226"). TODAY IT IS SLEEPER ONLY — the
- * artifact's projection provenance is sleeper_projections, and the proj_series
- * archive carries only a Sleeper snapshot; FantasyPros projections are a CI fetch
- * not yet populated. So this renders "Sleeper proj", not "consensus", until a
- * second real source lands.
+ * "<Source> proj" (e.g. "Sleeper proj 226"). The label is derived per player
+ * from whichever per-source fields are actually present — on today's board
+ * that is Sleeper + FantasyPros (2 src), plus our own model where it attaches
+ * (3 src); players either source misses fall back honestly to fewer. (The
+ * "Sleeper only" era this header once described ended 2026-08-10 when the
+ * FantasyPros attach landed — the mechanism needed no change, which is the
+ * point of deriving the label instead of writing it.)
  *
  * ONE derivation for every tool (draft / waiver / lineup / standings) so the same
  * player shows the same raw projection everywhere.
@@ -26,7 +28,38 @@
   'use strict';
 
   var SOURCE_LABELS = { sleeper: 'Sleeper', sleeper_projections: 'Sleeper',
-    fantasypros: 'FantasyPros', ffc: 'FFC', consensus: 'Consensus' };
+    fantasypros: 'FantasyPros', ffc: 'FFC', consensus: 'Consensus',
+    ownmodel: 'Our model' };
+
+  /* OWN_V6 IS COMPUTED AND GRADED, BUT NOT DISPLAYED. Cory, 2026-08-17:
+   * "don't show v6 but keep improving it and grading."
+   *
+   * The reason it had to come out of THIS file specifically, rather than being
+   * deleted anywhere: the consensus column is the SANITY CHECK ON OUR OWN
+   * VALUATION (see the header). Averaging our own model into it makes the check
+   * partly self-referential — the number that is supposed to be able to
+   * disagree with us is moved toward us. Two measured facts make that worse
+   * rather than merely inelegant:
+   *
+   *   1. own_v6 loses to Sleeper at ALL FOUR positions on the leak-free
+   *      walk-forward grade. Equal-weighting it into a displayed average drags
+   *      the sanity check toward the weaker forecaster.
+   *   2. Its coverage is PARTIAL (it needs prior-season production, so no
+   *      rookie carries one). So it moved some players' displayed number and
+   *      not others' — the contamination was uneven, which is the hardest kind
+   *      to reason about at the table.
+   *
+   * NOT REMOVED FROM THE ARTIFACT. build.py still attaches proj_ownmodel, the
+   * admin scoreboard (/admin/model-scoreboard, src/routes/admin.js) still reads
+   * it, and every backtest still grades it. This flag governs ONE thing: whether
+   * it participates in the number shown next to a valuation. Flip it to true to
+   * put it back — that is the whole change, in one place, which is why it is a
+   * flag and not a deletion.
+   *
+   * NOTE it was never inside proj_mean: the blend study Cory ordered RAN and
+   * REFUSED (draft/audit/proj_mean_blend_2026-08-16.md), so the board's RANKING
+   * never contained v6 and this is purely a display change. */
+  var DISPLAY_OWNMODEL = false;
 
   function cleanSource(s) {
     if (!s) return 'proj';
@@ -45,6 +78,10 @@
     if (player.proj_sleeper != null) perSource.push(['sleeper', Number(player.proj_sleeper)]);
     if (player.proj_fantasypros != null) perSource.push(['fantasypros', Number(player.proj_fantasypros)]);
     if (player.proj_ffc != null) perSource.push(['ffc', Number(player.proj_ffc)]);
+    // THIRD SOURCE, ADDED 2026-08-15, WITHDRAWN FROM DISPLAY 2026-08-17. See
+    // DISPLAY_OWNMODEL above for why, and for what is deliberately unchanged
+    // (the artifact field, the admin scoreboard, and every grade still exist).
+    if (DISPLAY_OWNMODEL && player.proj_ownmodel != null) perSource.push(['ownmodel', Number(player.proj_ownmodel)]);
     if (perSource.length) {
       var sum = perSource.reduce(function (a, kv) { return a + kv[1]; }, 0);
       var srcs = perSource.map(function (kv) { return kv[0]; });
@@ -92,7 +129,7 @@
   }
 
   var api = { rawProjection: rawProjection, higherProjectionAlt: higherProjectionAlt,
-    cleanSource: cleanSource };
+    cleanSource: cleanSource, DISPLAY_OWNMODEL: DISPLAY_OWNMODEL };
   global.DraftConsensus = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

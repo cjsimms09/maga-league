@@ -178,11 +178,24 @@ const by = k => rows.find(r => r.kind === k);
 // ── 5. THE IN-SEASON KINDS NOT CAPTURED AT ALL ──────────────────────────
 // The Sept 1 deadline items. A prediction never made cannot be graded later, and
 // the weeks it would have covered are not recoverable.
+//
+// 2026-08-15: this list used to be all five in-season kinds. Three things
+// happened the same day, in order: (1) the scanner itself was fixed (it never
+// recursed into src/routes/, and didn't recognize the server-side
+// `predledger.append(store, {kind:'...'})` shape at all) — re-running the FIXED
+// scanner against UNCHANGED code found lineup_call and inseason_override were
+// already captured in src/routes/member.js the whole time. (2) waiver_claim was
+// then actually wired (POST /waivers/log, /waivers/override — same pattern).
+// (3) stream_call was wired the same way (POST /stream/log, /stream/override) —
+// checked first whether it could reuse waiver_claim's form (it couldn't: the
+// counterfactual is different, a stream costs no priority) and reused the
+// SAME evaluateClaims ranking rather than building new scoring logic.
+// trade_eval remains genuinely unbuilt — no evaluator exists to attach a
+// capture to, unlike the other four which all had an existing page.
 {
   const missing = rows.filter(r => r.gradeable && !r.captured).map(r => r.kind).sort();
   ck('the uncaptured gradeable kinds are the in-season rail',
-    JSON.stringify(missing) === JSON.stringify(['inseason_override', 'lineup_call',
-      'stream_call', 'trade_eval', 'waiver_claim']), missing);
+    JSON.stringify(missing) === JSON.stringify(['trade_eval']), missing);
   ck('they are DECLARED, so the shape is agreed and only the wiring is missing — '
     + 'which is why this is a deadline and not a design question',
   missing.every(k => LC.declaredKinds().indexOf(k) >= 0));

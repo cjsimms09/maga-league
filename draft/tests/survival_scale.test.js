@@ -88,8 +88,31 @@ ck('CONTROL — the probe player is on the board with a spread',
     + 'and so understates who is left',
     withBoard > without,
     `${(100 * withBoard).toFixed(1)}% vs ${(100 * without).toFixed(1)}%`);
+  /* RE-DERIVED 2026-08-15: this used to pin the python side's answer as the
+   * LITERAL 4.0 — the number keepers.py produced on the board of 2026-08-13.
+   * The first fresh nightly rebuild after the pipeline was unblocked moved
+   * Allen's adjusted_adp and the check went red at 3.18 with both sides in
+   * perfect agreement — the pin was comparing tonight's JS against Wednesday's
+   * python. The check's own name states the real contract ("matches the python
+   * side"), so now it RUNS the python side — keepers.survival_probability on
+   * live_index_of, the exact pairing freeze_pre_draft.py ships — on the same
+   * board, same probe, and compares live-to-live. Board-independent, and a
+   * genuine cross-language divergence still fails to the tenth. */
+  const { execSync } = require('child_process');
+  const pyPct = parseFloat(execSync('python3 -', {
+    cwd: ROOT, encoding: 'utf8', input: [
+      'import json, sys',
+      "sys.path.insert(0, 'draft')",
+      'import keepers as K',
+      "data = json.load(open('public/draft_data.json'))",
+      "rows = data['pick_order']['picks']",
+      "p = next(x for x in data['players'] if x['name'] == 'Josh Allen')",
+      "print(100 * K.survival_probability(float(p['adjusted_adp']), K.live_index_of(33, rows), p.get('adp_sd')))",
+    ].join('\n'),
+  }));
   ck('the converted value matches the python side to a tenth of a point',
-    Math.abs(100 * withBoard - 4.0) < 0.1, (100 * withBoard).toFixed(2));
+    Number.isFinite(pyPct) && Math.abs(100 * withBoard - pyPct) < 0.1,
+    `js ${(100 * withBoard).toFixed(2)} vs py ${pyPct.toFixed(2)}`);
 }
 
 // ── THE POST-LOCK CASE, PINNED WHILE IT IS STILL CHEAP ──────────────────────

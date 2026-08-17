@@ -6,40 +6,40 @@ _120 paired rooms · control: hand-designed defaults · **H1 beats all three riv
 
 | policy | edge $ | 95% CI | beats defaults |
 |---|---|---|---|
-| h1_phase | -99.38 | [-156.04, -41.67] | no |
-| uniform_boom | -426.88 | [-495.21, -360.42] | no |
-| floor_heavy | -558.54 | [-627.92, -485.42] | no |
+| h1_phase | -39.17 | [-79.17, 2.08] | no |
+| uniform_boom | -389.79 | [-446.46, -330.42] | no |
+| floor_heavy | -545.21 | [-617.71, -470.42] | no |
 
 ### Per-phase optima (with intervals — read H1's shape off these)
 
 | phase | ceiling weight | edge $ | 95% CI | verdict |
 |---|---|---|---|---|
-| core | 0.0 | -365.62 | [-444.38, -287.29] | WORSE than default |
-| core | 0.25 | -360.21 | [-433.54, -288.33] | WORSE than default |
+| core | 0.0 | -355.62 | [-414.38, -296.04] | WORSE than default |
+| core | 0.25 | -203.33 | [-264.58, -141.46] | WORSE than default |
 | core | 0.5 | +0.00 | [0.0, 0.0] | no evidence of a shift |
-| core | 1.0 | -400.21 | [-472.71, -329.38] | WORSE than default |
-| core | 2.0 | -517.08 | [-583.75, -448.96] | WORSE than default |
-| endgame | 0.0 | -12.29 | [-50.0, 24.79] | no evidence of a shift |
-| endgame | 0.5 | +26.46 | [4.38, 52.29] | BETTER than default |
-| endgame | 1.0 | -96.46 | [-156.04, -38.12] | WORSE than default |
-| endgame | 2.0 | -99.38 | [-157.29, -43.33] | WORSE than default |
-| endgame | 3.0 | -96.88 | [-155.0, -39.17] | WORSE than default |
+| core | 1.0 | -313.75 | [-370.62, -262.5] | WORSE than default |
+| core | 2.0 | -327.08 | [-385.21, -270.21] | WORSE than default |
+| endgame | 0.0 | +71.46 | [39.58, 106.04] | BETTER than default |
+| endgame | 0.5 | -50.00 | [-92.08, -9.58] | WORSE than default |
+| endgame | 1.0 | -36.88 | [-78.96, 5.42] | no evidence of a shift |
+| endgame | 2.0 | -39.17 | [-78.54, 1.67] | no evidence of a shift |
+| endgame | 3.0 | -39.17 | [-80.83, 2.5] | no evidence of a shift |
 
 ## §6 — conditional rules (state → setting → edge → confidence)
 
-_conditional null p95 = **$167.07** (the null mines the SAME policy×state grid over permuted state labels — 60 draws). State coverage: run_pressure=49 rooms, rb_drain_early=83 rooms, thin_board_early=60 rooms_
+_conditional null p95 = **$136.13** (the null mines the SAME policy×state grid over permuted state labels — 60 draws). State coverage: run_pressure=44 rooms, rb_drain_early=77 rooms, thin_board_early=61 rooms_
 
 | state | setting | edge $ (in-state) | in−out | 95% CI | n | disposition |
 |---|---|---|---|---|---|---|
-| rb_drain_early | floor_heavy | -545.48 | +42.36 | [-625.3, -470.48] | 83 | LEAN → manual-override cheat sheet, never automated |
-| rb_drain_early | uniform_boom | -413.86 | +42.22 | [-487.35, -336.14] | 83 | LEAN → manual-override cheat sheet, never automated |
-| run_pressure | uniform_boom | -405.10 | +36.80 | [-507.14, -310.2] | 49 | LEAN → manual-override cheat sheet, never automated |
-| thin_board_early | floor_heavy | -548.33 | +20.42 | [-651.67, -444.58] | 60 | LEAN → manual-override cheat sheet, never automated |
-| run_pressure | h1_phase | -88.27 | +18.77 | [-186.22, 16.33] | 49 | LEAN → manual-override cheat sheet, never automated |
-| run_pressure | floor_heavy | -577.55 | -32.13 | [-694.39, -466.84] | 49 | LEAN → manual-override cheat sheet, never automated |
-| thin_board_early | h1_phase | -116.67 | -34.59 | [-187.5, -48.33] | 60 | LEAN → manual-override cheat sheet, never automated |
-| thin_board_early | uniform_boom | -454.58 | -55.41 | [-548.75, -358.33] | 60 | LEAN → manual-override cheat sheet, never automated |
-| rb_drain_early | h1_phase | -129.52 | -97.76 | [-199.4, -59.64] | 83 | LEAN → manual-override cheat sheet, never automated |
+| rb_drain_early | floor_heavy | -484.42 | +169.65 | [-574.35, -394.48] | 77 | LEAN → manual-override cheat sheet, never automated |
+| rb_drain_early | uniform_boom | -353.90 | +100.17 | [-426.3, -278.57] | 77 | LEAN → manual-override cheat sheet, never automated |
+| run_pressure | h1_phase | +0.00 | +61.84 | [-71.59, 68.75] | 44 | LEAN → manual-override cheat sheet, never automated |
+| run_pressure | uniform_boom | -352.84 | +58.34 | [-451.14, -254.55] | 44 | LEAN → manual-override cheat sheet, never automated |
+| thin_board_early | uniform_boom | -363.93 | +52.60 | [-455.74, -274.18] | 61 | LEAN → manual-override cheat sheet, never automated |
+| thin_board_early | floor_heavy | -520.90 | +49.44 | [-629.1, -408.61] | 61 | LEAN → manual-override cheat sheet, never automated |
+| run_pressure | floor_heavy | -528.41 | +26.52 | [-647.16, -416.48] | 44 | LEAN → manual-override cheat sheet, never automated |
+| rb_drain_early | h1_phase | -38.64 | +1.48 | [-96.1, 13.64] | 77 | LEAN → manual-override cheat sheet, never automated |
+| thin_board_early | h1_phase | -53.69 | -29.54 | [-117.21, 11.89] | 61 | LEAN → manual-override cheat sheet, never automated |
 
 ### Pre-registered expectation (written before reading this run's rows)
 

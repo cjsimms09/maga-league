@@ -1,0 +1,192 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/model_accuracy_backtest.py",
+ "_note": "Leak-free per-position accuracy of the offline-gradeable projection models against realized 2025 points under OUR scoring (weeks 1-17). proj_mean's SOURCES (Sleeper/FantasyPros) are NOT here: no pre-2026 projection was archived, so their past accuracy is unmeasurable \u2014 proj_series.json (frozen daily since 2026-08-09) makes the 2026 season the first gradeable one, in January 2027.",
+ "graded_season": 2025,
+ "prior_seasons": [
+  2023,
+  2024
+ ],
+ "weeks": [
+  1,
+  17
+ ],
+ "min_n": 10,
+ "models": {
+  "walk_forward": {
+   "cells": {
+    "QB": {
+     "n": 61,
+     "status": "measured",
+     "mae": 107.85,
+     "bias": 65.77,
+     "spearman": 0.659
+    },
+    "RB": {
+     "n": 102,
+     "status": "measured",
+     "mae": 56.54,
+     "bias": 24.36,
+     "spearman": 0.7296
+    },
+    "WR": {
+     "n": 156,
+     "status": "measured",
+     "mae": 47.23,
+     "bias": 30.74,
+     "spearman": 0.688
+    },
+    "TE": {
+     "n": 88,
+     "status": "measured",
+     "mae": 34.47,
+     "bias": 19.85,
+     "spearman": 0.6857
+    }
+   },
+   "forecasts": 737,
+   "excluded_no_weekly_row": 211,
+   "survivorship_note": "players forecast but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount, same caveat as C's calibration"
+  },
+  "naive_prev": {
+   "cells": {
+    "QB": {
+     "n": 58,
+     "status": "measured",
+     "mae": 78.89,
+     "bias": 11.64,
+     "spearman": 0.709
+    },
+    "RB": {
+     "n": 99,
+     "status": "measured",
+     "mae": 42.37,
+     "bias": 9.17,
+     "spearman": 0.7612
+    },
+    "WR": {
+     "n": 150,
+     "status": "measured",
+     "mae": 37.72,
+     "bias": 12.15,
+     "spearman": 0.734
+    },
+    "TE": {
+     "n": 84,
+     "status": "measured",
+     "mae": 26.73,
+     "bias": 2.69,
+     "spearman": 0.7443
+    }
+   },
+   "forecasts": 582,
+   "excluded_no_weekly_row": 115,
+   "survivorship_note": "players forecast but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount, same caveat as C's calibration"
+  },
+  "recency_blend": {
+   "cells": {
+    "QB": {
+     "n": 58,
+     "status": "measured",
+     "mae": 74.09,
+     "bias": 9.77,
+     "spearman": 0.7213
+    },
+    "RB": {
+     "n": 99,
+     "status": "measured",
+     "mae": 41.86,
+     "bias": 7.77,
+     "spearman": 0.7683
+    },
+    "WR": {
+     "n": 150,
+     "status": "measured",
+     "mae": 36.82,
+     "bias": 12.62,
+     "spearman": 0.7345
+    },
+    "TE": {
+     "n": 84,
+     "status": "measured",
+     "mae": 24.04,
+     "bias": 2.36,
+     "spearman": 0.7871
+    }
+   },
+   "forecasts": 582,
+   "excluded_no_weekly_row": 115,
+   "survivorship_note": "players forecast but absent from every graded week are excluded and counted here \u2014 MAE is optimistic by an unmeasured amount, same caveat as C's calibration"
+  }
+ },
+ "unmeasurable": {
+  "K": "weekly stores carry no kicking stats (grade._WEEKLY_MAP is offense-only)",
+  "DEF": "weekly stores carry no team-defense stats",
+  "proj_mean_sources": "no archived pre-2026 Sleeper/FantasyPros projections; measurable for season 2026 from draft/data/proj_series.json in January 2027"
+ },
+ "head_to_head_shared_population": {
+  "QB": {
+   "n": 58,
+   "status": "measured",
+   "walk_forward": {
+    "mae": 103.88,
+    "spearman": 0.6712
+   },
+   "naive_prev": {
+    "mae": 78.89,
+    "spearman": 0.709
+   },
+   "recency_blend": {
+    "mae": 74.09,
+    "spearman": 0.7213
+   }
+  },
+  "RB": {
+   "n": 99,
+   "status": "measured",
+   "walk_forward": {
+    "mae": 56.37,
+    "spearman": 0.744
+   },
+   "naive_prev": {
+    "mae": 42.37,
+    "spearman": 0.7612
+   },
+   "recency_blend": {
+    "mae": 41.86,
+    "spearman": 0.7682
+   }
+  },
+  "WR": {
+   "n": 150,
+   "status": "measured",
+   "walk_forward": {
+    "mae": 46.69,
+    "spearman": 0.6907
+   },
+   "naive_prev": {
+    "mae": 37.72,
+    "spearman": 0.7341
+   },
+   "recency_blend": {
+    "mae": 36.82,
+    "spearman": 0.7346
+   }
+  },
+  "TE": {
+   "n": 84,
+   "status": "measured",
+   "walk_forward": {
+    "mae": 34.06,
+    "spearman": 0.6866
+   },
+   "naive_prev": {
+    "mae": 26.73,
+    "spearman": 0.7443
+   },
+   "recency_blend": {
+    "mae": 24.04,
+    "spearman": 0.7871
+   }
+  }
+ }
+}

@@ -112,7 +112,12 @@ def test_b_confidence_guard_does_not_flag_honest_rows():
     honest = [
         "| wr_anchor | +187.25 | [150.38, 223.62] | 1.9 | WINNER — enroll as THE PLAN |",
         "| 0.5x | +80.42 | [56.04, 105.62] | 3.13 | LEAN — not installed |",
-        "| flat_l2.0 | -88.83 | [-141.83, -35.83] | parked: CI includes $0 |",
+        # An entirely-negative CI carries the LOSER label since the frontier.py
+        # verdict fix (2026-08-15) — the old fixture row here paired it with
+        # "parked: CI includes $0", enshrining the mislabel this suite exists
+        # to catch. Both rows are qualified, so both must pass the tier guard.
+        "| flat_l2.0 | -88.83 | [-141.83, -35.83] | LOSER — significantly worse than the control |",
+        "| flat_l1.0 | +26.38 | [-15.12, 67.25] | parked: CI includes $0 |",
         "| 2023 | $3,500 | pot | weekly-high $1,500 |",          # a fact, not an edge
         "| # | experiment | pre-registered criterion | state |",  # a header
         "|---|---|---|---|",                                       # a separator

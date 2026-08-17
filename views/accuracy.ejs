@@ -5,21 +5,26 @@
   const pct = n => n == null ? '—' : Math.round(n * 100) + '%';
   const f2 = n => n == null ? '—' : (Math.round(n * 1000) / 1000).toFixed(3);
   const money = n => n == null ? '—' : (n < 0 ? '−$' + Math.abs(Math.round(n)) : '$' + Math.round(n));
+  const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 
 <h1 class="page-title">📈 Model Accuracy
   <span class="sub" style="font-weight:600"><%= season %> · commissioner only — model internals, not league results</span>
 </h1>
 
+<div class="is-cols">
+<div class="is-col">
+
 <%# ── SUMMARY / PIPELINE STATE — honest before there's data ──────────────────── %>
 <div class="card" style="margin-bottom:1.2rem; border-color:<%= v.graded ? 'rgba(15,138,77,.4)' : 'var(--line)' %>">
   <div class="body">
+    <%- include('partials/_wr_explain', { ex: G.summary }) %>
     <div class="acc-stats">
-      <div class="acc-stat"><span class="acc-num"><%= s.forecasts %></span><span class="acc-lbl">predictions logged</span></div>
-      <div class="acc-stat"><span class="acc-num"><%= s.resolved %></span><span class="acc-lbl">resolved</span></div>
-      <div class="acc-stat"><span class="acc-num"><%= s.graded %></span><span class="acc-lbl">graded</span></div>
-      <div class="acc-stat"><span class="acc-num"><%= s.pending %></span><span class="acc-lbl">pending reality</span></div>
-      <% if (s.disqualified) { %><div class="acc-stat"><span class="acc-num"><%= s.disqualified %></span><span class="acc-lbl">disqualified</span></div><% } %>
+      <div class="acc-stat"><span class="acc-num wr-num"><%= s.forecasts %></span><span class="acc-lbl">predictions logged</span></div>
+      <div class="acc-stat"><span class="acc-num wr-num"><%= s.resolved %></span><span class="acc-lbl">resolved</span></div>
+      <div class="acc-stat"><span class="acc-num wr-num"><%= s.graded %></span><span class="acc-lbl">graded</span></div>
+      <div class="acc-stat"><span class="acc-num wr-num"><%= s.pending %></span><span class="acc-lbl">pending reality</span></div>
+      <% if (s.disqualified) { %><div class="acc-stat"><span class="acc-num wr-num"><%= s.disqualified %></span><span class="acc-lbl">disqualified</span></div><% } %>
     </div>
     <% if (!s.everRun) { %>
       <p class="acc-empty" style="margin:.9rem 0 0">
@@ -41,6 +46,100 @@
   </div>
 </div>
 
+<%# ── CALIBRATION — when it says 70%, does it happen 70%? ─────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🎯 Calibration <span class="sub">when it says 70%, does it happen 70%?</span></h2>
+  <div class="body">
+    <%- include('partials/_wr_explain', { ex: G.calibration }) %>
+    <% if (!v.graded || !v.calibration) { %>
+      <p class="acc-empty" style="margin:0">Not yet graded — 0 predictions resolved. The calibration curve draws itself once probability forecasts start resolving.</p>
+    <% } else { const c = v.calibration; %>
+      <div class="acc-metric-row">
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Probability (Brier)</span>
+          <span class="acc-metric-val wr-num"><%= f2(c.probability.brier) %></span>
+          <span class="acc-metric-sub"><%= c.probability.n %> call<%= c.probability.n === 1 ? '' : 's' %> · lower is better, .250 = a coin</span>
+        </div>
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Point (bias / MAE)</span>
+          <span class="acc-metric-val wr-num"><%= c.point.bias == null ? '—' : (c.point.bias >= 0 ? '+' : '') + c.point.bias %></span>
+          <span class="acc-metric-sub"><%= c.point.n %> call<%= c.point.n === 1 ? '' : 's' %> · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
+        </div>
+        <div class="acc-metric">
+          <span class="acc-metric-lbl">Categorical (accuracy)</span>
+          <span class="acc-metric-val wr-num"><%= pct(c.categorical.accuracy) %></span>
+          <span class="acc-metric-sub"><%= c.categorical.n %> call<%= c.categorical.n === 1 ? '' : 's' %></span>
+        </div>
+      </div>
+
+      <% if (c.probability.reliability && c.probability.reliability.length) { %>
+        <h3 class="acc-subhead">The reliability curve — said vs happened</h3>
+        <div class="acc-rel">
+          <% for (const b of c.probability.reliability) { if (!b.n) continue; %>
+            <div class="acc-rel-row">
+              <span class="acc-rel-said">said ~<%= pct(b.mid) %></span>
+              <div class="acc-rel-track">
+                <div class="acc-rel-ideal" style="left:<%= Math.round((b.mid||0)*100) %>%" title="perfectly calibrated"></div>
+                <div class="acc-rel-fill" style="width:<%= Math.round((b.observed||0)*100) %>%"></div>
+              </div>
+              <span class="acc-rel-obs">happened <%= pct(b.observed) %> <span class="muted">(<%= b.n %>)</span></span>
+            </div>
+          <% } %>
+          <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">The tick is perfect calibration; the bar is what actually happened. Bar short of the tick = overconfident, past it = underconfident.</p>
+        </div>
+      <% } %>
+
+      <% if (v.byKind && v.byKind.length) { %>
+        <h3 class="acc-subhead">By prediction type — the report card</h3>
+        <%- include('partials/_wr_explain', { ex: G.bykind }) %>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Type</th><th class="num">n</th><th>Hit rate <span class="muted" style="font-weight:400">vs the 50% coin</span></th><th class="num">Brier</th><th class="num">MAE</th><th class="num">Scored · edge</th></tr>
+          <% for (const k of v.byKind) { %>
+            <tr class="<%= k.n < 5 ? 'acc-thin' : '' %>">
+              <td><%= k.label %><% if (k.n < 5) { %> <span class="muted" style="font-size:.68rem">(thin sample)</span><% } %></td>
+              <td class="num"><%= k.n %></td>
+              <td>
+                <% if (k.accuracy != null) { %>
+                  <span class="acc-kind-bar">
+                    <span class="track"><i style="width:<%= Math.round(k.accuracy * 100) %>%"></i><span class="bench" title="a coin flip: 50%"></span></span>
+                    <span class="wr-num"><%= pct(k.accuracy) %></span>
+                  </span>
+                <% } else { %>—<% } %>
+              </td>
+              <td class="num"><%= k.brier == null ? '—' : f2(k.brier) %></td>
+              <td class="num"><%= k.mae == null ? '—' : k.mae %></td>
+              <%# The DECISION rows carry two more measured facts nothing rendered
+                  before this pass (rule 14's shape, caught on the display side):
+                  how many of the logged decisions have actually resolved, and the
+                  measured edge in real points — the decision as recorded vs its
+                  recorded alternative. Null on forecast rows, where they have no
+                  meaning, and shown as such. %>
+              <td class="num">
+                <% if (k.scored != null) { %><%= k.scored %> of <%= k.n %><% if (k.meanEdge != null) { %> · <%= k.meanEdge >= 0 ? '+' : '' %><%= k.meanEdge %> pts<% } %><% } else { %>—<% } %>
+              </td>
+            </tr>
+          <% } %>
+        </table></div>
+      <% } %>
+
+      <% if (v.byWeek && v.byWeek.length) { %>
+        <h3 class="acc-subhead">Over time</h3>
+        <div class="scroll-x"><table class="roll">
+          <tr><th>Week</th><th class="num">graded</th><th class="num">Brier</th><th class="num">Accuracy</th></tr>
+          <% for (const w of v.byWeek) { %>
+            <tr><td>wk <%= w.week %></td><td class="num"><%= w.n_graded || 0 %></td>
+              <td class="num"><%= w.brier == null ? '—' : f2(w.brier) %></td>
+              <td class="num"><%= w.accuracy == null ? '—' : pct(w.accuracy) %></td></tr>
+          <% } %>
+        </table></div>
+      <% } %>
+    <% } %>
+  </div>
+</div>
+
+</div><%# /is-col %>
+<div class="is-col">
+
 <%# ── THE OVERRIDE RECORD — am I adding value on top of the tool, or subtracting?
     The grader has been computing this since the loop closed; nothing rendered it. %>
 <% const C = v.captured; %>
@@ -48,11 +147,12 @@
   <div class="card" style="margin-bottom:1.2rem">
     <h2>🙋 Your overrides <span class="sub">how often you went against the tool, and by how much</span></h2>
     <div class="body">
+      <%- include('partials/_wr_explain', { ex: G.overrides }) %>
       <div class="acc-ov">
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.decisions %></span><span class="acc-ov-lbl">lineup decisions</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.overrides %></span><span class="acc-ov-lbl">you overrode</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.rate %>%</span><span class="acc-ov-lbl">of the time</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= C.gapMax != null ? '$' + C.gapMax : '—' %></span><span class="acc-ov-lbl">biggest gap</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= C.decisions %></span><span class="acc-ov-lbl">lineup decisions</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= C.overrides %></span><span class="acc-ov-lbl">you overrode</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= C.rate %>%</span><span class="acc-ov-lbl">of the time</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= C.gapMax != null ? '$' + C.gapMax : '—' %></span><span class="acc-ov-lbl">biggest gap</span></div>
       </div>
       <% if (C.overrides) { %>
         <p class="muted" style="margin:.6rem 0 .2rem; font-size:.8rem">
@@ -90,10 +190,10 @@
     <h2>⚖️ Graded decisions <span class="sub">where an outcome is joined to the recommendation</span></h2>
     <div class="body">
       <div class="acc-ov">
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.overridden %></span><span class="acc-ov-lbl">you overrode</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num"><%= D.scored %></span><span class="acc-ov-lbl">scored so far</span></div>
-        <div class="acc-ov-cell"><span class="acc-ov-num <%= D.rate != null && D.rate >= 50 ? 'pos' : '' %>"><%= D.rate != null ? D.rate + '%' : '—' %></span><span class="acc-ov-lbl">of those you won</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= D.n %></span><span class="acc-ov-lbl">decisions logged</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= D.overridden %></span><span class="acc-ov-lbl">you overrode</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num"><%= D.scored %></span><span class="acc-ov-lbl">scored so far</span></div>
+        <div class="acc-ov-cell"><span class="acc-ov-num wr-num <%= D.rate != null && D.rate >= 50 ? 'pos' : '' %>"><%= D.rate != null ? D.rate + '%' : '—' %></span><span class="acc-ov-lbl">of those you won</span></div>
       </div>
       <p class="muted" style="margin:.6rem 0 0; font-size:.78rem">
         <% if (D.scored === 0) { %>
@@ -121,7 +221,7 @@
           <% for (const p of pts) { const h = Math.max(4, Math.round((p.brier / worst) * 100)); %>
             <div class="acc-bar" title="<%= new Date(p.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %> — Brier <%= p.brier.toFixed(3) %> (<%= p.graded %> graded)">
               <i style="height:<%= h %>%"></i>
-              <span><%= p.brier.toFixed(2) %></span>
+              <span class="wr-num"><%= p.brier.toFixed(2) %></span>
             </div>
           <% } %>
         </div>
@@ -139,75 +239,11 @@
   <% } %>
 <% } %>
 
-<%# ── CALIBRATION — when it says 70%, does it happen 70%? ─────────────────────── %>
-<div class="card" style="margin-bottom:1.2rem">
-  <h2>🎯 Calibration <span class="sub">when it says 70%, does it happen 70%?</span></h2>
-  <div class="body">
-    <% if (!v.graded || !v.calibration) { %>
-      <p class="acc-empty" style="margin:0">Not yet graded — 0 predictions resolved. The calibration curve draws itself once probability forecasts start resolving.</p>
-    <% } else { const c = v.calibration; %>
-      <div class="acc-metric-row">
-        <div class="acc-metric">
-          <span class="acc-metric-lbl">Probability (Brier)</span>
-          <span class="acc-metric-val"><%= f2(c.probability.brier) %></span>
-          <span class="acc-metric-sub"><%= c.probability.n %> call<%= c.probability.n === 1 ? '' : 's' %> · lower is better, .250 = a coin</span>
-        </div>
-        <div class="acc-metric">
-          <span class="acc-metric-lbl">Point (bias / MAE)</span>
-          <span class="acc-metric-val"><%= c.point.bias == null ? '—' : (c.point.bias >= 0 ? '+' : '') + c.point.bias %></span>
-          <span class="acc-metric-sub"><%= c.point.n %> call<%= c.point.n === 1 ? '' : 's' %> · <%= c.point.mae == null ? '—' : 'off by ' + c.point.mae %> avg<%= c.point.bias > 0 ? ' · runs high' : c.point.bias < 0 ? ' · runs low' : '' %></span>
-        </div>
-        <div class="acc-metric">
-          <span class="acc-metric-lbl">Categorical (accuracy)</span>
-          <span class="acc-metric-val"><%= pct(c.categorical.accuracy) %></span>
-          <span class="acc-metric-sub"><%= c.categorical.n %> call<%= c.categorical.n === 1 ? '' : 's' %></span>
-        </div>
-      </div>
+</div><%# /is-col %>
+</div><%# /is-cols %>
 
-      <% if (c.probability.reliability && c.probability.reliability.length) { %>
-        <h3 class="acc-subhead">The reliability curve — said vs happened</h3>
-        <div class="acc-rel">
-          <% for (const b of c.probability.reliability) { if (!b.n) continue; %>
-            <div class="acc-rel-row">
-              <span class="acc-rel-said">said ~<%= pct(b.mid) %></span>
-              <div class="acc-rel-track">
-                <div class="acc-rel-ideal" style="left:<%= Math.round((b.mid||0)*100) %>%" title="perfectly calibrated"></div>
-                <div class="acc-rel-fill" style="width:<%= Math.round((b.observed||0)*100) %>%"></div>
-              </div>
-              <span class="acc-rel-obs">happened <%= pct(b.observed) %> <span class="muted">(<%= b.n %>)</span></span>
-            </div>
-          <% } %>
-          <p class="muted" style="margin:.5rem 0 0; font-size:.74rem">The tick is perfect calibration; the bar is what actually happened. Bar short of the tick = overconfident, past it = underconfident.</p>
-        </div>
-      <% } %>
-
-      <% if (v.byKind && v.byKind.length) { %>
-        <h3 class="acc-subhead">By prediction type</h3>
-        <div class="scroll-x"><table class="roll">
-          <tr><th>Type</th><th class="num">n</th><th class="num">Brier</th><th class="num">Accuracy</th><th class="num">MAE</th></tr>
-          <% for (const k of v.byKind) { %>
-            <tr><td><%= k.label %></td><td class="num"><%= k.n %></td>
-              <td class="num"><%= k.brier == null ? '—' : f2(k.brier) %></td>
-              <td class="num"><%= k.accuracy == null ? '—' : pct(k.accuracy) %></td>
-              <td class="num"><%= k.mae == null ? '—' : k.mae %></td></tr>
-          <% } %>
-        </table></div>
-      <% } %>
-
-      <% if (v.byWeek && v.byWeek.length) { %>
-        <h3 class="acc-subhead">Over time</h3>
-        <div class="scroll-x"><table class="roll">
-          <tr><th>Week</th><th class="num">graded</th><th class="num">Brier</th><th class="num">Accuracy</th></tr>
-          <% for (const w of v.byWeek) { %>
-            <tr><td>wk <%= w.week %></td><td class="num"><%= w.n_graded || 0 %></td>
-              <td class="num"><%= w.brier == null ? '—' : f2(w.brier) %></td>
-              <td class="num"><%= w.accuracy == null ? '—' : pct(w.accuracy) %></td></tr>
-          <% } %>
-        </table></div>
-      <% } %>
-    <% } %>
-  </div>
-</div>
+<div class="is-cols even is-zone3">
+<div class="is-col">
 
 <%# ── WHAT GOT GRADED — readable, not a data dump ────────────────────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
@@ -229,10 +265,14 @@
   </div>
 </div>
 
+</div><%# /is-col %>
+<div class="is-col">
+
 <%# ── BIGGEST MISSES — the failure modes, not just the aggregate ──────────────── %>
 <div class="card" style="margin-bottom:1.2rem">
   <h2>💥 Where it was most wrong <span class="sub"><% if (v.missesTotal > (v.biggestMisses||[]).length) { %>the <%= (v.biggestMisses||[]).length %> worst of <%= v.missesTotal %> misses<% } else { %>the failure modes, ranked<% } %></span></h2>
   <div class="body">
+    <%- include('partials/_wr_explain', { ex: G.misses }) %>
     <% if (!v.biggestMisses || !v.biggestMisses.length) { %>
       <p class="acc-empty" style="margin:0">No graded misses yet — this ranks the most confident wrong calls once there are any.</p>
     <% } else { %>
@@ -248,10 +288,14 @@
   </div>
 </div>
 
+</div><%# /is-col %>
+</div><%# /is-cols %>
+
 <%# ── ATTRIBUTION — the table filling in, unmeasured cells honest ─────────────── %>
-<div class="card" style="margin-bottom:1.2rem">
+<div class="card is-zone3" style="margin-bottom:1.2rem">
   <h2>🧮 Attribution <span class="sub">what each component has actually been worth</span></h2>
   <div class="body">
+    <%- include('partials/_wr_explain', { ex: G.attribution }) %>
     <% if (!v.attribution || !v.attribution.components.length) { %>
       <p class="acc-empty" style="margin:0">The attribution table fills in as the season grades decisions. Nothing measured yet — no cells are guessed to look full.</p>
     <% } else { const a = v.attribution; %>

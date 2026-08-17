@@ -34,7 +34,7 @@
               "RB": {
                 "n": 104,
                 "mae": 58.72,
-                "rank_corr": 0.704,
+                "rank_corr": 0.705,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.619,
+                "rank_corr": 0.62,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -107,7 +107,7 @@
               "RB": {
                 "n": 104,
                 "mae": 46.94,
-                "rank_corr": 0.757,
+                "rank_corr": 0.758,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -336,7 +336,7 @@
       "dollars": {
         "our_blend": 200.0,
         "naive": 100.0,
-        "ffc_adp": 400.0,
+        "ffc_adp": 1025.0,
         "sleeper_proj": 0.0
       },
       "n_realized": 606
@@ -357,7 +357,7 @@
             "by_position": {
               "QB": {
                 "n": 66,
-                "mae": 121.73,
+                "mae": 121.71,
                 "rank_corr": 0.614,
                 "top_decile": {
                   "n": 66,
@@ -441,7 +441,7 @@
               "RB": {
                 "n": 111,
                 "mae": 53.37,
-                "rank_corr": 0.587,
+                "rank_corr": 0.586,
                 "top_decile": {
                   "n": 111,
                   "k": 11,
@@ -461,7 +461,7 @@
               "TE": {
                 "n": 92,
                 "mae": 26.82,
-                "rank_corr": 0.724,
+                "rank_corr": 0.725,
                 "top_decile": {
                   "n": 92,
                   "k": 9,
@@ -688,7 +688,7 @@
     "dollars_by_source_total": {
       "our_blend": 200.0,
       "naive": 100.0,
-      "ffc_adp": 1200.0
+      "ffc_adp": 1825.0
     },
     "dollars_disqualified_total": {
       "sleeper_proj": 0.0

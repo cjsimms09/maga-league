@@ -8,6 +8,8 @@ multiple of the mean, `proj_ceiling` is rank-identical to `proj_mean` and the
 ceiling term cannot be measured at all — which is why `ceiling: 0` in
 MEASURED_WEIGHTS is marked UNMEASURED rather than measured (A, 2026-08-13).
 
+**CORRECTED 2026-08-17: `build_bundle.py` NO LONGER WRITES THOSE CONSTANTS.** The paragraph above describes the state this module was written into and is kept because it is the reason the module exists. Dispersion on a bundle is now the measured p90/p10/sd per (position, band), fitted leave-one-season-out, and absent off an unmeasured cell rather than filled in. The collinearity is REDUCED, NOT REMOVED — the measured spread is still `proj_mean x a per-CELL` constant, varying between bands and not within them — so `ceiling: 0` remains UNMEASURED rather than refuted, and the experiment is runnable for the first time. See draft/backtest/HARNESS-DISPERSION-PREREG.md.
+
 AND IT NEEDS NO NEW INGEST. `build_bundle.build()` is already handed `weekly_df`
 and already iterates it in `weekly_points_by_season`. The share the variance model
 wants is computable from the frame that is already there.

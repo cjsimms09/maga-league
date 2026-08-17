@@ -9,6 +9,17 @@
     desperate:    { icon: '🎲', label: 'Desperate',   why: 'long shot — will overpay to swing it' },
     chasing_high: { icon: '🎯', label: 'Chasing $100', why: 'the weekly high is their only live money' },
   };
+  // The board's cut lines are THE ENGINE'S OWN ladder (standings.js
+  // projectStandings: lock ≥ 0.85, chasing_high ≤ 0.10, desperate ≤ 0.30,
+  // contender in between) — quoted here, never re-derived, and pinned by
+  // draft/tests/inseason_explainers.test.js against the live constants.
+  const CUTS = {
+    lock: '≥ 85% playoff odds',
+    contender: 'between 30% and 85%',
+    desperate: '≤ 30% playoff odds',
+    chasing_high: '≤ 10% playoff odds',
+  };
+  const G = (typeof guide !== 'undefined' && guide) || {};
 %>
 
 <h1 class="page-title">📊 The Analyzer <span class="sub" style="font-weight:600">rest-of-season, every team</span></h1>
@@ -27,6 +38,7 @@
 <% if (validation) { %>
   <div class="card" style="margin-bottom:1.1rem; border-left:3px solid var(--gold)">
     <div class="body">
+      <%- include('partials/_wr_explain', { ex: G.validation }) %>
       <p style="margin:0; font-size:.86rem">
         <b>What this is worth, measured.</b> Picking the top four, this simulator gets
         <b><%= Math.round(validation.top4_accuracy * 100) %>%</b> against
@@ -63,9 +75,51 @@
   </div></div>
 <% } else { %>
 
+  <%# ── THE POSTURE BOARD — the page's answer, one glance (2026-08-16 pass).
+      Same rows as the table below, grouped by the posture the engine already
+      assigned; the board ADDS a reading, it never replaces the data. Each cell
+      states the engine's own cut line so the classification is checkable
+      against the odds beside it. %>
+  <div class="card" style="margin-bottom:1.1rem">
+    <h2>🧭 The posture board <span class="sub">who is playing for what — the classification the other tools consume</span></h2>
+    <div class="body">
+      <%- include('partials/_wr_explain', { ex: G.board }) %>
+      <div class="az-board">
+        <% for (const key of ['lock','contender','desperate','chasing_high']) {
+             const P = POSTURE[key];
+             const group = rows.filter(r => r.posture === key); %>
+          <div class="az-cell">
+            <div class="az-cell-head">
+              <span class="az-posture <%= key %>"><%= P.icon %> <%= P.label %></span>
+              <span class="az-cell-count"><%= group.length %> team<%= group.length === 1 ? '' : 's' %></span>
+            </div>
+            <div class="az-cell-why"><%= P.why %> · <span class="az-cell-cut"><%= CUTS[key] %></span></div>
+            <% if (!group.length) { %>
+              <div class="az-empty">nobody here this week</div>
+            <% } else { %>
+              <% group.forEach(r => { %>
+                <div class="az-row <%= r.name === (me.name || '') ? 'me' : '' %>">
+                  <b><%= r.name %></b>
+                  <span class="bar"><i style="width:<%= Math.max(2, pct(r.playoffProb)) %>%"></i></span>
+                  <span class="pct wr-num"><%= pct(r.playoffProb) %>%</span>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      <p class="muted" style="margin:.55rem 0 0; font-size:.76rem">
+        These drive real decisions elsewhere: a <b>desperate</b> rival will overpay in a trade,
+        a team <b>chasing the $100</b> starts its highest-ceiling lineup regardless of matchup, and a
+        <b>lock</b> has nothing to play for but the weekly high.
+      </p>
+    </div>
+  </div>
+
   <div class="card" style="margin-bottom:1.1rem">
     <h2>Projected rest-of-season <span class="sub">through week <%= throughWeek %> · top <%= playoffSpots %> make the playoffs</span></h2>
     <div class="body tight scroll-x">
+      <%- include('partials/_wr_explain', { ex: G.table }) %>
       <table class="roll az-table">
         <tr>
           <th>Team</th>
@@ -106,7 +160,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card is-zone3">
     <h2>What the postures mean <span class="sub">the classification the other tools consume</span></h2>
     <div class="body tight">
       <ul class="az-legend">
@@ -114,15 +168,14 @@
              const n = rows.filter(r => r.posture === key).length; %>
           <li>
             <span class="az-posture <%= key %>"><%= P.icon %> <%= P.label %></span>
-            <span class="muted"><%= P.why %></span>
+            <span class="muted"><%= P.why %> · <%= CUTS[key] %></span>
             <span class="az-count"><%= n %> team<%= n === 1 ? '' : 's' %></span>
           </li>
         <% } %>
       </ul>
       <p class="muted" style="margin:.6rem 0 0; font-size:.76rem">
-        These drive real decisions elsewhere: a <b>desperate</b> rival will overpay in a trade,
-        a team <b>chasing the $100</b> starts its highest-ceiling lineup regardless of matchup, and a
-        <b>lock</b> has nothing to play for but the weekly high.
+        The cut lines are the engine's own (<code>projectStandings</code>): lock ≥ 85%, desperate ≤ 30%,
+        chasing the $100 ≤ 10%, contender in between — quoted here, never re-derived.
       </p>
     </div>
   </div>

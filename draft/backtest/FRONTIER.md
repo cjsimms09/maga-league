@@ -1,15 +1,15 @@
 # EXPERIMENT 21 — MEAN-VARIANCE FRONTIER (+ phase-shape slice of exp 2)
 
-_control λ=0: weekly mean 102.4, sd 32.3 · 150 paired rooms · **H1 (optimum toward the high-variance corner): SUPPORTED**_
+_control λ=0: weekly mean 96.9, sd 54.9 · 150 paired rooms · **H1 (optimum toward the high-variance corner): SUPPORTED**_
 
 | candidate | edge $ | 95% CI | weekly mean | weekly sd | verdict |
 |---|---|---|---|---|---|
-| flat_l0.25 | +457.83 | [394.17, 520.5] | 123.5 | 37.6 | WINNER — install via the gates (slider change, cited) |
-| late_l1.0 | +364.50 | [304.33, 424.0] | 121.8 | 38.3 | WINNER — install via the gates (slider change, cited) |
-| flat_l0.5 | +198.83 | [145.83, 253.33] | 115.2 | 35.5 | WINNER — install via the gates (slider change, cited) |
-| flat_l1.0 | +78.50 | [24.0, 133.17] | 108.2 | 34.8 | WINNER — install via the gates (slider change, cited) |
-| early_l1.0 | +11.67 | [-34.33, 60.83] | 102.8 | 31.4 | parked: CI includes $0 |
-| flat_l2.0 | -31.67 | [-71.17, 4.33] | 100.6 | 32.4 | parked: CI includes $0 |
-| flat_l3.0 | -72.50 | [-110.5, -38.17] | 96.0 | 30.7 | parked: CI includes $0 |
+| late_l1.0 | +384.17 | [330.33, 440.0] | 120.7 | 68.2 | WINNER — install via the gates (slider change, cited) |
+| flat_l0.5 | +350.33 | [299.33, 403.83] | 120.4 | 70.4 | WINNER — install via the gates (slider change, cited) |
+| flat_l0.25 | +332.67 | [280.33, 387.17] | 117.9 | 69.0 | WINNER — install via the gates (slider change, cited) |
+| early_l1.0 | +147.33 | [109.33, 185.67] | 106.7 | 68.8 | WINNER — install via the gates (slider change, cited) |
+| flat_l1.0 | +71.67 | [43.17, 100.83] | 100.9 | 69.8 | WINNER — install via the gates (slider change, cited) |
+| flat_l2.0 | +37.50 | [7.33, 66.67] | 95.6 | 68.9 | WINNER — install via the gates (slider change, cited) |
+| flat_l3.0 | -0.67 | [-26.0, 24.0] | 91.5 | 67.6 | parked: CI includes $0 |
 
 **Caveats:** v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded) · predicted opponent slates; paired rooms + paired weekly luck · September quantile re-run pre-registered; install only via the gates

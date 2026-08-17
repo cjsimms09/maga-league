@@ -1,5 +1,8 @@
 # STATUS — unattended run
 
+> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+
+
 > **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
 > pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
 > at repo root); the shared rules live there and change there. Access rule (tools vs
@@ -13,6 +16,7 @@
 > **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. **Both sessions now commit to `main` directly — no branches (TERRITORY.md § Branch protocol).**
 > **🔀 BRANCH PROTOCOL LANDED (2026-08-08):** the jwdvn7/xs2lv6 divergence is merged to `main` (both sides, STATUS.md unioned, nothing lost) and cannot recur — `scripts/branch-check.sh` gates commits to main, the Sunday audit asserts no stray branches + deployed==HEAD. **Session B: the protocol is in TERRITORY.md — pull main, commit there, push immediately.**
 
+> **🟡 UPDATE 2026-08-16 (relay): the cron below IS BUILT** — `netlify/functions/grade-cron.js`, scheduled Tuesdays 12:00 UTC in netlify.toml, grades forecasts + decisions, appends the calibration ledger, consumes it into evidence weights, era-stamped, smoke-testable via ?key=GRADE_CRON_KEY. It goes LIVE with the relay-branch merge to main — the merge is the only gate left on this deadline. After merge: run the smoke test once, then this banner goes green.
 > **🔴 HARD DEADLINE — WEEKLY GRADING CRON LIVE BEFORE ~SEP 1, 2026 (unrecoverable if missed).**
 > The learning half is the least-built part of the system (audit: `docs/queued/annual-button.md`
 > § LEARNING-HALF STATUS): forward predictions are emitted + recorded, but **nothing grades them
@@ -501,6 +505,43 @@ Against the expected 9-item inventory. **All items resolved; one material CORREC
 | Richard2121 | 4–11 | 1711.2 | 90.4% | 4th-most PF, **BEST lineup-setter**, league-high 1849 PA → **points-unlucky, not bad** |
 **Cross-season joins MUST key on owner_id/user_id, never roster_id** (roster_id↔owner changes between seasons — 2024 champ roster 4 ≠ 2025 roster 4). `money_history` keys on owner (via per-season roster→owner resolve) ✓.
 **🎯 PRE-REGISTERED PREDICTION (log before harvest):** Richard2121 & MarianSaar banked multiple 2025 weekly highs despite records — payout already paid the ceiling-unlucky. Verify vs weeks 1–15.
+
+> **⚠️ CORRECTION, 2026-08-16 — VERIFIED AGAINST LIVE SLEEPER DESIGNATIONS.**
+> Both keeper claims below are **contradicted by `draft/config/keepers.json`**
+> (`_designations_source: "sleeper"`), read directly today. Four teams have now
+> designated:
+>
+> | slot | designated |
+> |---|---|
+> | 8 (Cory) | Henry, Chase, Walker |
+> | 1 | Jeanty, Chase Brown |
+> | 2 | Taylor, London, Gibbs |
+> | 3 | **Jefferson, Achane, JSN** |
+>
+> **Brock Bowers is NOT designated. Trey McBride is NOT designated.** Neither
+> name appears anywhere in the live slate.
+>
+> So: the "MarianSaar keeps Bowers — HIGH confidence" call below is **wrong** —
+> that owner designated Jefferson/Achane/JSN instead. And "Richard2121 LOCKED
+> (certain): Bijan + McBride + Nico" has **no designation behind it at all**;
+> Richard2121 is among the six teams still silent.
+>
+> **THE CONSEQUENCE, and it is the one that matters:** the "⚡ TE FORK
+> COLLAPSED / both-TEs-gone is the new PRIMARY scenario" conclusion below is
+> built on Bowers-kept AND McBride-kept. **Both halves are currently false.**
+> The elite-TE anchor at pick 34 may well still be on the board, and the
+> WR-feast / early-QB pivot that replaced it is resting on nothing.
+>
+> **NOT a claim that the TEs will be available.** Designations are not final —
+> `confirmed` is null, only 4 of 10 teams have declared, and Richard2121 and
+> MarianSaar can still designate before the lock. The honest state is: what was
+> recorded as HIGH-confidence and "certain" is **unconfirmed and presently
+> contradicted**, and the opening plan should carry BOTH branches live rather
+> than treating both-TEs-gone as primary.
+>
+> Original text preserved below, struck rather than deleted, per repo
+> convention. Found by the 2026-08-16 keeper study; verified independently
+> against `keepers.json` before this correction was written.
 
 **🔮 KEEPER PREDICTION (Cory intel, 2026-08-08):** **MarianSaar keeps Bowers — HIGH confidence, source: Cory intel** (to be ledgered at draft-prep; January grades keeper-prediction accuracy). **Scenario-conditional pick-34 dossier COMPUTED** (`keeper-intel-scenarios.md`): Bowers-available (last-elite-TE, 83%/60% survival to 34/41) vs Bowers-kept (McBride inherits — 46-pt VORP cliff to LaPorta confirmed, 80%/53% survival). Take-now premium is small in v1 dollars (rough model underprices the TE cliff VORP sees — quantile-V will sharpen); **the decision is room-panic-driven**: TE scarcity collapses survival-to-41 (60%→22% Bowers / 53%→16% McBride on a 10-spot ADP jump), making take-at-34 strongly correct the moment the board shows TE reaching. **✅ PREDICTED KEEPER SLATES BUILT (2026-08-08, `draft/predict_keepers.py` → `predicted_keepers.json`):** flat-cost surplus (round-cost VORP 104/62/36), the K0 optimizer pointed at all 10 seats. **VALIDATES — recovers my real keepers (Chase/Henry/Walker) exactly.** The model **independently predicts MarianSaar keeps Bowers** (surplus +20) — Cory's intel confirms → **high**. Predicted slates: **B8T3S** Gibbs/Taylor/London · **Richard2121** Bijan/McBride/Nico · **mhagen** CMC/St.Brown/Allen · **MarianSaar** JSN/**Bowers**/Achane · **Schmelley** Nacua/Barkley · **ds7mmet/cashworth/Jreis/Sadbru** keep-NONE (weak rosters clear no round cost; Jreis-kept-0-in-2024 precedent). 4 lock tests. **Remaining (A-9):** wire the predicted slates into mock/rehearsal boards (marked PREDICTED) + keeper-watch one-by-one replacement + confidence display.
 

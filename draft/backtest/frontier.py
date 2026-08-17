@@ -34,6 +34,25 @@ HERE = Path(__file__).resolve().parent
 SEED = CC.SEED
 
 
+def verdict_for(lo: float, hi: float, mean: float) -> str:
+    """THE LABEL MUST MATCH THE INTERVAL — same fix as cory_conditional.py:517.
+
+    This read `lo <= 0`, which is true of ANY negative lower bound — so a
+    candidate sitting ENTIRELY below zero was reported as "CI includes $0",
+    i.e. as inconclusive. The shipped frontier.json carried exactly that:
+    flat_l2.0 at [-109.33, -25.5] and flat_l3.0 at [-134.83, -44.5], both
+    confident LOSSES filed as "we could not tell" — the one reading that keeps
+    them on the table. Zero is inside [lo, hi] only when lo <= 0 <= hi.
+    """
+    if lo > 0 and mean > CC.EVEN_MONEY_BAND:
+        return "WINNER — install via the gates (slider change, cited)"
+    if hi < 0:
+        return "LOSER — significantly worse than the control"
+    if lo <= 0 <= hi:
+        return "parked: CI includes $0"
+    return f"parked: inside the ${CC.EVEN_MONEY_BAND} band"
+
+
 def make_candidates():
     """{name: chooser(board, liveIdx, roster)} — ceiling tilt × phase shape."""
     def tilt(lam, phase):
@@ -97,13 +116,10 @@ def main():
         lo, hi = CC.bootstrap_ci(deltas, rng)
         fm = sum(f[0] for f in frontier[k]) / len(frontier[k])
         fs = sum(f[1] for f in frontier[k]) / len(frontier[k])
-        wins = lo > 0 and mean > CC.EVEN_MONEY_BAND
         rows.append({"candidate": k, "mean_edge": round(mean, 2),
                      "ci95": [round(lo, 2), round(hi, 2)],
                      "weekly_mean": round(fm, 1), "weekly_sd": round(fs, 1),
-                     "verdict": "WINNER — install via the gates (slider change, cited)"
-                     if wins else ("parked: CI includes $0" if lo <= 0
-                                   else f"parked: inside the ${CC.EVEN_MONEY_BAND} band")})
+                     "verdict": verdict_for(lo, hi, mean)})
     rows.sort(key=lambda r: -r["mean_edge"])
     f0m = sum(f[0] for f in frontier["control_l0"]) / len(frontier["control_l0"])
     f0s = sum(f[1] for f in frontier["control_l0"]) / len(frontier["control_l0"])

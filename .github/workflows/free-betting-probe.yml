@@ -1,0 +1,197 @@
+name: Free betting sources probe (Ball Don't Lie + Kalshi, read-only)
+
+# Cory, 2026-08-16: "Ensure we are getting as robust betting info as we can
+# and are using it, grading it and closing the loop to possibly learn! This
+# is incredibly important."
+#
+# WHY. The Odds API plan is a ONE-MONTH purchase for HISTORICAL data; 2026
+# live betting must come from free sources or not at all. Only
+# SportsGameOdds is wired today (odds-capture.yml -> fetch_sgo.py). BALL
+# DON'T LIE has a valid key and NO fetcher in the repo. KALSHI was probed
+# once by draft/backtest/market_probe.py and nothing was built on it.
+#
+# ROUND 1 (run 31970... ) established Kalshi's NFL SERIES CATALOG is large
+# and contains exactly the markets a fantasy drafter would want — season
+# player totals (KXNFLSEASONRECYDS / RSHYDS / PASSYDS / REC / RECTD /
+# RSHTD), player fantasy points (KXNFLFFPTS), anytime TD (KXNFLANYTD) — but
+# every ticker sampled returned ZERO OPEN markets in mid-August, and an
+# all-open-markets sample carried no NFL at all. Round 2 asks the question
+# that decides everything: are those markets CLOSED, UNOPENED, or simply
+# not listed under the default status filter — and if any carry prices, at
+# what volume?
+#
+# market_probe.py's rule still governs: "a thin market carries little
+# information no matter how accessible it is." A clean negative is a real
+# result and will be published as one.
+#
+# COSTS NOTHING. BDL free tier; Kalshi market data is public, no key. No
+# Odds API call appears anywhere. Read-only: status, shape, field names,
+# volume. Never commits, never prints a key.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  balldontlie:
+    runs-on: ubuntu-latest
+    env:
+      K_BDL: ${{ secrets.BALL_DONT_LIE_API }}
+    steps:
+      - name: Ball Don't Lie — endpoint census, betting surfaces first
+        run: |
+          set -uo pipefail
+          BASE="https://api.balldontlie.io/nfl/v1"
+          hit() {
+            code=$(curl -s -o /tmp/b -w "%{http_code}" --max-time 25 \
+                   -H "Authorization: $K_BDL" "$BASE/$2" || echo 000)
+            echo "  $1 -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              python3 - <<'PY' || echo "    (parse failed)"
+          import json
+          b = json.load(open('/tmp/b'))
+          data = b.get('data', b) if isinstance(b, dict) else b
+          if isinstance(data, list):
+              print(f"    rows: {len(data)}")
+              if data and isinstance(data[0], dict):
+                  print(f"    fields: {sorted(data[0])}")
+                  flat = {k: v for k, v in data[0].items()
+                          if not isinstance(v, (dict, list))}
+                  print(f"    sample: {json.dumps(flat)[:500]}")
+          elif isinstance(data, dict):
+              print(f"    keys: {sorted(data)}")
+          PY
+            else
+              echo "    body: $(head -c 200 /tmp/b)"
+            fi
+          }
+          if [ -z "$K_BDL" ]; then echo "no key"; exit 0; fi
+
+          echo "== BETTING SURFACES — these decide whether BDL can feed the weekly loop =="
+          hit "odds (season/week)  " "odds?season=2025&week=1"
+          hit "odds (by date)      " "odds?date=2025-09-07"
+          hit "player_props        " "player_props?season=2025&week=1"
+          hit "player props alt    " "player_odds?season=2025&week=1"
+          echo
+          echo "== supporting data =="
+          hit "teams               " "teams"
+          hit "players             " "players?per_page=2"
+          hit "games 2025          " "games?seasons[]=2025&per_page=2"
+          hit "stats               " "stats?seasons[]=2025&per_page=2"
+          hit "season_stats        " "season_stats?season=2025&per_page=2"
+          hit "injuries            " "player_injuries?per_page=2"
+          hit "advanced_stats      " "advanced_stats?seasons[]=2025&per_page=2"
+
+  kalshi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kalshi — are the fantasy-relevant series actually tradeable?
+        run: |
+          set -uo pipefail
+          python3 - <<'PY'
+          import json, urllib.request, collections
+          K = "https://api.elections.kalshi.com/trade-api/v2"
+
+          def get(path):
+              try:
+                  req = urllib.request.Request(K + path, headers={"User-Agent": "maga-league-probe"})
+                  with urllib.request.urlopen(req, timeout=25) as r:
+                      return json.load(r)
+              except Exception as e:
+                  return {"_err": str(e)[:140]}
+
+          # The series round 1 surfaced that a fantasy drafter would actually
+          # want. Season-long PLAYER totals are the prize: The Odds API serves
+          # no such market at any price (422 on every candidate key), so if
+          # Kalshi runs these with real volume it is strictly better AND free.
+          want = {
+              "KXNFLSEASONRECYDS": "season receiving yards (PLAYER, season-long)",
+              "KXNFLSEASONRSHYDS": "season rushing yards (PLAYER, season-long)",
+              "KXNFLSEASONPASSYDS": "season passing yards (PLAYER, season-long)",
+              "KXNFLSEASONREC":    "season receptions (PLAYER, season-long)",
+              "KXNFLSEASONRECTD":  "season receiving TDs (PLAYER, season-long)",
+              "KXNFLSEASONRSHTD":  "season rushing TDs (PLAYER, season-long)",
+              "KXNFLFFPTS":        "player FANTASY POINTS",
+              "KXNFLFFLEADER":     "best in fantasy by position",
+              "KXNFLANYTD":        "anytime touchdown (weekly)",
+              "KXNFLRSHATT":       "rushing attempts (volume/role proxy)",
+          }
+          # FIELD NAMES, CORRECTED. Round 2 read volume/open_interest/yes_bid
+          # and printed None for every market — NOT because the markets are
+          # empty but because this API returns a DOLLARS-denominated schema:
+          # last_price_dollars, yes_bid_dollars, no_bid_dollars,
+          # open_interest_fp, liquidity_dollars, notional_value_dollars.
+          # Reading the wrong key and concluding "thin market" would have
+          # killed a real lead on a typo.
+          def num(m, *keys):
+              for k in keys:
+                  v = m.get(k)
+                  if v not in (None, ""):
+                      return v
+              return None
+
+          print(f"{'ticker':<20}{'mkts':>6}{'priced':>8}{'liq$':>12}{'OI':>10}  statuses")
+          hits = {}
+          for t, desc in want.items():
+              b = get(f"/markets?series_ticker={t}&limit=200")
+              if "_err" in b:
+                  print(f"{t:<20}  ERR {b['_err']}")
+                  continue
+              ms = b.get("markets") or []
+              st = collections.Counter(m.get("status") for m in ms)
+              priced = sum(1 for m in ms if num(m, "last_price_dollars",
+                                                "yes_bid_dollars", "yes_ask_dollars"))
+              liq = sum(float(num(m, "liquidity_dollars") or 0) for m in ms)
+              oi = sum(float(num(m, "open_interest_fp", "open_interest") or 0) for m in ms)
+              print(f"{t:<20}{len(ms):>6}{priced:>8}{liq:>12.0f}{oi:>10.0f}  {dict(st)}   {desc}")
+              if ms:
+                  hits[t] = ms
+
+          print()
+          print("== THE LADDER: thresholds per player = an implied DISTRIBUTION ==")
+          # Each series is a ladder of yes/no thresholds (750+/1250+/1500+ rec
+          # yards). P(>=750), P(>=1250), P(>=1500) for one player IS a
+          # cumulative distribution over his season — strictly richer than the
+          # single mean projection own_v6 or FantasyPros produce, and it
+          # yields P(breakout) directly, which is what late-round picks are
+          # actually about.
+          for t, ms in hits.items():
+              rungs = collections.Counter()
+              for m in ms:
+                  ev = (m.get("event_ticker") or "")
+                  rungs[ev.split("-")[-1] if "-" in ev else ev] += 1
+              print(f"\n  {t}: {len(ms)} markets across rungs {dict(rungs)}")
+              top = [m for m in ms if num(m, "last_price_dollars",
+                                          "yes_bid_dollars")][:6] or ms[:3]
+              for m in top:
+                  print(f"    {(m.get('ticker') or '')[:38]:<38} "
+                        f"last={num(m,'last_price_dollars')} "
+                        f"bid={num(m,'yes_bid_dollars')} ask={num(m,'yes_ask_dollars')} "
+                        f"OI={num(m,'open_interest_fp','open_interest')} "
+                        f"liq={num(m,'liquidity_dollars')}")
+
+          print()
+          print("== per-player ladder reconstruction, one worked example ==")
+          # Pull EVERY rung for a single well-known player to show the shape
+          # a projection would actually be built from.
+          for t in ("KXNFLSEASONRECYDS", "KXNFLSEASONRSHYDS"):
+              b = get(f"/markets?series_ticker={t}&limit=1000")
+              ms = b.get("markets") or []
+              bypl = collections.defaultdict(list)
+              for m in ms:
+                  tick = m.get("ticker") or ""
+                  who = tick.split("-")[-1]
+                  bypl[who].append(m)
+              multi = {k: v for k, v in bypl.items() if len(v) > 1}
+              print(f"  {t}: {len(bypl)} players, {len(multi)} with 2+ rungs")
+              for who, rows in list(sorted(multi.items(), key=lambda kv: -len(kv[1])))[:3]:
+                  print(f"    {who}:")
+                  for m in sorted(rows, key=lambda m: str(m.get('event_ticker'))):
+                      print(f"      {str(m.get('event_ticker'))[-8:]:<10} "
+                            f"last={num(m,'last_price_dollars')} "
+                            f"bid={num(m,'yes_bid_dollars')} "
+                            f"ask={num(m,'yes_ask_dollars')} "
+                            f"OI={num(m,'open_interest_fp','open_interest')}")
+          PY

@@ -965,8 +965,8 @@
      "verdict": "KILLED"
     },
     {
-     "old": "        if _priced(p):\n            continue",
-     "new": "        if False:\n            continue",
+     "old": "        if market_vouches(p):\n            continue                                  # the market DRAFTABLY prices him",
+     "new": "        if False:\n            continue                                  # the market DRAFTABLY prices him",
      "must_fail": [
       "test_the_DETECTOR_SPARES_anyone_something_else_vouches_for"
      ],

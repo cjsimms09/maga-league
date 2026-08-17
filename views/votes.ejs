@@ -40,6 +40,19 @@
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
     <p class="pass-note"><%= v.cast %> of <%= electorate %> votes in — needs <%= threshold %> YES to pass<%= v.passed ? ' — ✅ currently passing' : '' %></p>
+    <%# THE ROLL CALL (Cory, 2026-08-16: "see how everyone voted for everyone").
+        Open ballots were always server-known and never secret by design — the
+        tally bar printed the counts; this prints the names behind them, plus
+        the holdouts, which is what actually gets a measure over the line. %>
+    <div class="roll-call" style="font-size:.78rem; margin:.2rem 0 .5rem; line-height:1.5">
+      <div><b style="color:var(--green)">YES (<%= v.yes %>):</b>
+        <%= v.ballots.filter(b => b.choice === 'yes').map(b => b.name).sort().join(', ') || '—' %></div>
+      <div><b style="color:var(--red, #b91c1c)">NO (<%= v.no %>):</b>
+        <%= v.ballots.filter(b => b.choice === 'no').map(b => b.name).sort().join(', ') || '—' %></div>
+      <% if (v.not_voted && v.not_voted.length) { %>
+        <div class="muted">Yet to vote (<%= v.not_voted.length %>): <%= v.not_voted.join(', ') %></div>
+      <% } %>
+    </div>
     <div class="vote-actions">
       <form class="asis" method="post" action="/votes/<%= v.id %>/ballot">
         <input type="hidden" name="choice" value="yes">
@@ -49,7 +62,12 @@
         <input type="hidden" name="choice" value="no">
         <button class="btn <%= v.myChoice === 'no' ? '' : 'ghost' %>" type="submit">✗ Vote No</button>
       </form>
-      <% if (v.myChoice) { %><span class="muted">You voted <b><%= v.myChoice.toUpperCase() %></b> — you can change it until the vote closes.</span><% } %>
+      <% if (v.myChoice) { %>
+        <span class="muted">You voted <b><%= v.myChoice.toUpperCase() %></b> — change it above, or</span>
+        <form class="asis" method="post" action="/votes/<%= v.id %>/rescind">
+          <button class="btn small ghost" type="submit" title="Withdraw your ballot — back to not-voted">↩ Withdraw my vote</button>
+        </form>
+      <% } %>
     </div>
     <details class="ledger-history" <%= v.comments.length ? '' : '' %>>
       <summary>💬 <%= v.comments.length %> comment<%= v.comments.length === 1 ? '' : 's' %> — talk your talk</summary>
@@ -83,6 +101,18 @@
       <div class="no" style="width:<%= (v.no / tot) * 100 %>%"><%= v.no ? 'NO ' + v.no : '' %></div>
     </div>
     <p class="pass-note">Final: <%= v.yes %> yes, <%= v.no %> no — <%= v.passed ? `passed with ${threshold}+ yes votes` : `did not reach ${threshold} yes votes` %></p>
+    <%# The roll call stays on the record after the vote closes — that is the
+        point of a record. Abstainers are named as such, not "yet to vote":
+        this measure is done and they sat it out. %>
+    <div class="roll-call" style="font-size:.78rem; margin:.2rem 0 .5rem; line-height:1.5">
+      <div><b style="color:var(--green)">YES (<%= v.yes %>):</b>
+        <%= v.ballots.filter(b => b.choice === 'yes').map(b => b.name).sort().join(', ') || '—' %></div>
+      <div><b style="color:var(--red, #b91c1c)">NO (<%= v.no %>):</b>
+        <%= v.ballots.filter(b => b.choice === 'no').map(b => b.name).sort().join(', ') || '—' %></div>
+      <% if (v.not_voted && v.not_voted.length) { %>
+        <div class="muted">Abstained (<%= v.not_voted.length %>): <%= v.not_voted.join(', ') %></div>
+      <% } %>
+    </div>
     <details class="ledger-history" <%= v.comments.length ? '' : '' %>>
       <summary>💬 <%= v.comments.length %> comment<%= v.comments.length === 1 ? '' : 's' %> — talk your talk</summary>
       <div style="padding:.7rem 1rem">
@@ -141,6 +171,9 @@
             <td>
               <%= pn.leading && pn.votes > 0 ? '👑 ' : '' %><b><%= pn.text %></b>
               <div class="muted" style="font-size:.72rem">by <%= pn.proposer_name %></div>
+              <% if (pn.voter_names && pn.voter_names.length) { %>
+                <div class="muted" style="font-size:.72rem">backed by: <%= pn.voter_names.join(', ') %></div>
+              <% } %>
             </td>
             <td class="num" style="white-space:nowrap"><b><%= pn.votes %></b> vote<%= pn.votes === 1 ? '' : 's' %></td>
             <td class="num" style="white-space:nowrap">
@@ -148,6 +181,11 @@
                 <form class="asis" method="post" action="/punishments/<%= pn.id %>/vote">
                   <button class="btn small <%= pn.myPick ? 'gold' : 'navy' %>"><%= pn.myPick ? '✓ Your pick' : 'Vote' %></button>
                 </form>
+                <% if (pn.myPick) { %>
+                  <form class="asis" method="post" action="/punishments/rescind">
+                    <button class="btn small ghost" type="submit" title="Withdraw your punishment vote">↩</button>
+                  </form>
+                <% } %>
               <% } else if (pn.myPick) { %><span class="badge gold">your pick</span><% } %>
               <% if (owner.is_commissioner) { %>
                 <form class="asis" method="post" action="/admin/punishments/<%= pn.id %>/delete" onsubmit="return confirm('Delete this idea?')"><button class="btn small ghost">✕</button></form>

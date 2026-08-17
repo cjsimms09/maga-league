@@ -17,6 +17,10 @@ from __future__ import annotations
 import sys, os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# ALSO this directory: the backtest modules import each other by bare name
+# (`projection_error` does `import field_population`), so importing one of them
+# from here fails unless its own package directory is importable too.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import scoring                                     # our engine, never a provider's
 import vorp as VORP
 from backtest import grade as GR
@@ -53,8 +57,86 @@ def weekly_points_by_season(weekly_df, seasons, scoring_cfg, crosswalk):
     return out, games
 
 
+#: The dispersion fields a bundle carries, DECLARED ONCE because two readers
+#: need them and a hand-mirrored second copy is what went stale six times on
+#: 2026-08-17.
+#:
+#: `harness_divergence.py` AST-parses the board dict literal appended below to
+#: learn what a bundle board holds. These fields are attached in a SECOND PASS
+#: (they need a calibration the bundle must exist before you can fit), so they
+#: are invisible to that parse — and the tool duly reported `proj_ceiling` as
+#: LAB-BLIND, i.e. "corrupts a backtest number", hours after it stopped being
+#: true. The declaration below is what it reads instead of guessing.
+DISPERSION_FIELDS = ("proj_ceiling", "proj_floor", "proj_sd")
+
+
+def attach_dispersion(players, calibration):
+    """Put the MEASURED spread on bundle rows, or leave the fields off entirely.
+
+    THE DEFECT THIS REPLACES. This module used to write, for every player on
+    every backtest board:
+
+        proj_sd      = 0.25 * proj_mean          (a GLOBAL constant)
+        proj_ceiling = 1.35 * proj_mean          (a GLOBAL constant)
+
+    so `engine.js`'s ceiling term — `proj_ceiling - proj_mean` — was
+    `0.35 * proj_mean`, a fixed multiple of the value term. Spearman 1.0000.
+    `lab_ceiling_degeneracy.js` put it plainly: THE MEASUREMENT COULD NOT HAVE
+    COME OUT ANY OTHER WAY. That is why `MEASURED_WEIGHTS.ceiling` is 0, and the
+    zero was to stand "until a real-ceiling board re-runs the experiment".
+
+    ABSENT IS ABSENT — THERE IS NO FALLBACK, DELIBERATELY. Off a cell the
+    calibration never measured, the field is OMITTED rather than filled in.
+    `proj_sd_for`'s own docstring says why: a global fallback "is exactly how
+    `0.25 * proj_mean` reached the board, and a consumer cannot tell a fitted
+    number from a filled-in one." `engine.js` reads
+    `(p.proj_ceiling || p.proj_mean) - p.proj_mean`, so an omitted ceiling
+    contributes a spread of zero — which is the honest reading of "we have no
+    ceiling measurement for this player", and not the same as claiming his
+    ceiling equals his mean by construction.
+
+    WHAT THIS DOES NOT FIX, stated here rather than discovered later: the
+    measured ceiling is still `proj_mean x a per-cell constant`. It varies
+    BETWEEN cells and not WITHIN them, so it reduces the collinearity without
+    removing it. A weight fitted on this board measures cross-band dispersion
+    differences only, and cannot speak to whether an individual player is worth
+    taking for his upside.
+
+    `weekly_sd` is deliberately NOT attached. Production derives it from games
+    played, the bundle has no games-expected figure, and inventing one would be
+    the same class of error this function exists to remove.
+    """
+    from backtest import projection_error as PE
+
+    by_pos = {}
+    for p in players:
+        pos, mean = p.get("position"), p.get("proj_mean")
+        if pos and isinstance(mean, (int, float)):
+            by_pos.setdefault(pos, []).append(p)
+    attached = {"proj_ceiling": 0, "proj_floor": 0, "proj_sd": 0}
+    unmeasurable = 0
+    for pos, rows in by_pos.items():
+        rows.sort(key=lambda r: -(r.get("proj_mean") or 0.0))
+        for rank, p in enumerate(rows, start=1):
+            mean = p.get("proj_mean") or 0.0
+            got = False
+            for field, fn in zip(DISPERSION_FIELDS,
+                                 (PE.proj_ceiling_for, PE.proj_floor_for,
+                                  PE.proj_sd_for)):
+                val, status = fn(calibration, pos, rank, mean)
+                if status == "measured" and val is not None:
+                    p[field] = val
+                    p[field + "_source"] = "measured_calibration"
+                    attached[field] += 1
+                    got = True
+            if not got:
+                unmeasurable += 1
+    return {"attached": attached, "players_with_no_measured_cell": unmeasurable,
+            "players": len(players)}
+
+
 def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
-          adp_curve=None, teams=None):
+          adp_curve=None, teams=None, calibration=None):
     """Return (bundle, notes). `store` is an AsOfDataStore and the only source
     of season-specific truth."""
     season = store.season
@@ -128,8 +210,13 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
             "player_id": pid, "name": p.get("name"), "position": p.get("position"),
             "team": p.get("team"), "bye": p.get("bye"),
             "proj_mean": pm if pm is not None else 0.0,
-            "proj_sd": round((pm or 0.0) * 0.25, 2),
-            "proj_ceiling": round((pm or 0.0) * 1.35, 2),
+            # NO SYNTHETIC DISPERSION HERE ANY MORE. `proj_sd = 0.25 * mean` and
+            # `proj_ceiling = 1.35 * mean` used to be written on this line, which
+            # made the ceiling term a fixed multiple of the value term on every
+            # backtest board ever built (Spearman 1.0000) and is why the ceiling
+            # weight measured collinear and was zeroed. Dispersion is now
+            # attached by `attach_dispersion` from the measured calibration, or
+            # NOT AT ALL — see that function for why there is no fallback.
             "raw_adp": a, "adjusted_adp": a, "adp_sd": None,
             "adp_source": "ffc" if a else ("drafted" if pid in drafted_ids else "none"),
             # ── AGE, AS OF THE REPLAYED SEASON (2026-08-14) ──────────────────
@@ -160,6 +247,20 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
         up["adp_sd"] = 30.0
     players = priced + unpriced
     players.sort(key=lambda x: x["raw_adp"])
+
+    # MEASURED DISPERSION, OR NONE. The caller supplies a calibration fitted with
+    # THIS season held out (`calibrate(exclude_season=season)` raises if it is
+    # not), because a spread fitted on the season being graded is foreknowledge
+    # the drafter did not have — the exp33 leak, one level down. A caller that
+    # supplies nothing gets a board with no dispersion fields at all rather than
+    # the old synthetic constants.
+    notes["dispersion"] = (
+        attach_dispersion(players, calibration) if calibration else
+        {"attached": None,
+         "why": "no calibration supplied — dispersion fields are ABSENT rather "
+                "than synthesised. The former 1.35x/0.25x constants made the "
+                "ceiling term a fixed multiple of the value term, which is the "
+                "defect this refusal exists to prevent recurring."})
 
     starters = {}
     for slot in cfg.get("roster_positions") or []:
@@ -216,12 +317,28 @@ def build(store, *, players_meta, weekly_df, crosswalk, prior_seasons,
                                 "production included (declared optional there).",
         },
         "synthetic_not_sourced": {
-            "proj_ceiling": "1.35 x proj_mean, so the ceiling term is RANK-IDENTICAL "
-                            "to value here (Spearman 1.0000). A real per-player "
-                            "ceiling measures 0.9745 against proj_mean, so fixing "
-                            "this would reduce the collinearity WITHOUT removing it.",
-            "proj_sd": "0.25 x proj_mean. Carries no information beyond proj_mean.",
+            # FIXED 2026-08-17. This block used to declare proj_ceiling as
+            # "1.35 x proj_mean ... RANK-IDENTICAL to value here (Spearman
+            # 1.0000)" and proj_sd as "0.25 x proj_mean. Carries no information
+            # beyond proj_mean." Both are gone: dispersion now comes from the
+            # measured per-(position, band) calibration, or is absent.
             "adp_sd": "None for every FFC-priced player.",
+        },
+        "dispersion_now_measured": {
+            "proj_ceiling / proj_floor / proj_sd": (
+                "measured p90 / p10 / sd ratio per (position, band), from the "
+                "same appliers production uses, fitted LEAVE-ONE-SEASON-OUT. "
+                "Absent off an unmeasured cell — never a fallback constant."),
+            "still_not_per_player": (
+                "the measured spread is proj_mean x a per-CELL constant: it "
+                "varies between cells, not within them. So a ceiling weight "
+                "fitted here measures CROSS-BAND dispersion differences only "
+                "and cannot say whether an individual player is worth taking "
+                "for his upside. The collinearity is reduced, not removed."),
+            "weekly_sd": (
+                "NOT attached. Production derives it from games played and the "
+                "bundle has no games-expected figure; inventing one would be "
+                "the same error this change removes."),
         },
         "consequence": "the risk term is DEGENERATE on this board without `age` "
                        "and PARTIAL with it: 6 distinct values against production's "

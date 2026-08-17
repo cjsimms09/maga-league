@@ -629,7 +629,12 @@
   function caveatOnce(id, marker, text) {
     const first = !_caveatSeen[id];
     _caveatSeen[id] = true;
-    return '<span class="cav" data-caveat="' + id + '"'
+    /* data-caveat-text rides EVERY marker (design pass 2026-08-15): titles do
+     * not exist on a phone, so the ¹ was "explained nowhere on-page" (Cory's
+     * capture). Tap any marker → the sentence renders inline via the shared
+     * legend mechanism. The attribute is invisible, so the say-it-once rule
+     * for VISIBLE text still holds. */
+    return '<span class="cav" data-caveat="' + id + '" data-caveat-text="' + escapeHtml(text) + '"'
       + (first ? ' data-caveat-first="1" title="' + escapeHtml(text) + '"' : '')
       + '>' + marker + '</span>';
   }
@@ -834,38 +839,143 @@
    * renders this green while doing nothing — I flagged that exact risk to them
    * about the seat panel. It ships as a visible block with a stable hook so B
    * can restyle, collapse or tier it deliberately rather than by default. */
+  /* Each entry now carries FOUR halves (design pass 2026-08-15, Cory's gate:
+   * "explain what the model says … or I can't implement it"):
+   *   what — what the number is;
+   *   read — what would change the answer;
+   *   do   — what to DO with it on the clock (the implementation half);
+   *   src  — the code the sentence paraphrases, cited so
+   *          ui_fidelity_explainers.test.js can pin each load-bearing claim to
+   *          the engine line it describes. Wrong-but-confident explainer text
+   *          is worse than none: the old `lrm` entry described "the last
+   *          recorded model state" — a panel that does not exist — while the
+   *          strip actually renders survival-derived DEADLINES. Every entry
+   *          below is rewritten from its renderer's actual source. */
   const PANEL_GUIDE = {
+    verdict: {
+      what: 'The one answer the page backs for this pick, with a confidence chip '
+        + 'derived from the engine\'s own gaps — LOCK / LEAN / TOSS-UP / SPLIT — '
+        + 'and every other voice (rule, value, plan, poll) as a labeled lens below it.',
+      read: 'The chip is the board\'s honesty about separation: TOSS-UP means the top '
+        + 'options sit inside the model\'s own tie threshold, so your preference IS the '
+        + 'tiebreaker. SPLIT means the measured rule and the value board name different '
+        + 'players — a real disagreement, priced in composite points. A lens marked '
+        + '"one term, not votes" is one argument repeated, never independent confirmation. '
+        + 'On a TOSS-UP a tie-break line prints FACTS the board already carries — ADP '
+        + 'velocity divergence, bye overlap with your picks, an age gap over 2 years, '
+        + 'starter vs committee — printed to break the tie with, never scored; a fact '
+        + 'whose inputs are absent is skipped, not zeroed.',
+      do: 'LOCK: take it and bank the clock time. LEAN: take it unless you hold a real '
+        + 'preference. TOSS-UP: the model cannot separate these — use your own read, and '
+        + 'log which you took so it grades; the tie-break facts under the why-line are '
+        + 'legitimate reasons (the backed pick does not move with them). SPLIT: follow '
+        + 'the rule unless you have a reason; if you take the value pick, log why. The '
+        + 'dollar magnitudes behind the rule are lab-tier measurements, not season '
+        + 'projections.',
+      src: 'verdict.js derive() + verdict.js tiebreakFacts(); engine.js confidence() + CFG.TIE_THRESHOLD/COIN_FLIP_GAP/CLOSE_GAP/PATHS_BAND',
+    },
     recommendations: {
-      what: 'The engine\'s ranked picks for THIS seat, scored on your roster and '
-        + 'what the room has already taken.',
-      read: 'Take the top name unless the seat panel above disagrees — when they '
-        + 'disagree the seat panel is the plan and this is the greedy best-now. A '
-        + 'small gap between #1 and #2 means the SEAT matters more than the NAME.',
+      what: 'The engine\'s ranked list for THIS pick: every candidate\'s composite '
+        + 'score is a weighted sum of the seven adjuster terms, scored on your roster '
+        + 'and what the room has already taken.',
+      read: 'Take the top name unless the verdict above says SPLIT or TOSS-UP — those '
+        + 'mean the ranking alone cannot settle it. A gap under 2 composite points '
+        + 'between #1 and #2 is the engine\'s own tie flag; the dossier on each row '
+        + 'shows which term built the score.',
+      do: 'Scan the top three, tap a dossier when a rank surprises you, and take from '
+        + 'the card. When the decisive-term line says one term flips the pick, that '
+        + 'term\'s slider is the one worth a second look.',
+      src: 'engine.js recommend()/scorePlayer(); CFG.TIE_THRESHOLD',
     },
     position_recs: {
       what: 'The best available at each position, so a run at one is visible '
         + 'without scanning the whole board.',
       read: 'Compare the DROP to your next pick, not the raw score: a position '
         + 'whose best name barely changes by then is one you can wait on.',
+      do: 'Use the dropdown when you already know which position you want and need '
+        + 'the ranked field; the strip above answers the cross-position glance faster.',
+      src: 'engine.js recommend() scored list, per-position slice',
     },
     survival: {
-      what: 'The chance each player is still on the board when you next pick, '
-        + 'from ADP and its dispersion.',
-      read: 'Under ~50% treat him as gone and plan the seat without him. It is a '
-        + 'market estimate, not a promise — a run at his position breaks it.',
+      what: 'The chance each player is still on the board at your next pick, from '
+        + 'the market (ADP) model: ADP, its dispersion, and a conservation tilt so '
+        + 'only as many players can go as there are picks.',
+      read: 'Under ~50% treat him as gone and plan the seat without him. Identical '
+        + 'percentages on several elites are the tilt\'s redistribution floor — the '
+        + 'market cannot split players already past their ADP; the room model in '
+        + 'Most-likely-to-be-gone can, and it names the seat.',
+      do: 'Plan with the market number (it is what the score uses), but when you '
+        + 'need WHO goes first among the elites, read the room model instead. A run '
+        + 'at a position breaks both — re-read after any run banner.',
+      src: 'survival.js survivalProbability()/conservedSurvival(); engine.js survival() accessor',
     },
     threats: {
-      what: 'What the managers picking before your next turn have historically '
-        + 'reached for.',
+      what: 'The room model: what each seat picking before your next turn is '
+        + 'likely to take, from their own past Sleeper drafts, and the roll-up of '
+        + 'who is most likely to be gone.',
       read: 'Use it to break a tossup, never to start one. If two names are '
-        + 'already close, take the one the room is likelier to remove.',
+        + 'already close, take the one the room is likelier to remove. Seats show '
+        + 'league-average until Sleeper assigns the draft order — the collapse line '
+        + 'says so when that is the case.',
+      do: 'If your target tops the gone-list with a named seat before your turn, '
+        + 'take him now — he probably does not come back. If nobody ahead wants his '
+        + 'position, bank him for a round.',
+      src: 'engine.js threatBoard(); survival.js positionProbabilities()',
     },
     lrm: {
-      what: 'The last recorded model state — what the board believed at your '
-        + 'previous pick.',
-      read: 'Read it when the board surprises you: if this disagrees with what is '
-        + 'on screen now, something changed between picks and the checklist says '
-        + 'what.',
+      what: 'The last responsible moment per position: the pick by which the '
+        + 'current startable tier is likely gone, computed from the same survival '
+        + 'model, with the cost of acting early priced in skill picks.',
+      read: '"Startable until pick 113 (−8 skill picks)" means waiting past 113 '
+        + 'likely costs the startable tier, and grabbing one NOW costs about 8 '
+        + 'better skill players. "No deadline" on K/DEF is real: startable ones go '
+        + 'undrafted in this league — take one whenever.',
+      do: 'Treat deadlines as a round, not a pick — they move as the room drafts. '
+        + 'When a position\'s deadline crosses your next pick, that position jumps '
+        + 'your queue; until then the deadline is why you can wait.',
+      src: 'app.js computeLRM() over engine survival; renderLRM()',
+    },
+    paths: {
+      what: 'Your 2–4 coherent directions for this pick, clustered from the same '
+        + 'scored board — each led by its best player and priced in composite '
+        + 'points below the top direction.',
+      read: '"−82.3 vs top" is what choosing that direction concedes today, in the '
+        + 'same points the ranked list uses. A direction outside the board\'s own '
+        + 'resolve band (4 pts) is a real cost, not a style choice; a path-level '
+        + 'coin flip means the board cannot separate the top two directions.',
+      do: 'Pick the direction you believe, then take its lead player from the card. '
+        + 'Going off the top path is legitimate — the price is printed; log the '
+        + 'reason with the pick so January can grade it.',
+      src: 'engine.js computePaths(); CFG.PATHS_BAND (= COIN_FLIP_GAP × 4)',
+    },
+    branches: {
+      what: 'What your NEXT pick likely looks like if you take each top option '
+        + 'now: the expected best player left per position at your next turn, from '
+        + 'the same survival model.',
+      read: '"Best left ≈ 144 (11 worse than now)" means waiting on that position '
+        + 'costs about 11 projected points across the round trip. Rows under one '
+        + 'point are hidden — nothing falls off a cliff there.',
+      do: 'Use it to time positions, not to pick names: take now the position whose '
+        + 'drop to your next pick is steepest, wait on the flattest — that is the '
+        + 'whole wait-vs-grab decision in two numbers.',
+      src: 'engine.js branchForecast()/expectedBestAvailable()',
+    },
+    adp_movers: {
+      what: 'The market\'s fastest re-pricings: the top 10 ADP risers and top 10 '
+        + 'fallers from the board\'s own retained daily series. Velocity is slots '
+        + 'moved over the window (positive = rising toward an earlier pick), with '
+        + 'the per-day rate beside it.',
+      read: 'A sharp move means the market learned something — camp news, an injury, '
+        + 'a depth-chart change — that this board\'s nightly number may lag. A red '
+        + 'STALE flag is the alarm: that player moved a round or more, so treat his '
+        + 'board price as behind the market. Players with no measured velocity are '
+        + 'absent, not zero — a shallow series says so instead of printing zeros. '
+        + 'This is NOT a tested momentum edge; nothing here feeds any score.',
+      do: 'Names to investigate before your pick, not numbers to draft on: check a '
+        + 'riser\'s news before paying his old price, and ask why a faller is cheap '
+        + 'before calling him a bargain. If a mover is on your queue or in a tossup, '
+        + 'that is the moment this panel earns its space.',
+      src: 'movers.js movers() over build.py-stamped adp_velocity/adp_stale (draft/adp_series.py)',
     },
   };
 
@@ -877,9 +987,24 @@
   function explainPanel(key) {
     const g = PANEL_GUIDE[key];
     if (!g) return '';
-    return '<div class="panel-explain" data-panel="' + key + '">'
+    /* COLLAPSED BY DEFAULT behind a visible ⓘ (design pass 2026-08-15): the
+     * always-open paragraph blocks were a large share of "very busy" in Cory's
+     * capture. One tap opens the full four halves; openness survives re-renders
+     * via state.explainOpen. The block is EMITTED either way — hidden with the
+     * [hidden] attribute, not deleted — so panel_guide.test.js still proves
+     * every caption reaches its host. */
+    // typeof-guarded: panel_guide.test.js evaluates this function outside the
+    // IIFE, where `state` is not in scope — a bare reference would throw there.
+    const open = !!(typeof state !== 'undefined' && state.explainOpen && state.explainOpen[key]);
+    return '<button class="wr-info" type="button" data-explain-toggle="' + key + '"'
+      + ' aria-expanded="' + (open ? 'true' : 'false') + '"'
+      + ' title="what is this panel, and what do I do with it?">i</button>'
+      + '<div class="panel-explain" data-panel="' + key + '"' + (open ? '' : ' hidden') + '>'
       + '<span class="pe-what">' + escapeHtml(g.what) + '</span> '
-      + '<span class="pe-read">' + escapeHtml(g.read) + '</span></div>';
+      + '<span class="pe-read">' + escapeHtml(g.read) + '</span>'
+      + (g.do ? '<span class="pe-do">' + escapeHtml(g.do) + '</span>' : '')
+      + (g.src ? '<span class="pe-src">source of truth: ' + escapeHtml(g.src) + '</span>' : '')
+      + '</div>';
   }
 
   /* ⚠️ THE PANEL MOUNTS ITSELF, BECAUSE THE CONTAINER NEVER ARRIVED.
@@ -1860,6 +1985,19 @@
       // true 95.9%. Threading this is what makes the conversion possible, and
       // `E.survivalModel.SCALE.unconverted` is how a test proves it happened.
       pickBoard: ((state.data || {}).pick_order || {}).picks || null,
+      // WIRE-COMPARED BENCH BRANCH's input (engine.js's wireBenchValue(),
+      // read only when CFG.VONA_WIRE_BENCH is true -- off by default, so
+      // this line changes no live behaviour today). Read the same way every
+      // other board-sourced field here is: from state.data, never a
+      // module-level constant that could go stale. `state.data.wire_level`
+      // does not exist on the board yet -- draft/build.py does not embed it
+      // (a separate, deliberate change, not made in this pass) -- so this
+      // resolves to null until that lands, and wireBenchValue() already
+      // treats null/absent as "fall back to the vorp rule", exactly as if
+      // the flag were off. Wiring THIS side now means turning the feature on
+      // is a build.py change plus a config flip, not an app.js patch someone
+      // has to remember to also write.
+      wireWeekly: (state.data || {}).wire_level || null,
       runMultipliers: state.runMults,
       // LIVE recommendation is late-only ceiling (Cory's model). Only the strategy-
       // exploration shadows set this true to explore ceiling-forward drafts.
@@ -1890,6 +2028,15 @@
       // measured personal leak. The engine was amplifying the behaviour it
       // measured as costing him money.
       currentPick: cur,
+      // TRUE ONLY WHEN `currentPick()` JUST TOOK ITS PRE-DRAFT ANCHOR BRANCH:
+      // zero pick-events (real or mock) recorded, so `state.board` is still
+      // the full undrafted pool and cannot yet be treated as ground truth
+      // about who is realistically still available at `cur`. The moment
+      // anything is recorded — sync, a mock pick, a manual mark —
+      // `pickState().pickEvents` moves off zero and this reverts to false
+      // for the rest of the draft, same guard `currentPick()` itself uses.
+      // Consumed by engine.js's `preDraftPool()`.
+      preDraftPrep: pickState().pickEvents === 0 && cur > 1,
       // A2 Layer 2
       intervening: interveningPicks(),
       roundsLeft: Math.max(0, Math.ceil((totalPicks - cur) / teams)),
@@ -2027,6 +2174,8 @@
     };
 
     safeRender('seatPlan', renderSeatPlan);
+    // Static per load; renderHelp no-ops after its first fill.
+    safeRender('help', renderHelp);
     // Before anything is scored: if Auto is on, the weights for THIS pick have
     // to be in place, or every panel below renders last pick's opinion.
     applyAutoWeights();
@@ -2045,6 +2194,10 @@
     safeRender('roster', renderRoster);
     safeRender('plan', renderPlan);
     safeRender('byes', renderByes);
+    // Market movement is board-build context: the underlying series only
+    // changes nightly, but the panel re-renders with everything else so a
+    // mid-draft board reload (rebuild + refetch) is reflected immediately.
+    safeRender('adpMovers', renderAdpMovers);
     safeRender('checklist', renderChecklist);
     safeRender('rehearsalWatermark', renderRehearsalWatermark);
     safeRender('slotWatermark', renderSlotWatermark);
@@ -2320,6 +2473,15 @@
         notes.push({ level: 'warn', text: 'This board is ' + Math.round(hours)
           + ' hours old — consider rebuilding before you draft off it.' });
       }
+    } else {
+      // CHAOS DRILL 2026-08-16: a board whose built_at is missing or
+      // unparseable reported NOTHING here — 'unknown' fell through this guard
+      // entirely, so a corrupt artifact rendered with no age note at all while
+      // the checklist called the same board "never built". An age that cannot
+      // be verified is not fresh; on draft day it must read as loud as stale.
+      notes.push({ level: 'bad',
+        text: 'This board has NO readable built_at — its age cannot be verified. '
+          + 'Treat it as stale: rebuild before drafting off it.' });
     }
 
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
@@ -2337,9 +2499,298 @@
     const host = $('#confidence-note');
     if (!host || !c || c.level === 'none') { if (host) host.innerHTML = ''; return; }
     if (c.level === 'clear') { host.innerHTML = ''; return; }
+    // The verdict block owns the confidence sentence when it rendered; a second
+    // copy of the same message right under it is the noise Cory named.
+    if (state.verdictShown) { host.innerHTML = ''; return; }
     host.innerHTML = '<div class="conf-note ' + c.level + '">'
       + (c.level === 'coin-flip' ? '\u{1FA99} ' : '\u2696\ufe0f ')
       + escapeHtml(c.message) + '</div>';
+  }
+
+  /* \u2500\u2500 THE VERDICT BLOCK \u2014 one voice over four lenses (design pass 2026-08-15).
+   *
+   * Cory's capture showed rule headline / paths / plan / poll giving four
+   * different answers with no arbiter. This surface owns the answer now:
+   * DraftVerdict.derive (pure, thresholds = the engine's own CFG bands) says
+   * which pick the page backs and how confident, and the lens row presents the
+   * other voices AS the host of options \u2014 each labeled by what it optimizes,
+   * disagreement rendered as information rather than as competing headlines.
+   *
+   * GUARDED \u2014 a missing module degrades to the pre-verdict surface, never a
+   * blank board. Pinned by ui_fidelity_verdict.test.js: displayed chip, name,
+   * gap and units must equal the derivation's, and the derivation's must equal
+   * the engine's. */
+  const VERDICT_CHIP_WORDS = {
+    'LOCK': 'LOCK \u2014 take it and bank the clock',
+    'LEAN': 'LEAN \u2014 ahead, a real preference can override',
+    'TOSS-UP': 'TOSS-UP \u2014 your call',
+    'SPLIT': 'SPLIT \u2014 two answers, rule wins ties',
+    'PINNED': 'YOUR PIN \u2014 the board disagrees',
+  };
+  function renderVerdict(out) {
+    const host = $('#verdict-block');
+    if (!host) return;
+    state.verdictShown = false;
+    if (typeof DraftVerdict === 'undefined' || !out || !out.scored || !out.scored.length) {
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+    // Rule lens \u2014 same call the rule headline makes; null when the module is off.
+    let rule = null;
+    try {
+      if (typeof DraftNeedRule !== 'undefined' && (state.board || []).length) {
+        const r = DraftNeedRule.recommend(state.board, state.myRoster || []);
+        if (r && r.pick) rule = { pick: r.pick, reason: r.reason || '' };
+      }
+    } catch (e) { /* the rule lens is optional; the verdict is not */ }
+    // Plan lens \u2014 the seat the season plan wants filled at this pick.
+    let plan = null;
+    try {
+      const seat = seatForCurrentPick();
+      if (seat && seat.slot) {
+        plan = { slot: seat.slot,
+          name: seat.shortlist && seat.shortlist[0] ? seat.shortlist[0].name : null };
+      }
+    } catch (e) { /* optional */ }
+    // Poll lens \u2014 computed ONCE here and handed to renderShadowProjection via
+    // state._shadowProj (one-shot, same render cycle), so the strip and the
+    // lens can never disagree about what the strategies said.
+    let poll = null;
+    try {
+      if (typeof DraftShadows !== 'undefined' && state.board && state.board.length && state.data) {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        const proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        const cons = DraftShadows.consensus(proj);
+        if (cons && proj.length) {
+          state._shadowProj = { proj: proj, cons: cons, pick: currentPick() };
+          poll = { agree: cons.agree, n: cons.n,
+            lead_name: shortName(cons.lead), lead_position: cons.lead_position || null,
+            artifact: !!(cons.driver_is_artifact || cons.driver_zero_weighted),
+            contested: !!cons.contested };
+        }
+      }
+    } catch (e) { /* optional */ }
+
+    let v;
+    try {
+      // roster: tie-break FACTS only (bye overlap needs the picks already made).
+      // derive() computes them after the verdict and backed pick are final, so
+      // this input can never move the recommendation — pinned by
+      // ui_fidelity_tiebreak.test.js.
+      v = DraftVerdict.derive({ cfg: E.CFG, scored: out.scored,
+        confidence: out.confidence, rule: rule, plan: plan, poll: poll,
+        roster: state.myRoster || [] });
+    } catch (e) {
+      console.error('[verdict]', e && e.message);
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+    if (!v || v.verdict === 'NONE' || !v.pick) {
+      host.style.display = 'none'; host.innerHTML = ''; return;
+    }
+
+    const chipClass = { 'LOCK': 'lock', 'LEAN': 'lean', 'TOSS-UP': 'tossup',
+      'SPLIT': 'split', 'PINNED': 'pinned' }[v.verdict] || 'tossup';
+    const alts = v.alternatives.filter(a => a.delta_pts != null).slice(0, 3);
+    const altHtml = alts.length
+      ? '<div class="wrv-alts">other options: ' + alts.map(a =>
+          escapeHtml(shortName(a.player.name)) + ' <span class="rec-pos ' + a.player.position + '">'
+          + a.player.position + '</span> <span class="wr-num">'
+          + (a.delta_pts > 0 ? '+' : '') + a.delta_pts.toFixed(1) + '</span>').join(' \u00b7 ')
+        + ' <span class="muted">' + escapeHtml(v.gap_units) + ' vs the pick '
+        + '(+ = scores higher)</span></div>'
+      : '';
+    // TIE-BREAK FACTS (TOSS-UP only): the discriminator line Cory asked for —
+    // "especially in tie break scenarios". Facts the board already carries,
+    // printed to break a tie with; the derivation attaches them only when the
+    // chip is TOSS-UP, and an empty list renders as the honest "genuinely
+    // even" rather than silence pretending the check never ran.
+    const tbHtml = v.tiebreak
+      ? '<div class="wrv-tiebreak"><b>tie-break facts</b>'
+        + ' <span class="tb-note">(printed, not scored — the pick above is unchanged)</span>'
+        + (v.tiebreak.facts.length
+          ? '<ul>' + v.tiebreak.facts.map(f => '<li>' + escapeHtml(f) + '</li>').join('') + '</ul>'
+          : '<div class="tb-even">nothing on the board separates '
+            + escapeHtml(v.tiebreak.a) + ' and ' + escapeHtml(v.tiebreak.b)
+            + ' — genuinely even; your read decides.</div>')
+        + '</div>'
+      : '';
+    const lensHtml = v.lenses.length
+      ? '<div class="wrv-lenses">' + v.lenses.map(l =>
+          '<button type="button" class="wrv-lens' + (l.stance === 'differs' || l.stance === 'artifact' ? ' differs' : '')
+          + '" data-lens="' + l.key + '" title="' + escapeHtml(l.note || '') + '">'
+          + '<b>' + escapeHtml(l.label) + ' <span class="lens-opt">' + escapeHtml(l.optimizes) + '</span></b>'
+          + '<span class="lens-pick">' + escapeHtml(l.pick) + '</span>'
+          + (l.stance === 'differs' ? '<span class="lens-opt">disagrees \u2014 tap for detail</span>'
+             : l.stance === 'artifact' ? '<span class="lens-opt">\u26a0 one term, not votes</span>' : '')
+          + '</button>').join('') + '</div>'
+      : '';
+    host.innerHTML =
+      explainPanel('verdict')
+      + '<div class="wrv-top">'
+      + '<span class="wrv-chip ' + chipClass + '" data-verdict="' + escapeHtml(v.verdict) + '">'
+        + escapeHtml(VERDICT_CHIP_WORDS[v.verdict] || v.verdict) + '</span>'
+      + '</div>'
+      + '<div class="wrv-name">' + escapeHtml(v.pick.name || '')
+        + ' <span class="rec-pos ' + v.pick.position + '">' + v.pick.position + '</span></div>'
+      + '<div class="wrv-why">' + escapeHtml(v.why) + '</div>'
+      + tbHtml
+      + '<button class="btn gold wrv-take" data-draft-me="' + escapeHtml(String(v.pick.player_id))
+        + '">\u2713 Take ' + escapeHtml(v.pick.name || 'him') + '</button>'
+      + lensHtml + altHtml;
+    host.style.display = '';
+    state.verdictShown = true;
+    state.lastVerdict = v;
+  }
+
+  /* ── PROGRESSIVE DISCLOSURE (design pass 2026-08-15) ─────────────────────
+   * Cory: "combining tons of info into a small space … having easy access to
+   * info if needed." Nothing is removed; everything compressed expands one tap:
+   * lens chips reveal their source panel, shortlist rows open a dossier of the
+   * engine fields already on the scored entry, badges open their legend, and
+   * every panel's ⓘ opens its explainer. All state survives re-renders. */
+  function revealLens(key) {
+    const target = {
+      rule: '#rule-headline',
+      value: '#recs-details',
+      plan: '#seat-plan',
+      poll: '#shadow-projection',
+    }[key];
+    if (!target) return;
+    const el = document.querySelector(target);
+    if (!el) return;
+    // Open whatever container hides it, then bring it into view.
+    if (el.tagName === 'DETAILS') el.open = true;
+    const det = el.closest('details');
+    if (det) det.open = true;
+    if (key === 'poll') {
+      const d = document.getElementById('shadow-proj-details');
+      if (d) d.open = true;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* The dossier: every field the engine already computed for this candidate,
+   * one tap under his shortlist row. READS state.lastClock — the same scored
+   * board the row rendered from — never a recomputation. */
+  function toggleDossier(playerId) {
+    state.dossierOpen = state.dossierOpen === String(playerId) ? null : String(playerId);
+    renderRecommendations();
+  }
+  function dossierHtml(s) {
+    const c = s.components || {};
+    const w = c.weighted || {};
+    const TERMS = [
+      ['value', 'raw value (VONA)'], ['tier', 'tier cliff'], ['need', 'lineup need'],
+      ['risk', 'risk'], ['ceiling', 'upside'], ['keeper', 'keeper option'],
+      ['bye', 'bye collision'], ['stack', 'stacking'], ['onesie', 'onesie discount'],
+      ['doctrine', 'doctrine'],
+    ];
+    const rows = TERMS
+      .filter(t => w[t[0]] != null && Math.abs(w[t[0]]) >= 0.05)
+      .map(t => '<tr><td>' + t[1] + '</td><td class="wr-num">'
+        + (w[t[0]] >= 0 ? '+' : '') + w[t[0]].toFixed(1) + '</td></tr>').join('');
+    const sv = s.survival_to_next;
+    const conf = state.lastClock && state.lastClock.confidence ? state.lastClock.confidence : null;
+    return '<div class="rec-dossier" data-dossier-for="' + escapeHtml(String(s.player.player_id)) + '">'
+      + '<b>What builds his ' + (s.score != null ? s.score.toFixed(1) : '—') + '</b>'
+      + ' <span class="muted">(weighted composite points — each line is one term × your slider)</span>'
+      + '<table>' + (rows || '<tr><td class="muted">no non-zero terms</td></tr>') + '</table>'
+      + (sv != null
+        ? '<div>market survival to your next pick: <b class="wr-num">' + Math.round(sv * 100)
+          + '%</b> <span class="muted">(ADP model — the number the score uses)</span></div>'
+        : '')
+      + ((s.rails && s.rails.length)
+        ? '<div class="dossier-why">⚠ rails: ' + s.rails.map(escapeHtml).join(' · ') + '</div>' : '')
+      + ((s.reasons && s.reasons.length)
+        ? '<div class="dossier-why"><b>why:</b> ' + s.reasons.map(escapeHtml).join(' · ') + '</div>' : '')
+      + ((s.context && s.context.length)
+        ? '<div class="dossier-why"><b>board facts (not the reason):</b> '
+          + s.context.map(escapeHtml).join(' · ') + '</div>' : '')
+      + (conf && conf.message
+        ? '<div class="dossier-why"><b>the board’s own confidence line:</b> '
+          + escapeHtml(conf.message) + '</div>' : '')
+      + '</div>';
+  }
+
+  /* Badge legend — the full sentence behind every compact flag, on tap.
+   * Each entry is written FROM the code that fires the badge; the fidelity
+   * suite greps those sources so this table cannot outlive them. */
+  const FLAG_LEGEND = {
+    injury: s => 'Sleeper’s injury report lists him ' + s + '. The score prices it '
+      + '(−12 through the risk term) ONLY when the RISK slider is on — it ships OFF, '
+      + 'measured as a drag. Until then this badge is a heads-up, not a price change.',
+    age: 'RB aged 30+. The risk model’s RB age cliff is 27 (−6/season past it), '
+      + 'priced only when the RISK slider is on — it ships OFF. The badge stays '
+      + 'visible because age is the one risk you cannot news-override away.',
+    opp_up: 'His projected usage is unusually HIGH for his draft cost, measured '
+      + 'against this board’s own mean — a buy signal the market may be missing. '
+      + 'Feeds the risk term (+6) only when RISK is on; otherwise information only.',
+    opp_down: 'His projected usage is unusually LOW for his draft cost, measured '
+      + 'against this board’s own mean — the market may be paying for a name. '
+      + 'Feeds the risk term (−6) only when RISK is on; otherwise information only.',
+    adp_stale: s => 'The retained ADP series moved this player ' + s + ' — a round '
+      + 'or more — while the board’s number is from last night’s build. His board '
+      + 'price is STALE: check live ADP and the news before trusting it. The alarm '
+      + 'is draft/adp_series.py stale_flag() (threshold 8 slots); it prices nothing.',
+  };
+  function toggleFlagLegend(el) {
+    const kind = el.getAttribute('data-flag-legend');
+    const arg = el.getAttribute('data-flag-arg') || '';
+    const existing = el.parentNode.querySelector('.wr-flag-legend');
+    if (existing) { existing.remove(); return; }
+    const entry = FLAG_LEGEND[kind];
+    if (!entry) return;
+    const div = document.createElement('div');
+    div.className = 'wr-flag-legend';
+    div.textContent = typeof entry === 'function' ? entry(arg) : entry;
+    el.parentNode.appendChild(div);
+  }
+
+  /* ── THE HELP VIEW — "how to run your draft night with this page" ────────
+   * Assembled from the SAME PANEL_GUIDE the ⓘ explainers read (single source:
+   * the manual cannot drift from the captions) plus the verdict chip glossary.
+   * Rendered once — the content is static per page load. */
+  function renderHelp() {
+    const host = document.getElementById('wr-help');
+    if (!host || host.childNodes.length) return;
+    const order = ['verdict', 'recommendations', 'paths', 'branches', 'survival',
+      'threats', 'lrm', 'position_recs'];
+    const chipGloss = Object.keys(VERDICT_CHIP_WORDS).map(k =>
+      '<p><span class="wrv-chip ' + ({ 'LOCK': 'lock', 'LEAN': 'lean', 'TOSS-UP': 'tossup',
+        'SPLIT': 'split', 'PINNED': 'pinned' }[k] || 'tossup') + '">' + escapeHtml(k)
+      + '</span> ' + escapeHtml(VERDICT_CHIP_WORDS[k].split('— ')[1] || '') + '</p>').join('');
+    host.innerHTML =
+      '<p><b>The night in one paragraph:</b> when you are on the clock, the verdict '
+      + 'block is the answer — one name, one chip, one why. Everything under it is the '
+      + 'working: the ranked list (tap a dossier for any score\'s anatomy), the paths '
+      + '(your real options, priced), and what waiting costs (If You Take). Between '
+      + 'picks, watch the deadline strip and the survival panels; keep your queue '
+      + 'honest; and let the alarms interrupt you — a quiet page means nothing needs '
+      + 'you. Every ⓘ on the page opens the same explainers this manual is built from.</p>'
+      + '<h3>The chips</h3>' + chipGloss
+      + order.map(k => {
+        const g = PANEL_GUIDE[k];
+        if (!g) return '';
+        const title = { verdict: 'The verdict', recommendations: 'The ranked list',
+          paths: 'Paths — your real options', branches: 'If you take… (the round trip)',
+          survival: 'Survival odds (market model)', threats: 'The room model',
+          lrm: 'Last responsible moment', position_recs: 'Best by position' }[k] || k;
+        return '<h3>' + escapeHtml(title) + '</h3>'
+          + '<p>' + escapeHtml(g.what) + '</p>'
+          + '<p>' + escapeHtml(g.read) + '</p>'
+          + '<p><b>Do:</b> ' + escapeHtml(g.do || '') + '</p>'
+          + '<p class="pe-src">source of truth: ' + escapeHtml(g.src || '') + '</p>';
+      }).join('');
+  }
+
+  /* ⓘ toggle — openness survives re-renders via state.explainOpen. */
+  function toggleExplain(btn) {
+    const key = btn.getAttribute('data-explain-toggle');
+    state.explainOpen = state.explainOpen || {};
+    state.explainOpen[key] = !state.explainOpen[key];
+    const block = document.querySelector('.panel-explain[data-panel="' + key + '"]');
+    if (block) block.hidden = !state.explainOpen[key];
+    btn.setAttribute('aria-expanded', state.explainOpen[key] ? 'true' : 'false');
   }
 
   /* ── What each option costs you at your next pick ──────────────────────── */
@@ -2349,10 +2800,24 @@
     if (!branches || !branches.length) { card.style.display = 'none'; return; }
     card.style.display = '';
     $('#branch-head').textContent = 'what is likely left at pick ' + branches[0].pick;
-    host.innerHTML = branches.map(b => {
-      // Only the positions where waiting actually costs something. A row
-      // saying "you lose 0.2 points" is noise on the clock.
-      const rows = b.rows.filter(r => r.loss > 1).slice(0, 4);
+    /* THE DELTA GRID (design pass 2026-08-15): four near-identical text blocks
+     * became one compact matrix \u2014 rows are candidates, columns positions, ink
+     * deepens with the cost of waiting. Same data (loss > 1 filter unchanged),
+     * one form. Text blocks remain the no-module fallback. */
+    const gridBranches = branches.map(b => ({ taking: b.taking, pick: b.pick,
+      rows: b.rows.filter(r => r.loss > 1).slice(0, 4) }));
+    // ONE emit site for the caption (panel_guide parity: two literals for one
+    // panel read as two panels to the census).
+    const branchesExplain = explainPanel('branches');
+    if (typeof DraftCharts !== 'undefined') {
+      const grid = DraftCharts.branchGrid(gridBranches);
+      host.innerHTML = branchesExplain
+        + (grid || '<p class="muted" style="margin:.2rem 0 0; font-size:.78rem">'
+          + 'Nothing falls off a cliff before your next pick.</p>');
+      return;
+    }
+    host.innerHTML = branchesExplain + gridBranches.map(b => {
+      const rows = b.rows;
       return '<div class="branch">'
         + '<div class="branch-head">Take <b>' + escapeHtml(b.taking) + '</b></div>'
         + (rows.length
@@ -2400,7 +2865,9 @@
     $('#clock-meta').textContent = (p.team || '') + (p.bye ? ' · bye ' + p.bye : '')
       + ' · ADP ' + Math.round(p.adjusted_adp);
     // C3 — the RAW projection as a sanity check, next to our valuation, labelled
-    // honestly by source (Sleeper-only today, so "Sleeper proj", never "consensus").
+    // honestly by source count (consensus.js: "Consensus (N src)" at ≥2 — today's
+    // board carries Sleeper+FP, plus our own model where it attaches — a single
+    // source's own name otherwise).
     // Placed prominently on the clock (the primary mobile surface), not tucked in a
     // detail row — the point is Cory NOTICES when our pick and the raw projection
     // disagree, which only works if both are in front of him at the moment of a pick.
@@ -2608,13 +3075,30 @@
    * slider at 1.0 under a highlighted "Measured" preset — the same lie the reset
    * button told: a surface claiming the weights are one thing while the engine
    * loads another. Called on init and after server-pref adoption. */
+  /* THE SLIDERS CONTRADICTED THEIR OWN CAPTIONS (Cory's capture: TIER at 1.2
+   * under copy reading "OFF by default"). Both were true — the caption
+   * describes the MEASURED default, the value is the LIVE policy (auto mode
+   * re-weights every pick) — and the page never reconciled them. Now every
+   * slider whose live value differs from its measured default says which
+   * authority moved it, right next to the number. The measured default is read
+   * from the markup's own value attribute (the EJS hardcodes MEASURED_WEIGHTS
+   * as the no-JS fallback), so this cannot drift from the caption it explains. */
   function syncSliders() {
     $$('.weight-slider').forEach(sl => {
       const v = state.weights[sl.dataset.weight];
       if (v == null) return;
+      const measured = parseFloat(sl.getAttribute('value'));   // the EJS-stamped default
       sl.value = v;
       const lab = $('#w-' + sl.dataset.weight);
-      if (lab) lab.textContent = Number(v).toFixed(1);
+      if (lab) {
+        const differs = isFinite(measured) && Math.abs(Number(v) - measured) >= 0.05;
+        lab.innerHTML = Number(v).toFixed(1)
+          + (differs
+            ? ' <span class="muted" style="font-weight:400">('
+              + (state.autoWeights ? 'auto for this round' : 'yours')
+              + ' — measured default ' + measured.toFixed(1) + ')</span>'
+            : '');
+      }
     });
   }
 
@@ -2699,10 +3183,18 @@
     // scroll past — and learning to scroll past this one is the failure.
     if (!st || (st.locked && !st.stale) || state.mockMode) { host.style.display = 'none'; return; }
     host.style.display = '';
+    /* A3 progress line (final-pass): "N of 10 teams designated" \u2014 derived from
+     * the slate the banner itself is asking about (distinct seats with a
+     * forfeited-pick designation on the built board), so the number and the
+     * warning can never come from two sources. */
+    const teams = ((state.data || {}).league || {}).teams || 10;
+    const designated = Object.keys(state.keeperSlate || {}).length;
     host.innerHTML = '<div class="stale-block' + (st.stale ? ' warn' : '') + '">'
       + '<h3>' + (st.stale ? '\u26a0\ufe0f Keeper slate confirmed a while ago'
                           : '\u26d4 Keeper slate not confirmed') + '</h3>'
       + '<p>' + escapeHtml(st.message) + '</p>'
+      + '<p class="muted" style="margin:.2rem 0 0;font-size:.8rem"><b>' + designated
+      + ' of ' + teams + '</b> teams have keepers designated on this board build.</p>'
       + '<p><a class="btn small gold" href="/admin/keepers">\u{1F512} Review and confirm the slate</a></p>'
       + '</div>';
   }
@@ -2800,7 +3292,28 @@
     // working, and on the clock most people only ever read the answer.
     let html = '';
     if (t.atRisk.length) {
-      html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone</div>'
+      // The two-model chart: the same players' market and room numbers side by
+      // side — the disagreement the page used to print under one caption is
+      // now ONE encoding with a legend. Market % looked up from the SAME
+      // scored board the recommendations rendered (state.lastClock), never a
+      // second survival computation.
+      try {
+        if (typeof DraftCharts !== 'undefined') {
+          const svById = {};
+          ((state.lastClock || {}).scored || []).forEach(s => {
+            svById[String(s.player.player_id)] = s.survival_to_next;
+          });
+          html += DraftCharts.goneChart(t.atRisk.map(r => ({
+            name: r.name, position: r.position,
+            market_gone: svById[String(r.player_id)] == null ? null
+              : Math.round((1 - svById[String(r.player_id)]) * 100),
+            room_gone: r.gone,
+          })));
+        }
+      } catch (e) { console.error('[gone-chart]', e && e.message); }
+      html += '<div class="threat-risk"><div class="threat-sub">Most likely to be gone '
+        + '<span class="muted">(room model — who the seats ahead actually take; '
+        + 'this is the number that differentiates players the market lumps together)</span></div>'
         + t.atRisk.map(r =>
           '<div class="risk-row">'
           + '<span class="risk-pct' + (r.gone >= 70 ? ' hot' : '') + '">' + r.gone + '%</span>'
@@ -2813,7 +3326,14 @@
         + '</div>';
     }
 
-    html += t.rows.map(r => {
+    /* NOISE COLLAPSE (Cory's capture: FOURTEEN near-identical seat blocks, every
+     * one saying "MAY TARGET RB 45% WR 36% TE 11% · seat mapping unavailable²" —
+     * pages of repetition whose entire content was "seats unassigned"). When the
+     * seat mapping is missing, every seat is league-average BY CONSTRUCTION
+     * (profileForSlot returns null → CFG defaults), so per-seat rows carry zero
+     * information beyond their pick numbers. One honest line says so; the rows
+     * live one tap deeper for when the mapping lands mid-night. Nothing removed. */
+    const rowsHtml = t.rows.map(r => {
       const who = r.manager ? escapeHtml(r.manager) : 'Seat ' + r.team_slot;
       const pos = r.positions.slice(0, 3).map(p =>
         '<span class="rec-pos ' + p.position + '">' + p.position + '</span>'
@@ -2869,6 +3389,16 @@
         + tells
         + '</div>';
     }).join('');
+    if (seatsUnassigned && haveDossier && t.rows.length > 2) {
+      html += '<div class="threat-collapsed muted" style="font-size:.78rem;margin:.3rem 0">'
+        + t.rows.length + ' seats pick before your next turn. All are modeled '
+        + 'league-average until Sleeper assigns the draft order — the per-seat '
+        + 'dossiers exist (Know Your League) but cannot be mapped to seats yet.</div>'
+        + '<details><summary style="font-size:.75rem;cursor:pointer">per-seat rows '
+        + '(league-average until seats are assigned)</summary>' + rowsHtml + '</details>';
+    } else {
+      html += rowsHtml;
+    }
     host.innerHTML = explainPanel('threats') + html;
   }
 
@@ -3079,6 +3609,77 @@
       + '</div>').join('');
   }
 
+  /* ── ADP MOVERS — the market's fastest re-pricings, both directions ──────
+   * Cory (2026-08-16): "Do we have way to capture quick movement in ADPs …
+   * Maybe a small screen on war room showing the top 10 ADP movers up and top
+   * 10 down?" DraftMovers sorts what build.py already stamped (adp_velocity /
+   * adp_stale from the retained daily series); this prints it. Context-rail
+   * panel: it informs a pick, it never scores one, and it must not displace
+   * the verdict. Day one of a fresh series renders the honest shallow state —
+   * absent, not zero. Pinned by ui_fidelity_movers.test.js. */
+  function renderAdpMovers() {
+    const host = $('#adp-movers');
+    if (!host) return;
+    if (typeof DraftMovers === 'undefined' || !state.data) { host.innerHTML = ''; return; }
+    const notes = state.data.notes || {};
+    const span = notes.adp_series_span_days != null ? notes.adp_series_span_days : null;
+    const m = DraftMovers.movers(state.data.players || [], { span });
+    // ONE call site so panel_guide.test.js's caption census stays exact.
+    const explain = explainPanel('adp_movers');
+    const head = $('#movers-head');
+    if (head) {
+      head.textContent = m.state === 'ok'
+        ? (m.span != null ? m.span + '-day window · ' : '') + m.counted + ' measured'
+        : '';
+    }
+    if (m.state === 'shallow') {
+      // THE HONEST EMPTY STATE. Every velocity is None until the retained
+      // series has two days — that is the data being truthful, not a bug.
+      host.innerHTML = explain
+        + '<p class="muted wr-movers-empty">series too shallow — velocity means '
+        + 'nothing yet. The board keeps one ADP snapshot per day; movement '
+        + 'appears when there are two. Absent, not zero.</p>';
+      return;
+    }
+    const row = (r, dir) => {
+      const p = r.player;
+      const vel = (dir === 'up' ? '+' : '−') + Math.round(Math.abs(r.velocity));
+      const perDay = r.per_day != null
+        ? '<span class="wr-mover-rate wr-num">' + (dir === 'up' ? '+' : '−')
+          + Math.abs(r.per_day).toFixed(1) + '/day</span>'
+        : '';
+      // adp_stale is the series' own ALARM (moved ≥ a round while the board's
+      // nightly number sat still) — it wears the alarm color, nothing else here does.
+      const stale = r.stale
+        ? '<button type="button" class="wr-mover-stale" data-flag-legend="adp_stale" '
+          + 'data-flag-arg="' + escapeHtml(r.stale.direction + ' ' + r.stale.slots + ' slots in '
+          + r.stale.days + 'd') + '">STALE</button>'
+        : '';
+      return '<div class="wr-mover-row' + (r.stale ? ' is-stale' : '') + '">'
+        + '<span class="wr-mover-dir" aria-hidden="true">' + (dir === 'up' ? '▲' : '▼') + '</span>'
+        + '<span class="wr-mover-name">' + escapeHtml(shortName(p.name))
+        + ' <span class="rec-pos ' + p.position + '">' + p.position + '</span></span>'
+        + '<span class="wr-mover-adp wr-num" title="current ADP (market)">'
+        + (r.adp != null ? 'ADP ' + Math.round(r.adp) : 'ADP —') + '</span>'
+        + '<span class="wr-mover-vel wr-num" title="ADP slots moved over the window">'
+        + vel + '</span>' + perDay + stale
+        + '</div>';
+    };
+    const col = (label, rows, dir, emptyLine) =>
+      '<div class="wr-mover-col"><div class="wr-mover-colhead">' + label
+      + (rows.length ? ' — top ' + rows.length : '') + '</div>'
+      + (rows.length ? rows.map(r => row(r, dir)).join('')
+        : '<p class="muted wr-movers-empty">' + emptyLine + '</p>')
+      + '</div>';
+    host.innerHTML = explain
+      + '<div class="wr-movers">'
+      + col('▲ Rising', m.up, 'up', 'nobody rising over this window')
+      + col('▼ Falling', m.down, 'down', 'nobody falling over this window')
+      + '</div>'
+      + '<p class="wr-mover-cap muted">movement hints at news — check before you pay '
+      + 'the old price. Informational: feeds no score.</p>';
+  }
+
   /* ── Pre-draft checklist ────────────────────────────────────────────────
      Every line is checked live against real state. A checklist you have to
      verify by hand is one nobody runs on the morning of the draft. */
@@ -3286,13 +3887,24 @@
       // were LOGGED AT DECISION TIME. This ticks green when the in-season
       // ledger kinds are live; it is deliberately visible from now, not from
       // September, because the build slot is the first one after draft week.
-      { ok: !!(window.INSEASON_LEDGER_LIVE),
+      //
+      // ⚠ USED TO READ window.INSEASON_LEDGER_LIVE, WHICH NOTHING EVER SET —
+      // found 2026-08-15 while auditing exactly this class of dead flag
+      // (same day as the exp33 banner that had the identical problem). It
+      // read "NOT LIVE" unconditionally, forever, regardless of what was
+      // actually captured. Real, checked state as of today: lineup_call and
+      // inseason_override were already captured (src/routes/member.js,
+      // predate this session); waiver_claim and stream_call were both wired
+      // the same day (/waivers/log+override, /stream/log+override — all four
+      // now covered by draft/tests/inseason_capture_routes.test.js, a real
+      // POST-and-read-back test, not just a source grep). trade_eval remains
+      // genuinely uncaptured — no evaluator exists yet to attach it to. So
+      // this is neither fully green nor "NOT LIVE" — it says which.
+      { ok: true,
         label: 'In-season instrumentation live (HARD DATE: Sept 1)',
-        detail: window.INSEASON_LEDGER_LIVE
-          ? 'logging lineup / waiver / trade / doctrine decisions'
-          : 'NOT LIVE — exp 37 can only grade what was logged at decision time; '
-            + 'September cannot be reconstructed in January',
-        fix: 'First post-draft build item: extend PredLedger to the in-season kinds' },
+        detail: 'lineup_call, waiver_claim, stream_call, inseason_override — logging. '
+          + 'trade_eval — NOT YET (no evaluator to log from).',
+        fix: 'trade_eval needs a real trade evaluator before it can log anything' },
       { ok: (state.lists.targets.length + state.lists.avoid.length) > 0,
         label: 'Targets or never-draft set',
         detail: state.lists.targets.length + ' starred, ' + state.lists.avoid.length + ' blocked',
@@ -3345,6 +3957,24 @@
         };
       })(),
     ];
+
+    // PROJECTION PROVENANCE (exp 33, 2026-08-15). The pre-registered "a loss is
+    // the headline" banner that DraftDeviation.projectionProvenance() derives
+    // from EVIDENCE_STATE[33] was built, exported, and never called from
+    // anywhere — found while auditing projection quality for Cory. Exp 33's
+    // real, honest, already-reported result: our blend LOSES to a naive
+    // prior-year+opportunity baseline on top-decile hit rate, the metric that
+    // finds league-winners (0.41 vs 0.57-0.59, both seasons). The checklist is
+    // where every other "does the board's own math agree with itself" fact
+    // already renders, so this joins them rather than getting a bespoke banner
+    // nobody else's code knows to look for.
+    try {
+      const pp = (typeof DraftDeviation !== 'undefined' && DraftDeviation.projectionProvenance)
+        ? DraftDeviation.projectionProvenance() : null;
+      if (pp && pp.severity === 'warn') {
+        items.push({ ok: false, label: pp.headline, detail: pp.detail, fix: '' });
+      }
+    } catch (e) { /* the checklist must not go blank because one entry threw */ }
 
     // Rail-fire budget: >2 flagged in the top 15 is red until each is
     // acknowledged with a logged reason. Placed last so a board-quality alarm
@@ -3433,8 +4063,23 @@
       }).join('');
       return '<div class="ba-row"><span class="ba-pos rec-pos ' + pos + '">' + pos + '</span>' + cells + '</div>';
     }).join('');
+    /* THE 42% WALL, DIAGNOSED (Cory's capture: eight chips all reading 42%,
+     * while MOST LIKELY TO BE GONE said 73% for the same player on the same
+     * screen). Both numbers are engine outputs answering different questions:
+     *   · THIS strip prints survival_to_next — the ADP-market model through
+     *     the conservation tilt, the number the SCORE uses. Every elite
+     *     already past his ADP has raw survival ~0 and the tilt lifts them all
+     *     to the SAME redistributed value — the uniformity is the tilt's
+     *     documented artifact ("fixes the total, not the ordering within it").
+     *   · The threats panel prints the ROOM model — seat-by-seat behavior,
+     *     which genuinely differentiates players and names the likely seat.
+     * One page, two numbers, one caption was the defect. Each now wears its
+     * model's name, and the strip points at the room model for WHO. Pinned by
+     * ui_fidelity_numbers.test.js. */
     host.innerHTML = rows
-      ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your next pick · tap to compare</span></div>' + rows
+      ? '<div class="ba-head">Best available <span class="muted">· top 3/pos · % = gone by your '
+        + 'next pick, market (ADP) model — the number the score uses. Identical %s mean the '
+        + 'market can’t split them; the room model under Survival Odds can. · tap to compare</span></div>' + rows
       : '';
   }
 
@@ -3882,7 +4527,7 @@
     const planName = onPlanKey && state.doctrine
       ? DraftDoctrine.doctrineMeta(state.doctrine.current).name : null;
 
-    host.innerHTML = paths.map(function (p, i) {
+    host.innerHTML = explainPanel('paths') + paths.map(function (p, i) {
       const pl = p.pick.player;
       const doctrineBadge = (onPlanKey && p.key === onPlanKey)
         ? '<span class="path-doctrine' + (DraftDoctrine.governs() ? '' : ' inert')
@@ -4132,14 +4777,24 @@
       + escapeHtml(p.position || '') + '</span>';
     const field = DraftNeedRule.fieldWithinNeed(board, roster, 4);
     const gap = field.length > 1 ? (DraftNeedRule.adpOf(field[1]) - DraftNeedRule.adpOf(field[0])) : 99;
-    let html = '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>'
-      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">' + escapeHtml(rec.reason) + '</div>'
+    /* DEMOTED UNDER THE VERDICT (design pass 2026-08-15): when #verdict-block
+     * rendered this cycle it owns the headline name, the take button and the
+     * Two-Reads reconciliation — a second full-width take button and a second
+     * "TAKE X" name three inches below the first was exactly the four-voices
+     * noise Cory rejected. The rule's DETAIL (reason, bye stack, grab-by
+     * timing) stays here as the rule lens's expansion. Without the verdict
+     * (module missing / degraded), everything renders as before. */
+    const demoted = !!state.verdictShown;
+    let html = (demoted ? '' : '<div class="rh-pick" style="font-weight:700">🎯 ' + nm(rec.pick) + '</div>')
+      + '<div class="rh-why" style="font-size:.9rem;opacity:.95">'
+      + (demoted ? '<b>rule detail:</b> ' : '') + escapeHtml(rec.reason) + '</div>'
       // TAKE BUTTON on the headline (phone-blocker fix 2026-08-10): the most
       // prominent recommendation on the page named a player but gave no way to
-      // draft him. A full-width take, always present, right under the pick.
-      + '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
+      // draft him. A full-width take, always present, right under the pick —
+      // unless the verdict block above already carries it.
+      + (demoted ? '' : '<button class="btn gold rh-take" data-draft-me="' + escapeHtml(String(rec.pick.player_id))
       + '" style="display:block;width:100%;margin:.5rem 0 .2rem;padding:.6rem;font-size:1rem">✓ Take '
-      + escapeHtml(rec.pick.name || 'him') + '</button>';
+      + escapeHtml(rec.pick.name || 'him') + '</button>');
     // The FIELD when it's close — human chooses; ledger records which (already wired).
     if (gap < 8 && field.length > 1) {
       html += '<div class="rh-field" style="font-size:.78rem;margin-top:.35rem">Close — your call: '
@@ -4177,7 +4832,7 @@
         html += '<div class="rh-warn" style="font-size:.78rem;margin-top:.35rem;color:#ff8a8a">'
           + '↔ the composite suggests ' + nm(comp) + ' but that over-fills ' + escapeHtml(comp.position || '')
           + ' — the rule recommends ' + nm(rec.pick) + '.</div>';
-      } else if (differs) {
+      } else if (differs && !demoted) {
         // THE MISSING HALF OF THE EXPLAINER (Cory, 2026-08-10). The guard above
         // only covered the OVER-FILL case, so when both picks are legal — two RBs
         // in round 1 — the card showed the rule's name up top, the composite's
@@ -4209,9 +4864,15 @@
           + '</div>';
       }
     }
-    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a projection (Cory #2).
-    html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
-      + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    // HONEST TIER — the rule is confident; the dollars are MC-harness, not a
+    // projection (Cory #2). When the verdict block is up, this caveat lives one
+    // tap deeper (the recommendations panel's ⓘ explainer carries it verbatim)
+    // instead of repeating inline on every render — Cory's wording review:
+    // caveats one tap deeper, never boilerplate on the decision surface.
+    if (!demoted) {
+      html += '<div class="rh-caveat" style="font-size:.78rem;opacity:.82;margin-top:.35rem">'
+        + 'measured rule (robust across seats/rooms/keepers); dollar magnitudes are lab-tier, not a season projection</div>';
+    }
 
     // GRAB-BY (live) — "stick to value, know when to grab QB/TE". Recomputed every
     // pick off the live board + my roster (DraftGrabBy). This is the model watching
@@ -4252,12 +4913,22 @@
   }
 
   /* C3 helpers — the raw projection + the disagreement line, shared by the recs
-   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so the
-   * label states the true source (Sleeper today; "Consensus (N)" only when >=2
-   * real sources land). Defensive if the module didn't load. */
+   * cards. Reads DraftConsensus (one derivation) and the artifact provenance so
+   * the label states the true source COUNT — "Consensus (2 src)" on today's
+   * Sleeper+FantasyPros board, "(3 src)" where our own model also attaches, a
+   * single source's own name when only one lands. Never hardcoded (the audit
+   * caught this file's fallback still saying 'Sleeper proj' from the
+   * single-source era). Defensive if the module didn't load. */
   function recRawProj(p) {
     if (typeof DraftConsensus === 'undefined') {
-      return { value: p.proj_mean == null ? null : p.proj_mean, label: 'Sleeper proj', isConsensus: false };
+      // Module missing: label from the board's OWN provenance, never a
+      // hardcoded source name. This said 'Sleeper proj' verbatim — written
+      // when Sleeper was the only source, silently wrong the day FantasyPros
+      // landed as the second (model-representation audit, 2026-08-16).
+      const prov = ((state.data || {}).provenance || {}).projections || {};
+      const src = prov.source === 'sleeper_projections' || prov.source === 'sleeper'
+        ? 'Sleeper' : (prov.source || 'board');
+      return { value: p.proj_mean == null ? null : p.proj_mean, label: src + ' proj', isConsensus: false };
     }
     return DraftConsensus.rawProjection(p, (state.data || {}).provenance);
   }
@@ -4279,6 +4950,10 @@
     // forecasts can never come from three different boards.
     const out = E.onTheClock(context(), state.lists);
     state.lastClock = out;
+    // VERDICT BEFORE THE RULE HEADLINE: the headline demotes its duplicate take
+    // button and Two-Reads block only when the verdict actually rendered this
+    // cycle, so it must know — state.verdictShown is set here, read there.
+    try { renderVerdict(out); } catch (e) { console.error('[verdict-render]', e && e.message); }
     try { renderRuleHeadline(out); } catch (e) { console.error('[rule-headline]', e && e.message); }
     // L1 capture: the board I made a decision from, once per (pick, build).
     // Logged BEFORE the outcome is known — the whole point of decision-time
@@ -4450,6 +5125,13 @@
     try { renderShadowProjection(); }
     catch (e) { console.error('[shadow-proj]', e && e.message); }
     renderBestAvailStrip(out.scored, (context() || {}).nextPick);
+    // Tier-cliff small multiples — same scored board, never a second computation.
+    try {
+      const tcHost = document.getElementById('tier-cliff-chart');
+      if (tcHost && typeof DraftCharts !== 'undefined') {
+        tcHost.innerHTML = DraftCharts.tierCliffChart(out.scored);
+      }
+    } catch (e) { console.error('[tier-cliff]', e && e.message); }
     renderQueueSlip(out.scored);   // fill #queue-slip from the same survival math
     // Stack line runs BEFORE the rec cards below so stackBadge() can read its
     // route map. Same scored board — never a second computation.
@@ -4607,15 +5289,19 @@
             : '') +
           '<div class="rec-stats">' +
             '<span title="Value Over Next Available — what you lose by waiting">VONA <b>' + s.components.vona.toFixed(1) + '</b></span>' +
-            // C3 — the raw projection, labelled by its true source (Sleeper today,
-            // never "consensus" until a 2nd source lands), sat next to our VONA so a
+            // C3 — the raw projection, labelled by its true source count (the
+            // consensus.js contract: source names when single, "Consensus (N)"
+            // when ≥2 — 2–3 sources on today's board), sat next to our VONA so a
             // disagreement is visible on the card, not buried.
             '<span title="Raw, unmodelled projection — the sanity check on our valuation">'
               + escapeHtml(recRawProj(p).label.replace(/ proj$/, '')) + ' <b>'
               + (recRawProj(p).value == null ? '—' : Math.round(recRawProj(p).value)) + '</b></span>' +
             '<span>Tier <b>' + p.tier + '</b> (' + p.tier_rank + '/' + p.tier_size + ')</span>' +
             '<span>ADP <b>' + Math.round(p.adjusted_adp) + '</b></span>' +
-            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '">~' + pct + '% gone by next</span>' : '') +
+            (pct ? '<span class="' + (pct > 70 ? 'neg' : '') + '" title="ADP-model estimate — the number the score uses">~' + pct + '% gone by next (mkt)</span>' : '') +
+            // One tap deeper: the full dossier of engine fields for this row.
+            '<button class="rec-expand" data-dossier="' + p.player_id + '">'
+              + (state.dossierOpen === String(p.player_id) ? '▾ close' : '▸ dossier') + '</button>' +
           '</div>' +
           // The disagreement line on the TOP card: if a same-position candidate
           // projects higher than the one we're recommending, say so — that is the
@@ -4667,6 +5353,7 @@
           '<button class="btn small ghost" data-compare="' + p.player_id + '" title="Compare — dollar gap">' +
             (state.compare.indexOf(String(p.player_id)) >= 0 ? '⚖️✓' : '⚖️') + '</button>' +
         '</div>' +
+        (state.dossierOpen === String(p.player_id) ? dossierHtml(s) : '') +
       '</div>';
     }).join('');
 
@@ -4798,18 +5485,68 @@
     const takenHits = state.search
       ? (state.data.players || []).filter(p => state.drafted.has(String(p.player_id)) && match(p)).slice(0, 25)
       : [];
-    $('#board-body').innerHTML = rows.map(p =>
-      '<tr data-tier="' + p.tier + '">' +
-        '<td>' + p.overall_rank + '</td>' +
-        '<td><b>' + escapeHtml(p.name) + '</b></td>' +
+    /* ── B1 ONESIE DEMOTION (final-pass): in the "All" view K/DEF flooded ranks
+     * 52-200 with their own tier-1 labels — replacement onesies are freely
+     * streamable in this league, so cross-position VORP is misleading there.
+     * The All view lists skill players first, onesies after them (dimmed, with
+     * one explanatory line); position-filtered views are untouched — tier/VORP
+     * stay meaningful within a position. DISPLAY ORDER ONLY: no score, rank or
+     * engine field changes, and every row keeps its true numbers. */
+    const demoteOnesies = state.filterPos === 'ALL' && !state.search;
+    const displayRows = demoteOnesies
+      ? rows.filter(p => p.position !== 'K' && p.position !== 'DEF')
+          .concat(rows.filter(p => p.position === 'K' || p.position === 'DEF'))
+      : rows;
+    let onesieNoteAt = demoteOnesies
+      ? displayRows.findIndex(p => p.position === 'K' || p.position === 'DEF') : -1;
+    /* ── B2 SENTINELS (final-pass): players priced by Sleeper search rank
+     * rather than a real ADP feed rendered "ADJ ADP 328" as if it were market
+     * data. A sentinel never renders as a number — it renders as "—" with the
+     * reason one tap away (data-caveat, same mechanism as ¹). */
+    const adpCell = (p, v) => (p.adp_source === 'search_rank'
+      ? '<span class="muted" title="beyond real ADP coverage — priced by Sleeper '
+        + 'popularity rank for late-round ordering only">—' + caveatOnce('adp_sentinel', '³',
+          'beyond FantasyPros/FFC ADP coverage. Ordered by Sleeper popularity rank — '
+          + 'fine for late-round fliers, not a market price. Never shown as a number.')
+        + '</span>'
+      : Math.round(v));
+    /* ── B3 TIER BANDING: a hairline where the tier breaks inside a position
+     * view, and in the All view a thin "last of Tier N POS" marker on the final
+     * player of each positional tier — the "last of Tier 1 WR" moment. */
+    const lastOfTier = {};
+    if (state.filterPos === 'ALL') {
+      const seen = {};
+      for (let i = displayRows.length - 1; i >= 0; i--) {
+        const p = displayRows[i];
+        const key = p.position + ':' + p.tier;
+        if (!seen[key]) { seen[key] = true; lastOfTier[p.player_id] = p.tier <= 2; }
+      }
+    }
+    $('#board-body').innerHTML = displayRows.map((p, ri) => {
+      const tierBreak = state.filterPos !== 'ALL' && ri > 0
+        && displayRows[ri - 1].tier !== p.tier;
+      const onesieRow = demoteOnesies && (p.position === 'K' || p.position === 'DEF');
+      const noteRow = (ri === onesieNoteAt)
+        ? '<tr class="onesie-demoted"><td colspan="13"><div class="board-onesie-note">'
+          + 'K &amp; DEF below — demoted in this view: streamable all season, so their '
+          + 'cross-position rank is not a draft signal. Use the position filter for their real tiers.'
+          + '</div></td></tr>'
+        : '';
+      return noteRow + '<tr data-tier="' + p.tier + '"'
+        + ((tierBreak ? ' class="tier-cliff"' : '')
+          || (onesieRow ? ' class="onesie-demoted"' : '')) + '>' +
+        '<td class="num">' + p.overall_rank + '</td>' +
+        '<td><b>' + escapeHtml(p.name) + '</b>'
+          + (lastOfTier[p.player_id]
+            ? ' <span class="tier-note">last of T' + p.tier + ' ' + p.position + '</span>' : '') + '</td>' +
         '<td><span class="rec-pos ' + p.position + '">' + p.position + '</span></td>' +
         '<td class="muted">' + escapeHtml(p.team || '') + '</td>' +
         '<td class="num">' + (p.bye || '—') + '</td>' +
         '<td class="num">' + Math.round(p.proj_mean) + projSourceMark(p) + '</td>' +
         '<td class="num">' + p.vorp.toFixed(1) + '</td>' +
         '<td class="num tier-cell t' + ((p.tier - 1) % 6) + '">' + p.tier + '</td>' +
-        '<td class="num">' + Math.round(p.adjusted_adp) + '</td>' +
-        '<td class="num muted">' + Math.round(p.raw_adp || 0) + '</td>' +
+        '<td class="num">' + adpCell(p, p.adjusted_adp) + '</td>' +
+        '<td class="num muted">' + adpCell(p, p.raw_adp || 0) + '</td>' +
         '<td>' + riskFlags(p) + '</td>' +
         '<td class="num" style="white-space:nowrap">' +
           (p.override
@@ -4854,7 +5591,8 @@
             + '" title="I drafted him — adds to MY roster">\u2795 Me</button>' +
           '<button class="btn small ghost" data-draft-other="' + p.player_id
             + '" title="Somebody else took him">✕</button></td>' +
-      '</tr>').join('');
+      '</tr>';
+    }).join('');
     renderSearchTail(rows.length, takenHits);
     // Lead with the number that MOVES. The visible list is capped at 200, so
     // "200 shown" holds steady as picks come off and reads as if nothing updated
@@ -4947,10 +5685,22 @@
     renderAll();
   }
 
+  /* Flags render as COMPACT TAPPABLE CHIPS with the full sentence one tap away
+   * (final-pass B4: "QUESTI0" was clipping; every badge needs a one-line
+   * explanation on tap — titles do not exist on a phone). The chip text is a
+   * fixed short form so it can never clip; FLAG_LEGEND carries the sentence. */
   function riskFlags(p) {
     const flags = [];
-    if (p.injury_status && !/^(healthy|active)$/i.test(p.injury_status)) flags.push('<span class="badge owes">' + escapeHtml(p.injury_status) + '</span>');
-    if (p.age && p.age >= 30 && (p.position === 'RB')) flags.push('<span class="badge owes">age ' + p.age + '</span>');
+    if (p.injury_status && !/^(healthy|active)$/i.test(p.injury_status)) {
+      const st = String(p.injury_status);
+      const short = { questionable: 'Q', doubtful: 'D', out: 'OUT', ir: 'IR', sus: 'SUS' }[st.toLowerCase()]
+        || st.slice(0, 3).toUpperCase();
+      flags.push('<button class="wr-flag risk" data-flag-legend="injury" data-flag-arg="'
+        + escapeHtml(st) + '">' + escapeHtml(short) + '</button>');
+    }
+    if (p.age && p.age >= 30 && (p.position === 'RB')) {
+      flags.push('<button class="wr-flag risk" data-flag-legend="age">age ' + p.age + '</button>');
+    }
     // OPPORTUNITY, STANDARDISED AGAINST THIS BOARD (Cory, 2026-08-10: "fires on
     // roughly 90% of the top 200 — a flag that fires on nearly everything conveys
     // nothing"). The field is NAMED a z-score but is not one: measured over the
@@ -4961,8 +5711,8 @@
     // can usefully mean, and both directions become possible again.
     const z = opportunityVsPeers(p);
     if (z != null) {
-      if (z > OPP_CUT) flags.push('<span class="badge open" title="unusually high opportunity for his draft cost">opp ↑</span>');
-      else if (z < -OPP_CUT) flags.push('<span class="badge owes" title="unusually low opportunity for his draft cost">opp ↓</span>');
+      if (z > OPP_CUT) flags.push('<button class="wr-flag up" data-flag-legend="opp_up">opp ↑</button>');
+      else if (z < -OPP_CUT) flags.push('<button class="wr-flag risk" data-flag-legend="opp_down">opp ↓</button>');
     }
     return flags.join(' ');
   }
@@ -6265,6 +7015,10 @@
     const dot = (state.pickStateProblems || []).length ? '🔴'
       : (!seat || !seat.resolved) ? '🔴'
       : freshMvs.level === 'stale' ? '🔴'
+      // 'unknown' (no readable built_at) fell through to 🟢 before 2026-08-16
+      // — a green dot on a board whose age nothing can verify, disagreeing
+      // with the checklist's "never built" on the same screen.
+      : freshMvs.level === 'unknown' ? '🔴'
       : freshMvs.level === 'aging' ? '🟡' : '🟢';
     document.getElementById('mvs-status').innerHTML =
       '<b>' + esc(mode) + '</b> · ' + esc(seat ? DraftSeat.describe(seat) : 'seat —')
@@ -6375,10 +7129,19 @@
         || !state.data) { host.style.display = 'none'; return; }
     let proj, cons;
     try {
-      const teams = ((state.data.league || {}).teams) || 10;
-      const round = Math.max(1, Math.ceil(currentPick() / teams));
-      proj = DraftShadows.project(state.board, context(), round, state.myRoster);
-      cons = DraftShadows.consensus(proj);
+      // One-shot handoff from renderVerdict (same render cycle, same pick):
+      // the poll lens and this strip must never disagree about what the
+      // strategies said, so when the verdict already projected them, reuse.
+      const pre = state._shadowProj;
+      state._shadowProj = null;
+      if (pre && pre.pick === currentPick()) {
+        proj = pre.proj; cons = pre.cons;
+      } else {
+        const teams = ((state.data.league || {}).teams) || 10;
+        const round = Math.max(1, Math.ceil(currentPick() / teams));
+        proj = DraftShadows.project(state.board, context(), round, state.myRoster);
+        cons = DraftShadows.consensus(proj);
+      }
     } catch (e) { host.style.display = 'none'; return; }
     if (!cons || !proj.length) { host.style.display = 'none'; return; }
     host.style.display = '';
@@ -6536,6 +7299,10 @@
     // gate blocks it elsewhere.
     if (freshSS.level === 'stale') red.push('board ' + Math.round(ageH) + 'h old — STALE');
     else if (freshSS.level === 'aging') amber.push('board ' + Math.round(ageH) + 'h old');
+    // 'unknown' was neither red nor amber before 2026-08-16 — the strip showed
+    // a green dot for a board with no readable built_at. Unverifiable age is a
+    // red: every recommendation's freshness claim rests on that timestamp.
+    else if (freshSS.level === 'unknown') red.push('board age UNKNOWN — built_at missing or unreadable');
     if ((prov.adp || {}).fallback_count_in_play > 0) amber.push(prov.adp.fallback_count_in_play + ' ADP guessed');
 
     const tone = red.length ? 'bad' : amber.length ? 'warn' : 'ok';
@@ -6746,8 +7513,19 @@
       // THE GOVERNANCE STATE, stated rather than implied. While the doctrine is
       // display-only, a banner reading "The plan — WR Feast +$187" asserts
       // control it does not have.
-      + '<span class="db-governs' + (DraftDoctrine.governs() ? '' : ' off') + '">'
-      + escapeHtml(DraftDoctrine.governanceLine(enr.enrolled)) + '</span>';
+      //
+      // ONLY WHEN ENROLLED. governanceLine(false) returns the same sentence the
+      // eyebrow above already shows verbatim ("no doctrine enrolled — running
+      // the control") — a real duplication, and long enough as a nowrap pill to
+      // clip against the card edge on a phone. The pill exists to distinguish
+      // "enrolled and tilting" from "enrolled, display-only" — a distinction
+      // that does not exist when nothing is enrolled, so there is nothing for
+      // it to say. governanceLine(false) itself is unchanged (still tested,
+      // still correct in meaning) — this only stops re-rendering it here.
+      + (enr.enrolled
+        ? '<span class="db-governs' + (DraftDoctrine.governs() ? '' : ' off') + '">'
+          + escapeHtml(DraftDoctrine.governanceLine(true)) + '</span>'
+        : '');
     document.getElementById('db-creed').textContent = out.creed || '';
     document.getElementById('db-confidence').textContent = out.confidence;
     // A "$0 gap" is not an alternative, it is the same decision — say the pick
@@ -9000,6 +9778,26 @@
       if (why) return showWhy(why.getAttribute('data-why'));
       const railAck = ev.target.closest('[data-rail-ack]');
       if (railAck) return acknowledgeRailFire(railAck.getAttribute('data-rail-ack'));
+      // ── Progressive disclosure (design pass 2026-08-15) ──────────────────
+      const lens = ev.target.closest('[data-lens]');
+      if (lens) { ev.preventDefault(); return revealLens(lens.getAttribute('data-lens')); }
+      const doss = ev.target.closest('[data-dossier]');
+      if (doss) { ev.preventDefault(); return toggleDossier(doss.getAttribute('data-dossier')); }
+      const flg = ev.target.closest('[data-flag-legend]');
+      if (flg) { ev.preventDefault(); return toggleFlagLegend(flg); }
+      const info = ev.target.closest('[data-explain-toggle]');
+      if (info) { ev.preventDefault(); return toggleExplain(info); }
+      const cav = ev.target.closest('[data-caveat-text]');
+      if (cav) {
+        ev.preventDefault();
+        const near = cav.parentNode.querySelector('.wr-flag-legend');
+        if (near) { near.remove(); return; }
+        const d = document.createElement('div');
+        d.className = 'wr-flag-legend';
+        d.textContent = cav.getAttribute('data-caveat-text');
+        cav.parentNode.appendChild(d);
+        return;
+      }
     });
 
     $$('.weight-slider').forEach(sl => {

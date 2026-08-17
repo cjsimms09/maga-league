@@ -39,8 +39,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
     steps:
+      # fetch-depth: 2, not the default 1 — found 2026-08-15 when the nightly
+      # rebuild refused to publish. test_core_needs_no_reviewer.py diffs
+      # `HEAD~1` against `HEAD` to exercise independent_review.py's own
+      # unavailable-reviewer path; a depth-1 (shallow) clone has no `HEAD~1` to
+      # find, so the test's own subprocess exited via
+      # independent_review.py's "REFUSING: ...contains no changes" path (exit
+      # 1) instead of the CONFIG-unavailable path it meant to test (exit 0) —
+      # a false failure with nothing wrong in the reviewed change. Depth 2 is
+      # the minimum this specific test needs; independent-review.yml already
+      # uses fetch-depth: 0 for its own, different reason (diffing against
+      # origin/main, which can be arbitrarily far back).
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - uses: actions/setup-python@v5
         with:
@@ -80,6 +94,12 @@ jobs:
         # "Acceptance gate on the FRESH board" runs AFTER the build and DOES fail
         # the job. Nothing untested gets published; a broken board simply no
         # longer blocks its own repair.
+        # FULL SUITE HERE, DELIBERATELY — including the repo_parity pins the
+        # publication gate below deselects. At this point the tree is exactly
+        # as committed, so committed-artifact == regeneration is meaningful:
+        # this step is the nightly anti-hand-edit check. The gate excludes
+        # them only because it runs AFTER the build has rewritten the
+        # regeneration's inputs (see the gate step's comment).
         continue-on-error: true
         run: python -m pytest draft/tests -q
 
@@ -196,15 +216,140 @@ jobs:
         # stops publishing is a visible red run; a rebuild that publishes a broken
         # board is invisible until somebody else's merge goes red, which is exactly
         # what happened. Freezing on the last good board is the safe direction.
+        # UNCHANGED FROM THE ORIGINAL: this step still `exit 1`s directly on
+        # failure, so every unconditioned step after it (Commit the artifact,
+        # below) is skipped automatically — the safety property this project
+        # depends on. The `set -o pipefail` matters: GitHub Actions runs `run:`
+        # blocks under `bash -e`, and without it `... | tee file` reports tee's
+        # exit code, not pytest's, which would silently defeat this whole gate
+        # (the exact class of bug draft-night-sync.yml hit earlier this session).
+        # `-m "not repo_parity"` — ADDED 2026-08-16 after run 31926152660: the
+        # gate refused a fresh board with 16 failures, of which 7 were
+        # committed-artifact == regeneration pins (model_accuracy, own-model
+        # v2-v6, source_weight_prior). Those regenerate from inputs THIS VERY
+        # RUN just rewrote (the fresh board's crosswalk rows, proj_series
+        # snapshot_dates, player_positions), so on any later day they fail BY
+        # CONSTRUCTION — refusing the board for being NEW, never for being
+        # BAD, and the gate could never pass on a genuinely fresh rebuild.
+        # They stay anti-hand-edit guards everywhere else: the advisory
+        # pre-build step above runs the FULL suite against committed state,
+        # and so does every local pytest. Only here, where the comparison's
+        # inputs were just rebuilt, are they deselected. Board-SOUNDNESS
+        # tests (field purpose, season stamps, dormant, sensitivity, the
+        # own-model column vs a fresh run from committed stores) are unmarked
+        # and still gate. draft/tests/test_gate_selection.py pins the marked
+        # set to an explicit 7-node list and proves this expression deselects
+        # exactly that set and nothing else; the classification of all 16 is
+        # in draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
         if: github.event.inputs.snapshot != 'true'
         run: |
+          set -o pipefail
           echo "== the board about to be committed must pass the suite that reads it"
-          if ! python -m pytest draft/tests -q; then
+          echo "   (repo-parity pins deselected here ONLY — their inputs were just rebuilt; see test_gate_selection.py)"
+          if ! python -m pytest draft/tests -q -m "not repo_parity" 2>&1 | tee /tmp/board_gate_output.txt; then
             echo "*** REFUSING TO PUBLISH: the freshly built board fails the suite."
             echo "    The previously published board is untouched and still live."
             echo "    Fix the board (or whatever the suite is telling you about it)"
             echo "    and re-run — do NOT bypass this to get a rebuild out."
             exit 1
+          fi
+
+      - name: Make a refused publish LOUD, not just red — found 2026-08-15
+        # A run that fails and sits in the Actions tab is invisible until someone
+        # goes looking, which is exactly what happened here: the 08:36 UTC nightly
+        # refused to publish, left the board 24h+ stale and missing a whole
+        # projection source, and nobody knew until this step's absence was
+        # investigated by hand many hours later. The gate's DECISION was correct
+        # (don't ship a broken board); its SILENCE was the actual defect.
+        #
+        # `if: failure()` — runs ONLY when the acceptance gate above just failed,
+        # and does not change whether the job ends up red (it still does; see the
+        # unconditioned steps below, which stay skipped exactly as before). Opens
+        # (or updates, if already open — one tracking issue, not one per night) a
+        # labeled GitHub issue with the exact failing test names, so a human is
+        # notified same-day instead of by accident.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          gh label create "$LABEL" --color B60205 --description "Nightly board rebuild refused to publish" 2>/dev/null || true
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          FAILING=$(grep -oE "^FAILED [A-Za-z0-9_./:-]+" /tmp/board_gate_output.txt | sed 's/^FAILED //' | sort -u || true)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BODY_FILE=$(mktemp)
+          {
+            printf 'The nightly board rebuild ran at %s and refused to publish — the previously published board is still live, untouched.\n\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            printf '**Failing tests:**\n\x60\x60\x60\n'
+            printf '%s\n' "${FAILING:-see run log, no FAILED lines parsed}"
+            printf '\x60\x60\x60\n\nRun: %s\n\n' "$RUN_URL"
+            printf 'This issue stays open until a rebuild passes clean; it will auto-close then, not before.\n'
+          } > "$BODY_FILE"
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body-file "$BODY_FILE"
+          else
+            gh issue create --title "🔴 Board rebuild refused to publish" --label "$LABEL" --body-file "$BODY_FILE"
+          fi
+
+      - name: Diagnose the refusal in-run, where the candidate board exists
+        # The refused board lives only on this runner, and the artifact
+        # download path is unreachable from the relay sandbox (the GitHub
+        # redirect lands on Azure blob storage, 403'd at the egress proxy) —
+        # so the diagnosis runs HERE and lands in this log, which is
+        # retrievable. Measures via board_activity's and vorp's own
+        # functions; prints which exemption spares each unflagged retiree
+        # and the replacement-sensitivity behaviour on this exact board.
+        # [2026-08-16] The sensitivity section now NAMES THE ARM it measured
+        # (SMOOTH: allocation held, move = base x pct by construction; or
+        # STEP: a flex slot flipped, step derived from the allocation) —
+        # its old text asserted the STEP arm's sign as "the pinned
+        # expectation" and, on run 31926152660, misdiagnosed a board whose
+        # sensitivity test PASSED (+3.78 at +2% was correct smooth scaling;
+        # that run's real refusals were artifact-parity/field-purpose
+        # tests). See draft/audit/rebuild_refusal_diagnosis_2026-08-16.md.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        run: python3 draft/tools/diagnose_refused_board.py || true
+
+      - name: Preserve the refused candidate board for offline diagnosis
+        # Added 2026-08-15. The failures that then blocked auto-publish
+        # (a retired player unflagged by board_activity.dormant, the
+        # replacement-sensitivity step — both measured CLEAN as of run
+        # 31926152660) reproduce ONLY against the fresh
+        # candidate board built from live fetches — and the runner discarded
+        # that board on every refused run, so every diagnosis attempt so far
+        # has been done blind, against yesterday's committed board where both
+        # tests pass. Preserving the refused candidate (plus the two config
+        # inputs it was built from) turns "needs live Sleeper access to
+        # debug" into "download one artifact and run the failing test
+        # locally". test_pick_log-style test isolation is unaffected: this
+        # uploads, commits nothing.
+        if: failure() && github.event.inputs.snapshot != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: refused-candidate-board
+          path: |
+            public/draft_data.json
+            draft/config/keepers.json
+            draft/data/predicted_keepers.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Close the tracking issue if this rebuild is the one that fixed it
+        # Reached only when the acceptance gate above SUCCEEDED (no special `if`
+        # needed — a step with no condition runs exactly when every prior step
+        # in the job has succeeded, GitHub Actions' own default). So "no open
+        # board-rebuild-broken issue" becomes a trustworthy signal rather than
+        # something to remember to check by hand.
+        if: github.event.inputs.snapshot != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABEL="board-rebuild-broken"
+          EXISTING=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+          if [ -n "$EXISTING" ]; then
+            RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            gh issue comment "$EXISTING" --body "Rebuild at $(date -u +%Y-%m-%dT%H:%M:%SZ) passed clean. Closing — run: $RUN_URL"
+            gh issue close "$EXISTING"
           fi
 
       - name: Commit the artifact if it changed
@@ -225,8 +370,14 @@ jobs:
         # anywhere. For a project whose premise is auditable evidence, an input
         # that vanishes after use is the wrong kind of missing.
         if: github.event.inputs.snapshot != 'true'
+        id: publish
         run: |
-          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json"
+          # player_positions.json ADDED 2026-08-15 (data audit): build.py grows
+          # this union-over-builds record on the runner every rebuild, but it
+          # was never in this commit list — so the committed record was frozen
+          # at its last hand-commit and the union could not actually grow. A
+          # union that only grows in a discarded working tree is not a record.
+          PATHS="public/draft_data.json draft/config/keepers.json draft/config/league_config.json draft/data/league_history.json draft/data/predicted_keepers.json draft/data/opening_script.md draft/data/opening_script.json draft/backtest/cory-conditional.json draft/backtest/CORY-CONDITIONAL.md draft/data/adp_series.json draft/data/proj_series.json draft/data/room_read.md draft/data/room_read.json draft/data/player_positions.json"
           EXISTING=""
           for p in $PATHS; do [ -e "$p" ] && EXISTING="$EXISTING $p"; done
           if [ -z "$EXISTING" ] || git diff --quiet -- $EXISTING; then
@@ -238,3 +389,42 @@ jobs:
           git add $EXISTING
           git commit -m "Draft board: rebuild $(date -u +%Y-%m-%d)"
           git push
+          # Tell the verify step below whether a SERVED file actually moved —
+          # a push that only refreshed draft/ data (Lab lane) triggers no
+          # Netlify build by the gate's own rules, so polling for one would
+          # time out against correct behavior.
+          if git diff --name-only HEAD~1 HEAD | grep -q '^public/'; then
+            echo "served=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "served=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify the deploy actually shipped this board
+        # THE ONE DEPLOY NOBODY VERIFIED, found by the 2026-08-15 macro audit.
+        # deploy-verify.yml triggers on push — but this workflow pushes with
+        # GITHUB_TOKEN, and GitHub's recursion guard means a bot push triggers
+        # NO workflows. So the daily board deploy — draft morning's included —
+        # shipped on faith. This polls the live build-stamp from INSIDE the
+        # same run (no trigger needed) until it names the commit just pushed.
+        # A silent Netlify failure becomes a red nightly run instead of Cory
+        # drafting on yesterday's board. Runs ONLY when a served file moved,
+        # because a data-only push correctly builds nothing.
+        if: github.event.inputs.snapshot != 'true' && steps.publish.outputs.served == 'true'
+        env:
+          SITE: ${{ vars.SITE_URL || 'https://makefbgreatagain.netlify.app' }}
+        run: |
+          WANT="$(git rev-parse HEAD)"
+          echo "polling $SITE/build-stamp.json for ${WANT:0:12} (Netlify builds usually land in 1-3 min)"
+          deadline=$(( $(date +%s) + 600 ))
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            GOT="$(curl -fsS --max-time 20 "$SITE/build-stamp.json" 2>/dev/null \
+                   | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' 2>/dev/null || echo '')"
+            if [ "$GOT" = "$WANT" ]; then
+              echo "deploy verified: live build-stamp reports ${GOT:0:12}"
+              exit 0
+            fi
+            echo "  live stamp: ${GOT:0:12} — waiting"
+            sleep 30
+          done
+          echo "::error::the board was pushed 10 minutes ago and the live site still reports '${GOT:-nothing}' — the deploy did not land. Check Netlify build minutes/status BEFORE trusting the live board."
+          exit 1

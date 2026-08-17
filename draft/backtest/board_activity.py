@@ -74,6 +74,20 @@ PROJECTION_HEALTH_FLOOR = 0.5
 #: occupied rather than removed, so 10 x 15 = 150 rows leave the pool.
 DEPTH = 150
 
+#: How deep a market price still counts as "somebody is drafting him".
+#: ADDED 2026-08-15, from the first in-run diagnosis of a refused nightly
+#: board (draft/tools/diagnose_refused_board.py, run 31897110098): the fresh
+#: FantasyPros consensus table carried a ROB GRONKOWSKI row at ADP 298.0 with
+#: proj_mean 0.0 — retired since 2021, priced by nobody in any real sense,
+#: yet the unconditional market exemption spared him and the retired-player
+#: invariant went red, blocking the publish. The voucher's own words are
+#: "somebody is drafting him"; in a 150-pick draft an ADP of 298 means
+#: nobody is. 1.5x the draft's depth keeps every conceivably-reachable row
+#: spared (the deepest real pick is 150; 225 matches the "relevant board"
+#: bound the external-ADP work already uses) while a deep-table ghost row
+#: no longer vouches for a retiree.
+MARKET_SPARE_DEPTH = DEPTH * 1.5
+
 
 def _store(season, root=None):
     p = Path(root or HERE) / ("nflverse_weekly_points_%d.json" % season)
@@ -107,6 +121,24 @@ def _num(v):
 def _priced(p):
     """Does the MARKET price him — as opposed to the search_rank fallback?"""
     return p.get("adp_source") not in (None, "search_rank")
+
+
+def market_vouches(p):
+    """Does the market DRAFTABLY price him — the spare rule and the prune audit's
+    shared definition, one function so the two can never drift apart (the
+    dual-maintenance failure this repo keeps finding, avoided at birth).
+
+    Priced with NO adp number at all -> vouched (fail-safe: deleting somebody
+    real is far worse than keeping a retiree, per this module's own tests).
+    Priced with a KNOWN adp beyond MARKET_SPARE_DEPTH -> not vouched: that is
+    the FantasyPros deep-table ghost row (Gronkowski at 298.0, Ruggs, Foles),
+    not a player anyone is drafting."""
+    if not _priced(p):
+        return False
+    adp = _num(p.get("raw_adp"))
+    if adp is None:
+        adp = _num(p.get("adp"))
+    return adp is None or adp <= MARKET_SPARE_DEPTH
 
 
 def projection_health(board: dict) -> dict:
@@ -242,8 +274,8 @@ def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
     for p in (board or {}).get("players") or []:
         if (_num(p.get("years_exp")) or 0) == 0:
             continue                                  # a rookie's blank is correct
-        if _priced(p):
-            continue                                  # the market prices him
+        if market_vouches(p):
+            continue                                  # the market DRAFTABLY prices him
         if (_num(p.get("proj_mean")) or 0) > 0:
             continue                                  # somebody projects him
         if str(p.get("player_id")) in keep["ids"]:
@@ -259,7 +291,7 @@ def dormant(board: dict, seasons=RECENT_SEASONS, root=None) -> dict:
             "seasons_read": sc["seasons_read"],
             "seasons_missing": sc["seasons_missing"],
             "keepers": dict(keep, spared=sorted(spared_keepers)),
-            "note": "not a rookie, not market-priced, carrying no projection and "
+            "note": "not a rookie, not draftably market-priced, carrying no projection and "
                     "not kept — nothing in the system expects them in 2026"}
 
 

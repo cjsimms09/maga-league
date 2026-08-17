@@ -5,8 +5,9 @@
  * (E.recommend): it sweeps hundreds of roster states and asserts construction
  * sense. Nothing did the same for the IN-SEASON recommender — the thing that says
  * "start X over Y this week", the surface Cory reads every Sunday for four months.
- * L0 measured that surface as worth more than the draft edge ($445-595/team/season
- * left on the bench), so it deserves at least the same rigor. This is that layer.
+ * L0 measured that surface as worth more than the draft edge ($520-637.50/team/season
+ * left on the bench, corrected 2026-08-15 — see EFFICIENCY-LEAK.md), so it deserves
+ * at least the same rigor. This is that layer.
  *
  * It runs the real solver (src/routes/lineup.js: bestLineup + optimize) over EVERY
  * real team-week in the 2023-25 harvest, using each week's actual player scores as

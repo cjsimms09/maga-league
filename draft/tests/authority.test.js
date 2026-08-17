@@ -18,6 +18,19 @@ function check(name, cond, detail) {
   else { fail++; console.log('FAIL  ' + name + (detail ? '  -> ' + detail : '')); }
 }
 
+// Shared by every POST-route structural check below. Extracts the CAPTURED path
+// ('/waivers/log'), not the whole matched substring ("router.post('/waivers/log'")
+// — a raw `.match(/router\.post\('([^']+)'/g)` returns the latter and silently
+// breaks any exemption Set compared against a bare path (found 2026-08-15: the
+// rosters/transactions check below had its own, wrong, second copy of this).
+function postBodies(src) {
+  const out = [];
+  const re = /router\.post\('([^']+)'/g;
+  let m;
+  while ((m = re.exec(src))) out.push(m[1]);
+  return out;
+}
+
 // ---------------------------------------------------------------- DRAFT SLOTS
 {
   const app = read('public/js/draft/app.js');
@@ -83,19 +96,17 @@ function check(name, cond, detail) {
   // doctrine violation regardless of intent.
   const member = read('src/routes/member.js');
   const admin = read('src/routes/admin.js');
-  const postBodies = (src) => {
-    const out = [];
-    const re = /router\.post\('([^']+)'/g;
-    let m;
-    while ((m = re.exec(src))) out.push(m[1]);
-    return out;
-  };
   const posts = postBodies(member).concat(postBodies(admin));
   // /matchup/trash writes TRASH TALK welded to a game — banter, not a score or a
   // matchup RESULT. Its path contains "matchup" so the substring scan flags it,
   // but it enters no points; exempt it explicitly. The doctrine the check
   // enforces (scores come from Sleeper, never a hand-entry route) is intact.
-  const SCORE_EXEMPT = new Set(['/matchup/trash']);
+  // /model-scoreboard/source (2026-08-16) trips the substring scan on the
+  // word "score" in SCOREBOARD. It writes the model_controls doc (which
+  // projection SOURCE the in-season feed derives from) — no score, matchup,
+  // result or point is entered anywhere near it. The doctrine (scores come
+  // from Sleeper, never a hand-entry route) is intact.
+  const SCORE_EXEMPT = new Set(['/matchup/trash', '/model-scoreboard/source']);
   const scoreWriters = posts.filter(p => /score|matchup|result|points/i.test(p) && !SCORE_EXEMPT.has(p));
   check('scores (c): NO route exists that writes scores/matchups/results',
     scoreWriters.length === 0, JSON.stringify(scoreWriters));
@@ -105,8 +116,27 @@ function check(name, cond, detail) {
 {
   const member = read('src/routes/member.js');
   const admin = read('src/routes/admin.js');
-  const posts = (member + admin).match(/router\.post\('([^']+)'/g) || [];
-  const rosterWriters = posts.filter(p => /roster|transaction|waiver/i.test(p));
+  // ⚠ THIS USED TO EXTRACT WITH A RAW .match(/.../g), WHICH RETURNS THE WHOLE
+  // MATCHED SUBSTRING ("router.post('/waivers/log'"), NOT THE CAPTURED PATH.
+  // Found 2026-08-15 while adding an exemption here: the score check three
+  // lines up already has the correct helper (postBodies(), exec() in a loop,
+  // pushes the capture group) sitting unused right above this block — two
+  // extraction methods for the same job in one file, one of them wrong. Fixed
+  // by using the one that already works instead of adding a second bug to
+  // match the first.
+  const posts = postBodies(member).concat(postBodies(admin));
+  // /waivers/log and /waivers/override (2026-08-15) write a PREDICTION LOG entry
+  // (predledger.append — the same in-season capture pattern as /lineup/log and
+  // /lineup/override, which this substring scan does not flag only because the
+  // word "lineup" isn't in its trigger list). Neither route calls anything that
+  // touches Sleeper or mutates roster/waiver state — checked directly, not
+  // assumed: both handler bodies contain exactly one write call
+  // (predledger.append) and nothing else. Same exemption shape as
+  // /matchup/trash above: the doctrine this check enforces (Sleeper owns
+  // roster/waiver STATE, the site never writes it) is intact; a prediction
+  // about a waiver claim is not the claim.
+  const ROSTER_EXEMPT = new Set(['/waivers/log', '/waivers/override']);
+  const rosterWriters = posts.filter(p => /roster|transaction|waiver/i.test(p) && !ROSTER_EXEMPT.has(p));
   check('rosters/transactions (c): no site write path for roster membership or waivers',
     rosterWriters.length === 0, JSON.stringify(rosterWriters));
 }

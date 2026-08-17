@@ -265,6 +265,29 @@ def weekly_from_pbp(pbp, seasons):
             bump(rus, s, w, "rush_yd", r.get("rushing_yards"))
             if r.get("rush_touchdown") == 1 and r.get("td_player_id") == rus:
                 bump(rus, s, w, "rush_td", 1)
+        # ── LATERALS: ATTEMPTED 2026-08-17, REVERTED THE SAME HOUR ─────────
+        #
+        # Left as a comment because the NEXT person will have the same idea and
+        # should not spend the afternoon I did.
+        #
+        # Jameson Williams was the single player blocking the 2024 gate, off by
+        # exactly 11.0. He has two lateral receptions totalling exactly the 50
+        # missing receiving yards, one of them the missing TD. Crediting
+        # `lateral_receiver_player_id` with `lateral_receiving_yards` fixed HIM
+        # precisely — and broke Jahmyr Gibbs (+8.0) and Josh Allen (+6.7) in the
+        # OTHER direction, because it over-credited them.
+        #
+        # THE RULE IS NOT WHAT IT LOOKS LIKE. Gibbs' week-3 play is structurally
+        # identical to Williams' week-17 one — same passer, same primary
+        # receiver, lateral, touchdown — and the official weekly row for Gibbs
+        # that week reads `receptions=0, receiving_yards=0.0, targets=0`. The
+        # library credits him NOTHING. So nflverse does not simply add lateral
+        # yardage to the lateral player, and Williams' 50 was a coincidence I
+        # over-read as a rule.
+        #
+        # Fixing this needs the library's actual aggregation semantics, not a
+        # hypothesis fitted to one player. Filed in
+        # draft/audit/pbp_rebuild_2pt_gap_2026-08-17.md.
         # Passing.
         p = r.get("passer_player_id")
         if p:
@@ -273,6 +296,24 @@ def weekly_from_pbp(pbp, seasons):
                 bump(p, s, w, "pass_td", 1)
             if r.get("interception") == 1:
                 bump(p, s, w, "pass_int", 1)
+        # ── TWO-POINT CONVERSIONS (added 2026-08-17) ────────────────────────
+        #
+        # A PRICED CATEGORY THE PARSER NEVER PRODUCED. Our scoring table carries
+        # pass_2pt / rec_2pt / rush_2pt at 2.0 each, and this function emitted no
+        # 2pt field of any kind — so a rebuild-path player was under-scored by
+        # exactly 2 points per conversion, permanently. It accounted for SEVEN of
+        # the eight worst 2024 disagreements, each equal to `2 x (his 2pt count)`
+        # exactly: Winston 4, Barkley 3, Mahomes 3, Herbert 3, Love 3,
+        # Lawrence 3, Daniels 4.
+        #
+        # NO YARDS AND NO RECEPTION, which the data already handles for us: on a
+        # two-point play `complete_pass` is 0 (checked: 0 of 42 receiving
+        # conversions in 2024) and the yardage columns are null, so the blocks
+        # above correctly credit nothing. Only the conversion itself was missing.
+        if r.get("two_point_conv_result") == "success":
+            bump(r.get("passer_player_id"), s, w, "pass_2pt", 1)
+            bump(r.get("receiver_player_id"), s, w, "rec_2pt", 1)
+            bump(r.get("rusher_player_id"), s, w, "rush_2pt", 1)
         # Fumbles lost, charged to whoever lost it.
         if r.get("fumble_lost") == 1:
             bump(r.get("fumbled_1_player_id"), s, w, "fum_lost", 1)

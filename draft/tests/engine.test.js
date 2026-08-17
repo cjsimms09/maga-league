@@ -171,7 +171,13 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   }
   function mkCtx(roster, board) {
     return {
-      currentPick: 130, roster: roster || [],
+      // Round 5 — inside the MEASURED ramp's 4-6 peak (Cory's 2026-08-16
+      // ruling flipped KOV_MEASURED_RAMP on; the old fixture sat at pick 130 /
+      // round 13, where the measured ramp is zero because 0 of 31 round-13-15
+      // picks were ever kept, which would zero every mechanism this suite
+      // tests). The CLAIMS below are ramp-independent scarcity mechanics; the
+      // fixture just has to sit where the ramp is live.
+      currentPick: 45, roster: roster || [],
       board: board || [mkPlayer('bench', 5, 28)],
       league: { teams: 10, keeper_rules: { count: 3, cost_model: 'original_round' } },
     };
@@ -226,15 +232,18 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
 
   // Endogeneity: under original_round cost, the round you take him in IS his
   // keeper price, so the same player must not price identically everywhere.
+  // Rounds 5 vs 6 on purpose: BOTH sit at the measured ramp's 1.0 peak, so the
+  // ramp cancels and any difference is the round-cost pricing alone (the old
+  // r8-vs-r13 arm confounded ramp and cost once the measured ramp shipped).
   {
     const p = mkPlayer('a', 60, 23);
     const board = [mkPlayer('x', 40, 27), mkPlayer('y', 20, 27), mkPlayer('z', 8, 29)];
     board[0].adjusted_adp = 80; board[1].adjusted_adp = 130; board[2].adjusted_adp = 200;
-    const at8 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 71 }));
-    const at13 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 121 }));
-    check('KOV: same player prices differently at round 8 vs 13 (endogeneity)',
-      at8.round === 8 && at13.round === 13 && at8.value !== at13.value,
-      `r8=${at8.round}/${at8.value} r13=${at13.round}/${at13.value}`);
+    const at5 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 45 }));
+    const at6 = C.keeperOptionValueRaw(p, Object.assign(mkCtx([], board), { currentPick: 55 }));
+    check('KOV: same player prices differently at round 5 vs 6 (endogeneity, ramp held equal)',
+      at5.round === 5 && at6.round === 6 && at5.value !== at6.value,
+      `r5=${at5.round}/${at5.value} r6=${at6.round}/${at6.value}`);
   }
 })();
 
@@ -1212,15 +1221,24 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
                   mk('r5', 'WR', 5, 108, 35), mk('r6', 'TE', 6, 100, 34),
                   mk('r7', 'K', 7, 130, 33), mk('r8', 'DEF', 8, 125, 33)];
 
-  const lateCtx = w => ({
-    board: board, currentPick: 115, nextPick: 125, totalPicks: 150,
+  // The KOV-live context sits in ROUND 5 — the measured ramp's 4-6 peak, per
+  // Cory's 2026-08-16 ruling (KOV_MEASURED_RAMP on: keeper value lives where
+  // this league actually keeps from, rounds 4-6; rounds 10-15 measure ~zero).
+  // The old fixture sat at round 12, which the OLD reasoned ramp treated as
+  // fully open and the measured ramp zeroes.
+  const kovCtx = w => ({
+    board: board, currentPick: 45, nextPick: 55, totalPicks: 150,
     myPicksLeft: 4, roster: roster, league: L, weights: w || E.DEFAULT_WEIGHTS,
-    runMultipliers: {}, intervening: [], roundsLeft: 4,
+    runMultipliers: {}, intervening: [], roundsLeft: 11,
+    original_rounds: board.reduce((m, p) => { m[p.player_id] = 5; return m; }, {}),
+  });
+  const lateCtx = w => Object.assign({}, kovCtx(w), {
+    currentPick: 115, nextPick: 125, roundsLeft: 4,
     original_rounds: board.reduce((m, p) => { m[p.player_id] = 12; return m; }, {}),
   });
 
-  const kov = E.compositeTerms.keeperOptionValue(board[0], lateCtx());
-  check('at round 12 the KOV ramp is fully open, not zero',
+  const kov = E.compositeTerms.keeperOptionValue(board[0], kovCtx());
+  check('at round 5 the measured KOV ramp is fully open (the 4-6 peak)',
     kov.ramp === 1, JSON.stringify({ ramp: kov.ramp, round: kov.round }));
   check('and raw KOV is non-zero for a young player there',
     Math.abs(kov.raw_value) > 0, JSON.stringify(kov));
@@ -1232,27 +1250,26 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
   const strong = [mk('s1', 'RB', 1, 300, 23), mk('s2', 'RB', 2, 295, 23),
                   mk('s3', 'WR', 3, 290, 23), mk('s4', 'WR', 4, 285, 24)];
   const crowded = E.compositeTerms.keeperOptionValue(board[0],
-    Object.assign({}, lateCtx(), { roster: strong }));
+    Object.assign({}, kovCtx(), { roster: strong }));
   check('a 4th keeper candidate behind three stronger ones is worth zero — the '
     + 'scarcity fix, not an inert term',
     crowded.value === 0 && crowded.raw_value > 0, JSON.stringify(crowded));
 
-  const early = E.compositeTerms.keeperOptionValue(board[0],
-    Object.assign({}, lateCtx(), { currentPick: 37 }));
-  check('at round 4 KOV is exactly zero — the ramp, working as specified, which '
-    + 'is why the 0/20 in the evidence bundle proved nothing',
-    early.value === 0 && early.ramp === 0, JSON.stringify(early));
+  const late = E.compositeTerms.keeperOptionValue(board[0], lateCtx());
+  check('at round 12 KOV is exactly zero — the MEASURED ramp (0 of 31 round-'
+    + '13-15 picks were ever kept; Cory ruled the measured shape in 2026-08-16)',
+    late.value === 0 && late.ramp === 0, JSON.stringify(late));
 
   // THE DEMANDED TEST: zero the term on a board that can exercise it. `need` is
   // zeroed in BOTH arms to isolate the keeper term — otherwise the D3 flex
   // discount (which lives in `need`) can reorder the flex-eligible top-5 hard
   // enough to mask the keeper effect on this synthetic board. With need off, the
   // ONLY difference is the keeper term, so a top-5 change proves it participates.
-  const withKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
+  const withKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0 })))
     .slice(0, 5).map(x => x.player.player_id).join();
-  const noKov = E.recommend(lateCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
+  const noKov = E.recommend(kovCtx(Object.assign({}, E.DEFAULT_WEIGHTS, { need: 0, keeper: 0 })))
     .slice(0, 5).map(x => x.player.player_id).join();
-  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-12 BOARD — the term '
+  check('ZEROING KEEPER CHANGES THE TOP 5 ON A ROUND-5 BOARD — the term '
     + 'participates', withKov !== noKov, 'with: ' + withKov + '  without: ' + noKov);
 
   // Bye: it can only bite when the roster actually collides on a week.
@@ -1424,11 +1441,12 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     [0, 0.25, 1, 2, 3].every(v => at(v)[0].player.position !== 'K'));
 }
 
-// --- KOV is connected: it ramps to zero early and moves the board late ------
-// SPEC: item 17 left open whether the keeper term was disconnected or merely
-// zero. Finding 2 (this session) established KOV_ROUND_RAMP_START=6, so item
-// 17's rounds-3-5 boards produced ramp=0 by design. This proves the other
-// half: on a round-12 board the term is live and its removal changes the top 5.
+// --- KOV is connected: live where the measured ramp is open, zero where not -
+// SPEC (updated for Cory's 2026-08-16 ruling): item 17 left open whether the
+// keeper term was disconnected or merely zero; the answer is the RAMP decides,
+// and the ramp is now the MEASURED shape (open rounds 4-6, fraction 7-9, zero
+// 10-15). This proves both halves against that shape: a round-5 board carries
+// a live keeper component, a round-12 board carries none.
 {
   const L2 = { teams: 10, starters: { QB: 1, RB: 2, WR: 2, TE: 1, FLEX: 1, K: 1, DEF: 1 },
                keeper_rules: { count: 3 } };
@@ -1442,16 +1460,17 @@ check('weight sliders change the ranking', heavyCeiling[0].score !== scored[0].s
     myPicksLeft: 4, roster: [], league: L2, weights: w, runMultipliers: {},
     intervening: [], roundsLeft: 4, currentKeepers: [] });
   // The connection proof, robust to board shape: the keeper COMPONENT is
-  // non-zero at round 12 and exactly zero at round <=6. (On the real production
-  // board this reorders the top 5 — verified separately; a uniform synthetic
-  // board may not reorder, so we assert the load-bearing fact, not the effect.)
+  // non-zero where the measured ramp is open (round 5) and exactly zero where
+  // it measures nothing (round 12). (On the real production board the live arm
+  // reorders the top 5 — verified separately; a uniform synthetic board may
+  // not reorder, so we assert the load-bearing fact, not the effect.)
+  const live = E.recommend(Object.assign({}, c(E.DEFAULT_WEIGHTS), { currentPick: 45, nextPick: 56 }));
+  const liveKeeper = live.some(x => Math.abs((x.components || {}).keeper || 0) > 0);
   const late = E.recommend(c(E.DEFAULT_WEIGHTS));
-  const lateLive = late.some(x => Math.abs((x.components || {}).keeper || 0) > 0);
-  const early = E.recommend(Object.assign({}, c(E.DEFAULT_WEIGHTS), { currentPick: 35 }));
-  const earlyZero = early.every(x => !((x.components || {}).keeper));
-  check('at round <=6 the keeper term contributes nothing (the ramp)', earlyZero);
-  check('on a round-12 board the keeper term is LIVE (non-zero component)',
-    lateLive, 'no live keeper component at round 12');
+  const lateZero = late.every(x => !((x.components || {}).keeper));
+  check('at round 12 the keeper term contributes nothing (the measured ramp)', lateZero);
+  check('on a round-5 board the keeper term is LIVE (non-zero component)',
+    liveKeeper, 'no live keeper component at round 5');
 }
 
 // --- D9: the installed ceiling posture (Lab exp 21 + exp 2 §5) --------------

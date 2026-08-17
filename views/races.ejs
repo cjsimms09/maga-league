@@ -1,0 +1,125 @@
+<%- include('partials/header', { title: 'The Races' }) %>
+<%- include('partials/_live_stale') %>
+<%
+  const goat = id => (typeof goatId !== 'undefined' && goatId === id) ? ' 🐐' : '';
+  const meId = me.id;
+  // Movement arrow, shared by all three races.
+  const moveArrow = mv => {
+    if (!mv || !mv.delta) return '';
+    return mv.delta > 0
+      ? `<span class="rank-arrow up" title="up ${mv.delta} from last week">▲${mv.delta}</span>`
+      : `<span class="rank-arrow down" title="down ${-mv.delta} from last week">▼${-mv.delta}</span>`;
+  };
+  const oddsArrow = d => {
+    if (d == null || Math.abs(d) < 0.005) return '';
+    const n = Math.round(Math.abs(d) * 100);
+    return d > 0 ? `<span class="po-arrow up" title="odds up ${n} since last week">▲${n}</span>`
+                 : `<span class="po-arrow down" title="odds down ${n} since last week">▼${n}</span>`;
+  };
+  const ordinal = n => { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+%>
+
+<h1 class="page-title">🏁 The Races <span class="sub">playoff race · points crown · the toilet — week <%= weekNo %></span></h1>
+
+<% if (!started) { %>
+  <div class="card"><div class="body">
+    <p class="muted" style="margin:0"><% if (!configured) { %>Sleeper isn't connected yet — the races light up once the league is mapped and games count.<% } else { %>No results yet — the races start running the moment week-1 scores land. Three races, and every team is in at least one: the playoff race (top <%= cut %>), the points crown, and the race to stay off the bottom.<% } %></p>
+  </div></div>
+<% } else { %>
+
+<%
+  // The viewer's own line in each race — the "you are here" card.
+  const myPR = playoffRace.find(r => r.owner_id === meId) || null;
+  const myPC = pointsCrown.find(r => r.owner_id === meId) || null;
+  const myTL = toilet.find(r => r.owner_id === meId) || null;
+%>
+<% if (myPR) { %>
+  <%
+    // One plain sentence for the viewer, computed from the same rows the
+    // tables below render — "every member finds a race they're in."
+    const yourBits = [];
+    yourBits.push(`You sit ${ordinal(myPR.rank)} at ${myPR.wins}-${myPR.losses}${myPR.ties ? '-' + myPR.ties : ''}`);
+    if (myPR.status === 'clinched') yourBits.push('playoff spot clinched 🔒');
+    else if (myPR.status === 'eliminated') yourBits.push('out of the playoff race — the points crown and the toilet still pay attention');
+    else if (myPR.rank <= cut) yourBits.push(`inside the playoff line (top ${cut})`);
+    else if (myPR.gb != null) yourBits.push(myPR.gb === 0 ? 'level on wins with the line — points-for decides' : `${myPR.gb} win${myPR.gb === 1 ? '' : 's'} back of the line`);
+    if (myPC) yourBits.push(`${ordinal(myPC.rank)} in points${myPC.rank !== 1 ? ` (${myPC.gap.toFixed(1)} behind the crown)` : ' — you hold the crown 👑'}`);
+    if (myTL && myTL.clear === 0) yourBits.push('and you are holding the toilet 🚽 — win your way off it');
+  %>
+  <div class="race-you">
+    <span class="race-you-kicker">Your races</span>
+    <span class="race-you-line"><%= yourBits.join(' · ') %></span>
+  </div>
+<% } %>
+
+<%# ── RACE 1: THE PLAYOFF RACE ─────────────────────────────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🏆 The Playoff Race <span class="sub">top <%= cut %> make it · <%= gamesLeft %> game<%= gamesLeft === 1 ? '' : 's' %> left · odds are a running estimate off record + points</span></h2>
+  <div class="body tight">
+    <ul class="race-list">
+      <% for (const r of playoffRace) { %>
+        <% if (r.rank === cut + 1) { %><li class="race-cutline">— the playoff line —</li><% } %>
+        <li class="race-row<%= r.owner_id === meId ? ' me' : '' %>">
+          <span class="race-rank"><%= r.rank %><%= r.rank === 1 ? ' 👑' : '' %> <%- moveArrow(r.move) %></span>
+          <span class="race-name"><b><%= r.name %></b><%- goat(r.owner_id) %><%- include('partials/_owner_badges', { name: r.name }) %></span>
+          <span class="race-rec num"><%= r.wins %>-<%= r.losses %><%= r.ties ? '-' + r.ties : '' %></span>
+          <span class="race-meter" aria-hidden="true"><i style="width:<%= r.odds != null ? Math.max(2, Math.min(100, Math.round(r.odds * 100))) : 0 %>%"></i></span>
+          <span class="race-odds num">
+            <% if (r.status === 'clinched') { %><span class="po-badge in">🔒 IN</span>
+            <% } else if (r.status === 'eliminated') { %><span class="po-badge out">❌ OUT</span>
+            <% } else if (r.odds != null) { %><%= pctText(r.odds) %> <%- oddsArrow(r.delta) %>
+            <% } else { %><span class="muted">—</span><% } %>
+          </span>
+        </li>
+      <% } %>
+    </ul>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.72rem">Odds: a seeded simulation off record + points-for — the same estimate the standings column carries, and it only moves when the standings move. 🔒/❌ are proved from the arithmetic, not sampled.</p>
+  </div>
+</div>
+
+<%# ── RACE 2: THE POINTS CROWN ─────────────────────────────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>👑 The Points Crown <span class="sub">most points-for — the tiebreaker that settles everything</span></h2>
+  <div class="body tight">
+    <%
+      const pcTop = pointsCrown.length ? pointsCrown[0].pf : 0;
+    %>
+    <ul class="race-list">
+      <% for (const r of pointsCrown) { %>
+        <li class="race-row<%= r.owner_id === meId ? ' me' : '' %>">
+          <span class="race-rank"><%= r.rank %></span>
+          <span class="race-name"><b><%= r.name %></b><%- goat(r.owner_id) %></span>
+          <span class="race-meter wide" aria-hidden="true"><i style="width:<%= pcTop ? Math.max(3, Math.round(r.pf / pcTop * 100)) : 0 %>%"></i></span>
+          <span class="race-odds num"><%= r.pf.toFixed(1) %><% if (r.rank > 1 && r.gap >= 0.05) { %> <span class="muted race-gap">−<%= r.gap.toFixed(1) %></span><% } %></span>
+        </li>
+      <% } %>
+    </ul>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.72rem">Bars are points-for as a share of the leader's. Ties in the standings break on this number — a big week here is never wasted.</p>
+  </div>
+</div>
+
+<%# ── RACE 3: THE TOILET ───────────────────────────────────────────────────── %>
+<div class="card" style="margin-bottom:1.2rem">
+  <h2>🚽 The Toilet Race <span class="sub">the race everyone is trying to lose — last place lives here</span></h2>
+  <div class="body tight">
+    <ul class="race-list">
+      <% for (const r of toilet) { %>
+        <li class="race-row<%= r.owner_id === meId ? ' me' : '' %>">
+          <span class="race-rank"><%= r.rank %><%= r.clear === 0 ? ' 🚽' : '' %> <%- moveArrow(r.move) %></span>
+          <span class="race-name"><b><%= r.name %></b></span>
+          <span class="race-rec num"><%= r.wins %>-<%= r.losses %></span>
+          <span class="race-odds"><%= r.clear === 0 ? 'holding the toilet' : r.clear + ' win' + (r.clear === 1 ? '' : 's') + ' clear' %></span>
+        </li>
+      <% } %>
+    </ul>
+    <p class="muted" style="margin:.6rem 0 0; font-size:.72rem">Bottom of the table, worst first. Nobody's eliminated from this one until they climb.</p>
+  </div>
+</div>
+
+<% } %>
+
+<p style="text-align:center; margin-top:1rem">
+  <a class="btn navy" href="/scoreboard">🏈 This week's games</a>
+  <a class="btn navy" href="/matchup">⚔️ Your matchup</a>
+</p>
+<%- include('partials/footer') %>

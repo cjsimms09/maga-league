@@ -1,0 +1,7782 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/opportunity_inheritance.py",
+ "_preregistration": "draft/audit/opportunity_inheritance_2026-08-17.md sections 0-6, commit f4ed0c05",
+ "_stores": "presence from component_stats_{Y} for every season (prereg GAP E); red-zone vacancy NOT MEASURED (GAP A); depth is a Y-1 volume PROXY, not an NFL depth chart (GAP B)",
+ "departure_rule": {
+  "statement": "q DEPARTED T for Y iff q recorded >=1 component row for T in weeks 1-17 of Y-1 AND zero component rows for T in weeks 1-17 of Y",
+  "per_season_breakdown": {
+   "2023": {
+    "stayed": 298,
+    "moved_teams": 130,
+    "absent_from_season_entirely": 170,
+    "note": "absent_from_season_entirely conflates retirement, a season-long injury, and never taking an offensive snap. A player who missed season Y through injury is NOT a departure and this rule cannot tell him apart \u2014 which is why arm V_MOVED exists."
+   },
+   "2024": {
+    "stayed": 296,
+    "moved_teams": 121,
+    "absent_from_season_entirely": 143,
+    "note": "absent_from_season_entirely conflates retirement, a season-long injury, and never taking an offensive snap. A player who missed season Y through injury is NOT a departure and this rule cannot tell him apart \u2014 which is why arm V_MOVED exists."
+   },
+   "2025": {
+    "stayed": 320,
+    "moved_teams": 127,
+    "absent_from_season_entirely": 122,
+    "note": "absent_from_season_entirely conflates retirement, a season-long injury, and never taking an offensive snap. A player who missed season Y through injury is NOT a departure and this rule cannot tell him apart \u2014 which is why arm V_MOVED exists."
+   }
+  },
+  "arms": {
+   "V_ALL": {
+    "quarantined": true
+   },
+   "V_MOVED": {
+    "quarantined": true
+   },
+   "V_INSEASON": {
+    "quarantined": false
+   }
+  }
+ },
+ "team_assignment_cost": {
+  "2023": {
+   "players_in_both_seasons": 412,
+   "same_modal_team": 0.7063,
+   "leak_free_misassignment_rate": 0.2937
+  },
+  "2024": {
+   "players_in_both_seasons": 411,
+   "same_modal_team": 0.708,
+   "leak_free_misassignment_rate": 0.292
+  },
+  "2025": {
+   "players_in_both_seasons": 438,
+   "same_modal_team": 0.7192,
+   "leak_free_misassignment_rate": 0.2808
+  }
+ },
+ "vacancy_by_arm": {
+  "V_ALL": {
+   "mean_vac_opp_share": {
+    "2023": 0.315,
+    "2024": 0.3259,
+    "2025": 0.2567
+   },
+   "max_vac_opp_share": {
+    "2023": 0.6698,
+    "2024": 0.7781,
+    "2025": 0.6479
+   },
+   "most_vacated_teams": {
+    "2023": [
+     "CAR",
+     "DET",
+     "DEN"
+    ],
+    "2024": [
+     "LAC",
+     "NYG",
+     "NE"
+    ],
+    "2025": [
+     "PIT",
+     "HOU",
+     "CLE"
+    ]
+   }
+  },
+  "V_MOVED": {
+   "mean_vac_opp_share": {
+    "2023": 0.2344,
+    "2024": 0.2438,
+    "2025": 0.1765
+   },
+   "max_vac_opp_share": {
+    "2023": 0.6079,
+    "2024": 0.5015,
+    "2025": 0.5638
+   },
+   "most_vacated_teams": {
+    "2023": [
+     "CAR",
+     "DET",
+     "MIN"
+    ],
+    "2024": [
+     "LAC",
+     "CIN",
+     "NE"
+    ],
+    "2025": [
+     "PIT",
+     "DEN",
+     "LAC"
+    ]
+   }
+  },
+  "V_INSEASON": {
+   "mean_vac_opp_share": {
+    "2023": 0.1058,
+    "2024": 0.0717,
+    "2025": 0.079
+   },
+   "max_vac_opp_share": {
+    "2023": 0.3303,
+    "2024": 0.3267,
+    "2025": 0.3211
+   },
+   "most_vacated_teams": {
+    "2023": [
+     "LA",
+     "ARI",
+     "DEN"
+    ],
+    "2024": [
+     "NE",
+     "ARI",
+     "GB"
+    ],
+    "2025": [
+     "SF",
+     "CAR",
+     "NO"
+    ]
+   }
+  }
+ },
+ "h1_screen": {
+  "V_ALL": {
+   "QB|open_above|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.2664,
+    "ci95": [
+     -0.4521,
+     -0.0436
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.0574,
+     "2024": -0.3667,
+     "2025": -0.334
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.1584,
+    "ci95": [
+     0.0126,
+     0.2978
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2025,
+     "2024": 0.1731,
+     "2025": 0.1044
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.2661,
+    "ci95": [
+     -0.4546,
+     -0.0422
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.0569,
+     "2024": -0.366,
+     "2025": -0.3393
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.1598,
+    "ci95": [
+     0.0109,
+     0.3007
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2064,
+     "2024": 0.1773,
+     "2025": 0.0962
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.1461,
+    "ci95": [
+     -0.301,
+     0.0071
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1541,
+     "2024": -0.2227,
+     "2025": -0.079
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "QB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.0195,
+    "ci95": [
+     -0.2145,
+     0.1868
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1349,
+     "2024": -0.1638,
+     "2025": 0.041
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.1448,
+    "ci95": [
+     -0.3742,
+     0.0982
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.2779,
+     "2024": -0.278,
+     "2025": 0.084
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "QB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.0126,
+    "ci95": [
+     -0.2269,
+     0.1956
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0544,
+     "2024": -0.2064,
+     "2025": 0.1178
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.1044,
+    "ci95": [
+     -0.3625,
+     0.1755
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.2674,
+     "2024": -0.264,
+     "2025": 0.1768
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.0021,
+    "ci95": [
+     -0.2082,
+     0.2066
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0484,
+     "2024": -0.1728,
+     "2025": 0.1318
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.6152,
+    "ci95": [
+     0.4383,
+     0.7501
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4809,
+     "2024": 0.5819,
+     "2025": 0.7275
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.403,
+    "ci95": [
+     -0.5423,
+     -0.2494
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4976,
+     "2024": -0.3817,
+     "2025": -0.3429
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.4269,
+    "ci95": [
+     -0.5516,
+     -0.2929
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4947,
+     "2024": -0.3433,
+     "2025": -0.4595
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.3245,
+    "ci95": [
+     0.1985,
+     0.4483
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2936,
+     "2024": 0.3189,
+     "2025": 0.3614
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.522,
+    "ci95": [
+     -0.6441,
+     -0.3766
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4478,
+     "2024": -0.4851,
+     "2025": -0.6066
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.4121,
+    "ci95": [
+     0.2876,
+     0.5289
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4155,
+     "2024": 0.4243,
+     "2025": 0.4087
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.3423,
+    "ci95": [
+     -0.4382,
+     -0.2414
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3654,
+     "2024": -0.3645,
+     "2025": -0.3242
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.237,
+    "ci95": [
+     0.1128,
+     0.3414
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2841,
+     "2024": 0.2363,
+     "2025": 0.1631
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.3464,
+    "ci95": [
+     -0.4425,
+     -0.2436
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3724,
+     "2024": -0.3665,
+     "2025": -0.3253
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2356,
+    "ci95": [
+     0.1118,
+     0.3409
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2826,
+     "2024": 0.2329,
+     "2025": 0.1629
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0137,
+    "ci95": [
+     -0.1422,
+     0.1203
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0569,
+     "2024": 0.0757,
+     "2025": -0.0738
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0307,
+    "ci95": [
+     -0.095,
+     0.1594
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0415,
+     "2024": 0.0668,
+     "2025": 0.0557
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0018,
+    "ci95": [
+     -0.1239,
+     0.1377
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.017,
+     "2024": 0.1032,
+     "2025": -0.0544
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0151,
+    "ci95": [
+     -0.1457,
+     0.1163
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.076,
+     "2024": -0.0196,
+     "2025": 0.0449
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.001,
+    "ci95": [
+     -0.1071,
+     0.1093
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0044,
+     "2024": 0.0394,
+     "2025": -0.0161
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0516,
+    "ci95": [
+     -0.1835,
+     0.0924
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0989,
+     "2024": -0.0887,
+     "2025": 0.044
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.7245,
+    "ci95": [
+     0.6385,
+     0.7937
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.664,
+     "2024": 0.7316,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.2914,
+    "ci95": [
+     -0.4267,
+     -0.1563
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3971,
+     "2024": -0.1931,
+     "2025": -0.2744
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.538,
+    "ci95": [
+     -0.6254,
+     -0.4369
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4744,
+     "2024": -0.5563,
+     "2025": -0.5891
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.1539,
+    "ci95": [
+     0.0239,
+     0.2915
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2359,
+     "2024": 0.0638,
+     "2025": 0.1875
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.6535,
+    "ci95": [
+     -0.7303,
+     -0.5636
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6011,
+     "2024": -0.6719,
+     "2025": -0.7116
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2934,
+    "ci95": [
+     0.1614,
+     0.4212
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.381,
+     "2024": 0.2055,
+     "2025": 0.2734
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.479,
+    "ci95": [
+     -0.5623,
+     -0.3966
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4683,
+     "2024": -0.4473,
+     "2025": -0.5491
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1993,
+    "ci95": [
+     0.0887,
+     0.3047
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1582,
+     "2024": 0.2646,
+     "2025": 0.155
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.4852,
+    "ci95": [
+     -0.5676,
+     -0.4059
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4804,
+     "2024": -0.4537,
+     "2025": -0.5521
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2014,
+    "ci95": [
+     0.095,
+     0.3029
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1568,
+     "2024": 0.2615,
+     "2025": 0.1657
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.0552,
+    "ci95": [
+     -0.0531,
+     0.1637
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1299,
+     "2024": 0.0554,
+     "2025": -0.0299
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1572,
+    "ci95": [
+     0.0328,
+     0.2845
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2347,
+     "2024": 0.1875,
+     "2025": 0.055
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0401,
+    "ci95": [
+     -0.135,
+     0.0605
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0133,
+     "2024": -0.0585,
+     "2025": -0.0745
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1143,
+    "ci95": [
+     0.0125,
+     0.2316
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2022,
+     "2024": 0.0922,
+     "2025": 0.0702
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0738,
+    "ci95": [
+     -0.17,
+     0.0289
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0131,
+     "2024": -0.114,
+     "2025": -0.0923
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.0703,
+    "ci95": [
+     -0.0271,
+     0.1836
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1528,
+     "2024": 0.0274,
+     "2025": 0.0637
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|own_share_y1|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.7292,
+    "ci95": [
+     0.6742,
+     0.7767
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.7272,
+     "2024": 0.6997,
+     "2025": 0.7683
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.3168,
+    "ci95": [
+     -0.4317,
+     -0.1691
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.1775,
+     "2024": -0.3931,
+     "2025": -0.3632
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.5137,
+    "ci95": [
+     -0.5816,
+     -0.4364
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4791,
+     "2024": -0.5329,
+     "2025": -0.5435
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1747,
+    "ci95": [
+     0.0208,
+     0.3024
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0259,
+     "2024": 0.2503,
+     "2025": 0.232
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.637,
+    "ci95": [
+     -0.691,
+     -0.577
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6188,
+     "2024": -0.618,
+     "2025": -0.6817
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2465,
+    "ci95": [
+     0.0896,
+     0.3774
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0964,
+     "2024": 0.3512,
+     "2025": 0.2716
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.3572,
+    "ci95": [
+     -0.474,
+     -0.2517
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4024,
+     "2024": -0.3883,
+     "2025": -0.3036
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0886,
+    "ci95": [
+     -0.0536,
+     0.2094
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1506,
+     "2024": -0.0237,
+     "2025": 0.1393
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|open_above_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.3541,
+    "ci95": [
+     -0.4698,
+     -0.2488
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3946,
+     "2024": -0.3888,
+     "2025": -0.3016
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0888,
+    "ci95": [
+     -0.0548,
+     0.2125
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1574,
+     "2024": -0.0281,
+     "2025": 0.1411
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0929,
+    "ci95": [
+     -0.2883,
+     0.0623
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.2622,
+     "2024": -0.06,
+     "2025": -0.0065
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.108,
+    "ci95": [
+     -0.2238,
+     0.0258
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1379,
+     "2024": -0.0595,
+     "2025": -0.1046
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0356,
+    "ci95": [
+     -0.2127,
+     0.1153
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1956,
+     "2024": 0.02,
+     "2025": 0.0282
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0356,
+    "ci95": [
+     -0.1722,
+     0.1026
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1251,
+     "2024": 0.0323,
+     "2025": -0.0025
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0206,
+    "ci95": [
+     -0.1312,
+     0.1673
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1044,
+     "2024": 0.0917,
+     "2025": 0.0648
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0027,
+    "ci95": [
+     -0.1157,
+     0.1324
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0453,
+     "2024": 0.0679,
+     "2025": 0.0119
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|own_share_y1|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.6995,
+    "ci95": [
+     0.5874,
+     0.7864
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.6999,
+     "2024": 0.6179,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2412,
+    "ci95": [
+     -0.3801,
+     -0.0918
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2285,
+     "2024": -0.3158,
+     "2025": -0.1668
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.4527,
+    "ci95": [
+     -0.6086,
+     -0.2847
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4483,
+     "2024": -0.3217,
+     "2025": -0.5959
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.203,
+    "ci95": [
+     -0.0184,
+     0.4319
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1981,
+     "2024": 0.4091,
+     "2025": 0.0005
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.5256,
+    "ci95": [
+     -0.6562,
+     -0.3732
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5336,
+     "2024": -0.4013,
+     "2025": -0.6405
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.2077,
+    "ci95": [
+     0.0162,
+     0.3921
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2379,
+     "2024": 0.3511,
+     "2025": 0.0496
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   }
+  },
+  "V_MOVED": {
+   "QB|open_above|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.226,
+    "ci95": [
+     -0.4069,
+     -0.0195
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.0536,
+     "2024": -0.3229,
+     "2025": -0.2772
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.1549,
+    "ci95": [
+     0.008,
+     0.2961
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2362,
+     "2024": 0.1136,
+     "2025": 0.1246
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.2253,
+    "ci95": [
+     -0.408,
+     -0.0204
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.0531,
+     "2024": -0.3248,
+     "2025": -0.2785
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.1573,
+    "ci95": [
+     0.0101,
+     0.3001
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2403,
+     "2024": 0.1149,
+     "2025": 0.1233
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.1196,
+    "ci95": [
+     -0.2991,
+     0.0521
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0281,
+     "2024": -0.2622,
+     "2025": -0.056
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.015,
+    "ci95": [
+     -0.2227,
+     0.249
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.2198,
+     "2024": -0.1836,
+     "2025": 0.0844
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.0911,
+    "ci95": [
+     -0.3148,
+     0.1321
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1773,
+     "2024": -0.2806,
+     "2025": 0.1054
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0286,
+    "ci95": [
+     -0.2165,
+     0.2522
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1,
+     "2024": -0.2005,
+     "2025": 0.182
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.055,
+    "ci95": [
+     -0.2637,
+     0.1852
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1574,
+     "2024": -0.1735,
+     "2025": 0.1693
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0293,
+    "ci95": [
+     -0.1908,
+     0.2579
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0596,
+     "2024": -0.1634,
+     "2025": 0.2022
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.6152,
+    "ci95": [
+     0.4383,
+     0.7501
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4809,
+     "2024": 0.5819,
+     "2025": 0.7275
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.403,
+    "ci95": [
+     -0.5423,
+     -0.2494
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4976,
+     "2024": -0.3817,
+     "2025": -0.3429
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.4289,
+    "ci95": [
+     -0.5681,
+     -0.2822
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5001,
+     "2024": -0.33,
+     "2025": -0.4845
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.3408,
+    "ci95": [
+     0.2018,
+     0.4649
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2737,
+     "2024": 0.3821,
+     "2025": 0.3537
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.522,
+    "ci95": [
+     -0.6441,
+     -0.3766
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4478,
+     "2024": -0.4851,
+     "2025": -0.6066
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.4121,
+    "ci95": [
+     0.2876,
+     0.5289
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4155,
+     "2024": 0.4243,
+     "2025": 0.4087
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.2439,
+    "ci95": [
+     -0.3509,
+     -0.1449
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2467,
+     "2024": -0.2906,
+     "2025": -0.2445
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2054,
+    "ci95": [
+     0.1033,
+     0.3001
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2408,
+     "2024": 0.1661,
+     "2025": 0.1905
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.2484,
+    "ci95": [
+     -0.3561,
+     -0.1495
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2524,
+     "2024": -0.2957,
+     "2025": -0.246
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2049,
+    "ci95": [
+     0.1003,
+     0.3014
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.242,
+     "2024": 0.1614,
+     "2025": 0.1892
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0114,
+    "ci95": [
+     -0.118,
+     0.1343
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0659,
+     "2024": 0.0498,
+     "2025": 0.0113
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0185,
+    "ci95": [
+     -0.117,
+     0.1585
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.056,
+     "2024": -0.0077,
+     "2025": 0.103
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0179,
+    "ci95": [
+     -0.1021,
+     0.1428
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0107,
+     "2024": 0.1086,
+     "2025": -0.0137
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0278,
+    "ci95": [
+     -0.1653,
+     0.1297
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0982,
+     "2024": -0.0407,
+     "2025": 0.088
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0068,
+    "ci95": [
+     -0.1133,
+     0.1076
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0011,
+     "2024": 0.0194,
+     "2025": 0.0019
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0798,
+    "ci95": [
+     -0.2223,
+     0.0912
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1444,
+     "2024": -0.1406,
+     "2025": 0.0694
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.7245,
+    "ci95": [
+     0.6385,
+     0.7937
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.664,
+     "2024": 0.7316,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.2914,
+    "ci95": [
+     -0.4267,
+     -0.1563
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3971,
+     "2024": -0.1931,
+     "2025": -0.2744
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.5795,
+    "ci95": [
+     -0.693,
+     -0.4617
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5037,
+     "2024": -0.5604,
+     "2025": -0.6831
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.1706,
+    "ci95": [
+     0.0427,
+     0.3003
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2384,
+     "2024": 0.1032,
+     "2025": 0.1875
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.6535,
+    "ci95": [
+     -0.7303,
+     -0.5636
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6011,
+     "2024": -0.6719,
+     "2025": -0.7116
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2934,
+    "ci95": [
+     0.1614,
+     0.4212
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.381,
+     "2024": 0.2055,
+     "2025": 0.2734
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.4378,
+    "ci95": [
+     -0.5249,
+     -0.3501
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.419,
+     "2024": -0.4024,
+     "2025": -0.5118
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1534,
+    "ci95": [
+     0.0445,
+     0.2489
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0908,
+     "2024": 0.2025,
+     "2025": 0.1429
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.444,
+    "ci95": [
+     -0.5277,
+     -0.3612
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4366,
+     "2024": -0.407,
+     "2025": -0.5117
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1524,
+    "ci95": [
+     0.0424,
+     0.248
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0835,
+     "2024": 0.2,
+     "2025": 0.1545
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.037,
+    "ci95": [
+     -0.0723,
+     0.1434
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1057,
+     "2024": 0.0505,
+     "2025": -0.0464
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1283,
+    "ci95": [
+     0.0052,
+     0.2506
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1427,
+     "2024": 0.2116,
+     "2025": 0.0335
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0522,
+    "ci95": [
+     -0.1424,
+     0.0469
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.002,
+     "2024": -0.0329,
+     "2025": -0.0937
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.0865,
+    "ci95": [
+     -0.006,
+     0.1848
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1116,
+     "2024": 0.1224,
+     "2025": 0.0549
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0942,
+    "ci95": [
+     -0.1829,
+     -0.0008
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.0505,
+     "2024": -0.1061,
+     "2025": -0.1189
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.0425,
+    "ci95": [
+     -0.0468,
+     0.1397
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0586,
+     "2024": 0.026,
+     "2025": 0.0514
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|own_share_y1|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.7292,
+    "ci95": [
+     0.6742,
+     0.7767
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.7272,
+     "2024": 0.6997,
+     "2025": 0.7683
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.3168,
+    "ci95": [
+     -0.4317,
+     -0.1691
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.1775,
+     "2024": -0.3931,
+     "2025": -0.3632
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.5358,
+    "ci95": [
+     -0.6042,
+     -0.4563
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4945,
+     "2024": -0.5474,
+     "2025": -0.5772
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2039,
+    "ci95": [
+     0.0554,
+     0.3298
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0608,
+     "2024": 0.2784,
+     "2025": 0.2602
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.637,
+    "ci95": [
+     -0.691,
+     -0.577
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6188,
+     "2024": -0.618,
+     "2025": -0.6817
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2465,
+    "ci95": [
+     0.0896,
+     0.3774
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0964,
+     "2024": 0.3512,
+     "2025": 0.2716
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2564,
+    "ci95": [
+     -0.3737,
+     -0.1431
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2801,
+     "2024": -0.3088,
+     "2025": -0.2112
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0957,
+    "ci95": [
+     -0.0202,
+     0.2006
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1053,
+     "2024": 0.0289,
+     "2025": 0.1439
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|open_above_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2546,
+    "ci95": [
+     -0.3706,
+     -0.1395
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.272,
+     "2024": -0.3081,
+     "2025": -0.2117
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0947,
+    "ci95": [
+     -0.021,
+     0.201
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.1104,
+     "2024": 0.0266,
+     "2025": 0.1415
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.1134,
+    "ci95": [
+     -0.3216,
+     0.0544
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.3102,
+     "2024": -0.0477,
+     "2025": -0.0266
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "TE|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0904,
+    "ci95": [
+     -0.23,
+     0.0457
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1838,
+     "2024": -0.0696,
+     "2025": -0.0333
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0584,
+    "ci95": [
+     -0.2185,
+     0.0861
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1807,
+     "2024": -0.0253,
+     "2025": 0.003
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0223,
+    "ci95": [
+     -0.1754,
+     0.1251
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1394,
+     "2024": 0.0456,
+     "2025": 0.0393
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0042,
+    "ci95": [
+     -0.1279,
+     0.1304
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0447,
+     "2024": 0.0191,
+     "2025": 0.0295
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0314,
+    "ci95": [
+     -0.0949,
+     0.1596
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0236,
+     "2024": 0.0713,
+     "2025": 0.0549
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|own_share_y1|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.6995,
+    "ci95": [
+     0.5874,
+     0.7864
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.6999,
+     "2024": 0.6179,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2412,
+    "ci95": [
+     -0.3801,
+     -0.0918
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2285,
+     "2024": -0.3158,
+     "2025": -0.1668
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.4688,
+    "ci95": [
+     -0.6149,
+     -0.3145
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4511,
+     "2024": -0.3579,
+     "2025": -0.6037
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.1922,
+    "ci95": [
+     -0.0143,
+     0.4086
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.2012,
+     "2024": 0.3802,
+     "2025": 0.0042
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.5256,
+    "ci95": [
+     -0.6562,
+     -0.3732
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5336,
+     "2024": -0.4013,
+     "2025": -0.6405
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.2077,
+    "ci95": [
+     0.0162,
+     0.3921
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2379,
+     "2024": 0.3511,
+     "2025": 0.0496
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   }
+  },
+  "V_INSEASON": {
+   "QB|open_above|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.2128,
+    "ci95": [
+     -0.3531,
+     -0.058
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2075,
+     "2024": -0.2554,
+     "2025": -0.1695
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0282,
+    "ci95": [
+     -0.1155,
+     0.1618
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0474,
+     "2024": 0.0246,
+     "2025": 0.0349
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|open_above_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.2089,
+    "ci95": [
+     -0.3529,
+     -0.0547
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2075,
+     "2024": -0.2523,
+     "2025": -0.1661
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0317,
+    "ci95": [
+     -0.114,
+     0.1626
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0474,
+     "2024": 0.029,
+     "2025": 0.0358
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0011,
+    "ci95": [
+     -0.1453,
+     0.1616
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.018,
+     "2024": 0.0066,
+     "2025": 0.0517
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0238,
+    "ci95": [
+     -0.1367,
+     0.1947
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0368,
+     "2024": -0.0008,
+     "2025": 0.1107
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0138,
+    "ci95": [
+     -0.1805,
+     0.2257
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1545,
+     "2024": 0.1244,
+     "2025": 0.1164
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0149,
+    "ci95": [
+     -0.1501,
+     0.1872
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.063,
+     "2024": 0.0563,
+     "2025": 0.1001
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0067,
+    "ci95": [
+     -0.1899,
+     0.193
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.161,
+     "2024": 0.1209,
+     "2025": 0.051
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.0057,
+    "ci95": [
+     -0.1551,
+     0.1796
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.08,
+     "2024": 0.0832,
+     "2025": 0.0313
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "QB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.6152,
+    "ci95": [
+     0.4383,
+     0.7501
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4809,
+     "2024": 0.5819,
+     "2025": 0.7275
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.403,
+    "ci95": [
+     -0.5423,
+     -0.2494
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4976,
+     "2024": -0.3817,
+     "2025": -0.3429
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.4745,
+    "ci95": [
+     -0.6023,
+     -0.3405
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4284,
+     "2024": -0.4409,
+     "2025": -0.5622
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.4214,
+    "ci95": [
+     0.2895,
+     0.5365
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4106,
+     "2024": 0.4339,
+     "2025": 0.4118
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|realized": {
+    "status": "measured",
+    "n": 175,
+    "rho": -0.522,
+    "ci95": [
+     -0.6441,
+     -0.3766
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4478,
+     "2024": -0.4851,
+     "2025": -0.6066
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "QB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 175,
+    "rho": 0.4121,
+    "ci95": [
+     0.2876,
+     0.5289
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.4155,
+     "2024": 0.4243,
+     "2025": 0.4087
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.3237,
+    "ci95": [
+     -0.4422,
+     -0.1715
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3665,
+     "2024": -0.3874,
+     "2025": -0.1965
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.1152,
+    "ci95": [
+     0.0179,
+     0.2193
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.139,
+     "2024": 0.0618,
+     "2025": 0.1881
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.3223,
+    "ci95": [
+     -0.4412,
+     -0.171
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3626,
+     "2024": -0.3891,
+     "2025": -0.1965
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.1161,
+    "ci95": [
+     0.0195,
+     0.2203
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1425,
+     "2024": 0.061,
+     "2025": 0.1881
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0419,
+    "ci95": [
+     -0.1672,
+     0.0882
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0122,
+     "2024": -0.1319,
+     "2025": 0.0169
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.0024,
+    "ci95": [
+     -0.1058,
+     0.1165
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0254,
+     "2024": 0.0191,
+     "2025": -0.0091
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0349,
+    "ci95": [
+     -0.1837,
+     0.1121
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0579,
+     "2024": -0.157,
+     "2025": 0.0258
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0247,
+    "ci95": [
+     -0.1403,
+     0.0899
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0353,
+     "2024": -0.0626,
+     "2025": -0.0398
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0374,
+    "ci95": [
+     -0.1582,
+     0.1059
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.058,
+     "2024": -0.1094,
+     "2025": -0.0081
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.0119,
+    "ci95": [
+     -0.1263,
+     0.1082
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0487,
+     "2024": -0.0376,
+     "2025": -0.0128
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "RB|own_share_y1|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.7245,
+    "ci95": [
+     0.6385,
+     0.7937
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.664,
+     "2024": 0.7316,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.2914,
+    "ci95": [
+     -0.4267,
+     -0.1563
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.3971,
+     "2024": -0.1931,
+     "2025": -0.2744
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.6183,
+    "ci95": [
+     -0.716,
+     -0.5067
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5368,
+     "2024": -0.6497,
+     "2025": -0.6992
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2785,
+    "ci95": [
+     0.1542,
+     0.4045
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.3656,
+     "2024": 0.2116,
+     "2025": 0.2447
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|realized": {
+    "status": "measured",
+    "n": 323,
+    "rho": -0.6535,
+    "ci95": [
+     -0.7303,
+     -0.5636
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6011,
+     "2024": -0.6719,
+     "2025": -0.7116
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "RB|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 323,
+    "rho": 0.2934,
+    "ci95": [
+     0.1614,
+     0.4212
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.381,
+     "2024": 0.2055,
+     "2025": 0.2734
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.428,
+    "ci95": [
+     -0.5118,
+     -0.3364
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4371,
+     "2024": -0.3633,
+     "2025": -0.4912
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1551,
+    "ci95": [
+     0.0782,
+     0.2341
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1565,
+     "2024": 0.1493,
+     "2025": 0.1562
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.4294,
+    "ci95": [
+     -0.513,
+     -0.3373
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.4398,
+     "2024": -0.364,
+     "2025": -0.4901
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.1564,
+    "ci95": [
+     0.0792,
+     0.2348
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.1595,
+     "2024": 0.1492,
+     "2025": 0.1547
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0371,
+    "ci95": [
+     -0.1273,
+     0.0534
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0061,
+     "2024": -0.0764,
+     "2025": -0.0359
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0198,
+    "ci95": [
+     -0.1178,
+     0.0747
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0249,
+     "2024": -0.0608,
+     "2025": -0.0542
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0739,
+    "ci95": [
+     -0.1682,
+     0.0186
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0647,
+     "2024": -0.1123,
+     "2025": -0.0519
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0149,
+    "ci95": [
+     -0.1144,
+     0.093
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0592,
+     "2024": -0.0498,
+     "2025": -0.0312
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.0798,
+    "ci95": [
+     -0.1702,
+     0.008
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0999,
+     "2024": -0.0619,
+     "2025": -0.0716
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.016,
+    "ci95": [
+     -0.084,
+     0.1308
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0983,
+     "2024": -0.0144,
+     "2025": -0.0109
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "WR|own_share_y1|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.7292,
+    "ci95": [
+     0.6742,
+     0.7767
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.7272,
+     "2024": 0.6997,
+     "2025": 0.7683
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.3168,
+    "ci95": [
+     -0.4317,
+     -0.1691
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.1775,
+     "2024": -0.3931,
+     "2025": -0.3632
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.5866,
+    "ci95": [
+     -0.6446,
+     -0.5215
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5579,
+     "2024": -0.5945,
+     "2025": -0.6076
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2331,
+    "ci95": [
+     0.0655,
+     0.3762
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0659,
+     "2024": 0.3535,
+     "2025": 0.2679
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|realized": {
+    "status": "measured",
+    "n": 476,
+    "rho": -0.637,
+    "ci95": [
+     -0.691,
+     -0.577
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.6188,
+     "2024": -0.618,
+     "2025": -0.6817
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "WR|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 476,
+    "rho": 0.2465,
+    "ci95": [
+     0.0896,
+     0.3774
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.0964,
+     "2024": 0.3512,
+     "2025": 0.2716
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2279,
+    "ci95": [
+     -0.3446,
+     -0.1149
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.1967,
+     "2024": -0.26,
+     "2025": -0.2631
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0801,
+    "ci95": [
+     -0.0413,
+     0.1924
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0426,
+     "2024": 0.1396,
+     "2025": 0.0353
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|open_above_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2305,
+    "ci95": [
+     -0.347,
+     -0.1172
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.1971,
+     "2024": -0.2626,
+     "2025": -0.2629
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.0785,
+    "ci95": [
+     -0.0409,
+     0.1889
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": 0.0428,
+     "2024": 0.1361,
+     "2025": 0.037
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_opp_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0115,
+    "ci95": [
+     -0.1474,
+     0.1047
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0427,
+     "2024": -0.0144,
+     "2025": -0.0152
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_opp_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0778,
+    "ci95": [
+     -0.1951,
+     0.0434
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0584,
+     "2024": -0.0787,
+     "2025": -0.0809
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0377,
+    "ci95": [
+     -0.1623,
+     0.0821
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0579,
+     "2024": -0.0651,
+     "2025": -0.0237
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_tgt_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0706,
+    "ci95": [
+     -0.1879,
+     0.0544
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.07,
+     "2024": -0.0539,
+     "2025": -0.0757
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0577,
+    "ci95": [
+     -0.175,
+     0.0637
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.0623,
+     "2024": -0.0517,
+     "2025": -0.0642
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|vac_air_yd_share|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.0938,
+    "ci95": [
+     -0.2147,
+     0.0391
+    ],
+    "excludes_zero": false,
+    "per_season": {
+     "2023": -0.1035,
+     "2024": -0.0424,
+     "2025": -0.1155
+    },
+    "same_sign_in_2of3": true,
+    "finding": false,
+    "survives_fdr_q10": false
+   },
+   "TE|own_share_y1|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.6995,
+    "ci95": [
+     0.5874,
+     0.7864
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.6999,
+     "2024": 0.6179,
+     "2025": 0.7824
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|own_share_y1|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.2412,
+    "ci95": [
+     -0.3801,
+     -0.0918
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.2285,
+     "2024": -0.3158,
+     "2025": -0.1668
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.5073,
+    "ci95": [
+     -0.6431,
+     -0.3527
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5211,
+     "2024": -0.3805,
+     "2025": -0.6181
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_present|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.1991,
+    "ci95": [
+     0.014,
+     0.3847
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2357,
+     "2024": 0.328,
+     "2025": 0.0443
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|realized": {
+    "status": "measured",
+    "n": 271,
+    "rho": -0.5256,
+    "ci95": [
+     -0.6562,
+     -0.3732
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": -0.5336,
+     "2024": -0.4013,
+     "2025": -0.6405
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   },
+   "TE|open_above_total|resid_vs_naive": {
+    "status": "measured",
+    "n": 271,
+    "rho": 0.2077,
+    "ci95": [
+     0.0162,
+     0.3921
+    ],
+    "excludes_zero": true,
+    "per_season": {
+     "2023": 0.2379,
+     "2024": 0.3511,
+     "2025": 0.0496
+    },
+    "same_sign_in_2of3": true,
+    "finding": true,
+    "survives_fdr_q10": true
+   }
+  }
+ },
+ "h2_interaction": {
+  "V_ALL": {
+   "regression": {
+    "QB": {
+     "status": "measured",
+     "n": 46,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -52.3648,
+       "ci95": [
+        -138.0783,
+        -4.1337
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 19.6778,
+       "ci95": [
+        -22.6672,
+        114.4438
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -8.1502,
+       "ci95": [
+        -42.687,
+        18.1306
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": 1.1974,
+       "ci95": [
+        -76.6703,
+        98.3829
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 29.1771,
+       "ci95": [
+        -56.6655,
+        120.5874
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "RB": {
+     "status": "measured",
+     "n": 113,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -21.1343,
+       "ci95": [
+        -49.5781,
+        20.9888
+       ],
+       "excludes_zero": false
+      },
+      "opp_pg": {
+       "beta": 7.1851,
+       "ci95": [
+        -32.9858,
+        32.716
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": 7.2263,
+       "ci95": [
+        -10.1731,
+        27.6771
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -4.376,
+       "ci95": [
+        -20.6148,
+        30.0588
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 6.0808,
+       "ci95": [
+        -33.9941,
+        26.2472
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "WR": {
+     "status": "measured",
+     "n": 182,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -32.4399,
+       "ci95": [
+        -60.7978,
+        -2.8288
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 20.8026,
+       "ci95": [
+        -3.1131,
+        45.7157
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -3.9786,
+       "ci95": [
+        -13.5862,
+        6.0729
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -5.2659,
+       "ci95": [
+        -17.2775,
+        7.4897
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 8.5015,
+       "ci95": [
+        -6.8068,
+        19.9773
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "TE": {
+     "status": "measured",
+     "n": 98,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -26.0944,
+       "ci95": [
+        -41.306,
+        -1.9075
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 20.4235,
+       "ci95": [
+        -7.5032,
+        37.4587
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -2.2138,
+       "ci95": [
+        -8.9913,
+        6.0861
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -2.6593,
+       "ci95": [
+        -15.5452,
+        5.176
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 8.1025,
+       "ci95": [
+        -1.886,
+        21.4416
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "ALL": {
+     "status": "measured",
+     "n": 439,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -20.0271,
+       "ci95": [
+        -35.0605,
+        -3.925
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 3.9949,
+       "ci95": [
+        -18.3159,
+        23.4278
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -1.2841,
+       "ci95": [
+        -8.3375,
+        7.2135
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -4.8133,
+       "ci95": [
+        -12.6267,
+        10.3497
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 12.6341,
+       "ci95": [
+        0.2425,
+        23.4587
+       ],
+       "excludes_zero": true
+      }
+     }
+    }
+   },
+   "contingency": {
+    "median_open_above": 0.0,
+    "cells": {
+     "young=1|high_vac=1": {
+      "k": 3,
+      "n": 126,
+      "rate": 0.0238,
+      "ci95": [
+       0.0081,
+       0.0677
+      ]
+     },
+     "young=1|high_vac=0": {
+      "k": 22,
+      "n": 187,
+      "rate": 0.1176,
+      "ci95": [
+       0.079,
+       0.1717
+      ]
+     },
+     "young=0|high_vac=1": {
+      "k": 0,
+      "n": 42,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.0838
+      ]
+     },
+     "young=0|high_vac=0": {
+      "k": 16,
+      "n": 84,
+      "rate": 0.1905,
+      "ci95": [
+       0.1208,
+       0.2872
+      ]
+     }
+    },
+    "difference_in_differences": {
+     "status": "measured",
+     "difference_in_differences": 0.0967,
+     "ci95": [
+      -0.0739,
+      0.2132
+     ],
+     "excludes_zero": false,
+     "draws_used": 1924
+    }
+   },
+   "interaction_beats_youth_alone": {
+    "QB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 29.1771,
+      "ci95": [
+       -56.6655,
+       120.5874
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -8.1502,
+      "ci95": [
+       -42.687,
+       18.1306
+      ],
+      "excludes_zero": false
+     }
+    },
+    "RB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 6.0808,
+      "ci95": [
+       -33.9941,
+       26.2472
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": 7.2263,
+      "ci95": [
+       -10.1731,
+       27.6771
+      ],
+      "excludes_zero": false
+     }
+    },
+    "WR": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 8.5015,
+      "ci95": [
+       -6.8068,
+       19.9773
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -3.9786,
+      "ci95": [
+       -13.5862,
+       6.0729
+      ],
+      "excludes_zero": false
+     }
+    },
+    "TE": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 8.1025,
+      "ci95": [
+       -1.886,
+       21.4416
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -2.2138,
+      "ci95": [
+       -8.9913,
+       6.0861
+      ],
+      "excludes_zero": false
+     }
+    },
+    "ALL": {
+     "verdict": "INTERACTION BEATS YOUTH ALONE",
+     "interaction": {
+      "beta": 12.6341,
+      "ci95": [
+       0.2425,
+       23.4587
+      ],
+      "excludes_zero": true
+     },
+     "youth_main_effect": {
+      "beta": -1.2841,
+      "ci95": [
+       -8.3375,
+       7.2135
+      ],
+      "excludes_zero": false
+     }
+    }
+   }
+  },
+  "V_MOVED": {
+   "regression": {
+    "QB": {
+     "status": "measured",
+     "n": 46,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -57.0897,
+       "ci95": [
+        -123.9547,
+        -8.3864
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 22.0328,
+       "ci95": [
+        -24.2207,
+        86.2919
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -6.1028,
+       "ci95": [
+        -41.8568,
+        17.9569
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": 2.2319,
+       "ci95": [
+        -22.3646,
+        42.8401
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 26.5755,
+       "ci95": [
+        -12.2765,
+        84.2545
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "RB": {
+     "status": "measured",
+     "n": 113,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -20.5499,
+       "ci95": [
+        -48.2905,
+        21.6789
+       ],
+       "excludes_zero": false
+      },
+      "opp_pg": {
+       "beta": 7.6342,
+       "ci95": [
+        -33.1437,
+        32.5883
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": 8.0048,
+       "ci95": [
+        -8.7379,
+        27.0496
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -0.2373,
+       "ci95": [
+        -21.7352,
+        30.3341
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 3.6949,
+       "ci95": [
+        -32.2123,
+        30.124
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "WR": {
+     "status": "measured",
+     "n": 182,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -32.7757,
+       "ci95": [
+        -60.304,
+        -3.7688
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 20.6923,
+       "ci95": [
+        -3.4967,
+        45.7715
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -3.9517,
+       "ci95": [
+        -13.0977,
+        6.0503
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -6.2797,
+       "ci95": [
+        -17.7785,
+        7.3677
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 8.8342,
+       "ci95": [
+        -6.8184,
+        20.139
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "TE": {
+     "status": "measured",
+     "n": 98,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -26.0339,
+       "ci95": [
+        -41.4024,
+        -2.2264
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 20.547,
+       "ci95": [
+        -5.3018,
+        37.5045
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -1.9951,
+       "ci95": [
+        -8.4187,
+        5.8528
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -0.1565,
+       "ci95": [
+        -13.4548,
+        7.6037
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 8.4897,
+       "ci95": [
+        -1.0714,
+        23.5109
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "ALL": {
+     "status": "measured",
+     "n": 439,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -20.2003,
+       "ci95": [
+        -34.4984,
+        -4.4191
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 4.1777,
+       "ci95": [
+        -18.1166,
+        23.4182
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -0.6899,
+       "ci95": [
+        -7.6894,
+        7.3706
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -3.1586,
+       "ci95": [
+        -11.8491,
+        11.4715
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 11.4382,
+       "ci95": [
+        -1.5704,
+        24.8943
+       ],
+       "excludes_zero": false
+      }
+     }
+    }
+   },
+   "contingency": {
+    "median_open_above": 0.0,
+    "cells": {
+     "young=1|high_vac=1": {
+      "k": 3,
+      "n": 109,
+      "rate": 0.0275,
+      "ci95": [
+       0.0094,
+       0.0778
+      ]
+     },
+     "young=1|high_vac=0": {
+      "k": 22,
+      "n": 204,
+      "rate": 0.1078,
+      "ci95": [
+       0.0723,
+       0.1579
+      ]
+     },
+     "young=0|high_vac=1": {
+      "k": 0,
+      "n": 36,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.0964
+      ]
+     },
+     "young=0|high_vac=0": {
+      "k": 16,
+      "n": 90,
+      "rate": 0.1778,
+      "ci95": [
+       0.1125,
+       0.2694
+      ]
+     }
+    },
+    "difference_in_differences": {
+     "status": "measured",
+     "difference_in_differences": 0.0975,
+     "ci95": [
+      -0.0598,
+      0.2117
+     ],
+     "excludes_zero": false,
+     "draws_used": 1924
+    }
+   },
+   "interaction_beats_youth_alone": {
+    "QB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 26.5755,
+      "ci95": [
+       -12.2765,
+       84.2545
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -6.1028,
+      "ci95": [
+       -41.8568,
+       17.9569
+      ],
+      "excludes_zero": false
+     }
+    },
+    "RB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 3.6949,
+      "ci95": [
+       -32.2123,
+       30.124
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": 8.0048,
+      "ci95": [
+       -8.7379,
+       27.0496
+      ],
+      "excludes_zero": false
+     }
+    },
+    "WR": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 8.8342,
+      "ci95": [
+       -6.8184,
+       20.139
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -3.9517,
+      "ci95": [
+       -13.0977,
+       6.0503
+      ],
+      "excludes_zero": false
+     }
+    },
+    "TE": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 8.4897,
+      "ci95": [
+       -1.0714,
+       23.5109
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -1.9951,
+      "ci95": [
+       -8.4187,
+       5.8528
+      ],
+      "excludes_zero": false
+     }
+    },
+    "ALL": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 11.4382,
+      "ci95": [
+       -1.5704,
+       24.8943
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -0.6899,
+      "ci95": [
+       -7.6894,
+       7.3706
+      ],
+      "excludes_zero": false
+     }
+    }
+   }
+  },
+  "V_INSEASON": {
+   "regression": {
+    "QB": {
+     "status": "measured",
+     "n": 46,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -69.1633,
+       "ci95": [
+        -130.969,
+        -27.4503
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 33.1048,
+       "ci95": [
+        -12.9851,
+        93.6486
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -4.1903,
+       "ci95": [
+        -41.7458,
+        20.9797
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": 3.1515,
+       "ci95": [
+        -21.6669,
+        40.9322
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 20.0479,
+       "ci95": [
+        -21.319,
+        78.4671
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "RB": {
+     "status": "measured",
+     "n": 113,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -16.9739,
+       "ci95": [
+        -45.5873,
+        25.3476
+       ],
+       "excludes_zero": false
+      },
+      "opp_pg": {
+       "beta": 3.7236,
+       "ci95": [
+        -38.8168,
+        31.3052
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": 7.1243,
+       "ci95": [
+        -6.6346,
+        19.9712
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -7.6951,
+       "ci95": [
+        -29.7245,
+        11.9606
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 14.0217,
+       "ci95": [
+        -8.9879,
+        39.4419
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "WR": {
+     "status": "measured",
+     "n": 182,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -34.0296,
+       "ci95": [
+        -58.3472,
+        -4.8093
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 20.8939,
+       "ci95": [
+        -7.2646,
+        44.6476
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -1.0887,
+       "ci95": [
+        -9.4396,
+        6.2845
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -6.451,
+       "ci95": [
+        -32.0058,
+        13.0487
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 3.571,
+       "ci95": [
+        -15.5487,
+        29.4241
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "TE": {
+     "status": "measured",
+     "n": 98,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -24.3717,
+       "ci95": [
+        -39.5717,
+        -0.3997
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 18.47,
+       "ci95": [
+        -8.4993,
+        35.1973
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": -2.2798,
+       "ci95": [
+        -8.4374,
+        5.9798
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": -4.97,
+       "ci95": [
+        -13.9363,
+        6.9905
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 11.9545,
+       "ci95": [
+        -1.5977,
+        24.2363
+       ],
+       "excludes_zero": false
+      }
+     }
+    },
+    "ALL": {
+     "status": "measured",
+     "n": 439,
+     "coefficients": {
+      "pts_y1": {
+       "beta": -21.1703,
+       "ci95": [
+        -34.8236,
+        -7.8224
+       ],
+       "excludes_zero": true
+      },
+      "opp_pg": {
+       "beta": 4.8743,
+       "ci95": [
+        -16.5914,
+        23.8783
+       ],
+       "excludes_zero": false
+      },
+      "young": {
+       "beta": 1.1888,
+       "ci95": [
+        -5.2249,
+        7.0937
+       ],
+       "excludes_zero": false
+      },
+      "open_above": {
+       "beta": 0.2456,
+       "ci95": [
+        -27.2664,
+        8.9342
+       ],
+       "excludes_zero": false
+      },
+      "young_x_vac": {
+       "beta": 6.1875,
+       "ci95": [
+        -4.7664,
+        39.5872
+       ],
+       "excludes_zero": false
+      }
+     }
+    }
+   },
+   "contingency": {
+    "median_open_above": 0.0,
+    "cells": {
+     "young=1|high_vac=1": {
+      "k": 1,
+      "n": 57,
+      "rate": 0.0175,
+      "ci95": [
+       0.0031,
+       0.0929
+      ]
+     },
+     "young=1|high_vac=0": {
+      "k": 24,
+      "n": 256,
+      "rate": 0.0938,
+      "ci95": [
+       0.0638,
+       0.1357
+      ]
+     },
+     "young=0|high_vac=1": {
+      "k": 0,
+      "n": 20,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.1611
+      ]
+     },
+     "young=0|high_vac=0": {
+      "k": 16,
+      "n": 106,
+      "rate": 0.1509,
+      "ci95": [
+       0.0951,
+       0.2312
+      ]
+     }
+    },
+    "difference_in_differences": {
+     "status": "measured",
+     "difference_in_differences": 0.0746,
+     "ci95": [
+      -0.0716,
+      0.195
+     ],
+     "excludes_zero": false,
+     "draws_used": 1923
+    }
+   },
+   "interaction_beats_youth_alone": {
+    "QB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 20.0479,
+      "ci95": [
+       -21.319,
+       78.4671
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -4.1903,
+      "ci95": [
+       -41.7458,
+       20.9797
+      ],
+      "excludes_zero": false
+     }
+    },
+    "RB": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 14.0217,
+      "ci95": [
+       -8.9879,
+       39.4419
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": 7.1243,
+      "ci95": [
+       -6.6346,
+       19.9712
+      ],
+      "excludes_zero": false
+     }
+    },
+    "WR": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 3.571,
+      "ci95": [
+       -15.5487,
+       29.4241
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -1.0887,
+      "ci95": [
+       -9.4396,
+       6.2845
+      ],
+      "excludes_zero": false
+     }
+    },
+    "TE": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 11.9545,
+      "ci95": [
+       -1.5977,
+       24.2363
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": -2.2798,
+      "ci95": [
+       -8.4374,
+       5.9798
+      ],
+      "excludes_zero": false
+     }
+    },
+    "ALL": {
+     "verdict": "NULL \u2014 the interaction is not distinguishable from zero",
+     "interaction": {
+      "beta": 6.1875,
+      "ci95": [
+       -4.7664,
+       39.5872
+      ],
+      "excludes_zero": false
+     },
+     "youth_main_effect": {
+      "beta": 1.1888,
+      "ci95": [
+       -5.2249,
+       7.0937
+      ],
+      "excludes_zero": false
+     }
+    }
+   }
+  }
+ },
+ "population_diag": {
+  "V_ALL|2023": {
+   "population": 412,
+   "joined_to_inheritance_features": 412,
+   "excluded_no_season_row": 162
+  },
+  "V_ALL|2024": {
+   "population": 411,
+   "joined_to_inheritance_features": 411,
+   "excluded_no_season_row": 137
+  },
+  "V_ALL|2025": {
+   "population": 422,
+   "joined_to_inheritance_features": 422,
+   "excluded_no_season_row": 133
+  },
+  "V_MOVED|2023": {
+   "population": 412,
+   "joined_to_inheritance_features": 412,
+   "excluded_no_season_row": 162
+  },
+  "V_MOVED|2024": {
+   "population": 411,
+   "joined_to_inheritance_features": 411,
+   "excluded_no_season_row": 137
+  },
+  "V_MOVED|2025": {
+   "population": 422,
+   "joined_to_inheritance_features": 422,
+   "excluded_no_season_row": 133
+  },
+  "V_INSEASON|2023": {
+   "population": 412,
+   "joined_to_inheritance_features": 412,
+   "excluded_no_season_row": 162
+  },
+  "V_INSEASON|2024": {
+   "population": 411,
+   "joined_to_inheritance_features": 411,
+   "excluded_no_season_row": 137
+  },
+  "V_INSEASON|2025": {
+   "population": 422,
+   "joined_to_inheritance_features": 422,
+   "excluded_no_season_row": 133
+  }
+ },
+ "conditional_value_already_established": {
+  "source": "draft/audit/conditional_value_2026-08-16.md",
+  "P_rb1_misses_at_least_one_game": 0.44,
+  "expected_missed_starts_15wk": 0.95,
+  "backup_ppw_when_starter_absent": 12.5,
+  "backup_ppw_when_starter_present": 6.7,
+  "wire_rb_ppw": 7.8,
+  "startable_bar_rb28_ppw": 11.5,
+  "handcuff_premium_season_points_to_owner": 0.95,
+  "handcuff_premium_to_the_field": 0.0,
+  "wr_handcuff": "premium ~0 \u2014 elevated WR2s 10.5/wk vs a WR wire of 11.1",
+  "not_reimplemented": "handcuff_premium imported from conditional_value.py"
+ },
+ "b1_absence_forecastable": {
+  "QB": {
+   "P_miss4_given_missed4_last_year": {
+    "k": 17,
+    "n": 27,
+    "rate": 0.6296,
+    "ci95": [
+     0.4423,
+     0.7847
+    ]
+   },
+   "P_miss4_given_missed_0or1_last_year": {
+    "k": 17,
+    "n": 47,
+    "rate": 0.3617,
+    "ci95": [
+     0.2397,
+     0.5046
+    ]
+   },
+   "difference": {
+    "difference": 0.2679,
+    "ci95": [
+     0.0244,
+     0.5012
+    ],
+    "excludes_zero": true
+   },
+   "per_season": {
+    "2023": {
+     "high_prior_absence": {
+      "k": 5,
+      "n": 9,
+      "rate": 0.5556,
+      "ci95": [
+       0.2666,
+       0.8112
+      ]
+     },
+     "low_prior_absence": {
+      "k": 5,
+      "n": 12,
+      "rate": 0.4167,
+      "ci95": [
+       0.1933,
+       0.6805
+      ]
+     }
+    },
+    "2024": {
+     "high_prior_absence": {
+      "k": 7,
+      "n": 9,
+      "rate": 0.7778,
+      "ci95": [
+       0.4526,
+       0.9368
+      ]
+     },
+     "low_prior_absence": {
+      "k": 7,
+      "n": 17,
+      "rate": 0.4118,
+      "ci95": [
+       0.2161,
+       0.6399
+      ]
+     }
+    },
+    "2025": {
+     "high_prior_absence": {
+      "k": 5,
+      "n": 9,
+      "rate": 0.5556,
+      "ci95": [
+       0.2666,
+       0.8112
+      ]
+     },
+     "low_prior_absence": {
+      "k": 5,
+      "n": 18,
+      "rate": 0.2778,
+      "ci95": [
+       0.125,
+       0.5087
+      ]
+     }
+    }
+   },
+   "forecastable": true,
+   "rule": "prereg 5.1: where the difference's CI covers zero, absence is NOT forecastable at that position and no contingent-opportunity model can be built there."
+  },
+  "RB": {
+   "P_miss4_given_missed4_last_year": {
+    "k": 4,
+    "n": 10,
+    "rate": 0.4,
+    "ci95": [
+     0.1682,
+     0.6873
+    ]
+   },
+   "P_miss4_given_missed_0or1_last_year": {
+    "k": 13,
+    "n": 61,
+    "rate": 0.2131,
+    "ci95": [
+     0.129,
+     0.3312
+    ]
+   },
+   "difference": {
+    "difference": 0.1869,
+    "ci95": [
+     -0.1131,
+     0.5216
+    ],
+    "excludes_zero": false
+   },
+   "per_season": {
+    "2023": {
+     "high_prior_absence": {
+      "k": 2,
+      "n": 4,
+      "rate": 0.5,
+      "ci95": [
+       0.15,
+       0.85
+      ]
+     },
+     "low_prior_absence": {
+      "k": 6,
+      "n": 21,
+      "rate": 0.2857,
+      "ci95": [
+       0.1381,
+       0.4996
+      ]
+     }
+    },
+    "2024": {
+     "high_prior_absence": {
+      "k": 1,
+      "n": 3,
+      "rate": 0.3333,
+      "ci95": [
+       0.0615,
+       0.7923
+      ]
+     },
+     "low_prior_absence": {
+      "k": 3,
+      "n": 19,
+      "rate": 0.1579,
+      "ci95": [
+       0.0552,
+       0.3757
+      ]
+     }
+    },
+    "2025": {
+     "high_prior_absence": {
+      "k": 1,
+      "n": 3,
+      "rate": 0.3333,
+      "ci95": [
+       0.0615,
+       0.7923
+      ]
+     },
+     "low_prior_absence": {
+      "k": 4,
+      "n": 21,
+      "rate": 0.1905,
+      "ci95": [
+       0.0767,
+       0.4
+      ]
+     }
+    }
+   },
+   "forecastable": false,
+   "rule": "prereg 5.1: where the difference's CI covers zero, absence is NOT forecastable at that position and no contingent-opportunity model can be built there."
+  },
+  "WR": {
+   "P_miss4_given_missed4_last_year": {
+    "k": 1,
+    "n": 8,
+    "rate": 0.125,
+    "ci95": [
+     0.0224,
+     0.4709
+    ]
+   },
+   "P_miss4_given_missed_0or1_last_year": {
+    "k": 20,
+    "n": 71,
+    "rate": 0.2817,
+    "ci95": [
+     0.1904,
+     0.3954
+    ]
+   },
+   "difference": {
+    "difference": -0.1567,
+    "ci95": [
+     -0.3521,
+     0.1356
+    ],
+    "excludes_zero": false
+   },
+   "per_season": {
+    "2023": {
+     "high_prior_absence": {
+      "k": 1,
+      "n": 5,
+      "rate": 0.2,
+      "ci95": [
+       0.0362,
+       0.6245
+      ]
+     },
+     "low_prior_absence": {
+      "k": 6,
+      "n": 21,
+      "rate": 0.2857,
+      "ci95": [
+       0.1381,
+       0.4996
+      ]
+     }
+    },
+    "2024": {
+     "high_prior_absence": null,
+     "low_prior_absence": {
+      "k": 6,
+      "n": 28,
+      "rate": 0.2143,
+      "ci95": [
+       0.1021,
+       0.3954
+      ]
+     }
+    },
+    "2025": {
+     "high_prior_absence": {
+      "k": 0,
+      "n": 3,
+      "rate": 0.0,
+      "ci95": [
+       0.0,
+       0.5615
+      ]
+     },
+     "low_prior_absence": {
+      "k": 8,
+      "n": 22,
+      "rate": 0.3636,
+      "ci95": [
+       0.1973,
+       0.5705
+      ]
+     }
+    }
+   },
+   "forecastable": false,
+   "rule": "prereg 5.1: where the difference's CI covers zero, absence is NOT forecastable at that position and no contingent-opportunity model can be built there."
+  },
+  "TE": {
+   "P_miss4_given_missed4_last_year": {
+    "k": 9,
+    "n": 20,
+    "rate": 0.45,
+    "ci95": [
+     0.2582,
+     0.6579
+    ]
+   },
+   "P_miss4_given_missed_0or1_last_year": {
+    "k": 13,
+    "n": 44,
+    "rate": 0.2955,
+    "ci95": [
+     0.1816,
+     0.4422
+    ]
+   },
+   "difference": {
+    "difference": 0.1545,
+    "ci95": [
+     -0.0909,
+     0.4182
+    ],
+    "excludes_zero": false
+   },
+   "per_season": {
+    "2023": {
+     "high_prior_absence": {
+      "k": 2,
+      "n": 6,
+      "rate": 0.3333,
+      "ci95": [
+       0.0968,
+       0.7
+      ]
+     },
+     "low_prior_absence": {
+      "k": 4,
+      "n": 14,
+      "rate": 0.2857,
+      "ci95": [
+       0.1172,
+       0.5465
+      ]
+     }
+    },
+    "2024": {
+     "high_prior_absence": {
+      "k": 5,
+      "n": 8,
+      "rate": 0.625,
+      "ci95": [
+       0.3057,
+       0.8632
+      ]
+     },
+     "low_prior_absence": {
+      "k": 4,
+      "n": 15,
+      "rate": 0.2667,
+      "ci95": [
+       0.109,
+       0.5195
+      ]
+     }
+    },
+    "2025": {
+     "high_prior_absence": {
+      "k": 2,
+      "n": 6,
+      "rate": 0.3333,
+      "ci95": [
+       0.0968,
+       0.7
+      ]
+     },
+     "low_prior_absence": {
+      "k": 5,
+      "n": 15,
+      "rate": 0.3333,
+      "ci95": [
+       0.1518,
+       0.5829
+      ]
+     }
+    }
+   },
+   "forecastable": false,
+   "rule": "prereg 5.1: where the difference's CI covers zero, absence is NOT forecastable at that position and no contingent-opportunity model can be built there."
+  }
+ },
+ "b1_benching_confound": {
+  "2023": {
+   "another_qb_covered_every_missed_week": 9,
+   "partial_or_no_cover": 6
+  },
+  "2024": {
+   "another_qb_covered_every_missed_week": 10,
+   "partial_or_no_cover": 6
+  },
+  "2025": {
+   "another_qb_covered_every_missed_week": 3,
+   "partial_or_no_cover": 8
+  },
+  "pooled": {
+   "another_qb_covered_every_missed_week": 22,
+   "partial_or_no_cover": 20,
+   "share_fully_covered": 0.5238,
+   "reading": "a fully-covered absence is indistinguishable from a BENCHING. Where that share is large, B1's QB result is a performance signal wearing an availability costume, and is NOT evidence that injury risk is forecastable."
+  }
+ },
+ "b2_inheritor_identifiable": {
+  "QB": {
+   "cases": 49,
+   "depth2_hit_rate": {
+    "k": 12,
+    "n": 49,
+    "rate": 0.2449,
+    "ci95": [
+     0.146,
+     0.3809
+    ]
+   },
+   "actual_in_depth_2or3": {
+    "k": 12,
+    "n": 49,
+    "rate": 0.2449,
+    "ci95": [
+     0.146,
+     0.3809
+    ]
+   },
+   "chance_rate_from_eligible_bodies": 0.5051,
+   "identifiable": false,
+   "rule": "prereg 5.2: if the depth-2 hit rate's Wilson interval covers the chance rate, the inheritor is NOT identifiable in advance and the contingent arm is unbuyable at the draft, however large the premium.",
+   "case_list": [
+    {
+     "season": 2023,
+     "team": "TEN",
+     "pos": "QB",
+     "leader": "1049",
+     "leader_missed": 8,
+     "predicted_depth2": "8161",
+     "actual": "9999",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "MIN",
+     "pos": "QB",
+     "leader": "1166",
+     "leader_missed": 8,
+     "predicted_depth2": "4464",
+     "actual": "4179",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NYJ",
+     "pos": "QB",
+     "leader": "7538",
+     "leader_missed": 4,
+     "predicted_depth2": "5089",
+     "actual": "2549",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "LV",
+     "pos": "QB",
+     "leader": "2028",
+     "leader_missed": 16,
+     "predicted_depth2": "6136",
+     "actual": "10866",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NO",
+     "pos": "QB",
+     "leader": "829",
+     "leader_missed": 16,
+     "predicted_depth2": "2306",
+     "actual": "2028",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "ATL",
+     "pos": "QB",
+     "leader": "2307",
+     "leader_missed": 16,
+     "predicted_depth2": "8159",
+     "actual": "8159",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "CLE",
+     "pos": "QB",
+     "leader": "3257",
+     "leader_missed": 16,
+     "predicted_depth2": "4017",
+     "actual": "19",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "HOU",
+     "pos": "QB",
+     "leader": "7585",
+     "leader_missed": 11,
+     "predicted_depth2": "5127",
+     "actual": "9758",
+     "eligible_bodies": 1,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "PIT",
+     "pos": "QB",
+     "leader": "8160",
+     "leader_missed": 4,
+     "predicted_depth2": "3976",
+     "actual": "3976",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "CAR",
+     "pos": "QB",
+     "leader": "4892",
+     "leader_missed": 16,
+     "predicted_depth2": "4943",
+     "actual": "9228",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "ARI",
+     "pos": "QB",
+     "leader": "5849",
+     "leader_missed": 9,
+     "predicted_depth2": "533",
+     "actual": "4179",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NYG",
+     "pos": "QB",
+     "leader": "5870",
+     "leader_missed": 10,
+     "predicted_depth2": "827",
+     "actual": "11292",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "CIN",
+     "pos": "QB",
+     "leader": "6770",
+     "leader_missed": 6,
+     "predicted_depth2": "3357",
+     "actual": "6111",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "GB",
+     "pos": "QB",
+     "leader": "96",
+     "leader_missed": 16,
+     "predicted_depth2": "6804",
+     "actual": "6804",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "NE",
+     "pos": "QB",
+     "leader": "7527",
+     "leader_missed": 5,
+     "predicted_depth2": "8157",
+     "actual": "8157",
+     "eligible_bodies": 1,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "CHI",
+     "pos": "QB",
+     "leader": "7591",
+     "leader_missed": 4,
+     "predicted_depth2": "2549",
+     "actual": "11256",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "SF",
+     "pos": "QB",
+     "leader": "1837",
+     "leader_missed": 16,
+     "predicted_depth2": "8183",
+     "actual": "8183",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "TEN",
+     "pos": "QB",
+     "leader": "9999",
+     "leader_missed": 5,
+     "predicted_depth2": "1049",
+     "actual": "4972",
+     "eligible_bodies": 1,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "MIN",
+     "pos": "QB",
+     "leader": "1166",
+     "leader_missed": 16,
+     "predicted_depth2": "4179",
+     "actual": "4943",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "DEN",
+     "pos": "QB",
+     "leader": "1234",
+     "leader_missed": 16,
+     "predicted_depth2": "6136",
+     "actual": "11563",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LV",
+     "pos": "QB",
+     "leader": "10866",
+     "leader_missed": 8,
+     "predicted_depth2": "1837",
+     "actual": "6011",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "NO",
+     "pos": "QB",
+     "leader": "2028",
+     "leader_missed": 6,
+     "predicted_depth2": "2306",
+     "actual": "11562",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "DAL",
+     "pos": "QB",
+     "leader": "3294",
+     "leader_missed": 8,
+     "predicted_depth2": "4574",
+     "actual": "4574",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "CLE",
+     "pos": "QB",
+     "leader": "19",
+     "leader_missed": 16,
+     "predicted_depth2": "4017",
+     "actual": "2306",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "ARI",
+     "pos": "QB",
+     "leader": "4179",
+     "leader_missed": 16,
+     "predicted_depth2": "5849",
+     "actual": "5849",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "NYG",
+     "pos": "QB",
+     "leader": "11292",
+     "leader_missed": 14,
+     "predicted_depth2": "5870",
+     "actual": "5870",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "IND",
+     "pos": "QB",
+     "leader": "6011",
+     "leader_missed": 16,
+     "predicted_depth2": "9229",
+     "actual": "9229",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "MIA",
+     "pos": "QB",
+     "leader": "6768",
+     "leader_missed": 5,
+     "predicted_depth2": "5089",
+     "actual": "7083",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "JAX",
+     "pos": "QB",
+     "leader": "7523",
+     "leader_missed": 6,
+     "predicted_depth2": "4127",
+     "actual": "7527",
+     "eligible_bodies": 1,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "NE",
+     "pos": "QB",
+     "leader": "7527",
+     "leader_missed": 16,
+     "predicted_depth2": "8157",
+     "actual": "11564",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CHI",
+     "pos": "QB",
+     "leader": "7591",
+     "leader_missed": 16,
+     "predicted_depth2": "11256",
+     "actual": "11560",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "ATL",
+     "pos": "QB",
+     "leader": "8159",
+     "leader_missed": 16,
+     "predicted_depth2": "2711",
+     "actual": "1166",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "PIT",
+     "pos": "QB",
+     "leader": "8160",
+     "leader_missed": 16,
+     "predicted_depth2": "3976",
+     "actual": "1234",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "WAS",
+     "pos": "QB",
+     "leader": "8162",
+     "leader_missed": 16,
+     "predicted_depth2": "3257",
+     "actual": "11566",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "WAS",
+     "pos": "QB",
+     "leader": "11566",
+     "leader_missed": 9,
+     "predicted_depth2": "2307",
+     "actual": "2307",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "ATL",
+     "pos": "QB",
+     "leader": "1166",
+     "leader_missed": 7,
+     "predicted_depth2": "11559",
+     "actual": "11559",
+     "eligible_bodies": 1,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "SEA",
+     "pos": "QB",
+     "leader": "1373",
+     "leader_missed": 16,
+     "predicted_depth2": "8162",
+     "actual": "4943",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "DAL",
+     "pos": "QB",
+     "leader": "4574",
+     "leader_missed": 16,
+     "predicted_depth2": "3294",
+     "actual": "3294",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "SF",
+     "pos": "QB",
+     "leader": "8183",
+     "leader_missed": 8,
+     "predicted_depth2": "3357",
+     "actual": "7527",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "CLE",
+     "pos": "QB",
+     "leader": "2306",
+     "leader_missed": 16,
+     "predicted_depth2": "4017",
+     "actual": "12524",
+     "eligible_bodies": 3,
+     "hit": false
+    }
+   ]
+  },
+  "RB": {
+   "cases": 44,
+   "depth2_hit_rate": {
+    "k": 15,
+    "n": 44,
+    "rate": 0.3409,
+    "ci95": [
+     0.2188,
+     0.4886
+    ]
+   },
+   "actual_in_depth_2or3": {
+    "k": 24,
+    "n": 44,
+    "rate": 0.5455,
+    "ci95": [
+     0.4007,
+     0.6829
+    ]
+   },
+   "chance_rate_from_eligible_bodies": 0.2387,
+   "identifiable": false,
+   "rule": "prereg 5.2: if the depth-2 hit rate's Wilson interval covers the chance rate, the inheritor is NOT identifiable in advance and the contingent arm is unbuyable at the draft, however large the premium.",
+   "case_list": [
+    {
+     "season": 2023,
+     "team": "DEN",
+     "pos": "RB",
+     "leader": "1476",
+     "leader_missed": 16,
+     "predicted_depth2": "2320",
+     "actual": "7588",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "BAL",
+     "pos": "RB",
+     "leader": "3242",
+     "leader_missed": 15,
+     "predicted_depth2": "6806",
+     "actual": "5248",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "DAL",
+     "pos": "RB",
+     "leader": "3164",
+     "leader_missed": 16,
+     "predicted_depth2": "5967",
+     "actual": "5967",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "MIN",
+     "pos": "RB",
+     "leader": "4029",
+     "leader_missed": 16,
+     "predicted_depth2": "5987",
+     "actual": "5987",
+     "eligible_bodies": 5,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "TB",
+     "pos": "RB",
+     "leader": "3969",
+     "leader_missed": 16,
+     "predicted_depth2": "8136",
+     "actual": "8136",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "CAR",
+     "pos": "RB",
+     "leader": "4111",
+     "leader_missed": 16,
+     "predicted_depth2": "4034",
+     "actual": "7594",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "CLE",
+     "pos": "RB",
+     "leader": "4988",
+     "leader_missed": 14,
+     "predicted_depth2": "4098",
+     "actual": "8143",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "ARI",
+     "pos": "RB",
+     "leader": "4137",
+     "leader_missed": 4,
+     "predicted_depth2": "6951",
+     "actual": "11199",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "DET",
+     "pos": "RB",
+     "leader": "4149",
+     "leader_missed": 16,
+     "predicted_depth2": "6790",
+     "actual": "9221",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "GB",
+     "pos": "RB",
+     "leader": "4199",
+     "leader_missed": 6,
+     "predicted_depth2": "6828",
+     "actual": "6828",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "PHI",
+     "pos": "RB",
+     "leader": "6151",
+     "leader_missed": 16,
+     "predicted_depth2": "7567",
+     "actual": "6790",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "IND",
+     "pos": "RB",
+     "leader": "6813",
+     "leader_missed": 7,
+     "predicted_depth2": "7551",
+     "actual": "6845",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NE",
+     "pos": "RB",
+     "leader": "7611",
+     "leader_missed": 4,
+     "predicted_depth2": "5890",
+     "actual": "3164",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "CHI",
+     "pos": "RB",
+     "leader": "5892",
+     "leader_missed": 16,
+     "predicted_depth2": "7608",
+     "actual": "7608",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "LA",
+     "pos": "RB",
+     "leader": "6938",
+     "leader_missed": 15,
+     "predicted_depth2": "5916",
+     "actual": "8150",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "BUF",
+     "pos": "RB",
+     "leader": "6130",
+     "leader_missed": 16,
+     "predicted_depth2": "8138",
+     "actual": "8138",
+     "eligible_bodies": 6,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "NYJ",
+     "pos": "RB",
+     "leader": "7607",
+     "leader_missed": 7,
+     "predicted_depth2": "8155",
+     "actual": "8155",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "CHI",
+     "pos": "RB",
+     "leader": "7608",
+     "leader_missed": 13,
+     "predicted_depth2": "4111",
+     "actual": "6790",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "KC",
+     "pos": "RB",
+     "leader": "8205",
+     "leader_missed": 9,
+     "predicted_depth2": "6820",
+     "actual": "4098",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LV",
+     "pos": "RB",
+     "leader": "5850",
+     "leader_missed": 16,
+     "predicted_depth2": "8139",
+     "actual": "5987",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "MIA",
+     "pos": "RB",
+     "leader": "2749",
+     "leader_missed": 4,
+     "predicted_depth2": "9226",
+     "actual": "9226",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "NE",
+     "pos": "RB",
+     "leader": "3164",
+     "leader_missed": 16,
+     "predicted_depth2": "7611",
+     "actual": "7611",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "TEN",
+     "pos": "RB",
+     "leader": "3198",
+     "leader_missed": 16,
+     "predicted_depth2": "9508",
+     "actual": "5967",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "MIN",
+     "pos": "RB",
+     "leader": "5987",
+     "leader_missed": 16,
+     "predicted_depth2": "8230",
+     "actual": "4199",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CIN",
+     "pos": "RB",
+     "leader": "4018",
+     "leader_missed": 16,
+     "predicted_depth2": "9224",
+     "actual": "9224",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "SF",
+     "pos": "RB",
+     "leader": "4034",
+     "leader_missed": 12,
+     "predicted_depth2": "7561",
+     "actual": "8408",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "NYG",
+     "pos": "RB",
+     "leader": "4866",
+     "leader_missed": 16,
+     "predicted_depth2": "4455",
+     "actual": "11655",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LAC",
+     "pos": "RB",
+     "leader": "4663",
+     "leader_missed": 16,
+     "predicted_depth2": "7045",
+     "actual": "6806",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "PHI",
+     "pos": "RB",
+     "leader": "6790",
+     "leader_missed": 16,
+     "predicted_depth2": "7567",
+     "actual": "4866",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "HOU",
+     "pos": "RB",
+     "leader": "6130",
+     "leader_missed": 16,
+     "predicted_depth2": "8129",
+     "actual": "4018",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "BAL",
+     "pos": "RB",
+     "leader": "5248",
+     "leader_missed": 16,
+     "predicted_depth2": "5995",
+     "actual": "3198",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "DAL",
+     "pos": "RB",
+     "leader": "5967",
+     "leader_missed": 16,
+     "predicted_depth2": "7021",
+     "actual": "7021",
+     "eligible_bodies": 5,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "SEA",
+     "pos": "RB",
+     "leader": "8151",
+     "leader_missed": 5,
+     "predicted_depth2": "9753",
+     "actual": "9753",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "IND",
+     "pos": "RB",
+     "leader": "6845",
+     "leader_missed": 16,
+     "predicted_depth2": "6813",
+     "actual": "6813",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "LAC",
+     "pos": "RB",
+     "leader": "6806",
+     "leader_missed": 16,
+     "predicted_depth2": "5248",
+     "actual": "11647",
+     "eligible_bodies": 8,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "ARI",
+     "pos": "RB",
+     "leader": "4137",
+     "leader_missed": 13,
+     "predicted_depth2": "11589",
+     "actual": "7607",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "NO",
+     "pos": "RB",
+     "leader": "4035",
+     "leader_missed": 5,
+     "predicted_depth2": "4149",
+     "actual": "12476",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "DEN",
+     "pos": "RB",
+     "leader": "7588",
+     "leader_missed": 16,
+     "predicted_depth2": "11439",
+     "actual": "12489",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "DAL",
+     "pos": "RB",
+     "leader": "7021",
+     "leader_missed": 16,
+     "predicted_depth2": "3164",
+     "actual": "7588",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "TB",
+     "pos": "RB",
+     "leader": "11584",
+     "leader_missed": 7,
+     "predicted_depth2": "8136",
+     "actual": "8136",
+     "eligible_bodies": 4,
+     "hit": true
+    }
+   ]
+  },
+  "WR": {
+   "cases": 37,
+   "depth2_hit_rate": {
+    "k": 8,
+    "n": 37,
+    "rate": 0.2162,
+    "ci95": [
+     0.1139,
+     0.372
+    ]
+   },
+   "actual_in_depth_2or3": {
+    "k": 14,
+    "n": 37,
+    "rate": 0.3784,
+    "ci95": [
+     0.2406,
+     0.539
+    ]
+   },
+   "chance_rate_from_eligible_bodies": 0.1542,
+   "identifiable": false,
+   "rule": "prereg 5.2: if the depth-2 hit rate's Wilson interval covers the chance rate, the inheritor is NOT identifiable in advance and the contingent arm is unbuyable at the draft, however large the premium.",
+   "case_list": [
+    {
+     "season": 2023,
+     "team": "JAX",
+     "pos": "WR",
+     "leader": "4950",
+     "leader_missed": 4,
+     "predicted_depth2": "4080",
+     "actual": "4981",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "TEN",
+     "pos": "WR",
+     "leader": "1352",
+     "leader_missed": 16,
+     "predicted_depth2": "7496",
+     "actual": "1426",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "LAC",
+     "pos": "WR",
+     "leader": "7670",
+     "leader_missed": 7,
+     "predicted_depth2": "4068",
+     "actual": "1479",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "MIN",
+     "pos": "WR",
+     "leader": "6794",
+     "leader_missed": 7,
+     "predicted_depth2": "1689",
+     "actual": "9756",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "GB",
+     "pos": "WR",
+     "leader": "5185",
+     "leader_missed": 16,
+     "predicted_depth2": "8121",
+     "actual": "8121",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "LA",
+     "pos": "WR",
+     "leader": "4039",
+     "leader_missed": 4,
+     "predicted_depth2": "7757",
+     "actual": "9493",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "HOU",
+     "pos": "WR",
+     "leader": "2197",
+     "leader_missed": 16,
+     "predicted_depth2": "3269",
+     "actual": "7569",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NE",
+     "pos": "WR",
+     "leader": "5947",
+     "leader_missed": 16,
+     "predicted_depth2": "2325",
+     "actual": "9501",
+     "eligible_bodies": 9,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "BAL",
+     "pos": "WR",
+     "leader": "3286",
+     "leader_missed": 16,
+     "predicted_depth2": "6847",
+     "actual": "9997",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "CAR",
+     "pos": "WR",
+     "leader": "4983",
+     "leader_missed": 16,
+     "predicted_depth2": "7565",
+     "actual": "1689",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "KC",
+     "pos": "WR",
+     "leader": "4040",
+     "leader_missed": 16,
+     "predicted_depth2": "5086",
+     "actual": "10229",
+     "eligible_bodies": 8,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "PIT",
+     "pos": "WR",
+     "leader": "5937",
+     "leader_missed": 4,
+     "predicted_depth2": "8137",
+     "actual": "8137",
+     "eligible_bodies": 5,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "HOU",
+     "pos": "WR",
+     "leader": "7569",
+     "leader_missed": 5,
+     "predicted_depth2": "1352",
+     "actual": "9502",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CAR",
+     "pos": "WR",
+     "leader": "1689",
+     "leader_missed": 7,
+     "predicted_depth2": "10225",
+     "actual": "11626",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "KC",
+     "pos": "WR",
+     "leader": "10229",
+     "leader_missed": 13,
+     "predicted_depth2": "5374",
+     "actual": "11624",
+     "eligible_bodies": 8,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "ARI",
+     "pos": "WR",
+     "leader": "5848",
+     "leader_missed": 16,
+     "predicted_depth2": "7601",
+     "actual": "11628",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LAC",
+     "pos": "WR",
+     "leader": "1479",
+     "leader_missed": 16,
+     "predicted_depth2": "9754",
+     "actual": "11635",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CLE",
+     "pos": "WR",
+     "leader": "2309",
+     "leader_missed": 10,
+     "predicted_depth2": "7596",
+     "actual": "6783",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "TEN",
+     "pos": "WR",
+     "leader": "1426",
+     "leader_missed": 10,
+     "predicted_depth2": "7496",
+     "actual": "4981",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LV",
+     "pos": "WR",
+     "leader": "2133",
+     "leader_missed": 13,
+     "predicted_depth2": "5947",
+     "actual": "5947",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2024,
+     "team": "BUF",
+     "pos": "WR",
+     "leader": "2449",
+     "leader_missed": 16,
+     "predicted_depth2": "6943",
+     "actual": "8134",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "NO",
+     "pos": "WR",
+     "leader": "8144",
+     "leader_missed": 8,
+     "predicted_depth2": "8676",
+     "actual": "5086",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "JAX",
+     "pos": "WR",
+     "leader": "4981",
+     "leader_missed": 16,
+     "predicted_depth2": "4950",
+     "actual": "11631",
+     "eligible_bodies": 8,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "SF",
+     "pos": "WR",
+     "leader": "6803",
+     "leader_missed": 9,
+     "predicted_depth2": "5872",
+     "actual": "7049",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LA",
+     "pos": "WR",
+     "leader": "9493",
+     "leader_missed": 5,
+     "predicted_depth2": "4039",
+     "actual": "7562",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "LV",
+     "pos": "WR",
+     "leader": "5947",
+     "leader_missed": 9,
+     "predicted_depth2": "10213",
+     "actual": "10213",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "GB",
+     "pos": "WR",
+     "leader": "10222",
+     "leader_missed": 11,
+     "predicted_depth2": "8121",
+     "actual": "8121",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "ARI",
+     "pos": "WR",
+     "leader": "11628",
+     "leader_missed": 4,
+     "predicted_depth2": "10232",
+     "actual": "10232",
+     "eligible_bodies": 6,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "DAL",
+     "pos": "WR",
+     "leader": "6786",
+     "leader_missed": 4,
+     "predicted_depth2": "8117",
+     "actual": "8137",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "TB",
+     "pos": "WR",
+     "leader": "2216",
+     "leader_missed": 9,
+     "predicted_depth2": "4037",
+     "actual": "12514",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "NYG",
+     "pos": "WR",
+     "leader": "11632",
+     "leader_missed": 12,
+     "predicted_depth2": "8126",
+     "actual": "8126",
+     "eligible_bodies": 9,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "WAS",
+     "pos": "WR",
+     "leader": "5927",
+     "leader_missed": 7,
+     "predicted_depth2": "6271",
+     "actual": "5872",
+     "eligible_bodies": 8,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "TEN",
+     "pos": "WR",
+     "leader": "4981",
+     "leader_missed": 9,
+     "predicted_depth2": "3225",
+     "actual": "12540",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "MIA",
+     "pos": "WR",
+     "leader": "3321",
+     "leader_missed": 12,
+     "predicted_depth2": "7526",
+     "actual": "7526",
+     "eligible_bodies": 7,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "ATL",
+     "pos": "WR",
+     "leader": "8112",
+     "leader_missed": 5,
+     "predicted_depth2": "7090",
+     "actual": "6154",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "NYJ",
+     "pos": "WR",
+     "leader": "8146",
+     "leader_missed": 9,
+     "predicted_depth2": "2133",
+     "actual": "11625",
+     "eligible_bodies": 7,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "PIT",
+     "pos": "WR",
+     "leader": "8137",
+     "leader_missed": 16,
+     "predicted_depth2": "8125",
+     "actual": "5846",
+     "eligible_bodies": 8,
+     "hit": false
+    }
+   ]
+  },
+  "TE": {
+   "cases": 41,
+   "depth2_hit_rate": {
+    "k": 13,
+    "n": 41,
+    "rate": 0.3171,
+    "ci95": [
+     0.1956,
+     0.4698
+    ]
+   },
+   "actual_in_depth_2or3": {
+    "k": 18,
+    "n": 41,
+    "rate": 0.439,
+    "ci95": [
+     0.2989,
+     0.5896
+    ]
+   },
+   "chance_rate_from_eligible_bodies": 0.3102,
+   "identifiable": false,
+   "rule": "prereg 5.2: if the depth-2 hit rate's Wilson interval covers the chance rate, the inheritor is NOT identifiable in advance and the contingent arm is unbuyable at the draft, however large the premium.",
+   "case_list": [
+    {
+     "season": 2023,
+     "team": "ARI",
+     "pos": "TE",
+     "leader": "1339",
+     "leader_missed": 9,
+     "predicted_depth2": "8130",
+     "actual": "8130",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "LV",
+     "pos": "TE",
+     "leader": "5985",
+     "leader_missed": 16,
+     "predicted_depth2": "2505",
+     "actual": "9482",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "TEN",
+     "pos": "TE",
+     "leader": "3202",
+     "leader_missed": 16,
+     "predicted_depth2": "8210",
+     "actual": "8210",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "DEN",
+     "pos": "TE",
+     "leader": "8172",
+     "leader_missed": 14,
+     "predicted_depth2": "4189",
+     "actual": "6869",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "HOU",
+     "pos": "TE",
+     "leader": "5032",
+     "leader_missed": 16,
+     "predicted_depth2": "7568",
+     "actual": "5001",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "GB",
+     "pos": "TE",
+     "leader": "4602",
+     "leader_missed": 16,
+     "predicted_depth2": "7050",
+     "actual": "9481",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "CIN",
+     "pos": "TE",
+     "leader": "4973",
+     "leader_missed": 16,
+     "predicted_depth2": "6894",
+     "actual": "5409",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "MIA",
+     "pos": "TE",
+     "leader": "4993",
+     "leader_missed": 16,
+     "predicted_depth2": "5008",
+     "actual": "5008",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "CAR",
+     "pos": "TE",
+     "leader": "7694",
+     "leader_missed": 4,
+     "predicted_depth2": "4995",
+     "actual": "4973",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "DAL",
+     "pos": "TE",
+     "leader": "5001",
+     "leader_missed": 16,
+     "predicted_depth2": "8110",
+     "actual": "8110",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "BAL",
+     "pos": "TE",
+     "leader": "5012",
+     "leader_missed": 6,
+     "predicted_depth2": "8131",
+     "actual": "8131",
+     "eligible_bodies": 2,
+     "hit": true
+    },
+    {
+     "season": 2023,
+     "team": "DET",
+     "pos": "TE",
+     "leader": "5844",
+     "leader_missed": 16,
+     "predicted_depth2": "7891",
+     "actual": "10859",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "BUF",
+     "pos": "TE",
+     "leader": "5906",
+     "leader_missed": 7,
+     "predicted_depth2": "7536",
+     "actual": "10236",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "PIT",
+     "pos": "TE",
+     "leader": "7600",
+     "leader_missed": 6,
+     "predicted_depth2": "6018",
+     "actual": "8181",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2023,
+     "team": "NO",
+     "pos": "TE",
+     "leader": "7002",
+     "leader_missed": 4,
+     "predicted_depth2": "6869",
+     "actual": "4381",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LV",
+     "pos": "TE",
+     "leader": "9482",
+     "leader_missed": 6,
+     "predicted_depth2": "3202",
+     "actual": "11604",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LA",
+     "pos": "TE",
+     "leader": "3271",
+     "leader_missed": 14,
+     "predicted_depth2": "10214",
+     "actual": "6865",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CLE",
+     "pos": "TE",
+     "leader": "4033",
+     "leader_missed": 5,
+     "predicted_depth2": "6850",
+     "actual": "5032",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "JAX",
+     "pos": "TE",
+     "leader": "4066",
+     "leader_missed": 7,
+     "predicted_depth2": "7842",
+     "actual": "9480",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "LAC",
+     "pos": "TE",
+     "leader": "4089",
+     "leader_missed": 16,
+     "predicted_depth2": "6074",
+     "actual": "5010",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CAR",
+     "pos": "TE",
+     "leader": "4973",
+     "leader_missed": 16,
+     "predicted_depth2": "7694",
+     "actual": "11600",
+     "eligible_bodies": 6,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "MIA",
+     "pos": "TE",
+     "leader": "5008",
+     "leader_missed": 4,
+     "predicted_depth2": "11371",
+     "actual": "4144",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "PHI",
+     "pos": "TE",
+     "leader": "5022",
+     "leader_missed": 7,
+     "predicted_depth2": "7946",
+     "actual": "8177",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "MIN",
+     "pos": "TE",
+     "leader": "5844",
+     "leader_missed": 7,
+     "predicted_depth2": "5973",
+     "actual": "4314",
+     "eligible_bodies": 2,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "CIN",
+     "pos": "TE",
+     "leader": "5409",
+     "leader_missed": 8,
+     "predicted_depth2": "6126",
+     "actual": "4993",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2024,
+     "team": "GB",
+     "pos": "TE",
+     "leader": "9481",
+     "leader_missed": 10,
+     "predicted_depth2": "9484",
+     "actual": "9484",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "BUF",
+     "pos": "TE",
+     "leader": "10236",
+     "leader_missed": 5,
+     "predicted_depth2": "5906",
+     "actual": "5906",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "DET",
+     "pos": "TE",
+     "leader": "10859",
+     "leader_missed": 7,
+     "predicted_depth2": "7891",
+     "actual": "7891",
+     "eligible_bodies": 5,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "MIA",
+     "pos": "TE",
+     "leader": "4144",
+     "leader_missed": 16,
+     "predicted_depth2": "11371",
+     "actual": "2505",
+     "eligible_bodies": 5,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "CAR",
+     "pos": "TE",
+     "leader": "11600",
+     "leader_missed": 4,
+     "predicted_depth2": "7694",
+     "actual": "7694",
+     "eligible_bodies": 3,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "LV",
+     "pos": "TE",
+     "leader": "11604",
+     "leader_missed": 4,
+     "predicted_depth2": "9482",
+     "actual": "9482",
+     "eligible_bodies": 5,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "CLE",
+     "pos": "TE",
+     "leader": "4033",
+     "leader_missed": 5,
+     "predicted_depth2": "5032",
+     "actual": "12506",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "IND",
+     "pos": "TE",
+     "leader": "7602",
+     "leader_missed": 16,
+     "predicted_depth2": "4054",
+     "actual": "12518",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "JAX",
+     "pos": "TE",
+     "leader": "4066",
+     "leader_missed": 16,
+     "predicted_depth2": "9480",
+     "actual": "9480",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "SF",
+     "pos": "TE",
+     "leader": "4217",
+     "leader_missed": 6,
+     "predicted_depth2": "4189",
+     "actual": "8698",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "LAC",
+     "pos": "TE",
+     "leader": "5010",
+     "leader_missed": 9,
+     "predicted_depth2": "8583",
+     "actual": "12493",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "CIN",
+     "pos": "TE",
+     "leader": "4993",
+     "leader_missed": 5,
+     "predicted_depth2": "11592",
+     "actual": "5857",
+     "eligible_bodies": 3,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "NYJ",
+     "pos": "TE",
+     "leader": "5133",
+     "leader_missed": 16,
+     "predicted_depth2": "8145",
+     "actual": "12498",
+     "eligible_bodies": 4,
+     "hit": false
+    },
+    {
+     "season": 2025,
+     "team": "SEA",
+     "pos": "TE",
+     "leader": "5857",
+     "leader_missed": 16,
+     "predicted_depth2": "11603",
+     "actual": "11603",
+     "eligible_bodies": 4,
+     "hit": true
+    },
+    {
+     "season": 2025,
+     "team": "DEN",
+     "pos": "TE",
+     "leader": "8249",
+     "leader_missed": 14,
+     "predicted_depth2": "6869",
+     "actual": "4066",
+     "eligible_bodies": 4,
+     "hit": false
+    }
+   ]
+  }
+ },
+ "negative_control": {
+  "V_ALL|QB": {
+   "departed_volume_above_him": 0.1584,
+   "PRESENT_volume_above_him": 0.3245,
+   "all_volume_above_him_departure_blind": 0.4121,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_ALL|RB": {
+   "departed_volume_above_him": 0.237,
+   "PRESENT_volume_above_him": 0.1539,
+   "all_volume_above_him_departure_blind": 0.2934,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_ALL|WR": {
+   "departed_volume_above_him": 0.1993,
+   "PRESENT_volume_above_him": 0.1747,
+   "all_volume_above_him_departure_blind": 0.2465,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_ALL|TE": {
+   "departed_volume_above_him": 0.0886,
+   "PRESENT_volume_above_him": 0.203,
+   "all_volume_above_him_departure_blind": 0.2077,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_MOVED|QB": {
+   "departed_volume_above_him": 0.1549,
+   "PRESENT_volume_above_him": 0.3408,
+   "all_volume_above_him_departure_blind": 0.4121,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_MOVED|RB": {
+   "departed_volume_above_him": 0.2054,
+   "PRESENT_volume_above_him": 0.1706,
+   "all_volume_above_him_departure_blind": 0.2934,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_MOVED|WR": {
+   "departed_volume_above_him": 0.1534,
+   "PRESENT_volume_above_him": 0.2039,
+   "all_volume_above_him_departure_blind": 0.2465,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_MOVED|TE": {
+   "departed_volume_above_him": 0.0957,
+   "PRESENT_volume_above_him": 0.1922,
+   "all_volume_above_him_departure_blind": 0.2077,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_INSEASON|QB": {
+   "departed_volume_above_him": 0.0282,
+   "PRESENT_volume_above_him": 0.4214,
+   "all_volume_above_him_departure_blind": 0.4121,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_INSEASON|RB": {
+   "departed_volume_above_him": 0.1152,
+   "PRESENT_volume_above_him": 0.2785,
+   "all_volume_above_him_departure_blind": 0.2934,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_INSEASON|WR": {
+   "departed_volume_above_him": 0.1551,
+   "PRESENT_volume_above_him": 0.2331,
+   "all_volume_above_him_departure_blind": 0.2465,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "V_INSEASON|TE": {
+   "departed_volume_above_him": 0.0801,
+   "PRESENT_volume_above_him": 0.1991,
+   "all_volume_above_him_departure_blind": 0.2077,
+   "departure_blind_matches_or_beats_it": true,
+   "verdict": "VACANCY ADDS NOTHING \u2014 the departure-blind measure predicts at least as well"
+  },
+  "_summary": {
+   "cells_where_departure_blind_wins_or_ties": 12,
+   "cells_measured": 12,
+   "verdict": "THE WORD 'VACATED' DOES NO WORK"
+  }
+ },
+ "r1_team_concentration": {
+  "V_ALL": {
+   "2023": {
+    "distinct_teams_in_top_10": 4,
+    "teams": {
+     "DET": 4,
+     "DEN": 2,
+     "HOU": 1,
+     "TB": 3
+    },
+    "hits": 2
+   },
+   "2024": {
+    "distinct_teams_in_top_10": 5,
+    "teams": {
+     "LAC": 2,
+     "NE": 1,
+     "CIN": 2,
+     "WAS": 2,
+     "GB": 3
+    },
+    "hits": 3
+   },
+   "2025": {
+    "distinct_teams_in_top_10": 4,
+    "teams": {
+     "PIT": 4,
+     "HOU": 2,
+     "CLE": 2,
+     "LAC": 2
+    },
+    "hits": 1
+   }
+  },
+  "V_MOVED": {
+   "2023": {
+    "distinct_teams_in_top_10": 4,
+    "teams": {
+     "DET": 4,
+     "MIN": 2,
+     "DEN": 2,
+     "DAL": 2
+    },
+    "hits": 1
+   },
+   "2024": {
+    "distinct_teams_in_top_10": 7,
+    "teams": {
+     "LAC": 2,
+     "CIN": 2,
+     "NE": 1,
+     "WAS": 2,
+     "LV": 1,
+     "MIN": 1,
+     "TEN": 1
+    },
+    "hits": 3
+   },
+   "2025": {
+    "distinct_teams_in_top_10": 5,
+    "teams": {
+     "PIT": 4,
+     "DEN": 2,
+     "LAC": 2,
+     "DAL": 1,
+     "SF": 1
+    },
+    "hits": 3
+   }
+  }
+ },
+ "graded_cell": {
+  "V_ALL": {
+   "arm": "V_ALL",
+   "quarantined": true,
+   "n": 170,
+   "league_winners": 21,
+   "base_rate": 0.1235,
+   "chance_at_10": 3.71,
+   "chance_at_20": 7.43,
+   "per_season_n": {
+    "2023": 59,
+    "2024": 57,
+    "2025": 54
+   },
+   "rankings": {
+    "R1_vac_opp_share": {
+     "hits_at_10": 6,
+     "hits_at_20": 9,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 3,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -1.086,
+      "ci90": [
+       -5.0,
+       3.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "beats chance, loses to the room \u2014 ships nothing"
+    },
+    "R2_open_above": {
+     "hits_at_10": 4,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 1,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -2.251,
+      "ci90": [
+       -7.0,
+       3.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "beats chance, loses to the room \u2014 ships nothing"
+    },
+    "R3_young_x_open_above": {
+     "hits_at_10": 3,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 1,
+      "2025": 0
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -2.021,
+      "ci90": [
+       -7.0,
+       3.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R5_contingent": {
+     "hits_at_10": 3,
+     "hits_at_20": 4,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 1,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.216,
+      "ci90": [
+       -8.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R4_naive_plus_vacated": {
+     "hits_at_10": 3,
+     "hits_at_20": 8,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -3.585,
+      "ci90": [
+       -9.0,
+       1.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R6_naive_plus_contingent": {
+     "hits_at_10": 2,
+     "hits_at_20": 5,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -5.065,
+      "ci90": [
+       -9.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R7_combined": {
+     "hits_at_10": 3,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -3.981,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "market": {
+     "hits_at_10": 7,
+     "hits_at_20": 9,
+     "per_season_hits_at_10": {
+      "2023": 3,
+      "2024": 2,
+      "2025": 2
+     },
+     "verdict": "reference (the bar itself)"
+    },
+    "naive_prev": {
+     "hits_at_10": 3,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.039,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    }
+   }
+  },
+  "V_MOVED": {
+   "arm": "V_MOVED",
+   "quarantined": true,
+   "n": 170,
+   "league_winners": 21,
+   "base_rate": 0.1235,
+   "chance_at_10": 3.71,
+   "chance_at_20": 7.43,
+   "per_season_n": {
+    "2023": 59,
+    "2024": 57,
+    "2025": 54
+   },
+   "rankings": {
+    "R1_vac_opp_share": {
+     "hits_at_10": 7,
+     "hits_at_20": 12,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 3,
+      "2025": 3
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -0.104,
+      "ci90": [
+       -5.0,
+       4.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "beats chance, loses to the room \u2014 ships nothing"
+    },
+    "R2_open_above": {
+     "hits_at_10": 4,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 1,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -2.102,
+      "ci90": [
+       -7.0,
+       3.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "beats chance, loses to the room \u2014 ships nothing"
+    },
+    "R3_young_x_open_above": {
+     "hits_at_10": 3,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 1,
+      "2025": 0
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -2.021,
+      "ci90": [
+       -7.0,
+       3.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R5_contingent": {
+     "hits_at_10": 3,
+     "hits_at_20": 4,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 1,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.216,
+      "ci90": [
+       -8.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R4_naive_plus_vacated": {
+     "hits_at_10": 3,
+     "hits_at_20": 8,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -3.609,
+      "ci90": [
+       -9.0,
+       1.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R6_naive_plus_contingent": {
+     "hits_at_10": 2,
+     "hits_at_20": 5,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -5.065,
+      "ci90": [
+       -9.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R7_combined": {
+     "hits_at_10": 3,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -3.9,
+      "ci90": [
+       -9.0,
+       1.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "market": {
+     "hits_at_10": 7,
+     "hits_at_20": 9,
+     "per_season_hits_at_10": {
+      "2023": 3,
+      "2024": 2,
+      "2025": 2
+     },
+     "verdict": "reference (the bar itself)"
+    },
+    "naive_prev": {
+     "hits_at_10": 3,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.039,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    }
+   }
+  },
+  "V_INSEASON": {
+   "arm": "V_INSEASON",
+   "quarantined": false,
+   "n": 170,
+   "league_winners": 21,
+   "base_rate": 0.1235,
+   "chance_at_10": 3.71,
+   "chance_at_20": 7.43,
+   "per_season_n": {
+    "2023": 59,
+    "2024": 57,
+    "2025": 54
+   },
+   "rankings": {
+    "R1_vac_opp_share": {
+     "hits_at_10": 2,
+     "hits_at_20": 5,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.644,
+      "ci90": [
+       -9.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R2_open_above": {
+     "hits_at_10": 0,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 0,
+      "2024": 0,
+      "2025": 0
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.191,
+      "ci90": [
+       -8.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R3_young_x_open_above": {
+     "hits_at_10": 1,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 0
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -3.767,
+      "ci90": [
+       -8.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R5_contingent": {
+     "hits_at_10": 4,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 1,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -2.264,
+      "ci90": [
+       -7.0,
+       2.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "beats chance, loses to the room \u2014 ships nothing"
+    },
+    "R4_naive_plus_vacated": {
+     "hits_at_10": 1,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 0
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.877,
+      "ci90": [
+       -9.0,
+       -1.0
+      ],
+      "excludes_zero": true
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R6_naive_plus_contingent": {
+     "hits_at_10": 2,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 1,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.034,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "R7_combined": {
+     "hits_at_10": 3,
+     "hits_at_20": 7,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.111,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    },
+    "market": {
+     "hits_at_10": 7,
+     "hits_at_20": 9,
+     "per_season_hits_at_10": {
+      "2023": 3,
+      "2024": 2,
+      "2025": 2
+     },
+     "verdict": "reference (the bar itself)"
+    },
+    "naive_prev": {
+     "hits_at_10": 3,
+     "hits_at_20": 6,
+     "per_season_hits_at_10": {
+      "2023": 2,
+      "2024": 0,
+      "2025": 1
+     },
+     "vs_market": {
+      "status": "measured",
+      "mean_diff": -4.039,
+      "ci90": [
+       -9.0,
+       0.0
+      ],
+      "excludes_zero": false
+     },
+     "verdict": "NULL \u2014 does not beat chance"
+    }
+   }
+  }
+ },
+ "rookie_cell": {
+  "arm": "V_ALL",
+  "n": 37,
+  "league_winners": 5,
+  "per_season_n": {
+   "2023": 10,
+   "2024": 13,
+   "2025": 14
+  },
+  "per_season_winners": {
+   "2023": 0,
+   "2024": 4,
+   "2025": 1
+  },
+  "base_rate": 0.1351,
+  "winner_names": [
+   "Jayden Daniels",
+   "Brock Bowers",
+   "Brian Thomas",
+   "Ladd McConkey",
+   "Tetairoa McMillan"
+  ],
+  "predeclared": "UNDERPOWERED \u2014 no result here can be a FINDING",
+  "rankings": {
+   "capital": {
+    "hits_at_5": 4,
+    "hits_at_10": 5
+   },
+   "vacancy": {
+    "hits_at_5": 3,
+    "hits_at_10": 4
+   },
+   "capital_x_vacancy": {
+    "hits_at_5": 4,
+    "hits_at_10": 5
+   },
+   "market": {
+    "hits_at_5": 2,
+    "hits_at_10": 4
+   }
+  },
+  "chance_at_5": 1.9,
+  "chance_at_10": 3.79
+ },
+ "bar": {
+  "cell": "pick >= 61 in the league's own 2023/24/25 drafts",
+  "chance_at_10": 3.71,
+  "market_at_10": 7,
+  "tiered_model_expected_points_at_10": 5,
+  "tiered_model_p_league_winner_at_10": 3,
+  "rule": "FINDING requires hits@10 > 7 AND a paired season-clustered bootstrap CI against the market excluding zero (prereg 6.2)"
+ }
+}

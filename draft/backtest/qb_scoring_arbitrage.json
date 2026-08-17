@@ -1,0 +1,7144 @@
+{
+ "_territory": "A",
+ "_what": "the 6-point-passing-TD gap taken through replacement to a pick number",
+ "market_overrides": {
+  "pass_td": 4,
+  "pass_int": -1
+ },
+ "board_built_at": "2026-08-15T17:52:22Z",
+ "headline_gap_top12": 43.67,
+ "raw_gaps_measured": [
+  {
+   "player_id": "4984",
+   "name": "Josh Allen",
+   "pass_td": 27.0,
+   "pass_int": 10.0,
+   "gap": 44.0,
+   "gap_via_shipped_scorer": 44.0
+  },
+  {
+   "player_id": "7523",
+   "name": "Trevor Lawrence",
+   "pass_td": 26.0,
+   "pass_int": 12.0,
+   "gap": 40.0,
+   "gap_via_shipped_scorer": 40.0
+  }
+ ],
+ "replacement_qb": {
+  "replacement_points": 341.72,
+  "qb_on_the_line": "Jayden Daniels",
+  "qb_on_the_line_proj": 341.72,
+  "nearest_qb": "Trevor Lawrence",
+  "nearest_qb_id": "7523",
+  "nearest_proj_mean": 343.42,
+  "distance_points": 1.7,
+  "restricted_to_measured_raw_rows": true
+ },
+ "gap_at_replacement": 40.0,
+ "survives_replacement": [
+  {
+   "player_id": "4984",
+   "name": "Josh Allen",
+   "pass_td": 27.0,
+   "pass_int": 10.0,
+   "gap": 44.0,
+   "gap_via_shipped_scorer": 44.0,
+   "dvorp": 4.0
+  },
+  {
+   "player_id": "7523",
+   "name": "Trevor Lawrence",
+   "pass_td": 26.0,
+   "pass_int": 12.0,
+   "gap": 40.0,
+   "gap_via_shipped_scorer": 40.0,
+   "dvorp": 0.0
+  }
+ ],
+ "naive_slots_raw_gap_as_vorp": [
+  {
+   "player_id": "4984",
+   "name": "Josh Allen",
+   "adp": 20.67,
+   "proj_mean": 405.5,
+   "vorp": 63.78,
+   "rank_before": 16,
+   "rank_after": 4,
+   "slots_earlier": 12,
+   "rounds_earlier": 1.2
+  },
+  {
+   "player_id": "4881",
+   "name": "Lamar Jackson",
+   "adp": 37.67,
+   "proj_mean": 372.0,
+   "vorp": 30.28,
+   "rank_before": 34,
+   "rank_after": 12,
+   "slots_earlier": 22,
+   "rounds_earlier": 2.2
+  },
+  {
+   "player_id": "11564",
+   "name": "Drake Maye",
+   "adp": 52.33,
+   "proj_mean": 367.76,
+   "vorp": 26.04,
+   "rank_before": 40,
+   "rank_after": 16,
+   "slots_earlier": 24,
+   "rounds_earlier": 2.4
+  },
+  {
+   "player_id": "6770",
+   "name": "Joe Burrow",
+   "adp": 51.67,
+   "proj_mean": 362.12,
+   "vorp": 20.4,
+   "rank_before": 48,
+   "rank_after": 19,
+   "slots_earlier": 29,
+   "rounds_earlier": 2.9
+  },
+  {
+   "player_id": "3294",
+   "name": "Dak Prescott",
+   "adp": 81.0,
+   "proj_mean": 352.88,
+   "vorp": 11.16,
+   "rank_before": 58,
+   "rank_after": 25,
+   "slots_earlier": 33,
+   "rounds_earlier": 3.3
+  },
+  {
+   "player_id": "8183",
+   "name": "Brock Purdy",
+   "adp": 106.67,
+   "proj_mean": 350.2,
+   "vorp": 8.48,
+   "rank_before": 60,
+   "rank_after": 26,
+   "slots_earlier": 34,
+   "rounds_earlier": 3.4
+  },
+  {
+   "player_id": "11560",
+   "name": "Caleb Williams",
+   "adp": 75.33,
+   "proj_mean": 345.34,
+   "vorp": 3.62,
+   "rank_before": 73,
+   "rank_after": 28,
+   "slots_earlier": 45,
+   "rounds_earlier": 4.5
+  },
+  {
+   "player_id": "6904",
+   "name": "Jalen Hurts",
+   "adp": 62.0,
+   "proj_mean": 344.54,
+   "vorp": 2.82,
+   "rank_before": 75,
+   "rank_after": 29,
+   "slots_earlier": 46,
+   "rounds_earlier": 4.6
+  },
+  {
+   "player_id": "7523",
+   "name": "Trevor Lawrence",
+   "adp": 85.67,
+   "proj_mean": 343.42,
+   "vorp": 1.7,
+   "rank_before": 77,
+   "rank_after": 30,
+   "slots_earlier": 47,
+   "rounds_earlier": 4.7
+  },
+  {
+   "player_id": "11566",
+   "name": "Jayden Daniels",
+   "adp": 59.33,
+   "proj_mean": 341.72,
+   "vorp": 0.0,
+   "rank_before": 84,
+   "rank_after": 32,
+   "slots_earlier": 52,
+   "rounds_earlier": 5.2
+  },
+  {
+   "player_id": "6797",
+   "name": "Justin Herbert",
+   "adp": 78.33,
+   "proj_mean": 337.48,
+   "vorp": -4.24,
+   "rank_before": 100,
+   "rank_after": 34,
+   "slots_earlier": 66,
+   "rounds_earlier": 6.6
+  },
+  {
+   "player_id": "11563",
+   "name": "Bo Nix",
+   "adp": 107.0,
+   "proj_mean": 335.72,
+   "vorp": -6.0,
+   "rank_before": 109,
+   "rank_after": 37,
+   "slots_earlier": 72,
+   "rounds_earlier": 7.2
+  }
+ ],
+ "honest_slots_dvorp": [
+  {
+   "player_id": "4984",
+   "name": "Josh Allen",
+   "adp": 20.67,
+   "proj_mean": 405.5,
+   "vorp": 63.78,
+   "rank_before": 16,
+   "rank_after": 14,
+   "slots_earlier": 2,
+   "rounds_earlier": 0.2
+  },
+  {
+   "player_id": "4881",
+   "name": "Lamar Jackson",
+   "adp": 37.67,
+   "proj_mean": 372.0,
+   "vorp": 30.28,
+   "rank_before": 34,
+   "rank_after": 29,
+   "slots_earlier": 5,
+   "rounds_earlier": 0.5
+  },
+  {
+   "player_id": "11564",
+   "name": "Drake Maye",
+   "adp": 52.33,
+   "proj_mean": 367.76,
+   "vorp": 26.04,
+   "rank_before": 40,
+   "rank_after": 35,
+   "slots_earlier": 5,
+   "rounds_earlier": 0.5
+  },
+  {
+   "player_id": "6770",
+   "name": "Joe Burrow",
+   "adp": 51.67,
+   "proj_mean": 362.12,
+   "vorp": 20.4,
+   "rank_before": 48,
+   "rank_after": 43,
+   "slots_earlier": 5,
+   "rounds_earlier": 0.5
+  },
+  {
+   "player_id": "3294",
+   "name": "Dak Prescott",
+   "adp": 81.0,
+   "proj_mean": 352.88,
+   "vorp": 11.16,
+   "rank_before": 58,
+   "rank_after": 51,
+   "slots_earlier": 7,
+   "rounds_earlier": 0.7
+  },
+  {
+   "player_id": "8183",
+   "name": "Brock Purdy",
+   "adp": 106.67,
+   "proj_mean": 350.2,
+   "vorp": 8.48,
+   "rank_before": 60,
+   "rank_after": 57,
+   "slots_earlier": 3,
+   "rounds_earlier": 0.3
+  },
+  {
+   "player_id": "11560",
+   "name": "Caleb Williams",
+   "adp": 75.33,
+   "proj_mean": 345.34,
+   "vorp": 3.62,
+   "rank_before": 73,
+   "rank_after": 62,
+   "slots_earlier": 11,
+   "rounds_earlier": 1.1
+  },
+  {
+   "player_id": "6904",
+   "name": "Jalen Hurts",
+   "adp": 62.0,
+   "proj_mean": 344.54,
+   "vorp": 2.82,
+   "rank_before": 75,
+   "rank_after": 68,
+   "slots_earlier": 7,
+   "rounds_earlier": 0.7
+  },
+  {
+   "player_id": "7523",
+   "name": "Trevor Lawrence",
+   "adp": 85.67,
+   "proj_mean": 343.42,
+   "vorp": 1.7,
+   "rank_before": 77,
+   "rank_after": 70,
+   "slots_earlier": 7,
+   "rounds_earlier": 0.7
+  },
+  {
+   "player_id": "11566",
+   "name": "Jayden Daniels",
+   "adp": 59.33,
+   "proj_mean": 341.72,
+   "vorp": 0.0,
+   "rank_before": 84,
+   "rank_after": 76,
+   "slots_earlier": 8,
+   "rounds_earlier": 0.8
+  },
+  {
+   "player_id": "6797",
+   "name": "Justin Herbert",
+   "adp": 78.33,
+   "proj_mean": 337.48,
+   "vorp": -4.24,
+   "rank_before": 100,
+   "rank_after": 94,
+   "slots_earlier": 6,
+   "rounds_earlier": 0.6
+  },
+  {
+   "player_id": "11563",
+   "name": "Bo Nix",
+   "adp": 107.0,
+   "proj_mean": 335.72,
+   "vorp": -6.0,
+   "rank_before": 109,
+   "rank_after": 96,
+   "slots_earlier": 13,
+   "rounds_earlier": 1.3
+  }
+ ],
+ "dvorp_sensitivity_to_replacement_gap": [
+  {
+   "gap_at_replacement": 24.0,
+   "implied_replacement_pass_td_if_10_int": 17.0,
+   "dvorp_qb1": 20.0,
+   "qb1_slots_earlier": 7,
+   "qb1_rounds_earlier": 0.7
+  },
+  {
+   "gap_at_replacement": 28.0,
+   "implied_replacement_pass_td_if_10_int": 19.0,
+   "dvorp_qb1": 16.0,
+   "qb1_slots_earlier": 6,
+   "qb1_rounds_earlier": 0.6
+  },
+  {
+   "gap_at_replacement": 32.0,
+   "implied_replacement_pass_td_if_10_int": 21.0,
+   "dvorp_qb1": 12.0,
+   "qb1_slots_earlier": 5,
+   "qb1_rounds_earlier": 0.5
+  },
+  {
+   "gap_at_replacement": 36.0,
+   "implied_replacement_pass_td_if_10_int": 23.0,
+   "dvorp_qb1": 8.0,
+   "qb1_slots_earlier": 3,
+   "qb1_rounds_earlier": 0.3
+  },
+  {
+   "gap_at_replacement": 40.0,
+   "implied_replacement_pass_td_if_10_int": 25.0,
+   "dvorp_qb1": 4.0,
+   "qb1_slots_earlier": 2,
+   "qb1_rounds_earlier": 0.2
+  },
+  {
+   "gap_at_replacement": 44.0,
+   "implied_replacement_pass_td_if_10_int": 27.0,
+   "dvorp_qb1": 0.0,
+   "qb1_slots_earlier": 0,
+   "qb1_rounds_earlier": 0.0
+  }
+ ],
+ "breakeven_one_round": [
+  {
+   "name": "Josh Allen",
+   "pos_rank": 1,
+   "adp": 20.67,
+   "proj_mean": 405.5,
+   "vorp": 63.78,
+   "overall_rank": 16,
+   "dvorp_needed_for_one_round": 33.37,
+   "pass_td_edge_needed_over_replacement": 16.7
+  },
+  {
+   "name": "Lamar Jackson",
+   "pos_rank": 2,
+   "adp": 37.67,
+   "proj_mean": 372.0,
+   "vorp": 30.28,
+   "overall_rank": 34,
+   "dvorp_needed_for_one_round": 12.36,
+   "pass_td_edge_needed_over_replacement": 6.2
+  },
+  {
+   "name": "Drake Maye",
+   "pos_rank": 3,
+   "adp": 52.33,
+   "proj_mean": 367.76,
+   "vorp": 26.04,
+   "overall_rank": 40,
+   "dvorp_needed_for_one_round": 7.56,
+   "pass_td_edge_needed_over_replacement": 3.8
+  },
+  {
+   "name": "Joe Burrow",
+   "pos_rank": 4,
+   "adp": 51.67,
+   "proj_mean": 362.12,
+   "vorp": 20.4,
+   "overall_rank": 48,
+   "dvorp_needed_for_one_round": 6.81,
+   "pass_td_edge_needed_over_replacement": 3.4
+  },
+  {
+   "name": "Dak Prescott",
+   "pos_rank": 5,
+   "adp": 81.0,
+   "proj_mean": 352.88,
+   "vorp": 11.16,
+   "overall_rank": 58,
+   "dvorp_needed_for_one_round": 9.51,
+   "pass_td_edge_needed_over_replacement": 4.8
+  },
+  {
+   "name": "Brock Purdy",
+   "pos_rank": 6,
+   "adp": 106.67,
+   "proj_mean": 350.2,
+   "vorp": 8.48,
+   "overall_rank": 60,
+   "dvorp_needed_for_one_round": 10.51,
+   "pass_td_edge_needed_over_replacement": 5.3
+  },
+  {
+   "name": "Caleb Williams",
+   "pos_rank": 7,
+   "adp": 75.33,
+   "proj_mean": 345.34,
+   "vorp": 3.62,
+   "overall_rank": 73,
+   "dvorp_needed_for_one_round": 3.84,
+   "pass_td_edge_needed_over_replacement": 1.9
+  },
+  {
+   "name": "Jalen Hurts",
+   "pos_rank": 8,
+   "adp": 62.0,
+   "proj_mean": 344.54,
+   "vorp": 2.82,
+   "overall_rank": 75,
+   "dvorp_needed_for_one_round": 4.63,
+   "pass_td_edge_needed_over_replacement": 2.3
+  },
+  {
+   "name": "Trevor Lawrence",
+   "pos_rank": 9,
+   "adp": 85.67,
+   "proj_mean": 343.42,
+   "vorp": 1.7,
+   "overall_rank": 77,
+   "dvorp_needed_for_one_round": 5.31,
+   "pass_td_edge_needed_over_replacement": 2.7
+  },
+  {
+   "name": "Jayden Daniels",
+   "pos_rank": 10,
+   "adp": 59.33,
+   "proj_mean": 341.72,
+   "vorp": 0.0,
+   "overall_rank": 84,
+   "dvorp_needed_for_one_round": 4.92,
+   "pass_td_edge_needed_over_replacement": 2.5
+  },
+  {
+   "name": "Justin Herbert",
+   "pos_rank": 11,
+   "adp": 78.33,
+   "proj_mean": 337.48,
+   "vorp": -4.24,
+   "overall_rank": 100,
+   "dvorp_needed_for_one_round": 4.25,
+   "pass_td_edge_needed_over_replacement": 2.1
+  },
+  {
+   "name": "Bo Nix",
+   "pos_rank": 12,
+   "adp": 107.0,
+   "proj_mean": 335.72,
+   "vorp": -6.0,
+   "overall_rank": 109,
+   "dvorp_needed_for_one_round": 2.01,
+   "pass_td_edge_needed_over_replacement": 1.0
+  }
+ ],
+ "historical": {
+  "primary": [
+   {
+    "season": 2023,
+    "n": 127,
+    "unmatched_as_zero": false,
+    "excluded_counted": {
+     "keeper": 0,
+     "no_position": 3,
+     "not_graded_position": 20,
+     "no_realized_row": 0
+    },
+    "realized_replacement": {
+     "QB": 330.06,
+     "WR": 167.9,
+     "TE": 129.02,
+     "RB": 177.2
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": -18.45,
+      "lo": -70.92,
+      "hi": 30.89,
+      "n": 17
+     },
+     "RB": {
+      "mean": -9.09,
+      "lo": -29.97,
+      "hi": 10.03,
+      "n": 46
+     },
+     "WR": {
+      "mean": 6.72,
+      "lo": -7.87,
+      "hi": 21.92,
+      "n": 51
+     },
+     "TE": {
+      "mean": 29.93,
+      "lo": 4.24,
+      "hi": 55.17,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 1,
+      "points": 134.9,
+      "vorp": -33.0,
+      "fitted": 55.6,
+      "residual": -88.6
+     },
+     {
+      "player_id": "6813",
+      "position": "RB",
+      "pick_no": 2,
+      "points": 146.9,
+      "vorp": -30.3,
+      "fitted": 55.6,
+      "residual": -85.9
+     },
+     {
+      "player_id": "4034",
+      "position": "RB",
+      "pick_no": 3,
+      "points": 357.8,
+      "vorp": 180.6,
+      "fitted": 55.6,
+      "residual": 125.0
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 4,
+      "points": 159.9,
+      "vorp": -17.3,
+      "fitted": 55.6,
+      "residual": -72.9
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 6,
+      "points": 220.3,
+      "vorp": 52.4,
+      "fitted": 55.6,
+      "residual": -3.2
+     },
+     {
+      "player_id": "4866",
+      "position": "RB",
+      "pick_no": 7,
+      "points": 202.7,
+      "vorp": 25.5,
+      "fitted": 55.6,
+      "residual": -30.1
+     },
+     {
+      "player_id": "1466",
+      "position": "TE",
+      "pick_no": 8,
+      "points": 172.9,
+      "vorp": 43.88,
+      "fitted": 55.6,
+      "residual": -11.72
+     },
+     {
+      "player_id": "3321",
+      "position": "WR",
+      "pick_no": 9,
+      "points": 316.9,
+      "vorp": 149.0,
+      "fitted": 55.6,
+      "residual": 93.4
+     },
+     {
+      "player_id": "6794",
+      "position": "WR",
+      "pick_no": 10,
+      "points": 170.2,
+      "vorp": 2.3,
+      "fitted": 55.6,
+      "residual": -53.3
+     },
+     {
+      "player_id": "6786",
+      "position": "WR",
+      "pick_no": 12,
+      "points": 337.7,
+      "vorp": 169.8,
+      "fitted": 55.6,
+      "residual": 114.2
+     },
+     {
+      "player_id": "5859",
+      "position": "WR",
+      "pick_no": 13,
+      "points": 236.6,
+      "vorp": 68.7,
+      "fitted": 55.6,
+      "residual": 13.1
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 14,
+      "points": 112.9,
+      "vorp": -16.12,
+      "fitted": 14.33,
+      "residual": -30.45
+     },
+     {
+      "player_id": "4046",
+      "position": "QB",
+      "pick_no": 15,
+      "points": 334.22,
+      "vorp": 4.16,
+      "fitted": 14.33,
+      "residual": -10.17
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 16,
+      "points": 162.6,
+      "vorp": -5.3,
+      "fitted": 14.33,
+      "residual": -19.63
+     },
+     {
+      "player_id": "5850",
+      "position": "RB",
+      "pick_no": 17,
+      "points": 162.6,
+      "vorp": -14.6,
+      "fitted": 14.33,
+      "residual": -28.93
+     },
+     {
+      "player_id": "7547",
+      "position": "WR",
+      "pick_no": 18,
+      "points": 271.4,
+      "vorp": 103.5,
+      "fitted": 14.33,
+      "residual": 89.17
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 19,
+      "points": 116.6,
+      "vorp": -51.3,
+      "fitted": 13.79,
+      "residual": -65.09
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 20,
+      "points": 402.82,
+      "vorp": 72.76,
+      "fitted": 13.79,
+      "residual": 58.97
+     },
+     {
+      "player_id": "8144",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 187.8,
+      "vorp": 19.9,
+      "fitted": 13.79,
+      "residual": 6.11
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 22,
+      "points": 177.16,
+      "vorp": -152.9,
+      "fitted": 7.5,
+      "residual": -160.4
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 23,
+      "points": 195.1,
+      "vorp": 17.9,
+      "fitted": 7.5,
+      "residual": 10.4
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 24,
+      "points": 126.7,
+      "vorp": -50.5,
+      "fitted": 7.5,
+      "residual": -58.0
+     },
+     {
+      "player_id": "4988",
+      "position": "RB",
+      "pick_no": 25,
+      "points": 21.1,
+      "vorp": -156.1,
+      "fitted": 7.5,
+      "residual": -163.6
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 26,
+      "points": 213.9,
+      "vorp": 46.0,
+      "fitted": 7.5,
+      "residual": 38.5
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 27,
+      "points": 187.1,
+      "vorp": 19.2,
+      "fitted": 7.5,
+      "residual": 11.7
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 28,
+      "points": 213.7,
+      "vorp": 45.8,
+      "fitted": 7.5,
+      "residual": 38.3
+     },
+     {
+      "player_id": "8146",
+      "position": "WR",
+      "pick_no": 29,
+      "points": 165.7,
+      "vorp": -2.2,
+      "fitted": 7.5,
+      "residual": -9.7
+     },
+     {
+      "player_id": "8155",
+      "position": "RB",
+      "pick_no": 30,
+      "points": 252.5,
+      "vorp": 75.3,
+      "fitted": 7.5,
+      "residual": 67.8
+     },
+     {
+      "player_id": "9509",
+      "position": "RB",
+      "pick_no": 31,
+      "points": 217.3,
+      "vorp": 40.1,
+      "fitted": 7.5,
+      "residual": 32.6
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 32,
+      "points": 181.0,
+      "vorp": 3.8,
+      "fitted": 7.5,
+      "residual": -3.7
+     },
+     {
+      "player_id": "4984",
+      "position": "QB",
+      "pick_no": 33,
+      "points": 452.64,
+      "vorp": 122.58,
+      "fitted": 7.5,
+      "residual": 115.08
+     },
+     {
+      "player_id": "9221",
+      "position": "RB",
+      "pick_no": 34,
+      "points": 216.1,
+      "vorp": 38.9,
+      "fitted": 7.5,
+      "residual": 31.4
+     },
+     {
+      "player_id": "7591",
+      "position": "QB",
+      "pick_no": 35,
+      "points": 262.18,
+      "vorp": -67.88,
+      "fitted": 7.5,
+      "residual": -75.38
+     },
+     {
+      "player_id": "4018",
+      "position": "RB",
+      "pick_no": 36,
+      "points": 241.0,
+      "vorp": 63.8,
+      "fitted": 7.5,
+      "residual": 56.3
+     },
+     {
+      "player_id": "7543",
+      "position": "RB",
+      "pick_no": 37,
+      "points": 253.4,
+      "vorp": 76.2,
+      "fitted": 7.5,
+      "residual": 68.7
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 38,
+      "points": 119.9,
+      "vorp": -57.3,
+      "fitted": -2.96,
+      "residual": -54.34
+     },
+     {
+      "player_id": "8129",
+      "position": "RB",
+      "pick_no": 39,
+      "points": 70.2,
+      "vorp": -107.0,
+      "fitted": -2.96,
+      "residual": -104.04
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 40,
+      "points": 379.22,
+      "vorp": 49.16,
+      "fitted": -2.96,
+      "residual": 52.12
+     },
+     {
+      "player_id": "6151",
+      "position": "RB",
+      "pick_no": 42,
+      "points": 74.1,
+      "vorp": -103.1,
+      "fitted": -2.96,
+      "residual": -100.14
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 43,
+      "points": 192.4,
+      "vorp": 24.5,
+      "fitted": -2.96,
+      "residual": 27.46
+     },
+     {
+      "player_id": "1479",
+      "position": "WR",
+      "pick_no": 44,
+      "points": 226.86,
+      "vorp": 58.96,
+      "fitted": -2.96,
+      "residual": 61.92
+     },
+     {
+      "player_id": "5844",
+      "position": "TE",
+      "pick_no": 45,
+      "points": 171.5,
+      "vorp": 42.48,
+      "fitted": -2.96,
+      "residual": 45.44
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 46,
+      "points": 170.7,
+      "vorp": 41.68,
+      "fitted": -2.96,
+      "residual": 44.64
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 47,
+      "points": 191.9,
+      "vorp": 24.0,
+      "fitted": -2.96,
+      "residual": 26.96
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 48,
+      "points": 10.7,
+      "vorp": -166.5,
+      "fitted": -21.97,
+      "residual": -144.53
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 238.5,
+      "vorp": 70.6,
+      "fitted": -21.97,
+      "residual": 92.57
+     },
+     {
+      "player_id": "1426",
+      "position": "WR",
+      "pick_no": 50,
+      "points": 186.1,
+      "vorp": 18.2,
+      "fitted": -21.97,
+      "residual": 40.17
+     },
+     {
+      "player_id": "5987",
+      "position": "RB",
+      "pick_no": 51,
+      "points": 118.2,
+      "vorp": -59.0,
+      "fitted": -21.97,
+      "residual": -37.03
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 52,
+      "points": 110.8,
+      "vorp": -18.22,
+      "fitted": -21.97,
+      "residual": 3.75
+     },
+     {
+      "player_id": "2309",
+      "position": "WR",
+      "pick_no": 53,
+      "points": 191.0,
+      "vorp": 23.1,
+      "fitted": -21.97,
+      "residual": 45.07
+     },
+     {
+      "player_id": "2505",
+      "position": "TE",
+      "pick_no": 54,
+      "points": 87.2,
+      "vorp": -41.82,
+      "fitted": -29.01,
+      "residual": -12.81
+     },
+     {
+      "player_id": "6797",
+      "position": "QB",
+      "pick_no": 55,
+      "points": 273.66,
+      "vorp": -56.4,
+      "fitted": -29.01,
+      "residual": -27.39
+     },
+     {
+      "player_id": "6783",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 114.8,
+      "vorp": -53.1,
+      "fitted": -29.01,
+      "residual": -24.09
+     },
+     {
+      "player_id": "7523",
+      "position": "QB",
+      "pick_no": 57,
+      "points": 304.54,
+      "vorp": -25.52,
+      "fitted": -29.01,
+      "residual": 3.49
+     },
+     {
+      "player_id": "6938",
+      "position": "RB",
+      "pick_no": 58,
+      "points": 41.2,
+      "vorp": -136.0,
+      "fitted": -29.01,
+      "residual": -106.99
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 59,
+      "points": 139.88,
+      "vorp": -28.02,
+      "fitted": -29.01,
+      "residual": 0.99
+     },
+     {
+      "player_id": "4017",
+      "position": "QB",
+      "pick_no": 60,
+      "points": 100.8,
+      "vorp": -229.26,
+      "fitted": -29.01,
+      "residual": -200.25
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 61,
+      "points": 195.5,
+      "vorp": 18.3,
+      "fitted": -29.01,
+      "residual": 47.31
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 62,
+      "points": 106.8,
+      "vorp": -22.22,
+      "fitted": -29.01,
+      "residual": 6.79
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 63,
+      "points": 163.7,
+      "vorp": -4.2,
+      "fitted": -29.01,
+      "residual": 24.81
+     },
+     {
+      "player_id": "8167",
+      "position": "WR",
+      "pick_no": 64,
+      "points": 87.3,
+      "vorp": -80.6,
+      "fitted": -29.01,
+      "residual": -51.59
+     },
+     {
+      "player_id": "4068",
+      "position": "WR",
+      "pick_no": 65,
+      "points": 40.7,
+      "vorp": -127.2,
+      "fitted": -29.01,
+      "residual": -98.19
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 66,
+      "points": 210.7,
+      "vorp": 33.5,
+      "fitted": -29.01,
+      "residual": 62.51
+     },
+     {
+      "player_id": "6803",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 211.7,
+      "vorp": 43.8,
+      "fitted": -29.01,
+      "residual": 72.81
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 68,
+      "points": 188.0,
+      "vorp": 10.8,
+      "fitted": -29.01,
+      "residual": 39.81
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 69,
+      "points": 191.9,
+      "vorp": 14.7,
+      "fitted": -29.01,
+      "residual": 43.71
+     },
+     {
+      "player_id": "7600",
+      "position": "TE",
+      "pick_no": 70,
+      "points": 60.8,
+      "vorp": -68.22,
+      "fitted": -29.01,
+      "residual": -39.21
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 71,
+      "points": 167.7,
+      "vorp": -0.2,
+      "fitted": -29.01,
+      "residual": 28.81
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 72,
+      "points": 179.8,
+      "vorp": 2.6,
+      "fitted": -29.01,
+      "residual": 31.61
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 173.3,
+      "vorp": 44.28,
+      "fitted": -29.01,
+      "residual": 73.29
+     },
+     {
+      "player_id": "4029",
+      "position": "RB",
+      "pick_no": 74,
+      "points": 32.7,
+      "vorp": -144.5,
+      "fitted": -29.01,
+      "residual": -115.49
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 75,
+      "points": 155.7,
+      "vorp": -21.5,
+      "fitted": -29.01,
+      "residual": 7.51
+     },
+     {
+      "player_id": "2216",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 243.0,
+      "vorp": 75.1,
+      "fitted": -29.01,
+      "residual": 104.11
+     },
+     {
+      "player_id": "2374",
+      "position": "WR",
+      "pick_no": 77,
+      "points": 162.9,
+      "vorp": -5.0,
+      "fitted": -29.01,
+      "residual": 24.01
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 78,
+      "points": 186.3,
+      "vorp": 18.4,
+      "fitted": -29.01,
+      "residual": 47.41
+     },
+     {
+      "player_id": "6828",
+      "position": "RB",
+      "pick_no": 79,
+      "points": 106.6,
+      "vorp": -70.6,
+      "fitted": -29.01,
+      "residual": -41.59
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 197.7,
+      "vorp": 29.8,
+      "fitted": -29.01,
+      "residual": 58.81
+     },
+     {
+      "player_id": "8119",
+      "position": "WR",
+      "pick_no": 81,
+      "points": 100.3,
+      "vorp": -67.6,
+      "fitted": -29.01,
+      "residual": -38.59
+     },
+     {
+      "player_id": "4950",
+      "position": "WR",
+      "pick_no": 82,
+      "points": 121.76,
+      "vorp": -46.14,
+      "fitted": -29.01,
+      "residual": -17.13
+     },
+     {
+      "player_id": "8136",
+      "position": "RB",
+      "pick_no": 83,
+      "points": 235.9,
+      "vorp": 58.7,
+      "fitted": -29.01,
+      "residual": 87.71
+     },
+     {
+      "player_id": "5848",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 109.2,
+      "vorp": -58.7,
+      "fitted": -29.01,
+      "residual": -29.69
+     },
+     {
+      "player_id": "7606",
+      "position": "WR",
+      "pick_no": 85,
+      "points": 39.5,
+      "vorp": -128.4,
+      "fitted": -29.01,
+      "residual": -99.39
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 199.2,
+      "vorp": 22.0,
+      "fitted": -29.01,
+      "residual": 51.01
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 87,
+      "points": 118.3,
+      "vorp": -49.6,
+      "fitted": -29.01,
+      "residual": -20.59
+     },
+     {
+      "player_id": "5937",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 127.2,
+      "vorp": -40.7,
+      "fitted": -29.01,
+      "residual": -11.69
+     },
+     {
+      "player_id": "2197",
+      "position": "WR",
+      "pick_no": 89,
+      "points": 146.2,
+      "vorp": -21.7,
+      "fitted": -29.01,
+      "residual": 7.31
+     },
+     {
+      "player_id": "5086",
+      "position": "WR",
+      "pick_no": 90,
+      "points": 46.0,
+      "vorp": -121.9,
+      "fitted": -29.01,
+      "residual": -92.89
+     },
+     {
+      "player_id": "5185",
+      "position": "WR",
+      "pick_no": 91,
+      "points": 48.6,
+      "vorp": -119.3,
+      "fitted": -29.01,
+      "residual": -90.29
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 92,
+      "points": 167.9,
+      "vorp": 0.0,
+      "fitted": -29.01,
+      "residual": 29.01
+     },
+     {
+      "player_id": "10236",
+      "position": "TE",
+      "pick_no": 93,
+      "points": 113.8,
+      "vorp": -15.22,
+      "fitted": -29.01,
+      "residual": 13.79
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 95,
+      "points": 177.3,
+      "vorp": 9.4,
+      "fitted": -29.01,
+      "residual": 38.41
+     },
+     {
+      "player_id": "6945",
+      "position": "RB",
+      "pick_no": 96,
+      "points": 103.4,
+      "vorp": -73.8,
+      "fitted": -29.01,
+      "residual": -44.79
+     },
+     {
+      "player_id": "7608",
+      "position": "RB",
+      "pick_no": 97,
+      "points": 102.5,
+      "vorp": -74.7,
+      "fitted": -29.01,
+      "residual": -45.69
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 98,
+      "points": 180.1,
+      "vorp": 2.9,
+      "fitted": -29.01,
+      "residual": 31.91
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 99,
+      "points": 414.84,
+      "vorp": 84.78,
+      "fitted": -29.01,
+      "residual": 113.79
+     },
+     {
+      "player_id": "9226",
+      "position": "RB",
+      "pick_no": 100,
+      "points": 177.2,
+      "vorp": 0.0,
+      "fitted": -29.01,
+      "residual": 29.01
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 101,
+      "points": 160.7,
+      "vorp": -7.2,
+      "fitted": -29.01,
+      "residual": 21.81
+     },
+     {
+      "player_id": "2749",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 255.2,
+      "vorp": 78.0,
+      "fitted": -29.01,
+      "residual": 107.01
+     },
+     {
+      "player_id": "4040",
+      "position": "WR",
+      "pick_no": 105,
+      "points": 46.5,
+      "vorp": -121.4,
+      "fitted": -60.87,
+      "residual": -60.53
+     },
+     {
+      "player_id": "9754",
+      "position": "WR",
+      "pick_no": 106,
+      "points": 75.0,
+      "vorp": -92.9,
+      "fitted": -60.87,
+      "residual": -32.03
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 107,
+      "points": 160.7,
+      "vorp": 31.68,
+      "fitted": -60.87,
+      "residual": 92.55
+     },
+     {
+      "player_id": "4149",
+      "position": "RB",
+      "pick_no": 108,
+      "points": 51.8,
+      "vorp": -125.4,
+      "fitted": -97.71,
+      "residual": -27.69
+     },
+     {
+      "player_id": "2161",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 73.86,
+      "vorp": -103.34,
+      "fitted": -97.71,
+      "residual": -5.63
+     },
+     {
+      "player_id": "2078",
+      "position": "WR",
+      "pick_no": 111,
+      "points": 90.0,
+      "vorp": -77.9,
+      "fitted": -97.71,
+      "residual": 19.81
+     },
+     {
+      "player_id": "96",
+      "position": "QB",
+      "pick_no": 112,
+      "points": 0.0,
+      "vorp": -330.06,
+      "fitted": -97.71,
+      "residual": -232.35
+     },
+     {
+      "player_id": "6943",
+      "position": "WR",
+      "pick_no": 113,
+      "points": 138.9,
+      "vorp": -29.0,
+      "fitted": -97.71,
+      "residual": 68.71
+     },
+     {
+      "player_id": "3199",
+      "position": "WR",
+      "pick_no": 114,
+      "points": 70.3,
+      "vorp": -97.6,
+      "fitted": -97.71,
+      "residual": 0.11
+     },
+     {
+      "player_id": "4147",
+      "position": "RB",
+      "pick_no": 115,
+      "points": 96.3,
+      "vorp": -80.9,
+      "fitted": -97.71,
+      "residual": 16.81
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 116,
+      "points": 89.6,
+      "vorp": -87.6,
+      "fitted": -97.71,
+      "residual": 10.11
+     },
+     {
+      "player_id": "9229",
+      "position": "QB",
+      "pick_no": 117,
+      "points": 78.68,
+      "vorp": -251.38,
+      "fitted": -97.71,
+      "residual": -153.67
+     },
+     {
+      "player_id": "1373",
+      "position": "QB",
+      "pick_no": 118,
+      "points": 266.76,
+      "vorp": -63.3,
+      "fitted": -97.71,
+      "residual": 34.41
+     },
+     {
+      "player_id": "4985",
+      "position": "RB",
+      "pick_no": 122,
+      "points": 4.3,
+      "vorp": -172.9,
+      "fitted": -97.71,
+      "residual": -75.19
+     },
+     {
+      "player_id": "9225",
+      "position": "RB",
+      "pick_no": 123,
+      "points": 24.3,
+      "vorp": -152.9,
+      "fitted": -97.71,
+      "residual": -55.19
+     },
+     {
+      "player_id": "8132",
+      "position": "RB",
+      "pick_no": 124,
+      "points": 128.6,
+      "vorp": -48.6,
+      "fitted": -97.71,
+      "residual": 49.11
+     },
+     {
+      "player_id": "5890",
+      "position": "RB",
+      "pick_no": 125,
+      "points": 18.0,
+      "vorp": -159.2,
+      "fitted": -97.71,
+      "residual": -61.49
+     },
+     {
+      "player_id": "6826",
+      "position": "TE",
+      "pick_no": 132,
+      "points": 144.6,
+      "vorp": 15.58,
+      "fitted": -97.71,
+      "residual": 113.29
+     },
+     {
+      "player_id": "7561",
+      "position": "RB",
+      "pick_no": 134,
+      "points": 44.5,
+      "vorp": -132.7,
+      "fitted": -97.71,
+      "residual": -34.99
+     },
+     {
+      "player_id": "8168",
+      "position": "WR",
+      "pick_no": 135,
+      "points": 43.2,
+      "vorp": -124.7,
+      "fitted": -97.71,
+      "residual": -26.99
+     },
+     {
+      "player_id": "3164",
+      "position": "RB",
+      "pick_no": 139,
+      "points": 149.0,
+      "vorp": -28.2,
+      "fitted": -97.71,
+      "residual": 69.51
+     },
+     {
+      "player_id": "6768",
+      "position": "QB",
+      "pick_no": 140,
+      "points": 330.36,
+      "vorp": 0.3,
+      "fitted": -97.71,
+      "residual": 98.01
+     },
+     {
+      "player_id": "7567",
+      "position": "RB",
+      "pick_no": 141,
+      "points": 82.38,
+      "vorp": -94.82,
+      "fitted": -97.71,
+      "residual": 2.89
+     },
+     {
+      "player_id": "5001",
+      "position": "TE",
+      "pick_no": 142,
+      "points": 121.0,
+      "vorp": -8.02,
+      "fitted": -97.71,
+      "residual": 89.69
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 143,
+      "points": 68.3,
+      "vorp": -99.6,
+      "fitted": -97.71,
+      "residual": -1.89
+     },
+     {
+      "player_id": "1166",
+      "position": "QB",
+      "pick_no": 147,
+      "points": 185.74,
+      "vorp": -144.32,
+      "fitted": -97.71,
+      "residual": -46.61
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 148,
+      "points": 349.1,
+      "vorp": 19.04,
+      "fitted": -97.71,
+      "residual": 116.75
+     },
+     {
+      "player_id": "7596",
+      "position": "WR",
+      "pick_no": 149,
+      "points": 102.6,
+      "vorp": -65.3,
+      "fitted": -97.71,
+      "residual": 32.41
+     },
+     {
+      "player_id": "9228",
+      "position": "QB",
+      "pick_no": 150,
+      "points": 178.38,
+      "vorp": -151.68,
+      "fitted": -151.68,
+      "residual": 0.0
+     }
+    ]
+   },
+   {
+    "season": 2024,
+    "n": 106,
+    "unmatched_as_zero": false,
+    "excluded_counted": {
+     "keeper": 23,
+     "no_position": 2,
+     "not_graded_position": 19,
+     "no_realized_row": 0
+    },
+    "realized_replacement": {
+     "QB": 339.24,
+     "RB": 174.1,
+     "WR": 167.1,
+     "TE": 135.8
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": 8.6,
+      "lo": -45.49,
+      "hi": 57.39,
+      "n": 14
+     },
+     "RB": {
+      "mean": -9.68,
+      "lo": -29.88,
+      "hi": 11.4,
+      "n": 35
+     },
+     "WR": {
+      "mean": 0.12,
+      "lo": -15.13,
+      "hi": 16.42,
+      "n": 44
+     },
+     "TE": {
+      "mean": 16.39,
+      "lo": -7.5,
+      "hi": 40.38,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "5850",
+      "position": "RB",
+      "pick_no": 1,
+      "points": 275.1,
+      "vorp": 101.0,
+      "fitted": 101.0,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11628",
+      "position": "WR",
+      "pick_no": 15,
+      "points": 165.5,
+      "vorp": -1.6,
+      "fitted": 6.86,
+      "residual": -8.46
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 20,
+      "points": 50.9,
+      "vorp": -123.2,
+      "fitted": 6.86,
+      "residual": -130.06
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 130.1,
+      "vorp": -37.0,
+      "fitted": 6.86,
+      "residual": -43.86
+     },
+     {
+      "player_id": "7569",
+      "position": "WR",
+      "pick_no": 22,
+      "points": 176.6,
+      "vorp": 9.5,
+      "fitted": 6.86,
+      "residual": 2.64
+     },
+     {
+      "player_id": "8136",
+      "position": "RB",
+      "pick_no": 23,
+      "points": 174.1,
+      "vorp": 0.0,
+      "fitted": 6.86,
+      "residual": -6.86
+     },
+     {
+      "player_id": "10859",
+      "position": "TE",
+      "pick_no": 31,
+      "points": 144.6,
+      "vorp": 8.8,
+      "fitted": 6.86,
+      "residual": 1.94
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 32,
+      "points": 120.6,
+      "vorp": -46.5,
+      "fitted": 6.86,
+      "residual": -53.36
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 33,
+      "points": 250.7,
+      "vorp": 76.6,
+      "fitted": 6.86,
+      "residual": 69.74
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 35,
+      "points": 230.8,
+      "vorp": 63.7,
+      "fitted": 6.86,
+      "residual": 56.84
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 36,
+      "points": 198.8,
+      "vorp": 31.7,
+      "fitted": 6.86,
+      "residual": 24.84
+     },
+     {
+      "player_id": "6803",
+      "position": "WR",
+      "pick_no": 37,
+      "points": 49.9,
+      "vorp": -117.2,
+      "fitted": 6.86,
+      "residual": -124.06
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 38,
+      "points": 205.72,
+      "vorp": 31.62,
+      "fitted": 6.86,
+      "residual": 24.76
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 39,
+      "points": 189.1,
+      "vorp": 22.0,
+      "fitted": 6.86,
+      "residual": 15.14
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 40,
+      "points": 231.3,
+      "vorp": 57.2,
+      "fitted": 6.86,
+      "residual": 50.34
+     },
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 41,
+      "points": 141.5,
+      "vorp": -25.6,
+      "fitted": 6.86,
+      "residual": -32.46
+     },
+     {
+      "player_id": "8130",
+      "position": "TE",
+      "pick_no": 42,
+      "points": 188.3,
+      "vorp": 52.5,
+      "fitted": 6.86,
+      "residual": 45.64
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 43,
+      "points": 98.42,
+      "vorp": -68.68,
+      "fitted": 6.86,
+      "residual": -75.54
+     },
+     {
+      "player_id": "10236",
+      "position": "TE",
+      "pick_no": 44,
+      "points": 78.8,
+      "vorp": -57.0,
+      "fitted": 6.86,
+      "residual": -63.86
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 45,
+      "points": 161.3,
+      "vorp": 25.5,
+      "fitted": 6.86,
+      "residual": 18.64
+     },
+     {
+      "player_id": "11632",
+      "position": "WR",
+      "pick_no": 46,
+      "points": 219.1,
+      "vorp": 52.0,
+      "fitted": 6.86,
+      "residual": 45.14
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 47,
+      "points": 351.12,
+      "vorp": 11.88,
+      "fitted": 6.86,
+      "residual": 5.02
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 48,
+      "points": 512.38,
+      "vorp": 173.14,
+      "fitted": 6.86,
+      "residual": 166.28
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 185.6,
+      "vorp": 18.5,
+      "fitted": 6.86,
+      "residual": 11.64
+     },
+     {
+      "player_id": "9758",
+      "position": "QB",
+      "pick_no": 50,
+      "points": 260.38,
+      "vorp": -78.86,
+      "fitted": -4.8,
+      "residual": -74.06
+     },
+     {
+      "player_id": "2309",
+      "position": "WR",
+      "pick_no": 51,
+      "points": 100.7,
+      "vorp": -66.4,
+      "fitted": -4.8,
+      "residual": -61.6
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 52,
+      "points": 230.3,
+      "vorp": 56.2,
+      "fitted": -4.8,
+      "residual": 61.0
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 53,
+      "points": 172.5,
+      "vorp": 5.4,
+      "fitted": -4.8,
+      "residual": 10.2
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 54,
+      "points": 131.3,
+      "vorp": -35.8,
+      "fitted": -4.8,
+      "residual": -31.0
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 55,
+      "points": 159.4,
+      "vorp": -14.7,
+      "fitted": -4.8,
+      "residual": -9.9
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 158.2,
+      "vorp": -8.9,
+      "fitted": -4.8,
+      "residual": -4.1
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 57,
+      "points": 193.5,
+      "vorp": 19.4,
+      "fitted": -4.8,
+      "residual": 24.2
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 58,
+      "points": 216.1,
+      "vorp": 42.0,
+      "fitted": -4.8,
+      "residual": 46.8
+     },
+     {
+      "player_id": "9229",
+      "position": "QB",
+      "pick_no": 59,
+      "points": 178.86,
+      "vorp": -160.38,
+      "fitted": -4.8,
+      "residual": -155.58
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 60,
+      "points": 197.6,
+      "vorp": 61.8,
+      "fitted": -4.8,
+      "residual": 66.6
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 61,
+      "points": 458.82,
+      "vorp": 119.58,
+      "fitted": -4.8,
+      "residual": 124.38
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 62,
+      "points": 165.4,
+      "vorp": -1.7,
+      "fitted": -4.8,
+      "residual": 3.1
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 63,
+      "points": 138.52,
+      "vorp": -200.72,
+      "fitted": -28.6,
+      "residual": -172.12
+     },
+     {
+      "player_id": "9502",
+      "position": "WR",
+      "pick_no": 64,
+      "points": 114.5,
+      "vorp": -52.6,
+      "fitted": -28.6,
+      "residual": -24.0
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 65,
+      "points": 186.6,
+      "vorp": 12.5,
+      "fitted": -28.6,
+      "residual": 41.1
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 66,
+      "points": 107.7,
+      "vorp": -28.1,
+      "fitted": -28.6,
+      "residual": 0.5
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 226.8,
+      "vorp": 59.7,
+      "fitted": -28.6,
+      "residual": 88.3
+     },
+     {
+      "player_id": "10229",
+      "position": "WR",
+      "pick_no": 68,
+      "points": 52.9,
+      "vorp": -114.2,
+      "fitted": -28.6,
+      "residual": -85.6
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 69,
+      "points": 66.0,
+      "vorp": -69.8,
+      "fitted": -28.6,
+      "residual": -41.2
+     },
+     {
+      "player_id": "1479",
+      "position": "WR",
+      "pick_no": 70,
+      "points": 149.4,
+      "vorp": -17.7,
+      "fitted": -28.6,
+      "residual": 10.9
+     },
+     {
+      "player_id": "11624",
+      "position": "WR",
+      "pick_no": 71,
+      "points": 157.7,
+      "vorp": -9.4,
+      "fitted": -28.6,
+      "residual": 19.2
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 72,
+      "points": 180.2,
+      "vorp": 6.1,
+      "fitted": -28.6,
+      "residual": 34.7
+     },
+     {
+      "player_id": "11604",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 206.7,
+      "vorp": 70.9,
+      "fitted": -28.6,
+      "residual": 99.5
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 74,
+      "points": 167.2,
+      "vorp": 0.1,
+      "fitted": -28.6,
+      "residual": 28.7
+     },
+     {
+      "player_id": "11583",
+      "position": "RB",
+      "pick_no": 75,
+      "points": 6.0,
+      "vorp": -168.1,
+      "fitted": -47.5,
+      "residual": -120.6
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 134.9,
+      "vorp": -32.2,
+      "fitted": -47.5,
+      "residual": 15.3
+     },
+     {
+      "player_id": "2749",
+      "position": "RB",
+      "pick_no": 77,
+      "points": 61.4,
+      "vorp": -112.7,
+      "fitted": -47.5,
+      "residual": -65.2
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 78,
+      "points": 116.5,
+      "vorp": -19.3,
+      "fitted": -47.5,
+      "residual": 28.2
+     },
+     {
+      "player_id": "4950",
+      "position": "WR",
+      "pick_no": 79,
+      "points": 57.4,
+      "vorp": -109.7,
+      "fitted": -47.5,
+      "residual": -62.2
+     },
+     {
+      "player_id": "11620",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 117.9,
+      "vorp": -49.2,
+      "fitted": -47.5,
+      "residual": -1.7
+     },
+     {
+      "player_id": "8228",
+      "position": "RB",
+      "pick_no": 82,
+      "points": 105.1,
+      "vorp": -69.0,
+      "fitted": -47.5,
+      "residual": -21.5
+     },
+     {
+      "player_id": "8139",
+      "position": "RB",
+      "pick_no": 83,
+      "points": 26.3,
+      "vorp": -147.8,
+      "fitted": -47.5,
+      "residual": -100.3
+     },
+     {
+      "player_id": "10222",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 169.5,
+      "vorp": 2.4,
+      "fitted": -47.5,
+      "residual": 49.9
+     },
+     {
+      "player_id": "5849",
+      "position": "QB",
+      "pick_no": 85,
+      "points": 339.24,
+      "vorp": 0.0,
+      "fitted": -47.5,
+      "residual": 47.5
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 131.9,
+      "vorp": -42.2,
+      "fitted": -47.5,
+      "residual": 5.3
+     },
+     {
+      "player_id": "4988",
+      "position": "RB",
+      "pick_no": 87,
+      "points": 60.8,
+      "vorp": -113.3,
+      "fitted": -47.5,
+      "residual": -65.8
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 112.8,
+      "vorp": -54.3,
+      "fitted": -47.5,
+      "residual": -6.8
+     },
+     {
+      "player_id": "6845",
+      "position": "RB",
+      "pick_no": 89,
+      "points": 70.4,
+      "vorp": -103.7,
+      "fitted": -47.5,
+      "residual": -56.2
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 90,
+      "points": 114.8,
+      "vorp": -59.3,
+      "fitted": -47.5,
+      "residual": -11.8
+     },
+     {
+      "player_id": "6130",
+      "position": "RB",
+      "pick_no": 91,
+      "points": 86.1,
+      "vorp": -88.0,
+      "fitted": -47.5,
+      "residual": -40.5
+     },
+     {
+      "player_id": "5848",
+      "position": "WR",
+      "pick_no": 92,
+      "points": 13.6,
+      "vorp": -153.5,
+      "fitted": -47.5,
+      "residual": -106.0
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 93,
+      "points": 149.8,
+      "vorp": -24.3,
+      "fitted": -47.5,
+      "residual": 23.2
+     },
+     {
+      "player_id": "11589",
+      "position": "RB",
+      "pick_no": 94,
+      "points": 44.0,
+      "vorp": -130.1,
+      "fitted": -47.5,
+      "residual": -82.6
+     },
+     {
+      "player_id": "9224",
+      "position": "RB",
+      "pick_no": 95,
+      "points": 228.0,
+      "vorp": 53.9,
+      "fitted": -47.5,
+      "residual": 101.4
+     },
+     {
+      "player_id": "8167",
+      "position": "WR",
+      "pick_no": 96,
+      "points": 90.8,
+      "vorp": -76.3,
+      "fitted": -47.5,
+      "residual": -28.8
+     },
+     {
+      "player_id": "11635",
+      "position": "WR",
+      "pick_no": 97,
+      "points": 199.9,
+      "vorp": 32.8,
+      "fitted": -47.5,
+      "residual": 80.3
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 98,
+      "points": 181.0,
+      "vorp": 13.9,
+      "fitted": -47.5,
+      "residual": 61.4
+     },
+     {
+      "player_id": "8143",
+      "position": "RB",
+      "pick_no": 99,
+      "points": 115.5,
+      "vorp": -58.6,
+      "fitted": -47.5,
+      "residual": -11.1
+     },
+     {
+      "player_id": "11637",
+      "position": "WR",
+      "pick_no": 100,
+      "points": 97.0,
+      "vorp": -70.1,
+      "fitted": -47.5,
+      "residual": -22.6
+     },
+     {
+      "player_id": "5248",
+      "position": "RB",
+      "pick_no": 101,
+      "points": 62.6,
+      "vorp": -111.5,
+      "fitted": -47.5,
+      "residual": -64.0
+     },
+     {
+      "player_id": "6804",
+      "position": "QB",
+      "pick_no": 102,
+      "points": 283.86,
+      "vorp": -55.38,
+      "fitted": -47.5,
+      "residual": -7.88
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 162.7,
+      "vorp": -11.4,
+      "fitted": -47.5,
+      "residual": 36.1
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 105,
+      "points": 175.8,
+      "vorp": 1.7,
+      "fitted": -47.5,
+      "residual": 49.2
+     },
+     {
+      "player_id": "11560",
+      "position": "QB",
+      "pick_no": 106,
+      "points": 294.54,
+      "vorp": -44.7,
+      "fitted": -47.5,
+      "residual": 2.8
+     },
+     {
+      "player_id": "11631",
+      "position": "WR",
+      "pick_no": 107,
+      "points": 240.5,
+      "vorp": 73.4,
+      "fitted": -47.5,
+      "residual": 120.9
+     },
+     {
+      "player_id": "8110",
+      "position": "TE",
+      "pick_no": 109,
+      "points": 74.9,
+      "vorp": -60.9,
+      "fitted": -47.5,
+      "residual": -13.4
+     },
+     {
+      "player_id": "11586",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 30.0,
+      "vorp": -144.1,
+      "fitted": -47.5,
+      "residual": -96.6
+     },
+     {
+      "player_id": "1426",
+      "position": "WR",
+      "pick_no": 112,
+      "points": 119.0,
+      "vorp": -48.1,
+      "fitted": -47.5,
+      "residual": -0.6
+     },
+     {
+      "player_id": "9508",
+      "position": "RB",
+      "pick_no": 113,
+      "points": 98.6,
+      "vorp": -75.5,
+      "fitted": -47.5,
+      "residual": -28.0
+     },
+     {
+      "player_id": "7594",
+      "position": "RB",
+      "pick_no": 114,
+      "points": 220.1,
+      "vorp": 46.0,
+      "fitted": -47.5,
+      "residual": 93.5
+     },
+     {
+      "player_id": "11566",
+      "position": "QB",
+      "pick_no": 115,
+      "points": 405.82,
+      "vorp": 66.58,
+      "fitted": -47.5,
+      "residual": 114.08
+     },
+     {
+      "player_id": "6768",
+      "position": "QB",
+      "pick_no": 116,
+      "points": 219.58,
+      "vorp": -119.66,
+      "fitted": -47.5,
+      "residual": -72.16
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 117,
+      "points": 397.96,
+      "vorp": 58.72,
+      "fitted": -47.5,
+      "residual": 106.22
+     },
+     {
+      "player_id": "8183",
+      "position": "QB",
+      "pick_no": 118,
+      "points": 306.86,
+      "vorp": -32.38,
+      "fitted": -47.5,
+      "residual": 15.12
+     },
+     {
+      "player_id": "5001",
+      "position": "TE",
+      "pick_no": 119,
+      "points": 91.7,
+      "vorp": -44.1,
+      "fitted": -47.5,
+      "residual": 3.4
+     },
+     {
+      "player_id": "3164",
+      "position": "RB",
+      "pick_no": 120,
+      "points": 51.5,
+      "vorp": -122.6,
+      "fitted": -47.5,
+      "residual": -75.1
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 126,
+      "points": 203.0,
+      "vorp": 35.9,
+      "fitted": -47.5,
+      "residual": 83.4
+     },
+     {
+      "player_id": "7021",
+      "position": "RB",
+      "pick_no": 128,
+      "points": 178.3,
+      "vorp": 4.2,
+      "fitted": -47.5,
+      "residual": 51.7
+     },
+     {
+      "player_id": "5937",
+      "position": "WR",
+      "pick_no": 130,
+      "points": 72.6,
+      "vorp": -94.5,
+      "fitted": -47.5,
+      "residual": -47.0
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 131,
+      "points": 201.8,
+      "vorp": 34.7,
+      "fitted": -47.5,
+      "residual": 82.2
+     },
+     {
+      "player_id": "8134",
+      "position": "WR",
+      "pick_no": 132,
+      "points": 144.5,
+      "vorp": -22.6,
+      "fitted": -47.5,
+      "residual": 24.9
+     },
+     {
+      "player_id": "11627",
+      "position": "WR",
+      "pick_no": 133,
+      "points": 53.1,
+      "vorp": -114.0,
+      "fitted": -47.5,
+      "residual": -66.5
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 138,
+      "points": 183.2,
+      "vorp": 16.1,
+      "fitted": -47.5,
+      "residual": 63.6
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 140,
+      "points": 82.6,
+      "vorp": -53.2,
+      "fitted": -47.5,
+      "residual": -5.7
+     },
+     {
+      "player_id": "96",
+      "position": "QB",
+      "pick_no": 141,
+      "points": 312.58,
+      "vorp": -26.66,
+      "fitted": -47.5,
+      "residual": 20.84
+     },
+     {
+      "player_id": "1689",
+      "position": "WR",
+      "pick_no": 142,
+      "points": 115.5,
+      "vorp": -51.6,
+      "fitted": -51.6,
+      "residual": 0.0
+     },
+     {
+      "player_id": "8121",
+      "position": "WR",
+      "pick_no": 143,
+      "points": 109.1,
+      "vorp": -58.0,
+      "fitted": -58.0,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11625",
+      "position": "WR",
+      "pick_no": 144,
+      "points": 42.26,
+      "vorp": -124.84,
+      "fitted": -117.78,
+      "residual": -7.06
+     },
+     {
+      "player_id": "7608",
+      "position": "RB",
+      "pick_no": 145,
+      "points": 26.5,
+      "vorp": -147.6,
+      "fitted": -117.78,
+      "residual": -29.82
+     },
+     {
+      "player_id": "11582",
+      "position": "RB",
+      "pick_no": 147,
+      "points": 20.4,
+      "vorp": -153.7,
+      "fitted": -117.78,
+      "residual": -35.92
+     },
+     {
+      "player_id": "4381",
+      "position": "TE",
+      "pick_no": 148,
+      "points": 90.84,
+      "vorp": -44.96,
+      "fitted": -117.78,
+      "residual": 72.81
+     }
+    ]
+   },
+   {
+    "season": 2025,
+    "n": 106,
+    "unmatched_as_zero": false,
+    "excluded_counted": {
+     "keeper": 20,
+     "no_position": 2,
+     "not_graded_position": 21,
+     "no_realized_row": 1
+    },
+    "realized_replacement": {
+     "RB": 154.8,
+     "TE": 141.4,
+     "QB": 336.88,
+     "WR": 157.7
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": -24.4,
+      "lo": -75.85,
+      "hi": 23.97,
+      "n": 14
+     },
+     "RB": {
+      "mean": -3.29,
+      "lo": -23.15,
+      "hi": 15.33,
+      "n": 36
+     },
+     "WR": {
+      "mean": 5.53,
+      "lo": -9.94,
+      "hi": 20.76,
+      "n": 43
+     },
+     "TE": {
+      "mean": 17.09,
+      "lo": -6.74,
+      "hi": 43.0,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "12527",
+      "position": "RB",
+      "pick_no": 8,
+      "points": 217.6,
+      "vorp": 62.8,
+      "fitted": 93.3,
+      "residual": -30.5
+     },
+     {
+      "player_id": "8150",
+      "position": "RB",
+      "pick_no": 11,
+      "points": 245.3,
+      "vorp": 90.5,
+      "fitted": 93.3,
+      "residual": -2.8
+     },
+     {
+      "player_id": "9224",
+      "position": "RB",
+      "pick_no": 13,
+      "points": 243.8,
+      "vorp": 89.0,
+      "fitted": 93.3,
+      "residual": -4.3
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 16,
+      "points": 285.7,
+      "vorp": 130.9,
+      "fitted": 93.3,
+      "residual": 37.6
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 165.9,
+      "vorp": 8.2,
+      "fitted": 8.2,
+      "residual": 0.0
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 23,
+      "points": 254.86,
+      "vorp": -82.02,
+      "fitted": -21.03,
+      "residual": -60.99
+     },
+     {
+      "player_id": "5859",
+      "position": "WR",
+      "pick_no": 25,
+      "points": 181.3,
+      "vorp": 23.6,
+      "fitted": -21.03,
+      "residual": 44.63
+     },
+     {
+      "player_id": "11635",
+      "position": "WR",
+      "pick_no": 28,
+      "points": 147.9,
+      "vorp": -9.8,
+      "fitted": -21.03,
+      "residual": 11.23
+     },
+     {
+      "player_id": "12507",
+      "position": "RB",
+      "pick_no": 29,
+      "points": 119.7,
+      "vorp": -35.1,
+      "fitted": -21.03,
+      "residual": -14.07
+     },
+     {
+      "player_id": "3321",
+      "position": "WR",
+      "pick_no": 30,
+      "points": 43.0,
+      "vorp": -114.7,
+      "fitted": -21.03,
+      "residual": -93.67
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 31,
+      "points": 84.2,
+      "vorp": -70.6,
+      "fitted": -21.03,
+      "residual": -49.57
+     },
+     {
+      "player_id": "8155",
+      "position": "RB",
+      "pick_no": 32,
+      "points": 191.66,
+      "vorp": 36.86,
+      "fitted": -21.03,
+      "residual": 57.89
+     },
+     {
+      "player_id": "2216",
+      "position": "WR",
+      "pick_no": 33,
+      "points": 69.8,
+      "vorp": -87.9,
+      "fitted": -21.03,
+      "residual": -66.87
+     },
+     {
+      "player_id": "11628",
+      "position": "WR",
+      "pick_no": 34,
+      "points": 105.3,
+      "vorp": -52.4,
+      "fitted": -21.03,
+      "residual": -31.37
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 35,
+      "points": 180.1,
+      "vorp": 22.4,
+      "fitted": -21.03,
+      "residual": 43.43
+     },
+     {
+      "player_id": "7594",
+      "position": "RB",
+      "pick_no": 36,
+      "points": 110.4,
+      "vorp": -44.4,
+      "fitted": -21.03,
+      "residual": -23.37
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 37,
+      "points": 133.0,
+      "vorp": -8.4,
+      "fitted": -21.03,
+      "residual": 12.63
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 38,
+      "points": 157.7,
+      "vorp": 0.0,
+      "fitted": -21.03,
+      "residual": 21.03
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 39,
+      "points": 95.2,
+      "vorp": -62.5,
+      "fitted": -21.03,
+      "residual": -41.47
+     },
+     {
+      "player_id": "8146",
+      "position": "WR",
+      "pick_no": 40,
+      "points": 81.5,
+      "vorp": -76.2,
+      "fitted": -21.03,
+      "residual": -55.17
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 41,
+      "points": 192.9,
+      "vorp": 35.2,
+      "fitted": -21.03,
+      "residual": 56.23
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 42,
+      "points": 145.68,
+      "vorp": -12.02,
+      "fitted": -21.03,
+      "residual": 9.01
+     },
+     {
+      "player_id": "12489",
+      "position": "RB",
+      "pick_no": 43,
+      "points": 183.1,
+      "vorp": 28.3,
+      "fitted": -21.03,
+      "residual": 49.33
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 44,
+      "points": 168.46,
+      "vorp": -168.42,
+      "fitted": -21.03,
+      "residual": -147.39
+     },
+     {
+      "player_id": "11566",
+      "position": "QB",
+      "pick_no": 45,
+      "points": 128.28,
+      "vorp": -208.6,
+      "fitted": -21.03,
+      "residual": -187.57
+     },
+     {
+      "player_id": "10859",
+      "position": "TE",
+      "pick_no": 46,
+      "points": 86.9,
+      "vorp": -54.5,
+      "fitted": -21.03,
+      "residual": -33.47
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 47,
+      "points": 300.4,
+      "vorp": 142.7,
+      "fitted": -21.03,
+      "residual": 163.73
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 48,
+      "points": 29.3,
+      "vorp": -125.5,
+      "fitted": -21.03,
+      "residual": -104.47
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 180.7,
+      "vorp": 23.0,
+      "fitted": -21.03,
+      "residual": 44.03
+     },
+     {
+      "player_id": "4046",
+      "position": "QB",
+      "pick_no": 50,
+      "points": 325.18,
+      "vorp": -11.7,
+      "fitted": -21.03,
+      "residual": 9.33
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 51,
+      "points": 200.3,
+      "vorp": 42.6,
+      "fitted": -21.03,
+      "residual": 63.63
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 52,
+      "points": 351.06,
+      "vorp": 14.18,
+      "fitted": -21.03,
+      "residual": 35.21
+     },
+     {
+      "player_id": "4892",
+      "position": "QB",
+      "pick_no": 53,
+      "points": 319.92,
+      "vorp": -16.96,
+      "fitted": -21.03,
+      "residual": 4.07
+     },
+     {
+      "player_id": "12529",
+      "position": "RB",
+      "pick_no": 54,
+      "points": 188.7,
+      "vorp": 33.9,
+      "fitted": -21.03,
+      "residual": 54.93
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 55,
+      "points": 154.92,
+      "vorp": 0.12,
+      "fitted": -21.03,
+      "residual": 21.15
+     },
+     {
+      "player_id": "10229",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 121.6,
+      "vorp": -36.1,
+      "fitted": -21.03,
+      "residual": -15.07
+     },
+     {
+      "player_id": "1466",
+      "position": "TE",
+      "pick_no": 58,
+      "points": 153.2,
+      "vorp": 11.8,
+      "fitted": -21.03,
+      "residual": 32.83
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 59,
+      "points": 210.7,
+      "vorp": 55.9,
+      "fitted": -21.03,
+      "residual": 76.93
+     },
+     {
+      "player_id": "11624",
+      "position": "WR",
+      "pick_no": 60,
+      "points": 88.9,
+      "vorp": -68.8,
+      "fitted": -21.03,
+      "residual": -47.77
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 61,
+      "points": 77.8,
+      "vorp": -77.0,
+      "fitted": -21.03,
+      "residual": -55.97
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 62,
+      "points": 163.3,
+      "vorp": 5.6,
+      "fitted": -21.03,
+      "residual": 26.63
+     },
+     {
+      "player_id": "12504",
+      "position": "RB",
+      "pick_no": 63,
+      "points": 8.3,
+      "vorp": -146.5,
+      "fitted": -21.03,
+      "residual": -125.47
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 65,
+      "points": 107.0,
+      "vorp": -34.4,
+      "fitted": -21.03,
+      "residual": -13.37
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 66,
+      "points": 243.4,
+      "vorp": 85.7,
+      "fitted": -21.03,
+      "residual": 106.73
+     },
+     {
+      "player_id": "12526",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 176.3,
+      "vorp": 18.6,
+      "fitted": -21.03,
+      "residual": 39.63
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 69,
+      "points": 186.6,
+      "vorp": 28.9,
+      "fitted": -21.03,
+      "residual": 49.93
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 70,
+      "points": 169.3,
+      "vorp": 14.5,
+      "fitted": -21.03,
+      "residual": 35.53
+     },
+     {
+      "player_id": "5844",
+      "position": "TE",
+      "pick_no": 71,
+      "points": 87.3,
+      "vorp": -54.1,
+      "fitted": -21.03,
+      "residual": -33.07
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 72,
+      "points": 162.12,
+      "vorp": 4.42,
+      "fitted": -21.03,
+      "residual": 25.45
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 77.8,
+      "vorp": -63.6,
+      "fitted": -21.03,
+      "residual": -42.57
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 74,
+      "points": 104.7,
+      "vorp": -50.1,
+      "fitted": -21.03,
+      "residual": -29.07
+     },
+     {
+      "player_id": "6783",
+      "position": "WR",
+      "pick_no": 75,
+      "points": 95.7,
+      "vorp": -62.0,
+      "fitted": -21.03,
+      "residual": -40.97
+     },
+     {
+      "player_id": "11620",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 124.1,
+      "vorp": -33.6,
+      "fitted": -21.03,
+      "residual": -12.57
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 77,
+      "points": 152.2,
+      "vorp": -5.5,
+      "fitted": -21.03,
+      "residual": 15.53
+     },
+     {
+      "player_id": "11655",
+      "position": "RB",
+      "pick_no": 78,
+      "points": 142.8,
+      "vorp": -12.0,
+      "fitted": -21.03,
+      "residual": 9.03
+     },
+     {
+      "player_id": "12512",
+      "position": "RB",
+      "pick_no": 79,
+      "points": 154.8,
+      "vorp": 0.0,
+      "fitted": -21.03,
+      "residual": 21.03
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 38.8,
+      "vorp": -118.9,
+      "fitted": -21.03,
+      "residual": -97.87
+     },
+     {
+      "player_id": "11563",
+      "position": "QB",
+      "pick_no": 81,
+      "points": 346.84,
+      "vorp": 9.96,
+      "fitted": -21.03,
+      "residual": 30.99
+     },
+     {
+      "player_id": "5947",
+      "position": "WR",
+      "pick_no": 82,
+      "points": 138.3,
+      "vorp": -19.4,
+      "fitted": -21.03,
+      "residual": 1.63
+     },
+     {
+      "player_id": "12514",
+      "position": "WR",
+      "pick_no": 83,
+      "points": 162.2,
+      "vorp": 4.5,
+      "fitted": -21.03,
+      "residual": 25.53
+     },
+     {
+      "player_id": "8144",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 218.0,
+      "vorp": 60.3,
+      "fitted": -21.03,
+      "residual": 81.33
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 85,
+      "points": 114.1,
+      "vorp": -43.6,
+      "fitted": -21.03,
+      "residual": -22.57
+     },
+     {
+      "player_id": "8228",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 197.1,
+      "vorp": 42.3,
+      "fitted": -21.03,
+      "residual": 63.33
+     },
+     {
+      "player_id": "7543",
+      "position": "RB",
+      "pick_no": 87,
+      "points": 235.9,
+      "vorp": 81.1,
+      "fitted": -21.03,
+      "residual": 102.13
+     },
+     {
+      "player_id": "11638",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 70.6,
+      "vorp": -87.1,
+      "fitted": -36.74,
+      "residual": -50.36
+     },
+     {
+      "player_id": "12501",
+      "position": "WR",
+      "pick_no": 89,
+      "points": 55.5,
+      "vorp": -102.2,
+      "fitted": -36.74,
+      "residual": -65.46
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 90,
+      "points": 161.3,
+      "vorp": 3.6,
+      "fitted": -36.74,
+      "residual": 40.34
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 92,
+      "points": 69.8,
+      "vorp": -71.6,
+      "fitted": -36.74,
+      "residual": -34.86
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 93,
+      "points": 167.8,
+      "vorp": 10.1,
+      "fitted": -36.74,
+      "residual": 46.84
+     },
+     {
+      "player_id": "12518",
+      "position": "TE",
+      "pick_no": 94,
+      "points": 150.5,
+      "vorp": 9.1,
+      "fitted": -36.74,
+      "residual": 45.84
+     },
+     {
+      "player_id": "8134",
+      "position": "WR",
+      "pick_no": 95,
+      "points": 127.1,
+      "vorp": -30.6,
+      "fitted": -36.74,
+      "residual": 6.14
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 96,
+      "points": 64.5,
+      "vorp": -93.2,
+      "fitted": -36.74,
+      "residual": -56.46
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 97,
+      "points": 58.5,
+      "vorp": -96.3,
+      "fitted": -36.74,
+      "residual": -59.56
+     },
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 98,
+      "points": 90.8,
+      "vorp": -66.9,
+      "fitted": -36.74,
+      "residual": -30.16
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 99,
+      "points": 169.4,
+      "vorp": 14.6,
+      "fitted": -36.74,
+      "residual": 51.34
+     },
+     {
+      "player_id": "9484",
+      "position": "TE",
+      "pick_no": 100,
+      "points": 101.2,
+      "vorp": -40.2,
+      "fitted": -36.74,
+      "residual": -3.46
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 101,
+      "points": 110.4,
+      "vorp": -44.4,
+      "fitted": -36.74,
+      "residual": -7.66
+     },
+     {
+      "player_id": "11560",
+      "position": "QB",
+      "pick_no": 102,
+      "points": 369.18,
+      "vorp": 32.3,
+      "fitted": -36.74,
+      "residual": 69.04
+     },
+     {
+      "player_id": "12533",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 135.8,
+      "vorp": -19.0,
+      "fitted": -36.74,
+      "residual": 17.74
+     },
+     {
+      "player_id": "12481",
+      "position": "RB",
+      "pick_no": 105,
+      "points": 113.7,
+      "vorp": -41.1,
+      "fitted": -36.74,
+      "residual": -4.36
+     },
+     {
+      "player_id": "12517",
+      "position": "TE",
+      "pick_no": 106,
+      "points": 136.1,
+      "vorp": -5.3,
+      "fitted": -36.74,
+      "residual": 31.44
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 107,
+      "points": 10.6,
+      "vorp": -144.2,
+      "fitted": -36.74,
+      "residual": -107.46
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 108,
+      "points": 225.3,
+      "vorp": 70.5,
+      "fitted": -36.74,
+      "residual": 107.24
+     },
+     {
+      "player_id": "8408",
+      "position": "RB",
+      "pick_no": 109,
+      "points": 121.9,
+      "vorp": -32.9,
+      "fitted": -36.74,
+      "residual": 3.84
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 10.1,
+      "vorp": -144.7,
+      "fitted": -42.57,
+      "residual": -102.13
+     },
+     {
+      "player_id": "7049",
+      "position": "WR",
+      "pick_no": 111,
+      "points": 143.8,
+      "vorp": -13.9,
+      "fitted": -42.57,
+      "residual": 28.67
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 112,
+      "points": 367.78,
+      "vorp": 30.9,
+      "fitted": -42.57,
+      "residual": 73.47
+     },
+     {
+      "player_id": "5849",
+      "position": "QB",
+      "pick_no": 114,
+      "points": 89.78,
+      "vorp": -247.1,
+      "fitted": -59.02,
+      "residual": -188.08
+     },
+     {
+      "player_id": "7090",
+      "position": "WR",
+      "pick_no": 115,
+      "points": 66.3,
+      "vorp": -91.4,
+      "fitted": -59.02,
+      "residual": -32.38
+     },
+     {
+      "player_id": "9225",
+      "position": "RB",
+      "pick_no": 116,
+      "points": 52.3,
+      "vorp": -102.5,
+      "fitted": -59.02,
+      "residual": -43.48
+     },
+     {
+      "player_id": "9758",
+      "position": "QB",
+      "pick_no": 119,
+      "points": 246.54,
+      "vorp": -90.34,
+      "fitted": -59.02,
+      "residual": -31.32
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 121,
+      "points": 166.8,
+      "vorp": 25.4,
+      "fitted": -59.02,
+      "residual": 84.42
+     },
+     {
+      "player_id": "12484",
+      "position": "WR",
+      "pick_no": 123,
+      "points": 109.0,
+      "vorp": -48.7,
+      "fitted": -59.02,
+      "residual": 10.32
+     },
+     {
+      "player_id": "11576",
+      "position": "RB",
+      "pick_no": 124,
+      "points": 14.3,
+      "vorp": -140.5,
+      "fitted": -59.02,
+      "residual": -81.48
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 125,
+      "points": 155.1,
+      "vorp": 13.7,
+      "fitted": -59.02,
+      "residual": 72.72
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 128,
+      "points": 365.06,
+      "vorp": 28.18,
+      "fitted": -59.02,
+      "residual": 87.2
+     },
+     {
+      "player_id": "6797",
+      "position": "QB",
+      "pick_no": 131,
+      "points": 336.88,
+      "vorp": 0.0,
+      "fitted": -59.02,
+      "residual": 59.02
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 132,
+      "points": 158.8,
+      "vorp": 4.0,
+      "fitted": -59.02,
+      "residual": 63.02
+     },
+     {
+      "player_id": "12490",
+      "position": "RB",
+      "pick_no": 135,
+      "points": 83.6,
+      "vorp": -71.2,
+      "fitted": -71.2,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11637",
+      "position": "WR",
+      "pick_no": 137,
+      "points": 81.4,
+      "vorp": -76.3,
+      "fitted": -76.3,
+      "residual": 0.0
+     },
+     {
+      "player_id": "12495",
+      "position": "RB",
+      "pick_no": 138,
+      "points": 50.6,
+      "vorp": -104.2,
+      "fitted": -95.67,
+      "residual": -8.53
+     },
+     {
+      "player_id": "7591",
+      "position": "QB",
+      "pick_no": 140,
+      "points": 146.66,
+      "vorp": -190.22,
+      "fitted": -95.67,
+      "residual": -94.55
+     },
+     {
+      "player_id": "3214",
+      "position": "TE",
+      "pick_no": 143,
+      "points": 148.8,
+      "vorp": 7.4,
+      "fitted": -95.67,
+      "residual": 103.07
+     },
+     {
+      "player_id": "10222",
+      "position": "WR",
+      "pick_no": 147,
+      "points": 39.0,
+      "vorp": -118.7,
+      "fitted": -98.73,
+      "residual": -19.97
+     },
+     {
+      "player_id": "12457",
+      "position": "RB",
+      "pick_no": 148,
+      "points": 19.9,
+      "vorp": -134.9,
+      "fitted": -98.73,
+      "residual": -36.17
+     },
+     {
+      "player_id": "8676",
+      "position": "WR",
+      "pick_no": 150,
+      "points": 115.1,
+      "vorp": -42.6,
+      "fitted": -98.73,
+      "residual": 56.13
+     }
+    ]
+   },
+   {
+    "season": "POOLED",
+    "residual_by_position": {
+     "QB": {
+      "mean": -11.88,
+      "lo": -42.14,
+      "hi": 16.46,
+      "n": 45
+     },
+     "RB": {
+      "mean": -7.48,
+      "lo": -18.86,
+      "hi": 3.09,
+      "n": 117
+     },
+     "WR": {
+      "mean": 4.24,
+      "lo": -4.72,
+      "hi": 13.15,
+      "n": 138
+     },
+     "TE": {
+      "mean": 21.13,
+      "lo": 5.75,
+      "hi": 36.4,
+      "n": 39
+     }
+    },
+    "permutation_null": {
+     "QB": {
+      "position": "QB",
+      "observed_mean_residual": -11.88,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.1903,
+      "reading": "the observed mean is ordinary under a null that assigns positions at random"
+     },
+     "RB": {
+      "position": "RB",
+      "observed_mean_residual": -7.48,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.1295,
+      "reading": "the observed mean is ordinary under a null that assigns positions at random"
+     },
+     "WR": {
+      "position": "WR",
+      "observed_mean_residual": 4.24,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.3165,
+      "reading": "the observed mean is ordinary under a null that assigns positions at random"
+     },
+     "TE": {
+      "position": "TE",
+      "observed_mean_residual": 21.13,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.0325,
+      "reading": "the observed mean is unusual under a position-blind null"
+     }
+    },
+    "multiple_comparisons_note": "four positions were tested; at 95% one crossing by chance is expected roughly one time in five. Only the QB row was pre-registered \u2014 every other row here is exploratory and is reported as such."
+   }
+  ],
+  "sensitivity_unmatched_as_zero": [
+   {
+    "season": 2023,
+    "n": 127,
+    "unmatched_as_zero": true,
+    "excluded_counted": {
+     "keeper": 0,
+     "no_position": 3,
+     "not_graded_position": 20,
+     "no_realized_row": 0
+    },
+    "realized_replacement": {
+     "QB": 330.06,
+     "WR": 167.9,
+     "TE": 129.02,
+     "RB": 177.2
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": -18.45,
+      "lo": -70.92,
+      "hi": 30.89,
+      "n": 17
+     },
+     "RB": {
+      "mean": -9.09,
+      "lo": -29.97,
+      "hi": 10.03,
+      "n": 46
+     },
+     "WR": {
+      "mean": 6.72,
+      "lo": -7.87,
+      "hi": 21.92,
+      "n": 51
+     },
+     "TE": {
+      "mean": 29.93,
+      "lo": 4.24,
+      "hi": 55.17,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 1,
+      "points": 134.9,
+      "vorp": -33.0,
+      "fitted": 55.6,
+      "residual": -88.6
+     },
+     {
+      "player_id": "6813",
+      "position": "RB",
+      "pick_no": 2,
+      "points": 146.9,
+      "vorp": -30.3,
+      "fitted": 55.6,
+      "residual": -85.9
+     },
+     {
+      "player_id": "4034",
+      "position": "RB",
+      "pick_no": 3,
+      "points": 357.8,
+      "vorp": 180.6,
+      "fitted": 55.6,
+      "residual": 125.0
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 4,
+      "points": 159.9,
+      "vorp": -17.3,
+      "fitted": 55.6,
+      "residual": -72.9
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 6,
+      "points": 220.3,
+      "vorp": 52.4,
+      "fitted": 55.6,
+      "residual": -3.2
+     },
+     {
+      "player_id": "4866",
+      "position": "RB",
+      "pick_no": 7,
+      "points": 202.7,
+      "vorp": 25.5,
+      "fitted": 55.6,
+      "residual": -30.1
+     },
+     {
+      "player_id": "1466",
+      "position": "TE",
+      "pick_no": 8,
+      "points": 172.9,
+      "vorp": 43.88,
+      "fitted": 55.6,
+      "residual": -11.72
+     },
+     {
+      "player_id": "3321",
+      "position": "WR",
+      "pick_no": 9,
+      "points": 316.9,
+      "vorp": 149.0,
+      "fitted": 55.6,
+      "residual": 93.4
+     },
+     {
+      "player_id": "6794",
+      "position": "WR",
+      "pick_no": 10,
+      "points": 170.2,
+      "vorp": 2.3,
+      "fitted": 55.6,
+      "residual": -53.3
+     },
+     {
+      "player_id": "6786",
+      "position": "WR",
+      "pick_no": 12,
+      "points": 337.7,
+      "vorp": 169.8,
+      "fitted": 55.6,
+      "residual": 114.2
+     },
+     {
+      "player_id": "5859",
+      "position": "WR",
+      "pick_no": 13,
+      "points": 236.6,
+      "vorp": 68.7,
+      "fitted": 55.6,
+      "residual": 13.1
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 14,
+      "points": 112.9,
+      "vorp": -16.12,
+      "fitted": 14.33,
+      "residual": -30.45
+     },
+     {
+      "player_id": "4046",
+      "position": "QB",
+      "pick_no": 15,
+      "points": 334.22,
+      "vorp": 4.16,
+      "fitted": 14.33,
+      "residual": -10.17
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 16,
+      "points": 162.6,
+      "vorp": -5.3,
+      "fitted": 14.33,
+      "residual": -19.63
+     },
+     {
+      "player_id": "5850",
+      "position": "RB",
+      "pick_no": 17,
+      "points": 162.6,
+      "vorp": -14.6,
+      "fitted": 14.33,
+      "residual": -28.93
+     },
+     {
+      "player_id": "7547",
+      "position": "WR",
+      "pick_no": 18,
+      "points": 271.4,
+      "vorp": 103.5,
+      "fitted": 14.33,
+      "residual": 89.17
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 19,
+      "points": 116.6,
+      "vorp": -51.3,
+      "fitted": 13.79,
+      "residual": -65.09
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 20,
+      "points": 402.82,
+      "vorp": 72.76,
+      "fitted": 13.79,
+      "residual": 58.97
+     },
+     {
+      "player_id": "8144",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 187.8,
+      "vorp": 19.9,
+      "fitted": 13.79,
+      "residual": 6.11
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 22,
+      "points": 177.16,
+      "vorp": -152.9,
+      "fitted": 7.5,
+      "residual": -160.4
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 23,
+      "points": 195.1,
+      "vorp": 17.9,
+      "fitted": 7.5,
+      "residual": 10.4
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 24,
+      "points": 126.7,
+      "vorp": -50.5,
+      "fitted": 7.5,
+      "residual": -58.0
+     },
+     {
+      "player_id": "4988",
+      "position": "RB",
+      "pick_no": 25,
+      "points": 21.1,
+      "vorp": -156.1,
+      "fitted": 7.5,
+      "residual": -163.6
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 26,
+      "points": 213.9,
+      "vorp": 46.0,
+      "fitted": 7.5,
+      "residual": 38.5
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 27,
+      "points": 187.1,
+      "vorp": 19.2,
+      "fitted": 7.5,
+      "residual": 11.7
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 28,
+      "points": 213.7,
+      "vorp": 45.8,
+      "fitted": 7.5,
+      "residual": 38.3
+     },
+     {
+      "player_id": "8146",
+      "position": "WR",
+      "pick_no": 29,
+      "points": 165.7,
+      "vorp": -2.2,
+      "fitted": 7.5,
+      "residual": -9.7
+     },
+     {
+      "player_id": "8155",
+      "position": "RB",
+      "pick_no": 30,
+      "points": 252.5,
+      "vorp": 75.3,
+      "fitted": 7.5,
+      "residual": 67.8
+     },
+     {
+      "player_id": "9509",
+      "position": "RB",
+      "pick_no": 31,
+      "points": 217.3,
+      "vorp": 40.1,
+      "fitted": 7.5,
+      "residual": 32.6
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 32,
+      "points": 181.0,
+      "vorp": 3.8,
+      "fitted": 7.5,
+      "residual": -3.7
+     },
+     {
+      "player_id": "4984",
+      "position": "QB",
+      "pick_no": 33,
+      "points": 452.64,
+      "vorp": 122.58,
+      "fitted": 7.5,
+      "residual": 115.08
+     },
+     {
+      "player_id": "9221",
+      "position": "RB",
+      "pick_no": 34,
+      "points": 216.1,
+      "vorp": 38.9,
+      "fitted": 7.5,
+      "residual": 31.4
+     },
+     {
+      "player_id": "7591",
+      "position": "QB",
+      "pick_no": 35,
+      "points": 262.18,
+      "vorp": -67.88,
+      "fitted": 7.5,
+      "residual": -75.38
+     },
+     {
+      "player_id": "4018",
+      "position": "RB",
+      "pick_no": 36,
+      "points": 241.0,
+      "vorp": 63.8,
+      "fitted": 7.5,
+      "residual": 56.3
+     },
+     {
+      "player_id": "7543",
+      "position": "RB",
+      "pick_no": 37,
+      "points": 253.4,
+      "vorp": 76.2,
+      "fitted": 7.5,
+      "residual": 68.7
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 38,
+      "points": 119.9,
+      "vorp": -57.3,
+      "fitted": -2.96,
+      "residual": -54.34
+     },
+     {
+      "player_id": "8129",
+      "position": "RB",
+      "pick_no": 39,
+      "points": 70.2,
+      "vorp": -107.0,
+      "fitted": -2.96,
+      "residual": -104.04
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 40,
+      "points": 379.22,
+      "vorp": 49.16,
+      "fitted": -2.96,
+      "residual": 52.12
+     },
+     {
+      "player_id": "6151",
+      "position": "RB",
+      "pick_no": 42,
+      "points": 74.1,
+      "vorp": -103.1,
+      "fitted": -2.96,
+      "residual": -100.14
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 43,
+      "points": 192.4,
+      "vorp": 24.5,
+      "fitted": -2.96,
+      "residual": 27.46
+     },
+     {
+      "player_id": "1479",
+      "position": "WR",
+      "pick_no": 44,
+      "points": 226.86,
+      "vorp": 58.96,
+      "fitted": -2.96,
+      "residual": 61.92
+     },
+     {
+      "player_id": "5844",
+      "position": "TE",
+      "pick_no": 45,
+      "points": 171.5,
+      "vorp": 42.48,
+      "fitted": -2.96,
+      "residual": 45.44
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 46,
+      "points": 170.7,
+      "vorp": 41.68,
+      "fitted": -2.96,
+      "residual": 44.64
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 47,
+      "points": 191.9,
+      "vorp": 24.0,
+      "fitted": -2.96,
+      "residual": 26.96
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 48,
+      "points": 10.7,
+      "vorp": -166.5,
+      "fitted": -21.97,
+      "residual": -144.53
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 238.5,
+      "vorp": 70.6,
+      "fitted": -21.97,
+      "residual": 92.57
+     },
+     {
+      "player_id": "1426",
+      "position": "WR",
+      "pick_no": 50,
+      "points": 186.1,
+      "vorp": 18.2,
+      "fitted": -21.97,
+      "residual": 40.17
+     },
+     {
+      "player_id": "5987",
+      "position": "RB",
+      "pick_no": 51,
+      "points": 118.2,
+      "vorp": -59.0,
+      "fitted": -21.97,
+      "residual": -37.03
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 52,
+      "points": 110.8,
+      "vorp": -18.22,
+      "fitted": -21.97,
+      "residual": 3.75
+     },
+     {
+      "player_id": "2309",
+      "position": "WR",
+      "pick_no": 53,
+      "points": 191.0,
+      "vorp": 23.1,
+      "fitted": -21.97,
+      "residual": 45.07
+     },
+     {
+      "player_id": "2505",
+      "position": "TE",
+      "pick_no": 54,
+      "points": 87.2,
+      "vorp": -41.82,
+      "fitted": -29.01,
+      "residual": -12.81
+     },
+     {
+      "player_id": "6797",
+      "position": "QB",
+      "pick_no": 55,
+      "points": 273.66,
+      "vorp": -56.4,
+      "fitted": -29.01,
+      "residual": -27.39
+     },
+     {
+      "player_id": "6783",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 114.8,
+      "vorp": -53.1,
+      "fitted": -29.01,
+      "residual": -24.09
+     },
+     {
+      "player_id": "7523",
+      "position": "QB",
+      "pick_no": 57,
+      "points": 304.54,
+      "vorp": -25.52,
+      "fitted": -29.01,
+      "residual": 3.49
+     },
+     {
+      "player_id": "6938",
+      "position": "RB",
+      "pick_no": 58,
+      "points": 41.2,
+      "vorp": -136.0,
+      "fitted": -29.01,
+      "residual": -106.99
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 59,
+      "points": 139.88,
+      "vorp": -28.02,
+      "fitted": -29.01,
+      "residual": 0.99
+     },
+     {
+      "player_id": "4017",
+      "position": "QB",
+      "pick_no": 60,
+      "points": 100.8,
+      "vorp": -229.26,
+      "fitted": -29.01,
+      "residual": -200.25
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 61,
+      "points": 195.5,
+      "vorp": 18.3,
+      "fitted": -29.01,
+      "residual": 47.31
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 62,
+      "points": 106.8,
+      "vorp": -22.22,
+      "fitted": -29.01,
+      "residual": 6.79
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 63,
+      "points": 163.7,
+      "vorp": -4.2,
+      "fitted": -29.01,
+      "residual": 24.81
+     },
+     {
+      "player_id": "8167",
+      "position": "WR",
+      "pick_no": 64,
+      "points": 87.3,
+      "vorp": -80.6,
+      "fitted": -29.01,
+      "residual": -51.59
+     },
+     {
+      "player_id": "4068",
+      "position": "WR",
+      "pick_no": 65,
+      "points": 40.7,
+      "vorp": -127.2,
+      "fitted": -29.01,
+      "residual": -98.19
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 66,
+      "points": 210.7,
+      "vorp": 33.5,
+      "fitted": -29.01,
+      "residual": 62.51
+     },
+     {
+      "player_id": "6803",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 211.7,
+      "vorp": 43.8,
+      "fitted": -29.01,
+      "residual": 72.81
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 68,
+      "points": 188.0,
+      "vorp": 10.8,
+      "fitted": -29.01,
+      "residual": 39.81
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 69,
+      "points": 191.9,
+      "vorp": 14.7,
+      "fitted": -29.01,
+      "residual": 43.71
+     },
+     {
+      "player_id": "7600",
+      "position": "TE",
+      "pick_no": 70,
+      "points": 60.8,
+      "vorp": -68.22,
+      "fitted": -29.01,
+      "residual": -39.21
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 71,
+      "points": 167.7,
+      "vorp": -0.2,
+      "fitted": -29.01,
+      "residual": 28.81
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 72,
+      "points": 179.8,
+      "vorp": 2.6,
+      "fitted": -29.01,
+      "residual": 31.61
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 173.3,
+      "vorp": 44.28,
+      "fitted": -29.01,
+      "residual": 73.29
+     },
+     {
+      "player_id": "4029",
+      "position": "RB",
+      "pick_no": 74,
+      "points": 32.7,
+      "vorp": -144.5,
+      "fitted": -29.01,
+      "residual": -115.49
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 75,
+      "points": 155.7,
+      "vorp": -21.5,
+      "fitted": -29.01,
+      "residual": 7.51
+     },
+     {
+      "player_id": "2216",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 243.0,
+      "vorp": 75.1,
+      "fitted": -29.01,
+      "residual": 104.11
+     },
+     {
+      "player_id": "2374",
+      "position": "WR",
+      "pick_no": 77,
+      "points": 162.9,
+      "vorp": -5.0,
+      "fitted": -29.01,
+      "residual": 24.01
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 78,
+      "points": 186.3,
+      "vorp": 18.4,
+      "fitted": -29.01,
+      "residual": 47.41
+     },
+     {
+      "player_id": "6828",
+      "position": "RB",
+      "pick_no": 79,
+      "points": 106.6,
+      "vorp": -70.6,
+      "fitted": -29.01,
+      "residual": -41.59
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 197.7,
+      "vorp": 29.8,
+      "fitted": -29.01,
+      "residual": 58.81
+     },
+     {
+      "player_id": "8119",
+      "position": "WR",
+      "pick_no": 81,
+      "points": 100.3,
+      "vorp": -67.6,
+      "fitted": -29.01,
+      "residual": -38.59
+     },
+     {
+      "player_id": "4950",
+      "position": "WR",
+      "pick_no": 82,
+      "points": 121.76,
+      "vorp": -46.14,
+      "fitted": -29.01,
+      "residual": -17.13
+     },
+     {
+      "player_id": "8136",
+      "position": "RB",
+      "pick_no": 83,
+      "points": 235.9,
+      "vorp": 58.7,
+      "fitted": -29.01,
+      "residual": 87.71
+     },
+     {
+      "player_id": "5848",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 109.2,
+      "vorp": -58.7,
+      "fitted": -29.01,
+      "residual": -29.69
+     },
+     {
+      "player_id": "7606",
+      "position": "WR",
+      "pick_no": 85,
+      "points": 39.5,
+      "vorp": -128.4,
+      "fitted": -29.01,
+      "residual": -99.39
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 199.2,
+      "vorp": 22.0,
+      "fitted": -29.01,
+      "residual": 51.01
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 87,
+      "points": 118.3,
+      "vorp": -49.6,
+      "fitted": -29.01,
+      "residual": -20.59
+     },
+     {
+      "player_id": "5937",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 127.2,
+      "vorp": -40.7,
+      "fitted": -29.01,
+      "residual": -11.69
+     },
+     {
+      "player_id": "2197",
+      "position": "WR",
+      "pick_no": 89,
+      "points": 146.2,
+      "vorp": -21.7,
+      "fitted": -29.01,
+      "residual": 7.31
+     },
+     {
+      "player_id": "5086",
+      "position": "WR",
+      "pick_no": 90,
+      "points": 46.0,
+      "vorp": -121.9,
+      "fitted": -29.01,
+      "residual": -92.89
+     },
+     {
+      "player_id": "5185",
+      "position": "WR",
+      "pick_no": 91,
+      "points": 48.6,
+      "vorp": -119.3,
+      "fitted": -29.01,
+      "residual": -90.29
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 92,
+      "points": 167.9,
+      "vorp": 0.0,
+      "fitted": -29.01,
+      "residual": 29.01
+     },
+     {
+      "player_id": "10236",
+      "position": "TE",
+      "pick_no": 93,
+      "points": 113.8,
+      "vorp": -15.22,
+      "fitted": -29.01,
+      "residual": 13.79
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 95,
+      "points": 177.3,
+      "vorp": 9.4,
+      "fitted": -29.01,
+      "residual": 38.41
+     },
+     {
+      "player_id": "6945",
+      "position": "RB",
+      "pick_no": 96,
+      "points": 103.4,
+      "vorp": -73.8,
+      "fitted": -29.01,
+      "residual": -44.79
+     },
+     {
+      "player_id": "7608",
+      "position": "RB",
+      "pick_no": 97,
+      "points": 102.5,
+      "vorp": -74.7,
+      "fitted": -29.01,
+      "residual": -45.69
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 98,
+      "points": 180.1,
+      "vorp": 2.9,
+      "fitted": -29.01,
+      "residual": 31.91
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 99,
+      "points": 414.84,
+      "vorp": 84.78,
+      "fitted": -29.01,
+      "residual": 113.79
+     },
+     {
+      "player_id": "9226",
+      "position": "RB",
+      "pick_no": 100,
+      "points": 177.2,
+      "vorp": 0.0,
+      "fitted": -29.01,
+      "residual": 29.01
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 101,
+      "points": 160.7,
+      "vorp": -7.2,
+      "fitted": -29.01,
+      "residual": 21.81
+     },
+     {
+      "player_id": "2749",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 255.2,
+      "vorp": 78.0,
+      "fitted": -29.01,
+      "residual": 107.01
+     },
+     {
+      "player_id": "4040",
+      "position": "WR",
+      "pick_no": 105,
+      "points": 46.5,
+      "vorp": -121.4,
+      "fitted": -60.87,
+      "residual": -60.53
+     },
+     {
+      "player_id": "9754",
+      "position": "WR",
+      "pick_no": 106,
+      "points": 75.0,
+      "vorp": -92.9,
+      "fitted": -60.87,
+      "residual": -32.03
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 107,
+      "points": 160.7,
+      "vorp": 31.68,
+      "fitted": -60.87,
+      "residual": 92.55
+     },
+     {
+      "player_id": "4149",
+      "position": "RB",
+      "pick_no": 108,
+      "points": 51.8,
+      "vorp": -125.4,
+      "fitted": -97.71,
+      "residual": -27.69
+     },
+     {
+      "player_id": "2161",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 73.86,
+      "vorp": -103.34,
+      "fitted": -97.71,
+      "residual": -5.63
+     },
+     {
+      "player_id": "2078",
+      "position": "WR",
+      "pick_no": 111,
+      "points": 90.0,
+      "vorp": -77.9,
+      "fitted": -97.71,
+      "residual": 19.81
+     },
+     {
+      "player_id": "96",
+      "position": "QB",
+      "pick_no": 112,
+      "points": 0.0,
+      "vorp": -330.06,
+      "fitted": -97.71,
+      "residual": -232.35
+     },
+     {
+      "player_id": "6943",
+      "position": "WR",
+      "pick_no": 113,
+      "points": 138.9,
+      "vorp": -29.0,
+      "fitted": -97.71,
+      "residual": 68.71
+     },
+     {
+      "player_id": "3199",
+      "position": "WR",
+      "pick_no": 114,
+      "points": 70.3,
+      "vorp": -97.6,
+      "fitted": -97.71,
+      "residual": 0.11
+     },
+     {
+      "player_id": "4147",
+      "position": "RB",
+      "pick_no": 115,
+      "points": 96.3,
+      "vorp": -80.9,
+      "fitted": -97.71,
+      "residual": 16.81
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 116,
+      "points": 89.6,
+      "vorp": -87.6,
+      "fitted": -97.71,
+      "residual": 10.11
+     },
+     {
+      "player_id": "9229",
+      "position": "QB",
+      "pick_no": 117,
+      "points": 78.68,
+      "vorp": -251.38,
+      "fitted": -97.71,
+      "residual": -153.67
+     },
+     {
+      "player_id": "1373",
+      "position": "QB",
+      "pick_no": 118,
+      "points": 266.76,
+      "vorp": -63.3,
+      "fitted": -97.71,
+      "residual": 34.41
+     },
+     {
+      "player_id": "4985",
+      "position": "RB",
+      "pick_no": 122,
+      "points": 4.3,
+      "vorp": -172.9,
+      "fitted": -97.71,
+      "residual": -75.19
+     },
+     {
+      "player_id": "9225",
+      "position": "RB",
+      "pick_no": 123,
+      "points": 24.3,
+      "vorp": -152.9,
+      "fitted": -97.71,
+      "residual": -55.19
+     },
+     {
+      "player_id": "8132",
+      "position": "RB",
+      "pick_no": 124,
+      "points": 128.6,
+      "vorp": -48.6,
+      "fitted": -97.71,
+      "residual": 49.11
+     },
+     {
+      "player_id": "5890",
+      "position": "RB",
+      "pick_no": 125,
+      "points": 18.0,
+      "vorp": -159.2,
+      "fitted": -97.71,
+      "residual": -61.49
+     },
+     {
+      "player_id": "6826",
+      "position": "TE",
+      "pick_no": 132,
+      "points": 144.6,
+      "vorp": 15.58,
+      "fitted": -97.71,
+      "residual": 113.29
+     },
+     {
+      "player_id": "7561",
+      "position": "RB",
+      "pick_no": 134,
+      "points": 44.5,
+      "vorp": -132.7,
+      "fitted": -97.71,
+      "residual": -34.99
+     },
+     {
+      "player_id": "8168",
+      "position": "WR",
+      "pick_no": 135,
+      "points": 43.2,
+      "vorp": -124.7,
+      "fitted": -97.71,
+      "residual": -26.99
+     },
+     {
+      "player_id": "3164",
+      "position": "RB",
+      "pick_no": 139,
+      "points": 149.0,
+      "vorp": -28.2,
+      "fitted": -97.71,
+      "residual": 69.51
+     },
+     {
+      "player_id": "6768",
+      "position": "QB",
+      "pick_no": 140,
+      "points": 330.36,
+      "vorp": 0.3,
+      "fitted": -97.71,
+      "residual": 98.01
+     },
+     {
+      "player_id": "7567",
+      "position": "RB",
+      "pick_no": 141,
+      "points": 82.38,
+      "vorp": -94.82,
+      "fitted": -97.71,
+      "residual": 2.89
+     },
+     {
+      "player_id": "5001",
+      "position": "TE",
+      "pick_no": 142,
+      "points": 121.0,
+      "vorp": -8.02,
+      "fitted": -97.71,
+      "residual": 89.69
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 143,
+      "points": 68.3,
+      "vorp": -99.6,
+      "fitted": -97.71,
+      "residual": -1.89
+     },
+     {
+      "player_id": "1166",
+      "position": "QB",
+      "pick_no": 147,
+      "points": 185.74,
+      "vorp": -144.32,
+      "fitted": -97.71,
+      "residual": -46.61
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 148,
+      "points": 349.1,
+      "vorp": 19.04,
+      "fitted": -97.71,
+      "residual": 116.75
+     },
+     {
+      "player_id": "7596",
+      "position": "WR",
+      "pick_no": 149,
+      "points": 102.6,
+      "vorp": -65.3,
+      "fitted": -97.71,
+      "residual": 32.41
+     },
+     {
+      "player_id": "9228",
+      "position": "QB",
+      "pick_no": 150,
+      "points": 178.38,
+      "vorp": -151.68,
+      "fitted": -151.68,
+      "residual": 0.0
+     }
+    ]
+   },
+   {
+    "season": 2024,
+    "n": 106,
+    "unmatched_as_zero": true,
+    "excluded_counted": {
+     "keeper": 23,
+     "no_position": 2,
+     "not_graded_position": 19,
+     "no_realized_row": 0
+    },
+    "realized_replacement": {
+     "QB": 339.24,
+     "RB": 174.1,
+     "WR": 167.1,
+     "TE": 135.8
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": 8.6,
+      "lo": -45.49,
+      "hi": 57.39,
+      "n": 14
+     },
+     "RB": {
+      "mean": -9.68,
+      "lo": -29.88,
+      "hi": 11.4,
+      "n": 35
+     },
+     "WR": {
+      "mean": 0.12,
+      "lo": -15.13,
+      "hi": 16.42,
+      "n": 44
+     },
+     "TE": {
+      "mean": 16.39,
+      "lo": -7.5,
+      "hi": 40.38,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "5850",
+      "position": "RB",
+      "pick_no": 1,
+      "points": 275.1,
+      "vorp": 101.0,
+      "fitted": 101.0,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11628",
+      "position": "WR",
+      "pick_no": 15,
+      "points": 165.5,
+      "vorp": -1.6,
+      "fitted": 6.86,
+      "residual": -8.46
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 20,
+      "points": 50.9,
+      "vorp": -123.2,
+      "fitted": 6.86,
+      "residual": -130.06
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 130.1,
+      "vorp": -37.0,
+      "fitted": 6.86,
+      "residual": -43.86
+     },
+     {
+      "player_id": "7569",
+      "position": "WR",
+      "pick_no": 22,
+      "points": 176.6,
+      "vorp": 9.5,
+      "fitted": 6.86,
+      "residual": 2.64
+     },
+     {
+      "player_id": "8136",
+      "position": "RB",
+      "pick_no": 23,
+      "points": 174.1,
+      "vorp": 0.0,
+      "fitted": 6.86,
+      "residual": -6.86
+     },
+     {
+      "player_id": "10859",
+      "position": "TE",
+      "pick_no": 31,
+      "points": 144.6,
+      "vorp": 8.8,
+      "fitted": 6.86,
+      "residual": 1.94
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 32,
+      "points": 120.6,
+      "vorp": -46.5,
+      "fitted": 6.86,
+      "residual": -53.36
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 33,
+      "points": 250.7,
+      "vorp": 76.6,
+      "fitted": 6.86,
+      "residual": 69.74
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 35,
+      "points": 230.8,
+      "vorp": 63.7,
+      "fitted": 6.86,
+      "residual": 56.84
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 36,
+      "points": 198.8,
+      "vorp": 31.7,
+      "fitted": 6.86,
+      "residual": 24.84
+     },
+     {
+      "player_id": "6803",
+      "position": "WR",
+      "pick_no": 37,
+      "points": 49.9,
+      "vorp": -117.2,
+      "fitted": 6.86,
+      "residual": -124.06
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 38,
+      "points": 205.72,
+      "vorp": 31.62,
+      "fitted": 6.86,
+      "residual": 24.76
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 39,
+      "points": 189.1,
+      "vorp": 22.0,
+      "fitted": 6.86,
+      "residual": 15.14
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 40,
+      "points": 231.3,
+      "vorp": 57.2,
+      "fitted": 6.86,
+      "residual": 50.34
+     },
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 41,
+      "points": 141.5,
+      "vorp": -25.6,
+      "fitted": 6.86,
+      "residual": -32.46
+     },
+     {
+      "player_id": "8130",
+      "position": "TE",
+      "pick_no": 42,
+      "points": 188.3,
+      "vorp": 52.5,
+      "fitted": 6.86,
+      "residual": 45.64
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 43,
+      "points": 98.42,
+      "vorp": -68.68,
+      "fitted": 6.86,
+      "residual": -75.54
+     },
+     {
+      "player_id": "10236",
+      "position": "TE",
+      "pick_no": 44,
+      "points": 78.8,
+      "vorp": -57.0,
+      "fitted": 6.86,
+      "residual": -63.86
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 45,
+      "points": 161.3,
+      "vorp": 25.5,
+      "fitted": 6.86,
+      "residual": 18.64
+     },
+     {
+      "player_id": "11632",
+      "position": "WR",
+      "pick_no": 46,
+      "points": 219.1,
+      "vorp": 52.0,
+      "fitted": 6.86,
+      "residual": 45.14
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 47,
+      "points": 351.12,
+      "vorp": 11.88,
+      "fitted": 6.86,
+      "residual": 5.02
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 48,
+      "points": 512.38,
+      "vorp": 173.14,
+      "fitted": 6.86,
+      "residual": 166.28
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 185.6,
+      "vorp": 18.5,
+      "fitted": 6.86,
+      "residual": 11.64
+     },
+     {
+      "player_id": "9758",
+      "position": "QB",
+      "pick_no": 50,
+      "points": 260.38,
+      "vorp": -78.86,
+      "fitted": -4.8,
+      "residual": -74.06
+     },
+     {
+      "player_id": "2309",
+      "position": "WR",
+      "pick_no": 51,
+      "points": 100.7,
+      "vorp": -66.4,
+      "fitted": -4.8,
+      "residual": -61.6
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 52,
+      "points": 230.3,
+      "vorp": 56.2,
+      "fitted": -4.8,
+      "residual": 61.0
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 53,
+      "points": 172.5,
+      "vorp": 5.4,
+      "fitted": -4.8,
+      "residual": 10.2
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 54,
+      "points": 131.3,
+      "vorp": -35.8,
+      "fitted": -4.8,
+      "residual": -31.0
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 55,
+      "points": 159.4,
+      "vorp": -14.7,
+      "fitted": -4.8,
+      "residual": -9.9
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 158.2,
+      "vorp": -8.9,
+      "fitted": -4.8,
+      "residual": -4.1
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 57,
+      "points": 193.5,
+      "vorp": 19.4,
+      "fitted": -4.8,
+      "residual": 24.2
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 58,
+      "points": 216.1,
+      "vorp": 42.0,
+      "fitted": -4.8,
+      "residual": 46.8
+     },
+     {
+      "player_id": "9229",
+      "position": "QB",
+      "pick_no": 59,
+      "points": 178.86,
+      "vorp": -160.38,
+      "fitted": -4.8,
+      "residual": -155.58
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 60,
+      "points": 197.6,
+      "vorp": 61.8,
+      "fitted": -4.8,
+      "residual": 66.6
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 61,
+      "points": 458.82,
+      "vorp": 119.58,
+      "fitted": -4.8,
+      "residual": 124.38
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 62,
+      "points": 165.4,
+      "vorp": -1.7,
+      "fitted": -4.8,
+      "residual": 3.1
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 63,
+      "points": 138.52,
+      "vorp": -200.72,
+      "fitted": -28.6,
+      "residual": -172.12
+     },
+     {
+      "player_id": "9502",
+      "position": "WR",
+      "pick_no": 64,
+      "points": 114.5,
+      "vorp": -52.6,
+      "fitted": -28.6,
+      "residual": -24.0
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 65,
+      "points": 186.6,
+      "vorp": 12.5,
+      "fitted": -28.6,
+      "residual": 41.1
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 66,
+      "points": 107.7,
+      "vorp": -28.1,
+      "fitted": -28.6,
+      "residual": 0.5
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 226.8,
+      "vorp": 59.7,
+      "fitted": -28.6,
+      "residual": 88.3
+     },
+     {
+      "player_id": "10229",
+      "position": "WR",
+      "pick_no": 68,
+      "points": 52.9,
+      "vorp": -114.2,
+      "fitted": -28.6,
+      "residual": -85.6
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 69,
+      "points": 66.0,
+      "vorp": -69.8,
+      "fitted": -28.6,
+      "residual": -41.2
+     },
+     {
+      "player_id": "1479",
+      "position": "WR",
+      "pick_no": 70,
+      "points": 149.4,
+      "vorp": -17.7,
+      "fitted": -28.6,
+      "residual": 10.9
+     },
+     {
+      "player_id": "11624",
+      "position": "WR",
+      "pick_no": 71,
+      "points": 157.7,
+      "vorp": -9.4,
+      "fitted": -28.6,
+      "residual": 19.2
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 72,
+      "points": 180.2,
+      "vorp": 6.1,
+      "fitted": -28.6,
+      "residual": 34.7
+     },
+     {
+      "player_id": "11604",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 206.7,
+      "vorp": 70.9,
+      "fitted": -28.6,
+      "residual": 99.5
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 74,
+      "points": 167.2,
+      "vorp": 0.1,
+      "fitted": -28.6,
+      "residual": 28.7
+     },
+     {
+      "player_id": "11583",
+      "position": "RB",
+      "pick_no": 75,
+      "points": 6.0,
+      "vorp": -168.1,
+      "fitted": -47.5,
+      "residual": -120.6
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 134.9,
+      "vorp": -32.2,
+      "fitted": -47.5,
+      "residual": 15.3
+     },
+     {
+      "player_id": "2749",
+      "position": "RB",
+      "pick_no": 77,
+      "points": 61.4,
+      "vorp": -112.7,
+      "fitted": -47.5,
+      "residual": -65.2
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 78,
+      "points": 116.5,
+      "vorp": -19.3,
+      "fitted": -47.5,
+      "residual": 28.2
+     },
+     {
+      "player_id": "4950",
+      "position": "WR",
+      "pick_no": 79,
+      "points": 57.4,
+      "vorp": -109.7,
+      "fitted": -47.5,
+      "residual": -62.2
+     },
+     {
+      "player_id": "11620",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 117.9,
+      "vorp": -49.2,
+      "fitted": -47.5,
+      "residual": -1.7
+     },
+     {
+      "player_id": "8228",
+      "position": "RB",
+      "pick_no": 82,
+      "points": 105.1,
+      "vorp": -69.0,
+      "fitted": -47.5,
+      "residual": -21.5
+     },
+     {
+      "player_id": "8139",
+      "position": "RB",
+      "pick_no": 83,
+      "points": 26.3,
+      "vorp": -147.8,
+      "fitted": -47.5,
+      "residual": -100.3
+     },
+     {
+      "player_id": "10222",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 169.5,
+      "vorp": 2.4,
+      "fitted": -47.5,
+      "residual": 49.9
+     },
+     {
+      "player_id": "5849",
+      "position": "QB",
+      "pick_no": 85,
+      "points": 339.24,
+      "vorp": 0.0,
+      "fitted": -47.5,
+      "residual": 47.5
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 131.9,
+      "vorp": -42.2,
+      "fitted": -47.5,
+      "residual": 5.3
+     },
+     {
+      "player_id": "4988",
+      "position": "RB",
+      "pick_no": 87,
+      "points": 60.8,
+      "vorp": -113.3,
+      "fitted": -47.5,
+      "residual": -65.8
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 112.8,
+      "vorp": -54.3,
+      "fitted": -47.5,
+      "residual": -6.8
+     },
+     {
+      "player_id": "6845",
+      "position": "RB",
+      "pick_no": 89,
+      "points": 70.4,
+      "vorp": -103.7,
+      "fitted": -47.5,
+      "residual": -56.2
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 90,
+      "points": 114.8,
+      "vorp": -59.3,
+      "fitted": -47.5,
+      "residual": -11.8
+     },
+     {
+      "player_id": "6130",
+      "position": "RB",
+      "pick_no": 91,
+      "points": 86.1,
+      "vorp": -88.0,
+      "fitted": -47.5,
+      "residual": -40.5
+     },
+     {
+      "player_id": "5848",
+      "position": "WR",
+      "pick_no": 92,
+      "points": 13.6,
+      "vorp": -153.5,
+      "fitted": -47.5,
+      "residual": -106.0
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 93,
+      "points": 149.8,
+      "vorp": -24.3,
+      "fitted": -47.5,
+      "residual": 23.2
+     },
+     {
+      "player_id": "11589",
+      "position": "RB",
+      "pick_no": 94,
+      "points": 44.0,
+      "vorp": -130.1,
+      "fitted": -47.5,
+      "residual": -82.6
+     },
+     {
+      "player_id": "9224",
+      "position": "RB",
+      "pick_no": 95,
+      "points": 228.0,
+      "vorp": 53.9,
+      "fitted": -47.5,
+      "residual": 101.4
+     },
+     {
+      "player_id": "8167",
+      "position": "WR",
+      "pick_no": 96,
+      "points": 90.8,
+      "vorp": -76.3,
+      "fitted": -47.5,
+      "residual": -28.8
+     },
+     {
+      "player_id": "11635",
+      "position": "WR",
+      "pick_no": 97,
+      "points": 199.9,
+      "vorp": 32.8,
+      "fitted": -47.5,
+      "residual": 80.3
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 98,
+      "points": 181.0,
+      "vorp": 13.9,
+      "fitted": -47.5,
+      "residual": 61.4
+     },
+     {
+      "player_id": "8143",
+      "position": "RB",
+      "pick_no": 99,
+      "points": 115.5,
+      "vorp": -58.6,
+      "fitted": -47.5,
+      "residual": -11.1
+     },
+     {
+      "player_id": "11637",
+      "position": "WR",
+      "pick_no": 100,
+      "points": 97.0,
+      "vorp": -70.1,
+      "fitted": -47.5,
+      "residual": -22.6
+     },
+     {
+      "player_id": "5248",
+      "position": "RB",
+      "pick_no": 101,
+      "points": 62.6,
+      "vorp": -111.5,
+      "fitted": -47.5,
+      "residual": -64.0
+     },
+     {
+      "player_id": "6804",
+      "position": "QB",
+      "pick_no": 102,
+      "points": 283.86,
+      "vorp": -55.38,
+      "fitted": -47.5,
+      "residual": -7.88
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 162.7,
+      "vorp": -11.4,
+      "fitted": -47.5,
+      "residual": 36.1
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 105,
+      "points": 175.8,
+      "vorp": 1.7,
+      "fitted": -47.5,
+      "residual": 49.2
+     },
+     {
+      "player_id": "11560",
+      "position": "QB",
+      "pick_no": 106,
+      "points": 294.54,
+      "vorp": -44.7,
+      "fitted": -47.5,
+      "residual": 2.8
+     },
+     {
+      "player_id": "11631",
+      "position": "WR",
+      "pick_no": 107,
+      "points": 240.5,
+      "vorp": 73.4,
+      "fitted": -47.5,
+      "residual": 120.9
+     },
+     {
+      "player_id": "8110",
+      "position": "TE",
+      "pick_no": 109,
+      "points": 74.9,
+      "vorp": -60.9,
+      "fitted": -47.5,
+      "residual": -13.4
+     },
+     {
+      "player_id": "11586",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 30.0,
+      "vorp": -144.1,
+      "fitted": -47.5,
+      "residual": -96.6
+     },
+     {
+      "player_id": "1426",
+      "position": "WR",
+      "pick_no": 112,
+      "points": 119.0,
+      "vorp": -48.1,
+      "fitted": -47.5,
+      "residual": -0.6
+     },
+     {
+      "player_id": "9508",
+      "position": "RB",
+      "pick_no": 113,
+      "points": 98.6,
+      "vorp": -75.5,
+      "fitted": -47.5,
+      "residual": -28.0
+     },
+     {
+      "player_id": "7594",
+      "position": "RB",
+      "pick_no": 114,
+      "points": 220.1,
+      "vorp": 46.0,
+      "fitted": -47.5,
+      "residual": 93.5
+     },
+     {
+      "player_id": "11566",
+      "position": "QB",
+      "pick_no": 115,
+      "points": 405.82,
+      "vorp": 66.58,
+      "fitted": -47.5,
+      "residual": 114.08
+     },
+     {
+      "player_id": "6768",
+      "position": "QB",
+      "pick_no": 116,
+      "points": 219.58,
+      "vorp": -119.66,
+      "fitted": -47.5,
+      "residual": -72.16
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 117,
+      "points": 397.96,
+      "vorp": 58.72,
+      "fitted": -47.5,
+      "residual": 106.22
+     },
+     {
+      "player_id": "8183",
+      "position": "QB",
+      "pick_no": 118,
+      "points": 306.86,
+      "vorp": -32.38,
+      "fitted": -47.5,
+      "residual": 15.12
+     },
+     {
+      "player_id": "5001",
+      "position": "TE",
+      "pick_no": 119,
+      "points": 91.7,
+      "vorp": -44.1,
+      "fitted": -47.5,
+      "residual": 3.4
+     },
+     {
+      "player_id": "3164",
+      "position": "RB",
+      "pick_no": 120,
+      "points": 51.5,
+      "vorp": -122.6,
+      "fitted": -47.5,
+      "residual": -75.1
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 126,
+      "points": 203.0,
+      "vorp": 35.9,
+      "fitted": -47.5,
+      "residual": 83.4
+     },
+     {
+      "player_id": "7021",
+      "position": "RB",
+      "pick_no": 128,
+      "points": 178.3,
+      "vorp": 4.2,
+      "fitted": -47.5,
+      "residual": 51.7
+     },
+     {
+      "player_id": "5937",
+      "position": "WR",
+      "pick_no": 130,
+      "points": 72.6,
+      "vorp": -94.5,
+      "fitted": -47.5,
+      "residual": -47.0
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 131,
+      "points": 201.8,
+      "vorp": 34.7,
+      "fitted": -47.5,
+      "residual": 82.2
+     },
+     {
+      "player_id": "8134",
+      "position": "WR",
+      "pick_no": 132,
+      "points": 144.5,
+      "vorp": -22.6,
+      "fitted": -47.5,
+      "residual": 24.9
+     },
+     {
+      "player_id": "11627",
+      "position": "WR",
+      "pick_no": 133,
+      "points": 53.1,
+      "vorp": -114.0,
+      "fitted": -47.5,
+      "residual": -66.5
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 138,
+      "points": 183.2,
+      "vorp": 16.1,
+      "fitted": -47.5,
+      "residual": 63.6
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 140,
+      "points": 82.6,
+      "vorp": -53.2,
+      "fitted": -47.5,
+      "residual": -5.7
+     },
+     {
+      "player_id": "96",
+      "position": "QB",
+      "pick_no": 141,
+      "points": 312.58,
+      "vorp": -26.66,
+      "fitted": -47.5,
+      "residual": 20.84
+     },
+     {
+      "player_id": "1689",
+      "position": "WR",
+      "pick_no": 142,
+      "points": 115.5,
+      "vorp": -51.6,
+      "fitted": -51.6,
+      "residual": 0.0
+     },
+     {
+      "player_id": "8121",
+      "position": "WR",
+      "pick_no": 143,
+      "points": 109.1,
+      "vorp": -58.0,
+      "fitted": -58.0,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11625",
+      "position": "WR",
+      "pick_no": 144,
+      "points": 42.26,
+      "vorp": -124.84,
+      "fitted": -117.78,
+      "residual": -7.06
+     },
+     {
+      "player_id": "7608",
+      "position": "RB",
+      "pick_no": 145,
+      "points": 26.5,
+      "vorp": -147.6,
+      "fitted": -117.78,
+      "residual": -29.82
+     },
+     {
+      "player_id": "11582",
+      "position": "RB",
+      "pick_no": 147,
+      "points": 20.4,
+      "vorp": -153.7,
+      "fitted": -117.78,
+      "residual": -35.92
+     },
+     {
+      "player_id": "4381",
+      "position": "TE",
+      "pick_no": 148,
+      "points": 90.84,
+      "vorp": -44.96,
+      "fitted": -117.78,
+      "residual": 72.81
+     }
+    ]
+   },
+   {
+    "season": 2025,
+    "n": 107,
+    "unmatched_as_zero": true,
+    "excluded_counted": {
+     "keeper": 20,
+     "no_position": 2,
+     "not_graded_position": 21,
+     "no_realized_row": 1
+    },
+    "realized_replacement": {
+     "RB": 154.8,
+     "TE": 141.4,
+     "QB": 336.88,
+     "WR": 157.7
+    },
+    "scoring_stamp": {
+     "pass_td": 6.0,
+     "pass_int": -2.0
+    },
+    "weeks_used": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18
+    ],
+    "residual_by_position": {
+     "QB": {
+      "mean": -23.31,
+      "lo": -74.97,
+      "hi": 24.94,
+      "n": 14
+     },
+     "RB": {
+      "mean": -5.71,
+      "lo": -24.37,
+      "hi": 14.25,
+      "n": 37
+     },
+     "WR": {
+      "mean": 7.02,
+      "lo": -8.42,
+      "hi": 22.28,
+      "n": 43
+     },
+     "TE": {
+      "mean": 18.13,
+      "lo": -5.34,
+      "hi": 43.7,
+      "n": 13
+     }
+    },
+    "picks": [
+     {
+      "player_id": "12527",
+      "position": "RB",
+      "pick_no": 8,
+      "points": 217.6,
+      "vorp": 62.8,
+      "fitted": 93.3,
+      "residual": -30.5
+     },
+     {
+      "player_id": "8150",
+      "position": "RB",
+      "pick_no": 11,
+      "points": 245.3,
+      "vorp": 90.5,
+      "fitted": 93.3,
+      "residual": -2.8
+     },
+     {
+      "player_id": "9224",
+      "position": "RB",
+      "pick_no": 13,
+      "points": 243.8,
+      "vorp": 89.0,
+      "fitted": 93.3,
+      "residual": -4.3
+     },
+     {
+      "player_id": "8138",
+      "position": "RB",
+      "pick_no": 16,
+      "points": 285.7,
+      "vorp": 130.9,
+      "fitted": 93.3,
+      "residual": 37.6
+     },
+     {
+      "player_id": "8112",
+      "position": "WR",
+      "pick_no": 21,
+      "points": 165.9,
+      "vorp": 8.2,
+      "fitted": 8.2,
+      "residual": 0.0
+     },
+     {
+      "player_id": "4881",
+      "position": "QB",
+      "pick_no": 23,
+      "points": 254.86,
+      "vorp": -82.02,
+      "fitted": -22.74,
+      "residual": -59.28
+     },
+     {
+      "player_id": "5859",
+      "position": "WR",
+      "pick_no": 25,
+      "points": 181.3,
+      "vorp": 23.6,
+      "fitted": -22.74,
+      "residual": 46.34
+     },
+     {
+      "player_id": "11635",
+      "position": "WR",
+      "pick_no": 28,
+      "points": 147.9,
+      "vorp": -9.8,
+      "fitted": -22.74,
+      "residual": 12.94
+     },
+     {
+      "player_id": "12507",
+      "position": "RB",
+      "pick_no": 29,
+      "points": 119.7,
+      "vorp": -35.1,
+      "fitted": -23.29,
+      "residual": -11.81
+     },
+     {
+      "player_id": "3321",
+      "position": "WR",
+      "pick_no": 30,
+      "points": 43.0,
+      "vorp": -114.7,
+      "fitted": -23.29,
+      "residual": -91.41
+     },
+     {
+      "player_id": "4035",
+      "position": "RB",
+      "pick_no": 31,
+      "points": 84.2,
+      "vorp": -70.6,
+      "fitted": -23.29,
+      "residual": -47.31
+     },
+     {
+      "player_id": "8155",
+      "position": "RB",
+      "pick_no": 32,
+      "points": 191.66,
+      "vorp": 36.86,
+      "fitted": -23.29,
+      "residual": 60.15
+     },
+     {
+      "player_id": "2216",
+      "position": "WR",
+      "pick_no": 33,
+      "points": 69.8,
+      "vorp": -87.9,
+      "fitted": -23.29,
+      "residual": -64.61
+     },
+     {
+      "player_id": "11628",
+      "position": "WR",
+      "pick_no": 34,
+      "points": 105.3,
+      "vorp": -52.4,
+      "fitted": -23.29,
+      "residual": -29.11
+     },
+     {
+      "player_id": "6801",
+      "position": "WR",
+      "pick_no": 35,
+      "points": 180.1,
+      "vorp": 22.4,
+      "fitted": -23.29,
+      "residual": 45.69
+     },
+     {
+      "player_id": "7594",
+      "position": "RB",
+      "pick_no": 36,
+      "points": 110.4,
+      "vorp": -44.4,
+      "fitted": -23.29,
+      "residual": -21.11
+     },
+     {
+      "player_id": "4217",
+      "position": "TE",
+      "pick_no": 37,
+      "points": 133.0,
+      "vorp": -8.4,
+      "fitted": -23.29,
+      "residual": 14.89
+     },
+     {
+      "player_id": "5846",
+      "position": "WR",
+      "pick_no": 38,
+      "points": 157.7,
+      "vorp": 0.0,
+      "fitted": -23.29,
+      "residual": 23.29
+     },
+     {
+      "player_id": "5927",
+      "position": "WR",
+      "pick_no": 39,
+      "points": 95.2,
+      "vorp": -62.5,
+      "fitted": -23.29,
+      "residual": -39.21
+     },
+     {
+      "player_id": "8146",
+      "position": "WR",
+      "pick_no": 40,
+      "points": 81.5,
+      "vorp": -76.2,
+      "fitted": -23.29,
+      "residual": -52.91
+     },
+     {
+      "player_id": "2133",
+      "position": "WR",
+      "pick_no": 41,
+      "points": 192.9,
+      "vorp": 35.2,
+      "fitted": -23.29,
+      "residual": 58.49
+     },
+     {
+      "player_id": "4983",
+      "position": "WR",
+      "pick_no": 42,
+      "points": 145.68,
+      "vorp": -12.02,
+      "fitted": -23.29,
+      "residual": 11.27
+     },
+     {
+      "player_id": "12489",
+      "position": "RB",
+      "pick_no": 43,
+      "points": 183.1,
+      "vorp": 28.3,
+      "fitted": -23.29,
+      "residual": 51.59
+     },
+     {
+      "player_id": "6770",
+      "position": "QB",
+      "pick_no": 44,
+      "points": 168.46,
+      "vorp": -168.42,
+      "fitted": -23.29,
+      "residual": -145.13
+     },
+     {
+      "player_id": "11566",
+      "position": "QB",
+      "pick_no": 45,
+      "points": 128.28,
+      "vorp": -208.6,
+      "fitted": -23.29,
+      "residual": -185.31
+     },
+     {
+      "player_id": "10859",
+      "position": "TE",
+      "pick_no": 46,
+      "points": 86.9,
+      "vorp": -54.5,
+      "fitted": -23.29,
+      "residual": -31.21
+     },
+     {
+      "player_id": "9488",
+      "position": "WR",
+      "pick_no": 47,
+      "points": 300.4,
+      "vorp": 142.7,
+      "fitted": -23.29,
+      "residual": 165.99
+     },
+     {
+      "player_id": "4137",
+      "position": "RB",
+      "pick_no": 48,
+      "points": 29.3,
+      "vorp": -125.5,
+      "fitted": -23.29,
+      "residual": -102.21
+     },
+     {
+      "player_id": "5045",
+      "position": "WR",
+      "pick_no": 49,
+      "points": 180.7,
+      "vorp": 23.0,
+      "fitted": -23.29,
+      "residual": 46.29
+     },
+     {
+      "player_id": "4046",
+      "position": "QB",
+      "pick_no": 50,
+      "points": 325.18,
+      "vorp": -11.7,
+      "fitted": -23.29,
+      "residual": 11.59
+     },
+     {
+      "player_id": "9997",
+      "position": "WR",
+      "pick_no": 51,
+      "points": 200.3,
+      "vorp": 42.6,
+      "fitted": -23.29,
+      "residual": 65.89
+     },
+     {
+      "player_id": "6904",
+      "position": "QB",
+      "pick_no": 52,
+      "points": 351.06,
+      "vorp": 14.18,
+      "fitted": -23.29,
+      "residual": 37.47
+     },
+     {
+      "player_id": "4892",
+      "position": "QB",
+      "pick_no": 53,
+      "points": 319.92,
+      "vorp": -16.96,
+      "fitted": -23.29,
+      "residual": 6.33
+     },
+     {
+      "player_id": "12529",
+      "position": "RB",
+      "pick_no": 54,
+      "points": 188.7,
+      "vorp": 33.9,
+      "fitted": -23.29,
+      "residual": 57.19
+     },
+     {
+      "player_id": "5892",
+      "position": "RB",
+      "pick_no": 55,
+      "points": 154.92,
+      "vorp": 0.12,
+      "fitted": -23.29,
+      "residual": 23.41
+     },
+     {
+      "player_id": "10229",
+      "position": "WR",
+      "pick_no": 56,
+      "points": 121.6,
+      "vorp": -36.1,
+      "fitted": -23.29,
+      "residual": -12.81
+     },
+     {
+      "player_id": "1466",
+      "position": "TE",
+      "pick_no": 58,
+      "points": 153.2,
+      "vorp": 11.8,
+      "fitted": -23.29,
+      "residual": 35.09
+     },
+     {
+      "player_id": "6790",
+      "position": "RB",
+      "pick_no": 59,
+      "points": 210.7,
+      "vorp": 55.9,
+      "fitted": -23.29,
+      "residual": 79.19
+     },
+     {
+      "player_id": "11624",
+      "position": "WR",
+      "pick_no": 60,
+      "points": 88.9,
+      "vorp": -68.8,
+      "fitted": -23.29,
+      "residual": -45.51
+     },
+     {
+      "player_id": "8205",
+      "position": "RB",
+      "pick_no": 61,
+      "points": 77.8,
+      "vorp": -77.0,
+      "fitted": -23.29,
+      "residual": -53.71
+     },
+     {
+      "player_id": "7525",
+      "position": "WR",
+      "pick_no": 62,
+      "points": 163.3,
+      "vorp": 5.6,
+      "fitted": -23.29,
+      "residual": 28.89
+     },
+     {
+      "player_id": "12504",
+      "position": "RB",
+      "pick_no": 63,
+      "points": 8.3,
+      "vorp": -146.5,
+      "fitted": -23.29,
+      "residual": -123.21
+     },
+     {
+      "player_id": "5012",
+      "position": "TE",
+      "pick_no": 65,
+      "points": 107.0,
+      "vorp": -34.4,
+      "fitted": -23.29,
+      "residual": -11.11
+     },
+     {
+      "player_id": "8137",
+      "position": "WR",
+      "pick_no": 66,
+      "points": 243.4,
+      "vorp": 85.7,
+      "fitted": -23.29,
+      "residual": 108.99
+     },
+     {
+      "player_id": "12526",
+      "position": "WR",
+      "pick_no": 67,
+      "points": 176.3,
+      "vorp": 18.6,
+      "fitted": -23.29,
+      "residual": 41.89
+     },
+     {
+      "player_id": "4018",
+      "position": "RB",
+      "pick_no": 68,
+      "points": 0.0,
+      "vorp": -154.8,
+      "fitted": -23.29,
+      "residual": -131.51
+     },
+     {
+      "player_id": "8148",
+      "position": "WR",
+      "pick_no": 69,
+      "points": 186.6,
+      "vorp": 28.9,
+      "fitted": -23.29,
+      "residual": 52.19
+     },
+     {
+      "player_id": "5967",
+      "position": "RB",
+      "pick_no": 70,
+      "points": 169.3,
+      "vorp": 14.5,
+      "fitted": -23.29,
+      "residual": 37.79
+     },
+     {
+      "player_id": "5844",
+      "position": "TE",
+      "pick_no": 71,
+      "points": 87.3,
+      "vorp": -54.1,
+      "fitted": -23.29,
+      "residual": -30.81
+     },
+     {
+      "player_id": "7526",
+      "position": "WR",
+      "pick_no": 72,
+      "points": 162.12,
+      "vorp": 4.42,
+      "fitted": -23.29,
+      "residual": 27.71
+     },
+     {
+      "player_id": "4066",
+      "position": "TE",
+      "pick_no": 73,
+      "points": 77.8,
+      "vorp": -63.6,
+      "fitted": -23.29,
+      "residual": -40.31
+     },
+     {
+      "player_id": "4199",
+      "position": "RB",
+      "pick_no": 74,
+      "points": 104.7,
+      "vorp": -50.1,
+      "fitted": -23.29,
+      "residual": -26.81
+     },
+     {
+      "player_id": "6783",
+      "position": "WR",
+      "pick_no": 75,
+      "points": 95.7,
+      "vorp": -62.0,
+      "fitted": -23.29,
+      "residual": -38.71
+     },
+     {
+      "player_id": "11620",
+      "position": "WR",
+      "pick_no": 76,
+      "points": 124.1,
+      "vorp": -33.6,
+      "fitted": -23.29,
+      "residual": -10.31
+     },
+     {
+      "player_id": "5872",
+      "position": "WR",
+      "pick_no": 77,
+      "points": 152.2,
+      "vorp": -5.5,
+      "fitted": -23.29,
+      "residual": 17.79
+     },
+     {
+      "player_id": "11655",
+      "position": "RB",
+      "pick_no": 78,
+      "points": 142.8,
+      "vorp": -12.0,
+      "fitted": -23.29,
+      "residual": 11.29
+     },
+     {
+      "player_id": "12512",
+      "position": "RB",
+      "pick_no": 79,
+      "points": 154.8,
+      "vorp": 0.0,
+      "fitted": -23.29,
+      "residual": 23.29
+     },
+     {
+      "player_id": "4981",
+      "position": "WR",
+      "pick_no": 80,
+      "points": 38.8,
+      "vorp": -118.9,
+      "fitted": -23.29,
+      "residual": -95.61
+     },
+     {
+      "player_id": "11563",
+      "position": "QB",
+      "pick_no": 81,
+      "points": 346.84,
+      "vorp": 9.96,
+      "fitted": -23.29,
+      "residual": 33.25
+     },
+     {
+      "player_id": "5947",
+      "position": "WR",
+      "pick_no": 82,
+      "points": 138.3,
+      "vorp": -19.4,
+      "fitted": -23.29,
+      "residual": 3.89
+     },
+     {
+      "player_id": "12514",
+      "position": "WR",
+      "pick_no": 83,
+      "points": 162.2,
+      "vorp": 4.5,
+      "fitted": -23.29,
+      "residual": 27.79
+     },
+     {
+      "player_id": "8144",
+      "position": "WR",
+      "pick_no": 84,
+      "points": 218.0,
+      "vorp": 60.3,
+      "fitted": -23.29,
+      "residual": 83.59
+     },
+     {
+      "player_id": "9756",
+      "position": "WR",
+      "pick_no": 85,
+      "points": 114.1,
+      "vorp": -43.6,
+      "fitted": -23.29,
+      "residual": -20.31
+     },
+     {
+      "player_id": "8228",
+      "position": "RB",
+      "pick_no": 86,
+      "points": 197.1,
+      "vorp": 42.3,
+      "fitted": -23.29,
+      "residual": 65.59
+     },
+     {
+      "player_id": "7543",
+      "position": "RB",
+      "pick_no": 87,
+      "points": 235.9,
+      "vorp": 81.1,
+      "fitted": -23.29,
+      "residual": 104.39
+     },
+     {
+      "player_id": "11638",
+      "position": "WR",
+      "pick_no": 88,
+      "points": 70.6,
+      "vorp": -87.1,
+      "fitted": -36.74,
+      "residual": -50.36
+     },
+     {
+      "player_id": "12501",
+      "position": "WR",
+      "pick_no": 89,
+      "points": 55.5,
+      "vorp": -102.2,
+      "fitted": -36.74,
+      "residual": -65.46
+     },
+     {
+      "player_id": "6819",
+      "position": "WR",
+      "pick_no": 90,
+      "points": 161.3,
+      "vorp": 3.6,
+      "fitted": -36.74,
+      "residual": 40.34
+     },
+     {
+      "player_id": "4033",
+      "position": "TE",
+      "pick_no": 92,
+      "points": 69.8,
+      "vorp": -71.6,
+      "fitted": -36.74,
+      "residual": -34.86
+     },
+     {
+      "player_id": "2449",
+      "position": "WR",
+      "pick_no": 93,
+      "points": 167.8,
+      "vorp": 10.1,
+      "fitted": -36.74,
+      "residual": 46.84
+     },
+     {
+      "player_id": "12518",
+      "position": "TE",
+      "pick_no": 94,
+      "points": 150.5,
+      "vorp": 9.1,
+      "fitted": -36.74,
+      "residual": 45.84
+     },
+     {
+      "player_id": "8134",
+      "position": "WR",
+      "pick_no": 95,
+      "points": 127.1,
+      "vorp": -30.6,
+      "fitted": -36.74,
+      "residual": 6.14
+     },
+     {
+      "player_id": "4037",
+      "position": "WR",
+      "pick_no": 96,
+      "points": 64.5,
+      "vorp": -93.2,
+      "fitted": -36.74,
+      "residual": -56.46
+     },
+     {
+      "player_id": "8154",
+      "position": "RB",
+      "pick_no": 97,
+      "points": 58.5,
+      "vorp": -96.3,
+      "fitted": -36.74,
+      "residual": -59.56
+     },
+     {
+      "player_id": "4039",
+      "position": "WR",
+      "pick_no": 98,
+      "points": 90.8,
+      "vorp": -66.9,
+      "fitted": -36.74,
+      "residual": -30.16
+     },
+     {
+      "player_id": "9753",
+      "position": "RB",
+      "pick_no": 99,
+      "points": 169.4,
+      "vorp": 14.6,
+      "fitted": -36.74,
+      "residual": 51.34
+     },
+     {
+      "player_id": "9484",
+      "position": "TE",
+      "pick_no": 100,
+      "points": 101.2,
+      "vorp": -40.2,
+      "fitted": -36.74,
+      "residual": -3.46
+     },
+     {
+      "player_id": "6806",
+      "position": "RB",
+      "pick_no": 101,
+      "points": 110.4,
+      "vorp": -44.4,
+      "fitted": -36.74,
+      "residual": -7.66
+     },
+     {
+      "player_id": "11560",
+      "position": "QB",
+      "pick_no": 102,
+      "points": 369.18,
+      "vorp": 32.3,
+      "fitted": -36.74,
+      "residual": 69.04
+     },
+     {
+      "player_id": "12533",
+      "position": "RB",
+      "pick_no": 104,
+      "points": 135.8,
+      "vorp": -19.0,
+      "fitted": -36.74,
+      "residual": 17.74
+     },
+     {
+      "player_id": "12481",
+      "position": "RB",
+      "pick_no": 105,
+      "points": 113.7,
+      "vorp": -41.1,
+      "fitted": -36.74,
+      "residual": -4.36
+     },
+     {
+      "player_id": "12517",
+      "position": "TE",
+      "pick_no": 106,
+      "points": 136.1,
+      "vorp": -5.3,
+      "fitted": -36.74,
+      "residual": 31.44
+     },
+     {
+      "player_id": "4663",
+      "position": "RB",
+      "pick_no": 107,
+      "points": 10.6,
+      "vorp": -144.2,
+      "fitted": -36.74,
+      "residual": -107.46
+     },
+     {
+      "player_id": "7588",
+      "position": "RB",
+      "pick_no": 108,
+      "points": 225.3,
+      "vorp": 70.5,
+      "fitted": -36.74,
+      "residual": 107.24
+     },
+     {
+      "player_id": "8408",
+      "position": "RB",
+      "pick_no": 109,
+      "points": 121.9,
+      "vorp": -32.9,
+      "fitted": -36.74,
+      "residual": 3.84
+     },
+     {
+      "player_id": "7528",
+      "position": "RB",
+      "pick_no": 110,
+      "points": 10.1,
+      "vorp": -144.7,
+      "fitted": -42.57,
+      "residual": -102.13
+     },
+     {
+      "player_id": "7049",
+      "position": "WR",
+      "pick_no": 111,
+      "points": 143.8,
+      "vorp": -13.9,
+      "fitted": -42.57,
+      "residual": 28.67
+     },
+     {
+      "player_id": "3294",
+      "position": "QB",
+      "pick_no": 112,
+      "points": 367.78,
+      "vorp": 30.9,
+      "fitted": -42.57,
+      "residual": 73.47
+     },
+     {
+      "player_id": "5849",
+      "position": "QB",
+      "pick_no": 114,
+      "points": 89.78,
+      "vorp": -247.1,
+      "fitted": -59.02,
+      "residual": -188.08
+     },
+     {
+      "player_id": "7090",
+      "position": "WR",
+      "pick_no": 115,
+      "points": 66.3,
+      "vorp": -91.4,
+      "fitted": -59.02,
+      "residual": -32.38
+     },
+     {
+      "player_id": "9225",
+      "position": "RB",
+      "pick_no": 116,
+      "points": 52.3,
+      "vorp": -102.5,
+      "fitted": -59.02,
+      "residual": -43.48
+     },
+     {
+      "player_id": "9758",
+      "position": "QB",
+      "pick_no": 119,
+      "points": 246.54,
+      "vorp": -90.34,
+      "fitted": -59.02,
+      "residual": -31.32
+     },
+     {
+      "player_id": "7553",
+      "position": "TE",
+      "pick_no": 121,
+      "points": 166.8,
+      "vorp": 25.4,
+      "fitted": -59.02,
+      "residual": 84.42
+     },
+     {
+      "player_id": "12484",
+      "position": "WR",
+      "pick_no": 123,
+      "points": 109.0,
+      "vorp": -48.7,
+      "fitted": -59.02,
+      "residual": 10.32
+     },
+     {
+      "player_id": "11576",
+      "position": "RB",
+      "pick_no": 124,
+      "points": 14.3,
+      "vorp": -140.5,
+      "fitted": -59.02,
+      "residual": -81.48
+     },
+     {
+      "player_id": "5022",
+      "position": "TE",
+      "pick_no": 125,
+      "points": 155.1,
+      "vorp": 13.7,
+      "fitted": -59.02,
+      "residual": 72.72
+     },
+     {
+      "player_id": "3163",
+      "position": "QB",
+      "pick_no": 128,
+      "points": 365.06,
+      "vorp": 28.18,
+      "fitted": -59.02,
+      "residual": 87.2
+     },
+     {
+      "player_id": "6797",
+      "position": "QB",
+      "pick_no": 131,
+      "points": 336.88,
+      "vorp": 0.0,
+      "fitted": -59.02,
+      "residual": 59.02
+     },
+     {
+      "player_id": "7611",
+      "position": "RB",
+      "pick_no": 132,
+      "points": 158.8,
+      "vorp": 4.0,
+      "fitted": -59.02,
+      "residual": 63.02
+     },
+     {
+      "player_id": "12490",
+      "position": "RB",
+      "pick_no": 135,
+      "points": 83.6,
+      "vorp": -71.2,
+      "fitted": -71.2,
+      "residual": 0.0
+     },
+     {
+      "player_id": "11637",
+      "position": "WR",
+      "pick_no": 137,
+      "points": 81.4,
+      "vorp": -76.3,
+      "fitted": -76.3,
+      "residual": 0.0
+     },
+     {
+      "player_id": "12495",
+      "position": "RB",
+      "pick_no": 138,
+      "points": 50.6,
+      "vorp": -104.2,
+      "fitted": -95.67,
+      "residual": -8.53
+     },
+     {
+      "player_id": "7591",
+      "position": "QB",
+      "pick_no": 140,
+      "points": 146.66,
+      "vorp": -190.22,
+      "fitted": -95.67,
+      "residual": -94.55
+     },
+     {
+      "player_id": "3214",
+      "position": "TE",
+      "pick_no": 143,
+      "points": 148.8,
+      "vorp": 7.4,
+      "fitted": -95.67,
+      "residual": 103.07
+     },
+     {
+      "player_id": "10222",
+      "position": "WR",
+      "pick_no": 147,
+      "points": 39.0,
+      "vorp": -118.7,
+      "fitted": -98.73,
+      "residual": -19.97
+     },
+     {
+      "player_id": "12457",
+      "position": "RB",
+      "pick_no": 148,
+      "points": 19.9,
+      "vorp": -134.9,
+      "fitted": -98.73,
+      "residual": -36.17
+     },
+     {
+      "player_id": "8676",
+      "position": "WR",
+      "pick_no": 150,
+      "points": 115.1,
+      "vorp": -42.6,
+      "fitted": -98.73,
+      "residual": 56.13
+     }
+    ]
+   },
+   {
+    "season": "POOLED",
+    "residual_by_position": {
+     "QB": {
+      "mean": -11.54,
+      "lo": -41.76,
+      "hi": 16.81,
+      "n": 45
+     },
+     "RB": {
+      "mean": -8.21,
+      "lo": -19.2,
+      "hi": 2.63,
+      "n": 118
+     },
+     "WR": {
+      "mean": 4.71,
+      "lo": -4.29,
+      "hi": 13.64,
+      "n": 138
+     },
+     "TE": {
+      "mean": 21.48,
+      "lo": 6.08,
+      "hi": 36.65,
+      "n": 39
+     }
+    },
+    "permutation_null": {
+     "QB": {
+      "position": "QB",
+      "observed_mean_residual": -11.54,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.2013,
+      "reading": "the observed mean is ordinary under a null that assigns positions at random"
+     },
+     "RB": {
+      "position": "RB",
+      "observed_mean_residual": -8.21,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.0835,
+      "reading": "the observed mean is unusual under a position-blind null"
+     },
+     "WR": {
+      "position": "WR",
+      "observed_mean_residual": 4.71,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.2712,
+      "reading": "the observed mean is ordinary under a null that assigns positions at random"
+     },
+     "TE": {
+      "position": "TE",
+      "observed_mean_residual": 21.48,
+      "draws": 4000,
+      "two_sided_fraction_at_least_as_extreme": 0.0265,
+      "reading": "the observed mean is unusual under a position-blind null"
+     }
+    },
+    "multiple_comparisons_note": "four positions were tested; at 95% one crossing by chance is expected roughly one time in five. Only the QB row was pre-registered \u2014 every other row here is exploratory and is reported as such."
+   }
+  ]
+ }
+}
