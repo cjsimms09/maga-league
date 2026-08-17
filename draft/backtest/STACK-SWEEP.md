@@ -4,11 +4,11 @@ _120 paired rooms · within-team weekly correlation rho=0.35 · control = no sta
 
 | dose | edge $ | 95% CI | max same-team | verdict |
 |---|---|---|---|---|
-| 0.5× | +367.71 | [297.92, 441.04] | 3.48 | WINNER — dose pays |
-| 1.0× | +409.38 | [337.08, 480.0] | 4.93 | WINNER — dose pays |
-| 1.5× | +478.12 | [415.0, 542.92] | 5.81 | WINNER — dose pays |
-| 2.0× | +475.21 | [412.5, 540.0] | 5.87 | WINNER — dose pays |
-| 3.0× | +463.33 | [402.08, 531.46] | 6.51 | WINNER — dose pays |
+| 0.5× | +277.08 | [217.71, 337.29] | 3.77 | WINNER — dose pays |
+| 1.0× | +349.58 | [290.21, 416.46] | 4.53 | WINNER — dose pays |
+| 1.5× | +352.92 | [291.25, 415.42] | 4.69 | WINNER — dose pays |
+| 2.0× | +395.21 | [335.0, 457.08] | 5.32 | WINNER — dose pays |
+| 3.0× | +394.58 | [335.0, 458.54] | 5.32 | WINNER — dose pays |
 
 **Where the high-pool gain stops paying:** dose 3.0× is the largest that clears; beyond it the floor cost wins.
 
