@@ -242,7 +242,25 @@ def ranks_after_qb_bonus(board: dict, bonus: float) -> dict:
     for p in rows:
         if p["position"] == "QB":
             p["vorp"] = p["vorp"] + bonus
-    rows.sort(key=lambda p: -p["vorp"])
+    # Sort under the ordering convention THE BOARD ITSELF USES, detected from
+    # the artifact rather than assumed. Boards built after Cory's 2026-08-17
+    # ruling demote K/DEF below every skill position (vorp.py's
+    # ONESIE_POSITIONS sort); boards built before it rank raw -vorp. A raw
+    # sort against a demoted board fails the zero-bonus identity by one at
+    # every player straddling a demoted onesie (run 32035071758: Mike Evans
+    # 36 vs the board's 35 — the LA Rams DEF sat between them), and a
+    # demoted sort against a pre-ruling board fails the same way in reverse,
+    # so the convention must come from the data being reproduced.
+    onesie = ("K", "DEF")
+    ranked = [p for p in rows if p.get("overall_rank")]
+    onesie_ranks = [p["overall_rank"] for p in ranked if p["position"] in onesie]
+    skill_ranks = [p["overall_rank"] for p in ranked if p["position"] not in onesie]
+    demoted = (bool(onesie_ranks) and bool(skill_ranks)
+               and min(onesie_ranks) > max(skill_ranks))
+    if demoted:
+        rows.sort(key=lambda p: (p.get("position") in onesie, -p["vorp"]))
+    else:
+        rows.sort(key=lambda p: -p["vorp"])
     return {str(p["player_id"]): i for i, p in enumerate(rows, 1)}
 
 

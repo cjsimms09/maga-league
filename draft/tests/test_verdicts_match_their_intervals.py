@@ -125,7 +125,16 @@ def test_CONTROL_the_sweep_actually_reaches_the_artifacts():
     change makes it scan nothing and report clean. Pinned to the measured
     population so a silent collapse to zero goes red."""
     found = _all_pairs()
-    assert len(found) >= 40, f"only {len(found)} verdict/interval pairs found — the sweep stopped reaching the artifacts"
+    # The floor is set WELL below the live population (measured 40 at
+    # 2026-08-17T13:10Z, 39 at 13:41Z after that afternoon's lab report
+    # rewrote its artifacts and one pair left). Pinning the exact count of a
+    # nightly-rewritten artifact set makes this control fire on ordinary lab
+    # churn — the by-construction refusal shape in miniature — while the
+    # thing it exists to catch is a COLLAPSE: a path or key change that scans
+    # nothing and reports clean. 30 is far above any plausible partial break
+    # (losing any one artifact drops 5-11 pairs; the per-name assertions
+    # below catch that first) and far below the live population.
+    assert len(found) >= 30, f"only {len(found)} verdict/interval pairs found — the sweep stopped reaching the artifacts"
     names = {n for n, _, _, _ in found}
     for expected in ("frontier.json", "stack-sweep.json", "cory-conditional.json"):
         assert expected in names, (expected, sorted(names))

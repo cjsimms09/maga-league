@@ -2019,6 +2019,16 @@ def main() -> None:
         cfg_raw = si.import_league(args.league_id, keeper_rules=existing.get("keepers"))
         if existing.get("my_draft_slot"):
             cfg_raw["my_draft_slot"] = existing["my_draft_slot"]
+        # Keys the import does not itself produce are HUMAN-SET and must
+        # survive the rebuild. This carried over only my_draft_slot until
+        # 2026-08-17, when the nightly (run 32035071758) silently ERASED
+        # `use_measured_ceiling` — Cory's ruling of that morning — because
+        # the fresh import rebuilt the config from Sleeper alone and this
+        # block dropped everything else. The import wins for every key it
+        # writes (league facts stay fresh); nothing else is discarded.
+        for key, val in existing.items():
+            if key not in cfg_raw:
+                cfg_raw[key] = val
         config_schema.save(config_schema.validate(cfg_raw), CONFIG_PATH)
     if not CONFIG_PATH.exists():
         raise SystemExit(f"no league config at {CONFIG_PATH} — run with --league-id first")

@@ -307,10 +307,19 @@ def test_universe_excludes_players_with_no_game():
         assert len(lst) >= EDV.STARTER_RANK[pos], pos
 
 
+@pytest.mark.repo_parity
 def test_board_replacement_constants_match_the_shipped_board():
     """This study compares its cliffs to the board's replacement levels. If the
     board's numbers move and these constants do not, the comparison silently
-    starts grading against a board that no longer exists."""
+    starts grading against a board that no longer exists.
+
+    repo_parity (2026-08-17, issue #8 run 32035071758): a fresh build's
+    replacement levels move with the morning's market (RB moved 189.10 ->
+    189.17, past the 0.05 tolerance), so in the publication gate this refuses
+    every honest rebuild for its data being NEW — the by-construction shape
+    test_gate_selection.py documents. It stays enforced against committed
+    state in every normal pytest run, where a red means: re-derive
+    BOARD_REPLACEMENT_2026 from the published board and say so."""
     board = json.loads((HERE.parent.parent / "public" / "draft_data.json").read_text())
     rep = board["replacement"]
     for pos, v in EDV.BOARD_REPLACEMENT_2026.items():
