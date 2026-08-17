@@ -1,0 +1,228 @@
+{
+ "experiment": "SOURCE-BLEND-2025",
+ "status": "graded",
+ "year": 2025,
+ "_prereg": "draft/backtest/SOURCE-BLEND-2025-PREREG.md",
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/source_blend_2025.py",
+ "matched_population": 376,
+ "drops": {
+  "sleeper_only": 132,
+  "fp_only": 36,
+  "no_realized": 47,
+  "no_prior_for_naive": 83,
+  "fp_unmatched_to_pid": 13
+ },
+ "control_naive_lost": {
+  "naive": 0.7224,
+  "sleeper": 0.7776,
+  "fp": 0.7601,
+  "passed": true
+ },
+ "arms": {
+  "SLEEPER": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.786,
+    "mae": 64.5,
+    "bias": 10.66
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7896,
+    "mae": 42.81,
+    "bias": -5.05
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.7385,
+    "mae": 40.27,
+    "bias": 5.55
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.7964,
+    "mae": 23.05,
+    "bias": -4.13
+   }
+  },
+  "FP": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.7531,
+    "mae": 68.83,
+    "bias": 7.38
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7753,
+    "mae": 44.24,
+    "bias": -11.0
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.7409,
+    "mae": 37.84,
+    "bias": -10.8
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.771,
+    "mae": 23.65,
+    "bias": -14.76
+   }
+  },
+  "NAIVE": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.7018,
+    "mae": 90.13,
+    "bias": 18.01
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7326,
+    "mae": 50.58,
+    "bias": 11.84
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.6961,
+    "mae": 44.2,
+    "bias": 15.03
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.7592,
+    "mae": 29.63,
+    "bias": 5.0
+   }
+  },
+  "BLEND-0.25": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.7709,
+    "mae": 67.63,
+    "bias": 8.2
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7802,
+    "mae": 43.74,
+    "bias": -9.51
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.7444,
+    "mae": 37.13,
+    "bias": -6.71
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.7814,
+    "mae": 23.12,
+    "bias": -12.1
+   }
+  },
+  "BLEND-0.50": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.7812,
+    "mae": 66.53,
+    "bias": 9.02
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7902,
+    "mae": 43.32,
+    "bias": -8.02
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.7439,
+    "mae": 37.48,
+    "bias": -2.62
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.7914,
+    "mae": 22.83,
+    "bias": -9.44
+   }
+  },
+  "BLEND-0.75": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "spearman": 0.7899,
+    "mae": 65.5,
+    "bias": 9.84
+   },
+   "RB": {
+    "n": 87,
+    "status": "measured",
+    "spearman": 0.7896,
+    "mae": 43.01,
+    "bias": -6.53
+   },
+   "WR": {
+    "n": 144,
+    "status": "measured",
+    "spearman": 0.7442,
+    "mae": 38.61,
+    "bias": 1.47
+   },
+   "TE": {
+    "n": 88,
+    "status": "measured",
+    "spearman": 0.7937,
+    "mae": 22.87,
+    "bias": -6.79
+   }
+  }
+ },
+ "decision": {
+  "per_weight": {
+   "0.25": {
+    "positions_beating_both": 1,
+    "of": 4,
+    "mean_spearman": 0.7692
+   },
+   "0.50": {
+    "positions_beating_both": 2,
+    "of": 4,
+    "mean_spearman": 0.7767
+   },
+   "0.75": {
+    "positions_beating_both": 2,
+    "of": 4,
+    "mean_spearman": 0.7793
+   }
+  },
+  "best_w": 0.75,
+  "positions_beating_both": 2,
+  "edge_of_grid": true,
+  "verdict": "NO SEPARATION \u2014 the best blend (w=0.75) beats both sources in only 2 of 4 positions; the prereg requires 3. The board keeps its current source.",
+  "shipping_cap": "One season, n\u2248450. Per the prereg the most this licenses is 'adopt for 2026 and re-test when 2023/2024 become gradeable'. NOTHING from this run ships during draft week."
+ },
+ "fp_url": "https://api.fantasypros.com/v2/json/nfl/2025/projections?position=ALL&scoring=HALF&week=draft"
+}
