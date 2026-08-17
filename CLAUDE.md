@@ -34,8 +34,15 @@ a defect — `test_defect_register.py` fails on it.
 **🔗 "WE DON'T HAVE IT" IS NOT AN ANSWER — `DATA-LIFECYCLE.md`.** Eight
 questions every data gap must walk: why not, can we get it, should we capture it
 consistently, does it predict, should it, is it graded, should it be, does the
-grade move the weights. Measured today: **two of ten stores complete the chain;
-four stop at step 4 or 6 with no recorded reason.**
+grade move the weights. Measured 08-17 morning: two of ten stores complete the
+chain; four stop with no recorded reason. **Session D walked all six of its rows
+that day and the count is now ONE** (`component_stats_*`) — but the headline is
+how it fell: **five of the six premises handed to that lane were wrong, and not
+one was a measurement error.** They were sentences nobody had checked against the
+code or the filesystem, and a single false claim — that
+`nflverse_weekly_points_2022.json` does not exist — appeared in **three separate
+files**, cost the pace study a graded fold, and had C assigned to build a store
+already committed. **Verify a row's premise before working it.** `SESSION-D.md`.
 
 **Then `MONDAY-BRIEF.md`** for 08-15/16 — still accurate, superseded as the
 entry point: the relay executed seven Cory rulings, promoted the projection
