@@ -117,26 +117,35 @@ python3 draft/freeze_pre_draft.py
 git commit                                   # say why
 ```
 
-**One check only Cory can run** — the full war-room rehearsal.
-`draft/tests/rehearsal-mock3.js` drives the real screen in a real browser and is
-the closest thing to a dress rehearsal for draft night. **It could not be run
-from the research sandbox**: the war room sits behind auth (`/admin/warroom`
-returns 302 unauthenticated) and no credentials exist here. Verified what could
-be — the server starts, the login page serves 200, and `/draft_data.json`, the
-board the war room boots from, serves 200.
+**THE WAR ROOM IS REHEARSED AND PASSES — 19/19 against today's board.**
+`rehearsal-mock3.js` drives the real screen in a real browser and is the closest
+thing to a draft-night dress rehearsal: the clock advancing in manual mode,
+"➕ Me" from the board landing on the roster, the legality strip being present
+rather than present-but-invisible, the exit warning with no DEF and no K, the
+deviation badge staying silent inside the noise band and speaking outside it, no
+page errors, and the only blocked host being the fonts CDN.
+
+**It was recorded here as "only Cory can run this" for about an hour, and that
+was wrong.** The war room sits behind auth (`/admin/warroom` returns 302
+unauthenticated) and this sandbox holds no credentials — but the rehearsal never
+needed real ones. `rehearsal-keepers.js` had the pattern all along: temp
+`DATA_DIR`, seed the store, set a known password, serve in-process. That is now
+`draft/tests/rehearsal-serve.js`, so the check runs anywhere Chromium does:
 
 ```
-PORT=8925 node dev-server.js &
-WR_USER=<user> WR_PASS=<pass> node draft/tests/rehearsal-mock3.js
+node draft/tests/rehearsal-serve.js &
+WR_USER=cory WR_PASS=pw node draft/tests/rehearsal-mock3.js
 ```
 
-The two SELF-CONTAINED rehearsals do run here, and both pass after all of
-08-17's board changes: `rehearsal-keepers.js` 6/6 (including that a fixture
-board is refused rather than silently rendered) and `rehearsal-config-screen.js`
-13/13 (including that the CRITICAL scoring highlight discriminates rather than
-starring everything). So the keeper and config screens are verified against
-today's board; **the war room itself is not**, and that is a one-command gap
-worth closing before Tuesday.
+Nothing real is touched — `DATA_DIR` is a fresh mkdtemp, so the seeded owner
+lives in a throwaway directory and the live store is never opened. The BOARD is
+the real `public/draft_data.json`, which is the point.
+
+The other two rehearsals also pass after all of 08-17's changes:
+`rehearsal-keepers.js` 6/6 (a fixture board is refused rather than silently
+rendered) and `rehearsal-config-screen.js` 13/13 (the CRITICAL scoring highlight
+discriminates rather than starring everything). **All three screens are now
+verified against today's board.**
 
 **His rookie-WR question is answered** —
 `draft/audit/rookie_wr_upside_for_draft_day_2026-08-17.md`. Concepcion (NFL rd1
