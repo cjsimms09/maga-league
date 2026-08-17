@@ -937,7 +937,13 @@ def load_players(cfg: dict, offline: bool) -> list[dict]:
         try:
             sys.path.insert(0, str(HERE / "tools"))
             from apply_rookie_prior_own_model_2026 import fill_players
-            _n = fill_players(board["players"])
+            # `board` HERE is the players LIST (load_players scope), not the
+            # artifact dict — board["players"] threw TypeError on the first CI
+            # build, the by-design except swallowed it into a skip line, and
+            # the ruled layer silently vanished from the candidate (refused by
+            # the gate's vanished-stamp assertion, run 32079172201 — the gate
+            # caught in CI what this comment now prevents at the source).
+            _n = fill_players(board)
             PROJECTION_PROVENANCE["rookie_capital_prior"] = {
                 "applied": _n, "ruled": _rcp.get("ruled"),
                 "cory_approval_verbatim": _rcp.get("cory_approval_verbatim")}

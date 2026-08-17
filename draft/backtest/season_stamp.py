@@ -395,6 +395,14 @@ BOARD_FIELD_SOURCES = {
     # Pure functions of the two above (draft_capital.tier_of, and the capital
     # season vs the board season), so they inherit the derived label.
     "capital_tier": "derived", "is_nfl_rookie": "derived",
+    # `late_trajectory` — written by build.py from draft/late_trajectory.py:
+    # prior-season late-window PPG minus season PPG, the F7 construction, off
+    # the COMPONENT stores (A's 2026-08-17 store ruling). Ruled live by Cory
+    # ("they should be baked in the model" — the trajectory-lean bake): the
+    # tie-break voice reads it, nothing ranks on it. Classified like the
+    # other prior-season derivations (adp_sd/proj_ceiling): the build writes
+    # it about numbers it just computed from committed stores.
+    "late_trajectory": "derived",
 
     # Computed from the above; a derived field is only as current as its inputs,
     # which is why A's refusal belongs where the derivation happens.
@@ -553,6 +561,11 @@ BOARD_FIELD_PURPOSE = {
     # adp_sd_source: the build writes it about a value it just computed, and
     # nothing ranks on it.
     "proj_ownmodel_source": DERIVED_PURPOSE,
+    # RULED live field, same ruling chain as the stamp above: Cory's bake
+    # order put the trajectory lean FIRST in the tie-break voice, and
+    # verdict.js reads this field for that fact. Derived (build-computed
+    # from committed component stores), never an input to a ranking.
+    "late_trajectory": DERIVED_PURPOSE,
     # place it sits awkwardly under HISTORICAL_PRIOR ("estimated from prior
     # seasons"). Filed here anyway because the alternative labels are worse:
     # it is not LIVE_FEED (most rows describe a prior year), not
