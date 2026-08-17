@@ -52,9 +52,22 @@ mistakes in our info!!"** This is what closed and what is still open.
 - **Studies still to redo:** anything resting on the `risk` term (PARTIAL — 6
   values against production's 13, 46% of range on backtest boards); re-derive the
   composite `ceiling` weight (its zero was to stand "until a real-ceiling board
-  re-runs the experiment" — that board now exists); re-derive `need` (strongest
-  bar at 25/25, shipping at 0.0 off a measurement taken with a malformed league
-  object).
+  re-runs the experiment" — **the harness is now fixed, so that board exists**).
+- **`need` — CORRECTING MY OWN EARLIER FRAMING.** I described this as "shipping
+  at 0.0 off a measurement taken with a malformed league object". That is wrong
+  and the distinction matters. The malformed-object error was in MY bar audit
+  (it hit `bye` and `tier`, not `need`); `need`'s zero rests on a SEPARATE,
+  Cory-confirmed decision from 2026-08-14, and `engine.js` already records the
+  half of it that was retracted — the "redundant with the lineup mask" reason is
+  true of the needrule CARD and false of the composite list.
+  **The state is real and unchanged:** `composite_roster_blindness.test.js`
+  passes today — at pick 70, adding a QB and a TE drops the mask's admitted
+  quarterbacks from 215 to ZERO and moves the composite top 70 by not one
+  player. So the main recommendation list has no positional-fill awareness in
+  the mid-draft. **Mitigation that already exists:** the needrule card beside it
+  DOES apply the mask, so the war room does show fill-aware guidance — on a
+  different surface. Turning `need` on is an open decision needing a real
+  backtest (it is the strongest bar, 25/25 of the top 25 move), not a flip.
 - Routes-run not yet pulled. Other `public/js/draft/*.js` (value, mcts, doctrine,
   grabby) and `src/routes` not yet swept for the same defect class.
 
