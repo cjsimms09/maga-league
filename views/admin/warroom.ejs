@@ -84,7 +84,9 @@
   <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
 
   <%# ════════════════════════ DRAFT — THE COCKPIT ═══════════════════════════
-      ≥1000px: 3 columns (~240px | 1fr | 300px). Stacked on a phone. %>
+      ≥900px CSS: 3 columns (200|1fr|260, relaxing to 240|1fr|300 from 1200px).
+      Stacked only below 900. CSS media queries alone decide — these wrappers
+      are server-rendered and no JS class gates the grid. %>
   <section class="wr-tabpanel" id="wr-tab-draft" data-wrpanel="draft">
   <div class="wr-cockpit">
 
