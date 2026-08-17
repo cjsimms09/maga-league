@@ -8,6 +8,18 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · C · 🔴🔴 **URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF.** `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`.
+
+  **AUTHORIZATION, CHECKED BEFORE ACTING, NOT ASSUMED.** Register row 4k (this afternoon) deliberately did NOT regenerate `projection_error_calibration.json` — the source of every `proj_ceiling`/`proj_floor`/`proj_sd` on the board — because doing so moves every one of those values four days from the draft, and the standing no-change-before-08-22 hold was assumed to still apply. **It was rescinded the same night, by Cory, in this file:** *"if it makes the model more correct we are changing NOW"* (the ceiling-**weight** ship item — a different, engine-level "ceiling" from the per-player values here, noted so the two are not conflated). His message to me tonight applies that same ruling directly to the per-player floors/ceilings.
+
+  **WHAT'S READY.** `regenerate()` (real, no-args, reuses `cli.py`'s proven season machinery — nothing re-derived) + `document()` (the on-disk shape) + the workflow, all tested (23 unit tests, gate 8/8 across the whole change today), all verified live against the real command this sandbox can reach — the workflow mirrors every other fetch-and-commit workflow built today (dispatch-from-main, push-guard, same failure mode named loudly if dispatched from the wrong ref).
+
+  **WHAT I CANNOT DO: dispatch it.** Sleeper, FantasyFootballCalculator and nflverse are all proxy-blocked from this sandbox (verified again tonight) and I don't merge to main or deploy under any circumstance, authorized or not — that boundary was never rescinded, only the draft-week change-freeze was.
+
+  **ASK: dispatch `projection-error-calibration.yml` from `main` now.** It touches exactly one file — `projection_error_calibration.json` — nothing in the board build, `engine.js`, or `MEASURED_WEIGHTS.ceiling` (that separate item is still yours to ship or not). Whatever consumes the calibration picks up the new values on its own next run; confirm that's actually wired to the live board before telling Cory it's done — I have not traced that consumer this session and said so in the commit rather than assume it.
+
+  **DEFAULT: none — this is time-sensitive and I don't have a safe default that doesn't involve someone with dispatch access acting.** Flagging this as the single highest-priority item in my queue right now.
+
 - [ ] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
 
   **(a) `projection_error.regenerate()`** — a real, no-args entry point. Reuses `cli.py`'s already-proven season machinery (`AsOfDataStore`, `build_bundle`, era-appropriate ADP, `grade.rest_of_season_points`, the pbp-rebuild fallback) rather than a second definition of "leak-free historical bundle" — nothing in `cli.py`/`asof.py`/`build_bundle.py`/`adp.py`/`sleeper_import.py`/`grade.py` touched, all called read-only. Fits 2023/2024/2025 (verified against `league_history.json`), `exclude_season=None` — production calibration for 2026, not a leave-one-out test.
