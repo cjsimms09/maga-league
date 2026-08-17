@@ -10075,6 +10075,59 @@
         state.sync.poll();
         return;
       }
+      /* ── A DIFFERENT ROOM IS A NEW DRAFT, NOT A RECONNECT ──────────────────
+       *
+       * CAPTURED LIVE (Cory, 2026-08-17, second mock of the day): mock #1
+       * ended, Sleeper garbage-collected it, the page auto-resumed its 150
+       * picks, and connecting mock #2's id did NOTHING about either — the old
+       * poller kept running (only the SAME-id kick above was handled) and the
+       * old room's 150 drafted ids kept pricing the new room's board. Every
+       * top-of-board surface showed the leftovers of a finished draft: to a
+       * drafter, "it's not showing any players."
+       *
+       * Two rules, split by what they cost:
+       *   1. The ORPHANED POLLER dies unconditionally. Two pollers interleave
+       *      onPicks and fight over the status line (reproduced: the dead
+       *      room's 404 retry banner overwrote the live room's status).
+       *   2. The PICK RESET asks for one confirming click first, because it is
+       *      destructive on a typo: pasting a wrong id mid-real-draft must not
+       *      wipe a live board. Second click within 15s = endDraft() (the
+       *      existing, tested clear — keepers/targets/weights survive, and the
+       *      mock re-seeds keepers + rehearsal removals through the same
+       *      applyDraftShape path a fresh page uses), then connect fresh.
+       * No picks recorded = nothing to protect = connect straight through. */
+      const prevRoomId = (state.sync && state.sync.draftId)
+        || (state.session && state.session.draftId) || null;
+      const recordedPicks = state.sync
+        ? Math.max(0, state.sync.currentPickNumber() - 1)
+        : (state.recentPicks || []).length;
+      if (recordedPicks > 0 && prevRoomId !== parsed.id) {
+        const pending = state._pendingRoomSwitch;
+        const confirmed = pending && pending.id === parsed.id
+          && (Date.now() - pending.at) < 15000;
+        if (!confirmed) {
+          /* The OLD poller keeps running until the switch is confirmed — a
+           * typo must not freeze a live board's updates. */
+          state._pendingRoomSwitch = { id: parsed.id, at: Date.now() };
+          setStatus({ state: 'warn', message: 'This is a DIFFERENT room than the one on '
+            + 'the board (' + recordedPicks + ' picks recorded'
+            + (prevRoomId ? ' from draft ' + prevRoomId : '') + '). Connecting fresh '
+            + 'CLEARS those picks — your keepers, targets and weights stay. '
+            + 'Tap Connect again to confirm.' });
+          const cbtn = $('#start-sync');
+          if (cbtn) { cbtn.disabled = false; cbtn.textContent = 'Connect NEW room'; }
+          return;
+        }
+        state._pendingRoomSwitch = null;
+        endDraft();                          // stops the old poller too
+        $('#draft-id').value = parsed.id;   // endDraft blanks the box; keep the target
+      } else if (state.sync && state.sync.stop && state.sync.draftId !== parsed.id) {
+        /* No picks to protect: just make sure the orphaned poller dies before
+         * the new one starts, or the two interleave onPicks and fight over the
+         * status line (reproduced: a dead room's 404-retry banner overwriting
+         * the live room's status). */
+        try { state.sync.stop(); } catch (e) {}
+      }
       // Show them what we actually understood, so a URL paste is visibly fixed
       // rather than silently repaired.
       $('#draft-id').value = parsed.id;
