@@ -109,4 +109,53 @@ ok('CONTROL — position matching is case-insensitive', () => {
   assert.strictEqual(D.analyse(board(rows), { positions: D.SKILL }).n, 1);
   assert.strictEqual(D.analyse(board(rows), { positions: D.ONESIE }).n, 1);
 });
-console.log(`\n${pass}/9 checks passed`);
+
+
+/* ── THE BLINDNESS, ASSERTED SO IT CANNOT BE FORGOTTEN ───────────────────────
+ *
+ * Register 2c asked this tool to answer "did shipping ceiling = 0.45 close the
+ * young-RB gap". It cannot: it ranks on vorp, and vorp carries no weight. The
+ * comment at the top of the tool says so, but a comment cannot fail — so the
+ * property the comment describes is asserted here. If someone ever wires a
+ * weighted score into this tool's ranking, this test fails and they have to
+ * come read why that changes what the tool means.
+ */
+ok('BLINDNESS — ranking is a pure function of vorp, so no weight can move it', () => {
+  const rows = [
+    { vorp: 100, adp: 40, player_id: 'a', position: 'RB', name: 'A',
+      proj_ceiling: 400, tier_cliff: false, stack_bonus: 0 },
+    { vorp: 90, adp: 1, player_id: 'b', position: 'RB', name: 'B',
+      proj_ceiling: 10, tier_cliff: false, stack_bonus: 0 },
+  ];
+  const base = D.analyse(board(rows));
+
+  // Same players, wildly different ceiling/tier/stack inputs — the fields every
+  // composite weight multiplies. If ranking touched them, order would move.
+  const loud = rows.map((r, i) => Object.assign({}, r, {
+    proj_ceiling: i === 0 ? 1 : 9999, tier_cliff: i === 1, stack_bonus: i === 1 ? 50 : 0,
+  }));
+  const after = D.analyse(board(loud));
+
+  assert.deepStrictEqual(
+    after.rows.map(r => [r.name, r.boardRank]),
+    base.rows.map(r => [r.name, r.boardRank]),
+    'board rank moved when only weighted-composite INPUTS changed. Either vorp '
+    + 'now carries a weight, or this tool started ranking on the composite — '
+    + 'both change what a "drift" reading MEANS, and register 2c is the cautionary '
+    + 'tale: it asked this tool whether a weight change helped, and the answer '
+    + 'would have been a false "no".');
+});
+
+ok('CONTROL — vorp DOES move the ranking, so the test above is not vacuous', () => {
+  const a = D.analyse(board([
+    { vorp: 100, adp: 40, player_id: 'a', position: 'RB', name: 'A' },
+    { vorp: 90, adp: 1, player_id: 'b', position: 'RB', name: 'B' }]));
+  const b = D.analyse(board([
+    { vorp: 10, adp: 40, player_id: 'a', position: 'RB', name: 'A' },
+    { vorp: 90, adp: 1, player_id: 'b', position: 'RB', name: 'B' }]));
+  const rankOf = (x, n) => x.rows.find(r => r.name === n).boardRank;
+  assert.notStrictEqual(rankOf(a, 'A'), rankOf(b, 'A'),
+    'changing vorp did NOT move the rank — the blindness assertion above would '
+    + 'pass on a tool that ignores every input, which proves nothing');
+});
+console.log(`\n${pass}/11 checks passed`);

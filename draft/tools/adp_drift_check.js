@@ -21,6 +21,27 @@
 const fs = require('fs');
 const path = require('path');
 
+/* ⚠️ WHAT THIS TOOL CANNOT SEE, STATED UP FRONT BECAUSE A REGISTER ROW ALREADY
+ * ASKED IT TO DO EXACTLY THIS AND IT WOULD HAVE ANSWERED WRONG.
+ *
+ * THIS RANKS ON `vorp`, AND `vorp` IS `proj_mean − replacement` WITH NO WEIGHT
+ * IN IT. Checked by arithmetic on the live board rather than by reading:
+ * Gibbs `120.6 = 299.9 − 179.3`. The composite weights — `ceiling`, `tier`,
+ * `need`, `risk`, `stack` — enter ONLY the `score` assembled inside
+ * `recommend()` (engine.js ~1811). They never touch `vorp`.
+ *
+ * SO THIS TOOL IS STRUCTURALLY BLIND TO EVERY WEIGHT CHANGE. Register 2c
+ * prescribed "re-run the drift check after shipping ceiling = 0.45 and see
+ * whether the young-RB gap closes." That would have returned "no movement" NO
+ * MATTER HOW GOOD THE WEIGHT IS, and the null would have been read as evidence
+ * against the one edge decision Cory ruled on. Caught 2026-08-17 before anyone
+ * ran it; both the row and OPEN-QUESTIONS Q13 are corrected.
+ *
+ * USE THIS FOR: does the BOARD ORDER Cory reads disagree with the market, and
+ * where. That is a question about projections and replacement levels.
+ * DO NOT USE THIS FOR: did a weight change anything. Measure that in
+ * `recommend()` ORDER at real picks — a different tool and a different question.
+ */
 const ROUND = 10;                 // 10-team league: one round = 10 picks
 const FLAG_ROUNDS = 1;            // flag anything moving more than a round
 const EXTREME_ROUNDS = 4;         // "almost certainly a bug, not an opinion"
