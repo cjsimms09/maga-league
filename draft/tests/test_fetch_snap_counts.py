@@ -20,6 +20,7 @@ the job silently stops capturing and reports success while doing it.
 from __future__ import annotations
 
 import json
+import os
 import urllib.error
 
 import pytest
@@ -163,8 +164,34 @@ def test_volatility_ignores_weeks_with_no_share_rather_than_calling_them_zero(mo
 
 
 def test_the_join_floor_is_high_enough_to_be_worth_having():
-    """A floor set low enough to never trigger is decoration. This one is
-    declared at 0.70 against observed rates of 0.971-0.992, so it has real
-    headroom below current reality and would fire well before the store became
-    misleading."""
-    assert F.MIN_JOIN_RATE >= 0.70
+    """A floor set low enough to never trigger is decoration.
+
+    THIS TEST USED TO ASSERT `>= 0.70` AND GET THE ARGUMENT BACKWARDS. Its own
+    docstring said the floor "has real headroom below current reality" — 0.70
+    against observed rates of 0.971-0.992 is not headroom, it is twenty-seven
+    points of slack in which the two-hop crosswalk could lose a quarter of the
+    league and still write a green store. The test named the right invariant and
+    then asserted the bound that violates it.
+
+    Pinned against the STORED RATES rather than a literal, so it keeps meaning
+    the same thing as the data moves: the floor must sit below every season we
+    actually have (or the fetcher would refuse its own history) and within a
+    short distance of the worst of them (or it cannot fire before the store
+    becomes misleading).
+    """
+    import glob
+    BACKTEST = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), "backtest")
+    rates = []
+    for path in sorted(glob.glob(os.path.join(BACKTEST, "snap_counts_*.json"))):
+        rates.append(json.load(open(path))["join"]["join_rate"])
+    assert rates, "no stored seasons to check the floor against"
+    worst = min(rates)
+
+    assert F.MIN_JOIN_RATE < worst, (
+        f"floor {F.MIN_JOIN_RATE} would refuse a season we already store "
+        f"(worst observed {worst})")
+    assert worst - F.MIN_JOIN_RATE <= 0.10, (
+        f"floor {F.MIN_JOIN_RATE} is {worst - F.MIN_JOIN_RATE:.3f} below the "
+        f"worst observed season ({worst}). A guard that far from reality cannot "
+        f"fire before the store stops being trustworthy.")

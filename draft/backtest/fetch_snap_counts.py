@@ -58,7 +58,21 @@ UA = {"User-Agent": "maga-league/1.0"}
 #: written. A partial store that looks whole is worse than no store — the reader
 #: cannot tell "he had no snaps" from "our join lost him", and those are the two
 #: facts this file exists to keep apart.
-MIN_JOIN_RATE = 0.70
+#:
+#: RAISED 0.70 -> 0.95 ON 2026-08-17, because 0.70 was a guard that could not
+#: guard. The five stored seasons join at 0.9882 / 0.9905 / 0.9919 / 0.9919 /
+#: 0.9714 — a floor of 0.70 sat TWENTY-SEVEN POINTS below anything ever
+#: observed, so the two-hop crosswalk could have silently lost a quarter of the
+#: league and still written a green store. A threshold chosen to be safely
+#: un-trippable is decoration; it reads as a check and functions as a comment.
+#:
+#: 0.95 is set below the worst season actually seen (0.9714) with room for a
+#: normal bad year, and far above the level at which the store stops being
+#: trustworthy. It is deliberately NOT set just under 0.9714: a bound tuned to
+#: the current data would fire on ordinary variation and get widened again,
+#: which is how a ratchet becomes a rubber stamp (see
+#: draft/audit/adp_sd_ratchet_fired_2026-08-17.md for that exact argument).
+MIN_JOIN_RATE = 0.95
 
 
 def _get(url: str, timeout: int = 120) -> str:
