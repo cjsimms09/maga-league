@@ -75,7 +75,7 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `nflverse_weekly_points_*` | ✅ 2021-25 | ✅ | ✅ | ✅ | **8** | this is the one complete chain |
 | `component_stats_*` | ✅ 2021-25 | ✅ | ✅ (own_v6) | via weekly points | 6-7 | **UNEXAMINED** — graded only indirectly |
 | `snap_counts_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **CORRECTED 08-17 (was recorded as step 6).** It reaches NO board field — 0 of 56 keys over 682 rows; `own_model_v6`/`build.py` never mention it; `projections.py` names it only to say it is not computed. **Reason already recorded** in `capture_registry.py:138`: a wiring gap, deliberate, *"a new input wired live five days before the draft is a worse instrument than a known one."* **Trigger:** prereg a snap-share feature, post-08-22. Register 13/13b |
-| `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **UNEXAMINED** — captured weekly, reaches nothing |
+| `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **5** | **JUSTIFIED — measured 08-17.** Preregistered TPRR study, graded, `clears: false`: season TPRR is +0.74…+0.82 rank-collinear with target volume, so it duplicates rather than complements it. Rule 3d passes on the null. **Triggers:** weekly grain / per-position; a true routes feed; **and test `routes` as a volume measure** (ρ to TPRR only +0.30-0.44). Register 14 |
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
 | `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
 | `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **RE-OPENED 08-17** — the +0.23 bounds a GAME-total oracle shared by both teams (208/208 games), **not** the team-level implied total this store holds. Register 18. **Trigger:** run `implied_home = total/2 + spread/2` with a join counter |
@@ -84,8 +84,8 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
 
 **Two chains are complete. As of 2026-08-17 the "no recorded reason" count is
-TWO, not four** — `routes_*` (register 14) and `component_stats_*` (graded only
-indirectly). Session D walked the other two: `snap_counts` was recorded as a
+ONE** — `component_stats_*`, graded only indirectly. `routes_*` was the last
+store stopping with no reason at all and now has a measured one (register 14). Session D walked the other two: `snap_counts` was recorded as a
 step-6 stop and is a step-4 stop **with** a reason (register 13), and
 `advanced_stats_*` was recorded as UNEXAMINED and is a published, graded null
 (register 15a). **Neither was a missing reason. Both were reasons this file had

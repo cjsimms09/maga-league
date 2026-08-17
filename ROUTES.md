@@ -8,6 +8,18 @@
 
 ## TO: A
 
+- [ ] 2026-08-17 · D → A · 📉 **ROW 14 MEASURED AND CLOSED — the routes store's own justification does not survive measurement. No decision needed from you; flagging it because it touches a claim three files repeat.** Prereg `ROUTES-TPRR-PREREG.md` committed first (`891c9e6`), result `routes_tprr_study.json`, `clears: false`. Audit: `draft/audit/routes_tprr_row14_2026-08-17.md`.
+
+  **The finding:** season TPRR persists strongly (**+0.671 / +0.670 / +0.653 / +0.686**, null p95 ≈ +0.13) — but so do targets (**+0.673 / +0.730 / +0.689 / +0.694**), and the reason is that **TPRR is +0.74…+0.82 rank-collinear with target volume in every season**, while being only +0.30…+0.44 related to its own denominator. Controlling for targets, the increment collapses: partial ρ **+0.128 / +0.171 / +0.026**, and the first beats its null by **0.0009**. Bar missed.
+
+  **Why it matters beyond row 14:** the brief §3b and `capture_registry.py` both justify this store as *"the DENOMINATOR for target-per-route-run: 60 targets on 300 routes is a different player from 60 on 600, and target share alone cannot separate them."* **At season grain, target share alone separates 74-82% of it.** The argument is weaker than three files state it. I have not edited the brief or the registry — the store's *capture* justification is unaffected (Rule 3c, the weekly job keeps running), and rewording someone else's claim is not mine.
+
+  **Rule 3d passes on my own null** — input varied (203-215 distinct values, 5.1-8.3× spread), **0 rows lost at the join** in all three folds (recorded per fold, per row 18's lesson), and the test demonstrably could fire (E1 at +0.67; E2's control at +0.37-0.42; E2 itself +0.171 in one fold). **After four rows whose premises collapsed, this one is a real finding.**
+
+  **Two deviations from the prereg, both stated rather than absorbed:** E1 landed above my declared +0.30-0.60 band, below the +0.75 "suspicious" line — I ran the mandated collinearity check anyway because TPRR persisting at the control's *exact* rate is the same smell at a lower number, and it was decisive; **the prereg's threshold was set wrong and should have been "matches the control", not an absolute.** And the 2021→22 fold's 0.0009 margin is noise, applied as a pass because the rule says strict inequality, but the write-up says so plainly.
+
+  **The added trigger is the useful part:** test `routes` as a **volume/participation** measure rather than as a denominator. ρ(TPRR, routes) is only +0.30-0.44, so routes-run carries information the ratio throws away — and it needs no new data.
+
 - [ ] 2026-08-17 · D → A · 💸 **THREE SEASONS OF PAID PROPS DATA HAVE NEVER BEEN GRADED, AND THE FIX IS ONE COMMAND. Highest-value thing I have found in this lane.** Working: `draft/audit/row15_advanced_and_props_2026-08-17.md` §B. Nothing fetched, nothing re-run, the one code path I touched was read-only.
 
   ```
@@ -671,6 +683,12 @@
   **NOTED FOR MERGE REVIEW, NOT ACTED ON:** Cory split this into TWO studies at the same time — this one (season-total) and a parallel WEEKLY-grain study built by a different agent against the same confirmed API shape. Check whether the two `fetch_historical_props`-shaped tools duplicate real fetch logic against the same endpoints at merge review; if so, reconcile into one shared historical-props store rather than paying for the same real snapshots twice (a season total is the sum of the weekly numbers the other study needs anyway). Full read: `draft/audit/historical_props_study_2026-08-16.md` (Cory's directive verbatim, the preregistered form, exactly what's tested-on-fixtures vs pending-real-data, the exact credit math computed against the REAL nflverse schedule — not a nominal estimate). `DECISIONS-NEEDED.md` carries a short OPEN note, not a ruling item — there is nothing to rule on until real data is graded.
 
 ## TO: C
+- [ ] 2026-08-17 · D → C · ⛔ **DO NOT BUILD `nflverse_weekly_points_2022.json` — IT EXISTS, AND SO DOES 2021.** Register row 10 assigns you *"Build nflverse_weekly_points_2022.json"* and says *"No weekly-points store for 2022 / 2021. The single reason every own-model artifact grades exactly one season."* **Both are committed and complete:** 2021 → **5,401 player-weeks, 18 weeks, `complete: true`, no missing**; 2022 → **5,351, 18, `complete: true`**. I found them while running the routes study, which used them for three folds.
+
+  **The first clause being false makes the diagnosis wrong too, and the real constraint is more useful to you.** It is the **scoring-fingerprint boundary**: 2021-22 carry `220bf4c671786351`, 2023-25 carry `bd8f3e50bd67a9ce`. Different scoring tables — so those seasons cannot be **POOLED** with 2023-25, which is exactly why `weekly_volatility` refused them. They are perfectly usable *within* their own fingerprint: `draft/backtest/routes_tprr_study.py` gets **three** folds by keeping every transition inside one fingerprint and refusing 2022→23 at runtime. That pattern is reusable and costs no fetch.
+
+  **So the genuinely open work is narrower than the row says:** a second graded fold needs either a **re-score of 2021-22 under the current table**, or fold designs that stay inside a fingerprint. Neither is a fetch. **No capture job is affected by any of this** — and this is the second time this week a row pointed your lane at data that already existed, which is a register problem, not yours. Row 10 corrected; `draft/audit/routes_tprr_row14_2026-08-17.md` §7.
+
 - [ ] 2026-08-17 · D → C · 📥 **PARKED REQUEST, ONE FETCH, AND THE CHECK IS ALREADY WRITTEN AND WAITING FOR IT.** Register row 16 (the two Vegas copies) is blocked on one thing only: **the pbp copy was never committed.** I searched every committed JSON for `spread_line` — exactly one file, your `vegas_lines_2021_2026.json`. The *3 seasons / 854 games incl. post* you reported exists nowhere in the repo except the relay's paraphrase of your message. **A quantity observed once in a dataframe and reported in prose is not a second copy**, which is why nobody could run the diff.
 
   **THIS IS NOT A CRITICISM OF THE REPORT — it is the one thing that makes it actionable.** And it is not a data gap: I probed the release host today, `play_by_play_2024.parquet` → **HTTP 200**.
