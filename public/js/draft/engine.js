@@ -589,11 +589,14 @@
       + 'ALL TWELVE seed x weight cells came back positive and separable, with '
       + '0.3/0.45/0.65 indistinguishable (means within $0.6) — so this is a '
       + 'zero-versus-non-zero result and does NOT depend on picking a value. '
-      + 'WHY IT IS STILL ZERO: both runs share the same three seeds, the same '
-      + 'money proxy and the same board, so they are one experiment measured '
-      + 'twice — a fresh-seed replication is owed before any weight moves, and '
-      + 'both preregs forbid a shipped change before 2026-08-22. NOTE the '
-      + 'collinearity is REDUCED, NOT '
+      + 'A THIRD run replicated it on three seeds sharing nothing with the '
+      + 'first two (w=0.45, +$35.9, 3/3 positive and 3/3 separable), so the '
+      + 'finding no longer rests on one seed set, one weight or one run. '
+      + 'WHY IT IS STILL ZERO: the promotion bar is cleared, and a cleared bar '
+      + 'makes the change AVAILABLE after 2026-08-22 rather than making it — '
+      + 'all four preregs fixed that date before any of them produced a '
+      + 'number, and a result landing the way we hoped is the worst reason to '
+      + 'relax it. NOTE the collinearity is REDUCED, NOT '
       + 'REMOVED: the measured ceiling is still proj_mean x a per-CELL constant, '
       + 'varying between bands and not within them, so this prices cross-band '
       + 'dispersion only and says nothing about whether THIS player has upside. '
@@ -639,10 +642,11 @@
         + 'the same as raising value. Re-run 2026-08-17 on a board with real per-player '
         + 'ceilings, EVERY setting tested from 0.15 to 0.65 beat this zero in all three '
         + 'seeds — so the model is ignoring upside it should be paying for, and the exact '
-        + 'amount barely matters. IT IS HELD AT ZERO THROUGH THIS DRAFT DELIBERATELY: both '
-        + 'runs used the same three seeds and the same simulation rather than a graded '
-        + 'season, so a fresh-seed check is still owed — five days out, a weight measured '
-        + 'once is a worse instrument than a known one. First thing to revisit after 8/22.',
+        + 'amount barely matters — and a third run on independent seeds replicated it. '
+        + 'IT IS HELD AT ZERO THROUGH THIS DRAFT DELIBERATELY: the measurement is a '
+        + 'simulation rather than a graded season, and the no-change-before-8/22 rule was '
+        + 'fixed before any of these runs produced a number — a result landing the way we '
+        + 'hoped is the worst reason to relax it. First thing to revisit after 8/22.',
       // ONE SOURCE OF TRUTH: reference MEASURED_WEIGHTS, never a second literal. A
       // duplicated copy here is exactly how ceiling stayed 0.65 in one place after
       // it was zeroed in the other (the two-places disease); matchPreset now compares

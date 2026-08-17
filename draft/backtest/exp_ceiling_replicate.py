@@ -108,7 +108,15 @@ def summarise(per_seed, weights=None):
     if repl:
         best = max(repl, key=lambda w: cols[w]["mean"])
         c = cols[best]
-        edge_of_grid = (best == min(WEIGHTS_) or best == max(WEIGHTS_))
+        # A ONE-POINT GRID IS NOT AN UNBRACKETED OPTIMUM, IT IS NOT AN ATTEMPT TO
+        # BRACKET ONE. Found 2026-08-17 by the fresh-seed replication, which
+        # tests a single declared weight: with len(WEIGHTS_) == 1 the winner is
+        # trivially both the smallest and the largest, so this clause fired and
+        # told a reader the run had "failed to locate the peak" when locating the
+        # peak was not the question. A warning that cannot distinguish "the grid
+        # ran out" from "there is no grid" is the same defect as a field that can
+        # only hold one value.
+        edge_of_grid = len(WEIGHTS_) > 1 and (best == min(WEIGHTS_) or best == max(WEIGHTS_))
         verdict = (f"REPLICATES at w={best} — positive in all {n_seeds} fresh seeds "
                    f"(mean +${c['mean']}), separable in {c['n_sep']}/{n_seeds}, against a "
                    f"CORE arm whose ceiling weight is the shipped {LIVE_CEILING_WEIGHT}. A non-zero "

@@ -355,20 +355,33 @@ within **$0.6**); 0.15 is lower (+$24.0) but still separable in 3/3. So the
 answer is **zero versus non-zero** — it does not depend on picking a value, and
 naming "the optimum" off a $0.6 gap is forbidden by that prereg.
 
-**It does not ship before 08-22, deliberately.** Both runs share the same three
-seeds, the same money proxy and the same board — one experiment measured twice,
-not two experiments — so a **fresh-seed replication is owed** before any weight
-moves. What
+**A third run replicated it on independent seeds** (`CEILING-FRESH-SEED-PREREG.md`
+→ `EXP-CEILING-FRESHSEED-RESULT.md`). The first two shared a seed set, making
+them one experiment measured twice; this one uses the next rungs of the same
+prime-offset ladder, declared before the run, with the script refusing outright
+on any overlap. At **w=0.45** — the positional middle of the plateau, chosen over
+the higher-scoring 0.30 precisely so it could not be score-shopping — it returned
+**+29.06 / +32.69 / +46.06, all separable. Mean +$35.9. The promotion bar is
+cleared.**
+
+Three runs · two independent seed sets · four weights · **one direction**, with
+means of +$35.5 / +$35.7 / +$35.9.
+
+**It still does not ship before 08-22, deliberately.** A cleared bar makes the
+change *available* to Cory after the draft; it does not make it. That date was
+fixed in all four preregs before any of them produced a number, and a result
+landing the way we hoped is the worst possible reason to relax it. What
 this changes today is the *account*, not the number: three places told Cory the
 term was unmeasured, and all three now say it is measured, contradicted, and
 held. **The Live-policy panel says so in his words on the screen.**
 
-Order after the draft: ~~bracket~~ **done** → **replicate on fresh seeds** (the
-one outstanding blocker on moving the weight) → Cory's shipping call, framed as
-*"the model is ignoring upside entirely; measurement says it should not, and says
-the exact amount hardly matters"* rather than *"set it to 0.30"* → then the
-per-player question, which none of this touches and which is the one he has
-actually been asking: `weekly_volatility.py`.
+Order after the draft: ~~bracket~~ **done** → ~~replicate on fresh seeds~~
+**done, cleared** → **Cory's shipping call** — the only step left, and it is his.
+Frame it as *"the model is ignoring upside entirely; three preregistered runs
+across two independent seed sets say it should not, and say the exact amount
+hardly matters anywhere between 0.30 and 0.65"*, never as *"set it to 0.30"* →
+then the per-player question, which none of this touches and which is the one he
+has actually been asking: `weekly_volatility.py`.
 
 ---
 

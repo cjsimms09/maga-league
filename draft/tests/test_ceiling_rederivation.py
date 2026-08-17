@@ -98,6 +98,29 @@ def test_no_edge_of_grid_claim_when_the_winner_is_interior():
     assert "DOES NOT BRACKET" not in verdict
 
 
+def test_a_single_point_grid_makes_no_bracketing_claim():
+    """A one-weight run is not an unbracketed optimum — it is not an attempt to
+    bracket one. With one weight the winner is trivially both the smallest and
+    the largest, and the fresh-seed replication tests exactly one declared
+    weight, so this clause fired there and told the reader the run had failed to
+    locate a peak it was never looking for."""
+    ps = [row(i, **{"0.45": v}) for i, v in enumerate([(29, True), (33, True), (46, True)])]
+    verdict, _ = E.summarise(ps, weights=[0.45])
+    assert verdict.startswith("REPLICATES at w=0.45"), verdict
+    assert "BRACKET" not in verdict, verdict
+
+
+def test_a_two_point_grid_still_makes_the_bracketing_claim():
+    """CONTROL for the guard above: suppressing the clause at len==1 must not
+    suppress it at len==2, where an edge winner really does mean the grid ran
+    out."""
+    ps = three(**{"0.3": [(40, True), (41, True), (39, True)],
+                  "0.65": [(10, False), (11, False), (9, False)]})
+    verdict, _ = E.summarise(ps, weights=[0.3, 0.65])
+    assert verdict.startswith("REPLICATES at w=0.3"), verdict
+    assert "DOES NOT BRACKET THE OPTIMUM" in verdict, verdict
+
+
 def test_leans_when_positive_everywhere_but_rarely_separable():
     ps = three(**{"0.65": [(5, False), (4, False), (6, False)],
                   "1.0": [(9, False), (8, True), (7, False)],
@@ -230,6 +253,74 @@ def test_adding_grid_arms_cannot_move_an_arm_they_share():
     assert "random.Random(seed * 7 + s)" in src
     # and the states are taken BEFORE the per-arm loop, not inside it
     assert src.index("grade_state = ") < src.index("for k, ch in arms.items()")
+
+
+# ------------------------------------------------- the independent replication
+FRESH = os.path.join(BACKTEST, "exp_ceiling_freshseed.json")
+
+
+def test_the_replication_shares_no_seed_with_the_runs_it_replicates():
+    """The whole value of the run. Two prior studies used one seed set; if this
+    one overlaps at all it is a third correlated measurement wearing the word
+    'replication', which is worse than not running it."""
+    f = json.load(open(FRESH))
+    prior = set(json.load(open(RESULT))["seeds"]) | set(json.load(open(BRACKET))["seeds"])
+    assert not (set(f["seeds"]) & prior), sorted(set(f["seeds"]) & prior)
+    assert f["seeds_shared_with_prior_runs"] == []
+
+
+def test_the_replication_seeds_follow_the_declared_rule():
+    """Derived, not picked. CC.SEED plus the 1,000,000th / 2,000,000th /
+    3,000,000th primes — the next rungs of the ladder the prior runs used."""
+    import cory_conditional as CC
+    f = json.load(open(FRESH))
+    assert f["prime_offsets"] == [15485863, 32452843, 49979687]
+    assert f["seeds"] == [CC.SEED + p for p in f["prime_offsets"]]
+
+
+def test_the_replication_tested_the_middle_of_the_plateau_not_the_top():
+    """0.45 is the positional middle of the indistinguishable plateau. 0.30
+    scored highest; testing THAT would have been selection on the noise the
+    bracket explicitly said not to read."""
+    f = json.load(open(FRESH))
+    b = json.load(open(BRACKET))
+    assert f["weights"] == [0.45]
+    plateau = ["0.3", "0.45", "0.65"]
+    best_scoring = max(plateau, key=lambda w: b["columns"][w]["mean"])
+    assert best_scoring == "0.3", b["columns"]
+    assert str(f["weights"][0]) != best_scoring, "the replication chose the top scorer"
+
+
+def test_the_promotion_bar_flag_matches_the_preregistered_rule():
+    """`promotion_bar_cleared` must be derived from the same rule the prereg
+    states — positive in all seeds AND separable in at least two — not set by
+    hand next to a number someone liked."""
+    f = json.load(open(FRESH))
+    c = f["columns"]["0.45"]
+    expected = c["n_pos"] == len(f["seeds"]) and c["n_sep"] >= 2
+    assert f["promotion_bar_cleared"] is expected, {"flag": f["promotion_bar_cleared"],
+                                                    "recomputed": expected, "col": c}
+
+
+def test_the_replication_verdict_is_derived_not_written():
+    f = json.load(open(FRESH))
+    assert E.summarise(f["per_seed"], weights=f["weights"])[0] == f["verdict"]
+
+
+def test_the_replication_makes_no_bracketing_claim():
+    """It tests one declared weight; it is not a grid and must not talk like one."""
+    assert "BRACKET" not in json.load(open(FRESH))["verdict"]
+
+
+def test_all_three_ceiling_runs_agree_on_sign_and_rough_size():
+    """The claim the write-up rests on: three runs, two seed sets, four weights,
+    one direction. If any run ever disagrees this must go red rather than the
+    prose quietly keeping the headline."""
+    means = [json.load(open(RESULT))["columns"]["0.65"]["mean"],
+             json.load(open(BRACKET))["columns"]["0.45"]["mean"],
+             json.load(open(FRESH))["columns"]["0.45"]["mean"]]
+    assert all(m > 0 for m in means), means
+    assert max(means) - min(means) < 5.0, means
 
 
 @pytest.mark.parametrize("w", ["0.65", "1.0", "1.5"])
