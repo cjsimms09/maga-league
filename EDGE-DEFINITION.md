@@ -62,6 +62,43 @@ PROXY on the v1 money model, not on held-out real seasons.
 **Three of five are reachable with machinery that already exists.** None of them
 is being reported.
 
+## THE BASELINE — measured 2026-08-17, from `career_reconcile.json` + `league_history.json`
+
+**You cannot beat a number nobody has computed.** This is that number.
+
+| | Cory, 2023–2025 |
+|---|---|
+| record | **23–22 (.511)** |
+| rank among 10 managers | **5th–6th** |
+| playoff cut | **top 4 of 10** (`playoff_teams: 4`) |
+| top-4 finishes | **1 or 2 of 3 seasons — 33%–67%** |
+
+**The league, three-season win rate:** ds7mmet .667 · mhagen .622 · Jreis .556 ·
+MarianSaar .533 · **Schmelley and coryjsimms .511** · cashworth .467 · B8T3S .422
+· Richard2121 .378 · Sadbru .333.
+
+**STATED LIMIT:** two rosters finished 23–22 and the roster→user map is not in
+these artifacts, so per-season finishes cannot be attributed to Cory with
+certainty. Both candidate paths give the same answer to the question that matters
+(1 or 2 top-4s in 3 years), so the range is reported rather than a point estimate.
+**Closing that map is a one-line fix and it turns a range into a number.**
+
+### What this does to the five criteria
+
+- **E1 / E4 are THE SAME BAR** in this league — top 4 *is* the playoff cut.
+- **E4 at 50% means beating 40%**, which is what four playoff spots in ten teams
+  gives you by chance alone. So the target is real but modest, and it is roughly
+  "convert the seasons you currently finish 5th into 4th."
+- **E3 at >3-in-10 is the hard one.** A .511 manager is not a 30% title favourite
+  in a 10-team league, and no amount of draft-board accuracy alone gets there —
+  that criterion needs the in-season tools too.
+- **E5 needs PF**, which is not in these artifacts; the realized stores can supply
+  it once rosters are joined.
+
+**The honest read: the model's job is to move Cory from just-outside the cut to
+inside it, repeatedly.** That is a smaller and much more tractable target than
+"be more accurate", and it is measurable against the number above.
+
 ## THE RULE THIS CREATES
 
 **Every T1 and T2 change is ultimately justified in one of E1-E5, or it is not
