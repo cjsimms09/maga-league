@@ -1,6 +1,63 @@
 # TODO — the real count, in plain English (regenerated 2026-08-15, mid-week; refreshed
 # again later the same day — see "LATER THE SAME DAY" below the fold, read that first)
 
+## ⭐⭐⭐ 2026-08-17 LATE — THE DATA PASS. Read this before anything below.
+
+**Cory: "Above all!! Fix the data problem and make sure we don't have other
+mistakes in our info!!"** This is what closed and what is still open.
+
+### CLOSED
+
+- **Snap counts pulled — the first per-player dispersion signal we have ever
+  had.** 35,869 skill player-weeks, 2021-2025. Every existing dispersion field
+  (`proj_ceiling`, `proj_floor`, `proj_sd`, `weekly_sd`) is `proj_mean x a
+  per-cell constant`, i.e. Spearman 1.0000 against the projection and therefore
+  ZERO player-specific information. That one fact is the shared cause of three
+  dead ends: `ceiling` measuring collinear with `value`, the phase grid finding
+  only that double-counting the projection hurts, and the variance modifiers
+  coming back unmeasurable. Two-hop join (pfr -> gsis -> sleeper), 97.1-99.2%,
+  loss reported per hop, `MIN_JOIN_RATE = 0.70` refuses rather than writes a
+  partial store. **Effect size measured, not asserted: within-cell spread 8x,
+  and year-over-year carryover clears a permutation null 4/4 (rho +0.19 to
+  +0.33). Read that as WEAK-BUT-REAL — it must not be weighted as though it
+  were strong.** Nothing consumes it yet, deliberately, five days out.
+- **Weekly capture wired** (`.github/workflows/weekly-snap-counts.yml`,
+  Wednesdays 11:00 UTC) + registered in `capture_registry.py` under the gate.
+  Pre-week-1 exits green via a narrow `NotPublished` path; a real failure still
+  goes red, and tests pin both directions.
+- **`constant_multiple_sweep.py` — the search is now a run, not a lucky catch.**
+  All four broken fields were found by accident in one day. This sweeps every
+  numeric field pair for "a is a fixed multiple of b" WITHIN (position, band)
+  cells. It carries a known-positive control and REFUSES to print a report if
+  the control does not fire, because "none found" and "nothing works" otherwise
+  look identical. Gate test fails on any NEW participant.
+- **Playoff-SOS artifact regenerated** — my own board rebuild had added 5 deep
+  Sleeper rows (ADP 502-919) the artifact predated, breaking its partition test.
+
+### OPEN — AND ONE NEEDS CORY
+
+- **DECISION FOR CORY: the ADP-sd ratchet fired.**
+  `draft/audit/adp_sd_ratchet_fired_2026-08-17.md`. Shipped fitted rule is 1.39x
+  FFC's published dispersion in the ADP 50-100 band. **Our constant did not
+  drift — it reproduces to 0.1% across three days; the market tightened.**
+  Blast radius inside the draft is ONE player (Oronde Gadsden, ADP 148), because
+  a published dispersion wins wherever one exists. I refused both easy fixes
+  (widening the bound; shipping the measured 0.11 unilaterally). **Recommend:
+  leave it, revisit post-season.** Not a publish blocker — marked `repo_parity`,
+  which the publication gate deselects.
+- **The dispersion family is still `mean x per-cell constant`.** The measured-p90
+  fix corrected the CONSTANTS; it did not make the fields per-player. Snap-share
+  volatility is the input that could, and wiring it is the next real step — AFTER
+  the draft.
+- **Studies still to redo:** anything resting on the `risk` term (PARTIAL — 6
+  values against production's 13, 46% of range on backtest boards); re-derive the
+  composite `ceiling` weight (its zero was to stand "until a real-ceiling board
+  re-runs the experiment" — that board now exists); re-derive `need` (strongest
+  bar at 25/25, shipping at 0.0 off a measurement taken with a malformed league
+  object).
+- Routes-run not yet pulled. Other `public/js/draft/*.js` (value, mcts, doctrine,
+  grabby) and `src/routes` not yet swept for the same defect class.
+
 ## ⭐⭐ SUPERSEDES THE 08-15 STATE BELOW — 2026-08-16/17 RESEARCH DAY, EIGHT NULLS AND FOUR REAL FIXES
 
 **Read this first. The 08-15 entry below is still accurate about the branch's
