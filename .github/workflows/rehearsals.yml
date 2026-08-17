@@ -1,0 +1,76 @@
+name: Browser rehearsals
+
+# THE DRAFT-NIGHT SURFACE, CHECKED BY A MACHINE INSTEAD OF BY MEMORY.
+#
+# Three rehearsals drive the real screens in a real browser, and until
+# 2026-08-17 NONE of them had ever run in CI: playwright is a devDependency and
+# no workflow invoked it. They were manual, which means they ran when someone
+# thought to run them — and on 08-17 nobody had, through a day that rewrote the
+# board's ceiling, floor, dispersion and draft-capital columns.
+#
+#   rehearsal-mock3.js         the WAR ROOM — 19 checks. The clock advancing in
+#                              manual mode, "add me" from the board landing on
+#                              the roster, the legality strip being present
+#                              rather than present-but-invisible, the exit
+#                              warning with no DEF and no K, the deviation badge
+#                              silent inside the noise band and speaking outside
+#                              it. This is the screen Cory reads on draft night.
+#   rehearsal-keepers.js       the keeper slate — 6 checks, incl. that a FIXTURE
+#                              board is refused rather than silently rendered.
+#   rehearsal-config-screen.js scoring config — 13 checks, incl. that the
+#                              CRITICAL highlight discriminates rather than
+#                              starring everything.
+#
+# WHY IT CAN RUN AT ALL NOW. The war room sits behind auth, so the rehearsal
+# used to need a configured machine with real credentials. It never actually
+# did: `rehearsal-serve.js` (added 08-17, the pattern lifted from
+# rehearsal-keepers) points DATA_DIR at a temp directory, seeds the store and
+# sets a known password, so the whole thing is self-contained. Nothing real is
+# touched — the live store is never opened. The BOARD is the real
+# public/draft_data.json, which is the point: this rehearses against what ships.
+#
+# NOT A PUBLISH GATE, DELIBERATELY. draft-data.yml decides whether a board is
+# fit to publish; this answers a different question — whether the SCREENS still
+# work against it. Wiring a browser job into the publish path days before a
+# draft would put a flaky dependency between Cory and his board, which is a
+# worse trade than finding a UI regression a few hours later.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 12 * * *'      # daily, after the nightly board rebuild has landed
+
+permissions:
+  contents: read
+
+jobs:
+  rehearse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Install
+        run: npm ci
+      - name: Install Chromium
+        # Only chromium — the rehearsals use nothing else, and the other engines
+        # are a slow download for no coverage.
+        run: npx playwright install --with-deps chromium
+      - name: Keeper slate
+        run: node draft/tests/rehearsal-keepers.js
+      - name: Scoring config screen
+        run: node draft/tests/rehearsal-config-screen.js
+      - name: War room
+        # The server is started in the background and the rehearsal waits for
+        # it. If the server dies the rehearsal fails on a connection refusal,
+        # which is the honest signal — a green run here must mean the screen
+        # worked, never that the check was skipped.
+        run: |
+          set -uo pipefail
+          node draft/tests/rehearsal-serve.js &
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:8925/login; then break; fi
+            sleep 2
+          done
+          curl -sf -o /dev/null http://localhost:8925/login \
+            || { echo "rehearsal server never came up"; exit 1; }
+          WR_USER=cory WR_PASS=pw node draft/tests/rehearsal-mock3.js
