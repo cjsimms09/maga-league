@@ -68,4 +68,9 @@ function main() {
   return 0;
 }
 
-process.exit(main());
+// NOT process.exit(main()). When stdout is a pipe, writes past the first 64KB
+// chunk are asynchronous, and process.exit() kills them mid-flush — the parent
+// then reads a truncated JSON document. Setting exitCode lets the event loop
+// drain stdout and exit on its own. (Caught by the artifact-registry freshness
+// check the first time the batch response crossed 64KB.)
+process.exitCode = main();
