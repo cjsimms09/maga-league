@@ -147,6 +147,24 @@ The 08-14 freeze stays recoverable in git history either way.
   DOES apply the mask, so the war room does show fill-aware guidance — on a
   different surface. Turning `need` on is an open decision needing a real
   backtest (it is the strongest bar, 25/25 of the top 25 move), not a flip.
+  **HOW TO MEASURE IT — scoped 2026-08-17, and it is cheaper than assumed.**
+  I expected new machinery. It is not: `live_context.js:126` reads
+  `weights: o.weights || engine.MEASURED_WEIGHTS`, so the room harness can
+  already run a modified weight set by being handed one. `archetype_rooms.js`
+  builds its ctx via `LC.liveContext({...})` and currently overrides only
+  `ctx.wireWeekly`.
+  So the work is a **weights axis, not a new arm**: add `--need-weight` to
+  `archetype_rooms.js`, pass
+  `weights: Object.assign({}, E.MEASURED_WEIGHTS, {need: X})`, and run paired
+  seeds at need = 0 / 0.35 / 0.9 / 1.45 — the values the shipped presets already
+  use (`engine.js:3353-3371`).
+  **Not done here on purpose:** it needs a prereg first (this repo's rule, and
+  the one that kept today's re-tune honest), and no weight ships before 08-22
+  regardless. A measurement run once, late, on a tool being modified in the same
+  pass is a worse instrument than the known one. Post-draft.
+  **Checked while scoping:** `archetype_rooms.js`'s header claims it runs "under
+  production MEASURED_WEIGHTS". Verified true via that `liveContext` default.
+  Not a defect.
 - Routes-run not yet pulled. Other `public/js/draft/*.js` (value, mcts, doctrine,
   grabby) and `src/routes` not yet swept for the same defect class.
 
