@@ -1,3 +1,8 @@
+<%# TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
+    ("work with B, make warroom how I want it and deploy"). Scope: the redesign's
+    class hooks + disclosure-host edits in this shell (the #tiebreak host became a
+    <div> so it can hold a <details>; #recs-card gained the .wr-reccard hook). The
+    shell, its ids and its layout stay B's. %>
 <%- include('../partials/header', { title: 'War Room' }) %>
 
 <h1 class="page-title">🧠 The War Room</h1>
@@ -240,7 +245,9 @@
   <div class="card" id="lrm-card" style="margin-bottom:.6rem">
     <div class="body"><div id="lrm-strip" class="lrm-strip" style="display:none"></div></div>
   </div>
-  <div class="card" style="margin-bottom:1rem; border-color:rgba(245,196,69,.5)" id="recs-card">
+  <%# .wr-reccard (redesign 2026-08-17): the border/accent moved out of this
+      inline style into /css/warroom.css so the sheet can own the surface. %>
+  <div class="card wr-reccard" style="margin-bottom:1rem" id="recs-card">
     <h2>🎯 Take This Player
       <span class="sub">2–4 priced directions · the ranked list is underneath</span>
       <button class="btn small ghost" data-cmp-open="1" style="flex:0 0 auto" title="Compare two players — the dollar gap">⚖️ Compare</button>
@@ -318,7 +325,10 @@
         </select>
         <div id="pos-recs-out" style="margin-top:.5rem"></div>
       </div>
-      <p id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></p>
+      <%# A <div>, not a <p>: the against-case renders as a <details> disclosure
+          now (redesign 2026-08-17) and a <p> cannot legally contain one. Same id
+          — app.js writes into it by id. %>
+      <div id="tiebreak" class="muted" style="display:none; margin:.6rem 0 0"></div>
     </div>
   </div>
 

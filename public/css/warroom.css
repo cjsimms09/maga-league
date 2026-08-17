@@ -16,6 +16,11 @@
    Naming: every token is --wr-*; every component class is .wr* or an existing
    renderer hook (.rec-*, .ba-*, .threat-*) restyled here. Numeric columns use
    .wr-num (tabular figures); hero figures deliberately do not.
+
+   TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
+   ("work with B, make warroom how I want it and deploy") — the DRAFT-DAY BOOK
+   PASS section at the end of this file is A's under that order; everything
+   above it stays B's.
    ════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -559,4 +564,220 @@ body.inseason-tools .wrap { max-width: 1280px; }
 /* Motion: state changes only. Respect the doctrine — no ambient animation. */
 @media (prefers-reduced-motion: reduce) {
   .wr-chart * , .wrv * { transition: none !important; animation: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE DRAFT-DAY BOOK PASS (2026-08-17)
+   TERRITORY-GRANT: war-room redesign sections to A, Cory's direct order 2026-08-17
+
+   Cory, on the day: "war room still looks like shit." The reference surface is
+   the SIDE-BET CARD GRAMMAR above — the one screen he called professional — so
+   this pass applies that grammar to the draft tool. Same tokens, same doctrine
+   (gold is money-only, red is alarm-only, navy is authority):
+
+     · ONE HERO. The clock card wears the dark board (the site's own week-hero
+       navy gradient); nothing else on the page is dark.
+     · ONE CARD SHAPE. Hairline border, 12px radius, whisper elevation — the
+       .bcard surface, everywhere.
+     · TIGHT RHYTHM at 390px. The fold belongs to the one answer; everything
+       secondary sits behind a summary pill (the .wr-exp grammar).
+     · MONO FOR MACHINE VOICE. Status/system strips read as the book's ticker.
+
+   Scoped to body.warroom-page so the other pages that load this sheet are
+   untouched. NO fixed/sticky anywhere here — the mobile-furniture rule
+   (warroom_mobile.test.js) stands. `!important` appears only where the shell's
+   legacy inline styles (margin-bottom on zone-1 cards) would otherwise win.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── one card shape ─────────────────────────────────────────────────────── */
+body.warroom-page .card {
+  background: var(--wr-panel);
+  border: 1px solid var(--wr-line);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(12, 26, 43, .06);
+}
+body.warroom-page .card > h2 {
+  font-size: .72rem;
+  letter-spacing: .12em;
+  padding: .5rem .8rem;
+  background: var(--wr-panel-soft);
+  color: var(--wr-structure);
+}
+body.warroom-page .card > h2::before { background: var(--wr-structure); top: 26%; bottom: 26%; }
+body.warroom-page .card .body { padding: .75rem .8rem; }
+
+/* ── vertical rhythm: one spacing voice on the decide surface ───────────── */
+body.warroom-page .wr-zone1 > .card,
+body.warroom-page .wr-zone1 > #branch-card { margin-bottom: .6rem !important; }
+body.warroom-page .wr-zone1 > #lrm-card { margin-bottom: .45rem !important; }
+body.warroom-page .wr-search { margin-bottom: .45rem; }
+body.warroom-page .wr-statusbar { margin-bottom: .45rem; }
+body.warroom-page #doctrine-banner,
+body.warroom-page #legality-strip { margin-bottom: .45rem; }
+
+/* ── THE HERO — the clock card wears the board ──────────────────────────── */
+body.warroom-page .clock-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--navy-deep);
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--navy), #1c3a63);
+  box-shadow: 0 10px 28px rgba(12, 26, 43, .30);
+}
+/* The gold tape: one thin line of money-light across the top of the board. */
+body.warroom-page .clock-card::before {
+  content: '';
+  position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: linear-gradient(90deg, transparent 4%, var(--gold) 50%, transparent 96%);
+}
+body.warroom-page .clock-card .body { padding: 1rem .9rem 1.05rem; }
+body.warroom-page .clock-eyebrow {
+  font-family: var(--font-mono);
+  font-size: .66rem; letter-spacing: .2em;
+  color: #cdd9ea;
+}
+body.warroom-page .clock-name {
+  color: #fff;
+  font-size: clamp(2.1rem, 10.5vw, 3.2rem);
+  letter-spacing: -.015em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+body.warroom-page .clock-meta { color: #cdd9ea; font-family: var(--font-mono); font-size: .74rem; }
+/* A-injected riders on the card (#clock-proj, #clock-context) carry no color of
+   their own — on the navy board they must read light, and the disagreement
+   line's amber must be the bright ramp, not the paper one. */
+body.warroom-page .clock-card #clock-proj { color: #cdd9ea; }
+body.warroom-page .clock-card #clock-proj b { color: #fff; }
+body.warroom-page .clock-card #clock-proj div[style] { color: #ffd873 !important; }
+body.warroom-page .clock-card .clock-context { color: #cdd9ea; font-size: .8rem; margin-top: .3rem; }
+body.warroom-page .clock-name .rec-pos {
+  background: rgba(255, 255, 255, .16); color: #fff; font-size: .8rem;
+}
+body.warroom-page .clock-why { color: #eef1f6; }
+body.warroom-page .clock-confidence { color: #cdd9ea; }
+body.warroom-page .clock-confidence .clear { color: #7fe0ab; }
+body.warroom-page .clock-confidence .close,
+body.warroom-page .clock-confidence .coin-flip { color: #ffd873; }
+/* The take control is the board's one bright thing: full-width, unmissable. */
+body.warroom-page #clock-take.btn {
+  flex: 1 1 100%;
+  padding: .8rem;
+  font-size: 1.05rem; font-weight: 800;
+  border-radius: 10px;
+  background: #fff; color: var(--navy-deep);
+  border: none; box-shadow: 0 2px 10px rgba(0, 0, 0, .25);
+}
+body.warroom-page #clock-take.btn:hover { filter: none; background: #f2f1ec; transform: none; }
+body.warroom-page .clock-actions { margin-top: 1rem; gap: .45rem; }
+body.warroom-page .clock-actions .btn.small {
+  background: rgba(255, 255, 255, .08); color: #cdd9ea;
+  border: 1px solid rgba(255, 255, 255, .22); box-shadow: none;
+}
+
+/* ── THE RECOMMENDATION CARD — navy authority, not gold ─────────────────── */
+body.warroom-page .wr-reccard { border-color: var(--wr-structure); border-top: 3px solid var(--wr-structure); }
+body.warroom-page .wr-reccard > h2 { color: var(--wr-structure); }
+
+/* ── the book's ticker: status + system strips in mono ──────────────────── */
+body.warroom-page .system-strip,
+body.warroom-page .wr-statusbar {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  border-radius: 8px;
+  background: var(--wr-panel);
+}
+body.warroom-page .wr-statusbar { border-left: 3px solid var(--wr-structure); padding: .35rem .7rem; }
+body.warroom-page .wr-statusbar.on-clock { border-color: var(--wr-good); border-left-color: var(--wr-good); }
+body.warroom-page .system-strip { padding: .3rem .7rem; }
+
+/* ── the search line: a proper tap target with an inset field look ──────── */
+body.warroom-page .wr-search {
+  border-radius: 10px;
+  box-shadow: inset 0 1px 2px rgba(12, 26, 43, .05);
+}
+body.warroom-page .wr-search input { padding: .68rem 0; font-size: .95rem; }
+
+/* ── SHORTLIST CARDS — dense book rows, one dominant number ─────────────── */
+body.warroom-page .rec-card {
+  border: 1px solid var(--wr-line);
+  border-radius: 10px;
+  background: var(--wr-panel);
+  padding: .5rem .6rem;
+  margin-bottom: .4rem;
+}
+body.warroom-page .rec-card.top {
+  border-color: var(--wr-structure);
+  background: var(--navy-soft);
+  box-shadow: inset 3px 0 0 var(--wr-structure);
+}
+body.warroom-page .rec-card.top .rec-rank {
+  background: var(--wr-structure); color: #fff; border-color: transparent;
+}
+body.warroom-page .rec-name { font-size: 1rem; }
+body.warroom-page .rec-card.top .rec-name { font-size: 1.08rem; }
+body.warroom-page .rec-why { font-size: .78rem; }
+body.warroom-page .rec-score { color: var(--wr-structure); font-size: 1.25rem; }
+body.warroom-page .rec-card.top .rec-score { color: var(--wr-structure); }
+body.warroom-page .rec-context { font-size: .72rem; color: var(--wr-muted); margin-top: .12rem; }
+body.warroom-page .rec-decisive { font-size: .76rem; }
+
+/* ── the disclosure grammar: every summary is the same quiet pill ───────── */
+body.warroom-page .rec-chips > summary,
+body.warroom-page .rec-against > summary,
+body.warroom-page .recs-details > summary,
+body.warroom-page .tier-cliff-wrap > summary,
+body.warroom-page .wr-help-wrap > summary {
+  list-style: none;
+  display: inline-flex; align-items: center; gap: .3rem;
+  cursor: pointer; user-select: none;
+  font-size: var(--wr-fs-micro); font-weight: 700;
+  color: var(--wr-muted);
+  border: 1px solid var(--wr-line); border-radius: 999px;
+  background: var(--wr-panel);
+  padding: .16rem .6rem;
+  margin: .3rem 0 0;
+}
+body.warroom-page .rec-chips > summary::-webkit-details-marker,
+body.warroom-page .rec-against > summary::-webkit-details-marker,
+body.warroom-page .recs-details > summary::-webkit-details-marker,
+body.warroom-page .tier-cliff-wrap > summary::-webkit-details-marker,
+body.warroom-page .wr-help-wrap > summary::-webkit-details-marker { display: none; }
+body.warroom-page .rec-chips[open] > summary,
+body.warroom-page .rec-against[open] > summary,
+body.warroom-page .recs-details[open] > summary,
+body.warroom-page .tier-cliff-wrap[open] > summary {
+  background: var(--wr-structure); color: #fff; border-color: var(--wr-structure);
+}
+body.warroom-page .recs-details > summary { font-size: .74rem; padding: .28rem .75rem; }
+body.warroom-page .rec-chips .rec-stats { margin-top: .35rem; }
+body.warroom-page .rec-against .ra-body {
+  margin-top: .4rem; padding: .45rem .6rem;
+  border-left: 2px solid var(--wr-line);
+  background: var(--wr-panel-soft); border-radius: 0 6px 6px 0;
+  font-size: var(--wr-fs-sub); color: var(--wr-ink);
+}
+
+/* ── context strips beneath the rec: quieter than the answer ────────────── */
+body.warroom-page #doctrine-banner.doctrine-banner,
+body.warroom-page #legality-strip.legality-strip { border-radius: 8px; font-size: .74rem; }
+body.warroom-page .queue-slip { border-radius: 10px; }
+
+/* ── zone-2/3 cards keep the shape, lose the air ────────────────────────── */
+body.warroom-page .wr-zone2 { gap: .6rem; }
+body.warroom-page .wr-zone3 .card .body { padding: .5rem .65rem; }
+
+/* ── phone rhythm (390 is the design width) ─────────────────────────────── */
+@media (max-width: 640px) {
+  body.warroom-page .wrap { padding: .5rem .55rem 2rem; }
+  body.warroom-page .card .body { padding: .6rem .65rem; }
+  body.warroom-page .clock-card .body { padding: .9rem .8rem 1rem; }
+  body.warroom-page .rec-actions .btn.small { min-height: 38px; }
+  body.warroom-page .wr-zone1 > .card { margin-bottom: .5rem !important; }
+}
+
+/* Motion doctrine holds for the new surfaces too. */
+@media (prefers-reduced-motion: reduce) {
+  body.warroom-page .clock-card, body.warroom-page .rec-card {
+    transition: none !important; animation: none !important;
+  }
 }
