@@ -160,7 +160,15 @@ def main() -> int:
         return void(f"no {YEAR - 1} store — NAIVE is the known-positive control and "
                     "cannot be built, so the run could not fail")
 
-    scoring = json.loads((HERE.parent / "config.json").read_text()).get("scoring", {})
+    # SAME LOADER exp_fp_hist_proj USES, not a second path that merely resembles
+    # it. My first version read draft/config.json, which does not exist — the run
+    # would have VOIDed on a wrong path and read as an egress failure. Checked
+    # against the repo rather than assumed, after the store-shape bug did exactly
+    # this an hour earlier.
+    scoring_path = HERE.parent / "config" / "league_config.json"
+    if not scoring_path.exists():
+        return void(f"house scoring table not found at {scoring_path}")
+    scoring = json.loads(scoring_path.read_text()).get("scoring") or {}
     if not scoring:
         return void("house scoring table is empty — every arm would be scored wrong")
 
@@ -175,13 +183,37 @@ def main() -> int:
     if not sl_raw:
         return void("Sleeper projections egress failed — a fact about the runner, "
                     "not about the source")
+    # SLEEPER'S PAYLOAD IS A DICT KEYED BY PID, NOT A LIST AND NOT {players:[...]}.
+    # It serves two ROW shapes too: {pid: {stat: v}} gives the stat line directly,
+    # {pid: {player_id, stats:{...}}} nests it. Same rule as
+    # sleeper_hist_proj.stat_line and sleeper_import._rows_with_stats — one
+    # derivation, not a third that merely resembles them.
+    #
+    # The first version read sl_raw.get("players", []), which returns [] against a
+    # pid-keyed dict. The 2026-08-17 run fetched 8,625 rows with stats and scored
+    # ZERO of them, and the NAIVE control caught it: without that gate this would
+    # have published a confident "no separation" verdict computed on an empty
+    # population.
+    def _stat_line(row):
+        if not isinstance(row, dict):
+            return {}
+        inner = row.get("stats") if "stats" in row else row
+        return inner if isinstance(inner, dict) else {}
+
     sleeper = {}
-    for row in (sl_raw if isinstance(sl_raw, list) else sl_raw.get("players", [])):
-        pid, stats = str(row.get("player_id") or ""), row.get("stats") or {}
-        if pid and stats:
-            v = score_stat_line(stats, scoring)
-            if v:
-                sleeper[pid] = float(v)
+    rows = sl_raw.items() if isinstance(sl_raw, dict) else (
+        (str((r or {}).get("player_id") or ""), r) for r in (sl_raw or []))
+    for pid, row in rows:
+        stats = _stat_line(row)
+        if not pid or not stats:
+            continue
+        v = score_stat_line(stats, scoring)
+        if v:
+            sleeper[str(pid)] = float(v)
+    if not sleeper:
+        return void("Sleeper returned rows but NONE scored — the row shape changed",
+                    {"raw_type": type(sl_raw).__name__,
+                     "raw_len": len(sl_raw) if hasattr(sl_raw, "__len__") else None})
 
     # ── FANTASYPROS, crosswalked through the SAME index exp_fp_hist_proj uses ─
     text, url, diag = FP.fetch_projections(YEAR)
@@ -229,7 +261,13 @@ def main() -> int:
     if naive >= sl_m and naive >= fp_m:
         return void(f"NAIVE (prev-season points, mean {PRIMARY} {naive:.4f}) beat BOTH "
                     f"professional sources (Sleeper {sl_m:.4f}, FP {fp_m:.4f}). That is a "
-                    "broken harness, not a finding about the sources.")
+                    "broken harness, not a finding about the sources.",
+                    {"matched_population": len(matched), "drops": drops,
+                     "sleeper_scored": len(sleeper), "fp_scored_and_matched": len(fp),
+                     "realized": len(realized), "prior": len(prior),
+                     "positions_known": sum(1 for v in position_of.values() if v),
+                     "cells": {k: {p: c.get("status") or c.get("n")
+                                   for p, c in v.items()} for k, v in arms.items()}})
 
     verdict = decide(arms)
     OUT.write_text(json.dumps({
@@ -250,7 +288,7 @@ def main() -> int:
     return 0
 
 
-def void(reason: str) -> int:
+def void(reason: str, diag: dict | None = None) -> int:
     """A run that could not be completed is VOID, never a negative result.
 
     The prereg names egress failure and a lost known-positive control as VOID
@@ -264,8 +302,15 @@ def void(reason: str) -> int:
         "_territory": "TERRITORY: A — produced by draft/backtest/source_blend_2025.py",
         "_note": ("VOID is not a negative result. Nothing here licenses any claim "
                   "about Sleeper, FantasyPros or a blend."),
+        # THE DIAGNOSTICS SURVIVE THE REFUSAL. The 08-17 run voided correctly and
+        # told us nothing about WHERE the join failed, so the refusal cost a whole
+        # dispatch. A refusal that discards its own evidence makes you pay twice.
+        "diagnostics": diag or {},
     }, indent=1) + "\n")
     print(f"VOID — {reason}")
+    if diag:
+        for k, v in diag.items():
+            print(f"   {k}: {v}")
     return 1
 
 

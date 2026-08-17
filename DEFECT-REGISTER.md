@@ -91,6 +91,7 @@ or date · `CLOSED` = fixed and verified, kept for the record.
 
 | what | owner | next action |
 |---|---|---|
+| **Does a kicker ever reach Cory's visible top options?** `demoteFlaggedOnesies` IS called in `recommend()`, but it demotes K/DEF only when **a rail fired on that player** or he is **`capped`** — not for being a kicker. Pre-draft, with no K rostered and no rail, a kicker with positive VORP is not demoted by that path. Raw `vorp` order puts them at board 105–150 against ADP 323–336. | **B** | **Observe it, do not infer it.** Open the war room at picks 1, 40 and 100 and look. If no kicker appears, this closes and the raw-order drift is cosmetic. If one does, it is draft-critical. **The relay read the code and deliberately did NOT call this a defect** — three over-claims today came from exactly that inference. |
 | `npx playwright install --with-deps chromium` on a real runner — the browser rehearsals' one untested line. | relay | Observed on the first scheduled `rehearsals.yml` run after it reaches `main`. |
 | The board's structural properties on a *published* board (health 100%, replacement-sensitivity) — currently only seen on a refused candidate. | relay | **unblocked by the board publishing (row 1), owner A, recheck 08-18** — confirm on the first successful publish. |
 
