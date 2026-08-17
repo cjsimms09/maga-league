@@ -9,7 +9,7 @@ _control λ=0: weekly mean 102.0, sd 32.3 · 150 paired rooms · **H1 (optimum t
 | flat_l0.5 | +231.17 | [172.17, 292.17] | 113.7 | 35.1 | WINNER — install via the gates (slider change, cited) |
 | flat_l1.0 | +12.50 | [-35.17, 59.0] | 103.7 | 33.3 | parked: CI includes $0 |
 | early_l1.0 | +0.50 | [-41.5, 43.67] | 101.0 | 30.8 | parked: CI includes $0 |
-| flat_l2.0 | -62.33 | [-99.5, -29.33] | 98.5 | 31.6 | parked: CI includes $0 |
-| flat_l3.0 | -88.50 | [-127.5, -54.0] | 94.0 | 30.0 | parked: CI includes $0 |
+| flat_l2.0 | -62.33 | [-99.5, -29.33] | 98.5 | 31.6 | LOSER — significantly worse than the control |
+| flat_l3.0 | -88.50 | [-127.5, -54.0] | 94.0 | 30.0 | LOSER — significantly worse than the control |
 
 **Caveats:** v1 money proxy (proj-normal weeks, weekly-high+RS; playoff $ excluded) · predicted opponent slates; paired rooms + paired weekly luck · September quantile re-run pre-registered; install only via the gates

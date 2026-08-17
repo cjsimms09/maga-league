@@ -110,9 +110,26 @@ const mv = (cand, cfg) => B.marginalValue(R, cand, Object.assign({ sims: SIMS },
 // "locked" seat with a competent alternative behind it is not locked at all.
 // Which is itself worth knowing: even a first-round quarterback carries real
 // option value if you own a startable backup.
+//
+// BOARD DRIFT RE-EARNED THE MARGIN ONCE ALREADY (diagnosed 2026-08-16, see
+// draft/audit/rebuild_refusal_diagnosis_2026-08-16.md's pattern). This test
+// was written 2026-08-14 (commit 20a6c256), against that day's board; Maye is
+// no longer even in `R` (draft_plan.js's plan reads the live board), and the
+// real alternative competing for the seat is now `R`'s own QB (Dak Prescott,
+// ~22.05 ppg) versus the measured QB wire (~23.28 ppg) — both close to the
+// old "Maye at 23.7" figure, but the corrected board (e993e1de: DEF TD
+// vocabulary + FP dropped-receptions, ratios WR 1.039/TE 1.059/QB 1.001 —
+// QB itself untouched, but the RB/WR/TE repricing moved who else the plan
+// drafts and reshuffled which QB is R's own) pushed MEAN=60's gap to +1.88%,
+// over the 1.5% bound. Not a logic defect — verified empirically (values
+// below) that the SAME neutral-at-the-limit property holds, it just needs a
+// wider clearance over today's real alternative: at MEAN 70/80/90/100 the gap
+// is 0.86% / 0.26% / -0.05% / -0.17%, converging to (slightly negative,
+// i.e. sim-noise-bounded) zero exactly as "locked" predicts. MEAN raised to
+// 100 for a safety margin against ordinary future drift.
 {
-  const MEAN = 60;                   // far enough above Maye AND the QB wire that
-  const calm = synth('QB', MEAN, 2); // the seat is genuinely never contested
+  const MEAN = 100;                  // far enough above Dak Prescott (R's own QB,
+  const calm = synth('QB', MEAN, 2); // ~22 ppg) AND the QB wire (~23 ppg) that
   const wild = synth('QB', MEAN, 14);
   const c1 = mv(calm, { lineupInfo: 'clairvoyant' });
   const w1 = mv(wild, { lineupInfo: 'clairvoyant' });

@@ -22,12 +22,26 @@ const CFG = {
 
 const gameKey = (season, week, gameId) => `trash:${season}:${week}:${gameId}`;
 
+/* THE SAME-MILLISECOND COIN FLIP (root-caused 2026-08-15, after it rolled an
+ * integrate.sh run back off main and then passed 8/8 re-runs). Two posts in
+ * one millisecond share created_at AND newId()'s Date.now() prefix, so the
+ * byTime tiebreak fell through to the id's RANDOM suffix — order between the
+ * two was a coin flip against insertion order. Stable across renders (the
+ * same ids sort the same way every time), which is exactly why the flake
+ * never reproduced on a re-read: only the WRITE-side race re-rolls the coin,
+ * so "run it again" always looked green. A module-local monotonic counter
+ * breaks the tie in true arrival order; it does not survive a restart and
+ * does not need to — a restart takes far longer than a millisecond, so
+ * created_at separates posts across process lives on its own. */
+let seqCounter = 0;
+
 /** Post to a game. Returns the stored post, or null if the body was empty. */
 async function post(season, week, gameId, ownerId, body) {
   const text = String(body == null ? '' : body).trim().slice(0, CFG.MAX_LEN);
   if (!text) return null;
   const id = newId();
-  const rec = { id, season, week, game_id: gameId, owner_id: Number(ownerId), body: text, created_at: now() };
+  const rec = { id, season, week, game_id: gameId, owner_id: Number(ownerId), body: text,
+    created_at: now(), seq: seqCounter++ };
   await setDoc(`${gameKey(season, week, gameId)}:${id}`, rec);
   return rec;
 }
@@ -37,11 +51,19 @@ async function post(season, week, gameId, ownerId, body) {
 // equal and the thread fell back to whatever order listKeys happened to return
 // — which is directory order, i.e. arbitrary and not even stable between
 // calls. On a record the page advertises as permanent and quotable, a thread
-// that renders in a different order on a refresh is not a cosmetic problem. The
-// id breaks the tie: newId() is `Date.now().toString(36)` plus random, so it is
-// both chronological to the millisecond and unique, which makes the order
-// deterministic even where the timestamp cannot separate two posts.
+// that renders in a different order on a refresh is not a cosmetic problem.
+//
+// ⚠️ The previous comment here claimed the id tiebreak made the order
+// "deterministic even where the timestamp cannot separate two posts" — HALF
+// TRUE, and the half that was false was a live flake: the id IS stable across
+// renders, but its same-millisecond ordering is its RANDOM suffix, a coin
+// flip against true arrival order (the mechanism behind the trashtalk
+// integrate.sh rollback — see post() above). `seq` now carries true arrival
+// order within a process; records written before seq existed carry none and
+// fall through to the id exactly as before, so historical threads render
+// identically.
 const byTime = (a, b) => String(a.created_at).localeCompare(String(b.created_at))
+  || ((a.seq ?? 0) - (b.seq ?? 0))
   || String(a.id).localeCompare(String(b.id));
 
 /** Every post on one game, oldest first (the order an argument actually happened). */

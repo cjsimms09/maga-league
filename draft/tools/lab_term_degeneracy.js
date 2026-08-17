@@ -47,8 +47,24 @@ const BUNDLE_KEYS = ['player_id', 'name', 'position', 'team', 'bye', 'proj_mean'
 function asBundlePlayer(p) {
   const q = {};
   BUNDLE_KEYS.forEach(k => { if (p[k] !== undefined) q[k] = p[k]; });
-  q.proj_sd = Math.round((p.proj_mean || 0) * 0.25 * 100) / 100;      // build_bundle.py:131
-  q.proj_ceiling = Math.round((p.proj_mean || 0) * 1.35 * 100) / 100; // build_bundle.py:132
+  /* HISTORICAL AS OF 2026-08-17 — these two lines mirror what build_bundle.py
+   * wrote UNTIL that day, not what it writes now. The harness stopped
+   * manufacturing dispersion: a bundle carries the measured p90/p10/sd per
+   * (position, band), fitted leave-one-season-out, and NOTHING off an
+   * unmeasured cell. Verified end to end in CI run 32002876691.
+   *
+   * THE FILE'S OWN WARNING ABOVE CAME TRUE. It calls this "A HAND-MIRRORED COPY
+   * ... WHICH IS A TWO-PLACES RISK AND IS DECLARED RATHER THAN HIDDEN", and the
+   * risk it declared is exactly the one that materialised — the same day, in
+   * lab_ceiling_degeneracy.js too, which cited "build_bundle.py:132, verbatim"
+   * for a line that had changed hours earlier.
+   *
+   * KEPT rather than updated, because this arm's job is to show what every
+   * pre-08-17 backtest was actually run against. Read it as the PRE-08-17
+   * harness. `harness_divergence.py` AST-parses the real key list and is the
+   * non-mirrored check if you want today's answer. */
+  q.proj_sd = Math.round((p.proj_mean || 0) * 0.25 * 100) / 100;      // build_bundle.py:131, PRE-08-17
+  q.proj_ceiling = Math.round((p.proj_mean || 0) * 1.35 * 100) / 100; // build_bundle.py:132, PRE-08-17
   q.adp_sd = null;                                                    // build_bundle.py:133
   return q;
 }
@@ -114,7 +130,7 @@ function spread(board) {
 
 console.log('TERM DEGENERACY ON THE LAB BOARD\n');
 console.log('  Same 400 players, scored twice: once with every production field, once');
-console.log('  carrying only the fields build_bundle.py puts on a bundle board.');
+console.log('  carrying only the fields build_bundle.py put on a bundle board\n  BEFORE 2026-08-17 (it now attaches measured dispersion — see the note in this file).');
 console.log('  A term with ONE distinct value cannot have influenced any backtest');
 console.log('  result at any weight — and in a result table that is indistinguishable');
 console.log('  from a term that was measured and found worthless.\n');
@@ -190,7 +206,8 @@ if (!dead.length && !partial.length) {
  * MONOTONE FUNCTION of another term is equally unmeasurable — raising one weight
  * is arithmetically the same as raising the other — and it shows up here as
  * hundreds of distinct values, i.e. as a pass. `ceiling` is exactly that case:
- * build_bundle.py writes proj_ceiling = 1.35 * proj_mean, so the ceiling spread
+ * build_bundle.py WROTE proj_ceiling = 1.35 * proj_mean until 2026-08-17 (PRE-08-17; the harness now carries measured p90/p10/sd per (position, band)),
+ * so on a pre-08-17 board the ceiling spread
  * is 0.35 * proj_mean and rank-identical to vona's input. See
  * lab_ceiling_degeneracy.js, which measures the rank correlation this probe is
  * blind to. A CLEAN ROW HERE MEANS "NOT DEGENERATE", NOT "WAS MEASURABLE". */

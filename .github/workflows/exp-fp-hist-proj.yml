@@ -151,9 +151,14 @@ jobs:
             exit 0
           fi
           git config user.name "lab-bot"; git config user.email "actions@github.com"
+          # RETAIN THE PER-PLAYER ROWS (2026-08-17, Cory: "keep all data this
+          # time"). Committing only the verdict is what left the blend study
+          # without a control arm — a blend's value is decided by the ERROR
+          # CORRELATION between sources, which no aggregate can carry.
           git add draft/backtest/exp_fp_hist_proj.json || true
+          git add draft/backtest/fp_hist_rows.json || true
           if ! git diff --cached --quiet; then
-            git commit -m "EXP-FP-HIST-PROJ: gated verdict on FP's historical projections [skip deploy]"
+            git commit -m "EXP-FP-HIST-PROJ: gated verdict + retained per-player rows [skip deploy]"
             pushed=0
             for i in 1 2 3; do
               git fetch origin main || true

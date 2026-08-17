@@ -1,0 +1,732 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/own_model_v5.py",
+ "_note": "Own-model v5 (component-data candidate: usage volume, xFP efficiency regression, share-of-team volume, availability regression, Vegas week-1 tilt, marker-gated league market) vs v4, v3, v2, v1 and both naive baselines, leak-free, under the exact v2-v4 protocol. Structure, constants, gates and evaluation were PREREGISTERED in own_model_v5.py and committed before this artifact existed \u2014 commit order is the proof. Promotion stays gated regardless of the verdict.",
+ "preregistration": "own_model_v5.py module docstring (committed first)",
+ "status": "graded",
+ "graded_season": 2025,
+ "prior_seasons": [
+  2023,
+  2024
+ ],
+ "information_set": "component stores \u22642024 (volume, sub-points, team, shares), weekly points stores \u22642024, league efficiency of 2024, v4's QB availability correction, the 0.7/0.3 blend, the marker-gated 2025 league draft + 2024 curve (RB/WR/TE), 2025 WEEK-1 Vegas closing lines, board ages, the positions record. No fantasy-provider input. Nothing from any 2025 game.",
+ "marker_gate": {
+  "status": "ok",
+  "markers": [
+   {
+    "player_id": "4137",
+    "pick_no": 48,
+    "position": "RB",
+    "realized": 29.3
+   },
+   {
+    "player_id": "12504",
+    "pick_no": 63,
+    "position": "RB",
+    "realized": 8.3
+   }
+  ]
+ },
+ "v5_config": {
+  "QB": {
+   "beta": 0.0,
+   "glam": 0.5,
+   "volume": "raw",
+   "pace_lam": null,
+   "vg": 0.5,
+   "weights": [
+    0.75,
+    0.25,
+    0.0
+   ],
+   "anchor": "blend_x_v4corr"
+  },
+  "RB": {
+   "beta": 0.5,
+   "glam": 0.5,
+   "volume": "raw",
+   "pace_lam": null,
+   "vg": 0.5,
+   "weights": [
+    0.5,
+    0.0,
+    0.5
+   ],
+   "anchor": "blend"
+  },
+  "WR": {
+   "beta": 0.5,
+   "glam": 0.7,
+   "volume": "share",
+   "pace_lam": 1.0,
+   "vg": 0.5,
+   "weights": [
+    0.75,
+    0.0,
+    0.25
+   ],
+   "anchor": "blend"
+  },
+  "TE": {
+   "beta": 0.25,
+   "glam": 0.7,
+   "volume": "share",
+   "pace_lam": 0.5,
+   "vg": 0.0,
+   "weights": [
+    0.25,
+    0.25,
+    0.5
+   ],
+   "anchor": "blend"
+  }
+ },
+ "v5_constants": {
+  "mu_min_games": 4,
+  "qb_min_g": 2,
+  "rate_recency": [
+   0.7,
+   0.3
+  ],
+  "mu_g_fallback": 12.0,
+  "v4_corr_mu_g_2024": 10.7317
+ },
+ "coverage": {
+  "v5_forecasts": 506,
+  "identical_to_v3": true,
+  "component_profile_missing": []
+ },
+ "arms_2023_2024": "deliberately absent: both folds were consumed by tuning (the grid search and the ablation ladder in the prereg), so any \u22642024 grade of v5 is in-sample \u2014 reporting one would manufacture a flattering second sample",
+ "fp_bar": {
+  "caveat": "FP cells are graded on FP's OWN shared population (n=57/88/141/83 \u2014 players FP projected AND both baselines cover), v5's on OURS (n=58/99/150/84). Absolute MAEs are not comparable across the two; margins vs the common recency-blend anchor are the honest comparison, and even those carry a population caveat. Per-player FP comparison is impossible from committed disk: the archive rows were never committed and api.fantasypros.com is unreachable from this sandbox (probed 2026-08-16).",
+  "fp_2025_cells": {
+   "QB": {
+    "n": 57,
+    "status": "measured",
+    "fantasypros": {
+     "spearman": 0.768,
+     "mae": 66.32,
+     "bias": 20.35
+    },
+    "naive_prev": {
+     "spearman": 0.7015,
+     "mae": 80.14,
+     "bias": 11.98
+    },
+    "recency_blend": {
+     "spearman": 0.7162,
+     "mae": 75.25,
+     "bias": 10.08
+    },
+    "fp_minus_naive_prev_mae": -13.82,
+    "fp_minus_recency_blend_mae": -8.93
+   },
+   "RB": {
+    "n": 88,
+    "status": "measured",
+    "fantasypros": {
+     "spearman": 0.7795,
+     "mae": 39.93,
+     "bias": -2.96
+    },
+    "naive_prev": {
+     "spearman": 0.7478,
+     "mae": 45.35,
+     "bias": 9.05
+    },
+    "recency_blend": {
+     "spearman": 0.7581,
+     "mae": 44.93,
+     "bias": 7.5
+    },
+    "fp_minus_naive_prev_mae": -5.42,
+    "fp_minus_recency_blend_mae": -5.0
+   },
+   "WR": {
+    "n": 141,
+    "status": "measured",
+    "fantasypros": {
+     "spearman": 0.7423,
+     "mae": 34.55,
+     "bias": -3.4
+    },
+    "naive_prev": {
+     "spearman": 0.7006,
+     "mae": 38.98,
+     "bias": 11.98
+    },
+    "recency_blend": {
+     "spearman": 0.7,
+     "mae": 38.36,
+     "bias": 12.75
+    },
+    "fp_minus_naive_prev_mae": -4.43,
+    "fp_minus_recency_blend_mae": -3.81
+   },
+   "TE": {
+    "n": 83,
+    "status": "measured",
+    "fantasypros": {
+     "spearman": 0.7892,
+     "mae": 21.08,
+     "bias": -10.19
+    },
+    "naive_prev": {
+     "spearman": 0.7404,
+     "mae": 26.96,
+     "bias": 2.63
+    },
+    "recency_blend": {
+     "spearman": 0.7827,
+     "mae": 24.27,
+     "bias": 2.32
+    },
+    "fp_minus_naive_prev_mae": -5.88,
+    "fp_minus_recency_blend_mae": -3.19
+   }
+  }
+ },
+ "arm_b_provider_history": {
+  "proj_series": {
+   "snapshots": 13,
+   "first_date": "2026-08-09",
+   "last_date": "2026-08-15",
+   "seasons_covered": "2026 only"
+  },
+  "fp_archive": "exp_fp_hist_proj.json committed position-level summary cells only; per-player rows were fetched under exp33's leak rules and deliberately not committed",
+  "api_reachability_2026_08_16": {
+   "api.fantasypros.com": "no route",
+   "api.sleeper.app": "no route"
+  },
+  "consequence": "Arm B (providers as features) is ungradeable on any past season; its bar \u2014 beat FP alone \u2014 first becomes measurable at the January 2027 grade of the frozen 2026 proj_series, which prices Sleeper, FP and own_v5 on the same season"
+ },
+ "short_season_qb_2024": [
+  {
+   "player_id": "1234",
+   "games_2024": 10,
+   "pts_per_game_2024": 19.13,
+   "own_v4": 236.29,
+   "own_v5": 201.19,
+   "realized_2025": 55.839999999999996
+  },
+  {
+   "player_id": "19",
+   "games_2024": 6,
+   "pts_per_game_2024": 17.75,
+   "own_v4": 140.53,
+   "own_v5": 146.82,
+   "realized_2025": 172.46000000000004
+  },
+  {
+   "player_id": "2028",
+   "games_2024": 10,
+   "pts_per_game_2024": 18.09,
+   "own_v4": 206.76,
+   "own_v5": 169.63,
+   "realized_2025": null
+  },
+  {
+   "player_id": "3294",
+   "games_2024": 8,
+   "pts_per_game_2024": 17.31,
+   "own_v4": 236.36,
+   "own_v5": 178.76,
+   "realized_2025": 367.08000000000004
+  },
+  {
+   "player_id": "4972",
+   "games_2024": 7,
+   "pts_per_game_2024": 15.79,
+   "own_v4": 103.22,
+   "own_v5": 108.51,
+   "realized_2025": 19.0
+  },
+  {
+   "player_id": "5870",
+   "games_2024": 10,
+   "pts_per_game_2024": 15.13,
+   "own_v4": 138.82,
+   "own_v5": 132.62,
+   "realized_2025": 262.14
+  },
+  {
+   "player_id": "7523",
+   "games_2024": 10,
+   "pts_per_game_2024": 16.77,
+   "own_v4": 211.41,
+   "own_v5": 193.42,
+   "realized_2025": 364.88
+  }
+ ],
+ "arm_2025": {
+  "models": {
+   "own_v5": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 73.3,
+      "bias": 0.24,
+      "spearman": 0.7188
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 37.54,
+      "bias": 2.38,
+      "spearman": 0.7968
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 33.63,
+      "bias": 8.72,
+      "spearman": 0.7634
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.33,
+      "bias": 2.12,
+      "spearman": 0.7987
+     }
+    },
+    "forecasts": 506,
+    "excluded_no_weekly_row": 115
+   },
+   "own_v4": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 72.29,
+      "bias": 10.87,
+      "spearman": 0.7225
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 38.66,
+      "bias": 7.25,
+      "spearman": 0.7957
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 34.05,
+      "bias": 9.27,
+      "spearman": 0.753
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.73,
+      "bias": 3.16,
+      "spearman": 0.792
+     }
+    },
+    "forecasts": 506,
+    "excluded_no_weekly_row": 115
+   },
+   "own_v3": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 74.76,
+      "bias": 12.07,
+      "spearman": 0.7189
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 38.66,
+      "bias": 7.25,
+      "spearman": 0.7957
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 34.05,
+      "bias": 9.27,
+      "spearman": 0.753
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.73,
+      "bias": 3.16,
+      "spearman": 0.792
+     }
+    },
+    "forecasts": 506,
+    "excluded_no_weekly_row": 115
+   },
+   "own_v2": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 76.14,
+      "bias": -2.11,
+      "spearman": 0.7166
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 40.81,
+      "bias": 0.96,
+      "spearman": 0.7751
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 34.08,
+      "bias": 4.56,
+      "spearman": 0.7465
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 23.71,
+      "bias": 1.78,
+      "spearman": 0.7813
+     }
+    },
+    "forecasts": 506,
+    "excluded_no_weekly_row": 115
+   },
+   "walk_forward_v1": {
+    "cells": {
+     "QB": {
+      "n": 61,
+      "status": "measured",
+      "mae": 107.85,
+      "bias": 65.77,
+      "spearman": 0.659
+     },
+     "RB": {
+      "n": 102,
+      "status": "measured",
+      "mae": 56.54,
+      "bias": 24.36,
+      "spearman": 0.729
+     },
+     "WR": {
+      "n": 156,
+      "status": "measured",
+      "mae": 47.23,
+      "bias": 30.74,
+      "spearman": 0.6883
+     },
+     "TE": {
+      "n": 88,
+      "status": "measured",
+      "mae": 34.47,
+      "bias": 19.85,
+      "spearman": 0.6857
+     }
+    },
+    "forecasts": 737,
+    "excluded_no_weekly_row": 211
+   },
+   "naive_prev": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 78.89,
+      "bias": 11.64,
+      "spearman": 0.708
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 42.37,
+      "bias": 9.17,
+      "spearman": 0.7612
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 37.72,
+      "bias": 12.15,
+      "spearman": 0.7339
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 26.73,
+      "bias": 2.69,
+      "spearman": 0.744
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 115
+   },
+   "recency_blend": {
+    "cells": {
+     "QB": {
+      "n": 58,
+      "status": "measured",
+      "mae": 74.09,
+      "bias": 9.77,
+      "spearman": 0.7213
+     },
+     "RB": {
+      "n": 99,
+      "status": "measured",
+      "mae": 41.86,
+      "bias": 7.77,
+      "spearman": 0.7682
+     },
+     "WR": {
+      "n": 150,
+      "status": "measured",
+      "mae": 36.82,
+      "bias": 12.62,
+      "spearman": 0.7344
+     },
+     "TE": {
+      "n": 84,
+      "status": "measured",
+      "mae": 24.04,
+      "bias": 2.36,
+      "spearman": 0.7871
+     }
+    },
+    "forecasts": 582,
+    "excluded_no_weekly_row": 115
+   }
+  },
+  "head_to_head_shared_population": {
+   "QB": {
+    "n": 58,
+    "status": "measured",
+    "own_v5": {
+     "mae": 73.3,
+     "spearman": 0.7188
+    },
+    "own_v4": {
+     "mae": 72.29,
+     "spearman": 0.7225
+    },
+    "own_v3": {
+     "mae": 74.76,
+     "spearman": 0.7189
+    },
+    "own_v2": {
+     "mae": 76.14,
+     "spearman": 0.7166
+    },
+    "walk_forward_v1": {
+     "mae": 103.88,
+     "spearman": 0.6712
+    },
+    "naive_prev": {
+     "mae": 78.89,
+     "spearman": 0.708
+    },
+    "recency_blend": {
+     "mae": 74.09,
+     "spearman": 0.7213
+    }
+   },
+   "RB": {
+    "n": 99,
+    "status": "measured",
+    "own_v5": {
+     "mae": 37.54,
+     "spearman": 0.7968
+    },
+    "own_v4": {
+     "mae": 38.66,
+     "spearman": 0.7957
+    },
+    "own_v3": {
+     "mae": 38.66,
+     "spearman": 0.7957
+    },
+    "own_v2": {
+     "mae": 40.81,
+     "spearman": 0.7751
+    },
+    "walk_forward_v1": {
+     "mae": 56.37,
+     "spearman": 0.7434
+    },
+    "naive_prev": {
+     "mae": 42.37,
+     "spearman": 0.7612
+    },
+    "recency_blend": {
+     "mae": 41.86,
+     "spearman": 0.7682
+    }
+   },
+   "WR": {
+    "n": 150,
+    "status": "measured",
+    "own_v5": {
+     "mae": 33.63,
+     "spearman": 0.7634
+    },
+    "own_v4": {
+     "mae": 34.05,
+     "spearman": 0.753
+    },
+    "own_v3": {
+     "mae": 34.05,
+     "spearman": 0.753
+    },
+    "own_v2": {
+     "mae": 34.08,
+     "spearman": 0.7465
+    },
+    "walk_forward_v1": {
+     "mae": 46.69,
+     "spearman": 0.6909
+    },
+    "naive_prev": {
+     "mae": 37.72,
+     "spearman": 0.7339
+    },
+    "recency_blend": {
+     "mae": 36.82,
+     "spearman": 0.7344
+    }
+   },
+   "TE": {
+    "n": 84,
+    "status": "measured",
+    "own_v5": {
+     "mae": 23.33,
+     "spearman": 0.7987
+    },
+    "own_v4": {
+     "mae": 23.73,
+     "spearman": 0.792
+    },
+    "own_v3": {
+     "mae": 23.73,
+     "spearman": 0.792
+    },
+    "own_v2": {
+     "mae": 23.71,
+     "spearman": 0.7813
+    },
+    "walk_forward_v1": {
+     "mae": 34.06,
+     "spearman": 0.6866
+    },
+    "naive_prev": {
+     "mae": 26.73,
+     "spearman": 0.744
+    },
+    "recency_blend": {
+     "mae": 24.04,
+     "spearman": 0.7871
+    }
+   }
+  },
+  "graded_season": 2025,
+  "prior_seasons": [
+   2023,
+   2024
+  ],
+  "mode": "component ensemble (frozen V5_CONFIG)"
+ },
+ "promotion_bar": {
+  "bar": "beat BOTH naive baselines at ALL four positions on BOTH metrics (MAE and Spearman), shared population, leak-free walk-forward \u2014 REC-3, Cory-ratified, strict inequalities",
+  "candidate": "own_v5",
+  "clears": false,
+  "per_position": {
+   "QB": {
+    "mae_beats_both": true,
+    "spearman_beats_both": false,
+    "own_v5_mae": 73.3,
+    "best_baseline_mae": 74.09,
+    "own_v5_spearman": 0.7188,
+    "best_baseline_spearman": 0.7213
+   },
+   "RB": {
+    "mae_beats_both": true,
+    "spearman_beats_both": true,
+    "own_v5_mae": 37.54,
+    "best_baseline_mae": 41.86,
+    "own_v5_spearman": 0.7968,
+    "best_baseline_spearman": 0.7682
+   },
+   "WR": {
+    "mae_beats_both": true,
+    "spearman_beats_both": true,
+    "own_v5_mae": 33.63,
+    "best_baseline_mae": 36.82,
+    "own_v5_spearman": 0.7634,
+    "best_baseline_spearman": 0.7344
+   },
+   "TE": {
+    "mae_beats_both": true,
+    "spearman_beats_both": true,
+    "own_v5_mae": 23.33,
+    "best_baseline_mae": 24.04,
+    "own_v5_spearman": 0.7987,
+    "best_baseline_spearman": 0.7871
+   }
+  },
+  "consequence": "clears=false \u2192 v3 stays display-only beside v2. clears=true \u2192 a written promotion decision goes to Cory; NOTHING flips automatically either way."
+ },
+ "vs_own_v4": {
+  "QB": {
+   "own_v5": {
+    "mae": 73.3,
+    "spearman": 0.7188
+   },
+   "own_v4": {
+    "mae": 72.29,
+    "spearman": 0.7225
+   },
+   "mae_delta_vs_v4": 1.01,
+   "spearman_delta_vs_v4": -0.0037,
+   "beats_v4_both_metrics": false
+  },
+  "RB": {
+   "own_v5": {
+    "mae": 37.54,
+    "spearman": 0.7968
+   },
+   "own_v4": {
+    "mae": 38.66,
+    "spearman": 0.7957
+   },
+   "mae_delta_vs_v4": -1.12,
+   "spearman_delta_vs_v4": 0.0011,
+   "beats_v4_both_metrics": true
+  },
+  "WR": {
+   "own_v5": {
+    "mae": 33.63,
+    "spearman": 0.7634
+   },
+   "own_v4": {
+    "mae": 34.05,
+    "spearman": 0.753
+   },
+   "mae_delta_vs_v4": -0.42,
+   "spearman_delta_vs_v4": 0.0104,
+   "beats_v4_both_metrics": true
+  },
+  "TE": {
+   "own_v5": {
+    "mae": 23.33,
+    "spearman": 0.7987
+   },
+   "own_v4": {
+    "mae": 23.73,
+    "spearman": 0.792
+   },
+   "mae_delta_vs_v4": -0.4,
+   "spearman_delta_vs_v4": 0.0067,
+   "beats_v4_both_metrics": true
+  }
+ }
+}

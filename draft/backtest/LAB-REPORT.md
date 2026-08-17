@@ -1,6 +1,6 @@
 # THE LAB — report
 
-_git HEAD `79e1a2db4b57a364feaf380e6a98f6608c106e6e` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
+_git HEAD `d3749843e7520ecaf04e140dd515f04d6a3c3a6b` · seasons 2023, 2024, 2025 · currency: E[$] under payouts.json.by_season (era-correct)_
 
 ## 🚨 INTERVENTION RATE — the headline number
 
@@ -17,15 +17,15 @@ Baseline frozen: `draft/backtest/pre-tree-baseline.json`. Consequence pre-regist
 
 | id | kind | headline |
 |---|---|---|
-| L0-lineup-ceiling-money | measurement | mean $/team the optimal-in-hindsight lineup would have added: 2023 +$470.0, 2024 +$595.0, 2025 +$445.0 (my 3-yr: $2100) |
+| L0-lineup-ceiling-money | measurement | mean $/team the optimal-in-hindsight lineup would have added: 2023 +$520.0, 2024 +$637.5, 2025 +$520.0 (my 3-yr: $2400) |
 
 ### L0-lineup-ceiling-money — Weekly-high + RS dollars left on the table by lineup decisions
 
 | season | mean $/team (hindsight ceiling) | best seat | tier |
 |---|---|---|---|
-| 2023 | +$470.0 | +$800.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
-| 2024 | +$595.0 | +$950.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
-| 2025 | +$445.0 | +$750.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
+| 2023 | +$520.0 | +$900.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
+| 2024 | +$637.5 | +$1050.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
+| 2025 | +$520.0 | +$925.0 | MEASUREMENT — hindsight ceiling, unreachable by construction (exp 35 measures the capture rate) |
 
 _measurement — quantifies the lineup-decision prize the in-season experiments (13/14) will chase; not a shipped edge._
 

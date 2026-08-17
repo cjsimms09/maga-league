@@ -1,0 +1,5914 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/draft_replay_2025.py",
+ "_note": "Draft replay: the value-policy core (BPA-VORP with needs rails) in Cory's real seat for 2023/2024/2025, opponents' actual picks fixed, that year's real keepers, walk-forward own_v6-vintage projections (market arm removed \u2014 it IS the event replayed), graded on actual weekly points. SIMULATION of one alternative history per year \u2014 three samples total, no butterfly effects, no rookies on the tool's board. Read the docstring of the producing tool for every named limitation before quoting any number.",
+ "question_verbatim": "Have we tested our draft model vs previous year? Would it have drafted a better or worse team for me?",
+ "policy_tested": "BPA-by-VORP with needs rails (primary caps QB2/RB7/WR7/TE2 \u2014 a third onesie can never start; starter-feasibility rail; K/DEF mirrored) over own_v6_nomarket walk-forward projections \u2014 the value-policy core, NOT the full shipped engine (which cannot run period-correct). Sensitivity grid per year: room caps QB3/TE3 and a room-draftable candidate filter.",
+ "years": {
+  "2025": {
+   "season": 2025,
+   "league_name": "Make Football Great Again",
+   "prior_seasons": [
+    2023,
+    2024
+   ],
+   "cory_keepers_applied": [
+    "11632",
+    "3198",
+    "7564"
+   ],
+   "replacement_points": {
+    "QB": 308.16,
+    "RB": 138.97,
+    "TE": 103.35,
+    "WR": 139.86
+   },
+   "replacement_diagnostics": {
+    "starter_counts": {
+     "TE": 10,
+     "WR": 27,
+     "QB": 10,
+     "RB": 23
+    }
+   },
+   "projection_coverage": 506,
+   "replay": {
+    "log": [
+     {
+      "pick_no": 1,
+      "roster_id": 5,
+      "player_id": "9221",
+      "how": "history"
+     },
+     {
+      "pick_no": 2,
+      "roster_id": 8,
+      "player_id": "9509",
+      "how": "history"
+     },
+     {
+      "pick_no": 3,
+      "roster_id": 2,
+      "player_id": "11584",
+      "how": "history"
+     },
+     {
+      "pick_no": 4,
+      "roster_id": 1,
+      "player_id": "7564",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 5,
+      "roster_id": 4,
+      "player_id": "5850",
+      "how": "history"
+     },
+     {
+      "pick_no": 6,
+      "roster_id": 7,
+      "player_id": "4034",
+      "how": "history"
+     },
+     {
+      "pick_no": 7,
+      "roster_id": 6,
+      "player_id": "6794",
+      "how": "history"
+     },
+     {
+      "pick_no": 8,
+      "roster_id": 3,
+      "player_id": "12527",
+      "how": "history"
+     },
+     {
+      "pick_no": 9,
+      "roster_id": 9,
+      "player_id": "4866",
+      "how": "history"
+     },
+     {
+      "pick_no": 10,
+      "roster_id": 10,
+      "player_id": "6786",
+      "how": "history"
+     },
+     {
+      "pick_no": 11,
+      "roster_id": 10,
+      "player_id": "8150",
+      "how": "history"
+     },
+     {
+      "pick_no": 12,
+      "roster_id": 9,
+      "player_id": "9493",
+      "how": "history"
+     },
+     {
+      "pick_no": 13,
+      "roster_id": 3,
+      "player_id": "9224",
+      "how": "history"
+     },
+     {
+      "pick_no": 14,
+      "roster_id": 6,
+      "player_id": "9226",
+      "how": "history"
+     },
+     {
+      "pick_no": 15,
+      "roster_id": 7,
+      "player_id": "4984",
+      "how": "history"
+     },
+     {
+      "pick_no": 16,
+      "roster_id": 4,
+      "player_id": "8138",
+      "how": "history"
+     },
+     {
+      "pick_no": 17,
+      "roster_id": 1,
+      "player_id": "11632",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 18,
+      "roster_id": 2,
+      "player_id": "11631",
+      "how": "history"
+     },
+     {
+      "pick_no": 19,
+      "roster_id": 8,
+      "player_id": "7569",
+      "how": "history"
+     },
+     {
+      "pick_no": 20,
+      "roster_id": 5,
+      "player_id": "6813",
+      "how": "history"
+     },
+     {
+      "pick_no": 21,
+      "roster_id": 5,
+      "player_id": "8112",
+      "how": "history"
+     },
+     {
+      "pick_no": 22,
+      "roster_id": 8,
+      "player_id": "8130",
+      "how": "history"
+     },
+     {
+      "pick_no": 23,
+      "roster_id": 2,
+      "player_id": "4881",
+      "how": "history"
+     },
+     {
+      "pick_no": 24,
+      "roster_id": 1,
+      "player_id": "3198",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 25,
+      "roster_id": 4,
+      "player_id": "5859",
+      "how": "history"
+     },
+     {
+      "pick_no": 26,
+      "roster_id": 7,
+      "player_id": "7547",
+      "how": "history"
+     },
+     {
+      "pick_no": 27,
+      "roster_id": 6,
+      "player_id": "11604",
+      "how": "history"
+     },
+     {
+      "pick_no": 28,
+      "roster_id": 3,
+      "player_id": "11635",
+      "how": "history"
+     },
+     {
+      "pick_no": 29,
+      "roster_id": 9,
+      "player_id": "12507",
+      "how": "history"
+     },
+     {
+      "pick_no": 30,
+      "roster_id": 10,
+      "player_id": "3321",
+      "how": "history"
+     },
+     {
+      "pick_no": 31,
+      "roster_id": 10,
+      "player_id": "4035",
+      "how": "history"
+     },
+     {
+      "pick_no": 32,
+      "roster_id": 9,
+      "player_id": "8155",
+      "how": "history"
+     },
+     {
+      "pick_no": 33,
+      "roster_id": 3,
+      "player_id": "2216",
+      "how": "history"
+     },
+     {
+      "pick_no": 34,
+      "roster_id": 6,
+      "player_id": "11628",
+      "how": "history"
+     },
+     {
+      "pick_no": 35,
+      "roster_id": 7,
+      "player_id": "6801",
+      "how": "history"
+     },
+     {
+      "pick_no": 36,
+      "roster_id": 4,
+      "player_id": "7594",
+      "how": "history"
+     },
+     {
+      "pick_no": 37,
+      "roster_id": 1,
+      "player_id": "11566",
+      "how": "tool",
+      "replaces": "4217",
+      "forced": false,
+      "vorp": 67.44
+     },
+     {
+      "pick_no": 38,
+      "roster_id": 2,
+      "player_id": "5846",
+      "how": "history"
+     },
+     {
+      "pick_no": 39,
+      "roster_id": 8,
+      "player_id": "5927",
+      "how": "history"
+     },
+     {
+      "pick_no": 40,
+      "roster_id": 5,
+      "player_id": "8146",
+      "how": "history"
+     },
+     {
+      "pick_no": 41,
+      "roster_id": 5,
+      "player_id": "2133",
+      "how": "history"
+     },
+     {
+      "pick_no": 42,
+      "roster_id": 8,
+      "player_id": "4983",
+      "how": "history"
+     },
+     {
+      "pick_no": 43,
+      "roster_id": 2,
+      "player_id": "12489",
+      "how": "history"
+     },
+     {
+      "pick_no": 44,
+      "roster_id": 1,
+      "player_id": "4217",
+      "how": "tool",
+      "replaces": "6770",
+      "forced": false,
+      "vorp": 60.32
+     },
+     {
+      "pick_no": 45,
+      "roster_id": 4,
+      "player_id": "11566",
+      "how": "history"
+     },
+     {
+      "pick_no": 46,
+      "roster_id": 7,
+      "player_id": "10859",
+      "how": "history"
+     },
+     {
+      "pick_no": 47,
+      "roster_id": 6,
+      "player_id": "9488",
+      "how": "history"
+     },
+     {
+      "pick_no": 48,
+      "roster_id": 3,
+      "player_id": "4137",
+      "how": "history"
+     },
+     {
+      "pick_no": 49,
+      "roster_id": 9,
+      "player_id": "5045",
+      "how": "history"
+     },
+     {
+      "pick_no": 50,
+      "roster_id": 10,
+      "player_id": "4046",
+      "how": "history"
+     },
+     {
+      "pick_no": 51,
+      "roster_id": 10,
+      "player_id": "9997",
+      "how": "history"
+     },
+     {
+      "pick_no": 52,
+      "roster_id": 9,
+      "player_id": "6904",
+      "how": "history"
+     },
+     {
+      "pick_no": 53,
+      "roster_id": 3,
+      "player_id": "4892",
+      "how": "history"
+     },
+     {
+      "pick_no": 54,
+      "roster_id": 6,
+      "player_id": "12529",
+      "how": "history"
+     },
+     {
+      "pick_no": 55,
+      "roster_id": 7,
+      "player_id": "5892",
+      "how": "history"
+     },
+     {
+      "pick_no": 56,
+      "roster_id": 4,
+      "player_id": "10229",
+      "how": "history"
+     },
+     {
+      "pick_no": 57,
+      "roster_id": 1,
+      "player_id": "4018",
+      "how": "tool",
+      "replaces": "8151",
+      "forced": false,
+      "vorp": 43.53
+     },
+     {
+      "pick_no": 58,
+      "roster_id": 2,
+      "player_id": "1466",
+      "how": "history"
+     },
+     {
+      "pick_no": 59,
+      "roster_id": 8,
+      "player_id": "6790",
+      "how": "history"
+     },
+     {
+      "pick_no": 60,
+      "roster_id": 5,
+      "player_id": "11624",
+      "how": "history"
+     },
+     {
+      "pick_no": 61,
+      "roster_id": 5,
+      "player_id": "8205",
+      "how": "history"
+     },
+     {
+      "pick_no": 62,
+      "roster_id": 8,
+      "player_id": "7525",
+      "how": "history"
+     },
+     {
+      "pick_no": 63,
+      "roster_id": 2,
+      "player_id": "12504",
+      "how": "history"
+     },
+     {
+      "pick_no": 64,
+      "roster_id": 1,
+      "player_id": "3163",
+      "how": "tool",
+      "replaces": "12530",
+      "forced": false,
+      "vorp": 32.22
+     },
+     {
+      "pick_no": 65,
+      "roster_id": 4,
+      "player_id": "5012",
+      "how": "history"
+     },
+     {
+      "pick_no": 66,
+      "roster_id": 7,
+      "player_id": "8137",
+      "how": "history"
+     },
+     {
+      "pick_no": 67,
+      "roster_id": 6,
+      "player_id": "12526",
+      "how": "history"
+     },
+     {
+      "pick_no": 68,
+      "roster_id": 3,
+      "player_id": "4018",
+      "how": "history"
+     },
+     {
+      "pick_no": 69,
+      "roster_id": 9,
+      "player_id": "8148",
+      "how": "history"
+     },
+     {
+      "pick_no": 70,
+      "roster_id": 10,
+      "player_id": "5967",
+      "how": "history"
+     },
+     {
+      "pick_no": 71,
+      "roster_id": 10,
+      "player_id": "5844",
+      "how": "history"
+     },
+     {
+      "pick_no": 72,
+      "roster_id": 9,
+      "player_id": "7526",
+      "how": "history"
+     },
+     {
+      "pick_no": 73,
+      "roster_id": 3,
+      "player_id": "4066",
+      "how": "history"
+     },
+     {
+      "pick_no": 74,
+      "roster_id": 6,
+      "player_id": "4199",
+      "how": "history"
+     },
+     {
+      "pick_no": 75,
+      "roster_id": 7,
+      "player_id": "6783",
+      "how": "history"
+     },
+     {
+      "pick_no": 76,
+      "roster_id": 4,
+      "player_id": "11620",
+      "how": "history"
+     },
+     {
+      "pick_no": 77,
+      "roster_id": 1,
+      "player_id": "4144",
+      "how": "tool",
+      "replaces": "5872",
+      "forced": false,
+      "vorp": 27.36
+     },
+     {
+      "pick_no": 78,
+      "roster_id": 2,
+      "player_id": "11655",
+      "how": "history"
+     },
+     {
+      "pick_no": 79,
+      "roster_id": 8,
+      "player_id": "12512",
+      "how": "history"
+     },
+     {
+      "pick_no": 80,
+      "roster_id": 5,
+      "player_id": "4981",
+      "how": "history"
+     },
+     {
+      "pick_no": 81,
+      "roster_id": 5,
+      "player_id": "11563",
+      "how": "history"
+     },
+     {
+      "pick_no": 82,
+      "roster_id": 8,
+      "player_id": "5947",
+      "how": "history"
+     },
+     {
+      "pick_no": 83,
+      "roster_id": 2,
+      "player_id": "12514",
+      "how": "history"
+     },
+     {
+      "pick_no": 84,
+      "roster_id": 1,
+      "player_id": "8136",
+      "how": "tool",
+      "replaces": "8144",
+      "forced": false,
+      "vorp": 18.4
+     },
+     {
+      "pick_no": 85,
+      "roster_id": 4,
+      "player_id": "9756",
+      "how": "history"
+     },
+     {
+      "pick_no": 86,
+      "roster_id": 7,
+      "player_id": "8228",
+      "how": "history"
+     },
+     {
+      "pick_no": 87,
+      "roster_id": 6,
+      "player_id": "7543",
+      "how": "history"
+     },
+     {
+      "pick_no": 88,
+      "roster_id": 3,
+      "player_id": "11638",
+      "how": "history"
+     },
+     {
+      "pick_no": 89,
+      "roster_id": 9,
+      "player_id": "12501",
+      "how": "history"
+     },
+     {
+      "pick_no": 90,
+      "roster_id": 10,
+      "player_id": "6819",
+      "how": "history"
+     },
+     {
+      "pick_no": 91,
+      "roster_id": 10,
+      "player_id": "PHI",
+      "how": "history"
+     },
+     {
+      "pick_no": 92,
+      "roster_id": 9,
+      "player_id": "4033",
+      "how": "history"
+     },
+     {
+      "pick_no": 93,
+      "roster_id": 3,
+      "player_id": "2449",
+      "how": "history"
+     },
+     {
+      "pick_no": 94,
+      "roster_id": 6,
+      "player_id": "12518",
+      "how": "history"
+     },
+     {
+      "pick_no": 95,
+      "roster_id": 7,
+      "player_id": "8134",
+      "how": "history"
+     },
+     {
+      "pick_no": 96,
+      "roster_id": 4,
+      "player_id": "4037",
+      "how": "history"
+     },
+     {
+      "pick_no": 97,
+      "roster_id": 1,
+      "player_id": "8151",
+      "how": "tool",
+      "replaces": "8154",
+      "forced": false,
+      "vorp": 8.85
+     },
+     {
+      "pick_no": 98,
+      "roster_id": 2,
+      "player_id": "4039",
+      "how": "history"
+     },
+     {
+      "pick_no": 99,
+      "roster_id": 8,
+      "player_id": "9753",
+      "how": "history"
+     },
+     {
+      "pick_no": 100,
+      "roster_id": 5,
+      "player_id": "9484",
+      "how": "history"
+     },
+     {
+      "pick_no": 101,
+      "roster_id": 5,
+      "player_id": "6806",
+      "how": "history"
+     },
+     {
+      "pick_no": 102,
+      "roster_id": 8,
+      "player_id": "11560",
+      "how": "history"
+     },
+     {
+      "pick_no": 103,
+      "roster_id": 2,
+      "player_id": "11533",
+      "how": "history"
+     },
+     {
+      "pick_no": 104,
+      "roster_id": 1,
+      "player_id": "7528",
+      "how": "tool",
+      "replaces": "12533",
+      "forced": false,
+      "vorp": 3.31
+     },
+     {
+      "pick_no": 105,
+      "roster_id": 4,
+      "player_id": "12481",
+      "how": "history"
+     },
+     {
+      "pick_no": 106,
+      "roster_id": 7,
+      "player_id": "12517",
+      "how": "history"
+     },
+     {
+      "pick_no": 107,
+      "roster_id": 6,
+      "player_id": "4663",
+      "how": "history"
+     },
+     {
+      "pick_no": 108,
+      "roster_id": 3,
+      "player_id": "7588",
+      "how": "history"
+     },
+     {
+      "pick_no": 109,
+      "roster_id": 9,
+      "player_id": "8408",
+      "how": "history"
+     },
+     {
+      "pick_no": 110,
+      "roster_id": 10,
+      "player_id": "7528",
+      "how": "history"
+     },
+     {
+      "pick_no": 111,
+      "roster_id": 10,
+      "player_id": "7049",
+      "how": "history"
+     },
+     {
+      "pick_no": 112,
+      "roster_id": 9,
+      "player_id": "3294",
+      "how": "history"
+     },
+     {
+      "pick_no": 113,
+      "roster_id": 3,
+      "player_id": "1945",
+      "how": "history"
+     },
+     {
+      "pick_no": 114,
+      "roster_id": 6,
+      "player_id": "5849",
+      "how": "history"
+     },
+     {
+      "pick_no": 115,
+      "roster_id": 7,
+      "player_id": "7090",
+      "how": "history"
+     },
+     {
+      "pick_no": 116,
+      "roster_id": 4,
+      "player_id": "9225",
+      "how": "history"
+     },
+     {
+      "pick_no": 117,
+      "roster_id": 1,
+      "player_id": "8259",
+      "how": "mirror_K"
+     },
+     {
+      "pick_no": 118,
+      "roster_id": 2,
+      "player_id": "DEN",
+      "how": "history"
+     },
+     {
+      "pick_no": 119,
+      "roster_id": 8,
+      "player_id": "9758",
+      "how": "history"
+     },
+     {
+      "pick_no": 120,
+      "roster_id": 5,
+      "player_id": "11539",
+      "how": "history"
+     },
+     {
+      "pick_no": 121,
+      "roster_id": 5,
+      "player_id": "7553",
+      "how": "history"
+     },
+     {
+      "pick_no": 122,
+      "roster_id": 8,
+      "player_id": "4666",
+      "how": "history"
+     },
+     {
+      "pick_no": 123,
+      "roster_id": 2,
+      "player_id": "12484",
+      "how": "history"
+     },
+     {
+      "pick_no": 124,
+      "roster_id": 1,
+      "player_id": "8154",
+      "how": "tool",
+      "replaces": "11576",
+      "forced": false,
+      "vorp": 0.78
+     },
+     {
+      "pick_no": 125,
+      "roster_id": 4,
+      "player_id": "5022",
+      "how": "history"
+     },
+     {
+      "pick_no": 126,
+      "roster_id": 7,
+      "player_id": "BAL",
+      "how": "history"
+     },
+     {
+      "pick_no": 127,
+      "roster_id": 6,
+      "player_id": "4227",
+      "how": "history"
+     },
+     {
+      "pick_no": 128,
+      "roster_id": 3,
+      "player_id": "3163",
+      "how": "history"
+     },
+     {
+      "pick_no": 129,
+      "roster_id": 9,
+      "player_id": "PIT",
+      "how": "history"
+     },
+     {
+      "pick_no": 130,
+      "roster_id": 10,
+      "player_id": "3451",
+      "how": "history"
+     },
+     {
+      "pick_no": 131,
+      "roster_id": 10,
+      "player_id": "6797",
+      "how": "history"
+     },
+     {
+      "pick_no": 132,
+      "roster_id": 9,
+      "player_id": "7611",
+      "how": "history"
+     },
+     {
+      "pick_no": 133,
+      "roster_id": 3,
+      "player_id": "WAS",
+      "how": "history"
+     },
+     {
+      "pick_no": 134,
+      "roster_id": 6,
+      "player_id": "KC",
+      "how": "history"
+     },
+     {
+      "pick_no": 135,
+      "roster_id": 7,
+      "player_id": "12490",
+      "how": "history"
+     },
+     {
+      "pick_no": 136,
+      "roster_id": 4,
+      "player_id": "11786",
+      "how": "history"
+     },
+     {
+      "pick_no": 137,
+      "roster_id": 1,
+      "player_id": "10222",
+      "how": "tool",
+      "replaces": "11637",
+      "forced": false,
+      "vorp": 0.43
+     },
+     {
+      "pick_no": 138,
+      "roster_id": 2,
+      "player_id": "12495",
+      "how": "history"
+     },
+     {
+      "pick_no": 139,
+      "roster_id": 8,
+      "player_id": "3678",
+      "how": "history"
+     },
+     {
+      "pick_no": 140,
+      "roster_id": 5,
+      "player_id": "7591",
+      "how": "history"
+     },
+     {
+      "pick_no": 141,
+      "roster_id": 5,
+      "player_id": "MIN",
+      "how": "history"
+     },
+     {
+      "pick_no": 142,
+      "roster_id": 8,
+      "player_id": "BUF",
+      "how": "history"
+     },
+     {
+      "pick_no": 143,
+      "roster_id": 2,
+      "player_id": "3214",
+      "how": "history"
+     },
+     {
+      "pick_no": 144,
+      "roster_id": 1,
+      "player_id": "DET",
+      "how": "mirror_DEF"
+     },
+     {
+      "pick_no": 145,
+      "roster_id": 4,
+      "player_id": "SF",
+      "how": "history"
+     },
+     {
+      "pick_no": 146,
+      "roster_id": 7,
+      "player_id": "6650",
+      "how": "history"
+     },
+     {
+      "pick_no": 147,
+      "roster_id": 6,
+      "player_id": "10222",
+      "how": "history"
+     },
+     {
+      "pick_no": 148,
+      "roster_id": 3,
+      "player_id": "12457",
+      "how": "history"
+     },
+     {
+      "pick_no": 149,
+      "roster_id": 9,
+      "player_id": "7839",
+      "how": "history"
+     },
+     {
+      "pick_no": 150,
+      "roster_id": 10,
+      "player_id": "8676",
+      "how": "history"
+     }
+    ],
+    "tool_roster": [
+     "10222",
+     "11566",
+     "11632",
+     "3163",
+     "3198",
+     "4018",
+     "4144",
+     "4217",
+     "7528",
+     "7564",
+     "8136",
+     "8151",
+     "8154",
+     "8259",
+     "DET"
+    ],
+    "position_counts": {
+     "QB": 2,
+     "RB": 6,
+     "WR": 3,
+     "TE": 2
+    },
+    "shadowed_picks": [
+     {
+      "pick_no": 45,
+      "player_id": "11566"
+     },
+     {
+      "pick_no": 68,
+      "player_id": "4018"
+     },
+     {
+      "pick_no": 110,
+      "player_id": "7528"
+     },
+     {
+      "pick_no": 128,
+      "player_id": "3163"
+     },
+     {
+      "pick_no": 147,
+      "player_id": "10222"
+     }
+    ],
+    "forced_picks": 0
+   },
+   "pick_story": [
+    {
+     "pick_no": 37,
+     "round": 4,
+     "tool": {
+      "player_id": "11566",
+      "name": "Jayden Daniels",
+      "pos": "QB",
+      "proj": 375.6,
+      "actual": 128.28
+     },
+     "actual": {
+      "player_id": "4217",
+      "name": "George Kittle",
+      "pos": "TE",
+      "proj": 163.67,
+      "actual": 127.6
+     },
+     "actual_points_delta": 0.68
+    },
+    {
+     "pick_no": 44,
+     "round": 5,
+     "tool": {
+      "player_id": "4217",
+      "name": "George Kittle",
+      "pos": "TE",
+      "proj": 163.67,
+      "actual": 127.6
+     },
+     "actual": {
+      "player_id": "6770",
+      "name": "Joe Burrow",
+      "pos": "QB",
+      "proj": 336.53,
+      "actual": 141.32
+     },
+     "actual_points_delta": -13.72
+    },
+    {
+     "pick_no": 57,
+     "round": 6,
+     "tool": {
+      "player_id": "4018",
+      "name": "Joe Mixon",
+      "pos": "RB",
+      "proj": 182.5,
+      "actual": 0.0
+     },
+     "actual": {
+      "player_id": "8151",
+      "name": "Kenneth Walker",
+      "pos": "RB",
+      "proj": 147.82,
+      "actual": 161.1
+     },
+     "actual_points_delta": -161.1
+    },
+    {
+     "pick_no": 64,
+     "round": 7,
+     "tool": {
+      "player_id": "3163",
+      "name": "Jared Goff",
+      "pos": "QB",
+      "proj": 340.38,
+      "actual": 347.82
+     },
+     "actual": {
+      "player_id": "12530",
+      "name": "12530",
+      "pos": null,
+      "proj": null,
+      "actual": 49.8
+     },
+     "actual_points_delta": 298.02
+    },
+    {
+     "pick_no": 77,
+     "round": 8,
+     "tool": {
+      "player_id": "4144",
+      "name": "Jonnu Smith",
+      "pos": "TE",
+      "proj": 130.71,
+      "actual": 65.3
+     },
+     "actual": {
+      "player_id": "5872",
+      "name": "Deebo Samuel",
+      "pos": "WR",
+      "proj": 134.78,
+      "actual": 149.1
+     },
+     "actual_points_delta": -83.8
+    },
+    {
+     "pick_no": 84,
+     "round": 9,
+     "tool": {
+      "player_id": "8136",
+      "name": "Rachaad White",
+      "pos": "RB",
+      "proj": 157.37,
+      "actual": 117.9
+     },
+     "actual": {
+      "player_id": "8144",
+      "name": "Chris Olave",
+      "pos": "WR",
+      "proj": 76.24,
+      "actual": 218.0
+     },
+     "actual_points_delta": -100.1
+    },
+    {
+     "pick_no": 97,
+     "round": 10,
+     "tool": {
+      "player_id": "8151",
+      "name": "Kenneth Walker",
+      "pos": "RB",
+      "proj": 147.82,
+      "actual": 161.1
+     },
+     "actual": {
+      "player_id": "8154",
+      "name": "Brian Robinson",
+      "pos": "RB",
+      "proj": 139.75,
+      "actual": 57.6
+     },
+     "actual_points_delta": 103.5
+    },
+    {
+     "pick_no": 104,
+     "round": 11,
+     "tool": {
+      "player_id": "7528",
+      "name": "Najee Harris",
+      "pos": "RB",
+      "proj": 142.28,
+      "actual": 10.1
+     },
+     "actual": {
+      "player_id": "12533",
+      "name": "Jacory Croskey-Merritt",
+      "pos": "RB",
+      "proj": null,
+      "actual": 132.9
+     },
+     "actual_points_delta": -122.8
+    },
+    {
+     "pick_no": 124,
+     "round": 13,
+     "tool": {
+      "player_id": "8154",
+      "name": "Brian Robinson",
+      "pos": "RB",
+      "proj": 139.75,
+      "actual": 57.6
+     },
+     "actual": {
+      "player_id": "11576",
+      "name": "Braelon Allen",
+      "pos": "RB",
+      "proj": 59.11,
+      "actual": 14.3
+     },
+     "actual_points_delta": 43.3
+    },
+    {
+     "pick_no": 137,
+     "round": 14,
+     "tool": {
+      "player_id": "10222",
+      "name": "Jayden Reed",
+      "pos": "WR",
+      "proj": 140.29,
+      "actual": 39.0
+     },
+     "actual": {
+      "player_id": "11637",
+      "name": "Keon Coleman",
+      "pos": "WR",
+      "proj": 83.94,
+      "actual": 75.5
+     },
+     "actual_points_delta": -36.5
+    }
+   ],
+   "tool_roster": [
+    {
+     "player_id": "10222",
+     "name": "Jayden Reed",
+     "pos": "WR",
+     "proj": 140.29,
+     "actual": 39.0
+    },
+    {
+     "player_id": "11566",
+     "name": "Jayden Daniels",
+     "pos": "QB",
+     "proj": 375.6,
+     "actual": 128.28
+    },
+    {
+     "player_id": "11632",
+     "name": "Malik Nabers",
+     "pos": "WR",
+     "proj": 199.74,
+     "actual": 48.1
+    },
+    {
+     "player_id": "3163",
+     "name": "Jared Goff",
+     "pos": "QB",
+     "proj": 340.38,
+     "actual": 347.82
+    },
+    {
+     "player_id": "3198",
+     "name": "Derrick Henry",
+     "pos": "RB",
+     "proj": 225.06,
+     "actual": 259.4
+    },
+    {
+     "player_id": "4018",
+     "name": "Joe Mixon",
+     "pos": "RB",
+     "proj": 182.5,
+     "actual": 0.0
+    },
+    {
+     "player_id": "4144",
+     "name": "Jonnu Smith",
+     "pos": "TE",
+     "proj": 130.71,
+     "actual": 65.3
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "pos": "TE",
+     "proj": 163.67,
+     "actual": 127.6
+    },
+    {
+     "player_id": "7528",
+     "name": "Najee Harris",
+     "pos": "RB",
+     "proj": 142.28,
+     "actual": 10.1
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 257.98,
+     "actual": 231.5
+    },
+    {
+     "player_id": "8136",
+     "name": "Rachaad White",
+     "pos": "RB",
+     "proj": 157.37,
+     "actual": 117.9
+    },
+    {
+     "player_id": "8151",
+     "name": "Kenneth Walker",
+     "pos": "RB",
+     "proj": 147.82,
+     "actual": 161.1
+    },
+    {
+     "player_id": "8154",
+     "name": "Brian Robinson",
+     "pos": "RB",
+     "proj": 139.75,
+     "actual": 57.6
+    },
+    {
+     "player_id": "8259",
+     "name": "Cameron Dicker",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "DET",
+     "name": "Detroit Lions",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "cory_drafted_roster": [
+    {
+     "player_id": "11576",
+     "name": "Braelon Allen",
+     "pos": "RB",
+     "proj": 59.11,
+     "actual": 14.3
+    },
+    {
+     "player_id": "11632",
+     "name": "Malik Nabers",
+     "pos": "WR",
+     "proj": 199.74,
+     "actual": 48.1
+    },
+    {
+     "player_id": "11637",
+     "name": "Keon Coleman",
+     "pos": "WR",
+     "proj": 83.94,
+     "actual": 75.5
+    },
+    {
+     "player_id": "12530",
+     "name": "12530",
+     "pos": null,
+     "proj": null,
+     "actual": 49.8
+    },
+    {
+     "player_id": "12533",
+     "name": "Jacory Croskey-Merritt",
+     "pos": "RB",
+     "proj": null,
+     "actual": 132.9
+    },
+    {
+     "player_id": "3198",
+     "name": "Derrick Henry",
+     "pos": "RB",
+     "proj": 225.06,
+     "actual": 259.4
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "pos": "TE",
+     "proj": 163.67,
+     "actual": 127.6
+    },
+    {
+     "player_id": "5872",
+     "name": "Deebo Samuel",
+     "pos": "WR",
+     "proj": 134.78,
+     "actual": 149.1
+    },
+    {
+     "player_id": "6770",
+     "name": "Joe Burrow",
+     "pos": "QB",
+     "proj": 336.53,
+     "actual": 141.32
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 257.98,
+     "actual": 231.5
+    },
+    {
+     "player_id": "8144",
+     "name": "Chris Olave",
+     "pos": "WR",
+     "proj": 76.24,
+     "actual": 218.0
+    },
+    {
+     "player_id": "8151",
+     "name": "Kenneth Walker",
+     "pos": "RB",
+     "proj": 147.82,
+     "actual": 161.1
+    },
+    {
+     "player_id": "8154",
+     "name": "Brian Robinson",
+     "pos": "RB",
+     "proj": 139.75,
+     "actual": 57.6
+    },
+    {
+     "player_id": "8259",
+     "name": "Cameron Dicker",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "DET",
+     "name": "Detroit Lions",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "rookies_invisible_to_tool": [
+    {
+     "player_id": "12530",
+     "name": "12530",
+     "actual": 49.8
+    },
+    {
+     "player_id": "12533",
+     "name": "Jacory Croskey-Merritt",
+     "actual": 132.9
+    }
+   ],
+   "unknown_position_players": [
+    "12530"
+   ],
+   "arms": {
+    "optimal": {
+     "tool": {
+      "season_total": 1423.86,
+      "weekly_mean": 83.76,
+      "weekly": [
+       97.12,
+       149.06,
+       57.68,
+       51.02,
+       91.62,
+       85.84,
+       76.74,
+       56.3,
+       73.36,
+       78.5,
+       85.3,
+       70.26,
+       78.04,
+       53.16,
+       99.22,
+       128.16,
+       92.48
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 1440.72,
+      "weekly_mean": 84.75,
+      "weekly": [
+       114.12,
+       106.34,
+       54.4,
+       49.6,
+       90.3,
+       55.9,
+       68.3,
+       63.5,
+       57.2,
+       81.7,
+       85.0,
+       60.6,
+       93.54,
+       62.26,
+       91.4,
+       160.36,
+       146.2
+      ]
+     },
+     "delta_tool_minus_cory": -16.86,
+     "delta_weekly_mean": -0.99,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     }
+    },
+    "realistic": {
+     "tool": {
+      "season_total": 1335.64,
+      "weekly_mean": 78.57,
+      "weekly": [
+       80.52,
+       112.1,
+       56.78,
+       51.02,
+       91.62,
+       79.02,
+       76.74,
+       56.3,
+       57.92,
+       75.0,
+       85.3,
+       70.06,
+       78.04,
+       53.16,
+       92.02,
+       128.16,
+       91.88
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 1257.72,
+      "weekly_mean": 73.98,
+      "weekly": [
+       71.32,
+       64.24,
+       40.3,
+       43.2,
+       73.4,
+       46.5,
+       68.3,
+       61.7,
+       52.8,
+       69.1,
+       85.0,
+       60.6,
+       93.54,
+       62.26,
+       78.2,
+       156.86,
+       130.4
+      ]
+     },
+     "delta_tool_minus_cory": 77.92,
+     "delta_weekly_mean": 4.58,
+     "head_to_head": {
+      "tool_weeks_won": 12,
+      "cory_weeks_won": 5,
+      "ties": 0
+     }
+    },
+    "optimal_unknown_flex_bound": {
+     "tool": {
+      "season_total": 1423.86,
+      "weekly_mean": 83.76
+     },
+     "cory_drafted": {
+      "season_total": 1457.22,
+      "weekly_mean": 85.72
+     },
+     "delta_tool_minus_cory": -33.36,
+     "head_to_head": {
+      "tool_weeks_won": 9,
+      "cory_weeks_won": 8,
+      "ties": 0
+     }
+    }
+   },
+   "sensitivity_grid_optimal_arm": {
+    "room_caps": {
+     "tool_optimal_total": 1457.88,
+     "delta_tool_minus_cory": 17.16,
+     "head_to_head": {
+      "tool_weeks_won": 11,
+      "cory_weeks_won": 6,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "10222",
+       "name": "Jayden Reed",
+       "actual": 39.0
+      },
+      {
+       "player_id": "11566",
+       "name": "Jayden Daniels",
+       "actual": 128.28
+      },
+      {
+       "player_id": "11632",
+       "name": "Malik Nabers",
+       "actual": 48.1
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "actual": 347.82
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 259.4
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4144",
+       "name": "Jonnu Smith",
+       "actual": 65.3
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 127.6
+      },
+      {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "actual": 141.32
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 231.5
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "actual": 57.6
+      }
+     ]
+    },
+    "room_draftable_pool": {
+     "tool_optimal_total": 1481.56,
+     "delta_tool_minus_cory": 40.84,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "10222",
+       "name": "Jayden Reed",
+       "actual": 39.0
+      },
+      {
+       "player_id": "11566",
+       "name": "Jayden Daniels",
+       "actual": 128.28
+      },
+      {
+       "player_id": "11632",
+       "name": "Malik Nabers",
+       "actual": 48.1
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "actual": 347.82
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 259.4
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 127.6
+      },
+      {
+       "player_id": "5872",
+       "name": "Deebo Samuel",
+       "actual": 149.1
+      },
+      {
+       "player_id": "7528",
+       "name": "Najee Harris",
+       "actual": 10.1
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 231.5
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "actual": 57.6
+      }
+     ]
+    },
+    "room_caps_and_pool": {
+     "tool_optimal_total": 1389.88,
+     "delta_tool_minus_cory": -50.84,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "10222",
+       "name": "Jayden Reed",
+       "actual": 39.0
+      },
+      {
+       "player_id": "11566",
+       "name": "Jayden Daniels",
+       "actual": 128.28
+      },
+      {
+       "player_id": "11632",
+       "name": "Malik Nabers",
+       "actual": 48.1
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "actual": 347.82
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 259.4
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 127.6
+      },
+      {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "actual": 141.32
+      },
+      {
+       "player_id": "7528",
+       "name": "Najee Harris",
+       "actual": 10.1
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 231.5
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "actual": 57.6
+      }
+     ]
+    }
+   },
+   "per_position_actual_points": {
+    "QB": {
+     "tool_rostered_actual_pts": 476.1,
+     "cory_rostered_actual_pts": 141.32
+    },
+    "RB": {
+     "tool_rostered_actual_pts": 606.1,
+     "cory_rostered_actual_pts": 625.3
+    },
+    "WR": {
+     "tool_rostered_actual_pts": 318.6,
+     "cory_rostered_actual_pts": 722.2
+    },
+    "TE": {
+     "tool_rostered_actual_pts": 192.9,
+     "cory_rostered_actual_pts": 127.6
+    }
+   },
+   "record_replay_informational": {
+    "regular_season_weeks": 15,
+    "records_w_l_t": {
+     "tool": [
+      3,
+      12,
+      0
+     ],
+     "cory_drafted": [
+      1,
+      14,
+      0
+     ],
+     "cory_actual": [
+      5,
+      10,
+      0
+     ]
+    },
+    "kdef_week_rows_missing_counted_zero": 10,
+    "weeks": [
+     {
+      "week": 1,
+      "opponent_roster_id": 6,
+      "opponent_points": 114.52,
+      "tool": 89.52,
+      "cory_drafted": 80.32,
+      "cory_actual": 95.22
+     },
+     {
+      "week": 2,
+      "opponent_roster_id": 9,
+      "opponent_points": 81.44,
+      "tool": 120.1,
+      "cory_drafted": 72.24,
+      "cory_actual": 131.54
+     },
+     {
+      "week": 3,
+      "opponent_roster_id": 2,
+      "opponent_points": 94.12,
+      "tool": 67.78,
+      "cory_drafted": 51.3,
+      "cory_actual": 80.52
+     },
+     {
+      "week": 4,
+      "opponent_roster_id": 3,
+      "opponent_points": 101.96,
+      "tool": 74.02,
+      "cory_drafted": 66.2,
+      "cory_actual": 91.32
+     },
+     {
+      "week": 5,
+      "opponent_roster_id": 5,
+      "opponent_points": 123.82,
+      "tool": 107.62,
+      "cory_drafted": 89.4,
+      "cory_actual": 99.62
+     },
+     {
+      "week": 6,
+      "opponent_roster_id": 10,
+      "opponent_points": 86.78,
+      "tool": 96.02,
+      "cory_drafted": 63.5,
+      "cory_actual": 102.94
+     },
+     {
+      "week": 7,
+      "opponent_roster_id": 8,
+      "opponent_points": 148.48,
+      "tool": 82.74,
+      "cory_drafted": 74.3,
+      "cory_actual": 130.78
+     },
+     {
+      "week": 8,
+      "opponent_roster_id": 7,
+      "opponent_points": 97.72,
+      "tool": 69.3,
+      "cory_drafted": 74.7,
+      "cory_actual": 100.28
+     },
+     {
+      "week": 9,
+      "opponent_roster_id": 4,
+      "opponent_points": 103.82,
+      "tool": 75.92,
+      "cory_drafted": 70.8,
+      "cory_actual": 93.16
+     },
+     {
+      "week": 10,
+      "opponent_roster_id": 6,
+      "opponent_points": 165.98,
+      "tool": 90.0,
+      "cory_drafted": 84.1,
+      "cory_actual": 101.0
+     },
+     {
+      "week": 11,
+      "opponent_roster_id": 9,
+      "opponent_points": 81.1,
+      "tool": 91.3,
+      "cory_drafted": 91.0,
+      "cory_actual": 107.74
+     },
+     {
+      "week": 12,
+      "opponent_roster_id": 2,
+      "opponent_points": 77.62,
+      "tool": 73.06,
+      "cory_drafted": 63.6,
+      "cory_actual": 121.16
+     },
+     {
+      "week": 13,
+      "opponent_roster_id": 3,
+      "opponent_points": 117.44,
+      "tool": 78.04,
+      "cory_drafted": 93.54,
+      "cory_actual": 102.78
+     },
+     {
+      "week": 14,
+      "opponent_roster_id": 5,
+      "opponent_points": 111.98,
+      "tool": 71.16,
+      "cory_drafted": 80.26,
+      "cory_actual": 107.66
+     },
+     {
+      "week": 15,
+      "opponent_roster_id": 10,
+      "opponent_points": 114.36,
+      "tool": 102.02,
+      "cory_drafted": 88.2,
+      "cory_actual": 90.2
+     }
+    ]
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "league_name": "Make Football Great Again",
+   "prior_seasons": [
+    2022,
+    2023
+   ],
+   "cory_keepers_applied": [
+    "7564"
+   ],
+   "replacement_points": {
+    "QB": 280.47,
+    "RB": 141.18,
+    "TE": 106.32,
+    "WR": 143.74
+   },
+   "replacement_diagnostics": {
+    "starter_counts": {
+     "TE": 10,
+     "WR": 30,
+     "QB": 10,
+     "RB": 20
+    }
+   },
+   "projection_coverage": 497,
+   "replay": {
+    "log": [
+     {
+      "pick_no": 1,
+      "roster_id": 4,
+      "player_id": "5850",
+      "how": "history"
+     },
+     {
+      "pick_no": 2,
+      "roster_id": 8,
+      "player_id": "8155",
+      "how": "history"
+     },
+     {
+      "pick_no": 3,
+      "roster_id": 10,
+      "player_id": "3321",
+      "how": "history"
+     },
+     {
+      "pick_no": 4,
+      "roster_id": 7,
+      "player_id": "4034",
+      "how": "history"
+     },
+     {
+      "pick_no": 5,
+      "roster_id": 9,
+      "player_id": "9493",
+      "how": "history"
+     },
+     {
+      "pick_no": 6,
+      "roster_id": 1,
+      "player_id": "7564",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 7,
+      "roster_id": 2,
+      "player_id": "1466",
+      "how": "history"
+     },
+     {
+      "pick_no": 8,
+      "roster_id": 6,
+      "player_id": "6794",
+      "how": "history"
+     },
+     {
+      "pick_no": 9,
+      "roster_id": 3,
+      "player_id": "4018",
+      "how": "history"
+     },
+     {
+      "pick_no": 10,
+      "roster_id": 5,
+      "player_id": "6813",
+      "how": "history"
+     },
+     {
+      "pick_no": 11,
+      "roster_id": 5,
+      "player_id": "8146",
+      "how": "history"
+     },
+     {
+      "pick_no": 12,
+      "roster_id": 3,
+      "player_id": "2216",
+      "how": "history"
+     },
+     {
+      "pick_no": 13,
+      "roster_id": 6,
+      "player_id": "8144",
+      "how": "history"
+     },
+     {
+      "pick_no": 14,
+      "roster_id": 2,
+      "player_id": "5859",
+      "how": "history"
+     },
+     {
+      "pick_no": 15,
+      "roster_id": 1,
+      "player_id": "4984",
+      "how": "tool",
+      "replaces": "11628",
+      "forced": false,
+      "vorp": 113.07
+     },
+     {
+      "pick_no": 16,
+      "roster_id": 9,
+      "player_id": "4866",
+      "how": "history"
+     },
+     {
+      "pick_no": 17,
+      "roster_id": 7,
+      "player_id": "4984",
+      "how": "history"
+     },
+     {
+      "pick_no": 18,
+      "roster_id": 10,
+      "player_id": "6786",
+      "how": "history"
+     },
+     {
+      "pick_no": 19,
+      "roster_id": 8,
+      "player_id": "9509",
+      "how": "history"
+     },
+     {
+      "pick_no": 20,
+      "roster_id": 4,
+      "player_id": "8205",
+      "how": "history"
+     },
+     {
+      "pick_no": 21,
+      "roster_id": 4,
+      "player_id": "5872",
+      "how": "history"
+     },
+     {
+      "pick_no": 22,
+      "roster_id": 8,
+      "player_id": "7569",
+      "how": "history"
+     },
+     {
+      "pick_no": 23,
+      "roster_id": 10,
+      "player_id": "8136",
+      "how": "history"
+     },
+     {
+      "pick_no": 24,
+      "roster_id": 7,
+      "player_id": "7547",
+      "how": "history"
+     },
+     {
+      "pick_no": 25,
+      "roster_id": 9,
+      "player_id": "7543",
+      "how": "history"
+     },
+     {
+      "pick_no": 26,
+      "roster_id": 1,
+      "player_id": "6904",
+      "how": "tool",
+      "replaces": "3198",
+      "forced": false,
+      "vorp": 91.43
+     },
+     {
+      "pick_no": 27,
+      "roster_id": 2,
+      "player_id": "8150",
+      "how": "history"
+     },
+     {
+      "pick_no": 28,
+      "roster_id": 6,
+      "player_id": "9226",
+      "how": "history"
+     },
+     {
+      "pick_no": 29,
+      "roster_id": 3,
+      "player_id": "4046",
+      "how": "history"
+     },
+     {
+      "pick_no": 30,
+      "roster_id": 5,
+      "player_id": "9221",
+      "how": "history"
+     },
+     {
+      "pick_no": 31,
+      "roster_id": 5,
+      "player_id": "10859",
+      "how": "history"
+     },
+     {
+      "pick_no": 32,
+      "roster_id": 3,
+      "player_id": "7526",
+      "how": "history"
+     },
+     {
+      "pick_no": 33,
+      "roster_id": 6,
+      "player_id": "8138",
+      "how": "history"
+     },
+     {
+      "pick_no": 34,
+      "roster_id": 2,
+      "player_id": "8151",
+      "how": "history"
+     },
+     {
+      "pick_no": 35,
+      "roster_id": 1,
+      "player_id": "5844",
+      "how": "tool",
+      "replaces": "8112",
+      "forced": false,
+      "vorp": 53.86
+     },
+     {
+      "pick_no": 36,
+      "roster_id": 9,
+      "player_id": "2133",
+      "how": "history"
+     },
+     {
+      "pick_no": 37,
+      "roster_id": 7,
+      "player_id": "6803",
+      "how": "history"
+     },
+     {
+      "pick_no": 38,
+      "roster_id": 10,
+      "player_id": "5892",
+      "how": "history"
+     },
+     {
+      "pick_no": 39,
+      "roster_id": 8,
+      "player_id": "4983",
+      "how": "history"
+     },
+     {
+      "pick_no": 40,
+      "roster_id": 4,
+      "player_id": "4035",
+      "how": "history"
+     },
+     {
+      "pick_no": 41,
+      "roster_id": 4,
+      "player_id": "4039",
+      "how": "history"
+     },
+     {
+      "pick_no": 42,
+      "roster_id": 8,
+      "player_id": "8130",
+      "how": "history"
+     },
+     {
+      "pick_no": 43,
+      "roster_id": 10,
+      "player_id": "2449",
+      "how": "history"
+     },
+     {
+      "pick_no": 44,
+      "roster_id": 7,
+      "player_id": "10236",
+      "how": "history"
+     },
+     {
+      "pick_no": 45,
+      "roster_id": 9,
+      "player_id": "5012",
+      "how": "history"
+     },
+     {
+      "pick_no": 46,
+      "roster_id": 1,
+      "player_id": "3198",
+      "how": "tool",
+      "replaces": "11632",
+      "forced": false,
+      "vorp": 43.98
+     },
+     {
+      "pick_no": 47,
+      "roster_id": 2,
+      "player_id": "6904",
+      "how": "history"
+     },
+     {
+      "pick_no": 48,
+      "roster_id": 6,
+      "player_id": "4881",
+      "how": "history"
+     },
+     {
+      "pick_no": 49,
+      "roster_id": 3,
+      "player_id": "6801",
+      "how": "history"
+     },
+     {
+      "pick_no": 50,
+      "roster_id": 5,
+      "player_id": "9758",
+      "how": "history"
+     },
+     {
+      "pick_no": 51,
+      "roster_id": 5,
+      "player_id": "2309",
+      "how": "history"
+     },
+     {
+      "pick_no": 52,
+      "roster_id": 3,
+      "player_id": "4137",
+      "how": "history"
+     },
+     {
+      "pick_no": 53,
+      "roster_id": 6,
+      "player_id": "9997",
+      "how": "history"
+     },
+     {
+      "pick_no": 54,
+      "roster_id": 2,
+      "player_id": "6819",
+      "how": "history"
+     },
+     {
+      "pick_no": 55,
+      "roster_id": 1,
+      "player_id": "4217",
+      "how": "tool",
+      "replaces": "7611",
+      "forced": false,
+      "vorp": 43.48
+     },
+     {
+      "pick_no": 56,
+      "roster_id": 9,
+      "player_id": "5846",
+      "how": "history"
+     },
+     {
+      "pick_no": 57,
+      "roster_id": 7,
+      "player_id": "6790",
+      "how": "history"
+     },
+     {
+      "pick_no": 58,
+      "roster_id": 10,
+      "player_id": "4199",
+      "how": "history"
+     },
+     {
+      "pick_no": 59,
+      "roster_id": 8,
+      "player_id": "9229",
+      "how": "history"
+     },
+     {
+      "pick_no": 60,
+      "roster_id": 4,
+      "player_id": "4217",
+      "how": "history"
+     },
+     {
+      "pick_no": 61,
+      "roster_id": 4,
+      "player_id": "6770",
+      "how": "history"
+     },
+     {
+      "pick_no": 62,
+      "roster_id": 8,
+      "player_id": "7525",
+      "how": "history"
+     },
+     {
+      "pick_no": 63,
+      "roster_id": 10,
+      "player_id": "3294",
+      "how": "history"
+     },
+     {
+      "pick_no": 64,
+      "roster_id": 7,
+      "player_id": "9502",
+      "how": "history"
+     },
+     {
+      "pick_no": 65,
+      "roster_id": 9,
+      "player_id": "7528",
+      "how": "history"
+     },
+     {
+      "pick_no": 66,
+      "roster_id": 1,
+      "player_id": "1479",
+      "how": "tool",
+      "replaces": "7553",
+      "forced": false,
+      "vorp": 22.76
+     },
+     {
+      "pick_no": 67,
+      "roster_id": 2,
+      "player_id": "5927",
+      "how": "history"
+     },
+     {
+      "pick_no": 68,
+      "roster_id": 6,
+      "player_id": "10229",
+      "how": "history"
+     },
+     {
+      "pick_no": 69,
+      "roster_id": 3,
+      "player_id": "4066",
+      "how": "history"
+     },
+     {
+      "pick_no": 70,
+      "roster_id": 5,
+      "player_id": "1479",
+      "how": "history"
+     },
+     {
+      "pick_no": 71,
+      "roster_id": 5,
+      "player_id": "11624",
+      "how": "history"
+     },
+     {
+      "pick_no": 72,
+      "roster_id": 3,
+      "player_id": "5967",
+      "how": "history"
+     },
+     {
+      "pick_no": 73,
+      "roster_id": 6,
+      "player_id": "11604",
+      "how": "history"
+     },
+     {
+      "pick_no": 74,
+      "roster_id": 2,
+      "player_id": "4981",
+      "how": "history"
+     },
+     {
+      "pick_no": 75,
+      "roster_id": 1,
+      "player_id": "4037",
+      "how": "tool",
+      "replaces": "11583",
+      "forced": false,
+      "vorp": 8.27
+     },
+     {
+      "pick_no": 76,
+      "roster_id": 9,
+      "player_id": "8137",
+      "how": "history"
+     },
+     {
+      "pick_no": 77,
+      "roster_id": 7,
+      "player_id": "2749",
+      "how": "history"
+     },
+     {
+      "pick_no": 78,
+      "roster_id": 10,
+      "player_id": "4033",
+      "how": "history"
+     },
+     {
+      "pick_no": 79,
+      "roster_id": 8,
+      "player_id": "4950",
+      "how": "history"
+     },
+     {
+      "pick_no": 80,
+      "roster_id": 4,
+      "player_id": "11620",
+      "how": "history"
+     },
+     {
+      "pick_no": 81,
+      "roster_id": 4,
+      "player_id": "SF",
+      "how": "history"
+     },
+     {
+      "pick_no": 82,
+      "roster_id": 8,
+      "player_id": "8228",
+      "how": "history"
+     },
+     {
+      "pick_no": 83,
+      "roster_id": 10,
+      "player_id": "8139",
+      "how": "history"
+     },
+     {
+      "pick_no": 84,
+      "roster_id": 7,
+      "player_id": "10222",
+      "how": "history"
+     },
+     {
+      "pick_no": 85,
+      "roster_id": 9,
+      "player_id": "5849",
+      "how": "history"
+     },
+     {
+      "pick_no": 86,
+      "roster_id": 1,
+      "player_id": "4663",
+      "how": "tool",
+      "replaces": "7588",
+      "forced": false,
+      "vorp": 0.98
+     },
+     {
+      "pick_no": 87,
+      "roster_id": 2,
+      "player_id": "4988",
+      "how": "history"
+     },
+     {
+      "pick_no": 88,
+      "roster_id": 6,
+      "player_id": "4037",
+      "how": "history"
+     },
+     {
+      "pick_no": 89,
+      "roster_id": 3,
+      "player_id": "6845",
+      "how": "history"
+     },
+     {
+      "pick_no": 90,
+      "roster_id": 5,
+      "player_id": "4663",
+      "how": "history"
+     },
+     {
+      "pick_no": 91,
+      "roster_id": 5,
+      "player_id": "6130",
+      "how": "history"
+     },
+     {
+      "pick_no": 92,
+      "roster_id": 3,
+      "player_id": "5848",
+      "how": "history"
+     },
+     {
+      "pick_no": 93,
+      "roster_id": 6,
+      "player_id": "8154",
+      "how": "history"
+     },
+     {
+      "pick_no": 94,
+      "roster_id": 2,
+      "player_id": "11589",
+      "how": "history"
+     },
+     {
+      "pick_no": 95,
+      "roster_id": 1,
+      "player_id": "1689",
+      "how": "tool",
+      "replaces": "9224",
+      "forced": false,
+      "vorp": 0.85
+     },
+     {
+      "pick_no": 96,
+      "roster_id": 9,
+      "player_id": "8167",
+      "how": "history"
+     },
+     {
+      "pick_no": 97,
+      "roster_id": 7,
+      "player_id": "11635",
+      "how": "history"
+     },
+     {
+      "pick_no": 98,
+      "roster_id": 10,
+      "player_id": "9756",
+      "how": "history"
+     },
+     {
+      "pick_no": 99,
+      "roster_id": 8,
+      "player_id": "8143",
+      "how": "history"
+     },
+     {
+      "pick_no": 100,
+      "roster_id": 4,
+      "player_id": "11637",
+      "how": "history"
+     },
+     {
+      "pick_no": 101,
+      "roster_id": 4,
+      "player_id": "5248",
+      "how": "history"
+     },
+     {
+      "pick_no": 102,
+      "roster_id": 8,
+      "player_id": "6804",
+      "how": "history"
+     },
+     {
+      "pick_no": 103,
+      "roster_id": 10,
+      "player_id": "NYJ",
+      "how": "history"
+     },
+     {
+      "pick_no": 104,
+      "roster_id": 7,
+      "player_id": "9753",
+      "how": "history"
+     },
+     {
+      "pick_no": 105,
+      "roster_id": 9,
+      "player_id": "6806",
+      "how": "history"
+     },
+     {
+      "pick_no": 106,
+      "roster_id": 1,
+      "player_id": "1426",
+      "how": "tool",
+      "replaces": "11560",
+      "forced": false,
+      "vorp": -3.3
+     },
+     {
+      "pick_no": 107,
+      "roster_id": 2,
+      "player_id": "11631",
+      "how": "history"
+     },
+     {
+      "pick_no": 108,
+      "roster_id": 6,
+      "player_id": "4227",
+      "how": "history"
+     },
+     {
+      "pick_no": 109,
+      "roster_id": 3,
+      "player_id": "8110",
+      "how": "history"
+     },
+     {
+      "pick_no": 110,
+      "roster_id": 5,
+      "player_id": "11586",
+      "how": "history"
+     },
+     {
+      "pick_no": 111,
+      "roster_id": 5,
+      "player_id": "1264",
+      "how": "history"
+     },
+     {
+      "pick_no": 112,
+      "roster_id": 3,
+      "player_id": "1426",
+      "how": "history"
+     },
+     {
+      "pick_no": 113,
+      "roster_id": 6,
+      "player_id": "9508",
+      "how": "history"
+     },
+     {
+      "pick_no": 114,
+      "roster_id": 2,
+      "player_id": "7594",
+      "how": "history"
+     },
+     {
+      "pick_no": 115,
+      "roster_id": 1,
+      "player_id": "2374",
+      "how": "tool",
+      "replaces": "11566",
+      "forced": false,
+      "vorp": -6.54
+     },
+     {
+      "pick_no": 116,
+      "roster_id": 9,
+      "player_id": "6768",
+      "how": "history"
+     },
+     {
+      "pick_no": 117,
+      "roster_id": 7,
+      "player_id": "3163",
+      "how": "history"
+     },
+     {
+      "pick_no": 118,
+      "roster_id": 10,
+      "player_id": "8183",
+      "how": "history"
+     },
+     {
+      "pick_no": 119,
+      "roster_id": 8,
+      "player_id": "5001",
+      "how": "history"
+     },
+     {
+      "pick_no": 120,
+      "roster_id": 4,
+      "player_id": "3164",
+      "how": "history"
+     },
+     {
+      "pick_no": 121,
+      "roster_id": 4,
+      "player_id": "11533",
+      "how": "history"
+     },
+     {
+      "pick_no": 122,
+      "roster_id": 8,
+      "player_id": "7042",
+      "how": "history"
+     },
+     {
+      "pick_no": 123,
+      "roster_id": 10,
+      "player_id": "7839",
+      "how": "history"
+     },
+     {
+      "pick_no": 124,
+      "roster_id": 7,
+      "player_id": "4195",
+      "how": "history"
+     },
+     {
+      "pick_no": 125,
+      "roster_id": 9,
+      "player_id": "BAL",
+      "how": "history"
+     },
+     {
+      "pick_no": 126,
+      "roster_id": 1,
+      "player_id": "8112",
+      "how": "tool",
+      "replaces": "9488",
+      "forced": false,
+      "vorp": -8.07
+     },
+     {
+      "pick_no": 127,
+      "roster_id": 2,
+      "player_id": "KC",
+      "how": "history"
+     },
+     {
+      "pick_no": 128,
+      "roster_id": 6,
+      "player_id": "7021",
+      "how": "history"
+     },
+     {
+      "pick_no": 129,
+      "roster_id": 3,
+      "player_id": "4666",
+      "how": "history"
+     },
+     {
+      "pick_no": 130,
+      "roster_id": 5,
+      "player_id": "5937",
+      "how": "history"
+     },
+     {
+      "pick_no": 131,
+      "roster_id": 5,
+      "player_id": "5045",
+      "how": "history"
+     },
+     {
+      "pick_no": 132,
+      "roster_id": 3,
+      "player_id": "8134",
+      "how": "history"
+     },
+     {
+      "pick_no": 133,
+      "roster_id": 6,
+      "player_id": "11627",
+      "how": "history"
+     },
+     {
+      "pick_no": 134,
+      "roster_id": 2,
+      "player_id": "3451",
+      "how": "history"
+     },
+     {
+      "pick_no": 135,
+      "roster_id": 1,
+      "player_id": "5119",
+      "how": "mirror_K"
+     },
+     {
+      "pick_no": 136,
+      "roster_id": 9,
+      "player_id": "10937",
+      "how": "history"
+     },
+     {
+      "pick_no": 137,
+      "roster_id": 7,
+      "player_id": "CLE",
+      "how": "history"
+     },
+     {
+      "pick_no": 138,
+      "roster_id": 10,
+      "player_id": "8148",
+      "how": "history"
+     },
+     {
+      "pick_no": 139,
+      "roster_id": 8,
+      "player_id": "DAL",
+      "how": "history"
+     },
+     {
+      "pick_no": 140,
+      "roster_id": 4,
+      "player_id": "5022",
+      "how": "history"
+     },
+     {
+      "pick_no": 141,
+      "roster_id": 4,
+      "player_id": "96",
+      "how": "history"
+     },
+     {
+      "pick_no": 142,
+      "roster_id": 8,
+      "player_id": "1689",
+      "how": "history"
+     },
+     {
+      "pick_no": 143,
+      "roster_id": 10,
+      "player_id": "8121",
+      "how": "history"
+     },
+     {
+      "pick_no": 144,
+      "roster_id": 7,
+      "player_id": "11625",
+      "how": "history"
+     },
+     {
+      "pick_no": 145,
+      "roster_id": 9,
+      "player_id": "7608",
+      "how": "history"
+     },
+     {
+      "pick_no": 146,
+      "roster_id": 1,
+      "player_id": "PHI",
+      "how": "mirror_DEF"
+     },
+     {
+      "pick_no": 147,
+      "roster_id": 2,
+      "player_id": "11582",
+      "how": "history"
+     },
+     {
+      "pick_no": 148,
+      "roster_id": 6,
+      "player_id": "4381",
+      "how": "history"
+     },
+     {
+      "pick_no": 149,
+      "roster_id": 3,
+      "player_id": "SEA",
+      "how": "history"
+     },
+     {
+      "pick_no": 150,
+      "roster_id": 5,
+      "player_id": "PIT",
+      "how": "history"
+     }
+    ],
+    "tool_roster": [
+     "1426",
+     "1479",
+     "1689",
+     "2374",
+     "3198",
+     "4037",
+     "4217",
+     "4663",
+     "4984",
+     "5119",
+     "5844",
+     "6904",
+     "7564",
+     "8112",
+     "PHI"
+    ],
+    "position_counts": {
+     "QB": 2,
+     "RB": 2,
+     "WR": 7,
+     "TE": 2
+    },
+    "shadowed_picks": [
+     {
+      "pick_no": 17,
+      "player_id": "4984"
+     },
+     {
+      "pick_no": 47,
+      "player_id": "6904"
+     },
+     {
+      "pick_no": 60,
+      "player_id": "4217"
+     },
+     {
+      "pick_no": 70,
+      "player_id": "1479"
+     },
+     {
+      "pick_no": 88,
+      "player_id": "4037"
+     },
+     {
+      "pick_no": 90,
+      "player_id": "4663"
+     },
+     {
+      "pick_no": 112,
+      "player_id": "1426"
+     },
+     {
+      "pick_no": 142,
+      "player_id": "1689"
+     }
+    ],
+    "forced_picks": 0
+   },
+   "pick_story": [
+    {
+     "pick_no": 15,
+     "round": 2,
+     "tool": {
+      "player_id": "4984",
+      "name": "Josh Allen",
+      "pos": "QB",
+      "proj": 393.54,
+      "actual": 428.34
+     },
+     "actual": {
+      "player_id": "11628",
+      "name": "Marvin Harrison",
+      "pos": "WR",
+      "proj": null,
+      "actual": 150.7
+     },
+     "actual_points_delta": 277.64
+    },
+    {
+     "pick_no": 26,
+     "round": 3,
+     "tool": {
+      "player_id": "6904",
+      "name": "Jalen Hurts",
+      "pos": "QB",
+      "proj": 371.9,
+      "actual": 351.12
+     },
+     "actual": {
+      "player_id": "3198",
+      "name": "Derrick Henry",
+      "pos": "RB",
+      "proj": 185.16,
+      "actual": 297.8
+     },
+     "actual_points_delta": 53.32
+    },
+    {
+     "pick_no": 35,
+     "round": 4,
+     "tool": {
+      "player_id": "5844",
+      "name": "T.J. Hockenson",
+      "pos": "TE",
+      "proj": 160.18,
+      "actual": 64.1
+     },
+     "actual": {
+      "player_id": "8112",
+      "name": "Drake London",
+      "pos": "WR",
+      "proj": 135.67,
+      "actual": 195.1
+     },
+     "actual_points_delta": -131.0
+    },
+    {
+     "pick_no": 46,
+     "round": 5,
+     "tool": {
+      "player_id": "3198",
+      "name": "Derrick Henry",
+      "pos": "RB",
+      "proj": 185.16,
+      "actual": 297.8
+     },
+     "actual": {
+      "player_id": "11632",
+      "name": "Malik Nabers",
+      "pos": "WR",
+      "proj": null,
+      "actual": 204.2
+     },
+     "actual_points_delta": 93.6
+    },
+    {
+     "pick_no": 55,
+     "round": 6,
+     "tool": {
+      "player_id": "4217",
+      "name": "George Kittle",
+      "pos": "TE",
+      "proj": 149.8,
+      "actual": 193.9
+     },
+     "actual": {
+      "player_id": "7611",
+      "name": "Rhamondre Stevenson",
+      "pos": "RB",
+      "proj": 114.28,
+      "actual": 159.4
+     },
+     "actual_points_delta": 34.5
+    },
+    {
+     "pick_no": 66,
+     "round": 7,
+     "tool": {
+      "player_id": "1479",
+      "name": "Keenan Allen",
+      "pos": "WR",
+      "proj": 166.5,
+      "actual": 147.4
+     },
+     "actual": {
+      "player_id": "7553",
+      "name": "Kyle Pitts",
+      "pos": "TE",
+      "proj": 98.54,
+      "actual": 105.2
+     },
+     "actual_points_delta": 42.2
+    },
+    {
+     "pick_no": 75,
+     "round": 8,
+     "tool": {
+      "player_id": "4037",
+      "name": "Chris Godwin",
+      "pos": "WR",
+      "proj": 152.01,
+      "actual": 112.8
+     },
+     "actual": {
+      "player_id": "11583",
+      "name": "Jonathon Brooks",
+      "pos": "RB",
+      "proj": null,
+      "actual": 6.0
+     },
+     "actual_points_delta": 106.8
+    },
+    {
+     "pick_no": 86,
+     "round": 9,
+     "tool": {
+      "player_id": "4663",
+      "name": "Austin Ekeler",
+      "pos": "RB",
+      "proj": 142.16,
+      "actual": 110.6
+     },
+     "actual": {
+      "player_id": "7588",
+      "name": "Javonte Williams",
+      "pos": "RB",
+      "proj": 125.97,
+      "actual": 122.6
+     },
+     "actual_points_delta": -12.0
+    },
+    {
+     "pick_no": 95,
+     "round": 10,
+     "tool": {
+      "player_id": "1689",
+      "name": "Adam Thielen",
+      "pos": "WR",
+      "proj": 144.59,
+      "actual": 108.6
+     },
+     "actual": {
+      "player_id": "9224",
+      "name": "Chase Brown",
+      "pos": "RB",
+      "proj": 44.25,
+      "actual": 228.0
+     },
+     "actual_points_delta": -119.4
+    },
+    {
+     "pick_no": 106,
+     "round": 11,
+     "tool": {
+      "player_id": "1426",
+      "name": "DeAndre Hopkins",
+      "pos": "WR",
+      "proj": 140.44,
+      "actual": 119.0
+     },
+     "actual": {
+      "player_id": "11560",
+      "name": "Caleb Williams",
+      "pos": "QB",
+      "proj": null,
+      "actual": 281.62
+     },
+     "actual_points_delta": -162.62
+    },
+    {
+     "pick_no": 115,
+     "round": 12,
+     "tool": {
+      "player_id": "2374",
+      "name": "Tyler Lockett",
+      "pos": "WR",
+      "proj": 137.2,
+      "actual": 92.7
+     },
+     "actual": {
+      "player_id": "11566",
+      "name": "Jayden Daniels",
+      "pos": "QB",
+      "proj": null,
+      "actual": 401.6
+     },
+     "actual_points_delta": -308.9
+    },
+    {
+     "pick_no": 126,
+     "round": 13,
+     "tool": {
+      "player_id": "8112",
+      "name": "Drake London",
+      "pos": "WR",
+      "proj": 135.67,
+      "actual": 195.1
+     },
+     "actual": {
+      "player_id": "9488",
+      "name": "Jaxon Smith-Njigba",
+      "pos": "WR",
+      "proj": 116.63,
+      "actual": 199.7
+     },
+     "actual_points_delta": -4.6
+    }
+   ],
+   "tool_roster": [
+    {
+     "player_id": "1426",
+     "name": "DeAndre Hopkins",
+     "pos": "WR",
+     "proj": 140.44,
+     "actual": 119.0
+    },
+    {
+     "player_id": "1479",
+     "name": "Keenan Allen",
+     "pos": "WR",
+     "proj": 166.5,
+     "actual": 147.4
+    },
+    {
+     "player_id": "1689",
+     "name": "Adam Thielen",
+     "pos": "WR",
+     "proj": 144.59,
+     "actual": 108.6
+    },
+    {
+     "player_id": "2374",
+     "name": "Tyler Lockett",
+     "pos": "WR",
+     "proj": 137.2,
+     "actual": 92.7
+    },
+    {
+     "player_id": "3198",
+     "name": "Derrick Henry",
+     "pos": "RB",
+     "proj": 185.16,
+     "actual": 297.8
+    },
+    {
+     "player_id": "4037",
+     "name": "Chris Godwin",
+     "pos": "WR",
+     "proj": 152.01,
+     "actual": 112.8
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "pos": "TE",
+     "proj": 149.8,
+     "actual": 193.9
+    },
+    {
+     "player_id": "4663",
+     "name": "Austin Ekeler",
+     "pos": "RB",
+     "proj": 142.16,
+     "actual": 110.6
+    },
+    {
+     "player_id": "4984",
+     "name": "Josh Allen",
+     "pos": "QB",
+     "proj": 393.54,
+     "actual": 428.34
+    },
+    {
+     "player_id": "5119",
+     "name": "Jason Sanders",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "5844",
+     "name": "T.J. Hockenson",
+     "pos": "TE",
+     "proj": 160.18,
+     "actual": 64.1
+    },
+    {
+     "player_id": "6904",
+     "name": "Jalen Hurts",
+     "pos": "QB",
+     "proj": 371.9,
+     "actual": 351.12
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 207.99,
+     "actual": 318.9
+    },
+    {
+     "player_id": "8112",
+     "name": "Drake London",
+     "pos": "WR",
+     "proj": 135.67,
+     "actual": 195.1
+    },
+    {
+     "player_id": "PHI",
+     "name": "Philadelphia Eagles",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "cory_drafted_roster": [
+    {
+     "player_id": "11560",
+     "name": "Caleb Williams",
+     "pos": "QB",
+     "proj": null,
+     "actual": 281.62
+    },
+    {
+     "player_id": "11566",
+     "name": "Jayden Daniels",
+     "pos": "QB",
+     "proj": null,
+     "actual": 401.6
+    },
+    {
+     "player_id": "11583",
+     "name": "Jonathon Brooks",
+     "pos": "RB",
+     "proj": null,
+     "actual": 6.0
+    },
+    {
+     "player_id": "11628",
+     "name": "Marvin Harrison",
+     "pos": "WR",
+     "proj": null,
+     "actual": 150.7
+    },
+    {
+     "player_id": "11632",
+     "name": "Malik Nabers",
+     "pos": "WR",
+     "proj": null,
+     "actual": 204.2
+    },
+    {
+     "player_id": "3198",
+     "name": "Derrick Henry",
+     "pos": "RB",
+     "proj": 185.16,
+     "actual": 297.8
+    },
+    {
+     "player_id": "5119",
+     "name": "Jason Sanders",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "7553",
+     "name": "Kyle Pitts",
+     "pos": "TE",
+     "proj": 98.54,
+     "actual": 105.2
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 207.99,
+     "actual": 318.9
+    },
+    {
+     "player_id": "7588",
+     "name": "Javonte Williams",
+     "pos": "RB",
+     "proj": 125.97,
+     "actual": 122.6
+    },
+    {
+     "player_id": "7611",
+     "name": "Rhamondre Stevenson",
+     "pos": "RB",
+     "proj": 114.28,
+     "actual": 159.4
+    },
+    {
+     "player_id": "8112",
+     "name": "Drake London",
+     "pos": "WR",
+     "proj": 135.67,
+     "actual": 195.1
+    },
+    {
+     "player_id": "9224",
+     "name": "Chase Brown",
+     "pos": "RB",
+     "proj": 44.25,
+     "actual": 228.0
+    },
+    {
+     "player_id": "9488",
+     "name": "Jaxon Smith-Njigba",
+     "pos": "WR",
+     "proj": 116.63,
+     "actual": 199.7
+    },
+    {
+     "player_id": "PHI",
+     "name": "Philadelphia Eagles",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "rookies_invisible_to_tool": [
+    {
+     "player_id": "11560",
+     "name": "Caleb Williams",
+     "actual": 281.62
+    },
+    {
+     "player_id": "11566",
+     "name": "Jayden Daniels",
+     "actual": 401.6
+    },
+    {
+     "player_id": "11583",
+     "name": "Jonathon Brooks",
+     "actual": 6.0
+    },
+    {
+     "player_id": "11628",
+     "name": "Marvin Harrison",
+     "actual": 150.7
+    },
+    {
+     "player_id": "11632",
+     "name": "Malik Nabers",
+     "actual": 204.2
+    }
+   ],
+   "unknown_position_players": [],
+   "arms": {
+    "optimal": {
+     "tool": {
+      "season_total": 1979.08,
+      "weekly_mean": 116.42,
+      "weekly": [
+       98.18,
+       110.12,
+       140.32,
+       100.52,
+       133.04,
+       147.7,
+       105.32,
+       106.14,
+       127.8,
+       152.88,
+       89.08,
+       97.66,
+       101.92,
+       139.98,
+       103.98,
+       104.46,
+       119.98
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 2037.08,
+      "weekly_mean": 119.83,
+      "weekly": [
+       91.06,
+       117.44,
+       143.46,
+       128.72,
+       151.76,
+       117.64,
+       101.24,
+       130.14,
+       139.26,
+       125.08,
+       101.84,
+       84.0,
+       108.64,
+       108.86,
+       112.64,
+       129.12,
+       146.18
+      ]
+     },
+     "delta_tool_minus_cory": -58.0,
+     "delta_weekly_mean": -3.41,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     }
+    },
+    "realistic": {
+     "tool": {
+      "season_total": 1743.58,
+      "weekly_mean": 102.56,
+      "weekly": [
+       92.38,
+       84.16,
+       138.32,
+       89.5,
+       132.64,
+       138.8,
+       105.32,
+       89.32,
+       105.2,
+       149.28,
+       78.64,
+       73.86,
+       85.62,
+       98.42,
+       94.38,
+       88.26,
+       99.48
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 1741.32,
+      "weekly_mean": 102.43,
+      "weekly": [
+       45.32,
+       81.34,
+       113.66,
+       112.72,
+       135.62,
+       98.16,
+       79.94,
+       115.44,
+       99.06,
+       109.28,
+       85.64,
+       84.0,
+       105.44,
+       100.96,
+       110.34,
+       127.62,
+       136.78
+      ]
+     },
+     "delta_tool_minus_cory": 2.26,
+     "delta_weekly_mean": 0.13,
+     "head_to_head": {
+      "tool_weeks_won": 7,
+      "cory_weeks_won": 10,
+      "ties": 0
+     }
+    }
+   },
+   "sensitivity_grid_optimal_arm": {
+    "room_caps": {
+     "tool_optimal_total": 1944.34,
+     "delta_tool_minus_cory": -92.74,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1426",
+       "name": "DeAndre Hopkins",
+       "actual": 119.0
+      },
+      {
+       "player_id": "1689",
+       "name": "Adam Thielen",
+       "actual": 108.6
+      },
+      {
+       "player_id": "2374",
+       "name": "Tyler Lockett",
+       "actual": 92.7
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "actual": 386.72
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 297.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "actual": 112.8
+      },
+      {
+       "player_id": "4066",
+       "name": "Evan Engram",
+       "actual": 66.0
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 193.9
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "actual": 428.34
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "actual": 64.1
+      },
+      {
+       "player_id": "6904",
+       "name": "Jalen Hurts",
+       "actual": 351.12
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 318.9
+      },
+      {
+       "player_id": "7588",
+       "name": "Javonte Williams",
+       "actual": 122.6
+      }
+     ]
+    },
+    "room_draftable_pool": {
+     "tool_optimal_total": 2016.08,
+     "delta_tool_minus_cory": -21.0,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1426",
+       "name": "DeAndre Hopkins",
+       "actual": 119.0
+      },
+      {
+       "player_id": "1689",
+       "name": "Adam Thielen",
+       "actual": 108.6
+      },
+      {
+       "player_id": "2449",
+       "name": "Stefon Diggs",
+       "actual": 98.42
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 297.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "actual": 112.8
+      },
+      {
+       "player_id": "4066",
+       "name": "Evan Engram",
+       "actual": 66.0
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 193.9
+      },
+      {
+       "player_id": "4663",
+       "name": "Austin Ekeler",
+       "actual": 110.6
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "actual": 428.34
+      },
+      {
+       "player_id": "6904",
+       "name": "Jalen Hurts",
+       "actual": 351.12
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 318.9
+      },
+      {
+       "player_id": "7588",
+       "name": "Javonte Williams",
+       "actual": 122.6
+      },
+      {
+       "player_id": "8112",
+       "name": "Drake London",
+       "actual": 195.1
+      }
+     ]
+    },
+    "room_caps_and_pool": {
+     "tool_optimal_total": 2015.54,
+     "delta_tool_minus_cory": -21.54,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1426",
+       "name": "DeAndre Hopkins",
+       "actual": 119.0
+      },
+      {
+       "player_id": "1689",
+       "name": "Adam Thielen",
+       "actual": 108.6
+      },
+      {
+       "player_id": "2449",
+       "name": "Stefon Diggs",
+       "actual": 98.42
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "actual": 386.72
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "actual": 297.8
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "actual": 116.5
+      },
+      {
+       "player_id": "4066",
+       "name": "Evan Engram",
+       "actual": 66.0
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 193.9
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "actual": 428.34
+      },
+      {
+       "player_id": "6904",
+       "name": "Jalen Hurts",
+       "actual": 351.12
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 318.9
+      },
+      {
+       "player_id": "7588",
+       "name": "Javonte Williams",
+       "actual": 122.6
+      },
+      {
+       "player_id": "8112",
+       "name": "Drake London",
+       "actual": 195.1
+      }
+     ]
+    }
+   },
+   "per_position_actual_points": {
+    "QB": {
+     "tool_rostered_actual_pts": 779.46,
+     "cory_rostered_actual_pts": 683.22
+    },
+    "RB": {
+     "tool_rostered_actual_pts": 408.4,
+     "cory_rostered_actual_pts": 813.8
+    },
+    "WR": {
+     "tool_rostered_actual_pts": 1094.5,
+     "cory_rostered_actual_pts": 1068.6
+    },
+    "TE": {
+     "tool_rostered_actual_pts": 258.0,
+     "cory_rostered_actual_pts": 105.2
+    }
+   },
+   "record_replay_informational": {
+    "regular_season_weeks": 15,
+    "records_w_l_t": {
+     "tool": [
+      6,
+      9,
+      0
+     ],
+     "cory_drafted": [
+      5,
+      10,
+      0
+     ],
+     "cory_actual": [
+      9,
+      6,
+      0
+     ]
+    },
+    "kdef_week_rows_missing_counted_zero": 11,
+    "weeks": [
+     {
+      "week": 1,
+      "opponent_roster_id": 7,
+      "opponent_points": 70.68,
+      "tool": 105.38,
+      "cory_drafted": 58.32,
+      "cory_actual": 77.26
+     },
+     {
+      "week": 2,
+      "opponent_roster_id": 6,
+      "opponent_points": 166.18,
+      "tool": 88.16,
+      "cory_drafted": 85.34,
+      "cory_actual": 122.24
+     },
+     {
+      "week": 3,
+      "opponent_roster_id": 4,
+      "opponent_points": 117.86,
+      "tool": 138.32,
+      "cory_drafted": 113.66,
+      "cory_actual": 154.06
+     },
+     {
+      "week": 4,
+      "opponent_roster_id": 3,
+      "opponent_points": 115.5,
+      "tool": 89.5,
+      "cory_drafted": 112.72,
+      "cory_actual": 116.72
+     },
+     {
+      "week": 5,
+      "opponent_roster_id": 10,
+      "opponent_points": 79.18,
+      "tool": 132.64,
+      "cory_drafted": 135.62,
+      "cory_actual": 154.26
+     },
+     {
+      "week": 6,
+      "opponent_roster_id": 5,
+      "opponent_points": 117.28,
+      "tool": 144.8,
+      "cory_drafted": 104.16,
+      "cory_actual": 112.52
+     },
+     {
+      "week": 7,
+      "opponent_roster_id": 2,
+      "opponent_points": 130.46,
+      "tool": 120.32,
+      "cory_drafted": 94.94,
+      "cory_actual": 100.74
+     },
+     {
+      "week": 8,
+      "opponent_roster_id": 9,
+      "opponent_points": 107.88,
+      "tool": 95.32,
+      "cory_drafted": 121.44,
+      "cory_actual": 100.34
+     },
+     {
+      "week": 9,
+      "opponent_roster_id": 8,
+      "opponent_points": 118.84,
+      "tool": 112.2,
+      "cory_drafted": 106.06,
+      "cory_actual": 128.36
+     },
+     {
+      "week": 10,
+      "opponent_roster_id": 7,
+      "opponent_points": 109.2,
+      "tool": 184.28,
+      "cory_drafted": 144.28,
+      "cory_actual": 134.48
+     },
+     {
+      "week": 11,
+      "opponent_roster_id": 6,
+      "opponent_points": 142.48,
+      "tool": 94.64,
+      "cory_drafted": 101.64,
+      "cory_actual": 102.64
+     },
+     {
+      "week": 12,
+      "opponent_roster_id": 4,
+      "opponent_points": 109.56,
+      "tool": 93.86,
+      "cory_drafted": 104.0,
+      "cory_actual": 101.2
+     },
+     {
+      "week": 13,
+      "opponent_roster_id": 3,
+      "opponent_points": 111.8,
+      "tool": 92.62,
+      "cory_drafted": 112.44,
+      "cory_actual": 134.24
+     },
+     {
+      "week": 14,
+      "opponent_roster_id": 10,
+      "opponent_points": 137.9,
+      "tool": 117.42,
+      "cory_drafted": 119.96,
+      "cory_actual": 161.24
+     },
+     {
+      "week": 15,
+      "opponent_roster_id": 5,
+      "opponent_points": 85.24,
+      "tool": 109.38,
+      "cory_drafted": 125.34,
+      "cory_actual": 130.34
+     }
+    ]
+   }
+  },
+  "2023": {
+   "season": 2023,
+   "league_name": "Whiny Little Bitch League",
+   "prior_seasons": [
+    2021,
+    2022
+   ],
+   "cory_keepers_applied": [
+    "2133",
+    "7526",
+    "7564"
+   ],
+   "replacement_points": {
+    "QB": 276.24,
+    "RB": 139.65,
+    "TE": 105.54,
+    "WR": 140.97
+   },
+   "replacement_diagnostics": {
+    "starter_counts": {
+     "QB": 10,
+     "WR": 27,
+     "TE": 10,
+     "RB": 23
+    }
+   },
+   "projection_coverage": 478,
+   "replay": {
+    "log": [
+     {
+      "pick_no": 1,
+      "roster_id": 8,
+      "player_id": "4039",
+      "how": "history"
+     },
+     {
+      "pick_no": 2,
+      "roster_id": 5,
+      "player_id": "6813",
+      "how": "history"
+     },
+     {
+      "pick_no": 3,
+      "roster_id": 7,
+      "player_id": "4034",
+      "how": "history"
+     },
+     {
+      "pick_no": 4,
+      "roster_id": 4,
+      "player_id": "4663",
+      "how": "history"
+     },
+     {
+      "pick_no": 5,
+      "roster_id": 1,
+      "player_id": "7564",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 6,
+      "roster_id": 3,
+      "player_id": "2449",
+      "how": "history"
+     },
+     {
+      "pick_no": 7,
+      "roster_id": 9,
+      "player_id": "4866",
+      "how": "history"
+     },
+     {
+      "pick_no": 8,
+      "roster_id": 2,
+      "player_id": "1466",
+      "how": "history"
+     },
+     {
+      "pick_no": 9,
+      "roster_id": 10,
+      "player_id": "3321",
+      "how": "history"
+     },
+     {
+      "pick_no": 10,
+      "roster_id": 6,
+      "player_id": "6794",
+      "how": "history"
+     },
+     {
+      "pick_no": 11,
+      "roster_id": 6,
+      "player_id": "3198",
+      "how": "history"
+     },
+     {
+      "pick_no": 12,
+      "roster_id": 10,
+      "player_id": "6786",
+      "how": "history"
+     },
+     {
+      "pick_no": 13,
+      "roster_id": 2,
+      "player_id": "5859",
+      "how": "history"
+     },
+     {
+      "pick_no": 14,
+      "roster_id": 9,
+      "player_id": "5012",
+      "how": "history"
+     },
+     {
+      "pick_no": 15,
+      "roster_id": 3,
+      "player_id": "4046",
+      "how": "history"
+     },
+     {
+      "pick_no": 16,
+      "roster_id": 1,
+      "player_id": "7526",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 17,
+      "roster_id": 4,
+      "player_id": "5850",
+      "how": "history"
+     },
+     {
+      "pick_no": 18,
+      "roster_id": 7,
+      "player_id": "7547",
+      "how": "history"
+     },
+     {
+      "pick_no": 19,
+      "roster_id": 5,
+      "player_id": "6801",
+      "how": "history"
+     },
+     {
+      "pick_no": 20,
+      "roster_id": 8,
+      "player_id": "6904",
+      "how": "history"
+     },
+     {
+      "pick_no": 21,
+      "roster_id": 6,
+      "player_id": "8144",
+      "how": "history"
+     },
+     {
+      "pick_no": 22,
+      "roster_id": 10,
+      "player_id": "6770",
+      "how": "history"
+     },
+     {
+      "pick_no": 23,
+      "roster_id": 2,
+      "player_id": "5967",
+      "how": "history"
+     },
+     {
+      "pick_no": 24,
+      "roster_id": 9,
+      "player_id": "7611",
+      "how": "history"
+     },
+     {
+      "pick_no": 25,
+      "roster_id": 3,
+      "player_id": "4988",
+      "how": "history"
+     },
+     {
+      "pick_no": 26,
+      "roster_id": 1,
+      "player_id": "2133",
+      "how": "keeper"
+     },
+     {
+      "pick_no": 27,
+      "roster_id": 4,
+      "player_id": "7525",
+      "how": "history"
+     },
+     {
+      "pick_no": 28,
+      "roster_id": 7,
+      "player_id": "5872",
+      "how": "history"
+     },
+     {
+      "pick_no": 29,
+      "roster_id": 5,
+      "player_id": "8146",
+      "how": "history"
+     },
+     {
+      "pick_no": 30,
+      "roster_id": 8,
+      "player_id": "8155",
+      "how": "history"
+     },
+     {
+      "pick_no": 31,
+      "roster_id": 8,
+      "player_id": "9509",
+      "how": "history"
+     },
+     {
+      "pick_no": 32,
+      "roster_id": 4,
+      "player_id": "7528",
+      "how": "history"
+     },
+     {
+      "pick_no": 33,
+      "roster_id": 7,
+      "player_id": "4984",
+      "how": "history"
+     },
+     {
+      "pick_no": 34,
+      "roster_id": 5,
+      "player_id": "9221",
+      "how": "history"
+     },
+     {
+      "pick_no": 35,
+      "roster_id": 2,
+      "player_id": "7591",
+      "how": "history"
+     },
+     {
+      "pick_no": 36,
+      "roster_id": 3,
+      "player_id": "4018",
+      "how": "history"
+     },
+     {
+      "pick_no": 37,
+      "roster_id": 9,
+      "player_id": "7543",
+      "how": "history"
+     },
+     {
+      "pick_no": 38,
+      "roster_id": 1,
+      "player_id": "4029",
+      "how": "tool",
+      "replaces": "4199",
+      "forced": false,
+      "vorp": 63.86
+     },
+     {
+      "pick_no": 39,
+      "roster_id": 10,
+      "player_id": "8129",
+      "how": "history"
+     },
+     {
+      "pick_no": 40,
+      "roster_id": 6,
+      "player_id": "4881",
+      "how": "history"
+     },
+     {
+      "pick_no": 41,
+      "roster_id": 6,
+      "player_id": "8151",
+      "how": "history"
+     },
+     {
+      "pick_no": 42,
+      "roster_id": 10,
+      "player_id": "6151",
+      "how": "history"
+     },
+     {
+      "pick_no": 43,
+      "roster_id": 2,
+      "player_id": "5846",
+      "how": "history"
+     },
+     {
+      "pick_no": 44,
+      "roster_id": 9,
+      "player_id": "1479",
+      "how": "history"
+     },
+     {
+      "pick_no": 45,
+      "roster_id": 3,
+      "player_id": "5844",
+      "how": "history"
+     },
+     {
+      "pick_no": 46,
+      "roster_id": 1,
+      "player_id": "167",
+      "how": "tool",
+      "replaces": "4217",
+      "forced": false,
+      "vorp": 47.09
+     },
+     {
+      "pick_no": 47,
+      "roster_id": 4,
+      "player_id": "4981",
+      "how": "history"
+     },
+     {
+      "pick_no": 48,
+      "roster_id": 7,
+      "player_id": "6806",
+      "how": "history"
+     },
+     {
+      "pick_no": 49,
+      "roster_id": 5,
+      "player_id": "4983",
+      "how": "history"
+     },
+     {
+      "pick_no": 50,
+      "roster_id": 3,
+      "player_id": "1426",
+      "how": "history"
+     },
+     {
+      "pick_no": 51,
+      "roster_id": 3,
+      "player_id": "5987",
+      "how": "history"
+     },
+     {
+      "pick_no": 52,
+      "roster_id": 6,
+      "player_id": "7553",
+      "how": "history"
+     },
+     {
+      "pick_no": 53,
+      "roster_id": 7,
+      "player_id": "2309",
+      "how": "history"
+     },
+     {
+      "pick_no": 54,
+      "roster_id": 4,
+      "player_id": "2505",
+      "how": "history"
+     },
+     {
+      "pick_no": 55,
+      "roster_id": 1,
+      "player_id": "6797",
+      "how": "tool",
+      "replaces": "6797",
+      "forced": false,
+      "vorp": 46.36
+     },
+     {
+      "pick_no": 56,
+      "roster_id": 8,
+      "player_id": "6783",
+      "how": "history"
+     },
+     {
+      "pick_no": 57,
+      "roster_id": 9,
+      "player_id": "7523",
+      "how": "history"
+     },
+     {
+      "pick_no": 58,
+      "roster_id": 2,
+      "player_id": "6938",
+      "how": "history"
+     },
+     {
+      "pick_no": 59,
+      "roster_id": 10,
+      "player_id": "8112",
+      "how": "history"
+     },
+     {
+      "pick_no": 60,
+      "roster_id": 4,
+      "player_id": "4017",
+      "how": "history"
+     },
+     {
+      "pick_no": 61,
+      "roster_id": 6,
+      "player_id": "4035",
+      "how": "history"
+     },
+     {
+      "pick_no": 62,
+      "roster_id": 10,
+      "player_id": "5022",
+      "how": "history"
+     },
+     {
+      "pick_no": 63,
+      "roster_id": 2,
+      "player_id": "5927",
+      "how": "history"
+     },
+     {
+      "pick_no": 64,
+      "roster_id": 9,
+      "player_id": "8167",
+      "how": "history"
+     },
+     {
+      "pick_no": 65,
+      "roster_id": 8,
+      "player_id": "4068",
+      "how": "history"
+     },
+     {
+      "pick_no": 66,
+      "roster_id": 1,
+      "player_id": "4217",
+      "how": "tool",
+      "replaces": "8138",
+      "forced": false,
+      "vorp": 37.4
+     },
+     {
+      "pick_no": 67,
+      "roster_id": 5,
+      "player_id": "6803",
+      "how": "history"
+     },
+     {
+      "pick_no": 68,
+      "roster_id": 7,
+      "player_id": "4137",
+      "how": "history"
+     },
+     {
+      "pick_no": 69,
+      "roster_id": 5,
+      "player_id": "8205",
+      "how": "history"
+     },
+     {
+      "pick_no": 70,
+      "roster_id": 8,
+      "player_id": "7600",
+      "how": "history"
+     },
+     {
+      "pick_no": 71,
+      "roster_id": 8,
+      "player_id": "4037",
+      "how": "history"
+     },
+     {
+      "pick_no": 72,
+      "roster_id": 5,
+      "player_id": "6790",
+      "how": "history"
+     },
+     {
+      "pick_no": 73,
+      "roster_id": 7,
+      "player_id": "4066",
+      "how": "history"
+     },
+     {
+      "pick_no": 74,
+      "roster_id": 4,
+      "player_id": "4029",
+      "how": "history"
+     },
+     {
+      "pick_no": 75,
+      "roster_id": 1,
+      "player_id": "3969",
+      "how": "tool",
+      "replaces": "7588",
+      "forced": false,
+      "vorp": 34.98
+     },
+     {
+      "pick_no": 76,
+      "roster_id": 3,
+      "player_id": "2216",
+      "how": "history"
+     },
+     {
+      "pick_no": 77,
+      "roster_id": 9,
+      "player_id": "2374",
+      "how": "history"
+     },
+     {
+      "pick_no": 78,
+      "roster_id": 2,
+      "player_id": "9756",
+      "how": "history"
+     },
+     {
+      "pick_no": 79,
+      "roster_id": 10,
+      "player_id": "6828",
+      "how": "history"
+     },
+     {
+      "pick_no": 80,
+      "roster_id": 6,
+      "player_id": "6819",
+      "how": "history"
+     },
+     {
+      "pick_no": 81,
+      "roster_id": 6,
+      "player_id": "8119",
+      "how": "history"
+     },
+     {
+      "pick_no": 82,
+      "roster_id": 10,
+      "player_id": "4950",
+      "how": "history"
+     },
+     {
+      "pick_no": 83,
+      "roster_id": 2,
+      "player_id": "8136",
+      "how": "history"
+     },
+     {
+      "pick_no": 84,
+      "roster_id": 9,
+      "player_id": "5848",
+      "how": "history"
+     },
+     {
+      "pick_no": 85,
+      "roster_id": 3,
+      "player_id": "7606",
+      "how": "history"
+     },
+     {
+      "pick_no": 86,
+      "roster_id": 1,
+      "player_id": "4381",
+      "how": "tool",
+      "replaces": "5892",
+      "forced": false,
+      "vorp": 23.32
+     },
+     {
+      "pick_no": 87,
+      "roster_id": 4,
+      "player_id": "9488",
+      "how": "history"
+     },
+     {
+      "pick_no": 88,
+      "roster_id": 7,
+      "player_id": "5937",
+      "how": "history"
+     },
+     {
+      "pick_no": 89,
+      "roster_id": 5,
+      "player_id": "2197",
+      "how": "history"
+     },
+     {
+      "pick_no": 90,
+      "roster_id": 8,
+      "player_id": "5086",
+      "how": "history"
+     },
+     {
+      "pick_no": 91,
+      "roster_id": 8,
+      "player_id": "5185",
+      "how": "history"
+     },
+     {
+      "pick_no": 92,
+      "roster_id": 5,
+      "player_id": "9997",
+      "how": "history"
+     },
+     {
+      "pick_no": 93,
+      "roster_id": 7,
+      "player_id": "10236",
+      "how": "history"
+     },
+     {
+      "pick_no": 94,
+      "roster_id": 4,
+      "player_id": "SF",
+      "how": "history"
+     },
+     {
+      "pick_no": 95,
+      "roster_id": 1,
+      "player_id": "3164",
+      "how": "tool",
+      "replaces": "8137",
+      "forced": false,
+      "vorp": 23.02
+     },
+     {
+      "pick_no": 96,
+      "roster_id": 3,
+      "player_id": "6945",
+      "how": "history"
+     },
+     {
+      "pick_no": 97,
+      "roster_id": 9,
+      "player_id": "7608",
+      "how": "history"
+     },
+     {
+      "pick_no": 98,
+      "roster_id": 2,
+      "player_id": "8154",
+      "how": "history"
+     },
+     {
+      "pick_no": 99,
+      "roster_id": 10,
+      "player_id": "3294",
+      "how": "history"
+     },
+     {
+      "pick_no": 100,
+      "roster_id": 6,
+      "player_id": "9226",
+      "how": "history"
+     },
+     {
+      "pick_no": 101,
+      "roster_id": 6,
+      "player_id": "5045",
+      "how": "history"
+     },
+     {
+      "pick_no": 102,
+      "roster_id": 10,
+      "player_id": "4227",
+      "how": "history"
+     },
+     {
+      "pick_no": 103,
+      "roster_id": 2,
+      "player_id": "DAL",
+      "how": "history"
+     },
+     {
+      "pick_no": 104,
+      "roster_id": 9,
+      "player_id": "2749",
+      "how": "history"
+     },
+     {
+      "pick_no": 105,
+      "roster_id": 3,
+      "player_id": "4040",
+      "how": "history"
+     },
+     {
+      "pick_no": 106,
+      "roster_id": 1,
+      "player_id": "4149",
+      "how": "tool",
+      "replaces": "9754",
+      "forced": false,
+      "vorp": 15.19
+     },
+     {
+      "pick_no": 107,
+      "roster_id": 4,
+      "player_id": "4033",
+      "how": "history"
+     },
+     {
+      "pick_no": 108,
+      "roster_id": 7,
+      "player_id": "4149",
+      "how": "history"
+     },
+     {
+      "pick_no": 109,
+      "roster_id": 5,
+      "player_id": "1264",
+      "how": "history"
+     },
+     {
+      "pick_no": 110,
+      "roster_id": 8,
+      "player_id": "2161",
+      "how": "history"
+     },
+     {
+      "pick_no": 111,
+      "roster_id": 8,
+      "player_id": "2078",
+      "how": "history"
+     },
+     {
+      "pick_no": 112,
+      "roster_id": 5,
+      "player_id": "96",
+      "how": "history"
+     },
+     {
+      "pick_no": 113,
+      "roster_id": 7,
+      "player_id": "6943",
+      "how": "history"
+     },
+     {
+      "pick_no": 114,
+      "roster_id": 4,
+      "player_id": "3199",
+      "how": "history"
+     },
+     {
+      "pick_no": 115,
+      "roster_id": 1,
+      "player_id": "1689",
+      "how": "tool",
+      "replaces": "4147",
+      "forced": false,
+      "vorp": 10.59
+     },
+     {
+      "pick_no": 116,
+      "roster_id": 3,
+      "player_id": "9753",
+      "how": "history"
+     },
+     {
+      "pick_no": 117,
+      "roster_id": 9,
+      "player_id": "9229",
+      "how": "history"
+     },
+     {
+      "pick_no": 118,
+      "roster_id": 2,
+      "player_id": "1373",
+      "how": "history"
+     },
+     {
+      "pick_no": 119,
+      "roster_id": 10,
+      "player_id": "PHI",
+      "how": "history"
+     },
+     {
+      "pick_no": 120,
+      "roster_id": 6,
+      "player_id": "BUF",
+      "how": "history"
+     },
+     {
+      "pick_no": 121,
+      "roster_id": 6,
+      "player_id": "7839",
+      "how": "history"
+     },
+     {
+      "pick_no": 122,
+      "roster_id": 10,
+      "player_id": "4985",
+      "how": "history"
+     },
+     {
+      "pick_no": 123,
+      "roster_id": 2,
+      "player_id": "9225",
+      "how": "history"
+     },
+     {
+      "pick_no": 124,
+      "roster_id": 9,
+      "player_id": "8132",
+      "how": "history"
+     },
+     {
+      "pick_no": 125,
+      "roster_id": 3,
+      "player_id": "5890",
+      "how": "history"
+     },
+     {
+      "pick_no": 126,
+      "roster_id": 1,
+      "player_id": "7042",
+      "how": "mirror_K"
+     },
+     {
+      "pick_no": 127,
+      "roster_id": 4,
+      "player_id": "5095",
+      "how": "history"
+     },
+     {
+      "pick_no": 128,
+      "roster_id": 7,
+      "player_id": "NYJ",
+      "how": "history"
+     },
+     {
+      "pick_no": 129,
+      "roster_id": 5,
+      "player_id": "BAL",
+      "how": "history"
+     },
+     {
+      "pick_no": 130,
+      "roster_id": 8,
+      "player_id": "NO",
+      "how": "history"
+     },
+     {
+      "pick_no": 131,
+      "roster_id": 8,
+      "player_id": "4195",
+      "how": "history"
+     },
+     {
+      "pick_no": 132,
+      "roster_id": 5,
+      "player_id": "6826",
+      "how": "history"
+     },
+     {
+      "pick_no": 133,
+      "roster_id": 7,
+      "player_id": "4666",
+      "how": "history"
+     },
+     {
+      "pick_no": 134,
+      "roster_id": 4,
+      "player_id": "7561",
+      "how": "history"
+     },
+     {
+      "pick_no": 135,
+      "roster_id": 1,
+      "player_id": "5892",
+      "how": "tool",
+      "replaces": "8168",
+      "forced": false,
+      "vorp": 3.28
+     },
+     {
+      "pick_no": 136,
+      "roster_id": 3,
+      "player_id": "NE",
+      "how": "history"
+     },
+     {
+      "pick_no": 137,
+      "roster_id": 9,
+      "player_id": "GB",
+      "how": "history"
+     },
+     {
+      "pick_no": 138,
+      "roster_id": 2,
+      "player_id": "2747",
+      "how": "history"
+     },
+     {
+      "pick_no": 139,
+      "roster_id": 10,
+      "player_id": "3164",
+      "how": "history"
+     },
+     {
+      "pick_no": 140,
+      "roster_id": 6,
+      "player_id": "6768",
+      "how": "history"
+     },
+     {
+      "pick_no": 141,
+      "roster_id": 6,
+      "player_id": "7567",
+      "how": "history"
+     },
+     {
+      "pick_no": 142,
+      "roster_id": 10,
+      "player_id": "5001",
+      "how": "history"
+     },
+     {
+      "pick_no": 143,
+      "roster_id": 2,
+      "player_id": "8148",
+      "how": "history"
+     },
+     {
+      "pick_no": 144,
+      "roster_id": 9,
+      "player_id": "5119",
+      "how": "history"
+     },
+     {
+      "pick_no": 145,
+      "roster_id": 3,
+      "player_id": "10937",
+      "how": "history"
+     },
+     {
+      "pick_no": 146,
+      "roster_id": 1,
+      "player_id": "KC",
+      "how": "mirror_DEF"
+     },
+     {
+      "pick_no": 147,
+      "roster_id": 4,
+      "player_id": "1166",
+      "how": "history"
+     },
+     {
+      "pick_no": 148,
+      "roster_id": 7,
+      "player_id": "3163",
+      "how": "history"
+     },
+     {
+      "pick_no": 149,
+      "roster_id": 5,
+      "player_id": "7596",
+      "how": "history"
+     },
+     {
+      "pick_no": 150,
+      "roster_id": 8,
+      "player_id": "9228",
+      "how": "history"
+     }
+    ],
+    "tool_roster": [
+     "167",
+     "1689",
+     "2133",
+     "3164",
+     "3969",
+     "4029",
+     "4149",
+     "4217",
+     "4381",
+     "5892",
+     "6797",
+     "7042",
+     "7526",
+     "7564",
+     "KC"
+    ],
+    "position_counts": {
+     "QB": 2,
+     "RB": 5,
+     "WR": 4,
+     "TE": 2
+    },
+    "shadowed_picks": [
+     {
+      "pick_no": 74,
+      "player_id": "4029"
+     },
+     {
+      "pick_no": 108,
+      "player_id": "4149"
+     },
+     {
+      "pick_no": 139,
+      "player_id": "3164"
+     }
+    ],
+    "forced_picks": 0
+   },
+   "pick_story": [
+    {
+     "pick_no": 38,
+     "round": 4,
+     "tool": {
+      "player_id": "4029",
+      "name": "Dalvin Cook",
+      "pos": "RB",
+      "proj": 203.51,
+      "actual": 32.7
+     },
+     "actual": {
+      "player_id": "4199",
+      "name": "Aaron Jones",
+      "pos": "RB",
+      "proj": 138.44,
+      "actual": 103.3
+     },
+     "actual_points_delta": -70.6
+    },
+    {
+     "pick_no": 46,
+     "round": 5,
+     "tool": {
+      "player_id": "167",
+      "name": "Tom Brady",
+      "pos": "QB",
+      "proj": 323.33,
+      "actual": 0.0
+     },
+     "actual": {
+      "player_id": "4217",
+      "name": "George Kittle",
+      "pos": "TE",
+      "proj": 142.94,
+      "actual": 170.7
+     },
+     "actual_points_delta": -170.7
+    },
+    {
+     "pick_no": 55,
+     "round": 6,
+     "tool": {
+      "player_id": "6797",
+      "name": "Justin Herbert",
+      "pos": "QB",
+      "proj": 322.6,
+      "actual": 273.66
+     },
+     "actual": {
+      "player_id": "6797",
+      "name": "Justin Herbert",
+      "pos": "QB",
+      "proj": 322.6,
+      "actual": 273.66
+     },
+     "actual_points_delta": 0.0
+    },
+    {
+     "pick_no": 66,
+     "round": 7,
+     "tool": {
+      "player_id": "4217",
+      "name": "George Kittle",
+      "pos": "TE",
+      "proj": 142.94,
+      "actual": 170.7
+     },
+     "actual": {
+      "player_id": "8138",
+      "name": "James Cook",
+      "pos": "RB",
+      "proj": 77.18,
+      "actual": 204.0
+     },
+     "actual_points_delta": -33.3
+    },
+    {
+     "pick_no": 75,
+     "round": 8,
+     "tool": {
+      "player_id": "3969",
+      "name": "Leonard Fournette",
+      "pos": "RB",
+      "proj": 174.63,
+      "actual": 2.0
+     },
+     "actual": {
+      "player_id": "7588",
+      "name": "Javonte Williams",
+      "pos": "RB",
+      "proj": 84.06,
+      "actual": 138.7
+     },
+     "actual_points_delta": -136.7
+    },
+    {
+     "pick_no": 86,
+     "round": 9,
+     "tool": {
+      "player_id": "4381",
+      "name": "Taysom Hill",
+      "pos": "TE",
+      "proj": 128.86,
+      "actual": 119.12
+     },
+     "actual": {
+      "player_id": "5892",
+      "name": "David Montgomery",
+      "pos": "RB",
+      "proj": 142.93,
+      "actual": 189.2
+     },
+     "actual_points_delta": -70.08
+    },
+    {
+     "pick_no": 95,
+     "round": 10,
+     "tool": {
+      "player_id": "3164",
+      "name": "Ezekiel Elliott",
+      "pos": "RB",
+      "proj": 162.67,
+      "actual": 138.4
+     },
+     "actual": {
+      "player_id": "8137",
+      "name": "George Pickens",
+      "pos": "WR",
+      "proj": 105.24,
+      "actual": 177.0
+     },
+     "actual_points_delta": -38.6
+    },
+    {
+     "pick_no": 106,
+     "round": 11,
+     "tool": {
+      "player_id": "4149",
+      "name": "Jamaal Williams",
+      "pos": "RB",
+      "proj": 154.84,
+      "actual": 40.9
+     },
+     "actual": {
+      "player_id": "9754",
+      "name": "Quentin Johnston",
+      "pos": "WR",
+      "proj": null,
+      "actual": 71.7
+     },
+     "actual_points_delta": -30.8
+    },
+    {
+     "pick_no": 115,
+     "round": 12,
+     "tool": {
+      "player_id": "1689",
+      "name": "Adam Thielen",
+      "pos": "WR",
+      "proj": 151.56,
+      "actual": 177.3
+     },
+     "actual": {
+      "player_id": "4147",
+      "name": "Samaje Perine",
+      "pos": "RB",
+      "proj": 81.61,
+      "actual": 91.8
+     },
+     "actual_points_delta": 85.5
+    },
+    {
+     "pick_no": 135,
+     "round": 14,
+     "tool": {
+      "player_id": "5892",
+      "name": "David Montgomery",
+      "pos": "RB",
+      "proj": 142.93,
+      "actual": 189.2
+     },
+     "actual": {
+      "player_id": "8168",
+      "name": "Skyy Moore",
+      "pos": "WR",
+      "proj": 47.48,
+      "actual": 43.2
+     },
+     "actual_points_delta": 146.0
+    }
+   ],
+   "tool_roster": [
+    {
+     "player_id": "167",
+     "name": "Tom Brady",
+     "pos": "QB",
+     "proj": 323.33,
+     "actual": 0.0
+    },
+    {
+     "player_id": "1689",
+     "name": "Adam Thielen",
+     "pos": "WR",
+     "proj": 151.56,
+     "actual": 177.3
+    },
+    {
+     "player_id": "2133",
+     "name": "Davante Adams",
+     "pos": "WR",
+     "proj": 205.19,
+     "actual": 200.8
+    },
+    {
+     "player_id": "3164",
+     "name": "Ezekiel Elliott",
+     "pos": "RB",
+     "proj": 162.67,
+     "actual": 138.4
+    },
+    {
+     "player_id": "3969",
+     "name": "Leonard Fournette",
+     "pos": "RB",
+     "proj": 174.63,
+     "actual": 2.0
+    },
+    {
+     "player_id": "4029",
+     "name": "Dalvin Cook",
+     "pos": "RB",
+     "proj": 203.51,
+     "actual": 32.7
+    },
+    {
+     "player_id": "4149",
+     "name": "Jamaal Williams",
+     "pos": "RB",
+     "proj": 154.84,
+     "actual": 40.9
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "pos": "TE",
+     "proj": 142.94,
+     "actual": 170.7
+    },
+    {
+     "player_id": "4381",
+     "name": "Taysom Hill",
+     "pos": "TE",
+     "proj": 128.86,
+     "actual": 119.12
+    },
+    {
+     "player_id": "5892",
+     "name": "David Montgomery",
+     "pos": "RB",
+     "proj": 142.93,
+     "actual": 189.2
+    },
+    {
+     "player_id": "6797",
+     "name": "Justin Herbert",
+     "pos": "QB",
+     "proj": 322.6,
+     "actual": 273.66
+    },
+    {
+     "player_id": "7042",
+     "name": "Tyler Bass",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "7526",
+     "name": "Jaylen Waddle",
+     "pos": "WR",
+     "proj": 177.53,
+     "actual": 162.6
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 179.36,
+     "actual": 208.82
+    },
+    {
+     "player_id": "KC",
+     "name": "Kansas City Chiefs",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "cory_drafted_roster": [
+    {
+     "player_id": "2133",
+     "name": "Davante Adams",
+     "pos": "WR",
+     "proj": 205.19,
+     "actual": 200.8
+    },
+    {
+     "player_id": "4147",
+     "name": "Samaje Perine",
+     "pos": "RB",
+     "proj": 81.61,
+     "actual": 91.8
+    },
+    {
+     "player_id": "4199",
+     "name": "Aaron Jones",
+     "pos": "RB",
+     "proj": 138.44,
+     "actual": 103.3
+    },
+    {
+     "player_id": "4217",
+     "name": "George Kittle",
+     "pos": "TE",
+     "proj": 142.94,
+     "actual": 170.7
+    },
+    {
+     "player_id": "5892",
+     "name": "David Montgomery",
+     "pos": "RB",
+     "proj": 142.93,
+     "actual": 189.2
+    },
+    {
+     "player_id": "6797",
+     "name": "Justin Herbert",
+     "pos": "QB",
+     "proj": 322.6,
+     "actual": 273.66
+    },
+    {
+     "player_id": "7042",
+     "name": "Tyler Bass",
+     "pos": "K",
+     "proj": null,
+     "actual": 0.0
+    },
+    {
+     "player_id": "7526",
+     "name": "Jaylen Waddle",
+     "pos": "WR",
+     "proj": 177.53,
+     "actual": 162.6
+    },
+    {
+     "player_id": "7564",
+     "name": "Ja'Marr Chase",
+     "pos": "WR",
+     "proj": 179.36,
+     "actual": 208.82
+    },
+    {
+     "player_id": "7588",
+     "name": "Javonte Williams",
+     "pos": "RB",
+     "proj": 84.06,
+     "actual": 138.7
+    },
+    {
+     "player_id": "8137",
+     "name": "George Pickens",
+     "pos": "WR",
+     "proj": 105.24,
+     "actual": 177.0
+    },
+    {
+     "player_id": "8138",
+     "name": "James Cook",
+     "pos": "RB",
+     "proj": 77.18,
+     "actual": 204.0
+    },
+    {
+     "player_id": "8168",
+     "name": "Skyy Moore",
+     "pos": "WR",
+     "proj": 47.48,
+     "actual": 43.2
+    },
+    {
+     "player_id": "9754",
+     "name": "Quentin Johnston",
+     "pos": "WR",
+     "proj": null,
+     "actual": 71.7
+    },
+    {
+     "player_id": "KC",
+     "name": "Kansas City Chiefs",
+     "pos": "DEF",
+     "proj": null,
+     "actual": 0.0
+    }
+   ],
+   "rookies_invisible_to_tool": [
+    {
+     "player_id": "9754",
+     "name": "Quentin Johnston",
+     "actual": 71.7
+    }
+   ],
+   "unknown_position_players": [],
+   "arms": {
+    "optimal": {
+     "tool": {
+      "season_total": 1572.8,
+      "weekly_mean": 92.52,
+      "weekly": [
+       73.06,
+       93.92,
+       143.2,
+       98.4,
+       130.8,
+       95.14,
+       67.16,
+       121.08,
+       53.06,
+       122.62,
+       104.0,
+       79.08,
+       88.2,
+       80.04,
+       75.4,
+       66.6,
+       81.04
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 1694.88,
+      "weekly_mean": 99.7,
+      "weekly": [
+       94.56,
+       113.1,
+       132.8,
+       102.98,
+       135.9,
+       66.98,
+       83.86,
+       125.02,
+       47.34,
+       136.02,
+       119.2,
+       85.48,
+       81.7,
+       87.64,
+       104.3,
+       92.6,
+       85.4
+      ]
+     },
+     "delta_tool_minus_cory": -122.08,
+     "delta_weekly_mean": -7.18,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     }
+    },
+    "realistic": {
+     "tool": {
+      "season_total": 1391.0,
+      "weekly_mean": 81.82,
+      "weekly": [
+       64.46,
+       75.7,
+       133.3,
+       97.08,
+       125.3,
+       76.28,
+       67.16,
+       90.32,
+       53.06,
+       122.62,
+       93.8,
+       60.68,
+       77.8,
+       73.54,
+       57.5,
+       51.0,
+       71.4
+      ]
+     },
+     "cory_drafted": {
+      "season_total": 1490.78,
+      "weekly_mean": 87.69,
+      "weekly": [
+       91.36,
+       92.2,
+       118.9,
+       91.48,
+       124.5,
+       63.58,
+       79.96,
+       94.32,
+       42.84,
+       119.02,
+       101.0,
+       82.18,
+       81.7,
+       73.64,
+       103.4,
+       55.6,
+       75.1
+      ]
+     },
+     "delta_tool_minus_cory": -99.78,
+     "delta_weekly_mean": -5.87,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     }
+    }
+   },
+   "sensitivity_grid_optimal_arm": {
+    "room_caps": {
+     "tool_optimal_total": 1492.0,
+     "delta_tool_minus_cory": -202.88,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1166",
+       "name": "Kirk Cousins",
+       "actual": 185.74
+      },
+      {
+       "player_id": "167",
+       "name": "Tom Brady",
+       "actual": 0.0
+      },
+      {
+       "player_id": "1689",
+       "name": "Adam Thielen",
+       "actual": 177.3
+      },
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "actual": 200.8
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4029",
+       "name": "Dalvin Cook",
+       "actual": 32.7
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 170.7
+      },
+      {
+       "player_id": "4381",
+       "name": "Taysom Hill",
+       "actual": 119.12
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "actual": 114.3
+      },
+      {
+       "player_id": "6797",
+       "name": "Justin Herbert",
+       "actual": 273.66
+      },
+      {
+       "player_id": "7526",
+       "name": "Jaylen Waddle",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 208.82
+      }
+     ]
+    },
+    "room_draftable_pool": {
+     "tool_optimal_total": 1615.62,
+     "delta_tool_minus_cory": -79.26,
+     "head_to_head": {
+      "tool_weeks_won": 5,
+      "cory_weeks_won": 12,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1166",
+       "name": "Kirk Cousins",
+       "actual": 185.74
+      },
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "actual": 200.8
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "actual": 138.4
+      },
+      {
+       "player_id": "4029",
+       "name": "Dalvin Cook",
+       "actual": 32.7
+      },
+      {
+       "player_id": "4149",
+       "name": "Jamaal Williams",
+       "actual": 40.9
+      },
+      {
+       "player_id": "4199",
+       "name": "Aaron Jones",
+       "actual": 103.3
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 170.7
+      },
+      {
+       "player_id": "4950",
+       "name": "Christian Kirk",
+       "actual": 121.76
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "actual": 114.3
+      },
+      {
+       "player_id": "5892",
+       "name": "David Montgomery",
+       "actual": 189.2
+      },
+      {
+       "player_id": "6797",
+       "name": "Justin Herbert",
+       "actual": 273.66
+      },
+      {
+       "player_id": "7526",
+       "name": "Jaylen Waddle",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 208.82
+      }
+     ]
+    },
+    "room_caps_and_pool": {
+     "tool_optimal_total": 1563.02,
+     "delta_tool_minus_cory": -131.86,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "tool_roster": [
+      {
+       "player_id": "1166",
+       "name": "Kirk Cousins",
+       "actual": 185.74
+      },
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "actual": 200.8
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "actual": 138.4
+      },
+      {
+       "player_id": "4029",
+       "name": "Dalvin Cook",
+       "actual": 32.7
+      },
+      {
+       "player_id": "4149",
+       "name": "Jamaal Williams",
+       "actual": 40.9
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "actual": 170.7
+      },
+      {
+       "player_id": "4950",
+       "name": "Christian Kirk",
+       "actual": 121.76
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "actual": 114.3
+      },
+      {
+       "player_id": "5892",
+       "name": "David Montgomery",
+       "actual": 189.2
+      },
+      {
+       "player_id": "6797",
+       "name": "Justin Herbert",
+       "actual": 273.66
+      },
+      {
+       "player_id": "7526",
+       "name": "Jaylen Waddle",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "actual": 208.82
+      },
+      {
+       "player_id": "96",
+       "name": "Aaron Rodgers",
+       "actual": 0.0
+      }
+     ]
+    }
+   },
+   "per_position_actual_points": {
+    "QB": {
+     "tool_rostered_actual_pts": 273.66,
+     "cory_rostered_actual_pts": 273.66
+    },
+    "RB": {
+     "tool_rostered_actual_pts": 403.2,
+     "cory_rostered_actual_pts": 727.0
+    },
+    "WR": {
+     "tool_rostered_actual_pts": 749.52,
+     "cory_rostered_actual_pts": 864.12
+    },
+    "TE": {
+     "tool_rostered_actual_pts": 289.82,
+     "cory_rostered_actual_pts": 170.7
+    }
+   },
+   "record_replay_informational": {
+    "regular_season_weeks": 15,
+    "records_w_l_t": {
+     "tool": [
+      8,
+      7,
+      0
+     ],
+     "cory_drafted": [
+      10,
+      5,
+      0
+     ],
+     "cory_actual": [
+      9,
+      6,
+      0
+     ]
+    },
+    "kdef_week_rows_missing_counted_zero": 7,
+    "weeks": [
+     {
+      "week": 1,
+      "opponent_roster_id": 7,
+      "opponent_points": 92.94,
+      "tool": 76.46,
+      "cory_drafted": 103.36,
+      "cory_actual": 114.36
+     },
+     {
+      "week": 2,
+      "opponent_roster_id": 10,
+      "opponent_points": 94.04,
+      "tool": 83.7,
+      "cory_drafted": 100.2,
+      "cory_actual": 101.9
+     },
+     {
+      "week": 3,
+      "opponent_roster_id": 5,
+      "opponent_points": 107.2,
+      "tool": 159.3,
+      "cory_drafted": 144.9,
+      "cory_actual": 151.8
+     },
+     {
+      "week": 4,
+      "opponent_roster_id": 8,
+      "opponent_points": 110.86,
+      "tool": 116.08,
+      "cory_drafted": 110.48,
+      "cory_actual": 90.78
+     },
+     {
+      "week": 5,
+      "opponent_roster_id": 4,
+      "opponent_points": 106.06,
+      "tool": 133.3,
+      "cory_drafted": 132.5,
+      "cory_actual": 130.06
+     },
+     {
+      "week": 6,
+      "opponent_roster_id": 3,
+      "opponent_points": 78.64,
+      "tool": 92.28,
+      "cory_drafted": 79.58,
+      "cory_actual": 70.58
+     },
+     {
+      "week": 7,
+      "opponent_roster_id": 9,
+      "opponent_points": 114.34,
+      "tool": 82.16,
+      "cory_drafted": 94.96,
+      "cory_actual": 84.86
+     },
+     {
+      "week": 8,
+      "opponent_roster_id": 6,
+      "opponent_points": 99.78,
+      "tool": 104.32,
+      "cory_drafted": 108.32,
+      "cory_actual": 123.22
+     },
+     {
+      "week": 9,
+      "opponent_roster_id": 2,
+      "opponent_points": 74.44,
+      "tool": 69.06,
+      "cory_drafted": 58.84,
+      "cory_actual": 63.44
+     },
+     {
+      "week": 10,
+      "opponent_roster_id": 7,
+      "opponent_points": 112.78,
+      "tool": 124.62,
+      "cory_drafted": 121.02,
+      "cory_actual": 125.52
+     },
+     {
+      "week": 11,
+      "opponent_roster_id": 10,
+      "opponent_points": 99.26,
+      "tool": 100.8,
+      "cory_drafted": 108.0,
+      "cory_actual": 101.76
+     },
+     {
+      "week": 12,
+      "opponent_roster_id": 5,
+      "opponent_points": 116.22,
+      "tool": 62.68,
+      "cory_drafted": 84.18,
+      "cory_actual": 101.24
+     },
+     {
+      "week": 13,
+      "opponent_roster_id": 8,
+      "opponent_points": 71.22,
+      "tool": 79.8,
+      "cory_drafted": 83.7,
+      "cory_actual": 97.5
+     },
+     {
+      "week": 14,
+      "opponent_roster_id": 4,
+      "opponent_points": 90.44,
+      "tool": 79.54,
+      "cory_drafted": 79.64,
+      "cory_actual": 85.64
+     },
+     {
+      "week": 15,
+      "opponent_roster_id": 3,
+      "opponent_points": 107.5,
+      "tool": 64.5,
+      "cory_drafted": 110.4,
+      "cory_actual": 123.36
+     }
+    ]
+   }
+  }
+ },
+ "pooled": {
+  "headline": "mean tool-minus-Cory season delta across the three replays, weekly-optimal arm \u2014 one alternative history per year, spread reported, not a population",
+  "optimal": {
+   "per_year": {
+    "2025": -16.86,
+    "2024": -58.0,
+    "2023": -122.08
+   },
+   "mean_delta": -65.65,
+   "mean_weekly_delta": -3.86,
+   "min": -122.08,
+   "max": -16.86
+  },
+  "realistic": {
+   "per_year": {
+    "2025": 77.92,
+    "2024": 2.26,
+    "2023": -99.78
+   },
+   "mean_delta": -6.53,
+   "mean_weekly_delta": -0.38,
+   "min": -99.78,
+   "max": 77.92
+  },
+  "optimal_h2h_weeks_pooled": {
+   "tool": 20,
+   "cory": 31,
+   "of": 51
+  }
+ },
+ "honesty": [
+  "one year is one sample; three years are three samples, not a distribution",
+  "fixed opponents: no butterfly effects \u2014 opponents never react to the tool's picks (shadowed picks counted per year)",
+  "projections are the season-vintage construction minus the market arm \u2014 this tests the construction as it would have been, not 2026's tuned engine",
+  "no rookies exist on the tool's board (walk-forward needs a prior season); every invisible rookie Cory actually drafted is listed per year",
+  "no roster-status news exists on the tool's board: a pre-draft retirement (Brady 2023) or unsigned free agent still carries a projection \u2014 real drafters knew, the stores do not; the room-draftable sensitivity arm brackets this and its leak direction (the room's curation of the replayed event) is named",
+  "Vegas week-1 lines close after a late-August draft; kept because the graded v6 construction carries them (proxy for the preseason market), named not hidden",
+  "both rosters are frozen as drafted \u2014 no waivers, no trades; the record replay pits frozen rosters against fully-managed opponents (biased low for both counterfactual arms equally)",
+  "K/DEF are mirrored from Cory's actual picks and excluded from lineup scoring \u2014 they cancel exactly",
+  "the realistic arm treats row-absence as the inactive report (in-game exits count as foreseen) \u2014 applied to both rosters identically",
+  "champodds is deliberately not run (2026-shaped inputs); the record replay over the real schedule is the substitute"
+ ]
+}

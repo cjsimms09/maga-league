@@ -33,6 +33,12 @@
     <p class="wtw-band muted">🎯 The $100 is out there too — it usually takes <b><%= Math.round(band.median) %></b> to win the week.</p>
   <% } %>
 
+  <%# ── THE SWING BOARD header — the league-wide layer: how many games can
+      still move a race tonight. Each game's one-line stake rides on its row. %>
+  <% if (typeof stakesOn !== 'undefined' && stakesOn > 0) { %>
+    <p class="wtw-swing-head">🏁 <b>The swing board:</b> <%= stakesOn %> game<%= stakesOn === 1 ? '' : 's' %> on this slate can still move a race — the stake is on each one.</p>
+  <% } %>
+
   <%# Your own game first — the panel sorts by watchability, which can bury YOUR
       matchup at the bottom on a blowout. Pin it, then the rest most-watchable. %>
   <%# ONE ROW PER GAME. The panel is built from per-OWNER entries, so every game
@@ -94,6 +100,9 @@
           · <%= r.need %>
           <% if (r.highP != null && r.highP >= 0.05) { %> · <span class="wtw-high">🎯 <%= pctText(r.highP) %> at the $100</span><% } %>
         </div>
+        <%# The league-wide stake: what THIS game changes in the races — real
+            standings arithmetic (whatwatch.gameStake), never vibes. %>
+        <% if (r.stake) { %><div class="wtw-stake">🏁 <%= r.stake %></div><% } %>
       </<%= _tag %>>
     <% }) %>
   </div>

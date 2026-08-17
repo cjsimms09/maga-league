@@ -25,14 +25,41 @@ async function getDoc(key, fallback) {
 }
 const setDoc = store.set;
 
+// Atomic read-modify-write on one doc (audit finding 1, 2026-08-16). The
+// whole read→fn→write is serialized per key by store.mutate — two racing
+// writers can no longer eat each other's update within this instance (see
+// src/store.js's concurrency header for the honest multi-instance limits).
+// fn gets the current doc (or `fallback` when missing) and returns the next
+// doc, or undefined for a deliberate no-write. Resolves to the doc that is
+// now current. EVERY writer of a shared multi-writer doc (ledger, owners,
+// config, alerts) goes through this, never through a bare getDoc+setDoc.
+async function mutateDoc(key, fallback, fn) {
+  return store.mutate(key, cur => fn(cur == null ? fallback : cur));
+}
+
 // ---------------------------------------------------------------- seeding
 let seededThisBoot = false;
 
+// Initialization is IDEMPOTENT AND LOCKED (audit finding 5, 2026-08-16).
+// It used to check `config`, write a dozen docs, and write `config` LAST —
+// so two concurrent cold-start requests both saw no config and both seeded,
+// minting every vote doc twice. The whole seed now runs inside store.mutate
+// on a `seed-lock` doc: the second caller waits on the lock, re-checks
+// `config` and finds the first one's work. (Same in-process scope as every
+// mutate — two simultaneous cold INSTANCES could still race; see store.js.)
 async function ensureSeeded() {
   if (seededThisBoot) return;
-  const config = await store.get('config');
-  if (config) { seededThisBoot = true; return; }
+  await store.mutate('seed-lock', async () => {
+    if (seededThisBoot) return undefined;
+    const config = await store.get('config');
+    if (config) { seededThisBoot = true; return undefined; }
+    await seedEverything();
+    seededThisBoot = true;
+    return { seeded_at: now() };
+  });
+}
 
+async function seedEverything() {
   const defaultHash = hashPassword(process.env.DEFAULT_PASSWORD || 'imabitch');
   const owners = seed.OWNERS.map((o, i) => ({
     id: i + 1, name: o.name, username: o.username, password_hash: defaultHash,
@@ -113,8 +140,7 @@ async function ensureSeeded() {
     sleeper_league_id: seed.SLEEPER_LEAGUE_ID || '', sleeper_map: {},
     seeded_at: now(),
   });
-  seededThisBoot = true;
   console.log('League data seeded (2016-2026 history + 2026 ledger).');
 }
 
-module.exports = { store, getDoc, setDoc, ensureSeeded, newId, now };
+module.exports = { store, getDoc, setDoc, mutateDoc, ensureSeeded, newId, now };

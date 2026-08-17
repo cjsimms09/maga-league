@@ -59,8 +59,19 @@ def fetch_drafts(league_id: str) -> list:
     return _get(f"/league/{league_id}/drafts")
 
 
-def fetch_draft_picks(draft_id: str) -> list:
-    return _get(f"/draft/{draft_id}/picks")
+def fetch_draft_picks(draft_id: str, *, live: bool = False) -> list:
+    """`live=True` bypasses the 1-hour cache — REQUIRED for a draft in progress.
+
+    Found by the 2026-08-16 chaos drill: the draft-night sync loop polls every
+    20s, but the default cache served the FIRST poll's snapshot from disk for a
+    full hour, so the pick log trailed the live draft by up to an hour while
+    reporting added:0. Historical/completed drafts (build.py, history_export)
+    keep the cache — their pick lists do not change, and Sleeper is a free API.
+    On a live failure the stale-cache fallback in `_get` still applies, which
+    is correct draft-night behavior: picks are Sleeper's record, the next
+    successful poll backfills, and the fallback SAYS it is serving stale.
+    """
+    return _get(f"/draft/{draft_id}/picks", ttl=0 if live else CACHE_TTL)
 
 
 def fetch_players() -> dict:

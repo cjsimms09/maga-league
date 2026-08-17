@@ -31,6 +31,8 @@ const store = require('../../src/store');
 const WC = require('../../src/weekly_claims');
 const predledger = require('../../src/predledger');
 const PO = require('../../src/routes/playoffs');
+const FG = require('../../src/forecast_grade');
+const WPP = require('../../src/weekly_player_projection');
 
 /* THE PURE CORE, exported for the unit test — no store, no egress.
  *
@@ -124,9 +126,63 @@ async function seasonPointsFor(sleeper, leagueId, week, sleeperMap) {
   return pf;
 }
 
+/* ── IN-SEASON DECISION RESOLUTIONS (2026-08-15) — the missing weekly step. ──
+ *
+ * The DECISION kinds (lineup_call / waiver_claim / stream_call /
+ * inseason_override) have had capture routes and a grader since before the
+ * draft, and src/forecast_grade.js grew their resolvers — but NOTHING RAN the
+ * resolvers on a schedule, so every captured decision would have sat pending
+ * all season while grade-cron faithfully graded an empty join. This is the
+ * runner, and it lives HERE rather than in grade-cron on the same reasoning
+ * the file header states for forecasts: RESOLVING (writing what reality
+ * returned) and GRADING (scoring the pair) stay in separate jobs, and by
+ * Sunday morning the prior week is final.
+ *
+ * Pure core, exported for the test: takes the whole ledger + real per-player
+ * weekly points, returns only the resolutions that do not already exist —
+ * predledger is append-only, so without the dedupe every Sunday would stack a
+ * duplicate resolution on every already-resolved decision forever. */
+function buildDecisionResolutions(entries, weeklyPoints, opts) {
+  return FG.buildInseasonResolutions(
+    FG.unresolvedDecisionEntries(entries), weeklyPoints, opts);
+}
+
+/* Which COMPLETED weeks the pending decisions actually need, so the handler
+ * fetches only those instead of the whole season every Sunday. A waiver claim
+ * needs its full window (see WAIVER_WINDOW_WEEKS); everything else needs its
+ * own week. Only weeks strictly before `currentWeek` are complete. */
+function decisionWeeksNeeded(entries, currentWeek, finalWeek) {
+  const need = new Set();
+  for (const e of FG.unresolvedDecisionEntries(entries)) {
+    const w = Number((e.payload || {}).week);
+    if (!Number.isFinite(w)) continue;
+    const span = e.kind === 'waiver_claim'
+      ? Math.min(w + FG.WAIVER_WINDOW_WEEKS - 1, finalWeek || Infinity) : w;
+    for (let k = w; k <= span; k++) {
+      if (k >= 1 && k < currentWeek) need.add(k);
+    }
+  }
+  return [...need].sort((a, b) => a - b);
+}
+
+/* One week's REAL per-player points, merged across every roster's matchup row
+ * (Sleeper's players_points map — the same field league_history.json archives,
+ * which is what the resolver tests prove the arithmetic against). */
+function mergePlayersPoints(matchupRows) {
+  const out = {};
+  for (const m of matchupRows || []) {
+    const pp = (m && m.players_points) || {};
+    for (const pid of Object.keys(pp)) out[String(pid)] = Number(pp[pid]) || 0;
+  }
+  return out;
+}
+
 exports.pairUp = pairUp;
 exports.buildClaims = buildClaims;
 exports.buildResolutions = buildResolutions;
+exports.buildDecisionResolutions = buildDecisionResolutions;
+exports.decisionWeeksNeeded = decisionWeeksNeeded;
+exports.mergePlayersPoints = mergePlayersPoints;
 
 exports.handler = async (event) => {
   store.initBlobs(event);
@@ -176,12 +232,16 @@ exports.handler = async (event) => {
 
     // Resolve LAST week from this week's ledger + last week's final scores.
     const resolved = [];
+    let allRows = null;   // the full ledger, read once, reused by the decision pass
     if (week > 1) {
       const keys = (await store.listKeys(`pred:${season}:`)).sort();
+      allRows = [];
       const prior = [];
       for (const k of keys) {
         const e = await store.get(k);
-        if (e && e.kind === 'forecast' && e.payload
+        if (!e) continue;
+        allRows.push(e);
+        if (e.kind === 'forecast' && e.payload
             && ((e.payload.subject || {}).week === week - 1)) prior.push(e.payload);
       }
       const lastScores = await sleeper.weekPointsByOwner(
@@ -194,9 +254,73 @@ exports.handler = async (event) => {
           resolved.push(r.forecast_key);
         }
       }
+
+      /* PLAYER-WEEK RESOLUTIONS — the player-projection cron's rows, settled
+       * from the SAME matchup read, at players_points grain. By Sunday morning
+       * the prior week is final, so every rostered player's realized points is
+       * in hand; a player with no entry (dropped mid-week) stays pending
+       * rather than becoming a miss. The marker doc keeps a manual re-run from
+       * appending the same several hundred resolutions twice (the grader's
+       * first-resolution-wins join is the backstop, not the mechanism). */
+      const playerPrior = prior.filter(p => p.ftype === 'point' && WPP.isPlayerKey(p.key));
+      const rmarkKey = `playerproj:resolved:${season}:${week - 1}`;
+      if (playerPrior.length && !(await store.get(rmarkKey))) {
+        const rawPrev = await sleeper.matchupsForWeek(leagueId, week - 1).catch(() => null);
+        const pp = WPP.playersPointsFromMatchups(rawPrev);
+        if (pp) {
+          const rows = WPP.resolvePlayerForecasts(playerPrior, pp);
+          await predledger.appendBatch(store, rows.map(r => ({
+            kind: 'forecast_resolution', method: WPP.METHOD, season, payload: r })));
+          for (const r of rows) resolved.push(r.forecast_key);
+          await store.set(rmarkKey, { n: rows.length, at: new Date().toISOString() });
+        }
+      }
+    }
+
+    /* ── DECISION RESOLUTIONS — see buildDecisionResolutions above. ──────────
+     * Every completed week a pending decision still needs is fetched from
+     * Sleeper's own matchup rows (players_points — the same per-player field
+     * the historical archive stores, which the resolver tests prove against).
+     * A week Sleeper cannot supply is simply absent from the map, and the
+     * resolver's own discipline (absent week => no resolution, never a zero)
+     * makes that a clean "still pending" rather than a wrong grade. */
+    const decisionsResolved = [];
+    if (week > 1 && allRows) {
+      /* The league's final scoring week: every archived season here scores
+       * weeks 1..18 (league_history.json, 2023-25), so a claim window that
+       * would run past 18 clips there instead of pending forever. If the NFL
+       * calendar ever changes this is conservative — a late claim waits, it
+       * is never graded on weeks that do not exist. */
+      const FINAL_WEEK = 18;
+      const weeklyPoints = {};
+      for (const w of decisionWeeksNeeded(allRows, week, FINAL_WEEK)) {
+        const rows = await sleeper.matchupsForWeek(leagueId, w);
+        const merged = mergePlayersPoints(rows);
+        if (Object.keys(merged).length) weeklyPoints[String(w)] = merged;
+      }
+      /* The wire baseline for hold-priority waiver claims — the committed,
+       * measured artifact (draft/tools/emit_wire_level.js), shipped with this
+       * function via netlify.toml included_files. Absent => drop-based
+       * resolutions still happen and wire-based ones honestly wait. */
+      let wire = null;
+      try {
+        wire = JSON.parse(require('fs').readFileSync(
+          require('path').join(__dirname, '..', '..', 'draft', 'data', 'wire_level.json'), 'utf8'));
+      } catch (e) { wire = null; }
+      const opts = {
+        finalWeek: FINAL_WEEK,
+        wire: wire ? { per_week: wire.per_week,
+          ongoing_per_week: wire.ongoing && wire.ongoing.per_week } : null,
+      };
+      for (const r of buildDecisionResolutions(allRows, weeklyPoints, opts)) {
+        await predledger.append(store, { kind: 'forecast_resolution',
+          method: r.method || 'inseason-resolution-v1', season, payload: r.payload });
+        decisionsResolved.push(r.payload.forecast_key);
+      }
     }
     return { statusCode: 200, body: JSON.stringify({ ok: true, season, week,
-      emitted: emitted.length, resolved: resolved.length }) };
+      emitted: emitted.length, resolved: resolved.length,
+      decisions_resolved: decisionsResolved.length }) };
   } catch (e) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: String(e && e.message || e) }) };
   }

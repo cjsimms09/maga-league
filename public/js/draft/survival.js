@@ -80,6 +80,26 @@
     // A man who has taken the same player in two prior drafts will take him
     // again above market. Three straight years is not a coincidence.
     AFFINITY: { 2: 1.7, 3: 2.4, 4: 3.0 },
+    /* ── THE MEASURED ROOM, AS A BASE RATE — GATED, SHIPS OFF ──────────────
+     * draft/backtest/draft_behavior.py forward-tested the room's 2023-24
+     * behavior against its 2025 draft (preregistered in
+     * draft/audit/draft_behavior_2026-08-15.md §2; both criteria passed). The
+     * decomposition is the part that matters: the LEAGUE-level bucket mix +
+     * need term carried the win (position log-loss 1.408 vs 1.479 base), and
+     * the PER-OWNER term made it strictly worse (1.428) — owner signatures do
+     * not detectably persist year over year (mean rho 0.074, perm p=0.56).
+     * So this switch feeds the LEAGUE prior only, never per-owner terms.
+     *
+     * ON by Cory's ruling, 2026-08-16 ("YES on room mix prior, turn it on"),
+     * made with the forward-test evidence and the ≤3.1pp delta measurement
+     * (draft/tools/room_prior_measure.js) in front of him. The gate protocol
+     * is unchanged for other switches: off until ruled. Flipping back false
+     * restores the pure need/value softmax for unprofiled seats. */
+    ROOM_MIX_PRIOR: true,
+    // Blend weight when ON. Deliberately the SAME magnitude as BUCKET_BLEND
+    // above (0.25) — the existing "his observed mix is a rate, not a law"
+    // weight — rather than a new tuned constant.
+    ROOM_MIX_W: 0.25,
     RUN_WINDOW: 10,
     /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
      * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
@@ -117,6 +137,28 @@
     const idx = Math.min(curve.length - 1, Math.max(0, Math.floor(progress * curve.length)));
     return curve[idx];
   }
+
+  /* THE ROOM'S MEASURED POSITIONAL MIX BY ROUND BUCKET — 377 non-keeper
+   * decisions, 2023-25, keeper-corrected (2023's flags live in a parallel
+   * draft; a flag-only count silently includes 30 keeper placements).
+   *
+   * Copied from draft/data/draft_behavior.json `league_bucket_mix` and
+   * DRIFT-GUARDED: room_prior.test.js re-reads the artifact and fails if these
+   * numbers no longer match it, so the copy cannot rot silently (the no-retype
+   * rule, enforced by a test rather than a comment).
+   *
+   * Buckets are the ARTIFACT's: early r1-3, mid r4-9, late r10-15. Note the
+   * artifact's mid boundary (<=9) differs from bucketMix's profile boundary
+   * (<=8) above — the prior uses the boundary its own data was measured on.
+   * `early` is n=18 (rounds 1-3 are keeper rounds in this league), so the
+   * prior is thin exactly where 2026's board will also be keeper-dominated;
+   * mid and late carry n=178 and n=180. Consumed ONLY behind
+   * CFG.ROOM_MIX_PRIOR (ships false). */
+  const LEAGUE_MIX = {
+    early: { QB: 0.0556, RB: 0.5,    WR: 0.4444, TE: 0,      K: 0,      DEF: 0 },
+    mid:   { QB: 0.1067, RB: 0.3202, WR: 0.4438, TE: 0.1236, K: 0,      DEF: 0.0056 },
+    late:  { QB: 0.1222, RB: 0.2556, WR: 0.2111, TE: 0.0833, K: 0.1722, DEF: 0.1556 },
+  };
 
   // ---- shared math ----
   function erf(x) {
@@ -458,11 +500,30 @@
     keys.forEach(k => { const e = Math.exp(utility[k] - max); out[k] = e; sum += e; });
     keys.forEach(k => { out[k] /= sum; });
 
+    const round = roundOf(team.pick_no, (league.teams || 10));
+
+    // ---- the measured room, as a base rate (GATED — ships off) ------------
+    // Blended, never substituted: the room's 2023-25 bucket mix is a rate over
+    // a few hundred picks, and the need/value softmax above still carries the
+    // live roster. Weight matches BUCKET_BLEND's magnitude. Applied BEFORE the
+    // per-owner tilts so a profiled seat's own evidence still acts on top —
+    // the forward test's decomposition (audit doc §3) is why the LEAGUE prior
+    // is the only thing this switch feeds.
+    if (CFG.ROOM_MIX_PRIOR && round) {
+      const bucket = round <= 3 ? 'early' : (round <= 9 ? 'mid' : 'late');
+      const prior = LEAGUE_MIX[bucket];
+      if (prior) {
+        const w = CFG.ROOM_MIX_W;
+        let total = 0;
+        keys.forEach(k => { out[k] = (1 - w) * out[k] + w * (prior[k] || 0); total += out[k]; });
+        if (total > 0) keys.forEach(k => { out[k] /= total; });
+      }
+    }
+
     // ---- what his own past drafts say -------------------------------------
     // Applied AFTER the softmax, as bounded multipliers on a proper
     // distribution, then renormalised. Doing it inside the utility would let a
     // tendency compound with the exponential and run away.
-    const round = roundOf(team.pick_no, (league.teams || 10));
     if (profile && round) {
       const mix = bucketMix(profile, round);
       let total = 0;
@@ -1700,6 +1761,9 @@
     positionProbabilities, withinPositionProbability, withinFromPool,
     runMultipliers, detectRuns, layer2Weight, withinPrecision,
     roundOf, tendencyTilt, bucketMix, openingTilt, runFollowTilt,
+    // The gated room prior's data — exported so room_prior.test.js can hold it
+    // against draft/data/draft_behavior.json (the drift guard).
+    LEAGUE_MIX,
     affinityMultiplier, tendencyReasons,
     roomMixture,
     survivalProbability,

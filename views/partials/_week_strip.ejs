@@ -1,0 +1,25 @@
+<%# ── THE WEEK STRIP — matchup/scoreboard week navigation (member-site pass).
+    Expects: base ('/matchup' | '/scoreboard'), cur (the real current week),
+    view (the week being looked at), regWeeks. One horizontal scroll row of
+    week pills — this week plain-linked, everything else ?week=N — with the
+    viewed week marked. Phone-first: the row scrolls, the page never does. %>
+<%
+  const _wsBase = base, _wsCur = cur, _wsView = view || cur, _wsN = regWeeks || 14;
+  const _wsHref = w => w === _wsCur ? _wsBase : (_wsBase + '?week=' + w);
+%>
+<nav class="wk-strip" aria-label="Week navigation">
+  <% if (_wsView > 1) { %><a class="wk-arrow" href="<%= _wsHref(_wsView - 1) %>" aria-label="Previous week">‹</a><% } %>
+  <div class="wk-pills">
+    <% for (let w = 1; w <= _wsN; w++) { %>
+      <a class="wk-pill<%= w === _wsView ? ' active' : '' %><%= w === _wsCur ? ' now' : (w < _wsCur ? ' past' : ' future') %>"
+         href="<%= _wsHref(w) %>"<%= w === _wsView ? ' aria-current="page"' : '' %>><%= w === _wsCur ? 'Wk ' + w + ' · now' : 'Wk ' + w %></a>
+    <% } %>
+  </div>
+  <% if (_wsView < _wsN) { %><a class="wk-arrow" href="<%= _wsHref(_wsView + 1) %>" aria-label="Next week">›</a><% } %>
+</nav>
+<script>
+  // Bring the viewed week into view on load. Progressive: without JS the strip
+  // still scrolls by hand.
+  (function () { var el = document.querySelector('.wk-pill.active');
+    if (el && el.scrollIntoView) el.scrollIntoView({ inline: 'center', block: 'nearest' }); })();
+</script>

@@ -1,0 +1,76 @@
+{
+ "_territory": "TERRITORY: A",
+ "prereg": "draft/backtest/VARIANCE-MODIFIER-PREREG.md",
+ "status": "graded",
+ "n_player_seasons": 1162,
+ "graded_seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "anchor": "prior-season total (leak-free; no historical projection exists)",
+ "statistic": "ratio_sd(flag=1) / ratio_sd(flag=0), pooled across cells",
+ "results": [
+  {
+   "flag": "VAR_WORKLOAD_COMMITTEE",
+   "verdict": "NO DATA",
+   "why": "fewer than 2 cells cleared MIN_CELL=40 / MIN_SIDE=15"
+  },
+  {
+   "flag": "VAR_SECOND_YEAR",
+   "raw_mult": 1.218,
+   "null_median": 1.041,
+   "corrected_mult": 1.17,
+   "null_95": [
+    0.33,
+    5.651
+   ],
+   "permutation_p": 0.7805,
+   "cells_used": 2,
+   "by_season": {
+    "2023": null,
+    "2024": null,
+    "2025": null
+   },
+   "hand_set_mult": 1.1,
+   "clauses": {
+    "outside_permutation_null": false,
+    "p_below_05": false,
+    "seasons_agree_ge_2": false
+   },
+   "verdict": "NOT SUPPORTED"
+  }
+ ],
+ "refused": [
+  {
+   "flag": "VAR_BACKUP",
+   "why": "needs depth_chart_order as it stood BEFORE each historical season; depth charts here are live Sleeper state, 2026 only"
+  },
+  {
+   "flag": "VAR_INJURED",
+   "why": "needs the injury designation carried at draft time in a past season; never captured, live state only"
+  }
+ ],
+ "negative_control_parity": {
+  "mult": 1.726,
+  "null_median": 1.699,
+  "null_95": [
+   0.757,
+   3.507
+  ],
+  "corrected_mult": 1.016,
+  "sane": true
+ },
+ "hand_set_multipliers": {
+  "VAR_WORKLOAD_COMMITTEE": 1.39,
+  "VAR_SECOND_YEAR": 1.1,
+  "VAR_ROOKIE": 1.22,
+  "_base": 0.305
+ },
+ "limitations": [
+  "prior-season total is a cruder anchor than a projection, so these dispersions are an UPPER bound on dispersion around a real one",
+  "survivorship: players with no weekly row in Y are excluded, which biases every dispersion DOWNWARD",
+  "2021/2022 weekly stores are rebuilt offline (exact 2023 reproduction)",
+  "fitting sd ratios on 3 seasons of cells is thin, and the deep bands carrying the most players are the most survivorship-distorted"
+ ]
+}

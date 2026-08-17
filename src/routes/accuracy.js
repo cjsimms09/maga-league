@@ -33,15 +33,20 @@
 
 // ---- prediction KINDS we group by, in display order, with human labels. The
 // keys match src/predledger.js kinds / forecast key prefixes A grades under. ----
-// TWO VOCABULARIES IN ONE LIST, and only one of them can reach this table.
-// `kindOf` derives a forecast KEY NAMESPACE (`survival:`, `room_seat:`) because
-// grading covers `kind === 'forecast'` records only. The ledger KINDS below —
-// lineup_call, waiver_claim, stream_call, trade_eval — are never a forecast key
-// prefix, so those four labels cannot currently fire. They are kept, not
-// deleted, because they go live the day A's decision join covers the in-season
-// kinds (parked). PENDING_KINDS names them so the table cannot quietly look
-// like it covers decisions it does not, and so a guard can check the claim.
-const PENDING_KINDS = ['lineup_call', 'waiver_claim', 'stream_call', 'trade_eval'];
+// TWO VOCABULARIES IN ONE LIST, and both now reach this table by different
+// doors. `kindOf` derives a forecast KEY NAMESPACE (`survival:`, `room_seat:`)
+// from graded forecast records; the in-season ledger KINDS (lineup_call,
+// waiver_claim, stream_call) arrive PRE-AGGREGATED in the calibration doc's
+// `by_kind` map, which grade-cron now writes by merging deriveByKind(graded)
+// with forecast_grade.js's decisionByKind(decisions) — resolvers landed
+// 2026-08-15 (buildInseasonResolutions covers all three, run weekly by
+// claims-cron), so those labels are live, not decorative.
+//
+// PENDING_KINDS still names what genuinely CANNOT grade, so the table cannot
+// quietly look like it covers decisions it does not: trade_eval has no capture
+// surface and no resolver — nothing writes one and nothing could score one.
+// scope_agreement.test.js pins this list against the labels' reachability.
+const PENDING_KINDS = ['trade_eval'];
 
 const KIND_LABELS = [
   ['survival', 'Survival calls'],
@@ -167,23 +172,29 @@ function byKindRows(cal) {
   const src = cal.by_kind || ((cal.graded || []).length ? deriveByKind(cal.graded) : null);
   if (!src) return [];
   const round3 = n => n == null ? null : Math.round(n * 1000) / 1000;
+  // The in-season decision aggregates ride two extra fields (2026-08-15):
+  // `scored` (how many of the n captured decisions have a resolution — the
+  // honest "5 logged, 2 scored" denominator) and `mean_edge` (real points, the
+  // decision as recorded vs its recorded alternative). Null for forecast rows,
+  // where they have no meaning.
+  const row = (key, label, r) => ({ key, label,
+    n: r.n || 0,
+    brier: round3(num(r.brier)),
+    accuracy: num(r.accuracy),
+    mae: round3(num(r.mae)),
+    scored: r.scored != null ? r.scored : null,
+    meanEdge: num(r.mean_edge),
+    derived: !cal.by_kind });
   const out = [];
   for (const [key, label] of KIND_LABELS) {
     const r = src[key];
     if (!r) continue;
-    out.push({ key, label,
-      n: r.n || 0,
-      brier: round3(num(r.brier)),
-      accuracy: num(r.accuracy),
-      mae: round3(num(r.mae)),
-      derived: !cal.by_kind });
+    out.push(row(key, label, r));
   }
   // include any kinds we didn't pre-label, so nothing is hidden
   for (const key of Object.keys(src)) {
     if (KIND_LABELS.some(k => k[0] === key)) continue;
-    const r = src[key];
-    out.push({ key, label: key, n: r.n || 0, brier: round3(num(r.brier)),
-      accuracy: num(r.accuracy), mae: round3(num(r.mae)), derived: !cal.by_kind });
+    out.push(row(key, key, src[key]));
   }
   return out;
 }
@@ -299,12 +310,11 @@ function buildAccuracyView(calibration, attribution, rawCount, extra) {
 /**
  * The override record AS CAPTURED, straight off the prediction ledger.
  *
- * The grader's decision join reads the draft kinds (recommendation/pick/override)
- * and does not yet cover the in-season ones this site writes (`lineup_call`,
- * `inseason_override`) — that extension is A's, and is parked. Until it lands,
- * "how often did I override and what was the gap" is answerable from the raw
- * entries alone, and refusing to answer it would repeat exactly the failure the
- * override card exists to fix: a number produced every week and rendered nowhere.
+ * (Updated 2026-08-15: the grader's in-season join is no longer parked —
+ * gradeDecisions covers these kinds and claims-cron resolves them weekly. This
+ * raw-ledger view is kept as the COMPLEMENT: it answers "how often did I
+ * override and what was the gap" the moment an entry lands, days before the
+ * week resolves, and it needs no grading run to exist.)
  *
  * What this CANNOT say is how the overrides turned out — that needs outcomes
  * joined against the recommendation, which is the graded half. It says so.
@@ -345,4 +355,8 @@ function capturedOverrides(ledger) {
 }
 
 module.exports = { buildAccuracyView, biggestMisses, gradedLine, byKindRows, capturedOverrides,
+                   // deriveByKind exported (2026-08-15) so grade-cron can build the
+                   // calibration doc's by_kind from THE SAME derivation this page
+                   // falls back to — one function, not a second copy that drifts.
+                   deriveByKind,
                    KIND_LABELS, PENDING_KINDS };

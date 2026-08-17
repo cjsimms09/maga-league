@@ -71,7 +71,7 @@
    ],
    "weekly_mean": 98.5,
    "weekly_sd": 31.6,
-   "verdict": "parked: CI includes $0"
+   "verdict": "LOSER \u2014 significantly worse than the control"
   },
   {
    "candidate": "flat_l3.0",
@@ -82,7 +82,7 @@
    ],
    "weekly_mean": 94.0,
    "weekly_sd": 30.0,
-   "verdict": "parked: CI includes $0"
+   "verdict": "LOSER \u2014 significantly worse than the control"
   }
  ],
  "h1_high_variance_corner": true,

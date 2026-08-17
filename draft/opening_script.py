@@ -3,9 +3,12 @@
 
 The script I read on draft night for my early live picks: for each pick, the
 primary target, the fallbacks with survival percentages, and the NAMED
-contingency branches per keeper-scenario (keeper-intel-scenarios.md §2/§2b —
-the both-TEs-gone branch is PRIMARY while Marian/Bowers + Richard's full slate
-stand predicted; Bowers-available demotes to the contingency).
+contingency branches. PRIMARY is the EFFECTIVE keeper board: real Sleeper
+designations supersede predicted slates wholesale wherever a team has
+designated (the 2026-08-15 data audit caught the old predicted-only PRIMARY
+asserting a contradicted slate — Marian's designation freed Bowers into the
+pool while two unpredicted keeps stayed draftable-looking); the CONTINGENCY
+is the facts-only board, for when the remaining predicted slates bust.
 
 MACHINERY, not prose: everything derives from the inputs (the board artifact,
 the predicted keeper slates, my slot), so ANY input rebuild regenerates the
@@ -41,6 +44,16 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 BOARD = HERE.parent / "public" / "draft_data.json"
 PREDICTED = HERE / "data" / "predicted_keepers.json"
+# REAL designations, straight from Sleeper via gen_keepers_json.py. Added
+# 2026-08-15 after the data audit caught the script re-asserting a contradicted
+# prediction (Marian's designated slate has no Bowers; a predicted-zero team
+# designated two): a slate that HAS a designation is a fact and supersedes its
+# prediction entirely — the house rule verbatim (Cory, 2026-08-11: "a
+# prediction rendered indistinguishably from a fact IS a fact as far as
+# behaviour is concerned"). Teams without a designation keep their predicted
+# slate, labeled as prediction.
+REAL = HERE / "config" / "keepers.json"
+SETTINGS = HERE / "data" / "sleeper_league_settings.json"   # owner_id → roster_id join
 OUT_MD = HERE / "data" / "opening_script.md"
 OUT_JSON = HERE / "data" / "opening_script.json"
 
@@ -57,16 +70,108 @@ def _hash(obj) -> str:
     return hashlib.sha256(json.dumps(obj, sort_keys=True).encode()).hexdigest()[:12]
 
 
-def fingerprint(board: dict, predicted: dict) -> dict:
-    """What the script was generated FROM. Any change here = regenerate."""
+def load_real() -> dict:
+    """Real designations + the owner→roster join, tolerating absence (early
+    August, before anyone designates) by returning empty — the script then
+    runs predictions-only exactly as it did before designations existed."""
+    real = json.loads(REAL.read_text()) if REAL.exists() else {}
+    settings = json.loads(SETTINGS.read_text()) if SETTINGS.exists() else {}
+    o2r = {str(k): str(v) for k, v in (settings.get("owner_to_roster") or {}).items()}
+    by_roster = {}
+    for t in (real.get("teams") or []):
+        rid = o2r.get(str(t.get("owner_id")))
+        if rid is not None:
+            by_roster[rid] = sorted(str(k.get("player_id")) for k in t.get("keepers", [])
+                                    if k.get("player_id") is not None)
+    return by_roster            # {roster_id: [player_ids]} — designated teams only
+
+
+def effective_slates(predicted: dict, real_by_roster: dict) -> dict:
+    """Per roster: the slate the script should treat as GONE, with provenance.
+
+    A designated team's REAL slate replaces its prediction wholesale — not
+    merged: designation is the owner's actual answer, and keeping the
+    prediction's extras would re-remove a player the owner demonstrably chose
+    NOT to keep (the exact Bowers failure the audit caught).
+    @returns {roster_id: {"ids": [...], "source": "designated"|"predicted", "handle": str}}
+    """
+    out = {}
+    for handle, v in (predicted.get("predictions") or {}).items():
+        rid = str(v.get("roster_id"))
+        pred_ids = sorted(str(k.get("player_id")) for k in v.get("predicted_keepers", [])
+                          if k.get("player_id") is not None)
+        if rid in real_by_roster:
+            out[rid] = {"ids": real_by_roster[rid], "source": "designated", "handle": handle}
+        else:
+            out[rid] = {"ids": pred_ids, "source": "predicted", "handle": handle}
+    # A designated team with no prediction row at all still supersedes.
+    for rid, ids in real_by_roster.items():
+        if rid not in out:
+            out[rid] = {"ids": ids, "source": "designated", "handle": f"roster-{rid}"}
+    return out
+
+
+def supersessions(board: dict, predicted: dict, slates: dict) -> list[dict]:
+    """Where a real designation OVERRULED the prediction, in names — the list
+    the branch notes print, derived rather than typed so it can never assert
+    yesterday's intel (the failure this whole change removes)."""
+    name_of = {str(p.get("player_id")): p.get("name") for p in board.get("players", [])}
+    pred_by_roster = {
+        str(v.get("roster_id")): {str(k.get("player_id")): k.get("name")
+                                  for k in v.get("predicted_keepers", [])
+                                  if k.get("player_id") is not None}
+        for v in (predicted.get("predictions") or {}).values()}
+    out = []
+    for rid, s in sorted(slates.items()):
+        if s["source"] != "designated":
+            continue
+        pred = pred_by_roster.get(rid, {})
+        freed = [pred[i] for i in pred if i not in set(s["ids"])]
+        unpredicted = [name_of.get(i, f"id {i}") for i in s["ids"] if i not in pred]
+        if freed or unpredicted:
+            out.append({"handle": s["handle"], "freed": sorted(filter(None, freed)),
+                        "kept_unpredicted": sorted(filter(None, unpredicted))})
+    return out
+
+
+def top_by_vorp(board: dict, ids: set[str], n: int = 2) -> set[str]:
+    """The strongest names in a set, by board VORP — the contingency's pins."""
+    ranked = sorted((p for p in board.get("players", [])
+                     if str(p.get("player_id")) in ids),
+                    key=lambda p: -(p.get("vorp") or 0))
+    return {str(p["player_id"]) for p in ranked[:n]}
+
+
+def fingerprint(board: dict, predicted: dict, real_by_roster: dict | None = None) -> dict:
+    """What the script was generated FROM. Any change here = regenerate.
+
+    board_content_hash ADDED 2026-08-15, same fix as freeze_baseline.js's
+    boardIdentity() and from the same routed evidence (ROUTES.md TO:A,
+    2026-08-14): built_at is stamped by the REBUILD and survives in-place
+    edits, so a fingerprint carrying only board_built_at called two boards
+    31KB apart identical — C reproduced three different boards from git all
+    sharing one built_at. The content hash is the identity; built_at stays
+    as provenance about the build event (and a rebuild moving it still
+    correctly marks the script stale)."""
     return {
         "board_built_at": board.get("built_at"),
+        "board_content_hash": _hash(board),
         "my_slot": (board.get("league") or {}).get("my_draft_slot"),
         "my_keepers_hash": _hash(sorted(str(k.get("player_id"))
                                         for k in board.get("kept_players", []))),
         "predicted_slates_hash": _hash({
             o: sorted(str(k.get("player_id")) for k in v.get("predicted_keepers", []))
             for o, v in (predicted.get("predictions") or {}).items()}),
+        # A new designation landing (or changing) marks every older script
+        # stale even when the predictions file never moved — the audit's exact
+        # gap: staleness could see a changed input but not a contradicted one.
+        # Designations ARE an input now, so the contradiction becomes a
+        # changed input and the existing staleness mechanism catches it.
+        # None means "load the committed designations yourself" so two-arg
+        # callers (the verify script's freshness check) fingerprint the same
+        # inputs generation does; pass {} explicitly to mean "none designated".
+        "designated_slates_hash": _hash(load_real() if real_by_roster is None
+                                        else real_by_roster),
     }
 
 
@@ -125,20 +230,32 @@ def scripted_candidates(board: dict, removed_ids: set[str], my_picks: list[int],
     return picks_out
 
 
-def generate(board: dict, predicted: dict) -> dict:
+def generate(board: dict, predicted: dict, real_by_roster: dict | None = None) -> dict:
     my_picks = (board.get("pick_order") or {}).get("my_picks") or []
     my_kept = {str(k.get("player_id")) for k in board.get("kept_players", [])}
-    pred_ids = predicted_kept_ids(predicted)
+    real_by_roster = real_by_roster if real_by_roster is not None else load_real()
+    slates = effective_slates(predicted, real_by_roster)
 
-    # PRIMARY branch: the predicted board — all predicted opponent keepers gone
-    # (incl. Bowers to Marian + Richard's certain slate) plus my own three.
-    primary = scripted_candidates(board, pred_ids | my_kept, my_picks)
-    # CONTINGENCY: Bowers slips (Marian keeps someone else) — the old Branch A.
-    bowers = next((str(p["player_id"]) for p in board.get("players", [])
-                   if p.get("name") == "Brock Bowers"), None)
-    contingency = scripted_candidates(
-        board, (pred_ids - {bowers}) | my_kept if bowers else pred_ids | my_kept, my_picks,
-        pin_ids={bowers} if bowers else None)
+    # The EFFECTIVE removal set: real designations where they exist (facts),
+    # predictions elsewhere (labeled). This is the branch restructure the data
+    # audit's §1 demanded: the old PRIMARY removed every PREDICTED keeper, so a
+    # contradicted prediction (Marian's Bowers) stayed removed even after the
+    # real designation said otherwise, and real designations the predictions
+    # missed (Jeanty, Chase Brown) stayed draftable-looking.
+    designated_ids = {i for s in slates.values() if s["source"] == "designated" for i in s["ids"]}
+    predicted_only_ids = {i for s in slates.values() if s["source"] == "predicted" for i in s["ids"]}
+    superseded = supersessions(board, predicted, slates)
+
+    # PRIMARY: the effective board — designations honored, remaining
+    # predictions honored, my own keepers out.
+    primary = scripted_candidates(board, designated_ids | predicted_only_ids | my_kept, my_picks)
+    # CONTINGENCY: predictions bust — only FACTS removed (designations + mine),
+    # every predicted-only keeper back in the pool. The branch's subjects are
+    # the strongest predicted-only names, pinned so the branch shows the
+    # players it exists for.
+    pin = top_by_vorp(board, predicted_only_ids, n=2)
+    contingency = scripted_candidates(board, designated_ids | my_kept, my_picks,
+                                      pin_ids=pin or None)
 
     # Doctrine enrollment: experiment 19b's Cory-conditional verdict, when it
     # exists, IS the plan (the doctrine-banner spec: winner feeds banner +
@@ -172,16 +289,24 @@ def generate(board: dict, predicted: dict) -> dict:
                             "why": "19b race ran; no archetype cleared the paired CI + even-money band"}
         except Exception:
             pass
+    designated_n = sum(1 for s in slates.values() if s["source"] == "designated")
+    predicted_n = sum(1 for s in slates.values() if s["source"] == "predicted" and s["ids"])
     meta = {
-        "generated_from": "opening_script.py — derives from board + predicted slates; regenerate on any input change",
-        "fingerprint": fingerprint(board, predicted),
+        "generated_from": "opening_script.py — derives from board + REAL designations "
+                          "(supersede) + predicted slates (fill); regenerate on any input change",
+        "fingerprint": fingerprint(board, predicted, real_by_roster),
         "slot_provenance": "site-claimed — Sleeper draft order pending (regenerates on assignment)",
         "doctrine": doctrine,
+        "keeper_basis": {
+            "designated_teams": designated_n,
+            "predicted_slate_teams": predicted_n,
+            "supersessions": superseded,
+        },
     }
     return {"meta": meta, "my_picks": my_picks,
             "branches": {
-                "primary_both_tes_gone": primary,
-                "contingency_bowers_available": contingency,
+                "primary_effective_board": primary,
+                "contingency_predictions_bust": contingency,
             }}
 
 
@@ -206,15 +331,23 @@ def render_md(script: dict) -> str:
                          f"{int(c['survival'] * 100)}% survives)")
             L.append("")
 
-    branch("PRIMARY — both TEs gone (the predicted board)",
-           "Marian keeps Bowers (high, intel) + Richard keeps Bijan/McBride/Nico "
-           "(certain, intel): TE de-anchors — take one whenever; WR-feast and "
-           "Early-QB gained the probability mass.",
-           script["branches"]["primary_both_tes_gone"])
-    branch("CONTINGENCY — Bowers available (Marian keeps someone else)",
-           "The elite-TE-anchor question returns: watch the TE room's panic — "
-           "survival to my next pick collapses if his ADP jumps on scarcity.",
-           script["branches"]["contingency_bowers_available"])
+    kb = m.get("keeper_basis") or {}
+    sup = kb.get("supersessions") or []
+    sup_lines = "; ".join(
+        f"{s['handle']}: " + " · ".join(
+            ([f"freed {', '.join(s['freed'])} (predicted kept — actually in the pool)"] if s['freed'] else [])
+            + ([f"designated {', '.join(s['kept_unpredicted'])} (prediction missed)"] if s['kept_unpredicted'] else []))
+        for s in sup) or "none — every designation matched its prediction"
+    branch("PRIMARY — the effective board (designations are facts, predictions fill the rest)",
+           f"{kb.get('designated_teams', 0)} teams designated on Sleeper (their real slates "
+           f"supersede intel wholesale), {kb.get('predicted_slate_teams', 0)} still run on "
+           f"predicted slates. Supersessions: {sup_lines}.",
+           script["branches"]["primary_effective_board"])
+    branch("CONTINGENCY — the predicted-only slates bust",
+           "Only FACTS removed here (real designations + my three): every keeper we merely "
+           "predict returns to the pool. If an undesignated team keeps less than predicted, "
+           "this branch is the board you're actually looking at.",
+           script["branches"]["contingency_predictions_bust"])
 
     L.append("_Regenerates on: slot assignment · keeper designations landing "
              "(picked up by the nightly draft-data rebuild) · every board rebuild. "
@@ -229,8 +362,9 @@ def main():
     script = generate(board, predicted)
     OUT_JSON.write_text(json.dumps(script, indent=1))
     OUT_MD.write_text(render_md(script))
+    fp = script['meta']['fingerprint']
     print(f"opening script: picks {script['my_picks'][:3]} scripted, "
-          f"2 branches, fingerprint {script['meta']['fingerprint']['board_built_at']}")
+          f"2 branches, board {fp['board_content_hash']} (built {fp['board_built_at']})")
     print(f"wrote {OUT_MD} + {OUT_JSON}")
     return 0
 

@@ -106,9 +106,21 @@ def infer_positions(season: dict) -> dict[str, str]:
 
     The harvest carries no position column, but the starters list is ordered to
     match roster_positions, so a player who ever started in a QB/RB/WR/TE/K/DEF
-    slot reveals his position. The FLEX slot is ambiguous and skipped — such a
-    player is almost always caught in another week's dedicated slot. Season-local
-    (not the 2026 board) so historical ids resolve to their real position.
+    slot reveals his position. Season-local (not the 2026 board) so historical
+    ids resolve to their real position.
+
+    THE FLEX GAP WAS WRONGLY ASSUMED SAFE, found 2026-08-15 backtesting the
+    JS-side port of this function: "almost always caught in another week's
+    dedicated slot" does not hold for 36 real players across 2023-25 who only
+    ever started via FLEX. best_lineup_points() then silently drops them from
+    any hindsight recomputation, which can make a ceiling undercount below
+    what a team actually scored — an impossibility that test_roster_sim.py's
+    own aggregate check (best_sum >= real_sum, summed across a whole season)
+    was too coarse to catch row-by-row. THIS IS THE SAME DEFECT A already
+    fixed at the root for wire_level.js (see waiver_replacement.py's
+    positions_for_history docstring) — same remedy applied here: fall back to
+    draft/data/player_positions.json's ground truth for exactly the ids this
+    heuristic can't resolve.
     """
     template = season.get("roster_positions") or []
     pos: dict[str, str] = {}
@@ -117,7 +129,36 @@ def infer_positions(season: dict) -> dict[str, str]:
             for slot, pid in zip(template, e.get("starters") or []):
                 if slot in ("QB", "RB", "WR", "TE", "K", "DEF"):
                     pos[str(pid)] = slot
+    db = _player_positions_db()
+    for entries in (season.get("weeks") or {}).values():
+        for e in entries or []:
+            for pid in (e.get("players") or []):
+                pid = str(pid)
+                if pid not in pos and db.get(pid):
+                    pos[pid] = db[pid]
     return pos
+
+
+_PLAYER_POSITIONS_DB: dict[str, str] | None = None
+
+
+def _player_positions_db() -> dict[str, str]:
+    """Ground-truth id -> position, union-over-builds, never pruned. Loaded
+    once; an absent or unreadable file degrades to the pre-existing
+    starters-only behavior rather than raising."""
+    global _PLAYER_POSITIONS_DB
+    if _PLAYER_POSITIONS_DB is not None:
+        return _PLAYER_POSITIONS_DB
+    import json
+    from pathlib import Path
+    _PLAYER_POSITIONS_DB = {}
+    try:
+        p = Path(__file__).resolve().parent.parent / "data" / "player_positions.json"
+        _PLAYER_POSITIONS_DB = {str(k): v for k, v in
+                                 (json.loads(p.read_text()).get("positions") or {}).items() if v}
+    except (ValueError, OSError):
+        pass
+    return _PLAYER_POSITIONS_DB
 
 
 def positions_from_board(board_path) -> dict[str, str]:

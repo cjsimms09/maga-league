@@ -206,8 +206,36 @@ def _row(name, state, detail, n=None):
 
 # ── THE ARCHIVES ────────────────────────────────────────────────────────────
 
+def _event_league(ev, snapshot_league):
+    """The league an observation belongs to: the event's own record first, the
+    snapshot's declared league as fallback, else unknown — never a guess."""
+    slug = (((ev.get("odds") or {}).get("league") or {}).get("slug")
+            or ev.get("league") or snapshot_league or "")
+    return str(slug).lower()
+
+
 def check_market_snapshots():
-    """Daily odds capture. Two questions: is it alive, and is Signal C askable."""
+    """Daily odds capture. Two questions: is it alive, and is Signal C askable.
+
+    ── THE BAR COUNTS ONLY EVENTS THAT CAN ANSWER THE QUESTION (2026-08-15) ──
+    Signal C asks whether line movement as a game approaches has structure.
+    On PRESEASON games — starters play a series, books barely move the number —
+    the honest answer is a statement about noise, and C measured that every
+    paired event on disk was `usa-nfl-preseason`: the bar (30 paired events)
+    was crossed on 08-12 and the escalation then fired EVERY DAY on data that
+    cannot answer what the bar was set for. An alarm that fires daily and moves
+    nothing is the muted-alarm shape; the threshold and the question were
+    denominated in different things (C's routed diagnosis, ROUTES 2026-08-14).
+
+    So the ESCALATE is gated on REGULAR-SEASON paired events — an event is
+    preseason if its league slug says so, and an event whose league this
+    process cannot read counts toward NEITHER side (absence of a label is not
+    evidence of a season type). Preseason and unlabelled pairs are still
+    counted and REPORTED in the quiet detail, so "the mechanism works, the
+    data is not yet worth asking of" stays visible — the pipe is not silenced,
+    its claim is corrected. First regular-season event enters a 14-day capture
+    horizon on 2026-08-27; this row starts speaking truthfully then.
+    """
     health = ROOT / "draft" / "market_snapshots" / "capture_health.json"
     if not health.exists():
         return _row("market_snapshots", "BLIND",
@@ -226,25 +254,43 @@ def check_market_snapshots():
     # a counter somebody has to remember to update.
     snaps = sorted((ROOT / "draft" / "market_snapshots").glob("*T*Z.json"))
     seen: dict[str, int] = {}
+    league_of: dict[str, str] = {}
     for p in snaps:
         try:
             d = json.loads(p.read_text())
         except (ValueError, OSError):
             continue
+        snap_league = d.get("league")
         for ev in (d.get("events") or []):
             eid = str(ev.get("event_id") or ev.get("id") or "")
             if eid:
                 seen[eid] = seen.get(eid, 0) + 1
-    paired = sum(1 for v in seen.values() if v >= 2)
-    if paired >= T["market_movement_events"]:
+                league_of.setdefault(eid, _event_league(ev, snap_league))
+
+    def classify(eid):
+        slug = league_of.get(eid, "")
+        if not slug:
+            return "unlabelled"
+        return "preseason" if "preseason" in slug else "regular"
+
+    paired = {"regular": 0, "preseason": 0, "unlabelled": 0}
+    for eid, v in seen.items():
+        if v >= 2:
+            paired[classify(eid)] += 1
+    paired_total = sum(paired.values())
+    if paired["regular"] >= T["market_movement_events"]:
         return _row("market_snapshots", "ESCALATE",
-                    f"{paired} events now carry two or more observations "
-                    f"(bar {T['market_movement_events']}) — Signal C is askable for the "
-                    "first time: does the model-market gap have structure or is it noise",
-                    n=paired)
+                    f"{paired['regular']} REGULAR-SEASON events now carry two or more "
+                    f"observations (bar {T['market_movement_events']}) — Signal C is "
+                    "askable for the first time: does the model-market gap have "
+                    "structure or is it noise",
+                    n=paired["regular"])
     return _row("market_snapshots", "quiet",
-                f"{len(snaps)} snapshots, {paired}/{len(seen)} events paired, "
-                f"last capture {age:.1f}d ago", n=paired)
+                f"{len(snaps)} snapshots, {paired_total}/{len(seen)} events paired "
+                f"(regular {paired['regular']}/{T['market_movement_events']} toward the "
+                f"bar; preseason {paired['preseason']} prove the pairing mechanism but "
+                f"cannot answer Signal C; unlabelled {paired['unlabelled']}), "
+                f"last capture {age:.1f}d ago", n=paired["regular"])
 
 
 def check_market_capture_alive():

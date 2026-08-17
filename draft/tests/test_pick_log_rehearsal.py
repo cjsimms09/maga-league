@@ -62,9 +62,17 @@ def _real_draft() -> dict:
 @pytest.fixture()
 def log(tmp_path, monkeypatch):
     """A rehearsal NEVER touches the real log. Pointing the module at a tmp file
-    is the whole isolation, so it is done in one place rather than remembered."""
+    is the whole isolation, so it is done in one place rather than remembered.
+
+    The SHADOW ledger (draft_shadow.js, wired into sync() 2026-08-16) already
+    follows a redirected LOG to a _shadow file beside it, so isolation holds
+    without another line here. It is DISABLED for these seven conditions
+    because they are the PICK path's rehearsal and each sync() would spend
+    seconds recomputing engine recommendations that test_draft_shadow.py
+    rehearses on purpose — a deliberate scope cut, not an isolation need."""
     p = tmp_path / "rehearsal.jsonl"
     monkeypatch.setattr(L, "LOG", p)
+    monkeypatch.setenv("DRAFT_SHADOW_DISABLE", "1")
     return p
 
 
@@ -219,7 +227,7 @@ def test_an_empty_sleeper_read_REFUSES_rather_than_logging_an_untouched_board():
     """`or []` again: an empty response is a broken read, not an empty draft."""
     class _SI:
         @staticmethod
-        def fetch_draft_picks(_):
+        def fetch_draft_picks(_, **kw):     # accepts live=True like the real one
             return []
     sys.modules["sleeper_import"] = _SI
     try:

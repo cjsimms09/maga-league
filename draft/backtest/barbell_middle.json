@@ -1,0 +1,6768 @@
+{
+ "_territory": "TERRITORY: A \u2014 research artifact, no production reader",
+ "tool": "draft/backtest/barbell_middle.py",
+ "mandate": "Cory 2026-08-17: is the middle of the draft dead weight?",
+ "prereg": "draft/audit/barbell_strategy_2026-08-17.md \u00a74.1",
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "scoring_window_weeks": [
+  1,
+  17
+ ],
+ "phase_boundary_round": 8,
+ "survivorship": {
+  "2023": {
+   "skill_picks": 130,
+   "never_played": 0,
+   "never_played_picks": [],
+   "kdef_picks": 20,
+   "unknown_position_picks": []
+  },
+  "2024": {
+   "skill_picks": 131,
+   "never_played": 0,
+   "never_played_picks": [],
+   "kdef_picks": 19,
+   "unknown_position_picks": []
+  },
+  "2025": {
+   "skill_picks": 128,
+   "never_played": 1,
+   "never_played_picks": [
+    {
+     "pick_no": 68,
+     "round": 7,
+     "pid": "4018",
+     "pos": "RB",
+     "is_keeper": false
+    }
+   ],
+   "kdef_picks": 21,
+   "unknown_position_picks": [
+    64
+   ]
+  }
+ },
+ "wire": {
+  "held_season": {
+   "QB": 330.8,
+   "RB": 100.3,
+   "WR": 124.1,
+   "TE": 115.6
+  },
+  "churned_season": {
+   "QB": 397.5,
+   "RB": 132.6,
+   "WR": 188.7,
+   "TE": 197.2
+  },
+  "held_per_week": {
+   "QB": 19.46,
+   "RB": 5.9,
+   "WR": 7.3,
+   "TE": 6.8
+  },
+  "churned_per_week": {
+   "QB": 23.38,
+   "RB": 7.8,
+   "WR": 11.1,
+   "TE": 11.6
+  },
+  "n_scored_acquisitions": 422,
+  "seasons": [
+   "2023",
+   "2024",
+   "2025"
+  ],
+  "caveat": "excludes weeks a player did not play, so it slightly OVERSTATES what a held wire add delivers; the gap to per_week is a floor",
+  "absent_positions": [
+   "K",
+   "DEF"
+  ]
+ },
+ "note": "Realized OUTCOMES, not model output. Every loader, statistic and survivorship rule is imported from empirical_draft_value.py; the LEAGUE-WINNER label from tiered_outcome_model.py. Nothing here re-derives an outcome another committed module derives.",
+ "value_arm_E": {
+  "arm": "E",
+  "replacement_used": {
+   "QB": 330.06666666666666,
+   "RB": 170.83333333333334,
+   "WR": 155.02666666666667,
+   "TE": 124.07333333333334
+  },
+  "wire_held_season": {
+   "QB": 330.8,
+   "RB": 100.3,
+   "WR": 124.1,
+   "TE": 115.6
+  },
+  "wire_churned_season": {
+   "QB": 397.5,
+   "RB": 132.6,
+   "WR": 188.7,
+   "TE": 197.2
+  },
+  "by_band": {
+   "1-3 (keeper ledger)": {
+    "n": 90,
+    "mean": 208.0,
+    "median": 203.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     188.3,
+     227.7
+    ],
+    "vs_replacement": {
+     "n": 90,
+     "mean": 34.4,
+     "ci95": [
+      14.8,
+      53.2
+     ],
+     "per_season": {
+      "2023": 22.1,
+      "2024": 37.9,
+      "2025": 43.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 90,
+     "mean": 78.3,
+     "ci95": [
+      55.3,
+      99.4
+     ],
+     "per_season": {
+      "2023": 61.6,
+      "2024": 84.4,
+      "2025": 88.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 90,
+     "mean": 26.2,
+     "ci95": [
+      0.8,
+      49.8
+     ],
+     "per_season": {
+      "2023": 6.4,
+      "2024": 34.2,
+      "2025": 38.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "4-6 EARLY": {
+    "n": 90,
+    "mean": 172.2,
+    "median": 171.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     152.7,
+     192.9
+    ],
+    "vs_replacement": {
+     "n": 90,
+     "mean": -13.0,
+     "ci95": [
+      -33.6,
+      7.8
+     ],
+     "per_season": {
+      "2023": -16.5,
+      "2024": 5.2,
+      "2025": -27.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 90,
+     "mean": 22.4,
+     "ci95": [
+      2.1,
+      44.1
+     ],
+     "per_season": {
+      "2023": 20.9,
+      "2024": 38.8,
+      "2025": 7.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 90,
+     "mean": -34.4,
+     "ci95": [
+      -56.1,
+      -13.5
+     ],
+     "per_season": {
+      "2023": -33.4,
+      "2024": -20.3,
+      "2025": -49.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE": {
+    "n": 115,
+    "mean": 133.9,
+    "median": 127.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     119.9,
+     147.6
+    ],
+    "vs_replacement": {
+     "n": 115,
+     "mean": -30.4,
+     "ci95": [
+      -45.6,
+      -16.4
+     ],
+     "per_season": {
+      "2023": -20.4,
+      "2024": -41.9,
+      "2025": -28.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 115,
+     "mean": 9.9,
+     "ci95": [
+      -4.7,
+      24.3
+     ],
+     "per_season": {
+      "2023": 21.6,
+      "2024": -0.5,
+      "2025": 8.5
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 115,
+     "mean": -45.9,
+     "ci95": [
+      -61.3,
+      -30.4
+     ],
+     "per_season": {
+      "2023": -33.2,
+      "2024": -54.6,
+      "2025": -50.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE": {
+    "n": 93,
+    "mean": 133.0,
+    "median": 112.5,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     106.1,
+     159.7
+    ],
+    "vs_replacement": {
+     "n": 93,
+     "mean": -63.9,
+     "ci95": [
+      -89.3,
+      -40.8
+     ],
+     "per_season": {
+      "2023": -85.1,
+      "2024": -41.5,
+      "2025": -65.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 93,
+     "mean": -27.8,
+     "ci95": [
+      -52.5,
+      -6.5
+     ],
+     "per_season": {
+      "2023": -48.2,
+      "2024": -7.9,
+      "2025": -28.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 93,
+     "mean": -82.8,
+     "ci95": [
+      -107.7,
+      -61.6
+     ],
+     "per_season": {
+      "2023": -102.4,
+      "2024": -65.0,
+      "2025": -81.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_band_position": {
+   "1-3 (keeper ledger)|QB": {
+    "n": 7,
+    "mean": 331.1,
+    "median": 334.5,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     259.1,
+     397.1
+    ],
+    "vs_replacement": {
+     "n": 7,
+     "mean": 1.0,
+     "ci95": [
+      -70.9,
+      67.0
+     ],
+     "per_season": {
+      "2023": -25.5,
+      "2024": 51.4,
+      "2025": -9.5
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 7,
+     "mean": 0.3,
+     "ci95": [
+      -71.7,
+      66.3
+     ],
+     "per_season": {
+      "2023": -26.3,
+      "2024": 50.6,
+      "2025": -10.3
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 7,
+     "mean": -66.4,
+     "ci95": [
+      -138.4,
+      -0.4
+     ],
+     "per_season": {
+      "2023": -93.0,
+      "2024": -16.1,
+      "2025": -77.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "1-3 (keeper ledger)|RB": {
+    "n": 38,
+    "mean": 215.4,
+    "median": 219.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     171.9,
+     253.5
+    ],
+    "vs_replacement": {
+     "n": 38,
+     "mean": 44.6,
+     "ci95": [
+      1.1,
+      82.7
+     ],
+     "per_season": {
+      "2023": 3.1,
+      "2024": 40.7,
+      "2025": 78.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 38,
+     "mean": 115.1,
+     "ci95": [
+      71.6,
+      153.2
+     ],
+     "per_season": {
+      "2023": 73.6,
+      "2024": 111.2,
+      "2025": 148.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 38,
+     "mean": 82.8,
+     "ci95": [
+      39.3,
+      120.9
+     ],
+     "per_season": {
+      "2023": 41.3,
+      "2024": 78.9,
+      "2025": 116.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "1-3 (keeper ledger)|WR": {
+    "n": 40,
+    "mean": 184.9,
+    "median": 182.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     156.9,
+     208.5
+    ],
+    "vs_replacement": {
+     "n": 40,
+     "mean": 29.9,
+     "ci95": [
+      1.9,
+      53.4
+     ],
+     "per_season": {
+      "2023": 44.8,
+      "2024": 33.9,
+      "2025": 6.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 40,
+     "mean": 60.8,
+     "ci95": [
+      32.8,
+      84.4
+     ],
+     "per_season": {
+      "2023": 75.7,
+      "2024": 64.8,
+      "2025": 37.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 40,
+     "mean": -3.8,
+     "ci95": [
+      -31.8,
+      19.8
+     ],
+     "per_season": {
+      "2023": 11.1,
+      "2024": 0.2,
+      "2025": -26.8
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "1-3 (keeper ledger)|TE": {
+    "n": 5,
+    "mean": 163.6,
+    "median": 146.9,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     129.9,
+     203.6
+    ],
+    "vs_replacement": {
+     "n": 5,
+     "mean": 39.5,
+     "ci95": [
+      5.8,
+      79.5
+     ],
+     "per_season": {
+      "2023": 18.8,
+      "2024": 22.8,
+      "2025": 68.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 5,
+     "mean": 48.0,
+     "ci95": [
+      14.3,
+      88.0
+     ],
+     "per_season": {
+      "2023": 27.3,
+      "2024": 31.3,
+      "2025": 77.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 5,
+     "mean": -33.6,
+     "ci95": [
+      -67.3,
+      6.4
+     ],
+     "per_season": {
+      "2023": -54.3,
+      "2024": -50.3,
+      "2025": -4.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "4-6 EARLY|QB": {
+    "n": 15,
+    "mean": 282.4,
+    "median": 284.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     221.9,
+     347.9
+    ],
+    "vs_replacement": {
+     "n": 15,
+     "mean": -47.7,
+     "ci95": [
+      -108.2,
+      17.8
+     ],
+     "per_season": {
+      "2023": -43.9,
+      "2024": -13.1,
+      "2025": -80.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 15,
+     "mean": -48.4,
+     "ci95": [
+      -108.9,
+      17.1
+     ],
+     "per_season": {
+      "2023": -44.6,
+      "2024": -13.9,
+      "2025": -80.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 15,
+     "mean": -115.1,
+     "ci95": [
+      -175.6,
+      -49.6
+     ],
+     "per_season": {
+      "2023": -111.3,
+      "2024": -80.6,
+      "2025": -147.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "4-6 EARLY|RB": {
+    "n": 29,
+    "mean": 155.2,
+    "median": 171.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     119.6,
+     197.1
+    ],
+    "vs_replacement": {
+     "n": 29,
+     "mean": -15.6,
+     "ci95": [
+      -51.3,
+      26.3
+     ],
+     "per_season": {
+      "2023": -36.8,
+      "2024": 30.9,
+      "2025": -28.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 29,
+     "mean": 54.9,
+     "ci95": [
+      19.3,
+      96.8
+     ],
+     "per_season": {
+      "2023": 33.8,
+      "2024": 101.4,
+      "2025": 41.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 29,
+     "mean": 22.6,
+     "ci95": [
+      -13.0,
+      64.5
+     ],
+     "per_season": {
+      "2023": 1.5,
+      "2024": 69.1,
+      "2025": 9.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "4-6 EARLY|WR": {
+    "n": 34,
+    "mean": 151.1,
+    "median": 161.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     131.1,
+     178.3
+    ],
+    "vs_replacement": {
+     "n": 34,
+     "mean": -3.9,
+     "ci95": [
+      -23.9,
+      23.3
+     ],
+     "per_season": {
+      "2023": 22.0,
+      "2024": -11.1,
+      "2025": -12.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 34,
+     "mean": 27.0,
+     "ci95": [
+      7.0,
+      54.2
+     ],
+     "per_season": {
+      "2023": 52.9,
+      "2024": 19.8,
+      "2025": 18.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 34,
+     "mean": -37.6,
+     "ci95": [
+      -57.6,
+      -10.4
+     ],
+     "per_season": {
+      "2023": -11.7,
+      "2024": -44.8,
+      "2025": -46.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "4-6 EARLY|TE": {
+    "n": 12,
+    "mean": 135.2,
+    "median": 141.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     111.5,
+     156.9
+    ],
+    "vs_replacement": {
+     "n": 12,
+     "mean": 11.1,
+     "ci95": [
+      -12.5,
+      32.8
+     ],
+     "per_season": {
+      "2023": 8.3,
+      "2024": 21.5,
+      "2025": -2.4
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 12,
+     "mean": 19.6,
+     "ci95": [
+      -4.1,
+      41.3
+     ],
+     "per_season": {
+      "2023": 16.8,
+      "2024": 29.9,
+      "2025": 6.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 12,
+     "mean": -62.0,
+     "ci95": [
+      -85.7,
+      -40.3
+     ],
+     "per_season": {
+      "2023": -64.8,
+      "2024": -51.7,
+      "2025": -75.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|QB": {
+    "n": 5,
+    "mean": 320.7,
+    "median": 336.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     233.9,
+     390.9
+    ],
+    "vs_replacement": {
+     "n": 5,
+     "mean": -9.3,
+     "ci95": [
+      -96.1,
+      60.8
+     ],
+     "per_season": {
+      "2023": 51.6,
+      "2024": -34.8,
+      "2025": 6.2
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 5,
+     "mean": -10.1,
+     "ci95": [
+      -96.9,
+      60.1
+     ],
+     "per_season": {
+      "2023": 50.9,
+      "2024": -35.6,
+      "2025": 5.5
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 5,
+     "mean": -76.8,
+     "ci95": [
+      -163.6,
+      -6.6
+     ],
+     "per_season": {
+      "2023": -15.8,
+      "2024": -102.3,
+      "2025": -61.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|RB": {
+    "n": 39,
+    "mean": 126.5,
+    "median": 122.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     95.7,
+     158.5
+    ],
+    "vs_replacement": {
+     "n": 39,
+     "mean": -44.3,
+     "ci95": [
+      -75.1,
+      -12.3
+     ],
+     "per_season": {
+      "2023": -17.0,
+      "2024": -69.0,
+      "2025": -45.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 39,
+     "mean": 26.2,
+     "ci95": [
+      -4.6,
+      58.2
+     ],
+     "per_season": {
+      "2023": 53.6,
+      "2024": 1.5,
+      "2025": 24.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 39,
+     "mean": -6.1,
+     "ci95": [
+      -36.9,
+      25.9
+     ],
+     "per_season": {
+      "2023": 21.3,
+      "2024": -30.8,
+      "2025": -7.4
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "7-10 MIDDLE|WR": {
+    "n": 57,
+    "mean": 129.4,
+    "median": 133.0,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     115.8,
+     143.5
+    ],
+    "vs_replacement": {
+     "n": 57,
+     "mean": -25.6,
+     "ci95": [
+      -39.2,
+      -11.5
+     ],
+     "per_season": {
+      "2023": -26.7,
+      "2024": -28.3,
+      "2025": -22.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 57,
+     "mean": 5.3,
+     "ci95": [
+      -8.3,
+      19.4
+     ],
+     "per_season": {
+      "2023": 4.2,
+      "2024": 2.7,
+      "2025": 8.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 57,
+     "mean": -59.3,
+     "ci95": [
+      -72.9,
+      -45.2
+     ],
+     "per_season": {
+      "2023": -60.4,
+      "2024": -61.9,
+      "2025": -56.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|TE": {
+    "n": 14,
+    "mean": 105.8,
+    "median": 103.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     88.2,
+     132.3
+    ],
+    "vs_replacement": {
+     "n": 14,
+     "mean": -18.3,
+     "ci95": [
+      -35.9,
+      8.2
+     ],
+     "per_season": {
+      "2023": -19.1,
+      "2024": -3.7,
+      "2025": -27.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 14,
+     "mean": -9.8,
+     "ci95": [
+      -27.4,
+      16.7
+     ],
+     "per_season": {
+      "2023": -10.6,
+      "2024": 4.8,
+      "2025": -18.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 14,
+     "mean": -91.4,
+     "ci95": [
+      -109.0,
+      -64.9
+     ],
+     "per_season": {
+      "2023": -92.2,
+      "2024": -76.8,
+      "2025": -100.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|QB": {
+    "n": 21,
+    "mean": 254.7,
+    "median": 281.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     183.5,
+     315.2
+    ],
+    "vs_replacement": {
+     "n": 21,
+     "mean": -75.3,
+     "ci95": [
+      -146.5,
+      -14.8
+     ],
+     "per_season": {
+      "2023": -140.6,
+      "2024": -21.9,
+      "2025": -63.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 21,
+     "mean": -76.1,
+     "ci95": [
+      -147.3,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -141.4,
+      "2024": -22.6,
+      "2025": -64.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 21,
+     "mean": -142.8,
+     "ci95": [
+      -214.0,
+      -82.3
+     ],
+     "per_season": {
+      "2023": -208.1,
+      "2024": -89.3,
+      "2025": -130.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|RB": {
+    "n": 35,
+    "mean": 84.5,
+    "median": 75.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     62.4,
+     110.9
+    ],
+    "vs_replacement": {
+     "n": 35,
+     "mean": -86.4,
+     "ci95": [
+      -108.4,
+      -59.9
+     ],
+     "per_season": {
+      "2023": -91.1,
+      "2024": -73.0,
+      "2025": -92.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 35,
+     "mean": -15.8,
+     "ci95": [
+      -37.9,
+      10.6
+     ],
+     "per_season": {
+      "2023": -20.6,
+      "2024": -2.5,
+      "2025": -21.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 35,
+     "mean": -48.1,
+     "ci95": [
+      -70.2,
+      -21.7
+     ],
+     "per_season": {
+      "2023": -52.9,
+      "2024": -34.8,
+      "2025": -54.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|WR": {
+    "n": 26,
+    "mean": 105.9,
+    "median": 101.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     77.8,
+     135.4
+    ],
+    "vs_replacement": {
+     "n": 26,
+     "mean": -49.2,
+     "ci95": [
+      -77.2,
+      -19.6
+     ],
+     "per_season": {
+      "2023": -67.1,
+      "2024": -24.9,
+      "2025": -66.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 26,
+     "mean": -18.2,
+     "ci95": [
+      -46.3,
+      11.3
+     ],
+     "per_season": {
+      "2023": -36.2,
+      "2024": 6.0,
+      "2025": -35.8
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 26,
+     "mean": -82.8,
+     "ci95": [
+      -110.9,
+      -53.3
+     ],
+     "per_season": {
+      "2023": -100.8,
+      "2024": -58.6,
+      "2025": -100.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|TE": {
+    "n": 11,
+    "mean": 119.1,
+    "median": 116.0,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     81.9,
+     147.7
+    ],
+    "vs_replacement": {
+     "n": 11,
+     "mean": -5.0,
+     "ci95": [
+      -42.2,
+      23.6
+     ],
+     "per_season": {
+      "2023": 13.9,
+      "2024": -42.6,
+      "2025": 18.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 11,
+     "mean": 3.5,
+     "ci95": [
+      -33.7,
+      32.1
+     ],
+     "per_season": {
+      "2023": 22.4,
+      "2024": -34.1,
+      "2025": 26.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 11,
+     "mean": -78.1,
+     "ci95": [
+      -115.3,
+      -49.5
+     ],
+     "per_season": {
+      "2023": -59.2,
+      "2024": -115.7,
+      "2025": -54.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_phase": {
+   "4-8 ANCHOR phase": {
+    "n": 148,
+    "mean": 158.2,
+    "median": 157.9,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     141.7,
+     175.2
+    ],
+    "vs_replacement": {
+     "n": 148,
+     "mean": -17.3,
+     "ci95": [
+      -31.6,
+      -2.8
+     ],
+     "per_season": {
+      "2023": -14.1,
+      "2024": -8.8,
+      "2025": -29.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 148,
+     "mean": 19.2,
+     "ci95": [
+      4.8,
+      33.2
+     ],
+     "per_season": {
+      "2023": 25.8,
+      "2024": 23.8,
+      "2025": 7.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 148,
+     "mean": -37.9,
+     "ci95": [
+      -53.0,
+      -22.6
+     ],
+     "per_season": {
+      "2023": -28.5,
+      "2024": -36.4,
+      "2025": -49.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "9-15 SWING phase": {
+    "n": 150,
+    "mean": 132.3,
+    "median": 113.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     116.3,
+     149.4
+    ],
+    "vs_replacement": {
+     "n": 150,
+     "mean": -53.5,
+     "ci95": [
+      -68.6,
+      -40.3
+     ],
+     "per_season": {
+      "2023": -64.6,
+      "2024": -46.4,
+      "2025": -49.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 150,
+     "mean": -15.1,
+     "ci95": [
+      -31.4,
+      -1.5
+     ],
+     "per_season": {
+      "2023": -26.3,
+      "2024": -5.9,
+      "2025": -13.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 150,
+     "mean": -69.7,
+     "ci95": [
+      -86.0,
+      -55.0
+     ],
+     "per_season": {
+      "2023": -80.9,
+      "2024": -58.8,
+      "2025": -69.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_round": {
+   "R1": {
+    "n": 30,
+    "mean": 208.3,
+    "median": 207.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     179.9,
+     240.1
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 47.0,
+     "ci95": [
+      19.3,
+      76.1
+     ],
+     "per_season": {
+      "2023": 39.1,
+      "2024": 40.1,
+      "2025": 61.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 97.5,
+     "ci95": [
+      68.0,
+      131.3
+     ],
+     "per_season": {
+      "2023": 83.6,
+      "2024": 88.6,
+      "2025": 120.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 49.0,
+     "ci95": [
+      14.9,
+      89.2
+     ],
+     "per_season": {
+      "2023": 30.3,
+      "2024": 38.4,
+      "2025": 78.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R2": {
+    "n": 30,
+    "mean": 226.9,
+    "median": 221.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     186.8,
+     267.8
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 44.3,
+     "ci95": [
+      13.3,
+      74.0
+     ],
+     "per_season": {
+      "2023": 39.9,
+      "2024": 31.8,
+      "2025": 61.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 83.4,
+     "ci95": [
+      50.3,
+      119.6
+     ],
+     "per_season": {
+      "2023": 70.2,
+      "2024": 71.5,
+      "2025": 108.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 28.8,
+     "ci95": [
+      -7.7,
+      71.8
+     ],
+     "per_season": {
+      "2023": 9.9,
+      "2024": 16.3,
+      "2025": 60.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R3": {
+    "n": 30,
+    "mean": 188.7,
+    "median": 180.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     153.8,
+     228.3
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 11.9,
+     "ci95": [
+      -24.5,
+      47.5
+     ],
+     "per_season": {
+      "2023": -12.6,
+      "2024": 41.7,
+      "2025": 6.6
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 54.0,
+     "ci95": [
+      14.1,
+      97.3
+     ],
+     "per_season": {
+      "2023": 31.0,
+      "2024": 93.2,
+      "2025": 37.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 1.0,
+     "ci95": [
+      -43.0,
+      50.0
+     ],
+     "per_season": {
+      "2023": -20.9,
+      "2024": 47.8,
+      "2025": -24.0
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R4": {
+    "n": 30,
+    "mean": 170.3,
+    "median": 161.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     116.5,
+     230.3
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -7.6,
+     "ci95": [
+      -41.2,
+      22.4
+     ],
+     "per_season": {
+      "2023": 6.6,
+      "2024": 10.0,
+      "2025": -39.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 37.2,
+     "ci95": [
+      -0.3,
+      71.8
+     ],
+     "per_season": {
+      "2023": 55.7,
+      "2024": 54.6,
+      "2025": 1.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -13.7,
+     "ci95": [
+      -57.3,
+      26.4
+     ],
+     "per_season": {
+      "2023": 13.1,
+      "2024": 1.2,
+      "2025": -55.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R5": {
+    "n": 30,
+    "mean": 180.0,
+    "median": 172.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     142.8,
+     226.5
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -6.5,
+     "ci95": [
+      -50.9,
+      28.1
+     ],
+     "per_season": {
+      "2023": 5.8,
+      "2024": 12.8,
+      "2025": -38.0
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 20.2,
+     "ci95": [
+      -24.6,
+      54.2
+     ],
+     "per_season": {
+      "2023": 44.1,
+      "2024": 27.5,
+      "2025": -10.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -42.8,
+     "ci95": [
+      -87.6,
+      -8.1
+     ],
+     "per_season": {
+      "2023": -14.2,
+      "2024": -42.9,
+      "2025": -71.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R6": {
+    "n": 30,
+    "mean": 166.3,
+    "median": 160.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     133.9,
+     199.6
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -24.9,
+     "ci95": [
+      -63.7,
+      4.5
+     ],
+     "per_season": {
+      "2023": -61.9,
+      "2024": -7.1,
+      "2025": -5.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 9.9,
+     "ci95": [
+      -38.4,
+      46.8
+     ],
+     "per_season": {
+      "2023": -37.0,
+      "2024": 34.3,
+      "2025": 32.5
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -46.6,
+     "ci95": [
+      -100.6,
+      -4.1
+     ],
+     "per_season": {
+      "2023": -99.2,
+      "2024": -19.3,
+      "2025": -21.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R7": {
+    "n": 28,
+    "mean": 147.1,
+    "median": 155.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     117.1,
+     180.6
+    ],
+    "vs_replacement": {
+     "n": 28,
+     "mean": -19.5,
+     "ci95": [
+      -48.0,
+      4.3
+     ],
+     "per_season": {
+      "2023": -14.6,
+      "2024": -23.7,
+      "2025": -20.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 28,
+     "mean": 16.5,
+     "ci95": [
+      -15.3,
+      43.6
+     ],
+     "per_season": {
+      "2023": 27.7,
+      "2024": 0.4,
+      "2025": 22.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 28,
+     "mean": -42.1,
+     "ci95": [
+      -78.3,
+      -10.5
+     ],
+     "per_season": {
+      "2023": -27.4,
+      "2024": -64.8,
+      "2025": -31.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R8": {
+    "n": 30,
+    "mean": 126.7,
+    "median": 136.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     100.2,
+     153.1
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -28.5,
+     "ci95": [
+      -54.2,
+      -1.8
+     ],
+     "per_season": {
+      "2023": -6.2,
+      "2024": -36.1,
+      "2025": -43.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 11.9,
+     "ci95": [
+      -14.2,
+      39.3
+     ],
+     "per_season": {
+      "2023": 38.4,
+      "2024": 2.2,
+      "2025": -4.8
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -44.8,
+     "ci95": [
+      -73.2,
+      -16.4
+     ],
+     "per_season": {
+      "2023": -15.0,
+      "2024": -56.1,
+      "2025": -63.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R9": {
+    "n": 29,
+    "mean": 135.2,
+    "median": 115.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     102.4,
+     172.6
+    ],
+    "vs_replacement": {
+     "n": 29,
+     "mean": -37.4,
+     "ci95": [
+      -67.2,
+      -8.5
+     ],
+     "per_season": {
+      "2023": -39.5,
+      "2024": -65.5,
+      "2025": -9.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 29,
+     "mean": 5.0,
+     "ci95": [
+      -18.9,
+      31.4
+     ],
+     "per_season": {
+      "2023": -0.7,
+      "2024": -11.7,
+      "2025": 25.9
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 29,
+     "mean": -48.6,
+     "ci95": [
+      -73.4,
+      -21.4
+     ],
+     "per_season": {
+      "2023": -58.8,
+      "2024": -55.0,
+      "2025": -32.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R10": {
+    "n": 28,
+    "mean": 127.0,
+    "median": 108.7,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     99.5,
+     165.9
+    ],
+    "vs_replacement": {
+     "n": 28,
+     "mean": -36.1,
+     "ci95": [
+      -58.2,
+      -14.1
+     ],
+     "per_season": {
+      "2023": -21.6,
+      "2024": -44.7,
+      "2025": -41.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 28,
+     "mean": 6.1,
+     "ci95": [
+      -16.2,
+      29.5
+     ],
+     "per_season": {
+      "2023": 21.0,
+      "2024": 6.0,
+      "2025": -8.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 28,
+     "mean": -48.3,
+     "ci95": [
+      -75.7,
+      -20.0
+     ],
+     "per_season": {
+      "2023": -31.4,
+      "2024": -42.5,
+      "2025": -71.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R11": {
+    "n": 24,
+    "mean": 136.1,
+    "median": 114.9,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     97.3,
+     176.3
+    ],
+    "vs_replacement": {
+     "n": 24,
+     "mean": -46.2,
+     "ci95": [
+      -73.5,
+      -17.0
+     ],
+     "per_season": {
+      "2023": -41.8,
+      "2024": -43.4,
+      "2025": -52.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 24,
+     "mean": 1.1,
+     "ci95": [
+      -24.3,
+      29.7
+     ],
+     "per_season": {
+      "2023": 2.9,
+      "2024": -3.4,
+      "2025": 3.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 24,
+     "mean": -47.0,
+     "ci95": [
+      -74.9,
+      -16.5
+     ],
+     "per_season": {
+      "2023": -50.3,
+      "2024": -54.5,
+      "2025": -37.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R12": {
+    "n": 23,
+    "mean": 156.8,
+    "median": 98.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     90.3,
+     226.0
+    ],
+    "vs_replacement": {
+     "n": 23,
+     "mean": -77.1,
+     "ci95": [
+      -143.2,
+      -23.0
+     ],
+     "per_season": {
+      "2023": -125.3,
+      "2024": -24.5,
+      "2025": -91.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 23,
+     "mean": -50.6,
+     "ci95": [
+      -119.9,
+      5.4
+     ],
+     "per_season": {
+      "2023": -96.3,
+      "2024": 3.1,
+      "2025": -70.1
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 23,
+     "mean": -108.4,
+     "ci95": [
+      -179.5,
+      -50.6
+     ],
+     "per_season": {
+      "2023": -153.6,
+      "2024": -53.6,
+      "2025": -130.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R13": {
+    "n": 12,
+    "mean": 114.6,
+    "median": 111.7,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     42.2,
+     191.3
+    ],
+    "vs_replacement": {
+     "n": 12,
+     "mean": -57.8,
+     "ci95": [
+      -128.2,
+      6.1
+     ],
+     "per_season": {
+      "2023": -129.1,
+      "2024": -16.0,
+      "2025": -25.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 12,
+     "mean": -13.4,
+     "ci95": [
+      -60.6,
+      39.6
+     ],
+     "per_season": {
+      "2023": -58.5,
+      "2024": 28.2,
+      "2025": -2.3
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 12,
+     "mean": -64.9,
+     "ci95": [
+      -98.9,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -90.8,
+      "2024": -25.7,
+      "2025": -67.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R14": {
+    "n": 16,
+    "mean": 131.9,
+    "median": 131.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     92.6,
+     179.6
+    ],
+    "vs_replacement": {
+     "n": 16,
+     "mean": -57.0,
+     "ci95": [
+      -96.2,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -55.7,
+      "2024": -22.7,
+      "2025": -86.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 16,
+     "mean": -22.4,
+     "ci95": [
+      -56.8,
+      12.5
+     ],
+     "per_season": {
+      "2023": -19.8,
+      "2024": 3.8,
+      "2025": -46.5
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 16,
+     "mean": -79.5,
+     "ci95": [
+      -113.4,
+      -48.6
+     ],
+     "per_season": {
+      "2023": -75.3,
+      "2024": -64.2,
+      "2025": -95.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R15": {
+    "n": 18,
+    "mean": 111.6,
+    "median": 105.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     60.7,
+     163.1
+    ],
+    "vs_replacement": {
+     "n": 18,
+     "mean": -80.7,
+     "ci95": [
+      -108.8,
+      -51.2
+     ],
+     "per_season": {
+      "2023": -78.5,
+      "2024": -85.6,
+      "2025": -75.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 18,
+     "mean": -51.7,
+     "ci95": [
+      -75.7,
+      -26.9
+     ],
+     "per_season": {
+      "2023": -58.7,
+      "2024": -51.1,
+      "2025": -40.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 18,
+     "mean": -112.4,
+     "ci95": [
+      -136.5,
+      -90.1
+     ],
+     "per_season": {
+      "2023": -122.0,
+      "2024": -109.2,
+      "2025": -101.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  }
+ },
+ "upside_arm_E": {
+  "arm": "E",
+  "tier_definition": {
+   "source": "tiered_outcome_model.tier_labels (committed, tested)",
+   "tiers": [
+    "BUST",
+    "REPLACEMENT",
+    "STARTER",
+    "LEAGUE-WINNER"
+   ],
+   "league_winner_index": 3,
+   "K_slots": {
+    "QB": 10,
+    "RB": 21,
+    "WR": 29,
+    "TE": 10
+   },
+   "note": "LEAGUE-WINNER = finished in the top ceil(K/2) at his position over that season's FULL realized field, not over our population",
+   "by_season_field": {
+    "2023": {
+     "QB": {
+      "field_size": 78,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 360.52,
+      "points_at_replacement_K": 320.74
+     },
+     "RB": {
+      "field_size": 149,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 195.5,
+      "points_at_replacement_K": 171.1
+     },
+     "WR": {
+      "field_size": 208,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 190.9,
+      "points_at_replacement_K": 162.6
+     },
+     "TE": {
+      "field_size": 112,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 160.7,
+      "points_at_replacement_K": 119.12
+     }
+    },
+    "2024": {
+     "QB": {
+      "field_size": 73,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 401.6,
+      "points_at_replacement_K": 333.16
+     },
+     "RB": {
+      "field_size": 142,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 228.0,
+      "points_at_replacement_K": 174.0
+     },
+     "WR": {
+      "field_size": 224,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 183.4,
+      "points_at_replacement_K": 158.4
+     },
+     "TE": {
+      "field_size": 117,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 147.9,
+      "points_at_replacement_K": 117.3
+     }
+    },
+    "2025": {
+     "QB": {
+      "field_size": 77,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 364.88,
+      "points_at_replacement_K": 336.3
+     },
+     "RB": {
+      "field_size": 142,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 225.3,
+      "points_at_replacement_K": 167.4
+     },
+     "WR": {
+      "field_size": 216,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 164.4,
+      "points_at_replacement_K": 144.08
+     },
+     "TE": {
+      "field_size": 118,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 150.4,
+      "points_at_replacement_K": 135.8
+     }
+    }
+   }
+  },
+  "by_band": {
+   "1-3 (keeper ledger)": {
+    "n": 90,
+    "ungraded": 0,
+    "p_league_winner": 0.489,
+    "p_league_winner_ci95": [
+     0.388,
+     0.59
+    ],
+    "p_starter": 0.744,
+    "p_starter_ci95": [
+     0.646,
+     0.823
+    ],
+    "p_bust": 0.078,
+    "league_winners": 44,
+    "starters": 67,
+    "busts": 7,
+    "per_season": {
+     "2023": {
+      "n": 30,
+      "p_league_winner": 0.433
+     },
+     "2024": {
+      "n": 30,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.533
+     }
+    }
+   },
+   "4-6 EARLY": {
+    "n": 90,
+    "ungraded": 0,
+    "p_league_winner": 0.289,
+    "p_league_winner_ci95": [
+     0.205,
+     0.39
+    ],
+    "p_starter": 0.511,
+    "p_starter_ci95": [
+     0.41,
+     0.612
+    ],
+    "p_bust": 0.189,
+    "league_winners": 26,
+    "starters": 46,
+    "busts": 17,
+    "per_season": {
+     "2023": {
+      "n": 30,
+      "p_league_winner": 0.367
+     },
+     "2024": {
+      "n": 30,
+      "p_league_winner": 0.3
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.2
+     }
+    }
+   },
+   "7-10 MIDDLE": {
+    "n": 115,
+    "ungraded": 0,
+    "p_league_winner": 0.139,
+    "p_league_winner_ci95": [
+     0.087,
+     0.214
+    ],
+    "p_starter": 0.339,
+    "p_starter_ci95": [
+     0.259,
+     0.43
+    ],
+    "p_bust": 0.278,
+    "league_winners": 16,
+    "starters": 39,
+    "busts": 32,
+    "per_season": {
+     "2023": {
+      "n": 39,
+      "p_league_winner": 0.154
+     },
+     "2024": {
+      "n": 39,
+      "p_league_winner": 0.128
+     },
+     "2025": {
+      "n": 37,
+      "p_league_winner": 0.135
+     }
+    }
+   },
+   "11-15 LATE": {
+    "n": 93,
+    "ungraded": 0,
+    "p_league_winner": 0.108,
+    "p_league_winner_ci95": [
+     0.059,
+     0.187
+    ],
+    "p_starter": 0.215,
+    "p_starter_ci95": [
+     0.144,
+     0.309
+    ],
+    "p_bust": 0.462,
+    "league_winners": 10,
+    "starters": 20,
+    "busts": 43,
+    "per_season": {
+     "2023": {
+      "n": 31,
+      "p_league_winner": 0.065
+     },
+     "2024": {
+      "n": 32,
+      "p_league_winner": 0.125
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.133
+     }
+    }
+   }
+  },
+  "by_band_position": {
+   "1-3 (keeper ledger)|QB": {
+    "n": 7,
+    "ungraded": 0,
+    "p_league_winner": 0.429,
+    "p_league_winner_ci95": [
+     0.158,
+     0.75
+    ],
+    "p_starter": 0.714,
+    "p_starter_ci95": [
+     0.359,
+     0.918
+    ],
+    "p_bust": 0.143,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 1,
+    "per_season": {
+     "2023": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 2,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 2,
+      "p_league_winner": 0.5
+     }
+    }
+   },
+   "1-3 (keeper ledger)|RB": {
+    "n": 38,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.348,
+     0.652
+    ],
+    "p_starter": 0.737,
+    "p_starter_ci95": [
+     0.58,
+     0.85
+    ],
+    "p_bust": 0.079,
+    "league_winners": 19,
+    "starters": 28,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 10,
+      "p_league_winner": 0.3
+     },
+     "2024": {
+      "n": 14,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 14,
+      "p_league_winner": 0.643
+     }
+    }
+   },
+   "1-3 (keeper ledger)|WR": {
+    "n": 40,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.352,
+     0.648
+    ],
+    "p_starter": 0.75,
+    "p_starter_ci95": [
+     0.598,
+     0.858
+    ],
+    "p_bust": 0.075,
+    "league_winners": 20,
+    "starters": 30,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 15,
+      "p_league_winner": 0.533
+     },
+     "2024": {
+      "n": 13,
+      "p_league_winner": 0.538
+     },
+     "2025": {
+      "n": 12,
+      "p_league_winner": 0.417
+     }
+    }
+   },
+   "1-3 (keeper ledger)|TE": {
+    "n": 5,
+    "ungraded": 0,
+    "p_league_winner": 0.4,
+    "p_league_winner_ci95": [
+     0.118,
+     0.769
+    ],
+    "p_starter": 0.8,
+    "p_starter_ci95": [
+     0.376,
+     0.964
+    ],
+    "p_bust": 0.0,
+    "league_winners": 2,
+    "starters": 4,
+    "busts": 0,
+    "per_season": {
+     "2023": {
+      "n": 2,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 1,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 2,
+      "p_league_winner": 0.5
+     }
+    }
+   },
+   "4-6 EARLY|QB": {
+    "n": 15,
+    "ungraded": 0,
+    "p_league_winner": 0.2,
+    "p_league_winner_ci95": [
+     0.07,
+     0.452
+    ],
+    "p_starter": 0.333,
+    "p_starter_ci95": [
+     0.152,
+     0.583
+    ],
+    "p_bust": 0.267,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 4,
+    "per_season": {
+     "2023": {
+      "n": 6,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.25
+     },
+     "2025": {
+      "n": 5,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "4-6 EARLY|RB": {
+    "n": 29,
+    "ungraded": 0,
+    "p_league_winner": 0.207,
+    "p_league_winner_ci95": [
+     0.098,
+     0.384
+    ],
+    "p_starter": 0.517,
+    "p_starter_ci95": [
+     0.344,
+     0.686
+    ],
+    "p_bust": 0.207,
+    "league_winners": 6,
+    "starters": 15,
+    "busts": 6,
+    "per_season": {
+     "2023": {
+      "n": 12,
+      "p_league_winner": 0.25
+     },
+     "2024": {
+      "n": 8,
+      "p_league_winner": 0.375
+     },
+     "2025": {
+      "n": 9,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "4-6 EARLY|WR": {
+    "n": 34,
+    "ungraded": 0,
+    "p_league_winner": 0.324,
+    "p_league_winner_ci95": [
+     0.191,
+     0.492
+    ],
+    "p_starter": 0.559,
+    "p_starter_ci95": [
+     0.395,
+     0.711
+    ],
+    "p_bust": 0.118,
+    "league_winners": 11,
+    "starters": 19,
+    "busts": 4,
+    "per_season": {
+     "2023": {
+      "n": 8,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 13,
+      "p_league_winner": 0.154
+     },
+     "2025": {
+      "n": 13,
+      "p_league_winner": 0.385
+     }
+    }
+   },
+   "4-6 EARLY|TE": {
+    "n": 12,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.254,
+     0.746
+    ],
+    "p_starter": 0.583,
+    "p_starter_ci95": [
+     0.32,
+     0.807
+    ],
+    "p_bust": 0.25,
+    "league_winners": 6,
+    "starters": 7,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 4,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 5,
+      "p_league_winner": 0.6
+     },
+     "2025": {
+      "n": 3,
+      "p_league_winner": 0.333
+     }
+    }
+   },
+   "7-10 MIDDLE|QB": {
+    "n": 5,
+    "ungraded": 0,
+    "p_league_winner": 0.4,
+    "p_league_winner_ci95": [
+     0.118,
+     0.769
+    ],
+    "p_starter": 0.6,
+    "p_starter_ci95": [
+     0.231,
+     0.882
+    ],
+    "p_bust": 0.2,
+    "league_winners": 2,
+    "starters": 3,
+    "busts": 1,
+    "per_season": {
+     "2023": {
+      "n": 1,
+      "p_league_winner": 1.0
+     },
+     "2024": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2025": {
+      "n": 1,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "7-10 MIDDLE|RB": {
+    "n": 39,
+    "ungraded": 0,
+    "p_league_winner": 0.128,
+    "p_league_winner_ci95": [
+     0.056,
+     0.267
+    ],
+    "p_starter": 0.282,
+    "p_starter_ci95": [
+     0.165,
+     0.438
+    ],
+    "p_bust": 0.308,
+    "league_winners": 5,
+    "starters": 11,
+    "busts": 12,
+    "per_season": {
+     "2023": {
+      "n": 14,
+      "p_league_winner": 0.214
+     },
+     "2024": {
+      "n": 15,
+      "p_league_winner": 0.067
+     },
+     "2025": {
+      "n": 10,
+      "p_league_winner": 0.1
+     }
+    }
+   },
+   "7-10 MIDDLE|WR": {
+    "n": 57,
+    "ungraded": 0,
+    "p_league_winner": 0.14,
+    "p_league_winner_ci95": [
+     0.073,
+     0.253
+    ],
+    "p_starter": 0.386,
+    "p_starter_ci95": [
+     0.271,
+     0.516
+    ],
+    "p_bust": 0.246,
+    "league_winners": 8,
+    "starters": 22,
+    "busts": 14,
+    "per_season": {
+     "2023": {
+      "n": 20,
+      "p_league_winner": 0.1
+     },
+     "2024": {
+      "n": 17,
+      "p_league_winner": 0.118
+     },
+     "2025": {
+      "n": 20,
+      "p_league_winner": 0.2
+     }
+    }
+   },
+   "7-10 MIDDLE|TE": {
+    "n": 14,
+    "ungraded": 0,
+    "p_league_winner": 0.071,
+    "p_league_winner_ci95": [
+     0.013,
+     0.315
+    ],
+    "p_starter": 0.214,
+    "p_starter_ci95": [
+     0.076,
+     0.476
+    ],
+    "p_bust": 0.357,
+    "league_winners": 1,
+    "starters": 3,
+    "busts": 5,
+    "per_season": {
+     "2023": {
+      "n": 4,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.25
+     },
+     "2025": {
+      "n": 6,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "11-15 LATE|QB": {
+    "n": 21,
+    "ungraded": 0,
+    "p_league_winner": 0.095,
+    "p_league_winner_ci95": [
+     0.027,
+     0.289
+    ],
+    "p_starter": 0.381,
+    "p_starter_ci95": [
+     0.208,
+     0.591
+    ],
+    "p_bust": 0.333,
+    "league_winners": 2,
+    "starters": 8,
+    "busts": 7,
+    "per_season": {
+     "2023": {
+      "n": 7,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 7,
+      "p_league_winner": 0.143
+     },
+     "2025": {
+      "n": 7,
+      "p_league_winner": 0.143
+     }
+    }
+   },
+   "11-15 LATE|RB": {
+    "n": 35,
+    "ungraded": 0,
+    "p_league_winner": 0.057,
+    "p_league_winner_ci95": [
+     0.016,
+     0.186
+    ],
+    "p_starter": 0.086,
+    "p_starter_ci95": [
+     0.03,
+     0.224
+    ],
+    "p_bust": 0.6,
+    "league_winners": 2,
+    "starters": 3,
+    "busts": 21,
+    "per_season": {
+     "2023": {
+      "n": 12,
+      "p_league_winner": 0.083
+     },
+     "2024": {
+      "n": 10,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 13,
+      "p_league_winner": 0.077
+     }
+    }
+   },
+   "11-15 LATE|WR": {
+    "n": 26,
+    "ungraded": 0,
+    "p_league_winner": 0.115,
+    "p_league_winner_ci95": [
+     0.04,
+     0.29
+    ],
+    "p_starter": 0.154,
+    "p_starter_ci95": [
+     0.061,
+     0.335
+    ],
+    "p_bust": 0.462,
+    "league_winners": 3,
+    "starters": 4,
+    "busts": 12,
+    "per_season": {
+     "2023": {
+      "n": 9,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 11,
+      "p_league_winner": 0.273
+     },
+     "2025": {
+      "n": 6,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "11-15 LATE|TE": {
+    "n": 11,
+    "ungraded": 0,
+    "p_league_winner": 0.273,
+    "p_league_winner_ci95": [
+     0.097,
+     0.566
+    ],
+    "p_starter": 0.455,
+    "p_starter_ci95": [
+     0.213,
+     0.72
+    ],
+    "p_bust": 0.273,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 4,
+      "p_league_winner": 0.5
+     }
+    }
+   }
+  },
+  "by_phase": {
+   "4-8 ANCHOR phase": {
+    "n": 148,
+    "ungraded": 0,
+    "p_league_winner": 0.243,
+    "p_league_winner_ci95": [
+     0.181,
+     0.318
+    ],
+    "p_starter": 0.453,
+    "p_starter_ci95": [
+     0.375,
+     0.533
+    ],
+    "p_bust": 0.223,
+    "league_winners": 36,
+    "starters": 67,
+    "busts": 33,
+    "per_season": {
+     "2023": {
+      "n": 50,
+      "p_league_winner": 0.3
+     },
+     "2024": {
+      "n": 50,
+      "p_league_winner": 0.24
+     },
+     "2025": {
+      "n": 48,
+      "p_league_winner": 0.188
+     }
+    }
+   },
+   "9-15 SWING phase": {
+    "n": 150,
+    "ungraded": 0,
+    "p_league_winner": 0.107,
+    "p_league_winner_ci95": [
+     0.067,
+     0.166
+    ],
+    "p_starter": 0.253,
+    "p_starter_ci95": [
+     0.19,
+     0.328
+    ],
+    "p_bust": 0.393,
+    "league_winners": 16,
+    "starters": 38,
+    "busts": 59,
+    "per_season": {
+     "2023": {
+      "n": 50,
+      "p_league_winner": 0.08
+     },
+     "2024": {
+      "n": 51,
+      "p_league_winner": 0.118
+     },
+     "2025": {
+      "n": 49,
+      "p_league_winner": 0.122
+     }
+    }
+   }
+  },
+  "late_minus_middle_league_winner_rate": {
+   "middle_n": 115,
+   "late_n": 93,
+   "middle_rate": 0.139,
+   "late_rate": 0.108,
+   "difference": -0.032,
+   "ci95": [
+    -0.129,
+    0.068
+   ],
+   "per_season": {
+    "2023": -0.089,
+    "2024": -0.003,
+    "2025": -0.002
+   },
+   "verdict": "not distinguishable from noise",
+   "reading": "POSITIVE means the late band carries an upside tail the middle band does not \u2014 the half of Cory's hypothesis that no instrument in this repo had measured."
+  }
+ },
+ "value_arm_Z": {
+  "arm": "Z",
+  "replacement_used": {
+   "QB": 330.06666666666666,
+   "RB": 170.83333333333334,
+   "WR": 155.02666666666667,
+   "TE": 124.07333333333334
+  },
+  "wire_held_season": {
+   "QB": 330.8,
+   "RB": 100.3,
+   "WR": 124.1,
+   "TE": 115.6
+  },
+  "wire_churned_season": {
+   "QB": 397.5,
+   "RB": 132.6,
+   "WR": 188.7,
+   "TE": 197.2
+  },
+  "by_band": {
+   "1-3 (keeper ledger)": {
+    "n": 90,
+    "mean": 208.0,
+    "median": 203.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     188.3,
+     227.7
+    ],
+    "vs_replacement": {
+     "n": 90,
+     "mean": 34.4,
+     "ci95": [
+      14.8,
+      53.2
+     ],
+     "per_season": {
+      "2023": 22.1,
+      "2024": 37.9,
+      "2025": 43.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 90,
+     "mean": 78.3,
+     "ci95": [
+      55.3,
+      99.4
+     ],
+     "per_season": {
+      "2023": 61.6,
+      "2024": 84.4,
+      "2025": 88.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 90,
+     "mean": 26.2,
+     "ci95": [
+      0.8,
+      49.8
+     ],
+     "per_season": {
+      "2023": 6.4,
+      "2024": 34.2,
+      "2025": 38.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "4-6 EARLY": {
+    "n": 90,
+    "mean": 172.2,
+    "median": 171.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     152.7,
+     192.9
+    ],
+    "vs_replacement": {
+     "n": 90,
+     "mean": -13.0,
+     "ci95": [
+      -33.6,
+      7.8
+     ],
+     "per_season": {
+      "2023": -16.5,
+      "2024": 5.2,
+      "2025": -27.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 90,
+     "mean": 22.4,
+     "ci95": [
+      2.1,
+      44.1
+     ],
+     "per_season": {
+      "2023": 20.9,
+      "2024": 38.8,
+      "2025": 7.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 90,
+     "mean": -34.4,
+     "ci95": [
+      -56.1,
+      -13.5
+     ],
+     "per_season": {
+      "2023": -33.4,
+      "2024": -20.3,
+      "2025": -49.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE": {
+    "n": 116,
+    "mean": 132.7,
+    "median": 125.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     117.9,
+     147.1
+    ],
+    "vs_replacement": {
+     "n": 116,
+     "mean": -31.6,
+     "ci95": [
+      -45.9,
+      -18.2
+     ],
+     "per_season": {
+      "2023": -20.4,
+      "2024": -41.9,
+      "2025": -32.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 116,
+     "mean": 8.9,
+     "ci95": [
+      -5.2,
+      23.7
+     ],
+     "per_season": {
+      "2023": 21.6,
+      "2024": -0.5,
+      "2025": 5.6
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 116,
+     "mean": -46.7,
+     "ci95": [
+      -61.6,
+      -30.3
+     ],
+     "per_season": {
+      "2023": -33.2,
+      "2024": -54.6,
+      "2025": -52.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE": {
+    "n": 93,
+    "mean": 133.0,
+    "median": 112.5,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     106.1,
+     159.7
+    ],
+    "vs_replacement": {
+     "n": 93,
+     "mean": -63.9,
+     "ci95": [
+      -89.3,
+      -40.8
+     ],
+     "per_season": {
+      "2023": -85.1,
+      "2024": -41.5,
+      "2025": -65.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 93,
+     "mean": -27.8,
+     "ci95": [
+      -52.5,
+      -6.5
+     ],
+     "per_season": {
+      "2023": -48.2,
+      "2024": -7.9,
+      "2025": -28.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 93,
+     "mean": -82.8,
+     "ci95": [
+      -107.7,
+      -61.6
+     ],
+     "per_season": {
+      "2023": -102.4,
+      "2024": -65.0,
+      "2025": -81.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_band_position": {
+   "1-3 (keeper ledger)|QB": {
+    "n": 7,
+    "mean": 331.1,
+    "median": 334.5,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     259.1,
+     397.1
+    ],
+    "vs_replacement": {
+     "n": 7,
+     "mean": 1.0,
+     "ci95": [
+      -70.9,
+      67.0
+     ],
+     "per_season": {
+      "2023": -25.5,
+      "2024": 51.4,
+      "2025": -9.5
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 7,
+     "mean": 0.3,
+     "ci95": [
+      -71.7,
+      66.3
+     ],
+     "per_season": {
+      "2023": -26.3,
+      "2024": 50.6,
+      "2025": -10.3
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 7,
+     "mean": -66.4,
+     "ci95": [
+      -138.4,
+      -0.4
+     ],
+     "per_season": {
+      "2023": -93.0,
+      "2024": -16.1,
+      "2025": -77.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "1-3 (keeper ledger)|RB": {
+    "n": 38,
+    "mean": 215.4,
+    "median": 219.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     171.9,
+     253.5
+    ],
+    "vs_replacement": {
+     "n": 38,
+     "mean": 44.6,
+     "ci95": [
+      1.1,
+      82.7
+     ],
+     "per_season": {
+      "2023": 3.1,
+      "2024": 40.7,
+      "2025": 78.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 38,
+     "mean": 115.1,
+     "ci95": [
+      71.6,
+      153.2
+     ],
+     "per_season": {
+      "2023": 73.6,
+      "2024": 111.2,
+      "2025": 148.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 38,
+     "mean": 82.8,
+     "ci95": [
+      39.3,
+      120.9
+     ],
+     "per_season": {
+      "2023": 41.3,
+      "2024": 78.9,
+      "2025": 116.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "1-3 (keeper ledger)|WR": {
+    "n": 40,
+    "mean": 184.9,
+    "median": 182.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     156.9,
+     208.5
+    ],
+    "vs_replacement": {
+     "n": 40,
+     "mean": 29.9,
+     "ci95": [
+      1.9,
+      53.4
+     ],
+     "per_season": {
+      "2023": 44.8,
+      "2024": 33.9,
+      "2025": 6.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 40,
+     "mean": 60.8,
+     "ci95": [
+      32.8,
+      84.4
+     ],
+     "per_season": {
+      "2023": 75.7,
+      "2024": 64.8,
+      "2025": 37.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 40,
+     "mean": -3.8,
+     "ci95": [
+      -31.8,
+      19.8
+     ],
+     "per_season": {
+      "2023": 11.1,
+      "2024": 0.2,
+      "2025": -26.8
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "1-3 (keeper ledger)|TE": {
+    "n": 5,
+    "mean": 163.6,
+    "median": 146.9,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     129.9,
+     203.6
+    ],
+    "vs_replacement": {
+     "n": 5,
+     "mean": 39.5,
+     "ci95": [
+      5.8,
+      79.5
+     ],
+     "per_season": {
+      "2023": 18.8,
+      "2024": 22.8,
+      "2025": 68.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 5,
+     "mean": 48.0,
+     "ci95": [
+      14.3,
+      88.0
+     ],
+     "per_season": {
+      "2023": 27.3,
+      "2024": 31.3,
+      "2025": 77.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 5,
+     "mean": -33.6,
+     "ci95": [
+      -67.3,
+      6.4
+     ],
+     "per_season": {
+      "2023": -54.3,
+      "2024": -50.3,
+      "2025": -4.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "4-6 EARLY|QB": {
+    "n": 15,
+    "mean": 282.4,
+    "median": 284.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     221.9,
+     347.9
+    ],
+    "vs_replacement": {
+     "n": 15,
+     "mean": -47.7,
+     "ci95": [
+      -108.2,
+      17.8
+     ],
+     "per_season": {
+      "2023": -43.9,
+      "2024": -13.1,
+      "2025": -80.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 15,
+     "mean": -48.4,
+     "ci95": [
+      -108.9,
+      17.1
+     ],
+     "per_season": {
+      "2023": -44.6,
+      "2024": -13.9,
+      "2025": -80.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 15,
+     "mean": -115.1,
+     "ci95": [
+      -175.6,
+      -49.6
+     ],
+     "per_season": {
+      "2023": -111.3,
+      "2024": -80.6,
+      "2025": -147.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "4-6 EARLY|RB": {
+    "n": 29,
+    "mean": 155.2,
+    "median": 171.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     119.6,
+     197.1
+    ],
+    "vs_replacement": {
+     "n": 29,
+     "mean": -15.6,
+     "ci95": [
+      -51.3,
+      26.3
+     ],
+     "per_season": {
+      "2023": -36.8,
+      "2024": 30.9,
+      "2025": -28.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 29,
+     "mean": 54.9,
+     "ci95": [
+      19.3,
+      96.8
+     ],
+     "per_season": {
+      "2023": 33.8,
+      "2024": 101.4,
+      "2025": 41.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 29,
+     "mean": 22.6,
+     "ci95": [
+      -13.0,
+      64.5
+     ],
+     "per_season": {
+      "2023": 1.5,
+      "2024": 69.1,
+      "2025": 9.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "4-6 EARLY|WR": {
+    "n": 34,
+    "mean": 151.1,
+    "median": 161.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     131.1,
+     178.3
+    ],
+    "vs_replacement": {
+     "n": 34,
+     "mean": -3.9,
+     "ci95": [
+      -23.9,
+      23.3
+     ],
+     "per_season": {
+      "2023": 22.0,
+      "2024": -11.1,
+      "2025": -12.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 34,
+     "mean": 27.0,
+     "ci95": [
+      7.0,
+      54.2
+     ],
+     "per_season": {
+      "2023": 52.9,
+      "2024": 19.8,
+      "2025": 18.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 34,
+     "mean": -37.6,
+     "ci95": [
+      -57.6,
+      -10.4
+     ],
+     "per_season": {
+      "2023": -11.7,
+      "2024": -44.8,
+      "2025": -46.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "4-6 EARLY|TE": {
+    "n": 12,
+    "mean": 135.2,
+    "median": 141.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     111.5,
+     156.9
+    ],
+    "vs_replacement": {
+     "n": 12,
+     "mean": 11.1,
+     "ci95": [
+      -12.5,
+      32.8
+     ],
+     "per_season": {
+      "2023": 8.3,
+      "2024": 21.5,
+      "2025": -2.4
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 12,
+     "mean": 19.6,
+     "ci95": [
+      -4.1,
+      41.3
+     ],
+     "per_season": {
+      "2023": 16.8,
+      "2024": 29.9,
+      "2025": 6.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 12,
+     "mean": -62.0,
+     "ci95": [
+      -85.7,
+      -40.3
+     ],
+     "per_season": {
+      "2023": -64.8,
+      "2024": -51.7,
+      "2025": -75.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|QB": {
+    "n": 5,
+    "mean": 320.7,
+    "median": 336.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     233.9,
+     390.9
+    ],
+    "vs_replacement": {
+     "n": 5,
+     "mean": -9.3,
+     "ci95": [
+      -96.1,
+      60.8
+     ],
+     "per_season": {
+      "2023": 51.6,
+      "2024": -34.8,
+      "2025": 6.2
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 5,
+     "mean": -10.1,
+     "ci95": [
+      -96.9,
+      60.1
+     ],
+     "per_season": {
+      "2023": 50.9,
+      "2024": -35.6,
+      "2025": 5.5
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 5,
+     "mean": -76.8,
+     "ci95": [
+      -163.6,
+      -6.6
+     ],
+     "per_season": {
+      "2023": -15.8,
+      "2024": -102.3,
+      "2025": -61.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|RB": {
+    "n": 40,
+    "mean": 123.3,
+    "median": 120.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     91.9,
+     156.7
+    ],
+    "vs_replacement": {
+     "n": 40,
+     "mean": -47.5,
+     "ci95": [
+      -79.0,
+      -14.2
+     ],
+     "per_season": {
+      "2023": -17.0,
+      "2024": -69.0,
+      "2025": -57.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 40,
+     "mean": 23.0,
+     "ci95": [
+      -8.4,
+      56.4
+     ],
+     "per_season": {
+      "2023": 53.6,
+      "2024": 1.5,
+      "2025": 13.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 40,
+     "mean": -9.3,
+     "ci95": [
+      -40.7,
+      24.1
+     ],
+     "per_season": {
+      "2023": 21.3,
+      "2024": -30.8,
+      "2025": -18.8
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "7-10 MIDDLE|WR": {
+    "n": 57,
+    "mean": 129.4,
+    "median": 133.0,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     115.8,
+     143.5
+    ],
+    "vs_replacement": {
+     "n": 57,
+     "mean": -25.6,
+     "ci95": [
+      -39.2,
+      -11.5
+     ],
+     "per_season": {
+      "2023": -26.7,
+      "2024": -28.3,
+      "2025": -22.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 57,
+     "mean": 5.3,
+     "ci95": [
+      -8.3,
+      19.4
+     ],
+     "per_season": {
+      "2023": 4.2,
+      "2024": 2.7,
+      "2025": 8.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 57,
+     "mean": -59.3,
+     "ci95": [
+      -72.9,
+      -45.2
+     ],
+     "per_season": {
+      "2023": -60.4,
+      "2024": -61.9,
+      "2025": -56.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "7-10 MIDDLE|TE": {
+    "n": 14,
+    "mean": 105.8,
+    "median": 103.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     88.2,
+     132.3
+    ],
+    "vs_replacement": {
+     "n": 14,
+     "mean": -18.3,
+     "ci95": [
+      -35.9,
+      8.2
+     ],
+     "per_season": {
+      "2023": -19.1,
+      "2024": -3.7,
+      "2025": -27.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 14,
+     "mean": -9.8,
+     "ci95": [
+      -27.4,
+      16.7
+     ],
+     "per_season": {
+      "2023": -10.6,
+      "2024": 4.8,
+      "2025": -18.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 14,
+     "mean": -91.4,
+     "ci95": [
+      -109.0,
+      -64.9
+     ],
+     "per_season": {
+      "2023": -92.2,
+      "2024": -76.8,
+      "2025": -100.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|QB": {
+    "n": 21,
+    "mean": 254.7,
+    "median": 281.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     183.5,
+     315.2
+    ],
+    "vs_replacement": {
+     "n": 21,
+     "mean": -75.3,
+     "ci95": [
+      -146.5,
+      -14.8
+     ],
+     "per_season": {
+      "2023": -140.6,
+      "2024": -21.9,
+      "2025": -63.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 21,
+     "mean": -76.1,
+     "ci95": [
+      -147.3,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -141.4,
+      "2024": -22.6,
+      "2025": -64.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 21,
+     "mean": -142.8,
+     "ci95": [
+      -214.0,
+      -82.3
+     ],
+     "per_season": {
+      "2023": -208.1,
+      "2024": -89.3,
+      "2025": -130.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|RB": {
+    "n": 35,
+    "mean": 84.5,
+    "median": 75.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     62.4,
+     110.9
+    ],
+    "vs_replacement": {
+     "n": 35,
+     "mean": -86.4,
+     "ci95": [
+      -108.4,
+      -59.9
+     ],
+     "per_season": {
+      "2023": -91.1,
+      "2024": -73.0,
+      "2025": -92.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 35,
+     "mean": -15.8,
+     "ci95": [
+      -37.9,
+      10.6
+     ],
+     "per_season": {
+      "2023": -20.6,
+      "2024": -2.5,
+      "2025": -21.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 35,
+     "mean": -48.1,
+     "ci95": [
+      -70.2,
+      -21.7
+     ],
+     "per_season": {
+      "2023": -52.9,
+      "2024": -34.8,
+      "2025": -54.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|WR": {
+    "n": 26,
+    "mean": 105.9,
+    "median": 101.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     77.8,
+     135.4
+    ],
+    "vs_replacement": {
+     "n": 26,
+     "mean": -49.2,
+     "ci95": [
+      -77.2,
+      -19.6
+     ],
+     "per_season": {
+      "2023": -67.1,
+      "2024": -24.9,
+      "2025": -66.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 26,
+     "mean": -18.2,
+     "ci95": [
+      -46.3,
+      11.3
+     ],
+     "per_season": {
+      "2023": -36.2,
+      "2024": 6.0,
+      "2025": -35.8
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 26,
+     "mean": -82.8,
+     "ci95": [
+      -110.9,
+      -53.3
+     ],
+     "per_season": {
+      "2023": -100.8,
+      "2024": -58.6,
+      "2025": -100.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "11-15 LATE|TE": {
+    "n": 11,
+    "mean": 119.1,
+    "median": 116.0,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     81.9,
+     147.7
+    ],
+    "vs_replacement": {
+     "n": 11,
+     "mean": -5.0,
+     "ci95": [
+      -42.2,
+      23.6
+     ],
+     "per_season": {
+      "2023": 13.9,
+      "2024": -42.6,
+      "2025": 18.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 11,
+     "mean": 3.5,
+     "ci95": [
+      -33.7,
+      32.1
+     ],
+     "per_season": {
+      "2023": 22.4,
+      "2024": -34.1,
+      "2025": 26.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 11,
+     "mean": -78.1,
+     "ci95": [
+      -115.3,
+      -49.5
+     ],
+     "per_season": {
+      "2023": -59.2,
+      "2024": -115.7,
+      "2025": -54.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_phase": {
+   "4-8 ANCHOR phase": {
+    "n": 149,
+    "mean": 157.1,
+    "median": 157.7,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     139.1,
+     174.0
+    ],
+    "vs_replacement": {
+     "n": 149,
+     "mean": -18.4,
+     "ci95": [
+      -35.5,
+      -3.9
+     ],
+     "per_season": {
+      "2023": -14.1,
+      "2024": -8.8,
+      "2025": -32.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 149,
+     "mean": 18.4,
+     "ci95": [
+      1.7,
+      32.4
+     ],
+     "per_season": {
+      "2023": 25.8,
+      "2024": 23.8,
+      "2025": 5.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 149,
+     "mean": -38.6,
+     "ci95": [
+      -55.7,
+      -23.1
+     ],
+     "per_season": {
+      "2023": -28.5,
+      "2024": -36.4,
+      "2025": -51.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "9-15 SWING phase": {
+    "n": 150,
+    "mean": 132.3,
+    "median": 113.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     116.3,
+     149.4
+    ],
+    "vs_replacement": {
+     "n": 150,
+     "mean": -53.5,
+     "ci95": [
+      -68.6,
+      -40.3
+     ],
+     "per_season": {
+      "2023": -64.6,
+      "2024": -46.4,
+      "2025": -49.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 150,
+     "mean": -15.1,
+     "ci95": [
+      -31.4,
+      -1.5
+     ],
+     "per_season": {
+      "2023": -26.3,
+      "2024": -5.9,
+      "2025": -13.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 150,
+     "mean": -69.7,
+     "ci95": [
+      -86.0,
+      -55.0
+     ],
+     "per_season": {
+      "2023": -80.9,
+      "2024": -58.8,
+      "2025": -69.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  },
+  "by_round": {
+   "R1": {
+    "n": 30,
+    "mean": 208.3,
+    "median": 207.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     179.9,
+     240.1
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 47.0,
+     "ci95": [
+      19.3,
+      76.1
+     ],
+     "per_season": {
+      "2023": 39.1,
+      "2024": 40.1,
+      "2025": 61.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 97.5,
+     "ci95": [
+      68.0,
+      131.3
+     ],
+     "per_season": {
+      "2023": 83.6,
+      "2024": 88.6,
+      "2025": 120.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 49.0,
+     "ci95": [
+      14.9,
+      89.2
+     ],
+     "per_season": {
+      "2023": 30.3,
+      "2024": 38.4,
+      "2025": 78.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R2": {
+    "n": 30,
+    "mean": 226.9,
+    "median": 221.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     186.8,
+     267.8
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 44.3,
+     "ci95": [
+      13.3,
+      74.0
+     ],
+     "per_season": {
+      "2023": 39.9,
+      "2024": 31.8,
+      "2025": 61.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 83.4,
+     "ci95": [
+      50.3,
+      119.6
+     ],
+     "per_season": {
+      "2023": 70.2,
+      "2024": 71.5,
+      "2025": 108.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 28.8,
+     "ci95": [
+      -7.7,
+      71.8
+     ],
+     "per_season": {
+      "2023": 9.9,
+      "2024": 16.3,
+      "2025": 60.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R3": {
+    "n": 30,
+    "mean": 188.7,
+    "median": 180.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     153.8,
+     228.3
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": 11.9,
+     "ci95": [
+      -24.5,
+      47.5
+     ],
+     "per_season": {
+      "2023": -12.6,
+      "2024": 41.7,
+      "2025": 6.6
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 54.0,
+     "ci95": [
+      14.1,
+      97.3
+     ],
+     "per_season": {
+      "2023": 31.0,
+      "2024": 93.2,
+      "2025": 37.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "ABOVE the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": 1.0,
+     "ci95": [
+      -43.0,
+      50.0
+     ],
+     "per_season": {
+      "2023": -20.9,
+      "2024": 47.8,
+      "2025": -24.0
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R4": {
+    "n": 30,
+    "mean": 170.3,
+    "median": 161.8,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     116.5,
+     230.3
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -7.6,
+     "ci95": [
+      -41.2,
+      22.4
+     ],
+     "per_season": {
+      "2023": 6.6,
+      "2024": 10.0,
+      "2025": -39.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 37.2,
+     "ci95": [
+      -0.3,
+      71.8
+     ],
+     "per_season": {
+      "2023": 55.7,
+      "2024": 54.6,
+      "2025": 1.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -13.7,
+     "ci95": [
+      -57.3,
+      26.4
+     ],
+     "per_season": {
+      "2023": 13.1,
+      "2024": 1.2,
+      "2025": -55.4
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    }
+   },
+   "R5": {
+    "n": 30,
+    "mean": 180.0,
+    "median": 172.3,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     142.8,
+     226.5
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -6.5,
+     "ci95": [
+      -50.9,
+      28.1
+     ],
+     "per_season": {
+      "2023": 5.8,
+      "2024": 12.8,
+      "2025": -38.0
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 20.2,
+     "ci95": [
+      -24.6,
+      54.2
+     ],
+     "per_season": {
+      "2023": 44.1,
+      "2024": 27.5,
+      "2025": -10.9
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -42.8,
+     "ci95": [
+      -87.6,
+      -8.1
+     ],
+     "per_season": {
+      "2023": -14.2,
+      "2024": -42.9,
+      "2025": -71.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R6": {
+    "n": 30,
+    "mean": 166.3,
+    "median": 160.2,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     133.9,
+     199.6
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -24.9,
+     "ci95": [
+      -63.7,
+      4.5
+     ],
+     "per_season": {
+      "2023": -61.9,
+      "2024": -7.1,
+      "2025": -5.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 9.9,
+     "ci95": [
+      -38.4,
+      46.8
+     ],
+     "per_season": {
+      "2023": -37.0,
+      "2024": 34.3,
+      "2025": 32.5
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -46.6,
+     "ci95": [
+      -100.6,
+      -4.1
+     ],
+     "per_season": {
+      "2023": -99.2,
+      "2024": -19.3,
+      "2025": -21.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R7": {
+    "n": 29,
+    "mean": 142.0,
+    "median": 155.1,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     110.0,
+     180.8
+    ],
+    "vs_replacement": {
+     "n": 29,
+     "mean": -24.7,
+     "ci95": [
+      -52.9,
+      1.7
+     ],
+     "per_season": {
+      "2023": -14.6,
+      "2024": -23.7,
+      "2025": -37.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 29,
+     "mean": 12.5,
+     "ci95": [
+      -19.2,
+      41.2
+     ],
+     "per_season": {
+      "2023": 27.7,
+      "2024": 0.4,
+      "2025": 9.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 29,
+     "mean": -45.2,
+     "ci95": [
+      -80.9,
+      -12.6
+     ],
+     "per_season": {
+      "2023": -27.4,
+      "2024": -64.8,
+      "2025": -43.1
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R8": {
+    "n": 30,
+    "mean": 126.7,
+    "median": 136.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     100.2,
+     153.1
+    ],
+    "vs_replacement": {
+     "n": 30,
+     "mean": -28.5,
+     "ci95": [
+      -54.2,
+      -1.8
+     ],
+     "per_season": {
+      "2023": -6.2,
+      "2024": -36.1,
+      "2025": -43.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 30,
+     "mean": 11.9,
+     "ci95": [
+      -14.2,
+      39.3
+     ],
+     "per_season": {
+      "2023": 38.4,
+      "2024": 2.2,
+      "2025": -4.8
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 30,
+     "mean": -44.8,
+     "ci95": [
+      -73.2,
+      -16.4
+     ],
+     "per_season": {
+      "2023": -15.0,
+      "2024": -56.1,
+      "2025": -63.2
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R9": {
+    "n": 29,
+    "mean": 135.2,
+    "median": 115.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     102.4,
+     172.6
+    ],
+    "vs_replacement": {
+     "n": 29,
+     "mean": -37.4,
+     "ci95": [
+      -67.2,
+      -8.5
+     ],
+     "per_season": {
+      "2023": -39.5,
+      "2024": -65.5,
+      "2025": -9.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 29,
+     "mean": 5.0,
+     "ci95": [
+      -18.9,
+      31.4
+     ],
+     "per_season": {
+      "2023": -0.7,
+      "2024": -11.7,
+      "2025": 25.9
+     },
+     "seasons_agreeing_with_pooled_sign": 1,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 29,
+     "mean": -48.6,
+     "ci95": [
+      -73.4,
+      -21.4
+     ],
+     "per_season": {
+      "2023": -58.8,
+      "2024": -55.0,
+      "2025": -32.5
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R10": {
+    "n": 28,
+    "mean": 127.0,
+    "median": 108.7,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     99.5,
+     165.9
+    ],
+    "vs_replacement": {
+     "n": 28,
+     "mean": -36.1,
+     "ci95": [
+      -58.2,
+      -14.1
+     ],
+     "per_season": {
+      "2023": -21.6,
+      "2024": -44.7,
+      "2025": -41.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 28,
+     "mean": 6.1,
+     "ci95": [
+      -16.2,
+      29.5
+     ],
+     "per_season": {
+      "2023": 21.0,
+      "2024": 6.0,
+      "2025": -8.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 28,
+     "mean": -48.3,
+     "ci95": [
+      -75.7,
+      -20.0
+     ],
+     "per_season": {
+      "2023": -31.4,
+      "2024": -42.5,
+      "2025": -71.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R11": {
+    "n": 24,
+    "mean": 136.1,
+    "median": 114.9,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     97.3,
+     176.3
+    ],
+    "vs_replacement": {
+     "n": 24,
+     "mean": -46.2,
+     "ci95": [
+      -73.5,
+      -17.0
+     ],
+     "per_season": {
+      "2023": -41.8,
+      "2024": -43.4,
+      "2025": -52.0
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 24,
+     "mean": 1.1,
+     "ci95": [
+      -24.3,
+      29.7
+     ],
+     "per_season": {
+      "2023": 2.9,
+      "2024": -3.4,
+      "2025": 3.7
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 24,
+     "mean": -47.0,
+     "ci95": [
+      -74.9,
+      -16.5
+     ],
+     "per_season": {
+      "2023": -50.3,
+      "2024": -54.5,
+      "2025": -37.9
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R12": {
+    "n": 23,
+    "mean": 156.8,
+    "median": 98.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     90.3,
+     226.0
+    ],
+    "vs_replacement": {
+     "n": 23,
+     "mean": -77.1,
+     "ci95": [
+      -143.2,
+      -23.0
+     ],
+     "per_season": {
+      "2023": -125.3,
+      "2024": -24.5,
+      "2025": -91.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 23,
+     "mean": -50.6,
+     "ci95": [
+      -119.9,
+      5.4
+     ],
+     "per_season": {
+      "2023": -96.3,
+      "2024": 3.1,
+      "2025": -70.1
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 23,
+     "mean": -108.4,
+     "ci95": [
+      -179.5,
+      -50.6
+     ],
+     "per_season": {
+      "2023": -153.6,
+      "2024": -53.6,
+      "2025": -130.3
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R13": {
+    "n": 12,
+    "mean": 114.6,
+    "median": 111.7,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     42.2,
+     191.3
+    ],
+    "vs_replacement": {
+     "n": 12,
+     "mean": -57.8,
+     "ci95": [
+      -128.2,
+      6.1
+     ],
+     "per_season": {
+      "2023": -129.1,
+      "2024": -16.0,
+      "2025": -25.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_held": {
+     "n": 12,
+     "mean": -13.4,
+     "ci95": [
+      -60.6,
+      39.6
+     ],
+     "per_season": {
+      "2023": -58.5,
+      "2024": 28.2,
+      "2025": -2.3
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 12,
+     "mean": -64.9,
+     "ci95": [
+      -98.9,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -90.8,
+      "2024": -25.7,
+      "2025": -67.7
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R14": {
+    "n": 16,
+    "mean": 131.9,
+    "median": 131.4,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     92.6,
+     179.6
+    ],
+    "vs_replacement": {
+     "n": 16,
+     "mean": -57.0,
+     "ci95": [
+      -96.2,
+      -15.6
+     ],
+     "per_season": {
+      "2023": -55.7,
+      "2024": -22.7,
+      "2025": -86.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 16,
+     "mean": -22.4,
+     "ci95": [
+      -56.8,
+      12.5
+     ],
+     "per_season": {
+      "2023": -19.8,
+      "2024": 3.8,
+      "2025": -46.5
+     },
+     "seasons_agreeing_with_pooled_sign": 2,
+     "verdict": "not distinguishable from noise"
+    },
+    "vs_wire_churned": {
+     "n": 16,
+     "mean": -79.5,
+     "ci95": [
+      -113.4,
+      -48.6
+     ],
+     "per_season": {
+      "2023": -75.3,
+      "2024": -64.2,
+      "2025": -95.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   },
+   "R15": {
+    "n": 18,
+    "mean": 111.6,
+    "median": 105.6,
+    "seasons": [
+     2023,
+     2024,
+     2025
+    ],
+    "ci95": [
+     60.7,
+     163.1
+    ],
+    "vs_replacement": {
+     "n": 18,
+     "mean": -80.7,
+     "ci95": [
+      -108.8,
+      -51.2
+     ],
+     "per_season": {
+      "2023": -78.5,
+      "2024": -85.6,
+      "2025": -75.8
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_held": {
+     "n": 18,
+     "mean": -51.7,
+     "ci95": [
+      -75.7,
+      -26.9
+     ],
+     "per_season": {
+      "2023": -58.7,
+      "2024": -51.1,
+      "2025": -40.6
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    },
+    "vs_wire_churned": {
+     "n": 18,
+     "mean": -112.4,
+     "ci95": [
+      -136.5,
+      -90.1
+     ],
+     "per_season": {
+      "2023": -122.0,
+      "2024": -109.2,
+      "2025": -101.4
+     },
+     "seasons_agreeing_with_pooled_sign": 3,
+     "verdict": "BELOW the alternative"
+    }
+   }
+  }
+ },
+ "upside_arm_Z": {
+  "arm": "Z",
+  "tier_definition": {
+   "source": "tiered_outcome_model.tier_labels (committed, tested)",
+   "tiers": [
+    "BUST",
+    "REPLACEMENT",
+    "STARTER",
+    "LEAGUE-WINNER"
+   ],
+   "league_winner_index": 3,
+   "K_slots": {
+    "QB": 10,
+    "RB": 21,
+    "WR": 29,
+    "TE": 10
+   },
+   "note": "LEAGUE-WINNER = finished in the top ceil(K/2) at his position over that season's FULL realized field, not over our population",
+   "by_season_field": {
+    "2023": {
+     "QB": {
+      "field_size": 78,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 360.52,
+      "points_at_replacement_K": 320.74
+     },
+     "RB": {
+      "field_size": 149,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 195.5,
+      "points_at_replacement_K": 171.1
+     },
+     "WR": {
+      "field_size": 208,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 190.9,
+      "points_at_replacement_K": 162.6
+     },
+     "TE": {
+      "field_size": 112,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 160.7,
+      "points_at_replacement_K": 119.12
+     }
+    },
+    "2024": {
+     "QB": {
+      "field_size": 73,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 401.6,
+      "points_at_replacement_K": 333.16
+     },
+     "RB": {
+      "field_size": 142,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 228.0,
+      "points_at_replacement_K": 174.0
+     },
+     "WR": {
+      "field_size": 224,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 183.4,
+      "points_at_replacement_K": 158.4
+     },
+     "TE": {
+      "field_size": 117,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 147.9,
+      "points_at_replacement_K": 117.3
+     }
+    },
+    "2025": {
+     "QB": {
+      "field_size": 77,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 364.88,
+      "points_at_replacement_K": 336.3
+     },
+     "RB": {
+      "field_size": 142,
+      "K": 21,
+      "league_winner_cut": 11,
+      "points_at_league_winner_cut": 225.3,
+      "points_at_replacement_K": 167.4
+     },
+     "WR": {
+      "field_size": 216,
+      "K": 29,
+      "league_winner_cut": 15,
+      "points_at_league_winner_cut": 164.4,
+      "points_at_replacement_K": 144.08
+     },
+     "TE": {
+      "field_size": 118,
+      "K": 10,
+      "league_winner_cut": 5,
+      "points_at_league_winner_cut": 150.4,
+      "points_at_replacement_K": 135.8
+     }
+    }
+   }
+  },
+  "by_band": {
+   "1-3 (keeper ledger)": {
+    "n": 90,
+    "ungraded": 0,
+    "p_league_winner": 0.489,
+    "p_league_winner_ci95": [
+     0.388,
+     0.59
+    ],
+    "p_starter": 0.744,
+    "p_starter_ci95": [
+     0.646,
+     0.823
+    ],
+    "p_bust": 0.078,
+    "league_winners": 44,
+    "starters": 67,
+    "busts": 7,
+    "per_season": {
+     "2023": {
+      "n": 30,
+      "p_league_winner": 0.433
+     },
+     "2024": {
+      "n": 30,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.533
+     }
+    }
+   },
+   "4-6 EARLY": {
+    "n": 90,
+    "ungraded": 0,
+    "p_league_winner": 0.289,
+    "p_league_winner_ci95": [
+     0.205,
+     0.39
+    ],
+    "p_starter": 0.511,
+    "p_starter_ci95": [
+     0.41,
+     0.612
+    ],
+    "p_bust": 0.189,
+    "league_winners": 26,
+    "starters": 46,
+    "busts": 17,
+    "per_season": {
+     "2023": {
+      "n": 30,
+      "p_league_winner": 0.367
+     },
+     "2024": {
+      "n": 30,
+      "p_league_winner": 0.3
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.2
+     }
+    }
+   },
+   "7-10 MIDDLE": {
+    "n": 115,
+    "ungraded": 1,
+    "p_league_winner": 0.139,
+    "p_league_winner_ci95": [
+     0.087,
+     0.214
+    ],
+    "p_starter": 0.339,
+    "p_starter_ci95": [
+     0.259,
+     0.43
+    ],
+    "p_bust": 0.278,
+    "league_winners": 16,
+    "starters": 39,
+    "busts": 32,
+    "per_season": {
+     "2023": {
+      "n": 39,
+      "p_league_winner": 0.154
+     },
+     "2024": {
+      "n": 39,
+      "p_league_winner": 0.128
+     },
+     "2025": {
+      "n": 37,
+      "p_league_winner": 0.135
+     }
+    }
+   },
+   "11-15 LATE": {
+    "n": 93,
+    "ungraded": 0,
+    "p_league_winner": 0.108,
+    "p_league_winner_ci95": [
+     0.059,
+     0.187
+    ],
+    "p_starter": 0.215,
+    "p_starter_ci95": [
+     0.144,
+     0.309
+    ],
+    "p_bust": 0.462,
+    "league_winners": 10,
+    "starters": 20,
+    "busts": 43,
+    "per_season": {
+     "2023": {
+      "n": 31,
+      "p_league_winner": 0.065
+     },
+     "2024": {
+      "n": 32,
+      "p_league_winner": 0.125
+     },
+     "2025": {
+      "n": 30,
+      "p_league_winner": 0.133
+     }
+    }
+   }
+  },
+  "by_band_position": {
+   "1-3 (keeper ledger)|QB": {
+    "n": 7,
+    "ungraded": 0,
+    "p_league_winner": 0.429,
+    "p_league_winner_ci95": [
+     0.158,
+     0.75
+    ],
+    "p_starter": 0.714,
+    "p_starter_ci95": [
+     0.359,
+     0.918
+    ],
+    "p_bust": 0.143,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 1,
+    "per_season": {
+     "2023": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 2,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 2,
+      "p_league_winner": 0.5
+     }
+    }
+   },
+   "1-3 (keeper ledger)|RB": {
+    "n": 38,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.348,
+     0.652
+    ],
+    "p_starter": 0.737,
+    "p_starter_ci95": [
+     0.58,
+     0.85
+    ],
+    "p_bust": 0.079,
+    "league_winners": 19,
+    "starters": 28,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 10,
+      "p_league_winner": 0.3
+     },
+     "2024": {
+      "n": 14,
+      "p_league_winner": 0.5
+     },
+     "2025": {
+      "n": 14,
+      "p_league_winner": 0.643
+     }
+    }
+   },
+   "1-3 (keeper ledger)|WR": {
+    "n": 40,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.352,
+     0.648
+    ],
+    "p_starter": 0.75,
+    "p_starter_ci95": [
+     0.598,
+     0.858
+    ],
+    "p_bust": 0.075,
+    "league_winners": 20,
+    "starters": 30,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 15,
+      "p_league_winner": 0.533
+     },
+     "2024": {
+      "n": 13,
+      "p_league_winner": 0.538
+     },
+     "2025": {
+      "n": 12,
+      "p_league_winner": 0.417
+     }
+    }
+   },
+   "1-3 (keeper ledger)|TE": {
+    "n": 5,
+    "ungraded": 0,
+    "p_league_winner": 0.4,
+    "p_league_winner_ci95": [
+     0.118,
+     0.769
+    ],
+    "p_starter": 0.8,
+    "p_starter_ci95": [
+     0.376,
+     0.964
+    ],
+    "p_bust": 0.0,
+    "league_winners": 2,
+    "starters": 4,
+    "busts": 0,
+    "per_season": {
+     "2023": {
+      "n": 2,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 1,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 2,
+      "p_league_winner": 0.5
+     }
+    }
+   },
+   "4-6 EARLY|QB": {
+    "n": 15,
+    "ungraded": 0,
+    "p_league_winner": 0.2,
+    "p_league_winner_ci95": [
+     0.07,
+     0.452
+    ],
+    "p_starter": 0.333,
+    "p_starter_ci95": [
+     0.152,
+     0.583
+    ],
+    "p_bust": 0.267,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 4,
+    "per_season": {
+     "2023": {
+      "n": 6,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.25
+     },
+     "2025": {
+      "n": 5,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "4-6 EARLY|RB": {
+    "n": 29,
+    "ungraded": 0,
+    "p_league_winner": 0.207,
+    "p_league_winner_ci95": [
+     0.098,
+     0.384
+    ],
+    "p_starter": 0.517,
+    "p_starter_ci95": [
+     0.344,
+     0.686
+    ],
+    "p_bust": 0.207,
+    "league_winners": 6,
+    "starters": 15,
+    "busts": 6,
+    "per_season": {
+     "2023": {
+      "n": 12,
+      "p_league_winner": 0.25
+     },
+     "2024": {
+      "n": 8,
+      "p_league_winner": 0.375
+     },
+     "2025": {
+      "n": 9,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "4-6 EARLY|WR": {
+    "n": 34,
+    "ungraded": 0,
+    "p_league_winner": 0.324,
+    "p_league_winner_ci95": [
+     0.191,
+     0.492
+    ],
+    "p_starter": 0.559,
+    "p_starter_ci95": [
+     0.395,
+     0.711
+    ],
+    "p_bust": 0.118,
+    "league_winners": 11,
+    "starters": 19,
+    "busts": 4,
+    "per_season": {
+     "2023": {
+      "n": 8,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 13,
+      "p_league_winner": 0.154
+     },
+     "2025": {
+      "n": 13,
+      "p_league_winner": 0.385
+     }
+    }
+   },
+   "4-6 EARLY|TE": {
+    "n": 12,
+    "ungraded": 0,
+    "p_league_winner": 0.5,
+    "p_league_winner_ci95": [
+     0.254,
+     0.746
+    ],
+    "p_starter": 0.583,
+    "p_starter_ci95": [
+     0.32,
+     0.807
+    ],
+    "p_bust": 0.25,
+    "league_winners": 6,
+    "starters": 7,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 4,
+      "p_league_winner": 0.5
+     },
+     "2024": {
+      "n": 5,
+      "p_league_winner": 0.6
+     },
+     "2025": {
+      "n": 3,
+      "p_league_winner": 0.333
+     }
+    }
+   },
+   "7-10 MIDDLE|QB": {
+    "n": 5,
+    "ungraded": 0,
+    "p_league_winner": 0.4,
+    "p_league_winner_ci95": [
+     0.118,
+     0.769
+    ],
+    "p_starter": 0.6,
+    "p_starter_ci95": [
+     0.231,
+     0.882
+    ],
+    "p_bust": 0.2,
+    "league_winners": 2,
+    "starters": 3,
+    "busts": 1,
+    "per_season": {
+     "2023": {
+      "n": 1,
+      "p_league_winner": 1.0
+     },
+     "2024": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2025": {
+      "n": 1,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "7-10 MIDDLE|RB": {
+    "n": 39,
+    "ungraded": 1,
+    "p_league_winner": 0.128,
+    "p_league_winner_ci95": [
+     0.056,
+     0.267
+    ],
+    "p_starter": 0.282,
+    "p_starter_ci95": [
+     0.165,
+     0.438
+    ],
+    "p_bust": 0.308,
+    "league_winners": 5,
+    "starters": 11,
+    "busts": 12,
+    "per_season": {
+     "2023": {
+      "n": 14,
+      "p_league_winner": 0.214
+     },
+     "2024": {
+      "n": 15,
+      "p_league_winner": 0.067
+     },
+     "2025": {
+      "n": 10,
+      "p_league_winner": 0.1
+     }
+    }
+   },
+   "7-10 MIDDLE|WR": {
+    "n": 57,
+    "ungraded": 0,
+    "p_league_winner": 0.14,
+    "p_league_winner_ci95": [
+     0.073,
+     0.253
+    ],
+    "p_starter": 0.386,
+    "p_starter_ci95": [
+     0.271,
+     0.516
+    ],
+    "p_bust": 0.246,
+    "league_winners": 8,
+    "starters": 22,
+    "busts": 14,
+    "per_season": {
+     "2023": {
+      "n": 20,
+      "p_league_winner": 0.1
+     },
+     "2024": {
+      "n": 17,
+      "p_league_winner": 0.118
+     },
+     "2025": {
+      "n": 20,
+      "p_league_winner": 0.2
+     }
+    }
+   },
+   "7-10 MIDDLE|TE": {
+    "n": 14,
+    "ungraded": 0,
+    "p_league_winner": 0.071,
+    "p_league_winner_ci95": [
+     0.013,
+     0.315
+    ],
+    "p_starter": 0.214,
+    "p_starter_ci95": [
+     0.076,
+     0.476
+    ],
+    "p_bust": 0.357,
+    "league_winners": 1,
+    "starters": 3,
+    "busts": 5,
+    "per_season": {
+     "2023": {
+      "n": 4,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.25
+     },
+     "2025": {
+      "n": 6,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "11-15 LATE|QB": {
+    "n": 21,
+    "ungraded": 0,
+    "p_league_winner": 0.095,
+    "p_league_winner_ci95": [
+     0.027,
+     0.289
+    ],
+    "p_starter": 0.381,
+    "p_starter_ci95": [
+     0.208,
+     0.591
+    ],
+    "p_bust": 0.333,
+    "league_winners": 2,
+    "starters": 8,
+    "busts": 7,
+    "per_season": {
+     "2023": {
+      "n": 7,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 7,
+      "p_league_winner": 0.143
+     },
+     "2025": {
+      "n": 7,
+      "p_league_winner": 0.143
+     }
+    }
+   },
+   "11-15 LATE|RB": {
+    "n": 35,
+    "ungraded": 0,
+    "p_league_winner": 0.057,
+    "p_league_winner_ci95": [
+     0.016,
+     0.186
+    ],
+    "p_starter": 0.086,
+    "p_starter_ci95": [
+     0.03,
+     0.224
+    ],
+    "p_bust": 0.6,
+    "league_winners": 2,
+    "starters": 3,
+    "busts": 21,
+    "per_season": {
+     "2023": {
+      "n": 12,
+      "p_league_winner": 0.083
+     },
+     "2024": {
+      "n": 10,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 13,
+      "p_league_winner": 0.077
+     }
+    }
+   },
+   "11-15 LATE|WR": {
+    "n": 26,
+    "ungraded": 0,
+    "p_league_winner": 0.115,
+    "p_league_winner_ci95": [
+     0.04,
+     0.29
+    ],
+    "p_starter": 0.154,
+    "p_starter_ci95": [
+     0.061,
+     0.335
+    ],
+    "p_bust": 0.462,
+    "league_winners": 3,
+    "starters": 4,
+    "busts": 12,
+    "per_season": {
+     "2023": {
+      "n": 9,
+      "p_league_winner": 0.0
+     },
+     "2024": {
+      "n": 11,
+      "p_league_winner": 0.273
+     },
+     "2025": {
+      "n": 6,
+      "p_league_winner": 0.0
+     }
+    }
+   },
+   "11-15 LATE|TE": {
+    "n": 11,
+    "ungraded": 0,
+    "p_league_winner": 0.273,
+    "p_league_winner_ci95": [
+     0.097,
+     0.566
+    ],
+    "p_starter": 0.455,
+    "p_starter_ci95": [
+     0.213,
+     0.72
+    ],
+    "p_bust": 0.273,
+    "league_winners": 3,
+    "starters": 5,
+    "busts": 3,
+    "per_season": {
+     "2023": {
+      "n": 3,
+      "p_league_winner": 0.333
+     },
+     "2024": {
+      "n": 4,
+      "p_league_winner": 0.0
+     },
+     "2025": {
+      "n": 4,
+      "p_league_winner": 0.5
+     }
+    }
+   }
+  },
+  "by_phase": {
+   "4-8 ANCHOR phase": {
+    "n": 148,
+    "ungraded": 1,
+    "p_league_winner": 0.243,
+    "p_league_winner_ci95": [
+     0.181,
+     0.318
+    ],
+    "p_starter": 0.453,
+    "p_starter_ci95": [
+     0.375,
+     0.533
+    ],
+    "p_bust": 0.223,
+    "league_winners": 36,
+    "starters": 67,
+    "busts": 33,
+    "per_season": {
+     "2023": {
+      "n": 50,
+      "p_league_winner": 0.3
+     },
+     "2024": {
+      "n": 50,
+      "p_league_winner": 0.24
+     },
+     "2025": {
+      "n": 48,
+      "p_league_winner": 0.188
+     }
+    }
+   },
+   "9-15 SWING phase": {
+    "n": 150,
+    "ungraded": 0,
+    "p_league_winner": 0.107,
+    "p_league_winner_ci95": [
+     0.067,
+     0.166
+    ],
+    "p_starter": 0.253,
+    "p_starter_ci95": [
+     0.19,
+     0.328
+    ],
+    "p_bust": 0.393,
+    "league_winners": 16,
+    "starters": 38,
+    "busts": 59,
+    "per_season": {
+     "2023": {
+      "n": 50,
+      "p_league_winner": 0.08
+     },
+     "2024": {
+      "n": 51,
+      "p_league_winner": 0.118
+     },
+     "2025": {
+      "n": 49,
+      "p_league_winner": 0.122
+     }
+    }
+   }
+  },
+  "late_minus_middle_league_winner_rate": {
+   "middle_n": 115,
+   "late_n": 93,
+   "middle_rate": 0.139,
+   "late_rate": 0.108,
+   "difference": -0.032,
+   "ci95": [
+    -0.129,
+    0.068
+   ],
+   "per_season": {
+    "2023": -0.089,
+    "2024": -0.003,
+    "2025": -0.002
+   },
+   "verdict": "not distinguishable from noise",
+   "reading": "POSITIVE means the late band carries an upside tail the middle band does not \u2014 the half of Cory's hypothesis that no instrument in this repo had measured."
+  }
+ },
+ "picking_information": {
+  "arm": "E",
+  "by_band": {
+   "1-3 (keeper ledger)": {
+    "n": 90,
+    "mean_pool_remaining": 494.0,
+    "vs_blind": {
+     "mean": 137.1,
+     "ci95": [
+      117.2,
+      156.9
+     ],
+     "per_season": {
+      "2023": 126.7,
+      "2024": 138.3,
+      "2025": 146.2
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 232.4,
+     "ci95": [
+      194.2,
+      271.9
+     ],
+     "per_season": {
+      "2023": 227.7,
+      "2024": 274.5,
+      "2025": 195.0
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "4-6 EARLY": {
+    "n": 90,
+    "mean_pool_remaining": 464.0,
+    "vs_blind": {
+     "mean": 108.9,
+     "ci95": [
+      89.8,
+      129.2
+     ],
+     "per_season": {
+      "2023": 112.7,
+      "2024": 118.3,
+      "2025": 95.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 248.7,
+     "ci95": [
+      208.5,
+      286.0
+     ],
+     "per_season": {
+      "2023": 210.4,
+      "2024": 286.1,
+      "2025": 249.5
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "7-10 MIDDLE": {
+    "n": 115,
+    "mean_pool_remaining": 430.0,
+    "vs_blind": {
+     "mean": 77.7,
+     "ci95": [
+      63.9,
+      91.6
+     ],
+     "per_season": {
+      "2023": 85.5,
+      "2024": 72.9,
+      "2025": 74.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 269.9,
+     "ci95": [
+      241.0,
+      295.6
+     ],
+     "per_season": {
+      "2023": 239.6,
+      "2024": 293.3,
+      "2025": 277.3
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "11-15 LATE": {
+    "n": 93,
+    "mean_pool_remaining": 396.0,
+    "vs_blind": {
+     "mean": 83.7,
+     "ci95": [
+      56.5,
+      110.7
+     ],
+     "per_season": {
+      "2023": 62.7,
+      "2024": 104.1,
+      "2025": 83.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 264.0,
+     "ci95": [
+      238.9,
+      286.1
+     ],
+     "per_season": {
+      "2023": 248.0,
+      "2024": 269.3,
+      "2025": 274.8
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   }
+  },
+  "by_round": {
+   "R1": {
+    "n": 30,
+    "mean_pool_remaining": 504.0,
+    "vs_blind": {
+     "mean": 134.6,
+     "ci95": [
+      105.5,
+      166.7
+     ],
+     "per_season": {
+      "2023": 123.4,
+      "2024": 124.6,
+      "2025": 155.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 232.9,
+     "ci95": [
+      180.2,
+      285.1
+     ],
+     "per_season": {
+      "2023": 228.2,
+      "2024": 285.5,
+      "2025": 184.8
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R2": {
+    "n": 30,
+    "mean_pool_remaining": 494.0,
+    "vs_blind": {
+     "mean": 156.0,
+     "ci95": [
+      115.6,
+      197.5
+     ],
+     "per_season": {
+      "2023": 158.9,
+      "2024": 136.4,
+      "2025": 172.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 213.5,
+     "ci95": [
+      153.4,
+      281.0
+     ],
+     "per_season": {
+      "2023": 195.6,
+      "2024": 276.3,
+      "2025": 168.6
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R3": {
+    "n": 30,
+    "mean_pool_remaining": 484.0,
+    "vs_blind": {
+     "mean": 120.6,
+     "ci95": [
+      86.3,
+      159.0
+     ],
+     "per_season": {
+      "2023": 97.9,
+      "2024": 153.8,
+      "2025": 110.3
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 250.9,
+     "ci95": [
+      224.5,
+      278.7
+     ],
+     "per_season": {
+      "2023": 259.4,
+      "2024": 261.7,
+      "2025": 231.6
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R4": {
+    "n": 30,
+    "mean_pool_remaining": 474.0,
+    "vs_blind": {
+     "mean": 104.6,
+     "ci95": [
+      51.9,
+      164.5
+     ],
+     "per_season": {
+      "2023": 159.6,
+      "2024": 101.3,
+      "2025": 52.9
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 259.1,
+     "ci95": [
+      175.4,
+      321.5
+     ],
+     "per_season": {
+      "2023": 169.7,
+      "2024": 317.1,
+      "2025": 290.4
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R5": {
+    "n": 30,
+    "mean_pool_remaining": 464.0,
+    "vs_blind": {
+     "mean": 116.6,
+     "ci95": [
+      79.7,
+      162.5
+     ],
+     "per_season": {
+      "2023": 96.6,
+      "2024": 146.4,
+      "2025": 106.7
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 242.2,
+     "ci95": [
+      207.0,
+      283.8
+     ],
+     "per_season": {
+      "2023": 222.3,
+      "2024": 266.0,
+      "2025": 238.1
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R6": {
+    "n": 30,
+    "mean_pool_remaining": 454.0,
+    "vs_blind": {
+     "mean": 105.5,
+     "ci95": [
+      72.9,
+      138.8
+     ],
+     "per_season": {
+      "2023": 81.9,
+      "2024": 107.1,
+      "2025": 127.6
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 244.8,
+     "ci95": [
+      208.0,
+      277.3
+     ],
+     "per_season": {
+      "2023": 239.1,
+      "2024": 275.1,
+      "2025": 220.1
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R7": {
+    "n": 28,
+    "mean_pool_remaining": 444.0,
+    "vs_blind": {
+     "mean": 88.4,
+     "ci95": [
+      58.5,
+      121.7
+     ],
+     "per_season": {
+      "2023": 81.7,
+      "2024": 103.0,
+      "2025": 78.5
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 257.3,
+     "ci95": [
+      227.2,
+      292.1
+     ],
+     "per_season": {
+      "2023": 241.2,
+      "2024": 262.6,
+      "2025": 270.9
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R8": {
+    "n": 30,
+    "mean_pool_remaining": 435.0,
+    "vs_blind": {
+     "mean": 69.7,
+     "ci95": [
+      43.4,
+      96.3
+     ],
+     "per_season": {
+      "2023": 95.2,
+      "2024": 60.5,
+      "2025": 53.6
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 277.2,
+     "ci95": [
+      235.6,
+      314.1
+     ],
+     "per_season": {
+      "2023": 229.6,
+      "2024": 304.7,
+      "2025": 297.3
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R9": {
+    "n": 29,
+    "mean_pool_remaining": 425.0,
+    "vs_blind": {
+     "mean": 80.1,
+     "ci95": [
+      47.2,
+      117.7
+     ],
+     "per_season": {
+      "2023": 63.8,
+      "2024": 63.7,
+      "2025": 111.1
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 268.0,
+     "ci95": [
+      231.6,
+      306.3
+     ],
+     "per_season": {
+      "2023": 263.0,
+      "2024": 302.7,
+      "2025": 241.8
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R10": {
+    "n": 28,
+    "mean_pool_remaining": 416.0,
+    "vs_blind": {
+     "mean": 73.3,
+     "ci95": [
+      45.5,
+      112.1
+     ],
+     "per_season": {
+      "2023": 103.1,
+      "2024": 63.6,
+      "2025": 54.2
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 276.8,
+     "ci95": [
+      221.5,
+      315.8
+     ],
+     "per_season": {
+      "2023": 222.8,
+      "2024": 304.0,
+      "2025": 300.4
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R11": {
+    "n": 24,
+    "mean_pool_remaining": 408.0,
+    "vs_blind": {
+     "mean": 84.4,
+     "ci95": [
+      46.2,
+      124.2
+     ],
+     "per_season": {
+      "2023": 64.5,
+      "2024": 107.0,
+      "2025": 79.9
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 262.7,
+     "ci95": [
+      223.5,
+      300.5
+     ],
+     "per_season": {
+      "2023": 244.9,
+      "2024": 262.7,
+      "2025": 276.4
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R12": {
+    "n": 23,
+    "mean_pool_remaining": 398.0,
+    "vs_blind": {
+     "mean": 106.7,
+     "ci95": [
+      40.1,
+      176.2
+     ],
+     "per_season": {
+      "2023": 48.9,
+      "2024": 160.3,
+      "2025": 103.4
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 240.2,
+     "ci95": [
+      187.0,
+      285.9
+     ],
+     "per_season": {
+      "2023": 261.2,
+      "2024": 212.1,
+      "2025": 254.3
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R13": {
+    "n": 12,
+    "mean_pool_remaining": 395.0,
+    "vs_blind": {
+     "mean": 65.8,
+     "ci95": [
+      -7.6,
+      143.1
+     ],
+     "per_season": {
+      "2023": -7.9,
+      "2024": 96.9,
+      "2025": 106.0
+     },
+     "verdict": "not distinguishable from noise"
+    },
+    "regret": {
+     "mean": 281.0,
+     "ci95": [
+      217.5,
+      330.1
+     ],
+     "per_season": {
+      "2023": 318.7,
+      "2024": 277.9,
+      "2025": 252.7
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R14": {
+    "n": 16,
+    "mean_pool_remaining": 390.0,
+    "vs_blind": {
+     "mean": 84.2,
+     "ci95": [
+      44.7,
+      131.0
+     ],
+     "per_season": {
+      "2023": 84.9,
+      "2024": 79.6,
+      "2025": 87.5
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 265.6,
+     "ci95": [
+      207.2,
+      313.0
+     ],
+     "per_season": {
+      "2023": 226.1,
+      "2024": 296.0,
+      "2025": 273.1
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   },
+   "R15": {
+    "n": 18,
+    "mean_pool_remaining": 381.0,
+    "vs_blind": {
+     "mean": 65.0,
+     "ci95": [
+      14.9,
+      115.5
+     ],
+     "per_season": {
+      "2023": 101.4,
+      "2024": 49.2,
+      "2025": 28.9
+     },
+     "verdict": "ABOVE the alternative"
+    },
+    "regret": {
+     "mean": 283.4,
+     "ci95": [
+      210.1,
+      353.8
+     ],
+     "per_season": {
+      "2023": 211.1,
+      "2024": 327.7,
+      "2025": 332.3
+     },
+     "verdict": "ABOVE the alternative"
+    }
+   }
+  }
+ }
+}

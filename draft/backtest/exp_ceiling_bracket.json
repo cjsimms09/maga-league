@@ -1,0 +1,157 @@
+{
+  "experiment": "ceiling weight bracket \u2014 is the optimum below 0.65?",
+  "prereg": "draft/backtest/CEILING-BRACKET-PREREG.md",
+  "rooms": 400,
+  "seeds": [
+    20268727,
+    20365537,
+    21560517
+  ],
+  "weights": [
+    0.15,
+    0.3,
+    0.45,
+    0.65
+  ],
+  "anchor_control": {
+    "weight": 0.65,
+    "expected": {
+      "20268727": 27.56,
+      "20365537": 52.5,
+      "21560517": 26.56
+    },
+    "reproduced": true
+  },
+  "board_distinct_ceiling_ratios": 505,
+  "live_ceiling_weight": 0.0,
+  "per_seed": [
+    {
+      "seed": 20268727,
+      "w0.15": {
+        "edge": 21.94,
+        "ci95": [
+          6.44,
+          38.5
+        ],
+        "separable": true
+      },
+      "w0.3": {
+        "edge": 37.12,
+        "ci95": [
+          16.06,
+          58.75
+        ],
+        "separable": true
+      },
+      "w0.45": {
+        "edge": 22.44,
+        "ci95": [
+          1.69,
+          43.56
+        ],
+        "separable": true
+      },
+      "w0.65": {
+        "edge": 27.56,
+        "ci95": [
+          6.56,
+          49.44
+        ],
+        "separable": true
+      }
+    },
+    {
+      "seed": 20365537,
+      "w0.15": {
+        "edge": 26.56,
+        "ci95": [
+          11.25,
+          42.25
+        ],
+        "separable": true
+      },
+      "w0.3": {
+        "edge": 37.88,
+        "ci95": [
+          17.06,
+          57.75
+        ],
+        "separable": true
+      },
+      "w0.45": {
+        "edge": 51.88,
+        "ci95": [
+          31.81,
+          72.12
+        ],
+        "separable": true
+      },
+      "w0.65": {
+        "edge": 52.5,
+        "ci95": [
+          31.38,
+          73.31
+        ],
+        "separable": true
+      }
+    },
+    {
+      "seed": 21560517,
+      "w0.15": {
+        "edge": 23.5,
+        "ci95": [
+          7.19,
+          39.31
+        ],
+        "separable": true
+      },
+      "w0.3": {
+        "edge": 33.19,
+        "ci95": [
+          12.69,
+          54.31
+        ],
+        "separable": true
+      },
+      "w0.45": {
+        "edge": 32.88,
+        "ci95": [
+          11.38,
+          53.94
+        ],
+        "separable": true
+      },
+      "w0.65": {
+        "edge": 26.56,
+        "ci95": [
+          5.69,
+          47.06
+        ],
+        "separable": true
+      }
+    }
+  ],
+  "columns": {
+    "0.15": {
+      "mean": 24.0,
+      "n_pos": 3,
+      "n_sep": 3
+    },
+    "0.3": {
+      "mean": 36.1,
+      "n_pos": 3,
+      "n_sep": 3
+    },
+    "0.45": {
+      "mean": 35.7,
+      "n_pos": 3,
+      "n_sep": 3
+    },
+    "0.65": {
+      "mean": 35.5,
+      "n_pos": 3,
+      "n_sep": 3
+    }
+  },
+  "verdict": "REPLICATES at w=0.3 \u2014 positive in all 3 fresh seeds (mean +$36.1), separable in 3/3, against a CORE arm whose ceiling weight is the shipped 0.0. A non-zero ceiling weight beats the shipped zero."
+}

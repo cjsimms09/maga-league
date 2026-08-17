@@ -108,7 +108,23 @@ def load_world():
             for p in board.get("players", []) if (p.get("proj_mean") or 0) > 0]
     my_keepers = [{"player_id": str(k["player_id"]), "name": k.get("name"),
                    "position": k.get("position"), "vorp": k.get("vorp") or 0.0,
-                   "proj_mean": k.get("proj_mean") or 0.0, "weekly_sd": 8.0}
+                   "proj_mean": k.get("proj_mean") or 0.0,
+                   # THE BOARD'S OWN NUMBER, NOT A CONSTANT (fixed 2026-08-17).
+                   # This read `"weekly_sd": 8.0` — a flat literal — while the
+                   # pool rows two lines up correctly read the board. Every
+                   # kept_players row carries a real weekly_sd, and Cory's three
+                   # keepers measure 17.63 / 25.81 / 32.46, so the literal
+                   # understated the variance of his highest-variance starters
+                   # by 2.2x to 4.1x.
+                   #
+                   # IT RAN THE WRONG WAY FOR THIS LEAGUE. `team_week` sums
+                   # weekly_sd^2 across starters, so understating three of nine
+                   # starters made the roster look far steadier than it is —
+                   # and in a league where weekly high pays, understating
+                   # variance UNDERSTATES the value of variance. That is the
+                   # exact question ("is upside worth paying for?") this proxy
+                   # was being asked, biased by the proxy itself.
+                   "weekly_sd": k.get("weekly_sd") or 8.0}
                   for k in board.get("kept_players", [])]
     # Opponent predicted keepers, resolved onto the pool where possible.
     by_id = {p["player_id"]: p for p in pool}

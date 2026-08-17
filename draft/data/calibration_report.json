@@ -1,0 +1,135 @@
+{
+ "_territory": "TERRITORY: A — produced by draft/tools/calibration_report.js from the graded calibration snapshot; per-surface scorecard, read-only over the ledger (contamination rule: never writes back)",
+ "rebuild": "node draft/tools/calibration_report.js",
+ "source": "none (pre-season: no graded snapshot exists yet)",
+ "season": null,
+ "source_graded_at": null,
+ "generated_at": "2026-08-16T13:35:44.839Z",
+ "verdict_rule": "gap = mean predicted probability - observed frequency; no verdict under n=10; |gap| <= 5pp calibrated; above = over-confident (hot); below = under-confident (cold)",
+ "empty_state": true,
+ "empty_note": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)",
+ "totals": {
+  "forecast_rows_graded": 0,
+  "decision_rows_scored": 0,
+  "unregistered_rows": 0
+ },
+ "surfaces": {
+  "matchup_winprob": {
+   "label": "Weekly matchup win probabilities",
+   "emitter": "claims-cron (weekly-claims-v1), Sundays",
+   "ftype": "probability",
+   "n": 0,
+   "brier": null,
+   "mean_predicted": null,
+   "observed_rate": null,
+   "confidence_gap": null,
+   "curve": [],
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "weekly_high": {
+   "label": "Weekly-high pick",
+   "emitter": "claims-cron (weekly-claims-v1), Sundays",
+   "ftype": "categorical",
+   "n": 0,
+   "accuracy": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "champodds": {
+   "label": "Playoff/championship odds checkpoints",
+   "emitter": "analyzer-cron (analyzer-checkpoint-v1), weekly from week 2",
+   "ftype": "probability",
+   "n": 0,
+   "brier": null,
+   "mean_predicted": null,
+   "observed_rate": null,
+   "confidence_gap": null,
+   "curve": [],
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "exp_wins": {
+   "label": "Expected-wins checkpoints (point)",
+   "emitter": "analyzer-cron (analyzer-checkpoint-v1), weekly from week 2",
+   "ftype": "point",
+   "n": 0,
+   "bias": null,
+   "mae": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "survival": {
+   "label": "Draft-board survival calls",
+   "emitter": "war room forecast.js (draft night)",
+   "ftype": "probability",
+   "n": 0,
+   "brier": null,
+   "mean_predicted": null,
+   "observed_rate": null,
+   "confidence_gap": null,
+   "curve": [],
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "room_seat": {
+   "label": "Round-1 room-seat forecasts",
+   "emitter": "war room forecast.js (draft night)",
+   "ftype": "categorical",
+   "n": 0,
+   "accuracy": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "player_projection": {
+   "label": "Player-week point projections",
+   "emitter": "player-projection-cron (player-week-projection-v1)",
+   "ftype": "point",
+   "n": 0,
+   "bias": null,
+   "mae": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "lineup_call": {
+   "label": "Start/sit calls",
+   "emitter": "member /lineup/log; resolved weekly by claims-cron",
+   "ftype": "decision_edge",
+   "n": 0,
+   "scored": 0,
+   "tool_won": 0,
+   "counterfactual_won": 0,
+   "mean_edge": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "waiver_claim": {
+   "label": "Waiver calls",
+   "emitter": "member /waivers/log; resolved weekly by claims-cron",
+   "ftype": "decision_edge",
+   "n": 0,
+   "scored": 0,
+   "tool_won": 0,
+   "counterfactual_won": 0,
+   "mean_edge": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "stream_call": {
+   "label": "Streaming calls",
+   "emitter": "member /stream/log; resolved weekly by claims-cron",
+   "ftype": "decision_edge",
+   "n": 0,
+   "scored": 0,
+   "tool_won": 0,
+   "counterfactual_won": 0,
+   "mean_edge": null,
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)"
+  },
+  "sidebet_advisor": {
+   "label": "Side-bet advisor",
+   "emitter": null,
+   "ftype": "probability",
+   "n": 0,
+   "brier": null,
+   "mean_predicted": null,
+   "observed_rate": null,
+   "confidence_gap": null,
+   "curve": [],
+   "verdict": "no resolved forecasts yet; first real rows ~Sep 15 (week-1 scores final, resolved by claims-cron that Sunday, graded by grade-cron the Tuesday after)",
+   "pending": "no capture emits side-bet forecasts into the ledger yet (pooladvisor/betedge render odds but never append a forecast kind); until one does, this surface CANNOT have rows — declared so its emptiness reads as \"not wired\", never \"0-for-0 and fine\""
+  }
+ },
+ "unregistered_keys": []
+}

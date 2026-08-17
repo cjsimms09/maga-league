@@ -1,0 +1,419 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/tools/engine_ablation_replay.py",
+ "question_verbatim": "Take the current complete engine and decompose its advantage against a simple baseline using controlled ablations. Should we try this? And anything that doesn't hurt model could be removed?",
+ "frame": "draft-replay harness (draft_replay_2025.py) on real 2023-25 history \u2014 the independent frame beside the sim ladder in draft/data/engine_ablation_2026.json",
+ "configs": {
+  "primary": "the committed replay's primary cell \u2014 onesie caps QB2/TE2 + feasibility rail (pinned equal to draft_replay_2025.json)",
+  "minus_onesie_caps": "onesie caps relaxed to the measured room caps QB3/TE3 (the ONESIE_HARD_CAP analog ablated; equals the committed grid's room_caps cell)",
+  "minus_feasibility_rail": "starter-feasibility rail off \u2014 a pick may leave the lineup unfillable",
+  "minus_position_caps": "all position caps open (99) \u2014 the rail alone",
+  "minus_all_rails": "caps AND rail off \u2014 pure BPA-by-VORP, K/DEF mirrored"
+ },
+ "not_period_computable": {
+  "wire_bench": "needs the measured wire level and the engine's bench branch \u2014 2026-wired",
+  "kov_ramp": "keeper-option value needs the engine composite over a season board that does not exist",
+  "kov_term": "same",
+  "stack_term": "engine composite term \u2014 not in the replay's value core",
+  "room_mix": "survival-model prior; the replay has no survival model (opponents are history)",
+  "conserve": "survival-model correction; same",
+  "onesie_discount": "engine score-level discount; the replay's analog IS the cap (ablated above)",
+  "onesie_need_discount": "engine need-term rewrite; no composite in the replay",
+  "flex_discount": "engine need-term rewrite; no composite in the replay",
+  "ceiling_tiebreak": "engine ordering rule over proj_ceiling; the replay board has no ceilings",
+  "opportunity": "nflfastR opportunity metrics are derived point-in-time (2026); writing today's values into a 2023 replay would be lookahead contamination",
+  "depth_chart": "depth_chart_order comes from Sleeper's LIVE payload with no historical archive (same lookahead problem)",
+  "vona_slot_aware": "engine VONA variant; no engine here",
+  "stage2_cap": "engine anchor; no engine here",
+  "seat_plan": "the DP seat plan is solved against the 2026 board and seat",
+  "doctrine_tilt": "on-the-day enrollment; nothing to enroll in a replay"
+ },
+ "honesty": [
+  "three seasons are three samples \u2014 NO CI is quotable on n=3 and none is emitted; per-year values and the pooled mean only, spread shown",
+  "only the baseline's own rails are period-computable; every engine-side layer is listed in not_period_computable with its reason",
+  "layer_contribution = primary_delta - ablated_delta on the hindsight-optimal ruler (positive = the rail helped that year)",
+  "the primary and minus_onesie_caps cells are pinned equal to the committed draft_replay_2025.json before anything is written",
+  "all of draft_replay_2025.py's own limitations apply unchanged (fixed opponents, no rookies, no news, walk-forward projections minus the market arm)"
+ ],
+ "years": {
+  "2025": {
+   "cells": {
+    "primary": {
+     "tool_optimal_total": 1423.86,
+     "cory_optimal_total": 1440.72,
+     "delta_tool_minus_cory": -16.86,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 6,
+      "WR": 3,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_onesie_caps": {
+     "tool_optimal_total": 1457.88,
+     "cory_optimal_total": 1440.72,
+     "delta_tool_minus_cory": 17.16,
+     "head_to_head": {
+      "tool_weeks_won": 11,
+      "cory_weeks_won": 6,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 3,
+      "RB": 5,
+      "WR": 3,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_feasibility_rail": {
+     "tool_optimal_total": 1423.86,
+     "cory_optimal_total": 1440.72,
+     "delta_tool_minus_cory": -16.86,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 6,
+      "WR": 3,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_position_caps": {
+     "tool_optimal_total": 1459.76,
+     "cory_optimal_total": 1440.72,
+     "delta_tool_minus_cory": 19.04,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 5,
+      "WR": 2,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_all_rails": {
+     "tool_optimal_total": 1459.76,
+     "cory_optimal_total": 1440.72,
+     "delta_tool_minus_cory": 19.04,
+     "head_to_head": {
+      "tool_weeks_won": 10,
+      "cory_weeks_won": 7,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 5,
+      "WR": 2,
+      "TE": 2
+     },
+     "forced_picks": 0
+    }
+   },
+   "layer_contribution_optimal_pts": {
+    "onesie_caps": -34.02,
+    "feasibility_rail": 0.0,
+    "position_caps": -35.9,
+    "all_rails": -35.9
+   }
+  },
+  "2024": {
+   "cells": {
+    "primary": {
+     "tool_optimal_total": 1979.08,
+     "cory_optimal_total": 2037.08,
+     "delta_tool_minus_cory": -58.0,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 2,
+      "WR": 7,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_onesie_caps": {
+     "tool_optimal_total": 1944.34,
+     "cory_optimal_total": 2037.08,
+     "delta_tool_minus_cory": -92.74,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 3,
+      "RB": 2,
+      "WR": 5,
+      "TE": 3
+     },
+     "forced_picks": 1
+    },
+    "minus_feasibility_rail": {
+     "tool_optimal_total": 1979.08,
+     "cory_optimal_total": 2037.08,
+     "delta_tool_minus_cory": -58.0,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 2,
+      "WR": 7,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_position_caps": {
+     "tool_optimal_total": 1836.7,
+     "cory_optimal_total": 2037.08,
+     "delta_tool_minus_cory": -200.38,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 2,
+      "WR": 2,
+      "TE": 5
+     },
+     "forced_picks": 2
+    },
+    "minus_all_rails": {
+     "tool_optimal_total": 1764.02,
+     "cory_optimal_total": 2037.08,
+     "delta_tool_minus_cory": -273.06,
+     "head_to_head": {
+      "tool_weeks_won": 2,
+      "cory_weeks_won": 15,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 1,
+      "WR": 2,
+      "TE": 6
+     },
+     "forced_picks": 0
+    }
+   },
+   "layer_contribution_optimal_pts": {
+    "onesie_caps": 34.74,
+    "feasibility_rail": 0.0,
+    "position_caps": 142.38,
+    "all_rails": 215.06
+   }
+  },
+  "2023": {
+   "cells": {
+    "primary": {
+     "tool_optimal_total": 1572.8,
+     "cory_optimal_total": 1694.88,
+     "delta_tool_minus_cory": -122.08,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 5,
+      "WR": 4,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_onesie_caps": {
+     "tool_optimal_total": 1492.0,
+     "cory_optimal_total": 1694.88,
+     "delta_tool_minus_cory": -202.88,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 3,
+      "RB": 3,
+      "WR": 4,
+      "TE": 3
+     },
+     "forced_picks": 0
+    },
+    "minus_feasibility_rail": {
+     "tool_optimal_total": 1572.8,
+     "cory_optimal_total": 1694.88,
+     "delta_tool_minus_cory": -122.08,
+     "head_to_head": {
+      "tool_weeks_won": 4,
+      "cory_weeks_won": 13,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 2,
+      "RB": 5,
+      "WR": 4,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_position_caps": {
+     "tool_optimal_total": 1549.98,
+     "cory_optimal_total": 1694.88,
+     "delta_tool_minus_cory": -144.9,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 3,
+      "WR": 4,
+      "TE": 2
+     },
+     "forced_picks": 0
+    },
+    "minus_all_rails": {
+     "tool_optimal_total": 1549.98,
+     "cory_optimal_total": 1694.88,
+     "delta_tool_minus_cory": -144.9,
+     "head_to_head": {
+      "tool_weeks_won": 6,
+      "cory_weeks_won": 11,
+      "ties": 0
+     },
+     "position_counts": {
+      "QB": 4,
+      "RB": 3,
+      "WR": 4,
+      "TE": 2
+     },
+     "forced_picks": 0
+    }
+   },
+   "layer_contribution_optimal_pts": {
+    "onesie_caps": 80.8,
+    "feasibility_rail": 0.0,
+    "position_caps": 22.82,
+    "all_rails": 22.82
+   }
+  }
+ },
+ "pooled_layer_contribution": {
+  "onesie_caps": {
+   "per_year": {
+    "2025": -34.02,
+    "2024": 34.74,
+    "2023": 80.8
+   },
+   "mean_pts_per_season": 27.17,
+   "min": -34.02,
+   "max": 80.8,
+   "sign_stable_across_years": false
+  },
+  "feasibility_rail": {
+   "per_year": {
+    "2025": 0.0,
+    "2024": 0.0,
+    "2023": 0.0
+   },
+   "mean_pts_per_season": 0.0,
+   "min": 0.0,
+   "max": 0.0,
+   "sign_stable_across_years": false
+  },
+  "position_caps": {
+   "per_year": {
+    "2025": -35.9,
+    "2024": 142.38,
+    "2023": 22.82
+   },
+   "mean_pts_per_season": 43.1,
+   "min": -35.9,
+   "max": 142.38,
+   "sign_stable_across_years": false
+  },
+  "all_rails": {
+   "per_year": {
+    "2025": -35.9,
+    "2024": 215.06,
+    "2023": 22.82
+   },
+   "mean_pts_per_season": 67.33,
+   "min": -35.9,
+   "max": 215.06,
+   "sign_stable_across_years": false
+  }
+ },
+ "summary": {
+  "headline": "rail-layer contributions on real history, pts/season on the optimal ruler (tool arm)",
+  "pooled": {
+   "onesie_caps": {
+    "per_year": {
+     "2025": -34.02,
+     "2024": 34.74,
+     "2023": 80.8
+    },
+    "mean_pts_per_season": 27.17,
+    "min": -34.02,
+    "max": 80.8,
+    "sign_stable_across_years": false
+   },
+   "feasibility_rail": {
+    "per_year": {
+     "2025": 0.0,
+     "2024": 0.0,
+     "2023": 0.0
+    },
+    "mean_pts_per_season": 0.0,
+    "min": 0.0,
+    "max": 0.0,
+    "sign_stable_across_years": false
+   },
+   "position_caps": {
+    "per_year": {
+     "2025": -35.9,
+     "2024": 142.38,
+     "2023": 22.82
+    },
+    "mean_pts_per_season": 43.1,
+    "min": -35.9,
+    "max": 142.38,
+    "sign_stable_across_years": false
+   },
+   "all_rails": {
+    "per_year": {
+     "2025": -35.9,
+     "2024": 215.06,
+     "2023": 22.82
+    },
+    "mean_pts_per_season": 67.33,
+    "min": -35.9,
+    "max": 215.06,
+    "sign_stable_across_years": false
+   }
+  }
+ }
+}

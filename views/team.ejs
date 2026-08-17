@@ -256,6 +256,50 @@
   </div>
 </div>
 
+<%# ── SEASON TREND — the chart is ADDITIVE: it draws the frozen weekly scores
+    and the same numbers stay readable in the table right under it. War-room
+    chart ink (navy magnitude, hairline grid); dormant until weeks finish. %>
+<% const _tr = (typeof trend !== 'undefined' && trend) ? trend : []; %>
+<% if (_tr.length >= 2) { %>
+  <div class="card" style="margin-bottom:1.3rem">
+    <h2>📈 Season Trend <span class="sub"><%= viewOwner.name %>'s weekly scores, against the league median</span></h2>
+    <div class="body">
+      <%
+        const W = 560, Hc = 170, padL = 30, padB = 20, padT = 14;
+        const n = _tr.length;
+        const maxY = Math.max(...(_tr.map(t => Math.max(t.pts, t.med || 0)))) * 1.08;
+        const bw = Math.min(44, (W - padL - 8) / n * 0.62);
+        const x = i => padL + (i + 0.5) * ((W - padL - 8) / n);
+        const y = v => padT + (Hc - padT - padB) * (1 - v / maxY);
+      %>
+      <div class="wr-chart" role="img" aria-label="Weekly scores for <%= viewOwner.name %>">
+        <svg viewBox="0 0 <%= W %> <%= Hc %>" width="<%= W %>" height="<%= Hc %>">
+          <% for (const gv of [50, 100, 150]) { if (gv < maxY) { %>
+            <line class="grid" x1="<%= padL %>" x2="<%= W - 4 %>" y1="<%= y(gv) %>" y2="<%= y(gv) %>"></line>
+            <text x="2" y="<%= y(gv) + 3 %>"><%= gv %></text>
+          <% } } %>
+          <% _tr.forEach((t, i) => { %>
+            <rect class="bar<%= t.med != null && t.pts >= t.med ? '' : ' dim' %>" x="<%= x(i) - bw / 2 %>" y="<%= y(t.pts) %>" width="<%= bw %>" height="<%= Math.max(1, Hc - padB - y(t.pts)) %>" rx="3"></rect>
+            <% if (t.med != null) { %><line class="med" x1="<%= x(i) - bw / 2 - 3 %>" x2="<%= x(i) + bw / 2 + 3 %>" y1="<%= y(t.med) %>" y2="<%= y(t.med) %>"></line><% } %>
+            <text class="lbl" x="<%= x(i) %>" y="<%= y(t.pts) - 3 %>" text-anchor="middle"><%= Math.round(t.pts) %></text>
+            <text x="<%= x(i) %>" y="<%= Hc - 6 %>" text-anchor="middle">W<%= t.week %></text>
+          <% }) %>
+        </svg>
+      </div>
+      <p class="wr-chart-cap">Solid bar = at or above that week's league median (the tick); faded = below it. The chart adds the glance — the numbers stay the record:</p>
+      <details class="more-rows">
+        <summary>The numbers (<%= _tr.length %> week<%= _tr.length === 1 ? '' : 's' %>)</summary>
+        <table class="roll" style="margin-top:.5rem">
+          <tr><th>Week</th><th class="num">Score</th><th class="num">League median</th><th class="num">Week's best</th></tr>
+          <% for (const t of _tr) { %>
+            <tr><td>W<%= t.week %></td><td class="num"><b><%= t.pts.toFixed(1) %></b></td><td class="num"><%= t.med != null ? t.med.toFixed(1) : '—' %></td><td class="num"><%= t.top != null ? t.top.toFixed(1) : '—' %></td></tr>
+          <% } %>
+        </table>
+      </details>
+    </div>
+  </div>
+<% } %>
+
 <div class="card">
   <h2>Roster <span class="sub">points are half-PPR · Wk <%= roster.lastWeek %> = most recent completed week</span></h2>
   <div class="body tight scroll-x">

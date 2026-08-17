@@ -142,8 +142,15 @@
     // DISQUALIFIED, not reported as a winner.) This is a standing surface banner,
     // per the pre-registration, naming the better source.
     33: { name: 'projection source bake-off', status: 'lost',
+          // NUMBERS ADDED 2026-08-15 (re-audit) — the finding said "LOSE" but
+          // never carried the actual measured gap, so the banner it feeds
+          // rendered a true, qualitative claim with none of the evidence that
+          // makes it checkable. Verified against EXP33.md directly before
+          // adding: top-decile hit rate our_blend 0.413 both seasons vs naive
+          // 0.587 (2024) / 0.565 (2023) — 0/2 seasons won.
           finding: 'our projections LOSE to a simple prior-year+opportunity baseline at ' +
-                   'identifying the top decile — the players who actually matter (exp 33)' },
+                   'identifying the top decile — the players who actually matter (0.41 hit ' +
+                   'rate vs 0.57-0.59 for naive, both tested seasons — exp 33)' },
     // 34 REPORTED 2026-08-09 (draft/backtest/EXP34.md). The result is an ORDERING
     // edge — our walk-forward ranking of the pool beats ADP's (rho diff +0.12,
     // CI[0.008,0.233], n=19) — which is a LEAN, and a DIFFERENT claim from any
