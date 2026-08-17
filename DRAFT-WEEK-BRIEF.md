@@ -117,6 +117,27 @@ python3 draft/freeze_pre_draft.py
 git commit                                   # say why
 ```
 
+**One check only Cory can run** — the full war-room rehearsal.
+`draft/tests/rehearsal-mock3.js` drives the real screen in a real browser and is
+the closest thing to a dress rehearsal for draft night. **It could not be run
+from the research sandbox**: the war room sits behind auth (`/admin/warroom`
+returns 302 unauthenticated) and no credentials exist here. Verified what could
+be — the server starts, the login page serves 200, and `/draft_data.json`, the
+board the war room boots from, serves 200.
+
+```
+PORT=8925 node dev-server.js &
+WR_USER=<user> WR_PASS=<pass> node draft/tests/rehearsal-mock3.js
+```
+
+The two SELF-CONTAINED rehearsals do run here, and both pass after all of
+08-17's board changes: `rehearsal-keepers.js` 6/6 (including that a fixture
+board is refused rather than silently rendered) and `rehearsal-config-screen.js`
+13/13 (including that the CRITICAL scoring highlight discriminates rather than
+starring everything). So the keeper and config screens are verified against
+today's board; **the war room itself is not**, and that is a one-command gap
+worth closing before Tuesday.
+
 **His rookie-WR question is answered** —
 `draft/audit/rookie_wr_upside_for_draft_day_2026-08-17.md`. Concepcion (NFL rd1
 pk24) and Allen (NFL rd5 pk176) are 152 draft picks apart. Tail rate (150+ pt
