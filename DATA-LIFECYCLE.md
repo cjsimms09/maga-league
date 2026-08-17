@@ -78,7 +78,7 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 | `routes_*` | ✅ 2021-25 | ✅ Wed | ❌ | ❌ | **4** | **UNEXAMINED** — captured weekly, reaches nothing |
 | `weekly_volatility` | ✅ | ❌ | ❌ | ❌ | **4** | prereg'd (`VOLATILITY-WIRING-PREREG.md`), post-draft — **justified, dated** |
 | `team_pace_*` | ✅ 2021-25 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — the study returned a published NULL |
-| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **JUSTIFIED** — perfect-foresight ceiling measured at +0.23 weekly MAE |
+| `vegas_lines_*` | ✅ 2021-26 | ❌ | ❌ | ❌ | **5** | **RE-OPENED 08-17** — the +0.23 bounds a GAME-total oracle shared by both teams (208/208 games), **not** the team-level implied total this store holds. Register 18. **Trigger:** run `implied_home = total/2 + spread/2` with a join counter |
 | `advanced_stats_*` (air yards / EPA / CPOE) | ✅ 2021-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — study ran, wiring never decided |
 | `historical_props_*` | ✅ 2023-25 | ❌ | ❌ | ❌ | **4** | **UNEXAMINED** — season-total arm was graded, then stopped |
 | `own_projections_2026` | ✅ | ✅ Thu | ✅ | ✅ | **8** | complete |
@@ -86,9 +86,29 @@ Grading path = `model_accuracy_backtest.py` / `forecast_grade.py` / `learning_lo
 **Two chains are complete. Four stores stop at step 4 or 6 with no recorded
 reason.** Those four are the register's new rows.
 
-**Justified stops are not failures** — pace and Vegas both stop at step 5 with a
-measurement behind them, which is the standard working. The problem is never a
-NO; it is a NO nobody wrote down.
+**Justified stops are not failures** — a stop at step 5 with a measurement behind
+it is the standard working. The problem is never a NO; it is a NO nobody wrote
+down.
+
+**But a measurement only justifies the stop it actually covers, and Vegas did
+not.** Session D re-opened it on 2026-08-17
+(`draft/audit/vegas_oracle_row18_2026-08-17.md`). The +0.23 came from an oracle
+reading the **combined game total** and handing it to **both** teams — 208 of 208
+games in each graded season share one multiplier — so it cannot separate a
+45-point offence from the 3-point one it played (r² 0.465 / 0.447 against team
+points). The store's own `_note` calls it a *"team* game-total ceiling"; the code
+computes a game total. **A spread-derived implied team total —
+`total_line/2 + spread_line/2`, which this store exists to provide — is not in
+the class that number bounds.** The stop was recorded against a bound that does
+not reach the feature.
+
+That is the third failure mode this file has to name, alongside "no reason
+written" and "a reason with no trigger": **a reason written, with a real
+measurement behind it, that does not cover the decision it is filed under.** It
+is the hardest of the three to spot, because everything about it looks finished.
+The tell was available in the published result and unread — the oracle scored
+**worse applied fully (+0.132) than at half (+0.228)**, which is what an input
+pointed at the wrong team half the time looks like.
 
 ## THE RULE FOR NEW DATA, SO THIS DOES NOT REGROW
 
