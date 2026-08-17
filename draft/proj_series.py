@@ -84,8 +84,37 @@ def situation_from_board(players, fields=SITUATION_FIELDS):
     return out
 
 
+#: The DISTRIBUTION around the projection, frozen alongside it (2026-08-17).
+#:
+#: Cory: "have we made sure these ceilings and floors are correct for snapshots
+#: going forward??" — and the answer was NO, in the worst way: the snapshot froze
+#: the projection and nothing about the distribution, so in January 2027 we could
+#: have asked "did the projection hit?" and never "was our CEILING calibrated?"
+#: — which is precisely the question that turned out to matter.
+#:
+#: The `_source` fields ride along and are not decoration. proj_ceiling changed
+#: MEANING on 2026-08-17, from a Gaussian over the mean to the measured p90.
+#: Without the source stamp a 2027 reader sees two boards with the same field
+#: name holding two different quantities and no way to tell them apart.
+DIST_FIELDS = ("proj_floor", "proj_ceiling", "proj_sd",
+               "proj_floor_source", "proj_ceiling_source", "proj_sd_source")
+
+
+def distribution_from_board(players, fields=DIST_FIELDS):
+    """{player_id: {field: value}} — same absent-not-null rule as the rest."""
+    out = {}
+    for p in players or []:
+        pid = str(p.get("player_id") or "")
+        if not pid:
+            continue
+        row = {f: p.get(f) for f in fields if p.get(f) is not None}
+        if row:
+            out[pid] = row
+    return out
+
+
 def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX_SNAPS,
-                    week=None, situation_by_id=None):
+                    week=None, situation_by_id=None, dist_by_id=None):
     """series: [{date, source, proj:{id:points}}] oldest->newest. Returns a NEW list with this
     (date, source, week) snapshot added or REPLACED (a same-day re-run of the same source and
     week overwrites, never doubles), keeping the top_n highest-projection players and the most
@@ -121,6 +150,9 @@ def append_snapshot(series, date, source, proj_by_id, top_n=TOP_N, max_snaps=MAX
         # player the snapshot does not price.
         snap["situation"] = {pid: situation_by_id[pid]
                              for pid in trimmed if pid in situation_by_id}
+    if dist_by_id:
+        snap["dist"] = {pid: dist_by_id[pid]
+                        for pid in trimmed if pid in dist_by_id}
     if week is not None:
         snap["week"] = int(week)
     kept.append(snap)

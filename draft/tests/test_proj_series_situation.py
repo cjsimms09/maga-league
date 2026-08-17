@@ -88,3 +88,53 @@ def test_the_build_actually_passes_the_situation_through():
     assert "situation_from_board(players)" in src
     assert src.count("situation_by_id=situation") == 2, (
         "both the Sleeper and the FantasyPros freeze must carry it")
+
+
+# ── the DISTRIBUTION rides with the projection (2026-08-17) ─────────────────
+
+def test_the_snapshot_freezes_the_floor_and_ceiling_not_just_the_mean():
+    """Cory: "have we made sure these ceilings and floors are correct for
+    snapshots going forward??" The answer was NO — the snapshot froze a bare
+    projection, so a 2027 grade could ask "did the projection hit" and never
+    "was our ceiling calibrated", which is the question that turned out to
+    matter."""
+    for f in ("proj_floor", "proj_ceiling", "proj_sd"):
+        assert f in PS.DIST_FIELDS
+
+
+def test_the_snapshot_freezes_WHAT_THE_CEILING_MEANS_too():
+    """proj_ceiling changed meaning on 2026-08-17. Without the source stamp a
+    2027 reader sees two boards with one field name holding two different
+    quantities and no way to tell them apart."""
+    for f in ("proj_floor_source", "proj_ceiling_source", "proj_sd_source"):
+        assert f in PS.DIST_FIELDS
+
+
+def test_the_distribution_matches_the_priced_population():
+    board = [{"player_id": "1", "proj_floor": 5.0, "proj_ceiling": 300.0,
+              "proj_ceiling_source": "measured-2023-25-p90"},
+             {"player_id": "2", "proj_floor": 1.0, "proj_ceiling": 100.0}]
+    snap = PS.append_snapshot([], "2026-08-17", "sleeper", {"1": 250.0},
+                              dist_by_id=PS.distribution_from_board(board))[0]
+    assert set(snap["dist"]) == {"1"}, (
+        "the distribution must never describe a player the snapshot does not price")
+    assert snap["dist"]["1"]["proj_ceiling_source"] == "measured-2023-25-p90"
+
+
+def test_omitting_the_distribution_keeps_the_old_shape():
+    snap = PS.append_snapshot([], "2026-08-17", "fp", {"1": 100.0})[0]
+    assert "dist" not in snap
+
+
+def test_the_build_freezes_the_distribution_on_both_sources():
+    src = (Path(__file__).resolve().parents[1] / "build.py").read_text()
+    assert "distribution_from_board(players)" in src
+    assert src.count("dist_by_id=dist") == 2
+
+
+def test_the_pre_draft_freeze_records_what_the_ceiling_meant():
+    import freeze_pre_draft as FZ
+    for f in ("proj_floor", "proj_ceiling", "proj_floor_source", "proj_ceiling_source"):
+        assert f in FZ.PLAYER_FIELDS, (
+            f"{f} missing — a replay in 2027 could not tell a measured p90 from "
+            "a Gaussian under the same field name")

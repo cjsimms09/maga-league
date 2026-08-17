@@ -1496,8 +1496,13 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
     # LIVE STATE — true today and therefore never recoverable for today again —
     # which is why this could not wait until after the draft.
     situation = proj_series_mod.situation_from_board(players)
+    # The DISTRIBUTION rides with the projection (2026-08-17). Freezing the mean
+    # alone means a 2027 grade can ask "did the projection hit" and never "was
+    # our ceiling calibrated" — the question that turned out to matter.
+    dist = proj_series_mod.distribution_from_board(players)
     series = proj_series_mod.append_snapshot(series, today, "sleeper", proj_by_id,
-                                             situation_by_id=situation)
+                                             situation_by_id=situation,
+                                             dist_by_id=dist)
     froze = ["sleeper(%d)" % len(proj_by_id)]
     # SECOND SOURCE, frozen the same day (2026-08-10): the projection-source grade
     # is only clean if EVERY source is frozen preseason, not just Sleeper — a FP
@@ -1509,7 +1514,8 @@ def _update_proj_series(artifact: dict, *, today: str, path: Path = PROJ_SERIES_
                 for p in players if p.get("proj_fantasypros") is not None}
     if fp_by_id:
         series = proj_series_mod.append_snapshot(series, today, "fantasypros", fp_by_id,
-                                                 situation_by_id=situation)
+                                                 situation_by_id=situation,
+                                                 dist_by_id=dist)
         froze.append("fantasypros(%d)" % len(fp_by_id))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(

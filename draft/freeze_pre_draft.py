@@ -127,6 +127,17 @@ PLAYER_FIELDS = (
     # because this year's class joins by NAME (its capital store carries no
     # sleeper_id at all).
     "nfl_draft_round", "nfl_draft_pick", "capital_tier", "is_nfl_rookie",
+    # ⚠️ WHAT THE FLOOR AND CEILING ACTUALLY MEAN. Added 2026-08-17, the day
+    # both fields changed MEANING: proj_ceiling went from `mean + 1.036*sd` (a
+    # Gaussian over the mean, carrying no player information) to the measured
+    # p90 of realized outcomes, and proj_floor likewise to the measured p10.
+    #
+    # The VALUES were already frozen. The SOURCES were not, which means a board
+    # frozen yesterday and one frozen today hold two different quantities under
+    # one field name with nothing to distinguish them. A replay in 2027 would
+    # compare them as if they were the same measurement — the exact silent,
+    # plausible-looking error this whole freeze exists to prevent.
+    "proj_floor_source", "proj_ceiling_source",
 )
 
 
