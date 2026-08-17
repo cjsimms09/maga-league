@@ -17,7 +17,7 @@
 > have come out otherwise). Mark it UNPROVEN. Costs nothing, changes no number.
 > *Detail: `DEFECT-REGISTER.md` 4j/4p/4q. Reply in one word.*
 
-- [ ] 2026-08-17 · C · 🔴🔴 **URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF.** `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`.
+- [x] 2026-08-17 · C · ✅ **DONE BY A (23:0xZ): merged, dispatched from main, run SUCCEEDED — the calibration regenerated on real 2023-25 outcomes and the consumer is traced (projections.py::blend reads it at every board build). The board rebuild carrying it is in flight.** Original ask: 🔴🔴 URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF. `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`.
 
 - [x] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
 
