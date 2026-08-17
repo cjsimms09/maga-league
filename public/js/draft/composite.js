@@ -189,32 +189,26 @@
      * refused promotion, measured by a lab that cannot see injury insurance.
      * The case for this change is that the code contradicts its own stated
      * contract, which is true independent of any measurement. */
-    /* ⚠️ THE FLOOR IS NOT APPLIED HERE, AND THAT IS A KNOWN DEFECT AWAITING
-     * CORY'S DECISION — NOT AN OVERSIGHT. See draft/tests/keeper_option_floor.
+    /* THE FLOOR IS APPLIED. It was HELD while both premises of the hold were
+     * true; KOV_MEASURED_RAMP invalidated both, so the hold ended.
      *
-     * `value: 0` is deliberately ABSENT from this return. Adding it is the
-     * one-line fix, it is written and measured, and it is HELD.
+     * The hold rested on: (1) flooring would leave the keeper term dead —
+     * under the OLD ramp its entire live contribution was this negative
+     * branch; (2) Cory's first three picks were unaffected in both states —
+     * the old ramp kept the term at zero through round 6.
      *
-     * WHY IT IS HELD RATHER THAN SHIPPED: flooring it makes the keeper term
-     * contribute NOTHING on the frozen benchmark pool — intervention-rate
-     * reports `unexpectedly dead: ["keeper"]` and surface_contract's ordering
-     * becomes value:60.8 keeper:0.0 onesie:27.8 stack:11.4. So the term's entire
-     * live contribution today IS the negative branch. Removing the defect
-     * removes the term, which takes the shipped board from three live terms to
-     * two, and that is a change Cory should make knowingly four days before a
-     * draft rather than one I make inside a bug fix.
-     *
-     * THE ARGUMENT FOR FIXING IT, so the decision is not re-derived: an option
-     * cannot be worth less than zero — you decline it — and the docstring above
-     * already specifies max(0, raw − bar). The positive path implements that;
-     * this one does not. The objective evidence is a NULL either way (1998.4 ->
-     * 2003.4 starting points, one deterministic room, the same magnitude as the
-     * `need` null that was refused promotion), so the case rests on the contract
-     * and not on the score.
-     *
-     * Cory's first three picks are unaffected in both states: KOV_ROUND_RAMP_
-     * START keeps this term at exactly zero through round 6. */
-    if (raw.value <= 0) return Object.assign({}, raw, { raw_value: raw.value, bar: 0, displaced: null });
+     * The measured ramp (Cory's ruling, 2026-08-17) reverses the ramp's
+     * shape: rounds 1-6 now carry weight 1.0 and rounds 10-15 carry 0. On
+     * the shipped board that put this unfloored branch at FULL strength on
+     * the early picks — measured at pick 17: 586 of 587 published scores
+     * carried a negative keeper term, minimum −118.69, at weight 1.0 —
+     * while genuine positive option values (up to +38 at pick 17) now
+     * exist and SURVIVE the floor, so the term stays live after flooring.
+     * Neither premise held; the ruling that flipped the ramp never ruled
+     * to price early picks down by −100+, and the docstring's contract —
+     * max(0, raw − bar) — says this branch must clamp. raw_value preserves
+     * the unfloored quantity for diagnosis. */
+    if (raw.value <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: 0, displaced: null });
 
     const slots = keeperSlots(ctx);
     if (slots <= 0) return Object.assign({}, raw, { value: 0, raw_value: raw.value, bar: Infinity, displaced: null });

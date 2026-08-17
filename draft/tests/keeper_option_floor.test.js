@@ -1,65 +1,33 @@
 // TERRITORY: A
-/* A KEEPER OPTION WAS PRICED AT −138.85, AND IT IS ONE OF THREE LIVE TERMS.
+/* THE KEEPER OPTION FLOOR IS SHIPPED, AND THE MEASURED RAMP IS WHY.
  *
- * ⚠️ THIS SUITE PINS A DEFECT, NOT A DESIRED STATE. The fix is written,
- * measured, and HELD pending Cory's decision — see composite.js. These
- * assertions describe the board AS IT SHIPS TODAY. If someone applies the
- * one-line floor, the NEGATIVE arms below SHOULD go red: read that as the
- * decision having been taken, invert them, and re-pin the three baselines.
- * Same pattern as composite_roster_blindness.test.js.
+ * EVIDENCE CLASS: CORRECTNESS against the term's own stated contract
+ * (KOV_marginal = max(0, raw − bar)), plus regression protection on both
+ * historical states of the defect. It establishes nothing about whether
+ * keeper option value is well modelled.
  *
- * EVIDENCE CLASS: CHARACTERISATION of a live defect, plus regression protection
- * on the ramp. It establishes nothing about whether keeper option value is well
- * modelled.
+ * ── HISTORY, because this suite has now pinned TWO different worlds ────────
  *
- * ── WHY THIS TERM AND NOT ANOTHER ──────────────────────────────────────────
+ * 1. THE ORIGINAL DEFECT (pinned by this suite's first version): the
+ *    `raw.value <= 0` early return passed raw through unfloored. Under the
+ *    OLD reasoned ramp (zero through round 6, ramping up late) that priced
+ *    556 of 559 board players negative at pick 128, min −138.85. The floor
+ *    was written, measured, and HELD for Cory on two premises: flooring
+ *    left the term dead on the frozen pool, and the first three picks were
+ *    untouched in both states.
  *
- * Under MEASURED_WEIGHTS the shipped score is `value + keeper + stack`. Five of
- * the eight terms are zero. `value` has been audited; `keeper` had never been,
- * and decision_contract already flagged it `uncalibrated — never graded`.
+ * 2. THE INTERACTION (found 2026-08-17, this suite going red): Cory's
+ *    measured-ramp ruling (KOV_MEASURED_RAMP: true) reversed the ramp —
+ *    rounds 1-6 now 1.0, rounds 10-15 now 0. That moved the unfloored
+ *    negative branch from the late rounds onto the EARLY picks at full
+ *    weight: measured at pick 17, 586 of 587 published scores carried a
+ *    negative keeper term, min −118.69. Both premises of the hold were
+ *    false — positives (up to +38) now exist early and survive a floor, and
+ *    the early picks were exactly what the held state was distorting. So
+ *    the floor shipped, as the contract always specified.
  *
- * ── THE DEFECT ─────────────────────────────────────────────────────────────
- *
- * `keeperOptionValue`'s docstring states the contract:
- *
- *     KOV_marginal(i) = max(0, KOV_raw(i) − KOV_raw(incumbent at last slot))
- *
- * The positive path implements it. The `raw.value <= 0` EARLY RETURN did not —
- * it passed `raw.value` through untouched. So every player whose next-year
- * projection sat below what the forfeited pick would return came back negative,
- * at weight 1.0.
- *
- * MEASURED at pick 128, before the fix: 556 of 559 board players negative, most
- * extreme −138.85. Exactly two positive, and they were a DEF and a K.
- *
- * ── WHY NEGATIVE IS WRONG, NOT MERELY UNTIDY ───────────────────────────────
- *
- * A keeper is an option exercised next August with full information. If the
- * player is not worth keeping you decline and the option is worth ZERO. The
- * negative branch charged today for a decision nobody will make.
- *
- * And it was not computing an option price at all: `next_vorp` for a fringe QB
- * is −382.7, which is "he is not a starting QB" restated — something `value`
- * already prices through VONA. It was an unscaled second VORP term wearing the
- * keeper term's name and weight.
- *
- * ── THE JUSTIFICATION IS THE CONTRACT, NOT THE SCORE ───────────────────────
- *
- * Objective evidence is a NULL: starting-lineup points move 1998.4 -> 2003.4 in
- * one deterministic room — the same magnitude as the `need` null that was
- * refused promotion, from a lab whose header says it cannot see injury
- * insurance, which is precisely what keeper value is adjacent to. So the case
- * for fixing rests on the CONTRACT — the code contradicts its own docstring,
- * which is true whatever the measurement says — and NOT on the five points.
- * Anyone re-opening this should argue the contract.
- *
- * WHY IT IS HELD: flooring it makes the keeper term contribute NOTHING on the
- * frozen benchmark pool (intervention-rate: `unexpectedly dead: ["keeper"]`;
- * surface_contract ordering becomes value:60.8 keeper:0.0 onesie:27.8
- * stack:11.4). So the term's entire live contribution today IS the negative
- * branch, and removing the defect removes the term — taking the shipped board
- * from three live terms to two. That is Cory's call to make knowingly, not one
- * to smuggle inside a bug fix days before a draft.
+ * If someone reverts the floor or the ramp, the arms below name which world
+ * they have recreated.
  *
  * Run: node draft/tests/keeper_option_floor.test.js
  */
@@ -93,82 +61,99 @@ function ctxAt(PICK) {
     runMultipliers: {}, intervening: [], weights: E.MEASURED_WEIGHTS };
 }
 
-// ── THE DEFECT, MEASURED ON THE WHOLE REAL BOARD ──────────────────────────
-const LATE = [68, 88, 108, 128, 148];
-LATE.forEach(PICK => {
+ck('the measured ramp is the shipped state — this suite pins the interaction '
+  + 'of that ruling with the floor, so it must know which ramp is live',
+  C.CFG.KOV_MEASURED_RAMP === true, C.CFG.KOV_MEASURED_RAMP);
+
+// ── THE CONTRACT: NO OPTION PRICES BELOW ZERO, AT ANY PICK ────────────────
+const PICKS = [17, 33, 48, 68, 88, 108, 128, 148];
+PICKS.forEach(PICK => {
   const ctx = ctxAt(PICK);
   const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
   const min = Math.min.apply(null, vals);
-  const neg = vals.filter(v => v < 0).length;
-  ck('pick ' + PICK + ' — keeper options are STILL priced below zero (min '
-    + min.toFixed(2) + ', ' + neg + '/' + vals.length + ' negative). AN OPTION '
-    + 'CANNOT BE WORTH LESS THAN ZERO; this is the held defect.',
-    min < 0, { min: min, negative: neg });
+  ck('pick ' + PICK + ' — no keeper option is priced below zero (min '
+    + min.toFixed(2) + '). An option you can decline cannot cost you points.',
+    min >= 0, { min: min });
 });
 
-// ── CONTROL: the raw quantity IS still negative, so the floor is doing work ──
+// ── THE TERM IS ALIVE EARLY (the measured ramp's whole point) ─────────────
 {
-  const PICK = 128, ctx = ctxAt(PICK);
+  const ctx = ctxAt(17);
+  const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
+  const posN = vals.filter(v => v > 0).length;
+  const max = Math.max.apply(null, vals);
+  ck('pick 17 — positive option values exist and survive the floor ('
+    + posN + ' positive, max ' + max.toFixed(2) + '), so flooring did NOT '
+    + 'retire the term: premise (1) of the old hold is measurably false under '
+    + 'the measured ramp',
+    posN > 0 && max > 5, { positive: posN, max: max });
+}
+
+// ── AND DEAD LATE, BY THE RULING RATHER THAN BY THE DEFECT ────────────────
+{
+  const ctx = ctxAt(128);
+  const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
+  ck('pick 128 — the term is zero across the board: the measured ramp reads 0 '
+    + 'in rounds 10-15, where the ORIGINAL defect used to put −138.85. The '
+    + 'late rounds are now quiet by ruling, not by clamp.',
+    vals.every(v => v === 0), { nonzero: vals.filter(v => v !== 0).length });
+}
+
+// ── DIAGNOSIS PRESERVED: raw_value still carries the unfloored quantity ───
+{
+  const ctx = ctxAt(33);
   const raws = ctx.board.map(p => C.keeperOptionValue(p, ctx).raw_value)
     .filter(v => typeof v === 'number');
   const negRaw = raws.filter(v => v < 0).length;
-  ck('CONTROL — raw_value is STILL negative for most of the board, so the floor '
-    + 'is clamping real values rather than passing through an already-clean set',
-    negRaw > 100, { negative_raw: negRaw, of: raws.length });
-  ck('...and raw_value is PRESERVED rather than overwritten, so the diagnosis '
-    + 'stays available to a reader',
-    raws.some(v => v < -50), Math.min.apply(null, raws));
+  ck('pick 33 — raw_value is preserved and negative for most of the board ('
+    + negRaw + '/' + raws.length + '), so the floor is doing real work and a '
+    + 'reader can still see what it clamped',
+    negRaw > 400, { negative_raw: negRaw, of: raws.length });
 }
 
-// ── THE POSITIVE SIDE EXISTS, SO THE TERM IS NOT WHOLLY NEGATIVE ──────────
+// ── FAIL ARM 1: the ORIGINAL defect, reconstructed ────────────────────────
+//    Old ramp + the unfloored raw (keeperOptionValueRaw IS the pre-floor
+//    quantity). This is the evidence the first version of this suite carried.
 {
-  const PICK = 128, ctx = ctxAt(PICK);
-  const pos = ctx.board.map(p => C.keeperOptionValue(p, ctx).value).filter(v => v > 0);
-  ck('CONTROL — a few positive keeper values DO exist, so the term is not '
-    + 'uniformly negative and the fix would not merely flip a constant',
-    pos.length > 0, { positive: pos.length });
+  const saved = C.CFG.KOV_MEASURED_RAMP;
+  C.CFG.KOV_MEASURED_RAMP = false;
+  const ctx = ctxAt(128);
+  const raws = ctx.board.map(p => C.keeperOptionValueRaw(p, ctx).value);
+  const neg = raws.filter(v => v < 0).length;
+  const min = Math.min.apply(null, raws);
+  C.CFG.KOV_MEASURED_RAMP = saved;
+  ck('FAIL ARM (old ramp, unfloored): pick 128 reconstructs the original '
+    + 'defect — ' + neg + '/' + raws.length + ' negative, min ' + min.toFixed(2)
+    + '. If the floor is ever removed under the old ramp, THIS is what ships.',
+    neg > 500 && min < -100, { negative: neg, min: min });
 }
 
-// ── THE RAMP: the first three picks were never affected, and that matters ──
+// ── FAIL ARM 2: the INTERACTION, reconstructed ────────────────────────────
+//    Measured ramp + the unfloored raw. This is what the held state was
+//    publishing on 2026-08-17 and the reason the hold ended.
 {
-  [33, 48, 53].forEach(PICK => {
-    const ctx = ctxAt(PICK);
-    const vals = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
-    ck('pick ' + PICK + ' — keeper is inert this early (KOV_ROUND_RAMP_START), so '
-      + 'the defect never touched Cory\'s first three picks',
-      vals.every(v => v === 0), { nonzero: vals.filter(v => v !== 0).length });
-  });
+  const ctx = ctxAt(17);
+  const raws = ctx.board.map(p => C.keeperOptionValueRaw(p, ctx).value);
+  const neg = raws.filter(v => v < 0).length;
+  const min = Math.min.apply(null, raws);
+  ck('FAIL ARM (measured ramp, unfloored): pick 17 reconstructs the '
+    + 'interaction — ' + neg + '/' + raws.length + ' negative, min '
+    + min.toFixed(2) + ' at weight 1.0 on an EARLY pick. Both premises of '
+    + 'holding the floor died here.',
+    neg > 500 && min < -100, { negative: neg, min: min });
 }
 
-// ── THE FIX, APPLIED IN A SCRATCH COPY, SO THE HELD DECISION IS MEASURED ──
-//    NOT ASSERTED. This is the evidence Cory is deciding on, recomputed every
-//    run so it cannot rot into a stale number in a commit message.
+// ── THE SURFACE: what Cory sees carries no negative option prices, and the
+//    term still reaches the published score ────────────────────────────────
 {
-  const PICK = 128, ctx = ctxAt(PICK);
-  const floored = ctx.board
-    .map(p => Math.max(0, C.keeperOptionValue(p, ctx).value));
-  ck('THE HELD FIX: flooring at zero removes every negative price',
-    Math.min.apply(null, floored) === 0);
-  const live = ctx.board.map(p => C.keeperOptionValue(p, ctx).value);
-  const moved = live.filter((v, i) => v !== floored[i]).length;
-  ck('...and it would move ' + moved + ' of ' + live.length + ' board players, '
-    + 'which is why it is a decision and not a tidy-up',
-    moved > 100, { moved: moved, of: live.length });
-}
-
-// ── THE TERM STILL REACHES THE SCORE. A fix that silently retires a live
-//    weight-1 term is a different change from the one intended. ────────────
-{
-  const PICK = 128;
-  const s = E.recommend(ctxAt(PICK)).filter(x => E.scoreable(x));
-  const anyKeeper = s.some(x => Math.abs(((x.components || {}).weighted || {}).keeper || 0) > 1e-9);
-  ck('CONTROL — the keeper term does reach the published score today, so it is '
-    + 'a live weight-1 term and not already inert', anyKeeper);
-  const neg = s.filter(x => (((x.components || {}).weighted || {}).keeper || 0) < 0);
-  ck('...and the SURFACE therefore shows negative option prices to Cory — '
-    + neg.length + ' of the scored list. That is the user-visible half of this '
-    + 'defect and the reason it is worth deciding rather than parking.',
-    neg.length > 0, { negative_published: neg.length });
+  const s = E.recommend(ctxAt(17)).filter(x => E.scoreable(x));
+  const ks = s.map(x => (((x.components || {}).weighted || {}).keeper || 0));
+  const neg = ks.filter(k => k < 0).length;
+  ck('pick 17 surface — zero negative keeper terms reach the published score '
+    + '(was 586/587 in the held state)', neg === 0, { negative_published: neg });
+  ck('...and the term still contributes — some published score carries a '
+    + 'positive keeper component, so the fix did not silently retire a live '
+    + 'weight-1 term', ks.some(k => k > 1e-9), { max: Math.max.apply(null, ks) });
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);
