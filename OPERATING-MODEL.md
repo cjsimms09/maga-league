@@ -8,16 +8,50 @@ This file is short on purpose. If it grows past one screen it has failed.
 
 ---
 
-## THE FOUR ROLES
+## THE ROLES — DEFINED BY WHAT YOU SHIP, NOT BY WHAT YOU CHECK
 
-| | role | does | does NOT |
+**Cory, 2026-08-17:** *"no one actually owns anything.. even A just grades and
+sends back. no one owns everything."*
+
+**He is right, and it was a design error by the relay.** The first version of this
+table gave every lane a "does NOT" column and none of them a "ships this" column.
+That is a review organisation. Reviews do not draft a team.
+
+**So ownership is now by OUTCOME. You own a working thing, end to end — deciding,
+building and shipping it — and you are accountable when it does not work.**
+
+| | **YOU OWN THIS OUTCOME** | you decide, inside it | you still cannot |
 |---|---|---|---|
-| **A** | **gatekeeper & decider** | reviews, rules, merges to `main`, deploys | grunt work, chasing, re-deriving context |
-| **B** | site & in-season lane | builds surfaces, in-season tools | touch model/draft or ingest files |
-| **C** | external ingest lane | fetches, crosswalks, stores | touch engine, Lab, valuation, views |
-| **D** | data stewardship | is it correct, used, graded, does the grade move anything | fetch (C's) or decide what a number means (A's) |
-| **E** | **model owner** | owns the T1 register and *where the edge comes from*; decides input policy; red-teams the board | merge, or act as a second gatekeeper — A still owns correctness |
-| **PM** (relay) | integration & verification | CI health, cross-cutting sweeps, keeping the record honest, prepping A's decisions | decide anything A should decide |
+| **A** | **`main` is correct and green, and the board publishes** | anything about correctness; the merge | override E on input policy or Cory on anything |
+| **B** | **Cory drafts on a war room that works, and the site works** | layout within Cory's spec, all surface code | change model numbers |
+| **C** | **the data we need is here, on time, and correct** | sources, fetch design, schedules | decide what a number means |
+| **D** | **the learning loop actually produces changes** | what gets graded, how, and what the grade implies | fetch, or set input policy |
+| **E** | **the model gives Cory an EDGE** (`EDGE-DEFINITION.md` E1-E5) | input policy, what we study next, board sanity | merge, or overturn a measurement |
+| **relay** | **every lane has what it needs and nothing is lost** | routing, sequencing, what I build when a lane stalls | decide what A or E decides |
+
+**The test of ownership: if it breaks, whose name is on it?** If the answer is
+"we would have to discuss it," it is not owned.
+
+**A is a MERGE GATE, not the decider on everything.** A stops incorrect things
+reaching `main`. A does not decide what the model should use — that is E — or how
+a surface should look — that is Cory and B. **`SEND BACK` is for correctness.**
+An A that sends back on preference has become a bottleneck with taste.
+
+## RULE 1b — `ROUTES.md` GOES STRAIGHT TO `main`. IT IS A MAILBOX, NOT CODE.
+
+**The relay wrote Rule 1 to stop collisions, and it became the reason nothing
+reaches anyone.** On 08-17 thirty-five commits of routing, findings and rules sat
+on a branch while C went idle for want of work that was already assigned to it,
+and B was one merge away from building the wrong device.
+
+**A communication channel that requires a merge is not a channel.**
+
+So: **`ROUTES.md`, `CORY-ASKS.md`, `DEFECT-REGISTER.md` and `OPEN-QUESTIONS.md`
+are pushed directly to `main` by any lane.** They carry no executable code, and
+the machinery for concurrent edits already exists and is tested —
+`scripts/routes-merge.py` is section-aware and `routes_integrity.test.js` carries
+fail arms for duplication, orphaning, conflict markers and one-sided merges.
+**Push the mailbox; branch the code.**
 
 **A's time is the scarcest thing in the project.** Everything below exists to
 spend less of it.
