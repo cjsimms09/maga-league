@@ -123,7 +123,15 @@ ck('FAIL ARM — the detector FIRES on the teardown that shipped, so the three '
 {
   const click = (function () {
     const i = SRC.indexOf("$('#start-sync').addEventListener('click'");
-    return i < 0 ? '' : SRC.slice(i, i + 2600);
+    if (i < 0) return '';
+    /* Slice to a SEMANTIC end, not a byte count. This was `i + 2600`, and the
+     * 2026-08-17 room-switch guard (different draft id -> confirm -> reset)
+     * grew the handler past that window, so `new window.DraftSync` fell off
+     * the end and the ordering check below failed on a slice artifact while
+     * the real ordering it protects was intact. Anchor the end just past the
+     * construction the checks reason about instead. */
+    const j = SRC.indexOf('new window.DraftSync', i);
+    return j < 0 ? SRC.slice(i, i + 2600) : SRC.slice(i, j + 200);
   })();
   ck('the click handler is locatable', click.length > 500);
   ck('it detects an already-running sync on the SAME draft and does not build a '
