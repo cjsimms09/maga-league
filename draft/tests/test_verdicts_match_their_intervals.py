@@ -125,7 +125,14 @@ def test_CONTROL_the_sweep_actually_reaches_the_artifacts():
     change makes it scan nothing and report clean. Pinned to the measured
     population so a silent collapse to zero goes red."""
     found = _all_pairs()
-    assert len(found) >= 40, f"only {len(found)} verdict/interval pairs found — the sweep stopped reaching the artifacts"
+    # FLOOR LOOSENED 40 -> 25 on 2026-08-17, same day it was written, because 40
+    # was fitted to the exact count on one branch and main's Lab regenerated an
+    # artifact with one row fewer — 39. That is the "bound tuned to today's data
+    # fires on ordinary variation" mistake this session flagged on the snap-count
+    # join floor, committed here in the guard that flagged it. The real
+    # non-vacuity check is the named-artifact assertion below; this number only
+    # has to catch a COLLAPSE.
+    assert len(found) >= 25, f"only {len(found)} verdict/interval pairs found — the sweep stopped reaching the artifacts"
     names = {n for n, _, _, _ in found}
     for expected in ("frontier.json", "stack-sweep.json", "cory-conditional.json"):
         assert expected in names, (expected, sorted(names))
