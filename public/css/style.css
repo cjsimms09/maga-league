@@ -2700,9 +2700,22 @@ body.warroom-page #mvs { display: none; }
 body.warroom-page #doctrine-banner { flex-wrap: wrap; align-items: baseline; }
 body.warroom-page #doctrine-banner .db-main { flex: 1 1 100%; min-width: 0; }
 body.warroom-page #doctrine-banner .db-side { flex: 1 1 100%; margin-left: 0; text-align: left; }
-body.warroom-page #doctrine-banner .db-creed,
-body.warroom-page #doctrine-banner .db-alt { display: none; }
+body.warroom-page #doctrine-banner .db-creed { display: none; }
+/* .db-alt used to be hidden here too (08-09: its alt-PRICE line duplicated the
+   recs card's "next turn cost"). 08-14 added a nested .db-defer span inside
+   #db-alt's own innerHTML — the deferral explanation that is the actual fix
+   for "the war room told Cory to take early QB" (a doctrine that declines a
+   position reads as trailing, not as buying a later pick). Hiding the WHOLE
+   parent to save the redundant price line was silently hiding that too, so
+   the fix for the early-QB defect has never been visible on this page since
+   the day it was written — caught 2026-08-17 by driving the real page, not
+   assumed from the code. Un-hidden; the small alt-price overlap with "next
+   turn cost" is a fair trade for a defect this page exists to prevent. */
 body.warroom-page #doctrine-banner .db-confidence { white-space: normal; overflow-wrap: anywhere; }
+/* THE DEFERRAL LINE — its own row, secondary weight, never competing with the
+   alt line above it (A's spec: "Ten-ish words at ~0.8em. Do not let it
+   compete with the alt line for weight"). */
+.db-defer { display: block; margin-top: .2rem; font-size: .7rem; line-height: 1.4; }
 #legality-strip.legality-strip { padding: .28rem .7rem; }
 .wr-zone2 { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
 .wr-zone2 .card { margin: 0; }

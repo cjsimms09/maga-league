@@ -262,19 +262,12 @@
           every other voice labeled by what it optimizes. Everything below it
           is detail on this answer, not a competing one. %>
       <div id="verdict-block" class="wrv" style="display:none"></div>
-      <%# THE PAIRED-ORDER SLOTS (ROUTES.md → TO: A, 2026-08-17) — empty until
-          renderRecommendations' six-way split targets them; harmless no-ops
-          until then, so this ships without waiting on that split to land.
-          #verdict-block keeps ownership of the name/why/take/lens content it
-          renders today — nothing above moves until the split does. These three
-          are net-new real estate for the two pieces the verdict never had a
-          dedicated home for, plus the disclosure item 5 asks for. %>
-      <div id="wr-verdict-timing" class="wr-verdict-timing" style="display:none"></div>
-      <div id="wr-verdict-tier" class="wr-verdict-tier" style="display:none"></div>
-      <details id="wr-verdict-detail" class="paths-wrap" style="display:none">
-        <summary>The full working — every lens, the rule's reasoning, the wait cost</summary>
-        <div id="wr-verdict-detail-body"></div>
-      </details>
+      <%# The three paired-order slots proposed here 2026-08-17 (wr-verdict-timing/
+          -tier/-detail) never got filled — A's six-way split (b0077e3d, same day)
+          solved timing/tier-cliff/collapsed-chips its own way (renderRecTiming,
+          renderRecTierCliff, renderRecChips, each targeting existing hosts) rather
+          than these. Removed rather than left as dead markup; nothing referenced
+          them. %>
       <div id="confidence-note"></div>
       <%# THE OTHER DIRECTIONS — collapsed by default (war-room shell rebuild,
           2026-08-17, Cory: "war room still looks like shit… promised weeks
