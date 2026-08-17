@@ -126,3 +126,60 @@ def test_an_item_that_ANNOUNCES_itself_complete_is_ticked():
                 bad.append(f"TO:{lane} {line[:110]}")
     assert not bad, ("these items announce themselves complete but still render "
                      "as open:\n" + "\n".join(bad))
+
+
+# ── AND NO COORDINATION FILE MAY CARRY A VOID INSTRUCTION UNSTRUCK ──────────
+# Found 2026-08-17 on the first screen of STATUS.md, the file every session is
+# told to read: "Both sessions now commit to `main` directly — no branches."
+# TERRITORY.md had marked that protocol VOID on 2026-08-09, in its own heading.
+# It survived eight days in the highest-traffic position in the repo.
+#
+# A stale FINDING is a nuisance. A stale INSTRUCTION is a session pushing to a
+# protected branch because the docs told it to.
+
+COORDINATION_FILES = ("STATUS.md", "SESSION-A.md", "SESSION-B.md", "SESSION-C.md",
+                      "CLAUDE.md", "DRAFT-WEEK-BRIEF.md")
+
+
+def test_no_coordination_file_tells_a_session_to_commit_straight_to_main():
+    """The instruction may appear as HISTORY — struck, or with VOID beside it —
+    but never as a live directive.
+
+    SCOPED TO THE PARAGRAPH, NOT THE LINE, and that was not the first draft. Line
+    scoping flagged this file's own correction in STATUS.md, where the quoted
+    instruction wraps onto one line and the word VOID lands on the next. A guard
+    whose first finding is the sentence explaining the thing it guards against is
+    a guard that will be switched off. Markdown wraps; the exemption has to be
+    read at the same granularity a human reads it."""
+    offenders = []
+    pattern = re.compile(r"commit(?:s|ting)?\s+to\s+`?main`?\s+directly"
+                         r"|commit\s+directly\s+to\s+`?main`?", re.I)
+    exempt = re.compile(r"~~|\bVOID\b|superseded|no longer|struck", re.I)
+    for name in COORDINATION_FILES:
+        path = os.path.join(ROOT, name)
+        if not os.path.exists(path):
+            continue
+        lines = read(name).split("\n")
+        for i, line in enumerate(lines):
+            if not pattern.search(line):
+                continue
+            window = "\n".join(lines[max(0, i - 2):i + 3])
+            if exempt.search(window):
+                continue
+            offenders.append(f"{name}:{i + 1}: {line.strip()[:120]}")
+    assert not offenders, (
+        "a coordination file carries a LIVE instruction to commit straight to "
+        "main; the harness forces feature branches (TERRITORY.md):\n"
+        + "\n".join(offenders))
+
+
+def test_CONTROL_that_check_can_actually_fire():
+    """Known-positive: the exact sentence that sat in STATUS.md for eight days,
+    and the struck form that must pass."""
+    pattern = re.compile(r"commit(?:s|ting)?\s+to\s+`?main`?\s+directly"
+                         r"|commit\s+directly\s+to\s+`?main`?", re.I)
+    live = "**Both sessions now commit to `main` directly — no branches.**"
+    struck = "~~Both sessions now commit to `main` directly~~ — VOID since 2026-08-09"
+    assert pattern.search(live)
+    assert "~~" not in live and not re.search(r"\bVOID\b", live)      # would be flagged
+    assert pattern.search(struck) and "~~" in struck                   # would pass

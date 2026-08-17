@@ -1,19 +1,47 @@
 # STATUS — unattended run
 
-> **📣 MONDAY (2026-08-17): READ `MONDAY-BRIEF.md` BEFORE THIS FILE.** The relay session executed seven rulings, promoted own_v6, merged five design passes, and wrote your exact resume path there.
+> **📣 READ `DRAFT-WEEK-BRIEF.md` FIRST** (2026-08-17; draft is 08-22).
+> `MONDAY-BRIEF.md` is still accurate and superseded as the entry point.
+>
+> **🧭 SESSION BOOTSTRAP:** a fresh session starts from its role file, not a pasted
+> prompt. **A → `SESSION-A.md`** (model & draft) · **B → `SESSION-B.md`** (site &
+> in-season) · **C → `SESSION-C.md`** (external ingest — created 2026-08-17; C had
+> an inbox in `ROUTES.md` since 08-11 and no role file until then). Territory:
+> **`TERRITORY.md`**. Access rule: **`ACCESS-RULE.md`**. Plain-English queue:
+> **`TODO.md`**. Cross-lane inbox: **`ROUTES.md` → `## TO: <your lane>`**.
+> Resume ritual: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_
+>
+> **⚠️ BRANCHES, NOT `main` — corrected 2026-08-17.** The block below used to end
+> *"Both sessions now commit to `main` directly — no branches"*. **That protocol is
+> VOID** and has been since 2026-08-09 — `TERRITORY.md` says so in its own heading
+> (*"⛔ THE MAIN-ONLY PROTOCOL BELOW IS VOID — the harness forces feature
+> branches"*). It survived here, on the first screen of the file every session is
+> told to read, for eight days. **Work on a feature branch. `main` is reached by
+> `scripts/integrate.sh`, and A owns integration.**
+>
+> **📉 THIS FILE IS 1,700 LINES AND MOSTLY HISTORY. Read to the end of this block,
+> then STOP and grep for what you need.** Boot cost measured 2026-08-17:
+> `CLAUDE.md` + brief + `SESSION-A.md` + `STATUS.md` ≈ **80,600 tokens** before any
+> work happens. Everything below the next heading is a dated record, not
+> instructions — the live queue is `TODO.md`, the live assignments are `ROUTES.md`,
+> and what is true today is in `DRAFT-WEEK-BRIEF.md`.
 
+---
 
-> **🧭 SESSION BOOTSTRAP:** a fresh session should start from its role file, not a
-> pasted prompt. **Session A → `SESSION-A.md`**, **Session B → `SESSION-B.md`** (both
-> at repo root); the shared rules live there and change there. Access rule (tools vs
-> history): **`ACCESS-RULE.md`**. Plain-English current queue: **`TODO.md`**. Resume
-> ritual: _"You are session A, read SESSION-A.md and STATUS.md, then continue."_
+## 🗄️ RESOLVED — kept as the record, not as instructions (2026-08-08 hotfixes)
+
+_All four below were fixed on 2026-08-08 and are retained for provenance. They led
+the file for nine days, which is how the void branch instruction above survived._
 
 > **🩹 HOTFIX (2026-08-08): /history 500'd in production — `included_files` gap, NOT the merge.** The merge was clean (every B file byte-identical to `e2b7ce9`, all pages render 200 locally incl. `/history/season/2024`). But `history-data.js` reads its harvest (`draft/data/**`, `draft/config/**`, `public/draft_data.json`) from disk at request time, and `netlify.toml`'s `included_files` never bundled them → `ENOENT` in the function → every `/history` route 500s while Blob-backed pages stayed up. Proven by simulating the bundle (build() throws ENOENT on `league_history.json`) and by the fix (build() OK, 2024 present). Fixed forward with `[deploy]` — no rollback, since the cause was one config line, not the merge.
 > **🔧 DEPLOY-VERIFY WAS SILENTLY DEAD (pre-existing, found during the hotfix).** `deploy-verify.yml`'s heredoc terminator `PY` sat at column 0 inside a 10-space `run: |` block scalar → **invalid YAML**, so GitHub could not parse its triggers and every run created-and-instantly-failed with **zero jobs**. The deploy verifier — the one check that proves "deployed == HEAD" — had never actually run. Fixed (indent `PY` into the block; bash still gets a bare terminator after YAML dedent). Added a **CI workflow-YAML lint** so an unparseable workflow is a red build, not a silent hole. (`ci.yml` itself passes on every commit — that was never broken.)
 > **💰 MONEY BOARD REGRESSION = the SAME bundling gap (diagnosed 2026-08-08).** `/history/money` career totals read from `master_sheet_archive.json` (`A.moneyBoard.rows[].career`); it wasn't bundled → 500 in prod. Fixed by the same `included_files` addition. Reproduced: renders 10 real non-zero totals locally, throws ENOENT bundle-missing. NOT a merge side-effect, NOT the engine overwriting the old board (the legacy `?section=money` `$0`s are a separate pre-existing blob quirk). **Two guards added, both green + negative-controlled:** `bundling_guard.test.js` (every committed file a route `readFileSync`s must be in `included_files` — reverting the fix fails it, naming the files) and `history_smoke.test.js` (boots the app, logs in, asserts `/history`, `/history/season/2024`, `/history/records`, `/history/money` are 200 AND populated — money board must show real dollar totals, catching an empty table that alarms on nothing). Both wired into CI + the Sunday audit.
 > **📖 CHAPTER STATUS (confirmed):** `/history/season/2024` renders the written chapter (37KB prose) AND is linked from `/history` (season card + "Chapter written" tag, `index.ejs:106-112`, gated on `chapters.has(year)`) — reachable by tapping 2024, NOT committed-but-not-connected. 2023/2025/2016-22 correctly have records-only cards, no prose (`CHAPTERS={2024}`), per the voice-approval hold.
-> **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. **Both sessions now commit to `main` directly — no branches (TERRITORY.md § Branch protocol).**
+> **🚀 DEPLOYED vs main:** targeting `main` @ the branch-protocol commit (this push carries `[deploy]`). Live URL `https://makefbgreatagain.netlify.app`; `site-check.yml` compares deployed commit to `main` HEAD and the Sunday audit flags drift. ~~**Both sessions now commit to `main` directly — no branches.**~~ **VOID since
+2026-08-09 — the harness forces feature branches** (`TERRITORY.md` § *"⛔ THE
+MAIN-ONLY PROTOCOL BELOW IS VOID"*). Struck inline 2026-08-17: the correction at
+the top of this file is not enough on its own, because anyone grepping for
+"branch" lands here first and reads a live instruction.
 > **🔀 BRANCH PROTOCOL LANDED (2026-08-08):** the jwdvn7/xs2lv6 divergence is merged to `main` (both sides, STATUS.md unioned, nothing lost) and cannot recur — `scripts/branch-check.sh` gates commits to main, the Sunday audit asserts no stray branches + deployed==HEAD. **Session B: the protocol is in TERRITORY.md — pull main, commit there, push immediately.**
 
 > **🟡 UPDATE 2026-08-16 (relay): the cron below IS BUILT** — `netlify/functions/grade-cron.js`, scheduled Tuesdays 12:00 UTC in netlify.toml, grades forecasts + decisions, appends the calibration ledger, consumes it into evidence weights, era-stamped, smoke-testable via ?key=GRADE_CRON_KEY. It goes LIVE with the relay-branch merge to main — the merge is the only gate left on this deadline. After merge: run the smoke test once, then this banner goes green.
