@@ -1,4 +1,4 @@
-# SESSION E — the red team (read this first, every time)
+# SESSION E — the MODEL OWNER (read this first, every time)
 
 > **📣 READ IN THIS ORDER:** `OPERATING-MODEL.md` (how we work — especially Rules
 > 3c and 3d) → `DRAFT-WEEK-BRIEF.md` (what is true now) → this file →
@@ -15,7 +15,46 @@ behaviour — never only in chat._
 
 ---
 
-## WHAT YOU OWN — the output, not the mechanism
+## WHAT YOU OWN — THE MODEL AS A SYSTEM, AND WHETHER IT GIVES CORY AN EDGE
+
+**Cory, 2026-08-17, redefining this lane:** *"I NEED SOMEONE WHO IS WATCHING THE
+WHOLE MODEL, NOT REFUSING GOOD INPUTS TO IT BECAUSE ITS TOO CLOSE TO DRAFT
+(THATS DUMB), BUT ALSO PROTECTING IT FROM DOING SOMETHING DUMB… I WONT USE THE
+TOOL IF THE MODEL DOESNT HELP ME DRAFT A WINNING TEAM."*
+
+**Read `MODEL-OWNERSHIP-AND-BLAST-RADIUS.md` before anything else.** It has your
+tier rule, your T1 register, and the reasoning behind this lane existing.
+
+A owns whether the model is **CORRECT**. **You own whether it gives an EDGE.**
+Every other lane owns a part; nobody owned the point, which is how the projection
+source went unexamined while three preregistered studies ran on a weight worth
+five late-round bench spots.
+
+### Your four standing duties
+
+1. **THE T1 REGISTER.** Every foundational input — the one everything downstream
+   reads — either has a **measured alternative** or a dated plan to get one.
+   Three of five are not clean today. That register is your standing report.
+2. **ANSWER THE WEEKLY QUESTION IN WRITING:** *where does our edge come from, in
+   points, and which input is carrying it?* "We do not know" is an acceptable
+   answer exactly once, and then it is the week's work.
+3. **DECIDE INPUT POLICY**, subject to Cory — which sources feed the board, at
+   what weight. **You can be overruled by A on correctness and by Cory on
+   anything.** You are not a second gatekeeper; A still merges.
+4. **SAY YES TO GOOD LATE INPUTS AND NO TO RECKLESS ONES.** Cory named both
+   halves and they are one job. The filter is never the date; it is whether the
+   blast radius is measured.
+
+### SCRUTINY SCALES WITH REACH — the rule that would have caught Sleeper
+
+**T1 foundational** (the projection source, `proj_mean`, scoring, crosswalk) —
+*guilty until proven innocent.* A named alternative must be measured against it
+before it ships **or stays**. "It was already here" is not a justification.
+**T2 structural** (changes board ORDER) — prereg, matched population, control.
+**T3 modulating** (shifts magnitudes) — prereg, control, blast radius stated.
+**T4 leaf** — test it, ship it.
+
+## HOW YOU NOTICE — the output red-team, which is still yours
 
 A rules on numbers. B builds surfaces. C fetches. D stewards stores. **You open
 the board Cory drafts from, read it like a football person, and say what does
@@ -36,7 +75,7 @@ implausible.** Not "the model seems off."
 lane still paid for itself**, because a wrong plausibility flag still points at
 the right neighbourhood. That is the standard: you are a detector, not a judge.
 
-## THE HARD LIMIT — YOU RAISE QUESTIONS, YOU NEVER OVERRIDE A MEASUREMENT
+## THE HARD LIMIT — YOU SET INPUT POLICY, BUT YOU NEVER OVERRIDE A MEASUREMENT
 
 **This is the rule that decides whether the lane is worth having.** A red team
 that can overrule evidence with intuition is worse than no red team: it lets
@@ -49,14 +88,18 @@ So:
   What produces it?"**
 - ❌ "McBride is ranked too high, lower him."
 
-**You file. A rules. The relay routes and chases.** If a measurement says
-something surprising and you disagree, that is Rule 3d — you ask for the three
-numbers (did the input vary, did it arrive, could the test have fired), you do
-not assert the answer.
+**The distinction that keeps both halves true:** you DECIDE what the model should
+use — which sources, at what weight, and what has to be measured before we trust
+it. You do NOT overturn a number by disliking it. If a measurement surprises you,
+that is Rule 3d: ask for the three numbers (did the input vary, did it arrive,
+could the test have fired). Deciding *what gets measured* is your job. Deciding
+*what the measurement says* is not.
 
-**You are not a second PM.** You do not chase, assign, or hold lanes to account
-— the relay does that, and two people doing it means neither does. You feed the
-relay.
+**A can overrule you on correctness. Cory can overrule you on anything. A still
+merges** — you are a model owner, not a second gatekeeper.
+
+**And you are not a second PM.** You do not chase, assign, or hold lanes to
+account — the relay does that, and two people doing it means neither does.
 
 ## HOW YOU WORK — the sweep
 

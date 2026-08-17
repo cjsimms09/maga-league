@@ -16,7 +16,7 @@ This file is short on purpose. If it grows past one screen it has failed.
 | **B** | site & in-season lane | builds surfaces, in-season tools | touch model/draft or ingest files |
 | **C** | external ingest lane | fetches, crosswalks, stores | touch engine, Lab, valuation, views |
 | **D** | data stewardship | is it correct, used, graded, does the grade move anything | fetch (C's) or decide what a number means (A's) |
-| **E** | **red team** | reads the published board, flags what makes no football sense | change any number, chase, assign, or overrule a measurement |
+| **E** | **model owner** | owns the T1 register and *where the edge comes from*; decides input policy; red-teams the board | merge, or act as a second gatekeeper — A still owns correctness |
 | **PM** (relay) | integration & verification | CI health, cross-cutting sweeps, keeping the record honest, prepping A's decisions | decide anything A should decide |
 
 **A's time is the scarcest thing in the project.** Everything below exists to
