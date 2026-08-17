@@ -159,6 +159,48 @@ const row = (pos, rank, mean) => ({ position: pos, pos_rank: rank, proj_mean: me
     { NA: c.NA });
 }
 
+{
+  // THE FINDING THAT EXPLAINS EVERY OTHER RESULT IN THIS PASS, PINNED.
+  //
+  // Cory's sentence assumes a TRADE-OFF: give up median to buy ceiling. On the
+  // measured error distribution that trade-off does not exist at the two deep
+  // positions. A SWING's ratio upside is larger, but it multiplies a smaller
+  // projection, and the product loses: at RB and WR NO swing's top-decile
+  // season reaches even the WEAKEST anchor's. The classes are ordered, not a
+  // menu — an anchor is the safer pick AND the higher-ceiling one.
+  //
+  // Pinned because if a future board ever breaks the ordering, the barbell
+  // becomes a live strategy again and this document's verdict must be revisited.
+  const board = JSON.parse(fs.readFileSync(path.join(ROOT, 'public',
+    'draft_data.json'), 'utf8'));
+  const p90 = {};
+  board.players.forEach(p => {
+    const ob = UC.outcomeBand(p);
+    if (!ob) return;
+    const c = UC.classify(p);
+    ((p90[p.position] || (p90[p.position] = {}))[c]
+      || (p90[p.position][c] = [])).push(ob.p90);
+  });
+  ['RB', 'WR'].forEach(pos => {
+    const a = p90[pos].ANCHOR, s = p90[pos].SWING;
+    ck('at ' + pos + ' NO swing out-ceilings even the weakest anchor '
+      + '(anchor p90 min ' + Math.min.apply(null, a).toFixed(0)
+      + ', swing p90 max ' + Math.max.apply(null, s).toFixed(0) + ') — the '
+      + 'safe-vs-upside trade-off does not exist here',
+      Math.max.apply(null, s) < Math.min.apply(null, a), { pos });
+    ck('at ' + pos + ' no DEAD row reaches replacement at p90 — that IS the '
+      + 'definition, checked non-vacuously on n=' + p90[pos].DEAD.length,
+      p90[pos].DEAD.length > 20
+      && Math.max.apply(null, p90[pos].DEAD) < UC.replacement()[pos]);
+  });
+  // …and it is genuinely position-dependent, not a universal artifact: at QB a
+  // handful of swings DO out-ceiling the weakest anchor. Asserted so the two
+  // checks above cannot be passing for a trivial reason.
+  ck('CONTROL — at QB the ordering DOES overlap, so the RB/WR result is a fact '
+    + 'about those positions rather than a property of the definition',
+    Math.max.apply(null, p90.QB.SWING) > Math.min.apply(null, p90.QB.ANCHOR));
+}
+
 // ── 3. the overlay arms ────────────────────────────────────────────────────
 
 let nextId = 1;
