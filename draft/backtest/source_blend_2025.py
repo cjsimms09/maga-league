@@ -137,70 +137,127 @@ def decide(arms: dict) -> dict:
 
 def main() -> int:
     import fantasypros_adp as FP
-    sys.path.insert(0, str(HERE.parent))
+    import adp as ADP
     import sleeper_import as SL
+    import raw_capture as RAW
 
     store_path = HERE / f"nflverse_weekly_points_{YEAR}.json"
     if not store_path.exists():
         return void(f"no realized store at {store_path.name}")
     realized = season_totals(json.loads(store_path.read_text()))
+    prior_path = HERE / f"nflverse_weekly_points_{YEAR - 1}.json"
+    prior = season_totals(json.loads(prior_path.read_text())) if prior_path.exists() else {}
+    if not prior:
+        return void(f"no {YEAR - 1} store — NAIVE is the known-positive control and "
+                    "cannot be built, so the run could not fail")
 
     scoring = json.loads((HERE.parent / "config.json").read_text()).get("scoring", {})
     if not scoring:
         return void("house scoring table is empty — every arm would be scored wrong")
 
-    # ── SLEEPER ──────────────────────────────────────────────────────────────
+    players = SL.fetch_players()
+    if not players:
+        return void("Sleeper player index unreachable — a fact about the runner")
+    index = ADP.build_index(players)
+    position_of = {str(pid): (p or {}).get("position") for pid, p in players.items()}
+
+    # ── SLEEPER ─────────────────────────────────────────────────────────────
     sl_raw = SL.fetch_projections(str(YEAR))
     if not sl_raw:
-        return void("Sleeper egress failed — a fact about the runner, not the source")
+        return void("Sleeper projections egress failed — a fact about the runner, "
+                    "not about the source")
     sleeper = {}
     for row in (sl_raw if isinstance(sl_raw, list) else sl_raw.get("players", [])):
         pid, stats = str(row.get("player_id") or ""), row.get("stats") or {}
         if pid and stats:
             v = score_stat_line(stats, scoring)
             if v:
-                sleeper[pid] = v
+                sleeper[pid] = float(v)
 
-    # ── FANTASYPROS ──────────────────────────────────────────────────────────
-    text, url, _diag = FP.fetch_projections(YEAR)
+    # ── FANTASYPROS, crosswalked through the SAME index exp_fp_hist_proj uses ─
+    text, url, diag = FP.fetch_projections(YEAR)
     if not text:
         return void("FantasyPros egress failed — a fact about the runner, not the source")
-    index = {normalize_name(k): k for k in realized}       # placeholder crosswalk key space
-    fp = {}
+    RAW.retain("fantasypros_projections", YEAR, text, url, diag)   # re-parse, never re-fetch
+    fp, unmatched = {}, 0
     for row in FP.parse_projections(text):
+        sid, _how = ADP.match_player(row, index)
+        if not sid:
+            unmatched += 1
+            continue
         v = score_stat_line(row.get("stats") or {}, scoring)
         if v:
-            fp[normalize_name(row.get("name", ""))] = (v, row.get("position"))
+            fp[str(sid)] = float(v)
 
-    return report(sleeper, fp, realized, index, url)
+    # ── THE MATCHED POPULATION — the control that makes this admissible ──────
+    matched = [pid for pid in sleeper if pid in fp and pid in realized and pid in prior]
+    drops = {"sleeper_only": len([p for p in sleeper if p not in fp]),
+             "fp_only": len([p for p in fp if p not in sleeper]),
+             "no_realized": len([p for p in sleeper if p in fp and p not in realized]),
+             "no_prior_for_naive": len([p for p in sleeper if p in fp and p in realized
+                                        and p not in prior]),
+             "fp_unmatched_to_pid": unmatched}
+
+    def by_pos(value_of):
+        out = {p: [] for p in POSITIONS}
+        for pid in matched:
+            pos = position_of.get(pid)
+            if pos in out:
+                out[pos].append((value_of(pid), realized[pid]))
+        return out
+
+    arms = {"SLEEPER": arm_metrics(by_pos(lambda p: sleeper[p])),
+            "FP": arm_metrics(by_pos(lambda p: fp[p])),
+            "NAIVE": arm_metrics(by_pos(lambda p: prior[p]))}
+    for w in BLEND_GRID:
+        arms[f"BLEND-{w:.2f}"] = arm_metrics(by_pos(lambda p, w=w: blend(sleeper[p], fp[p], w)))
+
+    # ── THE KNOWN-POSITIVE CONTROL, checked BEFORE the verdict is written ────
+    def mean_primary(name):
+        c = [v[PRIMARY] for v in arms[name].values() if v.get("status") == "measured"]
+        return sum(c) / len(c) if c else -2.0
+    naive, sl_m, fp_m = mean_primary("NAIVE"), mean_primary("SLEEPER"), mean_primary("FP")
+    if naive >= sl_m and naive >= fp_m:
+        return void(f"NAIVE (prev-season points, mean {PRIMARY} {naive:.4f}) beat BOTH "
+                    f"professional sources (Sleeper {sl_m:.4f}, FP {fp_m:.4f}). That is a "
+                    "broken harness, not a finding about the sources.")
+
+    verdict = decide(arms)
+    OUT.write_text(json.dumps({
+        "experiment": "SOURCE-BLEND-2025", "status": "graded", "year": YEAR,
+        "_prereg": "draft/backtest/SOURCE-BLEND-2025-PREREG.md",
+        "_territory": "TERRITORY: A — produced by draft/backtest/source_blend_2025.py",
+        "matched_population": len(matched), "drops": drops,
+        "control_naive_lost": {"naive": round(naive, 4), "sleeper": round(sl_m, 4),
+                               "fp": round(fp_m, 4), "passed": True},
+        "arms": arms, "decision": verdict, "fp_url": url,
+    }, indent=1) + "\n")
+    print(f"matched population: {len(matched)}   drops: {drops}")
+    for name in ("SLEEPER", "FP", "NAIVE", *[f"BLEND-{w:.2f}" for w in BLEND_GRID]):
+        print(f"  {name:<12} " + "  ".join(
+            f"{p}:{c.get('spearman', c.get('status'))}" for p, c in arms[name].items()))
+    print("\n" + verdict["verdict"])
+    print(verdict["shipping_cap"])
+    return 0
 
 
 def void(reason: str) -> int:
+    """A run that could not be completed is VOID, never a negative result.
+
+    The prereg names egress failure and a lost known-positive control as VOID
+    precisely so a broken run is never read as "the blend does not help". This
+    is the same discipline sleeper_hist_proj uses: the first failing gate IS the
+    verdict, and it carries no accuracy number with it.
+    """
     OUT.write_text(json.dumps({
         "experiment": "SOURCE-BLEND-2025", "status": "VOID", "reason": reason,
         "_prereg": "draft/backtest/SOURCE-BLEND-2025-PREREG.md",
-        "_note": ("VOID is not a negative result. The prereg names egress failure and a "
-                  "missing control as VOID precisely so a broken run is never read as "
-                  "'the blend does not help'."),
+        "_territory": "TERRITORY: A — produced by draft/backtest/source_blend_2025.py",
+        "_note": ("VOID is not a negative result. Nothing here licenses any claim "
+                  "about Sleeper, FantasyPros or a blend."),
     }, indent=1) + "\n")
     print(f"VOID — {reason}")
     return 1
-
-
-def report(sleeper, fp, realized, index, fp_url) -> int:
-    print("SOURCE-BLEND-2025 — populations before matching:")
-    print(f"  sleeper scored: {len(sleeper)}   fp scored: {len(fp)}   realized: {len(realized)}")
-    OUT.write_text(json.dumps({
-        "experiment": "SOURCE-BLEND-2025",
-        "status": "FETCHED — matching and arms pending crosswalk wiring",
-        "_prereg": "draft/backtest/SOURCE-BLEND-2025-PREREG.md",
-        "counts": {"sleeper": len(sleeper), "fp": len(fp), "realized": len(realized)},
-        "fp_url": fp_url,
-        "_next": ("Join FP names to sleeper pids through the SAME crosswalk "
-                  "exp_fp_hist_proj uses, then run arm_metrics + decide on the "
-                  "matched set. Both fetch arms are proven live by this run."),
-    }, indent=1) + "\n")
-    return 0
 
 
 if __name__ == "__main__":
