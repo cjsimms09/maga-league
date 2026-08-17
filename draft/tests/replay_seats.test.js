@@ -91,5 +91,15 @@ check('choice file carries no outcome fields',
 const again = RS.replaySeat(BUNDLE, 3);
 check('deterministic', JSON.stringify(again) === JSON.stringify(out));
 
+// The status-filtered arm: excluded players never become engine choices,
+// while HISTORY is never filtered (the room's real picks still happen).
+const banned = new Set(out.records.filter(r => r.how === 'engine').map(r => r.chosen));
+const filtered = RS.replaySeat(BUNDLE, 3, banned);
+check('excluded players are never chosen in the filtered arm',
+  filtered.records.filter(r => r.how === 'engine')
+    .every(r => !banned.has(r.chosen)));
+check('the filtered arm still makes every decision',
+  filtered.records.length === out.records.length);
+
 console.log(pass + ' passed, ' + fail + ' failed');
 if (fail) process.exit(1);

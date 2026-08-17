@@ -1,0 +1,3725 @@
+{
+ "_territory": "TERRITORY: A \u2014 produced by draft/backtest/replay_seats_grade.py over draft/backtest/engine_seat_choices.json",
+ "_note": "THE LIVE-EDGE MEASUREMENT: the shipped engine.js/survival.js (MEASURED_WEIGHTS) in every owner's real seat, era-appropriate bundles (walk-forward projections + contemporaneous FFC ADP, AsOf discipline), fixed opponents, keepers as recorded, K/DEF mirrored, graded on committed actual weekly points with the proxy table's exact lineup arms. Each seat-season is ONE alternative history. The choice side ran in CI at the recorded head; grading joined outcomes afterwards \u2014 the replay never saw them.",
+ "estimand": {
+  "optimal": "mean engine-minus-owner season total of actual weekly points under the hindsight-optimal legal lineup, skill slots only, both rosters frozen as drafted, opponents fixed \u2014 the preregistered primary",
+  "realistic": "mean engine-minus-owner season total under start-of-week-information lineups (season-to-date pts/game rank, week-1 from the walk-forward projection, row-absence benched) \u2014 the tool's best case, never quotable alone"
+ },
+ "engine_meta": {
+  "git_head": "7888328f6d5d1a1337b1c1f7cb4870908476e3f6",
+  "weights": "MEASURED_WEIGHTS",
+  "weights_values": {
+   "value": 1,
+   "tier": 0,
+   "need": 0,
+   "risk": 0,
+   "ceiling": 0.45,
+   "keeper": 1,
+   "bye": 0,
+   "stack": 1
+  },
+  "qb_detail_seat": 1,
+  "qb_detail_through_round": 9,
+  "bundles": [
+   {
+    "season": 2023,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5969,
+    "players_on_board": 841,
+    "picks": 150
+   },
+   {
+    "season": 2024,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5326,
+    "players_on_board": 812,
+    "picks": 150
+   },
+   {
+    "season": 2025,
+    "projection_method": "walk_forward",
+    "spearman_vs_adp": 0.5436,
+    "players_on_board": 801,
+    "picks": 150
+   }
+  ],
+  "caveats": [
+   "[2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({\"season\": 2024, \"players_compared\": 576, \"official_only\": 30, \"rebuilt_only\": 8, \"mean_abs_diff\": 0.149, \"worst_diff\": 11.0, \"worst_diff_top200\": 11.0, \"tolerance\": 0.5, \"agrees\": false})",
+   "weekly stats unavailable for [2025]; any season needing them as a prior or for grading is affected",
+   "2025: replayed but NOTHING could be graded \u2014 its picks contribute nothing to the headline",
+   "Dispersion (proj_ceiling/proj_floor/proj_sd) is the MEASURED per-(position,band) calibration fitted leave-one-season-out, not the former 1.35x/0.25x constants. It is still proj_mean x a per-CELL constant, so it varies between bands and not within them: a ceiling weight fitted here measures cross-band dispersion differences only.",
+   "Historical FFC ADP is name-matched against TODAY'S Sleeper player list, so a player who has since changed teams or retired may match differently than he would have that year.",
+   "Seasons replayed: [2023, 2024, 2025]"
+  ]
+ },
+ "coverage": {
+  "seasons": [
+   2025,
+   2024,
+   2023
+  ],
+  "seats_per_season": 10,
+  "seat_seasons": 30,
+  "why": "the era bundles cover every league season with a recorded draft (2023-25); earlier seasons have no recorded picks to replay"
+ },
+ "proxy_context_quoted": {
+  "proxy_original_pooled_baseline": {
+   "optimal": {
+    "beats_n_of_10_pooled": 3,
+    "median_owner_mean_delta": -91.71,
+    "cory_mean_delta": -65.65
+   },
+   "realistic": {
+    "beats_n_of_10_pooled": 2,
+    "median_owner_mean_delta": -31.37,
+    "cory_mean_delta": -6.53
+   }
+  },
+  "proxy_restated_bracket": {
+   "optimal": {
+    "cory_mean_delta": {
+     "original_unfiltered": -65.65,
+     "restated_status_filtered": 7.48,
+     "room_draftable_pool": -19.81
+    },
+    "beats_n_of_10_pooled": {
+     "original_unfiltered": 3,
+     "restated_status_filtered": 4,
+     "room_draftable_pool": 3
+    },
+    "median_owner_mean_delta": {
+     "original_unfiltered": -91.71,
+     "restated_status_filtered": -24.23,
+     "room_draftable_pool": -28.64
+    }
+   },
+   "realistic": {
+    "cory_mean_delta": {
+     "original_unfiltered": -6.53,
+     "restated_status_filtered": 41.24
+    },
+    "beats_n_of_10_pooled": {
+     "original_unfiltered": 2,
+     "restated_status_filtered": 6
+    },
+    "median_owner_mean_delta": {
+     "original_unfiltered": -31.37,
+     "restated_status_filtered": 9.02
+    }
+   }
+  }
+ },
+ "years": {
+  "2025": {
+   "season": 2025,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1463.52,
+       "owner_total": 1440.72,
+       "delta_tool_minus_owner": 22.8,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1366.74,
+       "owner_total": 1257.72,
+       "delta_tool_minus_owner": 109.02,
+       "head_to_head": {
+        "tool_weeks_won": 13,
+        "cory_weeks_won": 4,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "11632",
+       "name": "Malik Nabers",
+       "pos": "WR",
+       "actual": 48.1
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "pos": "RB",
+       "actual": 259.4
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "pos": "TE",
+       "actual": 127.6
+      },
+      {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "pos": "QB",
+       "actual": 141.32
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "actual": 231.5
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "pos": "RB",
+       "actual": 57.6
+      },
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "pos": "QB",
+       "actual": 210.2
+      },
+      {
+       "player_id": "9756",
+       "name": "Jordan Addison",
+       "pos": "WR",
+       "actual": 112.8
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 6,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 10
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1213.66,
+       "owner_total": 1379.14,
+       "delta_tool_minus_owner": -165.48,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1098.52,
+       "owner_total": 1171.54,
+       "delta_tool_minus_owner": -73.02,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "11584",
+       "name": "Bucky Irving",
+       "pos": "RB",
+       "actual": 113.2
+      },
+      {
+       "player_id": "11631",
+       "name": "Brian Thomas",
+       "pos": "WR",
+       "actual": 108.4
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "pos": "TE",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 228.44
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "pos": "QB",
+       "actual": 210.2
+      },
+      {
+       "player_id": "9756",
+       "name": "Jordan Addison",
+       "pos": "WR",
+       "actual": 112.8
+      }
+     ],
+     "shadowed_picks": 5,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 3,
+     "first_TE_round_engine": 8
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1214.4,
+       "owner_total": 1528.88,
+       "delta_tool_minus_owner": -314.48,
+       "head_to_head": {
+        "tool_weeks_won": 2,
+        "cory_weeks_won": 15,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1155.38,
+       "owner_total": 1388.3,
+       "delta_tool_minus_owner": -232.92,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "11635",
+       "name": "Ladd McConkey",
+       "pos": "WR",
+       "actual": 147.9
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "2216",
+       "name": "Mike Evans",
+       "pos": "WR",
+       "actual": 65.4
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "pos": "TE",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 228.44
+      },
+      {
+       "player_id": "4892",
+       "name": "Baker Mayfield",
+       "pos": "QB",
+       "actual": 304.7
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "9224",
+       "name": "Chase Brown",
+       "pos": "RB",
+       "actual": 227.4
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 1,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 6
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1505.34,
+       "owner_total": 1550.28,
+       "delta_tool_minus_owner": -44.94,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1360.74,
+       "owner_total": 1363.68,
+       "delta_tool_minus_owner": -2.94,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 228.44
+      },
+      {
+       "player_id": "5012",
+       "name": "Mark Andrews",
+       "pos": "TE",
+       "actual": 104.6
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 219.1
+      },
+      {
+       "player_id": "5859",
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "actual": 181.3
+      },
+      {
+       "player_id": "7594",
+       "name": "Chuba Hubbard",
+       "pos": "RB",
+       "actual": 107.7
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8138",
+       "name": "James Cook",
+       "pos": "RB",
+       "actual": 284.2
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "9756",
+       "name": "Jordan Addison",
+       "pos": "WR",
+       "actual": 112.8
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 13
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1703.16,
+       "owner_total": 1820.02,
+       "delta_tool_minus_owner": -116.86,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1595.06,
+       "owner_total": 1650.32,
+       "delta_tool_minus_owner": -55.26,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "11563",
+       "name": "Bo Nix",
+       "pos": "QB",
+       "actual": 336.3
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "pos": "TE",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 228.44
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 110.4
+      },
+      {
+       "player_id": "6813",
+       "name": "Jonathan Taylor",
+       "pos": "RB",
+       "actual": 332.4
+      },
+      {
+       "player_id": "8112",
+       "name": "Drake London",
+       "pos": "WR",
+       "actual": 150.1
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "9221",
+       "name": "Jahmyr Gibbs",
+       "pos": "RB",
+       "actual": 309.3
+      }
+     ],
+     "shadowed_picks": 6,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 9,
+     "first_TE_round_engine": 8
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 1466.7,
+       "owner_total": 1612.08,
+       "delta_tool_minus_owner": -145.38,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1377.22,
+       "owner_total": 1433.98,
+       "delta_tool_minus_owner": -56.76,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "11604",
+       "name": "Brock Bowers",
+       "pos": "TE",
+       "actual": 142.2
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "pos": "QB",
+       "actual": 347.82
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 145.1
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "pos": "QB",
+       "actual": 210.2
+      },
+      {
+       "player_id": "9226",
+       "name": "De'Von Achane",
+       "pos": "RB",
+       "actual": 288.6
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 10,
+     "first_QB_round_owner": 12,
+     "first_TE_round_engine": null
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1682.44,
+       "owner_total": 1966.64,
+       "delta_tool_minus_owner": -284.2,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 14,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1619.92,
+       "owner_total": 1784.14,
+       "delta_tool_minus_owner": -164.22,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "10859",
+       "name": "Sam LaPorta",
+       "pos": "TE",
+       "actual": 86.9
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 0.0
+      },
+      {
+       "player_id": "4034",
+       "name": "Christian McCaffrey",
+       "pos": "RB",
+       "actual": 354.9
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 412.62
+      },
+      {
+       "player_id": "6801",
+       "name": "Tee Higgins",
+       "pos": "WR",
+       "actual": 164.4
+      },
+      {
+       "player_id": "7547",
+       "name": "Amon-Ra St. Brown",
+       "pos": "WR",
+       "actual": 246.1
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "pos": "QB",
+       "actual": 210.2
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 14,
+     "first_QB_round_owner": null,
+     "first_TE_round_engine": 10
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1690.52,
+       "owner_total": 1944.1,
+       "delta_tool_minus_owner": -253.58,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 14,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1639.32,
+       "owner_total": 1667.0,
+       "delta_tool_minus_owner": -27.68,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "3163",
+       "name": "Jared Goff",
+       "pos": "QB",
+       "actual": 347.82
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "6790",
+       "name": "D'Andre Swift",
+       "pos": "RB",
+       "actual": 205.4
+      },
+      {
+       "player_id": "7569",
+       "name": "Nico Collins",
+       "pos": "WR",
+       "actual": 188.7
+      },
+      {
+       "player_id": "8130",
+       "name": "Trey McBride",
+       "pos": "TE",
+       "actual": 242.9
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "9509",
+       "name": "Bijan Robinson",
+       "pos": "RB",
+       "actual": 323.5
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 10,
+     "first_QB_round_owner": 11,
+     "first_TE_round_engine": null
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1480.3,
+       "owner_total": 1856.34,
+       "delta_tool_minus_owner": -376.04,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1366.48,
+       "owner_total": 1458.78,
+       "delta_tool_minus_owner": -92.3,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "pos": "TE",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4866",
+       "name": "Saquon Barkley",
+       "pos": "RB",
+       "actual": 211.8
+      },
+      {
+       "player_id": "4892",
+       "name": "Baker Mayfield",
+       "pos": "QB",
+       "actual": 304.7
+      },
+      {
+       "player_id": "6904",
+       "name": "Jalen Hurts",
+       "pos": "QB",
+       "actual": 351.06
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8155",
+       "name": "Breece Hall",
+       "pos": "RB",
+       "actual": 191.66
+      },
+      {
+       "player_id": "9493",
+       "name": "Puka Nacua",
+       "pos": "WR",
+       "actual": 289.5
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 6,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 8
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1624.88,
+       "owner_total": 1592.6,
+       "delta_tool_minus_owner": 32.28,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1452.22,
+       "owner_total": 1404.58,
+       "delta_tool_minus_owner": 47.64,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10229",
+       "name": "Rashee Rice",
+       "pos": "WR",
+       "actual": 121.6
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 44.0
+      },
+      {
+       "player_id": "3321",
+       "name": "Tyreek Hill",
+       "pos": "WR",
+       "actual": 43.0
+      },
+      {
+       "player_id": "4033",
+       "name": "David Njoku",
+       "pos": "TE",
+       "actual": 69.8
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 63.2
+      },
+      {
+       "player_id": "4046",
+       "name": "Patrick Mahomes",
+       "pos": "QB",
+       "actual": 325.18
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 228.44
+      },
+      {
+       "player_id": "6786",
+       "name": "CeeDee Lamb",
+       "pos": "WR",
+       "actual": 162.5
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 117.9
+      },
+      {
+       "player_id": "8150",
+       "name": "Kyren Williams",
+       "pos": "RB",
+       "actual": 235.7
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 161.1
+      },
+      {
+       "player_id": "8183",
+       "name": "Brock Purdy",
+       "pos": "QB",
+       "actual": 210.2
+      },
+      {
+       "player_id": "9997",
+       "name": "Zay Flowers",
+       "pos": "WR",
+       "actual": 172.5
+      }
+     ],
+     "shadowed_picks": 5,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 8
+    }
+   },
+   "league_summary": {
+    "optimal": {
+     "owners_tool_beats": [
+      "Sadbru",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Schmelley",
+      "cashworth",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 2,
+     "median_owner_delta": -155.43,
+     "cory_delta": 22.8
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "Sadbru",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Schmelley",
+      "cashworth",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 2,
+     "median_owner_delta": -56.01,
+     "cory_delta": 109.02
+    }
+   }
+  },
+  "2024": {
+   "season": 2024,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1397.3,
+       "owner_total": 2037.08,
+       "delta_tool_minus_owner": -639.78,
+       "head_to_head": {
+        "tool_weeks_won": 0,
+        "cory_weeks_won": 17,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1203.5,
+       "owner_total": 1741.32,
+       "delta_tool_minus_owner": -537.82,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "pos": "RB",
+       "actual": 297.8
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5947",
+       "name": "Jakobi Meyers",
+       "pos": "WR",
+       "actual": 151.7
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 166.8
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "actual": 318.9
+      },
+      {
+       "player_id": "7611",
+       "name": "Rhamondre Stevenson",
+       "pos": "RB",
+       "actual": 159.4
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "pos": "RB",
+       "actual": 147.7
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 11,
+     "first_TE_round_engine": 4
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1613.72,
+       "owner_total": 1845.42,
+       "delta_tool_minus_owner": -231.7,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1483.52,
+       "owner_total": 1663.22,
+       "delta_tool_minus_owner": -179.7,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1466",
+       "name": "Travis Kelce",
+       "pos": "TE",
+       "actual": 146.9
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5859",
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "actual": 183.4
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 166.8
+      },
+      {
+       "player_id": "6819",
+       "name": "Michael Pittman",
+       "pos": "WR",
+       "actual": 121.1
+      },
+      {
+       "player_id": "6904",
+       "name": "Jalen Hurts",
+       "pos": "QB",
+       "actual": 351.12
+      },
+      {
+       "player_id": "8150",
+       "name": "Kyren Williams",
+       "pos": "RB",
+       "actual": 255.1
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 158.2
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 4,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 5
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1547.52,
+       "owner_total": 1706.72,
+       "delta_tool_minus_owner": -159.2,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1379.82,
+       "owner_total": 1568.72,
+       "delta_tool_minus_owner": -188.9,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "2216",
+       "name": "Mike Evans",
+       "pos": "WR",
+       "actual": 190.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 219.2
+      },
+      {
+       "player_id": "4046",
+       "name": "Patrick Mahomes",
+       "pos": "QB",
+       "actual": 334.52
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5947",
+       "name": "Jakobi Meyers",
+       "pos": "WR",
+       "actual": 151.7
+      },
+      {
+       "player_id": "5967",
+       "name": "Tony Pollard",
+       "pos": "RB",
+       "actual": 174.0
+      },
+      {
+       "player_id": "6801",
+       "name": "Tee Higgins",
+       "pos": "WR",
+       "actual": 178.3
+      },
+      {
+       "player_id": "7526",
+       "name": "Jaylen Waddle",
+       "pos": "WR",
+       "actual": 113.6
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": null,
+     "first_QB_round_owner": null,
+     "first_TE_round_engine": 4
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1216.3,
+       "owner_total": 1743.28,
+       "delta_tool_minus_owner": -526.98,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1109.9,
+       "owner_total": 1609.34,
+       "delta_tool_minus_owner": -499.44,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4035",
+       "name": "Alvin Kamara",
+       "pos": "RB",
+       "actual": 231.3
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 264.0
+      },
+      {
+       "player_id": "5872",
+       "name": "Deebo Samuel",
+       "pos": "WR",
+       "actual": 130.1
+      },
+      {
+       "player_id": "5947",
+       "name": "Jakobi Meyers",
+       "pos": "WR",
+       "actual": 151.7
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 166.8
+      },
+      {
+       "player_id": "8205",
+       "name": "Isiah Pacheco",
+       "pos": "RB",
+       "actual": 50.9
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 7,
+     "first_TE_round_engine": 4
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1278.0,
+       "owner_total": 1677.18,
+       "delta_tool_minus_owner": -399.18,
+       "head_to_head": {
+        "tool_weeks_won": 0,
+        "cory_weeks_won": 17,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1146.8,
+       "owner_total": 1421.76,
+       "delta_tool_minus_owner": -274.96,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "10859",
+       "name": "Sam LaPorta",
+       "pos": "TE",
+       "actual": 134.8
+      },
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "2309",
+       "name": "Amari Cooper",
+       "pos": "WR",
+       "actual": 100.7
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "4663",
+       "name": "Austin Ekeler",
+       "pos": "RB",
+       "actual": 110.6
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "6813",
+       "name": "Jonathan Taylor",
+       "pos": "RB",
+       "actual": 213.2
+      },
+      {
+       "player_id": "8146",
+       "name": "Garrett Wilson",
+       "pos": "WR",
+       "actual": 194.3
+      },
+      {
+       "player_id": "9221",
+       "name": "Jahmyr Gibbs",
+       "pos": "RB",
+       "actual": 285.4
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 4,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 8
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 1737.98,
+       "owner_total": 2039.1,
+       "delta_tool_minus_owner": -301.12,
+       "head_to_head": {
+        "tool_weeks_won": 2,
+        "cory_weeks_won": 15,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1627.78,
+       "owner_total": 1819.08,
+       "delta_tool_minus_owner": -191.3,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "4881",
+       "name": "Lamar Jackson",
+       "pos": "QB",
+       "actual": 485.4
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 259.08
+      },
+      {
+       "player_id": "8138",
+       "name": "James Cook",
+       "pos": "RB",
+       "actual": 241.9
+      },
+      {
+       "player_id": "8144",
+       "name": "Chris Olave",
+       "pos": "WR",
+       "actual": 60.7
+      },
+      {
+       "player_id": "8154",
+       "name": "Brian Robinson",
+       "pos": "RB",
+       "actual": 147.7
+      },
+      {
+       "player_id": "9226",
+       "name": "De'Von Achane",
+       "pos": "RB",
+       "actual": 242.8
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 4,
+     "first_QB_round_owner": 5,
+     "first_TE_round_engine": 5
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1403.92,
+       "owner_total": 1665.82,
+       "delta_tool_minus_owner": -261.9,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1310.32,
+       "owner_total": 1482.88,
+       "delta_tool_minus_owner": -172.56,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4034",
+       "name": "Christian McCaffrey",
+       "pos": "RB",
+       "actual": 40.3
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 428.34
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5947",
+       "name": "Jakobi Meyers",
+       "pos": "WR",
+       "actual": 151.7
+      },
+      {
+       "player_id": "6790",
+       "name": "D'Andre Swift",
+       "pos": "RB",
+       "actual": 181.0
+      },
+      {
+       "player_id": "6803",
+       "name": "Brandon Aiyuk",
+       "pos": "WR",
+       "actual": 49.9
+      },
+      {
+       "player_id": "7547",
+       "name": "Amon-Ra St. Brown",
+       "pos": "WR",
+       "actual": 249.98
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 15,
+     "first_QB_round_owner": 12,
+     "first_TE_round_engine": 5
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1373.3,
+       "owner_total": 1711.88,
+       "delta_tool_minus_owner": -338.58,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1233.9,
+       "owner_total": 1560.04,
+       "delta_tool_minus_owner": -326.14,
+       "head_to_head": {
+        "tool_weeks_won": 2,
+        "cory_weeks_won": 15,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4983",
+       "name": "DJ Moore",
+       "pos": "WR",
+       "actual": 171.5
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 166.8
+      },
+      {
+       "player_id": "6826",
+       "name": "Cole Kmet",
+       "pos": "TE",
+       "actual": 95.6
+      },
+      {
+       "player_id": "7525",
+       "name": "DeVonta Smith",
+       "pos": "WR",
+       "actual": 165.4
+      },
+      {
+       "player_id": "7569",
+       "name": "Nico Collins",
+       "pos": "WR",
+       "actual": 164.3
+      },
+      {
+       "player_id": "8155",
+       "name": "Breece Hall",
+       "pos": "RB",
+       "actual": 195.7
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      },
+      {
+       "player_id": "9509",
+       "name": "Bijan Robinson",
+       "pos": "RB",
+       "actual": 280.9
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 4
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1301.9,
+       "owner_total": 1825.76,
+       "delta_tool_minus_owner": -523.86,
+       "head_to_head": {
+        "tool_weeks_won": 0,
+        "cory_weeks_won": 17,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1159.8,
+       "owner_total": 1577.66,
+       "delta_tool_minus_owner": -417.86,
+       "head_to_head": {
+        "tool_weeks_won": 0,
+        "cory_weeks_won": 17,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 147.4
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "4866",
+       "name": "Saquon Barkley",
+       "pos": "RB",
+       "actual": 338.8
+      },
+      {
+       "player_id": "5012",
+       "name": "Mark Andrews",
+       "pos": "TE",
+       "actual": 147.9
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "6806",
+       "name": "J.K. Dobbins",
+       "pos": "RB",
+       "actual": 166.8
+      },
+      {
+       "player_id": "6826",
+       "name": "Cole Kmet",
+       "pos": "TE",
+       "actual": 95.6
+      },
+      {
+       "player_id": "7528",
+       "name": "Najee Harris",
+       "pos": "RB",
+       "actual": 173.0
+      },
+      {
+       "player_id": "7543",
+       "name": "Travis Etienne",
+       "pos": "RB",
+       "actual": 103.2
+      },
+      {
+       "player_id": "9493",
+       "name": "Puka Nacua",
+       "pos": "WR",
+       "actual": 167.1
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 4,
+     "first_QB_round_owner": 9,
+     "first_TE_round_engine": 5
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1253.86,
+       "owner_total": 1702.96,
+       "delta_tool_minus_owner": -449.1,
+       "head_to_head": {
+        "tool_weeks_won": 1,
+        "cory_weeks_won": 16,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1205.46,
+       "owner_total": 1490.62,
+       "delta_tool_minus_owner": -285.16,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 36.2
+      },
+      {
+       "player_id": "2449",
+       "name": "Stefon Diggs",
+       "pos": "WR",
+       "actual": 98.42
+      },
+      {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "pos": "QB",
+       "actual": 0.8
+      },
+      {
+       "player_id": "3294",
+       "name": "Dak Prescott",
+       "pos": "QB",
+       "actual": 138.52
+      },
+      {
+       "player_id": "3321",
+       "name": "Tyreek Hill",
+       "pos": "WR",
+       "actual": 174.7
+      },
+      {
+       "player_id": "4068",
+       "name": "Mike Williams",
+       "pos": "WR",
+       "actual": 43.3
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 64.1
+      },
+      {
+       "player_id": "5892",
+       "name": "David Montgomery",
+       "pos": "RB",
+       "actual": 205.72
+      },
+      {
+       "player_id": "5947",
+       "name": "Jakobi Meyers",
+       "pos": "WR",
+       "actual": 151.7
+      },
+      {
+       "player_id": "6786",
+       "name": "CeeDee Lamb",
+       "pos": "WR",
+       "actual": 212.9
+      },
+      {
+       "player_id": "8136",
+       "name": "Rachaad White",
+       "pos": "RB",
+       "actual": 174.1
+      },
+      {
+       "player_id": "9502",
+       "name": "Tank Dell",
+       "pos": "WR",
+       "actual": 114.5
+      }
+     ],
+     "shadowed_picks": 1,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 7,
+     "first_TE_round_engine": 4
+    }
+   },
+   "league_summary": {
+    "optimal": {
+     "owners_tool_beats": [],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "cashworth",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 0,
+     "median_owner_delta": -368.88,
+     "cory_delta": -639.78
+    },
+    "realistic": {
+     "owners_tool_beats": [],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "cashworth",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 0,
+     "median_owner_delta": -280.06,
+     "cory_delta": -537.82
+    }
+   }
+  },
+  "2023": {
+   "season": 2023,
+   "owners": {
+    "1": "coryjsimms",
+    "2": "ds7mmet",
+    "3": "cashworth",
+    "4": "Jreis",
+    "5": "B8T3S",
+    "6": "MarianSaar",
+    "7": "mhagen",
+    "8": "Richard2121",
+    "9": "Schmelley",
+    "10": "Sadbru"
+   },
+   "seats": {
+    "1": {
+     "owner": "coryjsimms",
+     "arms": {
+      "optimal": {
+       "tool_total": 1561.8,
+       "owner_total": 1694.88,
+       "delta_tool_minus_owner": -133.08,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1537.6,
+       "owner_total": 1490.78,
+       "delta_tool_minus_owner": 46.82,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "pos": "WR",
+       "actual": 200.8
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4199",
+       "name": "Aaron Jones",
+       "pos": "RB",
+       "actual": 103.3
+      },
+      {
+       "player_id": "4217",
+       "name": "George Kittle",
+       "pos": "TE",
+       "actual": 170.7
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "536",
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7526",
+       "name": "Jaylen Waddle",
+       "pos": "WR",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7564",
+       "name": "Ja'Marr Chase",
+       "pos": "WR",
+       "actual": 208.82
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 5
+    },
+    "2": {
+     "owner": "ds7mmet",
+     "arms": {
+      "optimal": {
+       "tool_total": 1610.12,
+       "owner_total": 1762.56,
+       "delta_tool_minus_owner": -152.44,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1539.98,
+       "owner_total": 1561.06,
+       "delta_tool_minus_owner": -21.08,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 31.5
+      },
+      {
+       "player_id": "1466",
+       "name": "Travis Kelce",
+       "pos": "TE",
+       "actual": 172.9
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5846",
+       "name": "DK Metcalf",
+       "pos": "WR",
+       "actual": 190.9
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "5859",
+       "name": "A.J. Brown",
+       "pos": "WR",
+       "actual": 237.2
+      },
+      {
+       "player_id": "5967",
+       "name": "Tony Pollard",
+       "pos": "RB",
+       "actual": 179.5
+      },
+      {
+       "player_id": "6130",
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "actual": 141.34
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 4,
+     "first_TE_round_engine": 3
+    },
+    "3": {
+     "owner": "cashworth",
+     "arms": {
+      "optimal": {
+       "tool_total": 1591.22,
+       "owner_total": 1571.12,
+       "delta_tool_minus_owner": 20.1,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1540.9,
+       "owner_total": 1483.62,
+       "delta_tool_minus_owner": 57.28,
+       "head_to_head": {
+        "tool_weeks_won": 14,
+        "cory_weeks_won": 3,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "pos": "WR",
+       "actual": 200.8
+      },
+      {
+       "player_id": "2449",
+       "name": "Stefon Diggs",
+       "pos": "WR",
+       "actual": 208.1
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 216.8
+      },
+      {
+       "player_id": "4046",
+       "name": "Patrick Mahomes",
+       "pos": "QB",
+       "actual": 334.22
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "4988",
+       "name": "Nick Chubb",
+       "pos": "RB",
+       "actual": 21.1
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5844",
+       "name": "T.J. Hockenson",
+       "pos": "TE",
+       "actual": 171.5
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": null,
+     "first_TE_round_engine": 6
+    },
+    "4": {
+     "owner": "Jreis",
+     "arms": {
+      "optimal": {
+       "tool_total": 1365.68,
+       "owner_total": 1402.82,
+       "delta_tool_minus_owner": -37.14,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1356.28,
+       "owner_total": 1264.16,
+       "delta_tool_minus_owner": 92.12,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4663",
+       "name": "Austin Ekeler",
+       "pos": "RB",
+       "actual": 151.5
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "pos": "TE",
+       "actual": 114.3
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "536",
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5849",
+       "name": "Kyler Murray",
+       "pos": "QB",
+       "actual": 146.58
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 140.2
+      },
+      {
+       "player_id": "7525",
+       "name": "DeVonta Smith",
+       "pos": "WR",
+       "actual": 187.1
+      },
+      {
+       "player_id": "7528",
+       "name": "Najee Harris",
+       "pos": "RB",
+       "actual": 159.2
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 5
+    },
+    "5": {
+     "owner": "B8T3S",
+     "arms": {
+      "optimal": {
+       "tool_total": 1326.32,
+       "owner_total": 1496.6,
+       "delta_tool_minus_owner": -170.28,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1308.42,
+       "owner_total": 1184.6,
+       "delta_tool_minus_owner": 123.82,
+       "head_to_head": {
+        "tool_weeks_won": 11,
+        "cory_weeks_won": 6,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 216.8
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "536",
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5849",
+       "name": "Kyler Murray",
+       "pos": "QB",
+       "actual": 146.58
+      },
+      {
+       "player_id": "6130",
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "actual": 141.34
+      },
+      {
+       "player_id": "6790",
+       "name": "D'Andre Swift",
+       "pos": "RB",
+       "actual": 179.8
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 140.2
+      },
+      {
+       "player_id": "6801",
+       "name": "Tee Higgins",
+       "pos": "WR",
+       "actual": 116.6
+      },
+      {
+       "player_id": "6813",
+       "name": "Jonathan Taylor",
+       "pos": "RB",
+       "actual": 120.3
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 12,
+     "first_TE_round_engine": 5
+    },
+    "6": {
+     "owner": "MarianSaar",
+     "arms": {
+      "optimal": {
+       "tool_total": 1451.84,
+       "owner_total": 1898.6,
+       "delta_tool_minus_owner": -446.76,
+       "head_to_head": {
+        "tool_weeks_won": 4,
+        "cory_weeks_won": 13,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1335.44,
+       "owner_total": 1580.68,
+       "delta_tool_minus_owner": -245.24,
+       "head_to_head": {
+        "tool_weeks_won": 6,
+        "cory_weeks_won": 11,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "3198",
+       "name": "Derrick Henry",
+       "pos": "RB",
+       "actual": 215.36
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4035",
+       "name": "Alvin Kamara",
+       "pos": "RB",
+       "actual": 195.5
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "pos": "TE",
+       "actual": 114.3
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "536",
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "6130",
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "actual": 141.34
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 140.2
+      },
+      {
+       "player_id": "8151",
+       "name": "Kenneth Walker",
+       "pos": "RB",
+       "actual": 176.3
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 3,
+     "first_QB_round_owner": 4,
+     "first_TE_round_engine": 5
+    },
+    "7": {
+     "owner": "mhagen",
+     "arms": {
+      "optimal": {
+       "tool_total": 1731.58,
+       "owner_total": 2015.52,
+       "delta_tool_minus_owner": -283.94,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 14,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1712.98,
+       "owner_total": 1791.56,
+       "delta_tool_minus_owner": -78.58,
+       "head_to_head": {
+        "tool_weeks_won": 8,
+        "cory_weeks_won": 9,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4018",
+       "name": "Joe Mixon",
+       "pos": "RB",
+       "actual": 216.8
+      },
+      {
+       "player_id": "4034",
+       "name": "Christian McCaffrey",
+       "pos": "RB",
+       "actual": 357.8
+      },
+      {
+       "player_id": "4137",
+       "name": "James Conner",
+       "pos": "RB",
+       "actual": 159.6
+      },
+      {
+       "player_id": "4149",
+       "name": "Jamaal Williams",
+       "pos": "RB",
+       "actual": 40.9
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "pos": "TE",
+       "actual": 114.3
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "6794",
+       "name": "Justin Jefferson",
+       "pos": "WR",
+       "actual": 140.2
+      },
+      {
+       "player_id": "7547",
+       "name": "Amon-Ra St. Brown",
+       "pos": "WR",
+       "actual": 247.5
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 4,
+     "first_TE_round_engine": 5
+    },
+    "8": {
+     "owner": "Richard2121",
+     "arms": {
+      "optimal": {
+       "tool_total": 1351.72,
+       "owner_total": 1462.72,
+       "delta_tool_minus_owner": -111.0,
+       "head_to_head": {
+        "tool_weeks_won": 9,
+        "cory_weeks_won": 8,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1322.72,
+       "owner_total": 1310.22,
+       "delta_tool_minus_owner": 12.5,
+       "head_to_head": {
+        "tool_weeks_won": 10,
+        "cory_weeks_won": 7,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 31.5
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4037",
+       "name": "Chris Godwin",
+       "pos": "WR",
+       "actual": 159.2
+      },
+      {
+       "player_id": "4039",
+       "name": "Cooper Kupp",
+       "pos": "WR",
+       "actual": 134.9
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "4985",
+       "name": "Rashaad Penny",
+       "pos": "RB",
+       "actual": 2.7
+      },
+      {
+       "player_id": "5001",
+       "name": "Dalton Schultz",
+       "pos": "TE",
+       "actual": 114.3
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "6130",
+       "name": "Devin Singletary",
+       "pos": "RB",
+       "actual": 141.34
+      },
+      {
+       "player_id": "8155",
+       "name": "Breece Hall",
+       "pos": "RB",
+       "actual": 224.5
+      }
+     ],
+     "shadowed_picks": 4,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 15,
+     "first_TE_round_engine": 6
+    },
+    "9": {
+     "owner": "Schmelley",
+     "arms": {
+      "optimal": {
+       "tool_total": 1460.94,
+       "owner_total": 1726.7,
+       "delta_tool_minus_owner": -265.76,
+       "head_to_head": {
+        "tool_weeks_won": 5,
+        "cory_weeks_won": 12,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1457.94,
+       "owner_total": 1479.24,
+       "delta_tool_minus_owner": -21.3,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 31.5
+      },
+      {
+       "player_id": "1479",
+       "name": "Keenan Allen",
+       "pos": "WR",
+       "actual": 226.86
+      },
+      {
+       "player_id": "2133",
+       "name": "Davante Adams",
+       "pos": "WR",
+       "actual": 200.8
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4866",
+       "name": "Saquon Barkley",
+       "pos": "RB",
+       "actual": 180.0
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "5012",
+       "name": "Mark Andrews",
+       "pos": "TE",
+       "actual": 112.9
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "536",
+       "name": "Antonio Brown",
+       "pos": "WR",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "7611",
+       "name": "Rhamondre Stevenson",
+       "pos": "RB",
+       "actual": 126.7
+      }
+     ],
+     "shadowed_picks": 3,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 6,
+     "first_TE_round_engine": 6
+    },
+    "10": {
+     "owner": "Sadbru",
+     "arms": {
+      "optimal": {
+       "tool_total": 1515.02,
+       "owner_total": 1700.38,
+       "delta_tool_minus_owner": -185.36,
+       "head_to_head": {
+        "tool_weeks_won": 3,
+        "cory_weeks_won": 14,
+        "ties": 0
+       }
+      },
+      "realistic": {
+       "tool_total": 1457.94,
+       "owner_total": 1513.74,
+       "delta_tool_minus_owner": -55.8,
+       "head_to_head": {
+        "tool_weeks_won": 7,
+        "cory_weeks_won": 10,
+        "ties": 0
+       }
+      }
+     },
+     "engine_roster": [
+      {
+       "player_id": "1379",
+       "name": "Kyle Juszczyk",
+       "pos": "RB",
+       "actual": 31.5
+      },
+      {
+       "player_id": "3164",
+       "name": "Ezekiel Elliott",
+       "pos": "RB",
+       "actual": 138.4
+      },
+      {
+       "player_id": "3294",
+       "name": "Dak Prescott",
+       "pos": "QB",
+       "actual": 381.68
+      },
+      {
+       "player_id": "3321",
+       "name": "Tyreek Hill",
+       "pos": "WR",
+       "actual": 299.2
+      },
+      {
+       "player_id": "3969",
+       "name": "Leonard Fournette",
+       "pos": "RB",
+       "actual": 2.0
+      },
+      {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "pos": "QB",
+       "actual": 425.58
+      },
+      {
+       "player_id": "515",
+       "name": "Rob Gronkowski",
+       "pos": "TE",
+       "actual": 0.0
+      },
+      {
+       "player_id": "5850",
+       "name": "Josh Jacobs",
+       "pos": "RB",
+       "actual": 162.6
+      },
+      {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "pos": "QB",
+       "actual": 177.16
+      },
+      {
+       "player_id": "6786",
+       "name": "CeeDee Lamb",
+       "pos": "WR",
+       "actual": 308.7
+      },
+      {
+       "player_id": "8129",
+       "name": "Dameon Pierce",
+       "pos": "RB",
+       "actual": 70.2
+      }
+     ],
+     "shadowed_picks": 2,
+     "kdef_top_entry_demotions": 0,
+     "first_QB_round_engine": 2,
+     "first_QB_round_owner": 10,
+     "first_TE_round_engine": 5
+    }
+   },
+   "league_summary": {
+    "optimal": {
+     "owners_tool_beats": [
+      "cashworth"
+     ],
+     "owners_beating_tool": [
+      "B8T3S",
+      "Jreis",
+      "MarianSaar",
+      "Richard2121",
+      "Sadbru",
+      "Schmelley",
+      "coryjsimms",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 1,
+     "median_owner_delta": -161.36,
+     "cory_delta": -133.08
+    },
+    "realistic": {
+     "owners_tool_beats": [
+      "B8T3S",
+      "Jreis",
+      "Richard2121",
+      "cashworth",
+      "coryjsimms"
+     ],
+     "owners_beating_tool": [
+      "MarianSaar",
+      "Sadbru",
+      "Schmelley",
+      "ds7mmet",
+      "mhagen"
+     ],
+     "beats_n_of_10": 5,
+     "median_owner_delta": -4.29,
+     "cory_delta": 46.82
+    }
+   }
+  }
+ },
+ "pooled": {
+  "1": {
+   "owner": "coryjsimms",
+   "optimal": {
+    "per_year": {
+     "2025": 22.8,
+     "2024": -639.78,
+     "2023": -133.08
+    },
+    "mean_delta": -250.02
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 109.02,
+     "2024": -537.82,
+     "2023": 46.82
+    },
+    "mean_delta": -127.33
+   }
+  },
+  "2": {
+   "owner": "ds7mmet",
+   "optimal": {
+    "per_year": {
+     "2025": -165.48,
+     "2024": -231.7,
+     "2023": -152.44
+    },
+    "mean_delta": -183.21
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -73.02,
+     "2024": -179.7,
+     "2023": -21.08
+    },
+    "mean_delta": -91.27
+   }
+  },
+  "3": {
+   "owner": "cashworth",
+   "optimal": {
+    "per_year": {
+     "2025": -314.48,
+     "2024": -159.2,
+     "2023": 20.1
+    },
+    "mean_delta": -151.19
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -232.92,
+     "2024": -188.9,
+     "2023": 57.28
+    },
+    "mean_delta": -121.51
+   }
+  },
+  "4": {
+   "owner": "Jreis",
+   "optimal": {
+    "per_year": {
+     "2025": -44.94,
+     "2024": -526.98,
+     "2023": -37.14
+    },
+    "mean_delta": -203.02
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -2.94,
+     "2024": -499.44,
+     "2023": 92.12
+    },
+    "mean_delta": -136.75
+   }
+  },
+  "5": {
+   "owner": "B8T3S",
+   "optimal": {
+    "per_year": {
+     "2025": -116.86,
+     "2024": -399.18,
+     "2023": -170.28
+    },
+    "mean_delta": -228.77
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -55.26,
+     "2024": -274.96,
+     "2023": 123.82
+    },
+    "mean_delta": -68.8
+   }
+  },
+  "6": {
+   "owner": "MarianSaar",
+   "optimal": {
+    "per_year": {
+     "2025": -145.38,
+     "2024": -301.12,
+     "2023": -446.76
+    },
+    "mean_delta": -297.75
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -56.76,
+     "2024": -191.3,
+     "2023": -245.24
+    },
+    "mean_delta": -164.43
+   }
+  },
+  "7": {
+   "owner": "mhagen",
+   "optimal": {
+    "per_year": {
+     "2025": -284.2,
+     "2024": -261.9,
+     "2023": -283.94
+    },
+    "mean_delta": -276.68
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -164.22,
+     "2024": -172.56,
+     "2023": -78.58
+    },
+    "mean_delta": -138.45
+   }
+  },
+  "8": {
+   "owner": "Richard2121",
+   "optimal": {
+    "per_year": {
+     "2025": -253.58,
+     "2024": -338.58,
+     "2023": -111.0
+    },
+    "mean_delta": -234.39
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -27.68,
+     "2024": -326.14,
+     "2023": 12.5
+    },
+    "mean_delta": -113.77
+   }
+  },
+  "9": {
+   "owner": "Schmelley",
+   "optimal": {
+    "per_year": {
+     "2025": -376.04,
+     "2024": -523.86,
+     "2023": -265.76
+    },
+    "mean_delta": -388.55
+   },
+   "realistic": {
+    "per_year": {
+     "2025": -92.3,
+     "2024": -417.86,
+     "2023": -21.3
+    },
+    "mean_delta": -177.15
+   }
+  },
+  "10": {
+   "owner": "Sadbru",
+   "optimal": {
+    "per_year": {
+     "2025": 32.28,
+     "2024": -449.1,
+     "2023": -185.36
+    },
+    "mean_delta": -200.73
+   },
+   "realistic": {
+    "per_year": {
+     "2025": 47.64,
+     "2024": -285.16,
+     "2023": -55.8
+    },
+    "mean_delta": -97.77
+   }
+  },
+  "_summary": {
+   "optimal": {
+    "beats_n_of_10_pooled": 0,
+    "median_owner_mean_delta": -231.58,
+    "cory_mean_delta": -250.02
+   },
+   "realistic": {
+    "beats_n_of_10_pooled": 0,
+    "median_owner_mean_delta": -124.42,
+    "cory_mean_delta": -127.33
+   }
+  }
+ },
+ "qb_question": {
+  "question": "does survival/VONA already produce the QB-wait the top-3 drafters show?",
+  "term_note": "in the engine's published components the weighted `value` term is weight x VONA \u2014 the survival-priced opportunity-cost term; `tier`/`need`/`risk` are zero-weighted in MEASURED_WEIGHTS and cannot delay anything",
+  "league_benchmark_first_QB_round": {
+   "top3": 7.1,
+   "bottom_half": 5.94
+  },
+  "per_season": {
+   "2023": {
+    "engine_first_QB_round": 2,
+    "owner_first_QB_round": 6,
+    "delaying_term_counts_pre_first_QB": {
+     "value": 1
+    },
+    "pre_first_QB_pick_detail": [
+     {
+      "pick_no": 5,
+      "round": 1,
+      "chosen": "Josh Jacobs",
+      "chosen_pos": "RB",
+      "top_qb": {
+       "player_id": "4984",
+       "name": "Josh Allen",
+       "engine_rank": 5,
+       "score": 10.05,
+       "score_gap_to_chosen": 14.14,
+       "survival_to_next": 0.999,
+       "weighted": {
+        "value": 8.13,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 1.92,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_weighted": {
+        "value": 24.19,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_largest_term_advantage": {
+        "term": "value",
+        "advantage": 16.06
+       }
+      }
+     }
+    ]
+   },
+   "2024": {
+    "engine_first_QB_round": 3,
+    "owner_first_QB_round": 11,
+    "delaying_term_counts_pre_first_QB": {
+     "value": 1
+    },
+    "pre_first_QB_pick_detail": [
+     {
+      "pick_no": 15,
+      "round": 2,
+      "chosen": "Kyle Juszczyk",
+      "chosen_pos": "FB",
+      "top_qb": {
+       "player_id": "3161",
+       "name": "Carson Wentz",
+       "engine_rank": 5,
+       "score": 8.02,
+       "score_gap_to_chosen": 4.26,
+       "survival_to_next": 1,
+       "weighted": {
+        "value": 8.02,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_weighted": {
+        "value": 12.28,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_largest_term_advantage": {
+        "term": "value",
+        "advantage": 4.26
+       }
+      }
+     }
+    ]
+   },
+   "2025": {
+    "engine_first_QB_round": 6,
+    "owner_first_QB_round": 5,
+    "delaying_term_counts_pre_first_QB": {
+     "value": 2
+    },
+    "pre_first_QB_pick_detail": [
+     {
+      "pick_no": 37,
+      "round": 4,
+      "chosen": "Rashee Rice",
+      "chosen_pos": "WR",
+      "top_qb": {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "engine_rank": 5,
+       "score": 7.25,
+       "score_gap_to_chosen": 19.92,
+       "survival_to_next": 0.396,
+       "weighted": {
+        "value": 1.25,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 6,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_weighted": {
+        "value": 27.17,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_largest_term_advantage": {
+        "term": "value",
+        "advantage": 25.92
+       }
+      }
+     },
+     {
+      "pick_no": 44,
+      "round": 5,
+      "chosen": "Chris Godwin",
+      "chosen_pos": "WR",
+      "top_qb": {
+       "player_id": "6770",
+       "name": "Joe Burrow",
+       "engine_rank": 3,
+       "score": 13.57,
+       "score_gap_to_chosen": 1.49,
+       "survival_to_next": 0.321,
+       "weighted": {
+        "value": 7.57,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 0,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 6,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_weighted": {
+        "value": 13.91,
+        "tier": 0,
+        "need": 0,
+        "risk": 0,
+        "ceiling": 1.16,
+        "keeper": 0,
+        "bye": 0,
+        "stack": 0,
+        "onesie": 0,
+        "doctrine": 0
+       },
+       "chosen_largest_term_advantage": {
+        "term": "value",
+        "advantage": 6.34
+       }
+      }
+     }
+    ]
+   }
+  }
+ },
+ "honesty": [
+  "one configuration graded \u2014 the shipped MEASURED_WEIGHTS; nothing was searched, nothing selected (no_fit_guard)",
+  "the bundle board is NOT the proxy board: bundle projections are the backtest lab's walk-forward construction with contemporaneous FFC ADP; the grading projections (realistic-arm ranks only) are the proxy's own_v6_nomarket, so owner totals match the proxy table exactly",
+  "the engine's risk term is age-only on bundle boards and its injury/depth/opportunity inputs are DECLARED ABSENT there (build_bundle field_limits) \u2014 the live engine has strictly more information than this replay gives it",
+  "rookies exist on the bundle board only where the room drafted them (fallback ADP behind FFC's last price); their projections are walk-forward and therefore absent-or-zero \u2014 the same rookie blindness the proxy named",
+  "fixed opponents per seat: ten seats are ten separate counterfactuals, not one re-drafted league",
+  "K/DEF mirrored at the owner's actual slots; engine top entries that were K/DEF at a skill slot were demoted and counted per seat",
+  "both arms are always reported together; the realistic arm alone is the tool's best case and is not the headline"
+ ]
+}

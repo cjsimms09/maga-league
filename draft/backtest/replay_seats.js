@@ -103,7 +103,16 @@ function qbSnapshot(scored, chosen) {
   return snap;
 }
 
-function replaySeat(bundle, seatId) {
+function replaySeat(bundle, seatId, excludedIds) {
+  // `excludedIds` (optional Set) is the DIAGNOSTIC status-filtered arm: the
+  // same deterministic roster-status exclusions the restated proxy table
+  // committed per season (draft/data/replay_league_table_restated.json) are
+  // removed from the ENGINE's candidate board too — the first engine run
+  // drafted Gronkowski/Brown/Fournette in 2023, the exact board-vintage
+  // blindness the live board verifiably does not have. Both arms are always
+  // recorded; neither is selected (no_fit_guard). History is NEVER filtered:
+  // if the room really drafted an excluded player, that pick still happens.
+  const excluded = excludedIds || new Set();
   const teams = bundle.teams || 10;
   const starters = rosterPositionsToStarters(bundle.roster_positions);
   const league = { teams: teams, starters: starters,
@@ -149,7 +158,8 @@ function replaySeat(bundle, seatId) {
     }
 
     const board = (bundle.players || []).filter(p => !taken.has(String(p.player_id))
-                                                  && !engineIds.has(String(p.player_id)));
+                                                  && !engineIds.has(String(p.player_id))
+                                                  && !excluded.has(String(p.player_id)));
     if (!board.length) return;
     let nextPick = null;
     for (let i = 0; i < picks.length; i++) {
@@ -217,9 +227,27 @@ function gitHead() {
   } catch (e) { return 'UNAVAILABLE'; }
 }
 
+function loadStatusExclusions() {
+  // The committed deterministic exclusion lists (rule + both error
+  // directions: draft_replay_2025.roster_status_exclusions). Absent file =>
+  // the filtered arm is skipped and says why, never silently.
+  const p = path.join(__dirname, '..', 'data', 'replay_league_table_restated.json');
+  try {
+    const d = JSON.parse(fs.readFileSync(p, 'utf8'));
+    const out = {};
+    Object.keys(d.years || {}).forEach(s => {
+      out[s] = new Set((d.years[s].board.excluded || []).map(e => String(e.player_id)));
+    });
+    return { by_season: out, source: 'draft/data/replay_league_table_restated.json' };
+  } catch (e) {
+    return { by_season: null, source: null, why: String(e && e.message || e) };
+  }
+}
+
 function main() {
   const input = JSON.parse(fs.readFileSync(IN, 'utf8'));
   const bundles = input.bundles || [];
+  const exclusions = loadStatusExclusions();
   const out = {
     _territory: 'TERRITORY: A — produced by draft/backtest/replay_seats.js',
     _note: 'CHOICES ONLY — no outcome data enters this file. Grading joins '
@@ -243,10 +271,18 @@ function main() {
     },
     seasons: {},
   };
+  out.meta.status_filter = exclusions.by_season
+    ? { source: exclusions.source,
+        excluded_per_season: Object.fromEntries(Object.keys(exclusions.by_season)
+          .map(s => [s, exclusions.by_season[s].size])) }
+    : { skipped_why: exclusions.why };
   bundles.forEach(b => {
     const seats = {};
+    const excl = exclusions.by_season
+      ? exclusions.by_season[String(b.season)] : null;
     for (let seat = 1; seat <= (b.teams || 10); seat++) {
       seats[String(seat)] = replaySeat(b, seat);
+      if (excl) seats[String(seat)].status_filtered = replaySeat(b, seat, excl);
     }
     out.seasons[String(b.season)] = { seats: seats };
     console.log('season ' + b.season + ': '
