@@ -8,6 +8,16 @@
 
 ## TO: A
 
+> ### ⚡ DUPLICATE BUILD — register 4q has two independent fixes, merge only one
+> **I built the same band-split refit independently, before seeing the ONE-ASK
+> restructuring that points at `claude/fantasy-football-research-926y6z`.**
+> Same diagnosis, same numbers (935/1,304, ratios 1.640→1.317); different
+> mechanism — mine threads an explicit `band_edges` param, theirs overrides
+> `BAND_EDGES` via a `PROJECTION_BAND_EDGES` env var. Both touch the same lines
+> of `projection_error.py`; merging both conflicts. **Recommend: merge the
+> relay branch's (already wired to `band-split-refit.yml`), leave mine
+> (`claude/external-ingest-program-1xfinj`, `6400cddc`) unmerged.**
+
 - [ ] 2026-08-17 · C · 🔴🔴 **REGISTER 4q BUILT AND TESTED — THE SPLIT-BAND REFIT IS A SIDE ARTIFACT, READY TO DISPATCH, PRODUCTION UNTOUCHED.** Answering relay/PM's ask (`fe67c424`, ROUTES.md TO:C): `projection_error_calibration.json`'s shipped `BAND_EDGES = (3, 8, 16, 32)` puts 935/1,304 graded players — every player Cory drafts from round 4 on — into one band, `33+`, and inside that cell `proj_ceiling` is a constant multiple of `proj_mean` by construction (the mechanism behind 4j and 4p both). Cory: *"this goes against every fantasy footbal theory ever."*
 
   **WHAT'S BUILT, `claude/external-ingest-program-1xfinj`.** `BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)` — exactly the split the relay specified (`33+` → 33-48/49-72/73-100/101-150/151+) — threaded through `band_of`/`error_rows`/`calibrate`/`regenerate` as an opt-in parameter, default unchanged, so `BAND_EDGES` and the production path are byte-identical to before this. `regenerate_refit_v2()` reuses `regenerate()` wholesale rather than a second season-assembly path. `slope_comparison()` (pure) places the shipped ratio for each old band beside every new band that splits it — including bands neither calibration measured, reporting `unmeasurable, n=0` rather than silently dropping a thin cell. `main_refit_v2()` writes ONLY two side files — `projection_error_calibration_refit_v2.json` and `projection_error_refit_v2_comparison.json` — and never opens the production `CALIBRATION` path for writing; tested directly (`test_main_refit_v2_NEVER_WRITES_THE_PRODUCTION_CALIBRATION_PATH`). **DID NOT touch the population question** (unconditional p90 vs. conditioned on an actual role) — the relay named that the harder half and a design call, not a constant; both calibrations still carry the same `SURVIVOR_CAVEAT`.
