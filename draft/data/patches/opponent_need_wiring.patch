@@ -1,0 +1,103 @@
+PREPARED, NOT APPLIED — the opponent-need layer's wiring, gated OFF.
+Produced by the opponent-need lane 2026-08-17. Applying it is A's merge and
+flipping OPPONENT_NEED_LAYER to true is Cory's call; nothing in the live path
+changes until both happen. Verify it still applies with:
+    git apply --check draft/data/patches/opponent_need_wiring.patch
+Evidence: draft/audit/opponent_need_2026-08-17.md + draft/data/opponent_need_2026.json.
+
+--- a/public/js/draft/survival.js
++++ b/public/js/draft/survival.js
+@@ -102,6 +102,22 @@
+     // above (0.25) — the existing "his observed mix is a rate, not a law"
+     // weight — rather than a new tuned constant.
+     ROOM_MIX_W: 0.25,
++    /* ── OPPONENT-NEED LAYER — measured, ships OFF (Cory's call) ───────────
++     * draft/backtest/opponent_need_model.py graded need-conditioned opponent
++     * tendencies on 213 real pick gaps, 15,650 (gap x player) observations,
++     * walk-forward on this room's 2024-25 drafts with the as-of rule (a
++     * tendency for season Y counts only seasons < Y). Pooled Brier delta
++     * -0.0039 [95% CI -0.0067, -0.0015] vs the engine-form baseline; the
++     * 2025 calibrated-dispersion arm held at -0.0012 [-0.0022, -0.0003];
++     * the 2025 engine-sd slice alone was null (+0.00001 [-0.0033, +0.0030])
++     * — both directions in draft/audit/opponent_need_2026-08-17.md.
++     * Tendencies are measured frequencies (n on every cell, conditional
++     * refused below n=5); artifact: draft/data/opponent_need_2026.json.
++     * Gate stays FALSE until Cory rules; flipping it needs no other change. */
++    OPPONENT_NEED_LAYER: false,
++    // Blend weight when ON. Deliberately BUCKET_BLEND / ROOM_MIX_W's existing
++    // 0.25 magnitude — an existing constant reused, not a new tuned one.
++    OPPONENT_NEED_W: 0.25,
+     RUN_WINDOW: 10,
+     /* THE "SAFE" THRESHOLD THE LRM STRIP COMMITS TO. Lived as a bare 0.85 inside
+      * `lrmLastSafe` in app.js, which meant the grader had to carry its own copy
+@@ -460,6 +476,46 @@
+     return out;
+   }
+ 
++  /* ── OPPONENT-NEED LAYER helper (GATED — dead code while the flag is off) ─
++   * Consumes draft/data/opponent_need_2026.json (ctx.opponentNeed, loaded by
++   * app.js alongside the other artifacts). The artifact ships RAW COUNTS, not
++   * baked rates, because need states change with every pick: the n>=cond_floor
++   * conditional and the fallback chain (owner-conditional -> owner
++   * unconditioned -> league bucket) are evaluated HERE against the seat's
++   * LIVE roster — the same chain the backtest measured. Returns a normalised
++   * {pos: p} or null when the seat cannot be resolved to an owner (seats are
++   * unassigned until Sleeper locks the order — the War Room's own stated
++   * truth; an unresolved seat gets NO tilt rather than a guessed one). */
++  function opponentNeedDist(artifact, ownerKey, round, roster, keys) {
++    var owners = artifact && artifact.owner_tendency_counts_2026;
++    var league = artifact && artifact.league_tendencies_2026;
++    if (!owners || !league || !ownerKey || !round) return null;
++    var floor = artifact.cond_floor || 5;
++    var bucket = round <= 3 ? 'early' : (round <= 9 ? 'mid' : 'late');
++    var ob = owners[ownerKey] && owners[ownerKey][bucket];
++    var lb = league[bucket];
++    var starters = { QB: 1, RB: 2, WR: 2, TE: 1, K: 1, DEF: 1 };
++    var out = {}, tot = 0;
++    keys.forEach(function (pos) {
++      var filled = (roster || []).filter(function (r) { return r.position === pos; }).length;
++      var bit = filled < (starters[pos] || 0) ? 'open' : 'filled';
++      var rate = 0;
++      var cell = ob && ob[pos];
++      if (cell && cell[bit] && cell[bit].n >= floor) {
++        rate = cell[bit].take / cell[bit].n;
++      } else if (cell && cell.uncond && cell.uncond.n >= floor) {
++        rate = cell.uncond.take / cell.uncond.n;
++      } else if (lb && lb[pos] && lb[pos].n > 0) {
++        rate = lb[pos].take / lb[pos].n;
++      }
++      out[pos] = rate;
++      tot += rate;
++    });
++    if (!(tot > 0)) return null;
++    keys.forEach(function (pos) { out[pos] /= tot; });
++    return out;
++  }
++
+   function positionProbabilities(team, board, ctx) {
+     const league = ctx.league || {};
+     const starters = league.starters || {};
+@@ -549,6 +605,23 @@
+       }
+     }
+ 
++    // ---- the measured opponent-need tendency (GATED — ships off) ----------
++    // Blended exactly where ROOM_MIX_PRIOR blends, and with the same 0.25
++    // magnitude, AFTER the room prior and BEFORE the per-owner tilts. The
++    // seat's owner key comes from the live draft object's seat mapping
++    // (team.owner_first, set by app.js once Sleeper assigns the order);
++    // unmapped seats get no tilt.
++    if (CFG.OPPONENT_NEED_LAYER && round && ctx.opponentNeed) {
++      const needT = opponentNeedDist(ctx.opponentNeed, team.owner_first, round,
++                                     roster, keys);
++      if (needT) {
++        const wN = CFG.OPPONENT_NEED_W;
++        let totN = 0;
++        keys.forEach(k => { out[k] = (1 - wN) * out[k] + wN * (needT[k] || 0); totN += out[k]; });
++        if (totN > 0) keys.forEach(k => { out[k] /= totN; });
++      }
++    }
++
+     // ---- what his own past drafts say -------------------------------------
+     // Applied AFTER the softmax, as bounded multipliers on a proper
+     // distribution, then renormalised. Doing it inside the utility would let a

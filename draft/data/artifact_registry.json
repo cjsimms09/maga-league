@@ -191,6 +191,17 @@
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nsys.path.insert(0, 'draft')\nimport pace_arm as A\nprint(json.dumps(A.run()))"
    ],
    "timeout_s": 1800
+  },
+  {
+   "id": "opponent_need_2026",
+   "description": "Opponent-need survival layer: need-conditioned tendency tables and the walk-forward calibration delta vs the engine-form baseline (2024-25 real pick gaps). Legitimately drifts when keeper slates (keepers.json / predicted_keepers.json) or the board's position map move \u2014 regenerate after the 08-20 keeper lock.",
+   "owner_module": "draft/backtest/opponent_need_model.py",
+   "artifact_path": "draft/data/opponent_need_2026.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport opponent_need_model as O\nprint(json.dumps(O.build_artifact()))"
+   ]
   }
  ],
  "_not_yet_migrated": [
