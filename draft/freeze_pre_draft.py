@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -65,7 +66,21 @@ sys.path.insert(0, str(ROOT / "draft"))
 import keepers as K  # noqa: E402
 
 ARTIFACT = ROOT / "public" / "draft_data.json"
-OUT = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+_DEFAULT_OUT = ROOT / "draft" / "data" / "pre_draft_freeze_2026.json"
+# OVERRIDABLE SO THE ONE IRREVERSIBLE ACTION CAN BE REHEARSED — added
+# 2026-08-17, the same pattern and for the same reason as
+# log_draft_picks.LOG / DRAFT_PICK_LOG_PATH (2026-08-15).
+#
+# The draft-day action is "delete the stale freeze, re-run this". Until now the
+# ONLY way to find out whether that command works was to delete the real
+# artifact and run it — on draft day, on the clock, with no way back if it
+# failed. The file whose header calls itself "the only irreversible item in the
+# plan" was the one file in the repo that could not be rehearsed.
+#
+# The default is completely unchanged for every normal caller, and `main()`'s
+# refusal-to-overwrite still applies to whatever path is in force: this makes the
+# rehearsal possible, not the overwrite easy.
+OUT = Path(os.environ.get("PRE_DRAFT_FREEZE_PATH") or str(_DEFAULT_OUT))
 
 #: Fields a replay needs to recompute ANY valuation, not just the two that exist
 #: today. `vorp` and `proj_mean` are the old path's inputs; `replacement` and the

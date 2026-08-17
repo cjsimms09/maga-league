@@ -83,9 +83,22 @@ def test_the_freeze_carries_every_field_it_declares(frozen):
         "grade what the board actually said. An artifact missing fields the "
         "board now carries would grade a board that was never drafted from.\n\n"
         "FIX (draft day, after the final board build — the module refuses to "
-        "overwrite on purpose and has no --force):\n"
+        "overwrite on purpose and has no --force).\n\n"
+        "REHEARSE IT FIRST. Nothing is deleted by this step, and it was "
+        "impossible until 2026-08-17:\n"
+        "    PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json \\\n"
+        "      python3 draft/freeze_pre_draft.py\n"
+        "    PRE_DRAFT_FREEZE_PATH=/tmp/rehearsal.json \\\n"
+        "      python3 draft/freeze_pre_draft.py --verify\n"
+        "It should print a player count and 'freeze intact'. Rehearsed on "
+        "2026-08-17 against that day's board: 682 players x 12 picks, all 44 "
+        "declared fields present, 0 missing — so a fresh take DOES close this "
+        "gap. If the rehearsal fails, do not delete anything; the real freeze "
+        "is still the best record that exists.\n\n"
+        "THEN, and only then:\n"
         "    rm draft/data/pre_draft_freeze_2026.json\n"
         "    python3 draft/freeze_pre_draft.py\n"
+        "    python3 draft/freeze_pre_draft.py --verify\n"
         "    git commit   # say why")
 
 
