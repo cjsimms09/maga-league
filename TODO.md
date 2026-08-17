@@ -226,8 +226,27 @@ The 08-14 freeze stays recoverable in git history either way.
   **Checked while scoping:** `archetype_rooms.js`'s header claims it runs "under
   production MEASURED_WEIGHTS". Verified true via that `liveContext` default.
   Not a defect.
-- Routes-run (the nflverse route-participation feed) not yet pulled — the second
-  per-player opportunity signal after snap share. Post-draft.
+- **Routes run — SCOPED 2026-08-17, and the answer is "not directly, but a proxy
+  is available for all five seasons".**
+  There is NO routes feed in nflverse: `routes/routes_YYYY.csv` 404s, and
+  `ftn_charting` is PLAY-level (motion, play-action, blitzers) with no player
+  ids and no route counts. True routes run is a PFF / Fantasy Points Data
+  product we do not have.
+  **What IS available:** `pbp_participation_YYYY.csv`, 200 for **2021-2025**
+  (~21 MB for 2021-22, ~48 MB for 2023-25). Each play carries
+  `offense_players` (a `;`-joined list of gsis ids), plus `offense_positions`
+  and `n_offense`. A routes-run PROXY = count of PASS plays on which a skill
+  player appears in `offense_players`.
+  **Three caveats to build in, not discover:** (1) it is an UPPER BOUND — a TE
+  or RB who stayed in to block is counted as running a route; (2) the list is
+  all 11 offensive players, so it MUST be position-filtered (`offense_positions`
+  rides along); (3) there is a `route` column and it was EMPTY in the 2024
+  sample — do not assume it is populated.
+  **Why it is worth having:** routes run is the denominator for
+  target-per-route-run, the cleanest receiving-efficiency measure, and it is a
+  genuine per-player quantity — the family that finally paid off today.
+  Post-draft; same shape as the snap-count pull (join accounting, refusal
+  floor, weekly job, registry entry).
 
 ### ✅ THE CONSTANT-STAND-IN SWEEP IS COMPLETE — every surface, one real find
 
