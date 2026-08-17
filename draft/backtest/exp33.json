@@ -34,7 +34,7 @@
               "RB": {
                 "n": 104,
                 "mae": 58.72,
-                "rank_corr": 0.704,
+                "rank_corr": 0.705,
                 "top_decile": {
                   "n": 104,
                   "k": 10,
@@ -44,7 +44,7 @@
               "WR": {
                 "n": 172,
                 "mae": 46.73,
-                "rank_corr": 0.67,
+                "rank_corr": 0.671,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -54,7 +54,7 @@
               "TE": {
                 "n": 98,
                 "mae": 33.35,
-                "rank_corr": 0.618,
+                "rank_corr": 0.62,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -117,7 +117,7 @@
               "WR": {
                 "n": 172,
                 "mae": 40.8,
-                "rank_corr": 0.739,
+                "rank_corr": 0.738,
                 "top_decile": {
                   "n": 172,
                   "k": 17,
@@ -127,7 +127,7 @@
               "TE": {
                 "n": 98,
                 "mae": 27.27,
-                "rank_corr": 0.682,
+                "rank_corr": 0.683,
                 "top_decile": {
                   "n": 98,
                   "k": 10,
@@ -336,7 +336,7 @@
       "dollars": {
         "our_blend": 200.0,
         "naive": 100.0,
-        "ffc_adp": 400.0,
+        "ffc_adp": 1025.0,
         "sleeper_proj": 0.0
       },
       "n_realized": 606
@@ -378,7 +378,7 @@
               "WR": {
                 "n": 164,
                 "mae": 46.96,
-                "rank_corr": 0.754,
+                "rank_corr": 0.755,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -451,7 +451,7 @@
               "WR": {
                 "n": 164,
                 "mae": 37.47,
-                "rank_corr": 0.773,
+                "rank_corr": 0.774,
                 "top_decile": {
                   "n": 164,
                   "k": 16,
@@ -461,7 +461,7 @@
               "TE": {
                 "n": 92,
                 "mae": 26.82,
-                "rank_corr": 0.724,
+                "rank_corr": 0.725,
                 "top_decile": {
                   "n": 92,
                   "k": 9,
@@ -688,7 +688,7 @@
     "dollars_by_source_total": {
       "our_blend": 200.0,
       "naive": 100.0,
-      "ffc_adp": 1200.0
+      "ffc_adp": 1825.0
     },
     "dollars_disqualified_total": {
       "sleeper_proj": 0.0
