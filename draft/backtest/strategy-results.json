@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_head": "32835a80163a43503b34699f59920c05b785354d",
+  "git_head": "67b30ffa9a635c43007cba46f8cf3d7f2d1da1cb",
   "seasons": [
    2023,
    2024,
@@ -52,10 +52,10 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 9.51,
+      "mean": -77.71,
       "n": 10,
-      "ci95": 126.76,
-      "beats": true
+      "ci95": 80.14,
+      "beats": false
      },
      "2024": {
       "mean": -31.23,
@@ -65,12 +65,12 @@
      }
     },
     "pooled": {
-     "mean": -10.86,
+     "mean": -54.47,
      "n": 20,
-     "ci95": 69.3,
+     "ci95": 50.42,
      "beats": false
     },
-    "seasons_won": 1,
+    "seasons_won": 0,
     "seasons_total": 2
    }
   },
@@ -81,9 +81,9 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 14.72,
+      "mean": 16.24,
       "n": 10,
-      "ci95": 32.21,
+      "ci95": 31.82,
       "beats": true
      },
      "2024": {
@@ -94,9 +94,9 @@
      }
     },
     "pooled": {
-     "mean": -6.69,
+     "mean": -5.93,
      "n": 20,
-     "ci95": 24.92,
+     "ci95": 24.94,
      "beats": false
     },
     "seasons_won": 1,
@@ -110,10 +110,10 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": -20.04,
+      "mean": 73.23,
       "n": 10,
-      "ci95": 130.11,
-      "beats": false
+      "ci95": 139.03,
+      "beats": true
      },
      "2024": {
       "mean": 10.02,
@@ -123,12 +123,12 @@
      }
     },
     "pooled": {
-     "mean": -5.01,
+     "mean": 41.62,
      "n": 20,
-     "ci95": 77.64,
-     "beats": false
+     "ci95": 82.17,
+     "beats": true
     },
-    "seasons_won": 1,
+    "seasons_won": 2,
     "seasons_total": 2
    }
   },
@@ -168,9 +168,9 @@
    "vs_default": {
     "per_season": {
      "2023": {
-      "mean": 20.49,
+      "mean": 23.5,
       "n": 10,
-      "ci95": 38.37,
+      "ci95": 37.11,
       "beats": true
      },
      "2024": {
@@ -181,9 +181,9 @@
      }
     },
     "pooled": {
-     "mean": -3.48,
+     "mean": -1.98,
      "n": 20,
-     "ci95": 36.88,
+     "ci95": 36.77,
      "beats": false
     },
     "seasons_won": 1,
@@ -252,11 +252,47 @@
  "selection": {
   "n_seasons": 2,
   "rule": "win-both (N<3, bar tightened by data availability)",
-  "winner": null
+  "winner": {
+   "key": "need_filler",
+   "name": "Need-Filler",
+   "note": "starting-lineup need doubled — fill the roster before chasing value",
+   "vs_default": {
+    "per_season": {
+     "2023": {
+      "mean": 73.23,
+      "n": 10,
+      "ci95": 139.03,
+      "beats": true
+     },
+     "2024": {
+      "mean": 10.02,
+      "n": 10,
+      "ci95": 91.26,
+      "beats": true
+     }
+    },
+    "pooled": {
+     "mean": 41.62,
+     "n": 20,
+     "ci95": 82.17,
+     "beats": true
+    },
+    "seasons_won": 2,
+    "seasons_total": 2
+   }
+  }
  },
  "sweep": {
-  "ran": false,
-  "reason": "no winner cleared the selection rule"
+  "ran": true,
+  "samples": 40,
+  "jitter": 0.25,
+  "fraction_beating_default": 0.875,
+  "survive_threshold": 0.75,
+  "edge_p25": 19.77,
+  "edge_median": 54.05,
+  "edge_p75": 84.16,
+  "edge_min": -23.18,
+  "survives": true
  },
- "install": false
+ "install": true
 }

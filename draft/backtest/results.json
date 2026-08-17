@@ -1,7 +1,9 @@
 {
  "meta": {
-  "git_head": "32835a80163a43503b34699f59920c05b785354d",
-  "uncommitted_when_run": [],
+  "git_head": "67b30ffa9a635c43007cba46f8cf3d7f2d1da1cb",
+  "uncommitted_when_run": [
+   " M draft/backtest/DIAGNOSTICS.txt"
+  ],
   "seasons": [
    2023,
    2024,
@@ -12,17 +14,17 @@
    {
     "season": 2023,
     "method": "walk_forward",
-    "spearman": 0.5968
+    "spearman": 0.5966
    },
    {
     "season": 2024,
     "method": "walk_forward",
-    "spearman": 0.5329
+    "spearman": 0.5328
    },
    {
     "season": 2025,
     "method": "walk_forward",
-    "spearman": 0.5434
+    "spearman": 0.544
    }
   ],
   "caveats": [
@@ -35,47 +37,47 @@
   ]
  },
  "headline": {
-  "b0_mean": 219.63,
-  "b1_mean": 218.86,
-  "b2_mean": 139.09,
-  "b3_mean": 94.94,
-  "mean_gain_per_pick": -124.69,
-  "ci95_per_pick": 25.36,
-  "mean_gain_per_draft": -1259.39,
-  "ci95_per_draft": 165.94,
+  "b0_mean": 238.1,
+  "b1_mean": 165.5,
+  "b2_mean": 26.75,
+  "b3_mean": 64.13,
+  "mean_gain_per_pick": -173.97,
+  "ci95_per_pick": 20.27,
+  "mean_gain_per_draft": -1496.1,
+  "ci95_per_draft": 181.29,
   "drafts_counted": 20
  },
  "disagreement": {
-  "n": 190,
-  "share_of_picks": 0.941,
-  "win_rate": 0.163,
-  "mean_gain": -132.57,
-  "ci95": 26.57
+  "n": 171,
+  "share_of_picks": 0.994,
+  "win_rate": 0.07,
+  "mean_gain": -174.98,
+  "ci95": 20.29
  },
  "per_round": [
   {
    "round": 1,
-   "n": 11,
-   "mean_gain": -7.02,
-   "ci95": 13.76
+   "n": 1,
+   "mean_gain": -77.2,
+   "ci95": 0
   },
   {
    "round": 2,
-   "n": 12,
-   "mean_gain": 87.84,
-   "ci95": 92.12
+   "n": 2,
+   "mean_gain": -257.4,
+   "ci95": 0
   },
   {
    "round": 3,
-   "n": 14,
-   "mean_gain": 180.76,
-   "ci95": 159.01
+   "n": 5,
+   "mean_gain": -126.94,
+   "ci95": 213.74
   },
   {
    "round": 4,
-   "n": 20,
-   "mean_gain": -62.49,
-   "ci95": 40.95
+   "n": 19,
+   "mean_gain": -65.78,
+   "ci95": 42.63
   },
   {
    "round": 5,
@@ -128,40 +130,40 @@
  ],
  "value_cut": {
   "headline": {
-   "b0_mean": -14.45,
-   "b1_mean": -123.28,
-   "b2_mean": -197.94,
-   "b3_mean": -109.7,
-   "mean_gain_per_pick": -95.25,
-   "ci95_per_pick": 20.58,
-   "mean_gain_per_draft": -962.01,
-   "ci95_per_draft": 257.38,
+   "b0_mean": -4.08,
+   "b1_mean": -176.17,
+   "b2_mean": -308.02,
+   "b3_mean": -136.61,
+   "mean_gain_per_pick": -132.54,
+   "ci95_per_pick": 18.03,
+   "mean_gain_per_draft": -1139.82,
+   "ci95_per_draft": 260.61,
    "drafts_counted": 20
   },
   "per_round": [
    {
     "round": 1,
-    "n": 11,
-    "mean_gain": -7.02,
-    "ci95": 13.76
+    "n": 1,
+    "mean_gain": -77.2,
+    "ci95": 0
    },
    {
     "round": 2,
-    "n": 12,
-    "mean_gain": 85.11,
-    "ci95": 93.07
+    "n": 2,
+    "mean_gain": -264.5,
+    "ci95": 0
    },
    {
     "round": 3,
-    "n": 14,
-    "mean_gain": 85.17,
-    "ci95": 122.15
+    "n": 5,
+    "mean_gain": -162.72,
+    "ci95": 151.34
    },
    {
     "round": 4,
-    "n": 20,
-    "mean_gain": -84.83,
-    "ci95": 46.2
+    "n": 19,
+    "mean_gain": -89.29,
+    "ci95": 47.82
    },
    {
     "round": 5,
@@ -213,90 +215,90 @@
    }
   ],
   "disagreement": {
-   "n": 190,
-   "share_of_picks": 0.941,
-   "win_rate": 0.221,
-   "mean_gain": -101.26,
-   "ci95": 21.6
+   "n": 171,
+   "share_of_picks": 0.994,
+   "win_rate": 0.135,
+   "mean_gain": -133.31,
+   "ci95": 18.07
   }
  },
  "vs_human": {
-  "n": 185,
-  "win_rate": 0.184,
-  "mean_gain": -83.55,
-  "ci95": 21.99
+  "n": 158,
+  "win_rate": 0.127,
+  "mean_gain": -107.57,
+  "ci95": 19.7
  },
  "calibration": [
   {
    "bucket": "0-10%",
    "predicted_mid": 0.05,
-   "n": 730,
-   "actual_rate": 0.475,
-   "error": 0.425
+   "n": 610,
+   "actual_rate": 0.515,
+   "error": 0.465
   },
   {
    "bucket": "10-20%",
    "predicted_mid": 0.15,
-   "n": 143,
-   "actual_rate": 0.671,
-   "error": 0.521
+   "n": 134,
+   "actual_rate": 0.679,
+   "error": 0.529
   },
   {
    "bucket": "20-30%",
    "predicted_mid": 0.25,
-   "n": 100,
-   "actual_rate": 0.71,
-   "error": 0.46
+   "n": 91,
+   "actual_rate": 0.725,
+   "error": 0.475
   },
   {
    "bucket": "30-40%",
    "predicted_mid": 0.35,
-   "n": 95,
-   "actual_rate": 0.779,
-   "error": 0.429
+   "n": 87,
+   "actual_rate": 0.805,
+   "error": 0.455
   },
   {
    "bucket": "40-50%",
    "predicted_mid": 0.45,
-   "n": 85,
-   "actual_rate": 0.835,
-   "error": 0.385
+   "n": 78,
+   "actual_rate": 0.859,
+   "error": 0.409
   },
   {
    "bucket": "50-60%",
    "predicted_mid": 0.55,
-   "n": 109,
-   "actual_rate": 0.807,
-   "error": 0.257
+   "n": 98,
+   "actual_rate": 0.827,
+   "error": 0.277
   },
   {
    "bucket": "60-70%",
    "predicted_mid": 0.65,
-   "n": 117,
-   "actual_rate": 0.812,
-   "error": 0.162
+   "n": 108,
+   "actual_rate": 0.824,
+   "error": 0.174
   },
   {
    "bucket": "70-80%",
    "predicted_mid": 0.75,
-   "n": 121,
-   "actual_rate": 0.876,
-   "error": 0.126
+   "n": 111,
+   "actual_rate": 0.883,
+   "error": 0.133
   },
   {
    "bucket": "80-90%",
    "predicted_mid": 0.85,
-   "n": 204,
-   "actual_rate": 0.828,
-   "error": -0.022
+   "n": 190,
+   "actual_rate": 0.826,
+   "error": -0.024
   },
   {
    "bucket": "90-100%",
    "predicted_mid": 0.95,
-   "n": 2820,
-   "actual_rate": 0.959,
-   "error": 0.009
+   "n": 2657,
+   "actual_rate": 0.962,
+   "error": 0.012
   }
  ],
- "graded_picks": 202
+ "graded_picks": 172
 }

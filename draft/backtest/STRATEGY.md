@@ -2,7 +2,7 @@
 ==============================================================================
 STRATEGY TABLE — which weighting would have won our drafts
 ==============================================================================
-git HEAD   32835a80163a43503b34699f59920c05b785354d
+git HEAD   67b30ffa9a635c43007cba46f8cf3d7f2d1da1cb
 seasons    2023, 2024, 2025   (N=2)
 
 With N this small we are CHOOSING AMONG PROFILES, not tuning eight dials.
@@ -10,29 +10,39 @@ Every number is paired profile-minus-Default on the same season+seat draft.
 
 profile           seasons won   pooled edge      95% CI
   Default                 0/2          0.00     +/- 0.00   (baseline)
-  Value-Anchor            1/2        -10.86    +/- 69.30
-  Tier-Hunter             1/2         -6.69    +/- 24.92
-  Need-Filler             1/2         -5.01    +/- 77.64
+  Value-Anchor            0/2        -54.47    +/- 50.42
+  Tier-Hunter             1/2         -5.93    +/- 24.94
+  Need-Filler             2/2         41.62    +/- 82.17
   Upside-Late             0/2        -79.21    +/- 58.70
-  Scarcity                1/2         -3.48    +/- 36.88
+  Scarcity                1/2         -1.98    +/- 36.77
   Keeper-Builder          0/2          0.00     +/- 0.00
   Slider-Defaults         0/2          0.00     +/- 0.00
 
 per-season edge over Default:
   profile                2023     2024     2025
-  Value-Anchor         9.51   -31.23        —
-  Tier-Hunter         14.72   -28.10        —
-  Need-Filler        -20.04    10.02        —
+  Value-Anchor       -77.71   -31.23        —
+  Tier-Hunter         16.24   -28.10        —
+  Need-Filler         73.23    10.02        —
   Upside-Late        -79.58   -78.84        —
-  Scarcity            20.49   -27.45        —
+  Scarcity            23.50   -27.45        —
   Keeper-Builder       0.00     0.00        —
   Slider-Defaults      0.00     0.00        —
 
 --- SELECTION RULE (pre-registered) ---
   win-both (N<3, bar tightened by data availability)
-  RESULT: no profile cleared the bar. DEFAULT STANDS.
+  Cleared the rule: Need-Filler  (pooled +41.62, won 2/2)
 
-STRATEGY-TABLE VERDICT: NO CANDIDATE — Default stands
+--- PERTURBATION GATE (each weight jittered +/-25%) ---
+  40 jittered variants; 88% still beat Default (threshold 75%)
+  edge distribution:  p25 19.77   median 54.05   p75 84.16   worst -23.18
+  SURVIVES the jitter. The edge is a property of the strategy, not one
+  point in weight-space — but weight-jitter is a ROBUSTNESS test, not a
+  null. This table grades vs Default with no outcome-shuffle baseline, so
+  beating it is NECESSARY, NOT SUFFICIENT. Need-Filler is a
+  CANDIDATE; it installs ONLY if it also clears the tournament null
+  (LAB-TOURNAMENT.md, arch:balanced control, 200-draw shuffle p95).
+
+STRATEGY-TABLE VERDICT: CANDIDATE — Need-Filler (robust vs Default; PENDING the tournament null gate before any install)
 
 --- CAVEATS ---
   * [2025] could NOT be recovered: the play-by-play rebuild disagreed with the library on 2024 ({"season": 2024, "players_compared": 576, "official_only": 30, "rebuilt_only": 8, "mean_abs_diff": 0.149, "worst_diff": 11.0, "worst_diff_top200": 11.0, "tolerance": 0.5, "agrees": false})

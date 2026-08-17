@@ -3,40 +3,37 @@
 HISTORICAL BACKTEST — does the composite beat ADP on our own drafts?
 ==============================================================================
 
-git HEAD        32835a80163a43503b34699f59920c05b785354d
+git HEAD        67b30ffa9a635c43007cba46f8cf3d7f2d1da1cb
 seasons         2023, 2024, 2025
-graded picks    202  (rounds 1-12)
+graded picks    172  (rounds 1-12)
 
 --- 1. HEADLINE ---
   mean actual points of the recommended player
-    B0  ADP                 219.63
-    B1  projected points    218.86
-    B2  VORP                139.09
-    B3  full composite      94.94
-  B3 - B0 per pick          -124.69  +/- 25.36
-  B3 - B0 per draft         -1259.39  +/- 165.94   (n=20 drafts)
+    B0  ADP                 238.10
+    B1  projected points    165.50
+    B2  VORP                26.75
+    B3  full composite      64.13
+  B3 - B0 per pick          -173.97  +/- 20.27
+  B3 - B0 per draft         -1496.10  +/- 181.29   (n=20 drafts)
 
   VERDICT AGAINST THE PRE-REGISTERED BAR (10 pts/draft):
-    BELOW THE BAR. The composite gains -1259.39 points per draft,
+    BELOW THE BAR. The composite gains -1496.10 points per draft,
     under the 10 the spec set. Said plainly: on this evidence the
     sophistication is not paying for itself. That is a finding, not a failure.
 
-    NOTE: B3 does not beat plain VORP (B2). Whatever edge exists is in the
-    value model, not in the survival/tier/need machinery above it.
-
 --- 2. THE DISAGREEMENT SUBSET (where the model claims edge) ---
-  picks where B3 != B0      190  (94.1% of graded)
-  win rate on those         16.3%
-  mean gain on those        -132.57  +/- 26.57
+  picks where B3 != B0      171  (99.4% of graded)
+  win rate on those         7.0%
+  mean gain on those        -174.98  +/- 20.29
   (Picks where the two agree cannot show edge either way — this is the
    honest denominator, and it is always smaller than the headline sample.)
 
 --- 3. PER ROUND ---
   round      n   mean gain      95% CI
-      1     11       -7.02    +/- 13.76
-      2     12       87.84    +/- 92.12
-      3     14      180.76   +/- 159.01
-      4     20      -62.49    +/- 40.95
+      1      1      -77.20     +/- 0.00
+      2      2     -257.40     +/- 0.00
+      3      5     -126.94   +/- 213.74
+      4     19      -65.78    +/- 42.63
       5     17     -225.24    +/- 74.83
       6     14      -95.76    +/- 58.47
       7     15      -93.36    +/- 49.15
@@ -48,30 +45,33 @@ graded picks    202  (rounds 1-12)
 
   PRE-REGISTERED EXPECTATION (written before any result): edge concentrates
   in rounds 3-9, near zero in round 1.
-  Round 1 is -7.02 points/pick — consistent with the expectation.
+  ** BUG ALARM ** round 1 shows -77.20 points/pick, past the 8 threshold.
+  The top of the board is where the market is most efficient. An edge this
+  large there is more likely a leak than an insight. Investigate the AsOf
+  store and the projection fit BEFORE believing any number in this report.
 
 --- 4. SURVIVAL CALIBRATION ---
   Does "70% likely to last" mean he lasted 70% of the time?
   bucket        n   predicted   actual    error
-  0-10%       730        0.05     0.47     0.42
-  10-20%      143        0.15     0.67     0.52
-  20-30%      100        0.25     0.71     0.46
-  30-40%       95        0.35     0.78     0.43
-  40-50%       85        0.45     0.83     0.39
-  50-60%      109        0.55     0.81     0.26
-  60-70%      117        0.65     0.81     0.16
-  70-80%      121        0.75     0.88     0.13
-  80-90%      204        0.85     0.83    -0.02
-  90-100%    2820        0.95     0.96     0.01
+  0-10%       610        0.05     0.52     0.47
+  10-20%      134        0.15     0.68     0.53
+  20-30%       91        0.25     0.72     0.47
+  30-40%       87        0.35     0.81     0.46
+  40-50%       78        0.45     0.86     0.41
+  50-60%       98        0.55     0.83     0.28
+  60-70%      108        0.65     0.82     0.17
+  70-80%      111        0.75     0.88     0.13
+  80-90%      190        0.85     0.83    -0.02
+  90-100%    2657        0.95     0.96     0.01
   (positive error = too pessimistic; negative = overconfident.)
   This is the empirical answer on adp_sd and the need-aware layer, and it
   is worth more than the headline: the headline is one number on three
   drafts, this is thousands of individual predictions.
 
 --- 5. MODEL vs HUMAN ---
-  picks where B3 disagreed with the manager  185
-  B3 scored more often                       18.4%
-  mean gain over the human                   -83.55  +/- 21.99
+  picks where B3 disagreed with the manager  158
+  B3 scored more often                       12.7%
+  mean gain over the human                   -107.57  +/- 19.70
   (Includes my own picks. Seeds the override analysis with real history.)
 
 --- 6. CAVEATS (mandatory) ---
@@ -97,16 +97,16 @@ D1 CUT — VALUE OVER POSITIONAL REPLACEMENT (points minus replacement)
   This discounts an elite QB's raw total by the high replacement QB —
   the reason ADP sends QBs late. Reported alongside the raw metric; no
   install happens off either until D1 is ruled.
-  B0 -14.45  B2(VORP) -197.94  B3 -109.7
-  B3-B0 per pick   -95.25 +/- 20.58
-  B3-B0 per draft  -962.01 +/- 257.38
-  round-1 gain     -7.02 +/- 13.76
-  Round-1 alarm CLEARS under value grading — confirming the raw-points alarm was a QB metric artifact, per D1.
+  B0 -4.08  B2(VORP) -308.02  B3 -136.61
+  B3-B0 per pick   -132.54 +/- 18.03
+  B3-B0 per draft  -1139.82 +/- 260.61
+  round-1 gain     -77.2 +/- 0
+  ROUND-1 ALARM STILL FIRES under value grading — the composite genuinely over-drafts QBs in round 1; that is an ENGINE finding, not a metric one.
   per-round value gain (B3-B0):
-    r1  -7.02 +/- 13.76
-    r2  85.11 +/- 93.07
-    r3  85.17 +/- 122.15
-    r4  -84.83 +/- 46.2
+    r1  -77.2 +/- 0
+    r2  -264.5 +/- 0
+    r3  -162.72 +/- 151.34
+    r4  -89.29 +/- 47.82
     r5  -196.71 +/- 72.25
     r6  -133.93 +/- 86.87
     r7  -105.93 +/- 78.33
