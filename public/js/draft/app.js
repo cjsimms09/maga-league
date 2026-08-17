@@ -1227,6 +1227,7 @@
     loadWeights();
     loadFrozenBaseline();
     loadSeatPlan();
+    loadConditionalValue();
     fetch('/draft_data.json', { cache: 'no-cache' })
       .then(r => {
         if (!r.ok) throw new Error('draft_data.json not found (HTTP ' + r.status + ')');
@@ -2489,6 +2490,19 @@
       notes.push({ level: 'bad',
         text: 'This board has NO readable built_at — its age cannot be verified. '
           + 'Treat it as stale: rebuild before drafting off it.' });
+    }
+
+    /* CONDITIONAL-VALUE LAYER, absent case (ruling 2026-08-17): one honest
+     * line, never a zero presented as a measurement. Silence while the fetch
+     * is still in flight; silence when loaded (the chips carry their own
+     * provenance label). */
+    if (state.condValueLoaded && !state.condValue) {
+      notes.push({ level: 'warn',
+        text: (typeof CondValue !== 'undefined' && CondValue.absentNote)
+          ? CondValue.absentNote()
+          : 'Conditional-value artifact (stack/handcuff premiums) did not load — '
+            + 'premium chips are ABSENT, not zero. Board value is unaffected: '
+            + 'the composite never reads this layer.' });
     }
 
     if (!notes.length) { host.style.display = 'none'; host.innerHTML = ''; return; }
@@ -4156,6 +4170,9 @@
               + (gone >= 60 ? ' — <b>take him now or lose him</b>' : ' — he can probably wait')
               + '</span>')
         + (why ? '<br><span class="muted" style="font-size:.75rem">' + escapeHtml(why) + '</span>' : '')
+        /* conditional-value chip (ruling 2026-08-17) — same separate line the
+         * shortlist prints; annotation only, absent when there is no premium. */
+        + condValueChip(p)
         + '</li>';
     }).join('') + '</ol>';
   }
@@ -5445,6 +5462,11 @@
             ? '<div class="rec-context">' + s.context.map(escapeHtml).join(' · ') + '</div>'
             : '') +
           stackBadge(p) +
+          /* CONDITIONAL-VALUE CHIP (Cory's ruling 2026-08-17): the stack/
+           * handcuff premium TO CORY'S ROSTER, printed as its own labelled
+           * line beside the board value — annotation, never a second
+           * recommendation, never a term of the score to its right. */
+          condValueChip(p) +
           ((s.rails && s.rails.length)
             ? '<div class="rail-strip">' + s.rails.map(f =>
                 '<span>\u26a0\ufe0f ' + escapeHtml(f) + '</span>').join('') + '</div>'
@@ -6415,6 +6437,64 @@
     // the class name is the real hook B will style.
     return '<div class="rec-stack-badge" style="font-size:.78rem;color:#f5c445;margin-top:.2rem">⚡ '
       + verb + ' ' + escapeHtml(r.anchor) + ' stack' + tag + '</div>';
+  }
+
+  /* ══ THE CONDITIONAL-VALUE LAYER (stack + handcuff premiums) ══════════════
+   *
+   * WIRED BY CORY'S RULING, 2026-08-17 (verbatim: "Yes!"), on the evidence in
+   * draft/audit/conditional_value_2026-08-16.md. The layer was measured,
+   * priced, tested and GATED OFF by construction awaiting exactly that ruling.
+   *
+   * DISPLAY ONLY — the contract from docs/queued/conditional-value-program.md:
+   * "board value + stack premium + handcuff premium, EACH PRINTED SEPARATELY."
+   * The artifact is fetched here the same way the board is; the join, the chip
+   * and the drill readout are CondValue's (conditional_value.js, pure,
+   * node-tested). NOTHING here feeds context(), the engine, or any score —
+   * test_conditional_value.py keeps the scoring side gated, and the chip
+   * itself says "not in the score" so a reader never mistakes the annotation
+   * for a term of the composite.
+   *
+   * DEGRADES HONESTLY: a missing artifact means NO chips and one provenance
+   * note — absent is never rendered as zero. */
+  function loadConditionalValue() {
+    fetch('/conditional_value_2026.json', { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (a) { state.condValue = a || null; })
+      .catch(function (e) {
+        console.warn('[conditional-value] artifact not loaded: ' + (e && e.message)
+          + ' — premium chips absent (not zero)');
+        state.condValue = null;
+      })
+      .then(function () {
+        state.condValueLoaded = true;
+        // The board usually wins the race; when it doesn't, repaint so the
+        // chips (or the honest absence note) appear without a pick event.
+        if (state.data) { try { renderAll(); } catch (e) { /* never blocks */ } }
+      });
+  }
+  function condValueIndex() {
+    if (typeof CondValue === 'undefined' || !state.condValue) return null;
+    if (!state._cvIdx || state._cvIdx.src !== state.condValue) {
+      try { state._cvIdx = { src: state.condValue, idx: CondValue.index(state.condValue) }; }
+      catch (e) { console.error('[conditional-value]', e && e.message); return null; }
+    }
+    return state._cvIdx.idx;
+  }
+  function condRosterPids() {
+    return (state.myRoster || []).map(function (p) { return String(p.player_id); });
+  }
+  /* The chip beside board value — one labelled line per live premium, '' for
+   * everyone else. Guarded: a missing module or artifact costs the chip, never
+   * the row, and never prints a zero. */
+  function condValueChip(p) {
+    try {
+      var idx = condValueIndex();
+      if (!idx) return '';
+      return CondValue.chipHtml(String(p.player_id), idx, condRosterPids());
+    } catch (e) { return ''; }
   }
 
   /* Slot assignments imported from the Sleeper draft object (Part 5 §2).
@@ -9835,6 +9915,17 @@
           pickBoard: ((state.data || {}).pick_order || {}).picks || null,
         });
       } catch (e) { return null; }
+    },
+    /* Conditional-value drill readout (ruling 2026-08-17) — a finished HTML
+     * string so the cockpit layer stays a pure presenter: the artifact, the
+     * join and the roster all resolve HERE, off the same state the chips use.
+     * '' when the player carries no premium or the artifact is absent. */
+    conditionalDrillHtml: function (pid) {
+      try {
+        var idx = condValueIndex();
+        if (!idx) return '';
+        return CondValue.drillHtml(String(pid), idx, condRosterPids());
+      } catch (e) { return ''; }
     },
   };
 

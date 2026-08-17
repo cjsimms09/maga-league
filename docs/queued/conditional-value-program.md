@@ -1,5 +1,10 @@
 # The conditional-value program — stacks + handcuffs (Cory, 2026-08-16)
 
+> **STATUS 2026-08-17: measured, priced (conditional_value_2026-08-16.md), and
+> the war-room DISPLAY is wired — Cory ruled (verbatim: "Yes!"). The read below
+> ("board value + stack premium + handcuff premium, each printed separately")
+> is now the shipped contract; the scoring side stays gated by test.
+
 **The mandate, verbatim:** "Do we need to continue studying stacks? Seems like
 it's more valuable in league with weekly payout like ours. Joe burrow probably
 worth more to me than other since I have chase but how much more. Also we

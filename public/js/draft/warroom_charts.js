@@ -628,6 +628,12 @@
         ? { min: p.proj_floor - (p.proj_ceiling - p.proj_floor) * 0.1,
             max: p.proj_ceiling + (p.proj_ceiling - p.proj_floor) * 0.1, w: 220, h: 14 }
         : {});
+    /* Conditional-value readout (Cory's ruling 2026-08-17): app.js resolves
+     * artifact + roster and hands back a finished string — this layer stays a
+     * presenter. '' (absent, not zero) for everyone without a premium. */
+    var condHtml = '';
+    try { condHtml = (d.conditionalDrillHtml && d.conditionalDrillHtml(ui.drillId)) || ''; }
+    catch (e) { condHtml = ''; }
 
     host.innerHTML = '<div class="wr-drill-panel" role="dialog" aria-label="Player detail">'
       + '<button type="button" class="wr-drill-close" data-drill-close="1" title="Close">✕</button>'
@@ -640,6 +646,7 @@
           return '<tr><td>' + r[0] + '</td><td class="wr-num">' + r[1] + '</td></tr>';
         }).join('') + '</table>'
       + (survRows ? '<div class="wr-drill-surv"><div class="wr-drill-h">survives to my picks</div>' + survRows + '</div>' : '')
+      + condHtml
       + (s && s.reasons && s.reasons.length
         ? '<div class="wr-drill-why"><div class="wr-drill-h">the engine\'s why</div>'
           + s.reasons.slice(0, 3).map(function (r) { return '<div>· ' + esc(r) + '</div>'; }).join('') + '</div>'

@@ -76,6 +76,18 @@ const PRODUCTION_INPUTS = {
     + 'a templated name for the scoreboard numbers). Cory-only display; never '
     + 'an input to a ranking or a member surface. Declared 2026-08-16 with '
     + 'the weekly-own loop.',
+  'conditional_value_2026.json': 'The stack+handcuff premiums for CORY\'S '
+    + 'keeper roster — PROMOTED FROM RESEARCH TO DISPLAY BY CORY\'S RULING, '
+    + '2026-08-17 (verbatim: "Yes!"), on the evidence in '
+    + 'draft/audit/conditional_value_2026-08-16.md. This is exactly the '
+    + '"decision with a name on it" this file requires: the war room prints '
+    + 'the premium as its own labelled chip BESIDE board value (the queued '
+    + 'doc\'s contract — each printed separately). DISPLAY ONLY: the engine, '
+    + 'composite, VORP and build never read it, pinned by '
+    + 'test_conditional_value.py\'s scoring-side gate. The header\'s own '
+    + 'warning ("a displayed number on a decision surface IS an input, '
+    + 'because Cory reads it while picking") is TRUE here and is the point — '
+    + 'Cory ruled to read it.',
 };
 
 /* Artifacts collected FOR LEARNING. Present, valuable, and explicitly not
