@@ -94,15 +94,18 @@ def test_the_still_open_holes_are_named_so_none_can_be_forgotten():
     need a fetcher change rather than an attach change."""
     a = CR.audit()
     missing_raw = set(a["captures_missing_raw"])
-    assert missing_raw == {"fantasypros_adp", "fantasypros_projections"}, (
-        "the open-hole list moved — either something was fixed (update this "
-        f"test deliberately) or something regressed: {sorted(missing_raw)}")
+    assert missing_raw == set(), (
+        "AMENDED AGAIN 2026-08-17: every capture now retains its payload. If "
+        "this set is non-empty a NEW capture was added without retention, or "
+        "one regressed — either way it is a decision someone has to make out "
+        f"loud rather than inherit: {sorted(missing_raw)}")
 
 
 def test_the_captures_fixed_today_record_that_they_were_fixed():
     """A capture that silently starts passing teaches a future reader nothing.
     Each fix carries its date and what it replaced."""
-    for name in ("proj_series", "adp_series", "opportunity_metrics"):
+    for name in ("proj_series", "adp_series", "opportunity_metrics",
+                 "fantasypros_adp", "fantasypros_projections"):
         c = CR.CAPTURES[name]
         assert c["raw_retained"] is True, name
         assert "2026-08-17" in (c.get("fixed") or ""), name

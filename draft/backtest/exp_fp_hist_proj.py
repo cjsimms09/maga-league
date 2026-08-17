@@ -94,6 +94,10 @@ OUT = HERE / "exp_fp_hist_proj.json"
 #: half of what Cory asked for.
 ROWS_OUT = HERE / "fp_hist_rows.json"
 
+import sys as _sys                                              # noqa: E402
+_sys.path.insert(0, str(HERE.parent))
+import raw_capture as RAW                                       # noqa: E402
+
 
 # ── realized totals (same semantics as model_accuracy_backtest.season_totals,
 #    but takes the loaded store dict so fixtures can stand in) ────────────────
@@ -443,6 +447,16 @@ def egress_main() -> int:   # pragma: no cover  (CI only — the sandbox has no 
     for year in YEARS:
         print(f"── {year} " + "─" * 40)
         adp_text, adp_url, adp_diag = FP.fetch(year)
+        # KEEP THE RESPONSE (2026-08-17). Both fetchers already RETURNED the raw
+        # text; every caller threw it away and kept the parsed rows, so the loss
+        # was never in the fetch — it was one line further on, in five places.
+        # A parser is a whitelist (_FP_STAT_MAP is 13 entries against 32 priced
+        # categories) and every whitelist loses what nobody anticipated.
+        # Retaining the bytes means a 2027 question is answered by RE-PARSING
+        # rather than RE-FETCHING, and re-fetching a preseason projection is
+        # exactly what leaks.
+        if adp_text:
+            RAW.retain("fantasypros_adp", year, adp_text, adp_url, adp_diag)
         adp_rows = FP.parse(adp_text) if adp_text else []
         for r in adp_rows:
             sid, how = ADP.match_player(r, index)
@@ -450,6 +464,8 @@ def egress_main() -> int:   # pragma: no cover  (CI only — the sandbox has no 
             r["match_method"] = how
 
         proj_text, proj_url, proj_diag = FP.fetch_projections(year)
+        if proj_text:
+            RAW.retain("fantasypros_projections", year, proj_text, proj_url, proj_diag)
         proj_rows = FP.parse_projections(proj_text) if proj_text else []
         for r in proj_rows:
             sid, how = ADP.match_player(r, index)

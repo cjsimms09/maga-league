@@ -2042,6 +2042,21 @@ def main() -> None:
         _update_proj_series(artifact, today=artifact["built_at"][:10])
     except Exception as exc:  # noqa: BLE001 — the board ships regardless
         print(f"  ! projection snapshot not updated ({exc})")
+    # WEEKLY ROSTER STATE (2026-08-17). Depth chart and injury designation are
+    # LIVE state — this Tuesday's values, overwritten next Tuesday with no
+    # record the first ones existed. That is exactly why VAR_BACKUP and
+    # VAR_INJURED could not be fitted on 2021-2025 at all: not measured-and-
+    # small, unmeasurable. Nothing recovers those seasons; every season from
+    # here is recoverable only if the capture starts before the state moves.
+    # Non-fatal, like its siblings — the board ships regardless.
+    try:
+        import roster_state as roster_state_mod
+        _rs = roster_state_mod.capture(artifact.get("players") or [],
+                                       artifact["built_at"][:10])
+        print(f"  roster state: {_rs['players']} players, "
+              f"{_rs['snapshots']} snapshots retained")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  ! roster state not captured ({exc})")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(artifact, separators=(",", ":")))

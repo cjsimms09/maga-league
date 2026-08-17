@@ -56,8 +56,12 @@ CAPTURES: dict[str, dict] = {
                 "one — it measures how much experts disagree about where to "
                 "draft him, not how big his season can be."),
         },
-        "raw_retained": False,
-        "raw_why_not": "QUEUED — phase 1. This is a defect, not a decision.",
+        "raw_retained": True,
+        "raw_why_not": None,
+        "fixed": ("2026-08-17 — the fetcher ALREADY returned the raw text; the "
+                  "caller threw it away. raw_capture.retain now persists it "
+                  "with as_of + applies_to, so a 2027 question is answered by "
+                  "RE-PARSING rather than RE-FETCHING (which leaks)."),
     },
     "fantasypros_projections": {
         "module": "draft/backtest/fantasypros_adp.py",
@@ -70,8 +74,11 @@ CAPTURES: dict[str, dict] = {
                 "stat FantasyPros starts serving tomorrow vanishes without a "
                 "trace. `unreachable_scored_keys` below is the measured cost."),
         },
-        "raw_retained": False,
-        "raw_why_not": "QUEUED — phase 1. This is a defect, not a decision.",
+        "raw_retained": True,
+        "raw_why_not": None,
+        "fixed": ("2026-08-17 — same fix as fantasypros_adp: the bytes are kept "
+                  "verbatim, so a stat outside the 13-entry _FP_STAT_MAP is "
+                  "recoverable by re-parsing instead of lost forever."),
         "scoring_note": (
             "fp_fpts is FP's number in FP's scoring and is NEVER the value; "
             "`stats` is re-scored through our table (score_stat_line), which is "
@@ -106,6 +113,20 @@ CAPTURES: dict[str, dict] = {
         "raw_why_not": None,
         "fixed": ("2026-08-17 — was a bare float for 300 players; shares "
                   "proj_series.SITUATION_FIELDS so the two cannot drift"),
+    },
+    "roster_state": {
+        "module": "draft/roster_state.py",
+        "parser": "capture",
+        "retains": ["injury_status", "depth_chart_order", "team",
+                    "years_exp", "adp", "position"],
+        "knowingly_drops": {},
+        "raw_retained": True,
+        "raw_why_not": None,
+        "added": ("2026-08-17 — closes the refusal that VAR_BACKUP and "
+                  "VAR_INJURED were UNMEASURABLE on 2021-2025 (not measured and "
+                  "small — unmeasurable). Weekly, because the signal these "
+                  "fields carry is CHANGE and a season snapshot loses every "
+                  "transition. Nothing recovers a past season's roster state."),
     },
     "opportunity_metrics": {
         "module": "draft/projections.py",
