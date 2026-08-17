@@ -141,16 +141,25 @@ def test_MORE_BONUS_NEVER_MOVES_A_QUARTERBACK_DOWN(board):
     assert ranks == sorted(ranks, reverse=True), ranks
 
 
-def test_THE_NAIVE_AND_HONEST_ANSWERS_DISAGREE_BY_A_FULL_ROUND_AT_QB1(board):
-    """The pinned contrast. Treating the raw gap as VORP moves the board's QB1 by
-    more than a round; the replacement-corrected number moves him by a fraction
-    of one. If these two ever converge, one of them has been broken."""
+def test_THE_NAIVE_AND_HONEST_ANSWERS_DISAGREE_LARGELY_AT_QB1(board):
+    """The pinned contrast. Treating the raw gap as VORP moves the board's QB1
+    by SEVERAL TIMES what the replacement-corrected number moves him. If these
+    two ever converge, one of them has been broken.
+
+    RE-DERIVED 2026-08-17 (run 32043426901): the original pin demanded a
+    literal full round from the naive arm — calibrated on the pre-ruling
+    board, where it measured 1.2 rounds. The first board built under Cory's
+    rulings (opportunity layer off, K/DEF demoted) seats QB1 higher, so the
+    same naive bonus moves him 0.7 rounds — fewer players left to pass — and
+    the absolute pin refused a board whose CONTRAST was intact. The claim
+    this test exists for is the ratio, so the ratio is what is pinned:
+    measured naive/honest was 12/2 slots pre-ruling and ~7/≤2 post-ruling."""
     qb1 = QA.qb_board(board)[0]
     naive = QA.slots_moved(board, 43.67, [qb1["player_id"]])[0]
     honest = QA.slots_moved(board, 4.00, [qb1["player_id"]])[0]
-    assert naive["rounds_earlier"] >= 1.0, naive
+    assert naive["slots_earlier"] >= 3 * max(1, honest["slots_earlier"]), (naive, honest)
+    assert naive["slots_earlier"] >= 5, naive
     assert honest["rounds_earlier"] <= 0.5, honest
-    assert naive["slots_earlier"] > honest["slots_earlier"]
 
 
 def test_BREAKEVEN_IS_A_REFUSAL_NOT_A_CLAMP_WHEN_UNREACHABLE(board):
