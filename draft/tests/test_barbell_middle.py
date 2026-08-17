@@ -154,6 +154,26 @@ def test_league_winner_cuts_are_the_committed_tiered_model_s(art):
             assert f["league_winner_cut"] == -(-f["K"] // 2), (season, pos)
 
 
+def test_the_league_winner_cut_is_re_derived_LIVE_not_only_from_the_artifact():
+    """A SILENCE FOUND BY A RULE-10 BREAK, AND CLOSED HERE.
+
+    The assertion above reads the COMMITTED artifact. Breaking
+    `tiered_outcome_model.tier_labels` from `ceil(k/2)` to `int(k/2)` left it
+    GREEN — because the artifact still carried the pre-break value and nothing
+    re-ran the producer. A guard that only checks a stored copy cannot see its
+    producer drift, which is the exact shape of defect this repo keeps finding.
+
+    So the cut is re-derived by calling the module, on one season, now.
+    """
+    _labels, diag = TOM.tier_labels(2024)
+    for pos, f in diag["by_position"].items():
+        assert f["league_winner_cut"] == -(-f["K"] // 2), (pos, f)
+        # …and non-vacuously: at every position here K is even or odd such that
+        # ceil and floor genuinely differ for at least one of them.
+    odd = [p for p, f in diag["by_position"].items() if f["K"] % 2]
+    assert odd, diag["by_position"]
+
+
 def test_scoring_window_is_weeks_1_to_17(art):
     assert art["scoring_window_weeks"] == [1, EDV.LAST_SCORED_WEEK] == [1, 17]
     assert art["seasons"] == list(EDV.SEASONS)
