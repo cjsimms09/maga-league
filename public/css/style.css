@@ -792,6 +792,14 @@ details[open] > .layer-sum::before { content: '▾ '; }
 .rec-stats { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: .3rem; font-size: .74rem; color: var(--muted); }
 .rec-stats b { color: var(--ink); font-variant-numeric: tabular-nums; }  /* was #fff — invisible stat numbers */
 .rec-actions { display: flex; flex-direction: column; gap: .25rem; align-items: flex-end; }
+/* The per-row compare toggle ("data-compare") has shipped as a bare ⚖️ with
+   only a title= for years (ROUTES 08-14: "a bare emoji fourth in a row of
+   four buttons, with nothing saying what comparing gets you" — titles never
+   show on a touch draft table). The card-level "⚖️ Compare" button already
+   fixed the ENTRY point; this is the remaining per-row toggle. CSS-only
+   label via ::after, because the button text itself is app.js's (A's) to
+   emit — this adds a caption without touching a byte of markup or content. */
+.rec-actions [data-compare]::after { content: " compare"; font-size: .68rem; }
 .rec-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
 .rec-pos {
   font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
