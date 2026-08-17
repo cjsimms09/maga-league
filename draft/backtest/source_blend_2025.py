@@ -160,7 +160,15 @@ def main() -> int:
         return void(f"no {YEAR - 1} store — NAIVE is the known-positive control and "
                     "cannot be built, so the run could not fail")
 
-    scoring = json.loads((HERE.parent / "config.json").read_text()).get("scoring", {})
+    # SAME LOADER exp_fp_hist_proj USES, not a second path that merely resembles
+    # it. My first version read draft/config.json, which does not exist — the run
+    # would have VOIDed on a wrong path and read as an egress failure. Checked
+    # against the repo rather than assumed, after the store-shape bug did exactly
+    # this an hour earlier.
+    scoring_path = HERE.parent / "config" / "league_config.json"
+    if not scoring_path.exists():
+        return void(f"house scoring table not found at {scoring_path}")
+    scoring = json.loads(scoring_path.read_text()).get("scoring") or {}
     if not scoring:
         return void("house scoring table is empty — every arm would be scored wrong")
 
