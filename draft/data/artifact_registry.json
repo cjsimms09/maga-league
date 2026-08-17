@@ -222,6 +222,17 @@
     "-c",
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport opponent_need_model as O\nprint(json.dumps(O.build_artifact()))"
    ]
+  },
+  {
+   "id": "replay_waiver_2023_25",
+   "description": "The WAIVER ARM of the pre-registered three-season replay: ACTUAL / LINEUP_ONLY / NAIVE_WAIVER / TOOL_WAIVER per seat-season 2023-25, graded through money_grade.grade_substituted, with the waiver slice isolated, the season-pool leak detector, and the planted fail-arm. Drives the REAL src/routes/waivers.js via waiver_tool_runner.js (needs node).",
+   "owner_module": "draft/backtest/replay_waiver.py",
+   "artifact_path": "draft/data/replay_waiver_2023_25.json",
+   "regenerate_command": [
+    "python3",
+    "-c",
+    "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport replay_waiver as RW\nprint(json.dumps(RW.run_all(verbose=False)))"
+   ]
   }
  ],
  "_not_yet_migrated": [
