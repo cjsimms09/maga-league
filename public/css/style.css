@@ -3505,19 +3505,21 @@ body.is-champ .tabbar { box-shadow: inset 0 2px 0 rgba(245, 196, 69, .5), 0 -8px
   .pk-opt-name { font-size: .86rem; }
 }
 
-/* War-room "arm my-turn alert" button. Fixed bottom-right on desktop; on phones
-   it must clear the bottom tab bar (fixed, ~56px + safe-area, z-index 90) — at
-   bottom:16px it covered the LOCKER and MORE tabs and swallowed their taps. */
-.wr-arm { position: fixed; right: 14px; bottom: 16px; z-index: 80; }
+/* War-room "arm my-turn alert" button. Was position:fixed to the viewport's
+   bottom-right corner on desktop — but the cockpit's right rail scrolls its
+   own content into that exact corner, so the button landed on top of it
+   (roster names at ~1000px viewport height, the ROSTER SHAPE header itself at
+   900px, both confirmed). Phones had the same collision with the bottom tab
+   bar. Both are fixed the same way now: NORMAL DOCUMENT FLOW, living in the
+   sticky tool bar's link row so it can never overlap page content. (It
+   removes itself 1.5s after arming, so an in-flow chip is unobtrusive.) */
+.wr-arm { display: inline-flex; width: auto; align-items: center;
+  font-size: .66rem; padding: .35rem .5rem; }
 @media (max-width: 700px) {
-  /* On a phone the fixed bottom tab bar owns the bottom-right corner, and a
-     floating action button there has covered the nav three times running.
-     Lifting it a few pixels was never enough — a floating control still layers
-     over content. Put it in NORMAL DOCUMENT FLOW instead: it reserves its own
-     space and cannot collide with the tab bar or any card. (It removes itself
-     1.5s after arming, so an in-flow button at the top is unobtrusive.) */
-  .wr-arm { position: static; display: inline-flex; width: auto; align-items: center;
-    right: auto; bottom: auto; margin: .2rem 0 .8rem; }
+  /* Explicit, not just the browser default: this line is the guard
+     draft/tests/warroom_mobile.test.js checks for at the source, since a
+     regression back to position:fixed is exactly the bug this fix removes. */
+  .wr-arm { position: static; }
 }
 /* It is SETUP, not an alert — arm audio once and it removes itself. A full-width
    red bar made it read as the most urgent thing on screen, above the actual pick.

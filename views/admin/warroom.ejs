@@ -49,6 +49,12 @@
     <button type="button" class="wr-tab" data-wrtab-btn="adjust">🎛 ADJUSTERS</button>
     <button type="button" class="wr-tab" data-wrtab-btn="intel">🛠 INTEL</button>
     <span class="wr-tab-links">
+      <%# In the sticky bar, not floating over page content: a position:fixed
+          corner button collided with whatever the right rail happened to end
+          on at the viewport's actual height (roster names at ~1000px, the
+          ROSTER SHAPE header itself at 900px) — confirmed on two heights.
+          Same fix already applied to phones for the same reason (below). %>
+      <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
       <a href="/lineup" title="Lineup Optimizer">⚡Lineup</a>
       <a href="/lineup/accuracy" title="Model Accuracy">📈Accuracy</a>
       <a href="/analyzer" title="Analyzer">📊Analyzer</a>
@@ -81,7 +87,6 @@
       anywhere (rails, shortlist, board columns) fills it. warroom_charts.js
       renders into it; dismissible, never modal-trapping. %>
   <div id="wr-drill" class="wr-drill" hidden></div>
-  <button id="arm-alerts" class="btn small gold wr-arm" title="iOS will not play audio without a tap — arm once, alert forever" onclick="if(window.DraftAlerts&&DraftAlerts.arm()){this.textContent='🔔 armed';this.disabled=true;setTimeout(()=>this.remove(),1500);}else{this.textContent='🔕 audio unavailable';}">🔔 Arm my-turn alert</button>
 
   <%# ════════════════════════ DRAFT — THE COCKPIT ═══════════════════════════
       ≥1000px: 3 columns (~240px | 1fr | 300px). Stacked on a phone. %>
