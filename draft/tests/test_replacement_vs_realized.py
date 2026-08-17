@@ -153,3 +153,56 @@ def test_by_position_ranks_ONLY_flex_eligible_positions():
     got = R.by_position({"1": 10.0, "2": 9.0, "3": 400.0, "4": 8.0, "5": 1.0}, pos)
     assert set(got) == {"RB", "WR", "TE"}, got
     assert 400.0 not in sum(got.values(), [])
+
+
+def test_a_cliff_in_SOME_sources_is_not_a_scarcity_break():
+    """The obvious remedy for a replacement perched on a cliff is "put it where
+    the real cliff is". Measured across projections plus three realized seasons
+    there ISN'T one at either replacement rank — RB@21 shows a cliff in 2 of 4
+    sources and WR@29 in 2 of 4. Cliff POSITION is not stable at these ranks.
+
+    MUTATION: return `stable` on a simple majority — an inconsistent
+    discontinuity is reported as a feature of the position and a replacement
+    level gets anchored to one season's accident."""
+    flat = [100 - i for i in range(12)]                 # smooth, no cliff
+    steep = [100, 99, 98, 97, 96, 50, 49, 48, 47, 46]   # a real cliff at 5
+    out = R.cliff_stability({"a": steep, "b": flat, "c": flat}, 5)
+    assert out["status"] == "measured", out
+    assert out["with_cliff"] == 1 and out["sources"] == 3, out
+    assert out["stable"] is False, out
+    assert "not a stable scarcity break" in out["note"]
+
+    # ⚠ THE MINORITY CASE ABOVE DOES NOT DISCRIMINATE A MAJORITY RULE and the
+    # gate proved it: with 1 of 3, `len(hits) >= len(seen)/2` is also False, so
+    # the mutation SURVIVED. The case that separates them is a MAJORITY that is
+    # not unanimous — which is also the live shape, RB@21 and WR@29 both showing
+    # a cliff in 2 of 4 sources.
+    maj = R.cliff_stability({"a": steep, "b": list(steep), "c": flat}, 5)
+    assert maj["with_cliff"] == 2 and maj["sources"] == 3, maj
+    assert maj["stable"] is False, ("a majority is not unanimity: %r" % maj)
+    assert "not a stable scarcity break" in maj["note"]
+
+
+def test_UNANIMOUS_either_way_is_a_feature():
+    """Both arms, so `stable` is a discrimination rather than a word that only
+    ever means no.
+
+    MUTATION: hard-code `stable = False` — the function can never say a
+    discontinuity IS real, and a genuine positional tier break reads the same as
+    noise."""
+    steep = [100, 99, 98, 97, 96, 50, 49, 48, 47, 46]
+    flat = [100 - i for i in range(12)]
+    allc = R.cliff_stability({"a": steep, "b": list(steep)}, 5)
+    assert allc["stable"] is True and allc["with_cliff"] == 2, allc
+    assert "feature of the position" in allc["note"]
+    none = R.cliff_stability({"a": flat, "b": list(flat)}, 5)
+    assert none["stable"] is True and none["with_cliff"] == 0, none
+
+
+def test_NO_measurable_source_is_unmeasured_not_smooth():
+    """MUTATION: report `stable` True with zero sources — a rank nobody could
+    measure reads as a smooth neighbourhood, which is the reassuring answer
+    produced by having no data (rule 13f)."""
+    out = R.cliff_stability({"a": [1, 2]}, 9)
+    assert out["status"] == "unmeasured", out
+    assert "not the same as the neighbourhood being smooth" in out["note"]

@@ -187,3 +187,63 @@ def cliff(pool: list, at: int, window: int = 1) -> dict:
             # the replacement line.
             "cliff_ratio": None if med <= 0 else round(drop / med, 2),
             "note": "a drop of %.1f against a typical %.1f nearby" % (drop, med)}
+
+
+#: A drop this many times its own neighbourhood's typical drop is a cliff.
+#: ⚠ CHOSEN, NOT DERIVED, and it is a shape threshold rather than a points one:
+#: at 3x the local typical, a single rank is behaving unlike the ranks around it
+#: by a margin no smooth curve produces. Stated here so a reader can disagree
+#: with the number rather than with a hidden constant.
+CLIFF_RATIO = 3.0
+
+
+def cliff_stability(pools: dict, rank: int, ratio: float = CLIFF_RATIO) -> dict:
+    """Is the discontinuity at this rank a FEATURE, or one season's accident?
+
+    ⚠ THIS EXISTS BECAUSE THE OBVIOUS REMEDY TURNED OUT NOT TO BE AVAILABLE.
+    Having found our RB replacement perched on a 6x cliff, the natural next move
+    is "put it where the real cliff is". Measured across three realized seasons
+    there ISN'T one:
+
+        RB @21   projections 6.06 | realized 0.44, 0.16, 10.0   -> 1 of 3
+        WR @29   projections 0.02 | realized 4.79, 0.65,  5.94  -> 2 of 3
+
+    Our projections manufacture a cliff at RB21 that outcomes show once in three
+    years, and call WR29 flat where outcomes show a cliff twice. So cliff
+    POSITION is not stable at these ranks, and a single-rank replacement — from
+    projections or from any one season — inherits that instability.
+
+    WHAT THAT ARGUES FOR IS A'S CALL AND NOT MINE: a replacement read off a BAND
+    of ranks rather than one, which is a standard technique and would make the
+    parameter robust to exactly this. This function reports the instability; it
+    does not implement the remedy, and `draft/vorp.py` is A's.
+    """
+    seen, detail = {}, {}
+    for name, pool in (pools or {}).items():
+        c = cliff(pool, rank)
+        detail[str(name)] = c
+        if c.get("status") == "measured" and c.get("cliff_ratio") is not None:
+            seen[str(name)] = c["cliff_ratio"] >= ratio
+    if not seen:
+        return {"status": "unmeasured", "rank": rank, "authorizes": AUTHORIZES,
+                "detail": detail,
+                "note": "no source could be measured at rank %d, so whether a "
+                        "cliff sits there is unknown — which is not the same as "
+                        "the neighbourhood being smooth." % rank}
+    hits = [k for k, v in seen.items() if v]
+    return {
+        "status": "measured", "rank": rank, "ratio_bar": ratio,
+        "authorizes": AUTHORIZES,
+        "sources": len(seen), "with_cliff": len(hits), "which": sorted(hits),
+        "detail": detail,
+        # UNANIMOUS EITHER WAY IS A FEATURE; ANYTHING BETWEEN IS NOISE. A cliff
+        # that shows up in some years and not others is not a scarcity break to
+        # position a replacement level against.
+        "stable": len(hits) == len(seen) or len(hits) == 0,
+        "note": ("a cliff at rank %d appears in %d of %d source(s) — %s"
+                 % (rank, len(hits), len(seen),
+                    "consistent, so it is a feature of the position"
+                    if len(hits) in (0, len(seen)) else
+                    "inconsistent, so it is not a stable scarcity break and a "
+                    "single-rank replacement here inherits that instability")),
+    }
