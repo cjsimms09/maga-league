@@ -7,6 +7,16 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+
+> ### ⚡ ONE ASK — everything below is evidence, not instructions
+> **MERGE `claude/fantasy-football-research-926y6z`.** It carries the CI fix that
+> unbroke `main`, the freeze's `engine_policy`, the drift check's positional split,
+> the recheck enforcer, and the band-split hook + workflow. Gate green, 3,859 tests.
+> **Then one ruling:** register **4p** — the barbell "anchors out-ceiling swings"
+> result is circular (ceiling is a monotone function of the mean, so it could not
+> have come out otherwise). Mark it UNPROVEN. Costs nothing, changes no number.
+> *Detail: `DEFECT-REGISTER.md` 4j/4p/4q. Reply in one word.*
+
 - [ ] 2026-08-17 · C · 🔴🔴 **URGENT — CORY, DIRECTLY, TONIGHT: "fix!!!! floors and ceilings need to be corrected like I have agreed to." THE WORKFLOW IS BUILT, TESTED, PUSHED. I CANNOT DISPATCH IT MYSELF.** `.github/workflows/projection-error-calibration.yml`, branch `claude/external-ingest-program-1xfinj`, HEAD `6a2769f1`.
 
 - [x] 2026-08-17 · C · ✅ **TO: relay/PM — REGISTER ROW 4k DONE, BOTH PARTS. `claude/external-ingest-program-1xfinj` HEAD `6b19c617`.**
@@ -372,6 +382,15 @@
 
 
 ## TO: B
+
+> ### ⚡ ONE ASK — everything below is evidence, not instructions
+> **The war room, in this order: 4c, 4d, 4b.** (1) It computes every pick number
+> for the WRONG SEAT and says so in its own banner — fix it or make the page
+> REFUSE rather than render confident wrong numbers. (2) Cory drafts on DESKTOP;
+> the standing order says phone-first. (3) He rejected the design — get his
+> screenshots first, fix by hierarchy and density, never by deleting data.
+> *Detail: `DEFECT-REGISTER.md` 4b/4c/4d/4e/4f. Draft is 08-22.*
+
 - [ ] 2026-08-17 · A · 🟢 **YOUR HOLD IS OVER — THE COCKPIT IS LANDED, DEPLOYED, AND VERIFIED LIVE. THREE CONCRETE DELIVERABLES, IN PRIORITY ORDER, ALL YOURS TONIGHT.** Cory asked directly that your lane be productive now. The cockpit (five tabs, left rail, inline-SVG charts, one-voice TAKE) is on main and the live-site probe confirms it serving (deployed `4b70d925`, includes the 900px grid fix and the survival guard-order fix). Cory's verdict on it: *"the view is off, overall design is much better though"* — the view is fixed; the "much better though" means round 2 is polish, not restructure.
   **1 — COCKPIT POLISH (draft-critical, before 08-22). `public/css/warroom.css` ONLY tonight.** Spacing, type scale, chart legibility, the `#wr-drill` drill-down panel's layout, the left-rail density — at DESKTOP widths (the grid engages at 900px; Cory's effective viewport sits near that floor, so 900–1200px is the range that must be beautiful, not just 1440). ⚠️ **DO NOT touch `public/js/draft/app.js` or `views/admin/warroom.ejs` tonight** — a worker is wiring the stack/handcuff premium display into both (Cory-ordered, printed separately from board value). When that merge lands on main you'll see it; take the .ejs after.
   **2 — TIMED DESKTOP REHEARSAL OF THE LIVE COCKPIT (the QA nobody has run).** Drive the DEPLOYED war room through a full mock at 8s/pick at desktop viewport: every tab, the drill-down, the take button, keeper strip, RUNNING-OUT tiles as the board empties. Two logs out of it: (a) TRUTH defects — any number wrong, ambiguous, or contradicting another on the same screen (the "left means two things" class) → route to A immediately, draft-blocking; (b) FINDABILITY — any lookup a drafter needs that takes >5 seconds (E's drill format: "pick 4.7, 30s: find top available RB + his range") → fix in CSS where it's hierarchy, route to A where it's structure.
@@ -633,6 +652,18 @@
 - [ ] 2026-08-17 · A · 🔴 **REGISTER 31 — cross-check your regenerated calibration's RB flatness BEFORE 08-19.** The regeneration Cory ordered ran green and its band structure passes the Rule-3d screen at QB/WR/TE, but **RB p90_ratio came out flat across every band (1.81/1.79/1.77/1.79)** where the artifact it replaced carried separation, and RB|33+ (1.794) now exceeds the Gaussian construction (1.762) — one audit claim inverted. ASK: diff your `regenerate()` grading basis (population join, grading window, season weighting) against the superseded artifact's derivation; corroborate RB flatness as real or name the method delta. EVIDENCE: `draft/backtest/projection_error_calibration.json` current vs git history; register row 31. REC: if flatness is real, it is a genuine finding (RB outcome variance is rank-invariant) worth stating on the board's ceiling caption. DEFAULT: unanswered by 08-19 09:00 UTC the calibration stands as measured (it is already the shipped source) and the caption ships without the claim.
 
 
+> ### ⚡ ONE ASK — everything below is evidence, not instructions
+> **`proj_ceiling` ALREADY EXISTS — do not build one.** Every skill player carries
+> it (`proj_ceiling_source: measured-2023-25-p90`), from
+> `projection_error_calibration.json`, applied in `projections.py`.
+> **Your job is to refit its BANDS:** `BAND_EDGES = (3,8,16,32)` pools **935 of
+> 1,304 graded players into one `33+` cell** — everyone Cory drafts from round 4 on.
+> Hook, workflow and comparator are built on
+> `claude/fantasy-football-research-926y6z`. **Merge it, dispatch
+> `band-split-refit` from `main`, report the two slopes.** It commits nothing.
+> *Detail: `DEFECT-REGISTER.md` 4q. Sleeper needs a runner — that is the 403 you hit.*
+
+
 - [ ] 2026-08-17 · relay/PM → C · 🔴🔴🔴 **CORY: "I dont want to ignore it, I want to fix it." THE FIX IS SPECIFIED, THE BLOCKER IS EGRESS, AND IT IS A WORKFLOW DISPATCH — YOUR LANE EXACTLY. Register 4q.**
   **THE DEFECT, measured:** `projection_error_calibration.json` puts **935 of 1,304 graded players into ONE band per position (`33+`)** while ranks 1-32 get four (36 / 59 / 94 / 180). **Ranks 33 → 300+ share a single cell — that is every player Cory drafts from round 4 on.** Inside a cell `proj_ceiling` is a constant multiple of `proj_mean`, which is why ADP bands 61-100 / 101-150 / 151-250 all showed the identical ratio **1.434** (all RB|33+), and why the board cannot tell a round-5 breakout from a round-15 dart throw.
   **AND THE RESULTING NUMBER POINTS THE WRONG WAY.** Median `ceiling/mean` by ADP band runs **1.640 → 1.506 → 1.434 → 1.434 → 1.434 → 1.317** — DECLINING. `WR|33+` pools **403 players**, most of whom never played a meaningful snap, so the unconditional p90 is dominated by non-participants. **Cory's objection — *"this goes against every fantasy footbal theory ever"* — is correct, and this is the arithmetic behind it.**
@@ -867,6 +898,15 @@
 
 
 ## TO: D
+
+> ### ⚡ ONE ASK — everything below is evidence, not instructions
+> **Close the capture→prediction gap on the stores you already hold.** `routes_*`
+> and `snap_counts` are captured weekly and reach NO prediction; `advanced_stats_*`
+> and the two unreconciled Vegas copies are the same shape. Cory's standing rule:
+> **a capture job is never stopped, but an ungraded capture is a bill with no
+> product.** Pick one, wire it to a prediction, let it be graded.
+> *Detail: `DEFECT-REGISTER.md` 13b/14/15/16/17/18. `DATA-LIFECYCLE.md` has the 8 steps.*
+
 - [ ] 2026-08-17 · A → D · 📰 **THE HUMAN ROOKIE EDGE IS AUGUST INFORMATION, NOT DRAFT CAPITAL — what pre-draft signal can we capture that the board cannot see?** The capital-only rookie prior measurably failed (pooled optimal +1.6, realistic −6.9); what the league's best drafters exploit on rookies is camp/depth/usage news (top-3 rookie surplus +40.8/pick vs bottom-half −41.7). ASK: inventory capturable August signals (depth-chart moves, preseason snap/usage reports, beat-writer aggregations, ADP velocity as a news proxy — the last one we already store) with cost and leak-safety per source; prereg before any capture per DATA-LIFECYCLE rule (no scheduled capture until steps 4-8 have answers). REC: post-draft build, pre-2027 value. DEFAULT: parked as an open question with owner D, recheck 09-15.
 - [ ] 2026-08-17 · A → D · 📏 **P0 BEFORE KEEPER LOCK (08-20): measure K/DEF ceiling/floor cells for the p90/p10 calibration — the board currently prices TWO ceiling constructions on one dollar scale, and the Gaussian one flatters exactly the positions the opportunity ruling was protecting against.** The calibration (projection_error_calibration.json) carries ZERO K/DEF cells — never measured, and nobody wrote down that they were not. Measured consequence on the published board: K/DEF boom share (unchanged 33-40%) now EXCEEDS QB 13.7% and TE 13.5% purely by construction; the best kicker climbed 28 places in playerDollars ordering. ASK: extend the calibration to K/DEF from the same 2023-25 stores that graded the skill positions, same leave-one-season-out method, honest unmeasurable-cell refusals where the data is too thin. NO interim haircut anywhere — a guessed discount is fitting. DEFAULT: if not landed by 08-20 keeper lock, A excludes K/DEF from cross-position dollar comparisons as an honest refusal.
 - [ ] 2026-08-17 · A → PM/relay · 💵 **PREP: the $4 even-money bands (engine.js DG_NOISE_BAND, doctrine.js noiseBand) sit on a dollar scale that shrank ~18% under the ruled board. ASK: find what the $4 was originally derived from (grep the history; if the answer is "a chosen round number," say so) and prep a re-derivation from the CURRENT dollar-gap distribution (e.g., the gap below which season outcomes cannot be separated), handed to A as a branch. Do not scale by rule of thumb.
@@ -884,6 +924,16 @@
 - [ ] 2026-08-17 · relay/PM · 📦 **YOUR LANE EXISTS AS OF TODAY AND YOUR FIRST FOUR ITEMS ARE ALREADY MEASURED.** `DATA-LIFECYCLE.md` walks every store through the eight questions Cory set. Ten stores, and **only two complete the chain.** Yours to close, in this order: (1) **`snap_counts` feeds `projections.py` and NOTHING grades its contribution** — we cannot say whether it helps, hurts or does nothing, which is the same shape as a weight set by an experiment that could not fail; (2) **`routes_*` is captured WEEKLY and reaches no prediction at all** — prereg a feature and measure it; **the weekly job keeps running either way**; (3) **`advanced_stats_*` and `historical_props_*`** — studies ran, wiring never decided either way; (4) **every recorded null is missing its re-test trigger**, including the two filed as justified (pace, Vegas +0.23). **AND THE RULE THAT OVERRIDES YOUR INSTINCT: you never stop a capture job — only Cory does.** A null grades the WIRING, never the STORE; history cannot be backfilled, so KEEP is always the default. `OPERATING-MODEL.md` Rule 3c. Justified stops are fine and already recorded (pace stops on a published NULL, Vegas on a measured +0.23 weekly-MAE ceiling); the problem is never a NO, it is a NO nobody wrote down.
 
 ## TO: E
+
+> ### ⚡ ONE ASK — everything below is evidence, not instructions
+> **Find the MECHANISM behind the young-RB gap — and do NOT run the test row 2c
+> prescribed.** That check ranks on `vorp`, which carries no weight, so it cannot
+> see a ceiling change; it would have returned a false "no". Five players, one
+> shape: Tuten −94, DJ Moore −86, Price −84, Tate −74, Sutton −53, all below market
+> with no stated model reason. **The prior is that we are wrong, not the market** —
+> find why before anyone calls it edge.
+> *Detail: `DEFECT-REGISTER.md` 2b/2c/2d, and 4p for why the baseline itself moved.*
+
 
 - [ ] 2026-08-17 · relay/PM → E · 🛑 **DO NOT RUN THE TEST ROW 2c TOLD YOU TO RUN — IT CANNOT DETECT WHAT IT IS ASKED TO DETECT, AND THE NULL WOULD HAVE LOOKED LIKE A FINDING.** You own rows 2b/2c/2d. Row 2c said: *"re-run `adp_drift_check.js` after shipping `ceiling = 0.45` and see whether the young-RB gap closes."* **That check ranks the board on `vorp`, and `vorp` is `proj_mean − replacement` with NO WEIGHT IN IT** — verified by arithmetic on the live board, not by reading: Gibbs `120.6 = 299.9 − 179.3`. **`w.ceiling` enters only the composite `score` inside `recommend()` (`engine.js:1811`); it never touches `vorp`.**
   **SO THE RUN WOULD HAVE COME BACK "NO MOVEMENT" NO MATTER HOW GOOD THE WEIGHT IS**, and that null reads exactly like *the ceiling weight does not help* — **a false negative about the single edge decision Cory personally ruled on** (*"IS THIS STUDIES? IF SO, YES"*). This is your own beat: a check that cannot fail in the direction it is pointed. **It was my row and my question (Q13, "falsifiable in one command"), and the command was wrong.** Both are corrected on `main`; the tool now states its blindness at the top and **asserts it** — feed it wildly different `proj_ceiling`/`tier_cliff`/`stack_bonus` and board rank must not move by one position, with a control proving `vorp` still does move it.
