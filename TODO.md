@@ -76,11 +76,76 @@ above, is gone.
 - "the pbp pull is egress-blocked" (`nflverse_pace.py`) — returns HTTP 200,
   20MB, all five seasons.
 
-### STILL RUNNING AT HANDOFF
+### CORY'S FOUR RULINGS OF 08-17, ALL EXECUTED
 
-Barbell strategy and contingent ("injury") opportunity — the two studies that
-test STRATEGY rather than projections, which after eight nulls is the only
-place left with room in it.
+Verbatim: *"Remove 1, 3 don't show v6 but keep improving it and grading. Let's
+test position weighted idea then."*
+
+1. **`opportunity_cap` 0.15 → 0.0.** The adjustment is off. Disabled by value,
+   not by deleted code — `_opportunity_cap_why` in `league_config.json` carries
+   the grade, the measured effect and the one-value path back.
+3. **K and DEF lost their cross-position rank** (`draft/vorp.py`,
+   `ONESIE_POSITIONS`). This is what put the LA Rams at overall 35 against an
+   ADP of 127. The board VIEW already did this (`demoteOnesies`); it now lives
+   in the ARTIFACT, so `keeperui.js` — which sorts on `overall_rank` with no
+   guard — inherits it instead of rediscovering it.
+   **Not dropped:** real vorp, real pos_rank, real tiers, sorted among
+   themselves. Only the cross-position slot changed, which is the only place the
+   comparison was invalid.
+- **v6 is hidden, not removed.** `DISPLAY_OWNMODEL=false` in `consensus.js`.
+  build.py still attaches `proj_ownmodel`, `/admin/model-scoreboard` still shows
+  it, every backtest still grades it. The three tests that asserted the opposite
+  are INVERTED rather than deleted, so a silent re-entry fails.
+- **Position-weighted idea: TESTED, NULL.**
+  `draft/audit/position_weight_transfer_2026-08-17.md`. Weights fit on
+  2023+2024, applied to 2025: per-position beat one global weight in 2 of 4
+  positions, pooled delta **+0.0001** CI [−0.0008, +0.0011], and the **scrambled
+  control scored the same 2 of 4**. 0 of 27 secondary pairs survived FDR.
+  **Why:** the four positions all want a weight near 0.5 (0.503 / 0.552 / 0.529
+  / 0.523) — inverse-MSE weighting between similar arms is too flat to grip.
+  **The live follow-up this does NOT close:** Cory noticed Sleeper's WR **level**
+  bias of +13.63; this measured **ranking** (Spearman), which is invariant to any
+  level shift. A per-position **bias correction** is a different instrument and
+  is untested.
+
+### THE TRIPWIRE THAT WORKED
+
+`test_position_weighted_arm_is_dropped_not_fitted_on_itself` asserted
+`seasons_predictable_leak_free == [2025]` *specifically so* that rebuilding the
+2021/2022 stores would fail it and force a deliberate re-evaluation. It fired,
+the study above is that re-evaluation, and the test now pins the new truth
+(A3 dropped for ONE reason, not two) rather than being relaxed. Copy this
+pattern: **encode the reason a thing is blocked, not just the fact of it.**
+
+### THE TWO STRATEGY STUDIES CAME BACK — both merged
+
+- **Barbell** (`draft/audit/barbell_strategy_2026-08-17.md`): Cory's early half
+  is CONFIRMED *and already implemented* (rounds 4–8 are 100% ANCHOR, 600/600
+  picks). His late half is CONTRADICTED three ways — the middle is **flat, not
+  dead** (+9.9 vs a held wire add, CI spans zero), the **LATE rounds are the
+  dead band** (−27.8 [−52.5, −6.5]), and there is **no late upside tail**
+  (P(league-winner) is *lower* late than in the middle). A barbell policy LOSES:
+  champ −1.49pp [−1.94, −1.03]. **Ten strategy arms tested, ten losses.**
+  One draft-night item: a **late-round backup QB is the worst pick on the board**
+  (−76.1 [−147.3, −15.6]), because measured QB replacement (330.1) and the
+  measured QB wire (330.8) are the same number.
+- **Vacated/contingent opportunity**
+  (`draft/audit/opportunity_inheritance_2026-08-17.md`): NULL on both arms.
+  Departed volume above a player predicts his residual — but so does volume held
+  by players who **stayed**, and departure-BLIND volume beats the vacated version
+  in **12 cells of 12**. It is mean reversion wearing an opportunity costume.
+  The handcuff arm died on a question the earlier audit never asked: **the
+  inheritor is not identifiable in advance at any position** — not one interval
+  excludes its own chance rate, and RB, where the whole thesis lives, is
+  explicitly not forecastable.
+  **Escalated scope correction:** the pick-61+ graded cell contains **zero
+  rookies by construction** (it requires a prior-season stat row), so every
+  "late-round" verdict ever graded there is about late-round **veterans**.
+
+**Ten nulls now, not eight.** Both remaining strategy studies came back empty,
+which closes the "the projections are tapped out but strategy might not be"
+hypothesis. What is left that has NOT been tested is the level/bias instrument
+above, and the war-room copy items in `DECISIONS-NEEDED.md`.
 
 ---
 
