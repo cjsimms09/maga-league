@@ -111,9 +111,22 @@ async function bundle(leagueId) {
       fetchJson(`/v1/league/${leagueId}/users`),
       fetchJson(`/v1/league/${leagueId}/rosters`),
     ]);
-    const week = Math.max(1, Math.min(state.week || 1, 18));
+    /* SEASON TYPE DECIDES WHETHER state.week MEANS ANYTHING.
+     *
+     * Sleeper's /v1/state/nfl reports `week` for whatever phase it is in, so
+     * during PRESEASON it counts preseason weeks — on 2026-08-17 it returned 2
+     * and the matchup tab rendered "Week 2" for a regular season that had not
+     * started. Cory caught it on the live site.
+     *
+     * `week` is only a regular-season week when season_type is 'regular'.
+     * Anything else clamps to week 1, which is the next week that will actually
+     * be played, and `preseason` is exposed so a surface can say so rather than
+     * quietly showing a number that is wrong. */
+    const seasonType = state.season_type || 'regular';
+    const preseason = seasonType !== 'regular' && seasonType !== 'post';
+    const week = preseason ? 1 : Math.max(1, Math.min(state.week || 1, 18));
     const matchups = await fetchJson(`/v1/league/${leagueId}/matchups/${week}`);
-    const data = { state, league, users, rosters, matchups, week };
+    const data = { state, league, users, rosters, matchups, week, preseason, season_type: seasonType };
     const stamped = { league_id: leagueId, fetched_at: Date.now(), data, cached: now() };
     await setDoc('sleeper-cache', stamped);
     return withFreshness(data, stamped, 'live');
