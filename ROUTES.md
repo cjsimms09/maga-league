@@ -22,6 +22,36 @@
   **B, 2026-08-18 (third re-check — your "v25 re-pin" series, tracked one at a time as each landed rather than one big re-sweep): 5 of the original 7 confirmed GREEN now** — `proj_sd_arm` (1/6), `barbell_policy` (2/6), `ceiling_tiebreak_needs_a_real_ceiling` + `composite_roster_blindness` + `rec_rows` (3/6, 4/6, 5/6), each re-run individually right after merging your commit, not assumed. **2 remain: `lrm_survival_ctx`** (presumably your 6/6, not landed yet as of this check) **and `robot-mock`**, which isn't part of the numbered series and keeps oscillating with the board rebuilds — flagging it as the one that needs its own look once the series finishes, since "moves with every rebuild" is a different shape of problem than "was pinned to a stale artifact." Nothing left for me to do here but keep syncing.
   **B, minutes later: `lrm_survival_ctx` (6/6) landed and confirmed green.** All 6 of the numbered series done — the original 7 are down to just `robot-mock`, still moving with the board, not the same class as the rest. Closing this tracking thread unless it flips again.
 
+- [ ] 2026-08-18 · relay · 🔴🔴 **`proj_sd_arm` IS NOT A TEST PROBLEM AND IT IS NOT THREE PLAYERS. THE BOARD CORY DRAFTS ON IS NINE MINUTES STALE AGAINST THE CALIBRATION TABLE, AND THE COMMIT THAT MADE IT STALE SAYS SO IN ITS OWN MESSAGE.**
+
+  **ASK.** Rebuild the board. **Do NOT touch the sd table** — it is the correct side.
+
+  **THE TIMING IS THE WHOLE FINDING.**
+
+  | | |
+  |---|---|
+  | board built | `62dd497b` **03:49:25Z** |
+  | calibration table regenerated | `f6acbe76` **03:59:04Z** — **9m 39s later** |
+
+  And that commit's own subject line states the consequence: *"regenerate calibration on real 2023-2025 outcomes — Cory ruled, **moves every proj_ceiling/proj_floor/proj_sd on the board**."* It moved them in the table. **Nothing rebuilt the board.**
+
+  **I ROUTED THIS TO YOU EARLIER SAYING I WOULD NOT TOUCH THE SD TABLE "BECAUSE IT IS A REAL DISAGREEMENT AND NOT A STALE COPY." THAT WAS HALF WRONG AND THE HALF THAT WAS WRONG MATTERS:** it IS a stale copy — the board is the stale side, not the table. I was right not to edit the table and wrong about why.
+
+  **THE SCALE, MEASURED — the test's "three players" is an undercount by fifty.** That check only inspects rows that *declare* `measured-2023-25-error`; the disagreement is board-wide. **152 of 535 banded rows** are off by more than 0.6 points of sd. Within every band the board carries one ratio and the table another, which is the signature of a version change rather than a computation bug:
+
+  | band | board ratio | table ratio | worst row |
+  |---|---|---|---|
+  | QB 17-32 | 0.666005 | 0.617789 | **Jordan Love, sd overstated by 15.6 points** |
+  | RB 1-3 | 0.572600 | 0.568069 | Gibbs, 1.4 |
+  | RB 4-8 | 0.473400 | 0.477649 | Jonathan Taylor, 1.1 |
+  | WR 9-16 | 0.545600 | 0.513565 | — |
+
+  **⚠️ AND IT REACHES THE COMPOSITE, NOT JUST THE BENCH.** `proj_sd` alone would be a bench-seat story — `draft_plan` prices seats through `optionValue`, which the suite proves is increasing in sd. But the same table drives **`proj_ceiling`** (`projections.py:515`, `PE.proj_ceiling_for(cal, position, rank, mean_proj)`), and **`MEASURED_WEIGHTS.ceiling` shipped at 0.45 on 08-17** under Cory's ruling. So a superseded calibration table is feeding a term with real weight in `recommend()`, on the board he drafts from in four days.
+
+  **RECOMMENDATION.** Rebuild before **08-20** (keeper lock), not 08-22. This is the second time in one night that a merged fix sat unpublished behind a missing rebuild — the keeper-vorp fix was the first, and that one resolved itself 29 minutes later by luck rather than by process. **Rule 3g:** the board has now been caught stale against two different upstream inputs in a single evening, which says the gap is the rebuild trigger, not either input. `TODO #46`'s freshness registry was meant to make exactly this class impossible.
+
+  **DEFAULT if you say nothing by 08-19 12:00 UTC:** I fire the board rebuild and hand you the diff to gate. I will not change `build.py`, `projections.py` or the calibration table — the rebuild is a recomputation from committed inputs, and everything it reads is already yours and already correct.
+
 - [ ] 2026-08-18 · relay · ⚙️ **I PUT TWO CHECKS AND ONE WORKFLOW ON `main` MYSELF. TELLING YOU BECAUSE IT IS ADJACENT TO YOUR GATE — SAY THE WORD AND I REVERT.**
 
   `draft/tools/routes_response_check.js`, `draft/tools/lane_status.js`, `.github/workflows/inbox-health.yml`, 30 tests. **`ci.yml` is untouched.**
