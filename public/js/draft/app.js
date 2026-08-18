@@ -765,13 +765,26 @@
    * work at 8pm on the 22nd with a bad connection or a deploy mid-flight. It
    * restores POLICY, which is what a bad change corrupts — reverting the deployed
    * build is a git revert plus a Netlify cycle and can never be one tap. */
-  const BASELINE_KEY = 'mfga.draft.baseline.v1';
+  /* ── THE PIN IS v27, RULED (A, 2026-08-18; register 5g). It was v1, frozen
+   * 08-10 — which PREDATES two of Cory's own rulings: ceiling 0 -> 0.45
+   * (08-17, "IS THIS STUDIES? IF SO, YES") and stack 0.5 -> 1.0 (D10). One
+   * tap of "restore the measured core" was a silent reversion of both, on
+   * the night the button exists for. v27 is today's verified freeze —
+   * playoff-free inputs, deploy-probe green — and carries both rulings, so
+   * "known ground" now means known ground AS OF THE LAST VERIFIED FREEZE
+   * BEFORE THE DRAFT, not as of a date nobody can reconstruct on the clock.
+   * Deliberately NOT "the newest baseline" dynamically: a bad change frozen
+   * five minutes ago must never become the thing restore restores. Re-pin
+   * by ruling only. The localStorage key rotates with the pin so a cached
+   * v1 cannot shadow the ruled reference. */
+  const BASELINE_VERSION = 'v27';
+  const BASELINE_KEY = 'mfga.draft.baseline.' + BASELINE_VERSION;
   function loadFrozenBaseline() {
     try {
       const cached = JSON.parse(localStorage.getItem(BASELINE_KEY) || 'null');
       if (cached) state.frozenBaseline = cached;
     } catch (e) { /* private mode */ }
-    fetch('/admin/api/baseline?version=v1', { cache: 'no-cache' })
+    fetch('/admin/api/baseline?version=' + BASELINE_VERSION, { cache: 'no-cache' })
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (!d || !d.ok || !d.baseline) return;
@@ -785,16 +798,41 @@
 
   /* One tap back to known ground. Placed next to Reset because that is where a
    * hand goes under pressure, and it says what it restores rather than "revert". */
+  /* ── REGISTER 5g, OPTION (3) — B's half, the honest surface (2026-08-18).
+   * The pin (BASELINE_VERSION) is a ruling and can go stale again the same
+   * way v1 did: this restores the SAME "known ground" copy every time, no
+   * matter which weight the live policy has since moved. So the button
+   * itself must never trust the pin to be current — it diffs frozen against
+   * live and SAYS what will change, before the tap, not just a freeze date.
+   * A date told nobody that 08-10 predated the ceiling ruling; a diff would
+   * have. `weightsDiff` is pure so the same logic drives the panel text and
+   * is unit-testable without a DOM. */
+  function weightsDiff(frozen, live) {
+    if (!frozen || !live) return [];
+    const out = [];
+    for (const k of Object.keys(frozen)) {
+      const f = frozen[k], l = live[k];
+      if (typeof f !== 'number' || typeof l !== 'number') continue;
+      if (Math.round(f * 1000) !== Math.round(l * 1000)) out.push({ term: k, from: l, to: f });
+    }
+    return out;
+  }
   function renderBaselineControl() {
     const host = $('#baseline-restore');
     if (!host) return;
     const b = state.frozenBaseline;
     if (!b || !b.engine_policy) { host.innerHTML = ''; return; }
     const frozenAt = (b.frozen_at || '').slice(0, 10);
+    const w = b.engine_policy.MEASURED_WEIGHTS;
+    const diff = weightsDiff(w, state.weights);
+    const diffLine = diff.length
+      ? '<div class="muted" style="font-size:.7rem;margin-top:.2rem">will change: '
+        + diff.map(d => escapeHtml(d.term) + ' ' + d.from + '→' + d.to).join(', ') + '</div>'
+      : '<div class="muted" style="font-size:.7rem;margin-top:.2rem">matches your live weights — no change</div>';
     host.innerHTML = '<button class="btn small navy" id="restore-baseline">'
       + '⏮ Restore the measured core</button>'
       + '<span class="muted" style="font-size:.72rem;margin-left:.4rem">frozen '
-      + escapeHtml(frozenAt) + '</span>';
+      + escapeHtml(frozenAt) + '</span>' + diffLine;
     const btn = $('#restore-baseline');
     if (btn) btn.onclick = function () {
       const w = (state.frozenBaseline.engine_policy || {}).MEASURED_WEIGHTS;
@@ -5609,7 +5647,8 @@
           '</div>' +
           ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
             ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
-                { min: rbScale.min, max: rbScale.max, lead: i === 0 })
+                { min: rbScale.min, max: rbScale.max, lead: i === 0,
+                  cohortCeiling: cohortCeiling(p) })
             : '') +
           '<div class="rec-why">' + escapeHtml(s.reasons[0]) +
             (s.reasons.length > 1 ? ' · ' + escapeHtml(s.reasons[1]) : '') + '</div>' +
@@ -6666,6 +6705,31 @@
         + '</details>'
       : '';
     host.innerHTML = head + more;
+  }
+
+  /* ── REGISTER 4v — IS THIS PLAYER'S CEILING ABOUT THIS PLAYER? ────────────
+   *
+   * `proj_ceiling_source` carries the provenance. The per-player construction
+   * stamps `-x-player-cv` (the volatility work that landed 08-18); anything
+   * without it is the BAND average — `proj_mean x a per-cohort constant`, which
+   * contains no information about the individual. On the live board that is
+   * **34 of the 173 skill players in Cory's ADP 25-220 range (19.7%)**, and the
+   * ratios prove it: 1.4388 shared by four WRs, 1.4452/1.4453 by five more,
+   * 1.6081 by three QBs.
+   *
+   * ⚠️ CONSERVATIVE BY DESIGN — IT MARKS ONLY WHAT IT CAN SEE.
+   * A missing or unrecognised stamp returns FALSE, not true. A mark that fired
+   * on absence would light up K/DEF (whose ceiling is a different construction
+   * entirely, the gaussian path) and every player from a future build whose
+   * stamp we have not met yet — and a marker that cries wolf gets ignored, which
+   * is this project's own `intervention-rate` epitaph. Under-marking leaves the
+   * status quo; over-marking destroys the mark's meaning.
+   */
+  function cohortCeiling(player) {
+    var src = player && player.proj_ceiling_source;
+    if (typeof src !== 'string' || !src) return false;
+    if (/-x-player-cv$/.test(src)) return false;          //: measured per player
+    return /^measured-/.test(src);                        //: measured per BAND
   }
 
   /* A subtle badge on any recommendation that completes/extends a live route.
@@ -10953,6 +11017,11 @@
   function saveWeights() {
     markPrefsChanged();
     try { localStorage.setItem(WEIGHT_KEY, JSON.stringify(state.weights)); } catch (e) { /* private mode */ }
+    // Keep the restore panel's diff live-synced to whatever weights actually
+    // are now — a slider moved after page load must not leave a stale "no
+    // change" on screen (register 5g's whole point: a diff nobody re-checks
+    // is no better than the date nobody reconstructs).
+    if (typeof renderBaselineControl === 'function') renderBaselineControl();
   }
   function loadWeights() {
     try {

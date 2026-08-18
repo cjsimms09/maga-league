@@ -153,6 +153,71 @@ function draftAnnouncement(config, nowISO, seasonYear) {
 }
 
 /**
+ * THE KEEPER-DEADLINE ANNOUNCEMENT — same self-deriving/self-expiring shape as
+ * `draftAnnouncement` above, with one deliberate difference register row 42
+ * exists to explain: `configured` and `derived` are SEPARATE flags. A hardcoded
+ * fallback and a real ruling both used to return `configured: true`, which made
+ * a guess indistinguishable from a decision — the exact defect class this repo
+ * keeps finding under a different name. The pinned, league-wide alert must gate
+ * on `configured` ONLY (config.keepers.deadline was explicitly set); a fallback
+ * date is fine as informational banner text but must never announce itself with
+ * the authority of a ruling nobody made.
+ *
+ * @param {object} config      world.config (keepers.deadline: {date 'YYYY-MM-DD',
+ *                              time e.g. '6:00 PM', tz 'CDT'|'CST'})
+ * @param {string} nowISO      the clock (route passes real; tests fix it)
+ * @param {number} [seasonYear] fallback deadline's year DERIVES from it — never a
+ *                              hardcoded year literal, per the no-season-literals guard.
+ */
+function keeperDeadlineAnnouncement(config, nowISO, seasonYear) {
+  const cfg = config || {};
+  const kd = (cfg.keepers && cfg.keepers.deadline) || {};
+  const fallbackDate = seasonYear ? (seasonYear + '-08-21') : null;
+  const configured = !!kd.date;
+  const date = kd.date || fallbackDate;
+  const time = kd.time || '6:00 PM';
+  const tz = kd.tz || 'CDT';
+  const empty = { date: null, time, tz, weekday: '', longDate: '', when: '', deadlineISO: null,
+    hoursLeft: null, daysLeft: null, passed: false, countdownText: null, message: null,
+    configured: false, derived: false };
+  if (!date) return empty;
+  const d = new Date(date + 'T12:00:00Z');
+  const ok = !isNaN(d.getTime());
+  if (!ok) return { ...empty, date, weekday: '', longDate: date, when: date + ' at ' + time + ' ' + tz, configured, derived: !configured };
+  const weekday = d.toLocaleDateString('en-US', { weekday: 'long', timeZone: 'UTC' });
+  const longDate = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' });
+  const when = weekday + ' ' + longDate + ' at ' + time + ' ' + tz;
+  // Parse "6:00 PM" and convert to UTC. CDT/CST are both US Central; CDT (the
+  // daylight-time abbreviation, in effect March-November, which covers every
+  // real draft/keeper date this league has ever set) is UTC-5, CST is UTC-6.
+  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(time).trim());
+  let hour = 18, minute = 0;
+  if (m) {
+    hour = parseInt(m[1], 10) % 12;
+    minute = parseInt(m[2], 10);
+    if (/PM/i.test(m[3])) hour += 12;
+  }
+  const offset = /CST/i.test(tz) ? 6 : 5;
+  const deadline = new Date(date + 'T00:00:00Z');
+  deadline.setUTCHours(hour + offset, minute, 0, 0);
+  const deadlineISO = deadline.toISOString();
+  const now = nowISO ? new Date(nowISO).getTime() : null;
+  const passed = now != null && now >= deadline.getTime();
+  const msLeft = now != null ? deadline.getTime() - now : null;
+  const hoursLeft = msLeft != null ? Math.max(0, Math.ceil(msLeft / 3600000)) : null;
+  const daysLeft = hoursLeft != null ? Math.floor(hoursLeft / 24) : null;
+  let countdownText = null;
+  if (!passed && hoursLeft != null) {
+    countdownText = hoursLeft <= 1 ? 'less than an hour left'
+      : hoursLeft < 24 ? hoursLeft + ' hour' + (hoursLeft === 1 ? '' : 's') + ' left'
+      : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left';
+  }
+  const message = 'KEEPER DEADLINE: ' + when + ' — set your keeper before it locks.';
+  return { date, time, tz, weekday, longDate, when, deadlineISO, hoursLeft, daysLeft, passed,
+    countdownText, message, configured, derived: !configured };
+}
+
+/**
  * Assemble the full dashboard model. `inputs`:
  *   statusText, decText  — the two source files
  *   now                  — ISO string (route passes the real clock; test fixes it)
@@ -181,4 +246,4 @@ function buildModel(inputs) {
   };
 }
 
-module.exports = { parseQueue, parseDecisions, daysUntil, draftAnnouncement, buildModel, clean, DEADLINE_KEYWORDS };
+module.exports = { parseQueue, parseDecisions, daysUntil, draftAnnouncement, keeperDeadlineAnnouncement, buildModel, clean, DEADLINE_KEYWORDS };

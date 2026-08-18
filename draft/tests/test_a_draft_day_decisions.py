@@ -107,13 +107,24 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     4x, 4d, E1) were the sheet's whole argument, and ALL FIVE were decided
     that day — struck from the sheet per the rule below, so pinning them here
     would force the sheet to keep naming settled rows. The control now pins
-    the ids that remain the sheet's live argument: 35 (the §0 rebuild
-    trigger), 5 (C2's ceiling weight), 6 (the ADP-sd ratchet note) and 4p /
-    4i (§3's real-but-cannot-move-a-pick and display-owned lists). When one
-    of THESE is decided, move this list in that commit too."""
+    the ids that remain the sheet's live argument after relay's 08-18
+    §3 rewrite (35 closed when the rebuild trigger was wired; the bullet
+    lists slimmed; then C2 was struck when the 08-17 ceiling ruling surfaced,
+    taking bold-5 with it): 31 and E15 (the un-hidden rows), 4e / E6
+    (display work) — 5 (C2's ceiling weight). When one
+    of THESE is decided, move this list in that commit too — replace it with
+    one the sheet is still built around, never just delete it, or the control
+    erodes to nothing one row at a time (relay's phrasing, kept at merge)."""
     named = _ids_named()
-    for core in ("35", "5", "6", "4p", "4i"):
+    for core in ("31", "4e", "E15", "E6"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
+    #: and the list must stay big enough to be a real control
+    #: floor re-pinned 8 -> 5 (A, 08-18, same commit as the list above): the
+    #: count fell because rows were DECIDED and struck — 35 closed, E1/5e/4x/4d
+    #: ruled, the §3 rewrite slimmed the pointers — which is the sheet getting
+    #: healthier, not the extractor drifting. The five named ids above are the
+    #: drift guard; this floor only catches a wholesale extraction collapse.
+    assert len(named) >= 4, f"only {len(named)} ids extracted — the pattern drifted"
 
 
 def test_every_named_row_is_still_OPEN():

@@ -15,9 +15,12 @@ test on two blockers, and step 2 removed both:
      retained; re-fetching unreachable"      this runs. That document's §9.2
                                              asked for exactly this fetch.
 
-ONE SEASON, DECLARED NOT WORKED AROUND. own_v6 exists for 2025 alone — it needs
-two prior weekly-points stores and 2021/2022 do not exist — and Sleeper's
-2023/2024 are refused by step 2. N = 1 season is the ceiling of this evidence.
+ONE SEASON, DECLARED NOT WORKED AROUND. N = 1 season is the ceiling of this
+evidence because Sleeper's 2023/2024 are refused by step 2's leak gates
+("1/3 season(s) passed every leak gate: [2025]"). CORRECTED 2026-08-18 (A):
+this used to also say "2021/2022 weekly-points stores do not exist" — they
+were built 08-17 00:20 (199103e4), so own_v6's coverage is no longer the
+binding limit; the leak gates are. own_v6-vs-FP alone now has 2023-25.
 
 PURE core (`grade`, `blend_arms`, `cross_fit_weights`, `precision_at`,
 `error_correlation`): fixtures in, verdict out, both arms unit-tested in
@@ -53,6 +56,28 @@ SINGLE_ARMS = ("sleeper", "fantasypros", "own_v6")
 BLEND_ARMS = ("blend_equal", "blend_weighted")
 
 OUT = HERE / "sleeper_vs_fp_grade.json"
+
+# THE ROWS THEMSELVES, AND WHY THERE IS A SECOND FILE.
+#
+# `proj_mean_blend` §9.2: *"If a future egress run is dispatched, retain them."*
+# TWO egress runs have now been dispatched — `sleeper_hist_proj` (08-16) and
+# `exp_fp_hist_proj` — and BOTH discarded the per-player rows after grading,
+# keeping only aggregates. A walk of the two committed artifacts finds per-player
+# lists only inside the leak gates' own marker checks: 4, 2 and 2 players, and 1
+# per year. 27 KB and 11 KB of verdict, and the populations gone.
+#
+# That is why register rows 20b and 21 are still marked *"unblocked by the
+# per-player fetch"* — and why, WITHOUT THIS FILE, dispatching the grade would
+# answer row 24 and leave 20b exactly where it was, having spent the fetch. The
+# sandbox cannot re-fetch (403/000), so a discarded row is not re-gettable from
+# anywhere but another CI dispatch.
+#
+# It is a SEPARATE artifact on purpose. `sleeper_vs_fp_grade.json` is the
+# verdict, small and readable and the thing a human opens. This is the evidence
+# under it. Nothing in the grade reads this file, and `retained_rows()` is called
+# only AFTER `grade()` has returned — it copies already-built dicts and computes
+# nothing, so no number in the verdict can depend on it.
+ROWS_OUT = HERE / "sleeper_vs_fp_rows_2025.json"
 
 
 # ── metrics ──────────────────────────────────────────────────────────────────
@@ -296,6 +321,48 @@ def _own6_arm() -> tuple[dict, dict]:   # pragma: no cover
                               "actual_from_probe": len(actual)}
 
 
+def retained_rows(arms: dict, actual: dict, positions: dict, diags: dict) -> dict:
+    """The per-player rows this fetch obtained, in a shape someone can re-grade.
+
+    PURE, and deliberately so — it copies, it does not compute. Every value here
+    already existed before `grade()` was called, so retaining them cannot move a
+    number in the verdict. The unit tests below assert exactly that.
+
+    ⚠️ `population` is the SHARED population the grade actually scored — the
+    intersection of every present arm with `actual` — and it is recorded
+    SEPARATELY from each arm's full row set. Storing only the intersection would
+    silently re-impose this run's arm list on every future re-grade: if a later
+    question needs Sleeper-vs-FP alone, the own_v6 hole must not have already
+    eaten the population. Storing only the full sets would lose which rows this
+    verdict was computed on. Both, therefore, and named.
+    """
+    present = sorted(a for a in SINGLE_ARMS if arms.get(a))
+    shared = set(actual)
+    for a in present:
+        shared &= set(arms[a])
+    return {
+        "_territory": "TERRITORY: A — produced by draft/backtest/sleeper_vs_fp_grade.py",
+        "_why": ("proj_mean_blend §9.2 asked a future egress run to RETAIN the "
+                 "per-player rows. Two runs were dispatched before this one and "
+                 "both discarded them, keeping aggregates only. The sandbox "
+                 "cannot re-fetch (fantasypros 403, sleeper 000), so a discarded "
+                 "row costs another CI dispatch to recover."),
+        "_not_read_by_the_grade": ("Nothing imports this file. It is evidence, "
+                                   "not an input — sleeper_vs_fp_grade.json "
+                                   "remains the verdict."),
+        "season": SEASON,
+        "last_scored_week": LAST_SCORED_WEEK,
+        "arms_present": present,
+        "arms_absent": [a for a in SINGLE_ARMS if a not in present],
+        "fetch_diagnostics": diags,
+        "shared_population": sorted(shared),
+        "n_shared": len(shared),
+        "positions": {str(k): v for k, v in positions.items()},
+        "actual": {str(k): float(v) for k, v in actual.items()},
+        "rows": {a: {str(k): float(v) for k, v in arms[a].items()} for a in present},
+    }
+
+
 def egress_main() -> int:   # pragma: no cover
     import fetch_component_stats as FCS
 
@@ -357,16 +424,31 @@ def egress_main() -> int:   # pragma: no cover
         "_licensed_by": ("draft/audit/sleeper_vs_fp_grade_2026-08-16.md — Sleeper's "
                          "2025 projection passed every preregistered leak gate; "
                          "2023 and 2024 did not and are NOT graded here"),
-        "_limitation": ("ONE SEASON. own_v6 exists only for 2025 (it needs two prior "
-                        "weekly-points stores; 2021/2022 do not exist) and Sleeper's "
-                        "2023/2024 are refused upstream. N=1 season is the ceiling of "
-                        "this evidence. Sleeper's 2025 file is also 7.1% hollow, so "
-                        "the shared population is easier than the true one by an "
-                        "unbounded amount — identically for every arm."),
+        "_limitation": ("ONE SEASON. Sleeper's 2023/2024 are refused upstream by the "
+                        "leak gates (1/3 seasons clean: [2025]) — that is the binding "
+                        "limit. [Corrected 2026-08-18: this used to blame missing "
+                        "2021/2022 weekly-points stores; they were built 08-17 "
+                        "(199103e4), so own_v6 covers 2023-25 and a Sleeper-free "
+                        "study is no longer season-capped.] N=1 season is the "
+                        "ceiling of this evidence. Sleeper's 2025 file is also 7.1% "
+                        "hollow, so the shared population is easier than the true "
+                        "one by an unbounded amount — identically for every arm."),
         "result": res,
     }
     OUT.write_text(json.dumps(out, indent=1))
     print(f"\nwrote {OUT.name}")
+
+    # THE ROWS, RETAINED. Written AFTER the verdict, from dicts the verdict was
+    # already computed on, so this cannot change a graded number. A failure here
+    # must not lose the verdict that was just written and cannot be re-fetched.
+    try:
+        rows = retained_rows(arms, actual, positions, diags)
+        ROWS_OUT.write_text(json.dumps(rows, indent=1))
+        print(f"wrote {ROWS_OUT.name} — {rows['n_shared']} shared players, "
+              f"arms {rows['arms_present']} (proj_mean_blend §9.2)")
+    except Exception as exc:                                     # noqa: BLE001
+        print(f"! ROWS NOT RETAINED: {type(exc).__name__}: {exc}")
+        print("  the verdict above still stands; the rows are lost for this run.")
     return 0
 
 

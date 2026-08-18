@@ -1,6 +1,17 @@
 # DRAFT NIGHT RUNBOOK — Saturday 2026-08-22 (one page, print it)
 
-## Before the draft (Friday night / Saturday morning)
+## Before the draft — ⚠️ SATURDAY MORNING, **AFTER 03:00 CDT**, NOT FRIDAY NIGHT
+
+> **THE BOARD REBUILDS ITSELF OVERNIGHT AND WILL SUPERSEDE A FRIDAY FREEZE.**
+> `draft-data.yml` runs on `cron: '0 8 * * *'` — **08:00 UTC = 03:00 CDT, every
+> night, including draft morning** — and it commits `public/draft_data.json`.
+> `freeze_pre_draft.py` reads that exact file and records its `built_at` as
+> `source_artifact_built_at`.
+>
+> So a freeze taken Friday night is stale by breakfast, and step 1's own rule —
+> *"Freeze THAT board, nothing older"* — is violated by a scheduled job rather
+> than by anyone's mistake. **Do steps 1–2 on Saturday, after 03:00 CDT.**
+> (Or dispatch `draft-data.yml` by hand first, and freeze what it produces.)
 1. **Rebuild the board**: Actions → `draft-data.yml` → Run workflow. Wait for
    green — then verify THE BOARD ITSELF, not just CI: open `/admin/projections`,
    confirm `built_at` is today, provenance says own_v6, and the draft sheet
@@ -28,6 +39,17 @@
    its own; a loud failure means a second writer touched the pick log.
 9. **Nobody else pushes to the repo during the draft.** The pick logger is
    the only writer.
+
+   > ⚠️ **THIS IS AN INSTRUCTION TO PEOPLE, AND SIX SCHEDULED JOBS DO NOT READ
+   > IT.** These push on any given day, draft day included:
+   > `draft-data.yml` 03:00 CDT · `kalshi-capture.yml` 06:00 ·
+   > `external-adp-capture.yml` 06:20 · `standing-check.yml` 07:00 ·
+   > `market-capture.yml` 08:00 · `inbox-health.yml` 08:17.
+   >
+   > All six are **morning** CDT, so an evening draft does not overlap them —
+   > but **no start time is recorded anywhere** (not in `league_config.json`,
+   > not here, not in the brief), so that is an assumption and not a check. If
+   > the draft starts before ~09:00 CDT, disable these for the day.
 
 ## During the draft
 10. War room on desktop; draft sheet printed as the dead-battery fallback.
@@ -60,3 +82,44 @@
   mid-draft", both shas named). If the sync log starts printing that, someone
   rebuilt/re-froze the board mid-draft: restore the frozen file from git and
   the capture resumes by itself on the next poll.
+
+---
+
+## ✅ VERIFIED END-TO-END, 2026-08-18 (relay)
+
+Every file, CLI flag, route, timing and contingency claim on this page was
+checked against the code. **One defect found — the freeze timing above, register
+5i — and everything else holds.**
+
+- **Files/flags/routes:** `draft-data.yml`, `draft-night-sync.yml`,
+  `freeze_pre_draft.py`, `ledger_corruption_check.js`, `log_draft_picks.py`
+  (`--sync`, `--status`), `playoff_sos_2026.md`, the freeze, and both admin
+  routes — all present. `draft_pick_log_2026.jsonl` does **not** exist yet and
+  that is correct: `LOG.open("a")` creates it on the first pick.
+- **Step 8 / addendum — the completion string is real and STRONGER than stated.**
+  `draft complete — every pick logged, stopping.` prints only *after* the
+  durability gate: if `git rev-list --count origin/…..HEAD` is non-zero the step
+  re-pushes, and a failed final push `exit 1`s. **So that line cannot appear
+  while the pick log is unpushed.**
+- **Addendum — "a green run does not mean captured" is accurate.** The
+  `max_minutes` path prints `::warning::` and falls through to a green step.
+  Judge by the last log line, exactly as written.
+- **Addendum — the freeze-swap guard is real.** `log_draft_picks.py` refuses at
+  the moment of append, naming both shas: *"the freeze on disk (sha X…) is NOT
+  the freeze this log's N existing rows are joined to (Y…)."*
+- **Contingency — the staleness warning exists** with a real age and thresholds
+  (amber ~6h, blocked ~18h).
+
+- **Step 10 — the dead-battery fallback is sound.** `/admin/draft-sheet` reads
+  the SAME `public/draft_data.json` as the war room, so the printed sheet cannot
+  disagree with the screen. Simulated against the live board: **0 of 3 keepers
+  leak into "best available"** (Chase, Henry and Walker are absent from
+  `players[]` entirely, so the route's `kept` filter is redundant belt-and-braces
+  rather than load-bearing), and the **best-available lists are VORP-sorted and
+  monotone** — the documented past bug, where they were ordered by ADP and
+  printed a below-replacement TE as "best available" under a value heading,
+  stays fixed.
+
+*Two of these read as MISSING on a first grep — the freeze message is split
+across source lines, and the durability gate says "NOT pushed" rather than
+"unpushed". Both were present. Grep the behaviour, not the sentence.*

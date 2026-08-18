@@ -33,14 +33,27 @@ const YEAR = 2026;
 /* Rows are `| # | what | owner | status | next action |`. Status is the
  * second-from-last cell — read ONLY that, never the prose, so a row cannot
  * talk its way out by containing the word "closed" somewhere in its text.
- * The same narrowness the refusal guard needed, for the same reason. */
+ * The same narrowness the refusal guard needed, for the same reason.
+ *
+ * ⚠️ SPLIT ON UNESCAPED PIPES ONLY. A register cell may contain `\|` — the
+ * register's own hard gate (`test_defect_register.py`) requires the escape,
+ * because a bare `|` is a column separator and silently scrambles the row.
+ * Splitting on every `|` re-creates that bug HERE instead: the escaped pipe
+ * adds phantom cells, `cells.length - 2` lands one column too far right, and
+ * the "status" this check reads is a fragment of prose.
+ *
+ * MEASURED 2026-08-18, and it was not hypothetical: NINE rows carried an
+ * escaped pipe and FIVE had their status misread — worst of them row 4s, whose
+ * real status is `✅ RESOLVED 08-18` and which this check was reading as
+ * "33+` 240 → 151 graded, `WR\" and counting as OPEN. */
 function rows(text) {
   const out = [];
   for (const line of text.split('\n')) {
     const t = line.trim();
     if (!t.startsWith('|')) continue;
     if (/^[|\-: ]+$/.test(t)) continue;
-    const cells = t.replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
+    const cells = t.replace(/^\|/, '').replace(/\|$/, '')
+      .split(/(?<!\\)\|/).map(c => c.trim());
     if (cells.length < 4) continue;
     if (/^(#|what|question)$/i.test(cells[0])) continue;
     out.push({ id: cells[0], status: cells[cells.length - 2], all: cells.join(' ') });
@@ -48,8 +61,33 @@ function rows(text) {
   return out;
 }
 
+/* A ROW IS CLOSED ONLY IF IT SAYS SO IN A WORD. NOT IF IT WEARS A TICK.
+ *
+ * This used to be `/closed|✅/i`, and the ✅ half quietly undid the whole
+ * mechanism for the rows that needed it most. `CLAUDE.md`'s own headline is
+ * about findings going invisible to the check built to chase them — that was
+ * undated rows; this is the same failure in a costume, and it hid THREE rows
+ * that are explicitly waiting on a named human:
+ *
+ *     31   ✅ TEXT FIXED, ⚠️ SEND BACK OFFERED     — a SEND BACK is an open
+ *                                                   question by OPERATING-MODEL
+ *     E6   ✅ **FIXED — verify**                   — B has not verified
+ *     E15  ✅ **FIXED — verify**                   — A and B have not verified
+ *
+ * "Fixed" is not "closed". The tick means somebody did work; it says nothing
+ * about whether the person who has to accept that work has seen it, and those
+ * are precisely the rows that go quiet.
+ *
+ * It also missed the opposite case: `RESOLVED` with no tick (row 39) counted as
+ * OPEN forever, because "resolved" does not contain the substring "closed".
+ *
+ * So: an explicit terminal WORD, in the status cell, or the row is open.
+ * ANSWERED / MITIGATED / IN HAND / WAITING are deliberately NOT terminal — they
+ * are progress reports, and the safe direction to err is toward being chased. */
+const TERMINAL = /\b(closed|resolved|ruled|withdrawn|superseded)\b/i;
+
 function isClosed(r) {
-  return /closed|✅/i.test(r.status);
+  return TERMINAL.test(r.status);
 }
 
 /* "recheck 08-19" / "recheck 2026-08-19" — the register uses MM-DD. */

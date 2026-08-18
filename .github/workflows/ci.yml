@@ -284,6 +284,30 @@ jobs:
         if: always()
         run: node draft/tools/register_recheck_check.js
 
+      - name: Board freshness — a board older than its own inputs turns this RED
+        # Register 35. The board publishes without its upstream inputs and
+        # NOTHING triggers the rebuild. Twice on 2026-08-18: A's keeper-vorp fix
+        # landed 073aadfc at 03:20:28Z against a board built 02:03:30Z, resolved
+        # only because an unrelated rebuild happened to fire at 03:49; then the
+        # calibration table was regenerated f6acbe76 at 03:59:04Z against that
+        # 03:49:25Z board — 9m39s stale — by a commit whose own message says it
+        # "moves every proj_ceiling/proj_floor/proj_sd on the board."
+        #
+        # The row asks for exactly one thing: "fail a parity check that NAMES the
+        # stale artifact." That check already existed and was already tested —
+        # board_input_staleness.test.js, 14 checks including a control proving it
+        # discriminates rather than always firing. **Nothing ran it against the
+        # LIVE board.** The suite proved the tool works; no step asked the tool
+        # anything. That is the same gap register 28 named in a different place:
+        # a guard that is written but not wired.
+        #
+        # It exits 0 on today's board (built 05:33:24Z, every declared input
+        # older), so wiring it changes nothing until it is right to change
+        # something. When it does fire it prints WHICH input is newer and by how
+        # long, which is the "names the stale artifact" half of the ask.
+        if: always()
+        run: node draft/tools/board_input_staleness.js
+
       - name: Predictions — graded by their own date, and the grade must CHANGE something
         # Cory, 2026-08-18: "Still don't think we are making predictions, grading
         # and closing the loop. No one is in charge of it.."
@@ -323,6 +347,18 @@ jobs:
         # protected. CANNOT DETERMINE counts as unmet, always.
         if: always()
         run: node draft/tools/commitments_check.js
+
+      - name: Lane status — work that exists but main cannot see (REPORT ONLY)
+        # E built this after b26e1713 sat stranded 16h with a league-facing
+        # banner on it, and asked A to wire it (ROUTES 08-17; wired 08-18).
+        # REPORTS ONLY, by design: never merges, never deletes, never fails
+        # the build — `|| true` keeps even a tool crash from failing CI,
+        # because a visibility aid that can redden main becomes a thing
+        # people delete. It prints one line per unmerged branch and a ⚠️
+        # when one looks stranded (3+ commits, 12h+ old). fetch-depth: 0 is
+        # already set for the checkout, so remote branches are visible.
+        if: always()
+        run: git fetch --all --quiet && node draft/tools/lane_status.js || true
 
       - name: Guard — every critical step actually ran (no silent skips)
         if: always()

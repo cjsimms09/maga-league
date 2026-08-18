@@ -108,4 +108,11 @@ jobs:
           fi
           git commit -m "Historical props snapshot: season ${{ inputs.season }}, scope ${{ inputs.scope }} [skip deploy]" \
             -m "Automated fetch via historical-props-fetch.yml. Real ODDS_API_KEY credits spent — see the run log's credit_estimate for the exact count."
-          git push
+          for i in 1 2 3; do
+            git fetch origin main || true
+            git rebase origin/main || { git rebase --abort 2>/dev/null || true; }
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((i * 5))
+          done
+          echo "::error::RESULT NOT PUSHED — real credits were already spent on this fetch and the corrected data is now stranded on this ephemeral runner. Re-dispatching re-spends the credits a second time."
+          exit 1

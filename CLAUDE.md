@@ -65,17 +65,26 @@ information — which is the single cause of three conclusions we had believed.
 The board, the backtest harness and the money proxy are all fixed, the studies
 that rested on them are re-run, and a real per-player upside signal now exists.
 
-**One of those re-runs REVERSED, and it is the headline: the composite `ceiling`
-weight ships at 0 on a measurement that could not have come out any other way.**
-Three preregistered runs across two independent seed sets now say a non-zero
-weight beats that zero — 3/3 seeds, separably, at every value from 0.15 to 0.65.
-**It is held at zero through the draft deliberately**, because the
-no-change-before-08-22 rule was fixed in all four preregs before any of them
-produced a number. Brief §7b.
+**One of those re-runs REVERSED, and it became a shipped ruling.** Three
+preregistered runs across two independent seed sets said a non-zero `ceiling`
+weight beats zero — 3/3 seeds, separably, at every value from 0.15 to 0.65.
 
-So there are now **TWO decisions waiting on Cory** (the ADP-sd ratchet, and the
-ceiling weight after 08-22) and the ONE action for draft day. The brief carries
-all three.
+**⚠️ CORRECTED 2026-08-18: this section said the weight "is held at zero through
+the draft deliberately". THAT IS NO LONGER TRUE, AND HAS NOT BEEN SINCE
+`09f94f99` — "Ship Cory's ceiling ruling: MEASURED_WEIGHTS.ceiling 0 -> 0.45,
+with the full paperwork".** Verified in the live engine:
+`MEASURED_WEIGHTS.ceiling === 0.45`, and `app.js:52` seeds the board from it.
+Cory ruled, it shipped, and four documents went on describing the pre-ruling
+state — including this one, which is the file every session reads first.
+
+**So ONE decision waits on Cory, not two:** the ADP-sd ratchet. The ceiling
+weight is decided. Brief §7b.
+
+**And the correction has a live consequence — register 5g:** `draft/baseline/v1.json`
+is frozen at 2026-08-10 and still carries `ceiling: 0` and `stack: 0.5`, and the
+war room's "⏮ Restore the measured core" button is hardcoded to that version. One
+tap on draft night reverts **both** Cory's ceiling ruling and the D10 stack
+ruling, disclosing only a date.
 
 
 **⚙️ HOW THE FOUR OF US WORK — `OPERATING-MODEL.md`, one screen.** A is the
