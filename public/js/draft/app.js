@@ -5661,6 +5661,7 @@
             (falling ? '<span class="wr-falling" title="On the board ' + Math.round(curPickNo - p.adjusted_adp)
               + ' picks past his ADP (' + Math.round(p.adjusted_adp) + ') — the room is letting him slide">FALLING '
               + Math.round(curPickNo - p.adjusted_adp) + '</span>' : '') +
+            sourceGapBadge(p, state.board) +
           '</div>' +
           ((rbScale && typeof WarRoomCharts !== 'undefined' && p.proj_floor != null && p.proj_ceiling != null)
             ? WarRoomCharts.rangeBar(p.proj_floor, p.proj_mean, p.proj_ceiling,
@@ -9277,8 +9278,9 @@
     const teams = state.data.league.teams || 10;
     const currentRound = Math.ceil(currentPick() / teams);
 
+    const topPicksFlat = ((state.data.league || {}).keeper_rules || {}).cost_model === 'top_picks_flat';
     const r = window.DraftReconcile.reconcile(picks, assumed,
-      { playersById: byId, currentRound: currentRound, teams: teams });
+      { playersById: byId, currentRound: currentRound, teams: teams, topPicksFlat: topPicksFlat });
     state.reconcile = r;
     renderReconcile(r, assumed, byId);
   }
@@ -10966,6 +10968,27 @@
         + 'either number — extra doubt, both directions.\n';
     }
     return '';
+  }
+
+  /* THE SOURCE-GAP BADGE — Cory, 2026-08-18: "dont gatekeep things for after
+   * draft if nothing critical." `sourceGapCaveat` already carries the full
+   * sentence, but it only ever reached the Why? dossier — one tap away, and a
+   * caveat nobody taps at pick speed does not do its job (the same lesson as
+   * 4e/register). This is the visible token: a compact badge on the row
+   * itself, so the disagreement is seen before the pick, not explained after.
+   *
+   * TWO VARIANTS, NOT ONE, because the two cases warrant different reactions:
+   * "lean market" is fairly confident (32 of 33 in the ruled sample) that the
+   * board is reading one source, so it earns a plain 📉 nudge; "UNEXPLAINED"
+   * is the harder case (Cory's own Jonah Coleman example) where the usual
+   * cause does not apply and BOTH numbers are suspect — a ❓ says so, not the
+   * same icon with a different word in the tooltip nobody hovers. */
+  function sourceGapBadge(p, board) {
+    const text = sourceGapCaveat(p, board);
+    if (!text) return '';
+    const unexplained = /UNEXPLAINED/.test(text);
+    return '<span class="wr-source-gap' + (unexplained ? ' unexplained' : '') + '" title="'
+      + escapeHtml(text.trim()) + '">' + (unexplained ? '❓ mkt gap' : '📉 mkt') + '</span>';
   }
 
   function dispersionCaveat(p, board) {
