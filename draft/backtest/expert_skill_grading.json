@@ -1,0 +1,70 @@
+{
+ "_territory": "TERRITORY: A \u2014 written by expert_grading.py",
+ "_prereg": "EXPERT-SKILL-PREREG.md",
+ "seed": 42,
+ "min_common": 30,
+ "seasons": [
+  2023,
+  2024,
+  2025
+ ],
+ "diagnostics": {
+  "2023": {
+   "graded_players": 473,
+   "crosswalk_misses": 18,
+   "experts_scored": 239,
+   "experts_excluded_min_n": 0
+  },
+  "2024": {
+   "graded_players": 506,
+   "crosswalk_misses": 28,
+   "experts_scored": 219,
+   "experts_excluded_min_n": 0
+  },
+  "2025": {
+   "graded_players": 486,
+   "crosswalk_misses": 17,
+   "experts_scored": 207,
+   "experts_excluded_min_n": 0
+  }
+ },
+ "q1_persistence": {
+  "2023_to_2024": {
+   "status": "measured",
+   "common_experts": 197,
+   "observed_rho": 0.276,
+   "shuffle_p95": 0.1212,
+   "clears_null": true
+  },
+  "2024_to_2025": {
+   "status": "measured",
+   "common_experts": 171,
+   "observed_rho": 0.3667,
+   "shuffle_p95": 0.1138,
+   "clears_null": true
+  }
+ },
+ "q2_walk_forward_2025": {
+  "FLAT": {
+   "spearman_vs_realized": 0.76,
+   "players": 486
+  },
+  "CONTINUOUS": {
+   "spearman_vs_realized": 0.7617,
+   "players": 486
+  },
+  "TOP10": {
+   "spearman_vs_realized": 0.6883,
+   "players": 370
+  },
+  "note": "higher is better; weights from 2023-24 skill only"
+ },
+ "q2_same_population_check": {
+  "why": "TOP10 covers 370 of FLAT's 486 players; raw comparison confounds weighting with coverage. Re-scored both on exactly TOP10's 370.",
+  "players": 370,
+  "FLAT": 0.6974,
+  "TOP10": 0.6883,
+  "verdict": "TOP10 loses narrowly on identical players (-0.009); the larger raw gap was population, not weighting."
+ },
+ "headline": "Q1: expert skill PERSISTS (rho 0.276 and 0.367, both clear the 400-shuffle null p95). Q2: it is too weak to exploit \u2014 CONTINUOUS ties FLAT (+0.002), TOP10 loses on same players (-0.009) and costs 24% coverage. The flat ~200-expert consensus is effectively optimal as a mean anchor."
+}

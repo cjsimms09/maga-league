@@ -277,6 +277,29 @@ jobs:
         if: always()
         run: node draft/tools/register_recheck_check.js
 
+      - name: Predictions — graded by their own date, and the grade must CHANGE something
+        # Cory, 2026-08-18: "Still don't think we are making predictions, grading
+        # and closing the loop. No one is in charge of it.."
+        #
+        # He was right about the ownership. Preregistrations were being written and
+        # some were graded, but nothing connected the two or noticed when a grade
+        # never arrived. PREDICTION-LEDGER.md gives every prediction an owner and a
+        # grade-by date; this check is what makes those cost something.
+        #
+        # It fails on TWO things, and the second is the one that matters:
+        #   1. a row past its grade-by date still OPEN — nobody came back for it;
+        #   2. a row marked GRADED whose "what changed" cell is EMPTY. Cory,
+        #      08-17: "a grade that moved nothing." A measurement with no
+        #      consequence is a note, not a closed loop. "NOTHING — <reason>" is a
+        #      real answer and passes; silence does not.
+        #
+        # It does NOT judge whether the prediction was good or the consequence
+        # right — both are human calls. It enforces only that the loop closed.
+        if: always()
+        run: |
+          node draft/tests/prediction_ledger_check.test.js
+          node draft/tools/prediction_ledger_check.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that

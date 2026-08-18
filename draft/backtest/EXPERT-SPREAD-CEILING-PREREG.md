@@ -386,3 +386,73 @@ the live signal, and it is untouched by this result. **How much the room disagre
 about one player is informative; which members of the room they are is not.**
 
 **Owner: relay (run). Recorded for A. Recheck 08-24.**
+
+---
+
+## 10. GRADED 2026-08-18 — **ALL THREE CEILING ARMS FAIL. THE LINE IS DEAD.**
+
+1,111 graded player-seasons across 2023–2025, joined through `sleeper_name_index.json`
+(97% name coverage every season), players with ≥20 experts only.
+
+**ONE DECLARED DEVIATION FROM §3, stated because a silent substitution is worse than
+the deviation.** §3 specified realized/projected *ratio* within projection band.
+Historical bundles are not committed (`cli.py` writes `bundles.json`, nothing stores
+it), so the grading uses **ECR band** instead of projection band and **realized
+points** instead of the ratio. This is not a weaker test of the claim: **BASE assigns
+every player inside a band the identical ceiling by construction**, so any within-band
+discrimination whatsoever is information the current board cannot express. The arms
+had the easiest possible bar — beat a constant — and they did not clear it.
+
+### Metric 1 — realized p90 within band, narrow vs wide disagreement
+
+| ECR band | n | narrow p90 | wide p90 | gap |
+|---|---|---|---|---|
+| 1–24 | 72 | 318.9 | 332.4 | +13.5 |
+| 25–48 | 69 | 334.5 | 351.1 | +16.5 |
+| 49–72 | 71 | 253.6 | 303.4 | +49.8 |
+| **73–108** | 106 | 336.9 | 226.7 | **−110.2** |
+| 109–160 | 154 | 220.1 | 254.6 | +34.5 |
+| 161–240 | 160 | 171.9 | 207.5 | +35.6 |
+| **pooled** | 632 | 255.2 | 273.7 | **+18.5** |
+
+**SHUFFLE null, 400 draws:** median −1.9, p05 −41.8, **p95 +38.3**. The real +18.5
+sits at the **72nd percentile — inside the null band.** Five bands positive, one
+violently negative, pooled *mean* points identical (139.1 vs 138.6). **Not evidence.**
+
+### Metric 2 — P(top-12 finish at position), the stable one
+
+p90 on ~35 players per half is effectively the third-best player and is very noisy, so
+the same three arms were re-graded on a rate: did the player finish **top-12 at his
+position** that season (144 hits in 1,111 rows).
+
+| arm | gap in hit rate | shuffle median | shuffle p95 | percentile |
+|---|---|---|---|---|
+| ECR-SPREAD (disagreement width) | **−0.0134** | −0.0007 | +0.0499 | **28%** |
+| ECR-MIN (most bullish expert) | **−0.0467** | −0.0213 | +0.0296 | **15%** |
+| ECR-Q10 (bullish decile) | **−0.0297** | −0.0106 | +0.0465 | **19%** |
+
+**All three are NEGATIVE and all three sit BELOW the shuffle median.** Not "small but
+positive" — the wide-disagreement and expert-bullish halves hit *less* often than
+their opposites, at rates a shuffle reproduces easily.
+
+### Verdict
+
+**§4's conditions are not met and are not close. NOTHING FROM THIS LINE SHIPS.**
+`proj_ceiling` is unchanged. The board is unchanged.
+
+**§6's screens were necessary but not sufficient, and that is the lesson worth
+keeping.** Expert disagreement is genuinely per-player (365 distinct spreads),
+genuinely not a function of rank (ρ 0.855, not 1.0), and genuinely reflects ~91
+humans who disagree (rank_std 0.7→85.4). **Every one of those was true and the thing
+still predicts nothing.** "The field varies by player" and "the variation predicts the
+outcome" are different claims, and only the second one is worth a board column.
+
+**What this closes:** the answer to Cory's *"ceiling is a projected score that we will
+have to get from outside source"* is now complete and entirely negative — **no source
+publishes one (§0), and the best proxy any source does publish carries no predictive
+upside information (§10).** The cohort-p90 ceiling is not being defended here; it is
+still broken for the reasons in register 4t. **But the replacement we went looking for
+does not exist in this data, and that is now measured rather than assumed.**
+
+**Owner: relay (ran it). Recorded for A. Register 4t stays OPEN — the defect is real,
+this particular fix is not it.**
