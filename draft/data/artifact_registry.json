@@ -309,6 +309,16 @@
     "python3",
     "draft/backtest/age_curve_fit.py"
    ]
+  },
+  {
+   "id": "recency_weight_fit",
+   "description": "V7 C3: per-position recency blend weights fitted walk-forward on 5d-corrected stores. Headline: QB best w=0.33 vs the hand-set 0.7 (rho gap 0.115) \u2014 one global constant hid a position-specific error at exactly the position own_v6 loses.",
+   "owner_module": "draft/backtest/recency_weight_fit.py",
+   "artifact_path": "draft/backtest/recency_weight_fit.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/recency_weight_fit.py"
+   ]
   }
  ],
  "_not_yet_migrated": [

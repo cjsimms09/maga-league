@@ -22,12 +22,15 @@ CEILING_Z = 1.036  # 85th percentile
 # Expected games. Positional durability priors from historical games-missed.
 EXPECTED_GAMES = {"QB": 15.5, "RB": 14.2, "WR": 15.0, "TE": 14.8, "K": 16.5, "DEF": 17.0}
 
-# 4w plausibility rail: best realized season total per position in OUR stores
-# (nflverse_weekly_points 2023-25, league scoring) × 1.20 record headroom.
-# MEASURED base (QB 561.5 / RB 437.3 / WR 376.1 / TE 252.9); the 20% headroom
-# is the one hand-set number and is declared as such. Regenerate the bases
-# with the one-liner in test_player_volatility_tails.py if a season is added.
-PLAUSIBILITY_CEILING = {"QB": 674.0, "RB": 525.0, "WR": 451.0, "TE": 303.0}
+# 4w plausibility rail: best realized REGULAR-SEASON total per position in
+# OUR stores (nflverse_weekly_points 2023-25, league scoring) × 1.20 record
+# headroom. RE-BASED 08-18 late (register 5d): the original bases were
+# computed on stores carrying PLAYOFF weeks as season data — the "best RB
+# season" was 72 points of playoffs. Corrected bases QB 512.4 / RB 365.6 /
+# WR 339.5 / TE 252.9; the 20% headroom is the one hand-set number and is
+# declared as such. The pin in test_player_volatility_tails.py regenerates
+# these from the stores, so a future phantom week fails loudly.
+PLAUSIBILITY_CEILING = {"QB": 615.0, "RB": 439.0, "WR": 407.0, "TE": 303.0}
 
 # --- per-player variance (audit P1.7) ---------------------------------------
 #
