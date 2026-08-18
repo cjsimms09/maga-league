@@ -130,7 +130,7 @@ priced skill category ever goes unparsed again.
 
 | # | what | why it is Cory's |
 |---|---|---|
-| — | **Nothing.** All five open decisions were ruled on 2026-08-17 (see above). | Kept as a live section: when it is empty, no lane is idling on Cory. |
+| A9 | **Does the rebuilt war room satisfy your rejection?** You said the old one was *"too busy and wordy… looks like an amateur pile of shit"* and did not match the reference screenshots you sent. It has since been rebuilt from scratch (five tabs, left rail, inline charts, one adjudicated pick) — B re-verified live tonight that the specific complaints (desktop-first, wrong seat, shortlist sort, "left" ambiguity) are fixed, but whether the NEW design reads as clean rather than busy is a taste call only you can make, not something a screenshot diff can rule on. `DEFECT-REGISTER.md` row 4b is still marked OPEN pending exactly this. | Only you know whether it matches what you had in mind — a session re-checking its own redesign against its own screenshot memory is grading its own homework. |
 
 ## DELIVERED AND VERIFIED
 
