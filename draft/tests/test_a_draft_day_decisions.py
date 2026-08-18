@@ -116,7 +116,12 @@ def test_CONTROL_the_extractor_finds_the_ids_the_sheet_is_built_around():
     one the sheet is still built around, never just delete it, or the control
     erodes to nothing one row at a time (relay's phrasing, kept at merge)."""
     named = _ids_named()
-    for core in ("31", "4e", "E15", "E6"):
+    #: 4e -> 5i (relay, 08-18, in the commit that struck 4e). 4e was DECIDED and
+    #: struck per the rule above; 5i replaces it rather than shrinking the list,
+    #: because "never just delete it, or the control erodes to nothing one row at
+    #: a time" is the whole point of this docstring. 5i is Cory's own ruling on
+    #: the Friday freeze and the sheet is still built around it.
+    for core in ("31", "5i", "E15", "E6"):
         assert core in named, f"{core} is not being extracted — the pattern drifted"
     #: and the list must stay big enough to be a real control
     #: floor re-pinned 8 -> 5 (A, 08-18, same commit as the list above): the

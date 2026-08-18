@@ -34,6 +34,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # RUN SOMETHING THAT CAN SAY NO BEFORE COMMITTING DATA — the bar
+      # `standing-check.yml` already sets, and the one this workflow was missing.
+      # `test_every_gate_can_fail.py` counts scheduled jobs that commit with
+      # nothing verifying them; this one pushed that count from 11 to 12 and
+      # turned `main` red the day it landed. The suite already existed and was
+      # simply never wired in, so the fix is the wiring, NOT raising the ratchet
+      # — "a ratchet nobody tightens is a high-water mark", in that file's own
+      # words. A parse or schema change now fails here instead of committing a
+      # malformed snapshot the lab would later read as real.
+      - name: Test the fetcher before trusting what it writes
+        run: python3 -m pytest draft/tests/test_fetch_event_props.py -q
       - name: Fetch per-event player props
         env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}

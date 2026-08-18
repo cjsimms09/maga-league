@@ -93,13 +93,15 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
   *no route*. The first comparison that can settle it is the January 2027 grade.
   **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
-- **Display work owned by B** — **4e** (the shortlist is ordered by the engine's
-  composite, not by the number printed beside it; the only safe fix left is a
-  caption, and it is B's card) and **E6** (a caveat that marks the wrong
+- **Display work owned by B** — **E6** (a caveat that marks the wrong
   players, fixed by E, unreviewed by B — a label change, no number moved).
-  ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the restore button works, the
-  cohort ceilings are marked on the board, and BIG BOARD now says *"undrafted"*
-  where it collided with the scarcity rail's *"left"*.
+  ~~4e~~, ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the shortlist now says
+  what orders it, the restore button works, the cohort ceilings are marked on the
+  board, and BIG BOARD says *"undrafted"* where it collided with the scarcity
+  rail's *"left"*. **4e was struck LATE, by the relay:** the register carried it
+  `✅ CLOSED 08-18` while this sheet still called it pending, which is exactly
+  what `test_a_draft_day_decisions.py` catches — and `main` was RED on it until
+  this edit. Strike the sheet in the deciding commit.
 - **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
   finished with a ✅ that meant *"fixed, verify"*, and the register's own check
   read any tick as closed, so none of the three was ever chased. E15 is now
