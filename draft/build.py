@@ -1744,6 +1744,24 @@ def build(cfg: dict, *, offline: bool = False, force_profiles: bool = False,
     available, vorp_diag = vorp_mod.apply_vorp(available, cfg)
     available = vorp_mod.assign_tiers(available)
 
+    # E's sweep-16 finding, ruled at the SOURCE (A, 08-18): kept_players are a
+    # different population from `available` and never pass through apply_vorp,
+    # so they shipped with vorp absent — and engine.js's `(player.vorp || 0)`
+    # turned absent into a confident zero, flipping the keeper-target bar
+    # negative and naming the wrong man on screen at pick 33 ("Zay Flowers
+    # beats Ja'Marr Chase by 17"). The board's own identity (vorp ==
+    # proj_mean − replacement[pos], 682/682 rows) is applied here so every
+    # consumer gets the same number; E's UI-side derivation becomes the
+    # designed no-op fallback. Unknown position stays ABSENT — never a
+    # fallback constant (the || 0 lesson, again).
+    _repl = (vorp_diag or {}).get("replacement_points") or {}
+    for rec in kept_players:
+        if rec.get("vorp") is None:
+            rp = _repl.get(rec.get("position"))
+            pm = rec.get("proj_mean")
+            if rp is not None and pm is not None:
+                rec["vorp"] = round(float(pm) - float(rp), 2)
+
     # GRAB-BY — "stick to value, know when to grab". Per-position EVLW (value lost to
     # waiting one pick) + grab-by pick, aware of MY keepers' filled slots. Forecast
     # mode so the pre-draft snapshot shows the board I'll really face; the client
