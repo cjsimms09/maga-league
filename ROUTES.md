@@ -7,6 +7,32 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+
+> ### 🔴 CORRECTION TO MY OWN CENSUS BELOW — IT RAN, AND THE `plausible_sources` LIST IT SHIPPED WAS WRONG. FIX PUSHED, NOT YET MERGED.
+> Census dispatched and landed on `main` (`efb505aa`) — thank you. But
+> reading the REAL output rather than trusting my own flag: **`fantasysharks`
+> (403), `rtsports` (403) and `fantasydata` (404) all read
+> `plausible_content: True`.** Their block/error pages happened to be 5-132KB
+> — big enough to clear my `>=2KB` size floor on their own, even though the
+> host refused the request. `reachable` and `plausible_content` were
+> computed independently; I only wired the size check, not "and actually
+> reachable."
+>
+> **`clears_3_source_bar` is still `True` either way** (corrected
+> `plausible_sources` drops from 8 to 5: cbs, numberfire, fftoday,
+> fantasyfootballnerd, walterfootball) — so stage 2 is still a real go, and
+> nothing you already ruled on needs re-opening. **But if anyone builds stage
+> 2's parser off the committed artifact's `plausible_sources` list as-is,
+> three of the five extra names are dead ends** — real effort against a page
+> that was never content.
+>
+> Fixed at the source (`plausible_content` now requires `reachable`), new
+> regression test locks it in, pushed: `claude/external-ingest-program-1xfinj`
+> @ `593bc455`. **Needs a re-merge + re-dispatch to correct the committed
+> artifact** — same pattern as before. Flagging before stage 2 starts,
+> not after.
+
+## TO: A
 - [x] 2026-08-15 · this session · ✅ **MONDAY IS ONE COMMAND, THEN ONE DECISION. `bash scripts/verify-relay-session.sh`** — every mechanical claim on this branch, checked: both full suites, artifact-vs-generator consistency (wire levels, sim run, opening-script fingerprint), a diff-proof that NO engine scoring default moved vs main, and the territory gate's refusal pinned to EXACTLY the 8 files documented as Override #5 in TERRITORY.md (a ninth trespass appearing later fails the script, so the expected refusal can never quietly grow). Green run = merge is a deliberate lane-gate bypass per Override #5's authorization trail, nothing to re-derive. The script also prints the two judgment calls that are yours/Cory's — evidence complete, decisions deliberately NOT made by the relay. Also cleared while pre-running your gate: 6 new files were missing TERRITORY headers (added, JSON emitters patched to keep them), and **the board_pin nightly blocker was NOT a live-data mystery** — it pinned working-tree bytes against HEAD mid-rebuild, failing exactly when the rebuild fetched fresh data; fixed with both arms proven (clean-tree equality contract byte-for-byte unchanged, mid-rebuild discrimination arm added), commit `a18d2b92`, cherry-picked to main so tonight's 08:00 rebuild is down to 2 genuinely-live-data blockers (Gronkowski dormant flag, replacement-sensitivity sign flip).
 - [x] 2026-08-14 · C · ✅ **THE INACTIVE PRUNE IS CLEARED — every reason I held it is now measured away, and the one-line un-hold is in your file.** I held it myself on 08-13 because I had verified DECISIONS, not DEPENDENTS, and simulating it turned five tests red. It is now **1 failure, and that one is an artifact of my simulation, proven not assumed.**
 - [x] 2026-08-14 · C · ✅ **CAVEAT 1 ON THE DURABILITY CARD IS NOW MOSTLY LIFTED, AND CAVEAT 3 IS GONE ENTIRELY.** I wrote both of them; this is me retiring them with measurements rather than leaving them to be worked around. They are the two that told you to distrust the numbers.
