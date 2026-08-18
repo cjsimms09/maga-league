@@ -324,6 +324,34 @@ jobs:
           node draft/tests/prediction_ledger_check.test.js
           node draft/tools/prediction_ledger_check.js
 
+      - name: Breadth — are we casting a wide enough net, or turning the same two knobs
+        # Cory, 2026-08-18: "Making sure we're casting a wide enough net to try
+        # as many things as we can."
+        #
+        # THE STEP ABOVE CANNOT SEE THIS FAILURE. It enforces that predictions
+        # get graded and that a grade names a successor — both of which stay
+        # green while the search is narrow. P28 graded TRUE: the live arm set is
+        # five rows varying exactly two knobs (tilt_scale, divisor), both on the
+        # Vegas axis. You can grade those five every Tuesday for eighteen weeks,
+        # promote a champion every time, and never test a signal you were not
+        # already using. The projector's own docstring says so — "the mechanical
+        # loop only selects among the arms it is given" — and nothing enforced it.
+        #
+        # So this reads DEFAULT_ARMS out of the projector and classifies each
+        # signal axis LIVE / GRADED / NONE. A one-off graded study is NOT
+        # breadth: pace_arm and advanced_efficiency both carry real verdicts and
+        # neither runs again, which is how a programme feels wide while the loop
+        # stays narrow. Today: 1 of 8 axes LIVE.
+        #
+        # It fails on a DEADLINE, not a floor — a floor is satisfied the day it
+        # is written and never again. The dates come from BLEND-SEARCH-DESIGN.md's
+        # own sequence table; when one passes with no live arm, this goes red and
+        # names the axis. Moving a date is fine, in a commit that says why.
+        if: always()
+        run: |
+          node draft/tests/projection_breadth.test.js
+          node draft/tools/projection_breadth.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that
