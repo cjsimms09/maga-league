@@ -1,6 +1,17 @@
 # DRAFT NIGHT RUNBOOK — Saturday 2026-08-22 (one page, print it)
 
-## Before the draft (Friday night / Saturday morning)
+## Before the draft — ⚠️ SATURDAY MORNING, **AFTER 03:00 CDT**, NOT FRIDAY NIGHT
+
+> **THE BOARD REBUILDS ITSELF OVERNIGHT AND WILL SUPERSEDE A FRIDAY FREEZE.**
+> `draft-data.yml` runs on `cron: '0 8 * * *'` — **08:00 UTC = 03:00 CDT, every
+> night, including draft morning** — and it commits `public/draft_data.json`.
+> `freeze_pre_draft.py` reads that exact file and records its `built_at` as
+> `source_artifact_built_at`.
+>
+> So a freeze taken Friday night is stale by breakfast, and step 1's own rule —
+> *"Freeze THAT board, nothing older"* — is violated by a scheduled job rather
+> than by anyone's mistake. **Do steps 1–2 on Saturday, after 03:00 CDT.**
+> (Or dispatch `draft-data.yml` by hand first, and freeze what it produces.)
 1. **Rebuild the board**: Actions → `draft-data.yml` → Run workflow. Wait for
    green — then verify THE BOARD ITSELF, not just CI: open `/admin/projections`,
    confirm `built_at` is today, provenance says own_v6, and the draft sheet
@@ -28,6 +39,17 @@
    its own; a loud failure means a second writer touched the pick log.
 9. **Nobody else pushes to the repo during the draft.** The pick logger is
    the only writer.
+
+   > ⚠️ **THIS IS AN INSTRUCTION TO PEOPLE, AND SIX SCHEDULED JOBS DO NOT READ
+   > IT.** These push on any given day, draft day included:
+   > `draft-data.yml` 03:00 CDT · `kalshi-capture.yml` 06:00 ·
+   > `external-adp-capture.yml` 06:20 · `standing-check.yml` 07:00 ·
+   > `market-capture.yml` 08:00 · `inbox-health.yml` 08:17.
+   >
+   > All six are **morning** CDT, so an evening draft does not overlap them —
+   > but **no start time is recorded anywhere** (not in `league_config.json`,
+   > not here, not in the brief), so that is an assumption and not a check. If
+   > the draft starts before ~09:00 CDT, disable these for the day.
 
 ## During the draft
 10. War room on desktop; draft sheet printed as the dead-battery fallback.
