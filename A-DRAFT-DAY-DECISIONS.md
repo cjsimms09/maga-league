@@ -16,23 +16,24 @@ follows is what survived.
 
 ## 0 · THE ONE THING THAT MUST HAPPEN, AND IT IS NOT A DECISION
 
-**Rebuild the board after the keeper slate confirms.** Register **35**: the
-board publishes without its upstream inputs and *nothing triggers the rebuild* —
-it happened twice on 08-18 alone. Separately, the live board is standing on a
-**"predicted"** slate today: 4 of 10 teams designated, **8 keepers across 3 teams
+**Rebuild the board after the keeper slate confirms.** The live board stands on a
+**"predicted"** slate: 4 of 10 teams designated, **8 keepers across 3 teams
 deliberately withheld** (`_keeper_map_for_board`, Cory's own 08-11 ruling).
+Until the rebuild, **every replacement level, VORP and ADP adjustment is computed
+over a pool containing players nobody can draft.**
 
-Until that rebuild happens, **every replacement level, VORP and ADP adjustment on
-the war-room board is computed over a pool containing players nobody can draft.**
+Tracked mechanically, not left to memory: commitment `slate-exposure-rechecked`
+reads the live board and reports NOT MET while the slate is partial, going
+**OVERDUE on 08-21**.
 
-Tracked mechanically, so it is not left to memory: commitment
-`slate-exposure-rechecked` (due 08-20) reads the live board and reports NOT MET
-while the slate is partial. It will show **OVERDUE on 08-21** if the board is
-still on a partial slate.
-
-> ⚠️ It may shout one day early — the lock date is itself open (below). If Cory
-> rules 08-21, **move the date with that reason; do not silence the check.**
-
+✅ **Register 35 CLOSED 08-18 — the missing trigger is wired.** It asked to *"fail
+a parity check that names the stale artifact"*. The check already existed and was
+already tested (14 checks, with a control proving it discriminates) — **nothing
+ever ran it against the live board.** A CI step now does, and `ci.yml` fires on
+push to `main`, which is where the nightly rebuild pushes. Exit 0 today: the
+board (05:33:24Z) is newer than every declared input, so the ordering 35
+complained about has already inverted. It does **not** auto-rebuild — that half
+is the commitment above.
 ---
 
 ## 1 · CORY'S RULINGS — ONE DOWN, ONE POST-DRAFT
@@ -43,8 +44,8 @@ still on a partial slate.
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
 | **C3** | **The projection SOURCE, post-draft — his own 08-16 question, now with its first measurement.** The three-way grade ran 08-18 (2025, 360 shared players, leak-gated): QB — pure Sleeper wins and the blend loses; WR/TE — the blend beats the best single source (+0.016/+0.012, mechanism-consistent: own_v6 is the decorrelated arm); RB — a wash. | **Held through 08-22 by the prereg's own "Nothing ships" rule.** After Saturday: position-scoped — QB Sleeper, WR/TE blend, RB no change. N=1 season; caveats in `draft/audit/sleeper_vs_fp_grade_run_2026-08-18.md`. | 21 (annotated), CORY-ASKS A2 (ruled) |
 
-*(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
-recommendation unchanged: leave it, revisit post-season. No action needed.)*
+*(The ADP-sd ratchet, row 6, is now Cory's ONLY open decision. Blast radius one
+player; recommendation unchanged: leave it, revisit post-season.)*
 
 ---
 
@@ -63,34 +64,46 @@ recommendation unchanged: leave it, revisit post-season. No action needed.)*
 
 Everything else open. Named so nobody has to re-derive that it was considered:
 
-- **Real, measured, and cannot change a pick before Saturday** — 4p (the ceiling
-  ratio is backwards by band; its own row says *do not patch by hand before
-  08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
-  (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), 2b, 28.
-- **CLOSED 08-18 with the C1 ruling and the same-day rulings above** — 42 (the
-  keeper date, ruled), E1 (fix rejected on the population ruling), 5e (QB
-  refusal shipped), 4x (no rescale, Cory told), 4d (desktop-first, superseded
-  on the record). **And closed later the same day by the relay's verify batch**
-  — 2c, E3, E4, E5 (the centered-adjuster consolidation resolved), 4i (the
-  restore panel question settled) and 4f (the "left" wording), so the live
-  bullets above no longer name them.
-- **CLOSED 08-18 against live state, not against the date on the line** — rows
-  E10 (its check run on the fresh board; its parent row 2 resolved on the same
-  run), 1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
-  named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
-  `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
-  keepers really do consume picks) — plus row 2 **RESOLVED**: the
-  constant-multiple sweep was run on the fresh board and no field has joined,
-  while finding 13 real pairs, so it is not vacuously green.
-- **~~Blocked on evidence that does not exist yet~~ — the evidence LANDED
-  08-18** — 21 / 24 / A2 source ruling. "Never measured against Sleeper" was
-  true when written; the three-way grade then ran on the leak-clean 2025
-  shared population and the ruling moved to §1's C3 above. Still held through
-  08-22 — now by the prereg's fixed "Nothing ships" rather than by absence of
-  evidence. The January 2027 grade remains the first untouched evaluation.
-- **Display work owned by B** — 4v (mark the fifteen cohort-constant
-  ceilings) 4e.
+- **Real, measured, cannot change a pick before Saturday** — 4p (its own row
+  says *do not patch by hand before 08-22*; it feeds ceiling, floor, the bench
+  branch and `champodds`) and 2b. **4m and 28 CLOSED 08-18.**
+- **✅ E3 / E4 / E5 CLOSED 08-18 AS DORMANT, NOT FIXED.** All three describe
+  `opportunity_adj`, and Cory's own `opportunity_cap = 0.0` ruling makes all
+  three unobservable: one distinct value across all 696 players, every position
+  shifting +0.00000, `proj_mean == proj_sleeper` for 696 of 696. **The formula
+  was never repaired — only its amplitude is zero, and `opportunity_z` is still
+  computed**, so one config edit restores all three at full strength. They
+  therefore became a guard: `opportunity_adj_stays_off.test.js` reds the build
+  if the cap is ever non-zero and names the three rows to reopen.
+- **✅ TWENTY-ONE ROWS CLOSED 08-18**, against live state rather than the date on
+  the line: 1, 2, 3, 4, 4c, E10, 2c, 4k, 4f, 4v, 4x, 4u, 4i, 27, 28, 4m, 5a, 35,
+  E3, E4, E5. Reasoning is on each row. Two things worth carrying off this page:
+  **4i I got wrong three times** (I kept reading the freeze, which is not what
+  feeds the restore button — `draft/baseline/v1.json` is, and it does carry the
+  weights); and **E3/E4/E5 are DORMANT, not fixed** — `opportunity_cap = 0.0`
+  makes them unobservable but the formula is untouched, so
+  `opportunity_adj_stays_off.test.js` reds the build if the cap ever moves and
+  names the rows to reopen.
+- **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
+  We have **never measured our model against Sleeper on any season**; the
+  promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
+  *no route*. The first comparison that can settle it is the January 2027 grade.
+  **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
+- **Display work owned by B** — **4e** (the shortlist is ordered by the engine's
+  composite, not by the number printed beside it; the only safe fix left is a
+  caption, and it is B's card) and **E6** (a caveat that marks the wrong
+  players, fixed by E, unreviewed by B — a label change, no number moved).
+  ~~4i~~, ~~4v~~ and ~~4f~~ **all CLOSED 08-18**: the restore button works, the
+  cohort ceilings are marked on the board, and BIG BOARD now says *"undrafted"*
+  where it collided with the scarcity rail's *"left"*.
+- **🆕 SURFACED TODAY, NOT INVENTED TODAY** — 31, E6 and E15 had all been marked
+  finished with a ✅ that meant *"fixed, verify"*, and the register's own check
+  read any tick as closed, so none of the three was ever chased. E15 is now
+  **A5** above; E6 is B's; **31** is yours but genuinely post-draft — D corrected
+  the headline edge number in four TERRITORY: A files and offered you a SEND
+  BACK, and the ±41.8-point detection floor means a decision is owed on what
+  instrument can grade a change that size at all — now ruled: Q15's
+  paired-within-room estimand (A, 08-18), D builds the harness. `register_check_was_hiding_rows_2026-08-18.md`.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
 ---

@@ -533,6 +533,21 @@ B's default is to grey or asterisk these on screen; the mark should say **"no
   your first eight picks** — including at 88 and 108, where the quarterback in
   question (Purdy, Love) is below replacement. **Read the badge as "the most
   raw points on offer", not as "the plan says take this".**
+- **🆕 THE BOARD RANKS RUNNING BACKS ~50 SLOTS BELOW THE MARKET, AND THE KEEPER
+  LOCK WILL CLOSE PART OF THAT BY ITSELF.** Measured 08-18 across the top 150 by
+  ADP: mean signed move **RB +49.6 · WR +8.5 · QB +7.2 · TE −3.6** (positive =
+  the board rates him worse than the room does). Permutation test, 20,000
+  shuffles: **RB p = 0.0024**; WR, QB and TE are all null. The same test finding
+  RB significant is what makes those three nulls readable rather than a dead
+  probe.
+
+  **The part that matters on the night:** at the 08-21 lock the RB replacement
+  level falls **179.3 → 146.1**, against WR −15.1, TE −5.8, QB −4.2. Since
+  `vorp = proj_mean − replacement`, a lower replacement **raises every RB** — so
+  the lock moves RBs up the board and closes part of this gap with nothing
+  shipped. **Do not hand-correct the RB gap before Saturday; the lock will move
+  it again on top of you.** Registers 2d and 5f.
+
 - **The strategy banner's silence.** It scores each doctrine by the best-dollar
   player it allows; a QB tops that list at every pick, so the only doctrines
   that can ever differ are the ones forbidding QB. **If you enrol in Balanced,
