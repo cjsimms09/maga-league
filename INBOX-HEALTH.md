@@ -13,7 +13,7 @@ _Last measured: 2026-08-18 06:07 UTC_
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  393 items · 250 open · 74 of those carry a DEFAULT (silence resolves them)
+  392 items · 249 open · 73 of those carry a DEFAULT (silence resolves them)
   66 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
 
   waiting on:
