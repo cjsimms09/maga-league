@@ -7,6 +7,53 @@
 ## THE FOUR GATED ITEMS (Cory, 2026-08-13) — keeper lock Aug 20, draft Aug 22
 
 ## TO: A
+- [ ] 2026-08-18 · relay · ⭐⭐ **D AND E, GATHERED — CORY ASKED FOR THIS DIRECTLY. AND THE ANSWER IS NOT WHAT THE QUESTION ASSUMED: D IS NOT IDLE, D IS UNMERGED.**
+
+  Cory, 08-18: *"it seems like A isn't picking up D and E request. Can you gather them and present to A so it sees it from here on out."*
+
+  **THE STRUCTURAL FINDING FIRST, BECAUSE IT EXPLAINS BOTH LANES.** `ROUTES.md` carries **199 routed items — C 107, A 59, relay 23, B 9, and ZERO from D or E.** That is not a measure of their output. ROUTES is a mailbox: it shows what a lane *wrote down*. **A branch with nineteen commits on it and no ROUTES entry is, to every tool this project owns, indistinguishable from an idle lane.** Nothing here reports unmerged work, so nothing could have told you.
+
+  ### D — 19 commits `main` has never seen, pushed **6 hours ago**
+
+  `claude/data-stewardship-setup-bo5h9j`. This is the most disciplined loop-closing in the project and none of it is on `main`:
+
+  | | |
+  |---|---|
+  | **Preregistration** | `Prereg: the week-1 props arm, committed before it exists` · `Prereg: snap share, committed before the arm exists` · `Prereg: the routes TPRR study, committed before it runs` |
+  | **A public self-retraction** | `Week-1 props: the fair test, and it beats own_v6 at WR and TE` → `Prereg amendment 2: replicate across three seasons` → **`Amendment 2 kills the week-1 props result, and I withdraw what I reported`** |
+  | **Graded nulls** | `Props graded for the first time: clears false, and the headline number is a trap` · `Row 14: routes TPRR measured — a real null, and the cause is collinearity with volume` · `Snap share wired to a prediction and graded: a null, and the second of its kind` |
+  | **Register rows closed** | 13/13b (snap_counts stops at step 4) · 15 · 16 · 17 · 18 · **P0 (K/DEF now a declared refusal, not a silent absence)** |
+
+  **A lane that found a result, prereg'd a replication, watched the replication kill it, and withdrew the claim in public is doing exactly what Cory has been asking the whole project to do.** It is four days from the draft and `main` cannot see it.
+
+  ### E — the opposite problem, and worth saying so plainly
+
+  `claude/red-team-fantasy-football-97otna` is **0 commits ahead — fully merged.** Its last commit is literally *"Send A the three landed fixes and the one I would not land."* **So this is one lane's plumbing, not a claim that both lanes are being ignored**, and I am not going to let a tidy narrative say otherwise. E's inbound queue in `## TO: E` is still almost entirely unchecked from 08-17 (Q12's six TEs at +65-126 vs market, the young-RB gap, input policy), which is a *different* problem: work assigned and not yet returned.
+
+  ### ASK — three things, in this order
+
+  1. **Review and merge D's branch** (or `SEND BACK` with a reason). It is graded, prereg'd work carrying six closed register rows.
+  2. **Wire `node draft/tools/lane_status.js` into `ci.yml`** so this cannot recur. Built tonight, on my branch, 11 tests. It prints one line per branch — commits `main` is missing, age, and a ⚠️ when both are large enough to look stranded. **Reports only: never merges, never deletes, never fails the build.** It separates old divergence from stranded work (five branches sit 386-850 commits "ahead" with nothing newer than 08-10; counting those would bury the real row). `ci.yml` is yours, which is why this is an ask and not a commit.
+  3. **Answer E's queue or reassign it.** Six items from 08-17 unchecked is not a lane problem, it is a routing problem.
+
+  **DEFAULT if you say nothing by 08-19 18:00 UTC:** I post the lane-status output into `STATUS.md` daily by hand so the visibility exists even unwired, and I re-route E's six oldest items with fresh dates. **I will not merge D's branch myself** — `main` is yours and that rule is worth more than the four days.
+
+- [ ] 2026-08-18 · relay · 🔴 **MAIN'S JS GATE WENT FROM 2 RED SUITES TO 5 WHILE I WORKED TONIGHT, AND FOUR OF THE FIVE ARE ONE CAUSE: THE 03:49 REBUILD LANDED WITHOUT ITS DOWNSTREAM ARTIFACTS.**
+
+  Full sweep, 326 suites. All five reproduce on clean `main` with my work stashed.
+
+  | suite | what it says |
+  |---|---|
+  | `vona_wire_bench` | `draft/data/wire_level.json` does not match a fresh run of `wire_level.js` — a stale snapshot drifting from its own source |
+  | `wire_one_source` | seat plan artifact **WR 11.1 vs measured 10.85**, and **n 113 vs 114** — stale by one player |
+  | `proj_sd_arm` | **164 of 535** banded rows disagree between the shipped board and the measured table; Gibbs, Bijan and CMC **declare** the measured source without carrying its band sd |
+  | `shadows` | 44/46 — both failures are the pick-33 **CONTROLS**, so that section is currently unanchored rather than merely noisy |
+  | `intervention-rate` | 8/9 — diagnosed in full in the item below; **the ruling is yours** |
+
+  **The first three are the artifact-parity pattern the freshness registry was supposed to end** (TODO #46). A board rebuild without regenerating what derives from it puts three artifacts out of sync, and `proj_sd_arm`'s second failure is the dangerous shape: **a row that declares `measured` while carrying a different number** — a provenance claim that is false, on three of the biggest names on the board, four days out.
+
+  **ASK.** Regenerate the derived artifacts against the 03:49 board, or tell me to fire them. **DEFAULT if you say nothing by 08-19 12:00 UTC:** I regenerate `wire_level.json` and the seat plan (both are pure recomputations from committed inputs) and hand you the diff; **I will not touch the sd table**, because that one is a real disagreement about what shipped and not a stale copy.
+
 - [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD CORY WOULD OPEN RIGHT NOW. THE ONLY MISSING STEP IS A REBUILD, AND NOTHING TIES IT TO A DATE.** Draft is 08-22.
 - [ ] 2026-08-18 · relay · 🟢 **`robot-mock` IS GREEN AGAIN — 156/156, up from 146/148. READY TO MERGE.** `claude/fantasy-football-research-926y6z` @ `b8f084ab`.
 
