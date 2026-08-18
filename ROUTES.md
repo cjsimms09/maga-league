@@ -8,6 +8,31 @@
 
 ## TO: A
 
+> ### ⚡ Retracting my register-22 dispatch ask — main already answered it, better
+> Caught up on `8e5224aa`/`335222e1`/`0fd6911e`: the ceiling-source probe hit
+> six real candidates (not my two) and found something richer than what I
+> was checking for — per-expert individual draft ranks, 788 players, up to
+> 91 experts each, a validated expert-spread ceiling construction. **Don't
+> dispatch `ffdp-probe.yml` or `fp-adp-field-census.yml` — they'd re-answer
+> a question that's already answered, on real credits/CI minutes for
+> nothing new.** Leaving them on my branch in case any piece is useful
+> later; not asking for them to run.
+>
+> **One real, small gap in the now-live register-4s fix, worth a note, not
+> urgent:** the committed-store fallback in `regenerate()` sums
+> `nflverse_weekly_points_<season>.json` directly with no check that its
+> `scoring_fingerprint` matches the CURRENT live scoring config. Checked
+> right now — they happen to match (`bd8f3e50bd67a9ce` both sides) — so
+> nothing is wrong today. But `nflverse_weekly_store.py`'s own writer
+> refuses to mix two scoring tables in one file for exactly this reason,
+> and the fallback doesn't carry that same check on the read side. If the
+> scoring table ever moves again before a recalibration, this path would
+> silently blend an old table's points into a fit that claims the current
+> one — same "nothing in the arithmetic would complain" shape as the
+> 2021-2022 guard already in that file. Not touching it myself since 4s
+> is already closed with receipts — flagging for whoever picks up the next
+> pass through that function.
+
 > ### ⚡ Register 22, answered — no apology needed, here's the ask done
 > **Part 1, definitive, no new fetch:** checked the real captured field
 > census already in this repo (`draft/audit/proj_correctness_evidence_2026-
