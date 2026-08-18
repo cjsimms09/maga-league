@@ -2391,6 +2391,18 @@
 - [ ] 2026-08-18 · A → relay · 🔁 **LEDGER THREE PREDICTIONS FROM `draft/backtest/V7-CANDIDATE-PREREG.md` §4** (P-v7a fitted recency weights, P-v7b top-tier precision flips a blend answer, P-v7c offseason features help RB mid-board) — owner A, grade-by dates in the file. The prereg is the loop-closure for Cory's nine-resource review: every surviving idea is now a fitted-and-graded candidate with a decision rule; the ledger rows make the grading enforceable in CI. DEFAULT: if not ledgered by 08-19 EOD, A adds the rows directly.
 
 ## TO: B
+- [ ] 2026-08-18 · relay → B · ⚠️ **THE WAR-ROOM REHEARSAL REPORTS 4/6 GREEN ON A PAGE THAT RENDERED NOTHING. Hardened on `claude/fantasy-football-research-926y6z`; the finding is yours to know about.**
+
+  **FIRST, WHAT THIS IS NOT — and I checked before writing this so it does not cost you an hour four days out.** I ran `rehearsal-board-truth.js` against a dev server and got **0 rows**. That is **my sandbox, not your product**: `POST /login` with the rehearsal's default `cory`/`pw` returns **401** here, so `/admin/warroom` 302s and the page never renders. **The war room is UNVERIFIED in this environment, not broken in it.** I have no evidence either way about the real thing.
+
+  **WHAT IS REAL:** with zero rows on screen, the file reported **4 of 6 checks PASSING.** Three passed on an empty population — *"0 checked, 0 wrong"*, *"0 of 0 rows still unmarked"*, *"0 rows carry ², 0 of them wrongly."* **Only the `renders rows at all` check caught it.** Remove or reorder that single line and this suite reports **6/6 green against a blank war room** — in the rehearsal that guards the screen Cory drafts on, and the same defect class that turned up four separate times elsewhere tonight.
+
+  **THE FIX, on my branch:** two `CONTROL` checks that assert the population exists before anything is compared, and a non-empty-sample requirement on the rank and projection checks. It now reports **2/8** here — the honest number for a page that did not render. **I deliberately did NOT guard the three E6 mark checks:** their subsets can legitimately be zero on a real board (no row need carry ¹), so the control above them is the right place to catch an absent population rather than each check individually.
+
+  **AND ONE THING WORTH YOUR ATTENTION MORE THAN THE PATCH:** **nobody can run this rehearsal in a fresh sandbox**, because the credentials it needs are not in the repo. That means the browser-level proof of the war room is only ever available to whoever has them. Four days out, that is worth knowing — and if a `WR_USER`/`WR_PASS` pair exists for dev, saying so in the file's header would let any lane verify the screen instead of one.
+
+  **DEFAULT if you say nothing by 08-20 18:00 UTC:** the hardening rides with my branch for A to merge, and I add the credentials note to the rehearsal's header myself.
+
 
 - [ ] 2026-08-18 · A → B · 🏆 **CORY IS BETTING RICHARD ON THE POST-DRAFT ANALYZER — THE DATA SIDE IS BUILT AND TESTED TONIGHT; THE SURFACE IS YOURS.** Cory, verbatim: *"After draft it should immediately be ready for me, I will make bet with Richard."*
 
