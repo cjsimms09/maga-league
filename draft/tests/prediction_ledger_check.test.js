@@ -87,17 +87,27 @@ ok('CONTROL — a table that parses to ZERO rows FAILS rather than reporting suc
   assert.ok(/NO PREDICTION ROWS PARSED/.test(p[0]), JSON.stringify(p));
 });
 
-ok('CONTROL — the real committed ledger is green today and red once P5 comes due', () => {
+ok('CONTROL — the real committed ledger is green today and goes red once its dates pass', () => {
+  // Asserts the MECHANISM, not a census. The first version of this test pinned
+  // "at least 4 overdue on 08-25", which broke the moment P5 was graded and P7's
+  // date moved with a reason — i.e. it failed when the ledger was being used
+  // CORRECTLY. A test that punishes the behaviour it exists to encourage is worse
+  // than no test.
   const fs = require('fs');
   const path = require('path');
   const text = fs.readFileSync(
     path.join(__dirname, '..', '..', 'PREDICTION-LEDGER.md'), 'utf8');
+
   const now = check(text, '2026-08-18');
   assert.strictEqual(now.problems.length, 0, JSON.stringify(now.problems));
   assert.ok(now.count >= 8, 'expected the real ledger rows to parse, got ' + now.count);
-  const later = check(text, '2026-08-25');
-  assert.ok(later.problems.length >= 4,
-    'the ledger must actually go red when its own dates pass: ' + JSON.stringify(later.problems));
+
+  // Past every date in the file, every still-OPEN row must be named.
+  const later = check(text, '2026-12-31');
+  assert.ok(later.problems.length >= 1,
+    'the ledger must go red when its own dates pass: ' + JSON.stringify(later.problems));
+  assert.ok(later.problems.every((p) => /OVERDUE|NOTHING CHANGED|NO OWNER|NO GRADE-BY/.test(p)),
+    'unexpected problem shape: ' + JSON.stringify(later.problems));
 });
 
 ok('bold markdown around a date or owner does not defeat parsing', () => {

@@ -269,6 +269,16 @@
     "import sys, json\nsys.path.insert(0, 'draft/backtest')\nimport projection_error as PE\ncal = PE.regenerate()\nif cal.get('status') == 'VOID':\n    print(cal.get('reason', 'VOID'), file=sys.stderr)\n    sys.exit(1)\nprint(json.dumps(PE.document(cal)))"
    ],
    "timeout_s": 1800
+  },
+  {
+   "id": "expert_spread_2026",
+   "description": "Observed per-player disagreement of individual FantasyPros expert ranks (min/max/spread/std over ~200 experts), 2026 preseason. Display data for the war room \u2014 not a fitted ceiling; the fitted question is EXPERT-SPREAD-CEILING-PREREG's.",
+   "owner_module": "draft/backtest/expert_spread_artifact.py",
+   "artifact_path": "public/expert_spread_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/expert_spread_artifact.py"
+   ]
   }
  ],
  "_not_yet_migrated": [
