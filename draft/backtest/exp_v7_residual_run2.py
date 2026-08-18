@@ -55,17 +55,17 @@ ASSUMED_GAMES = 17.0
 FOLDS = (2023, 2024, 2025)
 
 sys.path.insert(0, str(HERE))
-from exp_fp_hist_proj import frozen_scoring_table, value_rows  # noqa: E402
+from exp_fp_hist_proj import _load_scoring, value_rows  # noqa: E402
 
 
 def fp_baseline(year):
     d = json.loads((HERE / "fp_hist_rows.json").read_text())
     rows = d["years"][str(year)]["rows"]
-    scored, _cov = value_rows(rows, frozen_scoring_table())
+    scored, _cov = value_rows(rows, _load_scoring())
     out = {}
     for r in scored:
-        if r.get("pid") and r.get("value") is not None:
-            out[str(r["pid"])] = float(r["value"])
+        if r.get("pid") and r.get("our_pts") is not None:
+            out[str(r["pid"])] = float(r["our_pts"])
     return out
 
 
