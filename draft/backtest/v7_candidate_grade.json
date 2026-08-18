@@ -357,6 +357,114 @@
      }
     }
    }
+  },
+  "c5_wr_only_efficiency": {
+   "_territory": "TERRITORY: C \u2014 produced by draft/backtest/model_accuracy_grade.py",
+   "_note": "Full-board (Spearman/MAE/bias) is the D13 metric, unchanged. precision.{12,24} is the top-tier metric the 2026-08-18 resource review added (position_predictor transfer) -- a model can lose the full board and win the draftable zone.",
+   "min_n": 10,
+   "graded": 407,
+   "exclusions": {
+    "excluded_no_position": 0,
+    "excluded_no_actual": 103
+   },
+   "unmeasurable_positions": {
+    "K": "no kicking/team-defense stats in the weekly stores this harness grades against",
+    "DEF": "no kicking/team-defense stats in the weekly stores this harness grades against"
+   },
+   "cells": {
+    "QB": {
+     "n": 58,
+     "status": "measured",
+     "spearman": 0.7226,
+     "mae": 72.75,
+     "bias": 9.44,
+     "precision": {
+      "12": {
+       "k": 12,
+       "status": "measured",
+       "n_population": 58,
+       "hits": 7,
+       "precision": 0.5833
+      },
+      "24": {
+       "k": 24,
+       "status": "measured",
+       "n_population": 58,
+       "hits": 19,
+       "precision": 0.7917
+      }
+     }
+    },
+    "RB": {
+     "n": 104,
+     "status": "measured",
+     "spearman": 0.7796,
+     "mae": 37.39,
+     "bias": 2.42,
+     "precision": {
+      "12": {
+       "k": 12,
+       "status": "measured",
+       "n_population": 104,
+       "hits": 9,
+       "precision": 0.75
+      },
+      "24": {
+       "k": 24,
+       "status": "measured",
+       "n_population": 104,
+       "hits": 16,
+       "precision": 0.6667
+      }
+     }
+    },
+    "WR": {
+     "n": 159,
+     "status": "measured",
+     "spearman": 0.7923,
+     "mae": 32.23,
+     "bias": 8.23,
+     "precision": {
+      "12": {
+       "k": 12,
+       "status": "measured",
+       "n_population": 159,
+       "hits": 4,
+       "precision": 0.3333
+      },
+      "24": {
+       "k": 24,
+       "status": "measured",
+       "n_population": 159,
+       "hits": 13,
+       "precision": 0.5417
+      }
+     }
+    },
+    "TE": {
+     "n": 86,
+     "status": "measured",
+     "spearman": 0.8075,
+     "mae": 23.43,
+     "bias": 1.86,
+     "precision": {
+      "12": {
+       "k": 12,
+       "status": "measured",
+       "n_population": 86,
+       "hits": 5,
+       "precision": 0.4167
+      },
+      "24": {
+       "k": 24,
+       "status": "measured",
+       "n_population": 86,
+       "hits": 18,
+       "precision": 0.75
+      }
+     }
+    }
+   }
   }
  },
  "verdicts": {
@@ -417,6 +525,35 @@
    "positions_improving_both": [],
    "positions_degrading": [
     "QB"
+   ],
+   "ships_under_section_3": false
+  },
+  "c5_wr_only_efficiency": {
+   "per_position": {
+    "QB": {
+     "family1_improves": false,
+     "family2_improves": false,
+     "degrades_beyond_noise": false
+    },
+    "RB": {
+     "family1_improves": false,
+     "family2_improves": false,
+     "degrades_beyond_noise": false
+    },
+    "WR": {
+     "family1_improves": false,
+     "family2_improves": false,
+     "degrades_beyond_noise": false
+    },
+    "TE": {
+     "family1_improves": false,
+     "family2_improves": false,
+     "degrades_beyond_noise": true
+    }
+   },
+   "positions_improving_both": [],
+   "positions_degrading": [
+    "TE"
    ],
    "ships_under_section_3": false
   }

@@ -94,3 +94,12 @@ Standing after this pass: **C1, C2, C3 dead. Live: C4 (C builds, post-P38
 grant), C5 (WR-only NGS restriction), C6, C7.** P-v7b (top-tier precision
 flips a blend answer) stays OPEN — its subject is the source-blend decision,
 not these arms; observed so far P@12 moved at exactly one cell in two arms.
+
+**2026-08-18 (same night) — C5 graded, NO SHIP — and the ablation flips the
+transfer's premise for OUR stack:** dropping the xFP efficiency arm (beta→0)
+at RB is a wash (ρ −0.001, MAE −0.2), and at TE it makes the model WORSE
+(MAE +0.47, past the 2% bar) — TE's efficiency term is earning its keep.
+position_predictor's "efficiency helps WR only" was about NGS metrics; our
+xFP-at-league-efficiency construction is a different feature, and this
+measurement says it stays position-general. **Standing: C1, C2, C3, C5 dead.
+Live: C4 (C, post-P38), C6, C7.**

@@ -185,6 +185,26 @@ def build_stack(blend, positions, ages):
     return build_v6(v4, v5, positions)
 
 
+def build_c5(hand_blend, positions, ages):
+    """C5 — efficiency (the xFP arm) restricted to WR: beta -> 0 at RB/TE.
+
+    In this stack the "NGS/efficiency feature" is v5's xFP construction —
+    volume priced at league efficiency — weighted by V5_CONFIG[pos]["beta"]
+    against the player's own realized rate. position_predictor's ablation
+    kept it at WR and dropped it elsewhere; our advanced_stats study was a
+    null. QB's beta is already 0.00 and is untouched. The config is patched
+    for the build and restored unconditionally — the frozen V5_CONFIG is
+    graded history and must leave this function exactly as it entered."""
+    saved = {p: V5.V5_CONFIG[p]["beta"] for p in ("RB", "TE")}
+    try:
+        for p in saved:
+            V5.V5_CONFIG[p]["beta"] = 0.0
+        return build_stack(hand_blend, positions, ages)
+    finally:
+        for p, b in saved.items():
+            V5.V5_CONFIG[p]["beta"] = b
+
+
 def make_blend(w_by_pos, positions):
     y1, y2 = max(PRIOR_SEASONS), min(PRIOR_SEASONS)
     tot1, tot2 = season_totals(y1)[0], season_totals(y2)[0]
@@ -267,9 +287,14 @@ def run() -> dict:
     w_fit = c3_weights_leakfree()
     c3_map = build_stack(make_blend(w_fit, positions), positions, ages)
 
+    c5_map = build_c5(hand_blend, positions, ages)
+    assert V5.V5_CONFIG["RB"]["beta"] == 0.50 and V5.V5_CONFIG["TE"]["beta"] == 0.25, \
+        "V5_CONFIG must be restored after the C5 build"
+
     g_base = grade(base, actual, positions)
     g_c1 = grade(c1_map, actual, positions)
     g_c3 = grade(c3_map, actual, positions)
+    g_c5 = grade(c5_map, actual, positions)
 
     return {
         "_territory": "TERRITORY: A — produced by draft/backtest/v7_candidate_grade.py",
@@ -287,9 +312,10 @@ def run() -> dict:
         "bars": {"spearman": NOISE_SPEARMAN, "mae_frac": NOISE_MAE_FRAC,
                  "p_at_k": NOISE_P_AT_K},
         "grades": {"base_v6": g_base, "c1_age_curves": g_c1,
-                   "c3_fitted_recency": g_c3},
+                   "c3_fitted_recency": g_c3, "c5_wr_only_efficiency": g_c5},
         "verdicts": {"c1_age_curves": verdict(g_base, g_c1),
-                     "c3_fitted_recency": verdict(g_base, g_c3)},
+                     "c3_fitted_recency": verdict(g_base, g_c3),
+                     "c5_wr_only_efficiency": verdict(g_base, g_c5)},
     }
 
 
@@ -297,7 +323,7 @@ def main() -> None:
     doc = run()
     OUT.write_text(json.dumps(doc, indent=1))
     print(f"wrote {OUT.name}")
-    for arm in ("c1_age_curves", "c3_fitted_recency"):
+    for arm in ("c1_age_curves", "c3_fitted_recency", "c5_wr_only_efficiency"):
         v = doc["verdicts"][arm]
         print(f"{arm}: ships={v['ships_under_section_3']} "
               f"improving={v['positions_improving_both']} "
