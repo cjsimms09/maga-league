@@ -393,24 +393,6 @@ def test_document_IS_EXACTLY_WHAT_save_WRITES_TO_DISK(tmp_path):
     assert on_disk == PE.document(cal)
 
 
-def test_document_SURFACES_skipped_seasons_and_actual_source_by_season():
-    """Register 4s: `regenerate()` bolts both fields onto its own return
-    dict, but `document()` — the only thing that decides what is actually
-    WRITTEN — used to drop them, so a season silently lost to a live-fetch
-    failure left no trace in the committed artifact. MUTATION: leave either
-    field out of `document()`'s return — the artifact goes back to looking
-    complete when a season was dropped, which is the exact defect 4s is
-    named for."""
-    cal = {"cells": {}, "seasons": [2023, 2024], "min_n": 8, "graded": 5,
-          "ungraded": 1, "cells_measured": 0, "cells_unmeasurable": 0,
-          "caveat": "x", "band_note": "y",
-          "skipped_seasons": [{"season": 2025, "reason": "nothing gradeable"}],
-          "actual_source_by_season": {"2023": "committed_store", "2024": "live_fetch"}}
-    doc = PE.document(cal)
-    assert doc["skipped_seasons"] == [{"season": 2025, "reason": "nothing gradeable"}]
-    assert doc["actual_source_by_season"] == {"2023": "committed_store", "2024": "live_fetch"}
-
-
 def test_document_KEYS_CELLS_AS_JOINED_STRINGS_not_python_tuples():
     """A tuple key silently serialises to `"('QB', '1-3')"` and `load()`'s
     `partition(KEY_SEP)` would then match nothing on the way back in — every
@@ -456,131 +438,311 @@ def test_regenerate_ON_AN_EMPTY_PLAYER_INDEX_IS_ALSO_VOID(monkeypatch):
     assert "unreachable" in cal["reason"]
 
 
-# ── register 4s: prefer the committed store over a live re-fetch that can
-# silently drop a season — 2025 was lost this way, twice, with no trace ────
+# ── register 4q: splitting the shipped `33+` band into a SIDE refit ────────
 
-def _write_store(path, season, weeks_points, scoring):
-    """A minimal fixture store in the real on-disk shape
-    `nflverse_weekly_store.save()` writes — built directly rather than via
-    the writer, so this test does not depend on that module's own tests
-    passing first."""
-    import json as _json
-    import nflverse_weekly_store as WS
-    fp = WS.scoring_fingerprint(scoring)
-    weeks = [{"season": season, "week": i + 1, "points": pts,
-             "scoring": scoring, "scoring_fingerprint": fp,
-             "row_count": len(pts)}
-            for i, pts in enumerate(weeks_points)]
-    path.write_text(_json.dumps({"weeks": weeks, "scoring_fingerprints": [fp]}))
+def test_BAND_EDGES_REFIT_V2_SPLITS_the_shipped_33plus_band():
+    """The whole point of register 4q. MUTATION: leave BAND_EDGES_REFIT_V2 ==
+    BAND_EDGES — the refit would measure the identical cells as production and
+    the comparison would show nothing, silently answering "no slope" by
+    construction rather than by measurement."""
+    assert PE.BAND_EDGES_REFIT_V2 == (3, 8, 16, 32, 48, 72, 100, 150)
+    assert PE.BAND_EDGES_REFIT_V2[:4] == PE.BAND_EDGES, (
+        "the refit must not also move the 1-3/4-8/9-16/17-32 boundaries — "
+        "only 33+ was measured as one band")
 
 
-def test_actual_from_committed_store_SUMS_ACROSS_WEEKS(tmp_path, monkeypatch):
-    """MUTATION: return only the last week's points — a season's realized
-    total is the SUM, not one week's snapshot; a player who scored in weeks
-    1 and 2 must show both, not just the second."""
-    scoring = {"pass_td": 6.0}
-    store_path = tmp_path / "nflverse_weekly_points_2025.json"
-    _write_store(store_path, 2025, [{"a": 10.0}, {"a": 5.0, "b": 3.0}], scoring)
-    monkeypatch.setattr(PE, "__file__", str(tmp_path / "projection_error.py"))
-    act = PE._actual_from_committed_store(2025, scoring)
-    assert act == {"a": 15.0, "b": 3.0}
+def test_band_of_WITH_REFIT_EDGES_splits_33plus_into_five_bands():
+    """MUTATION: keep band_of ignoring its `edges` argument — every refit rank
+    would still land in '33+' and the split would exist only in the constant,
+    never in a single fitted cell."""
+    labels = [PE.band_of(r, PE.BAND_EDGES_REFIT_V2)
+             for r in (32, 33, 48, 49, 72, 73, 100, 101, 150, 151, 9999)]
+    assert labels == ["17-32", "33-48", "33-48", "49-72", "49-72",
+                      "73-100", "73-100", "101-150", "101-150",
+                      "151+", "151+"]
 
 
-def test_actual_from_committed_store_REFUSES_A_SCORING_MISMATCH(tmp_path, monkeypatch):
-    """⚠ THE WHOLE POINT — a store captured under a table that has since
-    changed must never be silently reused. MUTATION: drop the fingerprint
-    check — a stale store blends an old scoring rule into a calibration that
-    claims to be measured under the current one, with nothing saying so."""
-    store_path = tmp_path / "nflverse_weekly_points_2025.json"
-    _write_store(store_path, 2025, [{"a": 10.0}], {"pass_td": 6.0})
-    monkeypatch.setattr(PE, "__file__", str(tmp_path / "projection_error.py"))
-    act = PE._actual_from_committed_store(2025, {"pass_td": 4.0})
-    assert act is None
+def test_band_of_with_NO_edges_argument_is_UNCHANGED_from_before_4q():
+    """The production path (`regenerate()`'s default call, every existing
+    caller) must band exactly as it did before this file grew a second set of
+    edges. MUTATION: default `edges` to BAND_EDGES_REFIT_V2 — every existing
+    calibration silently re-partitions on its next regeneration."""
+    assert [PE.band_of(r) for r in (32, 33, 400)] == ["17-32", "33+", "33+"]
 
 
-def test_actual_from_committed_store_ON_A_MISSING_FILE_IS_NONE(tmp_path, monkeypatch):
-    monkeypatch.setattr(PE, "__file__", str(tmp_path / "projection_error.py"))
-    assert PE._actual_from_committed_store(2099, {"pass_td": 6.0}) is None
+def test_calibrate_WITH_band_edges_PRODUCES_FINER_CELLS_THAN_THE_DEFAULT():
+    """Confirms `band_edges` actually reaches `calibrate()` through
+    `error_rows()`, not just `band_of()` in isolation. MUTATION: drop the
+    `band_edges` plumbing in either function — the refit calibration comes
+    back keyed identically to the shipped one and the comparison is a no-op."""
+    players = [p("q%d" % i, "QB", 200.0, rank=33 + i) for i in range(20)]
+    b = board(*players)
+    actual = {"q%d" % i: 100.0 + i for i in range(20)}
+
+    default_cal = PE.calibrate([b], [actual], min_n=5)
+    refit_cal = PE.calibrate([b], [actual], min_n=5,
+                            band_edges=PE.BAND_EDGES_REFIT_V2)
+
+    assert set(k[1] for k in default_cal["cells"]) == {"33+"}
+    refit_bands = set(k[1] for k in refit_cal["cells"])
+    assert refit_bands and refit_bands != {"33+"}, refit_bands
+    assert refit_bands <= {"33-48", "49-72", "73-100", "101-150", "151+"}
 
 
-def test_actual_from_committed_store_ON_THE_REAL_2025_FILE(monkeypatch):
-    """Not a fixture — the actual committed store, the same discipline
-    `test_load_player_weeks_READS_THE_REAL_COMMITTED_STORES` in
-    test_nflverse_player_ceiling.py already applies. Confirms the real file's
-    own scoring config round-trips through the fingerprint check."""
+def test_regenerate_refit_v2_CALLS_regenerate_WITH_THE_REFIT_EDGES(monkeypatch):
+    """MUTATION: `regenerate_refit_v2` calls `regenerate()` with no arguments
+    — it would silently refit on the SAME bands as production and the side
+    artifact would be a byte-for-byte duplicate wearing a different filename."""
+    seen = {}
+
+    def fake_regenerate(*, band_edges=PE.BAND_EDGES):
+        seen["band_edges"] = band_edges
+        return {"status": "measured", "cells": {}}
+
+    monkeypatch.setattr(PE, "regenerate", fake_regenerate)
+    PE.regenerate_refit_v2()
+    assert seen["band_edges"] == PE.BAND_EDGES_REFIT_V2
+
+
+def test_slope_comparison_REPORTS_EVERY_BAND_EVEN_ONES_ABSENT_FROM_A_SIDE():
+    """The comparison must not silently drop a band neither calibration
+    measured — a thin new cell has to read as unmeasurable, not vanish from
+    the report the way a real gap would if the row were skipped.
+    MUTATION: skip a band with no cell instead of emitting an unmeasurable
+    placeholder — a genuinely-thin refit band disappears from the comparison
+    instead of being shown as evidence for MIN_N doing its job."""
+    current = {"cells": {("QB", "33+"): {
+        "n": 200, "status": "measured", "sd_ratio": 0.5, "mean_ratio": 1.0,
+        "p10_ratio": 0.05, "p90_ratio": 1.317, "basis": "200 graded"}}}
+    # Only ONE of the five refit bands is populated — the other four must
+    # still appear, reporting unmeasurable rather than being dropped.
+    refit = {"cells": {("QB", "33-48"): {
+        "n": 50, "status": "measured", "sd_ratio": 0.4, "mean_ratio": 1.0,
+        "p10_ratio": 0.1, "p90_ratio": 1.6, "basis": "50 graded"}}}
+
+    cmp = PE.slope_comparison(current, refit)
+    assert cmp["current_band_edges"] == list(PE.BAND_EDGES)
+    assert cmp["refit_band_edges"] == list(PE.BAND_EDGES_REFIT_V2)
+
+    cur_by_band = {r["band"]: r for r in cmp["current"]}
+    assert cur_by_band["33+"]["p90_ratio"] == 1.317
+    assert cur_by_band["33+"]["status"] == "measured"
+    # The bands ABOVE 33+ that the shipped calibration never had (this
+    # position never had, say, a "1-3" entry in this fixture) still appear.
+    assert set(cur_by_band) == {"1-3", "4-8", "9-16", "17-32", "33+"}
+
+    # BAND_EDGES_REFIT_V2 covers the FULL rank range (it reuses 3/8/16/32
+    # unchanged, per test_BAND_EDGES_REFIT_V2_SPLITS_the_shipped_33plus_band),
+    # so all nine of its labels appear — not just the five late ones.
+    refit_by_band = {r["band"]: r for r in cmp["refit_v2"]}
+    assert set(refit_by_band) == {"1-3", "4-8", "9-16", "17-32",
+                                  "33-48", "49-72", "73-100", "101-150", "151+"}
+    assert refit_by_band["33-48"]["p90_ratio"] == 1.6
+    assert refit_by_band["33-48"]["status"] == "measured"
+    for absent_band in ("1-3", "4-8", "9-16", "17-32",
+                       "49-72", "73-100", "101-150", "151+"):
+        assert refit_by_band[absent_band]["status"] == "unmeasurable"
+        assert refit_by_band[absent_band]["n"] == 0
+
+
+def test_slope_comparison_DOES_NOT_MUTATE_EITHER_INPUT_CALIBRATION():
+    """PURE, per its own docstring. MUTATION: sort or annotate `cal["cells"]`
+    in place — a caller that reuses `current_cal`/`refit_cal` after this call
+    (main_refit_v2 does, feeding both to two different writers) would see a
+    different object than it started with."""
+    import copy
+    current = {"cells": {("QB", "33+"): {"n": 200, "status": "measured",
+                                         "sd_ratio": 0.5, "mean_ratio": 1.0,
+                                         "p10_ratio": 0.05, "p90_ratio": 1.317,
+                                         "basis": "x"}}}
+    refit = {"cells": {("QB", "33-48"): {"n": 50, "status": "measured",
+                                         "sd_ratio": 0.4, "mean_ratio": 1.0,
+                                         "p10_ratio": 0.1, "p90_ratio": 1.6,
+                                         "basis": "x"}}}
+    before_current, before_refit = copy.deepcopy(current), copy.deepcopy(refit)
+    PE.slope_comparison(current, refit)
+    assert current == before_current
+    assert refit == before_refit
+
+
+def test_main_refit_v2_NEVER_WRITES_THE_PRODUCTION_CALIBRATION_PATH(monkeypatch, tmp_path):
+    """⚠ THE ONE THING THIS MUST NEVER DO. The relay's ask was explicit: "DO NOT
+    overwrite the live calibration." MUTATION: have `main_refit_v2` call
+    `save(refit)` with no path (or a path equal to `PE.CALIBRATION`) — the
+    side refit would silently become the board's production floors/ceilings
+    without anyone dispatching the real regeneration workflow."""
+    side_cal = tmp_path / "refit.json"
+    side_cmp = tmp_path / "cmp.json"
+    monkeypatch.setattr(PE, "REFIT_V2_CALIBRATION", side_cal)
+    monkeypatch.setattr(PE, "REFIT_V2_COMPARISON", side_cmp)
+    monkeypatch.setattr(PE, "load", lambda path=None: {"cells": {}})
+    fake_refit = {"status": "measured", "cells": {
+        ("QB", "33-48"): {"n": 50, "status": "measured", "sd_ratio": 0.4,
+                          "mean_ratio": 1.0, "p10_ratio": 0.1,
+                          "p90_ratio": 1.6, "basis": "50 graded"}},
+        "seasons": [2023, 2024, 2025], "min_n": 8, "graded": 50, "ungraded": 5,
+        "cells_measured": 1, "cells_unmeasurable": 0, "caveat": "x",
+        "band_note": "y"}
+    monkeypatch.setattr(PE, "regenerate_refit_v2", lambda: dict(fake_refit))
+
+    production_before = PE.CALIBRATION.read_text() if PE.CALIBRATION.exists() else None
+    rc = PE.main_refit_v2()
+    production_after = PE.CALIBRATION.read_text() if PE.CALIBRATION.exists() else None
+
+    assert rc == 0
+    assert production_before == production_after, (
+        "main_refit_v2 must never touch the production CALIBRATION file")
+    assert side_cal.exists() and side_cmp.exists()
     import json
-    doc = json.loads((Path(PE.__file__).resolve().parent
-                      / "nflverse_weekly_points_2025.json").read_text())
-    real_scoring = doc["weeks"][0]["scoring"]
-    act = PE._actual_from_committed_store(2025, real_scoring)
-    assert act and len(act) > 100, (
-        "the real 2025 store should read back hundreds of graded players")
+    assert json.loads(side_cal.read_text())["_side_artifact"] is True
 
 
-def test_regenerate_PREFERS_THE_COMMITTED_STORE_over_a_failing_live_fetch(monkeypatch):
-    """The end-to-end register 4s fix: a live weekly-data fetch that raises
-    for a season must not drop that season if a committed store covers it —
-    reproduces the real 22:11 -> 00:37Z failure shape (2023/2024 fetch fine,
-    2025 raises) with a fixture store standing in for the real committed one.
-    MUTATION: remove the `_actual_from_committed_store` call from
-    `regenerate()` (or call it after the live fetch instead of before) —
-    every OTHER test in this file stays green while the next real dispatch
-    loses a season to a transient network blip again, exactly as it did
-    twice on 2026-08-17."""
-    import pandas as pd
+def test_main_refit_v2_REPORTS_FAILURE_ON_A_VOID_REFIT(monkeypatch, tmp_path):
+    """Same VOID discipline as `main()` — a failed refit must not write a
+    side artifact that looks measured. MUTATION: drop the status check — a
+    VOID refit writes an empty-looking-valid comparison file instead of
+    failing loudly."""
+    side_cal = tmp_path / "refit.json"
+    side_cmp = tmp_path / "cmp.json"
+    monkeypatch.setattr(PE, "REFIT_V2_CALIBRATION", side_cal)
+    monkeypatch.setattr(PE, "REFIT_V2_COMPARISON", side_cmp)
+    monkeypatch.setattr(PE, "load", lambda path=None: {"cells": {}})
+    monkeypatch.setattr(PE, "regenerate_refit_v2",
+                        lambda: {"status": "VOID", "reason": "no egress"})
+    rc = PE.main_refit_v2()
+    assert rc == 1
+    assert not side_cal.exists()
+    assert not side_cmp.exists()
+
+
+# ── register 4r: the calibration was fitted on positions this league does
+# not roster (punters, DBs, linebackers, offensive tackles) because nothing
+# filtered it — 1c8bfb90 was reverted for exactly this. ──────────────────
+
+def test_CALIBRATION_POSITIONS_IS_EXACTLY_THE_FOUR_GRADED_POSITIONS():
+    """K/DEF are deliberately excluded — extending the calibration to them
+    is a separate, already-tracked question, not this fix's scope. MUTATION:
+    add K/DEF here — every downstream `only_positions=CALIBRATION_POSITIONS`
+    caller would silently start grading positions this fix never measured
+    and never intended to include."""
+    assert PE.CALIBRATION_POSITIONS == ("QB", "RB", "WR", "TE")
+
+
+def test_error_rows_WITH_no_only_positions_IS_UNCHANGED_from_before_4r():
+    """The default must stay a no-op — every existing caller (including any
+    that relies on grading a non-skill position on purpose) is unaffected.
+    MUTATION: default `only_positions` to `CALIBRATION_POSITIONS` instead of
+    `None` — a caller that never asked for filtering gets it anyway, and a
+    test built on a fixture using an unlisted position would start silently
+    dropping rows."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0))
+    rows = PE.error_rows(b, {"a": 100.0, "b": 8.0, "c": 3.0})
+    assert sorted(r["position"] for r in rows) == ["DB", "P", "QB"]
+
+
+def test_error_rows_WITH_only_positions_DROPS_NON_ROSTERED_POSITIONS():
+    """⚠ THE WHOLE POINT OF 4r. MUTATION: ignore `only_positions` — the fit
+    would keep grading punters and defensive backs no matter what filter is
+    passed, exactly reproducing the contaminated run that got reverted."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0),
+             p("d", "LB", 8.0), p("e", "T", 6.0), p("f", "FB", 12.0))
+    actual = {"a": 100.0, "b": 8.0, "c": 3.0, "d": 4.0, "e": 5.0, "f": 9.0}
+    rows = PE.error_rows(b, actual, only_positions=PE.CALIBRATION_POSITIONS)
+    assert sorted(r["position"] for r in rows) == ["QB"]
+
+
+def test_error_rows_only_positions_DOES_NOT_CORRUPT_WITHIN_POSITION_RANK():
+    """Filtering must happen BEFORE ranks are computed, not after — a rank
+    computed across the unfiltered pool and then filtered down would leave
+    gaps (QB1, QB4, QB7) instead of a clean within-position order.
+    MUTATION: filter the OUTPUT rows instead of the input `players` — ranks
+    would still be computed as if the punters and DBs were real QB/RB/WR/TE
+    competitors, silently wrong even though the wrong positions are gone."""
+    b = board(p("a", "QB", 300.0), p("b", "QB", 200.0), p("c", "QB", 100.0),
+             p("z", "P", 999.0))   # a punter projected HIGHER than every QB
+    actual = {"a": 1.0, "b": 1.0, "c": 1.0, "z": 1.0}
+    rows = PE.error_rows(b, actual, only_positions=PE.CALIBRATION_POSITIONS)
+    ranks = {r["player_id"]: r["proj_rank"] for r in rows}
+    assert ranks == {"a": 1, "b": 2, "c": 3}, (
+        "the punter's higher proj_mean must not push every QB's rank down "
+        "by one: %r" % ranks)
+
+
+def test_report_only_positions_NARROWS_on_board_TO_THE_SAME_POPULATION():
+    """MUTATION: filter `graded`/`rows` but leave `on_board` counting the
+    whole roster — the coverage report would say '6 on board, 1 graded'
+    for a bundle that only ever had 1 relevant player, misreporting the
+    population these counts are supposed to describe."""
+    b = board(p("a", "QB", 200.0), p("b", "P", 10.0), p("c", "DB", 5.0))
+    rep = PE.report(b, {"a": 100.0}, only_positions=PE.CALIBRATION_POSITIONS)
+    assert rep["on_board"] == 1
+    assert rep["graded"] == 1
+    assert rep["ungraded"] == 0
+
+
+def test_calibrate_only_positions_KEEPS_NON_ROSTERED_POSITIONS_OUT_OF_CELLS():
+    """The end-to-end path register 4r is actually about: a real calibration
+    run must never produce a cell keyed by a position this league doesn't
+    roster. MUTATION: thread `only_positions` through `error_rows` but not
+    into the `report()` call inside `calibrate` — cells would be clean but
+    the calibration's own `ungraded` count would still be wrong."""
+    bundles = [board(*[p("q%d" % i, "QB", 200.0) for i in range(9)],
+                     *[p("p%d" % i, "P", 50.0) for i in range(9)])]
+    actuals = [{**{"q%d" % i: 100.0 + i for i in range(9)},
+               **{"p%d" % i: 40.0 + i for i in range(9)}}]
+    cal = PE.calibrate(bundles, actuals, min_n=5,
+                       only_positions=PE.CALIBRATION_POSITIONS)
+    assert all(pos == "QB" for pos, _band in cal["cells"]), (
+        "a punter reached a calibration cell: %r" % list(cal["cells"]))
+
+
+def test_regenerate_PASSES_CALIBRATION_POSITIONS_when_it_actually_fits(monkeypatch):
+    """Register 4r's actual production fix — `regenerate()` is what the
+    workflows dispatch, and it is the function that fit 1c8bfb90 on a
+    contaminated population. Live egress cannot be exercised in this
+    sandbox, so every dependency up to the `calibrate()` call itself is
+    faked and what `regenerate()` actually passed is inspected directly.
+    MUTATION: drop the `only_positions=CALIBRATION_POSITIONS` argument from
+    `regenerate()`'s own `calibrate()` call — this is invisible to every
+    other test in this file and would only surface on the next real
+    dispatch, four days before the draft."""
     import sleeper_import as SL
     import adp as ADP
     from backtest.asof import AsOfDataStore
     from backtest import build_bundle as BB
     from backtest import grade as GR
 
-    # `_actual_from_committed_store`'s OWN path-derivation and fingerprint
-    # matching are covered by the unit tests above; this test's job is only
-    # to prove `regenerate()` WIRES it in ahead of a failing live fetch, so
-    # it is replaced wholesale rather than routed through `PE.__file__`
-    # (which `regenerate()` also uses to locate `league_history.json` —
-    # patching it would break an unrelated read in the same function).
-    scoring = {"pass_td": 6.0}
-
-    def fake_store(season, scoring_cfg):
-        if season == 2025 and scoring_cfg == scoring:
-            return {"1": 35.0}
-        return None
-    monkeypatch.setattr(PE, "_actual_from_committed_store", fake_store)
+    import pandas as pd
 
     fake_players = {"1": {"full_name": "Fake QB", "position": "QB", "team": "AAA"}}
     monkeypatch.setattr(SL, "fetch_players", lambda: fake_players)
+
+    seen = {}
+    real_calibrate = PE.calibrate
+
+    def spy_calibrate(*args, **kwargs):
+        seen["only_positions"] = kwargs.get("only_positions")
+        return real_calibrate(*args, **kwargs)
+
+    monkeypatch.setattr(PE, "calibrate", spy_calibrate)
     monkeypatch.setattr("nfl_data_py.import_ids", lambda: None, raising=False)
     monkeypatch.setattr(GR, "crosswalk_gsis_to_sleeper", lambda *a, **k: {})
-    # THE REAL FAILURE MODE, NOT A TOTAL ONE: A's diagnosis was that 2023 and
-    # 2024 fetched fine while 2025 specifically raised — `regenerate()` has
-    # an earlier `if not frames: return VOID` check that fires only when
-    # EVERY year fails, which is a different (and separately real) gap this
-    # fix does not claim to close. Simulating a total failure here would
-    # exercise that earlier VOID path instead of the one under test.
-    def _flaky_import(years):
-        if 2025 in years:
-            raise RuntimeError("simulated 404")
-        return pd.DataFrame()
-    monkeypatch.setattr("nfl_data_py.import_weekly_data", _flaky_import, raising=False)
-    # No pbp recovery attempt for this test — it is a separate mechanism
-    # (register 4s's own report notes it is real but did not fire in the
-    # actual incident either) and a real call here would try live network.
-    monkeypatch.setattr("nfl_data_py.import_pbp_data",
-                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("blocked")),
-                        raising=False)
+    # A REAL (possibly empty) DataFrame, not a raise — `regenerate()` treats a
+    # raise as "this season's weekly data is unreachable" and returns VOID
+    # before ever reaching `calibrate()`, which would make this test pass
+    # for the wrong reason (never exercising the call under test at all).
+    monkeypatch.setattr("nfl_data_py.import_weekly_data",
+                        lambda years: pd.DataFrame(), raising=False)
     monkeypatch.setattr(AsOfDataStore, "__init__",
                         lambda self, *a, **k: setattr(self, "season", (a or (None,))[0]))
-    monkeypatch.setattr(AsOfDataStore, "league_config", lambda self: {"scoring": scoring})
-    monkeypatch.setattr(BB, "build",
-                        lambda *a, **k: ({"season": 2023, "players":
-                                         [{"player_id": "1", "position": "QB",
-                                           "proj_mean": 100.0}]}, {}))
-    monkeypatch.setattr(ADP, "build_adp_table", lambda *a, **k: {"adp": {}})
+    monkeypatch.setattr(AsOfDataStore, "league_config",
+                        lambda self: {"scoring": {}})
+    monkeypatch.setattr(BB, "build", lambda *a, **k: ({"season": 2023, "players": []}, {}))
+    monkeypatch.setattr(GR, "rest_of_season_points", lambda *a, **k: {"1": 10.0})
+    monkeypatch.setattr(ADP, "build_adp_table",
+                        lambda *a, **k: {"adp": {}})
 
-    cal = PE.regenerate()
-    assert cal.get("actual_source_by_season", {}).get("2025") == "committed_store", cal
-    cell = cal["cells"].get(("QB", "1-3"))
-    assert cell is not None and cell["n"] >= 1, (
-        "2025's committed-store total (35.0 for player 1) never reached a "
-        "calibration cell: %r" % cal)
+    PE.regenerate()
+    assert seen.get("only_positions") == PE.CALIBRATION_POSITIONS, (
+        "regenerate() must fit the production calibration with "
+        "only_positions=CALIBRATION_POSITIONS — got %r" % seen.get("only_positions"))

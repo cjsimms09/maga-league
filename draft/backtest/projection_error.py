@@ -98,6 +98,22 @@ MIN_N = 8
 #: not a small impurity, it is a different question being answered.
 ROSTERED_POSITIONS = ("QB", "RB", "WR", "TE")
 
+#: C's name for the same tuple (their only_positions API, merged 2026-08-18) —
+#: one definition, two names, both fixes kept as defense in depth.
+CALIBRATION_POSITIONS = ROSTERED_POSITIONS
+
+#: Register 4q, 2026-08-17: `BAND_EDGES` puts 935 of 1,304 graded players — 72%,
+#: every player Cory drafts from round 4 on — into ONE band per position, "33+".
+#: Inside that cell `proj_ceiling` is a constant multiple of `proj_mean` by
+#: construction, which is the mechanism behind both register 4j and 4p. This is
+#: the relay's specified split of that one band, for a SIDE refit only —
+#: `BAND_EDGES` itself is UNCHANGED and stays what `regenerate()`/`main()` fit and
+#: ship by default. Whether the refit ships is Cory's call: it moves ceiling,
+#: floor, the bench branch, `champodds` and the money proxy four days before his
+#: draft. See `regenerate_refit_v2()`, `slope_comparison()`, DEFECT-REGISTER.md
+#: row 4q.
+BAND_EDGES_REFIT_V2 = (3, 8, 16, 32, 48, 72, 100, 150)
+
 CALIBRATION_VERSION = "projection-error/v1"
 
 SURVIVOR_CAVEAT = (
@@ -108,13 +124,18 @@ SURVIVOR_CAVEAT = (
     "tighter than reality. `ungraded` is the size of the excluded set.")
 
 
-def band_of(rank) -> str:
+def band_of(rank, band_edges=BAND_EDGES) -> str:
     """The band label for a within-position projection rank."""
     if rank is None:
         return "unranked"
+    # Callers thread band_edges as an explicit None (regenerate(band_edges=None)
+    # → calibrate → error_rows), which BYPASSES the parameter default — this
+    # killed calibration run #4 in CI with a NoneType iteration.
+    if not band_edges:
+        band_edges = BAND_EDGES
     r = int(rank)
     lo = 1
-    for hi in BAND_EDGES:
+    for hi in band_edges:
         if r <= hi:
             return "%d-%d" % (lo, hi)
         lo = hi + 1
@@ -127,7 +148,7 @@ def _players_of(bundle):
     return list(bundle or [])
 
 
-def error_rows(bundle, actual: dict, *, positions=None) -> list:
+def error_rows(bundle, actual: dict, *, positions=None, band_edges=BAND_EDGES, only_positions=None) -> list:
     """One row per player carrying BOTH a projection and a realized total.
 
     A player the projection covered but the season did not grade is EXCLUDED here and
@@ -136,6 +157,16 @@ def error_rows(bundle, actual: dict, *, positions=None) -> list:
     """
     rows = []
     players = _players_of(bundle)
+    # C's INPUT-population filter (only_positions), kept beside the parallel
+    # session's _rostered_only bundle wrapper: either alone stops the punter
+    # contamination; together a forgetful caller on either path is still safe.
+    # `positions=` remains what it always was — a fallback MAP for rows missing
+    # a position — and is deliberately NOT overloaded (that misread shipped two
+    # inert fixes; see _rostered_only's docstring).
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [p for p in players
+                   if (p.get("position") or (positions or {}).get(str(p.get("player_id")), "")).upper() in allowed]
 
     # Rank within position, from the board's own ordering where it has one. A
     # recomputed rank would silently disagree with the one the engine consumed the
@@ -166,14 +197,18 @@ def error_rows(bundle, actual: dict, *, positions=None) -> list:
         ratio = round(act / mean, 6) if mean else None
         rows.append({"player_id": pid, "position": pos, "proj_mean": mean,
                      "actual": act, "error": round(act - mean, 4), "ratio": ratio,
-                     "proj_rank": rank, "band": band_of(rank)})
+                     "proj_rank": rank, "band": band_of(rank, band_edges)})
     return rows
 
 
-def report(bundle, actual: dict, *, positions=None) -> dict:
+def report(bundle, actual: dict, *, positions=None, only_positions=None) -> dict:
     """Coverage of one season's grade, with the excluded set named rather than lost."""
     players = _players_of(bundle)
-    rows = error_rows(bundle, actual, positions=positions)
+    if only_positions:
+        allowed = {str(x).upper() for x in only_positions}
+        players = [pl for pl in players
+                   if (pl.get("position") or (positions or {}).get(str(pl.get("player_id")), "")).upper() in allowed]
+    rows = error_rows(bundle, actual, positions=positions, only_positions=only_positions)
     graded = len(rows)
     total = len(players)
     return {"season": bundle.get("season") if isinstance(bundle, dict) else None,
@@ -196,8 +231,8 @@ def _q(sorted_vals, p):
     return sorted_vals[lo] * (1 - frac) + sorted_vals[hi] * frac
 
 
-def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
-              positions=None) -> dict:
+def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None, band_edges=BAND_EDGES,
+              positions=None, only_positions=None) -> dict:
     """Fit the error distribution per (position, band) across seasons.
 
     `exclude_season` REFUSES a bundle from that season. A spread fitted on the season
@@ -224,9 +259,9 @@ def calibrate(bundles, actuals, *, min_n=MIN_N, exclude_season=None,
         s = b.get("season") if isinstance(b, dict) else None
         if s is not None:
             seasons_used.append(s)
-        rep = report(b, act, positions=positions)
+        rep = report(b, act, positions=positions, only_positions=only_positions)
         ungraded += rep["ungraded"]
-        for r in error_rows(b, act, positions=positions):
+        for r in error_rows(b, act, only_positions=only_positions, positions=positions, band_edges=band_edges):
             if r["ratio"] is None:
                 continue
             buckets.setdefault((r["position"], r["band"]), []).append(r["ratio"])
@@ -312,17 +347,6 @@ def document(cal: dict) -> dict:
         "cells_measured": cal.get("cells_measured"),
         "cells_unmeasurable": cal.get("cells_unmeasurable"),
         "caveat": cal.get("caveat"), "band_note": cal.get("band_note"),
-        # ⚠ REGISTER 4s — WITHOUT THIS, THE ARTIFACT LOOKS COMPLETE WHEN A
-        # SEASON WAS DROPPED. `regenerate()` already bolted `skipped_seasons`
-        # onto its own return dict, but `document()` — the ONLY thing that
-        # decides what actually gets written to disk — never surfaced it, so
-        # the field existed in memory for one function call and then vanished.
-        # `actual_source_by_season` is the same class of trace, one layer
-        # earlier: which seasons' realized totals came from the committed
-        # store versus a live re-fetch, so a silently-succeeded-but-different
-        # source is visible too, not just an outright skip.
-        "skipped_seasons": cal.get("skipped_seasons"),
-        "actual_source_by_season": cal.get("actual_source_by_season"),
         "cells": {KEY_SEP.join((str(k[0]), str(k[1]))): v
                   for k, v in (cal.get("cells") or {}).items()},
         "population": FP.of_records(rows, fields=CELL_FIELDS),
@@ -376,65 +400,16 @@ def _rostered_only(bundle):
     return out
 
 
-def _actual_from_committed_store(season, scoring_cfg):
-    """`{sleeper_id: points}` for `season` from the COMMITTED
-    `nflverse_weekly_points_{season}.json` store, or `None` if it can't be
-    trusted for this purpose.
-
-    Register 4s, 2026-08-17 (A, chased to the mechanism): `regenerate()`
-    re-fetches weekly data LIVE for every season in `need`, even ones this
-    repo already holds a verified store for. The 22:11 -> 00:37Z -> 01:0xZ
-    sequence of regenerations lost 2025 entirely to a transient live-fetch
-    failure — `nfl.import_weekly_data([2025])` raised, `2025` landed in
-    `missing`, the pbp-recovery gate didn't fire, and `rest_of_season_points`
-    came back empty for a season this repo has held since 08-14. THREE LAYERS
-    SWALLOWED IT SILENTLY: the fetch exception, the unsurfaced `missing`
-    list, and `calibrate()`'s return shape having no field to say a season
-    was dropped — the artifact simply looked complete with one fewer season
-    inside it.
-
-    `nflverse_weekly_points_{season}.json` is exactly the same quantity
-    `rest_of_season_points(weekly_df, season, scoring_cfg, crosswalk)` would
-    produce — realized weekly points, summed from week 1, under OUR scoring
-    table — except it is READ, not re-fetched, so it cannot fail to a flaky
-    network call. It is ground truth other parts of this repo already grade
-    against (`nflverse_weekly_store.py`), not a fallback invented for this fix.
-
-    TRUSTED ONLY IF THE SCORING TABLE MATCHES. The store fingerprints the
-    scoring config it was captured under and refuses to mix two tables in one
-    file (`nflverse_weekly_store.append_week`); this function honors that same
-    discipline on the READ side — a store captured under a scoring table that
-    has since changed is not silently reused, it returns `None` and the
-    caller falls back to the live fetch exactly as before this fix existed.
-    """
-    import nflverse_weekly_store as WS
-
-    path = Path(__file__).resolve().parent / ("nflverse_weekly_points_%s.json" % season)
-    if not path.exists():
-        return None
-    weeks = WS.load(path=path)
-    if not weeks:
-        return None
-    live_fp = WS.scoring_fingerprint(scoring_cfg)
-    stored_fps = {w.get("scoring_fingerprint") for w in weeks}
-    if stored_fps != {live_fp}:
-        # A MIXED OR STALE STORE IS NOT SILENTLY TRUSTED. Every week must
-        # agree with the CURRENT scoring config, not just one of them — a
-        # store spanning a mid-season scoring-table edit would otherwise
-        # blend two rule sets into one "actual" total with nothing saying so.
-        return None
-    out = {}
-    for wk in weeks:
-        for pid, pts in (wk.get("points") or {}).items():
-            out[str(pid)] = out.get(str(pid), 0.0) + float(pts)
-    return out or None
-
-
-def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
-    """The no-args entry point `artifact_registry.json` calls. Assembles real
-    bundles + actuals for `CALIBRATION_SEASONS` and fits `calibrate()` on all
-    of them, `exclude_season=None` — this is the PRODUCTION calibration
-    applied to 2026, not a leave-one-out skill test, so nothing is held out.
+def _assemble_asof_bundles(seasons=CALIBRATION_SEASONS) -> dict:  # pragma: no cover  (egress; CI only)
+    """Leak-free as-of bundle + realized actuals for each season in `seasons`,
+    built with the SAME machinery `regenerate()` fits its production
+    calibration on. Extracted OUT of `regenerate()` (2026-08-18, register 4t)
+    so a second study needing the identical as-of `proj_mean` curve — not a
+    separately re-derived one — calls this instead. Two functions independently
+    rebuilding "how do you get a leak-free historical bundle" is exactly the
+    two-places-that-drift shape rule 11 warns about, and this file already
+    carries one cautionary tale about that (the RB-flatness/register-31 class
+    of question becomes unanswerable if there are two candidate derivations).
 
     ⚠ REUSES `cli.py`'s SEASON-ASSEMBLY MACHINERY RATHER THAN RE-DERIVING IT.
     `cli.py` already builds exactly this shape of bundle+actual pair, per
@@ -449,11 +424,11 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     .py`, `adp.py`, `sleeper_import.py` or `grade.py` is edited to make this
     work — all of them are TERRITORY: A or shared/core, called read-only.
 
-    ⚠ NOT RUN AS PART OF THIS COMMIT, DELIBERATELY. Registering the artifact
-    is what makes its staleness visible; regenerating it moves every
-    `proj_ceiling` and `proj_floor` on the board, and the no-change-before-
-    08-22 rule holds regardless of what unblocks it. `main()` below is the
-    entry point CI (or a human, after the 22nd) invokes.
+    Returns `{"status": "VOID", "reason": ...}` on total failure (no season
+    produced anything), else `{"bundles": [...], "actual": [...],
+    "skipped": [...], "crosswalk": ..., "players_meta": [...]}` — one
+    `bundles[i]`/`actual[i]` pair per season that produced both, already
+    `_rostered_only`-filtered, in the same order as `seasons`.
     """
     import sys as _sys
     from pathlib import Path as _Path
@@ -501,7 +476,7 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
         ids_df = None
     crosswalk = GR.crosswalk_gsis_to_sleeper(players_meta, ids_df)
 
-    need = sorted({y for s in CALIBRATION_SEASONS for y in (s - 2, s - 1, s)}
+    need = sorted({y for s in seasons for y in (s - 2, s - 1, s)}
                  & set(range(2018, 2027)))
     frames, missing = [], []
     for y in need:
@@ -541,8 +516,8 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
         return {"players": [{"sleeper_id": pid, "adp": r["adp"]}
                             for pid, r in table["adp"].items()]}
 
-    bundles, actual, skipped, actual_source = [], [], [], {}
-    for season in CALIBRATION_SEASONS:
+    bundles, actual, skipped = [], [], []
+    for season in seasons:
         store = AsOfDataStore(season, history, adp_loader=_adp)
         try:
             bundle, _notes = BB.build(store, players_meta=players_meta,
@@ -559,21 +534,34 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
                            "%s: %s" % (type(exc).__name__, exc)})
             continue
         cfg = store.league_config()
-        # ⚠ REGISTER 4s — PREFER THE COMMITTED STORE OVER A LIVE RE-FETCH.
-        # `weekly` came from a live `nfl.import_weekly_data()` call above that
-        # can silently drop a season into `missing` on any transient failure
-        # (confirmed: 2025 was lost this way at 22:11, then again at 00:37Z,
-        # with nothing in the final artifact saying so). This repo already
-        # holds a verified, scoring-fingerprinted store for every calibration
-        # season — read it first; fall back to the live-fetched `weekly` only
-        # if the committed store doesn't exist or was captured under a
-        # different scoring table. See `_actual_from_committed_store`.
-        act = _actual_from_committed_store(season, cfg["scoring"])
-        if act is not None:
-            actual_source[str(season)] = "committed_store"
-        else:
-            act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
-            actual_source[str(season)] = "live_fetch"
+        act = GR.rest_of_season_points(weekly, season, cfg["scoring"], crosswalk)
+        if not act:
+            # ── 4s: WE HOLD THIS SEASON — DO NOT THROW IT AWAY ──────────────
+            # The live nfl.import_weekly_data fetch failed silently for a
+            # season whose graded points ALREADY SIT COMMITTED in
+            # nflverse_weekly_points_<season>.json (the store every other
+            # study grades against). 2025 was dropped exactly this way and
+            # the artifact reported success with the most relevant season
+            # missing. The store carries {week -> {points: {pid: pts}}} under
+            # OUR scoring; summing weeks IS the season-total actual this loop
+            # wants. The store's known zero-point-row drop (884 player-weeks
+            # in 2025) is harmless HERE: a dropped zero contributes zero to a
+            # sum. A season with neither a live fetch NOR a committed store
+            # still skips — loudly, and persisted (part 2 below).
+            store_path = _Path(__file__).resolve().parent / (
+                "nflverse_weekly_points_%d.json" % season)
+            if store_path.exists():
+                doc = __import__("json").loads(store_path.read_text())
+                totals = {}
+                for wk in doc.get("weeks") or []:
+                    for pid, pts in (wk.get("points") or {}).items():
+                        totals[str(pid)] = totals.get(str(pid), 0.0) + float(pts)
+                if totals:
+                    act = totals
+                    skipped.append({"season": season, "reason":
+                                   "live weekly fetch empty — graded from the "
+                                   "COMMITTED points store instead (4s)",
+                                   "recovered": True})
         if not act:
             skipped.append({"season": season, "reason": "nothing gradeable"})
             continue
@@ -584,6 +572,28 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
         return {"status": "VOID", "reason": "no season produced both a "
                                             "bundle and a gradeable actual "
                                             "set", "skipped": skipped}
+
+    return {"bundles": bundles, "actual": actual, "skipped": skipped,
+            "crosswalk": crosswalk, "players_meta": players_meta}
+
+
+def regenerate(band_edges=None) -> dict:  # pragma: no cover  (egress; CI only)
+    """The no-args entry point `artifact_registry.json` calls. Assembles real
+    bundles + actuals for `CALIBRATION_SEASONS` (via `_assemble_asof_bundles`)
+    and fits `calibrate()` on all of them, `exclude_season=None` — this is the
+    PRODUCTION calibration applied to 2026, not a leave-one-out skill test, so
+    nothing is held out.
+
+    ⚠ NOT RUN AS PART OF THIS COMMIT, DELIBERATELY. Registering the artifact
+    is what makes its staleness visible; regenerating it moves every
+    `proj_ceiling` and `proj_floor` on the board, and the no-change-before-
+    08-22 rule holds regardless of what unblocks it. `main()` below is the
+    entry point CI (or a human, after the 22nd) invokes.
+    """
+    asm = _assemble_asof_bundles(CALIBRATION_SEASONS)
+    if asm.get("status") == "VOID":
+        return asm
+    bundles, actual, skipped = asm["bundles"], asm["actual"], asm["skipped"]
 
     # ⚠️ THIS IS THE CALL THAT PRODUCED THE CONTAMINATED ARTIFACT.
     #
@@ -599,16 +609,14 @@ def regenerate() -> dict:  # pragma: no cover  (egress; CI only)
     # The relay fixed cli.py first and MISSED THIS ONE, which is the path the
     # workflow actually takes — a filter on the wrong call site is a fix that
     # feels done and changes nothing. Register 4r.
-    cal = calibrate(bundles, actual, exclude_season=None)
+    cal = calibrate(bundles, actual, exclude_season=None, band_edges=band_edges,
+                    only_positions=CALIBRATION_POSITIONS)
+    # ── 4s: A DROPPED SEASON MUST LEAVE A TRACE. calibrate()'s dict is what
+    # gets serialised, so the skip record is attached HERE, before save() —
+    # the previous code assigned it to a variable the artifact never saw. An
+    # entry with "recovered": True documents a live-fetch failure that the
+    # committed store absorbed; one without it is a season genuinely absent.
     cal["skipped_seasons"] = skipped
-    # ⚠ REGISTER 4s — THE TRACE THAT DID NOT EXIST BEFORE THIS FIX. A season
-    # skipped for "nothing gradeable" (a live fetch that silently failed and
-    # had no committed store to fall back on) already lands in
-    # `skipped_seasons` above; this additionally names, for every season that
-    # DID produce a gradeable "actual", whether that came from the committed
-    # store or a live fetch — so "the artifact looks complete" can never again
-    # mean "and nobody can tell which seasons were actually verified."
-    cal["actual_source_by_season"] = actual_source
     return cal
 
 
@@ -692,6 +700,108 @@ def proj_ceiling_for(cal, position, rank, proj_mean):
     if not c or c["status"] != "measured" or c["p90_ratio"] is None:
         return None, "unmeasurable"
     return round(float(proj_mean or 0.0) * c["p90_ratio"], 3), "measured"
+
+
+
+
+#: Side artifacts only — NEVER the production `CALIBRATION` path `save()`
+#: defaults to. Register 4q.
+REFIT_V2_CALIBRATION = Path(__file__).resolve().parent / "projection_error_calibration_refit_v2.json"
+REFIT_V2_COMPARISON = Path(__file__).resolve().parent / "projection_error_refit_v2_comparison.json"
+
+
+def regenerate_refit_v2() -> dict:  # pragma: no cover  (egress; CI only)
+    """Register 4q's refit. Calls `regenerate()` wholesale with the split-band
+    edges rather than a second season-assembly path — the same
+    two-places-that-drift shape this file already warns about (rule 11)."""
+    return regenerate(band_edges=BAND_EDGES_REFIT_V2)
+
+def slope_comparison(current_cal: dict, refit_cal: dict) -> dict:
+    """PURE. Places the SHIPPED ceiling/floor ratio for each `BAND_EDGES` band
+    beside the REFIT's finer bands that split it, so register 4q's question —
+    is the ratio actually flat inside `33+`, or does the one cell hide a real
+    slope — has a number instead of an argument.
+
+    Both `current_cal` and `refit_cal` are the tuple-keyed shape `calibrate()`
+    /`load()` return, not `document()`'s on-disk envelope. A band absent from
+    either calibration reports as `unmeasurable, n=0` rather than being
+    dropped, so a thin new band cannot silently disappear from the
+    comparison — the same rule `calibrate()` itself applies to a thin cell.
+    """
+    def _band_labels(edges):
+        labels, lo = [], 1
+        for hi in edges:
+            labels.append("%d-%d" % (lo, hi))
+            lo = hi + 1
+        labels.append("%d+" % lo)
+        return labels
+
+    def _rows(cal, edges):
+        cells = cal.get("cells") or {}
+        positions = sorted({k[0] for k in cells})
+        out = []
+        for pos in positions:
+            for band in _band_labels(edges):
+                c = cells.get((pos, band)) or {
+                    "n": 0, "status": "unmeasurable", "sd_ratio": None,
+                    "mean_ratio": None, "p10_ratio": None, "p90_ratio": None,
+                    "basis": "band absent from this calibration"}
+                out.append(dict(c, position=pos, band=band))
+        return out
+
+    return {
+        "_note": "Register 4q. `current` bands are the SHIPPED BAND_EDGES; "
+                 "`refit_v2` bands are BAND_EDGES_REFIT_V2 (the shipped `33+` "
+                 "split into 33-48/49-72/73-100/101-150/151+). Neither "
+                 "calibration is changed by producing this — it is the "
+                 "comparison the relay asked for before anyone ships the "
+                 "refit. THE POPULATION QUESTION IS DELIBERATELY UNRESOLVED "
+                 "HERE: both calibrations' p90/p10 are unconditional over "
+                 "every graded player, survivorship-biased per SURVIVOR_"
+                 "CAVEAT, and neither conditions on the player having "
+                 "actually held a role. That is a design call for Cory/A, "
+                 "not a constant this refit changes.",
+        "current_band_edges": list(BAND_EDGES),
+        "refit_band_edges": list(BAND_EDGES_REFIT_V2),
+        "current": _rows(current_cal, BAND_EDGES),
+        "refit_v2": _rows(refit_cal, BAND_EDGES_REFIT_V2),
+    }
+
+
+def main_refit_v2() -> int:  # pragma: no cover  (egress; CI only)
+    """Register 4q's dispatch entry point — separate from `main()` on
+    purpose. Writes ONLY the two side artifacts above; the production
+    `CALIBRATION` file (`projection_error_calibration.json`, what the board
+    build actually reads) is never opened for writing by this function.
+    Whether the refit ships is Cory's call, made from the comparison this
+    writes, not by this script.
+    """
+    import json as _json
+
+    current = load()
+    refit = regenerate_refit_v2()
+    if refit.get("status") == "VOID":
+        print("VOID — %s" % refit.get("reason"))
+        return 1
+
+    doc = document(refit)
+    doc["_side_artifact"] = True
+    doc["_defect"] = ("register 4q — BAND_EDGES_REFIT_V2 splits the shipped "
+                      "33+ band. NOT applied to the board. Compare against "
+                      "projection_error_calibration.json (BAND_EDGES) via "
+                      "projection_error_refit_v2_comparison.json.")
+    REFIT_V2_CALIBRATION.parent.mkdir(parents=True, exist_ok=True)
+    REFIT_V2_CALIBRATION.write_text(_json.dumps(doc, indent=2) + "\n")
+
+    comparison = slope_comparison(current, refit)
+    REFIT_V2_COMPARISON.write_text(_json.dumps(comparison, indent=2) + "\n")
+
+    print("register 4q refit: measured %d/%d cells; wrote %s and %s"
+         % (refit.get("cells_measured", 0),
+            refit.get("cells_measured", 0) + refit.get("cells_unmeasurable", 0),
+            REFIT_V2_CALIBRATION.name, REFIT_V2_COMPARISON.name))
+    return 0
+
 
 
 if __name__ == "__main__":
