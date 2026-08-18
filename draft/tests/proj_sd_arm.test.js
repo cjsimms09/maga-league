@@ -45,12 +45,22 @@ const ck = (n, c, d) => {
  * (draft/backtest/PROJECTION-ERROR.md, "The measured table"). Used DIRECTLY
  * rather than as a multiplier — and it is C's stated UPPER BOUND, because the
  * walk-forward model's own error inflates the observed spread. */
-const BANDS = {
-  QB: [[3, 0.273], [8, 0.356], [16, 0.432], [32, 0.573], [999, 0.617]],
-  RB: [[3, 0.492], [8, 0.355], [16, 0.477], [32, 0.615], [999, 0.666]],
-  TE: [[3, 0.366], [8, 0.339], [16, 0.469], [32, 0.565], [999, 0.449]],
-  WR: [[3, 0.231], [8, 0.446], [16, 0.341], [32, 0.412], [999, 0.510]],
-};
+// RE-PINNED 2026-08-18 (v25 sweep): the table was VENDORED from the 08-15
+// artifact and rotted on every honest recalibration — the clean 3-season 4s
+// regeneration moved 411 of 535 banded rows and this suite read that as a
+// defect. The table now comes from the SAME committed artifact the build
+// reads, so the suite tests the board-artifact AGREEMENT (its real claim),
+// not the artifact's history.
+const CAL = JSON.parse(fs.readFileSync(
+  path.join(ROOT, 'draft', 'backtest', 'projection_error_calibration.json'), 'utf8'));
+const BANDS = {};
+for (const [key, cell] of Object.entries(CAL.cells)) {
+  const [pos, band] = key.split('|');
+  if (cell.status !== 'measured') continue;
+  const hi = band === '33+' ? 999 : Number(band.split('-')[1]);
+  (BANDS[pos] = BANDS[pos] || []).push([hi, cell.sd_ratio]);
+}
+for (const pos of Object.keys(BANDS)) BANDS[pos].sort((a, b) => a[0] - b[0]);
 const bandSd = (pos, rank) => {
   const rows = BANDS[pos];
   if (!rows || !rank) return null;
