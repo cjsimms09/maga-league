@@ -223,3 +223,87 @@ def test_the_thresholds_match_the_preregistration():
         assert token in text, f"prereg does not state {token}"
     assert G.MIN_N == 10 and G.TOP_N == (12, 24, 48) and G.TIE_RHO == 0.01
     assert G.SEASON == 2025 and G.SINGLE_ARMS == ("sleeper", "fantasypros", "own_v6")
+
+
+# ── the rows are RETAINED, because two runs before this one threw them away ──
+#
+# `proj_mean_blend` §9.2 asked a future egress run to retain the per-player rows.
+# `sleeper_hist_proj` and `exp_fp_hist_proj` were both dispatched and both kept
+# aggregates only — 27 KB and 11 KB of verdict with the populations gone. Register
+# rows 20b and 21 are still marked "unblocked by the per-player fetch" because of
+# it. The sandbox answers fantasypros 403 and sleeper 000, so a row that is not
+# written in CI costs another dispatch to recover.
+#
+# These tests are what stops that happening a third time.
+def test_the_rows_are_retained_for_every_arm_that_was_present():
+    actual = _actual()
+    arms = {"sleeper": _noisy(actual, 40.0, 1),
+            "fantasypros": _noisy(actual, 40.0, 2),
+            "own_v6": _noisy(actual, 40.0, 3)}
+    out = G.retained_rows(arms, actual, _positions(), {"sleeper": {"status": "ok"}})
+    assert out["arms_present"] == ["fantasypros", "own_v6", "sleeper"]
+    for arm in arms:
+        assert len(out["rows"][arm]) == N, f"{arm} lost rows on the way to disk"
+        #: keyed by player, valued by points — the shape a re-grade needs
+        assert out["rows"][arm][_pid(0)] == arms[arm][_pid(0)]
+    assert len(out["actual"]) == N and len(out["positions"]) == N
+    assert out["season"] == G.SEASON
+
+
+def test_CONTROL_retention_cannot_move_a_graded_number():
+    """The whole safety argument for adding this is that it copies rather than
+    computes. If retaining the rows could change the verdict, it would be a
+    change to a preregistered study four days before the draft instead of an
+    extra output file. So: grade, retain, grade again, and demand the two
+    verdicts be identical."""
+    import json
+    actual = _actual()
+    arms = {"sleeper": _noisy(actual, 40.0, 1), "fantasypros": _noisy(actual, 60.0, 2)}
+    before = json.dumps(G.grade(arms, actual, _positions()), sort_keys=True)
+    G.retained_rows(arms, actual, _positions(), {})
+    after = json.dumps(G.grade(arms, actual, _positions()), sort_keys=True)
+    assert before == after, "retention perturbed the graded result"
+
+
+def test_an_absent_arm_is_named_absent_and_not_written_as_empty():
+    """An arm that failed to fetch must not land as `{}` — an empty dict reads
+    as 'we asked and got nothing for everyone', which is a measurement. It is
+    not one. The row belongs in arms_absent with its diagnostic."""
+    actual = _actual()
+    arms = {"sleeper": _noisy(actual, 40.0, 1), "fantasypros": {}}
+    out = G.retained_rows(arms, actual, _positions(),
+                          {"fantasypros": {"status": "no_fetch"}})
+    assert "fantasypros" not in out["rows"]
+    assert out["arms_absent"] == ["fantasypros", "own_v6"]
+    assert out["fetch_diagnostics"]["fantasypros"]["status"] == "no_fetch"
+
+
+def test_the_shared_population_is_stored_BESIDE_the_full_rows_not_instead():
+    """⚠️ THE ONE THAT MATTERS FOR RE-USE. If only the intersection were kept,
+    this run's arm list would be baked into every future re-grade — a later
+    Sleeper-vs-FP question would inherit own_v6's holes for no reason. If only
+    the full sets were kept, nobody could reconstruct which players THIS verdict
+    was computed on. Both, and named."""
+    actual = _actual()
+    thin = {_pid(i): 100.0 for i in range(10)}          # own_v6 covers 10 of 80
+    arms = {"sleeper": _noisy(actual, 40.0, 1),
+            "fantasypros": _noisy(actual, 40.0, 2),
+            "own_v6": thin}
+    out = G.retained_rows(arms, actual, _positions(), {})
+    assert out["n_shared"] == 10, "the shared population is the intersection"
+    #: and the wide arms kept ALL of their rows regardless
+    assert len(out["rows"]["sleeper"]) == N
+    assert len(out["rows"]["fantasypros"]) == N
+    assert len(out["rows"]["own_v6"]) == 10
+
+
+def test_the_workflow_actually_commits_the_rows_file():
+    """A retained row that CI does not `git add` is a discarded row with extra
+    steps — and this is exactly how the previous two runs lost theirs."""
+    wf = (HERE.parents[1] / ".github" / "workflows"
+          / "sleeper-vs-fp-grade.yml").read_text()
+    assert "sleeper_vs_fp_rows_2025.json" in wf, (
+        "the workflow does not commit the rows file — the fetch would be spent "
+        "and the population lost for the third time")
+    assert G.ROWS_OUT.name == "sleeper_vs_fp_rows_2025.json", (
+        "the code and the workflow name different files")
