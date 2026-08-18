@@ -134,10 +134,13 @@ def test_the_module_reads_the_component_store_not_the_2025_weekly_store():
         if 1 <= int(w["week"]) <= 17:
             weekly_pids.update(str(p) for p in w["points"])
     only_here = set(values) - weekly_pids
-    assert only_here, (
-        "compute_late_trajectory covers no player beyond the 2025 "
-        "weekly-points store — that is the signature of reading the store "
-        "the ruling routed availability consumers AWAY from")
+    # Re-pinned 2026-08-18 (register 5d): the discriminator (coverage BEYOND
+    # the weekly store proved the module read components) died the day the
+    # weekly store was rebuilt FROM the component store — the populations
+    # now coincide by construction, the healed state row 33 asked for. The
+    # residual claim: coverage must stay component-sized, not collapse.
+    assert len(set(values) & weekly_pids) > 300, (
+        "late_trajectory coverage collapsed against the unified store")
 
 
 # ── 4. the attach is additive ───────────────────────────────────────────────
