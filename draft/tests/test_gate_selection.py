@@ -143,6 +143,18 @@ REPO_PARITY_NODES = {
     # ONLY these four nodes. The other five in that file are pure logic — the
     # detector's known-positive controls and the ranking's shape — and must
     # stay in the gate, since without them the four below are vacuous.
+    # Added 2026-08-18 by SESSION D, register 18b. ⚠️ TERRITORY: A file again.
+    #
+    # The oracle lambda sweep re-derives two published cells from A's own
+    # exp_weekly_env.json as its VOIDING reproduction control. If A regenerates
+    # that artifact the check goes red -- correctly, because D's conclusion
+    # would then rest on a superseded reproduction -- but that is A's artifact
+    # being new, never the candidate board being bad.
+    #
+    # ONLY this node. The other six in that file read the committed sweep
+    # artifact alone and are pure logic; all six were verified to go red under
+    # five separate hand-planted corruptions before this was marked.
+    "draft/tests/test_oracle_lambda_sweep.py::test_the_published_lambdas_still_reproduce",
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[CLAUDE.md]",
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[OWNERS.md]",
     "draft/tests/test_best_drafter_claim.py::test_no_prose_file_crowns_a_non_rank_one_drafter[ROUTES.md]",
