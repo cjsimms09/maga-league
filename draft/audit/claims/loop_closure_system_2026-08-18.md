@@ -78,3 +78,29 @@ Each hole was demonstrated against a working control before fixing:
 The SUBJECT is `draft/tools/prediction_ledger_check.js`, its test file, and
 the `PREDICTION-LEDGER.md` contract (header + table). Everything else in
 the diff is context. Findings triaged by A tonight; the draft is 08-22.
+
+---
+
+# RESPONSE TO REVIEW — run 32179350309, verdict ACCEPT_WITH_REQUIREMENT (gpt-5)
+
+**The critical finding was real and is fixed in the commit that carries this
+section.** The status vocabulary check was a substring regex, so
+`ABANDONMENT`, `GRADED-LATER`, and `REOPENED` read as valid — exactly the
+"word nobody agreed on, treated as an exit" defect I had claimed to close,
+one layer down. The reviewer's proposed bare equality is wrong in the other
+direction (8 live rows legitimately read "✅ GRADED 08-18" / "**GRADED —
+TRUE**", measured by census before choosing the rule), so the shipped rule
+is FIRST-LETTER-TOKEN equality: strip emphasis, take the first token
+containing letters, require it to equal OPEN/GRADED/ABANDONED exactly. All
+three of the reviewer's named costumes now fail; both live decorations pass.
+Every status read in the checker (overdue, consequence, minOpen count,
+successor rule) now goes through the same `statusWord()` — one semantics,
+not two. Tests: the reviewer's three cases as fail arms + a decorated-status
+control, suite 47/47.
+
+On the NOT_PROVEN items: the prediction-ledger test and tool both run in
+`.github/workflows/ci.yml` (the "Prediction ledger" step) — it predates this
+diff, which is why the reviewer could not see it; and the "30/30" count in
+the claim was the pre-merge suite, now 47 after the relay's concurrent
+hardening (cadence rule, successor rule, parseDate year-guard) merged with
+mine.

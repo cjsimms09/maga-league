@@ -252,6 +252,35 @@ ok('FAIL ARM — an invented status no longer exits the loop', () => {
   assert.ok(p.some((x) => /P93: UNKNOWN STATUS "DEFERRED"/.test(x)), JSON.stringify(p));
 });
 
+// ── REVIEWER REQUIREMENT (gpt-5, run 32179350309): exact-word status, not substring
+ok('FAIL ARM — REOPENED is not OPEN: substring costumes are refused', () => {
+  const t = HEAD + '| P97 | x | 07-01 | relay | 08-01 | REOPENED | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P97: UNKNOWN STATUS/.test(x)), JSON.stringify(p));
+});
+
+ok('FAIL ARM — GRADED-LATER is not GRADED', () => {
+  const t = HEAD + '| P97 | x | 07-01 | relay | 08-01 | GRADED-LATER | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P97: UNKNOWN STATUS/.test(x)), JSON.stringify(p));
+});
+
+ok('FAIL ARM — ABANDONMENT is not ABANDONED', () => {
+  const t = HEAD + '| P97 | x | 07-01 | relay | 08-01 | ABANDONMENT | — | — |\n';
+  const p = check(t, '2026-08-20').problems;
+  assert.ok(p.some((x) => /P97: UNKNOWN STATUS/.test(x)), JSON.stringify(p));
+});
+
+ok('CONTROL — the DECORATED statuses the live ledger actually uses still pass', () => {
+  // "✅ GRADED 08-18" and "**GRADED — TRUE**" are real committed status cells;
+  // bare equality would flag 8 legitimate rows. First-letter-token equality is
+  // the rule that refuses the costumes without punishing the decorations.
+  const t = HEAD
+    + '| P97 | a | 08-18 | relay | 08-18 | ✅ GRADED 08-18 | TRUE | weight moved |\n'
+    + '| P98 | b | 08-18 | relay | 08-18 | **GRADED — TRUE** | TRUE | weight moved |\n';
+  assert.strictEqual(check(t, '2026-08-20').problems.length, 0);
+});
+
 ok('CONTROL — the three vocabulary words all pass the status rule', () => {
   const t = HEAD
     + '| P94 | a | 08-18 | relay | 12-31 | OPEN | — | — |\n'
