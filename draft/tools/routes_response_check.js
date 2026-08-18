@@ -94,6 +94,28 @@ function hasDefault(item) {
   return /DEFAULT\s*(IF|:)|\*\*DEFAULT/i.test(item.body.join('\n'));
 }
 
+/* AN ITEM THAT ASKS FOR NOTHING CANNOT BLOCK ITS SENDER, and counting it as
+ * blocked overstates the backlog in a way that eventually gets the number
+ * ignored.
+ *
+ * FOUND BY TURNING THIS TOOL ON MYSELF. Having just told D that six of their
+ * items into A carry no default, I checked the relay's own: **twelve.** Twice
+ * D's. Three of the four I filed today were explicitly *"NO ASK, NO DEFAULT
+ * NEEDED"* or *"No ask. Reporting a mechanism"* — informational, and the
+ * detector could not tell them from a request nobody can answer.
+ *
+ * ⚠️ REPORTED, NOT SUBTRACTED FROM THE RATCHET. This is a loophole by
+ * construction — anyone can silence the check by typing "no ask" — so it does
+ * NOT change what counts as BLOCKED, and the committed baseline stays
+ * comparable. It prints the split beside it so the two are visible at once and
+ * a lane inflating the informational half is obvious rather than hidden.
+ */
+function noAsk(item) {
+  //: only the header line, so a "no ask" buried in a later paragraph about
+  //: somebody else's item does not reclassify this one
+  return /\b(NO ASK|No ask|NO DECISION|ASK:\s*none)\b/.test(item.body[0]);
+}
+
 function ageDays(item, nowMs) {
   return Math.floor((nowMs - Date.parse(item.date + 'T00:00:00Z')) / 864e5);
 }
@@ -144,6 +166,17 @@ function main() {
     + open.filter(hasDefault).length + ' of those carry a DEFAULT (silence resolves them)');
   console.log('  ' + stuck.length + ' BLOCKED — open, no default, ' + RESPOND_BY_DAYS
     + '+ days old. Silence answers nothing here.');
+
+  /* The split, printed beside the ratchet rather than folded into it. */
+  const openNoDefault = open.filter(i => !hasDefault(i));
+  const informational = openNoDefault.filter(noAsk);
+  console.log('  of ' + openNoDefault.length + ' open item(s) carrying no default, '
+    + informational.length + ' say they ASK FOR NOTHING — those cannot block a '
+    + 'sender.');
+  console.log('  NOT subtracted from the count above: "no ask" is a loophole '
+    + 'anyone can type, so it is');
+  console.log('  shown next to the number instead of inside it, and the baseline '
+    + 'stays comparable.');
 
   if (stuck.length) {
     console.log('\n  waiting on:');
