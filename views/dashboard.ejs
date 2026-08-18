@@ -129,6 +129,18 @@
 </div>
 <% } %>
 
+<%# GAME NIGHT — Sunday night + Monday only (Cory, 2026-08-18: "put a link
+    on home page during that time but it should take to scores page"). Gone
+    Tuesday through Sunday afternoon; the always-on weekhub CTA below covers
+    the rest of the week. %>
+<% if (typeof gameNight !== 'undefined' && gameNight) { %>
+  <a class="gn-banner" href="/scoreboard">
+    <span class="gn-banner-ico">🔴</span>
+    <span class="gn-banner-txt"><b>Games are live</b><span class="gn-banner-sub">every score, the sweat meter, what's at stake — one screen</span></span>
+    <span class="gn-banner-cue">→</span>
+  </a>
+<% } %>
+
 <%# The Sunday landing — one tap to every game. Prominent, not buried. %>
 <a class="weekhub-cta" href="/scoreboard">
   <span class="whc-ico">🏈</span>
