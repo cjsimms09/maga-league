@@ -67,8 +67,16 @@ def _ids_named() -> set:
     for m in re.finditer(r"\*\*([0-9]{1,2}[a-z]?|E[0-9]{1,2})(?=\*\*|\s+[—-])", text):
         ids.add(m.group(1))
     # the §3 "not on this page" list is comma-separated plain text
+    #
+    # ⚠️ SKIP THE BULLETS THAT ANNOUNCE A CLOSURE. §3 legitimately records rows
+    # that were CLOSED or WITHDRAWN — that is the sheet doing its job — and
+    # reading those as pending pointers made this file fail the moment the first
+    # five rows were actually resolved. The guard is meant to catch a sheet that
+    # still asks for a decision already made, not to forbid saying one was.
     sec = text.split("## 3 ·")[-1].split("## 4 ·")[0]
-    for m in re.finditer(r"\b(E[0-9]{1,2}|[0-9]{1,2}[a-z])\b", sec):
+    live = "\n".join(b for b in re.split(r"\n(?=- )", sec)
+                     if not re.search(r"CLOSED|RESOLVED|WITHDR", b))
+    for m in re.finditer(r"\b(E[0-9]{1,2}|[0-9]{1,2}[a-z])\b", live):
         ids.add(m.group(1))
     return ids
 

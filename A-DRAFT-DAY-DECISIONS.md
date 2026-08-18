@@ -66,13 +66,24 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   ratio is backwards by band; its own row says *do not patch by hand before
   08-22*, it feeds ceiling, floor, the bench branch and `champodds`), 4m
   (measured; my own recommendation there was **withdrawn** — lowering
-  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, E10, 2, 2b, 2c, 3, 28.
+  `CEILING_LATE_FROM` changes nothing), E3, E4, E5, E10, 2b, 2c, 28.
+- **CLOSED 08-18 against live state, not against the date on the line** — rows
+  1 (board publishes: `built_at 2026-08-18T05:33:24Z`, 696 players), 3 (its own
+  named test passes on the fresh board), 4 (`matchup_placed_bet` 6/6,
+  `trashtalk` 27/27) and 4c (board-truth 11/11, including the control that
+  keepers really do consume picks) — plus row 2 **RESOLVED**: the
+  constant-multiple sweep was run on the fresh board and no field has joined,
+  while finding 13 real pairs, so it is not vacuously green.
+- **⚠️ ONE I GOT WRONG AND WITHDREW** — 4i. I had told A its premise was false
+  and offered to close it. It is not: `engine_policy` is absent from the freeze,
+  so `app.js:782` renders the restore panel not at all. Re-scoped, still B's,
+  still open.
 - **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
   We have **never measured our model against Sleeper on any season**; the
   promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
   *no route*. The first comparison that can settle it is the January 2027 grade.
   **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
-- **Display work owned by B** — 4c, 4i, 4v (mark the fifteen cohort-constant
+- **Display work owned by B** — 4i, 4v (mark the fifteen cohort-constant
   ceilings), 4e, 4f.
 - **Post-draft by construction** — everything with a recheck after 08-22.
 
