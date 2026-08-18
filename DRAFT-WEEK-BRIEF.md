@@ -115,7 +115,7 @@ number. **Nobody decided this** — it is a default. No surface may call `proj_m
 a "consensus" or a "blend" (21b).
 
 **4. TWO WEIGHT SYSTEMS DISAGREE ABOUT UPSIDE, AND A BROWSER TOGGLE PICKS** (25).
-`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`). `autoWeights()` ships **0.45
+~~`MEASURED_WEIGHTS.ceiling = 0` (`engine.js:567`).~~ **STALE — CORRECTED 2026-08-18: the live value is `0.45`, shipped as `09f94f99` when Cory ruled it.** The point of item 4 survives and is arguably sharper: the two systems still disagree and a browser toggle still picks between them — but the disagreement is now 0.45 vs the Auto ladder, not zero vs non-zero. `autoWeights()` ships **0.45
 Anchor / 0.6 Build / 0.8 Fill** (`engine.js:3386`). State lives in `localStorage`
 and **no surface says which is active.** "The model ignores upside" is true only
 with Auto OFF. This reframes the ceiling ruling: not zero-vs-non-zero, but *which
@@ -864,11 +864,11 @@ instrument than a known one.
 Prereg `CEILING-REDERIVATION-PREREG.md`, result
 `draft/backtest/EXP-CEILING-REDERIVATION.md`.
 
-**The tool ships `ceiling = 0`. That zero came from a −4.8 [−26, +17]
+**~~The tool ships `ceiling = 0`.~~ THE TOOL SHIPS `ceiling = 0.45` — corrected 2026-08-18. That zero came from a −4.8 [−26, +17]
 measurement taken on a board where `proj_ceiling` was `proj_mean × a constant`,
 which made the ceiling term rank-identical to the value term (Spearman
 1.0000).** Raising the ceiling slider was arithmetically the same as raising the
-value slider. **It was never a measured setting.**
+value slider. **It was never a measured setting.** **And that is exactly why Cory ruled it upward after the dispersion fix: the three preregistered runs that beat zero were run on a board where `proj_ceiling` finally carried per-player information. The paragraph's ARGUMENT is intact — the zero was an artefact — but its opening sentence described a state that ended on 08-17.**
 
 Re-run on the first real-ceiling board (505 distinct ceiling/mean ratios where
 there was 1), 400 paired rooms × 3 fixed seeds, against a `core` arm that IS the

@@ -359,6 +359,36 @@ jobs:
           node draft/tests/projection_breadth.test.js
           node draft/tools/projection_breadth.js
 
+      - name: Weight drift — prose that quotes a weight the engine does not carry
+        # REGISTER 5h, MADE MECHANICAL. One mechanism, EIGHT instances in two
+        # days: Cory rules a weight, it ships, and the prose quoting the old
+        # number never moves. CLAUDE.md, A-DRAFT-DAY-DECISIONS C2, three
+        # DECISIONS entries, league_config.json — inside a CONFIG file, which
+        # reads as authority — and twice in DRAFT-WEEK-BRIEF.md, the file
+        # CLAUDE.md tells every session to read FIRST.
+        #
+        # Every one was found by a human tripping over it while looking for
+        # something else. Four of the last five surfaced as side-effects of
+        # unrelated searches. That is what a class looks like when nothing
+        # sweeps for it. The cost is not tidiness: a stale doc contradicting
+        # shipped code MANUFACTURES FALSE FINDINGS — the live 0.45 was nearly
+        # filed as a defect against the documentation.
+        #
+        # ⚠️ THE FIRST PROTOTYPE FLAGGED 18 AND HALF WERE CORRECT SENTENCES. A
+        # quoted old value is only wrong when the sentence asserts it is
+        # CURRENT, and three kinds of quote are legitimate forever: a frozen
+        # artifact (baseline/v1.json really does carry ceiling 0 — that is
+        # register 5g and it is true), a historical experiment result, and a
+        # RECORD of a past state. So this reads only files that assert current
+        # state — the register and the ledger are excluded BY DESIGN — and the
+        # three known-legitimate quotes are allowlisted WITH REASONS, which is
+        # a claim in writing rather than a mute button.
+        if: always()
+        run: |
+          node draft/tests/weight_claim_sweep.test.js
+          node draft/tools/weight_claim_sweep.js --control
+          node draft/tools/weight_claim_sweep.js
+
       - name: Commitments — a date, and a check that FIRES if the date passes
         # PART THREE'S CLOSURE CONDITION, made mechanical. Every row in
         # draft/data/commitments.json carries a due date AND a verification that
