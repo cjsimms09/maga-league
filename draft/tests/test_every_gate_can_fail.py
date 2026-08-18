@@ -40,6 +40,20 @@ happy-path assertions on a gate is the vacuous shape wearing a test's clothes.
 
 This is a HARD gate for the tools listed, not a ratchet: the list is small, the
 fix is always writing one test, and there is no legacy pile to work off.
+
+── AND THE SAME QUESTION ONE LEVEL OUT (second half of this file) ─────────────
+
+A scheduled workflow that writes to the repo unattended, with nothing verifying
+what it wrote, is this same shape with a cron on it. Measured 2026-08-18:
+
+    24 scheduled workflows · 18 of them COMMIT data
+      5 run a test suite before committing (draft-data, lab, self-audit,
+        standing-check, market-capture)
+      2 delegate to a script that self-checks (own-weekly-proj, weekly-grade)
+     11 commit with nothing verifying  ← ratcheted below
+
+That half is a RATCHET, not a wall, and the difference is deliberate: eleven new
+reds four days before the draft would be switched off by Saturday.
 """
 from __future__ import annotations
 
@@ -166,3 +180,99 @@ def test_the_scan_tool_that_found_this_still_runs():
     hits = V.scan()
     assert len(hits) > 0, "the wide scan found nothing at all — check its regexes"
     assert os.path.exists(ROOT / "draft" / "tools" / "vacuous_check_scan.py")
+
+
+# ── ONE LEVEL OUT: THE SCHEDULED JOBS THAT COMMIT DATA ──────────────────────────
+# Same question as above, asked of the workflows instead of the gate tools. A
+# scheduled job that writes to the repo unattended and has nothing verifying what
+# it wrote is the vacuous-green shape with a cron on it: the run is green, the
+# commit lands, and the only signal that it was wrong is a number that quietly
+# moves.
+#
+# ⚠️ MY FIRST MEASUREMENT OF THIS WAS WRONG AND THE CORRECTION IS THE USEFUL PART.
+# I asked "does any file under draft/tests/ mention this workflow's name?" — a
+# one-directional proxy. `standing-check.yml` failed it and should not have: it
+# runs `pytest test_sleeper_trending.py` and `node component_write.test.js` INSIDE
+# ITSELF, under the step names "Test the capture and the check before trusting
+# either" and "Test the writer before trusting what it writes". The relationship
+# runs workflow→test and my grep only looked the other way.
+#
+# So the bar here is the one `standing-check` already sets, and it is house style
+# rather than anything invented: BEFORE YOU COMMIT, RUN SOMETHING THAT CAN SAY NO.
+# Either a test suite in the workflow, or a script that self-checks.
+#
+# MEASURED 2026-08-18: 24 scheduled workflows · 18 commit data · 5 run a test
+# suite first (draft-data 8, lab 12, self-audit 4, standing-check 2,
+# market-capture 1) · 2 delegate to a self-checking script (own-weekly-proj,
+# weekly-grade) · 11 commit with nothing verifying.
+#
+# A RATCHET AT 11, NOT A WALL. Eleven reds four days before the draft would be
+# switched off by Saturday — `intervention-rate` wrote that epitaph. It cannot get
+# worse, and it comes down as lanes fix them.
+
+WF_DIR = ROOT / ".github" / "workflows"
+_SELF_CHECK = re.compile(r"self[_ -]?check|FIXTURE|known[- ]positive|sanity", re.I)
+
+
+def _scheduled_committing_workflows():
+    out = []
+    for w in sorted(WF_DIR.glob("*.yml")):
+        src = w.read_text(encoding="utf8")
+        if not re.search(r"^\s*schedule:", src, re.M):
+            continue
+        if "git commit" not in src:
+            continue
+        runs_tests = bool(re.search(r"(?:pytest|node)\s+\S*draft/tests/\S+", src))
+        scripts = set(re.findall(r"(?:python3?|node)\s+((?:draft|src)/\S+\.(?:py|js))", src))
+        self_checks = any((ROOT / s).exists()
+                          and _SELF_CHECK.search((ROOT / s).read_text(errors="ignore"))
+                          for s in scripts)
+        out.append((w.stem, runs_tests or self_checks))
+    return out
+
+
+#: Lower this in the commit that earns it. A ratchet nobody tightens is a
+#: high-water mark. See the paragraph above for what "verified" means here.
+UNVERIFIED_COMMITTING_WORKFLOWS = 11
+
+
+def test_scheduled_jobs_that_commit_data_do_not_grow_more_unverified():
+    rows = _scheduled_committing_workflows()
+    unverified = sorted(name for name, ok in rows if not ok)
+    assert len(unverified) <= UNVERIFIED_COMMITTING_WORKFLOWS, (
+        f"{len(unverified)} scheduled workflows commit data with nothing verifying it "
+        f"(baseline {UNVERIFIED_COMMITTING_WORKFLOWS}):\n  " + "\n  ".join(unverified))
+
+
+def test_CONTROL_the_workflow_scan_is_not_matching_nothing():
+    """The way this check would die quietly: the glob or the regex stops matching."""
+    rows = _scheduled_committing_workflows()
+    assert len(rows) >= 15, f"only {len(rows)} scheduled committing workflows found"
+    assert any(ok for _, ok in rows), "not one workflow reads as verified — the detector is blind"
+    assert any(not ok for _, ok in rows), "every workflow reads as verified — too good to be true"
+
+
+def test_standing_check_is_the_model_and_still_does_what_it_claims():
+    """The KNOWN-POSITIVE. If this stops holding, the bar above lost its example."""
+    src = (WF_DIR / "standing-check.yml").read_text(encoding="utf8")
+    assert "before trusting" in src, "standing-check no longer states the test-first intent"
+    assert re.search(r"pytest\s+\S*draft/tests/\S+", src), "it no longer runs its test"
+    name, ok = next(r for r in _scheduled_committing_workflows() if r[0] == "standing-check")
+    assert ok, "the detector no longer credits the workflow it was corrected by"
+
+
+def test_THE_LIMIT_OF_THIS_CHECK_IS_STATED_NOT_HIDDEN():
+    """Script detection is a regex over `run:` blocks and it MISSES inline python.
+
+    `data-inventory` and `external-ingest-run` invoke their work through heredocs
+    rather than a named script, so this reads them as running zero scripts and
+    therefore unverified. That may be unfair to them — it is a limit of the
+    measurement, not a finding about those two — and it is written down here so
+    the number is not mistaken for a census.
+    """
+    for wf in ("data-inventory", "external-ingest-run"):
+        src = (WF_DIR / f"{wf}.yml").read_text(encoding="utf8")
+        found = re.findall(r"(?:python3?|node)\s+((?:draft|src)/\S+\.(?:py|js))", src)
+        assert not found, (
+            f"{wf} now invokes a named script {found} — re-check whether it is really "
+            "unverified, because the reason it was counted so no longer applies")
