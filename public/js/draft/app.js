@@ -2298,12 +2298,36 @@
           + 'Do not draft off them; the rest of the board is current.' });
       } catch (e) { /* console.error in safeRender still carries it */ }
     }
-    try { assertPickState(); } catch (e) { /* never blocks the clock */ }
-    try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
-    try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
-    try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
-    try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
-    try { renderLegality(); } catch (e) { /* never blocks the clock */ }
+    /* THESE SIX WERE THE ONLY RENDERS IN THIS FUNCTION WHOSE FAILURE WAS NEITHER
+     * RECORDED NOR NAMED (session E, 2026-08-18; register E27).
+     *
+     * Sixteen panels above go through `safeRender`, so when one throws it lands
+     * in `state.renderFailures` and the block twenty lines up announces it by
+     * name — "PANEL(S) NOT UPDATING: … those panels are showing an EARLIER
+     * pick. Do not draft off them." These six were wrapped in bare
+     * `catch (e) { /* never blocks the clock *\/ }` instead, so they had the
+     * isolation and none of the announcement.
+     *
+     * `renderSystemStrip` is the one that matters, and the reason is structural:
+     * IT IS THE HEALTH SURFACE. It computes the whole red/amber verdict — sync
+     * stale, seat unknown, thin projections, board aged, slate unconfirmed — and
+     * only then assigns `host.className` and `host.innerHTML`. So a throw
+     * anywhere in that computation left the PREVIOUS strip on screen: not blank,
+     * but a stale verdict, possibly an all-clear from a state that no longer
+     * exists. Every other failure the strip reports is one it can see; its own
+     * was the one it could not.
+     *
+     * That is the exact shape the comment above `state.renderFailures` already
+     * names — "a frozen panel from a visible crash into an invisible lie". The
+     * mechanism for it existed; these six were simply not wired into it. Using
+     * it rather than inventing a second one also keeps `panel_spec` honest: no
+     * new painting function is introduced. */
+    safeRender('pickState', assertPickState);
+    safeRender('accountingNote', renderAccountingNote);
+    safeRender('systemStrip', renderSystemStrip);
+    safeRender('unrecordedPicks', renderUnrecordedPicks);
+    safeRender('pickControls', renderPickControls);
+    safeRender('legality', renderLegality);
     // Last: the pinned offsets depend on the heights everything above just set
     // (the banner grows a line when a doctrine switches, the watermarks appear
     // and disappear with rehearsal/slot state). Measured again on the next
@@ -10184,7 +10208,20 @@
       // red on the next unrelated render, so a sync that stalls while Cory is
       // staring at one screen stays green for as long as nothing else happens —
       // which is precisely the situation this exists to catch.
-      try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
+      /* Outside `renderAll`, so `safeRender` is out of scope — but the failure
+       * must still be RECORDED, or a strip that throws only on the ticker path
+       * stays silently stale until some other render happens to run. Same
+       * store, so the next `renderAll` announces it by the same name. */
+      try { renderSystemStrip(); } catch (e) {
+        state.renderFailures = state.renderFailures || {};
+        state.renderFailures.systemStrip = {
+          at: null, message: (e && e.message) || String(e),
+        };
+        try {
+          console.error('[render] systemStrip FAILED on the age ticker — the '
+            + 'health strip is showing an EARLIER state: ' + ((e && e.message) || e));
+        } catch (e2) { /* no console */ }
+      }
     }, 1000);
   }
 
