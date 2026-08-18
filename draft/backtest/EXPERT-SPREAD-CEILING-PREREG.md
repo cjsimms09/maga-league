@@ -313,3 +313,76 @@ consensus; an arm that reproduces it with extra machinery is not an edge.
 
 **Blocked on the same join as §3** (`sleeper_name_index.yml`). **Owner: relay builds,
 A rules after 08-22. Recheck 08-24.**
+
+---
+
+## 9b. RESULT — CORY'S ARM WAS RUN AND IT **FAILS ITS OWN NULL**. IT DOES NOT SHIP.
+
+Run 2026-08-18 against the four committed expert-rank stores joined through
+`sleeper_name_index.json` (97% name coverage every season). **Both preregistered
+nulls were reported, and the arm lost to one of them.**
+
+### Step 1 — the persistence gate: MARGINAL, not dead
+
+Every expert scored separately per season on the common player set (≥80% coverage
+both ways), skill = Spearman(their rank, realized fantasy points weeks 1–17), signed
+so higher is better.
+
+| transition | shared experts | skill correlation |
+|---|---|---|
+| 2023 → 2024 | 183 | **0.121** |
+| 2024 → 2025 | 160 | **0.257** |
+
+Mean **0.189 — weak persistence.** Real, not zero: last year's better experts are
+somewhat more likely to be better again. **The gate passed as MARGINAL, so the arm
+was allowed to be built with both nulls attached.** It was.
+
+### Step 2 — ⚠️ AND HERE IS WHY THE SKILL SPREAD MATTERS MORE THAN THE PERSISTENCE
+
+| season | worst | p25 | median | p75 | best |
+|---|---|---|---|---|---|
+| 2023 | 0.381 | 0.452 | 0.475 | 0.490 | 0.626 |
+| 2024 | 0.338 | 0.493 | 0.525 | 0.543 | 0.570 |
+| 2025 | 0.359 | 0.485 | 0.507 | 0.522 | 0.579 |
+
+**The interquartile range is about 0.04 on a median of ~0.51.** There is no genius in
+this room and no fool. Roughly 200 experts are all about equally good, which is the
+mechanism behind everything below: **a consensus is dominated by what the experts
+agree on, not by which ones are best.**
+
+### Step 3 — the direct test, selecting on 2023+2024 and evaluating on 2025
+
+145 experts have a 2023+2024 record and a 2025 submission. Consensus = mean rank
+across the selected experts, scored against 2025 realized points. **The null is 200
+random subsets of the identical size.**
+
+| selection | 2025 consensus quality | vs ALL 198 experts | **percentile among random subsets of the same size** |
+|---|---|---|---|
+| **all experts** | 0.5240 | — | — |
+| top quartile (k=36) | 0.5249 | +0.0009 | **36th** |
+| top decile (k=14) | 0.5289 | +0.0049 | **70th** |
+| top half (k=72) | 0.5282 | +0.0042 | **72nd** |
+
+**THE TOP QUARTILE — the most natural reading of "use the experts who drafted
+better" — LANDED AT THE 36th PERCENTILE, i.e. WORSE THAN A COIN-FLIP SUBSET OF THE
+SAME SIZE.** The other two land at 70th and 72nd, inside the random p05–p95 band
+(0.5203–0.5321), and the ordering is not monotone in selectivity. **Every margin over
+the all-expert consensus is under 1% of the baseline and smaller than the noise.**
+
+### Verdict, against §9's own rule
+
+§9 required the arm to beat **the plain all-experts consensus** and **the
+random-subset null**. It does neither. **CORY'S ARM DOES NOT SHIP.**
+
+**This is a real saving, not a dead end.** A skill-weighted expert model would have
+been entirely plausible to build, would have shown a positive-looking `+0.005`
+against the all-expert consensus, and would have delivered nothing — because the
+persistence that justified it (0.19) is swamped by the fact that the experts barely
+differ. **The null is the only thing that separated those two stories, and it was
+written down before the number existed.**
+
+**What survives from this line:** the *disagreement* between experts (§6) is still
+the live signal, and it is untouched by this result. **How much the room disagrees
+about one player is informative; which members of the room they are is not.**
+
+**Owner: relay (run). Recorded for A. Recheck 08-24.**
