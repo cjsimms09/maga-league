@@ -4,7 +4,7 @@
 any line of it, and the register remains the record.**
 
 Cory, twice this week: *"too much finding and not enough fixing and following
-up."* The register has **64 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
+up."* The register has **51 open rows** — a number that was itself wrong until today: the check reported 72, and three of the missing rows were being hidden by a ✅ that meant *"fixed, verify"* (`register_check_was_hiding_rows_2026-08-18.md`). **Thirty** of them carry a recheck date on or
 before 08-22 and most are owned by A. That is not a decision list, it is a
 backlog wearing one, and reading it four days out costs more than it returns.
 

@@ -56,7 +56,13 @@ jobs:
         # openai is NOT a repository dependency and is installed only here, so
         # nothing in the model pipeline gains a network client as a side effect.
         run: |
-          pip install --quiet openai pytest
+          # draft/requirements.txt too (2026-08-18, reviewer's own finding on
+          # its first real run): pytest collected draft/tests without numpy
+          # and the Python evidence failed at collection — the reviewer then
+          # correctly refused to credit "tests pass". Same venv-gap class the
+          # main CI fixed the same day; the review run's evidence must be as
+          # runnable as CI's.
+          pip install --quiet openai pytest -r draft/requirements.txt
           npm ci --silent || npm install --silent
 
       - name: Prove the key resolved WITHOUT printing it

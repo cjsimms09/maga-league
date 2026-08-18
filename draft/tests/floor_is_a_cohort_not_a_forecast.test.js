@@ -81,6 +81,57 @@ ck('a player mid-band gets the cohort line but NOT the edge warning',
   /QB 17-32/.test(dispersionCaveat(mid, [mid])) && !/TOP of that band/.test(dispersionCaveat(mid, [mid])),
   dispersionCaveat(mid, [mid]));
 
+// ---------------- 6b. NEAR-TIE FAIL ARM + the 4x calibration, pinned
+/* Added 2026-08-18 on the independent reviewer's first verdict
+ * (ACCEPT_WITH_REQUIREMENT, run 32175940031): the relative guard needed an
+ * explicit counterexample — two cells whose medians sit CLOSE, where naming
+ * either cohort would be a guess — and a committed calibration note.
+ *
+ * CALIBRATION (measured on the v27 board, 2026-08-18): at the shipped
+ * relative factor (best.d > 0.25 * second.d refuses), the warning recovers
+ * EXACTLY the nine ruled full-universe repricings (checked structurally in
+ * section 8 below). Loosening to 0.5 added two FALSE positives on the live
+ * board (Ashton Jeanty RB6, Kyle Pitts TE8 — both within-band, mis-flagged).
+ * The factor is a refusal threshold, not a tuning knob: widen it and the
+ * caveat starts guessing. */
+{
+  // two synthetic cells whose modal ratios are close: 0.30 and 0.34. A player
+  // at 0.32 sits between them — 4x-decisive for NEITHER — so no cohort may be
+  // named and the generic fallback must render instead.
+  const mk = (rank, ratio) => ({ position: 'RB', pos_rank: rank,
+    proj_mean: 200, proj_floor: 200 * ratio,
+    proj_floor_source: 'measured-2023-25-p10', proj_ceiling_source: 'measured-2023-25-p90' });
+  const board = [];
+  for (let r = 9; r <= 14; r++) board.push(mk(r, 0.30));   // 9-16 cell
+  for (let r = 17; r <= 22; r++) board.push(mk(r, 0.34));  // 17-32 cell
+  const tied = Object.assign(mk(18, 0.32), { name: 'Near Tie', proj_ceiling: 300 });
+  const out = dispersionCaveat(tied, board.concat([tied]));
+  ck('NEAR-TIE FAIL ARM: with two cells 4x-indistinguishable the caveat names '
+    + 'NO cohort — the generic fallback renders instead of a guess',
+  /not a\n    forecast for this player/.test(out) && !/COHORT's measured/.test(out), out);
+
+  // and the same board with the cells far apart IS decisive — the refusal is
+  // about closeness, not a guard that never names anything.
+  const far = board.map(p => p.pos_rank <= 16 ? p : Object.assign({}, p, { proj_floor: p.proj_mean * 0.05 }));
+  const clear = Object.assign(mk(18, 0.052), { name: 'Clear Case', proj_ceiling: 300 });
+  const out2 = dispersionCaveat(clear, far.concat([clear]));
+  ck('CONTROL: the same shape with separated cells names its cohort',
+    /17-32 COHORT's measured/.test(out2), out2);
+
+  // the two players the 0.5 factor would have falsely flagged stay unflagged
+  const BOARD2 = path.join(ROOT, 'public', 'draft_data.json');
+  const art2 = fs.existsSync(BOARD2) ? JSON.parse(fs.readFileSync(BOARD2, 'utf8')) : null;
+  if (art2) {
+    const all2 = art2.players || [];
+    const falsePos = ['Ashton Jeanty', 'Kyle Pitts']
+      .map(n => all2.find(p => p.name === n)).filter(Boolean);
+    ck('CALIBRATION PIN: the two players a looser (0.5) factor falsely flagged '
+      + 'are NOT flagged by the shipped guard',
+    falsePos.length === 2 && falsePos.every(p => !/register E1, ruled/.test(dispersionCaveat(p, all2))),
+    falsePos.map(p => p.name));
+  }
+}
+
 // ------------------------------- 7. a Gaussian row is NOT called a cohort p10
 const gauss = { position: 'K', pos_rank: 20, proj_mean: 120, proj_floor: 95,
   proj_ceiling: 155, proj_floor_source: 'gaussian_z', proj_ceiling_source: 'gaussian_z' };

@@ -3990,6 +3990,22 @@ table.roll td.num, .pf, .wh-race-scale, .wh-band-note{ color: var(--ink); }
 .kd-banner.today{ background:linear-gradient(135deg, #d84343, var(--navy)); }
 .kd-banner .kd-banner-count.today b{ font-size:1rem; letter-spacing:.05em; }
 
+/* GAME NIGHT BANNER — the Sunday-night/Monday promo on the scores screen and
+   the home page (register: Cory, 2026-08-18). Same layout grammar as the
+   draft/keeper banners, no count block (there's no countdown here, just a
+   live cue), red-forward so it reads as "on right now" rather than a
+   deadline. Two mount points, one class family — both come and go on the
+   same primetimeWindow() gate, so the CSS only needs writing once. */
+.gn-banner{ display:flex; align-items:center; gap:.85rem; text-decoration:none;
+  background:linear-gradient(135deg, #b23a3a, var(--navy)); color:#fff;
+  border-radius:var(--radius); padding:.9rem 1.1rem; margin-bottom:1rem;
+  box-shadow:0 2px 10px rgba(178,58,58,.25); border:1px solid rgba(20,32,54,.35); }
+.gn-banner .gn-banner-ico{ font-size:1.7rem; line-height:1; }
+.gn-banner .gn-banner-txt{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.gn-banner .gn-banner-txt b{ font-family:var(--font-display); font-size:1.02rem; letter-spacing:.01em; }
+.gn-banner .gn-banner-sub{ font-size:.8rem; color:#f3d6d6; font-weight:700; }
+.gn-banner .gn-banner-cue{ font-weight:800; margin-left:auto; flex:0 0 auto; }
+
 .sb-wh{ background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--gold);
   border-radius:var(--radius); padding:.8rem 1rem; margin-bottom:1rem; }
 .sb-wh-top{ display:flex; justify-content:space-between; align-items:baseline; gap:.6rem; flex-wrap:wrap; font-size:.9rem; }
