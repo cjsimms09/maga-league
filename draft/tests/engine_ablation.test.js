@@ -144,14 +144,14 @@ const baseCtx = over => Object.assign({
     + '(discounted ' + on.score + ' vs undiscounted ' + off.score + ')',
     on.score !== off.score && on.score < off.score);
 
-  // ONESIE_HARD_CAP: a third QB — capped only while the flag is on.
+  // ONESIE_HARD_CAP: RETIRED WITH ITS MECHANISM (Cory 08-14, executed 08-18,
+  // register 5n). There is no flag to flip; the ablation now pins the ruled
+  // state instead — a third QB is a discounted spare and NEVER capped.
   const roster2 = roster.concat([mk('r8', 'QB', 300, 30)]);
-  const capOn = E.scorePlayer(qb, baseCtx({ board, roster: roster2 }));
-  const capOff = EA.withFlags([['E', 'ONESIE_HARD_CAP', false]],
-    () => E.scorePlayer(qb, baseCtx({ board, roster: roster2 })));
-  ck('flag plumbing — ONESIE_HARD_CAP flip changes a QB3\'s capped state',
-    capOn.onesie && capOn.onesie.capped === true
-    && capOff.onesie && !capOff.onesie.capped);
+  const qb3 = E.scorePlayer(qb, baseCtx({ board, roster: roster2 }));
+  ck('the onesie hard cap is GONE — a third QB is discounted, never capped',
+    qb3.onesie && qb3.onesie.discounted && !qb3.onesie.capped
+    && E.CFG.ONESIE_HARD_CAP === undefined);
 }
 {
   // ONESIE_NEED_DISCOUNT and FLEX_DISCOUNT rewrite need.value, which
@@ -403,7 +403,7 @@ const FAST = '--rooms 6 --seed 9001 --sims 200 --arms full,baseline_bpa,stripped
     E.CFG.VONA_WIRE_BENCH === true && E.CFG.VONA_SLOT_AWARE === false
     && E.CFG.STAGE2_CAP === false && S.CFG.ROOM_MIX_PRIOR === true
     && C.CFG.KOV_MEASURED_RAMP === true && E.CFG.CONSERVE_SURVIVAL_ON === true
-    && E.CFG.ONESIE_DISCOUNT === true && E.CFG.ONESIE_HARD_CAP === true
+    && E.CFG.ONESIE_DISCOUNT === true && E.CFG.ONESIE_HARD_CAP === undefined
     && E.CFG.FLEX_DISCOUNT === true && E.CFG.CEILING_TIEBREAK === true);
 }
 {
