@@ -41,6 +41,7 @@ still on a partial slate.
 |---|---|---|---|
 | ~~**C1**~~ | ✅ **RULED 08-18 — "Keepers will be set by 08/21 at 6pm".** The banner's date was right; the fifteen files were wrong. **Root cause fixed, not just the date:** `league_config.json` now carries `keepers.deadline` as the single source, guarded against the nightly rebuild. B is unblocked to ship. | *nothing further* | 42 ruled and closed, Q17 answered, ledger P71 graded FALSE — the good outcome |
 | **C2** | **The `ceiling` composite weight.** | Three preregistered runs, two independent seed sets: every value 0.15–0.65 beats the shipped zero, 3/3 separable. **It is held at zero through the draft on purpose** — the no-change rule was fixed in all four preregs before any produced a number. **So this is a decision for AFTER 08-22**, and it is here only so it is not forgotten. Blast radius is late-round bench ordering, not the board. | **5**, brief §7b |
+| **C3** | **The projection SOURCE, post-draft — his own 08-16 question, now with its first measurement.** The three-way grade ran 08-18 (2025, 360 shared players, leak-gated): QB — pure Sleeper wins and the blend loses; WR/TE — the blend beats the best single source (+0.016/+0.012, mechanism-consistent: own_v6 is the decorrelated arm); RB — a wash. | **Held through 08-22 by the prereg's own "Nothing ships" rule.** After Saturday: position-scoped — QB Sleeper, WR/TE blend, RB no change. N=1 season; caveats in `draft/audit/sleeper_vs_fp_grade_run_2026-08-18.md`. | 21 (annotated), CORY-ASKS A2 (ruled) |
 
 *(The ADP-sd ratchet, row **6**, also sits with Cory. Blast radius one player;
 recommendation unchanged: leave it, revisit post-season. No action needed.)*
@@ -83,11 +84,12 @@ Everything else open. Named so nobody has to re-derive that it was considered:
   and offered to close it. It is not: `engine_policy` is absent from the freeze,
   so `app.js:782` renders the restore panel not at all. Re-scoped, still B's,
   still open.
-- **Blocked on evidence that does not exist yet** — 21 / 24 / A2 source ruling.
-  We have **never measured our model against Sleeper on any season**; the
-  promotion bar reads *"beat both NAIVE baselines"* and `api.sleeper.app` returns
-  *no route*. The first comparison that can settle it is the January 2027 grade.
-  **Hold through 08-22 on judgement, because there is nothing else to hold it on.**
+- **~~Blocked on evidence that does not exist yet~~ — the evidence LANDED
+  08-18** — 21 / 24 / A2 source ruling. "Never measured against Sleeper" was
+  true when written; the three-way grade then ran on the leak-clean 2025
+  shared population and the ruling moved to §1's C3 above. Still held through
+  08-22 — now by the prereg's fixed "Nothing ships" rather than by absence of
+  evidence. The January 2027 grade remains the first untouched evaluation.
 - **Display work owned by B** — 4i, 4v (mark the fifteen cohort-constant
   ceilings), 4e, 4f.
 - **Post-draft by construction** — everything with a recheck after 08-22.
