@@ -7,13 +7,13 @@ by hand, so it cannot quietly stop being true.
 Two questions, measured:
 **is anyone answering**, and **is any finished work invisible from `main`**.
 
-_Last measured: 2026-08-18 19:06 UTC_
+_Last measured: 2026-08-18 19:58 UTC_
 
 ```
 ============================================================================
 ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
-  386 items · 230 open · 145 of those carry a DEFAULT (silence resolves them)
+  391 items · 228 open · 143 of those carry a DEFAULT (silence resolves them)
   2 BLOCKED — open, no default, 3+ days old. Silence answers nothing here.
   of 85 open item(s) with no default: 4 SAY they ask for nothing · 0 are BROADCASTS (same
   header in 3+ inboxes — a rule, not four decisions) · 81 declare NEITHER, so nobody
@@ -32,30 +32,29 @@ ROUTES RESPONSE CHECK — is anyone answering?
   DOES THE LOOP VISIBLY CLOSE? — ticked share by sender→recipient
   (a low rate is a QUESTION: real backlog, or answered and never ticked?)
     D → C                      5 items    20% ticked    4 open with NO default
-    D → A                     27 items    26% ticked    6 open with NO default
-    session E (red team) → A  11 items    27% ticked    7 open with NO default
+    D → A                     29 items    28% ticked    6 open with NO default
     relay → B                 14 items    29% ticked    2 open with NO default
     relay/PM → A              17 items    29% ticked    4 open with NO default
     A → D                      8 items    38% ticked    2 open with NO default
-    B → A                     18 items    39% ticked    5 open with NO default
+    session E (red team) → A  13 items    38% ticked    7 open with NO default
     A → C                     17 items    41% ticked    0 open with NO default
+    B → A                     19 items    42% ticked    6 open with NO default
     A → A                     27 items    48% ticked    2 open with NO default
-    relay → A                 57 items    49% ticked    1 open with NO default
     this session → A           6 items    50% ticked    1 open with NO default
     relay/PM → B              14 items    50% ticked    7 open with NO default
     relay/PM → C              14 items    50% ticked    3 open with NO default
+    relay → A                 57 items    51% ticked    1 open with NO default
     relay/PM → E              10 items    60% ticked    3 open with NO default
-    A → B                     34 items    65% ticked    0 open with NO default
-    C → A                    100 items    70% ticked   15 open with NO default
+    A → B                     34 items    68% ticked    0 open with NO default
+    C → A                    100 items    71% ticked   14 open with NO default
     relay/PM → D               7 items    71% ticked    1 open with NO default
     E (red team) → A          28 items    75% ticked    0 open with NO default
     C → C                     13 items    92% ticked    0 open with NO default
     this session → C           7 items   100% ticked    0 open with NO default
 
-  baseline 26  ->  now 2
+  baseline 2  ->  now 2
 
-  ✅ DOWN 24. Lower the baseline to 2 in draft/baseline/routes_backlog_baseline.json to lock the gain in —
-     a ratchet nobody tightens is just a high-water mark.
+  Holding at the baseline. Not worse.
 ============================================================================
 ```
 
@@ -63,15 +62,14 @@ ROUTES RESPONSE CHECK — is anyone answering?
 ============================================================================
 LANE STATUS — work that exists but `main` cannot see
 ============================================================================
-       18 commits     0h old  claude/fantasy-football-research-926y6z
-        4 commits     1h old  claude/red-team-fantasy-football-97otna
-  ⚠️    3 commits    27h old  claude/in-season-surface-fixes-6nyayc
+       26 commits     0h old  claude/fantasy-football-research-926y6z
+  ⚠️    3 commits    28h old  claude/in-season-surface-fixes-6nyayc
+        3 commits     1h old  review/draft-path-2026-08-18
         2 commits     0h old  claude/warroom-shell-rebuild-0817
-        2 commits     0h old  review/draft-path-2026-08-18
-        1 commits     1h old  claude/fp-range-fields-probe-diag
-        1 commits     1h old  claude/shuffle-null-2026-08-18
-        1 commits    44h old  sleeper-hist-proj-dispatch
-        1 commits    44h old  sleeper-vs-fp-grade-dispatch
+        1 commits     0h old  claude/external-ingest-program-1xfinj
+        1 commits     2h old  claude/fp-range-fields-probe-diag
+        1 commits    45h old  sleeper-hist-proj-dispatch
+        1 commits    45h old  sleeper-vs-fp-grade-dispatch
 
   ⚠️  1 branch(es) look STRANDED — 3+ commits, 12h+ old, unmerged.
      ROUTES.md cannot show you these: it lists what a lane WROTE DOWN,

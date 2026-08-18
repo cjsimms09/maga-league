@@ -801,6 +801,12 @@ details[open] > .layer-sum::before { content: '▾ '; }
    emit — this adds a caption without touching a byte of markup or content. */
 .rec-actions [data-compare]::after { content: " compare"; font-size: .68rem; }
 .rec-score { font-family: var(--font-display); font-size: 1.3rem; font-weight: 900; color: var(--gold-bright); font-variant-numeric: tabular-nums; }
+/* REGISTER 4e (2026-08-18): a caption saying what .rec-score IS, always
+   visible — its own label only ever lived in a hover title. Small and muted
+   on purpose; it is context for the number beside it, not a new headline. */
+.rec-order-note { color: var(--muted); font-size: .74rem; margin: -.3rem 0 .6rem; }
+.rec-order-note b { color: var(--ink); }
+.rec-order-eg { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); }
 .rec-pos {
   font-family: var(--font-display); font-size: .6rem; font-weight: 800; letter-spacing: .08em;
   padding: .1rem .4rem; border-radius: 4px; background: rgba(12,26,43,.08);

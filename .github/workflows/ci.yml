@@ -345,8 +345,14 @@ jobs:
         # enforcement table's empty cells, a grading cron that existed and never
         # ran, and a staleness bar that could not fire inside the window it
         # protected. CANNOT DETERMINE counts as unmet, always.
+        # The gate's own test runs first (relay's 08-18 ask, wired by A): the
+        # test has SEEN the gate refuse — 6 of its 9 checks are fail arms
+        # running the real script as a subprocess. A gate nothing has watched
+        # fail is the vacuous shape this whole block exists to end.
         if: always()
-        run: node draft/tools/commitments_check.js
+        run: |
+          node draft/tests/commitments_check.test.js
+          node draft/tools/commitments_check.js
 
       - name: Lane status — work that exists but main cannot see (REPORT ONLY)
         # E built this after b26e1713 sat stranded 16h with a league-facing

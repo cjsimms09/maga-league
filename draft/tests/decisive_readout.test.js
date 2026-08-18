@@ -37,7 +37,10 @@ ck('app.js actually CALLS DecisionContract — loaded is not read',
 ck('  and filters to the terms that decided it, not every term',
   /decision_significant/.test(APP));
 ck('  and it renders into the recommendation host',
-  /decisiveLine/.test(APP) && /head \+ decisiveLine \+ scored\.map/.test(APP));
+  // tolerate insertions between head and decisiveLine — the 4e orderNote
+  // caption landed there, the second time an addition to this statement
+  // broke a full-expression anchor (see the block comment below)
+  /decisiveLine/.test(APP) && /head \+ (?:\w+ \+ )*decisiveLine \+ scored\.map/.test(APP));
 
 // ── 3. READ-ONLY. A readout that reorders is a scoring term in disguise. ────
 {

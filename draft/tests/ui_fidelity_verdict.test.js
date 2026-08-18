@@ -25,6 +25,9 @@ const ROOT = path.join(__dirname, '..', '..');
 
 const V = require(path.join(ROOT, 'public', 'js', 'draft', 'verdict.js'));
 const E = require(path.join(ROOT, 'public', 'js', 'draft', 'engine.js'));
+const { assertRosterFictionPrecondition } = require('./_empty_roster_fiction_precondition.js');
+// A's precondition (E31): the "real board" arm below scores with roster: [].
+assertRosterFictionPrecondition(E);
 
 let pass = 0, fail = 0;
 const ck = (n, c, d) => {
