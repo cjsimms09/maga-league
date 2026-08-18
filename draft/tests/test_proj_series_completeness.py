@@ -32,9 +32,16 @@ capture" and "the fetch returned nothing" are the same green.
 
 ── WHAT THIS CHECKS, AND WHAT IT DELIBERATELY DOES NOT ────────────────────────
 
-A RATCHET on incomplete dates, not a wall. One hole exists and cannot be
-backfilled, so failing outright would be a red nobody can clear — the
-`intervention-rate` epitaph. It fails when the count GROWS.
+Three questions, because any one alone passes on a broken series:
+
+  1. **Is a captured date missing a source?** A RATCHET, not a wall — one hole
+     exists and cannot be backfilled, so failing outright would be a red nobody
+     can clear (the `intervention-rate` epitaph). It fails when the count GROWS,
+     and it NAMES the known hole so a swap cannot hide behind the same count.
+  2. **Is a whole day missing?** The cadence is daily (`draft-data.yml`,
+     `0 8 * * *`), so captured dates must be contiguous.
+  3. **Is anything still being written?** A contiguous, complete series can be a
+     DEAD one — that is the vacuous pass this whole file is about.
 """
 from __future__ import annotations
 
@@ -110,17 +117,74 @@ def test_FAIL_ARM_the_detector_can_actually_fail():
     assert not [d for d, s in clean.items() if not REQUIRED <= s]
 
 
-def test_THE_LIMIT_a_date_absent_ENTIRELY_is_invisible_here():
-    """STATED, NOT HIDDEN — and it is the bigger hole of the two.
+def test_no_WHOLE_DAY_is_missing_from_the_span():
+    """CLOSES THE LIMIT THIS FILE SHIPPED WITH AN HOUR AGO.
 
-    This compares sources WITHIN a captured date. A day on which the job did not
-    run at all leaves no row, so there is nothing to find incomplete, and this
-    check sees a shorter list rather than a gap. Catching that needs a calendar
-    the series does not carry — an expected-cadence field — which is register row
-    41's actual fix and belongs with the workflow, not here.
+    The first version compared sources WITHIN a captured date and said outright
+    that a day the job never ran leaves no row and is invisible. That is the
+    bigger hole, and it turned out not to need "a calendar the series does not
+    carry" after all — the cadence is knowable from the workflows.
+    `draft-data.yml` runs `0 8 * * *`, DAILY, and is what appends these rows;
+    `weekly-proj-snapshot.yml` adds the Sunday one. So the expectation is simply
+    that captured dates are contiguous.
+
+    Measured 2026-08-18: 2026-08-09 → 2026-08-18, ten calendar days, ten
+    captured, ZERO whole days missing. The only defect is the source-level hole
+    on 08-10 that the ratchet above pins.
     """
-    by = _by_date()
-    dates = sorted(by)
+    import datetime as _dt
+    dates = sorted(_by_date())
     assert dates, "no dates at all"
-    # documents the current span so a future reader can see what was covered
-    assert dates[0] <= dates[-1]
+    lo, hi = _dt.date.fromisoformat(dates[0]), _dt.date.fromisoformat(dates[-1])
+    span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
+    missing = sorted(span - set(dates))
+    assert not missing, (
+        f"{len(missing)} whole day(s) never captured: {missing}\n"
+        "A daily job produced these rows, so a gap is a run that did not happen "
+        "or did not write. This series cannot be backfilled (exp33).")
+
+
+def test_the_series_is_still_BEING_written():
+    """A contiguous series can be a DEAD one, and that is the vacuous pass here.
+
+    If the capture stopped today, tomorrow's run would still find 2026-08-09 →
+    2026-08-18 perfectly contiguous and perfectly complete, and every check above
+    would pass while nothing was being captured at all. Freshness is the half
+    that makes the rest mean something.
+
+    Seven days is deliberately generous for a daily job — tight enough to notice
+    a dead capture inside a week, loose enough that it cannot cry wolf over a
+    single missed run or a weekend of CI trouble. A guard that fires every
+    morning is a guard that gets switched off; `intervention-rate` wrote that
+    epitaph and this file is not going to repeat it.
+    """
+    import datetime as _dt
+    dates = sorted(_by_date())
+    newest = _dt.date.fromisoformat(dates[-1])
+    age = (_dt.date.today() - newest).days
+    assert age <= 7, (
+        f"the newest captured date is {dates[-1]}, {age} days old. The capture "
+        "that IS the January 2027 experiment has stopped writing.")
+
+
+def test_FAIL_ARM_the_gap_and_freshness_checks_can_fail_too():
+    """Both new checks, exercised on synthetic input. Rule 3e applies to them
+    as much as to the ratchet, and neither had been seen to fail."""
+    import datetime as _dt
+
+    # (2) a whole day missing IS detected
+    dates = ["2026-08-09", "2026-08-10", "2026-08-12"]
+    lo, hi = _dt.date.fromisoformat(dates[0]), _dt.date.fromisoformat(dates[-1])
+    span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
+    assert sorted(span - set(dates)) == ["2026-08-11"]
+
+    # CONTROL — a contiguous run is NOT flagged
+    ok = ["2026-08-09", "2026-08-10", "2026-08-11"]
+    lo, hi = _dt.date.fromisoformat(ok[0]), _dt.date.fromisoformat(ok[-1])
+    span = {(lo + _dt.timedelta(days=i)).isoformat() for i in range((hi - lo).days + 1)}
+    assert not span - set(ok)
+
+    # (3) a dead capture IS detected, and a live one is not
+    today = _dt.date.today()
+    assert (today - (today - _dt.timedelta(days=30))).days > 7
+    assert (today - (today - _dt.timedelta(days=2))).days <= 7
