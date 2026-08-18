@@ -100,6 +100,34 @@ REPO_PARITY_NODES = {
     # them in here was refused by this very test, in the right words:
     # "soundness tests the gate would silently skip".
     "draft/tests/test_freeze_not_stale.py::test_the_freeze_carries_every_field_it_declares",
+    # TERRITORY-GRANT: C test_calibration_population
+    #
+    # This block is VERBATIM what A's own session already authored and
+    # shipped to `main` (79a51073) — restored here after C's branch synced
+    # `test_calibration_population.py` (C's file, register 4r/4s) from main
+    # without its sibling registration in this file, which left the two
+    # mismatched and red. Not new logic; the same three node IDs A already
+    # approved, re-added so the pin stays correct.
+    #
+    # Added 2026-08-17 (register 4r). THE COMMITTED CALIBRATION IS CONTAMINATED:
+    # cli.py called PE.calibrate() with no `positions`, so the artifact behind
+    # every proj_ceiling/proj_floor/proj_sd was fitted on punters, DBs, a
+    # linebacker and a tackle, losing ~30% of the skill population
+    # (1,304 -> 910 graded, 15 of 32 cells unmeasurable).
+    #
+    # These three assert facts about that ARTIFACT, so their red says the repo
+    # STATE is wrong — never that a candidate board is bad, which is this set's
+    # defining property. They cannot be fixed by reverting: f774ff21 rebuilt the
+    # board and rewrote two test files to match the contaminated fit, so
+    # calibration + board + tests are a matched trio and un-matching one turns
+    # main red without improving a number Cory drafts on. The fix is a clean
+    # regeneration plus a board rebuild, which needs egress.
+    #
+    # test_the_driver_still_passes_the_filter is deliberately NOT here. It
+    # guards the CAUSE and must block, or the next dispatch re-contaminates.
+    "draft/tests/test_calibration_population.py::test_NO_POSITION_THIS_LEAGUE_DOES_NOT_ROSTER_IS_IN_THE_CALIBRATION",
+    "draft/tests/test_calibration_population.py::test_the_graded_population_has_not_quietly_collapsed",
+    "draft/tests/test_calibration_population.py::test_most_cells_are_actually_measured",
     # Added 2026-08-17. DRAFT-WEEK-BRIEF.md is what CLAUDE.md points every
     # session at, so its numbers are trusted without re-derivation — which makes
     # a drifted number there costlier than one anywhere else. These three check
