@@ -1,0 +1,2954 @@
+{
+ "_territory": "TERRITORY: C \u2014 written by .github/workflows/bdl-schedule-capture.yml",
+ "_what": "2026 NFL schedule from Ball Don't Lie's FREE tier: date, week, teams.",
+ "_why": "weekly-props-fetch.yml refuses without --date ('the vegas store has no game dates'), so the paid Odds API credits \u2014 expiring ~08-31 \u2014 cannot be spent at all until a free schedule exists. This is that schedule.",
+ "_bdl_scope": "BDL's free key serves games/teams/players (200) but NOT odds (401) or player props (404) \u2014 see bdl_key_matrix.json.",
+ "captured_at": "2026-08-18T03:35:57.587430+00:00",
+ "season": 2024,
+ "games": 285,
+ "fetch_error": null,
+ "weeks": {
+  "1": {
+   "games": 22,
+   "first": "2024-09-06T00:20:00.000Z",
+   "last": "2025-01-14T01:00:00.000Z"
+  },
+  "2": {
+   "games": 20,
+   "first": "2024-09-13T00:15:00.000Z",
+   "last": "2025-01-19T20:00:00.000Z"
+  },
+  "3": {
+   "games": 18,
+   "first": "2024-09-20T00:15:00.000Z",
+   "last": "2025-01-26T23:30:00.000Z"
+  },
+  "4": {
+   "games": 16,
+   "first": "2024-09-27T00:15:00.000Z",
+   "last": "2024-10-01T00:15:00.000Z"
+  },
+  "5": {
+   "games": 15,
+   "first": "2024-10-04T00:15:00.000Z",
+   "last": "2025-02-09T23:30:00.000Z"
+  },
+  "6": {
+   "games": 14,
+   "first": "2024-10-11T00:15:00.000Z",
+   "last": "2024-10-15T00:15:00.000Z"
+  },
+  "7": {
+   "games": 15,
+   "first": "2024-10-18T00:15:00.000Z",
+   "last": "2024-10-22T01:00:00.000Z"
+  },
+  "8": {
+   "games": 16,
+   "first": "2024-10-25T00:15:00.000Z",
+   "last": "2024-10-29T00:15:00.000Z"
+  },
+  "9": {
+   "games": 15,
+   "first": "2024-11-01T00:15:00.000Z",
+   "last": "2024-11-05T01:15:00.000Z"
+  },
+  "10": {
+   "games": 14,
+   "first": "2024-11-08T01:15:00.000Z",
+   "last": "2024-11-12T01:15:00.000Z"
+  },
+  "11": {
+   "games": 14,
+   "first": "2024-11-15T01:15:00.000Z",
+   "last": "2024-11-19T01:15:00.000Z"
+  },
+  "12": {
+   "games": 13,
+   "first": "2024-11-22T01:15:00.000Z",
+   "last": "2024-11-26T01:15:00.000Z"
+  },
+  "13": {
+   "games": 16,
+   "first": "2024-11-28T17:30:00.000Z",
+   "last": "2024-12-03T01:15:00.000Z"
+  },
+  "14": {
+   "games": 13,
+   "first": "2024-12-06T01:15:00.000Z",
+   "last": "2024-12-10T01:15:00.000Z"
+  },
+  "15": {
+   "games": 16,
+   "first": "2024-12-13T01:15:00.000Z",
+   "last": "2024-12-17T01:30:00.000Z"
+  },
+  "16": {
+   "games": 16,
+   "first": "2024-12-20T01:15:00.000Z",
+   "last": "2024-12-24T01:15:00.000Z"
+  },
+  "17": {
+   "games": 16,
+   "first": "2024-12-25T18:00:00.000Z",
+   "last": "2024-12-31T01:15:00.000Z"
+  },
+  "18": {
+   "games": 16,
+   "first": "2025-01-05T05:00:00.000Z",
+   "last": "2025-01-05T05:00:00.000Z"
+  }
+ },
+ "rows": [
+  {
+   "game_id": 7001,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-06T00:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7002,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-07T00:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7003,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7004,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7005,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7006,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7007,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7008,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7009,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7010,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7011,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7012,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7013,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T20:25:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7014,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-08T20:25:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7015,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-09T00:20:00.000Z",
+   "status": "Final/OT",
+   "home": "DET",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7016,
+   "season": 2024,
+   "week": 1,
+   "date": "2024-09-10T00:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 287074,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-11T21:30:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "LAC",
+   "postseason": true
+  },
+  {
+   "game_id": 287075,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-12T01:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": true
+  },
+  {
+   "game_id": 287076,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-12T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "DEN",
+   "postseason": true
+  },
+  {
+   "game_id": 287077,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-12T21:30:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "GB",
+   "postseason": true
+  },
+  {
+   "game_id": 287078,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-13T01:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "WSH",
+   "postseason": true
+  },
+  {
+   "game_id": 287079,
+   "season": 2024,
+   "week": 1,
+   "date": "2025-01-14T01:00:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "MIN",
+   "postseason": true
+  },
+  {
+   "game_id": 7017,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-13T00:15:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7018,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7019,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7020,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7021,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7022,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7023,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "NE",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7024,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7025,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7026,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7027,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7028,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T20:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7029,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7030,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-15T20:25:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7031,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-16T00:20:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7032,
+   "season": 2024,
+   "week": 2,
+   "date": "2024-09-17T00:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 311376,
+   "season": 2024,
+   "week": 2,
+   "date": "2025-01-18T05:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "HOU",
+   "postseason": true
+  },
+  {
+   "game_id": 314011,
+   "season": 2024,
+   "week": 2,
+   "date": "2025-01-19T01:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "WSH",
+   "postseason": true
+  },
+  {
+   "game_id": 311377,
+   "season": 2024,
+   "week": 2,
+   "date": "2025-01-19T05:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "BAL",
+   "postseason": true
+  },
+  {
+   "game_id": 318590,
+   "season": 2024,
+   "week": 2,
+   "date": "2025-01-19T20:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "LAR",
+   "postseason": true
+  },
+  {
+   "game_id": 7033,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-20T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7034,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7035,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7036,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7037,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7038,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7039,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7040,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7041,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7042,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7043,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T20:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7044,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7045,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-22T20:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7046,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-23T00:20:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7047,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-23T23:30:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7048,
+   "season": 2024,
+   "week": 3,
+   "date": "2024-09-24T00:15:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 348648,
+   "season": 2024,
+   "week": 3,
+   "date": "2025-01-26T20:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": true
+  },
+  {
+   "game_id": 349316,
+   "season": 2024,
+   "week": 3,
+   "date": "2025-01-26T23:30:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "BUF",
+   "postseason": true
+  },
+  {
+   "game_id": 7049,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-27T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7050,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7051,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7052,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7053,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7054,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7055,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7056,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7057,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7058,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T20:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7059,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T20:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7060,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T20:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7061,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-29T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7062,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-30T00:20:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7063,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-09-30T23:30:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7064,
+   "season": 2024,
+   "week": 4,
+   "date": "2024-10-01T00:15:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7065,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-04T00:15:00.000Z",
+   "status": "Final/OT",
+   "home": "ATL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7066,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T13:30:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7067,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7068,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7069,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7070,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7071,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7072,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7073,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7074,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T20:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7075,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T20:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7076,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-06T20:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7077,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-07T00:20:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7078,
+   "season": 2024,
+   "week": 5,
+   "date": "2024-10-08T00:15:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 374001,
+   "season": 2024,
+   "week": 5,
+   "date": "2025-02-09T23:30:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "KC",
+   "postseason": true
+  },
+  {
+   "game_id": 7079,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-11T00:15:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7080,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T13:30:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7081,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7082,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7083,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7084,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7085,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7086,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T17:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7087,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T20:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7088,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T20:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7089,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T20:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7090,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-13T20:25:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7091,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-14T00:20:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7092,
+   "season": 2024,
+   "week": 6,
+   "date": "2024-10-15T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7093,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-18T00:15:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7094,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T13:30:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7095,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7096,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7097,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7098,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7099,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7100,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7101,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T17:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7102,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7103,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T20:05:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7104,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-20T20:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7105,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-21T00:20:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7106,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-22T00:15:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7107,
+   "season": 2024,
+   "week": 7,
+   "date": "2024-10-22T01:00:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7108,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-25T00:15:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7109,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7110,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7111,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7112,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7113,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7114,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7115,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7116,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T17:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7117,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T20:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7118,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T20:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7119,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T20:25:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7120,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T20:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7121,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-27T20:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7122,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-28T00:20:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7123,
+   "season": 2024,
+   "week": 8,
+   "date": "2024-10-29T00:15:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7124,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-01T00:15:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7125,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7126,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7127,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7128,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7129,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "TEN",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7130,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7131,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7132,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7133,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T18:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7134,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7135,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7136,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-03T21:25:00.000Z",
+   "status": "Final/OT",
+   "home": "SEA",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7137,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-04T01:20:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7138,
+   "season": 2024,
+   "week": 9,
+   "date": "2024-11-05T01:15:00.000Z",
+   "status": "Final/OT",
+   "home": "KC",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7139,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-08T01:15:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7140,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T14:30:00.000Z",
+   "status": "Final/OT",
+   "home": "CAR",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7141,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7142,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7143,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7144,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7145,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7146,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7147,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7148,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7149,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T21:25:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7150,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-10T21:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7151,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-11T01:20:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7152,
+   "season": 2024,
+   "week": 10,
+   "date": "2024-11-12T01:15:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7153,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-15T01:15:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7154,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7155,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7156,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7157,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7158,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7159,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7160,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7161,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T21:05:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7162,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T21:05:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7163,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T21:25:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7164,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-17T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7165,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-18T01:20:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7166,
+   "season": 2024,
+   "week": 11,
+   "date": "2024-11-19T01:15:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7167,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-22T01:15:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7168,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CHI",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7169,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7170,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7171,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7172,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7173,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7174,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7175,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T21:05:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7176,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T21:25:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7177,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-24T21:25:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7178,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-25T01:20:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7179,
+   "season": 2024,
+   "week": 12,
+   "date": "2024-11-26T01:15:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7180,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-11-28T17:30:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7181,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-11-28T21:30:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7182,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-11-29T01:20:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7183,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-11-29T20:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7184,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7185,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7186,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7187,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7188,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7189,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7190,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7191,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T21:05:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7192,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T21:05:00.000Z",
+   "status": "Final/OT",
+   "home": "CAR",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7193,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-01T21:25:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7194,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-02T01:20:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7195,
+   "season": 2024,
+   "week": 13,
+   "date": "2024-12-03T01:15:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7196,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-06T01:15:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7197,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7198,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "MIA",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7199,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7200,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7201,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7202,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7203,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7204,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T21:05:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7205,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7206,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-08T21:25:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7207,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-09T01:20:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7208,
+   "season": 2024,
+   "week": 14,
+   "date": "2024-12-10T01:15:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7209,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-13T01:15:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7210,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7211,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7212,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7213,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7214,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "CAR",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7215,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7216,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T18:00:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7217,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T21:25:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7218,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T21:25:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7219,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T21:25:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7220,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T21:25:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7221,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-15T21:25:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7222,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-16T01:20:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7223,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-17T01:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7224,
+   "season": 2024,
+   "week": 15,
+   "date": "2024-12-17T01:30:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7225,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-20T01:15:00.000Z",
+   "status": "Final",
+   "home": "CIN",
+   "away": "CLE",
+   "postseason": false
+  },
+  {
+   "game_id": 7226,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-21T18:00:00.000Z",
+   "status": "Final",
+   "home": "KC",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7227,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-21T21:30:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "PIT",
+   "postseason": false
+  },
+  {
+   "game_id": 7228,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "ATL",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7229,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NE",
+   "postseason": false
+  },
+  {
+   "game_id": 7230,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7231,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "IND",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7232,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "LAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7233,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final",
+   "home": "WSH",
+   "away": "PHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7234,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T18:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7235,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T21:05:00.000Z",
+   "status": "Final",
+   "home": "LAC",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7236,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T21:05:00.000Z",
+   "status": "Final",
+   "home": "SEA",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7237,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T21:25:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7238,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-22T21:25:00.000Z",
+   "status": "Final",
+   "home": "MIA",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7239,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-23T01:20:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "TB",
+   "postseason": false
+  },
+  {
+   "game_id": 7240,
+   "season": 2024,
+   "week": 16,
+   "date": "2024-12-24T01:15:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7241,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-25T18:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7242,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-25T21:30:00.000Z",
+   "status": "Final",
+   "home": "HOU",
+   "away": "BAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7243,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-27T01:15:00.000Z",
+   "status": "Final",
+   "home": "CHI",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7244,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T05:00:00.000Z",
+   "status": "Final/OT",
+   "home": "CIN",
+   "away": "DEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7245,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T05:00:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "ARI",
+   "postseason": false
+  },
+  {
+   "game_id": 7246,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T05:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7247,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T05:00:00.000Z",
+   "status": "Final",
+   "home": "NYG",
+   "away": "IND",
+   "postseason": false
+  },
+  {
+   "game_id": 7248,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T05:00:00.000Z",
+   "status": "Final/OT",
+   "home": "WSH",
+   "away": "ATL",
+   "postseason": false
+  },
+  {
+   "game_id": 7249,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T18:00:00.000Z",
+   "status": "Final",
+   "home": "BUF",
+   "away": "NYJ",
+   "postseason": false
+  },
+  {
+   "game_id": 7250,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T18:00:00.000Z",
+   "status": "Final",
+   "home": "MIN",
+   "away": "GB",
+   "postseason": false
+  },
+  {
+   "game_id": 7251,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T18:00:00.000Z",
+   "status": "Final",
+   "home": "NO",
+   "away": "LV",
+   "postseason": false
+  },
+  {
+   "game_id": 7252,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T18:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7253,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T18:00:00.000Z",
+   "status": "Final",
+   "home": "JAX",
+   "away": "TEN",
+   "postseason": false
+  },
+  {
+   "game_id": 7254,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-29T21:25:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "DAL",
+   "postseason": false
+  },
+  {
+   "game_id": 7255,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-30T01:20:00.000Z",
+   "status": "Final",
+   "home": "CLE",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7256,
+   "season": 2024,
+   "week": 17,
+   "date": "2024-12-31T01:15:00.000Z",
+   "status": "Final",
+   "home": "SF",
+   "away": "DET",
+   "postseason": false
+  },
+  {
+   "game_id": 7257,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final/OT",
+   "home": "ATL",
+   "away": "CAR",
+   "postseason": false
+  },
+  {
+   "game_id": 7258,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "DAL",
+   "away": "WSH",
+   "postseason": false
+  },
+  {
+   "game_id": 7259,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "DEN",
+   "away": "KC",
+   "postseason": false
+  },
+  {
+   "game_id": 7260,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "DET",
+   "away": "MIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7261,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "GB",
+   "away": "CHI",
+   "postseason": false
+  },
+  {
+   "game_id": 7262,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "TEN",
+   "away": "HOU",
+   "postseason": false
+  },
+  {
+   "game_id": 7263,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final/OT",
+   "home": "IND",
+   "away": "JAX",
+   "postseason": false
+  },
+  {
+   "game_id": 7264,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "LV",
+   "away": "LAC",
+   "postseason": false
+  },
+  {
+   "game_id": 7265,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "LAR",
+   "away": "SEA",
+   "postseason": false
+  },
+  {
+   "game_id": 7266,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "NE",
+   "away": "BUF",
+   "postseason": false
+  },
+  {
+   "game_id": 7267,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "NYJ",
+   "away": "MIA",
+   "postseason": false
+  },
+  {
+   "game_id": 7268,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "PHI",
+   "away": "NYG",
+   "postseason": false
+  },
+  {
+   "game_id": 7269,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "ARI",
+   "away": "SF",
+   "postseason": false
+  },
+  {
+   "game_id": 7270,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "PIT",
+   "away": "CIN",
+   "postseason": false
+  },
+  {
+   "game_id": 7271,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "TB",
+   "away": "NO",
+   "postseason": false
+  },
+  {
+   "game_id": 7272,
+   "season": 2024,
+   "week": 18,
+   "date": "2025-01-05T05:00:00.000Z",
+   "status": "Final",
+   "home": "BAL",
+   "away": "CLE",
+   "postseason": false
+  }
+ ]
+}
