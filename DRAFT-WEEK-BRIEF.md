@@ -434,8 +434,29 @@ model (0.22) multiplies `ceiling − mean` — so for these fifteen, the dominan
 term of the E[$] figure above is the cohort constant. **4v and the dollar problem
 are the same screen.**
 
-**Nothing is wrong with their projections** — only with reading their ceiling as
-a statement about them. B's default is to grey or asterisk these on screen.
+**Nothing is wrong with their projections, and nothing is broken here** — I
+traced why each one lacks a per-player number and for five of them **the model
+is deliberately refusing to guess**, which is a strength.
+
+The per-player volatility term keys on **2025** weeks. Five of the fifteen —
+**Nabers, Garrett Wilson, Jayden Daniels, Jayden Reed, Kyler Murray** — missed
+2025 and *do* have a 2024 reading, and A ruled on 08-18 that a 2024 number on a
+2026 board is outside the measured support (the persistence that licenses it was
+measured on one-year transitions only). So they keep the cohort constant rather
+than being handed a reading from the last year they happened to play. The other
+ten have no reading in any season. **That call is right and I am not asking to
+revisit it.**
+
+**The one thing worth knowing when you look at those five:** the constant is the
+band's *median*, so it is not a neutral placeholder. Against each man's own last
+reading it lands at Nabers **0.82**, Garrett Wilson **0.87**, Kyler Murray
+**0.84**, Daniels **1.07**, Jayden Reed **1.34**. In plain terms: **four of the
+five are shown a wider ceiling than their own last season supports — Nabers by
+about 23% — and Jayden Reed a roughly 25% narrower one.** Small samples (7–14
+players per cell), so read those as directions, not corrections.
+
+B's default is to grey or asterisk these on screen; the mark should say **"no
+2025 weeks — cohort average"**, not "unmeasured".
 
 **Two other places the same number leaks, so you know them when you see them:**
 

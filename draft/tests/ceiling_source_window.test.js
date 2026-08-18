@@ -183,5 +183,84 @@ const WINDOW = B.players.filter(p => {
     mean_boom_share: +(shares.reduce((a, b) => a + b, 0) / (shares.length || 1)).toFixed(3) });
 }
 
+// ── 5. THE FIFTEEN ARE TWO POPULATIONS, AND THE SUBSTITUTION HAS A DIRECTION.
+//      Traced rather than assumed: `_weekly_cv_2025()` keys on 2025 weeks under
+//      A's 08-18 ruling — a 2024 cv on a 2026 board is outside the measured
+//      persistence support — and its docstring names the injury-return group
+//      (Evans, G. Wilson, Nabers, Daniels) as the thing it is protecting. So
+//      five of the fifteen HAVE a reading and are deliberately denied it, and
+//      ten have none in any season.
+//
+//      THE RULING IS CORRECT AND NOTHING HERE ARGUES OTHERWISE. What is pinned
+//      is the consequence nobody had stated: the cohort constant is a band
+//      MEDIAN, so against each man's own last reading it is not a null
+//      substitution. It flatters most of them and undersells one, and that is
+//      why the display marker earns its place.
+{
+  let vol = null;
+  try {
+    vol = JSON.parse(fs.readFileSync(path.join(ROOT, 'draft', 'backtest', 'weekly_volatility.json'), 'utf8'));
+  } catch (e) { /* handled below */ }
+  ck('the volatility artifact the ceiling term reads is present and carries 2025',
+    vol && vol.per_player && vol.per_player['2025']
+    && Object.keys(vol.per_player['2025']).length > 100,
+    vol && vol.per_player ? Object.keys(vol.per_player).join(',') : 'unreadable');
+
+  if (vol && vol.per_player) {
+    const y25 = vol.per_player['2025'] || {}, y24 = vol.per_player['2024'] || {};
+    const nonPerSkill = WINDOW.filter(p => p.proj_ceiling_source !== PER_PLAYER
+      && SKILL.indexOf(p.position) >= 0);
+    const cvOf = (m, p) => (m[String(p.player_id)] || {}).cv;
+
+    ck('NONE of them has a 2025 cv — that is the actual criterion, so the '
+      + 'population is explained rather than merely counted',
+    nonPerSkill.every(p => !cvOf(y25, p)),
+    nonPerSkill.filter(p => cvOf(y25, p)).map(p => p.name));
+
+    const denied = nonPerSkill.filter(p => cvOf(y24, p));
+    ck('and a real subset DOES have a 2024 reading — the deliberately-denied '
+      + 'injury-return group the ruling names by player',
+    denied.length >= 3,
+    denied.map(p => `${p.name} 2024 cv ${cvOf(y24, p).toFixed(4)}`));
+
+    /* CONTROL — if every one of them had a 2024 reading the split would be
+     * imaginary, and if none did the ruling would not be what is operating. */
+    ck('CONTROL: the rest have no reading in ANY season, so this is two '
+      + 'populations and not one story told twice',
+    denied.length < nonPerSkill.length,
+    { denied: denied.length, of: nonPerSkill.length });
+
+    /* THE DIRECTION. Cohort = the band's 2025 cv median, built the way
+     * projections.py builds its cells. */
+    const bandOf = r => (r <= 3 ? '1-3' : r <= 8 ? '4-8' : r <= 16 ? '9-16'
+      : r <= 32 ? '17-32' : '33+');
+    const cells = {};
+    B.players.forEach(p => {
+      const c = cvOf(y25, p);
+      if (c) (cells[p.position + '|' + bandOf(Number(p.pos_rank))] = cells[p.position + '|' + bandOf(Number(p.pos_rank))] || []).push(c);
+    });
+    const median = a => {
+      const s = a.slice().sort((x, y) => x - y), n = s.length;
+      return n % 2 ? s[(n - 1) / 2] : 0.5 * (s[n / 2 - 1] + s[n / 2]);
+    };
+    const ratios = denied.map(p => {
+      const cell = cells[p.position + '|' + bandOf(Number(p.pos_rank))] || [];
+      return { name: p.name, adp: +adp(p).toFixed(1), n: cell.length,
+        ratio: cell.length ? +(cvOf(y24, p) / median(cell)).toFixed(3) : null };
+    }).filter(r => r.ratio != null);
+
+    ck('every denied player sits in a cell with enough 2025 readings for a '
+      + 'median to mean anything', ratios.length === denied.length
+      && ratios.every(r => r.n >= 5), ratios);
+    ck('the substitution is NOT neutral — it moves the ceiling spread away from '
+      + 'each man\'s own last reading, in both directions',
+    ratios.some(r => r.ratio < 0.9) && ratios.some(r => r.ratio > 1.2), ratios);
+    ck('...and most of them are FLATTERED by it, which is the direction that '
+      + 'matters when Cory is reaching for a ceiling to justify a pick',
+    ratios.filter(r => r.ratio < 1).length > ratios.filter(r => r.ratio > 1).length,
+    ratios.sort((a, b) => a.adp - b.adp));
+  }
+}
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
