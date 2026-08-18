@@ -68,7 +68,8 @@ def attach_dispersion_loso(bundles, actual):
         # attach_dispersion_loso: only_positions filters the fit to this
         # league's rostered positions — see the grant comment above.
         cal = PE.calibrate([o for o, _ in others], [a for _, a in others],
-                           exclude_season=s, only_positions=PE.CALIBRATION_POSITIONS)
+                           only_positions=PE.CALIBRATION_POSITIONS,
+                           exclude_season=s)
         rep = BB.attach_dispersion(b.get("players") or [], cal)
         b.setdefault("notes", {})["dispersion"] = rep
         b["notes"]["dispersion"]["fitted_without_season"] = s
