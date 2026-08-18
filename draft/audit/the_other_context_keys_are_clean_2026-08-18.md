@@ -1,6 +1,6 @@
 # E's twenty-second sweep — the four remaining context keys, and a clean negative
 
-**Session E (red team), 2026-08-17.** Sweep 21 enumerated all 20 keys
+**Session E (red team), 2026-08-18.** Sweep 21 enumerated all 20 keys
 `app.js:context()` supplies, found `wireWeekly` (E22), and **explicitly left four
 unswept**: `doctrine`, `ceilingAllStages`, `drift`, `myPickIndex`, each passed by
 only ~7 of 29 engine-driving suites. This closes that gap.

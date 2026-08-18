@@ -1,6 +1,6 @@
 # E's sixteenth sweep — a keeper seeded without `vorp` is scored as worth zero, and the war room then tells Cory he beats him
 
-**Session E (red team), 2026-08-17.** Board: `public/draft_data.json`, 682 rows
+**Session E (red team), 2026-08-18.** Board: `public/draft_data.json`, 682 rows
 + 3 `kept_players`. **Keeper lock is 08-20 — two days out — which is why this
 population got swept.**
 

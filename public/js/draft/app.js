@@ -640,7 +640,7 @@
   }
 
   /* THE CONDITION HERE WAS INVERTED, AND ITS ABSENCE ASSERTED A SECOND OPINION
-   * THAT DOES NOT EXIST (session E, 2026-08-17; register E6).
+   * THAT DOES NOT EXIST (session E, 2026-08-18; register E6).
    *
    * It used to read `if (p.proj_fantasypros != null) return '';` — i.e. carrying
    * a FantasyPros number was treated as evidence that `proj_mean` had more than
@@ -1248,7 +1248,7 @@
 
     /* ── THE PLAN IS ROSTER-BLIND, AND UNTIL NOW THE PANEL WAS TOO ───────────
      *
-     * Cory, live 2026-08-17: *"model still overrecommending QBs. I have joe
+     * Cory, live 2026-08-18: *"model still overrecommending QBs. I have joe
      * burrow and it recommends Bo nix in the 9th.. thats rediculous"*.
      *
      * `seat_plan.json` asserts `slot: "QB", is_starter_seat: true` at pick 73
@@ -2342,12 +2342,36 @@
           + 'Do not draft off them; the rest of the board is current.' });
       } catch (e) { /* console.error in safeRender still carries it */ }
     }
-    try { assertPickState(); } catch (e) { /* never blocks the clock */ }
-    try { renderAccountingNote(); } catch (e) { /* never blocks the clock */ }
-    try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
-    try { renderUnrecordedPicks(); } catch (e) { /* never blocks the clock */ }
-    try { renderPickControls(); } catch (e) { /* never blocks the clock */ }
-    try { renderLegality(); } catch (e) { /* never blocks the clock */ }
+    /* THESE SIX WERE THE ONLY RENDERS IN THIS FUNCTION WHOSE FAILURE WAS NEITHER
+     * RECORDED NOR NAMED (session E, 2026-08-18; register E27).
+     *
+     * Sixteen panels above go through `safeRender`, so when one throws it lands
+     * in `state.renderFailures` and the block twenty lines up announces it by
+     * name — "PANEL(S) NOT UPDATING: … those panels are showing an EARLIER
+     * pick. Do not draft off them." These six were wrapped in bare
+     * `catch (e) { /* never blocks the clock *\/ }` instead, so they had the
+     * isolation and none of the announcement.
+     *
+     * `renderSystemStrip` is the one that matters, and the reason is structural:
+     * IT IS THE HEALTH SURFACE. It computes the whole red/amber verdict — sync
+     * stale, seat unknown, thin projections, board aged, slate unconfirmed — and
+     * only then assigns `host.className` and `host.innerHTML`. So a throw
+     * anywhere in that computation left the PREVIOUS strip on screen: not blank,
+     * but a stale verdict, possibly an all-clear from a state that no longer
+     * exists. Every other failure the strip reports is one it can see; its own
+     * was the one it could not.
+     *
+     * That is the exact shape the comment above `state.renderFailures` already
+     * names — "a frozen panel from a visible crash into an invisible lie". The
+     * mechanism for it existed; these six were simply not wired into it. Using
+     * it rather than inventing a second one also keeps `panel_spec` honest: no
+     * new painting function is introduced. */
+    safeRender('pickState', assertPickState);
+    safeRender('accountingNote', renderAccountingNote);
+    safeRender('systemStrip', renderSystemStrip);
+    safeRender('unrecordedPicks', renderUnrecordedPicks);
+    safeRender('pickControls', renderPickControls);
+    safeRender('legality', renderLegality);
     /* THE COCKPIT LAYER (rebuild 2026-08-17, Cory's order): tabs, position
      * rails, right-rail charts and the drill-down live in warroom_charts.js,
      * loaded AFTER this file. It reads the narrow WarRoomData accessor below
@@ -5943,7 +5967,7 @@
    * which is what every survival and VONA number is computed against.
    *
    * ⚠️ "CANNOT MOVE A RECOMMENDATION" IS TOO STRONG — OPEN DEFECT, register E18
-   * (session E, 2026-08-17). A stub is never scored as a candidate itself, but
+   * (session E, 2026-08-18). A stub is never scored as a candidate itself, but
    * it lands on `state.myRoster`, and the keeper bar ranks EVERY roster entry,
    * reading an absent `vorp` as zero via `composite.js`'s `(player.vorp || 0)`.
    * A valueless row sitting at `ranked[slots-1]` drags the bar NEGATIVE, and
@@ -5957,9 +5981,9 @@
    * INERT FOR CORY'S SLATE TODAY: with three valued keepers the bar is
    * `ranked[2]` and all three outrank any valueless row, so it binds only when
    * FEWER THAN `slots` roster entries carry a real value — e.g. if he locks two
-   * keepers on 08-20 and an off-board pick lands on his roster.
+   * keepers on 08-21 and an off-board pick lands on his roster.
    *
-   * FIXED 2026-08-17: `composite.js` now filters the incumbent ranking on a
+   * FIXED 2026-08-18: `composite.js` now filters the incumbent ranking on a
    * finite `vorp` instead of substituting zero, which is what its own docstring
    * always said should happen ("with fewer incumbents than slots there is a free
    * slot, so the bar is zero"). I held this fix and routed it as
@@ -6114,7 +6138,7 @@
   }
 
   /* A KEEPER SEEDED WITHOUT `vorp` IS SCORED AS WORTH ZERO, AND THE WAR ROOM
-   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-17; register E17).
+   * THEN TELLS CORY HE BEATS HIM (session E, 2026-08-18; register E17).
    *
    * `kept_players` is a DIFFERENT population from `players` and carries a
    * different field set: it has `cost_round`, `original_round`, `team_slot` and
@@ -10666,7 +10690,20 @@
       // red on the next unrelated render, so a sync that stalls while Cory is
       // staring at one screen stays green for as long as nothing else happens —
       // which is precisely the situation this exists to catch.
-      try { renderSystemStrip(); } catch (e) { /* never blocks the clock */ }
+      /* Outside `renderAll`, so `safeRender` is out of scope — but the failure
+       * must still be RECORDED, or a strip that throws only on the ticker path
+       * stays silently stale until some other render happens to run. Same
+       * store, so the next `renderAll` announces it by the same name. */
+      try { renderSystemStrip(); } catch (e) {
+        state.renderFailures = state.renderFailures || {};
+        state.renderFailures.systemStrip = {
+          at: null, message: (e && e.message) || String(e),
+        };
+        try {
+          console.error('[render] systemStrip FAILED on the age ticker — the '
+            + 'health strip is showing an EARLIER state: ' + ((e && e.message) || e));
+        } catch (e2) { /* no console */ }
+      }
     }, 1000);
   }
 
@@ -10682,7 +10719,7 @@
     if (btn && s.state === 'error') { btn.disabled = false; btn.textContent = 'Connect'; }
   }
 
-  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-17; register E16).
+  /* WHAT THE FLOOR AND THE CEILING ACTUALLY ARE (session E, 2026-08-18; register E16).
    *
    * The line above used to end at "(floor 2, ceiling 479)", which presents both
    * numbers as a forecast for THIS player. They are not, and have not been since

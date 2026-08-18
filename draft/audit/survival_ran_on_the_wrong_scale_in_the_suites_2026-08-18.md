@@ -1,6 +1,6 @@
 # E's twentieth sweep — survival ran on the wrong scale in 27 of 29 suites, and in two numbers I published myself
 
-**Session E (red team), 2026-08-17.** Target chosen from my own re-derived term
+**Session E (red team), 2026-08-18.** Target chosen from my own re-derived term
 table: **VONA is the largest term in the composite**, and it is built on the
 survival model. So I went at survival.
 

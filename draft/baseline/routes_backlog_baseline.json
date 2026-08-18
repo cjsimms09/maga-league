@@ -3,7 +3,7 @@
   "_why": "Failing outright on all of these would put the build red for weeks and get switched off — intervention-rate already wrote that epitaph ('a guard that cries wolf every morning is a guard that gets switched off'). So the check fails only when this number GROWS. The backlog cannot get worse silently.",
   "_how_to_lower": "When routes_response_check.js reports fewer, lower this number in the same commit that earned it. A ratchet nobody tightens is just a high-water mark.",
   "measured_at": "2026-08-18",
-  "blocked": 65,
+  "blocked": 64,
   "waiting_on_at_baseline": {
     "B": 38,
     "C": 25,
@@ -52,6 +52,14 @@
     {
       "at": "2026-08-18",
       "note": "closure_by_pair re-recorded after the A-side merge re-inserted 16 items the archive pass had not carried (13 open, several ticked) — done counts only ADVANCED (E (red team) → A: 19 -> 21 · D → A: 1 -> 4 · session E (red team) → A: new pair at 0 · this session → A: new pair at 3 · pace-of-play study (A-lane) → A: new pair at 2 · rebuild-refusal fix, ROUND 3 (Fable) → A: new pair at 0 · league benchmark: all-seats replay + layer grades + drafter study (Fable) → A: new pair at 0 · A(ablation-worktree) → A: new pair at 0 · gate-selection fix, ROUND 2 (Fable) → A: new pair at 0 · draft replay vs Cory's actual drafts (Fable) → A: new pair at 0 · chaos drill (Fable) → A: new pair at 0 · shadow ledger + calibration scorecard (Fable, Cory-ruled \"Do 2, 6\") → A: new pair at 0 · persistence hardening (Fable, external-audit mandate) → A: new pair at 0 · gate-selection fix (Fable) → A: new pair at 0 · rebuild-refusal diagnosis (Fable) → A: new pair at 0 · war-room clarity pass (Fable) → A: new pair at 0 · data/assumptions audit (Fable) → A: new pair at 2 · loop review (A-lane) → B: new pair at 0 · this session → B: new pair at 0 · historical-props study — harness built and tested, NO REAL DATA YET (Fable) → B: new pair at 0 · relay → C: new pair at 0 · pace-of-play study (A-lane) → C: new pair at 0 · data/assumptions audit (Fable) → C: new pair at 0 · A(relay-worktree) → C: new pair at 0 · edge hunt (Fable) → C: new pair at 0 · weekly props study (this session) → C: new pair at 0 · relay → D: new pair at 0 · relay → E: new pair at 0 · A → E: new pair at 0 · D → E: new pair at 0 · relay/PM → A — closed: new pair at 4 · C → A — closed: new pair at 2 · B → A — closed: new pair at 1 · A → B — closed: new pair at 4 · pace-of-play study (A-lane) → C — closed: new pair at 1 · this session → C — closed: new pair at 2 · A → C — closed: new pair at 2 · C → C — closed: new pair at 1 · artifact-freshness infra, PERMANENT FIX (this session) → A: new pair at 1 · conditional-value program (Fable) → A: new pair at 1 · projection correctness (Fable, Cory-ruled) → A: new pair at 1 · roster-construction archetypes (Fable) → A: new pair at 1 · projection program (Fable) → A: new pair at 1); nothing was lowered. Recorded by A in the merge commit."
+    },
+    {
+      "at": "2026-08-18",
+      "note": "relay/PM → A done 7 -> 5, recorded per the ratchet instruction (why, not silently): two ticked items (ONE OF THE THREE RED REFUSALS; DONE TODAY — DO NOT REDO) existed in BOTH ROUTES.md section A and the archive (A — closed) — double-counted closures. The E-merge dedupe removed the ROUTES twins; the closures live on in the archive pair (relay/PM → A — closed: 4). Nothing was reopened. Recorded by A."
+    },
+    {
+      "at": "2026-08-18",
+      "note": "65 -> 64, locking in the gain after the E-merge resolution (sweep defaults stamped on 20 stale re-imports; one net item answered)."
     }
   ],
   "closure_by_pair": {
@@ -108,8 +116,8 @@
       "done": 0
     },
     "relay/PM → A": {
-      "n": 19,
-      "done": 7
+      "n": 17,
+      "done": 5
     },
     "relay/PM → B": {
       "n": 14,
