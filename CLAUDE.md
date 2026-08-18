@@ -32,8 +32,9 @@ STRAIGHT TO `main`** — they are mailboxes, not code (Rule 1b). Branch the code
 condition, an owner and a recheck date. **Four stated limits collapsed on 08-17
 when someone finally checked the disk.**
 
-**Where the edge stands, measured:** the draft tool **ties Cory (−6.5) and loses
-to the league's best drafter (−163)**. That is the number to beat.
+**Where the edge stands, measured (re-run 08-18 on the playoff-free stores):**
+the draft tool **roughly ties Cory (−9.4) and loses to the league's best
+drafter (−162)**. That is the number to beat.
 
 **⭐ READ `DRAFT-WEEK-BRIEF.md` FIRST** (written 2026-08-17; draft is 08-22).
 08-17 changed the model's FOUNDATIONS, not its features: every dispersion field

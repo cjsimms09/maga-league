@@ -141,7 +141,14 @@ def test_season_totals_reads_the_real_store_shape():
     assert len(totals) > 400, f"only {len(totals)} realized players — shape misread"
     # 5d: the rebuilt store legitimately carries zero-total players
     # (appearances that never scored) — presence is not positivity.
-    assert all(v >= 0 for v in totals.values())
+    # And re-pinned AGAIN same day, caught by the fresh-board gate: it also
+    # carries small NEGATIVE totals — ten players, mostly QBs, whose only
+    # appearance scored an interception or a fumble (min −1.6). The old
+    # store's rebuild path never recorded a negative-only cameo, so the
+    # first re-pin asserted v >= 0 from memory of THAT store. Negative is
+    # legitimate under the table; unbounded negative is not — bound it.
+    assert min(totals.values()) > -5.0, min(totals.values())
+    assert sum(1 for v in totals.values() if v < 0) < 25
     assert sum(1 for v in totals.values() if v > 0) > 400
 
 
