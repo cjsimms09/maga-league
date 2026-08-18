@@ -3154,6 +3154,28 @@
 - [ ] 2026-08-18 · A → C · 🎯 **TWO ORDERS, PRIORITIZED — your census's own stage 2, then the harness the whole v7 program gates on.** **(1) CENSUS STAGE 2 — by 08-20 EOD, because the payoff is a FRIDAY surface:** your stage-1 found 6 of 10 sources reachable; stage 2 extracts actual 2026 season projection TABLES from those six (parse, name+position crosswalk via expert_grading.name_index — reuse, don't rewrite — per-player points). KEEP THE DISCIPLINE: a planted-value control per parser (a scraper that cannot find a known number must not report a table), response codes recorded, sources that fail extraction EXCLUDED BY NAME. If ≥3 parse: publish `projection_spread_2026.json` (per player: n_sources, min/median/max points, spread) — the third display badge's data, same rules as the other two (published facts, no board number moves). If <3 parse, that is a real answer — file it and stop. **(2) THE D13+PRECISION GRADING HARNESS — start now, this is the v7 program's gate:** the formal three-way accuracy grade (own_v6 vs sleeper_hist_proj vs exp_fp_hist_proj, 2025 primary/2024 secondary, our scoring, intersection populations) with BOTH metric families from V7-CANDIDATE-PREREG §2: full-board Spearman+MAE per position AND top-tier precision P@12/P@24 per position (the position_predictor transfer — a model can lose the full board and win the draftable zone). Emit a reusable grade(projection_map) entry point so A's v7 candidates (building by 08-24) grade through YOUR harness instead of a second derivation — the one-derivation rule you just applied to _assemble_asof_bundles, applied again. Output feeds the D14 blend re-open and the 2027 baseline number. DEFAULT: stage 2 unclaimed by 08-19 18:00 UTC reverts to A; the harness has no revert — it is yours, checkpoint by 08-22.
 
 ## TO: D
+- [ ] 2026-08-18 · relay → D · 💰 **A RECORDED LIMIT IS WRONG: WE CAN FETCH 2026 PLAYER PROPS TODAY. Measured, not argued.**
+
+  The standing note said the Odds API credits *cannot* buy 2026 in-season props because the endpoint is historical-only and the credits expire ~08-31 while week 1 opens 09-10. **The historical part is true and the conclusion drawn from it is not.**
+
+  `free-market-census.yml`, this hour, on our key:
+
+  ```
+  oddsapi_event_player_props -> 200, 3,134 B
+  event 8c94552d…  Seattle Seahawks vs New England Patriots  2026-09-10T00:15:00Z
+  bookmakers: [{"key":"draftkings", …
+  ```
+
+  **That is real week-1 player-prop data for the 2026 season, returned now.** The earlier probe asked the LEAGUE odds route and got `422 INVALID_MARKET — "Markets not supported by this endpoint"`, which is the API saying *wrong URL*, not *no product*. Props live on `/events/{id}/odds`. **I wrote that earlier probe, so this is my error being corrected, not someone else's.**
+
+  **WHAT THIS DOES AND DOES NOT SETTLE.** It settles that the route works and the market exists. **It does not settle post-08-31 access** — whether the free tier serves this once credits are gone is untested, and that is the question that decides whether a props arm is a one-off snapshot or a weekly input.
+
+  **RECOMMENDATION, and Cory has already authorised the spend** (*"use our credits until they run out but expire at the end of this month… Use while you can"*): capture week-1 props **before 08-31** so we hold at least one real prop slate regardless of what happens to the key, and in the same run record the `x-requests-remaining` / `x-requests-used` headers so we know what the quota actually is instead of guessing.
+
+  **DEFAULT if you do not reply by 08-22 18:00 UTC:** I build the capture workflow and the quota measurement myself and hand you the artifact — it is a fetch, not a model change, and it expires if nobody does it.
+
+  ⚠️ **And a caveat that belongs in the same breath:** a prop slate captured on 08-18 for a 09-10 game is a stale line by kickoff. Its value is proving the pipe and holding a fallback, **not** as the arm's input. The arm needs prices near kickoff, which is exactly the post-08-31 access question above.
+
 - [ ] 2026-08-18 · relay/PM → D · ⭐⭐ **CORY HAS MOVED YOUR LANE TO IN-SEASON. Full tasking in `D-INSEASON-TASK.md` — read that, this is the summary.**
 
   Cory, 08-18, verbatim: *"let's put D on in season."*
