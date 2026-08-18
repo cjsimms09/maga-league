@@ -83,6 +83,86 @@ const isHeading = l => /^## TO: /.test(l);
   ck('CONTROL — there are items to check at all', items.length > 5, items.length);
 }
 
+// ── CHECK 1b: NEAR-DUPLICATES (incident 2, the half check 1 cannot see) ──
+// Check 1's comment says a duplicated block is "byte-identical by construction".
+// That is true the instant a merge makes it and stops being true the moment
+// anyone EDITS one copy.
+//
+// Found 2026-08-18 (relay), on the relay's own item: the keeper-vorp route
+// existed twice — an OPEN copy, and forty lines below it a closure plus the
+// same item struck through. Exactly incident 2 from this file's header, and
+// check 1 passed, because `~~text~~` is not byte-equal to `text`. Striking a
+// resurrected copy through is the single most natural edit to make, and it is
+// precisely the edit that defeats an equality test.
+//
+// So this compares a NORMALISED key — checkbox state, emphasis, strikethrough,
+// backticks and whitespace removed — over a long prefix. Long enough that two
+// genuinely different items from one author on one day cannot collide.
+{
+  // EMOJI HAVE TO GO TOO, and my first cut proved it: the real resurrected pair
+  // differed by a leading 🔴 as well as the strikethrough, so a normaliser that
+  // stripped only emphasis would have missed the very case it was written for.
+  const norm = l => l
+    .replace(/^- \[[ xX]\]\s*/, '')
+    .replace(/~~/g, '')
+    .replace(/\*\*/g, '')
+    .replace(/`/g, '')
+    .replace(/[^\p{L}\p{N}·\s.,:;()\/-]/gu, '')   // drop emoji and symbols
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .slice(0, 110);
+  const items = LINES.filter(isItem);
+  const seen = new Map();
+  items.forEach(l => {
+    const k = norm(l);
+    if (k.length < 40) return;              // too short to be a safe key
+    seen.set(k, (seen.get(k) || 0) + 1);
+  });
+  const near = [...seen.entries()].filter(([, n]) => n > 1);
+  // A RATCHET, NOT A NEW WALL. Two pre-existing pairs are in the file from
+  // 2026-08-16 (the pace-of-play study, the artifact-freshness infra item). They
+  // belong to their lanes, this check did not exist when they were made, and
+  // turning them into a hard red four days before the draft would block A on
+  // somebody else's history. So it fails only when the count GROWS — the same
+  // shape as routes_backlog_baseline, and for the same reason: a guard nobody
+  // can satisfy gets switched off.
+  //
+  // Lower this number in the commit that earns it.
+  //
+  // ⚠️ THE BASELINE IS 12, NOT 2, AND MY FIRST READ OF IT WAS WRONG. The failure
+  // line prints two examples and I took that for the total. The real count is
+  // TWELVE pairs spanning 08-14 to 08-17 — including three of the relay's own
+  // `relay/pm → D` items from 08-17. Byte-equality sees none of them.
+  //
+  // NOT REPAIRED BY SCRIPT, DELIBERATELY. I removed two of these by hand and one
+  // deletion took 16 lines of evidence with it, because the copy A had CLOSED was
+  // the bodyless one and the copy carrying the body was the one still open.
+  // Recovered from HEAD — but the lesson stands: a mailbox whose contract is
+  // line-by-line is not safe to de-duplicate mechanically, and the pairs below
+  // belong to the lanes that wrote them.
+  const KNOWN_NEAR_DUPES = 12;
+  ck('near-duplicate items have not INCREASED (ratchet, baseline '
+     + KNOWN_NEAR_DUPES + ')',
+    near.length <= KNOWN_NEAR_DUPES,
+    near.map(([k, n]) => n + '× ' + k.slice(0, 80)));
+  if (near.length && near.length <= KNOWN_NEAR_DUPES) {
+    console.log('      NOTE — ' + near.length + ' pre-existing near-duplicate(s), '
+      + 'owned by their lanes, not failing:');
+    near.forEach(([k, n]) => console.log('        ' + n + '× ' + k.slice(0, 84)));
+  }
+
+  // KNOWN-POSITIVE: the real pair, which check 1 above does NOT flag.
+  const a = '- [ ] 2026-08-18 · relay · 🔴 **YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD**';
+  const b = '- [x] 2026-08-18 · relay · ~~**YOUR KEEPER-VORP FIX IS CORRECT AND IT IS NOT ON THE BOARD**~~';
+  ck('FAIL ARM — a struck-through resurrection IS detected by the normalised key',
+    norm(a) === norm(b), norm(a).slice(0, 60) + ' | ' + norm(b).slice(0, 60));
+  ck('  and check 1\'s byte-equality would MISS that same pair', a !== b);
+  ck('CONTROL — two genuinely different items do NOT collide',
+    norm('- [ ] 2026-08-18 · relay · the board is stale against its calibration table')
+    !== norm('- [ ] 2026-08-18 · relay · the inbox has no latency guard at all here'));
+}
+
 // ── CHECK 2: EVERY ITEM SITS UNDER A `## TO:` HEADING (incident 2) ───────
 // A resurrected block often lands outside its heading, and an item with no
 // addressee is an item nobody's inbox shows.
