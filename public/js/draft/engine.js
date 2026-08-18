@@ -1433,9 +1433,39 @@
      * instead of silently promoting every duplicate. */
     const SERIOUS = /^(out|doubtful|ir|injured[ _-]?reserve|pup|nfi|sus|susp|suspended|na|dnr|cov)$/i;
     if (starter && starter.injury_status && SERIOUS.test(String(starter.injury_status).trim())) {
+      /* ⚠️ THE LINE SAID "insurance, not a starter" WHILE PRICING HIM AS A
+       * STARTER (session E, 2026-08-17; register E20).
+       *
+       * `discount: 1` means NO discount is applied — the application below is
+       * gated on `onesie.discount < 1` — so this branch prices a duplicate at
+       * FULL standalone value, exactly as if the position were empty. That is
+       * defensible on the football: if your starter is on PUP, this man plays.
+       * It is the opposite of what the old sentence told the reader.
+       *
+       * MEASURED on the live board with George Kittle (TE, PUP, proj 152.8)
+       * rostered and the FLEX closed: Travis Kelce ranks **4th at pick 73,
+       * score 6.1**. With the same roster and a HEALTHY TE1 he is 8th at 0.6 —
+       * a tenfold difference in score, under a line that said he was not being
+       * treated as a starter.
+       *
+       * The value exception fifty lines above was corrected away from
+       * `discount: 1` for precisely this reason ("it used to return discount 1
+       * … which is how a second quarterback reached FULL VALUE and board rank
+       * 1"). This branch is the one place that correction should NOT apply —
+       * the principle there is "priced low because he cannot start", and here he
+       * can. So the PRICE stays and the SENTENCE changes.
+       *
+       * AND IT NAMES WHAT THE MODEL DOES NOT KNOW. Every status in SERIOUS is
+       * treated identically: measured, PUP and IR produce the same rank and the
+       * same score, so "out roughly four games and then back" is priced exactly
+       * like "out for the season". Whether duration should enter is a model
+       * question, filed for A — but a reader deciding in the seconds a pick
+       * allows should not have to infer it. */
       return { duplicate: true, discount: 1, exception: 'injury',
-        why: pos + '2 — your starter is flagged ' + starter.injury_status
-          + '; this is insurance, not a starter' };
+        why: pos + (have + 1) + ' — your ' + pos + '1 is flagged '
+          + starter.injury_status + ', so he is priced as a STARTER at full value, '
+          + 'NOT discounted as a backup. The model does not weigh how long that '
+          + 'status lasts.' };
     }
 
     /* THE CAP LANDS HERE, AFTER EVERY EXCEPTION HAS HAD ITS SAY.
