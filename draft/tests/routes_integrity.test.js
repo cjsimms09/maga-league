@@ -140,11 +140,12 @@ const isHeading = l => /^## TO: /.test(l);
     seen.set(key, (seen.get(key) || 0) + 1);
   });
   const near = [...seen.entries()].filter(([, n]) => n > 1);
-  // A RATCHET, NOT A NEW WALL. Two pre-existing pairs are in the file from
-  // 2026-08-16 (the pace-of-play study, the artifact-freshness infra item). They
-  // belong to their lanes, this check did not exist when they were made, and
-  // turning them into a hard red four days before the draft would block A on
-  // somebody else's history. So it fails only when the count GROWS — the same
+  // A RATCHET, NOT A NEW WALL. The pairs left belong to their lanes, this check
+  // did not exist when they were made, and turning them into a hard red four days
+  // before the draft would block A on somebody else's history. (This paragraph
+  // used to name "the pace-of-play study, the artifact-freshness infra item" as
+  // the two survivors — both are repaired now; the two that remain are named
+  // below.) So it fails only when the count GROWS — the same
   // shape as routes_backlog_baseline, and for the same reason: a guard nobody
   // can satisfy gets switched off.
   //
@@ -161,6 +162,31 @@ const isHeading = l => /^## TO: /.test(l);
   //                  projection-program, the pick-33 data audit, the C answer)
   //   ## TO: B  1   (08-14, the h2h defect)
   //   ## TO: D  3   (08-17, the relay's own standing rules — mine to repair)
+  // TEN OF THE TWELVE ARE REPAIRED as of 2026-08-18 and the number is now 2.
+  //
+  // ⚙️ AND THE MECHANISM IS OUR OWN MERGE DOCTRINE, which matters far more than
+  // the ten lines. `git blame`:
+  //
+  //     89a731cc  08-17 21:20  "Close five informational items in A's queue"
+  //     bcdeef0a  08-18 00:19  "Merge the red-team lane's three fixes"  +51 lines
+  //
+  // E's branch forked BEFORE the closures and still carried the `- [ ]` copies.
+  // The merge took both sides — exactly what the union check three blocks below
+  // demands, and its stated guarantee is "a true union loses nothing". It does.
+  // But the union of "closed on main" and "still open on a stale branch" is BOTH
+  // COPIES, so seven items A had already dealt with went straight back into A's
+  // inbox, four days before the draft, counted as open by routes_response_check.
+  //
+  // A UNION IS SAFE AGAINST LOSS AND UNSAFE AGAINST RESURRECTION. Two different
+  // failures; only one of them had a gate, and the gate for one manufactured the
+  // other. Union-merging is still right — `draft/tools/routes_resurrections.py`
+  // and `draft/tests/test_routes_resurrections.py` are the missing half, and the
+  // repair is authorised only where the closed copy provably CONTAINS the open
+  // one (every difflib opcode `equal` or `insert`), verified again at write time.
+  //
+  // The 2 that remain are `## TO: A` L1370+L2282 and L1373+L2338 — CLOSED on both
+  // sides, so a block pasted twice rather than a resurrection. Nobody's inbox is
+  // affected by them and nothing automatic will touch them.
   // Ten of the twelve are one OPEN copy and one CLOSED copy — a resurrection.
   // The other two (## TO: A, L1370+L2282 and L1373+L2338) are CLOSED on BOTH
   // sides, so they are not resurrections at all, just a block pasted twice.
@@ -179,7 +205,7 @@ const isHeading = l => /^## TO: /.test(l);
   // Recovered from HEAD — but the lesson stands: a mailbox whose contract is
   // line-by-line is not safe to de-duplicate mechanically, and the pairs below
   // belong to the lanes that wrote them.
-  const KNOWN_NEAR_DUPES = 12;
+  const KNOWN_NEAR_DUPES = 2;
   ck('near-duplicate items have not INCREASED (ratchet, baseline '
      + KNOWN_NEAR_DUPES + ')',
     near.length <= KNOWN_NEAR_DUPES,
