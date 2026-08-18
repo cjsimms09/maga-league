@@ -132,6 +132,41 @@ const twoSource = p => p.proj_fantasypros != null;
   ck('projSourceMark is defined', /function\s+projSourceMark\s*\(/.test(code));
   ck('  and the board row calls it', /projSourceMark\(p\)/.test(code),
     'a function nobody calls is the produced-and-unread failure, again');
+
+  /* ── WHY THIS BLOCK EXISTS, AND WHAT THIS FILE MISSED ────────────────────
+   *
+   * Everything above asserts a property of the DATA — which players carry two
+   * sources — and then asserts only that projSourceMark EXISTS and is CALLED.
+   * Nothing here ever asserted what it RETURNS. So when its condition was
+   * inverted, this file passed 10/10 the whole time (verified: it still passed
+   * unchanged immediately after the fix landed).
+   *
+   * The defect it missed (session E, 2026-08-17, register E6): the mark was
+   * gated on `proj_fantasypros` being ABSENT, so the 427 rows where FP exists
+   * and is IGNORED rendered with no caveat at all — and the absence of a mark
+   * reads as "this number has corroboration". Every row is Sleeper-only:
+   * proj_baseline == proj_sleeper for 427 of 427, and build.py:1003 declares
+   * `sleeper_baseline * (1 + opportunity_adj)`. Measured on the live screen
+   * before the fix: 127 unmarked rows, 127 of them single-source.
+   *
+   * THIS IS A SOURCE-LEVEL PIN, and it is stated as one rather than oversold.
+   * projSourceMark lives inside app.js's IIFE and is not exported, so a unit
+   * test cannot call it. The BEHAVIOURAL check is
+   * `draft/tests/rehearsal-board-truth.js`, which drives the real screen and
+   * compares the rendered marks to the artifact. This block catches the exact
+   * regression (an early return that suppresses the mark when FP is present)
+   * from inside the normal suite, where it runs on every commit. */
+  const fn = (code.match(/function\s+projSourceMark\s*\([\s\S]*?\n  \}/) || [''])[0];
+  ck('  and it does NOT suppress the mark when FantasyPros is present',
+    fn && !/proj_fantasypros\s*!=\s*null\s*\)\s*return\s*''/.test(fn),
+    'the inverted condition is back: a row carrying FP renders with no caveat, '
+    + 'and that absence tells Cory the number has a second opinion behind it. '
+    + 'It does not — proj_mean is Sleeper x an adjuster for every row (register 21).');
+  ck('  and it distinguishes "second source exists but is unused" from "none exists"',
+    fn && /proj_fantasypros\s*!=\s*null/.test(fn) && /caveatOnce/.test(fn)
+      && (fn.match(/caveatOnce/g) || []).length >= 2,
+    'the useful per-player fact is 427-vs-255: whether a second opinion was '
+    + 'IGNORED or was never available. One mark for both loses it.');
 }
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
