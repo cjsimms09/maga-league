@@ -46,10 +46,26 @@
    > `external-adp-capture.yml` 06:20 · `standing-check.yml` 07:00 ·
    > `market-capture.yml` 08:00 · `inbox-health.yml` 08:17.
    >
-   > All six are **morning** CDT, so an evening draft does not overlap them —
-   > but **no start time is recorded anywhere** (not in `league_config.json`,
-   > not here, not in the brief), so that is an assumption and not a check. If
-   > the draft starts before ~09:00 CDT, disable these for the day.
+   > All six are **morning** CDT. ~~but **no start time is recorded anywhere**
+   > (not in `league_config.json`, not here, not in the brief), so that is an
+   > assumption and not a check.~~ **SUPERSEDED 2026-08-18 — CORY RULED IT.**
+   > Verbatim: *"Yes it's 6pm"*. `league_config.json` now carries a `draft`
+   > block — **start 2026-08-22, 6:00 PM CDT** — with his words in it, kept
+   > through the nightly rebuild by `preserve_local_rulings` and guarded by two
+   > tests in `test_config_local_rulings_survive.py`.
+   >
+   > **SO THE OVERLAP QUESTION IS NOW ANSWERED RATHER THAN ASSUMED: the last of
+   > the six fires 08:17 CDT, the draft starts 18:00 CDT — roughly ten hours of
+   > clearance. Leave all six alone.** The old instruction ("if the draft
+   > starts before ~09:00 CDT, disable these") is kept struck rather than
+   > deleted because it is the right rule for any future year; it simply does
+   > not fire this one.
+   >
+   > ⚠️ **The MEMBER DASHBOARD may still show the 6:00 PM as a FALLBACK rather
+   > than a ruling** — it reads `world.config.draft_time` from the runtime
+   > store, which is set at `/admin` and is not in git (registers 5m, ROUTES
+   > `TO: A` item 000). Same number on screen either way; nothing here depends
+   > on it.
 
 ## During the draft
 10. War room on desktop; draft sheet printed as the dead-battery fallback.

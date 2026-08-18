@@ -30,8 +30,15 @@ stale by breakfast — step 1's own rule (*"freeze THAT board, nothing older"*)
 broken by a scheduled job rather than by anyone's mistake. **Runbook corrected.**
 What remains is a judgement: leave the 08-22 nightly rebuild on (recommended —
 a fresh board beats a convenient freeze, same reasoning as 35) or disable it for
-the day. **The draft START TIME is recorded nowhere**, so "no scheduled job
-overlaps the draft" is an assumption; six of them push that morning.
+the day. ~~**The draft START TIME is recorded nowhere**, so "no scheduled job
+overlaps the draft" is an assumption; six of them push that morning.~~
+**ANSWERED 2026-08-18 — CORY RULED: *"Yes it's 6pm"*.** `league_config.json`
+carries a `draft` block (**2026-08-22, 6:00 PM CDT**, his words verbatim), kept
+through the nightly rebuild and guarded by two tests. **The last of the six
+jobs fires 08:17 CDT against an 18:00 start — about ten hours of clearance, so
+the overlap question is now MEASURED and the answer is "leave them on".** That
+removes one of the two things this item was weighing; the remaining judgement is
+unchanged and still yours: leave the 08-22 nightly rebuild on, or disable it.
 
 ✅ **Register 35 closed 08-18** — it asked to *"fail a parity check that names the
 stale artifact"*. The check existed and was tested; **nothing ran it against the
