@@ -289,6 +289,16 @@
     "python3",
     "draft/backtest/market_upside_artifact.py"
    ]
+  },
+  {
+   "id": "own_attribution_2026",
+   "description": "EXACT per-player layer attribution for own_v6 (pipeline deltas: OLS base / market / QB availability / components). Read-only over the model; exists so the post-08-22 blend ruling argues with named layers. Cory's order 08-18.",
+   "owner_module": "draft/backtest/own_attribution.py",
+   "artifact_path": "draft/backtest/own_attribution_2026.json",
+   "regenerate_command": [
+    "python3",
+    "draft/backtest/own_attribution.py"
+   ]
   }
  ],
  "_not_yet_migrated": [
