@@ -239,4 +239,119 @@ ok('the LIVE register enforces one unambiguous date per open row', () => {
     + '"recheck WAS MM-DD": ' + ambiguous.map(r => r.id.trim()).join(', '));
 });
 
-console.log(`\n${pass}/18 checks passed`);
+/* ── RETRACTED IS TERMINAL (added 2026-08-18, on a live false-open) ─────────
+ *
+ * Merging `main` brought in DS5 and 44 — the SAME retraction under two ids
+ * after a renumber — whose status reads "⚠️ RETRACTED, kept for the record".
+ * Both counted OPEN and UNDATED, so they sat in the backlog as rows nobody
+ * could ever close. An open count that includes uncloseable rows is one people
+ * learn to ignore, which is exactly how the intervention-rate check died.
+ *
+ * Note the DIRECTION of the two bugs this cell has now produced: the old ✅
+ * rule closed rows that were still live, and this one held open rows that were
+ * already dead. The status cell is the most misread field in the register. */
+ok('a RETRACTED row is terminal — a finding the author withdrew cannot be '
+  + 'chased forever', () => {
+  const a = R.audit(md('| DS5 | I re-derived something already shipped | D | '
+    + '⚠️ RETRACTED, kept for the record | nothing, recheck 08-01 |\n'), '2026-08-17');
+  assert.strictEqual(a.overdue.length, 0, JSON.stringify(a.overdue));
+  assert.strictEqual(a.undated.length, 0, JSON.stringify(a.undated));
+});
+
+ok('FAIL ARM — the retraction must be in the STATUS cell, not the prose. A row '
+  + 'that merely MENTIONS retracting something is still open.', () => {
+  const a = R.audit(md('| 9a | the last fix was retracted, so this is back | C | '
+    + '🔴 OPEN | redo it, recheck 08-01 |\n'), '2026-08-17');
+  assert.strictEqual(a.overdue.length, 1,
+    'prose must not close a row — that is how a refusal check once tripped on '
+    + 'the word "refused" inside a summary and reddened main');
+});
+
+ok('CONTROL — adding RETRACTED did not make the other terminal words stop '
+  + 'working, nor make a plain OPEN row terminal', () => {
+  ['✅ CLOSED', 'RESOLVED', '✅ RULED', 'WITHDRAWN', 'SUPERSEDED'].forEach((st) => {
+    const a = R.audit(md(`| 9a | x | C | ${st} | done, recheck 08-01 |\n`), '2026-08-17');
+    assert.strictEqual(a.overdue.length, 0, st + ' should be terminal');
+  });
+  ['🔴 OPEN', '⚠️ ANSWERED', 'MITIGATED', 'IN HAND', 'WAITING'].forEach((st) => {
+    const a = R.audit(md(`| 9a | x | C | ${st} | do it, recheck 08-01 |\n`), '2026-08-17');
+    assert.strictEqual(a.overdue.length, 1, st + ' must NOT be terminal');
+  });
+});
+
+ok('THE LIVE REGISTER — every open row carries a recheck date, so the check can '
+  + 'fire for all of them. 0 undated is the claim CLAUDE.md makes; this is what '
+  + 'makes it true rather than asserted.', () => {
+  const fs = require('fs'); const path = require('path');
+  const live = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
+  const a = R.audit(live, '2026-08-18');
+  assert.deepStrictEqual(a.undated.map((r) => r.id.trim()), [],
+    'undated open rows are INVISIBLE to this check — date them or close them');
+  assert.deepStrictEqual(a.overdue.map((r) => r.id.trim()), []);
+});
+
+/* ── ONE FINDING, TWO OPEN IDS (added 2026-08-18, on FOUR live pairs) ───────
+ *
+ * Merging `main` produced DS1/31, DS4/45, DS5/44 and DS6/46 — each the same
+ * measurement under two ids, because the D lane renumbered its DS-prefixed rows
+ * at its own merge and a later merge brought both copies back.
+ *
+ * I deduped three of the four BY HAND and missed DS6/46. The check found it on
+ * its first run. That is the argument for the check, written down while the
+ * evidence is still embarrassing.
+ */
+ok('FAIL ARM — two OPEN rows carrying the same finding under different ids are '
+  + 'caught', () => {
+  const body = 'the board ships a number that is zero for every single manager '
+    + 'and nothing downstream notices it at all whatsoever';
+  const a = R.audit(md(`| DS9 | ${body} | D | 🔴 OPEN | fix, recheck 12-01 |\n`
+    + `| 51 | ${body} | D | 🔴 OPEN | fix, recheck 12-01 |\n`), '2026-08-17');
+  assert.strictEqual(a.dupes.length, 1, JSON.stringify(a.dupes));
+  assert.deepStrictEqual([a.dupes[0].a, a.dupes[0].b].sort(), ['51', 'DS9']);
+});
+
+ok('CONTROL — two DIFFERENT findings are not flagged, so this is not just '
+  + '"more than one row"', () => {
+  const a = R.audit(md('| 9a | the calibration table disagrees with the board on every '
+    + 'single banded row by a wide margin | C | 🔴 OPEN | fix, recheck 12-01 |\n'
+    + '| 9b | the shortlist is not sorted by the number it actually displays on '
+    + 'the card beside it | B | 🔴 OPEN | fix, recheck 12-01 |\n'), '2026-08-17');
+  assert.deepStrictEqual(a.dupes, []);
+});
+
+ok('CONTROL — SUPERSEDING one copy clears it, which is the documented fix and '
+  + 'must actually work', () => {
+  const body = 'the board ships a number that is zero for every single manager '
+    + 'and nothing downstream notices it at all whatsoever';
+  const a = R.audit(md(`| DS9 | ${body} | D | ⛔ SUPERSEDED — duplicate of 51 | act on 51 |\n`
+    + `| 51 | ${body} | D | 🔴 OPEN | fix, recheck 12-01 |\n`), '2026-08-17');
+  assert.deepStrictEqual(a.dupes, []);
+});
+
+ok('the id and the renumber note are IGNORED when comparing — they are exactly '
+  + 'what differs between two copies of one row', () => {
+  const body = 'the board ships a number that is zero for every single manager '
+    + 'and nothing downstream notices it at all whatsoever';
+  const a = R.audit(md(`| DS9 | ${body} | D | 🔴 OPEN | fix, recheck 12-01 |\n`
+    + `| 51 | *(renumbered from 38 at merge — id taken)* ${body} | D | 🔴 OPEN | fix, recheck 12-01 |\n`),
+  '2026-08-17');
+  assert.strictEqual(a.dupes.length, 1, JSON.stringify(a.dupes));
+});
+
+ok('CONTROL — a short row cannot collide by accident; the comparison needs real '
+  + 'text before it will call two rows the same', () => {
+  const a = R.audit(md('| 9a | broken | C | 🔴 OPEN | fix, recheck 12-01 |\n'
+    + '| 9b | broken | C | 🔴 OPEN | fix, recheck 12-01 |\n'), '2026-08-17');
+  assert.deepStrictEqual(a.dupes, []);
+});
+
+ok('THE LIVE REGISTER carries no duplicate open rows — it carried FOUR pairs '
+  + 'until 2026-08-18', () => {
+  const fs = require('fs'); const path = require('path');
+  const live = fs.readFileSync(
+    path.join(__dirname, '..', '..', 'DEFECT-REGISTER.md'), 'utf8');
+  assert.deepStrictEqual(R.audit(live, '2026-08-18').dupes, []);
+});
+
+console.log(`\n${pass} checks passed`);

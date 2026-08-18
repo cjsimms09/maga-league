@@ -43,6 +43,9 @@ const YEAR = 2026;
  * program going quiet. Raise it if the lanes are keeping up. */
 const MIN_OPEN = 6;
 
+/* Days without a NEW prediction before the programme counts as stalled. */
+const MAX_QUIET_DAYS = 14;
+
 /* Columns: | # | prediction | made | owner | grade by | status | result | what changed | */
 const COL = { id: 0, prediction: 1, made: 2, owner: 3, gradeBy: 4, status: 5, result: 6, changed: 7 };
 const WIDTH = 8;
@@ -94,10 +97,22 @@ function isEmptyCell(c) {
   return !c || /^[-—–\s]*$/.test(c);
 }
 
+/* ⚠️ `year` IS REQUIRED AND HAS NO DEFAULT — ON PURPOSE, AND IT STILL BIT ME.
+ * `Date.UTC(undefined, ...)` is an Invalid Date, which is TRUTHY, so a caller
+ * that forgets the argument gets a date-shaped object that fails every
+ * comparison silently. Both blocks added on 08-18 (successor, cadence) called
+ * `parseDate(cell)` with no year; the successor rule then exempted EVERY row and
+ * reported a clean ledger. Rule 3e exactly — a null that meant "asked wrong".
+ * Callers now go through `made()`/an explicit YEAR; this throws rather than
+ * hand back a lie. */
 function parseDate(cell, year) {
+  if (!Number.isFinite(year)) {
+    throw new TypeError('parseDate: year is required — see the note above this line');
+  }
   const m = String(cell || '').match(/(\d{2})-(\d{2})/);
   if (!m) return null;
-  return new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
+  const d = new Date(Date.UTC(year, Number(m[1]) - 1, Number(m[2])));
+  return Number.isFinite(d.getTime()) ? d : null;
 }
 
 /* ── MM-DD WRAPS AT NEW YEAR (added 2026-08-18) ─────────────────────────────
@@ -175,6 +190,90 @@ function check(text, todayStr, opts) {
     }
   }
 
+  /* ── THE SUCCESSOR RULE — THIS IS WHAT MAKES THE LOOP SELF-FEEDING ────────
+   *
+   * Cory, 2026-08-18: "structured, organized, self-feeding ... I don't have to
+   * ask for more predictions, projections, improvements."
+   *
+   * THE GAP THIS CLOSES, MEASURED THE SAME DAY. The ledger held 76 predictions
+   * of which 71 were filed on ONE day. Every rule above was green throughout,
+   * because every rule above is about predictions that ALREADY EXIST — overdue
+   * ones, ungraded ones, a floor on the backlog. **Nothing required a grade to
+   * produce anything.** Grade thirty, file zero, stay above the floor: green.
+   * That is a program ending politely, and the build would have applauded.
+   *
+   * SO: A GRADE MUST NAME WHAT COMES NEXT. Grading is the moment we know the
+   * most we will ever know about a line of enquiry — it is the cheapest possible
+   * moment to ask the next question, and the only one at which the answer is
+   * fresh. Two forms count, in the `what changed` cell:
+   *
+   *   "-> P77"    this grade spawned that prediction (the line continues)
+   *   "RETIRES"   this line is closed on purpose, and the cell says why
+   *
+   * A grade that does neither is a dead end nobody declared. It is not that the
+   * work was wrong — it is that nothing was asked next, and no mechanism noticed.
+   *
+   * ⚠️ DELIBERATELY NOT RETROACTIVE. Rows graded before this rule existed are
+   * exempt by date: punishing past work for a rule invented today teaches people
+   * to argue with the checker instead of using it. From SUCCESSOR_FROM onward,
+   * every grade carries one. */
+  const SUCCESSOR_FROM = Date.parse('2026-08-19');
+  for (const c of rows(text)) {
+    const id = c[COL.id];
+    const status = c[COL.status].toUpperCase();
+    if (!status.includes('GRADED')) continue;
+    /* ⚠️ `parseDate` returns a DATE, and an unparseable cell returns an INVALID
+     * DATE — which is truthy. The first version of this guard read
+     * `if (!made || made < SUCCESSOR_FROM) continue` with a STRING bound, so a
+     * Date-vs-string comparison was always false and an Invalid Date sailed past
+     * the null check. Result: it flagged all 40 pre-existing grades — exactly the
+     * retroactive punishment the comment above promises not to inflict. Caught by
+     * running it, one minute after writing it. */
+    const made = parseDate(c[COL.made], YEAR);
+    const ms = made ? made.getTime() : NaN;
+    /* An UNDATED grade is NOT exempt. Exempting it would make "delete the date"
+     * the cheapest way out of the rule, which is the one escape hatch a
+     * self-feeding loop must not have. */
+    if (Number.isFinite(ms) && ms < SUCCESSOR_FROM) continue;    // pre-rule, exempt
+    const changed = c[COL.changed];
+    const hasSuccessor = /->\s*P\d+|→\s*P\d+/.test(changed);
+    const retires = /\bRETIRES?\b|\bRETIRED\b/i.test(changed);
+    if (!hasSuccessor && !retires) {
+      problems.push(
+        `${id}: GRADED WITH NO SUCCESSOR. A grade is the cheapest moment to ask ` +
+        `the next question. Name the prediction it spawned ("-> P77") or RETIRE ` +
+        `the line and say why. A dead end nobody declared is how the programme ends.`);
+    }
+  }
+
+  /* ── CADENCE — A LEDGER THAT STOPPED GROWING HAS STOPPED WORKING ───────────
+   *
+   * 71 of 76 predictions were filed on a single day and every check passed. A
+   * burst is not a programme. If nothing new has been filed in this many days,
+   * the loop is not feeding itself whatever the backlog count says.
+   *
+   * Opt-in like `minOpen`, so unit fixtures are not judged by it. */
+  if (opts && typeof opts.maxQuietDays === 'number' && opts.today) {
+    /* `.sort()` with no comparator sorts by STRING — on Dates that is
+     * "Fri Aug 21..." vs "Mon Aug 17...", i.e. alphabetical by weekday name.
+     * The newest row would have been whatever day-name sorts last. */
+    const made = rows(text)
+      .map((c) => parseDate(c[COL.made], YEAR))
+      .filter((d) => d !== null)
+      .sort((a, b) => a.getTime() - b.getTime());
+    const newest = made[made.length - 1];
+    if (newest) {
+      const days = Math.round(
+        (Date.parse(opts.today) - newest.getTime()) / 86400000);
+      if (days > opts.maxQuietDays) {
+        problems.push(
+          `NO NEW PREDICTION IN ${days} DAYS (limit ${opts.maxQuietDays}). The ` +
+          `backlog may be full and the programme still stalled — nothing has been ` +
+          `ASKED since ${newest}. File a hypothesis or say why the search is over.`);
+      }
+    }
+  }
+
   /* ── TWO ROWS, ONE ID (added 2026-08-18, on a live collision) ──────────────
    *
    * `seen` was an ARRAY and nothing ever looked at it twice, so the ledger could
@@ -227,8 +326,13 @@ function main() {
     ? argv[i + 1]
     : new Date().toISOString().slice(0, 10);
 
+  /* MAX_QUIET_DAYS: a ledger that stopped growing has stopped working, however
+   * full its backlog. 14 days spans the fortnightly grade cadence the program
+   * commits to (P19, first grade 09-15) with a week of slack — tight enough to
+   * catch a stall, loose enough that a normal quiet week is not an alarm. */
   const { problems, count } = check(fs.readFileSync(LEDGER, 'utf8'), today,
-                                    { minOpen: MIN_OPEN });
+                                    { minOpen: MIN_OPEN, maxQuietDays: MAX_QUIET_DAYS,
+                                      today: today });
   if (problems.length) {
     console.error(`PREDICTION LEDGER — ${problems.length} problem(s) as of ${today}:\n`);
     for (const p of problems) console.error('  ✗ ' + p);
@@ -241,5 +345,5 @@ function main() {
   return 0;
 }
 
-module.exports = { check, rows, lostRows, isEmptyCell, parseDate, dueDate, MIN_OPEN };
+module.exports = { check, rows, lostRows, isEmptyCell, parseDate, dueDate, MIN_OPEN, MAX_QUIET_DAYS };
 if (require.main === module) process.exitCode = main();
